@@ -1,0 +1,9 @@
+[BEGIN ZONE2]
+   y=y value for zone 2
+[END ZONE2]
+[BEGIN ZONE3]
+   z=z value for zone 3
+[END ZONE3]
+[BEGIN ZONE1]
+   x=x value for zone 1
+[END ZONE1]

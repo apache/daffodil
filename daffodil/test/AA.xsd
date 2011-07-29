@@ -1,0 +1,30 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+
+  <!-- Basic variable definition and inputValueCalc -->
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:defineVariable name="x" type="xsd:int" defaultValue="0"/>
+    </appinfo>
+  </annotation>
+
+  <element name="list" type="example1" />
+
+  <complexType name="example1">  
+    <sequence>
+      <element name="w" type="xsd:int" dfdl:inputValueCalc="{ $x + 1 }"/>
+      <element name="x" type="xsd:int" dfdl:inputValueCalc="{ $x + 2 }"/>
+      <element name="y" type="xsd:int" dfdl:inputValueCalc="{ $x + 3 }"/>
+      <element name="z" type="xsd:int" dfdl:inputValueCalc="{ $x + 4 }"/>
+      <element name="a" type="xsd:string" 
+	       dfdl:inputValueCalc="{ $dfdl:encoding }"/>
+      <element name="b" type="xsd:string" 
+	       dfdl:inputValueCalc="{ $dfdl:byteOrder }"/>
+      <element name="c" type="xsd:string" 
+	       dfdl:inputValueCalc="{ $dfdl:binaryFloatRep }"/>
+      <element name="d" type="xsd:string" 
+	       dfdl:inputValueCalc="{ $dfdl:outputNewLine }"/>      
+    </sequence>
+  </complexType>
+
+</schema>

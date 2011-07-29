@@ -1,0 +1,8 @@
+<ROOT xmlns="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <x type="xsd:float">10.5</x>
+  <y type="xsd:float">12.01</y>
+  <Multiply type="xsd:float">126.105</Multiply>
+  <Add type="xsd:float">22.509999999999998</Add>
+  <Substract type="xsd:float">-1.5099999999999998</Substract>
+  <SubstractLiteral type="xsd:float">8.5</SubstractLiteral>
+</ROOT>

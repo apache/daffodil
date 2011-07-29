@@ -1,0 +1,21 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jdom.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/saxon9-jdom.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/joda-time-1.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/saxon9-s9api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/xerces.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/saxon9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/saxon9-xpath.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/derbytools.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/derby.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/icu4j-4_4_1_1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/scala-library.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/scala-compiler.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/scalatest-1.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

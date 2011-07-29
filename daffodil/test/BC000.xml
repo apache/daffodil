@@ -1,0 +1,14 @@
+<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <x type="xsd:boolean">true</x>
+  <x type="xsd:boolean">true</x>
+  <x type="xsd:boolean">true</x>
+  <x type="xsd:boolean">false</x>
+  <x type="xsd:boolean">false</x>
+  <x type="xsd:boolean">false</x>
+  <y type="xsd:boolean">true</y>
+  <y type="xsd:boolean">false</y>
+  <y type="xsd:boolean">true</y>
+  <y type="xsd:boolean">false</y>
+  <y type="xsd:boolean">true</y>
+  <y type="xsd:boolean">false</y>
+</list>

@@ -1,0 +1,16 @@
+<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <x type="xsd:decimal">9876543210.012345678</x>
+  <x type="xsd:decimal">12345600000000000</x>
+  <x type="xsd:decimal">123456789123456789</x>
+  <x type="xsd:decimal">Infinity</x>
+  <x type="xsd:decimal">NaN</x>
+  <x type="xsd:decimal">0</x>
+  <x type="xsd:decimal">0</x>
+  <x type="xsd:decimal">0</x>
+  <y type="xsd:decimal">187723572702975</y>
+  <y type="xsd:decimal">986895</y>
+  <y type="xsd:decimal">4886718345</y>
+  <z type="xsd:float">10.1</z>
+  <z type="xsd:float">20.3</z>
+  <z type="xsd:float">-0.0000000000912</z>
+</list>

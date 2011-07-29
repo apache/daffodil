@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified"
+	attributeFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="DFDL" xmlns="DFDL" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+
+	<xs:complexType name="row">
+		<xs:sequence>
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/">
+					<dfdl:format dfdl:representation="text" dfdl:charset="US-ASCII" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:element name="skip" type="string">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/">
+						<dfdl:format dfdl:length="31" />
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="name" type="string">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/">
+						<dfdl:format dfdl:length="20" />
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="value" type="int">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/">
+						<dfdl:format dfdl:separator="&#x0D;&#x0A;|&#x0A;" />
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="data">
+		<xs:sequence>
+			<xs:element name="DataRow" type="row" maxOccurs="47" />
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<!--  
+     this is the hidden layer to remove the burst page 
+    -->
+	<xs:complexType name="lineb">
+		<xs:sequence>
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/">
+					<dfdl:format dfdl:represetation="text" dfdl:charset="US-ASCII" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:element name="junk" type="string" minOccurs="1"
+				maxOccurs="1">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/">
+						<dfdl:format dfdl:terminator="-{79}" />
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- this is the second and subsequent page -->
+	<xs:complexType name="data2">
+		<xs:sequence>
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/">
+					<dfdl:hidden>
+						<xs:element name="junk2" type="lineb" />
+					</dfdl:hidden>
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:element name="DataRow" type="row" maxOccurs="47" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- 
+     This is the hidden layer for the metadata block
+    -->
+	<xs:complexType name="line1">
+		<xs:sequence>
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/">
+					<dfdl:format dfdl:representation="text" dfdl:charset="US-ASCII" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:element name="junk" type="string" minOccurs="4"
+				maxOccurs="4">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/">
+						<dfdl:format dfdl:separator="&#x0D;&#x0A;|&#x0A;" />
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="x" type="string" maxOccurs="1">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/">
+						<dfdl:format dfdl:separator="\\p{Blank}+" />
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="y" type="string" maxOccurs="1">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/">
+						<dfdl:format dfdl:terminator="Date:\\p{Blank}+" />
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="repdate" type="string" maxOccurs="1">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/">
+						<dfdl:format dfdl:terminator="\\p{Blank}+" />
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="reptime" type="string" maxOccurs="1">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/">
+						<dfdl:format dfdl:ignore="\\p{Blank}+"
+							dfdl:terminator="&#x0D;&#x0A;|&#x0A;" />
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="junk3" type="string" maxOccurs="1">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/">
+						<dfdl:format dfdl:terminator="From:\\p{Blank}+" />
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="starttime" type="string" maxOccurs="1">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/">
+						<dfdl:format dfdl:ignore="\\p{Blank}+"
+							dfdl:terminator="To:\\p{Blank}+" />
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="endtime" type="string" maxOccurs="1">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/">
+						<dfdl:format dfdl:ignore="\\p{Blank}+"
+							dfdl:terminator="&#x0D;&#x0A;|&#x0A;" />
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="z" type="string" maxOccurs="1">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/">
+						<dfdl:format dfdl:ignore="\\p{Blank}+"
+							dfdl:terminator="--(&#x0D;&#x0A;|&#x0A;)" />
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="metaBlock">
+		<xs:sequence>
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/">
+					<dfdl:hidden>
+						<xs:element name="junk" type="line1" />
+					</dfdl:hidden>
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:element name="ReportDate" type="string"
+				dfdl:inputValueCalc="{../junk/repdate}" />
+			<xs:element name="ReportTime" type="string"
+				dfdl:inputValueCalc="{../junk/reptime}" />
+			<xs:element name="StartDate" type="string"
+				dfdl:inputValueCalc="{../junk/starttime}" />
+			<xs:element name="EndDate" type="string"
+				dfdl:inputValueCalc="{../junk/endtime}" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="xTable">
+		<xs:sequence>
+			<xs:element name="metadata" type="metaBlock" />
+			<xs:element name="d1" type="data" />
+			<xs:element name="d2" type="data2" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="table" type="xTable" />
+
+</xs:schema>

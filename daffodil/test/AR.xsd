@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+	xmlns:tns="http://www.example.org/example1/"
+	targetNamespace="http://www.example.org/example1/">
+
+  <!-- FloatBin example from old defuddle -->
+
+  <element name="DFDL">
+    <complexType>
+      <sequence>
+	<element name="x" type="xsd:float" 
+		 dfdl:representation="binary" 
+		 dfdl:lengthKind="implicit"/>
+	<element name="y" type="xsd:float"
+		 dfdl:representation="binary" 
+		 dfdl:lengthKind="implicit"/>
+	<element name="Multiply" type="xsd:float"
+		 dfdl:inputValueCalc="{ ../tns:x * ../tns:y }"/>
+	<element name="Add" type="xsd:float"
+		 dfdl:inputValueCalc="{ ../tns:x + ../tns:y }"/>
+	<element name="Substract" type="xsd:float"
+		 dfdl:inputValueCalc="{ ../tns:x - ../tns:y }"/>
+	<element name="SubstractLiteral" type="xsd:float"
+		 dfdl:inputValueCalc="{ ../tns:x - 2 }"/>
+      </sequence>
+    </complexType>
+  </element>
+</schema>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+		xmlns:tns="http://www.example.org/example1/"
+		xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+		targetNamespace="http://www.example.org/example1/">
+		
+    <complexType name="example1" 
+                 dfdl:representation="binary"
+     		     dfdl:byteOrder="bigEndian" 
+                 dfdl:lengthKind="implicit"
+                 dfdl:binaryFloatRepresentation="ieee">                      
+    	<sequence>
+    		<element name="w" type="int"></element>
+    		<element name="x" type="int"></element>
+    		<element name="y" type="double"></element>
+    		<element name="z" type="float"></element>
+    	</sequence>
+    </complexType>
+    
+    <element name="list" type="tns:example1"/>
+</schema>

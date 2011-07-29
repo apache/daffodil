@@ -1,0 +1,11 @@
+<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <bcd type="xsd:int">0017</bcd>
+  <bcd type="xsd:int">0023</bcd>
+  <bcd type="xsd:int">0027</bcd>
+  <bcd type="xsd:int">1941</bcd>
+  <packed type="xsd:int">018</packed>
+  <packed type="xsd:int">-018</packed>
+  <packed type="xsd:int">721</packed>
+  <packed type="xsd:int">-721</packed>
+  <string type="xsd:string">Bunch of Numbers</string>
+</list>

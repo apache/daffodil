@@ -1,0 +1,11 @@
+<root xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <plain type="xsd:string">Y:y0
+Y:y1
+Y:y2
+Y:y3
+Y:y4
+X:x1
+X:x2
+X:x3
+X:beyond</plain>
+</root>

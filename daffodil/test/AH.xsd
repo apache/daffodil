@@ -1,0 +1,43 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+	targetNamespace="http://www.example.org/example1/">
+
+  <!-- Discriminated choices with after timing-->
+
+  <group name="choiceGroup">
+    <choice>
+      <element name="lessThan3" type="xsd:int"
+	       dfdl:representation="text" dfdl:terminator="%NL;">
+	<annotation>
+	  <appinfo source="http://www.ogf.org/dfdl/">
+	    <dfdl:discriminator test="{ . &lt; 3 }" timing="after"/>
+	  </appinfo>
+	</annotation>
+      </element>
+      <element name="lessThan10" type="xsd:int"
+	       dfdl:representation="text" dfdl:terminator="%NL;">
+	<annotation>
+	  <appinfo source="http://www.ogf.org/dfdl/">
+	    <dfdl:discriminator test="{ . &lt; 10 }" timing="after"/>
+	  </appinfo>
+	</annotation>
+      </element>
+      <element name="greaterThan10" type="xsd:int"
+	       dfdl:representation="text" dfdl:terminator="%NL;">
+	<annotation>
+	  <appinfo source="http://www.ogf.org/dfdl/">
+	    <dfdl:discriminator test="{ . &gt; 10 }" timing="after"/>
+	  </appinfo>
+	</annotation>
+      </element>
+    </choice>
+  </group>
+
+  <element name="allZones">
+    <complexType>      
+      <group ref="choiceGroup"/>
+    </complexType>
+  </element>
+
+</schema>

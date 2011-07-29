@@ -1,0 +1,49 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+	targetNamespace="http://www.example.org/example1/">
+
+  <!-- Schema Escaping: escape escape character, variable length -->
+
+  <element name="list">
+    <complexType>
+      <sequence>
+	<element name="character1" type="xsd:string" maxOccurs="unbounded"
+		 dfdl:representation="text"
+		 dfdl:separator=","
+		 dfdl:initiator=":"
+		 dfdl:terminator="%NL;"
+		 dfdl:escapeKind="escapeCharacter"
+		 dfdl:escapeCharacter="#"
+		 dfdl:escapeEscapeCharacter="!"/> 
+	<element name="character2" type="xsd:string" maxOccurs="unbounded"
+		 dfdl:representation="text"
+		 dfdl:separator=","
+		 dfdl:initiator=":"
+		 dfdl:terminator="%NL;"
+		 dfdl:escapeKind="escapeCharacter"
+		 dfdl:escapeCharacter="#"
+		 dfdl:escapeEscapeCharacter="#"/>	
+	<element name="block1" type="xsd:string" maxOccurs="unbounded"
+		 dfdl:representation="text"		 
+		 dfdl:separator=","
+		 dfdl:initiator=":"
+		 dfdl:terminator="%NL;"
+		 dfdl:escapeKind="escapeBlock"
+		 dfdl:escapeBlockStart="START"
+		 dfdl:escapeBlockEnd="END"
+		 dfdl:escapeEscapeCharacter="!"/> 
+	<element name="block2" type="xsd:string" maxOccurs="unbounded"
+		 dfdl:representation="text"		 
+		 dfdl:separator=","
+		 dfdl:initiator=":"
+		 dfdl:terminator="%NL;"
+		 dfdl:escapeKind="escapeBlock"
+		 dfdl:escapeBlockStart="START"
+		 dfdl:escapeBlockEnd="END"
+		 dfdl:escapeEscapeCharacter="S"/>	
+      </sequence>
+    </complexType>
+  </element>
+
+</schema>

@@ -1,0 +1,25 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" targetNamespace="http://www.example.org/example1/">
+
+  <!-- Parsing of CSV -->
+
+  <element name="matrix" type="matrixType"/>
+
+  <complexType name="matrixType">  
+    <sequence>
+      <element name="row" maxOccurs="unbounded">
+	<complexType>
+	  <sequence>
+	    <element name="cell" type="xsd:int" maxOccurs="unbounded"
+	    	     dfdl:terminator="%NL;"
+		     dfdl:separator="," dfdl:separatorPolicy="require"
+		     dfdl:encoding="ASCII"
+		     dfdl:separatorPosition="infix" 
+		     dfdl:representation="text" dfdl:lengthKind="delimited"
+		     dfdl:documentFinalTerminatorCanBeMissing="yes"/>
+	  </sequence>
+	</complexType>
+      </element>
+    </sequence>
+  </complexType>
+
+</schema>

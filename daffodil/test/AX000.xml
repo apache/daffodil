@@ -1,0 +1,16 @@
+<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <character type="xsd:string">aaaaa</character>
+  <character type="xsd:string">bbb</character>
+  <character type="xsd:string">ccc</character>
+  <character type="xsd:string">dddd</character>
+  <character type="xsd:string">eee</character>
+  <character type="xsd:string">fffff</character>
+  <block type="xsd:string">AAAAAAAAAAAAAAA</block>
+  <block type="xsd:string">BBBBBBBB</block>
+  <block type="xsd:string">CCCCCCCC</block>
+  <block type="xsd:string">DDDDD</block>
+  <block type="xsd:string">EEE</block>
+  <block type="xsd:string">FFFFFF</block>
+  <block type="xsd:string">GGG/!GGGGGGGGGG</block>
+  <block type="xsd:string">GGGGGGGGGGGGGG/</block>
+</list>

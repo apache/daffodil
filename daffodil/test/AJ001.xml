@@ -1,0 +1,6 @@
+<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <x type="xsd:byte">-1</x>
+  <y type="xsd:byte">-2</y>
+  <z type="xsd:byte">-3</z>
+  <w type="xsd:byte">-4</w>
+</list>

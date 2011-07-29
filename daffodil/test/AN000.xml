@@ -1,0 +1,7 @@
+<path xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <protocol type="xsd:string">file</protocol>
+  <folder type="xsd:string">folder1</folder>
+  <folder type="xsd:string">folder2</folder>
+  <folder type="xsd:string">folder3</folder>
+  <file type="xsd:string">file_name</file>
+</path>

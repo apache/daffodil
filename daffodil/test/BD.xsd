@@ -1,0 +1,16 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" targetNamespace="http://www.example.org/example1/">
+
+  <!-- Binary boolean -->
+  <element name="list">
+    <complexType name="example1">  
+      <sequence>
+	<element name="x" type="xsd:boolean" maxOccurs="4"
+		 dfdl:representation="binary"
+		 dfdl:lengthKind="implicit"
+		 dfdl:binaryBooleanTrueRep="15"
+		 dfdl:binaryBooleanFalseRep="7"/>
+      </sequence>
+    </complexType>
+  </element>
+  
+</schema>

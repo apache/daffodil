@@ -1,0 +1,34 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+	targetNamespace="http://www.example.org/example1/">
+
+  <!-- Schema Escaping: escape character and escape block, fixed length -->
+
+  <element name="list">
+    <complexType>
+      <sequence>
+	<element name="character" type="xsd:string" maxOccurs="unbounded"
+		 dfdl:representation="text"
+		 dfdl:lengthKind="explicit"
+		 dfdl:length="5"
+		 dfdl:separator=","
+		 dfdl:terminator="%NL;"
+		 dfdl:encoding="US-ASCII"
+		 dfdl:escapeKind="escapeCharacter"
+		 dfdl:escapeCharacter="#"/>
+	<element name="block" type="xsd:string" maxOccurs="unbounded"
+		 dfdl:representation="text"
+		 dfdl:separator=","
+		 dfdl:terminator="%NL;"
+		 dfdl:encoding="US-ASCII"
+		 dfdl:lengthKind="explicit"
+		 dfdl:length="15"
+		 dfdl:escapeKind="escapeBlock"
+		 dfdl:escapeBlockStart="/*"
+		 dfdl:escapeBlockEnd="*/"/>
+      </sequence>
+    </complexType>
+  </element>
+
+</schema>

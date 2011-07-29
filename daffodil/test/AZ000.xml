@@ -1,0 +1,5 @@
+<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <character type="xsd:string">item0</character>
+  <character type="xsd:string">item1</character>
+  <character type="xsd:string">item2</character>
+</list>

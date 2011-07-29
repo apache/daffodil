@@ -1,0 +1,14 @@
+<element xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <pair>
+    <name type="xsd:string">top1</name>
+    <atomicValue type="xsd:string">value1</atomicValue>
+  </pair>
+  <pair>
+    <name type="xsd:string">top2</name>
+    <atomicValue type="xsd:string">value2</atomicValue>
+  </pair>
+  <pair>
+    <name type="xsd:string">top3</name>
+    <atomicValue type="xsd:string">value3</atomicValue>
+  </pair>
+</element>

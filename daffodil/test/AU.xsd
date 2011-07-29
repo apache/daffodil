@@ -1,0 +1,27 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" targetNamespace="http://www.example.org/example1/">
+
+  <!-- Binary values packed and bsd -->
+
+  <element name="list" type="example1" />
+
+  <complexType name="example1">  
+    <sequence>
+      <element name="bcd" type="xsd:int" minOccurs="4" maxOccurs="4"
+	       dfdl:representation="binary"
+	       dfdl:binaryNumberRepresentation="bcd"
+	       dfdl:lengthKind="explicit"
+	       dfdl:length="2"/>
+      <element name="packed" type="xsd:int" minOccurs="4" maxOccurs="4"
+	       dfdl:representation="binary"
+	       dfdl:binaryNumberRepresentation="packed"
+	       dfdl:lengthKind="explicit"
+	       dfdl:length="2"/>
+      <element name="string" type="xsd:string"
+	       dfdl:representation="text"
+	       dfdl:lengthKind="explicit"
+	       dfdl:encoding="ASCII"
+	       dfdl:length="16"/>
+    </sequence>
+  </complexType>
+
+</schema>

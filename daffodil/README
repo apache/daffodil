@@ -1,0 +1,121 @@
+Daffodil
+
+----------------
+INTRODUCTION
+----------------
+
+Daffodil is a parser generator that follows the DFDL specification.
+
+The generated parsers will translate into XML files that follow the format
+described by an XML Schema with DFDL annotations.
+
+It is a command line tool and a Java library.
+
+----------------
+REQUIREMENTS
+----------------
+
+Daffodil requires Java 1.6 or higher. All scripts provided for running and
+testing are written in bash and tested in GNU Linux. Those scripts are not
+required though, so Daffodil should be able to run in other platforms as long
+as Java is installed
+
+
+Apache Ant (1.7 or higher) is required for building using the provided script.
+
+Daffodil is written in Scala 2.8.
+It is not required to install Scala to run or compile Daffodil (the required
+Scala libraries are included).
+
+----------------
+RUNNING
+----------------
+
+The command line of Daffodil is invoked through the provided Bash daffodil.sh.
+If $DAFFODIL is the installation directory then the easiest way to run Daffodil
+is:
+
+  $ $DAFFODIL/daffodil.sh -i <dataFile> -s <schemaFile> -r <rootElement>
+
+where <dataFile> is a data file to translate into XML, <schemaFile> is a
+XML Schema file describing the format, and <rootElement> is the name of the
+root element of the XML document to be created. The option '-r <rootElement>'
+might be omitted if the schema contains only one top level element.
+
+The output XML document will be output to the standard output.
+
+See the documentation at $DAFFODIL/doc/daffodil.pdf for more command line
+options or print a full list of options with:
+
+  $ $DAFFODIL/daffodil.sh --help
+
+----------------
+BUILDING FROM SOURCE
+----------------
+
+An Ant script is provided in $DAFFODIL/build.xml. To build Daffodil simply
+issue:
+
+  $ ant -f $DAFFODIL/build.xml all
+
+or, if inside the installation directory:
+
+  $ ant all
+   .
+----------------
+DOCUMENTATION
+----------------
+
+Documentation is provided in the directory 'doc' inside the Daffodil
+installation directory. The following documents are included:
+
+ * daffodil.pdf: A brief developers guide to Daffodil. It includes information
+   on building and running, description of the files distributed, and
+   description of the sofware architecture.
+ * dfdl.odt: The DFDL specification followed by Daffodil, with comments on
+   differences with the actual implementation.
+ * index.html: The Scala API documentation.
+
+----------------
+EXAMPLES
+----------------
+
+Several examples are provided in the directory 'test'. They are in the form of
+schema <XX.xsd>, input data files <XX###.in> and expected output <XX###.xml>.
+
+----------------
+COPYRIGHT NOTICE
+----------------
+
+Copyright (c) 2010 NCSA.  All rights reserved.
+Developed by: NCSA Cyberenvironments and Technologies
+              University of Illinois at Urbana-Champaign
+              http://cet.ncsa.uiuc.edu/
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal with the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+  1. Redistributions of source code must retain the above copyright notice,
+     this list of conditions and the following disclaimers.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimers in the
+     documentation and/or other materials provided with the distribution.
+  3. Neither the names of NCSA, University of Illinois, nor the names of its
+     contributors may be used to endorse or promote products derived from this
+     Software without specific prior written permission.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+WITH THE SOFTWARE.
+
+
+
+
+

@@ -1,0 +1,38 @@
+Daffodil TODO:
+
+* lengthUnits=bytes in text representations
+
+* EndOfParent -> fixed length
+
+* check alignment in text processors
+
+* Binary: date, time, dateTime
+
+* Solve external references while parsing schema
+
+* Binary: decimal, nonNegativeInteger
+
+* Byte-value entities 6.3.2
+
+* dfdl:format at the schema level (should propagate to all)
+
+* Move hidden elements in examples to global elements or groups
+
+* Verify compliance with section 8
+
+* implicit alignment 12.1.1
+
+* check length is non-negative in text and binary processors
+
+* 12.3.4 Prefixed
+
+* 13.7 binaryDecimalVirtualPoint, binaryPackedSignCodes, binaryNumberCheckPolicy
+
+* 13.11 Binary calendars, calendarStrictChecking, calendarObserveDST, calendarFirstDayOfWeek, calendarCenturyStart, calendarLanguage, binaryCalendarRep, binaryCalendarEpoch
+
+* external variables
+
+
+TEST CASES
+
+* Initiated choices

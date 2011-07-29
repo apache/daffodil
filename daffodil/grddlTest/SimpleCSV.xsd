@@ -1,0 +1,49 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+	targetNamespace="http://www.example.org/example1/">
+
+  <!-- CSV with metadata header -->
+
+  <element name="matrix" type="matrixType"/>
+
+  <element name="table" type="SimpleTable"/>
+
+  <complexType name="SimpleTable">
+    <sequence>
+      <element name="hdrblock" type="header"/>
+      <element name="matrix" type="matrixType"/>
+    </sequence>
+  </complexType>
+  
+  <complexType name="header">
+    <sequence>
+      <!-- other dfdl: -->
+      <element name="Creator" type="xsd:string" 
+	       dfdl:terminator="%NL;" dfdl:initiator="Creator:" 
+	       dfdl:encoding="ASCII" dfdl:representation="text" 
+	       dfdl:lengthKind="delimited"/>
+      <element name="Date" type="xsd:string" 
+	       dfdl:terminator="%NL;" dfdl:initiator="Date:"
+	       dfdl:encoding="ASCII" dfdl:representation="text"/>
+    </sequence>
+  </complexType>
+  
+  <complexType name="matrixType">  
+    <sequence>
+      <element name="row" maxOccurs="unbounded">
+	<complexType>
+	  <sequence>
+	    <element name="cell" type="xsd:int" maxOccurs="unbounded" 
+		     dfdl:terminator="%NL;" dfdl:separator="," 
+		     dfdl:separatorPolicy="require" dfdl:encoding="ASCII" 
+		     dfdl:separatorPosition="infix" dfdl:representation="text"
+		     dfdl:lengthKind="delimited" 
+		     dfdl:documentFinalTerminatorCanBeMissing="yes"/>
+	  </sequence>
+	</complexType>
+      </element>
+    </sequence>
+  </complexType>
+
+</schema>

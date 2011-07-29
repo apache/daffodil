@@ -1,0 +1,20 @@
+<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <character1 type="xsd:string">item1</character1>
+  <character1 type="xsd:string">item2</character1>
+  <character1 type="xsd:string">item#3</character1>
+  <character1 type="xsd:string">item!4</character1>
+  <character1 type="xsd:string">item!!5</character1>
+  <character2 type="xsd:string">item1</character2>
+  <character2 type="xsd:string">item2</character2>
+  <character2 type="xsd:string">item#3</character2>
+  <character2 type="xsd:string">item#4</character2>
+  <block1 type="xsd:string">item1</block1>
+  <block1 type="xsd:string">item2</block1>
+  <block1 type="xsd:string">itemSTARTXXXEND3</block1>
+  <block1 type="xsd:string">itemS4</block1>
+  <block2 type="xsd:string">item1</block2>
+  <block2 type="xsd:string">itemS2</block2>
+  <block2 type="xsd:string">itemS3</block2>
+  <block2 type="xsd:string">item4</block2>
+  <block2 type="xsd:string">itemSTARTXXXEND5</block2>
+</list>

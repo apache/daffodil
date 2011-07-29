@@ -1,0 +1,4 @@
+:item1,item#X2,item!#3,item!4,item!!5
+:item1,item#X2,item##3,item###A4
+:item1,itemSTARTXXXXXEND2,item!STARTXXXEND3,item!S4
+:item1,itemS2,itemSS3,itemSTARTXXXEND4,itemSSTARTXXXEND5

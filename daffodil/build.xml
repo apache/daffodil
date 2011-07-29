@@ -1,0 +1,94 @@
+<project name="Daffodil" default="compile">
+  <description>
+    Daffodil, an object/functional parser generator for DFDL 
+  </description>
+
+  <property name="src" value="src"/>
+  <property name="testFolder" value="updatedSrcTest"/>
+  <property name="bin" value="bin"/>
+  <property name="doc" value="doc"/>
+  <property name="scala.home" value="lib"/>
+  
+  <property name="scala-compiler.jar" 
+	    value="${scala.home}/scala-compiler.jar"/>
+  <property name="scala-library.jar" 
+	    value="${scala.home}/scala-library.jar"/>
+  
+  <path id="scala.classpath">
+    <pathelement location="${scala-compiler.jar}"/>
+    <pathelement location="${scala-library.jar}"/>
+  </path>
+
+  <path id="project.classpath">
+    <path refid="scala.classpath"/>
+    <pathelement location="lib/scalatest-1.2.jar"/>
+    <pathelement location="lib/jdom.jar"/>
+    <pathelement location="lib/saxon9.jar"/>
+    <pathelement location="lib/saxon9-jdom.jar"/>
+    <pathelement location="lib/saxon9-xpath.jar"/>
+    <pathelement location="lib/saxon9-s9api.jar"/>
+    <pathelement location="lib/xerces.jar"/>
+    <pathelement location="lib/joda-time-1.6.jar"/>
+    <pathelement location="lib/icu4j-4_4_1_1.jar"/>                                            
+    <pathelement location="${bin}"/>
+  </path>
+
+  <taskdef resource="scala/tools/ant/antlib.xml">
+    <classpath refid="scala.classpath"/>
+  </taskdef>
+  
+  <target name="compile"> <!-- did depend on update build number -->
+    <scalac srcdir="${src}" destdir="${bin}" deprecation="yes"
+	    classpathref="project.classpath" 
+	    force="changed" unchecked="yes"/>
+    <javac srcdir="${src}" destdir="${bin}" 
+	   classpathref="project.classpath"/>
+    <jar destfile="${bin}/daffodil.jar"
+	 basedir="${bin}"
+         excludes="daffodil.jar"/>
+  </target>
+
+  <target name="document">
+    <scaladoc srcdir="${src}" destdir="${doc}"
+	    classpathref="project.classpath" doctitle="Daffodil">
+      <exclude name="**/*.html"/>
+      <exclude name="**/BuildNumber"/>
+      <exclude name="**/*.java"/>
+
+    </scaladoc>
+  </target>
+
+
+  <target name="compileTest" depends="compile">
+    <scalac srcdir="${testFolder}" destdir="${bin}" deprecation="yes"
+	    classpathref="project.classpath"
+	    force="changed" unchecked="yes"/>
+  </target>
+
+  <target name="updateBuildNumber">
+    <buildnumber/>
+    <delete file="${src}/daffodil/BuildNumber.scala" quiet="true"/>
+    <copy file="${src}/daffodil/BuildNumber"
+	  tofile="${src}/daffodil/BuildNumber.scala" >
+      <filterchain>
+	<replacetokens>
+	  <token key="buildNumber" value="${build.number}"/>
+	</replacetokens>
+      </filterchain>
+    </copy>
+  </target>
+  
+  <target name="test" depends="compileTest">
+    <java classpathref="project.classpath" 
+	  classname="org.scalatest.tools.Runner">
+      <arg line="-o -p ${bin}"/>
+    </java>
+  </target>
+  
+  <target name="all" depends="clean,test,document"/>
+  
+  <target name="clean">
+    <delete dir="${bin}"/>
+  </target>
+
+</project>

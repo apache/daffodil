@@ -1,0 +1,163 @@
+<wholeFile xmlns="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <table>
+    <metadata>
+      <repdate type="xs:date">2008-04-10</repdate>
+      <reptime type="xs:time">04:38:00-0600</reptime>
+      <startDate type="xs:date">2008-03-31</startDate>
+      <endDate type="xs:date">2008-03-31</endDate>
+    </metadata>
+    <data>
+      <Symptom type="xs:string">ABDPAINS</Symptom>
+      <Count type="xs:int">3</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">BACKPAIN</Symptom>
+      <Count type="xs:int">3</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">BREATHDI</Symptom>
+      <Count type="xs:int">2</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">BURN</Symptom>
+      <Count type="xs:int">2</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">BURNING</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">CHESTPN</Symptom>
+      <Count type="xs:int">7</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">COLDSYM</Symptom>
+      <Count type="xs:int">5</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">COUGH</Symptom>
+      <Count type="xs:int">4</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">DOC</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">EARACHE</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">EARCONG</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">EYEBLOOD</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">EYEDISCH</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">FAINTING</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">FATIGUE</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">FLUSYMPT</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">HEADACHE</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">HEARTPAL</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">INFO</Symptom>
+      <Count type="xs:int">7</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">IRRITAB</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">KNEEPAIN</Symptom>
+      <Count type="xs:int">2</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">LEGPAIN</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">LIPLESIO</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">MEDS</Symptom>
+      <Count type="xs:int">4</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">NECKPAIN</Symptom>
+      <Count type="xs:int">3</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">NOSEBLEE</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">NOSYMPTO</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">POISON</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">RASH</Symptom>
+      <Count type="xs:int">4</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">REPORT</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">SORETHRO</Symptom>
+      <Count type="xs:int">2</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">STOMACHE</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">TRAUMA</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">URINFREQ</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">URINHESI</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">URINPAIN</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">VOMITING</Symptom>
+      <Count type="xs:int">3</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">WEAKNESS</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <GT type="xs:int">75</GT>
+  </table>
+</wholeFile>
