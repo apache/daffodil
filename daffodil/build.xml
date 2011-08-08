@@ -88,7 +88,8 @@
   <target name="all" depends="clean,test,document"/>
   
   <target name="clean">
-    <delete dir="${bin}"/>
+    <delete dir="${bin}/daffodil"/>
+    <delete file="${bin}/daffodil.jar"/>
   </target>
 
 </project>
