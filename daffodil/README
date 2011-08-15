@@ -62,6 +62,12 @@ or, if inside the installation directory:
 
   $ ant all
    .
+
+There are IDE's and eclipse plug-ins that can be used to build daffodil. See:
+
+  http://www.scala-lang.org/node/91
+
+
 ----------------
 DOCUMENTATION
 ----------------
