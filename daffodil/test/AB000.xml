@@ -1,23 +1,23 @@
 <matrix xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
   <row>
-    <cell type="xsd:int">0</cell>
-    <cell type="xsd:int">1</cell>
-    <cell type="xsd:int">2</cell>
-    <cell type="xsd:int">3</cell>
-    <cell type="xsd:int">4</cell>
+    <cell>0</cell>
+    <cell>1</cell>
+    <cell>2</cell>
+    <cell>3</cell>
+    <cell>4</cell>
   </row>
   <row>
-    <cell type="xsd:int">5</cell>
-    <cell type="xsd:int">6</cell>
-    <cell type="xsd:int">7</cell>
-    <cell type="xsd:int">8</cell>
-    <cell type="xsd:int">9</cell>
+    <cell>5</cell>
+    <cell>6</cell>
+    <cell>7</cell>
+    <cell>8</cell>
+    <cell>9</cell>
   </row>
   <row>
-    <cell type="xsd:int">10</cell>
-    <cell type="xsd:int">11</cell>
-    <cell type="xsd:int">12</cell>
-    <cell type="xsd:int">13</cell>
-    <cell type="xsd:int">14</cell>
+    <cell>10</cell>
+    <cell>11</cell>
+    <cell>12</cell>
+    <cell>13</cell>
+    <cell>14</cell>
   </row>
 </matrix>

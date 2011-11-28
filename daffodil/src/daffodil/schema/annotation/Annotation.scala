@@ -37,6 +37,7 @@ package daffodil.schema.annotation
  */
 
 import java.io.Serializable
+import daffodil.schema._
 
 /**
  * A DFDL annotation of a schema element.
@@ -49,7 +50,7 @@ import java.io.Serializable
  * @author Alejandro Rodriguez
  */
 @SerialVersionUID(1)
-class Annotation(val element:org.jdom.Element) extends Serializable {
+class Annotation(val element:org.jdom.Element) extends Serializable with Diffable {
 
   /** The DFDL assertions over the element */
   var assertions:List[Assertion] = List()
@@ -101,17 +102,41 @@ class Annotation(val element:org.jdom.Element) extends Serializable {
   
   //TODO override hashcode
    
-  override def equals(other:Any) = 
+//  override def equals(other:Any) = 
+//    other match {
+//      case null => false
+//      case x:Annotation => 
+//        assertions == x.assertions &&         
+//        format == x.format && 
+//        hidden == x.hidden && 
+//        inputValue == x.inputValue &&
+//        variableDefinitions == x.variableDefinitions &&
+//        variableBindings == x.variableBindings
+//      case _ => false
+//    }
+
+  //TODO override hashcode
+
+  def diff(other: Any): Similarity =
     other match {
-      case null => false
-      case x:Annotation => 
-        assertions == x.assertions &&         
-        format == x.format && 
-        hidden == x.hidden && 
-        inputValue == x.inputValue &&
-        variableDefinitions == x.variableDefinitions &&
-        variableBindings == x.variableBindings
-      case _ => false
+      case null => Different(this, other)
+      case x: Annotation => {
+        var subDiff: Similarity = Same
+        subDiff = Diffable.diffLists(assertions, x.assertions)
+        if (subDiff != Same) return subDiff
+        subDiff = Diffable.diff(format, x.format)
+        if (subDiff != Same) return subDiff
+        subDiff = Diffable.diff(hidden, x.hidden)
+        if (subDiff != Same) return subDiff
+        subDiff = Diffable.diff(inputValue, x.inputValue)
+        if (subDiff != Same) return subDiff
+        subDiff = Diffable.diffLists(variableDefinitions, x.variableDefinitions)
+        if (subDiff != Same) return subDiff
+        subDiff = Diffable.diffLists(variableBindings, x.variableBindings)
+        if (subDiff != Same) return subDiff
+        Same
+      }
+      case _ => DifferentType
     }
   
   override def toString() = {

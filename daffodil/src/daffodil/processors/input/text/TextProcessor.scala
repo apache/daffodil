@@ -162,13 +162,13 @@ class TextProcessor(val charset:Charset,val acceptEOF:Boolean)
     //TODO FIXME EndOfParent could also mean fixed length if parent is patterned or explicit
 
 
-    //TODO only other alternative is an extended basic type, find the base type and use it
-    if (typeName!=null){
-      result match {
-        case Success | Last => setType(typeName.substring(XSD_NAMESPACE.length),element,namespaces)
-        case _ =>
-      }
-    }
+//    //TODO only other alternative is an extended basic type, find the base type and use it
+//    if (typeName!=null){
+//      result match {
+//        case Success | Last => setType(typeName.substring(XSD_NAMESPACE.length),element,namespaces)
+//        case _ =>
+//      }
+//    }
 
     result
   }
@@ -194,12 +194,12 @@ class TextProcessor(val charset:Charset,val acceptEOF:Boolean)
 
     try {
       val processorResult = separatorPosition match {
-        case Prefix => getPrefixSeparated(input,reader,separators,terminators,
-          parentTerminators,element,variables,namespaces)
-        case Infix => getInfixSeparated(input,reader,separators,terminators,
-          parentTerminators,element,variables,namespaces)
-        case Postfix => getPostfixSeparated(input,reader,separators,terminators,
-          parentTerminators,element,variables,namespaces)
+        case Prefix => 
+          getPrefixSeparated(input,reader,separators,terminators, parentTerminators,element,variables,namespaces)
+        case Infix => 
+          getInfixSeparated(input,reader,separators,terminators, parentTerminators,element,variables,namespaces)
+        case Postfix => 
+          getPostfixSeparated(input,reader,separators,terminators, parentTerminators,element,variables,namespaces)
       }
 
       input.uncheck;
@@ -209,27 +209,33 @@ class TextProcessor(val charset:Charset,val acceptEOF:Boolean)
     }
   }
 
-  private def getInfixSeparated(input:RollbackStream,reader:VariableEncodingStreamReader,
-                                separators:List[Regex],terminators:List[Regex],
-                                parentTerminators:List[Regex],element:Element,variables:VariableMap,
-                                namespaces:Namespaces):ProcessorResult = {
+  private def getInfixSeparated(
+    input: RollbackStream,
+    reader: VariableEncodingStreamReader,
+    separators: List[Regex],
+    terminators: List[Regex],
+    parentTerminators: List[Regex],
+    element: Element,
+    variables: VariableMap,
+    namespaces: Namespaces): ProcessorResult = {
 
-
-    findPostfixSeparator(input,reader,element,variables,namespaces,separators,terminators,parentTerminators) match {
-      case SeparatorFound(token,separator) => { element setText(token); Success }
-      case TerminatorFound(token,terminator) => { element setText(token); Last }
+    val foundSep = findPostfixSeparator(input, reader, element, variables, namespaces, separators, terminators, parentTerminators)
+    foundSep match {
+      case SeparatorFound(token, separator) => { element setText (token); Success }
+      case TerminatorFound(token, terminator) => { element setText (token); Last } // FIXME: being treated as an array terminator, not an element of the array terminator
       //TODO should include parentTerminators in this condition?
-      case EndOfStreamFound(token) => if (documentFinalTerminatorCanBeMissing || (terminators.size+parentTerminators.size==0))
-        if (token.length > 0) {
-          element setText(token); Last
-        }else
-          LastEmpty
-      else
-        throw new ElementNotFoundException("End of stream reached looking for separator/terminator",
-          documentContext = element,position = Some(input getPosition))
-      case NothingFound =>
+      case EndOfStreamFound(token) =>
+        if (documentFinalTerminatorCanBeMissing || (terminators.size + parentTerminators.size == 0))
+          if (token.length > 0) {
+            element setText (token); Last
+          } else
+            LastEmpty
+        else
           throw new ElementNotFoundException("End of stream reached looking for separator/terminator",
-            documentContext = element,position = Some(input getPosition))
+            documentContext = element, position = Some(input getPosition))
+      case NothingFound =>
+        throw new ElementNotFoundException("End of stream reached looking for separator/terminator",
+          documentContext = element, position = Some(input getPosition))
     }
   }
 
@@ -238,13 +244,17 @@ class TextProcessor(val charset:Charset,val acceptEOF:Boolean)
                                  parentTerminators:List[Regex],element:Element,variables:VariableMap,
                                  namespaces:Namespaces):ProcessorResult = {
 
-    findPrefixSeparator(input,reader,element,variables,namespaces,separators,terminators,parentTerminators) match {
+    val fps = findPrefixSeparator(input,reader,element,variables,namespaces,separators,terminators,parentTerminators) 
+    fps match {
       case SeparatorFound(_,separator) =>
       case TerminatorFound(_,terminator) =>
         throw new ElementNotFoundException("Found terminator when looking for prefix separator",
           documentContext = element,position = Some(input getPosition))
       case EndOfStreamFound(_) =>
         throw new ElementNotFoundException("End of stream reached when looking for prefix separator",
+          documentContext = element,position = Some(input getPosition))
+      case NothingFound =>
+        throw new ElementNotFoundException("Nothing found when looking for prefix separator",
           documentContext = element,position = Some(input getPosition))
     }
 
@@ -260,10 +270,20 @@ class TextProcessor(val charset:Charset,val acceptEOF:Boolean)
                                   parentTerminators:List[Regex],element:Element,variables:VariableMap,
                                   namespaces:Namespaces):ProcessorResult = {
 
-    findPostfixSeparator(input,reader,element,variables,namespaces,separators,terminators,parentTerminators) match {
-      case SeparatorFound(token,separator) => { element setText(token); Success }
-      case TerminatorFound(token,terminator) => { element setText(token); Last }
-      case EndOfStreamFound(token) =>  { element setText(token); Last }
+    val pfs = findPostfixSeparator(input,reader,element,variables,namespaces,separators,terminators,parentTerminators) 
+    pfs match {
+      case SeparatorFound(token,separator) => { 
+        element.setText(token)
+        Success 
+      }
+      case TerminatorFound(token,terminator) => { 
+        element.setText(token)
+        Last 
+      }
+      case EndOfStreamFound(token) =>  { 
+        element.setText(token)
+        Last
+      }
       case NothingFound =>
         throw new ElementNotFoundException("End of stream reached when looking for postfix separator",
           documentContext = element,position = Some(input getPosition))
@@ -289,7 +309,7 @@ class TextProcessor(val charset:Charset,val acceptEOF:Boolean)
   }
 
   override def findPostfixSeparator(input:RollbackStream,parent:Parent,variables:VariableMap,
-                                    namespaces:Namespaces,parentTerminators:List[Regex]):ScanResult = {
+                                    namespaces:Namespaces,parentTerminators:List[Regex] = Nil):ScanResult = {
 
     val terminators = terminator match {
       case EmptyValue => List()
@@ -522,9 +542,11 @@ class TextProcessor(val charset:Charset,val acceptEOF:Boolean)
 
       if (scanResult._1 == NothingFound){
         if (!documentFinalTerminatorCanBeMissing){
+          val currentPos = input.getPosition
           input rollback()
           throw new TerminatorMissingException("Terminator not found",
-            documentContext = element,position = Some(input getPosition))
+            documentContext = element,
+            position = Some(currentPos))
         }
       }
       //TODO FIXME Can't have right padding after parent terminator
@@ -1043,6 +1065,8 @@ class TextProcessor(val charset:Charset,val acceptEOF:Boolean)
     }
   }
 
-  private class CharScan(val bytesRead:Int,val charsRead:Int,val char:Int)
+  private class CharScan(val bytesRead:Int,val charsRead:Int,val char:Int) {
+    override def toString = "CharScan(" + bytesRead + ", " + charsRead + ", '" + char + "')"
+  }
 
 }

@@ -195,7 +195,7 @@ abstract class BinaryProcessor extends BasicProcessor{
       setType(typeName.substring(XMLUtil.XSD_NAMESPACE.length),element,namespaces)
      
     	//input uncheck;
-    	Success     
+    	Success
     }
   }
   

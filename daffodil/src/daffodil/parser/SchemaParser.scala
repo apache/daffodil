@@ -134,7 +134,7 @@ class SchemaParser extends Serializable {
    * @param root the root of the schema
    */
   def parse(root:Element):Unit = {
-    if (XMLUtil.getFullName(root)!=XMLUtil.SCHEMA)
+    if (XMLUtil.getFullNameWithNamespace(root)!=XMLUtil.SCHEMA)
       throw new DFDLSchemaDefinitionException("Top element is not xsd:schema",null,root,null,None)
 
     this root = root
@@ -147,7 +147,7 @@ class SchemaParser extends Serializable {
     topLevelAnnotations = AnnotationParser(root,definedFormats)
 
     for(child <- XMLUtil.getChildren(root))
-      XMLUtil.getFullName(child) match {
+      XMLUtil.getFullNameWithNamespace(child) match {
         case XMLUtil.COMPLEX_TYPE => topLevelComplexType(child)
         case XMLUtil.SIMPLE_TYPE => throw
         		new UnimplementedException("Top level simple type unimplemented: optional",schemaContext = child)
@@ -213,7 +213,7 @@ class SchemaParser extends Serializable {
   def parseElementNode(node:Element,topReferred:List[String]):BasicNode =
     XMLUtil.getAttribute(node,"ref") match {
       case Some(name) => parseReferredElement(node,name,topReferred)
-      case None => XMLUtil.getFullName(node) match {
+      case None => XMLUtil.getFullNameWithNamespace(node) match {
         case XMLUtil.ELEMENT => parseElement(node,topReferred)
         case XMLUtil.GROUP => parseGroup(node,topReferred)
         case XMLUtil.SEQUENCE => parseSequence(node,topReferred)
@@ -232,12 +232,12 @@ class SchemaParser extends Serializable {
   }
   
   /** Parses an xsd:complexType definition */
-  def parseComplexType(node:Element,topReferred:List[String]):BasicNode = {
+  def parseComplexType(node:Element,topReferred:List[String] = Nil):BasicNode = {
     val annotations = AnnotationParser(node,definedFormats)
 
     var basicNode:BasicNode = null
     for(child <- XMLUtil.getChildren(node))
-      XMLUtil.getFullName(child) match {
+      XMLUtil.getFullNameWithNamespace(child) match {
         case XMLUtil.SEQUENCE | XMLUtil.XSD_CHOICE | XMLUtil.GROUP => basicNode = parseElementNode(child,topReferred)
         case XMLUtil.ANNOTATION => if (AnnotationParser.getHiddenElement(child,root)!=null)
           throw new DFDLSchemaDefinitionException("Element not allowed here",null,node,null,None)
@@ -309,7 +309,7 @@ class SchemaParser extends Serializable {
   def parseSequence(node:Element,topReferred:List[String]):BasicNode = {
     var children:List[BasicNode] = Nil
     for(child <- XMLUtil.getChildren(node))
-      XMLUtil.getFullName(child) match {
+      XMLUtil.getFullNameWithNamespace(child) match {
         case XMLUtil.PCDATA | XMLUtil.REM =>
         case XMLUtil.ELEMENT | XMLUtil.GROUP | XMLUtil.SEQUENCE | XMLUtil.XSD_CHOICE =>
           children = parseElementNode(child,topReferred) :: children
@@ -328,7 +328,7 @@ class SchemaParser extends Serializable {
   def parseChoice(node:Element,topReferred:List[String]):BasicNode = {
     var children:List[BasicNode] = Nil
     for(child <- XMLUtil.getChildren(node))
-      XMLUtil.getFullName(child) match {
+      XMLUtil.getFullNameWithNamespace(child) match {
         case XMLUtil.PCDATA | XMLUtil.REM =>
         case XMLUtil.ELEMENT | XMLUtil.GROUP | XMLUtil.SEQUENCE | XMLUtil.XSD_CHOICE =>
           children = parseElementNode(child,topReferred) :: children
@@ -388,7 +388,7 @@ class SchemaParser extends Serializable {
       case Some(t) =>
         val s = t(reader,topLevelAnnotations,variables,doc,-1,Nil)
         variables removeHidden;
-        s first
+        s head
       case None => throw new DFDLSchemaDefinitionException("No top level type named "+root,null,null,null,None)
     }
   }
@@ -400,7 +400,7 @@ class SchemaParser extends Serializable {
     else
       basicNode
 
-  private def getPredefinedVariables = {
+  private def getPredefinedVariables : VariableMap = {
     val namespaces = new Namespaces()
     var variables = new VariableMap
     namespaces.addNamespace(XMLUtil.DFDL_NAMESPACE,"dfdl")

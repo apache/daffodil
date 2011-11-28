@@ -38,12 +38,12 @@ package daffodil.schema
 
 import annotation.Annotation
 import org.jdom.Parent
-
 import daffodil.exceptions.UnimplementedException
 import daffodil.processors.VariableMap
 import daffodil.xml.Namespaces
-import daffodil.parser.{LinkedList, RollbackStream}
+import daffodil.parser.RollbackStream
 import daffodil.parser.regex.Regex
+import scala.collection.mutable.LinkedList
 
 @SerialVersionUID(1)
 class SimpleExtendedElement(val name:String,ann:Annotation,target:String,

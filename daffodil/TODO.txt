@@ -1,5 +1,9 @@
 Daffodil TODO:
 
+* Add explicit validation of the DFDL Schema using the DFDL-Schema-for-DFDL-Schema
+** Also consider generating classes like daffodil.schema.annotation.Format (or base classes/traits thereof) 
+directly from the DFDL-Schema-for-DFDL-Schema. Goal: eliminate all code that is isomorphic to the list of properties.
+
 * lengthUnits=bytes in text representations
 
 * EndOfParent -> fixed length
@@ -36,3 +40,7 @@ Daffodil TODO:
 TEST CASES
 
 * Initiated choices
+
+* Namespaces - a test where all the prefixes are non-standard usage
+
+* Hook the IBM published tests into daffodil (real soon now)

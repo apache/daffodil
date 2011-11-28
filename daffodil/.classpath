@@ -1,17 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="srcTest"/>
-	<classpathentry kind="con" path="ch.epfl.lamp.sdt.launching.SCALA_CONTAINER"/>
+	<classpathentry kind="src" output="bin/src" path="src"/>
+	<classpathentry kind="src" output="bin/srcTest" path="srcTest"/>
+	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/jdom.jar"/>
-	<classpathentry kind="lib" path="lib/saxon9-jdom.jar"/>
-	<classpathentry kind="lib" path="lib/saxon9-s9api.jar"/>
-	<classpathentry kind="lib" path="lib/saxon9-xpath.jar"/>
-	<classpathentry kind="lib" path="lib/saxon9.jar"/>
-	<classpathentry kind="lib" path="lib/xerces.jar"/>
-	<classpathentry kind="lib" path="lib/joda-time-1.6.jar"/>
-	<classpathentry kind="lib" path="lib/scalatest-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/scalatest-1.6.1.jar" sourcepath="/home/mbeckerle/dataiti/sbs/tools/scalatest/1.6.1-dist/scalatest-1.6.1.zip"/>
+	<classpathentry kind="lib" path="lib/jdom-1.1.2.jar" sourcepath="libsrc/jdom-1.1.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil/libsrc/jdom-1.1.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/junit-3.8.2.jar" sourcepath="libsrc/junit-3.8.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil/libsrc/junit-3.8.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="lib" path="lib/saxon-b9-1-0-8/saxon9-jdom.jar" sourcepath="libsrc/saxonb9-1-0-8source.zip">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil/libsrc/saxon-resources9-1-0-1.zip!/doc"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/saxon-b9-1-0-8/saxon9-s9api.jar" sourcepath="libsrc/saxonb9-1-0-8source.zip">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil/libsrc/saxon-resources9-1-0-1.zip!/doc"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/saxon-b9-1-0-8/saxon9-xpath.jar" sourcepath="libsrc/saxonb9-1-0-8source.zip">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil/libsrc/saxon-resources9-1-0-1.zip!/doc"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/saxon-b9-1-0-8/saxon9.jar" sourcepath="libsrc/saxonb9-1-0-8source.zip">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil/libsrc/saxon-resources9-1-0-1.zip!/doc"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/xerces-2.11.0/xercesImpl.jar" sourcepath="libsrc/xerces-2_11_0/xerces-src-and-doc-rezipped.zip">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil/libsrc/Xerces-J-bin.2.11.0.zip!/xerces-2_11_0/docs"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/joda-time-1.6.jar" sourcepath="libsrc/joda-time-1.6-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil/libsrc/joda-time-1.6-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/icu4j-4_8_1_1.jar" sourcepath="libsrc/icu4j-4_8_1_1-src.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil/libsrc/icu4j-4_8_1_1-docs.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="DAFFODIL_PROJECT_ROOT/bin/src" sourcepath="/DAFFODIL_PROJECT_ROOT/src"/>
+	<classpathentry kind="var" path="DAFFODIL_PROJECT_ROOT/bin/srcTest" sourcepath="/DAFFODIL_PROJECT_ROOT/srcTest"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

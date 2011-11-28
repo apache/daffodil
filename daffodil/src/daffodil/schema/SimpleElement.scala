@@ -42,8 +42,9 @@ import daffodil.exceptions.{ElementProcessingException, ElementNotFoundException
 import daffodil.processors._
 import daffodil.xml.{XMLUtil, Namespaces}
 import input.BasicProcessor
-import daffodil.parser.{LinkedList, RollbackStream}
+import daffodil.parser.RollbackStream
 import daffodil.parser.regex.Regex
+import scala.collection.mutable.LinkedList
 
 @SerialVersionUID(1)
 class SimpleElement(val name:String,ann:Annotation,target:String,namespaces:Namespaces)
@@ -59,9 +60,10 @@ class SimpleElement(val name:String,ann:Annotation,target:String,namespaces:Name
     val element = XMLUtil.addNewChild(parent,name,target,namespaces)
 
     try {
-      val result = processor(input,element,variables,namespaces,terminators) match {
-        case Success => new ChildSuccess(new LinkedList(element))
-        case Last => new ChildLast(new LinkedList(element))
+      val parseAttempt = processor(input,element,variables,namespaces,terminators)
+      val result = parseAttempt match {
+        case Success => new ChildSuccess(LinkedList(element))
+        case Last => new ChildLast(LinkedList(element))
         case LastEmpty | Empty => setDefault(input,parent,element)
         case Failure =>
           throw new ElementNotFoundException("Element not found",
@@ -86,7 +88,7 @@ class SimpleElement(val name:String,ann:Annotation,target:String,namespaces:Name
 
   private def setDefault(input:RollbackStream, parent:Parent, element:org.jdom.Element):ChildResult = {
     annotation.format.defaultValue match {
-      case Some(s) => element setText(s); new ChildSuccess(new LinkedList(element))
+      case Some(s) => element setText(s); new ChildSuccess(LinkedList(element))
       case None => if (this.getMinOccurs == 0) {
         input.rollback
         XMLUtil.removeChild(parent,element)

@@ -36,13 +36,13 @@ package daffodil.schema
  * Date: 2010
  */
 import org.jdom.Parent
-
 import daffodil.debugger.DebuggingListener
 import daffodil.processors.VariableMap
 import daffodil.schema.annotation.Annotation
 import daffodil.xml.Namespaces
-import daffodil.parser.{LinkedList, RollbackStream}
+import daffodil.parser.RollbackStream
 import daffodil.parser.regex.Regex
+import scala.collection.mutable.LinkedList
 
 @SerialVersionUID(1)
 class DebuggingBasicNode(ann:Annotation,schemaContext:org.jdom.Element,

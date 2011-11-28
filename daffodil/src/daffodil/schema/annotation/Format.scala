@@ -41,6 +41,7 @@ import java.nio.charset.Charset
 import java.io.ObjectOutputStream
 import java.io.ObjectInputStream
 
+import daffodil.schema._
 import daffodil.schema.annotation.enumerations._
 import daffodil.xml.XMLUtil
 import daffodil.processors.xpath.XPathUtil
@@ -811,7 +812,7 @@ class Format extends AnnotationPart {
 
   def setSeparatorPolicy(policy:String):Unit =
     policy match {
-      case "required" => setSeparatorPolicy(Require)
+      case "required" => setSeparatorPolicy(Required)
       case "suppressed" => setSeparatorPolicy(Supress)
       case "suppressedAtEndStrict" => setSeparatorPolicy(SupressAtEnd) // is our policy strict?
       case _ => throw new IllegalArgumentException("Invalid separator policy in schema ["+policy+"]. "+
@@ -1156,45 +1157,84 @@ class Format extends AnnotationPart {
 
 
 
-  override def canEqual(that:Any) = 
-    that match {
-      case _:Format => true
-      case _ => false
-    }
-  
-  override def equals(that:Any) = 
-    that match {
-      case x:Format => if (x!=null && x.canEqual(this))
-        representation == x.representation &&
-      length == x.length &&
-      encoding == x.encoding &&
-      lengthKind == x.lengthKind &&
-      lengthPattern == x.lengthPattern &&
-      separator == x.separator &&
-      separatorPolicy == x.separatorPolicy &&
-      typeName == x.typeName &&
-      terminator == x.terminator &&
-      initiator == x.initiator &&
-      separatorPosition == x.separatorPosition &&
-      maxOccurs == x.maxOccurs &&
-      minOccurs == x.minOccurs &&
-      occursCount == x.occursCount &&
-      occursCountKind == x.occursCountKind &&
-      occursStopValue == x.occursStopValue &&
-      byteOrder == x.byteOrder &&
-      base == x.base &&
-      textNumberPattern == x.textNumberPattern &&
-      decimalSeparator == x.decimalSeparator &&
-      ignoreCase == x.ignoreCase &&
-      floatRepresentation == x.floatRepresentation &&
-      calendarPatternKind == x.calendarPatternKind &&
-      calendarPattern == x.calendarPattern &&
-      textStringJustification == x.textStringJustification &&
-      padCharacter == x.padCharacter &&
-      documentFinalTerminatorCanBeMissing == x.documentFinalTerminatorCanBeMissing 
-      
-                       else false
-      case _ => false	
+//  override def canEqual(that:Any) = 
+//    that match {
+//      case _:Format => true
+//      case _ => false
+//    }
+//  
+//  
+//  override def equals(that:Any) = 
+//    that match {
+//      case x:Format => if (x!=null && x.canEqual(this))
+//        representation == x.representation &&
+//      length == x.length &&
+//      encoding == x.encoding &&
+//      lengthKind == x.lengthKind &&
+//      lengthPattern == x.lengthPattern &&
+//      separator == x.separator &&
+//      separatorPolicy == x.separatorPolicy &&
+//      typeName == x.typeName &&
+//      terminator == x.terminator &&
+//      initiator == x.initiator &&
+//      separatorPosition == x.separatorPosition &&
+//      maxOccurs == x.maxOccurs &&
+//      minOccurs == x.minOccurs &&
+//      occursCount == x.occursCount &&
+//      occursCountKind == x.occursCountKind &&
+//      occursStopValue == x.occursStopValue &&
+//      byteOrder == x.byteOrder &&
+//      base == x.base &&
+//      textNumberPattern == x.textNumberPattern &&
+//      decimalSeparator == x.decimalSeparator &&
+//      ignoreCase == x.ignoreCase &&
+//      floatRepresentation == x.floatRepresentation &&
+//      calendarPatternKind == x.calendarPatternKind &&
+//      calendarPattern == x.calendarPattern &&
+//      textStringJustification == x.textStringJustification &&
+//      padCharacter == x.padCharacter &&
+//      documentFinalTerminatorCanBeMissing == x.documentFinalTerminatorCanBeMissing 
+//      
+//                       else false
+//      case _ => false	
+//    }
+
+  override def diff(o: Any): Similarity =
+    o match {
+      case x: Format => {
+        // Don't call super Diff !!! That's only for if you don't want to implement Diff and want to implement equals instead
+        // val superDiff = super.diff(x)
+        // if (superDiff != Same) return superDiff
+        if (representation != x.representation) return Different(representation, x.representation)
+        if (length != x.length) return Different(length, x.length)
+        if (encoding != x.encoding) return Different(encoding, x.encoding)
+        if (lengthKind != x.lengthKind) return Different(lengthKind, x.lengthKind)
+        if (lengthPattern != x.lengthPattern) return Different(lengthPattern, x.lengthPattern)
+        if (separator != x.separator) return Different(separator, x.separator)
+        if (separatorPolicy != x.separatorPolicy) return Different(separatorPolicy, x.separatorPolicy)
+        if (typeName != x.typeName) return Different(typeName, x.typeName)
+        if (terminator != x.terminator) return Different(terminator, x.terminator)
+        if (initiator != x.initiator) return Different(initiator, x.initiator)
+        if (separatorPosition != x.separatorPosition) return Different(separatorPosition, x.separatorPosition)
+        if (maxOccurs != x.maxOccurs) return Different(maxOccurs, x.maxOccurs)
+        if (minOccurs != x.minOccurs) return Different(minOccurs, x.minOccurs)
+        if (occursCount != x.occursCount) return Different(occursCount, x.occursCount)
+        if (occursCountKind != x.occursCountKind) return Different(occursCountKind, x.occursCountKind)
+        if (occursStopValue != x.occursStopValue) return Different(occursStopValue, x.occursStopValue)
+        if (byteOrder != x.byteOrder) return Different(byteOrder, x.byteOrder)
+        if (base != x.base) return Different(base, x.base)
+        if (textNumberPattern != x.textNumberPattern) return Different(textNumberPattern, x.textNumberPattern)
+        if (decimalSeparator != x.decimalSeparator) return Different(decimalSeparator, x.decimalSeparator)
+        if (ignoreCase != x.ignoreCase) return Different(ignoreCase, x.ignoreCase)
+        if (floatRepresentation != x.floatRepresentation) return Different(floatRepresentation, x.floatRepresentation)
+        if (calendarPatternKind != x.calendarPatternKind) return Different(calendarPatternKind, x.calendarPatternKind)
+        if (calendarPattern != x.calendarPattern) return Different(calendarPattern, x.calendarPattern)
+        if (textStringJustification != x.textStringJustification) return Different(textStringJustification, x.textStringJustification)
+        if (padCharacter != x.padCharacter) return Different(padCharacter, x.padCharacter)
+        if (documentFinalTerminatorCanBeMissing != x.documentFinalTerminatorCanBeMissing) return Different(documentFinalTerminatorCanBeMissing, x.documentFinalTerminatorCanBeMissing)
+        Same
+      }
+      case _ => DifferentType
     }
 
   override def toString() = {

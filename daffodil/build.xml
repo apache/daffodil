@@ -7,7 +7,7 @@
   <property name="testFolder" value="updatedSrcTest"/>
   <property name="bin" value="bin"/>
   <property name="doc" value="doc"/>
-  <property name="scala.home" value="lib"/>
+  <property name="scala.home" value="lib"/> <!-- /home/mbeckerle/installed-software/eclipse-scala-stack/lib"/> -->
   
   <property name="scala-compiler.jar" 
 	    value="${scala.home}/scala-compiler.jar"/>
@@ -29,7 +29,8 @@
     <pathelement location="lib/saxon9-s9api.jar"/>
     <pathelement location="lib/xerces.jar"/>
     <pathelement location="lib/joda-time-1.6.jar"/>
-    <pathelement location="lib/icu4j-4_4_1_1.jar"/>                                            
+    <pathelement location="lib/icu4j-4_4_1_1.jar"/>           
+    <pathelement location="lib/junit-3.8.2.jar"/> <!-- Having this here avoids breaking the ant build if tests are part of the build -->    
     <pathelement location="${bin}"/>
   </path>
 
@@ -40,9 +41,10 @@
   <target name="compile"> <!-- did depend on update build number -->
     <scalac srcdir="${src}" destdir="${bin}" deprecation="yes"
 	    classpathref="project.classpath" 
-	    force="changed" unchecked="yes"/>
-    <javac srcdir="${src}" destdir="${bin}" 
-	   classpathref="project.classpath"/>
+	    force="never" unchecked="no"
+        scalacdebugging="true"/> <!-- was force="changed" which compiles all whenever one changes -->
+   <!-- <javac srcdir="${src}" destdir="${bin}" 
+	   classpathref="project.classpath"/> -->
     <jar destfile="${bin}/daffodil.jar"
 	 basedir="${bin}"
          excludes="daffodil.jar"/>

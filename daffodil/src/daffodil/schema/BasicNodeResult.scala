@@ -36,6 +36,6 @@ package daffodil.schema
  * Date: 2010
  */
 
-import daffodil.parser.LinkedList
+import scala.collection.mutable.LinkedList
 
 class BasicNodeResult(val elements:LinkedList[org.jdom.Element],val bytesRead:Long,val charsRead:Long)

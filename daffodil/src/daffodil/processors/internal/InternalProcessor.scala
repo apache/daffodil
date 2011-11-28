@@ -50,5 +50,7 @@ import daffodil.processors.VariableMap
  * @version 1
  * @author Alejandro Rodriguez
  */
-trait InternalProcessor extends Function4[Parent,VariableMap,String,Namespaces,VariableMap] with Serializable
+trait InternalProcessor extends Serializable {
+  def apply(parent : Parent, variableMap : VariableMap, target : String, namespaces : Namespaces) : VariableMap
+}
 

@@ -36,14 +36,22 @@ package daffodil.schema
  * Date: 2010
  */
 
-import annotation.Annotation
-import daffodil.processors.VariableMap
+import scala.collection.mutable.LinkedList
+
 import org.jdom.Parent
-import daffodil.xml.{XMLUtil, Namespaces}
-import daffodil.exceptions.{ElementNotFoundException, ElementProcessingException}
-import daffodil.processors.input.BasicProcessor
-import daffodil.parser.{LinkedList, RollbackStream}
+
+import annotation.Annotation
+import daffodil.exceptions.ElementNotFoundException
+import daffodil.exceptions.ElementProcessingException
 import daffodil.parser.regex.Regex
+import daffodil.parser.RollbackStream
+import daffodil.processors.input.BasicProcessor
+import daffodil.processors.VariableMap
+//import daffodil.schema.BasicNode
+//import daffodil.schema.ChildResult
+//import daffodil.schema.Element
+import daffodil.xml.Namespaces
+import daffodil.xml.XMLUtil
 
 @SerialVersionUID(1)
 class ComplexElement(val name:String,ann:Annotation,
@@ -64,7 +72,7 @@ class ComplexElement(val name:String,ann:Annotation,
       try {
        innerElement(input,annotation,variables,element,maxLength,terminators).size match {
     		  case 0 => setDefault(input,parent,element)
-    		  case _ => input uncheck; new ChildSuccess(new LinkedList(element))
+    		  case _ => input uncheck; new ChildSuccess(LinkedList(element))
        }
       }catch{
         case e:ElementProcessingException => input.rollback; XMLUtil.removeChild(parent,element); throw e

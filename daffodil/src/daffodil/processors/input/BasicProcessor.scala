@@ -63,8 +63,8 @@ import daffodil.processors.{ScanResult, ProcessorResult, VariableMap}
  * @version 1
  *
  */
-trait BasicProcessor extends Function5[RollbackStream,Element,VariableMap,
-				       Namespaces,List[Regex],ProcessorResult] with Serializable {
+trait BasicProcessor extends Serializable {
+ 
 
   protected var endOfParent:Boolean = _
 
@@ -93,17 +93,34 @@ trait BasicProcessor extends Function5[RollbackStream,Element,VariableMap,
             namespaces:Namespaces,parentTerminators:List[Regex]):ProcessorResult
 
   /** Sets the type attribute of an element */
-  protected def setType(typeName:String,element:Element,namespaces:Namespaces) = {
-    val prefix = namespaces getNamespaceByURI(XMLUtil XSD_NAMESPACE) match {
+  protected def setType(typeName: String, element: Element, namespaces: Namespaces) = {
+    val prefix = namespaces getNamespaceByURI (XMLUtil XSD_NAMESPACE) match {
       case Some(n) => n getPrefix
-      case None => { var i = 0
-		    while(namespaces.getNamespaceByPrefix("xsd"+i)==None) i+=1
-		    element addNamespaceDeclaration(namespaces.
-						    addNamespace(
-						      XMLUtil XSD_NAMESPACE,"xsd"+i))
-		    "xsd"+i
-		  }
-    }	      
-    element.setAttribute("type",prefix+":"+typeName)
+      case None => {
+        //        // let's create a namespace for XML Schema's namespace and give it a generated prefix xsdN for some integer N where xsdN is not already used.
+        //        var i = 0
+        //        while (namespaces.getNamespaceByPrefix("xsd" + i) != None) i += 1
+        //        element addNamespaceDeclaration (namespaces.
+        //          addNamespace(
+        //            XMLUtil XSD_NAMESPACE, "xsd" + i))
+        //        "xsd" + i
+        //
+        
+        //
+        // Let's create xsd with proper namespace if it isn't there. 
+        // FIXME: does this lock us into all types are assumed to be in "xsd" even if the user doesn't use that prefix, or
+        // wants explicit qualification on all the qnames for XML Schema type names?
+        //
+        val xsdNS = namespaces.getNamespaceByPrefix("xsd")
+        xsdNS match {
+          case None => {
+            element addNamespaceDeclaration (namespaces.addNamespace(XMLUtil.XSD_NAMESPACE, "xsd"))
+          }
+          case _ =>
+        }
+        "xsd"
+      }
+    }
+    element.setAttribute("type", prefix + ":" + typeName)
   } 
 }

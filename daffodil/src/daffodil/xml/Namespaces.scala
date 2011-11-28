@@ -44,10 +44,11 @@ import org.jdom.Element
 import org.jdom.Namespace
 
 import daffodil.exceptions.UnimplementedException
+import daffodil.schema._
 import java.io.{ObjectInputStream, ObjectOutputStream, Serializable}
 
 @SerialVersionUID(1)
-class Namespaces extends NamespaceContext with Serializable{
+class Namespaces extends NamespaceContext with Serializable with Diffable {
 
 
   
@@ -153,4 +154,20 @@ class Namespaces extends NamespaceContext with Serializable{
     for((prefix,uri) <- tempNamespaces)
       addNamespace(uri,prefix)    
   }
+  
+  override def diff(o:Any) : Similarity = {
+    o match {
+      case x:Namespaces => {
+        for (entry <- namespaces) {
+         if (!x.namespaces.contains(entry)) return Different(entry, null) 
+        }
+        for (entry <- x.namespaces) {
+          if (!namespaces.contains(entry)) return Different(null, entry)
+        }
+        Same
+      }
+      case _ => DifferentType
+    }
+  }
+  
 }

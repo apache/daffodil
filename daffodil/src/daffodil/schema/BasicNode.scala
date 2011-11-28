@@ -41,20 +41,35 @@ import daffodil.processors.VariableMap
 import org.jdom.Parent
 import daffodil.xml.Namespaces
 import java.io.Serializable
-import daffodil.parser.{LinkedList, RollbackStream}
+import daffodil.parser.RollbackStream
 import daffodil.parser.regex.Regex
+import scala.collection.mutable.LinkedList
+
 
 abstract class BasicNode(val target:String,val namespaces:Namespaces,
-                         var annotation:Annotation) extends Function6[RollbackStream,Annotation,
-        VariableMap,Parent,Int,List[Regex],LinkedList[org.jdom.Element]] with Serializable {
+                         var annotation:Annotation) extends Serializable with Diffable {
 
+  def apply(input:RollbackStream,parentAnnotations:Annotation,
+                     variables:VariableMap,parent:Parent,
+                     maxLength:Int,terminators:List[Regex]):LinkedList[org.jdom.Element]
+  
   def canEqual(o:Any):Boolean = o.isInstanceOf[BasicNode]
 
-  override def equals(o:Any) =
-    o match {
-      case that:BasicNode => that.canEqual(this) && this.annotation == that.annotation && 
-              this.target == that.target && this.namespaces == that.namespaces
-      case	 _ => false
+ 
+  
+  def diff(o:Any) : Similarity = {
+     o match {
+      case null => Different(this, o)
+      case that:BasicNode => {
+       val annoDiff = Diffable.diff(annotation, that.annotation)
+       if (annoDiff != Same) return annoDiff
+       if (this.target != that.target) return Different(this.target, that.target) 
+       if (this.namespaces != that.namespaces) return Different(this.namespaces, that.namespaces)
+       Same
+      }
+      case	 _ => DifferentType
     }
+    
+  }
 
 }

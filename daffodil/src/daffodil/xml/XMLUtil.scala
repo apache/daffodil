@@ -4,49 +4,11 @@ import java.io.FileInputStream
 import java.io.File
 import java.io.InputStream
 import org.jdom.input.SAXBuilder
-/**
- * Copyright (c) 2010 NCSA.  All rights reserved.
- * Developed by: NCSA Cyberenvironments and Technologies
- *               University of Illinois at Urbana-Champaign
- *               http://cet.ncsa.uiuc.edu/
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to
- * deal with the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *  1. Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimers.
- *  2. Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimers in the
- *     documentation and/or other materials provided with the distribution.
- *  3. Neither the names of NCSA, University of Illinois, nor the names of its
- *     contributors may be used to endorse or promote products derived from this
- *     Software without specific prior written permission.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * WITH THE SOFTWARE.
- *
- */
-
-/*
- * Created By: Alejandro Rodriguez < alejandr @ ncsa . uiuc . edu >
- * Date: 2010
- */
-
-import scala.collection.JavaConversions.asBuffer
+import scala.collection.JavaConversions._
 import scala.xml.Node
-
 import java.io.{OutputStream, PrintWriter, StringWriter}
 import java.lang.management._
 import java.util.regex.Pattern
-
 import org.jdom.Attribute
 import org.jdom.Element
 import org.jdom.Parent
@@ -54,7 +16,6 @@ import org.jdom.Document
 import org.jdom.Namespace
 import org.jdom.output.XMLOutputter
 import org.jdom.output.Format
-
 import daffodil.processors.VariableMap
 import daffodil.processors.xpath.NodeResult
 import daffodil.processors.xpath.StringResult
@@ -62,9 +23,10 @@ import daffodil.processors.xpath.XPathUtil
 import daffodil.exceptions.DFDLSchemaDefinitionException
 import daffodil.schema.annotation._
 import daffodil.debugger.DebugUtil
-import daffodil.parser.{AnnotationParser, LinkedList}
+import daffodil.parser.AnnotationParser
 import daffodil.parser.regex.Regex
-
+import scala.collection.mutable.LinkedList
+import scala.xml.MetaData
 
 /**
  * Utilities for handling XML 
@@ -79,7 +41,7 @@ object XMLUtil {
   var nodeCount:Long = 0
 
 
-  val XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema"
+  val XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema/" // added trailing slash (seems to be assumed everywhere)
   val DFDL_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/"
   val PCDATA = "#PCDATA"
   val REM = "#REM"
@@ -147,11 +109,21 @@ object XMLUtil {
   private var shouldCompress = false
   private var hasCompressed = false
 
-  def getFullName(e:Element) =
-    e.getNamespaceURI() + e.getName()
+  def slashify (s : String) : String = if (s == "" || s.endsWith("/")) s else s + "/"
+  
+  // TODO: Somehow the term "Full" name has come to mean the short name (no namespace qualification, nor prefix.
+  def getFullName(e:Element) = e.getName()
+ 
+  def getFullNameWithNamespace(e:Element) = slashify(e.getNamespaceURI()) + e.getName()
+  
+  def getUnqualifiedName(e:Element) = e.getName()
+  
+  def getUnqualifiedName(a:Attribute) = a.getName()
 
-  def getFullName(a:Attribute) =
-    a.getNamespaceURI() + a.getName()
+  def getFullNameWithNamespace(a:Attribute) =
+    slashify(a.getNamespaceURI()) + a.getName()
+    
+  def getFullName(a:Attribute) = a.getName()
 
   def getAttribute(e:Element,name:String):Option[String] =
     e getAttributeValue(name) match {
@@ -171,11 +143,13 @@ object XMLUtil {
       namespace = namespaces getNamespaceURI("")
       localName = name
     }
-    namespace+localName
+    slashify(namespace)+localName
   }
 
   def getChildren(e:Element):Iterable[Element] = {
-    e.getChildren.asInstanceOf[java.util.List[Element]]
+    val children = e.getChildren
+    val res = children.asInstanceOf[java.util.List[Element]]
+    res
   }
 
   def getAttributes(e:Element):Iterable[Attribute] = {
@@ -193,12 +167,12 @@ object XMLUtil {
 
   def getChildByTag(parent:Element,tag:String):Option[Element] = {
     for(child <- getChildren(parent))
-      if (getFullName(child) == tag)
+      if (getFullNameWithNamespace(child) == tag)
         return Some(child)
     None
   }
 
-  def compare(x:Element,y:Element):Boolean = {
+  def compare(x:Element,y:Element):Boolean = { // FIXME: give good diagnostics. This is used in unit tests.
     val children1 = x getChildren
     val children2 = y getChildren;
     getFullName(x) == getFullName(y) && x.getText() == y.getText() &&
@@ -209,11 +183,12 @@ object XMLUtil {
 
   def addNewChild(parent:Parent,name:String,target:String,namespaces:Namespaces) = {
 
-    checkMemory(parent)
+    // checkMemory(parent)
 
     val namespace = getTargetNamespace(name,target,namespaces)
     nodeCount += 1
-    val ele = new CompressableElement(name,namespace)
+    // val ele = new CompressableElement(name,namespace)
+    val ele = new Element(name,namespace)
 
     for( ns <- namespaces getNotNullNamespaces)
       ele addNamespaceDeclaration(ns)
@@ -229,7 +204,7 @@ object XMLUtil {
   def addNewChild(parent:Parent,name:String,value:String,target:String,namespaces:Namespaces) = {
     val namespace = getTargetNamespace(name,target,namespaces)
 
-    checkMemory(parent)
+    // checkMemory(parent)
 
     val ele = element(name,namespace,value)
     for( ns <- namespaces getNotNullNamespaces)
@@ -244,23 +219,29 @@ object XMLUtil {
     ele
   }
 
-  private def element(name:String,text:String) = {
+  /*
+   * public because it is used by tests
+   */
+  def element(name:String,text:String) = {
     nodeCount += 1
-    val ele = new CompressableElement(name)
+    // val ele = new CompressableElement(name)
+    val ele = new Element(name)
     ele addContent(text)
     ele
   }
 
   private def element(name:String,namespace:Namespace,text:String) = {
     nodeCount += 1
-    val ele = new CompressableElement(name,namespace)
+    // val ele = new CompressableElement(name,namespace)
+    val ele = new Element(name,namespace)
     ele addContent(text)
     ele
   }
 
-  private def element(name:String,children:List[Element]):Element = {    
+  def element(name:String,children:List[Element]):Element = {    
     nodeCount += 1
-    val node = new CompressableElement(name)
+    // val node = new CompressableElement(name)
+    val node = new Element(name)
     children foreach { node addContent (_) }
     node
   }
@@ -363,22 +344,36 @@ object XMLUtil {
     }
   }
 
+  /**
+   * super inefficient, but useful for unit tests
+   */
+  def element2Elem(jElem: Element): scala.xml.Node = {
+    return scala.xml.XML.loadString(new org.jdom.output.XMLOutputter().outputString(jElem))
+  }
+
   def elem2Element(node:Node):Element = {
-    val jdomNode = new CompressableElement(node label,node namespace)
-
-    for(attribute <- node attributes)
-      if (attribute.isPrefixed && attribute.getNamespace(node) != ""){
-        println("THE ATTRIBUTE IS:"+attribute.key)
-        println("THE NAMESPACE SHOULD BE:"+attribute.getNamespace(node))
-        println("IT ACTUALLY IS:"+Namespace.getNamespace(attribute key,attribute getNamespace(node)))
-
-        jdomNode setAttribute(attribute key,
-                attribute.value.apply(0).text,
-                Namespace getNamespace(node prefix,attribute getNamespace(node)))
+    // val jdomNode = new CompressableElement(node label,node namespace)
+    val jdomNode = new Element(node label,node namespace)
+    
+    val attribs = node attributes;
+    attribs.map{(attribute : MetaData) => {
+    // for(attribute <- attribs) {
+      val attrNS = attribute getNamespace(node)
+      val name = attribute key
+      val value = attribute.value.apply(0).text
+      val prefixedKey = attribute.prefixedKey
+      val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
+      val ns = Namespace getNamespace(prefix, attrNS)
+      if (attribute.isPrefixed && attrNS != ""){
+        println("THE ATTRIBUTE IS: "+name)
+        println("THE NAMESPACE SHOULD BE: "+attrNS)
+        println("IT ACTUALLY IS:"+Namespace.getNamespace(name, attrNS))
+       
+        jdomNode setAttribute(name, value, ns)
       }
       else
-        jdomNode setAttribute(attribute key, attribute.value.apply(0).text)
-
+        jdomNode setAttribute(name, value)
+    }}
     for(child <- node child){
       child label match {
         case "#PCDATA" => jdomNode addContent(child toString)
@@ -426,7 +421,7 @@ object XMLUtil {
     namespaces addNamespace (targetNamespace,null)
     namespaces
   }
-
+  
   def getListFromValue(value:String):AttributeValue =
     if (XPathUtil isExpression(value))
       new ExpressionValue(value)
@@ -444,70 +439,70 @@ object XMLUtil {
     }
 
 
-  private def getCompressablePath(node:Parent,path:List[CompressableNode]):List[CompressableNode] = {
-    node getParent match {
-      case e:CompressableNode => getCompressablePath(e,e::path)
-      case _ => path
-    }
-  }
+//  private def getCompressablePath(node:Parent,path:List[CompressableNode]):List[CompressableNode] = {
+//    node getParent match {
+//      case e:CompressableNode => getCompressablePath(e,e::path)
+//      case _ => path
+//    }
+//  }
+//
+//  private def getCompressableRoot(parent:Parent):CompressableNode =
+//    parent getParent match {
+//      case e:CompressableNode => getCompressableRoot(e)
+//      case _ => parent match {
+//        case e:CompressableNode => e
+//        case _ => throw new IllegalArgumentException("No compressable root for this node")
+//      }
+//    }
+//
+//
+//  private def compress(path:List[CompressableNode]) = {
+//    for(node <- path)
+//      node match {
+//        case p:CompressableElement =>
+//          if (! p.isCompressed)
+//            for(child <- p.getChildren)
+//               if (! path.contains(child))
+//                 child.asInstanceOf[CompressableNode].compress
+//        case _ => 
+//      }
+//  }
 
-  private def getCompressableRoot(parent:Parent):CompressableNode =
-    parent getParent match {
-      case e:CompressableNode => getCompressableRoot(e)
-      case _ => parent match {
-        case e:CompressableNode => e
-        case _ => throw new IllegalArgumentException("No compressable root for this node")
-      }
-    }
-
-
-  private def compress(path:List[CompressableNode]) = {
-    for(node <- path)
-      node match {
-        case p:CompressableElement =>
-          if (! p.isCompressed)
-            for(child <- p.getChildren)
-               if (! path.contains(child))
-                 child.asInstanceOf[CompressableNode].compress
-        case _ => 
-      }
-  }
-
-  def checkMemory(parent:Parent) = {
-    if (nodeCount%100000 == 0 )
-      DebugUtil log("Node count = "+nodeCount)
-
-    if(shouldCompress){
-      DebugUtil time ("Compressing",{
-        val path = getCompressablePath(parent,Nil)
-        compress(path)
-        if (path.length == 0){
-	        DebugUtil.log("Empty path "+path)
-        }else{
-          shouldCompress = false
-          hasCompressed = true
-        }
-      })
-
-      MemoryWarningSystem gc
-      
-      val mem = MemoryWarningSystem getMemoryUsage
-
-      DebugUtil log("Serialization completed ("+MemoryWarningSystem.toMb(mem.getUsed)+"/"+
-              MemoryWarningSystem.toMb(mem.getMax)+")")
-
-      WARNING_MEMORY_PERCENTAGE += 0.025
-      if (WARNING_MEMORY_PERCENTAGE>MAX_MEMORY_PERCENTAGE)
-      	WARNING_MEMORY_PERCENTAGE = MAX_MEMORY_PERCENTAGE
-      MemoryWarningSystem setPercentageUsageThreshold(WARNING_MEMORY_PERCENTAGE)
-    }
-  }
-
-  MemoryWarningSystem setPercentageUsageThreshold(WARNING_MEMORY_PERCENTAGE)
-  MemoryWarningSystem addListener { (used:Long,max:Long) =>
-    shouldCompress = true;
-   	DebugUtil log("Low memory condititon dectected ("+MemoryWarningSystem.toMb(used)+"/"+
-             MemoryWarningSystem.toMb(max)+").") }
+//  def checkMemory(parent:Parent) = {
+//    if (nodeCount%100000 == 0 )
+//      DebugUtil log("Node count = "+nodeCount)
+//
+//    if(shouldCompress){
+//      DebugUtil time ("Compressing",{
+//        val path = getCompressablePath(parent,Nil)
+//        compress(path)
+//        if (path.length == 0){
+//	        DebugUtil.log("Empty path "+path)
+//        }else{
+//          shouldCompress = false
+//          hasCompressed = true
+//        }
+//      })
+//
+//      MemoryWarningSystem gc
+//      
+//      val mem = MemoryWarningSystem getMemoryUsage
+//
+//      DebugUtil log("Serialization completed ("+MemoryWarningSystem.toMb(mem.getUsed)+"/"+
+//              MemoryWarningSystem.toMb(mem.getMax)+")")
+//
+//      WARNING_MEMORY_PERCENTAGE += 0.025
+//      if (WARNING_MEMORY_PERCENTAGE>MAX_MEMORY_PERCENTAGE)
+//      	WARNING_MEMORY_PERCENTAGE = MAX_MEMORY_PERCENTAGE
+//      MemoryWarningSystem setPercentageUsageThreshold(WARNING_MEMORY_PERCENTAGE)
+//    }
+//  }
+//
+//  MemoryWarningSystem setPercentageUsageThreshold(WARNING_MEMORY_PERCENTAGE)
+//  MemoryWarningSystem addListener { (used:Long,max:Long) =>
+//    shouldCompress = true;
+//   	DebugUtil log("Low memory condititon dectected ("+MemoryWarningSystem.toMb(used)+"/"+
+//             MemoryWarningSystem.toMb(max)+").") }
 
     
 //  def getListFromExpression(expression:String,variables:VariableMap,

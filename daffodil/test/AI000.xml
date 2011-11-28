@@ -1,5 +1,5 @@
-<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-  <firstToken type="xsd:string">aSingleToken</firstToken>
-  <secondToken type="xsd:string">123456789</secondToken>
-  <thirdToken type="xsd:string">AAAAA</thirdToken>
+<list xmlns="http://www.example.org/example1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <firstToken>aSingleToken</firstToken>
+  <secondToken>123456789</secondToken>
+  <thirdToken>AAAAA</thirdToken>
 </list>

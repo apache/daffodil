@@ -2,32 +2,32 @@ package daffodil.processors.input
 
 import org.jdom.Element
 import org.jdom.Parent
-
 import daffodil.debugger.DebuggingListener
 import daffodil.schema.annotation.Annotation
 import daffodil.xml.Namespaces
 import daffodil.parser.RollbackStream
 import daffodil.parser.regex.Regex
 import daffodil.processors.{ScanResult, VariableMap}
+import daffodil.processors.ProcessorResult
 
 class DebuggingBasicProcessor(annotation:Annotation,debugger:DebuggingListener,
                          processor:BasicProcessor) extends BasicProcessor {
   
   override def apply(input:RollbackStream,element:Element,
                      variables:VariableMap,namespaces:Namespaces,
-  					 terminators:List[Regex]) = {
+  					 terminators:List[Regex]):ProcessorResult = {
     debugger step(annotation element,annotation,element,variables,namespaces,input)
     processor(input,element,variables,namespaces,terminators)
   }
   
   override def init(input:RollbackStream,element:Element,variables:VariableMap,
-                    namespaces:Namespaces) = {
+                    namespaces:Namespaces) {
     debugger step(annotation element,annotation,element,variables,namespaces,input)
     processor init(input,element,variables,namespaces)
   }
   
   override def terminate(input:RollbackStream,element:Element,variables:VariableMap,
-                         namespaces:Namespaces,terminators:List[Regex]) = {
+                         namespaces:Namespaces,terminators:List[Regex]) {
     debugger step(annotation element,annotation,element,variables,namespaces,input)
     processor terminate(input,element,variables,namespaces,terminators)
   }

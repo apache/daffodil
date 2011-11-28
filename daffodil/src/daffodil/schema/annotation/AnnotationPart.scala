@@ -37,11 +37,26 @@ package daffodil.schema.annotation
  */
 
 import java.io.Serializable
+import daffodil.schema._
 
-trait AnnotationPart extends Serializable{
+trait AnnotationPart extends Serializable with Diffable {
   def canEqual(that:Any) = 
     that match {
       case _:AnnotationPart => true
       case _ => false
     }
+  
+  /**
+   * parts should only delegate to this if they want their equals used to implement
+   * diff. Otherwise they need to override diff.
+   */
+  override def diff(o:Any) : Similarity = 
+    o match {
+    case null => Different(this, o)
+    case that:AnnotationPart => {
+      if (this == that) Same
+      else Different(this, that)
+    }
+    case _ => DifferentType
+  }
 }

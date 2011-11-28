@@ -1,10 +1,10 @@
-<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-  <x type="xsd:int">8</x>
-  <x type="xsd:int">9</x>
-  <x type="xsd:int">10</x>
-  <y type="xsd:int">7</y>
-  <y type="xsd:int">8</y>
-  <y type="xsd:int">9</y>
-  <y type="xsd:int">10</y>
-  <z type="xsd:string">some string</z>
+<list xmlns="http://www.example.org/example1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <x>8</x>
+  <x>9</x>
+  <x>10</x>
+  <y>7</y>
+  <y>8</y>
+  <y>9</y>
+  <y>10</y>
+  <z>some string</z>
 </list>

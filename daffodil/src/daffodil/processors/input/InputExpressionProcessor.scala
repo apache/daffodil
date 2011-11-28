@@ -44,14 +44,14 @@ import daffodil.processors.xpath.StringResult
 import daffodil.xml.Namespaces
 import daffodil.xml.XMLUtil.addNewChild
 import daffodil.xml.XMLUtil.XSD_NAMESPACE
-import org.jdom.{Element, Parent}
+import org.jdom.{Element, Parent, Text}
 import daffodil.parser.RollbackStream
 import daffodil.parser.regex.Regex
 import daffodil.processors._
 
 class InputExpressionProcessor(expression:String) extends BasicProcessor {
 
-  var typeName:String = _
+  var typeName:String = _ // should be Option[String]
   
   val trimmedExpression = if (!XPathUtil.isExpression(expression))
 	  throw new ExpressionDefinitionException("not an expression "+expression)
@@ -69,14 +69,15 @@ class InputExpressionProcessor(expression:String) extends BasicProcessor {
   override def apply(input:RollbackStream,element:Element,
                      variables:VariableMap,
                      namespaces:Namespaces,terminators:List[Regex]):ProcessorResult = {
-    if (trimmedExpression.length != 0)
-      XPathUtil evalExpression(trimmedExpression,variables,element,namespaces) match {
-        case StringResult(s) => element setText(s)
-        case NodeResult(n) => if ( n!= null) element.setText(n getText) else 
+    if (trimmedExpression.length != 0) {
+      val evaluated = XPathUtil.evalExpression(trimmedExpression,variables,element,namespaces) 
+      evaluated match {
+        case StringResult(s) => element.addContent(new Text(s)) // Note: changed to addContent from setText. Shouldn't matter because the locations should be empty.
+        case NodeResult(n) => if ( n != null) element.addContent(n getText) else 
           throw new ElementProcessingException("null result from xpath expression",
             documentContext = element,position = Some(input getPosition))
       }
-
+    }
       if (typeName != null)
         setType(typeName.substring(XSD_NAMESPACE.length),element,namespaces)
     
@@ -85,10 +86,10 @@ class InputExpressionProcessor(expression:String) extends BasicProcessor {
   
   
   override def init(input:RollbackStream,element:Element,
-                    variables:VariableMap,namespaces:Namespaces) = {}
+                    variables:VariableMap,namespaces:Namespaces) {}
   
   override def terminate(input:RollbackStream,element:Element,variables:VariableMap,
-                         namespaces:Namespaces,terminators:List[Regex]) = {}
+                         namespaces:Namespaces,terminators:List[Regex]) {}
   
   override def findPrefixSeparator(input:RollbackStream,parent:Parent,variables:VariableMap,
                     	namespaces:Namespaces,parentTerminators:List[Regex]):ScanResult = NothingFound

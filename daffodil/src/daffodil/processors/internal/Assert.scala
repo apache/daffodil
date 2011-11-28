@@ -93,7 +93,7 @@ class Assert(expression:String,message:String) extends InternalProcessor {
       }
     }
   
-  private def getMessage(parent:Parent,variables:VariableMap,namespaces:Namespaces) = {
+  private def getMessage(parent:Parent,variables:VariableMap,namespaces:Namespaces): String = {
     if (XPathUtil.isExpression(message))
       XPathUtil evalExpression(message trim,variables,parent.asInstanceOf[Element],namespaces) match {
         case StringResult(s) => s

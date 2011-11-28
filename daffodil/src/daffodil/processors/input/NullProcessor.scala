@@ -38,11 +38,11 @@ package daffodil.processors.input
 
 import org.jdom.Parent
 import org.jdom.Element
-
 import daffodil.xml.Namespaces
 import daffodil.parser.RollbackStream
 import daffodil.parser.regex.Regex
 import daffodil.processors.{NothingFound, ScanResult, Empty, VariableMap}
+import daffodil.processors.ProcessorResult
 
 /**
  * A no-op processor
@@ -54,13 +54,13 @@ import daffodil.processors.{NothingFound, ScanResult, Empty, VariableMap}
 object NullProcessor extends BasicProcessor{
   
   override def apply(input:RollbackStream,element:Element,
-                     variables:VariableMap,namespaces:Namespaces,terminators:List[Regex]) = Empty
+                     variables:VariableMap,namespaces:Namespaces,terminators:List[Regex]): ProcessorResult = Empty
   
   override def init(input:RollbackStream,element:Element,
-                    variables:VariableMap,namespaces:Namespaces) = {}
+                    variables:VariableMap,namespaces:Namespaces) {}
   
   override def terminate(input:RollbackStream,element:Element,
-                         variables:VariableMap,namespaces:Namespaces,terminators:List[Regex]) = {}
+                         variables:VariableMap,namespaces:Namespaces,terminators:List[Regex]) {}
 
   override def findPrefixSeparator(input:RollbackStream,
 				   parent:Parent,variables:VariableMap,

@@ -1,5 +1,6 @@
 package daffodil.processors
 
+
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.
  * Developed by: NCSA Cyberenvironments and Technologies
@@ -50,3 +51,4 @@ case object Last extends ProcessorResult
 case object LastEmpty extends ProcessorResult
 case object Failure extends ProcessorResult
 case object Empty extends ProcessorResult
+

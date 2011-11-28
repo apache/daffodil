@@ -1,12 +1,12 @@
-<root xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+<root xmlns="http://www.example.org/example1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
   <seq>
-    <x type="xsd:string">x0</x>
-    <x type="xsd:string">x1</x>
-    <x type="xsd:string">x2</x>
-    <x type="xsd:string">x3</x>
-    <y type="xsd:string">y0</y>
-    <y type="xsd:string">y1</y>
-    <y type="xsd:string">y2</y>
-    <y type="xsd:string">y3</y>
+    <x>x0</x>
+    <x>x1</x>
+    <x>x2</x>
+    <x>x3</x>
+    <y>y0</y>
+    <y>y1</y>
+    <y>y2</y>
+    <y>y3</y>
   </seq>
 </root>

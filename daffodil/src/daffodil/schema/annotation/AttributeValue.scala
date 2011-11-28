@@ -52,6 +52,19 @@ sealed abstract class AttributeValue extends Serializable
 @SerialVersionUID(1)
 case class ExpressionValue(s:String) extends AttributeValue
 @SerialVersionUID(1)
-case class ListLiteralValue(l:List[Regex]) extends AttributeValue
+case class ListLiteralValue(l:List[Regex]) extends AttributeValue {
+  override def toString = {
+    l map ((r : Regex) => r.toString) reduce ((x : String, y : String) => x + " " + y)
+  }
+  
+  override def equals(o:Any) = {
+    o match {
+      case ListLiteralValue(xl) => {
+        l.toString == xl.toString // let's compare Regex's by their string reps.
+      }
+      case _ => false
+    }
+  }
+}
 @SerialVersionUID(1)
 case object EmptyValue extends AttributeValue

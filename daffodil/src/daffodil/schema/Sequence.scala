@@ -36,16 +36,28 @@ package daffodil.schema
  * Date: 2010
  */
 
-import annotation.enumerations.{Fixed, Parsed, OrderedSequence, UnorderedSequence}
-import annotation.{AnnotationDefaults, Annotation}
-import daffodil.processors.VariableMap
+import scala.collection.mutable.LinkedList
+
 import org.jdom.Parent
-import daffodil.processors.xpath.{NodeResult, StringResult, XPathUtil}
-import daffodil.xml.{XMLUtil, Namespaces}
-import daffodil.processors.input.BasicProcessor
-import daffodil.parser.{LinkedList, RollbackStream}
+
+import annotation.enumerations.Fixed
+import annotation.enumerations.OrderedSequence
+import annotation.enumerations.Parsed
+import annotation.enumerations.UnorderedSequence
+import annotation.Annotation
+import annotation.AnnotationDefaults
+import daffodil.exceptions.ElementNotFoundException
+import daffodil.exceptions.ElementProcessingException
+import daffodil.exceptions.UnimplementedException
 import daffodil.parser.regex.Regex
-import daffodil.exceptions.{ElementNotFoundException, UnimplementedException, ElementProcessingException}
+import daffodil.parser.RollbackStream
+import daffodil.processors.input.BasicProcessor
+import daffodil.processors.VariableMap
+//import daffodil.schema.BasicNode
+//import daffodil.schema.ChildResult
+//import daffodil.schema.ComplexType
+import daffodil.xml.Namespaces
+import daffodil.xml.XMLUtil
 
 /**
  * A BasicNode representing the xsd:sequence component.
@@ -66,7 +78,7 @@ import daffodil.exceptions.{ElementNotFoundException, UnimplementedException, El
 class Sequence(ann:Annotation,target:String,namespaces:Namespaces,c:List[BasicNode])
         extends BasicNodeImpl(target,namespaces,ann) with ComplexType {
 
-  private val ordered = (ann.format.sequenceKind match {
+  private val ordered : Boolean = (ann.format.sequenceKind match {
     case Some(x) => x
     case None => AnnotationDefaults.defaultSequenceKind
   }) match {
@@ -85,7 +97,7 @@ class Sequence(ann:Annotation,target:String,namespaces:Namespaces,c:List[BasicNo
     setChildrenOccurrences
   }
 
-  override def getName(parent:Parent) =
+  override def getName(parent:Parent) :String = 
     parent match{
       case e:org.jdom.Element => e.getName
       case _ => throw new IllegalStateException("Parent of sequence is not an element")
@@ -109,9 +121,11 @@ class Sequence(ann:Annotation,target:String,namespaces:Namespaces,c:List[BasicNo
     for(child <- children)
       if (results==null)
         results =  child(input,annotation,variables,parent,maxLength,terminators)
-      else
-        results append child(input,annotation,variables,parent,maxLength,terminators)
-
+      else {
+        val childElt = child(input,annotation,variables,parent,maxLength,terminators)
+        val res = results append childElt
+        res
+      }
     new ChildSuccess(results)
   }
 
@@ -125,7 +139,7 @@ class Sequence(ann:Annotation,target:String,namespaces:Namespaces,c:List[BasicNo
     def findAnyChild:Boolean = {
       for(i <- 0 until children.size){
         try{
-          val r = children(i)(input,annotation,variables,parent,maxLength,terminators)
+          val r : LinkedList[org.jdom.Element] = children(i)(input,annotation,variables,parent,maxLength,terminators)
           if(r.size>0){
             if (results(i)==null)
               results(i) = r
@@ -144,7 +158,7 @@ class Sequence(ann:Annotation,target:String,namespaces:Namespaces,c:List[BasicNo
 
     var notDone = true
 
-    var maxCount = if (originalChildrenMax exists { _ < 0 }) -1 else originalChildrenMax.reduceLeft { _+_ }
+    var maxCount : Int = if (originalChildrenMax exists { _ < 0 }) -1 else originalChildrenMax.reduceLeft { _+_ }
 
     while(notDone && maxCount != 0){
       notDone = findAnyChild
@@ -152,7 +166,7 @@ class Sequence(ann:Annotation,target:String,namespaces:Namespaces,c:List[BasicNo
     }
 
 
-    def sizeList(l:LinkedList[_]) =
+    def sizeList(l:LinkedList[_]) : Int =
       if (l==null) 0 else l.size
 
 
@@ -185,7 +199,7 @@ class Sequence(ann:Annotation,target:String,namespaces:Namespaces,c:List[BasicNo
    * overrides the min and max occurrences in children nodes
    * remembers the values in originalChildrenMin/Max
    */
-  private def setChildrenOccurrences = {
+  private def setChildrenOccurrences {
     var allParsed = true
     var allFixed = true
     for(child <- children){
@@ -225,11 +239,19 @@ class Sequence(ann:Annotation,target:String,namespaces:Namespaces,c:List[BasicNo
 
   override def canEqual(o:Any):Boolean = o.isInstanceOf[Sequence]
 
-  override def equals(o:Any) = o match {
+  override def equals(o:Any) : Boolean = o match {
     case that:Sequence => {
       that.canEqual(this) && super.equals(that)
     }
     case	 _ => false
+  }
+  
+  override def diff(o:Any) : Similarity = o match {
+    case that:Sequence => {
+      val superDiff = super.diff(that) 
+      return superDiff
+    }
+    case	 _ => DifferentType
   }
 
 }

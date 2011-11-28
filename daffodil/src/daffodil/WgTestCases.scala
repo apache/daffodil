@@ -31,7 +31,7 @@ object WgTestCases {
 		val document = XMLUtil.parse(new File(directory,test))
 		
 		for(child <- XMLUtil.getChildren(document.getRootElement)) {
-			XMLUtil.getFullName(child) match {
+			XMLUtil.getFullNameWithNamespace(child) match {
 				case PARSER_TEST_CASE => {
 					processTestCase(child)
 				}
@@ -41,7 +41,7 @@ object WgTestCases {
 	}
 
 	def attr(e:Element, a:String):String = {
-		XMLUtil.getAttribute(e,a) match { case Some(v) => v }
+		XMLUtil.getAttribute(e,a) match { case Some(v) => v ; case None => throw new Exception("attr getAttribute failed.") }
 	}
 	
 	def processTestCase(tc:Element) = {

@@ -1,29 +1,27 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema" 
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
-	targetNamespace="http://www.example.org/example1/">
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0" 
+	targetNamespace="http://www.example.org/example1">
 
 <!-- an example of speculative parsing, should push back the last folder found (a file) -->
 <!-- protocol:/folder/folder/folder/folder/file -->
 
-  <element name="path">
-    <complexType>
-      <sequence>
-	<element name="protocol" type="xsd:string" 
-		 dfdl:representation="text"
-		 dfdl:terminator=":"/>
-	<element name="folder" type="xsd:string" maxOccurs="unbounded"
-		 dfdl:initiator="/"
-		 dfdl:representation="text"
-		 dfdl:separator="/"
-		 dfdl:separatorPosition="postfix"
-		 dfdl:separatorPolicy="require"/>
-	<element name="file" type="xsd:string" minOccurs="0"
-		 dfdl:representation="text"
-		 dfdl:terminator="%NL;"
-		 dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-      </sequence>
-    </complexType>
-  </element>
+	<element name="path">
+		<complexType>
+			<sequence dfdl:separator="">
+				<element name="folder" type="xsd:string" maxOccurs="unbounded"
+						dfdl:representation="text" 
+						dfdl:separator="/" 
+						dfdl:separatorPosition="postfix" 
+						dfdl:separatorPolicy="required" 
+						dfdl:lengthKind="delimited"/>
+				<element name="file" type="xsd:string" minOccurs="0"
+					dfdl:representation="text" 
+					dfdl:terminator="%NL;"
+					dfdl:documentFinalTerminatorCanBeMissing="yes" 
+					dfdl:lengthKind="delimited"/>
+			</sequence>
+		</complexType>
+	</element>
 
 </schema>

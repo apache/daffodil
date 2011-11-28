@@ -44,8 +44,9 @@ import daffodil.processors.xpath.{NodeResult, StringResult, XPathUtil}
 import daffodil.xml.{XMLUtil, Namespaces}
 import daffodil.exceptions._
 import daffodil.processors.input.BasicProcessor
-import daffodil.parser.{LinkedList, RollbackStream}
+import daffodil.parser.RollbackStream
 import daffodil.parser.regex.Regex
+import scala.collection.mutable.LinkedList
 
 @SerialVersionUID(1)
 class Choice(ann:Annotation,target:String,namespaces:Namespaces,c:List[BasicNode])

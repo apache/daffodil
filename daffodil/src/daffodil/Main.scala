@@ -46,7 +46,7 @@ import daffodil.arguments.{OptionalMultiple,OptionalSingle}
 import daffodil.arguments.SingleValue
 import daffodil.debugger.DebugUtil
 import daffodil.parser.SchemaParser
-import xml.{DBUtil, XMLUtil, GRDDLUtil, CompressableNode}
+import xml.XMLUtil
 import java.io._
 
 /**
@@ -149,25 +149,25 @@ object Main {
             System.out
 
 
-        DBUtil printingPhase(true)
+        // DBUtil printingPhase(true)
         DebugUtil.time("Printing",XMLUtil serialize(output,root))
 
-        if (argumentParser isSet("grddl"))
-          if (argumentParser isSet("output")){
-            val trans = argumentParser getMultiple("grddl")
-            val xmlOutput = new File(argumentParser getSingle("output"))
-            val rdfOutput = argumentParser get("grddlOutput") match {
-              case SingleValue(o) => o
-              case _ => xmlOutput.getAbsolutePath + ".rdf"
-            }
-            DebugUtil.time("Injecting GRDDL headers",GRDDLUtil inject(root,trans))
-            DebugUtil.time("Performing GRDDL transformations",
-              GRDDLUtil glean(new URL(new URL("file:///"),xmlOutput getAbsolutePath),
-                      trans,new FileOutputStream(rdfOutput)))
-          }else{
-            System.err.println("You need to specify an output file in order to use GRDDL")
-
-          }
+//        if (argumentParser isSet("grddl"))
+//          if (argumentParser isSet("output")){
+//            val trans = argumentParser getMultiple("grddl")
+//            val xmlOutput = new File(argumentParser getSingle("output"))
+//            val rdfOutput = argumentParser get("grddlOutput") match {
+//              case SingleValue(o) => o
+//              case _ => xmlOutput.getAbsolutePath + ".rdf"
+//            }
+//            DebugUtil.time("Injecting GRDDL headers",GRDDLUtil inject(root,trans))
+//            DebugUtil.time("Performing GRDDL transformations",
+//              GRDDLUtil glean(new URL(new URL("file:///"),xmlOutput getAbsolutePath),
+//                      trans,new FileOutputStream(rdfOutput)))
+//          }else{
+//            System.err.println("You need to specify an output file in order to use GRDDL")
+//
+//          }
       }
 
       if (argumentParser isSet "parser-destination"){

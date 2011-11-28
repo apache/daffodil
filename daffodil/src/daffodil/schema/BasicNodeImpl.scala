@@ -45,8 +45,9 @@ import org.jdom.Parent
 import daffodil.processors._
 import daffodil.xml.{XMLUtil, Namespaces}
 import input._
-import daffodil.parser.{LinkedList, RollbackStream}
+import daffodil.parser.RollbackStream
 import daffodil.parser.regex.{RegexCompiled, Regex}
+import scala.collection.mutable.LinkedList
 
 abstract class ChildResult
 
@@ -206,7 +207,7 @@ abstract class BasicNodeImpl(target:String,namespaces:Namespaces,ann:Annotation)
         case Some(Prefix) => separatorPrefix = true
         case Some(Infix) => separatorInfix = true
         case Some(Postfix) => separatorPostfix = true
-        case None =>  separatorInfix = true
+        case None =>  separatorInfix = true // FIXME: should error. Properties don't have defaults in DFDL.
       }
 
 
@@ -217,13 +218,14 @@ abstract class BasicNodeImpl(target:String,namespaces:Namespaces,ann:Annotation)
           XMLUtil.getListFromExpression(e,thisVariables,parent,namespaces) ::: terminators
     }
 
-    var results:LinkedList[org.jdom.Element] = null
+    var results:LinkedList[org.jdom.Element] = emptyLinkedList
 
     try{
       thisVariables save;
       results = applyHelper(input,thisVariables,max,maxLength,parent,terminatorsToChild,processor)
 
-      if (results.size < min){
+      val sz = results.size
+      if (sz < min) {
         throw new ElementNotFoundException("Occurrences less than xs:minOccurs",
           schemaContext = annotation element,documentContext = parent,position = Some(input getPosition))
       }
@@ -243,7 +245,7 @@ abstract class BasicNodeImpl(target:String,namespaces:Namespaces,ann:Annotation)
       results
 
     }catch{
-      case e:ElementNotFoundException => input rollback; if (getMinOccurs ==0) null else throw e
+      case e:ElementNotFoundException => input rollback; if (getMinOccurs ==0) emptyLinkedList else throw e
       case e:ElementProcessingException => {
         XMLUtil removeChildren(parent,results);
         thisVariables restore;
@@ -258,31 +260,42 @@ abstract class BasicNodeImpl(target:String,namespaces:Namespaces,ann:Annotation)
     }
   }
 
+  val emptyLinkedList = new LinkedList[org.jdom.Element]
   /**
    * Return the list of elements produced by this BasicNode from the current point in the input stream.
    * This would all the elements in the array if the element occurs multiple times
    */
-  private def applyHelper(input:RollbackStream,
-                          variables:VariableMap,occurs:Int,maxLength:Int,
-                          parent:Parent,terminators:List[Regex],
-                          processor:BasicProcessor):LinkedList[org.jdom.Element] = {
-    if (occurs==0)
-      null
+  private def applyHelper(input: RollbackStream,
+    variables: VariableMap,
+    occurs: Int,
+    maxLength: Int,
+    parent: Parent,
+    terminators: List[Regex],
+    processor: BasicProcessor): LinkedList[org.jdom.Element] = {
+    if (occurs == 0)
+      emptyLinkedList
     else {
-
-      val (newOccurs,results) = nextToken(input,variables,parent,maxLength,terminators,occurs,processor)
-
-      //TODO set maxLength to correct value
+      val (newOccurs, results) = nextToken(input, variables, parent, maxLength, terminators, occurs, processor)
+      // assert(newOccurs >= 0)
+      // TODO set maxLength to correct value
       results match {
         case ChildLast(l) => l
-        case ChildSuccess(l) => try {
-          if (stopValue == null || !stopValue.exists { _ matches (l.last.getText)})
-            l append applyHelper(input,variables,newOccurs,maxLength,parent,terminators,processor)
-          l
-        } catch{
-          case e:ElementNotFoundException => l  //TODO FIXME if terminator was required this exception should be rethrown
-        }
-
+        case ChildSuccess(l) =>
+          try {
+            if (stopValue == null || !stopValue.exists { _ matches (l.last.getText) }) {
+              val tail = applyHelper(input, variables, newOccurs, maxLength, parent, terminators, processor)
+              l append tail
+            }
+            l
+          } catch {
+            // speculation failed. We might have found something, but something required after it was not found
+            // so we end up back here due to the throw.
+            case e: ElementNotFoundException => {
+               System.err.println("Backtrack! " + e.getMessage())
+               input rollback;
+               emptyLinkedList
+            }
+          }
       }
     }
   }
@@ -313,18 +326,20 @@ abstract class BasicNodeImpl(target:String,namespaces:Namespaces,ann:Annotation)
           case _:TerminatorFound | _:EndOfStreamFound | NothingFound => newOccurs = 0//that was the last one
           case _:SeparatorFound => //OK
         }
-      else if (separatorPostfix)
-        processor.findPostfixSeparator(input,parent,variables,namespaces,terminators) match {
+      else if (separatorPostfix) {
+        val fps = processor.findPostfixSeparator(input,parent,variables,namespaces,terminators)
+        fps match {
           case _:SeparatorFound => //OK
           case _:TerminatorFound | _:EndOfStreamFound | NothingFound => {
             newOccurs = 0
-            if (annotation.format.separatorPolicy == Some(Require)){
+            if (annotation.format.separatorPolicy == Some(Required)){
                removeChild(results,parent)
                throw new ElementNotFoundException("Could not find postfix separator",
                  schemaContext = annotation element,documentContext = parent,position = Some(input getPosition))
             }
           }
-        }
+          }
+      }
         input uncheck;
         (newOccurs,results)
       }catch{
@@ -346,13 +361,16 @@ abstract class BasicNodeImpl(target:String,namespaces:Namespaces,ann:Annotation)
                              parent:Parent,maxLength:Int,terminators:List[Regex],
                              processor:BasicProcessor) : ChildResult
 
-  override def canEqual(o:Any):Boolean = o.isInstanceOf[BasicNodeImpl]
-
-  override def equals(o:Any) = o match {
+ 
+  override def diff(o:Any) : Similarity = o match {
     case that:BasicNodeImpl => {
-      that.canEqual(this) && super.equals(that) && this.children == that.children
+      val superDiff = super.diff(that) 
+      if (superDiff != Same) return superDiff
+      val childDiff = Diffable.diffLists(this.children, that.children)
+      if (childDiff != Same) return childDiff
+      Same
     }
-    case	 _ => false
+    case	 _ => DifferentType
   }
-
+  
 }

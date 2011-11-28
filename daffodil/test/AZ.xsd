@@ -1,12 +1,12 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema" 
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
-	targetNamespace="http://www.example.org/example1/">
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0" 
+	targetNamespace="http://www.example.org/example1">
 
   <!-- Schema Escaping: define -->
 
   <annotation>
-    <appinfo source="http://www.ogf.org/dfdl/">
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
       <dfdl:defineEscapeScheme name="mySweetEscape">
 	<dfdl:escapeScheme escapeKind="escapeCharacter" escapeCharacter="#"/>
       </dfdl:defineEscapeScheme>

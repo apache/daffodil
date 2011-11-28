@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema" 
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
-	xmlns:tns="http://www.example.org/example1/"
-	targetNamespace="http://www.example.org/example1/">
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0" 
+	xmlns:tns="http://www.example.org/example1"
+	targetNamespace="http://www.example.org/example1">
 
   <!-- Float math example from old defuddle -->
   

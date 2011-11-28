@@ -1,5 +1,5 @@
-<parent xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-  <child type="xsd:string">element 1</child>
-  <child type="xsd:string">element 2</child>
-  <child type="xsd:string">element 3</child>
+<parent xmlns="http://www.example.org/example1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <child>element 1</child>
+  <child>element 2</child>
+  <child>element 3</child>
 </parent>

@@ -48,7 +48,7 @@ import daffodil.xml.XMLUtil
  * @version 1
  * @author Alejandro Rodriguez
  */
-object AnnotationDefaults {
+object AnnotationDefaults { // FIXME: there are not supposed to be defaults. These need to come from a dfdl definition schema inclusion
 
   def defaultAlignment = 1
 
@@ -82,7 +82,7 @@ object AnnotationDefaults {
 
   def defaultOccursCountKind = Parsed
 
-  def defaultSeparatorPolicy = Require
+  def defaultSeparatorPolicy = Required
 
   def defaultSeparatorPosition = Infix
 
@@ -100,7 +100,7 @@ object AnnotationDefaults {
 
 
   //TODO missing xsd:decimal
-  def implicitLength(typeName:String) = 
+  def implicitLength(typeName:String) : Int = 
     typeName match {
       case XMLUtil.XSD_BYTE| XMLUtil.XSD_UNSIGNED_BYTE => 1
       case XMLUtil.XSD_FLOAT => 4

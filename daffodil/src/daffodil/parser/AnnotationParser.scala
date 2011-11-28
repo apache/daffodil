@@ -178,6 +178,8 @@ object AnnotationParser extends Function2[Element,Map[String,Format],Annotation]
   val TEXT_CALENDAR_JUSTIFICATION_PREFIXED = DFDL_NAMESPACE + TEXT_CALENDAR_JUSTIFICATION
   val TEXT_CALENDAR_PAD_CHARACTER = "textCalendarPadCharacter"
   val TEXT_CALENDAR_PAD_CHARACTER_PREFIXED = DFDL_NAMESPACE + TEXT_CALENDAR_PAD_CHARACTER
+  val TEXT_NUMBER_BASE = "textNumberBase"
+  val TEXT_NUMBER_BASE_PREFIXED = DFDL_NAMESPACE + TEXT_NUMBER_BASE
   val TEXT_NUMBER_CHECK_POLICY = "textNumberCheckPolicy"
   val TEXT_NUMBER_CHECK_POLICY_PREFIXED = DFDL_NAMESPACE+TEXT_NUMBER_CHECK_POLICY
   val TEXT_NUMBER_FORMAT_REF = "textNumberFormatRef"
@@ -192,7 +194,7 @@ object AnnotationParser extends Function2[Element,Map[String,Format],Annotation]
   val TEXT_NUMBER_PATTERN_PREFIXED = DFDL_NAMESPACE + TEXT_NUMBER_PATTERN
   val TEXT_NUMBER_ROUNDING_MODE = "textNumberRoundingMode"
   val TEXT_NUMBER_ROUNDING_MODE_PREFIXED = DFDL_NAMESPACE + TEXT_NUMBER_ROUNDING_MODE
-  val TEXT_STANDARD_BASE = "textStandardBase"
+  val TEXT_STANDARD_BASE = "textStandardBase" // TODO - remove this obsolete property name
   val TEXT_STANDARD_BASE_PREFIXED = DFDL_NAMESPACE + TEXT_STANDARD_BASE
   val TEXT_STANDARD_DECIMAL_SEPARATOR = "textStandardDecimalSeparator"
   val TEXT_STANDARD_DECIMAL_SEPARATOR_PREFIXED = DFDL_NAMESPACE + TEXT_STANDARD_DECIMAL_SEPARATOR
@@ -249,41 +251,60 @@ object AnnotationParser extends Function2[Element,Map[String,Format],Annotation]
    * @param definitions all globally defined formats
    * @returns an Annotation object containing all the annotations in the node
    */
-  override def apply(parent:Element,definitions:Map[String,Format]):Annotation = {
+  override def apply(parent: Element, definitions: Map[String, Format]): Annotation = {
     var annotation = new Annotation(parent)
-    parseAttributes(getAttributes(parent),parent,annotation,definitions,false)
+    parseAttributes(getAttributes(parent), parent, annotation, definitions, false)
 
-    for(immediateChild <- getChildren(parent))
-      getFullName(immediateChild) match {
-        case PCDATA | REM  =>
+    val children = getChildren(parent)
+    for (immediateChild <- children) {
+      val elemName = getFullNameWithNamespace(immediateChild)
+      elemName match {
+        case PCDATA | REM => { /* do nothing */ }
         case ANNOTATION => {
-          for(c1 <- getChildren(immediateChild))
-            getFullName(c1) match {
+          val innerChildren = getChildren(immediateChild)
+          for (c1 <- innerChildren) {
+            val elemName = getFullNameWithNamespace(c1)
+            elemName match {
               case PCDATA | REM =>
-              case APP_INFO =>
-                if (getAttribute(c1,"source")==Some(DFDL_SOURCE))
-                  for (c2 <- getChildren(c1))
-                    getFullName(c2) match {
-                      case PCDATA | REM =>
+              case APP_INFO => {
+                val actualSource = getAttribute(c1, "source")
+                val acceptableSource: Boolean = actualSource match {
+                  case Some(s) => {
+                    s == DFDL_SOURCE ||
+                      DFDL_SOURCE.startsWith(s) || // Let's tolerate inaccurate source attributes on appinfo for now.
+                      s.startsWith(DFDL_SOURCE)    // tolerate either one being a prefix of the other
+                  }
+                  case _ => false // appinfo, but source attribute on it is not DFDL's source
+                }
+                if (acceptableSource) {
+                  val dfdlChildren = getChildren(c1)
+                  for (c2 <- dfdlChildren) {
+                    val elemName = getFullNameWithNamespace(c2)
+                    elemName match {
+                      case PCDATA | REM => { /* do nothing */ }
                       case DFDL_FORMAT | DFDL_CHOICE | DFDL_SEQUENCE | DFDL_GROUP |
-                              DFDL_ELEMENT | DFDL_ESCAPE_SCHEMA => parseFormat(c2,annotation,definitions)
-                      case DFDL_SIMPLE_TYPE => throw new UnimplementedException("simpleType",schemaContext = c2) // TODO implment
-                      case DFDL_DEFINE_ESCAPE_SCHEME => parseGlobalEscapeDefinition(c2,definitions)
-                      case DFDL_DEFINE_FORMAT => parseGlobalFormatDefinition(c2,definitions)
+                        DFDL_ELEMENT | DFDL_ESCAPE_SCHEMA => parseFormat(c2, annotation, definitions)
+                      case DFDL_SIMPLE_TYPE => throw new UnimplementedException("simpleType", schemaContext = c2) // TODO implment
+                      case DFDL_DEFINE_ESCAPE_SCHEME => parseGlobalEscapeDefinition(c2, definitions)
+                      case DFDL_DEFINE_FORMAT => parseGlobalFormatDefinition(c2, definitions)
                       //case DFDL_DEFINE_TEXT_NUMBER_FORMAT => parseGlobalFormatDefinition(c2,definitions)
                       //case DFDL_DEFINE_CALENDAR_FORMAT => parseGlobalCalendarDefinition(c2,definitions)
-                      case DFDL_ASSERT => parseAssertion(annotation,c2)
-                      case DFDL_DISCRIMINATOR => parseDiscriminator(annotation,c2)
-                      case DFDL_DEFINE_VARIABLE | DFDL_NEW_VARIABLE_INSTANCE  => parseVariableDefinition(annotation,c2)
-                      case DFDL_SET_VARIABLE => parseVariableBinding(annotation,c2)
-                      case DFDL_HIDDEN =>
-                      case _ => throw new DFDLSchemaDefinitionException("Unknown annotation "+getFullName(c2),schemaContext=c2)
+                      case DFDL_ASSERT => parseAssertion(annotation, c2)
+                      case DFDL_DISCRIMINATOR => parseDiscriminator(annotation, c2)
+                      case DFDL_DEFINE_VARIABLE | DFDL_NEW_VARIABLE_INSTANCE => parseVariableDefinition(annotation, c2)
+                      case DFDL_SET_VARIABLE => parseVariableBinding(annotation, c2)
+                      case DFDL_HIDDEN => { /* not processed here */ }
+                      case _ => throw new DFDLSchemaDefinitionException("Unknown annotation " + getFullName(c2), schemaContext = c2) // TODO: don't throw, accumulate
                     }
+                  }
+                }
+              }
             }
+          }
         }
-        case  _ =>
+        case _ =>
       }
-
+    }
     annotation
   }
 
@@ -354,99 +375,108 @@ object AnnotationParser extends Function2[Element,Map[String,Format],Annotation]
           case Some(CALENDAR_PATTERN) => annotation.format.setCalendarPattern(c getText)
           case Some(CALENDAR_PATTERN_KIND) => annotation.format.setCalendarPatternKind(c getText)
           case Some(CALENDAR_TIME_ZONE) => annotation.format.setCalendarTimeZone(c getText)
-          case _ => throw new DFDLSchemaDefinitionException("Unknow property "+c.getText,schemaContext = c)
+          case _ => throw new DFDLSchemaDefinitionException("Unknown property "+c.getText,schemaContext = c)
         }
         case _ =>
       }
   }
 
-  private def parseFormat(c2:Element,annotation:Annotation,definitions:Map[String,Format]):Unit = {
-    parseAttributes(getAttributes(c2),c2,annotation,definitions,true)
+  private def parseFormat(c2: Element, annotation: Annotation, definitions: Map[String, Format]): Unit = {
+    parseAttributes(getAttributes(c2), c2, annotation, definitions, true)
 
     //c getText -> unescape(c getText)
 
-    for(c <- getChildren(c2))
+    for (c <- getChildren(c2))
       try {
-        getFullName(c) match {
+        getFullNameWithNamespace(c) match {
           case PCDATA | REM =>
-          case DFDL_PROPERTY => getAttribute(c,"name") match {
-            case Some(ALIGNMENT) => annotation.format.setAlignment(c getText)
-            case Some(ALIGNMENT_UNITS) => annotation.format.setAlignmentUnits(c getText)
-            case Some(BINARY_BOOLEAN_TRUE_REP) => annotation.format.setBinaryBooleanTrueRep(c getText)
-            case Some(BINARY_BOOLEAN_FALSE_REP) => annotation.format.setBinaryBooleanFalseRep(c getText)
-            case Some(BINARY_FLOAT_REPRESENTATION) => annotation.format.setFloatRepresentation(c getText)
-            case Some(BINARY_NUMBER_REPRESENTATION) => annotation.format.setBinaryNumberRepresentation(c getText)
-            case Some(BYTE_ORDER) => annotation.format.setByteOrder(c getText)
-            case Some(CALENDAR_PATTERN) => annotation.format.setCalendarPattern(c getText)
-            case Some(CALENDAR_PATTERN_KIND) => annotation.format.setCalendarPatternKind(c getText)
-            case Some(CALENDAR_TIME_ZONE) => annotation.format.setCalendarTimeZone(c getText)
-            case Some(DEFAULT) => annotation.format.setDefault(c getText)
-            case Some(ESCAPE_KIND) => annotation.format.setEscapeKind(c getText)
-            case Some(ESCAPE_BLOCK_START) => annotation.format.setEscapeBlockStart(c getText)
-            case Some(ESCAPE_BLOCK_END) => annotation.format.setEscapeBlockEnd(c getText)
-            case Some(ESCAPE_CHARACTER) => annotation.format.setEscapeCharacter(c getText)
-            case Some(ESCAPE_ESCAPE_CHARACTER) => annotation.format.setEscapeEscapeCharacter(c getText)
-            case Some(ESCAPE_SCHEMA_REF) =>
-              annotation.format += definitions(c getText)
-            case Some(ENCODING) => annotation.format.setEncoding(c getText)
-            case Some(FINAL_TERMINATOR_CAN_BE_MISSING)=> annotation.format.setFinalTerminatorCanBeMissing(c getText)
-            case Some(IGNORE_CASE) => annotation.format.setIgnoreCase(c getText)
-            case Some(INITIATED_CONTENT) => annotation.format.setInitiatedContent(c getText)
-            case Some(INITIATOR) => annotation.format.setInitiator(c getText)
-            case Some(INPUT_VALUE_CALC) =>
-              annotation inputValue = new InputValue(); annotation.inputValue expression = c getText
-            case Some(LEADING_SKIP_BYTES) => annotation.format.setLeadingSkipBytes(c getText)
-            case Some(LENGTH_PATTERN) => annotation.format.setLengthPattern(unescapePattern (c getText))
-            case Some(LENGTH_KIND) | Some(CHOICE_LENGTH_KIND)=> annotation.format.setLengthKind(c getText)
-            case Some(LENGTH) | Some(CHOICE_LENGTH)=> annotation.format.setLength(c getText)
-            case Some(MAX_LENGTH) => annotation.format.setLength(c getText)
-            case Some(MAX_OCCURS) => annotation.format.setMaxOccurs(c getText)
-            case Some(MIN_OCCURS) => annotation.format.setMinOccurs(c getText)
-            case Some(NUMBER_DECIMAL_SEPARATOR) => annotation.format.setDecimalSeparator(c getText)
-            case Some(OCCURS_COUNT_KIND) => annotation.format.setOccursCountKind(c getText)
-            case Some(OCCURS_COUNT) => annotation.format.setOccursCount(c getText)
-            case Some(OCCURS_STOP_VALUE) =>  annotation.format.setOccursStopValue(c getText)
-            case Some(PREFIX_LENGTH_TYPE) => annotation.format setPrefixLengthType(c getText)
-            case Some(PREFIX_INCLUDES_PREFIX_LENGTH) => annotation.format setPrefixIncludesPrefixLength(c getText)
-            case Some(REF) => annotation.format += definitions(c getText)
-            case Some(REPRESENTATION) => annotation.format.setRepresentation(c getText)
-            case Some(SEPARATOR) => annotation.format.setSeparator(c getText)
-            case Some(SEPARATOR_POSITION) => annotation.format.setSeparatorPosition(c getText)
-            case Some(SEPARATOR_POLICY) => annotation.format.setSeparatorPolicy(c getText)
-            case Some(SEQUENCE_KIND) => annotation.format.setSequenceKind(c getText)
-            case Some(STOP_VALUE) => annotation.format.setStopValue(c getText)
-            case Some(TERMINATOR)=> annotation.format.setTerminator(c getText)
-//            case Some(TEXT_CALENDAR_FORMAT_REF) =>
-//              annotation.format += definitions(c getText)
-            case Some(TEXT_BOOLEAN_TRUE_REP) => annotation.format.setTextBooleanTrueRep(c getText)
-            case Some(TEXT_BOOLEAN_FALSE_REP) => annotation.format.setTextBooleanFalseRep(c getText)
-            case Some(TEXT_NUMBER_CHECK_POLICY) => annotation.format.setTextNumberCheckPolicy(c getText)
-            case Some(TEXT_NUMBER_PATTERN) => annotation.format.setTextNumberPattern(c getText)
-            case Some(TEXT_NUMBER_ROUNDING_MODE) => annotation.format.setTextNumberRoundingMode(c getText)
-            case Some(TEXT_STANDARD_DECIMAL_SEPARATOR) => annotation.format.setTextStandardDecimalSeparator(c getText)
-            case Some(TEXT_STANDARD_EXPONENT_CHARACTER) => annotation.format.setTextStandardExponentCharacter(c getText)
-            case Some(TEXT_STANDARD_INFINITY_REP) => annotation.format.setTextStandardInfinityRep(c getText)
-            case Some(TEXT_STANDARD_GROUPING_SEPARATOR) => annotation.format.setTextStandardGroupingSeparator(c getText)
-            case Some(TEXT_STANDARD_NAN_REP) => annotation.format.setTextStandardNanRep(c getText)
-            case Some(TEXT_STANDARD_ZERO_REP) => annotation.format.setTextStandardZeroRep(c getText)
-            case Some(TEXT_ZONED_SIGN_STYLE) => annotation.format.setTextZonedSignStyle(c getText)
-            case Some(TEXT_STANDARD_BASE) => annotation.format.setBase(c getText)
-//           case Some(TEXT_NUMBER_FORMAT_REF) =>
-//              annotation.format += definitions(c getText)
-            case Some(TEXT_STRING_JUSTIFICATION) | Some(TEXT_NUMBER_JUSTIFICATION) |
-                    Some(TEXT_CALENDAR_JUSTIFICATION) | Some(TEXT_BOOLEAN_JUSTIFICATION) =>
-              annotation.format.setTextStringJustification(c getText)
-            case Some(TEXT_STRING_PAD_CHARACTER) | Some(TEXT_NUMBER_PAD_CHARACTER) |
-                    Some(TEXT_CALENDAR_PAD_CHARACTER) | Some(TEXT_BOOLEAN_PAD_CHARACTER) =>
-              annotation.format.setPadCharacter(c getText)
-            case Some(TEXT_NUMBER_REP) => annotation.format.setTextNumberRep(c getText)
-            case Some(TRAILING_SKIP_BYTES) => annotation.format.setTrailingSkipBytes(c getText)
-            case _ => throw new DFDLSchemaDefinitionException("Unknow property "+c.getText,schemaContext = c)
+          case DFDL_PROPERTY => {
+            val propNameOption = getAttribute(c, "name")
+            val propName = propNameOption match {
+              case Some(name) => name
+              case _ => throw new Exception("Impossible code path reached.")
+            }
+            val propValue = c.getText
+            propName match {
+              case ALIGNMENT => annotation.format.setAlignment(propValue)
+              case ALIGNMENT_UNITS => annotation.format.setAlignmentUnits(propValue)
+              case BINARY_BOOLEAN_TRUE_REP => annotation.format.setBinaryBooleanTrueRep(propValue)
+              case BINARY_BOOLEAN_FALSE_REP => annotation.format.setBinaryBooleanFalseRep(propValue)
+              case BINARY_FLOAT_REPRESENTATION => annotation.format.setFloatRepresentation(propValue)
+              case BINARY_NUMBER_REPRESENTATION => annotation.format.setBinaryNumberRepresentation(propValue)
+              case BYTE_ORDER => annotation.format.setByteOrder(propValue)
+              case CALENDAR_PATTERN => annotation.format.setCalendarPattern(propValue)
+              case CALENDAR_PATTERN_KIND => annotation.format.setCalendarPatternKind(propValue)
+              case CALENDAR_TIME_ZONE => annotation.format.setCalendarTimeZone(propValue)
+              case DEFAULT => annotation.format.setDefault(propValue)
+              case ESCAPE_KIND => annotation.format.setEscapeKind(propValue)
+              case ESCAPE_BLOCK_START => annotation.format.setEscapeBlockStart(propValue)
+              case ESCAPE_BLOCK_END => annotation.format.setEscapeBlockEnd(propValue)
+              case ESCAPE_CHARACTER => annotation.format.setEscapeCharacter(propValue)
+              case ESCAPE_ESCAPE_CHARACTER => annotation.format.setEscapeEscapeCharacter(propValue)
+              case ESCAPE_SCHEMA_REF =>
+                annotation.format += definitions(propValue)
+              case ENCODING => annotation.format.setEncoding(propValue)
+              case FINAL_TERMINATOR_CAN_BE_MISSING => annotation.format.setFinalTerminatorCanBeMissing(propValue)
+              case IGNORE_CASE => annotation.format.setIgnoreCase(propValue)
+              case INITIATED_CONTENT => annotation.format.setInitiatedContent(propValue)
+              case INITIATOR => annotation.format.setInitiator(propValue)
+              case INPUT_VALUE_CALC =>
+                annotation inputValue = new InputValue(); annotation.inputValue expression = propValue
+              case LEADING_SKIP_BYTES => annotation.format.setLeadingSkipBytes(propValue)
+              case LENGTH_PATTERN => annotation.format.setLengthPattern(unescapePattern(propValue))
+              case LENGTH_KIND | CHOICE_LENGTH_KIND => annotation.format.setLengthKind(propValue)
+              case LENGTH | CHOICE_LENGTH => annotation.format.setLength(propValue)
+              case MAX_LENGTH => annotation.format.setLength(propValue)
+              case MAX_OCCURS => annotation.format.setMaxOccurs(propValue)
+              case MIN_OCCURS => annotation.format.setMinOccurs(propValue)
+              case NUMBER_DECIMAL_SEPARATOR => annotation.format.setDecimalSeparator(propValue)
+              case OCCURS_COUNT_KIND => annotation.format.setOccursCountKind(propValue)
+              case OCCURS_COUNT => annotation.format.setOccursCount(propValue)
+              case OCCURS_STOP_VALUE => annotation.format.setOccursStopValue(propValue)
+              case PREFIX_LENGTH_TYPE => annotation.format setPrefixLengthType (propValue)
+              case PREFIX_INCLUDES_PREFIX_LENGTH => annotation.format setPrefixIncludesPrefixLength (propValue)
+              case REF => annotation.format += definitions(propValue)
+              case REPRESENTATION => annotation.format.setRepresentation(propValue)
+              case SEPARATOR => annotation.format.setSeparator(propValue)
+              case SEPARATOR_POSITION => annotation.format.setSeparatorPosition(propValue)
+              case SEPARATOR_POLICY => annotation.format.setSeparatorPolicy(propValue)
+              case SEQUENCE_KIND => annotation.format.setSequenceKind(propValue)
+              case STOP_VALUE => annotation.format.setStopValue(propValue)
+              case TERMINATOR => annotation.format.setTerminator(propValue)
+              //            case TEXT_CALENDAR_FORMAT_REF =>
+              //              annotation.format += definitions(propValue)
+              case TEXT_BOOLEAN_TRUE_REP => annotation.format.setTextBooleanTrueRep(propValue)
+              case TEXT_BOOLEAN_FALSE_REP => annotation.format.setTextBooleanFalseRep(propValue)
+              case TEXT_NUMBER_BASE => annotation.format.setBase(propValue)
+              case TEXT_NUMBER_CHECK_POLICY => annotation.format.setTextNumberCheckPolicy(propValue)
+              case TEXT_NUMBER_PATTERN => annotation.format.setTextNumberPattern(propValue)
+              case TEXT_NUMBER_ROUNDING_MODE => annotation.format.setTextNumberRoundingMode(propValue)
+              case TEXT_STANDARD_DECIMAL_SEPARATOR => annotation.format.setTextStandardDecimalSeparator(propValue)
+              case TEXT_STANDARD_EXPONENT_CHARACTER => annotation.format.setTextStandardExponentCharacter(propValue)
+              case TEXT_STANDARD_INFINITY_REP => annotation.format.setTextStandardInfinityRep(propValue)
+              case TEXT_STANDARD_GROUPING_SEPARATOR => annotation.format.setTextStandardGroupingSeparator(propValue)
+              case TEXT_STANDARD_NAN_REP => annotation.format.setTextStandardNanRep(propValue)
+              case TEXT_STANDARD_ZERO_REP => annotation.format.setTextStandardZeroRep(propValue)
+              case TEXT_ZONED_SIGN_STYLE => annotation.format.setTextZonedSignStyle(propValue)
+              case TEXT_STANDARD_BASE => annotation.format.setBase(propValue)
+              //           case TEXT_NUMBER_FORMAT_REF =>
+              //              annotation.format += definitions(propValue)
+              case TEXT_STRING_JUSTIFICATION | TEXT_NUMBER_JUSTIFICATION |
+                TEXT_CALENDAR_JUSTIFICATION | TEXT_BOOLEAN_JUSTIFICATION =>
+                annotation.format.setTextStringJustification(propValue)
+              case TEXT_STRING_PAD_CHARACTER | TEXT_NUMBER_PAD_CHARACTER |
+                TEXT_CALENDAR_PAD_CHARACTER | TEXT_BOOLEAN_PAD_CHARACTER =>
+                annotation.format.setPadCharacter(propValue)
+              case TEXT_NUMBER_REP => annotation.format.setTextNumberRep(propValue)
+              case TRAILING_SKIP_BYTES => annotation.format.setTrailingSkipBytes(propValue)
+              case _ => throw new DFDLSchemaDefinitionException("Unknown property " + propName + " with value " + propValue, schemaContext = c)
+            }
           }
           case _ =>
         }
-      }catch{
-        case e:IllegalArgumentException => throw new DFDLSchemaDefinitionException(e.getMessage,cause = e,schemaContext = c)
+      } catch {
+        case e: IllegalArgumentException => throw new DFDLSchemaDefinitionException(e.getMessage, cause = e, schemaContext = c)
       }
   }
 
@@ -460,6 +490,12 @@ object AnnotationParser extends Function2[Element,Map[String,Format],Annotation]
       case e:NumberFormatException => throw new DFDLSchemaDefinitionException(e.getMessage,cause = e,schemaContext = parent)
     }
   }
+  
+  //TODO: All of this property assignment stuff would be better done reflectively rather than having to maintain 
+  // all this code that is isomorphic to the list of property names.
+  
+  //TODO: refactor so there is one common assignment thing, not one for element form, and one for attribute form.
+  // and... that one thing should work reflectively.
 
   private def parseAttribute(a:Attribute,parent:Element,
                              annotation:Annotation,definitions:Map[String,Format],parseRef:Boolean):Unit = {
@@ -467,6 +503,8 @@ object AnnotationParser extends Function2[Element,Map[String,Format],Annotation]
     //a getValue -> unescape(a getValue)
 
     getFullName(a) match {
+      case TEXT_NUMBER_BASE | TEXT_NUMBER_BASE_PREFIXED =>
+        annotation.format.setBase(a getValue)
       case TEXT_NUMBER_CHECK_POLICY | TEXT_NUMBER_CHECK_POLICY_PREFIXED =>
         annotation.format.setTextNumberCheckPolicy(a getValue)
       case TEXT_NUMBER_PATTERN | TEXT_NUMBER_PATTERN_PREFIXED =>

@@ -38,10 +38,10 @@ package daffodil.schema.annotation
 
 @SerialVersionUID(1)
 class Hidden extends AnnotationPart {
-  override def equals(other:Any) = 
-    other match {
-      case null => false
-      case x:Hidden => true
-      case _ => false
-    }
+//  override def equals(other:Any) = 
+//    other match {
+//      case null => false
+//      case x:Hidden => true
+//      case _ => false
+//    }
 }

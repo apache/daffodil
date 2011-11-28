@@ -73,7 +73,7 @@ class DaffodilException(description:String,cause:Throwable=null,var schemaContex
         schemaContext match {
           case e:Document => description + "Root";
           case e:Element => makeMessage(description,e)
-          case _ => "Unknow"
+          case _ => "Unknown"
         })
     }
     position match {

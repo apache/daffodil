@@ -42,7 +42,7 @@ package daffodil.processors
  * @version 1
  * @author Alejandro Rodriguez
  */
-abstract class ScanResult
+sealed abstract class ScanResult
 
 /** No token was found */
 case object NothingFound extends ScanResult
@@ -51,7 +51,7 @@ case object NothingFound extends ScanResult
 case class SeparatorFound(token:String,separator:String) extends ScanResult
 
 /** A token followed by a separator that also matches a terminator was found */
-case class SeparatorAndTerminatorFOund(token:String,delimiter:String) extends ScanResult
+// case class SeparatorAndTerminatorFound(token:String,delimiter:String) extends ScanResult
 
 /** A token followed by a terminator was found */
 case class TerminatorFound(token:String,terminator:String) extends ScanResult

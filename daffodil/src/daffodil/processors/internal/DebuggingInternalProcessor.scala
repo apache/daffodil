@@ -37,11 +37,11 @@ package daffodil.processors.internal
  */
 
 import org.jdom.Parent
-
 import daffodil.debugger.DebuggingListener
 import daffodil.schema.annotation.Annotation
 import daffodil.xml.Namespaces
 import daffodil.processors.VariableMap
+import daffodil.processors.ProcessorResult
 
 
 /**
@@ -59,7 +59,7 @@ class DebuggingInternalProcessor(annotation:Annotation,
                          debugger:DebuggingListener,
                          processor:InternalProcessor) extends InternalProcessor{
   
-   override def apply(parent:Parent,variables:VariableMap,target:String,namespaces:Namespaces) = {
+   override def apply(parent:Parent,variables:VariableMap,target:String,namespaces:Namespaces) : VariableMap = {
      debugger step(annotation element,annotation,parent,variables,namespaces,null)
      processor(parent,variables,target,namespaces)
    }

@@ -37,13 +37,12 @@ package daffodil.schema
  */
 
 import scala.collection.mutable.Map
-
 import org.jdom.Parent
-
 import daffodil.processors.VariableMap
 import daffodil.schema.annotation.Annotation
 import daffodil.parser.regex.Regex
-import daffodil.parser.{LinkedList, RollbackStream}
+import daffodil.parser.RollbackStream
+import scala.collection.mutable.LinkedList
 
 
 /**

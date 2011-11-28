@@ -40,7 +40,7 @@ import java.io.Serializable
 sealed abstract class SeparatorPolicy extends Serializable
 
 @SerialVersionUID(1)
-case object Require extends SeparatorPolicy
+case object Required extends SeparatorPolicy
 
 @SerialVersionUID(1)
 case object Supress extends SeparatorPolicy

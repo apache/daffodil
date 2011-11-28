@@ -44,6 +44,7 @@ import javax.xml.xpath.XPathConstants.STRING
 import javax.xml.namespace.QName
 
 import org.jdom.Element
+import org.jdom.Text
 import org.jdom.Parent
 import net.sf.saxon.om.NamespaceConstant
 import net.sf.saxon.jdom.NodeWrapper
@@ -88,26 +89,38 @@ object XPathUtil {
 
     try{
       val o = xpath.evaluate(expression,contextNode,NODE)
-      new NodeResult(o.asInstanceOf[Element])
+      val res = o match {
+        case x : Element => new NodeResult(o.asInstanceOf[Element])
+        case x : Text => new StringResult(o.asInstanceOf[Text].getValue())
+      }
+      return res
     }catch{
       case _:XPathExpressionException =>
         try {
           val o = xpath.evaluate(expression,contextNode,STRING)
           new StringResult(o.asInstanceOf[String])
         }catch {
-          case e:XPathExpressionException => throw new XPathEvaluationException("Unknwon error evaluating '"+expression+"'",
-            cause = e)
+          case e:XPathExpressionException => {
+            doUnknownXPathEvalException(expression, e)
+          }
         }
-      case e:Exception => throw new XPathEvaluationException("Unknwon error evaluating '"+expression+"'",cause = e)
+      case e:Exception => {
+        doUnknownXPathEvalException(expression, e)
+      }
     }
   }
 
+  def doUnknownXPathEvalException(expression : String, exc : Exception) = {
+     val txt = "Unknown error evaluating '"+expression+"'. Cause: " + exc.toString
+     throw new XPathEvaluationException(txt, cause = exc)
+  }
+  
   /**
    * Whether a string is a DFDL expression (an XPath expression surrounded by brackets).
    *
    * This function does not verify a string conforms to the DFDL subset of XPath
    */
-  def isExpression(expression:String) =
+  def isExpression(expression:String) : Boolean =
     expression.startsWith("{") && expression.endsWith("}") &&
       (expression(1) != '{')
 
@@ -116,7 +129,7 @@ object XPathUtil {
    *
    * @param expression a valid DFDL expression
    */
-  def getExpression(expression:String) = {
+  def getExpression(expression:String) : String = {
     val v = expression.trim
     v.substring(1,v.length-1)
   }
