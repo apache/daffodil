@@ -4,12 +4,15 @@ import java.io.StringReader
 import scala.xml._
 
 import org.jdom.input.SAXBuilder
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import daffodil.xml.XMLUtil
+import org.scalatest.junit.JUnit3Suite
+import scala.collection.mutable.ListBuffer
+import junit.framework.Assert._
 
-class XMLUtilTest extends FunSuite with ShouldMatchers {
+class XMLUtilTest extends JUnit3Suite {
 
-  test("elem2Element") {
+  // @Test
+  def testElem2Element() {
     
     val schema = 
     	<complexType name="mytype" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
@@ -32,10 +35,12 @@ class XMLUtilTest extends FunSuite with ShouldMatchers {
 	println("******************  TWO")
  
 	val other = XMLUtil.elem2Element(schema)
-	println(XMLUtil toString(other))
+	// println(XMLUtil toString(other))
+	println(other.toString)
   }
   
-  test("getElementByName"){
+  // @Test
+  def testGetElementByName() {
     val xmlNode = 
       new SAXBuilder().build(new StringReader(
       "<schema xmlns=\"http://www.w3.org/2001/XMLSchema\" xmlns:tns=\"http://www.example.org/example1/\""+
@@ -57,7 +62,7 @@ class XMLUtilTest extends FunSuite with ShouldMatchers {
 	  "		<element name=\"list\" type=\"example1\"/>"+
 	  "</schema>")) getRootElement
    
-	  XMLUtil.getChildByName(xmlNode,"example1") should not be (null)
+	  assertTrue(XMLUtil.getChildByName(xmlNode,"example1") != null)
    
   }
 }

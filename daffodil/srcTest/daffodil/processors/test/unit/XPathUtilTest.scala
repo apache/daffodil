@@ -6,14 +6,20 @@ import org.jdom.Text
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 
+import scala.math.Pi
+
+import daffodil.processors.VariableMap
 import daffodil.processors.xpath.XPathUtil
 import daffodil.processors.xpath.StringResult
 import daffodil.processors.xpath.NodeResult
-import daffodil.xml.Namespaces
+import daffodil.xml._
 
-class XPathUtilTest extends FunSuite with ShouldMatchers {
+import org.scalatest.junit.JUnit3Suite
+import junit.framework.Assert._
 
-  test("my first XPath test") {
+class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
+
+  def testXPath1() { // (my first XPath test") {
     
     // <root><child1><child2><child3>19</child3></child2></child1></root>
     
@@ -38,7 +44,7 @@ class XPathUtilTest extends FunSuite with ShouldMatchers {
     }
   }
   
-  test("my second XPath test") {
+  def testXPath2() { // (my second XPath test") {
     
     // <root><child1><child2><child3>19</child3></child2></child1></root>
     
@@ -55,18 +61,18 @@ class XPathUtilTest extends FunSuite with ShouldMatchers {
     
     val document = new Document(root)
     
-    var variables = new VariableMap() defineVariable("pi","double",new Namespaces)
-    variables setVariable("pi",Math.Pi.toString,new Namespaces)
+    var variables = new VariableMap() defineVariable("pi",XMLUtil.XSD_DOUBLE,new Namespaces)
+    variables setVariable("pi",Pi.toString,new Namespaces)
     
     val result = XPathUtil evalExpression("$pi",variables,root,new Namespaces)
     
     result match {
-      case StringResult(x) => x should equal (Math.Pi.toString)
+      case StringResult(x) => x should equal (Pi.toString)
       case _ => fail
     }
   }
   
-  test("my third XPath test") {
+  def testXPath3() { // (my third XPath test") {
     
     /*    	
      * <root>

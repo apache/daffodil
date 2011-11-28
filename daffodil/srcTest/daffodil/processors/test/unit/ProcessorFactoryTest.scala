@@ -5,14 +5,21 @@ import java.nio.charset.Charset
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 
+import daffodil.Implicits._
+import daffodil.processors._
+import daffodil.processors.input.text._
 import daffodil.processors.input._
 import daffodil.schema.annotation.Annotation
 import daffodil.schema.annotation.InputValue
 import daffodil.schema.annotation.enumerations._
 
-class ProcessorFactoryTest extends FunSuite with ShouldMatchers  {
+import org.scalatest.junit.JUnit3Suite
+import scala.collection.mutable.ListBuffer
+import junit.framework.Assert._
 
-	test("creating a TextProcessor") {
+class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
+
+	def testCreatingATextProcessor() { // ("creating a TextProcessor") {
 		val processor = new TextProcessor(Charset.forName("ASCII"),true)
 		processor.setLength("12")
 		processor.setTerminator("term")
@@ -23,19 +30,20 @@ class ProcessorFactoryTest extends FunSuite with ShouldMatchers  {
 		val annotation = new Annotation(null)
 		annotation.format setRepresentation(Text)
 		annotation.format setEncoding(Charset.forName("ASCII"))
-		annotation.format setType("string")
+		annotation.format setTypeName("string")
 		annotation.format setLength ("12")
 		annotation.format setTerminator("term")
 		annotation.format setInitiator("init")
 		annotation.format setSeparator("sep")
 
-		val processor1 = ProcessorFactory getInputProcessor(annotation,false)
+		val processor1 = ProcessorFactory getInputProcessor(annotation)
 
-		processor1 should equal (processor)
+		// processor1 should equal (processor)
+		assertEquals(processor, processor1)
 	}
  
-	test("creating a FloatTextProcessor") {
-		val processor = new FloatTextProcessor(Charset.forName("ASCII"),true)
+	def testCreatingFloatTextProcessor() { // ("creating a FloatTextProcessor") {
+		val processor = new NumberTextProcessor(Charset.forName("ASCII"),true)
 		processor.setLength("12")
 		processor.setTerminator("term")
 		processor.setInitiator("init")
@@ -45,20 +53,20 @@ class ProcessorFactoryTest extends FunSuite with ShouldMatchers  {
   
 		annotation.format setRepresentation(Text)
 		annotation.format setEncoding(Charset.forName("ASCII"))
-		annotation.format setType("float")
+		annotation.format setTypeName("float")
 		annotation.format setLength("12")
 		annotation.format setTerminator("term")
 		annotation.format setInitiator("init")
 		annotation.format setSeparator("sep")		
 
-		val processor1 = ProcessorFactory getInputProcessor(annotation,false)
+		val processor1 = ProcessorFactory getInputProcessor(annotation)
 
 		processor1 should equal (processor)
 	}
  
-	test("creating a DoubleTextProcessor") {
+	def testCreatingDoubleTextProcessor() { // ("creating a DoubleTextProcessor") {
 
-		val processor = new DoubleTextProcessor(Charset.forName("ASCII"),true)
+		val processor = new NumberTextProcessor(Charset.forName("ASCII"),true)
 		processor.setLength("12")
 		processor.setTerminator("term")
 		processor.setInitiator("init")
@@ -67,7 +75,7 @@ class ProcessorFactoryTest extends FunSuite with ShouldMatchers  {
 		val annotation1 = new Annotation(null)
 		annotation1.format setRepresentation(Text)
 		annotation1.format setEncoding("ASCII")
-		annotation1.format setType("double")
+		annotation1.format setTypeName("double")
 		annotation1.format setLength("12")
 		annotation1.format setTerminator("term")
 		annotation1.format setInitiator("init")
@@ -76,21 +84,20 @@ class ProcessorFactoryTest extends FunSuite with ShouldMatchers  {
 		val annotation2 = new Annotation(null)
 		annotation2.format setRepresentation(Text)
 		annotation2.format setEncoding("ASCII")
-		annotation2.format setType("decimal")
+		annotation2.format setTypeName("decimal")
 		annotation2.format setLength("12")
 		annotation2.format setTerminator("term")
 		annotation2.format setInitiator("init")
 		annotation2.format setSeparator("sep")
 
-		val processor1 = ProcessorFactory getInputProcessor(annotation1,false)
-		val processor2 = ProcessorFactory getInputProcessor(annotation2,false)
+		val processor1 = ProcessorFactory getInputProcessor(annotation1)
+		val processor2 = ProcessorFactory getInputProcessor(annotation2)
 
 		processor1 should equal (processor)
 		processor2 should equal (processor)
 	}
  
-	test("creating a DecimalTextProcessor") (pending)
-// {
+//	def test() { // ("creating a DecimalTextProcessor") (pending)
 //		val processor = new DecimalTextProcessor(Charset.forName("ASCII"),true)
 //		processor.setLength(12)
 //		processor.setTerminator("term")
@@ -202,30 +209,30 @@ class ProcessorFactoryTest extends FunSuite with ShouldMatchers  {
 //		processor10 should equal (processor)
 //	}
  
-	test("creating an InputExpressionProcessor") {	
+	def test() { // ("creating an InputExpressionProcessor") {	
 	  val annotation1 = new Annotation(null)
 	  annotation1.inputValue = new InputValue("{ 12 + 30 }")
 	  val annotation2 = new Annotation(null)
 	  annotation2.inputValue = new InputValue("{ 12 + 30 }")
    
 	  val processor = new InputExpressionProcessor("{ 12 + 30 }")
-	  val processor1 = ProcessorFactory getInputProcessor (annotation1,false)
-	  val processor2 = ProcessorFactory getInputProcessor (annotation2,false)
+	  val processor1 = ProcessorFactory getInputProcessor (annotation1)
+	  val processor2 = ProcessorFactory getInputProcessor (annotation2)
    
 	  processor1 should equal (processor)
 	  processor2 should equal (processor)
 	}
 	
  
-	test("creating a BooleanTextProcessor") (pending)
- 
-	test("creating a DateTextProcessor") (pending)
-	
-	test("creating a DateTimeTextProcessor") (pending)
- 
-	test("creating a HexBinaryTextProcessor") (pending)
- 
-	test("creating binary processors") (pending)
+//	def test() { // ("creating a BooleanTextProcessor") (pending)
+// 
+//	def test() { // ("creating a DateTextProcessor") (pending)
+//	
+//	def test() { // ("creating a DateTimeTextProcessor") (pending)
+// 
+//	def test() { // ("creating a HexBinaryTextProcessor") (pending)
+// 
+//	def test() { // ("creating binary processors") (pending)
  
  
   

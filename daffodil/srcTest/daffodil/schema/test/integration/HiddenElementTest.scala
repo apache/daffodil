@@ -1,6 +1,7 @@
 package daffodil.schema.test.integration
 
 import java.io.ByteArrayInputStream
+import java.io.BufferedInputStream
 import java.io.StringReader
 
 import org.jdom.Element
@@ -10,41 +11,50 @@ import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 
 import daffodil.parser.SchemaParser
+import daffodil.schema._
 import daffodil.schema.annotation.Annotation
 import daffodil.schema.annotation.Hidden
 import daffodil.xml.Namespaces
+import daffodil.xml.XMLUtil
 import daffodil.xml.XMLUtil.compare
+import daffodil.Implicits._
 
+import org.scalatest.junit.JUnit3Suite
+import scala.collection.mutable.ListBuffer
+import junit.framework.Assert._
 
-class HiddenElementTest extends FunSuite with ShouldMatchers {
+class HiddenElementTest extends JUnit3Suite with ShouldMatchers {
 
-	test("basic hidden element test 1")	{
-	  val builder = new SAXBuilder()
-	  val schema = builder.build(new StringReader( 
-			"<complexType name=\"mytype\" xmlns=\"http://www.w3.org/2001/XMLSchema\" xmlns:dfdl=\"http://www.ogf.org/dfdl/dfdl-1.0\">"+
-			"	<sequence>"+
-			"		<annotation>"+
-			"			<appinfo source=\"http://www.ogf.org/dfdl/\">"+
-			"				<dfdl:hidden>"+
-			"					<element name=\"nested1\" type=\"int\"/>"+
-			"				</dfdl:hidden>"+
-			"			</appinfo>"+
-			"		</annotation>"+
-			"		<element name=\"nested2\" type=\"int\"/>"+
-			"		<element name=\"nested3\" type=\"string\"/>"+
-			"	</sequence>"+
-			"</complexType>")) getRootElement
+	def testBasicHiddenElement () { // ("basic hidden element test 1")	{
+	 
+	  val xml = 
+	        <element name="myName">
+			<complexType name="mytype" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+				<sequence>
+					<annotation>
+						<appinfo source="http://www.ogf.org/dfdl/">
+							<dfdl:hidden>
+								<element name="nested1" type="int"/>
+							</dfdl:hidden>
+						</appinfo>
+					</annotation>
+					<element name="nested2" type="int"/>
+					<element name="nested3" type="string"/>
+				</sequence>
+			</complexType>
+            </element>
+	    val schema = XMLUtil.elem2Element(xml)
 
 
 		val a1 = new Annotation(null)
-		a1.format setType("int")
+		a1.format setTypeName("int")
 		a1.hidden = new Hidden()
 		
 		val a2 = new Annotation(null)
-		a2.format setType("int")
+		a2.format setTypeName("int")
 		
 		val a3 = new Annotation(null)
-		a3.format setType("string")
+		a3.format setTypeName("string")
 
 		val expectedResult = new Sequence(new Annotation(null),null,new Namespaces,List(
 				new SimpleElement("nested1",a1,null,new Namespaces),
@@ -53,107 +63,142 @@ class HiddenElementTest extends FunSuite with ShouldMatchers {
 
 
 		val t = new SchemaParser() parseComplexType(schema)
+		
 		t should equal (expectedResult)
 	}
   
-  test("full test 1"){
+  def testFull1 () { // ("full test 1"){
     val builder = new SAXBuilder()
-    val schema = builder.build(new StringReader( 
-    	"<schema xmlns=\"http://www.w3.org/2001/XMLSchema\" xmlns:dfdl=\"http://www.ogf.org/dfdl/dfdl-1.0\" targetNamespace=\"myNamespace\">"+
-    	"	<complexType name=\"mytype\">"+
-    	"		<annotation>"+
-    	"			<appinfo source=\"http://www.ogf.org/dfdl/\">"+
-    	"				<dfdl:format representation=\"text\" separator=\",\" terminator=\"&#x0A; &#x0D;&#x0A;\"/>"+
-    	"			</appinfo>"+
-    	"		</annotation>"+
-    	"		<sequence>"+
-    	"			<annotation>"+
-    	"				<appinfo source=\"http://www.ogf.org/dfdl/\">"+
-    	"					<dfdl:hidden>"+
-    	"						<element name=\"nested1\" type=\"int\"/>"+
-    	"					</dfdl:hidden>"+
-    	"				</appinfo>"+
-    	"			</annotation>"+
-    	"			<element name=\"nested2\" type=\"int\"/>"+
-    	"			<element name=\"nested3\" type=\"string\"/>"+
-    	"		</sequence>"+
-    	"	</complexType>"+
-    	"	<element name=\"myElement\" type=\"mytype\"/>"+
-        "</schema>")) getRootElement
+    val xml =
+      <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0" targetNamespace="myNamespace">
+        <element name="myElement">
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+              <dfdl:format representation="text" terminator="$"/>
+            </appinfo>
+          </annotation>
+          <complexType>
+          <sequence>
+            <annotation>
+              <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+                <dfdl:format representation="text" separator="," separatorPosition="infix"/>
+                <dfdl:hidden>
+                  <element name="nested1" type="int">
+                    <annotation>
+                      <appinfo source="http://www.ogf.org/dfdl//dfdl-1.0">
+                        <dfdl:format representation="text" terminator="!"/>
+                      </appinfo>
+                    </annotation> 
+                   </element>
+                </dfdl:hidden>
+              </appinfo>
+            </annotation>
+              <!-- <element name="nested1" type="int">
+                    <annotation>
+                      <appinfo source="http://www.ogf.org/dfdl//dfdl-1.0">
+                        <dfdl:format representation="text" terminator="!"/>
+                      </appinfo>
+                    </annotation>
+                  </element> -->
+            <element name="nested2" type="int">
+              <annotation>
+                <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+                  <dfdl:format representation="text" terminator="!"/>
+                </appinfo>
+              </annotation>
+            </element>
+            <element name="nested3" type="string">
+              <annotation>
+                <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+                  <dfdl:format representation="text" terminator="!"/>
+                </appinfo>
+              </annotation>
+            </element>
+          </sequence>
+          </complexType>
+        </element>
+        <!-- <element name="myElement" type="mytype"/> -->
+      </schema>
+      val schema = XMLUtil.elem2Element(xml)
       
-      val text = "50,100,some text"
-      
-      
-      val expectedResult = new Element("myElement")
-      val e1 = new Element("nested2")
-      val e2 = new Element("nested3")
-      e1 addContent(new Text("100"))
-      e2 addContent(new Text("some text"))
-      expectedResult addContent(e1)
-      expectedResult addContent(e2)
+      val text = "50!,100!,some text!$"
             
       val parser = new SchemaParser()
       parser parse(schema)      
+      val datastream = new ByteArrayInputStream(text getBytes)
+      val actualResult = parser eval(datastream,"myElement")
+    
+      val res = XMLUtil.element2Elem(actualResult)
       
-      val actualResult = parser eval(new ByteArrayInputStream(text getBytes),"myElement")
-                  
-      compare(expectedResult,actualResult) should be (true)
+      val n1 = res \ "nested1" text
+      val n2 = res \ "nested2" text
+      val n3 = res \ "nested3" text ;
+      assertEquals("50", n1)
+      assertEquals("100", n2)
+      assertEquals("some text", n3)
   }
   
-  test("full test 2"){
+  def testFull2 () { // ("full test 2"){
     val builder = new SAXBuilder()
-    val schema = builder.build(new StringReader(  
-    	"<schema xmlns=\"http://www.w3.org/2001/XMLSchema\" xmlns:dfdl=\"http://www.ogf.org/dfdl/dfdl-1.0\" targetNamespace=\"myNamespace\">"+
-    	"	<complexType name=\"mytype\">"+
-    	"		<annotation>"+
-    	"			<appinfo source=\"http://www.ogf.org/dfdl/\">"+
-    	"				<dfdl:format representation=\"text\" separator=\",\" terminator=\"&#x0A; &#x0D;&#x0A;\"/>"+
-    	"			</appinfo>"+
-    	"		</annotation>"+
-    	"		<sequence>"+
-    	"			<annotation>"+
-    	"				<appinfo source=\"http://www.ogf.org/dfdl/\">"+
-    	"					<dfdl:hidden>"+ 
-    	"						<element name=\"nested1\" type=\"int\"/>"+
-    	"					</dfdl:hidden>"+
-    	"				</appinfo>"+
-    	"			</annotation>"+
-    	"			<element name=\"nested2\" type=\"int\"/>"+
-    	"			<element name=\"nested3\" type=\"string\"/>"+
-    	""+
-    	"  			<element name=\"times2\" type=\"int\" dfdl:inputValueCalc=\"{ ../nested1 * 2 }\"/>"+
-    	" 			<element name=\"times3\" type=\"int\" dfdl:inputValueCalc=\"{ ../nested1 * 3 }\"/>"+
-    	"" +
-    	"   	</sequence>"+
-    	"  	</complexType>"+
-    	"	<element name=\"myElement\" type=\"mytype\"/>"+
-    	"</schema>")) getRootElement
+    val xml =
+      <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0" targetNamespace="myNamespace">
+        <complexType name="mytype">
+          <sequence>
+            <annotation>
+              <appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:format representation="text" separator="," separatorPosition="infix"/>
+                <dfdl:hidden>
+                  <element name="nested1" type="int">
+                    <annotation>
+                      <appinfo source="http://www.ogf.org/dfdl/">
+                        <dfdl:format representation="text" terminator="!"/>
+                      </appinfo>
+                    </annotation>
+                  </element>
+                </dfdl:hidden>
+              </appinfo>
+            </annotation>
+            <element name="nested2" type="int">
+              <annotation>
+                <appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:format representation="text" terminator="!"/>
+                </appinfo>
+              </annotation>
+            </element>
+            <element name="nested3" type="string">
+              <annotation>
+                <appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:format representation="text" terminator="!"/>
+                </appinfo>
+              </annotation>
+            </element>
+            <element name="times2" type="int" dfdl:inputValueCalc="{ ../nested1 * 2 }"/>
+            <element name="times3" type="int" dfdl:inputValueCalc="{ ../nested1 * 3 }"/>
+          </sequence>
+        </complexType>
+        <element name="myElement" type="mytype">
+        </element>
+      </schema>
+      val schema = XMLUtil.elem2Element(xml)
       
-      val text = "50,100,some text"
-      
-      
-      val expectedResult = new Element("myElement")
-      
-      val e1 = new Element("nested2")
-      val e2 = new Element("nested3")
-      val e3 = new Element("times2")
-      val e4 = new Element("times3")
-      e1 addContent(new Text("100"))
-      e2 addContent(new Text("some text"))
-      e3 addContent(new Text("100"))
-      e4 addContent(new Text("150"))
-      
-      expectedResult addContent(e1)
-      expectedResult addContent(e2)
-      expectedResult addContent(e3)
-      expectedResult addContent(e4)
+      val text = "50!,100!,some text!$"
             
       val parser = new SchemaParser()
       parser parse(schema)      
       
-      val actualResult = parser eval(new ByteArrayInputStream(text getBytes),"myElement")
-               
-      compare(expectedResult,actualResult) should be (true)
+      val datastream = new ByteArrayInputStream(text getBytes)
+      val actualResult = parser eval(datastream,"myElement")
+      val res = XMLUtil.element2Elem(actualResult)
+      
+      val n2 = res \ "nested2" text
+      val n3 = res \ "nested3" text
+      val t2 = res \ "times2" text
+      val t3 = res \ "times3" text
+      ; // this semicolon keeps eclipse happy
+      assertEquals("100", n2)
+      assertEquals("some text", n3)
+      assertEquals("100", t2)
+      assertEquals("150", t3)
   }
   
 }

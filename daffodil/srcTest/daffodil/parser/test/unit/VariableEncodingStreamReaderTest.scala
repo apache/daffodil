@@ -1,14 +1,23 @@
 package daffodil.parser.test.unit
 
+import daffodil.parser._
+
 import java.io.ByteArrayInputStream
 import java.nio.charset.Charset
 
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 
-class VariableEncodingStreamReaderTest extends FunSuite with ShouldMatchers {
+import daffodil.parser.RollbackStream
+import daffodil.Implicits._
 
-  test("reading ten chars in ASCII, one by one") {
+import org.scalatest.junit.JUnit3Suite
+import scala.collection.mutable.ListBuffer
+import junit.framework.Assert._
+
+class VariableEncodingStreamReaderTest extends JUnit3Suite with ShouldMatchers {
+  
+  def testReadingTenCharsInASCIIOneByOne ()  { 
     val input = new ByteArrayInputStream(Array('0' toByte,
 					       '1' toByte,
 					       '2' toByte,
@@ -37,7 +46,7 @@ class VariableEncodingStreamReaderTest extends FunSuite with ShouldMatchers {
     rollbackStream close
   }
 
-  test("reading up to end of file"){
+  def testReadingToEndOfFile ()  { 
      val input = new ByteArrayInputStream(Array('0' toByte,
 					       '1' toByte,
 					       '2' toByte,
@@ -67,9 +76,9 @@ class VariableEncodingStreamReaderTest extends FunSuite with ShouldMatchers {
     rollbackStream close
   }
 
-  test("reading ten ASCII characters, all at once") (pending)
+  // def testReadingTenASCIICharacteresAllAtOnce ()  { //"reading ten ASCII characters, all at once") (pending)
 
-  test("reading unicode"){
+  def testReadingUnicode ()  { 
     val telugu = 
       "\u0041\u0042\u0043\u0044\u0C20\u0C21\u0C22\u0C23\u0C24\u0C25\u0C26"
     val input = new ByteArrayInputStream(telugu getBytes("UTF-8"))
@@ -91,7 +100,7 @@ class VariableEncodingStreamReaderTest extends FunSuite with ShouldMatchers {
     reader.read should equal (-1)    
   }
 
-  test("reading unicode and rolling back (I)"){
+  def testReadingUnicodeAndRollingBack ()  { 
     val telugu = 
       "\u0041\u0042\u0043\u0044\u0C20\u0C21\u0C22\u0C23\u0C24\u0C25\u0C26"
     val input = new ByteArrayInputStream(telugu getBytes("UTF-8"))    
@@ -122,7 +131,7 @@ class VariableEncodingStreamReaderTest extends FunSuite with ShouldMatchers {
     reader.read should equal ('\u0C22')
   }
 
-  test("reading unicode and rolling back (II)"){
+  def testReadingUnicodeAndRollingBack2 ()  { 
     val telugu = 
       "\u0041\u0042\u0043\u0044\u0C20\u0C21\u0C22\u0C23\u0C24\u0C25\u0C26"
     val input = new ByteArrayInputStream(telugu getBytes("UTF-8"))    
@@ -154,7 +163,7 @@ class VariableEncodingStreamReaderTest extends FunSuite with ShouldMatchers {
     reader.read should equal ('\u0C22')
   }
 
-  test("reading unicode and rolling back (III)"){
+  def testReadingUnicodeAndRollingBack3 ()  { 
     val telugu = 
       "\u0041\u0042\u0043\u0044\u0C20\u0C21\u0C22\u0C23\u0C24\u0C25\u0C26"
     val input = new ByteArrayInputStream(telugu getBytes("UTF-8"))    
@@ -184,10 +193,10 @@ class VariableEncodingStreamReaderTest extends FunSuite with ShouldMatchers {
     reader.read should equal ('\u0C23')
   }
   
-  test("reading ASCII, then unicode") (pending)
-  
-  test("reading ASCII, then unicode, rollingback to ASCII") (pending)
-
-  test("reading ASCII, then unicode, rollingback to unicode") (pending)
+//  def test ()  { //"reading ASCII, then unicode") (pending)
+//  
+//  def test ()  { //"reading ASCII, then unicode, rollingback to ASCII") (pending)
+//
+//  def test ()  { //"reading ASCII, then unicode, rollingback to unicode") (pending)
 
 }

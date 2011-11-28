@@ -3,33 +3,39 @@ package daffodil.parser.test.unit
 import java.io.ByteArrayInputStream
 import java.io.StringReader
 import scala.xml._
-
 import org.jdom.Element
 import org.jdom.input.SAXBuilder
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
-
+import daffodil.parser.RollbackStream
+import daffodil.parser.SchemaParser
 import daffodil.processors.VariableMap
-import daffodil.schema.Sequence
+import daffodil.schema._
 import daffodil.schema.SimpleElement
 import daffodil.schema.annotation.Annotation
 import daffodil.schema.annotation.enumerations.Text
 import daffodil.xml.Namespaces
 import daffodil.xml.XMLUtil
+import daffodil.Implicits._
 
-class SchemaParserTest extends FunSuite with ShouldMatchers {
+import org.scalatest.junit.JUnit3Suite
+import scala.collection.mutable.ListBuffer
+import junit.framework.Assert._
 
-  test("parse simple element") (pending)
+class SchemaParserTest extends JUnit3Suite {
+
+//  test("parse simple element") (pending)
   
-  test("parse simple extended element") (pending)
+//  test("parse simple extended element") (pending)
   
-  test("parse complexType/choice") (pending)
+//  test("parse complexType/choice") (pending)
   
-  test("parse complexType/sequence") {
+  // @Test
+  def testParseComplexTypeSequence() {
     val xmlNode = 
       <complexType name="example1" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
 		<annotation>
-			<appinfo source="http://www.ogf.org/dfdl/">
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
 				<dfdl:format representation="text" encoding="UTF-8" separator="," />
 			</appinfo>
 		</annotation>
@@ -49,25 +55,26 @@ class SchemaParserTest extends FunSuite with ShouldMatchers {
     a0.format setEncoding("UTF-8")
     a0.format setSeparator(",")
     
-    val a1 = new Annotation(null); a1.format setType("int")
-    val a2 = new Annotation(null); a2.format setType("int")
-    val a3 = new Annotation(null); a3.format setType("double")
-    val a4 = new Annotation(null); a4.format setType("float")
+    val a1 = new Annotation(null); a1.format setTypeName(XMLUtil.XSD_INT)
+    val a2 = new Annotation(null); a2.format setTypeName(XMLUtil.XSD_INT)
+    val a3 = new Annotation(null); a3.format setTypeName(XMLUtil.XSD_DOUBLE)
+    val a4 = new Annotation(null); a4.format setTypeName(XMLUtil.XSD_FLOAT)
     
-    val expectedResult = new Sequence(a0,"example.com:example",new Namespaces,
-    List(new SimpleElement("w",a1,"example.com:example",new Namespaces),
-         new SimpleElement("x",a2,"example.com:example",new Namespaces),
-         new SimpleElement("y",a3,"example.com:example",new Namespaces),
-         new SimpleElement("z",a4,"example.com:example",new Namespaces)))
-    
-    result should equal (expectedResult)
+    val expectedResult = new Sequence(a0,null,new Namespaces,
+    List(new SimpleElement("w",a1,null,new Namespaces),
+         new SimpleElement("x",a2,null,new Namespaces),
+         new SimpleElement("y",a3,null,new Namespaces),
+         new SimpleElement("z",a4,null,new Namespaces)))
+    val diff = expectedResult.diff(result)
+    assertEquals(Same, diff)
   }
   
-  test("parse complexType/sequence II") {
+  // @Test
+  def testParseComplexTypeSequence2() {
     val xmlNode = 
       <complexType name="example1" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
 		<annotation>
-			<appinfo source="http://www.ogf.org/dfdl/">
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
 				<dfdl:format representation="text" encoding="UTF-16" separator="," numberDecimalSeparator="##"/>
 			</appinfo>
 		</annotation>
@@ -88,108 +95,182 @@ class SchemaParserTest extends FunSuite with ShouldMatchers {
     a0.format setSeparator(",")
     a0.format setDecimalSeparator("##")
     
-    parser.isInstanceOf[Sequence] should be (true)
-    parser.annotation should equal (a0)
+    assertTrue(parser.isInstanceOf[Sequence])
+    assertEquals(a0, parser.annotation)
         
     val children = parser.asInstanceOf[Sequence].getChildren
-    children(0).isInstanceOf[SimpleElement] should be (true)
-    children(1).isInstanceOf[SimpleElement] should be (true)
-    children(2).isInstanceOf[SimpleElement] should be (true)
-    children(3).isInstanceOf[SimpleElement] should be (true)
+    assertTrue(children(0).isInstanceOf[SimpleElement])
+    assertTrue(children(1).isInstanceOf[SimpleElement])
+    assertTrue(children(2).isInstanceOf[SimpleElement])
+    assertTrue(children(3).isInstanceOf[SimpleElement])
     
-    children(0).asInstanceOf[SimpleElement].name should equal ("w")
-    children(1).asInstanceOf[SimpleElement].name should equal ("x")
-    children(2).asInstanceOf[SimpleElement].name should equal ("y")
-    children(3).asInstanceOf[SimpleElement].name should equal ("z")
+    assertEquals("w", children(0).asInstanceOf[SimpleElement].name)
+    assertEquals("x", children(1).asInstanceOf[SimpleElement].name)
+    assertEquals("y", children(2).asInstanceOf[SimpleElement].name)
+    assertEquals("z", children(3).asInstanceOf[SimpleElement].name)
     
-    val a1 = new Annotation(null); a1.format setType("int")
-    val a2 = new Annotation(null); a2.format setType("int")
-    val a3 = new Annotation(null); a3.format setType("double")
-    val a4 = new Annotation(null); a4.format setType("float")
+    val a1 = new Annotation(null); a1.format setTypeName(XMLUtil.XSD_INT)
+    val a2 = new Annotation(null); a2.format setTypeName(XMLUtil.XSD_INT)
+    val a3 = new Annotation(null); a3.format setTypeName(XMLUtil.XSD_DOUBLE)
+    val a4 = new Annotation(null); a4.format setTypeName(XMLUtil.XSD_FLOAT)
     
-    children(0).annotation should equal (a1)
-    children(1).annotation should equal (a2)
-    children(2).annotation should equal (a3)
-    children(3).annotation should equal (a4)    
+    assertEquals(a1, children(0).annotation)
+    assertEquals(a2, children(1).annotation)
+    assertEquals(a3, children(2).annotation)
+    assertEquals(a4, children(3).annotation)   
   }
   
-  
-  
-  test("parse input with complexType/sequence") 
+  // @Test
+  def testParseSimpleInt()
   {
     val xmlNode = 
-      <complexType name="example1" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+      <element name="example1" type="int" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
 		<annotation>
-			<appinfo source="http://www.ogf.org/dfdl/">
-				<dfdl:format representation="text" encoding="UTF-8" separator="," numberDecimalSeparator="##"/>
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+				<dfdl:format representation="text" encoding="UTF-8" lengthKind="delimited" textNumberBase="10"/>
 			</appinfo>
 		</annotation>
-		<sequence>
-			<element name="w" type="int"/>
-			<element name="x" type="int"/>
-			<element name="y" type="double"/>
-			<element name="z" type="float"/>
-		</sequence>
-	</complexType>;
+	</element>;
  
-	val data="10,12,10.5,20.5"
+	val data="19"
+	val dataStream = new RollbackStream(new ByteArrayInputStream(data.getBytes()))
  
-	val parser = new SchemaParser().parseComplexType(XMLUtil elem2Element(xmlNode))
+	val parser = new SchemaParser().parseElementNode(XMLUtil elem2Element(xmlNode), Nil)
      
-	val expectedResult = List(XMLUtil.element("w","10"),XMLUtil.element("x","12"),
-                              XMLUtil.element("y","10.5"),XMLUtil.element("z","20.5"))
+	val expectedResult = List(XMLUtil.element("example1","19"))
 
-    val result = parser(new RollbackStream(new ByteArrayInputStream(data.getBytes())),
-                     	new Annotation(null),new VariableMap(),null,-1,Nil)
+    val annotation = new Annotation(null)
+	val vmap = new VariableMap()
+    val result = parser(dataStream, annotation, vmap, null, -1, Nil)
      
     expectedResult.zip (result) . 
-      forall { x:(Element,Element) => XMLUtil.compare(x._1,x._2)} should be (true)	    
+      foreach { x:(Element,Element) => assertTrue(XMLUtil.compare(x._1,x._2)) }    
   }
   
-  test("parse input with schema/complexType/sequence") {
-    val xmlNode = 
-      <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.example.org/example1/"
-	      xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0" targetNamespace="http://www.example.org/example1/">	
-			<element name="list" type="example1" />			
-         	<complexType name="example1">
-				<annotation>
-					<appinfo source="http://www.ogf.org/dfdl/">
-						<dfdl:format representation="text" encoding="UTF-8"
-							separator="," />
-					</appinfo>
-				</annotation>
-				<sequence>
-					<element name="w" type="int"></element>
-					<element name="x" type="int"></element>
-					<element name="y" type="double"></element>
-					<element name="z" type="float"></element>
-				</sequence>
-			</complexType>		
-			
-	  </schema>;
-   
-	val data="10,12,10.5,20.5"
+    // @Test
+  def testParseInputWithSequenceOfOne()
+  {
+    val DFDLSchemaNode = 
+      <element name="example1" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+		<annotation>
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+				<dfdl:format representation="text" encoding="UTF-8" lengthKind="delimited" />
+			</appinfo>
+		</annotation>
+        <complexType>
+		<sequence>
+		      <annotation>
+		   	    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+				  <dfdl:format representation="text" encoding="UTF-8" separator="," separatorPosition="postfix"/>
+			    </appinfo>
+		      </annotation>
+			<element name="w" type="int">
+		      <annotation>
+		   	    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+				  <dfdl:format representation="text" encoding="UTF-8" lengthKind="delimited"/>
+			    </appinfo>
+		      </annotation>
+            </element>
+		</sequence>
+        </complexType>
+	</element>;
+    
+    val expectedXML = <example1><w>10</w></example1>
  
-	val parser = new SchemaParser()
-	parser parse(XMLUtil elem2Element(xmlNode))
+	val data="10,"
+	val dataStream = new RollbackStream(new ByteArrayInputStream(data.getBytes()))
+ 
+	val parser = new SchemaParser().parseElementNode(XMLUtil elem2Element(DFDLSchemaNode), Nil)
      
-	val expectedResult = XMLUtil.element("list",List(XMLUtil.element("w","10"),XMLUtil.element("x","12"),
-                              XMLUtil.element("y","10.5"),XMLUtil.element("z","20.5")))
- 
-	val result = parser.eval(new ByteArrayInputStream(data.getBytes()),"list")
- 
-	XMLUtil.compare(expectedResult,result) should be (true)
+	val expectedResult = XMLUtil.elem2Element(expectedXML)
 
+    val annotation = new Annotation(null)
+	val vmap = new VariableMap()
+    val results = parser(dataStream, annotation, vmap, null, -1, Nil)
+    
+    assertEquals(1, results.length)
+    val result = results(0)
+    assertTrue(XMLUtil.compare(expectedResult, result))
   }
   
-   test("variable definition 0") {
+  val wxyzDFDLSchemaNode = 
+      <element name="example1" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+		<annotation>
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+				<dfdl:format representation="text" encoding="UTF-8" lengthKind="delimited" />
+			</appinfo>
+		</annotation>
+        <complexType>
+		<sequence>
+		      <annotation>
+		   	    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+				  <dfdl:format representation="text" encoding="UTF-8" separator="," separatorPosition="postfix"/>
+			    </appinfo>
+		      </annotation>
+			<element name="w" type="int">
+		      <annotation>
+		   	    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+				  <dfdl:format representation="text" encoding="UTF-8" lengthKind="delimited" terminator="#"/>
+			    </appinfo>
+		      </annotation>
+            </element>
+			<element name="x" type="int">
+		      <annotation>
+		   	    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+				  <dfdl:format representation="text" encoding="UTF-8" lengthKind="delimited" terminator="#"/>
+			    </appinfo>
+		      </annotation>
+            </element>
+			<element name="y" type="double">
+		      <annotation>
+		   	    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+				  <dfdl:format representation="text" encoding="UTF-8" lengthKind="delimited" terminator="#"/>
+			    </appinfo>
+		      </annotation>
+            </element>
+			<element name="z" type="float">
+		      <annotation>
+		   	    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+				  <dfdl:format representation="text" encoding="UTF-8" lengthKind="delimited" terminator="#"/>
+			    </appinfo>
+		      </annotation>
+            </element>
+		</sequence>
+        </complexType>
+	</element>;
+      
+  val wxyzExpectedXML = <example1><w>10</w><x>12</x><y>10.5</y><z>20.5</z></example1>
+    
+  // @Test
+  def testParseInputWithComplexTypeSequence()
+  {
+ 
+	val data="10#,12#,10.5#,20.5#,"
+	val dataStream = new RollbackStream(new ByteArrayInputStream(data.getBytes()))
+
+ 
+	val parser = new SchemaParser().parseElementNode(XMLUtil elem2Element(wxyzDFDLSchemaNode), Nil)
+     
+	val expectedResult = XMLUtil.elem2Element(wxyzExpectedXML)
+
+    val annotation = new Annotation(null)
+	val vmap = new VariableMap()
+    val results = parser(dataStream, annotation, vmap, null, -1, Nil)
+    
+    assertEquals(1, results.length)
+    val result = results(0)
+    assertTrue(XMLUtil.compare(expectedResult, result))
+  }
+  
+  // @Test
+   def testVariableDefinition0() {
     val xmlNode = 
       new SAXBuilder().build(new StringReader(
        "<schema xmlns=\"http://www.w3.org/2001/XMLSchema\" xmlns:tns=\"http://www.example.org/example1/\""+
 	   "   xmlns:dfdl=\"http://www.ogf.org/dfdl/dfdl-1.0\" targetNamespace=\"http://www.example.org/example1/\">"+	
        "	<element name=\"list\" type=\"string\" dfdl:inputValueCalc=\"{ $x }\">"+     
        "		<annotation>"+
-       "			<appinfo source=\"http://www.ogf.org/dfdl/\">"+
+       "			<appinfo source=\"http://www.ogf.org/dfdl/dfdl-1.0\">"+
        "				<dfdl:defineVariable name=\"x\" type=\"int\" defaultValue=\"0\"/>"+
        "			</appinfo>"+
        "		</annotation>"+
@@ -204,10 +285,11 @@ class SchemaParserTest extends FunSuite with ShouldMatchers {
                            
     val result = parser.eval(new ByteArrayInputStream("".getBytes()),"list")
  
-    XMLUtil.compare(expectedResult,result) should be (true)
+    assertTrue(XMLUtil.compare(expectedResult,result))
   }                                  
-                                                     
-  test("variable definition") {
+                         
+  // @Test
+  def testVariableDefinition() {
     val xmlNode = 
       new SAXBuilder().build(new StringReader(
        "<schema xmlns=\"http://www.w3.org/2001/XMLSchema\" xmlns:tns=\"http://www.example.org/example1/\""+
@@ -215,7 +297,7 @@ class SchemaParserTest extends FunSuite with ShouldMatchers {
        "	<element name=\"list\" type=\"example1\" />"+
        "	<complexType name=\"example1\">"+       
        "		<annotation>"+
-       "			<appinfo source=\"http://www.ogf.org/dfdl/\">"+
+       "			<appinfo source=\"http://www.ogf.org/dfdl/dfdl-1.0\">"+
        "				<dfdl:defineVariable name=\"x\" type=\"int\" defaultValue=\"0\"/>"+
        "			</appinfo>"+
        "		</annotation>"+
@@ -237,6 +319,6 @@ class SchemaParserTest extends FunSuite with ShouldMatchers {
                            
     val result = parser.eval(new ByteArrayInputStream("".getBytes()),"list")
  
-    XMLUtil.compare(expectedResult,result) should be (true)
+    assertTrue(XMLUtil.compare(expectedResult,result))
   }
 }

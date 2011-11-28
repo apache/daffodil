@@ -4,15 +4,19 @@ import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 
 import daffodil.schema.annotation.enumerations._
+import daffodil.schema.annotation.Annotation
 
-class AnnotationTest extends FunSuite with ShouldMatchers{
+import org.scalatest.junit.JUnit3Suite
+import junit.framework.Assert._
+
+class AnnotationTest extends JUnit3Suite with ShouldMatchers{
 	
-  test("setting type") {
+  def testSettingType() { // ("setting type") {
     
-    val a1 = new Annotation(null); a1.format setType("string")
-    val a2 = new Annotation(null); a2.format setType("integer")
-    val b1 = new Annotation(null); b1.format setType("string")
-    val b2 = new Annotation(null); b2.format setType("integer")
+    val a1 = new Annotation(null); a1.format setTypeName("string")
+    val a2 = new Annotation(null); a2.format setTypeName("integer")
+    val b1 = new Annotation(null); b1.format setTypeName("string")
+    val b2 = new Annotation(null); b2.format setTypeName("integer")
     val a3 = new Annotation(null);
     
     a1.format.typeName should equal (Some("string"))
@@ -22,7 +26,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
     a3.format.typeName should equal (None)
   }
   
-  test("setting representation") {
+  def testSettingRepresentation() { // ("setting representation") {
     val a1 = new Annotation(null); a1.format setRepresentation("binary")
     val a2 = new Annotation(null); a2.format setRepresentation("text")
     val b1 = new Annotation(null); b1.format setRepresentation(Binary)
@@ -36,7 +40,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
     a3.format.representation should equal (None)
   }
 //  
-//  test("setting byte order") {
+//  def test() { // ("setting byte order") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.BYTE_ORDER_KEY,null,"big-Endian")
 //    val a2 = new Annotation(null) + (AnnotationKeys.BYTE_ORDER_KEY,null,"little-Endian")
 //    val b1 = new Annotation(null).setByteOrder(BigEndian)
@@ -50,7 +54,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    a3.getByteOrder() should equal (None)
 //  }
 // 
-//  test("setting encoding") {
+//  def test() { // ("setting encoding") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.ENCODING_KEY,null,"UTF-8")
 //    val a2 = new Annotation(null) + (AnnotationKeys.ENCODING_KEY,null,"UTF-16")
 //    val b1 = new Annotation(null).setEncoding(Charset.forName("UTF-8"))
@@ -64,7 +68,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    a3.getEncoding should equal (None)
 //  }  
 //  
-//  test("setting length") {
+//  def test() { // ("setting length") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.LENGTH_KEY,null,"42")
 //    val b1 = new Annotation(null).setLength(42)
 //    val a2 = new Annotation(null)
@@ -74,7 +78,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    a2.getLength should equal (None)
 //  }
 //  
-//  test("setting length kind") {
+//  def test() { // ("setting length kind") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.LENGTH_KIND_KEY,null,"delimited")
 //    val a2 = new Annotation(null) + (AnnotationKeys.LENGTH_KIND_KEY,null,"endOfParent")
 //    val a3 = new Annotation(null) + (AnnotationKeys.LENGTH_KIND_KEY,null,"explicit")
@@ -104,7 +108,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    c.getLengthKind should equal (None)
 //  }
 //    
-//  test("setting terminator") {
+//  def test() { // ("setting terminator") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.TERMINATOR_KEY,null,"a terminator")
 //    val b1 = new Annotation(null).setTerminator("a terminator")
 //    val c = new Annotation(null)
@@ -114,7 +118,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    c.getTerminator() should equal (None)
 //  }
 //  
-//  test("setting initiator") {
+//  def test() { // ("setting initiator") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.INITIATOR_KEY,null,"an initiator")
 //    val b1 = new Annotation(null).setInitiator("an initiator")
 //    val c = new Annotation(null)
@@ -124,7 +128,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    c.getInitiator() should equal (None)
 //  }
 //  
-//  test("setting separator") {
+//  def test() { // ("setting separator") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.SEPARATOR_KEY,null,"a separator")
 //    val b1 = new Annotation(null).setSeparator("a separator")
 //    val c = new Annotation(null)
@@ -134,7 +138,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    c.getSeparator() should equal (None)
 //  }
 //  
-//  test("setting separator position") {
+//  def test() { // ("setting separator position") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.SEPARATOR_POSITION_KEY,null,"infix")
 //    val a2 = new Annotation(null) + (AnnotationKeys.SEPARATOR_POSITION_KEY,null,"prefix")
 //    val a3 = new Annotation(null) + (AnnotationKeys.SEPARATOR_POSITION_KEY,null,"postfix")
@@ -152,7 +156,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    c.getSeparatorPosition should equal (None)
 //  }
 //  
-//  test("setting separator policy") {
+//  def test() { // ("setting separator policy") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.SEPARATOR_POLICY_KEY,null,"require")
 //    val a2 = new Annotation(null) + (AnnotationKeys.SEPARATOR_POLICY_KEY,null,"supress")
 //    val a3 = new Annotation(null) + (AnnotationKeys.SEPARATOR_POLICY_KEY,null,"supressAtEnd")
@@ -170,7 +174,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    c.getSeparatorPolicy should equal (None)
 //  }
 //  
-//  test("setting maxOccurs") {
+//  def test() { // ("setting maxOccurs") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.MAX_OCCURS_KEY,null,"10")
 //    val a2 = new Annotation(null) + (AnnotationKeys.MAX_OCCURS_KEY,null,"unbounded")
 //    val b1 = new Annotation(null).setMaxOccurs(10)
@@ -184,7 +188,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    c.getMaxOccurs() should equal (None)
 //  }
 //  
-//  test("setting minOccurs") {
+//  def test() { // ("setting minOccurs") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.MIN_OCCURS_KEY,null,"10")
 //    val b1 = new Annotation(null).setMinOccurs(10)
 //    val c = new Annotation(null)
@@ -194,7 +198,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    c.getMinOccurs() should equal (None)
 //  }
 //  
-//  test("setting OccursCount") {
+//  def test() { // ("setting OccursCount") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.OCCURS_COUNT_KEY,null,"10")
 //    val b1 = new Annotation(null).setOccursCount(10)
 //    val c = new Annotation(null)
@@ -204,7 +208,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    c.getOccursCount() should equal (None)
 //  }
 //    
-//  test("setting OccursCountKind"){
+//  def test() { // ("setting OccursCountKind"){
 //    val a1 = new Annotation(null) + (AnnotationKeys.OCCURS_COUNT_KIND_KEY,null,"expression")
 //    val a2 = new Annotation(null) + (AnnotationKeys.OCCURS_COUNT_KIND_KEY,null,"fixed")
 //    val a3 = new Annotation(null) + (AnnotationKeys.OCCURS_COUNT_KIND_KEY,null,"parsed")
@@ -230,7 +234,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    c.getOccursCountKind should equal (None)
 //  }
 //  
-//  test("setting OccursStopValue") {
+//  def test() { // ("setting OccursStopValue") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.OCCURS_STOP_VALUE_KEY,null,"a value")
 //    val b1 = new Annotation(null).setOccursStopValue("a value")
 //    val c = new Annotation(null)
@@ -240,7 +244,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    c.getOccursStopValue() should equal (None)
 //  }
 //
-//  test("setting NUmberPattern") {
+//  def test() { // ("setting NUmberPattern") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.NUMBER_PATTERN_KEY,null,"a value")
 //    val b1 = new Annotation(null).setNumberPattern("a value")
 //    val c = new Annotation(null)
@@ -250,7 +254,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    c.getNumberPattern() should equal (None)
 //  }
 //
-//  test("setting DecimalSeparator") {
+//  def test() { // ("setting DecimalSeparator") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.DECIMAL_SEPARATOR_KEY,null,"a value")
 //    val b1 = new Annotation(null).setDecimalSeparator("a value")
 //    val c = new Annotation(null)
@@ -260,9 +264,9 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    c.getDecimalSeparator() should equal (None)
 //  }
 //
-//  test("setting BinaryFloatRepresentation") (pending)
+//  def test() { // ("setting BinaryFloatRepresentation") (pending)
 //
-//  test("setting ignoreCase") {
+//  def test() { // ("setting ignoreCase") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.IGNORE_CASE_KEY,null,"true")
 //    val a2 = new Annotation(null) + (AnnotationKeys.IGNORE_CASE_KEY,null,"false")
 //    val b1 = new Annotation(null).setIgnoreCase(true)
@@ -277,7 +281,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //  
 //  }
 //    
-//  test("setting base") {
+//  def test() { // ("setting base") {
 //    val a1 = new Annotation(null) + (AnnotationKeys.BASE_KEY,null,"21")
 //    val b1 = new Annotation(null).setBase(21)
 //    val a2 = new Annotation(null)
@@ -287,7 +291,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    a2.getBase() should equal (None)
 //  }
 //    
-//  test("setting with illegal values") {
+//  def test() { // ("setting with illegal values") {
 //    evaluating { new Annotation(null).setRepresentation("illegal value") } should produce [IllegalArgumentException]
 //    evaluating { new Annotation(null).setByteOrder("illegal value") } should produce [IllegalArgumentException]
 //    evaluating { new Annotation(null).setEncoding("illegal value") } should produce [IllegalCharsetNameException]
@@ -298,7 +302,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    //TODO implement all the others
 //  }
 //  
-//  test("annotations should be immutable") {
+//  def test() { // ("annotations should be immutable") {
 //    val a1 = new Annotation(null)
 //    val a2 = a1.setBase(10)
 //    val a3 = a2.setBase(20)
@@ -310,10 +314,10 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    a3.getBase should equal (Some(20))
 //  }
 //  
-//  test("adding multiple values") {
+//  def test() { // ("adding multiple values") {
 //    val a1 = new Annotation(null)
 //    val a2 = a1.setRepresentation(Text).
-//      setEncoding(Charset.forName("UTF-8")).setLength(10).setType("int").
+//      setEncoding(Charset.forName("UTF-8")).setLength(10).setTypeName("int").
 //                    setTerminator("term").setInitiator("init").
 //                    setBase(11).setSeparator("sep").setByteOrder(BigEndian)
 //    
@@ -328,8 +332,8 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    a2.getByteOrder should equal (Some(BigEndian)                                                         )
 //  }
 //    
-//  test("combining multiple annotations") {
-//    val a1 = new Annotation(null).setLength(20).setType("int")    
+//  def test() { // ("combining multiple annotations") {
+//    val a1 = new Annotation(null).setLength(20).setTypeName("int")    
 //    val a2 = new Annotation(null).setBase(10).setInitiator("init")
 //    val a3 = a1 ++ a2
 //    
@@ -339,7 +343,7 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    a3.getInitiator should equal (Some("init"))
 //  }
 //  
-//  test("overriding values by readding") {
+//  def test() { // ("overriding values by readding") {
 //    val a1 = new Annotation(null).setBase(5)
 //    val a2 = a1.setLength(20)
 //    val a3 = a2.setLength(30)
@@ -355,9 +359,9 @@ class AnnotationTest extends FunSuite with ShouldMatchers{
 //    a4.getBase should equal (Some(5))
 //  }
 //  
-//  test("overriding values by combining annotations") {
-//    val a1 = new Annotation(null).setRepresentation(Text).setBase(5).setLength(10).setType("int")
-//    val a2 = new Annotation(null).setTerminator("term").setBase(8).setByteOrder(BigEndian).setType("long")
+//  def test() { // ("overriding values by combining annotations") {
+//    val a1 = new Annotation(null).setRepresentation(Text).setBase(5).setLength(10).setTypeName("int")
+//    val a2 = new Annotation(null).setTerminator("term").setBase(8).setByteOrder(BigEndian).setTypeName("long")
 //    
 //    val a3 = a1 ++ a2
 //    

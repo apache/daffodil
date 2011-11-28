@@ -5,12 +5,15 @@ import java.nio.charset.Charset
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 
-import daffodil.processors.input._
+import daffodil.processors.input.text._
+import daffodil.Implicits._
 
+import org.scalatest.junit.JUnit3Suite
+import junit.framework.Assert._
 
-class TextProcessorTest extends FunSuite with ShouldMatchers  {
+class TextProcessorTest extends JUnit3Suite with ShouldMatchers  {
   
-  test("equal things should be equal") {
+  def testEqualThingsShouldBeEqual() { // ("equal things should be equal") {
     val processor1 = new TextProcessor(Charset.forName("ASCII"),true)
 		processor1.setLength("12")
 		processor1.setTerminator("term")
@@ -27,7 +30,7 @@ class TextProcessorTest extends FunSuite with ShouldMatchers  {
     processor2 should equal (processor1)
   }
   
-  test("different things should be different") {
+  def testDifferentThingsShouldBeDifferent() { // ("different things should be different") {
     val processor1 = new TextProcessor(Charset.forName("UTF-8"),true)
 		processor1.setLength("12")
 		processor1.setTerminator("term")
@@ -73,6 +76,6 @@ class TextProcessorTest extends FunSuite with ShouldMatchers  {
     processor1 should not equal (processor6)
   }
   
-  test("all others") (pending)
+  // def test() // ("all others") (pending)
   
 }
