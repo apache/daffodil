@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	elementFormDefault="qualified" attributeFormDefault="unqualified"
+	>
+
+	<!--
+		Description: Encoding is UTF-32, big Endian, lenghtUnits specified in
+		characters
+	-->
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+		   <dfdl:format initiator="" terminator="" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"    ref="config" escapeSchemeRef="" emptyValueDelimiterPolicy="none"
+					useNilForDefault="yes" nilValueDelimiterPolicy="none" nilKind="literalValue" nilValue="-"
+					byteOrder="bigEndian" lengthUnits="bytes" 
+					textOutputMinLength="1"
+					alignment="1" alignmentUnits="bytes" fillByte="f" leadingSkip="0" trailingSkip="0"
+					ignoreCase="no" lengthKind="implicit" sequenceKind="ordered"
+					initiatedContent="no"	textPadKind="none" textTrimKind="none" textStringJustification="left"
+					occursCountKind="implicit"	
+					/>
+				
+			</xs:appinfo>
+	</xs:annotation>
+	
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:defineFormat name="config">
+				<dfdl:format  encoding="UTF-32BE" />
+			</dfdl:defineFormat>
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:element name="multibytes" dfdl:ref="config" type="xs:string"
+		dfdl:representation="text" dfdl:textStringJustification="left"
+		dfdl:lengthUnits="characters" dfdl:length="6" dfdl:lengthKind="explicit"
+		dfdl:textTrimKind="padChar" dfdl:textPadKind="padChar"
+		dfdl:textStringPadCharacter="%NUL;" />
+</xs:schema>

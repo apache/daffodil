@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	elementFormDefault="qualified" attributeFormDefault="unqualified"
+	>
+
+	<!-- alignment and fillbytes sequence  -->
+	<!--
+		Ordered sequence, field 1 1 byte long, field 2 has alignment of 4
+	-->
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator="" textBidi="no" floating="no"   ref="rdefFormat" encoding="UTF-8" byteOrder="bigEndian"
+				ignoreCase="yes" textStringJustification="left" occursCountKind="implicit"
+				textStringPadCharacter="0" textTrimKind="none" textPadKind="none" />
+
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:defineFormat name="rdefFormat">
+				<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no"   encoding="utf-8" byteOrder="bigEndian"
+					ignoreCase="yes" outputNewLine="%LF;"
+					truncateSpecifiedLengthString="no" decimalSigned="yes" alignment="1"
+					alignmentUnits="bytes" fillByte="1" nilValueDelimiterPolicy="none"
+					nilKind="literalValue" nilValue="-" escapeSchemeRef=""
+					emptyValueDelimiterPolicy="none" />
+			</dfdl:defineFormat>
+		</xs:appinfo>
+	</xs:annotation>
+	<xs:element name="Fixed_text_multi_sequence1"
+		dfdl:lengthKind="implicit" dfdl:alignment="8">
+		<xs:complexType>
+
+			<xs:sequence dfdl:sequenceKind="ordered"
+				dfdl:initiatedContent="no" dfdl:alignment="8">
+
+				<xs:element name="Fixed_text_1" type="xs:string"
+					minOccurs="1" maxOccurs="1" dfdl:representation="text" dfdl:length="1"
+					dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes">
+
+				</xs:element>
+
+				<xs:element name="Fixed_text_2a" type="xs:string"
+					minOccurs="1" maxOccurs="1" dfdl:representation="text" dfdl:length="2"
+					dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:alignment="4"
+					dfdl:alignmentUnits="bytes" dfdl:fillByte="%#r66;"
+					dfdl:leadingSkip="0" dfdl:trailingSkip="0">
+
+
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="Fixed_text_multi_sequence2"
+		dfdl:lengthKind="implicit" dfdl:alignment="8">
+		<xs:complexType>
+
+			<xs:sequence dfdl:sequenceKind="ordered"
+				dfdl:initiatedContent="no" dfdl:alignment="8">
+
+				<xs:element name="Fixed_text_3" minOccurs="1" maxOccurs="1"
+					dfdl:representation="text" dfdl:length="3" dfdl:lengthKind="explicit"
+					dfdl:lengthUnits="bytes">
+
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="3"/><xs:maxLength value="3" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="Fixed_text_2a" minOccurs="1" maxOccurs="1"
+					dfdl:representation="text" dfdl:length="2" dfdl:lengthKind="explicit"
+					dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:alignmentUnits="bytes"
+					dfdl:fillByte="%#r66;" dfdl:leadingSkip="2" dfdl:trailingSkip="0">
+
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="2"/><xs:maxLength value="2" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="Fixed_text_multi_sequence3"
+		dfdl:alignment="8" dfdl:lengthKind="implicit">
+		<xs:complexType>
+
+			<xs:sequence dfdl:sequenceKind="ordered"
+				dfdl:initiatedContent="no" dfdl:alignment="8">
+
+				<xs:element name="Fixed_text_3" minOccurs="1" maxOccurs="1"
+					dfdl:representation="text" dfdl:length="3" dfdl:lengthKind="explicit"
+					dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:alignmentUnits="bytes"
+					dfdl:fillByte="%#r65;" dfdl:leadingSkip="0" dfdl:trailingSkip="2">
+
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="3"/><xs:maxLength value="3" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="Fixed_text_2a" minOccurs="1" maxOccurs="1"
+					dfdl:representation="text" dfdl:length="2" dfdl:lengthKind="explicit"
+					dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:alignmentUnits="bytes"
+					dfdl:fillByte="%#r66;" dfdl:leadingSkip="0" dfdl:trailingSkip="0">
+
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="2"/><xs:maxLength value="2" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

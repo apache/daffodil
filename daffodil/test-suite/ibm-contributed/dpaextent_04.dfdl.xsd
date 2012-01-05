@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+	elementFormDefault="qualified" attributeFormDefault="unqualified" >
+
+  <!--generic mnemonic NL,  2 elements, initiatedContent=false, one child of sequence with initiator, and one with terminator  -->
+
+
+   <xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			
+   <dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"    encoding="UTF-16" utf16Width="variable" byteOrder="littleEndian" ignoreCase="yes"
+				textStringJustification="left"
+				textStringPadCharacter="0" textTrimKind="none" textPadKind="none" documentFinalTerminatorCanBeMissing="no"
+				alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"/>
+		
+		</xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="Fixed_text_sequence"  dfdl:lengthKind="implicit">
+  <xs:complexType>
+  
+  <xs:sequence  dfdl:sequenceKind="ordered" dfdl:initiatedContent="no" >
+  
+    <xs:element name="element1" 
+	minOccurs="1" maxOccurs="1" 
+	dfdl:representation="text"
+	dfdl:length="1" 
+	dfdl:lengthKind="explicit"
+	dfdl:lengthUnits="characters"
+	dfdl:initiator="%NL;"
+	dfdl:terminator=""
+	dfdl:outputNewLine="%CR;%LF;"
+	
+	dfdl:nilValueDelimiterPolicy="both"
+	dfdl:nilKind="literalValue"
+	dfdl:nilValue="-"> 
+	
+	    <xs:simpleType>
+			<xs:restriction base="xs:string">
+	
+			</xs:restriction>
+		</xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="element2" 
+	minOccurs="1" maxOccurs="1" 
+	dfdl:representation="text"
+	dfdl:length="1" 
+	dfdl:lengthKind="explicit"
+	dfdl:lengthUnits="characters"
+	dfdl:initiator=""
+	dfdl:terminator="%NL;"
+	dfdl:outputNewLine="%CR;%LF;"
+	
+	dfdl:nilValueDelimiterPolicy="both"
+	dfdl:nilKind="literalValue"
+	dfdl:nilValue="-"> 
+	
+	    <xs:simpleType>
+			<xs:restriction base="xs:string">
+			
+			</xs:restriction>
+		</xs:simpleType>
+    </xs:element>
+  </xs:sequence>
+  </xs:complexType>
+  </xs:element>
+</xs:schema>

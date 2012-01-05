@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		CT Valid test example of delimited data m-f-f infix delimited,
+		separator required (fixed length simple element), terminators on fixed length elements
+	-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:cal="http://www.saf.cal/" elementFormDefault="unqualified"
+	attributeFormDefault="unqualified" >
+
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<!--
+				This is the new schema level default format block. It doesn't get a
+				name
+			-->
+			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no"   encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
+				truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
+				textStringPadCharacter=" " textPadKind="none" textTrimKind="none"
+				textStringJustification="left" lengthKind="delimited"
+				textOutputMinLength="6" lengthUnits="bytes"
+				textCalendarJustification="right" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
+				sequenceKind="ordered" escapeSchemeRef="" separator="~"
+				separatorPosition="infix" separatorPolicy="required" />
+		</xs:appinfo>
+	</xs:annotation>
+	
+	<xs:element name="groupElem" >
+		<xs:complexType>
+			<xs:sequence dfdl:initiatedContent="no"
+				dfdl:sequenceKind="ordered">
+				<xs:element name="Test1" type="xs:string" minOccurs="1"
+					maxOccurs="1" dfdl:initiator="A:" dfdl:terminator="a">
+
+				</xs:element>
+				<xs:element name="Test2" type="xs:unsignedShort" dfdl:representation="binary" 
+				dfdl:binaryNumberCheckPolicy="lax" dfdl:binaryNumberRep="binary"
+				dfdl:lengthKind="explicit" dfdl:length="2">
+
+				</xs:element>
+				<xs:element name="Test3" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2">
+
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

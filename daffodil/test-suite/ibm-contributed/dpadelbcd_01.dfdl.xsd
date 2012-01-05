@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		number - delimited - bcd 	-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:cal="http://www.saf.cal/" elementFormDefault="unqualified"
+	attributeFormDefault="unqualified" >
+	<!--
+	-->
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<!--
+				This is the new schema level default format block. It doesn't get a
+				name
+			-->
+			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no"   encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
+				occursCountKind="implicit"
+				truncateSpecifiedLengthString="no" ignoreCase="no" representation="binary"
+				textPadKind="none" textTrimKind="none" lengthKind="delimited"
+				escapeSchemeRef="" textOutputMinLength="0" lengthUnits="bytes"
+				textStringJustification="left" textStringPadCharacter="%SP;"
+				textCalendarJustification="left" textCalendarPadCharacter="%SP;"
+				nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
+				sequenceKind="ordered" separatorPolicy="required" 
+				binaryNumberRep="bcd" binaryDecimalVirtualPoint="2"
+                                decimalSigned="yes" binaryNumberCheckPolicy="lax"
+				 />
+
+		</xs:appinfo>
+	</xs:annotation>
+	
+ 	
+
+
+	<!-- one fixed length element to confirm format -->
+	<xs:element name="mybinDecimal1" type="newType1"  dfdl:lengthKind="explicit" dfdl:length="4">
+	</xs:element>
+
+    <!-- same as delimited -->
+	<xs:element name="mybinDecimal2" type="newType1"  dfdl:terminator="@">
+	</xs:element>
+
+    <xs:element name="myDecimalSeq" dfdl:lengthKind="delimited" >
+		<xs:complexType>
+			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix" 
+				dfdl:sequenceKind="ordered" dfdl:separator="~" >
+				
+				<xs:element name="mybinDecimal3" type="newType1"  >
+				</xs:element>
+ 
+				
+				<xs:element name="Test2" type="xs:string"  dfdl:representation="text" >
+
+				</xs:element>
+				
+				<xs:element name="mybinDecimal4" type="newType1"  >
+				</xs:element>
+ 
+			</xs:sequence>
+		</xs:complexType>
+
+	</xs:element>
+	
+	
+
+	<xs:simpleType name="newType1">
+		<xs:annotation>
+			<xs:appinfo source="http://www.ogf.org/dfdl/">
+				<dfdl:simpleType  />
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:restriction base="xs:decimal">
+
+		</xs:restriction>
+	</xs:simpleType>
+
+	
+</xs:schema>

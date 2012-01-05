@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:cal="http://www.saf.cal/" elementFormDefault="qualified"
+	attributeFormDefault="qualified" >
+	
+	<!--  Portions of this schema taken from example in 
+	Data Format Description Language (DFDL) v1.0 Specification, Copyright © Global Grid Forum (2004-2006).  All Rights Reserved.
+Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
+	 -->
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator=""  textBidi="no" floating="no"   encoding="ASCII" representation="text"
+				byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f"
+				occursCountKind="implicit" initiatedContent="no" sequenceKind="ordered"
+				ignoreCase="no" textPadKind="none" textTrimKind="none"
+				textStringJustification="right" textStandardBase="10"
+				textNumberJustification="right" textNumberRep="standard" lengthKind="explicit"
+				lengthUnits="characters" length="3" textNumberPattern="###"
+				textStandardGroupingSeparator="," textStandardDecimalSeparator="."
+				textStandardExponentCharacter="E" textNumberCheckPolicy="lax"
+				textStandardInfinityRep="~" textStandardNaNRep="z"
+				textNumberRoundingMode="roundHalfDown" textStandardZeroRep=""
+				textZonedSignStyle="asciiStandard" textNumberRounding="pattern"
+				escapeSchemeRef="" />
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:defineFormat name="myFormat">
+				<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator=""  textBidi="no" floating="no"   encoding="ASCII" />
+			</dfdl:defineFormat>
+		</xs:appinfo>
+	</xs:annotation>
+
+
+	<xs:element name="book" dfdl:length="6">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="title" type="xs:string">
+					<xs:annotation>
+						<xs:appinfo source="http://www.ogf.org/dfdl/">
+							<dfdl:element ref="myFormat" encoding="ASCII" />
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="pages" type="xs:int" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
+

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:cal="http://www.saf.cal/" elementFormDefault="unqualified"
+	attributeFormDefault="unqualified" >
+
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   encoding="UTF-8" ignoreCase="no" byteOrder="bigEndian"
+				lengthKind="explicit" textPadKind="padChar" textTrimKind="padChar"
+				textNumberPadCharacter="0" textStandardBase="10"
+				textNumberJustification="right" textStringPadCharacter=" "
+				textStringJustification="left" lengthUnits="bytes" alignmentUnits="bytes"
+				fillByte="%#r66;" alignment="1" occursCountKind="implicit" initiatedContent="no"
+				sequenceKind="ordered" textStandardGroupingSeparator=","
+				textStandardDecimalSeparator="." textStandardExponentCharacter="e"
+				textNumberCheckPolicy="lax" textStandardInfinityRep="~"
+				textStandardNaNRep="z" textNumberRoundingMode="roundHalfDown" textNumberRounding="pattern"
+				textStandardZeroRep="" textZonedSignStyle="asciiStandard" escapeSchemeRef=""/>
+
+		</xs:appinfo>
+	</xs:annotation>
+
+	<!--  number pattern equal to length -->
+
+	<xs:element name="Test1" type="myNumber">
+		<xs:annotation>
+			<xs:appinfo source="http://www.ogf.org/dfdl/">
+				<dfdl:element length="8" textNumberPattern="00000000" />
+			</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+
+	<!--  number pattern not equal to length - expect padding/trimming -->
+
+	<xs:element name="Test2" type="myNumber">
+		<xs:annotation>
+			<xs:appinfo source="http://www.ogf.org/dfdl/">
+				<dfdl:element length="8" textNumberPattern="00000" />
+			</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+
+	<!--
+		number pattern not equal to length - expect padding/trimming -
+		encoding different than schema encoding
+	-->
+
+	<xs:element name="Test3" type="myNumber">
+		<xs:annotation>
+			<xs:appinfo source="http://www.ogf.org/dfdl/">
+				<dfdl:element length="8" textNumberPattern="00000"
+					encoding="ebcdic-cp-us" />
+			</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+
+
+
+	<xs:simpleType name="myNumber">
+		<xs:annotation>
+			<xs:appinfo source="http://www.ogf.org/dfdl/">
+				<dfdl:simpleType representation="text"
+					textNumberRep="standard" />
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:restriction base="xs:integer"></xs:restriction>
+	</xs:simpleType>
+
+
+</xs:schema>

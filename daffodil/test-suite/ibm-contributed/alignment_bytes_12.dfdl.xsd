@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	elementFormDefault="unqualified" attributeFormDefault="unqualified"
+	>
+
+<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+		   <dfdl:format initiator="" terminator="" truncateSpecifiedLengthString="no"  separator="" textBidi="no" floating="no"   escapeSchemeRef="" emptyValueDelimiterPolicy="none"
+					useNilForDefault="yes" nilValueDelimiterPolicy="none" nilKind="literalValue" nilValue="-"
+					encoding="utf-8" byteOrder="bigEndian" lengthUnits="bytes" 
+					textOutputMinLength="1"
+					alignment="1" alignmentUnits="bytes" fillByte="f" leadingSkip="0" trailingSkip="0"
+					ignoreCase="no" lengthKind="implicit" sequenceKind="ordered"
+					initiatedContent="no"	textPadKind="none" textTrimKind="none" textStringJustification="left"
+					occursCountKind="implicit"	
+					/>
+				
+			</xs:appinfo>
+	</xs:annotation>
+
+	<!-- binary textNumber with alignment  - implicit length  short -->
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+						
+			<dfdl:defineFormat name="baseBinFloat">
+				<dfdl:format   representation="binary" lengthKind="explicit"
+					lengthUnits="bytes"  binaryFloatRep="ieee"  binaryNumberCheckPolicy="lax" />
+			</dfdl:defineFormat>
+			
+			<dfdl:defineFormat name="baseBinDateTime">
+   			<dfdl:format  encoding="utf-8" byteOrder="bigEndian" representation="binary" lengthKind="explicit" length="4" lengthUnits="bytes"/>
+			</dfdl:defineFormat>
+			
+			<dfdl:defineFormat name="calendarFormat1">
+				<dfdl:format ref="baseBinDateTime" calendarPatternKind="implicit" calendarCheckPolicy="strict" calendarTimeZone="UTC" calendarObserveDST="yes"  calendarFirstDayOfWeek="Sunday" calendarDaysInFirstWeek="1" calendarCenturyStart="75"/>
+			</dfdl:defineFormat>
+			
+		</xs:appinfo>
+	</xs:annotation>
+
+
+	<xs:element name="Fixed_bin_flt_sequence"  dfdl:lengthKind="implicit" dfdl:alignment="implicit">
+		<xs:complexType>
+			<xs:sequence dfdl:sequenceKind="ordered"
+				dfdl:initiatedContent="no" dfdl:alignment="implicit">
+				
+				<!-- ffffxxxxf -->
+				<xs:element name="myFloat1" type="xs:float"
+					dfdl:ref="baseBinFloat"  dfdl:length="4"
+					dfdl:alignment="implicit" dfdl:alignmentUnits="bytes"
+					dfdl:fillByte="g" dfdl:leadingSkip="1"
+					dfdl:trailingSkip="1" >
+
+				</xs:element>
+				
+				<!-- fffxxxx -->
+				<xs:element name="myFloat2" type="xs:float"
+					dfdl:ref="baseBinFloat"  dfdl:length="4"
+					dfdl:alignment="implicit" dfdl:alignmentUnits="bytes"
+					dfdl:fillByte="g" dfdl:leadingSkip="0"
+					dfdl:trailingSkip="0" >
+
+				</xs:element>
+				
+				<!-- ffffxxxx  -->
+
+				<xs:element name="myFloat3" type="xs:float"
+					dfdl:ref="baseBinFloat"  dfdl:length="4"
+					dfdl:alignment="implicit" dfdl:alignmentUnits="bytes"
+					dfdl:fillByte="g" dfdl:leadingSkip="1"
+					dfdl:trailingSkip="0" >
+
+				</xs:element>
+
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+   
+     <xs:element name="Fixed_bin_bol_sequence"  dfdl:lengthKind="implicit" dfdl:alignment="implicit">
+  <xs:complexType>
+    <xs:sequence dfdl:sequenceKind="ordered" dfdl:initiatedContent="no"  dfdl:alignment="implicit">
+	<xs:element name="binbol" type="xs:boolean"  dfdl:lengthUnits="bytes" dfdl:lengthKind="implicit"
+		
+		 dfdl:alignment="1"
+			dfdl:alignmentUnits="bytes"
+			dfdl:fillByte="%#r7e;"
+			dfdl:leadingSkip="0"
+			dfdl:trailingSkip="1"
+			dfdl:representation="binary"
+                      dfdl:binaryBooleanTrueRep="1"
+                      dfdl:binaryBooleanFalseRep="0" >
+	
+	</xs:element>
+	<xs:element name="binbol2" type="xs:boolean"  dfdl:lengthUnits="bytes" dfdl:lengthKind="implicit"
+		 
+		 dfdl:alignment="implicit"
+			dfdl:alignmentUnits="bytes"
+			dfdl:fillByte="%#r7e;"
+			dfdl:leadingSkip="0"
+			dfdl:trailingSkip="0"
+			dfdl:representation="binary"
+                      dfdl:binaryBooleanTrueRep="1"
+                      dfdl:binaryBooleanFalseRep="0" >
+		
+	</xs:element>
+	
+	</xs:sequence>
+  </xs:complexType>
+  </xs:element>
+  
+  	
+	 <xs:element name="Fixed_bin_cal_sequence"  dfdl:lengthKind="implicit" dfdl:alignment="implicit">
+  <xs:complexType>
+    <xs:sequence  dfdl:sequenceKind="ordered" dfdl:initiatedContent="no" dfdl:alignment="implicit" >
+	<xs:element name="mystr" type="xs:string"  dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" dfdl:length="1"
+		 
+		 dfdl:alignment="1"
+			dfdl:alignmentUnits="bytes"
+			dfdl:fillByte="%#r7e;"
+			dfdl:leadingSkip="0"
+			dfdl:trailingSkip="0"
+			dfdl:representation="text"
+                     >
+	
+	</xs:element>
+	<xs:element name="bincal2" type="xs:dateTime"  dfdl:lengthUnits="bytes" dfdl:lengthKind="implicit"
+		 dfdl:ref="calendarFormat1"
+		 dfdl:alignment="implicit"
+			dfdl:alignmentUnits="bytes"
+			dfdl:fillByte="%#r7e;"
+			dfdl:leadingSkip="0"
+			dfdl:trailingSkip="0"
+			 dfdl:binaryCalendarRep="binarySeconds" dfdl:binaryCalendarEpoch="1970-01-01T00:00:00+00:00"
+			 >
+		
+	</xs:element>
+	
+	
+	</xs:sequence>
+  </xs:complexType>
+  </xs:element>
+  
+   
+</xs:schema>

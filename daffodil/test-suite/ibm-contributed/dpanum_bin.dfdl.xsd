@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	elementFormDefault="qualified" attributeFormDefault="unqualified"
+	>
+
+	<!--
+		variations of number properties and patterns for text representation
+	-->
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   ref="numberStandardBinary" escapeSchemeRef=""
+				emptyValueDelimiterPolicy="none" useNilForDefault="yes"
+				nilValueDelimiterPolicy="none" nilKind="literalValue" nilValue="-"
+				encoding="utf-8" byteOrder="bigEndian" lengthUnits="bytes"
+				textOutputMinLength="1" alignment="1" alignmentUnits="bytes"
+				fillByte="%NUL;"  occursCountKind="implicit" ignoreCase="no"
+				lengthKind="explicit" sequenceKind="ordered" initiatedContent="no" />
+
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:defineFormat name="numberStandardBinary">
+				<dfdl:format  representation="binary"
+					binaryNumberRep="bcd" binaryDecimalVirtualPoint="2"
+                    decimalSigned="yes" binaryNumberCheckPolicy="lax" 
+                    binaryFloatRep="ieee"/>
+			</dfdl:defineFormat>
+
+
+
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:element name="bcd_group" dfdl:lengthKind="implicit">
+		<xs:complexType>
+			<xs:sequence dfdl:separatorPolicy="required"
+				dfdl:separatorPosition="infix" dfdl:separator="*">
+				<xs:element name="decimal1" type="xs:decimal" 
+					dfdl:length="4"					 />
+				<xs:element name="integer1" type="xs:integer" 
+					dfdl:length="4"					 />	
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	<xs:element name="float1" type="xs:float" dfdl:length="4"/>		
+				
+					
+
+			
+</xs:schema>

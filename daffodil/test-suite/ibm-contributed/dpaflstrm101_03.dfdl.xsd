@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+	elementFormDefault="qualified" attributeFormDefault="unqualified" >
+
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:defineFormat name="config">
+   <dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   encoding="UTF-8" byteOrder="bigEndian" ignoreCase="yes"
+				textStringJustification="center"
+				textStringPadCharacter="x" textTrimKind="padChar"  textPadKind="padChar"
+				alignment="1" alignmentUnits="bytes" fillByte="f"
+				occursCountKind="implicit" escapeSchemeRef=""/>
+			</dfdl:defineFormat>
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:element name="Fixed_string_with_Pads_9" dfdl:ref="config"
+	dfdl:representation="text" 
+	dfdl:lengthUnits="characters" 
+	dfdl:length="9" 
+	dfdl:lengthKind="explicit">
+	<xs:simpleType>
+			<xs:restriction base="xs:string">
+			
+<!-- xs:minLength value="9"/><xs:maxLength value="9"/> -->
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+</xs:schema>

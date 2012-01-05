@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:cal="http://www.saf.cal/" elementFormDefault="qualified"
+	attributeFormDefault="qualified" >
+	
+	<!--  Portions of this schema taken from example in 
+	Data Format Description Language (DFDL) v1.0 Specification, Copyright © Global Grid Forum (2004-2006).  All Rights Reserved.
+Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
+	 -->
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator=""  textBidi="no" floating="no"   encoding="ASCII" representation="text"
+				byteOrder="bigEndian" initiatedContent="no" sequenceKind="ordered"
+				ignoreCase="no" textPadKind="none" textTrimKind="none"
+				textStringJustification="right" textStandardBase="10"
+				textNumberJustification="right" textNumberRep="standard" lengthKind="explicit"
+				lengthUnits="bytes" length="4" 
+				alignmentUnits="bytes" fillByte="%#r66;"  alignment="1" occursCountKind="implicit"
+				binaryNumberRep="packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"
+				textNumberPattern="###" textStandardGroupingSeparator=","
+				textStandardDecimalSeparator="." textStandardExponentCharacter="E"
+				textNumberCheckPolicy="lax" textStandardInfinityRep="~"
+				textStandardNaNRep="z" textNumberRoundingMode="roundHalfDown"
+				textStandardZeroRep="" textZonedSignStyle="asciiStandard"  escapeSchemeRef=""/>
+		</xs:appinfo>
+	</xs:annotation>
+
+	<!-- this starts the actual snippet example (change 64 to 16 to allow less fill data since we only support bytes now-->
+	<xs:simpleType name="otherNewType">
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:simpleType alignment="16"/>
+		</xs:appinfo>
+	</xs:annotation>
+	<xs:restriction base="newType">
+		<xs:maxInclusive value="5"/>
+	</xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="newType">
+	<xs:annotation> 
+<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:simpleType representation='binary'/>
+		</xs:appinfo> 
+</xs:annotation>
+	<xs:restriction base="xs:int">
+		<xs:maxInclusive value="10"/>
+	</xs:restriction>
+</xs:simpleType>
+ 
+ <!--  rest to test scoping on types above -->
+ <xs:element name="testElement1" type="otherNewType">
+		
+	</xs:element>
+  
+  <xs:element name="groupElem" dfdl:lengthKind="implicit" dfdl:alignment="implicit">
+					<xs:complexType>
+						<xs:sequence dfdl:alignment="implicit" >
+							<xs:element ref="testElement1"  minOccurs="2" maxOccurs="2"/>
+							
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+
+</xs:schema>

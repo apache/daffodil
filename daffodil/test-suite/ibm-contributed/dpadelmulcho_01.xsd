@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!-- Top level element choice group of sequence or string.
+	      In nested sequence (all mandatory, second of 3 elements is a choice of two strings.
+		
+	-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:cal="http://www.saf.cal/" elementFormDefault="unqualified"
+	attributeFormDefault="unqualified" >
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
+				 occursCountKind="implicit"
+				ignoreCase="no" representation="text" textStringPadCharacter=" "
+				textPadKind="none" textTrimKind="none" textStringJustification="left"
+				lengthKind="delimited" sequenceKind="ordered" initiatedContent="no"
+				nilValueDelimiterPolicy="both" textNumberRep="standard"
+				textStandardBase="10" textNumberPattern="##0" textNumberJustification="right"
+				textNumberPadCharacter="0" textStandardGroupingSeparator=","
+				textStandardDecimalSeparator="." textStandardExponentCharacter="e"
+				decimalSigned="yes" textNumberCheckPolicy="strict" textStandardInfinityRep="~"
+				textStandardNaNRep="z" textNumberRounding="pattern"
+				textStandardZeroRep="0" textOutputMinLength="1" lengthUnits="characters"
+				escapeSchemeRef="" documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="none" />
+
+			
+		</xs:appinfo>
+	</xs:annotation>
+
+	<!-- dataDictionary -->
+	<xs:element name="Test1" type="xs:int">
+	</xs:element>
+
+	<xs:element name="Test2" type="xs:int">
+	</xs:element>
+<!--  outer choice group does not have initiator or terminator itself  -->
+<!--  first branches of both will be iTest1:1+Test1:at1b=Test3:3!t -->
+
+
+	<xs:element name="Test3" type="xs:int">
+	</xs:element>
+
+	<xs:element name="Choice_Outer">
+		<xs:complexType>
+			<xs:choice dfdl:choiceLengthKind="implicit"
+				dfdl:initiatedContent="no">
+
+				<xs:element name="groupElem">
+					<xs:complexType>
+						<xs:sequence dfdl:sequenceKind="ordered"
+							dfdl:initiatedContent="no" dfdl:separator="*" dfdl:initiator="i"
+							dfdl:terminator="t" dfdl:separatorPosition="infix"
+							dfdl:separatorPolicy="required">
+							<xs:element ref="Test1" minOccurs="1" maxOccurs="1"
+								dfdl:initiator="Test1:" dfdl:terminator="+" />
+							<xs:element name="Choice_inner" minOccurs="1"
+								maxOccurs="1" dfdl:initiator="Test2:" dfdl:terminator="=">
+
+								<xs:complexType>
+
+									<xs:choice dfdl:choiceLengthKind="implicit"
+										dfdl:initiatedContent="no">
+
+										<xs:element name="InnerText1" type="xs:string"
+											minOccurs="1" maxOccurs="1" dfdl:initiator="a"
+											dfdl:terminator="b">
+										</xs:element>
+										<xs:element name="InnerText2" type="xs:string"
+											minOccurs="1" maxOccurs="1" dfdl:initiator="c"
+											dfdl:terminator="d">
+										</xs:element>
+
+									</xs:choice>
+
+								</xs:complexType>
+							</xs:element>
+
+							<xs:element ref="Test3" minOccurs="1" maxOccurs="1"
+								dfdl:initiator="Test3:" dfdl:terminator="!" />
+						</xs:sequence>
+
+
+					</xs:complexType>
+				</xs:element>
+
+				<xs:element name="myText2" type="xs:string" minOccurs="1"
+					maxOccurs="1" dfdl:initiator="x" dfdl:terminator="y">
+				</xs:element>
+
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

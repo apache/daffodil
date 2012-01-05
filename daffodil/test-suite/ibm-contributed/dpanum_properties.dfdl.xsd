@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	elementFormDefault="qualified" attributeFormDefault="unqualified"
+	>
+
+	<!--
+		variations of number properties and patterns for text representation
+	-->
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   ref="numberStandardText" escapeSchemeRef=""
+				emptyValueDelimiterPolicy="none" useNilForDefault="yes"
+				nilValueDelimiterPolicy="none" nilKind="literalValue" nilValue="-"
+				encoding="utf-8" byteOrder="bigEndian" lengthUnits="characters"
+				textOutputMinLength="1" alignment="1" alignmentUnits="bytes"
+				fillByte="f" occursCountKind="implicit" ignoreCase="no"
+				lengthKind="delimited" sequenceKind="ordered" initiatedContent="no" />
+
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:defineFormat name="numberStandardText">
+				<dfdl:format textNumberRep="standard" representation="text"
+					textNumberJustification="right" textTrimKind="padChar" textPadKind="padChar"
+					textNumberPadCharacter="0" textStandardBase="10"
+					textNumberCheckPolicy="strict" textStandardGroupingSeparator=","
+					textStandardDecimalSeparator="." textStandardExponentCharacter="e"
+					textStandardInfinityRep="~" textStandardZeroRep=""
+					textStandardNaNRep="z" textNumberRoundingMode="roundHalfDown"
+					textNumberRounding="pattern" decimalSigned="yes" />
+			</dfdl:defineFormat>
+
+
+
+		</xs:appinfo>
+	</xs:annotation>
+
+
+
+	
+
+	<!-- 123 4567.8*123.456,78 -->
+	<xs:element name="decimal_group">
+		<xs:complexType>
+			<xs:sequence dfdl:separatorPolicy="required"
+				dfdl:separatorPosition="infix" dfdl:separator="*">
+				<!--  use space for separator, and show grouping of 4  -->
+				<xs:element name="decimal1" type="xs:decimal"
+					dfdl:textNumberPattern="###,###0.0"
+					dfdl:textStandardGroupingSeparator="%SP;"
+					dfdl:textStandardDecimalSeparator="." />
+
+				<!--  , decimal and . grouping  -->
+				<xs:element name="decimal2" type="xs:decimal"
+					dfdl:textNumberPattern="###,##0.00"
+					dfdl:textStandardGroupingSeparator="."
+					dfdl:textStandardDecimalSeparator="," />
+				
+				<!--  virtual decimal point in number 1234 is 12.34 -->	
+				<xs:element name="decimal3" type="xs:decimal"
+					dfdl:textNumberPattern="00V00"		 />	
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<!--  show exponent, not a number, infinity, zero rep -->
+	<!--  ~*myZero*NaN*12.3x12 -->
+	<xs:element name="double_group">
+		<xs:complexType>
+			<xs:sequence dfdl:separatorPolicy="required"
+				dfdl:separatorPosition="infix" dfdl:separator="*">
+				<!--  use space for separator, and show grouping of 4  -->
+				<xs:element name="double1" type="xs:double" minOccurs="0" maxOccurs="4" 
+				dfdl:occursCountKind="implicit"
+					dfdl:textNumberPattern="##0.#E0"
+					dfdl:textStandardInfinityRep="~" dfdl:textStandardZeroRep="myZero"
+					dfdl:textStandardNaNRep="NaN"  dfdl:textStandardExponentCharacter="x" />
+
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<!--  1.234 will be   1.3 in both cases, one uses pattern and the other uses roundingIncrement-->
+	<xs:element name="rounding_group">
+		<xs:complexType>
+			<xs:sequence dfdl:separatorPolicy="required"
+				dfdl:separatorPosition="infix" dfdl:separator="*">
+				<!--  use space for separator, and show grouping of 4  -->
+				<xs:element name="decimal1" type="xs:decimal" 
+					dfdl:textNumberRounding="pattern"
+					dfdl:textNumberPattern="##0.65"	 />
+				<xs:element name="decimal2" type="xs:decimal" 
+					dfdl:textNumberRounding="explicit" dfdl:textNumberRoundingMode="roundHalfUp"
+					dfdl:textNumberPattern="##0.00"	 dfdl:textNumberRoundingIncrement="0.65" />
+					
+
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="base_group">
+		<xs:complexType>
+			<xs:sequence dfdl:separatorPolicy="required"
+				dfdl:separatorPosition="infix" dfdl:separator="*">
+				<!--  use space for separator, and show grouping of 4  -->
+				<xs:element name="short_base2" type="xs:short" dfdl:textStandardBase="2"
+					dfdl:textNumberPattern="##0"	 />
+					<xs:element name="short_base8" type="xs:short" dfdl:textStandardBase="8"
+					dfdl:textNumberPattern="##0"	 />
+					
+					<xs:element name="short_base16" type="xs:short" dfdl:textStandardBase="16"
+					dfdl:textNumberPattern="##0"	 />		
+				
+					
+
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

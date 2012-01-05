@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="dpaext2" 
+	description="Sample tests to post externally"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData ./dfdl/dfdlTestData.xsd http://w3.ibm.com/xmlns/dfdl/ctInfoset ./dfdl/ctInfoset.xsd">
+
+<!-- Section 13 - Simple Types
+    First, some tests for padding/trimming, with properties common to simple types with Text representation
+    and the string/number specific properties related to padding/trimming. Test include trimming include trimming in multibyte encodings, 
+    different justification (right, center, left)
+     -->
+
+<parserTestCase name="simple_type_properties_pad_trim_13_01"
+ model="./fvt/ext/dpa/dpaflsmbyfrm41.dfdl.xsd" description="Section 13.2 trimming on multi-byte encoding utf-32BE"
+ root="multibytes">
+ <document><documentPart type="byte">0000ff3a0000d6c00000ffe10000ffe50000000000000000</documentPart></document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <multibytes>&#65338;&#54976;&#65505;&#65509;</multibytes>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 
+
+   <parserTestCase name="simple_type_properties_pad_trim_13_02" root="Test1"
+     model="./fvt/ext/dpa/dpaflstrmnum01.dfdl.xsd"
+     description="Section 13.2 trimming on fixed length numbers">
+ <document>00001234</document>
+<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Test1 xsi:type="xs:integer">1234</Test1>
+</dfdlInfoset> 
+</infoset>
+</parserTestCase>
+  
+	<!--
+		delimited tests with padding/trimming - field2 has minlength 2,
+		maxlength 3, field 3 has minlength 3.  no padding/triming on field 1.
+	-->
+	<parserTestCase name="simple_type_properties_pad_trim_13_03" root="groupElem"
+		model="./fvt/ext/dpa/dpadelonetrm_01.dfdl.xsd" validation="on"
+		 description="Section 13.2 trimming on text fields in a delimited sequence, left justified">
+		<document>A:a~B:bb*~C:ccc</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<groupElem>
+					<Test1>a</Test1>
+					<Test2>bb</Test2>
+					<Test3>ccc</Test3>
+				</groupElem>
+			</dfdlInfoset> 
+		</infoset>
+	</parserTestCase>
+
+   <parserTestCase name="simple_type_properties_pad_trim_13_04" root="Fixed_string_with_Pads_9"
+		model="./fvt/ext/dpa/dpaflstrm101_03.dfdl.xsd" validation="on"
+		 description="Section 13.2 trimming on fixed length text fields, justification='center'">
+		<document>xAAAAAAAx</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				  <Fixed_string_with_Pads_9>AAAAAAA</Fixed_string_with_Pads_9>
+			</dfdlInfoset> 
+		</infoset>
+	</parserTestCase>
+   
+   <!--  in unparser test at this point, add textOutputMinLength -->
+   <!--  Section 13.2.1 escapeScheme is optional -->
+   <!--  Section 13.3 Bidirectional support is optional -->
+   
+      <!--  in unparser test at this point, add truncateSpecifiedLengthString -->
+      
+      <!-- To demonstrate some of the functionality of Section 13.5, properties specific to number with Text representation,
+      we have tests with decimal logical types, so show decimal and grouping separators, and a virtual decimal place.
+      With a logical double type, provide example use of zero rep, not a number rep, infinity rep, and exponent character.
+      Both decimal and double tests make use of the numberPattern property to indicate representation of required digits and location
+      of decimal place and grouping separator. 
+      All the above use base 10 for numbers, so another test is include with a logical short to show use of the textStandardBase
+      property to indicate number bases of 2,8, and 16.-->
+      
+      <parserTestCase name="simple_type_properties_text_number_13_01" root="decimal_group"
+		model="./fvt/ext/dpa/dpanum_properties.dfdl.xsd" 
+		 description="Section 13.5 Specification of decimal and grouping separators, virtual decimal place">
+		<document>123 4567.8*123.456,78*1234</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <decimal_group>
+			    <decimal1 xsi:type="xs:decimal">1234567.8</decimal1>
+			    <decimal2 xsi:type="xs:decimal">123456.78</decimal2>
+			    <decimal3 xsi:type="xs:decimal">12.34</decimal3>
+			  </decimal_group>
+			</dfdlInfoset> 
+		</infoset>
+	</parserTestCase>
+	
+	<!-- ~*myZero*NaN*12.3x12 -->
+	
+	<parserTestCase name="simple_type_properties_text_number_13_02" root="double_group"
+		model="./fvt/ext/dpa/dpanum_properties.dfdl.xsd" 
+		 description="Section 13.5 Specification of zero rep, not a number rep, infinity rep, and exponent character in double">
+		<document>~*myZero*NaN*12.3x12</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <double_group>
+			    <double1 xsi:type="xs:double">INF</double1>
+			    <double1 xsi:type="xs:double">0.0</double1>
+			    <double1 xsi:type="xs:double">NaN</double1>
+			    <double1 xsi:type="xs:double">1.23E13</double1>
+			  </double_group>
+			</dfdlInfoset> 
+		</infoset>
+	</parserTestCase>
+	
+	<!--  for unparser, need rounding example here. -->
+
+    <parserTestCase name="simple_type_properties_text_number_13_03" root="base_group"
+		model="./fvt/ext/dpa/dpanum_properties.dfdl.xsd" 
+		 description="Section 13.5 Specification of number base - 2,8, and 16">
+		<document>0101*127*10F</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <base_group>
+			    <short_base2 xsi:type="xs:short">5</short_base2>
+			    <short_base8 xsi:type="xs:short">87</short_base8>
+			    <short_base16 xsi:type="xs:short">271</short_base16>
+			   </base_group>
+			</dfdlInfoset> 
+		</infoset>
+	</parserTestCase>
+	
+	<!-- Tests for Section 13.7, Properties specific to Number with Binary Representation, include use of the properties
+	binaryNumberRep, binaryDecimalVirtualPoint,  decimalSigned,  binaryNumberCheckPolicy. The first, with a BCD number contrasts
+	a logical decimal type with a viruatl decimal point, and an integer type. The second test is a simple IEEE float number. -->
+	
+	<parserTestCase name="simple_type_properties_binary_number_13_01" root="bcd_group"
+		model="./fvt/ext/dpa/dpanum_bin.dfdl.xsd" 
+		 description="Section 13.7 Properties for numbers with binary representation - BCD">
+		<document><documentPart type="byte">12345678</documentPart>
+		<documentPart type="text">*</documentPart>
+		<documentPart type="byte">12345678</documentPart>
+		</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <bcd_group>
+			    <decimal1 xsi:type="xs:decimal">123456.78</decimal1>
+			    <integer1 xsi:type="xs:integer">12345678</integer1>
+			   </bcd_group>
+			</dfdlInfoset> 
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="simple_type_properties_binary_number_13_02" root="float1"
+		model="./fvt/ext/dpa/dpanum_bin.dfdl.xsd" 
+		 description="Section 13.8 Float/Double with binary representation">
+		<document><documentPart type="byte">A6901D7D</documentPart></document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		    <float1 xsi:type="xs:float">-1.0E-15</float1>
+			</dfdlInfoset> 
+		</infoset>
+	</parserTestCase>
+
+   <!--  Sections 13.9 and 13.10 of the DFDL specification cover properties related to logical boolean values, text and binary. -->
+   <!-- For boolean text, the first test has an explicit length for the boolean element, so a entity is used to pad the short
+   boolean true representation value to the same length as false.  Note this is treated  as part of the boolean representation in this case
+   and not a pad character.  The second test shows the use of text numbers (1,0) for the boolean representations.
+   The third test shows the use of lengthKind implicit with varying length of boolean representation, and the fourth, the use
+   of a logical boolean in a binary  representation -->
+   
+    <parserTestCase name="simple_type_properties_text_boolean_13_01" root="boolean1"
+		model="./fvt/ext/dpa/dpabol101.dfdl.xsd" 
+		 description="Section 13.9 Properties for boolean text  - ">
+		<document>true false</document>
+		<infoset>
+			 <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <boolean1>
+    <MyBoolean1 xsi:type="xs:boolean">true</MyBoolean1>
+    <MyBoolean1 xsi:type="xs:boolean">false</MyBoolean1>
+  </boolean1>
+</dfdlInfoset> 
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="simple_type_properties_text_boolean_13_02" root="boolean2"
+		model="./fvt/ext/dpa/dpabol101.dfdl.xsd" 
+		 description="Section 13.9 Properties for boolean text  - ">
+		<document>10</document>
+		<infoset>
+			 <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <boolean2>
+    <MyBoolean2 xsi:type="xs:boolean">true</MyBoolean2>
+    <MyBoolean2 xsi:type="xs:boolean">false</MyBoolean2>
+  </boolean2>
+</dfdlInfoset> 
+		</infoset>
+	</parserTestCase>
+	
+	
+	<parserTestCase name="simple_type_properties_text_boolean_13_03" root="boolean3"
+		model="./fvt/ext/dpa/dpabol101.dfdl.xsd" 
+		 description="Section 13.9 Properties for boolean text  - ">
+		<document>truetrue</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <boolean3>
+    <MyBoolean3 xsi:type="xs:boolean">true</MyBoolean3>
+    <MyBoolean3 xsi:type="xs:boolean">true</MyBoolean3>
+  </boolean3>
+</dfdlInfoset> 
+
+		</infoset>
+	</parserTestCase>
+	
+	
+	<parserTestCase name="simple_type_properties_bin_boolean_13_01" root="boolean1"
+		model="./fvt/ext/dpa/dpabol102.dfdl.xsd" 
+		 description="Section 13.10 Properties for boolean text (Binary boolean type was also used in alignment
+		 example above - ">
+		<document><documentPart type="byte">00070000</documentPart></document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <boolean1>
+			    <MyBoolean1 xsi:type="xs:boolean">true</MyBoolean1>
+			    <MyBoolean1 xsi:type="xs:boolean">false</MyBoolean1>
+			  </boolean1>
+			</dfdlInfoset> 
+
+		</infoset>
+	</parserTestCase>
+	
+	<!-- Section 13.10, 13.12, and 13.13 cover the properties specific to calendar objects, text and binary. 
+	Tests are included to cover padding and trimming with calendar fields, (properties textCalendarJustification, textCalendarPadCharacter)
+	calendarPattern and PatternKind(including implicit), and celendarFirstDayOfWeeK calendardDaysInFirstWeek (to convert a date value
+	from input provide in a form that indicates the Monday of the First week of 2010.)  
+	With the calendar property calendarStrictChecking, we show 56th week  is acceptable if checking is lax.
+	If the calendar presentation does not include time zone or has implied century, another test shows how calendarTimeZone, calendarCenturyStart
+	properties can be used to indicate this information in the calendar object in the infoset.
+	Finally, two tests show the basic use of binarySeconds and binaryMilliseconds, for logical calendar object represented in seconds or
+	milliseconds after a specified Epoch value.
+	
+	-->
+	<parserTestCase name="simple_type_properties_text_calendar_13_01" root="myDateTime"
+		model="./fvt/ext/dpa/dpacaltxt_43.dfdl.xsd" 
+		 description="Section 13.10 Properties for calendar text  -calendarPattern, calendarPatternKind, celendarFirstDayOfWeek
+		 calendardDaysInFirstWeek , Section 13.12 - textCalendarJustification, textCalendarPadCharacter">
+		<document>xxxx2011040506MON01@</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <myDateTime xsi:type="xs:dateTime">2010-12-27T04:05:06.000000+00:00</myDateTime>
+			</dfdlInfoset>
+
+		</infoset>
+	</parserTestCase>
+	
+<!-- @ Terminator inherited at both parent element and group from default format -->	
+	<parserTestCase name="simple_type_properties_text_calendar_13_02" root="calendar_group"
+		model="./fvt/ext/dpa/dpacaltxt_43.dfdl.xsd" 
+		 description="Section 13.10 Properties for calendar text  - implicit patterns for date, time, and dateTime ">
+		<document>2010-12-30*04:05:06+01:00*2010-12-30T04:05:06@@</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <calendar_group>
+			    <date1 xsi:type="xs:date">2010-12-30+00:00</date1>
+			    <time1 xsi:type="xs:time">04:05:06.000000+01:00</time1>
+			    <datetime1 xsi:type="xs:dateTime">2010-12-30T04:05:06.000000+00:00</datetime1>
+			  </calendar_group>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+		
+	<parserTestCase name="simple_type_properties_text_calendar_13_03" root="myDateTime"
+		model="./fvt/ext/dpa/dpacaltxt_43.dfdl.xsd" 
+		 description="Section 13.10 Properties for calendar text  - calendarStrictChecking (56th week  is ok if lax)">
+		<document>xxxx2011040506MON56@</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <myDateTime xsi:type="xs:dateTime">2012-01-16T04:05:06.000000+00:00</myDateTime>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>	
+	
+	<parserTestCase name="simple_type_properties_text_calendar_13_04" root="myDateTime4"
+		model="./fvt/ext/dpa/dpacaltxt_43.dfdl.xsd" 
+		 description="Section 13.10 Properties for calendar text  -calendarTimeZone, calendarCenturyStart ">
+		<document>101230040506@</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <myDateTime4 xsi:type="xs:dateTime">2010-12-30T04:05:06.000000-05:00</myDateTime4>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="simple_type_properties_bin_calendar_13_01" root="testBinarySeconds"
+		model="./fvt/ext/dpa/dpacalbin100_01.dfdl.xsd" 
+		 description="Section 13.13 Properties for calendar binary - binarySeconds='3600' as a four byte binary integer(an hour)  ">
+		<document><documentPart type="byte">0000003C</documentPart></document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <testBinarySeconds xsi:type="xs:dateTime">1970-01-01T00:01:00.000000+00:00</testBinarySeconds>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+     <parserTestCase name="simple_type_properties_bin_calendar_13_02" root="testBinaryMilliseconds"
+		model="./fvt/ext/dpa/dpacalbin100_01.dfdl.xsd" 
+		 description="Section 13.13 Properties for calendar binary binarySeconds='3600' as a four byte binary integer(an hour)  ">
+		<document><documentPart type="byte">000000000000003C</documentPart></document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <testBinaryMilliseconds xsi:type="xs:dateTime">2009-12-24T05:15:00.060000+05:00</testBinaryMilliseconds>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase> 
+
+   <!--  section 13.15, 13.16, 13.17  - nil and default processing - optional -->
+   
+   <!-- Section 14 of the DFDL specification covers Sequence groups. As unordered groups are optional, only tests with ordered
+   groups are included.  Tests show the various separator positions (infix, postfix, and prefix) and separator policies, including
+   scenarios where optional elements of the group are missing. The first tests use delimited length fields, but there are two
+   tests that show a sequence with explicit length fields. -->
+   
+   <parserTestCase name="sequences_separated_14_01" root="groupElem"
+		model="./fvt/ext/dpa/dpadeloneini_01.dfdl.xsd" 
+		 description="Section 14 Sequences Groups - delimited ordered sequence, separatorPosition='infix' separatorPolicy='suppressedAtEndStrict' ">
+		<document>Test1:1+*Test2:myString+*Test3:3+</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <groupElem>
+			    <Test1 xsi:type="xs:int">1</Test1>
+			    <Test2>myString</Test2>
+			    <Test3 xsi:type="xs:int">3</Test3>
+			  </groupElem>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="sequences_separated_14_02" root="groupElem"
+		model="./fvt/ext/dpa/dpadeloneini_01.dfdl.xsd" 
+		 description="Section 14 Sequences Groups - missing optional element 3 ">
+		<document>Test1:1+*Test2:myString+</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <groupElem>
+			    <Test1 xsi:type="xs:int">1</Test1>
+			    <Test2>myString</Test2>
+			   </groupElem>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="sequences_separated_14_03" root="groupElem2"
+		model="./fvt/ext/dpa/dpadeloneini_01.dfdl.xsd" 
+		 description="Section 14 Sequences Groups - delimited ordered sequence, separatorPosition='prefix' separatorPolicy='required' ">
+		<document>*Test1:1+*Test2:myString+*Test3:3+</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <groupElem2>
+			    <Test1 xsi:type="xs:int">1</Test1>
+			    <Test2>myString</Test2>
+			    <Test3 xsi:type="xs:int">3</Test3>
+			  </groupElem2>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="sequences_separated_14_04" root="groupElem2"
+		model="./fvt/ext/dpa/dpadeloneini_01.dfdl.xsd" 
+		 description="Section 14 Sequences Groups - missing optional element 3 ">
+		<document>*Test1:1+*Test2:myString+*</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <groupElem2>
+			    <Test1 xsi:type="xs:int">1</Test1>
+			    <Test2>myString</Test2>
+			   </groupElem2>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="sequences_separated_14_05" root="groupElem3"
+		model="./fvt/ext/dpa/dpadeloneini_01.dfdl.xsd" 
+		 description="Section 14 Sequences Groups - delimited ordered sequence, separatorPosition='postfix' separatorPolicy='suppressed' ">
+		<document>Test1:1+*Test2:myString+*Test3:3+*</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <groupElem3>
+			    <Test1 xsi:type="xs:int">1</Test1>
+			    <Test2>myString</Test2>
+			    <Test3 xsi:type="xs:int">3</Test3>
+			  </groupElem3>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="sequences_separated_14_06" root="groupElem3"
+		model="./fvt/ext/dpa/dpadeloneini_01.dfdl.xsd" 
+		 description="Section 14 Sequences Groups - missing optional element 2 ">
+		<document>Test1:1+*Test3:3+*</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <groupElem3>
+			    <Test1 xsi:type="xs:int">1</Test1>
+			    <Test3 xsi:type="xs:int">3</Test3>
+			   </groupElem3>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	 <parserTestCase name="sequences_separated_14_07" root="groupElem"
+		model="./fvt/ext/dpa/dpaflsoneini_01.dfdl.xsd" 
+		 description="Section 14 Sequence Groups - fixed length ordered sequence, separatorPosition='infix' separatorPolicy='suppressedAtEndStrict' ">
+		<document>Test1:1+*Test2:myString+*Test3:3+</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <groupElem>
+			    <Test1 xsi:type="xs:int">1</Test1>
+			    <Test2>myString</Test2>
+			    <Test3 xsi:type="xs:int">3</Test3>
+			  </groupElem>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="sequences_separated_14_08" root="groupElem"
+		model="./fvt/ext/dpa/dpaflsoneini_01.dfdl.xsd" 
+		 description="Section 14 Sequence Groups - fixed length ordered sequence with missing optional element 3 ">
+		<document>Test1:1+*Test2:myString+</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <groupElem>
+			    <Test1 xsi:type="xs:int">1</Test1>
+			    <Test2>myString</Test2>
+			   </groupElem>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<!--  floating, unordered, hidden all optional -->
+	
+	<!-- Section 15 covers Choice Groups.  The tests for this take a single global element that has nested choices, and 
+	demonstrates the input and expected infoset values for various choice branches taken. In these tests, the lengthKind is delimited.
+	 -->
+	 
+	<parserTestCase name="choices_basic_15_01"
+ model="./fvt/ext/dpa/dpadelmulcho_01.xsd"
+ root="Choice_Outer"
+ description="Section 15 Choice Groups - nested choices - first branch of outer choice, first branch of inner choice in data ">
+ <document>iTest1:1+*Test2:amb=*Test3:3!t</document>
+ <infoset>
+ <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Choice_Outer>
+    <groupElem>
+      <Test1 xsi:type="xs:int">1</Test1>
+      <Choice_inner>
+        <InnerText1>m</InnerText1>
+      </Choice_inner>
+      <Test3 xsi:type="xs:int">3</Test3>
+    </groupElem>
+  </Choice_Outer>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 
+
+ 
+ <parserTestCase name="choices_basic_15_02"
+ model="./fvt/ext/dpa/dpadelmulcho_01.xsd"
+ root="Choice_Outer"
+  description="Section 15 Choice Groups - nested choices - first branch of outer choice, second branch of inner choice in data ">
+  <document>iTest1:1+*Test2:cmd=*Test3:3!t</document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Choice_Outer>
+    <groupElem>
+      <Test1 xsi:type="xs:int">1</Test1>
+      <Choice_inner>
+        <InnerText2>m</InnerText2>
+      </Choice_inner>
+      <Test3 xsi:type="xs:int">3</Test3>
+    </groupElem>
+  </Choice_Outer>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 
+ 
+ <!-- second choice branch of outer choice -->
+  <parserTestCase name="choices_basic_15_03"
+ model="./fvt/ext/dpa/dpadelmulcho_01.xsd"
+ root="Choice_Outer"
+ description="Section 15 Choice Groups - nested choices - second branch of outer choice in data ">
+ <document>xmy</document>
+ <infoset>
+ <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Choice_Outer>
+    <myText2>m</myText2>
+  </Choice_Outer>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase>
+ 
+ <!-- Section 16 covers Arrays and Optional elements. In the sequence groups tests above, we showed the use
+ of optional elements in a sequence.   The test here has a sequence that include 3 different elements that all repeat.
+ The first element has occursCountKind of fixed, so must have exactly 2 occurrences. The Other two elements show 
+ the use of occursCountKind=parsed.
+	 -->
+	 
+  
+ <parserTestCase name="arrays_16_01"
+ model="./fvt/ext/dpa/dpadelonearr_12.xsd"
+ root="groupElem"
+  description="Section 16 Arrays and optional elements - arrays with occursCountKind of fixed and parsed.">
+ <document>~A:a~A:b~B:a~B:b~C:a~C:b</document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <groupElem>
+    <Test1>a</Test1>
+    <Test1>b</Test1>
+    <Test2>a</Test2>
+    <Test2>b</Test2>
+    <Test3>a</Test3>
+    <Test3>b</Test3>
+  </groupElem>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 
+</testSuite>
+
+

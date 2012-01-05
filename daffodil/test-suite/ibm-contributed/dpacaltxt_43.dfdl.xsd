@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<!--
+		calendar - annotation
+         Will make a couple of additional variations here as a bit unfamiliar with the calendar properties.
+	-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:cal="http://www.saf.cal/" elementFormDefault="unqualified"
+	attributeFormDefault="unqualified" >
+	<!--
+	-->
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			
+			<dfdl:format leadingSkip="0" trailingSkip="0" textBidi="no" floating="no"  encoding="utf-8" byteOrder="bigEndian" 
+				truncateSpecifiedLengthString="no" ignoreCase="no"
+				representation="text"  textPadKind="padChar"
+				textTrimKind="padChar"  lengthKind="delimited" escapeSchemeRef=""
+				textOutputMinLength="0" lengthUnits="bytes"
+				textCalendarJustification="left" textCalendarPadCharacter="."
+				emptyValueDelimiterPolicy="none"  nilValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
+				sequenceKind="ordered" alignment="1" alignmentUnits="bytes"
+				fillByte="%#r66;"  occursCountKind="implicit"
+				separatorPolicy="required" textNumberRep="standard"
+				initiator="" terminator="@"
+				calendarPatternKind="implicit" calendarPattern="yyyymmddhhmmss" calendarCheckPolicy="lax" 
+				calendarTimeZone="UTC" calendarObserveDST="yes" 
+				calendarFirstDayOfWeek="Wednesday" calendarDaysInFirstWeek="7" calendarCenturyStart="50" 
+				calendarLanguage="it-IT"
+				/>
+
+		</xs:appinfo>
+	</xs:annotation>
+
+			
+	<!-- annotation on type -->
+    <xs:element name="myDateTime" type="newType">
+	</xs:element>
+
+	 <xs:element name="myDateTime3" type="newType_3">
+	</xs:element>
+		
+	 <xs:element name="myDateTime4" type="newType_4">
+	</xs:element>	
+	
+		
+	
+	<!--  leave terminator so we have something to escape -->
+	<xs:simpleType name="newType">
+		<xs:annotation>
+			<xs:appinfo source="http://www.ogf.org/dfdl/">
+				<dfdl:simpleType calendarPatternKind="explicit" calendarPattern="YYYYHHmmssEEEww" calendarCheckPolicy="lax" 
+				 calendarObserveDST="yes" 
+				calendarFirstDayOfWeek="Sunday" calendarDaysInFirstWeek="1" calendarCenturyStart="50"
+							calendarLanguage="en-US" 
+							textCalendarJustification="right" textCalendarPadCharacter="x"	/>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:restriction base="xs:dateTime">
+			
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:element name="calendar_group">
+		<xs:complexType>
+			<xs:sequence dfdl:separatorPolicy="required"
+				dfdl:separatorPosition="infix" dfdl:separator="*">
+				
+				<xs:element name="date1" type="xs:date" dfdl:calendarPatternKind="implicit" dfdl:terminator=""/>
+                <xs:element name="time1" type="xs:time" dfdl:calendarPatternKind="implicit" dfdl:terminator=""/>
+                <xs:element name="datetime1" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:terminator=""/> 
+				
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<!--  demonstrate TimeZone -->
+	<xs:simpleType name="newType_3"  >
+	<xs:annotation>
+			<xs:appinfo source="http://www.ogf.org/dfdl/">
+				<dfdl:simpleType calendarPatternKind="explicit" calendarPattern="yyyyMMddHHmmss" calendarCheckPolicy="lax" 
+				calendarTimeZone="UTC-5" calendarObserveDST="yes" 
+				calendarFirstDayOfWeek="Sunday" calendarDaysInFirstWeek="4" calendarCenturyStart="50"
+							calendarLanguage="en-US" 	/>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:restriction base="xs:dateTime">
+			
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!--  demonstrate calendarCenturyStart -->
+	<xs:simpleType name="newType_4"  >
+	<xs:annotation>
+			<xs:appinfo source="http://www.ogf.org/dfdl/">
+				<dfdl:simpleType calendarPatternKind="explicit" calendarPattern="yyMMddHHmmss" calendarCheckPolicy="lax" 
+				calendarTimeZone="UTC-5" calendarObserveDST="yes" 
+				calendarFirstDayOfWeek="Sunday" calendarDaysInFirstWeek="4" calendarCenturyStart="50"
+							calendarLanguage="en-US" 	/>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:restriction base="xs:dateTime">
+			
+		</xs:restriction>
+	</xs:simpleType>
+	
+</xs:schema>

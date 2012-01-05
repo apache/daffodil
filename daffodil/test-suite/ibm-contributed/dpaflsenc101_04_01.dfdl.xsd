@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	elementFormDefault="qualified" attributeFormDefault="unqualified" >
+
+
+	<!--
+		Description: Encoding is UTF-32, lenghtUnits specified in bytes
+	-->
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			
+   <dfdl:format initiator="" terminator="" truncateSpecifiedLengthString="no" textBidi="no" floating="no"    encoding="UTF-32LE" 
+   alignment="1" alignmentUnits="bytes" fillByte="f" leadingSkip="0" trailingSkip="0"
+   escapeSchemeRef="" ignoreCase="yes" occursCountKind="implicit"/>
+			
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:element name="tag1"  type="xs:string"
+		dfdl:representation="text" dfdl:textStringJustification="left"
+		dfdl:lengthUnits="bytes" dfdl:length="8" dfdl:lengthKind="explicit"
+		dfdl:textTrimKind="none" dfdl:textPadKind="none"
+		dfdl:textStringPadCharacter="">
+		</xs:element>
+		
+		
+		
+		<xs:element name="tag2"  type="xs:string"
+		dfdl:representation="text" dfdl:textStringJustification="left"
+		dfdl:lengthUnits="bytes" dfdl:length="8" dfdl:lengthKind="explicit"
+		dfdl:textTrimKind="none" dfdl:textPadKind="none"
+		dfdl:textStringPadCharacter="" dfdl:encoding="UTF-32LE">
+			</xs:element>
+		
+		<xs:element name="tag3"  type="xs:string"
+		dfdl:representation="text" dfdl:textStringJustification="left"
+		dfdl:lengthUnits="bytes" dfdl:length="8" dfdl:lengthKind="explicit"
+		dfdl:textTrimKind="none" dfdl:textPadKind="none"
+		dfdl:textStringPadCharacter="" dfdl:encoding="UTF-32BE">
+		
+		
+	</xs:element>
+	
+</xs:schema>
