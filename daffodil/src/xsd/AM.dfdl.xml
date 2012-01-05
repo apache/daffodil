@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
+<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+    targetNamespace="http://www.example.org/example1/"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset ./DFDLSubsetOfXMLSchema_v1_036.xsd http://www.ogf.org/dfdl/dfdl-1.0/ DFDL_part3_model.xsd">
+
+
+  <!-- MIME type detect -->
+
+  <group name="arrayGroup"><sequence><element name="array" type="xsd:byte" maxOccurs="100"
+		       dfdl:representation="binary"
+		       dfdl:lengthKind="implicit"/></sequence></group>
+		       
+  <element name="mimeType">
+    <complexType>
+      <sequence>
+	<sequence dfdl:hiddenGroupRef="arrayGroup"/>
+	<element name="mime">
+	  <complexType>
+	    <choice>
+	      <!-- GIF -->
+	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'image/gif' }">
+		<annotation>
+		  <appinfo source="http://www.ogf.org/dfdl/">
+		    <dfdl:discriminator >{
+		      ../../tns:array[1]='71' and
+		      ../../tns:array[2]='73' and
+		      ../../tns:array[3]='70' and
+		      ../../tns:array[4]='56' and
+		      ../../tns:array[5]='57' and
+		      ../../tns:array[6]='97'
+		      }</dfdl:discriminator>
+		  </appinfo>
+		</annotation>
+	      </element>
+	      <!-- JPEG -->
+	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'image/jpeg' }">
+		<annotation>
+		  <appinfo source="http://www.ogf.org/dfdl/">
+		    <dfdl:discriminator >{
+		      ../../tns:array[7] = '74' and 
+		      ../../tns:array[8] = '70' and 
+		      ../../tns:array[9] = '73' and 
+		      ../../tns:array[10] = '70'
+		      }</dfdl:discriminator>
+		  </appinfo>
+		</annotation>
+	      </element>
+	      <!-- STP -->
+	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'STP' }">
+		<annotation>
+		  <appinfo source="http://www.ogf.org/dfdl/">
+		    <dfdl:discriminator >{
+		      ../../tns:array[1] = '73' and 
+		      ../../tns:array[2] = '83' and 
+		      ../../tns:array[3] = '79' and 
+		      ../../tns:array[4] = '45' and 
+		      ../../tns:array[5] = '49' and 
+		      ../../tns:array[6] = '48' and 
+		      ../../tns:array[7] = '51' and 
+		      ../../tns:array[8] = '48' and 
+		      ../../tns:array[9] = '51' and 
+		      ../../tns:array[10] = '45' and 
+		      ../../tns:array[11] = '50' and 
+		      ../../tns:array[12] = '49' and 
+		      ../../tns:array[13] = '59'
+		      }</dfdl:discriminator>
+		  </appinfo>
+		</annotation>
+	      </element>
+	      <!-- PNG -->
+	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'image/png' }">
+		<annotation>
+		  <appinfo source="http://www.ogf.org/dfdl/">
+		    <dfdl:discriminator >{
+		      ../../tns:array[1] = '137' and 
+		      ../../tns:array[2] = '80' and 
+		      ../../tns:array[3] = '78' and 
+		      ../../tns:array[4] = '71' and 
+		      ../../tns:array[5] = '13' and 
+		      ../../tns:array[6] = '10' and 
+		      ../../tns:array[7] = '26' and 
+		      ../../tns:array[8] = '10'
+		      }</dfdl:discriminator>
+		  </appinfo>
+		</annotation>
+	      </element>
+	      <!-- .class -->
+	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'application/java-byte-code' }">
+		<annotation>
+		  <appinfo source="http://www.ogf.org/dfdl/">
+		    <dfdl:discriminator >{
+		      ../../tns:array[1] = '202' and 
+		      ../../tns:array[2] = '254' and 
+		      ../../tns:array[3] = '186' and 
+		      ../../tns:array[4] = '190'
+		      }</dfdl:discriminator>
+		  </appinfo>
+		</annotation>
+	      </element>
+	      <!-- midi -->
+	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'audio/midi' }">
+		<annotation>
+		  <appinfo source="http://www.ogf.org/dfdl/">
+		    <dfdl:discriminator >{
+		      ../../tns:array[1] = '77' and 
+		      ../../tns:array[2] = '84' and 
+		      ../../tns:array[3] = '104' and 
+		      ../../tns:array[4] = '100'
+		      }</dfdl:discriminator>
+		  </appinfo>
+		</annotation>
+	      </element>
+	      <!-- shell script -->
+	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'application/x-sh' }">
+		<annotation>
+		  <appinfo source="http://www.ogf.org/dfdl/">
+		    <dfdl:discriminator >{
+		      ../../tns:array[1] = '35' and 
+		      ../../tns:array[2] = '33'
+		      }</dfdl:discriminator>
+		  </appinfo>
+		</annotation>
+	      </element>
+	      <!-- postscript -->
+	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'application/postscript' }">
+		<annotation>
+		  <appinfo source="http://www.ogf.org/dfdl/">
+		    <dfdl:discriminator>{
+		      ../../tns:array[1] = '37' and 
+		      ../../tns:array[2] = '33'
+		      }</dfdl:discriminator>
+		  </appinfo>
+		</annotation>
+	      </element>
+	       <!-- PDF -->
+	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'application/pdf' }">
+		<annotation>
+		  <appinfo source="http://www.ogf.org/dfdl/">
+		    <dfdl:discriminator>{
+		      ../../tns:array[1] = '37' and 
+		      ../../tns:array[2] = '80' and
+		      ../../tns:array[3] = '68' and
+		      ../../tns:array[4] = '70'
+		      }</dfdl:discriminator>
+		  </appinfo>
+		</annotation>
+	      </element>
+	       <!-- ZIP -->
+	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'application/zip' }">
+		<annotation>
+		  <appinfo source="http://www.ogf.org/dfdl/">
+		    <dfdl:discriminator>{
+		      ../../tns:array[1] = '80' and 
+		      ../../tns:array[2] = '75'
+		      }</dfdl:discriminator>
+		  </appinfo>
+		</annotation>
+	      </element>	      
+	      <!-- MPEG -->
+	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'video/mpg' }">
+		<annotation>
+		  <appinfo source="http://www.ogf.org/dfdl/">
+		    <dfdl:discriminator>{
+		      ../../tns:array[1] = '0' and 
+		      ../../tns:array[2] = '0' and
+		      ../../tns:array[3] = '0' and 
+		      ../../tns:array[4] = '24' and
+		      ../../tns:array[5] = '102' and 
+		      ../../tns:array[6] = '116' and
+		      ../../tns:array[7] = '121' and 
+		      ../../tns:array[8] = '112' and
+		      ../../tns:array[9] = '51' and 
+		      ../../tns:array[10] = '103' and
+		      ../../tns:array[11] = '112' and 
+		      ../../tns:array[12] = '53'
+		      }</dfdl:discriminator>
+		  </appinfo>
+		</annotation>
+	      </element>
+	      <!-- GZIP -->
+	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'application/x-gzip' }">
+		<annotation>
+		  <appinfo source="http://www.ogf.org/dfdl/">
+		    <dfdl:discriminator>{
+		      ../../tns:array[1] = '31' and 
+		      ../../tns:array[2] = '140' and
+		      ../../tns:array[3] = '8'
+		      }</dfdl:discriminator>
+		  </appinfo>
+		</annotation>
+	      </element>
+	    </choice>
+	  </complexType>
+	</element>
+      </sequence>
+    </complexType>
+  </element>
+</schema>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
+<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+    targetNamespace="http://example.com"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset ./DFDLSubsetOfXMLSchema_v1_036.xsd http://www.ogf.org/dfdl/dfdl-1.0/ DFDL_part3_model.xsd">
+
+  <!-- Basic variable definition and inputValueCalc -->
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:defineVariable name="x" type="xsd:int" defaultValue="0"/>
+    </appinfo>
+  </annotation>
+
+  <element name="list" type="example1" />
+
+  <complexType name="example1">  
+    <sequence>
+      <element name="w" type="xsd:int" dfdl:inputValueCalc="{ $x + 1 }"/>
+      <element name="x" type="xsd:int" dfdl:inputValueCalc="{ $x + 2 }"/>
+      <element name="y" type="xsd:int" dfdl:inputValueCalc="{ $x + 3 }"/>
+      <element name="z" type="xsd:int" dfdl:inputValueCalc="{ $x + 4 }"/>
+      <element name="a" type="xsd:string" 
+	       dfdl:inputValueCalc="{ $dfdl:encoding }"/>
+      <element name="b" type="xsd:string" 
+	       dfdl:inputValueCalc="{ $dfdl:byteOrder }"/>
+      <element name="c" type="xsd:string" 
+	       dfdl:inputValueCalc="{ $dfdl:binaryFloatRep }"/>
+      <element name="d" type="xsd:string" 
+	       dfdl:inputValueCalc="{ $dfdl:outputNewLine }"/>      
+    </sequence>
+  </complexType>
+
+</schema>

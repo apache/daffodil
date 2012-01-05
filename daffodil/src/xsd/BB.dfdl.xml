@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
+<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+    targetNamespace="http://www.example.org/example1/"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset ./DFDLSubsetOfXMLSchema_v1_036.xsd http://www.ogf.org/dfdl/dfdl-1.0/ DFDL_part3_model.xsd">
+
+  <!-- Stop Values -->
+  <element name="list">
+    <complexType >  
+      <sequence>
+	<element name="x" type="xsd:int" maxOccurs="unbounded"
+		 dfdl:lengthKind="explicit"
+		 dfdl:length="5"	       
+		 dfdl:occursCountKind="stopValue"
+		 dfdl:occursStopValue="10"/>
+	<element name="y" type="xsd:int" maxOccurs="unbounded"
+		 dfdl:lengthKind="delimited"
+		 dfdl:separator=","
+		 dfdl:occursCountKind="stopValue"
+		 dfdl:occursStopValue="10"/>
+	<element name="z" type="xsd:string"
+		 dfdl:documentFinalTerminatorCanBeMissing="yes"/>
+      </sequence>
+    </complexType>
+  </element>
+  
+</schema>
