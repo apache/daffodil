@@ -4,22 +4,20 @@
 
   <element name="matrix" type="matrixType"/>
 
-  <complexType name="matrixType">  
-    <sequence>
-      <element name="row" maxOccurs="unbounded">
-	<complexType>
-	  <sequence>
-	    <element name="cell" type="xsd:int" maxOccurs="unbounded"
-	    	     dfdl:terminator="%NL;"
-		     dfdl:separator="," dfdl:separatorPolicy="required"
-		     dfdl:encoding="ASCII"
-		     dfdl:separatorPosition="infix" 
-		     dfdl:representation="text" dfdl:lengthKind="delimited"
-		     dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-	  </sequence>
+	<complexType name="matrixType">
+		<sequence>
+			<element name="row" maxOccurs="unbounded">
+				<complexType>
+					<sequence>
+						<element name="cell" type="xsd:int" maxOccurs="unbounded"
+							dfdl:terminator="%NL;" dfdl:separator="," dfdl:separatorPolicy="required"
+							dfdl:encoding="ASCII" dfdl:separatorPosition="infix"
+							dfdl:representation="text" dfdl:lengthKind="delimited"
+							dfdl:documentFinalTerminatorCanBeMissing="yes" />
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
 	</complexType>
-      </element>
-    </sequence>
-  </complexType>
 
 </schema>

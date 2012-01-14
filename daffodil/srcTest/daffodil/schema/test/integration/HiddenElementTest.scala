@@ -24,15 +24,42 @@ import scala.collection.mutable.ListBuffer
 import junit.framework.Assert._
 
 class HiddenElementTest extends JUnit3Suite with ShouldMatchers {
-
-	def testBasicHiddenElement () { // ("basic hidden element test 1")	{
+  
+  def testBasicHiddenElement1 () { 
 	 
-	  val xml = 
-	        <element name="myName">
-			<complexType name="mytype" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+	  val xml = XMLUtil.compactXml(
+			<complexType name="mytype" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
 				<sequence>
 					<annotation>
-						<appinfo source="http://www.ogf.org/dfdl/">
+						<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+							<dfdl:hidden>
+								<element name="nested1" type="int"/>
+							</dfdl:hidden>
+						</appinfo>
+					</annotation>
+				</sequence>
+			</complexType>)
+	    val schema = XMLUtil.elem2Element(xml)(0)
+
+		val a1 = new Annotation(null)
+		a1.format setTypeName("int")
+		a1.hidden = new Hidden()
+
+		val expectedResult = new Sequence(new Annotation(null),null,new Namespaces,List(
+				new SimpleElement("nested1",a1,null,new Namespaces)))
+
+		val t = new SchemaParser() parseComplexType(schema)
+		
+		t should equal (expectedResult)
+	}
+
+	def testBasicHiddenElement2 () { // ("basic hidden element test 1")	{
+	 
+	  val xml = XMLUtil.compactXml(
+			<complexType name="mytype" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+				<sequence>
+					<annotation>
+						<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
 							<dfdl:hidden>
 								<element name="nested1" type="int"/>
 							</dfdl:hidden>
@@ -41,9 +68,8 @@ class HiddenElementTest extends JUnit3Suite with ShouldMatchers {
 					<element name="nested2" type="int"/>
 					<element name="nested3" type="string"/>
 				</sequence>
-			</complexType>
-            </element>
-	    val schema = XMLUtil.elem2Element(xml)
+			</complexType>)
+	    val schema = XMLUtil.elem2Element(xml)(0)
 
 
 		val a1 = new Annotation(null)
@@ -68,24 +94,23 @@ class HiddenElementTest extends JUnit3Suite with ShouldMatchers {
 	}
   
   def testFull1 () { // ("full test 1"){
-    val builder = new SAXBuilder()
     val xml =
       <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0" targetNamespace="myNamespace">
         <element name="myElement">
           <annotation>
-            <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+            <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
               <dfdl:format representation="text" terminator="$"/>
             </appinfo>
           </annotation>
           <complexType>
           <sequence>
             <annotation>
-              <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+              <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
                 <dfdl:format representation="text" separator="," separatorPosition="infix"/>
                 <dfdl:hidden>
                   <element name="nested1" type="int">
                     <annotation>
-                      <appinfo source="http://www.ogf.org/dfdl//dfdl-1.0">
+                      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
                         <dfdl:format representation="text" terminator="!"/>
                       </appinfo>
                     </annotation> 
@@ -95,21 +120,21 @@ class HiddenElementTest extends JUnit3Suite with ShouldMatchers {
             </annotation>
               <!-- <element name="nested1" type="int">
                     <annotation>
-                      <appinfo source="http://www.ogf.org/dfdl//dfdl-1.0">
+                      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
                         <dfdl:format representation="text" terminator="!"/>
                       </appinfo>
                     </annotation>
                   </element> -->
             <element name="nested2" type="int">
               <annotation>
-                <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+                <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
                   <dfdl:format representation="text" terminator="!"/>
                 </appinfo>
               </annotation>
             </element>
             <element name="nested3" type="string">
               <annotation>
-                <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+                <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
                   <dfdl:format representation="text" terminator="!"/>
                 </appinfo>
               </annotation>
@@ -139,18 +164,17 @@ class HiddenElementTest extends JUnit3Suite with ShouldMatchers {
   }
   
   def testFull2 () { // ("full test 2"){
-    val builder = new SAXBuilder()
     val xml =
-      <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0" targetNamespace="myNamespace">
+      <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" targetNamespace="myNamespace">
         <complexType name="mytype">
           <sequence>
             <annotation>
-              <appinfo source="http://www.ogf.org/dfdl/">
+              <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
                 <dfdl:format representation="text" separator="," separatorPosition="infix"/>
                 <dfdl:hidden>
                   <element name="nested1" type="int">
                     <annotation>
-                      <appinfo source="http://www.ogf.org/dfdl/">
+                      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
                         <dfdl:format representation="text" terminator="!"/>
                       </appinfo>
                     </annotation>
@@ -160,14 +184,14 @@ class HiddenElementTest extends JUnit3Suite with ShouldMatchers {
             </annotation>
             <element name="nested2" type="int">
               <annotation>
-                <appinfo source="http://www.ogf.org/dfdl/">
+                <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
                   <dfdl:format representation="text" terminator="!"/>
                 </appinfo>
               </annotation>
             </element>
             <element name="nested3" type="string">
               <annotation>
-                <appinfo source="http://www.ogf.org/dfdl/">
+                <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
                   <dfdl:format representation="text" terminator="!"/>
                 </appinfo>
               </annotation>

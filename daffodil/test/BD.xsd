@@ -8,7 +8,9 @@
 		 dfdl:representation="binary"
 		 dfdl:lengthKind="implicit"
 		 dfdl:binaryBooleanTrueRep="15"
-		 dfdl:binaryBooleanFalseRep="7"/>
+		 dfdl:binaryBooleanFalseRep="7"
+		 dfdl:alignment="1"
+		 dfdl:alignmentUnits="bytes"/>
       </sequence>
     </complexType>
   </element>

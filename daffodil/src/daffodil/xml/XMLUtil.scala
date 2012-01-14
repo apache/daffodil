@@ -281,10 +281,27 @@ object XMLUtil {
   def parse(f:File):Document = {
 	  parse(new FileInputStream(f))
   }
+
+  def compactXml(xml: scala.xml.NodeSeq): scala.xml.NodeSeq = {
+    xml flatMap {
+      case scala.xml.Elem(prefix, label, attributes, scope, children @ _*) => {
+        scala.xml.Elem(prefix, label, attributes, scope, children.flatMap(compactXml(_)): _*)
+      }
+      case scala.xml.Text(data) => {
+        if (data.matches("""\s*"""))
+          scala.xml.NodeSeq.Empty
+        else
+          xml
+      }
+      case x => x
+    }
+  }
+    
+  def serialize(parent:Parent) = serializeFormatted(parent, Format.getPrettyFormat())
+  def serializeCompact(parent : Parent) = serializeFormatted(parent, Format.getCompactFormat())
   
-  def serialize(parent:Parent) = {
+  def serializeFormatted(parent:Parent, format : Format) = {
     val sw = new StringWriter()
-    val format = Format getPrettyFormat;
     format setLineSeparator(System.getProperty("line.separator"))
     parent match {
       case d:Document => new XMLOutputter(format).output(d,sw)
@@ -351,38 +368,44 @@ object XMLUtil {
     return scala.xml.XML.loadString(new org.jdom.output.XMLOutputter().outputString(jElem))
   }
 
-  def elem2Element(node:Node):Element = {
+  def elem2Element(nodes:scala.xml.NodeSeq):Seq[Element] = nodes.map{elem=>elem2Element(elem)}
+
+  def elem2Element(node: scala.xml.Node): Element = {
     // val jdomNode = new CompressableElement(node label,node namespace)
-    val jdomNode = new Element(node label,node namespace)
-    
-    val attribs = node attributes;
-    attribs.map{(attribute : MetaData) => {
-    // for(attribute <- attribs) {
-      val attrNS = attribute getNamespace(node)
-      val name = attribute key
-      val value = attribute.value.apply(0).text
-      val prefixedKey = attribute.prefixedKey
-      val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
-      val ns = Namespace getNamespace(prefix, attrNS)
-      if (attribute.isPrefixed && attrNS != ""){
-        println("THE ATTRIBUTE IS: "+name)
-        println("THE NAMESPACE SHOULD BE: "+attrNS)
-        println("IT ACTUALLY IS:"+Namespace.getNamespace(name, attrNS))
-       
-        jdomNode setAttribute(name, value, ns)
+    val jdomNode = new Element(node.label, node.prefix, node.namespace)
+
+    val attribs = node.attributes.map { (attribute: MetaData) =>
+      {
+        // for(attribute <- attribs) {
+        val attrNS = attribute getNamespace (node)
+        val name = attribute key
+        val value = attribute.value.apply(0).text
+        val prefixedKey = attribute.prefixedKey
+        val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
+        val ns = Namespace getNamespace (prefix, attrNS)
+        if (attribute.isPrefixed && attrNS != "") {
+          println("THE ATTRIBUTE IS: " + name)
+          println("THE NAMESPACE SHOULD BE: " + attrNS)
+          println("IT ACTUALLY IS:" + Namespace.getNamespace(name, attrNS))
+
+          // jdomNode setAttribute (name, value, ns)
+          new Attribute(name, value, ns)
+        } else
+          // jdomNode setAttribute (name, value)
+          new Attribute(name, value)
       }
-      else
-        jdomNode setAttribute(name, value)
-    }}
-    for(child <- node child){
+    }
+    jdomNode.setAttributes(attribs)
+    for (child <- node child) {
       child label match {
-        case "#PCDATA" => jdomNode addContent(child toString)
+        case "#PCDATA" => jdomNode addContent (child toString)
         case "#REM" =>
-        case _ => jdomNode addContent(elem2Element(child))
+        case _ => jdomNode addContent (elem2Element(child))
       }
     }
     jdomNode
   }
+ 
 
   private def map(c:Char) = c match {
     case 's' => ' '
