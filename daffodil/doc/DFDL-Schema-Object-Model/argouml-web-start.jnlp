@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JNLP File for launching ArgoUML with WebStart -->
+<jnlp
+  spec="1.0+"
+  codebase="http://argouml-downloads.tigris.org/maven2"
+  href="http://argouml-downloads.tigris.org/jws/argouml-latest-stable.jnlp">
+  <information>
+    <title>ArgoUML Latest Stable Release 0.34</title>
+    <vendor>Tigris.org (Open Source)</vendor>
+    <homepage href="http://argouml.tigris.org/"/>
+    <description>ArgoUML application.
+                 This is the latest stable release.
+    </description>
+    <description kind="short">ArgoUML 0.34</description>
+    <icon href="http://argouml.tigris.org/images/argologo16x16.gif" width="16" height="16" />
+    <icon href="http://argouml.tigris.org/images/argologo32x32.gif" width="32" height="32" />
+    <icon href="http://argouml.tigris.org/images/argologo64x64.gif" width="64" height="64" />
+    <offline-allowed/>
+  </information>
+  <security>
+    <all-permissions/>
+  </security>
+  <resources>
+    <j2se version="1.6+" max-heap-size="512m"/>
+
+    <jar href="http://argouml-downloads.tigris.org/maven2/antlr/antlr/2.7.7-3/antlr-2.7.7-3.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-euml/0.34/argouml-euml-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-mdr/0.34/argouml-mdr-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-model/0.34/argouml-model-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml/0.34/argouml-0.34.jar" main="true"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/apache/batik/batik-awt-util/1.7/batik-awt-util-1.7.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/apache/batik/batik-dom/1.7/batik-dom-1.7.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/apache/batik/batik-ext/1.7/batik-ext-1.7.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/apache/batik/batik-svggen/1.7/batik-svggen-1.7.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/apache/batik/batik-util/1.7/batik-util-1.7.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/apache/batik/batik-xml/1.7/batik-xml-1.7.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/commons-logging/commons-logging/1.0.2-6/commons-logging-1.0.2-6.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/tigris/gef/gef/0.13.8/gef-0.13.8.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/java-interfaces/0.34/java-interfaces-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/jmi/jmi/1.0-6/jmi-1.0-6.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/netbeans/mdr/jmiutils/0.0-6/jmiutils-0.0-6.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/log4j/log4j/1.2.6-6/log4j-1.2.6-6.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/netbeans/mdr/mdrapi/0.0-6/mdrapi-0.0-6.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/jmi/mof/0.0-6/mof-0.0-6.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/netbeans/mdr/nbmdr/0.0-6/nbmdr-0.0-6.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/tudresden/ocl/ocl-argo/1.1-6/ocl-argo-1.1-6.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/netbeans/mdr/openide-util/0.0-6/openide-util-0.0-6.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/emf/org.eclipse.emf.common/2.6.0.v20100914-1218-1/org.eclipse.emf.common-2.6.0.v20100914-1218-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/emf/org.eclipse.emf.ecore.change.edit/2.5.0.v20100521-1846-1/org.eclipse.emf.ecore.change.edit-2.5.0.v20100521-1846-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/emf/org.eclipse.emf.ecore.change/2.5.1.v20100907-1643-1/org.eclipse.emf.ecore.change-2.5.1.v20100907-1643-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/emf/org.eclipse.emf.ecore.edit/2.6.0.v20100914-1218-1/org.eclipse.emf.ecore.edit-2.6.0.v20100914-1218-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/emf/org.eclipse.emf.ecore.xmi/2.5.0.v20100521-1846-1/org.eclipse.emf.ecore.xmi-2.5.0.v20100521-1846-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/emf/org.eclipse.emf.ecore/2.6.1.v20100914-1218-1/org.eclipse.emf.ecore-2.6.1.v20100914-1218-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/emf/org.eclipse.emf.edit/2.6.0.v20100914-1218-1/org.eclipse.emf.edit-2.6.0.v20100914-1218-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/emf/org.eclipse.emf.mapping.ecore2xml/2.5.0.v20100521-1847-1/org.eclipse.emf.mapping.ecore2xml-2.5.0.v20100521-1847-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/emf/org.eclipse.emf.mapping.ecore/2.6.0.v20100914-1218-1/org.eclipse.emf.mapping.ecore-2.6.0.v20100914-1218-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/emf/org.eclipse.emf.mapping/2.6.0.v20100914-1218-1/org.eclipse.emf.mapping-2.6.0.v20100914-1218-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/uml2/org.eclipse.uml2.common.edit/1.5.0.v201005031530-1/org.eclipse.uml2.common.edit-1.5.0.v201005031530-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/uml2/org.eclipse.uml2.common/1.5.0.v201005031530-1/org.eclipse.uml2.common-1.5.0.v201005031530-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/uml2/org.eclipse.uml2.uml.edit/3.1.0.v201005031530-1/org.eclipse.uml2.uml.edit-3.1.0.v201005031530-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/uml2/org.eclipse.uml2.uml.resources/3.1.1.v201008191505-1/org.eclipse.uml2.uml.resources-3.1.1.v201008191505-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/eclipse/uml2/org.eclipse.uml2.uml/3.1.1.v201008191505-1/org.eclipse.uml2.uml-3.1.1.v201008191505-1.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/tigris/swidgets/swidgets/0.1.4-6/swidgets-0.1.4-6.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/tigris/toolbar/toolbar/1.4.1-20071227-2/toolbar-1.4.1-20071227-2.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/anarres/cpp/anarres-cpp-no-dependencies/1.2.3-4/anarres-cpp-no-dependencies-1.2.3-4.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/antlr/antlr/2.7.7-3/antlr-2.7.7-3.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/antlr/antlr-runtime/3.1.1-2/antlr-runtime-3.1.1-2.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argo_cpp/0.34/argo_cpp-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argo_idl/0.34/argo_idl-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argo_java/0.34/argo_java-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argo_php/0.34/argo_php-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-csharp/0.34/argouml-csharp-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-diagrams-activity/0.34/argouml-diagrams-activity-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-diagrams-deployment/0.34/argouml-diagrams-deployment-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-diagrams-sequence/0.34/argouml-diagrams-sequence-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-diagrams-state/0.34/argouml-diagrams-state-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-i18n-de/0.34/argouml-i18n-de-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-i18n-en_GB/0.34/argouml-i18n-en_GB-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-i18n-es/0.34/argouml-i18n-es-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-i18n-fr/0.34/argouml-i18n-fr-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-i18n-it/0.34/argouml-i18n-it-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-i18n-nb/0.34/argouml-i18n-nb-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-i18n-pt/0.34/argouml-i18n-pt-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-i18n-pt_BR/0.34/argouml-i18n-pt_BR-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-i18n-ru/0.34/argouml-i18n-ru-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-i18n-zh/0.34/argouml-i18n-zh-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-notation/0.34/argouml-notation-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-sql/0.34/argouml-sql-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-transformer/0.34/argouml-transformer-0.34.jar"/>
+    <jar href="http://argouml-downloads.tigris.org/maven2/org/argouml/argouml-umlpropertypanels/0.34/argouml-umlpropertypanels-0.34.jar"/>
+
+    <property name="argouml.modules"
+      value=";org.argouml.state2.StateDiagramModule;org.argouml.sequence2.SequenceDiagramModule;org.argouml.activity2.ActivityDiagramModule;org.argouml.core.propertypanels.module.XmlPropertyPanelsModule;org.argouml.transformer.TransformerModule;org.argouml.language.cpp.generator.ModuleCpp;org.argouml.language.cpp.notation.NotationModuleCpp;org.argouml.language.cpp.profile.ProfileModule;org.argouml.language.cpp.reveng.CppImport;org.argouml.language.cpp.ui.SettingsTabCpp;org.argouml.language.csharp.generator.GeneratorCSharp;org.argouml.language.java.cognitive.critics.InitJavaCritics;org.argouml.language.java.generator.GeneratorJava;org.argouml.language.java.profile.ProfileJava;org.argouml.language.java.reveng.JavaImport;org.argouml.language.java.reveng.classfile.ClassfileImport;org.argouml.language.java.ui.JavaTools;org.argouml.language.java.ui.SettingsTabJava;org.argouml.language.php.generator.ModulePHP4;org.argouml.language.php.generator.ModulePHP5;org.argouml.language.sql.SqlInit;org.argouml.uml.reveng.classfile.ClassfileImport;org.argouml.uml.reveng.idl.IDLFileImport"    />
+  </resources>
+  <application-desc main-class="org.argouml.application.Main"/>
+</jnlp>
