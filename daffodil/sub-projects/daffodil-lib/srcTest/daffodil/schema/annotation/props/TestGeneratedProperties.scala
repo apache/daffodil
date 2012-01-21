@@ -10,7 +10,90 @@ import org.scalatest.junit.JUnit3Suite
  */
 class TestGeneratedProperties extends JUnit3Suite {
 
-  val bagOfProps = <dfdl:format encoding="UTF-8" utf16Width="fixed" byteOrder="bigEndian" ignoreCase="no" outputNewLine="%CR;%LF;" alignment="1" alignmentUnits="bytes" fillByte="0" leadingSkip="0" trailingSkip="0" lengthKind="delimited" lengthUnits="characters" prefixIncludesPrefixLength="no" representation="text" textPadKind="none" textTrimKind="none" escapeSchemeRef="tns:GeneralBlockEscapeScheme" textBidi="no" textBidiTextOrdering="implicit" textBidiSymmetric="yes" textBidiTextShaped="no" textBidiNumeralShapes="nominal" textBidiOrientation="RTL" textStringJustification="left" textStringPadCharacter="%SP;" truncateSpecifiedLengthString="no" textOutputMinLength="0" textNumberJustification="right" textNumberPadCharacter="0" decimalSigned="yes" textNumberCheckPolicy="lax" textNumberRep="standard" textStandardBase="10" textNumberRounding="pattern" textNumberRoundingMode="roundUp" textNumberRoundingIncrement="0.0" textStandardDecimalSeparator="." textStandardGroupingSeparator="," textStandardExponentCharacter="E" textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN" textNumberPattern="#0" textZonedSignStyle="asciiStandard" textBooleanJustification="left" textBooleanPadCharacter="%SP;" textBooleanTrueRep="true" textBooleanFalseRep="false" textCalendarJustification="left" textCalendarPadCharacter="%SP;" calendarPatternKind="implicit" calendarPattern="yyyy-MM-dd'T'HH:mm:ss" calendarCheckPolicy="lax" calendarTimeZone="UTC" calendarObserveDST="yes" calendarFirstDayOfWeek="Monday" calendarDaysInFirstWeek="4" calendarCenturyStart="53" calendarLanguage="en-US" occursCountKind="parsed" sequenceKind="ordered" separator="," separatorPolicy="required" separatorPosition="infix" initiatedContent="no" floating="no" choiceLengthKind="implicit" initiator="" terminator="" documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="none" nilKind="literalValue" useNilForDefault="no" nilValue="NIL" nilValueDelimiterPolicy="none" binaryNumberRep="binary" binaryPackedSignCodes="C D F C" binaryDecimalVirtualPoint="0" binaryNumberCheckPolicy="lax" binaryFloatRep="ieee" binaryCalendarRep="bcd" binaryCalendarEpoch="1970-01-01T00:00:00+00:00" binaryBooleanTrueRep="1" binaryBooleanFalseRep="0">
+  val bagOfProps = <dfdl:format encoding="UTF-8" 
+utf16Width="fixed" 
+byteOrder="bigEndian" 
+ignoreCase="no" 
+outputNewLine="%CR;%LF;" 
+alignment="1" 
+alignmentUnits="bytes" 
+fillByte="0" 
+leadingSkip="0" 
+trailingSkip="0" 
+lengthKind="delimited" 
+lengthUnits="characters" 
+prefixIncludesPrefixLength="no" 
+representation="text" 
+textPadKind="none" 
+textTrimKind="none" 
+escapeSchemeRef="tns:GeneralBlockEscapeScheme" 
+textBidi="no" 
+textBidiTextOrdering="implicit" 
+textBidiSymmetric="yes" 
+textBidiTextShaped="no" 
+textBidiNumeralShapes="nominal" 
+textBidiOrientation="RTL" 
+textStringJustification="left" 
+textStringPadCharacter="%SP;" 
+truncateSpecifiedLengthString="no" 
+textOutputMinLength="0" 
+textNumberJustification="right" 
+textNumberPadCharacter="0" 
+decimalSigned="yes" 
+textNumberCheckPolicy="lax" 
+textNumberRep="standard" 
+textStandardBase="10" 
+textNumberRounding="pattern" 
+textNumberRoundingMode="roundUp" 
+textNumberRoundingIncrement="0.0" 
+textStandardDecimalSeparator="." 
+textStandardGroupingSeparator="," 
+textStandardExponentCharacter="E" 
+textStandardZeroRep="0" 
+textStandardInfinityRep="Inf" 
+textStandardNaNRep="NaN" 
+textNumberPattern="#0" 
+textZonedSignStyle="asciiStandard" 
+textBooleanJustification="left" 
+textBooleanPadCharacter="%SP;" 
+textBooleanTrueRep="true" 
+textBooleanFalseRep="false" 
+textCalendarJustification="left" 
+textCalendarPadCharacter="%SP;" 
+calendarPatternKind="implicit" 
+calendarPattern="yyyy-MM-dd'T'HH:mm:ss" 
+calendarCheckPolicy="lax" 
+calendarTimeZone="UTC" 
+calendarObserveDST="yes" 
+calendarFirstDayOfWeek="Monday" 
+calendarDaysInFirstWeek="4" 
+calendarCenturyStart="53" 
+calendarLanguage="en-US" 
+occursCountKind="parsed" 
+sequenceKind="ordered" 
+separator="," 
+separatorPolicy="required" 
+separatorPosition="infix" 
+initiatedContent="no" 
+floating="no" 
+choiceLengthKind="implicit" 
+initiator="" 
+terminator="" 
+documentFinalTerminatorCanBeMissing="no" 
+emptyValueDelimiterPolicy="none" 
+nilKind="literalValue" 
+useNilForDefault="no" 
+nilValue="NIL" 
+nilValueDelimiterPolicy="none" 
+binaryNumberRep="binary" 
+binaryPackedSignCodes="C D F C" 
+binaryDecimalVirtualPoint="0" 
+binaryNumberCheckPolicy="lax" 
+binaryFloatRep="ieee" 
+binaryCalendarRep="bcd" 
+binaryCalendarEpoch="1970-01-01T00:00:00+00:00" 
+binaryBooleanTrueRep="1" 
+binaryBooleanFalseRep="0">
                    </dfdl:format>
 
   /**
@@ -169,9 +252,10 @@ class TestGeneratedProperties extends JUnit3Suite {
     val h = new HasLotsOfProperties
     h.encoding
     val fl = h.toStringFunctionList
-    assertEquals(30, fl.length)
+    assertEquals(30, fl.length) // TODO: WRONG. should be 80+ printers. We're only getting a printer for the enums. 
     val str = h.toString
     println(str)
     assertTrue(str.contains("binaryCalendarRep='bcd'"))
+    assertTrue(str.contains("binaryBooleanFalseRep='0'")) //TODO: FIX. Generated code has no toString for non-enum properties.
   }
 }
