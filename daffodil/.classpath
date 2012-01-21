@@ -51,7 +51,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil/libsrc/icu4j-4_8_1_1-docs.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="DAFFODIL_PROJECT_ROOT/bin/src" sourcepath="/DAFFODIL_PROJECT_ROOT/src"/>
-	<classpathentry kind="var" path="DAFFODIL_PROJECT_ROOT/bin/srcTest" sourcepath="/DAFFODIL_PROJECT_ROOT/srcTest"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -12,42 +12,36 @@
       <dfdl:defineVariable name="counter" type="xsd:int" defaultValue="0"/>
     </appinfo>
   </annotation>
-  
-  
-  <element name="PRP">
-    <complexType>
-      <sequence>
-	<element name="occurs" type="xsd:int"
-		 dfdl:textStringJustification="right"
-		 dfdl:textStringPadCharacter="%WSP;"
-		 dfdl:terminator="%WSP;"/>
-	<element name="date" type="xsd:dateTime"
-		 dfdl:lengthKind="pattern"
-		 dfdl:lengthPattern="[^ ]+\s+[^ ]+"
-		 dfdl:calendarPatternKind="explicit"
-		 dfdl:calendarPattern="MM/dd/yy'   'HH:mm:ss"/>
-	<element name="unknownnum1" type="xsd:int"
-		 dfdl:terminator="%WSP;"
-		 dfdl:textStringJustification="right"		 
-		 dfdl:textStringPadCharacter="%WSP;"/>
-	<element name="unknownnum2" type="xsd:int"
-		 dfdl:lengthKind="delimited"
-		 dfdl:terminator="%WSP;"
-		 dfdl:textStringJustification="right"
-		 dfdl:textStringPadCharacter="%WSP;"/>
-	<annotation>
-	  <appinfo source="http://www.ogf.org/dfdl/">
- 	    <dfdl:hidden>
-	      <element name="names" type="prpIntro"/>
-	    </dfdl:hidden>
-	  </appinfo>
- 	</annotation>
 
-        <element name="frame" type="frame" maxOccurs="unbounded"/>
 
-      </sequence>
-    </complexType>
-  </element>
+	<element name="PRP">
+		<complexType>
+			<sequence>
+				<element name="occurs" type="xsd:int"
+					dfdl:textStringJustification="right" dfdl:textStringPadCharacter="%WSP;"
+					dfdl:terminator="%WSP;" />
+				<element name="date" type="xsd:dateTime" dfdl:lengthKind="pattern"
+					dfdl:lengthPattern="[^ ]+\s+[^ ]+" dfdl:calendarPatternKind="explicit"
+					dfdl:calendarPattern="MM/dd/yy'   'HH:mm:ss" />
+				<element name="unknownnum1" type="xsd:int" dfdl:terminator="%WSP;"
+					dfdl:textStringJustification="right" dfdl:textStringPadCharacter="%WSP;" />
+				<element name="unknownnum2" type="xsd:int" dfdl:lengthKind="delimited"
+					dfdl:terminator="%WSP;" dfdl:textStringJustification="right"
+					dfdl:textStringPadCharacter="%WSP;" />
+				<sequence>
+					<annotation>
+						<appinfo source="http://www.ogf.org/dfdl/">
+							<dfdl:hidden>
+								<element name="names" type="prpIntro" />
+							</dfdl:hidden>
+						</appinfo>
+					</annotation>
+
+					<element name="frame" type="frame" maxOccurs="unbounded" />
+				</sequence>
+			</sequence>
+		</complexType>
+	</element>
 
   <complexType name="prpIntro">    
     <sequence>

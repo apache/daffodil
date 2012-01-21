@@ -22,7 +22,7 @@
 	  <complexType>
 	    <choice>
 	      <!-- GIF -->
-	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'image/gif' }">
+	      <element name="type1" type="xsd:string" dfdl:inputValueCalc="{ 'image/gif' }">
 		<annotation>
 		  <appinfo source="http://www.ogf.org/dfdl/">
 		    <dfdl:discriminator dfdl:timing="before">{
@@ -37,7 +37,7 @@
 		</annotation>
 	      </element>
 	      <!-- JPEG -->
-	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'image/jpeg' }">
+	      <element name="type2" type="xsd:string" dfdl:inputValueCalc="{ 'image/jpeg' }">
 		<annotation>
 		  <appinfo source="http://www.ogf.org/dfdl/">
 		    <dfdl:discriminator dfdl:timing="before">{
@@ -50,7 +50,7 @@
 		</annotation>
 	      </element>
 	      <!-- STP -->
-	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'STP' }">
+	      <element name="type3" type="xsd:string" dfdl:inputValueCalc="{ 'STP' }">
 		<annotation>
 		  <appinfo source="http://www.ogf.org/dfdl/">
 		    <dfdl:discriminator dfdl:timing="before">{
@@ -72,7 +72,7 @@
 		</annotation>
 	      </element>
 	      <!-- PNG -->
-	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'image/png' }">
+	      <element name="type4" type="xsd:string" dfdl:inputValueCalc="{ 'image/png' }">
 		<annotation>
 		  <appinfo source="http://www.ogf.org/dfdl/">
 		    <dfdl:discriminator dfdl:timing="before">{
@@ -89,7 +89,7 @@
 		</annotation>
 	      </element>
 	      <!-- .class -->
-	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'application/java-byte-code' }">
+	      <element name="type5" type="xsd:string" dfdl:inputValueCalc="{ 'application/java-byte-code' }">
 		<annotation>
 		  <appinfo source="http://www.ogf.org/dfdl/">
 		    <dfdl:discriminator dfdl:timing="before">{
@@ -102,7 +102,7 @@
 		</annotation>
 	      </element>
 	      <!-- midi -->
-	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'audio/midi' }">
+	      <element name="type6" type="xsd:string" dfdl:inputValueCalc="{ 'audio/midi' }">
 		<annotation>
 		  <appinfo source="http://www.ogf.org/dfdl/">
 		    <dfdl:discriminator dfdl:timing="before">{
@@ -115,7 +115,7 @@
 		</annotation>
 	      </element>
 	      <!-- shell script -->
-	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'application/x-sh' }">
+	      <element name="type7" type="xsd:string" dfdl:inputValueCalc="{ 'application/x-sh' }">
 		<annotation>
 		  <appinfo source="http://www.ogf.org/dfdl/">
 		    <dfdl:discriminator dfdl:timing="before">{
@@ -126,7 +126,7 @@
 		</annotation>
 	      </element>
 	      <!-- postscript -->
-	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'application/postscript' }">
+	      <element name="type8" type="xsd:string" dfdl:inputValueCalc="{ 'application/postscript' }">
 		<annotation>
 		  <appinfo source="http://www.ogf.org/dfdl/">
 		    <dfdl:discriminator dfdl:timing="before">{
@@ -137,7 +137,7 @@
 		</annotation>
 	      </element>
 	       <!-- PDF -->
-	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'application/pdf' }">
+	      <element name="type9" type="xsd:string" dfdl:inputValueCalc="{ 'application/pdf' }">
 		<annotation>
 		  <appinfo source="http://www.ogf.org/dfdl/">
 		    <dfdl:discriminator dfdl:timing="before">{
@@ -150,7 +150,7 @@
 		</annotation>
 	      </element>
 	       <!-- ZIP -->
-	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'application/zip' }">
+	      <element name="type10" type="xsd:string" dfdl:inputValueCalc="{ 'application/zip' }">
 		<annotation>
 		  <appinfo source="http://www.ogf.org/dfdl/">
 		    <dfdl:discriminator dfdl:timing="before">{
@@ -161,7 +161,7 @@
 		</annotation>
 	      </element>	      
 	      <!-- MPEG -->
-	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'video/mpg' }">
+	      <element name="type11" type="xsd:string" dfdl:inputValueCalc="{ 'video/mpg' }">
 		<annotation>
 		  <appinfo source="http://www.ogf.org/dfdl/">
 		    <dfdl:discriminator dfdl:timing="before">{
@@ -182,7 +182,7 @@
 		</annotation>
 	      </element>
 	      <!-- GZIP -->
-	      <element name="type" type="xsd:string" dfdl:inputValueCalc="{ 'application/x-gzip' }">
+	      <element name="type12" type="xsd:string" dfdl:inputValueCalc="{ 'application/x-gzip' }">
 		<annotation>
 		  <appinfo source="http://www.ogf.org/dfdl/">
 		    <dfdl:discriminator dfdl:timing="before">{

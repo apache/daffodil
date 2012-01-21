@@ -2,7 +2,7 @@
 
   <!-- Binary boolean -->
   <element name="list">
-    <complexType name="example1">  
+    <complexType >  
       <sequence>
 	<element name="x" type="xsd:boolean" maxOccurs="4"
 		 dfdl:representation="binary"

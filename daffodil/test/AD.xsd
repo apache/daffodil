@@ -1,44 +1,37 @@
-<schema xmlns="http://www.w3.org/2001/XMLSchema" 
-        xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-	xmlns:tns="http://www.example.org/example1/" 
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://www.example.org/example1/" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	targetNamespace="http://www.example.org/example1/">
 
-  <!-- Evaluated occursCount based on hidden elements -->
+	<!-- Evaluated occursCount based on hidden elements -->
 
-  <element name="list">
-    <complexType >  
-      <sequence>    
-	<annotation>
-	  <appinfo source="http://www.ogf.org/dfdl/">
-	    <dfdl:hidden>
-	      <element name="xCount" type="xsd:int" dfdl:representation="text" 
-		       dfdl:terminator="%NL;"/>
-	    </dfdl:hidden>
-	  </appinfo>
-	</annotation>
-	<element name="x" type="xsd:string" 
-		 dfdl:separator="%NL;" 
-		 dfdl:separatorPosition="postfix"
-		 dfdl:occursCountKind="expression"
-		 dfdl:occursCount="{ ../tns:xCount }"
-		 dfdl:representation="text"/>
-	<annotation>
-	  <appinfo source="http://www.ogf.org/dfdl/">
-	    <dfdl:hidden>
-	      <element name="yCount" type="xsd:int" 
-		       dfdl:terminator="%NL;"
-		       dfdl:representation="text"/>
-	    </dfdl:hidden>
-	  </appinfo>
-	</annotation>
-	<element name="y" type="xsd:string" 
-		 dfdl:separator="%NL;" 
-		 dfdl:separatorPosition="postfix"
-		 dfdl:occursCountKind="expression"
-		 dfdl:occursCount="{ ../tns:yCount }"
-		 dfdl:representation="text"/>
-      </sequence>
-    </complexType>
-  </element>
+	<element name="list">
+		<complexType>
+			<sequence>
+				<annotation>
+					<appinfo source="http://www.ogf.org/dfdl/">
+						<dfdl:hidden>
+							<element name="xCount" type="xsd:int"
+								dfdl:representation="text" dfdl:terminator="%NL;" />
+						</dfdl:hidden>
+					</appinfo>
+				</annotation>
+				<element name="x" type="xsd:string" dfdl:separator="%NL;"
+					dfdl:separatorPosition="postfix" dfdl:occursCountKind="expression"
+					dfdl:occursCount="{ ../tns:xCount }" dfdl:representation="text" />
+				<sequence>
+					<annotation>
+						<appinfo source="http://www.ogf.org/dfdl/">
+							<dfdl:hidden>
+								<element name="yCount" type="xsd:int" dfdl:terminator="%NL;"
+									dfdl:representation="text" />
+							</dfdl:hidden>
+						</appinfo>
+					</annotation>
+					<element name="y" type="xsd:string" dfdl:separator="%NL;"
+						dfdl:separatorPosition="postfix" dfdl:occursCountKind="expression"
+						dfdl:occursCount="{ ../tns:yCount }" dfdl:representation="text" />
+				</sequence>
+			</sequence>
+		</complexType>
+	</element>
 </schema>

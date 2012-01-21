@@ -2,7 +2,7 @@
 
   <!-- Text boolean -->
   <element name="list">
-    <complexType name="example1">  
+    <complexType >  
       <sequence>
 	<element name="x" type="xsd:boolean" maxOccurs="unbounded"
 		 dfdl:separator=","

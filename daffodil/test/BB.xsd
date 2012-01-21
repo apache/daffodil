@@ -2,7 +2,7 @@
 
   <!-- Stop Values -->
   <element name="list">
-    <complexType name="example1">  
+    <complexType>  
       <sequence>
 	<element name="x" type="xsd:int" maxOccurs="unbounded"
 		 dfdl:lengthKind="explicit"
