@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ 	******************************************************************
+	* (C) Copyright IBM Corp 2011
+	* All Rights Reserved
+	*
+	* This XML schema is 1 of 3 that defines the syntax of DFDL annotations. 
+	* It defines simple types for all DFDL property values.
+	*
+	* DFDL Version 1.0
+	* Schema Version 1.0
+ 	******************************************************************
+ -->
+<xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd ">
+	
+	<!-- ============================================================= -->
+	<!-- Base DFDL Data types							 -->
+	<!-- ============================================================= -->
+
+	<xsd:simpleType name="DFDLExpression">
+	  <xsd:annotation>
+		<xsd:documentation>A subset of XPath 2.0 expressions for use in properties</xsd:documentation>
+	  </xsd:annotation>
+	   <xsd:restriction base="xsd:token">
+			<xsd:pattern value="(\{[^\{].*\})|(\{\})" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="EmptyString">
+	<xsd:annotation>
+		<xsd:documentation>Matches the empty string only. No toleration of whitespace.</xsd:documentation>
+	  </xsd:annotation>
+	   <xsd:restriction base="xsd:string">
+	        <xsd:whiteSpace value="preserve"/>
+			<xsd:length value="0" /> 
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="DFDLExpressionOrNothing">
+	  <xsd:annotation>
+		<xsd:documentation>An expression, or nothing at all.</xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:union memberTypes="dfdl:EmptyString dfdl:DFDLExpression" />
+	  <!-- 
+	  2012-01-04 mbeckerle - If you change the order of this union,
+	   it stops enforcing the empty string aspect.
+	   Reverse the order and then just empty whitespace will validate.
+	   -->
+	</xsd:simpleType>
+		
+	<xsd:simpleType name="DFDLStringLiteral">
+		<xsd:restriction base="xsd:string">
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="ListOfDFDLStringLiteral">
+		<xsd:list itemType="xsd:token"/>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="DFDLNonNegativeInteger">
+		<xsd:restriction base="xsd:int">
+			<xsd:minInclusive value="0" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="DFDLRegularExpression">
+		<xsd:restriction base="xsd:string">
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="DFDLQName">
+		<xsd:union>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:QName"/>
+			</xsd:simpleType>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string" >
+					<xsd:length value="0"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:union>
+	</xsd:simpleType>
+	
+	<!-- ============================================================= -->
+	<!-- Restrictions of base DFDL Data types					 -->
+	<!-- ============================================================= -->
+	
+	<!-- A positive integer or 'implicit' for schema specification -->
+	<xsd:simpleType name="AlignmentType">
+		 <xsd:union>
+      		<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="implicit" />
+				</xsd:restriction>
+			</xsd:simpleType>
+			<xsd:simpleType>
+				<xsd:restriction base="dfdl:DFDLNonNegativeInteger">
+						<xsd:minInclusive value="1" />
+			    </xsd:restriction>
+	        </xsd:simpleType>
+    	 </xsd:union>
+	</xsd:simpleType>
+	
+	<!-- ========================================================== -->
+	<!-- DFDL Enumerations 							    -->
+	<!-- =========================================================  -->
+
+	<xsd:simpleType name="EncodingEnum">
+		<xsd:restriction base="xsd:string"> 
+		<!--  IANA charsets or CCIDSs -->
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="TextStringJustificationEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="left" />
+			<xsd:enumeration value="right" />
+			<xsd:enumeration value="center" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="TextNumberJustificationEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="left" />
+			<xsd:enumeration value="right" />
+			<xsd:enumeration value="center" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="TextNumberRoundingEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="pattern" />
+			<xsd:enumeration value="explicit" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+
+	<xsd:simpleType name="SignCodingValue">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="twosComplement" />
+			<xsd:enumeration value="onesComplement" />
+			<xsd:enumeration value="signMagnitude" />
+			<xsd:enumeration value="unsignedBinary" />
+			<xsd:enumeration value="unsignedDecimal" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="RepresentationEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="binary" />
+			<xsd:enumeration value="text" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="TextPadKindEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="none" />
+			<xsd:enumeration value="padChar" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="TextTrimKindEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="none" />
+			<xsd:enumeration value="padChar" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="EscapeKindEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="escapeCharacter" />
+			<xsd:enumeration value="escapeBlock" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="GenerateEscapeEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="always" />
+			<xsd:enumeration value="whenNeeded" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="TextBidiTextOrderingEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="implicit" />
+			<xsd:enumeration value="visual" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="TextBidiOrientationEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="LTR" />
+			<xsd:enumeration value="RTL" />
+			<xsd:enumeration value="contextual_LTR" />
+			<xsd:enumeration value="contextual_RTL" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="TextBidiNumeralShapesEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="nominal" />
+			<xsd:enumeration value="national" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="TextNumberRepEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="standard" />
+			<xsd:enumeration value="zoned" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="NumberCheckPolicyEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="strict" />
+			<xsd:enumeration value="lax" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="CalendarCheckPolicyEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="strict" />
+			<xsd:enumeration value="lax" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="TextNumberBaseEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="2" />
+			<xsd:enumeration value="8" />
+			<xsd:enumeration value="10" />
+			<xsd:enumeration value="16" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="NumberRoundingModeEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="roundCeiling" />
+			<xsd:enumeration value="roundFloor" />
+			<xsd:enumeration value="roundDown" />
+			<xsd:enumeration value="roundUp" />
+			<xsd:enumeration value="roundHalfEven" />
+			<xsd:enumeration value="roundHalfDown" />
+			<xsd:enumeration value="roundHalfUp" />
+			<xsd:enumeration value="none" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="NumberZonedSignStyleEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="asciiStandard" />
+			<xsd:enumeration value="asciiTranslatedEBCDIC" />
+			<xsd:enumeration value="asciiCARealiaModified" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="BinaryNumberRepEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="packed" />
+			<xsd:enumeration value="bcd" />
+			<xsd:enumeration value="binary" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="BinaryNumberCheckPolicyEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="strict" />
+			<xsd:enumeration value="lax" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="BinaryFloatRepEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="ieee" />
+			<xsd:enumeration value="ibm390Hex" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="TextBooleanJustificationEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="left" />
+			<xsd:enumeration value="right" />
+			<xsd:enumeration value="center" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="TextCalendarJustificationEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="left" />
+			<xsd:enumeration value="right" />
+			<xsd:enumeration value="center" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="CalendarPatternKindEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="explicit" />
+			<xsd:enumeration value="implicit" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<!-- A pattern is used instead of an enumeration for compactness -->
+	<xsd:simpleType name="CalendarTimeZoneType">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="(UTC)([+\-]([01]\d|\d)((([:][0-5]\d){1,2})?))?)" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<!-- A pattern is used instead of an enumeration for compactness -->
+	<xsd:simpleType name="CalendarLanguageType">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="([A-Za-z]{1,8}([\-][A-Za-z0-9]{1,8})*)"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="CalendarFirstDayOfWeekEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="Monday" />
+			<xsd:enumeration value="Tuesday" />
+			<xsd:enumeration value="Wednesday" />
+			<xsd:enumeration value="Thursday" />
+			<xsd:enumeration value="Friday" />
+			<xsd:enumeration value="Saturday" />
+			<xsd:enumeration value="Sunday" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="BinaryCalendarRepEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="packed" />
+			<xsd:enumeration value="bcd" />
+			<xsd:enumeration value="binarySeconds" />
+			<xsd:enumeration value="binaryMilliseconds" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="LengthKindEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="explicit" />
+			<xsd:enumeration value="delimited" />
+			<xsd:enumeration value="implicit" />
+			<xsd:enumeration value="prefixed" />
+			<xsd:enumeration value="endOfParent" />
+			<xsd:enumeration value="pattern" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="NilKindEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="literalValue" />
+			<xsd:enumeration value="logicalValue" />
+			<xsd:enumeration value="literalCharacter" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="NilValueDelimiterPolicyEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="none" />
+			<xsd:enumeration value="initiator" />
+			<xsd:enumeration value="terminator" />
+			<xsd:enumeration value="both" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="EmptyValueDelimiterPolicyEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="none" />
+			<xsd:enumeration value="initiator" />
+			<xsd:enumeration value="terminator" />
+			<xsd:enumeration value="both" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="SequenceKindEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="ordered" />
+			<xsd:enumeration value="unordered" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="LengthUnitsEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="bits" />
+			<xsd:enumeration value="bytes" />
+			<xsd:enumeration value="characters" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="AlignmentUnitsEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="bits" />
+			<xsd:enumeration value="bytes" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="GenerateQuotesEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="always" />
+			<xsd:enumeration value="whenNeeded" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="SeparatorPositionEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="infix" />
+			<xsd:enumeration value="prefix" />
+			<xsd:enumeration value="postfix" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="SeparatorPolicyEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="required" />
+			<xsd:enumeration value="suppressed" />
+			<xsd:enumeration value="suppressedAtEndStrict" />
+			<xsd:enumeration value="suppressedAtEndLax" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="ChoiceLengthKindEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="implicit" />
+			<xsd:enumeration value="explicit" />
+		</xsd:restriction>
+
+	</xsd:simpleType>
+
+	<xsd:simpleType name="OccursCountKindEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="fixed" />
+			<xsd:enumeration value="expression" />
+			<xsd:enumeration value="parsed" />
+			<xsd:enumeration value="stopValue" />
+			<xsd:enumeration value="implicit" />			
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="ByteOrderEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="littleEndian" />
+			<xsd:enumeration value="bigEndian" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="YesNoEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="yes" />
+			<xsd:enumeration value="no" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="UTF16WidthEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="fixed" />
+			<xsd:enumeration value="variable" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="TestKindEnum">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="expression" />
+			<xsd:enumeration value="pattern" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<!-- A pattern is used instead of an enumeration for compactness -->
+	<xsd:simpleType name="BinaryPackedSignCodes">
+		<xsd:restriction base="dfdl:DFDLStringLiteral">
+			<!-- 
+			A space separated string giving the hex sign nibbles to use for a positive 
+			value, a negative value, an unsigned value, and zero.
+			Valid values for positive nibble: A, C, E, F
+			Valid values for negative nibble: B, D
+			Valid values for unsigned nibble: F
+			Valid values for zero sign: A C E F 0
+			Example: C D F C (typical S/390 usage) 
+			Example: C D F 0 (handle special case for zero) 
+			 -->
+			<xsd:pattern value="(A|C|E|F) (B|D) (F) (A|C|E|F|0)"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="CalendarDaysInFirstWeek">
+		<xsd:restriction base="dfdl:DFDLNonNegativeInteger">
+			<xsd:minInclusive value="1"/>
+			<xsd:maxInclusive value="7"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="CalendarCenturyStart">
+		<xsd:restriction base="dfdl:DFDLNonNegativeInteger">
+			<xsd:minInclusive value="0"/>
+			<xsd:maxInclusive value="99"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<!-- ============================================================= -->
+	<!-- Simple types with DFDL Expression  					 -->
+	<!-- ============================================================= -->
+	
+	<xsd:simpleType name="ByteOrderEnum_Or_DFDLExpression">
+		<xsd:union>
+			<xsd:simpleType>
+				<xsd:restriction base="dfdl:DFDLExpression" />
+			</xsd:simpleType>
+			<xsd:simpleType>
+				<xsd:restriction base="dfdl:ByteOrderEnum"/>
+			</xsd:simpleType>
+		</xsd:union>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="EncodingEnum_Or_DFDLExpression">
+		<xsd:union>
+			<xsd:simpleType>
+				<xsd:restriction base="dfdl:DFDLExpression" />
+			</xsd:simpleType>
+			<xsd:simpleType>
+				<xsd:restriction base="dfdl:EncodingEnum"/>
+			</xsd:simpleType>
+		</xsd:union>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="BinaryFloatRepEnum_Or_DFDLExpression">
+		<xsd:union>
+			<xsd:simpleType>
+				<xsd:restriction base="dfdl:DFDLExpression" />
+			</xsd:simpleType>
+			<xsd:simpleType>
+				<xsd:restriction base="dfdl:BinaryFloatRepEnum"/>
+			</xsd:simpleType>
+		</xsd:union>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="DFDLStringLiteral_Or_DFDLExpression">
+		<xsd:union>
+			<xsd:simpleType>
+				<xsd:restriction base="dfdl:DFDLExpression" />
+			</xsd:simpleType>
+			<xsd:simpleType>
+				<xsd:restriction base="dfdl:DFDLStringLiteral"/>
+			</xsd:simpleType>
+			
+		</xsd:union>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="ListOfDFDLStringLiteral_Or_DFDLExpression">
+		<xsd:union>
+			<xsd:simpleType>
+				<xsd:restriction base="dfdl:DFDLExpression" />
+			</xsd:simpleType>
+			<xsd:simpleType>
+				<xsd:restriction base="dfdl:ListOfDFDLStringLiteral"/>
+			</xsd:simpleType>
+		</xsd:union>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="DFDLNonNegativeInteger_Or_DFDLExpression">
+		<xsd:union>
+			<xsd:simpleType>
+				<xsd:restriction base="dfdl:DFDLExpression" />
+			</xsd:simpleType>
+			<xsd:simpleType>
+				<xsd:restriction base="dfdl:DFDLNonNegativeInteger"/>
+			</xsd:simpleType>
+		</xsd:union>
+	</xsd:simpleType>
+
+</xsd:schema>

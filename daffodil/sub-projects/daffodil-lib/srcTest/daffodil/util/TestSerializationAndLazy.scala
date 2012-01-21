@@ -8,7 +8,7 @@ import java.io.ObjectOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ObjectInputStream
 
-@serializable
+
   class ToSerialize extends Serializable {
     
     val v = 5
