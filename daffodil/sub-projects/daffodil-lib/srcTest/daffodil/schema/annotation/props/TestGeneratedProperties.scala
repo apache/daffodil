@@ -252,10 +252,11 @@ binaryBooleanFalseRep="0">
     val h = new HasLotsOfProperties
     h.encoding
     val fl = h.toStringFunctionList
-    assertEquals(30, fl.length) // TODO: WRONG. should be 80+ printers. We're only getting a printer for the enums. 
+    assertTrue(fl.length >= 84) // Note: There are extra print functions for things that won't be requested. like "ref". 
     val str = h.toString
     println(str)
     assertTrue(str.contains("binaryCalendarRep='bcd'"))
-    assertTrue(str.contains("binaryBooleanFalseRep='0'")) //TODO: FIX. Generated code has no toString for non-enum properties.
+    assertTrue(str.contains("binaryBooleanFalseRep='0'")) 
+    assertTrue(str.contains("textBooleanPadCharacter='%SP;'"))
   }
 }

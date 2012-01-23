@@ -180,13 +180,13 @@
 	<xsd:attribute name="textStandardGroupingSeparator" type="dfdl:DFDLStringLiteral_Or_DFDLExpression"/>
 	<xsd:attribute name="textStandardDecimalSeparator" type="dfdl:DFDLStringLiteral_Or_DFDLExpression"/>
 	<xsd:attribute name="textStandardExponentCharacter" type="dfdl:DFDLStringLiteral_Or_DFDLExpression"/>
-	<xsd:attribute name="textNumberCheckPolicy" type="dfdl:NumberCheckPolicyEnum"/>
+	<xsd:attribute name="textNumberCheckPolicy" type="dfdl:TextNumberCheckPolicyEnum"/>
 	<xsd:attribute name="textStandardInfinityRep" type="dfdl:DFDLStringLiteral"/>
 	<xsd:attribute name="textStandardNaNRep" type="dfdl:DFDLStringLiteral"/>	
-	<xsd:attribute name="textNumberRoundingMode" type="dfdl:NumberRoundingModeEnum"/>
+	<xsd:attribute name="textNumberRoundingMode" type="dfdl:TextNumberRoundingModeEnum"/>
 	<xsd:attribute name="textNumberRounding" type="dfdl:TextNumberRoundingEnum"/>
 	<xsd:attribute name="textNumberRoundingIncrement" type="xsd:double"/>
-	<xsd:attribute name="textZonedSignStyle" type="dfdl:NumberZonedSignStyleEnum"/>
+	<xsd:attribute name="textZonedSignStyle" type="dfdl:TextZonedSignStyleEnum"/>
 	<xsd:attribute name="textStandardZeroRep" type="dfdl:ListOfDFDLStringLiteral"/>
 
 	<xsd:attributeGroup name="TextNumberFormatAG">
@@ -194,13 +194,13 @@
 		<xsd:attribute name="textStandardGroupingSeparator" type="dfdl:DFDLStringLiteral_Or_DFDLExpression"/>
 		<xsd:attribute name="textStandardDecimalSeparator" type="dfdl:DFDLStringLiteral_Or_DFDLExpression"/>
 		<xsd:attribute name="textStandardExponentCharacter" type="dfdl:DFDLStringLiteral_Or_DFDLExpression"/>
-		<xsd:attribute name="textNumberCheckPolicy" type="dfdl:NumberCheckPolicyEnum"/>
+		<xsd:attribute name="textNumberCheckPolicy" type="dfdl:TextNumberCheckPolicyEnum"/>
 		<xsd:attribute name="textStandardInfinityRep" type="dfdl:DFDLStringLiteral"/>
 		<xsd:attribute name="textStandardNaNRep" type="dfdl:DFDLStringLiteral"/>		
-		<xsd:attribute name="textNumberRoundingMode" type="dfdl:NumberRoundingModeEnum"/>
+		<xsd:attribute name="textNumberRoundingMode" type="dfdl:TextNumberRoundingModeEnum"/>
 		<xsd:attribute name="textNumberRounding" type="dfdl:TextNumberRoundingEnum"/>
 		<xsd:attribute name="textNumberRoundingIncrement" type="xsd:double"/>
-		<xsd:attribute name="textZonedSignStyle" type="dfdl:NumberZonedSignStyleEnum"/>
+		<xsd:attribute name="textZonedSignStyle" type="dfdl:TextZonedSignStyleEnum"/>
 		<xsd:attribute name="textStandardZeroRep" type="dfdl:ListOfDFDLStringLiteral"/>
 	</xsd:attributeGroup>
 

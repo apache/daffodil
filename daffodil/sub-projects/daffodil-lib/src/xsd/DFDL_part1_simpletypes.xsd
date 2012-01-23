@@ -213,7 +213,7 @@
 		</xsd:restriction>
 	</xsd:simpleType>
 
-	<xsd:simpleType name="NumberCheckPolicyEnum">
+	<xsd:simpleType name="TextNumberCheckPolicyEnum">
 		<xsd:restriction base="xsd:string">
 			<xsd:enumeration value="strict" />
 			<xsd:enumeration value="lax" />
@@ -236,7 +236,7 @@
 		</xsd:restriction>
 	</xsd:simpleType>
 
-	<xsd:simpleType name="NumberRoundingModeEnum">
+	<xsd:simpleType name="TextNumberRoundingModeEnum">
 		<xsd:restriction base="xsd:string">
 			<xsd:enumeration value="roundCeiling" />
 			<xsd:enumeration value="roundFloor" />
@@ -249,7 +249,7 @@
 		</xsd:restriction>
 	</xsd:simpleType>
 
-	<xsd:simpleType name="NumberZonedSignStyleEnum">
+	<xsd:simpleType name="TextZonedSignStyleEnum">
 		<xsd:restriction base="xsd:string">
 			<xsd:enumeration value="asciiStandard" />
 			<xsd:enumeration value="asciiTranslatedEBCDIC" />
