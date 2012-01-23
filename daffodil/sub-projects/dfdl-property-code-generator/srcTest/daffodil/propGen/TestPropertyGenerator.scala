@@ -37,8 +37,14 @@ class TestPropertyGenerator extends JUnit3Suite {
 	</xsd:attributeGroup>
      val pg = new PropertyGenerator(sch)   
      val mx = pg.genAttributeGroup(sch)
-     assertTrue(mx.contains(""" = LengthKind(getProperty("lengthKind"))"""))
      assertTrue(mx.contains(""" = convertToBoolean(getProperty("prefixIncludesPrefixLength"))"""))
+     assertTrue(mx.contains("""LengthKindMixin"""))
+     assertTrue(mx.contains("""def lengthPropertiesAGInit() : Unit = {"""))
+     assertTrue(mx.contains("""registerToStringFunction(()=>{getPropertyOption("lengthPattern") match {
+        case None => ""
+        case Some(value) => "lengthPattern='" + value.toString + "'"
+      }
+    })"""))
   }
   
     def testGenPropMixins2() {
@@ -133,10 +139,3 @@ class TestPropertyGenerator extends JUnit3Suite {
   
 }
 
-/**
- * When you run this, it regenerates the Generated code and overwrites 
- * the GeneratedCode.scala file
- */
-object Main extends App {
-    PropertyGenerator.main(null)
-}
