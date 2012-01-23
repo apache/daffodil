@@ -149,6 +149,9 @@ class PropertyGenerator(arg: Node) {
     // val name = stripSuffix("AG", attr(ag, "name"))
     val name = attr(ag, "name").get // let's try leaving AG suffix in place so we can distinguish generated type mixins from AG mixins.
     if (exclude(name)) return ""
+    if (name.contains("TextNumberFormatAG")) {
+      println("")
+    }
     val subAgs = ag \ "attributeGroup"
     val subRefAgs = subAgs.filter(ag => attr(ag, "ref") != None)
     // val subNames = subRefAgs.map(ag => stripSuffix("AG", stripDFDLPrefix(attr(ag, "ref"))))
@@ -161,7 +164,8 @@ class PropertyGenerator(arg: Node) {
     val (enumAttributeList, nonEnumAttributeList) = attribs.partition{attrNode => {
       val qualifiedTypeName = attr(attrNode, "type").get
       val rawName = attr(attrNode, "name").get
-      val nameIsInTypeName = qualifiedTypeName.toLowerCase.contains(rawName.toLowerCase)
+      val rawNameWithoutTextPrefix = stripPrefix("text", rawName)
+      val nameIsInTypeName = qualifiedTypeName.toLowerCase.contains(rawNameWithoutTextPrefix.toLowerCase)
       val endsInEnum = qualifiedTypeName.endsWith("Enum")
       val res = endsInEnum && nameIsInTypeName
       res
@@ -297,7 +301,7 @@ trait CurrencyMixin extends PropertyMixin {
   def currencyToString() = {
     optionCurrency match {
       case None => "" // empty string if not present
-      case Some(currency) =>  "dfdl:currency='" + currency + "'"
+      case Some(currency) =>  "currency='" + currency + "'"
     }
   }
     
@@ -365,6 +369,14 @@ object Currency {
     res
   }
   
+  def isXSDTypeName(typeName : String) = {
+     val arr = typeName.split(":")
+     arr match {
+       case Array(prefix, otherPart) => (prefix == "xsd")
+       case _ => false
+     }
+  }
+  
   def getConverterTypeName(typeName : String) : String = {
     val Array(prefix, name) = typeName.split(":")
     assert (prefix == "xsd")
@@ -391,27 +403,84 @@ object Currency {
      mid
   }
 
-  def generatePropertyGroup(pgName: String, pgList: Seq[(String, String)], agList: Seq[String], enumList : Seq[String]) = {
+  def isEnumQName(str : String) = {
+    str.startsWith("dfdl:") && str.endsWith("Enum")
+  }
+  
+  def generatePropertyGroup(pgName: String, pgList: Seq[(String, String)], agList: Seq[String], enumList: Seq[String]) = {
     val traitName = initialUpperCase(pgName)
+    if (traitName == "TextNumberFormatAG") {
+      println("stop here in breakpoint")
+    }
     val traitNames = (enumList ++ agList).map(initialUpperCase(_) + "Mixin")
     val extendsClause = "extends PropertyMixin" + traitNames.foldLeft("")(_ + "\n  with " + _)
-    val start = "trait " + traitName + "Mixin " + extendsClause + " {\n"
-    val mids = pgList.map {
-      case (attrName, attrTypeName) =>
+    val mixinName = traitName + "Mixin"
+    val start = "trait " + mixinName + " " + extendsClause + " {\n"
+    val (enumAttrList, nonEnumAttrList) = pgList.partition {
+      case (attrName, _) => {
+        isEnumQName(attrName)
+      }
+    }
+//    val enumAttribsList = enumAttrList.map {
+//      case (attrName, attrTypeName) =>
+//        val propName = initialLowerCase(attrName)
+//        val res =
+//          generateEnumInstantiation(propName, attrTypeName)
+//        res
+//    }
+    val (primAttrList, nonPrimAttrList) = nonEnumAttrList.partition{case (attrName, attrTypeName) => isXSDTypeName(attrTypeName)}
+    val primAttribsList = primAttrList.map {
+      case (attrName, attrTypeName) => {
         val propName = initialLowerCase(attrName)
         val res =
-          if (!attrTypeName.contains(":"))
-            generateEnumInstantiation(propName, attrTypeName)
-          else
-            generateNonEnumInstantiation(propName, attrTypeName)
+          generateNonEnumInstantiation(propName, attrTypeName)
         res
+      }
     }
+    val nonPrimAttribsList = nonPrimAttrList.map {
+      case (attrName, attrTypeName) => {
+        val propName = initialLowerCase(attrName)
+        val res =
+          generateEnumInstantiation(propName, attrTypeName)
+        res
+      }
+    }
+    val initToStringFuncs = nonEnumAttrList.map {
+      case (attrName, attrTypeName) =>
+        val propName = initialLowerCase(attrName)
+        generateNonEnumStringPropInit(propName)
+
+    }
+    val nonEnumInit = generateNonEnumStringInit(pgName, initToStringFuncs)
+
     val end = "}\n\n"
-    val res = start + mids.foldLeft("")(_ + _) + end
+    val res = start + (// enumAttribsList ++ // those are done via mixins now. 
+                       primAttribsList ++ nonPrimAttribsList).foldLeft("")(_ + _) + nonEnumInit + end
     res
   }
   
-    
+  def generateNonEnumStringPropInit(propName : String) = {
+    val template = 
+"""registerToStringFunction(()=>{getPropertyOption("currency") match {
+        case None => ""
+        case Some(value) => "currency='" + value.toString + "'"
+      }
+    })"""
+    val res = template.replaceAll("currency", propName)
+    res
+  }
+  
+  def generateNonEnumStringInit(pgName : String, propInits : Seq[String]) = {
+    val initFuncName = initialLowerCase(pgName)
+    """
+  def """ + initFuncName + """Init() : Unit = {""" + 
+    propInits.foldLeft("")(_ + """
+    """ + _) + """
+  }
+  """ + initFuncName + """Init()
+"""
+  }
+
   //
   // These little utilities are repeated here rather than used from daffodil-lib
   // due to circular dependency problem. If you edit the code generator, and it creates bad code
