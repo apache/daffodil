@@ -24,8 +24,6 @@ as Java is installed
 Apache Ant (1.7 or higher) is required for building using the provided script.
 
 Daffodil is written in Scala 2.9
-It is not required to install Scala to run or compile Daffodil (the required
-Scala libraries are included).
 
 ----------------
 RUNNING
