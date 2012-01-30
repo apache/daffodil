@@ -25,6 +25,14 @@ class TestPropertyGenerator extends JUnit3Suite {
     assertTrue(nk.contains("sealed trait NilKind"))
     }
   
+  /**
+   * test that we get some of the right artifacts generated from a real example derived from
+   * the XML Schema for DFDL Annotations. 
+   * 
+   * Includes both enum-valued properties and string-valued properties, qnames, etc.
+   * 
+   * Test also looks for the registration of the toString function for the property.
+   */
   def testGenPropMixins() {
       val sch = 
 	<xsd:attributeGroup name="LengthPropertiesAG">
@@ -47,6 +55,9 @@ class TestPropertyGenerator extends JUnit3Suite {
     })"""))
   }
   
+  /**
+   * make sure we generate trait mixin for referenced attribute groups.
+   */
     def testGenPropMixins2() {
       val sch = 
 	<xsd:attributeGroup name="ElementAG">
@@ -61,6 +72,10 @@ class TestPropertyGenerator extends JUnit3Suite {
      assertTrue(mx.contains("""with NillableAGMixin"""))
   }
     
+    /**
+     * verify that the right thing is generated when the type is xsd:NCName, i.e., a built-in type
+     * not one defined in the XML Schema for DFDL annotations.
+     */
    def testGenPropMixins3() {
       val sch = 
 	<xsd:attributeGroup name="TextNumberFormatAG1">
