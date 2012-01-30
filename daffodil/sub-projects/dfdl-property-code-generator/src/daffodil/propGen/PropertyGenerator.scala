@@ -149,9 +149,6 @@ class PropertyGenerator(arg: Node) {
     // val name = stripSuffix("AG", attr(ag, "name"))
     val name = attr(ag, "name").get // let's try leaving AG suffix in place so we can distinguish generated type mixins from AG mixins.
     if (exclude(name)) return ""
-    if (name.contains("TextNumberFormatAG")) {
-      println("")
-    }
     val subAgs = ag \ "attributeGroup"
     val subRefAgs = subAgs.filter(ag => attr(ag, "ref") != None)
     // val subNames = subRefAgs.map(ag => stripSuffix("AG", stripDFDLPrefix(attr(ag, "ref"))))
@@ -269,10 +266,7 @@ object Currency extends Enum[Currency] {
   val templateMiddle =
     """  case object EUR extends Currency ; forceConstruction(EUR)
 """
-    
-
   
-    
   val templateEnd = """
   def apply(name: String) : Currency = stringToEnum("currency", name)
 }
@@ -314,9 +308,6 @@ trait CurrencyMixin extends PropertyMixin {
 
 """
  
-   
-
-
   def generateEnumProperty(pname: String, pvalues: Seq[String]) = {
     val traitName = initialUpperCase(pname)
     val propName = initialLowerCase(pname)
@@ -331,8 +322,6 @@ trait CurrencyMixin extends PropertyMixin {
     val res = start + mids.foldLeft("")(_ + _) + end
     res
   }
-
- 
     
   def generateEnumInstantiation(propName : String, typeName : String) = {
      val midTemplate = """  lazy val EUR = Currency(getProperty("EUR"))
@@ -459,6 +448,10 @@ object Currency {
     res
   }
   
+  /**
+   * For properties that are not Enum types. We still need to initialize so that
+   * we get a toString behavior that displays these properties.
+   */
   def generateNonEnumStringPropInit(propName : String) = {
     val template = 
 """registerToStringFunction(()=>{getPropertyOption("currency") match {
@@ -470,6 +463,10 @@ object Currency {
     res
   }
   
+  /**
+   * For a whole mixin we need an initializer which runs the initialization thunks for 
+   * all the properties the mixin contains.
+   */
   def generateNonEnumStringInit(pgName : String, propInits : Seq[String]) = {
     val initFuncName = initialLowerCase(pgName)
     """
