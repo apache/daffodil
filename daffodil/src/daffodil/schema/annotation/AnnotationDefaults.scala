@@ -37,6 +37,7 @@ package daffodil.schema.annotation
  */
 
 import java.nio.charset.Charset
+import java.nio.ByteOrder
 
 import daffodil.exceptions.DFDLSchemaDefinitionException
 import daffodil.schema.annotation.enumerations._
@@ -60,7 +61,7 @@ object AnnotationDefaults { // FIXME: there are not supposed to be defaults. The
 
   def defaultBinaryNumberRepresentation = BinaryNumber
 
-  def defaultByteOrder = BigEndian
+  def defaultByteOrder = ByteOrder.BIG_ENDIAN
 
   def defaultCalendarPatternKind = ImplicitCalendar
 

@@ -37,6 +37,7 @@ package daffodil.schema.annotation
  */
 
 import java.nio.charset.Charset
+import java.nio.ByteOrder
 
 import java.io.ObjectOutputStream
 import java.io.ObjectInputStream
@@ -289,8 +290,8 @@ class Format extends AnnotationPart {
 
   def setByteOrder(order:String):Unit =
     order match {
-      case "bigEndian" => setByteOrder(BigEndian)
-      case "littleEndian" => setByteOrder(LittleEndian)
+      case "bigEndian" => setByteOrder(ByteOrder.BIG_ENDIAN)
+      case "littleEndian" => setByteOrder(ByteOrder.LITTLE_ENDIAN)
       case _ => illegalValue("byte order type",order,"bigEndian,little-Endian")
     }
 

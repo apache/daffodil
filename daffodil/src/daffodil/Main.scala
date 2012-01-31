@@ -79,7 +79,8 @@ object Main {
     argumentParser add (new ArgumentDescription("version","version","v",false,OptionalSingle))
     argumentParser add (new ArgumentDescription("help","help","h",false,OptionalSingle))
     argumentParser add (new ArgumentDescription("verbose","verbose","V",false,OptionalSingle))
-
+    
+    argumentParser.add(new ArgumentDescription("unparse", "unparse", "u", true, OptionalSingle))
 
     try {
       argumentParser parse(arguments)
@@ -101,6 +102,11 @@ object Main {
       usage
     }
 
+    if (argumentParser.isSet("input") && argumentParser.isSet("unparse")){
+      System.err.println("Both --input and --unparse option specified. Please use only one.")
+      usage
+    }
+    
     var schemaParser:SchemaParser = null
 
     try {
@@ -118,6 +124,33 @@ object Main {
       }else{
          System.err.println("Neither --schema nor --parser option specified. Nothing to do.")
         usage
+      }
+
+      if ( argumentParser.isSet("unparse")) {
+        val infoset = argumentParser.getSingle("unparse")
+        
+        if (!argumentParser.isSet("root") && schemaParser.getTopElements.size != 1)
+          if (schemaParser.getTopElements.size==0)
+            throw new DFDLSchemaDefinitionException("Schema does not contain a top level element")
+          else
+            throw new DFDLSchemaDefinitionException("Schema contains more than one top level element "+
+                    schemaParser.getTopElements+".\n Please specify which " +
+                "one to use as root of the document with the option -r ")
+
+        val data = 
+          if ( argumentParser.isSet("root"))
+            DebugUtil.time("Unparsing infoset",schemaParser.unparse(infoset, argumentParser.getSingle("root")))
+          else
+            DebugUtil.time("Unparsing infoset",schemaParser.unparse(infoset, schemaParser.getTopElements(0)))
+          
+        val output =
+          if ( argumentParser.isSet("output"))
+            new FileOutputStream(argumentParser.getSingle("output"));
+          else
+            System.out
+          
+        //TODO Once I decide unparse return type. Figure out how to write it out.
+        DebugUtil.time("Saving file", output.write(data.array, 0, data.position))
       }
 
       if (argumentParser isSet "input"){
@@ -169,7 +202,7 @@ object Main {
 //
 //          }
       }
-
+      
       if (argumentParser isSet "parser-destination"){
         DebugUtil time("Saving parser",writeParser(schemaParser,argumentParser getSingle ("parser-destination")))
       }
@@ -224,6 +257,9 @@ object Main {
       -h, --help             prints this help message.
 
       -i, --input  <input>   the input data file to translate.
+            
+      -u, --unparse <infoset>
+                             the DFDL infoset file (XML) to unparse.
 
       -o, --output <output>  saves XML output to the specified file. If not
                              specified, ouput is printed to standard output

@@ -89,8 +89,8 @@ abstract class BasicNodeImpl(target:String,namespaces:Namespaces,ann:Annotation)
   /**
    * Returns the name of the DOM element to be returned by this node 
    */
-  protected def getName(parent:Parent):String
-
+  // changed protected to public
+  def getName(parent:Parent):String
   protected def setCardinality(element:org.jdom.Element,annotation:Annotation,
                                variables:VariableMap,namespaces:Namespaces) = {
 

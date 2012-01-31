@@ -38,9 +38,11 @@ package daffodil.parser
 
 import scala.collection.mutable.Map
 
+import org.jdom.adapters.XML4JDOMAdapter
 import org.jdom.input.{JDOMParseException, SAXBuilder}
-import java.io.{Serializable, BufferedInputStream, InputStream, FileInputStream}
+import java.io.{Serializable, BufferedInputStream, InputStream, FileInputStream, BufferedOutputStream, ByteArrayOutputStream}
 
+import java.nio.ByteBuffer
 import org.jdom.Document
 import org.jdom.Element
 import daffodil.debugger.BasicTextDebugger
@@ -52,7 +54,11 @@ import daffodil.schema.annotation.Format
 import daffodil.schema.annotation.Hidden
 import daffodil.exceptions.{MalformedXMLException, DFDLSchemaDefinitionException,
                             DFDLDisallowConstructException, DFDLReservedKeywordException, UnimplementedException}
+import daffodil.util.GrowableByteBuffer
 import daffodil.xml.{Namespaces, XMLUtil}
+
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * Parses a schema and creates a set of document parsers that will parse a conforming document.
@@ -360,6 +366,15 @@ class SchemaParser extends Serializable {
     definedElements.toList map { _._1 }
   }
 
+  /**
+   * Evaluates an infoset against the schema to produce a representation of the original data file
+   * @param infoset name of the XML format infoset file
+   * @param root name of the top-level element of the schema to be run against infoset
+   * @returns a java.nio.ByteBuffer representation of the original data file
+   */
+  def unparse(infoset:String, root:String):ByteBuffer =
+    unparse(new BufferedInputStream(new FileInputStream(infoset)),root)
+  
   /** Evaluates a document parser built from the schema in dataFile provided
    * @param dataFile name of the data file to be translated
    * @param root name of the top-level element of the schema to be the root of the translated document
@@ -368,6 +383,80 @@ class SchemaParser extends Serializable {
   def eval(dataFile:String,root:String):Element =
     eval(new BufferedInputStream(new FileInputStream(dataFile)),root)
 
+  /**
+   * Evaluates an infoset against the schema to produce a representation of the original data file
+   * @param inputStream for an infoset in XML format
+   * @param root name of the top-level element of the schema to be run against infoset
+   * @returns a java.nio.ByteBuffer representation of the original data file
+   */
+  def unparse(inputStream:BufferedInputStream, root:String):ByteBuffer = {
+    val builder = new SAXBuilder()
+    val infoDoc = builder.build(inputStream)
+    var schemaDoc = new Document()
+    var variables = getPredefinedVariables
+    var bb:GrowableByteBuffer = new GrowableByteBuffer(ByteBuffer.allocate(1024))
+    
+    // Sets up the processors and variables the same way as the eval method
+    // Only difference will be invoking the 'outProcess' method for processors instead of 'apply'
+    // May not actually need this step. Need to check on this further
+    for ( processor <- ProcessorFactory.getBeforeProcessor(topLevelAnnotations))
+      variables = processor(schemaDoc, variables, targetNamespace, XMLUtil.getNamespaces(this.root, targetNamespace))
+    
+
+    val rootEle:org.jdom.Element = infoDoc.getRootElement;
+    
+    definedTypes.get(root) match {
+      case Some(n) => {
+          n match {
+            // For now, only BasicNodeImpl seems to have things that matter
+            case bni:BasicNodeImpl => {
+                processChildren(bni, rootEle, bb)
+            }
+              
+            case x =>
+              println("Not bni: " + x.getClass)
+          }
+      }
+      case None =>
+    }
+
+    return bb.byteBuffer
+  }
+  
+  /**
+   * Recurses the node tree calling the processes' outProcess method where applicable
+   * @param node to be output processed
+   * @param root to the XML infoset
+   * @param output GrowableByteBuffer where results will be written to by processors
+   */
+  def  processChildren(node:BasicNodeImpl, root:org.jdom.Element, output:GrowableByteBuffer):Unit = {
+    for ( c <- node.getChildren) {
+      c match {
+        case s: SimpleElement => {
+            val name = s.getName(null)
+            val e:org.jdom.Element = root.getChild(name)
+            val v = e.getTextTrim
+            ProcessorFactory.getInputProcessor(s.annotation).outProcess(output, v)
+        }
+        case b: BasicNodeImpl => {
+            processChildren(b, root, output)
+        }
+        case x => {
+            println("Can't Handle: " + x.getClass)
+        }
+      }
+    }
+  }
+  
+  def getFullElementName(e:org.jdom.Element): String ={
+    e.getParentElement match {
+      case ele:org.jdom.Element =>
+        return getFullElementName(ele) + "." + e.getName
+      case _ =>
+        return e.getName
+    }
+  }
+  
   /** Evaluates a document parser built from the schema in dataFile provided
    * @param inputStream input stream to be translated
    * @param root name of the top-level element of the schema to be the root of the translated document

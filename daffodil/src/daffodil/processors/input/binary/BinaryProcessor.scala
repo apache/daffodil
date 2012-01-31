@@ -40,6 +40,7 @@ import java.math.BigInteger
 import java.nio.ByteBuffer
 
 import org.jdom.Parent
+import java.nio.ByteOrder
 import org.jdom.Element
 
 import daffodil.exceptions.DFDLSchemaDefinitionException
@@ -49,6 +50,7 @@ import daffodil.processors.xpath.NodeResult
 import daffodil.processors.xpath.XPathUtil
 import daffodil.schema.annotation.AnnotationDefaults
 import daffodil.xml.XMLUtil
+import daffodil.util.GrowableByteBuffer
 import daffodil.xml.Namespaces
 import daffodil.schema.annotation.enumerations._
 import daffodil.parser.RollbackStream
@@ -119,6 +121,13 @@ abstract class BinaryProcessor extends BasicProcessor{
   override def findPostfixSeparator(input:RollbackStream,parent:Parent,variables:VariableMap,
                     	namespaces:Namespaces,parentTerminators:List[Regex]):ScanResult = NothingFound
   
+  override def outProcess(output:GrowableByteBuffer, value:String):ProcessorResult = {
+    output.order(byteOrder)
+    writeValue(output, value)
+    
+    Success
+  }
+  
   //TODO missing length of parent for the end-of-parent case
   override def apply(input:RollbackStream,element:Element,
                      variables:VariableMap,namespaces:Namespaces,
@@ -157,7 +166,8 @@ abstract class BinaryProcessor extends BasicProcessor{
       while(read!=actualLength){
         val char = input.read
         if (char != -1){
-        	string append(Integer.toString(char,16))
+          string append(char.byteValue.formatted("%02X"))
+//          string append(Integer.toString(char,16))
         }else{
           if (string.length > 0){
             element setText(string toString)
@@ -174,10 +184,7 @@ abstract class BinaryProcessor extends BasicProcessor{
       Success
     }else{
     	val buffer = getBuffer(actualLength)
-    	byteOrder match {
-    	  case BigEndian => buffer order(java.nio.ByteOrder.BIG_ENDIAN)
-    	  case LittleEndian => buffer order(java.nio.ByteOrder.LITTLE_ENDIAN)
-       }
+        buffer.order(byteOrder)
     	//input checkpoint
     	for(i <- 0 until actualLength){
     	  val char = input.read
@@ -236,6 +243,14 @@ abstract class BinaryProcessor extends BasicProcessor{
    * @param buffer the byteBuffer read from the input corresponding to the element
    */
   protected def setValue(element:Element,buffer:ByteBuffer)
+  
+  /**
+   * JMB Output version of writeValue
+   */
+  protected def writeValue(output:GrowableByteBuffer, value:String):Unit = {
+    throw new UnimplementedException("Unsupported Binary Type: " + typeName)
+  }
+  
   
   protected def unsign(byte:Byte):String =
     if (byte >= 0) 

@@ -60,7 +60,7 @@ class ComplexElement(val name:String,ann:Annotation,
 
   addChild(innerElement)
 
-  override protected def getName(parent:Parent):String = name
+  override  def getName(parent:Parent):String = name
 
   override protected def findChildren(input:RollbackStream,variables:VariableMap,
 			parent:Parent,maxLength:Int,terminators:List[Regex],

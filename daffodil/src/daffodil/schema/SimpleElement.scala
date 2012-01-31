@@ -50,7 +50,7 @@ import scala.collection.mutable.LinkedList
 class SimpleElement(val name:String,ann:Annotation,target:String,namespaces:Namespaces)
         extends BasicNodeImpl(target,namespaces,ann) with Element{
 
-  override protected def getName(parent:Parent):String = name
+  override  def getName(parent:Parent):String = name
 
   override protected def findChildren(input:RollbackStream,variables:VariableMap,
                                       parent:Parent,maxLength:Int,terminators:List[Regex],

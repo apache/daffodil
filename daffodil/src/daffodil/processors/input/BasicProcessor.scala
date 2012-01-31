@@ -38,11 +38,14 @@ package daffodil.processors.input
 
 import java.io.Serializable
 
+import java.nio.ByteBuffer
 import org.jdom.Element
 import org.jdom.Parent
 
+import daffodil.util.GrowableByteBuffer
 import daffodil.xml.Namespaces
 import daffodil.xml.XMLUtil
+import daffodil.exceptions.UnimplementedException
 import daffodil.parser.RollbackStream
 import daffodil.parser.regex.Regex
 import daffodil.processors.{ScanResult, ProcessorResult, VariableMap}
@@ -92,6 +95,15 @@ trait BasicProcessor extends Serializable {
   def apply(input:RollbackStream,node:Element,variables:VariableMap,
             namespaces:Namespaces,parentTerminators:List[Regex]):ProcessorResult
 
+  /**
+   * Processes the string value and writes it to the output buffer
+   * @param output buffer that results are written to
+   * @param value the string representation of the value to be processed
+   */
+  def outProcess(output:GrowableByteBuffer, value:String):ProcessorResult = {
+    throw new UnimplementedException("outProcess for this type: [" + this.getClass + "] not implemented")
+  }
+  
   /** Sets the type attribute of an element */
   protected def setType(typeName: String, element: Element, namespaces: Namespaces) = {
     val prefix = namespaces getNamespaceByURI (XMLUtil XSD_NAMESPACE) match {

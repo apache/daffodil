@@ -1,9 +1,13 @@
 package daffodil.processors.input.binary
 
 import org.jdom.Element
+import daffodil.util.GrowableByteBuffer
 import daffodil.xml.XMLUtil
 import java.nio.ByteBuffer
 import daffodil.exceptions.ElementNotValidException
+import daffodil.exceptions.UnimplementedException
+import daffodil.processors.ProcessorResult
+import daffodil.processors.Success
 import daffodil.schema.annotation.enumerations.{BinaryNumberRepresentation, PackedNumber, BCDNumber, BinaryNumber}
 
 /**
@@ -44,6 +48,13 @@ import daffodil.schema.annotation.enumerations.{BinaryNumberRepresentation, Pack
 
 class DecimalBinaryProcessor(binaryNumberRep:BinaryNumberRepresentation) extends BinaryProcessor {
 
+  override protected def writeValue(output:GrowableByteBuffer, value:String):Unit ={
+    binaryNumberRep match {
+      case BinaryNumber => writeBinary(output,value)
+      case PackedNumber => writePackedNumber(output, value)
+      case BCDNumber => writeBCDNumber(output, value)
+    }
+  }
   override protected def setValue(element:Element,buffer:ByteBuffer) = {
     binaryNumberRep match {
       case BinaryNumber => setBinary(element,buffer)
@@ -52,6 +63,27 @@ class DecimalBinaryProcessor(binaryNumberRep:BinaryNumberRepresentation) extends
     }
   }
 
+  private def writeBinary(output:GrowableByteBuffer, value:String):Unit = {
+    typeName match {
+      case XMLUtil.XSD_BYTE =>  output.put(value.toByte)
+      case XMLUtil.XSD_UNSIGNED_BYTE => output.put(value.toShort.byteValue)
+      case XMLUtil.XSD_INT =>   output.putInt(value.toInt)
+      case XMLUtil.XSD_UNSIGNED_INT =>  output.putInt(value.toLong.intValue)
+      case XMLUtil.XSD_SHORT => output.putShort(value.toShort)
+      case XMLUtil.XSD_UNSIGNED_SHORT => output.putShort(value.toInt.shortValue)
+      case XMLUtil.XSD_LONG =>  output.putLong(value.toLong)
+      case XMLUtil.XSD_UNSIGNED_LONG => output.putLong(BigInt(value).longValue)
+      case XMLUtil.XSD_HEX_BINARY => {
+          output.checkGrow(value.length/2)
+          for ( i <- 0 until (value.length) by 2) {
+            output.put(java.lang.Short.parseShort(value.slice(i, i+2),16).byteValue)
+          }
+        }
+        
+      case _ =>
+        throw new UnimplementedException("Unsupported Binary Type: " + typeName)
+    }
+  }
   private def setBinary(element:Element,buffer:ByteBuffer) = {
     typeName match {
       case XMLUtil.XSD_BYTE => element setText(buffer.get.toString)
@@ -65,6 +97,10 @@ class DecimalBinaryProcessor(binaryNumberRep:BinaryNumberRepresentation) extends
     }
   }
 
+  private def writePackedNumber(output:GrowableByteBuffer, value:String) = {
+       throw new UnimplementedException("Unsupported Binary Type: " + typeName)
+  }
+  
   private def setPackedNumber(element:Element,buffer:ByteBuffer) = {
     val sb = new StringBuilder
     var result:String = null
@@ -117,6 +153,10 @@ class DecimalBinaryProcessor(binaryNumberRep:BinaryNumberRepresentation) extends
     element setText(result)
   }
 
+  private def writeBCDNumber(output:GrowableByteBuffer, value:String) = {
+       throw new UnimplementedException("Unsupported Binary Type: " + typeName)
+  }
+  
   private def setBCDNumber(element:Element,buffer:ByteBuffer) = {
     try {
       val result = BinaryUtil bcdToNumber(buffer)

@@ -35,6 +35,7 @@ package daffodil.processors.input.text
  * Created By: Alejandro Rodriguez < alejandr @ ncsa . uiuc . edu >
  * Date: 2010
  */
+import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
 import org.jdom.Parent
@@ -62,6 +63,7 @@ import daffodil.schema.annotation.enumerations.Delimited
 import daffodil.schema.annotation.enumerations.EscapeKind
 import daffodil.schema.annotation.enumerations.EscapeCharacter
 import daffodil.schema.annotation.enumerations.EscapeBlock
+import daffodil.util.GrowableByteBuffer
 import daffodil.xml.Namespaces
 import daffodil.xml.XMLUtil.addNewChild
 import daffodil.xml.XMLUtil.removeChild
@@ -173,6 +175,11 @@ class TextProcessor(val charset:Charset,val acceptEOF:Boolean)
     result
   }
 
+  override def outProcess(output:GrowableByteBuffer, value:String):ProcessorResult = {
+    output.put(value.getBytes(charset))
+    Success
+  }
+  
   private def getVariableLength(input:RollbackStream,element:Element,
                                 variables:VariableMap,namespaces:Namespaces,
                                 parentTerminators:List[Regex]):ProcessorResult = {
