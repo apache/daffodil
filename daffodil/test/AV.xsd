@@ -1,255 +1,212 @@
-<schema xmlns="http://www.w3.org/2001/XMLSchema" 
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.example.org/example1/" 
 	xmlns:tns="http://www.example.org/example1/" 
-	targetNamespace="http://www.example.org/example1/">
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	>
 
-  <!-- HR/CU Medical data -->
-  <!-- Lots of hidden. Multiple pages. Bytes not allowed in XML -->
 
-  <element name="wholeFile">
-    <complexType>
-      <sequence>
-	<element name="table" type="xTable" maxOccurs="unbounded"/>
-      </sequence>
-    </complexType>
-  </element>
-  
-  <complexType name="xTable">
-    <sequence>
-      <annotation>
-	<appinfo source="http://www.ogf.org/dfdl/">
-	  <dfdl:hidden>
-	    <group ref="EOT"/>
-	  </dfdl:hidden>
-	</appinfo>
-      </annotation>
-      <element name="metadata" type="metaBlock"/>
-      <element name="data" type="dataline" minOccurs="0" maxOccurs="unbounded"/>
-      <annotation>
-	<appinfo source="http://www.ogf.org/dfdl/">
-	  <dfdl:hidden>
-	    <element name="theNextByte" type="xs:byte" 
-		     dfdl:lengthKind="explicit"
-		     dfdl:length="1"
-		     dfdl:representation="binary"/>
-	  </dfdl:hidden>
-	</appinfo>
-      </annotation>
+	<!-- HR/CU Medical data -->
+	<!-- Lots of hidden. Multiple pages. Bytes not allowed in XML -->
 
-      <annotation>
-	<appinfo source="http://www.ogf.org/dfdl/">
-	  <dfdl:hidden>
-	    <element name="theChoice">
-	      <complexType>
-		<choice>
-		  <!-- theNextByte=\f => dont read anything, leave header intact 
-   		  for next xTable element -->
-		  <element name="moreStuff" type="xs:string"
-			   dfdl:inputValueCalc="{ 'Another page coming' }">
-		    <annotation>
-		      <appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:discriminator test="{ ../../tns:theNextByte = 12 }"/>
-		      </appinfo>
-		    </annotation>
-		  </element>
-		  <!-- theNextByte=\n => end of data, read all the way to the end,
-		  leave nothing for next xTable element -->
-		  <element name="GrandTotal" type="grandTotal"/>
-		</choice>
-	      </complexType>
-	    </element>
-	  </dfdl:hidden>
-	</appinfo>
-      </annotation>
-      <element name="GT" type="xs:int" default="0" 
-	       dfdl:inputValueCalc="{ if (../tns:theChoice/tns:GrandTotal/tns:value) then ../tns:theChoice/tns:GrandTotal/tns:value else 0 }"/>
-    </sequence>
-  </complexType>
-  
-  <complexType name="metaBlock">
-  <sequence>
-    <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/">
-	<dfdl:hidden>
-	  <element name="junk_line" type="xs:string" minOccurs="1" maxOccurs="4"
-		   dfdl:separator="%NL;"
-		   dfdl:encoding="ASCII"
-		   dfdl:representation="text" 
-		   dfdl:lengthKind="delimited"/>
-	</dfdl:hidden>
-      </appinfo>
-    </annotation>
-    <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/">
-	<dfdl:hidden>
-	  <element name="blank_space" type="xs:string"
-		   dfdl:encoding="ASCII"
-		   dfdl:representation="text" 
-		   dfdl:lengthKind="pattern"
-		   dfdl:lengthPattern="[^ ]+\s+"/>
-	</dfdl:hidden>
-      </appinfo>
-    </annotation>
-    <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/">
-	<dfdl:hidden>
-	  <element name="junk3" type="xs:string" 
-		   dfdl:terminator=":"
-		   dfdl:encoding="ASCII"
-		   dfdl:representation="text" 
-		   dfdl:lengthKind="delimited"
-		   dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-	</dfdl:hidden>
-      </appinfo>
-    </annotation>
-    <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/">
-	<dfdl:hidden>
-	  <element name="junk4" type="xs:string" minOccurs="1" maxOccurs="1"
-		   dfdl:encoding="ASCII"
-		   dfdl:representation="text" 
-		   dfdl:lengthKind="pattern"
-		   dfdl:lengthPattern="[ ]+"
-		   dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-	</dfdl:hidden>
-      </appinfo>
-    </annotation>
-    <element name="repdate" type="xs:date" 
-	     dfdl:lengthKind="delimited"
-	     dfdl:terminator="%WSP;"
-	     dfdl:calendarPatternKind="explicit"
-	     dfdl:calendarPattern="MM/dd/yyyy"/>
-    <element name="reptime" type="xs:time" maxOccurs="1"
-	     dfdl:terminator="%NL;"
-	     dfdl:encoding="ASCII"
-	     dfdl:representation="text" 
-	     dfdl:lengthKind="delimited"
-	     dfdl:calendarPatternKind="explicit"
-	     dfdl:calendarPattern="kk:mm' 'a"/>
-    <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/">
-	<dfdl:hidden>
-	  <element name="junk5" type="xs:string" maxOccurs="1"
-		   dfdl:terminator=":"
-		   dfdl:encoding="ASCII"
-		   dfdl:representation="text" 
-		   dfdl:lengthKind="delimited"
-		   dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-	</dfdl:hidden>
-      </appinfo>
-    </annotation>
-    <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/">
-	<dfdl:hidden>
-	  <element name="junk6" type="xs:string" maxOccurs="1"
-		   dfdl:lengthKind="pattern"
-		   dfdl:lengthPattern="[ ]+"
-		   dfdl:encoding="ASCII"
-		   dfdl:representation="text" 
-		   dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-	</dfdl:hidden>
-      </appinfo>
-    </annotation>
-    <element name="startDate" type="xs:date" maxOccurs="1"
-	     dfdl:lengthKind="delimited"
-	     dfdl:terminator="%WSP;"
-	     dfdl:calendarPatternKind="explicit"
-	     dfdl:calendarPattern="MM/dd/yyyy"/>
-    <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/">
-	<dfdl:hidden>
-	  <element name="junk7" type="xs:string" maxOccurs="1"
-		   dfdl:terminator=":"
-		   dfdl:encoding="ASCII"
-		   dfdl:representation="text" 
-		   dfdl:lengthKind="delimited"
-		   dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-	</dfdl:hidden>
-      </appinfo>
-    </annotation>
-    <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/">
-	<dfdl:hidden>
-	  <element name="junk8" type="xs:string" maxOccurs="1"
-		   dfdl:lengthKind="pattern"
-		   dfdl:lengthPattern="[ ]+"
-		   dfdl:encoding="ASCII"
-		   dfdl:representation="text" 
-		   dfdl:documentFinalTerminatorCanBeMissing="yes"/>      
-	</dfdl:hidden>
-      </appinfo>
-    </annotation>
-    <element name="endDate" type="xs:date" maxOccurs="1"
-	     dfdl:lengthKind="delimited"
-	     dfdl:terminator="%NL;"
-	     dfdl:calendarPatternKind="explicit"
-	     dfdl:calendarPattern="MM/dd/yyyy"/>
-    <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/">
-	<dfdl:hidden>
-	  <element name="junk4" type="xs:string" maxOccurs="1"
-		   dfdl:terminator="-%NL;"
-		   dfdl:encoding="ASCII"
-		   dfdl:representation="text" 
-		   dfdl:lengthKind="delimited"
-		   dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-	</dfdl:hidden>
-      </appinfo>
-    </annotation>
-  </sequence>
-</complexType>
+	<element name="wholeFile">
+		<complexType>
+			<sequence>
+				<element name="table" type="tns:xTable" maxOccurs="unbounded" />
+			</sequence>
+		</complexType>
+	</element>
 
-<group name="EOT">
-  <sequence>
-    <element name="EOT_BYTE" type="xs:byte" minOccurs="3" maxOccurs="3"
-	     dfdl:representation="binary"
-	     dfdl:lengthKind="implicit"/>
-  </sequence>
-</group>
+	<group name="theNextByte">
+		<sequence>
+			<element name="theNextByte" type="xs:byte" dfdl:lengthKind="explicit"
+				dfdl:length="1" dfdl:representation="binary" />
+		</sequence>
+	</group>
 
-<complexType name="dataline">
-  <sequence>
-    <element name="Symptom" type="xs:string"
-	     dfdl:lengthKind="pattern"
-	     dfdl:lengthPattern="[A-Z]+"
-	     dfdl:encoding="ASCII"
-	     dfdl:textStringJustification="right"
-	     dfdl:textStringPadCharacter=" "/>
-    <element name="Count" type="xs:int"
-	     dfdl:lengthKind="delimited"
-	     dfdl:terminator="%NL;"
-	     dfdl:textStringPadCharacter=" "
-	     dfdl:textStringJustification="right"
-	     dfdl:encoding="ASCII"/>
-  </sequence>
-</complexType>
+	<group name="theChoice">
+		<sequence>
+			<element name="theChoice">
+				<complexType>
+					<choice>
+						<!-- theNextByte=\f => dont read anything, leave header intact for 
+							next xTable element -->
+						<element name="moreStuff" type="xs:string"
+							dfdl:inputValueCalc="{ 'Another page coming' }">
+							<annotation>
+								<appinfo source="http://www.ogf.org/dfdl/">
+									<dfdl:discriminator test="{ ../../tns:theNextByte = 12 }" />
+								</appinfo>
+							</annotation>
+						</element>
+						<!-- theNextByte=\n => end of data, read all the way to the end, leave 
+							nothing for next xTable element -->
+						<element name="GrandTotal" type="tns:grandTotal" />
+					</choice>
+				</complexType>
+			</element>
+		</sequence>
+	</group>
 
-<complexType name="grandTotal">
-  <sequence>
-    <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/">
-	<dfdl:hidden>
-	  <element name="header" type="xs:string"
-		   dfdl:lengthKind="delimited"
-		   dfdl:terminator="Grand%WSP;Total:"/>
-	</dfdl:hidden> 
-      </appinfo>
-    </annotation>
-    <element name="value" type="xs:int"
-	     dfdl:textStringJustification="right"
-	     dfdl:textStringPadCharacter=" "
-	     dfdl:terminator="%NL;"/>
-    <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/">
-	<dfdl:hidden>
-	  <element name="extraByte" type="xs:byte" minOccurs="1" maxOccurs="3"
-		   dfdl:representation="binary"
-		   dfdl:lengthKind="implicit"/>
-	</dfdl:hidden>
-      </appinfo>
-    </annotation>
-  </sequence>
-</complexType>
+	<complexType name="xTable">
+		<sequence>
+			<sequence dfdl:hiddenGroupRef="tns:EOT" />
+			<element name="metadata" type="tns:metaBlock" />
+			<element name="data" type="tns:dataline" minOccurs="0" maxOccurs="unbounded" />
+			<sequence dfdl:hiddenGroupRef="tns:theNextByte" />
+			<sequence dfdl:hiddenGroupRef="tns:theChoice" />
+			<element name="GT" type="xs:int" default="0"
+				dfdl:inputValueCalc="{ if (../tns:theChoice/tns:GrandTotal/tns:value) then ../tns:theChoice/tns:GrandTotal/tns:value else 0 }" />
+		</sequence>
+	</complexType>
+
+	<group name="junk_line">
+		<sequence>
+			<element name="junk_line" type="xs:string" minOccurs="1"
+				maxOccurs="4" dfdl:separator="%NL;" dfdl:encoding="ASCII"
+				dfdl:representation="text" dfdl:lengthKind="delimited" />
+		</sequence>
+	</group>
+
+	<group name="blank_space">
+		<sequence>
+			<element name="blank_space" type="xs:string" dfdl:encoding="ASCII"
+				dfdl:representation="text" dfdl:lengthKind="pattern"
+				dfdl:lengthPattern="[^ ]+\s+" />
+		</sequence>
+	</group>
+
+	<group name="junk3">
+		<sequence>
+			<element name="junk3" type="xs:string" dfdl:terminator=":"
+				dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited"
+				dfdl:documentFinalTerminatorCanBeMissing="yes" />
+		</sequence>
+	</group>
+
+	<group name="junk4">
+		<sequence>
+			<element name="junk4" type="xs:string" minOccurs="1"
+				maxOccurs="1" dfdl:encoding="ASCII" dfdl:representation="text"
+				dfdl:lengthKind="pattern" dfdl:lengthPattern="[ ]+"
+				dfdl:documentFinalTerminatorCanBeMissing="yes" />
+		</sequence>
+	</group>
+
+	<group name="junk5">
+		<sequence>
+			<element name="junk5" type="xs:string" maxOccurs="1"
+				dfdl:terminator=":" dfdl:encoding="ASCII" dfdl:representation="text"
+				dfdl:lengthKind="delimited"
+				dfdl:documentFinalTerminatorCanBeMissing="yes" />
+		</sequence>
+	</group>
+
+	<group name="junk6">
+		<sequence>
+			<element name="junk6" type="xs:string" maxOccurs="1"
+				dfdl:lengthKind="pattern" dfdl:lengthPattern="[ ]+" dfdl:encoding="ASCII"
+				dfdl:representation="text" dfdl:documentFinalTerminatorCanBeMissing="yes" />
+		</sequence>
+	</group>
+
+	<group name="junk7">
+		<sequence>
+			<element name="junk7" type="xs:string" maxOccurs="1"
+				dfdl:terminator=":" dfdl:encoding="ASCII" dfdl:representation="text"
+				dfdl:lengthKind="delimited"
+				dfdl:documentFinalTerminatorCanBeMissing="yes" />
+		</sequence>
+	</group>
+
+
+	<group name="junk8">
+		<sequence>
+			<element name="junk8" type="xs:string" maxOccurs="1"
+				dfdl:lengthKind="pattern" dfdl:lengthPattern="[ ]+" dfdl:encoding="ASCII"
+				dfdl:representation="text" dfdl:documentFinalTerminatorCanBeMissing="yes" />
+		</sequence>
+	</group>
+
+	<group name="junk4_another">
+		<sequence>
+			<element name="junk4" type="xs:string" maxOccurs="1"
+				dfdl:terminator="-%NL;" dfdl:encoding="ASCII" dfdl:representation="text"
+				dfdl:lengthKind="delimited"
+				dfdl:documentFinalTerminatorCanBeMissing="yes" />
+		</sequence>
+	</group>
+
+	<complexType name="metaBlock">
+		<sequence>
+			<sequence dfdl:hiddenGroupRef="tns:junk_line" />
+			<sequence dfdl:hiddenGroupRef="tns:blank_space" />
+			<sequence dfdl:hiddenGroupRef="tns:junk3" />
+			<sequence dfdl:hiddenGroupRef="tns:junk4" />
+			<element name="repdate" type="xs:date" dfdl:lengthKind="delimited"
+				dfdl:terminator="%WSP;" dfdl:calendarPatternKind="explicit"
+				dfdl:calendarPattern="MM/dd/yyyy" />
+			<element name="reptime" type="xs:time" maxOccurs="1"
+				dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text"
+				dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit"
+				dfdl:calendarPattern="kk:mm' 'a" />
+			<sequence dfdl:hiddenGroupRef="tns:junk5" />
+			<sequence dfdl:hiddenGroupRef="tns:junk6" />
+			<element name="startDate" type="xs:date" maxOccurs="1"
+				dfdl:lengthKind="delimited" dfdl:terminator="%WSP;"
+				dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM/dd/yyyy" />
+			<sequence dfdl:hiddenGroupRef="tns:junk7" />
+			<sequence dfdl:hiddenGroupRef="tns:junk8" />
+			<element name="endDate" type="xs:date" maxOccurs="1"
+				dfdl:lengthKind="delimited" dfdl:terminator="%NL;"
+				dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM/dd/yyyy" />
+			<sequence dfdl:hiddenGroupRef="tns:junk4_another" /> <!-- why not junk9 ?? -->
+		</sequence>
+	</complexType>
+
+	<group name="EOT">
+		<sequence>
+			<element name="EOT_BYTE" type="xs:byte" minOccurs="3"
+				maxOccurs="3" dfdl:representation="binary" dfdl:lengthKind="implicit" />
+		</sequence>
+	</group>
+
+	<complexType name="dataline">
+		<sequence>
+			<element name="Symptom" type="xs:string" dfdl:lengthKind="pattern"
+				dfdl:lengthPattern="[A-Z]+" dfdl:encoding="ASCII"
+				dfdl:textStringJustification="right" dfdl:textStringPadCharacter=" " />
+			<element name="Count" type="xs:int" dfdl:lengthKind="delimited"
+				dfdl:terminator="%NL;" dfdl:textStringPadCharacter=" "
+				dfdl:textStringJustification="right" dfdl:encoding="ASCII" />
+		</sequence>
+	</complexType>
+
+	<group name="header">
+		<sequence>
+			<element name="header" type="xs:string" dfdl:lengthKind="delimited"
+				dfdl:terminator="Grand%WSP;Total:" />
+		</sequence>
+	</group>
+
+	<group name="extraByte">
+		<sequence>
+			<element name="extraByte" type="xs:byte" minOccurs="1"
+				maxOccurs="3" dfdl:representation="binary" dfdl:lengthKind="implicit" />
+		</sequence>
+	</group>
+
+	<complexType name="grandTotal">
+		<sequence>
+			<sequence dfdl:hiddenGroupRef="tns:header" />
+			<element name="value" type="xs:int"
+				dfdl:textStringJustification="right" dfdl:textStringPadCharacter=" "
+				dfdl:terminator="%NL;" />
+			<sequence dfdl:hiddenGroupRef="tns:extraByte" />
+		</sequence>
+	</complexType>
 
 </schema>

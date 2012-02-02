@@ -1,18 +1,19 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema" 
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
-	targetNamespace="http://www.example.org/example1/">
+	targetNamespace="http://www.example.org/example1/"
+	xmlns:tns="http://www.example.org/example1/">
 
   <!-- CSV with metadata header -->
 
-  <element name="matrix" type="matrixType"/>
+  <element name="matrix" type="tns:matrixType"/>
 
-  <element name="table" type="SimpleTable"/>
+  <element name="table" type="tns:SimpleTable"/>
 
   <complexType name="SimpleTable">
     <sequence>
-      <element name="hdrblock" type="header"/>
-      <element name="matrix" type="matrixType"/>
+      <element name="hdrblock" type="tns:header"/>
+      <element name="matrix" type="tns:matrixType"/>
     </sequence>
   </complexType>
   

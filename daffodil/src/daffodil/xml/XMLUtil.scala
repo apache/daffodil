@@ -156,10 +156,25 @@ object XMLUtil {
     e.getAttributes.asInstanceOf[java.util.List[Attribute]]
   }
 
+  /**
+   * given a name, finds the named child
+   * 
+   * TODO: QName/namespace support - right now it just tries with and without the prefix.
+   */
   def getChildByName(parent:Element,name:String):Element = {
     for(child <- getChildren(parent))
       getAttribute(child,"name") match {
-        case Some(s) => if (s==name) return child
+        case Some(s) => {
+          if (s==name) return child
+          else {
+            // try stripping any prefix
+            val tokens = name.split(":").toList
+            if (tokens.length == 2) {
+              val withoutPrefix = tokens(1)
+              if (s==withoutPrefix) return child
+            }
+          }
+        }
         case _ =>
       }
     throw new DFDLSchemaDefinitionException("Reference not found:"+name,schemaContext = parent)

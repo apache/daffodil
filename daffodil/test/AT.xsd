@@ -1,9 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" 
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
-	xmlns:tns="http://www.example.org/example1/" 
-	targetNamespace="http://www.example.org/example1/">
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://www.example.org/example1/"
+    xmlns:tns="http://www.example.org/example1/"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	>
+
 
   <!-- PRP example -->
 
@@ -13,39 +16,46 @@
     </appinfo>
   </annotation>
 
+	
+	
+  <element name="PRP">
+    <complexType>
+      <sequence>
+	<element name="occurs" type="xsd:int"
+		 dfdl:textStringJustification="right"
+		 dfdl:textStringPadCharacter="%WSP;"
+		 dfdl:terminator="%WSP;"/>
+	<element name="date" type="xsd:dateTime"
+		 dfdl:lengthKind="pattern"
+		 dfdl:lengthPattern="[^ ]+\s+[^ ]+"
+		 dfdl:calendarPatternKind="explicit"
+		 dfdl:calendarPattern="MM/dd/yy'   'HH:mm:ss"/>
+	<element name="unknownnum1" type="xsd:int"
+		 dfdl:terminator="%WSP;"
+		 dfdl:textStringJustification="right"		 
+		 dfdl:textStringPadCharacter="%WSP;"/>
+	<element name="unknownnum2" type="xsd:int"
+		 dfdl:lengthKind="delimited"
+		 dfdl:terminator="%WSP;"
+		 dfdl:textStringJustification="right"
+		 dfdl:textStringPadCharacter="%WSP;"/>
+	<sequence dfdl:hiddenGroupRef="prpIntroGroup"/>
 
-	<element name="PRP">
-		<complexType>
-			<sequence>
-				<element name="occurs" type="xsd:int"
-					dfdl:textStringJustification="right" dfdl:textStringPadCharacter="%WSP;"
-					dfdl:terminator="%WSP;" />
-				<element name="date" type="xsd:dateTime" dfdl:lengthKind="pattern"
-					dfdl:lengthPattern="[^ ]+\s+[^ ]+" dfdl:calendarPatternKind="explicit"
-					dfdl:calendarPattern="MM/dd/yy'   'HH:mm:ss" />
-				<element name="unknownnum1" type="xsd:int" dfdl:terminator="%WSP;"
-					dfdl:textStringJustification="right" dfdl:textStringPadCharacter="%WSP;" />
-				<element name="unknownnum2" type="xsd:int" dfdl:lengthKind="delimited"
-					dfdl:terminator="%WSP;" dfdl:textStringJustification="right"
-					dfdl:textStringPadCharacter="%WSP;" />
-				<sequence>
-					<annotation>
-						<appinfo source="http://www.ogf.org/dfdl/">
-							<dfdl:hidden>
-								<element name="names" type="prpIntro" />
-							</dfdl:hidden>
-						</appinfo>
-					</annotation>
+    <element name="frame" type="tns:frame" maxOccurs="unbounded"/>
 
-					<element name="frame" type="frame" maxOccurs="unbounded" />
-				</sequence>
-			</sequence>
-		</complexType>
-	</element>
+      </sequence>
+    </complexType>
+  </element>
 
+  <group name="prpIntroGroup">
+		<sequence>
+			<element name="names" type="tns:prpIntro" />
+		</sequence>
+	</group>
+  
   <complexType name="prpIntro">    
     <sequence>
-      <element name="Description" type="mydesc" 
+      <element name="Description" type="tns:mydesc" 
 	       maxOccurs="unbounded"
 	       dfdl:occursCountKind="expression"
 	       dfdl:occursCount="{ ../../tns:occurs }"/>
@@ -64,17 +74,15 @@
     </sequence>    
   </complexType>
 
+  <group name="frameHeaderGroup">
+	<sequence>
+		<element name="frameHeader" type="xsd:string" dfdl:terminator="%NL;" />
+	</sequence>
+</group>
 
   <complexType name="frame">
     <sequence>
-      <annotation>
-	<appinfo source="http://www.ogf.org/dfdl/">
- 	  <dfdl:hidden>
-	    <element name="frameHeader" type="xsd:string"
-		     dfdl:terminator="%NL;"/>
-	  </dfdl:hidden>
-	</appinfo>
-      </annotation>
+      <sequence dfdl:hiddenGroupRef="tns:frameHeaderGroup"/>
       <element name="number" maxOccurs="unbounded"
 	       dfdl:occursCountKind="expression"
 	       dfdl:occursCount="{ ../../tns:occurs }">
@@ -90,7 +98,7 @@
 	      <annotation>
 		<appinfo source="http://www.ogf.org/dfdl/">
 		  <!-- this have BEFORE timing, so for the first local_name $counter = 1 -->
-		  <dfdl:setVariable dfdl:timing="before" ref="counter">{ 
+		  <dfdl:setVariable  ref="counter">{ 
 		    $counter + 1 		    
 		    }</dfdl:setVariable>
 		</appinfo>
