@@ -10,21 +10,21 @@
 					<dfdl:format dfdl:representation="text" dfdl:charset="US-ASCII" />
 				</xs:appinfo>
 			</xs:annotation>
-			<xs:element name="skip" type="string">
+			<xs:element name="skip" type="xs:string">
 				<xs:annotation>
 					<xs:appinfo source="http://www.ogf.org/dfdl/">
 						<dfdl:format dfdl:length="31" />
 					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="name" type="string">
+			<xs:element name="name" type="xs:string">
 				<xs:annotation>
 					<xs:appinfo source="http://www.ogf.org/dfdl/">
 						<dfdl:format dfdl:length="20" />
 					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="value" type="int">
+			<xs:element name="value" type="xs:int">
 				<xs:annotation>
 					<xs:appinfo source="http://www.ogf.org/dfdl/">
 						<dfdl:format dfdl:separator="&#x0D;&#x0A;|&#x0A;" />
@@ -51,7 +51,7 @@
 					<dfdl:format dfdl:represetation="text" dfdl:charset="US-ASCII" />
 				</xs:appinfo>
 			</xs:annotation>
-			<xs:element name="junk" type="string" minOccurs="1"
+			<xs:element name="junk" type="xs:string" minOccurs="1"
 				maxOccurs="1">
 				<xs:annotation>
 					<xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -86,7 +86,7 @@
 					<dfdl:format dfdl:representation="text" dfdl:charset="US-ASCII" />
 				</xs:appinfo>
 			</xs:annotation>
-			<xs:element name="junk" type="string" minOccurs="4"
+			<xs:element name="junk" type="xs:string" minOccurs="4"
 				maxOccurs="4">
 				<xs:annotation>
 					<xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -94,28 +94,28 @@
 					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="x" type="string" maxOccurs="1">
+			<xs:element name="x" type="xs:string" maxOccurs="1">
 				<xs:annotation>
 					<xs:appinfo source="http://www.ogf.org/dfdl/">
 						<dfdl:format dfdl:separator="\\p{Blank}+" />
 					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="y" type="string" maxOccurs="1">
+			<xs:element name="y" type="xs:string" maxOccurs="1">
 				<xs:annotation>
 					<xs:appinfo source="http://www.ogf.org/dfdl/">
 						<dfdl:format dfdl:terminator="Date:\\p{Blank}+" />
 					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="repdate" type="string" maxOccurs="1">
+			<xs:element name="repdate" type="xs:string" maxOccurs="1">
 				<xs:annotation>
 					<xs:appinfo source="http://www.ogf.org/dfdl/">
 						<dfdl:format dfdl:terminator="\\p{Blank}+" />
 					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="reptime" type="string" maxOccurs="1">
+			<xs:element name="reptime" type="xs:string" maxOccurs="1">
 				<xs:annotation>
 					<xs:appinfo source="http://www.ogf.org/dfdl/">
 						<dfdl:format dfdl:ignore="\\p{Blank}+"
@@ -123,14 +123,14 @@
 					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="junk3" type="string" maxOccurs="1">
+			<xs:element name="junk3" type="xs:string" maxOccurs="1">
 				<xs:annotation>
 					<xs:appinfo source="http://www.ogf.org/dfdl/">
 						<dfdl:format dfdl:terminator="From:\\p{Blank}+" />
 					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="starttime" type="string" maxOccurs="1">
+			<xs:element name="starttime" type="xs:string" maxOccurs="1">
 				<xs:annotation>
 					<xs:appinfo source="http://www.ogf.org/dfdl/">
 						<dfdl:format dfdl:ignore="\\p{Blank}+"
@@ -138,7 +138,7 @@
 					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="endtime" type="string" maxOccurs="1">
+			<xs:element name="endtime" type="xs:string" maxOccurs="1">
 				<xs:annotation>
 					<xs:appinfo source="http://www.ogf.org/dfdl/">
 						<dfdl:format dfdl:ignore="\\p{Blank}+"
@@ -146,7 +146,7 @@
 					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="z" type="string" maxOccurs="1">
+			<xs:element name="z" type="xs:string" maxOccurs="1">
 				<xs:annotation>
 					<xs:appinfo source="http://www.ogf.org/dfdl/">
 						<dfdl:format dfdl:ignore="\\p{Blank}+"
@@ -166,13 +166,13 @@
 					</dfdl:hidden>
 				</xs:appinfo>
 			</xs:annotation>
-			<xs:element name="ReportDate" type="string"
+			<xs:element name="ReportDate" type="xs:string"
 				dfdl:inputValueCalc="{../junk/repdate}" />
-			<xs:element name="ReportTime" type="string"
+			<xs:element name="ReportTime" type="xs:string"
 				dfdl:inputValueCalc="{../junk/reptime}" />
-			<xs:element name="StartDate" type="string"
+			<xs:element name="StartDate" type="xs:string"
 				dfdl:inputValueCalc="{../junk/starttime}" />
-			<xs:element name="EndDate" type="string"
+			<xs:element name="EndDate" type="xs:string"
 				dfdl:inputValueCalc="{../junk/endtime}" />
 		</xs:sequence>
 	</xs:complexType>

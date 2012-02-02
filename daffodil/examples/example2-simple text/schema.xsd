@@ -17,5 +17,5 @@
 		</sequence>
 	</complexType>
 
-	<element name="list" type="example1" />
+	<element name="list" type="tns:example1" />
 </schema>
