@@ -137,7 +137,7 @@ trait PropertyMixin {
    * of properties are likely defined in most formats. 
    */
   override def toString = {
-    val props = toStringFunctionList.map{f=>f.apply()}.foldLeft("PropertyMixin(")(_+ " " + _)
+    val props = toStringFunctionList.map{f=>f.apply()}.foldLeft("PropertyMixin(")(_+_)
     val suffix=")"
     props + suffix
   }

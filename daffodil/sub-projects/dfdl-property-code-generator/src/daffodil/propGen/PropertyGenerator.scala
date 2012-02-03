@@ -295,7 +295,7 @@ trait CurrencyMixin extends PropertyMixin {
   def currencyToString() = {
     optionCurrency match {
       case None => "" // empty string if not present
-      case Some(currency) =>  "currency='" + currency + "'"
+      case Some(currency) =>  "currency='" + currency + "' "
     }
   }
     
