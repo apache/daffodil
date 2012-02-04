@@ -1,0 +1,14 @@
+
+# /daffodil/
+/daffodil/.cache
+/daffodil/bin
+
+# /daffodil/sub-projects/daffodil-lib/
+/daffodil/sub-projects/daffodil-lib/bin
+/daffodil/sub-projects/daffodil-lib/.cache
+
+# /daffodil/sub-projects/dfdl-property-code-generator/
+/daffodil/sub-projects/dfdl-property-code-generator/bin
+/daffodil/sub-projects/dfdl-property-code-generator/.cache
+/daffodil/sub-projects/dfdl-property-code-generator/.cache
+/daffodil/sub-projects/dfdl-property-code-generator/bin
