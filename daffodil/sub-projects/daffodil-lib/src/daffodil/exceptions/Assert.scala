@@ -1,5 +1,7 @@
 package daffodil.exceptions
 
+// Copyright (C) 2012, Michael J. Beckerle. All Rights Reserved.
+
 abstract class AnException(m : String) extends Exception(m) {
   def this() = this("") // no arg constructor also.
 }

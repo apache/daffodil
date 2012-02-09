@@ -1,3 +1,10 @@
+# ignore emacs save files (ends with ~)
+*.*~
+
+# ignore bin and .cache anywhere
+.cache
+bin/
+bin/*
 
 # /daffodil/
 /daffodil/.cache

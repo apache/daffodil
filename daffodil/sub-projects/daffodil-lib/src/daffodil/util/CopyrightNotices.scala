@@ -36,7 +36,7 @@ Parts of this software are subject to the following copyright:
     
   def add(moreNoticeText : String) {
     noticesText += prelim + moreNoticeText
-    bytes = noticesText.getBytes()
+    noticesTextInBytes = noticesText.getBytes()
   }
   
   def getNotices() = {
@@ -63,6 +63,9 @@ Parts of this software are subject to the following copyright:
   sys.addShutdownHook(useNotices)
  
   add("""Copyright (C) 2011, 2012 by Michael J. Beckerle, All rights Reserved.
+      Permission is granted to use this software for any purpose so long as 
+      this copyright is preserved in both the source and binary forms, and
+      in any documentation provided with the software. 
 """)
 
 }
