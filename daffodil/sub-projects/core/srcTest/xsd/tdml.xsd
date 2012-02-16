@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" 
+  targetNamespace="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData" 
+  elementFormDefault="unqualified">
+
+<!-- Copyright (C) 2012, Tresys Technologies LLC. All Rights Reserved. -->
+
+<!-- IBM uses this namespace http://www.ibm.com/xmlns/dfdl/testData -->
+
+<element name="testSuite">
+	<complexType>
+		<sequence>
+			<element ref="tns:parserTestCase" maxOccurs="unbounded"	minOccurs="0" />
+		</sequence>
+		<attribute name="suiteName" type="xs:token" />
+		<attribute name="description" type="xs:string" />
+	</complexType>
+	<unique name="unique-parserTestCase-name">
+		<selector xpath="parserTestCase" />
+		<field xpath="@name" />
+	</unique>
+</element>
+
+	<element name="parserTestCase" type="tns:parserTestCaseType" />
+
+	<complexType name="parserTestCaseType">
+		<sequence>
+			<element ref="tns:document" />
+			<element ref="tns:infoset" />
+		</sequence>
+		<attribute name="name" type="xs:NCName" />
+		<attribute name="root" type="xs:NCName" />
+		<attribute name="model" type="xs:string" /> <!-- is there a type for a path/uri? -->
+		<attribute name="description" type="xs:string" />
+		<attribute name="unsupported" type="xs:boolean"/>
+	</complexType>
+
+	<element name="document" type="tns:documentType" />
+	<element name="infoset" type="tns:infosetType" />
+
+	<complexType name="documentType" mixed="true">
+		<sequence>
+			<element ref="tns:documentPart" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<element name="documentPart" type="tns:documentPartType" />
+	<complexType name="documentPartType">
+		<simpleContent>
+			<extension base="xs:string">
+				<attribute name="type" type="tns:documentPartTypeEnum" />
+			</extension>
+		</simpleContent>
+	</complexType>
+
+	<simpleType name="documentPartTypeEnum">
+		<restriction base="xs:string">
+			<enumeration value="byte" />
+			<enumeration value="text" />
+		</restriction>
+	</simpleType>
+
+	<complexType name="infosetType">
+		<sequence>
+			<element ref="tns:dfdlInfoset" />
+		</sequence>
+	</complexType>
+
+	<element name="dfdlInfoset" type="tns:dfdlInfosetType" />
+
+	<complexType name="dfdlInfosetType" mixed="true">
+		<sequence>
+			<any namespace="##any" processContents="lax" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+</xs:schema>
