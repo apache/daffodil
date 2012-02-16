@@ -57,5 +57,9 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil/libsrc/xsom-20110101-SNAPSHOT-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/jing.jar"/>
+	<classpathentry kind="lib" path="lib/saxon-b9-1-0-8/saxon9-dom.jar"/>
+	<classpathentry kind="lib" path="lib/batik-ext-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/xalan.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

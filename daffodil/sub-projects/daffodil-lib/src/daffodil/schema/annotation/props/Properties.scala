@@ -93,7 +93,7 @@ import daffodil.exceptions._
      * the side-effect of registering them in the _values list.
      */
     def forceConstruction(obj : Any) {
-      Assert.invariant(obj.toString() != "")
+      //Assert.invariant(obj.toString() != "") //TODO: is forceConstruction needed at all?
     }
   } // end class
 

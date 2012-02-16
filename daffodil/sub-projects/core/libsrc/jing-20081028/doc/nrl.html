@@ -1,0 +1,1708 @@
+<html>
+   
+   
+   
+   <title>Namespace Routing Language (NRL)</title>
+   <style type="text/css">
+body {
+  padding-left: 3em;
+  padding-top: 3em;
+  margin: 0;
+  font-family: sans-serif;
+  color: black;
+  background: white;
+  line-length: 20pt;
+  max-width: 40em;
+}
+
+h1, h2 {
+  color: #005A9C;
+  background: white;
+}
+
+h1 { font-size: 140% }
+h2 { font-size: 120% }
+pre { margin-left: 2em }
+</style>
+   <body>
+      
+      
+      
+      
+      <h1>Namespace Routing Language (NRL)</h1>
+      <div class="titlepage">
+         
+         <p><b>Author:</b> James Clark &lt;jjc@thaiopensource.com&gt;<br>
+            <b>Date:</b> 2003-06-13
+         </p>
+         
+         <p>Copyright &copy; Thai Open Source Software Center Ltd</p>
+         
+      </div>
+      <h2>Abstract</h2>
+      <p>The XML Namespaces Recommendation allows an XML document to be
+         composed of elements and attributes from multiple independent
+         namespaces. Each of these namespaces may have its own schema; the
+         schemas for different namespaces may be in different schema languages.
+         The problem then arises of how the schemas can be composed in order to
+         allow validation of the complete document. This document proposes the
+         Namespace Routing Language (NRL) as a solution to this problem.  NRL
+         is an evolution of the author's earlier <a href="#mns">Modular
+            Namespaces (MNS)</a> language.
+      </p>
+      <p>A sample implementation of NRL is included in <a href="#jing">Jing</a>.
+      </p>
+      <h2>Contents</h2>
+      &nbsp;&nbsp;1 <a href="#Getting_started">Getting started</a><br>
+      &nbsp;&nbsp;2 <a href="#Processing_model">Processing model</a><br>
+      &nbsp;&nbsp;3 <a href="#Specifying_the_schema">Specifying the schema</a><br>
+      &nbsp;&nbsp;4 <a href="#Concurrent_validation">Concurrent validation</a><br>
+      &nbsp;&nbsp;5 <a href="#Built-in_schemas">Built-in schemas</a><br>
+      &nbsp;&nbsp;6 <a href="#Namespace_wildcards">Namespace wildcards</a><br>
+      &nbsp;&nbsp;7 <a href="#Modes">Modes</a><br>
+      &nbsp;&nbsp;8 <a href="#Related_namespaces">Related namespaces</a><br>
+      &nbsp;&nbsp;9 <a href="#Built-in_modes">Built-in modes</a><br>
+      &nbsp;&nbsp;10 <a href="#Open_schemas">Open schemas</a><br>
+      &nbsp;&nbsp;11 <a href="#Element-name_context">Element-name context</a><br>
+      &nbsp;&nbsp;12 <a href="#Attributes">Attributes</a><br>
+      &nbsp;&nbsp;13 <a href="#Mode_inheritance">Mode inheritance</a><br>
+      &nbsp;&nbsp;14 <a href="#Transparent_namespaces">Transparent namespaces</a><br>
+      &nbsp;&nbsp;15 <a href="#Related_work">Related work</a><br>
+      &nbsp;&nbsp;16 <a href="#Acknowledgements">Acknowledgements</a><br>
+      &nbsp;&nbsp;A <a href="#References">References</a><br>
+      &nbsp;&nbsp;B <a href="#NRL_schema">NRL schema</a><br>
+      &nbsp;&nbsp;C <a href="#Formal_semantics">Formal semantics</a><br><hr>
+      
+      
+      
+      
+      
+      
+      <div>
+         
+         
+         <div>
+            
+            <h2><a name="Getting_started"></a>1 Getting started
+            </h2>
+            
+            
+            <p>In its simplest form, an NRL schema consists of a mapping from
+               namespace URIs to schema URIs.  An NRL schema is written in XML. Here
+               is an example:
+            </p>
+            
+            <pre>&lt;rules xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+    &lt;validate schema="soap-envelope.xsd"/&gt;
+  &lt;/namespace&gt;
+  &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+    &lt;validate schema="xhtml.rng"/&gt;
+  &lt;/namespace&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>We will call a schema referenced by an NRL schema a
+               <i>subschema</i>.  In the above example,
+               '<span class="code">soap-envelope.xsd</span>' is the subschema for the namespace URI
+               '<span class="code">http://schemas.xmlsoap.org/soap/envelope/</span>' and
+               '<span class="code">xhtml.rng</span>' is the subschema for the namespace URI
+               '<span class="code">http://www.w3.org/1999/xhtml</span>'.
+            </p>
+            
+            
+            <p>The absent namespace can be mapped to a schema by using
+               '<span class="code">ns=""</span>'.
+            </p>
+            
+            
+         </div>
+         
+         
+         <div>
+            
+            <h2><a name="Processing_model"></a>2 Processing model
+            </h2>
+            
+            
+            <p>NRL validation has two inputs: a document to be validated and an
+               NRL schema.  We will call the document to be validated the
+               <i>instance</i>. NRL validation divides the instance into sections,
+               each of which contains elements from a single namespace, and validates
+               each section separately against the subschema for its namespace.
+            </p>
+            
+            
+            <p>Thus, the following instance:</p>
+            
+            <pre>&lt;env:Envelope xmlns="http://www.w3.org/1999/xhtml"
+              xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+  &lt;env:Body&gt;
+    &lt;html&gt;
+      &lt;head&gt;
+        &lt;title&gt;Document 1&lt;/title&gt;
+      &lt;/head&gt;
+      &lt;body&gt;
+        &lt;p&gt;...&lt;/p&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+    &lt;html&gt;
+      &lt;head&gt;
+        &lt;title&gt;Document 2&lt;/title&gt;
+      &lt;/head&gt;
+      &lt;body&gt;
+        &lt;p&gt;...&lt;/p&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  &lt;/env:Body&gt;
+&lt;/env:Envelope&gt;
+</pre>
+            
+            <p>would be divided into three sections, one with the envelope
+               namespace
+            </p>
+            
+            <pre>&lt;env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+  &lt;env:Body/&gt;
+&lt;/env:Envelope&gt;
+</pre>
+            
+            <p>and two with the XHTML namespace:</p>
+            
+            <pre>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+  &lt;head&gt;
+    &lt;title&gt;Document 1&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;p&gt;...&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</pre>
+            
+            <pre>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+  &lt;head&gt;
+    &lt;title&gt;Document 2&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;p&gt;...&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</pre>
+            
+            <p>Note that two elements only belong to the same section if they have
+               a common ancestor and if all elements on the path to that common
+               ancestor have the same namespace.  Thus, if one of the XHTML documents
+               happened to contain an element from the envelope, it would not be
+               part of the same section as the root element.
+            </p>
+            
+            
+            <p>This validation process can be refined in several ways, which
+               are described in the following sections.
+            </p>
+            
+            
+         </div>
+         
+         
+         <div>
+            
+            <h2><a name="Specifying_the_schema"></a>3 Specifying the schema
+            </h2>
+            
+            
+            <p>In most cases the schema will be in some namespaced XML vocabulary,
+               and the type of schema can be automatically detected from the
+               namespace URI of the root element.  In cases where the schema is not
+               in XML and there is no MIME type information available to determine
+               the type, a '<span class="code">schemaType</span>' attribute can be used to specify the
+               type.  The value of this should be a MIME media type.  For <a href="#compact">RELAX NG
+                  Compact Syntax</a>, a value of '<span class="code">application/x-rnc</span>' should be
+               used.
+            </p>
+            
+            <pre>&lt;rules xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+    &lt;validate schema="soap-envelope.xsd"/&gt;
+  &lt;/namespace&gt;
+  &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+    &lt;validate schema="xhtml.rnc"
+              schemaType="application/x-rnc"/&gt;
+  &lt;/namespace&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>With many schema languages, there can be different ways to use a
+               particular schema to validate an instance.  For example, <a href="#schematron">Schematron</a> has the notion of a phase; an
+               instance that is valid with respect to a Schematron schema using one
+               phase may not be valid with respect to the same schema in another
+               phase. NRL allows validation to be controlled by specifying a number
+               of options. For example, to specify that validate with respect to
+               '<span class="code">xhtml.sch</span>' should use the phase named '<span class="code">Full</span>', an option
+               could be specified as follows:
+            </p>
+            
+            <pre>&lt;rules xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+    &lt;validate schema="soap-envelope.xsd"/&gt;
+  &lt;/namespace&gt;
+  &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+    &lt;validate schema="xhtml.sch"&gt;
+      &lt;option name="http://www.thaiopensource.com/validate/phase"
+              arg="Full"/&gt;
+    &lt;/validate&gt;
+  &lt;/namespace&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>Options may have arguments. Some options do not need arguments. For
+               example, for Schematron there is a
+               '<span class="code">http://www.thaiopensource.com/validate/diagnose</span>' option.
+               If this option is present, then errors will include Schematron
+               diagnostics; if it is not, then errors will not include diagnostics.
+               With this option, no '<span class="code">arg</span>' attribute is necessary:
+            </p>
+            
+            <pre>&lt;rules xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+    &lt;validate schema="soap-envelope.xsd"/&gt;
+  &lt;/namespace&gt;
+  &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+    &lt;validate schema="xhtml.sch"&gt;
+      &lt;option name="http://www.thaiopensource.com/validate/diagnose"/&gt;
+    &lt;/validate&gt;
+  &lt;/namespace&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>Options are named by URIs. A number of standard options are defined
+               which all start with the URI
+               '<span class="code">http://www.thaiopensource.com/validate/</span>':
+            </p>
+            
+            
+            <dl>
+               
+               
+               <dt>'<span class="code">http://www.thaiopensource.com/validate/phase</span>'
+               </dt>
+               
+               <dd>Argument is a string, specifying Schematron phase</dd>
+               
+               
+               <dt>'<span class="code">http://www.thaiopensource.com/validate/diagnose</span>'
+               </dt>
+               
+               <dd>No argument. If present, include Schematron diagnostics in error messages</dd>
+               
+               
+               <dt>'<span class="code">http://www.thaiopensource.com/validate/check-id-idref</span>'
+               </dt>
+               
+               
+               <dd>No argument. If present, check ID/IDREF in accordance with
+                  <a href="#dtdcompat">RELAX NG DTD Compatibility</a> specification.
+               </dd>
+               
+               
+               <dt>'<span class="code">http://www.thaiopensource.com/validate/feasible</span>'
+               </dt>
+               
+               
+               <dd>No argument. If present, check that the document is
+                  <em>feasibly valid</em>.  This applies to <a href="#relaxng">RELAX NG</a>.  A document is
+                  <em>feasibly valid</em> if it could be transformed into a valid
+                  document by inserting any number of attributes and child elements
+                  anywhere in the tree.  This is equivalent to transforming the schema
+                  by wrapping every '<span class="code">data</span>', '<span class="code">list</span>',
+                  '<span class="code">element</span>' and '<span class="code">attribute</span>' element in an
+                  '<span class="code">optional</span>' element and then validating against the
+                  transformed schema. This option is useful while a document is still
+                  under construction.
+               </dd>
+               
+               
+               <dt>'<span class="code">http://www.thaiopensource.com/validate/schema</span>'
+               </dt>
+               
+               
+               <dd>Argument is a URI specifying an additional schema to be used for
+                  validation. This applies to <a href="#wxs">W3C XML Schema</a>.  This
+                  option may be specified multiple times, once for each additional
+                  schema.
+               </dd>
+               
+               
+            </dl>
+            
+            
+            <p>For convenience, the URI specified by the '<span class="code">name</span>'
+               attribute may be relative; if it is, it will be resolved relative to
+               the NRL namespace URI.  The result is that the standard options above
+               can be specified without the
+               '<span class="code">http://www.thaiopensource.com/validate/</span>' prefix. For
+               example,
+            </p> 
+            
+            <pre>&lt;rules xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+    &lt;validate schema="soap-envelope.xsd"/&gt;
+  &lt;/namespace&gt;
+  &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+    &lt;validate schema="xhtml.sch"&gt;
+      &lt;option name="phase"
+              arg="Full"/&gt;
+    &lt;/validate&gt;
+  &lt;/namespace&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>Normally, an NRL implementation will make a best-effort attempt to
+               support the specified option and will simply ignore options that it
+               does not understand or cannot support.  If it is essential that a
+               particular option is supported, then a '<span class="code">mustSupport</span>'
+               attribute may be added to the '<span class="code">option</span>' element:
+            </p>
+            
+            <pre>&lt;rules xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+    &lt;validate schema="soap-envelope.xsd"/&gt;
+  &lt;/namespace&gt;
+  &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+    &lt;validate schema="xhtml.sch"&gt;
+      &lt;option name="phase"
+              arg="Full"
+              mustSupport="true"/&gt;
+    &lt;/validate&gt;
+  &lt;/namespace&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>If there is a '<span class="code">mustSupport</span>' attribute and the NRL
+               implementation cannot support the option, it must report an error.
+            </p>
+            
+            
+         </div>
+         
+         
+         <div>
+            
+            <h2><a name="Concurrent_validation"></a>4 Concurrent validation
+            </h2>
+            
+            
+            <p>Multiple '<span class="code">validate</span>' elements can be specified for a
+               single namespace.  The effect is to validate against all of the
+               specified schemas.
+            </p>
+            
+            
+            <p>For example, we might have a Schematron schema for XHTML, which
+               makes various checks that cannot be expressed in a grammar.  We want
+               to validate against both the Schematron schema and the RELAX NG
+               schema. The NRL schema would be like this:
+            </p>
+            
+            <pre>&lt;rules xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+    &lt;validate schema="soap-envelope.xsd"/&gt;
+  &lt;/namespace&gt;
+  &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+    &lt;validate schema="xhtml.rng"/&gt;
+    &lt;validate schema="xhtml.sch"/&gt;
+  &lt;/namespace&gt;
+&lt;/rules&gt;
+</pre>
+            
+            </div>
+         
+         
+         <div>
+            
+            <h2><a name="Built-in_schemas"></a>5 Built-in schemas
+            </h2>
+            
+            
+            <p>Instead of a '<span class="code">validate</span>' element, you can use an
+               '<span class="code">allow</span>' element or a '<span class="code">reject</span>' element.  These
+               are equivalent respectively to validating with a schema that allows
+               anything or with a schema that allows nothing.
+            </p>
+            
+            
+            <p>For example, the following would allow SVG without attempting to
+               validate it:
+            </p>
+            
+            <pre>&lt;rules xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+    &lt;validate schema="soap-envelope.xsd"/&gt;
+  &lt;/namespace&gt;
+  &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+    &lt;validate schema="xhtml.rng"/&gt;
+  &lt;/namespace&gt;
+  &lt;namespace ns="http://www.w3.org/2000/svg"&gt;
+    &lt;allow/&gt;
+  &lt;/namespace&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>Note that, just as with '<span class="code">validate</span>', '<span class="code">allow</span>'
+               and '<span class="code">reject</span>' apply to a section not to a whole subtree.
+               Thus, in the above example, if the SVG contained an embedded XHTML
+               section, then that XHTML section would be validated against
+               '<span class="code">xhtml.rng</span>'.
+            </p>
+            
+            
+         </div>
+         
+         
+         <div>
+            
+            <h2><a name="Namespace_wildcards"></a>6 Namespace wildcards
+            </h2>
+            
+            
+            <p>You can use an '<span class="code">anyNamespace</span>' element instead of a
+               '<span class="code">namespace</span>' element. This specifies a rule to be used for
+               an element for which there is no applicable '<span class="code">namespace</span>'
+               rule.
+            </p>
+            
+            
+            <p>Namespace wildcards are particularly useful in conjunction
+               with '<span class="code">allow</span>' and '<span class="code">reject</span>'. The following
+               will validate <i>strictly</i>, rejecting any namespace for
+               which no subschema is specified:
+            </p>
+            
+            <pre>&lt;rules xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+    &lt;validate schema="soap-envelope.xsd"/&gt;
+  &lt;/namespace&gt;
+  &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+    &lt;validate schema="xhtml.rng"/&gt;
+  &lt;/namespace&gt;
+  &lt;anyNamespace&gt;
+    &lt;reject/&gt;
+  &lt;/anyNamespace&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>In contrast, the following will validate <i>laxly</i>, allowing any
+               namespace for which no subschema is specified:
+            </p>
+            
+            <pre>&lt;rules xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+    &lt;validate schema="soap-envelope.xsd"/&gt;
+  &lt;/namespace&gt;
+  &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+    &lt;validate schema="xhtml.rng"/&gt;
+  &lt;/namespace&gt;
+  &lt;anyNamespace&gt;
+    &lt;allow/&gt;
+  &lt;/anyNamespace&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>The default is to validate strictly.  Thus, if there is no
+               '<span class="code">anyNamespace</span>' rule, then the following rule will be
+               implied:
+            </p>
+            
+            <pre>&lt;anyNamespace&gt;
+  &lt;reject/&gt;
+&lt;/anyNamespace&gt;
+</pre>
+            </div>
+         
+         
+         <div>
+            
+            <h2><a name="Modes"></a>7 Modes
+            </h2>
+            
+            
+            <p>You can apply different rules in different contexts by using
+               <i>modes</i>.  For example, you might want to restrict the
+               namespaces allowed for the root element.
+            </p>
+            
+            
+            <p>The '<span class="code">rules</span>' element for an NRL schema that uses multiple
+               modes does not contain '<span class="code">namespace</span>' and
+               '<span class="code">anyNamespace</span>' elements directly.  Rather, it contains
+               '<span class="code">mode</span>' elements that in turn contain '<span class="code">namespace</span>'
+               and '<span class="code">anyNamespace</span>' elements. The '<span class="code">validate</span>'
+               elements can specify a '<span class="code">useMode</span>' attribute to change the
+               mode in which their child sections are processed.  The
+               '<span class="code">rules</span>' element must have a '<span class="code">startMode</span>'
+               attribute specifying which mode to use for the root element.
+            </p>
+            
+            
+            <p>For example, suppose we want to require that the root element come from
+               '<span class="code">http://schemas.xmlsoap.org/soap/envelope/</span>' namespace.
+            </p>
+            
+            <pre>&lt;rules startMode="soap"
+       xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;mode name="soap"&gt;
+    &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+      &lt;validate schema="soap-envelope.xsd"
+                useMode="body"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="body"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+      &lt;validate schema="xhtml.rng"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>If a '<span class="code">validate</span>' element does not specify a
+               '<span class="code">useMode</span>' attribute, then the mode remains unchanged. Thus,
+               in the above example, child sections inside an XHTML section will be
+               processed in mode '<span class="code">body</span>', which does not allow the SOAP
+               namespace; so if the XHTML were to contain a SOAP
+               '<span class="code">env:Envelope</span>' element, it would be rejected.
+            </p>
+            
+            
+            <p>The '<span class="code">reject</span>' and '<span class="code">allow</span>' elements can have a
+               '<span class="code">useMode</span>' attribute as well.
+            </p>
+            
+            
+         </div>
+         
+         
+         <div>
+            
+            <h2><a name="Related_namespaces"></a>8 Related namespaces
+            </h2>
+            
+            
+            <p>A single subschema may not handle just a single namespace; it may
+               be handle two or more related namespaces.  To deal with this
+               possibility, NRL allows the rule for a namespace to specify that
+               elements from that namespace are to be attached to a parent section
+               and be validated together with that parent section.
+            </p>
+            
+            
+            <p>Suppose we have RELAX NG schemas for XHTML and for SVG.  We could
+               use these directly as subschemas in NRL.  But we might prefer instead
+               to use RELAX NG mechanisms to combine these into a single RELAX NG
+               schema. This would allow us conveniently to allow SVG elements only to
+               occur in places where XHTML block and inline elements are allowed and
+               to disallow them in places that make no sense (for example, as
+               children of a '<span class="code">ul</span>' element).  If we have such a combined
+               schema, we could use it as follows:
+            </p>
+            
+            <pre>&lt;rules startMode="soap"
+       xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;mode name="soap"&gt;
+    &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+      &lt;validate schema="soap-envelope.xsd"
+                useMode="xhtml"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="xhtml"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+      &lt;validate schema="xhtml+svg.rng"
+                useMode="svg"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="svg"&gt;
+    &lt;namespace ns="http://www.w3.org/2000/svg"&gt;
+      &lt;attach/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>This will cause SVG sections occurring within XHTML to be attached
+               to the parent XHTML section and be validated as part of it.
+            </p>
+            
+            
+            <p>RDF is another example where '<span class="code">attach</span>' is necessary.
+               RDF can contain elements from arbitrary namespaces.
+            </p>
+            
+            <pre>&lt;rules startMode="root"
+       xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;mode name="root"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+      &lt;validate schema="xhtml.rng"
+                useMode="body"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="body"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"&gt;
+      &lt;validate schema="rdfxml.rng"
+                useMode="rdf"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="rdf"&gt;
+    &lt;anyNamespace&gt;
+      &lt;attach/&gt;
+    &lt;/anyNamespace&gt;
+  &lt;/mode&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>We could use the approach of attaching all namespaces as an
+               alternative solution to the XHTML+SVG example.  Instead relying on NRL
+               to reject namespaces other than XHTML and SVG, we can instead attach
+               sections from all namespaces to the XHTML section, and allow the
+               '<span class="code">xhtml+svg.rng</span>' schema to reject namespaces other than
+               XHTML and SVG.
+            </p>
+            
+            <pre>&lt;rules startMode="soap"
+       xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;mode name="soap"&gt;
+    &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+      &lt;validate schema="soap-envelope.xsd"
+                useMode="xhtml"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="xhtml"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+      &lt;validate schema="xhtml+svg.rng"
+                useMode="attach"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="attach"&gt;
+    &lt;anyNamespace&gt;
+      &lt;attach/&gt;
+    &lt;/anyNamespace&gt;
+  &lt;/mode&gt;
+&lt;/rules&gt;
+</pre>
+            
+            </div>
+         
+         
+         <div>
+            
+            <h2><a name="Built-in_modes"></a>9 Built-in modes
+            </h2>
+            
+            
+            <p>There is a built-in mode named '<span class="code">#attach</span>', which contains
+               just the rule:
+            </p>
+            
+            <pre>&lt;anyNamespace&gt;
+  &lt;attach/&gt;
+&lt;/anyNamespace&gt;
+</pre>
+            
+            <p>Thus, the last example in the previous section can be simplified to:</p>
+            
+            <pre>&lt;rules startMode="soap"
+       xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;mode name="soap"&gt;
+    &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+      &lt;validate schema="soap-envelope.xsd"
+                useMode="xhtml"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="xhtml"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+      &lt;validate schema="xhtml+svg.rng"
+                useMode="#attach"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>Suppose you are not interested in the namespace-sectioning
+               capabilities of NRL, but you just want to validate a document
+               concurrently against two schemas.  The simplest way is like this:
+            </p>
+            
+            <pre>&lt;rules xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;anyNamespace&gt;
+    &lt;validate schema="xhtml.rng"
+              useMode="#attach"/&gt;
+    &lt;validate schema="xhtml.sch"
+              useMode="#attach"/&gt;
+  &lt;/anyNamespace&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>The '<span class="code">useMode="#attach"</span>' ensures that the document will
+               be validated as is, rather than divided into sections.
+            </p>
+            
+            
+            <p>Similarly, there is a built-in mode named '<span class="code">#reject</span>',
+               which contains just the rule:
+            </p>
+            
+            <pre>&lt;anyNamespace&gt;
+  &lt;reject/&gt;
+&lt;/anyNamespace&gt;
+</pre>
+            
+            <p>and a built-in mode named '<span class="code">#allow</span>', which contains just
+               the rule:
+            </p>
+            
+            <pre>&lt;anyNamespace&gt;
+  &lt;allow/&gt;
+&lt;/anyNamespace&gt;
+</pre>
+            </div>
+         
+         
+         <div>
+            
+            <h2><a name="Open_schemas"></a>10 Open schemas
+            </h2>
+            
+            
+            <p>Up to now, sections validated by one subschema have not
+               participated in the validation of parent sections.  Modern schema
+               languages, such as W3C XML Schema and RELAX NG, can use wildcards to
+               allow elements and attributes from any namespace in particular
+               contexts.  It is useful to take advantage of this in order to allow
+               one subschema to constrain the contexts in which sections validated by
+               other subschemas can occur. For example, the official schema for
+               '<span class="code">http://schemas.xmlsoap.org/soap/envelope/</span>' uses wildcards
+               to specify precisely where elements from other namespaces are allowed:
+               they are allowed as children of the '<span class="code">env:Body</span>' and
+               '<span class="code">env:Header</span>' elements but not as children of the
+               '<span class="code">env:Envelope</span>' element.  Our NRL schema bypasses these
+               constraints because the XHTML sections are not seen by the SOAP
+               validation. We can use '<span class="code">attach</span>' to solve this problem:
+            </p>
+            
+            <pre>&lt;rules xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+    &lt;validate schema="soap-envelope.xsd"/&gt;
+  &lt;/namespace&gt;
+  &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+    &lt;validate schema="xhtml.rng"/&gt;
+    &lt;attach/&gt;
+  &lt;/namespace&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>When an XHTML section occurs inside a SOAP section, the XHTML
+               section will participate in two validations:
+            </p>
+            
+            
+            <ul>
+               
+               
+               <li>it will be validated independently against the XHTML schema, and</li>
+               
+               
+               <li>it will be attached to the SOAP section and validated together
+                  with the SOAP section against the SOAP schema
+               </li>
+               
+               
+            </ul>
+            
+            
+         </div>
+         
+         
+         <div>
+            
+            <h2><a name="Element-name_context"></a>11 Element-name context
+            </h2>
+            
+            
+            <p>So far we have seen how to make the processing of an element depend
+               on the namespace URIs of its ancestors.  NRL also allows the
+               processing to depend on the element names of its ancestors.  For
+               example, suppose we wish to allow RDF to occur only as a child of the
+               '<span class="code">head</span>' element of XHTML.  We can do this as follows:
+            </p>
+            
+            <pre>&lt;rules startMode="root"
+       xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;mode name="root"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+      &lt;validate schema="xhtml.rng"&gt;
+        &lt;context path="head"
+                 useMode="rdf"/&gt;
+      &lt;/validate&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="rdf"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"&gt;
+      &lt;validate schema="rdfxml.rng"
+                useMode="#attach"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>Any element that takes a '<span class="code">useMode</span>' attribute can also
+               have one or more '<span class="code">context</span>' children that override the
+               '<span class="code">useMode</span>' attribute in specific contexts.  The
+               '<span class="code">path</span>' attribute specifies a test to be applied to the
+               parent element of the section to be processed.
+               The '<span class="code">path</span>' attribute allows a restricted form of XPath: a
+               list of one or more choices separated by '<span class="code">|</span>', where each
+               choice is a list of one or more unqualified names separated by
+               '<span class="code">/</span>', optionally preceded by '<span class="code">/</span>'.  It is
+               interpreted like a pattern in XSLT, except that the names are
+               implicitly qualified with the namespace URI of the containing
+               '<span class="code">namespace</span>' element.  When more than one path matches, the
+               most specific is chosen.  It is an error to have two or more equally
+               specific paths. The path is tested against a single section not the
+               entire document: a path of '<span class="code">/foo</span>' means a '<span class="code">foo</span>'
+               element that is the root of a section; it does not mean a
+               '<span class="code">foo</span>' element that is the root of the document.
+            </p>
+            
+            
+         </div>
+         
+         
+         <div>
+            
+            <h2><a name="Attributes"></a>12 Attributes
+            </h2>
+            
+            
+            <p>Up to now, we have considered attributes to be inseparably attached
+               to their parent elements.  Although this is the default behaviour is
+               to attach attributes to their parent elements, attributes are in fact
+               considered to be separate sections and can be processed
+               separately. Attributes with the same namespace URI and same parent
+               element are grouped in a single section. Such sections are called
+               attribute sections; sections that contain elements are called element
+               sections.
+            </p>
+            
+            
+            <p>A '<span class="code">namespace</span>' or '<span class="code">anyNamespace</span>' element can
+               have a '<span class="code">match</span>' attribute, whose value must be a list of one
+               or two of the tokens '<span class="code">attributes</span>' and
+               '<span class="code">elements</span>'. If the value includes the token
+               '<span class="code">attributes</span>', the rule matches attribute sections.
+            </p>
+            
+            
+            <p>The default behaviours of attaching attributes to their parent
+               elements occurs because the default value of the '<span class="code">match</span>'
+               attribute is '<span class="code">elements</span>' and because all of the built-in
+               modes include a rule:
+            </p>
+            
+            <pre>&lt;anyNamespace match="attributes"&gt;
+  &lt;attach/&gt;
+&lt;/anyNamespace&gt;
+</pre>
+            
+            <p>Most, if not all, XML schema languages do not have any notion of
+               validating a set of attributes; they know only how to validate an XML
+               element. Therefore, before validating an attribute section, NRL
+               transforms it into an XML element by creating a dummy element to hold
+               the attributes. NRL also performs a corresponding transformation on
+               the schema. This is schema-language dependent.  For example, in the
+               case of RELAX NG, a schema <var>s</var> is transformed to
+               '<span class="code">&lt;element&gt;&lt;anyName/&gt;&nbsp;<var>s</var>&nbsp;&lt;/element&gt;</span>'.
+            </p>
+            
+            
+            <p>For example, suppose '<span class="code">xmlatts.rng</span>' contains a schema for
+               the attributes in the '<span class="code">xml:</span>' namespace written in RELAX
+               NG:
+            </p>
+            
+            <pre>&lt;group datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+       xmlns="http://relaxng.org/ns/structure/1.0"&gt;
+  &lt;optional&gt;
+    &lt;attribute name="xml:lang"&gt;
+      &lt;choice&gt;
+        &lt;data type="language"/&gt;
+        &lt;value/&gt;
+      &lt;/choice&gt;
+    &lt;/attribute&gt;
+  &lt;/optional&gt;
+  &lt;optional&gt;
+    &lt;attribute name="xml:base"&gt;
+      &lt;data type="anyURI"/&gt;
+    &lt;/attribute&gt;
+  &lt;/optional&gt;
+  &lt;optional&gt;
+    &lt;attribute name="xml:space"&gt;
+      &lt;choice&gt;
+        &lt;value&gt;preserve&lt;/value&gt;
+        &lt;value&gt;default&lt;/value&gt;
+      &lt;/choice&gt;
+    &lt;/attribute&gt;
+  &lt;/optional&gt;
+&lt;/group&gt;
+</pre>
+            
+            <p>An NRL schema could use this as follows:</p>
+            
+            <pre>&lt;rules xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+    &lt;validate schema="xhtml.rng"/&gt;
+  &lt;/namespace&gt;
+  &lt;namespace ns="http://www.w3.org/XML/1998/namespace"
+             match="attributes"&gt;
+    &lt;validate schema="xmlatts.rng"/&gt;
+  &lt;/namespace&gt;
+&lt;/rules&gt;
+</pre>
+            
+            </div>
+         
+         
+         <div>
+            
+            <h2><a name="Mode_inheritance"></a>13 Mode inheritance
+            </h2>
+            
+            
+            <p>One mode can <i>extend</i> another mode. Suppose in our SOAP+XHTML
+               example, we want to allow both SOAP element and XHTML elements to
+               contain RDF.  By putting the rule for RDF in its own mode and
+               extending that mode, we can avoid having to specify the rule for RDF
+               twice:
+            </p>
+            
+            <pre>&lt;rules startMode="soap"
+       xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;mode name="common"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"&gt;
+      &lt;validate schema="rdfxml.rng"
+                useMode="#attach"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="soap"
+        extends="common"&gt;
+    &lt;namespace ns="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+      &lt;validate schema="soap-envelope.xsd"
+                useMode="body"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="body"
+        extends="common"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+      &lt;validate schema="xhtml.rng"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>It is possible to extend a built-in mode. Thus, a mode that
+               validates laxly can be specified simply just by extending
+               '<span class="code">#allow</span>'.  This works because of how wildcards and
+               inheritance interact.  Suppose mode <var>x</var> extends mode
+               <var>y</var>; then when using mode <var>x</var>, the following order
+               will be used to search for a matching rule:
+            </p>
+            
+            
+            <ol>
+               
+               <li>a non-wildcard rule in <var>x</var></li>
+               
+               <li>a non-wildcard rule in <var>y</var></li>
+               
+               <li>a wildcard rule in <var>x</var></li>
+               
+               <li>a wildcard rule in <var>y</var></li>
+               
+            </ol>
+            
+            
+            <p>The requirement that there is an implicit rule of</p>
+            
+            <pre>&lt;anyNamespace&gt;
+  &lt;reject/&gt;
+&lt;/anyNamespace&gt;
+</pre>
+            
+            <p>can be restated as a requirement that the default value of the
+               '<span class="code">extends</span>' attribute is '<span class="code">#reject</span>'.
+            </p>
+            
+            
+         </div>
+         
+         
+         <div>
+            
+            <h2><a name="Transparent_namespaces"></a>14 Transparent namespaces
+            </h2>
+            
+            
+            <p>Many schema languages can deal with the kind of extensibility that
+               involves adding child elements or attributes from different
+               namespaces.  A more difficult kind of extensibility is where we need
+               to be able to wrap an extension element around an existing
+               non-extension element.  This can arise with namespaces describing
+               templating and versioning.  Imagine XHTML inside an XSLT stylesheet:
+               in such a document we might have a '<span class="code">ul</span>' element containing
+               an '<span class="code">xsl:for-each</span>' element containing an '<span class="code">li</span>'
+               element, although the schema for XHTML requires '<span class="code">li</span>'
+               elements to occur as direct children of '<span class="code">ul</span>' elements. In
+               such a situation, we need to need to make the XHTML schema
+               <i>unwrap</i> the '<span class="code">xsl:for-each</span>' element, ignoring its
+               start-tag and end-tag, but not ignoring its content.
+            </p>
+            
+            
+            <p>Suppose we have a namespace
+               '<span class="code">http://www.example.org/edit</span>' containing elements
+               '<span class="code">inserted</span>' and '<span class="code">deleted</span>', which describe edits
+               that have been made to a document, and suppose we want to use these
+               elements inside an XHTML document.  The following NRL schema would
+               allow us still to validate the XHTML document.
+            </p>
+            
+            <pre>&lt;rules startMode="root"
+       xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;mode name="root"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+      &lt;validate schema="xhtml.rng"
+                useMode="xhtml"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="xhtml"&gt;
+    &lt;namespace ns="http://www.example.org/edit"&gt;
+      &lt;unwrap/&gt;
+    &lt;/namespace&gt;
+    &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+      &lt;attach/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>When '<span class="code">unwrap</span>' is applied to an element section
+               <var>e</var>, it ignores the elements in <var>e</var> and their
+               attributes and just processes the child element sections of
+               <var>e</var>; if processing the child element sections causes a
+               section to try to attach to <var>e</var>, it will instead attach to
+               the parent of <var>e</var>.  Thus, in the above schema the section
+               from the edit namespace will be ignored, but child sections will be
+               processed according to rules applicable in the '<span class="code">xhtml</span>'
+               mode.  When a edit section has an XHTML child section, then that XHTML
+               child section will be attached to the parent of the edit section
+               (which can only be another XHTML section).
+            </p>
+            
+            
+            <p>The above schema does not deal with validating the edit
+               namespace. Let us suppose that '<span class="code">inserted</span>' and
+               '<span class="code">deleted</span>' elements cannot nest.  Our schema
+               '<span class="code">edit.rnc</span>' for the edit namespace is just two lines:
+            </p>
+            
+            <pre>
+default namespace = "http://www.example.org/edit"
+element inserted|deleted { empty }
+</pre>
+            
+            <p>The following NRL schema would allow validation of the edit
+               namespace:
+            </p>
+            
+            <pre>&lt;rules startMode="root"
+       xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;mode name="root"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+      &lt;validate schema="xhtml.rng"
+                useMode="xhtml"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="xhtml"
+        extends="noEdit"&gt;
+    &lt;namespace ns="http://www.example.org/edit"&gt;
+      &lt;validate schema="edit.rnc"
+                schemaType="application/x-rnc"
+                useMode="#allow"/&gt;
+      &lt;unwrap useMode="noEdit"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="noEdit"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+      &lt;attach/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>The above schema is still not quite right. Suppose a
+               '<span class="code">title</span>' element was both inserted and deleted.  With the
+               above NRL schema, XHTML validation would see two '<span class="code">title</span>'
+               elements, which would get an error. We should instead do XHTML
+               validation twice, once including the content of the
+               '<span class="code">inserted</span>' elements and ignoring the content of the
+               '<span class="code">deleted</span>' elements and once doing the opposite.  We only
+               need to validate the edit elements once.  The following NRL schema
+               accomplishes this:
+            </p>
+            
+            <pre>&lt;rules startMode="root"
+       xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;mode name="root"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+      &lt;validate schema="xhtml.rng"
+                useMode="new"/&gt;
+      &lt;validate schema="xhtml.rng"
+                useMode="old"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="new"
+        extends="noEdit"&gt;
+    &lt;namespace ns="http://www.example.org/edit"&gt;
+      &lt;validate schema="edit.rnc"
+                schemaType="application/x-rnc"
+                useMode="#allow"/&gt;
+      &lt;unwrap useMode="noEdit"&gt;
+        &lt;context path="deleted"
+                 useMode="#allow"/&gt;
+      &lt;/unwrap&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="old"
+        extends="noEdit"&gt;
+    &lt;namespace ns="http://www.example.org/edit"&gt;
+      &lt;unwrap useMode="noEdit"&gt;
+        &lt;context path="inserted"
+                 useMode="#allow"/&gt;
+      &lt;/unwrap&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="noEdit"&gt;
+    &lt;namespace ns="http://www.w3.org/1999/xhtml"&gt;
+      &lt;attach/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+&lt;/rules&gt;
+</pre>
+            
+            </div>
+         
+         
+         <div>
+            
+            <h2><a name="Related_work"></a>15 Related work
+            </h2>
+            
+            
+            <p>The fundamental idea of dividing the instance into sections, each
+               of which contains elements from a single namespace, and then
+               validating each section separately against the schema for its
+               namespace originated in Murata Makoto's <a href="#relaxns">RELAX
+                  Namespace</a>.  ISO/IEC JTC1/SC34 (the ISO subcommittee responsible
+               for Document Description and Processing Languages) is developing
+               ISO/IEC 19757 Document Schema Definition Languages (DSDL) as a
+               multi-part standard.  A <a href="#N363">Committee Draft (CD) of Part
+                  4: Selection of Validation Candidates</a>, which was based on RELAX
+               Namespace, has been approved.  Comments on the CD have been <a href="#N415">resolved</a>. <a href="#mns">MNS</a>, the predecessor
+               to NRL, was input to the CD comment resolution process.  In response
+               to MNS, Rick Jelliffe produced the <a href="#nsswitch">Namespace
+                  Switchboard</a>, which was also input to the CD comment resolution
+               process. Some of the evolution of NRL from MNS was inspired by the
+               Namespace Switchboard.  A Final Committee Draft (FCD) of Part 4 is
+               currently in preparation; NRL will be submitted as input.
+            </p>
+            
+            
+            <p>At this stage, no guarantees can be made about how NRL will relate
+               to the FCD. In the opinion of this document's author and of the DSDL
+               Part 4 project editor (Murata Makoto), the functionality is likely to
+               be similar, with the following possible exceptions:
+            </p>
+            
+            
+            <ul>
+               
+               
+               <li>There are concerns about <a href="#Element-name_context">11 Element-name context</a>: some
+                  feel it is too complicated; some feel it is too simple.
+               </li>
+               
+               
+               <li>The functionality corresponding to <a href="#Transparent_namespaces">14 Transparent
+                     namespaces</a>, was rejected on the last occasion it was discussed;
+                  one reason was the lack of implementation experience. It is hoped that
+                  this can be reconsidered in the light of NRL.
+               </li>
+               
+               
+               <li>The functionality provided by the '<span class="code">option</span>' element in
+                  <a href="#Specifying_the_schema">3 Specifying the schema</a> has not yet been considered for the
+                  FCD.
+               </li>
+               
+               
+            </ul>
+            
+            
+            <p>However, the syntax may well be different. In particular:</p>
+            
+            
+            <ul>
+               
+               
+               <li>Names of elements and attributes may be different.</li>
+               
+               
+               <li>Syntactic sugar for modes may be different.  The FCD may not
+                  provide <a href="#Mode_inheritance">13 Mode inheritance</a>.  The FCD may use nesting to
+                  avoid the need to name modes in some cases.
+               </li>
+               
+               
+               <li>The FCD is expected to provide syntactic sugar for an action
+                  equivalent to '<span class="code">&lt;attach&nbsp;useMode="<var>x</var>"/&gt;</span>',
+                  where <var>x</var> is a built-in mode like '<span class="code">#allow</span>' except
+                  that it allows attributes as well as elements.  The idea is to allow
+                  subschemas to use empty elements as placeholders.
+               </li>
+               
+               
+               <li>The FCD is expected to provide a schema inclusion mechanism (not just
+                  using NRL as a subschema).
+               </li>
+               
+               
+               <li>The FCD is expected to allow inline schemas, for example, by
+                  allowing '<span class="code">validate</span>' to have a '<span class="code">schema</span>' element
+                  containing the schema as an alternative to the '<span class="code">schema</span>'
+                  attribute containing the schema's URL.
+               </li>
+               
+               
+            </ul>
+            
+            
+            <p>The group working on DSDL (SC34/WG1) welcomes public discussion of
+               DSDL. Comments on NRL would be useful input to the Part 4 FCD
+               preparation process. See the <a href="#dsdl.org">DSDL web site</a>
+               for information on how to make comments.
+            </p>
+            
+            
+         </div>
+         
+         
+         <div>
+            
+            <h2><a name="Acknowledgements"></a>16 Acknowledgements
+            </h2>
+            
+            
+            <p>Thanks to Murata Makoto and Rick Jelliffe for helpful comments.</p>
+            
+         </div>
+         
+         
+      </div>
+      
+      
+      <div class="back">
+         
+         
+         <div>
+            
+            <h2><a name="References"></a>A References
+            </h2>
+            
+            
+            <p><a name="N415"></a>Comment Disposition of Committee Draft
+               Ballot of Document Schema Definition Languages (DSDL) -- Part 4:
+               Selection of Validation Candidates,
+               <a href="http://www.y12.doe.gov/sgml/sc34/document/0415.htm">http://www.y12.doe.gov/sgml/sc34/document/0415.htm</a></p>
+            <p><a name="N363"></a>Committee Draft of Document Schema Definition Languages
+               (DSDL) -- Part 4: Selection of Validation Candidates,
+               <a href="http://www.y12.doe.gov/sgml/sc34/document/0363.htm">http://www.y12.doe.gov/sgml/sc34/document/0363.htm</a></p>
+            <p><a name="dsdl.org"></a>DSDL Web Site,
+               <a href="http://www.dsdl.org">http://www.dsdl.org</a></p>
+            <p><a name="jing"></a>Jing,
+               <a href="http://www.thaiopensource.com/relaxng/jing.html">http://www.thaiopensource.com/relaxng/jing.html</a></p>
+            <p><a name="mns"></a>Modular Namespaces (MNS),
+               <a href="http://www.thaiopensource.com/relaxng/mns.html">http://www.thaiopensource.com/relaxng/mns.html</a></p>
+            <p><a name="nsswitch"></a>Namespace Switchboard,
+               <a href="http://www.topologi.com/resources/NamespaceSwitchboard.html">http://www.topologi.com/resources/NamespaceSwitchboard.html</a></p>
+            <p><a name="relaxcore"></a>RELAX Core,
+               <a href="http://www.xml.gr.jp/relax/">http://www.xml.gr.jp/relax/</a></p>
+            <p><a name="relaxns"></a>RELAX Namespace,
+               <a href="http://www.y-adagio.com/public/standards/tr_relax_ns/toc.htm">http://www.y-adagio.com/public/standards/tr_relax_ns/toc.htm</a></p>
+            <p><a name="compact"></a>RELAX NG Compact Syntax,
+               <a href="http://www.oasis-open.org/committees/relax-ng/compact-20021121.html">http://www.oasis-open.org/committees/relax-ng/compact-20021121.html</a></p>
+            <p><a name="dtdcompat"></a>RELAX NG DTD Compatibility,
+               <a href="http://www.oasis-open.org/committees/relax-ng/compatibility-20011203.html">http://www.oasis-open.org/committees/relax-ng/compatibility-20011203.html</a></p>
+            <p><a name="relaxng"></a>RELAX NG, <a href="http://relaxng.org">http://relaxng.org</a></p>
+            <p><a name="schematron"></a>Schematron,
+               <a href="http://www.ascc.net/xml/resource/schematron/schematron.html">http://www.ascc.net/xml/resource/schematron/schematron.html</a></p>
+            <p><a name="wxs"></a>W3C XML Schema,
+               <a href="http://www.w3.org/TR/xmlschema-1/">http://www.w3.org/TR/xmlschema-1/</a></p>
+            
+         </div>
+         
+         
+         
+         <div>
+            
+            <h2><a name="NRL_schema"></a>B NRL schema
+            </h2>
+            
+            
+            <p>NRL elements can be extended with arbitrary attributes provided the
+               attributes are namespace qualified and their namespace is not the NRL
+               namespace; they can also be extended with arbitrary child elements
+               with any namespace (including the absent namespace) other than the NRL
+               namespace. We could provide a RELAX NG schema that fully described
+               NRL, but the extensibility would make the schema harder to understand.
+               So instead we provide a RELAX NG schema (in compact syntax) that does
+               not allow extensibility, and provide an NRL schema to make it
+               extensible.
+            </p>
+            
+            
+            <p>Thus, NRL is described by the following NRL schema:</p>
+            
+            <pre>&lt;rules startMode="root"
+       xmlns="http://www.thaiopensource.com/validate/nrl"&gt;
+  &lt;mode name="root"&gt;
+    &lt;namespace ns="http://www.thaiopensource.com/validate/nrl"&gt;
+      &lt;validate schema="nrl.rnc"
+                schemaType="application/x-rnc"
+                useMode="extend"/&gt;
+    &lt;/namespace&gt;
+  &lt;/mode&gt;
+  &lt;mode name="extend"&gt;
+    &lt;namespace ns="http://www.thaiopensource.com/validate/nrl"
+               match="attributes"&gt;
+      &lt;reject/&gt;
+    &lt;/namespace&gt;
+    &lt;namespace ns=""
+               match="attributes"&gt;
+      &lt;attach/&gt;
+    &lt;/namespace&gt;
+    &lt;anyNamespace match="elements attributes"&gt;
+      &lt;allow useMode="#attach"/&gt;
+    &lt;/anyNamespace&gt;
+  &lt;/mode&gt;
+&lt;/rules&gt;
+</pre>
+            
+            <p>where '<span class="code">nrl.rnc</span>' is as follows:
+            </p>
+            
+            <pre>
+default namespace = "http://www.thaiopensource.com/validate/nrl"
+
+start =
+  element rules {
+    schemaType?,
+    (rule* | (attribute startMode { modeName }, mode+))
+  }
+
+mode =
+  element mode {
+    attribute name { userModeName },
+    attribute extends { modeName }?,
+    rule*
+  }
+
+rule =
+  element namespace {
+    attribute ns { xsd:anyURI },
+    ruleModel
+  }
+  | element anyNamespace { ruleModel }
+
+ruleModel = attribute match { elementsOrAttributes }?, actions
+
+elementsOrAttributes =
+  list {
+    ("elements", "attributes") 
+     | ("attributes", "elements") 
+     | "elements"
+     | "attributes"
+  }
+
+actions =
+  noResultAction*, (noResultAction|resultAction), noResultAction*
+
+noResultAction =
+  element validate {
+    attribute schema { xsd:anyURI },
+    schemaType?,
+    option*,
+    modeUsage
+  }
+  | element allow|reject { modeUsage }
+
+resultAction =
+  element attach|unwrap { modeUsage }
+
+option =
+  element option {
+    attribute name { xsd:anyURI },
+    attribute arg { text }?,
+    attribute mustSupport { xsd:boolean }?
+  }
+
+modeUsage =
+  attribute useMode { modeName }?,
+  element context {
+    attribute path { path },
+    attribute useMode { modeName }?
+  }*
+
+modeName = userModeName | builtinModeName
+
+userModeName = xsd:NCName
+builtinModeName = "#attach" | "#allow" | "#reject" | "#unwrap"
+
+schemaType = attribute schemaType { mediaType }
+mediaType = xsd:string  # should do better than this
+path =
+  xsd:string {
+    pattern = "\s*(/\s*)?\i\c*(\s*/\s*\i\c*)*\s*"
+              ~ "(|\s*(/\s*)?\i\c*(\s*/\s*\i\c*)*\s*)*"
+  }
+</pre>
+            
+            </div>
+         
+         
+         <div>
+            
+            <h2><a name="Formal_semantics"></a>C Formal semantics
+            </h2>
+            
+            
+            <p>In order to describe the semantics of NRL, it is convenient to
+               construct a new section-based data model.  This data model is
+               constructed from the RELAX NG data model.  An implementation wouldn't
+               actually have to construct this, but the semantics are simpler to
+               describe in terms of this data model rather than in terms of the RELAX
+               NG data model.  Note that the information content is exactly
+               equivalent to the RELAX NG data model.
+            </p>
+            
+            
+            <p>There are two kinds of section: attribute sections and element
+               sections.  Two attributes belong to the same section iff they have the
+               same parent and the same namespace URI.  An element belongs to the
+               same section as its parent iff it has the same namespace URI as its
+               parent.  An attribute section is simply a non-empty unordered set of
+               attributes (as in RELAX NG), where each member of the set has the same
+               namespace URI.  An element section is a little more complicated. First
+               we need the concept of a node.  There are three kinds of node: an
+               element node, a text node and a slot node.  An element node has a
+               name, a context (as in RELAX NG), and a list of child nodes. A text
+               node has a string value. A slot node has no additional information; it
+               is merely a placeholder for a element section.  A list of child nodes
+               never has two adjacent text nodes and never has two adjacent slot
+               nodes.  An element section is a triple &lt;<i>nd</i>, <i>lsa</i>,
+               <i>lle</i>&gt;, where <i>nd</i> is an element node, <i>lsa</i> is a list
+               of unordered sets of attribute sections, and <i>lle</i> is a list of
+               lists of element sections.  <i>lsa</i> has one member for each element
+               node in <i>nd</i>. The unordered set of attribute sections that is the
+               <i>n</i>-th member of <i>lsa</i> gives the attributes for the
+               <i>n</i>-th element node in <i>nd</i> (iterating in document order).
+               <i>lle</i> has one member for each slot node in <i>nd</i>.  The list
+               of element sections that is the <i>n</i>-th member of <i>lle</i>
+               corresponds to the <i>n</i>-th slot node in <i>nd</i> (iterating in
+               document order).
+            </p>
+            
+            
+            <p>An NRL schema consists of a set of modes.  A mode consists of a set
+               of rules.  A mode maps a section to an action based on the section's
+               namespace URI and on whether the section is an attribute section or an
+               element section.  An action can be applied to element sections and
+               attribute sections.  An action returns two values, one of which is
+               always error information.  When an action is applied to an element
+               section, it returns error information and a (possibly empty) list of
+               element sections.  When an action is applied to an attribute section,
+               it returns error information and either an attribute section or an
+               empty list.
+            </p>
+            
+            
+            <p>In the NRL syntax, a rule can contain multiple actions.  This is
+               represented in the formalization using a Sequence action.  The
+               sequence action discards results (other than error information) from
+               the first action.  Only two actions can produce results other than
+               error information: attach and unwrap.  The NRL syntax allows at most
+               one such action in a rule.  When constructing a sequence representing
+               a set of actions in a rule, this action, if any, must be the last
+               action in the sequence.
+            </p>
+            
+            
+            <p>Here is a formalization in Haskell:</p>
+            
+            <pre>
+type Uri = String
+type LocalName = String
+type QName = (Uri, LocalName)
+type Prefix = String
+type Context = (Uri, [(Prefix, Uri)])
+
+data Node = ElementNode QName Context [Node]
+	  | TextNode String
+	  | SlotNode
+
+type AttributeSection = [(QName, String)]
+
+data ElementSection = ElementSection Node [[AttributeSection]] [[ElementSection]]
+data ElementsOrAttributes = Elements | Attributes
+
+type Mode = ElementsOrAttributes -&gt; Uri -&gt; Action
+
+data Action = Attach Mode
+	    | Reject Mode
+	    | Unwrap Mode
+	    | Allow Mode
+	    | Validate Uri Mode
+	    | Sequence Action Action
+
+data ErrorReport = AttributeError AttributeSection String
+		 | ElementError ElementSection String
+
+type ErrorInfo = [ErrorReport]
+
+data Validated a = Validated ErrorInfo a
+
+applyElementAction :: Action -&gt; ElementSection -&gt; Validated [ElementSection]
+
+applyElementAction (Reject m) e@(ElementSection nd lsa lle) =
+   Validated ([ElementError e "namespace rejected"]
+               ++ (errors (plsa m lsa))
+               ++ (errors (plle m lle)))
+             []
+applyElementAction (Attach m) (ElementSection nd lsa lle)
+  = listV (elementSectionV nd (plsa m lsa) (plle m lle))
+applyElementAction (Unwrap m) (ElementSection _ _ lle) = ple m (concat lle)
+applyElementAction (Allow m) (ElementSection nd lsa lle)
+  = valid2 (\x y -&gt; []) (plsa m lsa) (plle m lle)
+applyElementAction (Validate s m) (ElementSection nd lsa lle)
+  = Validated (validate s (elementSectionV nd (plsa m lsa) (plle m lle)))
+              []
+applyElementAction (Sequence a1 a2) e
+  = actionSequence (applyElementAction a1 e) (applyElementAction a2 e)
+
+validate :: Uri -&gt; Validated ElementSection -&gt; ErrorInfo
+validate uri (Validated errs e) = errs ++ (validateElement uri e)
+
+elementSectionV :: Node -&gt; Validated [[AttributeSection]] -&gt; Validated [[ElementSection]] -&gt; Validated ElementSection
+elementSectionV nd lsa lle = valid2 (ElementSection nd) lsa lle
+
+applyAttributeAction :: Action -&gt; AttributeSection -&gt; Validated (Maybe AttributeSection)
+applyAttributeAction (Allow m) a = Validated [] Nothing
+applyAttributeAction (Reject m) a = Validated [AttributeError a "namespace rejected"] Nothing
+applyAttributeAction (Attach m) a = Validated [] (Just a)
+applyAttributeAction (Unwrap _) _ = Validated [] Nothing
+applyAttributeAction (Validate s m) a
+  = Validated (validateAttribute s a) Nothing
+applyAttributeAction (Sequence a1 a2) a
+  = actionSequence (applyAttributeAction a1 a) (applyAttributeAction a2 a)
+
+
+actionSequence :: Validated a -&gt; Validated a -&gt; Validated a
+actionSequence (Validated errs1 _) (Validated errs2 x) = Validated (errs1 ++ errs2) x
+
+
+-- these are provided by an external validation library
+
+validateElement :: Uri -&gt; ElementSection -&gt; ErrorInfo
+validateElement _ _ = []
+
+validateAttribute :: Uri -&gt; AttributeSection -&gt; ErrorInfo
+validateAttribute _ _ = []
+
+-- processing functions
+
+pe :: Mode -&gt; ElementSection -&gt; Validated [ElementSection]
+pe m e = applyElementAction (m Elements (elementSectionNs e)) e
+
+ple :: Mode -&gt; [ElementSection] -&gt; Validated [ElementSection]
+ple m le = concatMapV (pe m) le
+
+plle :: Mode -&gt; [[ElementSection]] -&gt; Validated [[ElementSection]]
+plle m lle = mapV (ple m) lle
+
+pa :: Mode -&gt; AttributeSection -&gt; Validated (Maybe AttributeSection)
+pa m a = applyAttributeAction (m Attributes (attributeSectionNs a)) a
+
+psa :: Mode -&gt; [AttributeSection] -&gt; Validated [AttributeSection]
+psa m sa = dropMapV (pa m) sa
+
+plsa :: Mode -&gt; [[AttributeSection]] -&gt; Validated [[AttributeSection]]
+plsa m lsa = mapV (psa m) lsa
+
+elementSectionNs :: ElementSection -&gt; Uri
+elementSectionNs (ElementSection (ElementNode (ns, _) _ _) _ _) = ns
+
+attributeSectionNs :: AttributeSection -&gt; Uri
+attributeSectionNs (((ns, _),_):_) = ns
+
+-- functions for the Validated type
+
+errors :: Validated a -&gt; ErrorInfo
+errors (Validated e _) = e
+
+valid1 :: (a -&gt; b) -&gt; Validated a -&gt; Validated b
+valid1 f (Validated e x) = Validated e (f x)
+
+valid2 :: (a -&gt; b -&gt; c) -&gt; Validated a -&gt; Validated b -&gt; Validated c
+valid2 f (Validated e x) (Validated e' y) = Validated (e ++ e') (f x y)
+
+listV :: Validated a -&gt; Validated [a]
+listV x = valid1 (\y -&gt; [y]) x
+
+mapV :: (a -&gt; Validated b) -&gt; [a] -&gt; Validated [b]
+
+mapV f [] = Validated [] []
+mapV f (x:xs) = valid2 (\ x xs -&gt; (x:xs)) (f x) (mapV f xs)
+
+concatMapV :: (a -&gt; Validated [b]) -&gt; [a] -&gt; Validated [b]
+concatMapV f xs = valid1 concat (mapV f xs)
+
+dropMapV :: (a -&gt; Validated (Maybe b)) -&gt; [a] -&gt; Validated [b]
+dropMapV f [] = Validated [] []
+dropMapV f (x:xs) = valid2 maybeCons (f x) (dropMapV f xs)
+
+maybeCons :: (Maybe a) -&gt; [a] -&gt; [a]
+maybeCons Nothing x = x
+maybeCons (Just x) xs = (x:xs)
+</pre>
+            
+            <p>This does not yet deal with element-name context. To deal with this,
+               we would need to change each of the Actions that has a Mode parameter
+               to take a more complex structure.
+            </p>
+            
+            
+         </div>
+         
+         
+      </div>
+      
+      
+   </body>
+   
+</html>

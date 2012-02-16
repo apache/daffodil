@@ -1,0 +1,8 @@
+com.thaiopensource.util
+com.thaiopensource.validate
+com.thaiopensource.validate.auto
+com.thaiopensource.validate.nrl
+com.thaiopensource.validate.rng
+com.thaiopensource.validate.schematron
+com.thaiopensource.validate.xerces
+com.thaiopensource.xml.sax
