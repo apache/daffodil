@@ -251,26 +251,38 @@ trait AnnotatedElementMixin extends AnnotatedMixin {
 // A Particle is something that can be repeating.
 trait Particle { self : LocalElementBase =>
   
-  lazy val minOccurs = Assert.notYetImplemented()
+  lazy val minOccurs = {
+    val min = (self.xml\"@minOccurs").text.toString
+    min match {
+      case "" => 1
+      case _ => min.toInt
+    }
+  }
   
-  lazy val maxOccurs = Assert.notYetImplemented()
-  
+  lazy val maxOccurs = {
+    val max = (self.xml\"@maxOccurs").text.toString 
+    max match {
+      case "unbounded" => -1
+      case "" => 1
+      case _ => max.toInt 
+    }
+  }
 }
 
-abstract class LocalElementBase(val xml : Node, val xsParticle : Node, parent : ModelGroup) 
+abstract class LocalElementBase(val xml : Node, parent : ModelGroup) 
   extends Term(xml, parent)
   with AnnotatedElementMixin
   with Particle
 
-class ElementRef(xml: Node, xsParticle : Node, parent: ModelGroup) 
-  extends LocalElementBase(xml, xsParticle, parent) {
+class ElementRef(xml: Node, parent: ModelGroup) 
+  extends LocalElementBase(xml, parent) {
   lazy val xsAnnotated = xml
 }
 
 trait ElementDeclBase extends AnnotatedElementMixin 
 
-class LocalElementDecl(xml: Node, xsParticle : Node, parent: ModelGroup) 
-  extends LocalElementBase(xml, xsParticle, parent) 
+class LocalElementDecl(xml: Node, parent: ModelGroup) 
+  extends LocalElementBase(xml, parent) 
   with ElementDeclBase {
   lazy val xsAnnotated = xml
 }
@@ -303,6 +315,22 @@ class Choice(xml: Node, parent: SchemaComponent) extends ModelGroup(xml, parent)
 
 class Sequence(xml: Node, parent: SchemaComponent) extends ModelGroup(xml, parent) {
   def annotationFactory(node: Node): DFDLAnnotation = new DFDLSequence(node, this)
+
+  lazy val <sequence>{ xmlChildren @ _* }</sequence> = xml
+  lazy val children = xmlChildren.flatMap { child =>
+    child match {
+      case <sequence>{ _* }</sequence> => List(new Sequence(xml, this))
+      case <choice>{ _* }</choice> => List(new Choice(xml, this))
+      case <group>{ _* }</group> => List(new GroupRef(xml, this))
+      case <element>{ _* }</element> => {
+        val refProp = (xml \ "@ref").text
+        if (refProp == "") List(new LocalElementDecl(xml, this))
+        else List(new ElementRef(xml, this))
+      }
+      case textNode : Text => Nil
+      case _ => Assert.impossibleCase()
+    }
+  }
 }
 
 class GroupRef (xml: Node, parent: SchemaComponent) extends GroupBase(xml, parent) {
@@ -322,18 +350,21 @@ trait NamedType extends NamedMixin with TypeBase
 
 trait SimpleTypeBase extends TypeBase 
 
-trait NamedSimpleTypeBase extends SimpleTypeBase with NamedType 
+trait NamedSimpleTypeBase extends SimpleTypeBase with NamedType
 
 trait ComplexTypeBase extends SchemaComponent with TypeBase {
-  val xml : Node
-  //lazy val Seq(modelGroup) = {
- //   ((xml\"sequence") ++ (xml\"choice") ++ (xml\"group"))
- // }
-  lazy val fooBar = xml match {
-    case <sequence>{ contents }</sequence> => new Sequence(xml, this)
-    case <choice>{ contents }</choice> => new Choice(xml, this)
-    case <group>{ contents }</group> => new GroupRef(xml, this)
-    case _ => Assert.impossibleCase()
+  val xml: Node
+
+  lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
+  lazy val Seq(modelGroup) = xmlChildren.flatMap { child =>
+    child match {
+      case <sequence>{ _* }</sequence> => List(new Sequence(child, this))
+      case <choice>{ _* }</choice> => List(new Choice(child, this))
+      case <group>{ _* }</group> => List(new GroupRef(child, this))
+      case <annotation>{ _* }</annotation> => Nil
+      case textNode : Text => Nil
+      case _ => Assert.impossibleCase()
+    }
   }
 }
  

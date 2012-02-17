@@ -65,7 +65,7 @@ class TestDsomCompiler extends JUnit3Suite {
   }
   
   def test2() {
-        val testSchema =
+      val testSchema =
       <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <!-- Basic variable definition and inputValueCalc -->
         <element name="list" type="tns:example1">
@@ -114,5 +114,39 @@ class TestDsomCompiler extends JUnit3Suite {
     sds.map{sd => println(sd.getSystemId)}
   }*/
   
+  def testSequence1(){
+    val testSchema =
+      <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <!-- Basic variable definition and inputValueCalc -->
+        <element name="list" type="tns:example1">
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+             <dfdl:element encoding="ASCII" alignmentUnits="bytes"/>
+            </appinfo>
+          </annotation>
+        </element>
+        <complexType name="example1">
+          <sequence>
+            <element name="w" type="xsd:int" maxOccurs="unbounded"/>
+          </sequence>
+        </complexType>
+      </schema>
+
+  val w = Utility.trim(testSchema)
+      
+   val sset = DsomCompiler.compile(w)
+    val Seq(schema) = sset.schemas
+    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(decl) = schemaDoc.globalElementDecls
+    val Seq(ct) = schemaDoc.globalComplexTypeDefs
+    assertEquals("example1", ct.name)
+    
+    val mg = ct.modelGroup.asInstanceOf[Sequence]
+    assertTrue(mg.isInstanceOf[Sequence])
+    
+    val Seq(elem) = mg.children
+    assertTrue(elem.isInstanceOf[LocalElementDecl])
+    
+  } 
   
 }
