@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
+<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+    targetNamespace="http://www.example.org/example1/"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	>
+
+<annotation>
+	<appinfo source='http://www.ogf.org/dfdl/'>
+		<dfdl:defineEscapeScheme name="poundBang">
+			<dfdl:escapeScheme escapeCharacter='#'
+				escapeKind="escapeCharacter" escapeEscapeCharacter="!" />
+		</dfdl:defineEscapeScheme>
+		<dfdl:defineEscapeScheme name="poundPound">
+			<dfdl:escapeScheme escapeCharacter='#'
+				escapeKind="escapeCharacter" escapeEscapeCharacter="#" />
+		</dfdl:defineEscapeScheme>
+		<dfdl:defineEscapeScheme name='cStyleComment'>
+			<dfdl:escapeScheme escapeBlockStart='/*'
+				escapeBlockEnd='*/' escapeKind="escapeBlock" />
+		</dfdl:defineEscapeScheme>
+		<dfdl:defineEscapeScheme name='StartEndBang'>
+			<dfdl:escapeScheme escapeBlockStart='START'
+				escapeBlockEnd='END' escapeKind="escapeBlock" escapeEscapeCharacter="!" />
+		</dfdl:defineEscapeScheme>
+		<dfdl:defineEscapeScheme name='StartEndS'>
+			<dfdl:escapeScheme escapeBlockStart='START'
+				escapeBlockEnd='END' escapeKind="escapeBlock" escapeEscapeCharacter="S" />
+		</dfdl:defineEscapeScheme>
+	</appinfo>
+</annotation>
+
+  <!-- Schema Escaping: escape escape character, variable length -->
+
+  <element name="list">
+    <complexType>
+      <sequence>
+	<element name="character1" type="xsd:string" maxOccurs="unbounded"
+		 dfdl:representation="text"
+		 dfdl:separator=","
+		 dfdl:initiator=":"
+		 dfdl:terminator="%NL;"
+		 dfdl:escapeSchemeRef="poundBang"/> 
+	<element name="character2" type="xsd:string" maxOccurs="unbounded"
+		 dfdl:representation="text"
+		 dfdl:separator=","
+		 dfdl:initiator=":"
+		 dfdl:terminator="%NL;"
+		 dfdl:escapeSchemeRef="poundPound"/>	
+	<element name="block1" type="xsd:string" maxOccurs="unbounded"
+		 dfdl:representation="text"		 
+		 dfdl:separator=","
+		 dfdl:initiator=":"
+		 dfdl:terminator="%NL;"
+		 dfdl:escapeSchemeRef="StartEndBang"/> 
+	<element name="block2" type="xsd:string" maxOccurs="unbounded"
+		 dfdl:representation="text"		 
+		 dfdl:separator=","
+		 dfdl:initiator=":"
+		 dfdl:terminator="%NL;"
+		 dfdl:escapeSchemeRef="StartEndS"/>	
+      </sequence>
+    </complexType>
+  </element>
+
+</schema>

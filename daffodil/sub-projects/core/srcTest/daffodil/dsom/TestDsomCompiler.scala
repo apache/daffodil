@@ -41,7 +41,8 @@ class TestDsomCompiler extends JUnit3Suite {
         </complexType>
       </schema>
 
-    val sd = DsomCompiler.compile(testSchema)
+    val sset = DsomCompiler.compile(testSchema)
+    val sd = sset.schemaDocuments.head
     val ge = sd.globalElementDecls
     val df = sd.defaultFormat
    // val Some(bo) = df.xml.attribute("byteOrder")
@@ -72,8 +73,9 @@ class TestDsomCompiler extends JUnit3Suite {
         </complexType>
       </schema>
 
-    val sd = DsomCompiler.compile(testSchema)
-    val ge = sd.globalElementDecls.toList
+    val sset = DsomCompiler.compile(testSchema)
+    val sd = sset.schemaDocuments.head
+    val ge = sd.globalElementDecls
     val Some(le) = ge.find{ed=>ed.name == "list"}
     val fa = le.formatAnnotation.asInstanceOf[DFDLElement]
     assertEquals(AlignmentUnits.Bytes, fa.alignmentUnits)

@@ -10,7 +10,7 @@
 	      		<dfdl:format representation="binary" 
                  		     byteOrder="bigEndian" 
                       		lengthKind="implicit"
-                      		binaryFloatRepresentation="ieee" />                      
+                      		binaryFloatRep="ieee" />                      
 	    	</appinfo>
     	</annotation>
     	<sequence>

@@ -8,7 +8,7 @@
                  dfdl:representation="binary"
      		     dfdl:byteOrder="bigEndian" 
                  dfdl:lengthKind="implicit"
-                 dfdl:binaryFloatRepresentation="ieee">                      
+                 dfdl:binaryFloatRep="ieee">                      
     	<sequence>
     		<element name="w" type="int"></element>
     		<element name="x" type="int"></element>

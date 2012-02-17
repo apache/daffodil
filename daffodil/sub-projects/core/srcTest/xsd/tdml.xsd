@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema 
+<xsd:schema 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" 
   targetNamespace="http://www.ibm.com/xmlns/dfdl/testData" 
   xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData" 
@@ -14,8 +15,8 @@
 		<sequence>
 			<element ref="tns:parserTestCase" maxOccurs="unbounded"	minOccurs="0" />
 		</sequence>
-		<attribute name="suiteName" type="xs:token" />
-		<attribute name="description" type="xs:string" />
+		<attribute name="suiteName" type="xs:token" use="required"/>
+		<attribute name="description" type="xs:string" use="optional"/>
 	</complexType>
 	<unique name="unique-parserTestCase-name">
 		<selector xpath="parserTestCase" />
@@ -30,11 +31,11 @@
 			<element ref="tns:document" />
 			<element ref="tns:infoset" />
 		</sequence>
-		<attribute name="name" type="xs:NCName" />
-		<attribute name="root" type="xs:NCName" />
-		<attribute name="model" type="xs:string" /> <!-- is there a type for a path/uri? -->
-		<attribute name="description" type="xs:string" />
-		<attribute name="unsupported" type="xs:boolean"/>
+		<attribute name="name" type="xs:NCName"  use="required"/>
+		<attribute name="root" type="xs:NCName"  use="required"/>
+		<attribute name="model" type="xs:string"  use="required"/> <!-- is there a type for a path/uri? -->
+		<attribute name="description" type="xs:string" use="optional"/>
+		<attribute name="unsupported" type="xs:boolean" use="optional"/>
 	</complexType>
 
 	<element name="document" type="tns:documentType" />
@@ -50,7 +51,7 @@
 	<complexType name="documentPartType">
 		<simpleContent>
 			<extension base="xs:string">
-				<attribute name="type" type="tns:documentPartTypeEnum" />
+				<attribute name="type" type="tns:documentPartTypeEnum" use="required"/>
 			</extension>
 		</simpleContent>
 	</complexType>
@@ -77,4 +78,4 @@
 		</sequence>
 	</complexType>
 
-</xs:schema>
+</xsd:schema>

@@ -53,63 +53,63 @@ class StandAloneTests extends JUnit3Suite {
   }
   
 
-def testAA000() { doTest("AA.xsd", "list", "AA000.in", "AA000.xml") }
-def testAB000() { doTest("AB.xsd", "matrix", "AB000.in", "AB000.xml") }
-def testAB001() { doTest("AB.xsd", "matrix", "AB001.in", "AB000.xml") }
-def testAB002() { doTest("AB.xsd", "matrix", "AB002.in", "AB000.xml") }
-def testAB003() { doTest("AB.xsd", "matrix", "AB003.in", "AB003.xml") }
- def testAB004() { doTest("AB.xsd", "matrix", "AB004.in", "AB004.xml") }
- def testAB005() { doTest("AB.xsd", "matrix", "AB005.in", "AB005.xml") }
- def testAB010() { doTest("AB.xsd", "matrix", "AB010.in", "AB010.xml") }
- def testAC000() { doTest("AC.xsd", "table", "AC000.in", "AC000.xml") }
- def testAD000() { doTest("AD.xsd", "list", "AD000.in", "AD000.xml") }
- def testAE000() { doTest("AE.xsd", "transposedMatrix", "AE000.in", "AE000.xml") } // non-standard multi-assignment
-def testAF000() { doTest("AF.xsd", "allZones", "AF000.in", "AF000.xml") }
-def testAF001() { doTest("AF.xsd", "allZones", "AF001.in", "AF001.xml") }
-def testAF002() { doTest("AF.xsd", "allZones", "AF002.in", "AF002.xml") }
- def testAG000() { doTest("AG.xsd", "allZones", "AG000.in", "AG000.xml") }
- def testAG001() { doTest("AG.xsd", "allZones", "AG001.in", "AG001.xml") }
- def testAG002() { doTest("AG.xsd", "allZones", "AG002.in", "AG002.xml") }
-def testAH000() { doTest("AH.xsd", "allZones", "AH000.in", "AH000.xml") }
-def testAH001() { doTest("AH.xsd", "allZones", "AH001.in", "AH001.xml") }
-def testAH002() { doTest("AH.xsd", "allZones", "AH002.in", "AH002.xml") }
-def testAI000() { doTest("AI.xsd", "list", "AI000.in", "AI000.xml") }
-def testAJ000() { doTest("AJ.xsd", "list", "AJ000.in", "AJ000.xml") }
-def testAJ001() { doTest("AJ.xsd", "list", "AJ001.in", "AJ001.xml") }
-def testAK000() { doTest("AK.xsd", "list", "AK000.in", "AK000.xml") }
-def testAK001() { doTest("AK.xsd", "list", "AK001.in", "AK001.xml") }
-def testAL000() { doTest("AL.xsd", "list", "AL000.in", "AL000.xml") }
- def testAM000() { doTest("AM.xsd", "mimeType", "AM000.in", "AM000.xml") }
- def testAM001() { doTest("AM.xsd", "mimeType", "AM001.in", "AM001.xml") }
-def testAN000() { doTest("AN.xsd", "path", "AN000.in", "AN000.xml") }
-def testAN001() { doTest("AN.xsd", "path", "AN001.in", "AN001.xml") }
- def testAO000() { doTest("AO.xsd", "element", "AO000.in", "AO000.xml") }
- def testAO001() { doTest("AO.xsd", "element", "AO001.in", "AO001.xml") }
- def testAO002() { doTest("AO.xsd", "element", "AO002.in", "AO002.xml") }
- def testAO003() { doTest("AO.xsd", "element", "AO003.in", "AO003.xml") }
- def testAO004() { doTest("AO.xsd", "element", "AO004.in", "AO004.xml") }
-def testAP000() { doTest("AP.xsd", "parent", "AP000.in", "AP000.xml") }
-def testAQ000() { doTest("AQ.xsd", "ROOT", "AQ000.in", "AQ000.xml") }
-def testAR000() { doTest("AR.xsd", "DFDL", "AR000.in", "AR000.xml") }
- def testAS000() { doTest("AS.xsd", "table", "AS000.in", "AS000.xml") }
- def testAT000() { doTest("AT.xsd", "PRP", "AT000.in", "AT000.xml") }
-def testAU000() { doTest("AU.xsd", "list", "AU000.in", "AU000.xml") }
- def testAV000() { doTest("AV.xsd", "wholeFile", "AV000.in", "AV000.xml") }
- def testAV001() { doTest("AV.xsd", "wholeFile", "AV001.in", "AV001.xml") }
- def testAV002() { doTest("AV.xsd", "wholeFile", "AV002.in", "AV002.xml") }
- def testAV003() { doTest("AV.xsd", "wholeFile", "AV003.in", "AV003.xml") }
-def testAW000() { doTest("AW.xsd", "list", "AW000.in", "AW000.xml") }
-def testAW001() { doTest("AW.xsd", "list", "AW001.in", "AW001.xml") }
-def testAX000() { doTest("AX.xsd", "list", "AX000.in", "AX000.xml") }
-def testAZ000() { doTest("AZ.xsd", "list", "AZ000.in", "AZ000.xml") }
-def testBA000() { doTest("BA.xsd", "list", "BA000.in", "BA000.xml") }
-def testBB000() { doTest("BB.xsd", "list", "BB000.in", "BB000.xml") }
-def testBC000() { doTest("BC.xsd", "list", "BC000.in", "BC000.xml") }
-def testBD000() { doTest("BD.xsd", "list", "BD000.in", "BD000.xml") }
-def testBE000() { doTest("BE.xsd", "seq", "BE000.in", "BE000.xml") }
-def testBE001() { doTest("BE.xsd", "seq", "BE001.in", "BE001.xml") }
-def testBF000() { doTest("BF.xsd", "root", "BF000.in", "BF000.xml") }
-def testBF001() { doTest("BF.xsd", "root", "BF001.in", "BF001.xml") }
-def testBG000() { doTest("BG.xsd", "list", "BG000.in", "BG000.xml") }
+def testAA000() { doTest("AA.dfdl.xsd", "list", "AA000.in", "AA000.xml") }
+def testAB000() { doTest("AB.dfdl.xsd", "matrix", "AB000.in", "AB000.xml") }
+def testAB001() { doTest("AB.dfdl.xsd", "matrix", "AB001.in", "AB000.xml") }
+def testAB002() { doTest("AB.dfdl.xsd", "matrix", "AB002.in", "AB000.xml") }
+def testAB003() { doTest("AB.dfdl.xsd", "matrix", "AB003.in", "AB003.xml") }
+ def testAB004() { doTest("AB.dfdl.xsd", "matrix", "AB004.in", "AB004.xml") }
+ def testAB005() { doTest("AB.dfdl.xsd", "matrix", "AB005.in", "AB005.xml") }
+ def testAB010() { doTest("AB.dfdl.xsd", "matrix", "AB010.in", "AB010.xml") }
+ def testAC000() { doTest("AC.dfdl.xsd", "table", "AC000.in", "AC000.xml") }
+ def testAD000() { doTest("AD.dfdl.xsd", "list", "AD000.in", "AD000.xml") }
+ def testAE000() { doTest("AE.dfdl.xsd", "transposedMatrix", "AE000.in", "AE000.xml") } // non-standard multi-assignment
+def testAF000() { doTest("AF.dfdl.xsd", "allZones", "AF000.in", "AF000.xml") }
+def testAF001() { doTest("AF.dfdl.xsd", "allZones", "AF001.in", "AF001.xml") }
+def testAF002() { doTest("AF.dfdl.xsd", "allZones", "AF002.in", "AF002.xml") }
+ def testAG000() { doTest("AG.dfdl.xsd", "allZones", "AG000.in", "AG000.xml") }
+ def testAG001() { doTest("AG.dfdl.xsd", "allZones", "AG001.in", "AG001.xml") }
+ def testAG002() { doTest("AG.dfdl.xsd", "allZones", "AG002.in", "AG002.xml") }
+def testAH000() { doTest("AH.dfdl.xsd", "allZones", "AH000.in", "AH000.xml") }
+def testAH001() { doTest("AH.dfdl.xsd", "allZones", "AH001.in", "AH001.xml") }
+def testAH002() { doTest("AH.dfdl.xsd", "allZones", "AH002.in", "AH002.xml") }
+def testAI000() { doTest("AI.dfdl.xsd", "list", "AI000.in", "AI000.xml") }
+def testAJ000() { doTest("AJ.dfdl.xsd", "list", "AJ000.in", "AJ000.xml") }
+def testAJ001() { doTest("AJ.dfdl.xsd", "list", "AJ001.in", "AJ001.xml") }
+def testAK000() { doTest("AK.dfdl.xsd", "list", "AK000.in", "AK000.xml") }
+def testAK001() { doTest("AK.dfdl.xsd", "list", "AK001.in", "AK001.xml") }
+def testAL000() { doTest("AL.dfdl.xsd", "list", "AL000.in", "AL000.xml") }
+ def testAM000() { doTest("AM.dfdl.xsd", "mimeType", "AM000.in", "AM000.xml") }
+ def testAM001() { doTest("AM.dfdl.xsd", "mimeType", "AM001.in", "AM001.xml") }
+def testAN000() { doTest("AN.dfdl.xsd", "path", "AN000.in", "AN000.xml") }
+def testAN001() { doTest("AN.dfdl.xsd", "path", "AN001.in", "AN001.xml") }
+ def testAO000() { doTest("AO.dfdl.xsd", "element", "AO000.in", "AO000.xml") }
+ def testAO001() { doTest("AO.dfdl.xsd", "element", "AO001.in", "AO001.xml") }
+ def testAO002() { doTest("AO.dfdl.xsd", "element", "AO002.in", "AO002.xml") }
+ def testAO003() { doTest("AO.dfdl.xsd", "element", "AO003.in", "AO003.xml") }
+ def testAO004() { doTest("AO.dfdl.xsd", "element", "AO004.in", "AO004.xml") }
+def testAP000() { doTest("AP.dfdl.xsd", "parent", "AP000.in", "AP000.xml") }
+def testAQ000() { doTest("AQ.dfdl.xsd", "ROOT", "AQ000.in", "AQ000.xml") }
+def testAR000() { doTest("AR.dfdl.xsd", "DFDL", "AR000.in", "AR000.xml") }
+ def testAS000() { doTest("AS.dfdl.xsd", "table", "AS000.in", "AS000.xml") }
+ def testAT000() { doTest("AT.dfdl.xsd", "PRP", "AT000.in", "AT000.xml") }
+def testAU000() { doTest("AU.dfdl.xsd", "list", "AU000.in", "AU000.xml") }
+ def testAV000() { doTest("AV.dfdl.xsd", "wholeFile", "AV000.in", "AV000.xml") }
+ def testAV001() { doTest("AV.dfdl.xsd", "wholeFile", "AV001.in", "AV001.xml") }
+ def testAV002() { doTest("AV.dfdl.xsd", "wholeFile", "AV002.in", "AV002.xml") }
+ def testAV003() { doTest("AV.dfdl.xsd", "wholeFile", "AV003.in", "AV003.xml") }
+def testAW000() { doTest("AW.dfdl.xsd", "list", "AW000.in", "AW000.xml") }
+def testAW001() { doTest("AW.dfdl.xsd", "list", "AW001.in", "AW001.xml") }
+def testAX000() { doTest("AX.dfdl.xsd", "list", "AX000.in", "AX000.xml") }
+def testAZ000() { doTest("AZ.dfdl.xsd", "list", "AZ000.in", "AZ000.xml") }
+def testBA000() { doTest("BA.dfdl.xsd", "list", "BA000.in", "BA000.xml") }
+def testBB000() { doTest("BB.dfdl.xsd", "list", "BB000.in", "BB000.xml") }
+def testBC000() { doTest("BC.dfdl.xsd", "list", "BC000.in", "BC000.xml") }
+def testBD000() { doTest("BD.dfdl.xsd", "list", "BD000.in", "BD000.xml") }
+def testBE000() { doTest("BE.dfdl.xsd", "seq", "BE000.in", "BE000.xml") }
+def testBE001() { doTest("BE.dfdl.xsd", "seq", "BE001.in", "BE001.xml") }
+def testBF000() { doTest("BF.dfdl.xsd", "root", "BF000.in", "BF000.xml") }
+def testBF001() { doTest("BF.dfdl.xsd", "root", "BF001.in", "BF001.xml") }
+def testBG000() { doTest("BG.dfdl.xsd", "list", "BG000.in", "BG000.xml") }
 
 }

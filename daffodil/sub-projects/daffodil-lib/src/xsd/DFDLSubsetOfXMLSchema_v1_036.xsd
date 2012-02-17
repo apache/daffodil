@@ -303,7 +303,7 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
    <xsd:element name="group" type="sub:groupRef"/>
    <xsd:element ref="sub:choice"/>
    <xsd:element ref="sub:sequence"/>
-   <xsd:element ref="sub:any"/>
+   <!-- <xsd:element ref="sub:any"/> -->
   </xsd:choice>
  </xsd:group>
  
@@ -314,7 +314,7 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
    <!-- <xsd:element ref="xsd:all"/> -->
    <xsd:element ref="sub:choice"/>
    <xsd:element ref="sub:sequence"/>
-   <xsd:element ref="sub:any"/>
+   <!-- <xsd:element ref="sub:any"/> -->
   </xsd:choice>
  </xsd:group>
  
@@ -900,7 +900,7 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
    </xsd:extension>
   </xsd:complexContent>
  </xsd:complexType>
-
+<!-- No ANY wildcards in DFDL v1.0
  <xsd:element name="any" id="any">
   <xsd:annotation>
    <xsd:documentation source="http://www.w3.org/TR/xmlschema-1/#element-any"/>
@@ -914,6 +914,7 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
    </xsd:complexContent>
   </xsd:complexType>
  </xsd:element>
+-->
 
   <xsd:annotation>
    <xsd:documentation>
