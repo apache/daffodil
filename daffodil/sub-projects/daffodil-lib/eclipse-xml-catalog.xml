@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+<catalog>
   <uri name="http://www.example.org/tryEmptyDefaultValue" uri="platform:/resource/dfdl-examples/schema/tryEmptyDefaultValue.xsd"/>
   <uri name="http://www.ibm.com/xmlns/dfdl/testData" uri="platform:/resource/daffodil/srcTest/xsd/tdml.xsd"/>
   <uri name="http://www.ogf.org/dfdl/dfdl-1.0/" uri="platform:/resource/daffodil-lib/src/xsd/DFDL_part3_model.xsd"/>

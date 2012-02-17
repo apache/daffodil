@@ -4,13 +4,9 @@ import scala.xml._
 import scala.xml.parsing._
 import daffodil.exceptions._
 import daffodil.schema.annotation.props.gen._
-import com.sun.xml.xsom.parser.{ SchemaDocument => XSSchemaDocument, _ }
-import com.sun.xml.xsom._
-import com.sun.xml.xsom.util._
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import scala.collection.JavaConversions._
-import parser.AnnotationParser
 
 /**
  * Base class for any DFDL annotation

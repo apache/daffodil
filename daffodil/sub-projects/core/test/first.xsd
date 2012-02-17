@@ -1,0 +1,8 @@
+<xsd:schema 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" 
+  targetNamespace="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData" 
+  elementFormDefault="unqualified">
+  <xsd:include schemaLocation="second.xsd" />
+</xsd:schema>

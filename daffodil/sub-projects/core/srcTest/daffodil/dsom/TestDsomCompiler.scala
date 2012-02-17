@@ -7,6 +7,19 @@ import junit.framework.Assert._
 import org.scalatest.junit.JUnit3Suite
 import daffodil.schema.annotation.props.gen._
 
+import scala.xml._
+
+import scala.xml._
+import scala.xml.parsing._
+import daffodil.exceptions._
+import daffodil.schema.annotation.props.gen._
+import java.io.ByteArrayInputStream
+import java.io.InputStream
+import scala.collection.JavaConversions._
+
+
+
+import java.io.File
 
 /**
  * Scala Unit Testing Notes:
@@ -42,23 +55,19 @@ class TestDsomCompiler extends JUnit3Suite {
       </schema>
 
     val sset = DsomCompiler.compile(testSchema)
-    val sd = sset.schemaDocuments.head
-    val ge = sd.globalElementDecls
-    val df = sd.defaultFormat
-   // val Some(bo) = df.xml.attribute("byteOrder")
-    assertEquals(1, ge.length)
-   // assertEquals("bigEndian", bo.text)
+    val Seq(schema) = sset.schemas
+    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(decl) = schemaDoc.globalElementDecls
+    
+    val df = schemaDoc.defaultFormat
+    val bo = df.byteOrder
+    assertEquals(ByteOrder.BigEndian.toString().toLowerCase(), bo.toLowerCase())
   }
   
   def test2() {
         val testSchema =
       <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <!-- Basic variable definition and inputValueCalc -->
-        <annotation>
-          <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-            <dfdl:format byteOrder="bigEndian" alignmentUnits="byte"/>
-          </appinfo>
-        </annotation>
         <element name="list" type="tns:example1">
           <annotation>
             <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -73,22 +82,37 @@ class TestDsomCompiler extends JUnit3Suite {
         </complexType>
       </schema>
 
-    val sset = DsomCompiler.compile(testSchema)
-    val sd = sset.schemaDocuments.head
-    val ge = sd.globalElementDecls
-    val Some(le) = ge.find{ed=>ed.name == "list"}
-    val fa = le.formatAnnotation.asInstanceOf[DFDLElement]
+   val sset = DsomCompiler.compile(testSchema)
+    val Seq(schema) = sset.schemas
+    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(decl) = schemaDoc.globalElementDecls
+    val Seq(ct) = schemaDoc.globalComplexTypeDefs
+    assertEquals("example1", ct.name)
+        
+    val fa = decl.formatAnnotation.asInstanceOf[DFDLElement]
     assertEquals(AlignmentUnits.Bytes, fa.alignmentUnits)
     fa.alignmentUnits match {
       case AlignmentUnits.Bits => println("was bits")
       case AlignmentUnits.Bytes => println("was bytes")
     }
-    //fa.occursCountKind
-    println(fa.toString())
-    
-    //val Some(bo) = df.xml.attribute("byteOrder")
-    assertEquals(1, ge.length)
-    //assertEquals("bigEndian", bo.text)
   }
+  
+ /* def testXsomMultifile(){
+   
+    val parser = new XSOMParser()
+    val apf = new DomAnnotationParserFactory()
+    parser.setAnnotationParser(apf)
+
+    val inFile = new File("test/first.xsd")
+
+    parser.parse(inFile)
+
+    val sset = parser.getResult()
+    val sds = parser.getDocuments().toList
+    assertTrue(sds.size() >= 2)
+  
+    sds.map{sd => println(sd.getSystemId)}
+  }*/
+  
   
 }
