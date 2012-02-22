@@ -1,4 +1,4 @@
-Daffodil TODO:
+Daffodil TODO: 
 
 * Add explicit validation of the DFDL Schema using the DFDL-Schema-for-DFDL-Schema
 ** Also consider generating classes like daffodil.schema.annotation.Format (or base classes/traits thereof) 
