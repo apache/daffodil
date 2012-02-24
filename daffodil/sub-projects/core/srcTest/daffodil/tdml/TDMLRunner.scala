@@ -11,19 +11,33 @@ import org.scalatest.junit.JUnit3Suite
 import junit.framework.Assert._
 
 /**
- * Parses and runs tests expressed in IBM's tdml "Test Data Markup Language"
+ * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
  */
 
+//
+// TODO: plug in Daffodil API to run the tests.
+//
+// TODO: validate the TDML with the schema for TDML. (Temporarily just do this in eclipse using its validator)
+//
+// TODO: validate the infoset XML (expected result) against the DFDL Schema, that is using it as an XML Schema
+// for the infoset. This would prevent errors where the infoset instance and the schema drift apart under maintenance.
+//
+// TODO: validate the actual result against the DFDL Schema using it as an XML Schema. 
 //
 // TODO: add ability to embed the schema directly in the TDML file for a 100% self-contained test case. Note that
 // the schemas should not be inside the individual test cases, but instead should be separate top-level structures 
 // referenced from the test cases.
 //
-// TODO: validate the infoset XML against the DFDL Schema, that is using it as an XML Schema for the infoset.
-// This would prevent errors where the infoset instance and the schema drift apart under maintenance.
-//
 // TODO: Unparser variant. Inverts the whole thing by starting from the infoset, and constructing a document.
 // 
+
+/**
+ * TDML test suite runner
+ * 
+ * Keep this independent of Daffodil, so that it can be used to run tests against other DFDL implementations as well.
+ * E.g., it should only need an API specified as a collection of Scala traits, and some simple way to inject 
+ * dependency on one factory to create processors.
+ */
 
 case class DFDLTestSuite(ts: NodeSeq) {
   lazy val parserTestCases = (ts \ "parserTestCase").map { node => new ParserTestCase(node, this) }
@@ -80,7 +94,7 @@ case class DocumentPart(part: Node, parent: Document) {
 
   // Note: anything that is not a valid hex digit is simply skipped
   // TODO: we should check for whitespace and other characters we want to allow, and verify them.
-  // TODO: Or better, validate this in the XML Schema for tdml
+  // TODO: Or better, validate this in the XML Schema for tdml via a pattern facet
   // TODO: Consider whether to support a comment syntax. When showing data examples this may be useful.
   //
   lazy val hexDigits = partRawContent.flatMap { ch => if (validHexDigits.contains(ch)) List(ch) else Nil }

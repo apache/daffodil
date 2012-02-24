@@ -64,6 +64,49 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals(ByteOrder.BigEndian.toString().toLowerCase(), bo.toLowerCase())
   }
   
+   // @Test
+  def testSchemaValidationSubset() {
+    val testSchema =
+      <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <element name="list" type="tns:example1"/>
+        <complexType name="example1">
+          <sequence maxOccurs="2"><!-- DFDL SUBSET DOESN'T ALLOW THIS -->
+            <element name="w" type="xsd:int"/>
+          </sequence>
+        </complexType>
+      </schema>
+   val ex = intercept[Exception] { 
+      DsomCompiler.compile(testSchema)
+      } 
+    // should throw a validation error. 
+    println(ex) 
+    val msg = ex.getMessage()
+    val hasErrorText = msg.contains("maxOccurs");
+    assertTrue(hasErrorText)
+  } 
+  
+     // @Test
+  def testSchemaValidationPropertyChecking() {
+    val testSchema =
+      <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <element name="list" type="tns:example1"/>
+        <complexType name="example1">
+          <sequence>
+            <element name="w" type="xsd:int" dfdl:byteOrder="invalidValue" />
+
+          </sequence>
+        </complexType>
+      </schema>
+   val ex = intercept[Exception] { 
+      DsomCompiler.compile(testSchema)
+      } 
+    // should throw a validation error. 
+    println(ex) 
+    val msg = ex.getMessage()
+    val hasErrorText = msg.contains("invalidValue");
+    assertTrue(hasErrorText)
+  }
+  
   def test2() {
       val testSchema =
       <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">

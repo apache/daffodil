@@ -56,6 +56,7 @@ import daffodil.exceptions.{MalformedXMLException, DFDLSchemaDefinitionException
                             DFDLDisallowConstructException, DFDLReservedKeywordException, UnimplementedException}
 import daffodil.util.GrowableByteBuffer
 import daffodil.xml.{Namespaces, XMLUtil}
+import daffodil.dsom.DsomCompiler._
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
@@ -126,13 +127,36 @@ class SchemaParser extends Serializable {
     parse(new FileInputStream(fileName))
 
   /** Parses a schema in the given InputStream */
-  def parse(input:InputStream):Unit = {
+  def parse(input: InputStream): Unit = {
+    val dfdlSubsetNS = XMLUtil.DFDL_NAMESPACE + "XMLSchemaSubset"
+    val dfdlSchemaNode = scala.xml.XML.load(input)
+    validateDFDLSchema(dfdlSchemaNode)
+    val tns = dfdlSchemaNode.namespace.toString
+    val inputStream = {
+        // because Eclipse gives us nice electric XML mode for editing DFDL schemas
+        // and will check our usage of the XML Schema subset, as well as proper use of
+        // short form annotations, etc., for these reasons we really want to use the 
+        // DFDL Subset-of-XML-Schema URI in our DFDL schemas, not the basic XML Schema URI.
+        //
+        // Unfortunately, that means all the symbols are in the "wrong" namespace per-se.
+        // So we force-switch the namespace via this total awful hack.
+        //
+        // FIXME: this won't work if schemas include other DFDL Schemas. We'd have to 
+        // intercept all of them and fix them up the same way. This is doable... not sure
+        // it's worth it. Also, I worry about performance, but that may be silly. Cost of
+        // stringing a whole schema is tiny compared with the processing of it.
+        //
+        val dfdlSchemaString = dfdlSchemaNode.toString
+        val xmlSchemaString = dfdlSchemaString.replaceAll(dfdlSubsetNS, XMLUtil.XSD_NAMESPACE)
+        val inStream = new java.io.ByteArrayInputStream(xmlSchemaString.getBytes());
+        inStream
+      }
     try {
       val builder = new SAXBuilder()
-      val document = builder.build(input)    
+      val document = builder.build(inputStream)
       parse(document getRootElement)
-    }catch {
-      case e:JDOMParseException => throw new MalformedXMLException("Parsing the schema. "+e.getMessage,e)
+    } catch {
+      case e: JDOMParseException => throw new MalformedXMLException("Parsing the schema. " + e.getMessage, e)
     }
   }
 
@@ -140,7 +164,8 @@ class SchemaParser extends Serializable {
    * @param root the root of the schema
    */
   def parse(root:Element):Unit = {
-    if (XMLUtil.getFullNameWithNamespace(root)!=XMLUtil.SCHEMA)
+    val nsroot = XMLUtil.getFullNameWithNamespace(root)
+    if (nsroot!=XMLUtil.SCHEMA)
       throw new DFDLSchemaDefinitionException("Top element is not xsd:schema",null,root,null,None)
 
     this root = root
