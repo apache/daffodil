@@ -1,14 +1,21 @@
 package daffodil.tdml
 
-/**
- * Copyright (C) 2012, Tresys Technologies LLC., All rights reserved.
- */
+import java.io.File
 
-import scala.xml._
-import daffodil.exceptions.Assert
+import scala.Array.canBuildFrom
+import scala.xml.NodeSeq.seqToNodeSeq
+import scala.xml.Node
+import scala.xml.NodeSeq
+import scala.xml.Utility
+import scala.xml.XML
 
 import org.scalatest.junit.JUnit3Suite
-import junit.framework.Assert._
+
+import daffodil.Implicits.using
+import daffodil.dsom.Compiler
+import daffodil.xml.XMLUtil
+import junit.framework.Assert.assertEquals
+import junit.framework.Assert.assertTrue
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -33,29 +40,100 @@ import junit.framework.Assert._
 
 /**
  * TDML test suite runner
- * 
+ *
  * Keep this independent of Daffodil, so that it can be used to run tests against other DFDL implementations as well.
- * E.g., it should only need an API specified as a collection of Scala traits, and some simple way to inject 
+ * E.g., it should only need an API specified as a collection of Scala traits, and some simple way to inject
  * dependency on one factory to create processors.
  */
 
-case class DFDLTestSuite(ts: NodeSeq) {
+class DFDLTestSuite(ts: NodeSeq, val tdmlFile: File = null) {
+
+  def this(tdmlFile: File) = this(XML.loadFile(tdmlFile), tdmlFile)
+
   lazy val parserTestCases = (ts \ "parserTestCase").map { node => new ParserTestCase(node, this) }
   lazy val suiteName = (ts \ "@suiteName").text
   lazy val description = (ts \ "@description").text
+
+  def runAllTests(schema: Option[Node] = None) {
+    parserTestCases.map { _.run(schema) }
+  }
+
+  def runOneTest(testName: String, schema: Option[Node] = None) {
+    val testCase = parserTestCases.find(_.name == testName)
+    testCase match {
+      case None => throw new Exception("test " + testName + " was not found.")
+      case Some(tc) => {
+        tc.run(schema)
+      }
+    }
+  }
+
+  /**
+   * Try a few possibilities to find the model/schema file.
+   *
+   * IBM's suites have funny model paths in them. We don't have that file structure,
+   * so we look for the schema/model files in the working directory, and in the same
+   * directory as the tdml file.
+   */
+  def findModelFile(fileName: String): File = {
+    val firstTry = new File(fileName)
+    if (firstTry.exists()) firstTry
+    else {
+      // try ignoring the directory part
+      val parts = fileName.split("/")
+      val filePart = parts.last
+      val secondTry = new File(filePart)
+      if (secondTry.exists()) secondTry
+      else {
+        val tdmlDir = tdmlFile.getParent()
+        val path = tdmlDir + "/" + filePart
+        val thirdTry = new File(path)
+        if (thirdTry.exists()) thirdTry
+        else {
+          throw new Exception("Unable to find model file " + fileName + ".")
+        }
+      }
+    }
+  }
+
 }
 
-case class ParserTestCase(ptc: NodeSeq, parent: DFDLTestSuite) {
+case class ParserTestCase(ptc: NodeSeq, val parent: DFDLTestSuite) {
   lazy val Seq(document) = (ptc \ "document").map { node => new Document(node, this) }
   lazy val Seq(infoset) = (ptc \ "infoset").map { node => new Infoset(node, this) }
   lazy val name = (ptc \ "@name").text
   lazy val root = (ptc \ "@root").text
-  lazy val model = (ptc \ "@model").text 
+  lazy val model = (ptc \ "@model").text
   lazy val description = (ptc \ "@description").text
   lazy val unsupported = (ptc \ "@unsupported").text match {
     case "true" => true
     case "false" => false
     case _ => false
+  }
+
+  def run(schema: Option[Node] = None) = {
+    val sch = schema match {
+      case Some(sch) => {
+        if (model != "") throw new Exception("You supplied a model attribute, and a schema argument. Can't have both.")
+        sch
+      }
+      case None => {
+        if (model == "") throw new Exception("No model was found.")
+        val schemaFile = parent.findModelFile(model)
+        val schemaNode = XML.loadFile(schemaFile)
+        schemaNode
+      }
+    }
+    val compiler = Compiler()
+    val parser = compiler.compile(sch).onPath("/")
+    val data = document.input
+    val actual = parser.parse(data)
+    val trimmed = Utility.trim(actual)
+    val expected = infoset.contents
+    val expectedNoAttrs = XMLUtil.removeAttributes(expected)
+    val actualNoAttrs = XMLUtil.removeAttributes(trimmed)
+    assertEquals(expectedNoAttrs, actualNoAttrs)
+    System.err.println("Test " + name + " passed.")
   }
 }
 
@@ -75,6 +153,17 @@ case class Document(d: NodeSeq, parent: ParserTestCase) {
     case _ => realDocumentParts
   }
   lazy val documentBytes = documentParts.map { _.convertedContent }.flatten
+
+  /**
+   * this 'input' is the kind our parser's parse method expects.
+   */
+  lazy val input = {
+    val bytes = documentBytes.toArray
+    val inputStream = new java.io.ByteArrayInputStream(bytes);
+    val rbc = java.nio.channels.Channels.newChannel(inputStream);
+    rbc
+  }
+
 }
 
 case class DocumentPart(part: Node, parent: Document) {
@@ -116,6 +205,7 @@ case class DocumentPart(part: Node, parent: Document) {
 
 case class Infoset(i: NodeSeq, parent: ParserTestCase) {
   lazy val Seq(dfdlInfoset) = (i \ "dfdlInfoset").map { node => new DFDLInfoset(Utility.trim(node), this) }
+  lazy val contents = dfdlInfoset.contents
 }
 
 case class DFDLInfoset(di: Node, parent: Infoset) {
@@ -186,7 +276,7 @@ class TestTDMLRunner extends JUnit3Suite {
     val infoset = ptc.infoset
     val actualContent = infoset.dfdlInfoset.contents
     val trimmed = actualContent
-    val expected = <byte1 xmlns:xsi={ XSIns }  xmlns:xs={ XSDns } xsi:type="xs:byte">123</byte1>
+    val expected = <byte1 xmlns:xsi={ XSIns } xmlns:xs={ XSDns } xsi:type="xs:byte">123</byte1>
     assertEquals(expected, trimmed)
   }
 
@@ -220,6 +310,128 @@ class TestTDMLRunner extends JUnit3Suite {
     val trimmed = actualContent
     val expected = <byte1 xmlns:xsi={ XSIns } xmlns:xs={ XSDns } xsi:type="xs:byte">123</byte1>
     assertEquals(expected, trimmed)
+  }
+
+  // @Test
+  def testTDMLrunOne() {
+    val testSchema =
+      <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
+      </schema>
+    val tdml = <testSuite suiteName="theSuiteName">
+                 <parserTestCase name="firstUnitTest" root="data">
+                   <document>37\n</document>
+                   <infoset>
+                     <dfdlInfoset xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                       <data xmlns="http://example.com">37</data>
+                     </dfdlInfoset>
+                   </infoset>
+                 </parserTestCase>
+               </testSuite>
+    val ts = new DFDLTestSuite(tdml)
+    ts.runOneTest("firstUnitTest", Some(testSchema))
+  }
+
+  // @Test
+  def testTDMLrunAll() {
+    val testSchema =
+      <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
+      </schema>
+    val tdml = <testSuite suiteName="theSuiteName">
+                 <parserTestCase name="firstUnitTest" root="data">
+                   <document>37\n</document>
+                   <infoset>
+                     <dfdlInfoset xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                       <data xmlns="http://example.com">37</data>
+                     </dfdlInfoset>
+                   </infoset>
+                 </parserTestCase>
+                 <parserTestCase name="firstUnitTest" root="data">
+                   <document>37\n</document>
+                   <infoset>
+                     <dfdlInfoset xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                       <data xmlns="http://example.com">37</data>
+                     </dfdlInfoset>
+                   </infoset>
+                 </parserTestCase>
+               </testSuite>
+    val ts = new DFDLTestSuite(tdml)
+    ts.runAllTests(Some(testSchema))
+  }
+
+  def testRunModelFile() {
+    val testSchema =
+      <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
+      </schema>
+    val tmpFileName = getClass.getName() + ".dfdl.xsd"
+    val tdml = <testSuite suiteName="theSuiteName">
+                 <parserTestCase name="firstUnitTest" root="data" model={ tmpFileName }>
+                   <document>37\n</document>
+                   <infoset>
+                     <dfdlInfoset xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                       <data xmlns="http://example.com">37</data>
+                     </dfdlInfoset>
+                   </infoset>
+                 </parserTestCase>
+               </testSuite>
+    try {
+      using(new java.io.FileWriter(tmpFileName)) {
+        fileWriter =>
+          fileWriter.write(testSchema.toString())
+      }
+      val ts = new DFDLTestSuite(tdml)
+      ts.runOneTest("firstUnitTest")
+    } finally {
+      val f = new java.io.File(tmpFileName)
+      f.delete()
+    }
+  }
+
+  def testRunTDMLFile() {
+    val testSchema =
+      <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
+      </schema>
+    val tmpFileName = getClass.getName() + ".dfdl.xsd"
+    val tmpTDMLFileName = getClass.getName() + ".tdml"
+    val tdml = <testSuite suiteName="theSuiteName">
+                 <parserTestCase name="testRunTDMLFile" root="data" model={ tmpFileName }>
+                   <document>37\n</document>
+                   <infoset>
+                     <dfdlInfoset xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                       <data xmlns="http://example.com">37</data>
+                     </dfdlInfoset>
+                   </infoset>
+                 </parserTestCase>
+               </testSuite>
+    try {
+      using(new java.io.FileWriter(tmpFileName)) {
+        fw =>
+          fw.write(testSchema.toString())
+      }
+      using(new java.io.FileWriter(tmpTDMLFileName)) {
+        fw =>
+          fw.write(tdml.toString())
+      }
+      val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+      ts.runAllTests()
+    } finally {
+      try {
+        val f = new java.io.File(tmpFileName)
+        f.delete()
+      } finally {
+        val t = new java.io.File(tmpTDMLFileName)
+        t.delete()
+      }
+    }
+  }
+
+  def testFindModelFile() {
+    val ts = new DFDLTestSuite(new File("./test-suite/ibm-contributed/dpaext1.tdml"))
+    val mf = ts.findModelFile("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
+    assertTrue(mf.exists())
   }
 
 }

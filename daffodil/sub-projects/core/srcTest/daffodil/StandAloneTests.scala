@@ -1,15 +1,12 @@
 package daffodil
 
-import daffodil.debugger.DebugUtil
-import daffodil.parser.SchemaParser
-import xml.XMLUtil
-import java.io.FileOutputStream
-import java.io.FileInputStream
-import daffodil.xml.TransformUtil
-import scala.io.Source
+import scala.xml.Utility
+
 import org.scalatest.junit.JUnit3Suite
-import junit.framework.Assert._
-import scala.xml.Utility.trim
+
+import daffodil.debugger.DebugUtil
+import daffodil.dsom.Compiler
+import junit.framework.Assert.assertEquals
 
 class StandAloneTests extends JUnit3Suite {
   
@@ -37,18 +34,19 @@ class StandAloneTests extends JUnit3Suite {
 //    }
   
   def doTest(schemaFileName : String, rootName : String, inputFileName : String, expectedFileName : String) {
-      val schemaParser = new SchemaParser
+      val compiler = daffodil.dsom.Compiler()
       if (isDebug)
-        schemaParser setDebugging (true)
+        compiler.setDebugging (true)
+      compiler.setDistinguishedRootNode(rootName)
       val testDir = "test/"
       System.err.print("\nTest "+ inputFileName)
-      DebugUtil.time("Parsing schema", schemaParser.parse(testDir + schemaFileName))
-      val result = schemaParser eval (testDir + inputFileName, rootName)
-      val res = trim(XMLUtil.element2Elem(result))
-
-      System.err.print(". Total nodes:" + XMLUtil.getTotalNodes)
-      val expectedXML = trim(scala.xml.XML.loadFile(testDir + expectedFileName))
-      assertEquals(expectedXML, res) // Need to compare in a canonicalized manner.
+      val parserFactory = DebugUtil.time("Compiling schema", compiler.compile(testDir + schemaFileName))
+      val parser = parserFactory.onPath("/")
+      val data = Compiler.fileToReadableByteChannel(new java.io.File(testDir + inputFileName))
+      val result = parser.parse(data)
+      val actual = Utility.trim(result)
+      val expectedXML = Utility.trim(scala.xml.XML.loadFile(testDir + expectedFileName))
+      assertEquals(expectedXML, actual) // Need to compare in a canonicalized manner.
       System.err.print(" passed.")
   }
   

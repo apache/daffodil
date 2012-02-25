@@ -36,183 +36,162 @@ package daffodil
  * Date: 2010
  */
 
-import exceptions.DFDLSchemaDefinitionException
-import java.net.URL
-import java.util.Properties
+import java.io.ByteArrayInputStream
+import java.io.FileOutputStream
 
-import daffodil.arguments.ArgumentParser
+import daffodil.api.DFDL
 import daffodil.arguments.ArgumentDescription
-import daffodil.arguments.{OptionalMultiple,OptionalSingle}
-import daffodil.arguments.SingleValue
+import daffodil.arguments.ArgumentParser
+import daffodil.arguments.OptionalSingle
 import daffodil.debugger.DebugUtil
-import daffodil.parser.SchemaParser
 import xml.XMLUtil
-import java.io._
 
 /**
  * The command line interface to Daffodil
- *
- * @version 1
  * @author Alejandro Rodriguez
- * */
+ */
 object Main {
 
   private val NAME = "Daffodil"
   private val MAJOR_VERSION = 0
-  private val MINOR_VERSION = 1
-  private val YEAR = 2010
-  
-  def main(arguments:Array[String]):Unit = {
+  private val MINOR_VERSION = 2
+  private val YEAR = 2012
+
+  def main(arguments: Array[String]): Unit = {
     val argumentParser = new ArgumentParser
 
-    argumentParser add (new ArgumentDescription("schema","schema","s",true,OptionalSingle))
-    argumentParser add (new ArgumentDescription("input","input","i",true,OptionalSingle))
-    argumentParser add (new ArgumentDescription("root","root","r",true,OptionalSingle))
-    argumentParser add (new ArgumentDescription("parser-destination","parser-destination","D",true,OptionalSingle))
-    argumentParser add (new ArgumentDescription("parser","parser","p",true,OptionalSingle))
+    argumentParser add (new ArgumentDescription("schema", "schema", "s", true, OptionalSingle))
+    argumentParser add (new ArgumentDescription("input", "input", "i", true, OptionalSingle))
+    argumentParser add (new ArgumentDescription("root", "root", "r", true, OptionalSingle))
+    argumentParser add (new ArgumentDescription("parser-destination", "parser-destination", "D", true, OptionalSingle))
+    argumentParser add (new ArgumentDescription("parser", "parser", "p", true, OptionalSingle))
+    argumentParser add (new ArgumentDescription("output", "output", "o", true, OptionalSingle))
 
-    argumentParser add (new ArgumentDescription("output","output","o",true,OptionalSingle))
-    argumentParser add (new ArgumentDescription("grddl","grddl","g",true,OptionalMultiple))
-    argumentParser add (new ArgumentDescription("grddlOutput","grddloutput","G",true,OptionalSingle))
+    //    argumentParser add (new ArgumentDescription("grddl", "grddl", "g", true, OptionalMultiple))
+    //    argumentParser add (new ArgumentDescription("grddlOutput", "grddloutput", "G", true, OptionalSingle))
 
-    argumentParser add (new ArgumentDescription("debug","debug","d",false,OptionalSingle))
-    argumentParser add (new ArgumentDescription("version","version","v",false,OptionalSingle))
-    argumentParser add (new ArgumentDescription("help","help","h",false,OptionalSingle))
-    argumentParser add (new ArgumentDescription("verbose","verbose","V",false,OptionalSingle))
-    
+    argumentParser add (new ArgumentDescription("debug", "debug", "d", false, OptionalSingle))
+    argumentParser add (new ArgumentDescription("version", "version", "v", false, OptionalSingle))
+    argumentParser add (new ArgumentDescription("help", "help", "h", false, OptionalSingle))
+    argumentParser add (new ArgumentDescription("verbose", "verbose", "V", false, OptionalSingle))
+
     argumentParser.add(new ArgumentDescription("unparse", "unparse", "u", true, OptionalSingle))
 
     try {
-      argumentParser parse(arguments)
-    }catch {
-      case e:IllegalArgumentException => System.err.println(e.getMessage); usage
+      argumentParser parse (arguments)
+    } catch {
+      case e: IllegalArgumentException => System.err.println(e.getMessage); usage
     }
 
-    if (argumentParser isSet("help"))
+    if (argumentParser isSet ("help"))
       usage
 
-    if (argumentParser isSet("version"))
+    if (argumentParser isSet ("version"))
       printVersion
 
-    if (argumentParser isSet("verbose"))
+    if (argumentParser isSet ("verbose"))
       DebugUtil.verbose = true
 
-    if (argumentParser.isSet("parser") && argumentParser.isSet("schema")){
+    if (argumentParser.isSet("parser") && argumentParser.isSet("schema")) {
       System.err.println("Both --schema and --parser option specified. Please use only one.")
       usage
     }
 
-    if (argumentParser.isSet("input") && argumentParser.isSet("unparse")){
+    if (argumentParser.isSet("input") && argumentParser.isSet("unparse")) {
       System.err.println("Both --input and --unparse option specified. Please use only one.")
       usage
     }
-    
-    var schemaParser:SchemaParser = null
+
+    val compiler = daffodil.dsom.Compiler()
+    var processorFactory: DFDL.ProcessorFactory = null
+    var processor: DFDL.DataProcessor = null
 
     try {
 
-      if (argumentParser isSet "parser")
-        schemaParser = DebugUtil.time("Loading parser",readParser(argumentParser getSingle ("parser")))
-      else if (argumentParser isSet "schema"){
-        val schema = argumentParser getSingle("schema")
-
-        schemaParser = new SchemaParser
-        if (argumentParser isSet("debug"))
-          schemaParser setDebugging(true)
-
-        DebugUtil.time("Parsing schema",schemaParser parse(schema))
-      }else{
-         System.err.println("Neither --schema nor --parser option specified. Nothing to do.")
+      if (argumentParser isSet "parser") {
+        processorFactory = DebugUtil.time("Loading parser", compiler.reload(argumentParser getSingle ("parser")))
+      } else if (argumentParser isSet "schema") {
+        val schema = argumentParser getSingle ("schema")
+        processorFactory = DebugUtil.time("Compiling schema", compiler.compile(schema))
+      } else {
+        System.err.println("Neither --schema nor --parser option specified. Nothing to do.")
         usage
       }
+      processor = processorFactory.onPath("/")
+      if (argumentParser isSet ("debug"))
+        compiler.setDebugging(true)
+      if (argumentParser isSet ("root"))
+        compiler.setDistinguishedRootNode(argumentParser getSingle ("root"), "") //TODO: namespace
 
-      if ( argumentParser.isSet("unparse")) {
+      if (argumentParser.isSet("unparse")) try {
         val infoset = argumentParser.getSingle("unparse")
-        
-        if (!argumentParser.isSet("root") && schemaParser.getTopElements.size != 1)
-          if (schemaParser.getTopElements.size==0)
-            throw new DFDLSchemaDefinitionException("Schema does not contain a top level element")
-          else
-            throw new DFDLSchemaDefinitionException("Schema contains more than one top level element "+
-                    schemaParser.getTopElements+".\n Please specify which " +
-                "one to use as root of the document with the option -r ")
-
-        val data = 
-          if ( argumentParser.isSet("root"))
-            DebugUtil.time("Unparsing infoset",schemaParser.unparse(infoset, argumentParser.getSingle("root")))
-          else
-            DebugUtil.time("Unparsing infoset",schemaParser.unparse(infoset, schemaParser.getTopElements(0)))
-          
-        val output =
-          if ( argumentParser.isSet("output"))
+        val outputStream =
+          if (argumentParser.isSet("output"))
             new FileOutputStream(argumentParser.getSingle("output"));
           else
             System.out
-          
-        //TODO Once I decide unparse return type. Figure out how to write it out.
-        DebugUtil.time("Saving file", output.write(data.array, 0, data.position))
+        val out = java.nio.channels.Channels.newChannel(outputStream)
+
+        try {
+          val document = scala.xml.XML.loadFile(infoset)
+          DebugUtil.time("Unparsing infoset", processor.unparse(out, document))
+        } finally {
+          out.close()
+        }
+      } finally {
+        // nothing. Just keep going.
       }
 
-      if (argumentParser isSet "input"){
+      if (argumentParser isSet "input") {
+        // not called parse because of single-letter command line options 
+        // naming conflicts. I.e., -p is the 'parser' aka processor.
+        // -i and -u control parsing versus unparsing.        
+        val data = argumentParser getSingle ("input")
+        val bytes = data.getBytes()
+        val inputStream = new ByteArrayInputStream(bytes);
+        val rbc = java.nio.channels.Channels.newChannel(inputStream);
+        val result = DebugUtil.time("Parsing document", processor.parse(rbc))
 
-        val data = argumentParser getSingle("input")
-
-        if (!argumentParser.isSet("root") && schemaParser.getTopElements.size != 1)
-          if (schemaParser.getTopElements.size==0)
-            throw new DFDLSchemaDefinitionException("Schema does not contain a top level element")
-          else
-            throw new DFDLSchemaDefinitionException("Schema contains more than one top level element "+
-                    schemaParser.getTopElements+".\n Please specify which " +
-                "one to use as root of the document with the option -r ")
-
-
-        val root =
-          if (argumentParser isSet("root"))
-            DebugUtil.time("Parsing document",schemaParser eval(data,argumentParser getSingle ("root")))
-          else
-            DebugUtil.time("Parsing document",schemaParser eval(data,schemaParser.getTopElements(0)))
-
-
-        DebugUtil log("Total nodes:"+XMLUtil.getTotalNodes)
+        DebugUtil log ("Total nodes:" + XMLUtil.getTotalNodes)
 
         val output =
-          if (argumentParser isSet("output"))
-            new FileOutputStream(argumentParser getSingle("output"))
+          if (argumentParser isSet ("output"))
+            new FileOutputStream(argumentParser getSingle ("output"))
           else
             System.out
-
-
-        // DBUtil printingPhase(true)
-        DebugUtil.time("Printing",XMLUtil serialize(output,root))
-
-//        if (argumentParser isSet("grddl"))
-//          if (argumentParser isSet("output")){
-//            val trans = argumentParser getMultiple("grddl")
-//            val xmlOutput = new File(argumentParser getSingle("output"))
-//            val rdfOutput = argumentParser get("grddlOutput") match {
-//              case SingleValue(o) => o
-//              case _ => xmlOutput.getAbsolutePath + ".rdf"
-//            }
-//            DebugUtil.time("Injecting GRDDL headers",GRDDLUtil inject(root,trans))
-//            DebugUtil.time("Performing GRDDL transformations",
-//              GRDDLUtil glean(new URL(new URL("file:///"),xmlOutput getAbsolutePath),
-//                      trans,new FileOutputStream(rdfOutput)))
-//          }else{
-//            System.err.println("You need to specify an output file in order to use GRDDL")
-//
-//          }
+        try {
+          // DBUtil printingPhase(true)
+          DebugUtil.time("Printing", output.write(result.toString.getBytes()))
+        } finally {
+          output.close()
+        }
       }
-      
-      if (argumentParser isSet "parser-destination"){
-        DebugUtil time("Saving parser",writeParser(schemaParser,argumentParser getSingle ("parser-destination")))
+      //        if (argumentParser isSet("grddl"))
+      //          if (argumentParser isSet("output")){
+      //            val trans = argumentParser getMultiple("grddl")
+      //            val xmlOutput = new File(argumentParser getSingle("output"))
+      //            val rdfOutput = argumentParser get("grddlOutput") match {
+      //              case SingleValue(o) => o
+      //              case _ => xmlOutput.getAbsolutePath + ".rdf"
+      //            }
+      //            DebugUtil.time("Injecting GRDDL headers",GRDDLUtil inject(root,trans))
+      //            DebugUtil.time("Performing GRDDL transformations",
+      //              GRDDLUtil glean(new URL(new URL("file:///"),xmlOutput getAbsolutePath),
+      //                      trans,new FileOutputStream(rdfOutput)))
+      //          }else{
+      //            System.err.println("You need to specify an output file in order to use GRDDL")
+      //
+      //          }
+
+      if (argumentParser isSet "parser-destination") {
+        DebugUtil time ("Saving parser", processor.save(argumentParser getSingle ("parser-destination")))
       }
 
-
-    }catch{
-      case e:Exception => DebugUtil.printException(e)
+    } catch {
+      case e: Exception => DebugUtil.printException(e)
     }
   }
-  
+
   private def usage = {
     println("""
       Daffodil
@@ -279,26 +258,13 @@ object Main {
       -V, --verbose          prints additional information while processing.
       """)
 
-    System exit(1)
+    System exit (1)
   }
-  
+
   private def printVersion = {
-    print(NAME+" "+YEAR+"-"+MAJOR_VERSION+"."+MINOR_VERSION)
-    println("   build "+BuildNumber.buildNumber)
-    System exit(1)
-  }
-
-  /** Deserializaes a DFDL generated parser from a file */
-  private def readParser(fileName:String):SchemaParser = {
-    val is = new ObjectInputStream(new FileInputStream(fileName))
-    is.readObject.asInstanceOf[SchemaParser]
-  }
-
-  /** Serializes the DFDL generated parser to a file */
-  private def writeParser(schemaParser:SchemaParser,fileName:String) = {
-    val os = new ObjectOutputStream(new FileOutputStream(fileName))
-    os writeObject(schemaParser)
-    os.close    
+    print(NAME + " " + YEAR + "-" + MAJOR_VERSION + "." + MINOR_VERSION)
+    println("   build " + BuildNumber.buildNumber)
+    System exit (1)
   }
 
 }
