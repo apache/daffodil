@@ -43,6 +43,8 @@ object XMLUtil {
   val XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema" // removed trailing slash (namespaces care)
   val XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance"
   val DFDL_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/" // dfdl ns does have a trailing slash
+  val TDML_NAMESPACE = "http://www.ibm.com/xmlns/dfdl/testData"
+  val DFDL_XMLSCHEMASUBSET_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
   val EXAMPLE_NAMESPACE = "http://example.com"
   val PCDATA = "#PCDATA"
   val REM = "#REM"
@@ -561,12 +563,14 @@ import xml.transform.{RuleTransformer, RewriteRule}
 import xml.{NodeSeq, Node, Elem}
 import xml.Utility.trim
 
-
+/**
+ * Removes attributes, and also element prefixes.
+ */
  private class RemoveAttributes extends RewriteRule {
       override def transform(n: Node) = n match {
           case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
             val childrenWithoutAttributes : NodeSeq = children.map{myRule.transform(_)(0)}
-            Elem(prefix, label, noAttributes, scope, childrenWithoutAttributes : _*)
+            Elem(null, label, noAttributes, scope, childrenWithoutAttributes : _*)
           }
           case other => other
       }

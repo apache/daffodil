@@ -14,6 +14,7 @@ import org.scalatest.junit.JUnit3Suite
 import daffodil.Implicits.using
 import daffodil.dsom.Compiler
 import daffodil.xml.XMLUtil
+import daffodil.util.Validator
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 
@@ -46,13 +47,26 @@ import junit.framework.Assert.assertTrue
  * dependency on one factory to create processors.
  */
 
-class DFDLTestSuite(ts: NodeSeq, val tdmlFile: File = null) {
+class DFDLTestSuite(ts: Node, val tdmlFile: File = null) {
 
+  //
+  // we immediately validate the incoming test suite document
+  // against its schema. We're depending on Validator to find all the 
+  // included schemas such as that for embedded defineSchema named schema nodes.
+  // 
+  val tdmlXSDFile = "./srcTest/xsd/tdml.xsd" //TODO: take from resource so it can be in the jar.
+  val tdmlSchema = XML.loadFile(tdmlXSDFile)
+  assert(Validator.validateXMLNodes(tdmlSchema, ts) != null)
+
+  //
+  // alternate constructor from a file
+  //
   def this(tdmlFile: File) = this(XML.loadFile(tdmlFile), tdmlFile)
 
-  lazy val parserTestCases = (ts \ "parserTestCase").map { node => new ParserTestCase(node, this) }
+  lazy val parserTestCases = (ts \ "parserTestCase").map { node => ParserTestCase(node, this) }
   lazy val suiteName = (ts \ "@suiteName").text
   lazy val description = (ts \ "@description").text
+  lazy val embeddedSchemas = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
 
   def runAllTests(schema: Option[Node] = None) {
     parserTestCases.map { _.run(schema) }
@@ -77,21 +91,34 @@ class DFDLTestSuite(ts: NodeSeq, val tdmlFile: File = null) {
    */
   def findModelFile(fileName: String): File = {
     val firstTry = new File(fileName)
-    if (firstTry.exists()) firstTry
-    else {
-      // try ignoring the directory part
-      val parts = fileName.split("/")
-      val filePart = parts.last
-      val secondTry = new File(filePart)
-      if (secondTry.exists()) secondTry
-      else {
-        val tdmlDir = tdmlFile.getParent()
-        val path = tdmlDir + "/" + filePart
-        val thirdTry = new File(path)
-        if (thirdTry.exists()) thirdTry
-        else {
-          throw new Exception("Unable to find model file " + fileName + ".")
-        }
+    if (firstTry.exists()) return firstTry
+    // try ignoring the directory part
+    val parts = fileName.split("/")
+    val filePart = parts.last
+    val secondTry = new File(filePart)
+    if (secondTry.exists()) return secondTry ;
+    if (tdmlFile != null) {
+      val tdmlDir = tdmlFile.getParent()
+      val path = tdmlDir + "/" + filePart
+      val thirdTry = new File(path)
+      if (thirdTry.exists()) return thirdTry
+    }
+//    // For unit tests that refer to an IBM schema.
+//    val fourthTry = new File("test-suite/ibm-contributed/" + fileName)
+//    if (fourthTry.exists()) return fourthTry
+    throw new Exception("Unable to find model file " + fileName + ".")
+
+  }
+
+  def findModel(modelName: String): Node = {
+    // schemas defined with defineSchema take priority as names.
+    val es = embeddedSchemas.find { defSch => defSch.name == modelName }
+    es match {
+      case Some(defschema) => defschema.xsdSchema
+      case None => {
+        val file = findModelFile(modelName)
+        val schema = XML.loadFile(file)
+        schema
       }
     }
   }
@@ -110,8 +137,22 @@ case class ParserTestCase(ptc: NodeSeq, val parent: DFDLTestSuite) {
     case "false" => false
     case _ => false
   }
-
+  
+  def findModel(modelName : String) : Node = {
+    if (modelName == "") {
+      suppliedSchema match {
+        case None => throw new Exception("No model.")
+        case Some(s) => return s
+      }
+    }
+    else
+      parent.findModel(modelName)
+  }
+  
+  var suppliedSchema : Option[Node] = None
+  
   def run(schema: Option[Node] = None) = {
+    suppliedSchema = schema
     val sch = schema match {
       case Some(sch) => {
         if (model != "") throw new Exception("You supplied a model attribute, and a schema argument. Can't have both.")
@@ -119,8 +160,7 @@ case class ParserTestCase(ptc: NodeSeq, val parent: DFDLTestSuite) {
       }
       case None => {
         if (model == "") throw new Exception("No model was found.")
-        val schemaFile = parent.findModelFile(model)
-        val schemaNode = XML.loadFile(schemaFile)
+        val schemaNode = findModel(model)
         schemaNode
       }
     }
@@ -129,12 +169,32 @@ case class ParserTestCase(ptc: NodeSeq, val parent: DFDLTestSuite) {
     val data = document.input
     val actual = parser.parse(data)
     val trimmed = Utility.trim(actual)
-    val expected = infoset.contents
-    val expectedNoAttrs = XMLUtil.removeAttributes(expected)
+    //
+    // Attributes on the XML like xsi:type and also namespaces (I think) are 
+    // making things fail these comparisons, so we strip all attributes off (since DFDL doesn't 
+    // use attributes at all)
+    // 
     val actualNoAttrs = XMLUtil.removeAttributes(trimmed)
-    assertEquals(expectedNoAttrs, actualNoAttrs)
+    // 
+    // Would be great to validate the actuals against the DFDL schema, used as
+    // an XML schema on the returned infoset XML.
+    // Getting this to work is a bigger issue. What with stripping of attributes
+    // etc.
+    // 
+    // TODO: Fix so we can validate here.
+    //
+    // assert(Validator.validateXMLNodes(sch, actualNoAttrs) != null)
+    val expected = infoset.contents
+
+   
+    assertEquals(expected, actualNoAttrs)
     System.err.println("Test " + name + " passed.")
   }
+}
+
+case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
+  lazy val xsdSchema = (xml \ "schema")(0)
+  lazy val name = (xml \ "@name").text.toString
 }
 
 sealed abstract class DocumentContentType
@@ -209,229 +269,23 @@ case class Infoset(i: NodeSeq, parent: ParserTestCase) {
 }
 
 case class DFDLInfoset(di: Node, parent: Infoset) {
-  lazy val Seq(contents) = di.child // must be exactly one root element in here.
+  lazy val Seq(contents) = {
+    val c = di.child(0)
+    val expected = Utility.trim(c) // must be exactly one root element in here.
+    val expectedNoAttrs = XMLUtil.removeAttributes(expected)
+    //
+    // Let's validate the expected content against the schema
+    // Just to be sure they don't drift.
+    //
+    val ptc = parent.parent
+    val schemaNode = ptc.findModel(ptc.model)
+    //
+    // This is causing trouble, with the stripped attributes, etc.
+    // TODO: Fix so we can validate these expected results against
+    // the DFDL schema used as a XSD for the expected infoset XML.
+    //
+    // assert(Validator.validateXMLNodes(schemaNode, expectedNoAttrs) != null)
+    expectedNoAttrs
+  }
 }
 
-class TestTDMLRunner extends JUnit3Suite {
-
-  val XSIns = "http://www.w3.org/2001/XMLSchema-instance"
-  val XSDns = "http://www.w3.org/2001/XMLSchema"
-
-  def testDocPart1() {
-    val xml = <documentPart type="text">abcde</documentPart>
-    val dp = new DocumentPart(xml, null)
-    val actual = dp.convertedContent
-    val expected = Vector('a'.toByte, 'b'.toByte, 'c'.toByte, 'd'.toByte, 'e'.toByte)
-    assertEquals(expected, actual)
-  }
-
-  def testDocPart2() {
-    val xml = <documentPart type="byte">123abc</documentPart>
-    val dp = new DocumentPart(xml, null)
-    val hexDigits = dp.hexDigits
-    assertEquals("123abc", hexDigits)
-    val actual = dp.convertedContent
-    val expected = Vector(0x12, 0x3a, 0xbc).map { _.toByte }
-    assertEquals(expected, actual)
-  }
-
-  def testDocPart3() {
-    val xml = <document>
-                <documentPart type="byte">12</documentPart>
-                <documentPart type="byte">3abc</documentPart>
-              </document>
-
-    val doc = new Document(xml, null)
-    val firstPart = doc.documentParts(0)
-    val secondPart = doc.documentParts(1)
-    assertEquals("12", firstPart.hexDigits)
-    assertEquals("3abc", secondPart.hexDigits)
-    val actual = doc.documentBytes
-    val expected = Vector(0x12, 0x3a, 0xbc).map { _.toByte }
-    assertEquals(expected, actual)
-  }
-
-  def test1() {
-    val xml = <testSuite suiteName="theSuiteName" description="Some Test Suite Description">
-                <parserTestCase name="firstUnitTest" root="byte1" model="dpanum.dfdl.xsd" description="Some test case description.">
-                  <document>0123</document>
-                  <infoset>
-                    <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                      <byte1 xsi:type="xs:byte">123</byte1>
-                    </dfdlInfoset>
-                  </infoset>
-                </parserTestCase>
-              </testSuite>
-
-    val ts = new DFDLTestSuite(xml)
-    val ptc = ts.parserTestCases(0)
-    assertEquals("firstUnitTest", ptc.name)
-    assertEquals("byte1", ptc.root)
-    assertEquals("dpanum.dfdl.xsd", ptc.model)
-    assertTrue(ptc.description.contains("Some test case description."))
-    val doc = ptc.document
-    val expectedBytes = Vector('0'.toByte, '1'.toByte, '2'.toByte, '3'.toByte)
-    val actualBytes = doc.documentBytes
-    assertEquals(expectedBytes, actualBytes)
-    val infoset = ptc.infoset
-    val actualContent = infoset.dfdlInfoset.contents
-    val trimmed = actualContent
-    val expected = <byte1 xmlns:xsi={ XSIns } xmlns:xs={ XSDns } xsi:type="xs:byte">123</byte1>
-    assertEquals(expected, trimmed)
-  }
-
-  def test2() {
-    val xml = <testSuite suiteName="theSuiteName">
-                <parserTestCase name="firstUnitTest" root="byte1" model="dpanum.dfdl.xsd">
-                  <document>0123</document>
-                  <infoset>
-                    <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                      <byte1 xsi:type="xs:byte">123</byte1>
-                    </dfdlInfoset>
-                  </infoset>
-                </parserTestCase>
-              </testSuite>
-
-    val ts = new DFDLTestSuite(xml)
-    val tsn = ts.suiteName
-    assertEquals("theSuiteName", tsn)
-    assertEquals("", ts.description)
-    val ptc = ts.parserTestCases(0)
-    assertEquals("", ptc.description)
-    assertEquals("firstUnitTest", ptc.name)
-    assertEquals("byte1", ptc.root)
-    assertEquals("dpanum.dfdl.xsd", ptc.model)
-    val doc = ptc.document
-    val expectedBytes = Vector('0'.toByte, '1'.toByte, '2'.toByte, '3'.toByte)
-    val actualBytes = doc.documentBytes
-    assertEquals(expectedBytes, actualBytes)
-    val infoset = ptc.infoset
-    val actualContent = infoset.dfdlInfoset.contents
-    val trimmed = actualContent
-    val expected = <byte1 xmlns:xsi={ XSIns } xmlns:xs={ XSDns } xsi:type="xs:byte">123</byte1>
-    assertEquals(expected, trimmed)
-  }
-
-  // @Test
-  def testTDMLrunOne() {
-    val testSchema =
-      <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-      </schema>
-    val tdml = <testSuite suiteName="theSuiteName">
-                 <parserTestCase name="firstUnitTest" root="data">
-                   <document>37\n</document>
-                   <infoset>
-                     <dfdlInfoset xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                       <data xmlns="http://example.com">37</data>
-                     </dfdlInfoset>
-                   </infoset>
-                 </parserTestCase>
-               </testSuite>
-    val ts = new DFDLTestSuite(tdml)
-    ts.runOneTest("firstUnitTest", Some(testSchema))
-  }
-
-  // @Test
-  def testTDMLrunAll() {
-    val testSchema =
-      <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-      </schema>
-    val tdml = <testSuite suiteName="theSuiteName">
-                 <parserTestCase name="firstUnitTest" root="data">
-                   <document>37\n</document>
-                   <infoset>
-                     <dfdlInfoset xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                       <data xmlns="http://example.com">37</data>
-                     </dfdlInfoset>
-                   </infoset>
-                 </parserTestCase>
-                 <parserTestCase name="firstUnitTest" root="data">
-                   <document>37\n</document>
-                   <infoset>
-                     <dfdlInfoset xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                       <data xmlns="http://example.com">37</data>
-                     </dfdlInfoset>
-                   </infoset>
-                 </parserTestCase>
-               </testSuite>
-    val ts = new DFDLTestSuite(tdml)
-    ts.runAllTests(Some(testSchema))
-  }
-
-  def testRunModelFile() {
-    val testSchema =
-      <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-      </schema>
-    val tmpFileName = getClass.getName() + ".dfdl.xsd"
-    val tdml = <testSuite suiteName="theSuiteName">
-                 <parserTestCase name="firstUnitTest" root="data" model={ tmpFileName }>
-                   <document>37\n</document>
-                   <infoset>
-                     <dfdlInfoset xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                       <data xmlns="http://example.com">37</data>
-                     </dfdlInfoset>
-                   </infoset>
-                 </parserTestCase>
-               </testSuite>
-    try {
-      using(new java.io.FileWriter(tmpFileName)) {
-        fileWriter =>
-          fileWriter.write(testSchema.toString())
-      }
-      val ts = new DFDLTestSuite(tdml)
-      ts.runOneTest("firstUnitTest")
-    } finally {
-      val f = new java.io.File(tmpFileName)
-      f.delete()
-    }
-  }
-
-  def testRunTDMLFile() {
-    val testSchema =
-      <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-      </schema>
-    val tmpFileName = getClass.getName() + ".dfdl.xsd"
-    val tmpTDMLFileName = getClass.getName() + ".tdml"
-    val tdml = <testSuite suiteName="theSuiteName">
-                 <parserTestCase name="testRunTDMLFile" root="data" model={ tmpFileName }>
-                   <document>37\n</document>
-                   <infoset>
-                     <dfdlInfoset xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                       <data xmlns="http://example.com">37</data>
-                     </dfdlInfoset>
-                   </infoset>
-                 </parserTestCase>
-               </testSuite>
-    try {
-      using(new java.io.FileWriter(tmpFileName)) {
-        fw =>
-          fw.write(testSchema.toString())
-      }
-      using(new java.io.FileWriter(tmpTDMLFileName)) {
-        fw =>
-          fw.write(tdml.toString())
-      }
-      val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
-      ts.runAllTests()
-    } finally {
-      try {
-        val f = new java.io.File(tmpFileName)
-        f.delete()
-      } finally {
-        val t = new java.io.File(tmpTDMLFileName)
-        t.delete()
-      }
-    }
-  }
-
-  def testFindModelFile() {
-    val ts = new DFDLTestSuite(new File("./test-suite/ibm-contributed/dpaext1.tdml"))
-    val mf = ts.findModelFile("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
-    assertTrue(mf.exists())
-  }
-
-}

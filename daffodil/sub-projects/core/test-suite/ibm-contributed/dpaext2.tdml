@@ -3,7 +3,7 @@
 	description="Sample tests to post externally"
 	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData ./dfdl/dfdlTestData.xsd http://w3.ibm.com/xmlns/dfdl/ctInfoset ./dfdl/ctInfoset.xsd">
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
 
 <!-- Section 13 - Simple Types
     First, some tests for padding/trimming, with properties common to simple types with Text representation
