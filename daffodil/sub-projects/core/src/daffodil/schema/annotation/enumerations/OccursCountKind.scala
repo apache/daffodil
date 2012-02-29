@@ -50,3 +50,5 @@ case object Parsed extends OccursCountKind
 
 @SerialVersionUID(1)
 case object StopValue extends OccursCountKind
+
+case object OCKImplicit extends OccursCountKind

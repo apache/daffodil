@@ -50,6 +50,11 @@ import org.jdom.Parent
  * @author Alejandro Rodriguez
  * @version 1
  */
-class UnimplementedException(description:String,schemaContext:Parent = null,
-                             documentContext:Parent = null,position:Option[Long] = None)
-	extends DaffodilException(description,null,schemaContext,documentContext,position)
+class UnimplementedException(description: String, schemaContext: Parent = null,
+  documentContext: Parent = null, position: Option[Long] = None)
+  extends DaffodilException(description, null, schemaContext, documentContext, position)
+
+//class UnimplementedPropertyException(propName: String, propValue: String,
+//  schemaContext: Parent = null, documentContext: Parent = null, position: Option[Long] = None)
+//  extends UnimplementedException("Property " + propName + " with value " + propValue + " is unimplemented.",
+//    schemaContext, documentContext, position)

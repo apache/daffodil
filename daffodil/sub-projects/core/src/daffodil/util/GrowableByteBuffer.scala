@@ -8,6 +8,10 @@ package daffodil.util
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+/**
+ * TODO: Do we really need this class. Why isn't a built in output stream/writer/target thingy 
+ * the right thing.... our I/O needs are not that unique.
+ */
 class GrowableByteBuffer(private var bbuf:ByteBuffer) {
   
   private def grow(addCap:Int) {

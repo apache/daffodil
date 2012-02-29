@@ -36,29 +36,47 @@ package daffodil.parser
  * Date: 2010
  */
 
+import java.io.BufferedInputStream
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.Serializable
+import java.nio.ByteBuffer
+
 import scala.collection.mutable.Map
 
-import org.jdom.adapters.XML4JDOMAdapter
-import org.jdom.input.{JDOMParseException, SAXBuilder}
-import java.io.{Serializable, BufferedInputStream, InputStream, FileInputStream, BufferedOutputStream, ByteArrayOutputStream}
-
-import java.nio.ByteBuffer
+import org.jdom.input.JDOMParseException
+import org.jdom.input.SAXBuilder
 import org.jdom.Document
 import org.jdom.Element
+
 import daffodil.debugger.BasicTextDebugger
+import daffodil.exceptions.DFDLDisallowConstructException
+import daffodil.exceptions.DFDLReservedKeywordException
+import daffodil.exceptions.DFDLSchemaDefinitionException
+import daffodil.exceptions.MalformedXMLException
+import daffodil.exceptions.UnimplementedException
 import daffodil.processors.ProcessorFactory
 import daffodil.processors.VariableMap
-import daffodil.schema._
 import daffodil.schema.annotation.Annotation
 import daffodil.schema.annotation.Format
 import daffodil.schema.annotation.Hidden
-import daffodil.exceptions.{MalformedXMLException, DFDLSchemaDefinitionException,
-                            DFDLDisallowConstructException, DFDLReservedKeywordException, UnimplementedException}
+import daffodil.schema.BasicNode
+import daffodil.schema.BasicNodeImpl
+import daffodil.schema.Choice
+import daffodil.schema.ComplexElement
+import daffodil.schema.ComplexType
+import daffodil.schema.DebuggingBasicNode
+import daffodil.schema.ReferenceNode
+import daffodil.schema.Sequence
+import daffodil.schema.SimpleElement
+import daffodil.schema.SimpleExtendedElement
+import daffodil.schema.SimpleType
 import daffodil.util.GrowableByteBuffer
-import daffodil.xml.{Namespaces, XMLUtil}
-
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
+import daffodil.xml.Namespaces
+import daffodil.xml.XMLUtil
 
 /**
  * Parses a schema and creates a set of document parsers that will parse a conforming document.
@@ -87,21 +105,21 @@ class SchemaParser extends Serializable {
     XMLUtil.XSD_DATE,XMLUtil.XSD_TIME,XMLUtil.XSD_DATE_TIME,XMLUtil.XSD_HEX_BINARY)
 
   private val DFDL_RESERVED_TYPES = Set(
-    XMLUtil.XSD_NAMESPACE+"normalizedString",XMLUtil.XSD_NAMESPACE+"token",XMLUtil.XSD_NAMESPACE+"Name",
-    XMLUtil.XSD_NAMESPACE+"NCName",XMLUtil.XSD_NAMESPACE+"QName",XMLUtil.XSD_NAMESPACE+"language",
-    XMLUtil.XSD_NAMESPACE+"positiveInteger",XMLUtil.XSD_NAMESPACE+"nonPositiveInteger",
-    XMLUtil.XSD_NAMESPACE+"negativeInteger",XMLUtil.XSD_NAMESPACE+"nonNegativeInteger",
-    XMLUtil.XSD_NAMESPACE+"gYear",XMLUtil.XSD_NAMESPACE+"gYearMonth",XMLUtil.XSD_NAMESPACE+"gMonthDay",
-    XMLUtil.XSD_NAMESPACE+"gDay",XMLUtil.XSD_NAMESPACE+"ID",XMLUtil.XSD_NAMESPACE+"IDREF",
-    XMLUtil.XSD_NAMESPACE+"IDREFS",XMLUtil.XSD_NAMESPACE+"ENTITIES",XMLUtil.XSD_NAMESPACE+"ENTITY",
-    XMLUtil.XSD_NAMESPACE+"NMTOKEN",XMLUtil.XSD_NAMESPACE+"NMTOKENS",XMLUtil.XSD_NAMESPACE+"NOTATION",
-    XMLUtil.XSD_NAMESPACE+"anyURI",XMLUtil.XSD_NAMESPACE+"base64Binary")
+    XMLUtil.XSD_NAMESPACE+"/"+"normalizedString",XMLUtil.XSD_NAMESPACE+"/"+"token",XMLUtil.XSD_NAMESPACE+"/"+"Name",
+    XMLUtil.XSD_NAMESPACE+"/"+"NCName",XMLUtil.XSD_NAMESPACE+"/"+"QName",XMLUtil.XSD_NAMESPACE+"/"+"language",
+    XMLUtil.XSD_NAMESPACE+"/"+"positiveInteger",XMLUtil.XSD_NAMESPACE+"/"+"nonPositiveInteger",
+    XMLUtil.XSD_NAMESPACE+"/"+"negativeInteger",XMLUtil.XSD_NAMESPACE+"/"+"nonNegativeInteger",
+    XMLUtil.XSD_NAMESPACE+"/"+"gYear",XMLUtil.XSD_NAMESPACE+"/"+"gYearMonth",XMLUtil.XSD_NAMESPACE+"/"+"gMonthDay",
+    XMLUtil.XSD_NAMESPACE+"/"+"gDay",XMLUtil.XSD_NAMESPACE+"/"+"ID",XMLUtil.XSD_NAMESPACE+"/"+"IDREF",
+    XMLUtil.XSD_NAMESPACE+"/"+"IDREFS",XMLUtil.XSD_NAMESPACE+"/"+"ENTITIES",XMLUtil.XSD_NAMESPACE+"/"+"ENTITY",
+    XMLUtil.XSD_NAMESPACE+"/"+"NMTOKEN",XMLUtil.XSD_NAMESPACE+"/"+"NMTOKENS",XMLUtil.XSD_NAMESPACE+"/"+"NOTATION",
+    XMLUtil.XSD_NAMESPACE+"/"+"anyURI",XMLUtil.XSD_NAMESPACE+"/"+"base64Binary")
 
   private val DFDL_PREDEFINED_VARIABLES = List(
-   ("encoding",XMLUtil.XSD_NAMESPACE+"string","UTF-8"),
-   ("byteOrder",XMLUtil.XSD_NAMESPACE+"string","bigEndian"),
-   ("binaryFloatRep",XMLUtil.XSD_NAMESPACE+"string","ieee"),
-   ("outputNewLine",XMLUtil.XSD_NAMESPACE+"string","\u000A"))
+   ("encoding",XMLUtil.XSD_NAMESPACE+"/"+"string","UTF-8"),
+   ("byteOrder",XMLUtil.XSD_NAMESPACE+"/"+"string","bigEndian"),
+   ("binaryFloatRep",XMLUtil.XSD_NAMESPACE+"/"+"string","ieee"),
+   ("outputNewLine",XMLUtil.XSD_NAMESPACE+"/"+"string","\u000A"))
 
   private var targetNamespace:String = _
 
@@ -126,13 +144,35 @@ class SchemaParser extends Serializable {
     parse(new FileInputStream(fileName))
 
   /** Parses a schema in the given InputStream */
-  def parse(input:InputStream):Unit = {
+  def parse(input: InputStream): Unit = {
+    val dfdlSubsetNS = XMLUtil.DFDL_NAMESPACE + "XMLSchemaSubset"
+    val dfdlSchemaNode = scala.xml.XML.load(input)
+    val tns = dfdlSchemaNode.namespace.toString
+    val inputStream = {
+        // because Eclipse gives us nice electric XML mode for editing DFDL schemas
+        // and will check our usage of the XML Schema subset, as well as proper use of
+        // short form annotations, etc., for these reasons we really want to use the 
+        // DFDL Subset-of-XML-Schema URI in our DFDL schemas, not the basic XML Schema URI.
+        //
+        // Unfortunately, that means all the symbols are in the "wrong" namespace per-se.
+        // So we force-switch the namespace via this total awful hack.
+        //
+        // FIXME: this won't work if schemas include other DFDL Schemas. We'd have to 
+        // intercept all of them and fix them up the same way. This is doable... not sure
+        // it's worth it. Also, I worry about performance, but that may be silly. Cost of
+        // stringing a whole schema is tiny compared with the processing of it.
+        //
+        val dfdlSchemaString = dfdlSchemaNode.toString
+        val xmlSchemaString = dfdlSchemaString.replaceAll(dfdlSubsetNS, XMLUtil.XSD_NAMESPACE)
+        val inStream = new java.io.ByteArrayInputStream(xmlSchemaString.getBytes());
+        inStream
+      }
     try {
       val builder = new SAXBuilder()
-      val document = builder.build(input)    
+      val document = builder.build(inputStream)
       parse(document getRootElement)
-    }catch {
-      case e:JDOMParseException => throw new MalformedXMLException("Parsing the schema. "+e.getMessage,e)
+    } catch {
+      case e: JDOMParseException => throw new MalformedXMLException("Parsing the schema. " + e.getMessage, e)
     }
   }
 
@@ -140,7 +180,8 @@ class SchemaParser extends Serializable {
    * @param root the root of the schema
    */
   def parse(root:Element):Unit = {
-    if (XMLUtil.getFullNameWithNamespace(root)!=XMLUtil.SCHEMA)
+    val nsroot = XMLUtil.getFullNameWithNamespace(root)
+    if (nsroot!=XMLUtil.SCHEMA)
       throw new DFDLSchemaDefinitionException("Top element is not xsd:schema",null,root,null,None)
 
     this root = root
@@ -392,9 +433,13 @@ class SchemaParser extends Serializable {
   def unparse(inputStream:BufferedInputStream, root:String):ByteBuffer = {
     val builder = new SAXBuilder()
     val infoDoc = builder.build(inputStream)
-    var schemaDoc = new Document()
+    unparse(infoDoc, root)
+  }
+  
+  def unparse(infoDoc : Document, root:String):ByteBuffer = {
     var variables = getPredefinedVariables
     var bb:GrowableByteBuffer = new GrowableByteBuffer(ByteBuffer.allocate(1024))
+    var schemaDoc = new Document()
     
     // Sets up the processors and variables the same way as the eval method
     // Only difference will be invoking the 'outProcess' method for processors instead of 'apply'
@@ -496,5 +541,21 @@ class SchemaParser extends Serializable {
     for((name,typeName,value) <- DFDL_PREDEFINED_VARIABLES)
       variables = variables.defineVariable("dfdl:"+name,typeName,namespaces,value)
     variables
+  }
+}
+
+object SchemaParser {
+  
+  /** Deserializaes a DFDL generated parser from a file */
+  def readParser(fileName:String):SchemaParser = {
+    val is = new ObjectInputStream(new FileInputStream(fileName))
+    is.readObject.asInstanceOf[SchemaParser]
+  }
+
+  /** Serializes the DFDL generated parser to a file */
+  def writeParser(schemaParser:SchemaParser,fileName:String) = {
+    val os = new ObjectOutputStream(new FileOutputStream(fileName))
+    os writeObject(schemaParser)
+    os.close    
   }
 }

@@ -4,9 +4,14 @@ import scala.xml._
 import scala.xml.parsing._
 import daffodil.exceptions._
 import daffodil.schema.annotation.props.gen._
-/*import com.sun.xml.xsom.parser.{ SchemaDocument => XSSchemaDocument, _ }
-import com.sun.xml.xsom._
-import com.sun.xml.xsom.util._*/
+/*
+ * Not using XSOM - too many issues. Schema Documents aren't first class objects, and we need
+ * them to implement lexical scoping of default formats over the contents of a schema document.
+ * 
+ * import com.sun.xml.xsom.parser.{ SchemaDocument => XSSchemaDocument, _ }
+ * import com.sun.xml.xsom._
+ * import com.sun.xml.xsom.util._
+ */
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import scala.collection.JavaConversions._
@@ -47,9 +52,9 @@ abstract class GlobalComponentMixin(val xsNamed : Node)
 trait AnnotatedMixin { 
  
  /**
-  * Anything annotated has to have an associated XSOM class with a getAnnotation() method.
+  * Anything annotated has to have an associated xml object and getAnnotation() method.
   */
- val xsAnnotated : Node // this is called a type refinement or structural typing.
+ val xsAnnotated : Node 
  
  /**
   * Anything annotated must be able to construct the
@@ -115,9 +120,6 @@ abstract class Annotated(val xso: Node)
  * node. These may have include/import statements in them, and the schemas 
  * being included/imported don't have to be within the list.
  * 
- * xsoSSet is an XSOM XSSchemaSet object created from the same schemas. Note that
- * due to include/import, the xsoSSet may contain more Schemas than were part of
- * the schemaNodeList.
  */
 class SchemaSet (schemaNodeList : Seq[Node]) {
   // TODO Constructor(s) or companion-object methods to create a SchemaSet from files.
@@ -140,22 +142,6 @@ class SchemaSet (schemaNodeList : Seq[Node]) {
      	}
      }
    
-//   lazy val schemaDocuments = xsds.map{ xsd=>{
-//       val Some(schema) = schemas.find{sch=>sch.targetNamespace == xsd.getTargetNamespace()}
-//       new SchemaDocument(xsd, schema)
-//     }
-//   } 
-   
-//   /**
-//    * For use by SchemaDocument 
-//    */
-//   lazy val sdToEdecl = {
-//     val res = xsoSSet.iterateElementDecls().toSeq.groupBy{_.getSourceDocument()}
-//     res
-//   }
-//   lazy val sdToSTDef = xsoSSet.iterateSimpleTypes().toSeq.groupBy{_.getSourceDocument()}
-//   lazy val sdToCTDef = xsoSSet.iterateComplexTypes().toSeq.groupBy{_.getSourceDocument()}
-//   lazy val sdToGDef = xsoSSet.iterateModelGroupDecls().toSeq.groupBy{_.getSourceDocument()}
 }
 
 /**
@@ -196,10 +182,7 @@ class SchemaDocument(xsd: Node, val schema : Schema) extends AnnotatedMixin {
   lazy val xsAnnotated = xsd
   lazy val targetNamespace = schema.targetNamespace
   
-  def annotationFactory(node: Node): DFDLAnnotation = {
-    Assert.notYetImplemented(node.label != "format") // nothing but a default format right now.
-    new DFDLFormat(node, this)
-  }
+  def annotationFactory(node: Node): DFDLAnnotation = new DFDLFormat(node, this)
   
   private lazy val sset = schema.schemaSet
   
@@ -213,6 +196,11 @@ class SchemaDocument(xsd: Node, val schema : Schema) extends AnnotatedMixin {
   lazy val globalComplexTypeDefs = (xsd\"complexType").map{ new GlobalComplexTypeDef(_, this) }
   lazy val globalGroupDefs = (xsd\"group").map{ new GlobalGroupDef(_, this) }
  
+  /**
+   * Here we establish an invariant. Every annotatable schema component has, definitely, has an
+   * annotation object. It may have no properties on it, but it will be there. Hence, we can 
+   * delegate various property-related attribute calculations to it.
+   */
   lazy val defaultFormat = {
     val format = annotationObjs.find { _.isInstanceOf[DFDLFormat] }
     val res = format match {
@@ -251,26 +239,45 @@ trait AnnotatedElementMixin extends AnnotatedMixin {
 // A Particle is something that can be repeating.
 trait Particle { self : LocalElementBase =>
   
-  lazy val minOccurs = Assert.notYetImplemented()
+  lazy val minOccurs = {
+    val min = (self.xml\"@minOccurs").text.toString
+    min match {
+      case "" => 1
+      case _ => min.toInt
+    }
+  }
   
-  lazy val maxOccurs = Assert.notYetImplemented()
-  
+  lazy val maxOccurs = {
+    val max = (self.xml\"@maxOccurs").text.toString 
+    max match {
+      case "unbounded" => -1
+      case "" => 1
+      case _ => max.toInt 
+    }
+  }
 }
 
-abstract class LocalElementBase(val xml : Node, val xsParticle : Node, parent : ModelGroup) 
+/**
+ * Some XSD models have a single Element class, and distinguish local/global and element references
+ * based on attributes of the instances. 
+ * 
+ * Our approach is to provide common behaviors on base classes or traits/mixins, and to have distinct
+ * classes for each instance type.
+ */
+abstract class LocalElementBase(val xml : Node, parent : ModelGroup) 
   extends Term(xml, parent)
   with AnnotatedElementMixin
   with Particle
 
-class ElementRef(xml: Node, xsParticle : Node, parent: ModelGroup) 
-  extends LocalElementBase(xml, xsParticle, parent) {
+class ElementRef(xml: Node, parent: ModelGroup) 
+  extends LocalElementBase(xml, parent) {
   lazy val xsAnnotated = xml
 }
 
 trait ElementDeclBase extends AnnotatedElementMixin 
 
-class LocalElementDecl(xml: Node, xsParticle : Node, parent: ModelGroup) 
-  extends LocalElementBase(xml, xsParticle, parent) 
+class LocalElementDecl(xml: Node, parent: ModelGroup) 
+  extends LocalElementBase(xml, parent) 
   with ElementDeclBase {
   lazy val xsAnnotated = xml
 }
@@ -303,6 +310,22 @@ class Choice(xml: Node, parent: SchemaComponent) extends ModelGroup(xml, parent)
 
 class Sequence(xml: Node, parent: SchemaComponent) extends ModelGroup(xml, parent) {
   def annotationFactory(node: Node): DFDLAnnotation = new DFDLSequence(node, this)
+
+  lazy val <sequence>{ xmlChildren @ _* }</sequence> = xml
+  lazy val children = xmlChildren.flatMap { child =>
+    child match {
+      case <sequence>{ _* }</sequence> => List(new Sequence(xml, this))
+      case <choice>{ _* }</choice> => List(new Choice(xml, this))
+      case <group>{ _* }</group> => List(new GroupRef(xml, this))
+      case <element>{ _* }</element> => {
+        val refProp = (xml \ "@ref").text
+        if (refProp == "") List(new LocalElementDecl(xml, this))
+        else List(new ElementRef(xml, this))
+      }
+      case textNode : Text => Nil
+      case _ => Assert.impossibleCase()
+    }
+  }
 }
 
 class GroupRef (xml: Node, parent: SchemaComponent) extends GroupBase(xml, parent) {
@@ -322,18 +345,21 @@ trait NamedType extends NamedMixin with TypeBase
 
 trait SimpleTypeBase extends TypeBase 
 
-trait NamedSimpleTypeBase extends SimpleTypeBase with NamedType 
+trait NamedSimpleTypeBase extends SimpleTypeBase with NamedType
 
 trait ComplexTypeBase extends SchemaComponent with TypeBase {
-  val xml : Node
-  //lazy val Seq(modelGroup) = {
- //   ((xml\"sequence") ++ (xml\"choice") ++ (xml\"group"))
- // }
-  lazy val fooBar = xml match {
-    case <sequence>{ contents }</sequence> => new Sequence(xml, this)
-    case <choice>{ contents }</choice> => new Choice(xml, this)
-    case <group>{ contents }</group> => new GroupRef(xml, this)
-    case _ => Assert.impossibleCase()
+  val xml: Node
+
+  lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
+  lazy val Seq(modelGroup) = xmlChildren.flatMap { child =>
+    child match {
+      case <sequence>{ _* }</sequence> => List(new Sequence(child, this))
+      case <choice>{ _* }</choice> => List(new Choice(child, this))
+      case <group>{ _* }</group> => List(new GroupRef(child, this))
+      case <annotation>{ _* }</annotation> => Nil
+      case textNode : Text => Nil
+      case _ => Assert.impossibleCase()
+    }
   }
 }
  

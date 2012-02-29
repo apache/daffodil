@@ -5,7 +5,7 @@ import java.io.File
 import java.io.InputStream
 import org.jdom.input.SAXBuilder
 import scala.collection.JavaConversions._
-import scala.xml.Node
+import scala.xml._
 import java.io.{OutputStream, PrintWriter, StringWriter}
 import java.lang.management._
 import java.util.regex.Pattern
@@ -40,24 +40,27 @@ object XMLUtil {
   var WARNING_MEMORY_PERCENTAGE = 0.8
   var nodeCount:Long = 0
 
-
-  val XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema/" // added trailing slash (seems to be assumed everywhere)
-  val DFDL_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/"
+  val XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema" // removed trailing slash (namespaces care)
+  val XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance"
+  val DFDL_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/" // dfdl ns does have a trailing slash
+  val TDML_NAMESPACE = "http://www.ibm.com/xmlns/dfdl/testData"
+  val DFDL_XMLSCHEMASUBSET_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  val EXAMPLE_NAMESPACE = "http://example.com"
   val PCDATA = "#PCDATA"
   val REM = "#REM"
 
-  val SCHEMA = XSD_NAMESPACE+"schema"
-  val COMPLEX_TYPE = XSD_NAMESPACE+"complexType"
-  val SIMPLE_TYPE = XSD_NAMESPACE+"simpleType"
-  val GROUP = XSD_NAMESPACE+"group"
-  val SEQUENCE = XSD_NAMESPACE+"sequence"
-  val ALL = XSD_NAMESPACE+"all"
-  val XSD_CHOICE = XSD_NAMESPACE+"choice"
-  val ELEMENT = XSD_NAMESPACE+"element"
-  val ATTRIBUTE = XSD_NAMESPACE+"attribute"
-  val ATTRIBUTE_GROUP = XSD_NAMESPACE+"attributeGroup"
-  val ANNOTATION = XSD_NAMESPACE+"annotation"
-  val APP_INFO = XSD_NAMESPACE+"appinfo"
+  val SCHEMA = XSD_NAMESPACE+"/"+"schema"
+  val COMPLEX_TYPE = XSD_NAMESPACE+"/"+"complexType"
+  val SIMPLE_TYPE = XSD_NAMESPACE+"/"+"simpleType"
+  val GROUP = XSD_NAMESPACE+"/"+"group"
+  val SEQUENCE = XSD_NAMESPACE+"/"+"sequence"
+  val ALL = XSD_NAMESPACE+"/"+"all"
+  val XSD_CHOICE = XSD_NAMESPACE+"/"+"choice"
+  val ELEMENT = XSD_NAMESPACE+"/"+"element"
+  val ATTRIBUTE = XSD_NAMESPACE+"/"+"attribute"
+  val ATTRIBUTE_GROUP = XSD_NAMESPACE+"/"+"attributeGroup"
+  val ANNOTATION = XSD_NAMESPACE+"/"+"annotation"
+  val APP_INFO = XSD_NAMESPACE+"/"+"appinfo"
 
   val DFDL_ASSERT = DFDL_NAMESPACE+"assert"
   val DFDL_CALENDAR_FORMAT = DFDL_NAMESPACE+"calendarFormat"
@@ -84,25 +87,25 @@ object XMLUtil {
 
   //XSD data types
 
-  val XSD_STRING = XSD_NAMESPACE+"string"
-  val XSD_FLOAT = XSD_NAMESPACE+"float"
-  val XSD_DOUBLE = XSD_NAMESPACE+"double"
-  val XSD_DECIMAL = XSD_NAMESPACE+"decimal"
-  val XSD_INTEGER = XSD_NAMESPACE+"integer"
-  val XSD_LONG = XSD_NAMESPACE+"long"
-  val XSD_INT = XSD_NAMESPACE+"int"
-  val XSD_SHORT = XSD_NAMESPACE+"short"
-  val XSD_BYTE = XSD_NAMESPACE+"byte"
-  val XSD_UNSIGNED_LONG = XSD_NAMESPACE+"unsignedLong"
-  val XSD_UNSIGNED_INT = XSD_NAMESPACE+"unsignedInt"
-  val XSD_NON_NEGATIVE_INTEGER = XSD_NAMESPACE+"nonNegativeInteger"
-  val XSD_UNSIGNED_SHORT = XSD_NAMESPACE+"unsignedShort"
-  val XSD_UNSIGNED_BYTE = XSD_NAMESPACE+"unsignedByte"
-  val XSD_BOOLEAN = XSD_NAMESPACE+"boolean"
-  val XSD_DATE = XSD_NAMESPACE+"date"
-  val XSD_TIME = XSD_NAMESPACE+"time"
-  val XSD_DATE_TIME = XSD_NAMESPACE+"dateTime"
-  val XSD_HEX_BINARY = XSD_NAMESPACE+"hexBinary"
+  val XSD_STRING = XSD_NAMESPACE+"/"+"string"
+  val XSD_FLOAT = XSD_NAMESPACE+"/"+"float"
+  val XSD_DOUBLE = XSD_NAMESPACE+"/"+"double"
+  val XSD_DECIMAL = XSD_NAMESPACE+"/"+"decimal"
+  val XSD_INTEGER = XSD_NAMESPACE+"/"+"integer"
+  val XSD_LONG = XSD_NAMESPACE+"/"+"long"
+  val XSD_INT = XSD_NAMESPACE+"/"+"int"
+  val XSD_SHORT = XSD_NAMESPACE+"/"+"short"
+  val XSD_BYTE = XSD_NAMESPACE+"/"+"byte"
+  val XSD_UNSIGNED_LONG = XSD_NAMESPACE+"/"+"unsignedLong"
+  val XSD_UNSIGNED_INT = XSD_NAMESPACE+"/"+"unsignedInt"
+  val XSD_NON_NEGATIVE_INTEGER = XSD_NAMESPACE+"/"+"nonNegativeInteger"
+  val XSD_UNSIGNED_SHORT = XSD_NAMESPACE+"/"+"unsignedShort"
+  val XSD_UNSIGNED_BYTE = XSD_NAMESPACE+"/"+"unsignedByte"
+  val XSD_BOOLEAN = XSD_NAMESPACE+"/"+"boolean"
+  val XSD_DATE = XSD_NAMESPACE+"/"+"date"
+  val XSD_TIME = XSD_NAMESPACE+"/"+"time"
+  val XSD_DATE_TIME = XSD_NAMESPACE+"/"+"dateTime"
+  val XSD_HEX_BINARY = XSD_NAMESPACE+"/"+"hexBinary"
 
   private val listPattern = Pattern.compile("'([^']*)'|([^'\\s]+)")
 
@@ -555,4 +558,30 @@ object XMLUtil {
 //        separate(expression)
 //    else
 //      List()
+  
+import xml.transform.{RuleTransformer, RewriteRule}
+import xml.{NodeSeq, Node, Elem}
+import xml.Utility.trim
+
+/**
+ * Removes attributes, and also element prefixes.
+ */
+ private class RemoveAttributes extends RewriteRule {
+      override def transform(n: Node) = n match {
+          case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
+            val childrenWithoutAttributes : NodeSeq = children.map{myRule.transform(_)(0)}
+            Elem(null, label, noAttributes, scope, childrenWithoutAttributes : _*)
+          }
+          case other => other
+      }
+  }
+
+  private val noAttributes = Null
+  private val myRule = new RuleTransformer(new RemoveAttributes)
+
+  def removeAttributes(node : Node) : Node = {
+      val nseq = myRule.transform(trim(node))
+      val res = nseq(0)
+      res
+  }
 }

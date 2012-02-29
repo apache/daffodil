@@ -48,6 +48,8 @@ import daffodil.xml.XMLUtil
 import daffodil.processors.xpath.XPathUtil
 import daffodil.parser.AnnotationParser
 import daffodil.parser.regex.Regex;
+import daffodil.exceptions._
+
 /**
  * A data structure to hold all the properties of physical format for a DFDL-annotated element
  *
@@ -700,6 +702,8 @@ class Format extends AnnotationPart {
       case "expression" => setOccursCountKind(Expression)
       case "parsed" => setOccursCountKind(Parsed)
       case "stopValue" => setOccursCountKind(StopValue)
+      case "implicit" => setOccursCountKind(OCKImplicit)
+      case _ => illegalValue("occursCountKind",occursKind,"fixed, expression, parsed, stopValue, implicit")
     }
   }
 

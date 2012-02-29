@@ -36,11 +36,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil/libsrc/saxon-resources9-1-0-1.zip!/doc"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/xerces-2.11.0/xercesImpl.jar" sourcepath="libsrc/xerces-2_11_0/xerces-src-and-doc-rezipped.zip">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil/libsrc/Xerces-J-bin.2.11.0.zip!/xerces-2_11_0/docs"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/joda-time-1.6.jar" sourcepath="libsrc/joda-time-1.6-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil/libsrc/joda-time-1.6-javadoc.jar!/"/>

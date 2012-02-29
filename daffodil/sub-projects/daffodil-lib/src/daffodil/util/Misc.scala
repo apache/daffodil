@@ -3,6 +3,7 @@ package daffodil.util
 import java.io.FileNotFoundException
 import java.io.FileInputStream
 import java.io.InputStream
+import java.io.File
 
 /**
  * Various reusable utilities that I couldn't easily find a better place for.
@@ -21,11 +22,13 @@ object Misc {
   def getResourceOrFileStream (fn : String) : InputStream = {
     var is = this.getClass().getResourceAsStream("/" + fn)
     if (is == null) {
-      is = new FileInputStream(fn)
-      if (is == null) {
+      val f = new File(fn)
+      if (!f.exists()) {
         val e = new FileNotFoundException(fn)
         throw e
       }
+      val abs = f.getAbsolutePath()
+      is = new FileInputStream(abs)
     }
     return is
   }
