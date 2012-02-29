@@ -5,8 +5,7 @@ import scala.xml._
 
 import org.scalatest.junit.JUnit3Suite
 
-import daffodil.schema.annotation.props.gen.AlignmentUnits
-import daffodil.schema.annotation.props.gen.ByteOrder
+import daffodil.schema.annotation.props.gen._
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 
@@ -228,17 +227,37 @@ class TestDsomCompiler extends JUnit3Suite {
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
-    val Seq(e1,e2,e3) = sd.globalElementDecls
-    val Seq(st1,st2) = sd.globalSimpleTypeDefs
+    
+    // No annotations
     val Seq(ct) = sd.globalComplexTypeDefs
     val Seq(gr1,gr2) = sd.globalGroupDefs
-    val Seq(df1,df2) = sd.defineFormats
-    val Seq(dv1,dv2) = sd.defineVariables
-    val Seq(desc1) = sd.defineEscapeSchemes
     
-    assertEquals(ByteOrder.BigEndian.toString().toLowerCase(), e1.formatAnnotation.byteOrder.toLowerCase())
+    val Seq(e1,e2,e3) = sd.globalElementDecls
+    assertEquals(ByteOrder.BigEndian.toString().toLowerCase(), e1.formatAnnotation.asInstanceOf[DFDLElement].byteOrder.toLowerCase())
     val Seq(a1,a2) = e3.annotationObjs
     assertTrue(a2.isInstanceOf[DFDLNewVariableInstance])
+    val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
+    val seq = e1ct.modelGroup.asInstanceOf[Sequence]
+    val sfa = seq.formatAnnotation.asInstanceOf[DFDLSequence]
+    assertEquals(YesNo.No, sfa.initiatedContent)
+   
+    val Seq(st1,st2) = sd.globalSimpleTypeDefs
+    val Seq(b1, b2, b3, b4) = st1.annotationObjs
+    assertEquals(AlignmentUnits.Bytes, b1.asInstanceOf[DFDLSimpleType].alignmentUnits)
+    assertEquals("tns:myVar1", b2.asInstanceOf[DFDLSetVariable].ref)
+    assertEquals("yadda yadda yadda", b4.asInstanceOf[DFDLAssert].message)
+    
+    val Seq(df1,df2) = sd.defineFormats
+    val def1 = df1.asInstanceOf[DFDLDefineFormat]
+    assertEquals("def1", def1.name)
+    assertEquals(Representation.Text, def1.formatAnnotation.representation)
+
+    val Seq(dv1,dv2) = sd.defineVariables
+    //assertEquals("архив", dv2.asInstanceOf[DFDLDefineVariable].name)
+    
+    val Seq(desc1) = sd.defineEscapeSchemes
+    val es = desc1.asInstanceOf[DFDLDefineEscapeScheme].escapeScheme.escapeCharacter
+    assertEquals("%%", es)
     
   }
 

@@ -124,7 +124,7 @@
 		<!-- group reference -->
 		<group ref="ex:gr" dfdl:separator='{ dfdl:property("initiator", "..") }'>
 			<annotation>
-				<appinfo>
+				<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
 					<dfdl:group ignoreCase="yes" />
 				</appinfo>
 			</annotation>
@@ -135,14 +135,14 @@
 	<group name="gr">
 		<sequence dfdl:initiator="{{" dfdl:terminator="}"> <!-- {{ begins with { but is self escaping -->
 			<annotation>
-				<appinfo>
+				<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
 					<dfdl:sequence separatorPosition="infix" />
 				</appinfo>
 			</annotation>
 			<!-- element reference with multiple occurrances -->
 			<element ref="ex:a" minOccurs="1" maxOccurs="2">
 				<annotation>
-					<appinfo>
+					<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
 						<dfdl:element />
 					</appinfo>
 				</annotation>
@@ -154,7 +154,7 @@
 
 	<!-- a second top-level schema annotation. This one sets the default format -->
 	<annotation>
-		<appinfo>
+		<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
 			<dfdl:format ref="tns:def1" />
 		</appinfo>
 	</annotation>
@@ -162,20 +162,20 @@
 	<group name="hiddenGroup">
 		<choice dfdl:choiceLengthKind="implicit">
 			<annotation>
-				<appinfo>
+				<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
 					<dfdl:choice alignment="implicit" />
 				</appinfo>
 			</annotation>
 			<element name="c1" type="xsd:int">
 				<annotation>
-					<appinfo>
+					<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
 						<dfdl:discriminator><![CDATA[{ $myVar1 eq (+47 mod 4) }]]></dfdl:discriminator>
 					</appinfo>
 				</annotation>
 			</element>
 			<element name="c2" type="xsd:string">
 				<annotation>
-					<appinfo>
+					<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
 						<dfdl:discriminator test="{ $myVar1 eq xs:int(xs:string(fn:round-half-to-even(8.5))) }" />
 					</appinfo>
 				</annotation>
@@ -198,7 +198,7 @@
 	including, in particular, our ability to represent character code 0, which is never allowed in XML documents -->
 	<element name="a" type="ex:aType" nillable="true" dfdl:nilValue="%ES; %% %#0; %NUL;%ACK; foo%#rF2;%#rF7;bar %WSP*; %#2024;%#xAABB; &amp;&#2023;&#xCCDD; -1">
 		<annotation>
-			<appinfo>
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
 			    <dfdl:element nilKind="literalValue"/>
 				<dfdl:newVariableInstance ref="tns:myVar1"
 					defaultValue="7" />
@@ -209,7 +209,7 @@
 	<!-- global simple type definition -->
 	<simpleType name="aType">
 		<xsd:annotation>
-			<appinfo>
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
 				<dfdl:simpleType alignmentUnits="bytes" />
 				<dfdl:setVariable ref="tns:myVar1">{ 42 }</dfdl:setVariable>
 				<dfdl:setVariable ref="tns:архив" value='{ "{{nazmataz42}$&amp;" }' />
@@ -225,7 +225,7 @@
 	<!-- global simple type definition (used as a base) -->
 	<simpleType name="aaType">
 		<xsd:annotation>
-			<appinfo>
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
 				<dfdl:simpleType />
 			</appinfo>
 		</xsd:annotation>

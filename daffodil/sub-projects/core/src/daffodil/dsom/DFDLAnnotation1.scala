@@ -60,6 +60,11 @@ class DFDLSimpleType(node : Node, decl: AnnotatedMixin)
 
 class DFDLDefineFormat(node : Node, decl: AnnotatedMixin)
   extends DFDLFormatAnnotation(node, decl) with DefineFormat_AnnotationMixin {
+  lazy val formatAnnotation = Utility.trim(node) match {
+    case <dfdl:defineFormat>{ f @ <dfdl:format>{ contents @ _* }</dfdl:format>}</dfdl:defineFormat> =>
+      new DFDLFormat(f, null)
+    case _ => Assert.impossibleCase()
+  }
 }
 
 class DFDLEscapeScheme(node : Node, decl: AnnotatedMixin)
@@ -68,6 +73,11 @@ class DFDLEscapeScheme(node : Node, decl: AnnotatedMixin)
 
 class DFDLDefineEscapeScheme(node : Node, decl: AnnotatedMixin)
   extends DFDLFormatAnnotation(node, decl) with DefineEscapeScheme_AnnotationMixin {
+  lazy val escapeScheme = Utility.trim(node) match {
+    case <dfdl:defineEscapeScheme>{ e @ <dfdl:escapeScheme>{ contents @ _* }</dfdl:escapeScheme>}</dfdl:defineEscapeScheme> =>
+      new DFDLEscapeScheme(e, null)
+    case _ => Assert.impossibleCase()
+  }  
 }
 
 class DFDLAssert(node : Node, decl: AnnotatedMixin)
