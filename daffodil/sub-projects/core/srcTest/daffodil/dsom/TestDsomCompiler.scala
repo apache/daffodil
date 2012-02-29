@@ -220,5 +220,26 @@ class TestDsomCompiler extends JUnit3Suite {
     val actualString = outputStream.toString()
     assertEquals("37", actualString)
   }
+  
+  def test3 {
+    val testSchema = XML.loadFile("test/example-of-most-dfdl-constructs.dfdl.xml")
+    val compiler = Compiler()
+    
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+    val Seq(e1,e2,e3) = sd.globalElementDecls
+    val Seq(st1,st2) = sd.globalSimpleTypeDefs
+    val Seq(ct) = sd.globalComplexTypeDefs
+    val Seq(gr1,gr2) = sd.globalGroupDefs
+    val Seq(df1,df2) = sd.defineFormats
+    val Seq(dv1,dv2) = sd.defineVariables
+    val Seq(desc1) = sd.defineEscapeSchemes
+    
+    assertEquals(ByteOrder.BigEndian.toString().toLowerCase(), e1.formatAnnotation.byteOrder.toLowerCase())
+    val Seq(a1,a2) = e3.annotationObjs
+    assertTrue(a2.isInstanceOf[DFDLNewVariableInstance])
+    
+  }
 
 }

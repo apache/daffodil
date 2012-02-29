@@ -42,12 +42,12 @@ trait LocalComponentMixin
 
 trait NamedMixin { 
 	val xsNamed : Node
-	val name = (xsNamed\"@name").text
+	lazy val name = (xsNamed\"@name").text
 }
 
-abstract class GlobalComponentMixin(val xsNamed : Node)
+trait GlobalComponentMixin
   extends SchemaComponent
-  with NamedMixin 
+  with NamedMixin
 
 trait AnnotatedMixin { 
  
@@ -64,7 +64,7 @@ trait AnnotatedMixin {
   
  lazy val annotationNode = {
     val ann = xsAnnotated\"annotation"
-    Assert.invariant(ann.length == 1)
+    //Assert.invariant(ann.length == 1)
     ann
   }
   
@@ -177,12 +177,21 @@ class Schema (val ns: String, val sds : NodeSeq, val schemaSet : SchemaSet) {
  * are where default formats are specified, so it is very important what schema document
  * a schema component was defined within.
  */
-class SchemaDocument(xsd: Node, val schema : Schema) extends AnnotatedMixin {
+class SchemaDocument(xsd: Node, val schema : Schema) extends AnnotatedMixin with SchemaComponent {
   
   lazy val xsAnnotated = xsd
   lazy val targetNamespace = schema.targetNamespace
+  lazy val schemaDocument = this
   
-  def annotationFactory(node: Node): DFDLAnnotation = new DFDLFormat(node, this)
+  def annotationFactory(node: Node): DFDLAnnotation = {
+    node match {
+      case <dfdl:format>{ content @ _* }</dfdl:format> => new DFDLFormat(node, this)
+      case <dfdl:defineFormat>{ content @ _* }</dfdl:defineFormat> => new DFDLDefineFormat(node, this)
+      case <dfdl:defineEscapeScheme>{ content @ _* }</dfdl:defineEscapeScheme> => new DFDLDefineEscapeScheme(node, this)
+      case <dfdl:defineVariable>{ content @ _* }</dfdl:defineVariable> => new DFDLDefineVariable(node, this)
+      case _ => Assert.impossible("Invalid dfdl annotation found!")
+    }
+}
   
   private lazy val sset = schema.schemaSet
   
@@ -209,7 +218,21 @@ class SchemaDocument(xsd: Node, val schema : Schema) extends AnnotatedMixin {
     }
     res
   }
+  
+  lazy val defineFormats = {
+    val df = annotationObjs.filter { _.isInstanceOf[DFDLDefineFormat] }
+    df
+  }
 
+  lazy val defineEscapeSchemes = {
+    val df = annotationObjs.filter { _.isInstanceOf[DFDLDefineEscapeScheme] }
+    df
+  }
+  
+  lazy val defineVariables = {
+    val df = annotationObjs.filter { _.isInstanceOf[DFDLDefineVariable] }
+    df
+  }
 }
 
  /////////////////////////////////////////////////////////////////
@@ -229,11 +252,6 @@ trait AnnotatedElementMixin extends AnnotatedMixin {
     }
     res.asInstanceOf[DFDLElement]
   }
-  
-  def annotationFactory(node: Node): DFDLAnnotation = {
-    new DFDLElement(node, this)
-  }
-  
 }
 
 // A Particle is something that can be repeating.
@@ -267,25 +285,41 @@ trait Particle { self : LocalElementBase =>
 abstract class LocalElementBase(val xml : Node, parent : ModelGroup) 
   extends Term(xml, parent)
   with AnnotatedElementMixin
-  with Particle
+  with Particle {
+  lazy val xsNamed = xml
+  lazy val xsAnnotated = xml
+}
 
 class ElementRef(xml: Node, parent: ModelGroup) 
   extends LocalElementBase(xml, parent) {
-  lazy val xsAnnotated = xml
+  
 }
 
 trait ElementDeclBase extends AnnotatedElementMixin 
 
 class LocalElementDecl(xml: Node, parent: ModelGroup) 
   extends LocalElementBase(xml, parent) 
-  with ElementDeclBase {
-  lazy val xsAnnotated = xml
+  with ElementDeclBase
+  
+ trait DFDLStatementMixin {
+  def annotationFactory(node: Node, self: AnnotatedMixin): DFDLAnnotation = {
+    node match {
+      case <dfdl:assert>{ content @ _* }</dfdl:assert> => new DFDLAssert(node, self)
+      case <dfdl:discriminator>{ content @ _* }</dfdl:discriminator> => new DFDLDiscriminator(node, self)
+      case <dfdl:setVariable>{ content @ _* }</dfdl:setVariable> => new DFDLSetVariable(node, self)
+      case <dfdl:newVariableInstance>{ content @ _* }</dfdl:newVariableInstance> => new DFDLNewVariableInstance(node, self)
+      case _ => Assert.impossible("Invalid dfdl annotation found!")
+    }
+ }
 }
   
 class GlobalElementDecl(xml: Node, val schemaDocument: SchemaDocument) 
-  extends GlobalComponentMixin(xml)
-  with ElementDeclBase {
+  extends GlobalComponentMixin
+  with ElementDeclBase
+  with DFDLStatementMixin {
+  def annotationFactory(node: Node): DFDLAnnotation = annotationFactory(node, this)
   val xsAnnotated = xml
+  val xsNamed = xml
 }
   
  /////////////////////////////////////////////////////////////////
@@ -295,7 +329,10 @@ class GlobalElementDecl(xml: Node, val schemaDocument: SchemaDocument)
 // A term is content of a group
 abstract class Term(xml: Node, val parent: SchemaComponent) 
   extends Annotated(xml) 
-  with LocalComponentMixin
+  with LocalComponentMixin 
+  with DFDLStatementMixin {
+  def annotationFactory(node: Node): DFDLAnnotation = annotationFactory(node, this)
+}
 
 abstract class GroupBase(xml: Node, parent: SchemaComponent) 
   extends Term(xml, parent) {
@@ -333,7 +370,9 @@ class GroupRef (xml: Node, parent: SchemaComponent) extends GroupBase(xml, paren
 }
 
 class GlobalGroupDef(val xml: Node, val schemaDocument : SchemaDocument) 
- extends GlobalComponentMixin(xml) 
+ extends GlobalComponentMixin {
+  val xsNamed = xml
+}
 
  /////////////////////////////////////////////////////////////////
  // Type System
@@ -343,9 +382,23 @@ trait TypeBase
 
 trait NamedType extends NamedMixin with TypeBase
 
-trait SimpleTypeBase extends TypeBase 
+abstract class SimpleTypeBase(xml : Node, val parent : SchemaComponent) 
+extends TypeBase with AnnotatedMixin {
+  val xsAnnotated = xml
+  def annotationFactory(node: Node): DFDLAnnotation = {
+    node match {
+      case <dfdl:assert>{ content @ _* }</dfdl:assert> => new DFDLAssert(node, this)
+      case <dfdl:discriminator>{ content @ _* }</dfdl:discriminator> => new DFDLDiscriminator(node, this)
+      case <dfdl:setVariable>{ content @ _* }</dfdl:setVariable> => new DFDLSetVariable(node, this)
+      case _ => Assert.impossible("Invalid dfdl annotation found!")
+    }
+ }
+}
 
-trait NamedSimpleTypeBase extends SimpleTypeBase with NamedType
+abstract class NamedSimpleTypeBase(xml : Node, parent : SchemaComponent)
+extends SimpleTypeBase(xml, parent) with NamedType {
+	lazy val xsNamed = xml
+}
 
 trait ComplexTypeBase extends SchemaComponent with TypeBase {
   val xml: Node
@@ -363,22 +416,23 @@ trait ComplexTypeBase extends SchemaComponent with TypeBase {
   }
 }
  
-class LocalSimpleTypeDef(xml : Node, val parent : SchemaComponent) 
-  extends SimpleTypeBase 
+class LocalSimpleTypeDef(xml : Node, parent : SchemaComponent) 
+  extends SimpleTypeBase(xml, parent)
   with LocalComponentMixin 
 
 //TBD: are Primitives "global", or do they just have names like globals do?
-class PrimitiveType(override val name : String) extends NamedSimpleTypeBase {
-  lazy val xsNamed = null // unused. we have to provide the definition in order to compile.
+class PrimitiveType(name_ : String) extends NamedSimpleTypeBase (null, null) {
+  override lazy val xsNamed = <fake_primitive name={name_}/> // unused. we have to provide the definition in order to compile.
 }
 
 class GlobalSimpleTypeDef(val xml : Node, val schemaDocument : SchemaDocument) 
-  extends GlobalComponentMixin(xml)
-  with NamedSimpleTypeBase 
+extends NamedSimpleTypeBase (xml, schemaDocument) with GlobalComponentMixin
 
 class GlobalComplexTypeDef(val xml: Node, val schemaDocument : SchemaDocument) 
-  extends GlobalComponentMixin(xml)
-  with ComplexTypeBase  
+  extends GlobalComponentMixin
+  with ComplexTypeBase {
+  lazy val xsNamed = xml
+}
 
 class LocalComplexTypeDef(val xml: Node, val parent: SchemaComponent) 
   extends ComplexTypeBase 

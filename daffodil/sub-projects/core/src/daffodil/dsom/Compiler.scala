@@ -74,7 +74,7 @@ class Compiler extends DFDL.Compiler {
 
   def reload(fileNameOfSavedParser: String) = {
     val sp = daffodil.parser.SchemaParser.readParser(fileNameOfSavedParser)
-    backEnd(sp)
+    backEnd(sp, Assert.notYetImplemented())
   }
 
   def compile(schemaFileName: String): DFDL.ProcessorFactory = {
@@ -85,7 +85,7 @@ class Compiler extends DFDL.Compiler {
   def compile(xml: Node): DFDL.ProcessorFactory = compileNode(xml)
 
   private def compileNode(xml: Node): DFDL.ProcessorFactory = {
-    commonCompile(xml)
+    val sset = commonCompile(xml)
 
     //
     // older front end, and back-end....
@@ -93,12 +93,13 @@ class Compiler extends DFDL.Compiler {
     val sp = new daffodil.parser.SchemaParser
     sp.parse(new ByteArrayInputStream(xml.toString.getBytes())) // parse the schema that is.
 
-    backEnd(sp)
+    backEnd(sp, sset)
   }
 
-  def backEnd(sp: daffodil.parser.SchemaParser): DFDL.ProcessorFactory = {
+  def backEnd(sp: daffodil.parser.SchemaParser, sset: SchemaSet) = {
     new DFDL.ProcessorFactory {
 
+      lazy val schemaSet = sset
       def onPath(xpath: String): DFDL.DataProcessor =
         new DFDL.DataProcessor {
 
