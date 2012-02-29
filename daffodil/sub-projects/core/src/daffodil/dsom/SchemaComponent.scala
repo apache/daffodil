@@ -4,9 +4,14 @@ import scala.xml._
 import scala.xml.parsing._
 import daffodil.exceptions._
 import daffodil.schema.annotation.props.gen._
-/*import com.sun.xml.xsom.parser.{ SchemaDocument => XSSchemaDocument, _ }
-import com.sun.xml.xsom._
-import com.sun.xml.xsom.util._*/
+/*
+ * Not using XSOM - too many issues. Schema Documents aren't first class objects, and we need
+ * them to implement lexical scoping of default formats over the contents of a schema document.
+ * 
+ * import com.sun.xml.xsom.parser.{ SchemaDocument => XSSchemaDocument, _ }
+ * import com.sun.xml.xsom._
+ * import com.sun.xml.xsom.util._
+ */
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import scala.collection.JavaConversions._
@@ -47,9 +52,9 @@ abstract class GlobalComponentMixin(val xsNamed : Node)
 trait AnnotatedMixin { 
  
  /**
-  * Anything annotated has to have an associated XSOM class with a getAnnotation() method.
+  * Anything annotated has to have an associated xml object and getAnnotation() method.
   */
- val xsAnnotated : Node // this is called a type refinement or structural typing.
+ val xsAnnotated : Node 
  
  /**
   * Anything annotated must be able to construct the
@@ -115,9 +120,6 @@ abstract class Annotated(val xso: Node)
  * node. These may have include/import statements in them, and the schemas 
  * being included/imported don't have to be within the list.
  * 
- * xsoSSet is an XSOM XSSchemaSet object created from the same schemas. Note that
- * due to include/import, the xsoSSet may contain more Schemas than were part of
- * the schemaNodeList.
  */
 class SchemaSet (schemaNodeList : Seq[Node]) {
   // TODO Constructor(s) or companion-object methods to create a SchemaSet from files.
@@ -140,22 +142,6 @@ class SchemaSet (schemaNodeList : Seq[Node]) {
      	}
      }
    
-//   lazy val schemaDocuments = xsds.map{ xsd=>{
-//       val Some(schema) = schemas.find{sch=>sch.targetNamespace == xsd.getTargetNamespace()}
-//       new SchemaDocument(xsd, schema)
-//     }
-//   } 
-   
-//   /**
-//    * For use by SchemaDocument 
-//    */
-//   lazy val sdToEdecl = {
-//     val res = xsoSSet.iterateElementDecls().toSeq.groupBy{_.getSourceDocument()}
-//     res
-//   }
-//   lazy val sdToSTDef = xsoSSet.iterateSimpleTypes().toSeq.groupBy{_.getSourceDocument()}
-//   lazy val sdToCTDef = xsoSSet.iterateComplexTypes().toSeq.groupBy{_.getSourceDocument()}
-//   lazy val sdToGDef = xsoSSet.iterateModelGroupDecls().toSeq.groupBy{_.getSourceDocument()}
 }
 
 /**
@@ -196,10 +182,7 @@ class SchemaDocument(xsd: Node, val schema : Schema) extends AnnotatedMixin {
   lazy val xsAnnotated = xsd
   lazy val targetNamespace = schema.targetNamespace
   
-  def annotationFactory(node: Node): DFDLAnnotation = {
-    Assert.notYetImplemented(node.label != "format") // nothing but a default format right now.
-    new DFDLFormat(node, this)
-  }
+  def annotationFactory(node: Node): DFDLAnnotation = new DFDLFormat(node, this)
   
   private lazy val sset = schema.schemaSet
   
@@ -213,6 +196,11 @@ class SchemaDocument(xsd: Node, val schema : Schema) extends AnnotatedMixin {
   lazy val globalComplexTypeDefs = (xsd\"complexType").map{ new GlobalComplexTypeDef(_, this) }
   lazy val globalGroupDefs = (xsd\"group").map{ new GlobalGroupDef(_, this) }
  
+  /**
+   * Here we establish an invariant. Every annotatable schema component has, definitely, has an
+   * annotation object. It may have no properties on it, but it will be there. Hence, we can 
+   * delegate various property-related attribute calculations to it.
+   */
   lazy val defaultFormat = {
     val format = annotationObjs.find { _.isInstanceOf[DFDLFormat] }
     val res = format match {
@@ -269,6 +257,13 @@ trait Particle { self : LocalElementBase =>
   }
 }
 
+/**
+ * Some XSD models have a single Element class, and distinguish local/global and element references
+ * based on attributes of the instances. 
+ * 
+ * Our approach is to provide common behaviors on base classes or traits/mixins, and to have distinct
+ * classes for each instance type.
+ */
 abstract class LocalElementBase(val xml : Node, parent : ModelGroup) 
   extends Term(xml, parent)
   with AnnotatedElementMixin
