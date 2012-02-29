@@ -1,0 +1,27 @@
+<project name="Daffodil" default="all" basedir=".">
+
+	<target name="rebuild" depends="clean"
+		description="Rebuilds all subprojects">
+		<ant dir="${basedir}/sub-projects/daffodil-lib"/>
+		<ant dir="${basedir}/sub-projects/core"/>
+	</target>
+	
+	<target name="clean"
+		description="Cleans the top-level target directory">
+	  <delete dir="${basedir}/target"/>
+	</target>
+
+	<target name="prep-dist"
+	  description="Prepares the distribution directory">
+	  <mkdir dir="${basedir}/target/dist/lib"/>
+		<copy todir="${basedir}/target/dist/lib"> 
+			<fileset dir="${basedir}/target/ant" includes="*.jar"/>
+		</copy>
+		<copy todir="${basedir}/target/dist">
+			<fileset dir="${basedir}/scripts"/>
+		</copy>
+	</target>
+
+	<target name="all" depends="rebuild,prep-dist"/>
+
+</project>

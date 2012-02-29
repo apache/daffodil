@@ -45,6 +45,7 @@ import daffodil.arguments.ArgumentParser
 import daffodil.arguments.OptionalSingle
 import daffodil.debugger.DebugUtil
 import xml.XMLUtil
+import daffodil.util.Misc
 
 /**
  * The command line interface to Daffodil
@@ -261,10 +262,12 @@ object Main {
     System exit (1)
   }
 
+  
   private def printVersion = {
-    print(NAME + " " + YEAR + "-" + MAJOR_VERSION + "." + MINOR_VERSION)
-    println("   build " + BuildNumber.buildNumber)
-    System exit (1)
+//    print(NAME+" "+YEAR+"-"+MAJOR_VERSION+"."+MINOR_VERSION)
+    val versions = Misc.getDaffodilVersion
+    println(NAME + " version " + versions._1 + " (build " + versions._2 + ")")
+    System exit(1)
   }
 
 }

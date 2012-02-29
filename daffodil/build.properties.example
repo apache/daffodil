@@ -1,0 +1,7 @@
+scala.home=${user.home}/share/typesafe-stack/lib
+
+# alternatively, you can define explicit references to the compiler and 
+# library jars in the eclipse plugins directory
+#scala.home=${user.home}/share/eclipse-indigo/plugins
+#scala-compiler.jar=${scala.home}/org.scala-ide.scala.compiler_2.9.2.rdev-2769-2011-12-13-g2dd83da.jar
+#scala-library.jar=${scala.home}/org.scala-ide.scala.library_2.9.1.final.jar

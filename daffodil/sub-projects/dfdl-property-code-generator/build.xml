@@ -1,0 +1,25 @@
+<project name="dfdl-property-code-generator" basedir="." default="generate">
+  <description>
+     Generates Scala code from the property codes portion of the DFDL Schema.
+  </description>
+
+	<import file="../../build-common.ant"/>
+	
+	<target name="generate" depends="compile"
+		description="Generates scala code for properties from the DFDL Schema">
+		<java classname="daffodil.propGen.PropertyGenerator">
+	      <classpath>
+	        <path refid="project.classpath"/>
+	        <pathelement location="${bin}"/>
+	      </classpath>
+    </java>
+		<echo>
+Code generation complete.
+
+To make any changes permanent, commit the changes to gen/GeneratedCode.scala,
+and then copy it to
+daffodil-lib/src/daffodil/schema/annotation/props/gen.
+		</echo>
+	</target>
+	
+</project>

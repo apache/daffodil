@@ -36,4 +36,23 @@ object Misc {
   def initialUpperCase(s: String): String = s.head.toUpper + s.substring(1)
   def initialLowerCase(s: String): String = s.head.toLower + s.substring(1)
   
+  
+  /**
+   * Returns a tuple with the primary version number in the first slot and
+   * the build number in the second slot. 
+   */
+  def getDaffodilVersion : Tuple2[String,String] = {
+    val implVersion = Package.getPackage("daffodil.util").getImplementationVersion()
+    if (implVersion == null) {
+      ("","")
+    } else {
+		val index = implVersion.indexOf("+")
+		if (index > 0 && index < implVersion.length()) {
+		  (implVersion.substring(0, index), implVersion.substring(index+1))
+		} else {
+		  (implVersion, "")
+		}
+    }
+  }
+  
 }

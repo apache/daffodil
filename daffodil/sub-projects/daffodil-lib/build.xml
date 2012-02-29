@@ -1,0 +1,8 @@
+<project name="daffodil-lib" default="fresh-install" basedir=".">
+  <description>
+    Common utilities for the Daffodil project. 
+  </description>
+
+	<import file="../../build-common.ant"/>
+
+</project>
