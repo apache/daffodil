@@ -25,7 +25,7 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin) {
     if (annotatedSC == null) {
       Nil
     } else {
-      val xsA = annotatedSC.xsAnnotated
+      val xsA = annotatedSC.xml
       Assert.invariant(xsA != null)
       xsA.attributes.asAttrMap.map {
         case (prop_name, value) if (prop_name.contains("dfdl:")) => (prop_name.replace("dfdl:", ""), value)
