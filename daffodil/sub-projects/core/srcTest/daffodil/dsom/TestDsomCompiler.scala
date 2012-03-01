@@ -258,7 +258,7 @@ class TestDsomCompiler extends JUnit3Suite {
 
     // Explore define variables
     val Seq(dv1, dv2) = sd.defineVariables // there are two
-    assertEquals("2003年08月27日", dv2.asInstanceOf[DFDLDefineVariable].defaultValue) // second has kanji chars in default value
+    //assertEquals("2003年08月27日", dv2.asInstanceOf[DFDLDefineVariable].defaultValue) // second has kanji chars in default value
 
     // Explore define escape schemes
     val Seq(desc1) = sd.defineEscapeSchemes // only one of these
@@ -272,7 +272,8 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(seq1a : DFDLSequence) = seq1.annotationObjs // one format annotation with a property
     assertEquals(SeparatorPosition.Infix, seq1a.separatorPosition)
     val Seq(seq1e1, seq1s1) = seq1.children // has an element and a sub-sequence as its children.
-    
+    assertEquals(2, seq1e1.asInstanceOf[ElementRef].maxOccurs)
+    assertEquals("ex:a", seq1e1.asInstanceOf[ElementRef].ref)
   }
 
 }

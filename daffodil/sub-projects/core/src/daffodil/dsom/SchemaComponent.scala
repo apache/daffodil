@@ -360,8 +360,13 @@ abstract class LocalElementBase(val xml: Node, parent: ModelGroup)
 }
 
 class ElementRef(xml: Node, parent: ModelGroup)
-  extends LocalElementBase(xml, parent) {
+  extends LocalElementBase(xml, parent) with HasRef {
+	lazy val xWithRef = xml
+}
 
+trait HasRef {
+  val xWithRef : Node
+  lazy val ref = (xWithRef\"@ref").text
 }
 
 trait ElementDeclBase extends AnnotatedElementMixin with SchemaComponent {
@@ -446,13 +451,13 @@ abstract class ModelGroup(xml: Node, parent: SchemaComponent) extends GroupBase(
    def term(child : Node) = {
      val childList : List[Term] = child match {
       case <element>{ _* }</element> => {
-        val refProp = (xml \ "@ref").text
-        if (refProp == "") List(new LocalElementDecl(xml, this))
-        else List(new ElementRef(xml, this))
+        val refProp = (child \ "@ref").text
+        if (refProp == "") List(new LocalElementDecl(child, this))
+        else List(new ElementRef(child, this))
       }
       case <annotation>{ _* }</annotation> => Nil
       case textNode: Text => Nil
-      case _ => ModelGroup(xml, this)
+      case _ => ModelGroup(child, this)
     }
      childList
    }
