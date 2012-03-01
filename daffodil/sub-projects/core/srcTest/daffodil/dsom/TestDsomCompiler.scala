@@ -253,7 +253,7 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals(Representation.Text, def1.formatAnnotation.representation)
 
     val Seq(dv1,dv2) = sd.defineVariables
-    //assertEquals("архив", dv2.asInstanceOf[DFDLDefineVariable].name)
+    assertEquals("2003年08月27日", dv2.asInstanceOf[DFDLDefineVariable].defaultValue)
     
     val Seq(desc1) = sd.defineEscapeSchemes
     val es = desc1.asInstanceOf[DFDLDefineEscapeScheme].escapeScheme.escapeCharacter
