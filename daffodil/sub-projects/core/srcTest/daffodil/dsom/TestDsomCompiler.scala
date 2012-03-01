@@ -6,8 +6,11 @@ import scala.xml._
 import org.scalatest.junit.JUnit3Suite
 
 import daffodil.schema.annotation.props.gen._
+import daffodil.schema.annotation.props._
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
+
+
 
 /**
  * Scala Unit Testing Notes:
@@ -287,6 +290,29 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals(2, seq1e1.asInstanceOf[ElementRef].maxOccurs)
     assertEquals("ex:a", seq1e1.asInstanceOf[ElementRef].ref)
     assertEquals(0, seq1s1.asInstanceOf[Sequence].children.length)
+  }
+  
+  def test4 {
+    val testSchema = XML.loadFile("test/example-of-most-dfdl-constructs.dfdl.xml")
+    val compiler = Compiler()
+
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    val Seq(gd1, gd2) = sd.globalGroupDefs			// Obtain Group nodes
+    val ch1 = gd2.modelGroup.asInstanceOf[Choice]	// Downcast child-node of group to Choice
+    val Seq(cd1,cd2,cd3) = ch1.children				// Children nodes of Choice-node, there are 3
+ 
+   val Seq(a1) = gd2.modelGroup.annotationObjs		// Obtain the annotation object that is a child
+   													// of the group node.
+   
+   assertEquals(AlignmentType.Implicit, a1.asInstanceOf[DFDLChoice].alignment)
+    
+    val Seq(asrt1) = cd2.asInstanceOf[LocalElementDecl].annotationObjs		// Obtain Annotation object that is child
+    																		// of cd2.
+    
+    assertEquals("{ $myVar1 eq xs:int(xs:string(fn:round-half-to-even(8.5))) }", asrt1.asInstanceOf[DFDLAssert].test)
   }
 
 }

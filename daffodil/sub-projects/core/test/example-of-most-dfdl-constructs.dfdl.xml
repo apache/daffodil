@@ -176,7 +176,7 @@
 			<element name="c2" type="xsd:string">
 				<annotation>
 					<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-						<dfdl:discriminator test="{ $myVar1 eq xs:int(xs:string(fn:round-half-to-even(8.5))) }" />
+						<dfdl:assert test="{ $myVar1 eq xs:int(xs:string(fn:round-half-to-even(8.5))) }" />
 					</appinfo>
 				</annotation>
 			</element>
