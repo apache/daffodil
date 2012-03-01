@@ -86,6 +86,7 @@ class DFDLAssert(node : Node, decl: AnnotatedMixin)
 
 class DFDLDiscriminator(node : Node, decl: AnnotatedMixin)
   extends DFDLStatement(node, decl) with Discriminator_AnnotationMixin {
+  lazy val testBody = node.child.text
 }
 
 class DFDLDefineVariable(node : Node, decl: AnnotatedMixin)

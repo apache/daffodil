@@ -268,12 +268,25 @@ class TestDsomCompiler extends JUnit3Suite {
     // Explore global group defs
     val Seq(gr1, gr2) = sd.globalGroupDefs // there are two
     val seq1 = gr1.modelGroup.asInstanceOf[Sequence]
+    
+    //Explore LocalSimpleTypeDef
+    val Seq(gr2c1, gr2c2, gr2c3) = gr2.modelGroup.asInstanceOf[ModelGroup].children
+    val ist = gr2c3.asInstanceOf[LocalElementDecl].immediateType.get.asInstanceOf[LocalSimpleTypeDef]
+    assertEquals("tns:aType", ist.base)
+    
+    //Explore LocalElementDecl
+    val led = gr2c1.asInstanceOf[LocalElementDecl]
+    assertEquals(5, led.maxOccurs)
+    val Seq(leda) = led.annotationObjs
+    assertEquals("{ $myVar1 eq (+47 mod 4) }", leda.asInstanceOf[DFDLDiscriminator].testBody)
+    
     // Explore sequence
     val Seq(seq1a : DFDLSequence) = seq1.annotationObjs // one format annotation with a property
     assertEquals(SeparatorPosition.Infix, seq1a.separatorPosition)
     val Seq(seq1e1, seq1s1) = seq1.children // has an element and a sub-sequence as its children.
     assertEquals(2, seq1e1.asInstanceOf[ElementRef].maxOccurs)
     assertEquals("ex:a", seq1e1.asInstanceOf[ElementRef].ref)
+    assertEquals(0, seq1s1.asInstanceOf[Sequence].children.length)
   }
 
 }

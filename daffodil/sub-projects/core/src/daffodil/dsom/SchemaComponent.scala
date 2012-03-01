@@ -590,6 +590,9 @@ class LocalSimpleTypeDef(xml: Node, parent: SchemaComponent)
 
   def emptyFormatFactory = new DFDLSimpleType(<dfdl:simpleType/>, this)
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
+  
+  lazy val base = (xml\"restriction"\"@base").text
+  
 }
 
 

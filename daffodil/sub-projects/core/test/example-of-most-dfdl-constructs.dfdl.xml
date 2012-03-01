@@ -166,7 +166,7 @@
 					<dfdl:choice alignment="implicit" />
 				</appinfo>
 			</annotation>
-			<element name="c1" type="xsd:int">
+			<element name="c1" type="xsd:int" maxOccurs="5">
 				<annotation>
 					<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
 						<dfdl:discriminator><![CDATA[{ $myVar1 eq (+47 mod 4) }]]></dfdl:discriminator>
