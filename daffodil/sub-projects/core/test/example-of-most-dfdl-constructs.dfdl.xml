@@ -84,7 +84,9 @@
 	<element name="easy" dfdl:initiator="{ '[' }" dfdl:terminator="]">
 		<annotation>
 			<xsd:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-				<dfdl:element byteOrder="bigEndian" />
+				<dfdl:element byteOrder="bigEndian">
+					<dfdl:property name="encoding">UTF-8</dfdl:property>
+				</dfdl:element>
 			</xsd:appinfo>
 		</annotation>
 		<!-- immediate local complex type def -->

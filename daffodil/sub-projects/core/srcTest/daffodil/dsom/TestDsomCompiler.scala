@@ -10,8 +10,6 @@ import daffodil.schema.annotation.props._
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 
-
-
 /**
  * Scala Unit Testing Notes:
  *
@@ -246,6 +244,9 @@ class TestDsomCompiler extends JUnit3Suite {
     val sfa = seq.formatAnnotation.asInstanceOf[DFDLSequence] //...annotated with...
     assertEquals(YesNo.No, sfa.initiatedContent) // initiatedContent="no"
 
+    val Seq(e1a: DFDLElement) = e1.annotationObjs
+    assertEquals("UTF-8", e1a.encoding)
+
     // Explore global simple type defs
     val Seq(st1, st2) = sd.globalSimpleTypeDefs // there are two.
     val Seq(b1, b2, b3, b4) = st1.annotationObjs // first one has 4 annotations
@@ -271,27 +272,27 @@ class TestDsomCompiler extends JUnit3Suite {
     // Explore global group defs
     val Seq(gr1, gr2) = sd.globalGroupDefs // there are two
     val seq1 = gr1.modelGroup.asInstanceOf[Sequence]
-    
+
     //Explore LocalSimpleTypeDef
     val Seq(gr2c1, gr2c2, gr2c3) = gr2.modelGroup.asInstanceOf[ModelGroup].children
     val ist = gr2c3.asInstanceOf[LocalElementDecl].immediateType.get.asInstanceOf[LocalSimpleTypeDef]
     assertEquals("tns:aType", ist.base)
-    
+
     //Explore LocalElementDecl
     val led = gr2c1.asInstanceOf[LocalElementDecl]
     assertEquals(5, led.maxOccurs)
     val Seq(leda) = led.annotationObjs
     assertEquals("{ $myVar1 eq (+47 mod 4) }", leda.asInstanceOf[DFDLDiscriminator].testBody)
-    
+
     // Explore sequence
-    val Seq(seq1a : DFDLSequence) = seq1.annotationObjs // one format annotation with a property
+    val Seq(seq1a: DFDLSequence) = seq1.annotationObjs // one format annotation with a property
     assertEquals(SeparatorPosition.Infix, seq1a.separatorPosition)
     val Seq(seq1e1, seq1s1) = seq1.children // has an element and a sub-sequence as its children.
     assertEquals(2, seq1e1.asInstanceOf[ElementRef].maxOccurs)
     assertEquals("ex:a", seq1e1.asInstanceOf[ElementRef].ref)
     assertEquals(0, seq1s1.asInstanceOf[Sequence].children.length)
   }
-  
+
   def test4 {
     val testSchema = XML.loadFile("test/example-of-most-dfdl-constructs.dfdl.xml")
     val compiler = Compiler()
@@ -300,19 +301,21 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(gd1, gd2) = sd.globalGroupDefs			// Obtain Group nodes
-    val ch1 = gd2.modelGroup.asInstanceOf[Choice]	// Downcast child-node of group to Choice
-    val Seq(cd1,cd2,cd3) = ch1.children				// Children nodes of Choice-node, there are 3
- 
-   val Seq(a1) = gd2.modelGroup.annotationObjs		// Obtain the annotation object that is a child
-   													// of the group node.
-   
-   assertEquals(AlignmentType.Implicit, a1.asInstanceOf[DFDLChoice].alignment)
-    
-    val Seq(asrt1) = cd2.asInstanceOf[LocalElementDecl].annotationObjs		// Obtain Annotation object that is child
-    																		// of cd2.
-    
+    val Seq(gd1, gd2) = sd.globalGroupDefs // Obtain Group nodes
+    val ch1 = gd2.modelGroup.asInstanceOf[Choice] // Downcast child-node of group to Choice
+    val Seq(cd1, cd2, cd3) = ch1.children // Children nodes of Choice-node, there are 3
+
+    val Seq(a1: DFDLChoice) = gd2.modelGroup.annotationObjs // Obtain the annotation object that is a child
+    // of the group node.
+
+    assertEquals(AlignmentType.Implicit, a1.alignment)
+    assertEquals(ChoiceLengthKind.Implicit, a1.choiceLengthKind)
+
+    val Seq(asrt1) = cd2.asInstanceOf[LocalElementDecl].annotationObjs // Obtain Annotation object that is child
+    // of cd2.
+
     assertEquals("{ $myVar1 eq xs:int(xs:string(fn:round-half-to-even(8.5))) }", asrt1.asInstanceOf[DFDLAssert].test)
+
   }
 
 }
