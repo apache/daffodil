@@ -432,7 +432,58 @@ abstract class GroupBase(xml: Node, parent: SchemaComponent)
   lazy val xsAnnotated = xml
 }
 
-abstract class ModelGroup(xml: Node, parent: SchemaComponent) extends GroupBase(xml, parent)
+/**
+ * Base class for all model groups, which are term containers.
+ */
+abstract class ModelGroup(xml: Node, parent: SchemaComponent) extends GroupBase(xml, parent) {
+  
+  /**
+   * Synthesize a term - i.e., a model group has a term factory to construct its terms.
+   * 
+   * Because of the context where this is used, this returns a list. Nil for non-terms, non-Nil for 
+   * an actual term. There should be only one non-Nil.
+   */
+   def term(child : Node) = {
+     val childList : List[Term] = child match {
+      case <element>{ _* }</element> => {
+        val refProp = (xml \ "@ref").text
+        if (refProp == "") List(new LocalElementDecl(xml, this))
+        else List(new ElementRef(xml, this))
+      }
+      case <annotation>{ _* }</annotation> => Nil
+      case textNode: Text => Nil
+      case _ => ModelGroup(xml, this)
+    }
+     childList
+   }
+   
+   val xmlChildren : Seq[Node]
+     
+   lazy val children = xmlChildren.flatMap { term(_) }
+}
+
+/**
+ * A factory for model groups.
+ */
+object ModelGroup{
+  
+  /**
+   * Because of the contexts where this is used, we return a list. That lets users
+   * flatmap it to get a collection of model groups. Nil for non-model groups, non-Nil for the model group
+   * object. There should be only one non-Nil.
+   */
+    def apply(child : Node, self : SchemaComponent) = {
+      val childList : List[GroupBase] = child match {
+      case <sequence>{ _* }</sequence> => List(new Sequence(child, self))
+      case <choice>{ _* }</choice> => List(new Choice(child, self))
+      case <group>{ _* }</group> => List(new GroupRef(child, self))
+      case <annotation>{ _* }</annotation> => Nil
+      case textNode: Text => Nil
+      case _ => Assert.impossibleCase()
+    }
+    childList
+    }
+}
 
 class Choice(xml: Node, parent: SchemaComponent) extends ModelGroup(xml, parent) {
   override def annotationFactory(node: Node): DFDLAnnotation = {
@@ -444,9 +495,12 @@ class Choice(xml: Node, parent: SchemaComponent) extends ModelGroup(xml, parent)
 
   def emptyFormatFactory = new DFDLChoice(<dfdl:choice/>, this)
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLChoice]
+  
+  lazy val <choice>{ xmlChildren @ _* }</choice> = xml
 }
 
 class Sequence(xml: Node, parent: SchemaComponent) extends ModelGroup(xml, parent) {
+  
   override def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:sequence>{ contents @ _* }</dfdl:sequence> => new DFDLSequence(node, this)
@@ -458,20 +512,7 @@ class Sequence(xml: Node, parent: SchemaComponent) extends ModelGroup(xml, paren
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
 
   lazy val <sequence>{ xmlChildren @ _* }</sequence> = xml
-  lazy val children = xmlChildren.flatMap { child =>
-    child match {
-      case <sequence>{ _* }</sequence> => List(new Sequence(xml, this))
-      case <choice>{ _* }</choice> => List(new Choice(xml, this))
-      case <group>{ _* }</group> => List(new GroupRef(xml, this))
-      case <element>{ _* }</element> => {
-        val refProp = (xml \ "@ref").text
-        if (refProp == "") List(new LocalElementDecl(xml, this))
-        else List(new ElementRef(xml, this))
-      }
-      case textNode: Text => Nil
-      case _ => Assert.impossibleCase()
-    }
-  }
+
 }
 
 class GroupRef(xml: Node, parent: SchemaComponent) extends GroupBase(xml, parent) {
@@ -489,7 +530,19 @@ class GroupRef(xml: Node, parent: SchemaComponent) extends GroupBase(xml, parent
 
 class GlobalGroupDef(val xml: Node, val schemaDocument: SchemaDocument)
   extends GlobalComponentMixin {
-  val xsNamed = xml
+  lazy val xsNamed = xml
+  //
+  // Note: Dealing with XML can be fragile. It's easy to forget some of these children
+  // might be annotations and Text nodes. Even if you trim the text nodes out, there are
+  // places where annotations can be.
+  //
+  lazy val <group>{ xmlChildren @ _* }</group> = xml
+  //
+  // So we have to map, so that we can tolerate annotation objects.
+  // and our ModelGroup factory has to return Nil for annotations and Text nodes.
+  //
+  lazy val Seq(modelGroup) = xmlChildren.flatMap{ ModelGroup(_, this) }
+  
 }
 
 /////////////////////////////////////////////////////////////////
@@ -517,20 +570,13 @@ abstract class NamedSimpleTypeBase(xml: Node, parent: SchemaComponent)
   lazy val xsNamed = xml
 }
 
+
+
 trait ComplexTypeBase extends SchemaComponent with TypeBase {
   val xml: Node
-
+  
   lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
-  lazy val Seq(modelGroup) = xmlChildren.flatMap { child =>
-    child match {
-      case <sequence>{ _* }</sequence> => List(new Sequence(child, this))
-      case <choice>{ _* }</choice> => List(new Choice(child, this))
-      case <group>{ _* }</group> => List(new GroupRef(child, this))
-      case <annotation>{ _* }</annotation> => Nil
-      case textNode: Text => Nil
-      case _ => Assert.impossibleCase()
-    }
-  }
+  lazy val Seq(modelGroup) = xmlChildren.flatMap{ ModelGroup(_, this) }
 }
 
 class LocalSimpleTypeDef(xml: Node, parent: SchemaComponent)
@@ -559,8 +605,11 @@ class PrimitiveType(name_ : String) extends NamedSimpleTypeBase(null, null) {
 
 class GlobalSimpleTypeDef(val xml: Node, val schemaDocument: SchemaDocument)
   extends NamedSimpleTypeBase(xml, schemaDocument) with GlobalComponentMixin {
+  
   def emptyFormatFactory = new DFDLSimpleType(<dfdl:simpleType/>, this)
+  
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
+  
 }
 
 class GlobalComplexTypeDef(val xml: Node, val schemaDocument: SchemaDocument)

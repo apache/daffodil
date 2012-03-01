@@ -28,22 +28,22 @@ class TestDsomCompiler extends JUnit3Suite {
   val dfdl = XMLUtil.DFDL_NAMESPACE
   val xsi = XMLUtil.XSI_NAMESPACE
   val example = XMLUtil.EXAMPLE_NAMESPACE
-  
+
   // @Test
   def testHasProps() {
     val testSchema = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <annotation>
-          <appinfo source={ dfdl }>
-            <dfdl:format byteOrder="bigEndian"/>
-          </appinfo>
-        </annotation>
-        <element name="list" type="tns:example1"/>
-        <complexType name="example1">
-          <sequence>
-            <element name="w" type="xsd:int" dfdl:inputValueCalc="{ $x + 1 }"/>
-          </sequence>
-        </complexType>
-      </schema>
+                       <annotation>
+                         <appinfo source={ dfdl }>
+                           <dfdl:format byteOrder="bigEndian"/>
+                         </appinfo>
+                       </annotation>
+                       <element name="list" type="tns:example1"/>
+                       <complexType name="example1">
+                         <sequence>
+                           <element name="w" type="xsd:int" dfdl:inputValueCalc="{ $x + 1 }"/>
+                         </sequence>
+                       </complexType>
+                     </schema>
 
     val compiler = Compiler()
     val sset = compiler.frontEnd(testSchema)
@@ -58,14 +58,15 @@ class TestDsomCompiler extends JUnit3Suite {
 
   // @Test
   def testSchemaValidationSubset() {
-    val sch : Node = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="list" type="tns:example1"/>
-        <complexType name="example1">
-          <sequence maxOccurs="2"> <!-- DFDL SUBSET DOESN'T ALLOW THIS -->
-            <element name="w" type="xsd:int"/>
-          </sequence>
-        </complexType>
-      </schema>
+    val sch: Node = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+                      <element name="list" type="tns:example1"/>
+                      <complexType name="example1">
+                        <sequence maxOccurs="2">
+                          <!-- DFDL SUBSET DOESN'T ALLOW THIS -->
+                          <element name="w" type="xsd:int"/>
+                        </sequence>
+                      </complexType>
+                    </schema>
     val ex = intercept[Exception] {
       Compiler().frontEnd(sch)
     }
@@ -78,14 +79,14 @@ class TestDsomCompiler extends JUnit3Suite {
 
   // @Test
   def testSchemaValidationPropertyChecking() {
-    val s : Node = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="list" type="tns:example1"/>
-        <complexType name="example1">
-          <sequence>
-            <element name="w" type="xsd:int" dfdl:byteOrder="invalidValue"/>
-          </sequence>
-        </complexType>
-      </schema>
+    val s: Node = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+                    <element name="list" type="tns:example1"/>
+                    <complexType name="example1">
+                      <sequence>
+                        <element name="w" type="xsd:int" dfdl:byteOrder="invalidValue"/>
+                      </sequence>
+                    </complexType>
+                  </schema>
     val ex = intercept[Exception] {
       Compiler().frontEnd(s)
     }
@@ -202,8 +203,8 @@ class TestDsomCompiler extends JUnit3Suite {
     assertTrue(actualString.contains("<data"))
     assertTrue(actualString.contains(">37</data>"))
   }
-  
-    // @Test
+
+  // @Test
   def testUnparse1() {
     val testSchema =
       <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
@@ -219,45 +220,58 @@ class TestDsomCompiler extends JUnit3Suite {
     val actualString = outputStream.toString()
     assertEquals("37", actualString)
   }
-  
+
   def test3 {
     val testSchema = XML.loadFile("test/example-of-most-dfdl-constructs.dfdl.xml")
     val compiler = Compiler()
-    
+
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
-    
+
     // No annotations
     val Seq(ct) = sd.globalComplexTypeDefs
-    val Seq(gr1,gr2) = sd.globalGroupDefs
-    
-    val Seq(e1,e2,e3) = sd.globalElementDecls
-    assertEquals(ByteOrder.BigEndian.toString().toLowerCase(), e1.formatAnnotation.asInstanceOf[DFDLElement].byteOrder.toLowerCase())
-    val Seq(a1,a2) = e3.annotationObjs
-    assertTrue(a2.isInstanceOf[DFDLNewVariableInstance])
-    val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
-    val seq = e1ct.modelGroup.asInstanceOf[Sequence]
-    val sfa = seq.formatAnnotation.asInstanceOf[DFDLSequence]
-    assertEquals(YesNo.No, sfa.initiatedContent)
-   
-    val Seq(st1,st2) = sd.globalSimpleTypeDefs
-    val Seq(b1, b2, b3, b4) = st1.annotationObjs
-    assertEquals(AlignmentUnits.Bytes, b1.asInstanceOf[DFDLSimpleType].alignmentUnits)
-    assertEquals("tns:myVar1", b2.asInstanceOf[DFDLSetVariable].ref)
-    assertEquals("yadda yadda yadda", b4.asInstanceOf[DFDLAssert].message)
-    
-    val Seq(df1,df2) = sd.defineFormats
-    val def1 = df1.asInstanceOf[DFDLDefineFormat]
-    assertEquals("def1", def1.name)
-    assertEquals(Representation.Text, def1.formatAnnotation.representation)
 
-    val Seq(dv1,dv2) = sd.defineVariables
-    assertEquals("2003年08月27日", dv2.asInstanceOf[DFDLDefineVariable].defaultValue)
-    
-    val Seq(desc1) = sd.defineEscapeSchemes
+    // Explore global element decl
+    val Seq(e1, e2, e3) = sd.globalElementDecls // there are 3.
+    assertEquals(ByteOrder.BigEndian.toString().toLowerCase(), e1.formatAnnotation.asInstanceOf[DFDLElement].byteOrder.toLowerCase())
+    val Seq(a1, a2) = e3.annotationObjs // third one has two annotations
+    assertTrue(a2.isInstanceOf[DFDLNewVariableInstance]) // second annotation is newVariableInstance
+    val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef] // first one has immediate complex type
+    // Explore local complex type def
+    val seq = e1ct.modelGroup.asInstanceOf[Sequence] //... which is a sequence
+    val sfa = seq.formatAnnotation.asInstanceOf[DFDLSequence] //...annotated with...
+    assertEquals(YesNo.No, sfa.initiatedContent) // initiatedContent="no"
+
+    // Explore global simple type defs
+    val Seq(st1, st2) = sd.globalSimpleTypeDefs // there are two.
+    val Seq(b1, b2, b3, b4) = st1.annotationObjs // first one has 4 annotations
+    assertEquals(AlignmentUnits.Bytes, b1.asInstanceOf[DFDLSimpleType].alignmentUnits) // first has alignmentUnits
+    assertEquals("tns:myVar1", b2.asInstanceOf[DFDLSetVariable].ref) // second is setVariable with a ref
+    assertEquals("yadda yadda yadda", b4.asInstanceOf[DFDLAssert].message) // foruth is an assert with yadda message
+
+    // Explore define formats
+    val Seq(df1, df2) = sd.defineFormats // there are two
+    val def1 = df1.asInstanceOf[DFDLDefineFormat]
+    assertEquals("def1", def1.name) // first is named "def1"
+    assertEquals(Representation.Text, def1.formatAnnotation.representation) // has representation="text"
+
+    // Explore define variables
+    val Seq(dv1, dv2) = sd.defineVariables // there are two
+    assertEquals("2003年08月27日", dv2.asInstanceOf[DFDLDefineVariable].defaultValue) // second has kanji chars in default value
+
+    // Explore define escape schemes
+    val Seq(desc1) = sd.defineEscapeSchemes // only one of these
     val es = desc1.asInstanceOf[DFDLDefineEscapeScheme].escapeScheme.escapeCharacter
-    assertEquals("%%", es)
+    assertEquals("%%", es) // has escapeCharacter="%%" (note: string literals not digested yet, so %% is %%, not %.
+
+    // Explore global group defs
+    val Seq(gr1, gr2) = sd.globalGroupDefs // there are two
+    val seq1 = gr1.modelGroup.asInstanceOf[Sequence]
+    // Explore sequence
+    val Seq(seq1a : DFDLSequence) = seq1.annotationObjs // one format annotation with a property
+    assertEquals(SeparatorPosition.Infix, seq1a.separatorPosition)
+    val Seq(seq1e1, seq1s1) = seq1.children // has an element and a sub-sequence as its children.
     
   }
 
