@@ -264,6 +264,8 @@ class SchemaDocument(xmlArg: Node, val schema: Schema) extends AnnotatedMixin wi
 
 
   lazy val defaultFormat = formatAnnotation.asInstanceOf[DFDLFormat]
+  
+  lazy val defaultProperties = defaultFormat.combinedLocalProperties
 
   //
   // There's some scala way of avoiding all this downcasting, using some clever type parameterization scheme

@@ -18,7 +18,11 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin) {
     if (hasConflictingPropertyError) {
       throw new DFDLSchemaDefinitionException("Short and Long form properties overlap: " + conflictingProperties)
     }
-    combinedLocalProperties.get(name)
+    lazy val localProp = combinedLocalProperties.get(name)
+    localProp match {
+      case Some(_) => localProp
+      case None => annotatedSC.schemaDocument.defaultProperties.get(name)
+    }
   }
 
   lazy val shortFormProperties = {

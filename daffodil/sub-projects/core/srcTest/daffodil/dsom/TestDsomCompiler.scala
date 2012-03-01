@@ -238,6 +238,7 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals(ByteOrder.BigEndian.toString().toLowerCase(), e1.formatAnnotation.asInstanceOf[DFDLElement].byteOrder.toLowerCase())
     val Seq(a1, a2) = e3.annotationObjs // third one has two annotations
     assertTrue(a2.isInstanceOf[DFDLNewVariableInstance]) // second annotation is newVariableInstance
+    assertEquals(OccursCountKind.Implicit, a1.asInstanceOf[DFDLElement].occursCountKind)
     val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef] // first one has immediate complex type
     // Explore local complex type def
     val seq = e1ct.modelGroup.asInstanceOf[Sequence] //... which is a sequence

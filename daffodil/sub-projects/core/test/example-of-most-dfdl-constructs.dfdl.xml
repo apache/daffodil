@@ -157,7 +157,7 @@
 	<!-- a second top-level schema annotation. This one sets the default format -->
 	<annotation>
 		<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-			<dfdl:format ref="tns:def1" />
+			<dfdl:format ref="tns:def1" occursCountKind="implicit" />
 		</appinfo>
 	</annotation>
 
