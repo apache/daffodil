@@ -26,6 +26,7 @@
 				</choice>
 			</sequence>
 			<attribute name="suiteName" type="xs:token" use="required" />
+			<attribute name="ID" type="xs:token" use="optional" />
 			<attribute name="description" type="xs:string" use="optional" />
 		</complexType>
 		<unique name="unique-parserTestCase-name">
@@ -60,6 +61,7 @@
 			<element ref="tns:infoset" />
 		</sequence>
 		<attribute name="name" type="xs:NCName" use="required" />
+		<attribute name="ID" type="xs:token" use="optional" />
 		<attribute name="root" type="xs:NCName" use="required" />
 		<attribute name="model" type="xs:string" use="optional" /> <!-- is there a type for a path/uri? -->
 		<attribute name="description" type="xs:string" use="optional" />

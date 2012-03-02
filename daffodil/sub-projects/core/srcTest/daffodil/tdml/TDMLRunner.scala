@@ -65,6 +65,7 @@ class DFDLTestSuite(ts: Node, val tdmlFile: File = null) {
 
   lazy val parserTestCases = (ts \ "parserTestCase").map { node => ParserTestCase(node, this) }
   lazy val suiteName = (ts \ "@suiteName").text
+  lazy val suiteID = (ts \ "@ID").text
   lazy val description = (ts \ "@description").text
   lazy val embeddedSchemas = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
 
@@ -129,6 +130,8 @@ case class ParserTestCase(ptc: NodeSeq, val parent: DFDLTestSuite) {
   lazy val Seq(document) = (ptc \ "document").map { node => new Document(node, this) }
   lazy val Seq(infoset) = (ptc \ "infoset").map { node => new Infoset(node, this) }
   lazy val name = (ptc \ "@name").text
+  lazy val ptcID = (ptc \ "@ID").text
+  lazy val id = name + (if (ptcID != "") "("+ptcID+")" else "")
   lazy val root = (ptc \ "@root").text
   lazy val model = (ptc \ "@model").text
   lazy val description = (ptc \ "@description").text
@@ -188,7 +191,9 @@ case class ParserTestCase(ptc: NodeSeq, val parent: DFDLTestSuite) {
 
    
     assertEquals(expected, actualNoAttrs)
-    System.err.println("Test " + name + " passed.")
+    // if we get here, the test passed. If we don't get here then some exception was
+    // thrown either during the run of the test or during the comparison.
+    System.err.println("Test " + id + " passed.")
   }
 }
 

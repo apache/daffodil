@@ -63,7 +63,7 @@ class TestTDMLRunner extends JUnit3Suite {
   }
 
   def test1() {
-    val xml = <testSuite xmlns={ tdml } suiteName="theSuiteName" description="Some Test Suite Description">
+    val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="firstUnitTest" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
                   <document>0123</document>
                   <infoset>
@@ -87,17 +87,17 @@ class TestTDMLRunner extends JUnit3Suite {
     val infoset = ptc.infoset
     val actualContent = infoset.dfdlInfoset.contents
     val trimmed = actualContent
-    val expected = <byte1 xmlns:xsi={ xsi } xmlns:xs={ xsd } xsi:type="xs:byte">123</byte1>
+    val expected = <byte1 xmlns:xsi={ xsi } xmlns:xs={ xsd }>123</byte1>
     assertEquals(expected, trimmed)
   }
 
   def test2() {
     val xml = <testSuite xmlns={ tdml } suiteName="theSuiteName">
-                <parserTestCase name="firstUnitTest" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd">
+                <parserTestCase  ID="some identifier" name="firstUnitTest" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd">
                   <document>0123</document>
                   <infoset>
                     <dfdlInfoset xmlns:xs={ xsd } xmlns:xsi={ xsi }>
-                      <byte1 xsi:type="xs:byte">123</byte1>
+                      <byte1>123</byte1>
                     </dfdlInfoset>
                   </infoset>
                 </parserTestCase>
@@ -119,7 +119,7 @@ class TestTDMLRunner extends JUnit3Suite {
     val infoset = ptc.infoset
     val actualContent = infoset.dfdlInfoset.contents
     val trimmed = actualContent
-    val expected = <byte1 xmlns:xsi={ xsi } xmlns:xs={ xsd } xsi:type="xs:byte">123</byte1>
+    val expected = <byte1 xmlns:xsi={ xsi } xmlns:xs={ xsd }>123</byte1>
     assertEquals(expected, trimmed)
   }
 
@@ -130,7 +130,7 @@ class TestTDMLRunner extends JUnit3Suite {
         <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
       </schema>
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
-                      <ts:parserTestCase name="firstUnitTest" root="data">
+                      <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
                         <ts:document>37\n</ts:document>
                         <ts:infoset>
                           <ts:dfdlInfoset>
