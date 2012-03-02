@@ -79,12 +79,12 @@ class Compiler extends DFDL.Compiler {
 
   def compile(schemaFileName: String): DFDL.ProcessorFactory = {
     val schemaNode = XML.load(schemaFileName)
-    compileNode(schemaNode)
+    compileSchema(schemaNode)
   }
 
-  def compile(xml: Node): DFDL.ProcessorFactory = compileNode(xml)
+  def compile(xml: Node): DFDL.ProcessorFactory = compileSchema(xml)
 
-  private def compileNode(xml: Node): DFDL.ProcessorFactory = {
+  private def compileSchema(xml: Node): DFDL.ProcessorFactory = {
     val sset = commonCompile(xml)
 
     //
