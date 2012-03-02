@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="AA-BG" description="Original suite of AA through BG"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+
+	<parserTestCase name="AA000" root="list" model="AA.dfdl.xsd"
+		description="Tests variables and inputValueCalc">
+
+		<document>
+			<documentPart type="byte"></documentPart>
+		</document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<w type="xsd:int">1</w>
+					<x type="xsd:int">2</x>
+					<y type="xsd:int">3</y>
+					<z type="xsd:int">4</z>
+					<a type="xsd:string">UTF-8</a>
+					<b type="xsd:string">bigEndian</b>
+					<c type="xsd:string">ieee</c>
+					<d type="xsd:string" />
+				</list>
+
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+</testSuite>
