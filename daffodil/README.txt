@@ -18,12 +18,12 @@ REQUIREMENTS
 Daffodil requires Java 1.6 or higher. All scripts provided for running and
 testing are written in bash and tested in GNU Linux. Those scripts are not
 required though, so Daffodil should be able to run in other platforms as long
-as Java is installed
+as Java is installed.
 
 
-Apache Ant (1.7 or higher) is required for building using the provided script.
+Apache Ant (1.8 or higher) is required for building using the provided script.
 
-Daffodil is written in Scala 2.9
+Daffodil is written in Scala 2.9.
 
 ----------------
 RUNNING
@@ -59,7 +59,6 @@ issue:
 or, if inside the installation directory:
 
   $ ant all
-   .
 
 There are IDE's and eclipse plug-ins that can be used to build daffodil. See:
 
@@ -78,7 +77,7 @@ installation directory. The following documents are included:
    description of the software architecture.
  * dfdl.odt: The DFDL specification followed by Daffodil, with comments on
    differences with the actual implementation.
- * index.html: The Scala API documentation.
+ * api/index.html: The Scala API documentation.
 
 ----------------
 EXAMPLES
@@ -118,8 +117,3 @@ CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 WITH THE SOFTWARE.
-
-
-
-
-

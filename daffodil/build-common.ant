@@ -44,7 +44,6 @@
     <property name="target" location="${basedir}/target/ant"/>
     <property name="bin" value="${target}/classes"/>
     <property name="bin-test" value="${target}/test-classes"/>
-    <property name="doc" value="${target}/doc"/>
     <property name="scala.home" value="${basedir}/lib"/>
 
 		<property name="jar.name" value="${ant.project.name}-${version}.jar"/>
@@ -62,7 +61,7 @@
     <path id="project.classpath">
       <path refid="scala.classpath"/>
       <fileset dir="${basedir}/lib" includes="**/*.jar"/>
-    	<fileset dir="${rootdir}/target/ant" includes="*.jar" 
+    	<fileset dir="${rootdir}/lib" includes="*.jar" 
     	  erroronmissingdir="false" />
     	<pathelement location="${bin}"/>
     </path>
@@ -135,15 +134,15 @@
 	 
 	  <target name="install" depends="jar"
 	    description="Installs the jar into the top-level target directory (for use by other projects)">
-	    <mkdir dir="${rootdir}/target/ant"/>
-	    <copy todir="${rootdir}/target/ant" file="${target}/${jar.name}"/> 
+	    <mkdir dir="${rootdir}/lib"/>
+	    <copy todir="${rootdir}/lib" file="${target}/${jar.name}"/> 
 	  </target>
 	
 
   <target name="fresh-install" depends="clean"
     description="Does a fresh install (= clean install)">
     <delete>
-      <fileset dir="${rootdir}" includes="target/ant/${ant.project.name}-*.jar"/>
+      <fileset dir="${rootdir}" includes="lib/${ant.project.name}-*.jar"/>
     </delete>
     <antcall target="install"/>
   </target>

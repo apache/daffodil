@@ -12,6 +12,8 @@ target
 /daffodil/bin
 /daffodil/build.properties
 /daffodil/.project
+/daffodil/lib
+/daffodil/doc/api
 
 # /daffodil/sub-projects/daffodil-lib/
 /daffodil/sub-projects/daffodil-lib/bin

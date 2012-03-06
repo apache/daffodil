@@ -6,19 +6,7 @@
 	<import file="../../build-common.ant"/>
 
 	
-  <target name="document" depends="init"
-  	description="Creates Scala API documentation via scaladoc">
-    <mkdir dir="${doc}"/>
-    <scaladoc srcdir="${src}" destdir="${doc}"
-      classpathref="project.classpath" doctitle="Daffodil">
-      <exclude name="**/*.html"/>
-      <exclude name="**/*.java"/>
-    	<exclude name="**/*.xml"/>
-    </scaladoc>
-  </target>
-
-	
-	<target name="all" depends="clean,jar,test,full-install,document"
+	<target name="all" depends="clean,jar,test,full-install"
 	 description="Builds everything from a clean slate and runs the tests" />
 	
 	
@@ -36,7 +24,7 @@
 	
   <target name="full-install" depends="install"
     description="Copies jar and all dependencies and scripts to top-level target directory">
-    <copy todir="${rootdir}/target/ant" flatten="true">
+    <copy todir="${rootdir}/lib" flatten="true">
       <fileset dir="${basedir}/lib" 
         includes="icu4j*.jar jdom*.jar joda-time*.jar saxon*/*.jar xerces*/*.jar xsom*.jar"/>
     	<files includes="${scala-library.jar}"/>
