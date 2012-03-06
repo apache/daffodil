@@ -59,10 +59,24 @@ issue:
 or, if inside the installation directory:
 
   $ ant all
+  
+See BUILDING.txt for more detailed instructions on using the ant scripts.
 
 There are IDE's and eclipse plug-ins that can be used to build daffodil. See:
 
   http://www.scala-lang.org/node/91
+
+
+---------------
+PROJECT STRUCTURE
+---------------
+
+The project is broken down into three sub-projects:
+- The core sub-project contains most of the Daffodil code.
+- The daffodil-lib contains utility classes used by Daffodil.
+- The dfdl-property-code-generator generates Scala code from the DFDL
+  schema. The generated code can then be copied manually into the
+  daffodil-lib project.
 
 
 ----------------
@@ -82,6 +96,7 @@ installation directory. The following documents are included:
 ----------------
 EXAMPLES
 ----------------
+TODO: Update this section.
 
 Several examples are provided in the directory 'test'. They are in the form of
 schema <XX.xsd>, input data files <XX###.in> and expected output <XX###.xml>.

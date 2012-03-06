@@ -23,7 +23,7 @@
 	
 	
   <target name="full-install" depends="install"
-    description="Copies jar and all dependencies and scripts to top-level target directory">
+    description="Copies jar and all dependencies and scripts to top-level lib directory">
     <copy todir="${rootdir}/lib" flatten="true">
       <fileset dir="${basedir}/lib" 
         includes="icu4j*.jar jdom*.jar joda-time*.jar saxon*/*.jar xerces*/*.jar xsom*.jar"/>

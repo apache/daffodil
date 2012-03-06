@@ -133,7 +133,7 @@
 	
 	 
 	  <target name="install" depends="jar"
-	    description="Installs the jar into the top-level target directory (for use by other projects)">
+	    description="Installs the jar into the top-level lib directory">
 	    <mkdir dir="${rootdir}/lib"/>
 	    <copy todir="${rootdir}/lib" file="${target}/${jar.name}"/> 
 	  </target>

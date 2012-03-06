@@ -1,0 +1,98 @@
+Apache Ant (1.8 or higher) is required for building using the provided scripts.
+
+To use the Ant build scripts, you must first define where scala is
+installed.  Copy build.properties.example to build.properties, and
+modify the properties in that file accordingly.
+
+To see a description of possible ant targets at the top-level or in
+any sub-project, simply run at the command-line:
+    
+    $ ant -p
+
+---------------
+Top-level directory
+---------------
+
+Main targets:
+
+ all       Rebuilds the subprojects and the documentation
+ clean     Cleans the top-level target directory
+ document  Creates Scala API documentation via scaladoc
+ rebuild   Rebuilds all subprojects
+Default target: all
+
+
+The rebuild target builds both the daffodil-lib and the daffodil jars
+and puts them in the lib directory, along with all other dependent
+jars.  The daffodil.sh script can then be run directly from the
+daffodil directory.
+
+Before building the jars, all unit tests are run.  Note that the unit
+tests can be skipped by defining the skipTests property, as
+demonstrated below.  This is true in all sub-projects as well.
+
+    $ ant -DskipTests=true rebuild
+
+The document target builds the API documentation in the doc/api
+directory.
+
+
+---------------
+Version numbers
+---------------
+
+This project uses the versioning scheme specified by Semantic Versioning,
+v2.0.0-rc1 at http://semver.org/.
+
+Synopsis:  major.minor.patch[-pre-release]+build
+
+Version numbers < 1.0 are for initial development.
+
+See version.properties and the URL above for details.
+
+
+---------------
+Common sub-project targets
+---------------
+
+ clean          Cleans up after itself
+ compile        Compiles the source
+ compileTest    Compiles the unit tests
+ fresh-install  Does a fresh install (= clean install)
+ install        Installs the jar into the top-level lib directory
+ jar            Creates a jar file
+ test           Runs the unit tests
+
+
+The jar target depends on test, so the unit tests get run every time a
+jar is created.
+
+Note that the skipTests property applies here as well.
+
+
+---------------
+dfdl-property-generator 
+---------------
+
+ generate       Generates scala code for properties from the DFDL Schema
+Default target: generate
+
+The default target is generate, which generates
+gen/GeneratedCode.scala from the DFDL schema.  This file can then be
+copied into the daffodil-lib project.
+
+
+---------------
+core
+---------------
+
+ all            Builds everything from a clean slate and runs the tests
+ full-install   Copies jar and all dependencies and scripts to
+                 top-level lib directory
+ printVersion   Runs Main -v to print the version of Daffodil (smoke test)
+Default target: all
+
+
+To do a quick smoke test of the command-line application, run
+    $ ant printVersion
+
