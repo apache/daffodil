@@ -26,16 +26,11 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin) {
   }
 
   lazy val shortFormProperties = {
-    if (annotatedSC == null) {
-      Nil
-    } else {
       val xsA = annotatedSC.xml
-      Assert.invariant(xsA != null)
       xsA.attributes.asAttrMap.map {
         case (prop_name, value) if (prop_name.contains("dfdl:")) => (prop_name.replace("dfdl:", ""), value)
         case x => x
       }
-    }
   }.toSet
 
   lazy val longFormProperties = node.attributes.asAttrMap.toSet // No colon in name
@@ -96,7 +91,7 @@ class DFDLDefineFormat(node: Node, decl: AnnotatedMixin)
   extends DFDLFormatAnnotation(node, decl) with DefineFormat_AnnotationMixin {
   lazy val formatAnnotation = Utility.trim(node) match {
     case <dfdl:defineFormat>{ f @ <dfdl:format>{ contents @ _* }</dfdl:format> }</dfdl:defineFormat> =>
-      new DFDLFormat(f, null)
+      new DFDLFormat(f, NoSchemaDocument)
     case _ => Assert.impossibleCase()
   }
 }
@@ -109,7 +104,7 @@ class DFDLDefineEscapeScheme(node: Node, decl: AnnotatedMixin)
   extends DFDLFormatAnnotation(node, decl) with DefineEscapeScheme_AnnotationMixin {
   lazy val escapeScheme = Utility.trim(node) match {
     case <dfdl:defineEscapeScheme>{ e @ <dfdl:escapeScheme>{ contents @ _* }</dfdl:escapeScheme> }</dfdl:defineEscapeScheme> =>
-      new DFDLEscapeScheme(e, null)
+      new DFDLEscapeScheme(e, NoSchemaDocument)
     case _ => Assert.impossibleCase()
   }
 }

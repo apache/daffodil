@@ -236,8 +236,15 @@ class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: Sche
  * are where default formats are specified, so it is very important what schema document
  * a schema component was defined within.
  */
-class SchemaDocument(xmlArg: Node, val schema: Schema) extends AnnotatedMixin with SchemaComponent {
+class SchemaDocument(xmlArg: Node, schemaArg: => Schema) extends AnnotatedMixin with SchemaComponent {
+  //
+  // schemaArg is call by name, so that in the corner case of NoSchemaDocument (used for non-lexically enclosed annotation objects), 
+  // we can pass an Assert.invariantFailed to bomb if anyone actually tries to use the schema.
+  //
+  // This is one of the techniques we use to avoid using null and having to test for null.
+  //
 
+  lazy val schema = schemaArg
   lazy val xml = xmlArg
   lazy val targetNamespace = schema.targetNamespace
   lazy val schemaDocument = this
@@ -299,6 +306,18 @@ class SchemaDocument(xmlArg: Node, val schema: Schema) extends AnnotatedMixin wi
   def getDefineEscapeScheme(name: String) = defineEscapeSchemes.find { _.name == name }
 
 }
+
+
+/**
+ * Singleton to use when something usually has a schema document it refers to, but sometimes doesn't but you 
+ * have to supply something. Use this.
+ * 
+ * This is an alternative to everybody having to use Option[SchemaDocument] for these corner cases, or passing null, etc.
+ */
+object NoSchemaDocument extends SchemaDocument(
+    <schema/>, // dummy piece of XML that has no attributes, no annotations, no children, etc. Convenient to avoid conditional tests.
+    Assert.invariantFailed("NoSchemaDocument has no schema.")
+    ) 
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -557,7 +576,7 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
   }
 }
 
-abstract class NamedSimpleTypeBase(xmlArg : Node, parent: SchemaComponent)
+abstract class NamedSimpleTypeBase(xmlArg : => Node, parent: => SchemaComponent)
   extends SimpleTypeBase(xmlArg, parent) with NamedType {
 }
 
@@ -580,7 +599,10 @@ class LocalSimpleTypeDef(xmlArg : Node, parent: SchemaComponent)
 
 
 //TBD: are Primitives "global", or do they just have names like globals do?
-class PrimitiveType(name_ : String) extends NamedSimpleTypeBase(null, null) {
+class PrimitiveType(name_ : String) extends NamedSimpleTypeBase(
+    Assert.invariantFailed("primitives don't have XML."), 
+    Assert.invariantFailed("primitives don't have parents.")
+    ) {
   //
   // Lots of faking & dummy objects here
   //
