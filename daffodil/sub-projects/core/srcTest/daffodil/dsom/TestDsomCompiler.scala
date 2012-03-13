@@ -176,7 +176,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val mg = ct.modelGroup.asInstanceOf[Sequence]
     assertTrue(mg.isInstanceOf[Sequence])
 
-    val Seq(elem) = mg.children
+    val Seq(elem) = mg.groupMembers
     assertTrue(elem.isInstanceOf[LocalElementDecl])
 
   }
@@ -275,7 +275,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val seq1 = gr1.modelGroup.asInstanceOf[Sequence]
 
     //Explore LocalSimpleTypeDef
-    val Seq(gr2c1, gr2c2, gr2c3) = gr2.modelGroup.asInstanceOf[ModelGroup].children
+    val Seq(gr2c1, gr2c2, gr2c3) = gr2.modelGroup.asInstanceOf[ModelGroup].groupMembers
     val ist = gr2c3.asInstanceOf[LocalElementDecl].immediateType.get.asInstanceOf[LocalSimpleTypeDef]
     assertEquals("tns:aType", ist.base)
 
@@ -288,10 +288,10 @@ class TestDsomCompiler extends JUnit3Suite {
     // Explore sequence
     val Seq(seq1a: DFDLSequence) = seq1.annotationObjs // one format annotation with a property
     assertEquals(SeparatorPosition.Infix, seq1a.separatorPosition)
-    val Seq(seq1e1, seq1s1) = seq1.children // has an element and a sub-sequence as its children.
+    val Seq(seq1e1, seq1s1) = seq1.groupMembers // has an element and a sub-sequence as its children.
     assertEquals(2, seq1e1.asInstanceOf[ElementRef].maxOccurs)
     assertEquals("ex:a", seq1e1.asInstanceOf[ElementRef].ref)
-    assertEquals(0, seq1s1.asInstanceOf[Sequence].children.length)
+    assertEquals(0, seq1s1.asInstanceOf[Sequence].groupMembers.length)
   }
 
   def test4 {
@@ -304,7 +304,7 @@ class TestDsomCompiler extends JUnit3Suite {
 
     val Seq(gd1, gd2) = sd.globalGroupDefs // Obtain Group nodes
     val ch1 = gd2.modelGroup.asInstanceOf[Choice] // Downcast child-node of group to Choice
-    val Seq(cd1, cd2, cd3) = ch1.children // Children nodes of Choice-node, there are 3
+    val Seq(cd1, cd2, cd3) = ch1.groupMembers // Children nodes of Choice-node, there are 3
 
     val Seq(a1: DFDLChoice) = gd2.modelGroup.annotationObjs // Obtain the annotation object that is a child
     // of the group node.

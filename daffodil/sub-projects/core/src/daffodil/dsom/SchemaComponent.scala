@@ -18,20 +18,21 @@ import java.io.InputStream
 import scala.collection.JavaConversions._
 //import parser.AnnotationParser
 
+import daffodil.grammar._
+
 trait SchemaComponent {
-  val schemaDocument: SchemaDocument
-  val xml : Node
+  def schemaDocument: SchemaDocument
+  lazy val schema : Schema = schemaDocument.schema
+  def xml : Node
 
-}
-
-trait LexicallyEnclosedMixin {
-  val parent: SchemaComponent
+  val NYI = false // our flag for Not Yet Implemented 
+  
+  lazy val expressionCompiler = new ExpressionCompiler(this)
 }
 
 trait LocalComponentMixin
-  extends SchemaComponent
-  with LexicallyEnclosedMixin {
-
+  extends SchemaComponent {
+  def parent: SchemaComponent
   lazy val schemaDocument = parent.schemaDocument
 }
 
@@ -236,7 +237,7 @@ class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: Sche
  * are where default formats are specified, so it is very important what schema document
  * a schema component was defined within.
  */
-class SchemaDocument(xmlArg: Node, schemaArg: => Schema) extends AnnotatedMixin with SchemaComponent {
+class SchemaDocument(xmlArg: Node, schemaArg: => Schema) extends AnnotatedMixin {
   //
   // schemaArg is call by name, so that in the corner case of NoSchemaDocument (used for non-lexically enclosed annotation objects), 
   // we can pass an Assert.invariantFailed to bomb if anyone actually tries to use the schema.
@@ -244,7 +245,7 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema) extends AnnotatedMixin 
   // This is one of the techniques we use to avoid using null and having to test for null.
   //
 
-  lazy val schema = schemaArg
+  override lazy val schema = schemaArg
   lazy val xml = xmlArg
   lazy val targetNamespace = schema.targetNamespace
   lazy val schemaDocument = this
@@ -316,8 +317,8 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema) extends AnnotatedMixin 
  */
 object NoSchemaDocument extends SchemaDocument(
     <schema/>, // dummy piece of XML that has no attributes, no annotations, no children, etc. Convenient to avoid conditional tests.
-    Assert.invariantFailed("NoSchemaDocument has no schema.")
-    ) 
+    Assert.invariantFailed("object NoSchemaDocument has no schema.")
+    )
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -326,7 +327,11 @@ object NoSchemaDocument extends SchemaDocument(
 /**
  * provides element-specific implementation of requirements from AnnotatedMixin
  */
-trait AnnotatedElementMixin extends AnnotatedMixin {
+trait AnnotatedElementMixin 
+  extends AnnotatedMixin
+  with Element_AnnotationMixin {
+  def getPropertyOption(pname : String) = formatAnnotation.getPropertyOption(pname) // delegate
+  
   def emptyFormatFactory = new DFDLElement(<dfdl:element/>, this)
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
 }
@@ -334,6 +339,9 @@ trait AnnotatedElementMixin extends AnnotatedMixin {
 // A Particle is something that can be repeating.
 trait Particle { self: LocalElementBase =>
 
+  lazy val isScalar = minOccurs == 1 && maxOccurs == 1
+  lazy val isRecurring = !isScalar
+  
   lazy val minOccurs = {
     val min = (self.xml \ "@minOccurs").text.toString
     min match {
@@ -350,6 +358,25 @@ trait Particle { self: LocalElementBase =>
       case _ => max.toInt
     }
   }
+  
+  lazy val isFixedOccurrences = {
+    // TODO optimizations to take scope into consideration. E.g.,
+    // We could be in a context where the value of our occursCount expression
+    // will always be a constant. 
+    occursCountKind == OccursCountKind.Fixed
+  }
+  
+  /**
+   * Does this node have statically required instances.
+   */
+  lazy val hasStaticallyRequiredInstances: Boolean = {
+    val res =
+      if (isScalar) true
+      else if (isFixedOccurrences) true
+      else if (minOccurs > 0) true
+      else false
+    res
+  }
 }
 
 /**
@@ -359,9 +386,54 @@ trait Particle { self: LocalElementBase =>
  * Our approach is to provide common behaviors on base classes or traits/mixins, and to have distinct
  * classes for each instance type.
  */
+
+/**
+ * Shared by all forms of elements, local or global or element reference.
+ */
+trait ElementBaseMixin 
+extends AnnotatedElementMixin {
+   
+   def isNillable = (xml \ "@nillable").text == "true"
+   def isSimpleType : Boolean
+   def isComplexType : Boolean
+   def elementComplexType : ComplexTypeBase = typeDef.asInstanceOf[ComplexTypeBase]
+   def elementSimpleType : SimpleTypeBase = typeDef.asInstanceOf[SimpleTypeBase]
+   def typeDef : TypeBase
+   
+  /**
+   * Grammar
+   */
+   
+  object elementInitiator extends Production(this, NYI)
+  object elementTerminator extends Production(this, NYI)
+  object nilElementInitiator extends Production(this, NYI)
+  object nilElementTerminator extends Production(this, NYI)
+  object literalNilValue extends Production(this, NYI)
+       
+  object complexContent extends Production(this, isComplexType, elementInitiator ~ elementComplexType.grammarExpr ~ elementTerminator)
+   
+  object nilLit extends Production(this,
+      isNillable && nilKind == NilKind.LiteralValue, 
+      nilElementInitiator ~ literalNilValue ~ nilElementTerminator )
+  
+  object scalarSimpleContent extends Production(this, NYI) // nilLit | emptyDefaulted | parsedNil | parsedValue )
+
+  object scalarComplexContent extends Production(this, nilLit | complexContent )
+  
+  object scalarContent extends Production(this, scalarSimpleContent | scalarComplexContent)
+  /**
+   * the element left framing does not include the initiator nor the element right framing the terminator
+   */
+  object elementLeftFraming extends Production(this, NYI, EmptyExpr) // (leadingSkipParser ~ alignmentFill ~ prefixLength)
+
+  object elementRightFraming extends Production(this, NYI, EmptyExpr) // trailingSkipParser
+
+  object scalar extends Production(this, false, elementLeftFraming ~ scalarContent ~ elementRightFraming) 
+}
+
 abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup)
   extends Term(xmlArg, parent)
-  with AnnotatedElementMixin
+  with ElementBaseMixin
   with Particle {
 
   override def annotationFactory(node: Node): DFDLAnnotation = {
@@ -370,21 +442,51 @@ abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup)
       case _ => super.annotationFactory(node)
     }
   }
+
+  def separatedForPosition(contentBody : Expr): Expr = {
+    val Some(res) = nearestEnclosingSequence.map{_.separatedForPosition(contentBody)}
+    res
+  }
+  
+  def grammarExpr = term
+  
+  object arrayContents extends Production(this, NYI)
+  object finalUnusedRegion extends Production(this, NYI) // probably this is really a primitive
+  object separatedScalar extends Production(this, isScalar, separatedForPosition(scalar))
+  object recurrance extends Production(this, !isScalar, startArray(this) ~ arrayContents ~ endArray(this) ~ finalUnusedRegion)
+  
+  // FIXME: doesn't allow for an element inside a choice, that is inside a sequence. Or a nest of nothing but choices. (No sequences at all)
+  object term extends Production(this, separatedScalar | recurrance)
+ 
 }
 
 class ElementRef(xmlArg: Node, parent: ModelGroup)
   extends LocalElementBase(xmlArg, parent) with HasRef {
+  
+  // These will just delegate to the referenced element declaration
+   override def isNillable = Assert.notYetImplemented()
+   override def isSimpleType = Assert.notYetImplemented()
+   override def isComplexType = Assert.notYetImplemented()
+   
+   // These may be trickier, as the type needs to be responsive to properties from the
+   // element reference's format annotations, and its lexical context.
+   def typeDef = Assert.notYetImplemented()
+   override def grammarExpr = Assert.notYetImplemented()
+   
+  // Element references can have minOccurs and maxOccurs, and annotations, but nothing else.
+  
 }
 
 trait HasRef { self : SchemaComponent =>
-  lazy val ref = (xml \ "@ref").text
+  lazy val xsdRef = (xml \ "@ref").text
 }
 
-trait ElementDeclBase extends AnnotatedElementMixin with SchemaComponent {
+trait ElementDeclBase 
+  extends ElementBaseMixin {
   lazy val immediateType: Option[TypeBase] = {
     val st = xml \ "simpleType"
     val ct = xml \ "complexType"
-    val nt = (xml \ "@type").text
+    val nt = typeName
     if (st.length == 1)
       Some(new LocalSimpleTypeDef(st(0), this))
     else if (ct.length == 1)
@@ -394,11 +496,66 @@ trait ElementDeclBase extends AnnotatedElementMixin with SchemaComponent {
       None
     }
   }
+  
+  lazy val typeName = (xml \ "@type").text
+  
+  def QName(typeName : String) : (String, String) = {
+    val parts = typeName.split(":").toList
+    val (prefix, localName) = parts match {
+      case List(local) => ("", local)
+      case List(pre, local) => (pre, local)
+      case _ => Assert.impossibleCase()
+    }
+    val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
+    Assert.schemaDefinition(nsURI != null, "In QName " + typeName + ", the prefix " + prefix + " was not defined.")
+    // TODO: accumulate errors, don't just throw on one.
+    // TODO: error location for diagnostic purposes. 
+    // see: http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
+    (nsURI, localName)
+  }
+  
+  lazy val namedTypeQName = QName(typeName)
+  lazy val namedTypeDef : Option[TypeBase] = {
+    val ss = schema.schemaSet
+    val getGSTD = Function.tupled(ss.getGlobalSimpleTypeDef _)
+    val getGCTD = Function.tupled(ss.getGlobalComplexTypeDef _)
+    val gstd = getGSTD(namedTypeQName)
+    val gctd = getGCTD(namedTypeQName)
+    val res = (gstd, gctd) match {
+      case (Some(_), None) => gstd
+      case (None, Some(_)) => gctd
+      case (None, None) => Assert.schemaDefinitionError("No type definition found for " + typeName + ".")
+      // FIXME: do we need to do these checks, or has schema validation checked this for us?
+      // FIXME: if we do have to check, then the usual problems: don't stop on first error, and need location of error in diagnostic.
+      case (Some(_), Some(_)) => Assert.schemaDefinitionError("Both a simple and a complex type definition found for " + typeName + ".")
+    }
+    res
+  }
+  
+  lazy val typeDef = {
+    (immediateType, namedTypeDef) match {
+      case (Some(ty), None) => ty
+      case (None, Some(ty)) => ty
+      // Schema validation should find this for us, so this is not an SDE check. It's just an invariant.
+      case _ => Assert.invariantFailed("Must have either an immediate type, or a named type, but not both")
+    }
+  }
+  
+  lazy val isSimpleType = {
+    typeDef match {
+      case _ : SimpleTypeBase => true
+      case _ : ComplexTypeBase => false
+      case _ => Assert.invariantFailed("Must be either SimpleType or ComplexType")
+    }
+  }
+  
+  lazy val isComplexType = !isSimpleType
+  
 }
 
 class LocalElementDecl(xmlArg: Node, parent: ModelGroup)
   extends LocalElementBase(xmlArg, parent)
-  with ElementDeclBase {
+  with ElementDeclBase {    
 }
 
 trait DFDLStatementMixin {
@@ -425,7 +582,19 @@ class GlobalElementDecl(xmlArg: Node, val schemaDocument: SchemaDocument)
       case _ => annotationFactory(node, this)
     }
   }
+  
+  /**
+   * DFDL Grammar
+   */
+  
+  object documentElement extends Production(this,  scalar )
+  
+  object unicodeByteOrderMark extends UnicodeByteOrderMark(this, NYI)
+  
+  object document extends Production(this, unicodeByteOrderMark ~ documentElement )
 }
+
+
 
 /////////////////////////////////////////////////////////////////
 // Groups System
@@ -437,40 +606,95 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent)
   with LocalComponentMixin
   with DFDLStatementMixin {
   def annotationFactory(node: Node): DFDLAnnotation = annotationFactory(node, this)
+  
+  def grammarExpr : Expr
+  
+  lazy val nearestEnclosingSequence : Option[Sequence] = {
+    val res = parent match {
+      case s : Sequence => Some(s)
+      case c : Choice => c.nearestEnclosingSequence
+      case d : SchemaDocument => None
+      // We should only be asking for the enclosingSequence when there is one.
+      case _ => Assert.invariantFailed("No enclosing sequence for : " + this)
+    }
+    res
+  }
+  
+  import daffodil.util.ListUtils
+  
+  lazy val hasLaterRequiredSiblings: Boolean = hasRequiredSiblings(ListUtils.tailAfter _)
+  lazy val hasPriorRequiredSiblings: Boolean = hasRequiredSiblings(ListUtils.preceding _)
+  
+  def hasRequiredSiblings(f : ListUtils.SubListFinder[Term]) = {
+    val res = nearestEnclosingSequence.map{es=>{
+        val sibs = f(es.groupMembers, this)
+        val hasAtLeastOne = sibs.find { term => term.hasStaticallyRequiredInstances }
+        hasAtLeastOne != None
+      }
+    }.getOrElse(false)
+    res
+  }
+  
+  def hasStaticallyRequiredInstances : Boolean
+}
+
+/**
+ * Factory for Terms 
+ *
+ * Because of the context where this is used, this returns a list. Nil for non-terms, non-Nil for
+ * an actual term. There should be only one non-Nil.
+ */
+object Term {
+  def apply(child: Node, parent : ModelGroup) = {
+    val childList: List[Term] = child match {
+      case <element>{ _* }</element> => {
+        val refProp = (child \ "@ref").text
+        if (refProp == "") List(new LocalElementDecl(child, parent))
+        else List(new ElementRef(child, parent))
+      }
+      case <annotation>{ _* }</annotation> => Nil
+      case textNode: Text => Nil
+      case _ => ModelGroup(child, parent)
+    }
+    childList
+  }
 }
 
 abstract class GroupBase(xmlArg: Node, parent: SchemaComponent)
   extends Term(xmlArg, parent) {
+  
+  def group : ModelGroup
 }
 
 /**
  * Base class for all model groups, which are term containers.
  */
 abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent) extends GroupBase(xmlArg, parent) {
-  
-  /**
-   * Synthesize a term - i.e., a model group has a term factory to construct its terms.
-   * 
-   * Because of the context where this is used, this returns a list. Nil for non-terms, non-Nil for 
-   * an actual term. There should be only one non-Nil.
-   */
-   def term(child : Node) = {
-     val childList : List[Term] = child match {
-      case <element>{ _* }</element> => {
-        val refProp = (child \ "@ref").text
-        if (refProp == "") List(new LocalElementDecl(child, this))
-        else List(new ElementRef(child, this))
-      }
-      case <annotation>{ _* }</annotation> => Nil
-      case textNode: Text => Nil
-      case _ => ModelGroup(child, this)
-    }
-     childList
-   }
-   
+    
    val xmlChildren : Seq[Node]
      
-   lazy val children = xmlChildren.flatMap { term(_) }
+   private lazy val children = xmlChildren.flatMap { Term(_, this) }
+   
+   def group = this
+   
+   lazy val groupMembers = children 
+  
+   lazy val groupMemberGrammarNodes = groupMembers.map{ _.grammarExpr }
+   
+   /**
+    * Grammar
+    */
+     
+  object groupLeftFraming extends Production(this, NYI) // leadingSkipParser ~ alignmentFill ~ groupInitiator)
+  object groupRightFraming extends Production(this, NYI) // groupTerminator ~ trailingSkipParser)
+  
+  object grammarExpr extends Production(this, groupLeftFraming ~ groupContent ~ groupRightFraming )
+  
+  def mt = EmptyExpr.asInstanceOf[Expr]// cast trick to shut up foldLeft compile error on next line.
+  
+  object groupContent extends Production(this, groupMemberGrammarNodes.foldLeft(mt)(folder) )
+   
+  def folder(p : Expr, q : Expr) : Expr
 }
 
 /**
@@ -494,6 +718,7 @@ object ModelGroup{
     }
     childList
     }
+    
 }
 
 class Choice(xmlArg: Node, parent: SchemaComponent) extends ModelGroup(xmlArg, parent) {
@@ -508,9 +733,21 @@ class Choice(xmlArg: Node, parent: SchemaComponent) extends ModelGroup(xmlArg, p
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLChoice]
   
   lazy val <choice>{ xmlChildren @ _* }</choice> = xml
+  
+  def folder(p : Expr, q : Expr) = p | q 
+  
+  lazy val hasStaticallyRequiredInstances = {
+    // true if all arms of the choice have statically required instances.
+    groupMembers.forall{_.hasStaticallyRequiredInstances}
+  }
 }
 
-class Sequence(xmlArg: Node, parent: SchemaComponent) extends ModelGroup(xmlArg, parent) {
+class Sequence(xmlArg: Node, parent: SchemaComponent) 
+extends ModelGroup(xmlArg, parent)
+with Sequence_AnnotationMixin
+with SequenceRuntimeValuedPropertiesMixin 
+{
+  def getPropertyOption(pname : String) = formatAnnotation.getPropertyOption(pname)
   
   override def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
@@ -524,9 +761,51 @@ class Sequence(xmlArg: Node, parent: SchemaComponent) extends ModelGroup(xmlArg,
 
   lazy val <sequence>{ xmlChildren @ _* }</sequence> = xml
 
+  def folder(p : Expr, q : Expr) = p ~ q 
+  
+  lazy val hasStaticallyRequiredInstances = {
+    // true if any child of the sequence has statically required instances.
+    groupMembers.exists{_.hasStaticallyRequiredInstances}
+  }
+  
+  /**
+   * Grammar
+   */
+  
+  def separatedForPosition(contentBody : Expr): Expr = {
+    prefixSep ~ infixSepRule ~ contentBody ~ postfixSep
+  }
+  
+  object prefixSep extends Delimiter(this, hasPrefixSep)
+  object postfixSep extends Delimiter(this, hasPostfixSep)
+  object infixSep extends Delimiter(this, hasInfixSep)
+  
+  object infixSepWithPriorRequiredSiblings extends Production(this, hasInfixSep && hasPriorRequiredSiblings,
+      infixSep)
+  object infixSepWithoutPriorRequiredSiblings extends Production(this, hasInfixSep && !hasPriorRequiredSiblings,
+      // runtime check for group pos such that we need a separator.
+     groupPosGreaterThan(1)(this) ~ infixSep )
+  
+  object infixSepRule extends Production(this, hasInfixSep,
+      infixSepWithPriorRequiredSiblings | infixSepWithoutPriorRequiredSiblings)
+  
+     /**
+   * These are static properties even though the delimiters can have runtime-computed values.
+   * The existence of an expression to compute a delimiter is assumed to imply a non-zero-length, aka a real delimiter.
+   */
+  lazy val hasPrefixSep = sepExpr(SeparatorPosition.Prefix)
+  lazy val hasInfixSep = sepExpr(SeparatorPosition.Infix)
+  lazy val hasPostfixSep = sepExpr(SeparatorPosition.Postfix)
+
+  def sepExpr(pos: SeparatorPosition): Boolean = {
+    if (separatorExpr.isKnownNonEmpty) if (separatorPosition eq pos) true else false
+    else false
+  }
+  
 }
 
-class GroupRef(xmlArg : Node, parent: SchemaComponent) extends GroupBase(xmlArg, parent) {
+class GroupRef(xmlArg : Node, parent: SchemaComponent) 
+  extends GroupBase(xmlArg, parent) {
   override def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:group>{ contents @ _* }</dfdl:group> => new DFDLGroup(node, this)
@@ -536,7 +815,10 @@ class GroupRef(xmlArg : Node, parent: SchemaComponent) extends GroupBase(xmlArg,
 
   def emptyFormatFactory = new DFDLGroup(<dfdl:group/>, this)
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLGroup]
-
+  
+  def group = Assert.notYetImplemented()
+  def grammarExpr = Assert.notYetImplemented()
+  def hasStaticallyRequiredInstances = Assert.notYetImplemented()
 }
 
 class GlobalGroupDef(val xmlArg : Node, val schemaDocument: SchemaDocument)
@@ -560,7 +842,7 @@ class GlobalGroupDef(val xmlArg : Node, val schemaDocument: SchemaDocument)
 // Type System
 /////////////////////////////////////////////////////////////////
 
-trait TypeBase
+trait TypeBase 
 
 trait NamedType extends NamedMixin with TypeBase with SchemaComponent
 
@@ -578,11 +860,6 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
 
 abstract class NamedSimpleTypeBase(xmlArg : => Node, parent: => SchemaComponent)
   extends SimpleTypeBase(xmlArg, parent) with NamedType {
-}
-
-trait ComplexTypeBase extends SchemaComponent with TypeBase {
-  lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
-  lazy val Seq(modelGroup) = xmlChildren.flatMap{ ModelGroup(_, this) }
 }
 
 class LocalSimpleTypeDef(xmlArg : Node, parent: SchemaComponent)
@@ -624,14 +901,20 @@ class GlobalSimpleTypeDef(xmlArg : Node, val schemaDocument: SchemaDocument)
   
 }
 
-class GlobalComplexTypeDef(xmlArg : Node, val schemaDocument: SchemaDocument)
-  extends GlobalComponentMixin
-  with ComplexTypeBase {
+abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent) extends SchemaComponent with TypeBase {
   lazy val xml = xmlArg
+  lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
+  lazy val Seq(modelGroup) = xmlChildren.flatMap{ ModelGroup(_, this) }
+  
+  object grammarExpr extends Production(this, startGroup(this) ~ modelGroup.group.grammarExpr ~ endGroup(this))
 }
 
-class LocalComplexTypeDef(val xmlArg : Node, val parent: SchemaComponent)
-  extends ComplexTypeBase
+class GlobalComplexTypeDef(xmlArg : Node, val schemaDocument: SchemaDocument)
+  extends ComplexTypeBase(xmlArg, schemaDocument)
+  with GlobalComponentMixin {
+}
+
+class LocalComplexTypeDef(xmlArg : Node, parent: SchemaComponent)
+  extends ComplexTypeBase(xmlArg, parent)
   with LocalComponentMixin {
-  lazy val xml = xmlArg
 }
