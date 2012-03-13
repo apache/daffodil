@@ -19,10 +19,11 @@ import daffodil.grammar._
 abstract class Term(xmlArg: Node, val parent: SchemaComponent)
   extends Annotated(xmlArg)
   with LocalComponentMixin
-  with DFDLStatementMixin {
+  with DFDLStatementMixin
+  with TermGrammarMixin {
   def annotationFactory(node: Node): DFDLAnnotation = annotationFactory(node, this)
   
-  def grammarExpr : Expr
+
   
   lazy val nearestEnclosingSequence : Option[Sequence] = {
     val res = parent match {
@@ -84,7 +85,9 @@ abstract class GroupBase(xmlArg: Node, parent: SchemaComponent)
 /**
  * Base class for all model groups, which are term containers.
  */
-abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent) extends GroupBase(xmlArg, parent) {
+abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent) 
+extends GroupBase(xmlArg, parent) 
+with ModelGroupGrammarMixin {
     
    val xmlChildren : Seq[Node]
      
@@ -95,21 +98,7 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent) extends GroupBa
    lazy val groupMembers = children 
   
    lazy val groupMemberGrammarNodes = groupMembers.map{ _.grammarExpr }
-   
-   /**
-    * Grammar
-    */
-     
-  object groupLeftFraming extends Production(this, NYI) // leadingSkipParser ~ alignmentFill ~ groupInitiator)
-  object groupRightFraming extends Production(this, NYI) // groupTerminator ~ trailingSkipParser)
   
-  object grammarExpr extends Production(this, groupLeftFraming ~ groupContent ~ groupRightFraming )
-  
-  def mt = EmptyExpr.asInstanceOf[Expr]// cast trick to shut up foldLeft compile error on next line.
-  
-  object groupContent extends Production(this, groupMemberGrammarNodes.foldLeft(mt)(folder) )
-   
-  def folder(p : Expr, q : Expr) : Expr
 }
 
 /**
@@ -136,7 +125,9 @@ object ModelGroup{
     
 }
 
-class Choice(xmlArg: Node, parent: SchemaComponent) extends ModelGroup(xmlArg, parent) {
+class Choice(xmlArg: Node, parent: SchemaComponent) 
+extends ModelGroup(xmlArg, parent)
+with ChoiceGrammarMixin {
   override def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:choice>{ contents @ _* }</dfdl:choice> => new DFDLChoice(node, this)
@@ -149,8 +140,6 @@ class Choice(xmlArg: Node, parent: SchemaComponent) extends ModelGroup(xmlArg, p
   
   lazy val <choice>{ xmlChildren @ _* }</choice> = xml
   
-  def folder(p : Expr, q : Expr) = p | q 
-  
   lazy val hasStaticallyRequiredInstances = {
     // true if all arms of the choice have statically required instances.
     groupMembers.forall{_.hasStaticallyRequiredInstances}
@@ -161,6 +150,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent)
 extends ModelGroup(xmlArg, parent)
 with Sequence_AnnotationMixin
 with SequenceRuntimeValuedPropertiesMixin 
+with SequenceGrammarMixin
 {
   def getPropertyOption(pname : String) = formatAnnotation.getPropertyOption(pname)
   
@@ -175,48 +165,12 @@ with SequenceRuntimeValuedPropertiesMixin
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
 
   lazy val <sequence>{ xmlChildren @ _* }</sequence> = xml
-
-  def folder(p : Expr, q : Expr) = p ~ q 
   
   lazy val hasStaticallyRequiredInstances = {
     // true if any child of the sequence has statically required instances.
     groupMembers.exists{_.hasStaticallyRequiredInstances}
   }
-  
-  /**
-   * Grammar
-   */
-  
-  def separatedForPosition(contentBody : Expr): Expr = {
-    prefixSep ~ infixSepRule ~ contentBody ~ postfixSep
-  }
-  
-  object prefixSep extends Delimiter(this, hasPrefixSep)
-  object postfixSep extends Delimiter(this, hasPostfixSep)
-  object infixSep extends Delimiter(this, hasInfixSep)
-  
-  object infixSepWithPriorRequiredSiblings extends Production(this, hasInfixSep && hasPriorRequiredSiblings,
-      infixSep)
-  object infixSepWithoutPriorRequiredSiblings extends Production(this, hasInfixSep && !hasPriorRequiredSiblings,
-      // runtime check for group pos such that we need a separator.
-     groupPosGreaterThan(1)(this) ~ infixSep )
-  
-  object infixSepRule extends Production(this, hasInfixSep,
-      infixSepWithPriorRequiredSiblings | infixSepWithoutPriorRequiredSiblings)
-  
-     /**
-   * These are static properties even though the delimiters can have runtime-computed values.
-   * The existence of an expression to compute a delimiter is assumed to imply a non-zero-length, aka a real delimiter.
-   */
-  lazy val hasPrefixSep = sepExpr(SeparatorPosition.Prefix)
-  lazy val hasInfixSep = sepExpr(SeparatorPosition.Infix)
-  lazy val hasPostfixSep = sepExpr(SeparatorPosition.Postfix)
-
-  def sepExpr(pos: SeparatorPosition): Boolean = {
-    if (separatorExpr.isKnownNonEmpty) if (separatorPosition eq pos) true else false
-    else false
-  }
-  
+    
 }
 
 class GroupRef(xmlArg : Node, parent: SchemaComponent) 

@@ -76,7 +76,8 @@ trait Particle { self: LocalElementBase =>
  * Shared by all forms of elements, local or global or element reference.
  */
 trait ElementBaseMixin 
-extends AnnotatedElementMixin {
+extends AnnotatedElementMixin
+with ElementBaseGrammarMixin {
    
    def isNillable = (xml \ "@nillable").text == "true"
    def isSimpleType : Boolean
@@ -84,42 +85,14 @@ extends AnnotatedElementMixin {
    def elementComplexType : ComplexTypeBase = typeDef.asInstanceOf[ComplexTypeBase]
    def elementSimpleType : SimpleTypeBase = typeDef.asInstanceOf[SimpleTypeBase]
    def typeDef : TypeBase
-   
-  /**
-   * Grammar
-   */
-   
-  object elementInitiator extends Production(this, NYI)
-  object elementTerminator extends Production(this, NYI)
-  object nilElementInitiator extends Production(this, NYI)
-  object nilElementTerminator extends Production(this, NYI)
-  object literalNilValue extends Production(this, NYI)
-       
-  object complexContent extends Production(this, isComplexType, elementInitiator ~ elementComplexType.grammarExpr ~ elementTerminator)
-   
-  object nilLit extends Production(this,
-      isNillable && nilKind == NilKind.LiteralValue, 
-      nilElementInitiator ~ literalNilValue ~ nilElementTerminator )
-  
-  object scalarSimpleContent extends Production(this, NYI) // nilLit | emptyDefaulted | parsedNil | parsedValue )
 
-  object scalarComplexContent extends Production(this, nilLit | complexContent )
-  
-  object scalarContent extends Production(this, scalarSimpleContent | scalarComplexContent)
-  /**
-   * the element left framing does not include the initiator nor the element right framing the terminator
-   */
-  object elementLeftFraming extends Production(this, NYI, EmptyExpr) // (leadingSkipParser ~ alignmentFill ~ prefixLength)
-
-  object elementRightFraming extends Production(this, NYI, EmptyExpr) // trailingSkipParser
-
-  object scalar extends Production(this, false, elementLeftFraming ~ scalarContent ~ elementRightFraming) 
 }
 
 abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup)
   extends Term(xmlArg, parent)
   with ElementBaseMixin
-  with Particle {
+  with Particle 
+  with LocalElementBaseGrammarMixin {
 
   override def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
@@ -128,21 +101,6 @@ abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup)
     }
   }
 
-  def separatedForPosition(contentBody : Expr): Expr = {
-    val Some(res) = nearestEnclosingSequence.map{_.separatedForPosition(contentBody)}
-    res
-  }
-  
-  def grammarExpr = term
-  
-  object arrayContents extends Production(this, NYI)
-  object finalUnusedRegion extends Production(this, NYI) // probably this is really a primitive
-  object separatedScalar extends Production(this, isScalar, separatedForPosition(scalar))
-  object recurrance extends Production(this, !isScalar, startArray(this) ~ arrayContents ~ endArray(this) ~ finalUnusedRegion)
-  
-  // FIXME: doesn't allow for an element inside a choice, that is inside a sequence. Or a nest of nothing but choices. (No sequences at all)
-  object term extends Production(this, separatedScalar | recurrance)
- 
 }
 
 class ElementRef(xmlArg: Node, parent: ModelGroup)
@@ -168,6 +126,7 @@ trait HasRef { self : SchemaComponent =>
 
 trait ElementDeclBase 
   extends ElementBaseMixin {
+  
   lazy val immediateType: Option[TypeBase] = {
     val st = xml \ "simpleType"
     val ct = xml \ "complexType"
@@ -258,7 +217,8 @@ trait DFDLStatementMixin {
 class GlobalElementDecl(xmlArg: Node, val schemaDocument: SchemaDocument)
   extends GlobalComponentMixin
   with ElementDeclBase
-  with DFDLStatementMixin {
+  with DFDLStatementMixin 
+  with GlobalElementDeclGrammarMixin {
   lazy val xml = xmlArg
   
   override def annotationFactory(node: Node): DFDLAnnotation = {
@@ -267,15 +227,5 @@ class GlobalElementDecl(xmlArg: Node, val schemaDocument: SchemaDocument)
       case _ => annotationFactory(node, this)
     }
   }
-  
-  /**
-   * DFDL Grammar
-   */
-  
-  object documentElement extends Production(this,  scalar )
-  
-  object unicodeByteOrderMark extends UnicodeByteOrderMark(this, NYI)
-  
-  object document extends Production(this, unicodeByteOrderMark ~ documentElement )
 }
 
