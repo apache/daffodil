@@ -7,10 +7,8 @@ import daffodil.exceptions.Assert
 /**
  * These are the DFDL properties which can have their values come
  * from the data stream itself by way of expressions.
- *
- * TODO: Dynamic behavior is not yet implemented for most of these properties.
  * 
- * TODO: EscapeScheme's have a couple more of these runtime properties
+ * TODO: EscapeScheme's have a few more of these runtime properties
  * escapeCharacter, and escapeEscapeCharacter.
  */
 trait CommonRuntimeValuedPropertiesMixin 

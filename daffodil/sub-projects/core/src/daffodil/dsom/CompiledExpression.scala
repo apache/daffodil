@@ -6,8 +6,8 @@ import javax.xml.xpath._
 import daffodil.processors.VariableMap
 
 /**
- * For the DFDL path/expression language, this
- * type checks the expression (SDE if not properly typed)
+ * For the DFDL path/expression language, this provides the place to
+ * type check the expression (SDE if not properly typed)
  * and provides the opportunity to compile it for efficient evaluation. 
  * 
  * The schemaNode is the schema component 
@@ -16,9 +16,12 @@ import daffodil.processors.VariableMap
  * property valued expression with a schema node that defines 
  * an evaluation of an expression. 
  * 
- * Note that an expression could be constant in some contexts, not others.
+ * TODO: Consider - that an expression could be constant in some contexts, not others.
  * E.g., if a DFDL schema defines a format where the delimiters are in a header record,
- * then those are constant once you are parsing the body records.
+ * then those are constant once you are parsing the body records. This does imply 
+ * keeping around the xpath compiler at runtime, which may not be desirable from a 
+ * code size perspective. Whether it's worth it to compile or not is also a question 
+ * of how often each xpath will be repeated.
  * 
  * TODO: provide enough scope information for this to optimize.
  */
@@ -58,7 +61,7 @@ abstract class CompiledExpression {
 
 }
 
-object CompiledExpression {
+object CompiledExpressionUtil {
   def converter[T](convertTo: Symbol, expr: Any) = {
     val str: String = expr match {
       case n: org.jdom.Element => n.getText()
@@ -91,9 +94,9 @@ case class ExpressionProperty[T](convertTo : Symbol,
     def evaluate(pre: org.jdom.Element, variables : VariableMap) = {
       val xpathRes = XPathUtil.evalExpression(xpathText, xpathExprFactory, variables, pre)
       val converted = xpathRes match {
-        case StringResult(s) => CompiledExpression.converter(convertTo, s)
+        case StringResult(s) => CompiledExpressionUtil.converter(convertTo, s)
         case NodeResult(n) => {
-          CompiledExpression.converter(convertTo, n)
+          CompiledExpressionUtil.converter(convertTo, n)
         }
       }
       converted

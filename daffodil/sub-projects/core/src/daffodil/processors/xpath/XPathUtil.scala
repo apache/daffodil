@@ -66,6 +66,7 @@ object XPathUtil {
 
   /**
    * Compile an xpath. It insures functions called actually exist etc.
+   * Should help with performance also.
    *
    * Returns a VariableMap=>XPathExpression, which you can think of as
    * a CompiledXPathExpressionFactory, though we didn't create that type name
