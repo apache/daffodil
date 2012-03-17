@@ -11,7 +11,7 @@
        creating elements by evaluating XPath expressions on the layer -->
 
   <group name="data">
-    <sequence>
+    <sequence dfdl:separator="">
       <element name="x" type="int" dfdl:representation="text" 
 	       dfdl:terminator="%NL;"/>
       <element name="y" type="int" dfdl:representation="text" 

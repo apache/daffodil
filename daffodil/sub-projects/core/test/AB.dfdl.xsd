@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
 <schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-    targetNamespace="http://www.example.org/example1/"
-    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	>
+	targetNamespace="http://www.example.org/example1/" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-  <!-- Parsing of CSV -->
+	<annotation>
+		<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+			<dfdl:format initiator="" terminator="" separator=""
+				separatorPolicy="suppressed" separatorPosition="infix"
+				documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
+				representation="text" occursCountKind="parsed" />
+		</appinfo>
+	</annotation>
+	<!-- Parsing of CSV -->
 
-  <element name="matrix" type="matrixType"/>
+	<element name="matrix" type="matrixType" dfdl:lengthKind="implicit" dfdl:terminator="%NL;"/>
 
-  <complexType name="matrixType">  
-    <sequence>
-      <element name="row" maxOccurs="unbounded">
-	<complexType>
-	  <sequence>
-	    <element name="cell" type="xsd:int" maxOccurs="unbounded"
-	    	     dfdl:terminator="%NL;"
-		     dfdl:separator="," dfdl:separatorPolicy="required"
-		     dfdl:encoding="ASCII"
-		     dfdl:separatorPosition="infix" 
-		     dfdl:representation="text" dfdl:lengthKind="delimited"
-		     dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-	  </sequence>
+	<complexType name="matrixType">
+		<sequence dfdl:separator="%NL;">
+			<element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
+				<complexType>
+					<sequence dfdl:separator=",">
+						<element name="cell" type="xsd:int" maxOccurs="unbounded"
+							dfdl:lengthKind="delimited" />
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
 	</complexType>
-      </element>
-    </sequence>
-  </complexType>
 
 </schema>

@@ -4,6 +4,7 @@ import scala.xml._
 import scala.xml.parsing._
 import daffodil.xml._
 import daffodil.exceptions._
+import daffodil.schema.annotation.props._
 import daffodil.schema.annotation.props.gen._
 import java.io.ByteArrayInputStream
 import java.io.InputStream
@@ -23,8 +24,9 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent)
   with TermGrammarMixin {
   def annotationFactory(node: Node): DFDLAnnotation = annotationFactory(node, this)
   
-
-  
+  // TODO: verify this is not just lexical scope containing. It's the scope of physical containment, so 
+  // must also take into consideration references (element ref to element decl, element decl to type, type to group,
+  // group to group)
   lazy val nearestEnclosingSequence : Option[Sequence] = {
     val res = parent match {
       case s : Sequence => Some(s)
@@ -151,6 +153,7 @@ extends ModelGroup(xmlArg, parent)
 with Sequence_AnnotationMixin
 with SequenceRuntimeValuedPropertiesMixin 
 with SequenceGrammarMixin
+with SeparatorSuppressionPolicyMixin
 {
   def getPropertyOption(pname : String) = formatAnnotation.getPropertyOption(pname)
   

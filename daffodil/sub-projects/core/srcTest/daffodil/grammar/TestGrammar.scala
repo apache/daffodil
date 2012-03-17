@@ -1,15 +1,19 @@
+
 package daffodil.grammar
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnit3Suite
 import daffodil.dsom._
+import daffodil.exceptions.Assert
 
 class TestGrammar extends JUnit3Suite {
 
   val fakeSchemaComponent = null
-  case class Primitive1(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard)
-  case class Primitive2(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard)
-  case class Primitive3(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard)
+  case class Primitive1(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard) {
+    def parser: Parser = Assert.notYetImplemented()
+  }
+  //  case class Primitive2(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard)
+  //  case class Primitive3(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard)
 
   def testBasicTripleSequential() {
 
@@ -17,7 +21,7 @@ class TestGrammar extends JUnit3Suite {
     object mid extends Primitive1(fakeSchemaComponent)
     object last extends Primitive1(fakeSchemaComponent)
 
-    object triple extends Production(fakeSchemaComponent, first ~ mid ~ last)
+    lazy val triple = Prod("triple", fakeSchemaComponent, first ~ mid ~ last)
 
     assertFalse(triple.isEmpty)
     val str = triple.toString
@@ -37,7 +41,7 @@ class TestGrammar extends JUnit3Suite {
     object mid extends Primitive1(fakeSchemaComponent, false)
     object last extends Primitive1(fakeSchemaComponent)
 
-    object triple extends Production(fakeSchemaComponent, first ~ mid ~ last)
+    lazy val triple = Prod("triple", fakeSchemaComponent, first ~ mid ~ last)
 
     assertFalse(triple.isEmpty)
 
@@ -51,13 +55,13 @@ class TestGrammar extends JUnit3Suite {
 
   }
 
-  def testTopProductionSplicedOut() {
+  def testTopProdSplicedOut() {
 
     object first extends Primitive1(fakeSchemaComponent)
     object mid extends Primitive1(fakeSchemaComponent, false)
     object last extends Primitive1(fakeSchemaComponent)
 
-    object triple extends Production(fakeSchemaComponent, false, first ~ mid ~ last)
+    lazy val triple = Prod("triple", fakeSchemaComponent, false, first ~ mid ~ last)
 
     assertTrue(triple.isEmpty)
 
@@ -77,7 +81,7 @@ class TestGrammar extends JUnit3Suite {
     object mid extends Primitive1(fakeSchemaComponent, false)
     object last extends Primitive1(fakeSchemaComponent, false)
 
-    object triple extends Production(fakeSchemaComponent, first | (last ~ mid ~ first) | last)
+    lazy val triple = Prod("triple", fakeSchemaComponent, first | (last ~ mid ~ first) | last)
 
     assertFalse(triple.isEmpty)
 
@@ -98,7 +102,7 @@ class TestGrammar extends JUnit3Suite {
     object mid extends Primitive1(fakeSchemaComponent)
     object last extends Primitive1(fakeSchemaComponent)
 
-    object triple extends Production(fakeSchemaComponent, first | mid ~ last)
+    lazy val triple = Prod("triple", fakeSchemaComponent, first | mid ~ last)
 
     assertFalse(triple.isEmpty)
 
@@ -120,7 +124,7 @@ class TestGrammar extends JUnit3Suite {
     object mid extends Primitive1(fakeSchemaComponent)
     object last extends Primitive1(fakeSchemaComponent)
 
-    object triple extends Production(fakeSchemaComponent, first ~ mid | last)
+    lazy val triple = Prod("triple", fakeSchemaComponent, first ~ mid | last)
 
     assertFalse(triple.isEmpty)
 
@@ -136,16 +140,16 @@ class TestGrammar extends JUnit3Suite {
 
   }
 
-  def testProductionsSpliceOut() {
+  def testProdsSpliceOut() {
 
     object first extends Primitive1(fakeSchemaComponent)
-    object mid extends Primitive1(fakeSchemaComponent)
+    object mid extends Primitive1(fakeSchemaComponent, false)
     object last extends Primitive1(fakeSchemaComponent)
 
-    object prod1 extends Production(fakeSchemaComponent, first ~ mid | last)
-    object prod2 extends Production(fakeSchemaComponent, false, first ~ mid | last)
-    object prod3 extends Production(fakeSchemaComponent, first ~ mid | last)
-    object prod4 extends Production(fakeSchemaComponent, prod1 | prod2 ~ prod3)
+    lazy val prod1 = Prod("prod1", fakeSchemaComponent, first ~ mid | last)
+    lazy val prod2 = Prod("prod2", fakeSchemaComponent, false, first ~ mid | last)
+    lazy val prod3 = Prod("prod3", fakeSchemaComponent, first ~ mid | last)
+    lazy val prod4 = Prod("prod4", fakeSchemaComponent, prod1 | (prod2 ~ prod3))
 
     assertFalse(prod4.isEmpty)
 
@@ -160,15 +164,15 @@ class TestGrammar extends JUnit3Suite {
     assertTrue(exp.toString.contains(" | "))
 
   }
-  
-   def testUnary() {
+
+  def testUnary() {
 
     object first extends Primitive1(fakeSchemaComponent)
     object mid extends Primitive1(fakeSchemaComponent)
     object last extends Primitive1(fakeSchemaComponent)
 
-    object prod1 extends Production(fakeSchemaComponent, first ~ RepExactlyN(mid) | last)
-    
+    lazy val prod1 = Prod("prod1", fakeSchemaComponent, first ~ RepExactlyN(1, mid) | last)
+
     assertFalse(prod1.isEmpty)
 
     val exp = prod1.expr

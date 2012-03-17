@@ -51,5 +51,7 @@
 	<classpathentry kind="lib" path="lib/saxon-b9-1-0-8/saxon9-dom.jar"/>
 	<classpathentry kind="lib" path="lib/batik-ext-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/xalan.jar"/>
+	<classpathentry kind="lib" path="lib/icu4j-charset-4_8_1_1.jar" sourcepath="libsrc/icu4j-charset-4_8_1_1-src.jar"/>
+	<classpathentry kind="lib" path="lib/icu4j-localespi-4_8_1_1.jar" sourcepath="libsrc/icu4j-localespi-4_8_1_1-src.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

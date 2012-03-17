@@ -4,6 +4,7 @@ import scala.xml._
 import scala.xml.parsing._
 import daffodil.xml._
 import daffodil.exceptions._
+import daffodil.schema.annotation.props._
 import daffodil.schema.annotation.props.gen._
 /*
  * Not using XSOM - too many issues. Schema Documents aren't first class objects, and we need
@@ -118,6 +119,32 @@ trait AnnotatedMixin extends SchemaComponent {
     }
     res
   }
+  
+  /**
+   * Annotations can contain expressions, so we need to be able to compile them.
+   */
+  lazy val expressionCompiler = new ExpressionCompiler(this)
+  
+  
+  /**
+   * Needed by back-end to construct jdom nodes. 
+   * 
+   * An expression can be in any annotation, and its path can lead to a node
+   * So, we need the namespace in which to create that node.
+   */
+  lazy val jdomNamespace = {
+    val jdomns = org.jdom.Namespace.getNamespace(schemaDocument.targetNamespace)
+    jdomns
+  }
+  
+  /**
+   * Needed by back-end to construct jdom nodes.
+   */
+  lazy val namespaces = {
+    val nss = new Namespaces
+    nss.addNamespace(jdomNamespace)
+    nss
+  }
 }
 
 abstract class Annotated(xmlArg: Node)
@@ -168,7 +195,7 @@ class SchemaSet(schemaNodeList: Seq[Node]) {
     val schemaForNamespace = schemas.find { s => s.targetNamespace == namespace }
     schemaForNamespace
   }
-  
+
   /**
    * Given a namespace and name, try to retrieve the named object
    */
@@ -184,6 +211,8 @@ class SchemaSet(schemaNodeList: Seq[Node]) {
   def getDefineVariable(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineVariable(name) }
   def getDefineEscapeScheme(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineEscapeScheme(name) }
 
+  lazy val primitiveTypes = XMLUtil.DFDL_SIMPLE_BUILT_IN_TYPES.map{new PrimitiveType(_)}
+  def getPrimitiveType(localName: String) = primitiveTypes.find{_.name == localName}
 }
 
 /**
@@ -240,7 +269,11 @@ class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: Sche
  * are where default formats are specified, so it is very important what schema document
  * a schema component was defined within.
  */
-class SchemaDocument(xmlArg: Node, schemaArg: => Schema) extends AnnotatedMixin {
+class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
+  extends AnnotatedMixin
+  with Format_AnnotationMixin
+  with SeparatorSuppressionPolicyMixin {
+  def getPropertyOption(pname: String) = formatAnnotation.getPropertyOption(pname)
   //
   // schemaArg is call by name, so that in the corner case of NoSchemaDocument (used for non-lexically enclosed annotation objects), 
   // we can pass an Assert.invariantFailed to bomb if anyone actually tries to use the schema.

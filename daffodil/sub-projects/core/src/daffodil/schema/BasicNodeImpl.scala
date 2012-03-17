@@ -319,7 +319,6 @@ abstract class BasicNodeImpl(target:String,namespaces:Namespaces,ann:Annotation)
         }
 
         val results = findChildren(input,variables,parent,maxLength,terminators,processor)
-
       //TODO FIXME parent is wrong (if this is ComplexElement or SimpleElement), should be a temporal element or results.last
       if (separatorInfix && newOccurs!=0)
         processor.findPostfixSeparator(input,parent,variables,namespaces,terminators) match {

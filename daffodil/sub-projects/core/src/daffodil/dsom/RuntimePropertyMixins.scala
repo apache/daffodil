@@ -15,7 +15,7 @@ import daffodil.exceptions.Assert
  */
 trait CommonRuntimeValuedPropertiesMixin 
 extends DFDLBaseTypeMixin 
-{ decl: SchemaComponent =>
+{ decl: AnnotatedMixin =>
 
   lazy val byteOrderExpr = expressionCompiler.compile('String, decl.byteOrder)
   lazy val encodingExpr = expressionCompiler.compile('String, decl.encoding)
@@ -23,7 +23,7 @@ extends DFDLBaseTypeMixin
 }
 
 trait DelimitedRuntimeValuedPropertiesMixin
-  extends CommonRuntimeValuedPropertiesMixin { decl : SchemaComponent =>
+  extends CommonRuntimeValuedPropertiesMixin { decl : AnnotatedMixin =>
   
   lazy val initiatorExpr = expressionCompiler.compile('String, decl.initiator)
   lazy val terminatorExpr = expressionCompiler.compile('String, decl.terminator)
@@ -47,7 +47,7 @@ trait SequenceRuntimeValuedPropertiesMixin
 
 trait SimpleTypeRuntimeValuedPropertiesMixin
   extends CommonRuntimeValuedPropertiesMixin
-  with DFDLSimpleTypeMixin { decl: SchemaComponent  =>
+  with DFDLSimpleTypeMixin { decl: AnnotatedMixin  =>
 
   // TODO: Implement escape schemes. The escapeCharacter and escapeEscapeCharacter are part of the escapeScheme annotation only.
   // So they're not on the object we're mixing this into.

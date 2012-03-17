@@ -3,6 +3,7 @@ package daffodil.dsom
 import scala.xml._
 import scala.xml.parsing._
 import daffodil.exceptions._
+import daffodil.schema.annotation.props._
 import daffodil.schema.annotation.props.gen._
 import java.io.ByteArrayInputStream
 import java.io.InputStream
@@ -271,7 +272,9 @@ abstract class DFDLStatement(node: Node, annotatedSC: AnnotatedMixin)
   extends DFDLAnnotation(node, annotatedSC)
 
 class DFDLFormat(node: Node, sd: SchemaDocument)
-  extends DFDLFormatAnnotation(node, sd) with Format_AnnotationMixin {
+  extends DFDLFormatAnnotation(node, sd)
+  with Format_AnnotationMixin
+  with SeparatorSuppressionPolicyMixin {
 }
 
 class DFDLElement(node: Node, decl: AnnotatedElementMixin)
@@ -279,11 +282,15 @@ class DFDLElement(node: Node, decl: AnnotatedElementMixin)
 }
 
 class DFDLGroup(node: Node, decl: AnnotatedMixin)
-  extends DFDLFormatAnnotation(node, decl) with Group_AnnotationMixin {
+  extends DFDLFormatAnnotation(node, decl) 
+  with Group_AnnotationMixin 
+  with SeparatorSuppressionPolicyMixin {
 }
 
 class DFDLSequence(node: Node, decl: AnnotatedMixin)
-  extends DFDLFormatAnnotation(node, decl) with Sequence_AnnotationMixin {
+  extends DFDLFormatAnnotation(node, decl) 
+  with Sequence_AnnotationMixin 
+  with SeparatorSuppressionPolicyMixin {
 }
 
 class DFDLChoice(node: Node, decl: AnnotatedMixin)

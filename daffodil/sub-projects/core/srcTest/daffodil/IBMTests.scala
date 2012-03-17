@@ -6,7 +6,7 @@ import org.scalatest.junit.JUnit3Suite
 
 import daffodil.tdml.DFDLTestSuite
 
-class IBMTests extends JUnit3Suite {
+class IBMTestsThatPass extends JUnit3Suite {
 
   val testDir = "./test-suite/ibm-contributed/"
   val tdml1 = testDir + "dpaext1.tdml"
@@ -15,6 +15,15 @@ class IBMTests extends JUnit3Suite {
   val runner2 = new DFDLTestSuite(new File(tdml2))
 
   def test_introduction_1_01() { runner1.runOneTest("introduction_1_01") }
+}
+ 
+class IBMTestsThatThrow extends JUnit3Suite {
+
+  val testDir = "./test-suite/ibm-contributed/"
+  val tdml1 = testDir + "dpaext1.tdml"
+  val tdml2 = testDir + "dpaext2.tdml"
+  val runner1 = new DFDLTestSuite(new File(tdml1))
+  val runner2 = new DFDLTestSuite(new File(tdml2))
   def test_introduction_1_02() { runner1.runOneTest("introduction_1_02") }
   def test_schema_types_5_01() { runner1.runOneTest("schema_types_5_01") }
   def test_schema_types_5_02() { runner1.runOneTest("schema_types_5_02") }

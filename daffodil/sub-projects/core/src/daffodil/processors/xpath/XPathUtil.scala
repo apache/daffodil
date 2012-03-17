@@ -36,9 +36,7 @@ package daffodil.processors.xpath
  * Date: 2010
  */
 
-import javax.xml.xpath.XPathFactory
-import javax.xml.xpath.XPathVariableResolver
-import javax.xml.xpath.XPathExpressionException
+import javax.xml.xpath._
 import javax.xml.xpath.XPathConstants.NODE
 import javax.xml.xpath.XPathConstants.STRING
 import javax.xml.namespace.QName
@@ -67,7 +65,32 @@ object XPathUtil {
   private val xpathFactory = XPathFactory.newInstance(NamespaceConstant.OBJECT_MODEL_JDOM)
 
   /**
-   * Evaluates an XPath 2 expression
+   * Compile an xpath. It insures functions called actually exist etc.
+   *
+   * Returns a VariableMap=>XPathExpression, which you can think of as
+   * a CompiledXPathExpressionFactory, though we didn't create that type name
+   */
+  def compileExpression(expression: String, namespaces: Namespaces) = {
+    val xpath = xpathFactory.newXPath()
+    var variables: VariableMap = new VariableMap() // dummy for now.
+    xpath setNamespaceContext (namespaces)
+    xpath.setXPathVariableResolver(
+      new XPathVariableResolver() {
+        def resolveVariable(qName: QName): Object =
+          variables.readVariable(qName.getNamespaceURI + qName.getLocalPart)
+      })
+    val xpathExpr = xpath.compile(expression)
+
+    // We need to supply the variables later
+    def withVariables(runtimeVars: VariableMap): XPathExpression = {
+      variables = runtimeVars
+      xpathExpr
+    }
+
+    withVariables _ // return this factory function
+  }
+                     
+  /** Evaluates an XPath 2 expression in one shot, from string to value.
    *
    * @param a valid XPath expression the expression to evaluate (no surrounding brackets)
    * @param variables the variables in scope
@@ -75,20 +98,21 @@ object XPathUtil {
    * @param namespaces the namespaces in scope
    */
   def evalExpression(expression:String,variables:VariableMap,
-                     contextNode:Parent,namespaces:Namespaces):XPathResult = {
+                     contextNode:Parent,namespaces:Namespaces) : XPathResult = {
 
-
-    val xpath = xpathFactory.newXPath()
-    xpath.setXPathVariableResolver(
-      new XPathVariableResolver() {
-        def resolveVariable(qName:QName):Object =
-          variables readVariable(qName.getNamespaceURI + qName.getLocalPart)
-      })
-    xpath setNamespaceContext(namespaces)
-
-
+    val compiledExprExceptVariables = compileExpression(expression, namespaces)
+    val res = evalExpression(expression, compiledExprExceptVariables, variables, contextNode)
+    res
+  }
+    
+  def evalExpression(
+      expressionForErrorMsg : String, 
+      compiledExprFactory : VariableMap => XPathExpression, 
+      variables:VariableMap, 
+      contextNode:Parent) : XPathResult = {
+    val ce = compiledExprFactory(variables)
     try{
-      val o = xpath.evaluate(expression,contextNode,NODE)
+      val o = ce.evaluate(contextNode,NODE)
       val res = o match {
         case x : Element => new NodeResult(o.asInstanceOf[Element])
         case x : Text => new StringResult(o.asInstanceOf[Text].getValue())
@@ -96,16 +120,22 @@ object XPathUtil {
       return res
     }catch{
       case _:XPathExpressionException =>
+        //
+        // This second try to see if we can evaluate with a STRING
+        // as goal should be eliminated by static analysis of
+        // the XPath. We should know the type it is intending to return,
+        // So we shouln't have to try NODE, then STRING
+        // 
         try {
-          val o = xpath.evaluate(expression,contextNode,STRING)
+          val o = ce.evaluate(contextNode,STRING)
           new StringResult(o.asInstanceOf[String])
         }catch {
           case e:XPathExpressionException => {
-            doUnknownXPathEvalException(expression, e)
+            doUnknownXPathEvalException(expressionForErrorMsg, e)
           }
         }
       case e:Exception => {
-        doUnknownXPathEvalException(expression, e)
+        doUnknownXPathEvalException(expressionForErrorMsg, e)
       }
     }
   }

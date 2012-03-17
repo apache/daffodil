@@ -35,19 +35,18 @@ class TestDsomCompiler extends JUnit3Suite {
     val testSchema = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
                        <annotation>
                          <appinfo source={ dfdl }>
-                           <dfdl:format byteOrder="bigEndian"/>
+                           <dfdl:format terminator="" occursStopValue="-1" byteOrder="bigEndian" emptyValueDelimiterPolicy="none" initiator="" separator="" lengthKind="implicit" occursCountKind="expression"/>
                          </appinfo>
                        </annotation>
-                       <element name="list" type="tns:example1"/>
+                       <element name="list" type="tns:example1" />
                        <complexType name="example1">
                          <sequence>
                            <element name="w" type="xsd:int" dfdl:inputValueCalc="{ $x + 1 }"/>
                          </sequence>
                        </complexType>
                      </schema>
-
     val compiler = Compiler()
-    val sset = compiler.frontEnd(testSchema)
+    val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc) = schema.schemaDocuments
     val Seq(decl) = schemaDoc.globalElementDecls
@@ -72,7 +71,7 @@ class TestDsomCompiler extends JUnit3Suite {
       Compiler().frontEnd(sch)
     }
     // should throw a validation error. 
-    println(ex)
+    // println(ex)
     val msg = ex.getMessage()
     val hasErrorText = msg.contains("maxOccurs");
     assertTrue(hasErrorText)
@@ -101,21 +100,26 @@ class TestDsomCompiler extends JUnit3Suite {
   def test2() {
     val sc =
       <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+          <annotation>
+            <appinfo source={ dfdl }>
+              <dfdl:format occursCountKind="parsed" initiator="" terminator="" emptyValueDelimiterPolicy="none" occursStopValue="-1" textNumberRep="standard"/>
+            </appinfo>
+          </annotation>
         <element name="list" type="tns:example1">
           <annotation>
             <appinfo source={ dfdl }>
-              <dfdl:element encoding="ASCII" alignmentUnits="bytes"/>
+              <dfdl:element encoding="ASCII" alignmentUnits="bytes" />
             </appinfo>
           </annotation>
         </element>
         <complexType name="example1">
-          <sequence>
+          <sequence dfdl:separator="">
             <element name="w" type="xsd:int" dfdl:inputValueCalc="{ $x + 1 }"/>
           </sequence>
         </complexType>
       </schema>
 
-    val sset = Compiler().frontEnd(sc)
+    val (sset, _) = Compiler().frontEnd(sc)
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc) = schema.schemaDocuments
     val Seq(decl) = schemaDoc.globalElementDecls
@@ -150,7 +154,12 @@ class TestDsomCompiler extends JUnit3Suite {
   def testSequence1() {
     val testSchema =
       <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="list" type="tns:example1">
+       	  <annotation>
+            <appinfo source={ dfdl }>
+              <dfdl:format representation="text" occursStopValue="-1" initiator="" terminator="" emptyValueDelimiterPolicy="none"/>
+            </appinfo>
+          </annotation>        
+          <element name="list" type="tns:example1">
           <annotation>
             <appinfo source={ dfdl }>
               <dfdl:element encoding="ASCII" alignmentUnits="bytes"/>
@@ -158,15 +167,15 @@ class TestDsomCompiler extends JUnit3Suite {
           </annotation>
         </element>
         <complexType name="example1">
-          <sequence>
-            <element name="w" type="xsd:int" maxOccurs="unbounded"/>
+          <sequence dfdl:separatorPolicy="required" dfdl:separator="">
+            <element name="w" type="xsd:int" maxOccurs="unbounded" dfdl:occursCountKind="expression"/>
           </sequence>
         </complexType>
       </schema>
 
     val w = Utility.trim(testSchema)
 
-    val sset = Compiler().frontEnd(w)
+    val (sset, _) = Compiler().frontEnd(w)
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc) = schema.schemaDocuments
     val Seq(decl) = schemaDoc.globalElementDecls
@@ -185,7 +194,7 @@ class TestDsomCompiler extends JUnit3Suite {
   def testAPI1() {
     val testSchema =
       <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="data" type="xsd:int" dfdl:inputValueCalc="{ 42 }"/>
+        <element name="data" type="xsd:int" dfdl:textNumberRep="standard" dfdl:representation="text" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:inputValueCalc="{ 42 }" dfdl:initiator=""/>
       </schema>
     val actual = Compiler.testString(testSchema, "")
     val actualString = actual.toString
@@ -197,7 +206,7 @@ class TestDsomCompiler extends JUnit3Suite {
   def testAPI2() {
     val testSchema =
       <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
+        <element name="data" type="xsd:int" dfdl:initiator="" dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
       </schema>
     val actual = Compiler.testString(testSchema, "37\n")
     val actualString = actual.toString
@@ -209,7 +218,7 @@ class TestDsomCompiler extends JUnit3Suite {
   def testUnparse1() {
     val testSchema =
       <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:length="{ 2 }"/>
+        <element name="data" type="xsd:int" dfdl:occursStopValue="-1" dfdl:textNumberRep="standard" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:length="{ 2 }"/>
       </schema>
     val compiler = Compiler()
     val pf = compiler.compile(testSchema)

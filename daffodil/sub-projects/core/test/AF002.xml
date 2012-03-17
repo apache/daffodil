@@ -1,5 +1,8 @@
-<allZones xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-  <zone2>
-    <y>y value for zone 2</y>
-  </zone2>
+<allZones xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+	<a>
+		<zone2>
+			<y>y value for zone 2</y>
+		</zone2>
+	</a>
 </allZones>

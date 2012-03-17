@@ -41,19 +41,16 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: SchemaComponent)
 }
 
 //TBD: are Primitives "global", or do they just have names like globals do?
-class PrimitiveType(name_ : String) extends NamedSimpleTypeBase(
-  Assert.invariantFailed("primitives don't have XML."),
-  Assert.invariantFailed("primitives don't have parents.")) {
+class PrimitiveType(name_ : String) extends NamedType {
   //
   // Lots of faking & dummy objects here
   //
-  override lazy val xml = <fake_primitive name={ name_ }/> // unused. we have to provide the definition in order to compile.
-  lazy val xsdNamespace = XMLUtil.XSD_NAMESPACE
+  override lazy val name = name_ 
+  override lazy val namespace = XMLUtil.XSD_NAMESPACE
+  lazy val xml = Assert.invariantFailed("Primitives don't have xml definitions.")
   lazy val dummySchemaSet = new SchemaSet(NodeSeq.Empty)
-  lazy val xsdSchema = new Schema(xsdNamespace, NodeSeq.Empty, dummySchemaSet)
+  lazy val xsdSchema = new Schema(namespace, NodeSeq.Empty, dummySchemaSet)
   lazy val schemaDocument = new SchemaDocument(<schema/>, xsdSchema)
-  def emptyFormatFactory = Assert.invariantFailed()
-  def isMyAnnotation(a: DFDLAnnotation) = Assert.invariantFailed()
 }
 
 class GlobalSimpleTypeDef(xmlArg: Node, val schemaDocument: SchemaDocument)

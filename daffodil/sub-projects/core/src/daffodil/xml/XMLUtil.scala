@@ -43,9 +43,24 @@ object XMLUtil {
   val XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema" // removed trailing slash (namespaces care)
   val XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance"
   val DFDL_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/" // dfdl ns does have a trailing slash
+  val DFDL_SUBSET_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" 
   val TDML_NAMESPACE = "http://www.ibm.com/xmlns/dfdl/testData"
   val DFDL_XMLSCHEMASUBSET_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
   val EXAMPLE_NAMESPACE = "http://example.com"
+  
+  /**
+   * This namespace for extensions above and beyond DFDL v1.0  
+   */
+  val DFDL_EXTENSIONS_NAMESPACE = "http://www.dataiti.com/dfdl/dfdl-1.0/extensions"
+  
+  // shorter forms, to make constructing XML literals,... make the lines shorter.
+  val DFDLSubsetURI = DFDL_SUBSET_NAMESPACE 
+  val xsdURI = XSD_NAMESPACE
+  val dfdlURI = DFDL_NAMESPACE
+  val targetNS = EXAMPLE_NAMESPACE // we use this for tests.
+  val xsiURI = XSI_NAMESPACE
+  
+  
   val PCDATA = "#PCDATA"
   val REM = "#REM"
 
@@ -106,6 +121,27 @@ object XMLUtil {
   val XSD_TIME = XSD_NAMESPACE+"/"+"time"
   val XSD_DATE_TIME = XSD_NAMESPACE+"/"+"dateTime"
   val XSD_HEX_BINARY = XSD_NAMESPACE+"/"+"hexBinary"
+
+  val DFDL_SIMPLE_BUILT_IN_TYPES =
+    List("string",
+      "float",
+      "double",
+      "decimal",
+      "integer",
+      "long",
+      "int",
+      "short",
+      "byte",
+      "unsignedLong",
+      "unsignedInt",
+      "nonNegativeInteger",
+      "unsignedShort",
+      "unsignedByte",
+      "boolean",
+      "date",
+      "time",
+      "dateTime",
+      "hexBinary")
 
   private val listPattern = Pattern.compile("'([^']*)'|([^'\\s]+)")
 

@@ -608,6 +608,12 @@ class TextProcessor(val charset:Charset,val acceptEOF:Boolean)
         }
       else
         length toInt
+        
+        //
+        // FIXME: Incorrect. Fixed length does not use escape characters at all.
+        // It just grabs the requisite amount of data (measured in lengthUnits)
+        // and returns it. Fixed length is one way to handle fields that contain the delimiters.
+        // 
 
     val evaluatedEscapeChar:Char = getEscapeChar(element,variables,namespaces)
     val evaluatedEscapeEscapeChar:Char = getEscapeEscapeChar(element,variables,namespaces)

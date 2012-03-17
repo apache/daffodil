@@ -5,8 +5,10 @@
 	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	>
-<annotation>
+  <annotation>
 	<appinfo source='http://www.ogf.org/dfdl/'>
+	  <dfdl:format separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none"
+       textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression"/>
 		<dfdl:defineEscapeScheme name="pound">
 			<dfdl:escapeScheme escapeCharacter='#'
 				escapeKind="escapeCharacter" />

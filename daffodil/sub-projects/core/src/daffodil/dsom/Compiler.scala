@@ -1,8 +1,6 @@
 package daffodil.dsom
 
-import java.io.ByteArrayInputStream
-import java.io.InputStreamReader
-import java.io.StringReader
+import java.io._
 
 import scala.xml.Node
 import scala.xml.XML
@@ -11,11 +9,13 @@ import daffodil.api.DFDL
 import daffodil.exceptions.Assert
 import daffodil.util.Validator
 import daffodil.xml.XMLUtil
+import daffodil.grammar._
 
 class Compiler extends DFDL.Compiler {
   var root: String = ""
   var rootNamespace: String = ""
   var debugMode = false
+
 
   def setDistinguishedRootNode(name: String, namespace: String = ""): Unit = {
     root = name
@@ -36,36 +36,44 @@ class Compiler extends DFDL.Compiler {
   private[dsom] def frontEnd(xml: Node) = {
     Compiler.validateDFDLSchema(xml)
     val sset = new SchemaSet(List(xml))
-    // That's what we have for now....
-    sset
+    //
+    // let's make sure every element declaration compiles
+    //
+    val allElts = sset.schemas.flatMap{_.schemaDocuments.flatMap{_.globalElementDecls}}
+    System.err.print("Compiling " + allElts.length + " element(s).")
+    val allParsers = allElts.foreach{
+      elt => {
+        val doc = elt.document
+        val parser = doc.parser
+        val str = parser.toString
+        System.err.println(str)
+      }
+    }
+    
+    if (root == "") {
+      Assert.invariant(rootNamespace == "")
+      val rootElt = allElts(0) // TODO: when we generalize to multiple files, this won't work any more
+      root = rootElt.name
+      rootNamespace = rootElt.schemaDocument.targetNamespace
+    }
+    if (rootNamespace == "") {
+      rootNamespace = (xml \ "@targetNamespace").text
+    }
+    
+    val maybeRoot = sset.getGlobalElementDecl(rootNamespace, root)
+    maybeRoot match {
+      case None => Assert.usageError("The document element named " + root + " was not found.")
+      case Some(rootElem) => {
+        // val parserFactory = rootElem.document
+        val parser = null // parserFactory.parser // if we can get this far, that says alot.
+        (sset, parser)
+      }
+    }
   }
 
   def commonCompile(xml: Node) = {
     val elts = (xml \ "element")
     Assert.usage(elts.length != 0, "No top level element declarations found.")
-
-    // we must have a root node specified, because it is not unique.
-    if (root == "") {
-      // default to first element decl.
-      val firstElt = elts(0)
-      val firstEltName = (firstElt \ "@name").text.toString
-      root = firstEltName
-      rootNamespace = firstElt.namespace
-    }
-
-    lazy val hasMatch = elts.exists { elt =>
-      {
-        val eltName = (elt \ "@name").text.toString
-        val eltNS = elt.namespace
-        val nameMatches = root == eltName
-        // Tolerate namespace ""
-        val namespaceMatches = (rootNamespace == "" || rootNamespace == eltNS)
-        val res = nameMatches && namespaceMatches
-        res
-      }
-    }
-    Assert.usage(root != "" && hasMatch, "The root node named " + root + " was not found.")
-
     //
     // New front end (validates etc. We want to exercise it.)
     //
@@ -73,8 +81,12 @@ class Compiler extends DFDL.Compiler {
   }
 
   def reload(fileNameOfSavedParser: String) = {
-    val sp = daffodil.parser.SchemaParser.readParser(fileNameOfSavedParser)
-    backEnd(sp, Assert.notYetImplemented())
+    if (Compiler.useNewBackend) {
+      Assert.notYetImplemented()
+    } else {
+      val sp = daffodil.parser.SchemaParser.readParser(fileNameOfSavedParser)
+      backEnd(sp, Assert.notYetImplemented())
+    }
   }
 
   def compile(schemaFileName: String): DFDL.ProcessorFactory = {
@@ -85,17 +97,52 @@ class Compiler extends DFDL.Compiler {
   def compile(xml: Node): DFDL.ProcessorFactory = compileSchema(xml)
 
   private def compileSchema(xml: Node): DFDL.ProcessorFactory = {
-    val sset = commonCompile(xml)
+    val (sset, parser) = commonCompile(xml)
 
-    //
-    // older front end, and back-end....
-    //
-    val sp = new daffodil.parser.SchemaParser
-    sp.parse(new ByteArrayInputStream(xml.toString.getBytes())) // parse the schema that is.
-
-    backEnd(sp, sset)
+    if (Compiler.useNewBackend) {
+      newBackEnd(parser, sset)
+    } else {
+      //
+      // old back-end....
+      //
+      val sp = new daffodil.parser.SchemaParser
+      val schemaAsByteArrayStream = new ByteArrayInputStream(xml.toString.getBytes())
+      sp.parse(schemaAsByteArrayStream) // parse the schema that is.
+      backEnd(sp, sset)
+    }
   }
 
+  def newBackEnd(parser : Parser, sset: SchemaSet) = {
+     new DFDL.ProcessorFactory {
+
+      lazy val schemaSet = sset
+      def onPath(xpath: String): DFDL.DataProcessor =
+        new DFDL.DataProcessor {
+
+          def save(fileName: String): Unit = {
+            Assert.notYetImplemented()
+          }
+          
+          def parse(input: DFDL.Input): scala.xml.Node = {
+            val inStream = java.nio.channels.Channels.newInputStream(input)
+            val bufferedInStream = new java.io.BufferedInputStream(inStream)
+            val initialState = PState.createInitialState(bufferedInStream) // also want to pass here the externally set variables, other flags/settings.
+            val resultState = parser.parse(initialState)
+            val jdomElt = resultState.parent.asInstanceOf[org.jdom.Element]
+            val node = XMLUtil.element2Elem(jdomElt)
+            node
+          }
+
+          def unparse(output: DFDL.Output, node: scala.xml.Node): Unit = {
+            val jdomElem = XMLUtil.elem2Element(node)
+            val jdomDoc = new org.jdom.Document(jdomElem)
+            Assert.notYetImplemented()
+          }
+        }
+
+    }
+  }
+  
   def backEnd(sp: daffodil.parser.SchemaParser, sset: SchemaSet) = {
     new DFDL.ProcessorFactory {
 
@@ -134,7 +181,9 @@ class Compiler extends DFDL.Compiler {
 }
 
 object Compiler {
-
+  
+  var useNewBackend = false
+  
   def apply() = new Compiler()
 
   /**
