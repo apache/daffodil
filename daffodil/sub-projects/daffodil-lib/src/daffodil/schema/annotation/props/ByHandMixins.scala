@@ -73,7 +73,23 @@ object SeparatorSuppressionPolicy extends Enum[SeparatorSuppressionPolicy] {
 }
   
 trait SeparatorSuppressionPolicyMixin extends PropertyMixin {
-  lazy val separatorSuppressionPolicy = SeparatorSuppressionPolicy(getProperty("separatorSuppressionPolicy"))
+  lazy val separatorSuppressionPolicy = {
+    val sp = getPropertyOption("separatorPolicy")
+    val ssp = getPropertyOption("separatorSuppressionPolicy")
+    ssp match {
+      case Some(sspStr) => SeparatorSuppressionPolicy(sspStr)
+      case None => {
+        sp match {
+          case Some("required") => SeparatorSuppressionPolicy.Never
+          case Some("suppressed") => SeparatorSuppressionPolicy.Always
+          case Some("suppressedAtEndStrict") => SeparatorSuppressionPolicy.Trailing
+          case Some("suppressedAtEndLax") => SeparatorSuppressionPolicy.TrailingLax
+          case None => getProperty("separatorPolicy") // which will fail!
+          case Some(other) => Assert.impossibleCase()
+        }
+      }
+    }
+  }
 }
 
 
