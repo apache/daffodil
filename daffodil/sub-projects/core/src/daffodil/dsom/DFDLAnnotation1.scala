@@ -26,11 +26,11 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin) {
   }
 
   lazy val shortFormProperties = {
-      val xsA = annotatedSC.xml
-      xsA.attributes.asAttrMap.map {
-        case (prop_name, value) if (prop_name.contains("dfdl:")) => (prop_name.replace("dfdl:", ""), value)
-        case x => x
-      }
+    val xsA = annotatedSC.xml
+    xsA.attributes.asAttrMap.map {
+      case (prop_name, value) if (prop_name.contains("dfdl:")) => (prop_name.replace("dfdl:", ""), value)
+      case x => x
+    }
   }.toSet
 
   lazy val longFormProperties = node.attributes.asAttrMap.toSet // No colon in name

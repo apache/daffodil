@@ -294,7 +294,7 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals(0, seq1s1.asInstanceOf[Sequence].groupMembers.length)
   }
 
-  def test4 {
+  def test5 {
     val testSchema = XML.loadFile("test/example-of-most-dfdl-constructs.dfdl.xml")
     val compiler = Compiler()
 
@@ -316,6 +316,39 @@ class TestDsomCompiler extends JUnit3Suite {
     // of cd2.
 
     assertEquals("{ $myVar1 eq xs:int(xs:string(fn:round-half-to-even(8.5))) }", asrt1.asInstanceOf[DFDLAssert].test)
+
+  }
+
+  def test_named_format_chaining {
+    val testSchema = XML.loadFile("test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml")
+    val compiler = Compiler()
+
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    val Seq(ge1, ge2, ge3, ge4) = sd.globalElementDecls // Obtain global element nodes
+    val Seq(a1: DFDLElement) = ge1.annotationObjs
+    val ref: String = a1.getProperty("ref")
+
+    println("REF: " + ref)
+
+    val props: Map[String, String] = sd.getFormatProperties(ref)
+
+    props foreach { case (key, value) => println(key + "--->" + value) }
+
+    def foundValues(collection: Map[String, String], key: String, value: String): Boolean = {
+      val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
+        case Some(_) => true
+        case None => false
+      }
+      found
+    }
+
+    assertEquals(true, foundValues(props, "occursCountKind", "parsed"))
+    assertEquals(true, foundValues(props, "lengthKind", "pattern"))
+    assertEquals(true, foundValues(props, "representation", "text"))
+    assertEquals(true, foundValues(props, "binaryNumberRep", "packed"))
 
   }
 
