@@ -168,7 +168,7 @@ class SchemaSet(schemaNodeList: Seq[Node]) {
     val schemaForNamespace = schemas.find { s => s.targetNamespace == namespace }
     schemaForNamespace
   }
-
+  
   /**
    * Given a namespace and name, try to retrieve the named object
    */
@@ -177,6 +177,10 @@ class SchemaSet(schemaNodeList: Seq[Node]) {
   def getGlobalComplexTypeDef(namespace: String, name: String) = getSchema(namespace).flatMap { _.getGlobalComplexTypeDef(name) }
   def getGlobalGroupDef(namespace: String, name: String) = getSchema(namespace).flatMap { _.getGlobalGroupDef(name) }
   def getDefineFormat(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineFormat(name) }
+  def getDefineFormats(namespace: String) = getSchema(namespace) match {
+    case None => Assert.schemaDefinitionError("Failed to find a schema for namespace:  " + namespace)
+    case Some(sch) => sch.getDefineFormats()
+  }
   def getDefineVariable(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineVariable(name) }
   def getDefineEscapeScheme(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineEscapeScheme(name) }
 
@@ -211,6 +215,7 @@ class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: Sche
   def getGlobalComplexTypeDef(name: String) = noneOrOne(schemaDocuments.flatMap { _.getGlobalComplexTypeDef(name) }, name)
   def getGlobalGroupDef(name: String) = noneOrOne(schemaDocuments.flatMap { _.getGlobalGroupDef(name) }, name)
   def getDefineFormat(name: String) = noneOrOne(schemaDocuments.flatMap { _.getDefineFormat(name) }, name)
+  def getDefineFormats() = schemaDocuments.flatMap { _.defineFormats }
   def getDefineVariable(name: String) = noneOrOne(schemaDocuments.flatMap { _.getDefineVariable(name) }, name)
   def getDefineEscapeScheme(name: String) = noneOrOne(schemaDocuments.flatMap { _.getDefineEscapeScheme(name) }, name)
 
@@ -302,113 +307,6 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema) extends AnnotatedMixin 
   def getDefineFormat(name: String) = defineFormats.find { _.name == name }
   def getDefineVariable(name: String) = defineVariables.find { _.name == name }
   def getDefineEscapeScheme(name: String) = defineEscapeSchemes.find { _.name == name }
-
-  // Added by Taylor Wise
-  //
-  def getQName(name: String): (String, String) = {
-    val parts = name.split(":").toList
-    val (prefix, localName) = parts match {
-      case List(local) => ("", local)
-      case List(pre, local) => (pre, local)
-      case _ => Assert.impossibleCase()
-    }
-    val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
-    // Assert.schemaDefinition(nsURI != null, "In QName " + name + ", the prefix " + prefix + " was not defined.")
-    // TODO: accumulate errors, don't just throw on one.
-    // TODO: error location for diagnostic purposes. 
-    // see: http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
-    (nsURI, localName)
-  }
-
-  // Added by Taylor Wise
-  //
-  def combinePropertiesWithOverriding(localProps: Map[String, String], refProps: Map[String, String]): Map[String, String] = {
-    var result: Map[String, String] = Map.empty[String, String]
-    // Iterate over the ref's properties, if we find that
-    // a local instance of that property exists, do not add it.
-    refProps foreach {
-      case (refKey, refValue) => {
-        val foundProp = localProps.find { p => p._1 == refKey }
-        foundProp match {
-          case Some(thisProp) => { /* Found, don't add! */ }
-          case None => { result += (refKey -> refValue) }
-        } // end-prop-match
-      } // end-for-each-case
-    } // end-for-each
-    result
-  }
-
-  // Added by Taylor Wise
-  //
-  def getDefineFormatPropertiesByRef(qName: String, refStack: Set[String]): Map[String, String] = {
-    var props = Map.empty[String, String]
-    var localRefStack = refStack.toSet[String]
-
-    val (nsURI, localName): (String, String) = getQName(qName)
-
-    // Verify that we don't have circular references
-    if (refStack.contains(localName)) {
-      Assert.schemaDefinitionError("Circular reference detected for "
-        + localName + " while obtaining Format Properties!\nStack: "
-        + refStack.toString())
-    }
-
-    localRefStack = localRefStack + localName
-
-    // Retrieve the defineFormat that matches this qName
-    val foundDF = defineFormats.find { df => df.name == localName }
-    foundDF match {
-      case Some(aDF) => {
-        // Found a defineFormat, grab its format properties
-        val aFormat = aDF.formatAnnotation
-
-        val ref: String = aFormat.getPropertyOption("ref") match {
-          case Some(x) => x
-          case None => ""
-        }
-
-        // Does this format have a ref?
-        if (ref.length() > 0) {
-          // Local format properties
-          val formatProps = aFormat.combinedLocalProperties
-
-          // Add the local properties to the props list
-          formatProps foreach { case (key, value) => props += (key -> value) }
-
-          // Has a ref, go get the ref's properties
-          val refFormatProps = getDefineFormatPropertiesByRef(ref, localRefStack)
-
-          val result: Map[String, String] = combinePropertiesWithOverriding(formatProps, refFormatProps)
-          props = props ++ result
-        } else {
-          // No ref, just return this format's properties
-          val formatProps = aFormat.combinedLocalProperties
-          props = formatProps
-        } // end-if-else
-
-      }
-      case None => { /* Do Nothing */ }
-    } // end-match
-
-    props
-  } // end-getDefineFormatProperties
-
-  // Added by Taylor W.
-  // 
-  def getFormatProperties(qName: String): Map[String, String] = {
-    var refStack: Set[String] = Set.empty[String]
-    var props: Map[String, String] = Map.empty[String, String]
-
-    // Fetch Default Format Properties
-    val defaultProps = defaultFormat.combinedLocalProperties
-
-    // Append the default properties to props collection
-    defaultProps foreach { case (key, value) => props += (key -> value) }
-
-    props = props ++ getDefineFormatPropertiesByRef(qName, refStack)
-
-    props
-  } // end-getFormatProperties
 
 }
 

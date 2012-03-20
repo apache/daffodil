@@ -329,11 +329,12 @@ class TestDsomCompiler extends JUnit3Suite {
 
     val Seq(ge1, ge2, ge3, ge4) = sd.globalElementDecls // Obtain global element nodes
     val Seq(a1: DFDLElement) = ge1.annotationObjs
-    val ref: String = a1.getProperty("ref")
+   
+    //val ref: String = a1.getProperty("ref")
 
-    println("REF: " + ref)
+    //println("REF: " + ref)
 
-    val props: Map[String, String] = sd.getFormatProperties(ref)
+    val props: Map[String, String] = a1.getFormatProperties("tns:def1") //sd.getFormatProperties(ref)
 
     props foreach { case (key, value) => println(key + "--->" + value) }
 
@@ -349,6 +350,19 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals(true, foundValues(props, "lengthKind", "pattern"))
     assertEquals(true, foundValues(props, "representation", "text"))
     assertEquals(true, foundValues(props, "binaryNumberRep", "packed"))
+
+  }
+  
+  def test_simple_types_property_combining {
+    val testSchema = XML.loadFile("test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml")
+    val compiler = Compiler()
+
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    val Seq(ge1, ge2, ge3, ge4) = sd.globalElementDecls // Obtain global element nodes
+    
 
   }
 

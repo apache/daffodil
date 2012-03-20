@@ -138,11 +138,11 @@ trait PropertyMixin {
    * This is likely way more than the number locally defined.... dozens 
    * of properties are likely defined in most formats. 
    */
-  override def toString = {
-    val props = toStringFunctionList.map{f=>f.apply()}.foldLeft("PropertyMixin(")(_+_)
-    val suffix=")"
-    props + suffix
-  }
+//  override def toString = {
+//    val props = toStringFunctionList.map{f=>f.apply()}.foldLeft("PropertyMixin(")(_+_)
+//    val suffix=")"
+//    props + suffix
+//  }
   
   def registerToStringFunction(f : (() => String)) {
     toStringFunctionList = toStringFunctionList :+ f
