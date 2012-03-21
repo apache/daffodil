@@ -13,22 +13,111 @@ import scala.collection.JavaConversions._
  */
 abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin) {
   lazy val xml = node
+  
+  private [dsom] 
+  def getLocalFormatRef(): String = {
+    val ref = xml \ "@ref"
+    ref.text
+  }
 
-  def getPropertyOption(name: String): Option[String] = {
+    //
+  // Always look for a local property first
+  //
+  // package private since we want to unit test these and put the test code in a different object.
+  // (Note: I hate repeating the darn package name all over the place here....)
+  private [dsom] def getLocalPropertyOption(name: String): Option[String] = {
     if (hasConflictingPropertyError) {
       throw new DFDLSchemaDefinitionException("Short and Long form properties overlap: " + conflictingProperties)
     }
-
-    val result = allProperties.get(name)
-    result
+    lazy val localProp = combinedLocalProperties.get(name)
+    localProp
   }
 
-  lazy val formatRef = combinedLocalProperties.get("ref")
-  lazy val refProp = formatRef.map { getFormatProperties(_) }
-  lazy val allProperties = refProp match {
-    case Some(pMap) => combinePropertiesWithOverriding(combinedLocalProperties, pMap)
-    case None => combinedLocalProperties
+  //
+  // reference chain lookup
+  //
+  private [dsom] def getRefPropertyOption(qName : String, pName :
+String) : Option[String] = {
+    None
+    // replace with call to taylor's loop detecting reference chasing code.
+    // first it gets the map using the qname (via lazy val so it's done once)
+    // then it gets the pname from the map.
+    var refStack: Set[String] = Set.empty[String]
+    lazy val props: Map[String, String] = getDefineFormatPropertiesByRef(qName, refStack)
+    lazy val propOpt: Option[String] = props.find( p => p._1 == pName) match {
+      case None => None
+      case Some( x ) => Option(x._1)
+    }
+    propOpt
   }
+
+  //
+  // NoDefault - local then reference chain rooted here
+  //
+  private [dsom] def getPropertyOptionNoDefault(name : String) :
+Option[String] = {
+    val local = getLocalPropertyOption(name)
+    local match {
+      case Some(_) => local
+      case None => {
+        val ref = getLocalFormatRef() //getLocalPropertyOption("ref")
+//        ref match {
+//          case Some(qname) => {
+//            val refChainProp = getRefPropertyOption(qname, name)
+//            refChainProp
+//          }
+//          case None => None
+//        }
+        if (ref.length() > 0) {
+          val refChainProp = getRefPropertyOption(ref, name)
+          refChainProp
+        }
+        else { None }
+      }
+    }
+  }
+
+ //
+ // default - get the lexically enclosing default format annotation  // and do a no-default lookup on it (which looks locally there, and on the reference chain rooted  // at that default format annotation.
+ //
+ private [dsom] def getDefaultPropertyOption(name : String) : Option[String] = {
+    val lexicalDefaultFormatAnnotation = annotatedSC.schemaDocument.formatAnnotation
+    val prop = lexicalDefaultFormatAnnotation.getPropertyOptionNoDefault(name)
+// no default for the default.
+    prop
+  }
+
+ //
+ // This is the primary public entry point.
+ //
+ def getPropertyOption(name: String): Option[String] = {
+  // Assert.usage(name != "ref", "ref is not a format property")
+  // Assert.usage(name != "name", "name is not a format property")
+    val nonDef = getPropertyOptionNoDefault(name) // local and local ref chain
+    nonDef match {
+      case Some(_) => nonDef
+      case None => {
+        val default = getDefaultPropertyOption(name) // default and default ref chain
+        default
+      }
+    }
+  }
+
+//  def getPropertyOption(name: String): Option[String] = {
+//    if (hasConflictingPropertyError) {
+//      throw new DFDLSchemaDefinitionException("Short and Long form properties overlap: " + conflictingProperties)
+//    }
+//
+//    val result = allProperties.get(name)
+//    result
+//  }
+
+  //lazy val formatRef = combinedLocalProperties.get("ref")
+  //lazy val refProp = formatRef.map { getFormatProperties(_) }
+ // lazy val allProperties = refProp match {
+ //   case Some(pMap) => combinePropertiesWithOverriding(combinedLocalProperties, pMap)
+ //   case None => combinedLocalProperties
+ // }
 
   lazy val shortFormProperties = {
     val xsA = annotatedSC.xml
@@ -74,14 +163,15 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin) {
   // Added by Taylor Wise
   //
   def combinePropertiesWithOverriding(localProps: Map[String, String], refProps: Map[String, String]): Map[String, String] = {
-    var result: Map[String, String] = Map.empty[String, String]
+    var result: Map[String, String] = localProps
     // Iterate over the ref's properties, if we find that
-    // a local instance of that property exists, do not add it.
+    // a local instance of that property exists, add the local instance
+    // otherwise add the ref instance
     refProps foreach {
       case (refKey, refValue) => {
         val foundProp = localProps.find { p => p._1 == refKey }
         foundProp match {
-          case Some(thisProp) => { /* Found, don't add! */ }
+          case Some(thisProp) => { /* Local version exists, don't add */ }
           case None => { result += (refKey -> refValue) }
         } // end-prop-match
       } // end-for-each-case
@@ -116,10 +206,7 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin) {
         // Found a defineFormat, grab its format properties
         val aFormat = aDF.formatAnnotation
 
-        val ref: String = aFormat.getPropertyOption("ref") match {
-          case Some(x) => x
-          case None => ""
-        }
+        val ref: String = aFormat.getLocalFormatRef()
 
         // Does this format have a ref?
         if (ref.length() > 0) {
@@ -149,19 +236,35 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin) {
 
   // Added by Taylor W.
   // 
-  def getFormatProperties(qName: String): Map[String, String] = {
+  def getFormatProperties(): Map[String, String] = {
     var refStack: Set[String] = Set.empty[String]
     var props: Map[String, String] = Map.empty[String, String]
+    
+    // Fetch Local Format Properties
+    val localProps = combinedLocalProperties.filterNot( x => x._1 == "ref" || x._1 == "name")
+    
+    localProps foreach { case (key, value) => println("LOCAL PROPS: " + key + "--->" + value) }
 
     // Fetch Default Format Properties
-    val defaultProps = annotatedSC.schemaDocument.defaultFormat.combinedLocalProperties
+    val defaultProps = annotatedSC.schemaDocument.defaultFormat.combinedLocalProperties.filterNot(x => x._1 == "ref" || x._1 == "name")
 
-    // Append the default properties to props collection
-    defaultProps foreach { case (key, value) => props += (key -> value) }
+    defaultProps foreach { case (key, value) => println("DEFAULT PROPS: " + key + "--->" + value) }
+    
+    // Combine Local and Default properties via overriding
+    props = combinePropertiesWithOverriding(localProps, defaultProps)
+    
+    props foreach { case (key, value) => println("LOCAL + DEFAULT PROPS: " + key + "--->" + value) }
+    
+    val ref = getLocalFormatRef()
+    val refProps = getDefineFormatPropertiesByRef(ref, refStack)
+    
+    refProps foreach { case (key, value) => println("REF PROPS: " + key + "--->" + value) }
+    
+    val res: Map[String, String] = combinePropertiesWithOverriding(props, refProps)
+    
+    res foreach { case (key, value) => println("RESULT PROPS: " + key + "--->" + value) }
 
-    props = props ++ getDefineFormatPropertiesByRef(qName, refStack)
-
-    props
+    res
   } // end-getFormatProperties
 }
 
