@@ -242,27 +242,17 @@ Option[String] = {
     
     // Fetch Local Format Properties
     val localProps = combinedLocalProperties.filterNot( x => x._1 == "ref" || x._1 == "name")
-    
-    localProps foreach { case (key, value) => println("LOCAL PROPS: " + key + "--->" + value) }
 
     // Fetch Default Format Properties
     val defaultProps = annotatedSC.schemaDocument.defaultFormat.combinedLocalProperties.filterNot(x => x._1 == "ref" || x._1 == "name")
-
-    defaultProps foreach { case (key, value) => println("DEFAULT PROPS: " + key + "--->" + value) }
     
     // Combine Local and Default properties via overriding
     props = combinePropertiesWithOverriding(localProps, defaultProps)
     
-    props foreach { case (key, value) => println("LOCAL + DEFAULT PROPS: " + key + "--->" + value) }
-    
     val ref = getLocalFormatRef()
     val refProps = getDefineFormatPropertiesByRef(ref, refStack)
     
-    refProps foreach { case (key, value) => println("REF PROPS: " + key + "--->" + value) }
-    
     val res: Map[String, String] = combinePropertiesWithOverriding(props, refProps)
-    
-    res foreach { case (key, value) => println("RESULT PROPS: " + key + "--->" + value) }
 
     res
   } // end-getFormatProperties
