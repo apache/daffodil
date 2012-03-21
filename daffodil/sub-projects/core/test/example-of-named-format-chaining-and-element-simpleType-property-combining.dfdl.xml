@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://example.com"
+	xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" xmlns:ex="http://example.com"
+	xmlns:xs="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" xmlns:tns="http://example.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<annotation>
+		<documentation>
+			Unit test schema for format to defined-format chaining.
+			Unit test schema for element and simpleType property combining.
+
+			Just
+			single-file schemas being exercised in these tests.
+		</documentation>
+
+		<!-- top level dfdl annotations to create named, reusable definitions -->
+		<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+
+			<dfdl:defineFormat name="def1">
+				<dfdl:format occursCountKind="parsed" ref="tns:def2" />
+			</dfdl:defineFormat>
+
+			<dfdl:defineFormat name="def2">
+				<dfdl:format lengthKind="pattern" occursCountKind="expression"
+					ref="tns:def3" />
+			</dfdl:defineFormat>
+
+			<dfdl:defineFormat name="def3">
+				<dfdl:format representation="text" lengthKind="implicit"
+					occursCountKind="fixed" binaryNumberRep="bcd" />
+			</dfdl:defineFormat>
+
+			<!-- The above are setup so that someone referencing def1 will get occursCountKind 
+				from def1, lengthKind from def2, and representation from def3 -->
+
+			<dfdl:format binaryNumberRep="packed" ref="tns:def1" />
+
+			<!-- There's also some error cases worth testing If a named format has 
+				a ref back to itself - should be a schema definition error. This could be 
+				an indirect cycle. I.e., def1 refers to def2 which refers back to def1 (once 
+				we handle more than one schema document (aka file), then this error is even 
+				likely to happen as users break schemas up over files.) -->
+		</appinfo>
+	</annotation>
+
+	<!-- Tests chaining of named properties -->
+	<element name="easy" type="xsd:int">
+		<annotation>
+			<xsd:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+				<dfdl:element ref="tns:def1" />
+				<!-- should get occursCountKind from def1, lengthKind from def2, and 
+					representation from def3. binaryNumberRep from the default format. -->
+			</xsd:appinfo>
+		</annotation>
+	</element>
+
+
+	<element name="a">
+		<!-- should have nilKind from locally, and alignmentUnits from the simpleType -->
+		<annotation>
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+				<dfdl:element nilKind="literalValue" />
+			</appinfo>
+		</annotation>
+		<simpleType>
+			<xsd:annotation>
+				<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:simpleType alignmentUnits="bytes" />
+				</appinfo>
+			</xsd:annotation>
+			<restriction base="xsd:int" />
+		</simpleType>
+	</element>
+
+	<element name="aShortForm" dfdl:nilKind="literalValue">
+		<!-- same but short form annotations. Ahhh. so much nicer. -->
+		<simpleType dfdl:alignmentUnits="bytes">
+			<restriction base="xsd:int" />
+		</simpleType>
+	</element>
+
+
+	<!-- Test below should error - it is because you are not allowed to have 
+		overlapping properties between an element and its simple type. -->
+
+	<element name="b">
+		<!-- should Error. Same property defined both by element and its type. -->
+		<annotation>
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+				<dfdl:element lengthKind="explicit" />
+			</appinfo>
+		</annotation>
+		<simpleType>
+			<xsd:annotation>
+				<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:simpleType lengthKind="pattern" />
+				</appinfo>
+			</xsd:annotation>
+			<restriction base="xsd:int" />
+		</simpleType>
+	</element>
+
+
+
+</xsd:schema>

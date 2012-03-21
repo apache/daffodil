@@ -294,7 +294,7 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals(0, seq1s1.asInstanceOf[Sequence].groupMembers.length)
   }
 
-  def test5 {
+  def test4 {
     val testSchema = XML.loadFile("test/example-of-most-dfdl-constructs.dfdl.xml")
     val compiler = Compiler()
 
@@ -329,18 +329,8 @@ class TestDsomCompiler extends JUnit3Suite {
 
     val Seq(ge1, ge2, ge3, ge4) = sd.globalElementDecls // Obtain global element nodes
     val Seq(a1: DFDLElement) = ge1.annotationObjs
-    
-   println("REF: " +  a1.getLocalFormatRef())
-   
-    //val ref: String = a1.getProperty("ref")
 
-    //println("REF: " + ref)
-
-    val props: Map[String, String] = a1.getFormatProperties() //sd.getFormatProperties(ref)
-    
-    //println("occursCountKind ==> " + a1.getPropertyOption("occursCountKind"))
-
-    props foreach { case (key, value) => println(key + "--->" + value) }
+    val props: Map[String, String] = a1.getFormatProperties()
 
     def foundValues(collection: Map[String, String], key: String, value: String): Boolean = {
       val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
@@ -350,10 +340,10 @@ class TestDsomCompiler extends JUnit3Suite {
       found
     }
 
-    //assertEquals(true, foundValues(props, "occursCountKind", "parsed"))
-   // assertEquals(true, foundValues(props, "lengthKind", "pattern"))
-   // assertEquals(true, foundValues(props, "representation", "text"))
-   // assertEquals(true, foundValues(props, "binaryNumberRep", "packed"))
+    assertEquals(true, foundValues(props, "occursCountKind", "parsed"))
+    assertEquals(true, foundValues(props, "lengthKind", "pattern"))
+    assertEquals(true, foundValues(props, "representation", "text"))
+    assertEquals(true, foundValues(props, "binaryNumberRep", "packed"))
 
   }
   
