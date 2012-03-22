@@ -103,6 +103,7 @@ binaryBooleanFalseRep="0">
    */
   class HasLotsOfProperties extends Format_AnnotationMixin {
 
+    val detailName="HasLotsOfProperties"
     /**
      * In this case, we're just going to lookup the attribute on the above
      * big piece of XML. In real use, this would look at some list built up 

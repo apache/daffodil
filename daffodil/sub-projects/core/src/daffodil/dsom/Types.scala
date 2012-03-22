@@ -29,15 +29,19 @@ abstract class NamedSimpleTypeBase(xmlArg: => Node, parent: => SchemaComponent)
   extends SimpleTypeBase(xmlArg, parent) with NamedType {
 }
 
-class LocalSimpleTypeDef(xmlArg: Node, parent: SchemaComponent)
+class LocalSimpleTypeDef(xmlArg: Node, parent: ElementDeclBase)
   extends SimpleTypeBase(xmlArg, parent)
   with LocalComponentMixin {
 
+  lazy val detailName = "inside " + parent.detailName
   def emptyFormatFactory = new DFDLSimpleType(<dfdl:simpleType/>, this)
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
 
-  lazy val base = (xml \ "restriction" \ "@base").text
-
+  lazy val baseName = (xml \ "restriction" \ "@base").text
+  lazy val baseType = {
+    val res = if (baseName == "") None
+    else Assert.notYetImplemented() // should go find the global simple type here
+  }
 }
 
 //TBD: are Primitives "global", or do they just have names like globals do?
@@ -78,7 +82,7 @@ class GlobalComplexTypeDef(xmlArg: Node, val schemaDocument: SchemaDocument)
   with GlobalComponentMixin {
 }
 
-class LocalComplexTypeDef(xmlArg: Node, parent: SchemaComponent)
+class LocalComplexTypeDef(xmlArg: Node, parent: ElementDeclBase)
   extends ComplexTypeBase(xmlArg, parent)
   with LocalComponentMixin {
 }

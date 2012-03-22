@@ -18,7 +18,6 @@ import daffodil.processors.VariableMap
 trait AnnotatedElementMixin
   extends AnnotatedMixin
   with Element_AnnotationMixin {
-  def getPropertyOption(pname: String) = formatAnnotation.getPropertyOption(pname) // delegate
 
   def emptyFormatFactory = new DFDLElement(<dfdl:element/>, this)
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
@@ -88,7 +87,8 @@ trait Particle { self: LocalElementBase =>
 trait ElementBaseMixin
   extends AnnotatedElementMixin
   with ElementBaseGrammarMixin
-  with ElementRuntimeValuedPropertiesMixin {
+  with ElementRuntimeValuedPropertiesMixin
+  with NamedMixin {
 
   def isNillable: Boolean
   def isSimpleType: Boolean
@@ -96,7 +96,7 @@ trait ElementBaseMixin
   def elementComplexType: ComplexTypeBase
   def elementSimpleType: SimpleTypeBase
   def typeDef: TypeBase
-  
+  def isScalar : Boolean
   
   lazy val compiledLength = expressionCompiler.compile('Long, length)
   
@@ -104,6 +104,10 @@ trait ElementBaseMixin
     lengthKind == LengthKind.Explicit && 
     length != null && // just check to insure length is defined.
     compiledLength.isConstant
+  }
+  
+  lazy val fixedLength = {
+    if (isFixedLength) compiledLength.constant.asInstanceOf[Long] else -1 // shouldn't even be asking for this if not isFixedLength 
   }
   
   def hasPrimitiveType(localname : String) : Boolean = {
@@ -145,17 +149,21 @@ trait ElementBaseMixin
   lazy val hasEmptyValueInitiator = initTermTestExpression(initiatorExpr, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
   lazy val hasEmptyValueTerminator = initTermTestExpression(terminatorExpr, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Terminator)
 
-  // See how this function takes the prop: => Any. That allows us to not require the property to exist if
+  // See how this function takes the prop: => Any. That allows us to not require the property to exist at all if
   // expr.isKnownNotEmpty turns out to be false. 
   def initTermTestExpression(expr: CompiledExpression, prop: => Any, true1: Any, true2: Any): Boolean = {
-    (expr.isKnownNonEmpty, prop) match {
-      case (true, _) => prop == true1 || prop == true2
-      case _ => false
-    }
+    // changed from a match on a 2-tuple to if-then-else logic because we don't even want to ask for 
+    // prop's value at all unless the first test is true.
+    if (expr.isKnownNonEmpty)
+      if (prop == true1 || prop == true2) true
+      else false
+    else false
   }
 
   /**
-   * Means the element is in a context where there is a separator expected after it.
+   * Means the element is in a context where there is a separator expected after it. 
+   * 
+   * Abstract here because implementations are different for localElement
    */
   def hasSep: Boolean
 
@@ -263,6 +271,9 @@ class ElementRef(xmlArg: Node, parent: ModelGroup)
   lazy val elementSimpleType: SimpleTypeBase = Assert.notYetImplemented()
   lazy val isDefaultable : Boolean = Assert.notYetImplemented()
 
+  lazy val qname = XMLUtil.QName(xml, xsdRef, schemaDocument)
+  override lazy val (namespace, name) = qname
+  
   // These may be trickier, as the type needs to be responsive to properties from the
   // element reference's format annotations, and its lexical context.
   lazy val typeDef = Assert.notYetImplemented()
@@ -277,7 +288,8 @@ trait HasRef { self: SchemaComponent =>
 }
 
 trait ElementDeclBase
-  extends ElementBaseMixin {
+  extends ElementBaseMixin
+  with ElementDeclGrammarMixin {
 
   lazy val immediateType: Option[TypeBase] = {
     val st = xml \ "simpleType"
@@ -298,32 +310,11 @@ trait ElementDeclBase
     if (str == "") None else Some(str)
   }
 
-  /**
-   * Translates a qualified name into a pair of a namespace uri, and a local name part.
-   * 
-   * Currently makes an effort to take unqualified names into the targetNamespace of the schema,
-   */
-  def QName(typeName: String): (String, String) = {
-    val parts = typeName.split(":").toList
-    val (prefix, localName) = parts match {
-      case List(local) => ("", local)
-      case List(pre, local) => (pre, local)
-      case _ => Assert.impossibleCase()
-    }
-    val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
-    // Assert.schemaDefinition(nsURI != null, "In QName " + typeName + ", the prefix " + prefix + " was not defined.")
-    // TODO: accumulate errors, don't just throw on one.
-    // TODO: error location for diagnostic purposes. 
-    // see: http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
-    
-    // TODO: Clarify whether we should be tolerant this way, or strict
-    val finalURI = if (nsURI == null || nsURI == "") schemaDocument.targetNamespace else nsURI
-    (finalURI, localName)
-  }
+
 
   lazy val namedTypeQName = {
     typeName match {
-      case Some(tname) => Some(QName(tname))
+      case Some(tname) => Some(XMLUtil.QName(xml, tname, schemaDocument))
       case None => None
     }
   }
@@ -430,8 +421,10 @@ class GlobalElementDecl(xmlArg: Node, val schemaDocument: SchemaDocument)
   with GlobalElementDeclGrammarMixin {
   
   lazy val xml = xmlArg
+  lazy val isScalar = true
 
-  val hasSep = false
+  val hasSep = false // when a global decl is a root element then it's not in a sequence, and so can't be separated.
+  // if this global decl is used via an element reference, then the element ref's definition of hasSep will be used, not this one.
 
   override def annotationFactory(node: Node): DFDLAnnotation = {
     node match {

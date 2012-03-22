@@ -4,37 +4,196 @@ import daffodil.dsom._
 import daffodil.exceptions.Assert
 import daffodil.schema.annotation.props._
 import daffodil.schema.annotation.props.gen._
+import daffodil.xml._
+import daffodil.processors._
+import java.nio.CharBuffer
 
-//
-// This file is 100% Stubs
-//
-// These get replaced by real implementations which implement the Terminal interface
-//
 
-abstract class Primitive(e: SchemaComponent, guard: Boolean = true) 
-extends Terminal(e, guard) {
-    def parser: Parser = DummyParser
-  }
+case class ElementBegin(e : ElementBaseMixin) extends Terminal(e, true) {
+     def parser: Parser = new Parser {
+     
+      override def toString = "<" + e.name + ">"
+      
+      /**
+       * ElementBegin just adds the element we are constructing to the infoset and changes
+       * the state to be referring to this new element as what we're parsing data into.
+       */
+      def parse(start : PState) : PState = {
+        val currentElement = new org.jdom.Element(e.name, e.namespace)
+        val priorElement = start.parent
+        priorElement.addContent(currentElement)
+    	val postState = start.withParent(currentElement)
+    	postState
+      }
+     }
+}
+
+case class ElementEnd(e : ElementBaseMixin) extends Terminal(e, true) {
+   def parser: Parser = new Parser {
+     
+      override def toString = "</" + e.name + ">"
+      
+      /**
+       * ElementEnd just moves back to the parent element of the current one.
+       */
+      def parse(start : PState) : PState = {
+        val currentElement = start.parent
+        val priorElement = currentElement.getParent().asInstanceOf[org.jdom.Element]
+    	val postState = start.withParent(priorElement).moveOverByOne
+    	postState
+      }
+   }
+}
+
+/**
+ * The I/O layer should be written to use Java's NIO Channels, and Direct ByteBuffers for file I/O. This is the
+ * fastest stuff in the Java stack. 
+ * 
+ * The basic design for known-length parsing
+ * is to do a bounds check on whether we have enough buffer space to accomplish the reading of data
+ * within the buffer. If not, repositioning/refreshing the buffer. If so, then we want to issue a 
+ * single block read per element which both reads and converts to the right character encoding, or
+ * directly to the right type (float, long, double, etc) when the result type is a primitive.
+ * 
+ * For types with more complexity, (binary dates for example) then the previous would still be done
+ * followed by a conversion of some sort.
+ */
+
+
+case class StringFixedLengthInBytes(e : ElementBaseMixin, nBytes : Long) extends Terminal(e, true) {
+   def parser: Parser = new Parser {
+     
+      override def toString = "StringFixedLengthInBytesParser"
+      val decoder = e.knownEncodingDecoder
+      val cbuf = CharBuffer.allocate(nBytes.toInt) // TODO: Performance: get a char buffer from a pool. 
+      
+      def parse(start : PState) : PState = {
+        System.err.println("Parsing starting at bit position: " + start.bitPos)
+    	val in = start.inStream
+    	val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder) 
+    	val result = cbuf.toString
+    	System.err.println("Parsed: " + result)
+    	System.err.println("Ended at bit position " + endBitPos)
+    	val endCharPos = start.charPos + result.length
+    	val currentElement = start.parent
+    	// Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
+    	// and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
+    	currentElement.addContent(new org.jdom.Text(result))
+    	val postState = start.withPos(endBitPos, endCharPos)
+    	postState
+      }
+   }
+}
+
+case class StringFixedLengthInBytesVariableWidthCharacters(e : ElementBaseMixin, nBytes : Long) extends Terminal(e, true) {
+   def parser: Parser = new Parser {
+      def parse(start : PState) : PState = {
+         Assert.notYetImplemented()
+      }
+     
+   }
+}
+
+case class StringFixedLengthInVariableWidthCharacters(e : ElementBaseMixin, nChars : Long) extends Terminal(e, true) {
+   def parser: Parser = new Parser {
+     def parse(start : PState) : PState = {
+        Assert.notYetImplemented()
+     }
+   }
+}
 
 case class StandardTextIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
-   def parser : Parser = DummyParser
+   def parser : Parser = DummyParser(e)
 }
-case class StringFixedLengthPrim(e : ElementBaseMixin) extends Terminal(e, true) {
-   def parser: Parser = DummyParser
-}
+
+abstract class Primitive(e: PropertyMixin, guard: Boolean = false) 
+extends Terminal(e, guard) {
+    def parser: Parser = DummyParser(e)
+  }
 
 case class ZonedTextIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
 case class RegularBinaryIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
 case class PackedIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
 case class BCDIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
 
-case class Delimiter(e: SchemaComponent, guard: Boolean = true) extends Primitive(e, guard)
+class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) extends Terminal(e, guard) {
+  def parser: Parser = new Parser {
 
-case class StartGroup(ct: ComplexTypeBase, guard: Boolean = true) extends Primitive(ct, guard) 
+    // TODO: Fix Cheezy matcher. Doesn't implement ignore case. Doesn't fail at first character that doesn't match. It grabs
+    // the whole length (if it can), and then compares.
+    // Also handles only one delimiter string. They can actually be whitespace-separated lists of alternative
+    // delimiters
+    // 
+    Assert.notYetImplemented(e.ignoreCase == YesNo.Yes)
+
+    Assert.invariant(delim != "") // shouldn't be here at all in this case.
+    override def toString = "'" + delim + "'"
+    val decoder = e.knownEncodingDecoder
+    val cbuf = CharBuffer.allocate(delim.length) // TODO: Performance: get a char buffer from a pool. 
+
+    def parse(start: PState): PState = {
+      System.err.println("Parsing delimiter at bit position: " + start.bitPos)
+      val in = start.inStream
+      //
+      // Lots of things could go wrong in here. We might be looking at garbage, so decoding will get errors, etc.
+      // Those should all count as "did not find the delimiter"
+      //
+      // No matter what goes wrong, we're counting on an orderly return here.
+      //
+      val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
+      val result = 
+        if (endBitPos == -1) "" // causes failure down below this
+        else cbuf.toString
+        		 
+      if (result == delim) { // TODO: use string.compare and string.compareIgnoreCase so we can implement ignoreCase property.
+        System.err.println("Found " + delim)
+        System.err.println("Ended at bit position " + endBitPos)
+        val endCharPos = start.charPos + result.length
+        val postState = start.withPos(endBitPos, endCharPos)
+        postState
+      } else {
+        val postState = start.withPos(start.bitPos, start.charPos, Failure)
+        postState
+      }
+    }
+  }
+}
+
+class DynamicDelimiter(delimExpr : CompiledExpression, e: AnnotatedMixin, guard: Boolean = true) extends Primitive(e, guard)
+
+case class StaticInitiator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.initiatorExpr.constant.asInstanceOf[String], e)
+case class StaticTerminator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.terminatorExpr.constant.asInstanceOf[String], e)
+case class DynamicInitiator(e : InitiatedTerminatedMixin) extends DynamicDelimiter(e.initiatorExpr, e)
+case class DynamicTerminator(e : InitiatedTerminatedMixin) extends DynamicDelimiter(e.terminatorExpr, e)
+
+case class StaticSeparator(e : Sequence) extends StaticDelimiter(e.separatorExpr.constant.asInstanceOf[String], e)
+case class DynamicSeparator(e : Sequence) extends DynamicDelimiter(e.separatorExpr, e)
+
+case class StartChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct, guard) {
+    def parser: Parser = new Parser {
+     
+      override def toString = "StartChildren"
+
+      def parse(start : PState) : PState = {
+    	val postState = start.withChildIndexStack(0L :: start.childIndexStack)
+    	postState
+      }
+   }
+}
 
 case class GroupPosGreaterThan(n: Long)(sq: Sequence, guard: Boolean = true) extends Primitive(sq, guard)
 
-case class EndGroup(ct: ComplexTypeBase, guard: Boolean = true) extends Primitive(ct, guard) 
+case class EndChildren(ct: ComplexTypeBase, guard: Boolean = true)  extends Terminal(ct, guard) {
+    def parser: Parser = new Parser {
+     
+      override def toString = "EndChildren"
+
+      def parse(start : PState) : PState = {
+    	val postState = start.withChildIndexStack(start.childIndexStack.tail)
+    	postState
+      }
+   }
+}
   
 case class StartArray(e: LocalElementBase, guard: Boolean = true) extends Primitive(e, guard) 
   
@@ -60,14 +219,45 @@ case class LiteralNilValue(e: ElementBaseMixin) extends Primitive(e, e.isNillabl
 
 case class LogicalNilValue(e: ElementBaseMixin) extends Primitive(e, e.isNillable) 
 
-case class LeadingSkipRegion(e: ElementBaseMixin) extends Primitive(e, e.leadingSkip > 0) 
+// As soon as you turn these on (by removing the false and putting the real guard), then schemas all need to have
+// these properties in them, which is inconvenient until we have multi-file schema support and format references.
+case class LeadingSkipRegion(e: AnnotatedMixin) extends Primitive(e, false) // e.leadingSkip > 0) 
 
-case class AlignmentFill(e: ElementBaseMixin) extends Primitive(e, e.alignment != AlignmentType.Implicit)
+case class AlignmentFill(e: AnnotatedMixin) extends Primitive(e, false) // e.alignment != AlignmentType.Implicit)
 
-case class TrailingSkipRegion(e: ElementBaseMixin) extends Primitive(e, e.trailingSkip > 0)
+case class TrailingSkipRegion(e: AnnotatedMixin) extends Primitive(e, false) // e.trailingSkip > 0)
 
 case class PrefixLength(e:ElementBaseMixin) extends Primitive(e, e.lengthKind == LengthKind.Prefixed)
 
 case class UnicodeByteOrderMark(e: GlobalElementDecl) extends Primitive(e, false)
 
-case class FinalUnusedRegion(e: LocalElementBase) extends Primitive(e, false) 
+case class FinalUnusedRegion(e: LocalElementBase) extends Primitive(e, false)
+
+case class InputValueCalc(e: ElementDeclBase) extends Terminal(e, false) {
+
+  def parser: Parser = new Parser {   
+      override def toString = "InputValueCalc"
+      val Some(ivcExprText) = e.inputValueCalcOption
+      // Only for strings for now
+      lazy val isString = {
+        e.namedTypeQName match {
+          case None => false
+          case Some((ns, local)) => {
+            val res = (local == "string" && ns == XMLUtil.XSD_NAMESPACE) 
+           res
+          }
+        }
+      }
+      Assert.notYetImplemented(!isString)
+      val ivcExpr = e.expressionCompiler.compile('String, ivcExprText)
+      
+      def parse(start : PState) : PState = {
+    	val currentElement = start.parent
+    	val result = ivcExpr.evaluate(currentElement, start.variableMap)
+    	val res = result.asInstanceOf[String] // only strings for now.
+    	currentElement.addContent(new org.jdom.Text(res))
+    	val postState = start // inputValueCalc consumes nothing. Just creates a value.
+    	postState
+      }
+  }
+}

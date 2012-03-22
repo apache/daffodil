@@ -14,14 +14,16 @@ import scala.collection.JavaConversions._
  */
 abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin) {
   lazy val xml = node
-  
+
   private [dsom] 
   def getLocalFormatRef(): String = {
     val ref = xml \ "@ref"
     ref.text
   }
 
-    //
+  lazy val detailName = xml.label
+
+  //
   // Always look for a local property first
   //
   // package private since we want to unit test these and put the test code in a different object.
@@ -33,6 +35,7 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin) {
     lazy val localProp = combinedLocalProperties.get(name)
     localProp
   }
+
 
   //
   // reference chain lookup

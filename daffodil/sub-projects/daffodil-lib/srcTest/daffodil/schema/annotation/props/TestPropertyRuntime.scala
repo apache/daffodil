@@ -37,6 +37,7 @@ class TestPropertyRuntime extends JUnit3Suite {
   class HasMixin extends TheExamplePropMixin {
     def getPropertyOption(pname : String) =
       Some("left")
+    val detailName ="HasMixin"
   }
   
   def testMixin() {

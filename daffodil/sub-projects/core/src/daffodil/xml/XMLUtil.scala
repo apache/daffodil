@@ -28,6 +28,9 @@ import daffodil.parser.regex.Regex
 import scala.collection.mutable.LinkedList
 import scala.xml.MetaData
 
+import daffodil.exceptions._
+import daffodil.dsom._
+
 /**
  * Utilities for handling XML 
  *
@@ -619,5 +622,28 @@ import xml.Utility.trim
       val nseq = myRule.transform(trim(node))
       val res = nseq(0)
       res
+  }
+  
+    /**
+   * Translates a qualified name into a pair of a namespace uri, and a local name part.
+   * 
+   * Currently makes an effort to take unqualified names into the targetNamespace of the schema,
+   */
+  def QName(xml : Node, nom: String, sd : SchemaDocument): (String, String) = {
+    val parts = nom.split(":").toList
+    val (prefix, localName) = parts match {
+      case List(local) => ("", local)
+      case List(pre, local) => (pre, local)
+      case _ => Assert.impossibleCase()
+    }
+    val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
+    // Assert.schemaDefinition(nsURI != null, "In QName " + typeName + ", the prefix " + prefix + " was not defined.")
+    // TODO: accumulate errors, don't just throw on one.
+    // TODO: error location for diagnostic purposes. 
+    // see: http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
+    
+    // TODO: Clarify whether we should be tolerant this way, or strict
+    val finalURI = if (nsURI == null || nsURI == "") sd.targetNamespace else nsURI
+    (finalURI, localName)
   }
 }

@@ -50,7 +50,7 @@ import net.sf.saxon.jdom.DocumentWrapper
 import net.sf.saxon.Configuration
 import net.sf.saxon.om.NodeInfo
 import daffodil.xml.Namespaces
-import daffodil.exceptions.XPathEvaluationException
+import daffodil.exceptions._
 import daffodil.processors.VariableMap
 
 /**
@@ -71,7 +71,12 @@ object XPathUtil {
    * Returns a VariableMap=>XPathExpression, which you can think of as
    * a CompiledXPathExpressionFactory, though we didn't create that type name
    */
-  def compileExpression(expression: String, namespaces: Namespaces) = {
+  def compileExpression(dfdlExpressionRaw: String, namespaces: Namespaces) = {
+    val dfdlExpression = dfdlExpressionRaw.trim
+    Assert.usage(dfdlExpression != "")
+    // strip leading and trailing {...} if they are there.
+    val expression = if (isExpression(dfdlExpression)) getExpression(dfdlExpression) else dfdlExpression
+        
     val xpath = xpathFactory.newXPath()
     var variables: VariableMap = new VariableMap() // dummy for now.
     xpath setNamespaceContext (namespaces)
@@ -80,6 +85,7 @@ object XPathUtil {
         def resolveVariable(qName: QName): Object =
           variables.readVariable(qName.getNamespaceURI + qName.getLocalPart)
       })
+
     val xpathExpr = xpath.compile(expression)
 
     // We need to supply the variables later

@@ -26,12 +26,19 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent)
   
   // TODO: verify this is not just lexical scope containing. It's the scope of physical containment, so 
   // must also take into consideration references (element ref to element decl, element decl to type, type to group,
-  // group to group)
+  // groupref to group)
   lazy val nearestEnclosingSequence : Option[Sequence] = {
     val res = parent match {
       case s : Sequence => Some(s)
       case c : Choice => c.nearestEnclosingSequence
       case d : SchemaDocument => None
+      case ct : LocalComplexTypeDef => ct.parent match {
+        case local : LocalElementDecl => local.nearestEnclosingSequence
+        case global : GlobalElementDecl => None
+        case _ => Assert.impossibleCase()
+      }
+      // global type, we have to follow back to the element referencing this type
+      case ct : GlobalComplexTypeDef => Assert.notYetImplemented()
       // We should only be asking for the enclosingSequence when there is one.
       case _ => Assert.invariantFailed("No enclosing sequence for : " + this)
     }
@@ -81,6 +88,7 @@ object Term {
 abstract class GroupBase(xmlArg: Node, parent: SchemaComponent)
   extends Term(xmlArg, parent) {
   
+  lazy val detailName = ""
   def group : ModelGroup
 }
 
@@ -155,7 +163,6 @@ with SequenceRuntimeValuedPropertiesMixin
 with SequenceGrammarMixin
 with SeparatorSuppressionPolicyMixin
 {
-  def getPropertyOption(pname : String) = formatAnnotation.getPropertyOption(pname)
   
   override def annotationFactory(node: Node): DFDLAnnotation = {
     node match {

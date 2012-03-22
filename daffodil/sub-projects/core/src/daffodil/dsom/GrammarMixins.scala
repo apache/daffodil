@@ -6,24 +6,66 @@ import daffodil.grammar._
 import daffodil.schema.annotation.props._
 import daffodil.schema.annotation.props.gen._
 
-trait ElementBaseGrammarMixin { self: ElementBaseMixin =>
+
+trait AlignedMixin
+extends SchemaComponent { self : AnnotatedMixin =>
+  lazy val leadingSkipRegion = Prod("leadingSkipRegion", this, LeadingSkipRegion(this))
+  lazy val trailingSkipRegion = Prod("trailingSkipRegion", this, TrailingSkipRegion(this))
+  lazy val alignmentFill = Prod("alignmentFill", this, AlignmentFill(this))
+}
+
+trait InitiatedTerminatedMixin 
+extends AnnotatedMixin
+with DelimitedRuntimeValuedPropertiesMixin { self : AnnotatedMixin =>
+  lazy val staticInitiator = Prod("staticInitiator", this, initiatorExpr.isConstant, StaticInitiator(this))
+  lazy val staticTerminator = Prod("staticTerminator", this, terminatorExpr.isConstant, StaticTerminator(this))
+  lazy val dynamicInitiator = Prod("dynamicInitiator", this, !initiatorExpr.isConstant, DynamicInitiator(this))
+  lazy val dynamicTerminator = Prod("dynamicTerminator", this, !terminatorExpr.isConstant, DynamicTerminator(this))
+  lazy val initiatorRegion = Prod("initiatorRegion", this, hasInitiator, staticInitiator | dynamicInitiator)
+  lazy val terminatorRegion = Prod("terminatorRegion", this, hasTerminator, staticTerminator | dynamicTerminator)
+  def hasInitiator : Boolean
+  def hasTerminator : Boolean
+}
+
+trait ElementBaseGrammarMixin 
+extends InitiatedTerminatedMixin
+with AlignedMixin { self: ElementBaseMixin =>
   // 
   // This silly redundancy where the variable name has to also be passed as a string,
   // is, by the way, a good reason Scala needs real Lisp-style macros, that can take an argument and
   // turn it into a type/class, object, def, or val/var name, as well as a string, etc. 
   // 
 
-
 lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == NilKind.LogicalValue,
       nilElementInitiator ~ LogicalNilValue(this) ~ nilElementTerminator)
 
-  lazy val parsedValue = Prod("parsedValue", this, elementInitiator ~ allowedValue ~ elementTerminator)
+  lazy val parsedValue = Prod("parsedValue", this, initiatorRegion ~ allowedValue ~ terminatorRegion)
   
   def allowedValue : Prod // provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
 
   
-  lazy val strangValue = Prod("strangValue", this, lengthKind match {
-    case LengthKind.Explicit if isFixedLength => StringFixedLengthPrim(this)
+  lazy val stringFixedLengthInBytesWithFixedWidthCharacters = Prod("stringFixedLengthInBytesWithFixedWidthCharacters", this, 
+      lengthUnits == LengthUnits.Bytes && knownEncodingIsFixedWidth,
+      StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth)) // TODO: make sure it divides evenly.
+      
+  lazy val stringFixedLengthInBytesWithVariableWidthCharacters = Prod("stringFixedLengthInBytesWithVariableWidthCharacters", this, 
+      lengthUnits == LengthUnits.Bytes && couldBeVariableWidthEncoding,
+      StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength))
+      
+  lazy val stringFixedLengthInFixedWidthCharacters = Prod("stringFixedLengthInFixedWidthCharacters", this, 
+      lengthUnits == LengthUnits.Characters && knownEncodingIsFixedWidth,
+      StringFixedLengthInBytes(this, fixedLength * knownEncodingWidth))
+      
+  lazy val stringFixedLengthInVariableWidthCharacters = Prod("stringFixedLengthInVariableWidthCharacters", this, 
+      lengthUnits == LengthUnits.Characters && couldBeVariableWidthEncoding,
+      StringFixedLengthInVariableWidthCharacters(this, fixedLength))
+      
+  lazy val stringValue = Prod("stringValue", this, lengthKind match {
+    case LengthKind.Explicit if isFixedLength => 
+      stringFixedLengthInBytesWithFixedWidthCharacters |
+      stringFixedLengthInBytesWithVariableWidthCharacters |
+      stringFixedLengthInFixedWidthCharacters | 
+      stringFixedLengthInVariableWidthCharacters
     case _ => Assert.notYetImplemented()
   })
   
@@ -49,18 +91,13 @@ lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == Nil
   lazy val zonedTextInt = Prod("zonedTextInt", this, 
       textNumberRep == TextNumberRep.Zoned, ZonedTextIntPrim(this))
  
-  //
-  // This is clumsy, not to mention slow... every primitive type has to optimize
-  // out all but one of these. 
-  //
-  // TODO: change to a scala match for the expression.
-  // 
-  lazy val value = Prod("value", this,
+ 
+  lazy val value = Prod("value", this, isScalar, // exclude issues with matching a stopValue.
       typeDef match {
       case prim : PrimitiveType => {
         val n = prim.name
         n match {
-          case "string" => strangValue
+          case "string" => stringValue
           case "int" => binaryInt | textInt
           case _ => Assert.notYetImplemented() // ("only string and int primitive value types are supported")
         }
@@ -72,7 +109,10 @@ lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == Nil
       case _ => Assert.invariantFailed("typeDef was not Primitive, Simple, or Complex")
     }
   )
-  
+    //
+    // Used to be this big alternation, but that's a very slow way to go when they're known to be
+    // exclusive.
+    //
     //  stringValue |
     //  floatValue | doubleValue |
     //  decimalValue | integerValue |
@@ -110,16 +150,15 @@ lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == Nil
       isDefaultable && emptyIsAnObservableConcept ,
     empty ~ TheDefaultValue(this))
   
-  lazy val elementInitiator = Prod("elementInitiator", this, NYI && hasInitiator)
-  lazy val elementTerminator = Prod("elementTerminator", this, NYI && hasTerminator)
-  lazy val nilElementInitiator = Prod("nilElementInitiator", this, NYI && hasNilValueInitiator)
-  lazy val nilElementTerminator = Prod("nilElementTerminator", this, NYI && hasNilValueTerminator)
+ 
+  lazy val nilElementInitiator = Prod("nilElementInitiator", this, hasNilValueInitiator, staticInitiator | dynamicInitiator)
+  lazy val nilElementTerminator = Prod("nilElementTerminator", this, hasNilValueTerminator, staticTerminator | dynamicTerminator)
   
   lazy val emptyElementInitiator = Prod("emptyElementInitiator", this, NYI && hasEmptyValueInitiator)
   lazy val emptyElementTerminator = Prod("emptyElementTerminator", this, NYI && hasEmptyValueTerminator)
 
   lazy val complexContent = Prod("complexContent", this, isComplexType,
-    elementInitiator ~ elementComplexType.grammarExpr ~ elementTerminator)
+    initiatorRegion ~ elementComplexType.grammarExpr ~ terminatorRegion)
 
   lazy val nilLit = Prod("nilLit", this,
     isNillable && nilKind == NilKind.LiteralValue,
@@ -139,9 +178,9 @@ lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == Nil
    * the element left framing does not include the initiator nor the element right framing the terminator
    */
   lazy val elementLeftFraming = Prod("elementLeftFraming", this, NYI, 
-      LeadingSkipRegion(this) ~ AlignmentFill(this) ~ PrefixLength(this))
+      leadingSkipRegion ~ alignmentFill ~ PrefixLength(this))
 
-  lazy val elementRightFraming = Prod("elementRightFraming", this, NYI, TrailingSkipRegion(this))
+  lazy val elementRightFraming = Prod("elementRightFraming", this, NYI, trailingSkipRegion)
   
   /**
    * Placeholders for executing the DFDL 'statement' annotations and doing whatever it is they
@@ -152,24 +191,33 @@ lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == Nil
   lazy val dfdlStatementEvaluations = Prod("dfdlStatementEvaluations", this, NYI)
   lazy val dfdlScopeBegin = Prod("dfdlScopeBegin", this, NYI)
   lazy val dfdlScopeEnd = Prod("dfdlScopeEnd", this, NYI)
+  
+  lazy val dfdlElementBegin = Prod("dfdlElementBegin", this, ElementBegin(this))
+  lazy val dfdlElementEnd = Prod("dfdlElementEnd", this, ElementEnd(this))
 
   lazy val scalarNonDefault = Prod("scalarNonDefault", this, 
-    elementLeftFraming ~ dfdlScopeBegin ~ 
-     scalarNonDefaultContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd)
+    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~ 
+      scalarNonDefaultContent  ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
   
   lazy val scalarDefaultable = Prod("scalarDefaultable", this, 
-      elementLeftFraming ~ dfdlScopeBegin ~ scalarDefaultableContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd)
+    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~ 
+      scalarDefaultableContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
+  
+
 }
 
 trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
-  def separatedForPosition(contentBody: Expr): Expr = {
+  
+  def separatedForPosition(contentBody: => Expr): Expr = {
     val Some(res) = nearestEnclosingSequence.map { _.separatedForPosition(contentBody) }
     res
   }
 
   def grammarExpr = term
 
-  lazy val allowedValue = Prod("allowedValue", this, (isScalar || !hasStopValue), NotStopValue(this))
+  lazy val allowedValue = Prod("allowedValue", this, notStopValue | value)
+  
+  lazy val notStopValue = Prod("notStopValue", this, hasStopValue, NotStopValue(this))
   
   lazy val separatedEmpty = Prod("separatedEmpty", this, emptyIsAnObservableConcept, separatedForPosition(empty))
   lazy val separatedScalarDefaultable = Prod("separatedScalar", this, isScalar, separatedForPosition(scalarDefaultable))
@@ -271,6 +319,17 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
 
 }
 
+trait ElementDeclGrammarMixin { self : ElementDeclBase =>
+
+  lazy val inputValueCalcOption = getPropertyOption("inputValueCalc")
+  
+  lazy val inputValueCalcElement = Prod("inputValueCalcElement", this,
+      isSimpleType && inputValueCalcOption != None,
+      dfdlElementBegin ~ dfdlScopeBegin ~ 
+      InputValueCalc(this) ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
+
+}
+
 
 trait GlobalElementDeclGrammarMixin { self : GlobalElementDecl =>
     
@@ -285,10 +344,15 @@ trait TermGrammarMixin { self : Term =>
   def grammarExpr : Expr  
 }
 
-trait ModelGroupGrammarMixin { self : ModelGroup => 
+trait ModelGroupGrammarMixin 
+extends InitiatedTerminatedMixin
+with AlignedMixin { self : ModelGroup => 
      
-  lazy val groupLeftFraming = Prod("groupLeftFraming", this, NYI) // leadingSkipParser ~ alignmentFill ~ groupInitiator)
-  lazy val groupRightFraming = Prod("groupRightFraming", this, NYI) // groupTerminator ~ trailingSkipParser)
+  lazy val hasInitiator = initiatorExpr.isKnownNonEmpty
+  lazy val hasTerminator = terminatorExpr.isKnownNonEmpty
+
+  lazy val groupLeftFraming = Prod("groupLeftFraming", this, leadingSkipRegion ~ alignmentFill ~ initiatorRegion)
+  lazy val groupRightFraming = Prod("groupRightFraming", this, terminatorRegion ~ trailingSkipRegion)
   
   lazy val grammarExpr = Prod("grammarExpr", this, groupLeftFraming ~ groupContent ~ groupRightFraming )
   
@@ -301,21 +365,23 @@ trait ModelGroupGrammarMixin { self : ModelGroup =>
 
 trait ChoiceGrammarMixin { self : Choice =>
   
-  def folder(p : Expr, q : Expr) = p | q 
+  def folder(p : Expr, q : Expr) : Expr = p | q 
   
 }
 
 trait SequenceGrammarMixin { self : Sequence =>
   
-  def folder(p : Expr, q : Expr) = p ~ q 
+  def folder(p : Expr, q : Expr) : Expr = p ~ q 
   
-  def separatedForPosition(contentBody : Expr): Expr = {
+  def separatedForPosition(contentBody : => Expr): Expr = {
     prefixSep ~ infixSepRule ~ contentBody ~ postfixSep
   }
   
-  lazy val prefixSep = Delimiter(this, hasPrefixSep)
-  lazy val postfixSep = Delimiter(this, hasPostfixSep)
-  lazy val infixSep = Delimiter(this, hasInfixSep)
+  lazy val staticSeparator = Prod("staticSeparator", this, separatorExpr.isConstant, StaticSeparator(this))
+  lazy val dynamicSeparator = Prod("dynamicSeparator", this, !separatorExpr.isConstant, DynamicSeparator(this))
+  lazy val prefixSep = Prod("prefixSep", this, hasPrefixSep, staticSeparator | dynamicSeparator)
+  lazy val postfixSep = Prod("postfixSep", this, hasPostfixSep, staticSeparator | dynamicSeparator)
+  lazy val infixSep = Prod("infixSep", this, hasInfixSep, staticSeparator | dynamicSeparator)
   
   lazy val infixSepWithPriorRequiredSiblings = Prod("prefixSep", this, hasInfixSep && hasPriorRequiredSiblings,
       infixSep)
@@ -334,16 +400,17 @@ trait SequenceGrammarMixin { self : Sequence =>
   lazy val hasInfixSep = sepExpr(SeparatorPosition.Infix)
   lazy val hasPostfixSep = sepExpr(SeparatorPosition.Postfix)
 
-  def sepExpr(pos: SeparatorPosition): Boolean = {
+  // note use of pass by value. We don't want to even need the SeparatorPosition property unless there is a separator.
+  def sepExpr(pos: => SeparatorPosition): Boolean = {
     if (separatorExpr.isKnownNonEmpty) if (separatorPosition eq pos) true else false
     else false
   }  
 }
 
 trait ComplexTypeBaseGrammarMixin { self : ComplexTypeBase =>
-  lazy val startGroup = StartGroup(this, true)
-  lazy val endGroup = EndGroup(this, true)
+  lazy val startChildren = StartChildren(this, true)
+  lazy val endChildren = EndChildren(this, true)
   
-  lazy val grammarExpr = Prod("hasPrefixSep", this, startGroup ~ modelGroup.group.grammarExpr ~ endGroup)
+  lazy val grammarExpr = Prod("grammarExpr", this, startChildren ~ modelGroup.group.grammarExpr ~ endChildren)
   
 }

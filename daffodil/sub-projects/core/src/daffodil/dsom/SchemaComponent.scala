@@ -19,6 +19,7 @@ import java.io.InputStream
 import scala.collection.JavaConversions._
 
 import daffodil.grammar._
+import com.ibm.icu.charset.CharsetICU
 
 trait SchemaComponent {
   def schemaDocument: SchemaDocument
@@ -43,13 +44,21 @@ trait LocalComponentMixin
 trait NamedMixin { self: SchemaComponent =>
   lazy val name = (xml \ "@name").text
   lazy val namespace = self.schemaDocument.targetNamespace
+  lazy val detailName = name
 }
 
 trait GlobalComponentMixin
   extends SchemaComponent
   with NamedMixin
 
-trait AnnotatedMixin extends SchemaComponent {
+
+
+trait AnnotatedMixin 
+extends SchemaComponent
+with CommonRuntimeValuedPropertiesMixin {
+  
+  def getPropertyOption(pname: String) = formatAnnotation.getPropertyOption(pname)
+    
   /**
    * Anything annotated must be able to construct the
    * appropriate DFDLAnnotation object from the xml.
@@ -125,7 +134,7 @@ trait AnnotatedMixin extends SchemaComponent {
    */
   lazy val expressionCompiler = new ExpressionCompiler(this)
   
-  
+   
   /**
    * Needed by back-end to construct jdom nodes. 
    * 
@@ -145,11 +154,63 @@ trait AnnotatedMixin extends SchemaComponent {
     nss.addNamespace(jdomNamespace)
     nss
   }
+  
+    /**
+   * Character encoding common attributes
+   */
+  
+ 
+  lazy val isKnownEncoding = encodingExpr.isConstant
+  
+  lazy val knownEncodingName = {
+    Assert.invariant(isKnownEncoding)
+    val res = encodingExpr.constant.asInstanceOf[String].toUpperCase()
+    res
+  }
+  
+  lazy val knownEncodingCharset = {
+    val charset = CharsetICU.forNameICU(knownEncodingName).asInstanceOf[CharsetICU]
+    charset
+  }
+  
+  lazy val knownEncodingDecoder = {
+    val decoder = knownEncodingCharset.newDecoder()
+    decoder
+  }
+  
+  lazy val knownEncodingIsFixedWidth = {
+    // val res = knownEncodingCharset.isFixedWidth
+    val res = knownEncodingName match {
+      case "US-ASCII" => true
+      case "UTF-8" => false
+      case _ => Assert.notYetImplemented()
+    }
+    res
+  }
+
+  lazy val couldBeVariableWidthEncoding = !knownEncodingIsFixedWidth
+  
+  lazy val knownEncodingWidth = {
+    // knownEncodingCharset.width()
+    val res = knownEncodingName match {
+      case "US-ASCII" => 1
+      case "UTF-8" => -1
+      case _ => Assert.notYetImplemented()
+    }
+    res
+  }
+  
 }
 
+
+
 abstract class Annotated(xmlArg: Node)
-  extends SchemaComponent with AnnotatedMixin {
+  extends SchemaComponent 
+  with AnnotatedMixin {
+  
   lazy val xml = xmlArg
+  
+  
 }
 
 /**
@@ -273,7 +334,8 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
   extends AnnotatedMixin
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
-  def getPropertyOption(pname: String) = formatAnnotation.getPropertyOption(pname)
+  
+  lazy val detailName="" // TODO: Maybe a filename would be nice if available.
   //
   // schemaArg is call by name, so that in the corner case of NoSchemaDocument (used for non-lexically enclosed annotation objects), 
   // we can pass an Assert.invariantFailed to bomb if anyone actually tries to use the schema.

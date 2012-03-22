@@ -9,6 +9,13 @@ import java.io.File
  * Various reusable utilities that I couldn't easily find a better place for.
  */
 object Misc {
+  
+  def getNameFromClass(obj : Object) = {
+    val hexHash = obj.hashCode.formatted("%x")
+    val tokens = obj.getClass().getName().split("[\\$\\.]").toList.reverse
+    val Some(nameToken) = tokens.find{_.matches("""\p{Alpha}\w*""")}
+    nameToken // + "@" + hexHash
+  }
    
   def stripQuotes(s : String) = {
     val stripFirst = if (s.startsWith("\"")) s.substring(1) else s

@@ -1,12 +1,17 @@
 package daffodil.grammar
 
 import org.jdom._
-import daffodil.xml.Namespaces
+import daffodil.xml._
+import daffodil.xml._
 import daffodil.processors._
 import daffodil.exceptions.Assert
+import daffodil.schema.annotation.props._
 
-import daffodil.processors._
-import java.io._
+import daffodil.dsom._
+import daffodil.parser._
+import daffodil.api._
+import java.nio._
+import java.nio.charset._
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
@@ -36,6 +41,8 @@ class SeqCompParser(p : Expr, q : Expr) extends Parser {
     } 
     else pResult
   }
+  
+  override def toString = pParser.toString + " ~ " + qParser.toString 
 }
 
 class AltCompParser(p : Expr, q : Expr) extends Parser {
@@ -67,14 +74,17 @@ class AltCompParser(p : Expr, q : Expr) extends Parser {
       qResult
     } 
   }
+  
+  override def toString = "(" + pParser.toString + " | " + qParser.toString + ")"
 }
 
 class RepExactlyNParser extends Parser {
     def parse(pstate : PState) = Assert.notYetImplemented()
 }
 
-object DummyParser extends Parser { 
-    def parse(pstate : PState) : PState = Assert.notYetImplemented()
+case class DummyParser(sc : PropertyMixin) extends Parser { 
+    def parse(pstate : PState) : PState = Assert.abort("Parser for " + sc + " is not yet implemented.")
+    override def toString = "Dummy[" + sc.detailName + "]"
 }
 
 /**
@@ -88,33 +98,160 @@ object DummyParser extends Parser {
  * which should be isolated to the alternative parser.
  */
 class PState (
-  val parent : Parent,
+  val inStream : InStream,
+  val bitPos : Long,
+  val bitLimit : Long,
+  val charPos : Long,
+  val charLimit : Long,
+  val parent : org.jdom.Element,
   val variableMap : VariableMap,
   val target : String,
   val namespaces : Namespaces,
-  val status : ProcessorResult
+  val status : ProcessorResult,
+  val groupIndexStack : List[Long],
+  val childIndexStack : List[Long]
   ) {
+  def bytePos = bitPos >> 3
+  def whichBit = bitPos % 8
+  
   /**
    * Convenience functions for creating a new state, changing only
-   * one of the state components to a new one.
+   * one or a related subset of the state components to a new one.
    */
-  def withParent (newParent : Parent) = 
-    new PState(newParent, variableMap, target, namespaces, status)
-  def withVariables (newVariableMap : VariableMap) = 
-    new PState(parent, newVariableMap, target, namespaces, status)
-  
-  def checkpoint() : CheckPoint = Assert.notYetImplemented()
-  def rollback(checkpoint : CheckPoint) : PState = Assert.notYetImplemented()
-  
-}
-object PState {
-  def createInitialState(in : InputStream) : PState = {
-    val newState = Assert.notYetImplemented()
-    newState
+  def withInStream (inStream : InStream, status : ProcessorResult = Success) = 
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack)    
+  def withPos (bitPos : Long, charPos : Long, status : ProcessorResult = Success) = 
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack)    
+  def withParent (parent : org.jdom.Element, status : ProcessorResult = Success) = 
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack)
+  def withVariables (variableMap : VariableMap, status : ProcessorResult = Success) = 
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack)    
+  def withGroupIndexStack (groupIndexStack : List[Long], status : ProcessorResult = Success) = 
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack)
+  def withChildIndexStack (childIndexStack : List[Long], status : ProcessorResult = Success) = 
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack)
+
+  /**
+   * advance our position, as a child element of a parent, and our index within the current sequence group.
+   * 
+   * These can be different because an element can have sequences nested directly in sequences. Those effectively all
+   * get flattened into children of the element. The start of a sequence doesn't start the numbering of children. It's 
+   * the start of a complex type that does that.
+   */
+  def moveOverByOne = {
+    val s1 = groupIndexStack match {
+      case Nil => this
+      case hd :: tl => {
+      	  val newGroupIndex = hd + 1
+    	  this.withGroupIndexStack(newGroupIndex :: tl)
+      }	
+    }
+    val s2 = s1.childIndexStack match {
+      case Nil => s1
+      case hd :: tl => {
+        val newChildIndex = hd + 1
+        s1.withChildIndexStack(newChildIndex :: tl)
+      }
+    }
+   s2
   }
 }
 
-class CheckPoint {
+object PState {
+  
+  /**
+   * Initialize the state block given our InStream and a root element declaration.
+   */
+  def createInitialState(rootElemDecl : GlobalElementDecl, in : InStream) : PState = {
+    val inStream = in
+    val doc = new org.jdom.Element("_document_") // a dummy element to be parent of the root. We don't use the org.jdom.Document type.
+    val variables = new VariableMap() 
+    val targetNamespace = rootElemDecl.schemaDocument.targetNamespace
+    val namespaces = new Namespaces()
+    val status = Success
+    val groupIndexStack = Nil
+    val childIndexStack = Nil
+    val newState = new PState(inStream, 0, -1, 0, -1, doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack)
+    newState
+  }
+  
+  /**
+   * For testing it is convenient to just hand it strings for data.
+   */
+  def createInitialState(rootElemDecl : GlobalElementDecl, data : String) : PState = {
+  	val in = Compiler.stringToReadableByteChannel(data)
+  	createInitialState(rootElemDecl, in, data.length)
+  }
+  
+  /**
+   * Construct our InStream object and initialize the state block.
+   */
+  def createInitialState(rootElemDecl : GlobalElementDecl, input : DFDL.Input, size : Long = -1) : PState = {
+  	val inStream = 
+  	  if (size != -1) new InStreamFromByteChannel(input, size)
+  	  else new InStreamFromByteChannel(input)
+  	createInitialState(rootElemDecl, inStream)
+  }
+}
+
+/**
+ * Encapsulates the I/O as an abstraction that works something like a java.nio.ByteBuffer
+ * but a bit more specialized for DFDL needs, e.g., supports offsets and positions in bits. 
+ */
+
+
+trait InStream {
+  /**
+   * These return a value of the appropriate type, or they throw
+   * an exception when there is no more data, or if the offset is past the end of data,
+   * or if the offset exceeds implementation capacity such as for moving backwards in 
+   * the data beyond buffering capacity.
+   */
+//  def getBinaryLong(bitOffset : Long,  isBigEndian : Boolean) : Long
+//  def getBinaryInt(bitOffset : Long,  isBigEndian : Boolean) : Int
+  
+  def fillCharBuffer(buf : CharBuffer, bitOffset : Long, decoder : CharsetDecoder) : Long
+}
+
+
+class InStreamFromByteChannel(in : DFDL.Input, size : Long = 1024 * 128) extends InStream { // 128K characters by default.
+  val maxCharacterWidthInBytes = 4 // worst case. Ok for testing. Don't use this pessimistic technique for real data.
+  val bb = ByteBuffer.allocate(maxCharacterWidthInBytes * size.toInt) // FIXME: all these Int length limits are too small for large data blobs
+  val count = in.read(bb) // just pull it all into the byte buffer
+  bb.flip()
+  // System.err.println("InStream byte count is " + count)
+  // note, our input data might just be empty string, in which case count is zero, and that's all legal.
+  def fillCharBuffer(cb : CharBuffer, bitOffset : Long, decoder : CharsetDecoder) : Long = {
+    Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
+    val byteOffsetAsLong = (bitOffset >> 3)
+    Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
+    val byteOffset = byteOffsetAsLong.toInt
+    // 
+    // Note: not thread safe. We're depending here on the byte buffer being private to us.
+    //
+    bb.position(byteOffset)
+    decoder.reset()
+    val cr1 = decoder.decode(bb, cb, true) // true means this is all the input you get.
+    if (cr1 != CoderResult.UNDERFLOW) {
+      if (cr1 == CoderResult.OVERFLOW) {
+        // it's ok. It just means we've satisfied the char buffer.
+      } else         // for some parsing, we need to know we couldn't decode, but this is expected behavior.
+        return -1L // Assert.abort("Something went wrong while decoding characters: CoderResult = " + cr1)   
+    }
+    val cr2 = decoder.flush(cb)
+    if (cr2 != CoderResult.UNDERFLOW) {
+      // Something went wrong
+      return -1L // Assert.abort("Something went wrong while decoding characters: CoderResult = " + cr2) 
+      // FIXME: proper handling of errors. Some of which are 
+      // to be suppressed, other converted, others skipped, etc. 
+    }
+    cb.flip() // so the caller can now read the cb.
+    
+    val endBytePos = bb.position()
+    bb.position(0) // prevent anyone depending on the buffer position across calls to any of the InStream methods.
+    val endBitPos : Long = endBytePos << 3
+    endBitPos
+  }
   
 }
 

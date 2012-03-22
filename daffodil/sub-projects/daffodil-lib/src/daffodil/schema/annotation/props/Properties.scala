@@ -3,6 +3,7 @@ package daffodil.schema.annotation.props
 // Copyright (C) 2012, Michael J. Beckerle. All Rights Reserved.
 
 import daffodil.exceptions._
+import daffodil.util.Misc._
 
  /**
    * Enum class as basis for our DFDL properties
@@ -124,6 +125,8 @@ import daffodil.exceptions._
  */
 trait PropertyMixin {
   
+  def detailName : String
+  
   /**
    * Properties will push their toString function onto this list
    * 
@@ -138,11 +141,16 @@ trait PropertyMixin {
    * This is likely way more than the number locally defined.... dozens 
    * of properties are likely defined in most formats. 
    */
-//  override def toString = {
-//    val props = toStringFunctionList.map{f=>f.apply()}.foldLeft("PropertyMixin(")(_+_)
+
+  override def toString = {
+    val className = getNameFromClass(this)
+//    For now, do not print the properties.
+//    val props = toStringFunctionList.map{f=>f.apply()}.foldLeft(className+ "." + detailName + "(")(_+_)
 //    val suffix=")"
-//    props + suffix
-//  }
+//    val str = props + suffix
+    val str = className+ "." + detailName 
+    str
+  }
   
   def registerToStringFunction(f : (() => String)) {
     toStringFunctionList = toStringFunctionList :+ f

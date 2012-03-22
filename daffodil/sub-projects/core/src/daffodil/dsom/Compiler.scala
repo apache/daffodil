@@ -40,13 +40,14 @@ class Compiler extends DFDL.Compiler {
     // let's make sure every element declaration compiles
     //
     val allElts = sset.schemas.flatMap{_.schemaDocuments.flatMap{_.globalElementDecls}}
-    System.err.print("Compiling " + allElts.length + " element(s).")
+    System.err.println("Compiling " + allElts.length + " element(s).")
     val allParsers = allElts.foreach{
       elt => {
         val doc = elt.document
+        System.err.println("document = " + doc)
         val parser = doc.parser
-        val str = parser.toString
-        System.err.println(str)
+        System.err.println("parser = " + parser)
+        // str = parser.toString
       }
     }
     
@@ -64,9 +65,9 @@ class Compiler extends DFDL.Compiler {
     maybeRoot match {
       case None => Assert.usageError("The document element named " + root + " was not found.")
       case Some(rootElem) => {
-        // val parserFactory = rootElem.document
-        val parser = null // parserFactory.parser // if we can get this far, that says alot.
-        (sset, parser)
+        val parserFactory = rootElem.document
+        val parser = parserFactory.parser // if we can get this far, that says alot.
+        (sset, parser, rootElem)
       }
     }
   }
@@ -97,10 +98,10 @@ class Compiler extends DFDL.Compiler {
   def compile(xml: Node): DFDL.ProcessorFactory = compileSchema(xml)
 
   private def compileSchema(xml: Node): DFDL.ProcessorFactory = {
-    val (sset, parser) = commonCompile(xml)
+    val (sset, parser, rootElem) = commonCompile(xml)
 
     if (Compiler.useNewBackend) {
-      newBackEnd(parser, sset)
+      newBackEnd(parser, sset, rootElem)
     } else {
       //
       // old back-end....
@@ -112,7 +113,7 @@ class Compiler extends DFDL.Compiler {
     }
   }
 
-  def newBackEnd(parser : Parser, sset: SchemaSet) = {
+  def newBackEnd(parser : Parser, sset: SchemaSet, rootElem : GlobalElementDecl) = {
      new DFDL.ProcessorFactory {
 
       lazy val schemaSet = sset
@@ -124,11 +125,13 @@ class Compiler extends DFDL.Compiler {
           }
           
           def parse(input: DFDL.Input): scala.xml.Node = {
-            val inStream = java.nio.channels.Channels.newInputStream(input)
-            val bufferedInStream = new java.io.BufferedInputStream(inStream)
-            val initialState = PState.createInitialState(bufferedInStream) // also want to pass here the externally set variables, other flags/settings.
+//            val inStream = java.nio.channels.Channels.newInputStream(input)
+//            val bufferedInStream = new java.io.BufferedInputStream(inStream)
+            val initialState = PState.createInitialState(rootElem, input) // also want to pass here the externally set variables, other flags/settings.
             val resultState = parser.parse(initialState)
-            val jdomElt = resultState.parent.asInstanceOf[org.jdom.Element]
+            val jdomFakeRoot = resultState.parent
+            // top node is this fake root element
+            val jdomElt = jdomFakeRoot.getContent(0).asInstanceOf[org.jdom.Element]
             val node = XMLUtil.element2Elem(jdomElt)
             node
           }
@@ -177,12 +180,12 @@ class Compiler extends DFDL.Compiler {
 
     }
   }
-
 }
+
 
 object Compiler {
   
-  var useNewBackend = false
+  var useNewBackend = true
   
   def apply() = new Compiler()
 

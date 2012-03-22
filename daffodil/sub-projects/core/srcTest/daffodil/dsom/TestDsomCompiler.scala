@@ -46,7 +46,7 @@ class TestDsomCompiler extends JUnit3Suite {
                        </complexType>
                      </schema>
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val (sset, _, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc) = schema.schemaDocuments
     val Seq(decl) = schemaDoc.globalElementDecls
@@ -119,7 +119,7 @@ class TestDsomCompiler extends JUnit3Suite {
         </complexType>
       </schema>
 
-    val (sset, _) = Compiler().frontEnd(sc)
+    val (sset, _, _) = Compiler().frontEnd(sc)
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc) = schema.schemaDocuments
     val Seq(decl) = schemaDoc.globalElementDecls
@@ -175,7 +175,7 @@ class TestDsomCompiler extends JUnit3Suite {
 
     val w = Utility.trim(testSchema)
 
-    val (sset, _) = Compiler().frontEnd(w)
+    val (sset, _, _) = Compiler().frontEnd(w)
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc) = schema.schemaDocuments
     val Seq(decl) = schemaDoc.globalElementDecls
@@ -286,7 +286,7 @@ class TestDsomCompiler extends JUnit3Suite {
     //Explore LocalSimpleTypeDef
     val Seq(gr2c1, gr2c2, gr2c3) = gr2.modelGroup.asInstanceOf[ModelGroup].groupMembers
     val ist = gr2c3.asInstanceOf[LocalElementDecl].immediateType.get.asInstanceOf[LocalSimpleTypeDef]
-    assertEquals("tns:aType", ist.base)
+    assertEquals("tns:aType", ist.baseName)
 
     //Explore LocalElementDecl
     val led = gr2c1.asInstanceOf[LocalElementDecl]

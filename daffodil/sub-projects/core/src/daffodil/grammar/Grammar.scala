@@ -2,17 +2,13 @@ package daffodil.grammar
 
 import daffodil.exceptions.Assert
 import daffodil.dsom.SchemaComponent
+import daffodil.util.Misc._
 
 abstract class Expr(nameArg : String = "") {
   
-  def getNameFromClass() = {
-    val hexHash = this.hashCode.formatted("%x")
-    val tokens = getClass().getName().split("[\\$\\.]").toList.reverse
-    val Some(nameToken) = tokens.find{_.matches("""\p{Alpha}\w*""")}
-    nameToken // + "@" + hexHash
-  }
+
   
-  val name = if (nameArg == "") getNameFromClass() else nameArg
+  val name = if (nameArg == "") getNameFromClass(this) else nameArg
   
   def isEmpty = false // they are by default not empty expressions. Overridden in the cases where they could be.
   
@@ -49,18 +45,23 @@ abstract class UnaryExpr(r : => Expr) extends Expr {
 
 abstract class BinaryExpr(p : => Expr, q : => Expr) extends Expr {
   def op : String
-  override def toString = "(" + p + " " + op + " " + q + ")"
+  def open : String
+  def close : String 
+  override def toString = open + p + " " + op + " " + q + close
 }
 
 class SeqComp(p : => Expr, q : => Expr) extends BinaryExpr(p, q) {
   def op = "~"
+  def open = ""
+  def close = ""
     
   def parser = new SeqCompParser(p, q)
 }
 
 class AltComp(p : => Expr, q : => Expr) extends BinaryExpr(p, q) {
   def op = "|"
-    
+  def open = "("
+  def close = ")"
   def parser = new AltCompParser(p, q)
 }
 
@@ -72,21 +73,21 @@ object RepExactlyN {
 }
 
 class RepAtMostTotalN(n : Long, r : => Expr) extends UnaryExpr(r) {
-    def parser = DummyParser
+    def parser = DummyParser(null) // stub
 }
 object RepAtMostTotalN {
   def apply(n : Long, r : => Expr) = new RepAtMostTotalN(n, r)
 }
 
 class RepUnbounded(r : => Expr) extends UnaryExpr(r) {
-    def parser = DummyParser
+    def parser = DummyParser(null) // stub
 }
 object RepUnbounded {
   def apply(r : => Expr) = new RepUnbounded(r)
 }
 
 class RepExactlyTotalN(n : Long, r : => Expr) extends UnaryExpr(r) {
-    def parser = DummyParser
+    def parser = DummyParser(null) // stub
 }
 object RepExactlyTotalN {
   def apply(n : Long, r : => Expr) = new RepExactlyTotalN(n, r)
@@ -108,7 +109,7 @@ abstract class NamedExpr(nameArg : String = "") extends Expr(nameArg) {
 /**
  * Primitives will derive from this base
  */
-abstract class Terminal(sc: SchemaComponent, guard : Boolean) extends NamedExpr {
+abstract class Terminal(sc: Any, guard : Boolean) extends NamedExpr {
   override def isEmpty = !guard
 }
 
@@ -124,7 +125,20 @@ abstract class Terminal(sc: SchemaComponent, guard : Boolean) extends NamedExpr 
  */
 class Prod(nameArg : String, sc : SchemaComponent, guard : Boolean, exprArg : => Expr) extends NamedExpr(nameArg) {
   
-  val expr = if (guard) exprArg else EmptyExpr
+  val containingClassName = daffodil.util.Misc.getNameFromClass(sc)
+  val expr = {
+
+    if (guard) {
+      System.err.print(containingClassName + ".Prod." + name)
+      System.err.println(" ok.")
+      exprArg
+    } 
+    else {
+//      System.err.print("Production " + name)
+//      System.err.println(" empty.")
+      EmptyExpr
+    }
+  }
   
 //  /**
 //   * Constructor overloads let you specify just guard (for stubbing things really), 
@@ -139,7 +153,8 @@ class Prod(nameArg : String, sc : SchemaComponent, guard : Boolean, exprArg : =>
   
   override def toString = {
     val body = if (!guard) EmptyExpr.toString else expr.toString
-    name + "(" + body + ")"
+    // name + "(" + body + ")"
+    body
   }
 }
 
