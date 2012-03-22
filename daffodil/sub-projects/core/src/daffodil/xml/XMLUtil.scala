@@ -647,3 +647,28 @@ import xml.Utility.trim
     (finalURI, localName)
   }
 }
+
+
+
+trait GetAttributesMixin {
+  def xml : Node
+  
+ /**
+   * Use to retrieve things that are not format properties.
+   */
+  def getAttributeRequired(name: String) = {
+    getAttributeOption(name) match {
+      case None => Assert.schemaDefinitionError("The attribute " + name + " is required.")
+      case Some(s) => s
+    }
+  }
+
+  /**
+   * Use to retrieve things that are not format properties.
+   */
+  def getAttributeOption(name: String): Option[String] = {
+    val attrString = (xml \ ("@" + name)).text
+    val res = if (attrString == "") None else Some(attrString)
+    res
+  }
+}

@@ -6,10 +6,11 @@ import scala.xml.Node
 import scala.xml.XML
 
 import daffodil.api.DFDL
-import daffodil.exceptions.Assert
+import daffodil.exceptions._
 import daffodil.util.Validator
 import daffodil.xml.XMLUtil
 import daffodil.grammar._
+import daffodil.processors._
 
 class Compiler extends DFDL.Compiler {
   var root: String = ""
@@ -129,11 +130,16 @@ class Compiler extends DFDL.Compiler {
 //            val bufferedInStream = new java.io.BufferedInputStream(inStream)
             val initialState = PState.createInitialState(rootElem, input) // also want to pass here the externally set variables, other flags/settings.
             val resultState = parser.parse(initialState)
+            if (resultState.status == Success) {
             val jdomFakeRoot = resultState.parent
             // top node is this fake root element
+            Assert.invariant(jdomFakeRoot.getName() == "_document_" )
             val jdomElt = jdomFakeRoot.getContent(0).asInstanceOf[org.jdom.Element]
             val node = XMLUtil.element2Elem(jdomElt)
             node
+            }
+            else
+               throw new daffodil.exceptions.PE("Processing error at bitPos: " + resultState.bitPos + " charPos " + resultState.charPos)
           }
 
           def unparse(output: DFDL.Output, node: scala.xml.Node): Unit = {

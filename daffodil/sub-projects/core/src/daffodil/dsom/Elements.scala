@@ -86,6 +86,7 @@ trait Particle { self: LocalElementBase =>
  */
 trait ElementBaseMixin
   extends AnnotatedElementMixin
+  with DFDLStatementMixin
   with ElementBaseGrammarMixin
   with ElementRuntimeValuedPropertiesMixin
   with NamedMixin {
@@ -284,7 +285,8 @@ class ElementRef(xmlArg: Node, parent: ModelGroup)
 }
 
 trait HasRef { self: SchemaComponent =>
-  lazy val xsdRef = (xml \ "@ref").text
+  lazy val xsdRef = getAttributeRequired("ref")
+  lazy val ref = xsdRef 
 }
 
 trait ElementDeclBase
@@ -417,7 +419,6 @@ trait DFDLStatementMixin {
 class GlobalElementDecl(xmlArg: Node, val schemaDocument: SchemaDocument)
   extends GlobalComponentMixin
   with ElementDeclBase
-  with DFDLStatementMixin
   with GlobalElementDeclGrammarMixin {
   
   lazy val xml = xmlArg

@@ -2478,14 +2478,8 @@ object DFDLNonNegativeInteger_Or_DFDLExpression {
 // 	</xsd:attributeGroup>
 
 trait BaseAGMixin extends PropertyMixin {
-  lazy val ref = convertToQName(getProperty("ref"))
 
   def baseAGInit() : Unit = {
-    registerToStringFunction(()=>{getPropertyOption("ref") match {
-        case None => ""
-        case Some(value) => "ref='" + value.toString + "'"
-      }
-    })
   }
   baseAGInit()
 }
@@ -3219,14 +3213,8 @@ trait DefaultValueControlAGMixin extends PropertyMixin {
 
 trait SequenceAGMixin extends PropertyMixin
   with SequenceKindMixin {
-  lazy val hiddenGroupRef = convertToQName(getProperty("hiddenGroupRef"))
 
   def sequenceAGInit() : Unit = {
-    registerToStringFunction(()=>{getPropertyOption("hiddenGroupRef") match {
-        case None => ""
-        case Some(value) => "hiddenGroupRef='" + value.toString + "'"
-      }
-    })
   }
   sequenceAGInit()
 }
@@ -3325,20 +3313,8 @@ trait OccursAGMixin extends PropertyMixin
 // 	</xsd:attributeGroup>
 
 trait CalculatedValueAGMixin extends PropertyMixin {
-  lazy val inputValueCalc = DFDLExpression(getProperty("inputValueCalc"))
-  lazy val outputValueCalc = DFDLExpression(getProperty("outputValueCalc"))
 
   def calculatedValueAGInit() : Unit = {
-    registerToStringFunction(()=>{getPropertyOption("inputValueCalc") match {
-        case None => ""
-        case Some(value) => "inputValueCalc='" + value.toString + "'"
-      }
-    })
-    registerToStringFunction(()=>{getPropertyOption("outputValueCalc") match {
-        case None => ""
-        case Some(value) => "outputValueCalc='" + value.toString + "'"
-      }
-    })
   }
   calculatedValueAGInit()
 }
@@ -3816,36 +3792,18 @@ trait DFDLVariableTypeMixin extends PropertyMixin
 // 	</xsd:attributeGroup>
 
 trait DefineVariableAGMixin extends PropertyMixin {
-  lazy val name = convertToNCName(getProperty("name"))
   lazy val predefined = convertToBoolean(getProperty("predefined"))
-  lazy val type_ = convertToQName(getProperty("type_"))
   lazy val external = convertToBoolean(getProperty("external"))
-  lazy val defaultValue = DFDLStringLiteral_Or_DFDLExpression(getProperty("defaultValue"))
 
   def defineVariableAGInit() : Unit = {
-    registerToStringFunction(()=>{getPropertyOption("name") match {
-        case None => ""
-        case Some(value) => "name='" + value.toString + "'"
-      }
-    })
     registerToStringFunction(()=>{getPropertyOption("predefined") match {
         case None => ""
         case Some(value) => "predefined='" + value.toString + "'"
       }
     })
-    registerToStringFunction(()=>{getPropertyOption("type_") match {
-        case None => ""
-        case Some(value) => "type_='" + value.toString + "'"
-      }
-    })
     registerToStringFunction(()=>{getPropertyOption("external") match {
         case None => ""
         case Some(value) => "external='" + value.toString + "'"
-      }
-    })
-    registerToStringFunction(()=>{getPropertyOption("defaultValue") match {
-        case None => ""
-        case Some(value) => "defaultValue='" + value.toString + "'"
       }
     })
   }
@@ -3859,15 +3817,9 @@ trait DefineVariableAGMixin extends PropertyMixin {
 // 	</xsd:attributeGroup>
 
 trait SetVariableAGMixin extends PropertyMixin {
-  lazy val ref = convertToQName(getProperty("ref"))
   lazy val value = DFDLStringLiteral_Or_DFDLExpression(getProperty("value"))
 
   def setVariableAGInit() : Unit = {
-    registerToStringFunction(()=>{getPropertyOption("ref") match {
-        case None => ""
-        case Some(value) => "ref='" + value.toString + "'"
-      }
-    })
     registerToStringFunction(()=>{getPropertyOption("value") match {
         case None => ""
         case Some(value) => "value='" + value.toString + "'"
@@ -3884,20 +3836,8 @@ trait SetVariableAGMixin extends PropertyMixin {
 // 	</xsd:attributeGroup>
 
 trait NewVariableInstanceAGMixin extends PropertyMixin {
-  lazy val ref = convertToQName(getProperty("ref"))
-  lazy val defaultValue = DFDLStringLiteral_Or_DFDLExpression(getProperty("defaultValue"))
 
   def newVariableInstanceAGInit() : Unit = {
-    registerToStringFunction(()=>{getPropertyOption("ref") match {
-        case None => ""
-        case Some(value) => "ref='" + value.toString + "'"
-      }
-    })
-    registerToStringFunction(()=>{getPropertyOption("defaultValue") match {
-        case None => ""
-        case Some(value) => "defaultValue='" + value.toString + "'"
-      }
-    })
   }
   newVariableInstanceAGInit()
 }
@@ -4030,23 +3970,11 @@ trait SetVariable_AnnotationMixin extends PropertyMixin
 trait TestConditionAGMixin extends PropertyMixin
   with TestKindMixin {
   lazy val testPattern = convertToString(getProperty("testPattern"))
-  lazy val message = convertToString(getProperty("message"))
-  lazy val test = DFDLExpression(getProperty("test"))
 
   def testConditionAGInit() : Unit = {
-    registerToStringFunction(()=>{getPropertyOption("test") match {
-        case None => ""
-        case Some(value) => "test='" + value.toString + "'"
-      }
-    })
     registerToStringFunction(()=>{getPropertyOption("testPattern") match {
         case None => ""
         case Some(value) => "testPattern='" + value.toString + "'"
-      }
-    })
-    registerToStringFunction(()=>{getPropertyOption("message") match {
-        case None => ""
-        case Some(value) => "message='" + value.toString + "'"
       }
     })
   }

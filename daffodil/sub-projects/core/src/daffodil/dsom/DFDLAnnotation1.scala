@@ -5,20 +5,33 @@ import scala.xml.parsing._
 import daffodil.exceptions._
 import daffodil.schema.annotation.props._
 import daffodil.schema.annotation.props.gen._
+import daffodil.xml._
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import scala.collection.JavaConversions._
 
+
+
 /**
  * Base class for any DFDL annotation
  */
-abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin) {
+abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin)
+  extends GetAttributesMixin {
   lazy val xml = node
+}
 
-  private [dsom] 
-  def getLocalFormatRef(): String = {
-    val ref = xml \ "@ref"
-    ref.text
+/**
+ * Base class for annotations that carry format properties
+ */
+abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
+  extends DFDLAnnotation(node, annotatedSC) {
+
+  private[dsom] def getLocalFormatRef(): String = {
+    val ref = getAttributeOption("ref") // let's standardize on 
+    ref match {
+      case None => ""
+      case Some(s) => s
+    }
   }
 
   lazy val detailName = xml.label
@@ -28,7 +41,7 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin) {
   //
   // package private since we want to unit test these and put the test code in a different object.
   // (Note: I hate repeating the darn package name all over the place here....)
-  private [dsom] def getLocalPropertyOption(name: String): Option[String] = {
+  private[dsom] def getLocalPropertyOption(name: String): Option[String] = {
     if (hasConflictingPropertyError) {
       throw new DFDLSchemaDefinitionException("Short and Long form properties overlap: " + conflictingProperties)
     }
@@ -36,21 +49,15 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin) {
     localProp
   }
 
-
   //
   // reference chain lookup
   //
-  private [dsom] def getRefPropertyOption(qName : String, pName :
-String) : Option[String] = {
-    None
-    // replace with call to taylor's loop detecting reference chasing code.
-    // first it gets the map using the qname (via lazy val so it's done once)
-    // then it gets the pname from the map.
+  private[dsom] def getRefPropertyOption(qName: String, pName: String): Option[String] = {
     var refStack: Set[String] = Set.empty[String]
     lazy val props: Map[String, String] = getDefineFormatPropertiesByRef(qName, refStack)
-    lazy val propOpt: Option[String] = props.find( p => p._1 == pName) match {
+    lazy val propOpt: Option[String] = props.find(p => p._1 == pName) match {
       case None => None
-      case Some( x ) => Option(x._1)
+      case Some(x) => Option(x._1)
     }
     propOpt
   }
@@ -58,45 +65,41 @@ String) : Option[String] = {
   //
   // NoDefault - local then reference chain rooted here
   //
-  private [dsom] def getPropertyOptionNoDefault(name : String) :
-Option[String] = {
+  private[dsom] def getPropertyOptionNoDefault(name: String): Option[String] = {
     val local = getLocalPropertyOption(name)
     local match {
       case Some(_) => local
       case None => {
-        val ref = getLocalFormatRef() //getLocalPropertyOption("ref")
-//        ref match {
-//          case Some(qname) => {
-//            val refChainProp = getRefPropertyOption(qname, name)
-//            refChainProp
-//          }
-//          case None => None
-//        }
+        val ref = getLocalFormatRef()
         if (ref.length() > 0) {
           val refChainProp = getRefPropertyOption(ref, name)
           refChainProp
-        }
-        else { None }
+        } else { None }
       }
     }
   }
 
- //
- // default - get the lexically enclosing default format annotation  // and do a no-default lookup on it (which looks locally there, and on the reference chain rooted  // at that default format annotation.
- //
- private [dsom] def getDefaultPropertyOption(name : String) : Option[String] = {
+  //
+  // default - get the lexically enclosing default format annotation  // and do a no-default lookup on it (which looks locally there, and on the reference chain rooted  // at that default format annotation.
+  //
+  private[dsom] def getDefaultPropertyOption(name: String): Option[String] = {
     val lexicalDefaultFormatAnnotation = annotatedSC.schemaDocument.formatAnnotation
     val prop = lexicalDefaultFormatAnnotation.getPropertyOptionNoDefault(name)
-// no default for the default.
+    // no default for the default.
     prop
   }
 
- //
- // This is the primary public entry point.
- //
- def getPropertyOption(name: String): Option[String] = {
-  // Assert.usage(name != "ref", "ref is not a format property")
-  // Assert.usage(name != "name", "name is not a format property")
+  //
+  // This is the primary public entry point.
+  //
+  def getPropertyOption(name: String): Option[String] = {
+    //
+    // These asserts are here to keep straight usage of properties, which have scoping 
+    // applied to finding them, and other attributes.
+    //
+    Assert.usage(name != "ref", name + " is not a format property")
+    Assert.usage(name != "name", name + " is not a format property")
+    Assert.usage(name != "type", name + " is not a format property")
     val nonDef = getPropertyOptionNoDefault(name) // local and local ref chain
     nonDef match {
       case Some(_) => nonDef
@@ -106,22 +109,6 @@ Option[String] = {
       }
     }
   }
-
-//  def getPropertyOption(name: String): Option[String] = {
-//    if (hasConflictingPropertyError) {
-//      throw new DFDLSchemaDefinitionException("Short and Long form properties overlap: " + conflictingProperties)
-//    }
-//
-//    val result = allProperties.get(name)
-//    result
-//  }
-
-  //lazy val formatRef = combinedLocalProperties.get("ref")
-  //lazy val refProp = formatRef.map { getFormatProperties(_) }
- // lazy val allProperties = refProp match {
- //   case Some(pMap) => combinePropertiesWithOverriding(combinedLocalProperties, pMap)
- //   case None => combinedLocalProperties
- // }
 
   lazy val shortFormProperties = {
     val xsA = annotatedSC.xml
@@ -189,7 +176,7 @@ Option[String] = {
     var props = Map.empty[String, String]
     var localRefStack = refStack.toSet[String]
 
-    val (nsURI : String, localName : String) = getQName(qName)
+    val (nsURI: String, localName: String) = getQName(qName)
 
     // Verify that we don't have circular references
     if (refStack.contains(localName)) {
@@ -203,7 +190,7 @@ Option[String] = {
     // Retrieve the defineFormat that matches this qName
     val ss = annotatedSC.schema.schemaSet
     val dfs = ss.getDefineFormats(nsURI)
-    
+
     val foundDF = dfs.find { df => df.name == localName }
     foundDF match {
       case Some(aDF) => {
@@ -243,19 +230,19 @@ Option[String] = {
   def getFormatProperties(): Map[String, String] = {
     var refStack: Set[String] = Set.empty[String]
     var props: Map[String, String] = Map.empty[String, String]
-    
+
     // Fetch Local Format Properties
-    val localProps = combinedLocalProperties.filterNot( x => x._1 == "ref" || x._1 == "name")
+    val localProps = combinedLocalProperties.filterNot(x => x._1 == "ref" || x._1 == "name")
 
     // Fetch Default Format Properties
     val defaultProps = annotatedSC.schemaDocument.defaultFormat.combinedLocalProperties.filterNot(x => x._1 == "ref" || x._1 == "name")
-    
+
     // Combine Local and Default properties via overriding
     props = combinePropertiesWithOverriding(localProps, defaultProps)
-    
+
     val ref = getLocalFormatRef()
     val refProps = getDefineFormatPropertiesByRef(ref, refStack)
-    
+
     val res: Map[String, String] = combinePropertiesWithOverriding(props, refProps)
 
     res
@@ -263,16 +250,11 @@ Option[String] = {
 }
 
 /**
- * Base class for annotations that carry format properties
- */
-abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
-  extends DFDLAnnotation(node, annotatedSC)
-
-/**
  * Base class for assertions, variable assignments, etc
  */
 abstract class DFDLStatement(node: Node, annotatedSC: AnnotatedMixin)
-  extends DFDLAnnotation(node, annotatedSC)
+  extends DFDLAnnotation(node, annotatedSC) {
+}
 
 class DFDLFormat(node: Node, sd: SchemaDocument)
   extends DFDLFormatAnnotation(node, sd)
@@ -285,14 +267,14 @@ class DFDLElement(node: Node, decl: AnnotatedElementMixin)
 }
 
 class DFDLGroup(node: Node, decl: AnnotatedMixin)
-  extends DFDLFormatAnnotation(node, decl) 
-  with Group_AnnotationMixin 
+  extends DFDLFormatAnnotation(node, decl)
+  with Group_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
 }
 
 class DFDLSequence(node: Node, decl: AnnotatedMixin)
-  extends DFDLFormatAnnotation(node, decl) 
-  with Sequence_AnnotationMixin 
+  extends DFDLFormatAnnotation(node, decl)
+  with Sequence_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
 }
 
@@ -305,7 +287,13 @@ class DFDLSimpleType(node: Node, decl: AnnotatedMixin)
 }
 
 class DFDLDefineFormat(node: Node, sd: SchemaDocument)
-  extends DFDLFormatAnnotation(node, sd) with DefineFormat_AnnotationMixin {
+  extends DFDLAnnotation(node, sd) // Note: DefineFormat is not a format annotation
+  // with DefineFormat_AnnotationMixin // mixins are only for format annotations.
+  {
+
+  lazy val name = getAttributeRequired("name") // note: name is not a format property.
+  lazy val baseFormat = getAttributeOption("baseFormat") // nor baseFormat
+
   lazy val formatAnnotation = Utility.trim(node) match {
     case <dfdl:defineFormat>{ f @ <dfdl:format>{ contents @ _* }</dfdl:format> }</dfdl:defineFormat> =>
       new DFDLFormat(f, sd)
@@ -318,7 +306,11 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedMixin)
 }
 
 class DFDLDefineEscapeScheme(node: Node, decl: AnnotatedMixin)
-  extends DFDLFormatAnnotation(node, decl) with DefineEscapeScheme_AnnotationMixin {
+  extends DFDLAnnotation(node, decl) // Note: defineEscapeScheme isn't a format annotation itself.
+  // with DefineEscapeScheme_AnnotationMixin 
+  {
+  lazy val name = getAttributeRequired("name")
+
   lazy val escapeScheme = Utility.trim(node) match {
     case <dfdl:defineEscapeScheme>{ e @ <dfdl:escapeScheme>{ contents @ _* }</dfdl:escapeScheme> }</dfdl:defineEscapeScheme> =>
       new DFDLEscapeScheme(e, NoSchemaDocument)
@@ -326,25 +318,50 @@ class DFDLDefineEscapeScheme(node: Node, decl: AnnotatedMixin)
   }
 }
 
+abstract class DFDLAssertionBase(node: Node, decl: AnnotatedMixin)
+  extends DFDLStatement(node, decl) {
+
+  lazy val testBody = node.child.text
+  lazy val testPattern = getAttributeOption("testPattern")
+  lazy val message = getAttributeOption("message")
+  lazy val test = getAttributeOption("test")
+}
+
 class DFDLAssert(node: Node, decl: AnnotatedMixin)
-  extends DFDLStatement(node, decl) with Assert_AnnotationMixin {
+  extends DFDLAssertionBase(node, decl) // with Assert_AnnotationMixin // Note: don't use these generated mixins. Statements don't have format properties                                  
+  {
+  // all attributes come from base class
 }
 
 class DFDLDiscriminator(node: Node, decl: AnnotatedMixin)
-  extends DFDLStatement(node, decl) with Discriminator_AnnotationMixin {
-  lazy val testBody = node.child.text
+  extends DFDLAssertionBase(node, decl) // with Discriminator_AnnotationMixin 
+  {
+  // all attributes come from base class
 }
 
 class DFDLDefineVariable(node: Node, decl: AnnotatedMixin)
-  extends DFDLStatement(node, decl) with DefineVariable_AnnotationMixin {
+  extends DFDLStatement(node, decl) //with DefineVariable_AnnotationMixin 
+  {
+  lazy val name = getAttributeRequired("name")
+  //TODO: check: are the rest of these required or optional?
+  lazy val predefined = getAttributeOption("predefined")
+  lazy val type_ = getAttributeOption("type_")
+  lazy val external = getAttributeOption("external")
+  lazy val defaultValue = getAttributeOption("defaultValue")
 }
 
 class DFDLNewVariableInstance(node: Node, decl: AnnotatedMixin)
-  extends DFDLStatement(node, decl) with NewVariableInstance_AnnotationMixin {
+  extends DFDLStatement(node, decl) // with NewVariableInstance_AnnotationMixin 
+  {
+  lazy val ref = getAttributeRequired("ref")
+  lazy val defaultValue = getAttributeOption("defaultValue")
 }
 
 class DFDLSetVariable(node: Node, decl: AnnotatedMixin)
-  extends DFDLStatement(node, decl) with SetVariable_AnnotationMixin {
+  extends DFDLStatement(node, decl) // with SetVariable_AnnotationMixin 
+  {
+  lazy val ref = getAttributeRequired("ref")
+  lazy val value = getAttributeRequired("value")
 }
 
 

@@ -145,8 +145,8 @@ class PropertyGenerator(arg: Node) {
     val res = scalaKeywords.contains(s)
     res
   }
-  
-  def genAttributeGroup(ag: Node): String = {
+
+  def genAttributeGroup(ag : Node) : String = {
     // val name = stripSuffix("AG", attr(ag, "name"))
     val name = attr(ag, "name").get // let's try leaving AG suffix in place so we can distinguish generated type mixins from AG mixins.
     if (exclude(name)) return ""
@@ -154,40 +154,53 @@ class PropertyGenerator(arg: Node) {
     val subRefAgs = subAgs.filter(ag => attr(ag, "ref") != None)
     // val subNames = subRefAgs.map(ag => stripSuffix("AG", stripDFDLPrefix(attr(ag, "ref"))))
     val subNames = subRefAgs.map(ag => stripDFDLPrefix(attr(ag, "ref").get)) // leave AG suffix on.
-    assert (subAgs.length == subRefAgs.length) // "nested attributeGroup was not a reference"
+    assert(subAgs.length == subRefAgs.length) // "nested attributeGroup was not a reference"
     val attribs = ag \ "attribute"
     //
     // for each attribute that is an Enum type, we want to use a Mixin of that type
     //
-    val (enumAttributeList, nonEnumAttributeList) = attribs.partition{attrNode => {
-      val qualifiedTypeName = attr(attrNode, "type").get
-      val rawName = attr(attrNode, "name").get
-      val rawNameWithoutTextPrefix = stripPrefix("text", rawName)
-      val nameIsInTypeName = qualifiedTypeName.toLowerCase.contains(rawNameWithoutTextPrefix.toLowerCase)
-      val endsInEnum = qualifiedTypeName.endsWith("Enum")
-      val res = endsInEnum && nameIsInTypeName
-      res
-    }}
-   
-    val enumList = enumAttributeList.map{attrNode => {
-      val qualifiedTypeName = attr(attrNode, "type").get
-      val enumName = stripSuffix("Enum", stripDFDLPrefix(qualifiedTypeName))
-      enumName
-    }}
+    val (enumAttributeList, nonEnumAttributeList) = attribs.partition { attrNode =>
+      {
+        val qualifiedTypeName = attr(attrNode, "type").get
+        val rawName = attr(attrNode, "name").get
+        val rawNameWithoutTextPrefix = stripPrefix("text", rawName)
+        val nameIsInTypeName = qualifiedTypeName.toLowerCase.contains(rawNameWithoutTextPrefix.toLowerCase)
+        val endsInEnum = qualifiedTypeName.endsWith("Enum")
+        val res = endsInEnum && nameIsInTypeName
+        res
+      }
+    }
+
+    val enumList = enumAttributeList.map { attrNode =>
+      {
+        val qualifiedTypeName = attr(attrNode, "type").get
+        val enumName = stripSuffix("Enum", stripDFDLPrefix(qualifiedTypeName))
+        enumName
+      }
+    }
 
     //
     // for other attributes, we generate a member
     //
-    val attrNamesTypes = nonEnumAttributeList.map(attrNode => {
+    val attrNamesTypes = nonEnumAttributeList.flatMap(attrNode => {
       val rawName = attr(attrNode, "name").get
-      val name = if (isScalaKeyword(rawName)) rawName + "_" else rawName
-      val qualifiedTypeName = attr(attrNode, "type").get
-      // we still might have some enums here, because we exclude enums above that
-      // aren't matching the name of the attribute. (e.g., if we have an attribute which has type YesNo, then 
-      // that will show up as a YesNoEnum here.
-      val typeName = stripSuffix("Enum", stripDFDLPrefix(qualifiedTypeName))
-      // val typeName = stripDFDLPrefix(qualifiedTypeName) // leave suffix on. 
-      (name, typeName)
+      //
+      // exclude certain attribute names that aren't format properties
+      // We don't want properties for these.
+      val notFormatProperties = List("ref", "type", "name", "test", "defaultValue", "message", "baseFormat")
+      val notScopedFormatProperties = List("inputValueCalc", "outputValueCalc", "hiddenGroupRef") // do these by-hand since they are not scoped.
+      val exclusions = notFormatProperties ++ notScopedFormatProperties
+      if (exclusions.contains(rawName)) Nil
+      else {
+        val name = if (isScalaKeyword(rawName)) rawName + "_" else rawName
+        val qualifiedTypeName = attr(attrNode, "type").get
+        // we still might have some enums here, because we exclude enums above that
+        // aren't matching the name of the attribute. (e.g., if we have an attribute which has type YesNo, then 
+        // that will show up as a YesNoEnum here.
+        val typeName = stripSuffix("Enum", stripDFDLPrefix(qualifiedTypeName))
+        // val typeName = stripDFDLPrefix(qualifiedTypeName) // leave suffix on. 
+        List((name, typeName))
+      }
     })
 
     val res = generatePropertyGroup(name, attrNamesTypes, subNames, enumList)

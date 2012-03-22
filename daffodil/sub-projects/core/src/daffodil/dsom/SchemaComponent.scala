@@ -21,7 +21,8 @@ import scala.collection.JavaConversions._
 import daffodil.grammar._
 import com.ibm.icu.charset.CharsetICU
 
-trait SchemaComponent {
+trait SchemaComponent 
+  extends GetAttributesMixin {
   def schemaDocument: SchemaDocument
   lazy val schema: Schema = schemaDocument.schema
   def xml: Node
@@ -116,16 +117,16 @@ with CommonRuntimeValuedPropertiesMixin {
    * Given that, formatAnnotation then either finds the right annotation, or constructs one, but our invariant
    * is imposed. There *is* a formatAnnotation.
    */
-  def emptyFormatFactory: DFDLAnnotation
+  def emptyFormatFactory: DFDLFormatAnnotation
   def isMyAnnotation(a: DFDLAnnotation): Boolean
 
-  lazy val formatAnnotation = {
+  lazy val formatAnnotation : DFDLFormatAnnotation = {
     val format = annotationObjs.find { isMyAnnotation(_) }
     val res = format match {
       case None => emptyFormatFactory
       case Some(x) => x
     }
-    res
+    res.asInstanceOf[DFDLFormatAnnotation]
   }
   
   /**
