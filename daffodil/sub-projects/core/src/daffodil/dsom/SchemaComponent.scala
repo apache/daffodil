@@ -364,8 +364,8 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
   private lazy val sset = schema.schemaSet
 
   lazy val globalElementDecls = (xml \ "element").map { new GlobalElementDecl(_, this) }
-  lazy val globalSimpleTypeDefs = (xml \ "simpleType").map { new GlobalSimpleTypeDef(_, this) }
-  lazy val globalComplexTypeDefs = (xml \ "complexType").map { new GlobalComplexTypeDef(_, this) }
+  lazy val globalSimpleTypeDefs = (xml \ "simpleType").map { new GlobalSimpleTypeDefFactory(_, this) }
+  lazy val globalComplexTypeDefs = (xml \ "complexType").map { new GlobalComplexTypeDefFactory(_, this) }
   lazy val globalGroupDefs = (xml \ "group").map { new GlobalGroupDef(_, this) }
 
   lazy val defaultFormat = formatAnnotation.asInstanceOf[DFDLFormat]

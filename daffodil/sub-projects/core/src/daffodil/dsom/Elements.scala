@@ -334,8 +334,8 @@ trait ElementDeclBase
           val gstd = ss.getGlobalSimpleTypeDef(ns, localpart)
           val gctd = ss.getGlobalComplexTypeDef(ns, localpart)
           val res = (gstd, gctd) match {
-            case (Some(_), None) => gstd
-            case (None, Some(_)) => gctd
+            case (Some(gstdFactory), None) => gstdFactory.forElement(this)
+            case (None, Some(gctdFactory)) => gctdFactory.forElement(this)
             case (None, None) => Assert.schemaDefinitionError("No type definition found for " + typeName + ".")
             // FIXME: do we need to do these checks, or has schema validation checked this for us?
             // FIXME: if we do have to check, then the usual problems: don't stop on first error, and need location of error in diagnostic.
