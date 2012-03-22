@@ -96,10 +96,11 @@ lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == Nil
       typeDef match {
       case prim : PrimitiveType => {
         val n = prim.name
+        Assert.notYetImplemented(n != "string" && n != "int")
         n match {
           case "string" => stringValue
           case "int" => binaryInt | textInt
-          case _ => Assert.notYetImplemented() // ("only string and int primitive value types are supported")
+          case _ => Assert.schemaDefinitionError("Unrecognized primitive type: " + n)
         }
       }
       case st : SimpleTypeBase => {

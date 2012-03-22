@@ -28,7 +28,6 @@ trait SchemaComponent {
 
   val NYI = false // our flag for Not Yet Implemented 
 
-  lazy val expressionCompiler = new ExpressionCompiler(this)
 }
 
 trait LocalComponentMixin

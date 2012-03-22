@@ -189,7 +189,7 @@ Option[String] = {
     var props = Map.empty[String, String]
     var localRefStack = refStack.toSet[String]
 
-    val (nsURI, localName): (String, String) = getQName(qName)
+    val (nsURI : String, localName : String) = getQName(qName)
 
     // Verify that we don't have circular references
     if (refStack.contains(localName)) {
