@@ -363,6 +363,30 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
 
   private lazy val sset = schema.schemaSet
 
+  /*
+   * Design note about factories for global elements, and recursive types.
+   * 
+   * The point of these factories is that every local site that uses a global def/decl
+   * needs a copy so that the def/decl can have attributes which depend on the context
+   * where it is used. That is, we can't share global defs/decls because the contexts change
+   * their meaning.
+   * 
+   * This works as is, so long as the DFDL Schema doesn't have recursion in it. Recursion would create
+   * an infinite tree of local sites and copies. (There's an issue: DFDL-80 in Jira about putting 
+   * in the check to rule out recursion)
+   * 
+   * But recursion would be a very cool experimental feature, potentially useful for investigations
+   * towards DFDL v2.0 in the future.
+   * 
+   * What's cool: if these factories are changed to memoize. That is, return the exact same global def/decl
+   * object if they are called from the same local site, then recursion "just works". Nothing will diverge
+   * creating infinite structures, but furthermore, the "contextual" information will be right. That 
+   * is to say, the first place some global structure is used is the "top" entry. It gets a copy.
+   * If that global ultimately has someplace that recurses back to that global structure, it has to be from some other
+   * local site inside it, so that's a different local site, so it will get a copy of the global. But
+   * that's where it ends because the next "unwind" of the recursion will be at this same local site, so
+   * would be returned the exact same def/decl object.
+   */
   lazy val globalElementDecls = (xml \ "element").map { new GlobalElementDeclFactory(_, this) }
   lazy val globalSimpleTypeDefs = (xml \ "simpleType").map { new GlobalSimpleTypeDefFactory(_, this) }
   lazy val globalComplexTypeDefs = (xml \ "complexType").map { new GlobalComplexTypeDefFactory(_, this) }

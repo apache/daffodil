@@ -90,10 +90,11 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
   lazy val hasLaterRequiredSiblings : Boolean = hasRequiredSiblings(ListUtils.tailAfter _)
   lazy val hasPriorRequiredSiblings : Boolean = hasRequiredSiblings(ListUtils.preceding _)
 
-  def hasRequiredSiblings(f : ListUtils.SubListFinder[Term]) = {
+  def hasRequiredSiblings(splitter : ListUtils.SubListFinder[Term]) = {
     val res = nearestEnclosingSequence.map { es =>
       {
-        val sibs = f(es.groupMembers, this)
+        val allSiblings = es.groupMembers
+        val sibs = splitter(allSiblings, this)
         val hasAtLeastOne = sibs.find { term => term.hasStaticallyRequiredInstances }
         hasAtLeastOne != None
       }
@@ -121,14 +122,19 @@ with ModelGroupGrammarMixin {
     
    val xmlChildren : Seq[Node]
      
-   val goodXmlChildren = xmlChildren.flatMap{removeNonInteresting(_)}
-   private lazy val positions = for( i <- 1 to goodXmlChildren.length ) yield i
-   private lazy val children = (xmlChildren zip positions).flatMap
-   { case (n, i) => termFactory(n, this, i) }
+   private val goodXmlChildren = xmlChildren.flatMap{removeNonInteresting(_)}
+   private val positions = List.range(1, goodXmlChildren.length + 1 ) // range is exclusive on 2nd arg. So +1.
+   private val pairs = goodXmlChildren zip positions
+   private lazy val children = pairs.flatMap{ 
+     case (n, i) => 
+       termFactory(n, this, i) 
+       }
    
    def group = this
    
-   lazy val groupMembers = children
+   lazy val groupMembers = {
+     children
+   }
 
   /**
    * Factory for Terms

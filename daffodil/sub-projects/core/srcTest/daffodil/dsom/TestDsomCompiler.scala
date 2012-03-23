@@ -10,19 +10,7 @@ import daffodil.schema.annotation.props._
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 
-/**
- * Scala Unit Testing Notes:
- *
- * It is important that the Eclipse IDE make it convenient to run the unit tests, step the user directly to the point
- * of failure, etc.
- *
- * Scalatest doesn't do this directly, but using it driven by JUnit3 does.
- *
- * So I'm advocating that a much more vanilla approach be taken to unit tests. Straight use of Junit3.
- *
- * Here is an example. Some simple tests, some that intercept exceptions, and demonstrate that the intercept
- * device works properly.
- */
+
 class TestDsomCompiler extends JUnit3Suite {
 
   val xsd = XMLUtil.XSD_NAMESPACE

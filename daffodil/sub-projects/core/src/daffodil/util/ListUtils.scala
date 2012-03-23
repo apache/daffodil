@@ -15,15 +15,16 @@ object ListUtils {
     }
   }
 
-  def preceding[T](lst: Seq[T], valueToFind: Any) = preceding1(lst, valueToFind, Nil)
+  def preceding[T](lst: Seq[T], valueToFind: Any) = {
+    val res = preceding1(lst, valueToFind, Nil)
+    res
+  }
 
-  private def preceding1[T](lst: Seq[T], valueToFind: Any, onto: List[T]): Seq[T] = {
+  private def preceding1[T](lst : Seq[T], valueToFind : Any, onto : List[T]) : Seq[T] = {
     lst match {
       case Nil => Nil
-      case hd :: tl => {
-        if (tl == valueToFind) hd :: onto
-        else preceding1(tl, valueToFind, hd :: onto)
-      }
+      case hd :: tl if hd == valueToFind => onto.reverse
+      case hd :: tl => preceding1(tl, valueToFind, hd :: onto)
     }
   }
 }

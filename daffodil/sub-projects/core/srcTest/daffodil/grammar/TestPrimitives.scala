@@ -79,9 +79,7 @@ class TestPrimitives extends JUnit3Suite {
     assertTrue(actualString.contains("><s1>abcd</s1><s2>efgh</s2></e1>"))
 
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
-    assertEqualsXMLElements(expected, actual)
-    
-    
+    assertEqualsXMLElements(expected, actual)  
   }
 
 }

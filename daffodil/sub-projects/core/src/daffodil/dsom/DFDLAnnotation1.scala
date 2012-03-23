@@ -54,11 +54,8 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
   //
   private[dsom] def getRefPropertyOption(qName: String, pName: String): Option[String] = {
     var refStack: Set[String] = Set.empty[String]
-    lazy val props: Map[String, String] = getDefineFormatPropertiesByRef(qName, refStack)
-    lazy val propOpt: Option[String] = props.find(p => p._1 == pName) match {
-      case None => None
-      case Some(x) => Option(x._1)
-    }
+    lazy val props = getDefineFormatPropertiesByRef(qName, refStack)
+    lazy val propOpt = props.get(pName) // Use get on a map (rather than find)
     propOpt
   }
 
@@ -118,7 +115,10 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
     }
   }.toSet
 
-  lazy val longFormProperties = node.attributes.asAttrMap.toSet // No colon in name
+  lazy val longFormProperties = {
+    val res = node.attributes.asAttrMap.toSet // No colon in name
+    res
+  }
 
   lazy val conflictingProperties =
     shortFormProperties.intersect(longFormProperties).union(
@@ -136,6 +136,8 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
 
   // Added by Taylor Wise
   //
+  // TODO: Consolidate QName functions in XMLUtil
+  
   def getQName(name: String): (String, String) = {
     val parts = name.split(":").toList
     val (prefix, localName) = parts match {
@@ -175,8 +177,8 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
   def getDefineFormatPropertiesByRef(qName: String, refStack: Set[String]): Map[String, String] = {
     var props = Map.empty[String, String]
     var localRefStack = refStack.toSet[String]
-
-    val (nsURI: String, localName: String) = getQName(qName)
+    val qnamePair = getQName(qName)
+    val (nsURI, localName) = qnamePair
 
     // Verify that we don't have circular references
     if (refStack.contains(localName)) {
