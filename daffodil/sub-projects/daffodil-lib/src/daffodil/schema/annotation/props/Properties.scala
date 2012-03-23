@@ -167,6 +167,8 @@ trait PropertyMixin {
    * rule.
    */
   def getProperty(pname: String): String = {
+    if (pname == "lengthUnits")
+      System.err.println("debug")
     val propOpt = getPropertyOption(pname) 
     propOpt match {
       case Some(prop) => prop
