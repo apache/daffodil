@@ -31,7 +31,7 @@ class SimpleElementTest extends JUnit3Suite with ShouldMatchers {
 
     
     val annotation = new Annotation(null)
-    annotation.format setEncoding("ASCII")
+    annotation.format setEncoding("US-ASCII")
     annotation.format setTypeName("string")
     annotation.format setSeparator(",")
     annotation.format setRepresentation("text")
@@ -41,7 +41,7 @@ class SimpleElementTest extends JUnit3Suite with ShouldMatchers {
       new SimpleElement("cell",annotation,null,new Namespaces)
     
     simpleElement.setMaxOccurs(-1)
-    val datastream = new RollbackStream(new ByteArrayInputStream(testValue getBytes("ASCII")))
+    val datastream = new RollbackStream(new ByteArrayInputStream(testValue getBytes("US-ASCII")))
     val annote = new Annotation(null)
     val vmap = new VariableMap()
     val root = new Element("root")
@@ -63,7 +63,7 @@ class SimpleElementTest extends JUnit3Suite with ShouldMatchers {
     
     
     val annotation = new Annotation(null)
-    annotation.format setEncoding("ASCII")
+    annotation.format setEncoding("US-ASCII")
     annotation.format setTypeName("string")
     annotation.format setSeparator(",")
     annotation.format setTerminator("#") // applies to every element, not just the end of the whole group.
@@ -73,7 +73,7 @@ class SimpleElementTest extends JUnit3Suite with ShouldMatchers {
       new SimpleElement("cell",annotation,null,new Namespaces)
     
     simpleElement.setMaxOccurs(-1)
-    val datastream = new RollbackStream(new ByteArrayInputStream(testValue getBytes("ASCII")))
+    val datastream = new RollbackStream(new ByteArrayInputStream(testValue getBytes("US-ASCII")))
     val annote = new Annotation(null)
     val vmap = new VariableMap()
     val root = new Element("root")

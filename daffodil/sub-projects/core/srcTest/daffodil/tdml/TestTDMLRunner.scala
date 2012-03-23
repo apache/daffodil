@@ -128,7 +128,7 @@ class TestTDMLRunner extends JUnit3Suite {
     val testSchema =
       <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
         <element name="data" type="xsd:int" dfdl:terminator="%NL;" 
-dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" 
+dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" 
 dfdl:documentFinalTerminatorCanBeMissing="yes"
 dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator=""/>
       </schema>
@@ -151,7 +151,7 @@ dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiat
   def testTDMLrunAll() {
     val testSchema =
       <schema xmlns={ xsd } targetNamespace={ tdml } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"
+        <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"
 dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator=""/>
       </schema>
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
@@ -179,7 +179,7 @@ dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiat
   def testRunModelFile() {
     val testSchema =
       <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="data" type="xsd:int" dfdl:initiator="" dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
+        <element name="data" type="xsd:int" dfdl:initiator="" dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:terminator="%NL;" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
       </schema>
     val tmpFileName = getClass.getName() + ".dfdl.xsd"
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
@@ -208,7 +208,7 @@ dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiat
   def testRunTDMLFileReferencingModelFile() {
     val testSchema =
       <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="data" type="xsd:int" dfdl:initiator="" dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
+        <element name="data" type="xsd:int" dfdl:initiator="" dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:terminator="%NL;" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
       </schema>
     val tmpFileName = getClass.getName() + ".dfdl.xsd"
     val tmpTDMLFileName = getClass.getName() + ".tdml"
@@ -259,7 +259,7 @@ dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiat
 //    val testSuite = <tdml:testSuite  suiteName="theSuiteName" xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
 //                      <tdml:defineSchema name="mySchema">
 //                        <schema xmlns={ sub } targetNamespace={ example } xmlns:tns={ example } >
-//                          <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
+//                          <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
 //                        </schema>
 //                      </tdml:defineSchema>
 //                      <parserTestCase xmlns={ tdml } name="firstUnitTest" root="data" model="mySchema">
@@ -280,7 +280,7 @@ dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiat
 //    val testSuite = <tdml:testSuite suiteName="theSuiteName" xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
 //                      <tdml:defineSchema name="mySchema">
 //                        <schema xmlns={ xsd } targetNamespace={ example } >
-//                          <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
+//                          <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
 //                        </schema>
 //                      </tdml:defineSchema>
 //                      <parserTestCase xmlns={ tdml } name="testRunTDMLFile" root="data" model="mySchema">

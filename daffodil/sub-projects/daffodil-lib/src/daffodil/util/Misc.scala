@@ -10,7 +10,8 @@ import java.io.File
  */
 object Misc {
   
-  def getNameFromClass(obj : Object) = {
+  def getNameFromClass(obj : Object) : String = {
+    if (obj == null) return "null"
     val hexHash = obj.hashCode.formatted("%x")
     val tokens = obj.getClass().getName().split("[\\$\\.]").toList.reverse
     val Some(nameToken) = tokens.find{_.matches("""\p{Alpha}\w*""")}

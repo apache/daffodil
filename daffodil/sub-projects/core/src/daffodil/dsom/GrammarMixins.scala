@@ -27,6 +27,11 @@ with DelimitedRuntimeValuedPropertiesMixin { self : AnnotatedMixin =>
   def hasTerminator : Boolean
 }
 
+/////////////////////////////////////////////////////////////////
+// Elements System
+/////////////////////////////////////////////////////////////////
+
+
 trait ElementBaseGrammarMixin 
 extends InitiatedTerminatedMixin
 with AlignedMixin { self: ElementBaseMixin =>
@@ -209,13 +214,6 @@ lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == Nil
 
 trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
   
-  def separatedForPosition(contentBody: => Expr): Expr = {
-    val Some(res) = nearestEnclosingSequence.map { _.separatedForPosition(contentBody) }
-    res
-  }
-
-  def grammarExpr = term
-
   lazy val allowedValue = Prod("allowedValue", this, notStopValue | value)
   
   lazy val notStopValue = Prod("notStopValue", this, hasStopValue, NotStopValue(this))
@@ -226,8 +224,7 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
   lazy val recurrance = Prod("recurrance", this, !isScalar, 
       StartArray(this) ~ arrayContents ~ EndArray(this) ~ FinalUnusedRegion(this))
 
-  // FIXME: doesn't allow for an element inside a choice, that is inside a sequence. Or a nest of nothing but choices. (No sequences at all)
-  lazy val term = Prod("term", this, separatedScalarDefaultable | recurrance)
+  lazy val termContentBody = Prod("term", this, separatedScalarDefaultable | recurrance)
   
    /**
      * speculate parsing forward until we get an error
@@ -284,9 +281,9 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
     val Fixed_____ = OccursCountKind.Fixed
     val Expression = OccursCountKind.Expression
     
-    lazy val recurring = Prod("stopValueSize", this, isRecurring,
-        StartArray(this) ~ arrayContents ~ EndArray(this) // takes care of setting the array index to 1 at the start.
-        )
+//    lazy val recurring = Prod("stopValueSize", this, isRecurring,
+//        StartArray(this) ~ arrayContents ~ EndArray(this) // takes care of setting the array index to 1 at the start.
+//        )
           
     /**
      * Matches the table about separator suppression policy.
@@ -341,8 +338,91 @@ trait GlobalElementDeclGrammarMixin { self : GlobalElementDecl =>
   lazy val document = Prod("document", this, UnicodeByteOrderMark(this) ~ documentElement )
 }
 
+
+
+/////////////////////////////////////////////////////////////////
+// Groups System
+/////////////////////////////////////////////////////////////////
+
 trait TermGrammarMixin { self : Term =>
-  def grammarExpr : Expr  
+  
+  def termContentBody : Prod
+  
+  // I am not sure we need to distinguish these two. 
+  lazy val asTermInSequence = termContentBody
+  lazy val asTermInChoice = termContentBody
+  
+  def separatedForPosition(body : => Expr) = {
+    es.prefixSep ~ infixSepRule ~ body ~ es.postfixSep
+  }
+  
+  lazy val Some(es) = {
+    //
+    // Not sure how to assert this,
+    // but an invariant we're assuming here is that we are NOT the 
+    // root element, which has no enclosing sequence at all.
+    //
+    // The grammar rules shouldn't be asking for separated stuff
+    // in that situation, so we shouldn't be here.
+    //
+    // TODO: FIXME:
+    // Also note: we can get away with just looking upward for nearest enclosing
+    // sequence because we have restrictions on what can be inside a choice,
+    // and we disallow delimiters on choices. If one allows delimiters on 
+    // choices... consider
+    // <sequence dfdl:separator=",">
+    //   <choice dfdl:initiator="[", terminator="]">
+    //     <element ref="foo" maxOccurs="20"/>
+    //     ...
+    // In this case, what separates the multiple occurrances of foo? I claim 
+    // they are comma separated.
+    // But data could be like this 'a, b, c,[foo1,foo2,foo3],d,e,f'
+    //
+    // Not unreasonable, but just too much complexity. Postpone until later.
+    
+    //
+    // TODO: fix this when those restrictions are lifted.
+    //
+    Assert.invariant(hasES)
+    nearestEnclosingSequence
+  }
+  
+  def hasES = nearestEnclosingSequence != None
+  
+  lazy val staticSeparator = Prod("staticSeparator", this, hasES && es.separatorExpr.isConstant, 
+      new StaticDelimiter(es.separatorExpr.constant.asInstanceOf[String], self))
+      
+  lazy val dynamicSeparator = Prod("dynamicSeparator", this, hasES && !es.separatorExpr.isConstant, 
+      new DynamicDelimiter(es.separatorExpr, self))
+      
+  lazy val sepRule = staticSeparator | dynamicSeparator
+  
+  lazy val prefixSep = Prod("prefixSep", this, hasES && es.hasPrefixSep, sepRule)
+  lazy val postfixSep = Prod("postfixSep", this, hasES && es.hasPostfixSep, sepRule)
+  lazy val infixSep = Prod("infixSep", this, hasES && es.hasInfixSep, sepRule)
+  
+  lazy val infixSepWithPriorRequiredSiblings = Prod("prefixSep", this, 
+      es.hasInfixSep && hasPriorRequiredSiblings, 
+      // always need an infix separator in this situation.
+      infixSep)
+      
+  lazy val infixSepWithoutPriorRequiredSiblings = Prod("infixSepWithoutPriorRequiredSiblings", this, 
+      es.hasInfixSep && !hasPriorRequiredSiblings && (position > 1 || !isScalar),
+      // runtime check for group pos such that we need a separator.
+     (GroupPosGreaterThan(1, self) ~ infixSep ) | Nothing(this))
+     // FIXME: no backtrack to Nothing if infixSep not found.
+     // if the groupPos is > 1, then the infixSep must be found, otherwise fail. 
+     // The GroupPosGreaterThan(1) primitive can set a discriminator true, thereby turning off the alternative.
+     
+  lazy val infixStaticallyFirst = Prod("infixStaticallyFirst", this, 
+      es.hasInfixSep && position == 1 && isScalar && !hasPriorRequiredSiblings , 
+      Nothing(this))
+  
+  
+  lazy val infixSepRule = Prod("infixSepRule", this, 
+     hasES && es.hasInfixSep,
+     infixStaticallyFirst | infixSepWithPriorRequiredSiblings | infixSepWithoutPriorRequiredSiblings)
+
 }
 
 trait ModelGroupGrammarMixin 
@@ -355,45 +435,37 @@ with AlignedMixin { self : ModelGroup =>
   lazy val groupLeftFraming = Prod("groupLeftFraming", this, leadingSkipRegion ~ alignmentFill ~ initiatorRegion)
   lazy val groupRightFraming = Prod("groupRightFraming", this, terminatorRegion ~ trailingSkipRegion)
   
-  lazy val grammarExpr = Prod("grammarExpr", this, groupLeftFraming ~ groupContent ~ groupRightFraming )
+  // I believe we can have the same grammar rules whether we're directly inside a complex type, or
+  // we're nested inside another group as a term.
+  lazy val asChildOfComplexType = termContentBody
   
-  def mt = EmptyExpr.asInstanceOf[Expr]// cast trick to shut up foldLeft compile error on next line.
+  lazy val termContentBody = Prod("grammarExpr", this, groupLeftFraming ~ groupContent ~ groupRightFraming )
   
-  lazy val groupContent = Prod("groupContent", this, groupMemberGrammarNodes.foldLeft(mt)(folder) )
-   
-  def folder(p : Expr, q : Expr) : Expr  
+  def mt = EmptyExpr.asInstanceOf[Expr]// cast trick to shut up foldLeft compile errors below
+  
+  def groupContent : Prod
 }
+
 
 trait ChoiceGrammarMixin { self : Choice =>
   
+  lazy val groupContent = Prod("choiceContent", this, alternatives.foldLeft(mt)(folder) )
+  
   def folder(p : Expr, q : Expr) : Expr = p | q 
+    
+  lazy val alternatives = groupMembers.map{ _.asTermInChoice }
   
 }
 
 trait SequenceGrammarMixin { self : Sequence =>
   
+  lazy val groupContent = Prod("sequenceContent", this, StartSequence(this) ~ terms.foldLeft(mt)(folder) ~ EndSequence(this))
+
   def folder(p : Expr, q : Expr) : Expr = p ~ q 
   
-  def separatedForPosition(contentBody : => Expr): Expr = {
-    prefixSep ~ infixSepRule ~ contentBody ~ postfixSep
-  }
+  lazy val terms = groupMembers.map{ _.asTermInSequence }
   
-  lazy val staticSeparator = Prod("staticSeparator", this, separatorExpr.isConstant, StaticSeparator(this))
-  lazy val dynamicSeparator = Prod("dynamicSeparator", this, !separatorExpr.isConstant, DynamicSeparator(this))
-  lazy val prefixSep = Prod("prefixSep", this, hasPrefixSep, staticSeparator | dynamicSeparator)
-  lazy val postfixSep = Prod("postfixSep", this, hasPostfixSep, staticSeparator | dynamicSeparator)
-  lazy val infixSep = Prod("infixSep", this, hasInfixSep, staticSeparator | dynamicSeparator)
-  
-  lazy val infixSepWithPriorRequiredSiblings = Prod("prefixSep", this, hasInfixSep && hasPriorRequiredSiblings,
-      infixSep)
-  lazy val infixSepWithoutPriorRequiredSiblings = Prod("infixSepWithoutPriorRequiredSiblings", this, hasInfixSep && !hasPriorRequiredSiblings,
-      // runtime check for group pos such that we need a separator.
-     GroupPosGreaterThan(1)(this) ~ infixSep )
-  
-  lazy val infixSepRule = Prod("infixSepRule", this, hasInfixSep,
-      infixSepWithPriorRequiredSiblings | infixSepWithoutPriorRequiredSiblings)
-  
-     /**
+  /**
    * These are static properties even though the delimiters can have runtime-computed values.
    * The existence of an expression to compute a delimiter is assumed to imply a non-zero-length, aka a real delimiter.
    */
@@ -408,10 +480,20 @@ trait SequenceGrammarMixin { self : Sequence =>
   }  
 }
 
+trait GroupRefGrammarMixin { self : GroupRef => 
+
+  def termContentBody = Assert.notYetImplemented()
+
+}
+
+/////////////////////////////////////////////////////////////////
+// Types System
+/////////////////////////////////////////////////////////////////
+
 trait ComplexTypeBaseGrammarMixin { self : ComplexTypeBase =>
   lazy val startChildren = StartChildren(this, true)
   lazy val endChildren = EndChildren(this, true)
   
-  lazy val grammarExpr = Prod("grammarExpr", this, startChildren ~ modelGroup.group.grammarExpr ~ endChildren)
+  lazy val grammarExpr = Prod("grammarExpr", this, startChildren ~ modelGroup.group.asChildOfComplexType ~ endChildren)
   
 }

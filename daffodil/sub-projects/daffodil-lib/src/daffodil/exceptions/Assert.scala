@@ -27,8 +27,8 @@ class Assert  {
 object Assert extends Assert {
   
   
-  def usage(test: => Boolean, message: => String = "Usage error.") = {
-    val r = test
+  def usage(testAbortsIfFalse: => Boolean, message: => String = "Usage error.") = {
+    val r = testAbortsIfFalse
     if (!r)
       abort(message)
   }
@@ -64,8 +64,8 @@ object Assert extends Assert {
    * 
    * This is for more complex invariants than the simple 'impossible' case. 
    */
-  def invariant(test : => Boolean) = {
-    val r = test
+  def invariant(testThatWillAbortIfFalse : => Boolean) = {
+    val r = testThatWillAbortIfFalse
     if (!r) abort("Invariant broken.")
   }
   
@@ -86,10 +86,10 @@ object Assert extends Assert {
   /**
    * Use for checks for Schema Definition Errors (per DFDL spec)
    */
-  def schemaDefinition(test : => Boolean, message : => String) = {
+  def schemaDefinition(testThatWillThrowIfFalse : => Boolean, message : => String) = {
     // note use above of by-name arguments. This lets us turn off the evaluation of the tests,
     // and also the construction of the string only happens IF the test passes.
-    if (!test) toss(new SDE(message))
+    if (!testThatWillThrowIfFalse) toss(new SDE(message))
   }
 
   def schemaDefinitionError(message : => String) = {
@@ -103,15 +103,16 @@ object Assert extends Assert {
   /**
    * Use for checks about currently implemented subset of DFDL.
    */
-  def subset(test : => Boolean, message : => String) = schemaDefinition(test, "SUBSET: " + message)
-    
+  def subset(testThatWillThrowIfFalse : => Boolean, message : => String) = schemaDefinition(testThatWillThrowIfFalse, "SUBSET: " + message)
+  def subset(message : => String) = schemaDefinitionError("SUBSET: " + message)
+
   def unknownPropertyValue(propName : String, propValue : String) =
     schemaDefinitionError("For property " + propName + " unrecognized value " + propValue)
     
   /**
    * Conditional behavior for NYIs
    */
-  def notYetImplemented(test : => Boolean) : Unit = {
-    if (test) notYetImplemented()
+  def notYetImplemented(testThatWillThrowIfTrue : => Boolean) : Unit = {
+    if (testThatWillThrowIfTrue) notYetImplemented()
   }
 }

@@ -14,13 +14,13 @@ import junit.framework.Assert._
 class TextProcessorTest extends JUnit3Suite with ShouldMatchers  {
   
   def testEqualThingsShouldBeEqual() { // ("equal things should be equal") {
-    val processor1 = new TextProcessor(Charset.forName("ASCII"),true)
+    val processor1 = new TextProcessor(Charset.forName("US-ASCII"),true)
 		processor1.setLength("12")
 		processor1.setTerminator("term")
 		processor1.setInitiator("init")
 		processor1.setSeparator("sep")    
   
-	val processor2 = new TextProcessor(Charset.forName("ASCII"),true)
+	val processor2 = new TextProcessor(Charset.forName("US-ASCII"),true)
 		processor2.setLength("12")
 		processor2.setTerminator("term")
 		processor2.setInitiator("init")
@@ -61,7 +61,7 @@ class TextProcessorTest extends JUnit3Suite with ShouldMatchers  {
 		processor5.setInitiator("init")
 		processor5.setSeparator("sepo")
   
-	val processor6 = new TextProcessor(Charset.forName("ASCII"),true)
+	val processor6 = new TextProcessor(Charset.forName("US-ASCII"),true)
 		processor6.setLength("12")
 		processor6.setTerminator("term")
 		processor6.setInitiator("init")

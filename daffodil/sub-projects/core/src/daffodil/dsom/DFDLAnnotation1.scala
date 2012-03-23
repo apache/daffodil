@@ -280,6 +280,8 @@ class DFDLSequence(node: Node, decl: AnnotatedMixin)
 
 class DFDLChoice(node: Node, decl: AnnotatedMixin)
   extends DFDLFormatAnnotation(node, decl) with Choice_AnnotationMixin {
+  override lazy val initiator = Assert.subset("initiators are not supported on choices")
+  override lazy val terminator = Assert.subset("terminators are not supported on choices")
 }
 
 class DFDLSimpleType(node: Node, decl: AnnotatedMixin)

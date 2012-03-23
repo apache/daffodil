@@ -113,6 +113,8 @@ class PState (
   ) {
   def bytePos = bitPos >> 3
   def whichBit = bitPos % 8
+  def groupPos = groupIndexStack.head
+  def childPos = childIndexStack.head
   
   /**
    * Convenience functions for creating a new state, changing only
@@ -130,6 +132,8 @@ class PState (
     new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack)
   def withChildIndexStack (childIndexStack : List[Long], status : ProcessorResult = Success) = 
     new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack)
+   def failed = 
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, Failure, groupIndexStack, childIndexStack)
 
   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.

@@ -125,7 +125,7 @@ abstract class Terminal(sc: Any, guard : Boolean) extends NamedExpr {
  */
 class Prod(nameArg : String, sc : SchemaComponent, guard : Boolean, exprArg : => Expr) extends NamedExpr(nameArg) {
   
-  val containingClassName = daffodil.util.Misc.getNameFromClass(sc)
+  val containingClassName = getNameFromClass(sc)
   val expr = {
 
     if (guard) {

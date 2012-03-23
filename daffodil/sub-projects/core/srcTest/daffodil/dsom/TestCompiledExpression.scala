@@ -24,7 +24,7 @@ class TestCompiledExpression extends JUnit3Suite {
     
     val root = XMLUtil.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
     val sset = new SchemaSet(testSchema)
-    val Some(edecl) = sset.getGlobalElementDecl(example, "root")
+    val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
     val ignored = new org.jdom.Document(root) // root must have a document node
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/child2/child3 }"
@@ -51,7 +51,7 @@ class TestCompiledExpression extends JUnit3Suite {
     
     val root = null // won't be used.
     val sset = new SchemaSet(testSchema)
-    val Some(edecl) = sset.getGlobalElementDecl(example, "root")
+    val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
     
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ 42 }"

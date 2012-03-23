@@ -166,8 +166,8 @@ case class StaticTerminator(e : InitiatedTerminatedMixin) extends StaticDelimite
 case class DynamicInitiator(e : InitiatedTerminatedMixin) extends DynamicDelimiter(e.initiatorExpr, e)
 case class DynamicTerminator(e : InitiatedTerminatedMixin) extends DynamicDelimiter(e.terminatorExpr, e)
 
-case class StaticSeparator(e : Sequence) extends StaticDelimiter(e.separatorExpr.constant.asInstanceOf[String], e)
-case class DynamicSeparator(e : Sequence) extends DynamicDelimiter(e.separatorExpr, e)
+//case class StaticSeparator(e : Sequence) extends StaticDelimiter(e.separatorExpr.constant.asInstanceOf[String], e)
+//case class DynamicSeparator(e : Sequence) extends DynamicDelimiter(e.separatorExpr, e)
 
 case class StartChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct, guard) {
     def parser: Parser = new Parser {
@@ -181,7 +181,43 @@ case class StartChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Ter
    }
 }
 
-case class GroupPosGreaterThan(n: Long)(sq: Sequence, guard: Boolean = true) extends Primitive(sq, guard)
+case class StartSequence(sq : Sequence, guard: Boolean = true) extends Terminal(sq, guard) {
+    def parser: Parser = new Parser {
+     
+      override def toString = "StartSequence"
+
+      def parse(start : PState) : PState = {
+    	val postState = start.withGroupIndexStack(0L :: start.groupIndexStack)
+    	postState
+      }
+   }
+}
+
+case class Nothing(sc : SchemaComponent) extends Terminal(sc, true) {
+      def parser: Parser = new Parser {
+     
+      override def toString = "Nothing"
+
+      def parse(start : PState) : PState = start
+   } 
+}
+
+case class GroupPosGreaterThan(n: Long, term: Term, guard: Boolean = true) extends Terminal(term, guard) {
+     def parser: Parser = new Parser {
+     
+      override def toString = "GroupPosGreaterThan"
+
+      def parse(start : PState) : PState = {
+    	val res = if (start.groupPos > 1) {
+    	  start
+    	}
+    	else {
+    	  start.failed
+    	}
+    	res
+     }
+   }
+}
 
 case class EndChildren(ct: ComplexTypeBase, guard: Boolean = true)  extends Terminal(ct, guard) {
     def parser: Parser = new Parser {
@@ -190,6 +226,18 @@ case class EndChildren(ct: ComplexTypeBase, guard: Boolean = true)  extends Term
 
       def parse(start : PState) : PState = {
     	val postState = start.withChildIndexStack(start.childIndexStack.tail)
+    	postState
+      }
+   }
+}
+
+case class EndSequence(sq : Sequence, guard: Boolean = true)  extends Terminal(sq, guard) {
+    def parser: Parser = new Parser {
+     
+      override def toString = "EndSequence"
+
+      def parse(start : PState) : PState = {
+    	val postState = start.withGroupIndexStack(start.groupIndexStack.tail)
     	postState
       }
    }

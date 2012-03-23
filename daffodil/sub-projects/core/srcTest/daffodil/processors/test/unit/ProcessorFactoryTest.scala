@@ -20,7 +20,7 @@ import junit.framework.Assert._
 class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 
 	def testCreatingATextProcessor() { // ("creating a TextProcessor") {
-		val processor = new TextProcessor(Charset.forName("ASCII"),true)
+		val processor = new TextProcessor(Charset.forName("US-ASCII"),true)
 		processor.setLength("12")
 		processor.setTerminator("term")
 		processor.setInitiator("init")
@@ -29,7 +29,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
   
 		val annotation = new Annotation(null)
 		annotation.format setRepresentation(Text)
-		annotation.format setEncoding(Charset.forName("ASCII"))
+		annotation.format setEncoding(Charset.forName("US-ASCII"))
 		annotation.format setTypeName("string")
 		annotation.format setLength ("12")
 		annotation.format setTerminator("term")
@@ -43,7 +43,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 	}
  
 	def testCreatingFloatTextProcessor() { // ("creating a FloatTextProcessor") {
-		val processor = new NumberTextProcessor(Charset.forName("ASCII"),true)
+		val processor = new NumberTextProcessor(Charset.forName("US-ASCII"),true)
 		processor.setLength("12")
 		processor.setTerminator("term")
 		processor.setInitiator("init")
@@ -52,7 +52,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 		val annotation = new Annotation(null)
   
 		annotation.format setRepresentation(Text)
-		annotation.format setEncoding(Charset.forName("ASCII"))
+		annotation.format setEncoding(Charset.forName("US-ASCII"))
 		annotation.format setTypeName("float")
 		annotation.format setLength("12")
 		annotation.format setTerminator("term")
@@ -66,7 +66,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
  
 	def testCreatingDoubleTextProcessor() { // ("creating a DoubleTextProcessor") {
 
-		val processor = new NumberTextProcessor(Charset.forName("ASCII"),true)
+		val processor = new NumberTextProcessor(Charset.forName("US-ASCII"),true)
 		processor.setLength("12")
 		processor.setTerminator("term")
 		processor.setInitiator("init")
@@ -74,7 +74,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 
 		val annotation1 = new Annotation(null)
 		annotation1.format setRepresentation(Text)
-		annotation1.format setEncoding("ASCII")
+		annotation1.format setEncoding("US-ASCII")
 		annotation1.format setTypeName("double")
 		annotation1.format setLength("12")
 		annotation1.format setTerminator("term")
@@ -83,7 +83,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 
 		val annotation2 = new Annotation(null)
 		annotation2.format setRepresentation(Text)
-		annotation2.format setEncoding("ASCII")
+		annotation2.format setEncoding("US-ASCII")
 		annotation2.format setTypeName("decimal")
 		annotation2.format setLength("12")
 		annotation2.format setTerminator("term")
@@ -98,7 +98,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 	}
  
 //	def test() { // ("creating a DecimalTextProcessor") (pending)
-//		val processor = new DecimalTextProcessor(Charset.forName("ASCII"),true)
+//		val processor = new DecimalTextProcessor(Charset.forName("US-ASCII"),true)
 //		processor.setLength(12)
 //		processor.setTerminator("term")
 //		processor.setInitiator("init")
@@ -106,7 +106,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 //		processor.setBase(10)
 //
 //		val annotation1 = new Annotation(Map((AnnotationKeys.REPRESENTATION_KEY,null)->Text,
-//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("ASCII"),
+//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("US-ASCII"),
 //				(AnnotationKeys.TYPE_KEY,null)->"int",
 //				(AnnotationKeys.LENGTH_KEY,null)->12,
 //				(AnnotationKeys.TERMINATOR_KEY,null)->"term",
@@ -114,7 +114,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 //				(AnnotationKeys.SEPARATOR_KEY,null)->"sep"))
 //
 //		val annotation2 = new Annotation(Map((AnnotationKeys.REPRESENTATION_KEY,null)->Text,
-//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("ASCII"),
+//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("US-ASCII"),
 //				(AnnotationKeys.TYPE_KEY,null)->"integer",
 //				(AnnotationKeys.LENGTH_KEY,null)->12,
 //				(AnnotationKeys.TERMINATOR_KEY,null)->"term",
@@ -122,7 +122,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 //				(AnnotationKeys.SEPARATOR_KEY,null)->"sep"))
 //  
 //		val annotation3 = new Annotation(Map((AnnotationKeys.REPRESENTATION_KEY,null)->Text,
-//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("ASCII"),
+//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("US-ASCII"),
 //				(AnnotationKeys.TYPE_KEY,null)->"long",
 //				(AnnotationKeys.LENGTH_KEY,null)->12,
 //				(AnnotationKeys.TERMINATOR_KEY,null)->"term",
@@ -130,7 +130,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 //				(AnnotationKeys.SEPARATOR_KEY,null)->"sep"))
 //  
 //		val annotation4 = new Annotation(Map((AnnotationKeys.REPRESENTATION_KEY,null)->Text,
-//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("ASCII"),
+//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("US-ASCII"),
 //				(AnnotationKeys.TYPE_KEY,null)->"short",
 //				(AnnotationKeys.LENGTH_KEY,null)->12,
 //				(AnnotationKeys.TERMINATOR_KEY,null)->"term",
@@ -138,7 +138,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 //				(AnnotationKeys.SEPARATOR_KEY,null)->"sep"))
 //  
 //		val annotation5 = new Annotation(Map((AnnotationKeys.REPRESENTATION_KEY,null)->Text,
-//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("ASCII"),
+//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("US-ASCII"),
 //				(AnnotationKeys.TYPE_KEY,null)->"byte",
 //				(AnnotationKeys.LENGTH_KEY,null)->12,
 //				(AnnotationKeys.TERMINATOR_KEY,null)->"term",
@@ -146,7 +146,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 //				(AnnotationKeys.SEPARATOR_KEY,null)->"sep"))
 //  
 //		val annotation6 = new Annotation(Map((AnnotationKeys.REPRESENTATION_KEY,null)->Text,
-//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("ASCII"),
+//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("US-ASCII"),
 //				(AnnotationKeys.TYPE_KEY,null)->"long",
 //				(AnnotationKeys.LENGTH_KEY,null)->12,
 //				(AnnotationKeys.TERMINATOR_KEY,null)->"term",
@@ -154,7 +154,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 //				(AnnotationKeys.SEPARATOR_KEY,null)->"sep"))
 //  
 //		val annotation7 = new Annotation(Map((AnnotationKeys.REPRESENTATION_KEY,null)->Text,
-//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("ASCII"),
+//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("US-ASCII"),
 //				(AnnotationKeys.TYPE_KEY,null)->"unsignedLong",
 //				(AnnotationKeys.LENGTH_KEY,null)->12,
 //				(AnnotationKeys.TERMINATOR_KEY,null)->"term",
@@ -162,7 +162,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 //				(AnnotationKeys.SEPARATOR_KEY,null)->"sep"))
 //  
 //		val annotation8 = new Annotation(Map((AnnotationKeys.REPRESENTATION_KEY,null)->Text,
-//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("ASCII"),
+//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("US-ASCII"),
 //				(AnnotationKeys.TYPE_KEY,null)->"unsignedInt",
 //				(AnnotationKeys.LENGTH_KEY,null)->12,
 //				(AnnotationKeys.TERMINATOR_KEY,null)->"term",
@@ -170,7 +170,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 //				(AnnotationKeys.SEPARATOR_KEY,null)->"sep"))
 //  
 //		val annotation9 = new Annotation(Map((AnnotationKeys.REPRESENTATION_KEY,null)->Text,
-//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("ASCII"),
+//                                       (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("US-ASCII"),
 //				(AnnotationKeys.TYPE_KEY,null)->"unsignedShort",
 //				(AnnotationKeys.LENGTH_KEY,null)->12,
 //				(AnnotationKeys.TERMINATOR_KEY,null)->"term",
@@ -178,7 +178,7 @@ class ProcessorFactoryTest extends JUnit3Suite with ShouldMatchers  {
 //				(AnnotationKeys.SEPARATOR_KEY,null)->"sep"))
 //  
 //		val annotation10 = new Annotation(Map((AnnotationKeys.REPRESENTATION_KEY,null)->Text,
-//                                        (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("ASCII"),
+//                                        (AnnotationKeys.ENCODING_KEY,null)->Charset.forName("US-ASCII"),
 //				(AnnotationKeys.TYPE_KEY,null)->"unsignedByte",
 //				(AnnotationKeys.LENGTH_KEY,null)->12,
 //				(AnnotationKeys.TERMINATOR_KEY,null)->"term",

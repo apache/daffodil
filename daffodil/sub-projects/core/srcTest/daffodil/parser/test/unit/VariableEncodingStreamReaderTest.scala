@@ -30,7 +30,7 @@ class VariableEncodingStreamReaderTest extends JUnit3Suite with ShouldMatchers {
 					       '9' toByte))
     val rollbackStream = new RollbackStream(input)
     val reader = new VariableEncodingStreamReader(
-      rollbackStream,Charset.forName("ASCII"))
+      rollbackStream,Charset.forName("US-ASCII"))
 
     reader.read should equal ('0')
     reader.read should equal ('1')
@@ -59,7 +59,7 @@ class VariableEncodingStreamReaderTest extends JUnit3Suite with ShouldMatchers {
 					       '9' toByte))
     val rollbackStream = new RollbackStream(input)
     val reader = new VariableEncodingStreamReader(
-      rollbackStream,Charset.forName("ASCII"))
+      rollbackStream,Charset.forName("US-ASCII"))
 
     reader.read should equal ('0')
     reader.read should equal ('1')

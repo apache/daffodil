@@ -30,12 +30,14 @@ class TestDsomCompiler extends JUnit3Suite {
   val xsi = XMLUtil.XSI_NAMESPACE
   val example = XMLUtil.EXAMPLE_NAMESPACE
 
+  val dummyGroupRef = null // just because otherwise we have to construct too many things.
+  
   // @Test
   def testHasProps() {
     val testSchema = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
                        <annotation>
                          <appinfo source={ dfdl }>
-                           <dfdl:format terminator="" occursStopValue="-1" byteOrder="bigEndian" emptyValueDelimiterPolicy="none" initiator="" separator="" lengthKind="implicit" occursCountKind="expression"/>
+                           <dfdl:format textNumberRep="standard" terminator="" representation="text" occursStopValue="-1" byteOrder="bigEndian" emptyValueDelimiterPolicy="none" initiator="" separator="" lengthKind="implicit" occursCountKind="expression"/>
                          </appinfo>
                        </annotation>
                        <element name="list" type="tns:example1" />
@@ -102,13 +104,13 @@ class TestDsomCompiler extends JUnit3Suite {
       <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
           <annotation>
             <appinfo source={ dfdl }>
-              <dfdl:format occursCountKind="parsed" initiator="" terminator="" emptyValueDelimiterPolicy="none" occursStopValue="-1" textNumberRep="standard"/>
+              <dfdl:format representation="text" occursCountKind="parsed" initiator="" terminator="" emptyValueDelimiterPolicy="none" occursStopValue="-1" textNumberRep="standard"/>
             </appinfo>
           </annotation>
         <element name="list" type="tns:example1">
           <annotation>
             <appinfo source={ dfdl }>
-              <dfdl:element encoding="ASCII" alignmentUnits="bytes" />
+              <dfdl:element encoding="US-ASCII" alignmentUnits="bytes" />
             </appinfo>
           </annotation>
         </element>
@@ -122,7 +124,8 @@ class TestDsomCompiler extends JUnit3Suite {
     val (sset, _, _) = Compiler().frontEnd(sc)
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc) = schema.schemaDocuments
-    val Seq(decl) = schemaDoc.globalElementDecls
+    val Seq(declFactory) = schemaDoc.globalElementDecls
+    val decl = declFactory.forRoot()
     val Seq(ct) = schemaDoc.globalComplexTypeDefs
     assertEquals("example1", ct.name)
 
@@ -162,7 +165,7 @@ class TestDsomCompiler extends JUnit3Suite {
           <element name="list" type="tns:example1">
           <annotation>
             <appinfo source={ dfdl }>
-              <dfdl:element encoding="ASCII" alignmentUnits="bytes"/>
+              <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
             </appinfo>
           </annotation>
         </element>
@@ -182,7 +185,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(ct) = schemaDoc.globalComplexTypeDefs
     assertEquals("example1", ct.name)
 
-    val mg = ct.modelGroup.asInstanceOf[Sequence]
+    val mg = ct.forElement(null).modelGroup.asInstanceOf[Sequence]
     assertTrue(mg.isInstanceOf[Sequence])
 
     val Seq(elem) = mg.groupMembers
@@ -191,10 +194,10 @@ class TestDsomCompiler extends JUnit3Suite {
   }
 
   // @Test
-  def testAPI1() {
+  def testInputValueCalc1() {
     val testSchema =
       <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="data" type="xsd:int" dfdl:textNumberRep="standard" dfdl:representation="text" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:inputValueCalc="{ 42 }" dfdl:initiator=""/>
+        <element name="data" type="xsd:string" dfdl:textNumberRep="standard" dfdl:representation="text" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:inputValueCalc="{ 42 }" dfdl:initiator=""/>
       </schema>
     val actual = Compiler.testString(testSchema, "")
     val actualString = actual.toString
@@ -203,10 +206,10 @@ class TestDsomCompiler extends JUnit3Suite {
   }
 
   // @Test
-  def testAPI2() {
+  def testTerminator1() {
     val testSchema =
       <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="data" type="xsd:int" dfdl:initiator="" dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:terminator="%NL;" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
+        <element name="data" type="xsd:string" dfdl:ignoreCase="no" dfdl:initiator="" dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:terminator="\n" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ 3 }" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
       </schema>
     val actual = Compiler.testString(testSchema, "37\n")
     val actualString = actual.toString
@@ -218,7 +221,7 @@ class TestDsomCompiler extends JUnit3Suite {
   def testUnparse1() {
     val testSchema =
       <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="data" type="xsd:int" dfdl:occursStopValue="-1" dfdl:textNumberRep="standard" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:encoding="ASCII" dfdl:representation="text" dfdl:length="{ 2 }"/>
+        <element name="data" type="xsd:int" dfdl:occursStopValue="-1" dfdl:textNumberRep="standard" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:length="{ 2 }"/>
       </schema>
     val compiler = Compiler()
     val pf = compiler.compile(testSchema)
@@ -243,7 +246,10 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(ct) = sd.globalComplexTypeDefs
 
     // Explore global element decl
-    val Seq(e1, e2, e3) = sd.globalElementDecls // there are 3.
+    val Seq(e1f, e2f, e3f) = sd.globalElementDecls // there are 3 factories
+    val e1 = e1f.forRoot()
+    val e2 = e2f.forRoot()
+    val e3 = e3f.forRoot()
     assertEquals(ByteOrder.BigEndian.toString().toLowerCase(), e1.formatAnnotation.asInstanceOf[DFDLElement].byteOrder.toLowerCase())
     val Seq(a1, a2) = e3.annotationObjs // third one has two annotations
     assertTrue(a2.isInstanceOf[DFDLNewVariableInstance]) // second annotation is newVariableInstance
@@ -259,10 +265,10 @@ class TestDsomCompiler extends JUnit3Suite {
 
     // Explore global simple type defs
     val Seq(st1, st2) = sd.globalSimpleTypeDefs // there are two.
-    val Seq(b1, b2, b3, b4) = st1.annotationObjs // first one has 4 annotations
+    val Seq(b1, b2, b3, b4) = st1.forElement(e1).annotationObjs // first one has 4 annotations
     assertEquals(AlignmentUnits.Bytes, b1.asInstanceOf[DFDLSimpleType].alignmentUnits) // first has alignmentUnits
     assertEquals("tns:myVar1", b2.asInstanceOf[DFDLSetVariable].ref) // second is setVariable with a ref
-    assertEquals("yadda yadda yadda", b4.asInstanceOf[DFDLAssert].message) // foruth is an assert with yadda message
+    assertEquals("yadda yadda yadda", b4.asInstanceOf[DFDLAssert].message.get) // foruth is an assert with yadda message
 
     // Explore define formats
     val Seq(df1, df2) = sd.defineFormats // there are two
@@ -281,16 +287,16 @@ class TestDsomCompiler extends JUnit3Suite {
 
     // Explore global group defs
     val Seq(gr1, gr2) = sd.globalGroupDefs // there are two
-    val seq1 = gr1.modelGroup.asInstanceOf[Sequence]
+    val seq1 = gr1.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[Sequence]
 
     //Explore LocalSimpleTypeDef
-    val Seq(gr2c1, gr2c2, gr2c3) = gr2.modelGroup.asInstanceOf[ModelGroup].groupMembers
+    val Seq(gr2c1, gr2c2, gr2c3) = gr2.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[ModelGroup].groupMembers
     val ist = gr2c3.asInstanceOf[LocalElementDecl].immediateType.get.asInstanceOf[LocalSimpleTypeDef]
     assertEquals("tns:aType", ist.baseName)
 
     //Explore LocalElementDecl
     val led = gr2c1.asInstanceOf[LocalElementDecl]
-    assertEquals(5, led.maxOccurs)
+    assertEquals(1, led.maxOccurs)
     val Seq(leda) = led.annotationObjs
     assertEquals("{ $myVar1 eq (+47 mod 4) }", leda.asInstanceOf[DFDLDiscriminator].testBody)
 
@@ -312,10 +318,10 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(sd) = sch.schemaDocuments
 
     val Seq(gd1, gd2) = sd.globalGroupDefs // Obtain Group nodes
-    val ch1 = gd2.modelGroup.asInstanceOf[Choice] // Downcast child-node of group to Choice
+    val ch1 = gd2.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[Choice] // Downcast child-node of group to Choice
     val Seq(cd1, cd2, cd3) = ch1.groupMembers // Children nodes of Choice-node, there are 3
 
-    val Seq(a1: DFDLChoice) = gd2.modelGroup.annotationObjs // Obtain the annotation object that is a child
+    val Seq(a1: DFDLChoice) = gd2.forGroupRef(dummyGroupRef, 1).modelGroup.annotationObjs // Obtain the annotation object that is a child
     // of the group node.
 
     assertEquals(AlignmentType.Implicit, a1.alignment)
@@ -324,7 +330,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(asrt1) = cd2.asInstanceOf[LocalElementDecl].annotationObjs // Obtain Annotation object that is child
     // of cd2.
 
-    assertEquals("{ $myVar1 eq xs:int(xs:string(fn:round-half-to-even(8.5))) }", asrt1.asInstanceOf[DFDLAssert].test)
+    assertEquals("{ $myVar1 eq xs:int(xs:string(fn:round-half-to-even(8.5))) }", asrt1.asInstanceOf[DFDLAssert].test.get)
 
   }
 
@@ -336,7 +342,8 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(ge1, ge2, ge3, ge4) = sd.globalElementDecls // Obtain global element nodes
+    val Seq(ge1f, ge2f, ge3f, ge4f) = sd.globalElementDecls // Obtain global element nodes
+    val ge1 = ge1f.forRoot()
     val Seq(a1: DFDLElement) = ge1.annotationObjs
 
     val props: Map[String, String] = a1.getFormatProperties()

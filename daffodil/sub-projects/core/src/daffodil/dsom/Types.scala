@@ -59,37 +59,38 @@ class PrimitiveType(name_ : String) extends NamedType {
 
 /**
  * The factory is sharable even though the global object it creates cannot
- * be shared.  
- * 
+ * be shared.
+ *
  * Call forElement(element) and supply the element referring
- * to the global type, then you get back an instance that is one-to-one with the 
- * element. 
- * 
+ * to the global type, then you get back an instance that is one-to-one with the
+ * element.
+ *
  * This then allows attributes of the type to refer to the element in deciding things.
  * I.e., the context is clear and kept separate for each place a global type is used.
  */
-class GlobalSimpleTypeDefFactory(xmlArg : Node, val schemaDocument : SchemaDocument) 
+
+class GlobalSimpleTypeDefFactory(xmlArg : Node, schemaDocumentArg : SchemaDocument)
   extends GlobalComponentMixin {
   def xml = xmlArg
-  
+  def schemaDocument = schemaDocumentArg
   /**
    * Create a private instance for this element's use.
    */
-  def forElement(element : ElementDeclBase) = new GlobalSimpleTypeDef(element)
-  
-  /**
-   * The instance type for global simple type definitions.
-   */
-  class GlobalSimpleTypeDef(val element : ElementDeclBase)
-    extends NamedSimpleTypeBase(xmlArg, schemaDocument) 
-    with GlobalComponentMixin {
-
-    def emptyFormatFactory = new DFDLSimpleType(<dfdl:simpleType/>, this)
-
-    def isMyAnnotation(a : DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
-  }
-  
+  def forElement(element : ElementDeclBase) = new GlobalSimpleTypeDef(xmlArg, schemaDocumentArg, element)
 }
+/**
+ * The instance type for global simple type definitions.
+ */
+class GlobalSimpleTypeDef(xmlArg : Node, schemaDocumentArg : SchemaDocument, val element : ElementDeclBase)
+  extends NamedSimpleTypeBase(xmlArg, schemaDocumentArg)
+  with GlobalComponentMixin {
+
+  def schemaDocument = schemaDocumentArg
+  def emptyFormatFactory = new DFDLSimpleType(<dfdl:simpleType/>, this)
+
+  def isMyAnnotation(a : DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
+}
+  
 
 abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
   extends SchemaComponent
@@ -98,21 +99,25 @@ abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
 
   lazy val xml = xmlArg
   lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
-  lazy val Seq(modelGroup) = xmlChildren.flatMap { ModelGroup(_, this) }
+  lazy val Seq(modelGroup) = xmlChildren.flatMap { GroupFactory(_, this, 1) }
 
 }
 
-class GlobalComplexTypeDefFactory(xmlArg : Node, val schemaDocument : SchemaDocument)
+
+class GlobalComplexTypeDefFactory(xmlArg : Node, schemaDocumentArg : SchemaDocument)
   extends GlobalComponentMixin {
   def xml = xmlArg
-
-  def forElement(element : ElementDeclBase) = new GlobalComplexTypeDef(element)
-
-  class GlobalComplexTypeDef(element : ElementDeclBase)
-    extends ComplexTypeBase(xmlArg, schemaDocument)
-    with GlobalComponentMixin {
-  }
+  def schemaDocument = schemaDocumentArg
+  
+  def forElement(element : ElementDeclBase) = new GlobalComplexTypeDef(xmlArg, schemaDocumentArg, element)  
 }
+
+class GlobalComplexTypeDef(xmlArg : Node, schemaDocumentArg : SchemaDocument, val element : ElementDeclBase)
+    extends ComplexTypeBase(xmlArg, schemaDocumentArg)
+    with GlobalComponentMixin {
+    def schemaDocument = schemaDocumentArg
+}
+
 
 class LocalComplexTypeDef(xmlArg: Node, parent: ElementDeclBase)
   extends ComplexTypeBase(xmlArg, parent)

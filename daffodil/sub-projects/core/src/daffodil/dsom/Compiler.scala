@@ -40,15 +40,17 @@ class Compiler extends DFDL.Compiler {
     //
     // let's make sure every element declaration compiles
     //
-    val allElts = sset.schemas.flatMap{_.schemaDocuments.flatMap{_.globalElementDecls}}
+    val allEltFactories = sset.schemas.flatMap{_.schemaDocuments.flatMap{_.globalElementDecls}}
+    val allElts = allEltFactories.map{_.forRoot()}
     System.err.println("Compiling " + allElts.length + " element(s).")
     val allParsers = allElts.foreach{
       elt => {
         val doc = elt.document
-        System.err.println("document = " + doc)
+        // System.err.println("document = " + doc)
         val parser = doc.parser
         System.err.println("parser = " + parser)
         // str = parser.toString
+        parser
       }
     }
     
@@ -62,8 +64,8 @@ class Compiler extends DFDL.Compiler {
       rootNamespace = (xml \ "@targetNamespace").text
     }
     
-    val maybeRoot = sset.getGlobalElementDecl(rootNamespace, root)
-    maybeRoot match {
+    val maybeRoot = allElts.find{decl => decl.namespace == rootNamespace && decl.name == root}
+    val res = maybeRoot match {
       case None => Assert.usageError("The document element named " + root + " was not found.")
       case Some(rootElem) => {
         val parserFactory = rootElem.document
@@ -71,6 +73,7 @@ class Compiler extends DFDL.Compiler {
         (sset, parser, rootElem)
       }
     }
+    res
   }
 
   def commonCompile(xml: Node) = {

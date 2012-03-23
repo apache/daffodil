@@ -26,7 +26,7 @@ trait AnnotatedElementMixin
 // A Particle is something that can be repeating.
 trait Particle { self: LocalElementBase =>
 
-  lazy val isScalar = minOccurs == 1 && maxOccurs == 1
+  override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
   lazy val isRecurring = !isScalar
 
   lazy val minOccurs = {
@@ -206,8 +206,8 @@ trait ElementBaseMixin
 
 }
 
-abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup)
-  extends Term(xmlArg, parent)
+abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup, position : Int)
+  extends Term(xmlArg, parent, position)
   with ElementBaseMixin
   with Particle
   with LocalElementBaseGrammarMixin {
@@ -261,8 +261,8 @@ abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup)
   }
 }
 
-class ElementRef(xmlArg: Node, parent: ModelGroup)
-  extends LocalElementBase(xmlArg, parent) with HasRef {
+class ElementRef(xmlArg: Node, parent: ModelGroup, position : Int)
+  extends LocalElementBase(xmlArg, parent, position) with HasRef {
 
   // These will just delegate to the referenced element declaration
   lazy val isNillable = Assert.notYetImplemented()
@@ -278,7 +278,6 @@ class ElementRef(xmlArg: Node, parent: ModelGroup)
   // These may be trickier, as the type needs to be responsive to properties from the
   // element reference's format annotations, and its lexical context.
   lazy val typeDef = Assert.notYetImplemented()
-  override def grammarExpr = Assert.notYetImplemented()
 
   // Element references can have minOccurs and maxOccurs, and annotations, but nothing else.
 
@@ -399,8 +398,8 @@ trait ElementDeclBase
 
 }
 
-class LocalElementDecl(xmlArg: Node, parent: ModelGroup)
-  extends LocalElementBase(xmlArg, parent)
+class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position : Int)
+  extends LocalElementBase(xmlArg, parent, position)
   with ElementDeclBase {
 }
 
@@ -416,7 +415,17 @@ trait DFDLStatementMixin {
   }
 }
 
-class GlobalElementDecl(xmlArg: Node, val schemaDocument: SchemaDocument)
+class GlobalElementDeclFactory(xmlArg: Node, val schemaDocument: SchemaDocument) 
+extends GlobalComponentMixin {
+  def xml = xmlArg
+  
+  def forRoot() = new GlobalElementDecl(xmlArg, schemaDocument, None)
+  
+  def forElementRef(eRef : ElementRef) = new GlobalElementDecl(xmlArg, schemaDocument, Some(eRef))
+  
+}
+
+class GlobalElementDecl(xmlArg: Node, val schemaDocument: SchemaDocument, val elementRef : Option[ElementRef])
   extends GlobalComponentMixin
   with ElementDeclBase
   with GlobalElementDeclGrammarMixin {
