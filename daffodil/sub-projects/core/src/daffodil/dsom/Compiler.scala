@@ -137,6 +137,7 @@ class Compiler extends DFDL.Compiler {
             val jdomFakeRoot = resultState.parent
             // top node is this fake root element
             Assert.invariant(jdomFakeRoot.getName() == "_document_" )
+            Assert.invariant(jdomFakeRoot.getContentSize() == 1)
             val jdomElt = jdomFakeRoot.getContent(0).asInstanceOf[org.jdom.Element]
             val node = XMLUtil.element2Elem(jdomElt)
             node

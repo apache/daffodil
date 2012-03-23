@@ -50,6 +50,10 @@ class AltCompParser(p : Expr, q : Expr) extends Parser {
   val pParser = p.parser
   val qParser = q.parser
   def parse(pstate : PState) = {
+    
+    // TODO: capture current Infoset node (make a shallow copy of it)
+    // restoring this later (literally, clobbering the parent to point to 
+    // this copy), is the way we backtrack the side-effects on the Infoset.
     //
     // TBD: better Scala idiom for try/catch than this var stuff
     // Use of var makes this code non-thread-safe. If you can avoid var, then you
@@ -64,13 +68,14 @@ class AltCompParser(p : Expr, q : Expr) extends Parser {
     }
     if (pResult != null && pResult.status == Success) pResult
     else {
+      // TODO: Unwind any side effects on the Infoset 
       //
       // TODO: check for discriminator evaluated to true.
       // If so, then we don't run the next alternative, we
       // consume this discriminator status result (so it doesn't ripple upward)
       // and return the failed state.
       //
-      val qResult = qParser.parse(pResult)
+      val qResult = qParser.parse(pstate)
       qResult
     } 
   }
@@ -78,13 +83,27 @@ class AltCompParser(p : Expr, q : Expr) extends Parser {
   override def toString = "(" + pParser.toString + " | " + qParser.toString + ")"
 }
 
-class RepExactlyNParser extends Parser {
-    def parse(pstate : PState) = Assert.notYetImplemented()
+class RepExactlyNParser(n : Long, r : => Expr) extends Parser {
+  Assert.invariant(!r.isEmpty)
+  val rParser = r.parser
+  def parse(pstate : PState) : PState = {
+    val intN = n.toInt // TODO: Ints aren't big enough for this.
+     var pResult = pstate
+    1 to intN foreach { _ => {
+      val pNext = rParser.parse(pResult)
+      if (pNext.status != Success) return pNext
+      pResult = pNext
+      }
+    }
+    pResult
+  }
+    
+  override def toString = "RepExactlyNParser(" + rParser.toString + ")"
 }
 
 case class DummyParser(sc : PropertyMixin) extends Parser { 
     def parse(pstate : PState) : PState = Assert.abort("Parser for " + sc + " is not yet implemented.")
-    override def toString = "Dummy[" + sc.detailName + "]"
+    override def toString = if (sc == null) "Dummy[null]" else "Dummy[" + sc.detailName + "]"
 }
 
 /**
@@ -109,7 +128,8 @@ class PState (
   val namespaces : Namespaces,
   val status : ProcessorResult,
   val groupIndexStack : List[Long],
-  val childIndexStack : List[Long]
+  val childIndexStack : List[Long],
+  val arrayIndexStack : List[Long]
   ) {
   def bytePos = bitPos >> 3
   def whichBit = bitPos % 8
@@ -121,19 +141,21 @@ class PState (
    * one or a related subset of the state components to a new one.
    */
   def withInStream (inStream : InStream, status : ProcessorResult = Success) = 
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack)    
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack)    
   def withPos (bitPos : Long, charPos : Long, status : ProcessorResult = Success) = 
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack)    
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack)    
   def withParent (parent : org.jdom.Element, status : ProcessorResult = Success) = 
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack)
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack)
   def withVariables (variableMap : VariableMap, status : ProcessorResult = Success) = 
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack)    
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack)    
   def withGroupIndexStack (groupIndexStack : List[Long], status : ProcessorResult = Success) = 
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack)
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack)
   def withChildIndexStack (childIndexStack : List[Long], status : ProcessorResult = Success) = 
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack)
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack)
+   def withArrayIndexStack (arrayIndexStack : List[Long], status : ProcessorResult = Success) = 
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack)
    def failed = 
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, Failure, groupIndexStack, childIndexStack)
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, new Failure, groupIndexStack, childIndexStack, arrayIndexStack)
 
   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.
@@ -157,7 +179,14 @@ class PState (
         s1.withChildIndexStack(newChildIndex :: tl)
       }
     }
-   s2
+  val s3 = s2.arrayIndexStack match {
+      case Nil => s2
+      case hd :: tl => {
+        val newArrayIndex = hd + 1
+        s1.withArrayIndexStack(newArrayIndex :: tl)
+      }
+    }
+   s3
   }
 }
 
@@ -175,7 +204,8 @@ object PState {
     val status = Success
     val groupIndexStack = Nil
     val childIndexStack = Nil
-    val newState = new PState(inStream, 0, -1, 0, -1, doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack)
+    val arrayIndexStack = Nil
+    val newState = new PState(inStream, 0, -1, 0, -1, doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack)
     newState
   }
   

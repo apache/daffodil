@@ -49,6 +49,8 @@ sealed abstract class ProcessorResult;
 case object Success extends ProcessorResult
 case object Last extends ProcessorResult
 case object LastEmpty extends ProcessorResult
-case object Failure extends ProcessorResult
+class Failure extends ProcessorResult {
+  System.err.println("FAILURE")
+}
 case object Empty extends ProcessorResult
 

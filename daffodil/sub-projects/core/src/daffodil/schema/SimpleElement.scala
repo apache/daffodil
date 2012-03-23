@@ -65,7 +65,7 @@ class SimpleElement(val name:String,ann:Annotation,target:String,namespaces:Name
         case Success => new ChildSuccess(LinkedList(element))
         case Last => new ChildLast(LinkedList(element))
         case LastEmpty | Empty => setDefault(input,parent,element)
-        case Failure =>
+        case _ => // Failure =>
           throw new ElementNotFoundException("Element not found",
             schemaContext = annotation element,documentContext = element,position = Some(input getPosition))
       }

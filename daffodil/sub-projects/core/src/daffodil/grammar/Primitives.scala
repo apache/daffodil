@@ -76,6 +76,7 @@ case class StringFixedLengthInBytes(e : ElementBaseMixin, nBytes : Long) extends
     	System.err.println("Ended at bit position " + endBitPos)
     	val endCharPos = start.charPos + result.length
     	val currentElement = start.parent
+    	Assert.invariant(currentElement.getName() != "_document_")
     	// Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
     	// and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
     	currentElement.addContent(new org.jdom.Text(result))
@@ -108,6 +109,7 @@ case class StandardTextIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
 
 abstract class Primitive(e: PropertyMixin, guard: Boolean = false) 
 extends Terminal(e, guard) {
+    override def toString = "Prim[" + name + "]"
     def parser: Parser = DummyParser(e)
   }
 
@@ -152,7 +154,7 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) e
         val postState = start.withPos(endBitPos, endCharPos)
         postState
       } else {
-        val postState = start.withPos(start.bitPos, start.charPos, Failure)
+        val postState = start.withPos(start.bitPos, start.charPos, new Failure)
         postState
       }
     }
@@ -175,7 +177,7 @@ case class StartChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Ter
       override def toString = "StartChildren"
 
       def parse(start : PState) : PState = {
-    	val postState = start.withChildIndexStack(0L :: start.childIndexStack)
+    	val postState = start.withChildIndexStack(1L :: start.childIndexStack)
     	postState
       }
    }
@@ -187,7 +189,7 @@ case class StartSequence(sq : Sequence, guard: Boolean = true) extends Terminal(
       override def toString = "StartSequence"
 
       def parse(start : PState) : PState = {
-    	val postState = start.withGroupIndexStack(0L :: start.groupIndexStack)
+    	val postState = start.withGroupIndexStack(1L :: start.groupIndexStack)
     	postState
       }
    }
@@ -243,9 +245,29 @@ case class EndSequence(sq : Sequence, guard: Boolean = true)  extends Terminal(s
    }
 }
   
-case class StartArray(e: LocalElementBase, guard: Boolean = true) extends Primitive(e, guard) 
+case class StartArray(e: LocalElementBase, guard: Boolean = true) extends Terminal(e, guard) {
+    def parser: Parser = new Parser {
+     
+      override def toString = "StartArray"
+
+      def parse(start : PState) : PState = {
+    	val postState = start.withArrayIndexStack(1L :: start.arrayIndexStack)
+    	postState
+      }
+   }
+}
   
-case class EndArray(e: LocalElementBase, guard: Boolean = true) extends Primitive(e, guard) 
+case class EndArray(e: LocalElementBase, guard: Boolean = true)   extends Terminal(e, guard) {
+    def parser: Parser = new Parser {
+     
+      override def toString = "EndArray"
+
+      def parse(start : PState) : PState = {
+    	val postState = start.withArrayIndexStack(start.arrayIndexStack.tail)
+    	postState
+      }
+   }
+}
 
 case class NoValue(e: GlobalElementDecl, guard: Boolean = true) extends Primitive(e, guard) 
  

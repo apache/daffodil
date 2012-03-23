@@ -41,10 +41,14 @@ with AlignedMixin { self: ElementBaseMixin =>
   // turn it into a type/class, object, def, or val/var name, as well as a string, etc. 
   // 
 
-lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == NilKind.LogicalValue,
-      nilElementInitiator ~ LogicalNilValue(this) ~ nilElementTerminator)
+  lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == NilKind.LogicalValue,
+    nilElementInitiator ~ LogicalNilValue(this) ~ nilElementTerminator)
 
-  lazy val parsedValue = Prod("parsedValue", this, initiatorRegion ~ allowedValue ~ terminatorRegion)
+  lazy val parsedValue = {
+    val res = Prod("parsedValue", this, initiatorRegion ~ allowedValue ~ terminatorRegion)
+    res
+  }
+
   
   def allowedValue : Prod // provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
 
@@ -65,7 +69,8 @@ lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == Nil
       lengthUnits == LengthUnits.Characters && couldBeVariableWidthEncoding,
       StringFixedLengthInVariableWidthCharacters(this, fixedLength))
       
-  lazy val stringValue = Prod("stringValue", this, lengthKind match {
+  lazy val stringValue = {
+    val res = Prod("stringValue", this, lengthKind match {
     case LengthKind.Explicit if isFixedLength => 
       stringFixedLengthInBytesWithFixedWidthCharacters |
       stringFixedLengthInBytesWithVariableWidthCharacters |
@@ -73,6 +78,8 @@ lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == Nil
       stringFixedLengthInVariableWidthCharacters
     case _ => Assert.notYetImplemented()
   })
+  res
+  }
   
   lazy val binaryInt = Prod("binaryInt", this, representation == Representation.Binary,
       regularBinaryRepInt | bcdInt | packedInt)
@@ -97,7 +104,10 @@ lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == Nil
       textNumberRep == TextNumberRep.Zoned, ZonedTextIntPrim(this))
  
  
-  lazy val value = Prod("value", this, isScalar, // exclude issues with matching a stopValue.
+  lazy val value = {
+    val res = Prod("value", this, 
+        // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
+        // This gets used for array contents also.
       typeDef match {
       case prim : PrimitiveType => {
         val n = prim.name
@@ -115,6 +125,8 @@ lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == Nil
       case _ => Assert.invariantFailed("typeDef was not Primitive, Simple, or Complex")
     }
   )
+  res
+  }
     //
     // Used to be this big alternation, but that's a very slow way to go when they're known to be
     // exclusive.
@@ -170,8 +182,11 @@ lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == Nil
     isNillable && nilKind == NilKind.LiteralValue,
     nilElementInitiator ~ LiteralNilValue(this) ~ nilElementTerminator)
 
-  lazy val scalarDefaultableSimpleContent = Prod("scalarDefaultableSimpleContent", this, 
+  lazy val scalarDefaultableSimpleContent = {
+	  val res = Prod("scalarDefaultableSimpleContent", this, 
       isSimpleType, nilLit | emptyDefaulted | parsedNil | parsedValue )
+      res
+}
 
   lazy val scalarComplexContent = Prod("scalarComplexContent", this, isComplexType, nilLit | complexContent)
 
@@ -206,8 +221,10 @@ lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == Nil
       scalarNonDefaultContent  ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
   
   lazy val scalarDefaultable = Prod("scalarDefaultable", this, 
-    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~ 
-      scalarDefaultableContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
+//    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~ 
+//      scalarDefaultableContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd
+      dfdlElementBegin ~ scalarDefaultableContent ~ dfdlElementEnd
+      )
   
 
 }
@@ -219,12 +236,19 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
   lazy val notStopValue = Prod("notStopValue", this, hasStopValue, NotStopValue(this))
   
   lazy val separatedEmpty = Prod("separatedEmpty", this, emptyIsAnObservableConcept, separatedForPosition(empty))
-  lazy val separatedScalarDefaultable = Prod("separatedScalar", this, isScalar, separatedForPosition(scalarDefaultable))
+  lazy val separatedScalarDefaultable = Prod("separatedScalarDefaultable", this, isScalar, separatedForPosition(scalarDefaultable))
+  lazy val separatedRecurringDefaultable = Prod("separatedRecurringDefaultable", this, !isScalar, separatedForPosition(scalarDefaultable))
   lazy val separatedScalarNonDefault = Prod("separatedScalarNonDefault", this, isScalar, separatedForPosition(scalarNonDefault))
-  lazy val recurrance = Prod("recurrance", this, !isScalar, 
+  lazy val separatedRecurringNonDefault = Prod("separatedRecurringNonDefault", this, !isScalar, separatedForPosition(scalarNonDefault))
+
+  lazy val recurrance = Prod("recurrance", this, 
+      !isScalar, 
       StartArray(this) ~ arrayContents ~ EndArray(this) ~ FinalUnusedRegion(this))
 
-  lazy val termContentBody = Prod("term", this, separatedScalarDefaultable | recurrance)
+  lazy val termContentBody = {
+    val res = Prod("term", this, separatedScalarDefaultable | recurrance)
+    res
+  }
   
    /**
      * speculate parsing forward until we get an error
@@ -257,17 +281,47 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
   lazy val stopValueSize = if (hasStopValue) 1 else 0
   
   def separatedContentExactlyN(count : Long) = { 
-      RepExactlyN(minOccurs, separatedScalarDefaultable) ~
-        RepAtMostTotalN(count, separatedScalarNonDefault) ~
+      RepExactlyN(minOccurs, separatedRecurringDefaultable) ~
+        RepAtMostTotalN(count, separatedRecurringNonDefault) ~
         StopValue(this) ~
         RepExactlyTotalN(maxOccurs + stopValueSize, separatedEmpty) // absorb reps remaining separators
   }
+  
+//  def separatedContentExactlyNComputed(runtimeCount : CompiledExpression) = { 
+//      RuntimeQuantity(runtimeCount) ~
+//      RepExactlyN(minOccurs, separatedScalarDefaultable) ~
+//        RepAtMostTotalN(count, separatedScalarNonDefault) ~
+//        StopValue(this) ~
+//        RepExactlyTotalN(maxOccurs + stopValueSize, separatedEmpty) // absorb reps remaining separators
+//  }
    
     // keep in mind that anything here that scans for a representation either knows the length it is going after, or knows what the terminating markup is, and
     // our invariant is, that it does NOT consume that markup ever. The parser consumes it with appropriate grammar terminals. 
   
     val UNB = -1 // UNBOUNDED
-    val RUNTIME_OCCURS_COUNT = -2
+
+    
+    lazy val arrayContents = { 
+      val res = Prod("arrayContents", this, isRecurring,
+       arrayContentsNoSeparators | arrayContentsWithSeparators
+        )
+        res
+    }
+          
+    lazy val arrayContentsNoSeparators = Prod("arrayContentsNoSeparators", this, isRecurring && !hasSep, {
+      val max = maxOccurs
+      val res = occursCountKind match {
+//        case Expression => separatedContentExactlyNComputed(occursCountExpr)
+        case OccursCountKind.Fixed      if (max == UNB) => Assert.SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+        case OccursCountKind.Fixed      => separatedContentExactlyN(max)
+        case OccursCountKind.Implicit   if (max == UNB) => separatedContentUnbounded
+        case OccursCountKind.Implicit   => separatedContentAtMostN // uses maxOccurs
+        case OccursCountKind.Parsed     => separatedContentUnbounded
+        case OccursCountKind.StopValue  => separatedContentUnbounded
+      }
+      res
+    }
+    )
     
     //
     // Silly constants to make the lookup table below more readable without using fragile whitespace
@@ -280,21 +334,16 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
     val Parsed____ = OccursCountKind.Parsed
     val Fixed_____ = OccursCountKind.Fixed
     val Expression = OccursCountKind.Expression
-    
-//    lazy val recurring = Prod("stopValueSize", this, isRecurring,
-//        StartArray(this) ~ arrayContents ~ EndArray(this) // takes care of setting the array index to 1 at the start.
-//        )
-          
     /**
      * Matches the table about separator suppression policy.
      * 
      * TODO: Right now that table is in DFDL WG subgroup working on "Issue 140" which is trying to 
      * rationalize separator suppression among other things. Update this table to match the final spec.
      */
-    lazy val arrayContents = Prod("arrayContents", this, isRecurring && hasSep, {
+    lazy val arrayContentsWithSeparators = Prod("arrayContentsWithSeparators", this, isRecurring && hasSep, {
       val triple = (separatorSuppressionPolicy, occursCountKind, maxOccurs)
       val res = triple match {
-        case (___________, Expression, ___) => separatedContentExactlyN(RUNTIME_OCCURS_COUNT)
+ //       case (___________, Expression, ___) => separatedContentExactlyNComputed(occursCountExpr)
         case (Never______, Fixed_____, UNB) => Assert.SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
         case (___________, Fixed_____, max) => separatedContentExactlyN(max)
         case (Never______, Implicit__, UNB) => Assert.SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' required bounded maxOccurs.")
@@ -353,7 +402,8 @@ trait TermGrammarMixin { self : Term =>
   lazy val asTermInChoice = termContentBody
   
   def separatedForPosition(body : => Expr) = {
-    es.prefixSep ~ infixSepRule ~ body ~ es.postfixSep
+	val res = es.prefixSep ~ infixSepRule ~ body ~ es.postfixSep
+	res
   }
   
   lazy val Some(es) = {

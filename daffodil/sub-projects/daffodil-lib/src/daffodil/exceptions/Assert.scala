@@ -11,6 +11,10 @@ class Abort(m : String) extends AnException(m)
 
 abstract class DFDLException(m : String) extends AnException(m) {
   def this() = this("") // no arg constructor also.
+  
+  val msg = {
+    m // just here for the sake of putting a breakpoint here.
+  }
 }
 class SDE(m : String) extends DFDLException(m) // schema definition error
 

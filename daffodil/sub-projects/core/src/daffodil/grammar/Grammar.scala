@@ -5,9 +5,7 @@ import daffodil.dsom.SchemaComponent
 import daffodil.util.Misc._
 
 abstract class Expr(nameArg : String = "") {
-  
-
-  
+    
   val name = if (nameArg == "") getNameFromClass(this) else nameArg
   
   def isEmpty = false // they are by default not empty expressions. Overridden in the cases where they could be.
@@ -39,8 +37,14 @@ abstract class Expr(nameArg : String = "") {
   
 }
 
-abstract class UnaryExpr(r : => Expr) extends Expr {
-  override def toString = name + "(" + r + ")"
+abstract class UnaryExpr(rr : => Expr) extends NamedExpr {
+  
+  val expr = {
+    val r = rr
+    if (r.isEmpty) EmptyExpr
+    else this
+  }
+
 }
 
 abstract class BinaryExpr(p : => Expr, q : => Expr) extends Expr {
@@ -66,7 +70,7 @@ class AltComp(p : => Expr, q : => Expr) extends BinaryExpr(p, q) {
 }
 
 class RepExactlyN(n : Long, r : => Expr) extends UnaryExpr(r) {
-    def parser = new RepExactlyNParser
+    def parser = new RepExactlyNParser(n, r)
 }
 object RepExactlyN {
   def apply(n : Long, r : => Expr) = new RepExactlyN(n, r)
@@ -76,7 +80,7 @@ class RepAtMostTotalN(n : Long, r : => Expr) extends UnaryExpr(r) {
     def parser = DummyParser(null) // stub
 }
 object RepAtMostTotalN {
-  def apply(n : Long, r : => Expr) = new RepAtMostTotalN(n, r)
+  def apply(n : Long, r : => Expr) = EmptyExpr // new RepAtMostTotalN(n, r)
 }
 
 class RepUnbounded(r : => Expr) extends UnaryExpr(r) {
@@ -88,7 +92,10 @@ object RepUnbounded {
 
 class RepExactlyTotalN(n : Long, r : => Expr) extends UnaryExpr(r) {
     def parser = DummyParser(null) // stub
+    override val expr = EmptyExpr
+    override def isEmpty = true
 }
+
 object RepExactlyTotalN {
   def apply(n : Long, r : => Expr) = new RepExactlyTotalN(n, r)
 }
@@ -126,16 +133,21 @@ abstract class Terminal(sc: Any, guard : Boolean) extends NamedExpr {
 class Prod(nameArg : String, sc : SchemaComponent, guard : Boolean, exprArg : => Expr) extends NamedExpr(nameArg) {
   
   val containingClassName = getNameFromClass(sc)
-  val expr = {
 
+  val expr = {
     if (guard) {
-      System.err.print(containingClassName + ".Prod." + name)
-      System.err.println(" ok.")
-      exprArg
+      System.err.println("Start Prod " + containingClassName + ".Prod." + name)
+      val e = exprArg
+      System.err.print("End Prod " + containingClassName + ".Prod." + name)
+      if (e.isEmpty)
+        System.err.println(" empty.")
+      else
+        System.err.println(" ok:" + e)
+      e
     } 
     else {
-//      System.err.print("Production " + name)
-//      System.err.println(" empty.")
+      System.err.print("Prod " + name)
+      System.err.println(" empty.")
       EmptyExpr
     }
   }
