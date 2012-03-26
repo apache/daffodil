@@ -310,9 +310,7 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
     
     lazy val contentUnbounded = {
       
-      val res = Prod("contentUnbounded", this, isRecurring,
-       Assert.notYetImplemented()
-        )
+      val res = Prod("contentUnbounded", this, isRecurring, RepUnbounded(separatedRecurringDefaultable))
         res
     }
           
@@ -321,7 +319,7 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
       val res = occursCountKind match {
 //        case Expression => separatedContentExactlyNComputed(occursCountExpr)
         case OccursCountKind.Fixed      if (max == UNB) => Assert.SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
-       // case OccursCountKind.Fixed      => contentExactlyN(max)
+        case OccursCountKind.Fixed      => separatedContentExactlyN(max)
        // case OccursCountKind.Implicit   if (max == UNB) => contentUnbounded
         //case OccursCountKind.Implicit   => contentAtMostN // uses maxOccurs
         case OccursCountKind.Parsed     => contentUnbounded

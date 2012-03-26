@@ -187,11 +187,8 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "56")
-    val actualString = actual.toString
-    assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
-    assertTrue(actualString.contains("><s1>5</s1><s2>6</s2></e1>"))
-    val expected = <e1><s1>5</s1><s2>6</s2></e1>
+    val actual = Compiler.testString(sch, "5A")
+    val expected = <e1><s1>5</s1><s2>A</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 }

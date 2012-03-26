@@ -84,7 +84,7 @@ object RepAtMostTotalN {
 }
 
 class RepUnbounded(r : => Gram) extends UnaryGram(r) {
-    def parser = DummyParser(null) // stub
+    def parser = new RepUnboundedParser(r)
 }
 object RepUnbounded {
   def apply(r : => Gram) = new RepUnbounded(r)

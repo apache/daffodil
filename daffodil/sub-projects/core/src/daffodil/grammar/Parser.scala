@@ -13,6 +13,8 @@ import daffodil.api._
 import java.nio._
 import java.nio.charset._
 
+import scala.collection.JavaConversions._
+
 /**
  * Encapsulates lower-level parsing with a uniform interface
  */
@@ -108,8 +110,12 @@ class RepUnboundedParser(r: => Gram) extends Parser {
     var pResult = pstate
     while (pResult.status == Success) {
 
+      val cloneNode = pResult.captureJDOM
       val pNext = rParser.parse(pResult)
-      if (pNext.status != Success) return pResult
+      if (pNext.status != Success) {
+        pResult.restoreJDOM(cloneNode)
+        return pResult
+      }
       pResult = pNext
 
     }
@@ -208,13 +214,16 @@ class PState(
   
   def captureJDOM: org.jdom.Element = {
     val newJDOM = new org.jdom.Element(parent.getName, parent.getNamespace)
+    val c = parent.getContent().toList.asInstanceOf[List[org.jdom.Element]]
     newJDOM.setContent(parent.getContent()) // Shallow copy, hopefully
     newJDOM
   }
   
   def restoreJDOM(newElem: org.jdom.Element) = {
-    val pp = parent.getParent() // Parent's Parent.
-    
+    val pp = parent.getParent().asInstanceOf[org.jdom.Element] // Parent's Parent.
+    val pi :: ppi :: rest = childIndexStack
+    pp.setContent(ppi.toInt, newElem)
+    newElem
   }
 }
 
