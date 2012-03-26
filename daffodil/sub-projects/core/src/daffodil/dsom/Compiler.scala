@@ -143,7 +143,11 @@ class Compiler extends DFDL.Compiler {
             node
             }
             else
-               throw new daffodil.exceptions.PE("Processing error at bitPos: " + resultState.bitPos + " charPos " + resultState.charPos)
+            {
+              val f = resultState.status.asInstanceOf[Failure]
+               throw new daffodil.exceptions.PE("Processing error at bitPos: " + resultState.bitPos + " charPos " + resultState.charPos + 
+                   "\nReason Failed: " + f.msg)
+            }
           }
 
           def unparse(output: DFDL.Output, node: scala.xml.Node): Unit = {

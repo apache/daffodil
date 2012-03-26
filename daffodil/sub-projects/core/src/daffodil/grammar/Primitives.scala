@@ -103,8 +103,21 @@ case class StringFixedLengthInVariableWidthCharacters(e : ElementBaseMixin, nCha
    }
 }
 
-case class StandardTextIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
-   def parser : Parser = DummyParser(e)
+case class ConvertTextIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
+   def parser : Parser = new Parser {
+     def parse(start: PState) : PState = {
+       val node = start.parent
+       val str = node.getText()
+       
+      val resultState =  try {
+         val i = str.toInt
+       // Node remains a string because of jdom
+         start
+       } catch {case e:Exception => start.failed("Failed to convert to an xs:int") }
+       
+      resultState
+     }
+   }
 }
 
 abstract class Primitive(e: PropertyMixin, guard: Boolean = false) 
@@ -154,7 +167,7 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) e
         val postState = start.withPos(endBitPos, endCharPos)
         postState
       } else {
-        val postState = start.withPos(start.bitPos, start.charPos, new Failure)
+        val postState = start.withPos(start.bitPos, start.charPos, new Failure("Delimiter not found"))
         postState
       }
     }
@@ -214,7 +227,7 @@ case class GroupPosGreaterThan(n: Long, term: Term, guard: Boolean = true) exten
     	  start
     	}
     	else {
-    	  start.failed
+    	  start.failed("Group position not greater than n (" + n + ")")
     	}
     	res
      }

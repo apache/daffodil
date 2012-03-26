@@ -49,8 +49,9 @@ sealed abstract class ProcessorResult;
 case object Success extends ProcessorResult
 case object Last extends ProcessorResult
 case object LastEmpty extends ProcessorResult
-class Failure extends ProcessorResult {
-  System.err.println("FAILURE")
+class Failure( msgArg: => String) extends ProcessorResult {
+  lazy val msg = msgArg
+  System.err.println("FAILURE: " + msg)
 }
 case object Empty extends ProcessorResult
 

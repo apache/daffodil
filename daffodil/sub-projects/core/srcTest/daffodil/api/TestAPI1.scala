@@ -21,7 +21,7 @@ class TestDFDLParser extends JUnit3Suite {
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains(">5678</e1>"))
 
-    val expected : Node = <e1>5678</e1>
+    val expected: Node = <e1>5678</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
@@ -136,6 +136,62 @@ class TestDFDLParser extends JUnit3Suite {
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1>55</s1><s1>66</s1><s1>77</s1></e1>"))
     val expected = <e1><s1>55</s1><s1>66</s1><s1>77</s1></e1>
+    TestUtils.assertEqualsXMLElements(expected, actual)
+  }
+
+  def testInt1() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>)
+    val actual = Compiler.testString(sch, "5")
+    TestUtils.assertEqualsXMLElements(<e1>5</e1>, actual)
+  }
+
+  def testParseSequenceInt() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format separatorPolicy="required" separatorPosition="infix" ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:initiator="[[" dfdl:terminator="]]">
+        <xs:complexType>
+          <xs:sequence dfdl:separator=",," dfdl:initiator="{{" dfdl:terminator="}}">
+            <xs:element name="s1" type="xs:int" dfdl:initiator="((" dfdl:terminator="))" dfdl:lengthKind="explicit" dfdl:length="{ 1 + 1 }" dfdl:occursCountKind="fixed" minOccurs="3" maxOccurs="3"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = Compiler.testString(sch, "[[{{((55)),,((66)),,((77))}}]]")
+    val actualString = actual.toString
+    assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
+    assertTrue(actualString.contains("><s1>55</s1><s1>66</s1><s1>77</s1></e1>"))
+    val expected = <e1><s1>55</s1><s1>66</s1><s1>77</s1></e1>
+    TestUtils.assertEqualsXMLElements(expected, actual)
+  }
+  
+  def testBadInt() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>)
+    val e = intercept[Exception]{
+      val actual = Compiler.testString(sch, "A")
+    }
+    //println("ERROR!!!!!" + e.getMessage())
+    assertTrue(e.getMessage().contains("xs:int"))
+  }
+  
+  def testParseOccursCountKindOfParsed() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }" minOccurs="0" dfdl:occursCountKind="parsed"/>
+            <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = Compiler.testString(sch, "56")
+    val actualString = actual.toString
+    assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
+    assertTrue(actualString.contains("><s1>5</s1><s2>6</s2></e1>"))
+    val expected = <e1><s1>5</s1><s2>6</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 }

@@ -24,7 +24,7 @@ object TestUtils {
                        <xs:annotation>
                          <xs:appinfo source={ dfdlURI }>
                            <dfdl:defineFormat name="daffodilTest1">
-                             <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>
+                             <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no" textNumberRep="standard" />
                            </dfdl:defineFormat>
                            { topLevelAnnotations }
                          </xs:appinfo>

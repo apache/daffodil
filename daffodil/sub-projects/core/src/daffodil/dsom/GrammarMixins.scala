@@ -99,7 +99,7 @@ with AlignedMixin { self: ElementBaseMixin =>
   // depending on the length kind.
   // 
   lazy val standardTextInt = Prod("standardTextInt", this, 
-      textNumberRep == TextNumberRep.Standard, StandardTextIntPrim(this))
+      textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextIntPrim(this))
   lazy val zonedTextInt = Prod("zonedTextInt", this, 
       textNumberRep == TextNumberRep.Zoned, ZonedTextIntPrim(this))
  
@@ -307,17 +307,25 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
         )
         res
     }
+    
+    lazy val contentUnbounded = {
+      
+      val res = Prod("contentUnbounded", this, isRecurring,
+       Assert.notYetImplemented()
+        )
+        res
+    }
           
     lazy val arrayContentsNoSeparators = Prod("arrayContentsNoSeparators", this, isRecurring && !hasSep, {
       val max = maxOccurs
       val res = occursCountKind match {
 //        case Expression => separatedContentExactlyNComputed(occursCountExpr)
         case OccursCountKind.Fixed      if (max == UNB) => Assert.SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
-        case OccursCountKind.Fixed      => separatedContentExactlyN(max)
-        case OccursCountKind.Implicit   if (max == UNB) => separatedContentUnbounded
-        case OccursCountKind.Implicit   => separatedContentAtMostN // uses maxOccurs
-        case OccursCountKind.Parsed     => separatedContentUnbounded
-        case OccursCountKind.StopValue  => separatedContentUnbounded
+       // case OccursCountKind.Fixed      => contentExactlyN(max)
+       // case OccursCountKind.Implicit   if (max == UNB) => contentUnbounded
+        //case OccursCountKind.Implicit   => contentAtMostN // uses maxOccurs
+        case OccursCountKind.Parsed     => contentUnbounded
+        case OccursCountKind.StopValue  => contentUnbounded
       }
       res
     }
