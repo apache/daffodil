@@ -27,7 +27,7 @@ class TestGrammar extends JUnit3Suite {
     val str = triple.toString
     assertFalse(str.contains("triple"))
 
-    val exp = triple.expr
+    val exp = triple.gram
     assertTrue(exp.name.contains("SeqComp"))
     assertTrue(exp.toString.contains("first"))
     assertTrue(exp.toString.contains("mid"))
@@ -45,7 +45,7 @@ class TestGrammar extends JUnit3Suite {
 
     assertFalse(triple.isEmpty)
 
-    val exp = triple.expr
+    val exp = triple.gram
     println(exp)
     assertTrue(exp.name.contains("SeqComp"))
     assertTrue(exp.toString.contains("first"))
@@ -65,7 +65,7 @@ class TestGrammar extends JUnit3Suite {
 
     assertTrue(triple.isEmpty)
 
-    val exp = triple.expr
+    val exp = triple.gram
     println(exp)
     assertFalse(exp.name.contains("SeqComp"))
     assertFalse(exp.toString.contains("first"))
@@ -85,7 +85,7 @@ class TestGrammar extends JUnit3Suite {
 
     assertFalse(triple.isEmpty)
 
-    val exp = triple.expr
+    val exp = triple.gram
     println(exp)
     assertTrue(exp.name.contains("AltComp"))
     assertTrue(exp.toString.contains("first"))
@@ -106,7 +106,7 @@ class TestGrammar extends JUnit3Suite {
 
     assertFalse(triple.isEmpty)
 
-    val exp = triple.expr
+    val exp = triple.gram
     println(exp)
     assertTrue(exp.name.contains("AltComp"))
     assertTrue(exp.toString.contains("first"))
@@ -128,7 +128,7 @@ class TestGrammar extends JUnit3Suite {
 
     assertFalse(triple.isEmpty)
 
-    val exp = triple.expr
+    val exp = triple.gram
     println(exp)
     assertTrue(exp.name.contains("AltComp"))
     assertTrue(exp.toString.contains("first"))
@@ -153,7 +153,7 @@ class TestGrammar extends JUnit3Suite {
 
     assertFalse(prod4.isEmpty)
 
-    val exp = prod4.expr
+    val exp = prod4.gram
     println(exp)
     assertTrue(exp.name.contains("AltComp"))
     assertFalse(exp.toString.contains("prod1"))
@@ -175,7 +175,7 @@ class TestGrammar extends JUnit3Suite {
 
     assertFalse(prod1.isEmpty)
 
-    val exp = prod1.expr
+    val exp = prod1.gram
     println(exp)
     assertTrue(exp.name.contains("AltComp"))
     assertTrue(exp.toString.contains("RepExactlyN"))

@@ -139,3 +139,12 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 }
+
+
+
+
+
+
+
+
+

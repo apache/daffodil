@@ -25,11 +25,11 @@ trait Parser {
 	
 }
 
-class EmptyExprParser extends Parser {
+class EmptyGramParser extends Parser {
   def parse(pstate : PState) = pstate
 }
 
-class SeqCompParser(p : Expr, q : Expr) extends Parser {
+class SeqCompParser(p : Gram, q : Gram) extends Parser {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pParser = p.parser
   val qParser = q.parser
@@ -45,7 +45,7 @@ class SeqCompParser(p : Expr, q : Expr) extends Parser {
   override def toString = pParser.toString + " ~ " + qParser.toString 
 }
 
-class AltCompParser(p : Expr, q : Expr) extends Parser {
+class AltCompParser(p : Gram, q : Gram) extends Parser {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pParser = p.parser
   val qParser = q.parser
@@ -83,7 +83,7 @@ class AltCompParser(p : Expr, q : Expr) extends Parser {
   override def toString = "(" + pParser.toString + " | " + qParser.toString + ")"
 }
 
-class RepExactlyNParser(n : Long, r : => Expr) extends Parser {
+class RepExactlyNParser(n : Long, r : => Gram) extends Parser {
   Assert.invariant(!r.isEmpty)
   val rParser = r.parser
   def parse(pstate : PState) : PState = {
@@ -245,6 +245,8 @@ trait InStream {
 //  def getBinaryInt(bitOffset : Long,  isBigEndian : Boolean) : Int
   
   def fillCharBuffer(buf : CharBuffer, bitOffset : Long, decoder : CharsetDecoder) : Long
+  
+ // def fillCharBufferUntilDelimiterOrEnd
 }
 
 
@@ -253,9 +255,42 @@ class InStreamFromByteChannel(in : DFDL.Input, size : Long = 1024 * 128) extends
   val bb = ByteBuffer.allocate(maxCharacterWidthInBytes * size.toInt) // FIXME: all these Int length limits are too small for large data blobs
   val count = in.read(bb) // just pull it all into the byte buffer
   bb.flip()
+  
   // System.err.println("InStream byte count is " + count)
   // note, our input data might just be empty string, in which case count is zero, and that's all legal.
   def fillCharBuffer(cb : CharBuffer, bitOffset : Long, decoder : CharsetDecoder) : Long = {
+    Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
+    val byteOffsetAsLong = (bitOffset >> 3)
+    Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
+    val byteOffset = byteOffsetAsLong.toInt
+    // 
+    // Note: not thread safe. We're depending here on the byte buffer being private to us.
+    //
+    bb.position(byteOffset)
+    decoder.reset()
+    val cr1 = decoder.decode(bb, cb, true) // true means this is all the input you get.
+    if (cr1 != CoderResult.UNDERFLOW) {
+      if (cr1 == CoderResult.OVERFLOW) {
+        // it's ok. It just means we've satisfied the char buffer.
+      } else         // for some parsing, we need to know we couldn't decode, but this is expected behavior.
+        return -1L // Assert.abort("Something went wrong while decoding characters: CoderResult = " + cr1)   
+    }
+    val cr2 = decoder.flush(cb)
+    if (cr2 != CoderResult.UNDERFLOW) {
+      // Something went wrong
+      return -1L // Assert.abort("Something went wrong while decoding characters: CoderResult = " + cr2) 
+      // FIXME: proper handling of errors. Some of which are 
+      // to be suppressed, other converted, others skipped, etc. 
+    }
+    cb.flip() // so the caller can now read the cb.
+    
+    val endBytePos = bb.position()
+    bb.position(0) // prevent anyone depending on the buffer position across calls to any of the InStream methods.
+    val endBitPos : Long = endBytePos << 3
+    endBitPos
+  }
+  
+    def fillCharBufferUntilDelimiterOrEnd(cb : CharBuffer, bitOffset : Long, decoder : CharsetDecoder, delimiters : Set[String]) : Long = {
     Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
     val byteOffsetAsLong = (bitOffset >> 3)
     Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")

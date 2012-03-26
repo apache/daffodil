@@ -159,7 +159,7 @@ with AlignedMixin { self: ElementBaseMixin =>
    */
   lazy val complexImplicitEmpty = Prod("complexImplicitEmpty", this, NYI &&  
   	isComplexType &&  lengthKind == LengthKind.Implicit,
-  	  SaveInputStream(this) ~ SetEmptyInputStream(this) ~ elementComplexType.grammarExpr ~
+  	  SaveInputStream(this) ~ SetEmptyInputStream(this) ~ elementComplexType.mainGrammar ~
   	  RestoreInputStream(this) ~ emptyElementTerminator)
   	  
 
@@ -176,7 +176,7 @@ with AlignedMixin { self: ElementBaseMixin =>
   lazy val emptyElementTerminator = Prod("emptyElementTerminator", this, NYI && hasEmptyValueTerminator)
 
   lazy val complexContent = Prod("complexContent", this, isComplexType,
-    initiatorRegion ~ elementComplexType.grammarExpr ~ terminatorRegion)
+    initiatorRegion ~ elementComplexType.mainGrammar ~ terminatorRegion)
 
   lazy val nilLit = Prod("nilLit", this,
     isNillable && nilKind == NilKind.LiteralValue,
@@ -221,9 +221,9 @@ with AlignedMixin { self: ElementBaseMixin =>
       scalarNonDefaultContent  ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
   
   lazy val scalarDefaultable = Prod("scalarDefaultable", this, 
-//    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~ 
-//      scalarDefaultableContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd
-      dfdlElementBegin ~ scalarDefaultableContent ~ dfdlElementEnd
+    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~ 
+      scalarDefaultableContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd
+//      dfdlElementBegin ~ scalarDefaultableContent ~ dfdlElementEnd
       )
   
 
@@ -401,7 +401,7 @@ trait TermGrammarMixin { self : Term =>
   lazy val asTermInSequence = termContentBody
   lazy val asTermInChoice = termContentBody
   
-  def separatedForPosition(body : => Expr) = {
+  def separatedForPosition(body : => Gram) = {
 	val res = es.prefixSep ~ infixSepRule ~ body ~ es.postfixSep
 	res
   }
@@ -489,9 +489,9 @@ with AlignedMixin { self : ModelGroup =>
   // we're nested inside another group as a term.
   lazy val asChildOfComplexType = termContentBody
   
-  lazy val termContentBody = Prod("grammarExpr", this, groupLeftFraming ~ groupContent ~ groupRightFraming )
+  lazy val termContentBody = Prod("termContentBody", this, groupLeftFraming ~ groupContent ~ groupRightFraming )
   
-  def mt = EmptyExpr.asInstanceOf[Expr]// cast trick to shut up foldLeft compile errors below
+  def mt = EmptyGram.asInstanceOf[Gram]// cast trick to shut up foldLeft compile errors below
   
   def groupContent : Prod
 }
@@ -501,7 +501,7 @@ trait ChoiceGrammarMixin { self : Choice =>
   
   lazy val groupContent = Prod("choiceContent", this, alternatives.foldLeft(mt)(folder) )
   
-  def folder(p : Expr, q : Expr) : Expr = p | q 
+  def folder(p : Gram, q : Gram) : Gram = p | q 
     
   lazy val alternatives = groupMembers.map{ _.asTermInChoice }
   
@@ -511,7 +511,7 @@ trait SequenceGrammarMixin { self : Sequence =>
   
   lazy val groupContent = Prod("sequenceContent", this, StartSequence(this) ~ terms.foldLeft(mt)(folder) ~ EndSequence(this))
 
-  def folder(p : Expr, q : Expr) : Expr = p ~ q 
+  def folder(p : Gram, q : Gram) : Gram = p ~ q 
   
   lazy val terms = groupMembers.map{ _.asTermInSequence }
   
@@ -544,6 +544,6 @@ trait ComplexTypeBaseGrammarMixin { self : ComplexTypeBase =>
   lazy val startChildren = StartChildren(this, true)
   lazy val endChildren = EndChildren(this, true)
   
-  lazy val grammarExpr = Prod("grammarExpr", this, startChildren ~ modelGroup.group.asChildOfComplexType ~ endChildren)
+  lazy val mainGrammar = Prod("mainGrammar", this, startChildren ~ modelGroup.group.asChildOfComplexType ~ endChildren)
   
 }
