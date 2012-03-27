@@ -103,6 +103,63 @@ case class StringFixedLengthInVariableWidthCharacters(e : ElementBaseMixin, nCha
    }
 }
 
+case class StringDelimited(e : LocalElementBase) extends Terminal(e, true) {
+  lazy val tm = e.terminatingMarkup
+  lazy val tmStrings = tm.map {_.constant.asInstanceOf[String]}
+  lazy val tmStringLengths = tmStrings.map{_.length}
+  lazy val maxLen = tmStringLengths.foldLeft(0) {(a,b) => Math.max(a,b)}
+  lazy val minLen = tmStringLengths.foldLeft(maxLen) {(a,b) => Math.min(a,b)}
+  Assert.invariant(maxLen > 0)
+  
+  val orderedStrings = tmStrings.sort((a, b) => a.length < b.length)
+  
+  val quotedStrings = orderedStrings.map {quoteForRegEx(_)}
+  val regEx = quotedStrings.foldLeft("") {_+"|"+_}
+  val pattern = java.util.regex.Pattern.compile(regEx)
+  
+  def quoteForRegEx(string : String) = {
+    "\\Q" + string + "\\E"
+  }
+
+  def parser: Parser = new Parser {
+    override def toString = "StringDelimited"
+    val decoder = e.knownEncodingDecoder
+    val cbuf = CharBuffer.allocate(maxLen) // TODO: Performance: get a char buffer from a pool.
+
+    def parse(start: PState): PState = {
+      Assert.notYetImplemented()
+//      System.err.println("Parsing starting at bit position: " + start.bitPos)
+//      val in = start.inStream
+//      val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
+//      System.err.println("Ended at bit position " + endBitPos)
+//      cbuf.flip()
+//      if (cbuf.length < minLen) {
+//        start.failed("Delimiter not found")
+//      } else {
+//        val result = cbuf.toString
+//        System.err.println("Parsed: " + result)
+//        val matcher = pattern.matcher(result)
+//        if (!matcher.matches) start.failed("Delimiter not found")
+//        else {
+//          val matchLength = matcher.end() - matcher.start()
+//          if (matchLength == maxLen) {
+//            Assert.invariant(endBitPos != -1L)
+//            val postState = start.withPos(endBitPos, start.charPos + matchLength)
+//            postState
+//          } else {
+//            val shortCBuf = CharBuffer.allocate(matchLength)
+//            val endBitPos = in.fillCharBuffer(shortCBuf, start.bitPos, decoder)
+//            System.err.println("Ended at bit position " + endBitPos)
+//            Assert.invariant(endBitPos != -1L)
+//            val postState = start.withPos(endBitPos, start.charPos + matchLength)
+//            postState
+//          }
+//        }
+//      }
+    }
+  }
+}
+
 case class ConvertTextIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
    def parser : Parser = new Parser {
      def parse(start: PState) : PState = {
@@ -127,7 +184,26 @@ extends Terminal(e, guard) {
   }
 
 case class ZonedTextIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
-case class RegularBinaryIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
+
+class Regular32bitIntPrim(byteOrder: java.nio.ByteOrder) extends Parser {
+    def parse(start : PState) : PState = {
+      if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) start.failed("Not enough bits to create an xs:int")
+      else {
+        val value = start.inStream.getInt(start.bitPos, byteOrder)
+        start.parent.addContent(new org.jdom.Text(value.toString))
+    	val postState = start.withPos(start.bitPos + 32, -1)
+    	postState
+      }
+    }
+  
+}
+
+case class Regular32bitBigEndianIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
+  def parser = new Regular32bitIntPrim(java.nio.ByteOrder.BIG_ENDIAN)
+}
+case class Regular32bitLittleEndianIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
+   def parser = new Regular32bitIntPrim(java.nio.ByteOrder.LITTLE_ENDIAN)
+}
 case class PackedIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
 case class BCDIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
 

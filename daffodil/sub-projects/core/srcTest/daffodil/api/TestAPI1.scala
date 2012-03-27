@@ -187,9 +187,41 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "5A")
-    val expected = <e1><s1>5</s1><s2>A</s2></e1>
+    val actual = Compiler.testString(sch, "5678A")
+    val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1><s2>A</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
+  }
+
+  def testParseOccursCountKindOfParsedWithTerminator() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }" minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>
+            <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = Compiler.testString(sch, "5;6;7;8;A")
+    val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1><s2>A</s2></e1>
+    TestUtils.assertEqualsXMLElements(expected, actual)
+  }
+  
+  def testBinaryInts() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="s1" type="xs:int" dfdl:lengthKind="implicit"  minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>
+            <xs:element name="s2" type="xs:int" dfdl:byteOrder="littleEndian" dfdl:lengthKind="implicit" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = Compiler.testBinary(sch, "000000013bFFFFFFFF3b080402013b000000003bFFFFFF7F")
+    val expected = <e1><s1>1</s1><s1>-1</s1><s1>134480385</s1><s1>0</s1><s2>2147483647</s2></e1>
+    TestUtils.assertEqualsXMLElements(expected, actual)    
   }
 }
 

@@ -212,18 +212,19 @@ class PState(
     s3
   }
   
-  def captureJDOM: org.jdom.Element = {
-    val newJDOM = new org.jdom.Element(parent.getName, parent.getNamespace)
-    val c = parent.getContent().toList.asInstanceOf[List[org.jdom.Element]]
-    newJDOM.setContent(parent.getContent()) // Shallow copy, hopefully
-    newJDOM
+  def captureJDOM: Int = {
+    parent.getContentSize()
   }
   
-  def restoreJDOM(newElem: org.jdom.Element) = {
-    val pp = parent.getParent().asInstanceOf[org.jdom.Element] // Parent's Parent.
-    val pi :: ppi :: rest = childIndexStack
-    pp.setContent(ppi.toInt, newElem)
-    newElem
+  def restoreJDOM(previousContentSize: Int) = {
+    for (i <- previousContentSize until parent.getContentSize()) {
+    	parent.removeContent(i)
+    }
+    this
+//    val pp = parent.getParent().asInstanceOf[org.jdom.Element] // Parent's Parent.
+//    val pi :: ppi :: rest = childIndexStack
+//    pp.setContent(ppi.toInt, newElem)
+//    newElem
   }
 }
 
@@ -281,6 +282,8 @@ trait InStream {
   //  def getBinaryInt(bitOffset : Long,  isBigEndian : Boolean) : Int
 
   def fillCharBuffer(buf: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): Long
+  
+  def getInt(bitPos : Long, order : java.nio.ByteOrder) : Int
 
   // def fillCharBufferUntilDelimiterOrEnd
 }
@@ -357,5 +360,12 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     endBitPos
   }
 
+  def getInt(bitPos: Long, order: java.nio.ByteOrder) = {
+    Assert.invariant(bitPos % 8 == 0)
+    val bytePos = (bitPos >> 3).toInt
+    bb.order(order)
+    bb.getInt(bytePos)  
+  }
+  
 }
 

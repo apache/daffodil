@@ -20,7 +20,8 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
   extends Annotated(xmlArg)
   with LocalComponentMixin
   with DFDLStatementMixin
-  with TermGrammarMixin {
+  with TermGrammarMixin
+  with DelimitedRuntimeValuedPropertiesMixin {
 
   def annotationFactory(node : Node) : DFDLAnnotation = annotationFactory(node, this)
 
@@ -83,6 +84,27 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
     res
   }
 
+  lazy val terminatingMarkup: List[CompiledExpression] = {
+    if (hasTerminator) List(terminatorExpr)
+    else nearestEnclosingSequence match {
+      case None => Assert.schemaDefinitionError("No terminating markup found")
+      case Some(sq) => {
+        val sep = { 
+          if (sq.hasInfixSep || sq.hasPostfixSep) List(sq.separatorExpr)
+          else Nil
+        }
+        if (!hasLaterRequiredSiblings) {
+        	val entm = sq.terminatingMarkup
+        	val res = sep ++ entm
+        	res
+        }
+        else {
+          sep
+        }
+      }
+    }
+  }
+  
   lazy val isDirectChildOfSequence = parent.isInstanceOf[Sequence]
 
   import daffodil.util.ListUtils

@@ -25,6 +25,10 @@ trait DelimitedRuntimeValuedPropertiesMixin
   
   lazy val initiatorExpr = expressionCompiler.compile('String, decl.initiator)
   lazy val terminatorExpr = expressionCompiler.compile('String, decl.terminator)
+  
+  lazy val hasInitiator = initiatorExpr.isKnownNonEmpty
+  lazy val hasTerminator = terminatorExpr.isKnownNonEmpty
+  
 }
 
 trait ElementRuntimeValuedPropertiesMixin

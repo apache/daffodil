@@ -133,6 +133,7 @@ trait ElementBaseMixin
     res
   }
 
+  
   /**
    * These are static properties even though the delimiters can have runtime-computed values.
    * The existence of an expression to compute a delimiter is assumed to imply a non-zero-length, aka a real delimiter.
@@ -141,9 +142,6 @@ trait ElementBaseMixin
   val NVDP = NilValueDelimiterPolicy
   val EVDP = EmptyValueDelimiterPolicy
 
-  lazy val hasInitiator = initiatorExpr.isKnownNonEmpty
-  lazy val hasTerminator = terminatorExpr.isKnownNonEmpty
-  
   lazy val hasNilValueInitiator = initTermTestExpression(initiatorExpr, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
   lazy val hasNilValueTerminator = initTermTestExpression(terminatorExpr, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
 
@@ -258,7 +256,7 @@ abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup, position : Int
       //
       case None => schemaDocument.separatorSuppressionPolicy
     }
-  }
+  }  
 }
 
 class ElementRef(xmlArg: Node, parent: ModelGroup, position : Int)

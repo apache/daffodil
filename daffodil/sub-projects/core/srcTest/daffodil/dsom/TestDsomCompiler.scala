@@ -1,6 +1,7 @@
 package daffodil.dsom
 
 import daffodil.xml.XMLUtil
+import daffodil.util._
 import scala.xml._
 
 import org.scalatest.junit.JUnit3Suite
@@ -360,8 +361,63 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(sd) = sch.schemaDocuments
 
     val Seq(ge1, ge2, ge3, ge4) = sd.globalElementDecls // Obtain global element nodes
-    
-
   }
 
+  def testTerminatingMarkup {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence dfdl:separator=",">
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }" minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>
+            <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
+    val ge1 = ge1f.forRoot()
+    val ct = ge1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
+    val sq = ct.modelGroup.group.asInstanceOf[Sequence]
+    val Seq(s1, s2) = sq.groupMembers.asInstanceOf[List[LocalElementDecl]]
+    val s1tm = s1.terminatingMarkup
+    val Seq(ce) = s1tm
+    assertTrue(ce.isConstant)
+    assertEquals(";", ce.constant)
+  }
+  
+  def testTerminatingMarkup2 {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:separatorPolicy="required" dfdl:terminator=";">
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }" minOccurs="0" dfdl:occursCountKind="parsed"/>
+            <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
+    val ge1 = ge1f.forRoot()
+    val ct = ge1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
+    val sq = ct.modelGroup.group.asInstanceOf[Sequence]
+    val Seq(s1, s2) = sq.groupMembers.asInstanceOf[List[LocalElementDecl]]
+    val s1tm = s1.terminatingMarkup
+    val Seq(ce) = s1tm
+    assertTrue(ce.isConstant)
+    assertEquals(",", ce.constant)
+    val s2tm = s2.terminatingMarkup
+    val Seq(ce1, ce2) = s2tm
+    assertTrue(ce1.isConstant)
+    assertEquals(",", ce1.constant)
+    assertTrue(ce2.isConstant)
+    assertEquals(";", ce2.constant)
+  }
 }

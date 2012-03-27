@@ -68,7 +68,8 @@ with AlignedMixin { self: ElementBaseMixin =>
   lazy val stringFixedLengthInVariableWidthCharacters = Prod("stringFixedLengthInVariableWidthCharacters", this, 
       lengthUnits == LengthUnits.Characters && couldBeVariableWidthEncoding,
       StringFixedLengthInVariableWidthCharacters(this, fixedLength))
-      
+  
+    
   lazy val stringValue = {
     val res = Prod("stringValue", this, lengthKind match {
     case LengthKind.Explicit if isFixedLength => 
@@ -76,6 +77,10 @@ with AlignedMixin { self: ElementBaseMixin =>
       stringFixedLengthInBytesWithVariableWidthCharacters |
       stringFixedLengthInFixedWidthCharacters | 
       stringFixedLengthInVariableWidthCharacters
+    case LengthKind.Delimited => {
+      val thisAsLocal = this.asInstanceOf[LocalElementBase]
+      thisAsLocal.stringDelimited
+    }
     case _ => Assert.notYetImplemented()
   })
   res
@@ -83,9 +88,19 @@ with AlignedMixin { self: ElementBaseMixin =>
   
   lazy val binaryInt = Prod("binaryInt", this, representation == Representation.Binary,
       regularBinaryRepInt | bcdInt | packedInt)
+
+  lazy val regularBinaryRepInt = Prod("regularBinaryRepInt", this,
+    binaryNumberRep == BinaryNumberRep.Binary, lengthKind match {
+      case LengthKind.Implicit => {
+        if (byteOrderExpr.isConstant) byteOrderExpr.constant match {
+          case "bigEndian" => Regular32bitBigEndianIntPrim(this)
+          case "littleEndian" => Regular32bitLittleEndianIntPrim(this)
+        }
+        else Assert.notYetImplemented()
+      }
+      case _ => Assert.notYetImplemented()
+    })
   
-  lazy val regularBinaryRepInt = Prod("regularBinaryRepInt", this, 
-      binaryNumberRep == BinaryNumberRep.Binary, RegularBinaryIntPrim(this))
   lazy val bcdInt = Prod("bcdInt", this, 
       binaryNumberRep == BinaryNumberRep.Bcd, BCDIntPrim(this))
   lazy val packedInt = Prod("packedInt", this, 
@@ -240,7 +255,8 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
   lazy val separatedRecurringDefaultable = Prod("separatedRecurringDefaultable", this, !isScalar, separatedForPosition(scalarDefaultable))
   lazy val separatedScalarNonDefault = Prod("separatedScalarNonDefault", this, isScalar, separatedForPosition(scalarNonDefault))
   lazy val separatedRecurringNonDefault = Prod("separatedRecurringNonDefault", this, !isScalar, separatedForPosition(scalarNonDefault))
-
+  lazy val stringDelimited = Prod("stringDelimited", this, StringDelimited(this))
+  
   lazy val recurrance = Prod("recurrance", this, 
       !isScalar, 
       StartArray(this) ~ arrayContents ~ EndArray(this) ~ FinalUnusedRegion(this))
@@ -484,9 +500,6 @@ trait TermGrammarMixin { self : Term =>
 trait ModelGroupGrammarMixin 
 extends InitiatedTerminatedMixin
 with AlignedMixin { self : ModelGroup => 
-     
-  lazy val hasInitiator = initiatorExpr.isKnownNonEmpty
-  lazy val hasTerminator = terminatorExpr.isKnownNonEmpty
 
   lazy val groupLeftFraming = Prod("groupLeftFraming", this, leadingSkipRegion ~ alignmentFill ~ initiatorRegion)
   lazy val groupRightFraming = Prod("groupRightFraming", this, terminatorRegion ~ trailingSkipRegion)

@@ -11,6 +11,7 @@ import daffodil.util.Validator
 import daffodil.xml.XMLUtil
 import daffodil.grammar._
 import daffodil.processors._
+import daffodil.util.Misc._
 
 class Compiler extends DFDL.Compiler {
   var root: String = ""
@@ -241,6 +242,10 @@ object Compiler {
 
   def stringToReadableByteChannel(s: String) = {
     val bytes = s.getBytes()
+    byteArrayToReadableByteChannel(bytes)
+  }
+  
+  def byteArrayToReadableByteChannel(bytes : Array[Byte]) = {
     val inputStream = new ByteArrayInputStream(bytes);
     val rbc = java.nio.channels.Channels.newChannel(inputStream);
     rbc
@@ -261,6 +266,16 @@ object Compiler {
     actual
   }
 
+  def testBinary(testSchema: Node, hexData: String) = {
+    val compiler = Compiler()
+    val pf = compiler.compile(testSchema)
+    val p = pf.onPath("/")
+    val b = hex2Bytes(hexData)
+    val rbc = byteArrayToReadableByteChannel(b)
+    val actual = p.parse(rbc)
+    actual
+  }
+  
   def testFile(testSchema: Node, fileName: String) = {
     val compiler = Compiler()
     val pf = compiler.compile(testSchema)
