@@ -57,7 +57,22 @@ trait AnnotatedMixin
 extends SchemaComponent
 with CommonRuntimeValuedPropertiesMixin {
   
-  def getPropertyOption(pname: String) = formatAnnotation.getPropertyOption(pname)
+  def localAndRefProperties: Map[String,String]
+  def defaultProperties: Map[String,String] = {
+    this.schemaDocument.localAndRefProperties
+  }
+  
+  def getPropertyOption(pname: String) = {
+    val local = localAndRefProperties.get(pname) 
+    local match {
+      case None => {
+        defaultProperties.get(pname)
+      }
+      case Some(_) => {
+        local
+      }
+    }
+  }
     
   /**
    * Anything annotated must be able to construct the
@@ -335,6 +350,10 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
   
+  lazy val localAndRefProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
+  
+  override lazy val defaultProperties = Map.empty[String, String]
+  
   lazy val detailName="" // TODO: Maybe a filename would be nice if available.
   //
   // schemaArg is call by name, so that in the corner case of NoSchemaDocument (used for non-lexically enclosed annotation objects), 
@@ -393,8 +412,6 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
   lazy val globalGroupDefs = (xml \ "group").map { new GlobalGroupDefFactory(_, this) }
 
   lazy val defaultFormat = formatAnnotation.asInstanceOf[DFDLFormat]
-
-  lazy val defaultProperties = defaultFormat.combinedLocalProperties
 
   //
   // There's some scala way of avoiding all this downcasting, using some clever type parameterization scheme

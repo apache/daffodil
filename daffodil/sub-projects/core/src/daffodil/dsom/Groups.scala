@@ -133,6 +133,8 @@ abstract class GroupBase(xmlArg: Node, parent: SchemaComponent, position : Int)
   
   lazy val detailName = ""
   def group : ModelGroup
+  
+  lazy val localAndRefProperties = { this.formatAnnotation.getFormatPropertiesNonDefault() }
 }
 
 /**

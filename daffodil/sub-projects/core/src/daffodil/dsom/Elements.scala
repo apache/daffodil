@@ -97,23 +97,23 @@ trait ElementBaseMixin
   def elementComplexType: ComplexTypeBase
   def elementSimpleType: SimpleTypeBase
   def typeDef: TypeBase
-  def isScalar : Boolean
-  
+  def isScalar: Boolean
+
   lazy val compiledLength = expressionCompiler.compile('Long, length)
-  
+
   lazy val isFixedLength = {
-    lengthKind == LengthKind.Explicit && 
-    length != null && // just check to insure length is defined.
-    compiledLength.isConstant
+    lengthKind == LengthKind.Explicit &&
+      length != null && // just check to insure length is defined.
+      compiledLength.isConstant
   }
-  
+
   lazy val fixedLength = {
     if (isFixedLength) compiledLength.constant.asInstanceOf[Long] else -1 // shouldn't even be asking for this if not isFixedLength 
   }
-  
-  def hasPrimitiveType(localname : String) : Boolean = {
+
+  def hasPrimitiveType(localname: String): Boolean = {
     typeDef match {
-      case prim : PrimitiveType => prim.name == localname
+      case prim: PrimitiveType => prim.name == localname
       case _ => false
     }
   }
@@ -160,8 +160,8 @@ trait ElementBaseMixin
   }
 
   /**
-   * Means the element is in a context where there is a separator expected after it. 
-   * 
+   * Means the element is in a context where there is a separator expected after it.
+   *
    * Abstract here because implementations are different for localElement
    */
   def hasSep: Boolean
@@ -199,12 +199,12 @@ trait ElementBaseMixin
     // Note: if we are potentially the last item (not required, but no downstream required siblings)
     Assert.notYetImplemented()
   }
-  
-  def isDefaultable : Boolean
+
+  def isDefaultable: Boolean
 
 }
 
-abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup, position : Int)
+abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup, position: Int)
   extends Term(xmlArg, parent, position)
   with ElementBaseMixin
   with Particle
@@ -227,21 +227,21 @@ abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup, position : Int
       }
     }
   }
-  
+
   lazy val isDeclaredLastInSequence: Boolean = {
     val es = nearestEnclosingSequence
-       // how do we determine what child node we are? We search. 
-       // TODO: better structure for O(1) answer to this.
+    // how do we determine what child node we are? We search. 
+    // TODO: better structure for O(1) answer to this.
     es match {
       case None => true
-      case Some(s) => 
+      case Some(s) =>
         if (s.groupMembers.last eq this) true // we want object identity comparison here, not equality. 
         else false
-    }   
+    }
   }
-  
+
   lazy val isLastRequiredElementOfSequence: Boolean = Assert.notYetImplemented()
-  
+
   lazy val separatorSuppressionPolicy = {
     nearestEnclosingSequence match {
       case Some(ssp) => ssp.separatorSuppressionPolicy
@@ -259,7 +259,7 @@ abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup, position : Int
   }  
 }
 
-class ElementRef(xmlArg: Node, parent: ModelGroup, position : Int)
+class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   extends LocalElementBase(xmlArg, parent, position) with HasRef {
 
   // These will just delegate to the referenced element declaration
@@ -268,22 +268,23 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position : Int)
   lazy val isComplexType = Assert.notYetImplemented()
   lazy val elementComplexType: ComplexTypeBase = Assert.notYetImplemented()
   lazy val elementSimpleType: SimpleTypeBase = Assert.notYetImplemented()
-  lazy val isDefaultable : Boolean = Assert.notYetImplemented()
+  lazy val isDefaultable: Boolean = Assert.notYetImplemented()
 
   lazy val qname = XMLUtil.QName(xml, xsdRef, schemaDocument)
   override lazy val (namespace, name) = qname
-  
+
   // These may be trickier, as the type needs to be responsive to properties from the
   // element reference's format annotations, and its lexical context.
   lazy val typeDef = Assert.notYetImplemented()
 
   // Element references can have minOccurs and maxOccurs, and annotations, but nothing else.
 
+  lazy val localAndRefProperties = Assert.notYetImplemented()
 }
 
 trait HasRef { self: SchemaComponent =>
   lazy val xsdRef = getAttributeRequired("ref")
-  lazy val ref = xsdRef 
+  lazy val ref = xsdRef
 }
 
 trait ElementDeclBase
@@ -308,8 +309,6 @@ trait ElementDeclBase
     val str = (xml \ "@type").text
     if (str == "") None else Some(str)
   }
-
-
 
   lazy val namedTypeQName = {
     typeName match {
@@ -372,12 +371,12 @@ trait ElementDeclBase
 
   lazy val elementComplexType: ComplexTypeBase = typeDef.asInstanceOf[ComplexTypeBase]
   lazy val elementSimpleType: SimpleTypeBase = typeDef.asInstanceOf[SimpleTypeBase]
-  
+
   /**
    * We require that there be a concept of empty if we're going to be able to default something
    * and we are going to require that we can tell this statically. I.e., we're not going to defer this to runtime
    * just in case the delimiters are being determined at runtime.
-   * 
+   *
    * That is to say, if a delimiter is an expression, then we're assuming that means
    * at runtime it will not evaluate to empty string (so you can specify the delimiter
    * at runtime, but you cannot turn on/off the whole delimited format at runtime.)
@@ -387,16 +386,27 @@ trait ElementDeclBase
     defaultValueAsString match {
       case "" => false // allowed for type string.
       case _ if (emptyIsAnObservableConcept) => true
-      case _ => false  
+      case _ => false
     }
   }
-  
 
+  lazy val localAndRefProperties: Map[String, String] = {
+    val localTypeProperties = this.typeDef.localAndRefProperties
+    val myLocalProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
+    Assert.schemaDefinition(overlappingProperties.size == 0, "Type properties overlap with element properties.")
+    val theUnion = localTypeProperties ++ myLocalProperties
+    theUnion
+  }
 
-
+  lazy val overlappingProperties = {
+    val localTypePropertiesNames = this.typeDef.localAndRefProperties.map(x => x._1).toSet
+    val myLocalPropertiesNames = this.formatAnnotation.getFormatPropertiesNonDefault().map(x => x._1).toSet
+    val intersect = localTypePropertiesNames.intersect(myLocalPropertiesNames)
+    intersect
+  }
 }
 
-class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position : Int)
+class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
   extends LocalElementBase(xmlArg, parent, position)
   with ElementDeclBase {
 }
@@ -413,21 +423,21 @@ trait DFDLStatementMixin {
   }
 }
 
-class GlobalElementDeclFactory(xmlArg: Node, val schemaDocument: SchemaDocument) 
-extends GlobalComponentMixin {
+class GlobalElementDeclFactory(xmlArg: Node, val schemaDocument: SchemaDocument)
+  extends GlobalComponentMixin {
   def xml = xmlArg
-  
+
   def forRoot() = new GlobalElementDecl(xmlArg, schemaDocument, None)
-  
-  def forElementRef(eRef : ElementRef) = new GlobalElementDecl(xmlArg, schemaDocument, Some(eRef))
-  
+
+  def forElementRef(eRef: ElementRef) = new GlobalElementDecl(xmlArg, schemaDocument, Some(eRef))
+
 }
 
-class GlobalElementDecl(xmlArg: Node, val schemaDocument: SchemaDocument, val elementRef : Option[ElementRef])
+class GlobalElementDecl(xmlArg: Node, val schemaDocument: SchemaDocument, val elementRef: Option[ElementRef])
   extends GlobalComponentMixin
   with ElementDeclBase
   with GlobalElementDeclGrammarMixin {
-  
+
   lazy val xml = xmlArg
   lazy val isScalar = true
 

@@ -9,7 +9,10 @@ import daffodil.xml._
 // Type System
 /////////////////////////////////////////////////////////////////
 
-trait TypeBase
+trait TypeBase {
+  // use def, can be overriden by lazy val or def
+  def localAndRefProperties: Map[String,String]
+}
 
 trait NamedType extends NamedMixin with TypeBase with SchemaComponent
 
@@ -22,6 +25,10 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
       case <dfdl:simpleType>{ contents @ _* }</dfdl:simpleType> => new DFDLSimpleType(node, this)
       case _ => annotationFactory(node, this)
     }
+  }
+  
+  lazy val localAndRefProperties: Map[String,String] = {
+    this.formatAnnotation.getFormatPropertiesNonDefault()
   }
 }
 
@@ -55,6 +62,9 @@ class PrimitiveType(name_ : String) extends NamedType {
   lazy val dummySchemaSet = new SchemaSet(NodeSeq.Empty)
   lazy val xsdSchema = new Schema(namespace, NodeSeq.Empty, dummySchemaSet)
   lazy val schemaDocument = new SchemaDocument(<schema/>, xsdSchema)
+  lazy val localAndRefProperties: Map[String,String] = {
+    Map.empty[String,String]
+  }
 }
 
 /**
@@ -100,7 +110,9 @@ abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
   lazy val xml = xmlArg
   lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
   lazy val Seq(modelGroup) = xmlChildren.flatMap { GroupFactory(_, this, 1) }
-
+  lazy val localAndRefProperties: Map[String,String] = {
+    Map.empty[String,String]
+  }
 }
 
 

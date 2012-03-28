@@ -352,7 +352,7 @@ class TestDsomCompiler extends JUnit3Suite {
 
   }
   
-  def test_simple_types_property_combining {
+  def test_simple_types_access_works {
     val testSchema = XML.loadFile("test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml")
     val compiler = Compiler()
 
@@ -361,6 +361,45 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(sd) = sch.schemaDocuments
 
     val Seq(ge1, ge2, ge3, ge4) = sd.globalElementDecls // Obtain global element nodes
+    
+    val x = ge2.forRoot().typeDef.asInstanceOf[LocalSimpleTypeDef]
+    
+    assertEquals(AlignmentUnits.Bytes, x.alignmentUnits)
+  }
+  
+  def test_simple_types_property_combining {
+    val testSchema = XML.loadFile("test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml")
+    val compiler = Compiler()
+
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    val Seq(ge1f, ge2f, ge3f, ge4f, ge5f, ge6f) = sd.globalElementDecls // Obtain global element nodes
+    
+    val ge2 = ge2f.forRoot()
+    val ge3 = ge3f.forRoot()
+    val ge4 = ge4f.forRoot()
+    val ge5 = ge5f.forRoot()
+    val ge6 = ge6f.forRoot()
+    
+    assertEquals(AlignmentUnits.Bytes, ge2.alignmentUnits)
+    
+    assertEquals(AlignmentUnits.Bytes, ge3.alignmentUnits)
+    assertEquals(NilKind.LiteralValue, ge3.nilKind)
+    
+    // Tests overlapping properties
+    intercept[daffodil.exceptions.SDE] { ge4.lengthKind }
+    
+    assertEquals(AlignmentUnits.Bytes, ge5.alignmentUnits) // local
+    assertEquals(OccursCountKind.Parsed, ge5.occursCountKind) // def1
+    assertEquals(BinaryNumberRep.Bcd, ge5.binaryNumberRep) // def3
+    assertEquals(NilKind.LiteralValue, ge5.nilKind) // local
+    assertEquals(Representation.Text, ge5.representation) // def3
+    assertEquals(LengthKind.Pattern, ge5.lengthKind) // superseded by local
+    
+    // Test Defaulting
+    assertEquals(BinaryNumberRep.Packed, ge6.binaryNumberRep)
   }
 
   def testTerminatingMarkup {
@@ -377,7 +416,6 @@ class TestDsomCompiler extends JUnit3Suite {
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
-
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
     val ct = ge1.immediateType.get.asInstanceOf[LocalComplexTypeDef]

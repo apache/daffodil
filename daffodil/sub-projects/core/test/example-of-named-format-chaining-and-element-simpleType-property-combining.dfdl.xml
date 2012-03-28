@@ -80,7 +80,6 @@
 		</simpleType>
 	</element>
 
-
 	<!-- Test below should error - it is because you are not allowed to have 
 		overlapping properties between an element and its simple type. -->
 
@@ -101,6 +100,40 @@
 		</simpleType>
 	</element>
 
-
+	<element name="refChasing1">
+		<!-- should have nilKind from locally, and alignmentUnits from the simpleType -->
+		<!-- occursCountKind from def1, binaryNumberRep and representation from def3 -->
+		<annotation>
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+				<dfdl:element nilKind="literalValue" />
+			</appinfo>
+		</annotation>
+		<simpleType>
+			<xsd:annotation>
+				<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:simpleType alignmentUnits="bytes" ref="tns:def1" />
+				</appinfo>
+			</xsd:annotation>
+			<restriction base="xsd:int" />
+		</simpleType>
+	</element>
+	
+	<element name="defaulting">
+		<!-- should have nilKind from locally, and alignmentUnits from the simpleType -->
+		<!-- occursCountKind from def1, binaryNumberRep and representation from def3 -->
+		<annotation>
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+				<dfdl:element nilKind="literalValue" />
+			</appinfo>
+		</annotation>
+		<simpleType>
+			<xsd:annotation>
+				<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:simpleType alignmentUnits="bytes" />
+				</appinfo>
+			</xsd:annotation>
+			<restriction base="xsd:int" />
+		</simpleType>
+	</element>
 
 </xsd:schema>

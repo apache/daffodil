@@ -175,6 +175,7 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
   // Added by Taylor Wise
   //
   def getDefineFormatPropertiesByRef(qName: String, refStack: Set[String]): Map[String, String] = {
+    Assert.usage(qName.length() > 0)
     var props = Map.empty[String, String]
     var localRefStack = refStack.toSet[String]
     val qnamePair = getQName(qName)
@@ -230,25 +231,38 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
   // Added by Taylor W.
   // 
   def getFormatProperties(): Map[String, String] = {
-    var refStack: Set[String] = Set.empty[String]
-    var props: Map[String, String] = Map.empty[String, String]
-
+   
     // Fetch Local Format Properties
-    val localProps = combinedLocalProperties.filterNot(x => x._1 == "ref" || x._1 == "name")
+    val localProps = getFormatPropertiesNonDefault()
 
     // Fetch Default Format Properties
     val defaultProps = annotatedSC.schemaDocument.defaultFormat.combinedLocalProperties.filterNot(x => x._1 == "ref" || x._1 == "name")
 
     // Combine Local and Default properties via overriding
-    props = combinePropertiesWithOverriding(localProps, defaultProps)
+    val props = combinePropertiesWithOverriding(localProps, defaultProps)
+
+    props
+  } // end-getFormatProperties
+  
+  // Added by Taylor W.
+  // 
+  def getFormatPropertiesNonDefault(): Map[String, String] = {
+    var refStack: Set[String] = Set.empty[String]
+
+    // Fetch Local Format Properties
+    val localProps = combinedLocalProperties.filterNot(x => x._1 == "ref" || x._1 == "name")
 
     val ref = getLocalFormatRef()
-    val refProps = getDefineFormatPropertiesByRef(ref, refStack)
+    if (ref.length() != 0) {
+    	val refProps = getDefineFormatPropertiesByRef(ref, refStack)
 
-    val res: Map[String, String] = combinePropertiesWithOverriding(props, refProps)
-
-    res
-  } // end-getFormatProperties
+    		val res: Map[String, String] = combinePropertiesWithOverriding(localProps, refProps)
+    		res
+    }
+    else {
+      localProps
+    }
+  } // end-getFormatPropertiesNonDefault
 }
 
 /**
