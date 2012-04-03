@@ -38,19 +38,24 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
     val rsb = xml \\ "restriction" \ "@base"
     rsb.head.text
   }
+  
+  lazy val myBaseType = {
+    Assert.invariant(restrictionBase.length() != 0)
+    val sd = this.schemaDocument
+    val (nsURI, localName) = XMLUtil.QName(xml, restrictionBase, sd)
+    
+    sd.globalSimpleTypeDefs.find{ x => x.detailName == localName}
+  }
 
   // Need to go and grab a list of GlobalSimpleTypes from the schema document
   // execute a find using the name obtained from restrictionBase.
   lazy val simpleTypeBaseProperties: Map[String,String] = {
-    Assert.invariant(restrictionBase.length() != 0)
     
-    val sd = this.schemaDocument
-
-    val (nsURI, localName) = XMLUtil.QName(xml, restrictionBase, this.schemaDocument)
-   
-    val baseProps = sd.globalSimpleTypeDefs.find{ x => x.detailName == localName} match {
-      case Some(st) => st.forRoot().localAndRefProperties
-      case None => Assert.schemaDefinitionError("simpleType (" + this.detailName + ") restriction base '" + restrictionBase + "' was not found!")
+    val baseProps = {
+      myBaseType match {
+        case Some(bt) => bt.forDerivedType(this).localAndRefProperties
+        case None => Map.empty[String,String]
+      }
     }
     
     baseProps
@@ -136,18 +141,19 @@ class GlobalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument
   extends GlobalComponentMixin {
   def xml = xmlArg
   def schemaDocument = schemaDocumentArg
-
+  
   def forRoot() = new GlobalSimpleTypeDef(xmlArg, schemaDocument, None)
 
   /**
    * Create a private instance for this element's use.
    */
   def forElement(element: ElementDeclBase) = new GlobalSimpleTypeDef(xmlArg, schemaDocumentArg, Some(element))
+  def forDerivedType(derivedType: SimpleTypeBase) = new GlobalSimpleTypeDef(xmlArg, schemaDocument, None)
 }
 /**
  * The instance type for global simple type definitions.
  */
-class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: Option[ElementDeclBase])
+class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: Option[AnnotatedMixin])
   extends NamedSimpleTypeBase(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
 

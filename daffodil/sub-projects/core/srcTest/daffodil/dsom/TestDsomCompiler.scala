@@ -488,6 +488,7 @@ class TestDsomCompiler extends JUnit3Suite {
     
     val Seq(gs1f, gs2f, gs3f, gs4f) = sd.globalSimpleTypeDefs
     
+    
     val gs1 = gs1f.forRoot()	// Global Simple Type - aType
     
     assertEquals("ex:aaType", gs1.restrictionBase)
