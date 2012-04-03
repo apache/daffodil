@@ -225,10 +225,36 @@
 	</simpleType>
 
 	<!-- global simple type definition (used as a base) -->
-	<simpleType name="aaType">
+	<simpleType name="aaType" >
 		<xsd:annotation>
 			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-				<dfdl:simpleType />
+				<dfdl:simpleType byteOrder="bigEndian" />
+			</appinfo>
+		</xsd:annotation>
+		<restriction base="xsd:int" />
+	</simpleType>
+	
+	<!-- global simple type definition -->
+	<simpleType name="aTypeError">
+		<xsd:annotation>
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+				<dfdl:simpleType alignmentUnits="bytes" />
+				<dfdl:setVariable ref="tns:myVar1">{ 42 }</dfdl:setVariable>
+				<dfdl:setVariable ref="tns:архив" value='{ "{{nazmataz42}$&amp;" }' />
+				<dfdl:assert message="yadda yadda yadda" testKind='expression'>{
+					$tns:myVar1 eq 56 or $tns:архив eq "foo%#r87;bar" }</dfdl:assert> 
+					<!-- russian cyrillic in a variable name, DFDL raw byte-value entity in string literal. -->
+			</appinfo>
+		</xsd:annotation>
+		<!-- base type reference -->
+		<restriction base="ex:aaTypeError" />
+	</simpleType>
+	
+	<!-- global simple type definition (used as a base) -->
+	<simpleType name="aaTypeError" >
+		<xsd:annotation>
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+				<dfdl:simpleType alignmentUnits="bits" />
 			</appinfo>
 		</xsd:annotation>
 		<restriction base="xsd:int" />

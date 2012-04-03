@@ -253,7 +253,7 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals("UTF-8", e1a.encoding)
 
     // Explore global simple type defs
-    val Seq(st1, st2) = sd.globalSimpleTypeDefs // there are two.
+    val Seq(st1, st2, st3, st4) = sd.globalSimpleTypeDefs // there are two.
     val Seq(b1, b2, b3, b4) = st1.forElement(e1).annotationObjs // first one has 4 annotations
     assertEquals(AlignmentUnits.Bytes, b1.asInstanceOf[DFDLSimpleType].alignmentUnits) // first has alignmentUnits
     assertEquals("tns:myVar1", b2.asInstanceOf[DFDLSetVariable].ref) // second is setVariable with a ref
@@ -331,7 +331,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(ge1f, ge2f, ge3f, ge4f) = sd.globalElementDecls // Obtain global element nodes
+    val Seq(ge1f, ge2f, ge3f, ge4f, ge5f, ge6f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
     val Seq(a1: DFDLElement) = ge1.annotationObjs
 
@@ -360,7 +360,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(ge1, ge2, ge3, ge4) = sd.globalElementDecls // Obtain global element nodes
+    val Seq(ge1, ge2, ge3, ge4, ge5, ge6) = sd.globalElementDecls // Obtain global element nodes
     
     val x = ge2.forRoot().typeDef.asInstanceOf[LocalSimpleTypeDef]
     
@@ -458,4 +458,53 @@ class TestDsomCompiler extends JUnit3Suite {
     assertTrue(ce2.isConstant)
     assertEquals(";", ce2.constant)
   }
+  
+  def test_simpleType_base_combining {
+    // TO-DO: Add foundValues to a utils section or declare it at top of file?
+    //
+    def foundValues(collection: Map[String, String], key: String, value: String): Boolean = {
+     val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
+        case Some(_) => true
+        case None => false
+      }
+      found
+    }
+    
+    val testSchema = XML.loadFile("test/example-of-most-dfdl-constructs.dfdl.xml")
+    val compiler = Compiler()
+
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    // No annotations
+    val Seq(ct) = sd.globalComplexTypeDefs
+
+    // Explore global element decl
+    val Seq(e1f, e2f, e3f) = sd.globalElementDecls // there are 3 factories
+    val e1 = e1f.forRoot()
+    val e2 = e2f.forRoot()
+    val e3 = e3f.forRoot()
+    
+    val Seq(gs1f, gs2f, gs3f, gs4f) = sd.globalSimpleTypeDefs
+    
+    val gs1 = gs1f.forRoot()	// Global Simple Type - aType
+    
+    assertEquals("ex:aaType", gs1.restrictionBase)
+    assertTrue(foundValues(gs1.allProperties, "alignmentUnits", "bytes")) 		// SimpleType - Local
+    assertTrue(foundValues(gs1.allProperties, "byteOrder", "bigEndian")) 		// SimpleType - Base
+    assertTrue(foundValues(gs1.allProperties, "occursCountKind", "implicit"))  	// Default Format
+    assertTrue(foundValues(gs1.allProperties, "representation", "text"))  		// Define Format - def1
+    assertTrue(foundValues(gs1.allProperties, "encoding", "utf-8"))  			// Define Format - def1
+    assertTrue(foundValues(gs1.allProperties, "textStandardBase", "10"))		// Define Format - def2
+    assertTrue(foundValues(gs1.allProperties, "escapeSchemeRef", "tns:quotingScheme"))	// Define Format - def2
+    
+    val gs3 = gs3f.forRoot()	// Global SimpleType - aTypeError - overlapping base props
+    
+    // Tests overlapping properties
+    intercept[daffodil.exceptions.SDE] { gs3.allProperties }
+  }
+  
+  
 }
+
