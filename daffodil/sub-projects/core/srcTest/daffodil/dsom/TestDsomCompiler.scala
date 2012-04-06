@@ -235,7 +235,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(ct) = sd.globalComplexTypeDefs
 
     // Explore global element decl
-    val Seq(e1f, e2f, e3f) = sd.globalElementDecls // there are 3 factories
+    val Seq(e1f, e2f, e3f, e4f, e5f) = sd.globalElementDecls // there are 3 factories
     val e1 = e1f.forRoot()
     val e2 = e2f.forRoot()
     val e3 = e3f.forRoot()
@@ -275,7 +275,7 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals("%%", es) // has escapeCharacter="%%" (note: string literals not digested yet, so %% is %%, not %.
 
     // Explore global group defs
-    val Seq(gr1, gr2) = sd.globalGroupDefs // there are two
+    val Seq(gr1, gr2, gr3, gr4, gr5) = sd.globalGroupDefs // there are two
     val seq1 = gr1.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[Sequence]
 
     //Explore LocalSimpleTypeDef
@@ -306,7 +306,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(gd1, gd2) = sd.globalGroupDefs // Obtain Group nodes
+    val Seq(gd1, gd2, gd3, gd4, gd5) = sd.globalGroupDefs // Obtain Group nodes
     val ch1 = gd2.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[Choice] // Downcast child-node of group to Choice
     val Seq(cd1, cd2, cd3) = ch1.groupMembers // Children nodes of Choice-node, there are 3
 
@@ -481,7 +481,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(ct) = sd.globalComplexTypeDefs
 
     // Explore global element decl
-    val Seq(e1f, e2f, e3f) = sd.globalElementDecls // there are 3 factories
+    val Seq(e1f, e2f, e3f, e4f, e5f) = sd.globalElementDecls // there are 3 factories
     val e1 = e1f.forRoot()
     val e2 = e2f.forRoot()
     val e3 = e3f.forRoot()
@@ -492,18 +492,79 @@ class TestDsomCompiler extends JUnit3Suite {
     val gs1 = gs1f.forRoot()	// Global Simple Type - aType
     
     assertEquals("ex:aaType", gs1.restrictionBase)
-    assertTrue(foundValues(gs1.allProperties, "alignmentUnits", "bytes")) 		// SimpleType - Local
-    assertTrue(foundValues(gs1.allProperties, "byteOrder", "bigEndian")) 		// SimpleType - Base
-    assertTrue(foundValues(gs1.allProperties, "occursCountKind", "implicit"))  	// Default Format
-    assertTrue(foundValues(gs1.allProperties, "representation", "text"))  		// Define Format - def1
-    assertTrue(foundValues(gs1.allProperties, "encoding", "utf-8"))  			// Define Format - def1
-    assertTrue(foundValues(gs1.allProperties, "textStandardBase", "10"))		// Define Format - def2
-    assertTrue(foundValues(gs1.allProperties, "escapeSchemeRef", "tns:quotingScheme"))	// Define Format - def2
+    assertTrue(foundValues(gs1.allNonDefaultProperties, "alignmentUnits", "bytes")) 		// SimpleType - Local
+    assertTrue(foundValues(gs1.allNonDefaultProperties, "byteOrder", "bigEndian")) 		// SimpleType - Base
+    assertTrue(foundValues(gs1.allNonDefaultProperties, "occursCountKind", "implicit"))  	// Default Format
+    assertTrue(foundValues(gs1.allNonDefaultProperties, "representation", "text"))  		// Define Format - def1
+    assertTrue(foundValues(gs1.allNonDefaultProperties, "encoding", "utf-8"))  			// Define Format - def1
+    assertTrue(foundValues(gs1.allNonDefaultProperties, "textStandardBase", "10"))		// Define Format - def2
+    assertTrue(foundValues(gs1.allNonDefaultProperties, "escapeSchemeRef", "tns:quotingScheme"))	// Define Format - def2
     
     val gs3 = gs3f.forRoot()	// Global SimpleType - aTypeError - overlapping base props
     
     // Tests overlapping properties
-    intercept[daffodil.exceptions.SDE] { gs3.allProperties }
+    intercept[daffodil.exceptions.SDE] { gs3.allNonDefaultProperties }
+  }
+  
+  def test_group_references {
+    // TO-DO: Add foundValues to a utils section or declare it at top of file?
+    //
+    def foundValues(collection: Map[String, String], key: String, value: String): Boolean = {
+     val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
+        case Some(_) => true
+        case None => false
+      }
+      found
+    }
+    
+    val testSchema = XML.loadFile("test/example-of-most-dfdl-constructs.dfdl.xml")
+    val compiler = Compiler()
+
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    // No annotations
+    val Seq(ct) = sd.globalComplexTypeDefs
+
+    // Explore global element decl
+    val Seq(e1f, e2f, e3f, e4f, e5f) = sd.globalElementDecls // there are 3 factories
+
+    // GroupRefTest
+    val e4 = e4f.forRoot() // groupRefTest
+    
+    val e4ct = e4.immediateType.get.asInstanceOf[LocalComplexTypeDef]
+    
+    val e4ctgref = e4ct.modelGroup.asInstanceOf[GroupRef]	// groupRefTests' local group decl
+    
+    val myGlobal1 = e4ctgref.groupDef.get
+    
+    val myGlobal1Seq = myGlobal1.modelGroup.asInstanceOf[Sequence]
+    
+    val myGlobal2Seq = myGlobal1Seq.immediateGroup.get.asInstanceOf[Sequence]
+    
+   // val myGlobal2Seq = myGlobal2.modelGroup.asInstanceOf[Sequence]
+    
+    // myGlobal1 Properties
+    assertTrue(foundValues(myGlobal1Seq.allNonDefaultProperties, "separator", ","))
+    
+    // myGlobal2 Properties
+    assertTrue(foundValues(myGlobal2Seq.allNonDefaultProperties, "separator", ";"))
+    assertTrue(foundValues(myGlobal2Seq.allNonDefaultProperties, "separatorPosition", "infix"))
+    
+    // GroupRefTestOverlap
+    val e5 = e5f.forRoot() // groupRefTestOverlap
+    
+    val e5ct = e5.immediateType.get.asInstanceOf[LocalComplexTypeDef]
+    
+    val e5ctgref = e5ct.modelGroup.asInstanceOf[GroupRef]	// groupRefTestOverlap's local group decl
+    
+    val myGlobal3 = e5ctgref.groupDef.get
+    val myGlobal3Seq = myGlobal3.modelGroup.asInstanceOf[Sequence]
+    
+    // Tests overlapping properties
+    intercept[daffodil.exceptions.SDE] { myGlobal3Seq.allNonDefaultProperties }
+    
   }
   
   

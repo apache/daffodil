@@ -260,4 +260,34 @@
 		<restriction base="xsd:int" />
 	</simpleType>
 
+	<!-- Global element declaration to test group references -->
+	<element name="groupRefTest">
+		<complexType>
+			<group ref="ex:myGlobal1" dfdl:separator=","></group>
+		</complexType>
+	</element>
+	
+	<!-- Global element declaration to test group references -->
+	<element name="groupRefTestOverlap">
+		<complexType>
+			<group ref="ex:myGlobal3" dfdl:separator=","></group>
+		</complexType>
+	</element>
+	
+	<!-- Global Group def to test group references -->
+	<group name="myGlobal2">
+		<sequence dfdl:separatorPosition="infix">
+			<element name="grpRefElement1" type="xs:string" dfdl:length="8" dfdl:lengthKind="explicit"></element>
+		</sequence>
+	</group>
+	<group name="myGlobal1">
+		<sequence>
+			<group ref="ex:myGlobal2" dfdl:separator=";"></group>
+		</sequence>
+	</group>
+	<group name="myGlobal3">
+		<sequence dfdl:separatorPosition="infix" dfdl:separator=";">
+			<element name="grpRefElement2" type="xs:string" dfdl:length="8" dfdl:lengthKind="explicit"></element>
+		</sequence>
+	</group>
 </xsd:schema>

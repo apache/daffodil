@@ -57,13 +57,13 @@ trait AnnotatedMixin
 extends SchemaComponent
 with CommonRuntimeValuedPropertiesMixin {
   
-  def localAndRefProperties: Map[String,String]
+  def localAndFormatRefProperties: Map[String,String]
   def defaultProperties: Map[String,String] = {
-    this.schemaDocument.localAndRefProperties
+    this.schemaDocument.localAndFormatRefProperties
   }
   
   def getPropertyOption(pname: String) = {
-    val local = localAndRefProperties.get(pname) 
+    val local = localAndFormatRefProperties.get(pname) 
     local match {
       case None => {
         defaultProperties.get(pname)
@@ -353,7 +353,7 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
   
-  lazy val localAndRefProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
+  lazy val localAndFormatRefProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
   
   override lazy val defaultProperties = Map.empty[String, String]
   

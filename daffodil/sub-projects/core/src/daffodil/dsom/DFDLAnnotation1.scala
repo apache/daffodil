@@ -244,25 +244,45 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
     props
   } // end-getFormatProperties
   
+//  // Added by Taylor W.
+//  // 
+//  def getFormatPropertiesNonDefault(): Map[String, String] = {
+//    var refStack: Set[String] = Set.empty[String]
+//
+//    // Fetch Local Format Properties
+//    val localProps = combinedLocalProperties.filterNot(x => x._1 == "ref" || x._1 == "name")
+//
+//    val ref = getLocalFormatRef()
+//    if (ref.length() != 0) {
+//    	val refProps = getDefineFormatPropertiesByRef(ref, refStack)
+//
+//    		val res: Map[String, String] = combinePropertiesWithOverriding(localProps, refProps)
+//    		res
+//    }
+//    else {
+//      localProps
+//    }
+//  } // end-getFormatPropertiesNonDefault
+  
   // Added by Taylor W.
   // 
   def getFormatPropertiesNonDefault(): Map[String, String] = {
-    var refStack: Set[String] = Set.empty[String]
-
+ 
     // Fetch Local Format Properties
     val localProps = combinedLocalProperties.filterNot(x => x._1 == "ref" || x._1 == "name")
-
-    val ref = getLocalFormatRef()
-    if (ref.length() != 0) {
-    	val refProps = getDefineFormatPropertiesByRef(ref, refStack)
-
-    		val res: Map[String, String] = combinePropertiesWithOverriding(localProps, refProps)
-    		res
-    }
-    else {
-      localProps
-    }
+    combinePropertiesWithOverriding(localProps, formatRefProperties)
+    
   } // end-getFormatPropertiesNonDefault
+  
+  lazy val formatRefProperties: Map[String, String] = {
+    var refStack: Set[String] = Set.empty[String]
+    var props: Map[String, String] = Map.empty[String, String]
+    val ref = getLocalFormatRef()
+    if (ref.length() != 0){
+      props = getDefineFormatPropertiesByRef(ref, refStack)
+    }
+    props
+  }
 }
 
 /**
