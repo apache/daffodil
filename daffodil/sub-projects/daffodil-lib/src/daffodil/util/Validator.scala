@@ -40,6 +40,14 @@ object Validator extends NoBindingFactoryAdapter {
       val f = SAXParserFactory.newInstance()
       f.setNamespaceAware(true)
       f.setFeature("http://xml.org/sax/features/namespace-prefixes", true)
+//      
+//      // Issue DFDL-76 in Jira - just adding these two lines does check more stuff, but it seems to 
+//      // cause all sorts of havoc with not finding various schemas, etc.
+//      // Commented out for now pending more thorough investigation of how to fix this issue.
+//
+//      f.setFeature("http://apache.org/xml/features/validation/schema", true)
+//      f.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
+//      
       parser = f.newSAXParser()
     } catch {
       case e: Exception => Console.err.println("error: Unable to instantiate parser")

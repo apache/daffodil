@@ -179,7 +179,7 @@ with CommonRuntimeValuedPropertiesMixin {
   
   lazy val knownEncodingName = {
     Assert.invariant(isKnownEncoding)
-    val res = encodingExpr.constant.asInstanceOf[String].toUpperCase()
+    val res = encodingExpr.constantAsString.toUpperCase()
     res
   }
   
@@ -196,8 +196,9 @@ with CommonRuntimeValuedPropertiesMixin {
   lazy val knownEncodingIsFixedWidth = {
     // val res = knownEncodingCharset.isFixedWidth
     val res = knownEncodingName match {
-      case "US-ASCII" => true
+      case "US-ASCII" | "ASCII" => true
       case "UTF-8" => false
+      case "UTF-16" | "UTF-16LE" | "UTF-16BE" | "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
       case _ => Assert.notYetImplemented()
     }
     res
@@ -208,8 +209,10 @@ with CommonRuntimeValuedPropertiesMixin {
   lazy val knownEncodingWidth = {
     // knownEncodingCharset.width()
     val res = knownEncodingName match {
-      case "US-ASCII" => 1
+      case "US-ASCII" | "ASCII" => 1
       case "UTF-8" => -1
+      case "UTF-16" | "UTF-16LE" | "UTF-16BE" => 2
+      case "UTF-32" | "UTF-32BE" | "UTF-32LE" => 4
       case _ => Assert.notYetImplemented()
     }
     res

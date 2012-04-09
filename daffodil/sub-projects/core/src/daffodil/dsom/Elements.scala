@@ -108,7 +108,7 @@ trait ElementBaseMixin
   }
 
   lazy val fixedLength = {
-    if (isFixedLength) compiledLength.constant.asInstanceOf[Long] else -1 // shouldn't even be asking for this if not isFixedLength 
+    if (isFixedLength) compiledLength.constantAsLong else -1 // shouldn't even be asking for this if not isFixedLength 
   }
 
   def hasPrimitiveType(localname: String): Boolean = {

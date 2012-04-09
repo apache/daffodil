@@ -333,11 +333,11 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
     lazy val arrayContentsNoSeparators = Prod("arrayContentsNoSeparators", this, isRecurring && !hasSep, {
       val max = maxOccurs
       val res = occursCountKind match {
-//        case Expression => separatedContentExactlyNComputed(occursCountExpr)
+        case Expression => Assert.notYetImplemented() // separatedContentExactlyNComputed(occursCountExpr)
         case OccursCountKind.Fixed      if (max == UNB) => Assert.SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
         case OccursCountKind.Fixed      => separatedContentExactlyN(max)
-       // case OccursCountKind.Implicit   if (max == UNB) => contentUnbounded
-        //case OccursCountKind.Implicit   => contentAtMostN // uses maxOccurs
+        case OccursCountKind.Implicit   if (max == UNB) => Assert.notYetImplemented() // contentUnbounded
+        case OccursCountKind.Implicit   => Assert.notYetImplemented() // contentAtMostN // uses maxOccurs
         case OccursCountKind.Parsed     => contentUnbounded
         case OccursCountKind.StopValue  => contentUnbounded
       }
@@ -462,7 +462,7 @@ trait TermGrammarMixin { self : Term =>
   def hasES = nearestEnclosingSequence != None
   
   lazy val staticSeparator = Prod("staticSeparator", this, hasES && es.separatorExpr.isConstant, 
-      new StaticDelimiter(es.separatorExpr.constant.asInstanceOf[String], self))
+      new StaticDelimiter(es.separatorExpr.constantAsString, self))
       
   lazy val dynamicSeparator = Prod("dynamicSeparator", this, hasES && !es.separatorExpr.isConstant, 
       new DynamicDelimiter(es.separatorExpr, self))

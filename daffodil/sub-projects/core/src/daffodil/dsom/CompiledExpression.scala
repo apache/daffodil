@@ -52,6 +52,8 @@ abstract class CompiledExpression {
    * isConstantValue must be true or this will throw.
    */
   def constant : Any
+  def constantAsString = constant.toString
+  def constantAsLong = constantAsString.toLong
   
   /**
    * evaluation - the runtime

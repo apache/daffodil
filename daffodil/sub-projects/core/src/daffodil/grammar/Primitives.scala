@@ -105,13 +105,13 @@ case class StringFixedLengthInVariableWidthCharacters(e : ElementBaseMixin, nCha
 
 case class StringDelimited(e : LocalElementBase) extends Terminal(e, true) {
   lazy val tm = e.terminatingMarkup
-  lazy val tmStrings = tm.map {_.constant.asInstanceOf[String]}
+  lazy val tmStrings = tm.map {_.constantAsString}
   lazy val tmStringLengths = tmStrings.map{_.length}
-  lazy val maxLen = tmStringLengths.foldLeft(0) {(a,b) => Math.max(a,b)}
-  lazy val minLen = tmStringLengths.foldLeft(maxLen) {(a,b) => Math.min(a,b)}
+  lazy val maxLen = tmStringLengths.foldLeft(0) {(a,b) => math.max(a,b)}
+  lazy val minLen = tmStringLengths.foldLeft(maxLen) {(a,b) => math.min(a,b)}
   Assert.invariant(maxLen > 0)
   
-  val orderedStrings = tmStrings.sort((a, b) => a.length < b.length)
+  val orderedStrings = tmStrings.sortWith((a, b) => a.length < b.length)
   
   val quotedStrings = orderedStrings.map {quoteForRegEx(_)}
   val regEx = quotedStrings.foldLeft("") {_+"|"+_}
@@ -252,12 +252,12 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) e
 
 class DynamicDelimiter(delimExpr : CompiledExpression, e: AnnotatedMixin, guard: Boolean = true) extends Primitive(e, guard)
 
-case class StaticInitiator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.initiatorExpr.constant.asInstanceOf[String], e)
-case class StaticTerminator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.terminatorExpr.constant.asInstanceOf[String], e)
+case class StaticInitiator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.initiatorExpr.constantAsString, e)
+case class StaticTerminator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.terminatorExpr.constantAsString, e)
 case class DynamicInitiator(e : InitiatedTerminatedMixin) extends DynamicDelimiter(e.initiatorExpr, e)
 case class DynamicTerminator(e : InitiatedTerminatedMixin) extends DynamicDelimiter(e.terminatorExpr, e)
 
-//case class StaticSeparator(e : Sequence) extends StaticDelimiter(e.separatorExpr.constant.asInstanceOf[String], e)
+//case class StaticSeparator(e : Sequence) extends StaticDelimiter(e.separatorExpr.constantAsString, e)
 //case class DynamicSeparator(e : Sequence) extends DynamicDelimiter(e.separatorExpr, e)
 
 case class StartChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct, guard) {
