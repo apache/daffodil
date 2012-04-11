@@ -126,8 +126,13 @@ with AlignedMixin { self: ElementBaseMixin =>
         Assert.notYetImplemented())    
     
   lazy val ieeeBinaryRepDouble = Prod("ieeeBinaryRepDouble", this,
-    binaryFloatRep.isConstant && 
-    binaryFloatRep.constantAsString == BinaryFloatRep.Ieee.toString, 
+      {
+	    val bfr = binaryFloatRep
+	    val res = bfr.isConstant &&
+	    BinaryFloatRep(bfr.constantAsString) == BinaryFloatRep.Ieee
+	    res
+      }
+    , 
     lengthKind match {
       case LengthKind.Implicit => {
         if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString) match {
