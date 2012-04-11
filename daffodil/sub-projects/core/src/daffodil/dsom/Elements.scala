@@ -275,7 +275,7 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
 
   // Element references can have minOccurs and maxOccurs, and annotations, but nothing else.
 
-  lazy val localAndRefProperties = Assert.notYetImplemented()
+  lazy val localAndFormatRefProperties = Assert.notYetImplemented()
 }
 
 trait HasRef { self: SchemaComponent =>
@@ -386,8 +386,8 @@ trait ElementDeclBase
     }
   }
 
-  lazy val localAndRefProperties: Map[String, String] = {
-    val localTypeProperties = this.typeDef.localAndRefProperties
+  lazy val localAndFormatRefProperties: Map[String, String] = {
+    val localTypeProperties = this.typeDef.localAndFormatRefProperties
     val myLocalProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
     Assert.schemaDefinition(overlappingProperties.size == 0, "Type properties overlap with element properties.")
     val theUnion = localTypeProperties ++ myLocalProperties
@@ -395,11 +395,26 @@ trait ElementDeclBase
   }
 
   lazy val overlappingProperties = {
-    val localTypePropertiesNames = this.typeDef.localAndRefProperties.map(x => x._1).toSet
-    val myLocalPropertiesNames = this.formatAnnotation.getFormatPropertiesNonDefault().map(x => x._1).toSet
+    val localTypePropertiesNames = this.typeDef.localAndFormatRefProperties.keySet
+    val myLocalPropertiesNames = this.formatAnnotation.getFormatPropertiesNonDefault().keySet
     val intersect = localTypePropertiesNames.intersect(myLocalPropertiesNames)
     intersect
   }
+  
+  lazy val combinedElementAndSimpleTypeProperties = {
+    var props: Map[String, String] = this.localAndFormatRefProperties
+    
+    if (isSimpleType){
+      props ++= this.elementSimpleType.allNonDefaultProperties
+    }
+    props
+  }
+  
+  lazy val allNonDefaultProperties = {
+    val theLocalUnion = this.combinedElementAndSimpleTypeProperties
+    theLocalUnion
+  }
+  
 }
 
 class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)

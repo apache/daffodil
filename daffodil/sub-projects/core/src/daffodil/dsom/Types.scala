@@ -11,7 +11,7 @@ import daffodil.xml._
 
 trait TypeBase {
   // use def, can be overriden by lazy val or def
-  def localAndRefProperties: Map[String, String]
+  def localAndFormatRefProperties: Map[String, String]
 }
 
 trait NamedType extends NamedMixin with TypeBase with SchemaComponent
@@ -27,8 +27,25 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
     }
   }
 
-  lazy val localAndRefProperties: Map[String, String] = {
+  lazy val localAndFormatRefProperties: Map[String, String] = {
     this.formatAnnotation.getFormatPropertiesNonDefault()
+  }
+  
+  lazy val localProperties = {
+    this.formatAnnotation.combinedLocalProperties
+  }
+  
+  lazy val formatRefProperties = {
+    this.formatAnnotation.formatRefProperties
+  }
+  
+  lazy val combinedSimpleTypeAndBaseProperties = {
+    Assert.schemaDefinition(overlappingLocalProperties.size == 0, 
+        "Overlap detected between the local SimpleType (" 
+        + this.detailName + ") properties and its base.")
+        
+    val props = this.localAndFormatRefProperties ++ this.simpleTypeBaseProperties
+    props
   }
   
   // Returns name of base class in the form of
@@ -53,7 +70,7 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
     
     val baseProps = {
       myBaseType match {
-        case Some(bt) => bt.forDerivedType(this).localAndRefProperties
+        case Some(bt) => bt.forDerivedType(this).localAndFormatRefProperties
         case None => Map.empty[String,String]
       }
     }
@@ -62,9 +79,9 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
   }
   
   lazy val overlappingLocalProperties = {
-    val localAndRef = localAndRefProperties.map{ x => x._1 }.toSet
+    val localAndFormatRef = localAndFormatRefProperties.map{ x => x._1 }.toSet
     val baseProps = simpleTypeBaseProperties.map{ x => x._1 }.toSet
-    val intersect = localAndRef.intersect(baseProps)
+    val intersect = localAndFormatRef.intersect(baseProps)
     intersect
   }
   
@@ -77,16 +94,11 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
     }
   }
   
-  lazy val allProperties = {
+  lazy val allNonDefaultProperties = {
     Assert.schemaDefinition(!hasOverlap, "Overlap detected between simpleType (" + this.detailName + ") and its base.")
     
-    val theLocalUnion = {
-      localAndRefProperties.toSeq.union(simpleTypeBaseProperties.toSeq).toMap
-    }
-    val filteredDefaultProps = this.defaultProperties.filter(x => x._1 != "ref")
-    val combined = this.formatAnnotation.combinePropertiesWithOverriding(theLocalUnion, filteredDefaultProps)
-   
-    combined
+    val theLocalUnion = this.combinedSimpleTypeAndBaseProperties
+    theLocalUnion
   }
 }
 
@@ -120,7 +132,7 @@ class PrimitiveType(name_ : String) extends NamedType {
   lazy val dummySchemaSet = new SchemaSet(NodeSeq.Empty)
   lazy val xsdSchema = new Schema(namespace, NodeSeq.Empty, dummySchemaSet)
   lazy val schemaDocument = new SchemaDocument(<schema/>, xsdSchema)
-  lazy val localAndRefProperties: Map[String, String] = {
+  lazy val localAndFormatRefProperties: Map[String, String] = {
     Map.empty[String, String]
   }
 }
@@ -172,7 +184,7 @@ abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
   lazy val xml = xmlArg
   lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
   lazy val Seq(modelGroup) = xmlChildren.flatMap { GroupFactory(_, this, 1) }
-  lazy val localAndRefProperties: Map[String, String] = {
+  lazy val localAndFormatRefProperties: Map[String, String] = {
     Map.empty[String, String]
   }
 }
