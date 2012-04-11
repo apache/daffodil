@@ -144,11 +144,11 @@ binaryBooleanFalseRep="0">
   def testProps1() {
     val hasProps = new HasLotsOfProperties
 
-    comparePropValue(hasProps.encoding, "UTF-8")
+//    comparePropValue(hasProps.encoding, "UTF-8")
     comparePropValue(hasProps.utf16Width, "fixed")
-    comparePropValue(hasProps.byteOrder, "bigEndian")
+//    comparePropValue(hasProps.byteOrder, "bigEndian")
     comparePropValue(hasProps.ignoreCase, "no")
-    comparePropValue(hasProps.outputNewLine, "%CR;%LF;")
+//    comparePropValue(hasProps.outputNewLine, "%CR;%LF;")
     comparePropValue(hasProps.alignment, "1")
     comparePropValue(hasProps.alignmentUnits, "bytes")
     comparePropValue(hasProps.fillByte, "0")
@@ -180,8 +180,8 @@ binaryBooleanFalseRep="0">
     comparePropValue(hasProps.textNumberRounding, "pattern")
     comparePropValue(hasProps.textNumberRoundingMode, "roundUp")
     comparePropValue(hasProps.textNumberRoundingIncrement, "0.0")
-    comparePropValue(hasProps.textStandardDecimalSeparator, ".")
-    comparePropValue(hasProps.textStandardGroupingSeparator, ",")
+//    comparePropValue(hasProps.textStandardDecimalSeparator, ".")
+//    comparePropValue(hasProps.textStandardGroupingSeparator, ",")
     comparePropValue(hasProps.textStandardExponentCharacter, "E")
     comparePropValue(hasProps.textStandardZeroRep, "0")
     comparePropValue(hasProps.textStandardInfinityRep, "Inf")
@@ -190,8 +190,8 @@ binaryBooleanFalseRep="0">
     comparePropValue(hasProps.textZonedSignStyle, "asciiStandard")
     comparePropValue(hasProps.textBooleanJustification, "left")
     comparePropValue(hasProps.textBooleanPadCharacter, "%SP;")
-    comparePropValue(hasProps.textBooleanTrueRep, "true")
-    comparePropValue(hasProps.textBooleanFalseRep, "false")
+//    comparePropValue(hasProps.textBooleanTrueRep, "true")
+//    comparePropValue(hasProps.textBooleanFalseRep, "false")
     comparePropValue(hasProps.textCalendarJustification, "left")
     comparePropValue(hasProps.textCalendarPadCharacter, "%SP;")
     comparePropValue(hasProps.calendarPatternKind, "implicit")
@@ -205,14 +205,14 @@ binaryBooleanFalseRep="0">
     comparePropValue(hasProps.calendarLanguage, "en-US")
     comparePropValue(hasProps.occursCountKind, "parsed")
     comparePropValue(hasProps.sequenceKind, "ordered")
-    comparePropValue(hasProps.separator, ",")
+//    comparePropValue(hasProps.separator, ",")
     comparePropValue(hasProps.separatorPolicy, "required")
     comparePropValue(hasProps.separatorPosition, "infix")
     comparePropValue(hasProps.initiatedContent, "no")
     comparePropValue(hasProps.floating, "no")
     comparePropValue(hasProps.choiceLengthKind, "implicit")
-    comparePropValue(hasProps.initiator, "")
-    comparePropValue(hasProps.terminator, "")
+//    comparePropValue(hasProps.initiator, "")
+//    comparePropValue(hasProps.terminator, "")
     comparePropValue(hasProps.documentFinalTerminatorCanBeMissing, "no")
     comparePropValue(hasProps.emptyValueDelimiterPolicy, "none")
     comparePropValue(hasProps.nilKind, "literalValue")
@@ -223,7 +223,7 @@ binaryBooleanFalseRep="0">
     comparePropValue(hasProps.binaryPackedSignCodes, "C D F C")
     comparePropValue(hasProps.binaryDecimalVirtualPoint, "0")
     comparePropValue(hasProps.binaryNumberCheckPolicy, "lax")
-    comparePropValue(hasProps.binaryFloatRep, "ieee")
+//    comparePropValue(hasProps.binaryFloatRep, "ieee")
     comparePropValue(hasProps.binaryCalendarRep, "bcd")
     comparePropValue(hasProps.binaryCalendarEpoch, "1970-01-01T00:00:00+00:00")
     comparePropValue(hasProps.binaryBooleanTrueRep, "1")
@@ -251,13 +251,15 @@ binaryBooleanFalseRep="0">
    */
   def testPropsToString() {
     val h = new HasLotsOfProperties
-    h.encoding
+    h.ignoreCase
     val fl = h.toStringFunctionList
+    System.err.println("There are " + fl.length + " toString functions.")
     assertTrue(fl.length >= 84) // Note: There are extra print functions for things that won't be requested. like "ref". 
-    val str = h.toString
-    println(str)
-    assertTrue(str.contains("binaryCalendarRep='bcd'"))
-    assertTrue(str.contains("binaryBooleanFalseRep='0'")) 
-    assertTrue(str.contains("textBooleanPadCharacter='%SP;'"))
+    // These tests don't work because we no longer make the printed rep of a object contain a listing of all its props.
+//    val str = h.toString
+//    println(str)
+//    assertTrue(str.contains("binaryCalendarRep=\"bcd\""))
+//    assertTrue(str.contains("binaryBooleanFalseRep='0'")) 
+//    assertTrue(str.contains("textBooleanPadCharacter='%SP;'"))
   }
 }

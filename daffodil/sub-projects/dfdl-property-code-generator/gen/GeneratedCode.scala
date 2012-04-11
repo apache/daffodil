@@ -1148,42 +1148,6 @@ object BinaryFloatRep extends Enum[BinaryFloatRep] {
 
   def apply(name: String) : BinaryFloatRep = stringToEnum("binaryFloatRep", name)
 }
-  
-trait BinaryFloatRepMixin extends PropertyMixin {
-    
-  /**
-   * get property value, or fail trying. Use this if you need
-   * the property value.
-   */
-  lazy val binaryFloatRep = BinaryFloatRep(getProperty("binaryFloatRep"))
-    
-  /**
-   * get Some(property value) or None if not defined in scope.
-   *
-   * Mostly do not use this. Most code shouldn't need to test for 
-   * property existence. Just insist on the property you need by
-   * calling getProperty("binaryFloatRep")
-   */
-  lazy val optionBinaryFloatRep = getPropertyOption("binaryFloatRep")
-    
-  /**
-   * This will print the property value if the property has any value
-   * in scope. This is mostly for debugging purposes.
-   */   
-  def binaryFloatRepToString() = {
-    optionBinaryFloatRep match {
-      case None => "" // empty string if not present
-      case Some(binaryFloatRep) =>  "binaryFloatRep='" + binaryFloatRep + "' "
-    }
-  }
-    
-  def binaryFloatRepInit() = {
-    registerToStringFunction(binaryFloatRepToString)
-  }
-    
-  binaryFloatRepInit() // call at object creation to initialize
-}
-
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="TextBooleanJustificationEnum" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
 // 		<xsd:restriction base="xsd:string">
@@ -2141,42 +2105,6 @@ object ByteOrder extends Enum[ByteOrder] {
 
   def apply(name: String) : ByteOrder = stringToEnum("byteOrder", name)
 }
-  
-trait ByteOrderMixin extends PropertyMixin {
-    
-  /**
-   * get property value, or fail trying. Use this if you need
-   * the property value.
-   */
-  lazy val byteOrder = ByteOrder(getProperty("byteOrder"))
-    
-  /**
-   * get Some(property value) or None if not defined in scope.
-   *
-   * Mostly do not use this. Most code shouldn't need to test for 
-   * property existence. Just insist on the property you need by
-   * calling getProperty("byteOrder")
-   */
-  lazy val optionByteOrder = getPropertyOption("byteOrder")
-    
-  /**
-   * This will print the property value if the property has any value
-   * in scope. This is mostly for debugging purposes.
-   */   
-  def byteOrderToString() = {
-    optionByteOrder match {
-      case None => "" // empty string if not present
-      case Some(byteOrder) =>  "byteOrder='" + byteOrder + "' "
-    }
-  }
-    
-  def byteOrderInit() = {
-    registerToStringFunction(byteOrderToString)
-  }
-    
-  byteOrderInit() // call at object creation to initialize
-}
-
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="YesNoEnum" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
 // 		<xsd:restriction base="xsd:string">
@@ -2494,8 +2422,6 @@ trait BaseAGMixin extends PropertyMixin {
 
 trait CommonAGMixin extends PropertyMixin
   with UTF16WidthMixin {
-  lazy val byteOrder = ByteOrderEnum_Or_DFDLExpression(getProperty("byteOrder"))
-  lazy val encoding = EncodingEnum_Or_DFDLExpression(getProperty("encoding"))
   lazy val ignoreCase = YesNo(getProperty("ignoreCase"))
 
   def commonAGInit() : Unit = {
@@ -2567,9 +2493,6 @@ trait AlignmentAGMixin extends PropertyMixin
 // 	</xsd:attributeGroup>
 
 trait MarkupAGMixin extends PropertyMixin {
-  lazy val initiator = ListOfDFDLStringLiteral_Or_DFDLExpression(getProperty("initiator"))
-  lazy val terminator = ListOfDFDLStringLiteral_Or_DFDLExpression(getProperty("terminator"))
-  lazy val outputNewLine = DFDLStringLiteral(getProperty("outputNewLine"))
 
   def markupAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("initiator") match {
@@ -2618,7 +2541,6 @@ trait LengthAGMixin extends PropertyMixin
   with LengthKindMixin
   with LengthUnitsMixin {
   lazy val prefixLengthType = convertToQName(getProperty("prefixLengthType"))
-  lazy val length = DFDLNonNegativeInteger_Or_DFDLExpression(getProperty("length"))
   lazy val lengthPattern = DFDLRegularExpression(getProperty("lengthPattern"))
   lazy val prefixIncludesPrefixLength = YesNo(getProperty("prefixIncludesPrefixLength"))
 
@@ -2720,10 +2642,8 @@ trait SimpleTypesTextAGMixin extends PropertyMixin
 
 trait EscapeSchemeAGMixin extends PropertyMixin
   with EscapeKindMixin {
-  lazy val escapeCharacter = DFDLStringLiteral_Or_DFDLExpression(getProperty("escapeCharacter"))
   lazy val escapeBlockStart = DFDLStringLiteral(getProperty("escapeBlockStart"))
   lazy val escapeBlockEnd = DFDLStringLiteral(getProperty("escapeBlockEnd"))
-  lazy val escapeEscapeCharacter = DFDLStringLiteral_Or_DFDLExpression(getProperty("escapeEscapeCharacter"))
   lazy val extraEscapedCharacters = ListOfDFDLStringLiteral(getProperty("extraEscapedCharacters"))
   lazy val generateEscapeBlock = GenerateEscape(getProperty("generateEscapeBlock"))
 
@@ -2897,8 +2817,6 @@ trait TextNumberFormatAGMixin extends PropertyMixin
   with TextZonedSignStyleMixin {
   lazy val textNumberRoundingIncrement = convertToDouble(getProperty("textNumberRoundingIncrement"))
   lazy val textNumberPattern = DFDLStringLiteral(getProperty("textNumberPattern"))
-  lazy val textStandardGroupingSeparator = DFDLStringLiteral_Or_DFDLExpression(getProperty("textStandardGroupingSeparator"))
-  lazy val textStandardDecimalSeparator = DFDLStringLiteral_Or_DFDLExpression(getProperty("textStandardDecimalSeparator"))
   lazy val textStandardExponentCharacter = DFDLStringLiteral_Or_DFDLExpression(getProperty("textStandardExponentCharacter"))
   lazy val textStandardInfinityRep = DFDLStringLiteral(getProperty("textStandardInfinityRep"))
   lazy val textStandardNaNRep = DFDLStringLiteral(getProperty("textStandardNaNRep"))
@@ -2984,7 +2902,6 @@ trait NumberBinaryAGMixin extends PropertyMixin
 // 	</xsd:attributeGroup>
 
 trait FloatBinaryAGMixin extends PropertyMixin {
-  lazy val binaryFloatRep = BinaryFloatRepEnum_Or_DFDLExpression(getProperty("binaryFloatRep"))
 
   def floatBinaryAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("binaryFloatRep") match {
@@ -3006,8 +2923,6 @@ trait FloatBinaryAGMixin extends PropertyMixin {
 
 trait BooleanTextAGMixin extends PropertyMixin
   with TextBooleanJustificationMixin {
-  lazy val textBooleanTrueRep = ListOfDFDLStringLiteral_Or_DFDLExpression(getProperty("textBooleanTrueRep"))
-  lazy val textBooleanFalseRep = ListOfDFDLStringLiteral_Or_DFDLExpression(getProperty("textBooleanFalseRep"))
   lazy val textBooleanPadCharacter = DFDLStringLiteral(getProperty("textBooleanPadCharacter"))
 
   def booleanTextAGInit() : Unit = {
@@ -3229,7 +3144,6 @@ trait SequenceAGMixin extends PropertyMixin
 trait SeparatorAGMixin extends PropertyMixin
   with SeparatorPositionMixin
   with SeparatorPolicyMixin {
-  lazy val separator = ListOfDFDLStringLiteral_Or_DFDLExpression(getProperty("separator"))
 
   def separatorAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("separator") match {
@@ -3288,7 +3202,6 @@ trait ChoiceAGMixin extends PropertyMixin
 
 trait OccursAGMixin extends PropertyMixin
   with OccursCountKindMixin {
-  lazy val occursCount = DFDLExpression(getProperty("occursCount"))
   lazy val occursStopValue = ListOfDFDLStringLiteral(getProperty("occursStopValue"))
 
   def occursAGInit() : Unit = {

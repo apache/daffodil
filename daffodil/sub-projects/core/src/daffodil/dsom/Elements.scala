@@ -99,16 +99,12 @@ trait ElementBaseMixin
   def typeDef: TypeBase
   def isScalar: Boolean
 
-  lazy val compiledLength = expressionCompiler.compile('Long, length)
-
   lazy val isFixedLength = {
-    lengthKind == LengthKind.Explicit &&
-      length != null && // just check to insure length is defined.
-      compiledLength.isConstant
+    lengthKind == LengthKind.Explicit && length.isConstant
   }
 
   lazy val fixedLength = {
-    if (isFixedLength) compiledLength.constantAsLong else -1 // shouldn't even be asking for this if not isFixedLength 
+    if (isFixedLength) length.constantAsLong else -1 // shouldn't even be asking for this if not isFixedLength 
   }
 
   def hasPrimitiveType(localname: String): Boolean = {

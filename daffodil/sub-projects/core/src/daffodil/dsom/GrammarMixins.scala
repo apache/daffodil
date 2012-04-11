@@ -92,9 +92,9 @@ with AlignedMixin { self: ElementBaseMixin =>
   lazy val regularBinaryRepInt = Prod("regularBinaryRepInt", this,
     binaryNumberRep == BinaryNumberRep.Binary, lengthKind match {
       case LengthKind.Implicit => {
-        if (byteOrderExpr.isConstant) byteOrderExpr.constant match {
-          case "bigEndian" => Regular32bitBigEndianIntPrim(this)
-          case "littleEndian" => Regular32bitLittleEndianIntPrim(this)
+        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString) match {
+          case ByteOrder.BigEndian => Regular32bitBigEndianIntPrim(this)
+          case ByteOrder.LittleEndian => Regular32bitLittleEndianIntPrim(this)
         }
         else Assert.notYetImplemented()
       }
@@ -126,11 +126,13 @@ with AlignedMixin { self: ElementBaseMixin =>
         Assert.notYetImplemented())    
     
   lazy val ieeeBinaryRepDouble = Prod("ieeeBinaryRepDouble", this,
-    binaryFloatRep == "ieee", lengthKind match {
+    binaryFloatRepExpr.isConstant && 
+    binaryFloatRepExpr.constantAsString == BinaryFloatRep.Ieee.toString, 
+    lengthKind match {
       case LengthKind.Implicit => {
-        if (byteOrderExpr.isConstant) byteOrderExpr.constant match {
-          case "bigEndian" => BigEndianDoublePrim(this)
-          case "littleEndian" => LittleEndianDoublePrim(this)
+        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString) match {
+          case ByteOrder.BigEndian => BigEndianDoublePrim(this)
+          case ByteOrder.LittleEndian => LittleEndianDoublePrim(this)
         }
         else Assert.notYetImplemented()
       }
@@ -138,7 +140,9 @@ with AlignedMixin { self: ElementBaseMixin =>
     })
   
   lazy val ibm390HexBinaryRepDouble = Prod("ibm390HexBinaryRepDouble", this,
-    binaryFloatRep == BinaryFloatRep.Ibm390Hex, Assert.SDE("ibm390Hex not supported")) 
+    binaryFloatRepExpr.isConstant && 
+    binaryFloatRepExpr.constantAsString == BinaryFloatRep.Ibm390Hex.toString, 
+    Assert.SDE("ibm390Hex not supported")) 
       
   lazy val value = {
     val res = Prod("value", this, 

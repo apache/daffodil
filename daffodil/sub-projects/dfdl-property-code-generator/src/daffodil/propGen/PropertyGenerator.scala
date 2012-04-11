@@ -24,7 +24,7 @@ class PropertyGenerator(arg: Node) {
 
   val exclusions = List("TextNumberBase", "AlignmentType", "FillByteType") // Do these by hand.
 
-  def exclude(name: String) = {
+  def excludeType(name: String) = {
     if (exclusions.contains(name)) {
       System.out.println("// Excluding " + name)
       true
@@ -89,7 +89,7 @@ class PropertyGenerator(arg: Node) {
   
   def genElementNamedType(e : Node, typeName : String, name : String) : String = {
     val elementType = stripDFDLPrefix(typeName)
-    if (exclude(name)) return ""
+    if (excludeType(name)) return ""
     val subAgs = e \\ "attributeGroup"
     val subRefAgs = subAgs.filter(ag => attr(ag, "ref") != None) // the "ref" attributeGroups
     // val subNames = subRefAgs.map(ag => stripSuffix("AG", stripDFDLPrefix(attr(ag, "ref"))))
@@ -118,7 +118,7 @@ class PropertyGenerator(arg: Node) {
     val enumName = attr(st, "name").get
     val name = enumName.stripSuffix("Enum")
     // val name = enumName // leave suffix on. 
-    if (exclude(name)) return ""
+    if (excludeType(name)) return ""
     System.out.println("//" + enumName)
     if (exclusions.contains(name)) return ""
     val enumNodes = (st \\ "enumeration")
@@ -130,6 +130,7 @@ class PropertyGenerator(arg: Node) {
         // decide what to generate based on the base type.
         val baseTypeNameNodeSeq = (st \ "restriction" \ "@base")
         val baseTypeName = if (baseTypeNameNodeSeq.length >= 1) baseTypeNameNodeSeq(0).text else "not recognized"
+        
         baseTypeName match {
           case "xsd:int" => generateIntProperty(name)
           case _ => generateStringProperty(name)
@@ -149,7 +150,7 @@ class PropertyGenerator(arg: Node) {
   def genAttributeGroup(ag : Node) : String = {
     // val name = stripSuffix("AG", attr(ag, "name"))
     val name = attr(ag, "name").get // let's try leaving AG suffix in place so we can distinguish generated type mixins from AG mixins.
-    if (exclude(name)) return ""
+    if (excludeType(name)) return ""
     val subAgs = ag \ "attributeGroup"
     val subRefAgs = subAgs.filter(ag => attr(ag, "ref") != None)
     // val subNames = subRefAgs.map(ag => stripSuffix("AG", stripDFDLPrefix(attr(ag, "ref"))))
@@ -189,8 +190,15 @@ class PropertyGenerator(arg: Node) {
       // We don't want properties for these.
       val notFormatProperties = List("ref", "type", "name", "test", "defaultValue", "message", "baseFormat")
       val notScopedFormatProperties = List("inputValueCalc", "outputValueCalc", "hiddenGroupRef") // do these by-hand since they are not scoped.
+
       val exclusions = notFormatProperties ++ notScopedFormatProperties
-      if (exclusions.contains(rawName)) Nil
+      if (rawName == "binaryFloatRep") {
+        System.err.println("binaryFloatRep")
+      }
+      if (exclusions.contains(rawName)) {
+        System.err.println("excluding " + rawName)
+        Nil
+      }
       else {
         val name = if (isScalaKeyword(rawName)) rawName + "_" else rawName
         val qualifiedTypeName = attr(attrNode, "type").get
@@ -214,7 +222,7 @@ class PropertyGenerator(arg: Node) {
   }
   
   def genComplexTypeWithName(ct : Node, name : String) : String = {
-    if (exclude(name)) return ""
+    if (excludeType(name)) return ""
     val baseNames = (ct \\ "extension" \ "@base").map{base=>stripDFDLPrefix(base.text)}.filterNot{_.startsWith("xsd:")}
     val subAgs = ct \\ "attributeGroup"
     val subRefAgs = subAgs.filter(ag => attr(ag, "ref") != None)
@@ -244,7 +252,7 @@ class PropertyGenerator(arg: Node) {
     } else source
   }
 
-  val sep = "////////////////////////////////////"
+  val sep = """////////////////////////////////////"""
 
   def comment(n: Node): String = {
     val res = n.toString.split("\n").toList.map("\n// " + _).reduce(_ + _)
@@ -283,7 +291,8 @@ object Currency extends Enum[Currency] {
   
   val templateEnd = """
   def apply(name: String) : Currency = stringToEnum("currency", name)
-}
+}"""
+  val templateMixin = """
   
 trait CurrencyMixin extends PropertyMixin {
     
@@ -321,7 +330,28 @@ trait CurrencyMixin extends PropertyMixin {
 }
 
 """
- 
+
+  /**
+   * exclude these since code should use the CompiledExpression created from these values,
+   * not the property values themselves. We'll do these by hand.
+   */
+  def excludeRuntimeProperties(propName : String) = {
+    val runtimeValuedProperties = List(
+      "byteOrder", "encoding",
+      "initiator", "terminator",
+      "outputNewLine",
+      "length",
+      "escapeCharacter", "escapeEscapeCharacter",
+      "textStandardDecimalSeparator", "textStandardGroupingSeparator", "textStandardExponentRep",
+      "binaryFloatRep",
+      "textBooleanTrueRep", "textBooleanFalseRep",
+      "separator",
+      "occursCount",
+      "inputValueCalc", "outputValueCalc")
+    val res = runtimeValuedProperties.contains(propName)
+    res
+  }
+  
   def generateEnumProperty(pname: String, pvalues: Seq[String]) = {
     val traitName = initialUpperCase(pname)
     val propName = initialLowerCase(pname)
@@ -333,14 +363,23 @@ trait CurrencyMixin extends PropertyMixin {
     })
     val start = templateStart.replaceAll("Currency", traitName)
     val end = templateEnd.replaceAll("Currency", traitName).replaceAll("currency", propName)
-    val res = start + mids.foldLeft("")(_ + _) + end
+    val mixin = 
+      if (excludeRuntimeProperties(propName)) "\n"
+      else {
+        templateMixin.replaceAll("Currency", traitName).replaceAll("currency", propName)
+      }
+    val res = start + mids.foldLeft("")(_ + _) + end + mixin
     res
   }
     
   def generateEnumInstantiation(propName : String, typeName : String) = {
      val midTemplate = """  lazy val EUR = Currency(getProperty("EUR"))
 """  
-     val mid = midTemplate.replaceAll("Currency", typeName).replaceAll("EUR", propName)
+     val mid = 
+       if (excludeRuntimeProperties(propName)) ""
+       else {
+         midTemplate.replaceAll("Currency", typeName).replaceAll("EUR", propName)
+       }
      mid
   }
   
@@ -402,7 +441,11 @@ object Currency {
      val midTemplate = """  lazy val EUR = convertToTYPE(getProperty("EUR"))
 """  
      val converterName = getConverterTypeName(typeName)
-     val mid = midTemplate.replaceAll("TYPE", converterName).replaceAll("EUR", propName)
+     val mid = 
+       if (excludeRuntimeProperties(propName)) ""
+       else {
+         midTemplate.replaceAll("TYPE", converterName).replaceAll("EUR", propName)
+       }
      mid
   }
 
@@ -412,9 +455,9 @@ object Currency {
   
   def generatePropertyGroup(pgName: String, pgList: Seq[(String, String)], agList: Seq[String], enumList: Seq[String]) = {
     val traitName = initialUpperCase(pgName)
-    if (traitName == "TextNumberFormatAG") {
-      println("stop here in breakpoint")
-    }
+//    if (traitName == "TextNumberFormatAG") {
+//      println("stop here in breakpoint")
+//    }
     val traitNames = (enumList ++ agList).map(initialUpperCase(_) + "Mixin")
     val extendsClause = "extends PropertyMixin" + traitNames.foldLeft("")(_ + "\n  with " + _)
     val mixinName = traitName + "Mixin"

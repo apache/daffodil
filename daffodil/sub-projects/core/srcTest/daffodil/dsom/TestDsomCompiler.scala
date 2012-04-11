@@ -43,8 +43,8 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(decl) = schemaDoc.globalElementDecls
 
     val df = schemaDoc.defaultFormat
-    val bo = df.byteOrder
-    assertEquals(ByteOrder.BigEndian.toString().toLowerCase(), bo.toLowerCase())
+    val tnr = df.textNumberRep
+    assertEquals(TextNumberRep.Standard, tnr)
   }
 
   // @Test
@@ -239,7 +239,10 @@ class TestDsomCompiler extends JUnit3Suite {
     val e1 = e1f.forRoot()
     val e2 = e2f.forRoot()
     val e3 = e3f.forRoot()
-    assertEquals(ByteOrder.BigEndian.toString().toLowerCase(), e1.formatAnnotation.asInstanceOf[DFDLElement].byteOrder.toLowerCase())
+    assertEquals(
+        ByteOrder.BigEndian.toString().toLowerCase(), 
+        e1.formatAnnotation.asInstanceOf[DFDLElement].getProperty("byteOrder").toLowerCase()
+        )
     val Seq(a1, a2) = e3.annotationObjs // third one has two annotations
     assertTrue(a2.isInstanceOf[DFDLNewVariableInstance]) // second annotation is newVariableInstance
     assertEquals(OccursCountKind.Implicit, a1.asInstanceOf[DFDLElement].occursCountKind)
@@ -250,7 +253,7 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals(YesNo.No, sfa.initiatedContent) // initiatedContent="no"
 
     val Seq(e1a: DFDLElement) = e1.annotationObjs
-    assertEquals("UTF-8", e1a.encoding)
+    assertEquals("UTF-8", e1a.getProperty("encoding"))
 
     // Explore global simple type defs
     val Seq(st1, st2, st3, st4) = sd.globalSimpleTypeDefs // there are two.
@@ -271,7 +274,7 @@ class TestDsomCompiler extends JUnit3Suite {
 
     // Explore define escape schemes
     val Seq(desc1) = sd.defineEscapeSchemes // only one of these
-    val es = desc1.asInstanceOf[DFDLDefineEscapeScheme].escapeScheme.escapeCharacter
+    val es = desc1.asInstanceOf[DFDLDefineEscapeScheme].escapeScheme.getProperty("escapeCharacter")
     assertEquals("%%", es) // has escapeCharacter="%%" (note: string literals not digested yet, so %% is %%, not %.
 
     // Explore global group defs
