@@ -138,11 +138,11 @@ trait ElementBaseMixin
   val NVDP = NilValueDelimiterPolicy
   val EVDP = EmptyValueDelimiterPolicy
 
-  lazy val hasNilValueInitiator = initTermTestExpression(initiatorExpr, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
-  lazy val hasNilValueTerminator = initTermTestExpression(terminatorExpr, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
+  lazy val hasNilValueInitiator = initTermTestExpression(initiator, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
+  lazy val hasNilValueTerminator = initTermTestExpression(terminator, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
 
-  lazy val hasEmptyValueInitiator = initTermTestExpression(initiatorExpr, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
-  lazy val hasEmptyValueTerminator = initTermTestExpression(terminatorExpr, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Terminator)
+  lazy val hasEmptyValueInitiator = initTermTestExpression(initiator, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
+  lazy val hasEmptyValueTerminator = initTermTestExpression(terminator, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Terminator)
 
   // See how this function takes the prop: => Any. That allows us to not require the property to exist at all if
   // expr.isKnownNotEmpty turns out to be false. 
@@ -218,7 +218,7 @@ abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup, position: Int)
       case None => false
       case Some(es) => {
         val res =
-          es.separatorExpr.isKnownNonEmpty
+          es.separator.isKnownNonEmpty
         res
       }
     }

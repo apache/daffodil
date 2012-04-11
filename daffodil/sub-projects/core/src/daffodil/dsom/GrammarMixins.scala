@@ -17,10 +17,10 @@ extends SchemaComponent { self : AnnotatedMixin =>
 trait InitiatedTerminatedMixin 
 extends AnnotatedMixin
 with DelimitedRuntimeValuedPropertiesMixin { self : AnnotatedMixin =>
-  lazy val staticInitiator = Prod("staticInitiator", this, initiatorExpr.isConstant, StaticInitiator(this))
-  lazy val staticTerminator = Prod("staticTerminator", this, terminatorExpr.isConstant, StaticTerminator(this))
-  lazy val dynamicInitiator = Prod("dynamicInitiator", this, !initiatorExpr.isConstant, DynamicInitiator(this))
-  lazy val dynamicTerminator = Prod("dynamicTerminator", this, !terminatorExpr.isConstant, DynamicTerminator(this))
+  lazy val staticInitiator = Prod("staticInitiator", this, initiator.isConstant, StaticInitiator(this))
+  lazy val staticTerminator = Prod("staticTerminator", this, terminator.isConstant, StaticTerminator(this))
+  lazy val dynamicInitiator = Prod("dynamicInitiator", this, !initiator.isConstant, DynamicInitiator(this))
+  lazy val dynamicTerminator = Prod("dynamicTerminator", this, !terminator.isConstant, DynamicTerminator(this))
   lazy val initiatorRegion = Prod("initiatorRegion", this, hasInitiator, staticInitiator | dynamicInitiator)
   lazy val terminatorRegion = Prod("terminatorRegion", this, hasTerminator, staticTerminator | dynamicTerminator)
   def hasInitiator : Boolean
@@ -126,8 +126,8 @@ with AlignedMixin { self: ElementBaseMixin =>
         Assert.notYetImplemented())    
     
   lazy val ieeeBinaryRepDouble = Prod("ieeeBinaryRepDouble", this,
-    binaryFloatRepExpr.isConstant && 
-    binaryFloatRepExpr.constantAsString == BinaryFloatRep.Ieee.toString, 
+    binaryFloatRep.isConstant && 
+    binaryFloatRep.constantAsString == BinaryFloatRep.Ieee.toString, 
     lengthKind match {
       case LengthKind.Implicit => {
         if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString) match {
@@ -140,8 +140,8 @@ with AlignedMixin { self: ElementBaseMixin =>
     })
   
   lazy val ibm390HexBinaryRepDouble = Prod("ibm390HexBinaryRepDouble", this,
-    binaryFloatRepExpr.isConstant && 
-    binaryFloatRepExpr.constantAsString == BinaryFloatRep.Ibm390Hex.toString, 
+    binaryFloatRep.isConstant && 
+    binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString, 
     Assert.SDE("ibm390Hex not supported")) 
       
   lazy val value = {
@@ -487,11 +487,11 @@ trait TermGrammarMixin { self : Term =>
   
   def hasES = nearestEnclosingSequence != None
   
-  lazy val staticSeparator = Prod("staticSeparator", this, hasES && es.separatorExpr.isConstant, 
-      new StaticDelimiter(es.separatorExpr.constantAsString, self))
+  lazy val staticSeparator = Prod("staticSeparator", this, hasES && es.separator.isConstant, 
+      new StaticDelimiter(es.separator.constantAsString, self))
       
-  lazy val dynamicSeparator = Prod("dynamicSeparator", this, hasES && !es.separatorExpr.isConstant, 
-      new DynamicDelimiter(es.separatorExpr, self))
+  lazy val dynamicSeparator = Prod("dynamicSeparator", this, hasES && !es.separator.isConstant, 
+      new DynamicDelimiter(es.separator, self))
       
   lazy val sepRule = staticSeparator | dynamicSeparator
   
@@ -570,7 +570,7 @@ trait SequenceGrammarMixin { self : Sequence =>
 
   // note use of pass by value. We don't want to even need the SeparatorPosition property unless there is a separator.
   def sepExpr(pos: => SeparatorPosition): Boolean = {
-    if (separatorExpr.isKnownNonEmpty) if (separatorPosition eq pos) true else false
+    if (separator.isKnownNonEmpty) if (separatorPosition eq pos) true else false
     else false
   }  
 }

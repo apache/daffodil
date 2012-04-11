@@ -13,21 +13,23 @@ import daffodil.exceptions.Assert
  */
 trait CommonRuntimeValuedPropertiesMixin 
 extends DFDLBaseTypeMixin 
+with RawCommonRuntimeValuedPropertiesMixin
 { decl: AnnotatedMixin =>
 
-  lazy val byteOrder = expressionCompiler.compile('String, decl.getProperty("byteOrder"))
-  lazy val encodingExpr = expressionCompiler.compile('String, decl.getProperty("encoding"))
-  lazy val outputNewLineExpr = expressionCompiler.compile('String, decl.getProperty("outputNewLine"))
+  lazy val byteOrder = expressionCompiler.compile('String, byteOrderRaw)
+  lazy val encoding = expressionCompiler.compile('String, encodingRaw)
+  lazy val outputNewLine = expressionCompiler.compile('String, outputNewLineRaw)
 }
 
 trait DelimitedRuntimeValuedPropertiesMixin
-  extends CommonRuntimeValuedPropertiesMixin { decl : AnnotatedMixin =>
+  extends CommonRuntimeValuedPropertiesMixin 
+  with RawDelimitedRuntimeValuedPropertiesMixin { decl : AnnotatedMixin =>
   
-  lazy val initiatorExpr = expressionCompiler.compile('String, decl.getProperty("initiator"))
-  lazy val terminatorExpr = expressionCompiler.compile('String, decl.getProperty("terminator"))
+  lazy val initiator = expressionCompiler.compile('String, initiatorRaw)
+  lazy val terminator = expressionCompiler.compile('String, terminatorRaw)
   
-  lazy val hasInitiator = initiatorExpr.isKnownNonEmpty
-  lazy val hasTerminator = terminatorExpr.isKnownNonEmpty
+  lazy val hasInitiator = initiator.isKnownNonEmpty
+  lazy val hasTerminator = terminator.isKnownNonEmpty
   
 }
 
@@ -35,35 +37,38 @@ trait ElementRuntimeValuedPropertiesMixin
   extends DelimitedRuntimeValuedPropertiesMixin
   with OccursAGMixin 
   with LengthAGMixin 
-  with SimpleTypeRuntimeValuedPropertiesMixin { decl: ElementBaseMixin =>
+  with SimpleTypeRuntimeValuedPropertiesMixin 
+  with RawElementRuntimeValuedPropertiesMixin { decl: ElementBaseMixin =>
 
-  lazy val length = expressionCompiler.compile('Long, decl.getProperty("length"))
-  lazy val occursCountExpr = expressionCompiler.compile('Long, decl.getProperty("occursCount"))
+  lazy val length = expressionCompiler.compile('Long, lengthRaw)
+  lazy val occursCount = expressionCompiler.compile('Long, occursCountRaw)
 }
 
 trait SequenceRuntimeValuedPropertiesMixin
   extends DelimitedRuntimeValuedPropertiesMixin
-  with Sequence_AnnotationMixin { decl: Sequence =>
+  with Sequence_AnnotationMixin 
+  with RawSequenceRuntimeValuedPropertiesMixin { decl: Sequence =>
 
-  lazy val separatorExpr = expressionCompiler.compile('String, decl.getProperty("separator"))
+  lazy val separator = expressionCompiler.compile('String, separatorRaw)
 }
 
 trait SimpleTypeRuntimeValuedPropertiesMixin
   extends CommonRuntimeValuedPropertiesMixin
-  with DFDLSimpleTypeMixin { decl: AnnotatedMixin  =>
+  with DFDLSimpleTypeMixin 
+  with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: AnnotatedMixin  =>
 
   // TODO: Implement escape schemes. The escapeCharacter and escapeEscapeCharacter are part of the escapeScheme annotation only.
   // So they're not on the object we're mixing this into.
   // def escapeCharacterExpr = ExpressionCompiler.compile('String, es.getProperty("escapeCharacter"))
   // def escapeEscapeCharacterExpr = ExpressionCompiler.compile('String, es.getProperty("escapeEscapeCharacter"))
 
-  def textStandardDecimalSeparatorExpr = expressionCompiler.compile('String, decl.getProperty("textStandardDecimalSeparator"))
-  def textStandardGroupingSeparatorExpr = expressionCompiler.compile('String, decl.getProperty("textStandardGroupingSeparator"))
+  def textStandardDecimalSeparator = expressionCompiler.compile('String, textStandardDecimalSeparatorRaw)
+  def textStandardGroupingSeparator = expressionCompiler.compile('String, textStandardGroupingSeparatorRaw)
   // TODO: update when textStandardExponentCharacter is phased out.
-  def textStandardExponentRepExpr = expressionCompiler.compile('String, decl.getProperty("textStandardExponentCharacter")) // Note: name changed to suffix of "...Rep" via Errata
-  def binaryFloatRepExpr = expressionCompiler.compile('String, decl.getProperty("binaryFloatRep"))
-  def textBooleanTrueRepExpr = expressionCompiler.compile('String, decl.getProperty("textBooleanTrueRep"))
-  def textBooleanFalseRepExpr = expressionCompiler.compile('String, decl.getProperty("textBooleanFalseRep"))
+  def textStandardExponentRep = expressionCompiler.compile('String, textStandardExponentRepRaw) // Note: name changed to suffix of "...Rep" via Errata
+  def binaryFloatRep = expressionCompiler.compile('String, binaryFloatRepRaw)
+  def textBooleanTrueRep = expressionCompiler.compile('String, textBooleanTrueRepRaw)
+  def textBooleanFalseRep = expressionCompiler.compile('String, textBooleanFalseRepRaw)
 
 }
 

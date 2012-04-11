@@ -85,12 +85,12 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
   }
 
   lazy val terminatingMarkup: List[CompiledExpression] = {
-    if (hasTerminator) List(terminatorExpr)
+    if (hasTerminator) List(terminator)
     else nearestEnclosingSequence match {
       case None => Assert.schemaDefinitionError("No terminating markup found")
       case Some(sq) => {
         val sep = {
-          if (sq.hasInfixSep || sq.hasPostfixSep) List(sq.separatorExpr)
+          if (sq.hasInfixSep || sq.hasPostfixSep) List(sq.separator)
           else Nil
         }
         if (!hasLaterRequiredSiblings) {

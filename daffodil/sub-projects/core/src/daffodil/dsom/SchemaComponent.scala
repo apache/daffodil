@@ -175,11 +175,11 @@ with CommonRuntimeValuedPropertiesMixin {
    */
   
  
-  lazy val isKnownEncoding = encodingExpr.isConstant
+  lazy val isKnownEncoding = encoding.isConstant
   
   lazy val knownEncodingName = {
     Assert.invariant(isKnownEncoding)
-    val res = encodingExpr.constantAsString.toUpperCase()
+    val res = encoding.constantAsString.toUpperCase()
     res
   }
   

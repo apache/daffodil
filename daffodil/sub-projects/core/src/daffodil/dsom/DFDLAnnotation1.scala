@@ -20,12 +20,65 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin)
   lazy val xml = node
 }
 
+trait RawCommonRuntimeValuedPropertiesMixin 
+extends PropertyMixin {
+  lazy val byteOrderRaw = getProperty("byteOrder")
+  lazy val encodingRaw = getProperty("encoding")
+  lazy val outputNewLineRaw = getProperty("outputNewLine")
+}
+
+trait RawDelimitedRuntimeValuedPropertiesMixin
+  extends RawCommonRuntimeValuedPropertiesMixin { 
+  
+  lazy val initiatorRaw = getProperty("initiator")
+  lazy val terminatorRaw = getProperty("terminator")
+  
+}
+
+trait RawElementRuntimeValuedPropertiesMixin
+  extends RawDelimitedRuntimeValuedPropertiesMixin
+  with RawSimpleTypeRuntimeValuedPropertiesMixin { 
+
+  lazy val lengthRaw = getProperty("length")
+  lazy val occursCountRaw = getProperty("occursCount")
+}
+
+trait RawSequenceRuntimeValuedPropertiesMixin
+  extends RawDelimitedRuntimeValuedPropertiesMixin { 
+
+  lazy val separatorRaw = getProperty("separator")
+}
+
+trait RawEscapeSchemeRuntimeValuedPropertiesMixin
+  extends PropertyMixin { 
+
+  lazy val escapeCharacterRaw = getProperty("escapeCharacter")
+  lazy val escapeEscapeCharacterRaw = getProperty("escapeEscapeCharacter")
+}
+
+trait RawSimpleTypeRuntimeValuedPropertiesMixin
+  extends RawCommonRuntimeValuedPropertiesMixin { 
+
+  // TODO: Implement escape schemes. The escapeCharacter and escapeEscapeCharacter are part of the escapeScheme annotation only.
+ 
+  def textStandardDecimalSeparatorRaw = getProperty("textStandardDecimalSeparator")
+  def textStandardGroupingSeparatorRaw = getProperty("textStandardGroupingSeparator")
+  // TODO: update when textStandardExponentCharacter is phased out.
+  def textStandardExponentRepRaw = getProperty("textStandardExponentRep") // Note: name changed to suffix of "...Rep" via Errata
+  def binaryFloatRepRaw = getProperty("binaryFloatRep")
+  def textBooleanTrueRepRaw = getProperty("textBooleanTrueRep")
+  def textBooleanFalseRepRaw = getProperty("textBooleanFalseRep")
+
+}
+
 /**
  * Base class for annotations that carry format properties
  */
 abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
-  extends DFDLAnnotation(node, annotatedSC) {
+  extends DFDLAnnotation(node, annotatedSC) 
+  with RawCommonRuntimeValuedPropertiesMixin { 
 
+  
   private[dsom] def getLocalFormatRef(): String = {
     val ref = getAttributeOption("ref") // let's standardize on 
     ref match {
@@ -295,34 +348,43 @@ abstract class DFDLStatement(node: Node, annotatedSC: AnnotatedMixin)
 class DFDLFormat(node: Node, sd: SchemaDocument)
   extends DFDLFormatAnnotation(node, sd)
   with Format_AnnotationMixin
-  with SeparatorSuppressionPolicyMixin {
+  with SeparatorSuppressionPolicyMixin 
+  with RawElementRuntimeValuedPropertiesMixin
+  with RawSequenceRuntimeValuedPropertiesMixin {
 }
 
 class DFDLElement(node: Node, decl: AnnotatedElementMixin)
   extends DFDLFormatAnnotation(node, decl) 
-  with Element_AnnotationMixin {
+  with Element_AnnotationMixin 
+  with RawElementRuntimeValuedPropertiesMixin {
 }
 
 class DFDLGroup(node: Node, decl: AnnotatedMixin)
   extends DFDLFormatAnnotation(node, decl)
   with Group_AnnotationMixin
-  with SeparatorSuppressionPolicyMixin {
+  with SeparatorSuppressionPolicyMixin
+  with RawSequenceRuntimeValuedPropertiesMixin {
 }
 
 class DFDLSequence(node: Node, decl: AnnotatedMixin)
   extends DFDLFormatAnnotation(node, decl)
   with Sequence_AnnotationMixin
-  with SeparatorSuppressionPolicyMixin {
+  with SeparatorSuppressionPolicyMixin
+  with RawSequenceRuntimeValuedPropertiesMixin {
 }
 
 class DFDLChoice(node: Node, decl: AnnotatedMixin)
-  extends DFDLFormatAnnotation(node, decl) with Choice_AnnotationMixin {
+  extends DFDLFormatAnnotation(node, decl) 
+  with Choice_AnnotationMixin 
+  with RawSequenceRuntimeValuedPropertiesMixin {
   Assert.subset(getPropertyOptionNoDefault("initiator") == None, "initiators are not supported on choices")
   Assert.subset(getPropertyOptionNoDefault("terminator") == None, "terminators are not supported on choices")
 }
 
 class DFDLSimpleType(node: Node, decl: AnnotatedMixin)
-  extends DFDLFormatAnnotation(node, decl) with SimpleType_AnnotationMixin {
+  extends DFDLFormatAnnotation(node, decl) 
+  with SimpleType_AnnotationMixin
+  with RawSimpleTypeRuntimeValuedPropertiesMixin {
 }
 
 class DFDLDefineFormat(node: Node, sd: SchemaDocument)
@@ -341,7 +403,9 @@ class DFDLDefineFormat(node: Node, sd: SchemaDocument)
 }
 
 class DFDLEscapeScheme(node: Node, decl: AnnotatedMixin)
-  extends DFDLFormatAnnotation(node, decl) with EscapeScheme_AnnotationMixin {
+  extends DFDLFormatAnnotation(node, decl) 
+  with EscapeScheme_AnnotationMixin 
+  with RawEscapeSchemeRuntimeValuedPropertiesMixin {
 }
 
 class DFDLDefineEscapeScheme(node: Node, decl: AnnotatedMixin)

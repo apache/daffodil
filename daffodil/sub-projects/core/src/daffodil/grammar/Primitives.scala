@@ -273,10 +273,10 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) e
 
 class DynamicDelimiter(delimExpr : CompiledExpression, e: AnnotatedMixin, guard: Boolean = true) extends Primitive(e, guard)
 
-case class StaticInitiator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.initiatorExpr.constantAsString, e)
-case class StaticTerminator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.terminatorExpr.constantAsString, e)
-case class DynamicInitiator(e : InitiatedTerminatedMixin) extends DynamicDelimiter(e.initiatorExpr, e)
-case class DynamicTerminator(e : InitiatedTerminatedMixin) extends DynamicDelimiter(e.terminatorExpr, e)
+case class StaticInitiator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.initiator.constantAsString, e)
+case class StaticTerminator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.terminator.constantAsString, e)
+case class DynamicInitiator(e : InitiatedTerminatedMixin) extends DynamicDelimiter(e.initiator, e)
+case class DynamicTerminator(e : InitiatedTerminatedMixin) extends DynamicDelimiter(e.terminator, e)
 
 //case class StaticSeparator(e : Sequence) extends StaticDelimiter(e.separatorExpr.constantAsString, e)
 //case class DynamicSeparator(e : Sequence) extends DynamicDelimiter(e.separatorExpr, e)
