@@ -118,7 +118,28 @@ with AlignedMixin { self: ElementBaseMixin =>
   lazy val zonedTextInt = Prod("zonedTextInt", this, 
       textNumberRep == TextNumberRep.Zoned, ZonedTextIntPrim(this))
  
- 
+
+  lazy val binaryDouble = Prod("binaryDouble", this, representation == Representation.Binary,
+    ieeeBinaryRepDouble | ibm390HexBinaryRepDouble)
+
+  lazy val textDouble = Prod("textDouble", this, representation == Representation.Text,
+        Assert.notYetImplemented())    
+    
+  lazy val ieeeBinaryRepDouble = Prod("ieeeBinaryRepDouble", this,
+    binaryFloatRep == "ieee", lengthKind match {
+      case LengthKind.Implicit => {
+        if (byteOrderExpr.isConstant) byteOrderExpr.constant match {
+          case "bigEndian" => BigEndianDoublePrim(this)
+          case "littleEndian" => LittleEndianDoublePrim(this)
+        }
+        else Assert.notYetImplemented()
+      }
+      case _ => Assert.notYetImplemented()
+    })
+  
+  lazy val ibm390HexBinaryRepDouble = Prod("ibm390HexBinaryRepDouble", this,
+    binaryFloatRep == BinaryFloatRep.Ibm390Hex, Assert.SDE("ibm390Hex not supported")) 
+      
   lazy val value = {
     val res = Prod("value", this, 
         // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
@@ -126,10 +147,11 @@ with AlignedMixin { self: ElementBaseMixin =>
       typeDef match {
       case prim : PrimitiveType => {
         val n = prim.name
-        Assert.notYetImplemented(n != "string" && n != "int")
+        Assert.notYetImplemented(n != "string" && n != "int" && n != "double")
         n match {
           case "string" => stringValue
           case "int" => binaryInt | textInt
+          case "double" => binaryDouble | textDouble
           case _ => Assert.schemaDefinitionError("Unrecognized primitive type: " + n)
         }
       }

@@ -207,6 +207,27 @@ case class Regular32bitLittleEndianIntPrim(e : ElementBaseMixin) extends Termina
 case class PackedIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
 case class BCDIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
 
+
+case class DoublePrim(byteOrder: java.nio.ByteOrder) extends Parser {
+  def parse(start : PState) : PState = {
+    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 64)) start.failed("Not enough bits to create an xs:double")
+    else {
+      val value = start.inStream.getDouble(start.bitPos, byteOrder)
+      start.parent.addContent(new org.jdom.Text(value.toString))
+      val postState = start.withPos(start.bitPos + 64, -1)
+      postState
+    }
+  }
+}
+
+case class BigEndianDoublePrim(e : ElementBaseMixin) extends Terminal(e, true) {
+  def parser = new DoublePrim(java.nio.ByteOrder.BIG_ENDIAN)
+}
+
+case class LittleEndianDoublePrim(e : ElementBaseMixin) extends Terminal(e, true) {
+  def parser = new DoublePrim(java.nio.ByteOrder.LITTLE_ENDIAN)
+}
+
 class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) extends Terminal(e, guard) {
   def parser: Parser = new Parser {
 
