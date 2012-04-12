@@ -423,7 +423,7 @@ case class InputValueCalc(e: ElementDeclBase) extends Terminal(e, false) {
         e.namedTypeQName match {
           case None => false
           case Some((ns, local)) => {
-            val res = (local == "string" && ns == XMLUtil.XSD_NAMESPACE) 
+            val res = (local == "string" && ns == XMLUtils.XSD_NAMESPACE) 
            res
           }
         }

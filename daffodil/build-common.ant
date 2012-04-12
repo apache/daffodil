@@ -1,5 +1,5 @@
 <project name="Daffodil-common">
-  <description>
+	<description>
     Daffodil, an object/functional parser generator for DFDL 
   </description>
 
@@ -9,142 +9,159 @@
 	   
 	   The ${basedir} property thus comes from the file that imports this one.
 	   -->
-	
+
 	<target name="init">
-		
+
 		<!-- check ant version first -->
 		<property name="needAtLeast" value="1.8"/>
 		<antversion property="antversion" />
-		
+
 		<fail message="Get a later version of Ant! Need at least version ${needAtLeast}, have ${antversion}">
-		  <condition>
-		    <not><antversion atleast="${needAtLeast}"/></not>
-		  </condition>
+			<condition>
+				<not>
+					<antversion atleast="${needAtLeast}"/>
+				</not>
+			</condition>
 		</fail>
-		
+
 		<!-- define rootdir as a convenience -->
-    <property name="rootdir" location="${basedir}/../.."/>
-		    
+		<property name="rootdir" location="${basedir}/../.."/>
+
 		<!-- Override any of the properties below in one of these files -->
-    <property file="${basedir}/build.properties"/>
-  	<property file="${rootdir}/build.properties"/>
+		<property file="${basedir}/build.properties"/>
+		<property file="${rootdir}/build.properties"/>
 
-		 <tstamp>
-        <format property="build" pattern="yyyy-MMdd-HHmm"
+		<tstamp>
+			<format property="build" pattern="yyyy-MMdd-HHmm"
          timezone="America/New_York"/>
-     </tstamp>
+		</tstamp>
 
-    <!-- import the version # components -->
-    <property file="${rootdir}/version.properties" prefix="version"/>
-  
-    <property name="version" value="${version.tag}+${build}"/>
-		
-    <property name="src" value="${basedir}/src"/>
-    <property name="testFolder" value="${basedir}/srcTest"/>
-    <property name="target" location="${basedir}/target/ant"/>
-    <property name="bin" value="${target}/classes"/>
-    <property name="bin-test" value="${target}/test-classes"/>
-    <property name="scala.home" value="${basedir}/lib"/>
+		<!-- import the version # components -->
+		<property file="${rootdir}/version.properties" prefix="version"/>
+
+		<property name="version" value="${version.tag}+${build}"/>
+
+		<property name="src" value="${basedir}/src"/>
+		<property name="testFolder" value="${basedir}/srcTest"/>
+		<property name="target" location="${basedir}/target/ant"/>
+		<property name="bin" value="${target}/classes"/>
+		<property name="bin-test" value="${target}/test-classes"/>
+		<property name="scala.home" value="${basedir}/lib"/>
 
 		<property name="jar.name" value="${ant.project.name}-${version}.jar"/>
-		
-    <property name="scala-compiler.jar" 
+
+		<property name="scala-compiler.jar" 
   	    location="${scala.home}/scala-compiler.jar"/>
-    <property name="scala-library.jar" 
+		<property name="scala-library.jar" 
     	location="${scala.home}/scala-library.jar"/>
-    
-    <path id="scala.classpath">
-      <pathelement location="${scala-compiler.jar}"/>
-      <pathelement location="${scala-library.jar}"/>
-    </path>
-  
-    <path id="project.classpath">
-      <path refid="scala.classpath"/>
-      <fileset dir="${basedir}/lib" includes="**/*.jar"/>
-    	<fileset dir="${rootdir}/lib" includes="*.jar" 
+
+		<path id="scala.classpath">
+			<pathelement location="${scala-compiler.jar}"/>
+			<pathelement location="${scala-library.jar}"/>
+		</path>
+
+		<path id="project.classpath">
+			<path refid="scala.classpath"/>
+			<fileset dir="${basedir}/lib" includes="**/*.jar"/>
+			<fileset dir="${rootdir}/lib" includes="*.jar" 
     	  erroronmissingdir="false" />
-    	<pathelement location="${bin}"/>
-    </path>
-  
-    <taskdef resource="scala/tools/ant/antlib.xml">
-      <classpath refid="scala.classpath"/>
-    </taskdef>		
+			<pathelement location="${bin}"/>
+		</path>
+
+		<taskdef resource="scala/tools/ant/antlib.xml">
+			<classpath refid="scala.classpath"/>
+		</taskdef>
 	</target>
-	
-  
-  <target name="compile" depends="init" 
-  	description="Compiles the source"> 
-    <mkdir dir="${bin}"/>
-    <scalac srcdir="${src}" destdir="${bin}" deprecation="yes"
+
+
+	<target name="compile" depends="init" 
+  	description="Compiles the source">
+		<mkdir dir="${bin}"/>
+		<scalac srcdir="${src}" destdir="${bin}" deprecation="yes"
 	    classpathref="project.classpath" fork="yes"
 	    force="never" unchecked="no"
-        scalacdebugging="true" jvmargs="-XX:MaxPermSize=256m -Xmx1250m -Xms40m -Xss2m"/> 
-  	<!-- was force="changed" which compiles all whenever one changes -->
-  	<javac srcdir="${src}" destdir="${bin}" deprecation="yes"
+        scalacdebugging="true" jvmargs="-XX:MaxPermSize=256m -Xmx1250m -Xms40m -Xss2m"/>
+		<!-- was force="changed" which compiles all whenever one changes -->
+		<javac srcdir="${src}" destdir="${bin}" deprecation="yes"
       classpathref="project.classpath" debug="yes"
   	  includeantruntime="no"/>
 	</target>
-  	
-  	
-	<target name="jar" depends="test"
+
+	<target name="jar" depends="compile"
 		description="Creates a jar file">
-    <jar destfile="${target}/${jar.name}" basedir="${bin}">
-      <manifest>
-        <attribute name="Built-By" value="${user.name}" />
-        <attribute name="Specification-Title" value="${ant.project.name}"/>
-        <attribute name="Specification-Version" value="${version.specification}"/>	
-      	<attribute name="Implementation-Title" value="${ant.project.name}" />
-        <attribute name="Implementation-Version" value="${version}" />
-      </manifest>  
-  	</jar>
-  </target>
+		<!-- need any xsd schemas we use to go in the jar also -->
+		<mkdir dir="${bin}/src"/>
+		<copy todir="${bin}/src">
+			<fileset dir="${src}">
+				<include name="**/*.xsd"/>
+				<include name="**/*.dtd"/>
+			</fileset>
+		</copy>
 
-	
+		<jar destfile="${target}/${jar.name}" basedir="${bin}">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Specification-Title" value="${ant.project.name}"/>
+				<attribute name="Specification-Version" value="${version.specification}"/>
+				<attribute name="Implementation-Title" value="${ant.project.name}" />
+				<attribute name="Implementation-Version" value="${version}" />
+			</manifest>
+		</jar>
+	</target>
 
-  <target name="compileTest" depends="compile" 
+
+
+	<target name="compileTest" depends="compile" 
   	description="Compiles the unit tests">
-    <mkdir dir="${bin-test}"/>
-    <scalac srcdir="${testFolder}" destdir="${bin-test}" deprecation="yes"
-	    unchecked="yes"> <!-- force="changed" -->
-    	<classpath>
-        <path refid="project.classpath"/>
-        <pathelement location="${bin-test}"/>
-  		</classpath>
-  	</scalac>
-  </target>
+		<mkdir dir="${bin-test}"/>
+		<scalac srcdir="${testFolder}" destdir="${bin-test}" deprecation="yes"
+	    unchecked="yes">
+			<!-- force="changed" -->
+			<classpath>
+				<path refid="project.classpath"/>
+				<pathelement location="${bin-test}"/>
+			</classpath>
+		</scalac>
+	</target>
 
-  
-  <target name="test" depends="compileTest" unless="skipTests"
-  	description="Runs the unit tests">
-    <java classname="org.scalatest.tools.Runner" failonerror="true">
-    	<classpath>
-    	  <path refid="project.classpath"/>
-    		<pathelement location="${bin-test}"/>
-    	</classpath>
-      <arg line="-o -p ${bin-test}"/>
-    </java>
-  </target>
-  
-  
-  <target name="clean" depends="init" 
+	<!--
+changed test to test against the jar. Before it would test
+against the class files, and then make the jar only if the tests 
+were successful
+ -->
+	<target name="test" depends="jar, compileTest" unless="skipTests"
+  	description="Runs the unit tests, with only the src jar on the classpath, not the class files.">
+		<java classname="org.scalatest.tools.Runner" failonerror="true">
+			<classpath>
+				<fileset dir="${basedir}/lib" includes="**/*.jar"/>
+				<path refid="scala.classpath"/>
+				<pathelement location="${target}/${jar.name}"/>
+				<pathelement location="${bin-test}"/>
+			</classpath>
+			<arg line="-o -p ${bin-test}"/>
+		</java>
+	</target>
+
+
+	<target name="clean" depends="init" 
   	description="Cleans up after itself">
-    <delete dir="${target}"/>
-  </target>
-	
-	 
-	  <target name="install" depends="jar"
-	    description="Installs the jar into the top-level lib directory">
-	    <mkdir dir="${rootdir}/lib"/>
-	    <copy todir="${rootdir}/lib" file="${target}/${jar.name}"/> 
-	  </target>
-	
+		<delete dir="${target}"/>
+	</target>
 
-  <target name="fresh-install" depends="clean"
+
+	<target name="install" depends="jar"
+	    description="Installs the jar into the top-level lib directory">
+		<mkdir dir="${rootdir}/lib"/>
+		<copy todir="${rootdir}/lib" file="${target}/${jar.name}"/>
+	</target>
+
+
+	<target name="fresh-install" depends="clean"
     description="Does a fresh install (= clean install)">
-    <delete>
-      <fileset dir="${rootdir}" includes="lib/${ant.project.name}-*.jar"/>
-    </delete>
-    <antcall target="install"/>
-  </target>
+		<delete>
+			<fileset dir="${rootdir}" includes="lib/${ant.project.name}-*.jar"/>
+		</delete>
+		<antcall target="install"/>
+	</target>
 
 </project>

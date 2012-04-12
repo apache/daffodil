@@ -10,10 +10,10 @@ import junit.framework.Assert._
  * Tests for compiler-oriented XPath interface aka CompiledExpression
  */
 class TestCompiledExpression extends JUnit3Suite {
-  val xsd = XMLUtil.XSD_NAMESPACE
-  val dfdl = XMLUtil.DFDL_NAMESPACE
-  val xsi = XMLUtil.XSI_NAMESPACE
-  val example = XMLUtil.EXAMPLE_NAMESPACE
+  val xsd = XMLUtils.XSD_NAMESPACE
+  val dfdl = XMLUtils.DFDL_NAMESPACE
+  val xsi = XMLUtils.XSI_NAMESPACE
+  val example = XMLUtils.EXAMPLE_NAMESPACE
 
   // dummy schema just so we can get a handle on a legit element declaration
   val testSchema = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
@@ -22,7 +22,7 @@ class TestCompiledExpression extends JUnit3Suite {
   
  def testCompiledPathEvaluation() { 
     
-    val root = XMLUtil.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
+    val root = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
     val sset = new SchemaSet(testSchema)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
     val ignored = new org.jdom.Document(root) // root must have a document node
@@ -68,7 +68,7 @@ class TestCompiledExpression extends JUnit3Suite {
     
     assertEquals(42L, result2)
     
-    val root2 = XMLUtil.elem2Element(<root/>)
+    val root2 = XMLUtils.elem2Element(<root/>)
     val ignored = new org.jdom.Document(root2)
     val compiled3 = ec.compile('Element, "{ /root }") // as a jdom Element
     assertFalse(compiled3.isConstant)

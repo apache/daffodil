@@ -15,9 +15,10 @@ import daffodil.schema._
 import daffodil.schema.annotation.Annotation
 import daffodil.schema.annotation.Hidden
 import daffodil.xml.Namespaces
-import daffodil.xml.XMLUtil
+import daffodil.xml._
 import daffodil.xml.XMLUtil.compare
 import daffodil.Implicits._
+import daffodil.ImplicitsForTesting._
 
 import org.scalatest.junit.JUnit3Suite
 import scala.collection.mutable.ListBuffer
@@ -39,7 +40,7 @@ class HiddenElementTest extends JUnit3Suite with ShouldMatchers {
 					</annotation>
 				</sequence>
 			</complexType>)
-	    val schema = XMLUtil.elem2Element(xml)(0)
+	    val schema = XMLUtils.elem2Element(xml)(0)
 
 		val a1 = new Annotation(null)
 		a1.format setTypeName("int")
@@ -69,7 +70,7 @@ class HiddenElementTest extends JUnit3Suite with ShouldMatchers {
 					<element name="nested3" type="string"/>
 				</sequence>
 			</complexType>)
-	    val schema = XMLUtil.elem2Element(xml)(0)
+	    val schema = XMLUtils.elem2Element(xml)(0)
 
 
 		val a1 = new Annotation(null)
@@ -144,7 +145,7 @@ class HiddenElementTest extends JUnit3Suite with ShouldMatchers {
         </element>
         <!-- <element name="myElement" type="mytype"/> -->
       </schema>
-      val schema = XMLUtil.elem2Element(xml)
+      val schema = XMLUtils.elem2Element(xml)
       
       val text = "50!,100!,some text!$"
             
@@ -153,7 +154,7 @@ class HiddenElementTest extends JUnit3Suite with ShouldMatchers {
       val datastream = new ByteArrayInputStream(text getBytes)
       val actualResult = parser eval(datastream,"myElement")
     
-      val res = XMLUtil.element2Elem(actualResult)
+      val res = XMLUtils.element2Elem(actualResult)
       
       val n1 = res \ "nested1" text
       val n2 = res \ "nested2" text
@@ -203,7 +204,7 @@ class HiddenElementTest extends JUnit3Suite with ShouldMatchers {
         <element name="myElement" type="mytype">
         </element>
       </schema>
-      val schema = XMLUtil.elem2Element(xml)
+      val schema = XMLUtils.elem2Element(xml)
       
       val text = "50!,100!,some text!$"
             
@@ -212,7 +213,7 @@ class HiddenElementTest extends JUnit3Suite with ShouldMatchers {
       
       val datastream = new ByteArrayInputStream(text getBytes)
       val actualResult = parser eval(datastream,"myElement")
-      val res = XMLUtil.element2Elem(actualResult)
+      val res = XMLUtils.element2Elem(actualResult)
       
       val n2 = res \ "nested2" text
       val n3 = res \ "nested3" text

@@ -6,7 +6,7 @@ import org.scalatest.junit.JUnit3Suite
 
 import daffodil.debugger.DebugUtil
 import daffodil.dsom.Compiler
-import daffodil.xml.XMLUtil
+import daffodil.xml.XMLUtils
 import junit.framework.Assert.assertEquals
 
 object TestRig {
@@ -23,8 +23,8 @@ object TestRig {
     val result = parser.parse(data)
     val actual = Utility.trim(result)
     val expectedXML = Utility.trim(scala.xml.XML.loadFile(testDir + expectedFileName))
-    val expectedNoAttrs = XMLUtil.removeAttributes(expectedXML)
-    val actualNoAttrs = XMLUtil.removeAttributes(actual)
+    val expectedNoAttrs = XMLUtils.removeAttributes(expectedXML)
+    val actualNoAttrs = XMLUtils.removeAttributes(actual)
     assertEquals(expectedNoAttrs, actualNoAttrs) // Need to compare in a canonicalized manner.
     System.err.print(" passed.")
   }
@@ -131,9 +131,9 @@ class TestsThatAbend extends JUnit3Suite {
 //  //      System.err.println("Test "+ schemaFileName)
 //  //      DebugUtil.time("Parsing schema", schemaParser parse (schemaFileName))
 //  //      val result = schemaParser eval (inputFileName, root)
-//  //      val res = trim(XMLUtil.element2Elem(result))
+//  //      val res = trim(XMLUtils.element2Elem(result))
 //  //
-//  //      DebugUtil log ("Total nodes:" + XMLUtil.getTotalNodes)
+//  //      DebugUtil log ("Total nodes:" + XMLUtils.getTotalNodes)
 //  //      val expectedXML = trim(scala.xml.XML.loadFile(expectedFileName))
 //  //      assertEquals(expectedXML, res) // Need to compare in a canonicalized manner.
 //  //

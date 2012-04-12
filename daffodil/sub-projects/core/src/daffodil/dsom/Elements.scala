@@ -266,7 +266,7 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   lazy val elementSimpleType: SimpleTypeBase = Assert.notYetImplemented()
   lazy val isDefaultable: Boolean = Assert.notYetImplemented()
 
-  lazy val qname = XMLUtil.QName(xml, xsdRef, schemaDocument)
+  lazy val qname = XMLUtils.QName(xml, xsdRef, schemaDocument)
   override lazy val (namespace, name) = qname
 
   // These may be trickier, as the type needs to be responsive to properties from the
@@ -308,7 +308,7 @@ trait ElementDeclBase
 
   lazy val namedTypeQName = {
     typeName match {
-      case Some(tname) => Some(XMLUtil.QName(xml, tname, schemaDocument))
+      case Some(tname) => Some(XMLUtils.QName(xml, tname, schemaDocument))
       case None => None
     }
   }

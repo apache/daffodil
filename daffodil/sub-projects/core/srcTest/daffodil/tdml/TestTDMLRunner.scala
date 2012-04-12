@@ -13,20 +13,20 @@ import org.scalatest.junit.JUnit3Suite
 
 import daffodil.Implicits.using
 import daffodil.dsom.Compiler
-import daffodil.xml.XMLUtil
+import daffodil.xml.XMLUtils
 import daffodil.util.Validator
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
-
+import daffodil.util._
 
 class TestTDMLRunner extends JUnit3Suite {
 
-  val tdml = XMLUtil.TDML_NAMESPACE
-  val dfdl = XMLUtil.DFDL_NAMESPACE
-  val xsi = XMLUtil.XSI_NAMESPACE
-  val xsd = XMLUtil.XSD_NAMESPACE
-  val example = XMLUtil.EXAMPLE_NAMESPACE
-  val sub = XMLUtil.DFDL_XMLSCHEMASUBSET_NAMESPACE
+  val tdml = XMLUtils.TDML_NAMESPACE
+  val dfdl = XMLUtils.DFDL_NAMESPACE
+  val xsi = XMLUtils.XSI_NAMESPACE
+  val xsd = XMLUtils.XSD_NAMESPACE
+  val example = XMLUtils.EXAMPLE_NAMESPACE
+  val sub = XMLUtils.DFDL_XMLSCHEMASUBSET_NAMESPACE
 
   def testDocPart1() {
     val xml = <documentPart type="text">abcde</documentPart>
@@ -123,18 +123,16 @@ class TestTDMLRunner extends JUnit3Suite {
     assertEquals(expected, trimmed)
   }
 
+  val testSchema = TestUtils.dfdlTestSchema(
+    <dfdl:format ref="tns:daffodilTest1"/>,
+    <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
+      
   // @Test
   def testTDMLrunOne() {
-    val testSchema =
-      <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="data" type="xsd:int" dfdl:terminator="%NL;" 
-dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" 
-dfdl:documentFinalTerminatorCanBeMissing="yes"
-dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator=""/>
-      </schema>
+
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
-                        <ts:document>37\n</ts:document>
+                        <ts:document>37</ts:document>
                         <ts:infoset>
                           <ts:dfdlInfoset>
                             <data xmlns={ example }>37</data>
@@ -149,14 +147,9 @@ dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiat
   
   // @Test
   def testTDMLrunAll() {
-    val testSchema =
-      <schema xmlns={ xsd } targetNamespace={ tdml } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"
-dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator=""/>
-      </schema>
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
                       <parserTestCase name="firstUnitTest" root="data">
-                        <document>37\n</document>
+                        <document>37</document>
                         <infoset>
                           <dfdlInfoset>
                             <data>37</data>
@@ -177,14 +170,10 @@ dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiat
   }
 
   def testRunModelFile() {
-    val testSchema =
-      <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="data" type="xsd:int" dfdl:initiator="" dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:terminator="%NL;" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-      </schema>
     val tmpFileName = getClass.getName() + ".dfdl.xsd"
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
                       <parserTestCase name="firstUnitTest" root="data" model={ tmpFileName }>
-                        <document>37\n</document>
+                        <document>37</document>
                         <infoset>
                           <dfdlInfoset>
                             <data xmlns={ example }>37</data>
@@ -206,15 +195,11 @@ dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiat
   }
 
   def testRunTDMLFileReferencingModelFile() {
-    val testSchema =
-      <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-        <element name="data" type="xsd:int" dfdl:initiator="" dfdl:textNumberRep="standard" dfdl:emptyValueDelimiterPolicy="none" dfdl:terminator="%NL;" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-      </schema>
     val tmpFileName = getClass.getName() + ".dfdl.xsd"
     val tmpTDMLFileName = getClass.getName() + ".tdml"
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
                       <parserTestCase name="testRunTDMLFile" root="data" model={ tmpFileName }>
-                        <document>37\n</document>
+                        <document>37</document>
                         <infoset>
                           <dfdlInfoset>
                             <data xmlns={ example }>37</data>

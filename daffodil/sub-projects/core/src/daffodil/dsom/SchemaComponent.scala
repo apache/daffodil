@@ -290,7 +290,7 @@ class SchemaSet(schemaNodeList: Seq[Node]) {
   def getDefineVariable(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineVariable(name) }
   def getDefineEscapeScheme(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineEscapeScheme(name) }
 
-  lazy val primitiveTypes = XMLUtil.DFDL_SIMPLE_BUILT_IN_TYPES.map{new PrimitiveType(_)}
+  lazy val primitiveTypes = XMLUtils.DFDL_SIMPLE_BUILT_IN_TYPES.map{new PrimitiveType(_)}
   def getPrimitiveType(localName: String) = primitiveTypes.find{_.name == localName}
 }
 
@@ -311,7 +311,7 @@ class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: Sche
     scs match {
       case Nil => None
       case Seq(sc) => Some(sc)
-      case _ => throw new DFDLSchemaDefinitionException("more than one definition for name: " + name)
+      case _ => Assert.SDE("more than one definition for name: " + name)
     }
   }
 

@@ -59,7 +59,7 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
   lazy val myBaseType = {
     Assert.invariant(restrictionBase.length() != 0)
     val sd = this.schemaDocument
-    val (nsURI, localName) = XMLUtil.QName(xml, restrictionBase, sd)
+    val (nsURI, localName) = XMLUtils.QName(xml, restrictionBase, sd)
     
     sd.globalSimpleTypeDefs.find{ x => x.detailName == localName}
   }
@@ -127,7 +127,7 @@ class PrimitiveType(name_ : String) extends NamedType {
   // Lots of faking & dummy objects here
   //
   override lazy val name = name_
-  override lazy val namespace = XMLUtil.XSD_NAMESPACE
+  override lazy val namespace = XMLUtils.XSD_NAMESPACE
   lazy val xml = Assert.invariantFailed("Primitives don't have xml definitions.")
   lazy val dummySchemaSet = new SchemaSet(NodeSeq.Empty)
   lazy val xsdSchema = new Schema(namespace, NodeSeq.Empty, dummySchemaSet)

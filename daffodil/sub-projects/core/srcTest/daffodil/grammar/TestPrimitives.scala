@@ -5,8 +5,8 @@ import junit.framework.Assert._
 import org.scalatest.junit.JUnit3Suite
 
 import scala.xml._
-import daffodil.xml.XMLUtil
-import daffodil.xml.XMLUtil._
+import daffodil.xml.XMLUtils
+import daffodil.xml.XMLUtils._
 import daffodil.dsom.Compiler
 
 object DFDLUtils {
@@ -29,8 +29,8 @@ object DFDLUtils {
 class TestPrimitives extends JUnit3Suite {
 
   def assertEqualsXMLElements(expected : Node, actual : Node) = {
-    val exp = XMLUtil.removeAttributes(expected)
-    val act = XMLUtil.removeAttributes(actual)
+    val exp = XMLUtils.removeAttributes(expected)
+    val act = XMLUtils.removeAttributes(actual)
     assertEquals(exp, act)
   }
   

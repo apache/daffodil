@@ -149,7 +149,8 @@ object XPathUtil {
 
   def doUnknownXPathEvalException(expression : String, exc : Exception) = {
      val txt = "Unknown error evaluating '"+expression+"'. Cause: " + exc.toString
-     throw new XPathEvaluationException(txt, cause = exc)
+     // throw new XPathEvaluationException(txt, cause = exc)
+     Assert.abort(txt) //TODO proper exception object
   }
   
   /**

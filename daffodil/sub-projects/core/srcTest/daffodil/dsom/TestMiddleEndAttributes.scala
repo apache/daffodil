@@ -1,6 +1,6 @@
 package daffodil.dsom
 
-import daffodil.xml.XMLUtil
+import daffodil.xml.XMLUtils
 import scala.xml._
 
 import org.scalatest.junit.JUnit3Suite
@@ -13,10 +13,10 @@ import daffodil.util._
 
 
 class TestMiddleEndAttributes extends JUnit3Suite {
-  val xsd = XMLUtil.XSD_NAMESPACE
-  val dfdl = XMLUtil.DFDL_NAMESPACE
-  val xsi = XMLUtil.XSI_NAMESPACE
-  val example = XMLUtil.EXAMPLE_NAMESPACE
+  val xsd = XMLUtils.XSD_NAMESPACE
+  val dfdl = XMLUtils.DFDL_NAMESPACE
+  val xsi = XMLUtils.XSI_NAMESPACE
+  val example = XMLUtils.EXAMPLE_NAMESPACE
 
 
   def testHasPriorRequiredSiblings {

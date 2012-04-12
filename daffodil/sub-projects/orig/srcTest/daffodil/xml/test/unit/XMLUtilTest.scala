@@ -4,7 +4,7 @@ import java.io.StringReader
 import scala.xml._
 
 import org.jdom.input.SAXBuilder
-import daffodil.xml.XMLUtil
+import daffodil.xml._
 import org.scalatest.junit.JUnit3Suite
 import junit.framework.Assert._
 
@@ -25,7 +25,7 @@ class XMLUtilTest extends JUnit3Suite {
 
     println("******************  TWO")
 
-    val other = XMLUtil.elem2Element(schema)
+    val other = XMLUtils.elem2Element(schema)
     val otherString = XMLUtil.serializeCompact(other)
     val actual = XML.loadString(otherString)
     println(actual)
@@ -88,7 +88,7 @@ class XMLUtilTest extends JUnit3Suite {
 
     println("******************  TWO")
 
-    val other = XMLUtil.elem2Element(schema(0))
+    val other = XMLUtils.elem2Element(schema(0))
     val otherString = XMLUtil.serializeCompact(other)
     val actual: scala.xml.NodeSeq = XML.loadString(otherString).toList
     println(actual)
@@ -118,7 +118,7 @@ class XMLUtilTest extends JUnit3Suite {
 
     println("******************  TWO")
 
-    val other = XMLUtil.elem2Element(expected.head)
+    val other = XMLUtils.elem2Element(expected.head)
     val otherString = XMLUtil.serializeCompact(other)
     val actual = XML.loadString(otherString)
     assertEquals(expected.toList, actual.toList)
@@ -150,7 +150,7 @@ class XMLUtilTest extends JUnit3Suite {
 
     println("******************  TWO")
 
-    val other = XMLUtil.elem2Element(expected)
+    val other = XMLUtils.elem2Element(expected)
     // println(XMLUtil toString(other))
     println(other.toString)
     val otherString = XMLUtil.serializeCompact(other(0))
@@ -179,7 +179,7 @@ class XMLUtilTest extends JUnit3Suite {
         <element name="list" type="example1"/>
       </schema>
 
-    val jdomNode = XMLUtil.elem2Element(xmlNode)
+    val jdomNode = XMLUtils.elem2Element(xmlNode)
 
     assertTrue(XMLUtil.getChildByName(jdomNode, "example1") != null)
 
@@ -188,14 +188,14 @@ class XMLUtilTest extends JUnit3Suite {
   // @Test
   def testRemoveAttributes1() {
     val testData = <foo bar="baz"/>
-    val actual = XMLUtil.removeAttributes(testData)
+    val actual = XMLUtils.removeAttributes(testData)
     assertEquals(<foo/>, actual)
   }
 
   // @Test
   def testRemoveAttributes2() {
     val testData = <foo bar="baz"><quux foo="bar"/></foo>
-    val actual = XMLUtil.removeAttributes(testData)
+    val actual = XMLUtils.removeAttributes(testData)
     assertEquals(<foo><quux/></foo>, actual)
   }
 

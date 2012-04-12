@@ -135,13 +135,6 @@ trait PropertyMixin {
    */
   var toStringFunctionList : List[()=>String] = Nil
   
-  /**
-   * prints every property in scope. 
-   * 
-   * This is likely way more than the number locally defined.... dozens 
-   * of properties are likely defined in most formats. 
-   */
-
   override def toString = {
     val className = getNameFromClass(this)
 //    For now, do not print the properties.
@@ -149,6 +142,17 @@ trait PropertyMixin {
 //    val suffix=")"
 //    val str = props + suffix
     val str = className+ "." + detailName 
+    str
+  }
+  
+  /**
+   * prints all the properties on the object.
+   */
+  def verboseToString = {
+    val className = getNameFromClass(this)
+    val props = toStringFunctionList.map{f=>f.apply()}.foldLeft(className+ "." + detailName + "(")(_+_)
+    val suffix=")"
+    val str = props + suffix
     str
   }
   

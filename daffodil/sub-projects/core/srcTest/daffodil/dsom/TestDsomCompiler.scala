@@ -1,6 +1,6 @@
 package daffodil.dsom
 
-import daffodil.xml.XMLUtil
+import daffodil.xml.XMLUtils
 import daffodil.util._
 import scala.xml._
 
@@ -14,10 +14,10 @@ import junit.framework.Assert.assertTrue
 
 class TestDsomCompiler extends JUnit3Suite {
 
-  val xsd = XMLUtil.XSD_NAMESPACE
-  val dfdl = XMLUtil.DFDL_NAMESPACE
-  val xsi = XMLUtil.XSI_NAMESPACE
-  val example = XMLUtil.EXAMPLE_NAMESPACE
+  val xsd = XMLUtils.XSD_NAMESPACE
+  val dfdl = XMLUtils.DFDL_NAMESPACE
+  val xsi = XMLUtils.XSI_NAMESPACE
+  val example = XMLUtils.EXAMPLE_NAMESPACE
 
   val dummyGroupRef = null // just because otherwise we have to construct too many things.
   

@@ -44,7 +44,7 @@ import daffodil.arguments.ArgumentDescription
 import daffodil.arguments.ArgumentParser
 import daffodil.arguments.OptionalSingle
 import daffodil.debugger.DebugUtil
-import xml.XMLUtil
+// import xml.XMLUtil
 import daffodil.util.Misc
 
 /**
@@ -153,7 +153,7 @@ object Main {
         val rbc = java.nio.channels.Channels.newChannel(inputStream);
         val result = DebugUtil.time("Parsing document", processor.parse(rbc))
 
-        DebugUtil log ("Total nodes:" + XMLUtil.getTotalNodes)
+        // DebugUtil log ("Total nodes:" + XMLUtil.getTotalNodes)
 
         val output =
           if (argumentParser isSet ("output"))

@@ -418,50 +418,50 @@ object XMLUtil {
     }
   }
 
-  /**
-   * super inefficient, but useful for unit tests
-   */
-  def element2Elem(jElem: Element): scala.xml.Node = {
-    return scala.xml.XML.loadString(new org.jdom.output.XMLOutputter().outputString(jElem))
-  }
-
-  def elem2Element(nodes:scala.xml.NodeSeq):Seq[Element] = nodes.map{elem=>elem2Element(elem)}
-
-  def elem2Element(node: scala.xml.Node): Element = {
-    // val jdomNode = new CompressableElement(node label,node namespace)
-    val jdomNode = new Element(node.label, node.prefix, node.namespace)
-
-    val attribs = node.attributes.map { (attribute: MetaData) =>
-      {
-        // for(attribute <- attribs) {
-        val attrNS = attribute getNamespace (node)
-        val name = attribute key
-        val value = attribute.value.apply(0).text
-        val prefixedKey = attribute.prefixedKey
-        val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
-        val ns = Namespace getNamespace (prefix, attrNS)
-        if (attribute.isPrefixed && attrNS != "") {
-          println("THE ATTRIBUTE IS: " + name)
-          println("THE NAMESPACE SHOULD BE: " + attrNS)
-          println("IT ACTUALLY IS:" + Namespace.getNamespace(name, attrNS))
-
-          // jdomNode setAttribute (name, value, ns)
-          new Attribute(name, value, ns)
-        } else
-          // jdomNode setAttribute (name, value)
-          new Attribute(name, value)
-      }
-    }
-    jdomNode.setAttributes(attribs)
-    for (child <- node child) {
-      child label match {
-        case "#PCDATA" => jdomNode addContent (child toString)
-        case "#REM" =>
-        case _ => jdomNode addContent (elem2Element(child))
-      }
-    }
-    jdomNode
-  }
+//  /**
+//   * super inefficient, but useful for unit tests
+//   */
+//  def element2Elem(jElem: Element): scala.xml.Node = {
+//    return scala.xml.XML.loadString(new org.jdom.output.XMLOutputter().outputString(jElem))
+//  }
+//
+//  def elem2Element(nodes:scala.xml.NodeSeq):Seq[Element] = nodes.map{elem=>elem2Element(elem)}
+//
+//  def elem2Element(node: scala.xml.Node): Element = {
+//    // val jdomNode = new CompressableElement(node label,node namespace)
+//    val jdomNode = new Element(node.label, node.prefix, node.namespace)
+//
+//    val attribs = node.attributes.map { (attribute: MetaData) =>
+//      {
+//        // for(attribute <- attribs) {
+//        val attrNS = attribute getNamespace (node)
+//        val name = attribute key
+//        val value = attribute.value.apply(0).text
+//        val prefixedKey = attribute.prefixedKey
+//        val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
+//        val ns = Namespace getNamespace (prefix, attrNS)
+//        if (attribute.isPrefixed && attrNS != "") {
+//          println("THE ATTRIBUTE IS: " + name)
+//          println("THE NAMESPACE SHOULD BE: " + attrNS)
+//          println("IT ACTUALLY IS:" + Namespace.getNamespace(name, attrNS))
+//
+//          // jdomNode setAttribute (name, value, ns)
+//          new Attribute(name, value, ns)
+//        } else
+//          // jdomNode setAttribute (name, value)
+//          new Attribute(name, value)
+//      }
+//    }
+//    jdomNode.setAttributes(attribs)
+//    for (child <- node child) {
+//      child label match {
+//        case "#PCDATA" => jdomNode addContent (child toString)
+//        case "#REM" =>
+//        case _ => jdomNode addContent (elem2Element(child))
+//      }
+//    }
+//    jdomNode
+//  }
  
 
   private def map(c:Char) = c match {
@@ -598,77 +598,77 @@ object XMLUtil {
 //    else
 //      List()
   
-import xml.transform.{RuleTransformer, RewriteRule}
-import xml.{NodeSeq, Node, Elem}
-import xml.Utility.trim
-
-/**
- * Removes attributes, and also element prefixes.
- */
- private class RemoveAttributes extends RewriteRule {
-      override def transform(n: Node) = n match {
-          case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
-            val childrenWithoutAttributes : NodeSeq = children.map{myRule.transform(_)(0)}
-            Elem(null, label, noAttributes, scope, childrenWithoutAttributes : _*)
-          }
-          case other => other
-      }
-  }
-
-  private val noAttributes = Null
-  private val myRule = new RuleTransformer(new RemoveAttributes)
-
-  def removeAttributes(node : Node) : Node = {
-      val nseq = myRule.transform(trim(node))
-      val res = nseq(0)
-      res
-  }
-  
-    /**
-   * Translates a qualified name into a pair of a namespace uri, and a local name part.
-   * 
-   * Currently makes an effort to take unqualified names into the targetNamespace of the schema,
-   */
-  def QName(xml : Node, nom: String, sd : SchemaDocument): (String, String) = {
-    val parts = nom.split(":").toList
-    val (prefix, localName) = parts match {
-      case List(local) => ("", local)
-      case List(pre, local) => (pre, local)
-      case _ => Assert.impossibleCase()
-    }
-    val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
-    // Assert.schemaDefinition(nsURI != null, "In QName " + typeName + ", the prefix " + prefix + " was not defined.")
-    // TODO: accumulate errors, don't just throw on one.
-    // TODO: error location for diagnostic purposes. 
-    // see: http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
-    
-    // TODO: Clarify whether we should be tolerant this way, or strict
-    val finalURI = if (nsURI == null || nsURI == "") sd.targetNamespace else nsURI
-    (finalURI, localName)
-  }
+//import xml.transform.{RuleTransformer, RewriteRule}
+//import xml.{NodeSeq, Node, Elem}
+//import xml.Utility.trim
+//
+///**
+// * Removes attributes, and also element prefixes.
+// */
+// private class RemoveAttributes extends RewriteRule {
+//      override def transform(n: Node) = n match {
+//          case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
+//            val childrenWithoutAttributes : NodeSeq = children.map{myRule.transform(_)(0)}
+//            Elem(null, label, noAttributes, scope, childrenWithoutAttributes : _*)
+//          }
+//          case other => other
+//      }
+//  }
+//
+//  private val noAttributes = Null
+//  private val myRule = new RuleTransformer(new RemoveAttributes)
+//
+//  def removeAttributes(node : Node) : Node = {
+//      val nseq = myRule.transform(trim(node))
+//      val res = nseq(0)
+//      res
+//  }
+//  
+//    /**
+//   * Translates a qualified name into a pair of a namespace uri, and a local name part.
+//   * 
+//   * Currently makes an effort to take unqualified names into the targetNamespace of the schema,
+//   */
+//  def QName(xml : Node, nom: String, sd : SchemaDocument): (String, String) = {
+//    val parts = nom.split(":").toList
+//    val (prefix, localName) = parts match {
+//      case List(local) => ("", local)
+//      case List(pre, local) => (pre, local)
+//      case _ => Assert.impossibleCase()
+//    }
+//    val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
+//    // Assert.schemaDefinition(nsURI != null, "In QName " + typeName + ", the prefix " + prefix + " was not defined.")
+//    // TODO: accumulate errors, don't just throw on one.
+//    // TODO: error location for diagnostic purposes. 
+//    // see: http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
+//    
+//    // TODO: Clarify whether we should be tolerant this way, or strict
+//    val finalURI = if (nsURI == null || nsURI == "") sd.targetNamespace else nsURI
+//    (finalURI, localName)
+//  }
 }
 
 
-
-trait GetAttributesMixin {
-  def xml : Node
-  
- /**
-   * Use to retrieve things that are not format properties.
-   */
-  def getAttributeRequired(name: String) = {
-    getAttributeOption(name) match {
-      case None => Assert.schemaDefinitionError("The attribute " + name + " is required.")
-      case Some(s) => s
-    }
-  }
-
-  /**
-   * Use to retrieve things that are not format properties.
-   */
-  def getAttributeOption(name: String): Option[String] = {
-    val attrString = (xml \ ("@" + name)).text
-    val res = if (attrString == "") None else Some(attrString)
-    res
-  }
-}
+//
+//trait GetAttributesMixin {
+//  def xml : Node
+//  
+// /**
+//   * Use to retrieve things that are not format properties.
+//   */
+//  def getAttributeRequired(name: String) = {
+//    getAttributeOption(name) match {
+//      case None => Assert.schemaDefinitionError("The attribute " + name + " is required.")
+//      case Some(s) => s
+//    }
+//  }
+//
+//  /**
+//   * Use to retrieve things that are not format properties.
+//   */
+//  def getAttributeOption(name: String): Option[String] = {
+//    val attrString = (xml \ ("@" + name)).text
+//    val res = if (attrString == "") None else Some(attrString)
+//    res
+//  }
+//}

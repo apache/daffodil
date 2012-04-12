@@ -5,8 +5,8 @@ import junit.framework.Assert._
 import org.scalatest.junit.JUnit3Suite
 
 import scala.xml._
-import daffodil.xml.XMLUtil
-import daffodil.xml.XMLUtil._
+import daffodil.xml.XMLUtils
+import daffodil.xml.XMLUtils._
 import daffodil.dsom.Compiler
 import daffodil.util._
 

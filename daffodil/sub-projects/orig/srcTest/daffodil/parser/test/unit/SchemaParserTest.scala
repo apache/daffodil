@@ -15,7 +15,8 @@ import daffodil.schema.SimpleElement
 import daffodil.schema.annotation.Annotation
 import daffodil.schema.annotation.enumerations.Text
 import daffodil.xml.Namespaces
-import daffodil.xml.XMLUtil
+import daffodil.xml._
+import daffodil.ImplicitsForTesting._
 import daffodil.Implicits._
 
 import org.scalatest.junit.JUnit3Suite
@@ -48,7 +49,7 @@ class SchemaParserTest extends JUnit3Suite {
 	</complexType>;
  
     val parser = new SchemaParser()
-    val result = parser.parseComplexType(XMLUtil elem2Element(xmlNode))
+    val result = parser.parseComplexType(XMLUtils elem2Element(xmlNode))
  
     val a0 = new Annotation(null)
     a0.format setRepresentation(Text)
@@ -86,7 +87,7 @@ class SchemaParserTest extends JUnit3Suite {
 		</sequence>
 	</complexType>;
  
-    val parser = new SchemaParser().parseComplexType(XMLUtil elem2Element(xmlNode))
+    val parser = new SchemaParser().parseComplexType(XMLUtils elem2Element(xmlNode))
     
     
     val a0 = new Annotation(null)
@@ -135,7 +136,7 @@ class SchemaParserTest extends JUnit3Suite {
 	val data="19"
 	val dataStream = new RollbackStream(new ByteArrayInputStream(data.getBytes()))
  
-	val parser = new SchemaParser().parseElementNode(XMLUtil elem2Element(xmlNode), Nil)
+	val parser = new SchemaParser().parseElementNode(XMLUtils elem2Element(xmlNode), Nil)
      
 	val expectedResult = List(XMLUtil.element("example1","19"))
 
@@ -180,9 +181,9 @@ class SchemaParserTest extends JUnit3Suite {
 	val data="10,"
 	val dataStream = new RollbackStream(new ByteArrayInputStream(data.getBytes()))
  
-	val parser = new SchemaParser().parseElementNode(XMLUtil elem2Element(DFDLSchemaNode), Nil)
+	val parser = new SchemaParser().parseElementNode(XMLUtils elem2Element(DFDLSchemaNode), Nil)
      
-	val expectedResult = XMLUtil.elem2Element(expectedXML)
+	val expectedResult = XMLUtils.elem2Element(expectedXML)
 
     val annotation = new Annotation(null)
 	val vmap = new VariableMap()
@@ -249,9 +250,9 @@ class SchemaParserTest extends JUnit3Suite {
 	val dataStream = new RollbackStream(new ByteArrayInputStream(data.getBytes()))
 
  
-	val parser = new SchemaParser().parseElementNode(XMLUtil elem2Element(wxyzDFDLSchemaNode), Nil)
+	val parser = new SchemaParser().parseElementNode(XMLUtils elem2Element(wxyzDFDLSchemaNode), Nil)
      
-	val expectedResult = XMLUtil.elem2Element(wxyzExpectedXML)
+	val expectedResult = XMLUtils.elem2Element(wxyzExpectedXML)
 
     val annotation = new Annotation(null)
 	val vmap = new VariableMap()

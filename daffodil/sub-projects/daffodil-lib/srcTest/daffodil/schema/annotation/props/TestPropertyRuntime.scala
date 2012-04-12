@@ -44,7 +44,7 @@ class TestPropertyRuntime extends JUnit3Suite {
     val m = new HasMixin
     assertTrue(m.initWasCalled)
     val tep = m.theExampleProp
-    val s = m.toString
+    val s = m.verboseToString
     assertTrue(m.propToStringWasCalled)
     assertTrue(s.contains("theExampleProp='left'"))
   }

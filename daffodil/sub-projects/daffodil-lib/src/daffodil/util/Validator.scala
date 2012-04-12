@@ -108,7 +108,7 @@ object Validator extends NoBindingFactoryAdapter {
     Misc.getResourceOrFileStream(fn)
   }
   
-  def dfdlSchemaFileName () : String = "../daffodil-lib/src/xsd/DFDLSubsetOfXMLSchema_v1_036.xsd" 
+  def dfdlSchemaFileName () : String = "src/xsd/DFDLSubsetOfXMLSchema_v1_036.xsd" 
     // TODO: find this file no matter where the application is called from, and regardless of 
     // xsi:schemaLocation stuff in the dfdl schema. This file should be a resource 
     // stored in the jar file for the DFDL processor.

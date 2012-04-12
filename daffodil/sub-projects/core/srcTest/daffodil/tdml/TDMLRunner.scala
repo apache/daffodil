@@ -13,8 +13,8 @@ import org.scalatest.junit.JUnit3Suite
 
 import daffodil.Implicits.using
 import daffodil.dsom.Compiler
-import daffodil.xml.XMLUtil
-import daffodil.util.Validator
+import daffodil.xml.XMLUtils
+import daffodil.util._
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 
@@ -57,8 +57,9 @@ class DFDLTestSuite(ts: Node, val tdmlFile: File = null) {
   // against its schema. We're depending on Validator to find all the 
   // included schemas such as that for embedded defineSchema named schema nodes.
   // 
-  val tdmlXSDFile = "./srcTest/xsd/tdml.xsd" //TODO: take from resource so it can be in the jar.
-  val tdmlSchema = XML.loadFile(tdmlXSDFile)
+  val tdmlXSDFile = "srcTest/xsd/tdml.xsd" //TODO: take from resource so it can be in the jar.
+  val inStream = Misc.getResourceOrFileStream(tdmlXSDFile)
+  val tdmlSchema = XML.load(inStream)
   assert(Validator.validateXMLNodes(tdmlSchema, ts) != null)
 
   //
@@ -180,7 +181,7 @@ case class ParserTestCase(ptc: NodeSeq, val parent: DFDLTestSuite) {
     // making things fail these comparisons, so we strip all attributes off (since DFDL doesn't 
     // use attributes at all)
     // 
-    val actualNoAttrs = XMLUtil.removeAttributes(trimmed)
+    val actualNoAttrs = XMLUtils.removeAttributes(trimmed)
     // 
     // Would be great to validate the actuals against the DFDL schema, used as
     // an XML schema on the returned infoset XML.
@@ -268,7 +269,7 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
   lazy val Seq(contents) = {
     val c = di.child(0)
     val expected = Utility.trim(c) // must be exactly one root element in here.
-    val expectedNoAttrs = XMLUtil.removeAttributes(expected)
+    val expectedNoAttrs = XMLUtils.removeAttributes(expected)
     //
     // Let's validate the expected content against the schema
     // Just to be sure they don't drift.

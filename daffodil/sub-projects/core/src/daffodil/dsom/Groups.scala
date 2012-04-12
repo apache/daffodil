@@ -406,7 +406,7 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   lazy val refQName = {
     refName match {
-      case Some(rname) => Some(XMLUtil.QName(xml, rname, schemaDocument))
+      case Some(rname) => Some(XMLUtils.QName(xml, rname, schemaDocument))
       case None => None
     }
   }

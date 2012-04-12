@@ -6,7 +6,7 @@ import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 
 import daffodil.processors.input.text._
-import daffodil.Implicits._
+import daffodil.ImplicitsForTesting._
 
 import org.scalatest.junit.JUnit3Suite
 import junit.framework.Assert._

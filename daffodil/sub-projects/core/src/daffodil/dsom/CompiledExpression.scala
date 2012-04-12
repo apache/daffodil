@@ -125,7 +125,7 @@ class ExpressionCompiler(edecl : AnnotatedMixin) {
         }
       }
       catch {
-        case e: XPathEvaluationException => None
+        // case e: XPathEvaluationException => None
         case e: Exception => None // dangerous
       }
     result

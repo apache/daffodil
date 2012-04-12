@@ -1,8 +1,8 @@
 package daffodil.util
 
 import scala.xml._
-import daffodil.xml.XMLUtil
-import daffodil.xml.XMLUtil._
+import daffodil.xml.XMLUtils
+import daffodil.xml.XMLUtils._
 import junit.framework.Assert.assertEquals
 
 /*
@@ -43,8 +43,8 @@ object TestUtils {
    * save that attribute.
    */
   def assertEqualsXMLElements(expected : Node, actual : Node) = {
-    val exp = XMLUtil.removeAttributes(expected)
-    val act = XMLUtil.removeAttributes(actual)
+    val exp = XMLUtils.removeAttributes(expected)
+    val act = XMLUtils.removeAttributes(actual)
     assertEquals(exp, act)
   }
   

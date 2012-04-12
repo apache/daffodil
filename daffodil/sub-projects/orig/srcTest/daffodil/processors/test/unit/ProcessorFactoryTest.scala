@@ -5,7 +5,7 @@ import java.nio.charset.Charset
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 
-import daffodil.Implicits._
+import daffodil.ImplicitsForTesting._
 import daffodil.processors._
 import daffodil.processors.input.text._
 import daffodil.processors.input._

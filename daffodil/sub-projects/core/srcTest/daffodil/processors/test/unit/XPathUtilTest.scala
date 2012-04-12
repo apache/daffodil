@@ -61,7 +61,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
     
     val document = new Document(root)
     
-    var variables = new VariableMap() defineVariable("pi",XMLUtil.XSD_DOUBLE,new Namespaces)
+    var variables = new VariableMap() defineVariable("pi","double",new Namespaces)
     variables setVariable("pi",Pi.toString,new Namespaces)
     
     val result = XPathUtil evalExpression("$pi",variables,root,new Namespaces)

@@ -96,7 +96,7 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
   // (Note: I hate repeating the darn package name all over the place here....)
   private[dsom] def getLocalPropertyOption(name: String): Option[String] = {
     if (hasConflictingPropertyError) {
-      throw new DFDLSchemaDefinitionException("Short and Long form properties overlap: " + conflictingProperties)
+      Assert.SDE("Short and Long form properties overlap: " + conflictingProperties)
     }
     lazy val localProp = combinedLocalProperties.get(name)
     localProp

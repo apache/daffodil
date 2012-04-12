@@ -2,7 +2,7 @@ package daffodil.xml.test.unit
 
 import scala.xml._
 
-import daffodil.xml.XMLUtil
+import daffodil.xml.XMLUtils
 import org.scalatest.junit.JUnit3Suite
 import junit.framework.Assert._
 
@@ -50,12 +50,12 @@ class TestUnicodeXMLI18N extends JUnit3Suite {
    * in a way that will break daffodil (or is likely to break it.)
    */ 
   
-  def isXS(elem : Node) = elem.namespace == XMLUtil.XSD_NAMESPACE
+  def isXS(elem : Node) = elem.namespace == XMLUtils.XSD_NAMESPACE
   def isSequence(elem : Node) = elem.label == "sequence" && isXS(elem)
   def isSchema(elem : Node) = elem.label == "schema" && isXS(elem)
   def isElement(elem : Node) = elem.label == "element"  && isXS(elem)
 
-  val xmlnsURI = XMLUtil.XSD_NAMESPACE
+  val xmlnsURI = XMLUtils.XSD_NAMESPACE
   def testRightElementRightPrefixRightNS() {
     val xsSequence = <xs:sequence xmlns:xs={xmlnsURI}/>
     assertTrue(isSequence(xsSequence))

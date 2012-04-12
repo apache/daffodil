@@ -1,8 +1,13 @@
-<project name="daffodil-lib" default="fresh-install" basedir=".">
+<project name="daffodil-lib" default="all" basedir=".">
   <description>
     Common utilities for the Daffodil project. 
   </description>
 
+
 	<import file="../../build-common.ant"/>
+
+	<target name="all" depends="clean,jar,test,install"
+	 description="Builds everything from a clean slate and runs the tests" />
+
 
 </project>

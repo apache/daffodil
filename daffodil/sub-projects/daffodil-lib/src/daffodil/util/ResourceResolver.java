@@ -31,23 +31,58 @@ public class ResourceResolver implements LSResourceResolver {
 	  }
 	  return res;
   }
-	
+
+	public LSInput resolveResourceFromClassPath(String type,
+			String namespaceURI, String publicId, String systemId,
+			String baseURI) {
+		Boolean isFound = false;
+		InputStream inStream = null;
+		String[] prefixesToTry = { "src/xsd/", "srcTest/xsd/", "" };
+		for (String prefix : prefixesToTry) {
+			String sysIdFileSuffix = filePart(systemId);
+			String fn = prefix + sysIdFileSuffix;
+			System.out.print("trying to find NS " + namespaceURI
+					+ " in resource " + fn);
+			inStream = this.getClass().getResourceAsStream("/" + fn);
+			if (inStream != null) {
+				isFound = true;
+				System.out.println("...found!");
+				break;
+			} else {
+				System.out.println("...nope!");
+				continue;
+			}
+		}
+		if (!isFound) return null;
+		return new LSInputImpl(publicId, systemId, inStream);
+	}
+  
   @Override
   public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
+	  LSInput resFromCP = resolveResourceFromClassPath(type, namespaceURI, publicId, systemId, baseURI);
+	  if (resFromCP != null) return resFromCP;
+	  LSInput resFromFiles = resolveResourceFromFiles(type, namespaceURI, publicId, systemId, baseURI);
+	  return resFromFiles;
+  }
+  
+
+  public LSInput resolveResourceFromFiles(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
 
     File f = null;
     Boolean isFound = false;
-    String[] prefixesToTry = {"", "../daffodil-lib/src/xsd/", "../daffodil-lib/srcTest/xsd/"};
+    String[] prefixesToTry = {"../daffodil-lib/src/xsd/", "../daffodil-lib/srcTest/xsd/", ""};
     for (String prefix : prefixesToTry ) {
       String sysIdFileSuffix = filePart(systemId);
       String augmentedSystemId = prefix + sysIdFileSuffix;
       f = new File(augmentedSystemId);
-      // System.out.println("trying to find NS "+ namespaceURI + " in file " + augmentedSystemId);
+      String abs = f.getAbsolutePath();
+      System.out.print("trying to find NS "+ namespaceURI + " in file " + abs);
       if (f.exists()) {
         isFound=true;
-        //System.out.println("found!");
+        System.out.println("...found!");
         break;
       } else {
+        System.out.println("...nope!");
         continue;
       }
     }
@@ -55,7 +90,8 @@ public class ResourceResolver implements LSResourceResolver {
       System.out.print("Failed to find NS "+ namespaceURI + " in file " + systemId + " in any of the search locations (");
       String comma = "";
       for (String prefix : prefixesToTry ) {
-        System.out.print(comma + " './" + prefix + "'");
+        System.out.print(comma + " " + prefix + "'");
+        comma = ",";
       }
       System.out.println(")");
       return null;

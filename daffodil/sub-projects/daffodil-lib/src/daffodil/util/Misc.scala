@@ -28,12 +28,15 @@ object Misc {
    * if we're just running interactively in eclipse, doesn't use the jar.
    */
   def getResourceOrFileStream (fn : String) : InputStream = {
-    var is = this.getClass().getResourceAsStream("/" + fn)
+    var is = this.getClass().getResourceAsStream("/" + fn) // we want the /. Otherwise it uses the class's package name as part of path.
     if (is == null) {
-      val f = new File(fn)
+      var f = new File(fn)
       if (!f.exists()) {
-        val e = new FileNotFoundException(fn)
-        throw e
+        f = new File ("../daffodil-lib/" + fn)
+        if (!f.exists()) {
+          val e = new FileNotFoundException(fn)
+          throw e
+        }
       }
       val abs = f.getAbsolutePath()
       is = new FileInputStream(abs)

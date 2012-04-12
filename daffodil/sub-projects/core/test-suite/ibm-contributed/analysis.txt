@@ -1,0 +1,101 @@
+IBM Tests Annotated with the features they require
+
+introduction_1_01 basic binary int float and double
+introduction_1_02 basic text int float and double. Doesn't need number patterns.
+
+schema_types_5_01 byte text numbers with simple number patterns (which are ignored when parsing)
+schema_types_5_02 short
+schema_types_5_03 int
+schema_types_5_04 long
+schema_types_5_05 unsignedByte
+
+syntax_entities_6_01 SOH and ETX
+syntax_entities_6_02 %SP and %LS (which is multi-byte U+2028)
+syntax_entities_6_03 utf-16 and %NL
+syntax_entities_6_04 fillByte raw entities
+
+(we have all this. If these don't run its for other reasons)
+(These all use lengthKind="delimited" and %NL; entity
+property_syntax_7_01 
+property_syntax_7_02
+property_syntax_7_03
+property_syntax_7_04
+
+scoping_default_format_8_01 (working)
+scoping_define_format_8_01
+scoping_define_format_8_02
+scoping_define_format_8_03 element references
+scoping_define_format_8_04
+scoping_define_format_8_05 import (multiple files)
+
+encoding_11_01 utf-32 littleEndian (working)
+encoding_11_02 utf32LE and littleEndian
+encoding_11_03 utf32BE and byteOrder littleEndian
+
+alignment_bytes_12_01 alignment 4
+alignment_bytes_12_02 leading skip
+alignment_bytes_12_03 trailing skip
+alignment_bytes_12_04 trailing skip
+alignment_bytes_12_05 binary calendar type
+alignment_bytes_12_06 binary floats 
+
+delimiter_12_01 trimming of padChar
+delimiter_12_02 ignoreCase
+delimiter_12_03 list of delimiters
+delimiter_12_04 %NL pattern entity
+
+length_explicit_12_01 no target namespace
+length_explicit_12_02 lengthUnits characters
+
+length_delimited_12_01 element's terminator
+length_delimited_12_02 enclosing parent separator and terminator
+length_delimited_12_03 parent has specified length
+length_delimited_12_04 end of input
+length_delimited_12_05 binary bcd delimited
+length_delimited_12_06 simple element with specified length within a delimited sequence
+
+length_implicit_12_01 binary float
+length_implicit_12_02 implicit length of string (from maxLength facet on simpleType def)
+length_explicit_12_03 lengthUnits characters and varying length
+
+
+simple_type_properties_pad_trim_13_01
+simple_type_properties_pad_trim_13_02
+simple_type_properties_pad_trim_13_03
+simple_type_properties_pad_trim_13_04
+
+simple_type_properties_text_number_13_01
+simple_type_properties_text_number_13_02
+simple_type_properties_text_number_13_03
+
+simple_type_properties_binary_number_13_01 bcd
+simple_type_properties_binary_number_13_02 float and double (binary)
+
+simple_type_properties_text_boolean_13_01
+simple_type_properties_text_boolean_13_02
+simple_type_properties_text_boolean_13_03
+
+simple_type_properties_bin_boolean_13_01
+
+simple_type_properties_text_calendar_13_01
+simple_type_properties_text_calendar_13_02
+simple_type_properties_text_calendar_13_03
+simple_type_properties_text_calendar_13_04
+
+simple_type_properties_bin_calendar_13_01
+simple_type_properties_bin_calendar_13_02
+
+sequences_separated_14_01 occursCountKind implicit
+sequences_separated_14_02
+sequences_separated_14_03
+sequences_separated_14_04
+sequences_separated_14_05
+sequences_separated_14_06
+sequences_separated_14_07
+sequences_separated_14_08
+
+choices_basic_15_01
+choices_basic_15_02
+choices_basic_15_03
+
+arrays_16_01 lengthKind delimited

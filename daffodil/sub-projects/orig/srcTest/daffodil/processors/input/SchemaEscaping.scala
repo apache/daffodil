@@ -11,7 +11,7 @@ import daffodil.xml.Namespaces
 import daffodil.schema.annotation.enumerations._
 import daffodil.processors.input.text.TextProcessor
 import daffodil.processors._
-import daffodil.Implicits._
+import daffodil.ImplicitsForTesting._
 
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.

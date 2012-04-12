@@ -9,7 +9,7 @@ import org.jdom.input.SAXBuilder
 import daffodil.parser.AnnotationParser
 import daffodil.schema.annotation.Format
 import daffodil.schema.annotation.enumerations._
-import daffodil.xml.XMLUtil
+import daffodil.xml._
 
 import org.scalatest.junit.JUnit3Suite
 import junit.framework.Assert._
@@ -19,7 +19,7 @@ class AnnotationParserTest extends JUnit3Suite {
   // @Test
   def testReadingPropertiesFromAnElement() {
     val builder = new SAXBuilder()
-    val xmlNode = XMLUtil.elem2Element(
+    val xmlNode = XMLUtils.elem2Element(
       <element xmlns="http://www.w3.org/2001/XMLSchema" name="myElement"
       		type="string" maxOccurs="10" minOccurs="12" lengthKind="implicit"/>
       )
@@ -39,7 +39,7 @@ class AnnotationParserTest extends JUnit3Suite {
       <element xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0"
             name="foobar" type="string" maxOccurs="10" minOccurs="12" dfdl:lengthKind="explicit" dfdl:length="8"/>
       
-    val xmlNode = XMLUtil.elem2Element(xml)
+    val xmlNode = XMLUtils.elem2Element(xml)
             
     val result = AnnotationParser(xmlNode,Map[String,Format]())
     
@@ -55,7 +55,7 @@ class AnnotationParserTest extends JUnit3Suite {
   // @Test
   def testReadingPropertiesThroughThePropertyTag() {
     val builder = new SAXBuilder()
-    val xmlNode = XMLUtil elem2Element(
+    val xmlNode = XMLUtils elem2Element(
       <element xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0" type="int" name="Francois">
       	<annotation>
       		<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
@@ -88,7 +88,7 @@ class AnnotationParserTest extends JUnit3Suite {
   // @Test
   def testReadingPropertiesFromAnAnnotatedElement() {
     val builder = new SAXBuilder()
-    val xmlNode = XMLUtil.elem2Element( 
+    val xmlNode = XMLUtils.elem2Element( 
       <element xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0" type="int" name="Francois">
       	<annotation>
       		<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
