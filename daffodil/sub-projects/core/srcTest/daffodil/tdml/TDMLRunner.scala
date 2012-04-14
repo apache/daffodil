@@ -1,25 +1,22 @@
 package daffodil.tdml
 
 import java.io.File
-
 import scala.Array.canBuildFrom
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.Node
 import scala.xml.NodeSeq
 import scala.xml.Utility
 import scala.xml.XML
-
 import org.scalatest.junit.JUnit3Suite
-
 import daffodil.Implicits.using
 import daffodil.dsom.Compiler
 import daffodil.xml.XMLUtils
 import daffodil.util._
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
-
 import daffodil.util.Misc._
-
+import java.io.FileInputStream
+import java.io.FileNotFoundException
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -50,22 +47,41 @@ import daffodil.util.Misc._
  * dependency on one factory to create processors.
  */
 
-class DFDLTestSuite(ts: Node, val tdmlFile: File = null) {
+class DFDLTestSuite(tsArg : Node, val tdmlFile : File = null) {
 
   //
   // we immediately validate the incoming test suite document
   // against its schema. We're depending on Validator to find all the 
   // included schemas such as that for embedded defineSchema named schema nodes.
   // 
-  val tdmlXSDFile = "srcTest/xsd/tdml.xsd" //TODO: take from resource so it can be in the jar.
-  val inStream = Misc.getResourceOrFileStream(tdmlXSDFile)
+  val tdmlXSDFilePath = "srcTest/xsd/tdml.xsd"
+  // This is a test rig, so the above xsd won't be in the jar. We have to find it
+  // in the file system.
+  // Note: maybe we should embed the TDML runner and related xsd into the jar?
+  // That way all deployed jars can run tests, so when people report bugs with their 
+  // jar they'll have a way to verify their jar can't run the test.
+  //
+  val tdmlXSDFile = TestUtils.findFile(new File(tdmlXSDFilePath))
+  val inStream = {
+    if (tdmlXSDFile != null) {
+      new FileInputStream(tdmlXSDFile) // Misc.getResourceOrFileStream(tdmlXSDFile)
+    } else {
+      throw new FileNotFoundException("unable to find " + tdmlXSDFilePath)
+    }
+  }
+
   val tdmlSchema = XML.load(inStream)
   assert(Validator.validateXMLNodes(tdmlSchema, ts) != null)
 
   //
   // alternate constructor from a file
   //
-  def this(tdmlFile: File) = this(XML.loadFile(tdmlFile), tdmlFile)
+  def this(tdmlFile : File) = this(null, tdmlFile)
+
+  lazy val ts = tsArg match {
+    case null => XML.loadFile(TestUtils.findFile(tdmlFile))
+    case _ => tsArg
+  }
 
   lazy val parserTestCases = (ts \ "parserTestCase").map { node => ParserTestCase(node, this) }
   lazy val suiteName = (ts \ "@suiteName").text
@@ -73,11 +89,11 @@ class DFDLTestSuite(ts: Node, val tdmlFile: File = null) {
   lazy val description = (ts \ "@description").text
   lazy val embeddedSchemas = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
 
-  def runAllTests(schema: Option[Node] = None) {
+  def runAllTests(schema : Option[Node] = None) {
     parserTestCases.map { _.run(schema) }
   }
 
-  def runOneTest(testName: String, schema: Option[Node] = None) {
+  def runOneTest(testName : String, schema : Option[Node] = None) {
     val testCase = parserTestCases.find(_.name == testName)
     testCase match {
       case None => throw new Exception("test " + testName + " was not found.")
@@ -92,30 +108,38 @@ class DFDLTestSuite(ts: Node, val tdmlFile: File = null) {
    *
    * IBM's suites have funny model paths in them. We don't have that file structure,
    * so we look for the schema/model files in the working directory, and in the same
-   * directory as the tdml file.
+   * directory as the tdml file, and some other variations.
    */
-  def findModelFile(fileName: String): File = {
+  def findModelFile(fileName : String) : File = {
     val firstTry = new File(fileName)
     if (firstTry.exists()) return firstTry
     // try ignoring the directory part
     val parts = fileName.split("/")
     val filePart = parts.last
     val secondTry = new File(filePart)
-    if (secondTry.exists()) return secondTry ;
+    if (secondTry.exists()) return secondTry;
     if (tdmlFile != null) {
       val tdmlDir = tdmlFile.getParent()
       val path = tdmlDir + "/" + filePart
       val thirdTry = new File(path)
       if (thirdTry.exists()) return thirdTry
     }
-//    // For unit tests that refer to an IBM schema.
-//    val fourthTry = new File("test-suite/ibm-contributed/" + fileName)
-//    if (fourthTry.exists()) return fourthTry
-    throw new Exception("Unable to find model file " + fileName + ".")
-
+    // For unit tests that refer to an IBM schema.
+    val fourthTry = {
+      val str = "test-suite/ibm-contributed/" + filePart
+      //      System.err.println("Trying to find model at: " + str)
+      TestUtils.findFile(new File(str))
+    }
+    if (fourthTry != null && fourthTry.exists()) return fourthTry
+    val fifthTry = {
+      val str = "test-suite/tresys-contributed/" + filePart
+      TestUtils.findFile(new File(str))
+    }
+    if (fifthTry != null && fifthTry.exists()) return fifthTry
+    throw new FileNotFoundException("Unable to find model file " + fileName + ".")
   }
 
-  def findModel(modelName: String): Node = {
+  def findModel(modelName : String) : Node = {
     // schemas defined with defineSchema take priority as names.
     val es = embeddedSchemas.find { defSch => defSch.name == modelName }
     es match {
@@ -130,12 +154,12 @@ class DFDLTestSuite(ts: Node, val tdmlFile: File = null) {
 
 }
 
-case class ParserTestCase(ptc: NodeSeq, val parent: DFDLTestSuite) {
+case class ParserTestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
   lazy val Seq(document) = (ptc \ "document").map { node => new Document(node, this) }
   lazy val Seq(infoset) = (ptc \ "infoset").map { node => new Infoset(node, this) }
   lazy val name = (ptc \ "@name").text
   lazy val ptcID = (ptc \ "@ID").text
-  lazy val id = name + (if (ptcID != "") "("+ptcID+")" else "")
+  lazy val id = name + (if (ptcID != "") "(" + ptcID + ")" else "")
   lazy val root = (ptc \ "@root").text
   lazy val model = (ptc \ "@model").text
   lazy val description = (ptc \ "@description").text
@@ -144,21 +168,20 @@ case class ParserTestCase(ptc: NodeSeq, val parent: DFDLTestSuite) {
     case "false" => false
     case _ => false
   }
-  
+
   def findModel(modelName : String) : Node = {
     if (modelName == "") {
       suppliedSchema match {
         case None => throw new Exception("No model.")
         case Some(s) => return s
       }
-    }
-    else
+    } else
       parent.findModel(modelName)
   }
-  
+
   var suppliedSchema : Option[Node] = None
-  
-  def run(schema: Option[Node] = None) = {
+
+  def run(schema : Option[Node] = None) = {
     suppliedSchema = schema
     val sch = schema match {
       case Some(sch) => {
@@ -193,7 +216,6 @@ case class ParserTestCase(ptc: NodeSeq, val parent: DFDLTestSuite) {
     // assert(Validator.validateXMLNodes(sch, actualNoAttrs) != null)
     val expected = infoset.contents
 
-   
     assertEquals(expected, actualNoAttrs)
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
@@ -201,7 +223,7 @@ case class ParserTestCase(ptc: NodeSeq, val parent: DFDLTestSuite) {
   }
 }
 
-case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
+case class DefinedSchema(xml : Node, parent : DFDLTestSuite) {
   lazy val xsdSchema = (xml \ "schema")(0)
   lazy val name = (xml \ "@name").text.toString
 }
@@ -212,7 +234,7 @@ case object Byte extends DocumentContentType
 // TODO: add a Bits type so one can do 0110 1101 0010 0000 and so forth.
 // TODO: add capability to specify character set encoding into which text is to be converted (all UTF-8 currently)
 
-case class Document(d: NodeSeq, parent: ParserTestCase) {
+case class Document(d : NodeSeq, parent : ParserTestCase) {
   lazy val realDocumentParts = (d \ "documentPart").map { node => new DocumentPart(node, this) }
   lazy val documentParts = realDocumentParts match {
     case Seq() => {
@@ -235,13 +257,13 @@ case class Document(d: NodeSeq, parent: ParserTestCase) {
 
 }
 
-case class DocumentPart(part: Node, parent: Document) {
+case class DocumentPart(part : Node, parent : Document) {
   lazy val partContentType = (part \ "@type").toString match {
     case "text" => Text
     case "byte" => Byte
   }
   lazy val partRawContent = part.child.text
-  lazy val convertedContent: Seq[Byte] = partContentType match {
+  lazy val convertedContent : Seq[Byte] = partContentType match {
     case Text => partRawContent.getBytes
     case Byte => hexContentToBytes
   }
@@ -257,15 +279,14 @@ case class DocumentPart(part: Node, parent: Document) {
   //
   lazy val hexDigits = partRawContent.flatMap { ch => if (validHexDigits.contains(ch)) List(ch) else Nil }
 
-
 }
 
-case class Infoset(i: NodeSeq, parent: ParserTestCase) {
+case class Infoset(i : NodeSeq, parent : ParserTestCase) {
   lazy val Seq(dfdlInfoset) = (i \ "dfdlInfoset").map { node => new DFDLInfoset(Utility.trim(node), this) }
   lazy val contents = dfdlInfoset.contents
 }
 
-case class DFDLInfoset(di: Node, parent: Infoset) {
+case class DFDLInfoset(di : Node, parent : Infoset) {
   lazy val Seq(contents) = {
     val c = di.child(0)
     val expected = Utility.trim(c) // must be exactly one root element in here.

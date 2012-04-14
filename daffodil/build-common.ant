@@ -128,18 +128,25 @@
 changed test to test against the jar. Before it would test
 against the class files, and then make the jar only if the tests 
 were successful
+
+Also, forks now (because of out-of-memory problems). Due to message race-conditions from the forked java command, we have to sleep a bit. 
  -->
-	<target name="test" depends="jar, compileTest" unless="skipTests"
-  	description="Runs the unit tests, with only the src jar on the classpath, not the class files.">
+	<target name="test" depends="jar, install, compileTest" unless="skipTests"
+  	 	description="Runs the unit tests, with only the src jar on the classpath, not the class files.">
 		<java classname="org.scalatest.tools.Runner" failonerror="true">
+		     <!-- fork="true" maxMemory="1200m" -->
 			<classpath>
 				<fileset dir="${basedir}/lib" includes="**/*.jar"/>
+				<fileset dir="${rootdir}/lib" includes="**/*.jar"/>
 				<path refid="scala.classpath"/>
-				<pathelement location="${target}/${jar.name}"/>
+				<!-- <pathelement location="${target}/${jar.name}"/> -->
 				<pathelement location="${bin-test}"/>
 			</classpath>
-			<arg line="-o -p ${bin-test}"/>
+			<arg line=" -o -p ${bin-test}"/>
+
+		       <!-- <jvmarg value="-Xmx1200m -Xms40m -Xss2m"/> -->
 		</java>
+		<sleep seconds="2"/>
 	</target>
 
 
@@ -153,6 +160,11 @@ were successful
 	    description="Installs the jar into the top-level lib directory">
 		<mkdir dir="${rootdir}/lib"/>
 		<copy todir="${rootdir}/lib" file="${target}/${jar.name}"/>
+		<copy todir="${rootdir}/lib" flatten="true">
+			<fileset dir="${basedir}/lib">
+				<include name="**/*.jar"/>
+                        </fileset>
+                </copy>
 	</target>
 
 

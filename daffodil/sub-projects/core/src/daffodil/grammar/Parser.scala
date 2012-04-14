@@ -8,7 +8,6 @@ import daffodil.exceptions.Assert
 import daffodil.schema.annotation.props._
 
 import daffodil.dsom._
-import daffodil.parser._
 import daffodil.api._
 import java.nio._
 import java.nio.charset._

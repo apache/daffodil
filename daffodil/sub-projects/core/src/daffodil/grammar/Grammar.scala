@@ -136,18 +136,17 @@ class Prod(nameArg : String, sc : SchemaComponent, guard : Boolean, gramArg : =>
 
   val gram = {
     if (guard) {
-      System.err.println("Start Prod " + containingClassName + ".Prod." + name)
+//      System.err.println("Start Prod " + containingClassName + ".Prod." + name)
       val e = gramArg
-      System.err.print("End Prod " + containingClassName + ".Prod." + name)
-      if (e.isEmpty)
-        System.err.println(" empty.")
-      else
-        System.err.println(" ok:" + e)
+//      System.err.print("End Prod " + containingClassName + ".Prod." + name)
+//      if (e.isEmpty)
+//        System.err.println(" empty.")
+//      else
+//        System.err.println(" ok:" + e)
       e
     } 
     else {
-      System.err.print("Prod " + name)
-      System.err.println(" empty.")
+      System.err.println("Prod " + name + " removed.")
       EmptyGram
     }
   }

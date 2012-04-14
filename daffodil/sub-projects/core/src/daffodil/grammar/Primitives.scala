@@ -105,11 +105,12 @@ case class StringFixedLengthInVariableWidthCharacters(e : ElementBaseMixin, nCha
 
 case class StringDelimited(e : LocalElementBase) extends Terminal(e, true) {
   lazy val tm = e.terminatingMarkup
-  lazy val tmStrings = tm.map {_.constantAsString}
+  // TODO: Guard should insist all delimiters are constants if that is what is requried.
+  lazy val tmStrings = tm.map {_.constantAsString} // TODO: allow these to be evaluated, not constant.
   lazy val tmStringLengths = tmStrings.map{_.length}
   lazy val maxLen = tmStringLengths.foldLeft(0) {(a,b) => math.max(a,b)}
   lazy val minLen = tmStringLengths.foldLeft(maxLen) {(a,b) => math.min(a,b)}
-  Assert.invariant(maxLen > 0)
+  Assert.invariant(maxLen > 0) // TODO: SDE
   
   val orderedStrings = tmStrings.sortWith((a, b) => a.length < b.length)
   
@@ -120,6 +121,8 @@ case class StringDelimited(e : LocalElementBase) extends Terminal(e, true) {
   def quoteForRegEx(string : String) = {
     "\\Q" + string + "\\E"
   }
+  
+  //TODO: take DFDL EscapeSchemes into account - "escape" type and "block" type
 
   def parser: Parser = new Parser {
     override def toString = "StringDelimited"

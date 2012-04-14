@@ -4,6 +4,8 @@ import scala.xml._
 import daffodil.xml.XMLUtils
 import daffodil.xml.XMLUtils._
 import junit.framework.Assert.assertEquals
+import java.io.File
+import java.io.FileNotFoundException
 
 /*
  * This is not a file of tests.
@@ -46,6 +48,45 @@ object TestUtils {
     val exp = XMLUtils.removeAttributes(expected)
     val act = XMLUtils.removeAttributes(actual)
     assertEquals(exp, act)
+  }
+  
+  
+  /**
+   * We want to be able to run tests from Eclipse or from batch builds that
+   * are rooted in a different directory, so, since Java/JVMs don't have a notion
+   * of setting the current directory to a specific value for interpreting things,
+   * we have to do that ourselves manually like this.
+   * 
+   * When you specify a file for use in a test, you want to specify it 
+   * relative to the root of the sub-project of which it is part. I.e., within core,
+   * the file you specify should be relative to daffodil/sub-projects/core.
+   *
+   * Returns null if the file cannot be found.
+   */
+  def findFile(fn : String) : File = findFile(new File(fn))
+  def findFile(f : File) : File = {
+    if (f.exists()) return f
+    // let's figure out where paths are defaulting to....
+    val cwd = new File("").getAbsolutePath()
+    if (cwd.endsWith("daffodil/sub-projects/core")) {
+        // we're rooted in the core module
+        // not sure why the path wouldn't be right from here, this is where our 
+        // tdml relative paths are supposed to be relative to.
+        //
+        // We could try stripping prefixes off of f's path,...
+        // For now we'll just give up.
+        System.err.println("Couldn't find file " + f + " relative to " + cwd + ".")
+        return null
+    }
+    if (cwd.endsWith("daffodil")) {
+        // I think we're rooted at the overall daffodil project root.
+        // Let's check
+        val coreRelativePath = cwd + "/sub-projects/core/" + f.getPath()
+        val coreF = new File(coreRelativePath)
+        if (coreF.exists()) return coreF
+    }
+    // throw new FileNotFoundException("Couldn't find file " + f + " relative to " + cwd + ".")
+    null
   }
   
   

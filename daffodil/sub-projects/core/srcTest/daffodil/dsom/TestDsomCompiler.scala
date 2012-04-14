@@ -121,7 +121,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val apf = new DomAnnotationParserFactory()
     parser.setAnnotationParser(apf)
 
-    val inFile = new File("test/first.xsd")
+    val inFile = new File(TestUtils.findFile("test/first.xsd"))
 
     parser.parse(inFile)
 
@@ -207,8 +207,9 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals("37", actualString)
   }
 
+ 
   def test3 {
-    val testSchema = XML.loadFile("test/example-of-most-dfdl-constructs.dfdl.xml")
+    val testSchema = XML.loadFile(TestUtils.findFile("test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
@@ -286,7 +287,7 @@ class TestDsomCompiler extends JUnit3Suite {
   }
 
   def test4 {
-    val testSchema = XML.loadFile("test/example-of-most-dfdl-constructs.dfdl.xml")
+    val testSchema = XML.loadFile(TestUtils.findFile("test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
@@ -310,10 +311,13 @@ class TestDsomCompiler extends JUnit3Suite {
 
   }
 
+  val testSchema = 
+      XML.loadFile(
+          TestUtils.findFile(
+              "test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml"))
+              
   def test_named_format_chaining {
-    val testSchema = XML.loadFile("test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml")
     val compiler = Compiler()
-
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
@@ -340,7 +344,6 @@ class TestDsomCompiler extends JUnit3Suite {
   }
   
   def test_simple_types_access_works {
-    val testSchema = XML.loadFile("test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml")
     val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
@@ -355,7 +358,7 @@ class TestDsomCompiler extends JUnit3Suite {
   }
   
   def test_simple_types_property_combining {
-    val testSchema = XML.loadFile("test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml")
+   
     val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
@@ -457,7 +460,7 @@ class TestDsomCompiler extends JUnit3Suite {
       found
     }
     
-    val testSchema = XML.loadFile("test/example-of-most-dfdl-constructs.dfdl.xml")
+    val testSchema = XML.loadFile(TestUtils.findFile("test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
@@ -504,7 +507,7 @@ class TestDsomCompiler extends JUnit3Suite {
       found
     }
     
-    val testSchema = XML.loadFile("test/example-of-most-dfdl-constructs.dfdl.xml")
+    val testSchema = XML.loadFile(TestUtils.findFile("test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)

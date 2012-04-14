@@ -1,14 +1,18 @@
 package daffodil
 
 import scala.xml.Utility
-
 import org.scalatest.junit.JUnit3Suite
-
 import daffodil.debugger.DebugUtil
 import daffodil.dsom.Compiler
 import daffodil.xml.XMLUtils
 import junit.framework.Assert.assertEquals
+import java.io.File
+import java.io.FileNotFoundException
+import daffodil.util.TestUtils
 
+/**
+ * TODO: this test rig should go away and all these tests should be rewritten into TDML.
+ */
 object TestRig {
   def doTest(schemaFileName: String, rootName: String, inputFileName: String, expectedFileName: String) {
     val compiler = daffodil.dsom.Compiler()
@@ -16,24 +20,27 @@ object TestRig {
       compiler.setDebugging(true)
     compiler.setDistinguishedRootNode(rootName)
     val testDir = "test/"
-    System.err.print("\nTest " + inputFileName)
-    val parserFactory = DebugUtil.time("Compiling schema", compiler.compile(testDir + schemaFileName))
+    val schemaPath = testDir + schemaFileName
+    val schemaFile = TestUtils.findFile(schemaPath)
+    if (schemaFile == null || !schemaFile.exists) {
+        throw new FileNotFoundException(schemaPath)
+    }
+    System.err.println("\nTest " + inputFileName)
+    val parserFactory = DebugUtil.time("Compiling schema", compiler.compile(schemaFile.getAbsolutePath))
     val parser = parserFactory.onPath("/")
-    val data = Compiler.fileToReadableByteChannel(new java.io.File(testDir + inputFileName))
+    val data = Compiler.fileToReadableByteChannel(TestUtils.findFile(testDir + inputFileName))
     val result = parser.parse(data)
     val actual = Utility.trim(result)
-    val expectedXML = Utility.trim(scala.xml.XML.loadFile(testDir + expectedFileName))
+    val expectedXML = Utility.trim(scala.xml.XML.loadFile(TestUtils.findFile(testDir + expectedFileName)))
     val expectedNoAttrs = XMLUtils.removeAttributes(expectedXML)
     val actualNoAttrs = XMLUtils.removeAttributes(actual)
     assertEquals(expectedNoAttrs, actualNoAttrs) // Need to compare in a canonicalized manner.
-    System.err.print(" passed.")
   }
   val isDebug = false
 }
 
 class PassingTests extends JUnit3Suite {
   val doTest = TestRig.doTest _
-  Compiler.useNewBackend = false
   def testAA000() { doTest("AA.dfdl.xsd", "list", "AA000.in", "AA000.xml") }
   def testAF000() { doTest("AF.dfdl.xsd", "allZones", "AF000.in", "AF000.xml") }
   def testAF001() { doTest("AF.dfdl.xsd", "allZones", "AF001.in", "AF001.xml") }

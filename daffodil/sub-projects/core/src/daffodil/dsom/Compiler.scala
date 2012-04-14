@@ -101,19 +101,14 @@ class Compiler extends DFDL.Compiler {
 
   private def compileSchema(xml: Node): DFDL.ProcessorFactory = {
     val (sset, parser, rootElem) = commonCompile(xml)
-
-    if (Compiler.useNewBackend) {
-      newBackEnd(parser, sset, rootElem)
-    } else {
-      //
-      // old back-end....
-      //
-      Assert.notYetImplemented()
+    newBackEnd(parser, sset, rootElem)
+//      
+//       old back-end....
+//      
 //      val sp = new daffodil.parser.SchemaParser
 //      val schemaAsByteArrayStream = new ByteArrayInputStream(xml.toString.getBytes())
 //      sp.parse(schemaAsByteArrayStream) // parse the schema that is.
 //      backEnd(sp, sset)
-    }
   }
 
   def newBackEnd(parser : Parser, sset: SchemaSet, rootElem : GlobalElementDecl) = {
@@ -198,8 +193,6 @@ class Compiler extends DFDL.Compiler {
 
 
 object Compiler {
-  
-  var useNewBackend = true
   
   def apply() = new Compiler()
 

@@ -8,7 +8,7 @@ import daffodil.tdml.DFDLTestSuite
 
 class IBMTestsThatPass extends JUnit3Suite {
 
-  val testDir = "./test-suite/ibm-contributed/"
+  val testDir = "test-suite/ibm-contributed/"
   val tdml1 = testDir + "dpaext1.tdml"
   val tdml2 = testDir + "dpaext2.tdml"
   val runner1 = new DFDLTestSuite(new File(tdml1))
@@ -19,7 +19,7 @@ class IBMTestsThatPass extends JUnit3Suite {
  
 class IBMTestsThatThrow extends JUnit3Suite {
 
-  val testDir = "./test-suite/ibm-contributed/"
+  val testDir = "test-suite/ibm-contributed/"
   val tdml1 = testDir + "dpaext1.tdml"
   val tdml2 = testDir + "dpaext2.tdml"
   val runner1 = new DFDLTestSuite(new File(tdml1))

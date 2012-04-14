@@ -41,15 +41,15 @@ public class ResourceResolver implements LSResourceResolver {
 		for (String prefix : prefixesToTry) {
 			String sysIdFileSuffix = filePart(systemId);
 			String fn = prefix + sysIdFileSuffix;
-			System.out.print("trying to find NS " + namespaceURI
-					+ " in resource " + fn);
+//			System.out.print("trying to find NS " + namespaceURI
+//					+ " in resource " + fn);
 			inStream = this.getClass().getResourceAsStream("/" + fn);
 			if (inStream != null) {
 				isFound = true;
-				System.out.println("...found!");
+//				System.out.println("...found!");
 				break;
 			} else {
-				System.out.println("...nope!");
+//				System.out.println("...nope!");
 				continue;
 			}
 		}
@@ -76,13 +76,13 @@ public class ResourceResolver implements LSResourceResolver {
       String augmentedSystemId = prefix + sysIdFileSuffix;
       f = new File(augmentedSystemId);
       String abs = f.getAbsolutePath();
-      System.out.print("trying to find NS "+ namespaceURI + " in file " + abs);
+//      System.out.print("trying to find NS "+ namespaceURI + " in file " + abs);
       if (f.exists()) {
         isFound=true;
-        System.out.println("...found!");
+//        System.out.println("...found!");
         break;
       } else {
-        System.out.println("...nope!");
+//        System.out.println("...nope!");
         continue;
       }
     }

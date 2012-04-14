@@ -13,7 +13,7 @@ import daffodil.dsom.Compiler
 import tdml.DFDLTestSuite
 
 class TresysTests extends JUnit3Suite {
-  val testDir = "./test-suite/tresys-contributed/"
+  val testDir = "test-suite/tresys-contributed/"
   val tdml1 = testDir + "AA.tdml"
   val runner1 = new DFDLTestSuite(new File(tdml1))
 
