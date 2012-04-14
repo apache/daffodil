@@ -14,11 +14,41 @@ import tdml.DFDLTestSuite
 
 class TresysTests extends JUnit3Suite {
   val testDir = "test-suite/tresys-contributed/"
-  val tdml1 = testDir + "AA.tdml"
-  val runner1 = new DFDLTestSuite(new File(tdml1))
+  val aa = testDir + "AA.tdml"
+  val runnerAA = new DFDLTestSuite(new File(aa))
 
-  def test_AA000() { runner1.runOneTest("AA000") }
-
+  def test_AA000() { runnerAA.runOneTest("AA000") }
+  
+  val ab = testDir + "AB.tdml"
+  val runnerAB = new DFDLTestSuite(new File(ab))
+    
+  def test_AB000() { runnerAB.runOneTest("AB000") }
+  def test_AB001() { runnerAB.runOneTest("AB001") }
+  def test_AB002() { runnerAB.runOneTest("AB002") }
+  def test_AB003() { runnerAB.runOneTest("AB003") }
+  def test_AB004() { runnerAB.runOneTest("AB004") }
+  def test_AB005() { runnerAB.runOneTest("AB005") }
+  
+  /* Very big test data files, so each is in its own TDML file */
+//  val ab6 = testDir + "AB006.tdml"
+//  val runnerAB6 = new DFDLTestSuite(new File(ab6))
+//  def test_AB006() { runnerAB6.runOneTest("AB006") }
+//  val ab7 = testDir + "AB007.tdml"
+//  val runnerAB7 = new DFDLTestSuite(new File(ab7))
+//  def test_AB007() { runnerAB7.runOneTest("AB007") }
+//  val ab8 = testDir + "AB008.tdml"
+//  val runnerAB8 = new DFDLTestSuite(new File(ab8))
+//  def test_AB008() { runnerAB8.runOneTest("AB008") }
+//  val ab9 = testDir + "AB009.tdml"
+//  val runnerAB9 = new DFDLTestSuite(new File(ab9))
+//  def test_AB009() { runnerAB9.runOneTest("AB009") }
+  
+  val aj = testDir + "AJ.tdml"
+  val runnerAJ = new DFDLTestSuite(new File(aj))
+    
+  def test_AJ000() { runnerAJ.runOneTest("AJ000") }
+  def test_AJ001() { runnerAJ.runOneTest("AJ001") }
+  
   // Test related to Jira task DFDL-76
   def testSchemaReferentialIntegrityChecking() {
     // Schema below should error out, because name 'bar' isn't a valid internal reference to the type. It should

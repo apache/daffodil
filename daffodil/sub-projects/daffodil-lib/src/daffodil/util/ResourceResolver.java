@@ -75,7 +75,7 @@ public class ResourceResolver implements LSResourceResolver {
       String sysIdFileSuffix = filePart(systemId);
       String augmentedSystemId = prefix + sysIdFileSuffix;
       f = new File(augmentedSystemId);
-      String abs = f.getAbsolutePath();
+//      String abs = f.getAbsolutePath();
 //      System.out.print("trying to find NS "+ namespaceURI + " in file " + abs);
       if (f.exists()) {
         isFound=true;

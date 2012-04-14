@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="AA-BG" description="Original suite of AA through BG"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+
+	<parserTestCase name="AJ000" root="list" model="AJ.dfdl.xsd"
+		description="Tests variables and inputValueCalc">
+
+		<document>
+			<documentPart type="byte">00010203</documentPart>
+		</document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<x type="xsd:byte">0</x>
+					<y type="xsd:byte">1</y>
+					<z type="xsd:byte">2</z>
+					<w type="xsd:byte">3</w>
+				</list>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+	<parserTestCase name="AJ001" root="list" model="AJ.dfdl.xsd"
+		description="Tests variables and inputValueCalc">
+
+		<document>
+			<documentPart type="byte">FFFEFDFC</documentPart>
+		</document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<x type="xsd:byte">-1</x>
+					<y type="xsd:byte">-2</y>
+					<z type="xsd:byte">-3</z>
+					<w type="xsd:byte">-4</w>
+				</list>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+</testSuite>
