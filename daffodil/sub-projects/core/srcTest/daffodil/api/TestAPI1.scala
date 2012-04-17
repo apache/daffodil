@@ -239,5 +239,22 @@ class TestDFDLParser extends JUnit3Suite {
     val expected = <e1><s1>1.0</s1><s1>-1.0</s1><s1>4.7340609871421765E-270</s1><s1>0.0</s1><s2>NaN</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
+
+  def testTextDoubles() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="explicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="s1" type="xs:double" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>
+            <xs:element name="s2" type="xs:double" dfdl:lengthKind="explicit" dfdl:length="{ 8 }"/>
+            <xs:element name="s3" type="xs:double" dfdl:lengthKind="explicit" dfdl:length="{ 7 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = Compiler.testString(sch, "01.0;-1.0;4.15;0.31;8.6E-2001,234.9")
+    val expected = <e1><s1>1.0</s1><s1>-1.0</s1><s1>4.15</s1><s1>0.31</s1><s2>8.6E-200</s2><s3>1234.9</s3></e1>
+    TestUtils.assertEqualsXMLElements(expected, actual)
+  }
 }
 

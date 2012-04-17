@@ -7,7 +7,8 @@ import daffodil.schema.annotation.props.gen._
 import daffodil.xml._
 import daffodil.processors._
 import java.nio.CharBuffer
-
+import com.ibm.icu.text._
+import java.text.ParsePosition
 
 case class ElementBegin(e : ElementBaseMixin) extends Terminal(e, true) {
      def parser: Parser = new Parser {
@@ -178,6 +179,26 @@ case class ConvertTextIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
       resultState
      }
    }
+}
+
+case class ConvertTextDoublePrim(e: ElementBaseMixin) extends Terminal(e, true) {
+  def parser: Parser = new Parser {
+    def parse(start: PState): PState = {
+      val node = start.parent
+      val str = node.getText()
+
+      val resultState = try {
+        val df = new DecimalFormat()
+        val pos = new ParsePosition(0)
+        val num = df.parse(str, pos)
+        node.setText(num.doubleValue.toString)
+
+        start
+      } catch { case e: Exception => start.failed("Failed to convert to an xs:double") }
+
+      resultState
+    }
+  }
 }
 
 abstract class Primitive(e: PropertyMixin, guard: Boolean = false) 
