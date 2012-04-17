@@ -164,21 +164,26 @@ case class StringDelimited(e : LocalElementBase) extends Terminal(e, true) {
   }
 }
 
-case class ConvertTextIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
-   def parser : Parser = new Parser {
-     def parse(start: PState) : PState = {
-       val node = start.parent
-       val str = node.getText()
-       
-      val resultState =  try {
-         val i = str.toInt
-       // Node remains a string because of jdom
-         start
-       } catch {case e:Exception => start.failed("Failed to convert to an xs:int") }
-       
+case class ConvertTextIntPrim(e: ElementBaseMixin) extends Terminal(e, true) {
+  def parser: Parser = new Parser {
+    def parse(start: PState): PState = {
+      val node = start.parent
+      val str = node.getText()
+
+      val resultState = try {
+        //convert to NumberFormat to handle format punctuation such as , . $ & etc
+        //then get the value as an integer and convert to string
+        val df = new DecimalFormat()
+        val pos = new ParsePosition(0)
+        val num = df.parse(str, pos) 
+        node.setText(num.intValue.toString)
+
+        start
+      } catch { case e: Exception => start.failed("Failed to convert to an xs:int") }
+
       resultState
-     }
-   }
+    }
+  }
 }
 
 case class ConvertTextDoublePrim(e: ElementBaseMixin) extends Terminal(e, true) {
@@ -188,6 +193,8 @@ case class ConvertTextDoublePrim(e: ElementBaseMixin) extends Terminal(e, true) 
       val str = node.getText()
 
       val resultState = try {
+        //convert to NumberFormat to handle format punctuation such as , . $ & etc
+        //then get the value as a double and convert to string
         val df = new DecimalFormat()
         val pos = new ParsePosition(0)
         val num = df.parse(str, pos)

@@ -142,9 +142,16 @@ class TestDFDLParser extends JUnit3Suite {
   def testInt1() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>)
-    val actual = Compiler.testString(sch, "5")
-    TestUtils.assertEqualsXMLElements(<e1>5</e1>, actual)
+      <xs:element name="e1" dfdl:lengthKind="explicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+            <xs:element name="s2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)    
+    val actual = Compiler.testString(sch, "55,000")
+    TestUtils.assertEqualsXMLElements(<e1><s1>5</s1><s2>5000</s2></e1>, actual)
   }
 
   def testParseSequenceInt() {
