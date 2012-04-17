@@ -123,7 +123,7 @@ with AlignedMixin { self: ElementBaseMixin =>
     ieeeBinaryRepDouble | ibm390HexBinaryRepDouble)
 
   lazy val textDouble = Prod("textDouble", this, representation == Representation.Text,
-        Assert.notYetImplemented())    
+        standardTextDouble | zonedTextDouble)
     
   lazy val ieeeBinaryRepDouble = Prod("ieeeBinaryRepDouble", this,
       {
@@ -148,6 +148,12 @@ with AlignedMixin { self: ElementBaseMixin =>
     binaryFloatRep.isConstant && 
     binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString, 
     Assert.SDE("ibm390Hex not supported")) 
+
+  lazy val standardTextDouble = Prod("standardTextDouble", this, 
+      textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextDoublePrim(this))
+
+  lazy val zonedTextDouble = Prod("zonedTextDouble", this, 
+      textNumberRep == TextNumberRep.Zoned, Assert.SDE("Zoned not supported for float and double"))
       
   lazy val value = {
     val res = Prod("value", this, 
