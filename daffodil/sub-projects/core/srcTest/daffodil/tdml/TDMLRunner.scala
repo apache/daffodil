@@ -195,6 +195,7 @@ case class ParserTestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
       }
     }
     val compiler = Compiler()
+    compiler.setDistinguishedRootNode(root)
     val parser = compiler.compile(sch).onPath("/")
     val data = document.input
     val actual = parser.parse(data)

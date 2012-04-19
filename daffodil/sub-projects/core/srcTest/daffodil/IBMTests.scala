@@ -15,6 +15,11 @@ class IBMTestsThatPass extends JUnit3Suite {
   val runner2 = new DFDLTestSuite(new File(tdml2))
 
   def test_introduction_1_01() { runner1.runOneTest("introduction_1_01") }
+  def test_encoding_11_01() { runner1.runOneTest("encoding_11_01") }
+  def test_encoding_11_02() { runner1.runOneTest("encoding_11_02") }
+  def test_encoding_11_03() { runner1.runOneTest("encoding_11_03") }
+  def test_length_implicit_12_01() { runner1.runOneTest("length_implicit_12_01") }
+    
 }
  
 class IBMTestsThatThrow extends JUnit3Suite {
@@ -44,9 +49,6 @@ class IBMTestsThatThrow extends JUnit3Suite {
   def test_scoping_define_format_8_03() { runner1.runOneTest("scoping_define_format_8_03") }
   def test_scoping_define_format_8_04() { runner1.runOneTest("scoping_define_format_8_04") }
   def test_scoping_define_format_8_05() { runner1.runOneTest("scoping_define_format_8_05") }
-  def test_encoding_11_01() { runner1.runOneTest("encoding_11_01") }
-  def test_encoding_11_02() { runner1.runOneTest("encoding_11_02") }
-  def test_encoding_11_03() { runner1.runOneTest("encoding_11_03") }
   def test_alignment_bytes_12_01() { runner1.runOneTest("alignment_bytes_12_01") }
   def test_alignment_bytes_12_02() { runner1.runOneTest("alignment_bytes_12_02") }
   def test_alignment_bytes_12_03() { runner1.runOneTest("alignment_bytes_12_03") }
@@ -65,7 +67,6 @@ class IBMTestsThatThrow extends JUnit3Suite {
   def test_length_delimited_12_04() { runner1.runOneTest("length_delimited_12_04") }
   def test_length_delimited_12_05() { runner1.runOneTest("length_delimited_12_05") }
   def test_length_delimited_12_06() { runner1.runOneTest("length_delimited_12_06") }
-  def test_length_implicit_12_01() { runner1.runOneTest("length_implicit_12_01") }
   def test_length_implicit_12_02() { runner1.runOneTest("length_implicit_12_02") }
   def test_length_explicit_12_03() { runner1.runOneTest("length_explicit_12_03") }
 

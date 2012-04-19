@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="AA-BG" description="Original suite of AA through BG"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+
+	<parserTestCase name="nest1" root="nest1" model="nested-separator-delimited.dfdl.xsd"
+		description="Unambiguous nested separators, no terminators.">
+
+		<document>
+			<documentPart type="text"><![CDATA[0,1,2;3,4,5;6,7;8;9!]]></documentPart>
+		</document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<nest1 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<a>0</a>
+					<a>1</a>
+					<a>2</a>
+					<a>3</a>
+					<a>4</a>
+					<a>5</a>
+					<a>6</a>
+					<a>7</a>
+					<a>8</a>
+					<a>9</a>
+				</nest1>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+	<parserTestCase name="nest2" root="nest2" model="nested-separator-delimited.dfdl.xsd"
+		description="Nested separators with same separator at multiple levels">
+
+		<document>
+			<documentPart type="text"><![CDATA[0ddd1ddd2;3ddd4ddd5;6ddd7;8;9!]]></documentPart>
+		</document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<nest2 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<b>
+					<a>0</a>
+					<a>1</a>
+					<a>2</a>
+					</b>
+					<b>
+					<a>3</a>
+					<a>4</a>
+					<a>5</a>
+					</b>
+					<b>
+					<a>6</a>
+					<a>7</a>
+					</b>
+					<b>
+					<a>8</a>
+					</b>
+					<b>
+					<a>9</a>
+					</b>
+				</nest2>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="nest3" root="nest3" model="nested-separator-delimited.dfdl.xsd"
+		description="Nested separators with separators that share prefixes at multiple levels">
+
+		<document>
+<documentPart type="text"><![CDATA[0d1d2dd3d4d5dd6d7dd8dd9ddd]]></documentPart>
+		</document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<nest3 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<b>
+					<a>0</a>
+					<a>1</a>
+					<a>2</a>
+					</b>
+					<b>
+					<a>3</a>
+					<a>4</a>
+					<a>5</a>
+					</b>
+					<b>
+					<a>6</a>
+					<a>7</a>
+					</b>
+					<b>
+					<a>8</a>
+					</b>
+					<b>
+					<a>9</a>
+					</b>
+				</nest3>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+	
+
+</testSuite>

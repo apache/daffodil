@@ -4,7 +4,7 @@
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
 
 	<parserTestCase name="AB000" root="list" model="AB.dfdl.xsd"
-		description="Tests variables and inputValueCalc">
+		description="CSV-style tests">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,1,2,3,4
@@ -44,7 +44,7 @@
 	</parserTestCase>
 
 	<parserTestCase name="AB001" root="list" model="AB.dfdl.xsd"
-		description="Tests variables and inputValueCalc">
+		description="CSV-style tests">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,1,2,3,4
@@ -85,7 +85,7 @@
 	</parserTestCase>
 
 	<parserTestCase name="AB002" root="list" model="AB.dfdl.xsd"
-		description="Tests variables and inputValueCalc">
+		description="CSV-style tests">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,1,2,3,4
@@ -127,7 +127,7 @@
 	</parserTestCase>
 
 	<parserTestCase name="AB003" root="list" model="AB.dfdl.xsd"
-		description="Tests variables and inputValueCalc">
+		description="CSV-style tests">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,1,2,3,4
@@ -165,7 +165,7 @@
 	</parserTestCase>
 
 	<parserTestCase name="AB004" root="list" model="AB.dfdl.xsd"
-		description="Tests variables and inputValueCalc">
+		description="CSV-style tests">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,1,2,3,4
@@ -205,7 +205,7 @@
 	</parserTestCase>
 
 	<parserTestCase name="AB005" root="list" model="AB.dfdl.xsd"
-		description="Tests variables and inputValueCalc">
+		description="CSV-style tests">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,1,2,3,4

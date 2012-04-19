@@ -4,7 +4,7 @@
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
 
 	<parserTestCase name="AJ000" root="list" model="AJ.dfdl.xsd"
-		description="Tests variables and inputValueCalc">
+		description="Simple binary tests">
 
 		<document>
 			<documentPart type="byte">00010203</documentPart>
@@ -25,7 +25,7 @@
 	</parserTestCase>
 
 	<parserTestCase name="AJ001" root="list" model="AJ.dfdl.xsd"
-		description="Tests variables and inputValueCalc">
+		description="Simple Binary tests">
 
 		<document>
 			<documentPart type="byte">FFFEFDFC</documentPart>
