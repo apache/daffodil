@@ -144,7 +144,44 @@ with AlignedMixin { self: ElementBaseMixin =>
 
   lazy val zonedTextDouble = Prod("zonedTextDouble", this, 
       textNumberRep == TextNumberRep.Zoned, Assert.SDE("Zoned not supported for float and double"))
-      
+
+
+  lazy val binaryFloat = Prod("binaryFloat", this, representation == Representation.Binary,
+    ieeeBinaryRepFloat | ibm390HexBinaryRepFloat)
+
+  lazy val textFloat = Prod("textFloat", this, representation == Representation.Text,
+        standardTextFloat | zonedTextFloat)
+
+  lazy val ieeeBinaryRepFloat = Prod("ieeeBinaryRepFloat", this,
+    {
+      val bfr = binaryFloatRep
+      val res = bfr.isConstant &&
+        BinaryFloatRep(bfr.constantAsString) == BinaryFloatRep.Ieee
+      res
+    },
+    lengthKind match {
+      case LengthKind.Implicit => {
+        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString) match {
+          case ByteOrder.BigEndian => BigEndianFloatPrim(this)
+          case ByteOrder.LittleEndian => LittleEndianFloatPrim(this)
+        }
+        else Assert.notYetImplemented()
+      }
+      case _ => Assert.notYetImplemented()
+    })
+
+  lazy val ibm390HexBinaryRepFloat = Prod("ibm390HexBinaryRepFloat", this,
+    binaryFloatRep.isConstant && 
+    binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString, 
+    Assert.SDE("ibm390Hex not supported")) 
+
+  lazy val standardTextFloat = Prod("standardTextFloat", this, 
+      textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextFloatPrim(this))
+
+  lazy val zonedTextFloat = Prod("zonedTextFloat", this, 
+      textNumberRep == TextNumberRep.Zoned, Assert.SDE("Zoned not supported for float and double"))
+
+
   lazy val value = {
     val res = Prod("value", this, 
         // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
@@ -152,11 +189,12 @@ with AlignedMixin { self: ElementBaseMixin =>
       typeDef match {
       case prim : PrimitiveType => {
         val n = prim.name
-        Assert.notYetImplemented(n != "string" && n != "int" && n != "double")
+        Assert.notYetImplemented(n != "string" && n != "int" && n != "double" && n != "float")
         n match {
           case "string" => stringValue
           case "int" => binaryInt | textInt
           case "double" => binaryDouble | textDouble
+          case "float" => binaryFloat | textFloat
           case _ => Assert.schemaDefinitionError("Unrecognized primitive type: " + n)
         }
       }

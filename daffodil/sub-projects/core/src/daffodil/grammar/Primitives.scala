@@ -214,6 +214,29 @@ case class ConvertTextDoublePrim(e: ElementBaseMixin) extends Terminal(e, true) 
   }
 }
 
+case class ConvertTextFloatPrim(e: ElementBaseMixin) extends Terminal(e, true) {
+  def parser: Parser = new Parser {
+    def parse(start: PState): PState = {
+      val node = start.parent
+      val str = node.getText()
+
+      val resultState = try {
+        //convert to NumberFormat to handle format punctuation such as , . $ & etc
+        //then get the value as a float and convert to string
+        val df = new DecimalFormat()
+        val pos = new ParsePosition(0)
+        val num = df.parse(str, pos)
+        node.setText(num.floatValue.toString)
+
+        start
+      } catch { case e: Exception => start.failed("Failed to convert to an xs:float") }
+
+      resultState
+    }
+  }
+}
+
+
 abstract class Primitive(e: PropertyMixin, guard: Boolean = false) 
 extends Terminal(e, guard) {
     override def toString = "Prim[" + name + "]"
@@ -266,6 +289,28 @@ case class BigEndianDoublePrim(e : ElementBaseMixin) extends Terminal(e, true) {
 case class LittleEndianDoublePrim(e : ElementBaseMixin) extends Terminal(e, true) {
   def parser = new DoublePrim(java.nio.ByteOrder.LITTLE_ENDIAN)
 }
+
+
+case class FloatPrim(byteOrder: java.nio.ByteOrder) extends Parser {
+  def parse(start : PState) : PState = {
+    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) start.failed("Not enough bits to create an xs:float")
+    else {
+      val value = start.inStream.getFloat(start.bitPos, byteOrder)
+      start.parent.addContent(new org.jdom.Text(value.toString))
+      val postState = start.withPos(start.bitPos + 32, -1)
+      postState
+    }
+  }
+}
+
+case class BigEndianFloatPrim(e : ElementBaseMixin) extends Terminal(e, true) {
+  def parser = new FloatPrim(java.nio.ByteOrder.BIG_ENDIAN)
+}
+
+case class LittleEndianFloatPrim(e : ElementBaseMixin) extends Terminal(e, true) {
+  def parser = new FloatPrim(java.nio.ByteOrder.LITTLE_ENDIAN)
+}
+
 
 class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) extends Terminal(e, guard) {
   def parser: Parser = new Parser {

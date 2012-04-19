@@ -285,6 +285,7 @@ trait InStream {
   
   def getInt(bitPos : Long, order : java.nio.ByteOrder) : Int
   def getDouble(bitPos : Long, order : java.nio.ByteOrder) : Double
+  def getFloat(bitPos : Long, order : java.nio.ByteOrder) : Float
 
   // def fillCharBufferUntilDelimiterOrEnd
 }
@@ -376,5 +377,11 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
    double
   }
   
+  def getFloat(bitPos: Long, order: java.nio.ByteOrder) = {
+    Assert.invariant(bitPos % 8 == 0)
+    val bytePos = (bitPos >> 3).toInt
+    bb.order(order)
+    bb.getFloat(bytePos)
+  }
 }
 
