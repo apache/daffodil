@@ -166,6 +166,9 @@ case class StringDelimited(e : LocalElementBase) extends Terminal(e, true) {
 
 case class ConvertTextIntPrim(e: ElementBaseMixin) extends Terminal(e, true) {
   def parser: Parser = new Parser {
+    
+    override def toString = "to(xs:int)"
+      
     def parse(start: PState): PState = {
       val node = start.parent
       val str = node.getText()
@@ -188,6 +191,9 @@ case class ConvertTextIntPrim(e: ElementBaseMixin) extends Terminal(e, true) {
 
 case class ConvertTextDoublePrim(e: ElementBaseMixin) extends Terminal(e, true) {
   def parser: Parser = new Parser {
+    
+    override def toString = "to(xs:double)"
+          
     def parse(start: PState): PState = {
       val node = start.parent
       val str = node.getText()
@@ -217,6 +223,7 @@ extends Terminal(e, guard) {
 case class ZonedTextIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
 
 class Regular32bitIntPrim(byteOrder: java.nio.ByteOrder) extends Parser {
+	override def toString = "binary(xs:int, " + byteOrder + ")"
     def parse(start : PState) : PState = {
       if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) start.failed("Not enough bits to create an xs:int")
       else {
@@ -240,6 +247,7 @@ case class BCDIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
 
 
 case class DoublePrim(byteOrder: java.nio.ByteOrder) extends Parser {
+  override def toString = "binary(xs:double, " + byteOrder + ")"
   def parse(start : PState) : PState = {
     if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 64)) start.failed("Not enough bits to create an xs:double")
     else {
@@ -348,7 +356,7 @@ case class Nothing(sc : SchemaComponent) extends Terminal(sc, true) {
 case class GroupPosGreaterThan(n: Long, term: Term, guard: Boolean = true) extends Terminal(term, guard) {
      def parser: Parser = new Parser {
      
-      override def toString = "GroupPosGreaterThan"
+      override def toString = "GroupPosGreaterThan(" + n + ")"
 
       def parse(start : PState) : PState = {
     	val res = if (start.groupPos > 1) {

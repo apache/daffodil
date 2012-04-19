@@ -2,7 +2,18 @@ package daffodil.dsom
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import daffodil.exceptions.Assert
 
+/**
+ * Replace character entities, as well as hex/decimal numeric character entities by their unicode codepoint values.
+ * 
+ * Deals with self-escaping of the '%' which introduces a DFDL character entity.
+ * 
+ * Does not deal with raw %#rHH; entities. Those have to be preserved because they get interpreted differently
+ * depending on how the string literal is used. Similarly the character class entities like %WSP*; which are used
+ * to provide pattern match literals (like delimiters). 
+ * 
+ */
 class EntityReplacer {
 
   lazy val dfdlEntityName = "NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC[1-4]|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|NBSP|NEL|LS"
@@ -69,10 +80,10 @@ class EntityReplacer {
     m.find()
   }
 
-  def replaceHex(input: String): String = {
+  def replaceHexOrDecimal(input: String, base : Int, prefix : String): String = {
     var res: String = input
 
-    // While we have Hex Code Points in the string
+    // While we have Hex or Decimal Code Points in the string
     // Find and replace with their character equivalents.
     while (hasHexCodePoint(res)) {
       val p: Pattern = hexPattern
@@ -80,8 +91,8 @@ class EntityReplacer {
 
       if (m.find()) {
         val rawStr = m.group().toString()
-        val trimmedStr = rawStr.replace("%#x", "").replace(";", "")
-        val intStr = Integer.parseInt(trimmedStr, 16)
+        val trimmedStr = rawStr.replace(prefix, "").replace(";", "")
+        val intStr = Integer.parseInt(trimmedStr, base)
 
         res = res.replaceAll(rawStr, intStr.asInstanceOf[Char].toString())
         m = p.matcher(res) // update Matcher
@@ -90,27 +101,13 @@ class EntityReplacer {
 
     res
   }
+    
+  def replaceHex(input: String): String = {
+   replaceHexOrDecimal(input, 16, "%#x")
+  }
 
   def replaceDecimal(input: String): String = {
-    var res: String = input
-
-    // While we have Decimal Code Points in the string
-    // Find and replace with their character equivalents.
-    while (hasDecimalCodePoint(res)) {
-      val p: Pattern = decPattern
-      var m: Matcher = p.matcher(res)
-
-      if (m.find()) {
-        val rawStr = m.group().toString()
-        val trimmedStr = rawStr.replace("%#", "").replace(";", "")
-        val intStr = Integer.parseInt(trimmedStr)
-
-        res = res.replaceAll(rawStr, intStr.asInstanceOf[Char].toString())
-        m = p.matcher(res) // update Matcher
-      }
-    }
-
-    res
+   replaceHexOrDecimal(input, 10, "%#")
   }
 
   def replaceDfdlEntity(input: String): String = {
@@ -149,4 +146,46 @@ class EntityReplacer {
     res
   }
 
+}
+
+object EntityReplacer extends EntityReplacer
+
+abstract class StringLiteralBase(rawArg : String) {
+  val raw : String = rawArg
+  def cooked : String
+}
+
+/**
+ * String values in the infoset, string results of DFDL's xpath-like expressions are of this kind.
+ * 
+ *  This is the kind of string literal you can use within an expression. 
+ */
+class StringValueAsLiteral(rawArg : String) 
+  extends StringLiteralBase(rawArg) {
+  def cooked = EntityReplacer.replaceAll(raw)
+}
+
+class SingleCharacterLiteral(rawArg : String)
+extends StringValueAsLiteral(rawArg) {
+  Assert.schemaDefinition(cooked.length == 1, "Length of string must be exactly 1 character.")
+}
+
+class OneDelimiterLiteral(rawArg : String)
+extends StringLiteralBase(rawArg) {
+  def cooked = EntityReplacer.replaceAll(raw)
+  // deal with raw bytes entities
+  // deal with character class entities
+  
+  /**
+   *  return a regex matcher that matches this individual delimiter
+   */
+  def matcher = {
+    Assert.notYetImplemented()
+  }
+  
+}
+  
+class ListOfDelimiters(rawArg : String) 
+extends StringLiteralBase(rawArg) {
+    def cooked = EntityReplacer.replaceAll(raw)
 }

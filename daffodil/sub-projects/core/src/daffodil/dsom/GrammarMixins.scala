@@ -52,31 +52,21 @@ with AlignedMixin { self: ElementBaseMixin =>
   
   def allowedValue : Prod // provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
 
-  
-  lazy val stringFixedLengthInBytesWithFixedWidthCharacters = Prod("stringFixedLengthInBytesWithFixedWidthCharacters", this, 
-      lengthUnits == LengthUnits.Bytes && knownEncodingIsFixedWidth,
-      StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth)) // TODO: make sure it divides evenly.
-      
-  lazy val stringFixedLengthInBytesWithVariableWidthCharacters = Prod("stringFixedLengthInBytesWithVariableWidthCharacters", this, 
-      lengthUnits == LengthUnits.Bytes && couldBeVariableWidthEncoding,
-      StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength))
-      
-  lazy val stringFixedLengthInFixedWidthCharacters = Prod("stringFixedLengthInFixedWidthCharacters", this, 
-      lengthUnits == LengthUnits.Characters && knownEncodingIsFixedWidth,
-      StringFixedLengthInBytes(this, fixedLength * knownEncodingWidth))
-      
-  lazy val stringFixedLengthInVariableWidthCharacters = Prod("stringFixedLengthInVariableWidthCharacters", this, 
-      lengthUnits == LengthUnits.Characters && couldBeVariableWidthEncoding,
-      StringFixedLengthInVariableWidthCharacters(this, fixedLength))
-  
+
+  lazy val fixedLengthString = Prod("fixedLengthString", this, isFixedLength, 
+      (lengthUnits, knownEncodingIsFixedWidth) match {
+    case (LengthUnits.Bytes, true) =>  StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
+    case (LengthUnits.Bytes, false) => StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength)
+    case (LengthUnits.Characters, true) => StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength)
+    // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
+    // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
+    case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, fixedLength)
+    case (LengthUnits.Bits, _) => Assert.notYetImplemented()
+  })
     
   lazy val stringValue = {
     val res = Prod("stringValue", this, lengthKind match {
-    case LengthKind.Explicit if isFixedLength => 
-      stringFixedLengthInBytesWithFixedWidthCharacters |
-      stringFixedLengthInBytesWithVariableWidthCharacters |
-      stringFixedLengthInFixedWidthCharacters | 
-      stringFixedLengthInVariableWidthCharacters
+    case LengthKind.Explicit if isFixedLength => fixedLengthString
     case LengthKind.Delimited => {
       val thisAsLocal = this.asInstanceOf[LocalElementBase]
       thisAsLocal.stringDelimited

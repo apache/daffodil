@@ -113,6 +113,7 @@ class RepUnboundedParser(r: => Gram) extends Parser {
       val pNext = rParser.parse(pResult)
       if (pNext.status != Success) {
         pResult.restoreJDOM(cloneNode)
+        System.err.println("Failure suppressed.")
         return pResult
       }
       pResult = pNext
