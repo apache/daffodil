@@ -216,6 +216,9 @@ case class ConvertTextDoublePrim(e: ElementBaseMixin) extends Terminal(e, true) 
 
 case class ConvertTextFloatPrim(e: ElementBaseMixin) extends Terminal(e, true) {
   def parser: Parser = new Parser {
+    
+    override def toString = "to(xs:float)"
+      
     def parse(start: PState): PState = {
       val node = start.parent
       val str = node.getText()
@@ -292,6 +295,7 @@ case class LittleEndianDoublePrim(e : ElementBaseMixin) extends Terminal(e, true
 
 
 case class FloatPrim(byteOrder: java.nio.ByteOrder) extends Parser {
+  override def toString = "binary(xs:float, " + byteOrder + ")"
   def parse(start : PState) : PState = {
     if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) start.failed("Not enough bits to create an xs:float")
     else {
