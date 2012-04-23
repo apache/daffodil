@@ -164,26 +164,44 @@ case class StringDelimited(e : LocalElementBase) extends Terminal(e, true) {
   }
 }
 
-case class ConvertTextIntPrim(e: ElementBaseMixin) extends Terminal(e, true) {
+case class StringDelimitedNoEscapeSchemeNoTerminator(e : LocalElementBase) extends Terminal(e, true) {
+	val sequenceSeparator = e.nearestEnclosingSequence.get.separator
+	
   def parser: Parser = new Parser {
-    
-    override def toString = "to(xs:int)"
-      
+    override def toString = "StringDelimitedNoEscapeSchemeNoTerminator"
+    val decoder = e.knownEncodingDecoder
+    var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
+
     def parse(start: PState): PState = {
-      val node = start.parent
-      val str = node.getText()
+     
+      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
+      var bitOffset = 0L
+      
+      val (result, endBitPos) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(sequenceSeparator.constantAsString))
 
-      val resultState = try {
-        //convert to NumberFormat to handle format punctuation such as , . $ & etc
-        //then get the value as an integer and convert to string
-        val df = new DecimalFormat()
-        val pos = new ParsePosition(0)
-        val num = df.parse(str, pos) 
-        node.setText(num.intValue.toString)
+      val endCharPos = start.charPos + result.length()
+      val currentElement = start.parent
+      currentElement.addContent(new org.jdom.Text(result))
+      val postState = start.withPos(endBitPos, endCharPos)
 
-        start
-      } catch { case e: Exception => start.failed("Failed to convert to an xs:int") }
+      postState
+    }
+  }
+}
 
+
+case class ConvertTextIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
+   def parser : Parser = new Parser {
+     def parse(start: PState) : PState = {
+       val node = start.parent
+       val str = node.getText()
+       
+      val resultState =  try {
+         val i = str.toInt
+       // Node remains a string because of jdom
+         start
+       } catch {case e:Exception => start.failed("Failed to convert to an xs:int") }
+       
       resultState
     }
   }
@@ -327,12 +345,12 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) e
     Assert.notYetImplemented(e.ignoreCase == YesNo.Yes)
 
     Assert.invariant(delim != "") // shouldn't be here at all in this case.
-    override def toString = "'" + delim + "'"
+    override def toString = "StaticDelimiter(" + delim + ")"
     val decoder = e.knownEncodingDecoder
     val cbuf = CharBuffer.allocate(delim.length) // TODO: Performance: get a char buffer from a pool. 
 
     def parse(start: PState): PState = {
-      System.err.println("Parsing delimiter at bit position: " + start.bitPos)
+      //System.err.println("Parsing delimiter at bit position: " + start.bitPos)
       val in = start.inStream
       //
       // Lots of things could go wrong in here. We might be looking at garbage, so decoding will get errors, etc.
@@ -341,6 +359,9 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) e
       // No matter what goes wrong, we're counting on an orderly return here.
       //
       val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
+      
+//      println("BUF: " + cbuf.toString())
+      
       val result = 
         if (endBitPos == -1) "" // causes failure down below this
         else cbuf.toString

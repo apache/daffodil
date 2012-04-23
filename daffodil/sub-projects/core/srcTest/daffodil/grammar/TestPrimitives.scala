@@ -81,5 +81,26 @@ class TestPrimitives extends JUnit3Suite {
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
     assertEqualsXMLElements(expected, actual)  
   }
+  
+  def testLengthKindDelimited {
+     val sch = DFDLUtils.dfdlTestSchema(
+      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
+      <xs:element name="e1">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+      		<xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" />
+      		<xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = Compiler.testString(sch, "abcd,efgh")
+    val actualString = actual.toString
+    println(actual.toString())
+    assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
+    assertTrue(actualString.contains("><s1>abcd</s1><s2>efgh</s2></e1>"))
+
+    val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
+    assertEqualsXMLElements(expected, actual)  
+  }
 
 }
