@@ -327,39 +327,42 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     val endBytePos = bb.position()
     bb.position(0) // prevent anyone depending on the buffer position across calls to any of the InStream methods.
     val endBitPos: Long = endBytePos << 3
+    
     endBitPos
   }
 
-  def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): Long = {
-    Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
-    val byteOffsetAsLong = (bitOffset >> 3)
-    Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
-    val byteOffset = byteOffsetAsLong.toInt
-    // 
-    // Note: not thread safe. We're depending here on the byte buffer being private to us.
+  def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long) = {
+    var endBitPosA: Long = fillCharBuffer(cb, bitOffset, decoder)
+    var sb: StringBuilder = new StringBuilder	// To keep track of the searched text
+    val dSearch = new DelimSearcher
+    
+    delimiters foreach {
+      x => dSearch.addDelimiter(x)
+    }
+    
+    var result = dSearch.searchUntilDelimiter(cb, 0)
+    
+    sb.append(result._1)
+    
+    while (endBitPosA != -1L && cb.toString().length() > 0){
+      
+      endBitPosA = fillCharBuffer(cb, endBitPosA, decoder)
+      
+      result = dSearch.searchUntilDelimiter(cb, 0)
+      
+      sb.append(result._1)
+    }
+    
+    // Encode the found string in order to calculate
+    // the ending position of the ByteBuffer
     //
-    bb.position(byteOffset)
-    decoder.reset()
-    val cr1 = decoder.decode(bb, cb, true) // true means this is all the input you get.
-    if (cr1 != CoderResult.UNDERFLOW) {
-      if (cr1 == CoderResult.OVERFLOW) {
-        // it's ok. It just means we've satisfied the char buffer.
-      } else // for some parsing, we need to know we couldn't decode, but this is expected behavior.
-        return -1L // Assert.abort("Something went wrong while decoding characters: CoderResult = " + cr1)   
-    }
-    val cr2 = decoder.flush(cb)
-    if (cr2 != CoderResult.UNDERFLOW) {
-      // Something went wrong
-      return -1L // Assert.abort("Something went wrong while decoding characters: CoderResult = " + cr2) 
-      // FIXME: proper handling of errors. Some of which are 
-      // to be suppressed, other converted, others skipped, etc. 
-    }
-    cb.flip() // so the caller can now read the cb.
-
-    val endBytePos = bb.position()
-    bb.position(0) // prevent anyone depending on the buffer position across calls to any of the InStream methods.
-    val endBitPos: Long = endBytePos << 3
-    endBitPos
+    val charSet = decoder.charset()
+    val resBB = charSet.encode(sb.toString())
+    
+    // Calculate the new ending position of the ByteBuffer
+    endBitPosA = (resBB.limit() << 3) + bitOffset
+    
+    (sb.toString(), endBitPosA)
   }
 
   def getInt(bitPos: Long, order: java.nio.ByteOrder) = {

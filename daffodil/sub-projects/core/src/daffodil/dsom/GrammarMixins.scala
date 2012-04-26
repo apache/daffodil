@@ -69,7 +69,8 @@ with AlignedMixin { self: ElementBaseMixin =>
     case LengthKind.Explicit if isFixedLength => fixedLengthString
     case LengthKind.Delimited => {
       val thisAsLocal = this.asInstanceOf[LocalElementBase]
-      thisAsLocal.stringDelimited
+     // thisAsLocal.stringDelimited
+      thisAsLocal.stringDelimitedNoEscapeSchemeNoTerminator
     }
     case _ => Assert.notYetImplemented()
   })
@@ -321,6 +322,7 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
   lazy val separatedScalarNonDefault = Prod("separatedScalarNonDefault", this, isScalar, separatedForPosition(scalarNonDefault))
   lazy val separatedRecurringNonDefault = Prod("separatedRecurringNonDefault", this, !isScalar, separatedForPosition(scalarNonDefault))
   lazy val stringDelimited = Prod("stringDelimited", this, StringDelimited(this))
+  lazy val stringDelimitedNoEscapeSchemeNoTerminator = Prod("stringDelimitedNoEscapeSchemeNoTerminator", this, StringDelimitedNoEscapeSchemeNoTerminator(this))
   
   lazy val recurrance = Prod("recurrance", this, 
       !isScalar, 
