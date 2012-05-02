@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="scala" name="Scala">
+      <configuration>
+        <option name="compilerLibraryLevel" value="Global" />
+        <option name="compilerLibraryName" value="scala-compiler" />
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/dfdl-property-code-generator" isTestSource="false" packagePrefix="daffodil.schema.annotation.props" />
+      <sourceFolder url="file://$MODULE_DIR$/dfdl-property-code-generator/srcTest" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/core" />
+      <excludeFolder url="file://$MODULE_DIR$/daffodil-lib" />
+      <excludeFolder url="file://$MODULE_DIR$/orig" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="scala-library" level="project" />
+    <orderEntry type="module" module-name="Daffodil-lib" />
+    <orderEntry type="module" module-name="Datatype" />
+    <orderEntry type="library" name="libTest" level="project" />
+  </component>
+</module>
+
