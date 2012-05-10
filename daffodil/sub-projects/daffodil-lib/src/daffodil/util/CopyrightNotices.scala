@@ -62,7 +62,16 @@ Parts of this software are subject to the following copyright:
   //
   sys.addShutdownHook(useNotices)
  
-  add("""Copyright (C) 2011, 2012 by Michael J. Beckerle, All rights Reserved.
+  //
+  // Note to Tresys: Much of my work on Daffodil is copyright Tresys, as I began
+  // working for Tresys on Daffodil on Feb 1, 2012. However, I have contributed 
+  // quite a bit of code I created previous to that date to the project, (e.g., 
+  // the code-generator that reads the XML Schema for DFDL annotations and generates
+  // all the property code) so I have also included my personal copyright on those
+  // files, and here centrally.
+  //           - Mike Beckerle
+  // 
+  add("""Copyright (C) 2011, 2012 by Michael J. Beckerle, All rights reserved.
       Permission is granted to use this software for any purpose so long as 
       this copyright is preserved in both the source and binary forms, and
       in any documentation provided with the software. 

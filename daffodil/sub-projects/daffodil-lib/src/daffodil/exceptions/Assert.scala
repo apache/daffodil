@@ -32,6 +32,13 @@ object Assert extends Assert {
   
   
   def usage(testAbortsIfFalse: => Boolean, message: => String = "Usage error.") = {
+    usageErrorUnless(testAbortsIfFalse, message)
+  }
+  
+  /**
+   * Verbose name helps you get the sense of the predicate right.
+   */
+  def usageErrorUnless(testAbortsIfFalse: => Boolean, message: => String = "Usage error.") = {
     val r = testAbortsIfFalse
     if (!r)
       abort(message)
