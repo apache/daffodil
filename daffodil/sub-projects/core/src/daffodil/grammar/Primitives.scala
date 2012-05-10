@@ -9,6 +9,7 @@ import daffodil.processors._
 import java.nio.CharBuffer
 import com.ibm.icu.text._
 import java.text.ParsePosition
+import java.util.regex._
 
 case class ElementBegin(e : ElementBaseMixin) extends Terminal(e, true) {
      def parser: Parser = new Parser {
@@ -164,6 +165,31 @@ case class StringDelimited(e : LocalElementBase) extends Terminal(e, true) {
   }
 }
 
+//case class StringDelimitedNoEscapeSchemeNoTerminator(e : LocalElementBase) extends Terminal(e, true) {
+//	val sequenceSeparator = e.nearestEnclosingSequence.get.separator
+//	
+//  def parser: Parser = new Parser {
+//    override def toString = "StringDelimitedNoEscapeSchemeNoTerminator"
+//    val decoder = e.knownEncodingDecoder
+//    var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
+//
+//    def parse(start: PState): PState = {
+//     
+//      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
+//      var bitOffset = 0L
+//      
+//      val (result, endBitPos) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(sequenceSeparator.constantAsString))
+//
+//      val endCharPos = start.charPos + result.length()
+//      val currentElement = start.parent
+//      currentElement.addContent(new org.jdom.Text(result))
+//      val postState = start.withPos(endBitPos, endCharPos)
+//
+//      postState
+//    }
+//  }
+//}
+
 case class StringDelimitedNoEscapeSchemeNoTerminator(e : LocalElementBase) extends Terminal(e, true) {
 	val sequenceSeparator = e.nearestEnclosingSequence.get.separator
 	
@@ -171,14 +197,17 @@ case class StringDelimitedNoEscapeSchemeNoTerminator(e : LocalElementBase) exten
     override def toString = "StringDelimitedNoEscapeSchemeNoTerminator"
     val decoder = e.knownEncodingDecoder
     var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
+    //var cbuf = CharBuffer.allocate(4)
 
     def parse(start: PState): PState = {
      
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
       
+      println("sequenceSeparator: " + sequenceSeparator.constantAsString)
+      
       val (result, endBitPos) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(sequenceSeparator.constantAsString))
-
+      println("StringDelimited - endBitPos: " + endBitPos + " RESULT: " + result)
       val endCharPos = start.charPos + result.length()
       val currentElement = start.parent
       currentElement.addContent(new org.jdom.Text(result))
@@ -347,30 +376,50 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) e
     Assert.invariant(delim != "") // shouldn't be here at all in this case.
     override def toString = "StaticDelimiter(" + delim + ")"
     val decoder = e.knownEncodingDecoder
-    val cbuf = CharBuffer.allocate(delim.length) // TODO: Performance: get a char buffer from a pool. 
+    //val cbuf = CharBuffer.allocate(delim.length) // TODO: Performance: get a char buffer from a pool. 
+    val cbuf = CharBuffer.allocate(1024)
 
     def parse(start: PState): PState = {
       //System.err.println("Parsing delimiter at bit position: " + start.bitPos)
-      val in = start.inStream
+      //val in = start.inStream
+      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       //
       // Lots of things could go wrong in here. We might be looking at garbage, so decoding will get errors, etc.
       // Those should all count as "did not find the delimiter"
       //
       // No matter what goes wrong, we're counting on an orderly return here.
       //
-      val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
+      //val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
+      println("startBitPos: " + start.bitPos)
+      var (resultStr, endBitPos) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(delim))
       
-//      println("BUF: " + cbuf.toString())
+      //println("resultSTR:" + resultStr)
+     
+      println("BUF: " + cbuf.toString() + " ENDBITPOS: " + endBitPos)
+      
+     
+      val d = new stringsearch.delimiter.DelimNode
+      
+      d(delim)
+      val delimRegex = d.buildDelimRegEx
+      val p = Pattern.compile(delimRegex, Pattern.MULTILINE)
+      
       
       val result = 
         if (endBitPos == -1) "" // causes failure down below this
         else cbuf.toString
-        		 
-      if (result == delim) { // TODO: use string.compare and string.compareIgnoreCase so we can implement ignoreCase property.
+        
+      val m = p.matcher(result)
+      if (m.find()){ 
+      //if (result == delim) { // TODO: use string.compare and string.compareIgnoreCase so we can implement ignoreCase property.
         System.err.println("Found " + delim)
         System.err.println("Ended at bit position " + endBitPos)
-        val endCharPos = start.charPos + result.length
+        //val endCharPos = start.charPos + result.length
+        println("charPos: " + start.charPos)
+        val endCharPos = start.charPos + (m.end() - m.start())
+        endBitPos = 8 * endCharPos // TODO: Is this correct?
         val postState = start.withPos(endBitPos, endCharPos)
+        println("endCharPos: " + endCharPos)
         postState
       } else {
         val postState = start.withPos(start.bitPos, start.charPos, new Failure("Delimiter not found"))
