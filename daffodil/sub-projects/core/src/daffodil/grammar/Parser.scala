@@ -427,7 +427,7 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     
     println("CB: " + cb.toString())
     
-    var (theState, result, endPos) = dSearch.search(buf, 0)
+    var (theState, result, endPos) = dSearch.search2(buf, 0)
     
     if (theState == dSearch.SearchResult.FullMatch){
       sb.append(result)
