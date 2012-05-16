@@ -13,7 +13,7 @@ object Misc {
   def getNameFromClass(obj : Object) : String = {
     if (obj == null) return "null"
     val hexHash = obj.hashCode.formatted("%x")
-    val tokens = obj.getClass().getName().split("[\\$\\.]").toList.reverse
+    val tokens = obj.getClass.getName.split("[\\$\\.]").toList.reverse
     val Some(nameToken) = tokens.find{_.matches("""\p{Alpha}\w*""")}
     nameToken // + "@" + hexHash
   }
@@ -25,20 +25,24 @@ object Misc {
   }
   /**
    * Takes care of using the resource built-in to the jar, or 
-   * if we're just running interactively in eclipse, doesn't use the jar.
+   * if we're just running interactively in eclipse or Intellij, doesn't use the jar.
    */
   def getResourceOrFileStream (fn : String) : InputStream = {
-    var is = this.getClass().getResourceAsStream("/" + fn) // we want the /. Otherwise it uses the class's package name as part of path.
+    var is = this.getClass.getResourceAsStream(File.separator + fn) // we want the file path separation character. Otherwise it uses the class's package name as part of path.
     if (is == null) {
       var f = new File(fn)
       if (!f.exists()) {
-        f = new File ("../daffodil-lib/" + fn)
+        f = new File (".." + File.separator + "daffodil-lib" + File.separator + fn)                    // For Eclipse
         if (!f.exists()) {
-          val e = new FileNotFoundException(fn)
-          throw e
+          f = new File ("daffodil" + File.separator + "sub-projects" + File.separator + "daffodil-lib" + File.separator + fn)      // For Intellij
+          if (!f.exists()) {
+            System.out.println(f.getAbsolutePath)
+            val e = new FileNotFoundException(fn)
+            throw e
+          }
         }
       }
-      val abs = f.getAbsolutePath()
+      val abs = f.getAbsolutePath
       is = new FileInputStream(abs)
     }
     return is
@@ -53,7 +57,7 @@ object Misc {
    * the build number in the second slot. 
    */
   def getDaffodilVersion : Tuple2[String,String] = {
-    val implVersion = Package.getPackage("daffodil.util").getImplementationVersion()
+    val implVersion = Package.getPackage("daffodil.util").getImplementationVersion
     if (implVersion == null) {
       ("","")
     } else {
