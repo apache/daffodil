@@ -6,14 +6,13 @@ import daffodil.xml._
 import daffodil.processors._
 import daffodil.exceptions.Assert
 import daffodil.schema.annotation.props._
-
 import daffodil.dsom._
 import daffodil.api._
 import java.nio._
 import java.nio.charset._
 import stringsearch.DelimSearcherV3
-
 import scala.collection.JavaConversions._
+import scala.util.logging.ConsoleLogger
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
@@ -212,20 +211,20 @@ class PState(
     }
     s3
   }
-  
+
   def captureJDOM: Int = {
     parent.getContentSize()
   }
-  
+
   def restoreJDOM(previousContentSize: Int) = {
     for (i <- previousContentSize until parent.getContentSize()) {
-    	parent.removeContent(i)
+      parent.removeContent(i)
     }
     this
-//    val pp = parent.getParent().asInstanceOf[org.jdom.Element] // Parent's Parent.
-//    val pi :: ppi :: rest = childIndexStack
-//    pp.setContent(ppi.toInt, newElem)
-//    newElem
+    //    val pp = parent.getParent().asInstanceOf[org.jdom.Element] // Parent's Parent.
+    //    val pi :: ppi :: rest = childIndexStack
+    //    pp.setContent(ppi.toInt, newElem)
+    //    newElem
   }
 }
 
@@ -283,10 +282,10 @@ trait InStream {
   //  def getBinaryInt(bitOffset : Long,  isBigEndian : Boolean) : Int
 
   def fillCharBuffer(buf: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): Long
-  
-  def getInt(bitPos : Long, order : java.nio.ByteOrder) : Int
-  def getDouble(bitPos : Long, order : java.nio.ByteOrder) : Double
-  def getFloat(bitPos : Long, order : java.nio.ByteOrder) : Float
+
+  def getInt(bitPos: Long, order: java.nio.ByteOrder): Int
+  def getDouble(bitPos: Long, order: java.nio.ByteOrder): Double
+  def getFloat(bitPos: Long, order: java.nio.ByteOrder): Float
 
   // def fillCharBufferUntilDelimiterOrEnd
 }
@@ -326,14 +325,14 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     cb.flip() // so the caller can now read the cb.
 
     val endBytePos = bb.position()
-    
+
     bb.position(0) // prevent anyone depending on the buffer position across calls to any of the InStream methods.
     val endBitPos: Long = endBytePos << 3
-    
+
     endBitPos
   }
-  
-    // System.err.println("InStream byte count is " + count)
+
+  // System.err.println("InStream byte count is " + count)
   // note, our input data might just be empty string, in which case count is zero, and that's all legal.
   def fillCharBuffer2(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): (Long, Boolean) = {
     Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
@@ -362,131 +361,210 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     cb.flip() // so the caller can now read the cb.
 
     val endBytePos = bb.position()
-    
+
     var EOF: Boolean = bb.limit() == bb.position()
-    
+
     bb.position(0) // prevent anyone depending on the buffer position across calls to any of the InStream methods.
     val endBitPos: Long = endBytePos << 3
-    
+
     (endBitPos, EOF)
   }
 
-//  def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long) = {
-//    var endBitPosA: Long = fillCharBuffer(cb, bitOffset, decoder)
-//    var sb: StringBuilder = new StringBuilder	// To keep track of the searched text
-//    val dSearch = new DelimSearcher
-//    
-//    delimiters foreach {
-//      x => dSearch.addDelimiter(x)
-//    }
-//    
-//    var result = dSearch.searchUntilDelimiter(cb, 0)
-//    
-//    sb.append(result._1)
-//    
-//    while (endBitPosA != -1L && cb.toString().length() > 0){
-//      
-//      endBitPosA = fillCharBuffer(cb, endBitPosA, decoder)
-//      
-//      result = dSearch.searchUntilDelimiter(cb, 0)
-//      
-//      sb.append(result._1)
-//    }
-//    
-//    // Encode the found string in order to calculate
-//    // the ending position of the ByteBuffer
-//    //
-//    val charSet = decoder.charset()
-//    val resBB = charSet.encode(sb.toString())
-//    
-//    // Calculate the new ending position of the ByteBuffer
-//    endBitPosA = (resBB.limit() << 3) + bitOffset
-//    
-//    (sb.toString(), endBitPosA)
-//  }
-  
+  //  def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long) = {
+  //    var endBitPosA: Long = fillCharBuffer(cb, bitOffset, decoder)
+  //    var sb: StringBuilder = new StringBuilder	// To keep track of the searched text
+  //    val dSearch = new DelimSearcher
+  //    
+  //    delimiters foreach {
+  //      x => dSearch.addDelimiter(x)
+  //    }
+  //    
+  //    var result = dSearch.searchUntilDelimiter(cb, 0)
+  //    
+  //    sb.append(result._1)
+  //    
+  //    while (endBitPosA != -1L && cb.toString().length() > 0){
+  //      
+  //      endBitPosA = fillCharBuffer(cb, endBitPosA, decoder)
+  //      
+  //      result = dSearch.searchUntilDelimiter(cb, 0)
+  //      
+  //      sb.append(result._1)
+  //    }
+  //    
+  //    // Encode the found string in order to calculate
+  //    // the ending position of the ByteBuffer
+  //    //
+  //    val charSet = decoder.charset()
+  //    val resBB = charSet.encode(sb.toString())
+  //    
+  //    // Calculate the new ending position of the ByteBuffer
+  //    endBitPosA = (resBB.limit() << 3) + bitOffset
+  //    
+  //    (sb.toString(), endBitPosA)
+  //  }
+
   def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long) = {
     println("===\nSTART_FILL!\n===\n")
     val byteOffsetAsLong = (bitOffset >> 3)
-  
+
     val byteOffset = byteOffsetAsLong.toInt
-    
+
     println("BYTE_OFFSET: " + byteOffset)
     var endBitPosA: Long = fillCharBuffer(cb, bitOffset, decoder)
-    var sb: StringBuilder = new StringBuilder	// To keep track of the searched text
-    val dSearch = new DelimSearcherV3.DelimSearcher
+    var sb: StringBuilder = new StringBuilder // To keep track of the searched text
+    val dSearch = new DelimSearcherV3.DelimSearcher with ConsoleLogger
     var buf = cb
-    
+
     delimiters foreach {
       x => dSearch.addDelimiter(x)
     }
-    
+
     // --
     dSearch.printDelimStruct
     // --
-    
+
     println("CB: " + cb.toString())
-    
-    var (theState, result, endPos) = dSearch.search2(buf, 0)
-    
-    if (theState == dSearch.SearchResult.FullMatch){
+
+    //var (theState, result, endPos) = dSearch.search(buf, 0)
+    var (theState, result, endPos, endPosDelim) = dSearch.search2(buf, 0)
+
+    if (theState == dSearch.SearchResult.FullMatch) {
       sb.append(result)
     }
     var EOF: Boolean = false
-    
-    while ((theState == dSearch.SearchResult.EOF || theState == dSearch.SearchResult.PartialMatch) && endBitPosA != -1 && !EOF){
+
+    // Proceed until we encounter a FullMatch or EOF
+    while ((theState == dSearch.SearchResult.EOF || theState == dSearch.SearchResult.PartialMatch) && endBitPosA != -1 && !EOF) {
       buf.clear()
       buf = CharBuffer.allocate(buf.length() * 2)
-      
+
       val fillState = fillCharBuffer2(buf, bitOffset, decoder)
       endBitPosA = fillState._1
       EOF = fillState._2
-      
-      var (state2, result2, endPos2) = dSearch.search(buf, endPos, false)
+
+      //var (state2, result2, endPos2) = dSearch.search(buf, endPos, false)
+     // var (state2, result2, endPos2, endPosDelim2) = dSearch.search2(buf, endPos, false)
+      var (state2, result2, endPos2, endPosDelim2) = dSearch.search2(buf, 0, true)
       theState = state2
       endPos = endPos2
 
-      if (theState != dSearch.SearchResult.PartialMatch){
+      if (theState != dSearch.SearchResult.PartialMatch) {
         sb.append(result2)
       }
-      println("===\nEND_FILL!\n===\n")
     }
-    
+
     // Encode the found string in order to calculate
     // the ending position of the ByteBuffer
     //
     val charSet = decoder.charset()
     val resBB = charSet.encode(sb.toString())
-    
+
     println("ENDPOS_FillCharBuffer: " + endPos)
-    
+
     // Calculate the new ending position of the ByteBuffer
-    if (endPos != -1){
-    	endBitPosA = (endPos << 3) + bitOffset
+    if (endPos != -1) {
+      endBitPosA = (endPos << 3) + bitOffset
     } else {
-    	endBitPosA = (resBB.limit() << 3) + bitOffset
+      endBitPosA = (resBB.limit() << 3) + bitOffset
     }
-    
-    println(sb.toString() + ", " + endBitPosA)
-    
+
+    println("FILL - CB: " + sb.toString() + ", EndBitPos: " + endBitPosA)
+    println("===\nEND_FILL!\n===\n")
     (sb.toString(), endBitPosA)
+  }
+
+  def getDelimiter(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long, Long) = {
+    println("===\nSTART_GET_DELIMITER!\n===\n")
+    val byteOffsetAsLong = (bitOffset >> 3)
+
+    val byteOffset = byteOffsetAsLong.toInt
+
+    println("BYTE_OFFSET: " + byteOffset)
+    var endBitPosA: Long = fillCharBuffer(cb, bitOffset, decoder)
+    var sb: StringBuilder = new StringBuilder // To keep track of the searched text
+    val dSearch = new DelimSearcherV3.DelimSearcher
+    var buf = cb
+
+    delimiters foreach {
+      x => dSearch.addDelimiter(x)
+    }
+
+    // --
+    dSearch.printDelimStruct
+    // --
+
+    println("CB: " + cb.toString())
+
+    //var (theState, result, endPos) = dSearch.search(buf, 0)
+    var (theState, result, endPos, endPosDelim) = dSearch.search2(buf, 0)
+
+    if (theState == dSearch.SearchResult.FullMatch) {
+      sb.append(result)
+    }
+    var EOF: Boolean = false
+
+    // Proceed until we encounter a FullMatch or EOF
+    while ((theState == dSearch.SearchResult.EOF || theState == dSearch.SearchResult.PartialMatch) && endBitPosA != -1 && !EOF) {
+      buf.clear()
+      buf = CharBuffer.allocate(buf.length() * 2)
+
+      val fillState = fillCharBuffer2(buf, bitOffset, decoder)
+      endBitPosA = fillState._1
+      EOF = fillState._2
+
+      //var (state2, result2, endPos2) = dSearch.search(buf, endPos, false)
+      var (state2, result2, endPos2, endPosDelim2) = dSearch.search2(buf, endPos, false)
+      theState = state2
+      endPos = endPos2
+      endPosDelim = endPosDelim2
+
+      if (theState != dSearch.SearchResult.PartialMatch) {
+        sb.append(result2)
+      }
+    }
+
+    // Encode the found string in order to calculate
+    // the ending position of the ByteBuffer
+    //
+    val charSet = decoder.charset()
+    val resBB = charSet.encode(sb.toString())
+
+    // Calculate the new ending position of the ByteBuffer
+    if (endPos != -1) {
+      endBitPosA = (endPos << 3) + bitOffset
+    } else {
+      endPos = resBB.limit()
+      endBitPosA = (resBB.limit() << 3) + bitOffset
+    }
+    var endBitPosDelimA: Long = endBitPosA
+    
+    if (endPosDelim != -1){
+      endBitPosDelimA = (endPosDelim << 3) + bitOffset
+    } 
+    println("ENDPOS_GET_DELIMITER: " + endPos)
+    println("GET_DELIMITER - CB: " + sb.toString() + " EndBitPos: " + endBitPosA)
+    println("===\nEND_GET_DELIMITER!\n===\n")
+    
+    //(sb.toString(), endBitPosA, endBitPosDelimA)
+    (cb.subSequence(endPos, endPosDelim).toString(), endBitPosA, endBitPosDelimA)
   }
 
   def getInt(bitPos: Long, order: java.nio.ByteOrder) = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
     bb.order(order)
-    bb.getInt(bytePos)  
+    bb.getInt(bytePos)
   }
-  
+
   def getDouble(bitPos: Long, order: java.nio.ByteOrder) = {
-   Assert.invariant(bitPos % 8 == 0)
-   val bytePos = (bitPos >> 3).toInt
-   bb.order(order)
-   val double = bb.getDouble(bytePos)
-   double
+    Assert.invariant(bitPos % 8 == 0)
+    val bytePos = (bitPos >> 3).toInt
+    bb.order(order)
+    val double = bb.getDouble(bytePos)
+    double
   }
-  
+
   def getFloat(bitPos: Long, order: java.nio.ByteOrder) = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt

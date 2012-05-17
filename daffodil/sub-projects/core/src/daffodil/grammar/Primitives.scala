@@ -391,7 +391,8 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) e
       //
       //val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
       println("startBitPos: " + start.bitPos)
-      var (resultStr, endBitPos) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(delim))
+      //var (resultStr, endBitPos) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(delim))
+      var (resultStr, endBitPos, endBitPosDelim) = in.getDelimiter(cbuf, start.bitPos, decoder, Set(delim))
       
       //println("resultSTR:" + resultStr)
      
@@ -413,12 +414,12 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) e
       if (m.find()){ 
       //if (result == delim) { // TODO: use string.compare and string.compareIgnoreCase so we can implement ignoreCase property.
         System.err.println("Found " + delim)
-        System.err.println("Ended at bit position " + endBitPos)
+        System.err.println("Ended at bit position " + endBitPosDelim)
         //val endCharPos = start.charPos + result.length
         println("charPos: " + start.charPos)
         val endCharPos = start.charPos + (m.end() - m.start())
-        endBitPos = 8 * endCharPos // TODO: Is this correct?
-        val postState = start.withPos(endBitPos, endCharPos)
+        endBitPosDelim = 8 * endCharPos // TODO: Is this correct?
+        val postState = start.withPos(endBitPosDelim, endCharPos)
         println("endCharPos: " + endCharPos)
         postState
       } else {
