@@ -427,7 +427,7 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     println("CB: " + cb.toString())
 
     //var (theState, result, endPos) = dSearch.search(buf, 0)
-    var (theState, result, endPos, endPosDelim) = dSearch.search2(buf, 0)
+    var (theState, result, endPos, endPosDelim) = dSearch.search(buf, 0)
 
     if (theState == dSearch.SearchResult.FullMatch) {
       sb.append(result)
@@ -444,8 +444,8 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
       EOF = fillState._2
 
       //var (state2, result2, endPos2) = dSearch.search(buf, endPos, false)
-     // var (state2, result2, endPos2, endPosDelim2) = dSearch.search2(buf, endPos, false)
-      var (state2, result2, endPos2, endPosDelim2) = dSearch.search2(buf, 0, true)
+     // var (state2, result2, endPos2, endPosDelim2) = dSearch.search(buf, endPos, false)
+      var (state2, result2, endPos2, endPosDelim2) = dSearch.search(buf, 0, true)
       theState = state2
       endPos = endPos2
 
@@ -497,7 +497,7 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     println("CB: " + cb.toString())
 
     //var (theState, result, endPos) = dSearch.search(buf, 0)
-    var (theState, result, endPos, endPosDelim) = dSearch.search2(buf, 0)
+    var (theState, result, endPos, endPosDelim) = dSearch.search(buf, 0)
 
     if (theState == dSearch.SearchResult.FullMatch) {
       sb.append(result)
@@ -514,7 +514,7 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
       EOF = fillState._2
 
       //var (state2, result2, endPos2) = dSearch.search(buf, endPos, false)
-      var (state2, result2, endPos2, endPosDelim2) = dSearch.search2(buf, endPos, false)
+      var (state2, result2, endPos2, endPosDelim2) = dSearch.search(buf, endPos, false)
       theState = state2
       endPos = endPos2
       endPosDelim = endPosDelim2

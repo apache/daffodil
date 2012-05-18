@@ -399,7 +399,7 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) e
       println("BUF: " + cbuf.toString() + " ENDBITPOS: " + endBitPos)
       
      
-      val d = new stringsearch.delimiter.DelimNode
+      val d = new stringsearch.delimiter.Delimiter
       
       d(delim)
       val delimRegex = d.buildDelimRegEx

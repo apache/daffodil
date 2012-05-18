@@ -7,10 +7,13 @@ import scala.collection.mutable.Queue
 import scala.collection.mutable.Set
 import scala.util.logging.Logged
 
-class DelimNode extends Logged {
-  var delimiter: String = "" // String representation of delimiter Ex. "%WSP;,%WSP*;"
+// A Delimiter represents a delimiter where a delimiter can be one or more
+// characters long.
+//
+class Delimiter extends Logged {
+  var delimiterStr: String = "" // String representation of delimiter Ex. "%WSP;,%WSP*;"
 
-  var delimBuf: Array[DelimBase] = Array.empty[DelimBase] /* Buffer where each node (DelimBase) represents a character
+  var delimBuf: Array[DelimBase] = Array.empty[DelimBase] /* Buffer where each cell (DelimBase) represents a character
 		  												     in the delimiter string */
 
   var fullMatches: Set[(Int, Int)] = Set.empty[(Int, Int)] // (Start, End) of full matching delimiter
@@ -25,10 +28,13 @@ class DelimNode extends Logged {
   // Must call to create the necessary structures
   //
   def apply(pDelimiter: String) = {
-    delimiter = pDelimiter
+    delimiterStr = pDelimiter
     buildDelimBuf
   }
 
+  // Denotes whether or not this Delimiter (entire delimiter)
+  // was matched completely in order.
+  //
   def isMatched: Boolean = {
     return fullMatches.size > 0
   }
@@ -47,19 +53,19 @@ class DelimNode extends Logged {
     var numCharClass: Int = 0
 
     loop.breakable {
-      for (i <- 0 until delimiter.length()) {
+      for (i <- 0 until delimiterStr.length()) {
         val idx = i + inc // Advances cursor past the Character Class
 
-        if (idx >= delimiter.length()) {
+        if (idx >= delimiterStr.length()) {
           // ran off end of delimiter string, break!
           loop.break()
         }
 
-        val c: Char = delimiter.charAt(idx)
+        val c: Char = delimiterStr.charAt(idx)
 
         if (c == '%') {
           // Possible character class, check patterns
-          val subStr: String = delimiter.substring(idx)
+          val subStr: String = delimiterStr.substring(idx)
           val (matchLength, delimObj) = findCharClasses(subStr)
 
           if (matchLength != -1) {
@@ -119,10 +125,10 @@ class DelimNode extends Logged {
       delimBuf(i).clear
     }
     //TODO: Is there ever a time when we would want to reset delimIdx separately?
-    resetDelim()
+    resetDelim
   }
 
-  // Reduces complicated delimiters containing WSP, WSP* and WSP+
+  // Reduces complicated delimiters containing consecutive WSP, WSP* and WSP+
   // character classes.
   //
   // Ex. %WSP;%WSP*;%NL;%WSP+;%WSP*
@@ -349,7 +355,10 @@ class DelimNode extends Logged {
   }
 
   // Need to keep track of partial matches as this will
-  // allow us to determine 'longest matches' later
+  // allow us to determine 'longest matches' later.
+  //
+  // Will also allows us to determine if a match spans
+  // CharBuffers.
   //
   def processPartials = {
     val unMatched = delimBuf.filter(x => x.isMatched == false)
@@ -390,12 +399,14 @@ class DelimNode extends Logged {
     result
   }
 
+  // WARNING:	Do not alter the initial values of these variables.
+  //
   // Variables used in the iteration contained
   // within the search method.  Part of state-machine.
-  var wspMode: Boolean = false
-  var delimIdx: Int = 0
-  var charIdx: Int = 0
-  var delimMatched: Boolean = false
+  var wspMode: Boolean = false // True - Expecting Multiple Whitespace, False - Not Expecting Multiple Whitespace
+  var delimIdx: Int = 0			// Index of delimBuf
+  var charIdx: Int = 0			// Index of CharBuffer (Input String to search)
+  var delimMatched: Boolean = false // Value indicating if a delimiter was fully matched
 
   def advanceDelim = {
     if (!delimMatched) {
@@ -407,7 +418,7 @@ class DelimNode extends Logged {
     }
   }
 
-  def resetDelim(advance: Boolean = true) = {
+  def resetDelim = {
     // If we are resetting the delimIdx then
     // an expected match was not found.
     // 
@@ -423,7 +434,7 @@ class DelimNode extends Logged {
   def update(delim: DelimBase, charPosIn: Int, isMatched: Boolean, charPosEnd: Int = -1) = {
     delim.isMatched = isMatched
     delim.charPos = charPosIn
-    //delim.charPos2 = charPosIn2
+    
     if (charPosEnd == -1) {
       delim.charPosEnd = charPosIn
     } else {
@@ -433,18 +444,19 @@ class DelimNode extends Logged {
     processDelimBuf
   }
 
-  // Resets all state data
+  // Resets all state-machine data
   //
   def clear = {
     resetDelimBuf
-    fullMatches.clear()
-    partialMatches.clear()
+    this.fullMatches.clear()
+    this.partialMatches.clear()
     this.delimIdx = 0
     this.charIdx = 0
     this.delimMatched = false
   }
 
-  // WARNING: This method is a state-machine
+  // WARNING:	This method is a state-machine!
+  //			Alteration may have undesirable consequences.
   //
   // This method iterates over the CharBuffer and delimBuf arrays.
   // Iteration is controlled by: advanceChar, advanceDelim, resetDelim
@@ -452,7 +464,7 @@ class DelimNode extends Logged {
   def search(input: CharBuffer, charPosIn: Int, crlfList: List[(Int, Int)], wspList: List[(Int, Int)]) = {
     val x = new WSPBase()
     charIdx = charPosIn
-    log("SEARCH: charPosIn: " + charPosIn + " Delimiter: " + delimiter)
+    log("SEARCH: charPosIn: " + charPosIn + " Delimiter: " + delimiterStr)
     while (charIdx < input.length()) {
       // This loop shall allow us to control when we
       // move on to check the next character via
@@ -477,7 +489,7 @@ class DelimNode extends Logged {
       if (wspMode && isSpace && charIdx != charPosIn) {
         // We have already satisfied the WSP* or WSP+ delimiter.
         // Skip this space by advancing to the next character.
-        log(header + "\twspMode && isSpace, we have already satisfied the WSP* or WSP+ delimiter.  Skip spaces!")
+        log(header + "\tWspMode && isSpace, we have already satisfied the WSP* or WSP+ delimiter.  Skip spaces!")
         advanceChar
       } else {
 
@@ -529,11 +541,12 @@ class DelimNode extends Logged {
             log(header + "\tWSPPlus and isSpace" + " '" + char + "' d" + char.toInt)
             val filteredList = wspList.filter(x => x._1 == charIdx)
             if (filteredList.length > 0) {
+              // Consecutive white spaces found
               update(delim, charIdx, true, filteredList(0)._2)
             } else {
               update(delim, charIdx, true)
             }
-            wspMode = true
+            wspMode = true // ignore any further whitespace until encounter non-whitespace char
             advanceDelim
             advanceChar
           }
@@ -543,11 +556,12 @@ class DelimNode extends Logged {
             log(header + "\tWSPStar and isSpace" + " '" + char + "' d" + char.toInt)
             val filteredList = wspList.filter(x => x._1 == charIdx)
             if (filteredList.length > 0) {
+              // Consecutive white spaces found
               update(delim, charIdx, true, filteredList(0)._2)
             } else {
               update(delim, charIdx, true)
             }
-            wspMode = true
+            wspMode = true  // ignore any further whitespace until encounter non-whitespace char
             advanceDelim
             advanceChar
           }
@@ -594,6 +608,9 @@ class DelimNode extends Logged {
             // to find a space. Reset.
             if (!wspMode) {
               log(header + "\t!WSPMode and isSpace" + " '" + char + "' d" + char.toInt)
+              if (delimIdx == 0){
+                advanceChar
+              }
               resetDelimBuf
             } else {
               log(header + "\tWSPMode and isSpace" + " '" + char + "' d" + char.toInt)
@@ -624,7 +641,7 @@ class DelimNode extends Logged {
     } // end-while
     processDelimBuf
     processPartials
-    log("END SEARCH DELIM: " + delimiter + "\n")
+    log("END SEARCH DELIM: " + delimiterStr + "\n")
 
   }
 
@@ -641,7 +658,6 @@ class DelimNode extends Logged {
         delimMatched = true
         val startPos = delimBuf(0).charPos
         val end = delimBuf(delimBuf.length - 1)
-        //var endPos: Int = end.charPos
         var endPos: Int = end.charPosEnd
 
         // CRLF will use charPosEnd as end
@@ -682,7 +698,7 @@ class DelimNode extends Logged {
   }
 
   def print = {
-    log("\n====\nDelimiter: " + delimiter)
+    log("\n====\nDelimiter: " + delimiterStr)
     log("FULL MATCHES: ")
     fullMatches.toList.sortBy(_._1) foreach {
       x => log("\t" + x._1 + "\t" + x._2)
@@ -706,13 +722,11 @@ trait Base {
   var index: Int = -1
   var charPos: Int = -1
   var charPosEnd: Int = -1
-  //var charPos2: Int = -1 // CRLF (position of LF)
 
   def clear = {
     isMatched = false
     charPos = -1
     charPosEnd = -1
-    //charPos2 = -1
   }
 
   def checkMatch(charIn: Char): Boolean
