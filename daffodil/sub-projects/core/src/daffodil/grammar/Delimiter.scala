@@ -531,8 +531,11 @@ class Delimiter extends Logged {
           case nl: NLDelim if !matched => {
             // Expected a newline but it was not found
             log(header + "\tNL and !matched" + " '" + char + "' d" + char.toInt)
+            if (delimIdx == 0){
+              advanceChar
+            }
             resetDelimBuf
-            advanceChar
+            //advanceChar
             wspMode = false
           }
           case wspP: WSPPlusDelim if isSpace => {
@@ -569,8 +572,11 @@ class Delimiter extends Logged {
             // We're looking for 1 or more spaces
             // and did not find one.
             log(header + "\tWSPPlus and !isSpace" + " '" + char + "' d" + char.toInt)
+            if (delimIdx == 0){
+              advanceChar
+            }
             resetDelimBuf
-            advanceChar
+            //advanceChar
             wspMode = false
           }
           case wspS: WSPStarDelim if !isSpace => {
@@ -632,9 +638,12 @@ class Delimiter extends Logged {
           }
           case _ => {
             log(header + "\tNo Match!" + " '" + char + "' d" + char.toInt)
+            if (delimIdx == 0){
+              advanceChar
+            }
             resetDelimBuf
             wspMode = false
-            advanceChar
+            //advanceChar
           }
         } // end-delim-match
       } // end-if
