@@ -123,5 +123,33 @@ class TestPrimitives extends JUnit3Suite {
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
     assertEqualsXMLElements(expected, actual)  
   }
+  
+  def testLengthKindDelimited3 {
+     val sch = DFDLUtils.dfdlTestSchema(
+      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
+      <xs:element name="e1">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="}}}" dfdl:separatorPosition="infix">
+      		<xs:element name="s1" dfdl:lengthKind="delimited">
+      			<xs:complexType>
+      				<xs:sequence dfdl:separator="}" dfdl:separatorPosition="infix">
+      					<xs:element name="ss1" type="xs:string" dfdl:lengthKind="delimited" />
+      					<xs:element name="ss2" type="xs:string" dfdl:lengthKind="delimited" />
+      				</xs:sequence>
+      			</xs:complexType>
+      		</xs:element>
+      		<xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = Compiler.testString(sch, "abcd}efgh}}}ijkl")
+    val actualString = actual.toString
+    println(actual.toString())
+    assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
+    assertTrue(actualString.contains("><s1><ss1>abcd</ss1><ss2>efgh</ss2></s1><s2>ijkl</s2></e1>"))
+
+    val expected: Node = <e1><s1><ss1>abcd</ss1><ss2>efgh</ss2></s1><s2>ijkl</s2></e1>
+    assertEqualsXMLElements(expected, actual)  
+  }
 
 }
