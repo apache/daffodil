@@ -8,6 +8,9 @@ import daffodil.xml.XMLUtils._
 import daffodil.dsom.Compiler
 import scala.util.logging.ConsoleLogger
 import java.nio.CharBuffer
+import scala.collection.mutable.Queue
+import stringsearch.delimiter._
+import stringsearch.DelimSearcherV3._
 
 class TestDelimSearcherV3 extends JUnit3Suite {
 
@@ -211,7 +214,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(ds.SearchResult.EOF, state4b)
     assertEquals("def", result4b)
     assertEquals(7, endPos4b)
-    
+
     // STR5 >>>>>>>>>>>>>>>>>>>>>>>>
     cb.clear()
     cb = CharBuffer.allocate(str5.length() + 1)
@@ -224,14 +227,14 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("abc", result5)
     assertEquals(3, endPos5)
     assertEquals(3, endPosDelim5)
-    
+
     // Round 2 - Expect: FullMatch, def, 7, 8
     val (state5a, result5a, endPos5a, endPosDelim5a) = ds.search(cb, endPosDelim5 + 1)
     assertEquals(ds.SearchResult.FullMatch, state5a)
     assertEquals("def", result5a)
     assertEquals(7, endPos5a)
     assertEquals(8, endPosDelim5a)
-    
+
     // Round 3 - Expect: EOF, hij, 7, 8
     val (state5b, result5b, endPos5b, endPosDelim5b) = ds.search(cb, endPosDelim5a + 1)
     assertEquals(ds.SearchResult.EOF, state5b)
@@ -435,18 +438,6 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(ds.SearchResult.EOF, state4a)
     assertEquals("def", result4a)
     assertEquals(7, endPos4a)
-  }
-
-  def testGetConsecutiveWSPList = {
-    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
-
-    val str1 = "\t\t\tA\t\t\tB\tC\t\t"
-    var cb: CharBuffer = CharBuffer.allocate(str1.length + 1)
-    cb.put(str1)
-    cb.flip()
-
-    val list1 = ds.getConsecutiveWSPList(cb)
-    assertEquals(4, list1.length)
   }
 
   def testSingleSeparatorCharClassWSP_Star = {
@@ -869,7 +860,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("ghi", result2a)
     assertEquals(11, endPos2a)
     assertEquals(11, endPosDelim2a)
-    
+
     // STR3 >>>>>>>>>>>>>>>>>>>>>>>>
     cb.clear()
     cb = CharBuffer.allocate(str3.length() + 1)
@@ -882,7 +873,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("abcdef", result3)
     assertEquals(6, endPos3)
     assertEquals(6, endPosDelim3)
-    
+
     // STR3 + STR4 >>>>>>>>>>>>>>>>>>>>>>>>
     cb.clear()
     cb = CharBuffer.allocate(str3.length() + str4.length() + 1)
@@ -896,7 +887,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(6, endPos4)
     assertEquals(7, endPosDelim4)
   }
-  
+
   def testTwoPartialMatchAtEndNonResume1a = {
     val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
     assertEquals(0, ds.delimiters.length) // Verified contained no delimiters
@@ -906,7 +897,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
 
     val str1 = "abcdef:}"
     val str2 = "}}ghi"
-    
+
     var cb: CharBuffer = CharBuffer.allocate(str1.length() + 1)
     cb.put(str1)
     cb.flip()
@@ -930,7 +921,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(7, endPos2)
     assertEquals(9, endPosDelim2)
   }
-  
+
   def testTwoPartialMatchAtEndNonResume1b = {
     // Differs from 1A in that the order of delimiters is reversed
     val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
@@ -941,7 +932,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
 
     val str1 = "abcdef:}"
     val str2 = "}}ghi"
-    
+
     var cb: CharBuffer = CharBuffer.allocate(str1.length() + 1)
     cb.put(str1)
     cb.flip()
@@ -964,6 +955,725 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("abcdef:", result2)
     assertEquals(7, endPos2)
     assertEquals(9, endPosDelim2)
+  }
+
+  def testUnrecognizedCharClass = {
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+    assertEquals(0, ds.delimiters.length) // Verified contained no delimiters
+    ds.addDelimiter(",%WSP%WSP;")
+    ds.addDelimiter("%WSP,;")
+    assert(ds.delimiters.length == 2) // Verified delimiter was added
+
+    val d0 = ds.delimiters(0)
+    val d1 = ds.delimiters(1)
+
+    assertEquals(6, d0.delimBuf.length)
+    assertEquals(6, d1.delimBuf.length)
+  }
+
+  // Helper Functions
+  def testGetCRLFList = {
+    // FullMatch - \r\n
+    // PartialMatch - \r (At End of Buffer)
+
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+
+    val str1 = "\nabc\rdef\r\rhij\r\r\nklm\r" // A FullMatch and a PartialMatch
+    val str2 = "\na\rb\nc\n" // No matches
+    val str3 = ""
+    var cb = CharBuffer.allocate(str1.length() + 1)
+    cb.put(str1)
+    cb.flip()
+
+    val crlf1 = ds.getCRLFList(cb)
+    assertEquals(2, crlf1.length)
+    assertTrue(crlf1.contains((14, 15)))
+    assertTrue(crlf1.contains((19, -1)))
+
+    cb = CharBuffer.allocate(str2.length() + 1)
+    cb.put(str2)
+    cb.flip()
+
+    val crlf2 = ds.getCRLFList(cb)
+    assertEquals(0, crlf2.length)
+
+    cb = CharBuffer.allocate(str3.length() + 1)
+    cb.put(str3)
+    cb.flip()
+
+    val crlf3 = ds.getCRLFList(cb)
+    assertEquals(0, crlf3.length)
+  }
+
+  def testCrlfContains = {
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+
+    val str1 = "\nabc\rdef\r\rhij\r\r\nklm\r" // A FullMatch and a PartialMatch
+    val str2 = "\na\rb\nc\n" // No matches
+    var cb = CharBuffer.allocate(str1.length() + 1)
+    cb.put(str1)
+    cb.flip()
+
+    val crlf1 = ds.getCRLFList(cb)
+    assertEquals(2, crlf1.length)
+    assertTrue(crlf1.contains((14, 15)))
+    assertTrue(crlf1.contains((19, -1)))
+
+    val d: stringsearch.delimiter.Delimiter = new stringsearch.delimiter.Delimiter
+
+    val (state1a, beg1a, end1a) = d.crlfContains(crlf1, 14)
+    assertEquals(d.CRLFState.Exists, state1a)
+    assertEquals(14, beg1a)
+    assertEquals(15, end1a)
+
+    val (state1a1, beg1a1, end1a1) = d.crlfContains(crlf1, 15)
+    assertEquals(d.CRLFState.Exists, state1a1)
+    assertEquals(14, beg1a1)
+    assertEquals(15, end1a1)
+
+    val (state1b, beg1b, end1b) = d.crlfContains(crlf1, 19)
+    assertEquals(d.CRLFState.Partial, state1b)
+    assertEquals(19, beg1b)
+    assertEquals(-1, end1b)
+
+    val (state1b1, beg1b1, end1b1) = d.crlfContains(crlf1, 20)
+    assertEquals(d.CRLFState.NotFound, state1b1)
+    assertEquals(-1, beg1b1)
+    assertEquals(-1, end1b1)
+
+    val (state1c, beg1c, end1c) = d.crlfContains(crlf1, 5)
+    assertEquals(d.CRLFState.NotFound, state1c)
+    assertEquals(-1, beg1c)
+    assertEquals(-1, end1c)
+
+    val (state1d, beg1d, end1d) = d.crlfContains(crlf1, -1)
+    assertEquals(d.CRLFState.NotFound, state1d)
+    assertEquals(-1, beg1d)
+    assertEquals(-1, end1d)
+  }
+
+  def testGetConsecutiveWSPList = {
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+
+    val str1 = "\t\t\tA\t\t\tB\tC\t\t"
+    val str2 = ""
+    var cb: CharBuffer = CharBuffer.allocate(str1.length + 1)
+    cb.put(str1)
+    cb.flip()
+
+    val list1 = ds.getConsecutiveWSPList(cb)
+    assertEquals(4, list1.length)
+
+    cb = CharBuffer.allocate(str2.length + 1)
+    cb.put(str2)
+    cb.flip()
+
+    val list2 = ds.getConsecutiveWSPList(cb)
+    assertEquals(0, list2.length)
+  }
+
+  def testGetPrefixedDelims = {
+    // Example string: "a}}}b"
+    //                  01234
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+
+    val prefix = new stringsearch.delimiter.Delimiter
+    prefix("}")
+
+    prefix.fullMatches.add((1, 1))
+    prefix.fullMatches.add((2, 2))
+    prefix.fullMatches.add((3, 3))
+
+    val delimsQ: Queue[stringsearch.delimiter.Delimiter] = new Queue[stringsearch.delimiter.Delimiter]
+
+    val delim0 = new stringsearch.delimiter.Delimiter
+    delim0("}}}")
+    delim0.fullMatches.add((1, 3))
+
+    val delim1 = new stringsearch.delimiter.Delimiter
+    delim1("}}}")
+    delim1.fullMatches.add((1, 2))
+
+    val delim2 = new stringsearch.delimiter.Delimiter
+    delim2("}}}}")
+
+    delimsQ += prefix
+    delimsQ += delim0
+    delimsQ += delim1
+    delimsQ += delim2
+
+    val list0 = ds.getPrefixedDelims(prefix, delimsQ.toList)
+
+    assertEquals(2, list0.length)
+    assertTrue(list0.contains((1, 2)))
+    assertTrue(list0.contains((1, 3)))
+  }
+
+  def testGetLongestMatch = {
+    // Example string: "a}}}b"
+    //                  01234
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+
+    val prefix = new stringsearch.delimiter.Delimiter
+    prefix("}")
+
+    prefix.fullMatches.add((1, 1))
+    prefix.fullMatches.add((2, 2))
+    prefix.fullMatches.add((3, 3))
+
+    val delimsQ0: Queue[stringsearch.delimiter.Delimiter] = new Queue[stringsearch.delimiter.Delimiter]
+
+    val delim0 = new stringsearch.delimiter.Delimiter
+    delim0("}}}")
+    delim0.fullMatches.add((1, 3))
+
+    val delim1 = new stringsearch.delimiter.Delimiter
+    delim1("}}")
+    delim1.fullMatches.add((1, 2))
+
+    val delim2 = new stringsearch.delimiter.Delimiter
+    delim2("}}}}")
+
+    delimsQ0 += prefix
+    delimsQ0 += delim0
+    delimsQ0 += delim1
+    delimsQ0 += delim2
+
+    // Prefixed result: Delimiter found at position (1,1) is the
+    // start of a longer delimiter found at position (1,3)
+    val result0 = ds.getLongestMatch(delimsQ0.toList)
+    assertEquals((1, 3), result0)
+
+    // Example Str: "a}b}}c"
+    //               012345
+    val delimsQ1: Queue[stringsearch.delimiter.Delimiter] = new Queue[stringsearch.delimiter.Delimiter]
+
+    val delim3 = new stringsearch.delimiter.Delimiter
+    delim3("}")
+    delim3.fullMatches.add((1, 1))
+    delim3.fullMatches.add((3, 3))
+    delim3.fullMatches.add((4, 4))
+
+    val delim4 = new stringsearch.delimiter.Delimiter
+    delim4("}}")
+    delim4.fullMatches.add((3, 4))
+
+    delimsQ1 += delim3
+    delimsQ1 += delim4
+
+    // Non-prefixed result: The first delimiter found at position (1,1)
+    // is not the start of a longer delimiter.
+    val result1 = ds.getLongestMatch(delimsQ1.toList)
+    assertEquals((1, 1), result1)
+
+    // Test no matches
+    val delimsQ2: Queue[stringsearch.delimiter.Delimiter] = new Queue[stringsearch.delimiter.Delimiter]
+    val result2 = ds.getLongestMatch(delimsQ2.toList)
+    assertEquals((-1, -1), result2)
+  }
+
+  def testFindCharClasses = {
+    // Expected to return first CharClass in string or None
+    val d: stringsearch.delimiter.Delimiter = new stringsearch.delimiter.Delimiter with ConsoleLogger
+
+    val str0 = "abcdef" // No CharClass
+    val str1 = "%WSP;" // Single CharClass
+    val str2 = "%WSP;%WSP+;" // Two CharClass, WSPDelim is first one
+    val str3 = "%WSP+;" // Single CharClass
+    val str4 = "%WSP*;" // Single CharClass
+    val str5 = "%NL;" // Single CharClass
+    val str6 = "" // Empty String - No CharClass
+    val str7 = "%NL%WSP;" // First valid CharClass is WSP
+    val str8 = "%;%WSP;;" // First valid CharClass is WSP
+    val str9 = "%WSP,;" // No valid CharClass
+    val str10 = "%WSP *;" // No valid CharClass
+
+    val res0 = d.findCharClasses(str0)
+    val res1 = d.findCharClasses(str1)
+    val res2 = d.findCharClasses(str2)
+    val res3 = d.findCharClasses(str3)
+    val res4 = d.findCharClasses(str4)
+    val res5 = d.findCharClasses(str5)
+    val res6 = d.findCharClasses(str6)
+    val res7 = d.findCharClasses(str7)
+    val res8 = d.findCharClasses(str8)
+    val res9 = d.findCharClasses(str9)
+    val res10 = d.findCharClasses(str10)
+
+    assertEquals((-1, None), res0)
+
+    assertEquals(5, res1._1)
+    res1._2 match {
+      case Some(x: stringsearch.delimiter.WSPDelim) => assertTrue(true)
+      case None => assertTrue(false)
+      case _ => assertTrue(false)
+    }
+
+    assertEquals(5, res2._1)
+    res2._2 match {
+      case Some(x: stringsearch.delimiter.WSPDelim) => assertTrue(true)
+      case None => assertTrue(false)
+      case _ => assertTrue(false)
+    }
+
+    assertEquals(6, res3._1)
+    res3._2 match {
+      case Some(x: stringsearch.delimiter.WSPPlusDelim) => assertTrue(true)
+      case None => assertTrue(false)
+      case _ => assertTrue(false)
+    }
+
+    assertEquals(6, res4._1)
+    res4._2 match {
+      case Some(x: stringsearch.delimiter.WSPStarDelim) => assertTrue(true)
+      case None => assertTrue(false)
+      case _ => assertTrue(false)
+    }
+
+    assertEquals(4, res5._1)
+    res5._2 match {
+      case Some(x: stringsearch.delimiter.NLDelim) => assertTrue(true)
+      case None => assertTrue(false)
+      case _ => assertTrue(false)
+    }
+
+    assertEquals(-1, res6._1)
+    res6._2 match {
+      case None => assertTrue(true)
+      case _ => assertTrue(false)
+    }
+
+    assertEquals(5, res7._1)
+    res7._2 match {
+      case Some(x: stringsearch.delimiter.WSPDelim) => assertTrue(true)
+      case None => assertTrue(false)
+      case _ => assertTrue(false)
+    }
+
+    assertEquals(5, res8._1)
+    res8._2 match {
+      case Some(x: stringsearch.delimiter.WSPDelim) => assertTrue(true)
+      case None => assertTrue(false)
+      case _ => assertTrue(false)
+    }
+
+    assertEquals(-1, res9._1)
+    res9._2 match {
+      case None => assertTrue(true)
+      case _ => assertTrue(false)
+    }
+
+    assertEquals(-1, res10._1)
+    res10._2 match {
+      case None => assertTrue(true)
+      case _ => assertTrue(false)
+    }
+  }
+
+  def testGetReducedDelim = {
+    val d: stringsearch.delimiter.Delimiter = new stringsearch.delimiter.Delimiter
+
+    val res1 = d.getReducedDelim(0, 0, 0)
+    val res2 = d.getReducedDelim(0, 0, 1)
+    val res3 = d.getReducedDelim(0, 1, 0)
+    val res4 = d.getReducedDelim(0, 1, 1)
+    val res5 = d.getReducedDelim(1, 0, 0)
+    val res6 = d.getReducedDelim(1, 0, 1)
+    val res7 = d.getReducedDelim(1, 1, 0)
+    val res8 = d.getReducedDelim(1, 1, 1)
+    val res9 = d.getReducedDelim(100, 0, 0) /* Multiple WSP when not accompanied
+    											by WSP+ or WSP* handled outside of
+    											getReducedDelim */
+
+    res1 match {
+      case Some(_) => assertTrue(false)
+      case None => assertTrue(true)
+    }
+
+    res2 match {
+      case Some(x: WSPStarDelim) => assertTrue(true)
+      case None => assertTrue(false)
+    }
+
+    res3 match {
+      case Some(x: WSPPlusDelim) => assertTrue(true)
+      case None => assertTrue(false)
+    }
+
+    res4 match {
+      case Some(x: WSPPlusDelim) => assertTrue(true)
+      case None => assertTrue(false)
+    }
+
+    res5 match {
+      case Some(x: WSPDelim) => assertTrue(true)
+      case None => assertTrue(false)
+    }
+
+    res6 match {
+      case Some(x: WSPPlusDelim) => assertTrue(true)
+      case None => assertTrue(false)
+    }
+
+    res7 match {
+      case Some(x: WSPPlusDelim) => assertTrue(true)
+      case None => assertTrue(false)
+    }
+
+    res8 match {
+      case Some(x: WSPPlusDelim) => assertTrue(true)
+      case None => assertTrue(false)
+    }
+
+    res9 match {
+      case Some(_) => assertTrue(false)
+      case None => assertTrue(true)
+    }
+  }
+  
+  def testReduceDelimBuf = {
+    val d: Delimiter = new Delimiter
+    
+    // WSP WSP* => WSP+
+    val db0: Queue[DelimBase] = new Queue[DelimBase]
+    db0 += new WSPDelim()
+    db0 += new WSPStarDelim()
+    
+    // WSP WSP+ => WSP+
+    val db1: Queue[DelimBase] = new Queue[DelimBase]
+    db1 += new WSPDelim()
+    db1 += new WSPPlusDelim()
+    
+    // WSP* WSP+ => WSP+
+    val db2: Queue[DelimBase] = new Queue[DelimBase]
+    db2 += new WSPStarDelim()
+    db2 += new WSPPlusDelim()
+    
+    // WSP* WSP* => WSP*
+    val db3: Queue[DelimBase] = new Queue[DelimBase]
+    db3 += new WSPStarDelim()
+    db3 += new WSPStarDelim()
+    
+    // WSP+ WSP+ => WSP+
+    val db4: Queue[DelimBase] = new Queue[DelimBase]
+    db4 += new WSPPlusDelim()
+    db4 += new WSPPlusDelim()
+    
+    // WSP WSP => WSP WSP
+    // Here we should note that WSP WSP WSP is NOT equivalent to WSP+
+    // as WSP+ would imply that WSP WSP WSP WSP is also valid when in fact
+    // it may not be.
+    val db5: Queue[DelimBase] = new Queue[DelimBase]
+    db5 += new WSPDelim()
+    db5 += new WSPDelim()
+    
+    // WSP* => WSP*
+    val db6: Queue[DelimBase] = new Queue[DelimBase]
+    db6 += new WSPStarDelim()
+    
+    // WSP+ => WSP+
+    val db7: Queue[DelimBase] = new Queue[DelimBase]
+    db7 += new WSPPlusDelim()
+    
+    // WSP => WSP
+    val db8: Queue[DelimBase] = new Queue[DelimBase]
+    db8 += new WSPDelim()
+    
+    // WSP WSP WSP* NL WSP+ WSP* => WSP+ NL WSP+
+    val db9: Queue[DelimBase] = new Queue[DelimBase]
+    db9 += new WSPDelim()
+    db9 += new WSPDelim()
+    db9 += new WSPStarDelim()
+    db9 += new NLDelim()
+    db9 += new WSPPlusDelim()
+    db9 += new WSPStarDelim()
+    
+    val res0 = d.reduceDelimBuf(db0.toArray)
+    val res1 = d.reduceDelimBuf(db1.toArray)
+    val res2 = d.reduceDelimBuf(db2.toArray)
+    val res3 = d.reduceDelimBuf(db3.toArray)
+    val res4 = d.reduceDelimBuf(db4.toArray)
+    val res5 = d.reduceDelimBuf(db5.toArray)
+    val res6 = d.reduceDelimBuf(db6.toArray)
+    val res7 = d.reduceDelimBuf(db7.toArray)
+    val res8 = d.reduceDelimBuf(db8.toArray)
+    val res9 = d.reduceDelimBuf(db9.toArray)
+    
+    assertEquals(1, res0.length)
+    assertTrue(res0(0).isInstanceOf[WSPPlusDelim])
+    assertEquals(1, res1.length)
+    assertTrue(res1(0).isInstanceOf[WSPPlusDelim])
+    assertEquals(1, res2.length)
+    assertTrue(res2(0).isInstanceOf[WSPPlusDelim])
+    assertEquals(1, res3.length)
+    assertTrue(res3(0).isInstanceOf[WSPStarDelim])
+    assertEquals(1, res4.length)
+    assertTrue(res4(0).isInstanceOf[WSPPlusDelim])
+    assertEquals(2, res5.length)
+    assertTrue(res5(0).isInstanceOf[WSPDelim])
+    assertTrue(res5(1).isInstanceOf[WSPDelim])
+    assertEquals(1, res6.length)
+    assertTrue(res6(0).isInstanceOf[WSPStarDelim])
+    assertEquals(1, res7.length)
+    assertTrue(res7(0).isInstanceOf[WSPPlusDelim])
+    assertEquals(1, res8.length)
+    assertTrue(res8(0).isInstanceOf[WSPDelim])
+    assertEquals(3, res9.length)
+    assertTrue(res9(0).isInstanceOf[WSPPlusDelim])
+    assertTrue(res9(1).isInstanceOf[NLDelim])
+    assertTrue(res9(2).isInstanceOf[WSPPlusDelim])
+  }
+  
+  def testBuildDelimBuf = {
+    val d: Delimiter = new Delimiter
+    val str0 = ""
+    val str1 = "abc"
+    val str2 = "a%NL;a"
+    val str3 = "c%NLb"
+    val str4 = "a%WSP;b"
+    val str5 = "%WSP;%WSP;"
+    val str6 = ",%WSP;%WSP*;"
+    
+    val res0 = d.buildDelimBuf(str0) // Empty String
+    val res1 = d.buildDelimBuf(str1) // CharDelim CharDelim CharDelim
+    val res2 = d.buildDelimBuf(str2) // CharDelim NLDelim CharDelim
+    val res3 = d.buildDelimBuf(str3) // CharDelim CharDelim CharDelim CharDelim CharDelim
+    val res4 = d.buildDelimBuf(str4) // CharDelim WSPDelim CharDelim
+    val res5 = d.buildDelimBuf(str5) // WSPDelim WSPDelim
+    val res6 = d.buildDelimBuf(str6) // CharDelim WSPPlusDelim
+    
+    assertEquals(0, res0.length)
+    
+    assertEquals(3, res1.length)
+    assertTrue(res1(0).isInstanceOf[CharDelim])
+    assertTrue(res1(1).isInstanceOf[CharDelim])
+    assertTrue(res1(2).isInstanceOf[CharDelim])
+    
+    assertEquals(3, res2.length)
+    assertTrue(res2(0).isInstanceOf[CharDelim])
+    assertTrue(res2(1).isInstanceOf[NLDelim])
+    assertTrue(res2(2).isInstanceOf[CharDelim])
+    
+    assertEquals(5, res3.length)
+    assertTrue(res3(0).isInstanceOf[CharDelim])
+    assertTrue(res3(1).isInstanceOf[CharDelim])
+    assertTrue(res3(2).isInstanceOf[CharDelim])
+    assertTrue(res3(3).isInstanceOf[CharDelim])
+    assertTrue(res3(4).isInstanceOf[CharDelim])
+    
+    assertEquals(3, res4.length)
+    assertTrue(res4(0).isInstanceOf[CharDelim])
+    assertTrue(res4(1).isInstanceOf[WSPDelim])
+    assertTrue(res4(2).isInstanceOf[CharDelim])
+    
+    assertEquals(2, res5.length)
+    assertTrue(res5(0).isInstanceOf[WSPDelim])
+    assertTrue(res5(1).isInstanceOf[WSPDelim])
+    
+    assertEquals(2, res6.length)
+    assertTrue(res6(0).isInstanceOf[CharDelim])
+    assertTrue(res6(1).isInstanceOf[WSPPlusDelim])
+  }
+  
+  def testBuildDelimRegEx = {
+    val ds: DelimSearcher = new DelimSearcher with ConsoleLogger
+
+    ds.addDelimiter("") // Empty String
+    ds.addDelimiter("abc") // abc
+    ds.addDelimiter("a%NL;a") // a(\\n\\r|\\n|\\r)a
+    ds.addDelimiter("c%NLb") // c%NLb
+    ds.addDelimiter("a%WSP;b") // a\\sb
+    ds.addDelimiter("%WSP;%WSP;") // \\s\\s
+    ds.addDelimiter(",%WSP;%WSP*;") // ,\\s\\* => ,\\s+
+    ds.addDelimiter("+^$") // \\+\\^\\$
+    ds.addDelimiter("%WSP*;") // \\s*
+    
+    val res0 = ds.delimiters(0).buildDelimRegEx()
+    val res1 = ds.delimiters(1).buildDelimRegEx()
+    val res2 = ds.delimiters(2).buildDelimRegEx()
+    val res3 = ds.delimiters(3).buildDelimRegEx()
+    val res4 = ds.delimiters(4).buildDelimRegEx()
+    val res5 = ds.delimiters(5).buildDelimRegEx()
+    val res6 = ds.delimiters(6).buildDelimRegEx()
+    val res7 = ds.delimiters(7).buildDelimRegEx()
+    val res8 = ds.delimiters(8).buildDelimRegEx()
+    
+    assertEquals("", res0)
+    assertEquals("abc", res1)
+    assertEquals("a(\\n\\r|\\n|\\r)a", res2)
+    assertEquals("c%NLb", res3)
+    assertEquals("a\\sb", res4)
+    assertEquals("\\s\\s", res5)
+    assertEquals(",\\s+", res6)
+    assertEquals("\\+\\^\\$", res7)
+    assertEquals("\\s*", res8)
+  }
+
+  // State Coverage
+  def testNLStates = {
+    // Exercises crlfContains and getCRLFList during execution
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+    assertEquals(0, ds.delimiters.length) // Verified contained no delimiters
+    ds.addDelimiter("%NL;")
+    assert(ds.delimiters.length == 1) // Verified delimiter was added
+
+    val str1 = "a\r\nb" // NL - CRLF Exists
+    val str2 = "a\rb" // NL 
+    val str3 = "ab\r" // NL - CRLF Partial
+    val str4 = "a\nb" // NL
+    val str5 = "ab\n" // NL
+    val str6 = "abc" // NL - Not Matched
+
+    var cb = CharBuffer.allocate(str1.length() + 1)
+    cb.put(str1)
+    cb.flip()
+
+    val crlf1 = ds.getCRLFList(cb)
+    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    assertEquals(ds.SearchResult.FullMatch, state1)
+    assertEquals("a", result1)
+    assertEquals(1, endPos1)
+    assertEquals(2, endPosDelim1)
+    assertTrue(crlf1.contains((1, 2)))
+
+    cb = CharBuffer.allocate(str2.length() + 1)
+    cb.put(str2)
+    cb.flip()
+
+    val crlf2 = ds.getCRLFList(cb)
+    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    assertEquals(ds.SearchResult.FullMatch, state2)
+    assertEquals("a", result2)
+    assertEquals(1, endPos2)
+    assertEquals(1, endPosDelim2)
+    assertEquals(0, crlf2.length)
+
+    cb = CharBuffer.allocate(str3.length() + 1)
+    cb.put(str3)
+    cb.flip()
+
+    val crlf3 = ds.getCRLFList(cb)
+    val (state3, result3, endPos3, endPosDelim3) = ds.search(cb)
+    assertEquals(ds.SearchResult.PartialMatch, state3)
+    assertEquals("ab", result3)
+    assertEquals(2, endPos3)
+    assertEquals(2, endPosDelim3)
+    assertTrue(crlf3.contains((2, -1)))
+
+    cb = CharBuffer.allocate(str4.length() + 1)
+    cb.put(str4)
+    cb.flip()
+
+    val crlf4 = ds.getCRLFList(cb)
+    val (state4, result4, endPos4, endPosDelim4) = ds.search(cb)
+    assertEquals(ds.SearchResult.FullMatch, state4)
+    assertEquals("a", result4)
+    assertEquals(1, endPos4)
+    assertEquals(1, endPosDelim4)
+    assertEquals(0, crlf4.length)
+
+    cb = CharBuffer.allocate(str5.length() + 1)
+    cb.put(str5)
+    cb.flip()
+
+    val crlf5 = ds.getCRLFList(cb)
+    val (state5, result5, endPos5, endPosDelim5) = ds.search(cb)
+    assertEquals(ds.SearchResult.FullMatch, state5)
+    assertEquals("ab", result5)
+    assertEquals(2, endPos5)
+    assertEquals(2, endPosDelim5)
+    assertEquals(0, crlf5.length)
+    
+    cb = CharBuffer.allocate(str6.length() + 1)
+    cb.put(str6)
+    cb.flip()
+
+    val crlf6 = ds.getCRLFList(cb)
+    val (state6, result6, endPos6, endPosDelim6) = ds.search(cb)
+    assertEquals(ds.SearchResult.EOF, state6)
+    assertEquals("abc", result6)
+    assertEquals(2, endPos6)
+    assertEquals(2, endPosDelim6)
+    assertEquals(0, crlf6.length)
+  }
+
+  // State Coverage
+  def testCharMightBeStartOfNextDelimiter = {
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+    assertEquals(0, ds.delimiters.length) // Verified contained no delimiters
+    ds.addDelimiter(",..")
+    assert(ds.delimiters.length == 1) // Verified delimiter was added
+
+    val str1 = "a,,..b"
+    var cb = CharBuffer.allocate(str1.length() + 1)
+    cb.put(str1)
+    cb.flip()
+
+    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    assertEquals(ds.SearchResult.FullMatch, state1)
+    assertEquals("a,", result1)
+    assertEquals(2, endPos1)
+    assertEquals(4, endPosDelim1)
+  }
+  
+  // State Coverage
+  def testWSPPlus = {
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+    assertEquals(0, ds.delimiters.length) // Verified contained no delimiters
+    ds.addDelimiter("%WSP+;")
+    assert(ds.delimiters.length == 1) // Verified delimiter was added
+
+    val str1 = "a\t\t\tb"
+    var cb = CharBuffer.allocate(str1.length() + 1)
+    cb.put(str1)
+    cb.flip()
+
+    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    assertEquals(ds.SearchResult.FullMatch, state1)
+    assertEquals("a", result1)
+    assertEquals(1, endPos1)
+    assertEquals(3, endPosDelim1)
+    
+    val str2 = "ab"
+    cb = CharBuffer.allocate(str2.length() + 1)
+    cb.put(str2)
+    cb.flip()
+
+    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    assertEquals(ds.SearchResult.EOF, state2)
+    assertEquals("ab", result2)
+    assertEquals(1, endPos2)
+    assertEquals(1, endPosDelim2)
+  }
+  
+  // State Coverage
+  def testWSPStar = {
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+    assertEquals(0, ds.delimiters.length) // Verified contained no delimiters
+    ds.addDelimiter("%WSP*;")
+    assert(ds.delimiters.length == 1) // Verified delimiter was added
+
+    val str1 = "a\t\t\tb"
+    var cb = CharBuffer.allocate(str1.length() + 1)
+    cb.put(str1)
+    cb.flip()
+
+    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    assertEquals(ds.SearchResult.FullMatch, state1)
+    assertEquals("a", result1)
+    assertEquals(1, endPos1)
+    assertEquals(3, endPosDelim1)
+    
+    val str2 = "ab"
+    cb = CharBuffer.allocate(str2.length() + 1)
+    cb.put(str2)
+    cb.flip()
+
+    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    assertEquals(ds.SearchResult.EOF, state2)
+    assertEquals("ab", result2)
+    assertEquals(1, endPos2)
+    assertEquals(1, endPosDelim2)
   }
 
 }
