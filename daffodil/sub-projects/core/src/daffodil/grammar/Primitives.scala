@@ -402,7 +402,7 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) e
       val d = new stringsearch.delimiter.Delimiter
       
       d(delim)
-      val delimRegex = d.buildDelimRegEx
+      val delimRegex = d.buildDelimRegEx()
       val p = Pattern.compile(delimRegex, Pattern.MULTILINE)
       
       

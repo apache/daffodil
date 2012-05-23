@@ -29,7 +29,7 @@ class Delimiter extends Logged {
   //
   def apply(pDelimiter: String) = {
     delimiterStr = pDelimiter
-    buildDelimBuf
+    delimBuf = buildDelimBuf(delimiterStr)
   }
 
   // Denotes whether or not this Delimiter (entire delimiter)
@@ -43,7 +43,7 @@ class Delimiter extends Logged {
   // representation of the characters within the delimiter
   // string.
   //
-  def buildDelimBuf = {
+  def buildDelimBuf(delimStr:String): Array[DelimBase] = {
     val q: Queue[DelimBase] = new Queue[DelimBase]()
     var inc = 0
     val loop = new Breaks
@@ -53,19 +53,25 @@ class Delimiter extends Logged {
     var numCharClass: Int = 0
 
     loop.breakable {
-      for (i <- 0 until delimiterStr.length()) {
+      for (i <- 0 until delimStr.length()) {
         val idx = i + inc // Advances cursor past the Character Class
 
-        if (idx >= delimiterStr.length()) {
+        if (idx >= delimStr.length()) {
           // ran off end of delimiter string, break!
           loop.break()
         }
 
-        val c: Char = delimiterStr.charAt(idx)
+        val c: Char = delimStr.charAt(idx)
 
         if (c == '%') {
           // Possible character class, check patterns
-          val subStr: String = delimiterStr.substring(idx)
+          
+          // According to JavaDoc, split will always return at least
+          // one result even if there is no match.
+          val split = delimStr.substring(idx + 1).split("%")
+          log("buildDelimBuf - SPLIT on %: " + split.toSeq.toString)
+
+          val subStr: String = "%" + split(0)
           val (matchLength, delimObj) = findCharClasses(subStr)
 
           if (matchLength != -1) {
@@ -84,6 +90,7 @@ class Delimiter extends Logged {
             newIdx += 1
             q += obj
           }
+
         } else {
           // A CharDelim
           val obj = new CharDelim(c)
@@ -93,17 +100,18 @@ class Delimiter extends Logged {
         }
       } // END for-loop
     } // END loop-breakable
-
+    var resDelimBuf: Array[DelimBase] = null
     if (numCharClass > 1) {
       // More than one Char Class, reduction possible!
       log("buildDelimBuf - Reduction of delimBuf possible!")
       log("buildDelimBuf - Before Reduction:\t" + printDelimBufStr)
-      delimBuf = reduceDelimBuf(q.toArray[DelimBase])
+      resDelimBuf = reduceDelimBuf(q.toArray[DelimBase])
     } else {
       // No need to reduce
-      delimBuf = q.toArray[DelimBase]
+      resDelimBuf = q.toArray[DelimBase]
     }
-    log("buildDelimBuf - Result:\t" + printDelimBufStr(delimBuf))
+    log("buildDelimBuf - Result:\t" + printDelimBufStr(resDelimBuf))
+    resDelimBuf
   }
 
   def printDelimBufStr(delims: Array[DelimBase]): String = {
@@ -133,6 +141,10 @@ class Delimiter extends Logged {
   //
   // Ex. %WSP;%WSP*;%NL;%WSP+;%WSP*
   // 	can be reduced to: %WSP+;%NL;%WSP+;
+  //
+  // Here we should note that %WSP;%WSP;%WSP; is NOT equivalent to %WSP+;
+  // as WSP+ would imply that %WSP;%WSP;%WSP;%WSP; is also valid when in fact
+  // it may not be.
   //
   def reduceDelimBuf(delims: Array[DelimBase]): Array[DelimBase] = {
 
@@ -258,9 +270,9 @@ class Delimiter extends Logged {
   // when character classes are involved, RegEx allows us to determine
   // if the delimiter/data was in the expected format.
   //
-  def buildDelimRegEx: String = {
+  def buildDelimRegEx(delimiterBuf: Array[DelimBase] = delimBuf): String = {
     var sb: StringBuilder = new StringBuilder
-    delimBuf foreach {
+    delimiterBuf foreach {
       delim =>
         {
           delim match {
@@ -404,8 +416,8 @@ class Delimiter extends Logged {
   // Variables used in the iteration contained
   // within the search method.  Part of state-machine.
   var wspMode: Boolean = false // True - Expecting Multiple Whitespace, False - Not Expecting Multiple Whitespace
-  var delimIdx: Int = 0			// Index of delimBuf
-  var charIdx: Int = 0			// Index of CharBuffer (Input String to search)
+  var delimIdx: Int = 0 // Index of delimBuf
+  var charIdx: Int = 0 // Index of CharBuffer (Input String to search)
   var delimMatched: Boolean = false // Value indicating if a delimiter was fully matched
 
   def advanceDelim = {
@@ -434,7 +446,7 @@ class Delimiter extends Logged {
   def update(delim: DelimBase, charPosIn: Int, isMatched: Boolean, charPosEnd: Int = -1) = {
     delim.isMatched = isMatched
     delim.charPos = charPosIn
-    
+
     if (charPosEnd == -1) {
       delim.charPosEnd = charPosIn
     } else {
@@ -531,7 +543,7 @@ class Delimiter extends Logged {
           case nl: NLDelim if !matched => {
             // Expected a newline but it was not found
             log(header + "\tNL and !matched" + " '" + char + "' d" + char.toInt)
-            if (delimIdx == 0){
+            if (delimIdx == 0) {
               advanceChar
             }
             resetDelimBuf
@@ -564,7 +576,7 @@ class Delimiter extends Logged {
             } else {
               update(delim, charIdx, true)
             }
-            wspMode = true  // ignore any further whitespace until encounter non-whitespace char
+            wspMode = true // ignore any further whitespace until encounter non-whitespace char
             advanceDelim
             advanceChar
           }
@@ -572,7 +584,7 @@ class Delimiter extends Logged {
             // We're looking for 1 or more spaces
             // and did not find one.
             log(header + "\tWSPPlus and !isSpace" + " '" + char + "' d" + char.toInt)
-            if (delimIdx == 0){
+            if (delimIdx == 0) {
               advanceChar
             }
             resetDelimBuf
@@ -614,7 +626,7 @@ class Delimiter extends Logged {
             // to find a space. Reset.
             if (!wspMode) {
               log(header + "\t!WSPMode and isSpace" + " '" + char + "' d" + char.toInt)
-              if (delimIdx == 0){
+              if (delimIdx == 0) {
                 advanceChar
               }
               resetDelimBuf
@@ -634,11 +646,14 @@ class Delimiter extends Logged {
           case other if !matched && delimBuf(0).checkMatch(char) => {
             log(header + "\tChar and !matched but might be start of next delimiter" + " '" + char + "' d" + char.toInt)
             wspMode = false
+            if (delimIdx == 0){
+              advanceChar
+            }
             resetDelimBuf
           }
           case _ => {
             log(header + "\tNo Match!" + " '" + char + "' d" + char.toInt)
-            if (delimIdx == 0){
+            if (delimIdx == 0) {
               advanceChar
             }
             resetDelimBuf
@@ -651,7 +666,6 @@ class Delimiter extends Logged {
     processDelimBuf
     processPartials
     log("END SEARCH DELIM: " + delimiterStr + "\n")
-
   }
 
   // Determines if all characters within a delimBuf were
