@@ -8,8 +8,8 @@ import daffodil.xml._
 import daffodil.processors._
 import java.nio.CharBuffer
 import com.ibm.icu.text._
-import java.text.ParsePosition
 import java.util.regex._
+import java.text.{ParseException, ParsePosition}
 
 case class ElementBegin(e : ElementBaseMixin) extends Terminal(e, true) {
      def parser: Parser = new Parser {
@@ -236,7 +236,8 @@ case class ConvertTextIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
           // Verify no digits lost (the number was correctly transcribed)
           if (asLong != num) {
             // Transcription error
-            System.err.print("Error: Invalid Integer: " + str)
+            System.err.print("Error: Invalid Integer: " + str + "\n")
+            throw new ParseException("Error: Invalid Integer: " + str, 0)
           }
           else {
             node.setText(asLong.toString)
