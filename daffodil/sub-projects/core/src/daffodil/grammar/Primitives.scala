@@ -231,7 +231,16 @@ case class ConvertTextIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
           val pos = new ParsePosition(0)
           val num = df.parse(str, pos)
           // Assume long as the most precision
-          node.setText(num.longValue.toString)
+          val asLong = num.longValue
+
+          // Verify no digits lost (the number was correctly transcribed)
+          if (asLong != num) {
+            // Transcription error
+            System.err.print("Error: Invalid Integer: " + str)
+          }
+          else {
+            node.setText(asLong.toString)
+          }
           //val i = str.toInt
           // FALSE: Node remains a string because of jdom
           start
