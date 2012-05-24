@@ -17,7 +17,11 @@ class EntityReplacerTest extends JUnit3Suite {
 	  
 	  println(e.replaceAll("SomeRandomText%#x0000;MoreRandomText%#x000D;NEWline" + 
 	      "%%SomeRandomText%NUL;SomeMoreText%BEL;AndMoreText%%%LF;YayText!" + 
-	      "SomeRandomText%#9;MoreRandomText%#13;NEWline"))
+	      "SomeRandomText%#9;MoreRandomText%#13;NEWline%#rFF;"))
+	  
+	  println(e.replaceAll("SomeRandomText%#x0000;MoreRandomText%#x000D;NEWline" + 
+	      "%%SomeRandomText%NUL;SomeMoreText%BEL;AndMoreText%%%LF;YayText!" + 
+	      "SomeRandomText%#9;MoreRandomText%#13;NEWline%#rFF;", true))
 	}
 	
 	def testJavaRegexFunctionality(){
