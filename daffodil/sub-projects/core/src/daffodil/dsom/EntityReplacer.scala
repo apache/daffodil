@@ -3,16 +3,17 @@ package daffodil.dsom
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import daffodil.exceptions.Assert
+import java.lang.Byte
 
 /**
  * Replace character entities, as well as hex/decimal numeric character entities by their unicode codepoint values.
- * 
+ *
  * Deals with self-escaping of the '%' which introduces a DFDL character entity.
- * 
+ *
  * Does not deal with raw %#rHH; entities. Those have to be preserved because they get interpreted differently
  * depending on how the string literal is used. Similarly the character class entities like %WSP*; which are used
- * to provide pattern match literals (like delimiters). 
- * 
+ * to provide pattern match literals (like delimiters).
+ *
  */
 class EntityReplacer {
 
@@ -61,6 +62,7 @@ class EntityReplacer {
   lazy val charEntityPattern = Pattern.compile("%(" + dfdlEntityName + ");", Pattern.MULTILINE)
   lazy val hexPattern = Pattern.compile("%#x[0-9a-fA-F]+;", Pattern.MULTILINE)
   lazy val decPattern = Pattern.compile("%#[0-9]+;", Pattern.MULTILINE)
+  lazy val bytePattern = Pattern.compile("%#r[0-9a-fA-F]{2};", Pattern.MULTILINE)
 
   def hasDfdlCharEntity(input: String): Boolean = {
     val p: Pattern = charEntityPattern
@@ -80,10 +82,16 @@ class EntityReplacer {
     m.find()
   }
 
-  def replaceHexOrDecimal(input: String, base : Int, prefix : String): String = {
+  def hasByteCodePoint(input: String): Boolean = {
+    val p: Pattern = bytePattern
+    val m: Matcher = p.matcher(input)
+    m.find()
+  }
+
+  def replaceHex(input: String, prefix: String): String = {
     var res: String = input
 
-    // While we have Hex or Decimal Code Points in the string
+    // While we have Hex Code Points in the string
     // Find and replace with their character equivalents.
     while (hasHexCodePoint(res)) {
       val p: Pattern = hexPattern
@@ -92,7 +100,7 @@ class EntityReplacer {
       if (m.find()) {
         val rawStr = m.group().toString()
         val trimmedStr = rawStr.replace(prefix, "").replace(";", "")
-        val intStr = Integer.parseInt(trimmedStr, base)
+        val intStr = Integer.parseInt(trimmedStr, 16)
 
         res = res.replaceAll(rawStr, intStr.asInstanceOf[Char].toString())
         m = p.matcher(res) // update Matcher
@@ -101,13 +109,62 @@ class EntityReplacer {
 
     res
   }
-    
+  
+  def replaceDecimal(input: String, prefix: String): String = {
+    var res: String = input
+
+    // While we have Decimal Code Points in the string
+    // Find and replace with their character equivalents.
+    while (hasDecimalCodePoint(res)) {
+      val p: Pattern = decPattern
+      var m: Matcher = p.matcher(res)
+
+      if (m.find()) {
+        val rawStr = m.group().toString()
+        val trimmedStr = rawStr.replace(prefix, "").replace(";", "")
+        val intStr = Integer.parseInt(trimmedStr, 10)
+
+        res = res.replaceAll(rawStr, intStr.asInstanceOf[Char].toString())
+        m = p.matcher(res) // update Matcher
+      }
+    }
+
+    res
+  }
+
+  def replaceBytes(input: String, prefix: String): String = {
+    var res: String = input
+
+    // While we have Hex or Decimal Code Points in the string
+    // Find and replace with their character equivalents.
+    while (hasByteCodePoint(res)) {
+      val p: Pattern = bytePattern
+      var m: Matcher = p.matcher(res)
+
+      if (m.find()) {
+        val rawStr = m.group().toString()
+        val trimmedStr = rawStr.replace(prefix, "").replace(";", "")
+        val byteStr0: Byte = Byte.parseByte(trimmedStr.substring(0,1), 16)
+        val byteStr1: Byte = Byte.parseByte(trimmedStr.substring(1), 16)
+        
+        res = res.replaceAll(rawStr, byteStr0.asInstanceOf[Char].toString() + byteStr1.asInstanceOf[Char].toString())
+        m = p.matcher(res) // update Matcher
+      }
+    }
+
+    res
+  }
+  
+  def replaceByte(input: String): String = {
+    replaceBytes(input,"%#r")
+  }
+
   def replaceHex(input: String): String = {
-   replaceHexOrDecimal(input, 16, "%#x")
+    replaceHex(input, "%#x")
   }
 
   def replaceDecimal(input: String): String = {
-   replaceHexOrDecimal(input, 10, "%#")
+    replaceDecimal(input, "%#")
   }
 
   def replaceDfdlEntity(input: String): String = {
@@ -118,9 +175,10 @@ class EntityReplacer {
     replace(input, escapeReplacements)
   }
 
-  def replaceAll(input: String): String = {
+  def replaceAll(input: String, shouldReplaceByte: Boolean = false): String = {
     var res: String = input
 
+    if (shouldReplaceByte){ res = replaceByte(input) }
     res = replaceHex(res)
     res = replaceDecimal(res)
     res = replace(res, entityCharacterUnicode)
@@ -150,42 +208,42 @@ class EntityReplacer {
 
 object EntityReplacer extends EntityReplacer
 
-abstract class StringLiteralBase(rawArg : String) {
-  val raw : String = rawArg
-  def cooked : String
+abstract class StringLiteralBase(rawArg: String) {
+  val raw: String = rawArg
+  def cooked: String
 }
 
 /**
  * String values in the infoset, string results of DFDL's xpath-like expressions are of this kind.
- * 
- *  This is the kind of string literal you can use within an expression. 
+ *
+ *  This is the kind of string literal you can use within an expression.
  */
-class StringValueAsLiteral(rawArg : String) 
+class StringValueAsLiteral(rawArg: String)
   extends StringLiteralBase(rawArg) {
   def cooked = EntityReplacer.replaceAll(raw)
 }
 
-class SingleCharacterLiteral(rawArg : String)
-extends StringValueAsLiteral(rawArg) {
+class SingleCharacterLiteral(rawArg: String)
+  extends StringValueAsLiteral(rawArg) {
   Assert.schemaDefinition(cooked.length == 1, "Length of string must be exactly 1 character.")
 }
 
-class OneDelimiterLiteral(rawArg : String)
-extends StringLiteralBase(rawArg) {
+class OneDelimiterLiteral(rawArg: String)
+  extends StringLiteralBase(rawArg) {
   def cooked = EntityReplacer.replaceAll(raw)
   // deal with raw bytes entities
   // deal with character class entities
-  
+
   /**
    *  return a regex matcher that matches this individual delimiter
    */
   def matcher = {
     Assert.notYetImplemented()
   }
-  
+
 }
-  
-class ListOfDelimiters(rawArg : String) 
-extends StringLiteralBase(rawArg) {
-    def cooked = EntityReplacer.replaceAll(raw)
+
+class ListOfDelimiters(rawArg: String)
+  extends StringLiteralBase(rawArg) {
+  def cooked = EntityReplacer.replaceAll(raw)
 }

@@ -37,20 +37,22 @@ object TestUtils {
     val real = XML.loadString(realSchemaText)
     real
   }
-  
+
   /**
    * Compares two XML Elements, after having stripped off all attributes.
    * 
    * TODO: we might start using xsi:type attributes at some point. If so fix this to 
    * save that attribute.
+   *
+   * NOTE: Has Side Effects: strips off attributes
    */
-  def assertEqualsXMLElements(expected : Node, actual : Node) = {
+  def assertEqualsXMLElements(expected : Node, actual : Node) {
     val exp = XMLUtils.removeAttributes(expected)
     val act = XMLUtils.removeAttributes(actual)
     assertEquals(exp, act)
   }
-  
-  
+
+
   /**
    * We want to be able to run tests from Eclipse or from batch builds that
    * are rooted in a different directory, so, since Java/JVMs don't have a notion
@@ -67,8 +69,8 @@ object TestUtils {
   def findFile(f : File) : File = {
     if (f.exists()) return f
     // let's figure out where paths are defaulting to....
-    val cwd = new File("").getAbsolutePath()
-    if (cwd.endsWith("daffodil/sub-projects/core")) {
+    val cwd = new File("").getAbsolutePath
+    if (cwd.endsWith("daffodil" + File.separator + "sub-projects" + File.separator + "core")) {
         // we're rooted in the core module
         // not sure why the path wouldn't be right from here, this is where our 
         // tdml relative paths are supposed to be relative to.
@@ -78,16 +80,25 @@ object TestUtils {
         System.err.println("Couldn't find file " + f + " relative to " + cwd + ".")
         return null
     }
-    if (cwd.endsWith("daffodil")) {
+    else if (cwd.endsWith("daffodil")) {
         // I think we're rooted at the overall daffodil project root.
         // Let's check
-        val coreRelativePath = cwd + "/sub-projects/core/" + f.getPath()
+        val coreRelativePath = cwd + File.separator + "sub-projects" + File.separator + "core" + File.separator + f.getPath
         val coreF = new File(coreRelativePath)
         if (coreF.exists()) return coreF
+    }
+    else if (new File(cwd + File.separator + "daffodil" + File.separator).exists()) {
+        // We're in the parent of the overall daffodil project root (typical for Intellij)
+        val coreRelativePath = cwd + File.separator + "daffodil" + File.separator + "sub-projects" + File.separator + "core" + File.separator + f.getPath
+        val coreF = new File(coreRelativePath)
+        if (coreF.exists()) return coreF
+    }
+    else {
+        System.err.println("Couldn't find file " + f + " relative to " + cwd + ".")
     }
     // throw new FileNotFoundException("Couldn't find file " + f + " relative to " + cwd + ".")
     null
   }
-  
-  
+
+
 }

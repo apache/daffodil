@@ -70,7 +70,7 @@ class Compiler extends DFDL.Compiler {
       case None => Assert.usageError("The document element named " + root + " was not found.")
       case Some(rootElem) => {
         val parserFactory = rootElem.document
-        val parser = parserFactory.parser // if we can get this far, that says alot.
+        val parser = parserFactory.parser // if we can get this far, that says a lot.
         (sset, parser, rootElem)
       }
     }

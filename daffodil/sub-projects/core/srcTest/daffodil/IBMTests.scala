@@ -10,9 +10,7 @@ class IBMTestsThatPass extends JUnit3Suite {
 
   val testDir = "test-suite/ibm-contributed/"
   val tdml1 = testDir + "dpaext1.tdml"
-  val tdml2 = testDir + "dpaext2.tdml"
   val runner1 = new DFDLTestSuite(new File(tdml1))
-  val runner2 = new DFDLTestSuite(new File(tdml2))
 
   def test_introduction_1_01() { runner1.runOneTest("introduction_1_01") }
   def test_encoding_11_01() { runner1.runOneTest("encoding_11_01") }
@@ -21,7 +19,19 @@ class IBMTestsThatPass extends JUnit3Suite {
   def test_length_implicit_12_01() { runner1.runOneTest("length_implicit_12_01") }
     
 }
- 
+
+class IBMTestsOnNumbers extends JUnit3Suite {
+    val testDir = "test-suite/ibm-contributed/"
+    val tdml1 = testDir + "dpaext1.tdml"
+    val runner1 = new DFDLTestSuite(new File(tdml1))
+
+    def test_schema_types_5_01() { runner1.runOneTest("schema_types_5_01") }
+    def test_schema_types_5_02() { runner1.runOneTest("schema_types_5_02") }
+    def test_schema_types_5_03() { runner1.runOneTest("schema_types_5_03") }
+    def test_schema_types_5_04() { runner1.runOneTest("schema_types_5_04") }
+    def test_schema_types_5_05() { runner1.runOneTest("schema_types_5_05") }
+}
+
 class IBMTestsThatThrow extends JUnit3Suite {
 
   val testDir = "test-suite/ibm-contributed/"

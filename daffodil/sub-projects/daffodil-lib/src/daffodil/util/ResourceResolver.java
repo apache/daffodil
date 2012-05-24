@@ -22,7 +22,7 @@ public class ResourceResolver implements LSResourceResolver {
 
   public String filePart(String uri) {
 	  String res = null;
-	  String parts[] = uri.split("/");
+	  String parts[] = uri.split(File.separator);
 	  if (parts.length == 0) {
 		  res = uri;
 	  }
@@ -37,13 +37,13 @@ public class ResourceResolver implements LSResourceResolver {
 			String baseURI) {
 		Boolean isFound = false;
 		InputStream inStream = null;
-		String[] prefixesToTry = { "src/xsd/", "srcTest/xsd/", "" };
+		String[] prefixesToTry = { "src" + File.separator + "xsd" + File.separator, "srcTest" + File.separator + "xsd" + File.separator, "" };
 		for (String prefix : prefixesToTry) {
 			String sysIdFileSuffix = filePart(systemId);
 			String fn = prefix + sysIdFileSuffix;
 //			System.out.print("trying to find NS " + namespaceURI
 //					+ " in resource " + fn);
-			inStream = this.getClass().getResourceAsStream("/" + fn);
+			inStream = this.getClass().getResourceAsStream(File.separator + fn);
 			if (inStream != null) {
 				isFound = true;
 //				System.out.println("...found!");
@@ -70,19 +70,24 @@ public class ResourceResolver implements LSResourceResolver {
 
     File f = null;
     Boolean isFound = false;
-    String[] prefixesToTry = {"../daffodil-lib/src/xsd/", "../daffodil-lib/srcTest/xsd/", ""};
+    String[] prefixesToTry = {
+            ".." + File.separator + "daffodil-lib" + File.separator + "src" + File.separator + "xsd" + File.separator,
+            ".." + File.separator + "daffodil-lib" + File.separator + "srcTest" + File.separator + "xsd" + File.separator,
+            "daffodil" + File.separator + "sub-projects" + File.separator + "daffodil-lib" + File.separator + "src" + File.separator + "xsd" + File.separator,  // For Intellij Support
+            ""
+    };
     for (String prefix : prefixesToTry ) {
       String sysIdFileSuffix = filePart(systemId);
       String augmentedSystemId = prefix + sysIdFileSuffix;
       f = new File(augmentedSystemId);
-//      String abs = f.getAbsolutePath();
-//      System.out.print("trying to find NS "+ namespaceURI + " in file " + abs);
+      String abs = f.getAbsolutePath();
+      System.out.print("trying to find NS "+ namespaceURI + " in file " + abs);
       if (f.exists()) {
         isFound=true;
-//        System.out.println("...found!");
+        System.out.println("...found!");
         break;
       } else {
-//        System.out.println("...nope!");
+        System.out.println("...nope!");
         continue;
       }
     }

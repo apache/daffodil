@@ -10,9 +10,10 @@ import daffodil.dsom._
 import daffodil.api._
 import java.nio._
 import java.nio.charset._
-import stringsearch.DelimSearcherV3
+import stringsearch._
 import scala.collection.JavaConversions._
 import scala.util.logging.ConsoleLogger
+import stringsearch.DelimSearcherV3._
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
@@ -413,7 +414,7 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     println("BYTE_OFFSET: " + byteOffset)
     var endBitPosA: Long = fillCharBuffer(cb, bitOffset, decoder)
     var sb: StringBuilder = new StringBuilder // To keep track of the searched text
-    val dSearch = new DelimSearcherV3.DelimSearcher with ConsoleLogger
+    val dSearch = new DelimSearcher with ConsoleLogger
     var buf = cb
 
     delimiters foreach {
@@ -429,13 +430,13 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     //var (theState, result, endPos) = dSearch.search(buf, 0)
     var (theState, result, endPos, endPosDelim) = dSearch.search(buf, 0)
 
-    if (theState == dSearch.SearchResult.FullMatch) {
+    if (theState == SearchResult.FullMatch) {
       sb.append(result)
     }
     var EOF: Boolean = false
 
     // Proceed until we encounter a FullMatch or EOF
-    while ((theState == dSearch.SearchResult.EOF || theState == dSearch.SearchResult.PartialMatch) && endBitPosA != -1 && !EOF) {
+    while ((theState == SearchResult.EOF || theState == SearchResult.PartialMatch) && endBitPosA != -1 && !EOF) {
       buf.clear()
       buf = CharBuffer.allocate(buf.length() * 2)
 
@@ -449,7 +450,7 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
       theState = state2
       endPos = endPos2
 
-      if (theState != dSearch.SearchResult.PartialMatch) {
+      if (theState != SearchResult.PartialMatch) {
         sb.append(result2)
       }
     }
@@ -483,7 +484,7 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     println("BYTE_OFFSET: " + byteOffset)
     var endBitPosA: Long = fillCharBuffer(cb, bitOffset, decoder)
     var sb: StringBuilder = new StringBuilder // To keep track of the searched text
-    val dSearch = new DelimSearcherV3.DelimSearcher
+    val dSearch = new DelimSearcher
     var buf = cb
 
     delimiters foreach {
@@ -499,13 +500,13 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     //var (theState, result, endPos) = dSearch.search(buf, 0)
     var (theState, result, endPos, endPosDelim) = dSearch.search(buf, 0)
 
-    if (theState == dSearch.SearchResult.FullMatch) {
+    if (theState == SearchResult.FullMatch) {
       sb.append(result)
     }
     var EOF: Boolean = false
 
     // Proceed until we encounter a FullMatch or EOF
-    while ((theState == dSearch.SearchResult.EOF || theState == dSearch.SearchResult.PartialMatch) && endBitPosA != -1 && !EOF) {
+    while ((theState == SearchResult.EOF || theState == SearchResult.PartialMatch) && endBitPosA != -1 && !EOF) {
       buf.clear()
       buf = CharBuffer.allocate(buf.length() * 2)
 
@@ -519,7 +520,7 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
       endPos = endPos2
       endPosDelim = endPosDelim2
 
-      if (theState != dSearch.SearchResult.PartialMatch) {
+      if (theState != SearchResult.PartialMatch) {
         sb.append(result2)
       }
     }

@@ -6,6 +6,8 @@
 bin/
 bin/*
 target
+out
+out/*
 
 # /daffodil/
 /daffodil/.cache

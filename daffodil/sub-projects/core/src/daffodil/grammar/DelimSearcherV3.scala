@@ -11,6 +11,13 @@ import stringsearch.delimiter._
 import scala.util.logging.ConsoleLogger
 import scala.util.logging.Logged
 
+object SearchResult extends Enumeration {
+  type SearchResult = Value
+  val FullMatch, PartialMatch, EOF = Value
+}
+
+import SearchResult._
+
 class DelimSearcher extends Logged {
 
   // A list of delimiters, each delimiter is represented as a Delimiter object
@@ -57,13 +64,6 @@ class DelimSearcher extends Logged {
       node => node.print
     }
   }
-
-  object SearchResult extends Enumeration {
-    type SearchResult = Value
-    val FullMatch, PartialMatch, EOF = Value
-  }
-  
-  import SearchResult._
 
   // Searches a CharBuffer by iterating through each delimiter and seeing if the CharBuffer contains
   // text that matches the delimiter either fully or partially.
@@ -229,7 +229,7 @@ class DelimSearcher extends Logged {
     val wsp = new WSPDelim
     val q = new Queue[(Int, Int)]
     var start: Int = -1
-    
+
     for (i <- 0 until input.length()) {
       val char: Char = input.charAt(i)
 
@@ -254,5 +254,13 @@ class DelimSearcher extends Logged {
     }
     q.toList
   }
-  
+
+  def enableStateTrace = {
+    this.delimiters.foreach(d => d.stateTraceEnabled = true)
+  }
+
+  def disableStateTrace = {
+    this.delimiters.foreach(d => d.stateTraceEnabled = false)
+  }
+
 }

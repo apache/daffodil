@@ -40,7 +40,7 @@ case class ElementEnd(e : ElementBaseMixin) extends Terminal(e, true) {
        */
       def parse(start : PState) : PState = {
         val currentElement = start.parent
-        val priorElement = currentElement.getParent().asInstanceOf[org.jdom.Element]
+        val priorElement = currentElement.getParent.asInstanceOf[org.jdom.Element]
     	val postState = start.withParent(priorElement).moveOverByOne
     	postState
       }
@@ -78,7 +78,7 @@ case class StringFixedLengthInBytes(e : ElementBaseMixin, nBytes : Long) extends
     	System.err.println("Ended at bit position " + endBitPos)
     	val endCharPos = start.charPos + result.length
     	val currentElement = start.parent
-    	Assert.invariant(currentElement.getName() != "_document_")
+    	Assert.invariant(currentElement.getName != "_document_")
     	// Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
     	// and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
     	currentElement.addContent(new org.jdom.Text(result))
@@ -223,12 +223,18 @@ case class ConvertTextIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
    def parser : Parser = new Parser {
      def parse(start: PState) : PState = {
        val node = start.parent
-       val str = node.getText()
+       val str = node.getText
        
-      val resultState =  try {
-         val i = str.toInt
-       // Node remains a string because of jdom
-         start
+        val resultState =  try {
+          // Need to use Decimal Format to parse even though this is an int
+          val df = new DecimalFormat()
+          val pos = new ParsePosition(0)
+          val num = df.parse(str, pos)
+          // Assume long as the most precision
+          node.setText(num.longValue.toString)
+          //val i = str.toInt
+          // FALSE: Node remains a string because of jdom
+          start
        } catch {case e:Exception => start.failed("Failed to convert to an xs:int") }
        
       resultState
@@ -243,7 +249,7 @@ case class ConvertTextDoublePrim(e: ElementBaseMixin) extends Terminal(e, true) 
           
     def parse(start: PState): PState = {
       val node = start.parent
-      val str = node.getText()
+      val str = node.getText
 
       val resultState = try {
         //convert to NumberFormat to handle format punctuation such as , . $ & etc
@@ -268,7 +274,7 @@ case class ConvertTextFloatPrim(e: ElementBaseMixin) extends Terminal(e, true) {
       
     def parse(start: PState): PState = {
       val node = start.parent
-      val str = node.getText()
+      val str = node.getText
 
       val resultState = try {
         //convert to NumberFormat to handle format punctuation such as , . $ & etc
@@ -396,7 +402,7 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) e
       
       //println("resultSTR:" + resultStr)
      
-      println("BUF: " + cbuf.toString() + " ENDBITPOS: " + endBitPos)
+      println("BUF: " + cbuf.toString + " ENDBITPOS: " + endBitPos)
       
      
       val d = new stringsearch.delimiter.Delimiter

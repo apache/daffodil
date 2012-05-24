@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/daffodil/sub-projects/core/Core.iml" filepath="$PROJECT_DIR$/daffodil/sub-projects/core/Core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/daffodil/sub-projects/daffodil-lib/Daffodil-lib.iml" filepath="$PROJECT_DIR$/daffodil/sub-projects/daffodil-lib/Daffodil-lib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/daffodil/sub-projects/core/libsrc/jing-20081028/sample/datatype/Datatype.iml" filepath="$PROJECT_DIR$/daffodil/sub-projects/core/libsrc/jing-20081028/sample/datatype/Datatype.iml" />
+      <module fileurl="file://$PROJECT_DIR$/daffodil/sub-projects/orig/Orig.iml" filepath="$PROJECT_DIR$/daffodil/sub-projects/orig/Orig.iml" />
+      <module fileurl="file://$PROJECT_DIR$/daffodil/sub-projects/Sub-projects.iml" filepath="$PROJECT_DIR$/daffodil/sub-projects/Sub-projects.iml" />
+    </modules>
+  </component>
+</project>
+
