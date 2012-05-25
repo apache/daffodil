@@ -316,6 +316,8 @@ class TestDsomCompiler extends JUnit3Suite {
           TestUtils.findFile(
               "test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml"))
               
+  
+              
   def test_named_format_chaining {
     val compiler = Compiler()
     val sset = new SchemaSet(testSchema)
@@ -557,6 +559,103 @@ class TestDsomCompiler extends JUnit3Suite {
     
   }
   
+  val ibm7132Schema = XML.loadFile(TestUtils.findFile("test/TestRefChainingIBM7132.dfdl.xml"))
+  
+  def test_ibm_7132 {
+    val compiler = Compiler()
+    val sset = new SchemaSet(ibm7132Schema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
+    val ge1 = ge1f.forRoot()
+    
+    val f1 = ge1.formatAnnotation
+
+    val props: Map[String, String] = f1.getFormatProperties()
+
+    def foundValues(collection: Map[String, String], key: String, value: String): Boolean = {
+      val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
+        case Some(_) => true
+        case None => false
+      }
+      found
+    }
+
+    assertEquals(true, foundValues(props, "separatorPosition", "infix"))
+    assertEquals(true, foundValues(props, "lengthKind", "implicit"))
+    assertEquals(true, foundValues(props, "representation", "text"))
+    assertEquals(true, foundValues(props, "textNumberRep", "standard"))
+    
+   val ct =  ge1.typeDef.asInstanceOf[ComplexTypeBase]
+   val seq =  ct.modelGroup.asInstanceOf[Sequence]
+   val Seq(e1: ElementDeclBase, e2: ElementDeclBase) = seq.groupMembers
+   
+   val e1f = e1.formatAnnotation.asInstanceOf[DFDLElement]
+   val e1fProps: Map[String, String] = e1f.getFormatProperties()
+    
+//    println(e1fProps)
+//
+//    def e1fValues (collection: Map[String, String], key: String, value: String): Boolean = {
+//      val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
+//        case Some(_) => true
+//        case None => false
+//      }
+//      found
+//    }
+    
+    //println(e1f.initiatorRaw)
+
+
+  }
+  
+  def testDfdlRef = {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:defineFormat name="ref1" initiator=":"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit" ref="tns:ref1" type="xs:string">
+      </xs:element>)
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
+    val ge1 = ge1f.forRoot()
+    val props = ge1.formatAnnotation.getFormatProperties()
+    
+    println(props)
+    //assertEquals(":", ge1.initiatorRaw)
+  }
+  
+  def testGetQName = {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:defineFormat name="ref1" initiator=":"  >
+      </dfdl:defineFormat>,
+      <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
+      </xs:element>)
+    println(testSchema)
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
+    val ge1 = ge1f.forRoot()
+    //val props = ge1.formatAnnotation.getFormatProperties()
+    
+   val (nsURI, localName) = ge1.formatAnnotation.getQName("ref1")
+    
+    println(nsURI + ", " + localName)
+  }
+  
+  def testGetAllNamespaces() {
+   val xml = <bar xmlns:foo="fooNS" xmlns:bar="barNS">
+                <quux xmlns:baz="bazNS" attr1="x"/>
+             </bar>
+                      
+   val scope = (xml \ "quux")(0).scope
+   println(scope)
+   val newElem = scala.xml.Elem("dfdl", "element", null, scope) 
+   println(newElem)
+}
   
 }
 
