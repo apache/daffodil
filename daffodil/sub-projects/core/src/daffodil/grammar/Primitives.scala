@@ -234,7 +234,7 @@ case class ConvertTextIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
           val asLong = num.longValue
 
           // Verify no digits lost (the number was correctly transcribed)
-          if (asLong != num) {
+          if (asLong.asInstanceOf[Number] != num) {
             // Transcription error
             System.err.print("Error: Invalid Integer: " + str + "\n")
             throw new ParseException("Error: Invalid Integer: " + str, 0)
