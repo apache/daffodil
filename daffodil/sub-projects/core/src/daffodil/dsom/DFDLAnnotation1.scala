@@ -187,24 +187,32 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
     case _ => Assert.impossibleCase()
   }.toSet
 
-  // Added by Taylor Wise
-  //
-  // TODO: Consolidate QName functions in XMLUtil
-  
-  def getQName(name: String): (String, String) = {
-    val parts = name.split(":").toList
-    val (prefix, localName) = parts match {
-      case List(local) => ("", local)
-      case List(pre, local) => (pre, local)
-      case _ => Assert.impossibleCase()
-    }
-    val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
-    // Assert.schemaDefinition(nsURI != null, "In QName " + name + ", the prefix " + prefix + " was not defined.")
-    // TODO: accumulate errors, don't just throw on one.
-    // TODO: error location for diagnostic purposes. 
-    // see: http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
-    (nsURI, localName)
-  }
+/**
+  * If there is no default namespace (that is, no xmlns="..." at all), then getQName("foo") should return ("", "foo").
+  * If there is a default namespace with URI "defNS", then getQName("foo") should return ("defNS", "foo")
+  * If there is no namespace definition for prefix bar, then getQName("bar:foo") should produce a schemaDefinitionError,
+  * because this is a referential integrity error.
+  * If there is a namespace definition for prefix bar of "barNS", then getQName("bar:foo") should return ("barNS", "foo")
+  */
+ def getQName(name: String): (String, String) = {
+   val parts = name.split(":").toList
+   val (prefix, localName) = parts match {
+     case List(local) => (null, local)
+     case List(pre, local) => (pre, local)
+     case _ => Assert.impossibleCase()
+   }
+   val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
+   // Assert.schemaDefinition(nsURI != null, "In QName " + name + ", the prefix " + prefix + " was not defined.")
+   // TODO: accumulate errors, don't just throw on one.
+   // TODO: error location for diagnostic purposes. 
+   // see: http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
+   if (nsURI == null && prefix == null) 
+     ("", localName)
+   else if (nsURI == null)
+     Assert.schemaDefinitionError("In QName " + name + ", the prefix " + prefix + " was not defined.")
+   else
+     (nsURI, localName)
+ }
 
   // Added by Taylor Wise
   //
@@ -330,7 +338,13 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
   lazy val formatRefProperties: Map[String, String] = {
     var refStack: Set[String] = Set.empty[String]
     var props: Map[String, String] = Map.empty[String, String]
-    val ref = getLocalFormatRef()
+    var ref = getLocalFormatRef()
+    if (ref.length() == 0){
+      val found = this.combinedLocalProperties.filter(x => x._1 == "ref")
+      if (found.size > 0){
+        ref = found.toSeq(0)._2
+      }
+    }
     if (ref.length() != 0){
       props = getDefineFormatPropertiesByRef(ref, refStack)
     }

@@ -107,6 +107,7 @@ with CommonRuntimeValuedPropertiesMixin {
   }
 
   lazy val annotationObjs = {
+    println(dais)
     dais.flatMap { dai =>
       {
         val children = dai.child

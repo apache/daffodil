@@ -19,7 +19,11 @@ trait AnnotatedElementMixin
   extends AnnotatedMixin
   with Element_AnnotationMixin {
 
-  def emptyFormatFactory = new DFDLElement(<dfdl:element/>, this)
+  def emptyFormatFactory = {
+   val scope = xml.scope
+   val fa = scala.xml.Elem("dfdl", "element", null, scope)
+   new DFDLElement(fa, this)
+ }
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
 }
 
