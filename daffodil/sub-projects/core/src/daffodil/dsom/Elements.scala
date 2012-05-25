@@ -21,7 +21,8 @@ trait AnnotatedElementMixin
 
   def emptyFormatFactory = {
    val scope = xml.scope
-   val fa = scala.xml.Elem("dfdl", "element", null, scope)
+   val scala.xml.Elem(_, _, md, _, _*) = <foo/> // hack way to get empty metadata object.
+   val fa = scala.xml.Elem("dfdl", "element", md, scope)
    new DFDLElement(fa, this)
  }
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
