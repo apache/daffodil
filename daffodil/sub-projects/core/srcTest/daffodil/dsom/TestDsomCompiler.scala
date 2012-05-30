@@ -611,7 +611,7 @@ class TestDsomCompiler extends JUnit3Suite {
   
   def testDfdlRef = {
     val testSchema = TestUtils.dfdlTestSchema(
-      <dfdl:defineFormat name="ref1" initiator=":"/>,
+      <dfdl:defineFormat name="ref1"> <dfdl:format initiator=":"/> </dfdl:defineFormat>,
       <xs:element name="e1" dfdl:lengthKind="implicit" ref="tns:ref1" type="xs:string">
       </xs:element>)
     val sset = new SchemaSet(testSchema)
