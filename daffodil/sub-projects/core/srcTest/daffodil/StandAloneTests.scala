@@ -41,7 +41,7 @@ object TestRig {
 
 class PassingTests extends JUnit3Suite {
   val doTest = TestRig.doTest _
-  def testAA000() { doTest("AA.dfdl.xsd", "list", "AA000.in", "AA000.xml") }
+  // 
   def testAF000() { doTest("AF.dfdl.xsd", "allZones", "AF000.in", "AF000.xml") }
   def testAF001() { doTest("AF.dfdl.xsd", "allZones", "AF001.in", "AF001.xml") }
  
@@ -75,7 +75,6 @@ class TestsThatFailComparison extends JUnit3Suite {
 
 class TestsThatAbend extends JUnit3Suite {
   val doTest = TestRig.doTest _
-
   def testAB000() { doTest("AB.dfdl.xsd", "matrix", "AB000.in", "AB000.xml") }
   def testAB001() { doTest("AB.dfdl.xsd", "matrix", "AB001.in", "AB000.xml") }
   def testAB002() { doTest("AB.dfdl.xsd", "matrix", "AB002.in", "AB000.xml") }
