@@ -153,8 +153,26 @@ class TestDFDLParser extends JUnit3Suite {
     val actual = Compiler.testString(sch, "55,000")
     TestUtils.assertEqualsXMLElements(<e1><s1>5</s1><s2>5000</s2></e1>, actual)
   }
-  
-// TEST FAILS - SEE JIRA DFDL-184
+
+  def testInt2() {
+    val sch = TestUtils.dfdlTestSchema(
+        <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="explicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+    <xs:element name="s2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
+    </xs:sequence>
+    </xs:complexType>
+    </xs:element>)
+    val e = intercept[Exception]{
+      val actual = Compiler.testString(sch, "55.001")
+    }
+    //println("ERROR!!!!!" + e.getMessage())
+    assertTrue(e.getMessage().contains("xs:int"))
+  }
+
+  // TEST FAILS - SEE JIRA DFDL-184
 //  def testIntTooLong() {
 //    val sch = TestUtils.dfdlTestSchema(
 //      <dfdl:format ref="tns:daffodilTest1"/>,
