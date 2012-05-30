@@ -26,6 +26,12 @@ trait SchemaComponent
   def schemaDocument: SchemaDocument
   lazy val schema: Schema = schemaDocument.schema
   def xml: Node
+   
+  private val scala.xml.Elem(_, _, emptyXMLMetadata, _, _*) = <foo/> // hack way to get empty metadata object.
+    
+  def newDFDLAnnotationXML(label : String) = {
+    scala.xml.Elem("dfdl", label, emptyXMLMetadata, xml.scope)
+  }
 
   val NYI = false // our flag for Not Yet Implemented 
 
@@ -56,7 +62,7 @@ trait GlobalComponentMixin
 trait AnnotatedMixin 
 extends SchemaComponent
 with CommonRuntimeValuedPropertiesMixin {
-  
+       
   def localAndFormatRefProperties: Map[String,String]
   def defaultProperties: Map[String,String] = {
     this.schemaDocument.localAndFormatRefProperties
@@ -381,7 +387,7 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
     }
   }
 
-  def emptyFormatFactory = new DFDLFormat(<dfdl:format/>, this)
+  def emptyFormatFactory = new DFDLFormat(newDFDLAnnotationXML("format"), this)
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLFormat]
 
   private lazy val sset = schema.schemaSet

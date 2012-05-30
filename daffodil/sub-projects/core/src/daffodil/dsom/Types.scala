@@ -111,7 +111,7 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementDeclBase)
   with LocalComponentMixin {
 
   lazy val detailName = "inside " + parent.detailName
-  def emptyFormatFactory = new DFDLSimpleType(<dfdl:simpleType/>, this)
+  def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
 
   lazy val baseName = (xml \ "restriction" \ "@base").text
@@ -170,7 +170,7 @@ class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val e
   with GlobalComponentMixin {
 
   def schemaDocument = schemaDocumentArg
-  def emptyFormatFactory = new DFDLSimpleType(<dfdl:simpleType/>, this)
+  def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
 
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
 

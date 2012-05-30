@@ -18,13 +18,9 @@ import daffodil.processors.VariableMap
 trait AnnotatedElementMixin
   extends AnnotatedMixin
   with Element_AnnotationMixin {
-
-  def emptyFormatFactory = {
-   val scope = xml.scope
-   val scala.xml.Elem(_, _, md, _, _*) = <foo/> // hack way to get empty metadata object.
-   val fa = scala.xml.Elem("dfdl", "element", md, scope)
-   new DFDLElement(fa, this)
- }
+	
+  def emptyFormatFactory = new DFDLElement(newDFDLAnnotationXML("element"), this)
+  
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
 }
 

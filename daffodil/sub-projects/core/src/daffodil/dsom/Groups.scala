@@ -322,7 +322,7 @@ class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }
 
-  def emptyFormatFactory = new DFDLChoice(<dfdl:choice/>, this)
+  def emptyFormatFactory = new DFDLChoice(newDFDLAnnotationXML("choice"), this)
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLChoice]
 
   lazy val <choice>{ xmlChildren @ _* }</choice> = xml
@@ -370,7 +370,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }
 
-  def emptyFormatFactory = new DFDLSequence(<dfdl:sequence/>, this)
+  def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
 
   lazy val <sequence>{ xmlChildren @ _* }</sequence> = xml
@@ -392,7 +392,7 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }
 
-  def emptyFormatFactory = new DFDLGroup(<dfdl:group/>, this)
+  def emptyFormatFactory = new DFDLGroup(newDFDLAnnotationXML("group"), this)
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLGroup]
 
   def group = Assert.notYetImplemented()
