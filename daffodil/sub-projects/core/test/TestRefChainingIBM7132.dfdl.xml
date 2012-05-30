@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema targetNamespace="http://example.com"
-	xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" xmlns:ex="http://example.com"
-	xmlns:xs="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" xmlns:tns="http://example.com"
+<xsd:schema 
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" 
+	xmlns:xs="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	 
 	<!--
