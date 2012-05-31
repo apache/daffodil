@@ -22,7 +22,9 @@ public class ResourceResolver implements LSResourceResolver {
 
   public String filePart(String uri) {
 	  String res = null;
-	  String parts[] = uri.split(File.separator);
+
+	  //String parts[] = uri.split(File.separator);
+	  String parts[] = uri.split("\\" + File.separator);
 	  if (parts.length == 0) {
 		  res = uri;
 	  }
