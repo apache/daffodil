@@ -10,6 +10,7 @@ import java.nio.CharBuffer
 import com.ibm.icu.text._
 import java.util.regex._
 import java.text.{ParseException, ParsePosition}
+import stringsearch.DelimSearcherV3.SearchResult._
 
 case class ElementBegin(e : ElementBaseMixin) extends Terminal(e, true) {
      def parser: Parser = new Parser {
@@ -200,19 +201,55 @@ case class StringDelimitedNoEscapeSchemeNoTerminator(e : LocalElementBase) exten
     //var cbuf = CharBuffer.allocate(4)
 
     def parse(start: PState): PState = {
-     
+      System.err.println("Parsing starting at bit position: " + start.bitPos)
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
       
       println("sequenceSeparator: " + sequenceSeparator.constantAsString)
       
-      val (result, endBitPos) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(sequenceSeparator.constantAsString))
-      println("StringDelimited - endBitPos: " + endBitPos + " RESULT: " + result)
+      val (result, endBitPos, theState) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(sequenceSeparator.constantAsString))
+      System.err.println("Parsed: " + result)
+      System.err.println("Ended at bit position " + endBitPos)
       val endCharPos = start.charPos + result.length()
       val currentElement = start.parent
       currentElement.addContent(new org.jdom.Text(result))
       val postState = start.withPos(endBitPos, endCharPos)
 
+      postState
+    }
+  }
+}
+
+case class StringDelimitedNoEscapeSchemeWithTerminator(e : LocalElementBase) extends Terminal(e, true) {
+	val sequenceSeparator = e.nearestEnclosingSequence.get.separator
+	val terminator = e.terminatingMarkup.map(x => x.constantAsString)
+	
+  def parser: Parser = new Parser {
+    override def toString = "StringDelimitedNoEscapeSchemeWithTerminator"
+    val decoder = e.knownEncodingDecoder
+    var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
+    //var cbuf = CharBuffer.allocate(4)
+
+    def parse(start: PState): PState = {
+      System.err.println("Parsing starting at bit position: " + start.bitPos)
+      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
+      var bitOffset = 0L
+      
+      val (result, endBitPos, theState) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, terminator.toSet)
+      
+     val postState =  theState match {
+        case EOF  => start.failed(this.toString() + ": No match found!")
+        case PartialMatch => start.failed(this.toString() + ": Partial match found!")
+        case FullMatch => {
+          System.err.println("Parsed: " + result)
+          System.err.println("Ended at bit position " + endBitPos)
+          val endCharPos = start.charPos + result.length()
+          val currentElement = start.parent
+          currentElement.addContent(new org.jdom.Text(result))
+          start.withPos(endBitPos, endCharPos)
+        }
+      }
+      
       postState
     }
   }
@@ -408,17 +445,20 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) e
       //val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
       println("startBitPos: " + start.bitPos)
       //var (resultStr, endBitPos) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(delim))
-      var (resultStr, endBitPos, endBitPosDelim) = in.getDelimiter(cbuf, start.bitPos, decoder, Set(delim))
+      var (resultStr, endBitPos, endBitPosDelim, theState) = in.getDelimiter(cbuf, start.bitPos, decoder, Set(delim))
       
       //println("resultSTR:" + resultStr)
      
-      println("BUF: " + cbuf.toString + " ENDBITPOS: " + endBitPos)
+      println("BUF: " + cbuf.toString + " ENDBITPOS: " + endBitPos + " ENDBITPOSDELIM: " + endBitPosDelim)
+      
+      println("CBUF LENGTH: " + cbuf.toString().length())
       
      
       val d = new stringsearch.delimiter.Delimiter
       
       d(delim)
       val delimRegex = d.buildDelimRegEx()
+      println("delimRegex: " + delimRegex)
       val p = Pattern.compile(delimRegex, Pattern.MULTILINE)
       
       
@@ -432,14 +472,16 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) e
         System.err.println("Found " + delim)
         System.err.println("Ended at bit position " + endBitPosDelim)
         //val endCharPos = start.charPos + result.length
-        println("charPos: " + start.charPos)
+        println("charPos: " + start.charPos + " length: " + (m.end() - m.start()))
         val endCharPos = start.charPos + (m.end() - m.start())
         endBitPosDelim = 8 * endCharPos // TODO: Is this correct?
         val postState = start.withPos(endBitPosDelim, endCharPos)
         println("endCharPos: " + endCharPos)
         postState
       } else {
-        val postState = start.withPos(start.bitPos, start.charPos, new Failure("Delimiter not found"))
+        //val postState = start.withPos(start.bitPos, start.charPos, new Failure("Delimiter not found"))
+        //postState
+        val postState = start.failed(this.toString() + ": Delimiter not found!")
         postState
       }
     }

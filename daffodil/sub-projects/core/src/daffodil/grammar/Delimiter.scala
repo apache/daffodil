@@ -293,7 +293,7 @@ class Delimiter extends Logged {
       delim =>
         {
           delim match {
-            case nl: NLDelim => { sb.append("(\\n\\r|\\n|\\r)") }
+            case nl: NLDelim => { sb.append("(\\r\\n|\\n|\\r)") }
             case wsp: WSPDelim => { sb.append("\\s") } // Single space
             case wsp: WSPPlusDelim => { sb.append("\\s+") } // One or more spaces
             case wsp: WSPStarDelim => { sb.append("\\s*") } // None or more spaces
@@ -494,7 +494,7 @@ class Delimiter extends Logged {
     val x = new WSPBase()
     charIdx = charPosIn
     log("SEARCH: charPosIn: " + charPosIn + " Delimiter: " + delimiterStr)
-    while (charIdx < input.length()) {
+    while (charIdx < input.length() && charIdx > -1) {
       // This loop shall allow us to control when we
       // move on to check the next character via
       // advanceChar method.

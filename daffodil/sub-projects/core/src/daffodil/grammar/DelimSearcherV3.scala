@@ -77,14 +77,20 @@ class DelimSearcher extends Logged {
   // until this is rectified.
   //
   def search(input: CharBuffer, startPos: Int = 0, clearState: Boolean = true): (SearchResult, String, Int, Int) = {
-    if (clearState) {
-      clear
-    }
     var matched: Boolean = false
     var partialMatched: Boolean = false
     var EOF: Boolean = false
     var endPos: Int = -1
-
+    
+    if (clearState) {
+      clear
+    }
+    if (startPos < 0){
+      endPos = input.length() -1
+      log("EOF! String: " + input.toString().substring(startPos) + " StartPos: " + startPos + " EndPos: " + endPos)
+      return (SearchResult.EOF, input.toString().substring(0), endPos, endPos)
+    }
+    
     val crlfList: List[(Int, Int)] = getCRLFList(input)
     val wspList: List[(Int, Int)] = getConsecutiveWSPList(input)
 

@@ -29,6 +29,7 @@ object TestRig {
     val parserFactory = DebugUtil.time("Compiling schema", compiler.compile(schemaFile.getAbsolutePath))
     val parser = parserFactory.onPath("/")
     val data = Compiler.fileToReadableByteChannel(TestUtils.findFile(testDir + inputFileName))
+    //println("|" + data + "|")
     val result = parser.parse(data)
     val actual = Utility.trim(result)
     val expectedXML = Utility.trim(scala.xml.XML.loadFile(TestUtils.findFile(testDir + expectedFileName)))

@@ -14,6 +14,7 @@ import stringsearch._
 import scala.collection.JavaConversions._
 import scala.util.logging.ConsoleLogger
 import stringsearch.DelimSearcherV3._
+import stringsearch.DelimSearcherV3.SearchResult
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
@@ -405,7 +406,8 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
   //    (sb.toString(), endBitPosA)
   //  }
 
-  def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long) = {
+  import SearchResult._
+  def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long, SearchResult) = {
     println("===\nSTART_FILL!\n===\n")
     val byteOffsetAsLong = (bitOffset >> 3)
 
@@ -425,7 +427,7 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     dSearch.printDelimStruct
     // --
 
-    println("CB: " + cb.toString())
+    println("CB_" + cb.toString() + "_END_CB")
 
     //var (theState, result, endPos) = dSearch.search(buf, 0)
     var (theState, result, endPos, endPosDelim) = dSearch.search(buf, 0)
@@ -472,10 +474,10 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
 
     println("FILL - CB: " + sb.toString() + ", EndBitPos: " + endBitPosA)
     println("===\nEND_FILL!\n===\n")
-    (sb.toString(), endBitPosA)
+    (sb.toString(), endBitPosA, theState)
   }
 
-  def getDelimiter(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long, Long) = {
+  def getDelimiter(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long, Long, SearchResult) = {
     println("===\nSTART_GET_DELIMITER!\n===\n")
     val byteOffsetAsLong = (bitOffset >> 3)
 
@@ -515,7 +517,8 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
       EOF = fillState._2
 
       //var (state2, result2, endPos2) = dSearch.search(buf, endPos, false)
-      var (state2, result2, endPos2, endPosDelim2) = dSearch.search(buf, endPos, false)
+      var (state2, result2, endPos2, endPosDelim2) = dSearch.search(buf, endPosDelim, false)
+      println("LOOP: " + state2 + " " + result2 + " " + endPos2 + " " + endPosDelim2)
       theState = state2
       endPos = endPos2
       endPosDelim = endPosDelim2
@@ -548,7 +551,7 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     println("===\nEND_GET_DELIMITER!\n===\n")
     
     //(sb.toString(), endBitPosA, endBitPosDelimA)
-    (cb.subSequence(endPos, endPosDelim).toString(), endBitPosA, endBitPosDelimA)
+    (cb.subSequence(endPos, endPosDelim).toString(), endBitPosA, endBitPosDelimA, theState)
   }
 
   def getInt(bitPos: Long, order: java.nio.ByteOrder) = {

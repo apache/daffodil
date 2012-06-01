@@ -596,15 +596,19 @@ class TestDsomCompiler extends JUnit3Suite {
     
 //    println(e1fProps)
 //
-//    def e1fValues (collection: Map[String, String], key: String, value: String): Boolean = {
-//      val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
-//        case Some(_) => true
-//        case None => false
-//      }
-//      found
-//    }
-    
+    def e1fValues (collection: Map[String, String], key: String, value: String): Boolean = {
+      val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
+        case Some(_) => true
+        case None => false
+      }
+      found
+    }
+    assertEquals(true, e1fValues(e1fProps, "initiator", ""))
     //println(e1f.initiatorRaw)
+    
+    //e1f.initiatorRaw
+    //e1f.byteOrderRaw
+    e1f.lengthKind
 
 
   }

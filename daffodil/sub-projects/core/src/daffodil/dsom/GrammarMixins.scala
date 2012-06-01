@@ -70,7 +70,8 @@ with AlignedMixin { self: ElementBaseMixin =>
     case LengthKind.Delimited => {
       val thisAsLocal = this.asInstanceOf[LocalElementBase]
      // thisAsLocal.stringDelimited
-      thisAsLocal.stringDelimitedNoEscapeSchemeNoTerminator
+      //thisAsLocal.stringDelimitedNoEscapeSchemeNoTerminator
+      thisAsLocal.stringDelimitedNoEscapeSchemeWithTerminator
     }
     case _ => Assert.notYetImplemented()
   })
@@ -190,6 +191,7 @@ with AlignedMixin { self: ElementBaseMixin =>
       typeDef match {
       case prim : PrimitiveType => {
         val n = prim.name
+        println(n)
         Assert.notYetImplemented(n != "string" && n != "int" && n != "double" && n != "float")
         n match {
           case "string" => stringValue
@@ -323,6 +325,7 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
   lazy val separatedRecurringNonDefault = Prod("separatedRecurringNonDefault", this, !isScalar, separatedForPosition(scalarNonDefault))
   lazy val stringDelimited = Prod("stringDelimited", this, StringDelimited(this))
   lazy val stringDelimitedNoEscapeSchemeNoTerminator = Prod("stringDelimitedNoEscapeSchemeNoTerminator", this, StringDelimitedNoEscapeSchemeNoTerminator(this))
+  lazy val stringDelimitedNoEscapeSchemeWithTerminator = Prod("stringDelimitedNoEscapeSchemeWithTerminator", this, StringDelimitedNoEscapeSchemeWithTerminator(this))
   
   lazy val recurrance = Prod("recurrance", this, 
       !isScalar, 

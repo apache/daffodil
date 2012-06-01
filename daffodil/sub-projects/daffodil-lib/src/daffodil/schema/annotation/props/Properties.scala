@@ -174,6 +174,10 @@ trait PropertyMixin {
     if (pname == "separatorPosition"){
       println("FOUND")
     }
+    if (pname == "initiator"){
+      println("FOUND")
+    }
+    println(pname)
 //    if (pname == "lengthUnits")
 //      System.err.println("debug")
     val propOpt = getPropertyOption(pname) 

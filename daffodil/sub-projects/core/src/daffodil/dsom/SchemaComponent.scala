@@ -26,7 +26,7 @@ trait SchemaComponent
   def schemaDocument: SchemaDocument
   lazy val schema: Schema = schemaDocument.schema
   def xml: Node
-   
+  
   private val scala.xml.Elem(_, _, emptyXMLMetadata, _, _*) = <foo/> // hack way to get empty metadata object.
     
   def newDFDLAnnotationXML(label : String) = {
@@ -234,7 +234,6 @@ abstract class Annotated(xmlArg: Node)
   with AnnotatedMixin {
   
   lazy val xml = xmlArg
-  
   
 }
 

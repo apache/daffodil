@@ -80,7 +80,7 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
 
   
   private[dsom] def getLocalFormatRef(): String = {
-    val ref = getAttributeOption("ref") // let's standardize on 
+    val ref = combinedLocalProperties.get("ref")
     ref match {
       case None => ""
       case Some(s) => s
@@ -462,7 +462,7 @@ class DFDLDefineVariable(node: Node, decl: AnnotatedMixin)
   lazy val name = getAttributeRequired("name")
   //TODO: check: are the rest of these required or optional?
   lazy val predefined = getAttributeOption("predefined")
-  lazy val type_ = getAttributeOption("type_")
+  lazy val type_ = getAttributeOption("type")
   lazy val external = getAttributeOption("external")
   lazy val defaultValue = getAttributeOption("defaultValue")
 }
