@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="AA-BG" description="Original suite of AA through BG"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd" >
+
+	<parserTestCase name="AN000" root="path" model="AN.dfdl.xsd"
+		description="Tests lenthKind delimited">
+
+		<document>folder1/folder2/folder3/file_name
+		</document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<path xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<folder type="xsd:string">folder1</folder>
+					<folder type="xsd:string">folder2</folder>
+					<folder type="xsd:string">folder3</folder>
+					<file type="xsd:string">file_name</file>
+				</path>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	<parserTestCase name="AN001" root="path" model="AN.dfdl.xsd"
+		description="Tests lenthKind delimited">
+
+		<document>folder1/folder2/folder3/</document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<path xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<folder type="xsd:string">folder1</folder>
+					<folder type="xsd:string">folder2</folder>
+					<folder type="xsd:string">folder3</folder>
+				</path>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+</testSuite>

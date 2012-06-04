@@ -29,6 +29,12 @@ class TresysTests extends JUnit3Suite {
   def test_AB004() { runnerAB.runOneTest("AB004") }
   def test_AB005() { runnerAB.runOneTest("AB005") }
   
+  val an = testDir + "AN.tdml"
+  val runnerAN = new DFDLTestSuite(new File(an))
+  
+  def test_AN000() { runnerAN.runOneTest("AN000") }
+  def test_AN001() { runnerAN.runOneTest("AN001") }
+  
   /* Very big test data files, so each is in its own TDML file */
 //  val ab6 = testDir + "AB006.tdml"
 //  val runnerAB6 = new DFDLTestSuite(new File(ab6))

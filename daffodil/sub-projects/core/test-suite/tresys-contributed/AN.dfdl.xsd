@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
+<xs:schema xmlns="http://www.example.org/example1/"
+	targetNamespace="http://www.example.org/example1/" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+
+			<dfdl:defineVariable name="x" type="xs:int"
+				defaultValue="0" />
+
+			<dfdl:defineFormat name="Daffodil_Defaults_That_Were_HardCoded">
+
+				<!-- These come from the code from AnnotationDefaults.scala. So they 
+					may be needed as defaults to make some examples/tests work. I've changed 
+					some of the names to match the DFDL spec so this DFDL schema will validate. 
+					Two properties that were in the scala code defaults have nothing corresponding 
+					to them in the DFDL spec now: timingBefore='true' endOfParent='false' -->
+
+				<dfdl:format alignment='1' alignmentUnits='bytes'
+					textStandardBase='10' binaryFloatRep='ieee' binaryNumberRep='binary'
+					byteOrder='bigEndian' calendarPatternKind='implicit' encoding='UTF-8'
+					escapeSchemeRef='' documentFinalTerminatorCanBeMissing='no'
+					ignoreCase='no' initiatedContent='no' leadingSkip='0' lengthKind='delimited'
+					occursCountKind='parsed' separatorPolicy='required'
+					separatorPosition='infix' sequenceKind='ordered' textNumberRep='standard'
+					textNumberCheckPolicy='strict' textStringJustification='left'
+					trailingSkip='0' initiator="" terminator="" separator="" />
+
+			</dfdl:defineFormat>
+
+			<!-- Default DFDL format for this schema file and any other that want 
+				to use these defaults can reference them like this -->
+			<dfdl:format ref="Daffodil_Defaults_That_Were_HardCoded" />
+
+		</xs:appinfo>
+	</xs:annotation>
+
+	<!-- an example of speculative parsing, should push back the last folder 
+		found (a file) -->
+	<!-- protocol:/folder/folder/folder/folder/file -->
+
+	<xs:element name="path">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="folder" type="xs:string" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+							<dfdl:element representation="text" lengthKind="delimited" terminator="/" />
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="file" type="xs:string" minOccurs="0"
+					dfdl:representation="text" dfdl:terminator="%NL;"
+					dfdl:documentFinalTerminatorCanBeMissing="yes" dfdl:lengthKind="delimited" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>
