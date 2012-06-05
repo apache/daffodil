@@ -253,7 +253,7 @@ class TestDFDLParser extends JUnit3Suite {
   def testBigInteger1() {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="mersenne" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="{ 64 }"/>)
+      <xs:element name="mersenne" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="{ 207 }"/>)
     val actual = Compiler.testString(sch, "686,479,766,013,060,971,498,190,079,908,139,321,726,943,530,014,330,540,939,446,345,918,554,318,339,765,605,212,255,964,066,145,455,497,729,631,139,148,085,803,712,198,799,971,664,381,257,402,829,111,505,715")
     TestUtils.assertEqualsXMLElements(<mersenne>686479766013060971498190079908139321726943530014330540939446345918554318339765605212255964066145455497729631139148085803712198799971664381257402829111505715</mersenne>, actual)
   }
