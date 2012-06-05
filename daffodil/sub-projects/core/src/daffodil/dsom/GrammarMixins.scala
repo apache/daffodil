@@ -363,6 +363,7 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
   lazy val separatedRecurringNonDefault = Prod("separatedRecurringNonDefault", this, !isScalar, separatedForPosition(scalarNonDefault))
   lazy val stringDelimited = Prod("stringDelimited", this, StringDelimited(this))
   lazy val stringDelimitedNoEscapeSchemeNoTerminator = Prod("stringDelimitedNoEscapeSchemeNoTerminator", this, StringDelimitedNoEscapeSchemeNoTerminator(this))
+  lazy val stringDelimitedNoEscapeSchemeWithTerminator = Prod("stringDelimitedNoEscapeSchemeWithTerminator", this, StringDelimitedNoEscapeSchemeWithTerminator(this))
   
   lazy val recurrance = Prod("recurrance", this, 
       !isScalar, 
