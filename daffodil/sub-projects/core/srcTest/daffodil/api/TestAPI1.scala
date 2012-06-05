@@ -172,6 +172,92 @@ class TestDFDLParser extends JUnit3Suite {
     assertTrue(e.getMessage().contains("xs:int"))
   }
 
+  def testShort1() {
+    val sch = TestUtils.dfdlTestSchema(
+        <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="explicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="s1" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+    <xs:element name="s2" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
+    </xs:sequence>
+    </xs:complexType>
+    </xs:element>)
+    val actual = Compiler.testString(sch, "55,000")
+    TestUtils.assertEqualsXMLElements(<e1><s1>5</s1><s2>5000</s2></e1>, actual)
+  }
+
+  def testShort2() {
+    val sch = TestUtils.dfdlTestSchema(
+        <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="explicit">
+        <xs:complexType>
+          <xs:element name="s" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
+        </xs:complexType>
+    </xs:element>)
+    val e = intercept[Exception]{
+      val actual = Compiler.testString(sch, "70,000")
+    }
+    //println("ERROR!!!!!" + e.getMessage())
+    assertTrue(e.getMessage().contains("xs:short"))
+  }
+
+  def testLong1() {
+    val sch = TestUtils.dfdlTestSchema(
+        <dfdl:format ref="tns:daffodilTest1"/>,
+          <xs:element name="s" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>)
+    val actual = Compiler.testString(sch, "2,000,000,000")
+    TestUtils.assertEqualsXMLElements(<s>2000000000</s>, actual)
+  }
+
+  def testByte1() {
+    val sch = TestUtils.dfdlTestSchema(
+        <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="explicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="s1" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>
+    <xs:element name="s2" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>
+    </xs:sequence>
+    </xs:complexType>
+    </xs:element>)
+    val actual = Compiler.testString(sch, "55123")
+    TestUtils.assertEqualsXMLElements(<e1><s1>55</s1><s2>123</s2></e1>, actual)
+  }
+
+  def testNumber1() {
+    val sch = TestUtils.dfdlTestSchema(
+        <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="explicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="country" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+            <xs:element name="area" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>
+            <xs:element name="region" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>
+            <xs:element name="number" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = Compiler.testString(sch, "1-800-555-1212")
+    TestUtils.assertEqualsXMLElements(<e1><country>1</country><area>-800</area><region>-555</region><number>-1212</number></e1>, actual)
+  }
+
+  def testNumber2() {
+    val sch = TestUtils.dfdlTestSchema(
+        <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="mersenne" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
+    val actual = Compiler.testString(sch, "-127")
+    TestUtils.assertEqualsXMLElements(<mersenne>-127</mersenne>, actual)
+  }
+
+  def testBigInteger1() {
+    val sch = TestUtils.dfdlTestSchema(
+        <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="mersenne" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="{ 64 }"/>)
+    val actual = Compiler.testString(sch, "686,479,766,013,060,971,498,190,079,908,139,321,726,943,530,014,330,540,939,446,345,918,554,318,339,765,605,212,255,964,066,145,455,497,729,631,139,148,085,803,712,198,799,971,664,381,257,402,829,111,505,715")
+    TestUtils.assertEqualsXMLElements(<mersenne>686479766013060971498190079908139321726943530014330540939446345918554318339765605212255964066145455497729631139148085803712198799971664381257402829111505715</mersenne>, actual)
+  }
+
   // TEST FAILS - SEE JIRA DFDL-184
 //  def testIntTooLong() {
 //    val sch = TestUtils.dfdlTestSchema(

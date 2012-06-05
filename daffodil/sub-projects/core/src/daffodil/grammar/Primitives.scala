@@ -10,6 +10,7 @@ import java.nio.CharBuffer
 import com.ibm.icu.text._
 import java.util.regex._
 import java.text.{ParseException, ParsePosition}
+import java.math.BigInteger
 import stringsearch.DelimSearcherV3.SearchResult._
 
 case class ElementBegin(e : ElementBaseMixin) extends Terminal(e, true) {
@@ -221,9 +222,9 @@ case class StringDelimitedNoEscapeSchemeNoTerminator(e : LocalElementBase) exten
 }
 
 case class StringDelimitedNoEscapeSchemeWithTerminator(e : LocalElementBase) extends Terminal(e, true) {
-	val sequenceSeparator = e.nearestEnclosingSequence.get.separator
-	val terminator = e.terminatingMarkup.map(x => x.constantAsString)
-	
+  val sequenceSeparator = e.nearestEnclosingSequence.get.separator
+  val terminator = e.terminatingMarkup.map(x => x.constantAsString)
+
   def parser: Parser = new Parser {
     override def toString = "StringDelimitedNoEscapeSchemeWithTerminator"
     val decoder = e.knownEncodingDecoder
@@ -234,10 +235,10 @@ case class StringDelimitedNoEscapeSchemeWithTerminator(e : LocalElementBase) ext
       System.err.println("Parsing starting at bit position: " + start.bitPos)
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
-      
+
       val (result, endBitPos, theState) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, terminator.toSet)
-      
-     val postState =  theState match {
+
+      val postState =  theState match {
         case EOF  => start.failed(this.toString() + ": No match found!")
         case PartialMatch => start.failed(this.toString() + ": Partial match found!")
         case FullMatch => {
@@ -249,44 +250,80 @@ case class StringDelimitedNoEscapeSchemeWithTerminator(e : LocalElementBase) ext
           start.withPos(endBitPos, endCharPos)
         }
       }
-      
+
       postState
     }
   }
 }
 
 
-case class ConvertTextIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
-   def parser : Parser = new Parser {
-     def parse(start: PState) : PState = {
-       val node = start.parent
-       val str = node.getText
-       
-        val resultState =  try {
-          // Need to use Decimal Format to parse even though this is an int
-          val df = new DecimalFormat()
-          val pos = new ParsePosition(0)
-          val num = df.parse(str, pos)
-          // Assume long as the most precision
-          val asInt = num.intValue
+abstract class ConvertTextNumberPrim[S](e: ElementBaseMixin, guard: Boolean) extends Terminal(e, guard) {
+  def getNum(s: Number) : S
+  val GramName = "number"
+  val GramDescription = "Number"
+  def parser : Parser = new Parser {
+    def parse(start: PState) : PState = {
+      val node = start.parent
+      val str = node.getText
 
-          // Verify no digits lost (the number was correctly transcribed)
-          if (asInt.asInstanceOf[Number] != num) {
-            // Transcription error
-            System.err.print("Error: Invalid Integer: " + str + "\n")
-            throw new ParseException("Error: Invalid Integer: " + str, 0)
-          }
-          else {
-            node.setText(asInt.toString)
-          }
-          //val i = str.toInt
-          // FALSE: Node remains a string because of jdom
-          start
-       } catch {case e:Exception => start.failed("Failed to convert to an xs:int") }
-       
+      val resultState =  try {
+        // Need to use Decimal Format to parse even though this is an Integral number
+        val df = new DecimalFormat()
+        val pos = new ParsePosition(0)
+        val num = df.parse(str, pos)
+        // TODO: Verify that what was parsed was what was passed exactly in byte count.  Use pos to verify all characters consumed & check for errors!
+        // TODO: Parse leading + (sign)
+        // Assume long as the most precision
+        val asNumber = getNum(num)
+
+        // Verify no digits lost (the number was correctly transcribed)
+        if (asNumber.asInstanceOf[S] != num) {
+          // Transcription error
+          System.err.print("Error: Invalid " + GramDescription + ": " + str + "\n")
+          throw new ParseException("Error: Invalid " + GramDescription + ": " + str, 0)
+        }
+        else {
+          node.setText(asNumber.toString)
+        }
+        //val i = str.toInt
+        // FALSE: Node remains a string because of jdom
+        start
+      } catch {case e:Exception => start.failed("Failed to convert to an xs:" + GramName) }
+
       resultState
     }
   }
+
+}
+
+case class ConvertTextIntegerPrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[BigInteger](e, true) {
+  def getNum(num: Number) = new BigInteger(num.toString)
+  override val GramName = "integer"
+  override val GramDescription = "Unbounded Integer"
+}
+
+case class ConvertTextLongPrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[Long](e, true) {
+  def getNum(num: Number) = num.longValue
+  override val GramName = "long"
+  override val GramDescription = "Long Integer"
+}
+
+case class ConvertTextIntPrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[Int](e, true) {
+  def getNum(num: Number) = num.intValue
+  override val GramName = "int"
+  override val GramDescription = "Integer"
+}
+
+case class ConvertTextShortPrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[Short](e, true) {
+  def getNum(num: Number) = num.shortValue
+  override val GramName = "short"
+  override val GramDescription = "Short Integer"
+}
+
+case class ConvertTextBytePrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[Byte](e, true) {
+  def getNum(num: Number) = num.byteValue
+  override val GramName = "byte"
+  override val GramDescription = "Byte"
 }
 
 case class ConvertTextDoublePrim(e: ElementBaseMixin) extends Terminal(e, true) {
@@ -346,7 +383,18 @@ extends Terminal(e, guard) {
     def parser: Parser = DummyParser(e)
   }
 
-case class ZonedTextIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
+case class ZonedTextNumberPrim(e: ElementBaseMixin, guard: Boolean) extends Terminal(e, guard) {
+  def parser : Parser = new Parser {
+    def parse(start: PState) : PState = {
+      // TODO: Compute the Zoned Number generically
+      start
+    }
+  }
+}
+case class ZonedTextBytePrim(el : ElementBaseMixin) extends ZonedTextNumberPrim(el, false)
+case class ZonedTextShortPrim(el : ElementBaseMixin) extends ZonedTextNumberPrim(el, false)
+case class ZonedTextIntPrim(el : ElementBaseMixin) extends ZonedTextNumberPrim(el, false)
+case class ZonedTextLongPrim(el : ElementBaseMixin) extends ZonedTextNumberPrim(el, false)
 
 class Regular32bitIntPrim(byteOrder: java.nio.ByteOrder) extends Parser {
 	override def toString = "binary(xs:int, " + byteOrder + ")"

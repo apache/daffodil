@@ -77,9 +77,22 @@ with AlignedMixin { self: ElementBaseMixin =>
   })
   res
   }
-  
+
+  // TODO: Specialize the binary handlers!
   lazy val binaryInt = Prod("binaryInt", this, representation == Representation.Binary,
-      regularBinaryRepInt | bcdInt | packedInt)
+    regularBinaryRepInt | bcdInt | packedInt)
+
+  lazy val binaryByte = Prod("binaryByte", this, representation == Representation.Binary,
+    regularBinaryRepInt | bcdInt | packedInt)
+
+  lazy val binaryShort = Prod("binaryShort", this, representation == Representation.Binary,
+    regularBinaryRepInt | bcdInt | packedInt)
+
+  lazy val binaryLong = Prod("binaryLong", this, representation == Representation.Binary,
+    regularBinaryRepInt | bcdInt | packedInt)
+
+  lazy val binaryInteger = Prod("binaryInteger", this, representation == Representation.Binary,
+    regularBinaryRepInt | bcdInt | packedInt)
 
   lazy val regularBinaryRepInt = Prod("regularBinaryRepInt", this,
     binaryNumberRep == BinaryNumberRep.Binary, lengthKind match {
@@ -97,19 +110,40 @@ with AlignedMixin { self: ElementBaseMixin =>
       binaryNumberRep == BinaryNumberRep.Bcd, BCDIntPrim(this))
   lazy val packedInt = Prod("packedInt", this, 
       binaryNumberRep == BinaryNumberRep.Packed, PackedIntPrim(this))
-  
+
+  // TODO: Handle the zonedTextXXX possibilities
   lazy val textInt = Prod("textInt", this, representation == Representation.Text,
-        standardTextInt | zonedTextInt)
-  
-  // 
+    standardTextInt | zonedTextInt)
+
+  lazy val textByte = Prod("textByte", this, representation == Representation.Text,
+    standardTextByte | zonedTextInt)
+
+  lazy val textShort = Prod("textShort", this, representation == Representation.Text,
+    standardTextShort | zonedTextInt)
+
+  lazy val textLong = Prod("textLong", this, representation == Representation.Text,
+    standardTextLong | zonedTextInt)
+
+  lazy val textInteger = Prod("textInteger", this, representation == Representation.Text,
+    standardTextInteger | zonedTextInt)
+
+  //
   // We could now break it down by lengthKind, and have specialized primitives
   // depending on the length kind.
   // 
-  lazy val standardTextInt = Prod("standardTextInt", this, 
-      textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextIntPrim(this))
-  lazy val zonedTextInt = Prod("zonedTextInt", this, 
+  lazy val standardTextInteger = Prod("standardTextInteger", this,
+    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextIntegerPrim(this))
+  lazy val standardTextLong = Prod("standardTextLong", this,
+    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextLongPrim(this))
+  lazy val standardTextInt = Prod("standardTextInt", this,
+    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextIntPrim(this))
+  lazy val standardTextShort = Prod("standardTextShort", this,
+    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextShortPrim(this))
+  lazy val standardTextByte = Prod("standardTextByte", this,
+    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextBytePrim(this))
+  lazy val zonedTextInt = Prod("zonedTextInt", this,
       textNumberRep == TextNumberRep.Zoned, ZonedTextIntPrim(this))
- 
+
 
   lazy val binaryDouble = Prod("binaryDouble", this, representation == Representation.Binary,
     ieeeBinaryRepDouble | ibm390HexBinaryRepDouble)
@@ -192,10 +226,14 @@ with AlignedMixin { self: ElementBaseMixin =>
       case prim : PrimitiveType => {
         val n = prim.name
         println(n)
-        Assert.notYetImplemented(n != "string" && n != "int" && n != "double" && n != "float")
+        //Assert.notYetImplemented(n != "string" && n != "int" && n != "double" && n != "float")
         n match {
           case "string" => stringValue
           case "int" => binaryInt | textInt
+          case "byte" => binaryByte | textByte
+          case "short" => binaryShort | textShort
+          case "long" => binaryLong | textLong
+          case "integer" => binaryInteger | textInteger
           case "double" => binaryDouble | textDouble
           case "float" => binaryFloat | textFloat
           case _ => Assert.schemaDefinitionError("Unrecognized primitive type: " + n)
@@ -325,7 +363,6 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
   lazy val separatedRecurringNonDefault = Prod("separatedRecurringNonDefault", this, !isScalar, separatedForPosition(scalarNonDefault))
   lazy val stringDelimited = Prod("stringDelimited", this, StringDelimited(this))
   lazy val stringDelimitedNoEscapeSchemeNoTerminator = Prod("stringDelimitedNoEscapeSchemeNoTerminator", this, StringDelimitedNoEscapeSchemeNoTerminator(this))
-  lazy val stringDelimitedNoEscapeSchemeWithTerminator = Prod("stringDelimitedNoEscapeSchemeWithTerminator", this, StringDelimitedNoEscapeSchemeWithTerminator(this))
   
   lazy val recurrance = Prod("recurrance", this, 
       !isScalar, 
