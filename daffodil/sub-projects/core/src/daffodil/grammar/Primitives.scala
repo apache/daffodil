@@ -271,7 +271,11 @@ abstract class ConvertTextNumberPrim[S](e: ElementBaseMixin, guard: Boolean) ext
         val df = new DecimalFormat()
         val pos = new ParsePosition(0)
         val num = df.parse(str, pos)
-        // TODO: Verify that what was parsed was what was passed exactly in byte count.  Use pos to verify all characters consumed & check for errors!
+        // Verify that what was parsed was what was passed exactly in byte count.  Use pos to verify all characters consumed & check for errors!
+        if (pos.getIndex != str.length) {
+          System.err.print("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n")
+          throw new ParseException("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n", 0)
+        }
         // TODO: Parse leading + (sign)
         // Assume long as the most precision
         val asNumber = getNum(num)
