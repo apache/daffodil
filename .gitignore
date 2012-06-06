@@ -8,6 +8,10 @@ bin/*
 target
 out
 out/*
+.idea/misc.xml
+.idea/workspace.xml
+.idea/libraries/ICU4J.xml
+.idea/libraries/scala_library.xml
 
 # /daffodil/
 /daffodil/.cache
