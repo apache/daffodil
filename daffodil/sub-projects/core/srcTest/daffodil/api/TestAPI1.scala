@@ -250,6 +250,14 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(<mersenne>-127</mersenne>, actual)
   }
 
+  def testNumber3() {
+    val sch = TestUtils.dfdlTestSchema(
+        <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="perfect" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
+    val actual = Compiler.testString(sch, "+3")
+    TestUtils.assertEqualsXMLElements(<perfect>3</perfect>, actual)
+  }
+
   def testBigInteger1() {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,

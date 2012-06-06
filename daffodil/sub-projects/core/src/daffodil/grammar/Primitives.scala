@@ -264,9 +264,15 @@ abstract class ConvertTextNumberPrim[S](e: ElementBaseMixin, guard: Boolean) ext
   def parser : Parser = new Parser {
     def parse(start: PState) : PState = {
       val node = start.parent
-      val str = node.getText
+      var str = node.getText
 
       val resultState =  try {
+        // Strip leading + (sign) since the DecimalFormat can't handle it
+        if (str.charAt(0) == '+') {
+          // TODO: There needs to be a way to restore '+' in the unparse, but that will be in the format field
+          str = str.substring(1)
+        }
+
         // Need to use Decimal Format to parse even though this is an Integral number
         val df = new DecimalFormat()
         val pos = new ParsePosition(0)
@@ -276,7 +282,6 @@ abstract class ConvertTextNumberPrim[S](e: ElementBaseMixin, guard: Boolean) ext
           System.err.print("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n")
           throw new ParseException("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n", 0)
         }
-        // TODO: Parse leading + (sign)
         // Assume long as the most precision
         val asNumber = getNum(num)
 
