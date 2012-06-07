@@ -260,6 +260,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBaseMixin, guard: Boolean) ext
   protected def getNum(s: Number) : S
   protected val GramName = "number"
   protected val GramDescription = "Number"
+  protected def isInvalidRange(n: S) : Boolean = false
   def parser : Parser = new Parser {
     def parse(start: PState) : PState = {
       val node = start.parent
@@ -287,7 +288,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBaseMixin, guard: Boolean) ext
         val asNumber = getNum(num)
 
         // Verify no digits lost (the number was correctly transcribed)
-        if (asNumber.asInstanceOf[S] != num) {
+        if (asNumber.asInstanceOf[Number] != num || isInvalidRange(asNumber)) {
           // Transcription error
           System.err.print("Error: Invalid " + GramDescription + ": " + str + "\n")
           throw new ParseException("Error: Invalid " + GramDescription + ": " + str, 0)
@@ -333,6 +334,34 @@ case class ConvertTextBytePrim(e : ElementBaseMixin) extends ConvertTextNumberPr
   protected override def getNum(num: Number) = num.byteValue
   protected override val GramName = "byte"
   protected override val GramDescription = "Byte"
+}
+
+case class ConvertTextUnsignedLongPrim(e: ElementBaseMixin) extends ConvertTextNumberPrim[BigInteger](e, true) {
+  protected override def getNum(num: Number) = new BigInteger(num.toString)
+  protected override val GramName = "unsignedLong"
+  protected override val GramDescription = "Unsigned Long"
+  protected override def isInvalidRange(n : BigInteger) = n.compareTo(BigInteger.ZERO) < 0 || n.compareTo(BigInteger.ONE.shiftLeft(64)) > 0
+}
+
+case class ConvertTextUnsignedIntPrim(e: ElementBaseMixin) extends ConvertTextNumberPrim[Long](e, true) {
+  protected override def getNum(num: Number) = num.longValue
+  protected override val GramName = "unsignedInt"
+  protected override val GramDescription = "Unsigned Int"
+  protected override def isInvalidRange(n : Long) = n < 0 || n < (1<<32)
+}
+
+case class ConvertTextUnsignedShortPrim(e: ElementBaseMixin) extends ConvertTextNumberPrim[Int](e, true) {
+  protected override def getNum(num: Number) = num.intValue
+  protected override val GramName = "unsignedShort"
+  protected override val GramDescription = "Unsigned Short"
+  protected override def isInvalidRange(n : Int) = n < 0 || n < (1<<16)
+}
+
+case class ConvertTextUnsignedBytePrim(e: ElementBaseMixin) extends ConvertTextNumberPrim[Short](e, true) {
+  protected override def getNum(num: Number) = num.shortValue
+  protected override val GramName = "unsignedByte"
+  protected override val GramDescription = "Unsigned Byte"
+  protected override def isInvalidRange(n : Short) = n < 0 || n < (1<<8)
 }
 
 case class ConvertTextDoublePrim(e: ElementBaseMixin) extends Terminal(e, true) {

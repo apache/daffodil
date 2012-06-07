@@ -23,8 +23,8 @@ with DelimitedRuntimeValuedPropertiesMixin { self : AnnotatedMixin =>
   lazy val dynamicTerminator = Prod("dynamicTerminator", this, !terminator.isConstant, DynamicTerminator(this))
   lazy val initiatorRegion = Prod("initiatorRegion", this, hasInitiator, staticInitiator | dynamicInitiator)
   lazy val terminatorRegion = Prod("terminatorRegion", this, hasTerminator, staticTerminator | dynamicTerminator)
-  def hasInitiator : Boolean
-  def hasTerminator : Boolean
+  override def hasInitiator : Boolean
+  override def hasTerminator : Boolean
 }
 
 /////////////////////////////////////////////////////////////////
@@ -94,6 +94,18 @@ with AlignedMixin { self: ElementBaseMixin =>
   lazy val binaryInteger = Prod("binaryInteger", this, representation == Representation.Binary,
     regularBinaryRepInt | bcdInt | packedInt)
 
+  lazy val binaryUnsignedInt = Prod("binaryInt", this, representation == Representation.Binary,
+    regularBinaryRepInt | bcdInt | packedInt)
+
+  lazy val binaryUnsignedByte = Prod("binaryByte", this, representation == Representation.Binary,
+    regularBinaryRepInt | bcdInt | packedInt)
+
+  lazy val binaryUnsignedShort = Prod("binaryShort", this, representation == Representation.Binary,
+    regularBinaryRepInt | bcdInt | packedInt)
+
+  lazy val binaryUnsignedLong = Prod("binaryLong", this, representation == Representation.Binary,
+    regularBinaryRepInt | bcdInt | packedInt)
+
   lazy val regularBinaryRepInt = Prod("regularBinaryRepInt", this,
     binaryNumberRep == BinaryNumberRep.Binary, lengthKind match {
       case LengthKind.Implicit => {
@@ -127,6 +139,18 @@ with AlignedMixin { self: ElementBaseMixin =>
   lazy val textInteger = Prod("textInteger", this, representation == Representation.Text,
     standardTextInteger | zonedTextInt)
 
+  lazy val textUnsignedInt = Prod("textUnsignedInt", this, representation == Representation.Text,
+    standardTextUnsignedInt | zonedTextInt)
+
+  lazy val textUnsignedByte = Prod("textUnsignedByte", this, representation == Representation.Text,
+    standardTextUnsignedByte | zonedTextInt)
+
+  lazy val textUnsignedShort = Prod("textUnsignedShort", this, representation == Representation.Text,
+    standardTextUnsignedShort | zonedTextInt)
+
+  lazy val textUnsignedLong = Prod("textUnsignedLong", this, representation == Representation.Text,
+    standardTextUnsignedLong | zonedTextInt)
+
   //
   // We could now break it down by lengthKind, and have specialized primitives
   // depending on the length kind.
@@ -141,6 +165,14 @@ with AlignedMixin { self: ElementBaseMixin =>
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextShortPrim(this))
   lazy val standardTextByte = Prod("standardTextByte", this,
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextBytePrim(this))
+  lazy val standardTextUnsignedLong = Prod("standardTextUnsignedLong", this,
+    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextUnsignedLongPrim(this))
+  lazy val standardTextUnsignedInt = Prod("standardTextUnsignedInt", this,
+    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextUnsignedIntPrim(this))
+  lazy val standardTextUnsignedShort = Prod("standardTextUnsignedShort", this,
+    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextUnsignedShortPrim(this))
+  lazy val standardTextUnsignedByte = Prod("standardTextUnsignedByte", this,
+    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextUnsignedBytePrim(this))
   lazy val zonedTextInt = Prod("zonedTextInt", this,
       textNumberRep == TextNumberRep.Zoned, ZonedTextIntPrim(this))
 
@@ -234,6 +266,10 @@ with AlignedMixin { self: ElementBaseMixin =>
           case "short" => binaryShort | textShort
           case "long" => binaryLong | textLong
           case "integer" => binaryInteger | textInteger
+          case "unsignedInt" => binaryUnsignedInt | textUnsignedInt
+          case "unsignedByte" => binaryUnsignedByte | textUnsignedByte
+          case "UnsignedShort" => binaryUnsignedShort | textUnsignedShort
+          case "UnsignedLong" => binaryUnsignedLong | textUnsignedLong
           case "double" => binaryDouble | textDouble
           case "float" => binaryFloat | textFloat
           case _ => Assert.schemaDefinitionError("Unrecognized primitive type: " + n)
