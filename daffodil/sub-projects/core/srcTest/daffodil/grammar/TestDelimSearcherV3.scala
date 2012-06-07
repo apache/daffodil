@@ -545,7 +545,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     
     assertEquals("", res0)
     assertEquals("abc", res1)
-    assertEquals("a(\\n\\r|\\n|\\r)a", res2)
+    assertEquals("a(\\r\\n|\\n|\\r)a", res2)
     assertEquals("c%NLb", res3)
     assertEquals("a\\sb", res4)
     assertEquals("\\s\\s", res5)
