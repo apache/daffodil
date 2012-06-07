@@ -37,6 +37,27 @@ object TestUtils {
     val real = XML.loadString(realSchemaText)
     real
   }
+  
+  /**
+   * Just like dfdlTestSchema, but without any namespace or targetNamespace definitions, which is 
+   * the way many self-contained one-file schemas are written.
+   */
+  def dfdlTestSchemaNoNamespace(topLevelAnnotations: Seq[Node], contentElements: Seq[Node]) = {
+    val realSchema = <xs:schema xmlns:xs={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } >
+                       <xs:annotation>
+                         <xs:appinfo source={ dfdlURI }>
+                           <dfdl:defineFormat name="daffodilTest1">
+                             <dfdl:format lengthKind="implicit" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no" textNumberRep="standard" />
+                           </dfdl:defineFormat>
+                           { topLevelAnnotations }
+                         </xs:appinfo>
+                       </xs:annotation>
+                       { contentElements }
+                     </xs:schema>
+    val realSchemaText = realSchema.toString()
+    val real = XML.loadString(realSchemaText)
+    real
+  }
 
   /**
    * Compares two XML Elements, after having stripped off all attributes.

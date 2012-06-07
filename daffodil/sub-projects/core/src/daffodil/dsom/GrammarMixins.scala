@@ -69,9 +69,12 @@ with AlignedMixin { self: ElementBaseMixin =>
     case LengthKind.Explicit if isFixedLength => fixedLengthString
     case LengthKind.Delimited => {
       val thisAsLocal = this.asInstanceOf[LocalElementBase]
-     // thisAsLocal.stringDelimited
-      //thisAsLocal.stringDelimitedNoEscapeSchemeNoTerminator
-      thisAsLocal.stringDelimitedNoEscapeSchemeWithTerminator
+      // TODO: check for escape scheme
+      if (terminator.isKnownNonEmpty) {
+    	  thisAsLocal.stringDelimitedNoEscapeSchemeWithTerminator     
+      } else {
+        thisAsLocal.stringDelimitedNoEscapeSchemeNoTerminator
+      }
     }
     case _ => Assert.notYetImplemented()
   })

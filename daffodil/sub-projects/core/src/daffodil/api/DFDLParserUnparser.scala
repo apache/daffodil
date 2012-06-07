@@ -62,8 +62,13 @@ object DFDL {
     def setExternalDFDLVariable(name: String, namespace: String, value: String)
     def setDebugging(flag: Boolean)
 
+    /**
+     * Compilation returns a parser factory, which must be interrogated for diagnostics
+     * to see if compilation was successful or not.
+     */
     def compile(schema: Node): ProcessorFactory
     def compile(schemaFileName: String): ProcessorFactory
+    
     def reload(fileName: String): ProcessorFactory
   }
 
@@ -76,8 +81,20 @@ object DFDL {
 
   trait DataProcessor {
     def save(fileName: String): Unit
-    def parse(input: Input): scala.xml.Node
-    def unparse(output: Output, node: scala.xml.Node): Unit
+    
+    /**
+     * This api call uparses data, returns a list of any diagnostics.
+     */
+    def unparse(output: Output, node: scala.xml.Node): Seq[Diagnostic]
+    
+    /**
+     * This api returns an object which contains the result, and/or diagnostics information
+     */   
+    def parse(input : Input) : ParseResult 
+  }
+  
+  trait ParseResult extends WithDiagnostics {
+    def result : scala.xml.Node
   }
 
 }

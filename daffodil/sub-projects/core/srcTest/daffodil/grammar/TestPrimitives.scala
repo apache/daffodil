@@ -40,12 +40,13 @@ class TestPrimitives extends JUnit3Suite {
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:initiator="abcd">
       </xs:element>)
     val actual = Compiler.testString(sch, "abcdefgh")
-    val actualString = actual.toString
+    assertTrue(actual.canProceed)
+    val actualString = actual.result.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains(">efgh</e1>"))
 
     val expected: Node = <e1>efgh</e1>
-    assertEqualsXMLElements(expected, actual)
+    assertEqualsXMLElements(expected, actual.result)
   }
   
   def testTerminator {
@@ -54,12 +55,12 @@ class TestPrimitives extends JUnit3Suite {
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:terminator="efgh">
       </xs:element>)
     val actual = Compiler.testString(sch, "abcdefgh")
-    val actualString = actual.toString
+    val actualString = actual.result.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains(">abcd</e1>"))
 
     val expected: Node = <e1>abcd</e1>
-    assertEqualsXMLElements(expected, actual)
+    assertEqualsXMLElements(expected, actual.result)
   }
   
   def testSeparator {
@@ -74,12 +75,12 @@ class TestPrimitives extends JUnit3Suite {
         </xs:complexType>
       </xs:element>)
     val actual = Compiler.testString(sch, "abcd,efgh")
-    val actualString = actual.toString
+    val actualString = actual.result.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1>abcd</s1><s2>efgh</s2></e1>"))
 
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
-    assertEqualsXMLElements(expected, actual)  
+    assertEqualsXMLElements(expected, actual.result)  
   }
   
   def testLengthKindDelimited {
@@ -94,13 +95,13 @@ class TestPrimitives extends JUnit3Suite {
         </xs:complexType>
       </xs:element>)
     val actual = Compiler.testString(sch, "abcd,efgh")
-    val actualString = actual.toString
-    println(actual.toString())
+    val actualString = actual.result.toString
+    println(actualString)
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1>abcd</s1><s2>efgh</s2></e1>"))
 
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
-    assertEqualsXMLElements(expected, actual)  
+    assertEqualsXMLElements(expected, actual.result)  
   }
   
   def testLengthKindDelimited2 {
@@ -115,13 +116,13 @@ class TestPrimitives extends JUnit3Suite {
         </xs:complexType>
       </xs:element>)
     val actual = Compiler.testString(sch, "abcd  \\\n  efgh")
-    val actualString = actual.toString
-    println(actual.toString())
+    val actualString = actual.result.toString
+    println(actualString)
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1>abcd</s1><s2>efgh</s2></e1>"))
 
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
-    assertEqualsXMLElements(expected, actual)  
+    assertEqualsXMLElements(expected, actual.result)  
   }
   
   def testLengthKindDelimited3 {
@@ -144,12 +145,12 @@ class TestPrimitives extends JUnit3Suite {
       </xs:element>)
     val actual = Compiler.testString(sch, "abcd}efgh}}}ijkl")
     val actualString = actual.toString
-    println(actual.toString())
+    println(actualString)
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1><ss1>abcd</ss1><ss2>efgh</ss2></s1><s2>ijkl</s2></e1>"))
 
     val expected: Node = <e1><s1><ss1>abcd</ss1><ss2>efgh</ss2></s1><s2>ijkl</s2></e1>
-    assertEqualsXMLElements(expected, actual)  
+    assertEqualsXMLElements(expected, actual.result)  
   }
 
 }

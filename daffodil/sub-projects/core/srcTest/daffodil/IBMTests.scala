@@ -13,6 +13,8 @@ class IBMTestsThatPass extends JUnit3Suite {
   val runner1 = new DFDLTestSuite(new File(tdml1))
 
   def test_introduction_1_01() { runner1.runOneTest("introduction_1_01") }
+  def test_introduction_1_02() { runner1.runOneTest("introduction_1_02") }
+
   def test_encoding_11_01() { runner1.runOneTest("encoding_11_01") }
   def test_encoding_11_02() { runner1.runOneTest("encoding_11_02") }
   def test_encoding_11_03() { runner1.runOneTest("encoding_11_03") }
@@ -39,7 +41,6 @@ class IBMTestsThatThrow extends JUnit3Suite {
   val tdml2 = testDir + "dpaext2.tdml"
   val runner1 = new DFDLTestSuite(new File(tdml1))
   val runner2 = new DFDLTestSuite(new File(tdml2))
-  def test_introduction_1_02() { runner1.runOneTest("introduction_1_02") }
   def test_schema_types_5_01() { runner1.runOneTest("schema_types_5_01") }
   def test_schema_types_5_02() { runner1.runOneTest("schema_types_5_02") }
   def test_schema_types_5_03() { runner1.runOneTest("schema_types_5_03") }

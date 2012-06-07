@@ -16,7 +16,7 @@ class TestDFDLParser extends JUnit3Suite {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
-    val actual = Compiler.testString(sch, "5678")
+    val actual = Compiler.testString(sch, "5678").result
     val actualString = actual.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains(">5678</e1>"))
@@ -35,7 +35,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "5")
+    val actual = Compiler.testString(sch, "5").result
     val actualString = actual.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1>5</s1></e1>"))
@@ -54,7 +54,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "56")
+    val actual = Compiler.testString(sch, "56").result
     val actualString = actual.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1>5</s1><s2>6</s2></e1>"))
@@ -72,7 +72,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "567")
+    val actual = Compiler.testString(sch, "567").result
     val actualString = actual.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1>5</s1><s1>6</s1><s1>7</s1></e1>"))
@@ -90,7 +90,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "5,6,7")
+    val actual = Compiler.testString(sch, "5,6,7").result
     val actualString = actual.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1>5</s1><s1>6</s1><s1>7</s1></e1>"))
@@ -108,7 +108,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "[{(5),(6),(7)}]")
+    val actual = Compiler.testString(sch, "[{(5),(6),(7)}]").result
     val actualString = actual.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1>5</s1><s1>6</s1><s1>7</s1></e1>"))
@@ -131,7 +131,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "[[{{((55)),,((66)),,((77))}}]]")
+    val actual = Compiler.testString(sch, "[[{{((55)),,((66)),,((77))}}]]").result
     val actualString = actual.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1>55</s1><s1>66</s1><s1>77</s1></e1>"))
@@ -150,7 +150,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)    
-    val actual = Compiler.testString(sch, "55,000")
+    val actual = Compiler.testString(sch, "55,000").result
     TestUtils.assertEqualsXMLElements(<e1><s1>5</s1><s2>5000</s2></e1>, actual)
   }
 
@@ -168,7 +168,7 @@ class TestDFDLParser extends JUnit3Suite {
     val e = intercept[Exception]{
       val actual = Compiler.testString(sch, "55.001")
     }
-    //println("ERROR!!!!!" + e.getMessage())
+    println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:int"))
   }
 
@@ -183,7 +183,7 @@ class TestDFDLParser extends JUnit3Suite {
     </xs:sequence>
     </xs:complexType>
     </xs:element>)
-    val actual = Compiler.testString(sch, "55,000")
+    val actual = Compiler.testString(sch, "55,000").result
     TestUtils.assertEqualsXMLElements(<e1><s1>5</s1><s2>5000</s2></e1>, actual)
   }
 
@@ -192,13 +192,15 @@ class TestDFDLParser extends JUnit3Suite {
         <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
         <xs:complexType>
-          <xs:element name="s" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
+          <xs:sequence>
+          <xs:element name="s" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 6 }"/>
+          </xs:sequence>
         </xs:complexType>
     </xs:element>)
     val e = intercept[Exception]{
       val actual = Compiler.testString(sch, "70,000")
     }
-    //println("ERROR!!!!!" + e.getMessage())
+    println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:short"))
   }
 
@@ -206,7 +208,7 @@ class TestDFDLParser extends JUnit3Suite {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,
           <xs:element name="s" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>)
-    val actual = Compiler.testString(sch, "2,000,000,000")
+    val actual = Compiler.testString(sch, "2,000,000,000").result
     TestUtils.assertEqualsXMLElements(<s>2000000000</s>, actual)
   }
 
@@ -221,7 +223,7 @@ class TestDFDLParser extends JUnit3Suite {
     </xs:sequence>
     </xs:complexType>
     </xs:element>)
-    val actual = Compiler.testString(sch, "55123")
+    val actual = Compiler.testString(sch, "55123").result
     TestUtils.assertEqualsXMLElements(<e1><s1>55</s1><s2>123</s2></e1>, actual)
   }
 
@@ -238,7 +240,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "1-800-555-1212")
+    val actual = Compiler.testString(sch, "1-800-555-1212").result
     TestUtils.assertEqualsXMLElements(<e1><country>1</country><area>-800</area><region>-555</region><number>-1212</number></e1>, actual)
   }
 
@@ -246,7 +248,7 @@ class TestDFDLParser extends JUnit3Suite {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="mersenne" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
-    val actual = Compiler.testString(sch, "-127")
+    val actual = Compiler.testString(sch, "-127").result
     TestUtils.assertEqualsXMLElements(<mersenne>-127</mersenne>, actual)
   }
 
@@ -254,7 +256,7 @@ class TestDFDLParser extends JUnit3Suite {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="perfect" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
-    val actual = Compiler.testString(sch, "+3")
+    val actual = Compiler.testString(sch, "+3").result
     TestUtils.assertEqualsXMLElements(<perfect>3</perfect>, actual)
   }
 
@@ -262,7 +264,7 @@ class TestDFDLParser extends JUnit3Suite {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="mersenne" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="{ 207 }"/>)
-    val actual = Compiler.testString(sch, "686,479,766,013,060,971,498,190,079,908,139,321,726,943,530,014,330,540,939,446,345,918,554,318,339,765,605,212,255,964,066,145,455,497,729,631,139,148,085,803,712,198,799,971,664,381,257,402,829,111,505,715")
+    val actual = Compiler.testString(sch, "686,479,766,013,060,971,498,190,079,908,139,321,726,943,530,014,330,540,939,446,345,918,554,318,339,765,605,212,255,964,066,145,455,497,729,631,139,148,085,803,712,198,799,971,664,381,257,402,829,111,505,715").result
     TestUtils.assertEqualsXMLElements(<mersenne>686479766013060971498190079908139321726943530014330540939446345918554318339765605212255964066145455497729631139148085803712198799971664381257402829111505715</mersenne>, actual)
   }
 
@@ -308,7 +310,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "[[{{((55)),,((66)),,((77))}}]]")
+    val actual = Compiler.testString(sch, "[[{{((55)),,((66)),,((77))}}]]").result
     val actualString = actual.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1>55</s1><s1>66</s1><s1>77</s1></e1>"))
@@ -321,7 +323,7 @@ class TestDFDLParser extends JUnit3Suite {
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>)
     val e = intercept[Exception]{
-      val actual = Compiler.testString(sch, "A")
+      val actual = Compiler.testString(sch, "A").result
     }
     //println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:int"))
@@ -338,7 +340,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "5678A")
+    val actual = Compiler.testString(sch, "5678A").result
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1><s2>A</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -354,7 +356,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "5;6;7;8;A")
+    val actual = Compiler.testString(sch, "5;6;7;8;A").result
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1><s2>A</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -370,7 +372,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testBinary(sch, "000000013bFFFFFFFF3b080402013b000000003bFFFFFF7F")
+    val actual = Compiler.testBinary(sch, "000000013bFFFFFFFF3b080402013b000000003bFFFFFF7F").result
     val expected = <e1><s1>1</s1><s1>-1</s1><s1>134480385</s1><s1>0</s1><s2>2147483647</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)    
   }
@@ -386,7 +388,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testBinary(sch, "3FF00000000000003bBFF00000000000003b08040201080402013b00000000000000003bFFFFFFFFFFFFFF7F")
+    val actual = Compiler.testBinary(sch, "3FF00000000000003bBFF00000000000003b08040201080402013b00000000000000003bFFFFFFFFFFFFFF7F").result
     val expected = <e1><s1>1.0</s1><s1>-1.0</s1><s1>4.7340609871421765E-270</s1><s1>0.0</s1><s2>NaN</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -403,7 +405,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "01.0;-1.0;4.15;0.31;8.6E-2001,234.9")
+    val actual = Compiler.testString(sch, "01.0;-1.0;4.15;0.31;8.6E-2001,234.9").result
     val expected = <e1><s1>1.0</s1><s1>-1.0</s1><s1>4.15</s1><s1>0.31</s1><s2>8.6E-200</s2><s3>1234.9</s3></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -419,7 +421,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testBinary(sch, "3F8000003bBF8000003b080402013b000000003b0000C07F")
+    val actual = Compiler.testBinary(sch, "3F8000003bBF8000003b080402013b000000003b0000C07F").result
     val expected = <e1><s1>1.0</s1><s1>-1.0</s1><s1>3.972466E-34</s1><s1>0.0</s1><s2>NaN</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -436,7 +438,7 @@ class TestDFDLParser extends JUnit3Suite {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "01.0;-1.0;4.15;0.31;-7.1E81,234.9")
+    val actual = Compiler.testString(sch, "01.0;-1.0;4.15;0.31;-7.1E81,234.9").result
     val expected = <e1><s1>1.0</s1><s1>-1.0</s1><s1>4.15</s1><s1>0.31</s1><s2>-7.1E8</s2><s3>1234.9</s3></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
