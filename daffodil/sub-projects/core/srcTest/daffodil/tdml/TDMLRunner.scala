@@ -199,7 +199,8 @@ case class ParserTestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
     val parser = compiler.compile(sch).onPath("/")
     val data = document.input
     val actual = parser.parse(data)
-    val trimmed = Utility.trim(actual)
+    val trimmed = Utility.trim(actual.result)
+    assertTrue(actual.canProceed) // checks for fatal errors.
     //
     // Attributes on the XML like xsi:type and also namespaces (I think) are 
     // making things fail these comparisons, so we strip all attributes off (since DFDL doesn't 

@@ -19,7 +19,7 @@ object TestRig {
     if (isDebug)
       compiler.setDebugging(true)
     compiler.setDistinguishedRootNode(rootName)
-    val testDir = "test/"
+    val testDir = "test-suite/tresys-contributed/"
     val schemaPath = testDir + schemaFileName
     val schemaFile = TestUtils.findFile(schemaPath)
     if (schemaFile == null || !schemaFile.exists) {
@@ -30,8 +30,8 @@ object TestRig {
     val parser = parserFactory.onPath("/")
     val data = Compiler.fileToReadableByteChannel(TestUtils.findFile(testDir + inputFileName))
     //println("|" + data + "|")
-    val result = parser.parse(data)
-    val actual = Utility.trim(result)
+    val presult = parser.parse(data)
+    val actual = Utility.trim(presult.result)
     val expectedXML = Utility.trim(scala.xml.XML.loadFile(TestUtils.findFile(testDir + expectedFileName)))
     val expectedNoAttrs = XMLUtils.removeAttributes(expectedXML)
     val actualNoAttrs = XMLUtils.removeAttributes(actual)

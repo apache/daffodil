@@ -1,10 +1,8 @@
 package daffodil.dsom
 
 import java.io._
-
 import scala.xml.Node
 import scala.xml.XML
-
 import daffodil.api.DFDL
 import daffodil.exceptions._
 import daffodil.util.Validator
@@ -12,6 +10,34 @@ import daffodil.xml.XMLUtils
 import daffodil.grammar._
 import daffodil.processors._
 import daffodil.util.Misc._
+import daffodil.api.Diagnostic
+
+trait DiagnosticsImpl {
+  
+  def diagnostics : Seq[Diagnostic] // = Seq.empty[Diagnostic]
+  def getDiagnostics() : Seq[Diagnostic] = {
+    diagnostics
+  }
+  
+  def canProceed() : Boolean = {
+    val s = getDiagnostics()
+    val hasError = s.exists(_.isError())
+    val res = !hasError
+    res
+  }
+
+  def hasDiagnostics() : Boolean = {
+      val s = getDiagnostics()
+      if (s.length > 0) true
+      else false
+    }
+}
+
+abstract class ProcessorFactory extends DFDL.ProcessorFactory 
+
+abstract class DataProcessor extends DFDL.DataProcessor
+
+abstract class ParseResult extends DFDL.ParseResult with DiagnosticsImpl
 
 class Compiler extends DFDL.Compiler {
   var root: String = ""
@@ -112,39 +138,70 @@ class Compiler extends DFDL.Compiler {
   }
 
   def newBackEnd(parser : Parser, sset: SchemaSet, rootElem : GlobalElementDecl) = {
-     new DFDL.ProcessorFactory {
+     new ProcessorFactory {
 
       lazy val schemaSet = sset
+      // lazy val diagnostics = Seq.empty
+      
       def onPath(xpath: String): DFDL.DataProcessor =
-        new DFDL.DataProcessor {
+        new DataProcessor {
 
           def save(fileName: String): Unit = {
             Assert.notYetImplemented()
           }
+ 
+//          def parse(input: DFDL.Input): scala.xml.Node = {
+////            val inStream = java.nio.channels.Channels.newInputStream(input)
+////            val bufferedInStream = new java.io.BufferedInputStream(inStream)
+//            val initialState = PState.createInitialState(rootElem, input) // also want to pass here the externally set variables, other flags/settings.
+//            val resultState = parser.parse(initialState)
+//            if (resultState.status == Success) {
+//            val jdomFakeRoot = resultState.parent
+//            // top node is this fake root element
+//            Assert.invariant(jdomFakeRoot.getName() == "_document_" )
+//            Assert.invariant(jdomFakeRoot.getContentSize() == 1)
+//            val jdomElt = jdomFakeRoot.getContent(0).asInstanceOf[org.jdom.Element]
+//            val node = XMLUtils.element2Elem(jdomElt)
+//            node
+//            }
+//            else
+//            {
+//              val f = resultState.status.asInstanceOf[Failure]
+//               throw new daffodil.exceptions.PE("Processing error at bitPos: " + resultState.bitPos + " charPos " + resultState.charPos + 
+//                   "\nReason Failed: " + f.msg)
+//            }
+//          }
           
-          def parse(input: DFDL.Input): scala.xml.Node = {
-//            val inStream = java.nio.channels.Channels.newInputStream(input)
-//            val bufferedInStream = new java.io.BufferedInputStream(inStream)
-            val initialState = PState.createInitialState(rootElem, input) // also want to pass here the externally set variables, other flags/settings.
-            val resultState = parser.parse(initialState)
-            if (resultState.status == Success) {
-            val jdomFakeRoot = resultState.parent
-            // top node is this fake root element
-            Assert.invariant(jdomFakeRoot.getName() == "_document_" )
-            Assert.invariant(jdomFakeRoot.getContentSize() == 1)
-            val jdomElt = jdomFakeRoot.getContent(0).asInstanceOf[org.jdom.Element]
-            val node = XMLUtils.element2Elem(jdomElt)
-            node
+//          def parse(input: DFDL.Input): scala.xml.Node = {
+//            val pr = parse(input)
+//            if (pr.canProceed()) {
+//              pr.result
+//            }
+//            else throw new Exception(pr.toString)// daffodil.exceptions.MultipleExceptions(pr)
+//          }
+
+          def parse(input : DFDL.Input) : DFDL.ParseResult = {
+            val pr = new ParseResult {
+              val (result, diagnostics) = {
+                val initialState = PState.createInitialState(rootElem, input) // also want to pass here the externally set variables, other flags/settings.
+                val resultState = parser.parse(initialState)
+                val diagnostics = resultState.diagnostics
+                if (resultState.status == Success) {
+                  val jdomFakeRoot = resultState.parent
+                  // top node is this fake root element
+                  Assert.invariant(jdomFakeRoot.getName() == "_document_")
+                  Assert.invariant(jdomFakeRoot.getContentSize() == 1)
+                  val jdomElt = jdomFakeRoot.getContent(0).asInstanceOf[org.jdom.Element]
+                  val result = XMLUtils.element2Elem(jdomElt)
+                  (result, diagnostics)
+                } else
+                  (<nothing/>, diagnostics)
+              }
             }
-            else
-            {
-              val f = resultState.status.asInstanceOf[Failure]
-               throw new daffodil.exceptions.PE("Processing error at bitPos: " + resultState.bitPos + " charPos " + resultState.charPos + 
-                   "\nReason Failed: " + f.msg)
-            }
+            pr
           }
 
-          def unparse(output: DFDL.Output, node: scala.xml.Node): Unit = {
+          def unparse(output: DFDL.Output, node: scala.xml.Node) : Seq[Diagnostic] = {
             val jdomElem = XMLUtils.elem2Element(node)
             val jdomDoc = new org.jdom.Document(jdomElem)
             Assert.notYetImplemented()
