@@ -266,6 +266,20 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(<mersenne>686479766013060971498190079908139321726943530014330540939446345918554318339765605212255964066145455497729631139148085803712198799971664381257402829111505715</mersenne>, actual)
   }
 
+  def testLengthKindPattern() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1" separatorPolicy="required" separatorPosition="infix"/>,
+        <xs:element name="doctors">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="name" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern=".*?[^\](?=,)" dfdl:occursCountKind="fixed" minOccurs="11" maxOccurs="11"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>)
+    val actual = Compiler.testString(sch, "Hartnell\\, William,Troughton\\, Patrick,Pertwee\\, Jon,Baker\\, Tom,Davison\\, Peter,Baker\\, Colin,McCoy\\, Sylvester,McGann\\, Paul,Christopher Eccleston,David Tennant,Matt Smith")
+    TestUtils.assertEqualsXMLElements(<doctors><name>Hartnell, William</name><name>Troughton, Patrick</name><name>Pertwee, Jon</name><name>Baker, Tom</name><name>Davison, Peter</name><name>Baker, Colin</name><name>McCoy, Sylvester</name><name>McGann, Paul</name><name>Christopher Eccleston</name><name>David Tennant</name><name>Matt Smith</name></doctors>, actual)
+  }
+
   // TEST FAILS - SEE JIRA DFDL-184
 //  def testIntTooLong() {
 //    val sch = TestUtils.dfdlTestSchema(
