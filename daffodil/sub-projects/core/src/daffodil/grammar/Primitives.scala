@@ -392,7 +392,7 @@ extends Terminal(e, guard) {
     def parser: Parser = DummyParser(e)
   }
 
-case class ZonedTextNumberPrim(e: ElementBaseMixin, guard: Boolean) extends Terminal(e, guard) {
+abstract class ZonedTextNumberPrim(e: ElementBaseMixin, guard: Boolean) extends Terminal(e, guard) {
   def parser : Parser = new Parser {
     def parse(start: PState) : PState = {
       // TODO: Compute the Zoned Number generically
