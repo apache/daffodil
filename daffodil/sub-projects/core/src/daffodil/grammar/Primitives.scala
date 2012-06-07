@@ -256,11 +256,10 @@ case class StringDelimitedNoEscapeSchemeWithTerminator(e : LocalElementBase) ext
   }
 }
 
-
 abstract class ConvertTextNumberPrim[S](e: ElementBaseMixin, guard: Boolean) extends Terminal(e, guard) {
-  def getNum(s: Number) : S
-  val GramName = "number"
-  val GramDescription = "Number"
+  protected def getNum(s: Number) : S
+  protected val GramName = "number"
+  protected val GramDescription = "Number"
   def parser : Parser = new Parser {
     def parse(start: PState) : PState = {
       val node = start.parent
@@ -277,11 +276,13 @@ abstract class ConvertTextNumberPrim[S](e: ElementBaseMixin, guard: Boolean) ext
         val df = new DecimalFormat()
         val pos = new ParsePosition(0)
         val num = df.parse(str, pos)
+
         // Verify that what was parsed was what was passed exactly in byte count.  Use pos to verify all characters consumed & check for errors!
         if (pos.getIndex != str.length) {
           System.err.print("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n")
           throw new ParseException("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n", 0)
         }
+
         // Assume long as the most precision
         val asNumber = getNum(num)
 
@@ -294,8 +295,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBaseMixin, guard: Boolean) ext
         else {
           node.setText(asNumber.toString)
         }
-        //val i = str.toInt
-        // FALSE: Node remains a string because of jdom
+
         start
       } catch {case e:Exception => start.failed("Failed to convert to an xs:" + GramName) }
 
@@ -306,33 +306,33 @@ abstract class ConvertTextNumberPrim[S](e: ElementBaseMixin, guard: Boolean) ext
 }
 
 case class ConvertTextIntegerPrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[BigInteger](e, true) {
-  def getNum(num: Number) = new BigInteger(num.toString)
-  override val GramName = "integer"
-  override val GramDescription = "Unbounded Integer"
+  protected override def getNum(num: Number) = new BigInteger(num.toString)
+  protected override val GramName = "integer"
+  protected override val GramDescription = "Unbounded Integer"
 }
 
 case class ConvertTextLongPrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[Long](e, true) {
-  def getNum(num: Number) = num.longValue
-  override val GramName = "long"
-  override val GramDescription = "Long Integer"
+  protected override def getNum(num: Number) = num.longValue
+  protected override val GramName = "long"
+  protected override val GramDescription = "Long Integer"
 }
 
 case class ConvertTextIntPrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[Int](e, true) {
-  def getNum(num: Number) = num.intValue
-  override val GramName = "int"
-  override val GramDescription = "Integer"
+  protected override def getNum(num: Number) = num.intValue
+  protected override val GramName = "int"
+  protected override val GramDescription = "Integer"
 }
 
 case class ConvertTextShortPrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[Short](e, true) {
-  def getNum(num: Number) = num.shortValue
-  override val GramName = "short"
-  override val GramDescription = "Short Integer"
+  protected override def getNum(num: Number) = num.shortValue
+  protected override val GramName = "short"
+  protected override val GramDescription = "Short Integer"
 }
 
 case class ConvertTextBytePrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[Byte](e, true) {
-  def getNum(num: Number) = num.byteValue
-  override val GramName = "byte"
-  override val GramDescription = "Byte"
+  protected override def getNum(num: Number) = num.byteValue
+  protected override val GramName = "byte"
+  protected override val GramDescription = "Byte"
 }
 
 case class ConvertTextDoublePrim(e: ElementBaseMixin) extends Terminal(e, true) {
