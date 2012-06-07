@@ -42,14 +42,14 @@ trait Diagnostic {
    * 
    * For example, this might be a file name, and position within the file.
    */
-  def getDataLocation() : Option[DataLocation]
+  def getDataLocations() : Seq[DataLocation]
   
    /**
    * Get schema location information relevant to this diagnostic object.
    * 
    * For example, this might be a file name of a schema, and position within the schema file.
    */
-  def getSchemaLocation() : Option[SchemaLocation]
+  def getSchemaLocations() : Seq[SchemaLocation]
   
   /**
    * Determine if a diagnostic object represents an error or something less serious.
@@ -105,7 +105,7 @@ trait WithDiagnostics {
    * created. That is, this isn't for polling for diagnostics or anything like that.
    */
   def canProceed() : Boolean
-  
+  def isError() : Boolean 
   /**
    * Indicates whether there are any diagnostic objects available.
    */

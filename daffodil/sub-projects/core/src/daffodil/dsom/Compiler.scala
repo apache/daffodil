@@ -25,6 +25,8 @@ trait DiagnosticsImpl {
     val res = !hasError
     res
   }
+  
+  def isError() = !canProceed()
 
   def hasDiagnostics() : Boolean = {
       val s = getDiagnostics()
@@ -194,8 +196,15 @@ class Compiler extends DFDL.Compiler {
                   val jdomElt = jdomFakeRoot.getContent(0).asInstanceOf[org.jdom.Element]
                   val result = XMLUtils.element2Elem(jdomElt)
                   (result, diagnostics)
-                } else
-                  (<nothing/>, diagnostics)
+                } else {
+                  // failed. Let's make sure there is at least one diagnostic, so it can't 
+                  // silently fail
+                  val diags = diagnostics match {
+                    case Seq() => List(new GeneralParseFailure("Top Level Failure"))
+                    case _ => diagnostics
+                  }
+                  (<nothing/>, diags)
+                }
               }
             }
             pr
@@ -312,6 +321,10 @@ object Compiler {
     val p = pf.onPath("/")
     val d = Compiler.stringToReadableByteChannel(data)
     val actual = p.parse(d)
+    if (actual.isError()) {
+      val msgs = actual.getDiagnostics().map(_.getMessage()).foldLeft("")((a, b) => a + "\n" + b)
+      throw new Exception(msgs)
+    }
     actual
   }
 

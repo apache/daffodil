@@ -72,6 +72,8 @@ class ExtResult[+T] private (resultArg : Option[T], extArg : Seq[Diagnostic])
     val res = result.isDefined && !hasError 
     res
   }
+  
+  def isError() = !canProceed()
 
   def hasDiagnostics() : Boolean = {
     val s = getDiagnostics()

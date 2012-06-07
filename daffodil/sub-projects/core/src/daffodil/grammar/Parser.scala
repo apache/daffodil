@@ -132,6 +132,13 @@ case class DummyParser(sc: PropertyMixin) extends Parser {
   override def toString = if (sc == null) "Dummy[null]" else "Dummy[" + sc.detailName + "]"
 }
 
+class GeneralParseFailure(msg : String) extends Diagnostic {
+  def isError() = true
+  def getSchemaLocations() = Nil
+  def getDataLocations() = Nil
+  def getMessage() = msg
+}
+
 /**
  * A parser takes a state, and returns an updated state
  *
@@ -181,8 +188,8 @@ class PState(
     new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withArrayIndexStack(arrayIndexStack: List[Long], status: ProcessorResult = Success) =
     new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
-  def failed(msg: => String) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, new Failure(msg), groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+  def failed(msg: => String) : PState =
+    failed(new GeneralParseFailure(msg))
   def failed(failureDiagnostic: Diagnostic) =
     new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage()), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics)
 

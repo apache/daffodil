@@ -144,7 +144,7 @@ class TestDFDLParser extends JUnit3Suite {
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
         <xs:complexType>
-          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:separatorPolicy="required">
+          <xs:sequence>
             <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
             <xs:element name="s2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
           </xs:sequence>
@@ -168,7 +168,7 @@ class TestDFDLParser extends JUnit3Suite {
     val e = intercept[Exception]{
       val actual = Compiler.testString(sch, "55.001")
     }
-    //println("ERROR!!!!!" + e.getMessage())
+    println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:int"))
   }
 
@@ -192,13 +192,15 @@ class TestDFDLParser extends JUnit3Suite {
         <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
         <xs:complexType>
-          <xs:element name="s" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
+          <xs:sequence>
+          <xs:element name="s" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 6 }"/>
+          </xs:sequence>
         </xs:complexType>
     </xs:element>)
     val e = intercept[Exception]{
       val actual = Compiler.testString(sch, "70,000")
     }
-    //println("ERROR!!!!!" + e.getMessage())
+    println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:short"))
   }
 
