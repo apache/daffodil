@@ -209,12 +209,26 @@ case class StringDelimitedNoEscapeSchemeNoTerminator(e : LocalElementBase) exten
       println("sequenceSeparator: " + sequenceSeparator.constantAsString)
       
       val (result, endBitPos, theState) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(sequenceSeparator.constantAsString))
-      System.err.println("Parsed: " + result)
-      System.err.println("Ended at bit position " + endBitPos)
-      val endCharPos = start.charPos + result.length()
-      val currentElement = start.parent
-      currentElement.addContent(new org.jdom.Text(result))
-      val postState = start.withPos(endBitPos, endCharPos)
+//      System.err.println("Parsed: " + result)
+//      System.err.println("Ended at bit position " + endBitPos)
+//      val endCharPos = start.charPos + result.length()
+//      val currentElement = start.parent
+//      currentElement.addContent(new org.jdom.Text(result))
+//      val postState = start.withPos(endBitPos, endCharPos)
+//
+//      postState
+      val postState =  theState match {
+        case EOF  => start.failed(this.toString() + ": No match found!")
+        case PartialMatch => start.failed(this.toString() + ": Partial match found!")
+        case FullMatch => {
+          System.err.println("Parsed: " + result)
+          System.err.println("Ended at bit position " + endBitPos)
+          val endCharPos = start.charPos + result.length()
+          val currentElement = start.parent
+          currentElement.addContent(new org.jdom.Text(result))
+          start.withPos(endBitPos, endCharPos)
+        }
+      }
 
       postState
     }

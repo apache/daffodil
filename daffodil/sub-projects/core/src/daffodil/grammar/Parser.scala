@@ -320,9 +320,19 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     // 
     // Note: not thread safe. We're depending here on the byte buffer being private to us.
     //
+//    System.err.println("Decode ByteBufferAsCharBuffer: " + bb.asCharBuffer().toString())
     bb.position(byteOffset)
+//    System.err.println("Decode ByteOffset: " + byteOffset)
+//    System.err.println("Decode ByteBuffer: " + bb.toString())
+//    System.err.println("Decode CharFromByteBuffer: " + bb.getChar(byteOffset))
+//    System.err.println("Decode ByteBufferAsCharBuffer: " + bb.asCharBuffer().toString())
+//    while (bb.hasRemaining()){
+//      System.err.print(bb.get().toHexString + " ")
+//    }
+//    System.err.println
     decoder.reset()
     val cr1 = decoder.decode(bb, cb, true) // true means this is all the input you get.
+    System.err.println("Decode Error1: " + cr1.toString())
     if (cr1 != CoderResult.UNDERFLOW) {
       if (cr1 == CoderResult.OVERFLOW) {
         // it's ok. It just means we've satisfied the char buffer.
@@ -330,6 +340,7 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
         return -1L // Assert.abort("Something went wrong while decoding characters: CoderResult = " + cr1)   
     }
     val cr2 = decoder.flush(cb)
+    System.err.println("Decode Error2: " + cr2.toString())
     if (cr2 != CoderResult.UNDERFLOW) {
       // Something went wrong
       return -1L // Assert.abort("Something went wrong while decoding characters: CoderResult = " + cr2) 
