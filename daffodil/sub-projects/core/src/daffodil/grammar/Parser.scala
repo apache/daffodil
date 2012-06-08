@@ -448,6 +448,8 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
       sb.append(result)
     }
     var EOF: Boolean = false
+    
+    if (buf.toString().length == 0){ EOF = true } // Buffer was empty to start, nothing to do.
 
     // Proceed until we encounter a FullMatch or EOF
     while ((theState == SearchResult.EOF || theState == SearchResult.PartialMatch) && endBitPosA != -1 && !EOF) {
@@ -509,7 +511,7 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     dSearch.printDelimStruct
     // --
 
-    println("CB: " + cb.toString())
+    println("CB: |" + cb.toString() + "|")
 
     //var (theState, result, endPos) = dSearch.search(buf, 0)
     var (theState, result, endPos, endPosDelim) = dSearch.search(buf, 0)
@@ -518,6 +520,8 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
       sb.append(result)
     }
     var EOF: Boolean = false
+    
+    if (buf.toString().length == 0){ EOF = true } // Buffer was empty to start, nothing to do
 
     // Proceed until we encounter a FullMatch or EOF
     while ((theState == SearchResult.EOF || theState == SearchResult.PartialMatch) && endBitPosA != -1 && !EOF) {
@@ -563,7 +567,8 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     println("===\nEND_GET_DELIMITER!\n===\n")
     
     //(sb.toString(), endBitPosA, endBitPosDelimA)
-    (cb.subSequence(endPos, endPosDelim).toString(), endBitPosA, endBitPosDelimA, theState)
+    if (endPos != -1 && endPosDelim != -1){ (cb.subSequence(endPos, endPosDelim).toString(), endBitPosA, endBitPosDelimA, theState) }
+    else { (cb.toString(), endBitPosA, endBitPosDelimA, theState) }
   }
 
   def getInt(bitPos: Long, order: java.nio.ByteOrder) = {

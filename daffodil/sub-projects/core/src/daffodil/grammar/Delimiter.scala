@@ -159,6 +159,10 @@ class Delimiter extends Logged {
   // Ex. %WSP;%WSP*;%NL;%WSP+;%WSP*
   // 	can be reduced to: %WSP+;%NL;%WSP+;
   //
+  // TODO: Maybe should have an error message for the example.  What did they mean?
+  // Problem because NL characters are in WSP.  Possible to consume the expected NL
+  // and thus the rest of the delimiter may not match.
+  //
   // Here we should note that %WSP;%WSP;%WSP; is NOT equivalent to %WSP+;
   // as WSP+ would imply that %WSP;%WSP;%WSP;%WSP; is also valid when in fact
   // it may not be.

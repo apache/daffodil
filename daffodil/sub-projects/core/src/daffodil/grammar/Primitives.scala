@@ -228,8 +228,11 @@ case class StringDelimitedNoEscapeSchemeWithTerminator(e : LocalElementBase) ext
   def parser: Parser = new Parser {
     override def toString = "StringDelimitedNoEscapeSchemeWithTerminator"
     val decoder = e.knownEncodingDecoder
-    var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
+    var cbuf = CharBuffer.allocate(1024)
     //var cbuf = CharBuffer.allocate(4)
+    
+    // TODO: Add parameter for changing CharBuffer size
+    // TODO: Change EOF to NoMatch
 
     def parse(start: PState): PState = {
       System.err.println("Parsing starting at bit position: " + start.bitPos)
