@@ -277,6 +277,51 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(<limits><unsigned-byte>255</unsigned-byte><unsigned-short>65535</unsigned-short><unsigned-int>4294967295</unsigned-int><unsigned-long>18446744073709551615</unsigned-long></limits>, actual)
   }
 
+  def testUnsignedLong1() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="needs-square-root" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
+    val e = intercept[Exception]{
+      val actual = Compiler.testString(sch, "-3")
+    }
+    println("ERROR!!!!!" + e.getMessage())
+    assertTrue(e.getMessage().contains("xs:unsignedLong"))
+  }
+
+  def testUnsignedInt1() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="world-population" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>)
+    val e = intercept[Exception]{
+      // As of 18:31 UTC (EST+5) Jun 8, 2012
+      val actual = Compiler.testString(sch, "7,018,631,476")
+    }
+    println("ERROR!!!!!" + e.getMessage())
+    assertTrue(e.getMessage().contains("xs:unsignedInt"))
+  }
+
+  def testUnsignedShort1() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="last-element-indicator" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
+    val e = intercept[Exception]{
+      val actual = Compiler.testString(sch, "-1")
+    }
+    println("ERROR!!!!!" + e.getMessage())
+    assertTrue(e.getMessage().contains("xs:unsignedShort"))
+  }
+
+  def testUnsignedByte1() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="bits" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>)
+    val e = intercept[Exception]{
+      val actual = Compiler.testString(sch, "256")
+    }
+    println("ERROR!!!!!" + e.getMessage())
+    assertTrue(e.getMessage().contains("xs:unsignedByte"))
+  }
+
   def testBigInteger1() {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,
@@ -309,7 +354,7 @@ class TestDFDLParser extends JUnit3Suite {
 //            <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
 //          </xs:sequence>
 //        </xs:complexType>
-//      </xs:element>)    
+//      </xs:element>)
 //       val e = intercept[Exception]{
 //      val actual = Compiler.testString(sch, "55555555555555555555")
 //    }
