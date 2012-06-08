@@ -340,28 +340,28 @@ case class ConvertTextUnsignedLongPrim(e: ElementBaseMixin) extends ConvertTextN
   protected override def getNum(num: Number) = new BigInteger(num.toString)
   protected override val GramName = "unsignedLong"
   protected override val GramDescription = "Unsigned Long"
-  protected override def isInvalidRange(n : BigInteger) = n.compareTo(BigInteger.ZERO) < 0 || n.compareTo(BigInteger.ONE.shiftLeft(64)) > 0
+  protected override def isInvalidRange(n : BigInteger) = n.compareTo(BigInteger.ZERO) < 0 || n.compareTo(BigInteger.ONE.shiftLeft(64)) >= 0
 }
 
 case class ConvertTextUnsignedIntPrim(e: ElementBaseMixin) extends ConvertTextNumberPrim[Long](e, true) {
   protected override def getNum(num: Number) = num.longValue
   protected override val GramName = "unsignedInt"
   protected override val GramDescription = "Unsigned Int"
-  protected override def isInvalidRange(n : Long) = n < 0 || n < (1<<32)
+  protected override def isInvalidRange(n : Long) = n < 0 || n >= (1L<<32)
 }
 
 case class ConvertTextUnsignedShortPrim(e: ElementBaseMixin) extends ConvertTextNumberPrim[Int](e, true) {
   protected override def getNum(num: Number) = num.intValue
   protected override val GramName = "unsignedShort"
   protected override val GramDescription = "Unsigned Short"
-  protected override def isInvalidRange(n : Int) = n < 0 || n < (1<<16)
+  protected override def isInvalidRange(n : Int) = n < 0 || n >= (1<<16)
 }
 
 case class ConvertTextUnsignedBytePrim(e: ElementBaseMixin) extends ConvertTextNumberPrim[Short](e, true) {
   protected override def getNum(num: Number) = num.shortValue
   protected override val GramName = "unsignedByte"
   protected override val GramDescription = "Unsigned Byte"
-  protected override def isInvalidRange(n : Short) = n < 0 || n < (1<<8)
+  protected override def isInvalidRange(n : Short) = n < 0 || n >= (1<<8)
 }
 
 case class ConvertTextDoublePrim(e: ElementBaseMixin) extends Terminal(e, true) {

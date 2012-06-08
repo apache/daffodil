@@ -260,6 +260,23 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(<perfect>3</perfect>, actual)
   }
 
+  def testUnsignedNumbers1() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format separatorPolicy="required" separatorPosition="infix" ref="tns:daffodilTest1"/>,
+      <xs:element name="limits" dfdl:lengthKind="explicit">
+        <xs:complexType>
+          <xs:sequence dfdl:separator=":">
+            <xs:element name="unsigned-byte" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>
+            <xs:element name="unsigned-short" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="{ 6 }"/>
+            <xs:element name="unsigned-int" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>
+            <xs:element name="unsigned-long" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 26 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = Compiler.testString(sch, "255:65,535:4,294,967,295:18,446,744,073,709,551,615").result
+    TestUtils.assertEqualsXMLElements(<limits><unsigned-byte>255</unsigned-byte><unsigned-short>65535</unsigned-short><unsigned-int>4294967295</unsigned-int><unsigned-long>18446744073709551615</unsigned-long></limits>, actual)
+  }
+
   def testBigInteger1() {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,
@@ -296,8 +313,7 @@ class TestDFDLParser extends JUnit3Suite {
 //       val e = intercept[Exception]{
 //      val actual = Compiler.testString(sch, "55555555555555555555")
 //    }
-//    //println("ERROR!!!!!" + e.getMessage())
-//    assertTrue(e.getMessage().contains("xs:int"))
+//    //println("ERROR!!!!!" + e.getMessage())//    assertTrue(e.getMessage().contains("xs:int"))
 //  }
 
   def testParseSequenceInt() {
