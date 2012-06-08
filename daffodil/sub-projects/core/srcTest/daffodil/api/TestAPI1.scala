@@ -278,7 +278,7 @@ class TestDFDLParser extends JUnit3Suite {
             </xs:sequence>
           </xs:complexType>
         </xs:element>)
-    val actual = Compiler.testString(sch, "Hartnell\\, William,Troughton\\, Patrick,Pertwee\\, Jon,Baker\\, Tom,Davison\\, Peter,Baker\\, Colin,McCoy\\, Sylvester,McGann\\, Paul,Christopher Eccleston,David Tennant,Matt Smith")
+    val actual = Compiler.testString(sch, "Hartnell\\, William,Troughton\\, Patrick,Pertwee\\, Jon,Baker\\, Tom,Davison\\, Peter,Baker\\, Colin,McCoy\\, Sylvester,McGann\\, Paul,Christopher Eccleston,David Tennant,Matt Smith").result
     TestUtils.assertEqualsXMLElements(<doctors><name>Hartnell, William</name><name>Troughton, Patrick</name><name>Pertwee, Jon</name><name>Baker, Tom</name><name>Davison, Peter</name><name>Baker, Colin</name><name>McCoy, Sylvester</name><name>McGann, Paul</name><name>Christopher Eccleston</name><name>David Tennant</name><name>Matt Smith</name></doctors>, actual)
   }
 
