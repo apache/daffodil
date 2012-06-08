@@ -85,6 +85,10 @@ class DelimSearcher extends Logged {
     if (clearState) {
       clear
     }
+    if (input.toString().length() == 0){
+      log("EOF! String: was EMPTY!! StartPos: " + startPos + " EndPos: " + endPos)
+      return (SearchResult.EOF, input.toString(), -1, -1)
+    }
     if (startPos < 0){
       endPos = input.length() -1
       log("EOF! String: " + input.toString().substring(startPos) + " StartPos: " + startPos + " EndPos: " + endPos)
