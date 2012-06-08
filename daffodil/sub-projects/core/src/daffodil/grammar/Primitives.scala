@@ -273,6 +273,42 @@ case class StringDelimitedNoEscapeSchemeWithTerminator(e : LocalElementBase) ext
   }
 }
 
+case class StringPatternMatched(e : LocalElementBase) extends Terminal(e, true) {
+  val sequenceSeparator = e.nearestEnclosingSequence.get.separator
+
+  def parser: Parser = new Parser {
+    override def toString = "StringPatternMatched"
+    val decoder = e.knownEncodingDecoder
+    var cbuf = new StringBuilder(1024)
+
+    // TODO: Add parameter for changing CharBuffer size
+    // TODO: Change EOF to NoMatch
+
+    def parse(start: PState): PState = {
+      System.err.println("Parsing starting at bit position: " + start.bitPos)
+      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
+      var bitOffset = 0L
+
+      val (result, endBitPos, theState) = in.fillCharBufferWithPatternMatch(cbuf, start.bitPos, decoder, Set[String]())
+
+      val postState =  theState match {
+        case EOF  => start.failed(this.toString() + ": No match found!")
+        case PartialMatch => start.failed(this.toString() + ": Partial match found!")
+        case FullMatch => {
+          System.err.println("Parsed: " + result)
+          System.err.println("Ended at bit position " + endBitPos)
+          val endCharPos = start.charPos + result.length()
+          val currentElement = start.parent
+          currentElement.addContent(new org.jdom.Text(result))
+          start.withPos(endBitPos, endCharPos)
+        }
+      }
+
+      postState
+    }
+  }
+}
+
 abstract class ConvertTextNumberPrim[S](e: ElementBaseMixin, guard: Boolean) extends Terminal(e, guard) {
   protected def getNum(s: Number) : S
   protected val GramName = "number"

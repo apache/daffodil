@@ -76,6 +76,7 @@ with AlignedMixin { self: ElementBaseMixin =>
         thisAsLocal.stringDelimitedNoEscapeSchemeNoTerminator
       }
     }
+    case LengthKind.Pattern => this.asInstanceOf[LocalElementBase].stringPatternMatched
     case _ => Assert.notYetImplemented()
   })
   res
@@ -403,7 +404,8 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
   lazy val stringDelimited = Prod("stringDelimited", this, StringDelimited(this))
   lazy val stringDelimitedNoEscapeSchemeNoTerminator = Prod("stringDelimitedNoEscapeSchemeNoTerminator", this, StringDelimitedNoEscapeSchemeNoTerminator(this))
   lazy val stringDelimitedNoEscapeSchemeWithTerminator = Prod("stringDelimitedNoEscapeSchemeWithTerminator", this, StringDelimitedNoEscapeSchemeWithTerminator(this))
-  
+  lazy val stringPatternMatched = Prod("stringPatternMatched", this, StringPatternMatched(this))
+
   lazy val recurrance = Prod("recurrance", this, 
       !isScalar, 
       StartArray(this) ~ arrayContents ~ EndArray(this) ~ FinalUnusedRegion(this))
