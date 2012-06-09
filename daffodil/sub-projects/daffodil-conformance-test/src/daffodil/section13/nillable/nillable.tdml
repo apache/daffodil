@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="AA-BG" description="Original suite of AA through BG"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+
+	<parserTestCase name="litNil1" root="doc" model="nillable.dfdl.xsd"
+		description="literal nil">
+
+		<document>
+			<documentPart type="text"><![CDATA[0,nil;]]></documentPart>
+		</document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<e1>0</e1>
+					<e2 xsi:nil="true"/>	
+				</doc>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+
+
+</testSuite>
