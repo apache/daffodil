@@ -55,27 +55,4 @@ class TresysTests extends JUnit3Suite {
   def test_AJ000() { runnerAJ.runOneTest("AJ000") }
   def test_AJ001() { runnerAJ.runOneTest("AJ001") }
   
-  // Test related to Jira task DFDL-76
-  def testSchemaReferentialIntegrityChecking() {
-    // Schema below should error out, because name 'bar' isn't a valid internal reference to the type. It should
-    // be caught as in the xsd namespace, which won't allow it to match the targetNS.
-    val realSchema = <schema xmlns={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:tns={ targetNS } targetNamespace={ targetNS }>
-                       <annotation>
-                         <appinfo source={ dfdlURI }>
-                           <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no" textNumberRep="standard"/>
-                         </appinfo>
-                       </annotation>
-                       <element name="foo" type="bar"/>
-                       <complexType name="bar">
-                         <sequence/>
-                       </complexType>
-                     </schema>
-    val realSchemaText = realSchema.toString()
-    val sch = XML.loadString(realSchemaText)
-    val exc = intercept[Exception] {
-       val actual = Compiler.testString(sch, "")
-    }
-    val m = exc.getMessage()
-    assertTrue(m.contains("bar"))
-  }
 }
