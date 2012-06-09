@@ -1,6 +1,0 @@
-<path xmlns="http://www.example.org/example1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-  <folder>folder1</folder>
-  <folder>folder2</folder>
-  <folder>folder3</folder>
-  <file>file_name</file>
-</path>

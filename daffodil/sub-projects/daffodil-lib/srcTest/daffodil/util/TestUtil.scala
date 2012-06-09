@@ -6,6 +6,18 @@ import daffodil.exceptions._
 
 class TestUtil extends JUnit3Suite {
   
+  def testGetRequiredResourceSucceeds () {
+    val res = Misc.getRequiredResource("/xsd/XMLSchema.xsd")
+    assertNotNull(res)
+  }
+  
+  def testGetRequiredResourceFails () {
+    val e = intercept[Exception] {
+    	val res = Misc.getRequiredResource("/xsd/NotAResourceName.foo")
+    }
+    assertTrue(e.getMessage().contains("NotAResourceName"))
+  }
+  
 //  @Test 
   def testStripQuotes() {
     assertEquals("foo", Misc.stripQuotes("\"foo\""))

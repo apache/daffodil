@@ -554,8 +554,10 @@ case class LittleEndianFloatPrim(e : ElementBaseMixin) extends Terminal(e, true)
   def parser = new FloatPrim(java.nio.ByteOrder.LITTLE_ENDIAN)
 }
 
+class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) 
+extends StaticText(delim, e, guard)
 
-class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) extends Terminal(e, guard) {
+abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = true) extends Terminal(e, guard) {
   def parser: Parser = new Parser {
 
     // TODO: Fix Cheezy matcher. Doesn't implement ignore case. Doesn't fail at first character that doesn't match. It grabs
@@ -751,7 +753,22 @@ case class StopValue(e: LocalElementBase) extends Primitive(e, e.hasStopValue)
 
 case class TheDefaultValue(e: ElementBaseMixin) extends Primitive(e, e.isDefaultable) 
 
-case class LiteralNilValue(e: ElementBaseMixin) extends Primitive(e, e.isNillable) 
+case class LiteralNilValue(e: ElementBaseMixin) 
+extends StaticText(e.nilValue, e, e.isNillable) {
+  val stParser = super.parser
+  override def parser = new Parser {
+   def parse(start : PState) : PState = {
+     val afterNilLit = stParser.parse(start)
+     
+    if (afterNilLit.status != Success) start.failed("Doesn't match nil literal.")
+    else {
+      val xsiNS = afterNilLit.parent.getNamespace(XMLUtils.XSI_NAMESPACE)
+      afterNilLit.parent.setAttribute("nil", "true", xsiNS)
+      afterNilLit
+    }
+  }
+  }
+}
 
 case class LogicalNilValue(e: ElementBaseMixin) extends Primitive(e, e.isNillable) 
 

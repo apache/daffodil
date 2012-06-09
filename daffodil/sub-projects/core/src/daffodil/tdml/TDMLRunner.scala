@@ -17,6 +17,10 @@ import junit.framework.Assert.assertTrue
 import daffodil.util.Misc._
 import java.io.FileInputStream
 import java.io.FileNotFoundException
+import org.xml.sax.InputSource
+import java.io.StringReader
+import javax.xml.transform.stream.StreamSource
+import java.net.URL
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -47,42 +51,24 @@ import java.io.FileNotFoundException
  * dependency on one factory to create processors.
  */
 
-class DFDLTestSuite(tsArg : Node, val tdmlFile : File = null) {
+class DFDLTestSuite(ts : Node, tdmlFile : File, tsInputSource : InputSource) {
+  
+  def this(tdmlFile : File) = this(XML.loadFile(tdmlFile), tdmlFile, new InputSource(tdmlFile.toURI().toASCIIString()))
+  def this(tsNode : Node) = this(tsNode, null, new InputSource(new StringReader(tsNode.toString)))
+  def this(tsURL : URL) = this(XML.load(tsURL), null, new InputSource(tsURL.toURI().toASCIIString()))
 
   //
   // we immediately validate the incoming test suite document
   // against its schema. We're depending on Validator to find all the 
   // included schemas such as that for embedded defineSchema named schema nodes.
   // 
-  val tdmlXSDFilePath = "srcTest/xsd/tdml.xsd"
-  // This is a test rig, so the above xsd won't be in the jar. We have to find it
-  // in the file system.
-  // Note: maybe we should embed the TDML runner and related xsd into the jar?
-  // That way all deployed jars can run tests, so when people report bugs with their 
-  // jar they'll have a way to verify their jar can't run the test.
-  //
-  val tdmlXSDFile = TestUtils.findFile(new File(tdmlXSDFilePath))
-  val inStream = {
-    if (tdmlXSDFile != null) {
-      new FileInputStream(tdmlXSDFile) // Misc.getResourceOrFileStream(tdmlXSDFile)
-    } else {
-      throw new FileNotFoundException("unable to find " + tdmlXSDFilePath)
-    }
-  }
+  val tdmlXSDResourcePath = "/xsd/tdml.xsd"
 
-  val tdmlSchema = XML.load(inStream)
-  assert(Validator.validateXMLNodes(tdmlSchema, ts) != null)
-
-  //
-  // alternate constructor from a file
-  //
-  def this(tdmlFile : File) = this(null, tdmlFile)
-
-  lazy val ts = tsArg match {
-    case null => XML.loadFile(TestUtils.findFile(tdmlFile))
-    case _ => tsArg
-  }
-
+  val tdmlSchemaResource = Misc.getRequiredResource(tdmlXSDResourcePath)
+  assert(Validator.validateXML(
+      new StreamSource(tdmlSchemaResource.toURI().toASCIIString()),
+      tsInputSource) != null)
+ 
   lazy val parserTestCases = (ts \ "parserTestCase").map { node => ParserTestCase(node, this) }
   lazy val suiteName = (ts \ "@suiteName").text
   lazy val suiteID = (ts \ "@ID").text

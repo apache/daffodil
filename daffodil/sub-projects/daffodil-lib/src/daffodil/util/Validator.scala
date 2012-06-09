@@ -15,10 +15,7 @@ import javax.xml.parsers.SAXParserFactory
 import javax.xml.validation.Schema
 import javax.xml.validation.ValidatorHandler
 import org.xml.sax.XMLReader
-
-//import com.dataiti.utility.ResourceResolver._
-
-import scala.xml.parsing.NoBindingFactoryAdapter 
+import scala.xml.parsing.NoBindingFactoryAdapter
 import scala.xml._
 import java.io.Reader
 import java.io.File
@@ -26,13 +23,22 @@ import java.io.FileReader
 import java.io.InputStreamReader
 import java.io.FileInputStream
 import java.io.StringReader
+import java.net.URI
+import org.w3c.dom.ls.LSResourceResolver
 
   
 object Validator extends NoBindingFactoryAdapter {
 
   val xr = parser.getXMLReader()
   val sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI) 
-  sf.setResourceResolver(new ResourceResolver());
+  sf.setResourceResolver(new LSResourceResolver{
+    def resolveResource(
+        type_ : String, namespaceURI : String, 
+        publicId : String, systemId : String, baseURI : String) = {
+        //println(String.format("rr: %s %s %s %s %s", type_, namespaceURI, publicId, systemId, baseURI))
+        null
+    }
+  });
   
   def makeParser() : SAXParser = {
     var parser : SAXParser = null 
@@ -40,6 +46,8 @@ object Validator extends NoBindingFactoryAdapter {
       val f = SAXParserFactory.newInstance()
       f.setNamespaceAware(true)
       f.setFeature("http://xml.org/sax/features/namespace-prefixes", true)
+//      f.setFeature("http://xml.org/sax/features/external-general-entities", false)
+//      f.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
 //      
 //      // Issue DFDL-76 in Jira - just adding these two lines does check more stuff, but it seems to 
 //      // cause all sorts of havoc with not finding various schemas, etc.
@@ -56,22 +64,21 @@ object Validator extends NoBindingFactoryAdapter {
     return parser
   }
   
-  def validateXMLFiles(schemaFileName : String, documentFileName : String) : Elem = {
-    val schemaReader = new FileReader(new File(schemaFileName))
-    val documentReader = new FileReader(new File(documentFileName))
-    val xml = validateXMLStream(schemaReader, documentReader)
+  def validateXMLFiles(schemaFile : File, documentFile : File) : Elem = {
+    val xml = validateXML(new StreamSource(schemaFile), new InputSource(documentFile.toURI().toASCIIString()))
     return xml
   }
   
-  def validateXMLStrings(schemaString : String, documentString : String) :Elem = {
-    val schemaReader = new StringReader(schemaString)
-    val documentReader = new StringReader(documentString)
-    val xml = validateXMLStream(schemaReader, documentReader)
-    return xml
+  def validateXMLStream(schemaResource: URI, documentReader : Reader, documentSystemId : String = "") = {
+    val schemaSource = new StreamSource(schemaResource.toASCIIString())
+    val document = new InputSource(documentReader)
+    if (documentSystemId != "") document.setSystemId(documentSystemId)
+    validateXML(schemaSource, document)
   }
   
-  def validateXMLStream(schemaReader: Reader, documentReader : Reader): Elem = {
-    val schemaSource = new StreamSource(schemaReader)
+  def validateXML(
+      schemaSource : StreamSource, 
+      documentSource : InputSource) = {
     val schema = sf.newSchema(schemaSource)
     val parser = makeParser()
     val xr = parser.getXMLReader()
@@ -79,10 +86,9 @@ object Validator extends NoBindingFactoryAdapter {
     vh.setContentHandler(this)
     xr.setContentHandler(vh)
     scopeStack.push(TopScope)
-    val document = new InputSource(documentReader)
-    xr.parse(document)
+    xr.parse(documentSource)
     scopeStack.pop
-    return rootElem.asInstanceOf[Elem]
+    rootElem.asInstanceOf[Elem]
   }
      
   /**
@@ -94,23 +100,15 @@ object Validator extends NoBindingFactoryAdapter {
   def validateXMLNodes(schemaNode : Node, documentNode : NodeSeq) : Elem = {
     // serialize the scala document XML node back to a string because
     // java library wants to read the document from an InputSource.
-    val documentString = documentNode.toString()
-    val schemaString = schemaNode.toString()
-    return validateXMLStrings(schemaString, documentString)
+    val documentSource = new InputSource(new StringReader(documentNode.toString()))
+    val schemaSource = new StreamSource(new StringReader(schemaNode.toString()))
+    return validateXML(schemaSource, documentSource)
   }
     
   /**
    * Retrieve a schema that is part of the daffodil-lib. 
-   * (In its jar or file tree.)
    */
-  //TODO: all this location of schema stuff should be replaced with an XML Catalog
-  def daffodilLibSchema(fn : String) = {
-    Misc.getResourceOrFileStream(fn)
-  }
-  
-  def dfdlSchemaFileName () : String = "src/xsd/DFDLSubsetOfXMLSchema_v1_036.xsd" 
-    // TODO: find this file no matter where the application is called from, and regardless of 
-    // xsi:schemaLocation stuff in the dfdl schema. This file should be a resource 
-    // stored in the jar file for the DFDL processor.
+  // Note: for a resournce, a path begining with "/" means classPath root relative.
+  def dfdlSchemaFileName () : String = "/xsd/DFDLSubsetOfXMLSchema_v1_036.xsd" 
   
 }

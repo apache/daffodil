@@ -19,7 +19,7 @@ object TestRig {
     if (isDebug)
       compiler.setDebugging(true)
     compiler.setDistinguishedRootNode(rootName)
-    val testDir = "test-suite/tresys-contributed/"
+    val testDir = "test/"
     val schemaPath = testDir + schemaFileName
     val schemaFile = TestUtils.findFile(schemaPath)
     if (schemaFile == null || !schemaFile.exists) {
@@ -47,13 +47,9 @@ class PassingTests extends JUnit3Suite {
   def testAF001() { doTest("AF.dfdl.xsd", "allZones", "AF001.in", "AF001.xml") }
  
   def testAI000() { doTest("AI.dfdl.xsd", "list", "AI000.in", "AI000.xml") }
-  def testAJ000() { doTest("AJ.dfdl.xsd", "list", "AJ000.in", "AJ000.xml") }
-  def testAJ001() { doTest("AJ.dfdl.xsd", "list", "AJ001.in", "AJ001.xml") }
   def testAK000() { doTest("AK.dfdl.xsd", "list", "AK000.in", "AK000.xml") }
   def testAK001() { doTest("AK.dfdl.xsd", "list", "AK001.in", "AK001.xml") }
   def testAL000() { doTest("AL.dfdl.xsd", "list", "AL000.in", "AL000.xml") }
-  def testAN000() { doTest("AN.dfdl.xsd", "path", "AN000.in", "AN000.xml") }
-  def testAN001() { doTest("AN.dfdl.xsd", "path", "AN001.in", "AN001.xml") }
   def testAP000() { doTest("AP.dfdl.xsd", "parent", "AP000.in", "AP000.xml") }
 
   def testAW000() { doTest("AW.dfdl.xsd", "list", "AW000.in", "AW000.xml") }

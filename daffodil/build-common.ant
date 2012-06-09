@@ -90,17 +90,13 @@
 	    force="never" unchecked="no"
         scalacdebugging="true" jvmargs="-XX:MaxPermSize=256m -Xmx1250m -Xms40m -Xss2m"/>
 		<!-- was force="changed" which compiles all whenever one changes -->
-		<javac srcdir="${src}" destdir="${bin}" deprecation="yes"
-      classpathref="compile.classpath" debug="yes"
-  	  includeantruntime="no"/>
 	</target>
 	
 
 	<target name="jar" depends="compile"
 		description="Creates a jar file">
 		<!-- need any xsd schemas we use to go in the jar also -->
-		<mkdir dir="${bin}/src"/>
-		<copy todir="${bin}/src">
+		<copy todir="${bin}">
 			<fileset dir="${src}">
 				<include name="**/*.xsd"/>
 				<include name="**/*.dtd"/>

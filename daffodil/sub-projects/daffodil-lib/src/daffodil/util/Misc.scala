@@ -4,6 +4,7 @@ import java.io.FileNotFoundException
 import java.io.FileInputStream
 import java.io.InputStream
 import java.io.File
+import java.net.URL
 
 /**
  * Various reusable utilities that I couldn't easily find a better place for.
@@ -26,26 +27,21 @@ object Misc {
   /**
    * Takes care of using the resource built-in to the jar, or 
    * if we're just running interactively in eclipse or Intellij, doesn't use the jar.
+   * But those put the same things on the classpath.
+   * 
+   * resourcePath argument is relative to the classpath root.
    */
-  def getResourceOrFileStream (fn : String) : InputStream = {
-    var is = this.getClass.getResourceAsStream(File.separator + fn) // we want the file path separation character. Otherwise it uses the class's package name as part of path.
-    if (is == null) {
-      var f = new File(fn)
-      if (!f.exists()) {
-        f = new File (".." + File.separator + "daffodil-lib" + File.separator + fn)                    // For Eclipse
-        if (!f.exists()) {
-          f = new File ("daffodil" + File.separator + "sub-projects" + File.separator + "daffodil-lib" + File.separator + fn)      // For Intellij
-          if (!f.exists()) {
-            System.out.println(f.getAbsolutePath)
-            val e = new FileNotFoundException(fn)
-            throw e
-          }
-        }
+  def getRequiredResource (resourcePath : String) : URL = {
+    var res = this.getClass.getResource(resourcePath) 
+    if (res == null) {
+      val props = System.getProperties()
+      val cp = props.getProperty("java.class.path", null)
+      val cpLines = cp.replaceAll(":", "\n")
+      val msg = "Required resource " + resourcePath + " was not found.\nClasspath is: " + cpLines
+      System.err.println(msg)
+      throw new Exception(msg)
       }
-      val abs = f.getAbsolutePath
-      is = new FileInputStream(abs)
-    }
-    return is
+     res
   }
   
   def initialUpperCase(s: String): String = s.head.toUpper + s.substring(1)

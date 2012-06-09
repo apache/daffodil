@@ -11,6 +11,7 @@ import daffodil.grammar._
 import daffodil.processors._
 import daffodil.util.Misc._
 import daffodil.api.Diagnostic
+import daffodil.util.Misc
 
 trait DiagnosticsImpl {
   
@@ -292,9 +293,8 @@ object Compiler {
     val xsdSubsetURI = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset";
     val docReplaced = docstring.replaceAll(xmlnsURI, xsdSubsetURI)
     val docReader = new StringReader(docReplaced)
-    val schemaInputStream = Validator.daffodilLibSchema(Validator.dfdlSchemaFileName())
-    val schemaReader = new InputStreamReader(schemaInputStream)
-    val res = Validator.validateXMLStream(schemaReader, docReader)
+    val schemaResource = Misc.getRequiredResource(Validator.dfdlSchemaFileName()).toURI()
+    val res = Validator.validateXMLStream(schemaResource, docReader)
     res
   }
 
@@ -335,6 +335,10 @@ object Compiler {
     val b = hex2Bytes(hexData)
     val rbc = byteArrayToReadableByteChannel(b)
     val actual = p.parse(rbc)
+     if (actual.isError()) {
+      val msgs = actual.getDiagnostics().map(_.getMessage()).foldLeft("")((a, b) => a + "\n" + b)
+      throw new Exception(msgs)
+    }
     actual
   }
   
