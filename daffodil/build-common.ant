@@ -55,22 +55,30 @@
 		<property name="scala-library.jar" 
     	location="${scala.home}/scala-library.jar"/>
 
-		<path id="scala.classpath">
-			<pathelement location="${scala-compiler.jar}"/>
+		<path id="common.classpath">
 			<pathelement location="${scala-library.jar}"/>
-		</path>
-
-		<path id="project.classpath">
-			<path refid="scala.classpath"/>
 			<fileset dir="${basedir}/lib" includes="**/*.jar"/>
 			<fileset dir="${rootdir}/lib" includes="*.jar" 
-    	  erroronmissingdir="false" />
-			<pathelement location="${bin}"/>
+	    	  erroronmissingdir="false" />
 		</path>
 
+		<path id="compile.classpath">
+			<path refid="common.classpath"/>
+			<pathelement location="${scala-compiler.jar}"/>
+		</path>
+		
 		<taskdef resource="scala/tools/ant/antlib.xml">
-			<classpath refid="scala.classpath"/>
+			<classpath>
+				<pathelement location="${scala-compiler.jar}"/>
+				<pathelement location="${scala-library.jar}"/>
+			</classpath>
 		</taskdef>
+		
+		<!-- finally, delete the jar from the rootdir so the compiler doesn't
+				get confused -->
+		<delete>
+				<fileset dir="${rootdir}" includes="lib/${ant.project.name}-*.jar"/>
+		</delete>
 	</target>
 
 
@@ -78,14 +86,15 @@
   	description="Compiles the source">
 		<mkdir dir="${bin}"/>
 		<scalac srcdir="${src}" destdir="${bin}" deprecation="yes"
-	    classpathref="project.classpath" fork="yes"
+	    classpathref="compile.classpath" fork="yes"
 	    force="never" unchecked="no"
         scalacdebugging="true" jvmargs="-XX:MaxPermSize=256m -Xmx1250m -Xms40m -Xss2m"/>
 		<!-- was force="changed" which compiles all whenever one changes -->
 		<javac srcdir="${src}" destdir="${bin}" deprecation="yes"
-      classpathref="project.classpath" debug="yes"
+      classpathref="compile.classpath" debug="yes"
   	  includeantruntime="no"/>
 	</target>
+	
 
 	<target name="jar" depends="compile"
 		description="Creates a jar file">
@@ -111,40 +120,44 @@
 
 
 
-	<target name="compileTest" depends="compile" 
+	<target name="compileTest" depends="jar, install" 
   	description="Compiles the unit tests">
 		<mkdir dir="${bin-test}"/>
 		<scalac srcdir="${testFolder}" destdir="${bin-test}" deprecation="yes"
 	    unchecked="yes">
 			<!-- force="changed" -->
 			<classpath>
-				<path refid="project.classpath"/>
+				<path refid="compile.classpath"/>
 				<pathelement location="${bin-test}"/>
 			</classpath>
 		</scalac>
 	</target>
 
+	
 	<!--
 changed test to test against the jar. Before it would test
 against the class files, and then make the jar only if the tests 
 were successful
 
-Also, forks now (because of out-of-memory problems). Due to message race-conditions from the forked java command, we have to sleep a bit. 
+Also, forks now (because of out-of-memory problems). Due to message 
+race-conditions from the forked java command, we have to sleep a bit. 
+
+JWC, 8Jun2012: Can now run graphical test runner by running
+$ ant -Dtest.runner=graphic test
  -->
 	<target name="test" depends="jar, install, compileTest" unless="skipTests"
   	 	description="Runs the unit tests, with only the src jar on the classpath, not the class files.">
-		<java classname="org.scalatest.tools.Runner" failonerror="true">
-		     <!-- fork="true" maxMemory="1200m" -->
+	  <condition property="runner-option" value="-g" else="-o">
+			<equals arg1="${test.runner}" arg2="graphic"/>
+		</condition>
+		<java classname="org.scalatest.tools.Runner" failonerror="true"
+		      fork="true" maxMemory="1200m" >
 			<classpath>
-				<fileset dir="${basedir}/lib" includes="**/*.jar"/>
-				<fileset dir="${rootdir}/lib" includes="**/*.jar"/>
-				<path refid="scala.classpath"/>
-				<!-- <pathelement location="${target}/${jar.name}"/> -->
+				<path refid="common.classpath"/>
 				<pathelement location="${bin-test}"/>
 			</classpath>
-			<arg line=" -o -p ${bin-test}"/>
-
-		       <!-- <jvmarg value="-Xmx1200m -Xms40m -Xss2m"/> -->
+			<arg line=" ${runner-option} -p ${bin-test}"/>
+			<jvmarg line="-Xms40m -Xss2m -XX:MaxPermSize=256m"/>
 		</java>
 		<sleep seconds="2"/>
 	</target>
@@ -163,17 +176,12 @@ Also, forks now (because of out-of-memory problems). Due to message race-conditi
 		<copy todir="${rootdir}/lib" flatten="true">
 			<fileset dir="${basedir}/lib">
 				<include name="**/*.jar"/>
-                        </fileset>
-                </copy>
+            </fileset>
+    </copy>
 	</target>
 
 
-	<target name="fresh-install" depends="clean"
-    description="Does a fresh install (= clean install)">
-		<delete>
-			<fileset dir="${rootdir}" includes="lib/${ant.project.name}-*.jar"/>
-		</delete>
-		<antcall target="install"/>
-	</target>
+	<target name="fresh-install" depends="clean, install"
+    description="Does a fresh install (= clean install)"/>
 
 </project>

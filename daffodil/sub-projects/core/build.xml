@@ -1,4 +1,4 @@
-<project name="daffodil" default="all" basedir=".">
+<project name="daffodil-core" default="all" basedir=".">
   <description>
     Daffodil, an object/functional parser generator for DFDL 
   </description>

@@ -6,7 +6,7 @@
 
 	<import file="../../build-common.ant"/>
 
-	<target name="all" depends="clean,jar,test,install"
+	<target name="all" depends="clean,jar,install,test"
 	 description="Builds everything from a clean slate and runs the tests" />
 
 
