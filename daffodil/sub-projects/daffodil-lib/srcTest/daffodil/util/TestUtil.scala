@@ -1,36 +1,37 @@
 package daffodil.util
 
-import junit.framework.Assert._ ;
-import org.scalatest.junit.JUnit3Suite ;
+import junit.framework.Assert._
 import daffodil.exceptions._
+import org.scalatest.junit.JUnitSuite
+import org.junit.Test
 
-class TestUtil extends JUnit3Suite {
+class TestUtil extends JUnitSuite {
   
-  def testGetRequiredResourceSucceeds () {
+  @Test def testGetRequiredResourceSucceeds () {
     val res = Misc.getRequiredResource("/xsd/XMLSchema.xsd")
     assertNotNull(res)
   }
   
-  def testGetRequiredResourceFails () {
+  @Test def testGetRequiredResourceFails () {
     val e = intercept[Exception] {
     	val res = Misc.getRequiredResource("/xsd/NotAResourceName.foo")
     }
     assertTrue(e.getMessage().contains("NotAResourceName"))
   }
   
-//  @Test 
+  @Test
   def testStripQuotes() {
     assertEquals("foo", Misc.stripQuotes("\"foo\""))
   }
   
-//  @Test 
+  @Test 
   def testAssert() {
     intercept[Abort] {
       Assert.abort("yadda")
     }
   }
   
-//  @Test 
+  @Test 
   def testCopyrightNotices() {
     val fake = """
   Test fake Copyright (C) 3023 by Space Invaders of the Earth. All rights reserved.

@@ -1,19 +1,14 @@
 package daffodil.exceptions
+import org.scalatest.junit.JUnitSuite
+import org.junit.Test
 
-
-import junit.framework.Assert._ ;
-import org.scalatest.junit.JUnit3Suite ;
-
-
-class TestExceptions extends JUnit3Suite {
+class TestExceptions extends JUnitSuite {
   
-   
-  // @Test 
+  @Test 
   def testAssert() {
     intercept[Abort] {
       Assert.abort("yadda")
     }
   }
-   
   
 }

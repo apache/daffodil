@@ -4,7 +4,6 @@
 	<classpathentry kind="src" path="srcTest"/>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/scalatest-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib"/>
 	<classpathentry kind="lib" path="lib/xerces-2.11.0/xercesImpl.jar" sourcepath="libSrc/xerces-2_11_0">
@@ -12,5 +11,7 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-lib/libSrc/xerces-2_11_0/xerces-src-and-doc-rezipped.zip!/docs"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/hamcrest-1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

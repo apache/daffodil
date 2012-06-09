@@ -3,12 +3,13 @@ package daffodil.schema.annotation.props
 import daffodil.schema.annotation.props.gen._
 import daffodil.util.Misc._
 import junit.framework.Assert._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
+import org.junit.Test
 
 /**
  * This test shows how to use the Generated Code mixins, and verifies that they work.
  */
-class TestGeneratedProperties extends JUnit3Suite {
+class TestGeneratedProperties extends JUnitSuite {
 
   val bagOfProps = <dfdl:format encoding="UTF-8" 
 utf16Width="fixed" 
@@ -145,6 +146,8 @@ binaryBooleanFalseRep="0">
       assertEquals(value, prop.toString)
   }
 
+  
+  @Test
   def testProps1() {
     val hasProps = new HasLotsOfProperties
 
@@ -253,6 +256,7 @@ binaryBooleanFalseRep="0">
    * any error. Conversely, if you do ask for them, and it's not defined, 
    * that's a schema definition error always.
    */
+  @Test
   def testPropsToString() {
     val h = new HasLotsOfProperties
     h.ignoreCase

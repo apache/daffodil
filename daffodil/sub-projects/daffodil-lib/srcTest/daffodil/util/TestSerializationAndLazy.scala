@@ -1,12 +1,13 @@
 package daffodil.util
 
-import junit.framework.Assert._ ;
-import org.scalatest.junit.JUnit3Suite ;
+import junit.framework.Assert._
 import daffodil.exceptions.Assert
-import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayOutputStream
 import java.io.ObjectOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ObjectInputStream
+import org.scalatest.junit.JUnitSuite
+import org.junit.Test
 
 
   class ToSerialize extends Serializable {
@@ -28,9 +29,9 @@ import java.io.ObjectInputStream
  * We're going to be very dependent on this not being broken by some Scala release patch, so leave
  * this test in just in case of that so we can detect it.
  */
-class TestSerializationAndLazy extends JUnit3Suite {
+class TestSerializationAndLazy extends JUnitSuite {
   
-//  @Test 
+  @Test 
   def testSerializeBeforeLazyEval() {
     val instance = new ToSerialize
     val baos = new ByteArrayOutputStream

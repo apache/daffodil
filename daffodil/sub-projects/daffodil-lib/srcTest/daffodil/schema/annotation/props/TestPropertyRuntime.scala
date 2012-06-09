@@ -1,8 +1,9 @@
 package daffodil.schema.annotation.props
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnit3Suite
 import daffodil.exceptions.ThrowsSDE
+import org.scalatest.junit.JUnitSuite
+import org.junit.Test
 
 sealed trait MyPropType extends MyProp.Value
 object MyProp extends Enum[MyPropType] with ThrowsSDE {
@@ -23,8 +24,9 @@ class MyPropMixin {
 
 class RealObject extends MyPropMixin
 
-class TestPropertyRuntime extends JUnit3Suite {
+class TestPropertyRuntime extends JUnitSuite {
   
+  @Test
   def testConstructed() {
     val myPropUser = new RealObject
     val av = MyProp.allValues
@@ -34,6 +36,7 @@ class TestPropertyRuntime extends JUnit3Suite {
     assertTrue(av.contains(pv2))
   }
   
+  @Test
   def testCanCreateProp() {
 	  val propVal1 = MyProp("propVal1")
 	  assertEquals(MyProp.PropVal1, propVal1)
@@ -45,6 +48,7 @@ class TestPropertyRuntime extends JUnit3Suite {
     val detailName ="HasMixin"
   }
   
+  @Test
   def testMixin() {
     val m = new HasMixin
     assertTrue(m.initWasCalled)
