@@ -89,36 +89,8 @@ object TestUtils {
   def findFile(fn : String) : File = findFile(new File(fn))
   def findFile(f : File) : File = {
     if (f.exists()) return f
-    // let's figure out where paths are defaulting to....
     val cwd = new File("").getAbsolutePath
-    if (cwd.endsWith("daffodil" + File.separator + "sub-projects" + File.separator + "core")) {
-        // we're rooted in the core module
-        // not sure why the path wouldn't be right from here, this is where our 
-        // tdml relative paths are supposed to be relative to.
-        //
-        // We could try stripping prefixes off of f's path,...
-        // For now we'll just give up.
-        System.err.println("Couldn't find file " + f + " relative to " + cwd + ".")
-        return null
-    }
-    else if (cwd.endsWith("daffodil")) {
-        // I think we're rooted at the overall daffodil project root.
-        // Let's check
-        val coreRelativePath = cwd + File.separator + "sub-projects" + File.separator + "core" + File.separator + f.getPath
-        val coreF = new File(coreRelativePath)
-        if (coreF.exists()) return coreF
-    }
-    else if (new File(cwd + File.separator + "daffodil" + File.separator).exists()) {
-        // We're in the parent of the overall daffodil project root (typical for Intellij)
-        val coreRelativePath = cwd + File.separator + "daffodil" + File.separator + "sub-projects" + File.separator + "core" + File.separator + f.getPath
-        val coreF = new File(coreRelativePath)
-        if (coreF.exists()) return coreF
-    }
-    else {
-        System.err.println("Couldn't find file " + f + " relative to " + cwd + ".")
-    }
-    // throw new FileNotFoundException("Couldn't find file " + f + " relative to " + cwd + ".")
-    null
+    throw new FileNotFoundException("Couldn't find file " + f + " relative to " + cwd + ".")
   }
 
 

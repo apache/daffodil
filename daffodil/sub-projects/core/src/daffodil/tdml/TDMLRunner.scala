@@ -14,6 +14,7 @@ import daffodil.xml.XMLUtils
 import daffodil.util._
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
+import junit.framework.Assert.fail
 import daffodil.util.Misc._
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -21,6 +22,7 @@ import org.xml.sax.InputSource
 import java.io.StringReader
 import javax.xml.transform.stream.StreamSource
 import java.net.URL
+import java.net.URI
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -99,29 +101,26 @@ class DFDLTestSuite(ts : Node, tdmlFile : File, tsInputSource : InputSource) {
   def findModelFile(fileName : String) : File = {
     val firstTry = new File(fileName)
     if (firstTry.exists()) return firstTry
+    // see if it can be found relative to the tdml test file, like next to it.
+    val sysId = tsInputSource.getSystemId()
+    if (sysId != null) {
+      val sysFile = new File(new URI(sysId))
+      if (sysFile.exists()) {
+        // the system Id of the tdml file was a file.
+        val sysPath = sysFile.getParent()
+        val modelFileName = sysPath + File.separator + fileName
+        println("Model file name is: " + modelFileName)
+        val modelFile = new File(modelFileName)
+        if (modelFile.exists()) return modelFile
+      }
+    }
     // try ignoring the directory part
     val parts = fileName.split("/")
-    val filePart = parts.last
-    val secondTry = new File(filePart)
-    if (secondTry.exists()) return secondTry;
-    if (tdmlFile != null) {
-      val tdmlDir = tdmlFile.getParent()
-      val path = tdmlDir + "/" + filePart
-      val thirdTry = new File(path)
-      if (thirdTry.exists()) return thirdTry
+    if (parts.length > 1) {
+      val filePart = parts.last
+      val secondTry = findModelFile(filePart) // recursively
+      if (secondTry.exists()) return secondTry;
     }
-    // For unit tests that refer to an IBM schema.
-    val fourthTry = {
-      val str = "test-suite/ibm-contributed/" + filePart
-      //      System.err.println("Trying to find model at: " + str)
-      TestUtils.findFile(new File(str))
-    }
-    if (fourthTry != null && fourthTry.exists()) return fourthTry
-    val fifthTry = {
-      val str = "test-suite/tresys-contributed/" + filePart
-      TestUtils.findFile(new File(str))
-    }
-    if (fifthTry != null && fifthTry.exists()) return fifthTry
     throw new FileNotFoundException("Unable to find model file " + fileName + ".")
   }
 
@@ -186,7 +185,11 @@ case class ParserTestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
     val data = document.input
     val actual = parser.parse(data)
     val trimmed = Utility.trim(actual.result)
-    assertTrue(actual.canProceed) // checks for fatal errors.
+    if (!actual.canProceed()) {
+      val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
+      throw new Exception(diags) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
+      fail()
+    }
     //
     // Attributes on the XML like xsi:type and also namespaces (I think) are 
     // making things fail these comparisons, so we strip all attributes off (since DFDL doesn't 
@@ -204,7 +207,10 @@ case class ParserTestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
     // assert(Validator.validateXMLNodes(sch, actualNoAttrs) != null)
     val expected = infoset.contents
 
-    assertEquals(expected, actualNoAttrs)
+    if (expected != actualNoAttrs) {
+      throw new Exception("Comparison failed. Expected: " + expected + " but got " + actualNoAttrs)
+      fail()
+    }
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
     System.err.println("Test " + id + " passed.")

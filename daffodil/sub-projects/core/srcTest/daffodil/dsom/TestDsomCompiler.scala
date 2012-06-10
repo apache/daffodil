@@ -173,7 +173,7 @@ class TestDsomCompiler extends JUnit3Suite {
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:string" dfdl:textNumberRep="standard" dfdl:representation="text" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:inputValueCalc="{ 42 }" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:length="1"/>)
     val actual = Compiler.testString(testSchema, "")
-    val actualString = actual.toString
+    val actualString = actual.result.toString
     assertTrue(actualString.contains("<data"))
     assertTrue(actualString.contains(">42</data>"))
   }
@@ -185,7 +185,7 @@ class TestDsomCompiler extends JUnit3Suite {
         <xs:element name="data" type="xs:string" dfdl:terminator="!"  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
       )
     val actual = Compiler.testString(testSchema, "37!")
-    val actualString = actual.toString
+    val actualString = actual.result.toString
     assertTrue(actualString.contains("<data"))
     assertTrue(actualString.contains(">37</data>"))
   }

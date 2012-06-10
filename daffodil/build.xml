@@ -25,6 +25,21 @@
 		<ant dir="${basedir}/sub-projects/daffodil-lib"/>
 		<ant dir="${basedir}/sub-projects/core"/>
 	</target>
+
+	<target name="core" depends=""
+                description="Rebuilds core">
+		<ant dir="${basedir}/sub-projects/core"/>
+	</target>
+
+
+	<target name="daffodil-lib" depends="clean"
+		description="Rebuilds daffodil-lib">
+		<ant dir="${basedir}/sub-projects/daffodil-lib"/>
+	</target>
+
+
+
+
 	
 	<target name="clean"
 		description="Cleans the top-level target directory">
