@@ -15,6 +15,7 @@ import scala.collection.JavaConversions._
 import scala.util.logging.ConsoleLogger
 import stringsearch.DelimSearcherV3._
 import stringsearch.DelimSearcherV3.SearchResult
+import scala.collection.mutable.Queue
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
@@ -482,26 +483,19 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
   def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long, SearchResult) = {
     println("===\nSTART_FILL!\n===\n")
     val byteOffsetAsLong = (bitOffset >> 3)
-
     val byteOffset = byteOffsetAsLong.toInt
 
-    println("BYTE_OFFSET: " + byteOffset)
-    var endBitPosA: Long = fillCharBuffer(cb, bitOffset, decoder)
+    var endBitPosA: Long = fillCharBufferMixedData(cb, bitOffset, decoder)
     var sb: StringBuilder = new StringBuilder // To keep track of the searched text
     val dSearch = new DelimSearcher with ConsoleLogger
     var buf = cb
+    
+    println("START_CB: " + cb.toString())
 
     delimiters foreach {
       x => dSearch.addDelimiter(x)
     }
 
-    // --
-    dSearch.printDelimStruct
-    // --
-
-    println("CB_" + cb.toString() + "_END_CB")
-
-    //var (theState, result, endPos) = dSearch.search(buf, 0)
     var (theState, result, endPos, endPosDelim) = dSearch.search(buf, 0)
 
     if (theState == SearchResult.FullMatch) {
@@ -516,12 +510,10 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
       buf.clear()
       buf = CharBuffer.allocate(buf.length() * 2)
 
-      val fillState = fillCharBuffer2(buf, bitOffset, decoder)
+      val fillState = fillCharBufferMixedData2(buf, bitOffset, decoder)
       endBitPosA = fillState._1
       EOF = fillState._2
 
-      //var (state2, result2, endPos2) = dSearch.search(buf, endPos, false)
-     // var (state2, result2, endPos2, endPosDelim2) = dSearch.search(buf, endPos, false)
       var (state2, result2, endPos2, endPosDelim2) = dSearch.search(buf, 0, true)
       theState = state2
       endPos = endPos2
@@ -536,8 +528,6 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     //
     val charSet = decoder.charset()
     val resBB = charSet.encode(sb.toString())
-
-    println("ENDPOS_FillCharBuffer: " + endPos)
 
     // Calculate the new ending position of the ByteBuffer
     if (endPos != -1) {
@@ -623,35 +613,152 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     println("===\nEND_FILL!\n===\n")
     (sb.toString(), endBitPosA, theState)
   }
+  
+  def decodeNBytes(N: Int, array: Array[Byte], decoder: CharsetDecoder): CharBuffer = {
+    val list: Queue[Byte] = Queue.empty
+    for (i <- 0 to N - 1){
+      list += array(i).toByte
+    }
+    val cb = decoder.decode(ByteBuffer.wrap(list.toArray[Byte]))
+    cb
+  }
+  
+  def decodeUntilFail(bytesArray: Array[Byte], decoder: CharsetDecoder, endByte: Int): (CharBuffer, Int) = {
+    var cbFinal: CharBuffer = CharBuffer.allocate(1)
+    var cbPrev: CharBuffer = CharBuffer.allocate(1)
+    var numBytes: Int = 1
+    try {
+      while(numBytes < endByte){
+        cbPrev = decodeNBytes(numBytes, bytesArray, decoder)
+        cbFinal = cbPrev
+        println(numBytes + "/" + bytesArray.length)
+        numBytes += 1
+      }
+    } catch {
+      case e: Exception => System.err.println("Exception in decodeUntilFail: " + e.toString())
+    }
+    (cbFinal, (numBytes - 1))
+  }
 
+  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): Long = {
+    Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
+    val byteOffsetAsLong = (bitOffset >> 3)
+    Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
+    val byteOffset = byteOffsetAsLong.toInt
+    // 
+    // Note: not thread safe. We're depending here on the byte buffer being private to us.
+    //
+    //    System.err.println("Decode ByteBufferAsCharBuffer: " + bb.asCharBuffer().toString())
+    System.err.println("Start at byteOffset " + byteOffset)
+    System.err.println("byteBuffer limit: " + bb.limit())
+    
+    bb.position(byteOffset)
+
+    decoder.reset()
+    
+    if (byteOffset == bb.limit()){
+      // We are at end, nothing more to do.
+      return -1L
+    }
+    
+    var byteArray: Array[Byte] = new Array[Byte](bb.limit() - byteOffset)
+    
+    bb.get(byteArray, 0, (bb.limit - byteOffset))
+    
+    var (result:CharBuffer, bytesDecoded: Int) = decodeUntilFail(byteArray, decoder, bb.limit())
+    
+    System.err.println(bytesDecoded + " bytes decoded")
+    
+    if (bytesDecoded == 0){ return -1L }
+    println("MixedDataResult: " + result)
+    
+    cb.clear()
+    cb.append(result)
+    
+    cb.flip() // so the caller can now read the sb.
+
+    val endBytePos = byteOffset + bytesDecoded
+    
+    System.err.println("Ended at byte pos " + endBytePos)
+
+    bb.position(0) // prevent anyone depending on the buffer position across calls to any of the InStream methods.
+    val endBitPos: Long = endBytePos << 3
+    System.err.println("Ended at bit pos " + (endBytePos << 3))
+    endBitPos
+  }
+  
+  def fillCharBufferMixedData2(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): (Long, Boolean) = {
+    Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
+    val byteOffsetAsLong = (bitOffset >> 3)
+    Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
+    val byteOffset = byteOffsetAsLong.toInt
+    // 
+    // Note: not thread safe. We're depending here on the byte buffer being private to us.
+    //
+    bb.position(byteOffset)
+    decoder.reset()
+    
+    if (byteOffset == bb.limit()){
+      // We are at end, nothing more to do.
+      return (-1L, true)
+    }
+    
+    var byteArray: Array[Byte] = new Array[Byte](bb.limit() - byteOffset)
+    
+    //bb.get(byteArray, byteOffset, (bb.limit - byteOffset) + 1)
+    bb.get(byteArray, 0, (bb.limit - byteOffset))
+    
+    var (result:CharBuffer, bytesDecoded: Int) = decodeUntilFail(byteArray, decoder, bb.limit())
+    
+    if (bytesDecoded == 0){ return (-1L, true) }
+    
+    cb.append(result)
+    
+    cb.flip() // so the caller can now read the sb.
+
+    val endBytePos = byteOffset + bytesDecoded
+
+    var EOF: Boolean = bb.limit() == bb.position()
+
+    bb.position(0) // prevent anyone depending on the buffer position across calls to any of the InStream methods.
+    val endBitPos: Long = endBytePos << 3
+
+    (endBitPos, EOF)
+  }
+  
   def getDelimiter(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long, Long, SearchResult) = {
     println("===\nSTART_GET_DELIMITER!\n===\n")
+   
     val byteOffsetAsLong = (bitOffset >> 3)
 
     val byteOffset = byteOffsetAsLong.toInt
 
     println("BYTE_OFFSET: " + byteOffset)
-    var endBitPosA: Long = fillCharBuffer(cb, bitOffset, decoder)
+    //var endBitPosA: Long = fillCharBuffer(cb, bitOffset, decoder)
+    var endBitPos: Long = fillCharBufferMixedData(cb, bitOffset, decoder)
+    var endBitPosA: Long = endBitPos
+    
+    if (endBitPos == -1L){
+      // Failed
+      System.err.println("Failed, reached end of buffer.")
+      return (cb.toString(), -1L, -1L, SearchResult.EOF)
+    }
+    
     var sb: StringBuilder = new StringBuilder // To keep track of the searched text
     val dSearch = new DelimSearcher
     var buf = cb
 
-    delimiters foreach {
-      x => dSearch.addDelimiter(x)
-    }
-
-    // --
-    dSearch.printDelimStruct
-    // --
+    delimiters foreach { x => dSearch.addDelimiter(x) }
 
     println("CB: |" + cb.toString() + "|")
 
     //var (theState, result, endPos) = dSearch.search(buf, 0)
     var (theState, result, endPos, endPosDelim) = dSearch.search(buf, 0)
-
+    
     if (theState == SearchResult.FullMatch) {
       sb.append(result)
     }
+    
     var EOF: Boolean = false
     
     if (buf.toString().length == 0){ EOF = true } // Buffer was empty to start, nothing to do
@@ -661,7 +768,8 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
       buf.clear()
       buf = CharBuffer.allocate(buf.length() * 2)
 
-      val fillState = fillCharBuffer2(buf, bitOffset, decoder)
+      //val fillState = fillCharBuffer2(buf, bitOffset, decoder)
+      val fillState = fillCharBufferMixedData2(buf, bitOffset, decoder)
       endBitPosA = fillState._1
       EOF = fillState._2
 
@@ -676,24 +784,32 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
         sb.append(result2)
       }
     }
+    
+    var delimLength = endPosDelim - endPos
+    
+    if (endPosDelim == 0 && endPos == 0 && theState == SearchResult.FullMatch){ delimLength = 1}
 
     // Encode the found string in order to calculate
     // the ending position of the ByteBuffer
     //
     val charSet = decoder.charset()
     val resBB = charSet.encode(sb.toString())
-
+    
+    val resNumBytes = resBB.limit() // TODO: Pretty sure limit is better than length
+    
     // Calculate the new ending position of the ByteBuffer
     if (endPos != -1) {
-      endBitPosA = (endPos << 3) + bitOffset
+      //endBitPosA = ((endPos) << 3) + bitOffset
+      endBitPosA =  bitOffset + (resNumBytes * 8)
     } else {
       endPos = resBB.limit()
-      endBitPosA = (resBB.limit() << 3) + bitOffset
+      endBitPosA = (resBB.limit() << 3)
     }
     var endBitPosDelimA: Long = endBitPosA
     
     if (endPosDelim != -1){
-      endBitPosDelimA = (endPosDelim << 3) + bitOffset
+      //endBitPosDelimA = ((endPosDelim) << 3) + bitOffset
+      endBitPosDelimA = bitOffset + (resNumBytes * 8)
     } 
     println("ENDPOS_GET_DELIMITER: " + endPos)
     println("GET_DELIMITER - CB: " + sb.toString() + " EndBitPos: " + endBitPosA)
