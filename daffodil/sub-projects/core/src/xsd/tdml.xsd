@@ -23,6 +23,7 @@
 						the schemas it needs is a "self contained" TDML file.
 					<element ref="tns:defineSchema" />
 					-->
+					<element ref="tns:serializerTestCase" />
 				</choice>
 			</sequence>
 			<attribute name="suiteName" type="xs:token" use="required" />
@@ -58,16 +59,24 @@
 	<complexType name="parserTestCaseType">
 		<sequence>
 			<element ref="tns:document" />
-			<element ref="tns:infoset" />
+			<choice>
+				<element ref="tns:infoset" />
+				<element ref="tns:errors" />
+			</choice>
+			<element ref="tns:warnings" minOccurs='0'/>
 		</sequence>
+		<attributeGroup ref="tns:testCaseAttribs" />
+	</complexType>
+	
+	<attributeGroup name="testCaseAttribs">
 		<attribute name="name" type="xs:NCName" use="required" />
 		<attribute name="ID" type="xs:token" use="optional" />
 		<attribute name="root" type="xs:NCName" use="required" />
 		<attribute name="model" type="xs:string" use="optional" /> <!-- is there a type for a path/uri? -->
 		<attribute name="description" type="xs:string" use="optional" />
-		<attribute name="unsupported" type="xs:boolean" use="optional" />
+		<attribute name="unsupported" type="xs:boolean" use="optional" default="false" />
 		<attribute name="validation" type="tns:onOff" use="optional" default="off"/>
-	</complexType>
+	</attributeGroup>
 	
 	<simpleType name="onOff">
 	   <restriction base="xs:token">
@@ -78,6 +87,8 @@
 
 	<element name="document" type="tns:documentType" />
 	<element name="infoset" type="tns:infosetType" />
+	<element name="errors" type="tns:errorsType" />
+	<element name="warnings" type="tns:warningsType" />
 
 	<complexType name="documentType" mixed="true">
 		<sequence>
@@ -115,6 +126,49 @@
 			<any namespace="##any" processContents="lax" minOccurs="0"
 				maxOccurs="unbounded" />
 		</sequence>
+	</complexType>
+	
+	<complexType name="errorsType">
+		<sequence>
+			<element ref="tns:error" maxOccurs="unbounded" minOccurs="1"/>
+		</sequence>
+		<attributeGroup ref="tns:errorWarnAttribs"/> 
+	</complexType>
+	
+	<complexType name="warningsType">
+		<sequence>
+			<element ref="tns:warning" maxOccurs="unbounded" minOccurs="0"/>
+			<!-- use <warnings/> to indicate no warnings should occur. -->
+		</sequence>
+		<attributeGroup ref="tns:errorWarnAttribs"/>
+	</complexType>
+	
+	<element name="error" type="xs:string"/>
+	<element name="warning" type="xs:string"/>
+
+	<xs:attributeGroup name="errorWarnAttribs">
+		<xs:attribute name="match" use="optional" default="all">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="all" />
+					<xs:enumeration value="any" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:attributeGroup>
+	
+	<!-- IBM chose to call unparsing 'serializing' in TDML -->
+	<element name="serializerTestCase" type="tns:serializerTestCaseType" />
+		<complexType name="serializerTestCaseType">
+		<sequence>
+			<element ref="tns:infoset" />			
+			<choice>
+				<element ref="tns:document" />
+				<element ref="tns:errors" />
+			</choice>
+			<element ref="tns:warnings" minOccurs='0'/>
+		</sequence>
+		<attributeGroup ref="tns:testCaseAttribs" />
 	</complexType>
 
 </xsd:schema>

@@ -80,11 +80,11 @@ class TestTDMLRunner extends JUnit3Suite {
     assertEquals("byte1", ptc.root)
     assertEquals("test-suite/ibm-contributed/dpanum.dfdl.xsd", ptc.model)
     assertTrue(ptc.description.contains("Some test case description."))
-    val doc = ptc.document
+    val doc = ptc.document.get
     val expectedBytes = Vector('0'.toByte, '1'.toByte, '2'.toByte, '3'.toByte)
     val actualBytes = doc.documentBytes
     assertEquals(expectedBytes, actualBytes)
-    val infoset = ptc.infoset
+    val infoset = ptc.infoset.get
     val actualContent = infoset.dfdlInfoset.contents
     val trimmed = actualContent
     val expected = <byte1 xmlns:xsi={ xsi } xmlns:xs={ xsd }>123</byte1>
@@ -112,11 +112,11 @@ class TestTDMLRunner extends JUnit3Suite {
     assertEquals("firstUnitTest", ptc.name)
     assertEquals("byte1", ptc.root)
     assertEquals("test-suite/ibm-contributed/dpanum.dfdl.xsd", ptc.model)
-    val doc = ptc.document
+    val doc = ptc.document.get
     val expectedBytes = Vector('0'.toByte, '1'.toByte, '2'.toByte, '3'.toByte)
     val actualBytes = doc.documentBytes
     assertEquals(expectedBytes, actualBytes)
-    val infoset = ptc.infoset
+    val infoset = ptc.infoset.get
     val actualContent = infoset.dfdlInfoset.contents
     val trimmed = actualContent
     val expected = <byte1 xmlns:xsi={ xsi } xmlns:xs={ xsd }>123</byte1>
@@ -142,6 +142,93 @@ class TestTDMLRunner extends JUnit3Suite {
                     </ts:testSuite>
     val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("firstUnitTest", Some(testSchema))
+  }
+  
+  def testTDMLDetectsErrorWithSpecificMessage() {
+
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
+                        <ts:document>AA</ts:document>
+                        <ts:errors>
+                          <ts:error>convert</ts:error> <!-- can have several substrings of message -->
+    					  <ts:error>xs:int</ts:error> <!-- all are checked against the message -->
+                        </ts:errors>
+                      </ts:parserTestCase>
+                    </ts:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("firstUnitTest", Some(testSchema))
+  }
+  
+  def testTDMLDetectsErrorWithPartMessage() {
+
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
+                        <ts:document>AA</ts:document>
+                        <ts:errors>
+                          <ts:error>convert</ts:error> 
+    					  <ts:error>xs:float</ts:error> <!-- Detect this mismatch. It will say xs:int -->
+                        </ts:errors>
+                      </ts:parserTestCase>
+                    </ts:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    val exc = intercept[Exception] {
+    ts.runOneTest("firstUnitTest", Some(testSchema))
+    }
+    assertTrue(exc.getMessage().contains("""message "xs:float""""))
+  }
+  
+  def testTDMLDetectsErrorAnyMessage() {
+
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
+                        <ts:document>AA</ts:document>
+                        <ts:errors>
+                          <ts:error/> <!-- don't care what message is -->
+                        </ts:errors>
+                      </ts:parserTestCase>
+                    </ts:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("firstUnitTest", Some(testSchema))
+  }
+  
+  def testTDMLDetectsNoError() {
+
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
+                        <ts:document>37</ts:document>
+                        <ts:errors>
+                          <ts:error/> <!-- don't care what message is -->
+                        </ts:errors>
+                      </ts:parserTestCase>
+                    </ts:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    val exc = intercept[Exception] {
+  	  ts.runOneTest("firstUnitTest", Some(testSchema))
+    }
+    println(exc)
+    assertTrue(exc.getMessage().contains("Expected error"))
+  }
+  
+  def testTDMLDetectsNoWarning() {
+
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
+                        <ts:document>37</ts:document>
+    					<ts:infoset>
+                          <ts:dfdlInfoset>
+                            <data xmlns={ example }>37</data>
+                          </ts:dfdlInfoset>
+                        </ts:infoset>
+                        <ts:warnings>
+                          <ts:warning/> <!-- don't care what message is -->
+                        </ts:warnings>
+                      </ts:parserTestCase>
+                    </ts:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    val exc = intercept[Exception] {
+    	ts.runOneTest("firstUnitTest", Some(testSchema))
+    }
+    assertTrue(exc.getMessage().contains("Did not find"))
   }
 
   

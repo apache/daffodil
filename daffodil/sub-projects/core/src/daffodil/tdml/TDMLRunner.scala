@@ -12,6 +12,7 @@ import daffodil.Implicits.using
 import daffodil.dsom.Compiler
 import daffodil.xml.XMLUtils
 import daffodil.util._
+import daffodil.api._
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import junit.framework.Assert.fail
@@ -71,11 +72,11 @@ class DFDLTestSuite(ts : Node, tdmlFile : File, tsInputSource : InputSource) {
       new StreamSource(tdmlSchemaResource.toURI().toASCIIString()),
       tsInputSource) != null)
  
-  lazy val parserTestCases = (ts \ "parserTestCase").map { node => ParserTestCase(node, this) }
-  lazy val suiteName = (ts \ "@suiteName").text
-  lazy val suiteID = (ts \ "@ID").text
-  lazy val description = (ts \ "@description").text
-  lazy val embeddedSchemas = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
+  val parserTestCases = (ts \ "parserTestCase").map { node => ParserTestCase(node, this) }
+  val suiteName = (ts \ "@suiteName").text
+  val suiteID = (ts \ "@ID").text
+  val description = (ts \ "@description").text
+  val embeddedSchemas = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
 
   def runAllTests(schema : Option[Node] = None) {
     parserTestCases.map { _.run(schema) }
@@ -139,16 +140,28 @@ class DFDLTestSuite(ts : Node, tdmlFile : File, tsInputSource : InputSource) {
 
 }
 
-case class ParserTestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
-  lazy val Seq(document) = (ptc \ "document").map { node => new Document(node, this) }
-  lazy val Seq(infoset) = (ptc \ "infoset").map { node => new Infoset(node, this) }
-  lazy val name = (ptc \ "@name").text
-  lazy val ptcID = (ptc \ "@ID").text
-  lazy val id = name + (if (ptcID != "") "(" + ptcID + ")" else "")
-  lazy val root = (ptc \ "@root").text
-  lazy val model = (ptc \ "@model").text
-  lazy val description = (ptc \ "@description").text
-  lazy val unsupported = (ptc \ "@unsupported").text match {
+abstract class TestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
+  
+  def toOpt[T](n : Seq[T]) = {
+    n match {
+      case Seq() => None
+      case Seq(a) => Some(a)
+      // ok for it to error if there is more than one in sequence.
+    }
+  }
+  
+  val document = toOpt(ptc \ "document").map { node => new Document(node, this) }
+  val infoset = toOpt(ptc \ "infoset").map { node => new Infoset(node, this) }
+  val errors = toOpt(ptc \ "errors").map { node  => new ExpectedErrors(node, this) }
+  val warnings = toOpt(ptc \ "warnings").map { node => new ExpectedWarnings(node, this) }
+  
+  val name = (ptc \ "@name").text
+  val ptcID = (ptc \ "@ID").text
+  val id = name + (if (ptcID != "") "(" + ptcID + ")" else "")
+  val root = (ptc \ "@root").text
+  val model = (ptc \ "@model").text
+  val description = (ptc \ "@description").text
+  val unsupported = (ptc \ "@unsupported").text match {
     case "true" => true
     case "false" => false
     case _ => false
@@ -166,6 +179,12 @@ case class ParserTestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
 
   var suppliedSchema : Option[Node] = None
 
+  protected def runProcessor(processor : DFDL.DataProcessor, 
+      data : Option[DFDL.Input], 
+      infoset : Option[Infoset],
+      errors : Option[ExpectedErrors],
+      warnings : Option[ExpectedWarnings]) : Unit
+  
   def run(schema : Option[Node] = None) = {
     suppliedSchema = schema
     val sch = schema match {
@@ -181,15 +200,55 @@ case class ParserTestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
     }
     val compiler = Compiler()
     compiler.setDistinguishedRootNode(root)
-    val parser = compiler.compile(sch).onPath("/")
-    val data = document.input
-    val actual = parser.parse(data)
-    val trimmed = Utility.trim(actual.result)
-    if (!actual.canProceed()) {
-      val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
-      throw new Exception(diags) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
-      fail()
+    val processor = compiler.compile(sch).onPath("/")
+    val data = document.map{ _.data }
+    runProcessor(processor, data, infoset, errors, warnings)
+    // if we get here, the test passed. If we don't get here then some exception was
+    // thrown either during the run of the test or during the comparison.
+    System.err.println("Test " + id + " passed.")
+  }
+  
+  def verifyAllDiagnosticsFound(actual : DFDL.ParseResult, expectedDiags : Option[ErrorWarningBase]) = {
+      val actualDiags = actual.getDiagnostics()
+      val actualDiagMsgs = actualDiags.map { _.getMessage() }
+      val expectedDiagMsgs = expectedDiags.map { _.messages }.getOrElse(Nil)
+      // must find each expected warning message within some actual warning message.
+      expectedDiagMsgs.foreach {
+        expected => {
+          val wasFound = actualDiagMsgs.exists {
+            actual => actual.contains(expected)
+          }
+          if (!wasFound) {
+            throw new Exception("""Did not find diagnostic message """" + 
+                expected + """" in any of the actual diagnostic messages: """ + 
+                actualDiagMsgs)
+          }
+        }
+      }
     }
+
+  
+}
+
+case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite) 
+extends TestCase(ptc, parentArg) {
+ 
+  def runProcessor(processor : DFDL.DataProcessor, 
+      data : Option[DFDL.Input], 
+      optInfoset : Option[Infoset],
+      optErrors : Option[ExpectedErrors],
+      warnings : Option[ExpectedWarnings]) = {
+    
+    val dataToParse = data.get
+    (optInfoset, optErrors) match {
+      case (Some(infoset), None) => runParseExpectSuccess(processor, dataToParse, infoset, warnings)
+      case (None, Some(errors)) => runParseExpectErrors(processor, dataToParse, errors, warnings)
+    }
+    
+  }
+  
+  def verifyParseInfoset(actual : DFDL.ParseResult, infoset : Infoset) {
+    val trimmed = Utility.trim(actual.result)
     //
     // Attributes on the XML like xsi:type and also namespaces (I think) are 
     // making things fail these comparisons, so we strip all attributes off (since DFDL doesn't 
@@ -211,15 +270,71 @@ case class ParserTestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
       throw new Exception("Comparison failed. Expected: " + expected + " but got " + actualNoAttrs)
       fail()
     }
+  }
+  
+  def runParseExpectErrors(processor : DFDL.DataProcessor, 
+      dataToParse : DFDL.Input, 
+      errors : ExpectedErrors,
+      warnings : Option[ExpectedWarnings]) {
+   
+    val actual = processor.parse(dataToParse) 
+ 
+    if (actual.canProceed()) {
+      // We did not get an error!!
+      // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
+      throw new Exception("Expected error. Didn't get one.") // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
+    }
+    
+    // check for any test-specified errors
+    verifyAllDiagnosticsFound(actual, Some(errors))
+        
+    // check for any test-specified warnings
+    verifyAllDiagnosticsFound(actual, warnings)
+ 
+  }
+    
+  
+  def runParseExpectSuccess(processor : DFDL.DataProcessor, 
+      dataToParse : DFDL.Input, 
+      infoset : Infoset,
+      warnings : Option[ExpectedWarnings]) {
+    
+    val actual = processor.parse(dataToParse) 
+ 
+    if (!actual.canProceed()) {
+      // Means there was an error, not just warnings.
+      val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
+      throw new Exception(diags) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
+    }
+     
+    verifyParseInfoset(actual, infoset)
+        
+    // check for any test-specified warnings
+    verifyAllDiagnosticsFound(actual, warnings)
+       
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
     System.err.println("Test " + id + " passed.")
   }
+  
+}
+
+case class SerializerTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite) 
+extends TestCase(ptc, parentArg) {
+ 
+  def runProcessor(processor : DFDL.DataProcessor,  
+      data : Option[DFDL.Input], 
+      infoset : Option[Infoset],
+      errors : Option[ExpectedErrors],
+      warnings : Option[ExpectedWarnings]) = {
+    throw new Exception("Not Yet Implemented.")
+  }
+  
 }
 
 case class DefinedSchema(xml : Node, parent : DFDLTestSuite) {
-  lazy val xsdSchema = (xml \ "schema")(0)
-  lazy val name = (xml \ "@name").text.toString
+  val xsdSchema = (xml \ "schema")(0)
+  val name = (xml \ "@name").text.toString
 }
 
 sealed abstract class DocumentContentType
@@ -228,25 +343,25 @@ case object Byte extends DocumentContentType
 // TODO: add a Bits type so one can do 0110 1101 0010 0000 and so forth.
 // TODO: add capability to specify character set encoding into which text is to be converted (all UTF-8 currently)
 
-case class Document(d : NodeSeq, parent : ParserTestCase) {
-  lazy val realDocumentParts = (d \ "documentPart").map { node => new DocumentPart(node, this) }
-  lazy val documentParts = realDocumentParts match {
+case class Document(d : NodeSeq, parent : TestCase) {
+  val realDocumentParts = (d \ "documentPart").map { node => new DocumentPart(node, this) }
+  val documentParts = realDocumentParts match {
     case Seq() => {
       val docPart = new DocumentPart(<documentPart type="text">{ d.text }</documentPart>, this)
       List(docPart)
     }
     case _ => realDocumentParts
   }
-  lazy val documentBytes = documentParts.map { _.convertedContent }.flatten
+  val documentBytes = documentParts.map { _.convertedContent }.flatten
 
   /**
-   * this 'input' is the kind our parser's parse method expects.
+   * this 'data' is the kind our parser's parse method expects.
    */
-  lazy val input = {
+  lazy val data = {
     val bytes = documentBytes.toArray
     val inputStream = new java.io.ByteArrayInputStream(bytes);
     val rbc = java.nio.channels.Channels.newChannel(inputStream);
-    rbc
+    rbc.asInstanceOf[DFDL.Input]
   }
 
 }
@@ -275,7 +390,7 @@ case class DocumentPart(part : Node, parent : Document) {
 
 }
 
-case class Infoset(i : NodeSeq, parent : ParserTestCase) {
+case class Infoset(i : NodeSeq, parent : TestCase) {
   lazy val Seq(dfdlInfoset) = (i \ "dfdlInfoset").map { node => new DFDLInfoset(Utility.trim(node), this) }
   lazy val contents = dfdlInfoset.contents
 }
@@ -301,3 +416,22 @@ case class DFDLInfoset(di : Node, parent : Infoset) {
   }
 }
 
+abstract class ErrorWarningBase(n : NodeSeq, parent : TestCase) {
+  lazy val matchAttrib = (n \ "@match").text 
+  protected def diagnosticNodes : Seq[Node]
+  lazy val messages = diagnosticNodes.map{ _.text } 
+}
+
+case class ExpectedErrors(node : NodeSeq, parent : TestCase) 
+extends ErrorWarningBase(node, parent) {
+  
+  val diagnosticNodes = node \\ "error"
+  
+}
+
+case class ExpectedWarnings(node : NodeSeq, parent : TestCase) 
+extends ErrorWarningBase(node, parent) {
+  
+  val diagnosticNodes = node \\ "warning"
+
+}
