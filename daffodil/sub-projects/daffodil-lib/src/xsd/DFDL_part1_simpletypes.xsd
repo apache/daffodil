@@ -312,7 +312,7 @@
 	<!-- A pattern is used instead of an enumeration for compactness -->
 	<xsd:simpleType name="CalendarLanguageType">
 		<xsd:restriction base="xsd:string">
-			<xsd:pattern value="([A-Za-z]{1,8}([-][A-Za-z0-9]{1,8})*)"/>
+			<xsd:pattern value="([A-Za-z]{1,8}(-[A-Za-z0-9]{1,8})*)"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 

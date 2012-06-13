@@ -12,6 +12,7 @@ out/*
 .idea/workspace.xml
 .idea/libraries/ICU4J.xml
 .idea/libraries/scala_library.xml
+.idea/libraries/libScala.xml
 
 # /daffodil/
 /daffodil/.cache
@@ -20,6 +21,7 @@ out/*
 /daffodil/.project
 /daffodil/lib
 /daffodil/doc/api
+/daffodil/diffs
 
 # /daffodil/sub-projects/daffodil-lib/
 /daffodil/sub-projects/daffodil-lib/bin

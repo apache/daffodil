@@ -659,14 +659,14 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     System.err.println("Start at byteOffset " + byteOffset)
     System.err.println("byteBuffer limit: " + bb.limit())
     
-    bb.position(byteOffset)
-
-    decoder.reset()
-    
-    if (byteOffset == bb.limit()){
+    if (byteOffset >= bb.limit()){
       // We are at end, nothing more to do.
       return -1L
     }
+    
+    bb.position(byteOffset)
+
+    decoder.reset()
     
     var byteArray: Array[Byte] = new Array[Byte](bb.limit() - byteOffset)
     
@@ -702,13 +702,13 @@ class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends I
     // 
     // Note: not thread safe. We're depending here on the byte buffer being private to us.
     //
-    bb.position(byteOffset)
-    decoder.reset()
-    
-    if (byteOffset == bb.limit()){
+    if (byteOffset >= bb.limit()){
       // We are at end, nothing more to do.
       return (-1L, true)
     }
+    
+    bb.position(byteOffset)
+    decoder.reset()
     
     var byteArray: Array[Byte] = new Array[Byte](bb.limit() - byteOffset)
     
