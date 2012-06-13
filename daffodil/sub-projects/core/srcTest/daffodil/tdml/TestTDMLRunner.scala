@@ -122,13 +122,13 @@ class TestTDMLRunner extends JUnit3Suite {
     val expected = <byte1 xmlns:xsi={ xsi } xmlns:xs={ xsd }>123</byte1>
     assertEquals(expected, trimmed)
   }
-
+  
   val testSchema = TestUtils.dfdlTestSchema(
     <dfdl:format ref="tns:daffodilTest1"/>,
     <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
       
   // @Test
-  def testTDMLrunOne() {
+  def testTDMLParseSuccess() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
@@ -144,7 +144,7 @@ class TestTDMLRunner extends JUnit3Suite {
     ts.runOneTest("firstUnitTest", Some(testSchema))
   }
   
-  def testTDMLDetectsErrorWithSpecificMessage() {
+  def testTDMLParseDetectsErrorWithSpecificMessage() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
@@ -159,7 +159,7 @@ class TestTDMLRunner extends JUnit3Suite {
     ts.runOneTest("firstUnitTest", Some(testSchema))
   }
   
-  def testTDMLDetectsErrorWithPartMessage() {
+  def testTDMLParseDetectsErrorWithPartMessage() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
@@ -177,7 +177,7 @@ class TestTDMLRunner extends JUnit3Suite {
     assertTrue(exc.getMessage().contains("""message "xs:float""""))
   }
   
-  def testTDMLDetectsErrorAnyMessage() {
+  def testTDMLParseDetectsErrorAnyMessage() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
@@ -191,7 +191,7 @@ class TestTDMLRunner extends JUnit3Suite {
     ts.runOneTest("firstUnitTest", Some(testSchema))
   }
   
-  def testTDMLDetectsNoError() {
+  def testTDMLParseDetectsNoError() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
@@ -209,7 +209,7 @@ class TestTDMLRunner extends JUnit3Suite {
     assertTrue(exc.getMessage().contains("Expected error"))
   }
   
-  def testTDMLDetectsNoWarning() {
+  def testTDMLParseDetectsNoWarning() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
@@ -233,7 +233,7 @@ class TestTDMLRunner extends JUnit3Suite {
 
   
   // @Test
-  def testTDMLrunAll() {
+  def testTDMLParseRunAll() {
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
                       <parserTestCase name="firstUnitTest" root="data">
                         <document>37</document>
@@ -376,5 +376,23 @@ class TestTDMLRunner extends JUnit3Suite {
 //      t.delete()
 //    }
 //  }
+  
+  def testTDMLSerializeDetectsError() {
+        val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:serializerTestCase  ID="some identifier" name="firstUnitTest" root="data">
+        				<ts:infoset>
+                          <ts:dfdlInfoset>
+                            <data xmlns={ example }>37</data>
+                          </ts:dfdlInfoset>
+                        </ts:infoset>
+        				<ts:document></ts:document> <!-- should fail with no data being output -->
+                        <ts:errors>
+                          <ts:error>not yet implemented</ts:error> 
+                        </ts:errors>
+                      </ts:serializerTestCase>
+                    </ts:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("firstUnitTest", Some(testSchema))
+  }
 
 }

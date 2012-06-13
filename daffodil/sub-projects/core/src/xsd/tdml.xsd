@@ -162,10 +162,8 @@
 		<complexType name="serializerTestCaseType">
 		<sequence>
 			<element ref="tns:infoset" />			
-			<choice>
-				<element ref="tns:document" />
-				<element ref="tns:errors" />
-			</choice>
+			<element ref="tns:document" minOccurs="0"/> <!-- must have either document, or errors, or both -->
+			<element ref="tns:errors" minOccurs="0"/>
 			<element ref="tns:warnings" minOccurs='0'/>
 		</sequence>
 		<attributeGroup ref="tns:testCaseAttribs" />

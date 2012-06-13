@@ -35,6 +35,8 @@ abstract class Gram(nameArg : String = "") {
    */
   def parser : Parser
   
+  def unparser : Unparser = DummyUnparser(null) // TODO remove this and leave as abstract method.
+  
 }
 
 abstract class UnaryGram(rr : => Gram) extends NamedGram {
@@ -161,6 +163,9 @@ class Prod(nameArg : String, sc : SchemaComponent, guard : Boolean, gramArg : =>
   override def isEmpty = gram.isEmpty
   
   def parser = gram.parser
+  
+  // TODO. Remove override 
+  override def unparser = gram.unparser
   
   override def toString = {
     val body = if (!guard) EmptyGram.toString else gram.toString

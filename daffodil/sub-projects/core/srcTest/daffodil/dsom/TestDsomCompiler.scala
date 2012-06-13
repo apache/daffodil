@@ -32,7 +32,7 @@ class TestDsomCompiler extends JUnit3Suite {
                          </xs:sequence>
                        </xs:complexType>)
     val compiler = Compiler()
-    val (sset, _, _) = compiler.frontEnd(testSchema)
+    val (sset, _, _, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc) = schema.schemaDocuments
     val Seq(decl) = schemaDoc.globalElementDecls
@@ -99,7 +99,7 @@ class TestDsomCompiler extends JUnit3Suite {
             <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
           </xs:sequence>
         </xs:complexType>)
-    val (sset, _, _) = Compiler().frontEnd(sc)
+    val (sset, _, _, _) = Compiler().frontEnd(sc)
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc) = schema.schemaDocuments
     val Seq(declFactory) = schemaDoc.globalElementDecls
@@ -152,7 +152,7 @@ class TestDsomCompiler extends JUnit3Suite {
 
     val w = Utility.trim(testSchema)
 
-    val (sset, _, _) = Compiler().frontEnd(w)
+    val (sset, _, _, _) = Compiler().frontEnd(w)
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc) = schema.schemaDocuments
     val Seq(decl) = schemaDoc.globalElementDecls

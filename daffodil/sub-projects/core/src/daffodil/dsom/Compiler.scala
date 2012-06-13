@@ -41,6 +41,7 @@ abstract class ProcessorFactory extends DFDL.ProcessorFactory
 abstract class DataProcessor extends DFDL.DataProcessor
 
 abstract class ParseResult extends DFDL.ParseResult with DiagnosticsImpl
+abstract class UnparseResult extends DFDL.UnparseResult with DiagnosticsImpl
 
 class Compiler extends DFDL.Compiler {
   var root: String = ""
@@ -73,14 +74,15 @@ class Compiler extends DFDL.Compiler {
     val allEltFactories = sset.schemas.flatMap{_.schemaDocuments.flatMap{_.globalElementDecls}}
     val allElts = allEltFactories.map{_.forRoot()}
     System.err.println("Compiling " + allElts.length + " element(s).")
-    val allParsers = allElts.foreach{
+    val allProcessors = allElts.foreach{
       elt => {
-        val doc = elt.document
+        val doc : Prod = elt.document
         // System.err.println("document = " + doc)
         val parser = doc.parser
+        val unparser = doc.unparser
         System.err.println("parser = " + parser)
         // str = parser.toString
-        parser
+        (parser, unparser)
       }
     }
     
@@ -98,9 +100,10 @@ class Compiler extends DFDL.Compiler {
     val res = maybeRoot match {
       case None => Assert.usageError("The document element named " + root + " was not found.")
       case Some(rootElem) => {
-        val parserFactory = rootElem.document
-        val parser = parserFactory.parser // if we can get this far, that says a lot.
-        (sset, parser, rootElem)
+        val processorFactory = rootElem.document
+        val parser = processorFactory.parser // if we can get this far, that says a lot.
+        val unparser = processorFactory.unparser
+        (sset, parser, unparser, rootElem)
       }
     }
     res
@@ -123,12 +126,12 @@ class Compiler extends DFDL.Compiler {
     val elts = (xml \ "element")
     Assert.usage(elts.length != 0, "No top level element declarations found.")
    
-    val (sset, parser, rootElem) = frontEnd(xml) // includes middle "end" too.
-    val res = backEnd(parser, sset, rootElem)
+    val (sset, parser, unparser, rootElem) = frontEnd(xml) // includes middle "end" too.
+    val res = backEnd(parser, unparser, sset, rootElem)
     res
   }
 
-  def backEnd(parser : Parser, sset: SchemaSet, rootElem : GlobalElementDecl) = {
+  def backEnd(parser : Parser, unparser : Unparser, sset: SchemaSet, rootElem : GlobalElementDecl) = {
      new ProcessorFactory {
 
       lazy val schemaSet = sset
@@ -169,10 +172,13 @@ class Compiler extends DFDL.Compiler {
             pr
           }
 
-          def unparse(output: DFDL.Output, node: scala.xml.Node) : Seq[Diagnostic] = {
+          def unparse(output: DFDL.Output, node: scala.xml.Node) : DFDL.UnparseResult = {
             val jdomElem = XMLUtils.elem2Element(node)
             val jdomDoc = new org.jdom.Document(jdomElem)
-            Assert.notYetImplemented()
+            val res = new UnparseResult {
+              val diagnostics = List(new GeneralUnparseFailure("Unparsing is not yet implemented."))
+            }
+            res
           }
         }
 

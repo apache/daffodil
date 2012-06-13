@@ -140,6 +140,13 @@ class GeneralParseFailure(msg : String) extends Diagnostic {
   def getMessage() = msg
 }
 
+class GeneralUnparseFailure(msg : String) extends Diagnostic {
+  def isError() = true
+  def getSchemaLocations() = Nil
+  def getDataLocations() = Nil
+  def getMessage() = msg
+}
+
 /**
  * A parser takes a state, and returns an updated state
  *

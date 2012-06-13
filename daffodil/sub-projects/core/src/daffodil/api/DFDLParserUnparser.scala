@@ -85,7 +85,7 @@ object DFDL {
     /**
      * This api call uparses data, returns a list of any diagnostics.
      */
-    def unparse(output: Output, node: scala.xml.Node): Seq[Diagnostic]
+    def unparse(output: Output, node: scala.xml.Node): UnparseResult
     
     /**
      * This api returns an object which contains the result, and/or diagnostics information
@@ -96,6 +96,8 @@ object DFDL {
   trait ParseResult extends WithDiagnostics {
     def result : scala.xml.Node
   }
+  
+  trait UnparseResult extends WithDiagnostics 
 
 }
 

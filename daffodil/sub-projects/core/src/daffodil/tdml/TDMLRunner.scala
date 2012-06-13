@@ -24,6 +24,7 @@ import java.io.StringReader
 import javax.xml.transform.stream.StreamSource
 import java.net.URL
 import java.net.URI
+import daffodil.exceptions.Assert
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -73,17 +74,19 @@ class DFDLTestSuite(ts : Node, tdmlFile : File, tsInputSource : InputSource) {
       tsInputSource) != null)
  
   val parserTestCases = (ts \ "parserTestCase").map { node => ParserTestCase(node, this) }
+  val serializerTestCases = (ts \ "serializerTestCase").map { node => SerializerTestCase(node, this) }
+  val testCases : Seq[TestCase] = parserTestCases ++ serializerTestCases
   val suiteName = (ts \ "@suiteName").text
   val suiteID = (ts \ "@ID").text
   val description = (ts \ "@description").text
   val embeddedSchemas = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
 
   def runAllTests(schema : Option[Node] = None) {
-    parserTestCases.map { _.run(schema) }
+    testCases.map { _.run(schema) }
   }
 
   def runOneTest(testName : String, schema : Option[Node] = None) {
-    val testCase = parserTestCases.find(_.name == testName)
+    val testCase = testCases.find(_.name == testName)
     testCase match {
       case None => throw new Exception("test " + testName + " was not found.")
       case Some(tc) => {
@@ -208,7 +211,7 @@ abstract class TestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
     System.err.println("Test " + id + " passed.")
   }
   
-  def verifyAllDiagnosticsFound(actual : DFDL.ParseResult, expectedDiags : Option[ErrorWarningBase]) = {
+  def verifyAllDiagnosticsFound(actual : WithDiagnostics, expectedDiags : Option[ErrorWarningBase]) = {
       val actualDiags = actual.getDiagnostics()
       val actualDiagMsgs = actualDiags.map { _.getMessage() }
       val expectedDiagMsgs = expectedDiags.map { _.messages }.getOrElse(Nil)
@@ -243,6 +246,7 @@ extends TestCase(ptc, parentArg) {
     (optInfoset, optErrors) match {
       case (Some(infoset), None) => runParseExpectSuccess(processor, dataToParse, infoset, warnings)
       case (None, Some(errors)) => runParseExpectErrors(processor, dataToParse, errors, warnings)
+      case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
     }
     
   }
@@ -323,13 +327,95 @@ case class SerializerTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
 extends TestCase(ptc, parentArg) {
  
   def runProcessor(processor : DFDL.DataProcessor,  
-      data : Option[DFDL.Input], 
-      infoset : Option[Infoset],
-      errors : Option[ExpectedErrors],
+      optData : Option[DFDL.Input], 
+      optInfoset : Option[Infoset],
+      optErrors : Option[ExpectedErrors],
       warnings : Option[ExpectedWarnings]) = {
-    throw new Exception("Not Yet Implemented.")
+  
+    val infoset = optInfoset.get
+    
+    (optData, optErrors) match {
+      case (Some(data), None) => runSerializeExpectSuccess(processor, data, infoset, warnings)
+      case (_, Some(errors)) => runSerializeExpectErrors(processor, optData, infoset, errors, warnings)
+      case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
+    }
+    
   }
   
+  def verifyData(data : DFDL.Input, outStream : java.io.ByteArrayOutputStream) {
+    val actualBytes = outStream.toByteArray
+    
+    val inbuf = java.nio.ByteBuffer.allocate(1024*1024) // max 1 mbyte.
+    val readCount = data.read(inbuf)
+    data.close()
+    if (readCount == -1) {
+      // example data was of size 0 (could not read anything). We're not supposed to get any actual data.
+      if (actualBytes.length > 0) {
+        throw new Exception("Unexpected data was created.")
+      }
+      return // we're done. Nothing equals nothing.
+    } 
+
+    Assert.invariant(readCount == inbuf.position())   
+    
+    // compare expected data to what was output.
+    val expectedBytes = inbuf.array()    
+    if (actualBytes.length != expectedBytes.length) {
+      throw new Exception("output data length " + actualBytes.length +
+          " doesn't match expected value " + expectedBytes.length)
+    }
+    
+    val pairs = expectedBytes zip actualBytes zip Stream.from(1)
+    pairs.foreach{ case ((expected, actual), index) => 
+      if (expected != actual) {
+        val msg = "Unparsed data differs at byte %d. Expected 0x%02x. Actual was 0x%02x.".format(index, expected, actual)
+        throw new Exception(msg)
+      }
+    }
+  }
+  
+  def runSerializeExpectSuccess(processor : DFDL.DataProcessor, 
+      data : DFDL.Input, 
+      infoset : Infoset,
+      warnings : Option[ExpectedWarnings]) {
+    
+    val outStream = new java.io.ByteArrayOutputStream()
+    val output = java.nio.channels.Channels.newChannel(outStream)
+    val node = infoset.contents
+    val actual = processor.unparse(output, node)
+    output.close()
+
+    verifyData(data, outStream)
+    
+    // check for any test-specified warnings
+    verifyAllDiagnosticsFound(actual, warnings)
+ 
+  }
+  
+  def runSerializeExpectErrors(processor : DFDL.DataProcessor, 
+      optData : Option[DFDL.Input],
+      infoset : Infoset,
+      errors : ExpectedErrors,
+      warnings : Option[ExpectedWarnings]) {
+    
+    val outStream = new java.io.ByteArrayOutputStream()
+    val output = java.nio.channels.Channels.newChannel(outStream)
+    val node = infoset.contents
+    val actual = processor.unparse(output, node)
+    output.close()
+    val actualBytes = outStream.toByteArray()
+    
+    // Verify that some partial output has shown up in the bytes. 
+    optData.map { data => verifyData(data, outStream) }
+    
+    // check for any test-specified errors
+    verifyAllDiagnosticsFound(actual, Some(errors))
+        
+    // check for any test-specified warnings
+    verifyAllDiagnosticsFound(actual, warnings)
+    
+  }
+      
 }
 
 case class DefinedSchema(xml : Node, parent : DFDLTestSuite) {
