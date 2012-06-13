@@ -209,16 +209,18 @@ case class StringDelimitedNoEscapeSchemeNoTerminator(e : LocalElementBase) exten
       println("sequenceSeparator: " + sequenceSeparator.constantAsString)
       
       val (result, endBitPos, theState) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(sequenceSeparator.constantAsString))
-//      System.err.println("Parsed: " + result)
-//      System.err.println("Ended at bit position " + endBitPos)
-//      val endCharPos = start.charPos + result.length()
-//      val currentElement = start.parent
-//      currentElement.addContent(new org.jdom.Text(result))
-//      val postState = start.withPos(endBitPos, endCharPos)
-//
-//      postState
+
       val postState =  theState match {
-        case EOF  => start.failed(this.toString() + ": No match found!")
+        case EOF  => {
+          // TODO: Is this logic correct?
+          // No Terminator, so last result is a field.
+          System.err.println("Parsed: " + result)
+          System.err.println("Ended at bit position " + endBitPos)
+          val endCharPos = start.charPos + result.length()
+          val currentElement = start.parent
+          currentElement.addContent(new org.jdom.Text(result))
+          start.withPos(endBitPos, endCharPos)
+        }//start.failed(this.toString() + ": No match found!")
         case PartialMatch => start.failed(this.toString() + ": Partial match found!")
         case FullMatch => {
           System.err.println("Parsed: " + result)
@@ -518,7 +520,10 @@ case class DoublePrim(byteOrder: java.nio.ByteOrder) extends Parser {
     else {
       val value = start.inStream.getDouble(start.bitPos, byteOrder)
       start.parent.addContent(new org.jdom.Text(value.toString))
-      val postState = start.withPos(start.bitPos + 64, -1)
+      System.err.println("Found binary double " + value)
+      System.err.println("Ended at bit position " + (start.bitPos + 64))
+      //val postState = start.withPos(start.bitPos + 64, -1)
+      val postState = start.withPos(start.bitPos + 64, start.charPos + 1)
       postState
     }
   }
@@ -609,13 +614,16 @@ abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = tru
         
       val m = p.matcher(result)
       if (m.find()){ 
-      //if (result == delim) { // TODO: use string.compare and string.compareIgnoreCase so we can implement ignoreCase property.
-        System.err.println("Found " + delim)
-        System.err.println("Ended at bit position " + endBitPosDelim)
-        //val endCharPos = start.charPos + result.length
+        // TODO: For numBytes, is length correct?!
+    	val numBytes = result.substring(m.start(), m.end() - m.start()).getBytes().length
+        
         println("charPos: " + start.charPos + " length: " + (m.end() - m.start()))
         val endCharPos = start.charPos + (m.end() - m.start())
-        endBitPosDelim = 8 * endCharPos // TODO: Is this correct?
+        endBitPosDelim = (8 * numBytes) + start.bitPos // TODO: Is this correct?
+        
+        System.err.println("Found " + delim)
+        System.err.println("Ended at bit position " + endBitPosDelim)
+        
         val postState = start.withPos(endBitPosDelim, endCharPos)
         println("endCharPos: " + endCharPos)
         postState

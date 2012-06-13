@@ -144,7 +144,7 @@ class TestPrimitives extends JUnit3Suite {
         </xs:complexType>
       </xs:element>)
     val actual = Compiler.testString(sch, "abcd}efgh}}}ijkl")
-    val actualString = actual.toString
+    val actualString = actual.result.toString
     println(actualString)
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1><ss1>abcd</ss1><ss2>efgh</ss2></s1><s2>ijkl</s2></e1>"))
