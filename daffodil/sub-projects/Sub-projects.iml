@@ -17,12 +17,12 @@
       <excludeFolder url="file://$MODULE_DIR$/daffodil-lib" />
       <excludeFolder url="file://$MODULE_DIR$/orig" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="scala-library" level="project" />
     <orderEntry type="module" module-name="Daffodil-lib" />
     <orderEntry type="module" module-name="Datatype" />
     <orderEntry type="library" name="libTest" level="project" />
+    <orderEntry type="library" name="libScala" level="project" />
   </component>
 </module>
 

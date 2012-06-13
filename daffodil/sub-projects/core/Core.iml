@@ -16,15 +16,26 @@
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/srcTest" isTestSource="true" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="scala-library" level="project" />
     <orderEntry type="module" module-name="Daffodil-lib" />
     <orderEntry type="module" module-name="Datatype" />
     <orderEntry type="library" name="libCore" level="project" />
     <orderEntry type="library" name="libCodeSrc" level="project" />
     <orderEntry type="library" exported="" name="saxon-b9-1-0-8" level="project" />
-    <orderEntry type="library" exported="" name="ICU4J" level="project" />
+    <orderEntry type="library" name="libScala" level="project" />
+    <orderEntry type="library" name="libICU4J" level="application" />
+    <orderEntry type="module-library" scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/src" />
+          <root url="file://$MODULE_DIR$" />
+          <root url="file://$MODULE_DIR$/../daffodil-lib/src" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
 
