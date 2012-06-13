@@ -8,13 +8,7 @@
 			<dfdl:defineVariable name="x" type="xs:int"
 				defaultValue="0" />
 
-			<dfdl:defineFormat name="Daffodil_Defaults_That_Were_HardCoded">
-
-				<!-- These come from the code from AnnotationDefaults.scala. So they 
-					may be needed as defaults to make some examples/tests work. I've changed 
-					some of the names to match the DFDL spec so this DFDL schema will validate. 
-					Two properties that were in the scala code defaults have nothing corresponding 
-					to them in the DFDL spec now: timingBefore='true' endOfParent='false' -->
+			<dfdl:defineFormat name="explicit_defaults">
 
 				<dfdl:format alignment='1' alignmentUnits='bytes'
 					textStandardBase='10' binaryFloatRep='ieee' binaryNumberRep='binary'
@@ -30,7 +24,7 @@
 
 			<!-- Default DFDL format for this schema file and any other that want 
 				to use these defaults can reference them like this -->
-			<dfdl:format ref="Daffodil_Defaults_That_Were_HardCoded" />
+			<dfdl:format ref="explicit_defaults" />
 
 		</xs:appinfo>
 	</xs:annotation>

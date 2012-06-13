@@ -106,15 +106,6 @@ class Compiler extends DFDL.Compiler {
     res
   }
 
-  def commonCompile(xml: Node) = {
-    val elts = (xml \ "element")
-    Assert.usage(elts.length != 0, "No top level element declarations found.")
-    //
-    // New front end (validates etc. We want to exercise it.)
-    //
-    frontEnd(xml)
-  }
-
   def reload(fileNameOfSavedParser: String) = {
       Assert.notYetImplemented()
 //      val sp = daffodil.parser.SchemaParser.readParser(fileNameOfSavedParser)
@@ -129,18 +120,15 @@ class Compiler extends DFDL.Compiler {
   def compile(xml: Node): DFDL.ProcessorFactory = compileSchema(xml)
 
   private def compileSchema(xml: Node): DFDL.ProcessorFactory = {
-    val (sset, parser, rootElem) = commonCompile(xml)
-    newBackEnd(parser, sset, rootElem)
-//      
-//       old back-end....
-//      
-//      val sp = new daffodil.parser.SchemaParser
-//      val schemaAsByteArrayStream = new ByteArrayInputStream(xml.toString.getBytes())
-//      sp.parse(schemaAsByteArrayStream) // parse the schema that is.
-//      backEnd(sp, sset)
+    val elts = (xml \ "element")
+    Assert.usage(elts.length != 0, "No top level element declarations found.")
+   
+    val (sset, parser, rootElem) = frontEnd(xml) // includes middle "end" too.
+    val res = backEnd(parser, sset, rootElem)
+    res
   }
 
-  def newBackEnd(parser : Parser, sset: SchemaSet, rootElem : GlobalElementDecl) = {
+  def backEnd(parser : Parser, sset: SchemaSet, rootElem : GlobalElementDecl) = {
      new ProcessorFactory {
 
       lazy val schemaSet = sset
@@ -153,36 +141,6 @@ class Compiler extends DFDL.Compiler {
             Assert.notYetImplemented()
           }
  
-//          def parse(input: DFDL.Input): scala.xml.Node = {
-////            val inStream = java.nio.channels.Channels.newInputStream(input)
-////            val bufferedInStream = new java.io.BufferedInputStream(inStream)
-//            val initialState = PState.createInitialState(rootElem, input) // also want to pass here the externally set variables, other flags/settings.
-//            val resultState = parser.parse(initialState)
-//            if (resultState.status == Success) {
-//            val jdomFakeRoot = resultState.parent
-//            // top node is this fake root element
-//            Assert.invariant(jdomFakeRoot.getName() == "_document_" )
-//            Assert.invariant(jdomFakeRoot.getContentSize() == 1)
-//            val jdomElt = jdomFakeRoot.getContent(0).asInstanceOf[org.jdom.Element]
-//            val node = XMLUtils.element2Elem(jdomElt)
-//            node
-//            }
-//            else
-//            {
-//              val f = resultState.status.asInstanceOf[Failure]
-//               throw new daffodil.exceptions.PE("Processing error at bitPos: " + resultState.bitPos + " charPos " + resultState.charPos + 
-//                   "\nReason Failed: " + f.msg)
-//            }
-//          }
-          
-//          def parse(input: DFDL.Input): scala.xml.Node = {
-//            val pr = parse(input)
-//            if (pr.canProceed()) {
-//              pr.result
-//            }
-//            else throw new Exception(pr.toString)// daffodil.exceptions.MultipleExceptions(pr)
-//          }
-
           def parse(input : DFDL.Input) : DFDL.ParseResult = {
             val pr = new ParseResult {
               val (result, diagnostics) = {
@@ -221,41 +179,6 @@ class Compiler extends DFDL.Compiler {
     }
   }
   
-//  def backEnd(sp: daffodil.parser.SchemaParser, sset: SchemaSet) = {
-//    new DFDL.ProcessorFactory {
-//
-//      lazy val schemaSet = sset
-//      def onPath(xpath: String): DFDL.DataProcessor =
-//        new DFDL.DataProcessor {
-//
-//          def save(fileName: String): Unit = {
-//            Assert.notYetImplemented()
-//            // daffodil.parser.SchemaParser.writeParser(sp, fileName)
-//          }
-//          
-//          def parse(input: DFDL.Input): scala.xml.Node = {
-//            val inStream = java.nio.channels.Channels.newInputStream(input)
-//            val bufferedInStream = new java.io.BufferedInputStream(inStream)
-//            sp.setDebugging(debugMode)
-//            val jdomElt = sp.eval(bufferedInStream, root)
-//            val node = XMLUtils.element2Elem(jdomElt)
-//            node
-//          }
-//
-//          def unparse(output: DFDL.Output, node: scala.xml.Node): Unit = {
-//            sp.setDebugging(debugMode)
-//            val jdomElem = XMLUtils.elem2Element(node)
-//            val jdomDoc = new org.jdom.Document(jdomElem)
-//            val data = sp.unparse(jdomDoc, root)
-//            // it would be nicer to stream this, avoid a copy, etc.
-//            // But that requires us to change the signature of sp.unparse.
-//            output.write(data)
-//            output
-//          }
-//        }
-//
-//    }
-//  }
 }
 
 
