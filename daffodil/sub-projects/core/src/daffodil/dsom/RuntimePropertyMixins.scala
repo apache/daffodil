@@ -38,7 +38,7 @@ trait ElementRuntimeValuedPropertiesMixin
   with OccursAGMixin 
   with LengthAGMixin 
   with SimpleTypeRuntimeValuedPropertiesMixin 
-  with RawElementRuntimeValuedPropertiesMixin { decl: ElementBaseMixin =>
+  with RawElementRuntimeValuedPropertiesMixin { decl: ElementBase =>
 
   lazy val length = expressionCompiler.compile('Long, lengthRaw)
   lazy val occursCount = expressionCompiler.compile('Long, occursCountRaw)

@@ -13,7 +13,7 @@ import java.text.{ParseException, ParsePosition}
 import java.math.BigInteger
 import stringsearch.DelimSearcherV3.SearchResult._
 
-case class ElementBegin(e : ElementBaseMixin) extends Terminal(e, true) {
+case class ElementBegin(e : ElementBase) extends Terminal(e, true) {
      def parser: Parser = new Parser {
      
       override def toString = "<" + e.name + ">"
@@ -32,7 +32,7 @@ case class ElementBegin(e : ElementBaseMixin) extends Terminal(e, true) {
      }
 }
 
-case class ElementEnd(e : ElementBaseMixin) extends Terminal(e, true) {
+case class ElementEnd(e : ElementBase) extends Terminal(e, true) {
    def parser: Parser = new Parser {
      
       override def toString = "</" + e.name + ">"
@@ -64,7 +64,7 @@ case class ElementEnd(e : ElementBaseMixin) extends Terminal(e, true) {
  */
 
 
-case class StringFixedLengthInBytes(e : ElementBaseMixin, nBytes : Long) extends Terminal(e, true) {
+case class StringFixedLengthInBytes(e : ElementBase, nBytes : Long) extends Terminal(e, true) {
    def parser: Parser = new Parser {
      
       override def toString = "StringFixedLengthInBytesParser"
@@ -90,7 +90,7 @@ case class StringFixedLengthInBytes(e : ElementBaseMixin, nBytes : Long) extends
    }
 }
 
-case class StringFixedLengthInBytesVariableWidthCharacters(e : ElementBaseMixin, nBytes : Long) extends Terminal(e, true) {
+case class StringFixedLengthInBytesVariableWidthCharacters(e : ElementBase, nBytes : Long) extends Terminal(e, true) {
    def parser: Parser = new Parser {
       def parse(start : PState) : PState = {
          Assert.notYetImplemented()
@@ -99,7 +99,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e : ElementBaseMixin,
    }
 }
 
-case class StringFixedLengthInVariableWidthCharacters(e : ElementBaseMixin, nChars : Long) extends Terminal(e, true) {
+case class StringFixedLengthInVariableWidthCharacters(e : ElementBase, nChars : Long) extends Terminal(e, true) {
    def parser: Parser = new Parser {
      def parse(start : PState) : PState = {
         Assert.notYetImplemented()
@@ -107,7 +107,7 @@ case class StringFixedLengthInVariableWidthCharacters(e : ElementBaseMixin, nCha
    }
 }
 
-case class StringDelimited(e : LocalElementBase) extends Terminal(e, true) {
+case class StringDelimited(e : ElementBase) extends Terminal(e, true) {
   lazy val tm = e.terminatingMarkup
   // TODO: Guard should insist all delimiters are constants if that is what is requried.
   lazy val tmStrings = tm.map {_.constantAsString} // TODO: allow these to be evaluated, not constant.
@@ -167,7 +167,7 @@ case class StringDelimited(e : LocalElementBase) extends Terminal(e, true) {
   }
 }
 
-//case class StringDelimitedNoEscapeSchemeNoTerminator(e : LocalElementBase) extends Terminal(e, true) {
+//case class StringDelimitedNoEscapeSchemeNoTerminator(e : ElementBase) extends Terminal(e, true) {
 //	val sequenceSeparator = e.nearestEnclosingSequence.get.separator
 //	
 //  def parser: Parser = new Parser {
@@ -192,7 +192,7 @@ case class StringDelimited(e : LocalElementBase) extends Terminal(e, true) {
 //  }
 //}
 
-case class StringDelimitedNoEscapeSchemeNoTerminator(e : LocalElementBase) extends Terminal(e, true) {
+case class StringDelimitedNoEscapeSchemeNoTerminator(e : ElementBase) extends Terminal(e, true) {
 	val sequenceSeparator = e.nearestEnclosingSequence.get.separator
 	
   def parser: Parser = new Parser {
@@ -237,7 +237,7 @@ case class StringDelimitedNoEscapeSchemeNoTerminator(e : LocalElementBase) exten
   }
 }
 
-case class StringDelimitedNoEscapeSchemeWithTerminator(e : LocalElementBase) extends Terminal(e, true) {
+case class StringDelimitedNoEscapeSchemeWithTerminator(e : ElementBase) extends Terminal(e, true) {
   val sequenceSeparator = e.nearestEnclosingSequence.get.separator
   val terminator = e.terminatingMarkup.map(x => x.constantAsString)
 
@@ -275,7 +275,7 @@ case class StringDelimitedNoEscapeSchemeWithTerminator(e : LocalElementBase) ext
   }
 }
 
-case class StringPatternMatched(e : LocalElementBase) extends Terminal(e, true) {
+case class StringPatternMatched(e : ElementBase) extends Terminal(e, true) {
   val sequenceSeparator = e.nearestEnclosingSequence.get.separator
 
   def parser: Parser = new Parser {
@@ -311,7 +311,7 @@ case class StringPatternMatched(e : LocalElementBase) extends Terminal(e, true) 
   }
 }
 
-abstract class ConvertTextNumberPrim[S](e: ElementBaseMixin, guard: Boolean) extends Terminal(e, guard) {
+abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends Terminal(e, guard) {
   protected def getNum(s: Number) : S
   protected val GramName = "number"
   protected val GramDescription = "Number"
@@ -361,65 +361,65 @@ abstract class ConvertTextNumberPrim[S](e: ElementBaseMixin, guard: Boolean) ext
 
 }
 
-case class ConvertTextIntegerPrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[BigInteger](e, true) {
+case class ConvertTextIntegerPrim(e : ElementBase) extends ConvertTextNumberPrim[BigInteger](e, true) {
   protected override def getNum(num: Number) = new BigInteger(num.toString)
   protected override val GramName = "integer"
   protected override val GramDescription = "Unbounded Integer"
 }
 
-case class ConvertTextLongPrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[Long](e, true) {
+case class ConvertTextLongPrim(e : ElementBase) extends ConvertTextNumberPrim[Long](e, true) {
   protected override def getNum(num: Number) = num.longValue
   protected override val GramName = "long"
   protected override val GramDescription = "Long Integer"
 }
 
-case class ConvertTextIntPrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[Int](e, true) {
+case class ConvertTextIntPrim(e : ElementBase) extends ConvertTextNumberPrim[Int](e, true) {
   protected override def getNum(num: Number) = num.intValue
   protected override val GramName = "int"
   protected override val GramDescription = "Integer"
 }
 
-case class ConvertTextShortPrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[Short](e, true) {
+case class ConvertTextShortPrim(e : ElementBase) extends ConvertTextNumberPrim[Short](e, true) {
   protected override def getNum(num: Number) = num.shortValue
   protected override val GramName = "short"
   protected override val GramDescription = "Short Integer"
 }
 
-case class ConvertTextBytePrim(e : ElementBaseMixin) extends ConvertTextNumberPrim[Byte](e, true) {
+case class ConvertTextBytePrim(e : ElementBase) extends ConvertTextNumberPrim[Byte](e, true) {
   protected override def getNum(num: Number) = num.byteValue
   protected override val GramName = "byte"
   protected override val GramDescription = "Byte"
 }
 
-case class ConvertTextUnsignedLongPrim(e: ElementBaseMixin) extends ConvertTextNumberPrim[BigInteger](e, true) {
+case class ConvertTextUnsignedLongPrim(e: ElementBase) extends ConvertTextNumberPrim[BigInteger](e, true) {
   protected override def getNum(num: Number) = new BigInteger(num.toString)
   protected override val GramName = "unsignedLong"
   protected override val GramDescription = "Unsigned Long"
   protected override def isInvalidRange(n : BigInteger) = n.compareTo(BigInteger.ZERO) < 0 || n.compareTo(BigInteger.ONE.shiftLeft(64)) >= 0
 }
 
-case class ConvertTextUnsignedIntPrim(e: ElementBaseMixin) extends ConvertTextNumberPrim[Long](e, true) {
+case class ConvertTextUnsignedIntPrim(e: ElementBase) extends ConvertTextNumberPrim[Long](e, true) {
   protected override def getNum(num: Number) = num.longValue
   protected override val GramName = "unsignedInt"
   protected override val GramDescription = "Unsigned Int"
   protected override def isInvalidRange(n : Long) = n < 0 || n >= (1L<<32)
 }
 
-case class ConvertTextUnsignedShortPrim(e: ElementBaseMixin) extends ConvertTextNumberPrim[Int](e, true) {
+case class ConvertTextUnsignedShortPrim(e: ElementBase) extends ConvertTextNumberPrim[Int](e, true) {
   protected override def getNum(num: Number) = num.intValue
   protected override val GramName = "unsignedShort"
   protected override val GramDescription = "Unsigned Short"
   protected override def isInvalidRange(n : Int) = n < 0 || n >= (1<<16)
 }
 
-case class ConvertTextUnsignedBytePrim(e: ElementBaseMixin) extends ConvertTextNumberPrim[Short](e, true) {
+case class ConvertTextUnsignedBytePrim(e: ElementBase) extends ConvertTextNumberPrim[Short](e, true) {
   protected override def getNum(num: Number) = num.shortValue
   protected override val GramName = "unsignedByte"
   protected override val GramDescription = "Unsigned Byte"
   protected override def isInvalidRange(n : Short) = n < 0 || n >= (1<<8)
 }
 
-case class ConvertTextDoublePrim(e: ElementBaseMixin) extends Terminal(e, true) {
+case class ConvertTextDoublePrim(e: ElementBase) extends Terminal(e, true) {
   def parser: Parser = new Parser {
     
     override def toString = "to(xs:double)"
@@ -444,7 +444,7 @@ case class ConvertTextDoublePrim(e: ElementBaseMixin) extends Terminal(e, true) 
   }
 }
 
-case class ConvertTextFloatPrim(e: ElementBaseMixin) extends Terminal(e, true) {
+case class ConvertTextFloatPrim(e: ElementBase) extends Terminal(e, true) {
   def parser: Parser = new Parser {
     
     override def toString = "to(xs:float)"
@@ -476,7 +476,7 @@ extends Terminal(e, guard) {
     def parser: Parser = DummyParser(e)
   }
 
-abstract class ZonedTextNumberPrim(e: ElementBaseMixin, guard: Boolean) extends Terminal(e, guard) {
+abstract class ZonedTextNumberPrim(e: ElementBase, guard: Boolean) extends Terminal(e, guard) {
   def parser : Parser = new Parser {
     def parse(start: PState) : PState = {
       // TODO: Compute the Zoned Number generically
@@ -484,10 +484,10 @@ abstract class ZonedTextNumberPrim(e: ElementBaseMixin, guard: Boolean) extends 
     }
   }
 }
-case class ZonedTextBytePrim(el : ElementBaseMixin) extends ZonedTextNumberPrim(el, false)
-case class ZonedTextShortPrim(el : ElementBaseMixin) extends ZonedTextNumberPrim(el, false)
-case class ZonedTextIntPrim(el : ElementBaseMixin) extends ZonedTextNumberPrim(el, false)
-case class ZonedTextLongPrim(el : ElementBaseMixin) extends ZonedTextNumberPrim(el, false)
+case class ZonedTextBytePrim(el : ElementBase) extends ZonedTextNumberPrim(el, false)
+case class ZonedTextShortPrim(el : ElementBase) extends ZonedTextNumberPrim(el, false)
+case class ZonedTextIntPrim(el : ElementBase) extends ZonedTextNumberPrim(el, false)
+case class ZonedTextLongPrim(el : ElementBase) extends ZonedTextNumberPrim(el, false)
 
 class Regular32bitIntPrim(byteOrder: java.nio.ByteOrder) extends Parser {
 	override def toString = "binary(xs:int, " + byteOrder + ")"
@@ -503,14 +503,14 @@ class Regular32bitIntPrim(byteOrder: java.nio.ByteOrder) extends Parser {
   
 }
 
-case class Regular32bitBigEndianIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
+case class Regular32bitBigEndianIntPrim(e : ElementBase) extends Terminal(e, true) {
   def parser = new Regular32bitIntPrim(java.nio.ByteOrder.BIG_ENDIAN)
 }
-case class Regular32bitLittleEndianIntPrim(e : ElementBaseMixin) extends Terminal(e, true) {
+case class Regular32bitLittleEndianIntPrim(e : ElementBase) extends Terminal(e, true) {
    def parser = new Regular32bitIntPrim(java.nio.ByteOrder.LITTLE_ENDIAN)
 }
-case class PackedIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
-case class BCDIntPrim(e : ElementBaseMixin) extends Primitive(e, false)
+case class PackedIntPrim(e : ElementBase) extends Primitive(e, false)
+case class BCDIntPrim(e : ElementBase) extends Primitive(e, false)
 
 
 case class DoublePrim(byteOrder: java.nio.ByteOrder) extends Parser {
@@ -529,11 +529,11 @@ case class DoublePrim(byteOrder: java.nio.ByteOrder) extends Parser {
   }
 }
 
-case class BigEndianDoublePrim(e : ElementBaseMixin) extends Terminal(e, true) {
+case class BigEndianDoublePrim(e : ElementBase) extends Terminal(e, true) {
   def parser = new DoublePrim(java.nio.ByteOrder.BIG_ENDIAN)
 }
 
-case class LittleEndianDoublePrim(e : ElementBaseMixin) extends Terminal(e, true) {
+case class LittleEndianDoublePrim(e : ElementBase) extends Terminal(e, true) {
   def parser = new DoublePrim(java.nio.ByteOrder.LITTLE_ENDIAN)
 }
 
@@ -551,11 +551,11 @@ case class FloatPrim(byteOrder: java.nio.ByteOrder) extends Parser {
   }
 }
 
-case class BigEndianFloatPrim(e : ElementBaseMixin) extends Terminal(e, true) {
+case class BigEndianFloatPrim(e : ElementBase) extends Terminal(e, true) {
   def parser = new FloatPrim(java.nio.ByteOrder.BIG_ENDIAN)
 }
 
-case class LittleEndianFloatPrim(e : ElementBaseMixin) extends Terminal(e, true) {
+case class LittleEndianFloatPrim(e : ElementBase) extends Terminal(e, true) {
   def parser = new FloatPrim(java.nio.ByteOrder.LITTLE_ENDIAN)
 }
 
@@ -721,7 +721,7 @@ case class EndSequence(sq : Sequence, guard: Boolean = true)  extends Terminal(s
    }
 }
   
-case class StartArray(e: LocalElementBase, guard: Boolean = true) extends Terminal(e, guard) {
+case class StartArray(e: ElementBase, guard: Boolean = true) extends Terminal(e, guard) {
     def parser: Parser = new Parser {
      
       override def toString = "StartArray"
@@ -733,7 +733,7 @@ case class StartArray(e: LocalElementBase, guard: Boolean = true) extends Termin
    }
 }
   
-case class EndArray(e: LocalElementBase, guard: Boolean = true)   extends Terminal(e, guard) {
+case class EndArray(e: ElementBase, guard: Boolean = true)   extends Terminal(e, guard) {
     def parser: Parser = new Parser {
      
       override def toString = "EndArray"
@@ -747,21 +747,21 @@ case class EndArray(e: LocalElementBase, guard: Boolean = true)   extends Termin
 
 case class NoValue(e: GlobalElementDecl, guard: Boolean = true) extends Primitive(e, guard) 
  
-case class SaveInputStream(e: ElementBaseMixin, guard: Boolean = true) extends Primitive(e, guard) 
+case class SaveInputStream(e: ElementBase, guard: Boolean = true) extends Primitive(e, guard) 
  
-case class SetEmptyInputStream(e: ElementBaseMixin, guard: Boolean = true) extends Primitive(e, guard) 
+case class SetEmptyInputStream(e: ElementBase, guard: Boolean = true) extends Primitive(e, guard) 
 
-case class RestoreInputStream(e: ElementBaseMixin, guard: Boolean = true) extends Primitive(e, guard) 
+case class RestoreInputStream(e: ElementBase, guard: Boolean = true) extends Primitive(e, guard) 
 
 //case class Value(e: SchemaComponent, guard: Boolean = true) extends Primitive(e, guard) 
 
-case class NotStopValue(e: LocalElementBase) extends Primitive(e, e.hasStopValue) 
+case class NotStopValue(e: ElementBase with LocalElementMixin) extends Primitive(e, e.hasStopValue) 
 
-case class StopValue(e: LocalElementBase) extends Primitive(e, e.hasStopValue) 
+case class StopValue(e: ElementBase  with LocalElementMixin) extends Primitive(e, e.hasStopValue) 
 
-case class TheDefaultValue(e: ElementBaseMixin) extends Primitive(e, e.isDefaultable) 
+case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable) 
 
-case class LiteralNilValue(e: ElementBaseMixin) 
+case class LiteralNilValue(e: ElementBase) 
 extends StaticText(e.nilValue, e, e.isNillable) {
   val stParser = super.parser
   override def parser = new Parser {
@@ -778,7 +778,7 @@ extends StaticText(e.nilValue, e, e.isNillable) {
   }
 }
 
-case class LogicalNilValue(e: ElementBaseMixin) extends Primitive(e, e.isNillable) 
+case class LogicalNilValue(e: ElementBase) extends Primitive(e, e.isNillable) 
 
 // As soon as you turn these on (by removing the false and putting the real guard), then schemas all need to have
 // these properties in them, which is inconvenient until we have multi-file schema support and format references.
@@ -788,13 +788,13 @@ case class AlignmentFill(e: AnnotatedMixin) extends Primitive(e, false) // e.ali
 
 case class TrailingSkipRegion(e: AnnotatedMixin) extends Primitive(e, false) // e.trailingSkip > 0)
 
-case class PrefixLength(e:ElementBaseMixin) extends Primitive(e, e.lengthKind == LengthKind.Prefixed)
+case class PrefixLength(e:ElementBase) extends Primitive(e, e.lengthKind == LengthKind.Prefixed)
 
 case class UnicodeByteOrderMark(e: GlobalElementDecl) extends Primitive(e, false)
 
-case class FinalUnusedRegion(e: LocalElementBase) extends Primitive(e, false)
+case class FinalUnusedRegion(e: ElementBase) extends Primitive(e, false)
 
-case class InputValueCalc(e: ElementDeclBase) extends Terminal(e, false) {
+case class InputValueCalc(e: ElementBase with ElementDeclMixin) extends Terminal(e, false) {
 
   def parser: Parser = new Parser {   
       override def toString = "InputValueCalc"

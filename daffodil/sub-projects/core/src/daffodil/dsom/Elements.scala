@@ -12,20 +12,8 @@ import daffodil.processors.VariableMap
 // Elements System
 /////////////////////////////////////////////////////////////////
 
-/**
- * provides element-specific implementation of requirements from AnnotatedMixin
- */
-trait AnnotatedElementMixin
-  extends AnnotatedMixin
-  with Element_AnnotationMixin {
-	
-  def emptyFormatFactory = new DFDLElement(newDFDLAnnotationXML("element"), this)
-  
-  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
-}
-
 // A Particle is something that can be repeating.
-trait Particle { self: LocalElementBase =>
+trait ParticleMixin { self : ElementBase =>
 
   override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
   lazy val isRecurring = !isScalar
@@ -85,8 +73,10 @@ trait Particle { self: LocalElementBase =>
 /**
  * Shared by all forms of elements, local or global or element reference.
  */
-trait ElementBaseMixin
-  extends AnnotatedElementMixin
+abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
+  extends Term(xmlArg, parent, position)
+  with AnnotatedMixin
+  with Element_AnnotationMixin
   with DFDLStatementMixin
   with ElementBaseGrammarMixin
   with ElementRuntimeValuedPropertiesMixin
@@ -99,6 +89,10 @@ trait ElementBaseMixin
   def elementSimpleType: SimpleTypeBase
   def typeDef: TypeBase
   def isScalar: Boolean
+  
+  def emptyFormatFactory = new DFDLElement(newDFDLAnnotationXML("element"), this)
+  
+  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
 
   lazy val isFixedLength = {
     lengthKind == LengthKind.Explicit && length.isConstant
@@ -201,16 +195,14 @@ trait ElementBaseMixin
 
 }
 
-abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup, position: Int)
-  extends Term(xmlArg, parent, position)
-  with ElementBaseMixin
-  with Particle
-  with LocalElementBaseGrammarMixin {
+trait LocalElementMixin
+  extends ParticleMixin
+  with LocalElementGrammarMixin { self : ElementBase =>
 
   override def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:element>{ contents @ _* }</dfdl:element> => new DFDLElement(node, this)
-      case _ => super.annotationFactory(node)
+      case _ => annotationFactoryForDFDLStatement(node, self)
     }
   }
 
@@ -257,7 +249,9 @@ abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup, position: Int)
 }
 
 class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
-  extends LocalElementBase(xmlArg, parent, position) with HasRef {
+  extends ElementBase(xmlArg, parent, position) 
+  with LocalElementMixin
+  with HasRef {
 
   // These will just delegate to the referenced element declaration
   lazy val isNillable = Assert.notYetImplemented()
@@ -284,18 +278,18 @@ trait HasRef { self: SchemaComponent =>
   lazy val ref = xsdRef
 }
 
-trait ElementDeclBase
-  extends ElementBaseMixin
-  with ElementDeclGrammarMixin {
+trait ElementDeclMixin
+  extends NamedMixin
+  with ElementDeclGrammarMixin { self : ElementBase =>
 
   lazy val immediateType: Option[TypeBase] = {
     val st = xml \ "simpleType"
     val ct = xml \ "complexType"
     val nt = typeName
     if (st.length == 1)
-      Some(new LocalSimpleTypeDef(st(0), this))
+      Some(new LocalSimpleTypeDef(st(0), self))
     else if (ct.length == 1)
-      Some(new LocalComplexTypeDef(ct(0), this))
+      Some(new LocalComplexTypeDef(ct(0), self))
     else {
       Assert.invariant(nt != "")
       None
@@ -419,12 +413,13 @@ trait ElementDeclBase
 }
 
 class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
-  extends LocalElementBase(xmlArg, parent, position)
-  with ElementDeclBase {
+  extends ElementBase(xmlArg, parent, position)
+  with ElementDeclMixin
+  with LocalElementMixin {
 }
 
 trait DFDLStatementMixin {
-  def annotationFactory(node: Node, self: AnnotatedMixin): DFDLAnnotation = {
+  def annotationFactoryForDFDLStatement(node: Node, self: AnnotatedMixin): DFDLAnnotation = {
     node match {
       case <dfdl:assert>{ content @ _* }</dfdl:assert> => new DFDLAssert(node, self)
       case <dfdl:discriminator>{ content @ _* }</dfdl:discriminator> => new DFDLDiscriminator(node, self)
@@ -435,23 +430,29 @@ trait DFDLStatementMixin {
   }
 }
 
-class GlobalElementDeclFactory(xmlArg: Node, val schemaDocument: SchemaDocument)
-  extends GlobalComponentMixin {
-  def xml = xmlArg
+class GlobalElementDeclFactory(val xml: Node, val schemaDocument: SchemaDocument)
+extends NamedMixin
+{
+  def forRoot() = new GlobalElementDecl(xml, schemaDocument, None)
 
-  def forRoot() = new GlobalElementDecl(xmlArg, schemaDocument, None)
-
-  def forElementRef(eRef: ElementRef) = new GlobalElementDecl(xmlArg, schemaDocument, Some(eRef))
+  def forElementRef(eRef: ElementRef) = new GlobalElementDecl(xml, schemaDocument, Some(eRef))
 
 }
 
-class GlobalElementDecl(xmlArg: Node, val schemaDocument: SchemaDocument, val elementRef: Option[ElementRef])
-  extends GlobalComponentMixin
-  with ElementDeclBase
+class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val elementRef: Option[ElementRef])
+  extends ElementBase(xmlArg, schemaDocumentArg, 0)
+  with ElementDeclMixin
+  with GlobalComponentMixin
   with GlobalElementDeclGrammarMixin {
 
-  lazy val xml = xmlArg
-  lazy val isScalar = true
+  // We inherit the requirement for these attributes from Term
+  // But a GlobalElementDecl isn't really a Term except in a degenerate sense
+  // that the root element is sort of a Term. 
+  // In other words, we shouldn't be treating this as a term.
+  lazy val hasStaticallyRequiredInstances = Assert.impossible("Shouldn't call hasStaticallyRequiredInstances on a GlobalElementDecl")
+  lazy val termContentBody = Assert.impossible("Shouldn't call termContentBody on a GlobalElementDecl")
+  
+  override lazy val isScalar = true
 
   val hasSep = false // when a global decl is a root element then it's not in a sequence, and so can't be separated.
   // if this global decl is used via an element reference, then the element ref's definition of hasSep will be used, not this one.
@@ -459,7 +460,7 @@ class GlobalElementDecl(xmlArg: Node, val schemaDocument: SchemaDocument, val el
   override def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:element>{ contents @ _* }</dfdl:element> => new DFDLElement(node, this)
-      case _ => annotationFactory(node, this)
+      case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
 }

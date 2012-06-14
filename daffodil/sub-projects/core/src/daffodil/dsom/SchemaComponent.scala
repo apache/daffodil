@@ -21,11 +21,11 @@ import scala.collection.JavaConversions._
 import daffodil.grammar._
 import com.ibm.icu.charset.CharsetICU
 
-trait SchemaComponent 
+abstract class SchemaComponent(val xml : Node)
   extends GetAttributesMixin {
   def schemaDocument: SchemaDocument
   lazy val schema: Schema = schemaDocument.schema
-  def xml: Node
+  lazy val namespace = schemaDocument.targetNamespace
   
   private val scala.xml.Elem(_, _, emptyXMLMetadata, _, _*) = <foo/> // hack way to get empty metadata object.
     
@@ -37,31 +37,26 @@ trait SchemaComponent
 
 }
 
-trait LocalComponentMixin
-  extends SchemaComponent {
+trait LocalComponentMixin {
   def parent: SchemaComponent
   lazy val schemaDocument = parent.schemaDocument
 }
 
 /**
- * Anything named has a name from its name attribute and a namespace from the
- * schema document it is part of.
+ * Anything named has a name from its name attribute 
  */
-trait NamedMixin { self: SchemaComponent =>
+trait NamedMixin { self : { def xml : Node } => // this scala idiom means the object this is mixed into has a def for xml of type Node
   lazy val name = (xml \ "@name").text
-  lazy val namespace = self.schemaDocument.targetNamespace
   lazy val detailName = name
 }
 
 trait GlobalComponentMixin
-  extends SchemaComponent
-  with NamedMixin
+  extends NamedMixin { self: SchemaComponent => }
 
 
 
 trait AnnotatedMixin 
-extends SchemaComponent
-with CommonRuntimeValuedPropertiesMixin {
+extends CommonRuntimeValuedPropertiesMixin { self : SchemaComponent =>
        
   def localAndFormatRefProperties: Map[String,String]
   def defaultProperties: Map[String,String] = {
@@ -229,13 +224,13 @@ with CommonRuntimeValuedPropertiesMixin {
 
 
 
-abstract class Annotated(xmlArg: Node)
-  extends SchemaComponent 
-  with AnnotatedMixin {
-  
-  lazy val xml = xmlArg
-  
-}
+//abstract class Annotated(xmlArg: Node)
+//  extends SchemaComponent 
+//  with AnnotatedMixin {
+//  
+//  lazy val xml = xmlArg
+//  
+//}
 
 /**
  * A schema set is exactly that, a set of schemas. Each schema has
@@ -355,7 +350,8 @@ class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: Sche
  * a schema component was defined within.
  */
 class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
-  extends AnnotatedMixin
+  extends SchemaComponent(xmlArg)
+  with AnnotatedMixin
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
   
@@ -372,7 +368,6 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
   //
 
   override lazy val schema = schemaArg
-  lazy val xml = xmlArg
   lazy val targetNamespace = schema.targetNamespace
   lazy val schemaDocument = this
 

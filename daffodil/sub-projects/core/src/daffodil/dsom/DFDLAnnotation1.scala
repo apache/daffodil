@@ -74,7 +74,7 @@ trait RawSimpleTypeRuntimeValuedPropertiesMixin
 /**
  * Base class for annotations that carry format properties
  */
-abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedMixin)
+abstract class DFDLFormatAnnotation(node: Node, annotatedSC: SchemaComponent with AnnotatedMixin)
   extends DFDLAnnotation(node, annotatedSC) 
   with RawCommonRuntimeValuedPropertiesMixin { 
 
@@ -367,27 +367,27 @@ class DFDLFormat(node: Node, sd: SchemaDocument)
   with RawSequenceRuntimeValuedPropertiesMixin {
 }
 
-class DFDLElement(node: Node, decl: AnnotatedElementMixin)
+class DFDLElement(node: Node, decl: ElementBase)
   extends DFDLFormatAnnotation(node, decl) 
   with Element_AnnotationMixin 
   with RawElementRuntimeValuedPropertiesMixin {
 }
 
-class DFDLGroup(node: Node, decl: AnnotatedMixin)
+class DFDLGroup(node: Node, decl: GroupBase)
   extends DFDLFormatAnnotation(node, decl)
   with Group_AnnotationMixin
   with SeparatorSuppressionPolicyMixin
   with RawSequenceRuntimeValuedPropertiesMixin {
 }
 
-class DFDLSequence(node: Node, decl: AnnotatedMixin)
+class DFDLSequence(node: Node, decl: Sequence)
   extends DFDLFormatAnnotation(node, decl)
   with Sequence_AnnotationMixin
   with SeparatorSuppressionPolicyMixin
   with RawSequenceRuntimeValuedPropertiesMixin {
 }
 
-class DFDLChoice(node: Node, decl: AnnotatedMixin)
+class DFDLChoice(node: Node, decl: Choice)
   extends DFDLFormatAnnotation(node, decl) 
   with Choice_AnnotationMixin 
   with RawSequenceRuntimeValuedPropertiesMixin {
@@ -395,7 +395,7 @@ class DFDLChoice(node: Node, decl: AnnotatedMixin)
   Assert.subset(getPropertyOptionNoDefault("terminator") == None, "terminators are not supported on choices")
 }
 
-class DFDLSimpleType(node: Node, decl: AnnotatedMixin)
+class DFDLSimpleType(node: Node, decl: SimpleTypeBase)
   extends DFDLFormatAnnotation(node, decl) 
   with SimpleType_AnnotationMixin
   with RawSimpleTypeRuntimeValuedPropertiesMixin {
@@ -416,13 +416,13 @@ class DFDLDefineFormat(node: Node, sd: SchemaDocument)
   }
 }
 
-class DFDLEscapeScheme(node: Node, decl: AnnotatedMixin)
+class DFDLEscapeScheme(node: Node, decl: SchemaComponent with AnnotatedMixin)
   extends DFDLFormatAnnotation(node, decl) 
   with EscapeScheme_AnnotationMixin 
   with RawEscapeSchemeRuntimeValuedPropertiesMixin {
 }
 
-class DFDLDefineEscapeScheme(node: Node, decl: AnnotatedMixin)
+class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument)
   extends DFDLAnnotation(node, decl) // Note: defineEscapeScheme isn't a format annotation itself.
   // with DefineEscapeScheme_AnnotationMixin 
   {

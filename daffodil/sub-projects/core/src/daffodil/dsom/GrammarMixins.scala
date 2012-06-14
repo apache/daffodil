@@ -8,7 +8,7 @@ import daffodil.schema.annotation.props.gen._
 
 
 trait AlignedMixin
-extends SchemaComponent { self : AnnotatedMixin =>
+ { self : SchemaComponent with AnnotatedMixin =>
   lazy val leadingSkipRegion = Prod("leadingSkipRegion", this, LeadingSkipRegion(this))
   lazy val trailingSkipRegion = Prod("trailingSkipRegion", this, TrailingSkipRegion(this))
   lazy val alignmentFill = Prod("alignmentFill", this, AlignmentFill(this))
@@ -16,7 +16,7 @@ extends SchemaComponent { self : AnnotatedMixin =>
 
 trait InitiatedTerminatedMixin 
 extends AnnotatedMixin
-with DelimitedRuntimeValuedPropertiesMixin { self : AnnotatedMixin =>
+with DelimitedRuntimeValuedPropertiesMixin { self : SchemaComponent =>
   lazy val staticInitiator = Prod("staticInitiator", this, initiator.isConstant, StaticInitiator(this))
   lazy val staticTerminator = Prod("staticTerminator", this, terminator.isConstant, StaticTerminator(this))
   lazy val dynamicInitiator = Prod("dynamicInitiator", this, !initiator.isConstant, DynamicInitiator(this))
@@ -34,7 +34,7 @@ with DelimitedRuntimeValuedPropertiesMixin { self : AnnotatedMixin =>
 
 trait ElementBaseGrammarMixin 
 extends InitiatedTerminatedMixin
-with AlignedMixin { self: ElementBaseMixin =>
+with AlignedMixin { self: ElementBase =>
   // 
   // This silly redundancy where the variable name has to also be passed as a string,
   // is, by the way, a good reason Scala needs real Lisp-style macros, that can take an argument and
@@ -64,19 +64,24 @@ with AlignedMixin { self: ElementBaseMixin =>
     case (LengthUnits.Bits, _) => Assert.notYetImplemented()
   })
     
+  lazy val stringDelimited = Prod("stringDelimited", this, StringDelimited(this))
+  lazy val stringDelimitedNoEscapeSchemeNoTerminator = Prod("stringDelimitedNoEscapeSchemeNoTerminator", this, StringDelimitedNoEscapeSchemeNoTerminator(this))
+  lazy val stringDelimitedNoEscapeSchemeWithTerminator = Prod("stringDelimitedNoEscapeSchemeWithTerminator", this, StringDelimitedNoEscapeSchemeWithTerminator(this))
+  lazy val stringPatternMatched = Prod("stringPatternMatched", this, StringPatternMatched(this))
+  
   lazy val stringValue = {
     val res = Prod("stringValue", this, lengthKind match {
     case LengthKind.Explicit if isFixedLength => fixedLengthString
     case LengthKind.Delimited => {
-      val thisAsLocal = this.asInstanceOf[LocalElementBase]
+      
       // TODO: check for escape scheme
       if (terminator.isKnownNonEmpty) {
-    	  thisAsLocal.stringDelimitedNoEscapeSchemeWithTerminator     
+    	  stringDelimitedNoEscapeSchemeWithTerminator     
       } else {
-        thisAsLocal.stringDelimitedNoEscapeSchemeNoTerminator
+        stringDelimitedNoEscapeSchemeNoTerminator
       }
     }
-    case LengthKind.Pattern => this.asInstanceOf[LocalElementBase].stringPatternMatched
+    case LengthKind.Pattern => stringPatternMatched
     case _ => Assert.notYetImplemented()
   })
   res
@@ -390,7 +395,7 @@ with AlignedMixin { self: ElementBaseMixin =>
 
 }
 
-trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
+trait LocalElementGrammarMixin { self : ElementBase with LocalElementMixin =>
   
   lazy val allowedValue = Prod("allowedValue", this, notStopValue | value)
   
@@ -401,11 +406,7 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
   lazy val separatedRecurringDefaultable = Prod("separatedRecurringDefaultable", this, !isScalar, separatedForPosition(scalarDefaultable))
   lazy val separatedScalarNonDefault = Prod("separatedScalarNonDefault", this, isScalar, separatedForPosition(scalarNonDefault))
   lazy val separatedRecurringNonDefault = Prod("separatedRecurringNonDefault", this, !isScalar, separatedForPosition(scalarNonDefault))
-  lazy val stringDelimited = Prod("stringDelimited", this, StringDelimited(this))
-  lazy val stringDelimitedNoEscapeSchemeNoTerminator = Prod("stringDelimitedNoEscapeSchemeNoTerminator", this, StringDelimitedNoEscapeSchemeNoTerminator(this))
-  lazy val stringDelimitedNoEscapeSchemeWithTerminator = Prod("stringDelimitedNoEscapeSchemeWithTerminator", this, StringDelimitedNoEscapeSchemeWithTerminator(this))
-  lazy val stringPatternMatched = Prod("stringPatternMatched", this, StringPatternMatched(this))
-
+ 
   lazy val recurrance = Prod("recurrance", this, 
       !isScalar, 
       StartArray(this) ~ arrayContents ~ EndArray(this) ~ FinalUnusedRegion(this))
@@ -537,15 +538,14 @@ trait LocalElementBaseGrammarMixin { self: LocalElementBase =>
 
 }
 
-trait ElementDeclGrammarMixin { self : ElementDeclBase =>
+trait ElementDeclGrammarMixin { self : ElementBase with ElementDeclMixin =>
 
   lazy val inputValueCalcOption = getPropertyOption("inputValueCalc")
   
   lazy val inputValueCalcElement = Prod("inputValueCalcElement", this,
       isSimpleType && inputValueCalcOption != None,
       dfdlElementBegin ~ dfdlScopeBegin ~ 
-      InputValueCalc(this) ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
-
+      InputValueCalc(self) ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
 }
 
 

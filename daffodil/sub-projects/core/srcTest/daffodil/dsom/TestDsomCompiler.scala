@@ -259,7 +259,7 @@ class TestDsomCompiler extends JUnit3Suite {
 
     // Explore define escape schemes
     val Seq(desc1) = sd.defineEscapeSchemes // only one of these
-    val es = desc1.asInstanceOf[DFDLDefineEscapeScheme].escapeScheme.getProperty("escapeCharacter")
+    val es = desc1.escapeScheme.escapeCharacterRaw
     assertEquals("%%", es) // has escapeCharacter="%%" (note: string literals not digested yet, so %% is %%, not %.
 
     // Explore global group defs
@@ -589,7 +589,7 @@ class TestDsomCompiler extends JUnit3Suite {
     
    val ct =  ge1.typeDef.asInstanceOf[ComplexTypeBase]
    val seq =  ct.modelGroup.asInstanceOf[Sequence]
-   val Seq(e1: ElementDeclBase, e2: ElementDeclBase) = seq.groupMembers
+   val Seq(e1: ElementBase, e2: ElementBase) = seq.groupMembers
    
    val e1f = e1.formatAnnotation.asInstanceOf[DFDLElement]
    val e1fProps: Map[String, String] = e1f.getFormatProperties()
