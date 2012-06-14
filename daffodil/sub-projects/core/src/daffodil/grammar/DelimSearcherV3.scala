@@ -13,7 +13,7 @@ import scala.util.logging.Logged
 
 object SearchResult extends Enumeration {
   type SearchResult = Value
-  val FullMatch, PartialMatch, EOF = Value
+  val FullMatch, PartialMatch, NoMatch = Value
 }
 
 import SearchResult._
@@ -87,12 +87,12 @@ class DelimSearcher extends Logged {
     }
     if (input.toString().length() == 0){
       log("EOF! String: was EMPTY!! StartPos: " + startPos + " EndPos: " + endPos)
-      return (SearchResult.EOF, input.toString(), -1, -1)
+      return (SearchResult.NoMatch, input.toString(), -1, -1)
     }
     if (startPos < 0){
       endPos = input.length() -1
       log("EOF! String: " + input.toString().substring(startPos) + " StartPos: " + startPos + " EndPos: " + endPos)
-      return (SearchResult.EOF, input.toString().substring(0), endPos, endPos)
+      return (SearchResult.NoMatch, input.toString().substring(0), endPos, endPos)
     }
     
     val crlfList: List[(Int, Int)] = getCRLFList(input)
@@ -127,7 +127,7 @@ class DelimSearcher extends Logged {
     } else {
       endPos = input.length() - 1
       log("EOF! String: " + input.toString().substring(startPos) + " StartPos: " + startPos + " EndPos: " + endPos)
-      return (SearchResult.EOF, input.toString().substring(startPos), endPos, endPos)
+      return (SearchResult.NoMatch, input.toString().substring(startPos), endPos, endPos)
     }
   }
 
