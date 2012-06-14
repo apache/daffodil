@@ -6,8 +6,6 @@
 
 	<xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
 		schemaLocation="DFDLSubsetOfXMLSchema_v1_036.xsd" />
-	<xsd:import namespace="http://www.w3.org/2001/XMLSchema"
-		schemaLocation="XMLSchema.xsd" />
 
 	<!-- Copyright (C) 2012, Tresys Technologies LLC. All Rights Reserved. -->
 
@@ -20,9 +18,9 @@
 					<element ref="tns:parserTestCase" />
 					<!-- This is an extension to the IBM TDML language. We allow schemas 
 						to be directly embedded inside the TDML file. A TDML file that contains all 
-						the schemas it needs is a "self contained" TDML file.
-					<element ref="tns:defineSchema" />
-					-->
+						the schemas it needs is a "self contained" TDML file. -->
+					<element ref="tns:defineSchema" minOccurs="0"/>
+
 					<element ref="tns:serializerTestCase" />
 				</choice>
 			</sequence>
@@ -34,25 +32,29 @@
 			<selector xpath="parserTestCase" />
 			<field xpath="@name" />
 		</unique>
+		<unique name="unique-serializerTestCase-name">
+			<selector xpath="serializerTestCase" />
+			<field xpath="@name" />
+		</unique>
+		<unique name="unique-embeddedSchema-name">
+			<selector xpath="defineSchema" />
+			<field xpath="@name" />
+		</unique>
 	</element>
 
 	<!-- We want to allow an xsd:schema to be named and directly embedded in the TDML 
 		thereby allowing a fully-self-contained single file test case as an exchange 
 		medium for tests. 
-		
-		Unfortunately, this seems to be hard to get working right.
-		
-		Leaving out for now.
+		 -->
 
 	<element name="defineSchema" type="tns:defineSchemaType" />
 	<complexType name="defineSchemaType">
-			<choice>
-				<element ref="sub:schema" />
-				<element ref="xsd:schema" />
-			</choice>
+		<sequence>
+		    <any maxOccurs="unbounded" processContents="lax"/>
+			<!-- <element ref="sub:schema" /> -->
+		</sequence>
 		<attribute name="name" type="xs:NCName" use="required" />
 	</complexType>
-	-->
 
 
 	<element name="parserTestCase" type="tns:parserTestCaseType" />

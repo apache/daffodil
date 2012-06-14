@@ -326,26 +326,25 @@ class TestTDMLRunner extends JUnit3Suite {
 //  Warning - tried this. It seems pretty hard to get working. Eclipse validation 
 //  just doesn't seem to be able to cope.
 //
-//  // @Test
-//  def testEmbeddedSchemaWorks() {
-//    val testSuite = <tdml:testSuite  suiteName="theSuiteName" xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-//                      <tdml:defineSchema name="mySchema">
-//                        <schema xmlns={ sub } targetNamespace={ example } xmlns:tns={ example } >
-//                          <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-//                        </schema>
-//                      </tdml:defineSchema>
-//                      <parserTestCase xmlns={ tdml } name="firstUnitTest" root="data" model="mySchema">
-//                        <document>37\n</document>
-//                        <infoset>
-//                          <dfdlInfoset>
-//                            <data xmlns={ example }>37</data>
-//                          </dfdlInfoset>
-//                        </infoset>
-//                      </parserTestCase>
-//                    </tdml:testSuite>
-//    val ts = new DFDLTestSuite(testSuite)
-//    ts.runOneTest("firstUnitTest")
-//  }
+  // @Test
+  def testEmbeddedSchemaWorks() {
+    val testSuite = <tdml:testSuite  suiteName="theSuiteName" xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+                      <tdml:defineSchema name="mySchema">
+      					  <dfdl:format ref="tns:daffodilTest1"/>
+                          <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+                      </tdml:defineSchema>
+                      <parserTestCase xmlns={ tdml } name="firstUnitTest" root="data" model="mySchema">
+                        <document>37</document>
+                        <infoset>
+                          <dfdlInfoset>
+                            <data xmlns={ example }>37</data>
+                          </dfdlInfoset>
+                        </infoset>
+                      </parserTestCase>
+                    </tdml:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("firstUnitTest")
+  }
 
 //  def testRunTDMLSelfContainedFile() {
 //    val tmpTDMLFileName = getClass.getName() + ".tdml"

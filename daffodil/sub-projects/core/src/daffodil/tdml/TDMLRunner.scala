@@ -345,7 +345,7 @@ extends TestCase(ptc, parentArg) {
   def verifyData(data : DFDL.Input, outStream : java.io.ByteArrayOutputStream) {
     val actualBytes = outStream.toByteArray
     
-    val inbuf = java.nio.ByteBuffer.allocate(1024*1024) // max 1 mbyte.
+    val inbuf = java.nio.ByteBuffer.allocate(1024*1024) // TODO: allow override? Detect overrun?
     val readCount = data.read(inbuf)
     data.close()
     if (readCount == -1) {
@@ -419,8 +419,22 @@ extends TestCase(ptc, parentArg) {
 }
 
 case class DefinedSchema(xml : Node, parent : DFDLTestSuite) {
-  val xsdSchema = (xml \ "schema")(0)
   val name = (xml \ "@name").text.toString
+
+  val defineFormats = (xml \ "defineFormat")
+  val defaultFormats = (xml \ "format")
+  val defineVariables = (xml \ "defineVariable")
+  val defineEscapeSchemes = (xml \ "defineEscapeScheme")
+
+  val globalElementDecls = (xml \ "element")
+  val globalSimpleTypeDefs = (xml \ "simpleType")
+  val globalComplexTypeDefs = (xml \ "complexType")
+  val globalGroupDefs = (xml \ "group")
+
+  val dfdlTopLevels = defineFormats ++ defaultFormats ++ defineVariables ++ defineEscapeSchemes
+  val xsdTopLevels = globalElementDecls ++ globalSimpleTypeDefs ++
+    globalComplexTypeDefs ++ globalGroupDefs
+  val xsdSchema = TestUtils.dfdlTestSchema(dfdlTopLevels, xsdTopLevels)
 }
 
 sealed abstract class DocumentContentType
