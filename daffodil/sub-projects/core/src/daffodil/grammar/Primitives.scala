@@ -211,7 +211,7 @@ case class StringDelimitedNoEscapeSchemeNoTerminator(e : LocalElementBase) exten
       val (result, endBitPos, theState) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(sequenceSeparator.constantAsString))
 
       val postState =  theState match {
-        case EOF  => {
+        case NoMatch  => {
           // TODO: Is this logic correct?
           // No Terminator, so last result is a field.
           System.err.println("Parsed: " + result)
@@ -248,7 +248,6 @@ case class StringDelimitedNoEscapeSchemeWithTerminator(e : LocalElementBase) ext
     //var cbuf = CharBuffer.allocate(4)
     
     // TODO: Add parameter for changing CharBuffer size
-    // TODO: Change EOF to NoMatch
 
     def parse(start: PState): PState = {
       System.err.println("Parsing starting at bit position: " + start.bitPos)
@@ -258,7 +257,7 @@ case class StringDelimitedNoEscapeSchemeWithTerminator(e : LocalElementBase) ext
       val (result, endBitPos, theState) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, terminator.toSet)
 
       val postState =  theState match {
-        case EOF  => start.failed(this.toString() + ": No match found!")
+        case NoMatch  => start.failed(this.toString() + ": No match found!")
         case PartialMatch => start.failed(this.toString() + ": Partial match found!")
         case FullMatch => {
           System.err.println("Parsed: " + result)
@@ -284,7 +283,6 @@ case class StringPatternMatched(e : LocalElementBase) extends Terminal(e, true) 
     var cbuf = new StringBuilder(1024)
 
     // TODO: Add parameter for changing CharBuffer size
-    // TODO: Change EOF to NoMatch
 
     def parse(start: PState): PState = {
       System.err.println("Parsing starting at bit position: " + start.bitPos)
@@ -294,7 +292,7 @@ case class StringPatternMatched(e : LocalElementBase) extends Terminal(e, true) 
       val (result, endBitPos, theState) = in.fillCharBufferWithPatternMatch(cbuf, start.bitPos, decoder, Set[String]())
 
       val postState =  theState match {
-        case EOF  => start.failed(this.toString() + ": No match found!")
+        case NoMatch  => start.failed(this.toString() + ": No match found!")
         case PartialMatch => start.failed(this.toString() + ": Partial match found!")
         case FullMatch => {
           System.err.println("Parsed: " + result)
