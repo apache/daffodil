@@ -1,16 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testSuite suiteName="AA-BG" description="Original suite of AA through BG"
-	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd" >
+<tdml:testSuite suiteName="AA-BG" description="Original suite of AA through BG"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
-	<parserTestCase name="AN000" root="path" model="AN.dfdl.xsd"
+	<tdml:defineSchema name="AN-Embedded.dfdl.xsd">
+		<dfdl:defineFormat name="explicit_defaults">
+			<dfdl:format alignment='1' alignmentUnits='bytes'
+				textStandardBase='10' binaryFloatRep='ieee' binaryNumberRep='binary'
+				byteOrder='bigEndian' calendarPatternKind='implicit' encoding='UTF-8'
+				escapeSchemeRef='' documentFinalTerminatorCanBeMissing='no'
+				ignoreCase='no' initiatedContent='no' leadingSkip='0' lengthKind='delimited'
+				occursCountKind='parsed' separatorPolicy='required'
+				separatorPosition='infix' sequenceKind='ordered' textNumberRep='standard'
+				textNumberCheckPolicy='strict' textStringJustification='left'
+				trailingSkip='0' initiator="" terminator="" separator="" />
+		</dfdl:defineFormat>
+
+		<!-- Default DFDL format for this schema file and any other that want to 
+			use these defaults can reference them like this -->
+		<dfdl:format ref="explicit_defaults" />
+		<!-- an example of speculative parsing, should push back the last folder 
+			found (a file) -->
+		<!-- protocol:/folder/folder/folder/folder/file -->
+
+		<xs:element name="path">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="folder" type="xs:string" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:element representation="text" lengthKind="delimited"
+									terminator="/" />
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="file" type="xs:string" minOccurs="0"
+						dfdl:representation="text" dfdl:terminator="%NL;"
+						dfdl:documentFinalTerminatorCanBeMissing="yes" dfdl:lengthKind="delimited" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="AN000" root="path" model="AN-Embedded.dfdl.xsd"
 		description="Tests lenthKind delimited">
 
-		<document>folder1/folder2/folder3/file_name
-		</document>
+		<tdml:document>folder1/folder2/folder3/file_name
+		</tdml:document>
 
-		<infoset>
-			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
 				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<path xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
@@ -19,16 +62,16 @@
 					<folder type="xsd:string">folder3</folder>
 					<file type="xsd:string">file_name</file>
 				</path>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
-	<parserTestCase name="AN001" root="path" model="AN.dfdl.xsd"
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	<tdml:parserTestCase name="AN001" root="path" model="AN-Embedded.dfdl.xsd"
 		description="Tests lenthKind delimited">
 
-		<document>folder1/folder2/folder3/</document>
+		<tdml:document>folder1/folder2/folder3/</tdml:document>
 
-		<infoset>
-			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
 				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<path xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
@@ -36,7 +79,7 @@
 					<folder type="xsd:string">folder2</folder>
 					<folder type="xsd:string">folder3</folder>
 				</path>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
-</testSuite>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+</tdml:testSuite>
