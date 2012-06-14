@@ -2,11 +2,16 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:sub="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.ibm.com/xmlns/dfdl/testData"
-	xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData" elementFormDefault="unqualified">
+	xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData" elementFormDefault="unqualified"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
 
 	<xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
 		schemaLocation="DFDLSubsetOfXMLSchema_v1_036.xsd" />
-
+    <xsd:import namespace="http://www.w3.org/2001/XMLSchema"
+		schemaLocation="XMLSchema.xsd" />
+	<xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/"
+	    schemaLocation="DFDL_part3_model.xsd"/>
+	    
 	<!-- Copyright (C) 2012, Tresys Technologies LLC. All Rights Reserved. -->
 
 	<!-- IBM uses this namespace http://www.ibm.com/xmlns/dfdl/testData -->
@@ -50,7 +55,7 @@
 	<element name="defineSchema" type="tns:defineSchemaType" />
 	<complexType name="defineSchemaType">
 		<sequence>
-		    <any maxOccurs="unbounded" processContents="lax"/>
+		    <any maxOccurs="unbounded" processContents="strict"/>
 			<!-- <element ref="sub:schema" /> -->
 		</sequence>
 		<attribute name="name" type="xs:NCName" use="required" />

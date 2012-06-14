@@ -26,6 +26,7 @@ class TestTDMLRunner extends JUnit3Suite {
   val xsi = XMLUtils.XSI_NAMESPACE
   val xsd = XMLUtils.XSD_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
+  val tns = example
   val sub = XMLUtils.DFDL_XMLSCHEMASUBSET_NAMESPACE
 
   def testDocPart1() {
@@ -93,7 +94,7 @@ class TestTDMLRunner extends JUnit3Suite {
 
   def test2() {
     val xml = <testSuite xmlns={ tdml } suiteName="theSuiteName">
-                <parserTestCase  ID="some identifier" name="firstUnitTest" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd">
+                <parserTestCase ID="some identifier" name="firstUnitTest" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd">
                   <document>0123</document>
                   <infoset>
                     <dfdlInfoset xmlns:xs={ xsd } xmlns:xsi={ xsi }>
@@ -122,16 +123,16 @@ class TestTDMLRunner extends JUnit3Suite {
     val expected = <byte1 xmlns:xsi={ xsi } xmlns:xs={ xsd }>123</byte1>
     assertEquals(expected, trimmed)
   }
-  
+
   val testSchema = TestUtils.dfdlTestSchema(
     <dfdl:format ref="tns:daffodilTest1"/>,
     <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
-      
+
   // @Test
   def testTDMLParseSuccess() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
-                      <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
+                      <ts:parserTestCase ID="some identifier" name="firstUnitTest" root="data">
                         <ts:document>37</ts:document>
                         <ts:infoset>
                           <ts:dfdlInfoset>
@@ -143,95 +144,94 @@ class TestTDMLRunner extends JUnit3Suite {
     val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("firstUnitTest", Some(testSchema))
   }
-  
+
   def testTDMLParseDetectsErrorWithSpecificMessage() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
-                      <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
+                      <ts:parserTestCase ID="some identifier" name="firstUnitTest" root="data">
                         <ts:document>AA</ts:document>
                         <ts:errors>
-                          <ts:error>convert</ts:error> <!-- can have several substrings of message -->
-    					  <ts:error>xs:int</ts:error> <!-- all are checked against the message -->
+                          <ts:error>convert</ts:error><!-- can have several substrings of message -->
+                          <ts:error>xs:int</ts:error><!-- all are checked against the message -->
                         </ts:errors>
                       </ts:parserTestCase>
                     </ts:testSuite>
     val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("firstUnitTest", Some(testSchema))
   }
-  
+
   def testTDMLParseDetectsErrorWithPartMessage() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
-                      <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
+                      <ts:parserTestCase ID="some identifier" name="firstUnitTest" root="data">
                         <ts:document>AA</ts:document>
                         <ts:errors>
-                          <ts:error>convert</ts:error> 
-    					  <ts:error>xs:float</ts:error> <!-- Detect this mismatch. It will say xs:int -->
+                          <ts:error>convert</ts:error>
+                          <ts:error>xs:float</ts:error><!-- Detect this mismatch. It will say xs:int -->
                         </ts:errors>
                       </ts:parserTestCase>
                     </ts:testSuite>
     val ts = new DFDLTestSuite(testSuite)
     val exc = intercept[Exception] {
-    ts.runOneTest("firstUnitTest", Some(testSchema))
+      ts.runOneTest("firstUnitTest", Some(testSchema))
     }
     assertTrue(exc.getMessage().contains("""message "xs:float""""))
   }
-  
+
   def testTDMLParseDetectsErrorAnyMessage() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
-                      <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
+                      <ts:parserTestCase ID="some identifier" name="firstUnitTest" root="data">
                         <ts:document>AA</ts:document>
                         <ts:errors>
-                          <ts:error/> <!-- don't care what message is -->
+                          <ts:error/><!-- don't care what message is -->
                         </ts:errors>
                       </ts:parserTestCase>
                     </ts:testSuite>
     val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("firstUnitTest", Some(testSchema))
   }
-  
+
   def testTDMLParseDetectsNoError() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
-                      <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
+                      <ts:parserTestCase ID="some identifier" name="firstUnitTest" root="data">
                         <ts:document>37</ts:document>
                         <ts:errors>
-                          <ts:error/> <!-- don't care what message is -->
+                          <ts:error/><!-- don't care what message is -->
                         </ts:errors>
                       </ts:parserTestCase>
                     </ts:testSuite>
     val ts = new DFDLTestSuite(testSuite)
     val exc = intercept[Exception] {
-  	  ts.runOneTest("firstUnitTest", Some(testSchema))
+      ts.runOneTest("firstUnitTest", Some(testSchema))
     }
     println(exc)
     assertTrue(exc.getMessage().contains("Expected error"))
   }
-  
+
   def testTDMLParseDetectsNoWarning() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
-                      <ts:parserTestCase  ID="some identifier" name="firstUnitTest" root="data">
+                      <ts:parserTestCase ID="some identifier" name="firstUnitTest" root="data">
                         <ts:document>37</ts:document>
-    					<ts:infoset>
+                        <ts:infoset>
                           <ts:dfdlInfoset>
                             <data xmlns={ example }>37</data>
                           </ts:dfdlInfoset>
                         </ts:infoset>
                         <ts:warnings>
-                          <ts:warning/> <!-- don't care what message is -->
+                          <ts:warning/><!-- don't care what message is -->
                         </ts:warnings>
                       </ts:parserTestCase>
                     </ts:testSuite>
     val ts = new DFDLTestSuite(testSuite)
     val exc = intercept[Exception] {
-    	ts.runOneTest("firstUnitTest", Some(testSchema))
+      ts.runOneTest("firstUnitTest", Some(testSchema))
     }
     assertTrue(exc.getMessage().contains("Did not find"))
   }
 
-  
   // @Test
   def testTDMLParseRunAll() {
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
@@ -321,72 +321,105 @@ class TestTDMLRunner extends JUnit3Suite {
     val mf = ts.findModelFile("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
     assertTrue(mf.exists())
   }
-  
-//  TODO: Someday, make self-contained test files work.
-//  Warning - tried this. It seems pretty hard to get working. Eclipse validation 
-//  just doesn't seem to be able to cope.
-//
+
+  val tdmlWithEmbeddedSchema =
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+      <tdml:defineSchema name="mySchema">
+        <dfdl:format ref="tns:daffodilTest1"/>
+        <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>
+      </tdml:defineSchema>
+      <parserTestCase xmlns={ tdml } name="firstUnitTest" root="data" model="mySchema">
+        <document>37</document>
+        <infoset>
+          <dfdlInfoset>
+            <data xmlns={ example }>37</data>
+          </dfdlInfoset>
+        </infoset>
+      </parserTestCase>
+    </tdml:testSuite>
+
   // @Test
   def testEmbeddedSchemaWorks() {
-    val testSuite = <tdml:testSuite  suiteName="theSuiteName" xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-                      <tdml:defineSchema name="mySchema">
-      					  <dfdl:format ref="tns:daffodilTest1"/>
-                          <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-                      </tdml:defineSchema>
-                      <parserTestCase xmlns={ tdml } name="firstUnitTest" root="data" model="mySchema">
-                        <document>37</document>
-                        <infoset>
-                          <dfdlInfoset>
-                            <data xmlns={ example }>37</data>
-                          </dfdlInfoset>
-                        </infoset>
-                      </parserTestCase>
-                    </tdml:testSuite>
+    val testSuite = tdmlWithEmbeddedSchema
     val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("firstUnitTest")
   }
 
-//  def testRunTDMLSelfContainedFile() {
-//    val tmpTDMLFileName = getClass.getName() + ".tdml"
-//    val testSuite = <tdml:testSuite suiteName="theSuiteName" xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-//                      <tdml:defineSchema name="mySchema">
-//                        <schema xmlns={ xsd } targetNamespace={ example } >
-//                          <element name="data" type="xsd:int" dfdl:terminator="%NL;" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:documentFinalTerminatorCanBeMissing="yes"/>
-//                        </schema>
-//                      </tdml:defineSchema>
-//                      <parserTestCase xmlns={ tdml } name="testRunTDMLFile" root="data" model="mySchema">
-//                        <document>37\n</document>
-//                        <infoset>
-//                          <dfdlInfoset>
-//                            <data xmlns={ example }>37</data>
-//                          </dfdlInfoset>
-//                        </infoset>
-//                      </parserTestCase>
-//                    </tdml:testSuite>
-//    try {
-//      using(new java.io.FileWriter(tmpTDMLFileName)) {
-//        fw =>
-//          fw.write(testSuite.toString())
-//      }
-//      val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
-//      ts.runAllTests()
-//    } finally {
-//      val t = new java.io.File(tmpTDMLFileName)
-//      t.delete()
-//    }
-//  }
-  
+  val tdmlWithEmbeddedSchemaInvalid =
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+      <tdml:defineSchema name="mySchema">
+        <dfdl:format ref="tns:daffodilTest1"/>
+        <xsd:element name="data" type="xsd:int" dfdl:lengthKind="notAllowed" dfdl:notAProp="{ 2 }"/>
+      </tdml:defineSchema>
+      <parserTestCase xmlns={ tdml } name="firstUnitTest" root="data" model="mySchema">
+        <document>37</document>
+        <infoset>
+          <dfdlInfoset>
+            <data xmlns={ example }>37</data>
+          </dfdlInfoset>
+        </infoset>
+      </parserTestCase>
+    </tdml:testSuite>
+
+  // @Test
+  def testEmbeddedSchemaValidates() {
+    val testSuite = tdmlWithEmbeddedSchemaInvalid
+    val exc = intercept[Exception] {
+      val ts = new DFDLTestSuite(testSuite)
+    }
+    val msg = exc.getMessage
+    println(msg)
+    assertTrue(msg.contains("notAllowed"))
+  }
+
+  def testRunTDMLSelfContainedFile() {
+    val tmpTDMLFileName = getClass.getName() + ".tdml"
+    val testSuite = tdmlWithEmbeddedSchema
+    try {
+      using(new java.io.FileWriter(tmpTDMLFileName)) {
+        fw =>
+          fw.write(testSuite.toString())
+      }
+      val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+      ts.runAllTests()
+    } finally {
+      val t = new java.io.File(tmpTDMLFileName)
+      t.delete()
+    }
+  }
+
+  def testTDMLSelfContainedFileValidates() {
+    val tmpTDMLFileName = getClass.getName() + ".tdml"
+    val testSuite = tdmlWithEmbeddedSchemaInvalid
+    try {
+      using(new java.io.FileWriter(tmpTDMLFileName)) {
+        fw =>
+          fw.write(testSuite.toString())
+      }
+      val exc = intercept[Exception] {
+        val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+      }
+      val msg = exc.getMessage
+      println(msg)
+      assertTrue(msg.contains("notAllowed"))
+
+    } finally {
+      val t = new java.io.File(tmpTDMLFileName)
+      t.delete()
+    }
+  }
+
   def testTDMLSerializeDetectsError() {
-        val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
-                      <ts:serializerTestCase  ID="some identifier" name="firstUnitTest" root="data">
-        				<ts:infoset>
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+                      <ts:serializerTestCase ID="some identifier" name="firstUnitTest" root="data">
+                        <ts:infoset>
                           <ts:dfdlInfoset>
                             <data xmlns={ example }>37</data>
                           </ts:dfdlInfoset>
                         </ts:infoset>
-        				<ts:document></ts:document> <!-- should fail with no data being output -->
+                        <ts:document></ts:document><!-- should fail with no data being output -->
                         <ts:errors>
-                          <ts:error>not yet implemented</ts:error> 
+                          <ts:error>not yet implemented</ts:error>
                         </ts:errors>
                       </ts:serializerTestCase>
                     </ts:testSuite>

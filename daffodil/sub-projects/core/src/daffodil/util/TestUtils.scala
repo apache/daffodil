@@ -22,7 +22,7 @@ object TestUtils {
    * of having to add properties everywhere when a new property starts being expected.
    */
   def dfdlTestSchema(topLevelAnnotations: Seq[Node], contentElements: Seq[Node]) = {
-    val realSchema = <xs:schema xmlns:xs={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns={ targetNS } xmlns:tns = { targetNS } targetNamespace={ targetNS }>
+    val realSchema = <xs:schema xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns={ targetNS } xmlns:tns = { targetNS } targetNamespace={ targetNS }>
                        <xs:annotation>
                          <xs:appinfo source={ dfdlURI }>
                            <dfdl:defineFormat name="daffodilTest1">
@@ -31,6 +31,12 @@ object TestUtils {
                            { topLevelAnnotations }
                          </xs:appinfo>
                        </xs:annotation>
+	<xsd:import namespace={ DFDLSubsetURI }
+		schemaLocation="DFDLSubsetOfXMLSchema_v1_036.xsd" />
+    <xsd:import namespace={ xsdURI }
+		schemaLocation="XMLSchema.xsd" />
+	<xsd:import namespace={ dfdlURI }
+	    schemaLocation="DFDL_part3_model.xsd"/>
                        { contentElements }
                      </xs:schema>
     val realSchemaText = realSchema.toString()
