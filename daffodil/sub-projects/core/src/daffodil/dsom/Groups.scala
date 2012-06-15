@@ -24,8 +24,6 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin {
 
-  // def annotationFactory(node: Node): DFDLAnnotation = annotationFactory(node, this)
-
   def isScalar = true // override in local elements
 
   /**
@@ -208,6 +206,9 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
     childList
   }
 
+  /**
+   * XML is full of uninteresting text nodes. We just want the element children, not all children.
+   */
   def removeNonInteresting(child: Node) = {
     val childList: List[Node] = child match {
       case _: Text => Nil
@@ -316,7 +317,8 @@ object GroupFactory {
 class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends ModelGroup(xmlArg, parent, position)
   with ChoiceGrammarMixin {
-  override def annotationFactory(node: Node): DFDLAnnotation = {
+
+  def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:choice>{ contents @ _* }</dfdl:choice> => new DFDLChoice(node, this)
       case _ => annotationFactoryForDFDLStatement(node, this)
@@ -364,7 +366,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   with SequenceGrammarMixin
   with SeparatorSuppressionPolicyMixin {
 
-  override def annotationFactory(node: Node): DFDLAnnotation = {
+  def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:sequence>{ contents @ _* }</dfdl:sequence> => new DFDLSequence(node, this)
       case _ => annotationFactoryForDFDLStatement(node, this)
@@ -386,7 +388,8 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
 class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends GroupBase(xmlArg, parent, position)
   with GroupRefGrammarMixin {
-  override def annotationFactory(node: Node): DFDLAnnotation = {
+  
+  def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:group>{ contents @ _* }</dfdl:group> => new DFDLGroup(node, this)
       case _ => annotationFactoryForDFDLStatement(node, this)
@@ -400,6 +403,7 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def hasStaticallyRequiredInstances = Assert.notYetImplemented()
 
+  //TODO: Consolidate techniques with HasRef trait used by ElementRef
   lazy val refName = {
     val str = (xml \ "@ref").text
     if (str == "") None else Some(str)
