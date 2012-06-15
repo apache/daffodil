@@ -21,14 +21,26 @@ import scala.collection.JavaConversions._
 import daffodil.grammar._
 import com.ibm.icu.charset.CharsetICU
 
-trait SchemaComponent 
+/**
+ * The core root class of the DFDL Schema object model.
+ * 
+ * Every schema component has a schema document, and a schema, and a namespace.
+ */
+abstract class SchemaComponent(val xml : Node)
   extends GetAttributesMixin {
   def schemaDocument: SchemaDocument
   lazy val schema: Schema = schemaDocument.schema
-  def xml: Node
+  lazy val namespace = schemaDocument.targetNamespace
+  
   
   private val scala.xml.Elem(_, _, emptyXMLMetadata, _, _*) = <foo/> // hack way to get empty metadata object.
-    
+  
+  /**
+   * Used as factory for the XML Node with the right namespace and prefix etc.
+   * 
+   * Given "element" it creates <dfdl:element /> with the namespace definitions
+   * based on this schema component's corresponding XSD construct.
+   */
   def newDFDLAnnotationXML(label : String) = {
     scala.xml.Elem("dfdl", label, emptyXMLMetadata, xml.scope)
   }
@@ -37,37 +49,47 @@ trait SchemaComponent
 
 }
 
-trait LocalComponentMixin
-  extends SchemaComponent {
+/**
+ * Local components have a lexical parent that contains them
+ */
+trait LocalComponentMixin {
   def parent: SchemaComponent
   lazy val schemaDocument = parent.schemaDocument
 }
 
 /**
- * Anything named has a name from its name attribute and a namespace from the
- * schema document it is part of.
+ * Anything named has a name from its corresponding xml's name attribute 
  */
-trait NamedMixin { self: SchemaComponent =>
+trait NamedMixin { self : { def xml : Node } => // this scala idiom means the object this is mixed into has a def for xml of type Node
   lazy val name = (xml \ "@name").text
-  lazy val namespace = self.schemaDocument.targetNamespace
-  lazy val detailName = name
+  lazy val detailName = name // TODO: remove synonym name unless there is a good reason for this.
 }
 
+/**
+ * All global components share these characteristics.
+ */
 trait GlobalComponentMixin
-  extends SchemaComponent
-  with NamedMixin
+  extends NamedMixin { self: SchemaComponent =>
+    // nothing here yet
+}
 
 
-
+/**
+ * Every component that can be annotated.
+ */
 trait AnnotatedMixin 
-extends SchemaComponent
-with CommonRuntimeValuedPropertiesMixin {
+extends CommonRuntimeValuedPropertiesMixin { self : SchemaComponent =>
        
   def localAndFormatRefProperties: Map[String,String]
   def defaultProperties: Map[String,String] = {
     this.schemaDocument.localAndFormatRefProperties
   }
   
+  /**
+   * Primary mechanism for a component to get a format property value.
+   * 
+   * Note: use only for format properties, not any old attribute. 
+   */
   def getPropertyOption(pname: String) = {
     val local = localAndFormatRefProperties.get(pname) 
     local match {
@@ -112,8 +134,12 @@ with CommonRuntimeValuedPropertiesMixin {
     dais
   }
 
+  /**
+   * The DFDL annotations on the component, as objects
+   * that are subtypes of DFDLAnnotation.
+   */
   lazy val annotationObjs = {
-    println(dais)
+    // println(dais)
     dais.flatMap { dai =>
       {
         val children = dai.child
@@ -153,6 +179,9 @@ with CommonRuntimeValuedPropertiesMixin {
   
   /**
    * Annotations can contain expressions, so we need to be able to compile them.
+   * 
+   * We need our own instance so that the expression compiler has this schema
+   * component as its context.
    */
   lazy val expressionCompiler = new ExpressionCompiler(this)
   
@@ -177,10 +206,13 @@ with CommonRuntimeValuedPropertiesMixin {
     nss
   }
   
-    /**
+  /**
    * Character encoding common attributes
+   * 
+   * Note that since encoding can be computed at runtime, we 
+   * create values to tell us if the encoding is known or not
+   * so that we can decide things at compile time when possible.
    */
-  
  
   lazy val isKnownEncoding = encoding.isConstant
   
@@ -200,13 +232,19 @@ with CommonRuntimeValuedPropertiesMixin {
     decoder
   }
   
+  /**
+   * enables optimizations and random-access
+   * 
+   * variable-width character sets require scanning to determine
+   * their end.
+   */
   lazy val knownEncodingIsFixedWidth = {
     // val res = knownEncodingCharset.isFixedWidth
     val res = knownEncodingName match {
       case "US-ASCII" | "ASCII" => true
       case "UTF-8" => false
       case "UTF-16" | "UTF-16LE" | "UTF-16BE" | "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
-      case _ => Assert.notYetImplemented()
+      case _ => Assert.notYetImplemented() // TODO change to SDE charset unsupported, not NYI.
     }
     res
   }
@@ -220,20 +258,10 @@ with CommonRuntimeValuedPropertiesMixin {
       case "UTF-8" => -1
       case "UTF-16" | "UTF-16LE" | "UTF-16BE" => 2
       case "UTF-32" | "UTF-32BE" | "UTF-32LE" => 4
-      case _ => Assert.notYetImplemented()
+      case _ => Assert.notYetImplemented() // TODO change to SDE charset unsupported, not NYI.
     }
     res
   }
-  
-}
-
-
-
-abstract class Annotated(xmlArg: Node)
-  extends SchemaComponent 
-  with AnnotatedMixin {
-  
-  lazy val xml = xmlArg
   
 }
 
@@ -282,12 +310,19 @@ class SchemaSet(schemaNodeList: Seq[Node]) {
   }
 
   /**
+   * XML Schema global objects.
    * Given a namespace and name, try to retrieve the named object
+   * 
+   * These all return factories for the objects, not the objects themselves.
    */
   def getGlobalElementDecl(namespace: String, name: String) = getSchema(namespace).flatMap { _.getGlobalElementDecl(name) }
   def getGlobalSimpleTypeDef(namespace: String, name: String) = getSchema(namespace).flatMap { _.getGlobalSimpleTypeDef(name) }
   def getGlobalComplexTypeDef(namespace: String, name: String) = getSchema(namespace).flatMap { _.getGlobalComplexTypeDef(name) }
   def getGlobalGroupDef(namespace: String, name: String) = getSchema(namespace).flatMap { _.getGlobalGroupDef(name) }
+
+  /**
+   * DFDL Schema top-level global objects
+   */
   def getDefineFormat(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineFormat(name) }
   def getDefineFormats(namespace: String) = getSchema(namespace) match {
     case None => Assert.schemaDefinitionError("Failed to find a schema for namespace:  " + namespace)
@@ -323,6 +358,8 @@ class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: Sche
 
   /**
    * Given a name, try to retrieve the appropriate object.
+   * 
+   * This just scans each schema document in the schema, checking each one.
    */
   def getGlobalElementDecl(name: String) = noneOrOne(schemaDocuments.flatMap { _.getGlobalElementDecl(name) }, name)
   def getGlobalSimpleTypeDef(name: String) = noneOrOne(schemaDocuments.flatMap { _.getGlobalSimpleTypeDef(name) }, name)
@@ -355,24 +392,29 @@ class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: Sche
  * a schema component was defined within.
  */
 class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
-  extends AnnotatedMixin
+  extends SchemaComponent(xmlArg)
+  with AnnotatedMixin
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
   
   lazy val localAndFormatRefProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
   
+  /**
+   * A schema document doesn't have default properties of its own. 
+   * The schema document's localAndFormatRefProperties become the default properties for
+   * the components contained within this schema document.
+   */
   override lazy val defaultProperties = Map.empty[String, String]
   
   lazy val detailName="" // TODO: Maybe a filename would be nice if available.
-  //
-  // schemaArg is call by name, so that in the corner case of NoSchemaDocument (used for non-lexically enclosed annotation objects), 
-  // we can pass an Assert.invariantFailed to bomb if anyone actually tries to use the schema.
-  //
-  // This is one of the techniques we use to avoid using null and having to test for null.
-  //
 
+  /**
+   * schemaArg is call by name, so that in the corner case of NoSchemaDocument (used for non-lexically enclosed annotation objects), 
+   * we can pass an Assert.invariantFailed to bomb if anyone actually tries to use the schema.
+   * This is one of the techniques we use to avoid using null and having to test for null.
+   */
   override lazy val schema = schemaArg
-  lazy val xml = xmlArg
+
   lazy val targetNamespace = schema.targetNamespace
   lazy val schemaDocument = this
 
@@ -414,6 +456,9 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
    * local site inside it, so that's a different local site, so it will get a copy of the global. But
    * that's where it ends because the next "unwind" of the recursion will be at this same local site, so
    * would be returned the exact same def/decl object.
+   * 
+   * Of course there are runtime/backend complexities also. Relative paths, variables with newVariableInstance
+   * all of which can go arbitrarily deep in the recursive case. 
    */
   lazy val globalElementDecls = (xml \ "element").map { new GlobalElementDeclFactory(_, this) }
   lazy val globalSimpleTypeDefs = (xml \ "simpleType").map { new GlobalSimpleTypeDefFactory(_, this) }
@@ -442,13 +487,13 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
   }
 
   /**
-   * Issue: cloning, so that each referer gets a copy of the object
-   * TBD: don't design so as to rule-out recursion some day.
+   * by name getters for the global things that can be referenced.
    */
   def getGlobalElementDecl(name: String) = globalElementDecls.find { _.name == name }
   def getGlobalSimpleTypeDef(name: String) = globalSimpleTypeDefs.find { _.name == name }
   def getGlobalComplexTypeDef(name: String) = globalComplexTypeDefs.find { _.name == name }
   def getGlobalGroupDef(name: String) = globalGroupDefs.find { _.name == name }
+  
   def getDefineFormat(name: String) = defineFormats.find { _.name == name }
   def getDefineVariable(name: String) = defineVariables.find { _.name == name }
   def getDefineEscapeScheme(name: String) = defineEscapeSchemes.find { _.name == name }

@@ -12,20 +12,8 @@ import daffodil.processors.VariableMap
 // Elements System
 /////////////////////////////////////////////////////////////////
 
-/**
- * provides element-specific implementation of requirements from AnnotatedMixin
- */
-trait AnnotatedElementMixin
-  extends AnnotatedMixin
-  with Element_AnnotationMixin {
-	
-  def emptyFormatFactory = new DFDLElement(newDFDLAnnotationXML("element"), this)
-  
-  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
-}
-
 // A Particle is something that can be repeating.
-trait Particle { self: LocalElementBase =>
+trait ParticleMixin { self : ElementBase =>
 
   override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
   lazy val isRecurring = !isScalar
@@ -75,7 +63,9 @@ trait Particle { self: LocalElementBase =>
 }
 
 /**
- * Some XSD models have a single Element class, and distinguish local/global and element references
+ * Note about DSOM design versus say XSOM or Apache XSD library.
+ * 
+ * Some XSD object models have a single Element class, and distinguish local/global and element references
  * based on attributes of the instances.
  *
  * Our approach is to provide common behaviors on base classes or traits/mixins, and to have distinct
@@ -85,8 +75,10 @@ trait Particle { self: LocalElementBase =>
 /**
  * Shared by all forms of elements, local or global or element reference.
  */
-trait ElementBaseMixin
-  extends AnnotatedElementMixin
+abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
+  extends Term(xmlArg, parent, position)
+  with AnnotatedMixin
+  with Element_AnnotationMixin
   with DFDLStatementMixin
   with ElementBaseGrammarMixin
   with ElementRuntimeValuedPropertiesMixin
@@ -99,7 +91,26 @@ trait ElementBaseMixin
   def elementSimpleType: SimpleTypeBase
   def typeDef: TypeBase
   def isScalar: Boolean
+  
+  def annotationFactory(node: Node): DFDLAnnotation = {
+    node match {
+      case <dfdl:element>{ contents @ _* }</dfdl:element> => new DFDLElement(node, this)
+      case _ => annotationFactoryForDFDLStatement(node, this)
+    }
+  }
+  
+  def emptyFormatFactory = new DFDLElement(newDFDLAnnotationXML("element"), this)
+  
+  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
 
+  /**
+   * Tells us if we have a specific length.
+   * 
+   * Keep in mind that 80 characters in length can be anywhere from 80 to 320 bytes
+   * depending on the character encoding. So fixed length doesn't mean in bytes. 
+   * it means in dfdl:lengthUnits units, which could be characters, and those can
+   * be fixed or variable width.
+   */
   lazy val isFixedLength = {
     lengthKind == LengthKind.Explicit && length.isConstant
   }
@@ -118,6 +129,9 @@ trait ElementBaseMixin
   // if it is of simple type, then facets like length, maxLength, minLength are
   // attributes of the simple type def. You can't put them directly on an element.
 
+  /**
+   * Nil Lit = literal nil, as opposed to value nil that uses a reserved value
+   */
   lazy val isDefinedNilLit: Boolean = {
     val res = isNillable &&
       (nilKind == NilKind.LiteralValue ||
@@ -145,7 +159,8 @@ trait ElementBaseMixin
   lazy val hasEmptyValueInitiator = initTermTestExpression(initiator, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
   lazy val hasEmptyValueTerminator = initTermTestExpression(terminator, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Terminator)
 
-  // See how this function takes the prop: => Any. That allows us to not require the property to exist at all if
+  // See how this function takes the prop: => Any that is pass by name (aka lazy pass). 
+  // That allows us to not require the property to exist at all if
   // expr.isKnownNotEmpty turns out to be false. 
   def initTermTestExpression(expr: CompiledExpression, prop: => Any, true1: Any, true2: Any): Boolean = {
     // changed from a match on a 2-tuple to if-then-else logic because we don't even want to ask for 
@@ -157,9 +172,10 @@ trait ElementBaseMixin
   }
 
   /**
-   * Means the element is in a context where there is a separator expected after it.
+   * Means the element is in a context where there is a separator (from some enclosing sequence)
+   * expected after it.
    *
-   * Abstract here because implementations are different for localElement
+   * Abstract here because implementations are different for local vs. global things.
    */
   def hasSep: Boolean
 
@@ -197,22 +213,19 @@ trait ElementBaseMixin
     Assert.notYetImplemented()
   }
 
+  /**
+   * Does the element have a default value?
+   */
   def isDefaultable: Boolean
 
 }
 
-abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup, position: Int)
-  extends Term(xmlArg, parent, position)
-  with ElementBaseMixin
-  with Particle
-  with LocalElementBaseGrammarMixin {
-
-  override def annotationFactory(node: Node): DFDLAnnotation = {
-    node match {
-      case <dfdl:element>{ contents @ _* }</dfdl:element> => new DFDLElement(node, this)
-      case _ => super.annotationFactory(node)
-    }
-  }
+/**
+ * Common to local element decls and element references
+ */
+trait LocalElementMixin
+  extends ParticleMixin
+  with LocalElementGrammarMixin { self : ElementBase =>
 
   lazy val hasSep = {
     nearestEnclosingSequence match {
@@ -257,7 +270,9 @@ abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup, position: Int)
 }
 
 class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
-  extends LocalElementBase(xmlArg, parent, position) with HasRef {
+  extends ElementBase(xmlArg, parent, position) 
+  with LocalElementMixin
+  with HasRef {
 
   // These will just delegate to the referenced element declaration
   lazy val isNillable = Assert.notYetImplemented()
@@ -279,23 +294,31 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   lazy val localAndFormatRefProperties = Assert.notYetImplemented()
 }
 
+/**
+ * Element references and Group References use this.
+ */
 trait HasRef { self: SchemaComponent =>
+  //TODO: Consolidate this and the xsdRef attributes that do QName stuff
+  //From GroupRef.
   lazy val xsdRef = getAttributeRequired("ref")
   lazy val ref = xsdRef
 }
 
-trait ElementDeclBase
-  extends ElementBaseMixin
-  with ElementDeclGrammarMixin {
+/**
+ * Shared by all element declarations local or global
+ */
+trait ElementDeclMixin
+  extends NamedMixin
+  with ElementDeclGrammarMixin { self : ElementBase =>
 
   lazy val immediateType: Option[TypeBase] = {
     val st = xml \ "simpleType"
     val ct = xml \ "complexType"
     val nt = typeName
     if (st.length == 1)
-      Some(new LocalSimpleTypeDef(st(0), this))
+      Some(new LocalSimpleTypeDef(st(0), self))
     else if (ct.length == 1)
-      Some(new LocalComplexTypeDef(ct(0), this))
+      Some(new LocalComplexTypeDef(ct(0), self))
     else {
       Assert.invariant(nt != "")
       None
@@ -395,6 +418,10 @@ trait ElementDeclBase
     theUnion
   }
 
+  /**
+   * It is an error if the properties on an element overlap with the properties on the simple type
+   * of that element.
+   */
   lazy val overlappingProperties = {
     val localTypePropertiesNames = this.typeDef.localAndFormatRefProperties.keySet
     val myLocalPropertiesNames = this.formatAnnotation.getFormatPropertiesNonDefault().keySet
@@ -419,12 +446,22 @@ trait ElementDeclBase
 }
 
 class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
-  extends LocalElementBase(xmlArg, parent, position)
-  with ElementDeclBase {
+  extends ElementBase(xmlArg, parent, position)
+  with ElementDeclMixin
+  with LocalElementMixin {
+  // nothing here yet. All from the mixins.
 }
 
+/**
+ * The other kind of DFDL annotations are DFDL 'statements'. 
+ * This trait is everything shared by schema components that can have
+ * statements.
+ * 
+ * Factory for creating the corresponding DFDLAnnotation objects.
+ */
 trait DFDLStatementMixin {
-  def annotationFactory(node: Node, self: AnnotatedMixin): DFDLAnnotation = {
+  
+  def annotationFactoryForDFDLStatement(node: Node, self: AnnotatedMixin): DFDLAnnotation = {
     node match {
       case <dfdl:assert>{ content @ _* }</dfdl:assert> => new DFDLAssert(node, self)
       case <dfdl:discriminator>{ content @ _* }</dfdl:discriminator> => new DFDLDiscriminator(node, self)
@@ -433,34 +470,55 @@ trait DFDLStatementMixin {
       case _ => Assert.impossible("Invalid dfdl annotation found!")
     }
   }
+  
 }
 
-class GlobalElementDeclFactory(xmlArg: Node, val schemaDocument: SchemaDocument)
-  extends GlobalComponentMixin {
-  def xml = xmlArg
+/**
+ * Factory to create an instance of a global element declaration
+ * either to be the root of the data, or when referenced from an
+ * element reference, in which case a backpointer from the global element decl
+ * instance will point back to the element reference.
+ * 
+ * This backpointer is needed in order to determine some attributes that refer
+ * outward to what something is contained within. E.g., nearestEnclosingSequence
+ * is an attribute that might be the sequence containing the element reference 
+ * that is referencing this global element declaration.
+ */
+class GlobalElementDeclFactory(val xml: Node, val schemaDocument: SchemaDocument)
+extends NamedMixin
+{
+  def forRoot() = new GlobalElementDecl(xml, schemaDocument, None)
 
-  def forRoot() = new GlobalElementDecl(xmlArg, schemaDocument, None)
-
-  def forElementRef(eRef: ElementRef) = new GlobalElementDecl(xmlArg, schemaDocument, Some(eRef))
+  def forElementRef(eRef: ElementRef) = new GlobalElementDecl(xml, schemaDocument, Some(eRef))
 
 }
 
-class GlobalElementDecl(xmlArg: Node, val schemaDocument: SchemaDocument, val elementRef: Option[ElementRef])
-  extends GlobalComponentMixin
-  with ElementDeclBase
+class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val elementRef: Option[ElementRef])
+  extends ElementBase(xmlArg, schemaDocumentArg, 0)
+  with ElementDeclMixin
+  with GlobalComponentMixin
   with GlobalElementDeclGrammarMixin {
 
-  lazy val xml = xmlArg
-  lazy val isScalar = true
+  // We inherit the requirement for these attributes from Term. It all gets
+  // too complicated in DSOM if you try to make GlobalElementDecl share with the other
+  // element structures but not be a Term.
+  //
+  // But a GlobalElementDecl isn't really a Term except in a degenerate sense
+  // that the root element is sort of a Term.
+  //
+  // In other words, we shouldn't be treating this as a term.
+  //
+  lazy val hasStaticallyRequiredInstances = Assert.impossible("Shouldn't call hasStaticallyRequiredInstances on a GlobalElementDecl")
+  lazy val termContentBody = Assert.impossible("Shouldn't call termContentBody on a GlobalElementDecl")
+  
+  /**
+   * global elements are always scalar. Element references referring to them can 
+   * be multiple occurring (aka arrays)
+   */
+  override lazy val isScalar = true
 
   val hasSep = false // when a global decl is a root element then it's not in a sequence, and so can't be separated.
   // if this global decl is used via an element reference, then the element ref's definition of hasSep will be used, not this one.
 
-  override def annotationFactory(node: Node): DFDLAnnotation = {
-    node match {
-      case <dfdl:element>{ contents @ _* }</dfdl:element> => new DFDLElement(node, this)
-      case _ => annotationFactory(node, this)
-    }
-  }
 }
 

@@ -17,13 +17,12 @@ import daffodil.grammar._
 
 // A term is content of a group
 abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int)
-  extends Annotated(xmlArg)
+  extends SchemaComponent(xmlArg)
+  with AnnotatedMixin
   with LocalComponentMixin
   with DFDLStatementMixin
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin {
-
-  def annotationFactory(node: Node): DFDLAnnotation = annotationFactory(node, this)
 
   def isScalar = true // override in local elements
 
@@ -207,6 +206,9 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
     childList
   }
 
+  /**
+   * XML is full of uninteresting text nodes. We just want the element children, not all children.
+   */
   def removeNonInteresting(child: Node) = {
     val childList: List[Node] = child match {
       case _: Text => Nil
@@ -315,10 +317,11 @@ object GroupFactory {
 class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends ModelGroup(xmlArg, parent, position)
   with ChoiceGrammarMixin {
-  override def annotationFactory(node: Node): DFDLAnnotation = {
+
+  def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:choice>{ contents @ _* }</dfdl:choice> => new DFDLChoice(node, this)
-      case _ => super.annotationFactory(node)
+      case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
 
@@ -363,10 +366,10 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   with SequenceGrammarMixin
   with SeparatorSuppressionPolicyMixin {
 
-  override def annotationFactory(node: Node): DFDLAnnotation = {
+  def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:sequence>{ contents @ _* }</dfdl:sequence> => new DFDLSequence(node, this)
-      case _ => super.annotationFactory(node)
+      case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
 
@@ -385,10 +388,11 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
 class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends GroupBase(xmlArg, parent, position)
   with GroupRefGrammarMixin {
-  override def annotationFactory(node: Node): DFDLAnnotation = {
+  
+  def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:group>{ contents @ _* }</dfdl:group> => new DFDLGroup(node, this)
-      case _ => super.annotationFactory(node)
+      case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
 
@@ -399,6 +403,7 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def hasStaticallyRequiredInstances = Assert.notYetImplemented()
 
+  //TODO: Consolidate techniques with HasRef trait used by ElementRef
   lazy val refName = {
     val str = (xml \ "@ref").text
     if (str == "") None else Some(str)
@@ -431,22 +436,20 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
 }
 
-class GlobalGroupDefFactory(val xmlArg: Node, val schemaDocument: SchemaDocument)
-  extends GlobalComponentMixin {
-  def xml = xmlArg
-
+class GlobalGroupDefFactory(val xml: Node, schemaDocument: SchemaDocument)
+extends NamedMixin
+{
   //  def forComplexType(ct : ComplexTypeBase) = {
   //    new GlobalGroupDef(xmlArg, schemaDocument, ct, 1)
   //  }
 
   def forGroupRef(gref: GroupRef, position: Int) = {
-    new GlobalGroupDef(xmlArg, schemaDocument, gref, position)
+    new GlobalGroupDef(xml, schemaDocument, gref, position)
   }
 }
 
 class GlobalGroupDef(val xmlArg: Node, val schemaDocument: SchemaDocument, val groupRef: GroupRef, position: Int)
-  extends GlobalComponentMixin {
-  lazy val xml = xmlArg
+  extends SchemaComponent(xmlArg) with GlobalComponentMixin {
   //
   // Note: Dealing with XML can be fragile. It's easy to forget some of these children
   // might be annotations and Text nodes. Even if you trim the text nodes out, there are
