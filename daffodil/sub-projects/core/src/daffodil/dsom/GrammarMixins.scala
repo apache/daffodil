@@ -50,7 +50,7 @@ with AlignedMixin { self: ElementBase =>
   }
 
   
-  def allowedValue : Prod // provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
+  def allowedValue : Prod // provided by LocalElementMixin for array considerations, and GlobalElementDecl - scalar only
 
 
   lazy val fixedLengthString = Prod("fixedLengthString", this, isFixedLength, 
