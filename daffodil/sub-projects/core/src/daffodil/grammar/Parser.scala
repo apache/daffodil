@@ -280,9 +280,9 @@ object PState {
   /**
    * Construct our InStream object and initialize the state block.
    */
-  def createInitialState(rootElemDecl: GlobalElementDecl, input: DFDL.Input, size: Long = -1): PState = {
+  def createInitialState(rootElemDecl: GlobalElementDecl, input: DFDL.Input, sizeHint: Long = -1): PState = {
     val inStream =
-      if (size != -1) new InStreamFromByteChannel(input, size)
+      if (sizeHint != -1) new InStreamFromByteChannel(input, sizeHint)
       else new InStreamFromByteChannel(input)
     createInitialState(rootElemDecl, inStream)
   }
@@ -312,9 +312,10 @@ trait InStream {
   // def fillCharBufferUntilDelimiterOrEnd
 }
 
-class InStreamFromByteChannel(in: DFDL.Input, size: Long = 1024 * 128) extends InStream { // 128K characters by default.
+class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) extends InStream { // 128K characters by default.
   val maxCharacterWidthInBytes = 4 // worst case. Ok for testing. Don't use this pessimistic technique for real data.
-  val bb = ByteBuffer.allocate(maxCharacterWidthInBytes * size.toInt) // FIXME: all these Int length limits are too small for large data blobs
+  val bb = ByteBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
+  // TODO: Verify there is not more data by making sure the buffer was not read to capacity.
   val count = in.read(bb) // just pull it all into the byte buffer
   bb.flip()
 
