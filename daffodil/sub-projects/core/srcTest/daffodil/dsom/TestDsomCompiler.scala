@@ -661,5 +661,35 @@ class TestDsomCompiler extends JUnit3Suite {
    println(newElem)
 }
   
+    val delimiterInheritance = XML.loadFile(TestUtils.findFile("test/TestDelimiterInheritance.dfdl.xml"))
+
+  def test_delim_inheritance {
+    val compiler = Compiler()
+   val sset = new SchemaSet(delimiterInheritance)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
+    val ge1 = ge1f.forRoot()
+
+    val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
+    val seq = ct.modelGroup.asInstanceOf[Sequence]
+
+    val Seq(e1: ElementBase, e2: ElementBase, e3: ElementBase) = seq.groupMembers
+
+    //assertEquals(e1.terminatingMarkup, List("a", "b")) // 1 Level
+    println(e1.terminatingMarkup)
+
+    val ct2 = e3.asInstanceOf[ElementBase].typeDef.asInstanceOf[ComplexTypeBase]
+    val seq2 = ct2.modelGroup.asInstanceOf[Sequence]
+    val Seq(e3_1: ElementBase, e3_2: ElementBase) = seq2.groupMembers
+
+    println(e3_1.terminatingMarkup)
+    println(e3_2.terminatingMarkup)
+   // assertEquals(e3_1.terminatingMarkup, List("e", "c", "d", "a", "b")) // 2 Level
+   // assertEquals(e3_2.terminatingMarkup, List("f", "c", "d", "a", "b")) // 2 Level + ref
+  }
+
+  
 }
 

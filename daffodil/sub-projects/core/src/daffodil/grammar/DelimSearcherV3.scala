@@ -76,7 +76,7 @@ class DelimSearcher extends Logged {
   // Resume functionality is broken when it comes to CRLF always leave clearState equal to true
   // until this is rectified.
   //
-  def search(input: CharBuffer, startPos: Int = 0, clearState: Boolean = true): (SearchResult, String, Int, Int) = {
+  def search(input: CharBuffer, startPos: Int = 0, clearState: Boolean = true): (SearchResult, String, Int, Int, Delimiter) = {
     var matched: Boolean = false
     var partialMatched: Boolean = false
     var EOF: Boolean = false
@@ -87,12 +87,12 @@ class DelimSearcher extends Logged {
     }
     if (input.toString().length() == 0){
       log("EOF! String: was EMPTY!! StartPos: " + startPos + " EndPos: " + endPos)
-      return (SearchResult.NoMatch, input.toString(), -1, -1)
+      return (SearchResult.NoMatch, input.toString(), -1, -1, null)
     }
     if (startPos < 0){
       endPos = input.length() -1
       log("EOF! String: " + input.toString().substring(startPos) + " StartPos: " + startPos + " EndPos: " + endPos)
-      return (SearchResult.NoMatch, input.toString().substring(0), endPos, endPos)
+      return (SearchResult.NoMatch, input.toString().substring(0), endPos, endPos, null)
     }
     
     val crlfList: List[(Int, Int)] = getCRLFList(input)
@@ -112,7 +112,7 @@ class DelimSearcher extends Logged {
       val longestMatch = getLongestMatch(delimsWithFullMatches)
       endPos = longestMatch._1
       log("FULL MATCH! String: " + input.subSequence(startPos, endPos).toString() + " StartPos: " + startPos + " EndPos: " + endPos)
-      return (SearchResult.FullMatch, input.subSequence(startPos, endPos).toString(), endPos, longestMatch._2)
+      return (SearchResult.FullMatch, input.subSequence(startPos, endPos).toString(), endPos, longestMatch._2, longestMatch._3)
     } else if (partialMatched) {
       // We only care if a partial match occurred at the end of the CharBuffer
       val lastChar = input.length() - 1
@@ -123,11 +123,11 @@ class DelimSearcher extends Logged {
         endPos = lastChar
       }
       log("PARTIAL MATCH! String: " + input.subSequence(startPos, endPos).toString() + " StartPos: " + startPos + " EndPos: " + endPos)
-      return (SearchResult.PartialMatch, input.subSequence(startPos, endPos).toString(), endPos, endPos)
+      return (SearchResult.PartialMatch, input.subSequence(startPos, endPos).toString(), endPos, endPos, null)
     } else {
       endPos = input.length() - 1
       log("EOF! String: " + input.toString().substring(startPos) + " StartPos: " + startPos + " EndPos: " + endPos)
-      return (SearchResult.NoMatch, input.toString().substring(startPos), endPos, endPos)
+      return (SearchResult.NoMatch, input.toString().substring(startPos), endPos, endPos, null)
     }
   }
 
@@ -153,9 +153,9 @@ class DelimSearcher extends Logged {
   //	When two delimiters have exactly the same value, the innermost
   //	(most deeply nested) delimiter has precedence.
   //
-  def getLongestMatch(matchedDelims: List[Delimiter]): (Int, Int) = {
+  def getLongestMatch(matchedDelims: List[Delimiter]): (Int, Int, Delimiter) = {
     if (matchedDelims.length == 0) {
-      return (-1, -1)
+      return (-1, -1, null)
     }
 
     // Retrieve the list of delimiters prefixed by matchedDelims(0) and sort them
@@ -169,14 +169,14 @@ class DelimSearcher extends Logged {
     }
     // A prefixed delimiter was not found, return the first full match
     val fullMatch = matchedDelims(0).fullMatches.toList.sortBy(x => x._1).head
-    fullMatch
+    (fullMatch._1, fullMatch._2, matchedDelims(0))
   }
 
   // Retrieve all of the delimiters prefixed by the prefix Delimiter but
   // do not equal the prefix.
   //
-  def getPrefixedDelims(prefix: Delimiter, delimsWithFullMatches: List[Delimiter]): List[(Int, Int)] = {
-    val q = new Queue[(Int, Int)]
+  def getPrefixedDelims(prefix: Delimiter, delimsWithFullMatches: List[Delimiter]): List[(Int, Int, Delimiter)] = {
+    val q = new Queue[(Int, Int, Delimiter)]
 
     // Head should always return the first element in the list
     // according to Scala 2.7.4 api
@@ -186,7 +186,7 @@ class DelimSearcher extends Logged {
       // check that the firstFullMatch is a prefix but is not the same value
       val prefixedDelims = Delimiter.fullMatches.filter(x => firstFullMatch._1 == x._1 && firstFullMatch._2 != x._2).toList
       if (prefixedDelims.length > 0) {
-        q.enqueue(prefixedDelims(0))
+        q.enqueue((prefixedDelims(0)._1, prefixedDelims(0)._2, Delimiter))
       }
     })
     q.toList
