@@ -136,7 +136,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     delim0.fullMatches.add((1, 3))
 
     val delim1 = new stringsearch.delimiter.Delimiter
-    delim1("}}}")
+    delim1("}}")
     delim1.fullMatches.add((1, 2))
 
     val delim2 = new stringsearch.delimiter.Delimiter
@@ -148,10 +148,12 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     delimsQ += delim2
 
     val list0 = ds.getPrefixedDelims(prefix, delimsQ.toList)
+    
+    println(list0)
 
     assertEquals(2, list0.length)
-    assertTrue(list0.contains((1, 2)))
-    assertTrue(list0.contains((1, 3)))
+    assertTrue(list0.filter(x => x._1 == 1 && x._2 == 2 && x._3.delimiterStr == delim1.delimiterStr).length > 0)
+    assertTrue(list0.filter(x => x._1 == 1 && x._2 == 3 && x._3.delimiterStr == delim0.delimiterStr).length > 0)
   }
 
   def testGetLongestMatch = {
@@ -187,7 +189,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     // Prefixed result: Delimiter found at position (1,1) is the
     // start of a longer delimiter found at position (1,3)
     val result0 = ds.getLongestMatch(delimsQ0.toList)
-    assertEquals((1, 3), result0)
+    assertEquals((1, 3), (result0._1, result0._2))
 
     // Example Str: "a}b}}c"
     //               012345
@@ -209,12 +211,12 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     // Non-prefixed result: The first delimiter found at position (1,1)
     // is not the start of a longer delimiter.
     val result1 = ds.getLongestMatch(delimsQ1.toList)
-    assertEquals((1, 1), result1)
+    assertEquals((1, 1), (result1._1, result1._2))
 
     // Test no matches
     val delimsQ2: Queue[stringsearch.delimiter.Delimiter] = new Queue[stringsearch.delimiter.Delimiter]
     val result2 = ds.getLongestMatch(delimsQ2.toList)
-    assertEquals((-1, -1), result2)
+    assertEquals((-1, -1), (result2._1, result2._2))
   }
 
   def testFindCharClasses = {
@@ -577,7 +579,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     val crlf1 = ds.getCRLFList(cb)
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("a", result1)
     assertEquals(1, endPos1)
@@ -597,7 +599,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     val crlf2 = ds.getCRLFList(cb)
-    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    val (state2, result2, endPos2, endPosDelim2, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state2)
     assertEquals("a", result2)
     assertEquals(1, endPos2)
@@ -617,7 +619,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     val crlf3 = ds.getCRLFList(cb)
-    val (state3, result3, endPos3, endPosDelim3) = ds.search(cb)
+    val (state3, result3, endPos3, endPosDelim3, _) = ds.search(cb)
     assertEquals(SearchResult.PartialMatch, state3)
     assertEquals("ab", result3)
     assertEquals(2, endPos3)
@@ -637,7 +639,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     val crlf4 = ds.getCRLFList(cb)
-    val (state4, result4, endPos4, endPosDelim4) = ds.search(cb)
+    val (state4, result4, endPos4, endPosDelim4, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state4)
     assertEquals("a", result4)
     assertEquals(1, endPos4)
@@ -657,7 +659,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     val crlf5 = ds.getCRLFList(cb)
-    val (state5, result5, endPos5, endPosDelim5) = ds.search(cb)
+    val (state5, result5, endPos5, endPosDelim5, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state5)
     assertEquals("ab", result5)
     assertEquals(2, endPos5)
@@ -677,7 +679,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     val crlf6 = ds.getCRLFList(cb)
-    val (state6, result6, endPos6, endPosDelim6) = ds.search(cb)
+    val (state6, result6, endPos6, endPosDelim6, _) = ds.search(cb)
     assertEquals(SearchResult.NoMatch, state6)
     assertEquals("abc", result6)
     assertEquals(2, endPos6)
@@ -706,7 +708,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.put(str1)
     cb.flip()
 
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("a,", result1)
     assertEquals(2, endPos1)
@@ -739,7 +741,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.put(str1)
     cb.flip()
 
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("a", result1)
     assertEquals(1, endPos1)
@@ -760,7 +762,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.put(str2)
     cb.flip()
 
-    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    val (state2, result2, endPos2, endPosDelim2, _) = ds.search(cb)
     assertEquals(SearchResult.NoMatch, state2)
     assertEquals("ab", result2)
     assertEquals(1, endPos2)
@@ -787,7 +789,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.put(str1)
     cb.flip()
 
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("a", result1)
     assertEquals(1, endPos1)
@@ -808,7 +810,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.put(str2)
     cb.flip()
 
-    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    val (state2, result2, endPos2, endPosDelim2, _) = ds.search(cb)
     assertEquals(SearchResult.NoMatch, state2)
     assertEquals("ab", result2)
     assertEquals(1, endPos2)
@@ -835,7 +837,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.put(str1)
     cb.flip()
 
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("a", result1)
     assertEquals(1, endPos1)
@@ -856,7 +858,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.put(str2)
     cb.flip()
 
-    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    val (state2, result2, endPos2, endPosDelim2, _) = ds.search(cb)
     assertEquals(SearchResult.NoMatch, state2)
     assertEquals("ab", result2)
     assertEquals(1, endPos2)
@@ -884,7 +886,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Verify expected vs actual result
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.NoMatch, state1)
     assertEquals("a\t\t\tb", result1)
     assertEquals(4, endPos1)
@@ -914,7 +916,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Verify expected result vs actual
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("a", result1)
     assertEquals(1, endPos1)
@@ -947,14 +949,14 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("abc", result1)
     assertEquals(3, endPos1)
     assertEquals(3, endPosDelim1)
 
     // Round 2 - Expect: EOF, def, 6, 6
-    val (state1a, result1a, endPos1a, endPosDelim1a) = ds.search(cb, endPos1 + 1)
+    val (state1a, result1a, endPos1a, endPosDelim1a, _) = ds.search(cb, endPos1 + 1)
     assertEquals(SearchResult.NoMatch, state1a)
     assertEquals("def", result1a)
     assertEquals(6, endPos1a)
@@ -967,21 +969,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    val (state2, result2, endPos2, endPosDelim2, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state2)
     assertEquals("abc", result2)
     assertEquals(3, endPos2)
     assertEquals(3, endPosDelim2)
 
     // Round 2 - Expect: FullMatch, def, 7, 7
-    val (state2a, result2a, endPos2a, endPosDelim2a) = ds.search(cb, endPos2 + 1)
+    val (state2a, result2a, endPos2a, endPosDelim2a, _) = ds.search(cb, endPos2 + 1)
     assertEquals(SearchResult.FullMatch, state2a)
     assertEquals("def", result2a)
     assertEquals(7, endPos2a)
     assertEquals(7, endPosDelim2a)
 
     // Round 3 - Expect: EOF, EMPTY, 7, 7
-    val (state2b, result2b, endPos2b, endPosDelim2b) = ds.search(cb, endPos2a + 1)
+    val (state2b, result2b, endPos2b, endPosDelim2b, _) = ds.search(cb, endPos2a + 1)
     assertEquals(SearchResult.NoMatch, state2b)
     assertEquals("", result2b)
     assertEquals(7, endPos2b)
@@ -994,21 +996,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, EMPTY, 0, 0
-    val (state3, result3, endPos3, endPosDelim3) = ds.search(cb)
+    val (state3, result3, endPos3, endPosDelim3, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state3)
     assertEquals("", result3)
     assertEquals(0, endPos3)
     assertEquals(0, endPosDelim3)
 
     // Round 2 - Expect: FullMatch, abc, 4, 4
-    val (state3a, result3a, endPos3a, endPosDelim3a) = ds.search(cb, endPos3 + 1)
+    val (state3a, result3a, endPos3a, endPosDelim3a, _) = ds.search(cb, endPos3 + 1)
     assertEquals(SearchResult.FullMatch, state3a)
     assertEquals("abc", result3a)
     assertEquals(4, endPos3a)
     assertEquals(4, endPosDelim3a)
 
     // Round 3 - Expect: EOF, def, 7, 7
-    val (state3b, result3b, endPos3b, endPosDelim3b) = ds.search(cb, endPos3a + 1)
+    val (state3b, result3b, endPos3b, endPosDelim3b, _) = ds.search(cb, endPos3a + 1)
     assertEquals(SearchResult.NoMatch, state3b)
     assertEquals("def", result3b)
     assertEquals(7, endPos3b)
@@ -1021,21 +1023,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state4, result4, endPos4, endPosDelim4) = ds.search(cb)
+    val (state4, result4, endPos4, endPosDelim4, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state4)
     assertEquals("abc", result4)
     assertEquals(3, endPos4)
     assertEquals(3, endPosDelim4)
 
     // Round 2 - Expect: FullMatch, EMPTY, 4, 4
-    val (state4a, result4a, endPos4a, endPosDelim4a) = ds.search(cb, endPos4 + 1)
+    val (state4a, result4a, endPos4a, endPosDelim4a, _) = ds.search(cb, endPos4 + 1)
     assertEquals(SearchResult.FullMatch, state4a)
     assertEquals("", result4a)
     assertEquals(4, endPos4a)
     assertEquals(4, endPosDelim4a)
 
     // Round 3 - Expect: EOF, def, 7, 7
-    val (state4b, result4b, endPos4b, endPosDelim4b) = ds.search(cb, endPos4a + 1)
+    val (state4b, result4b, endPos4b, endPosDelim4b, _) = ds.search(cb, endPos4a + 1)
     assertEquals(SearchResult.NoMatch, state4b)
     assertEquals("def", result4b)
     assertEquals(7, endPos4b)
@@ -1060,14 +1062,14 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("abc", result1)
     assertEquals(3, endPos1)
     assertEquals(3, endPosDelim1)
 
     // Round 2 - Expect: EOF, def, 6, 6
-    val (state1a, result1a, endPos1a, endPosDelim1a) = ds.search(cb, endPos1 + 1)
+    val (state1a, result1a, endPos1a, endPosDelim1a, _) = ds.search(cb, endPos1 + 1)
     assertEquals(SearchResult.NoMatch, state1a)
     assertEquals("def", result1a)
     assertEquals(6, endPos1a)
@@ -1080,21 +1082,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    val (state2, result2, endPos2, endPosDelim2, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state2)
     assertEquals("abc", result2)
     assertEquals(3, endPos2)
     assertEquals(3, endPosDelim2)
 
     // Round 2 - Expect: FullMatch, def, 7, 7
-    val (state2a, result2a, endPos2a, endPosDelim2a) = ds.search(cb, endPos2 + 1)
+    val (state2a, result2a, endPos2a, endPosDelim2a, _) = ds.search(cb, endPos2 + 1)
     assertEquals(SearchResult.FullMatch, state2a)
     assertEquals("def", result2a)
     assertEquals(7, endPos2a)
     assertEquals(7, endPosDelim2a)
 
     // Round 3 - Expect: EOF, EMPTY, 7, 7
-    val (state2b, result2b, endPos2b, endPosDelim2b) = ds.search(cb, endPos2a + 1)
+    val (state2b, result2b, endPos2b, endPosDelim2b, _) = ds.search(cb, endPos2a + 1)
     assertEquals(SearchResult.NoMatch, state2b)
     assertEquals("", result2b)
     assertEquals(7, endPos2b)
@@ -1107,21 +1109,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, EMPTY, 0, 0
-    val (state3, result3, endPos3, endPosDelim3) = ds.search(cb)
+    val (state3, result3, endPos3, endPosDelim3, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state3)
     assertEquals("", result3)
     assertEquals(0, endPos3)
     assertEquals(0, endPosDelim3)
 
     // Round 2 - Expect: FullMatch, abc, 4, 4
-    val (state3a, result3a, endPos3a, endPosDelim3a) = ds.search(cb, endPos3 + 1)
+    val (state3a, result3a, endPos3a, endPosDelim3a, _) = ds.search(cb, endPos3 + 1)
     assertEquals(SearchResult.FullMatch, state3a)
     assertEquals("abc", result3a)
     assertEquals(4, endPos3a)
     assertEquals(4, endPosDelim3a)
 
     // Round 3 - Expect: EOF, def, 7, 7
-    val (state3b, result3b, endPos3b, endPosDelim3b) = ds.search(cb, endPos3a + 1)
+    val (state3b, result3b, endPos3b, endPosDelim3b, _) = ds.search(cb, endPos3a + 1)
     assertEquals(SearchResult.NoMatch, state3b)
     assertEquals("def", result3b)
     assertEquals(7, endPos3b)
@@ -1134,21 +1136,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state4, result4, endPos4, endPosDelim4) = ds.search(cb)
+    val (state4, result4, endPos4, endPosDelim4, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state4)
     assertEquals("abc", result4)
     assertEquals(3, endPos4)
     assertEquals(3, endPosDelim4)
 
     // Round 2 - Expect: FullMatch, EMPTY, 4, 4
-    val (state4a, result4a, endPos4a, endPosDelim4a) = ds.search(cb, endPos4 + 1)
+    val (state4a, result4a, endPos4a, endPosDelim4a, _) = ds.search(cb, endPos4 + 1)
     assertEquals(SearchResult.FullMatch, state4a)
     assertEquals("", result4a)
     assertEquals(4, endPos4a)
     assertEquals(4, endPosDelim4a)
 
     // Round 3 - Expect: EOF, def, 7, 7
-    val (state4b, result4b, endPos4b, endPosDelim4b) = ds.search(cb, endPos4a + 1)
+    val (state4b, result4b, endPos4b, endPosDelim4b, _) = ds.search(cb, endPos4a + 1)
     assertEquals(SearchResult.NoMatch, state4b)
     assertEquals("def", result4b)
     assertEquals(7, endPos4b)
@@ -1161,21 +1163,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state5, result5, endPos5, endPosDelim5) = ds.search(cb)
+    val (state5, result5, endPos5, endPosDelim5, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state5)
     assertEquals("abc", result5)
     assertEquals(3, endPos5)
     assertEquals(3, endPosDelim5)
 
     // Round 2 - Expect: FullMatch, def, 7, 8
-    val (state5a, result5a, endPos5a, endPosDelim5a) = ds.search(cb, endPosDelim5 + 1)
+    val (state5a, result5a, endPos5a, endPosDelim5a, _) = ds.search(cb, endPosDelim5 + 1)
     assertEquals(SearchResult.FullMatch, state5a)
     assertEquals("def", result5a)
     assertEquals(7, endPos5a)
     assertEquals(8, endPosDelim5a)
 
     // Round 3 - Expect: EOF, hij, 7, 8
-    val (state5b, result5b, endPos5b, endPosDelim5b) = ds.search(cb, endPosDelim5a + 1)
+    val (state5b, result5b, endPos5b, endPosDelim5b, _) = ds.search(cb, endPosDelim5a + 1)
     assertEquals(SearchResult.NoMatch, state5b)
     assertEquals("hij", result5b)
     assertEquals(11, endPos5b)
@@ -1199,7 +1201,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("abc", result1)
     assertEquals(3, endPos1)
@@ -1207,7 +1209,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     
 
     // Round 2 - Expect: EOF, def, 6, 6
-    val (state1a, result1a, endPos1a, endPosDelim1a) = ds.search(cb, endPos1 + 1)
+    val (state1a, result1a, endPos1a, endPosDelim1a, _) = ds.search(cb, endPos1 + 1)
     assertEquals(SearchResult.NoMatch, state1a)
     assertEquals("def", result1a)
     assertEquals(6, endPos1a)
@@ -1220,21 +1222,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    val (state2, result2, endPos2, endPosDelim2, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state2)
     assertEquals("abc", result2)
     assertEquals(3, endPos2)
     assertEquals(3, endPosDelim2)
 
     // Round 2 - Expect: FullMatch, def, 7, 7
-    val (state2a, result2a, endPos2a, endPosDelim2a) = ds.search(cb, endPos2 + 1)
+    val (state2a, result2a, endPos2a, endPosDelim2a, _) = ds.search(cb, endPos2 + 1)
     assertEquals(SearchResult.FullMatch, state2a)
     assertEquals("def", result2a)
     assertEquals(7, endPos2a)
     assertEquals(7, endPosDelim2a)
 
     // Round 3 - Expect: EOF, EMPTY, 7, 7
-    val (state2b, result2b, endPos2b, endPosDelim2b) = ds.search(cb, endPos2a + 1)
+    val (state2b, result2b, endPos2b, endPosDelim2b, _) = ds.search(cb, endPos2a + 1)
     assertEquals(SearchResult.NoMatch, state2b)
     assertEquals("", result2b)
     assertEquals(7, endPos2b)
@@ -1247,21 +1249,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, EMPTY, 0, 0
-    val (state3, result3, endPos3, endPosDelim3) = ds.search(cb)
+    val (state3, result3, endPos3, endPosDelim3, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state3)
     assertEquals("", result3)
     assertEquals(0, endPos3)
     assertEquals(0, endPosDelim3)
 
     // Round 2 - Expect: FullMatch, abc, 4, 4
-    val (state3a, result3a, endPos3a, endPosDelim3a) = ds.search(cb, endPos3 + 1)
+    val (state3a, result3a, endPos3a, endPosDelim3a, _) = ds.search(cb, endPos3 + 1)
     assertEquals(SearchResult.FullMatch, state3a)
     assertEquals("abc", result3a)
     assertEquals(4, endPos3a)
     assertEquals(4, endPosDelim3a)
 
     // Round 3 - Expect: EOF, def, 7, 7
-    val (state3b, result3b, endPos3b, endPosDelim3b) = ds.search(cb, endPos3a + 1)
+    val (state3b, result3b, endPos3b, endPosDelim3b, _) = ds.search(cb, endPos3a + 1)
     assertEquals(SearchResult.NoMatch, state3b)
     assertEquals("def", result3b)
     assertEquals(7, endPos3b)
@@ -1274,21 +1276,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state4, result4, endPos4, endPosDelim4) = ds.search(cb)
+    val (state4, result4, endPos4, endPosDelim4, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state4)
     assertEquals("abc", result4)
     assertEquals(3, endPos4)
     assertEquals(3, endPosDelim4)
 
     // Round 2 - Expect: FullMatch, EMPTY, 4, 4
-    val (state4a, result4a, endPos4a, endPosDelim4a) = ds.search(cb, endPos4 + 1)
+    val (state4a, result4a, endPos4a, endPosDelim4a, _) = ds.search(cb, endPos4 + 1)
     assertEquals(SearchResult.FullMatch, state4a)
     assertEquals("", result4a)
     assertEquals(4, endPos4a)
     assertEquals(4, endPosDelim4a)
 
     // Round 3 - Expect: EOF, def, 7, 7
-    val (state4b, result4b, endPos4b, endPosDelim4b) = ds.search(cb, endPos4a + 1)
+    val (state4b, result4b, endPos4b, endPosDelim4b, _) = ds.search(cb, endPos4a + 1)
     assertEquals(SearchResult.NoMatch, state4b)
     assertEquals("def", result4b)
     assertEquals(7, endPos4b)
@@ -1312,14 +1314,14 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("abc", result1)
     assertEquals(3, endPos1)
     assertEquals(3, endPosDelim1)
 
     // Round 2 - Expect: EOF, def, 6, 6
-    val (state1a, result1a, endPos1a, endPosDelim1a) = ds.search(cb, endPos1 + 1)
+    val (state1a, result1a, endPos1a, endPosDelim1a, _) = ds.search(cb, endPos1 + 1)
     assertEquals(SearchResult.NoMatch, state1a)
     assertEquals("def", result1a)
     assertEquals(6, endPos1a)
@@ -1332,21 +1334,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    val (state2, result2, endPos2, endPosDelim2, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state2)
     assertEquals("abc", result2)
     assertEquals(3, endPos2)
     assertEquals(3, endPosDelim2)
 
     // Round 2 - Expect: FullMatch, def, 7, 7
-    val (state2a, result2a, endPos2a, endPosDelim2a) = ds.search(cb, endPos2 + 1)
+    val (state2a, result2a, endPos2a, endPosDelim2a, _) = ds.search(cb, endPos2 + 1)
     assertEquals(SearchResult.FullMatch, state2a)
     assertEquals("def", result2a)
     assertEquals(7, endPos2a)
     assertEquals(7, endPosDelim2a)
 
     // Round 3 - Expect: EOF, EMPTY, 7, 7
-    val (state2b, result2b, endPos2b, endPosDelim2b) = ds.search(cb, endPos2a + 1)
+    val (state2b, result2b, endPos2b, endPosDelim2b, _) = ds.search(cb, endPos2a + 1)
     assertEquals(SearchResult.NoMatch, state2b)
     assertEquals("", result2b)
     assertEquals(7, endPos2b)
@@ -1359,21 +1361,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, EMPTY, 0, 0
-    val (state3, result3, endPos3, endPosDelim3) = ds.search(cb)
+    val (state3, result3, endPos3, endPosDelim3, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state3)
     assertEquals("", result3)
     assertEquals(0, endPos3)
     assertEquals(0, endPosDelim3)
 
     // Round 2 - Expect: FullMatch, abc, 4, 4
-    val (state3a, result3a, endPos3a, endPosDelim3a) = ds.search(cb, endPos3 + 1)
+    val (state3a, result3a, endPos3a, endPosDelim3a, _) = ds.search(cb, endPos3 + 1)
     assertEquals(SearchResult.FullMatch, state3a)
     assertEquals("abc", result3a)
     assertEquals(4, endPos3a)
     assertEquals(4, endPosDelim3a)
 
     // Round 3 - Expect: EOF, def, 7, 7
-    val (state3b, result3b, endPos3b, endPosDelim3b) = ds.search(cb, endPos3a + 1)
+    val (state3b, result3b, endPos3b, endPosDelim3b, _) = ds.search(cb, endPos3a + 1)
     assertEquals(SearchResult.NoMatch, state3b)
     assertEquals("def", result3b)
     assertEquals(7, endPos3b)
@@ -1386,14 +1388,14 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 4
-    val (state4, result4, endPos4, endPosDelim4) = ds.search(cb)
+    val (state4, result4, endPos4, endPosDelim4, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state4)
     assertEquals("abc", result4)
     assertEquals(3, endPos4)
     assertEquals(4, endPosDelim4)
 
     // Round 2 - Expect: EOF, def, 7, 7
-    val (state4a, result4a, endPos4a, endPosDelim4a) = ds.search(cb, endPosDelim4 + 1)
+    val (state4a, result4a, endPos4a, endPosDelim4a, _) = ds.search(cb, endPosDelim4 + 1)
     assertEquals(SearchResult.NoMatch, state4a)
     assertEquals("def", result4a)
     assertEquals(7, endPos4a)
@@ -1418,14 +1420,14 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("abc", result1)
     assertEquals(3, endPos1)
     assertEquals(3, endPosDelim1)
 
     // Round 2 - Expect: EOF, def, 6, 6
-    val (state1a, result1a, endPos1a, endPosDelim1a) = ds.search(cb, endPos1 + 1)
+    val (state1a, result1a, endPos1a, endPosDelim1a, _) = ds.search(cb, endPos1 + 1)
     assertEquals(SearchResult.NoMatch, state1a)
     assertEquals("def", result1a)
     assertEquals(6, endPos1a)
@@ -1438,21 +1440,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    val (state2, result2, endPos2, endPosDelim2, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state2)
     assertEquals("abc", result2)
     assertEquals(3, endPos2)
     assertEquals(3, endPosDelim2)
 
     // Round 2 - Expect: FullMatch, def, 7, 7
-    val (state2a, result2a, endPos2a, endPosDelim2a) = ds.search(cb, endPos2 + 1)
+    val (state2a, result2a, endPos2a, endPosDelim2a, _) = ds.search(cb, endPos2 + 1)
     assertEquals(SearchResult.FullMatch, state2a)
     assertEquals("def", result2a)
     assertEquals(7, endPos2a)
     assertEquals(7, endPosDelim2a)
 
     // Round 3 - Expect: EOF, EMPTY, 7, 7
-    val (state2b, result2b, endPos2b, endPosDelim2b) = ds.search(cb, endPos2a + 1)
+    val (state2b, result2b, endPos2b, endPosDelim2b, _) = ds.search(cb, endPos2a + 1)
     assertEquals(SearchResult.NoMatch, state2b)
     assertEquals("", result2b)
     assertEquals(7, endPos2b)
@@ -1465,21 +1467,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, EMPTY, 0, 0
-    val (state3, result3, endPos3, endPosDelim3) = ds.search(cb)
+    val (state3, result3, endPos3, endPosDelim3, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state3)
     assertEquals("", result3)
     assertEquals(0, endPos3)
     assertEquals(0, endPosDelim3)
 
     // Round 2 - Expect: FullMatch, abc, 4, 4
-    val (state3a, result3a, endPos3a, endPosDelim3a) = ds.search(cb, endPos3 + 1)
+    val (state3a, result3a, endPos3a, endPosDelim3a, _) = ds.search(cb, endPos3 + 1)
     assertEquals(SearchResult.FullMatch, state3a)
     assertEquals("abc", result3a)
     assertEquals(4, endPos3a)
     assertEquals(4, endPosDelim3a)
 
     // Round 3 - Expect: EOF, def, 7, 7
-    val (state3b, result3b, endPos3b, endPosDelim3b) = ds.search(cb, endPos3a + 1)
+    val (state3b, result3b, endPos3b, endPosDelim3b, _) = ds.search(cb, endPos3a + 1)
     assertEquals(SearchResult.NoMatch, state3b)
     assertEquals("def", result3b)
     assertEquals(7, endPos3b)
@@ -1492,14 +1494,14 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 4
-    val (state4, result4, endPos4, endPosDelim4) = ds.search(cb)
+    val (state4, result4, endPos4, endPosDelim4, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state4)
     assertEquals("abc", result4)
     assertEquals(3, endPos4)
     assertEquals(4, endPosDelim4)
 
     // Round 2 - Expect: EOF, def, 7, 7
-    val (state4a, result4a, endPos4a, endPosDelim4a) = ds.search(cb, endPosDelim4 + 1)
+    val (state4a, result4a, endPos4a, endPosDelim4a, _) = ds.search(cb, endPosDelim4 + 1)
     assertEquals(SearchResult.NoMatch, state4a)
     assertEquals("def", result4a)
     assertEquals(7, endPos4a)
@@ -1512,7 +1514,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: EOF, abcdef, 5, 5
-    val (state5, result5, endPos5, endPosDelim5) = ds.search(cb)
+    val (state5, result5, endPos5, endPosDelim5, _) = ds.search(cb)
     assertEquals(SearchResult.NoMatch, state5)
     assertEquals("abcdef", result5)
     assertEquals(5, endPos5)
@@ -1535,21 +1537,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 3
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("abc", result1)
     assertEquals(3, endPos1)
     assertEquals(3, endPosDelim1)
 
     // Round 2 - Expect: FullMatch, def, 7, 7
-    val (state1a, result1a, endPos1a, endPosDelim1a) = ds.search(cb, endPos1 + 1)
+    val (state1a, result1a, endPos1a, endPosDelim1a, _) = ds.search(cb, endPos1 + 1)
     assertEquals(SearchResult.FullMatch, state1a)
     assertEquals("def", result1a)
     assertEquals(7, endPos1a)
     assertEquals(7, endPosDelim1a)
 
     // Round 3 - Expect: EOF, efgh, 11, 11
-    val (state1b, result1b, endPos1b, endPosDelim1b) = ds.search(cb, endPos1a + 1)
+    val (state1b, result1b, endPos1b, endPosDelim1b, _) = ds.search(cb, endPos1a + 1)
     assertEquals(SearchResult.NoMatch, state1b)
     assertEquals("efgh", result1b)
     assertEquals(11, endPos1b)
@@ -1562,14 +1564,14 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, EMPTY, 0, 0
-    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    val (state2, result2, endPos2, endPosDelim2, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state2)
     assertEquals("", result2)
     assertEquals(0, endPos2)
     assertEquals(0, endPosDelim2)
 
     // Round 2 - Expect: FullMatch, EMPTY, 1, 1
-    val (state2a, result2a, endPos2a, endPosDelim2a) = ds.search(cb, endPos2 + 1)
+    val (state2a, result2a, endPos2a, endPosDelim2a, _) = ds.search(cb, endPos2 + 1)
     ds.printMatchStruct
     assertEquals(SearchResult.FullMatch, state2a)
     assertEquals("", result2a)
@@ -1577,14 +1579,14 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(1, endPosDelim2a)
 
     // Round 3 - Expect: FullMatch, EMPTY, 2, 2
-    val (state2b, result2b, endPos2b, endPosDelim2b) = ds.search(cb, endPos2a + 1)
+    val (state2b, result2b, endPos2b, endPosDelim2b, _) = ds.search(cb, endPos2a + 1)
     assertEquals(SearchResult.FullMatch, state2b)
     assertEquals("", result2b)
     assertEquals(2, endPos2b)
     assertEquals(2, endPosDelim2b)
 
     // Round 4 - Expect: FullMatch, EMPTY, 3, 3
-    val (state2c, result2c, endPos2c, endPosDelim2c) = ds.search(cb, endPos2b + 1)
+    val (state2c, result2c, endPos2c, endPosDelim2c, _) = ds.search(cb, endPos2b + 1)
     ds.printMatchStruct
     assertEquals(SearchResult.FullMatch, state2c)
     assertEquals("", result2c)
@@ -1592,7 +1594,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(3, endPosDelim2c)
 
     // Round 5 - Expect: EOF, EMPTY, 3, 3
-    val (state2d, result2d, endPos2d, endPosDelim2d) = ds.search(cb, endPos2c + 1)
+    val (state2d, result2d, endPos2d, endPosDelim2d, _) = ds.search(cb, endPos2c + 1)
     ds.printMatchStruct
     assertEquals(SearchResult.NoMatch, state2d)
     assertEquals("", result2d)
@@ -1614,21 +1616,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 5
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("abc", result1)
     assertEquals(3, endPos1)
     assertEquals(5, endPosDelim1)
 
     // Round 2 - Expect: FullMatch, def, 9, 11
-    val (state1a, result1a, endPos1a, endPosDelim1a) = ds.search(cb, endPos1 + 3)
+    val (state1a, result1a, endPos1a, endPosDelim1a, _) = ds.search(cb, endPos1 + 3)
     assertEquals(SearchResult.FullMatch, state1a)
     assertEquals("def", result1a)
     assertEquals(9, endPos1a)
     assertEquals(11, endPosDelim1a)
 
     // Round 3 - Expect: EOF, efgh, 15, 15
-    val (state1b, result1b, endPos1b, endPosDelim1b) = ds.search(cb, endPos1a + 3)
+    val (state1b, result1b, endPos1b, endPosDelim1b, _) = ds.search(cb, endPos1a + 3)
     assertEquals(SearchResult.NoMatch, state1b)
     assertEquals("efgh", result1b)
     assertEquals(15, endPos1b)
@@ -1649,21 +1651,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 5
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("abc", result1)
     assertEquals(3, endPos1)
     assertEquals(5, endPosDelim1)
 
     // Round 2 - Expect: FullMatch, def, 9, 11
-    val (state1a, result1a, endPos1a, endPosDelim1a) = ds.search(cb, endPos1 + 3)
+    val (state1a, result1a, endPos1a, endPosDelim1a, _) = ds.search(cb, endPos1 + 3)
     assertEquals(SearchResult.FullMatch, state1a)
     assertEquals("def", result1a)
     assertEquals(9, endPos1a)
     assertEquals(11, endPosDelim1a)
 
     // Round 3 - Expect: EOF, efgh, 15, 15
-    val (state1b, result1b, endPos1b, endPosDelim1b) = ds.search(cb, endPos1a + 3)
+    val (state1b, result1b, endPos1b, endPosDelim1b, _) = ds.search(cb, endPos1a + 3)
     assertEquals(SearchResult.NoMatch, state1b)
     assertEquals("efgh", result1b)
     assertEquals(15, endPos1b)
@@ -1684,21 +1686,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 5
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("abc", result1)
     assertEquals(3, endPos1)
     assertEquals(5, endPosDelim1)
 
     // Round 2 - Expect: FullMatch, def, 9, 11
-    val (state1a, result1a, endPos1a, endPosDelim1a) = ds.search(cb, endPos1 + 3)
+    val (state1a, result1a, endPos1a, endPosDelim1a, _) = ds.search(cb, endPos1 + 3)
     assertEquals(SearchResult.FullMatch, state1a)
     assertEquals("def", result1a)
     assertEquals(9, endPos1a)
     assertEquals(11, endPosDelim1a)
 
     // Round 3 - Expect: EOF, efgh, 15, 15
-    val (state1b, result1b, endPos1b, endPosDelim1b) = ds.search(cb, endPos1a + 3)
+    val (state1b, result1b, endPos1b, endPosDelim1b, _) = ds.search(cb, endPos1a + 3)
     assertEquals(SearchResult.NoMatch, state1b)
     assertEquals("efgh", result1b)
     assertEquals(15, endPos1b)
@@ -1719,21 +1721,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 5
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("abc", result1)
     assertEquals(3, endPos1)
     assertEquals(5, endPosDelim1)
 
     // Round 2 - Expect: FullMatch, def, 9, 11
-    val (state1a, result1a, endPos1a, endPosDelim1a) = ds.search(cb, endPos1 + 3)
+    val (state1a, result1a, endPos1a, endPosDelim1a, _) = ds.search(cb, endPos1 + 3)
     assertEquals(SearchResult.FullMatch, state1a)
     assertEquals("def", result1a)
     assertEquals(9, endPos1a)
     assertEquals(11, endPosDelim1a)
 
     // Round 3 - Expect: EOF, efgh, 15, 15
-    val (state1b, result1b, endPos1b, endPosDelim1b) = ds.search(cb, endPos1a + 3)
+    val (state1b, result1b, endPos1b, endPosDelim1b, _) = ds.search(cb, endPos1a + 3)
     assertEquals(SearchResult.NoMatch, state1b)
     assertEquals("efgh", result1b)
     assertEquals(15, endPos1b)
@@ -1754,21 +1756,21 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 5
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("abc", result1)
     assertEquals(3, endPos1)
     assertEquals(5, endPosDelim1)
 
     // Round 2 - Expect: FullMatch, def, 9, 12
-    val (state1a, result1a, endPos1a, endPosDelim1a) = ds.search(cb, endPos1 + 3)
+    val (state1a, result1a, endPos1a, endPosDelim1a, _) = ds.search(cb, endPos1 + 3)
     assertEquals(SearchResult.FullMatch, state1a)
     assertEquals("def", result1a)
     assertEquals(9, endPos1a)
     assertEquals(11, endPosDelim1a)
 
     // Round 3 - Expect: EOF, efgh, 15, 15
-    val (state1b, result1b, endPos1b, endPosDelim1b) = ds.search(cb, endPos1a + 3)
+    val (state1b, result1b, endPos1b, endPosDelim1b, _) = ds.search(cb, endPos1a + 3)
     assertEquals(SearchResult.NoMatch, state1b)
     assertEquals("efgh", result1b)
     assertEquals(15, endPos1b)
@@ -1838,14 +1840,14 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 5
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state1)
     assertEquals("abc", result1)
     assertEquals(3, endPos1)
     assertEquals(5, endPosDelim1)
 
     // Round 2 - Expect: EOF, def, 8
-    val (state1a, result1a, endPos1a, endPosDelim1a) = ds.search(cb, endPosDelim1 + 1)
+    val (state1a, result1a, endPos1a, endPosDelim1a, _) = ds.search(cb, endPosDelim1 + 1)
     assertEquals(SearchResult.NoMatch, state1a)
     assertEquals("def", result1a)
     assertEquals(8, endPos1a)
@@ -1858,14 +1860,14 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abc, 3, 6
-    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    val (state2, result2, endPos2, endPosDelim2, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state2)
     assertEquals("abc", result2)
     assertEquals(3, endPos2)
     assertEquals(6, endPosDelim2)
 
     // Round 2 - Expect: EOF, def, 9, 9
-    val (state2a, result2a, endPos2a, endPosDelim2a) = ds.search(cb, endPosDelim2 + 1)
+    val (state2a, result2a, endPos2a, endPosDelim2a, _) = ds.search(cb, endPosDelim2 + 1)
     assertEquals(SearchResult.NoMatch, state2a)
     assertEquals("def", result2a)
     assertEquals(9, endPos2a)
@@ -1890,7 +1892,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: PartialMatch, abcdef, 6, 6
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.PartialMatch, state1)
     assertEquals("abcdef", result1)
     assertEquals(6, endPos1)
@@ -1903,14 +1905,14 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abcdef, 6, 8
-    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    val (state2, result2, endPos2, endPosDelim2, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state2)
     assertEquals("abcdef", result2)
     assertEquals(6, endPos2)
     assertEquals(8, endPosDelim2)
 
     // Round 2 - Expect: EOF, ghi, 11, 11
-    val (state2a, result2a, endPos2a, endPosDelim2a) = ds.search(cb, endPosDelim2 + 1)
+    val (state2a, result2a, endPos2a, endPosDelim2a, _) = ds.search(cb, endPosDelim2 + 1)
     assertEquals(SearchResult.NoMatch, state2a)
     assertEquals("ghi", result2a)
     assertEquals(11, endPos2a)
@@ -1923,7 +1925,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: PartialMatch, abcdef, 6, 6
-    val (state3, result3, endPos3, endPosDelim3) = ds.search(cb)
+    val (state3, result3, endPos3, endPosDelim3, _) = ds.search(cb)
     assertEquals(SearchResult.PartialMatch, state3)
     assertEquals("abcdef", result3)
     assertEquals(6, endPos3)
@@ -1936,7 +1938,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abcdef, 6, 7
-    val (state4, result4, endPos4, endPosDelim4) = ds.search(cb)
+    val (state4, result4, endPos4, endPosDelim4, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state4)
     assertEquals("abcdef", result4)
     assertEquals(6, endPos4)
@@ -1958,7 +1960,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: PartialMatch, abcdef, 7, 7
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.PartialMatch, state1)
     assertEquals("abcdef:", result1)
     assertEquals(7, endPos1)
@@ -1970,7 +1972,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abcdef:, 7, 9
-    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    val (state2, result2, endPos2, endPosDelim2, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state2)
     assertEquals("abcdef:", result2)
     assertEquals(7, endPos2)
@@ -1993,7 +1995,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: PartialMatch, abcdef, 7, 7
-    val (state1, result1, endPos1, endPosDelim1) = ds.search(cb)
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb)
     assertEquals(SearchResult.PartialMatch, state1)
     assertEquals("abcdef:", result1)
     assertEquals(7, endPos1)
@@ -2005,7 +2007,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     cb.flip()
 
     // Round 1 - Expect: FullMatch, abcdef:, 7, 9
-    val (state2, result2, endPos2, endPosDelim2) = ds.search(cb)
+    val (state2, result2, endPos2, endPosDelim2, _) = ds.search(cb)
     assertEquals(SearchResult.FullMatch, state2)
     assertEquals("abcdef:", result2)
     assertEquals(7, endPos2)

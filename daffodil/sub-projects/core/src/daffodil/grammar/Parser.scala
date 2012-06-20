@@ -314,10 +314,39 @@ trait InStream {
 
 class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) extends InStream { // 128K characters by default.
   val maxCharacterWidthInBytes = 4 // worst case. Ok for testing. Don't use this pessimistic technique for real data.
-  val bb = ByteBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
-  // TODO: Verify there is not more data by making sure the buffer was not read to capacity.
-  val count = in.read(bb) // just pull it all into the byte buffer
-  bb.flip()
+  var bb = ByteBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
+  // Verify there is not more data by making sure the buffer was not read to capacity.
+  var count = in.read(bb) // just pull it all into the byte buffer
+  if (count == bb.capacity) {
+    // Buffer not big enough, allocate one 4 times larger and fill at offset
+    var tooSmall = scala.collection.mutable.ListBuffer.empty[ByteBuffer]
+    var lastWrite = 0
+    while (count == bb.capacity()) {
+      // Remember where we started
+      bb.flip()
+      bb.position(lastWrite)
+
+      // Save old buffer and allocate anew
+      tooSmall += bb
+      bb = ByteBuffer.allocate(count * 4)
+
+      // Leave space to copy the old buffers back to this one
+      bb.position(count)
+      lastWrite = count
+
+      // Read in as much as possible
+      count += in.read(bb)
+    }
+    // bb now holds enough space for the entire buffer starting from a position at the end of the previous buffer's size
+    // so copy over the other buffers in tooSmall to fill in the gap
+    bb.flip()
+    tooSmall.foreach(b => { bb.put(b) } )
+    bb.position(0)
+  }
+  else {
+    // Buffer is sufficiently sized
+    bb.flip()
+  }
 
   // System.err.println("InStream byte count is " + count)
   // note, our input data might just be empty string, in which case count is zero, and that's all legal.
@@ -454,7 +483,8 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
   }
 
   import SearchResult._
-  def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long, SearchResult) = {
+  import stringsearch.delimiter._
+  def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long, SearchResult, Delimiter) = {
     println("===\nSTART_FILL!\n===\n")
     val byteOffsetAsLong = (bitOffset >> 3)
     val byteOffset = byteOffsetAsLong.toInt
@@ -464,13 +494,18 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     val dSearch = new DelimSearcher with ConsoleLogger
     var buf = cb
     
+    if (endBitPosA == -1L){
+      System.err.println("Failed, reached end of buffer.")
+      return (cb.toString(), -1L, SearchResult.NoMatch, null)
+    }
+    
     println("START_CB: " + cb.toString())
 
     delimiters foreach {
       x => dSearch.addDelimiter(x)
     }
 
-    var (theState, result, endPos, endPosDelim) = dSearch.search(buf, 0)
+    var (theState, result, endPos, endPosDelim, theDelimiter) = dSearch.search(buf, 0)
 
     if (theState == SearchResult.FullMatch) {
       sb.append(result)
@@ -488,9 +523,10 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
       endBitPosA = fillState._1
       EOF = fillState._2
 
-      var (state2, result2, endPos2, endPosDelim2) = dSearch.search(buf, 0, true)
+      var (state2, result2, endPos2, endPosDelim2, theDelimiter2) = dSearch.search(buf, 0, true)
       theState = state2
       endPos = endPos2
+      theDelimiter = theDelimiter2
 
       if (theState != SearchResult.PartialMatch) {
         sb.append(result2)
@@ -512,7 +548,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
 
     println("FILL - CB: " + sb.toString() + ", EndBitPos: " + endBitPosA)
     println("===\nEND_FILL!\n===\n")
-    (sb.toString(), endBitPosA, theState)
+    (sb.toString(), endBitPosA, theState, theDelimiter)
   }
 
   def fillCharBufferWithPatternMatch(sb: StringBuilder, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long, SearchResult) = {
@@ -539,7 +575,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     //var (theState, result, endPos) = dSearch.search(buf, 0)
     var imBuffer = CharBuffer.allocate(buf.capacity)
     // TODO: How do I get an immutable CharBuffer from a StringBuilder?? sb.copyToArray(imBuffer)
-    var (theState, result, endPos, endPosDelim) = dSearch.search(imBuffer, 0)
+    var (theState, result, endPos, endPosDelim, theDelimiter) = dSearch.search(imBuffer, 0)
 
     if (theState == SearchResult.FullMatch) {
       sb.append(result)
@@ -669,7 +705,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
   
   // Read the delimiter if possible off of the ByteBuffer
   //
-  def getDelimiter(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long, Long, SearchResult) = {
+  def getDelimiter(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long, Long, SearchResult, Delimiter) = {
     println("===\nSTART_GET_DELIMITER!\n===\n")
    
     val byteOffsetAsLong = (bitOffset >> 3)
@@ -683,7 +719,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     
     if (endBitPos == -1L){
       System.err.println("Failed, reached end of buffer.")
-      return (cb.toString(), -1L, -1L, SearchResult.NoMatch)
+      return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null)
     }
     
     var sb: StringBuilder = new StringBuilder // To keep track of the searched text
@@ -694,7 +730,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
 
     println("CB: |" + cb.toString() + "|")
 
-    var (theState, result, endPos, endPosDelim) = dSearch.search(buf, 0)
+    var (theState, result, endPos, endPosDelim, theDelimiter: Delimiter) = dSearch.search(buf, 0)
     
     if (theState == SearchResult.FullMatch) {
       sb.append(result)
@@ -713,11 +749,12 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
       endBitPosA = fillState._1
       EOF = fillState._2 // Determine if we ran out of data to fill the CharBuffer with
 
-      var (state2, result2, endPos2, endPosDelim2) = dSearch.search(buf, endPosDelim, false)
+      var (state2, result2, endPos2, endPosDelim2, theDelimiter2: Delimiter) = dSearch.search(buf, endPosDelim, false)
       println("GET_DELIMITER_LOOP: " + state2 + " " + result2 + " " + endPos2 + " " + endPosDelim2)
       theState = state2 // Determine if there was a Full, Partial or No Match
       endPos = endPos2  // Start of delimiter
       endPosDelim = endPosDelim2 // End of delimiter
+      theDelimiter = theDelimiter2
 
       if (theState != SearchResult.PartialMatch) {
         sb.append(result2)
@@ -752,8 +789,8 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     println("GET_DELIMITER - CB: " + sb.toString() + " EndBitPos: " + endBitPosA)
     println("===\nEND_GET_DELIMITER!\n===\n")
     
-    if (endPos != -1 && endPosDelim != -1){ (cb.subSequence(endPos, endPosDelim).toString(), endBitPosA, endBitPosDelimA, theState) }
-    else { (cb.toString(), endBitPosA, endBitPosDelimA, theState) }
+    if (endPos != -1 && endPosDelim != -1){ (cb.subSequence(endPos, endPosDelim).toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
+    else { (cb.toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
   }
 
   def getInt(bitPos: Long, order: java.nio.ByteOrder) = {

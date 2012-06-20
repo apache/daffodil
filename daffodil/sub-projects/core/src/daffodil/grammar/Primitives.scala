@@ -208,7 +208,7 @@ case class StringDelimitedNoEscapeSchemeNoTerminator(e : ElementBase) extends Te
       
       println("sequenceSeparator: " + sequenceSeparator.constantAsString)
       
-      val (result, endBitPos, theState) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(sequenceSeparator.constantAsString))
+      val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(sequenceSeparator.constantAsString))
 
       val postState =  theState match {
         case NoMatch  => {
@@ -254,7 +254,7 @@ case class StringDelimitedNoEscapeSchemeWithTerminator(e : ElementBase) extends 
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
 
-      val (result, endBitPos, theState) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, terminator.toSet)
+      val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, terminator.toSet)
 
       val postState =  theState match {
         case NoMatch  => start.failed(this.toString() + ": No match found!")
@@ -560,9 +560,13 @@ case class LittleEndianFloatPrim(e : ElementBase) extends Terminal(e, true) {
 class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true) 
 extends StaticText(delim, e, guard)
 
+import stringsearch.delimiter._
 abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = true) extends Terminal(e, guard) {
+  
   def parser: Parser = new Parser {
-
+    
+    val delims = List(delim) ++ e.asInstanceOf[Term].terminatingMarkup.map( x => x.constantAsString)
+    
     // TODO: Fix Cheezy matcher. Doesn't implement ignore case. Doesn't fail at first character that doesn't match. It grabs
     // the whole length (if it can), and then compares.
     // Also handles only one delimiter string. They can actually be whitespace-separated lists of alternative
@@ -573,12 +577,12 @@ abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = tru
     Assert.invariant(delim != "") // shouldn't be here at all in this case.
     override def toString = "StaticDelimiter(" + delim + ")"
     val decoder = e.knownEncodingDecoder
-    //val cbuf = CharBuffer.allocate(delim.length) // TODO: Performance: get a char buffer from a pool. 
     val cbuf = CharBuffer.allocate(1024)
 
     def parse(start: PState): PState = {
-      //System.err.println("Parsing delimiter at bit position: " + start.bitPos)
-      //val in = start.inStream
+      System.err.println("Parsing delimiter at bit position: " + start.bitPos)
+      println("Looking for: " + delims)
+      
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       //
       // Lots of things could go wrong in here. We might be looking at garbage, so decoding will get errors, etc.
@@ -586,30 +590,28 @@ abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = tru
       //
       // No matter what goes wrong, we're counting on an orderly return here.
       //
-      //val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
-      println("startBitPos: " + start.bitPos)
-      //var (resultStr, endBitPos) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(delim))
-      var (resultStr, endBitPos, endBitPosDelim, theState) = in.getDelimiter(cbuf, start.bitPos, decoder, Set(delim))
       
-      //println("resultSTR:" + resultStr)
+      //var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim:Delimiter) = in.getDelimiter(cbuf, start.bitPos, decoder, Set(delim))
+      var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim:Delimiter) = in.getDelimiter(cbuf, start.bitPos, decoder, delims.toSet)
      
       println("BUF: " + cbuf.toString + " ENDBITPOS: " + endBitPos + " ENDBITPOSDELIM: " + endBitPosDelim)
       
       println("CBUF LENGTH: " + cbuf.toString().length())
       
-     
-      val d = new stringsearch.delimiter.Delimiter
+      if (theMatchedDelim == null){
+        val postState = start.failed(this.toString() + ": Delimiter not found!")
+        return postState
+      }
       
-      d(delim)
-      val delimRegex = d.buildDelimRegEx()
+      val delimRegex = theMatchedDelim.buildDelimRegEx()
       println("delimRegex: " + delimRegex)
       val p = Pattern.compile(delimRegex, Pattern.MULTILINE)
-      
       
       val result = 
         if (endBitPos == -1) "" // causes failure down below this
         else cbuf.toString
         
+      // TODO: Is the below find even needed?  
       val m = p.matcher(result)
       if (m.find()){ 
         // TODO: For numBytes, is length correct?!
@@ -626,8 +628,6 @@ abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = tru
         println("endCharPos: " + endCharPos)
         postState
       } else {
-        //val postState = start.withPos(start.bitPos, start.charPos, new Failure("Delimiter not found"))
-        //postState
         val postState = start.failed(this.toString() + ": Delimiter not found!")
         postState
       }
@@ -638,6 +638,7 @@ abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = tru
 class DynamicDelimiter(delimExpr : CompiledExpression, e: AnnotatedMixin, guard: Boolean = true) extends Primitive(e, guard)
 
 case class StaticInitiator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.initiator.constantAsString, e)
+//case class StaticTerminator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.terminator.constantAsString, e)
 case class StaticTerminator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.terminator.constantAsString, e)
 case class DynamicInitiator(e : InitiatedTerminatedMixin) extends DynamicDelimiter(e.initiator, e)
 case class DynamicTerminator(e : InitiatedTerminatedMixin) extends DynamicDelimiter(e.terminator, e)
