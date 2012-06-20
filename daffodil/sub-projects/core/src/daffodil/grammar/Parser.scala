@@ -638,7 +638,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     var cbPrev: CharBuffer = CharBuffer.allocate(1)
     var numBytes: Int = 1
     try {
-      while(numBytes < endByte){
+      while(numBytes <= endByte){
         cbPrev = decodeNBytes(numBytes, bytesArray, decoder)
         cbFinal = cbPrev
         numBytes += 1
@@ -646,7 +646,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     } catch {
       case e: Exception => System.err.println("Exception in decodeUntilFail: " + e.toString())
     }
-    (cbFinal, (numBytes - 1))
+    (cbFinal, (numBytes-1))
   }
   
   // Fills the CharBuffer with as many bytes as can be decoded successfully.
@@ -682,7 +682,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     
     if (bytesDecoded == 0){ return (-1L, true) }
     
-    println("MixedDataResult: " + result)
+    println("MixedDataResult: " + result + " bytesDecoded: " + bytesDecoded)
     
     cb.clear()
     cb.append(result)
