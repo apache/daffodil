@@ -136,7 +136,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     delim0.fullMatches.add((1, 3))
 
     val delim1 = new stringsearch.delimiter.Delimiter
-    delim1("}}}")
+    delim1("}}")
     delim1.fullMatches.add((1, 2))
 
     val delim2 = new stringsearch.delimiter.Delimiter
@@ -148,10 +148,12 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     delimsQ += delim2
 
     val list0 = ds.getPrefixedDelims(prefix, delimsQ.toList)
+    
+    println(list0)
 
     assertEquals(2, list0.length)
-    assertTrue(list0.contains((1, 2)))
-    assertTrue(list0.contains((1, 3)))
+    assertTrue(list0.filter(x => x._1 == 1 && x._2 == 2 && x._3.delimiterStr == delim1.delimiterStr).length > 0)
+    assertTrue(list0.filter(x => x._1 == 1 && x._2 == 3 && x._3.delimiterStr == delim0.delimiterStr).length > 0)
   }
 
   def testGetLongestMatch = {
@@ -187,7 +189,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     // Prefixed result: Delimiter found at position (1,1) is the
     // start of a longer delimiter found at position (1,3)
     val result0 = ds.getLongestMatch(delimsQ0.toList)
-    assertEquals((1, 3), result0)
+    assertEquals((1, 3), (result0._1, result0._2))
 
     // Example Str: "a}b}}c"
     //               012345
@@ -209,12 +211,12 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     // Non-prefixed result: The first delimiter found at position (1,1)
     // is not the start of a longer delimiter.
     val result1 = ds.getLongestMatch(delimsQ1.toList)
-    assertEquals((1, 1), result1)
+    assertEquals((1, 1), (result1._1, result1._2))
 
     // Test no matches
     val delimsQ2: Queue[stringsearch.delimiter.Delimiter] = new Queue[stringsearch.delimiter.Delimiter]
     val result2 = ds.getLongestMatch(delimsQ2.toList)
-    assertEquals((-1, -1), result2)
+    assertEquals((-1, -1), (result2._1, result2._2))
   }
 
   def testFindCharClasses = {

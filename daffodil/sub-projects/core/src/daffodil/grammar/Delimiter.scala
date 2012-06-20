@@ -41,6 +41,10 @@ class Delimiter extends Logged {
   lazy val WSP = Pattern.compile("%(WSP);", Pattern.MULTILINE)
   lazy val WSP_Plus = Pattern.compile("%(WSP\\+);", Pattern.MULTILINE)
   lazy val WSP_Star = Pattern.compile("%(WSP\\*);", Pattern.MULTILINE)
+  
+  override def toString(): String = {
+    return "Delimiter[" + delimiterStr + "]"
+  }
 
   // Must call to create the necessary structures
   //
@@ -135,7 +139,7 @@ class Delimiter extends Logged {
     val sb = new StringBuilder
     var idx: Int = 0
     delims.foreach(x => {
-      sb.append("\t" + idx + ":" + x.printStr)
+      sb.append("\t" + idx + ":" + x.toString())
       idx += 1
     })
     sb.toString()
@@ -778,6 +782,9 @@ abstract class DelimBase extends Base with Logged {
   def typeName: String
   def print
   def printStr: String
+  override def toString(): String = {
+    return typeName
+  }
 }
 
 trait Base {
@@ -809,6 +816,10 @@ class CharDelim(val char: Char) extends DelimBase {
   def printStr = {
     val res = typeName + "(" + char + ")"
     res
+  }
+  
+ override def toString(): String = {
+    return typeName + "[" + char + "]"
   }
 }
 
