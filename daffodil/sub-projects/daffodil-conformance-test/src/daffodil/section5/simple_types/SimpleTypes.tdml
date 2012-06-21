@@ -22,7 +22,7 @@
 		<tdml:document>2,000,000,000</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<s xs:type="xs:long">9223372036854775807</s>
+				<s xs:type="xs:long">2000000000</s>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
