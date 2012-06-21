@@ -69,12 +69,13 @@ object CompiledExpressionUtil {
       case n: org.jdom.Element => n.getText()
       case s: String => s
     }
-    convertTo match {
+    val res = convertTo match {
       case 'Long => str.toLong.asInstanceOf[T]
       case 'String => str
       case 'Element => expr.asInstanceOf[org.jdom.Element]
       case _ => Assert.usageError("Runtime properties can only be Long, String, or Element")
     }
+    res.asInstanceOf[T]
   }
     
 }
@@ -93,7 +94,7 @@ case class ExpressionProperty[T](convertTo : Symbol,
     def isKnownNonEmpty = true // expressions are not allowed to return empty string
     def constant: T = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
  
-    def evaluate(pre: org.jdom.Element, variables : VariableMap) = {
+    def evaluate(pre: org.jdom.Element, variables : VariableMap): T = {
       val xpathRes = XPathUtil.evalExpression(xpathText, xpathExprFactory, variables, pre)
       val converted = xpathRes match {
         case StringResult(s) => CompiledExpressionUtil.converter(convertTo, s)
