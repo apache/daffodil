@@ -510,7 +510,7 @@ class Delimiter extends Logged {
       // We separately iterate through the delimBuf array
       // via advanceDelim and resetDelim methods.
       
-      log("DelimBuf: " + this.printDelimBufStr)
+      log("\n\tDELIM_BUF: " + this.printDelimBufStr)
 
       val char: Char = input.charAt(charIdx)
       val delim: DelimBase = delimBuf(delimIdx)
@@ -749,20 +749,32 @@ class Delimiter extends Logged {
     }
   }
 
+//  def printDelimBufStr = {
+//    val sb = new StringBuilder
+//    delimBuf foreach {
+//      x => sb.append("\t" + x.toString())
+//    }
+//    sb.append("\n")
+//    var idx: Int = 0
+//    delimBuf foreach {
+//      x =>
+//        {
+//          sb.append(idx)
+//          idx += 1
+//        }
+//    }
+//    sb.toString()
+//  }
+  
   def printDelimBufStr = {
     val sb = new StringBuilder
-    delimBuf foreach {
-      x => sb.append("\t" + x.toString())
-    }
-    sb.append("\n")
     var idx: Int = 0
     delimBuf foreach {
-      x =>
-        {
-          sb.append(idx)
-          idx += 1
-        }
+      x => { 
+        sb.append("\t"  + idx + "_" + x.toString()) 
+        idx += 1 }
     }
+    sb.append("\n")
     sb.toString()
   }
 

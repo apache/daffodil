@@ -117,7 +117,42 @@ the basic demonstration of DFDL with binary and text number formats  -->
 </infoset>
  </parserTestCase> -->
  
+ <parserTestCase name="multiple_delimiters"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 Properties for specifying length -delimited - parent has specified length"
+ root="myStringSeq3">
+ <document>abcde|fghij|klmno::</document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <myStringSeq3>
+    <element1>abcde</element1>
+    <element2>fghij</element2>
+    <element3>klmno</element3>
+  </myStringSeq3>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase>
  
+ <parserTestCase name="multiple_delimiters2"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 Properties for specifying length -delimited - parent has specified length"
+ root="myStringSeq4">
+ <document>abcde|fghij|klmno::pqrst|uvwzy|z]</document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <myStringSeq4>
+  	<seq1>
+  		<element1>abcde</element1>
+    	<element2>fghij</element2>
+    	<element3>klmno</element3>
+  	</seq1>
+  	<seq2>
+  		<element1>pqrst</element1>
+    	<element2>uvwzy</element2>
+    	<element3>z</element3>
+  	</seq2>
+  </myStringSeq4>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 	 	
 
 
 
