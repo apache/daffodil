@@ -519,19 +519,9 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     }
 
     println("START_CB: " + cb.toString())
-
-    //delimiters foreach {
-    //  x => dSearch.addDelimiter(x)
-    //}
-
-    // --
-    // TODO: dSearch.printDelimStruct
-    // --
-
     println("CB_" + cb.toString() + "_END_CB")
 
     var (theState, endPos, result) = dSearch findPrefixMatchOf buf match {
-      // TODO: What should result be??
       case Some(mch) => (SearchResult.FullMatch, mch.end.toLong, mch.matched)
       // Initial/Default values if not matched
       // TODO: What should result be if string not found?
@@ -540,7 +530,6 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     //var (theState, result, endPos, endPosDelim, theDelimiter) = dSearch.search(buf, 0)
     // TODO: What is this line for?
     var imBuffer = CharBuffer.allocate(buf.capacity)
-    // TODO: var (theState, result, endPos, endPosDelim, theDelimiter) = dSearch.match(imBuffer, 0)
 
     if (theState == SearchResult.FullMatch) {
       sb.append(result)
@@ -563,7 +552,6 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
       EOF = fillState._2
 
       var (state2, endPos2, result2) = dSearch findPrefixMatchOf buf match {
-        // TODO: What should result be??
         case Some(mch) => (SearchResult.FullMatch, mch.end.toLong, mch.matched)
         // TODO: What should result be if string not found?
         case None => (SearchResult.NoMatch, -1L, "")
