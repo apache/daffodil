@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="SimpleTypes" description="Section 5 - simple types"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="SimpleTypes-Embedded.dfdl.xsd">
+		<dfdl:defineFormat name="daffodilTest1">
+			<dfdl:format lengthKind="implicit" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no" textNumberRep="standard" />
+		</dfdl:defineFormat>
+		<xs:element name="s" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>
+		<xs:element name="long1" type="xs:long" dfdl:length="19" dfdl:lengthKind="explicit"/>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="Long1" root="s"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-long">
+
+		<tdml:document>2,000,000,000</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<s xs:type="xs:long">2000000000</s>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="schema_types_5_04" root="long1"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-long">
+
+		<tdml:document>9223372036854775807</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<long1 xs:type="xs:long">9223372036854775807</long1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+</tdml:testSuite>
