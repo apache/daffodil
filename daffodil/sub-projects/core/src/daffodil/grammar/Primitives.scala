@@ -604,7 +604,7 @@ abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = tru
       //
 
       //var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim:Delimiter) = in.getDelimiter(cbuf, start.bitPos, decoder, Set(delim))
-      var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim: Delimiter) = in.getDelimiter(cbuf, start.bitPos, decoder, delims.toSet)
+      var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim) = in.getDelimiter(cbuf, start.bitPos, decoder, delims.toSet)
 
       println("BUF: " + cbuf.toString + " ENDBITPOS: " + endBitPos + " ENDBITPOSDELIM: " + endBitPosDelim)
 
@@ -615,7 +615,7 @@ abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = tru
         return postState
       }
 
-      val delimRegex = theMatchedDelim.buildDelimRegEx()
+      val delimRegex = theMatchedDelim.asInstanceOf[Delimiter].buildDelimRegEx()
       println("delimRegex: " + delimRegex)
       val p = Pattern.compile(delimRegex, Pattern.MULTILINE)
 

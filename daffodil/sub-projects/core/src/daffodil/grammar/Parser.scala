@@ -730,7 +730,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
 
     println("CB: " + cb.toString())
 
-    var (theState, result, endPos, endPosDelim, theDelimiter: Delimiter) = dSearch.search(buf, 0)
+    var (theState, result, endPos, endPosDelim, theDelimiter) = dSearch.search(buf, 0)
     
     if (theState == SearchResult.FullMatch) {
       sb.append(result)
@@ -749,7 +749,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
       endBitPosA = fillState._1
       EOF = fillState._2 // Determine if we ran out of data to fill the CharBuffer with
 
-      var (state2, result2, endPos2, endPosDelim2, theDelimiter2: Delimiter) = dSearch.search(buf, endPosDelim, false)
+      var (state2, result2, endPos2, endPosDelim2, theDelimiter2) = dSearch.search(buf, endPosDelim, false)
       println("GET_DELIMITER_LOOP: " + state2 + " " + result2 + " " + endPos2 + " " + endPosDelim2)
       theState = state2 // Determine if there was a Full, Partial or No Match
       endPos = endPos2  // Start of delimiter
