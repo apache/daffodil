@@ -638,7 +638,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     var cbPrev: CharBuffer = CharBuffer.allocate(1)
     var numBytes: Int = 1
     try {
-      while(numBytes < endByte){
+      while(numBytes <= endByte){
         cbPrev = decodeNBytes(numBytes, bytesArray, decoder)
         cbFinal = cbPrev
         numBytes += 1
@@ -646,7 +646,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     } catch {
       case e: Exception => System.err.println("Exception in decodeUntilFail: " + e.toString())
     }
-    (cbFinal, (numBytes - 1))
+    (cbFinal, (numBytes-1))
   }
   
   // Fills the CharBuffer with as many bytes as can be decoded successfully.
@@ -682,7 +682,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     
     if (bytesDecoded == 0){ return (-1L, true) }
     
-    println("MixedDataResult: " + result)
+    println("MixedDataResult: " + result + " bytesDecoded: " + bytesDecoded)
     
     cb.clear()
     cb.append(result)
@@ -728,9 +728,9 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
 
     delimiters foreach { x => dSearch.addDelimiter(x) }
 
-    println("CB: |" + cb.toString() + "|")
+    println("CB: " + cb.toString())
 
-    var (theState, result, endPos, endPosDelim, theDelimiter: Delimiter) = dSearch.search(buf, 0)
+    var (theState, result, endPos, endPosDelim, theDelimiter) = dSearch.search(buf, 0)
     
     if (theState == SearchResult.FullMatch) {
       sb.append(result)
@@ -749,7 +749,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
       endBitPosA = fillState._1
       EOF = fillState._2 // Determine if we ran out of data to fill the CharBuffer with
 
-      var (state2, result2, endPos2, endPosDelim2, theDelimiter2: Delimiter) = dSearch.search(buf, endPosDelim, false)
+      var (state2, result2, endPos2, endPosDelim2, theDelimiter2) = dSearch.search(buf, endPosDelim, false)
       println("GET_DELIMITER_LOOP: " + state2 + " " + result2 + " " + endPos2 + " " + endPosDelim2)
       theState = state2 // Determine if there was a Full, Partial or No Match
       endPos = endPos2  // Start of delimiter

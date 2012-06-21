@@ -109,7 +109,7 @@ class DelimSearcher extends Logged {
     partialMatched = delimsWithPartialMatches.length > 0
 
     if (matched) {
-      val longestMatch = getLongestMatch(delimsWithFullMatches)
+      val longestMatch = getLongestMatch(delimsWithFullMatches, startPos)
       endPos = longestMatch._1
       log("FULL MATCH! String: " + input.subSequence(startPos, endPos).toString() + " StartPos: " + startPos + " EndPos: " + endPos)
       return (SearchResult.FullMatch, input.subSequence(startPos, endPos).toString(), endPos, longestMatch._2, longestMatch._3)
@@ -153,7 +153,7 @@ class DelimSearcher extends Logged {
   //	When two delimiters have exactly the same value, the innermost
   //	(most deeply nested) delimiter has precedence.
   //
-  def getLongestMatch(matchedDelims: List[Delimiter]): (Int, Int, Delimiter) = {
+  def getLongestMatchOld(matchedDelims: List[Delimiter]): (Int, Int, Delimiter) = {
     if (matchedDelims.length == 0) {
       return (-1, -1, null)
     }
@@ -169,7 +169,75 @@ class DelimSearcher extends Logged {
     }
     // A prefixed delimiter was not found, return the first full match
     val fullMatch = matchedDelims(0).fullMatches.toList.sortBy(x => x._1).head
+    println("Matched Delims: " + matchedDelims(0) + " "  + matchedDelims(0).fullMatches.toList)
     (fullMatch._1, fullMatch._2, matchedDelims(0))
+  }
+  
+  // Used to retrieve the longest matching delimiter in the case
+  // that this delimiter is contained within another fully matching
+  // delimiter
+  //
+  // Ex. Given "abc:::def" and separators ":", ":::"
+  // 	The separator ":" would match here three times.
+  //	The separator ":::" would match once.
+  //
+  // Visually, we can see that the matching separator should be ":::"
+  // but the first separator matched is ":".  In this case, since ":"
+  // is contained within ":::", we want to return ":::" as the longest match.
+  //
+  // Assumes that delimiter list is in order of 
+  // precedence (innermost separator first).
+  //
+  // DFDL Spec Rules Satisfied: 12.3.2 DFDLV1.0
+  // 	When two delimiters have a common prefix, the longest
+  // 	delimiter has precedence.
+  //
+  //	When two delimiters have exactly the same value, the innermost
+  //	(most deeply nested) delimiter has precedence.
+  //
+  def getLongestMatch(matchedDelims: List[Delimiter], startPos: Int = 0): (Int, Int, Delimiter) = {
+    if (matchedDelims.length == 0) {
+      return (-1, -1, null)
+    }
+    
+    val firstFullMatch = getFirstFullMatch(matchedDelims, startPos)
+    
+    if (firstFullMatch == null){
+      return (-1, -1, null)
+    }
+    
+    log("First Full Match: " + firstFullMatch)
+
+    // Retrieve the list of delimiters prefixed by matchedDelims(0) and sort them
+    // by length
+    val result = getPrefixedDelims(firstFullMatch, matchedDelims).sortBy(x => x._2 - x._1)
+
+    log("Prefixed Delims: " + result)
+
+    if (result.size > 0) {
+      return result(result.size - 1)
+    }
+    // A prefixed delimiter was not found, return the first full match
+    firstFullMatch
+  }
+  
+  def getFirstFullMatch(matchedDelims: List[Delimiter], startPos: Int = 0): (Int,Int,Delimiter) = {
+    var contenders: List[(Int,Int,Delimiter)] = List.empty
+    
+    matchedDelims.foreach{
+      x => {
+        val sortedMatches = x.fullMatches.toList.sortBy(c => (c._1, c._2))
+        if (sortedMatches.length > 0){ 
+        	val firstSortedMatch = List((sortedMatches(0)._1, sortedMatches(0)._2, x))
+        	contenders ++= firstSortedMatch
+          }
+        }
+    }
+    
+    val sortedContenders = contenders.sortBy( x => (x._1, x._2))
+    
+    if (sortedContenders.length > 0) { return sortedContenders(0)}
+    null
   }
 
   // Retrieve all of the delimiters prefixed by the prefix Delimiter but
@@ -181,6 +249,24 @@ class DelimSearcher extends Logged {
     // Head should always return the first element in the list
     // according to Scala 2.7.4 api
     val firstFullMatch = prefix.fullMatches.toList.sortBy(_._1).head
+
+    delimsWithFullMatches.filter(x => x != prefix).foreach(Delimiter => {
+      // check that the firstFullMatch is a prefix but is not the same value
+      val prefixedDelims = Delimiter.fullMatches.filter(x => firstFullMatch._1 == x._1 && firstFullMatch._2 != x._2).toList
+      if (prefixedDelims.length > 0) {
+        q.enqueue((prefixedDelims(0)._1, prefixedDelims(0)._2, Delimiter))
+      }
+    })
+    q.toList
+  }
+  
+  // Retrieve all of the delimiters prefixed by the prefix Delimiter but
+  // do not equal the prefix.
+  //
+  def getPrefixedDelims(prefix: (Int,Int,Delimiter), delimsWithFullMatches: List[Delimiter]): List[(Int, Int, Delimiter)] = {
+    val q = new Queue[(Int, Int, Delimiter)]
+
+    val firstFullMatch = (prefix._1, prefix._2)
 
     delimsWithFullMatches.filter(x => x != prefix).foreach(Delimiter => {
       // check that the firstFullMatch is a prefix but is not the same value
