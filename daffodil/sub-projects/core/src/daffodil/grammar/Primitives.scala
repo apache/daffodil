@@ -280,7 +280,8 @@ case class StringPatternMatched(e : ElementBase) extends Terminal(e, true) {
   def parser: Parser = new Parser {
     override def toString = "StringPatternMatched"
     val decoder = e.knownEncodingDecoder
-    var cbuf = new StringBuilder(1024)
+    var cbuf = CharBuffer.allocate(1024)
+    val pattern = e.lengthPattern
 
     // TODO: Add parameter for changing CharBuffer size
 
@@ -289,7 +290,7 @@ case class StringPatternMatched(e : ElementBase) extends Terminal(e, true) {
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
 
-      val (result, endBitPos, theState) = in.fillCharBufferWithPatternMatch(cbuf, start.bitPos, decoder, Set[String]())
+      val (result, endBitPos, theState) = in.fillCharBufferWithPatternMatch(cbuf, start.bitPos, decoder, pattern)
 
       val postState =  theState match {
         case NoMatch  => start.failed(this.toString() + ": No match found!")
