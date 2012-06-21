@@ -17,4 +17,9 @@ class TestSimpleTypes extends JUnit3Suite {
   
   def test_Long1() { runner.runOneTest("Long1") }
   def test_schema_types_5_04() { runner.runOneTest("schema_types_5_04") }
+  def test_BigInteger1() { runner.runOneTest("BigInteger1") }
+  def test_Integer01() { runner.runOneTest("Integer01") }
+  def test_Int01() { runner.runOneTest("Int01") }
+  def test_schema_types_5_03() { runner.runOneTest("schema_types_5_03") }
+  def test_schema_types_5_02() { runner.runOneTest("schema_types_5_02") }
 }
