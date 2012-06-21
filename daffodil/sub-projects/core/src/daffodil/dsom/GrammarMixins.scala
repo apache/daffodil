@@ -65,8 +65,8 @@ with AlignedMixin { self: ElementBase =>
   })
     
   lazy val stringDelimited = Prod("stringDelimited", this, StringDelimited(this))
-  lazy val stringDelimitedNoEscapeSchemeNoTerminator = Prod("stringDelimitedNoEscapeSchemeNoTerminator", this, StringDelimitedNoEscapeSchemeNoTerminator(this))
-  lazy val stringDelimitedNoEscapeSchemeWithTerminator = Prod("stringDelimitedNoEscapeSchemeWithTerminator", this, StringDelimitedNoEscapeSchemeWithTerminator(this))
+  lazy val stringDelimitedEndOfData = Prod("stringDelimitedEndOfData", this, StringDelimitedEndOfData(this))
+  lazy val stringDelimitedWithDelimiters = Prod("stringDelimitedWithDelimiters", this, StringDelimitedWithDelimiters(this))
   lazy val stringPatternMatched = Prod("stringPatternMatched", this, StringPatternMatched(this))
   
   lazy val stringValue = {
@@ -74,11 +74,14 @@ with AlignedMixin { self: ElementBase =>
     case LengthKind.Explicit if isFixedLength => fixedLengthString
     case LengthKind.Delimited => {
       
+      // LengthKind delimited w/ delimiters
+      // LengthKind delimited w End Of Data
+      
       // TODO: check for escape scheme
       if (terminator.isKnownNonEmpty) {
-    	  stringDelimitedNoEscapeSchemeWithTerminator     
+    	  stringDelimitedWithDelimiters     
       } else {
-        stringDelimitedNoEscapeSchemeNoTerminator
+        stringDelimitedEndOfData
       }
     }
     case LengthKind.Pattern => stringPatternMatched
@@ -260,6 +263,7 @@ with AlignedMixin { self: ElementBase =>
 
 
   lazy val value = {
+    
     val res = Prod("value", this, 
         // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
         // This gets used for array contents also.

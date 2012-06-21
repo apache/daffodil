@@ -35,6 +35,15 @@ class TresysTests extends JUnit3Suite {
   def test_AN000() { runnerAN.runOneTest("AN000") }
   def test_AN001() { runnerAN.runOneTest("AN001") }
   
+  val delimited = testDir + "dpaext1.tdml"
+  val runnerDelimited = new DFDLTestSuite(new File(delimited))
+  
+  def test_length_delimited_12_02() { runnerDelimited.runOneTest("length_delimited_12_02") }
+  def test_length_delimited_12_03_controversial() { runnerDelimited.runOneTest("length_delimited_12_03_controversial") }
+  def test_length_delimited_12_03() { runnerDelimited.runOneTest("length_delimited_12_03") }
+//  def test_length_delimited_12_05() { runnerDelimited.runOneTest("length_delimited_12_05") }
+//  def test_length_delimited_12_06() { runnerDelimited.runOneTest("length_delimited_12_06") }
+  
   /* Very big test data files, so each is in its own TDML file */
 //  val ab6 = testDir + "AB006.tdml"
 //  val runnerAB6 = new DFDLTestSuite(new File(ab6))

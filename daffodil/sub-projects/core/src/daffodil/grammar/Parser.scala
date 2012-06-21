@@ -314,10 +314,39 @@ trait InStream {
 
 class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) extends InStream { // 128K characters by default.
   val maxCharacterWidthInBytes = 4 // worst case. Ok for testing. Don't use this pessimistic technique for real data.
-  val bb = ByteBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
-  // TODO: Verify there is not more data by making sure the buffer was not read to capacity.
-  val count = in.read(bb) // just pull it all into the byte buffer
-  bb.flip()
+  var bb = ByteBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
+  // Verify there is not more data by making sure the buffer was not read to capacity.
+  var count = in.read(bb) // just pull it all into the byte buffer
+  if (count == bb.capacity) {
+    // Buffer not big enough, allocate one 4 times larger and fill at offset
+    var tooSmall = scala.collection.mutable.ListBuffer.empty[ByteBuffer]
+    var lastWrite = 0
+    while (count == bb.capacity()) {
+      // Remember where we started
+      bb.flip()
+      bb.position(lastWrite)
+
+      // Save old buffer and allocate anew
+      tooSmall += bb
+      bb = ByteBuffer.allocate(count * 4)
+
+      // Leave space to copy the old buffers back to this one
+      bb.position(count)
+      lastWrite = count
+
+      // Read in as much as possible
+      count += in.read(bb)
+    }
+    // bb now holds enough space for the entire buffer starting from a position at the end of the previous buffer's size
+    // so copy over the other buffers in tooSmall to fill in the gap
+    bb.flip()
+    tooSmall.foreach(b => { bb.put(b) } )
+    bb.position(0)
+  }
+  else {
+    // Buffer is sufficiently sized
+    bb.flip()
+  }
 
   // System.err.println("InStream byte count is " + count)
   // note, our input data might just be empty string, in which case count is zero, and that's all legal.
@@ -609,7 +638,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     var cbPrev: CharBuffer = CharBuffer.allocate(1)
     var numBytes: Int = 1
     try {
-      while(numBytes < endByte){
+      while(numBytes <= endByte){
         cbPrev = decodeNBytes(numBytes, bytesArray, decoder)
         cbFinal = cbPrev
         numBytes += 1
@@ -617,7 +646,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     } catch {
       case e: Exception => System.err.println("Exception in decodeUntilFail: " + e.toString())
     }
-    (cbFinal, (numBytes - 1))
+    (cbFinal, (numBytes-1))
   }
   
   // Fills the CharBuffer with as many bytes as can be decoded successfully.
@@ -653,7 +682,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     
     if (bytesDecoded == 0){ return (-1L, true) }
     
-    println("MixedDataResult: " + result)
+    println("MixedDataResult: " + result + " bytesDecoded: " + bytesDecoded)
     
     cb.clear()
     cb.append(result)
