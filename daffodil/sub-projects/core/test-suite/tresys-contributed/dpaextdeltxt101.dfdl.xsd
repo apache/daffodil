@@ -80,5 +80,41 @@
 		</xs:complexType>
 
 	</xs:element>
+	
+	<!--  parent with specified length -->
+	<xs:element name="myStringSeq3"> <!-- dfdl:lengthKind="explicit" dfdl:length="5"> -->
+		<xs:complexType>
+			<xs:sequence  dfdl:separatorPosition="infix" dfdl:separator="|" dfdl:terminator=":: ; ]" >
+				<xs:element name="element1" type="xs:string" dfdl:lengthKind="delimited"/>
+				<xs:element name="element2" type="xs:string" dfdl:lengthKind="delimited"/>
+				<xs:element name="element3" type="xs:string" dfdl:lengthKind="delimited"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="myStringSeq4"> <!-- dfdl:lengthKind="explicit" dfdl:length="5"> -->
+		<xs:complexType>
+			<xs:sequence  dfdl:separator=":: ; ]" dfdl:terminator=":: ; ]" dfdl:separatorPosition="infix">
+				<xs:element name="seq1" dfdl:lengthKind="delimited" >
+				  <xs:complexType>
+				  	<xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|" >
+				  		<xs:element name="element1" type="xs:string" dfdl:lengthKind="delimited"/>
+						<xs:element name="element2" type="xs:string" dfdl:lengthKind="delimited"/>
+						<xs:element name="element3" type="xs:string" dfdl:lengthKind="delimited"/>
+				  	</xs:sequence>
+				  </xs:complexType>
+				</xs:element>
+				<xs:element name="seq2" dfdl:lengthKind="delimited" >
+				  <xs:complexType>
+				  	<xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|" >
+				  		<xs:element name="element1" type="xs:string" dfdl:lengthKind="delimited"/>
+						<xs:element name="element2" type="xs:string" dfdl:lengthKind="delimited"/>
+						<xs:element name="element3" type="xs:string" dfdl:lengthKind="delimited"/>
+				  	</xs:sequence>
+				  </xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
     
 </xs:schema>

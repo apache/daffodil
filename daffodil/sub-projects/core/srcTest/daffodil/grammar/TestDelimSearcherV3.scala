@@ -2027,5 +2027,28 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(6, d0.delimBuf.length)
     assertEquals(6, d1.delimBuf.length)
   }
+  
+  def testCorrectParsingMultipleSequence = {
+    //val data: String = "abcde|fghij|klmno::pqrst|uvwzy|z]"
+    
+    // The purpose of this test is to verify that :: is found before | here
+    // as this data represents two sequences terminated by either :: or ].
+    val data: String = "klmno::pqrst|uvwzy|z]"
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+    assertEquals(0, ds.delimiters.length) // Verified contained no delimiters
+    ds.addDelimiter("|")
+    ds.addDelimiter("::")
+    ds.addDelimiter(";")
+    ds.addDelimiter("]")
+    assert(ds.delimiters.length == 4) // Verified delimiter was added  
+    
+    var cb: CharBuffer = CharBuffer.allocate(data.length() + 1)
+    cb.put(data)
+    cb.flip()
+    
+    val (state, result, endPos, endPosDelim, _) = ds.search(cb)
+    
+    assertEquals("klmno", result)
+  }
 
 }

@@ -43,6 +43,8 @@ class TresysTests extends JUnit3Suite {
   def test_length_delimited_12_03() { runnerDelimited.runOneTest("length_delimited_12_03") }
 //  def test_length_delimited_12_05() { runnerDelimited.runOneTest("length_delimited_12_05") }
 //  def test_length_delimited_12_06() { runnerDelimited.runOneTest("length_delimited_12_06") }
+  def test_multiple_delimiters() { runnerDelimited.runOneTest("multiple_delimiters") }
+  def test_multiple_delimiters2() { runnerDelimited.runOneTest("multiple_delimiters2") }
   
   /* Very big test data files, so each is in its own TDML file */
 //  val ab6 = testDir + "AB006.tdml"

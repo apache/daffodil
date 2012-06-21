@@ -206,8 +206,13 @@ case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) {
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
 
-      val delimiters = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String])
-      println("Looking for: " + delimiters)
+      //val delimiters = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String])
+      val delimiters2 = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
+      val delimiters = delimiters2.flatten(x => x)
+      
+      
+      println("Looking for: " + delimiters + " Count: " + delimiters.length)
+      //println("Looking for: " + delimiters2 + " " + delimiters2.flatten( x => x))
 
       //val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(sequenceSeparator.constantAsString))
       val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, delimiters.toSet)
@@ -255,8 +260,10 @@ case class StringDelimitedWithDelimiters(e: ElementBase) extends Terminal(e, tru
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
       
-      val delimiters = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String])
-      println("Looking for: " + delimiters)
+      //val delimiters = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String])
+      val delimiters2 = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
+      val delimiters = delimiters2.flatten(x => x)
+      println("Looking for: " + delimiters + " " + delimiters2)
       
       if (delimiters.length == 0){ Assert.notYetImplemented()}
 
@@ -565,10 +572,11 @@ class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true)
 
 import stringsearch.delimiter._
 abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = true) extends Terminal(e, guard) {
-
+  lazy val delims = delim.split("\\s").toList
+  
   def parser: Parser = new Parser {
 
-    val delims = List(delim) ++ e.asInstanceOf[Term].terminatingMarkup.map(x => x.constantAsString)
+   // val delims = List(delim) ++ e.asInstanceOf[Term].terminatingMarkup.map(x => x.constantAsString)
 
     // TODO: Fix Cheezy matcher. Doesn't implement ignore case. Doesn't fail at first character that doesn't match. It grabs
     // the whole length (if it can), and then compares.
@@ -584,6 +592,7 @@ abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = tru
 
     def parse(start: PState): PState = {
       System.err.println("Parsing delimiter at bit position: " + start.bitPos)
+      
       println("Looking for: " + delims)
 
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]

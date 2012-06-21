@@ -728,7 +728,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
 
     delimiters foreach { x => dSearch.addDelimiter(x) }
 
-    println("CB: |" + cb.toString() + "|")
+    println("CB: " + cb.toString())
 
     var (theState, result, endPos, endPosDelim, theDelimiter: Delimiter) = dSearch.search(buf, 0)
     
