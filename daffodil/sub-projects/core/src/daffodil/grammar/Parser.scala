@@ -16,6 +16,7 @@ import scala.util.logging.ConsoleLogger
 import stringsearch.DelimSearcherV3._
 import stringsearch.DelimSearcherV3.SearchResult
 import scala.collection.mutable.Queue
+import scala.util.matching.Regex
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
@@ -397,55 +398,6 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
 
   // System.err.println("InStream byte count is " + count)
   // note, our input data might just be empty string, in which case count is zero, and that's all legal.
-  def fillStringBuilder(sb: StringBuilder, bitOffset: Long, decoder: CharsetDecoder): Long = {
-    Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
-    val byteOffsetAsLong = (bitOffset >> 3)
-    Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
-    val byteOffset = byteOffsetAsLong.toInt
-    //
-    // Note: not thread safe. We're depending here on the byte buffer being private to us.
-    //
-    //    System.err.println("Decode ByteBufferAsCharBuffer: " + bb.asCharBuffer().toString())
-    bb.position(byteOffset)
-    //    System.err.println("Decode ByteOffset: " + byteOffset)
-    //    System.err.println("Decode ByteBuffer: " + bb.toString())
-    //    System.err.println("Decode CharFromByteBuffer: " + bb.getChar(byteOffset))
-    //    System.err.println("Decode ByteBufferAsCharBuffer: " + bb.asCharBuffer().toString())
-    //    while (bb.hasRemaining()){
-    //      System.err.print(bb.get().toHexString + " ")
-    //    }
-    //    System.err.println
-    decoder.reset()
-    var cb = CharBuffer.allocate(sb.capacity)
-    // TODO: How do I get an immutable CharBuffer from a StringBuilder?? sb.copyToArray(cb)
-    val cr1 = decoder.decode(bb, cb, true) // true means this is all the input you get.
-    System.err.println("Decode Error1: " + cr1.toString())
-    if (cr1 != CoderResult.UNDERFLOW) {
-      if (cr1 == CoderResult.OVERFLOW) {
-        // it's ok. It just means we've satisfied the char buffer.
-      } else // for some parsing, we need to know we couldn't decode, but this is expected behavior.
-        return -1L // Assert.abort("Something went wrong while decoding characters: CoderResult = " + cr1)
-    }
-    // TODO: How do I flush the decoder with a StringBuilder?? val cr2 = decoder.flush(sb)
-    // TODO: How do I calculate cr2??  System.err.println("Decode Error2: " + cr2.toString())
-    // TODO: How do I calculate cr2??  if (cr2 != CoderResult.UNDERFLOW) {
-      // Something went wrong
-      return -1L // Assert.abort("Something went wrong while decoding characters: CoderResult = " + cr2)
-      // FIXME: proper handling of errors. Some of which are
-      // to be suppressed, other converted, others skipped, etc.
-    // TODO: How do I check if there was an Underflow??  }
-    // TODO: What does flip do and how do you do it on a StringBuilder? sb.flip() // so the caller can now read the sb.
-
-    val endBytePos = bb.position()
-
-    bb.position(0) // prevent anyone depending on the buffer position across calls to any of the InStream methods.
-    val endBitPos: Long = endBytePos << 3
-
-    endBitPos
-  }
-
-  // System.err.println("InStream byte count is " + count)
-  // note, our input data might just be empty string, in which case count is zero, and that's all legal.
   def fillCharBuffer2(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): (Long, Boolean) = {
     Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
     val byteOffsetAsLong = (bitOffset >> 3)
@@ -551,31 +503,33 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     (sb.toString(), endBitPosA, theState, theDelimiter)
   }
 
-  def fillCharBufferWithPatternMatch(sb: StringBuilder, bitOffset: Long, decoder: CharsetDecoder, delimiters: Set[String]): (String, Long, SearchResult) = {
+  def fillCharBufferWithPatternMatch(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, pattern: String): (String, Long, SearchResult) = {
     println("===\nSTART_FILL!\n===\n")
     val byteOffsetAsLong = (bitOffset >> 3)
-
     val byteOffset = byteOffsetAsLong.toInt
 
-    println("BYTE_OFFSET: " + byteOffset)
-    var endBitPosA: Long = fillStringBuilder(sb, bitOffset, decoder)
-    val dSearch = new DelimSearcher with ConsoleLogger
-    var buf = sb
+    var (endBitPosA: Long, state) = fillCharBufferMixedData(cb, bitOffset, decoder)
+    var sb: StringBuilder = new StringBuilder // To keep track of the searched text
+    val dSearch = pattern.r
+    var buf = cb
 
-    delimiters foreach {
-      x => dSearch.addDelimiter(x)
+    if (endBitPosA == -1L){
+      System.err.println("Failed, reached end of buffer.")
+      return (cb.toString(), -1L, SearchResult.NoMatch)
     }
 
-    // --
-    dSearch.printDelimStruct
-    // --
+    println("START_CB: " + cb.toString())
+    println("CB_" + cb.toString() + "_END_CB")
 
-    println("CB_" + sb.toString() + "_END_CB")
-
-    //var (theState, result, endPos) = dSearch.search(buf, 0)
+    var (theState, endPos, result) = dSearch findPrefixMatchOf buf match {
+      case Some(mch) => (SearchResult.FullMatch, mch.end.toLong, mch.matched)
+      // Initial/Default values if not matched
+      // TODO: What should result be if string not found?
+      case None => (SearchResult.NoMatch, -1L, "")
+    }
+    //var (theState, result, endPos, endPosDelim, theDelimiter) = dSearch.search(buf, 0)
+    // TODO: What is this line for?
     var imBuffer = CharBuffer.allocate(buf.capacity)
-    // TODO: How do I get an immutable CharBuffer from a StringBuilder?? sb.copyToArray(imBuffer)
-    var (theState, result, endPos, endPosDelim, theDelimiter) = dSearch.search(imBuffer, 0)
 
     if (theState == SearchResult.FullMatch) {
       sb.append(result)
@@ -584,23 +538,29 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
 
     if (buf.toString().length == 0){ EOF = true } // Buffer was empty to start, nothing to do.
 
+    // Buffer not big enough
+    // TODO: There should be a way to pre-allocate the buffer to be big enough or at least get a better estimate than
+    //       1000
     // Proceed until we encounter a FullMatch or EOF
     while ((theState == SearchResult.NoMatch || theState == SearchResult.PartialMatch) && endBitPosA != -1 && !EOF) {
+      // TODO: Clear??  You mean copy it again?
       buf.clear()
-      // TODO: Since buf is a StringBuilder, so I need to increase the size??  buf = CharBuffer.allocate(buf.length * 2)
+      buf = CharBuffer.allocate(buf.length * 2)
 
-      // TODO: What does this do??  val fillState = fillCharBuffer2(buf, bitOffset, decoder)
-      // TODO: How do I calculate endBitPosA??  endBitPosA = fillState._1
-      // TODO: How do I calculate EOF??  EOF = fillState._2
+      val fillState = fillCharBufferMixedData(buf, bitOffset, decoder)
+      endBitPosA = fillState._1
+      EOF = fillState._2
 
-      //var (state2, result2, endPos2) = dSearch.search(buf, endPos, false)
-      // var (state2, result2, endPos2, endPosDelim2) = dSearch.search(buf, endPos, false)
-      // TODO: Convert to Regex??  var (state2, result2, endPos2, endPosDelim2) = dSearch.search(buf, 0, true)
-      // TODO: How do I calculate state2??  theState = state2
-      // TODO: How do I calculate endPos??  endPos = endPos2
+      var (state2, endPos2, result2) = dSearch findPrefixMatchOf buf match {
+        case Some(mch) => (SearchResult.FullMatch, mch.end.toLong, mch.matched)
+        // TODO: What should result be if string not found?
+        case None => (SearchResult.NoMatch, -1L, "")
+      }
+      theState = state2
+      endPos = endPos2
 
       if (theState != SearchResult.PartialMatch) {
-        // TODO: How do I calculate result2??  sb.append(result2)
+        sb.append(result2)
       }
     }
 

@@ -336,12 +336,12 @@ class TestDFDLParser extends JUnit3Suite {
         <xs:element name="doctors">
           <xs:complexType>
             <xs:sequence dfdl:separator=",">
-              <xs:element name="name" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern=".*?[^\](?=,)" dfdl:occursCountKind="fixed" minOccurs="11" maxOccurs="11"/>
+              <xs:element name="name" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern=".*?[^\\](?=,|$)" dfdl:occursCountKind="fixed" minOccurs="11" maxOccurs="11"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>)
-    val actual = Compiler.testString(sch, "Hartnell\\, William,Troughton\\, Patrick,Pertwee\\, Jon,Baker\\, Tom,Davison\\, Peter,Baker\\, Colin,McCoy\\, Sylvester,McGann\\, Paul,Christopher Eccleston,David Tennant,Matt Smith").result
-    TestUtils.assertEqualsXMLElements(<doctors><name>Hartnell, William</name><name>Troughton, Patrick</name><name>Pertwee, Jon</name><name>Baker, Tom</name><name>Davison, Peter</name><name>Baker, Colin</name><name>McCoy, Sylvester</name><name>McGann, Paul</name><name>Christopher Eccleston</name><name>David Tennant</name><name>Matt Smith</name></doctors>, actual)
+    val actual = Compiler.testString(sch, """Hartnell\, William,Troughton\, Patrick,Pertwee\, Jon,Baker\, Tom,Davison\, Peter,Baker\, Colin,McCoy\, Sylvester,McGann\, Paul,Christopher Eccleston,David Tennant,Matt Smith""").result
+    TestUtils.assertEqualsXMLElements(<doctors><name>Hartnell\, William</name><name>Troughton\, Patrick</name><name>Pertwee\, Jon</name><name>Baker\, Tom</name><name>Davison\, Peter</name><name>Baker\, Colin</name><name>McCoy\, Sylvester</name><name>McGann\, Paul</name><name>Christopher Eccleston</name><name>David Tennant</name><name>Matt Smith</name></doctors>, actual)
   }
 
   // TEST FAILS - SEE JIRA DFDL-184
