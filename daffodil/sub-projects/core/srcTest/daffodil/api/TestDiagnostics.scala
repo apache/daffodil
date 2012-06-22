@@ -7,8 +7,8 @@ import daffodil.dsom.DiagnosticsImpl
 /**
  * Illustrates how to pair a value with diagnostic information.
  */
-private[api] class MyInt(i : Option[Int], diagnostics : Seq[Diagnostic]) 
-  extends ValueWithDiagnostics[Int, MyInt](i, diagnostics) 
+private[api] class MyInt(i : Option[Int], diags : Seq[Diagnostic]) 
+  extends ValueWithDiagnostics[Int, MyInt](i, diags) 
   with DiagnosticsImpl {
   // must write a newInstance routine callable from the base class
   def newInstance(i : Option[Int], d : Seq[Diagnostic]) = new MyInt(i, d)

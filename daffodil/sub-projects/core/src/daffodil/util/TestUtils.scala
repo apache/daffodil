@@ -17,26 +17,34 @@ object TestUtils {
   /**
    * utility to create test schemas without having to repeat all the namespace definitions,
    * and the appinfo boilerplate. This makes tests more uniform.
-   * 
+   *
    * Defines standard named formats that can be re-used by tests. This helps with the issue
    * of having to add properties everywhere when a new property starts being expected.
    */
-  def dfdlTestSchema(topLevelAnnotations: Seq[Node], contentElements: Seq[Node]) = {
-    val realSchema = <xs:schema xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns={ targetNS } xmlns:tns = { targetNS } targetNamespace={ targetNS }>
+  def dfdlTestSchema(topLevelAnnotations : Seq[Node], contentElements : Seq[Node]) = {
+    val realSchema = <xs:schema xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns={ targetNS } xmlns:tns={ targetNS } targetNamespace={ targetNS }>
                        <xs:annotation>
                          <xs:appinfo source={ dfdlURI }>
                            <dfdl:defineFormat name="daffodilTest1">
-                             <dfdl:format lengthKind="implicit" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no" textNumberRep="standard" />
+                             <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" 
+                         alignment='1' alignmentUnits='bytes' textStandardBase='10' 
+                         binaryFloatRep='ieee' binaryNumberRep='binary' byteOrder='bigEndian' 
+                         calendarPatternKind='implicit' 
+                         escapeSchemeRef='' documentFinalTerminatorCanBeMissing='no' 
+                         ignoreCase='no' initiatedContent='no' 
+                         leadingSkip='0' lengthKind='implicit' 
+                         occursCountKind='parsed' 
+                         separatorPolicy='suppressed' separatorPosition='infix' sequenceKind='ordered' 
+                         textNumberRep='standard' textNumberCheckPolicy='strict' textStringJustification='left' trailingSkip='0' 
+                         initiator="" terminator="" separator=""
+                         />
                            </dfdl:defineFormat>
                            { topLevelAnnotations }
                          </xs:appinfo>
                        </xs:annotation>
-	<xsd:import namespace={ DFDLSubsetURI }
-		schemaLocation="DFDLSubsetOfXMLSchema_v1_036.xsd" />
-    <xsd:import namespace={ xsdURI }
-		schemaLocation="XMLSchema.xsd" />
-	<xsd:import namespace={ dfdlURI }
-	    schemaLocation="DFDL_part3_model.xsd"/>
+                       <xsd:import namespace={ DFDLSubsetURI } schemaLocation="DFDLSubsetOfXMLSchema_v1_036.xsd"/>
+                       <xsd:import namespace={ xsdURI } schemaLocation="XMLSchema.xsd"/>
+                       <xsd:import namespace={ dfdlURI } schemaLocation="DFDL_part3_model.xsd"/>
                        { contentElements }
                      </xs:schema>
     val realSchemaText = realSchema.toString()

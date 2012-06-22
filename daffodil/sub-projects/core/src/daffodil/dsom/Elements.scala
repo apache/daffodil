@@ -82,7 +82,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with DFDLStatementMixin
   with ElementBaseGrammarMixin
   with ElementRuntimeValuedPropertiesMixin
-  with NamedMixin {
+  with NamedMixin
+  with DiagnosticsImpl {
 
   def isNillable: Boolean
   def isSimpleType: Boolean
@@ -182,14 +183,15 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   /**
    * check if there are delimiters such that there is a concept of something that we can call 'empty'
    */
-  lazy val emptyIsAnObservableConcept: Boolean = {
-    if ((hasSep ||
+  lazy val emptyIsAnObservableConcept : Boolean = {
+    val res = if ((hasSep ||
       hasEmptyValueInitiator ||
       hasEmptyValueTerminator) &&
       lengthKind != LengthKind.Implicit) {
       // fixed length things can't be empty (assuming static length 0 isn't allowed.) 
       false
     } else true
+    res
   }
 
   /**
@@ -497,7 +499,8 @@ class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val ele
   extends ElementBase(xmlArg, schemaDocumentArg, 0)
   with ElementDeclMixin
   with GlobalComponentMixin
-  with GlobalElementDeclGrammarMixin {
+  with GlobalElementDeclGrammarMixin 
+  with DiagnosticsImpl {
 
   // We inherit the requirement for these attributes from Term. It all gets
   // too complicated in DSOM if you try to make GlobalElementDecl share with the other

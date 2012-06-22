@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="multiple-diagnostics" description="Show that more than one diagnostic is returned from various scenarios."
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="test1.dfdl.xsd">
+		<dfdl:defineFormat name="explicit_defaults">
+			<dfdl:format alignment='1' alignmentUnits='bytes'
+				textStandardBase='10' binaryFloatRep='ieee' binaryNumberRep='binary'
+				byteOrder='bigEndian' calendarPatternKind='implicit' encoding='UTF-8'
+				escapeSchemeRef='' documentFinalTerminatorCanBeMissing='no'
+				ignoreCase='no' initiatedContent='no' leadingSkip='0' lengthKind='delimited'
+				occursCountKind='parsed' separatorPolicy='required'
+				separatorPosition='infix' sequenceKind='ordered' textNumberRep='standard'
+				textNumberCheckPolicy='strict' textStringJustification='left'
+				trailingSkip='0' initiator="" terminator="" separator="" />
+		</dfdl:defineFormat>
+
+		<dfdl:format ref="explicit_defaults" />
+
+		<xs:element name="err1" type="type_doesnt_exist"/>
+		<xs:element name="err2" type="another_type_doesnt_exist" />
+		
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="twoErrors" root="err1" model="test1.dfdl.xsd"
+		description="Two errors from two different elements of the same schema document.">
+
+		<tdml:document/>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<err1/> 
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+</tdml:testSuite>

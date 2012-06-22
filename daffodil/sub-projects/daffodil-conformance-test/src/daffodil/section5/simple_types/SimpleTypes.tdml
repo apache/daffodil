@@ -18,11 +18,23 @@
 		<xs:element name="integer01" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
 		<xs:element name="int01" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="13"/>
 		<xs:element name="int02" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="11"/>
+		<xs:element name="int03" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2"/>
 		<xs:element name="short01" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="4"/>
+		
+		<xs:element name="limits" dfdl:lengthKind="explicit">
+	        <xs:complexType>
+	          <xs:sequence dfdl:separator=":" dfdl:separatorPolicy="required" dfdl:separatorPosition="infix" >
+	            <xs:element name="unsigned-byte" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>
+	            <xs:element name="unsigned-short" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="{ 6 }"/>
+	            <xs:element name="unsigned-int" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>
+	            <xs:element name="unsigned-long" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
+	          </xs:sequence>
+	        </xs:complexType>
+      	</xs:element>
 	</tdml:defineSchema>
 	
 	<tdml:parserTestCase name="Long1" root="s"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-long">
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-long - DFDL-5-012R">
 
 		<tdml:document>2,000,000,000</tdml:document>
 		<tdml:infoset>
@@ -33,7 +45,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="schema_types_5_04" root="long1"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-long">
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-long - DFDL-5-012R">
 
 		<tdml:document>9223372036854775807</tdml:document>
 		<tdml:infoset>
@@ -44,7 +56,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="BigInteger1" root="mersenne"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-integer">
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-integer - DFDL-5-011R">
 
 		<tdml:document>686,479,766,013,060,971,498,190,079,908,139,321,726,943,530,014,330,540,939,446,345,918,554,318,339,765,605,212,255,964,066,145,455,497,729,631,139,148,085,803,712,198,799,971,664,381,257,402,829,111,505,715</tdml:document>
 		<tdml:infoset>
@@ -55,7 +67,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="Integer01" root="integer01"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-integer">
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-integer - DFDL-5-011R">
 
 		<tdml:document>55555555555555555555</tdml:document>
 		<tdml:infoset>
@@ -66,7 +78,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="Int01" root="int01"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-int">
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-int - DFDL-5-013R">
 
 		<tdml:document>2,147,483,647</tdml:document>
 		<tdml:infoset>
@@ -77,7 +89,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="schema_types_5_03" root="int02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-int">
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-int - DFDL-5-013R">
 
 		<tdml:document>-2147483648</tdml:document>
 		<tdml:infoset>
@@ -88,12 +100,46 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="schema_types_5_02" root="short01"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-short">
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-short - DFDL-5-014R">
 
 		<tdml:document>-123</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<short01 xs:type="xs:short">-123</short01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="int_error" root="int02"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-int - DFDL-5-013R">
+		
+		<tdml:document>-2147483649</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="warning_exercise" root="int03"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Exercise for handling a warning message">
+		
+		<tdml:document>37</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<int03 xs:type="xs:int">37</int03>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:warnings>
+			<tdml:warning/><!-- don't care what message is -->
+		</tdml:warnings>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="UnsignedNumbers1" root="limits"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsigned integer types - DFDL-5-014R">
+
+		<tdml:document>255:65,535:4,294,967,295:18446744073709551615</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<limits><unsigned-byte>255</unsigned-byte><unsigned-short>65535</unsigned-short><unsigned-int>4294967295</unsigned-int><unsigned-long>18446744073709551615</unsigned-long></limits>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
