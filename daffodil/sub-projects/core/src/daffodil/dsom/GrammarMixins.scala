@@ -26,6 +26,22 @@ with DelimitedRuntimeValuedPropertiesMixin { self : SchemaComponent =>
   lazy val terminatorRegion = Prod("terminatorRegion", this, hasTerminator, staticTerminator | dynamicTerminator)
   override def hasInitiator : Boolean
   override def hasTerminator : Boolean
+  
+  lazy val escapeScheme: Option[DFDLEscapeScheme] = {
+      val er = getPropertyOption("escapeSchemeRef")
+      er match {
+        case None => None
+        case Some(qName) => {
+          
+          val (nsURI, name) = formatAnnotation.getQName(qName)
+          val defES = schema.schemaSet.getDefineEscapeScheme(nsURI,name)
+          defES match {
+            case None => Assert.SDE("Define Escape Scheme Not Found")
+            case Some(es) => Some(es.escapeScheme)
+          }
+        }
+      }
+    }
 }
 
 /////////////////////////////////////////////////////////////////

@@ -578,14 +578,50 @@ case class LittleEndianFloatPrim(e: ElementBase) extends Terminal(e, true) {
   def parser = new FloatPrim(java.nio.ByteOrder.LITTLE_ENDIAN)
 }
 
-class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true)
+class StaticDelimiter(delim: String, e: InitiatedTerminatedMixin, guard: Boolean = true)
   extends StaticText(delim, e, guard)
 
 import stringsearch.delimiter._
-abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = true) extends Terminal(e, guard) {
+import stringsearch.DelimSearcherV3.EscapeSchemeKind
+
+abstract class StaticText(delim: String, e: InitiatedTerminatedMixin, guard: Boolean = true) extends Terminal(e, guard) {
   lazy val delims = delim.split("\\s").toList
   
+  //e.formatAnnotation.
+  lazy val es = e.escapeScheme
+  
   def parser: Parser = new Parser {
+    var escapeSchemeKind = EscapeSchemeKind.None
+    var escapeCharacter = ""
+    var escapeEscapeCharacter = ""
+    var escapeBlockStart = ""
+    var escapeBlockEnd = ""
+      
+    es match {
+      case None => // Nothing
+      case Some(obj) => {
+        obj.escapeKind match {
+          case EscapeKind.EscapeBlock => {
+            escapeSchemeKind = EscapeSchemeKind.Block
+            escapeEscapeCharacter = obj.escapeEscapeCharacterRaw
+            escapeBlockStart = obj.escapeBlockStart
+            escapeBlockEnd = obj.escapeBlockEnd
+          }
+          case EscapeKind.EscapeCharacter => {
+            escapeSchemeKind = EscapeSchemeKind.Character
+            escapeEscapeCharacter = obj.escapeEscapeCharacterRaw
+            escapeCharacter = obj.escapeCharacterRaw
+          }
+          case _ => // Unrecognized EscapeKind
+        }
+      }
+    }
+    
+    println("EscapeSchemeKind: " + escapeSchemeKind)
+    println("EscapeCharacter: " + escapeCharacter)
+    println("EscapeEscapeCharacter: " + escapeEscapeCharacter)
+    println("EscapeBlockStart: " + escapeBlockStart)
+    println("EscapeBlockEnd: " + escapeBlockEnd)
 
    // val delims = List(delim) ++ e.asInstanceOf[Term].terminatingMarkup.map(x => x.constantAsString)
 
@@ -658,7 +694,7 @@ abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = tru
   }
 }
 
-class DynamicDelimiter(delimExpr: CompiledExpression, e: AnnotatedMixin, guard: Boolean = true) extends Primitive(e, guard)
+class DynamicDelimiter(delimExpr: CompiledExpression, e: InitiatedTerminatedMixin, guard: Boolean = true) extends Primitive(e, guard)
 
 case class StaticInitiator(e: InitiatedTerminatedMixin) extends StaticDelimiter(e.initiator.constantAsString, e)
 //case class StaticTerminator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.terminator.constantAsString, e)

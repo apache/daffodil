@@ -148,7 +148,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     delimsQ += delim2
 
     val list0 = ds.getPrefixedDelims(prefix, delimsQ.toList)
-    
+
     println(list0)
 
     assertEquals(2, list0.length)
@@ -377,35 +377,35 @@ class TestDelimSearcherV3 extends JUnit3Suite {
       case None => assertTrue(true)
     }
   }
-  
+
   def testReduceDelimBuf = {
     val d: Delimiter = new Delimiter
-    
+
     // WSP WSP* => WSP+
     val db0: Queue[DelimBase] = new Queue[DelimBase]
     db0 += new WSPDelim()
     db0 += new WSPStarDelim()
-    
+
     // WSP WSP+ => WSP+
     val db1: Queue[DelimBase] = new Queue[DelimBase]
     db1 += new WSPDelim()
     db1 += new WSPPlusDelim()
-    
+
     // WSP* WSP+ => WSP+
     val db2: Queue[DelimBase] = new Queue[DelimBase]
     db2 += new WSPStarDelim()
     db2 += new WSPPlusDelim()
-    
+
     // WSP* WSP* => WSP*
     val db3: Queue[DelimBase] = new Queue[DelimBase]
     db3 += new WSPStarDelim()
     db3 += new WSPStarDelim()
-    
+
     // WSP+ WSP+ => WSP+
     val db4: Queue[DelimBase] = new Queue[DelimBase]
     db4 += new WSPPlusDelim()
     db4 += new WSPPlusDelim()
-    
+
     // WSP WSP => WSP WSP
     // Here we should note that WSP WSP WSP is NOT equivalent to WSP+
     // as WSP+ would imply that WSP WSP WSP WSP is also valid when in fact
@@ -413,19 +413,19 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     val db5: Queue[DelimBase] = new Queue[DelimBase]
     db5 += new WSPDelim()
     db5 += new WSPDelim()
-    
+
     // WSP* => WSP*
     val db6: Queue[DelimBase] = new Queue[DelimBase]
     db6 += new WSPStarDelim()
-    
+
     // WSP+ => WSP+
     val db7: Queue[DelimBase] = new Queue[DelimBase]
     db7 += new WSPPlusDelim()
-    
+
     // WSP => WSP
     val db8: Queue[DelimBase] = new Queue[DelimBase]
     db8 += new WSPDelim()
-    
+
     // WSP WSP WSP* NL WSP+ WSP* => WSP+ NL WSP+
     val db9: Queue[DelimBase] = new Queue[DelimBase]
     db9 += new WSPDelim()
@@ -434,7 +434,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     db9 += new NLDelim()
     db9 += new WSPPlusDelim()
     db9 += new WSPStarDelim()
-    
+
     val res0 = d.reduceDelimBuf(db0.toArray)
     val res1 = d.reduceDelimBuf(db1.toArray)
     val res2 = d.reduceDelimBuf(db2.toArray)
@@ -445,7 +445,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     val res7 = d.reduceDelimBuf(db7.toArray)
     val res8 = d.reduceDelimBuf(db8.toArray)
     val res9 = d.reduceDelimBuf(db9.toArray)
-    
+
     assertEquals(1, res0.length)
     assertTrue(res0(0).isInstanceOf[WSPPlusDelim])
     assertEquals(1, res1.length)
@@ -470,7 +470,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertTrue(res9(1).isInstanceOf[NLDelim])
     assertTrue(res9(2).isInstanceOf[WSPPlusDelim])
   }
-  
+
   def testBuildDelimBuf = {
     val d: Delimiter = new Delimiter
     val str0 = ""
@@ -480,7 +480,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     val str4 = "a%WSP;b"
     val str5 = "%WSP;%WSP;"
     val str6 = ",%WSP;%WSP*;"
-    
+
     val res0 = d.buildDelimBuf(str0) // Empty String
     val res1 = d.buildDelimBuf(str1) // CharDelim CharDelim CharDelim
     val res2 = d.buildDelimBuf(str2) // CharDelim NLDelim CharDelim
@@ -488,40 +488,40 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     val res4 = d.buildDelimBuf(str4) // CharDelim WSPDelim CharDelim
     val res5 = d.buildDelimBuf(str5) // WSPDelim WSPDelim
     val res6 = d.buildDelimBuf(str6) // CharDelim WSPPlusDelim
-    
+
     assertEquals(0, res0.length)
-    
+
     assertEquals(3, res1.length)
     assertTrue(res1(0).isInstanceOf[CharDelim])
     assertTrue(res1(1).isInstanceOf[CharDelim])
     assertTrue(res1(2).isInstanceOf[CharDelim])
-    
+
     assertEquals(3, res2.length)
     assertTrue(res2(0).isInstanceOf[CharDelim])
     assertTrue(res2(1).isInstanceOf[NLDelim])
     assertTrue(res2(2).isInstanceOf[CharDelim])
-    
+
     assertEquals(5, res3.length)
     assertTrue(res3(0).isInstanceOf[CharDelim])
     assertTrue(res3(1).isInstanceOf[CharDelim])
     assertTrue(res3(2).isInstanceOf[CharDelim])
     assertTrue(res3(3).isInstanceOf[CharDelim])
     assertTrue(res3(4).isInstanceOf[CharDelim])
-    
+
     assertEquals(3, res4.length)
     assertTrue(res4(0).isInstanceOf[CharDelim])
     assertTrue(res4(1).isInstanceOf[WSPDelim])
     assertTrue(res4(2).isInstanceOf[CharDelim])
-    
+
     assertEquals(2, res5.length)
     assertTrue(res5(0).isInstanceOf[WSPDelim])
     assertTrue(res5(1).isInstanceOf[WSPDelim])
-    
+
     assertEquals(2, res6.length)
     assertTrue(res6(0).isInstanceOf[CharDelim])
     assertTrue(res6(1).isInstanceOf[WSPPlusDelim])
   }
-  
+
   def testBuildDelimRegEx = {
     val ds: DelimSearcher = new DelimSearcher with ConsoleLogger
 
@@ -534,7 +534,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     ds.addDelimiter(",%WSP;%WSP*;") // ,\\s\\* => ,\\s+
     ds.addDelimiter("+^$") // \\+\\^\\$
     ds.addDelimiter("%WSP*;") // \\s*
-    
+
     val res0 = ds.delimiters(0).buildDelimRegEx()
     val res1 = ds.delimiters(1).buildDelimRegEx()
     val res2 = ds.delimiters(2).buildDelimRegEx()
@@ -544,7 +544,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     val res6 = ds.delimiters(6).buildDelimRegEx()
     val res7 = ds.delimiters(7).buildDelimRegEx()
     val res8 = ds.delimiters(8).buildDelimRegEx()
-    
+
     assertEquals("", res0)
     assertEquals("abc", res1)
     assertEquals("a(\\r\\n|\\n|\\r)a", res2)
@@ -585,7 +585,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(1, endPos1)
     assertEquals(2, endPosDelim1)
     assertTrue(crlf1.contains((1, 2)))
-    
+
     // Verify expected states encountered
     val d1: Delimiter = ds.delimiters(0)
     val trace1 = d1.stateTrace.map(x => x._1)
@@ -605,7 +605,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(1, endPos2)
     assertEquals(1, endPosDelim2)
     assertEquals(0, crlf2.length)
-    
+
     // Verify expected states encountered
     val d2: Delimiter = ds.delimiters(0)
     val trace2 = d2.stateTrace.map(x => x._1)
@@ -625,7 +625,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(2, endPos3)
     assertEquals(2, endPosDelim3)
     assertTrue(crlf3.contains((2, -1)))
-    
+
     // Verify expected states encountered
     val d3: Delimiter = ds.delimiters(0)
     val trace3 = d3.stateTrace.map(x => x._1)
@@ -645,7 +645,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(1, endPos4)
     assertEquals(1, endPosDelim4)
     assertEquals(0, crlf4.length)
-    
+
     // Verify expected states encountered
     val d4: Delimiter = ds.delimiters(0)
     val trace4 = d4.stateTrace.map(x => x._1)
@@ -665,7 +665,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(2, endPos5)
     assertEquals(2, endPosDelim5)
     assertEquals(0, crlf5.length)
-    
+
     // Verify expected states encountered
     val d5: Delimiter = ds.delimiters(0)
     val trace5 = d5.stateTrace.map(x => x._1)
@@ -673,7 +673,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(SearchState.NLNoMatch, trace5(0))
     assertEquals(SearchState.NLNoMatch, trace5(1))
     assertEquals(SearchState.NLCrlfNotFound, trace5(2))
-    
+
     cb = CharBuffer.allocate(str6.length() + 1)
     cb.put(str6)
     cb.flip()
@@ -685,7 +685,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(2, endPos6)
     assertEquals(2, endPosDelim6)
     assertEquals(0, crlf6.length)
-    
+
     // Verify expected states encountered
     val d6: Delimiter = ds.delimiters(0)
     val trace6 = d6.stateTrace.map(x => x._1)
@@ -713,7 +713,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("a,", result1)
     assertEquals(2, endPos1)
     assertEquals(4, endPosDelim1)
-    
+
     // Verify expected states encountered
     val d1: Delimiter = ds.delimiters(0)
     val trace1 = d1.stateTrace.map(x => x._1)
@@ -727,7 +727,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(SearchState.OtherMatch, trace1(5))
     assertEquals(SearchState.NoMatch, trace1(6))
   }
-  
+
   // State Coverage
   def testWSPPlus = {
     val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
@@ -746,7 +746,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("a", result1)
     assertEquals(1, endPos1)
     assertEquals(3, endPosDelim1)
-    
+
     // Verify expected states encountered
     val d1: Delimiter = ds.delimiters(0)
     val trace1 = d1.stateTrace.map(x => x._1)
@@ -756,7 +756,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(SearchState.WSPModeAndSpace, trace1(2))
     assertEquals(SearchState.WSPModeAndSpace, trace1(3))
     assertEquals(SearchState.WSPPlusNoMatch, trace1(4))
-    
+
     val str2 = "ab"
     cb = CharBuffer.allocate(str2.length() + 1)
     cb.put(str2)
@@ -767,7 +767,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("ab", result2)
     assertEquals(1, endPos2)
     assertEquals(1, endPosDelim2)
-    
+
     // Verify expected states encountered
     val d2: Delimiter = ds.delimiters(0)
     val trace2 = d2.stateTrace.map(x => x._1)
@@ -775,7 +775,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(SearchState.WSPPlusNoMatch, trace2(0))
     assertEquals(SearchState.WSPPlusNoMatch, trace2(1))
   }
-  
+
   // State Coverage
   def testWSPStar = {
     val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
@@ -794,7 +794,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("a", result1)
     assertEquals(1, endPos1)
     assertEquals(3, endPosDelim1)
-    
+
     // Verify expected states encountered
     val d1: Delimiter = ds.delimiters(0)
     val trace1 = d1.stateTrace.map(x => x._1)
@@ -804,7 +804,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(SearchState.WSPModeAndSpace, trace1(2))
     assertEquals(SearchState.WSPModeAndSpace, trace1(3))
     assertEquals(SearchState.WSPStarNoMatch, trace1(4))
-    
+
     val str2 = "ab"
     cb = CharBuffer.allocate(str2.length() + 1)
     cb.put(str2)
@@ -815,7 +815,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("ab", result2)
     assertEquals(1, endPos2)
     assertEquals(1, endPosDelim2)
-    
+
     // Verify expected states encountered
     val d2: Delimiter = ds.delimiters(0)
     val trace2 = d2.stateTrace.map(x => x._1)
@@ -823,7 +823,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(SearchState.WSPStarNoMatch, trace2(0))
     assertEquals(SearchState.WSPStarNoMatch, trace2(1))
   }
-  
+
   // State Coverage
   def testWSP = {
     val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
@@ -842,7 +842,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("a", result1)
     assertEquals(1, endPos1)
     assertEquals(1, endPosDelim1)
-    
+
     // Verify expected states encountered
     val d1: Delimiter = ds.delimiters(0)
     val trace1 = d1.stateTrace.map(x => x._1)
@@ -852,7 +852,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(SearchState.WSPMatch, trace1(2))
     assertEquals(SearchState.WSPMatch, trace1(3))
     assertEquals(SearchState.WSPNoMatch, trace1(4))
-    
+
     val str2 = "ab"
     cb = CharBuffer.allocate(str2.length() + 1)
     cb.put(str2)
@@ -863,7 +863,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("ab", result2)
     assertEquals(1, endPos2)
     assertEquals(1, endPosDelim2)
-    
+
     // Verify expected states encountered
     val d2: Delimiter = ds.delimiters(0)
     val trace2 = d2.stateTrace.map(x => x._1)
@@ -871,7 +871,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(SearchState.WSPNoMatch, trace2(0))
     assertEquals(SearchState.WSPNoMatch, trace2(1))
   }
-  
+
   // State Coverage
   def testGetIntoSpaceState = {
     val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
@@ -891,7 +891,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("a\t\t\tb", result1)
     assertEquals(4, endPos1)
     assertEquals(4, endPosDelim1)
-    
+
     // Verify expected states encountered
     val d: Delimiter = ds.delimiters(0)
     val trace = d.stateTrace.map(x => x._1)
@@ -902,14 +902,14 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(SearchState.SpaceAndNotWSPMode, trace(3))
     assertEquals(SearchState.NoMatch, trace(4))
   }
-  
+
   def testGetIntoOtherState = {
     val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
     assertEquals(0, ds.delimiters.length) // Verified contained no delimiters
     ds.addDelimiter(",")
     assert(ds.delimiters.length == 1) // Verified delimiter was added
     ds.enableStateTrace
-    
+
     val str1 = "a,b"
     var cb = CharBuffer.allocate(str1.length() + 1)
     cb.put(str1)
@@ -921,7 +921,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("a", result1)
     assertEquals(1, endPos1)
     assertEquals(1, endPosDelim1)
-    
+
     // Verify expected states encountered
     val d: Delimiter = ds.delimiters(0)
     val trace = d.stateTrace.map(x => x._1)
@@ -929,11 +929,11 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(SearchState.OtherMatch, trace(1))
     assertEquals(SearchState.NoMatch, trace(2))
   }
-  
+
   /*
    * TEST SEARCH
    * */
-    def testSingleSeparatorChar = {
+  def testSingleSeparatorChar = {
     val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
     assertEquals(0, ds.delimiters.length) // Verified contained no delimiters
     ds.addDelimiter(",")
@@ -1206,7 +1206,6 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("abc", result1)
     assertEquals(3, endPos1)
     assertEquals(3, endPosDelim1)
-    
 
     // Round 2 - Expect: EOF, def, 6, 6
     val (state1a, result1a, endPos1a, endPosDelim1a, _) = ds.search(cb, endPos1 + 1)
@@ -1380,7 +1379,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals("def", result3b)
     assertEquals(7, endPos3b)
     assertEquals(7, endPosDelim3b)
-   
+
     // STR4 >>>>>>>>>>>>>>>>>>>>>>>>
     cb.clear()
     cb = CharBuffer.allocate(str4.length() + 1)
@@ -1671,7 +1670,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(15, endPos1b)
     assertEquals(15, endPosDelim1b)
   }
-  
+
   def testWSPPlusNL = {
     val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
     assertEquals(0, ds.delimiters.length) // Verified contained no delimiters
@@ -1706,7 +1705,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(15, endPos1b)
     assertEquals(15, endPosDelim1b)
   }
-  
+
   def testWSPStarNL = {
     val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
     assertEquals(0, ds.delimiters.length) // Verified contained no delimiters
@@ -2027,10 +2026,10 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     assertEquals(6, d0.delimBuf.length)
     assertEquals(6, d1.delimBuf.length)
   }
-  
+
   def testCorrectParsingMultipleSequence = {
     //val data: String = "abcde|fghij|klmno::pqrst|uvwzy|z]"
-    
+
     // The purpose of this test is to verify that :: is found before | here
     // as this data represents two sequences terminated by either :: or ].
     val data: String = "klmno::pqrst|uvwzy|z]"
@@ -2041,14 +2040,355 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     ds.addDelimiter(";")
     ds.addDelimiter("]")
     assert(ds.delimiters.length == 4) // Verified delimiter was added  
-    
+
     var cb: CharBuffer = CharBuffer.allocate(data.length() + 1)
     cb.put(data)
     cb.flip()
-    
+
     val (state, result, endPos, endPosDelim, _) = ds.search(cb)
-    
+
     assertEquals("klmno", result)
+  }
+
+  def testComputeEscapeCharacterListSameChar = {
+    val no_escapes: String = "a,b,c,d,e,f"
+    val escapes: String = "a/,b,c/,d,e/,f" // results in escapes affecting char pos 2, 7, 12
+    val escapeEscapes: String = "a//,b,c//,d,e/,f" // results in an escape affecting char pos 14
+    val tricky1: String = "a///,b,c" // results in an escape at char pos 3 affecting char pos 4
+    val tricky2: String = "a////,b,c" // results in no escapes
+
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+
+    val cb0: CharBuffer = CharBuffer.allocate(no_escapes.length() + 1)
+    cb0.put(no_escapes)
+    cb0.flip()
+
+    val cb1: CharBuffer = CharBuffer.allocate(escapes.length() + 1)
+    cb1.put(escapes)
+    cb1.flip()
+
+    val cb2: CharBuffer = CharBuffer.allocate(escapeEscapes.length() + 1)
+    cb2.put(escapeEscapes)
+    cb2.flip()
+
+    val cb3: CharBuffer = CharBuffer.allocate(tricky1.length() + 1)
+    cb3.put(tricky1)
+    cb3.flip()
+
+    val cb4: CharBuffer = CharBuffer.allocate(tricky2.length() + 1)
+    cb4.put(tricky2)
+    cb4.flip()
+
+    ds.setEscapeScheme(EscapeSchemeKind.Character, "/", "/", "", "")
+
+    val res0 = ds.getEscapeCharacterList(cb0)
+    assertEquals(List.empty, res0)
+
+    val res1 = ds.getEscapeCharacterList(cb1)
+    assertEquals(List(1, 6, 11), res1)
+
+    // getEscapeEscapeCharacterList returns Tuple(ListA, ListB)
+    //	Where
+    //		A is the list of escapeEscapeCharacters
+    //		B is the list of escaped escapeEscapeCharacters
+    //
+    // Here we should have the second list populated because we are attempting
+    // to escape a character that matches both the escapeCharacter and the
+    // escapeEscapeCharacter
+    val res2_0 = ds.getEscapeEscapeCharacterList(cb2)
+    assertEquals((List(13), List((1 -> 2), (7 -> 8))), res2_0)
+
+    val res2_1 = ds.getEscapeCharacterList(cb2)
+    assertEquals(List(13), res2_1)
+
+    val res3 = ds.getEscapeCharacterList(cb3)
+    assertEquals(List(3), res3)
+
+    val res4 = ds.getEscapeCharacterList(cb4)
+    assertEquals(List.empty, res4)
+  }
+
+  def testComputeEscapeCharacterListDiffChar = {
+    val no_escapes: String = "a,b,c,d,e,f"
+    val escapes: String = "a/,b,c/,d,e/,f" // results in escapes affecting char pos 2, 7, 12
+    val escapeEscapes: String = "a:/,b,c:/,d,e/,f" // results in an escape affecting char pos 14
+    val tricky1: String = "a::/,b,c" // results in an escape at char pos 3 affecting char pos 4
+    val tricky2: String = "a:/:/,b,c" // results in no escapes
+
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+
+    val cb0: CharBuffer = CharBuffer.allocate(no_escapes.length() + 1)
+    cb0.put(no_escapes)
+    cb0.flip()
+
+    val cb1: CharBuffer = CharBuffer.allocate(escapes.length() + 1)
+    cb1.put(escapes)
+    cb1.flip()
+
+    val cb2: CharBuffer = CharBuffer.allocate(escapeEscapes.length() + 1)
+    cb2.put(escapeEscapes)
+    cb2.flip()
+
+    val cb3: CharBuffer = CharBuffer.allocate(tricky1.length() + 1)
+    cb3.put(tricky1)
+    cb3.flip()
+
+    val cb4: CharBuffer = CharBuffer.allocate(tricky2.length() + 1)
+    cb4.put(tricky2)
+    cb4.flip()
+
+    ds.setEscapeScheme(EscapeSchemeKind.Character, "/", ":", "", "")
+
+    val res0 = ds.getEscapeCharacterList(cb0)
+    assertEquals(List.empty, res0)
+
+    val res1 = ds.getEscapeCharacterList(cb1)
+    assertEquals(List(1, 6, 11), res1)
+
+    // getEscapeEscapeCharacterList returns Tuple(ListA, ListB)
+    //	Where
+    //		A is the list of escapeEscapeCharacters
+    //		B is the list of escaped escapeEscapeCharacters
+    //
+    // Here the second list is empty because the escapeCharacter and
+    // escapeEscapeCharacter are different
+    val res2_0 = ds.getEscapeEscapeCharacterList(cb2)
+    assertEquals((List(1, 7), List.empty), res2_0)
+
+    val res2_1 = ds.getEscapeCharacterList(cb2)
+    assertEquals(List(13), res2_1)
+
+    val res3 = ds.getEscapeCharacterList(cb3)
+    assertEquals(List(3), res3)
+
+    val res4 = ds.getEscapeCharacterList(cb4)
+    assertEquals(List.empty, res4)
+  }
+
+  def testComputeEscapeBlockStartList = {
+    val no_escapes: String = "a,b,c,d,e,f"
+    val escapes: String = "text/*more*/text"
+
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+
+    val cb0: CharBuffer = CharBuffer.allocate(no_escapes.length() + 1)
+    cb0.put(no_escapes)
+    cb0.flip()
+
+    val cb1: CharBuffer = CharBuffer.allocate(escapes.length() + 1)
+    cb1.put(escapes)
+    cb1.flip()
+
+    ds.setEscapeScheme(EscapeSchemeKind.Block, "/", ":", "/*", "*/")
+
+    val res0 = ds.getEscapeBlockStartList(cb0)
+    println(res0)
+    assertEquals(List.empty, res0)
+
+    val res1 = ds.getEscapeBlockStartList(cb1)
+    println(res1)
+    assertEquals(List((4, 5)), res1)
+  }
+
+  def testComputeEscapeBlockEndList = {
+    val no_escapes: String = "a,b,c,d,e,f"
+    val escapes: String = "text/*more*/text"
+    val escapes2: String = "text\"more\"text\"!"
+
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+
+    val cb0: CharBuffer = CharBuffer.allocate(no_escapes.length() + 1)
+    cb0.put(no_escapes)
+    cb0.flip()
+
+    val cb1: CharBuffer = CharBuffer.allocate(escapes.length() + 1)
+    cb1.put(escapes)
+    cb1.flip()
+
+    val cb2: CharBuffer = CharBuffer.allocate(escapes2.length() + 1)
+    cb2.put(escapes2)
+    cb2.flip()
+
+    ds.setEscapeScheme(EscapeSchemeKind.Block, "/", ":", "/*", "*/")
+
+    val res0 = ds.getEscapeBlockEndList(cb0)
+    assertEquals(List.empty, res0)
+
+    val res1 = ds.getEscapeBlockEndList(cb1)
+    assertEquals(List((10, 11)), res1)
+
+    ds.setEscapeScheme(EscapeSchemeKind.Block, "/", ":", "\"", "\"")
+
+    val res2 = ds.getEscapeBlockEndList(cb2)
+    assertEquals(List((4, 4), (9, 9), (14, 14)), res2)
+
+  }
+
+  def testComputeEscapeBlockListDiffStartEndChars = {
+    val no_escapes: String = "a,b,c,d,e,f"
+    val block: String = "text/*more*/text"
+    val block2: String = "text/*mo/*re*/text"
+    val block3: String = "text/*mo/*r*/e*/text"
+    val block4: String = "text/*moretext"
+    val block5: String = "text/*more*/text/*"
+
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+
+    val cb0: CharBuffer = CharBuffer.allocate(no_escapes.length() + 1)
+    cb0.put(no_escapes)
+    cb0.flip()
+
+    val cb1: CharBuffer = CharBuffer.allocate(block.length() + 1)
+    cb1.put(block)
+    cb1.flip()
+
+    val cb2: CharBuffer = CharBuffer.allocate(block2.length() + 1)
+    cb2.put(block2)
+    cb2.flip()
+
+    val cb3: CharBuffer = CharBuffer.allocate(block3.length() + 1)
+    cb3.put(block3)
+    cb3.flip()
+
+    val cb4: CharBuffer = CharBuffer.allocate(block4.length() + 1)
+    cb4.put(block4)
+    cb4.flip()
+
+    val cb5: CharBuffer = CharBuffer.allocate(block5.length() + 1)
+    cb5.put(block5)
+    cb5.flip()
+
+    ds.setEscapeScheme(EscapeSchemeKind.Block, "/", ":", "/*", "*/")
+
+    val res0 = ds.getEscapeBlocks(cb0)
+    assertEquals(List.empty, res0)
+
+    val res1 = ds.getEscapeBlocks(cb1)
+    assertEquals(List((4, 11)), res1)
+
+    val res2 = ds.getEscapeBlocks(cb2)
+    assertEquals(List((4, 13)), res2)
+
+    val res3 = ds.getEscapeBlocks(cb3)
+    assertEquals(List((4, 12)), res3)
+
+    val res4 = ds.getEscapeBlocks(cb4)
+    assertEquals(List((4, -1)), res4)
+
+    val res5 = ds.getEscapeBlocks(cb5)
+    assertEquals(List((4, 11), (16, -1)), res5)
+  }
+
+  def testComputeEscapeBlockListSameStartEndChars = {
+    val no_escapes: String = "a,b,c,d,e,f"
+    val block: String = "text\"more\"text"
+    val block2: String = "text\"mo\"re\"text"
+    val block3: String = "text\"mo\"r\"e\"text"
+    val block4: String = "text\"moretext"
+    val block5: String = "text\"more\"text\""
+
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+
+    val cb0: CharBuffer = CharBuffer.allocate(no_escapes.length() + 1)
+    cb0.put(no_escapes)
+    cb0.flip()
+
+    val cb1: CharBuffer = CharBuffer.allocate(block.length() + 1)
+    cb1.put(block)
+    cb1.flip()
+
+    val cb2: CharBuffer = CharBuffer.allocate(block2.length() + 1)
+    cb2.put(block2)
+    cb2.flip()
+
+    val cb3: CharBuffer = CharBuffer.allocate(block3.length() + 1)
+    cb3.put(block3)
+    cb3.flip()
+
+    val cb4: CharBuffer = CharBuffer.allocate(block4.length() + 1)
+    cb4.put(block4)
+    cb4.flip()
+
+    val cb5: CharBuffer = CharBuffer.allocate(block5.length() + 1)
+    cb5.put(block5)
+    cb5.flip()
+
+    ds.setEscapeScheme(EscapeSchemeKind.Block, "/", ":", "\"", "\"")
+
+    val res0 = ds.getEscapeBlocks(cb0)
+    assertEquals(List.empty, res0)
+
+    val res1 = ds.getEscapeBlocks(cb1)
+    assertEquals(List((4, 9)), res1)
+
+    val res2 = ds.getEscapeBlocks(cb2)
+    assertEquals(List((4, 7), (10, -1)), res2)
+
+    val res3 = ds.getEscapeBlocks(cb3)
+    assertEquals(List((4, 7), (9, 11)), res3)
+
+    val res4 = ds.getEscapeBlocks(cb4)
+    assertEquals(List((4, -1)), res4)
+
+    val res5 = ds.getEscapeBlocks(cb5)
+    assertEquals(List((4, 9), (14, -1)), res5)
+  }
+  
+  def testComputeEscapeBlockListEscapes = {
+    val block: String = "text\"mo:\"re\"text"
+      
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+
+    val cb0: CharBuffer = CharBuffer.allocate(block.length() + 1)
+    cb0.put(block)
+    cb0.flip()
+
+    ds.setEscapeScheme(EscapeSchemeKind.Block, "/", ":", "\"", "\"")
+
+    val res0 = ds.getEscapeBlocks(cb0)
+    assertEquals(List((4,11)), res0)
+  }
+  
+  def testSearchEscapeCharacter = {
+    val block: String = "text/,more,text"
+      
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+
+    val cb0: CharBuffer = CharBuffer.allocate(block.length() + 1)
+    cb0.put(block)
+    cb0.flip()
+
+    ds.setEscapeScheme(EscapeSchemeKind.Character, "/", ":", "", "")
+
+    val res0 = ds.getEscapeCharacterList(cb0)
+    println("res0 " + res0)
+    assertEquals(List(4), res0)
+    
+    ds.addDelimiter(",")
+    
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb0)
+    assertEquals("text/,more", result1)
+  }
+  
+  def testSearchEscapeBlock = {
+    val block: String = "text/*,more,*/text,yay"
+      
+    val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
+
+    val cb0: CharBuffer = CharBuffer.allocate(block.length() + 1)
+    cb0.put(block)
+    cb0.flip()
+
+    ds.setEscapeScheme(EscapeSchemeKind.Block, "/", ":", "/*", "*/")
+
+    val res0 = ds.getEscapeBlocks(cb0)
+    println("res0 " + res0)
+    assertEquals(List((4,13)), res0)
+    
+    ds.addDelimiter(",")
+    
+    val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb0)
+    assertEquals("text/*,more,*/text", result1)
   }
 
 }
