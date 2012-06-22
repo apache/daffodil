@@ -430,7 +430,7 @@ class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument)
 
   lazy val escapeScheme = Utility.trim(node) match {
     case <dfdl:defineEscapeScheme>{ e @ <dfdl:escapeScheme>{ contents @ _* }</dfdl:escapeScheme> }</dfdl:defineEscapeScheme> =>
-      new DFDLEscapeScheme(e, NoSchemaDocument)
+      new DFDLEscapeScheme(e, decl)
     case _ => Assert.impossibleCase()
   }
 }

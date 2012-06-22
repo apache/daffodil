@@ -391,7 +391,7 @@ class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: Sche
  * are where default formats are specified, so it is very important what schema document
  * a schema component was defined within.
  */
-class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
+class SchemaDocument(xmlArg: Node, schemaArg: Schema)
   extends SchemaComponent(xmlArg)
   with AnnotatedMixin
   with Format_AnnotationMixin
@@ -408,11 +408,6 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
   
   lazy val detailName="" // TODO: Maybe a filename would be nice if available.
 
-  /**
-   * schemaArg is call by name, so that in the corner case of NoSchemaDocument (used for non-lexically enclosed annotation objects), 
-   * we can pass an Assert.invariantFailed to bomb if anyone actually tries to use the schema.
-   * This is one of the techniques we use to avoid using null and having to test for null.
-   */
   override lazy val schema = schemaArg
 
   lazy val targetNamespace = schema.targetNamespace
@@ -499,14 +494,4 @@ class SchemaDocument(xmlArg: Node, schemaArg: => Schema)
   def getDefineEscapeScheme(name: String) = defineEscapeSchemes.find { _.name == name }
 
 }
-
-/**
- * Singleton to use when something usually has a schema document it refers to, but sometimes doesn't but you
- * have to supply something. Use this.
- *
- * This is an alternative to everybody having to use Option[SchemaDocument] for these corner cases, or passing null, etc.
- */
-object NoSchemaDocument extends SchemaDocument(
-  <schema/>, // dummy piece of XML that has no attributes, no annotations, no children, etc. Convenient to avoid conditional tests.
-  Assert.invariantFailed("object NoSchemaDocument has no schema."))
 
