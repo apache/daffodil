@@ -12,12 +12,22 @@ import daffodil.processors._
 import daffodil.util.Misc._
 import daffodil.api.Diagnostic
 import daffodil.util.Misc
+import daffodil.api.WithDiagnostics
 
-trait DiagnosticsImpl {
+trait DiagnosticsImpl extends WithDiagnostics {
   
-  def diagnostics : Seq[Diagnostic] // = Seq.empty[Diagnostic]
+  private var diagnostics : Seq[Diagnostic] = Seq.empty[Diagnostic]
+  
   def getDiagnostics() : Seq[Diagnostic] = {
     diagnostics
+  }
+  
+  def addDiagnostic(d : Diagnostic) {
+    diagnostics = diagnostics :+ d
+  }
+  
+  def addDiagnostics(ds : Seq[Diagnostic]) {
+    diagnostics = diagnostics ++ ds
   }
   
   def canProceed() : Boolean = {
@@ -34,11 +44,36 @@ trait DiagnosticsImpl {
       if (s.length > 0) true
       else false
     }
+  
+  def capturingThrowsAsDiagnostics[T](body : => T) : Unit = {
+    try {
+      body
+    }
+    catch {
+    	case e:Exception => {
+    	  // convert the exception to a diagnostic object and
+    	  // add it to the accumulating diagnostic info.
+    	  diagnostics = diagnostics :+ new GeneralCompilationFailure(e)
+    	}
+    }
+  }
+  
+  def schemaDefinitionError(msg : String) {
+    
+  }
+  
 }
 
-abstract class ProcessorFactory extends DFDL.ProcessorFactory 
+class GeneralCompilationFailure(e : Exception) extends Diagnostic {
+  def isError() = true
+  def getSchemaLocations() = Nil
+  def getDataLocations() = Nil
+  def getMessage() = e.getMessage()
+}
 
-abstract class DataProcessor extends DFDL.DataProcessor
+abstract class ProcessorFactory extends DFDL.ProcessorFactory with DiagnosticsImpl
+
+abstract class DataProcessor extends DFDL.DataProcessor with DiagnosticsImpl
 
 abstract class ParseResult extends DFDL.ParseResult with DiagnosticsImpl
 abstract class UnparseResult extends DFDL.UnparseResult with DiagnosticsImpl
@@ -74,17 +109,21 @@ class Compiler extends DFDL.Compiler {
     val allEltFactories = sset.schemas.flatMap{_.schemaDocuments.flatMap{_.globalElementDecls}}
     val allElts = allEltFactories.map{_.forRoot()}
     System.err.println("Compiling " + allElts.length + " element(s).")
-    val allProcessors = allElts.foreach{
-      elt => {
+    allElts.foreach{
+      //
+      elt => elt.capturingThrowsAsDiagnostics {
         val doc : Prod = elt.document
         // System.err.println("document = " + doc)
         val parser = doc.parser
         val unparser = doc.unparser
         System.err.println("parser = " + parser)
         // str = parser.toString
-        (parser, unparser)
       }
     }
+    
+   
+    val diags = allElts.flatMap{_.getDiagnostics}
+    
     
     if (root == "") {
       Assert.invariant(rootNamespace == "")
@@ -146,7 +185,7 @@ class Compiler extends DFDL.Compiler {
  
           def parse(input : DFDL.Input) : DFDL.ParseResult = {
             val pr = new ParseResult {
-              val (result, diagnostics) = {
+              val (result, diags) = {
                 val initialState = PState.createInitialState(rootElem, input) // also want to pass here the externally set variables, other flags/settings.
                 val resultState = parser.parse(initialState)
                 val diagnostics = resultState.diagnostics
@@ -168,6 +207,7 @@ class Compiler extends DFDL.Compiler {
                   (<nothing/>, diags)
                 }
               }
+              addDiagnostics(diags)
             }
             pr
           }
@@ -176,7 +216,7 @@ class Compiler extends DFDL.Compiler {
             val jdomElem = XMLUtils.elem2Element(node)
             val jdomDoc = new org.jdom.Document(jdomElem)
             val res = new UnparseResult {
-              val diagnostics = List(new GeneralUnparseFailure("Unparsing is not yet implemented."))
+              addDiagnostic(new GeneralUnparseFailure("Unparsing is not yet implemented."))
             }
             res
           }

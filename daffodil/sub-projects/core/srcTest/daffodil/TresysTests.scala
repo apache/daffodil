@@ -45,6 +45,12 @@ class TresysTests extends JUnit3Suite {
 //  def test_length_delimited_12_06() { runnerDelimited.runOneTest("length_delimited_12_06") }
   def test_multiple_delimiters() { runnerDelimited.runOneTest("multiple_delimiters") }
   def test_multiple_delimiters2() { runnerDelimited.runOneTest("multiple_delimiters2") }
+
+  val td = testDir + "multiple-diagnostics.tdml"
+  val runnerMD = new DFDLTestSuite(new File(td))
+  
+  def test_multiple_diagnostics() { runnerMD.runOneTest("twoErrors")}
+
   
   /* Very big test data files, so each is in its own TDML file */
 //  val ab6 = testDir + "AB006.tdml"

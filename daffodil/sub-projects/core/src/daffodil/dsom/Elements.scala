@@ -82,7 +82,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with DFDLStatementMixin
   with ElementBaseGrammarMixin
   with ElementRuntimeValuedPropertiesMixin
-  with NamedMixin {
+  with NamedMixin
+  with DiagnosticsImpl {
 
   def isNillable: Boolean
   def isSimpleType: Boolean
@@ -497,7 +498,8 @@ class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val ele
   extends ElementBase(xmlArg, schemaDocumentArg, 0)
   with ElementDeclMixin
   with GlobalComponentMixin
-  with GlobalElementDeclGrammarMixin {
+  with GlobalElementDeclGrammarMixin 
+  with DiagnosticsImpl {
 
   // We inherit the requirement for these attributes from Term. It all gets
   // too complicated in DSOM if you try to make GlobalElementDecl share with the other

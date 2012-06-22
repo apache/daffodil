@@ -124,8 +124,8 @@ trait WithDiagnostics {
 
 abstract class ValueWithDiagnostics[ValueType, ActualType](
     val v : Option[ValueType], 
-    val diagnostics : Seq[Diagnostic]) 
+    diags : Seq[Diagnostic]) 
     extends WithDiagnostics {
-	def add(d : Diagnostic) = newInstance(v, d +: diagnostics)
+	def add(d : Diagnostic) = newInstance(v, d +: diags)
 	def newInstance(v : Option[ValueType], d : Seq[Diagnostic]) : ActualType
 }

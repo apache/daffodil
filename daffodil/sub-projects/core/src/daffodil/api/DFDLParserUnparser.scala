@@ -75,11 +75,11 @@ object DFDL {
   /**
    * The point of processor factory is to allow compilation of the path expression.
    */
-  trait ProcessorFactory {
+  trait ProcessorFactory extends WithDiagnostics {
     def onPath(xpath: String): DataProcessor
   }
 
-  trait DataProcessor {
+  trait DataProcessor extends WithDiagnostics {
     def save(fileName: String): Unit
     
     /**
