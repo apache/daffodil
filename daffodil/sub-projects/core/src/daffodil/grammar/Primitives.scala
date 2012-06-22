@@ -304,10 +304,20 @@ case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) {
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
 
-      val (result, endBitPos, theState) = in.fillCharBufferWithPatternMatch(cbuf, start.bitPos, decoder, pattern)
+      val (result, endBitPos, theState, delimiter) = in.fillCharBufferWithPatternMatch(cbuf, start.bitPos, decoder, pattern)
+      // TODO: Do we need the matched delimiter?
 
       val postState = theState match {
-        case NoMatch => start.failed(this.toString() + ": No match found!")
+        case NoMatch => {
+          // TODO: Is this logic correct?
+          // No Terminator, so last result is a field.
+          System.err.println("Parsed: " + result)
+          System.err.println("Ended at bit position " + endBitPos)
+          val endCharPos = start.charPos + result.length()
+          val currentElement = start.parent
+          currentElement.addContent(new org.jdom.Text(result))
+          start.withPos(endBitPos, endCharPos)
+        }
         case PartialMatch => start.failed(this.toString() + ": Partial match found!")
         case FullMatch => {
           System.err.println("Parsed: " + result)
