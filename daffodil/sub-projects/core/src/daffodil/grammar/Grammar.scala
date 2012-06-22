@@ -72,10 +72,14 @@ class AltComp(p : => Gram, q : => Gram) extends BinaryGram(p, q) {
 }
 
 class RepExactlyN(n : Long, r : => Gram) extends UnaryGram(r) {
-    def parser = new RepExactlyNParser(n, r)
+  Assert.invariant(n > 0)
+  def parser = new RepExactlyNParser(n, r)
 }
+
 object RepExactlyN {
-  def apply(n : Long, r : => Gram) = new RepExactlyN(n, r)
+  def apply(n : Long, r : => Gram) = 
+    if (n == 0) EmptyGram
+    else new RepExactlyN(n, r)
 }
 
 class RepAtMostTotalN(n : Long, r : => Gram) extends UnaryGram(r) {
@@ -86,10 +90,16 @@ object RepAtMostTotalN {
 }
 
 class RepUnbounded(r : => Gram) extends UnaryGram(r) {
+  Assert.invariant(!r.isEmpty)
     def parser = new RepUnboundedParser(r)
 }
+
 object RepUnbounded {
-  def apply(r : => Gram) = new RepUnbounded(r)
+  def apply(r : => Gram) = {
+   val rr = r
+   if (rr.isEmpty) EmptyGram
+   else new RepUnbounded(r)
+  }
 }
 
 class RepExactlyTotalN(n : Long, r : => Gram) extends UnaryGram(r) {

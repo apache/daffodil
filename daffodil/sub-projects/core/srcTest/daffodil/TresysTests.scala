@@ -51,7 +51,21 @@ class TresysTests extends JUnit3Suite {
   
   def test_multiple_diagnostics() { runnerMD.runOneTest("twoErrors")}
 
+  val nsd = testDir + "nested-separator-delimited.tdml"
+  val runnerNSD = new DFDLTestSuite(new File(nsd))
   
+  def test_nested_separator_delimited_baseline() { runnerNSD.runOneTest("baseline")}
+  def test_nested_separator_delimited_basicNest() { runnerNSD.runOneTest("basicNest")}
+  // Fails infinite loop
+  // def test_nested_separator_delimited_basicNest2() { runnerNSD.runOneTest("basicNest2")}
+  
+  // Fails, index out of bounds
+  // def test_nested_separator_delimited_nest1() { runnerNSD.runOneTest("nest1")}
+  // Fails infinite loop
+  // def test_nested_separator_delimited_nest2() { runnerNSD.runOneTest("nest2")}    
+  // Fails infinite loop
+  // def test_nested_separator_delimited_nest3() { runnerNSD.runOneTest("nest3")}
+    
   /* Very big test data files, so each is in its own TDML file */
 //  val ab6 = testDir + "AB006.tdml"
 //  val runnerAB6 = new DFDLTestSuite(new File(ab6))

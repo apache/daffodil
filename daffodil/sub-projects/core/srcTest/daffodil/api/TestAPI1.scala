@@ -422,6 +422,52 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
   
+  def testParseOccursCountKindOfParsedDelimitedByTerminator() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>
+            <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator="."/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = Compiler.testString(sch, "5;6;7;8;A.").result
+    val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1><s2>A</s2></e1>
+    TestUtils.assertEqualsXMLElements(expected, actual)
+  }
+  
+  def testParseOccursCountKindOfParsedDelimitedByTerminator2() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:terminator=".">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = Compiler.testString(sch, "5;6;7;8;.").result
+    val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
+    TestUtils.assertEqualsXMLElements(expected, actual)
+  }
+  
+  def testParseOccursCountKindOfParsedDelimitedBySeparator() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:terminator=".">
+        <xs:complexType>
+          <xs:sequence dfdl:separator=";" dfdl:terminator=";">
+            <xs:element name="s1" type="xs:int" dfdl:lengthKind="delimited" minOccurs="0" dfdl:occursCountKind="parsed"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = Compiler.testString(sch, "5;6;7;8;.").result
+    val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
+    TestUtils.assertEqualsXMLElements(expected, actual)
+  }
+  
   def testBinaryInts() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" ref="tns:daffodilTest1"/>,

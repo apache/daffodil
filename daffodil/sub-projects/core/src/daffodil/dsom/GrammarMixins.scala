@@ -78,11 +78,11 @@ with AlignedMixin { self: ElementBase =>
       // LengthKind delimited w End Of Data
       
       // TODO: check for escape scheme
-      if (terminator.isKnownNonEmpty) {
+//      if (this.terminatingMarkup != null) {
     	  stringDelimitedWithDelimiters     
-      } else {
-        stringDelimitedEndOfData
-      }
+//      } else {
+//        stringDelimitedEndOfData
+//      }
     }
     case LengthKind.Pattern => stringPatternMatched
     case _ => Assert.notYetImplemented()
@@ -314,7 +314,7 @@ with AlignedMixin { self: ElementBase =>
     
 
   
-  lazy val empty = Prod("for", this, NYI && emptyIsAnObservableConcept, emptyRepresentation) 
+  lazy val empty = Prod("empty", this, NYI && emptyIsAnObservableConcept, emptyRepresentation) 
   
   lazy val emptyRepresentation = Prod("emptyRepresentation", this, 
       simpleOrNonImplicitComplexEmpty | complexImplicitEmpty) 
@@ -356,14 +356,20 @@ with AlignedMixin { self: ElementBase =>
 	  val res = Prod("scalarDefaultableSimpleContent", this, 
       isSimpleType, nilLit | emptyDefaulted | parsedNil | parsedValue )
       res
-}
+    }
+  
+    lazy val scalarNonDefaultSimpleContent = {
+	  val res = Prod("scalarNonDefaultSimpleContent", this, 
+      isSimpleType, nilLit | parsedNil | parsedValue )
+      res
+    }
 
   lazy val scalarComplexContent = Prod("scalarComplexContent", this, isComplexType, nilLit | complexContent)
 
   // Note: there is no such thing as defaultable complex content because you can't have a 
   // default value for a complex type element.
   lazy val scalarDefaultableContent = Prod("scalarDefaultableContent", this, scalarDefaultableSimpleContent | scalarComplexContent)
-  lazy val scalarNonDefaultContent = Prod("scalarNonDefaultContent", this, nilLit | parsedNil | parsedValue)
+  lazy val scalarNonDefaultContent = Prod("scalarNonDefaultContent", this, scalarNonDefaultSimpleContent | scalarComplexContent)
   
   /**
    * the element left framing does not include the initiator nor the element right framing the terminator
@@ -424,17 +430,20 @@ trait LocalElementGrammarMixin { self : ElementBase with LocalElementMixin =>
      * speculate parsing forward until we get an error
      */
    lazy val separatedContentUnboundedWithoutTrailingEmpties = Prod("separatedContentUnboundedWithoutTrailingEmpties", this, isRecurring,
-        RepExactlyN(minOccurs, separatedScalarDefaultable) ~
-        RepUnbounded(separatedScalarNonDefault) ~
+        RepExactlyN(minOccurs, separatedRecurringDefaultable) ~
+        RepUnbounded(separatedRecurringNonDefault) ~
         StopValue(this) )
   
    lazy val separatedContentUnbounded = Prod("separatedContentUnbounded", this, isRecurring,
-        separatedContentUnboundedWithoutTrailingEmpties ~
-        RepUnbounded(separatedEmpty))
+        separatedContentUnboundedWithoutTrailingEmpties
+// These are for tolerating trailing empties. Let's not tolerate them for now.
+//        ~
+//        RepUnbounded(separatedEmpty)
+        )
   
    lazy val separatedContentAtMostNWithoutTrailingEmpties = Prod("separatedContentAtMostNWithoutTrailingEmpties", this, isRecurring,
-      RepExactlyN(minOccurs, separatedScalarDefaultable) ~
-        RepAtMostTotalN(maxOccurs, separatedScalarNonDefault) ~
+      RepExactlyN(minOccurs, separatedRecurringDefaultable) ~
+        RepAtMostTotalN(maxOccurs, separatedRecurringNonDefault) ~
         StopValue(this))
  
   // TODO: Do we have to adjust the count to take stopValue into account?
@@ -459,8 +468,8 @@ trait LocalElementGrammarMixin { self : ElementBase with LocalElementMixin =>
   
 //  def separatedContentExactlyNComputed(runtimeCount : CompiledExpression) = { 
 //      RuntimeQuantity(runtimeCount) ~
-//      RepExactlyN(minOccurs, separatedScalarDefaultable) ~
-//        RepAtMostTotalN(count, separatedScalarNonDefault) ~
+//      RepExactlyN(minOccurs, separatedRecurringDefaultable) ~
+//        RepAtMostTotalN(count, separatedRecurringNonDefault) ~
 //        StopValue(this) ~
 //        RepExactlyTotalN(maxOccurs + stopValueSize, separatedEmpty) // absorb reps remaining separators
 //  }
