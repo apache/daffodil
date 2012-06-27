@@ -6,23 +6,10 @@ import java.util.regex.Matcher
 import scala.collection.mutable.Queue
 import scala.collection.mutable.Set
 import scala.util.logging.Logged
-import stringsearch.DelimSearcherV3.EscapeSchemeKind
 
-object SearchState extends Enumeration {
-  type SearchState = Value
-  val WSPNoMatch, WSPMatch, WSPPlusNoMatch, WSPPlusMatch, WSPStarNoMatch, WSPStarMatch = Value
-  val WSPModeAndSpace, NLCrlfExists, NLCrlfPartial, NLCrlfNotFound, NLNoMatch = Value
-  val SpaceAndNotWSPMode, SpaceAndWSPMode, OtherMatch, OtherNoMatch, NoMatch = Value
-}
-
-import SearchState._
-
-object CRLFState extends Enumeration {
-  type CRLFState = Value
-  val Exists, NotFound, Partial = Value
-}
-
-import CRLFState._
+import stringsearch.constructs._
+import stringsearch.constructs.CRLFState._
+import stringsearch.constructs.SearchState._
 
 // A Delimiter represents a delimiter where a delimiter can be one or more
 // characters long.

@@ -529,8 +529,12 @@ class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument)
       new DFDLEscapeScheme(e, decl)
     case _ => Assert.impossibleCase()
   }
-  
+
   lazy val diagnosticChildren = escapeScheme +: definingAnnotationDiagnosticChildren
+
+  override def toString(): String = {
+    "DFDLDefineEscapeScheme." + name
+  }
 }
 
 abstract class DFDLAssertionBase(node: Node, decl: AnnotatedMixin)

@@ -11,6 +11,7 @@ import java.nio.CharBuffer
 import scala.collection.mutable.Queue
 import stringsearch.delimiter._
 import stringsearch.DelimSearcherV3._
+import stringsearch.constructs._
 
 class TestDelimSearcherV3 extends JUnit3Suite {
 
@@ -2078,7 +2079,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     val cb4: CharBuffer = CharBuffer.allocate(tricky2.length() + 1)
     cb4.put(tricky2)
     cb4.flip()
-
+    
     ds.setEscapeScheme(EscapeSchemeKind.Character, "/", "/", "", "")
 
     val res0 = ds.getEscapeCharacterList(cb0)

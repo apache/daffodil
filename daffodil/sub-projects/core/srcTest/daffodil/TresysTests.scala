@@ -53,7 +53,7 @@ class TresysTests extends JUnit3Suite {
   def test_multiple_diagnostics1() { runnerMD.runOneTest("twoMissingTypeDefErrors")}
   def test_multiple_diagnostics2() { runnerMD.runOneTest("manyErrors1")}
   def test_multiple_diagnostics3() { runnerMD.runOneTest("manyErrors2")}
-  
+
   val sv = testDir + "dfdl-schema-validation-diagnostics.tdml"
   val runnerSV = new DFDLTestSuite(new File(sv))
     //
@@ -76,7 +76,12 @@ class TresysTests extends JUnit3Suite {
   // def test_nested_separator_delimited_nest2() { runnerNSD.runOneTest("nest2")}    
   // Fails infinite loop
   // def test_nested_separator_delimited_nest3() { runnerNSD.runOneTest("nest3")}
-    
+
+  val escapeScheme = testDir + "escapeScheme.tdml"
+  val runnerEscapeScheme = new DFDLTestSuite(new File(escapeScheme))
+  
+  def test_escape_scheme() { runnerEscapeScheme.runOneTest("escapeSchemeSimple") }
+
   /* Very big test data files, so each is in its own TDML file */
 //  val ab6 = testDir + "AB006.tdml"
 //  val runnerAB6 = new DFDLTestSuite(new File(ab6))

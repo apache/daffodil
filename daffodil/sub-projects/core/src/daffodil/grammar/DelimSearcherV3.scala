@@ -11,18 +11,11 @@ import stringsearch.delimiter._
 import scala.util.logging.ConsoleLogger
 import scala.util.logging.Logged
 
-object SearchResult extends Enumeration {
-  type SearchResult = Value
-  val FullMatch, PartialMatch, NoMatch = Value
-}
-
-object EscapeSchemeKind extends Enumeration {
-  type EscapeSchemeKind = Value
-  val Character, Block, None = Value
-}
-
-import SearchResult._
-import EscapeSchemeKind.EscapeSchemeKind
+import stringsearch.constructs.EscapeSchemeKind.EscapeSchemeKind
+import stringsearch.constructs.EscapeSchemeKind
+import stringsearch.constructs.SearchResult
+import stringsearch.constructs.SearchResult._
+import stringsearch.constructs.EscapeScheme._
 
 class DelimSearcher extends Logged {
 
@@ -392,6 +385,14 @@ class DelimSearcher extends Logged {
     this.esBlockStart = pBlockStart
     this.esBlockEnd = pBlockEnd
   }
+  
+  def setEscapeScheme(esObj: EscapeSchemeObj) = {
+    this.escapeSchemeKind = esObj.escapeSchemeKind
+    this.esCharacter = esObj.escapeCharacter
+    this.esEsCharacter = esObj.escapeEscapeCharacter
+    this.esBlockStart = esObj.escapeBlockStart
+    this.esBlockEnd = esObj.escapeBlockEnd
+  }
 
   def getCharacterList(input: CharBuffer, character: Char): List[Int] = {
     val q = new Queue[Int]
@@ -410,7 +411,7 @@ class DelimSearcher extends Logged {
   // Returns a list of valid escapeCharacters positions who have not been escaped
   //
   def getEscapeCharacterList(input: CharBuffer): List[Int] = {
-    if (this.escapeSchemeKind == EscapeSchemeKind.None) { return List.empty }
+    if (this.escapeSchemeKind == EscapeSchemeKind.None || this.esCharacter.length() == 0) { return List.empty }
 
     val (escapeEscapeChars, escapedEscapeEscapeChars) = getEscapeEscapeCharacterList(input)
 
@@ -443,7 +444,7 @@ class DelimSearcher extends Logged {
   //	B is a List of escaped escapeEscapeCharacters
   //
   def getEscapeEscapeCharacterList(input: CharBuffer): (List[Int], List[(Int, Int)]) = {
-    if (this.escapeSchemeKind == EscapeSchemeKind.None) { return (List.empty, List.empty) }
+    if (this.escapeSchemeKind == EscapeSchemeKind.None || this.esEsCharacter.length() == 0) { return (List.empty, List.empty) }
 
     val esEsCharList = getCharacterList(input, this.esEsCharacter.charAt(0))
     val escapeEscapeQ = new Queue[Int]
@@ -484,7 +485,7 @@ class DelimSearcher extends Logged {
   }
 
   def getEscapeBlockList(input: CharBuffer, block: String): List[(Int, Int)] = {
-    if (this.escapeSchemeKind == EscapeSchemeKind.None || this.escapeSchemeKind == EscapeSchemeKind.Character) { return List.empty }
+    if (this.escapeSchemeKind == EscapeSchemeKind.None || this.escapeSchemeKind == EscapeSchemeKind.Character || block.length() == 0) { return List.empty }
 
     var i: Int = 0
     val blockLength = block.length()
