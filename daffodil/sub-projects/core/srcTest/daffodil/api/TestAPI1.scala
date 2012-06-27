@@ -335,8 +335,8 @@ class TestDFDLParser extends JUnit3Suite {
       <dfdl:format ref="tns:daffodilTest1" separatorPolicy="required" separatorPosition="infix"/>,
         <xs:element name="doctors">
           <xs:complexType>
-            <xs:sequence>
-              <xs:element name="name" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="(?&lt;!\\)," dfdl:occursCountKind="fixed" minOccurs="11" maxOccurs="11"/>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="name" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern=".*?[^\\](?=,|$)" dfdl:occursCountKind="fixed" minOccurs="11" maxOccurs="11"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>)

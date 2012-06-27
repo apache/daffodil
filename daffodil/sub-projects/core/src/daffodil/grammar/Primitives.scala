@@ -298,7 +298,7 @@ case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) {
   val sequenceSeparator = e.nearestEnclosingSequence.get.separator
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es)
-  
+
   def parser: Parser = new Parser {
     override def toString = "StringPatternMatched"
     val decoder = e.knownEncodingDecoder
@@ -312,7 +312,7 @@ case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) {
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
 
-      val (result, endBitPos, theState, _) = in.fillCharBufferWithPatternMatch(cbuf, start.bitPos, decoder, pattern, esObj)
+      val (result, endBitPos, theState) = in.fillCharBufferWithPatternMatch(cbuf, start.bitPos, decoder, pattern, esObj)
 
       val postState = theState match {
         case SearchResult.NoMatch => start.failed(this.toString() + ": No match found!")

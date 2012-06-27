@@ -516,8 +516,8 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
   }
 
 
-  def fillCharBufferWithPatternMatch(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, 
-      pattern: String, es: EscapeSchemeObj): (String, Long, SearchResult, String) = {
+  def fillCharBufferWithPatternMatch(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder,
+      pattern: String, es: EscapeSchemeObj) : (String, Long, SearchResult) = {
     println("===\nSTART_FILL!\n===\n")
     val byteOffsetAsLong = (bitOffset >> 3)
     val byteOffset = byteOffsetAsLong.toInt
@@ -529,17 +529,17 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
 
     if (endBitPosA == -1L) {
       System.err.println("Failed, reached end of buffer.")
-      return (cb.toString(), -1L, SearchResult.NoMatch, "")
+      return (cb.toString(), -1L, SearchResult.NoMatch)
     }
 
     println("START_CB: " + cb.toString())
     println("CB_" + cb.toString() + "_END_CB")
 
-    var (theState, endPos, result, delimiter) = dSearch findFirstMatchIn buf match {
-      case Some(mch) => (SearchResult.FullMatch, mch.end.toLong, buf.subSequence(0, mch.start), mch.matched)
+    var (theState, endPos, result) = dSearch findPrefixMatchOf buf match {
+      case Some(mch) => (SearchResult.FullMatch, mch.end.toLong, mch.matched)
       // Initial/Default values if not matched
       // TODO: What should result be if string not found?
-      case None => (SearchResult.NoMatch, buf.length.toLong, buf, "")
+      case None => (SearchResult.NoMatch, -1L, "")
     }
 
     // TODO: What is this line for?
@@ -565,14 +565,13 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
       endBitPosA = fillState._1
       EOF = fillState._2
 
-      var (state2, endPos2, result2, delimiter2) = dSearch findFirstMatchIn buf match {
-        case Some(mch) => (SearchResult.FullMatch, mch.end.toLong, buf.subSequence(0, mch.start), mch.matched)
+      var (state2, endPos2, result2) = dSearch findPrefixMatchOf buf match {
+        case Some(mch) => (SearchResult.FullMatch, mch.end.toLong, mch.matched)
         // TODO: What should result be if string not found?
-        case None => (SearchResult.NoMatch, buf.length.toLong, buf, "")
+        case None => (SearchResult.NoMatch, -1L, "")
       }
       theState = state2
       endPos = endPos2
-      delimiter = delimiter2
 
       if (theState != SearchResult.PartialMatch) {
         sb.append(result2)
@@ -596,7 +595,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
 
     println("FILL - CB: " + sb.toString() + ", EndBitPos: " + endBitPosA)
     println("===\nEND_FILL!\n===\n")
-    (sb.toString(), endBitPosA, theState, delimiter)
+    (sb.toString(), endBitPosA, theState)
   }
   
   def decodeNBytes(N: Int, array: Array[Byte], decoder: CharsetDecoder): CharBuffer = {
