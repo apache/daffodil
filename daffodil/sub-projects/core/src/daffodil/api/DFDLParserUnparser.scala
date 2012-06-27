@@ -83,12 +83,12 @@ object DFDL {
     def save(fileName: String): Unit
     
     /**
-     * This api call uparses data, returns a list of any diagnostics.
+     * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
      */
     def unparse(output: Output, node: scala.xml.Node): UnparseResult
     
     /**
-     * This api returns an object which contains the result, and/or diagnostics information
+     * Returns an object which contains the result, and/or diagnostic information
      */   
     def parse(input : Input) : ParseResult 
   }

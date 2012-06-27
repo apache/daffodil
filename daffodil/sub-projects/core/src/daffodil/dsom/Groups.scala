@@ -167,6 +167,8 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends GroupBase(xmlArg, parent, position)
   with ModelGroupGrammarMixin {
 
+  lazy val prettyName = xmlArg.label
+  
   val xmlChildren: Seq[Node]
 
   private val goodXmlChildren = xmlChildren.flatMap { removeNonInteresting(_) }
@@ -174,14 +176,17 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
   private val pairs = goodXmlChildren zip positions
   private lazy val children = pairs.flatMap {
     case (n, i) =>
-      termFactory(n, this, i)
+       termFactory(n, this, i) 
   }
 
   def group = this
 
-  lazy val groupMembers = {
+  lazy val groupMembers_ = LV{
     children
   }
+  lazy val groupMembers = groupMembers_.value
+  
+  lazy val diagnosticChildren = children
 
   /**
    * Factory for Terms
@@ -389,6 +394,8 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends GroupBase(xmlArg, parent, position)
   with GroupRefGrammarMixin {
   
+  lazy val prettyName = "groupRef"
+    
   def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:group>{ contents @ _* }</dfdl:group> => new DFDLGroup(node, this)
@@ -398,8 +405,6 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def emptyFormatFactory = new DFDLGroup(newDFDLAnnotationXML("group"), this)
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLGroup]
-
-  def group = Assert.notYetImplemented()
 
   def hasStaticallyRequiredInstances = Assert.notYetImplemented()
 
@@ -416,15 +421,17 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }
 
-  lazy val groupDef: Option[GlobalGroupDef] = {
-    refQName match {
-      case None => None
+  lazy val group = groupDef.modelGroup 
+    
+  lazy val groupDef : GlobalGroupDef = LV {
+    val res = refQName match {
+      // TODO See comment above about consolidating techniques.
+      case None => Assert.schemaDefinitionError("No group definition found for " + refName + ".")
       case Some((ns, localpart)) => {
-
         val ss = schema.schemaSet
         val ggdf = ss.getGlobalGroupDef(ns, localpart)
         val res = ggdf match {
-          case Some(ggdFactory) => Some(ggdFactory.forGroupRef(this, position))
+          case Some(ggdFactory) => ggdFactory.forGroupRef(this, position)
           case None => Assert.schemaDefinitionError("No group definition found for " + refName + ".")
           // FIXME: do we need to do these checks, or has schema validation checked this for us?
           // FIXME: if we do have to check, then the usual problems: don't stop on first error, and need location of error in diagnostic.
@@ -432,7 +439,10 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
         res
       }
     }
+    res
   }
+  
+  lazy val diagnosticChildren : Seq[DiagnosticsProviding] = annotationObjs :+ groupDef
 
 }
 
@@ -460,7 +470,9 @@ class GlobalGroupDef(val xmlArg: Node, val schemaDocument: SchemaDocument, val g
   // So we have to flatMap, so that we can tolerate annotation objects (like documentation objects).
   // and our ModelGroup factory has to return Nil for annotations and Text nodes.
   //
-  lazy val Seq(modelGroup: ModelGroup) = xmlChildren.flatMap { GroupFactory(_, this, position) }
+  lazy val Seq(modelGroup: ModelGroup) = xmlChildren.flatMap { GroupFactory(_, this, position) } 
+  
+  lazy val diagnosticChildren = List(modelGroup)
 
 }
 

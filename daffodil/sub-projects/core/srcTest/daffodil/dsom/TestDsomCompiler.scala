@@ -11,7 +11,6 @@ import daffodil.schema.annotation.props._
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 
-
 class TestDsomCompiler extends JUnit3Suite {
 
   val xsd = XMLUtils.XSD_NAMESPACE
@@ -20,86 +19,101 @@ class TestDsomCompiler extends JUnit3Suite {
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
   val dummyGroupRef = null // just because otherwise we have to construct too many things.
-  
+
   // @Test
   def testHasProps() {
-      val testSchema = TestUtils.dfdlTestSchema(
+    val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-                       <xs:element name="list" type="tns:example1" />
-                       <xs:complexType name="example1">
-                         <xs:sequence>
-                           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
-                         </xs:sequence>
-                       </xs:complexType>)
+      <xs:element name="list" type="tns:example1"/>
+      <xs:complexType name="example1">
+        <xs:sequence>
+          <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
+        </xs:sequence>
+      </xs:complexType>)
     val compiler = Compiler()
-    val (sset, _, _, _) = compiler.frontEnd(testSchema)
+    val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc) = schema.schemaDocuments
-    val Seq(decl) = schemaDoc.globalElementDecls
+    val Seq(declf) = schemaDoc.globalElementDecls
+    val decl = declf.forRoot()
 
     val df = schemaDoc.defaultFormat
     val tnr = df.textNumberRep
     assertEquals(TextNumberRep.Standard, tnr)
+    val tnr2 = decl.textNumberRep
+    assertEquals(TextNumberRep.Standard, tnr2)
+    
   }
 
   // @Test
   def testSchemaValidationSubset() {
-    val sch: Node = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-                      <element name="list" type="tns:example1"/>
-                      <complexType name="example1">
-                        <sequence maxOccurs="2">
-                          <!-- DFDL SUBSET DOESN'T ALLOW THIS -->
-                          <element name="w" type="xsd:int"/>
-                        </sequence>
-                      </complexType>
-                    </schema>
-    val ex = intercept[Exception] {
-      Compiler().frontEnd(sch)
-    }
-    // should throw a validation error. 
-    // println(ex)
-    val msg = ex.getMessage()
+    val sch : Node = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="list">
+        <xs:complexType>
+          <xs:sequence maxOccurs="2">
+            <!-- DFDL SUBSET DOESN'T ALLOW MULTIPLE RECURRING SEQUENCE OR CHOICE -->
+            <xs:element name="w" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+
+    val (sset, _) = Compiler().frontEnd(sch)
+    assertTrue(sset.isError)
+    val diagnostics = sset.getDiagnostics 
+    val msgs = diagnostics.map{ _.getMessage }
+    val msg = msgs.mkString("\n")
     val hasErrorText = msg.contains("maxOccurs");
-    assertTrue(hasErrorText)
+    if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
   }
 
+    // @Test
+  def testTypeReferentialError() {
+    val sch : Node = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="list" type="typeDoesNotExist"/>)
+    val (sset, _) = Compiler().frontEnd(sch)
+    assertTrue(sset.isError)
+    val msg = sset.getDiagnostics.toString
+    val hasErrorText = msg.contains("typeDoesNotExist");
+    if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
+  }
+  
   // @Test
   def testSchemaValidationPropertyChecking() {
-    val s: Node = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-                    <element name="list" type="tns:example1"/>
-                    <complexType name="example1">
-                      <sequence>
-                        <element name="w" type="xsd:int" dfdl:byteOrder="invalidValue"/>
-                      </sequence>
-                    </complexType>
-                  </schema>
-    val ex = intercept[Exception] {
-      Compiler().frontEnd(s)
-    }
-    // should throw a validation error. 
-    println(ex)
-    val msg = ex.getMessage()
+    val s : Node = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="list">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="w" type="xsd:int" dfdl:byteOrder="invalidValue"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val (sset, _) = Compiler().frontEnd(s)
+    assertTrue(sset.isError)
+    val msg = sset.getDiagnostics.toString
     val hasErrorText = msg.contains("invalidValue");
-    assertTrue(hasErrorText)
+    if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
   }
 
   def test2() {
     val sc = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      
-        <xs:element name="list" type="tns:example1">
-          <xs:annotation>
-            <xs:appinfo source={ dfdl }>
-              <dfdl:element encoding="US-ASCII" alignmentUnits="bytes" />
-            </xs:appinfo>
-          </xs:annotation>
-        </xs:element>
-        <xs:complexType name="example1">
-          <xs:sequence dfdl:separator="">
-            <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
-          </xs:sequence>
-        </xs:complexType>)
-    val (sset, _, _, _) = Compiler().frontEnd(sc)
+
+      <xs:element name="list" type="tns:example1">
+        <xs:annotation>
+          <xs:appinfo source={ dfdl }>
+            <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+      <xs:complexType name="example1">
+        <xs:sequence dfdl:separator="">
+          <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
+        </xs:sequence>
+      </xs:complexType>)
+    val (sset, _) = Compiler().frontEnd(sc)
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc) = schema.schemaDocuments
     val Seq(declFactory) = schemaDoc.globalElementDecls
@@ -135,24 +149,23 @@ class TestDsomCompiler extends JUnit3Suite {
   def testSequence1() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      
-          <xs:element name="list" type="tns:example1">
-          <xs:annotation>
-            <xs:appinfo source={ dfdl }>
-              <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
-            </xs:appinfo>
-          </xs:annotation>
-        </xs:element>
-        <xs:complexType name="example1">
-          <xs:sequence dfdl:separatorPolicy="required" dfdl:separator="">
-            <xs:element name="w" type="xs:int" maxOccurs="1" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:occursCountKind="fixed" />
-          </xs:sequence>
-        </xs:complexType>
-  )
+
+      <xs:element name="list" type="tns:example1">
+        <xs:annotation>
+          <xs:appinfo source={ dfdl }>
+            <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+      <xs:complexType name="example1">
+        <xs:sequence dfdl:separatorPolicy="required" dfdl:separator="">
+          <xs:element name="w" type="xs:int" maxOccurs="1" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:occursCountKind="fixed"/>
+        </xs:sequence>
+      </xs:complexType>)
 
     val w = Utility.trim(testSchema)
 
-    val (sset, _, _, _) = Compiler().frontEnd(w)
+    val (sset, _) = Compiler().frontEnd(w)
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc) = schema.schemaDocuments
     val Seq(decl) = schemaDoc.globalElementDecls
@@ -182,8 +195,7 @@ class TestDsomCompiler extends JUnit3Suite {
   def testTerminator1() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-        <xs:element name="data" type="xs:string" dfdl:terminator="!"  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-      )
+      <xs:element name="data" type="xs:string" dfdl:terminator="!" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
     val actual = Compiler.testString(testSchema, "37!")
     val actualString = actual.result.toString
     assertTrue(actualString.contains("<data"))
@@ -194,8 +206,7 @@ class TestDsomCompiler extends JUnit3Suite {
   def testUnparse1() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-        <xs:element name="data" type="xs:int" dfdl:occursStopValue="-1" dfdl:textNumberRep="standard" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:length="{ 2 }"/>
-      )
+      <xs:element name="data" type="xs:int" dfdl:occursStopValue="-1" dfdl:textNumberRep="standard" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:length="{ 2 }"/>)
     val compiler = Compiler()
     val pf = compiler.compile(testSchema)
     val unparser = pf.onPath("/")
@@ -207,7 +218,6 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals("37", actualString)
   }
 
- 
   def test3 {
     val testSchema = XML.loadFile(TestUtils.findFile("test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
@@ -225,9 +235,8 @@ class TestDsomCompiler extends JUnit3Suite {
     val e2 = e2f.forRoot()
     val e3 = e3f.forRoot()
     assertEquals(
-        ByteOrder.BigEndian.toString().toLowerCase(), 
-        e1.formatAnnotation.asInstanceOf[DFDLElement].getProperty("byteOrder").toLowerCase()
-        )
+      ByteOrder.BigEndian.toString().toLowerCase(),
+      e1.formatAnnotation.asInstanceOf[DFDLElement].getProperty("byteOrder").toLowerCase())
     val Seq(a1, a2) = e3.annotationObjs // third one has two annotations
     assertTrue(a2.isInstanceOf[DFDLNewVariableInstance]) // second annotation is newVariableInstance
     assertEquals(OccursCountKind.Implicit, a1.asInstanceOf[DFDLElement].occursCountKind)
@@ -237,7 +246,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val sfa = seq.formatAnnotation.asInstanceOf[DFDLSequence] //...annotated with...
     assertEquals(YesNo.No, sfa.initiatedContent) // initiatedContent="no"
 
-    val Seq(e1a: DFDLElement) = e1.annotationObjs
+    val Seq(e1a : DFDLElement) = e1.annotationObjs
     assertEquals("UTF-8", e1a.getProperty("encoding"))
 
     // Explore global simple type defs
@@ -278,7 +287,7 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals("{ $myVar1 eq (+47 mod 4) }", leda.asInstanceOf[DFDLDiscriminator].testBody)
 
     // Explore sequence
-    val Seq(seq1a: DFDLSequence) = seq1.annotationObjs // one format annotation with a property
+    val Seq(seq1a : DFDLSequence) = seq1.annotationObjs // one format annotation with a property
     assertEquals(SeparatorPosition.Infix, seq1a.separatorPosition)
     val Seq(seq1e1, seq1s1) = seq1.groupMembers // has an element and a sub-sequence as its children.
     assertEquals(2, seq1e1.asInstanceOf[ElementRef].maxOccurs)
@@ -298,7 +307,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val ch1 = gd2.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[Choice] // Downcast child-node of group to Choice
     val Seq(cd1, cd2, cd3) = ch1.groupMembers // Children nodes of Choice-node, there are 3
 
-    val Seq(a1: DFDLChoice) = gd2.forGroupRef(dummyGroupRef, 1).modelGroup.annotationObjs // Obtain the annotation object that is a child
+    val Seq(a1 : DFDLChoice) = gd2.forGroupRef(dummyGroupRef, 1).modelGroup.annotationObjs // Obtain the annotation object that is a child
     // of the group node.
 
     assertEquals(AlignmentType.Implicit, a1.alignment)
@@ -311,13 +320,11 @@ class TestDsomCompiler extends JUnit3Suite {
 
   }
 
-  val testSchema = 
-      XML.loadFile(
-          TestUtils.findFile(
-              "test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml"))
-              
-  
-              
+  val testSchema =
+    XML.loadFile(
+      TestUtils.findFile(
+        "test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml"))
+
   def test_named_format_chaining {
     val compiler = Compiler()
     val sset = new SchemaSet(testSchema)
@@ -326,12 +333,12 @@ class TestDsomCompiler extends JUnit3Suite {
 
     val Seq(ge1f, ge2f, ge3f, ge4f, ge5f, ge6f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
-    val Seq(a1: DFDLElement) = ge1.annotationObjs
+    val Seq(a1 : DFDLElement) = ge1.annotationObjs
 
-    val props: Map[String, String] = a1.getFormatProperties()
+    val props : Map[String, String] = a1.getFormatProperties()
 
-    def foundValues(collection: Map[String, String], key: String, value: String): Boolean = {
-      val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
+    def foundValues(collection : Map[String, String], key : String, value : String) : Boolean = {
+      val found : Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
         case Some(_) => true
         case None => false
       }
@@ -344,7 +351,7 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals(true, foundValues(props, "binaryNumberRep", "packed"))
 
   }
-  
+
   def test_simple_types_access_works {
     val compiler = Compiler()
 
@@ -353,14 +360,14 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(sd) = sch.schemaDocuments
 
     val Seq(ge1, ge2, ge3, ge4, ge5, ge6) = sd.globalElementDecls // Obtain global element nodes
-    
+
     val x = ge2.forRoot().typeDef.asInstanceOf[LocalSimpleTypeDef]
-    
+
     assertEquals(AlignmentUnits.Bytes, x.alignmentUnits)
   }
-  
+
   def test_simple_types_property_combining {
-   
+
     val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
@@ -368,28 +375,28 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(sd) = sch.schemaDocuments
 
     val Seq(ge1f, ge2f, ge3f, ge4f, ge5f, ge6f) = sd.globalElementDecls // Obtain global element nodes
-    
+
     val ge2 = ge2f.forRoot()
     val ge3 = ge3f.forRoot()
     val ge4 = ge4f.forRoot()
     val ge5 = ge5f.forRoot()
     val ge6 = ge6f.forRoot()
-    
+
     assertEquals(AlignmentUnits.Bytes, ge2.alignmentUnits)
-    
+
     assertEquals(AlignmentUnits.Bytes, ge3.alignmentUnits)
     assertEquals(NilKind.LiteralValue, ge3.nilKind)
-    
+
     // Tests overlapping properties
     intercept[daffodil.exceptions.SDE] { ge4.lengthKind }
-    
+
     assertEquals(AlignmentUnits.Bytes, ge5.alignmentUnits) // local
     assertEquals(OccursCountKind.Parsed, ge5.occursCountKind) // def1
     assertEquals(BinaryNumberRep.Bcd, ge5.binaryNumberRep) // def3
     assertEquals(NilKind.LiteralValue, ge5.nilKind) // local
     assertEquals(Representation.Text, ge5.representation) // def3
     assertEquals(LengthKind.Pattern, ge5.lengthKind) // superseded by local
-    
+
     // Test Defaulting
     assertEquals(BinaryNumberRep.Packed, ge6.binaryNumberRep)
   }
@@ -418,7 +425,7 @@ class TestDsomCompiler extends JUnit3Suite {
     assertTrue(ce.isConstant)
     assertEquals(";", ce.constant)
   }
-  
+
   def testTerminatingMarkup2 {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
@@ -450,18 +457,18 @@ class TestDsomCompiler extends JUnit3Suite {
     assertTrue(ce2.isConstant)
     assertEquals(";", ce2.constant)
   }
-  
+
   def test_simpleType_base_combining {
     // TO-DO: Add foundValues to a utils section or declare it at top of file?
     //
-    def foundValues(collection: Map[String, String], key: String, value: String): Boolean = {
-     val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
+    def foundValues(collection : Map[String, String], key : String, value : String) : Boolean = {
+      val found : Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
         case Some(_) => true
         case None => false
       }
       found
     }
-    
+
     val testSchema = XML.loadFile(TestUtils.findFile("test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
 
@@ -477,38 +484,37 @@ class TestDsomCompiler extends JUnit3Suite {
     val e1 = e1f.forRoot()
     val e2 = e2f.forRoot()
     val e3 = e3f.forRoot()
-    
+
     val Seq(gs1f, gs2f, gs3f, gs4f) = sd.globalSimpleTypeDefs
-    
-    
-    val gs1 = gs1f.forRoot()	// Global Simple Type - aType
-    
+
+    val gs1 = gs1f.forRoot() // Global Simple Type - aType
+
     assertEquals("ex:aaType", gs1.restrictionBase)
-    assertTrue(foundValues(gs1.allNonDefaultProperties, "alignmentUnits", "bytes")) 		// SimpleType - Local
-    assertTrue(foundValues(gs1.allNonDefaultProperties, "byteOrder", "bigEndian")) 		// SimpleType - Base
-    assertTrue(foundValues(gs1.allNonDefaultProperties, "occursCountKind", "implicit"))  	// Default Format
-    assertTrue(foundValues(gs1.allNonDefaultProperties, "representation", "text"))  		// Define Format - def1
-    assertTrue(foundValues(gs1.allNonDefaultProperties, "encoding", "utf-8"))  			// Define Format - def1
-    assertTrue(foundValues(gs1.allNonDefaultProperties, "textStandardBase", "10"))		// Define Format - def2
-    assertTrue(foundValues(gs1.allNonDefaultProperties, "escapeSchemeRef", "tns:quotingScheme"))	// Define Format - def2
-    
-    val gs3 = gs3f.forRoot()	// Global SimpleType - aTypeError - overlapping base props
-    
+    assertTrue(foundValues(gs1.allNonDefaultProperties, "alignmentUnits", "bytes")) // SimpleType - Local
+    assertTrue(foundValues(gs1.allNonDefaultProperties, "byteOrder", "bigEndian")) // SimpleType - Base
+    assertTrue(foundValues(gs1.allNonDefaultProperties, "occursCountKind", "implicit")) // Default Format
+    assertTrue(foundValues(gs1.allNonDefaultProperties, "representation", "text")) // Define Format - def1
+    assertTrue(foundValues(gs1.allNonDefaultProperties, "encoding", "utf-8")) // Define Format - def1
+    assertTrue(foundValues(gs1.allNonDefaultProperties, "textStandardBase", "10")) // Define Format - def2
+    assertTrue(foundValues(gs1.allNonDefaultProperties, "escapeSchemeRef", "tns:quotingScheme")) // Define Format - def2
+
+    val gs3 = gs3f.forRoot() // Global SimpleType - aTypeError - overlapping base props
+
     // Tests overlapping properties
     intercept[daffodil.exceptions.SDE] { gs3.allNonDefaultProperties }
   }
-  
+
   def test_group_references {
     // TO-DO: Add foundValues to a utils section or declare it at top of file?
     //
-    def foundValues(collection: Map[String, String], key: String, value: String): Boolean = {
-     val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
+    def foundValues(collection : Map[String, String], key : String, value : String) : Boolean = {
+      val found : Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
         case Some(_) => true
         case None => false
       }
       found
     }
-    
+
     val testSchema = XML.loadFile(TestUtils.findFile("test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
 
@@ -524,43 +530,43 @@ class TestDsomCompiler extends JUnit3Suite {
 
     // GroupRefTest
     val e4 = e4f.forRoot() // groupRefTest
-    
+
     val e4ct = e4.immediateType.get.asInstanceOf[LocalComplexTypeDef]
-    
-    val e4ctgref = e4ct.modelGroup.asInstanceOf[GroupRef]	// groupRefTests' local group decl
-    
-    val myGlobal1 = e4ctgref.groupDef.get
-    
+
+    val e4ctgref = e4ct.modelGroup.asInstanceOf[GroupRef] // groupRefTests' local group decl
+
+    val myGlobal1 = e4ctgref.groupDef
+
     val myGlobal1Seq = myGlobal1.modelGroup.asInstanceOf[Sequence]
-    
+
     val myGlobal2Seq = myGlobal1Seq.immediateGroup.get.asInstanceOf[Sequence]
-    
-   // val myGlobal2Seq = myGlobal2.modelGroup.asInstanceOf[Sequence]
-    
+
+    // val myGlobal2Seq = myGlobal2.modelGroup.asInstanceOf[Sequence]
+
     // myGlobal1 Properties
     assertTrue(foundValues(myGlobal1Seq.allNonDefaultProperties, "separator", ","))
-    
+
     // myGlobal2 Properties
     assertTrue(foundValues(myGlobal2Seq.allNonDefaultProperties, "separator", ";"))
     assertTrue(foundValues(myGlobal2Seq.allNonDefaultProperties, "separatorPosition", "infix"))
-    
+
     // GroupRefTestOverlap
     val e5 = e5f.forRoot() // groupRefTestOverlap
-    
+
     val e5ct = e5.immediateType.get.asInstanceOf[LocalComplexTypeDef]
-    
-    val e5ctgref = e5ct.modelGroup.asInstanceOf[GroupRef]	// groupRefTestOverlap's local group decl
-    
-    val myGlobal3 = e5ctgref.groupDef.get
+
+    val e5ctgref = e5ct.modelGroup.asInstanceOf[GroupRef] // groupRefTestOverlap's local group decl
+
+    val myGlobal3 = e5ctgref.groupDef
     val myGlobal3Seq = myGlobal3.modelGroup.asInstanceOf[Sequence]
-    
+
     // Tests overlapping properties
     intercept[daffodil.exceptions.SDE] { myGlobal3Seq.allNonDefaultProperties }
-    
+
   }
-  
+
   val ibm7132Schema = XML.loadFile(TestUtils.findFile("test/TestRefChainingIBM7132.dfdl.xml"))
-  
+
   def test_ibm_7132 {
     val compiler = Compiler()
     val sset = new SchemaSet(ibm7132Schema)
@@ -569,13 +575,13 @@ class TestDsomCompiler extends JUnit3Suite {
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
-    
+
     val f1 = ge1.formatAnnotation
 
-    val props: Map[String, String] = f1.getFormatProperties()
+    val props : Map[String, String] = f1.getFormatProperties()
 
-    def foundValues(collection: Map[String, String], key: String, value: String): Boolean = {
-      val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
+    def foundValues(collection : Map[String, String], key : String, value : String) : Boolean = {
+      val found : Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
         case Some(_) => true
         case None => false
       }
@@ -586,18 +592,18 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals(true, foundValues(props, "lengthKind", "implicit"))
     assertEquals(true, foundValues(props, "representation", "text"))
     assertEquals(true, foundValues(props, "textNumberRep", "standard"))
-    
-   val ct =  ge1.typeDef.asInstanceOf[ComplexTypeBase]
-   val seq =  ct.modelGroup.asInstanceOf[Sequence]
-   val Seq(e1: ElementBase, e2: ElementBase) = seq.groupMembers
-   
-   val e1f = e1.formatAnnotation.asInstanceOf[DFDLElement]
-   val e1fProps: Map[String, String] = e1f.getFormatProperties()
-    
-//    println(e1fProps)
-//
-    def e1fValues (collection: Map[String, String], key: String, value: String): Boolean = {
-      val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
+
+    val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
+    val seq = ct.modelGroup.asInstanceOf[Sequence]
+    val Seq(e1 : ElementBase, e2 : ElementBase) = seq.groupMembers
+
+    val e1f = e1.formatAnnotation.asInstanceOf[DFDLElement]
+    val e1fProps : Map[String, String] = e1f.getFormatProperties()
+
+    //    println(e1fProps)
+    //
+    def e1fValues(collection : Map[String, String], key : String, value : String) : Boolean = {
+      val found : Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
         case Some(_) => true
         case None => false
       }
@@ -605,18 +611,17 @@ class TestDsomCompiler extends JUnit3Suite {
     }
     assertEquals(true, e1fValues(e1fProps, "initiator", ""))
     //println(e1f.initiatorRaw)
-    
+
     //e1f.initiatorRaw
     //e1f.byteOrderRaw
     e1f.lengthKind
 
-
   }
-  
+
   def testDfdlRef = {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:defineFormat name="ref1"> <dfdl:format initiator=":"/> </dfdl:defineFormat>,
-      <xs:element name="e1" dfdl:lengthKind="implicit" ref="tns:ref1" type="xs:string">
+      <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
       </xs:element>)
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -625,14 +630,15 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
     val props = ge1.formatAnnotation.getFormatProperties()
-    
+
     println(props)
     //assertEquals(":", ge1.initiatorRaw)
   }
-  
+
   def testGetQName = {
     val testSchema = TestUtils.dfdlTestSchema(
-      <dfdl:defineFormat name="ref1" initiator=":"  >
+      <dfdl:defineFormat name="ref1">
+        <dfdl:format initiator=":"/>
       </dfdl:defineFormat>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
       </xs:element>)
@@ -644,28 +650,28 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
     //val props = ge1.formatAnnotation.getFormatProperties()
-    
-   val (nsURI, localName) = ge1.formatAnnotation.getQName("ref1")
-    
+
+    val (nsURI, localName) = ge1.formatAnnotation.getQName("ref1")
+
     println(nsURI + ", " + localName)
   }
-  
+
   def testGetAllNamespaces() {
-   val xml = <bar xmlns:foo="fooNS" xmlns:bar="barNS">
+    val xml = <bar xmlns:foo="fooNS" xmlns:bar="barNS">
                 <quux xmlns:baz="bazNS" attr1="x"/>
-             </bar>
-                      
-   val scope = (xml \ "quux")(0).scope
-   println(scope)
-   val newElem = scala.xml.Elem("dfdl", "element", null, scope) 
-   println(newElem)
-}
-  
-    val delimiterInheritance = XML.loadFile(TestUtils.findFile("test/TestDelimiterInheritance.dfdl.xml"))
+              </bar>
+
+    val scope = (xml \ "quux")(0).scope
+    println(scope)
+    val newElem = scala.xml.Elem("dfdl", "element", null, scope)
+    println(newElem)
+  }
+
+  val delimiterInheritance = XML.loadFile(TestUtils.findFile("test/TestDelimiterInheritance.dfdl.xml"))
 
   def test_delim_inheritance {
     val compiler = Compiler()
-   val sset = new SchemaSet(delimiterInheritance)
+    val sset = new SchemaSet(delimiterInheritance)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
@@ -675,21 +681,20 @@ class TestDsomCompiler extends JUnit3Suite {
     val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
     val seq = ct.modelGroup.asInstanceOf[Sequence]
 
-    val Seq(e1: ElementBase, e2: ElementBase, e3: ElementBase) = seq.groupMembers
+    val Seq(e1 : ElementBase, e2 : ElementBase, e3 : ElementBase) = seq.groupMembers
 
     //assertEquals(e1.terminatingMarkup, List("a", "b")) // 1 Level
     println(e1.terminatingMarkup)
 
     val ct2 = e3.asInstanceOf[ElementBase].typeDef.asInstanceOf[ComplexTypeBase]
     val seq2 = ct2.modelGroup.asInstanceOf[Sequence]
-    val Seq(e3_1: ElementBase, e3_2: ElementBase) = seq2.groupMembers
+    val Seq(e3_1 : ElementBase, e3_2 : ElementBase) = seq2.groupMembers
 
     println(e3_1.terminatingMarkup)
     println(e3_2.terminatingMarkup)
-   // assertEquals(e3_1.terminatingMarkup, List("e", "c", "d", "a", "b")) // 2 Level
-   // assertEquals(e3_2.terminatingMarkup, List("f", "c", "d", "a", "b")) // 2 Level + ref
+    // assertEquals(e3_1.terminatingMarkup, List("e", "c", "d", "a", "b")) // 2 Level
+    // assertEquals(e3_2.terminatingMarkup, List("f", "c", "d", "a", "b")) // 2 Level + ref
   }
 
-  
 }
 

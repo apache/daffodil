@@ -10,14 +10,16 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 import scala.collection.JavaConversions._
 
-
-
 /**
  * Base class for any DFDL annotation
  */
 abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin)
-  extends GetAttributesMixin {
+  extends DiagnosticsProviding
+  with GetAttributesMixin {
   lazy val xml = node
+  
+  lazy val prettyName = xml.prefix + ":" + xml.label 
+  lazy val path = annotatedSC.path + "::" + prettyName
 }
 
 trait RawCommonRuntimeValuedPropertiesMixin 
@@ -32,7 +34,6 @@ trait RawDelimitedRuntimeValuedPropertiesMixin
   
   lazy val initiatorRaw = getProperty("initiator")
   lazy val terminatorRaw = getProperty("terminator")
-  
 }
 
 trait RawElementRuntimeValuedPropertiesMixin
@@ -78,6 +79,7 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: SchemaComponent wit
   extends DFDLAnnotation(node, annotatedSC) 
   with RawCommonRuntimeValuedPropertiesMixin { 
 
+  lazy val diagnosticChildren = Nil
   
   private[dsom] def getLocalFormatRef(): String = {
     val ref = combinedLocalProperties.get("ref")
@@ -357,6 +359,8 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: SchemaComponent wit
  */
 abstract class DFDLStatement(node: Node, annotatedSC: AnnotatedMixin)
   extends DFDLAnnotation(node, annotatedSC) {
+  
+  lazy val diagnosticChildren : DiagnosticsList = Nil
 }
 
 class DFDLFormat(node: Node, sd: SchemaDocument)
@@ -401,19 +405,30 @@ class DFDLSimpleType(node: Node, decl: SimpleTypeBase)
   with RawSimpleTypeRuntimeValuedPropertiesMixin {
 }
 
+trait DFDLDefiningAnnotation { self : DFDLAnnotation =>
+  lazy val nom = getAttributeRequired("name") // validation will check this for us.
+  override lazy val prettyName : String = nom // note: name is not a format property.
+  lazy val name : String = nom
+  
+  lazy val definingAnnotationDiagnosticChildren : DiagnosticsList = Nil
+}
+
 class DFDLDefineFormat(node: Node, sd: SchemaDocument)
   extends DFDLAnnotation(node, sd) // Note: DefineFormat is not a format annotation
+  with DFDLDefiningAnnotation
   // with DefineFormat_AnnotationMixin // mixins are only for format annotations.
   {
 
-  lazy val name = getAttributeRequired("name") // note: name is not a format property.
   lazy val baseFormat = getAttributeOption("baseFormat") // nor baseFormat
 
-  lazy val formatAnnotation = Utility.trim(node) match {
+  lazy val formatAnnotation = LV{Utility.trim(node) match {
     case <dfdl:defineFormat>{ f @ <dfdl:format>{ contents @ _* }</dfdl:format> }</dfdl:defineFormat> =>
       new DFDLFormat(f, sd)
     case _ => Assert.impossibleCase()
   }
+  }
+  
+  lazy val diagnosticChildren = formatAnnotation +: definingAnnotationDiagnosticChildren
 }
 
 class DFDLEscapeScheme(node: Node, decl: SchemaComponent with AnnotatedMixin)
@@ -424,15 +439,17 @@ class DFDLEscapeScheme(node: Node, decl: SchemaComponent with AnnotatedMixin)
 
 class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument)
   extends DFDLAnnotation(node, decl) // Note: defineEscapeScheme isn't a format annotation itself.
+  with DFDLDefiningAnnotation
   // with DefineEscapeScheme_AnnotationMixin 
   {
-  lazy val name = getAttributeRequired("name")
 
   lazy val escapeScheme = Utility.trim(node) match {
     case <dfdl:defineEscapeScheme>{ e @ <dfdl:escapeScheme>{ contents @ _* }</dfdl:escapeScheme> }</dfdl:defineEscapeScheme> =>
       new DFDLEscapeScheme(e, decl)
     case _ => Assert.impossibleCase()
   }
+  
+  lazy val diagnosticChildren = escapeScheme +: definingAnnotationDiagnosticChildren
 }
 
 abstract class DFDLAssertionBase(node: Node, decl: AnnotatedMixin)
@@ -442,6 +459,10 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedMixin)
   lazy val testPattern = getAttributeOption("testPattern")
   lazy val message = getAttributeOption("message")
   lazy val test = getAttributeOption("test")
+  //
+  // TODO: override diagnosticChildren if we compile the testBody/pattern into an object
+  // which can provide error/diagnostic information itself (beyond what this class itself
+  // can provide... which is nothing right now, but it could...someday).
 }
 
 class DFDLAssert(node: Node, decl: AnnotatedMixin)
@@ -458,13 +479,15 @@ class DFDLDiscriminator(node: Node, decl: AnnotatedMixin)
 
 class DFDLDefineVariable(node: Node, decl: AnnotatedMixin)
   extends DFDLStatement(node, decl) //with DefineVariable_AnnotationMixin 
+  with DFDLDefiningAnnotation
   {
-  lazy val name = getAttributeRequired("name")
   //TODO: check: are the rest of these required or optional?
   lazy val predefined = getAttributeOption("predefined")
   lazy val type_ = getAttributeOption("type")
   lazy val external = getAttributeOption("external")
   lazy val defaultValue = getAttributeOption("defaultValue")
+  
+  override lazy val diagnosticChildren = definingAnnotationDiagnosticChildren
 }
 
 class DFDLNewVariableInstance(node: Node, decl: AnnotatedMixin)

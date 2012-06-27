@@ -6,20 +6,12 @@ import daffodil.xml._
 import daffodil.exceptions._
 import daffodil.schema.annotation.props._
 import daffodil.schema.annotation.props.gen._
-/*
- * Not using XSOM - too many issues. Schema Documents aren't first class objects, and we need
- * them to implement lexical scoping of default formats over the contents of a schema document.
- * 
- * import com.sun.xml.xsom.parser.{ SchemaDocument => XSSchemaDocument, _ }
- * import com.sun.xml.xsom._
- * import com.sun.xml.xsom.util._
- */
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import scala.collection.JavaConversions._
-
 import daffodil.grammar._
 import com.ibm.icu.charset.CharsetICU
+import daffodil.dsom.OOLAG._
 
 /**
  * The core root class of the DFDL Schema object model.
@@ -27,11 +19,15 @@ import com.ibm.icu.charset.CharsetICU
  * Every schema component has a schema document, and a schema, and a namespace.
  */
 abstract class SchemaComponent(val xml : Node)
-  extends GetAttributesMixin {
+  extends DiagnosticsProviding
+  with GetAttributesMixin  {
   def schemaDocument: SchemaDocument
   lazy val schema: Schema = schemaDocument.schema
   lazy val namespace = schemaDocument.targetNamespace
+  def prettyName : String
   
+  def scPath : String
+  lazy val path = scPath
   
   private val scala.xml.Elem(_, _, emptyXMLMetadata, _, _*) = <foo/> // hack way to get empty metadata object.
   
@@ -52,9 +48,14 @@ abstract class SchemaComponent(val xml : Node)
 /**
  * Local components have a lexical parent that contains them
  */
-trait LocalComponentMixin {
+trait LocalComponentMixin { self : SchemaComponent =>
   def parent: SchemaComponent
   lazy val schemaDocument = parent.schemaDocument
+  
+  lazy val scPath = {
+    parent.scPath + "::" + prettyName
+  }
+  
 }
 
 /**
@@ -63,6 +64,7 @@ trait LocalComponentMixin {
 trait NamedMixin { self : { def xml : Node } => // this scala idiom means the object this is mixed into has a def for xml of type Node
   lazy val name = (xml \ "@name").text
   lazy val detailName = name // TODO: remove synonym name unless there is a good reason for this.
+  lazy val prettyName = name
 }
 
 /**
@@ -71,6 +73,7 @@ trait NamedMixin { self : { def xml : Node } => // this scala idiom means the ob
 trait GlobalComponentMixin
   extends NamedMixin { self: SchemaComponent =>
     // nothing here yet
+    override lazy val scPath = schemaDocument.scPath + "::" + prettyName
 }
 
 
@@ -79,7 +82,10 @@ trait GlobalComponentMixin
  */
 trait AnnotatedMixin 
 extends CommonRuntimeValuedPropertiesMixin { self : SchemaComponent =>
-       
+    
+  def prettyName : String
+  def path : String
+  
   def localAndFormatRefProperties: Map[String,String]
   def defaultProperties: Map[String,String] = {
     this.schemaDocument.localAndFormatRefProperties
@@ -138,7 +144,8 @@ extends CommonRuntimeValuedPropertiesMixin { self : SchemaComponent =>
    * The DFDL annotations on the component, as objects
    * that are subtypes of DFDLAnnotation.
    */
-  lazy val annotationObjs = {
+  lazy val annotationObjs = annotationObjs_.value
+  private lazy val annotationObjs_ = LV{
     // println(dais)
     dais.flatMap { dai =>
       {
@@ -278,9 +285,15 @@ extends CommonRuntimeValuedPropertiesMixin { self : SchemaComponent =>
  * being included/imported don't have to be within the list.
  *
  */
-class SchemaSet(schemaNodeList: Seq[Node]) {
+class SchemaSet(val schemaNodeList: Seq[Node]) 
+extends DiagnosticsProviding {
   // TODO Constructor(s) or companion-object methods to create a SchemaSet from files.
 
+  lazy val prettyName="schemaSet"
+    
+  lazy val scPath = ""
+  lazy val path = scPath
+    
   lazy val schemaPairs = schemaNodeList.map { s =>
     {
       val ns = (s \ "@targetNamespace").text
@@ -299,6 +312,8 @@ class SchemaSet(schemaNodeList: Seq[Node]) {
       res
     }
   }
+  
+  lazy val diagnosticChildren = schemas
 
   /**
    * Retrieve schema by namespace name.
@@ -333,6 +348,7 @@ class SchemaSet(schemaNodeList: Seq[Node]) {
 
   lazy val primitiveTypes = XMLUtils.DFDL_SIMPLE_BUILT_IN_TYPES.map{new PrimitiveType(_)}
   def getPrimitiveType(localName: String) = primitiveTypes.find{_.name == localName}
+
 }
 
 /**
@@ -342,11 +358,18 @@ class SchemaSet(schemaNodeList: Seq[Node]) {
  * same target namespace, and in that case all those schema documents make up
  * the 'schema'.
  */
-class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: SchemaSet) {
+class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: SchemaSet) 
+extends DiagnosticsProviding {
 
+  lazy val prettyName = "schema"
+  lazy val scPath = ""
+  lazy val path = scPath
+    
   lazy val targetNamespace = namespace
 
   lazy val schemaDocuments = schemaDocs.map { new SchemaDocument(_, this) }
+  
+  lazy val diagnosticChildren = schemaDocuments
 
   private def noneOrOne[T](scs: Seq[T], name: String): Option[T] = {
     scs match {
@@ -396,6 +419,15 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
   with AnnotatedMixin
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
+  
+  lazy val prettyName = "schemaDoc"
+  lazy val scPath = prettyName
+    
+  lazy val validatedXML = LV{
+      XMLSchemaUtils.validateDFDLSchema(xml)
+      // TODO: Consider this: Should each schema document call validate, or do we have to do them as a "batch", i.e.,
+      // will the above validate and revalidate shared files imported by each schema document in the set???
+  }
   
   lazy val localAndFormatRefProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
   
@@ -481,6 +513,23 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
     dv
   }
 
+  
+  lazy val diagnosticChildren = {
+    List(validatedXML, defaultFormat) ++
+    globalElementDecls.map{ _.forRoot() } ++
+    defineEscapeSchemes ++
+    defineFormats ++
+    defineVariables
+  }
+// Not these, because we'll pick these up when elements reference them.
+// And we don't compile them independently of that (since they could be very
+// incomplete and would lead to many errors for missing this or that.)
+//    globalSimpleTypeDefs ++
+//    globalComplexTypeDefs ++
+//    globalGroupDefs ++
+    
+    
+    
   /**
    * by name getters for the global things that can be referenced.
    */

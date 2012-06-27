@@ -30,8 +30,16 @@ trait Parser {
 
 }
 
+// No-op, in case an optimization lets one of these sneak thru. 
+// TODO: make this fail, and test optimizer sufficiently to know these 
+// do NOT get through.
 class EmptyGramParser extends Parser {
   def parse(pstate: PState) = pstate
+}
+
+class ErrorParser extends Parser {
+  def parse(pstate: PState): PState = Assert.abort("Error Parser")
+  override def toString = "Error Parser"
 }
 
 class SeqCompParser(p: Gram, q: Gram) extends Parser {
@@ -200,7 +208,7 @@ class PState(
   def failed(msg: => String) : PState =
     failed(new GeneralParseFailure(msg))
   def failed(failureDiagnostic: Diagnostic) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage()), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics)
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics)
 
   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.

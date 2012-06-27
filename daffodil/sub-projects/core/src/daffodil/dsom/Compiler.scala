@@ -13,305 +13,215 @@ import daffodil.util.Misc._
 import daffodil.api.Diagnostic
 import daffodil.util.Misc
 import daffodil.api.WithDiagnostics
+import daffodil.util.Logging
+import daffodil.util.Info
 
-trait DiagnosticsImpl extends WithDiagnostics {
-  
-  private var diagnostics : Seq[Diagnostic] = Seq.empty[Diagnostic]
-  
-  def getDiagnostics() : Seq[Diagnostic] = {
-    diagnostics
+class ProcessorFactory(sset : SchemaSet, rootElem : GlobalElementDecl)
+  extends DiagnosticsProviding // (sset)
+  with DFDL.ProcessorFactory {
+
+  lazy val prettyName = "ProcessorFactory"
+  lazy val path =""
+  lazy val diagnosticChildren = List(sset)
+  // println("Creating Processor Factory")
+
+  def onPath(xpath : String) : DFDL.DataProcessor = {
+    Assert.invariant(canProceed)
+    Assert.notYetImplemented(xpath != "/")
+    lazy val dp = new DataProcessor(this, rootElem)
+    dp
   }
+}
+
+class DataProcessor(pf : ProcessorFactory, rootElem : GlobalElementDecl)
+  extends DiagnosticsProviding // DelegatesDiagnostics(pf)
+  with DFDL.DataProcessor {
+  Assert.invariant(pf.canProceed)
+
+  lazy val prettyName = "DataProcessor"
+  lazy val path = ""
+  lazy val diagnosticChildren = List(pf, rootElem)
+  lazy val parser = rootElem.document.parser
   
-  def addDiagnostic(d : Diagnostic) {
-    diagnostics = diagnostics :+ d
+  def save(fileName : String) : Unit = {
+    Assert.notYetImplemented()
   }
-  
-  def addDiagnostics(ds : Seq[Diagnostic]) {
-    diagnostics = diagnostics ++ ds
+
+  def parse(input : DFDL.Input) : DFDL.ParseResult = {
+    val initialState = PState.createInitialState(rootElem, input) // also want to pass here the externally set variables, other flags/settings.
+    val resultState = parser.parse(initialState)
+    val pr = new ParseResult(resultState, this)
+    pr
   }
-  
-  def canProceed() : Boolean = {
-    val s = getDiagnostics()
-    val hasError = s.exists(_.isError())
-    val res = !hasError
+
+  def unparse(output : DFDL.Output, node : scala.xml.Node) : DFDL.UnparseResult = {
+    val jdomElem = XMLUtils.elem2Element(node)
+    val jdomDoc = new org.jdom.Document(jdomElem)
+    val res = new UnparseResult 
     res
   }
-  
-  def isError() = !canProceed()
+}
 
-  def hasDiagnostics() : Boolean = {
-      val s = getDiagnostics()
-      if (s.length > 0) true
-      else false
-    }
+class ParseResult(resultState : PState, dp : DataProcessor)
+  extends DiagnosticsProviding // DelegatesDiagnostics(dp)
+  with DFDL.ParseResult {
   
-  def capturingThrowsAsDiagnostics[T](body : => T) : Unit = {
-    try {
-      body
-    }
-    catch {
-    	case e:Exception => {
-    	  // convert the exception to a diagnostic object and
-    	  // add it to the accumulating diagnostic info.
-    	  diagnostics = diagnostics :+ new GeneralCompilationFailure(e)
-    	}
-    }
-  }
-  
-  def schemaDefinitionError(msg : String) {
+  lazy val diagnosticChildren = Nil
+  lazy val prettyName = "ParseResult"
+  lazy val path = ""
     
-  }
+  val result =
+    if (resultState.status == Success) {
+      val jdomFakeRoot = resultState.parent
+      // top node is this fake root element
+      Assert.invariant(jdomFakeRoot.getName() == "_document_")
+      Assert.invariant(jdomFakeRoot.getContentSize() == 1)
+      val jdomElt = jdomFakeRoot.getContent(0).asInstanceOf[org.jdom.Element]
+      XMLUtils.element2Elem(jdomElt)
+    } else {
+      <nothing/>
+    }
+  
+  override lazy val isError = resultState.status != Success
+  override lazy val getLocalDiagnostics = resultState.diagnostics 
   
 }
 
-class GeneralCompilationFailure(e : Exception) extends Diagnostic {
-  def isError() = true
-  def getSchemaLocations() = Nil
-  def getDataLocations() = Nil
-  def getMessage() = e.getMessage()
+class UnparseResult
+  extends DFDL.UnparseResult {
+  lazy val hasDiagnostics = true
+  lazy val isError = true
+  override lazy val getDiagnostics = Seq(new GeneralUnparseFailure("Unparsing is not yet implemented."))
 }
 
-abstract class ProcessorFactory extends DFDL.ProcessorFactory with DiagnosticsImpl
-
-abstract class DataProcessor extends DFDL.DataProcessor with DiagnosticsImpl
-
-abstract class ParseResult extends DFDL.ParseResult with DiagnosticsImpl
-abstract class UnparseResult extends DFDL.UnparseResult with DiagnosticsImpl
-
-class Compiler extends DFDL.Compiler {
-  var root: String = ""
-  var rootNamespace: String = ""
+class Compiler extends DFDL.Compiler with Logging {
+  var root : String = ""
+  var rootNamespace : String = ""
   var debugMode = false
 
-
-  def setDistinguishedRootNode(name: String, namespace: String = ""): Unit = {
+  def setDistinguishedRootNode(name : String, namespace : String = "") : Unit = {
     root = name
     rootNamespace = namespace
   }
 
-  def setExternalDFDLVariable(name: String, namespace: String, value: String): Unit = {
+  def setExternalDFDLVariable(name : String, namespace : String, value : String) : Unit = {
     Assert.notYetImplemented()
   }
 
-  def setDebugging(flag: Boolean) {
+  def setDebugging(flag : Boolean) {
     debugMode = flag
   }
 
   /*
    * for unit testing of front end
    */
-  private[dsom] def frontEnd(xml: Node) = {
-    Compiler.validateDFDLSchema(xml)
-    val sset = new SchemaSet(List(xml))
-    //
-    // let's make sure every element declaration compiles
-    //
-    val allEltFactories = sset.schemas.flatMap{_.schemaDocuments.flatMap{_.globalElementDecls}}
-    val allElts = allEltFactories.map{_.forRoot()}
-    System.err.println("Compiling " + allElts.length + " element(s).")
-    allElts.foreach{
-      //
-      elt => elt.capturingThrowsAsDiagnostics {
-        val doc : Prod = elt.document
-        // System.err.println("document = " + doc)
-        val parser = doc.parser
-        val unparser = doc.unparser
-        System.err.println("parser = " + parser)
-        // str = parser.toString
-      }
-    }
+  private[dsom] def frontEnd(xml : Node) : (SchemaSet, GlobalElementDecl) = {
     
-   
-    val diags = allElts.flatMap{_.getDiagnostics}
-    
-    
+    val elts = (xml \ "element")
+    Assert.usage(elts.length != 0, "No top level element declarations found.")
+
     if (root == "") {
       Assert.invariant(rootNamespace == "")
-      val rootElt = allElts(0) // TODO: when we generalize to multiple files, this won't work any more
-      root = rootElt.name
-      rootNamespace = rootElt.schemaDocument.targetNamespace
+      // TODO: when we generalize to multiple files, this won't work any more
+      val eltLabels = (xml \ "element").map { eNode => (eNode \ "@name").text }
+      Assert.usage(eltLabels.length > 0)
+      root = eltLabels(0)
     }
+
     if (rootNamespace == "") {
       rootNamespace = (xml \ "@targetNamespace").text
     }
-    
-    val maybeRoot = allElts.find{decl => decl.namespace == rootNamespace && decl.name == root}
+
+    val sset = new SchemaSet(List(xml))
+    val maybeRoot = sset.getGlobalElementDecl(rootNamespace, root)
     val res = maybeRoot match {
       case None => Assert.usageError("The document element named " + root + " was not found.")
-      case Some(rootElem) => {
-        val processorFactory = rootElem.document
-        val parser = processorFactory.parser // if we can get this far, that says a lot.
-        val unparser = processorFactory.unparser
-        (sset, parser, unparser, rootElem)
+      case Some(rootElemFactory) => {
+        val rootElem = rootElemFactory.forRoot()
+        (sset, rootElem)
       }
     }
     res
   }
 
-  def reload(fileNameOfSavedParser: String) = {
-      Assert.notYetImplemented()
-//      val sp = daffodil.parser.SchemaParser.readParser(fileNameOfSavedParser)
-//      backEnd(sp, Assert.notYetImplemented())
+  def reload(fileNameOfSavedParser : String) = {
+    Assert.notYetImplemented()
+    //      val sp = daffodil.parser.SchemaParser.readParser(fileNameOfSavedParser)
+    //      backEnd(sp, Assert.notYetImplemented())
   }
 
-  def compile(schemaFileName: String): DFDL.ProcessorFactory = {
+  def compile(schemaFileName : String) : DFDL.ProcessorFactory = {
     val schemaNode = XML.load(schemaFileName)
-    compileSchema(schemaNode)
+    compile(schemaNode)
   }
 
-  def compile(xml: Node): DFDL.ProcessorFactory = compileSchema(xml)
-
-  private def compileSchema(xml: Node): DFDL.ProcessorFactory = {
-    val elts = (xml \ "element")
-    Assert.usage(elts.length != 0, "No top level element declarations found.")
-   
-    val (sset, parser, unparser, rootElem) = frontEnd(xml) // includes middle "end" too.
-    val res = backEnd(parser, unparser, sset, rootElem)
-    res
+  def compile(xml : Node) : DFDL.ProcessorFactory = {
+	val (sset, rootElem) = frontEnd(xml) // includes middle "end" too.
+// 	 lazy val documentProd = rootElem.document
+//   lazy val parser = documentProd.parser
+//   lazy val unparser = documentProd.unparser
+     lazy val pf = new ProcessorFactory(sset, rootElem)
+	 if (pf.isError) {
+	   val diags = pf.getDiagnostics
+		 log(Info("Compilation produced %d errors.", diags.length))
+		 diags.foreach{System.out.println(_)}
+	 } else {
+	    log(Info("Compilation completed with no errors."))
+	 }
+     pf
   }
 
-  def backEnd(parser : Parser, unparser : Unparser, sset: SchemaSet, rootElem : GlobalElementDecl) = {
-     new ProcessorFactory {
-
-      lazy val schemaSet = sset
-      // lazy val diagnostics = Seq.empty
-      
-      def onPath(xpath: String): DFDL.DataProcessor =
-        new DataProcessor {
-
-          def save(fileName: String): Unit = {
-            Assert.notYetImplemented()
-          }
- 
-          def parse(input : DFDL.Input) : DFDL.ParseResult = {
-            val pr = new ParseResult {
-              val (result, diags) = {
-                val initialState = PState.createInitialState(rootElem, input) // also want to pass here the externally set variables, other flags/settings.
-                val resultState = parser.parse(initialState)
-                val diagnostics = resultState.diagnostics
-                if (resultState.status == Success) {
-                  val jdomFakeRoot = resultState.parent
-                  // top node is this fake root element
-                  Assert.invariant(jdomFakeRoot.getName() == "_document_")
-                  Assert.invariant(jdomFakeRoot.getContentSize() == 1)
-                  val jdomElt = jdomFakeRoot.getContent(0).asInstanceOf[org.jdom.Element]
-                  val result = XMLUtils.element2Elem(jdomElt)
-                  (result, diagnostics)
-                } else {
-                  // failed. Let's make sure there is at least one diagnostic, so it can't 
-                  // silently fail
-                  val diags = diagnostics match {
-                    case Seq() => List(new GeneralParseFailure("Top Level Failure"))
-                    case _ => diagnostics
-                  }
-                  (<nothing/>, diags)
-                }
-              }
-              addDiagnostics(diags)
-            }
-            pr
-          }
-
-          def unparse(output: DFDL.Output, node: scala.xml.Node) : DFDL.UnparseResult = {
-            val jdomElem = XMLUtils.elem2Element(node)
-            val jdomDoc = new org.jdom.Document(jdomElem)
-            val res = new UnparseResult {
-              addDiagnostic(new GeneralUnparseFailure("Unparsing is not yet implemented."))
-            }
-            res
-          }
-        }
-
-    }
-  }
-  
 }
 
-
 object Compiler {
-  
+
   def apply() = new Compiler()
 
-  /**
-   * validate a DFDL schema.
-   *
-   * This validates the XML Schema language subset that DFDL uses, and also all the annotations
-   * hung off of it.
-   */
-  def validateDFDLSchema(doc: Node) = {
-    // TODO: should this do something other than throw an exception on a validation error?
-    //
-    // Users will write DFDL Schemas, using the xs or xsd prefix (usually) bound to the XML Schema namespace,
-    // and the dfdl prefix (usually) bound to the DFDL namespace.
-    //
-    // However, we don't want to validate using the XML Schema for XML Schema (which would be the usual interpretation
-    // of validating an XML Schema), instead we want to use the schema for the DFDL Subset of XML Schema.
-    //
-    // So, the hack here, is we're going to textually substitute the URIs, so that the validator doesn't have to be 
-    // modified to do this switch, and we don't have to lie in the DFDL Subset schema, and claim it is realizing the
-    // XML Schema URI.
-    //
-    // However, we should consider whether there is a better way to do this involving either (a) lying and having the
-    // DFDL Subset Schema pretend it is the XSD schema, or we can play some catalog tricks perhaps.
-    //
-    // Also, the way this whole thing finds the necessary schemas is a bit daft. It should look in the jar or files,
-    // but it should be using an XML Catalog.
-    //
-    val docstring = doc.toString()
-    val xmlnsURI = "http://www.w3.org/2001/XMLSchema";
-    val xsdSubsetURI = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset";
-    val docReplaced = docstring.replaceAll(xmlnsURI, xsdSubsetURI)
-    val docReader = new StringReader(docReplaced)
-    val schemaResource = Misc.getRequiredResource(Validator.dfdlSchemaFileName()).toURI()
-    val res = Validator.validateXMLStream(schemaResource, docReader)
-    res
-  }
-
-  def stringToReadableByteChannel(s: String) = {
+  def stringToReadableByteChannel(s : String) = {
     val bytes = s.getBytes()
     byteArrayToReadableByteChannel(bytes)
   }
-  
+
   def byteArrayToReadableByteChannel(bytes : Array[Byte]) = {
     val inputStream = new ByteArrayInputStream(bytes);
     val rbc = java.nio.channels.Channels.newChannel(inputStream);
     rbc
   }
 
-  def fileToReadableByteChannel(file: java.io.File) = {
+  def fileToReadableByteChannel(file : java.io.File) = {
     val inputStream = new java.io.FileInputStream(file)
     val rbc = java.nio.channels.Channels.newChannel(inputStream);
     rbc
   }
 
-  def testString(testSchema: Node, data: String) = {
+  def testString(testSchema : Node, data : String) = {
     val compiler = Compiler()
     val pf = compiler.compile(testSchema)
     val p = pf.onPath("/")
     val d = Compiler.stringToReadableByteChannel(data)
     val actual = p.parse(d)
-    if (actual.isError()) {
-      val msgs = actual.getDiagnostics().map(_.getMessage()).foldLeft("")((a, b) => a + "\n" + b)
+    if (actual.isError) {
+      val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
     }
     actual
   }
 
-  def testBinary(testSchema: Node, hexData: String) = {
+  def testBinary(testSchema : Node, hexData : String) = {
     val compiler = Compiler()
     val pf = compiler.compile(testSchema)
     val p = pf.onPath("/")
     val b = hex2Bytes(hexData)
     val rbc = byteArrayToReadableByteChannel(b)
     val actual = p.parse(rbc)
-     if (actual.isError()) {
-      val msgs = actual.getDiagnostics().map(_.getMessage()).foldLeft("")((a, b) => a + "\n" + b)
+    if (actual.isError) {
+      val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
     }
     actual
   }
-  
-  def testFile(testSchema: Node, fileName: String) = {
+
+  def testFile(testSchema : Node, fileName : String) = {
     val compiler = Compiler()
     val pf = compiler.compile(testSchema)
     val p = pf.onPath("/")
@@ -321,18 +231,3 @@ object Compiler {
   }
 }
 
-  // Example of using XSOM
-  //
-  //  def rip(schema: String) = {
-  //    val parser = new XSOMParser()
-  //    val apf = new DomAnnotationParserFactory()
-  //    parser.setAnnotationParser(apf)
-  //
-  //    val instream = new ByteArrayInputStream(schema.getBytes());
-  //
-  //    parser.parse(instream)
-  //
-  //    val sset = parser.getResult()
-  //    val sds = parser.getDocuments()
-  //    (sds, sset)
-  //  }

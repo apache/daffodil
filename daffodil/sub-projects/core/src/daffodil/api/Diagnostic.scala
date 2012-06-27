@@ -35,26 +35,27 @@ trait Diagnostic {
    * Should utilize locale information to properly internationalize. But if that is 
    * unavailable, will still construct an English-language string.
    */
-  def getMessage() : String
+  def getMessage : String
   
+  override def toString() = getMessage 
   /**
    * Get data location information relevant to this diagnostic object.
    * 
    * For example, this might be a file name, and position within the file.
    */
-  def getDataLocations() : Seq[DataLocation]
+  def getDataLocations : Seq[DataLocation]
   
    /**
    * Get schema location information relevant to this diagnostic object.
    * 
    * For example, this might be a file name of a schema, and position within the schema file.
    */
-  def getSchemaLocations() : Seq[SchemaLocation]
+  def getSchemaLocations : Seq[SchemaLocation]
   
   /**
    * Determine if a diagnostic object represents an error or something less serious.
    */
-  def isError() : Boolean
+  def isError : Boolean
   
 }
 
@@ -87,7 +88,7 @@ trait WithDiagnostics {
    * a file of text, then diagnostics that are about lines earlier in the file
    * are earlier in the list. 
    */
-  def getDiagnostics() : Seq[Diagnostic]
+  def getDiagnostics : Seq[Diagnostic]
   
   /**
    * This predicate indicates whether the object in question succeeded or failed 
@@ -104,28 +105,10 @@ trait WithDiagnostics {
    * the completion of all compilation so that any diagnostics will have been
    * created. That is, this isn't for polling for diagnostics or anything like that.
    */
-  def canProceed() : Boolean
-  def isError() : Boolean 
+  final lazy val canProceed : Boolean = !isError
+  def isError : Boolean 
   /**
    * Indicates whether there are any diagnostic objects available.
    */
-  def hasDiagnostics() : Boolean
-}
-
-/**
- * Use this as the base to create pair-like objects that combine a primitive value with 
- * diagnostic information. E.g., if you have a simple primitive value like a length of type Int
- * You can create:
- * <pre>
- * class DInt(val v : Int) extends ValueWithDiagnostics[Int, DInt]
- * </pre>
- * You could even set up an implicit conversion from DInt to Int
- */
-
-abstract class ValueWithDiagnostics[ValueType, ActualType](
-    val v : Option[ValueType], 
-    diags : Seq[Diagnostic]) 
-    extends WithDiagnostics {
-	def add(d : Diagnostic) = newInstance(v, d +: diags)
-	def newInstance(v : Option[ValueType], d : Seq[Diagnostic]) : ActualType
+  def hasDiagnostics : Boolean
 }

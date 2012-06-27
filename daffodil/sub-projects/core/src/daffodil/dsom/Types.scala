@@ -9,13 +9,13 @@ import daffodil.xml._
 // Type System
 /////////////////////////////////////////////////////////////////
 
-abstract class TypeBase(xmlArg : Node) extends SchemaComponent(xmlArg) {
+abstract class TypeBase(xmlArg : Node, context : SchemaComponent) extends SchemaComponent(xmlArg) {
   // use def, can be overriden by lazy val or def
   def localAndFormatRefProperties: Map[String, String]
 }
 
 abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
-  extends TypeBase(xmlArg) with AnnotatedMixin with DFDLStatementMixin {
+  extends TypeBase(xmlArg, parent) with AnnotatedMixin with DFDLStatementMixin {
 
   def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
@@ -53,7 +53,7 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
     rsb.head.text
   }
   
-  lazy val myBaseType = {
+  lazy val myBaseTypeFactory = {
     Assert.invariant(restrictionBase.length() != 0)
     val sd = this.schemaDocument
     val (nsURI, localName) = XMLUtils.QName(xml, restrictionBase, sd)
@@ -61,13 +61,21 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
     sd.globalSimpleTypeDefs.find{ x => x.detailName == localName}
   }
 
+  lazy val myBaseType= myBaseTypeFactory.map{ _.forDerivedType(this) }
+  
+  lazy val myBaseTypeList = myBaseType.toList
+  
+  lazy val diagnosticChildren = annotationObjs ++ myBaseTypeList
+  
+  // TODO: Is the comment below still relevant? If not remove.
   // Need to go and grab a list of GlobalSimpleTypes from the schema document
   // execute a find using the name obtained from restrictionBase.
+  
   lazy val simpleTypeBaseProperties: Map[String,String] = {
     
     val baseProps = {
       myBaseType match {
-        case Some(bt) => bt.forDerivedType(this).localAndFormatRefProperties
+        case Some(bt) => bt.localAndFormatRefProperties
         case None => Map.empty[String,String]
       }
     }
@@ -112,21 +120,35 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
     val res = if (baseName == "") None
     else Assert.notYetImplemented() // should go find the global simple type here
   }
+  
+  lazy val prettyName = "complexType in " + parent.name
+}
+
+/**
+ * We need a schema document and such for our primitives
+ * so that our invariant, that *everything* has a schema document, schema, and schema set
+ * holds true.
+ */
+object Fakes {
+  lazy val xsd_sd = new SchemaDocument(<xs:schema xmlns:xs={ XMLUtils.XSD_NAMESPACE } />, xsd_schema)
+  lazy val xsd_schema = new Schema(XMLUtils.XSD_NAMESPACE, NodeSeq.Empty, xsd_sset)
+  lazy val xsd_sset = new SchemaSet(NodeSeq.Empty)
 }
 
 //TBD: are Primitives "global", or do they just have names like globals do?
 class PrimitiveType(name_ : String) 
-extends TypeBase(<primitive/>) 
-with NamedMixin {
-  //
-  // Lots of faking & dummy objects here
-  //
+extends TypeBase(<primitive/>, Fakes.xsd_sd) // use fake schema document
+with NamedMixin { 
+
   override lazy val name = name_
-  override lazy val namespace = XMLUtils.XSD_NAMESPACE
+  override lazy val prettyName = name_
+  override lazy val scPath = ""
+  lazy val diagnosticChildren = Nil
+  
   // override val xml = Assert.invariantFailed("Primitives don't have xml definitions.")
-  lazy val dummySchemaSet = new SchemaSet(NodeSeq.Empty)
-  lazy val xsdSchema = new Schema(namespace, NodeSeq.Empty, dummySchemaSet)
-  lazy val schemaDocument = new SchemaDocument(<schema/>, xsdSchema)
+  
+  override lazy val schemaDocument = Fakes.xsd_sd
+  
   lazy val localAndFormatRefProperties: Map[String, String] = {
     Map.empty[String, String]
   }
@@ -170,7 +192,7 @@ class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val e
 }
 
 abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
-  extends TypeBase(xmlArg)
+  extends TypeBase(xmlArg, parent)
   with ComplexTypeBaseGrammarMixin {
 
   lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
@@ -178,6 +200,8 @@ abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
   lazy val localAndFormatRefProperties: Map[String, String] = {
     Map.empty[String, String]
   }
+  
+  lazy val diagnosticChildren = List(modelGroup)
 }
 
 class GlobalComplexTypeDefFactory(val xml: Node, schemaDocument: SchemaDocument)
@@ -190,9 +214,12 @@ class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val 
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
   def schemaDocument = schemaDocumentArg
+ 
 }
 
 class LocalComplexTypeDef(xmlArg: Node, parent: ElementBase)
   extends ComplexTypeBase(xmlArg, parent)
   with LocalComponentMixin {
+  
+  lazy val prettyName = "complexType in " + parent.name
 }

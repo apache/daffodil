@@ -55,8 +55,9 @@ import daffodil.exceptions.Assert
  * dependency on one factory to create processors.
  */
 
-class DFDLTestSuite(ts : Node, tdmlFile : File, tsInputSource : InputSource) {
-  
+class DFDLTestSuite(ts : Node, tdmlFile : File, tsInputSource : InputSource) 
+extends Logging {
+
   def this(tdmlFile : File) = this(XML.loadFile(tdmlFile), tdmlFile, new InputSource(tdmlFile.toURI().toASCIIString()))
   def this(tsNode : Node) = this(tsNode, null, new InputSource(new StringReader(tsNode.toString)))
   def this(tsURL : URL) = this(XML.load(tsURL), null, new InputSource(tsURL.toURI().toASCIIString()))
@@ -69,10 +70,15 @@ class DFDLTestSuite(ts : Node, tdmlFile : File, tsInputSource : InputSource) {
   val tdmlXSDResourcePath = "/xsd/tdml.xsd"
 
   val tdmlSchemaResource = Misc.getRequiredResource(tdmlXSDResourcePath)
-  assert(Validator.validateXML(
+
+  lazy val isTDMLFileValid = {
+    val validatedXML = Validator.validateXML(
       new StreamSource(tdmlSchemaResource.toURI().toASCIIString()),
-      tsInputSource) != null)
- 
+      tsInputSource)
+    val status = validatedXML != null
+    status
+  }
+
   val parserTestCases = (ts \ "parserTestCase").map { node => ParserTestCase(node, this) }
   val serializerTestCases = (ts \ "serializerTestCase").map { node => SerializerTestCase(node, this) }
   val testCases : Seq[TestCase] = parserTestCases ++ serializerTestCases
@@ -82,10 +88,31 @@ class DFDLTestSuite(ts : Node, tdmlFile : File, tsInputSource : InputSource) {
   val embeddedSchemas = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
 
   def runAllTests(schema : Option[Node] = None) {
-    testCases.map { _.run(schema) }
+     if (isTDMLFileValid)
+          testCases.map { _.run(schema) }
+    else {
+      log(Error("TDML file %s is not valid.", tsInputSource.getSystemId))
+    }
   }
 
   def runOneTest(testName : String, schema : Option[Node] = None) {
+    if (isTDMLFileValid)
+      runOneTestNoTDMLValidation(testName, schema)
+    else {
+      log(Error("TDML file %s is not valid.", tsInputSource.getSystemId))
+    }
+  }
+  
+  /**
+   * Use to bypass validation of the TDML document itself.
+   * 
+   * This is used for testing whether one can detect validation errors
+   * in the DFDL schema. 
+   * 
+   * Without this, you can't get to the validation errors, because it
+   * rejects the TDML file itself.
+   */
+  def runOneTestNoTDMLValidation(testName : String, schema : Option[Node] = None) {
     val testCase = testCases.find(_.name == testName)
     testCase match {
       case None => throw new Exception("test " + testName + " was not found.")
@@ -113,7 +140,7 @@ class DFDLTestSuite(ts : Node, tdmlFile : File, tsInputSource : InputSource) {
         // the system Id of the tdml file was a file.
         val sysPath = sysFile.getParent()
         val modelFileName = sysPath + File.separator + fileName
-        println("Model file name is: " + modelFileName)
+        log(Debug("Model file name is: %s", modelFileName))
         val modelFile = new File(modelFileName)
         if (modelFile.exists()) return modelFile
       }
@@ -143,8 +170,9 @@ class DFDLTestSuite(ts : Node, tdmlFile : File, tsInputSource : InputSource) {
 
 }
 
-abstract class TestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
-  
+abstract class TestCase(ptc : NodeSeq, val parent : DFDLTestSuite)
+extends Logging {
+
   def toOpt[T](n : Seq[T]) = {
     n match {
       case Seq() => None
@@ -152,12 +180,12 @@ abstract class TestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
       // ok for it to error if there is more than one in sequence.
     }
   }
-  
+
   val document = toOpt(ptc \ "document").map { node => new Document(node, this) }
   val infoset = toOpt(ptc \ "infoset").map { node => new Infoset(node, this) }
-  val errors = toOpt(ptc \ "errors").map { node  => new ExpectedErrors(node, this) }
+  val errors = toOpt(ptc \ "errors").map { node => new ExpectedErrors(node, this) }
   val warnings = toOpt(ptc \ "warnings").map { node => new ExpectedWarnings(node, this) }
-  
+
   val name = (ptc \ "@name").text
   val ptcID = (ptc \ "@ID").text
   val id = name + (if (ptcID != "") "(" + ptcID + ")" else "")
@@ -182,13 +210,13 @@ abstract class TestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
 
   var suppliedSchema : Option[Node] = None
 
-  protected def runProcessor(processor : DFDL.DataProcessor, 
-      data : Option[DFDL.Input], 
-      infoset : Option[Infoset],
-      errors : Option[ExpectedErrors],
-      warnings : Option[ExpectedWarnings]) : Unit
-  
-  def run(schema : Option[Node] = None) = {
+  protected def runProcessor(processor : DFDL.ProcessorFactory,
+    data : Option[DFDL.Input],
+    infoset : Option[Infoset],
+    errors : Option[ExpectedErrors],
+    warnings : Option[ExpectedWarnings]) : Unit
+
+  def run(schema : Option[Node] = None) {
     suppliedSchema = schema
     val sch = schema match {
       case Some(sch) => {
@@ -203,54 +231,54 @@ abstract class TestCase(ptc : NodeSeq, val parent : DFDLTestSuite) {
     }
     val compiler = Compiler()
     compiler.setDistinguishedRootNode(root)
-    val processor = compiler.compile(sch).onPath("/")
-    val data = document.map{ _.data }
-    runProcessor(processor, data, infoset, errors, warnings)
+    val pf = compiler.compile(sch)
+    val data = document.map { _.data }
+    runProcessor(pf, data, infoset, errors, warnings)
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
-    System.err.println("Test " + id + " passed.")
+    log(Info("Test %s passed", id))
   }
-  
+
   def verifyAllDiagnosticsFound(actual : WithDiagnostics, expectedDiags : Option[ErrorWarningBase]) = {
-      val actualDiags = actual.getDiagnostics()
-      val actualDiagMsgs = actualDiags.map { _.getMessage() }
-      val expectedDiagMsgs = expectedDiags.map { _.messages }.getOrElse(Nil)
-      // must find each expected warning message within some actual warning message.
-      expectedDiagMsgs.foreach {
-        expected => {
+    val actualDiags = actual.getDiagnostics
+    val actualDiagMsgs = actualDiags.map { _.getMessage }
+    val expectedDiagMsgs = expectedDiags.map { _.messages }.getOrElse(Nil)
+    // must find each expected warning message within some actual warning message.
+    expectedDiagMsgs.foreach {
+      expected =>
+        {
           val wasFound = actualDiagMsgs.exists {
             actual => actual.contains(expected)
           }
           if (!wasFound) {
-            throw new Exception("""Did not find diagnostic message """" + 
-                expected + """" in any of the actual diagnostic messages: """ + 
-                actualDiagMsgs)
+            throw new Exception("""Did not find diagnostic message """" +
+              expected + """" in any of the actual diagnostic messages: """ + "\n" +
+              actualDiagMsgs.mkString("\n"))
           }
         }
-      }
     }
+  }
 
-  
 }
 
-case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite) 
-extends TestCase(ptc, parentArg) {
- 
-  def runProcessor(processor : DFDL.DataProcessor, 
-      data : Option[DFDL.Input], 
-      optInfoset : Option[Infoset],
-      optErrors : Option[ExpectedErrors],
-      warnings : Option[ExpectedWarnings]) = {
-    
+case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
+  extends TestCase(ptc, parentArg) {
+
+  def runProcessor(pf : DFDL.ProcessorFactory,
+    data : Option[DFDL.Input],
+    optInfoset : Option[Infoset],
+    optErrors : Option[ExpectedErrors],
+    warnings : Option[ExpectedWarnings]) = {
+
     val dataToParse = data.get
     (optInfoset, optErrors) match {
-      case (Some(infoset), None) => runParseExpectSuccess(processor, dataToParse, infoset, warnings)
-      case (None, Some(errors)) => runParseExpectErrors(processor, dataToParse, errors, warnings)
+      case (Some(infoset), None) => runParseExpectSuccess(pf, dataToParse, infoset, warnings)
+      case (None, Some(errors)) => runParseExpectErrors(pf, dataToParse, errors, warnings)
       case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
     }
-    
+
   }
-  
+
   def verifyParseInfoset(actual : DFDL.ParseResult, infoset : Infoset) {
     val trimmed = Utility.trim(actual.result)
     //
@@ -275,77 +303,86 @@ extends TestCase(ptc, parentArg) {
       fail()
     }
   }
-  
-  def runParseExpectErrors(processor : DFDL.DataProcessor, 
-      dataToParse : DFDL.Input, 
-      errors : ExpectedErrors,
-      warnings : Option[ExpectedWarnings]) {
-   
-    val actual = processor.parse(dataToParse) 
- 
-    if (actual.canProceed()) {
-      // We did not get an error!!
-      // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
-      throw new Exception("Expected error. Didn't get one.") // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
-    }
-    
+
+  def runParseExpectErrors(pf : DFDL.ProcessorFactory,
+    dataToParse : DFDL.Input,
+    errors : ExpectedErrors,
+    warnings : Option[ExpectedWarnings]) {
+
+    val objectToDiagnose =
+      if (pf.isError) pf
+      else {
+        val processor = pf.onPath("/")
+        val actual = processor.parse(dataToParse)
+
+        if (actual.canProceed) {
+          // We did not get an error!!
+          // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
+          throw new Exception("Expected error. Didn't get one.") // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
+        } else actual
+      }
+
     // check for any test-specified errors
-    verifyAllDiagnosticsFound(actual, Some(errors))
-        
+    verifyAllDiagnosticsFound(objectToDiagnose, Some(errors))
+
     // check for any test-specified warnings
-    verifyAllDiagnosticsFound(actual, warnings)
- 
+    verifyAllDiagnosticsFound(objectToDiagnose, warnings)
+
   }
-    
-  
-  def runParseExpectSuccess(processor : DFDL.DataProcessor, 
-      dataToParse : DFDL.Input, 
-      infoset : Infoset,
-      warnings : Option[ExpectedWarnings]) {
-    
-    val actual = processor.parse(dataToParse) 
- 
-    if (!actual.canProceed()) {
-      // Means there was an error, not just warnings.
-      val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
-      throw new Exception(diags) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
+
+  def runParseExpectSuccess(pf : DFDL.ProcessorFactory,
+    dataToParse : DFDL.Input,
+    infoset : Infoset,
+    warnings : Option[ExpectedWarnings]) {
+
+    if (pf.isError) {
+      val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new Exception(diags)
+    } else {
+      val processor = pf.onPath("/")
+      val actual = processor.parse(dataToParse)
+
+      if (!actual.canProceed) {
+        // Means there was an error, not just warnings.
+        val diags = actual.getDiagnostics.map(_.getMessage).mkString("\n")
+        throw new Exception(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
+      }
+
+      verifyParseInfoset(actual, infoset)
+
+      // check for any test-specified warnings
+      verifyAllDiagnosticsFound(actual, warnings)
+
+      // if we get here, the test passed. If we don't get here then some exception was
+      // thrown either during the run of the test or during the comparison.
+      log(Info("Test %s passed.", id))
     }
-     
-    verifyParseInfoset(actual, infoset)
-        
-    // check for any test-specified warnings
-    verifyAllDiagnosticsFound(actual, warnings)
-       
-    // if we get here, the test passed. If we don't get here then some exception was
-    // thrown either during the run of the test or during the comparison.
-    System.err.println("Test " + id + " passed.")
   }
-  
 }
 
-case class SerializerTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite) 
-extends TestCase(ptc, parentArg) {
- 
-  def runProcessor(processor : DFDL.DataProcessor,  
-      optData : Option[DFDL.Input], 
-      optInfoset : Option[Infoset],
-      optErrors : Option[ExpectedErrors],
-      warnings : Option[ExpectedWarnings]) = {
-  
+case class SerializerTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
+  extends TestCase(ptc, parentArg) {
+
+  def runProcessor(pf : DFDL.ProcessorFactory,
+    optData : Option[DFDL.Input],
+    optInfoset : Option[Infoset],
+    optErrors : Option[ExpectedErrors],
+    warnings : Option[ExpectedWarnings]) = {
+
     val infoset = optInfoset.get
-    
+
     (optData, optErrors) match {
-      case (Some(data), None) => runSerializeExpectSuccess(processor, data, infoset, warnings)
-      case (_, Some(errors)) => runSerializeExpectErrors(processor, optData, infoset, errors, warnings)
+      case (Some(data), None) => runSerializeExpectSuccess(pf, data, infoset, warnings)
+      case (_, Some(errors)) => runSerializeExpectErrors(pf, optData, infoset, errors, warnings)
       case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
     }
-    
+
   }
-  
+
   def verifyData(data : DFDL.Input, outStream : java.io.ByteArrayOutputStream) {
     val actualBytes = outStream.toByteArray
-    
-    val inbuf = java.nio.ByteBuffer.allocate(1024*1024) // TODO: allow override? Detect overrun?
+
+    val inbuf = java.nio.ByteBuffer.allocate(1024 * 1024) // TODO: allow override? Detect overrun?
     val readCount = data.read(inbuf)
     data.close()
     if (readCount == -1) {
@@ -354,68 +391,82 @@ extends TestCase(ptc, parentArg) {
         throw new Exception("Unexpected data was created.")
       }
       return // we're done. Nothing equals nothing.
-    } 
+    }
 
-    Assert.invariant(readCount == inbuf.position())   
-    
+    Assert.invariant(readCount == inbuf.position())
+
     // compare expected data to what was output.
-    val expectedBytes = inbuf.array()    
+    val expectedBytes = inbuf.array()
     if (actualBytes.length != expectedBytes.length) {
       throw new Exception("output data length " + actualBytes.length +
-          " doesn't match expected value " + expectedBytes.length)
+        " doesn't match expected value " + expectedBytes.length)
     }
-    
+
     val pairs = expectedBytes zip actualBytes zip Stream.from(1)
-    pairs.foreach{ case ((expected, actual), index) => 
-      if (expected != actual) {
-        val msg = "Unparsed data differs at byte %d. Expected 0x%02x. Actual was 0x%02x.".format(index, expected, actual)
-        throw new Exception(msg)
-      }
+    pairs.foreach {
+      case ((expected, actual), index) =>
+        if (expected != actual) {
+          val msg = "Unparsed data differs at byte %d. Expected 0x%02x. Actual was 0x%02x.".format(index, expected, actual)
+          throw new Exception(msg)
+        }
     }
   }
-  
-  def runSerializeExpectSuccess(processor : DFDL.DataProcessor, 
-      data : DFDL.Input, 
-      infoset : Infoset,
-      warnings : Option[ExpectedWarnings]) {
-    
+
+  def runSerializeExpectSuccess(pf : DFDL.ProcessorFactory,
+    data : DFDL.Input,
+    infoset : Infoset,
+    warnings : Option[ExpectedWarnings]) {
+
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
     val node = infoset.contents
+    if (pf.isError) {
+      val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new Exception(diags)
+    }
+    val processor = pf.onPath("/")
     val actual = processor.unparse(output, node)
     output.close()
 
     verifyData(data, outStream)
-    
+
     // check for any test-specified warnings
     verifyAllDiagnosticsFound(actual, warnings)
- 
+
   }
-  
-  def runSerializeExpectErrors(processor : DFDL.DataProcessor, 
-      optData : Option[DFDL.Input],
-      infoset : Infoset,
-      errors : ExpectedErrors,
-      warnings : Option[ExpectedWarnings]) {
-    
+
+  def runSerializeExpectErrors(pf : DFDL.ProcessorFactory,
+    optData : Option[DFDL.Input],
+    infoset : Infoset,
+    errors : ExpectedErrors,
+    warnings : Option[ExpectedWarnings]) {
+
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
     val node = infoset.contents
+    if (pf.isError) {
+      // check for any test-specified errors
+      verifyAllDiagnosticsFound(pf, Some(errors))
+
+      // check for any test-specified warnings
+      verifyAllDiagnosticsFound(pf, warnings)
+    }
+    val processor = pf.onPath("/")
     val actual = processor.unparse(output, node)
     output.close()
     val actualBytes = outStream.toByteArray()
-    
+
     // Verify that some partial output has shown up in the bytes. 
     optData.map { data => verifyData(data, outStream) }
-    
+
     // check for any test-specified errors
     verifyAllDiagnosticsFound(actual, Some(errors))
-        
+
     // check for any test-specified warnings
     verifyAllDiagnosticsFound(actual, warnings)
-    
+
   }
-      
+
 }
 
 case class DefinedSchema(xml : Node, parent : DFDLTestSuite) {
@@ -517,21 +568,21 @@ case class DFDLInfoset(di : Node, parent : Infoset) {
 }
 
 abstract class ErrorWarningBase(n : NodeSeq, parent : TestCase) {
-  lazy val matchAttrib = (n \ "@match").text 
+  lazy val matchAttrib = (n \ "@match").text
   protected def diagnosticNodes : Seq[Node]
-  lazy val messages = diagnosticNodes.map{ _.text } 
+  lazy val messages = diagnosticNodes.map { _.text }
 }
 
-case class ExpectedErrors(node : NodeSeq, parent : TestCase) 
-extends ErrorWarningBase(node, parent) {
-  
+case class ExpectedErrors(node : NodeSeq, parent : TestCase)
+  extends ErrorWarningBase(node, parent) {
+
   val diagnosticNodes = node \\ "error"
-  
+
 }
 
-case class ExpectedWarnings(node : NodeSeq, parent : TestCase) 
-extends ErrorWarningBase(node, parent) {
-  
+case class ExpectedWarnings(node : NodeSeq, parent : TestCase)
+  extends ErrorWarningBase(node, parent) {
+
   val diagnosticNodes = node \\ "warning"
 
 }

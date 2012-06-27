@@ -49,7 +49,18 @@ class TresysTests extends JUnit3Suite {
   val td = testDir + "multiple-diagnostics.tdml"
   val runnerMD = new DFDLTestSuite(new File(td))
   
-  def test_multiple_diagnostics() { runnerMD.runOneTest("twoErrors")}
+
+  def test_multiple_diagnostics1() { runnerMD.runOneTest("twoMissingTypeDefErrors")}
+  def test_multiple_diagnostics2() { runnerMD.runOneTest("manyErrors1")}
+  def test_multiple_diagnostics3() { runnerMD.runOneTest("manyErrors2")}
+  
+  val sv = testDir + "dfdl-schema-validation-diagnostics.tdml"
+  val runnerSV = new DFDLTestSuite(new File(sv))
+    //
+  // These must all be run without TDML validation because at least one part of the TDML file
+  // contains DFDL schema validation errors, and TDML validation normally would check that
+  //
+  def test_multiple_diagnostics4() { runnerSV.runOneTestNoTDMLValidation("twoDFDLSchemaValidationErrors")}
 
   val nsd = testDir + "nested-separator-delimited.tdml"
   val runnerNSD = new DFDLTestSuite(new File(nsd))

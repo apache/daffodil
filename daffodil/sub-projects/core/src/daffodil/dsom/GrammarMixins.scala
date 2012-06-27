@@ -5,7 +5,8 @@ import daffodil.exceptions.Assert
 import daffodil.grammar._
 import daffodil.schema.annotation.props._
 import daffodil.schema.annotation.props.gen._
-
+import daffodil.dsom.OOLAG._
+import daffodil.util.Info
 
 trait AlignedMixin
  { self : SchemaComponent with AnnotatedMixin =>
@@ -270,7 +271,7 @@ with AlignedMixin { self: ElementBase =>
       typeDef match {
       case prim : PrimitiveType => {
         val n = prim.name
-        println(n)
+        // System.err.println("Primitive type is " + n)
         //Assert.notYetImplemented(n != "string" && n != "int" && n != "double" && n != "float")
         n match {
           case "string" => stringValue
@@ -319,6 +320,8 @@ with AlignedMixin { self: ElementBase =>
   lazy val emptyRepresentation = Prod("emptyRepresentation", this, 
       simpleOrNonImplicitComplexEmpty | complexImplicitEmpty) 
   
+
+      
   lazy val simpleOrNonImplicitComplexEmpty = Prod("simpleOrNonImplicitComplexEmpty", this, 
       NYI && isSimpleType || isComplexType &&  lengthKind != LengthKind.Implicit,
       emptyElementInitiator ~ emptyElementTerminator)
@@ -342,8 +345,8 @@ with AlignedMixin { self: ElementBase =>
   lazy val nilElementInitiator = Prod("nilElementInitiator", this, hasNilValueInitiator, staticInitiator | dynamicInitiator)
   lazy val nilElementTerminator = Prod("nilElementTerminator", this, hasNilValueTerminator, staticTerminator | dynamicTerminator)
   
-  lazy val emptyElementInitiator = Prod("emptyElementInitiator", this, NYI && hasEmptyValueInitiator)
-  lazy val emptyElementTerminator = Prod("emptyElementTerminator", this, NYI && hasEmptyValueTerminator)
+  lazy val emptyElementInitiator = Prod("emptyElementInitiator", this, NYI && hasEmptyValueInitiator, EmptyGram)
+  lazy val emptyElementTerminator = Prod("emptyElementTerminator", this, NYI && hasEmptyValueTerminator, EmptyGram)
 
   lazy val complexContent = Prod("complexContent", this, isComplexType,
     initiatorRegion ~ elementComplexType.mainGrammar ~ terminatorRegion)
@@ -385,9 +388,9 @@ with AlignedMixin { self: ElementBase =>
    * 
    * Also things that care about entry and exit of scope, like newVariableInstance
    */
-  lazy val dfdlStatementEvaluations = Prod("dfdlStatementEvaluations", this, NYI)
-  lazy val dfdlScopeBegin = Prod("dfdlScopeBegin", this, NYI)
-  lazy val dfdlScopeEnd = Prod("dfdlScopeEnd", this, NYI)
+  lazy val dfdlStatementEvaluations = Prod("dfdlStatementEvaluations", this, NYI, EmptyGram)
+  lazy val dfdlScopeBegin = Prod("dfdlScopeBegin", this, NYI, EmptyGram)
+  lazy val dfdlScopeEnd = Prod("dfdlScopeEnd", this, NYI, EmptyGram)
   
   lazy val dfdlElementBegin = Prod("dfdlElementBegin", this, ElementBegin(this))
   lazy val dfdlElementEnd = Prod("dfdlElementEnd", this, ElementEnd(this))
@@ -510,10 +513,10 @@ trait LocalElementGrammarMixin { self : ElementBase with LocalElementMixin =>
     
     //
     // Silly constants to make the lookup table below more readable without using fragile whitespace
-    val Never______ = SeparatorSuppressionPolicy.Never
-    val TrailingLax = SeparatorSuppressionPolicy.TrailingLax
-    val Trailing___ = SeparatorSuppressionPolicy.Trailing
-    val Always_____ = SeparatorSuppressionPolicy.Always
+    val Never______ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.Never
+    val TrailingLax : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingLax
+    val Trailing___ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.Trailing
+    val Always_____ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.Always
     val StopValue_ = OccursCountKind.StopValue
     val Implicit__ = OccursCountKind.Implicit
     val Parsed____ = OccursCountKind.Parsed
@@ -568,7 +571,12 @@ trait GlobalElementDeclGrammarMixin { self : GlobalElementDecl =>
   
   lazy val documentElement = Prod("documentElement", this,  scalarDefaultable )
   
-  lazy val document = Prod("document", this, UnicodeByteOrderMark(this) ~ documentElement )
+  lazy val document = Prod("document", this, {
+    // TODO replace ad-hoc printing with a Prod trace/debug facility
+	  log(Info("""Compiling global element "%s" as a document element.""", self.name))
+      UnicodeByteOrderMark(this) ~ documentElement 
+  })
+ 
 }
 
 
