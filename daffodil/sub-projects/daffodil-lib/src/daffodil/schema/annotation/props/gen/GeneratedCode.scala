@@ -3542,7 +3542,7 @@ trait DefineFormat_AnnotationMixin extends PropertyMixin
 // 	</xsd:complexType>
 
 trait DFDLDefineFormatMixin extends PropertyMixin {
-  lazy val name = convertToNCName(getProperty("name"))
+  lazy val prettyName = convertToNCName(getProperty("name"))
 
   def dFDLDefineFormatInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("name") match {
@@ -3604,7 +3604,7 @@ trait DefineEscapeScheme_AnnotationMixin extends PropertyMixin
 // 	</xsd:complexType>
 
 trait DFDLDefineEscapeSchemeMixin extends PropertyMixin {
-  lazy val name = convertToNCName(getProperty("name"))
+  lazy val prettyName = convertToNCName(getProperty("name"))
 
   def dFDLDefineEscapeSchemeInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("name") match {
@@ -3667,7 +3667,7 @@ trait Property_AnnotationMixin extends PropertyMixin
 // 	</xsd:complexType>
 
 trait PropertyTypeMixin extends PropertyMixin {
-  lazy val name = PropertyNameType(getProperty("name"))
+  lazy val prettyName = PropertyNameType(getProperty("name"))
 
   def propertyTypeInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("name") match {

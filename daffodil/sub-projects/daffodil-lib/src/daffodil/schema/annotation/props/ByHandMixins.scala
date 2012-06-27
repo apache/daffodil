@@ -3,22 +3,23 @@ package daffodil.schema.annotation.props
 // Copyright (C) 2012 Michael J. Beckerle. All Rights Reserved.
 
 import daffodil.exceptions._
+import daffodil.dsom.OOLAG.OOLAGHost
 
 /**
  * We don't want to make the code generator so sophisticated as to be
  * able to handle these situations.
- * 
+ *
  * So the code generator has exclusions for these.
  */
-  
-sealed trait AlignmentType extends AlignmentType.Value 
+
+sealed trait AlignmentType extends AlignmentType.Value
 object AlignmentType extends Enum[AlignmentType] { // Note: Was using AlignmentUnits mixin here!
   case object Implicit extends AlignmentType
   val allowedAlignmentValues = {
-		  val ints = 0 to 30 // that's every perfect power of 2 that fits in an Int.
-		  ints.map(1 << _)
+    val ints = 0 to 30 // that's every perfect power of 2 that fits in an Int.
+    ints.map(1 << _)
   }
-  
+
   def apply(str : String) : Any = { // any because it can be an Int, or "implicit"
     if (str == "implicit") return Implicit
     val i =
@@ -28,14 +29,13 @@ object AlignmentType extends Enum[AlignmentType] { // Note: Was using AlignmentU
         case e => Assert.schemaDefinitionError("For property 'alignment', value must be 'implicit' or an integer. Found: " + str)
       }
     if (allowedAlignmentValues.contains(i)) {
-//     val au = alignmentUnits
-//     au match {
-//       case AlignmentUnits.Bits => i // TODO: implement units * Units.bits
-//       case AlignmentUnits.Bytes => i // * Units.bytes
-//     }
+      //     val au = alignmentUnits
+      //     au match {
+      //       case AlignmentUnits.Bits => i // TODO: implement units * Units.bits
+      //       case AlignmentUnits.Bytes => i // * Units.bytes
+      //     }
       i
-    }
-    else Assert.schemaDefinitionError("For property 'alignment', value must be a power of 2 (and fit in a 32 bit integer). Found: " + str)
+    } else Assert.schemaDefinitionError("For property 'alignment', value must be a power of 2 (and fit in a 32 bit integer). Found: " + str)
   }
 }
 
@@ -58,22 +58,23 @@ object TextNumberBase {
       case _ => Assert.schemaDefinitionError("Illegal number base: " + str) // validation will have checked. So this shoudn't happen.
     }
   }
-  
-}
 
+}
 
 sealed trait SeparatorSuppressionPolicy extends SeparatorSuppressionPolicy.Value
 object SeparatorSuppressionPolicy extends Enum[SeparatorSuppressionPolicy] {
-  case object Never extends SeparatorSuppressionPolicy ; forceConstruction(Never)
-  case object TrailingLax extends SeparatorSuppressionPolicy ; forceConstruction(TrailingLax)
-  case object Trailing extends SeparatorSuppressionPolicy ; forceConstruction(Trailing)
-  case object Always extends SeparatorSuppressionPolicy ; forceConstruction(Always)
+  case object Never extends SeparatorSuppressionPolicy; forceConstruction(Never)
+  case object TrailingLax extends SeparatorSuppressionPolicy; forceConstruction(TrailingLax)
+  case object Trailing extends SeparatorSuppressionPolicy; forceConstruction(Trailing)
+  case object Always extends SeparatorSuppressionPolicy; forceConstruction(Always)
 
-  def apply(name: String) : SeparatorSuppressionPolicy = stringToEnum("separatorSuppressionPolicy", name)
+  def apply(name : String) : SeparatorSuppressionPolicy = stringToEnum("separatorSuppressionPolicy", name)
 }
-  
-trait SeparatorSuppressionPolicyMixin extends PropertyMixin {
-  lazy val separatorSuppressionPolicy = {
+
+trait SeparatorSuppressionPolicyMixin extends PropertyMixin { self : OOLAGHost =>
+
+  lazy val separatorSuppressionPolicy = separatorSuppressionPolicy_.value
+  private lazy val separatorSuppressionPolicy_ = LV {
     val sp = getPropertyOption("separatorPolicy")
     val ssp = getPropertyOption("separatorSuppressionPolicy")
     ssp match {
@@ -84,7 +85,10 @@ trait SeparatorSuppressionPolicyMixin extends PropertyMixin {
           case Some("suppressed") => SeparatorSuppressionPolicy.Always
           case Some("suppressedAtEndStrict") => SeparatorSuppressionPolicy.Trailing
           case Some("suppressedAtEndLax") => SeparatorSuppressionPolicy.TrailingLax
-          case None => getProperty("separatorPolicy") // which will fail!
+          case None => {
+            getProperty("separatorPolicy") // which will fail!
+            Assert.impossible()
+          }
           case Some(other) => Assert.impossibleCase()
         }
       }

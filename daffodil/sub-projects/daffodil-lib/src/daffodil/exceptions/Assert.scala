@@ -1,13 +1,14 @@
 package daffodil.exceptions
+import daffodil.dsom.OOLAG.OOLAGException
 
 // Copyright (C) 2012, Michael J. Beckerle. All Rights Reserved.
 
-abstract class AnException(m : String) extends Exception(m) {
+abstract class AnException(m : String) extends OOLAGException(m) {
   def this() = this("") // no arg constructor also.
 }
-class UsageException(m : String) extends AnException(m)
+class UsageException(m : String) extends Exception(m)
 class NotYetImplementedException extends AnException("Not yet implemented.")
-class Abort(m : String) extends AnException(m)
+class Abort(m : String) extends Exception(m)
 
 abstract class DFDLException(m : String) extends AnException(m) {
   def this() = this("") // no arg constructor also.

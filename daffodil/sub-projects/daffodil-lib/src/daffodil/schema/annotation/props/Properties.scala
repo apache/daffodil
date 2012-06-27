@@ -174,7 +174,11 @@ trait PropertyMixin {
     val propOpt = getPropertyOption(pname) 
     propOpt match {
       case Some(prop) => prop
-      case None => Assert.schemaDefinitionError("Property " + pname + " is not defined.")
+      case None => {
+        val msg = "Property " + pname + " is not defined."
+        System.err.println(msg)
+        Assert.schemaDefinitionError(msg)
+      }
     }
   }
   
