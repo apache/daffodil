@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="multiple-diagnostics" description="Show that more than one diagnostic is returned from various scenarios."
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xmlns:ex="http://example.com" xmlns="http://example.com"
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	
+	
+	<tdml:defineSchema name="withValidationErrors">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="err1" type="xs:int"/>
+		<xs:element name="err2" type="xs:int" notAnAttribute="randomness"/>
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="twoDFDLSchemaValidationErrors" root="err1" model="withValidationErrors"
+		description="We would like two errors from two different elements of the same schema document. But xerces isn't cooperating.">
+
+		<tdml:document/>
+
+	    <tdml:errors>
+
+	    <tdml:error>notAnAttribute</tdml:error>
+	    <!-- xerces throws at the first validation error
+	     so there is no way we can accumulate validation errors, as the first 
+	     throw ends the validation -->
+	    <!-- <tdml:error>element1</tdml:error> -->
+	    </tdml:errors>
+		
+	</tdml:parserTestCase>
+	
+	
+
+	
+</tdml:testSuite>
