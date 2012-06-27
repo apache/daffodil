@@ -11,7 +11,8 @@ import com.ibm.icu.text._
 import java.util.regex._
 import java.text.{ ParseException, ParsePosition }
 import java.math.BigInteger
-import stringsearch.DelimSearcherV3.SearchResult._
+import stringsearch.constructs._
+import stringsearch.delimiter._
 
 case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
   def parser: Parser = new Parser {
@@ -194,6 +195,8 @@ case class StringDelimited(e: ElementBase) extends Terminal(e, true) {
 case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) {
 
   //lazy val delimiters = e.terminatingMarkup.map(x => x.constantAsString)
+  lazy val es = e.escapeScheme
+  lazy val esObj = EscapeScheme.getEscapeScheme(es)
 
   def parser: Parser = new Parser {
     override def toString = "StringDelimitedEndOfData"
@@ -215,9 +218,9 @@ case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) {
       //println("Looking for: " + delimiters2 + " " + delimiters2.flatten( x => x))
 
       //val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(sequenceSeparator.constantAsString))
-      val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, delimiters.toSet)
+      val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, delimiters.toSet, esObj)
       val postState = theState match {
-        case NoMatch => {
+        case SearchResult.NoMatch => {
           // TODO: Is this logic correct?
           // No Terminator, so last result is a field.
           System.err.println("Parsed: " + result)
@@ -227,8 +230,8 @@ case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) {
           currentElement.addContent(new org.jdom.Text(result))
           start.withPos(endBitPos, endCharPos)
         } //start.failed(this.toString() + ": No match found!")
-        case PartialMatch => start.failed(this.toString() + ": Partial match found!")
-        case FullMatch => {
+        case SearchResult.PartialMatch => start.failed(this.toString() + ": Partial match found!")
+        case SearchResult.FullMatch => {
           System.err.println("Parsed: " + result)
           System.err.println("Ended at bit position " + endBitPos)
           val endCharPos = start.charPos + result.length()
@@ -246,6 +249,9 @@ case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) {
 case class StringDelimitedWithDelimiters(e: ElementBase) extends Terminal(e, true) {
 
   //lazy val delimiters = e.terminatingMarkup.map(x => x.constantAsString)
+  
+  lazy val es = e.escapeScheme
+  lazy val esObj = EscapeScheme.getEscapeScheme(es)
   
   def parser: Parser = new Parser {
     override def toString = "StringDelimitedWithDelimiters"
@@ -268,12 +274,12 @@ case class StringDelimitedWithDelimiters(e: ElementBase) extends Terminal(e, tru
       if (delimiters.length == 0){ Assert.notYetImplemented()}
 
       //val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, terminator.toSet)
-      val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, delimiters.toSet)
+      val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, delimiters.toSet, esObj)
       
       val postState = theState match {
-        case NoMatch => start.failed(this.toString() + ": No match found!")
-        case PartialMatch => start.failed(this.toString() + ": Partial match found!")
-        case FullMatch => {
+        case SearchResult.NoMatch => start.failed(this.toString() + ": No match found!")
+        case SearchResult.PartialMatch => start.failed(this.toString() + ": Partial match found!")
+        case SearchResult.FullMatch => {
           System.err.println("Parsed: " + result)
           System.err.println("Ended at bit position " + endBitPos)
           val endCharPos = start.charPos + result.length()
@@ -290,7 +296,9 @@ case class StringDelimitedWithDelimiters(e: ElementBase) extends Terminal(e, tru
 
 case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) {
   val sequenceSeparator = e.nearestEnclosingSequence.get.separator
-
+  lazy val es = e.escapeScheme
+  lazy val esObj = EscapeScheme.getEscapeScheme(es)
+  
   def parser: Parser = new Parser {
     override def toString = "StringPatternMatched"
     val decoder = e.knownEncodingDecoder
@@ -304,22 +312,12 @@ case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) {
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
 
-      val (result, endBitPos, theState, delimiter) = in.fillCharBufferWithPatternMatch(cbuf, start.bitPos, decoder, pattern)
-      // TODO: Do we need the matched delimiter?
+      val (result, endBitPos, theState, _) = in.fillCharBufferWithPatternMatch(cbuf, start.bitPos, decoder, pattern, esObj)
 
       val postState = theState match {
-        case NoMatch => {
-          // TODO: Is this logic correct?
-          // No Terminator, so last result is a field.
-          System.err.println("Parsed: " + result)
-          System.err.println("Ended at bit position " + endBitPos)
-          val endCharPos = start.charPos + result.length()
-          val currentElement = start.parent
-          currentElement.addContent(new org.jdom.Text(result))
-          start.withPos(endBitPos, endCharPos)
-        }
-        case PartialMatch => start.failed(this.toString() + ": Partial match found!")
-        case FullMatch => {
+        case SearchResult.NoMatch => start.failed(this.toString() + ": No match found!")
+        case SearchResult.PartialMatch => start.failed(this.toString() + ": Partial match found!")
+        case SearchResult.FullMatch => {
           System.err.println("Parsed: " + result)
           System.err.println("Ended at bit position " + endBitPos)
           val endCharPos = start.charPos + result.length()
@@ -578,15 +576,56 @@ case class LittleEndianFloatPrim(e: ElementBase) extends Terminal(e, true) {
   def parser = new FloatPrim(java.nio.ByteOrder.LITTLE_ENDIAN)
 }
 
-class StaticDelimiter(delim: String, e: AnnotatedMixin, guard: Boolean = true)
+class StaticDelimiter(delim: String, e: InitiatedTerminatedMixin, guard: Boolean = true)
   extends StaticText(delim, e, guard)
 
-import stringsearch.delimiter._
-abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = true) extends Terminal(e, guard) {
+abstract class StaticText(delim: String, e: InitiatedTerminatedMixin, guard: Boolean = true) extends Terminal(e, guard) {
   lazy val delims = delim.split("\\s").toList
   
+  //e.formatAnnotation.
+  lazy val es = e.escapeScheme
+  lazy val esObj = EscapeScheme.getEscapeScheme(es)
+  
+//  lazy val (escapeSchemeKind, escapeCharacter, escapeEscapeCharacter, escapeBlockStart, escapeBlockEnd) = getEscapeScheme(es)
+//  
+//  def getEscapeScheme(pEs: Option[DFDLEscapeScheme]): (EscapeSchemeKind.EscapeSchemeKind, String, String, String, String) = {
+//    var escapeSchemeKind = EscapeSchemeKind.None
+//    var escapeCharacter = ""
+//    var escapeEscapeCharacter = ""
+//    var escapeBlockStart = ""
+//    var escapeBlockEnd = ""
+//      
+//    pEs match {
+//      case None => escapeSchemeKind = EscapeSchemeKind.None
+//      case Some(obj) => {
+//        obj.escapeKind match {
+//          case EscapeKind.EscapeBlock => {
+//            escapeSchemeKind = EscapeSchemeKind.Block
+//            escapeEscapeCharacter = obj.escapeEscapeCharacterRaw
+//            escapeBlockStart = obj.escapeBlockStart
+//            escapeBlockEnd = obj.escapeBlockEnd
+//          }
+//          case EscapeKind.EscapeCharacter => {
+//            escapeSchemeKind = EscapeSchemeKind.Character
+//            escapeEscapeCharacter = obj.escapeEscapeCharacterRaw
+//            escapeCharacter = obj.escapeCharacterRaw
+//          }
+//          case _ => Assert.SDE("Unrecognized Escape Scheme!")
+//        }
+//      }
+//    }
+//    
+//    println("EscapeSchemeKind: " + escapeSchemeKind)
+//    println("\tEscapeCharacter: " + escapeCharacter)
+//    println("\tEscapeEscapeCharacter: " + escapeEscapeCharacter)
+//    println("\tEscapeBlockStart: " + escapeBlockStart)
+//    println("\tEscapeBlockEnd: " + escapeBlockEnd)
+//    (escapeSchemeKind, escapeCharacter, escapeEscapeCharacter, escapeBlockStart, escapeBlockEnd)
+//  }
+  
   def parser: Parser = new Parser {
-
+    
+    	
    // val delims = List(delim) ++ e.asInstanceOf[Term].terminatingMarkup.map(x => x.constantAsString)
 
     // TODO: Fix Cheezy matcher. Doesn't implement ignore case. Doesn't fail at first character that doesn't match. It grabs
@@ -615,7 +654,7 @@ abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = tru
       //
 
       //var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim:Delimiter) = in.getDelimiter(cbuf, start.bitPos, decoder, Set(delim))
-      var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim) = in.getDelimiter(cbuf, start.bitPos, decoder, delims.toSet)
+      var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim) = in.getDelimiter(cbuf, start.bitPos, decoder, delims.toSet, esObj)
 
       println("BUF: " + cbuf.toString + " ENDBITPOS: " + endBitPos + " ENDBITPOSDELIM: " + endBitPosDelim)
 
@@ -658,7 +697,7 @@ abstract class StaticText(delim: String, e: AnnotatedMixin, guard: Boolean = tru
   }
 }
 
-class DynamicDelimiter(delimExpr: CompiledExpression, e: AnnotatedMixin, guard: Boolean = true) extends Primitive(e, guard)
+class DynamicDelimiter(delimExpr: CompiledExpression, e: InitiatedTerminatedMixin, guard: Boolean = true) extends Primitive(e, guard)
 
 case class StaticInitiator(e: InitiatedTerminatedMixin) extends StaticDelimiter(e.initiator.constantAsString, e)
 //case class StaticTerminator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.terminator.constantAsString, e)

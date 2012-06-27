@@ -11,17 +11,22 @@ import stringsearch.delimiter._
 import scala.util.logging.ConsoleLogger
 import scala.util.logging.Logged
 
-object SearchResult extends Enumeration {
-  type SearchResult = Value
-  val FullMatch, PartialMatch, NoMatch = Value
-}
-
-import SearchResult._
+import stringsearch.constructs.EscapeSchemeKind.EscapeSchemeKind
+import stringsearch.constructs.EscapeSchemeKind
+import stringsearch.constructs.SearchResult
+import stringsearch.constructs.SearchResult._
+import stringsearch.constructs.EscapeScheme._
 
 class DelimSearcher extends Logged {
 
   // A list of delimiters, each delimiter is represented as a Delimiter object
   var delimiters: List[Delimiter] = List.empty[Delimiter]
+
+  var escapeSchemeKind: EscapeSchemeKind = EscapeSchemeKind.None
+  var esCharacter: String = ""
+  var esEsCharacter: String = ""
+  var esBlockStart: String = ""
+  var esBlockEnd: String = ""
 
   def addDelimiter(strDelim: String) = {
     val d = new Delimiter with ConsoleLogger
@@ -81,24 +86,35 @@ class DelimSearcher extends Logged {
     var partialMatched: Boolean = false
     var EOF: Boolean = false
     var endPos: Int = -1
-    
+
     if (clearState) {
       clear
     }
-    if (input.toString().length() == 0){
+    if (input.toString().length() == 0) {
       log("EOF! String: was EMPTY!! StartPos: " + startPos + " EndPos: " + endPos)
       return (SearchResult.NoMatch, input.toString(), -1, -1, null)
     }
-    if (startPos < 0){
-      endPos = input.length() -1
+    if (startPos < 0) {
+      endPos = input.length() - 1
       log("EOF! String: " + input.toString().substring(startPos) + " StartPos: " + startPos + " EndPos: " + endPos)
       return (SearchResult.NoMatch, input.toString().substring(0), endPos, endPos, null)
     }
-    
+
     val crlfList: List[(Int, Int)] = getCRLFList(input)
     val wspList: List[(Int, Int)] = getConsecutiveWSPList(input)
-
-    delimiters foreach { node => node.search(input, startPos, crlfList, wspList) }
+    val escapeCharList: List[(Int)] = getEscapeCharacterList(input)
+    val (escapeEscapeCharList, _) = this.getEscapeEscapeCharacterList(input)
+    val escapeBlockList: List[(Int, Int)] = getEscapeBlocks(input)
+    
+    if (this.escapeSchemeKind == EscapeSchemeKind.Block){
+      delimiters foreach { node => node.searchWithEscapeSchemeBlock(input, startPos, crlfList, wspList,
+          escapeEscapeCharList, escapeBlockList) }
+    }else if (this.escapeSchemeKind == EscapeSchemeKind.Character) {
+    	delimiters foreach { node => node.searchWithEscapeSchemeCharacter(input, startPos, crlfList, wspList,
+          escapeCharList) }
+    } else {
+      delimiters foreach { node => node.search(input, startPos, crlfList, wspList) }
+    }
 
     val delimsWithFullMatches = delimiters.filter(node => node.fullMatches.size > 0)
 
@@ -169,10 +185,10 @@ class DelimSearcher extends Logged {
     }
     // A prefixed delimiter was not found, return the first full match
     val fullMatch = matchedDelims(0).fullMatches.toList.sortBy(x => x._1).head
-    println("Matched Delims: " + matchedDelims(0) + " "  + matchedDelims(0).fullMatches.toList)
+    println("Matched Delims: " + matchedDelims(0) + " " + matchedDelims(0).fullMatches.toList)
     (fullMatch._1, fullMatch._2, matchedDelims(0))
   }
-  
+
   // Used to retrieve the longest matching delimiter in the case
   // that this delimiter is contained within another fully matching
   // delimiter
@@ -199,13 +215,13 @@ class DelimSearcher extends Logged {
     if (matchedDelims.length == 0) {
       return (-1, -1, null)
     }
-    
+
     val firstFullMatch = getFirstFullMatch(matchedDelims, startPos)
-    
-    if (firstFullMatch == null){
+
+    if (firstFullMatch == null) {
       return (-1, -1, null)
     }
-    
+
     log("First Full Match: " + firstFullMatch)
 
     // Retrieve the list of delimiters prefixed by matchedDelims(0) and sort them
@@ -220,23 +236,24 @@ class DelimSearcher extends Logged {
     // A prefixed delimiter was not found, return the first full match
     firstFullMatch
   }
-  
-  def getFirstFullMatch(matchedDelims: List[Delimiter], startPos: Int = 0): (Int,Int,Delimiter) = {
-    var contenders: List[(Int,Int,Delimiter)] = List.empty
-    
-    matchedDelims.foreach{
-      x => {
-        val sortedMatches = x.fullMatches.toList.sortBy(c => (c._1, c._2))
-        if (sortedMatches.length > 0){ 
-        	val firstSortedMatch = List((sortedMatches(0)._1, sortedMatches(0)._2, x))
-        	contenders ++= firstSortedMatch
+
+  def getFirstFullMatch(matchedDelims: List[Delimiter], startPos: Int = 0): (Int, Int, Delimiter) = {
+    var contenders: List[(Int, Int, Delimiter)] = List.empty
+
+    matchedDelims.foreach {
+      x =>
+        {
+          val sortedMatches = x.fullMatches.toList.sortBy(c => (c._1, c._2))
+          if (sortedMatches.length > 0) {
+            val firstSortedMatch = List((sortedMatches(0)._1, sortedMatches(0)._2, x))
+            contenders ++= firstSortedMatch
           }
         }
     }
-    
-    val sortedContenders = contenders.sortBy( x => (x._1, x._2))
-    
-    if (sortedContenders.length > 0) { return sortedContenders(0)}
+
+    val sortedContenders = contenders.sortBy(x => (x._1, x._2))
+
+    if (sortedContenders.length > 0) { return sortedContenders(0) }
     null
   }
 
@@ -259,11 +276,11 @@ class DelimSearcher extends Logged {
     })
     q.toList
   }
-  
+
   // Retrieve all of the delimiters prefixed by the prefix Delimiter but
   // do not equal the prefix.
   //
-  def getPrefixedDelims(prefix: (Int,Int,Delimiter), delimsWithFullMatches: List[Delimiter]): List[(Int, Int, Delimiter)] = {
+  def getPrefixedDelims(prefix: (Int, Int, Delimiter), delimsWithFullMatches: List[Delimiter]): List[(Int, Int, Delimiter)] = {
     val q = new Queue[(Int, Int, Delimiter)]
 
     val firstFullMatch = (prefix._1, prefix._2)
@@ -348,7 +365,9 @@ class DelimSearcher extends Logged {
         start = -1
       }
     }
-    q.toList
+    val wspList = q.toList
+    log("getWSPList - wspList:\t" + wspList)
+    wspList
   }
 
   def enableStateTrace = {
@@ -357,6 +376,213 @@ class DelimSearcher extends Logged {
 
   def disableStateTrace = {
     this.delimiters.foreach(d => d.stateTraceEnabled = false)
+  }
+
+  def setEscapeScheme(pEscapeKind: EscapeSchemeKind, pEsChar: String, pEsEsChar: String, pBlockStart: String, pBlockEnd: String) = {
+    this.escapeSchemeKind = pEscapeKind
+    this.esCharacter = pEsChar
+    this.esEsCharacter = pEsEsChar
+    this.esBlockStart = pBlockStart
+    this.esBlockEnd = pBlockEnd
+  }
+  
+  def setEscapeScheme(esObj: EscapeSchemeObj) = {
+    this.escapeSchemeKind = esObj.escapeSchemeKind
+    this.esCharacter = esObj.escapeCharacter
+    this.esEsCharacter = esObj.escapeEscapeCharacter
+    this.esBlockStart = esObj.escapeBlockStart
+    this.esBlockEnd = esObj.escapeBlockEnd
+  }
+
+  def getCharacterList(input: CharBuffer, character: Char): List[Int] = {
+    val q = new Queue[Int]
+
+    for (i <- 0 until input.length()) {
+      val char: Char = input.charAt(i)
+
+      if (character == char) {
+        q += (i)
+      }
+    }
+    val list = q.toList.sortBy(x => x)
+    list
+  }
+
+  // Returns a list of valid escapeCharacters positions who have not been escaped
+  //
+  def getEscapeCharacterList(input: CharBuffer): List[Int] = {
+    if (this.escapeSchemeKind == EscapeSchemeKind.None || this.esCharacter.length() == 0) { return List.empty }
+
+    val (escapeEscapeChars, escapedEscapeEscapeChars) = getEscapeEscapeCharacterList(input)
+
+    val esCharList = getCharacterList(input, this.esCharacter.charAt(0))
+    val result = new Queue[Int]
+
+    // Removed escaped escapeChars from the list
+    val allEscapeChars = esCharList.filter(x => escapedEscapeEscapeChars.filter(z => x >= z._1 && x <= z._2).length == 0)
+
+    allEscapeChars.foreach { x =>
+      {
+        val prevI = x - 1
+        if (prevI >= 0) {
+          // Does the previous index exist in the escapeEscapeChars list?
+          escapeEscapeChars.find(y => y == prevI) match {
+            case None => result += x // Was not escaped, append to Queue
+            case Some(_) => // Was escaped, do not append to Queue
+          }
+        }
+      }
+    }
+    val escapeCharList = result.toList
+    log("getEscapeCharacterList - EscapeCharacterList:\t" + escapeCharList)
+    escapeCharList
+  }
+
+  // Returns a Tuple2 of (A, B)
+  // Where
+  //	A is a List of escapeEscapeCharacters not escaped by themselves
+  //	B is a List of escaped escapeEscapeCharacters
+  //
+  def getEscapeEscapeCharacterList(input: CharBuffer): (List[Int], List[(Int, Int)]) = {
+    if (this.escapeSchemeKind == EscapeSchemeKind.None || this.esEsCharacter.length() == 0) { return (List.empty, List.empty) }
+
+    val esEsCharList = getCharacterList(input, this.esEsCharacter.charAt(0))
+    val escapeEscapeQ = new Queue[Int]
+    val escapedEscapeEscapeQ = new Queue[(Int, Int)]
+
+    val theEsEsChar: Char = this.esEsCharacter.charAt(0)
+
+    var i: Int = 0
+
+    while (i < input.length()) {
+      val char: Char = input.charAt(i)
+      var escaped: Boolean = false
+
+      if (char == theEsEsChar) {
+        // Found escapeEscapeCharacter
+        val nextI = i + 1
+        if (nextI < input.length()) {
+          val nextChar: Char = input.charAt(nextI)
+          if (nextChar == theEsEsChar) {
+            // We will escape the following escapeEscapeCharacter
+            // do not append these, instead move past them.
+            escapedEscapeEscapeQ += (i -> nextI)
+            i += 1
+            escaped = true
+          }
+        }
+        if (!escaped) {
+          escapeEscapeQ += i
+        }
+      }
+      i += 1
+    }
+    val escapeEscapeList = escapeEscapeQ.toList.sortBy(x => x)
+    val escapedEscapeEscapeList = escapedEscapeEscapeQ.toList.sortBy(x => x._1)
+    log("getEscapeCharacterList - EscapeEscapeList:\t" + escapeEscapeList 
+        + "\nEscapedEscapeEscapeList:\t" + escapedEscapeEscapeList)
+    (escapeEscapeList, escapedEscapeEscapeList)
+  }
+
+  def getEscapeBlockList(input: CharBuffer, block: String): List[(Int, Int)] = {
+    if (this.escapeSchemeKind == EscapeSchemeKind.None || this.escapeSchemeKind == EscapeSchemeKind.Character || block.length() == 0) { return List.empty }
+
+    var i: Int = 0
+    val blockLength = block.length()
+    val inputLength = input.length()
+
+    val q = new Queue[(Int, Int)]
+
+    while (i < inputLength) {
+      if (((i + (blockLength - 1)) < inputLength) && input.toString().regionMatches(false, i, block, 0, blockLength)) {
+        q += (i -> (i + (blockLength - 1)))
+      }
+      i += 1
+    }
+    val escapeBlockList = q.toList
+    log("getEscapeBlockList - EscapeBlockList:\t" + escapeBlockList)
+    escapeBlockList
+  }
+
+  def getEscapeBlockStartList(input: CharBuffer): List[(Int, Int)] = {
+    if (this.escapeSchemeKind == EscapeSchemeKind.None || this.escapeSchemeKind == EscapeSchemeKind.Character) { return List.empty }
+
+    getEscapeBlockList(input, this.esBlockStart)
+  }
+
+  def getEscapeBlockEndList(input: CharBuffer): List[(Int, Int)] = {
+    if (this.escapeSchemeKind == EscapeSchemeKind.None || this.escapeSchemeKind == EscapeSchemeKind.Character) { return List.empty }
+
+    getEscapeBlockList(input, this.esBlockEnd)
+  }
+
+  // Returns a List of Tuple(StartIdx, EndIdx)
+  //	Each Tuple represents the Start and End of an EscapeBlock
+  //
+  def getEscapeBlocks(input: CharBuffer): List[(Int, Int)] = {
+    if(this.escapeSchemeKind != EscapeSchemeKind.Block){return List.empty}
+    
+    val (escapeEscapeList, _) = this.getEscapeEscapeCharacterList(input)
+    val startList = getEscapeBlockStartList(input)
+    val endList = getEscapeBlockEndList(input)
+    val q = new Queue[(Int, Int)]	// Result
+
+    val sLength = startList.length
+    val eLength = endList.length
+    var sIdx = 0	// Index for startList
+    var eIdx = 0	// Index for endList
+
+    if (sLength == 0) {
+      return List.empty
+    }
+    if (sLength > 0 && eLength == 0) {
+      val start = startList(sIdx)
+      return List((start._1 -> -1))
+    }
+
+    // We have at least 1 item in startList and endList
+    while (sIdx < sLength) {
+      val start = startList(sIdx)
+      var repeat: Boolean = false
+
+      // Does this value already occur within a block?
+      val qHasStart = q.filter(x => start._1 >= x._1 && start._2 <= x._2).length >= 1
+     
+      if (!qHasStart) {
+        if (eIdx < eLength) {
+          val end = endList(eIdx)
+
+          if (end._1 > start._2 && end._2 > start._2) {
+        	// This value is not a duplicate of start
+            
+            // Was this value escaped by the escapeEscapeCharacter?
+            val isEscaped:Boolean = escapeEscapeList.filter(x => x == (end._1 - 1)).length >= 1
+         
+            if (!isEscaped){
+              q += (start._1 -> end._2)
+            }
+            else {
+              // This value was escaped,
+              // Advance eIdx only!
+              repeat = true
+            }
+            
+          } else {
+            // This value has already been added!
+            // Advance eIdx only!
+            repeat = true
+          }
+          eIdx += 1
+
+        } else {
+          // ran out of items in endList
+          q += (start._1 -> -1)
+          sIdx = sLength // Break this loop
+        }
+      }
+      if (!repeat) { sIdx += 1 }
+    }
+    q.toList
   }
 
 }

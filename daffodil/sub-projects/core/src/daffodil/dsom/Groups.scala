@@ -22,7 +22,8 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
   with LocalComponentMixin
   with DFDLStatementMixin
   with TermGrammarMixin
-  with DelimitedRuntimeValuedPropertiesMixin {
+  with DelimitedRuntimeValuedPropertiesMixin
+  with InitiatedTerminatedMixin{
 
   def isScalar = true // override in local elements
 

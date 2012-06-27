@@ -20,6 +20,14 @@ class TestDsomCompiler extends JUnit3Suite {
 
   val dummyGroupRef = null // just because otherwise we have to construct too many things.
 
+  def FindValue(collection: Map[String, String], key: String, value: String): Boolean = {
+    val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
+      case Some(_) => true
+      case None => false
+    }
+    found
+  }
+
   // @Test
   def testHasProps() {
     val testSchema = TestUtils.dfdlTestSchema(
@@ -113,7 +121,9 @@ class TestDsomCompiler extends JUnit3Suite {
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:sequence>
       </xs:complexType>)
+
     val (sset, _) = Compiler().frontEnd(sc)
+
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc) = schema.schemaDocuments
     val Seq(declFactory) = schemaDoc.globalElementDecls
@@ -595,6 +605,7 @@ class TestDsomCompiler extends JUnit3Suite {
 
     val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
     val seq = ct.modelGroup.asInstanceOf[Sequence]
+
     val Seq(e1 : ElementBase, e2 : ElementBase) = seq.groupMembers
 
     val e1f = e1.formatAnnotation.asInstanceOf[DFDLElement]
@@ -694,6 +705,50 @@ class TestDsomCompiler extends JUnit3Suite {
     println(e3_2.terminatingMarkup)
     // assertEquals(e3_1.terminatingMarkup, List("e", "c", "d", "a", "b")) // 2 Level
     // assertEquals(e3_2.terminatingMarkup, List("f", "c", "d", "a", "b")) // 2 Level + ref
+  }
+
+  def test_escapeSchemeOverride = {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none" textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression" escapeSchemeRef="pound"/>
+      <dfdl:defineEscapeScheme name="pound">
+        <dfdl:escapeScheme escapeCharacter='#' escapeKind="escapeCharacter"/>
+      </dfdl:defineEscapeScheme>
+      <dfdl:defineEscapeScheme name='cStyleComment'>
+        <dfdl:escapeScheme escapeBlockStart='/*' escapeBlockEnd='*/' escapeKind="escapeBlock"/>
+      </dfdl:defineEscapeScheme>,
+      <xs:element name="list">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="character" type="xsd:string" maxOccurs="unbounded" dfdl:representation="text" dfdl:separator="," dfdl:terminator="%NL;" />
+            <xs:element name="block" type="xsd:string" maxOccurs="unbounded" dfdl:representation="text" dfdl:separator="," dfdl:terminator="%NL;" dfdl:escapeSchemeRef="cStyleComment"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
+    val ge1 = ge1f.forRoot()
+
+    val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
+    val seq = ct.modelGroup.asInstanceOf[Sequence]
+
+    val Seq(e1: ElementBase, e2: ElementBase) = seq.groupMembers
+    val e1f = e1.formatAnnotation.asInstanceOf[DFDLElement]
+    val props = e1.localAndFormatRefProperties ++ e1.defaultProperties
+    
+    val e1f_esref = e1.getProperty("escapeSchemeRef")
+    println(e1f_esref)
+    
+    assertEquals("pound", e1f_esref)
+    
+    // Should have escapeCharacter and escapeKind
+    
+    val e2f = e2.formatAnnotation.asInstanceOf[DFDLElement]
+    val e2f_esref = e2.getProperty("escapeSchemeRef")
+    // escapeBlockStart/End escapeBlockKind (NOTHING ELSE)
+    assertEquals("cStyleComment", e2f_esref)
   }
 
 }
