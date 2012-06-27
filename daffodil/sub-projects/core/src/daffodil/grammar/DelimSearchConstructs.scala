@@ -3,6 +3,9 @@ package stringsearch.constructs
 import daffodil.dsom.DFDLEscapeScheme
 import daffodil.schema.annotation.props.gen.EscapeKind
 import daffodil.exceptions.Assert
+import daffodil.dsom.EntityReplacer
+import daffodil.dsom.StringValueAsLiteral
+import daffodil.dsom.SingleCharacterLiteral
 
 object SearchResult extends Enumeration {
   type SearchResult = Value
@@ -53,14 +56,29 @@ object EscapeScheme {
         obj.escapeKind match {
           case EscapeKind.EscapeBlock => {
             escapeSchemeKind = EscapeSchemeKind.Block
-            escapeEscapeCharacter = obj.escapeEscapeCharacterRaw
-            escapeBlockStart = obj.escapeBlockStart
-            escapeBlockEnd = obj.escapeBlockEnd
+            escapeEscapeCharacter = {
+              val l = new daffodil.dsom.SingleCharacterLiteralES(obj.escapeEscapeCharacterRaw)
+              l.cooked
+            }
+            escapeBlockStart = {
+              val l = new StringValueAsLiteral(obj.escapeBlockStart)
+              l.cooked
+            }
+            escapeBlockEnd = {
+              val l = new StringValueAsLiteral(obj.escapeBlockEnd)
+              l.cooked
+            }
           }
           case EscapeKind.EscapeCharacter => {
             escapeSchemeKind = EscapeSchemeKind.Character
-            escapeEscapeCharacter = obj.escapeEscapeCharacterRaw
-            escapeCharacter = obj.escapeCharacterRaw
+            escapeEscapeCharacter = {
+              val l = new daffodil.dsom.SingleCharacterLiteralES(obj.escapeEscapeCharacterRaw)
+              l.cooked
+            }
+            escapeCharacter = {
+              val l = new daffodil.dsom.SingleCharacterLiteralES(obj.escapeCharacterRaw)
+              l.cooked
+            }
           }
           case _ => Assert.SDE("Unrecognized Escape Scheme!")
         }
@@ -72,7 +90,7 @@ object EscapeScheme {
     println("\tEscapeEscapeCharacter: " + escapeEscapeCharacter)
     println("\tEscapeBlockStart: " + escapeBlockStart)
     println("\tEscapeBlockEnd: " + escapeBlockEnd)
-    
+
     val result = new EscapeSchemeObj
     result.escapeSchemeKind = escapeSchemeKind
     result.escapeCharacter = escapeCharacter

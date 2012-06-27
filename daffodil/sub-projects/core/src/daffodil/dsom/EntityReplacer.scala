@@ -228,6 +228,11 @@ class SingleCharacterLiteral(rawArg: String)
   Assert.schemaDefinition(cooked.length == 1, "Length of string must be exactly 1 character.")
 }
 
+class SingleCharacterLiteralES(rawArg: String)
+	extends StringValueAsLiteral(rawArg) {
+  Assert.schemaDefinition(cooked.length() == 1 || cooked.length() == 0, "Length of string must be exactly 1 character or be empty.")
+}
+
 class OneDelimiterLiteral(rawArg: String)
   extends StringLiteralBase(rawArg) {
   def cooked = EntityReplacer.replaceAll(raw)

@@ -214,5 +214,54 @@ class TestPrimitives extends JUnit3Suite {
     val expected: Node = <root><e1>a</e1><e2>b</e2><e3><e3_1>c</e3_1><e3_2>d</e3_2></e3></root>
     assertEqualsXMLElements(expected, actual.result)  
   }
+  
+  def testEntityReplacementSeparator {
+     val sch = DFDLUtils.dfdlTestSchema(
+      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
+      <xs:element name="e1">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="%NUL;" dfdl:separatorPosition="infix">
+      		<xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>
+      		<xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = Compiler.testString(sch, "abcd\u0000efgh")
+    val actualString = actual.result.toString
+    assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
+    assertTrue(actualString.contains("><s1>abcd</s1><s2>efgh</s2></e1>"))
+
+    val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
+    assertEqualsXMLElements(expected, actual.result)  
+  }
+  
+  def testEntityReplacementInitiator {
+    val sch = DFDLUtils.dfdlTestSchema(
+      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" terminator="" separator="" ignoreCase="no"/>,
+      <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:initiator="%NUL;">
+      </xs:element>)
+    val actual = Compiler.testString(sch, "\u0000efgh")
+    assertTrue(actual.canProceed)
+    val actualString = actual.result.toString
+    assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
+    assertTrue(actualString.contains(">efgh</e1>"))
+
+    val expected: Node = <e1>efgh</e1>
+    assertEqualsXMLElements(expected, actual.result)
+  }
+  
+  def testEntityReplacementTerminator {
+    val sch = DFDLUtils.dfdlTestSchema(
+      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" ignoreCase="no"/>,
+      <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:terminator="%NUL;">
+      </xs:element>)
+    val actual = Compiler.testString(sch, "abcd\u0000")
+    val actualString = actual.result.toString
+    assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
+    assertTrue(actualString.contains(">abcd</e1>"))
+
+    val expected: Node = <e1>abcd</e1>
+    assertEqualsXMLElements(expected, actual.result)
+  }
 
 }

@@ -4,6 +4,8 @@ import daffodil.schema.annotation.props.gen._
 import daffodil.schema.annotation.props._
 import daffodil.exceptions.Assert
 
+import daffodil.dsom.EntityReplacer._
+
 /**
  * These are the DFDL properties which can have their values come
  * from the data stream itself by way of expressions.
@@ -18,15 +20,15 @@ with RawCommonRuntimeValuedPropertiesMixin
 
   lazy val byteOrder = expressionCompiler.compile('String, byteOrderRaw)
   lazy val encoding = expressionCompiler.compile('String, encodingRaw)
-  lazy val outputNewLine = expressionCompiler.compile('String, outputNewLineRaw)
+  lazy val outputNewLine = expressionCompiler.compile('String, EntityReplacer.replaceAll(outputNewLineRaw))
 }
 
 trait DelimitedRuntimeValuedPropertiesMixin
   extends CommonRuntimeValuedPropertiesMixin 
   with RawDelimitedRuntimeValuedPropertiesMixin { decl : AnnotatedMixin =>
   
-  lazy val initiator = expressionCompiler.compile('String, initiatorRaw)
-  lazy val terminator = expressionCompiler.compile('String, terminatorRaw)
+  lazy val initiator = expressionCompiler.compile('String, EntityReplacer.replaceAll(initiatorRaw))
+  lazy val terminator = expressionCompiler.compile('String, EntityReplacer.replaceAll(terminatorRaw))
   
   lazy val hasInitiator = initiator.isKnownNonEmpty
   lazy val hasTerminator = terminator.isKnownNonEmpty
@@ -49,7 +51,10 @@ trait SequenceRuntimeValuedPropertiesMixin
   with Sequence_AnnotationMixin 
   with RawSequenceRuntimeValuedPropertiesMixin { decl: Sequence =>
 
-  lazy val separator = expressionCompiler.compile('String, separatorRaw)
+  lazy val separator = {
+    val replaced = EntityReplacer.replaceAll(separatorRaw)
+    println(replaced)
+    expressionCompiler.compile('String, EntityReplacer.replaceAll(separatorRaw))}
 }
 
 trait SimpleTypeRuntimeValuedPropertiesMixin
@@ -62,13 +67,13 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
   // def escapeCharacterExpr = ExpressionCompiler.compile('String, es.getProperty("escapeCharacter"))
   // def escapeEscapeCharacterExpr = ExpressionCompiler.compile('String, es.getProperty("escapeEscapeCharacter"))
 
-  def textStandardDecimalSeparator = expressionCompiler.compile('String, textStandardDecimalSeparatorRaw)
-  def textStandardGroupingSeparator = expressionCompiler.compile('String, textStandardGroupingSeparatorRaw)
+  def textStandardDecimalSeparator = expressionCompiler.compile('String, EntityReplacer.replaceAll(textStandardDecimalSeparatorRaw))
+  def textStandardGroupingSeparator = expressionCompiler.compile('String, EntityReplacer.replaceAll(textStandardGroupingSeparatorRaw))
   // TODO: update when textStandardExponentCharacter is phased out.
-  def textStandardExponentRep = expressionCompiler.compile('String, textStandardExponentRepRaw) // Note: name changed to suffix of "...Rep" via Errata
+  def textStandardExponentRep = expressionCompiler.compile('String, EntityReplacer.replaceAll(textStandardExponentRepRaw)) // Note: name changed to suffix of "...Rep" via Errata
   def binaryFloatRep = expressionCompiler.compile('String, binaryFloatRepRaw)
-  def textBooleanTrueRep = expressionCompiler.compile('String, textBooleanTrueRepRaw)
-  def textBooleanFalseRep = expressionCompiler.compile('String, textBooleanFalseRepRaw)
+  def textBooleanTrueRep = expressionCompiler.compile('String, EntityReplacer.replaceAll(textBooleanTrueRepRaw))
+  def textBooleanFalseRep = expressionCompiler.compile('String, EntityReplacer.replaceAll(textBooleanFalseRepRaw))
 
 }
 
