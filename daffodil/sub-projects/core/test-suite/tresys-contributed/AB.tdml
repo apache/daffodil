@@ -3,10 +3,13 @@
 	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
 
-	<parserTestCase name="AB000" root="list" model="AB.dfdl.xsd"
+	<parserTestCase name="AB000" root="matrix" model="AB.dfdl.xsd"
 		description="CSV-style tests">
 
 		<document>
+			<!--  <documentPart type="text"><![CDATA[0,1,2,3,4
+5,6,7,8,9
+10,11,12,13,14]]></documentPart> -->
 			<documentPart type="text"><![CDATA[0,1,2,3,4
 5,6,7,8,9
 10,11,12,13,14]]></documentPart>
@@ -15,8 +18,7 @@
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
 				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<matrix xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+				<matrix>
 					<row>
 						<cell>0</cell>
 						<cell>1</cell>
@@ -43,7 +45,7 @@
 		</infoset>
 	</parserTestCase>
 
-	<parserTestCase name="AB001" root="list" model="AB.dfdl.xsd"
+	<parserTestCase name="AB001" root="matrix" model="AB.dfdl.xsd"
 		description="CSV-style tests">
 
 		<document>
@@ -84,7 +86,7 @@
 		</infoset>
 	</parserTestCase>
 
-	<parserTestCase name="AB002" root="list" model="AB.dfdl.xsd"
+	<parserTestCase name="AB002" root="matrix" model="AB.dfdl.xsd"
 		description="CSV-style tests">
 
 		<document>
@@ -126,7 +128,7 @@
 		</infoset>
 	</parserTestCase>
 
-	<parserTestCase name="AB003" root="list" model="AB.dfdl.xsd"
+	<parserTestCase name="AB003" root="matrix" model="AB.dfdl.xsd"
 		description="CSV-style tests">
 
 		<document>
@@ -164,7 +166,7 @@
 		</infoset>
 	</parserTestCase>
 
-	<parserTestCase name="AB004" root="list" model="AB.dfdl.xsd"
+	<parserTestCase name="AB004" root="matrix" model="AB.dfdl.xsd"
 		description="CSV-style tests">
 
 		<document>
@@ -204,7 +206,7 @@
 		</infoset>
 	</parserTestCase>
 
-	<parserTestCase name="AB005" root="list" model="AB.dfdl.xsd"
+	<parserTestCase name="AB005" root="matrix" model="AB.dfdl.xsd"
 		description="CSV-style tests">
 
 		<document>

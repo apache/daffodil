@@ -9,7 +9,7 @@ import daffodil.dsom.SingleCharacterLiteral
 
 object SearchResult extends Enumeration {
   type SearchResult = Value
-  val FullMatch, PartialMatch, NoMatch = Value
+  val FullMatch, PartialMatch, NoMatch, EOD = Value
 }
 
 object SearchState extends Enumeration {

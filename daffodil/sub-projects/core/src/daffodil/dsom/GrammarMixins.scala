@@ -16,7 +16,8 @@ trait AlignedMixin { self: SchemaComponent with AnnotatedMixin =>
 
 trait InitiatedTerminatedMixin
   extends AnnotatedMixin
-  with DelimitedRuntimeValuedPropertiesMixin { self: SchemaComponent =>
+  with DelimitedRuntimeValuedPropertiesMixin { self: Term =>
+ // with DelimitedRuntimeValuedPropertiesMixin { self: SchemaComponent =>
   lazy val staticInitiator = Prod("staticInitiator", this, initiator.isConstant, StaticInitiator(this))
   lazy val staticTerminator = Prod("staticTerminator", this, terminator.isConstant, StaticTerminator(this))
   lazy val dynamicInitiator = Prod("dynamicInitiator", this, !initiator.isConstant, DynamicInitiator(this))
@@ -637,9 +638,15 @@ trait TermGrammarMixin { self: Term =>
 
   lazy val staticSeparator = Prod("staticSeparator", this, hasES && es.separator.isConstant,
     new StaticDelimiter(es.separator.constantAsString, self))
+  
+//  lazy val staticSeparator = Prod("staticSeparator", this, hasES && es.separator.isConstant,
+//    new StaticDelimiter(es, self))
 
   lazy val dynamicSeparator = Prod("dynamicSeparator", this, hasES && !es.separator.isConstant,
     new DynamicDelimiter(es.separator, self))
+    
+//    lazy val dynamicSeparator = Prod("dynamicSeparator", this, hasES && !es.separator.isConstant,
+//    new DynamicDelimiter(es, self))
 
   lazy val sepRule = staticSeparator | dynamicSeparator
 
