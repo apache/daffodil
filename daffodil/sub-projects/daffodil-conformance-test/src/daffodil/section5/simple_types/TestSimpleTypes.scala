@@ -29,4 +29,13 @@ class TestSimpleTypes extends JUnit3Suite {
     	assertTrue(exc.getMessage().contains("Did not find"))
   	}
   def test_UnsignedNumbers1() { runner.runOneTest("UnsignedNumbers1") }
+  def test_unsignedLong_01() {runner.runOneTest("unsignedLong_01")}
+  def test_unsignedLong_02() {runner.runOneTest("unsignedLong_02")}
+  def test_unsignedLong_03() {runner.runOneTest("unsignedLong_03")}
+  def test_Long2() {runner.runOneTest("Long2")}
+  def test_int_error_02() { runner.runOneTest("int_error_02") }
+  def test_short_01() { runner.runOneTest("short_01") }
+  def test_unsignedInt_01() { runner.runOneTest("unsignedInt_01") }
+  def test_unsignedShort_01() { runner.runOneTest("unsignedShort_01") }
+  def test_unsignedByte_01() { runner.runOneTest("unsignedByte_01") }
   }

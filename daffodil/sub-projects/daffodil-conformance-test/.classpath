@@ -6,5 +6,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil"/>
 	<classpathentry kind="lib" path="/daffodil/lib/scalatest-1.6.1.jar" sourcepath="/home/mbeckerle/dataiti/sbs/tools/scalatest/1.6.1-dist/scalatest-1.6.1.zip"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

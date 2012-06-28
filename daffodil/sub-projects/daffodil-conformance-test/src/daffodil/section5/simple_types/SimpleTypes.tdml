@@ -20,6 +20,14 @@
 		<xs:element name="int02" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="11"/>
 		<xs:element name="int03" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2"/>
 		<xs:element name="short01" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="4"/>
+		<xs:element name="uL_01" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
+		<xs:element name="uL_02" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>
+		<xs:element name="uL_03" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+		<xs:element name="l_2" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="{ 10 }"/>
+		<xs:element name="s_1" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
+		<xs:element name="uI_01" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 10 }"/>
+		<xs:element name="uS_01" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>
+		<xs:element name="uB_01" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>
 		
 		<xs:element name="limits" dfdl:lengthKind="explicit">
 	        <xs:complexType>
@@ -31,6 +39,16 @@
 	          </xs:sequence>
 	        </xs:complexType>
       	</xs:element>
+      	
+      	<xs:element name="e1" dfdl:lengthKind="explicit">
+        	<xs:complexType>
+          		<xs:sequence>
+            		<xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+    				<xs:element name="s2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
+    			</xs:sequence>
+    		</xs:complexType>
+    	</xs:element>
+    	
 	</tdml:defineSchema>
 	
 	<tdml:parserTestCase name="Long1" root="s"
@@ -142,6 +160,87 @@
 				<limits><unsigned-byte>255</unsigned-byte><unsigned-short>65535</unsigned-short><unsigned-int>4294967295</unsigned-int><unsigned-long>18446744073709551615</unsigned-long></limits>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="unsignedLong_01" root="uL_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsignedLong - DFDL-5-017R">
+
+		<tdml:document>18446744073709551616</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="unsignedLong_02" root="uL_02"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsignedLong - DFDL-5-017R">
+
+		<tdml:document>-1</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="unsignedLong_03" root="uL_03"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsignedLong - DFDL-5-017R">
+
+		<tdml:document>a</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="Long2" root="l_2"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-long - DFDL-5-012R">
+
+		<tdml:document>1         </tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="int_error_02" root="e1"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-int - DFDL-5-012R">
+
+		<tdml:document>55.001</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="short_01" root="s_1"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-short - DFDL-5-014R">
+
+		<tdml:document>70000</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="unsignedInt_01" root="uI_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsignedInt - DFDL-5-018R">
+
+		<tdml:document>7018631476</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="unsignedShort_01" root="uS_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsignedShort - DFDL-5-018R">
+
+		<tdml:document>-1</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="unsignedByte_01" root="uB_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsignedByte - DFDL-5-020R">
+
+		<tdml:document>256</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
 	</tdml:parserTestCase>
 	
 </tdml:testSuite>
