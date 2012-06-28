@@ -281,28 +281,53 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
   extends ElementBase(xmlArg, parent, position)
   with LocalElementMixin
   with HasRef {
+  
+  // Need to go get the Element we are referencing
+  lazy val referencedElement = {
+    this.schema.schemaSet.getGlobalElementDecl(namespace, name) match {
+      case None => Assert.SDE("Referenced element (" + this.ref + ") was not found!")
+      case Some(x) => x.forElementRef(this)
+    }
+  }
 
   // These will just delegate to the referenced element declaration
-  lazy val isNillable = Assert.notYetImplemented()
-  lazy val isSimpleType = Assert.notYetImplemented()
-  lazy val isComplexType = Assert.notYetImplemented()
-  lazy val elementComplexType : ComplexTypeBase = Assert.notYetImplemented()
-  lazy val elementSimpleType : SimpleTypeBase = Assert.notYetImplemented()
-  lazy val isDefaultable : Boolean = Assert.notYetImplemented()
+  lazy val isNillable = referencedElement.isNillable
+  lazy val isSimpleType = referencedElement.isSimpleType
+  lazy val isComplexType = referencedElement.isComplexType
+  lazy val elementComplexType : ComplexTypeBase = referencedElement.elementComplexType 
+  lazy val elementSimpleType : SimpleTypeBase = referencedElement.elementSimpleType
+  lazy val isDefaultable : Boolean = referencedElement.isDefaultable
 
   lazy val qname = XMLUtils.QName(xml, xsdRef, schemaDocument)
   override lazy val (namespace, name) = qname
 
   // These may be trickier, as the type needs to be responsive to properties from the
   // element reference's format annotations, and its lexical context.
-  lazy val typeDef = Assert.notYetImplemented()
+  lazy val typeDef = referencedElement.typeDef//Assert.notYetImplemented()
 
   // Element references can have minOccurs and maxOccurs, and annotations, but nothing else.
+  
+  /**
+   * It is an error if the properties on an element overlap with the properties on the simple type
+   * of that element.
+   */
+  lazy val overlappingProperties = {
+    val referencedProperties = referencedElement.localAndFormatRefProperties.keySet
+    val myLocalPropertiesNames = formatAnnotation.getFormatPropertiesNonDefault().keySet
+    val intersect = referencedProperties.intersect(myLocalPropertiesNames)
+    intersect
+  }
+  
+  lazy val localAndFormatRefProperties = {
+    val referencedProperties = referencedElement.localAndFormatRefProperties
+    val myLocalProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
+    Assert.schemaDefinition(overlappingProperties.size == 0, "Type properties overlap with element properties.")
+    val theUnion = referencedProperties ++ myLocalProperties
+    theUnion
+    
+  }
 
-  lazy val localAndFormatRefProperties = Assert.notYetImplemented()
-
-  lazy val diagnosticChildren = Assert.notYetImplemented()
-
+  lazy val diagnosticChildren = Assert.notYetImplemented()//referencedElement.diagnosticChildren
 }
 
 /**
