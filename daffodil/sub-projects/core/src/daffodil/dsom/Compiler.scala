@@ -167,6 +167,8 @@ class Compiler extends DFDL.Compiler with Logging {
 		 diags.foreach{System.out.println(_)}
 	 } else {
 	    log(Info("Compilation completed with no errors."))
+	    val dataProc = pf.onPath("/").asInstanceOf[DataProcessor]
+	    log(Info("Parser = %s.", dataProc.parser.toString))
 	 }
      pf
   }
