@@ -750,6 +750,33 @@ class TestDsomCompiler extends JUnit3Suite {
     // escapeBlockStart/End escapeBlockKind (NOTHING ELSE)
     assertEquals("cStyleComment", e2f_esref)
   }
+  
+  def test_element_references {
+    val testSchema = XML.loadFile(TestUtils.findFile("test/example-of-most-dfdl-constructs.dfdl.xml"))
+    val compiler = Compiler()
+
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    // No annotations
+    val Seq(ct) = sd.globalComplexTypeDefs
+
+    // g1.name == "gr"
+    val Seq(g1: GlobalGroupDefFactory, g2, g3, g4, g5) = sd.globalGroupDefs
+  
+    val seq1 = g1.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[Sequence]
+    
+    // e1.ref == "ex:a"
+    val Seq(e1: ElementRef, s1: Sequence) = seq1.groupMembers
+    
+    assertEquals(2, e1.maxOccurs)
+    assertEquals(1, e1.minOccurs)
+    assertEquals(AlignmentUnits.Bytes, e1.alignmentUnits)
+    //assertEquals(true, e1.nillable) // TODO: e1.nillable doesn't exist?
+    //assertEquals("%ES; %% %#0; %NUL;%ACK; foo%#rF2;%#rF7;bar %WSP*; %#2024;%#xAABB; &amp;&#2023;&#xCCDD; -1", e1.nilValue) // TODO: Do not equal each other!
+    assertEquals(NilKind.LiteralValue, e1.nilKind)
+  }
 
 }
 

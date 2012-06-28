@@ -405,49 +405,13 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     endBitPos
   }
 
-  // System.err.println("InStream byte count is " + count)
-  // note, our input data might just be empty string, in which case count is zero, and that's all legal.
-  def fillCharBuffer2(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): (Long, Boolean) = {
-    Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
-    val byteOffsetAsLong = (bitOffset >> 3)
-    Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
-    val byteOffset = byteOffsetAsLong.toInt
-    // 
-    // Note: not thread safe. We're depending here on the byte buffer being private to us.
-    //
-    bb.position(byteOffset)
-    decoder.reset()
-    val cr1 = decoder.decode(bb, cb, true) // true means this is all the input you get.
-    if (cr1 != CoderResult.UNDERFLOW) {
-      if (cr1 == CoderResult.OVERFLOW) {
-        // it's ok. It just means we've satisfied the char buffer.
-      } else // for some parsing, we need to know we couldn't decode, but this is expected behavior.
-        return (-1L, true) // Assert.abort("Something went wrong while decoding characters: CoderResult = " + cr1)   
-    }
-    val cr2 = decoder.flush(cb)
-    if (cr2 != CoderResult.UNDERFLOW) {
-      // Something went wrong
-      return (-1L, true) // Assert.abort("Something went wrong while decoding characters: CoderResult = " + cr2) 
-      // FIXME: proper handling of errors. Some of which are 
-      // to be suppressed, other converted, others skipped, etc. 
-    }
-    cb.flip() // so the caller can now read the sb.
-
-    val endBytePos = bb.position()
-
-    var EOF: Boolean = bb.limit() == bb.position()
-
-    bb.position(0) // prevent anyone depending on the buffer position across calls to any of the InStream methods.
-    val endBitPos: Long = endBytePos << 3
-
-    (endBitPos, EOF)
-  }
-
   import SearchResult._
   import stringsearch.delimiter._
   def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long, 
       decoder: CharsetDecoder, delimiters: Set[String], es: EscapeSchemeObj): (String, Long, SearchResult, Delimiter) = {
-    println("===\nSTART_FILL!\n===\n")
+    
+    println("BEG_fillCharBufferUntilDelimiterOrEnd")
+    
     val byteOffsetAsLong = (bitOffset >> 3)
     val byteOffset = byteOffsetAsLong.toInt
 
@@ -458,10 +422,12 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     
     if (endBitPosA == -1L){
       System.err.println("Failed, reached end of buffer.")
-      return (cb.toString(), -1L, SearchResult.NoMatch, null)
+      println("END_fillCharBufferUntilDelimiterOrEnd - ERR!")
+      //return (cb.toString(), -1L, SearchResult.NoMatch, null)
+      return (null, -1L, SearchResult.EOD, null)
     }
     
-    println("START_CB: " + cb.toString())
+    //println("START_CB: " + cb.toString())
     
     dSearch.setEscapeScheme(es)
 
@@ -480,6 +446,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
 
     // Proceed until we encounter a FullMatch or EOF
     while ((theState == SearchResult.NoMatch || theState == SearchResult.PartialMatch) && endBitPosA != -1 && !EOF) {
+      println("fillCharBufferUntilDelimiterOrEnd - LOOP!")
       buf.clear()
       buf = CharBuffer.allocate(buf.length() * 2)
 
@@ -502,16 +469,19 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     //
     val charSet = decoder.charset()
     val resBB = charSet.encode(sb.toString())
-
+    
+    val resNumBytes = resBB.limit() // TODO: Pretty sure limit is better than length
+    
     // Calculate the new ending position of the ByteBuffer
     if (endPos != -1) {
-      endBitPosA = (endPos << 3) + bitOffset
+      endBitPosA =  bitOffset + (resNumBytes * 8)
     } else {
-      endBitPosA = (resBB.limit() << 3) + bitOffset
+      endPos = resBB.limit()
+      endBitPosA = (resBB.limit() << 3)
     }
 
-    println("FILL - CB: " + sb.toString() + ", EndBitPos: " + endBitPosA)
-    println("===\nEND_FILL!\n===\n")
+    println("END_fillCharBufferUntilDelimiterOrEnd - CB: " + sb.toString() + ", EndBitPos: " + endBitPosA)
+    println("END_fillCharBufferUntilDelimiterOrEnd")
     (sb.toString(), endBitPosA, theState, theDelimiter)
   }
 
@@ -529,7 +499,8 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
 
     if (endBitPosA == -1L) {
       System.err.println("Failed, reached end of buffer.")
-      return (cb.toString(), -1L, SearchResult.NoMatch)
+      //return (cb.toString(), -1L, SearchResult.NoMatch, "")
+      return (null, -1L, SearchResult.EOD)
     }
 
     println("START_CB: " + cb.toString())
@@ -586,13 +557,22 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
 
     println("ENDPOS_FillCharBuffer: " + endPos)
 
+//    // Calculate the new ending position of the ByteBuffer
+//    if (endPos != -1) {
+//      endBitPosA = (endPos << 3) + bitOffset
+//    } else {
+//      endBitPosA = (resBB.limit() << 3) + bitOffset
+//    }
+
+    val resNumBytes = resBB.limit() // TODO: Pretty sure limit is better than length
+    
     // Calculate the new ending position of the ByteBuffer
     if (endPos != -1) {
-      endBitPosA = (endPos << 3) + bitOffset
+      endBitPosA =  bitOffset + (resNumBytes * 8)
     } else {
-      endBitPosA = (resBB.limit() << 3) + bitOffset
+      endPos = resBB.limit()
+      endBitPosA = (resBB.limit() << 3)
     }
-
     println("FILL - CB: " + sb.toString() + ", EndBitPos: " + endBitPosA)
     println("===\nEND_FILL!\n===\n")
     (sb.toString(), endBitPosA, theState)
@@ -772,31 +752,38 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
   def getDelimiter(cb: CharBuffer, bitOffset: Long, 
       decoder: CharsetDecoder, delimiters: Set[String],
       es: EscapeSchemeObj): (String, Long, Long, SearchResult, Delimiter) = {
-    println("===\nSTART_GET_DELIMITER!\n===\n")
+    //println("===\nSTART_GET_DELIMITER!\n===\n")
+    
+    println("BEG_getDelimiter")
+    
+    System.err.println("getDelimiter - Looking for: " + delimiters)
    
     val byteOffsetAsLong = (bitOffset >> 3)
 
     val byteOffset = byteOffsetAsLong.toInt
 
-    println("BYTE_OFFSET: " + byteOffset)
+    //println("BYTE_OFFSET: " + byteOffset)
+    
+    println("getDelimiter - ByteOffset: " + byteOffset + " BitOffset: " + bitOffset)
     
     var (endBitPos: Long, state) = fillCharBufferMixedData(cb, bitOffset, decoder)
     var endBitPosA: Long = endBitPos
     
     if (endBitPos == -1L){
       System.err.println("Failed, reached end of buffer.")
+      println("END_getDelimiter - ERR!")
       return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null)
     }
     
     var sb: StringBuilder = new StringBuilder // To keep track of the searched text
-    val dSearch = new DelimSearcher
+    val dSearch = new DelimSearcher with ConsoleLogger
     var buf = cb
     
     dSearch.setEscapeScheme(es)
 
     delimiters foreach { x => dSearch.addDelimiter(x) }
 
-    println("CB: " + cb.toString())
+    //println("CB: " + cb.toString())
 
     var (theState, result, endPos, endPosDelim, theDelimiter) = dSearch.search(buf, 0)
     
@@ -818,7 +805,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
       EOF = fillState._2 // Determine if we ran out of data to fill the CharBuffer with
 
       var (state2, result2, endPos2, endPosDelim2, theDelimiter2) = dSearch.search(buf, endPosDelim, false)
-      println("GET_DELIMITER_LOOP: " + state2 + " " + result2 + " " + endPos2 + " " + endPosDelim2)
+      //println("GET_DELIMITER_LOOP: " + state2 + " " + result2 + " " + endPos2 + " " + endPosDelim2)
       theState = state2 // Determine if there was a Full, Partial or No Match
       endPos = endPos2  // Start of delimiter
       endPosDelim = endPosDelim2 // End of delimiter
@@ -853,10 +840,11 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     if (endPosDelim != -1){
       endBitPosDelimA = bitOffset + (resNumBytes * 8)
     } 
-    println("ENDPOS_GET_DELIMITER: " + endPos)
-    println("GET_DELIMITER - CB: " + sb.toString() + " EndBitPos: " + endBitPosA)
-    println("===\nEND_GET_DELIMITER!\n===\n")
+    //println("ENDPOS_GET_DELIMITER: " + endPos)
+    //println("GET_DELIMITER - CB: " + sb.toString() + " EndBitPos: " + endBitPosA)
+    //println("===\nEND_GET_DELIMITER!\n===\n")
     
+    println("END_getDelimiter")
     if (endPos != -1 && endPosDelim != -1){ (cb.subSequence(endPos, endPosDelim).toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
     else { (cb.toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
   }
