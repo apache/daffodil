@@ -39,7 +39,7 @@ trait Identity {
 }
 
 abstract class LogWriter {
-  protected val writer : Actor
+  protected def write (msg : String) : Unit
   protected val tstampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ")
 
   def tstamp = tstampFormat.format(new Date)
@@ -48,32 +48,42 @@ abstract class LogWriter {
     val mess = glob.stringify
     val areStamping = glob.lvl < LogLevel.Debug
     val prefix = if (areStamping) tstamp + " " + logID + " " + glob.lvl else ""
-    writer ! (prefix + " [" + mess + "]")
+    write(prefix + " [" + mess + "]")
   }
 }
 
 object ForUnitTestLogWriter extends LogWriter {
   var loggedMsg : String = null
-  protected val writer = actor { loop { react { case msg : String => 
+//  protected val writer = actor { loop { react { case msg : String => 
+//    loggedMsg = msg
+//    Console.out.println("Was Logged: " + loggedMsg)
+//    Console.out.flush()
+//    } } }
+  def write(msg : String) {
     loggedMsg = msg
-    Console.out.println("Was Logged: " + loggedMsg)
-    Console.out.flush()
-    } } }
+  }
 }
 
 object NullLogWriter extends LogWriter {
-  protected val writer = actor { loop { react { case msg : String => } } }
+  //protected val writer = actor { loop { react { case msg : String => } } }
+  def write(msg : String) {
+    // do nothing.
+  }
 }
 
 object ConsoleWriter extends LogWriter {
-  protected val writer = actor {
-    loop {
-      react {
-        case msg : String =>
-          Console.out.println(msg);
-          Console.flush case _ =>
-      }
-    }
+//  protected val writer = actor {
+//    loop {
+//      react {
+//        case msg : String =>
+//          Console.out.println(msg);
+//          Console.flush case _ =>
+//      }
+//    }
+//  }
+  def write(msg : String) {
+    Console.out.println(msg)
+    Console.flush
   }
 }
 
@@ -81,7 +91,11 @@ class FileWriter(val file : File) extends LogWriter {
   require(file != null)
   require(file.canWrite)
 
-  protected val writer = actor { loop { react { case msg : String => destFile.println(msg); destFile.flush case _ => } } }
+  // protected val writer = actor { loop { react { case msg : String => destFile.println(msg); destFile.flush case _ => } } }
+  def write(msg : String) {
+    destFile.println(msg)
+    destFile.flush
+  }
 
   private val destFile = {
     try { new PrintStream(new FileOutputStream(file)) }
