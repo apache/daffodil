@@ -103,6 +103,9 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
       }
     }
   }
+  
+  lazy val prettyTerminatingMarkup =
+    terminatingMarkup.map { _.prettyExpr }.map { "'" + _ + "'" }.mkString(" ")
 
   lazy val isDirectChildOfSequence = parent.isInstanceOf[Sequence]
 
@@ -250,7 +253,7 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
     props
   }
   
-  lazy val allNonDefaultProperties: Map[String, String] = {
+  override lazy val allNonDefaultProperties: Map[String, String] = {
     val theLocalUnion = this.combinedGroupRefAndGlobalGroupDefProperties
     theLocalUnion
   }

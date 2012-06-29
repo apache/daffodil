@@ -57,6 +57,11 @@ import daffodil.exceptions.Assert
 
 class DFDLTestSuite(ts : Node, tdmlFile : File, tsInputSource : InputSource) 
 extends Logging {
+  
+  var checkEverything : Boolean = false
+  def setCheckEverything(flag : Boolean) {
+    checkEverything = flag
+  }
 
   def this(tdmlFile : File) = this(XML.loadFile(tdmlFile), tdmlFile, new InputSource(tdmlFile.toURI().toASCIIString()))
   def this(tsNode : Node) = this(tsNode, null, new InputSource(new StringReader(tsNode.toString)))
@@ -231,6 +236,7 @@ extends Logging {
     }
     val compiler = Compiler()
     compiler.setDistinguishedRootNode(root)
+    compiler.setCheckEverything(parent.checkEverything)
     val pf = compiler.compile(sch)
     val data = document.map { _.data }
     runProcessor(pf, data, infoset, errors, warnings)

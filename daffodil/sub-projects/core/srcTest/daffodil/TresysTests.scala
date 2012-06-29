@@ -48,7 +48,7 @@ class TresysTests extends JUnit3Suite {
 
   val td = testDir + "multiple-diagnostics.tdml"
   val runnerMD = new DFDLTestSuite(new File(td))
-  
+  runnerMD.setCheckEverything(true)
 
   def test_multiple_diagnostics1() { runnerMD.runOneTest("twoMissingTypeDefErrors")}
   def test_multiple_diagnostics2() { runnerMD.runOneTest("manyErrors1")}
@@ -56,6 +56,7 @@ class TresysTests extends JUnit3Suite {
 
   val sv = testDir + "dfdl-schema-validation-diagnostics.tdml"
   val runnerSV = new DFDLTestSuite(new File(sv))
+  runnerSV.setCheckEverything(true)// check every top level construct. Not just the one under specific test.
     //
   // These must all be run without TDML validation because at least one part of the TDML file
   // contains DFDL schema validation errors, and TDML validation normally would check that
@@ -101,5 +102,12 @@ class TresysTests extends JUnit3Suite {
     
   def test_AJ000() { runnerAJ.runOneTest("AJ000") }
   def test_AJ001() { runnerAJ.runOneTest("AJ001") }
+  
+  val st = testDir + "simple-type-bases.tdml"
+  val runnerST = new DFDLTestSuite(new File(st))
+  def test_simpleTypeDerivedFromPrimitiveType() { runnerST.runOneTest("st-prim")}
+  def test_simpleTypeChainedDerivations() { runnerST.runOneTest("st-derived")}
+  def test_simpleTypeOverlapPrimError() { runnerST.runOneTest("st-prim-err1")}
+  def test_simpleTypeOverlapSimpleTypeError() { runnerST.runOneTest("st-st-err1")}
   
 }

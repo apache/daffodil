@@ -111,6 +111,19 @@ class Compiler extends DFDL.Compiler with Logging {
   def setDebugging(flag : Boolean) {
     debugMode = flag
   }
+  
+  /**
+   * Controls whether we check everything in the schema, or just the element
+   * we care about (and everything reachable from it.)
+   * 
+   * You need this control, since many of the big TDML test files have many things
+   * in them, some of which use unimplemented features. Each time we run exactly one
+   * test from the set, we want to ignore errors in compilation of the others.
+   */
+  private var checkEverything = false
+  def setCheckEverything(flag : Boolean) {
+    checkEverything = flag
+  }
 
   /*
    * for unit testing of front end
@@ -132,7 +145,12 @@ class Compiler extends DFDL.Compiler with Logging {
       rootNamespace = (xml \ "@targetNamespace").text
     }
 
-    val sset = new SchemaSet(List(xml))
+    val sset = if (checkEverything) {
+      new SchemaSet(List(xml))
+    }
+    else {
+      new SchemaSet(List(xml), rootNamespace, root)
+    }
     val maybeRoot = sset.getGlobalElementDecl(rootNamespace, root)
     val res = maybeRoot match {
       case None => Assert.usageError("The document element named " + root + " was not found.")

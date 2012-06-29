@@ -69,7 +69,7 @@ case class ElementEnd(e: ElementBase) extends Terminal(e, true) {
 case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Terminal(e, true) with Logging {
   def parser: Parser = new Parser {
 
-    override def toString = "StringFixedLengthInBytesParser"
+    override def toString = "StringFixedLengthInBytesParser(" + nBytes + ")"
     val decoder = e.knownEncodingDecoder
     val cbuf = CharBuffer.allocate(nBytes.toInt) // TODO: Performance: get a char buffer from a pool. 
 
@@ -93,6 +93,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
 }
 
 case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nBytes: Long) extends Terminal(e, true) {
+  Assert.notYetImplemented()
   def parser: Parser = new Parser {
     def parse(start: PState): PState = {
       Assert.notYetImplemented()
@@ -102,6 +103,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
 }
 
 case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Long) extends Terminal(e, true) {
+  Assert.notYetImplemented()
   def parser: Parser = new Parser {
     def parse(start: PState): PState = {
       Assert.notYetImplemented()
@@ -468,7 +470,7 @@ abstract class StaticText(delim: String, e: InitiatedTerminatedMixin, guard: Boo
     Assert.notYetImplemented(e.ignoreCase == YesNo.Yes)
 
     Assert.invariant(delim != "") // shouldn't be here at all in this case.
-    override def toString = "StaticText(" + delim + " AND " +  t.terminatingMarkup + ")"
+    override def toString = "StaticText('" + delim + "' with terminating markup: " +  t.prettyTerminatingMarkup + ")"
     val decoder = e.knownEncodingDecoder
     val cbuf = CharBuffer.allocate(1024)
 

@@ -20,8 +20,8 @@ class TestDsomCompiler extends JUnit3Suite {
 
   val dummyGroupRef = null // just because otherwise we have to construct too many things.
 
-  def FindValue(collection: Map[String, String], key: String, value: String): Boolean = {
-    val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
+  def FindValue(collection : Map[String, String], key : String, value : String) : Boolean = {
+    val found : Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
       case Some(_) => true
       case None => false
     }
@@ -50,7 +50,7 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals(TextNumberRep.Standard, tnr)
     val tnr2 = decl.textNumberRep
     assertEquals(TextNumberRep.Standard, tnr2)
-    
+
   }
 
   // @Test
@@ -66,16 +66,18 @@ class TestDsomCompiler extends JUnit3Suite {
         </xs:complexType>
       </xs:element>)
 
-    val (sset, _) = Compiler().frontEnd(sch)
+    val compiler = Compiler()
+    compiler.setCheckEverything(true)
+    val (sset, _) = compiler.frontEnd(sch)
     assertTrue(sset.isError)
-    val diagnostics = sset.getDiagnostics 
-    val msgs = diagnostics.map{ _.getMessage }
+    val diagnostics = sset.getDiagnostics
+    val msgs = diagnostics.map { _.getMessage }
     val msg = msgs.mkString("\n")
     val hasErrorText = msg.contains("maxOccurs");
     if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
   }
 
-    // @Test
+  // @Test
   def testTypeReferentialError() {
     val sch : Node = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
@@ -86,7 +88,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val hasErrorText = msg.contains("typeDoesNotExist");
     if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
   }
-  
+
   // @Test
   def testSchemaValidationPropertyChecking() {
     val s : Node = TestUtils.dfdlTestSchema(
@@ -94,13 +96,18 @@ class TestDsomCompiler extends JUnit3Suite {
       <xs:element name="list">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="w" type="xsd:int" dfdl:byteOrder="invalidValue"/>
+            <xs:element name="w" type="xsd:int" dfdl:byteOrder="invalidValue" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
+    val compiler = Compiler()
+    compiler.setCheckEverything(true)
     val (sset, _) = Compiler().frontEnd(s)
+    sset.isError // forces compilation
+    val diags = sset.getDiagnostics
+    diags.foreach{ println(_) }
+    val msg = diags.toString
     assertTrue(sset.isError)
-    val msg = sset.getDiagnostics.toString
     val hasErrorText = msg.contains("invalidValue");
     if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
   }
@@ -719,7 +726,7 @@ class TestDsomCompiler extends JUnit3Suite {
       <xs:element name="list">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="character" type="xsd:string" maxOccurs="unbounded" dfdl:representation="text" dfdl:separator="," dfdl:terminator="%NL;" />
+            <xs:element name="character" type="xsd:string" maxOccurs="unbounded" dfdl:representation="text" dfdl:separator="," dfdl:terminator="%NL;"/>
             <xs:element name="block" type="xsd:string" maxOccurs="unbounded" dfdl:representation="text" dfdl:separator="," dfdl:terminator="%NL;" dfdl:escapeSchemeRef="cStyleComment"/>
           </xs:sequence>
         </xs:complexType>
@@ -734,23 +741,23 @@ class TestDsomCompiler extends JUnit3Suite {
     val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
     val seq = ct.modelGroup.asInstanceOf[Sequence]
 
-    val Seq(e1: ElementBase, e2: ElementBase) = seq.groupMembers
+    val Seq(e1 : ElementBase, e2 : ElementBase) = seq.groupMembers
     val e1f = e1.formatAnnotation.asInstanceOf[DFDLElement]
-    val props = e1.localAndFormatRefProperties ++ e1.defaultProperties
-    
+    val props = e1.allNonDefaultProperties ++ e1.defaultProperties
+
     val e1f_esref = e1.getProperty("escapeSchemeRef")
     println(e1f_esref)
-    
+
     assertEquals("pound", e1f_esref)
-    
+
     // Should have escapeCharacter and escapeKind
-    
+
     val e2f = e2.formatAnnotation.asInstanceOf[DFDLElement]
     val e2f_esref = e2.getProperty("escapeSchemeRef")
     // escapeBlockStart/End escapeBlockKind (NOTHING ELSE)
     assertEquals("cStyleComment", e2f_esref)
   }
-  
+
   def test_element_references {
     val testSchema = XML.loadFile(TestUtils.findFile("test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
@@ -763,13 +770,13 @@ class TestDsomCompiler extends JUnit3Suite {
     val Seq(ct) = sd.globalComplexTypeDefs
 
     // g1.name == "gr"
-    val Seq(g1: GlobalGroupDefFactory, g2, g3, g4, g5) = sd.globalGroupDefs
-  
+    val Seq(g1 : GlobalGroupDefFactory, g2, g3, g4, g5) = sd.globalGroupDefs
+
     val seq1 = g1.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[Sequence]
-    
+
     // e1.ref == "ex:a"
-    val Seq(e1: ElementRef, s1: Sequence) = seq1.groupMembers
-    
+    val Seq(e1 : ElementRef, s1 : Sequence) = seq1.groupMembers
+
     assertEquals(2, e1.maxOccurs)
     assertEquals(1, e1.minOccurs)
     assertEquals(AlignmentUnits.Bytes, e1.alignmentUnits)

@@ -480,7 +480,7 @@ class DFDLChoice(node: Node, decl: Choice)
   Assert.subset(getPropertyOptionNoDefault("terminator") == None, "terminators are not supported on choices")
 }
 
-class DFDLSimpleType(node: Node, decl: SimpleTypeBase)
+class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)
   extends DFDLFormatAnnotation(node, decl)
   with SimpleType_AnnotationMixin
   with RawSimpleTypeRuntimeValuedPropertiesMixin {

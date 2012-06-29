@@ -87,6 +87,7 @@ extends CommonRuntimeValuedPropertiesMixin { self : SchemaComponent =>
   def path : String
   
   def localAndFormatRefProperties: Map[String,String]
+  def allNonDefaultProperties = localAndFormatRefProperties
   def defaultProperties: Map[String,String] = {
     this.schemaDocument.localAndFormatRefProperties
   }
@@ -97,7 +98,7 @@ extends CommonRuntimeValuedPropertiesMixin { self : SchemaComponent =>
    * Note: use only for format properties, not any old attribute. 
    */
   def getPropertyOption(pname: String) = {
-    val local = localAndFormatRefProperties.get(pname) 
+    val local = allNonDefaultProperties.get(pname) 
     local match {
       case None => {
         defaultProperties.get(pname)
@@ -285,7 +286,7 @@ extends CommonRuntimeValuedPropertiesMixin { self : SchemaComponent =>
  * being included/imported don't have to be within the list.
  *
  */
-class SchemaSet(val schemaNodeList: Seq[Node]) 
+class SchemaSet(val schemaNodeList: Seq[Node], rootNamespace: String = null, root : String = null) 
 extends DiagnosticsProviding {
   // TODO Constructor(s) or companion-object methods to create a SchemaSet from files.
 
@@ -300,6 +301,8 @@ extends DiagnosticsProviding {
       (ns, s)
     }
   }
+  
+  lazy val onlyCheckingRoot : Boolean = rootNamespace != null
 
   lazy val schemaGroups = schemaPairs.groupBy {
     case (ns, s) => ns
@@ -313,7 +316,34 @@ extends DiagnosticsProviding {
     }
   }
   
-  lazy val diagnosticChildren = schemas
+  /**
+   * We control how much checking for errors by supplying root element or not.
+   * If supplied, then only that is checked for errors.
+   * If not supplied, then everything in the schema set is checked.
+   */
+  lazy val rootElement =  {
+    if (onlyCheckingRoot) {
+      val geFactory = getGlobalElementDecl(rootNamespace, root)
+      val ge = geFactory match {
+        case None => throw Assert.SDE("No global element found for : " + (rootNamespace, root))
+        case Some(f) => f.forRoot()
+      }
+      Some(ge)
+    }
+    else None
+  }
+    
+  /**
+   * In the case there is no root element, then we'll check all element decls, 
+   * actually all global elements and other top-level constructs of each
+   * schema document.
+   * 
+   * If a root element is specified, then we'll validate the schema documents, 
+   * but we will only check the root element.
+   */
+  lazy val diagnosticChildren = {
+    schemas ++ rootElement.toList 
+  }
 
   /**
    * Retrieve schema by namespace name.
@@ -513,9 +543,16 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
     dv
   }
 
-  
+  lazy val alwaysCheckedChildren = 
+    List(validatedXML, defaultFormat)
+    
   lazy val diagnosticChildren = {
-    List(validatedXML, defaultFormat) ++
+    if (schema.schemaSet.onlyCheckingRoot) alwaysCheckedChildren // we'll still validate the schema, just not recurse into children.
+    else allGlobalDiagnosticChildren
+  }
+  
+  lazy val allGlobalDiagnosticChildren = {
+    alwaysCheckedChildren ++
     globalElementDecls.map{ _.forRoot() } ++
     defineEscapeSchemes ++
     defineFormats ++

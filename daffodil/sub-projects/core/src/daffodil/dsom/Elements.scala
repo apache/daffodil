@@ -124,13 +124,6 @@ abstract class ElementBase(xmlArg : Node, parent : SchemaComponent, position : I
     if (isFixedLength) length.constantAsLong else -1 // shouldn't even be asking for this if not isFixedLength 
   }
 
-  def hasPrimitiveType(localname : String) : Boolean = {
-    typeDef match {
-      case prim : PrimitiveType => prim.name == localname
-      case _ => false
-    }
-  }
-
   // if it is of simple type, then facets like length, maxLength, minLength are
   // attributes of the simple type def. You can't put them directly on an element.
 
@@ -294,8 +287,8 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
   lazy val isNillable = referencedElement.isNillable
   lazy val isSimpleType = referencedElement.isSimpleType
   lazy val isComplexType = referencedElement.isComplexType
-  lazy val elementComplexType : ComplexTypeBase = referencedElement.elementComplexType 
-  lazy val elementSimpleType : SimpleTypeBase = referencedElement.elementSimpleType
+  lazy val elementComplexType = referencedElement.elementComplexType 
+  lazy val elementSimpleType = referencedElement.elementSimpleType
   lazy val isDefaultable : Boolean = referencedElement.isDefaultable
 
   lazy val qname = XMLUtils.QName(xml, xsdRef, schemaDocument)
@@ -431,7 +424,6 @@ trait ElementDeclMixin
     typeDef match {
       case _ : SimpleTypeBase => true
       case _ : ComplexTypeBase => false
-      case _ : PrimitiveType => true
       case _ => Assert.invariantFailed("Must be either SimpleType or ComplexType")
     }
   }
@@ -444,8 +436,8 @@ trait ElementDeclMixin
 
   lazy val isNillable = (xml \ "@nillable").text == "true"
 
-  lazy val elementComplexType : ComplexTypeBase = typeDef.asInstanceOf[ComplexTypeBase]
-  lazy val elementSimpleType : SimpleTypeBase = typeDef.asInstanceOf[SimpleTypeBase]
+  lazy val elementComplexType = typeDef.asInstanceOf[ComplexTypeBase]
+  lazy val elementSimpleType = typeDef.asInstanceOf[SimpleTypeBase]
 
   /**
    * We require that there be a concept of empty if we're going to be able to default something
@@ -494,7 +486,7 @@ trait ElementDeclMixin
     props
   }
 
-  lazy val allNonDefaultProperties = {
+  override lazy val allNonDefaultProperties = {
     val theLocalUnion = this.combinedElementAndSimpleTypeProperties
     theLocalUnion
   }

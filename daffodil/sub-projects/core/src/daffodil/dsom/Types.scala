@@ -9,13 +9,23 @@ import daffodil.xml._
 // Type System
 /////////////////////////////////////////////////////////////////
 
-abstract class TypeBase(xmlArg : Node, context : SchemaComponent) extends SchemaComponent(xmlArg) {
+abstract class TypeBase(xmlArg : Node, context : SchemaComponent) 
+extends SchemaComponent(xmlArg) {
   // use def, can be overriden by lazy val or def
   def localAndFormatRefProperties: Map[String, String]
+  def allNonDefaultProperties = localAndFormatRefProperties
+ 
 }
 
-abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
-  extends TypeBase(xmlArg, parent) with AnnotatedMixin with DFDLStatementMixin {
+abstract class SimpleTypeBase(xmlArg : Node, context : SchemaComponent) 
+extends TypeBase(xmlArg, context) {
+  def primitiveType : PrimitiveType
+}
+
+abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
+  extends SimpleTypeBase(xmlArg, parent) 
+with AnnotatedMixin 
+with DFDLStatementMixin {
 
   def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
@@ -53,17 +63,55 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
     rsb.head.text
   }
   
+  
+  lazy val myPrimitiveType = {
+    val (nsURI, localName) = baseTypeQName
+    if (nsURI == XMLUtils.XSD_NAMESPACE
+        ||
+        nsURI == XMLUtils.DFDL_SUBSET_NAMESPACE) {// tolerate use of this subset.
+      // XSD namespace
+      val prim = schemaDocument.schema.schemaSet.getPrimitiveType(localName)
+      Assert.schemaDefinition(prim != None, 
+          "Type " + localName + " is not an XSD primitive type.")
+      prim
+    }
+    else None
+  }
+         
+      
   lazy val myBaseTypeFactory = {
     Assert.invariant(restrictionBase.length() != 0)
-    val sd = this.schemaDocument
-    val (nsURI, localName) = XMLUtils.QName(xml, restrictionBase, sd)
-    
-    sd.globalSimpleTypeDefs.find{ x => x.detailName == localName}
+    val (nsURI, localName) = baseTypeQName
+    Assert.invariant(myPrimitiveType == None)
+    val factory = schemaDocument.schema.schemaSet.getGlobalSimpleTypeDef(nsURI, localName)
+    factory
   }
 
-  lazy val myBaseType= myBaseTypeFactory.map{ _.forDerivedType(this) }
+  /**
+   * Follows all indirections to get you the ultimate primitive 
+   * built-in simple type that must underlie all simple types 
+   * eventually.
+   */
+  lazy val primitiveType = {
+    myBaseType.primitiveType
+  }
+    
+  lazy val baseTypeQName = XMLUtils.QName(xml, restrictionBase, schemaDocument)
   
-  lazy val myBaseTypeList = myBaseType.toList
+  lazy val myBaseType : SimpleTypeBase = {
+    myPrimitiveType match {
+      case Some(pt) => pt
+      case None => {
+    	val bt = myBaseTypeFactory.map{ _.forDerivedType(this) }
+    	bt match {
+    	  case None => Assert.schemaDefinitionError("No type found for base: " + baseTypeQName)
+    	  case Some(bt) => bt
+    	}
+      }
+    }
+  }
+  
+  lazy val myBaseTypeList = List(myBaseType)
   
   lazy val diagnosticChildren = annotationObjs ++ myBaseTypeList
   
@@ -72,14 +120,12 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
   // execute a find using the name obtained from restrictionBase.
   
   lazy val simpleTypeBaseProperties: Map[String,String] = {
-    
     val baseProps = {
       myBaseType match {
-        case Some(bt) => bt.localAndFormatRefProperties
-        case None => Map.empty[String,String]
+        case st : SimpleTypeDefBase => st.localAndFormatRefProperties
+        case _ => Map.empty[String,String]
       }
     }
-    
     baseProps
   }
   
@@ -99,7 +145,7 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
     }
   }
   
-  lazy val allNonDefaultProperties = {
+  override lazy val allNonDefaultProperties = {
     Assert.schemaDefinition(!hasOverlap, "Overlap detected between simpleType (" + this.detailName + ") and its base.")
     
     val theLocalUnion = this.combinedSimpleTypeAndBaseProperties
@@ -108,7 +154,7 @@ abstract class SimpleTypeBase(xmlArg: Node, val parent: SchemaComponent)
 }
 
 class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
-  extends SimpleTypeBase(xmlArg, parent)
+  extends SimpleTypeDefBase(xmlArg, parent)
   with LocalComponentMixin {
 
   lazy val detailName = "inside " + parent.detailName
@@ -137,8 +183,12 @@ object Fakes {
 
 //TBD: are Primitives "global", or do they just have names like globals do?
 class PrimitiveType(name_ : String) 
-extends TypeBase(<primitive/>, Fakes.xsd_sd) // use fake schema document
+extends SimpleTypeBase(<primitive/>, Fakes.xsd_sd) // use fake schema document
 with NamedMixin { 
+    
+  def primitiveType = this
+  
+  override def toString = "PrimitiveType(" + prettyName + ")"
 
   override lazy val name = name_
   override lazy val prettyName = name_
@@ -149,9 +199,8 @@ with NamedMixin {
   
   override lazy val schemaDocument = Fakes.xsd_sd
   
-  lazy val localAndFormatRefProperties: Map[String, String] = {
-    Map.empty[String, String]
-  }
+  lazy val localAndFormatRefProperties = Map.empty[String, String]
+  
 }
 
 /**
@@ -175,13 +224,13 @@ extends NamedMixin
    * Create a private instance for this element's use.
    */
   def forElement(element: ElementBase) = new GlobalSimpleTypeDef(xml, schemaDocument, Some(element))
-  def forDerivedType(derivedType: SimpleTypeBase) = new GlobalSimpleTypeDef(xml, schemaDocument, None)
+  def forDerivedType(derivedType: SimpleTypeDefBase) = new GlobalSimpleTypeDef(xml, schemaDocument, None)
 }
 /**
  * The instance type for global simple type definitions.
  */
 class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: Option[AnnotatedMixin])
-  extends SimpleTypeBase(xmlArg, schemaDocumentArg) with NamedMixin 
+  extends SimpleTypeDefBase(xmlArg, schemaDocumentArg) with NamedMixin 
   with GlobalComponentMixin {
 
   def schemaDocument = schemaDocumentArg
@@ -194,7 +243,7 @@ class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val e
 abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
   extends TypeBase(xmlArg, parent)
   with ComplexTypeBaseGrammarMixin {
-
+  
   lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
   lazy val Seq(modelGroup) = xmlChildren.flatMap { GroupFactory(_, this, 1) }
   lazy val localAndFormatRefProperties: Map[String, String] = {

@@ -75,7 +75,7 @@ trait ElementBaseGrammarMixin
     (lengthUnits, knownEncodingIsFixedWidth) match {
       case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
       case (LengthUnits.Bytes, false) => StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength)
-      case (LengthUnits.Characters, true) => StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength)
+      case (LengthUnits.Characters, true) => StringFixedLengthInBytes(this, fixedLength * knownEncodingWidth)
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
       // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
       case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, fixedLength)
@@ -85,11 +85,13 @@ trait ElementBaseGrammarMixin
   lazy val stringDelimitedEndOfData = Prod("stringDelimitedEndOfData", this, StringDelimitedEndOfData(this))
   lazy val stringPatternMatched = Prod("stringPatternMatched", this, StringPatternMatched(this))
 
-  lazy val stringValue = {
+  lazy val stringValue = stringValue_.value
+  lazy val stringValue_ = LV{
     val res = Prod("stringValue", this, lengthKind match {
       case LengthKind.Explicit if isFixedLength => fixedLengthString
       case LengthKind.Delimited =>  stringDelimitedEndOfData 
       case LengthKind.Pattern => stringPatternMatched
+      case LengthKind.Implicit => Assert.schemaDefinitionError("Textual data elements cannot have lengthKind='implicit'.")
       case _ => Assert.notYetImplemented()
     })
     res
@@ -263,17 +265,15 @@ trait ElementBaseGrammarMixin
   lazy val zonedTextFloat = Prod("zonedTextFloat", this,
     textNumberRep == TextNumberRep.Zoned, Assert.SDE("Zoned not supported for float and double"))
 
-  lazy val value = {
-
-    val res = Prod("value", this,
+  lazy val value = 
+    Prod("value", this, isSimpleType,
       // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
       // This gets used for array contents also.
-      typeDef match {
-      case prim : PrimitiveType => {
-        val n = prim.name
-        // System.err.println("Primitive type is " + n)
-        //Assert.notYetImplemented(n != "string" && n != "int" && n != "double" && n != "float")
-        n match {
+      {
+      val simpleOrPrimType = typeDef.asInstanceOf[SimpleTypeBase]
+      val primType = simpleOrPrimType.primitiveType
+      val ptName = primType.name
+      val res = ptName match {
           case "string" => stringValue
           case "int" => binaryInt | textInt
           case "byte" => binaryByte | textByte
@@ -286,16 +286,11 @@ trait ElementBaseGrammarMixin
           case "unsignedLong" => binaryUnsignedLong | textUnsignedLong
           case "double" => binaryDouble | textDouble
           case "float" => binaryFloat | textFloat
-          case _ => Assert.schemaDefinitionError("Unrecognized primitive type: " + n)
-        }}
-        case st: SimpleTypeBase => {
-          Assert.notYetImplemented() // ("simple type definitions aren't supported yet.")
+          case _ => Assert.schemaDefinitionError("Unrecognized primitive type: " + ptName)
         }
-        case ct: ComplexTypeBase => Assert.invariantFailed("value lazy val for complex type.")
-        case _ => Assert.invariantFailed("typeDef was not Primitive, Simple, or Complex")
-      })
     res
-  }
+    }
+  )
 
     //
     // Used to be this big alternation, but that's a very slow way to go when they're known to be
