@@ -82,30 +82,13 @@ trait ElementBaseGrammarMixin
       case (LengthUnits.Bits, _) => Assert.notYetImplemented()
     })
 
-  lazy val stringDelimited = Prod("stringDelimited", this, StringDelimited(this))
   lazy val stringDelimitedEndOfData = Prod("stringDelimitedEndOfData", this, StringDelimitedEndOfData(this))
-  lazy val stringDelimitedWithDelimiters = Prod("stringDelimitedWithDelimiters", this, StringDelimitedWithDelimiters(this))
   lazy val stringPatternMatched = Prod("stringPatternMatched", this, StringPatternMatched(this))
 
   lazy val stringValue = {
     val res = Prod("stringValue", this, lengthKind match {
       case LengthKind.Explicit if isFixedLength => fixedLengthString
-      case LengthKind.Delimited => {
-//
-//        // LengthKind delimited w/ delimiters
-//        // LengthKind delimited w End Of Data
-//
-//        // TODO: check for escape scheme
-//        println(self.terminatingMarkup)
-//        println("\t\t\tSEP POS: " + es.separatorPosition.toString())
-////        if (terminator.isKnownNonEmpty) {
-//        if (self.terminatingMarkup.length > 0) {
-//          stringDelimitedWithDelimiters
-//        } else {
-          stringDelimitedEndOfData
-//        }
-        
-      }
+      case LengthKind.Delimited =>  stringDelimitedEndOfData 
       case LengthKind.Pattern => stringPatternMatched
       case _ => Assert.notYetImplemented()
     })

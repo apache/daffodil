@@ -6,6 +6,7 @@ import daffodil.exceptions.Assert
 import daffodil.dsom.EntityReplacer
 import daffodil.dsom.StringValueAsLiteral
 import daffodil.dsom.SingleCharacterLiteral
+import daffodil.util._
 
 object DelimiterType extends Enumeration {
   type DelimType = Value
@@ -38,7 +39,7 @@ import SearchState._
 import CRLFState._
 import EscapeSchemeKind.EscapeSchemeKind
 
-object EscapeScheme {
+object EscapeScheme extends Logging {
 
   class EscapeSchemeObj {
     var escapeSchemeKind: EscapeSchemeKind = EscapeSchemeKind.None
@@ -90,11 +91,11 @@ object EscapeScheme {
       }
     }
 
-    println("EscapeSchemeKind: " + escapeSchemeKind)
-    println("\tEscapeCharacter: " + escapeCharacter)
-    println("\tEscapeEscapeCharacter: " + escapeEscapeCharacter)
-    println("\tEscapeBlockStart: " + escapeBlockStart)
-    println("\tEscapeBlockEnd: " + escapeBlockEnd)
+    log(Debug("EscapeSchemeKind: " + escapeSchemeKind))
+    log(Debug("\tEscapeCharacter: " + escapeCharacter))
+    log(Debug("\tEscapeEscapeCharacter: " + escapeEscapeCharacter))
+    log(Debug("\tEscapeBlockStart: " + escapeBlockStart))
+    log(Debug("\tEscapeBlockEnd: " + escapeBlockEnd))
 
     val result = new EscapeSchemeObj
     result.escapeSchemeKind = escapeSchemeKind
