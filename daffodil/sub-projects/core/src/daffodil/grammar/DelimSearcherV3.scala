@@ -17,15 +17,13 @@ import stringsearch.constructs.SearchResult
 import stringsearch.constructs.SearchResult._
 import stringsearch.constructs.EscapeScheme._
 
-class DelimSearcher extends Logged {
+import daffodil.util._
+
+class DelimSearcher extends Logging {
 
   // A list of delimiters, each delimiter is represented as a Delimiter object
   var delimiters: List[Delimiter] = List.empty[Delimiter]
   
-  //var separators: List[Separator] = List.empty[Separator]
-  
- // var terminators: List[Terminator] = List.empty[Terminator]
-
   var escapeSchemeKind: EscapeSchemeKind = EscapeSchemeKind.None
   var esCharacter: String = ""
   var esEsCharacter: String = ""
@@ -33,7 +31,7 @@ class DelimSearcher extends Logged {
   var esBlockEnd: String = ""
 
   def addDelimiter(strDelim: String) = {
-    val d = new Delimiter with ConsoleLogger
+    val d = new Delimiter
     d(strDelim)
     delimiters ++= List[Delimiter] { d }
   }
@@ -57,7 +55,7 @@ class DelimSearcher extends Logged {
     delimiters foreach {
       node =>
         val sb = new StringBuilder
-        log("====\nDELIM: " + i + "\n====")
+        log(Debug("====\nDELIM: " + i + "\n===="))
         node.delimBuf foreach {
           dBase =>
             dBase match {
@@ -73,9 +71,9 @@ class DelimSearcher extends Logged {
             }
         }
         i += 1
-        log(sb.toString() + "\n")
+        log(Debug(sb.toString() + "\n"))
     }
-    log("====\n")
+    log(Debug("====\n"))
   }
 
   // Prints structure of matches per delimiter, if any
@@ -107,12 +105,12 @@ class DelimSearcher extends Logged {
       clear
     }
     if (input.toString().length() == 0) {
-      log("EOF! String: was EMPTY!! StartPos: " + startPos + " EndPos: " + endPos)
+      log(Debug("EOF! String: was EMPTY!! StartPos: " + startPos + " EndPos: " + endPos))
       return (SearchResult.NoMatch, input.toString(), -1, -1, null)
     }
     if (startPos < 0) {
       endPos = input.length() - 1
-      log("EOF! String: " + input.toString().substring(startPos) + " StartPos: " + startPos + " EndPos: " + endPos)
+      log(Debug("EOF! String: " + input.toString().substring(startPos) + " StartPos: " + startPos + " EndPos: " + endPos))
       return (SearchResult.NoMatch, input.toString().substring(0), endPos, endPos, null)
     }
 
@@ -143,7 +141,7 @@ class DelimSearcher extends Logged {
     if (matched) {
       val longestMatch = getLongestMatch(delimsWithFullMatches, startPos)
       endPos = longestMatch._1
-      log("FULL MATCH! String: " + input.subSequence(startPos, endPos).toString() + " StartPos: " + startPos + " EndPos: " + endPos)
+      log(Debug("FULL MATCH! String: " + input.subSequence(startPos, endPos).toString() + " StartPos: " + startPos + " EndPos: " + endPos))
       return (SearchResult.FullMatch, input.subSequence(startPos, endPos).toString(), endPos, longestMatch._2, longestMatch._3)
     } else if (partialMatched) {
       // We only care if a partial match occurred at the end of the CharBuffer
@@ -154,11 +152,11 @@ class DelimSearcher extends Logged {
       } else {
         endPos = lastChar
       }
-      log("PARTIAL MATCH! String: " + input.subSequence(startPos, endPos).toString() + " StartPos: " + startPos + " EndPos: " + endPos)
+      log(Debug("PARTIAL MATCH! String: " + input.subSequence(startPos, endPos).toString() + " StartPos: " + startPos + " EndPos: " + endPos))
       return (SearchResult.PartialMatch, input.subSequence(startPos, endPos).toString(), endPos, endPos, null)
     } else {
       endPos = input.length() - 1
-      log("EOF! String: " + input.toString().substring(startPos) + " StartPos: " + startPos + " EndPos: " + endPos)
+      log(Debug("EOF! String: " + input.toString().substring(startPos) + " StartPos: " + startPos + " EndPos: " + endPos))
       return (SearchResult.NoMatch, input.toString().substring(startPos), endPos, endPos, null)
     }
   }
@@ -194,7 +192,7 @@ class DelimSearcher extends Logged {
     // by length
     val result = getPrefixedDelims(matchedDelims(0), matchedDelims).sortBy(x => x._2 - x._1)
 
-    log("Prefixed Delims: " + result)
+    log(Debug("Prefixed Delims: " + result))
 
     if (result.size > 0) {
       return result(result.size - 1)
@@ -238,13 +236,13 @@ class DelimSearcher extends Logged {
       return (-1, -1, null)
     }
 
-    log("First Full Match: " + firstFullMatch)
+    log(Debug("First Full Match: " + firstFullMatch))
 
     // Retrieve the list of delimiters prefixed by matchedDelims(0) and sort them
     // by length
     val result = getPrefixedDelims(firstFullMatch, matchedDelims).sortBy(x => x._2 - x._1)
 
-    log("Prefixed Delims: " + result)
+    log(Debug("Prefixed Delims: " + result))
 
     if (result.size > 0) {
       return result(result.size - 1)
@@ -312,9 +310,9 @@ class DelimSearcher extends Logged {
   }
 
   def clear = {
-    log("clear initiated!")
+    log(Debug("clear initiated!"))
     delimiters.foreach(x => x.clear)
-    log("clear completed!")
+    log(Debug("clear completed!"))
   }
 
   // Creates a list of all carriage returns (CR) followed
@@ -342,7 +340,7 @@ class DelimSearcher extends Logged {
       }
     }
     val crlfList = q.toList.sortBy(x => x._1)
-    log("getCRLFList - crlfList:\t" + crlfList)
+    log(Debug("getCRLFList - crlfList:\t" + crlfList))
     crlfList
   }
 
@@ -382,7 +380,7 @@ class DelimSearcher extends Logged {
       }
     }
     val wspList = q.toList
-    log("getWSPList - wspList:\t" + wspList)
+    log(Debug("getWSPList - wspList:\t" + wspList))
     wspList
   }
 
@@ -450,7 +448,7 @@ class DelimSearcher extends Logged {
       }
     }
     val escapeCharList = result.toList
-    log("getEscapeCharacterList - EscapeCharacterList:\t" + escapeCharList)
+    log(Debug("getEscapeCharacterList - EscapeCharacterList:\t" + escapeCharList))
     escapeCharList
   }
 
@@ -495,8 +493,8 @@ class DelimSearcher extends Logged {
     }
     val escapeEscapeList = escapeEscapeQ.toList.sortBy(x => x)
     val escapedEscapeEscapeList = escapedEscapeEscapeQ.toList.sortBy(x => x._1)
-    log("getEscapeCharacterList - EscapeEscapeList:\t" + escapeEscapeList 
-        + "\nEscapedEscapeEscapeList:\t" + escapedEscapeEscapeList)
+    log(Debug("getEscapeCharacterList - EscapeEscapeList:\t" + escapeEscapeList 
+        + "\nEscapedEscapeEscapeList:\t" + escapedEscapeEscapeList))
     (escapeEscapeList, escapedEscapeEscapeList)
   }
 
@@ -516,7 +514,7 @@ class DelimSearcher extends Logged {
       i += 1
     }
     val escapeBlockList = q.toList
-    log("getEscapeBlockList - EscapeBlockList:\t" + escapeBlockList)
+    log(Debug("getEscapeBlockList - EscapeBlockList:\t" + escapeBlockList))
     escapeBlockList
   }
 

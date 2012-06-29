@@ -11,6 +11,8 @@ import stringsearch.constructs._
 import stringsearch.constructs.CRLFState._
 import stringsearch.constructs.SearchState._
 
+import daffodil.util._
+
 class Separator extends Delimiter {
   override def toString(): String = {
     return "Separator[" + delimiterStr + "]"
@@ -30,7 +32,7 @@ class Terminator extends Delimiter{
 // A Delimiter represents a delimiter where a delimiter can be one or more
 // characters long.
 //
-class Delimiter extends Logged {
+class Delimiter extends Logging {
   var stateTraceEnabled: Boolean = false
   var delimiterStr: String = "" // String representation of delimiter Ex. "%WSP;,%WSP*;"
 
@@ -96,7 +98,7 @@ class Delimiter extends Logged {
           // According to JavaDoc, split will always return at least
           // one result even if there is no match.
           val split = delimStr.substring(idx + 1).split("%")
-          log("buildDelimBuf - SPLIT on %: " + split.toSeq.toString)
+          log(Debug("buildDelimBuf - SPLIT on %: " + split.toSeq.toString))
 
           val subStr: String = "%" + split(0)
           val (matchLength, delimObj) = findCharClasses(subStr)
@@ -130,14 +132,14 @@ class Delimiter extends Logged {
     var resDelimBuf: Array[DelimBase] = null
     if (numCharClass > 1) {
       // More than one Char Class, reduction possible!
-      log("buildDelimBuf - Reduction of delimBuf possible!")
-      log("buildDelimBuf - Before Reduction:\t" + printDelimBufStr)
+      log(Debug("buildDelimBuf - Reduction of delimBuf possible!"))
+      log(Debug("buildDelimBuf - Before Reduction:\t" + printDelimBufStr))
       resDelimBuf = reduceDelimBuf(q.toArray[DelimBase])
     } else {
       // No need to reduce
       resDelimBuf = q.toArray[DelimBase]
     }
-    log("buildDelimBuf - Result:\t" + printDelimBufStr(resDelimBuf))
+    log(Debug("buildDelimBuf - Result:\t" + printDelimBufStr(resDelimBuf)))
     resDelimBuf
   }
 
@@ -339,7 +341,7 @@ class Delimiter extends Logged {
   // or None if one is not found
   //
   def findCharClasses(str: String): (Int, Option[DelimBase]) = {
-    log("findCharClasses(\"" + str + "\")")
+    log(Debug("findCharClasses(\"" + str + "\")"))
     val mNL: Matcher = NL.matcher(str)
     val mWSP: Matcher = WSP.matcher(str)
     val mWSP_Plus: Matcher = WSP_Plus.matcher(str)
@@ -373,10 +375,10 @@ class Delimiter extends Logged {
         case "WSP+" => (length, Some(new WSPPlusDelim()))
         case "WSP*" => (length, Some(new WSPStarDelim()))
       }
-      log("findCharClasses - result: " + result)
+      log(Debug("findCharClasses - result: " + result))
       return result
     }
-    log("findCharClasses - result: " + (-1, None))
+    log(Debug("findCharClasses - result: " + (-1, None)))
     (-1, None) // Unrecognized CharClass
   }
 
@@ -402,13 +404,13 @@ class Delimiter extends Logged {
     val unMatched = delimBuf.filter(x => x.isMatched == false)
     val matches = delimBuf.filter(x => x.isMatched == true)
 
-    log("\t\t\t\t\tprocessPartials: Length: " + delimBuf.length + " Matches: " + matches.length)
+    log(Debug("\t\t\t\t\tprocessPartials: Length: " + delimBuf.length + " Matches: " + matches.length))
 
     if (unMatched.length > 0 && matches.length > 0) {
       val startPos: Int = matches(0).charPos
       val endPos: Int = matches(matches.length - 1).charPos
       addPartialMatch(startPos, endPos)
-      log("\t\t\t\t\tprocessPartials - PartialMatch: StartPos=" + startPos + ", EndPos=" + endPos)
+      log(Debug("\t\t\t\t\tprocessPartials - PartialMatch: StartPos=" + startPos + ", EndPos=" + endPos))
     }
   }
 
@@ -419,8 +421,8 @@ class Delimiter extends Logged {
     val exists = crlfList.filter(x => charPos >= x._1 && charPos <= x._2)
     val partial = crlfList.filter(x => charPos == x._1 && x._2 == -1)
 
-    log("\t\t\t\t\tcrlfContains - exists:\t" + exists)
-    log("\t\t\t\t\tcrlfContains - partial:\t" + partial)
+    log(Debug("\t\t\t\t\tcrlfContains - exists:\t" + exists))
+    log(Debug("\t\t\t\t\tcrlfContains - partial:\t" + partial))
 
     var result: (CRLFState, Int, Int) = null
 
@@ -431,7 +433,7 @@ class Delimiter extends Logged {
     } else {
       result = (CRLFState.NotFound, -1, -1)
     }
-    log("\t\t\t\t\tcrlfContains - result:\t" + result)
+    log(Debug("\t\t\t\t\tcrlfContains - result:\t" + result))
     result
   }
 
@@ -507,7 +509,7 @@ class Delimiter extends Logged {
   def search(input: CharBuffer, charPosIn: Int, crlfList: List[(Int, Int)], wspList: List[(Int, Int)]) = {
     val x = new WSPBase()
     charIdx = charPosIn
-    log("SEARCH: charPosIn: " + charPosIn + " Delimiter: " + delimiterStr)
+    log(Debug("SEARCH: charPosIn: " + charPosIn + " Delimiter: " + delimiterStr))
     while (charIdx < input.length() && charIdx > -1) {
       // This loop shall allow us to control when we
       // move on to check the next character via
@@ -516,7 +518,7 @@ class Delimiter extends Logged {
       // We separately iterate through the delimBuf array
       // via advanceDelim and resetDelim methods.
 
-      log("\n\tDELIM_BUF: " + this.printDelimBufStr)
+      log(Debug("\n\tDELIM_BUF: " + this.printDelimBufStr))
 
       val char: Char = input.charAt(charIdx)
       val delim: DelimBase = delimBuf(delimIdx)
@@ -534,7 +536,7 @@ class Delimiter extends Logged {
       if (wspMode && isSpace && charIdx != charPosIn && !delim.isInstanceOf[NLDelim]) {
         // We have already satisfied the WSP* or WSP+ delimiter.
         // Skip this space by advancing to the next character.
-        log(header + "\tWspMode && isSpace, we have already satisfied the WSP* or WSP+ delimiter.  Skip spaces!")
+        log(Debug(header + "\tWspMode && isSpace, we have already satisfied the WSP* or WSP+ delimiter.  Skip spaces!"))
         addState(SearchState.WSPModeAndSpace, header + "\tWspMode && isSpace, we have already satisfied the WSP* or WSP+ delimiter.  Skip spaces!")
         advanceChar
       } else {
@@ -542,7 +544,7 @@ class Delimiter extends Logged {
         delim match {
           case nl: NLDelim if matched => {
             // Expected and found a newline
-            log(header + "\tNL and isMatched" + " '" + char + "' " + char.toInt)
+            log(Debug(header + "\tNL and isMatched" + " '" + char + "' " + char.toInt))
             val subheader = header + "\tNL and isMatched" + " '" + char + "' " + char.toInt + "\n"
             wspMode = false
             val (state, startPos, endPos) = crlfContains(crlfList, charIdx)
@@ -550,7 +552,7 @@ class Delimiter extends Logged {
             state match {
               case Exists => {
                 // CRLF found
-                log("\t\t\t\t\tNL and CRLF" + " '" + char + "' d" + char.toInt)
+                log(Debug("\t\t\t\t\tNL and CRLF" + " '" + char + "' d" + char.toInt))
                 update(delim, charIdx, true, endPos)
                 advanceDelim
                 advanceChar
@@ -559,7 +561,7 @@ class Delimiter extends Logged {
               }
               case Partial => {
                 // CR occurred at end of CharBuffer, could possibly be a CRLF
-                log("\t\t\t\t\tNL and CR but might be start of CRLF" + " '" + char + "' d" + char.toInt)
+                log(Debug("\t\t\t\t\tNL and CR but might be start of CRLF" + " '" + char + "' d" + char.toInt))
                 wspMode = false
 
                 // TODO: I don't think we want to reset here, what if we want to maintain state? Blows up if we comment out.
@@ -570,7 +572,7 @@ class Delimiter extends Logged {
               }
               case NotFound => {
                 // CR by itself or some other NL character.
-                log("\t\t\t\t\tNL " + " '" + char + "' d" + char.toInt)
+                log(Debug("\t\t\t\t\tNL " + " '" + char + "' d" + char.toInt))
                 update(delim, charIdx, true)
                 advanceDelim
                 advanceChar
@@ -580,7 +582,7 @@ class Delimiter extends Logged {
           }
           case nl: NLDelim if !matched => {
             // Expected a newline but it was not found
-            log(header + "\tNL and !matched" + " '" + char + "' d" + char.toInt)
+            log(Debug(header + "\tNL and !matched" + " '" + char + "' d" + char.toInt))
             if (delimIdx == 0) {
               advanceChar
             }
@@ -592,7 +594,7 @@ class Delimiter extends Logged {
           case wspP: WSPPlusDelim if isSpace => {
             // We're looking for 1 or more spaces
             // and found at least 1.
-            log(header + "\tWSPPlus and isSpace" + " '" + char + "' d" + char.toInt)
+            log(Debug(header + "\tWSPPlus and isSpace" + " '" + char + "' d" + char.toInt))
             val filteredList = wspList.filter(x => x._1 == charIdx)
             if (filteredList.length > 0) {
               // Consecutive white spaces found
@@ -608,7 +610,7 @@ class Delimiter extends Logged {
           case wspS: WSPStarDelim if isSpace => {
             // We're looking for 0 or more spaces
             // and found at least 1.
-            log(header + "\tWSPStar and isSpace" + " '" + char + "' d" + char.toInt)
+            log(Debug(header + "\tWSPStar and isSpace" + " '" + char + "' d" + char.toInt))
             val filteredList = wspList.filter(x => x._1 == charIdx)
             if (filteredList.length > 0) {
               // Consecutive white spaces found
@@ -624,7 +626,7 @@ class Delimiter extends Logged {
           case wspP: WSPPlusDelim if !isSpace => {
             // We're looking for 1 or more spaces
             // and did not find one.
-            log(header + "\tWSPPlus and !isSpace" + " '" + char + "' d" + char.toInt)
+            log(Debug(header + "\tWSPPlus and !isSpace" + " '" + char + "' d" + char.toInt))
             if (delimIdx == 0) {
               advanceChar
             }
@@ -638,7 +640,7 @@ class Delimiter extends Logged {
             // and did not find one.
             // This is OK, we've satisfied this delim.
             // Advance to next delim and char
-            log(header + "\tWSPStar and !isSpace" + " '" + char + "' d" + char.toInt)
+            log(Debug(header + "\tWSPStar and !isSpace" + " '" + char + "' d" + char.toInt))
             //resetDelimBuf
             update(delim, -1, true)
             advanceChar
@@ -648,7 +650,7 @@ class Delimiter extends Logged {
           }
           case wsp: WSPDelim if isSpace => {
             // Expected and found a space
-            log(header + "\tWSP and isSpace" + " '" + char + "' d" + char.toInt)
+            log(Debug(header + "\tWSP and isSpace" + " '" + char + "' d" + char.toInt))
             update(delim, charIdx, true)
             wspMode = false
             advanceDelim
@@ -657,7 +659,7 @@ class Delimiter extends Logged {
           }
           case wsp: WSPDelim if !isSpace => {
             // Expected and did not find a space
-            log(header + "\tWSP and !isSpace" + " '" + char + "' d" + char.toInt)
+            log(Debug(header + "\tWSP and !isSpace" + " '" + char + "' d" + char.toInt))
             if (delimIdx == 0) {
               advanceChar
             }
@@ -670,7 +672,7 @@ class Delimiter extends Logged {
             // otherwise, we weren't expecting
             // to find a space. Reset.
             if (!wspMode) {
-              log(header + "\t!WSPMode and isSpace" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\t!WSPMode and isSpace" + " '" + char + "' d" + char.toInt))
               if (delimIdx == 0) {
                 advanceChar
               }
@@ -679,14 +681,14 @@ class Delimiter extends Logged {
             } else {
               // Shouldn't ever get here initial check for wspMode and isSpace should prevent
               // it.
-              log(header + "\tWSPMode and isSpace" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tWSPMode and isSpace" + " '" + char + "' d" + char.toInt))
               //advanceDelim
               advanceChar
               addState(SearchState.SpaceAndWSPMode, header + "\tWSPMode and isSpace" + " '" + char + "' d" + char.toInt)
             }
           }
           case other if matched => {
-            log(header + "\tChar and matched" + " '" + char + "' d" + char.toInt)
+            log(Debug(header + "\tChar and matched" + " '" + char + "' d" + char.toInt))
             update(delim, charIdx, true)
             wspMode = false
             advanceDelim
@@ -694,7 +696,7 @@ class Delimiter extends Logged {
             addState(SearchState.OtherMatch, header + "\tChar and matched" + " '" + char + "' d" + char.toInt)
           }
           case other if !matched && delimBuf(0).checkMatch(char) => {
-            log(header + "\tChar and !matched but might be start of next delimiter" + " '" + char + "' d" + char.toInt)
+            log(Debug(header + "\tChar and !matched but might be start of next delimiter" + " '" + char + "' d" + char.toInt))
             wspMode = false
             if (delimIdx == 0) {
               advanceChar
@@ -703,7 +705,7 @@ class Delimiter extends Logged {
             addState(SearchState.OtherNoMatch, header + "\tChar and !matched but might be start of next delimiter" + " '" + char + "' d" + char.toInt)
           }
           case _ => {
-            log(header + "\tNo Match!" + " '" + char + "' d" + char.toInt)
+            log(Debug(header + "\tNo Match!" + " '" + char + "' d" + char.toInt))
             if (delimIdx == 0) {
               advanceChar
             }
@@ -717,7 +719,7 @@ class Delimiter extends Logged {
     } // end-while
     processDelimBuf
     processPartials
-    log("END SEARCH DELIM: " + delimiterStr + "\n")
+    log(Debug("END SEARCH DELIM: " + delimiterStr + "\n"))
   }
 
   def isCharBlockEscaped(charPos: Int, escapeBlockList: List[(Int, Int)]): Boolean = {
@@ -743,7 +745,7 @@ class Delimiter extends Logged {
     var isEscapeMode: Boolean = false
 
     charIdx = charPosIn
-    log("SEARCH_EscapeSchemeBlock: charPosIn: " + charPosIn + " Delimiter: " + delimiterStr)
+    log(Debug("SEARCH_EscapeSchemeBlock: charPosIn: " + charPosIn + " Delimiter: " + delimiterStr))
     while (charIdx < input.length() && charIdx > -1) {
       // This loop shall allow us to control when we
       // move on to check the next character via
@@ -752,7 +754,7 @@ class Delimiter extends Logged {
       // We separately iterate through the delimBuf array
       // via advanceDelim and resetDelim methods.
 
-      log("\n\tDELIM_BUF: " + this.printDelimBufStr)
+      log(Debug("\n\tDELIM_BUF: " + this.printDelimBufStr))
 
       val char: Char = input.charAt(charIdx)
       val delim: DelimBase = delimBuf(delimIdx)
@@ -766,7 +768,7 @@ class Delimiter extends Logged {
 
       // Is this char within an Escape Block?
       if (isCharBlockEscaped(charIdx, escapeBlockList)) {
-        log(header + "\tEncountered Block Escape!")
+        log(Debug(header + "\tEncountered Block Escape!"))
         advanceChar
         resetDelimBuf // TODO: Is this correct? Does an escape require a reset of DelimSearch?
       } else {
@@ -776,7 +778,7 @@ class Delimiter extends Logged {
         if (wspMode && isSpace && charIdx != charPosIn && !delim.isInstanceOf[NLDelim]) {
           // We have already satisfied the WSP* or WSP+ delimiter.
           // Skip this space by advancing to the next character.
-          log(header + "\tWspMode && isSpace, we have already satisfied the WSP* or WSP+ delimiter.  Skip spaces!")
+          log(Debug(header + "\tWspMode && isSpace, we have already satisfied the WSP* or WSP+ delimiter.  Skip spaces!"))
           addState(SearchState.WSPModeAndSpace, header + "\tWspMode && isSpace, we have already satisfied the WSP* or WSP+ delimiter.  Skip spaces!")
           advanceChar
         } else {
@@ -784,7 +786,7 @@ class Delimiter extends Logged {
           delim match {
             case nl: NLDelim if matched => {
               // Expected and found a newline
-              log(header + "\tNL and isMatched" + " '" + char + "' " + char.toInt)
+              log(Debug(header + "\tNL and isMatched" + " '" + char + "' " + char.toInt))
               val subheader = header + "\tNL and isMatched" + " '" + char + "' " + char.toInt + "\n"
               wspMode = false
               val (state, startPos, endPos) = crlfContains(crlfList, charIdx)
@@ -792,7 +794,7 @@ class Delimiter extends Logged {
               state match {
                 case Exists => {
                   // CRLF found
-                  log("\t\t\t\t\tNL and CRLF" + " '" + char + "' d" + char.toInt)
+                  log(Debug("\t\t\t\t\tNL and CRLF" + " '" + char + "' d" + char.toInt))
                   update(delim, charIdx, true, endPos)
                   advanceDelim
                   advanceChar
@@ -801,7 +803,7 @@ class Delimiter extends Logged {
                 }
                 case Partial => {
                   // CR occurred at end of CharBuffer, could possibly be a CRLF
-                  log("\t\t\t\t\tNL and CR but might be start of CRLF" + " '" + char + "' d" + char.toInt)
+                  log(Debug("\t\t\t\t\tNL and CR but might be start of CRLF" + " '" + char + "' d" + char.toInt))
                   wspMode = false
 
                   // TODO: I don't think we want to reset here, what if we want to maintain state? Blows up if we comment out.
@@ -812,7 +814,7 @@ class Delimiter extends Logged {
                 }
                 case NotFound => {
                   // CR by itself or some other NL character.
-                  log("\t\t\t\t\tNL " + " '" + char + "' d" + char.toInt)
+                  log(Debug("\t\t\t\t\tNL " + " '" + char + "' d" + char.toInt))
                   update(delim, charIdx, true)
                   advanceDelim
                   advanceChar
@@ -822,7 +824,7 @@ class Delimiter extends Logged {
             }
             case nl: NLDelim if !matched => {
               // Expected a newline but it was not found
-              log(header + "\tNL and !matched" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tNL and !matched" + " '" + char + "' d" + char.toInt))
               if (delimIdx == 0) {
                 advanceChar
               }
@@ -834,7 +836,7 @@ class Delimiter extends Logged {
             case wspP: WSPPlusDelim if isSpace => {
               // We're looking for 1 or more spaces
               // and found at least 1.
-              log(header + "\tWSPPlus and isSpace" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tWSPPlus and isSpace" + " '" + char + "' d" + char.toInt))
               val filteredList = wspList.filter(x => x._1 == charIdx)
               if (filteredList.length > 0) {
                 // Consecutive white spaces found
@@ -850,7 +852,7 @@ class Delimiter extends Logged {
             case wspS: WSPStarDelim if isSpace => {
               // We're looking for 0 or more spaces
               // and found at least 1.
-              log(header + "\tWSPStar and isSpace" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tWSPStar and isSpace" + " '" + char + "' d" + char.toInt))
               val filteredList = wspList.filter(x => x._1 == charIdx)
               if (filteredList.length > 0) {
                 // Consecutive white spaces found
@@ -866,7 +868,7 @@ class Delimiter extends Logged {
             case wspP: WSPPlusDelim if !isSpace => {
               // We're looking for 1 or more spaces
               // and did not find one.
-              log(header + "\tWSPPlus and !isSpace" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tWSPPlus and !isSpace" + " '" + char + "' d" + char.toInt))
               if (delimIdx == 0) {
                 advanceChar
               }
@@ -880,7 +882,7 @@ class Delimiter extends Logged {
               // and did not find one.
               // This is OK, we've satisfied this delim.
               // Advance to next delim and char
-              log(header + "\tWSPStar and !isSpace" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tWSPStar and !isSpace" + " '" + char + "' d" + char.toInt))
               //resetDelimBuf
               update(delim, -1, true)
               advanceChar
@@ -890,7 +892,7 @@ class Delimiter extends Logged {
             }
             case wsp: WSPDelim if isSpace => {
               // Expected and found a space
-              log(header + "\tWSP and isSpace" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tWSP and isSpace" + " '" + char + "' d" + char.toInt))
               update(delim, charIdx, true)
               wspMode = false
               advanceDelim
@@ -899,7 +901,7 @@ class Delimiter extends Logged {
             }
             case wsp: WSPDelim if !isSpace => {
               // Expected and did not find a space
-              log(header + "\tWSP and !isSpace" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tWSP and !isSpace" + " '" + char + "' d" + char.toInt))
               if (delimIdx == 0) {
                 advanceChar
               }
@@ -912,7 +914,7 @@ class Delimiter extends Logged {
               // otherwise, we weren't expecting
               // to find a space. Reset.
               if (!wspMode) {
-                log(header + "\t!WSPMode and isSpace" + " '" + char + "' d" + char.toInt)
+                log(Debug(header + "\t!WSPMode and isSpace" + " '" + char + "' d" + char.toInt))
                 if (delimIdx == 0) {
                   advanceChar
                 }
@@ -921,14 +923,14 @@ class Delimiter extends Logged {
               } else {
                 // Shouldn't ever get here initial check for wspMode and isSpace should prevent
                 // it.
-                log(header + "\tWSPMode and isSpace" + " '" + char + "' d" + char.toInt)
+                log(Debug(header + "\tWSPMode and isSpace" + " '" + char + "' d" + char.toInt))
                 //advanceDelim
                 advanceChar
                 addState(SearchState.SpaceAndWSPMode, header + "\tWSPMode and isSpace" + " '" + char + "' d" + char.toInt)
               }
             }
             case other if matched => {
-              log(header + "\tChar and matched" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tChar and matched" + " '" + char + "' d" + char.toInt))
               update(delim, charIdx, true)
               wspMode = false
               advanceDelim
@@ -936,7 +938,7 @@ class Delimiter extends Logged {
               addState(SearchState.OtherMatch, header + "\tChar and matched" + " '" + char + "' d" + char.toInt)
             }
             case other if !matched && delimBuf(0).checkMatch(char) => {
-              log(header + "\tChar and !matched but might be start of next delimiter" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tChar and !matched but might be start of next delimiter" + " '" + char + "' d" + char.toInt))
               wspMode = false
               if (delimIdx == 0) {
                 advanceChar
@@ -945,7 +947,7 @@ class Delimiter extends Logged {
               addState(SearchState.OtherNoMatch, header + "\tChar and !matched but might be start of next delimiter" + " '" + char + "' d" + char.toInt)
             }
             case _ => {
-              log(header + "\tNo Match!" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tNo Match!" + " '" + char + "' d" + char.toInt))
               if (delimIdx == 0) {
                 advanceChar
               }
@@ -961,7 +963,7 @@ class Delimiter extends Logged {
     } // end-while
     processDelimBuf
     processPartials
-    log("END SEARCH_EscapeSchemeBlock: " + delimiterStr + "\n")
+    log(Debug("END SEARCH_EscapeSchemeBlock: " + delimiterStr + "\n"))
   }
   
   // WARNING:	This method is a state-machine!
@@ -977,7 +979,7 @@ class Delimiter extends Logged {
     var isEscapeMode: Boolean = false
 
     charIdx = charPosIn
-    log("SEARCH_EscapeSchemeCharacter: charPosIn: " + charPosIn + " Delimiter: " + delimiterStr)
+    log(Debug("SEARCH_EscapeSchemeCharacter: charPosIn: " + charPosIn + " Delimiter: " + delimiterStr))
     while (charIdx < input.length() && charIdx > -1) {
       // This loop shall allow us to control when we
       // move on to check the next character via
@@ -986,7 +988,7 @@ class Delimiter extends Logged {
       // We separately iterate through the delimBuf array
       // via advanceDelim and resetDelim methods.
 
-      log("\n\tDELIM_BUF: " + this.printDelimBufStr)
+      log(Debug("\n\tDELIM_BUF: " + this.printDelimBufStr))
 
       val char: Char = input.charAt(charIdx)
       val delim: DelimBase = delimBuf(delimIdx)
@@ -1000,7 +1002,7 @@ class Delimiter extends Logged {
 
       // Is this char within an Escape Block?
       if (isCharEscaped(charIdx, escapeCharList)) {
-        log(header + "\tEncountered Character Escape!")
+        log(Debug(header + "\tEncountered Character Escape!"))
         advanceChar
         resetDelimBuf // TODO: Is this correct? Does an escape require a reset of DelimSearch?
       } else {
@@ -1010,7 +1012,7 @@ class Delimiter extends Logged {
         if (wspMode && isSpace && charIdx != charPosIn && !delim.isInstanceOf[NLDelim]) {
           // We have already satisfied the WSP* or WSP+ delimiter.
           // Skip this space by advancing to the next character.
-          log(header + "\tWspMode && isSpace, we have already satisfied the WSP* or WSP+ delimiter.  Skip spaces!")
+          log(Debug(header + "\tWspMode && isSpace, we have already satisfied the WSP* or WSP+ delimiter.  Skip spaces!"))
           addState(SearchState.WSPModeAndSpace, header + "\tWspMode && isSpace, we have already satisfied the WSP* or WSP+ delimiter.  Skip spaces!")
           advanceChar
         } else {
@@ -1018,7 +1020,7 @@ class Delimiter extends Logged {
           delim match {
             case nl: NLDelim if matched => {
               // Expected and found a newline
-              log(header + "\tNL and isMatched" + " '" + char + "' " + char.toInt)
+              log(Debug(header + "\tNL and isMatched" + " '" + char + "' " + char.toInt))
               val subheader = header + "\tNL and isMatched" + " '" + char + "' " + char.toInt + "\n"
               wspMode = false
               val (state, startPos, endPos) = crlfContains(crlfList, charIdx)
@@ -1026,7 +1028,7 @@ class Delimiter extends Logged {
               state match {
                 case Exists => {
                   // CRLF found
-                  log("\t\t\t\t\tNL and CRLF" + " '" + char + "' d" + char.toInt)
+                  log(Debug("\t\t\t\t\tNL and CRLF" + " '" + char + "' d" + char.toInt))
                   update(delim, charIdx, true, endPos)
                   advanceDelim
                   advanceChar
@@ -1035,7 +1037,7 @@ class Delimiter extends Logged {
                 }
                 case Partial => {
                   // CR occurred at end of CharBuffer, could possibly be a CRLF
-                  log("\t\t\t\t\tNL and CR but might be start of CRLF" + " '" + char + "' d" + char.toInt)
+                  log(Debug("\t\t\t\t\tNL and CR but might be start of CRLF" + " '" + char + "' d" + char.toInt))
                   wspMode = false
 
                   // TODO: I don't think we want to reset here, what if we want to maintain state? Blows up if we comment out.
@@ -1046,7 +1048,7 @@ class Delimiter extends Logged {
                 }
                 case NotFound => {
                   // CR by itself or some other NL character.
-                  log("\t\t\t\t\tNL " + " '" + char + "' d" + char.toInt)
+                  log(Debug("\t\t\t\t\tNL " + " '" + char + "' d" + char.toInt))
                   update(delim, charIdx, true)
                   advanceDelim
                   advanceChar
@@ -1056,7 +1058,7 @@ class Delimiter extends Logged {
             }
             case nl: NLDelim if !matched => {
               // Expected a newline but it was not found
-              log(header + "\tNL and !matched" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tNL and !matched" + " '" + char + "' d" + char.toInt))
               if (delimIdx == 0) {
                 advanceChar
               }
@@ -1068,7 +1070,7 @@ class Delimiter extends Logged {
             case wspP: WSPPlusDelim if isSpace => {
               // We're looking for 1 or more spaces
               // and found at least 1.
-              log(header + "\tWSPPlus and isSpace" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tWSPPlus and isSpace" + " '" + char + "' d" + char.toInt))
               val filteredList = wspList.filter(x => x._1 == charIdx)
               if (filteredList.length > 0) {
                 // Consecutive white spaces found
@@ -1084,7 +1086,7 @@ class Delimiter extends Logged {
             case wspS: WSPStarDelim if isSpace => {
               // We're looking for 0 or more spaces
               // and found at least 1.
-              log(header + "\tWSPStar and isSpace" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tWSPStar and isSpace" + " '" + char + "' d" + char.toInt))
               val filteredList = wspList.filter(x => x._1 == charIdx)
               if (filteredList.length > 0) {
                 // Consecutive white spaces found
@@ -1100,7 +1102,7 @@ class Delimiter extends Logged {
             case wspP: WSPPlusDelim if !isSpace => {
               // We're looking for 1 or more spaces
               // and did not find one.
-              log(header + "\tWSPPlus and !isSpace" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tWSPPlus and !isSpace" + " '" + char + "' d" + char.toInt))
               if (delimIdx == 0) {
                 advanceChar
               }
@@ -1114,7 +1116,7 @@ class Delimiter extends Logged {
               // and did not find one.
               // This is OK, we've satisfied this delim.
               // Advance to next delim and char
-              log(header + "\tWSPStar and !isSpace" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tWSPStar and !isSpace" + " '" + char + "' d" + char.toInt))
               //resetDelimBuf
               update(delim, -1, true)
               advanceChar
@@ -1124,7 +1126,7 @@ class Delimiter extends Logged {
             }
             case wsp: WSPDelim if isSpace => {
               // Expected and found a space
-              log(header + "\tWSP and isSpace" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tWSP and isSpace" + " '" + char + "' d" + char.toInt))
               update(delim, charIdx, true)
               wspMode = false
               advanceDelim
@@ -1133,7 +1135,7 @@ class Delimiter extends Logged {
             }
             case wsp: WSPDelim if !isSpace => {
               // Expected and did not find a space
-              log(header + "\tWSP and !isSpace" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tWSP and !isSpace" + " '" + char + "' d" + char.toInt))
               if (delimIdx == 0) {
                 advanceChar
               }
@@ -1146,7 +1148,7 @@ class Delimiter extends Logged {
               // otherwise, we weren't expecting
               // to find a space. Reset.
               if (!wspMode) {
-                log(header + "\t!WSPMode and isSpace" + " '" + char + "' d" + char.toInt)
+                log(Debug(header + "\t!WSPMode and isSpace" + " '" + char + "' d" + char.toInt))
                 if (delimIdx == 0) {
                   advanceChar
                 }
@@ -1155,14 +1157,14 @@ class Delimiter extends Logged {
               } else {
                 // Shouldn't ever get here initial check for wspMode and isSpace should prevent
                 // it.
-                log(header + "\tWSPMode and isSpace" + " '" + char + "' d" + char.toInt)
+                log(Debug(header + "\tWSPMode and isSpace" + " '" + char + "' d" + char.toInt))
                 //advanceDelim
                 advanceChar
                 addState(SearchState.SpaceAndWSPMode, header + "\tWSPMode and isSpace" + " '" + char + "' d" + char.toInt)
               }
             }
             case other if matched => {
-              log(header + "\tChar and matched" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tChar and matched" + " '" + char + "' d" + char.toInt))
               update(delim, charIdx, true)
               wspMode = false
               advanceDelim
@@ -1170,7 +1172,7 @@ class Delimiter extends Logged {
               addState(SearchState.OtherMatch, header + "\tChar and matched" + " '" + char + "' d" + char.toInt)
             }
             case other if !matched && delimBuf(0).checkMatch(char) => {
-              log(header + "\tChar and !matched but might be start of next delimiter" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tChar and !matched but might be start of next delimiter" + " '" + char + "' d" + char.toInt))
               wspMode = false
               if (delimIdx == 0) {
                 advanceChar
@@ -1179,7 +1181,7 @@ class Delimiter extends Logged {
               addState(SearchState.OtherNoMatch, header + "\tChar and !matched but might be start of next delimiter" + " '" + char + "' d" + char.toInt)
             }
             case _ => {
-              log(header + "\tNo Match!" + " '" + char + "' d" + char.toInt)
+              log(Debug(header + "\tNo Match!" + " '" + char + "' d" + char.toInt))
               if (delimIdx == 0) {
                 advanceChar
               }
@@ -1195,7 +1197,7 @@ class Delimiter extends Logged {
     } // end-while
     processDelimBuf
     processPartials
-    log("END SEARCH_EscapeSchemeCharacter: " + delimiterStr + "\n")
+    log(Debug("END SEARCH_EscapeSchemeCharacter: " + delimiterStr + "\n"))
   }
 
   // Determines if all characters within a delimBuf were
@@ -1217,7 +1219,7 @@ class Delimiter extends Logged {
         if (end.charPosEnd != -1) {
           endPos = end.charPosEnd
         }
-        log("\t\t\t\t\tprocessDelimBuf - FullMatch: StartPos=" + startPos + ", EndPos=" + endPos)
+        log(Debug("\t\t\t\t\tprocessDelimBuf - FullMatch: StartPos=" + startPos + ", EndPos=" + endPos))
 
         if (startPos != -1 && endPos != -1) {
           addFullMatch(startPos, endPos)
@@ -1248,21 +1250,21 @@ class Delimiter extends Logged {
   }
 
   def print = {
-    //log("\n====\nDelimiter: " + delimiterStr)
-    log("\n====\n" + this.toString())
-    log("FULL MATCHES: ")
+    //log(Debug("\n====\nDelimiter: " + delimiterStr)
+    log(Debug("\n====\n" + this.toString()))
+    log(Debug("FULL MATCHES: "))
     fullMatches.toList.sortBy(_._1) foreach {
-      x => log("\t" + x._1 + "\t" + x._2)
+      x => log(Debug("\t" + x._1 + "\t" + x._2))
     }
-    log("PARTIAL MATCHES: ")
+    log(Debug("PARTIAL MATCHES: "))
     partialMatches.toList.sortBy(_._1) foreach {
-      x => log("\t" + x._1 + "\t" + x._2)
+      x => log(Debug("\t" + x._1 + "\t" + x._2))
     }
-    log("\n====\n")
+    log(Debug("\n====\n"))
   }
 }
 
-abstract class DelimBase extends Base with Logged {
+abstract class DelimBase extends Base with Logging {
   def typeName: String
   def print
   def printStr: String
@@ -1294,7 +1296,7 @@ class CharDelim(val char: Char) extends DelimBase {
 
   lazy val typeName = "CharDelim"
   def print = {
-    log("\t\t\t" + typeName + ": '" + char + "' d" + char.toInt + " isMatched: " + isMatched.toString())
+    log(Debug("\t\t\t" + typeName + ": '" + char + "' d" + char.toInt + " isMatched: " + isMatched.toString()))
   }
 
   def printStr = {
@@ -1331,7 +1333,7 @@ class NLDelim extends DelimBase with CharacterClass {
   }
 
   def print = {
-    log("\t\t\t" + typeName + ": NL" + " isMatched: " + isMatched.toString())
+    log(Debug("\t\t\t" + typeName + ": NL" + " isMatched: " + isMatched.toString()))
   }
   def printStr = {
     val res = typeName
@@ -1387,7 +1389,7 @@ class WSPBase extends DelimBase with WSP {
     isMatched
   }
   def print = {
-    log("\t\t\t" + typeName + ": WSPBase" + " isMatched: " + isMatched.toString())
+    log(Debug("\t\t\t" + typeName + ": WSPBase" + " isMatched: " + isMatched.toString()))
   }
   def printStr = {
     val res = typeName
@@ -1398,7 +1400,7 @@ class WSPBase extends DelimBase with WSP {
 class WSPDelim extends WSPBase with WSP {
   override lazy val typeName = "WSPDelim"
   override def print = {
-    log("\t\t\t" + typeName + ": WSP" + " isMatched: " + isMatched.toString())
+    log(Debug("\t\t\t" + typeName + ": WSP" + " isMatched: " + isMatched.toString()))
   }
   override def printStr = {
     val res = typeName
@@ -1409,7 +1411,7 @@ class WSPDelim extends WSPBase with WSP {
 class WSPPlusDelim extends WSPBase with WSP {
   override lazy val typeName = "WSP+Delim"
   override def print = {
-    log("\t\t\t" + typeName + ": WSP+" + " isMatched: " + isMatched.toString())
+    log(Debug("\t\t\t" + typeName + ": WSP+" + " isMatched: " + isMatched.toString()))
   }
   override def printStr = {
     val res = typeName
@@ -1420,7 +1422,7 @@ class WSPPlusDelim extends WSPBase with WSP {
 class WSPStarDelim extends WSPBase with WSP {
   override lazy val typeName = "WSP*Delim"
   override def print = {
-    log("\t\t\t" + typeName + ": WSP*" + " isMatched: " + isMatched.toString())
+    log(Debug("\t\t\t" + typeName + ": WSP*" + " isMatched: " + isMatched.toString()))
   }
   override def printStr = {
     val res = typeName
