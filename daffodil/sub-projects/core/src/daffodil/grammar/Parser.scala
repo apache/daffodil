@@ -704,7 +704,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     }
     
     var sb: StringBuilder = new StringBuilder // To keep track of the searched text
-    val dSearch = new DelimSearcher with ConsoleLogger
+    val dSearch = new DelimSearcher with Logging
     var buf = cb
     
     dSearch.setEscapeScheme(es)

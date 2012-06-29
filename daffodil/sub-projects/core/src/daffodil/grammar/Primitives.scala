@@ -66,7 +66,7 @@ case class ElementEnd(e: ElementBase) extends Terminal(e, true) {
  * followed by a conversion of some sort.
  */
 
-case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Terminal(e, true) {
+case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Terminal(e, true) with Logging {
   def parser: Parser = new Parser {
 
     override def toString = "StringFixedLengthInBytesParser"
@@ -74,12 +74,12 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
     val cbuf = CharBuffer.allocate(nBytes.toInt) // TODO: Performance: get a char buffer from a pool. 
 
     def parse(start: PState): PState = {
-      System.err.println("Parsing starting at bit position: " + start.bitPos)
+      log(Debug("Parsing starting at bit position: " + start.bitPos))
       val in = start.inStream
       val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
       val result = cbuf.toString
-      System.err.println("Parsed: " + result)
-      System.err.println("Ended at bit position " + endBitPos)
+      log(Debug("Parsed: " + result))
+      log(Debug("Ended at bit position " + endBitPos))
       val endCharPos = start.charPos + result.length
       val currentElement = start.parent
       Assert.invariant(currentElement.getName != "_document_")
@@ -177,7 +177,7 @@ case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) with L
     // TODO: Add parameter for changing CharBuffer size
 
     def parse(start: PState): PState = {
-      System.err.println("Parsing starting at bit position: " + start.bitPos)
+      log(Debug("Parsing starting at bit position: " + start.bitPos))
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
 
@@ -187,8 +187,8 @@ case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) with L
         case SearchResult.NoMatch => start.failed(this.toString() + ": No match found!")
         case SearchResult.PartialMatch => start.failed(this.toString() + ": Partial match found!")
         case SearchResult.FullMatch => {
-          System.err.println("Parsed: " + result)
-          System.err.println("Ended at bit position " + endBitPos)
+          log(Debug("Parsed: " + result))
+          log(Debug("Ended at bit position " + endBitPos))
           val endCharPos = start.charPos + result.length()
           val currentElement = start.parent
           currentElement.addContent(new org.jdom.Text(result))
@@ -201,7 +201,7 @@ case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) with L
   }
 }
 
-abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends Terminal(e, guard) {
+abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends Terminal(e, guard) with Logging {
   protected def getNum(s: Number): S
   protected val GramName = "number"
   protected val GramDescription = "Number"
@@ -225,7 +225,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
 
         // Verify that what was parsed was what was passed exactly in byte count.  Use pos to verify all characters consumed & check for errors!
         if (pos.getIndex != str.length) {
-          System.err.print("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n")
+          log(Debug("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n"))
           throw new ParseException("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n", 0)
         }
 
@@ -235,7 +235,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
         // Verify no digits lost (the number was correctly transcribed)
         if (asNumber.asInstanceOf[Number] != num || isInvalidRange(asNumber)) {
           // Transcription error
-          System.err.print("Error: Invalid " + GramDescription + ": " + str + "\n")
+          log(Debug("Error: Invalid " + GramDescription + ": " + str + "\n"))
           throw new ParseException("Error: Invalid " + GramDescription + ": " + str, 0)
         } else {
           node.setText(asNumber.toString)
@@ -400,15 +400,15 @@ case class Regular32bitLittleEndianIntPrim(e: ElementBase) extends Terminal(e, t
 case class PackedIntPrim(e: ElementBase) extends Primitive(e, false)
 case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 
-case class DoublePrim(byteOrder: java.nio.ByteOrder) extends Parser {
+case class DoublePrim(byteOrder: java.nio.ByteOrder) extends Parser with Logging {
   override def toString = "binary(xs:double, " + byteOrder + ")"
   def parse(start: PState): PState = {
     if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 64)) start.failed("Not enough bits to create an xs:double")
     else {
       val value = start.inStream.getDouble(start.bitPos, byteOrder)
       start.parent.addContent(new org.jdom.Text(value.toString))
-      System.err.println("Found binary double " + value)
-      System.err.println("Ended at bit position " + (start.bitPos + 64))
+      log(Debug("Found binary double " + value))
+      log(Debug("Ended at bit position " + (start.bitPos + 64)))
       //val postState = start.withPos(start.bitPos + 64, -1)
       val postState = start.withPos(start.bitPos + 64, start.charPos + 1)
       postState

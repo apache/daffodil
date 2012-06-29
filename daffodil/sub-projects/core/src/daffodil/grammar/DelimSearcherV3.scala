@@ -37,13 +37,13 @@ class DelimSearcher extends Logging {
   }
   
   def addSeparator(strDelim: String) = {
-    val d = new Separator with ConsoleLogger
+    val d = new Separator with Logging
     d(strDelim)
     delimiters ++= List[Delimiter] { d }
   }
   
   def addTerminator(strDelim: String) = {
-    val d = new Terminator with ConsoleLogger
+    val d = new Terminator with Logging
     d(strDelim)
     delimiters ++= List[Delimiter] { d }
   }
