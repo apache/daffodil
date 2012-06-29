@@ -43,7 +43,8 @@ class TestLogger extends JUnit3Suite {
     c.logSomething()
     Console.out.flush()
     val fromLog = ForUnitTestLogWriter.loggedMsg
-    assertEquals("Message about nothing at all.", fromLog)
+    val hasExpected = fromLog.contains("Message about nothing at all.")
+    assertTrue(hasExpected)
   }
 
 }

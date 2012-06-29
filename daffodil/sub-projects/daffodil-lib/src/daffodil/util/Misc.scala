@@ -13,9 +13,9 @@ object Misc {
   
   def getNameFromClass(obj : Object) : String = {
     if (obj == null) return "null"
-    val hexHash = obj.hashCode.formatted("%x")
-    val tokens = obj.getClass.getName.split("[\\$\\.]").toList.reverse
-    val Some(nameToken) = tokens.find{_.matches("""\p{Alpha}\w*""")}
+    // val hexHash = obj.hashCode.formatted("%x")
+    val nonPackageClassName = obj.getClass.getName.split("\\.").toList.reverse.head
+    val nameToken = nonPackageClassName.split("\\$").toList.head
     nameToken // + "@" + hexHash
   }
    
