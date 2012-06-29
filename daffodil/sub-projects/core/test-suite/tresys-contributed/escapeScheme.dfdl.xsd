@@ -18,7 +18,7 @@
 				textStringJustification="left"  textStringPadCharacter="%SP;"
 				textCalendarJustification="left"  textCalendarPadCharacter="%SP;"
 				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
-				documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
+				documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
 				sequenceKind="ordered" 
 				separatorPolicy="required" 
 				calendarPatternKind="implicit" calendarPattern="yyyymmddhhmmss" calendarCheckPolicy="lax" 

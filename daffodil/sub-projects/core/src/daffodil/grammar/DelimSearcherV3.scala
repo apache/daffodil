@@ -21,6 +21,10 @@ class DelimSearcher extends Logged {
 
   // A list of delimiters, each delimiter is represented as a Delimiter object
   var delimiters: List[Delimiter] = List.empty[Delimiter]
+  
+  //var separators: List[Separator] = List.empty[Separator]
+  
+ // var terminators: List[Terminator] = List.empty[Terminator]
 
   var escapeSchemeKind: EscapeSchemeKind = EscapeSchemeKind.None
   var esCharacter: String = ""
@@ -30,6 +34,18 @@ class DelimSearcher extends Logged {
 
   def addDelimiter(strDelim: String) = {
     val d = new Delimiter with ConsoleLogger
+    d(strDelim)
+    delimiters ++= List[Delimiter] { d }
+  }
+  
+  def addSeparator(strDelim: String) = {
+    val d = new Separator with ConsoleLogger
+    d(strDelim)
+    delimiters ++= List[Delimiter] { d }
+  }
+  
+  def addTerminator(strDelim: String) = {
+    val d = new Terminator with ConsoleLogger
     d(strDelim)
     delimiters ++= List[Delimiter] { d }
   }

@@ -218,7 +218,7 @@ case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) {
       //println("Looking for: " + delimiters2 + " " + delimiters2.flatten( x => x))
 
       //val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set(sequenceSeparator.constantAsString))
-      val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, delimiters.toSet, esObj)
+      val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set.empty, delimiters.toSet, esObj)
       val postState = theState match {
         case SearchResult.NoMatch => {
           // TODO: Is this logic correct?
@@ -272,12 +272,13 @@ case class StringDelimitedWithDelimiters(e: ElementBase) extends Terminal(e, tru
       //val delimiters = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String])
       val delimiters2 = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
       val delimiters = delimiters2.flatten(x => x)
-      println("StringDelimitedWithDelimiters - Looking for: " + delimiters + " AND " + delimiters2)
+      
+      println("StringDelimitedWithDelimiters - Looking for: " + delimiters)
       
       if (delimiters.length == 0){ Assert.notYetImplemented()}
 
       //val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, terminator.toSet)
-      val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, delimiters.toSet, esObj)
+      val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set.empty, delimiters.toSet, esObj)
       
       val postState = theState match {
         case SearchResult.NoMatch => start.failed(this.toString() + ": No match found!")
@@ -617,12 +618,16 @@ abstract class StaticText(delim: String, e: InitiatedTerminatedMixin, guard: Boo
 
     def parse(start: PState): PState = {
     
+      System.err.println("Parsing delimiter at byte position: " + (start.bitPos >> 3))
       System.err.println("Parsing delimiter at bit position: " + start.bitPos)
       //val tm = t.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap)).asInstanceOf[String].split("\\s").toList
       val tm = t.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList).flatten
       System.err.println("\t\tTERMINATING MARKUP!!\t\t" + tm )
       System.err.println(delim)
       val delims = delim.split("\\s").toList ++ tm
+      
+      val separators = delim.split("\\s").toList
+      val terminators = t.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList).flatten
       
       System.err.println("StaticText - Looking for: " + delims)
 
@@ -635,7 +640,7 @@ abstract class StaticText(delim: String, e: InitiatedTerminatedMixin, guard: Boo
       //
 
       //var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim:Delimiter) = in.getDelimiter(cbuf, start.bitPos, decoder, Set(delim))
-      var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim) = in.getDelimiter(cbuf, start.bitPos, decoder, delims.toSet, esObj)
+      var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim) = in.getDelimiter(cbuf, start.bitPos, decoder, separators.toSet, delims.toSet, esObj)
 
       //println("BUF: " + cbuf.toString + " ENDBITPOS: " + endBitPos + " ENDBITPOSDELIM: " + endBitPosDelim)
 
@@ -666,6 +671,7 @@ abstract class StaticText(delim: String, e: InitiatedTerminatedMixin, guard: Boo
         endBitPosDelim = (8 * numBytes) + start.bitPos // TODO: Is this correct?
 
         System.err.println("Found " + theMatchedDelim.toString())
+        System.err.println("Ended at byte position " + (endBitPosDelim >> 3))
         System.err.println("Ended at bit position " + endBitPosDelim)
 
         val postState = start.withPos(endBitPosDelim, endCharPos)

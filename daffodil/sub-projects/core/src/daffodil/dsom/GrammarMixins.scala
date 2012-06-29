@@ -97,11 +97,14 @@ trait ElementBaseGrammarMixin
 
         // TODO: check for escape scheme
         println(self.terminatingMarkup)
-        if (terminator.isKnownNonEmpty) {
+        println("\t\t\tSEP POS: " + es.separatorPosition.toString())
+//        if (terminator.isKnownNonEmpty) {
+        if (self.terminatingMarkup.length > 0) {
           stringDelimitedWithDelimiters
         } else {
           stringDelimitedEndOfData
         }
+        
       }
       case LengthKind.Pattern => stringPatternMatched
       case _ => Assert.notYetImplemented()

@@ -11,6 +11,22 @@ import stringsearch.constructs._
 import stringsearch.constructs.CRLFState._
 import stringsearch.constructs.SearchState._
 
+class Separator extends Delimiter {
+  override def toString(): String = {
+    return "Separator[" + delimiterStr + "]"
+  }
+  
+  override def typeDef = { DelimiterType.Separator }
+}
+
+class Terminator extends Delimiter{
+  override def toString(): String = {
+    return "Terminator[" + delimiterStr + "]"
+  }
+  
+  override def typeDef = { DelimiterType.Terminator }
+}
+
 // A Delimiter represents a delimiter where a delimiter can be one or more
 // characters long.
 //
@@ -29,6 +45,8 @@ class Delimiter extends Logged {
   lazy val WSP = Pattern.compile("%(WSP);", Pattern.MULTILINE)
   lazy val WSP_Plus = Pattern.compile("%(WSP\\+);", Pattern.MULTILINE)
   lazy val WSP_Star = Pattern.compile("%(WSP\\*);", Pattern.MULTILINE)
+  
+  def typeDef = { DelimiterType.Delimiter }
 
   override def toString(): String = {
     return "Delimiter[" + delimiterStr + "]"
@@ -1215,23 +1233,6 @@ class Delimiter extends Logged {
     }
   }
 
-  //  def printDelimBufStr = {
-  //    val sb = new StringBuilder
-  //    delimBuf foreach {
-  //      x => sb.append("\t" + x.toString())
-  //    }
-  //    sb.append("\n")
-  //    var idx: Int = 0
-  //    delimBuf foreach {
-  //      x =>
-  //        {
-  //          sb.append(idx)
-  //          idx += 1
-  //        }
-  //    }
-  //    sb.toString()
-  //  }
-
   def printDelimBufStr = {
     val sb = new StringBuilder
     var idx: Int = 0
@@ -1247,7 +1248,8 @@ class Delimiter extends Logged {
   }
 
   def print = {
-    log("\n====\nDelimiter: " + delimiterStr)
+    //log("\n====\nDelimiter: " + delimiterStr)
+    log("\n====\n" + this.toString())
     log("FULL MATCHES: ")
     fullMatches.toList.sortBy(_._1) foreach {
       x => log("\t" + x._1 + "\t" + x._2)

@@ -7,6 +7,11 @@ import daffodil.dsom.EntityReplacer
 import daffodil.dsom.StringValueAsLiteral
 import daffodil.dsom.SingleCharacterLiteral
 
+object DelimiterType extends Enumeration {
+  type DelimType = Value
+  val Separator, Terminator, Delimiter = Value
+}
+
 object SearchResult extends Enumeration {
   type SearchResult = Value
   val FullMatch, PartialMatch, NoMatch, EOD = Value
