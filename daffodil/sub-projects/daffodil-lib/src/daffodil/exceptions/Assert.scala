@@ -7,7 +7,7 @@ abstract class AnException(m : String) extends OOLAGException(m) {
   def this() = this("") // no arg constructor also.
 }
 class UsageException(m : String) extends Exception(m)
-class NotYetImplementedException extends AnException("Not yet implemented.")
+class NotYetImplementedException(m : String) extends AnException("Not yet implemented.\n" + m)
 class Abort(m : String) extends Exception(m)
 
 abstract class DFDLException(m : String) extends AnException(m) {
@@ -24,6 +24,11 @@ class PE(m : String) extends DFDLException(m) // parsing error (processing error
 class VE(m : String) extends DFDLException(m) // validation error (used only when validation is turned on.
 
 class Assert  {
+  def shortBacktrace = {
+    val frames = Thread.currentThread().getStackTrace().toList.take(6).tail.tail
+    frames.map{ _.toString }.mkString("\n")
+  }
+  
   def toss(x : Throwable) = {
     throw x
   }
@@ -50,11 +55,11 @@ object Assert extends Assert {
   }
   
   def notYetImplemented() = {
-    toss(new NotYetImplementedException)
+    toss(new NotYetImplementedException(shortBacktrace))
   }
   
   def abort(message : => String = "") = {
-    toss(new Abort(message))
+    toss(new Abort(message + "\n" + shortBacktrace))
   }
   
   def impossible(message: String = "impossible! this code path is supposed to be unreachable.") = {
