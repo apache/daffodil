@@ -197,9 +197,11 @@ case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) {
   //lazy val delimiters = e.terminatingMarkup.map(x => x.constantAsString)
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es)
+  lazy val tm = e.terminatingMarkup
+  lazy val cname = toString
 
   def parser: Parser = new Parser {
-    override def toString = "StringDelimitedEndOfData"
+    override def toString = cname + "(" + tm.map{_.prettyExpr} + ")"  
     val decoder = e.knownEncodingDecoder
     var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
 
@@ -255,9 +257,11 @@ case class StringDelimitedWithDelimiters(e: ElementBase) extends Terminal(e, tru
   
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es)
+  lazy val tm = e.terminatingMarkup
+  lazy val cname = toString
   
   def parser: Parser = new Parser {
-    override def toString = "StringDelimitedWithDelimiters"
+    override def toString = cname + "(" + tm.map{_.prettyExpr} + ")"
     val decoder = e.knownEncodingDecoder
     var cbuf = CharBuffer.allocate(1024)
     
@@ -270,7 +274,7 @@ case class StringDelimitedWithDelimiters(e: ElementBase) extends Terminal(e, tru
       var bitOffset = 0L
       
       //val delimiters = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String])
-      val delimiters2 = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
+      val delimiters2 = tm.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
       val delimiters = delimiters2.flatten(x => x)
       
       println("StringDelimitedWithDelimiters - Looking for: " + delimiters)
@@ -722,6 +726,7 @@ case class StartSequence(sq: Sequence, guard: Boolean = true) extends Terminal(s
 }
 
 case class Nothing(sc: SchemaComponent) extends Terminal(sc, true) {
+  override def isEmpty = true // optimize this out!
   def parser: Parser = new Parser {
 
     override def toString = "Nothing"

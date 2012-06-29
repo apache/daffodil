@@ -91,19 +91,19 @@ trait ElementBaseGrammarMixin
     val res = Prod("stringValue", this, lengthKind match {
       case LengthKind.Explicit if isFixedLength => fixedLengthString
       case LengthKind.Delimited => {
-
-        // LengthKind delimited w/ delimiters
-        // LengthKind delimited w End Of Data
-
-        // TODO: check for escape scheme
-        println(self.terminatingMarkup)
-        println("\t\t\tSEP POS: " + es.separatorPosition.toString())
-//        if (terminator.isKnownNonEmpty) {
-        if (self.terminatingMarkup.length > 0) {
-          stringDelimitedWithDelimiters
-        } else {
+//
+//        // LengthKind delimited w/ delimiters
+//        // LengthKind delimited w End Of Data
+//
+//        // TODO: check for escape scheme
+//        println(self.terminatingMarkup)
+//        println("\t\t\tSEP POS: " + es.separatorPosition.toString())
+////        if (terminator.isKnownNonEmpty) {
+//        if (self.terminatingMarkup.length > 0) {
+//          stringDelimitedWithDelimiters
+//        } else {
           stringDelimitedEndOfData
-        }
+//        }
         
       }
       case LengthKind.Pattern => stringPatternMatched

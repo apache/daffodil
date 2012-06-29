@@ -25,7 +25,7 @@ import daffodil.processors.VariableMap
  * 
  * TODO: provide enough scope information for this to optimize.
  */
-abstract class CompiledExpression {
+abstract class CompiledExpression(val prettyExpr : String) {
   /**
    * used to determine whether we need a runtime evaluation or
    * we can just use a constant value. 
@@ -80,7 +80,7 @@ object CompiledExpressionUtil {
     
 }
 
-case class ConstantProperty[T](value: T) extends CompiledExpression {
+case class ConstantProperty[T](value: T) extends CompiledExpression(value.toString) {
     def isConstant = true
     def isKnownNonEmpty = value != ""
     def constant: T = value
@@ -89,7 +89,7 @@ case class ConstantProperty[T](value: T) extends CompiledExpression {
 
 case class ExpressionProperty[T](convertTo : Symbol, 
     xpathText : String, 
-    xpathExprFactory: VariableMap => XPathExpression) extends CompiledExpression {
+    xpathExprFactory: VariableMap => XPathExpression) extends CompiledExpression(xpathText) {
     def isConstant = false
     def isKnownNonEmpty = true // expressions are not allowed to return empty string
     def constant: T = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
