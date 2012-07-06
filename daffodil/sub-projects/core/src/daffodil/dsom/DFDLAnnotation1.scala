@@ -20,6 +20,14 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin)
   
   lazy val prettyName = xml.prefix + ":" + xml.label 
   lazy val path = annotatedSC.path + "::" + prettyName
+  
+  def SDE(id : String, args : Any *) = {
+    annotatedSC match {
+      case sc : SchemaComponent => throw new SchemaDefinitionError(sc, Some(this), id, args : _*)
+      case _ => Assert.invariantFailed("should be a SchemaComponent")
+    }
+  }
+  
 }
 
 trait RawCommonRuntimeValuedPropertiesMixin
@@ -89,6 +97,8 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: SchemaComponent wit
 
   lazy val diagnosticChildren = Nil
 
+
+  
   private[dsom] def getLocalFormatRef(): String = {
     val ref = combinedLocalProperties.get("ref")
     ref match {
@@ -114,7 +124,8 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: SchemaComponent wit
   // (Note: I hate repeating the darn package name all over the place here....)
   private[dsom] def getLocalPropertyOption(name: String): Option[String] = {
     if (hasConflictingPropertyError) {
-      Assert.SDE("Short and Long form properties overlap: " + conflictingProperties)
+      // Assert.SDE("Short and Long form properties overlap: " + conflictingProperties)
+      SDE("Short and long form properties overlap: %s", conflictingProperties)
     }
     lazy val localProp = combinedLocalProperties.get(name)
     localProp

@@ -379,6 +379,7 @@ class TestTDMLRunner extends JUnit3Suite {
     val testSuite = tdmlWithEmbeddedSchemaInvalid
     val exc = intercept[Exception] {
       val ts = new DFDLTestSuite(testSuite)
+      ts.isTDMLFileValid
     }
     val msg = exc.getMessage
     println(msg)
@@ -411,6 +412,7 @@ class TestTDMLRunner extends JUnit3Suite {
       }
       val exc = intercept[Exception] {
         val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+        ts.isTDMLFileValid
       }
       val msg = exc.getMessage
       println(msg)

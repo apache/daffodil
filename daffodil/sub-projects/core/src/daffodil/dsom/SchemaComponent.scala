@@ -12,6 +12,38 @@ import scala.collection.JavaConversions._
 import daffodil.grammar._
 import com.ibm.icu.charset.CharsetICU
 import daffodil.dsom.OOLAG._
+import daffodil.api._
+
+
+class SchemaDefinitionError(
+    val schemaContext : SchemaComponent,
+    val annotationContext : Option[DFDLAnnotation],
+    val kind : String,
+    val args : Any*) extends Exception with Diagnostic {
+  def isError = true
+  def getSchemaLocations = List(schemaContext)
+  def getDataLocations = Nil 
+  // TODO: Alternate constructor that allows data locations.
+  // Because some SDEs are caught only once Processing starts. 
+  // They're still SDE but they will have data location information.
+  
+  override def toString = {
+    lazy val argsAsString = args.map{ _.toString }.mkString(", ")
+    //
+    // Right here is where we would lookup the symbolic error kind id, and 
+    // choose a locale-based message string.
+    //
+    // For now, we'll just do an automatic English message.
+    //
+    val msg = 
+      if (kind.contains("%")) kind.format(args : _*)
+      else (kind+"(%s)").format(argsAsString)
+    val res = msg + "\nContext was : %s".format(schemaContext)
+    res
+  }
+  
+  override def getMessage = toString
+}
 
 /**
  * The core root class of the DFDL Schema object model.
@@ -20,7 +52,8 @@ import daffodil.dsom.OOLAG._
  */
 abstract class SchemaComponent(val xml : Node)
   extends DiagnosticsProviding
-  with GetAttributesMixin  {
+  with GetAttributesMixin 
+  with SchemaLocation {
   def schemaDocument: SchemaDocument
   lazy val schema: Schema = schemaDocument.schema
   lazy val namespace = schemaDocument.targetNamespace
@@ -42,6 +75,10 @@ abstract class SchemaComponent(val xml : Node)
   }
 
   val NYI = false // our flag for Not Yet Implemented 
+  
+  def SDE(id : String, args : Any *) : Nothing = {
+    throw new SchemaDefinitionError(this, None, id, args : _*)
+  }
 
 }
 

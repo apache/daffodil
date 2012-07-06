@@ -296,9 +296,9 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   lazy val combinedGroupRefAndGlobalGroupDefProperties: Map[String, String] = {
-    Assert.schemaDefinition(overlappingProps.size == 0,
-      "Overlap detected between the properties in the model group of a global group definition ("
-        + this.detailName + ") and its group reference.")
+    schemaDefinition(overlappingProps.size == 0,
+      "Overlap detected between the properties in the model group of a global group definition (%s) and its group reference.", 
+      this.detailName)
 
     val props = myGroupReferenceProps ++ this.localAndFormatRefProperties
     props

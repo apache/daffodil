@@ -20,13 +20,13 @@ object AlignmentType extends Enum[AlignmentType] { // Note: Was using AlignmentU
     ints.map(1 << _)
   }
 
-  def apply(str : String) : Any = { // any because it can be an Int, or "implicit"
+  def apply(str : String, self : ThrowsSDE) : Any = { // any because it can be an Int, or "implicit"
     if (str == "implicit") return Implicit
     val i =
       try {
         str.toInt
       } catch {
-        case e => Assert.schemaDefinitionError("For property 'alignment', value must be 'implicit' or an integer. Found: " + str)
+        case e => self.schemaDefinitionError("For property 'alignment', value must be 'implicit' or an integer. Found: %s", str)
       }
     if (allowedAlignmentValues.contains(i)) {
       //     val au = alignmentUnits
@@ -49,13 +49,13 @@ object FillByteType {
 }
 
 object TextNumberBase {
-  def apply(str : String) : Int = {
+  def apply(str : String, self : ThrowsSDE) : Int = {
     str match {
       case "2" => 2
       case "8" => 8
       case "10" => 10
       case "16" => 16
-      case _ => Assert.schemaDefinitionError("Illegal number base: " + str) // validation will have checked. So this shoudn't happen.
+      case _ => self.schemaDefinitionError("Illegal number base: " + str) // validation will have checked. So this shoudn't happen.
     }
   }
 
@@ -68,7 +68,7 @@ object SeparatorSuppressionPolicy extends Enum[SeparatorSuppressionPolicy] {
   case object Trailing extends SeparatorSuppressionPolicy; forceConstruction(Trailing)
   case object Always extends SeparatorSuppressionPolicy; forceConstruction(Always)
 
-  def apply(name : String) : SeparatorSuppressionPolicy = stringToEnum("separatorSuppressionPolicy", name)
+  def apply(name : String, self : ThrowsSDE) : SeparatorSuppressionPolicy = stringToEnum("separatorSuppressionPolicy", name, self)
 }
 
 trait SeparatorSuppressionPolicyMixin extends PropertyMixin { self : OOLAGHost =>
@@ -78,7 +78,7 @@ trait SeparatorSuppressionPolicyMixin extends PropertyMixin { self : OOLAGHost =
     val sp = getPropertyOption("separatorPolicy")
     val ssp = getPropertyOption("separatorSuppressionPolicy")
     ssp match {
-      case Some(sspStr) => SeparatorSuppressionPolicy(sspStr)
+      case Some(sspStr) => SeparatorSuppressionPolicy(sspStr, this)
       case None => {
         sp match {
           case Some("required") => SeparatorSuppressionPolicy.Never

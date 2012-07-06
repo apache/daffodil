@@ -578,7 +578,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val myGlobal3Seq = myGlobal3.modelGroup.asInstanceOf[Sequence]
 
     // Tests overlapping properties
-    intercept[daffodil.exceptions.SDE] { myGlobal3Seq.allNonDefaultProperties }
+    intercept[daffodil.dsom.SchemaDefinitionError] { myGlobal3Seq.allNonDefaultProperties }
 
   }
 

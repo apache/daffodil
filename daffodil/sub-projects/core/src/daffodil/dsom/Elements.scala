@@ -8,8 +8,8 @@ import daffodil.schema.annotation.props.gen._
 import daffodil.xml._
 import daffodil.processors.VariableMap
 import daffodil.api.WithDiagnostics
-
 import daffodil.dsom.OOLAG._
+import daffodil.exceptions.ThrowsSDE
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -278,7 +278,7 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
   // Need to go get the Element we are referencing
   lazy val referencedElement = {
     this.schema.schemaSet.getGlobalElementDecl(namespace, name) match {
-      case None => Assert.SDE("Referenced element (" + this.ref + ") was not found!")
+      case None => SDE("Referenced element not found: %s.", this.ref)
       case Some(x) => x.forElementRef(this)
     }
   }
@@ -387,8 +387,8 @@ trait ElementDeclMixin
             // Note: Validation of the DFDL Schema doesn't necessarily check referential integrity
             // or other complex constraints like conflicting names.
             // So we check it here explicitly.
-            case (None, None) => Assert.schemaDefinitionError("No type definition found for " + typeName.get + ".")
-            case (Some(_), Some(_)) => Assert.schemaDefinitionError("Both a simple and a complex type definition found for " + typeName.get + ".")
+            case (None, None) => schemaDefinitionError("No type definition found for %s.", typeName.get)
+            case (Some(_), Some(_)) => schemaDefinitionError("Both a simple and a complex type definition found for " + typeName.get + ".")
           }
           res
         }
@@ -413,7 +413,7 @@ trait ElementDeclMixin
       case Some(ty) => ty
       // Note: Schema validation should find this for us, but referential integrity checks like this
       // might not be done, so we check explicitly for this.
-      case None => Assert.SDE("Must have one of an immediate type, or a named type, but not both")
+      case None => SDE("Must have one of an immediate type or a named type but not both")
     }
   }
 
@@ -509,7 +509,7 @@ class LocalElementDecl(xmlArg : Node, parent : ModelGroup, position : Int)
  *
  * Factory for creating the corresponding DFDLAnnotation objects.
  */
-trait DFDLStatementMixin {
+trait DFDLStatementMixin extends ThrowsSDE {
 
   def annotationFactoryForDFDLStatement(node : Node, self : AnnotatedMixin) : DFDLAnnotation = {
     node match {
@@ -517,7 +517,7 @@ trait DFDLStatementMixin {
       case <dfdl:discriminator>{ content @ _* }</dfdl:discriminator> => new DFDLDiscriminator(node, self)
       case <dfdl:setVariable>{ content @ _* }</dfdl:setVariable> => new DFDLSetVariable(node, self)
       case <dfdl:newVariableInstance>{ content @ _* }</dfdl:newVariableInstance> => new DFDLNewVariableInstance(node, self)
-      case _ => Assert.SDE("Invalid dfdl annotation found: " + node)
+      case _ => SDE("Invalid DFDL annotation found: %s", node)
     }
   }
 

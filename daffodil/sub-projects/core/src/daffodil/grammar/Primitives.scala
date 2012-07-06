@@ -569,13 +569,16 @@ case class StartSequence(sq: Sequence, guard: Boolean = true) extends Terminal(s
   }
 }
 
-case class Nothing(sc: SchemaComponent) extends Terminal(sc, true) {
+/**
+ * Scala has a standard type Nothing, so we use Spanish. Nada means nothing in Spanish.
+ */
+case class Nada(sc: SchemaComponent) extends Terminal(sc, true) {
   override def isEmpty = false 
   // cannot optimize this out! It is used as an alternative to things
   // with the intention of "find this and this, or find nothing"
   def parser: Parser = new Parser {
 
-    override def toString = "Nothing"
+    override def toString = "Nada"
 
     def parse(start: PState): PState = start
   }

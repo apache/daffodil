@@ -123,8 +123,8 @@ object Assert extends Assert {
   def subset(testThatWillThrowIfFalse : => Boolean, message : => String) = schemaDefinition(testThatWillThrowIfFalse, "SUBSET: " + message)
   def subset(message : => String) = schemaDefinitionError("SUBSET: " + message)
 
-  def unknownPropertyValue(propName : String, propValue : String) =
-    schemaDefinitionError("For property " + propName + " unrecognized value " + propValue)
+//  def unknownPropertyValue(propName : String, propValue : String) =
+//    schemaDefinitionError("For property " + propName + " unrecognized value " + propValue)
     
   /**
    * Conditional behavior for NYIs

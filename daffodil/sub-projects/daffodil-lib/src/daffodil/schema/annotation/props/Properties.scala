@@ -76,11 +76,11 @@ import daffodil.util.Misc._
     }
     
     private var _values = List.empty[A]
-    def stringToEnum(enumTypeName : String, str : String) = {
+    def stringToEnum(enumTypeName : String, str : String, context : ThrowsSDE) = {
       val opt = _values.find(_.toString.toLowerCase() == str.toLowerCase)
       opt match {
         case Some(e) => e
-        case None => Assert.unknownPropertyValue(enumTypeName, str) 
+        case None => context.SDE("Unknown property value ", enumTypeName, str) 
       }
     }
     /**
@@ -123,7 +123,7 @@ import daffodil.util.Misc._
  * properties (that's what has to take the scoping rules into account, and get properties locally 
  * or from other places)
  */
-trait PropertyMixin {
+trait PropertyMixin extends ThrowsSDE { 
   
   def detailName : String
   
@@ -175,12 +175,15 @@ trait PropertyMixin {
     propOpt match {
       case Some(prop) => prop
       case None => {
-        val msg = "Property " + pname + " is not defined."
-        System.err.println(msg)
-        Assert.schemaDefinitionError(msg)
+//        val msg = "Property " + pname + " is not defined."
+//        System.err.println(msg)
+//        Assert.schemaDefinitionError(msg)
+        SDE("Property %s is not defined.", pname)
       }
     }
   }
+  
+
   
   /**
    * For testing, debug, printing, and other times when we really do need
