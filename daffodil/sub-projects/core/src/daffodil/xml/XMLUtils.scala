@@ -623,6 +623,78 @@ import xml.Utility.trim
       res
   }
   
+  
+   /**
+   * computes a precise difference list
+   */
+  def computeDiff(a : Node, b : Node) = {
+    computeDiffPath(a, b, Nil)
+  }
+  def computeDiffSeqPath(as : Seq[Node], bs : Seq[Node], path : Seq[String]) : Seq[(String, String, String)] = {
+    lazy val zPath = path.reverse.mkString("/")
+    (as, bs) match {
+      case (a :: ars, b :: brs) => {
+        val diffAB = computeDiffPath(a, b, path)
+        val diffRest = computeDiffSeqPath(ars, brs, path)
+        val res = diffAB ++ diffRest
+        res
+      }
+      case (Nil, Nil) => Nil
+      // case (_, Nil) | (Nil, _) => List((zPath, as.toString, bs.toString))
+      case _ => List((zPath, as.toString, bs.toString))
+    }
+  }
+  
+  def computeDiffPath(a : Node, b : Node, path : Seq[String]) : Seq[(String, String, String)] = {
+    lazy val zPath = path.reverse.mkString("/")
+    (a, b) match {
+      case (Elem(_, labelA, _, _, childrenA @ _*), Elem(_, labelB, _, _, childrenB @ _*)) => {
+        if (labelA != labelB) List((zPath, a.toString, b.toString))
+        else {
+          if (childrenA.length == childrenB.length) {
+          // recurse into children of Elem
+          val z = childrenA zip childrenB
+          val res = z.flatMap{ case (a, b) => {
+            computeDiffPath(a, b, labelA +: path)
+            }
+          }
+          res
+          }
+          else {
+            // different lengths, so they're different, but where?
+            computeDiffSeqPath(childrenA, childrenB, labelA +: path)
+          }
+        }
+      }
+      case (tA : Text, tB : Text) => {
+        val dataA = tA.toString
+        val dataB = tB.toString
+        def quoteIt(str : String) = "'" + str + "'"
+        if (dataA == dataB) Nil
+        else if (dataA.length != dataB.length) {
+            List((zPath, quoteIt(dataA), quoteIt(dataB)))
+        }
+        else {
+          val ints = Stream.from(0).map{_.toString}
+          val z = dataA zip dataB zip ints
+          val res = z.flatMap{
+            case ((a1, b1), index) =>
+              if (a1 == b1) Nil 
+              else {
+                val indexPath = zPath + "[" + index + "]"
+                List((indexPath, a1.toString, b1.toString))
+              }
+          }
+          res
+        }
+      }
+      case _ => {
+        List((zPath, a.toString, b.toString))
+      }
+    }
+  }
+
+  
     /**
    * Translates a qualified name into a pair of a namespace uri, and a local name part.
    * 
