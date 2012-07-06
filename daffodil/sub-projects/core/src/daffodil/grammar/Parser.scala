@@ -609,16 +609,16 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     var cbFinal: CharBuffer = CharBuffer.allocate(1)
     var cbPrev: CharBuffer = CharBuffer.allocate(1)
     var numBytes: Int = 1
-    try {
-      while(numBytes <= endByte){
+    while (numBytes <= endByte) {
+      try {
         cbPrev = decodeNBytes(numBytes, bytesArray, decoder)
         cbFinal = cbPrev
-        numBytes += 1
+      } catch {
+        case e: Exception => log(Debug("Exception in decodeUntilFail: " + e.toString()))
       }
-    } catch {
-      case e: Exception => log(Debug("Exception in decodeUntilFail: " + e.toString()))
+      numBytes += 1
     }
-    (cbFinal, (numBytes-1))
+    (cbFinal, (numBytes - 1))
   }
   
   // Fills the CharBuffer with as many bytes as can be decoded successfully.
