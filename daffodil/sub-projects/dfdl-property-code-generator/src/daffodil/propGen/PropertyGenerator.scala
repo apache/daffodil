@@ -306,6 +306,7 @@ object Currency extends Enum[Currency] {
     """  case object EUR extends Currency ; forceConstruction(EUR)
 """
 
+  // Modified to pass the context, so diagnostics can be better.
   val templateEnd = """
   def apply(name: String, context : ThrowsSDE) : Currency = stringToEnum("currency", name, context)
 }"""

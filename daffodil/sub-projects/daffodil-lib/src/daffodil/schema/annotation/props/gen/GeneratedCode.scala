@@ -28,7 +28,7 @@ import daffodil.exceptions.ThrowsSDE
 
 trait DFDLExpressionMixin { /* nothing */ }
 object DFDLExpression {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="EmptyString" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -44,7 +44,7 @@ object DFDLExpression {
 
 trait EmptyStringMixin { /* nothing */ }
 object EmptyString {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="DFDLExpressionOrNothing" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -58,7 +58,7 @@ object EmptyString {
 
 trait DFDLExpressionOrNothingMixin { /* nothing */ }
 object DFDLExpressionOrNothing {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="DFDLStringLiteral" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -69,7 +69,7 @@ object DFDLExpressionOrNothing {
 
 trait DFDLStringLiteralMixin { /* nothing */ }
 object DFDLStringLiteral {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="ListOfDFDLStringLiteral" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -79,7 +79,7 @@ object DFDLStringLiteral {
 
 trait ListOfDFDLStringLiteralMixin { /* nothing */ }
 object ListOfDFDLStringLiteral {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="DFDLNonNegativeInteger" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -91,7 +91,7 @@ object ListOfDFDLStringLiteral {
 
 trait DFDLNonNegativeIntegerMixin { /* nothing */ }
 object DFDLNonNegativeInteger {
-    def apply(s : String, self : Any) = s.toInt
+    def apply(s : String, self : ThrowsSDE) = s.toInt
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="DFDLRegularExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -102,7 +102,7 @@ object DFDLNonNegativeInteger {
 
 trait DFDLRegularExpressionMixin { /* nothing */ }
 object DFDLRegularExpression {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="DFDLQName" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -121,7 +121,7 @@ object DFDLRegularExpression {
 
 trait DFDLQNameMixin { /* nothing */ }
 object DFDLQName {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="EncodingEnum" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -133,7 +133,7 @@ object DFDLQName {
 
 trait EncodingMixin { /* nothing */ }
 object Encoding {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="TextStringJustificationEnum" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -1316,7 +1316,7 @@ trait CalendarPatternKindMixin extends PropertyMixin {
 
 trait CalendarTimeZoneTypeMixin { /* nothing */ }
 object CalendarTimeZoneType {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="CalendarLanguageType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -1328,7 +1328,7 @@ object CalendarTimeZoneType {
 
 trait CalendarLanguageTypeMixin { /* nothing */ }
 object CalendarLanguageType {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="CalendarFirstDayOfWeekEnum" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2270,7 +2270,7 @@ trait TestKindMixin extends PropertyMixin {
 
 trait BinaryPackedSignCodesMixin { /* nothing */ }
 object BinaryPackedSignCodes {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="CalendarDaysInFirstWeek" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2283,7 +2283,7 @@ object BinaryPackedSignCodes {
 
 trait CalendarDaysInFirstWeekMixin { /* nothing */ }
 object CalendarDaysInFirstWeek {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="CalendarCenturyStart" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2296,7 +2296,7 @@ object CalendarDaysInFirstWeek {
 
 trait CalendarCenturyStartMixin { /* nothing */ }
 object CalendarCenturyStart {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="ByteOrderEnum_Or_DFDLExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2313,7 +2313,7 @@ object CalendarCenturyStart {
 
 trait ByteOrderEnum_Or_DFDLExpressionMixin { /* nothing */ }
 object ByteOrderEnum_Or_DFDLExpression {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="EncodingEnum_Or_DFDLExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2330,7 +2330,7 @@ object ByteOrderEnum_Or_DFDLExpression {
 
 trait EncodingEnum_Or_DFDLExpressionMixin { /* nothing */ }
 object EncodingEnum_Or_DFDLExpression {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="BinaryFloatRepEnum_Or_DFDLExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2347,7 +2347,7 @@ object EncodingEnum_Or_DFDLExpression {
 
 trait BinaryFloatRepEnum_Or_DFDLExpressionMixin { /* nothing */ }
 object BinaryFloatRepEnum_Or_DFDLExpression {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="DFDLStringLiteral_Or_DFDLExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2365,7 +2365,7 @@ object BinaryFloatRepEnum_Or_DFDLExpression {
 
 trait DFDLStringLiteral_Or_DFDLExpressionMixin { /* nothing */ }
 object DFDLStringLiteral_Or_DFDLExpression {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="ListOfDFDLStringLiteral_Or_DFDLExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2382,7 +2382,7 @@ object DFDLStringLiteral_Or_DFDLExpression {
 
 trait ListOfDFDLStringLiteral_Or_DFDLExpressionMixin { /* nothing */ }
 object ListOfDFDLStringLiteral_Or_DFDLExpression {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="DFDLNonNegativeInteger_Or_DFDLExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2399,7 +2399,7 @@ object ListOfDFDLStringLiteral_Or_DFDLExpression {
 
 trait DFDLNonNegativeInteger_Or_DFDLExpressionMixin { /* nothing */ }
 object DFDLNonNegativeInteger_Or_DFDLExpression {
-    def apply(s : String, self : Any) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:attributeGroup name="BaseAG" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
