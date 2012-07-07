@@ -114,7 +114,7 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
 case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) with Logging {
 
   lazy val es = e.escapeScheme
-  lazy val esObj = EscapeScheme.getEscapeScheme(es)
+  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   lazy val tm = e.terminatingMarkup
   lazy val cname = toString
 
@@ -168,7 +168,7 @@ case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) wi
 case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) with Logging {
   val sequenceSeparator = e.nearestEnclosingSequence.get.separator
   lazy val es = e.escapeScheme
-  lazy val esObj = EscapeScheme.getEscapeScheme(es)
+  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
 
   def parser: Parser = new Parser {
     override def toString = "StringPatternMatched"
@@ -454,7 +454,7 @@ class StaticDelimiter(delim: String, e: InitiatedTerminatedMixin, guard: Boolean
 abstract class StaticText(delim: String, e: InitiatedTerminatedMixin, guard: Boolean = true) extends Terminal(e, guard) with Logging {
  
   lazy val es = e.escapeScheme
-  lazy val esObj = EscapeScheme.getEscapeScheme(es)
+  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   
   e.asInstanceOf[Term].terminatingMarkup
   

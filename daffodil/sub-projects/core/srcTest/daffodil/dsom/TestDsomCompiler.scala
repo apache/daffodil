@@ -405,7 +405,7 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals(NilKind.LiteralValue, ge3.nilKind)
 
     // Tests overlapping properties
-    intercept[daffodil.exceptions.SDE] { ge4.lengthKind }
+    intercept[daffodil.dsom.SchemaDefinitionError] { ge4.lengthKind }
 
     assertEquals(AlignmentUnits.Bytes, ge5.alignmentUnits) // local
     assertEquals(OccursCountKind.Parsed, ge5.occursCountKind) // def1
@@ -518,7 +518,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val gs3 = gs3f.forRoot() // Global SimpleType - aTypeError - overlapping base props
 
     // Tests overlapping properties
-    intercept[daffodil.exceptions.SDE] { gs3.allNonDefaultProperties }
+    intercept[daffodil.dsom.SchemaDefinitionError] { gs3.allNonDefaultProperties }
   }
 
   def test_group_references {

@@ -61,7 +61,7 @@ trait ParticleMixin { self : ElementBase =>
   lazy val hasStopValue = LV {
     val sv = isRecurring && occursCountKind == OccursCountKind.StopValue
     // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.
-    Assert.schemaDefinition(!(sv && occursStopValue == ""), "Property occursCountKind='stopValue' requires a non-empty occursStopValue property.")
+    schemaDefinition(!(sv && occursStopValue == ""), "Property occursCountKind='stopValue' requires a non-empty occursStopValue property.")
     sv
   }
 }
@@ -314,7 +314,7 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
   lazy val localAndFormatRefProperties = {
     val referencedProperties = referencedElement.localAndFormatRefProperties
     val myLocalProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
-    Assert.schemaDefinition(overlappingProperties.size == 0, "Type properties overlap with element properties.")
+    schemaDefinition(overlappingProperties.size == 0, "Type properties overlap with element properties.")
     val theUnion = referencedProperties ++ myLocalProperties
     theUnion
     
@@ -461,7 +461,7 @@ trait ElementDeclMixin
   lazy val localAndFormatRefProperties : Map[String, String] = {
     val localTypeProperties = typeDef.localAndFormatRefProperties
     val myLocalProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
-    Assert.schemaDefinition(overlappingProperties.size == 0, "Type properties overlap with element properties.")
+    schemaDefinition(overlappingProperties.size == 0, "Type properties overlap with element properties.")
     val theUnion = localTypeProperties ++ myLocalProperties
     theUnion
   }

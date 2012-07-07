@@ -717,12 +717,13 @@ object XMLUtils {
 trait GetAttributesMixin {
   def xml : Node
 
+  def context : ThrowsSDE
   /**
    * Use to retrieve things that are not format properties.
    */
   def getAttributeRequired(name : String) = {
     getAttributeOption(name) match {
-      case None => Assert.schemaDefinitionError("The attribute " + name + " is required.")
+      case None => context.schemaDefinitionError("The attribute " + name + " is required.")
       case Some(s) => s
     }
   }

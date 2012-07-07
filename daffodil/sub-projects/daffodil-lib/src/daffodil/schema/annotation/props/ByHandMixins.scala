@@ -35,7 +35,7 @@ object AlignmentType extends Enum[AlignmentType] { // Note: Was using AlignmentU
       //       case AlignmentUnits.Bytes => i // * Units.bytes
       //     }
       i
-    } else Assert.schemaDefinitionError("For property 'alignment', value must be a power of 2 (and fit in a 32 bit integer). Found: " + str)
+    } else self.schemaDefinitionError("For property 'alignment', value must be a power of 2 (and fit in a 32 bit integer). Found: " + str)
   }
 }
 

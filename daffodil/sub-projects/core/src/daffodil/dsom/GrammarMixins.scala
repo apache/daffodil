@@ -91,7 +91,7 @@ trait ElementBaseGrammarMixin
       case LengthKind.Explicit if isFixedLength => fixedLengthString
       case LengthKind.Delimited =>  stringDelimitedEndOfData 
       case LengthKind.Pattern => stringPatternMatched
-      case LengthKind.Implicit => Assert.schemaDefinitionError("Textual data elements cannot have lengthKind='implicit'.")
+      case LengthKind.Implicit => schemaDefinitionError("Textual data elements cannot have lengthKind='implicit'.")
       case _ => Assert.notYetImplemented()
     })
     res
@@ -286,7 +286,7 @@ trait ElementBaseGrammarMixin
           case "unsignedLong" => binaryUnsignedLong | textUnsignedLong
           case "double" => binaryDouble | textDouble
           case "float" => binaryFloat | textFloat
-          case _ => Assert.schemaDefinitionError("Unrecognized primitive type: " + ptName)
+          case _ => schemaDefinitionError("Unrecognized primitive type: " + ptName)
         }
     res
     }

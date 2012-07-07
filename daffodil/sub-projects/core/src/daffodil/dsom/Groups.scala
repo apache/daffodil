@@ -408,12 +408,12 @@ class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
         val elt =
           if (refProp == "") new LocalElementDecl(child, parent, position)
           else new ElementRef(child, parent, position)
-        Assert.subset(elt.isScalar, "Choices may only have scalar element children (minOccurs = maxOccurs = 1).")
+        subset(elt.isScalar, "Choices may only have scalar element children (minOccurs = maxOccurs = 1).")
         List(elt)
       }
       case <annotation>{ _* }</annotation> => Nil
       case textNode: Text => Nil
-      case _ => Assert.subset("Non-element child type. Choices may only have scalar element children (minOccurs = maxOccurs = 1).")
+      case _ => subsetError("Non-element child type. Choices may only have scalar element children (minOccurs = maxOccurs = 1).")
     }
     childList
   }
@@ -481,13 +481,13 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val groupDef : GlobalGroupDef = LV {
     val res = refQName match {
       // TODO See comment above about consolidating techniques.
-      case None => Assert.schemaDefinitionError("No group definition found for " + refName + ".")
+      case None => schemaDefinitionError("No group definition found for " + refName + ".")
       case Some((ns, localpart)) => {
         val ss = schema.schemaSet
         val ggdf = ss.getGlobalGroupDef(ns, localpart)
         val res = ggdf match {
           case Some(ggdFactory) => ggdFactory.forGroupRef(this, position)
-          case None => Assert.schemaDefinitionError("No group definition found for " + refName + ".")
+          case None => schemaDefinitionError("No group definition found for " + refName + ".")
           // FIXME: do we need to do these checks, or has schema validation checked this for us?
           // FIXME: if we do have to check, then the usual problems: don't stop on first error, and need location of error in diagnostic.
         }

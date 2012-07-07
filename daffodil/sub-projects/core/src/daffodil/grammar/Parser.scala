@@ -18,8 +18,8 @@ import scala.collection.mutable.Queue
 import scala.util.matching.Regex
 import stringsearch.constructs._
 import stringsearch.constructs.EscapeScheme._
-
 import daffodil.util._
+import daffodil.exceptions.ThrowsSDE
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
@@ -294,8 +294,8 @@ object PState {
    */
   def createInitialState(rootElemDecl: GlobalElementDecl, input: DFDL.Input, sizeHint: Long = -1): PState = {
     val inStream =
-      if (sizeHint != -1) new InStreamFromByteChannel(input, sizeHint)
-      else new InStreamFromByteChannel(input)
+      if (sizeHint != -1) new InStreamFromByteChannel(rootElemDecl, input, sizeHint)
+      else new InStreamFromByteChannel(rootElemDecl, input)
     createInitialState(rootElemDecl, inStream)
   }
 }
@@ -324,7 +324,7 @@ trait InStream {
   // def fillCharBufferUntilDelimiterOrEnd
 }
 
-class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) extends InStream with Logging { // 128K characters by default.
+class InStreamFromByteChannel(context : ElementBase, in: DFDL.Input, sizeHint: Long = 1024 * 128) extends InStream with Logging { // 128K characters by default.
   val maxCharacterWidthInBytes = 4 // worst case. Ok for testing. Don't use this pessimistic technique for real data.
   var bb = ByteBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
   // Verify there is not more data by making sure the buffer was not read to capacity.
@@ -363,9 +363,9 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
   // System.err.println("InStream byte count is " + count)
   // note, our input data might just be empty string, in which case count is zero, and that's all legal.
   def fillCharBuffer(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): Long = {
-    Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
+    context.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
     val byteOffsetAsLong = (bitOffset >> 3)
-    Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
+    context.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
     val byteOffset = byteOffsetAsLong.toInt
     // 
     // Note: not thread safe. We're depending here on the byte buffer being private to us.
@@ -624,9 +624,9 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
   // Fills the CharBuffer with as many bytes as can be decoded successfully.
   //
   def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): (Long, Boolean) = {
-    Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
+    context.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
     val byteOffsetAsLong = (bitOffset >> 3)
-    Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
+    context.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
     val byteOffset = byteOffsetAsLong.toInt
     val me: String = "fillCharBufferMixedData - "
     // 
