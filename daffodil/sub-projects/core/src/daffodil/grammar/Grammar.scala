@@ -7,6 +7,7 @@ import daffodil.dsom._
 import daffodil.dsom.OOLAG._
 import daffodil.util.Debug
 
+
 trait Gram extends DiagnosticsProviding {
 
   val name = getNameFromClass(this)
@@ -41,12 +42,11 @@ trait Gram extends DiagnosticsProviding {
    */
   def parser : Parser
 
-  def unparser : Unparser = DummyUnparser(null) // TODO remove this and leave as abstract method.
-
+  def unparser : Unparser
 }
 
-abstract class UnaryGram(rr : => Gram) extends NamedGram {
 
+abstract class UnaryGram(rr : => Gram) extends NamedGram {
   val r = rr
   val gram = {
     if (r.isEmpty) EmptyGram
@@ -54,7 +54,6 @@ abstract class UnaryGram(rr : => Gram) extends NamedGram {
   }
 
   override lazy val diagnosticChildren = if (r.isEmpty) Nil else List(r)
-
 }
 
 abstract class BinaryGram(p : => Gram, q : => Gram) extends Gram {
@@ -72,6 +71,7 @@ class SeqComp(p : => Gram, q : => Gram) extends BinaryGram(p, q) {
   def close = ""
 
   def parser = new SeqCompParser(p, q)
+  def unparser = new SeqCompUnparser(p, q)
 }
 
 class AltComp(p : => Gram, q : => Gram) extends BinaryGram(p, q) {
@@ -79,11 +79,13 @@ class AltComp(p : => Gram, q : => Gram) extends BinaryGram(p, q) {
   def open = "("
   def close = ")"
   def parser = new AltCompParser(p, q)
+  def unparser = new AltCompUnparser(p, q)
 }
 
 class RepExactlyN(n : Long, r : => Gram) extends UnaryGram(r) {
   Assert.invariant(n > 0)
   def parser = new RepExactlyNParser(n, r)
+  def unparser = new RepExactlyNUnparser(n, r)
 }
 
 object RepExactlyN {
@@ -94,6 +96,7 @@ object RepExactlyN {
 
 class RepAtMostTotalN(n : Long, r : => Gram) extends UnaryGram(r) {
   def parser = DummyParser(null) // stub
+  def unparser = DummyUnparser(null) // stub
 }
 object RepAtMostTotalN {
   def apply(n : Long, r : => Gram) = EmptyGram // new RepAtMostTotalN(n, r)
@@ -102,6 +105,7 @@ object RepAtMostTotalN {
 class RepUnbounded(r : => Gram) extends UnaryGram(r) {
   Assert.invariant(!r.isEmpty)
   def parser = new RepUnboundedParser(r)
+  def unparser = new RepUnboundedUnparser(r)
 }
 
 object RepUnbounded {
@@ -114,6 +118,7 @@ object RepUnbounded {
 
 class RepExactlyTotalN(n : Long, r : => Gram) extends UnaryGram(r) {
   def parser = DummyParser(null) // stub
+  def unparser = DummyUnparser(null) // stub
   override val gram = EmptyGram
   override def isEmpty = true
 }
@@ -129,6 +134,7 @@ object EmptyGram extends Gram {
   override lazy val diagnosticChildren = Nil
 
   def parser = new EmptyGramParser
+  def unparser = new EmptyGramUnparser
 }
 
 object ErrorGram extends Gram {
@@ -138,6 +144,7 @@ object ErrorGram extends Gram {
   override lazy val diagnosticChildren = Nil
 
   def parser = new ErrorParser
+  def unparser = new ErrorUnparser
 }
 
 trait NamedGram extends Gram {
@@ -214,8 +221,13 @@ class Prod(nameArg : String, val sc : SchemaComponent, guardArg : => Boolean, gr
   }
 
   // TODO. Remove override 
-  override lazy val unparser = gram.unparser
-
+  //override lazy val unparser = gram.unparser
+  lazy val unparser = unparser_.value
+  private lazy val unparser_ = LV{
+    gram.unparser
+  }
+  
+  
 //  override def toString = {
 //    val body = if (!guard) EmptyGram.toString else gram.toString
 //    // name + "(" + body + ")"

@@ -11,6 +11,7 @@ class TestGrammar extends JUnit3Suite {
   val fakeSchemaComponent = null
   case class Primitive1(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard) {
     def parser: Parser = Assert.notYetImplemented()
+    def unparser: Unparser = Assert.notYetImplemented()
   }
   //  case class Primitive2(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard)
   //  case class Primitive3(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard)
