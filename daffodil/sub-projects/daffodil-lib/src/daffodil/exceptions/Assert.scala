@@ -17,11 +17,6 @@ abstract class DFDLException(m : String) extends AnException(m) {
     m // just here for the sake of putting a breakpoint here.
   }
 }
-class SDE(m : String) extends DFDLException(m) // schema definition error
-
-class PE(m : String) extends DFDLException(m) // parsing error (processing error)
-
-class VE(m : String) extends DFDLException(m) // validation error (used only when validation is turned on.
 
 class Assert  {
   def shortBacktrace = {
@@ -98,34 +93,7 @@ object Assert extends Assert {
   def invariantFailed(msg : => String = "") = {
     abort("Invariant broken. " + msg )
   }
-
-    
-  /**
-   * Use for checks for Schema Definition Errors (per DFDL spec)
-   */
-  def schemaDefinition(testThatWillThrowIfFalse : => Boolean, message : => String) = {
-    // note use above of by-name arguments. This lets us turn off the evaluation of the tests,
-    // and also the construction of the string only happens IF the test passes.
-    if (!testThatWillThrowIfFalse) toss(new SDE(message))
-  }
-
-  def schemaDefinitionError(message : => String) = {
-    // note use above of by-name arguments. This lets us turn off the evaluation of the tests,
-    // and also the construction of the string only happens IF the test passes.
-    toss(new SDE(message))
-  }
-  
-  def SDE(message : => String) = schemaDefinitionError(message)
-    
-  /**
-   * Use for checks about currently implemented subset of DFDL.
-   */
-  def subset(testThatWillThrowIfFalse : => Boolean, message : => String) = schemaDefinition(testThatWillThrowIfFalse, "SUBSET: " + message)
-  def subset(message : => String) = schemaDefinitionError("SUBSET: " + message)
-
-  def unknownPropertyValue(propName : String, propValue : String) =
-    schemaDefinitionError("For property " + propName + " unrecognized value " + propValue)
-    
+   
   /**
    * Conditional behavior for NYIs
    */

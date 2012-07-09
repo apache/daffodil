@@ -4,6 +4,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 import daffodil.exceptions.Assert
 import java.lang.Byte
+import daffodil.exceptions.ThrowsSDE
 
 /**
  * Replace character entities, as well as hex/decimal numeric character entities by their unicode codepoint values.
@@ -208,7 +209,7 @@ class EntityReplacer {
 
 object EntityReplacer extends EntityReplacer
 
-abstract class StringLiteralBase(rawArg: String) {
+abstract class StringLiteralBase(rawArg: String, context : ThrowsSDE) {
   val raw: String = rawArg
   def cooked: String
 }
@@ -218,23 +219,23 @@ abstract class StringLiteralBase(rawArg: String) {
  *
  *  This is the kind of string literal you can use within an expression.
  */
-class StringValueAsLiteral(rawArg: String)
-  extends StringLiteralBase(rawArg) {
+class StringValueAsLiteral(rawArg: String, context : ThrowsSDE)
+  extends StringLiteralBase(rawArg, context) {
   def cooked = EntityReplacer.replaceAll(raw)
 }
 
-class SingleCharacterLiteral(rawArg: String)
-  extends StringValueAsLiteral(rawArg) {
-  Assert.schemaDefinition(cooked.length == 1, "Length of string must be exactly 1 character.")
+class SingleCharacterLiteral(rawArg: String, context : ThrowsSDE)
+  extends StringValueAsLiteral(rawArg, context) {
+  context.schemaDefinition(cooked.length == 1, "Length of string must be exactly 1 character.")
 }
 
-class SingleCharacterLiteralES(rawArg: String)
-	extends StringValueAsLiteral(rawArg) {
-  Assert.schemaDefinition(cooked.length() == 1 || cooked.length() == 0, "Length of string must be exactly 1 character or be empty.")
+class SingleCharacterLiteralES(rawArg: String, context : ThrowsSDE)
+	extends StringValueAsLiteral(rawArg, context) {
+  context.schemaDefinition(cooked.length() == 1 || cooked.length() == 0, "Length of string must be exactly 1 character or be empty.")
 }
 
-class OneDelimiterLiteral(rawArg: String)
-  extends StringLiteralBase(rawArg) {
+class OneDelimiterLiteral(rawArg: String, context : ThrowsSDE)
+  extends StringLiteralBase(rawArg, context) {
   def cooked = EntityReplacer.replaceAll(raw)
   // deal with raw bytes entities
   // deal with character class entities
@@ -248,7 +249,7 @@ class OneDelimiterLiteral(rawArg: String)
 
 }
 
-class ListOfDelimiters(rawArg: String)
-  extends StringLiteralBase(rawArg) {
+class ListOfDelimiters(rawArg: String, context : ThrowsSDE)
+  extends StringLiteralBase(rawArg, context) {
   def cooked = EntityReplacer.replaceAll(raw)
 }

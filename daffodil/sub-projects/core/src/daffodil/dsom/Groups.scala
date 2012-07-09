@@ -26,7 +26,58 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
   with InitiatedTerminatedMixin{
 
   def isScalar = true // override in local elements
+  
+  lazy val allTerminatingMarkup: List[CompiledExpression] = {
+    val tm = List(this.terminator) ++ this.allParentTerminatingMarkup
+    tm.filter(x => x.isKnownNonEmpty)
+  }
 
+  lazy val allParentTerminatingMarkup: List[CompiledExpression] = {
+    // Retrieves the terminating markup for all parent
+    // objects
+    //
+    val pTM = parent match {
+      case s: Sequence => List(s.separator, s.terminator) ++ s.allParentTerminatingMarkup
+      case c: Choice => c.allParentTerminatingMarkup
+      case d: SchemaDocument => List.empty
+      case ct: LocalComplexTypeDef => ct.parent match {
+        case local: LocalElementDecl => List(local.terminator) ++ local.allParentTerminatingMarkup
+        case global: GlobalElementDecl => {
+          global.elementRef match {
+            case None => List(global.terminator)
+            case Some(eRef) => eRef.allParentTerminatingMarkup
+          }
+        }
+        case _ => Assert.impossibleCase()
+      }
+      // global type, we have to follow back to the element referencing this type
+      case ct: GlobalComplexTypeDef => {
+        // Since we are a term directly inside a global complex type def,
+        // our nearest enclosing sequence is the one enclosing the element that
+        // has this type. 
+        //
+        // However, that element might be local, or might be global and be referenced
+        // from an element ref.
+        //
+        ct.element match {
+          case local: LocalElementDecl => List(local.terminator) ++ local.allParentTerminatingMarkup
+          case global: GlobalElementDecl => {
+            global.elementRef match {
+              case None => List(global.terminator)
+              case Some(eRef) => eRef.allParentTerminatingMarkup
+            }
+          }
+          case _ => Assert.impossibleCase()
+        }
+      }
+      case gd: GlobalGroupDef => gd.groupRef.allParentTerminatingMarkup
+      // We should only be asking for the enclosingSequence when there is one.
+      case _ => Assert.invariantFailed("No parent terminating markup for : " + this)
+    }
+    val res = pTM.filter(x => x.isKnownNonEmpty)
+    res
+  }
+  
   /**
    * nearestEnclosingSequence
    *
@@ -245,9 +296,9 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   lazy val combinedGroupRefAndGlobalGroupDefProperties: Map[String, String] = {
-    Assert.schemaDefinition(overlappingProps.size == 0,
-      "Overlap detected between the properties in the model group of a global group definition ("
-        + this.detailName + ") and its group reference.")
+    schemaDefinition(overlappingProps.size == 0,
+      "Overlap detected between the properties in the model group of a global group definition (%s) and its group reference.", 
+      this.detailName)
 
     val props = myGroupReferenceProps ++ this.localAndFormatRefProperties
     props
@@ -357,12 +408,12 @@ class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
         val elt =
           if (refProp == "") new LocalElementDecl(child, parent, position)
           else new ElementRef(child, parent, position)
-        Assert.subset(elt.isScalar, "Choices may only have scalar element children (minOccurs = maxOccurs = 1).")
+        subset(elt.isScalar, "Choices may only have scalar element children (minOccurs = maxOccurs = 1).")
         List(elt)
       }
       case <annotation>{ _* }</annotation> => Nil
       case textNode: Text => Nil
-      case _ => Assert.subset("Non-element child type. Choices may only have scalar element children (minOccurs = maxOccurs = 1).")
+      case _ => subsetError("Non-element child type. Choices may only have scalar element children (minOccurs = maxOccurs = 1).")
     }
     childList
   }
@@ -430,13 +481,13 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val groupDef : GlobalGroupDef = LV {
     val res = refQName match {
       // TODO See comment above about consolidating techniques.
-      case None => Assert.schemaDefinitionError("No group definition found for " + refName + ".")
+      case None => schemaDefinitionError("No group definition found for " + refName + ".")
       case Some((ns, localpart)) => {
         val ss = schema.schemaSet
         val ggdf = ss.getGlobalGroupDef(ns, localpart)
         val res = ggdf match {
           case Some(ggdFactory) => ggdFactory.forGroupRef(this, position)
-          case None => Assert.schemaDefinitionError("No group definition found for " + refName + ".")
+          case None => schemaDefinitionError("No group definition found for " + refName + ".")
           // FIXME: do we need to do these checks, or has schema validation checked this for us?
           // FIXME: if we do have to check, then the usual problems: don't stop on first error, and need location of error in diagnostic.
         }

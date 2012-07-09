@@ -63,6 +63,19 @@ class TestTDMLRunner extends JUnit3Suite {
     assertEquals(expected, actual)
   }
 
+  def testDocWithMultiByteUnicode() {
+    val xml = <document>
+                <documentPart type="text">&#x24;&#xA2;&#x20AC;&#x2028;</documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    val docPart = doc.documentParts(0)
+    val bytes = docPart.convertedContent
+    assertEquals(9, bytes.length)
+    val str = docPart.partRawContent // a string
+    assertEquals(4, str.length)
+    assertEquals("$¢€\u2028", str)
+  }
+
   def test1() {
     val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="firstUnitTest" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
@@ -366,6 +379,7 @@ class TestTDMLRunner extends JUnit3Suite {
     val testSuite = tdmlWithEmbeddedSchemaInvalid
     val exc = intercept[Exception] {
       val ts = new DFDLTestSuite(testSuite)
+      ts.isTDMLFileValid
     }
     val msg = exc.getMessage
     println(msg)
@@ -398,6 +412,7 @@ class TestTDMLRunner extends JUnit3Suite {
       }
       val exc = intercept[Exception] {
         val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+        ts.isTDMLFileValid
       }
       val msg = exc.getMessage
       println(msg)
@@ -425,6 +440,29 @@ class TestTDMLRunner extends JUnit3Suite {
                     </ts:testSuite>
     val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("firstUnitTest", Some(testSchema))
+  }
+
+  val tdmlWithUnicode2028 =
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+      <tdml:defineSchema name="mySchema">
+        <dfdl:format ref="tns:daffodilTest1"/>
+        <xsd:element name="data" type="xsd:string" dfdl:encoding="utf-8" dfdl:lengthKind="delimited" dfdl:terminator="!"/>
+      </tdml:defineSchema>
+      <parserTestCase xmlns={ tdml } name="firstUnitTest" root="data" model="mySchema">
+        <document>a&#x2028;!</document>
+        <infoset>
+          <dfdlInfoset>
+            <data xmlns={ tns }>a&#x2028;</data>
+          </dfdlInfoset>
+        </infoset>
+      </parserTestCase>
+    </tdml:testSuite>
+
+  // @Test
+  def testMultiByteUnicodeWorks() {
+    val testSuite = tdmlWithUnicode2028
+    val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("firstUnitTest")
   }
 
 }

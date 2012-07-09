@@ -12,6 +12,38 @@ import scala.collection.JavaConversions._
 import daffodil.grammar._
 import com.ibm.icu.charset.CharsetICU
 import daffodil.dsom.OOLAG._
+import daffodil.api._
+
+
+class SchemaDefinitionError(
+    val schemaContext : Option[SchemaComponent],
+    val annotationContext : Option[DFDLAnnotation],
+    val kind : String,
+    val args : Any*) extends Exception with Diagnostic {
+  def isError = true
+  def getSchemaLocations = schemaContext.toList
+  def getDataLocations = Nil 
+  // TODO: Alternate constructor that allows data locations.
+  // Because some SDEs are caught only once Processing starts. 
+  // They're still SDE but they will have data location information.
+  
+  override def toString = {
+    lazy val argsAsString = args.map{ _.toString }.mkString(", ")
+    //
+    // Right here is where we would lookup the symbolic error kind id, and 
+    // choose a locale-based message string.
+    //
+    // For now, we'll just do an automatic English message.
+    //
+    val msg = 
+      if (kind.contains("%")) kind.format(args : _*)
+      else (kind+"(%s)").format(argsAsString)
+    val res = msg + "\nContext was : %s".format(schemaContext.getOrElse("top level"))
+    res
+  }
+  
+  override def getMessage = toString
+}
 
 /**
  * The core root class of the DFDL Schema object model.
@@ -20,12 +52,15 @@ import daffodil.dsom.OOLAG._
  */
 abstract class SchemaComponent(val xml : Node)
   extends DiagnosticsProviding
-  with GetAttributesMixin  {
+  with GetAttributesMixin 
+  with SchemaLocation 
+  with ThrowsSDE {
   def schemaDocument: SchemaDocument
   lazy val schema: Schema = schemaDocument.schema
   lazy val namespace = schemaDocument.targetNamespace
   def prettyName : String
   
+  def context = this
   def scPath : String
   lazy val path = scPath
   
@@ -42,6 +77,18 @@ abstract class SchemaComponent(val xml : Node)
   }
 
   val NYI = false // our flag for Not Yet Implemented 
+  
+  //TODO: create a trait to share various error stuff with DFDLAnnotation class.
+  // Right now there is small code duplication since annotations aren't schema components.
+  def SDE(id : String, args : Any *) : Nothing = {
+    throw new SchemaDefinitionError(Some(this), None, id, args : _*)
+  }
+  
+  def subset(testThatWillThrowIfFalse : Boolean, args : Any*) = {
+    if (!testThatWillThrowIfFalse) subsetError(args : _ * )
+  }
+  
+  def subsetError(args : Any*) = SDE("Subset ", args : _*)
 
 }
 
@@ -330,7 +377,7 @@ extends DiagnosticsProviding {
     if (onlyCheckingRoot) {
       val geFactory = getGlobalElementDecl(rootNamespace, root)
       val ge = geFactory match {
-        case None => throw Assert.SDE("No global element found for : " + (rootNamespace, root))
+        case None => throw new SchemaDefinitionError(None, None, "No global element found for : " + (rootNamespace, root))
         case Some(f) => f.forRoot()
       }
       Some(ge)
@@ -374,8 +421,8 @@ extends DiagnosticsProviding {
    * DFDL Schema top-level global objects
    */
   def getDefineFormat(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineFormat(name) }
-  def getDefineFormats(namespace: String) = getSchema(namespace) match {
-    case None => Assert.schemaDefinitionError("Failed to find a schema for namespace:  " + namespace)
+  def getDefineFormats(namespace: String, context : ThrowsSDE) = getSchema(namespace) match {
+    case None => context.schemaDefinitionError("Failed to find a schema for namespace:  " + namespace)
     case Some(sch) => sch.getDefineFormats()
   }
   def getDefineVariable(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineVariable(name) }
@@ -410,7 +457,7 @@ extends DiagnosticsProviding {
     scs match {
       case Nil => None
       case Seq(sc) => Some(sc)
-      case _ => Assert.SDE("more than one definition for name: " + name)
+      case _ => throw new SchemaDefinitionError(None, None, "more than one definition for name: " + name)
     }
   }
 

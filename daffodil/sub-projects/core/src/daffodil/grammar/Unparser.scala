@@ -292,8 +292,8 @@ object UState {
    */
   def createInitialState(rootElemDecl: GlobalElementDecl, output: DFDL.Output, document: org.jdom.Document, sizeHint: Long = -1): UState = {
     val outStream =
-      if (sizeHint != -1) new OutStreamFromByteChannel(output, sizeHint)
-      else new OutStreamFromByteChannel(output)
+      if (sizeHint != -1) new OutStreamFromByteChannel(rootElemDecl, output, sizeHint)
+      else new OutStreamFromByteChannel(rootElemDecl, output)
     createInitialState(rootElemDecl, outStream, document)
   }
 }
@@ -322,7 +322,7 @@ trait OutStream {
   // def fillCharBufferUntilDelimiterOrEnd
 }
 
-class OutStreamFromByteChannel(outStream: DFDL.Output, sizeHint: Long = 1024 * 128) extends OutStream with Logging { // 128K characters by default.
+class OutStreamFromByteChannel(context : ElementBase, outStream: DFDL.Output, sizeHint: Long = 1024 * 128) extends OutStream with Logging { // 128K characters by default.
   val maxCharacterWidthInBytes = 4 // worst case. Ok for testing. Don't use this pessimistic technique for real data.
   var cbuf = CharBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
 
@@ -331,9 +331,9 @@ class OutStreamFromByteChannel(outStream: DFDL.Output, sizeHint: Long = 1024 * 1
    * corresponding to the amount of data read.
    */
   def fillOutStream(bbuf: ByteBuffer, bitOffset: Long, data: String, encoder: CharsetEncoder): Long = {
-    Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
+    context.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
     val byteOffsetAsLong = (bitOffset >> 3)
-    Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
+    context.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
     val byteOffset = byteOffsetAsLong.toInt
 
     // Note: not thread safe. We're depending here on the char buffer being private to us.

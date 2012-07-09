@@ -1,15 +1,20 @@
 package daffodil.schema.annotation.props
 
-import junit.framework.Assert._ 
+import junit.framework.Assert._
 import org.scalatest.junit.JUnit3Suite
+import daffodil.exceptions.ThrowsSDE
 
 sealed trait MyPropType extends MyProp.Value
-object MyProp extends Enum[MyPropType] {
+object MyProp extends Enum[MyPropType] with ThrowsSDE {
   case object PropVal1 extends MyPropType
   forceConstruction(PropVal1)
   case object PropVal2 extends MyPropType
   forceConstruction(PropVal2)
-  def apply(name: String): MyPropType = stringToEnum("myProp", name)
+  def apply(name: String): MyPropType = stringToEnum("myProp", name, this)
+  
+  def SDE(id : String, args : Any *) : Nothing = {
+    throw new Exception(id.toString + args)
+  }
 }
 
 class MyPropMixin {
@@ -57,16 +62,20 @@ object TheExampleProp extends Enum[TheExampleProp] {
   case object Right extends TheExampleProp ; forceConstruction(Right)
   case object Center extends TheExampleProp ; forceConstruction(Center)
 
-  def apply(name: String) : TheExampleProp = stringToEnum("theExampleProp", name)
+  def apply(name: String, self : ThrowsSDE) : TheExampleProp = stringToEnum("theExampleProp", name, self)
 }
 
 trait TheExamplePropMixin extends PropertyMixin {
+  
+  def SDE(id : String, args : Any *) : Nothing = {
+    throw new Exception(id.toString + args)
+  }
     
   /**
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val theExampleProp = TheExampleProp(getProperty("theExampleProp"))
+  lazy val theExampleProp = TheExampleProp(getProperty("theExampleProp"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.

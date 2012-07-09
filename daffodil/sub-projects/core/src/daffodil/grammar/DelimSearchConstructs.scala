@@ -7,6 +7,9 @@ import daffodil.dsom.EntityReplacer
 import daffodil.dsom.StringValueAsLiteral
 import daffodil.dsom.SingleCharacterLiteral
 import daffodil.util._
+import EscapeSchemeKind.EscapeSchemeKind
+import daffodil.exceptions.ThrowsSDE
+
 
 object DelimiterType extends Enumeration {
   type DelimType = Value
@@ -35,9 +38,7 @@ object EscapeSchemeKind extends Enumeration {
   val Character, Block, None = Value
 }
 
-import SearchState._
-import CRLFState._
-import EscapeSchemeKind.EscapeSchemeKind
+
 
 object EscapeScheme extends Logging {
 
@@ -49,7 +50,7 @@ object EscapeScheme extends Logging {
     var escapeBlockEnd = ""
   }
 
-  def getEscapeScheme(pEs: Option[DFDLEscapeScheme]): EscapeSchemeObj = {
+  def getEscapeScheme(pEs: Option[DFDLEscapeScheme], context : ThrowsSDE): EscapeSchemeObj = {
     var escapeSchemeKind = EscapeSchemeKind.None
     var escapeCharacter = ""
     var escapeEscapeCharacter = ""
@@ -63,30 +64,30 @@ object EscapeScheme extends Logging {
           case EscapeKind.EscapeBlock => {
             escapeSchemeKind = EscapeSchemeKind.Block
             escapeEscapeCharacter = {
-              val l = new daffodil.dsom.SingleCharacterLiteralES(obj.escapeEscapeCharacterRaw)
+              val l = new daffodil.dsom.SingleCharacterLiteralES(obj.escapeEscapeCharacterRaw, context)
               l.cooked
             }
             escapeBlockStart = {
-              val l = new StringValueAsLiteral(obj.escapeBlockStart)
+              val l = new StringValueAsLiteral(obj.escapeBlockStart, context)
               l.cooked
             }
             escapeBlockEnd = {
-              val l = new StringValueAsLiteral(obj.escapeBlockEnd)
+              val l = new StringValueAsLiteral(obj.escapeBlockEnd, context)
               l.cooked
             }
           }
           case EscapeKind.EscapeCharacter => {
             escapeSchemeKind = EscapeSchemeKind.Character
             escapeEscapeCharacter = {
-              val l = new daffodil.dsom.SingleCharacterLiteralES(obj.escapeEscapeCharacterRaw)
+              val l = new daffodil.dsom.SingleCharacterLiteralES(obj.escapeEscapeCharacterRaw, context)
               l.cooked
             }
             escapeCharacter = {
-              val l = new daffodil.dsom.SingleCharacterLiteralES(obj.escapeCharacterRaw)
+              val l = new daffodil.dsom.SingleCharacterLiteralES(obj.escapeCharacterRaw, context)
               l.cooked
             }
           }
-          case _ => Assert.SDE("Unrecognized Escape Scheme!")
+          case _ => context.schemaDefinitionError("Unrecognized Escape Scheme!")
         }
       }
     }

@@ -157,7 +157,10 @@ trait NamedGram extends Gram {
 abstract class Terminal(sc : Any, guard : Boolean) extends NamedGram {
   override def isEmpty = !guard
   
-  override lazy val path = sc.asInstanceOf[SchemaComponent].path + "@@" + prettyName
+  lazy val realSC = sc.asInstanceOf[SchemaComponent]
+  override lazy val path = realSC.path + "@@" + prettyName
+  
+  def SDE(str : String, args : Any *) : Nothing = realSC.SDE(str, args)
 
   lazy val diagnosticChildren = Nil
 }
@@ -174,6 +177,8 @@ abstract class Terminal(sc : Any, guard : Boolean) extends NamedGram {
  */
 class Prod(nameArg : String, val sc : SchemaComponent, guardArg : => Boolean, gramArg : => Gram)
   extends NamedGram {
+  
+  def SDE(str : String, args : Any *) : Nothing = sc.SDE(str, args)
 
   override val name = nameArg
   
