@@ -114,9 +114,17 @@ object Assert extends Assert {
     // and also the construction of the string only happens IF the test passes.
     toss(new SDE(message))
   }
-  
+
+  def processingError(message : => String) = {
+    // note use above of by-name arguments. This lets us turn off the evaluation of the tests,
+    // and also the construction of the string only happens IF the test passes.
+    toss(new PE(message))
+  }
+
   def SDE(message : => String) = schemaDefinitionError(message)
-    
+
+  def PE(message : => String) = processingError(message)
+
   /**
    * Use for checks about currently implemented subset of DFDL.
    */

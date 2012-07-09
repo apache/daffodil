@@ -16,7 +16,7 @@ import stringsearch.delimiter._
 
 import daffodil.util._
 
-case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
+case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.value != true || e.lengthKind != LengthKind.Pattern) {
   def parser: Parser = new Parser {
 
     override def toString = "<" + e.name + ">"
@@ -31,6 +31,43 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
       priorElement.addContent(currentElement)
       val postState = start.withParent(currentElement)
       postState
+    }
+  }
+}
+
+case class ComplexElementBeginPattern(e: ElementBase) extends Terminal(e, e.isComplexType.value == true && e.lengthKind == LengthKind.Pattern) {
+  Assert.invariant(e.isComplexType.value)
+  def parser: Parser = new Parser {
+    override def toString = "<" + e.name + " dfdl:lengthKind='pattern'>"
+    val decoder = e.knownEncodingDecoder
+    var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
+    val pattern = e.lengthPattern
+
+    /**
+     * ElementBegin just adds the element we are constructing to the infoset and changes
+     * the state to be referring to this new element as what we're parsing data into.
+     */
+    def parse(start: PState): PState = {
+      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
+      val (result, endBitPos, theState) = in.fillCharBufferWithPatternMatch(cbuf, start.bitPos, decoder, pattern)
+
+      val postState1 = theState match {
+        case SearchResult.NoMatch => start.failed(this.toString() + ": No match found!")
+        case SearchResult.PartialMatch => start.failed(this.toString() + ": Partial match found!")
+        case SearchResult.FullMatch => {
+          log(Debug("Parsed: " + result))
+          log(Debug("Ended at bit position " + endBitPos))
+          val limitedInStream = in.withLimit(start.bitPos, endBitPos)
+          val count = ((endBitPos - start.bitPos + 7) / 8).asInstanceOf[Int]
+          start withEndBitLimit(endBitPos) withInStream(new InStreamFromByteChannel(limitedInStream, count))
+        }
+      }
+
+      val currentElement = new org.jdom.Element(e.name, e.namespace)
+      val priorElement = postState1.parent
+      priorElement.addContent(currentElement)
+      val postState2 = start withParent(postState1 parent) withEndBitLimit(postState1 bitLimit) withInStream(postState1 inStream)
+      postState2
     }
   }
 }
@@ -77,6 +114,10 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
       log(Debug("Parsing starting at bit position: " + start.bitPos))
       val in = start.inStream
       val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
+      if (endBitPos < start.bitPos + nBytes * 8) {
+        // Do Something Bad
+        Assert.processingError("Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
+      }
       val result = cbuf.toString
       log(Debug("Parsed: " + result))
       log(Debug("Ended at bit position " + endBitPos))
@@ -167,8 +208,6 @@ case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) wi
 
 case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) with Logging {
   val sequenceSeparator = e.nearestEnclosingSequence.get.separator
-  lazy val es = e.escapeScheme
-  lazy val esObj = EscapeScheme.getEscapeScheme(es)
 
   def parser: Parser = new Parser {
     override def toString = "StringPatternMatched"
@@ -183,7 +222,7 @@ case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) with L
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
 
-      val (result, endBitPos, theState) = in.fillCharBufferWithPatternMatch(cbuf, start.bitPos, decoder, pattern, esObj)
+      val (result, endBitPos, theState) = in.fillCharBufferWithPatternMatch(cbuf, start.bitPos, decoder, pattern)
 
       val postState = theState match {
         case SearchResult.NoMatch => start.failed(this.toString() + ": No match found!")

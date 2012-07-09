@@ -20,6 +20,7 @@ import stringsearch.constructs._
 import stringsearch.constructs.EscapeScheme._
 
 import daffodil.util._
+import java.io.ByteArrayInputStream
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
@@ -197,6 +198,8 @@ class PState(
   def withInStream(inStream: InStream, status: ProcessorResult = Success) =
     new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) =
+    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+  def withEndBitLimit(bitLimit: Long, status: ProcessorResult = Success) =
     new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withParent(parent: org.jdom.Element, status: ProcessorResult = Success) =
     new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
@@ -505,7 +508,7 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
 
 
   def fillCharBufferWithPatternMatch(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder,
-      pattern: String, es: EscapeSchemeObj) : (String, Long, SearchResult) = {
+      pattern: String) : (String, Long, SearchResult) = {
     log(Debug("===\nSTART_FILL!\n===\n"))
     val byteOffsetAsLong = (bitOffset >> 3)
     val byteOffset = byteOffsetAsLong.toInt
@@ -803,6 +806,22 @@ class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128) exten
     val bytePos = (bitPos >> 3).toInt
     bb.order(order)
     bb.getFloat(bytePos)
+  }
+
+  def withLimit(startBitPos: Long, endBitPos: Long) = {
+    Assert.invariant((startBitPos & 7) == 0)
+    Assert.invariant((endBitPos & 7) == 0)
+    val startByte = startBitPos / 8
+    val endByte = (endBitPos + 7) / 8
+    val count = endByte - startByte
+    var bytes : Array[Byte] = new Array(count.asInstanceOf[Int])
+    val oldPos = bb.position
+    bb.position(startByte.asInstanceOf[Int])
+    bb.get(bytes, 0, count.asInstanceOf[Int])
+    val inputStream = new ByteArrayInputStream(bytes)
+    val rbc = java.nio.channels.Channels.newChannel(inputStream)
+    bb.position(oldPos)
+    rbc
   }
 }
 
