@@ -129,7 +129,8 @@ case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) wi
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
 
-      val delimiters2 = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
+      //val delimiters2 = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
+      val delimiters2 = e.allTerminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
       val delimiters = delimiters2.flatten(x => x)
       
       log(Debug("StringDelimitedEndOfData - Looking for: " + delimiters + " Count: " + delimiters.length))
@@ -456,7 +457,7 @@ abstract class StaticText(delim: String, e: InitiatedTerminatedMixin, guard: Boo
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   
-  e.asInstanceOf[Term].terminatingMarkup
+  //e.asInstanceOf[Term].terminatingMarkup
   
   def parser: Parser = new Parser {
     
