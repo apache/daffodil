@@ -7,7 +7,7 @@ import daffodil.dsom._
 import daffodil.dsom.OOLAG._
 import daffodil.util.Debug
 
-trait Gram extends DiagnosticsProviding {
+abstract class Gram(val context: Term) extends DiagnosticsProviding {
 
   val name = getNameFromClass(this)
   
@@ -23,7 +23,7 @@ trait Gram extends DiagnosticsProviding {
       else this
     else if (this.isEmpty) q
     else
-      new SeqComp(this, q)
+      new SeqComp(context, this, q)
   }
 
   def |(qq : => Gram) = {
@@ -33,7 +33,7 @@ trait Gram extends DiagnosticsProviding {
       else this
     else if (this.isEmpty) q
     else
-      new AltComp(this, q)
+      new AltComp(context, this, q)
   }
 
   /**
@@ -45,7 +45,7 @@ trait Gram extends DiagnosticsProviding {
 
 }
 
-abstract class UnaryGram(rr : => Gram) extends NamedGram {
+abstract class UnaryGram(context: Term, rr : => Gram) extends NamedGram(context) {
 
   val r = rr
   val gram = {
@@ -57,7 +57,7 @@ abstract class UnaryGram(rr : => Gram) extends NamedGram {
 
 }
 
-abstract class BinaryGram(p : => Gram, q : => Gram) extends Gram {
+abstract class BinaryGram(context: Term, p : => Gram, q : => Gram) extends Gram(context) {
   def op : String
   def open : String
   def close : String
@@ -66,63 +66,63 @@ abstract class BinaryGram(p : => Gram, q : => Gram) extends Gram {
   override lazy val diagnosticChildren = List(p, q)
 }
 
-class SeqComp(p : => Gram, q : => Gram) extends BinaryGram(p, q) {
+class SeqComp(context: Term, p : => Gram, q : => Gram) extends BinaryGram(context, p, q) {
   def op = "~"
   def open = ""
   def close = ""
 
-  def parser = new SeqCompParser(p, q)
+  def parser = new SeqCompParser(context, p, q)
 }
 
-class AltComp(p : => Gram, q : => Gram) extends BinaryGram(p, q) {
+class AltComp(context: Term, p : => Gram, q : => Gram) extends BinaryGram(context, p, q) {
   def op = "|"
   def open = "("
   def close = ")"
-  def parser = new AltCompParser(p, q)
+  def parser = new AltCompParser(context, p, q)
 }
 
-class RepExactlyN(n : Long, r : => Gram) extends UnaryGram(r) {
+class RepExactlyN(context: Term, n : Long, r : => Gram) extends UnaryGram(context, r) {
   Assert.invariant(n > 0)
-  def parser = new RepExactlyNParser(n, r)
+  def parser = new RepExactlyNParser(context, n, r)
 }
 
 object RepExactlyN {
-  def apply(n : Long, r : => Gram) =
+  def apply(context: Term, n : Long, r : => Gram) =
     if (n == 0) EmptyGram
-    else new RepExactlyN(n, r)
+    else new RepExactlyN(context, n, r)
 }
 
-class RepAtMostTotalN(n : Long, r : => Gram) extends UnaryGram(r) {
+class RepAtMostTotalN(context: Term, n : Long, r : => Gram) extends UnaryGram(context, r) {
   def parser = DummyParser(null) // stub
 }
 object RepAtMostTotalN {
-  def apply(n : Long, r : => Gram) = EmptyGram // new RepAtMostTotalN(n, r)
+  def apply(context: Term, n : Long, r : => Gram) = EmptyGram // new RepAtMostTotalN(n, r)
 }
 
-class RepUnbounded(r : => Gram) extends UnaryGram(r) {
+class RepUnbounded(context: Term, r : => Gram) extends UnaryGram(context, r) {
   Assert.invariant(!r.isEmpty)
-  def parser = new RepUnboundedParser(r)
+  def parser = new RepUnboundedParser(context, r)
 }
 
 object RepUnbounded {
-  def apply(r : => Gram) = {
+  def apply(context: Term, r : => Gram) = {
     val rr = r
     if (rr.isEmpty) EmptyGram
-    else new RepUnbounded(r)
+    else new RepUnbounded(context, r)
   }
 }
 
-class RepExactlyTotalN(n : Long, r : => Gram) extends UnaryGram(r) {
+class RepExactlyTotalN(context: Term, n : Long, r : => Gram) extends UnaryGram(context, r) {
   def parser = DummyParser(null) // stub
   override val gram = EmptyGram
   override def isEmpty = true
 }
 
 object RepExactlyTotalN {
-  def apply(n : Long, r : => Gram) = new RepExactlyTotalN(n, r)
+  def apply(context: Term, n : Long, r : => Gram) = new RepExactlyTotalN(context, n, r)
 }
 
-object EmptyGram extends Gram {
+object EmptyGram extends Gram(null) {
   override def isEmpty = true
   override def toString = "Empty"
 
@@ -131,7 +131,7 @@ object EmptyGram extends Gram {
   def parser = new EmptyGramParser
 }
 
-object ErrorGram extends Gram {
+object ErrorGram extends Gram(null) {
   override def isEmpty = false
   override def toString = "Error"
 
@@ -140,17 +140,17 @@ object ErrorGram extends Gram {
   def parser = new ErrorParser
 }
 
-trait NamedGram extends Gram {
+abstract class NamedGram(context: Term) extends Gram(context) {
   override def toString = name //+ (if (isEmpty) "(Empty)" else "")
 }
 
 /**
  * Primitives will derive from this base
  */
-abstract class Terminal(sc : Any, guard : Boolean) extends NamedGram {
+abstract class Terminal(context : Term, guard : Boolean) extends NamedGram(context) {
   override def isEmpty = !guard
   
-  lazy val realSC = sc.asInstanceOf[SchemaComponent]
+  lazy val realSC = context.asInstanceOf[SchemaComponent]
   override lazy val path = realSC.path + "@@" + prettyName
   
   def SDE(str : String, args : Any *) : Nothing = realSC.SDE(str, args)
@@ -168,8 +168,8 @@ abstract class Terminal(sc : Any, guard : Boolean) extends NamedGram {
  * possiblities are precluded. The guard causes that term to just splice itself out
  * of the grammar.
  */
-class Prod(nameArg : String, val sc : SchemaComponent, guardArg : => Boolean, gramArg : => Gram)
-  extends NamedGram {
+class Prod(nameArg : String, val sc : Term, guardArg : => Boolean, gramArg : => Gram)
+  extends NamedGram(sc) {
   
   def SDE(str : String, args : Any *) : Nothing = sc.SDE(str, args)
 
@@ -229,7 +229,7 @@ class Prod(nameArg : String, val sc : SchemaComponent, guardArg : => Boolean, gr
 }
 
 object Prod {
-  def apply(nameArg : String, sc : SchemaComponent, gram : => Gram) = new Prod(nameArg, sc, true, gram)
+  def apply(nameArg : String, sc : Term, gram : => Gram) = new Prod(nameArg, sc, true, gram)
   
-  def apply(nameArg : String, sc : SchemaComponent, guard : => Boolean, gram : => Gram) = new Prod(nameArg, sc, guard, gram)
+  def apply(nameArg : String, sc : Term, guard : => Boolean, gram : => Gram) = new Prod(nameArg, sc, guard, gram)
 }

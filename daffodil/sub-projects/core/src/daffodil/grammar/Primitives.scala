@@ -18,7 +18,7 @@ import daffodil.exceptions.ThrowsPE
 import daffodil.util._
 
 case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.value != true || e.lengthKind != LengthKind.Pattern) {
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
 
     override def toString = "<" + e.name + ">"
 
@@ -38,7 +38,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
 
 case class ComplexElementBeginPattern(e: ElementBase) extends Terminal(e, e.isComplexType.value == true && e.lengthKind == LengthKind.Pattern) {
   Assert.invariant(e.isComplexType.value)
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
     override def toString = "<" + e.name + " dfdl:lengthKind='pattern'>"
     val decoder = e.knownEncodingDecoder
     var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
@@ -60,21 +60,21 @@ case class ComplexElementBeginPattern(e: ElementBase) extends Terminal(e, e.isCo
           log(Debug("Ended at bit position " + endBitPos))
           val limitedInStream = in.withLimit(start.bitPos, endBitPos)
           val count = ((endBitPos - start.bitPos + 7) / 8).asInstanceOf[Int]
-          start withEndBitLimit(endBitPos) withInStream(new InStreamFromByteChannel(limitedInStream, count))
+          start withEndBitLimit(endBitPos) withInStream(new InStreamFromByteChannel(e, limitedInStream, count))
         }
       }
 
       val currentElement = new org.jdom.Element(e.name, e.namespace)
       val priorElement = postState1.parent
       priorElement.addContent(currentElement)
-      val postState2 = start withParent(postState1 parent) withEndBitLimit(postState1 bitLimit) withInStream(postState1 inStream)
+      val postState2 = postState1 withParent(postState1 parent)
       postState2
     }
   }
 }
 
 case class ElementEnd(e: ElementBase) extends Terminal(e, true) {
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
 
     override def toString = "</" + e.name + ">"
 
@@ -105,7 +105,7 @@ case class ElementEnd(e: ElementBase) extends Terminal(e, true) {
  */
 
 case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Terminal(e, true) with Logging {
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
 
     override def toString = "StringFixedLengthInBytesParser(" + nBytes + ")"
     val decoder = e.knownEncodingDecoder
@@ -117,7 +117,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
       val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
       if (endBitPos < start.bitPos + nBytes * 8) {
         // Do Something Bad
-        PE("Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
+        PE(start, "Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
       }
       val result = cbuf.toString
       log(Debug("Parsed: " + result))
@@ -136,7 +136,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
 
 case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nBytes: Long) extends Terminal(e, true) {
   Assert.notYetImplemented()
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
     def parse(start: PState): PState = {
       Assert.notYetImplemented()
     }
@@ -146,7 +146,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
 
 case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Long) extends Terminal(e, true) {
   Assert.notYetImplemented()
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
     def parse(start: PState): PState = {
       Assert.notYetImplemented()
     }
@@ -156,11 +156,11 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
 case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) with Logging {
 
   lazy val es = e.escapeScheme
-  lazy val esObj = EscapeScheme.getEscapeScheme(es)
+  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   lazy val tm = e.terminatingMarkup
   lazy val cname = toString
 
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
     override def toString = cname + "(" + tm.map{_.prettyExpr} + ")"  
     val decoder = e.knownEncodingDecoder
     var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
@@ -210,7 +210,7 @@ case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) wi
 case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) with Logging {
   val sequenceSeparator = e.nearestEnclosingSequence.get.separator
 
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
     override def toString = "StringPatternMatched"
     val decoder = e.knownEncodingDecoder
     var cbuf = CharBuffer.allocate(1024)
@@ -248,7 +248,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
   protected val GramName = "number"
   protected val GramDescription = "Number"
   protected def isInvalidRange(n: S): Boolean = false
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
     def parse(start: PState): PState = {
       val node = start.parent
       var str = node.getText
@@ -351,7 +351,7 @@ case class ConvertTextUnsignedBytePrim(e: ElementBase) extends ConvertTextNumber
 }
 
 case class ConvertTextDoublePrim(e: ElementBase) extends Terminal(e, true) {
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
 
     override def toString = "to(xs:double)"
 
@@ -376,7 +376,7 @@ case class ConvertTextDoublePrim(e: ElementBase) extends Terminal(e, true) {
 }
 
 case class ConvertTextFloatPrim(e: ElementBase) extends Terminal(e, true) {
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
 
     override def toString = "to(xs:float)"
 
@@ -400,14 +400,14 @@ case class ConvertTextFloatPrim(e: ElementBase) extends Terminal(e, true) {
   }
 }
 
-abstract class Primitive(e: PropertyMixin, guard: Boolean = false)
+abstract class Primitive(e: Term, guard: Boolean = false)
   extends Terminal(e, guard) {
   override def toString = "Prim[" + name + "]"
   def parser: Parser = DummyParser(e)
 }
 
 abstract class ZonedTextNumberPrim(e: ElementBase, guard: Boolean) extends Terminal(e, guard) {
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
     def parse(start: PState): PState = {
       // TODO: Compute the Zoned Number generically
       start
@@ -419,7 +419,7 @@ case class ZonedTextShortPrim(el: ElementBase) extends ZonedTextNumberPrim(el, f
 case class ZonedTextIntPrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)
 case class ZonedTextLongPrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)
 
-class Regular32bitIntPrim(byteOrder: java.nio.ByteOrder) extends Parser {
+class Regular32bitIntPrim(context: Term, byteOrder: java.nio.ByteOrder) extends Parser(context) {
   override def toString = "binary(xs:int, " + byteOrder + ")"
   def parse(start: PState): PState = {
     if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) start.failed("Not enough bits to create an xs:int")
@@ -434,15 +434,15 @@ class Regular32bitIntPrim(byteOrder: java.nio.ByteOrder) extends Parser {
 }
 
 case class Regular32bitBigEndianIntPrim(e: ElementBase) extends Terminal(e, true) {
-  def parser = new Regular32bitIntPrim(java.nio.ByteOrder.BIG_ENDIAN)
+  def parser = new Regular32bitIntPrim(e, java.nio.ByteOrder.BIG_ENDIAN)
 }
 case class Regular32bitLittleEndianIntPrim(e: ElementBase) extends Terminal(e, true) {
-  def parser = new Regular32bitIntPrim(java.nio.ByteOrder.LITTLE_ENDIAN)
+  def parser = new Regular32bitIntPrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
 }
 case class PackedIntPrim(e: ElementBase) extends Primitive(e, false)
 case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 
-case class DoublePrim(byteOrder: java.nio.ByteOrder) extends Parser with Logging {
+case class DoublePrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(ctx) with Logging {
   override def toString = "binary(xs:double, " + byteOrder + ")"
   def parse(start: PState): PState = {
     if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 64)) start.failed("Not enough bits to create an xs:double")
@@ -459,14 +459,14 @@ case class DoublePrim(byteOrder: java.nio.ByteOrder) extends Parser with Logging
 }
 
 case class BigEndianDoublePrim(e: ElementBase) extends Terminal(e, true) {
-  def parser = new DoublePrim(java.nio.ByteOrder.BIG_ENDIAN)
+  def parser = new DoublePrim(e, java.nio.ByteOrder.BIG_ENDIAN)
 }
 
 case class LittleEndianDoublePrim(e: ElementBase) extends Terminal(e, true) {
-  def parser = new DoublePrim(java.nio.ByteOrder.LITTLE_ENDIAN)
+  def parser = new DoublePrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
 }
 
-case class FloatPrim(byteOrder: java.nio.ByteOrder) extends Parser {
+case class FloatPrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(ctx) {
   override def toString = "binary(xs:float, " + byteOrder + ")"
   def parse(start: PState): PState = {
     if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) start.failed("Not enough bits to create an xs:float")
@@ -480,25 +480,25 @@ case class FloatPrim(byteOrder: java.nio.ByteOrder) extends Parser {
 }
 
 case class BigEndianFloatPrim(e: ElementBase) extends Terminal(e, true) {
-  def parser = new FloatPrim(java.nio.ByteOrder.BIG_ENDIAN)
+  def parser = new FloatPrim(e, java.nio.ByteOrder.BIG_ENDIAN)
 }
 
 case class LittleEndianFloatPrim(e: ElementBase) extends Terminal(e, true) {
-  def parser = new FloatPrim(java.nio.ByteOrder.LITTLE_ENDIAN)
+  def parser = new FloatPrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
 }
 
-class StaticDelimiter(delim: String, e: InitiatedTerminatedMixin, guard: Boolean = true)
+class StaticDelimiter(delim: String, e: Term, guard: Boolean = true)
   extends StaticText(delim, e, guard)
 
 
-abstract class StaticText(delim: String, e: InitiatedTerminatedMixin, guard: Boolean = true) extends Terminal(e, guard) with Logging {
+abstract class StaticText(delim: String, e: Term, guard: Boolean = true) extends Terminal(e, guard) with Logging {
  
   lazy val es = e.escapeScheme
-  lazy val esObj = EscapeScheme.getEscapeScheme(es)
+  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   
   e.asInstanceOf[Term].terminatingMarkup
   
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
     
     val t = e.asInstanceOf[Term]
 
@@ -573,20 +573,20 @@ abstract class StaticText(delim: String, e: InitiatedTerminatedMixin, guard: Boo
   }
 }
 
-class DynamicDelimiter(delimExpr: CompiledExpression, e: InitiatedTerminatedMixin, guard: Boolean = true) extends Primitive(e, guard)
+class DynamicDelimiter(delimExpr: CompiledExpression, e: Term, guard: Boolean = true) extends Primitive(e, guard)
 
-//case class StaticInitiator(e: InitiatedTerminatedMixin) extends StaticDelimiter(e.initiator.constantAsString, e)
-case class StaticInitiator(e: InitiatedTerminatedMixin) extends StaticDelimiter(e.initiator.constantAsString, e)
-//case class StaticTerminator(e : InitiatedTerminatedMixin) extends StaticDelimiter(e.terminator.constantAsString, e)
-case class StaticTerminator(e: InitiatedTerminatedMixin) extends StaticDelimiter(e.terminator.constantAsString, e)
-case class DynamicInitiator(e: InitiatedTerminatedMixin) extends DynamicDelimiter(e.initiator, e)
-case class DynamicTerminator(e: InitiatedTerminatedMixin) extends DynamicDelimiter(e.terminator, e)
+//case class StaticInitiator(e: Term) extends StaticDelimiter(e.initiator.constantAsString, e)
+case class StaticInitiator(e: Term) extends StaticDelimiter(e.initiator.constantAsString, e)
+//case class StaticTerminator(e : Term) extends StaticDelimiter(e.terminator.constantAsString, e)
+case class StaticTerminator(e: Term) extends StaticDelimiter(e.terminator.constantAsString, e)
+case class DynamicInitiator(e: Term) extends DynamicDelimiter(e.initiator, e)
+case class DynamicTerminator(e: Term) extends DynamicDelimiter(e.terminator, e)
 
 //case class StaticSeparator(e : Sequence) extends StaticDelimiter(e.separatorExpr.constantAsString, e)
 //case class DynamicSeparator(e : Sequence) extends DynamicDelimiter(e.separatorExpr, e)
 
-case class StartChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct, guard) {
-  def parser: Parser = new Parser {
+case class StartChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct.element, guard) {
+  def parser: Parser = new Parser(ct.element) {
 
     override def toString = "StartChildren"
 
@@ -598,7 +598,7 @@ case class StartChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Ter
 }
 
 case class StartSequence(sq: Sequence, guard: Boolean = true) extends Terminal(sq, guard) {
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(sq) {
 
     override def toString = "StartSequence"
 
@@ -609,11 +609,11 @@ case class StartSequence(sq: Sequence, guard: Boolean = true) extends Terminal(s
   }
 }
 
-case class Nothing(sc: SchemaComponent) extends Terminal(sc, true) {
+case class Nada(sc: Term) extends Terminal(sc, true) {
   override def isEmpty = false 
   // cannot optimize this out! It is used as an alternative to things
   // with the intention of "find this and this, or find nothing"
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(sc) {
 
     override def toString = "Nothing"
 
@@ -622,7 +622,7 @@ case class Nothing(sc: SchemaComponent) extends Terminal(sc, true) {
 }
 
 case class GroupPosGreaterThan(n: Long, term: Term, guard: Boolean = true) extends Terminal(term, guard) {
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(term) {
 
     override def toString = "GroupPosGreaterThan(" + n + ")"
 
@@ -637,8 +637,8 @@ case class GroupPosGreaterThan(n: Long, term: Term, guard: Boolean = true) exten
   }
 }
 
-case class EndChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct, guard) {
-  def parser: Parser = new Parser {
+case class EndChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct.element, guard) {
+  def parser: Parser = new Parser(ct.element) {
 
     override def toString = "EndChildren"
 
@@ -650,7 +650,7 @@ case class EndChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Termi
 }
 
 case class EndSequence(sq: Sequence, guard: Boolean = true) extends Terminal(sq, guard) {
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(sq) {
 
     override def toString = "EndSequence"
 
@@ -662,7 +662,7 @@ case class EndSequence(sq: Sequence, guard: Boolean = true) extends Terminal(sq,
 }
 
 case class StartArray(e: ElementBase, guard: Boolean = true) extends Terminal(e, guard) {
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
 
     override def toString = "StartArray"
 
@@ -674,7 +674,7 @@ case class StartArray(e: ElementBase, guard: Boolean = true) extends Terminal(e,
 }
 
 case class EndArray(e: ElementBase, guard: Boolean = true) extends Terminal(e, guard) {
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
 
     override def toString = "EndArray"
 
@@ -704,7 +704,7 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 case class LiteralNilValue(e: ElementBase)
   extends StaticText(e.nilValue, e, e.isNillable) {
   val stParser = super.parser
-  override def parser = new Parser {
+  override def parser = new Parser(e) {
     def parse(start: PState): PState = {
       val afterNilLit = stParser.parse(start)
 
@@ -722,11 +722,11 @@ case class LogicalNilValue(e: ElementBase) extends Primitive(e, e.isNillable)
 
 // As soon as you turn these on (by removing the false and putting the real guard), then schemas all need to have
 // these properties in them, which is inconvenient until we have multi-file schema support and format references.
-case class LeadingSkipRegion(e: AnnotatedMixin) extends Primitive(e, false) // e.leadingSkip > 0) 
+case class LeadingSkipRegion(e: Term) extends Primitive(e, false) // e.leadingSkip > 0)
 
-case class AlignmentFill(e: AnnotatedMixin) extends Primitive(e, false) // e.alignment != AlignmentType.Implicit)
+case class AlignmentFill(e: Term) extends Primitive(e, false) // e.alignment != AlignmentType.Implicit)
 
-case class TrailingSkipRegion(e: AnnotatedMixin) extends Primitive(e, false) // e.trailingSkip > 0)
+case class TrailingSkipRegion(e: Term) extends Primitive(e, false) // e.trailingSkip > 0)
 
 case class PrefixLength(e: ElementBase) extends Primitive(e, e.lengthKind == LengthKind.Prefixed)
 
@@ -736,7 +736,7 @@ case class FinalUnusedRegion(e: ElementBase) extends Primitive(e, false)
 
 case class InputValueCalc(e: ElementBase with ElementDeclMixin) extends Terminal(e, false) {
 
-  def parser: Parser = new Parser {
+  def parser: Parser = new Parser(e) {
     override def toString = "InputValueCalc"
     val Some(ivcExprText) = e.inputValueCalcOption
     // Only for strings for now

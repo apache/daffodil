@@ -14,8 +14,9 @@ trait ThrowsSDE {
 }
 
 trait ThrowsPE {
+    type PState
+
+    def PE(state: PState, str : String, args : Any *) : Nothing
     
-    def PE(str : String, args : Any *) : Nothing
-    
-    def processingError(str : String, args : Any *) : Nothing = PE(str, args) // long form synonym 
+    def processingError(state: PState, str : String, args : Any *) : Nothing = PE(state, str, args) // long form synonym
 }

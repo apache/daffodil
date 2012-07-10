@@ -9,7 +9,7 @@ import daffodil.exceptions.Assert
 class TestGrammar extends JUnit3Suite {
 
   val fakeSchemaComponent = null
-  case class Primitive1(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard) {
+  case class Primitive1(e: Term, guard: Boolean = true) extends Terminal(e, guard) {
     def parser: Parser = Assert.notYetImplemented()
   }
   //  case class Primitive2(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard)
@@ -171,7 +171,7 @@ class TestGrammar extends JUnit3Suite {
     object mid extends Primitive1(fakeSchemaComponent)
     object last extends Primitive1(fakeSchemaComponent)
 
-    lazy val prod1 = Prod("prod1", fakeSchemaComponent, first ~ RepExactlyN(1, mid) | last)
+    lazy val prod1 = Prod("prod1", fakeSchemaComponent, first ~ RepExactlyN(null, 1, mid) | last)
 
     assertFalse(prod1.isEmpty)
 

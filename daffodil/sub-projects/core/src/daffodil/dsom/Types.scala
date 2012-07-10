@@ -243,7 +243,8 @@ class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val e
 abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
   extends TypeBase(xmlArg, parent)
   with ComplexTypeBaseGrammarMixin {
-  
+  def element : ElementBase
+
   lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
   lazy val Seq(modelGroup) = xmlChildren.flatMap { GroupFactory(_, this, 1) }
   lazy val localAndFormatRefProperties: Map[String, String] = {
@@ -266,9 +267,9 @@ class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val 
  
 }
 
-class LocalComplexTypeDef(xmlArg: Node, parent: ElementBase)
-  extends ComplexTypeBase(xmlArg, parent)
+class LocalComplexTypeDef(xmlArg: Node, val element: ElementBase)
+  extends ComplexTypeBase(xmlArg, element)
   with LocalComponentMixin {
   
-  lazy val prettyName = "complexType in " + parent.name
+  lazy val prettyName = "complexType in " + element.name
 }

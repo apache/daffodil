@@ -21,12 +21,47 @@ import stringsearch.constructs.EscapeScheme._
 
 import daffodil.util._
 import daffodil.exceptions.ThrowsSDE
+import daffodil.exceptions.ThrowsPE
 import java.io.ByteArrayInputStream
+
+abstract class ProcessingError extends Exception with Diagnostic {
+
+}
+
+class ParseError(sc: SchemaComponent, pstate: PState, kind: String, args: Any *) extends ProcessingError {
+  def isError = true
+  def getSchemaLocations = List(sc)
+  def getDataLocations = Nil
+  // TODO: Need to get Data Locations from PState
+
+  override def toString = {
+    lazy val argsAsString = args.map{ _.toString }.mkString(", ")
+    //
+    // Right here is where we would lookup the symbolic error kind id, and
+    // choose a locale-based message string.
+    //
+    // For now, we'll just do an automatic English message.
+    //
+    val msg =
+      if (kind.contains("%")) kind.format(args : _*)
+      else (kind+"(%s)").format(argsAsString)
+    val res = msg + "\nContext was : %s".format(sc)
+    res
+  }
+
+  override def getMessage = toString
+}
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
  */
-trait Parser {
+abstract class Parser(val context: Term) extends ThrowsPE {
+
+  type PState = daffodil.grammar.PState
+
+  def PE(pstate: PState, s: String, args : Any *) = {
+    throw new ParseError(context, pstate, s, args : _*)
+  }
 
   def parse(pstate: PState): PState
 
@@ -38,16 +73,16 @@ trait Parser {
 // No-op, in case an optimization lets one of these sneak thru. 
 // TODO: make this fail, and test optimizer sufficiently to know these 
 // do NOT get through.
-class EmptyGramParser extends Parser {
+class EmptyGramParser(context: Term = null) extends Parser(context) {
   def parse(pstate: PState) = pstate
 }
 
-class ErrorParser extends Parser {
+class ErrorParser(context: Term = null) extends Parser(context) {
   def parse(pstate: PState): PState = Assert.abort("Error Parser")
   override def toString = "Error Parser"
 }
 
-class SeqCompParser(p: Gram, q: Gram) extends Parser {
+class SeqCompParser(context: Term, p: Gram, q: Gram) extends Parser(context) {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pParser = p.parser
   val qParser = q.parser
@@ -62,7 +97,7 @@ class SeqCompParser(p: Gram, q: Gram) extends Parser {
   override def toString = pParser.toString + " ~ " + qParser.toString
 }
 
-class AltCompParser(p: Gram, q: Gram) extends Parser {
+class AltCompParser(context: Term, p: Gram, q: Gram) extends Parser(context) {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pParser = p.parser
   val qParser = q.parser
@@ -99,7 +134,7 @@ class AltCompParser(p: Gram, q: Gram) extends Parser {
   override def toString = "(" + pParser.toString + " | " + qParser.toString + ")"
 }
 
-class RepExactlyNParser(n: Long, r: => Gram) extends Parser {
+class RepExactlyNParser(context: Term, n: Long, r: => Gram) extends Parser(context) {
   Assert.invariant(!r.isEmpty)
   val rParser = r.parser
   def parse(pstate: PState): PState = {
@@ -118,7 +153,7 @@ class RepExactlyNParser(n: Long, r: => Gram) extends Parser {
   override def toString = "RepExactlyNParser(" + rParser.toString + ")"
 }
 
-class RepUnboundedParser(r: => Gram) extends Parser {
+class RepUnboundedParser(context: Term, r: => Gram) extends Parser(context) {
   Assert.invariant(!r.isEmpty)
   val rParser = r.parser
   def parse(pstate: PState): PState = {
@@ -142,7 +177,7 @@ class RepUnboundedParser(r: => Gram) extends Parser {
   override def toString = "RepUnboundedParser(" + rParser.toString + ")"
 }
 
-case class DummyParser(sc: PropertyMixin) extends Parser {
+case class DummyParser(sc: PropertyMixin) extends Parser(null) {
   def parse(pstate: PState): PState = Assert.abort("Parser for " + sc + " is not yet implemented.")
   override def toString = if (sc == null) "Dummy[null]" else "Dummy[" + sc.detailName + "]"
 }
@@ -190,7 +225,6 @@ class PState(
   def whichBit = bitPos % 8
   def groupPos = groupIndexStack.head
   def childPos = childIndexStack.head
-
 
   /**
    * Convenience functions for creating a new state, changing only
@@ -298,8 +332,8 @@ object PState {
    */
   def createInitialState(rootElemDecl: GlobalElementDecl, input: DFDL.Input, sizeHint: Long = -1): PState = {
     val inStream =
-      if (sizeHint != -1) new InStreamFromByteChannel(input, sizeHint)
-      else new InStreamFromByteChannel(input)
+      if (sizeHint != -1) new InStreamFromByteChannel(rootElemDecl, input, sizeHint)
+      else new InStreamFromByteChannel(rootElemDecl, input)
     createInitialState(rootElemDecl, inStream)
   }
 }
@@ -328,8 +362,7 @@ trait InStream {
   // def fillCharBufferUntilDelimiterOrEnd
 }
 
-class InStreamFromByteChannel(in: DFDL.Input, sizeHint: Long = 1024 * 128, c: ThrowsSDE) extends InStream with Logging { // 128K characters by default.
-  val context = c // Save context
+class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Long = 1024 * 128) extends InStream with Logging { // 128K characters by default.
   val maxCharacterWidthInBytes = 4 // worst case. Ok for testing. Don't use this pessimistic technique for real data.
   var bb = ByteBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
   // Verify there is not more data by making sure the buffer was not read to capacity.
