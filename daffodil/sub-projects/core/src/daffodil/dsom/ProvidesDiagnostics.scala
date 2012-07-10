@@ -17,12 +17,12 @@ import daffodil.dsom.OOLAG._
 import daffodil.util.Glob
 import daffodil.util.Debug
 
-class CapturedThrowDiagnostic(e : Throwable) extends Diagnostic {
+class CapturedThrowDiagnostic(e : Throwable, self : ThrowsSDE) extends Diagnostic {
   Assert.invariant(!e.isInstanceOf[OOLAGRethrowException])
   def isError() = true
   def getSchemaLocations() = Nil
   def getDataLocations() = Nil
-  def getMessage() = "ERROR: " + e
+  def getMessage() = "ERROR (Catch):" + e + "\nContext at catch was: " + self
 }
 
 class Warning(e : Throwable) extends Diagnostic {
@@ -40,7 +40,10 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
 
   def handleThrownError(lv : OOLAGValue) {
     val e = lv.thrown
-    val diag = new CapturedThrowDiagnostic(e)
+    val diag = e match {
+      case d : Diagnostic => d
+      case _ => new CapturedThrowDiagnostic(e, this.asInstanceOf[ThrowsSDE]) // no common trait to use....?
+    }
     addDiagnostic(diag)
     addDiagnosticChild(lv)
     lv.context match {

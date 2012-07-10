@@ -18,8 +18,22 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin)
   with GetAttributesMixin {
   lazy val xml = node
   
+  lazy val context = annotatedSC match {
+      case sc : SchemaComponent => sc 
+      case _ => Assert.invariantFailed("should be a SchemaComponent")
+    }
+  
   lazy val prettyName = xml.prefix + ":" + xml.label 
   lazy val path = annotatedSC.path + "::" + prettyName
+  
+  def SDE(id : String, args : Any *) = {
+    throw new SchemaDefinitionError(Some(context), Some(this), id, args : _*)
+  }
+  
+  def subset(testThatWillThrowIfFalse : Boolean, args : Any*) = {
+    if (!testThatWillThrowIfFalse) SDE("Subset ", args : _ * )
+  }
+  
 }
 
 trait RawCommonRuntimeValuedPropertiesMixin
@@ -89,6 +103,8 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: SchemaComponent wit
 
   lazy val diagnosticChildren = Nil
 
+
+  
   private[dsom] def getLocalFormatRef(): String = {
     val ref = combinedLocalProperties.get("ref")
     ref match {
@@ -114,7 +130,8 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: SchemaComponent wit
   // (Note: I hate repeating the darn package name all over the place here....)
   private[dsom] def getLocalPropertyOption(name: String): Option[String] = {
     if (hasConflictingPropertyError) {
-      Assert.SDE("Short and Long form properties overlap: " + conflictingProperties)
+      // Assert.SDE("Short and Long form properties overlap: " + conflictingProperties)
+      SDE("Short and long form properties overlap: %s", conflictingProperties)
     }
     lazy val localProp = combinedLocalProperties.get(name)
     localProp
@@ -232,7 +249,7 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: SchemaComponent wit
     if (nsURI == null && prefix == null)
       ("", localName)
     else if (nsURI == null)
-      Assert.schemaDefinitionError("In QName " + name + ", the prefix " + prefix + " was not defined.")
+      schemaDefinitionError("In QName " + name + ", the prefix " + prefix + " was not defined.")
     else
       (nsURI, localName)
   }
@@ -267,7 +284,7 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: SchemaComponent wit
 
     // Verify that we don't have circular references
     if (refStack.contains(localName)) {
-      Assert.schemaDefinitionError("Circular reference detected for "
+      schemaDefinitionError("Circular reference detected for "
         + localName + " while obtaining Format Properties!\nStack: "
         + refStack.toString())
     }
@@ -276,7 +293,7 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: SchemaComponent wit
 
     // Retrieve the defineFormat that matches this qName
     val ss = annotatedSC.schema.schemaSet
-    val dfs = ss.getDefineFormats(nsURI)
+    val dfs = ss.getDefineFormats(nsURI, this)
     
     //val refEscapeSchemeProps = this.escapeSchemeRefProperties // TODO: EscapeScheme
 
@@ -476,8 +493,8 @@ class DFDLChoice(node: Node, decl: Choice)
   extends DFDLFormatAnnotation(node, decl)
   with Choice_AnnotationMixin
   with RawSequenceRuntimeValuedPropertiesMixin {
-  Assert.subset(getPropertyOptionNoDefault("initiator") == None, "initiators are not supported on choices")
-  Assert.subset(getPropertyOptionNoDefault("terminator") == None, "terminators are not supported on choices")
+  subset(getPropertyOptionNoDefault("initiator") == None, "initiators are not supported on choices")
+  subset(getPropertyOptionNoDefault("terminator") == None, "terminators are not supported on choices")
 }
 
 class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)
@@ -513,7 +530,7 @@ class DFDLDefineFormat(node: Node, sd: SchemaDocument)
 }
 
 class DFDLEscapeScheme(node: Node, decl: SchemaComponent with AnnotatedMixin)
-  extends DFDLFormatAnnotation(node, decl)
+  extends DFDLFormatAnnotation(node, decl) 
   with EscapeScheme_AnnotationMixin
   with RawEscapeSchemeRuntimeValuedPropertiesMixin {
 }

@@ -13,6 +13,7 @@ package daffodil.schema.annotation.props.gen
 
 
 import daffodil.schema.annotation.props._
+import daffodil.exceptions.ThrowsSDE
     
 ////////////////////////////////////
 // <xsd:simpleType name="DFDLExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -27,7 +28,7 @@ import daffodil.schema.annotation.props._
 
 trait DFDLExpressionMixin { /* nothing */ }
 object DFDLExpression {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="EmptyString" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -43,7 +44,7 @@ object DFDLExpression {
 
 trait EmptyStringMixin { /* nothing */ }
 object EmptyString {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="DFDLExpressionOrNothing" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -57,7 +58,7 @@ object EmptyString {
 
 trait DFDLExpressionOrNothingMixin { /* nothing */ }
 object DFDLExpressionOrNothing {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="DFDLStringLiteral" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -68,7 +69,7 @@ object DFDLExpressionOrNothing {
 
 trait DFDLStringLiteralMixin { /* nothing */ }
 object DFDLStringLiteral {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="ListOfDFDLStringLiteral" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -78,7 +79,7 @@ object DFDLStringLiteral {
 
 trait ListOfDFDLStringLiteralMixin { /* nothing */ }
 object ListOfDFDLStringLiteral {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="DFDLNonNegativeInteger" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -90,7 +91,7 @@ object ListOfDFDLStringLiteral {
 
 trait DFDLNonNegativeIntegerMixin { /* nothing */ }
 object DFDLNonNegativeInteger {
-    def apply(s : String) = s.toInt
+    def apply(s : String, self : ThrowsSDE) = s.toInt
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="DFDLRegularExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -101,7 +102,7 @@ object DFDLNonNegativeInteger {
 
 trait DFDLRegularExpressionMixin { /* nothing */ }
 object DFDLRegularExpression {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="DFDLQName" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -120,7 +121,7 @@ object DFDLRegularExpression {
 
 trait DFDLQNameMixin { /* nothing */ }
 object DFDLQName {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="EncodingEnum" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -132,7 +133,7 @@ object DFDLQName {
 
 trait EncodingMixin { /* nothing */ }
 object Encoding {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="TextStringJustificationEnum" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -149,7 +150,7 @@ object TextStringJustification extends Enum[TextStringJustification] {
   case object Right extends TextStringJustification ; forceConstruction(Right)
   case object Center extends TextStringJustification ; forceConstruction(Center)
 
-  def apply(name: String) : TextStringJustification = stringToEnum("textStringJustification", name)
+  def apply(name: String, context : ThrowsSDE) : TextStringJustification = stringToEnum("textStringJustification", name, context)
 }
   
 trait TextStringJustificationMixin extends PropertyMixin {
@@ -158,7 +159,7 @@ trait TextStringJustificationMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val textStringJustification = TextStringJustification(getProperty("textStringJustification"))
+  lazy val textStringJustification = TextStringJustification(getProperty("textStringJustification"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -202,7 +203,7 @@ object TextNumberJustification extends Enum[TextNumberJustification] {
   case object Right extends TextNumberJustification ; forceConstruction(Right)
   case object Center extends TextNumberJustification ; forceConstruction(Center)
 
-  def apply(name: String) : TextNumberJustification = stringToEnum("textNumberJustification", name)
+  def apply(name: String, context : ThrowsSDE) : TextNumberJustification = stringToEnum("textNumberJustification", name, context)
 }
   
 trait TextNumberJustificationMixin extends PropertyMixin {
@@ -211,7 +212,7 @@ trait TextNumberJustificationMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val textNumberJustification = TextNumberJustification(getProperty("textNumberJustification"))
+  lazy val textNumberJustification = TextNumberJustification(getProperty("textNumberJustification"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -253,7 +254,7 @@ object TextNumberRounding extends Enum[TextNumberRounding] {
   case object Pattern extends TextNumberRounding ; forceConstruction(Pattern)
   case object Explicit extends TextNumberRounding ; forceConstruction(Explicit)
 
-  def apply(name: String) : TextNumberRounding = stringToEnum("textNumberRounding", name)
+  def apply(name: String, context : ThrowsSDE) : TextNumberRounding = stringToEnum("textNumberRounding", name, context)
 }
   
 trait TextNumberRoundingMixin extends PropertyMixin {
@@ -262,7 +263,7 @@ trait TextNumberRoundingMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val textNumberRounding = TextNumberRounding(getProperty("textNumberRounding"))
+  lazy val textNumberRounding = TextNumberRounding(getProperty("textNumberRounding"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -310,7 +311,7 @@ object SignCodingValue extends Enum[SignCodingValue] {
   case object UnsignedBinary extends SignCodingValue ; forceConstruction(UnsignedBinary)
   case object UnsignedDecimal extends SignCodingValue ; forceConstruction(UnsignedDecimal)
 
-  def apply(name: String) : SignCodingValue = stringToEnum("signCodingValue", name)
+  def apply(name: String, context : ThrowsSDE) : SignCodingValue = stringToEnum("signCodingValue", name, context)
 }
   
 trait SignCodingValueMixin extends PropertyMixin {
@@ -319,7 +320,7 @@ trait SignCodingValueMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val signCodingValue = SignCodingValue(getProperty("signCodingValue"))
+  lazy val signCodingValue = SignCodingValue(getProperty("signCodingValue"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -361,7 +362,7 @@ object Representation extends Enum[Representation] {
   case object Binary extends Representation ; forceConstruction(Binary)
   case object Text extends Representation ; forceConstruction(Text)
 
-  def apply(name: String) : Representation = stringToEnum("representation", name)
+  def apply(name: String, context : ThrowsSDE) : Representation = stringToEnum("representation", name, context)
 }
   
 trait RepresentationMixin extends PropertyMixin {
@@ -370,7 +371,7 @@ trait RepresentationMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val representation = Representation(getProperty("representation"))
+  lazy val representation = Representation(getProperty("representation"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -412,7 +413,7 @@ object TextPadKind extends Enum[TextPadKind] {
   case object None extends TextPadKind ; forceConstruction(None)
   case object PadChar extends TextPadKind ; forceConstruction(PadChar)
 
-  def apply(name: String) : TextPadKind = stringToEnum("textPadKind", name)
+  def apply(name: String, context : ThrowsSDE) : TextPadKind = stringToEnum("textPadKind", name, context)
 }
   
 trait TextPadKindMixin extends PropertyMixin {
@@ -421,7 +422,7 @@ trait TextPadKindMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val textPadKind = TextPadKind(getProperty("textPadKind"))
+  lazy val textPadKind = TextPadKind(getProperty("textPadKind"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -463,7 +464,7 @@ object TextTrimKind extends Enum[TextTrimKind] {
   case object None extends TextTrimKind ; forceConstruction(None)
   case object PadChar extends TextTrimKind ; forceConstruction(PadChar)
 
-  def apply(name: String) : TextTrimKind = stringToEnum("textTrimKind", name)
+  def apply(name: String, context : ThrowsSDE) : TextTrimKind = stringToEnum("textTrimKind", name, context)
 }
   
 trait TextTrimKindMixin extends PropertyMixin {
@@ -472,7 +473,7 @@ trait TextTrimKindMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val textTrimKind = TextTrimKind(getProperty("textTrimKind"))
+  lazy val textTrimKind = TextTrimKind(getProperty("textTrimKind"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -514,7 +515,7 @@ object EscapeKind extends Enum[EscapeKind] {
   case object EscapeCharacter extends EscapeKind ; forceConstruction(EscapeCharacter)
   case object EscapeBlock extends EscapeKind ; forceConstruction(EscapeBlock)
 
-  def apply(name: String) : EscapeKind = stringToEnum("escapeKind", name)
+  def apply(name: String, context : ThrowsSDE) : EscapeKind = stringToEnum("escapeKind", name, context)
 }
   
 trait EscapeKindMixin extends PropertyMixin {
@@ -523,7 +524,7 @@ trait EscapeKindMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val escapeKind = EscapeKind(getProperty("escapeKind"))
+  lazy val escapeKind = EscapeKind(getProperty("escapeKind"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -565,7 +566,7 @@ object GenerateEscape extends Enum[GenerateEscape] {
   case object Always extends GenerateEscape ; forceConstruction(Always)
   case object WhenNeeded extends GenerateEscape ; forceConstruction(WhenNeeded)
 
-  def apply(name: String) : GenerateEscape = stringToEnum("generateEscape", name)
+  def apply(name: String, context : ThrowsSDE) : GenerateEscape = stringToEnum("generateEscape", name, context)
 }
   
 trait GenerateEscapeMixin extends PropertyMixin {
@@ -574,7 +575,7 @@ trait GenerateEscapeMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val generateEscape = GenerateEscape(getProperty("generateEscape"))
+  lazy val generateEscape = GenerateEscape(getProperty("generateEscape"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -616,7 +617,7 @@ object TextBidiTextOrdering extends Enum[TextBidiTextOrdering] {
   case object Implicit extends TextBidiTextOrdering ; forceConstruction(Implicit)
   case object Visual extends TextBidiTextOrdering ; forceConstruction(Visual)
 
-  def apply(name: String) : TextBidiTextOrdering = stringToEnum("textBidiTextOrdering", name)
+  def apply(name: String, context : ThrowsSDE) : TextBidiTextOrdering = stringToEnum("textBidiTextOrdering", name, context)
 }
   
 trait TextBidiTextOrderingMixin extends PropertyMixin {
@@ -625,7 +626,7 @@ trait TextBidiTextOrderingMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val textBidiTextOrdering = TextBidiTextOrdering(getProperty("textBidiTextOrdering"))
+  lazy val textBidiTextOrdering = TextBidiTextOrdering(getProperty("textBidiTextOrdering"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -671,7 +672,7 @@ object TextBidiOrientation extends Enum[TextBidiOrientation] {
   case object Contextual_LTR extends TextBidiOrientation ; forceConstruction(Contextual_LTR)
   case object Contextual_RTL extends TextBidiOrientation ; forceConstruction(Contextual_RTL)
 
-  def apply(name: String) : TextBidiOrientation = stringToEnum("textBidiOrientation", name)
+  def apply(name: String, context : ThrowsSDE) : TextBidiOrientation = stringToEnum("textBidiOrientation", name, context)
 }
   
 trait TextBidiOrientationMixin extends PropertyMixin {
@@ -680,7 +681,7 @@ trait TextBidiOrientationMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val textBidiOrientation = TextBidiOrientation(getProperty("textBidiOrientation"))
+  lazy val textBidiOrientation = TextBidiOrientation(getProperty("textBidiOrientation"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -722,7 +723,7 @@ object TextBidiNumeralShapes extends Enum[TextBidiNumeralShapes] {
   case object Nominal extends TextBidiNumeralShapes ; forceConstruction(Nominal)
   case object National extends TextBidiNumeralShapes ; forceConstruction(National)
 
-  def apply(name: String) : TextBidiNumeralShapes = stringToEnum("textBidiNumeralShapes", name)
+  def apply(name: String, context : ThrowsSDE) : TextBidiNumeralShapes = stringToEnum("textBidiNumeralShapes", name, context)
 }
   
 trait TextBidiNumeralShapesMixin extends PropertyMixin {
@@ -731,7 +732,7 @@ trait TextBidiNumeralShapesMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val textBidiNumeralShapes = TextBidiNumeralShapes(getProperty("textBidiNumeralShapes"))
+  lazy val textBidiNumeralShapes = TextBidiNumeralShapes(getProperty("textBidiNumeralShapes"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -773,7 +774,7 @@ object TextNumberRep extends Enum[TextNumberRep] {
   case object Standard extends TextNumberRep ; forceConstruction(Standard)
   case object Zoned extends TextNumberRep ; forceConstruction(Zoned)
 
-  def apply(name: String) : TextNumberRep = stringToEnum("textNumberRep", name)
+  def apply(name: String, context : ThrowsSDE) : TextNumberRep = stringToEnum("textNumberRep", name, context)
 }
   
 trait TextNumberRepMixin extends PropertyMixin {
@@ -782,7 +783,7 @@ trait TextNumberRepMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val textNumberRep = TextNumberRep(getProperty("textNumberRep"))
+  lazy val textNumberRep = TextNumberRep(getProperty("textNumberRep"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -824,7 +825,7 @@ object TextNumberCheckPolicy extends Enum[TextNumberCheckPolicy] {
   case object Strict extends TextNumberCheckPolicy ; forceConstruction(Strict)
   case object Lax extends TextNumberCheckPolicy ; forceConstruction(Lax)
 
-  def apply(name: String) : TextNumberCheckPolicy = stringToEnum("textNumberCheckPolicy", name)
+  def apply(name: String, context : ThrowsSDE) : TextNumberCheckPolicy = stringToEnum("textNumberCheckPolicy", name, context)
 }
   
 trait TextNumberCheckPolicyMixin extends PropertyMixin {
@@ -833,7 +834,7 @@ trait TextNumberCheckPolicyMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val textNumberCheckPolicy = TextNumberCheckPolicy(getProperty("textNumberCheckPolicy"))
+  lazy val textNumberCheckPolicy = TextNumberCheckPolicy(getProperty("textNumberCheckPolicy"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -875,7 +876,7 @@ object CalendarCheckPolicy extends Enum[CalendarCheckPolicy] {
   case object Strict extends CalendarCheckPolicy ; forceConstruction(Strict)
   case object Lax extends CalendarCheckPolicy ; forceConstruction(Lax)
 
-  def apply(name: String) : CalendarCheckPolicy = stringToEnum("calendarCheckPolicy", name)
+  def apply(name: String, context : ThrowsSDE) : CalendarCheckPolicy = stringToEnum("calendarCheckPolicy", name, context)
 }
   
 trait CalendarCheckPolicyMixin extends PropertyMixin {
@@ -884,7 +885,7 @@ trait CalendarCheckPolicyMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val calendarCheckPolicy = CalendarCheckPolicy(getProperty("calendarCheckPolicy"))
+  lazy val calendarCheckPolicy = CalendarCheckPolicy(getProperty("calendarCheckPolicy"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -938,7 +939,7 @@ object TextNumberRoundingMode extends Enum[TextNumberRoundingMode] {
   case object RoundHalfUp extends TextNumberRoundingMode ; forceConstruction(RoundHalfUp)
   case object None extends TextNumberRoundingMode ; forceConstruction(None)
 
-  def apply(name: String) : TextNumberRoundingMode = stringToEnum("textNumberRoundingMode", name)
+  def apply(name: String, context : ThrowsSDE) : TextNumberRoundingMode = stringToEnum("textNumberRoundingMode", name, context)
 }
   
 trait TextNumberRoundingModeMixin extends PropertyMixin {
@@ -947,7 +948,7 @@ trait TextNumberRoundingModeMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val textNumberRoundingMode = TextNumberRoundingMode(getProperty("textNumberRoundingMode"))
+  lazy val textNumberRoundingMode = TextNumberRoundingMode(getProperty("textNumberRoundingMode"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -991,7 +992,7 @@ object TextZonedSignStyle extends Enum[TextZonedSignStyle] {
   case object AsciiTranslatedEBCDIC extends TextZonedSignStyle ; forceConstruction(AsciiTranslatedEBCDIC)
   case object AsciiCARealiaModified extends TextZonedSignStyle ; forceConstruction(AsciiCARealiaModified)
 
-  def apply(name: String) : TextZonedSignStyle = stringToEnum("textZonedSignStyle", name)
+  def apply(name: String, context : ThrowsSDE) : TextZonedSignStyle = stringToEnum("textZonedSignStyle", name, context)
 }
   
 trait TextZonedSignStyleMixin extends PropertyMixin {
@@ -1000,7 +1001,7 @@ trait TextZonedSignStyleMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val textZonedSignStyle = TextZonedSignStyle(getProperty("textZonedSignStyle"))
+  lazy val textZonedSignStyle = TextZonedSignStyle(getProperty("textZonedSignStyle"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1044,7 +1045,7 @@ object BinaryNumberRep extends Enum[BinaryNumberRep] {
   case object Bcd extends BinaryNumberRep ; forceConstruction(Bcd)
   case object Binary extends BinaryNumberRep ; forceConstruction(Binary)
 
-  def apply(name: String) : BinaryNumberRep = stringToEnum("binaryNumberRep", name)
+  def apply(name: String, context : ThrowsSDE) : BinaryNumberRep = stringToEnum("binaryNumberRep", name, context)
 }
   
 trait BinaryNumberRepMixin extends PropertyMixin {
@@ -1053,7 +1054,7 @@ trait BinaryNumberRepMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val binaryNumberRep = BinaryNumberRep(getProperty("binaryNumberRep"))
+  lazy val binaryNumberRep = BinaryNumberRep(getProperty("binaryNumberRep"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1095,7 +1096,7 @@ object BinaryNumberCheckPolicy extends Enum[BinaryNumberCheckPolicy] {
   case object Strict extends BinaryNumberCheckPolicy ; forceConstruction(Strict)
   case object Lax extends BinaryNumberCheckPolicy ; forceConstruction(Lax)
 
-  def apply(name: String) : BinaryNumberCheckPolicy = stringToEnum("binaryNumberCheckPolicy", name)
+  def apply(name: String, context : ThrowsSDE) : BinaryNumberCheckPolicy = stringToEnum("binaryNumberCheckPolicy", name, context)
 }
   
 trait BinaryNumberCheckPolicyMixin extends PropertyMixin {
@@ -1104,7 +1105,7 @@ trait BinaryNumberCheckPolicyMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val binaryNumberCheckPolicy = BinaryNumberCheckPolicy(getProperty("binaryNumberCheckPolicy"))
+  lazy val binaryNumberCheckPolicy = BinaryNumberCheckPolicy(getProperty("binaryNumberCheckPolicy"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1146,7 +1147,7 @@ object BinaryFloatRep extends Enum[BinaryFloatRep] {
   case object Ieee extends BinaryFloatRep ; forceConstruction(Ieee)
   case object Ibm390Hex extends BinaryFloatRep ; forceConstruction(Ibm390Hex)
 
-  def apply(name: String) : BinaryFloatRep = stringToEnum("binaryFloatRep", name)
+  def apply(name: String, context : ThrowsSDE) : BinaryFloatRep = stringToEnum("binaryFloatRep", name, context)
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="TextBooleanJustificationEnum" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -1163,7 +1164,7 @@ object TextBooleanJustification extends Enum[TextBooleanJustification] {
   case object Right extends TextBooleanJustification ; forceConstruction(Right)
   case object Center extends TextBooleanJustification ; forceConstruction(Center)
 
-  def apply(name: String) : TextBooleanJustification = stringToEnum("textBooleanJustification", name)
+  def apply(name: String, context : ThrowsSDE) : TextBooleanJustification = stringToEnum("textBooleanJustification", name, context)
 }
   
 trait TextBooleanJustificationMixin extends PropertyMixin {
@@ -1172,7 +1173,7 @@ trait TextBooleanJustificationMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val textBooleanJustification = TextBooleanJustification(getProperty("textBooleanJustification"))
+  lazy val textBooleanJustification = TextBooleanJustification(getProperty("textBooleanJustification"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1216,7 +1217,7 @@ object TextCalendarJustification extends Enum[TextCalendarJustification] {
   case object Right extends TextCalendarJustification ; forceConstruction(Right)
   case object Center extends TextCalendarJustification ; forceConstruction(Center)
 
-  def apply(name: String) : TextCalendarJustification = stringToEnum("textCalendarJustification", name)
+  def apply(name: String, context : ThrowsSDE) : TextCalendarJustification = stringToEnum("textCalendarJustification", name, context)
 }
   
 trait TextCalendarJustificationMixin extends PropertyMixin {
@@ -1225,7 +1226,7 @@ trait TextCalendarJustificationMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val textCalendarJustification = TextCalendarJustification(getProperty("textCalendarJustification"))
+  lazy val textCalendarJustification = TextCalendarJustification(getProperty("textCalendarJustification"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1267,7 +1268,7 @@ object CalendarPatternKind extends Enum[CalendarPatternKind] {
   case object Explicit extends CalendarPatternKind ; forceConstruction(Explicit)
   case object Implicit extends CalendarPatternKind ; forceConstruction(Implicit)
 
-  def apply(name: String) : CalendarPatternKind = stringToEnum("calendarPatternKind", name)
+  def apply(name: String, context : ThrowsSDE) : CalendarPatternKind = stringToEnum("calendarPatternKind", name, context)
 }
   
 trait CalendarPatternKindMixin extends PropertyMixin {
@@ -1276,7 +1277,7 @@ trait CalendarPatternKindMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val calendarPatternKind = CalendarPatternKind(getProperty("calendarPatternKind"))
+  lazy val calendarPatternKind = CalendarPatternKind(getProperty("calendarPatternKind"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1308,26 +1309,26 @@ trait CalendarPatternKindMixin extends PropertyMixin {
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="CalendarTimeZoneType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
 // 		<xsd:restriction base="xsd:string">
-// 			<xsd:pattern value="(UTC)([+\-]([01]\d|\d)((([:][0-5]\d){1,2})?))?)"></xsd:pattern>
+//             <xsd:pattern value="(UTC)([-+]([01]\d|\d)((:[0-5]\d){0,2})?)?"></xsd:pattern>
 // 		</xsd:restriction>
 // 	</xsd:simpleType>
 
 
 trait CalendarTimeZoneTypeMixin { /* nothing */ }
 object CalendarTimeZoneType {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="CalendarLanguageType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
 // 		<xsd:restriction base="xsd:string">
-// 			<xsd:pattern value="([A-Za-z]{1,8}([\-][A-Za-z0-9]{1,8})*)"></xsd:pattern>
+// 			<xsd:pattern value="([A-Za-z]{1,8}(-[A-Za-z0-9]{1,8})*)"></xsd:pattern>
 // 		</xsd:restriction>
 // 	</xsd:simpleType>
 
 
 trait CalendarLanguageTypeMixin { /* nothing */ }
 object CalendarLanguageType {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="CalendarFirstDayOfWeekEnum" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -1352,7 +1353,7 @@ object CalendarFirstDayOfWeek extends Enum[CalendarFirstDayOfWeek] {
   case object Saturday extends CalendarFirstDayOfWeek ; forceConstruction(Saturday)
   case object Sunday extends CalendarFirstDayOfWeek ; forceConstruction(Sunday)
 
-  def apply(name: String) : CalendarFirstDayOfWeek = stringToEnum("calendarFirstDayOfWeek", name)
+  def apply(name: String, context : ThrowsSDE) : CalendarFirstDayOfWeek = stringToEnum("calendarFirstDayOfWeek", name, context)
 }
   
 trait CalendarFirstDayOfWeekMixin extends PropertyMixin {
@@ -1361,7 +1362,7 @@ trait CalendarFirstDayOfWeekMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val calendarFirstDayOfWeek = CalendarFirstDayOfWeek(getProperty("calendarFirstDayOfWeek"))
+  lazy val calendarFirstDayOfWeek = CalendarFirstDayOfWeek(getProperty("calendarFirstDayOfWeek"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1407,7 +1408,7 @@ object BinaryCalendarRep extends Enum[BinaryCalendarRep] {
   case object BinarySeconds extends BinaryCalendarRep ; forceConstruction(BinarySeconds)
   case object BinaryMilliseconds extends BinaryCalendarRep ; forceConstruction(BinaryMilliseconds)
 
-  def apply(name: String) : BinaryCalendarRep = stringToEnum("binaryCalendarRep", name)
+  def apply(name: String, context : ThrowsSDE) : BinaryCalendarRep = stringToEnum("binaryCalendarRep", name, context)
 }
   
 trait BinaryCalendarRepMixin extends PropertyMixin {
@@ -1416,7 +1417,7 @@ trait BinaryCalendarRepMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val binaryCalendarRep = BinaryCalendarRep(getProperty("binaryCalendarRep"))
+  lazy val binaryCalendarRep = BinaryCalendarRep(getProperty("binaryCalendarRep"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1466,7 +1467,7 @@ object LengthKind extends Enum[LengthKind] {
   case object EndOfParent extends LengthKind ; forceConstruction(EndOfParent)
   case object Pattern extends LengthKind ; forceConstruction(Pattern)
 
-  def apply(name: String) : LengthKind = stringToEnum("lengthKind", name)
+  def apply(name: String, context : ThrowsSDE) : LengthKind = stringToEnum("lengthKind", name, context)
 }
   
 trait LengthKindMixin extends PropertyMixin {
@@ -1475,7 +1476,7 @@ trait LengthKindMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val lengthKind = LengthKind(getProperty("lengthKind"))
+  lazy val lengthKind = LengthKind(getProperty("lengthKind"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1519,7 +1520,7 @@ object NilKind extends Enum[NilKind] {
   case object LogicalValue extends NilKind ; forceConstruction(LogicalValue)
   case object LiteralCharacter extends NilKind ; forceConstruction(LiteralCharacter)
 
-  def apply(name: String) : NilKind = stringToEnum("nilKind", name)
+  def apply(name: String, context : ThrowsSDE) : NilKind = stringToEnum("nilKind", name, context)
 }
   
 trait NilKindMixin extends PropertyMixin {
@@ -1528,7 +1529,7 @@ trait NilKindMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val nilKind = NilKind(getProperty("nilKind"))
+  lazy val nilKind = NilKind(getProperty("nilKind"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1574,7 +1575,7 @@ object NilValueDelimiterPolicy extends Enum[NilValueDelimiterPolicy] {
   case object Terminator extends NilValueDelimiterPolicy ; forceConstruction(Terminator)
   case object Both extends NilValueDelimiterPolicy ; forceConstruction(Both)
 
-  def apply(name: String) : NilValueDelimiterPolicy = stringToEnum("nilValueDelimiterPolicy", name)
+  def apply(name: String, context : ThrowsSDE) : NilValueDelimiterPolicy = stringToEnum("nilValueDelimiterPolicy", name, context)
 }
   
 trait NilValueDelimiterPolicyMixin extends PropertyMixin {
@@ -1583,7 +1584,7 @@ trait NilValueDelimiterPolicyMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val nilValueDelimiterPolicy = NilValueDelimiterPolicy(getProperty("nilValueDelimiterPolicy"))
+  lazy val nilValueDelimiterPolicy = NilValueDelimiterPolicy(getProperty("nilValueDelimiterPolicy"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1629,7 +1630,7 @@ object EmptyValueDelimiterPolicy extends Enum[EmptyValueDelimiterPolicy] {
   case object Terminator extends EmptyValueDelimiterPolicy ; forceConstruction(Terminator)
   case object Both extends EmptyValueDelimiterPolicy ; forceConstruction(Both)
 
-  def apply(name: String) : EmptyValueDelimiterPolicy = stringToEnum("emptyValueDelimiterPolicy", name)
+  def apply(name: String, context : ThrowsSDE) : EmptyValueDelimiterPolicy = stringToEnum("emptyValueDelimiterPolicy", name, context)
 }
   
 trait EmptyValueDelimiterPolicyMixin extends PropertyMixin {
@@ -1638,7 +1639,7 @@ trait EmptyValueDelimiterPolicyMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val emptyValueDelimiterPolicy = EmptyValueDelimiterPolicy(getProperty("emptyValueDelimiterPolicy"))
+  lazy val emptyValueDelimiterPolicy = EmptyValueDelimiterPolicy(getProperty("emptyValueDelimiterPolicy"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1680,7 +1681,7 @@ object SequenceKind extends Enum[SequenceKind] {
   case object Ordered extends SequenceKind ; forceConstruction(Ordered)
   case object Unordered extends SequenceKind ; forceConstruction(Unordered)
 
-  def apply(name: String) : SequenceKind = stringToEnum("sequenceKind", name)
+  def apply(name: String, context : ThrowsSDE) : SequenceKind = stringToEnum("sequenceKind", name, context)
 }
   
 trait SequenceKindMixin extends PropertyMixin {
@@ -1689,7 +1690,7 @@ trait SequenceKindMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val sequenceKind = SequenceKind(getProperty("sequenceKind"))
+  lazy val sequenceKind = SequenceKind(getProperty("sequenceKind"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1733,7 +1734,7 @@ object LengthUnits extends Enum[LengthUnits] {
   case object Bytes extends LengthUnits ; forceConstruction(Bytes)
   case object Characters extends LengthUnits ; forceConstruction(Characters)
 
-  def apply(name: String) : LengthUnits = stringToEnum("lengthUnits", name)
+  def apply(name: String, context : ThrowsSDE) : LengthUnits = stringToEnum("lengthUnits", name, context)
 }
   
 trait LengthUnitsMixin extends PropertyMixin {
@@ -1742,7 +1743,7 @@ trait LengthUnitsMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val lengthUnits = LengthUnits(getProperty("lengthUnits"))
+  lazy val lengthUnits = LengthUnits(getProperty("lengthUnits"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1784,7 +1785,7 @@ object AlignmentUnits extends Enum[AlignmentUnits] {
   case object Bits extends AlignmentUnits ; forceConstruction(Bits)
   case object Bytes extends AlignmentUnits ; forceConstruction(Bytes)
 
-  def apply(name: String) : AlignmentUnits = stringToEnum("alignmentUnits", name)
+  def apply(name: String, context : ThrowsSDE) : AlignmentUnits = stringToEnum("alignmentUnits", name, context)
 }
   
 trait AlignmentUnitsMixin extends PropertyMixin {
@@ -1793,7 +1794,7 @@ trait AlignmentUnitsMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val alignmentUnits = AlignmentUnits(getProperty("alignmentUnits"))
+  lazy val alignmentUnits = AlignmentUnits(getProperty("alignmentUnits"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1835,7 +1836,7 @@ object GenerateQuotes extends Enum[GenerateQuotes] {
   case object Always extends GenerateQuotes ; forceConstruction(Always)
   case object WhenNeeded extends GenerateQuotes ; forceConstruction(WhenNeeded)
 
-  def apply(name: String) : GenerateQuotes = stringToEnum("generateQuotes", name)
+  def apply(name: String, context : ThrowsSDE) : GenerateQuotes = stringToEnum("generateQuotes", name, context)
 }
   
 trait GenerateQuotesMixin extends PropertyMixin {
@@ -1844,7 +1845,7 @@ trait GenerateQuotesMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val generateQuotes = GenerateQuotes(getProperty("generateQuotes"))
+  lazy val generateQuotes = GenerateQuotes(getProperty("generateQuotes"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1888,7 +1889,7 @@ object SeparatorPosition extends Enum[SeparatorPosition] {
   case object Prefix extends SeparatorPosition ; forceConstruction(Prefix)
   case object Postfix extends SeparatorPosition ; forceConstruction(Postfix)
 
-  def apply(name: String) : SeparatorPosition = stringToEnum("separatorPosition", name)
+  def apply(name: String, context : ThrowsSDE) : SeparatorPosition = stringToEnum("separatorPosition", name, context)
 }
   
 trait SeparatorPositionMixin extends PropertyMixin {
@@ -1897,7 +1898,7 @@ trait SeparatorPositionMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val separatorPosition = SeparatorPosition(getProperty("separatorPosition"))
+  lazy val separatorPosition = SeparatorPosition(getProperty("separatorPosition"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1943,7 +1944,7 @@ object SeparatorPolicy extends Enum[SeparatorPolicy] {
   case object SuppressedAtEndStrict extends SeparatorPolicy ; forceConstruction(SuppressedAtEndStrict)
   case object SuppressedAtEndLax extends SeparatorPolicy ; forceConstruction(SuppressedAtEndLax)
 
-  def apply(name: String) : SeparatorPolicy = stringToEnum("separatorPolicy", name)
+  def apply(name: String, context : ThrowsSDE) : SeparatorPolicy = stringToEnum("separatorPolicy", name, context)
 }
   
 trait SeparatorPolicyMixin extends PropertyMixin {
@@ -1952,7 +1953,7 @@ trait SeparatorPolicyMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val separatorPolicy = SeparatorPolicy(getProperty("separatorPolicy"))
+  lazy val separatorPolicy = SeparatorPolicy(getProperty("separatorPolicy"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -1995,7 +1996,7 @@ object ChoiceLengthKind extends Enum[ChoiceLengthKind] {
   case object Implicit extends ChoiceLengthKind ; forceConstruction(Implicit)
   case object Explicit extends ChoiceLengthKind ; forceConstruction(Explicit)
 
-  def apply(name: String) : ChoiceLengthKind = stringToEnum("choiceLengthKind", name)
+  def apply(name: String, context : ThrowsSDE) : ChoiceLengthKind = stringToEnum("choiceLengthKind", name, context)
 }
   
 trait ChoiceLengthKindMixin extends PropertyMixin {
@@ -2004,7 +2005,7 @@ trait ChoiceLengthKindMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val choiceLengthKind = ChoiceLengthKind(getProperty("choiceLengthKind"))
+  lazy val choiceLengthKind = ChoiceLengthKind(getProperty("choiceLengthKind"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -2052,7 +2053,7 @@ object OccursCountKind extends Enum[OccursCountKind] {
   case object StopValue extends OccursCountKind ; forceConstruction(StopValue)
   case object Implicit extends OccursCountKind ; forceConstruction(Implicit)
 
-  def apply(name: String) : OccursCountKind = stringToEnum("occursCountKind", name)
+  def apply(name: String, context : ThrowsSDE) : OccursCountKind = stringToEnum("occursCountKind", name, context)
 }
   
 trait OccursCountKindMixin extends PropertyMixin {
@@ -2061,7 +2062,7 @@ trait OccursCountKindMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val occursCountKind = OccursCountKind(getProperty("occursCountKind"))
+  lazy val occursCountKind = OccursCountKind(getProperty("occursCountKind"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -2103,7 +2104,7 @@ object ByteOrder extends Enum[ByteOrder] {
   case object LittleEndian extends ByteOrder ; forceConstruction(LittleEndian)
   case object BigEndian extends ByteOrder ; forceConstruction(BigEndian)
 
-  def apply(name: String) : ByteOrder = stringToEnum("byteOrder", name)
+  def apply(name: String, context : ThrowsSDE) : ByteOrder = stringToEnum("byteOrder", name, context)
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="YesNoEnum" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2118,7 +2119,7 @@ object YesNo extends Enum[YesNo] {
   case object Yes extends YesNo ; forceConstruction(Yes)
   case object No extends YesNo ; forceConstruction(No)
 
-  def apply(name: String) : YesNo = stringToEnum("yesNo", name)
+  def apply(name: String, context : ThrowsSDE) : YesNo = stringToEnum("yesNo", name, context)
 }
   
 trait YesNoMixin extends PropertyMixin {
@@ -2127,7 +2128,7 @@ trait YesNoMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val yesNo = YesNo(getProperty("yesNo"))
+  lazy val yesNo = YesNo(getProperty("yesNo"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -2169,7 +2170,7 @@ object UTF16Width extends Enum[UTF16Width] {
   case object Fixed extends UTF16Width ; forceConstruction(Fixed)
   case object Variable extends UTF16Width ; forceConstruction(Variable)
 
-  def apply(name: String) : UTF16Width = stringToEnum("utf16Width", name)
+  def apply(name: String, context : ThrowsSDE) : UTF16Width = stringToEnum("utf16Width", name, context)
 }
   
 trait UTF16WidthMixin extends PropertyMixin {
@@ -2178,7 +2179,7 @@ trait UTF16WidthMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val utf16Width = UTF16Width(getProperty("utf16Width"))
+  lazy val utf16Width = UTF16Width(getProperty("utf16Width"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -2220,7 +2221,7 @@ object TestKind extends Enum[TestKind] {
   case object Expression extends TestKind ; forceConstruction(Expression)
   case object Pattern extends TestKind ; forceConstruction(Pattern)
 
-  def apply(name: String) : TestKind = stringToEnum("testKind", name)
+  def apply(name: String, context : ThrowsSDE) : TestKind = stringToEnum("testKind", name, context)
 }
   
 trait TestKindMixin extends PropertyMixin {
@@ -2229,7 +2230,7 @@ trait TestKindMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val testKind = TestKind(getProperty("testKind"))
+  lazy val testKind = TestKind(getProperty("testKind"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -2269,7 +2270,7 @@ trait TestKindMixin extends PropertyMixin {
 
 trait BinaryPackedSignCodesMixin { /* nothing */ }
 object BinaryPackedSignCodes {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="CalendarDaysInFirstWeek" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2282,7 +2283,7 @@ object BinaryPackedSignCodes {
 
 trait CalendarDaysInFirstWeekMixin { /* nothing */ }
 object CalendarDaysInFirstWeek {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="CalendarCenturyStart" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2295,7 +2296,7 @@ object CalendarDaysInFirstWeek {
 
 trait CalendarCenturyStartMixin { /* nothing */ }
 object CalendarCenturyStart {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="ByteOrderEnum_Or_DFDLExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2312,7 +2313,7 @@ object CalendarCenturyStart {
 
 trait ByteOrderEnum_Or_DFDLExpressionMixin { /* nothing */ }
 object ByteOrderEnum_Or_DFDLExpression {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="EncodingEnum_Or_DFDLExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2329,7 +2330,7 @@ object ByteOrderEnum_Or_DFDLExpression {
 
 trait EncodingEnum_Or_DFDLExpressionMixin { /* nothing */ }
 object EncodingEnum_Or_DFDLExpression {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="BinaryFloatRepEnum_Or_DFDLExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2346,7 +2347,7 @@ object EncodingEnum_Or_DFDLExpression {
 
 trait BinaryFloatRepEnum_Or_DFDLExpressionMixin { /* nothing */ }
 object BinaryFloatRepEnum_Or_DFDLExpression {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="DFDLStringLiteral_Or_DFDLExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2364,7 +2365,7 @@ object BinaryFloatRepEnum_Or_DFDLExpression {
 
 trait DFDLStringLiteral_Or_DFDLExpressionMixin { /* nothing */ }
 object DFDLStringLiteral_Or_DFDLExpression {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="ListOfDFDLStringLiteral_Or_DFDLExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2381,7 +2382,7 @@ object DFDLStringLiteral_Or_DFDLExpression {
 
 trait ListOfDFDLStringLiteral_Or_DFDLExpressionMixin { /* nothing */ }
 object ListOfDFDLStringLiteral_Or_DFDLExpression {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:simpleType name="DFDLNonNegativeInteger_Or_DFDLExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -2398,7 +2399,7 @@ object ListOfDFDLStringLiteral_Or_DFDLExpression {
 
 trait DFDLNonNegativeInteger_Or_DFDLExpressionMixin { /* nothing */ }
 object DFDLNonNegativeInteger_Or_DFDLExpression {
-    def apply(s : String) = s
+    def apply(s : String, self : ThrowsSDE) = s
 }
 ////////////////////////////////////////////////////////////////////////
 // <xsd:attributeGroup name="BaseAG" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -2422,7 +2423,7 @@ trait BaseAGMixin extends PropertyMixin {
 
 trait CommonAGMixin extends PropertyMixin
   with UTF16WidthMixin {
-  lazy val ignoreCase = YesNo(getProperty("ignoreCase"))
+  lazy val ignoreCase = YesNo(getProperty("ignoreCase"), this)
 
   def commonAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("byteOrder") match {
@@ -2455,10 +2456,10 @@ trait CommonAGMixin extends PropertyMixin
 
 trait AlignmentAGMixin extends PropertyMixin
   with AlignmentUnitsMixin {
-  lazy val alignment = AlignmentType(getProperty("alignment"))
-  lazy val fillByte = DFDLStringLiteral(getProperty("fillByte"))
-  lazy val leadingSkip = DFDLNonNegativeInteger(getProperty("leadingSkip"))
-  lazy val trailingSkip = DFDLNonNegativeInteger(getProperty("trailingSkip"))
+  lazy val alignment = AlignmentType(getProperty("alignment"), this)
+  lazy val fillByte = DFDLStringLiteral(getProperty("fillByte"), this)
+  lazy val leadingSkip = DFDLNonNegativeInteger(getProperty("leadingSkip"), this)
+  lazy val trailingSkip = DFDLNonNegativeInteger(getProperty("trailingSkip"), this)
 
   def alignmentAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("alignment") match {
@@ -2541,8 +2542,8 @@ trait LengthAGMixin extends PropertyMixin
   with LengthKindMixin
   with LengthUnitsMixin {
   lazy val prefixLengthType = convertToQName(getProperty("prefixLengthType"))
-  lazy val lengthPattern = DFDLRegularExpression(getProperty("lengthPattern"))
-  lazy val prefixIncludesPrefixLength = YesNo(getProperty("prefixIncludesPrefixLength"))
+  lazy val lengthPattern = DFDLRegularExpression(getProperty("lengthPattern"), this)
+  lazy val prefixIncludesPrefixLength = YesNo(getProperty("prefixIncludesPrefixLength"), this)
 
   def lengthAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("length") match {
@@ -2588,7 +2589,7 @@ trait RepresentationAGMixin extends PropertyMixin
 // 	</xsd:attributeGroup>
 
 trait FloatingAGMixin extends PropertyMixin {
-  lazy val floating = YesNo(getProperty("floating"))
+  lazy val floating = YesNo(getProperty("floating"), this)
 
   def floatingAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("floating") match {
@@ -2611,8 +2612,8 @@ trait FloatingAGMixin extends PropertyMixin {
 trait SimpleTypesTextAGMixin extends PropertyMixin
   with TextPadKindMixin
   with TextTrimKindMixin {
-  lazy val textOutputMinLength = DFDLNonNegativeInteger(getProperty("textOutputMinLength"))
-  lazy val escapeSchemeRef = DFDLQName(getProperty("escapeSchemeRef"))
+  lazy val textOutputMinLength = DFDLNonNegativeInteger(getProperty("textOutputMinLength"), this)
+  lazy val escapeSchemeRef = DFDLQName(getProperty("escapeSchemeRef"), this)
 
   def simpleTypesTextAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("textOutputMinLength") match {
@@ -2642,10 +2643,10 @@ trait SimpleTypesTextAGMixin extends PropertyMixin
 
 trait EscapeSchemeAGMixin extends PropertyMixin
   with EscapeKindMixin {
-  lazy val escapeBlockStart = DFDLStringLiteral(getProperty("escapeBlockStart"))
-  lazy val escapeBlockEnd = DFDLStringLiteral(getProperty("escapeBlockEnd"))
-  lazy val extraEscapedCharacters = ListOfDFDLStringLiteral(getProperty("extraEscapedCharacters"))
-  lazy val generateEscapeBlock = GenerateEscape(getProperty("generateEscapeBlock"))
+  lazy val escapeBlockStart = DFDLStringLiteral(getProperty("escapeBlockStart"), this)
+  lazy val escapeBlockEnd = DFDLStringLiteral(getProperty("escapeBlockEnd"), this)
+  lazy val extraEscapedCharacters = ListOfDFDLStringLiteral(getProperty("extraEscapedCharacters"), this)
+  lazy val generateEscapeBlock = GenerateEscape(getProperty("generateEscapeBlock"), this)
 
   def escapeSchemeAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("escapeCharacter") match {
@@ -2696,9 +2697,9 @@ trait TextBidiSchemeAGMixin extends PropertyMixin
   with TextBidiTextOrderingMixin
   with TextBidiOrientationMixin
   with TextBidiNumeralShapesMixin {
-  lazy val textBidi = YesNo(getProperty("textBidi"))
-  lazy val textBidiSymmetric = YesNo(getProperty("textBidiSymmetric"))
-  lazy val textBidiTextShaped = YesNo(getProperty("textBidiTextShaped"))
+  lazy val textBidi = YesNo(getProperty("textBidi"), this)
+  lazy val textBidiSymmetric = YesNo(getProperty("textBidiSymmetric"), this)
+  lazy val textBidiTextShaped = YesNo(getProperty("textBidiTextShaped"), this)
 
   def textBidiSchemeAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("textBidi") match {
@@ -2729,8 +2730,8 @@ trait TextBidiSchemeAGMixin extends PropertyMixin
 
 trait StringTextAGMixin extends PropertyMixin
   with TextStringJustificationMixin {
-  lazy val textStringPadCharacter = DFDLStringLiteral(getProperty("textStringPadCharacter"))
-  lazy val truncateSpecifiedLengthString = YesNo(getProperty("truncateSpecifiedLengthString"))
+  lazy val textStringPadCharacter = DFDLStringLiteral(getProperty("textStringPadCharacter"), this)
+  lazy val truncateSpecifiedLengthString = YesNo(getProperty("truncateSpecifiedLengthString"), this)
 
   def stringTextAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("textStringPadCharacter") match {
@@ -2753,7 +2754,7 @@ trait StringTextAGMixin extends PropertyMixin
 // 	</xsd:attributeGroup>
 
 trait NumberAGMixin extends PropertyMixin {
-  lazy val decimalSigned = YesNo(getProperty("decimalSigned"))
+  lazy val decimalSigned = YesNo(getProperty("decimalSigned"), this)
 
   def numberAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("decimalSigned") match {
@@ -2776,8 +2777,8 @@ trait NumberAGMixin extends PropertyMixin {
 trait NumberTextAGMixin extends PropertyMixin
   with TextNumberRepMixin
   with TextNumberJustificationMixin {
-  lazy val textNumberPadCharacter = DFDLStringLiteral(getProperty("textNumberPadCharacter"))
-  lazy val textStandardBase = TextNumberBase(getProperty("textStandardBase"))
+  lazy val textNumberPadCharacter = DFDLStringLiteral(getProperty("textNumberPadCharacter"), this)
+  lazy val textStandardBase = TextNumberBase(getProperty("textStandardBase"), this)
 
   def numberTextAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("textNumberPadCharacter") match {
@@ -2816,11 +2817,11 @@ trait TextNumberFormatAGMixin extends PropertyMixin
   with TextNumberRoundingMixin
   with TextZonedSignStyleMixin {
   lazy val textNumberRoundingIncrement = convertToDouble(getProperty("textNumberRoundingIncrement"))
-  lazy val textNumberPattern = DFDLStringLiteral(getProperty("textNumberPattern"))
-  lazy val textStandardExponentCharacter = DFDLStringLiteral_Or_DFDLExpression(getProperty("textStandardExponentCharacter"))
-  lazy val textStandardInfinityRep = DFDLStringLiteral(getProperty("textStandardInfinityRep"))
-  lazy val textStandardNaNRep = DFDLStringLiteral(getProperty("textStandardNaNRep"))
-  lazy val textStandardZeroRep = ListOfDFDLStringLiteral(getProperty("textStandardZeroRep"))
+  lazy val textNumberPattern = DFDLStringLiteral(getProperty("textNumberPattern"), this)
+  lazy val textStandardExponentCharacter = DFDLStringLiteral_Or_DFDLExpression(getProperty("textStandardExponentCharacter"), this)
+  lazy val textStandardInfinityRep = DFDLStringLiteral(getProperty("textStandardInfinityRep"), this)
+  lazy val textStandardNaNRep = DFDLStringLiteral(getProperty("textStandardNaNRep"), this)
+  lazy val textStandardZeroRep = ListOfDFDLStringLiteral(getProperty("textStandardZeroRep"), this)
 
   def textNumberFormatAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("textNumberPattern") match {
@@ -2879,7 +2880,7 @@ trait NumberBinaryAGMixin extends PropertyMixin
   with BinaryNumberRepMixin
   with BinaryNumberCheckPolicyMixin {
   lazy val binaryDecimalVirtualPoint = convertToInt(getProperty("binaryDecimalVirtualPoint"))
-  lazy val binaryPackedSignCodes = BinaryPackedSignCodes(getProperty("binaryPackedSignCodes"))
+  lazy val binaryPackedSignCodes = BinaryPackedSignCodes(getProperty("binaryPackedSignCodes"), this)
 
   def numberBinaryAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("binaryDecimalVirtualPoint") match {
@@ -2923,7 +2924,7 @@ trait FloatBinaryAGMixin extends PropertyMixin {
 
 trait BooleanTextAGMixin extends PropertyMixin
   with TextBooleanJustificationMixin {
-  lazy val textBooleanPadCharacter = DFDLStringLiteral(getProperty("textBooleanPadCharacter"))
+  lazy val textBooleanPadCharacter = DFDLStringLiteral(getProperty("textBooleanPadCharacter"), this)
 
   def booleanTextAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("textBooleanTrueRep") match {
@@ -2952,8 +2953,8 @@ trait BooleanTextAGMixin extends PropertyMixin
 // 	</xsd:attributeGroup>
 
 trait BooleanBinaryAGMixin extends PropertyMixin {
-  lazy val binaryBooleanTrueRep = DFDLNonNegativeInteger(getProperty("binaryBooleanTrueRep"))
-  lazy val binaryBooleanFalseRep = DFDLNonNegativeInteger(getProperty("binaryBooleanFalseRep"))
+  lazy val binaryBooleanTrueRep = DFDLNonNegativeInteger(getProperty("binaryBooleanTrueRep"), this)
+  lazy val binaryBooleanFalseRep = DFDLNonNegativeInteger(getProperty("binaryBooleanFalseRep"), this)
 
   def booleanBinaryAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("binaryBooleanTrueRep") match {
@@ -2987,12 +2988,12 @@ trait CalendarFormatAGMixin extends PropertyMixin
   with CalendarPatternKindMixin
   with CalendarCheckPolicyMixin
   with CalendarFirstDayOfWeekMixin {
-  lazy val calendarPattern = DFDLStringLiteral(getProperty("calendarPattern"))
-  lazy val calendarTimeZone = CalendarTimeZoneType(getProperty("calendarTimeZone"))
-  lazy val calendarObserveDST = YesNo(getProperty("calendarObserveDST"))
-  lazy val calendarDaysInFirstWeek = CalendarDaysInFirstWeek(getProperty("calendarDaysInFirstWeek"))
-  lazy val calendarCenturyStart = CalendarCenturyStart(getProperty("calendarCenturyStart"))
-  lazy val calendarLanguage = CalendarLanguageType(getProperty("calendarLanguage"))
+  lazy val calendarPattern = DFDLStringLiteral(getProperty("calendarPattern"), this)
+  lazy val calendarTimeZone = CalendarTimeZoneType(getProperty("calendarTimeZone"), this)
+  lazy val calendarObserveDST = YesNo(getProperty("calendarObserveDST"), this)
+  lazy val calendarDaysInFirstWeek = CalendarDaysInFirstWeek(getProperty("calendarDaysInFirstWeek"), this)
+  lazy val calendarCenturyStart = CalendarCenturyStart(getProperty("calendarCenturyStart"), this)
+  lazy val calendarLanguage = CalendarLanguageType(getProperty("calendarLanguage"), this)
 
   def calendarFormatAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("calendarPattern") match {
@@ -3037,7 +3038,7 @@ trait CalendarFormatAGMixin extends PropertyMixin
 
 trait CalendarTextAGMixin extends PropertyMixin
   with TextCalendarJustificationMixin {
-  lazy val textCalendarPadCharacter = DFDLStringLiteral(getProperty("textCalendarPadCharacter"))
+  lazy val textCalendarPadCharacter = DFDLStringLiteral(getProperty("textCalendarPadCharacter"), this)
 
   def calendarTextAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("textCalendarPadCharacter") match {
@@ -3090,7 +3091,7 @@ trait OpaqueAGMixin extends PropertyMixin {
 trait NillableAGMixin extends PropertyMixin
   with NilKindMixin
   with NilValueDelimiterPolicyMixin {
-  lazy val nilValue = ListOfDFDLStringLiteral(getProperty("nilValue"))
+  lazy val nilValue = ListOfDFDLStringLiteral(getProperty("nilValue"), this)
 
   def nillableAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("nilValue") match {
@@ -3108,7 +3109,7 @@ trait NillableAGMixin extends PropertyMixin
 // 	</xsd:attributeGroup>
 
 trait DefaultValueControlAGMixin extends PropertyMixin {
-  lazy val useNilForDefault = YesNo(getProperty("useNilForDefault"))
+  lazy val useNilForDefault = YesNo(getProperty("useNilForDefault"), this)
 
   def defaultValueControlAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("useNilForDefault") match {
@@ -3161,7 +3162,7 @@ trait SeparatorAGMixin extends PropertyMixin
 // 	</xsd:attributeGroup>
 
 trait GroupCommonAGMixin extends PropertyMixin {
-  lazy val initiatedContent = YesNo(getProperty("initiatedContent"))
+  lazy val initiatedContent = YesNo(getProperty("initiatedContent"), this)
 
   def groupCommonAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("initiatedContent") match {
@@ -3181,7 +3182,7 @@ trait GroupCommonAGMixin extends PropertyMixin {
 
 trait ChoiceAGMixin extends PropertyMixin
   with ChoiceLengthKindMixin {
-  lazy val choiceLength = DFDLNonNegativeInteger(getProperty("choiceLength"))
+  lazy val choiceLength = DFDLNonNegativeInteger(getProperty("choiceLength"), this)
 
   def choiceAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("choiceLength") match {
@@ -3202,7 +3203,7 @@ trait ChoiceAGMixin extends PropertyMixin
 
 trait OccursAGMixin extends PropertyMixin
   with OccursCountKindMixin {
-  lazy val occursStopValue = ListOfDFDLStringLiteral(getProperty("occursStopValue"))
+  lazy val occursStopValue = ListOfDFDLStringLiteral(getProperty("occursStopValue"), this)
 
   def occursAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("occursCount") match {
@@ -3238,7 +3239,7 @@ trait CalculatedValueAGMixin extends PropertyMixin {
 // 	</xsd:attributeGroup>
 
 trait DocumentPropertiesAGMixin extends PropertyMixin {
-  lazy val documentFinalTerminatorCanBeMissing = YesNo(getProperty("documentFinalTerminatorCanBeMissing"))
+  lazy val documentFinalTerminatorCanBeMissing = YesNo(getProperty("documentFinalTerminatorCanBeMissing"), this)
 
   def documentPropertiesAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("documentFinalTerminatorCanBeMissing") match {
@@ -3484,7 +3485,7 @@ object PropertyNameType extends Enum[PropertyNameType] {
   case object TruncateSpecifiedLengthString extends PropertyNameType ; forceConstruction(TruncateSpecifiedLengthString)
   case object DecimalSigned extends PropertyNameType ; forceConstruction(DecimalSigned)
 
-  def apply(name: String) : PropertyNameType = stringToEnum("propertyNameType", name)
+  def apply(name: String, context : ThrowsSDE) : PropertyNameType = stringToEnum("propertyNameType", name, context)
 }
   
 trait PropertyNameTypeMixin extends PropertyMixin {
@@ -3493,7 +3494,7 @@ trait PropertyNameTypeMixin extends PropertyMixin {
    * get property value, or fail trying. Use this if you need
    * the property value.
    */
-  lazy val propertyNameType = PropertyNameType(getProperty("propertyNameType"))
+  lazy val propertyNameType = PropertyNameType(getProperty("propertyNameType"), this)
     
   /**
    * get Some(property value) or None if not defined in scope.
@@ -3667,7 +3668,7 @@ trait Property_AnnotationMixin extends PropertyMixin
 // 	</xsd:complexType>
 
 trait PropertyTypeMixin extends PropertyMixin {
-  lazy val name = PropertyNameType(getProperty("name"))
+  lazy val name = PropertyNameType(getProperty("name"), this)
 
   def propertyTypeInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("name") match {
@@ -3730,7 +3731,7 @@ trait DefineVariableAGMixin extends PropertyMixin {
 // 	</xsd:attributeGroup>
 
 trait SetVariableAGMixin extends PropertyMixin {
-  lazy val value = DFDLStringLiteral_Or_DFDLExpression(getProperty("value"))
+  lazy val value = DFDLStringLiteral_Or_DFDLExpression(getProperty("value"), this)
 
   def setVariableAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("value") match {

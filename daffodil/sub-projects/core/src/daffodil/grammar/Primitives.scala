@@ -13,6 +13,7 @@ import java.text.{ ParseException, ParsePosition }
 import java.math.BigInteger
 import stringsearch.constructs._
 import stringsearch.delimiter._
+import daffodil.exceptions.ThrowsPE
 
 import daffodil.util._
 
@@ -116,7 +117,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
       val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
       if (endBitPos < start.bitPos + nBytes * 8) {
         // Do Something Bad
-        Assert.processingError("Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
+        PE("Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
       }
       val result = cbuf.toString
       log(Debug("Parsed: " + result))

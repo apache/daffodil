@@ -39,7 +39,7 @@ trait InitiatedTerminatedMixin
           val (nsURI, name) = formatAnnotation.getQName(qName)
           val defES = schema.schemaSet.getDefineEscapeScheme(nsURI, name)
           defES match {
-            case None => Assert.SDE("Define Escape Scheme Not Found")
+            case None => SDE("Define Escape Scheme Not Found")
             case Some(es) => Some(es.escapeScheme)
           }
         }
@@ -91,7 +91,7 @@ trait ElementBaseGrammarMixin
       case LengthKind.Explicit if isFixedLength => fixedLengthString
       case LengthKind.Delimited =>  stringDelimitedEndOfData 
       case LengthKind.Pattern => stringPatternMatched
-      case LengthKind.Implicit => Assert.schemaDefinitionError("Textual data elements cannot have lengthKind='implicit'.")
+      case LengthKind.Implicit => schemaDefinitionError("Textual data elements cannot have lengthKind='implicit'.")
       case _ => Assert.notYetImplemented()
     })
     res
@@ -128,7 +128,7 @@ trait ElementBaseGrammarMixin
   lazy val regularBinaryRepInt = Prod("regularBinaryRepInt", this,
     binaryNumberRep == BinaryNumberRep.Binary, lengthKind match {
       case LengthKind.Implicit => {
-        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString) match {
+        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString, this) match {
           case ByteOrder.BigEndian => Regular32bitBigEndianIntPrim(this)
           case ByteOrder.LittleEndian => Regular32bitLittleEndianIntPrim(this)
         }
@@ -205,12 +205,12 @@ trait ElementBaseGrammarMixin
     {
       val bfr = binaryFloatRep
       val res = bfr.isConstant &&
-        BinaryFloatRep(bfr.constantAsString) == BinaryFloatRep.Ieee
+        BinaryFloatRep(bfr.constantAsString, this) == BinaryFloatRep.Ieee
       res
     },
     lengthKind match {
       case LengthKind.Implicit => {
-        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString) match {
+        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString, this) match {
           case ByteOrder.BigEndian => BigEndianDoublePrim(this)
           case ByteOrder.LittleEndian => LittleEndianDoublePrim(this)
         }
@@ -222,13 +222,13 @@ trait ElementBaseGrammarMixin
   lazy val ibm390HexBinaryRepDouble = Prod("ibm390HexBinaryRepDouble", this,
     binaryFloatRep.isConstant &&
       binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString,
-    Assert.SDE("ibm390Hex not supported"))
+    SDE("ibm390Hex not supported"))
 
   lazy val standardTextDouble = Prod("standardTextDouble", this,
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextDoublePrim(this))
 
   lazy val zonedTextDouble = Prod("zonedTextDouble", this,
-    textNumberRep == TextNumberRep.Zoned, Assert.SDE("Zoned not supported for float and double"))
+    textNumberRep == TextNumberRep.Zoned, SDE("Zoned not supported for float and double"))
 
   lazy val binaryFloat = Prod("binaryFloat", this, representation == Representation.Binary,
     ieeeBinaryRepFloat | ibm390HexBinaryRepFloat)
@@ -240,12 +240,12 @@ trait ElementBaseGrammarMixin
     {
       val bfr = binaryFloatRep
       val res = bfr.isConstant &&
-        BinaryFloatRep(bfr.constantAsString) == BinaryFloatRep.Ieee
+        BinaryFloatRep(bfr.constantAsString, this) == BinaryFloatRep.Ieee
       res
     },
     lengthKind match {
       case LengthKind.Implicit => {
-        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString) match {
+        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString, this) match {
           case ByteOrder.BigEndian => BigEndianFloatPrim(this)
           case ByteOrder.LittleEndian => LittleEndianFloatPrim(this)
         }
@@ -257,13 +257,13 @@ trait ElementBaseGrammarMixin
   lazy val ibm390HexBinaryRepFloat = Prod("ibm390HexBinaryRepFloat", this,
     binaryFloatRep.isConstant &&
       binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString,
-    Assert.SDE("ibm390Hex not supported"))
+    SDE("ibm390Hex not supported"))
 
   lazy val standardTextFloat = Prod("standardTextFloat", this,
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextFloatPrim(this))
 
   lazy val zonedTextFloat = Prod("zonedTextFloat", this,
-    textNumberRep == TextNumberRep.Zoned, Assert.SDE("Zoned not supported for float and double"))
+    textNumberRep == TextNumberRep.Zoned, SDE("Zoned not supported for float and double"))
 
   lazy val value = 
     Prod("value", this, isSimpleType,
@@ -286,7 +286,7 @@ trait ElementBaseGrammarMixin
           case "unsignedLong" => binaryUnsignedLong | textUnsignedLong
           case "double" => binaryDouble | textDouble
           case "float" => binaryFloat | textFloat
-          case _ => Assert.schemaDefinitionError("Unrecognized primitive type: " + ptName)
+          case _ => schemaDefinitionError("Unrecognized primitive type: " + ptName)
         }
     res
     }
@@ -493,7 +493,7 @@ trait LocalElementGrammarMixin { self: ElementBase with LocalElementMixin =>
       val max = maxOccurs
       val res = occursCountKind match {
         case Expression => Assert.notYetImplemented() // separatedContentExactlyNComputed(occursCountExpr)
-        case OccursCountKind.Fixed      if (max == UNB) => Assert.SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+        case OccursCountKind.Fixed      if (max == UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
         case OccursCountKind.Fixed      => separatedContentExactlyN(max)
         case OccursCountKind.Implicit   if (max == UNB) => Assert.notYetImplemented() // contentUnbounded
         case OccursCountKind.Implicit   => Assert.notYetImplemented() // contentAtMostN // uses maxOccurs
@@ -525,21 +525,21 @@ trait LocalElementGrammarMixin { self: ElementBase with LocalElementMixin =>
       val triple = (separatorSuppressionPolicy, occursCountKind, maxOccurs)
       val res = triple match {
  //       case (___________, Expression, ___) => separatedContentExactlyNComputed(occursCountExpr)
-        case (Never______, Fixed_____, UNB) => Assert.SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+        case (Never______, Fixed_____, UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
         case (___________, Fixed_____, max) => separatedContentExactlyN(max)
-        case (Never______, Implicit__, UNB) => Assert.SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' required bounded maxOccurs.")
+        case (Never______, Implicit__, UNB) => SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' required bounded maxOccurs.")
         case (Never______, Implicit__, max) => separatedContentExactlyN(max)
-        case (Never______, ock       , ___) => Assert.SDE("separatorSuppressionPolicy='never' not allowed in combination with occursCountKind='" + ock + "'.")
-        case (TrailingLax, Implicit__, UNB) if (!isLastRequiredElementOfSequence) => Assert.SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
+        case (Never______, ock       , ___) => SDE("separatorSuppressionPolicy='never' not allowed in combination with occursCountKind='" + ock + "'.")
+        case (TrailingLax, Implicit__, UNB) if (!isLastRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
         case (TrailingLax, Implicit__, UNB) => separatedContentUnbounded
         case (TrailingLax, Implicit__, max) => separatedContentAtMostN // FIXME: have to have all of them - not trailing position 
-        case (Trailing___, Implicit__, UNB) if (!isLastRequiredElementOfSequence) => Assert.SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
+        case (Trailing___, Implicit__, UNB) if (!isLastRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
         case (Trailing___, Implicit__, UNB) => separatedContentUnboundedWithoutTrailingEmpties // we're depending on optionalEmptyPart failing on empty content.
         case (Trailing___, Implicit__, max) => separatedContentAtMostNWithoutTrailingEmpties
         case (Always_____, Implicit__, UNB) => separatedContentUnbounded
         case (Always_____, Parsed____, ___) => separatedContentUnbounded
         case (Always_____, StopValue_, ___) => separatedContentUnbounded
-        case (policy     , ock       , max) => Assert.SDE("separatorSuppressionPolicy='" + policy + "' not allowed with occursCountKind='" + ock + "'.")
+        case (policy     , ock       , max) => SDE("separatorSuppressionPolicy='" + policy + "' not allowed with occursCountKind='" + ock + "'.")
       }
       res
     }
@@ -646,14 +646,14 @@ trait TermGrammarMixin { self: Term =>
   lazy val infixSepWithoutPriorRequiredSiblings = Prod("infixSepWithoutPriorRequiredSiblings", this,
     es.hasInfixSep && !hasPriorRequiredSiblings && (position > 1 || !isScalar),
     // runtime check for group pos such that we need a separator.
-    (GroupPosGreaterThan(1, self) ~ infixSep) | Nothing(this))
+    (GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this))
   // FIXME: no backtrack to Nothing if infixSep not found.
   // if the groupPos is > 1, then the infixSep must be found, otherwise fail. 
   // The GroupPosGreaterThan(1) primitive can set a discriminator true, thereby turning off the alternative.
 
   lazy val infixStaticallyFirst = Prod("infixStaticallyFirst", this,
     es.hasInfixSep && position == 1 && isScalar && !hasPriorRequiredSiblings,
-    Nothing(this))
+    Nada(this))
 
   lazy val infixSepRule = Prod("infixSepRule", this,
     hasES && es.hasInfixSep,

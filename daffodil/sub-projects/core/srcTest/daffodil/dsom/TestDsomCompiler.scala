@@ -405,7 +405,7 @@ class TestDsomCompiler extends JUnit3Suite {
     assertEquals(NilKind.LiteralValue, ge3.nilKind)
 
     // Tests overlapping properties
-    intercept[daffodil.exceptions.SDE] { ge4.lengthKind }
+    intercept[daffodil.dsom.SchemaDefinitionError] { ge4.lengthKind }
 
     assertEquals(AlignmentUnits.Bytes, ge5.alignmentUnits) // local
     assertEquals(OccursCountKind.Parsed, ge5.occursCountKind) // def1
@@ -518,7 +518,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val gs3 = gs3f.forRoot() // Global SimpleType - aTypeError - overlapping base props
 
     // Tests overlapping properties
-    intercept[daffodil.exceptions.SDE] { gs3.allNonDefaultProperties }
+    intercept[daffodil.dsom.SchemaDefinitionError] { gs3.allNonDefaultProperties }
   }
 
   def test_group_references {
@@ -578,7 +578,7 @@ class TestDsomCompiler extends JUnit3Suite {
     val myGlobal3Seq = myGlobal3.modelGroup.asInstanceOf[Sequence]
 
     // Tests overlapping properties
-    intercept[daffodil.exceptions.SDE] { myGlobal3Seq.allNonDefaultProperties }
+    intercept[daffodil.dsom.SchemaDefinitionError] { myGlobal3Seq.allNonDefaultProperties }
 
   }
 
@@ -700,18 +700,31 @@ class TestDsomCompiler extends JUnit3Suite {
     val seq = ct.modelGroup.asInstanceOf[Sequence]
 
     val Seq(e1 : ElementBase, e2 : ElementBase, e3 : ElementBase) = seq.groupMembers
-
-    //assertEquals(e1.terminatingMarkup, List("a", "b")) // 1 Level
-    println(e1.terminatingMarkup)
+    
+    assertEquals(3, e1.allTerminatingMarkup.length) // 1 Level + ref on global element decl
+    assertEquals("a", e1.allTerminatingMarkup(0).prettyExpr)
+    assertEquals("b", e1.allTerminatingMarkup(1).prettyExpr)
+    assertEquals("g", e1.allTerminatingMarkup(2).prettyExpr)
 
     val ct2 = e3.asInstanceOf[ElementBase].typeDef.asInstanceOf[ComplexTypeBase]
     val seq2 = ct2.modelGroup.asInstanceOf[Sequence]
     val Seq(e3_1 : ElementBase, e3_2 : ElementBase) = seq2.groupMembers
-
-    println(e3_1.terminatingMarkup)
-    println(e3_2.terminatingMarkup)
-    // assertEquals(e3_1.terminatingMarkup, List("e", "c", "d", "a", "b")) // 2 Level
-    // assertEquals(e3_2.terminatingMarkup, List("f", "c", "d", "a", "b")) // 2 Level + ref
+    
+    assertEquals(6, e3_1.allTerminatingMarkup.length)	// 2 Level + ref on global element decl
+    assertEquals("e", e3_1.allTerminatingMarkup(0).prettyExpr)
+    assertEquals("c", e3_1.allTerminatingMarkup(1).prettyExpr)
+    assertEquals("d", e3_1.allTerminatingMarkup(2).prettyExpr)
+    assertEquals("a", e3_1.allTerminatingMarkup(3).prettyExpr)
+    assertEquals("b", e3_1.allTerminatingMarkup(4).prettyExpr)
+    assertEquals("g", e3_1.allTerminatingMarkup(5).prettyExpr)
+    
+    assertEquals(6, e3_2.allTerminatingMarkup.length) // 2 Level + ref on global element decl + ref on local element decl
+    assertEquals("f", e3_2.allTerminatingMarkup(0).prettyExpr) // f instead of e, due to ref
+    assertEquals("c", e3_2.allTerminatingMarkup(1).prettyExpr)
+    assertEquals("d", e3_2.allTerminatingMarkup(2).prettyExpr)
+    assertEquals("a", e3_2.allTerminatingMarkup(3).prettyExpr)
+    assertEquals("b", e3_2.allTerminatingMarkup(4).prettyExpr)
+    assertEquals("g", e3_2.allTerminatingMarkup(5).prettyExpr)
   }
 
   def test_escapeSchemeOverride = {

@@ -47,7 +47,7 @@ with DFDLStatementMixin {
   }
   
   lazy val combinedSimpleTypeAndBaseProperties = {
-    Assert.schemaDefinition(overlappingLocalProperties.size == 0, 
+    schemaDefinition(overlappingLocalProperties.size == 0, 
         "Overlap detected between the local SimpleType (" 
         + this.detailName + ") properties and its base.")
         
@@ -71,7 +71,7 @@ with DFDLStatementMixin {
         nsURI == XMLUtils.DFDL_SUBSET_NAMESPACE) {// tolerate use of this subset.
       // XSD namespace
       val prim = schemaDocument.schema.schemaSet.getPrimitiveType(localName)
-      Assert.schemaDefinition(prim != None, 
+      schemaDefinition(prim != None, 
           "Type " + localName + " is not an XSD primitive type.")
       prim
     }
@@ -104,7 +104,7 @@ with DFDLStatementMixin {
       case None => {
     	val bt = myBaseTypeFactory.map{ _.forDerivedType(this) }
     	bt match {
-    	  case None => Assert.schemaDefinitionError("No type found for base: " + baseTypeQName)
+    	  case None => schemaDefinitionError("No type found for base: " + baseTypeQName)
     	  case Some(bt) => bt
     	}
       }
@@ -146,7 +146,7 @@ with DFDLStatementMixin {
   }
   
   override lazy val allNonDefaultProperties = {
-    Assert.schemaDefinition(!hasOverlap, "Overlap detected between simpleType (" + this.detailName + ") and its base.")
+    schemaDefinition(!hasOverlap, "Overlap detected between simpleType (" + this.detailName + ") and its base.")
     
     val theLocalUnion = this.combinedSimpleTypeAndBaseProperties
     theLocalUnion

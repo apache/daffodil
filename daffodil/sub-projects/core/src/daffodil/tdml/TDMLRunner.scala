@@ -3,10 +3,8 @@ package daffodil.tdml
 import java.io.File
 import scala.Array.canBuildFrom
 import scala.xml.NodeSeq.seqToNodeSeq
-import scala.xml.Node
-import scala.xml.NodeSeq
-import scala.xml.Utility
-import scala.xml.XML
+import scala.xml._
+
 import org.scalatest.junit.JUnit3Suite
 import daffodil.Implicits.using
 import daffodil.dsom.Compiler
@@ -302,14 +300,22 @@ case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
     // TODO: Fix so we can validate here.
     //
     // assert(Validator.validateXMLNodes(sch, actualNoAttrs) != null)
-    val expected = infoset.contents
+    //
+    
+    // Something about the way XML is constructed is different between our jdom-converted 
+    // results and the ones created by scala directly parsing the TDML test files.
+    // so we run the expected stuff through the same converters that were used to
+    // convert the actual.
+    val expected = XMLUtils.element2Elem(XMLUtils.elem2Element(infoset.contents))
 
     if (expected != actualNoAttrs) {
-      throw new Exception("Comparison failed. Expected: " + expected + " but got " + actualNoAttrs)
-      fail()
+      val diffs = XMLUtils.computeDiff(expected, actualNoAttrs)
+      //throw new Exception("Comparison failed. Expected: " + expected + " but got " + actualNoAttrs)
+      throw new Exception("Comparison failed. Differences were (path, expected, actual):\n" + diffs.map{_.toString}.mkString("\n"))
     }
   }
-
+  
+ 
   def runParseExpectErrors(pf : DFDL.ProcessorFactory,
     dataToParse : DFDL.Input,
     errors : ExpectedErrors,
@@ -561,8 +567,8 @@ case class DFDLInfoset(di : Node, parent : Infoset) {
     // Let's validate the expected content against the schema
     // Just to be sure they don't drift.
     //
-    val ptc = parent.parent
-    val schemaNode = ptc.findModel(ptc.model)
+    //    val ptc = parent.parent
+    //    val schemaNode = ptc.findModel(ptc.model)
     //
     // This is causing trouble, with the stripped attributes, etc.
     // TODO: Fix so we can validate these expected results against

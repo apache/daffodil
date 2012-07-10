@@ -102,6 +102,10 @@ binaryBooleanFalseRep="0">
    * retrieves the property if it is present.
    */
   class HasLotsOfProperties extends Format_AnnotationMixin {
+    
+    def SDE(id : String, args : Any *) : Nothing = {
+      throw new Exception(id.toString + args)
+    }
 
     val detailName="HasLotsOfProperties"
     /**
