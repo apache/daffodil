@@ -350,6 +350,7 @@ class TestDFDLParser extends JUnit3Suite {
         <xs:element name="abc">
           <xs:complexType>
             <xs:sequence>
+              <xs:element name="nul" dfdl:lengthKind="explicit" type="xs:int" dfdl:length="{1}"/>
               <xs:element name="ab" dfdl:lengthKind="pattern" dfdl:lengthPattern=".*?//">
                 <xs:complexType>
                   <xs:sequence dfdl:separator=",">
@@ -362,8 +363,8 @@ class TestDFDLParser extends JUnit3Suite {
         </xs:sequence>
       </xs:complexType>
     </xs:element>)
-    val actual = Compiler.testString(sch, """aaa,bb//5""").result
-    TestUtils.assertEqualsXMLElements(<abc><ab><name>aaa</name><item>bb//</item></ab><c>5</c></abc>, actual)
+    val actual = Compiler.testString(sch, """0aaa,bb//5""").result
+    TestUtils.assertEqualsXMLElements(<abc><nul>0</nul><ab><name>aaa</name><item>bb//</item></ab><c>5</c></abc>, actual)
   }
 
   // TEST FAILS - SEE JIRA DFDL-184
