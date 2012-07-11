@@ -217,6 +217,10 @@ object Compiler {
   def testString(testSchema : Node, data : String) = {
     val compiler = Compiler()
     val pf = compiler.compile(testSchema)
+    if (pf.isError) {
+      val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new Exception(msgs)
+    }
     val p = pf.onPath("/")
     val d = Compiler.stringToReadableByteChannel(data)
     val actual = p.parse(d)

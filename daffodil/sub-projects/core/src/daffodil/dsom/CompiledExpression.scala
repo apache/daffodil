@@ -4,6 +4,7 @@ import daffodil.exceptions._
 import daffodil.processors.xpath._
 import javax.xml.xpath._
 import daffodil.processors.VariableMap
+import org.jdom.Element
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -96,8 +97,11 @@ case class ExpressionProperty[T](convertTo : Symbol,
  
     def evaluate(pre: org.jdom.Element, variables : VariableMap): T = {
       val xpathRes = XPathUtil.evalExpression(xpathText, xpathExprFactory, variables, pre)
-      val converted = xpathRes match {
-        case StringResult(s) => CompiledExpressionUtil.converter(convertTo, s)
+      val converted : T = xpathRes match {
+        case StringResult(s) => {
+          val cs = CompiledExpressionUtil.converter(convertTo, s)
+          cs
+        }
         case NodeResult(n) => {
           CompiledExpressionUtil.converter(convertTo, n)
         }

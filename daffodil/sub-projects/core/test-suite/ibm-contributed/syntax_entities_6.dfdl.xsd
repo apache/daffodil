@@ -6,7 +6,7 @@
 
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format ref="rdefFormat" encoding="ascii" byteOrder="bigEndian"
+			<dfdl:format ref="rdefFormat" encoding="utf-8" byteOrder="bigEndian"
 				ignoreCase="no" textStringJustification="left"
 				textStringPadCharacter="0" textTrimKind="none" textPadKind="none"
 				documentFinalTerminatorCanBeMissing="no" nilValueDelimiterPolicy="none"

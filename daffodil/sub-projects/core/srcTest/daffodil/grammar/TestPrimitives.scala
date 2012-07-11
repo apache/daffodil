@@ -66,7 +66,7 @@ class TestPrimitives extends JUnit3Suite {
   def testSeparator {
      val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
-      <xs:element name="e1">
+      <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
       		<xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>
@@ -86,7 +86,7 @@ class TestPrimitives extends JUnit3Suite {
   def testLengthKindDelimited {
      val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
-      <xs:element name="e1">
+      <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
           <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
       		<xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" />
@@ -107,7 +107,7 @@ class TestPrimitives extends JUnit3Suite {
   def testLengthKindDelimited2 {
      val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
-      <xs:element name="e1">
+      <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
           <xs:sequence dfdl:separator="%WSP;%WSP*;\%NL;%WSP;%WSP*;" dfdl:separatorPosition="infix">
       		<xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" />
@@ -128,7 +128,7 @@ class TestPrimitives extends JUnit3Suite {
   def testLengthKindDelimited3 {
      val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
-      <xs:element name="e1">
+      <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
           <xs:sequence dfdl:separator="}}}" dfdl:separatorPosition="infix">
       		<xs:element name="s1" dfdl:lengthKind="delimited">
@@ -218,7 +218,7 @@ class TestPrimitives extends JUnit3Suite {
   def testEntityReplacementSeparator {
      val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
-      <xs:element name="e1">
+      <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator="%NUL;" dfdl:separatorPosition="infix">
       		<xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>
