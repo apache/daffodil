@@ -23,6 +23,7 @@ import daffodil.util._
 import daffodil.exceptions.ThrowsSDE
 import daffodil.exceptions.ThrowsPE
 import java.io.ByteArrayInputStream
+import scala.collection.mutable.Stack
 
 abstract class ProcessingError extends Exception with Diagnostic {
 
@@ -220,7 +221,7 @@ class DataLoc(bitPos : Long, inStream : InStream) extends DataLocation {
  * which should be isolated to the alternative parser.
  */
 class PState(
-  val inStream: InStream,
+  val inStreamStack: Stack[InStream],
   val bitPos: Long,
   val bitLimit: Long,
   val charPos: Long,
@@ -240,30 +241,35 @@ class PState(
   def childPos = childIndexStack.head
   def currentLocation : DataLocation = new DataLoc(bitPos, inStream)
 
+  def inStream = inStreamStack top
   /**
    * Convenience functions for creating a new state, changing only
    * one or a related subset of the state components to a new one.
    */
   def withInStream(inStream: InStream, status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack push(inStream), bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+  def withLastInStream(status: ProcessorResult = Success) = {
+    inStreamStack pop()
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+  }
   def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withEndBitLimit(bitLimit: Long, status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withParent(parent: org.jdom.Element, status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withVariables(variableMap: VariableMap, status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withGroupIndexStack(groupIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withChildIndexStack(childIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withArrayIndexStack(arrayIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def failed(msg: => String) : PState =
     failed(new GeneralParseFailure(msg))
   def failed(failureDiagnostic: Diagnostic) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics)
 
   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.
@@ -329,7 +335,7 @@ object PState {
     val childIndexStack = Nil
     val arrayIndexStack = Nil
     val diagnostics = Nil
-    val newState = new PState(inStream, 0, -1, 0, -1, doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    val newState = new PState(Stack(inStream), 0, -1, 0, -1, doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
     newState
   }
 

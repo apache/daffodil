@@ -388,7 +388,10 @@ trait ElementBaseGrammarMixin
     if (isComplexType.value == true && lengthKind == LengthKind.Pattern) ComplexElementBeginPattern(this)
     else ElementBegin(this)
   } )
-  lazy val dfdlElementEnd = Prod("dfdlElementEnd", this, ElementEnd(this))
+  lazy val dfdlElementEnd = Prod("dfdlElementEnd", this, {
+    if (isComplexType.value == true && lengthKind == LengthKind.Pattern) ComplexElementEndPattern(this)
+    else ElementEnd(this)
+  } )
 
   lazy val scalarNonDefault = Prod("scalarNonDefault", this,
     dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~

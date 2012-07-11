@@ -76,7 +76,7 @@ case class ComplexElementBeginPattern(e: ElementBase) extends Terminal(e, e.isCo
   }
 }
 
-case class ElementEnd(e: ElementBase) extends Terminal(e, true) {
+case class ElementEnd(e: ElementBase) extends Terminal(e, e.isComplexType.value != true || e.lengthKind != LengthKind.Pattern) {
   def parser: Parser = new Parser(e) {
 
     override def toString = "</" + e.name + ">"
@@ -88,6 +88,25 @@ case class ElementEnd(e: ElementBase) extends Terminal(e, true) {
       val currentElement = start.parent
       val priorElement = currentElement.getParent.asInstanceOf[org.jdom.Element]
       val postState = start.withParent(priorElement).moveOverByOne
+      postState
+    }
+  }
+}
+
+case class ComplexElementEndPattern(e: ElementBase) extends Terminal(e, e.isComplexType.value == true && e.lengthKind == LengthKind.Pattern) {
+  // TODO: Should this be more generic; is there a way to detect state from the current element to tell us if it's time
+  //       to pop the input stack?
+  def parser: Parser = new Parser(e) {
+
+    override def toString = "</" + e.name + " dfdl:lengthKind='pattern'>"
+
+    /**
+     * ElementEnd just moves back to the parent element of the current one.
+     */
+    def parse(start: PState): PState = {
+      val currentElement = start.parent
+      val priorElement = currentElement.getParent.asInstanceOf[org.jdom.Element]
+      val postState = start.withParent(priorElement).moveOverByOne.withLastInStream()
       postState
     }
   }
