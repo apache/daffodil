@@ -70,7 +70,7 @@ case class ComplexElementBeginPattern(e: ElementBase) extends Terminal(e, e.isCo
       val currentElement = new org.jdom.Element(e.name, e.namespace)
       val priorElement = postState1.parent
       priorElement.addContent(currentElement)
-      val postState2 = postState1 withParent(postState1 parent)
+      val postState2 = postState1 withParent(currentElement)
       postState2
     }
   }
