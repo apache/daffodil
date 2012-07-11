@@ -30,9 +30,12 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
      * the state to be referring to this new element as what we're parsing data into.
      */
     def parse(start: PState): PState = {
+      
       val currentElement = new org.jdom.Element(e.name, e.namespace)
+      log(Debug("currentElement = %s", currentElement))
       val priorElement = start.parent
       priorElement.addContent(currentElement)
+      log(Debug("priorElement = %s", priorElement))
       val postState = start.withParent(currentElement)
       postState
     }
@@ -68,9 +71,11 @@ case class ComplexElementBeginPattern(e: ElementBase) extends Terminal(e, e.isCo
       }
 
       val currentElement = new org.jdom.Element(e.name, e.namespace)
+      log(Debug("currentElement = %s", currentElement))
       val priorElement = postState1.parent
       priorElement.addContent(currentElement)
-      val postState2 = postState1 withParent(postState1 parent)
+      log(Debug("priorElement = %s", priorElement))
+      val postState2 = postState1 withParent(currentElement)
       postState2
     }
   }
@@ -86,7 +91,9 @@ case class ElementEnd(e: ElementBase) extends Terminal(e, e.isComplexType.value 
      */
     def parse(start: PState): PState = {
       val currentElement = start.parent
+      Assert.invariant(currentElement.getName() != "_document_" )
       val priorElement = currentElement.getParent.asInstanceOf[org.jdom.Element]
+      log(Debug("priorElement = %s", priorElement))
       val postState = start.withParent(priorElement).moveOverByOne
       postState
     }
@@ -105,7 +112,10 @@ case class ComplexElementEndPattern(e: ElementBase) extends Terminal(e, e.isComp
      */
     def parse(start: PState): PState = {
       val currentElement = start.parent
+      log(Debug("currentElement = %s", currentElement))
+      Assert.invariant(currentElement.getName() != "_document_" )
       val priorElement = currentElement.getParent.asInstanceOf[org.jdom.Element]
+      log(Debug("priorElement = %s", priorElement))
       val postState = start.withParent(priorElement).moveOverByOne.withLastInStream()
       postState
     }
