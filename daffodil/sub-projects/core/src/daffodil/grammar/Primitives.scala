@@ -354,7 +354,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
           // TODO: There needs to be a way to restore '+' in the unparse, but that will be in the format field
           str = str.substring(1)
         }
-        if (str == "") return PE(start, "Cannot parse number from empty string (fro xs: %s)", GramName)
+        if (str == "") return PE(start, "Convert to %s (for xs:%s): Cannot parse number from empty string", GramDescription, GramName)
 
         // Need to use Decimal Format to parse even though this is an Integral number
         val df = new DecimalFormat()
@@ -364,7 +364,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
         // Verify that what was parsed was what was passed exactly in byte count.  Use pos to verify all characters consumed & check for errors!
         if (pos.getIndex != str.length) {
           // log(Debug("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n"))
-          return PE(start, "Unable to parse all characters from %s (for xs:%s): %s", GramDescription, GramName, str)
+          return PE(start, "Convert to %s (for xs:%s): Unable to parse all characters from: %s", GramDescription, GramName, str)
         }
 
         // Assume long as the most precision
@@ -374,7 +374,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
         if (asNumber.asInstanceOf[Number] != num || isInvalidRange(asNumber)) {
           // Transcription error
           // log(Debug("Error: Invalid " + GramDescription + ": " + str + "\n"))
-          return PE(start, "Invalid %s(xs:%s): %s", GramDescription, GramName, str)
+          return PE(start, "Convert to %s (for xs:%s): Invalid data.", GramDescription, GramName, str)
         } else {
           node.setText(asNumber.toString)
         }

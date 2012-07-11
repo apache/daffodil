@@ -20,8 +20,9 @@
 		<tdml:document>A</tdml:document>
 
 		<tdml:errors>
-			<tdml:error>convert</tdml:error>
+			<tdml:error>xs:int</tdml:error>
 			<tdml:error>A</tdml:error>
+			<tdml:error>err1</tdml:error>
 		</tdml:errors>
 
 	</tdml:parserTestCase>

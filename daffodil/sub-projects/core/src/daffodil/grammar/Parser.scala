@@ -44,9 +44,9 @@ class ParseError(sc: SchemaComponent, pstate: PState, kind: String, args: Any *)
     val msg =
       if (kind.contains("%")) kind.format(args : _*)
       else (kind+"(%s)").format(argsAsString)
-    val res = msg + 
+    val res = "Parse Error: " + msg + 
     "\nContext was : %s".format(sc) +
-    "\nData location was: %s".format(pstate.currentLocation)
+    "\nData location was preceding %s".format(pstate.currentLocation)
     res
   }
 
@@ -207,7 +207,7 @@ class GeneralUnparseFailure(msg : String) extends Diagnostic {
 }
 
 class DataLoc(bitPos : Long, inStream : InStream) extends DataLocation {
-  override def toString() = "Location(in bits) " + bitPos + ", Stream: " + inStream
+  override def toString() = "Location(in bits) " + bitPos + " of Stream: " + inStream
 }
 
 /**

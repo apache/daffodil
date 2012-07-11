@@ -33,6 +33,11 @@ class Warning(e : Throwable) extends Diagnostic {
   def getMessage() = "WARNING: " + e
 }
 
+/**
+ * Implementation of OOLAG diagnostics gathering for Daffodil (daffodil being an application of OOLAG technique)
+ * 
+ * This is for compilation. Not the runtime.
+ */
 trait DiagnosticsProviding extends OOLAGHost with HasIsError {
   type DiagnosticsList = Seq[HasIsError]
 
