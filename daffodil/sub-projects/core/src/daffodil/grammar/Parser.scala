@@ -647,21 +647,22 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     var cbFinal: CharBuffer = CharBuffer.allocate(1)
     var cbPrev: CharBuffer = CharBuffer.allocate(1)
     var numBytes: Int = 1
-    try {
-      while(numBytes <= endByte){
+    while (numBytes <= endByte) {
+      try {
         cbPrev = decodeNBytes(numBytes, bytesArray, decoder)
         cbFinal = cbPrev
-        numBytes += 1
+      } catch {
+        case e: Exception => log(Debug("Exception in decodeUntilFail: " + e.toString()))
       }
-    } catch {
-      case e: Exception => log(Debug("Exception in decodeUntilFail: " + e.toString()))
+      numBytes += 1
     }
-    (cbFinal, (numBytes-1))
+    (cbFinal, (numBytes - 1))
   }
   
   // Fills the CharBuffer with as many bytes as can be decoded successfully.
   //
   def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): (Long, Boolean) = {
+    
     //TODO: Mike, how do we call these asserts now? Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
     val byteOffsetAsLong = (bitOffset >> 3)
     //TODO: Mike, how do we call these asserts now? Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
@@ -693,7 +694,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     
     if (bytesDecoded == 0){ return (-1L, true) }
     
-    log(Debug("MixedDataResult: " + result + " bytesDecoded: " + bytesDecoded))
+    log(Debug("MixedDataResult: BEG_" + result + "_END , bytesDecoded: " + bytesDecoded))
     
     cb.clear()
     cb.append(result)
