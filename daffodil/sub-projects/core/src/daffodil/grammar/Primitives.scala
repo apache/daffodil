@@ -13,7 +13,6 @@ import java.text.{ ParseException, ParsePosition }
 import java.math.BigInteger
 import stringsearch.constructs._
 import stringsearch.delimiter._
-import daffodil.exceptions.ThrowsPE
 
 import daffodil.util._
 
@@ -149,7 +148,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
       val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
       if (endBitPos < start.bitPos + nBytes * 8) {
         // Do Something Bad
-        PE(start, "Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
+        return PE(start, "Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
       }
       val result = cbuf.toString
       log(Debug("Parsed: " + result))
@@ -348,12 +347,14 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
       val node = start.parent
       var str = node.getText
 
+      Assert.invariant(str != null) // worst case it should be empty string. But not null.
       val resultState = try {
         // Strip leading + (sign) since the DecimalFormat can't handle it
-        if (str.charAt(0) == '+') {
+        if (str.length > 0 && str.charAt(0) == '+') {
           // TODO: There needs to be a way to restore '+' in the unparse, but that will be in the format field
           str = str.substring(1)
         }
+        if (str == "") return PE(start, "Cannot parse number from empty string (fro xs: %s)", GramName)
 
         // Need to use Decimal Format to parse even though this is an Integral number
         val df = new DecimalFormat()
@@ -363,7 +364,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
         // Verify that what was parsed was what was passed exactly in byte count.  Use pos to verify all characters consumed & check for errors!
         if (pos.getIndex != str.length) {
           // log(Debug("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n"))
-          PE(start, "Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n", 0)
+          return PE(start, "Unable to parse all characters from %s (for xs:%s): %s", GramDescription, GramName, str)
         }
 
         // Assume long as the most precision
@@ -373,7 +374,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
         if (asNumber.asInstanceOf[Number] != num || isInvalidRange(asNumber)) {
           // Transcription error
           // log(Debug("Error: Invalid " + GramDescription + ": " + str + "\n"))
-          PE(start, "Error: Invalid " + GramDescription + ": " + str, 0)
+          return PE(start, "Invalid %s(xs:%s): %s", GramDescription, GramName, str)
         } else {
           node.setText(asNumber.toString)
         }

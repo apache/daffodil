@@ -21,7 +21,6 @@ import stringsearch.constructs.EscapeScheme._
 
 import daffodil.util._
 import daffodil.exceptions.ThrowsSDE
-import daffodil.exceptions.ThrowsPE
 import java.io.ByteArrayInputStream
 import scala.collection.mutable.Stack
 
@@ -57,13 +56,14 @@ class ParseError(sc: SchemaComponent, pstate: PState, kind: String, args: Any *)
 /**
  * Encapsulates lower-level parsing with a uniform interface
  */
-abstract class Parser(val context: Term) extends ThrowsPE {
-
-  type PState = daffodil.grammar.PState
+abstract class Parser(val context: Term) {
 
   def PE(pstate: PState, s: String, args : Any *) = {
-    throw new ParseError(context, pstate, s, args : _*)
+    pstate.failed(new ParseError(context, pstate, s, args : _*))
   }
+  
+  def processingError(state: PState, str : String, args : Any *) = 
+    PE(state, str, args) // long form synonym
 
   def parse(pstate: PState): PState
 
@@ -76,7 +76,7 @@ abstract class Parser(val context: Term) extends ThrowsPE {
 // TODO: make this fail, and test optimizer sufficiently to know these 
 // do NOT get through.
 class EmptyGramParser(context: Term = null) extends Parser(context) {
-  def parse(pstate: PState) = pstate
+  def parse(pstate: PState) = Assert.invariantFailed("EmptyGramParsers are all supposed to optimize out!")
 }
 
 class ErrorParser(context: Term = null) extends Parser(context) {

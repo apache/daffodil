@@ -50,8 +50,9 @@ abstract class LogWriter {
     try {
       val mess = glob.stringify
       val areStamping = glob.lvl < LogLevel.Debug
-      val prefix = if (areStamping) tstamp + " " + logID + " " + glob.lvl else ""
-      write(prefix + " [" + mess + "]")
+      val suffix = logID + " " + glob.lvl
+      val prefix = (if (areStamping) tstamp + " " else "")
+      write(prefix + suffix + " [" + mess + "]")
     } catch {
       case e : Exception => {
         System.err.println("Exception while logging." + e)
