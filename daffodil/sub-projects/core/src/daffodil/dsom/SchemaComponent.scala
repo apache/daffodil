@@ -38,7 +38,7 @@ class SchemaDefinitionError(
     val msg = 
       if (kind.contains("%")) kind.format(args : _*)
       else (kind+"(%s)").format(argsAsString)
-    val res = msg + "\nContext was : %s".format(schemaContext.getOrElse("top level"))
+    val res = msg + " Context was: " + schemaContext.getOrElse("top level")
     res
   }
   

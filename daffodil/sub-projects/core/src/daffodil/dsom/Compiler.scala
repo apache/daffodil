@@ -15,6 +15,9 @@ import daffodil.util.Misc
 import daffodil.api.WithDiagnostics
 import daffodil.util.Logging
 import daffodil.util.Info
+import daffodil.util.LoggingDefaults
+import daffodil.util.LogLevel
+import daffodil.dsom.OOLAG.ErrorAlreadyHandled
 
 class ProcessorFactory(sset : SchemaSet, rootElem : GlobalElementDecl)
   extends DiagnosticsProviding // (sset)
@@ -49,8 +52,22 @@ class DataProcessor(pf : ProcessorFactory, rootElem : GlobalElementDecl)
 
   def parse(input : DFDL.Input) : DFDL.ParseResult = {
     val initialState = PState.createInitialState(rootElem, input) // also want to pass here the externally set variables, other flags/settings.
-    val resultState = parser.parse(initialState)
-    val pr = new ParseResult(resultState, this)
+    val pr = new ParseResult(this) {
+
+      lazy val resultState = {
+        try {
+          resultState_
+        } catch {
+          //          case d : Diagnostic => initialState.failed(d)
+          case e : ErrorAlreadyHandled => initialState.failed(e.getMessage())
+        }
+      }
+
+      private lazy val resultState_ = {
+        parser.parse(initialState)
+      }
+
+    }
     pr
   }
 
@@ -62,10 +79,10 @@ class DataProcessor(pf : ProcessorFactory, rootElem : GlobalElementDecl)
   }
 }
 
-class ParseResult(resultState : PState, dp : DataProcessor)
-  extends DiagnosticsProviding // DelegatesDiagnostics(dp)
+abstract class ParseResult(dp : DataProcessor)
+  extends DiagnosticsProviding 
   with DFDL.ParseResult {
-  
+  def resultState : PState
   lazy val diagnosticChildren = Nil
   lazy val prettyName = "ParseResult"
   lazy val path = ""
@@ -129,7 +146,7 @@ class Compiler extends DFDL.Compiler with Logging {
    * for unit testing of front end
    */
   private[dsom] def frontEnd(xml : Node) : (SchemaSet, GlobalElementDecl) = {
-    
+    //LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val elts = (xml \ "element")
     Assert.usage(elts.length != 0, "No top level element declarations found.")
 
@@ -181,8 +198,9 @@ class Compiler extends DFDL.Compiler with Logging {
      lazy val pf = new ProcessorFactory(sset, rootElem)
 	 if (pf.isError) {
 	   val diags = pf.getDiagnostics
+	     Assert.invariant(diags.length > 0)
 		 log(Info("Compilation produced %d errors.", diags.length))
-		 diags.foreach{System.out.println(_)}
+		 diags.foreach{diag => log(daffodil.util.Error(diag.toString()))}
 	 } else {
 	    log(Info("Compilation completed with no errors."))
 	    val dataProc = pf.onPath("/").asInstanceOf[DataProcessor]

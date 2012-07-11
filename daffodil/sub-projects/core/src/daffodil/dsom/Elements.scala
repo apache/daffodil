@@ -314,7 +314,7 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
   lazy val localAndFormatRefProperties = {
     val referencedProperties = referencedElement.localAndFormatRefProperties
     val myLocalProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
-    schemaDefinition(overlappingProperties.size == 0, "Type properties overlap with element properties.")
+    schemaDefinition(overlappingProperties.size == 0, "Element reference properties overlap with global element properties. Overlaps: %s.", overlappingProperties.mkString(" "))
     val theUnion = referencedProperties ++ myLocalProperties
     theUnion
     
@@ -417,8 +417,13 @@ trait ElementDeclMixin
     }
   }
 
-  lazy val elementDeclDiagnosticChildren = annotationObjs ++
-    { try optionTypeDef.toList catch { case e => Nil } }
+  lazy val elementDeclDiagnosticChildren = { 
+    annotationObjs ++
+    {
+      val typeDefList = if (optionTypeDef_.isError) List(optionTypeDef_) else optionTypeDef.toList
+      typeDefList
+    }
+  }
 
   lazy val isSimpleType = LV {
     typeDef match {
@@ -461,7 +466,7 @@ trait ElementDeclMixin
   lazy val localAndFormatRefProperties : Map[String, String] = {
     val localTypeProperties = typeDef.localAndFormatRefProperties
     val myLocalProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
-    schemaDefinition(overlappingProperties.size == 0, "Type properties overlap with element properties.")
+    schemaDefinition(overlappingProperties.size == 0, "Type properties overlap with element properties. Overlaps: %s.", overlappingProperties.mkString(" "))
     val theUnion = localTypeProperties ++ myLocalProperties
     theUnion
   }

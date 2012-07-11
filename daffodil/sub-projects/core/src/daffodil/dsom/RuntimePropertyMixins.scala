@@ -53,7 +53,7 @@ trait SequenceRuntimeValuedPropertiesMixin
 
   lazy val separator = {
     val replaced = EntityReplacer.replaceAll(separatorRaw)
-    println(replaced)
+    // println(replaced)
     expressionCompiler.compile('String, EntityReplacer.replaceAll(separatorRaw))}
 }
 

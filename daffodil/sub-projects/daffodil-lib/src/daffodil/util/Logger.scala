@@ -8,7 +8,9 @@ import java.io.PrintStream
 import java.io.FileOutputStream
 
 /**
- * Simple logging system found on Stack Overflow, on the web.
+ * Simple logging system evolved from code found on Stack Overflow, on the web.
+ * http://stackoverflow.com/questions/2018528/logging-in-scala
+ * Mostly based on the contribution of Don Mackenzie.
  */
 
 object LogLevel extends Enumeration {
@@ -45,11 +47,18 @@ abstract class LogWriter {
   def tstamp = tstampFormat.format(new Date)
 
   def log(logID : String, glob : daffodil.util.Glob) {
-    val mess = glob.stringify
-    val areStamping = glob.lvl < LogLevel.Debug
-    val prefix = if (areStamping) tstamp + " " + logID + " " + glob.lvl else ""
-    write(prefix + " [" + mess + "]")
-  }
+    try {
+      val mess = glob.stringify
+      val areStamping = glob.lvl < LogLevel.Debug
+      val prefix = if (areStamping) tstamp + " " + logID + " " + glob.lvl else ""
+      write(prefix + " [" + mess + "]")
+    } catch {
+      case e : Exception => {
+        System.err.println("Exception while logging." + e)
+        System.err.println("Glob was: " + glob.msg + glob.args.toList.toString)
+      }
+    }
+  }	
 }
 
 object ForUnitTestLogWriter extends LogWriter {
@@ -114,13 +123,26 @@ class FileWriter(val file : File) extends LogWriter {
  * Just make a Glob (short for globalized message). This is intended to be passed by name,
  *
  */
-class Glob(val lvl : LogLevel.Value, val msg : String, args : Seq[Any]) {
+class Glob(val lvl : LogLevel.Value, val msg : String, val args : Seq[Any]) {
   // for now: quick and dirty English-centric approach.
   // In the future, use msg to index into i18n resource bundle for 
   // properly i18n-ized string. Can use context to avoid ambiguities.
   def stringify = {
-    val str = msg.format(args : _*)
-    str
+    val res =
+      try { // this can fail, if for example the string uses % for other than 
+        // formats (so if the string is something that mentions DFDL entities,
+        // which use % signs in their syntax.
+        val str = msg.format(args : _*)
+        str
+      } catch {
+        case e : Exception => {
+          // If it fails, we punt on formatting, and just 
+          // concatenate 
+          val str = args.mkString(" ")
+          str
+        }
+      }
+    res
   }
 }
 

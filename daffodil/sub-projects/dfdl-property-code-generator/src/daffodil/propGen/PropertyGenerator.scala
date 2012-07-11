@@ -661,6 +661,8 @@ import daffodil.exceptions.ThrowsSDE
    * if we're just running interactively in eclipse, doesn't use the jar.
    */
   def getResourceOrFileStream(fn : String) : InputStream = {
+    // TODO: This is not the modern way to do this. Update this to use the getResource technique used
+    // in core.
     var is = this.getClass().getResourceAsStream("/" + fn)
     if (is == null) {
       is = new FileInputStream(fn)

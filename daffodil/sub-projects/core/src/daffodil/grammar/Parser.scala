@@ -31,8 +31,7 @@ abstract class ProcessingError extends Exception with Diagnostic {
 class ParseError(sc: SchemaComponent, pstate: PState, kind: String, args: Any *) extends ProcessingError {
   def isError = true
   def getSchemaLocations = List(sc)
-  def getDataLocations = Nil
-  // TODO: Need to get Data Locations from PState
+  def getDataLocations = List(pstate.currentLocation)
 
   override def toString = {
     lazy val argsAsString = args.map{ _.toString }.mkString(", ")
@@ -45,7 +44,9 @@ class ParseError(sc: SchemaComponent, pstate: PState, kind: String, args: Any *)
     val msg =
       if (kind.contains("%")) kind.format(args : _*)
       else (kind+"(%s)").format(argsAsString)
-    val res = msg + "\nContext was : %s".format(sc)
+    val res = msg + 
+    "\nContext was : %s".format(sc) +
+    "\nData location was: %s".format(pstate.currentLocation)
     res
   }
 
@@ -112,14 +113,22 @@ class AltCompParser(context: Term, p: Gram, q: Gram) extends Parser(context) {
     // don't have to worry about multiple threads at all.
     //
     var pResult: PState = null
+    val numChildrenAtStart = pstate.parent.getChildren().length
     try {
       pResult = pParser.parse(pstate)
     } catch {
-      case e: Exception =>
+      case e: Exception => {
+        // TODO: we need to record the problem so that we can
+        // use it as a diagnostic in case the other alternative also fails.
+      }
     }
     if (pResult != null && pResult.status == Success) pResult
     else {
-      // TODO: Unwind any side effects on the Infoset 
+      // Unwind any side effects on the Infoset 
+      val lastChildIndex = pstate.parent.getChildren().length
+      if (lastChildIndex > numChildrenAtStart) {
+    	  pstate.parent.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
+      }
       //
       // TODO: check for discriminator evaluated to true.
       // If so, then we don't run the next alternative, we
@@ -165,7 +174,7 @@ class RepUnboundedParser(context: Term, r: => Gram) extends Parser(context) {
       val pNext = rParser.parse(pResult)
       if (pNext.status != Success) {
         pResult.restoreJDOM(cloneNode)
-        System.err.println("Failure suppressed.")
+        log(Debug("Failure suppressed."))
         return pResult
       }
       pResult = pNext
@@ -194,6 +203,10 @@ class GeneralUnparseFailure(msg : String) extends Diagnostic {
   def getSchemaLocations() = Nil
   def getDataLocations() = Nil
   def getMessage() = msg
+}
+
+class DataLoc(bitPos : Long, inStream : InStream) extends DataLocation {
+  override def toString() = "Location(in bits) " + bitPos + ", Stream: " + inStream
 }
 
 /**
@@ -225,6 +238,7 @@ class PState(
   def whichBit = bitPos % 8
   def groupPos = groupIndexStack.head
   def childPos = childIndexStack.head
+  def currentLocation : DataLocation = new DataLoc(bitPos, inStream)
 
   /**
    * Convenience functions for creating a new state, changing only

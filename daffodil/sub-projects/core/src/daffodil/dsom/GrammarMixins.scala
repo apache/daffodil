@@ -614,7 +614,7 @@ trait TermGrammarMixin { self: Term =>
     //
     // TODO: fix this when those restrictions are lifted.
     //
-    Assert.invariant(hasES)
+    subset(hasES, "(Current restriction) There must be an enclosing sequence.")
     nearestEnclosingSequence
   }
 

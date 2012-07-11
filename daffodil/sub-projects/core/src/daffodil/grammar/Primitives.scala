@@ -268,8 +268,8 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
 
         // Verify that what was parsed was what was passed exactly in byte count.  Use pos to verify all characters consumed & check for errors!
         if (pos.getIndex != str.length) {
-          log(Debug("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n"))
-          throw new ParseException("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n", 0)
+          // log(Debug("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n"))
+          PE(start, "Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n", 0)
         }
 
         // Assume long as the most precision
@@ -278,14 +278,14 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
         // Verify no digits lost (the number was correctly transcribed)
         if (asNumber.asInstanceOf[Number] != num || isInvalidRange(asNumber)) {
           // Transcription error
-          log(Debug("Error: Invalid " + GramDescription + ": " + str + "\n"))
-          throw new ParseException("Error: Invalid " + GramDescription + ": " + str, 0)
+          // log(Debug("Error: Invalid " + GramDescription + ": " + str + "\n"))
+          PE(start, "Error: Invalid " + GramDescription + ": " + str, 0)
         } else {
           node.setText(asNumber.toString)
         }
 
         start
-      } catch { case e: Exception => start.failed("Failed to convert to an xs:" + GramName) }
+      } // catch { case e: Exception => start.failed("Failed to convert %s to an xs:%s" + GramName) }
 
       resultState
     }
@@ -356,20 +356,22 @@ case class ConvertTextDoublePrim(e: ElementBase) extends Terminal(e, true) {
 
     override def toString = "to(xs:double)"
 
-    def parse(start: PState): PState = {
+    def parse(start : PState) : PState = {
       val node = start.parent
       val str = node.getText
 
-      val resultState = try {
-        //convert to NumberFormat to handle format punctuation such as , . $ & etc
-        //then get the value as a double and convert to string
-        val df = new DecimalFormat()
-        val pos = new ParsePosition(0)
-        val num = df.parse(str, pos)
-        node.setText(num.doubleValue.toString)
+      val resultState =
+        // try 
+        {
+          //convert to NumberFormat to handle format punctuation such as , . $ & etc
+          //then get the value as a double and convert to string
+          val df = new DecimalFormat()
+          val pos = new ParsePosition(0)
+          val num = df.parse(str, pos)
+          node.setText(num.doubleValue.toString)
 
-        start
-      } catch { case e: Exception => start.failed("Failed to convert to an xs:double") }
+          start
+        } // catch { case e: Exception => start.failed("Failed to convert to an xs:double") }
 
       resultState
     }
@@ -385,16 +387,19 @@ case class ConvertTextFloatPrim(e: ElementBase) extends Terminal(e, true) {
       val node = start.parent
       val str = node.getText
 
-      val resultState = try {
+      val resultState = 
+        // Note: don't wrap in try-catch. The framework has everything surrounded
+        // by that already.
+        // try 
+        {
         //convert to NumberFormat to handle format punctuation such as , . $ & etc
         //then get the value as a float and convert to string
         val df = new DecimalFormat()
         val pos = new ParsePosition(0)
         val num = df.parse(str, pos)
         node.setText(num.floatValue.toString)
-
         start
-      } catch { case e: Exception => start.failed("Failed to convert to an xs:float") }
+        } // catch { case e: Exception => start.failed("Failed to convert to an xs:float") }
 
       resultState
     }

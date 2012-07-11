@@ -110,4 +110,13 @@ class TresysTests extends JUnit3Suite {
   def test_simpleTypeOverlapPrimError() { runnerST.runOneTest("st-prim-err1")}
   def test_simpleTypeOverlapSimpleTypeError() { runnerST.runOneTest("st-st-err1")}
   
+  val ch = testDir + "choice.tdml"
+  val runnerCH= new DFDLTestSuite(new File(ch))
+  def test_basicChoice() { runnerCH.runOneTest("basic")}
+  
+  val rd = testDir + "runtime-diagnostics.tdml"
+  val runnerRD = new DFDLTestSuite(new File(rd))
+  runnerRD.setCheckEverything(true)
+
+  def test_runtime_diagnostics1() { runnerRD.runOneTest("PE1")}
 }
