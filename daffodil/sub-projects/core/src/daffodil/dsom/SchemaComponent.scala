@@ -297,8 +297,10 @@ extends CommonRuntimeValuedPropertiesMixin { self : SchemaComponent =>
     // val res = knownEncodingCharset.isFixedWidth
     val res = knownEncodingName match {
       case "US-ASCII" | "ASCII" => true
-      case "UTF-8" => false
-      case "UTF-16" | "UTF-16LE" | "UTF-16BE" | "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
+      //case "UTF-8" => false
+      //case "UTF-16" | "UTF-16LE" | "UTF-16BE" | "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
+      case "UTF-8" | "UTF-16" | "UTF-16LE" | "UTF-16BE"  => false
+      case "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
       case _ => Assert.notYetImplemented() // TODO change to SDE charset unsupported, not NYI.
     }
     res
