@@ -507,7 +507,7 @@ class Delimiter extends Logging {
   // Iteration is controlled by: advanceChar, advanceDelim, resetDelim
   //
   def search(input: CharBuffer, charPosIn: Int, crlfList: List[(Int, Int)], wspList: List[(Int, Int)]) = {
-    setLoggingLevel(LogLevel.Debug)
+    //setLoggingLevel(LogLevel.Debug)
     
     val x = new WSPBase()
     charIdx = charPosIn

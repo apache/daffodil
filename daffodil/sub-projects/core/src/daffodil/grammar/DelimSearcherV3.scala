@@ -96,7 +96,7 @@ class DelimSearcher extends Logging {
   // until this is rectified.
   //
   def search(input: CharBuffer, startPos: Int = 0, clearState: Boolean = true): (SearchResult, String, Int, Int, Delimiter) = {
-    setLoggingLevel(LogLevel.Debug)
+    //setLoggingLevel(LogLevel.Debug)
     
     var matched: Boolean = false
     var partialMatched: Boolean = false

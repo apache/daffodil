@@ -143,9 +143,10 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
     val cbuf = CharBuffer.allocate(nBytes.toInt) // TODO: Performance: get a char buffer from a pool. 
 
     def parse(start: PState): PState = {
+      //setLoggingLevel(LogLevel.Debug)
       log(Debug("Parsing starting at bit position: " + start.bitPos))
       val in = start.inStream
-      val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
+      val (endBitPos, _ ) = in.fillCharBufferMixedData(cbuf, start.bitPos, decoder, nBytes)
       if (endBitPos < start.bitPos + nBytes * 8) {
         // Do Something Bad
         return PE(start, "Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
@@ -165,13 +166,86 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
   }
 }
 
-case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nBytes: Long) extends Terminal(e, true) {
-  Assert.notYetImplemented()
-  def parser: Parser = new Parser(e) {
-    def parse(start: PState): PState = {
-      Assert.notYetImplemented()
-    }
+//case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nBytes: Long) extends Terminal(e, true) {
+//  Assert.notYetImplemented()
+//  def parser: Parser = new Parser(e) {
+//    def parse(start: PState): PState = {
+//      Assert.notYetImplemented()
+//    }
+//
+//  }
+//}
 
+case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nBytes: Long) extends Terminal(e, true) {
+    // TODO: Implement UTF-8
+  lazy val es = e.escapeScheme
+  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
+  
+  def parser: Parser = new Parser(e) {
+    
+    override def toString = "StringFixedLengthInBytesVariableWidthCharactersParser(" + nBytes + ")"
+    val decoder = e.knownEncodingDecoder
+    val cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool. 
+    
+    def parse(start: PState): PState = {
+      //setLoggingLevel(LogLevel.Debug)
+      
+      log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
+      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
+      var bitOffset = 0L
+
+      val delimiters2 = e.allTerminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
+      val delimiters = delimiters2.flatten(x => x)
+      val delimsCooked: Queue[String] = new Queue
+      
+      delimiters.foreach(x => delimsCooked.enqueue(EntityReplacer.replaceAll(x)))
+      
+      log(Debug("StringFixedLengthInBytesVariableWidthCharactersParser - Looking for: " + delimsCooked + " Count: " + delimsCooked.length))
+    
+      val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set.empty, delimsCooked.toSet, esObj)
+      
+      if (result == null) {return start.failed(this.toString() + " - Result was null!")}
+      
+      val resultBytes = result.getBytes(decoder.charset())
+      
+      if (resultBytes.length < nBytes){ return start.failed(this.toString() + " - Result(" + resultBytes.length + ") was not at least nChars (" + nBytes + ") long.")}
+      
+      val postState = theState match {
+        case SearchResult.NoMatch => {
+          // No Terminator, so last result is a field.
+          val finalResult = resultBytes.dropRight(resultBytes.length - nBytes.toInt)
+          val finalResultBytes = finalResult.length
+          val finalBitPos = 8 * finalResultBytes + start.bitPos
+          val finalResultStr = finalResult.toString()
+          
+          log(Debug(this.toString() + " - Parsed: " + finalResult))
+          log(Debug(this.toString() + " - Ended at bit position " + finalBitPos))
+          val endCharPos = start.charPos + finalResultStr.length()
+          val currentElement = start.parent
+          currentElement.addContent(new org.jdom.Text(finalResult.toString()))
+          start.withPos(finalBitPos, endCharPos)
+        } 
+        case SearchResult.PartialMatch => start.failed(this.toString() + ": Partial match found!")
+        case SearchResult.FullMatch => {
+          val finalResult = resultBytes.dropRight(resultBytes.length - nBytes.toInt)
+          val finalResultBytes = finalResult.length
+          val finalBitPos = 8 * finalResultBytes + start.bitPos
+          val finalResultStr = finalResult.toString()
+          
+          log(Debug(this.toString() + " - Parsed: " + finalResult))
+          log(Debug(this.toString() + " - Ended at bit position " + finalBitPos))
+          //val endCharPos = start.charPos + result.length()
+          val endCharPos = start.charPos + finalResultStr.length()
+          val currentElement = start.parent
+          currentElement.addContent(new org.jdom.Text(finalResultStr))
+          start.withPos(finalBitPos, endCharPos)
+        }
+        case SearchResult.EOD => {
+          start.failed(this.toString() + " - Reached End Of Data.")
+        }
+      }
+      postState
+    }
   }
 }
 
@@ -197,7 +271,7 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
     val cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool. 
     
     def parse(start: PState): PState = {
-      setLoggingLevel(LogLevel.Debug)
+      //setLoggingLevel(LogLevel.Debug)
       
       log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
@@ -212,8 +286,6 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
       log(Debug("StringFixedLengthInVariableWidthCharactersParser - Looking for: " + delimsCooked + " Count: " + delimsCooked.length))
     
       val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set.empty, delimsCooked.toSet, esObj)
-  
-      System.err.println(result)
       
       if (result == null) {return start.failed(this.toString() + " - Result was null!")}
       
@@ -680,8 +752,7 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true) extends
         // TODO: For numBytes, is length correct?!
         val numBytes = result.substring(m.start(), m.end()).getBytes(decoder.charset()).length
         val endCharPos = start.charPos + (m.end() - m.start())
-        System.err.println("numBytes: " + numBytes)
-        System.err.println("endCharPos: " + endCharPos)
+  
         endBitPosDelim = (8 * numBytes) + start.bitPos // TODO: Is this correct?
 
         log(Debug("Found " + theMatchedDelim.toString()))
