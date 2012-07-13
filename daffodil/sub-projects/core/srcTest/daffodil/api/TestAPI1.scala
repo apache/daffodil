@@ -332,16 +332,38 @@ class TestDFDLParser extends JUnit3Suite {
 
   def testLengthKindPattern() {
     val sch = TestUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" separatorPolicy="required" separatorPosition="infix"/>,
-        <xs:element name="doctors">
-          <xs:complexType>
-            <xs:sequence dfdl:separator=",">
+        <dfdl:format ref="tns:daffodilTest1" separatorPolicy="required" separatorPosition="infix"/>,
+      <xs:element name="doctors">
+        <xs:complexType>
+          <xs:sequence dfdl:separator=",">
               <xs:element name="name" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern=".*?[^\\](?=,|$)" dfdl:occursCountKind="fixed" minOccurs="11" maxOccurs="11"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>)
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
     val actual = Compiler.testString(sch, """Hartnell\, William,Troughton\, Patrick,Pertwee\, Jon,Baker\, Tom,Davison\, Peter,Baker\, Colin,McCoy\, Sylvester,McGann\, Paul,Christopher Eccleston,David Tennant,Matt Smith""").result
     TestUtils.assertEqualsXMLElements(<doctors><name>Hartnell\, William</name><name>Troughton\, Patrick</name><name>Pertwee\, Jon</name><name>Baker\, Tom</name><name>Davison\, Peter</name><name>Baker\, Colin</name><name>McCoy\, Sylvester</name><name>McGann\, Paul</name><name>Christopher Eccleston</name><name>David Tennant</name><name>Matt Smith</name></doctors>, actual)
+  }
+
+  def testLengthKindPatternCompound() {
+    val sch = TestUtils.dfdlTestSchema(
+        <dfdl:format ref="tns:daffodilTest1" separatorPolicy="required" separatorPosition="infix"/>,
+        <xs:element name="abc">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ab" dfdl:lengthKind="pattern" dfdl:lengthPattern=".*?//" dfdl:terminator="//">
+                <xs:complexType>
+                  <xs:sequence dfdl:separator=",">
+                      <xs:element name="a" type="xs:string" dfdl:lengthKind="delimited"/>
+                      <xs:element name="b" type="xs:string" dfdl:lengthKind="delimited"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            <xs:element name="c" dfdl:lengthKind="explicit" type="xs:int" dfdl:length="{1}"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>)
+    val actual = Compiler.testString(sch, """aaa,bbb//5""").result
+    TestUtils.assertEqualsXMLElements(<abc><ab><a>aaa</a><b>bbb</b></ab><c>5</c></abc>, actual)
   }
 
   // TEST FAILS - SEE JIRA DFDL-184

@@ -17,15 +17,15 @@ class Separator extends Delimiter {
   override def toString(): String = {
     return "Separator[" + delimiterStr + "]"
   }
-  
+
   override def typeDef = { DelimiterType.Separator }
 }
 
-class Terminator extends Delimiter{
+class Terminator extends Delimiter {
   override def toString(): String = {
     return "Terminator[" + delimiterStr + "]"
   }
-  
+
   override def typeDef = { DelimiterType.Terminator }
 }
 
@@ -47,7 +47,7 @@ class Delimiter extends Logging {
   lazy val WSP = Pattern.compile("%(WSP);", Pattern.MULTILINE)
   lazy val WSP_Plus = Pattern.compile("%(WSP\\+);", Pattern.MULTILINE)
   lazy val WSP_Star = Pattern.compile("%(WSP\\*);", Pattern.MULTILINE)
-  
+
   def typeDef = { DelimiterType.Delimiter }
 
   override def toString(): String = {
@@ -507,6 +507,8 @@ class Delimiter extends Logging {
   // Iteration is controlled by: advanceChar, advanceDelim, resetDelim
   //
   def search(input: CharBuffer, charPosIn: Int, crlfList: List[(Int, Int)], wspList: List[(Int, Int)]) = {
+    //setLoggingLevel(LogLevel.Debug)
+    
     val x = new WSPBase()
     charIdx = charPosIn
     log(Debug("SEARCH: charPosIn: " + charPosIn + " Delimiter: " + delimiterStr))
@@ -667,6 +669,14 @@ class Delimiter extends Logging {
             wspMode = false
             addState(SearchState.WSPNoMatch, header + "\tWSP and !isSpace" + " '" + char + "' d" + char.toInt)
           }
+          case other if isSpace && matched && !wspMode => {
+            log(Debug(header + "\tSpaceChar and matched" + " '" + char + "' 0x" + char.toByte.toHexString))
+            update(delim, charIdx, true)
+            wspMode = false
+            advanceDelim
+            advanceChar
+            addState(SearchState.OtherMatch, header + "\tSpaceChar and matched" + " '" + char + "' 0x" + char.toByte.toHexString)
+          }
           case space if isSpace => {
             // Ignore if we're in wspMode
             // otherwise, we weren't expecting
@@ -728,7 +738,7 @@ class Delimiter extends Logging {
   }
 
   def isCharEscaped(charPos: Int, escapeCharList: List[Int]): Boolean = {
-    val isEscaped: Boolean = escapeCharList.filter(x => (charPos-1) == x).length >= 1
+    val isEscaped: Boolean = escapeCharList.filter(x => (charPos - 1) == x).length >= 1
     isEscaped
   }
 
@@ -909,6 +919,14 @@ class Delimiter extends Logging {
               wspMode = false
               addState(SearchState.WSPNoMatch, header + "\tWSP and !isSpace" + " '" + char + "' d" + char.toInt)
             }
+            case other if isSpace && matched && !wspMode => {
+              log(Debug(header + "\tSpaceChar and matched" + " '" + char + "' 0x" + char.toByte.toHexString))
+              update(delim, charIdx, true)
+              wspMode = false
+              advanceDelim
+              advanceChar
+              addState(SearchState.OtherMatch, header + "\tSpaceChar and matched" + " '" + char + "' 0x" + char.toByte.toHexString)
+            }
             case space if isSpace => {
               // Ignore if we're in wspMode
               // otherwise, we weren't expecting
@@ -958,14 +976,14 @@ class Delimiter extends Logging {
             }
           } // end-delim-match
         } // end-if
-      }// end-if
+      } // end-if
 
     } // end-while
     processDelimBuf
     processPartials
     log(Debug("END SEARCH_EscapeSchemeBlock: " + delimiterStr + "\n"))
   }
-  
+
   // WARNING:	This method is a state-machine!
   //			Alteration may have undesirable consequences.
   //
@@ -1143,6 +1161,14 @@ class Delimiter extends Logging {
               wspMode = false
               addState(SearchState.WSPNoMatch, header + "\tWSP and !isSpace" + " '" + char + "' d" + char.toInt)
             }
+            case other if isSpace && matched && !wspMode => {
+              log(Debug(header + "\tSpaceChar and matched" + " '" + char + "' 0x" + char.toByte.toHexString))
+              update(delim, charIdx, true)
+              wspMode = false
+              advanceDelim
+              advanceChar
+              addState(SearchState.OtherMatch, header + "\tSpaceChar and matched" + " '" + char + "' 0x" + char.toByte.toHexString)
+            }
             case space if isSpace => {
               // Ignore if we're in wspMode
               // otherwise, we weren't expecting
@@ -1192,7 +1218,7 @@ class Delimiter extends Logging {
             }
           } // end-delim-match
         } // end-if
-      }// end-if
+      } // end-if
 
     } // end-while
     processDelimBuf

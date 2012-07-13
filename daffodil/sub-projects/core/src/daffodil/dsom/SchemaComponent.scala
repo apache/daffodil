@@ -38,7 +38,7 @@ class SchemaDefinitionError(
     val msg = 
       if (kind.contains("%")) kind.format(args : _*)
       else (kind+"(%s)").format(argsAsString)
-    val res = msg + "\nContext was : %s".format(schemaContext.getOrElse("top level"))
+    val res = "Schema Definition Error: " + msg + " Context was: " + schemaContext.getOrElse("top level")
     res
   }
   
@@ -304,6 +304,8 @@ extends CommonRuntimeValuedPropertiesMixin { self : SchemaComponent =>
       case "US-ASCII" | "ASCII" => true
       case "UTF-8" => false
       case "UTF-16" | "UTF-16LE" | "UTF-16BE" | "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
+//      case "UTF-8" | "UTF-16" | "UTF-16LE" | "UTF-16BE"  => false
+//      case "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
       case _ => Assert.notYetImplemented() // TODO change to SDE charset unsupported, not NYI.
     }
     res

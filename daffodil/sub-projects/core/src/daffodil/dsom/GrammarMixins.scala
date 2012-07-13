@@ -8,12 +8,6 @@ import daffodil.schema.annotation.props.gen._
 import daffodil.dsom.OOLAG._
 import daffodil.util.Info
 
-trait AlignedMixin { self: SchemaComponent with AnnotatedMixin =>
-  lazy val leadingSkipRegion = Prod("leadingSkipRegion", this, LeadingSkipRegion(this))
-  lazy val trailingSkipRegion = Prod("trailingSkipRegion", this, TrailingSkipRegion(this))
-  lazy val alignmentFill = Prod("alignmentFill", this, AlignmentFill(this))
-}
-
 trait InitiatedTerminatedMixin
   extends AnnotatedMixin
   with DelimitedRuntimeValuedPropertiesMixin { self: Term =>
@@ -48,6 +42,12 @@ trait InitiatedTerminatedMixin
   }
 }
 
+trait AlignedMixin { self: Term =>
+  lazy val leadingSkipRegion = Prod("leadingSkipRegion", this, LeadingSkipRegion(this))
+  lazy val trailingSkipRegion = Prod("trailingSkipRegion", this, TrailingSkipRegion(this))
+  lazy val alignmentFill = Prod("alignmentFill", this, AlignmentFill(this))
+}
+
 /////////////////////////////////////////////////////////////////
 // Elements System
 /////////////////////////////////////////////////////////////////
@@ -73,7 +73,8 @@ trait ElementBaseGrammarMixin
 
   lazy val fixedLengthString = Prod("fixedLengthString", this, isFixedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
-      case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
+      case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength) // TODO: make sure it divides evenly.
+      //case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
       case (LengthUnits.Bytes, false) => StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength)
       case (LengthUnits.Characters, true) => StringFixedLengthInBytes(this, fixedLength * knownEncodingWidth)
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
@@ -384,8 +385,14 @@ trait ElementBaseGrammarMixin
   lazy val dfdlScopeBegin = Prod("dfdlScopeBegin", this, NYI, EmptyGram)
   lazy val dfdlScopeEnd = Prod("dfdlScopeEnd", this, NYI, EmptyGram)
   
-  lazy val dfdlElementBegin = Prod("dfdlElementBegin", this, ElementBegin(this))
-  lazy val dfdlElementEnd = Prod("dfdlElementEnd", this, ElementEnd(this))
+  lazy val dfdlElementBegin = Prod("dfdlElementBegin", this, {
+    if (isComplexType.value == true && lengthKind == LengthKind.Pattern) ComplexElementBeginPattern(this)
+    else ElementBegin(this)
+  } )
+  lazy val dfdlElementEnd = Prod("dfdlElementEnd", this, {
+    if (isComplexType.value == true && lengthKind == LengthKind.Pattern) ComplexElementEndPattern(this)
+    else ElementEnd(this)
+  } )
 
   lazy val scalarNonDefault = Prod("scalarNonDefault", this,
     dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
@@ -424,8 +431,8 @@ trait LocalElementGrammarMixin { self: ElementBase with LocalElementMixin =>
      * speculate parsing forward until we get an error
      */
    lazy val separatedContentUnboundedWithoutTrailingEmpties = Prod("separatedContentUnboundedWithoutTrailingEmpties", this, isRecurring,
-        RepExactlyN(minOccurs, separatedRecurringDefaultable) ~
-        RepUnbounded(separatedRecurringNonDefault) ~
+        RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
+        RepUnbounded(self, separatedRecurringNonDefault) ~
         StopValue(this) )
   
    lazy val separatedContentUnbounded = Prod("separatedContentUnbounded", this, isRecurring,
@@ -436,8 +443,8 @@ trait LocalElementGrammarMixin { self: ElementBase with LocalElementMixin =>
         )
   
    lazy val separatedContentAtMostNWithoutTrailingEmpties = Prod("separatedContentAtMostNWithoutTrailingEmpties", this, isRecurring,
-      RepExactlyN(minOccurs, separatedRecurringDefaultable) ~
-        RepAtMostTotalN(maxOccurs, separatedRecurringNonDefault) ~
+      RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
+        RepAtMostTotalN(this, maxOccurs, separatedRecurringNonDefault) ~
         StopValue(this))
  
   // TODO: Do we have to adjust the count to take stopValue into account?
@@ -446,7 +453,7 @@ trait LocalElementGrammarMixin { self: ElementBase with LocalElementMixin =>
 
   lazy val separatedContentAtMostN = Prod("separatedContentAtMostN", this, isRecurring,
     separatedContentAtMostNWithoutTrailingEmpties ~
-      RepAtMostTotalN(maxOccurs, separatedEmpty)) // absorb extra separators, if found.
+      RepAtMostTotalN(self, maxOccurs, separatedEmpty)) // absorb extra separators, if found.
 
   /**
    *  parse counted number of occurrences exactly.
@@ -454,10 +461,10 @@ trait LocalElementGrammarMixin { self: ElementBase with LocalElementMixin =>
   lazy val stopValueSize = if (hasStopValue) 1 else 0
 
   def separatedContentExactlyN(count: Long) = {
-    RepExactlyN(minOccurs, separatedRecurringDefaultable) ~
-      RepAtMostTotalN(count, separatedRecurringNonDefault) ~
+    RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
+      RepAtMostTotalN(self, count, separatedRecurringNonDefault) ~
       StopValue(this) ~
-      RepExactlyTotalN(maxOccurs + stopValueSize, separatedEmpty) // absorb reps remaining separators
+      RepExactlyTotalN(self, maxOccurs + stopValueSize, separatedEmpty) // absorb reps remaining separators
   }
 //  def separatedContentExactlyNComputed(runtimeCount : CompiledExpression) = { 
 //      RuntimeQuantity(runtimeCount) ~
@@ -482,7 +489,7 @@ trait LocalElementGrammarMixin { self: ElementBase with LocalElementMixin =>
     
     lazy val contentUnbounded = {
       
-      val res = Prod("contentUnbounded", this, isRecurring, RepUnbounded(separatedRecurringDefaultable))
+      val res = Prod("contentUnbounded", this, isRecurring, RepUnbounded(self, separatedRecurringDefaultable))
         res
     }
           
@@ -611,7 +618,7 @@ trait TermGrammarMixin { self: Term =>
     //
     // TODO: fix this when those restrictions are lifted.
     //
-    Assert.invariant(hasES)
+    subset(hasES, "(Current restriction) There must be an enclosing sequence.")
     nearestEnclosingSequence
   }
 
@@ -723,6 +730,6 @@ trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
   lazy val startChildren = StartChildren(this, true)
   lazy val endChildren = EndChildren(this, true)
 
-  lazy val mainGrammar = Prod("mainGrammar", this, startChildren ~ modelGroup.group.asChildOfComplexType ~ endChildren)
+  lazy val mainGrammar = Prod("mainGrammar", self.element, startChildren ~ modelGroup.group.asChildOfComplexType ~ endChildren)
 
 }

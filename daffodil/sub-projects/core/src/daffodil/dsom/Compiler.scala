@@ -16,6 +16,10 @@ import daffodil.api.WithDiagnostics
 import daffodil.util.Logging
 import daffodil.util.Info
 import junit.framework.Assert.assertEquals
+import daffodil.util.LoggingDefaults
+import daffodil.util.LogLevel
+import daffodil.dsom.OOLAG.ErrorAlreadyHandled
+
 
 class ProcessorFactory(sset: SchemaSet, rootElem: GlobalElementDecl)
   extends DiagnosticsProviding // (sset)
@@ -32,76 +36,6 @@ class ProcessorFactory(sset: SchemaSet, rootElem: GlobalElementDecl)
     lazy val dp = new DataProcessor(this, rootElem)
     dp
   }
-}
-
-class DataProcessor(pf: ProcessorFactory, rootElem: GlobalElementDecl)
-  extends DiagnosticsProviding // DelegatesDiagnostics(pf)
-  with DFDL.DataProcessor {
-  Assert.invariant(pf.canProceed)
-
-  lazy val prettyName = "DataProcessor"
-  lazy val path = ""
-  lazy val diagnosticChildren = List(pf, rootElem)
-  lazy val parser = rootElem.document.parser
-  lazy val unparser = rootElem.document.unparser
-
-  def save(fileName: String): Unit = {
-    Assert.notYetImplemented()
-  }
-
-  def parse(input: DFDL.Input): DFDL.ParseResult = {
-    val initialState = PState.createInitialState(rootElem, input) // also want to pass here the externally set variables, other flags/settings.
-    val resultState = parser.parse(initialState)
-    val pr = new ParseResult(resultState, this)
-    pr
-  }
-
-  def unparse(output: DFDL.Output, node: scala.xml.Node): DFDL.UnparseResult = {
-    val jdomElem = XMLUtils.elem2Element(node)
-    val jdomDoc = new org.jdom.Document(jdomElem)
-    val initialState = UState.createInitialState(rootElem, output, jdomDoc) // also want to pass here the externally set variables, other flags/settings.
-    val resultState = unparser.unparse(initialState)
-    //write unparsed result to outputStream
-    resultState.outStream.write()
-    val res = new UnparseResult(resultState)
-    res
-  }
-}
-
-class ParseResult(resultState: PState, dp: DataProcessor)
-  extends DiagnosticsProviding // DelegatesDiagnostics(dp)
-  with DFDL.ParseResult {
-
-  lazy val diagnosticChildren = Nil
-  lazy val prettyName = "ParseResult"
-  lazy val path = ""
-
-  val result =
-    if (resultState.status == Success) {
-      val jdomFakeRoot = resultState.parent
-      // top node is this fake root element
-      Assert.invariant(jdomFakeRoot.getName() == "_document_")
-      Assert.invariant(jdomFakeRoot.getContentSize() == 1)
-      val jdomElt = jdomFakeRoot.getContent(0).asInstanceOf[org.jdom.Element]
-      XMLUtils.element2Elem(jdomElt)
-    } else {
-      <nothing/>
-    }
-
-  override lazy val isError = resultState.status != Success
-  override lazy val getLocalDiagnostics = resultState.diagnostics
-}
-
-class UnparseResult(resultState: UState)
-  extends DiagnosticsProviding // DelegatesDiagnostics(dp)
-  with DFDL.UnparseResult {
-
-  lazy val diagnosticChildren = Nil
-  lazy val prettyName = "UnparseResult"
-  lazy val path = ""
-
-  override lazy val isError = resultState.status != Success
-  override lazy val getLocalDiagnostics = resultState.diagnostics
 }
 
 class Compiler extends DFDL.Compiler with Logging {
@@ -138,7 +72,8 @@ class Compiler extends DFDL.Compiler with Logging {
   /*
    * for unit testing of front end
    */
-  private[dsom] def frontEnd(xml: Node): (SchemaSet, GlobalElementDecl) = {
+  private[dsom] def frontEnd(xml : Node) : (SchemaSet, GlobalElementDecl) = {
+    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val elts = (xml \ "element")
     Assert.usage(elts.length != 0, "No top level element declarations found.")
 
@@ -181,9 +116,7 @@ class Compiler extends DFDL.Compiler with Logging {
     compile(schemaNode)
   }
 
-  //  def compile(xml: Node): DFDL.ProcessorFactory = compileSchema(xml)
-
-  def compile(xml: Node): DFDL.ProcessorFactory = {
+  def compile(xml : Node) : DFDL.ProcessorFactory = {
     val (sset, rootElem) = frontEnd(xml) // includes middle "end" too.
     // 	 lazy val documentProd = rootElem.document
     //   lazy val parser = documentProd.parser
@@ -191,13 +124,20 @@ class Compiler extends DFDL.Compiler with Logging {
     lazy val pf = new ProcessorFactory(sset, rootElem)
     if (pf.isError) {
       val diags = pf.getDiagnostics
-      log(Info("Compilation produced %d errors.", diags.length))
-      diags.foreach { System.out.println(_) }
+      Assert.invariant(diags.length > 0)
+      log(Info("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
+      diags.foreach { diag => log(daffodil.util.Error(diag.toString())) }
     } else {
-      log(Info("Compilation completed with no errors."))
+      log(Info("ProcessorFactory completed with no errors."))
       val dataProc = pf.onPath("/").asInstanceOf[DataProcessor]
-      log(Info("Parser = %s.", dataProc.parser.toString))
-      log(Info("Unparser = %s.", dataProc.unparser.toString))
+      if (dataProc.isError) {
+        val diags = dataProc.getDiagnostics
+        log(Info("Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length))
+        diags.foreach { diag => log(daffodil.util.Error(diag.toString())) }
+      } else {
+        log(Info("Parser = %s.", dataProc.parser.toString))
+        log(Info("Compilation completed with no errors."))
+      }
     }
     pf
   }
@@ -237,6 +177,10 @@ object Compiler {
   def testString(testSchema: Node, data: String) = {
     val compiler = Compiler()
     val pf = compiler.compile(testSchema)
+    if (pf.isError) {
+      val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new Exception(msgs)
+    }
     val p = pf.onPath("/")
     val d = Compiler.stringToReadableByteChannel(data)
     val actual = p.parse(d)

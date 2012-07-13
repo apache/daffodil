@@ -18,13 +18,53 @@ import scala.collection.mutable.Queue
 import scala.util.matching.Regex
 import stringsearch.constructs._
 import stringsearch.constructs.EscapeScheme._
+
 import daffodil.util._
 import daffodil.exceptions.ThrowsSDE
+import java.io.ByteArrayInputStream
+import scala.collection.mutable.Stack
+
+abstract class ProcessingError extends Exception with Diagnostic {
+
+}
+
+class ParseError(sc: SchemaComponent, pstate: PState, kind: String, args: Any*) extends ProcessingError {
+  def isError = true
+  def getSchemaLocations = List(sc)
+  def getDataLocations = List(pstate.currentLocation)
+
+  override def toString = {
+    lazy val argsAsString = args.map { _.toString }.mkString(", ")
+    //
+    // Right here is where we would lookup the symbolic error kind id, and
+    // choose a locale-based message string.
+    //
+    // For now, we'll just do an automatic English message.
+    //
+    val msg =
+      if (kind.contains("%")) kind.format(args: _*)
+      else (kind + "(%s)").format(argsAsString)
+    val res = "Parse Error: " + msg +
+      "\nContext was : %s".format(sc) +
+      "\nData location was preceding %s".format(pstate.currentLocation)
+    res
+  }
+
+  override def getMessage = toString
+}
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
  */
-trait Parser {
+abstract class Parser(val context: Term) {
+
+  def PE(pstate: PState, s: String, args: Any*) = {
+    pstate.failed(new ParseError(context, pstate, s, args: _*))
+  }
+
+  def processingError(state: PState, str: String, args: Any*) =
+    PE(state, str, args) // long form synonym
+
   def parse(pstate: PState): PState
 
   // TODO: other methods for things like asking for the ending position of something
@@ -34,16 +74,16 @@ trait Parser {
 // No-op, in case an optimization lets one of these sneak thru. 
 // TODO: make this fail, and test optimizer sufficiently to know these 
 // do NOT get through.
-class EmptyGramParser extends Parser {
-  def parse(pstate: PState) = pstate
+class EmptyGramParser(context: Term = null) extends Parser(context) {
+  def parse(pstate: PState) = Assert.invariantFailed("EmptyGramParsers are all supposed to optimize out!")
 }
 
-class ErrorParser extends Parser {
+class ErrorParser(context: Term = null) extends Parser(context) {
   def parse(pstate: PState): PState = Assert.abort("Error Parser")
   override def toString = "Error Parser"
 }
 
-class SeqCompParser(p: Gram, q: Gram) extends Parser {
+class SeqCompParser(context: Term, p: Gram, q: Gram) extends Parser(context) {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pParser = p.parser
   val qParser = q.parser
@@ -58,7 +98,7 @@ class SeqCompParser(p: Gram, q: Gram) extends Parser {
   override def toString = pParser.toString + " ~ " + qParser.toString
 }
 
-class AltCompParser(p: Gram, q: Gram) extends Parser {
+class AltCompParser(context: Term, p: Gram, q: Gram) extends Parser(context) {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pParser = p.parser
   val qParser = q.parser
@@ -73,14 +113,22 @@ class AltCompParser(p: Gram, q: Gram) extends Parser {
     // don't have to worry about multiple threads at all.
     //
     var pResult: PState = null
+    val numChildrenAtStart = pstate.parent.getChildren().length
     try {
       pResult = pParser.parse(pstate)
     } catch {
-      case e: Exception =>
+      case e: Exception => {
+        // TODO: we need to record the problem so that we can
+        // use it as a diagnostic in case the other alternative also fails.
+      }
     }
     if (pResult != null && pResult.status == Success) pResult
     else {
-      // TODO: Unwind any side effects on the Infoset 
+      // Unwind any side effects on the Infoset 
+      val lastChildIndex = pstate.parent.getChildren().length
+      if (lastChildIndex > numChildrenAtStart) {
+        pstate.parent.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
+      }
       //
       // TODO: check for discriminator evaluated to true.
       // If so, then we don't run the next alternative, we
@@ -95,7 +143,7 @@ class AltCompParser(p: Gram, q: Gram) extends Parser {
   override def toString = "(" + pParser.toString + " | " + qParser.toString + ")"
 }
 
-class RepExactlyNParser(n: Long, r: => Gram) extends Parser {
+class RepExactlyNParser(context: Term, n: Long, r: => Gram) extends Parser(context) {
   Assert.invariant(!r.isEmpty)
   val rParser = r.parser
   def parse(pstate: PState): PState = {
@@ -114,7 +162,7 @@ class RepExactlyNParser(n: Long, r: => Gram) extends Parser {
   override def toString = "RepExactlyNParser(" + rParser.toString + ")"
 }
 
-class RepUnboundedParser(r: => Gram) extends Parser {
+class RepUnboundedParser(context: Term, r: => Gram) extends Parser(context) {
   Assert.invariant(!r.isEmpty)
   val rParser = r.parser
   def parse(pstate: PState): PState = {
@@ -126,7 +174,7 @@ class RepUnboundedParser(r: => Gram) extends Parser {
       val pNext = rParser.parse(pResult)
       if (pNext.status != Success) {
         pResult.restoreJDOM(cloneNode)
-        System.err.println("Failure suppressed.")
+        log(Debug("Failure suppressed."))
         return pResult
       }
       pResult = pNext
@@ -138,7 +186,7 @@ class RepUnboundedParser(r: => Gram) extends Parser {
   override def toString = "RepUnboundedParser(" + rParser.toString + ")"
 }
 
-case class DummyParser(sc: PropertyMixin) extends Parser {
+case class DummyParser(sc: PropertyMixin) extends Parser(null) {
   def parse(pstate: PState): PState = Assert.abort("Parser for " + sc + " is not yet implemented.")
   override def toString = if (sc == null) "Dummy[null]" else "Dummy[" + sc.detailName + "]"
 }
@@ -148,6 +196,10 @@ class GeneralParseFailure(msg: String) extends Diagnostic {
   def getSchemaLocations() = Nil
   def getDataLocations() = Nil
   def getMessage() = msg
+}
+
+class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
+  override def toString() = "Location(in bits) " + bitPos + " of Stream: " + inStream
 }
 
 /**
@@ -161,7 +213,7 @@ class GeneralParseFailure(msg: String) extends Diagnostic {
  * which should be isolated to the alternative parser.
  */
 class PState(
-  val inStream: InStream,
+  val inStreamStack: Stack[InStream],
   val bitPos: Long,
   val bitLimit: Long,
   val charPos: Long,
@@ -180,28 +232,37 @@ class PState(
   def groupPos = groupIndexStack.head
   def childPos = childIndexStack.head
 
+  def currentLocation: DataLocation = new DataLoc(bitPos, inStream)
+
+  def inStream = inStreamStack top
   /**
    * Convenience functions for creating a new state, changing only
    * one or a related subset of the state components to a new one.
    */
   def withInStream(inStream: InStream, status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack push (inStream), bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+  def withLastInStream(status: ProcessorResult = Success) = {
+    inStreamStack pop ()
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+  }
   def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+  def withEndBitLimit(bitLimit: Long, status: ProcessorResult = Success) =
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withParent(parent: org.jdom.Element, status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withVariables(variableMap: VariableMap, status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withGroupIndexStack(groupIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withChildIndexStack(childIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withArrayIndexStack(arrayIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def failed(msg: => String): PState =
     failed(new GeneralParseFailure(msg))
   def failed(failureDiagnostic: Diagnostic) =
-    new PState(inStream, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics)
+    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics)
 
   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.
@@ -267,7 +328,7 @@ object PState {
     val childIndexStack = Nil
     val arrayIndexStack = Nil
     val diagnostics = Nil
-    val newState = new PState(inStream, 0, -1, 0, -1, doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    val newState = new PState(Stack(inStream), 0, -1, 0, -1, doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
     newState
   }
 
@@ -306,6 +367,7 @@ trait InStream {
   //  def getBinaryInt(bitOffset : Long,  isBigEndian : Boolean) : Int
 
   def fillCharBuffer(buf: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): Long
+  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, endByte: Long = -1): (Long, Boolean)
 
   def getInt(bitPos: Long, order: java.nio.ByteOrder): Int
   def getDouble(bitPos: Long, order: java.nio.ByteOrder): Double
@@ -401,6 +463,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
   def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long,
     decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
     es: EscapeSchemeObj): (String, Long, SearchResult, Delimiter) = {
+    // setLoggingLevel(LogLevel.Debug)
 
     val me: String = "fillCharBufferUntilDelimiterOrEnd - "
     log(Debug("BEG_fillCharBufferUntilDelimiterOrEnd"))
@@ -424,6 +487,8 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     }
 
     //println("START_CB: " + cb.toString())
+
+    log(Debug(me + "Looking for: " + separators + " and terminators: " + terminators))
 
     dSearch.setEscapeScheme(es)
 
@@ -493,7 +558,8 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
   }
 
   def fillCharBufferWithPatternMatch(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder,
-    pattern: String, es: EscapeSchemeObj): (String, Long, SearchResult) = {
+
+    pattern: String): (String, Long, SearchResult) = {
     log(Debug("===\nSTART_FILL!\n===\n"))
     val byteOffsetAsLong = (bitOffset >> 3)
     val byteOffset = byteOffsetAsLong.toInt
@@ -588,12 +654,14 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     val list: Queue[Byte] = Queue.empty
     for (i <- 0 to N - 1) {
       list += array(i).toByte
+      //      System.err.println(array(i).toByte.toHexString)
     }
+    //    System.err.println
     val cb = decoder.decode(ByteBuffer.wrap(list.toArray[Byte]))
     cb
   }
 
-  def decodeUntilFail(bytesArray: Array[Byte], decoder: CharsetDecoder, endByte: Int): (CharBuffer, Int) = {
+  def decodeUntilFail(bytesArray: Array[Byte], decoder: CharsetDecoder, endByte: Long): (CharBuffer, Long) = {
     var cbFinal: CharBuffer = CharBuffer.allocate(1)
     var cbPrev: CharBuffer = CharBuffer.allocate(1)
     var numBytes: Int = 1
@@ -602,7 +670,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
         cbPrev = decodeNBytes(numBytes, bytesArray, decoder)
         cbFinal = cbPrev
       } catch {
-        case e: Exception => log(Debug("Exception in decodeUntilFail: " + e.toString()))
+        case e: Exception => //log(Debug("Exception in decodeUntilFail: " + e.toString()))
       }
       numBytes += 1
     }
@@ -611,10 +679,11 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
 
   // Fills the CharBuffer with as many bytes as can be decoded successfully.
   //
-  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): (Long, Boolean) = {
-    context.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
+  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, numBytes: Long = -1): (Long, Boolean) = {
+
+    //TODO: Mike, how do we call these asserts now? Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
     val byteOffsetAsLong = (bitOffset >> 3)
-    context.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
+    //TODO: Mike, how do we call these asserts now? Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
     val byteOffset = byteOffsetAsLong.toInt
     val me: String = "fillCharBufferMixedData - "
     // 
@@ -639,11 +708,18 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     // Ends at ByteBuffer limit in Bytes minus the offset
     bb.get(byteArray, 0, (bb.limit - byteOffset))
 
-    var (result: CharBuffer, bytesDecoded: Int) = decodeUntilFail(byteArray, decoder, bb.limit())
+    var endAtByte = numBytes
+
+    if (endAtByte == -1) { endAtByte = bb.limit }
+
+    System.err.println("endAtByte: " + endAtByte)
+
+    var (result: CharBuffer, bytesDecoded: Long) = decodeUntilFail(byteArray, decoder, endAtByte)
 
     if (bytesDecoded == 0) { return (-1L, true) }
 
-    log(Debug("MixedDataResult: " + result + " bytesDecoded: " + bytesDecoded))
+    log(Debug("MixedDataResult: BEG_" + result + "_END , bytesDecoded: " + bytesDecoded))
+    System.err.println("MixedDataResult: BEG_" + result + "_END , bytesDecoded: " + bytesDecoded)
 
     cb.clear()
     cb.append(result)
@@ -669,7 +745,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
   def getDelimiter(cb: CharBuffer, bitOffset: Long,
     decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
     es: EscapeSchemeObj): (String, Long, Long, SearchResult, Delimiter) = {
-
+    setLoggingLevel(LogLevel.Debug)
     log(Debug("BEG_getDelimiter"))
 
     val me: String = "getDelimiter - "
@@ -705,9 +781,9 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
 
     if (theDelimiter == null) { return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
 
-    log(Debug("theDelimiter: " + theDelimiter.typeDef))
+    log(Debug("theDelimiter: " + theDelimiter.toString() + " theState: " + theState))
 
-    if (theDelimiter.typeDef == DelimiterType.Terminator) { return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
+    //if (theDelimiter.typeDef == DelimiterType.Terminator) { return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
 
     if (theState == SearchResult.FullMatch) {
       sb.append(result)
@@ -767,7 +843,8 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     log(Debug(me + "Ended at bitPos: " + endBitPosA))
     log(Debug("END_getDelimiter"))
 
-    if (endPos != -1 && endPosDelim != -1) { (cb.subSequence(endPos, endPosDelim).toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
+    if (endPos != -1 && endPosDelim != -1) { (cb.subSequence(endPos, endPosDelim + 1).toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
+
     else { (cb.toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
   }
 
@@ -791,6 +868,22 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     val bytePos = (bitPos >> 3).toInt
     bb.order(order)
     bb.getFloat(bytePos)
+  }
+
+  def withLimit(startBitPos: Long, endBitPos: Long) = {
+    Assert.invariant((startBitPos & 7) == 0)
+    Assert.invariant((endBitPos & 7) == 0)
+    val startByte = startBitPos / 8
+    val endByte = (endBitPos + 7) / 8
+    val count = endByte - startByte
+    var bytes: Array[Byte] = new Array(count.asInstanceOf[Int])
+    val oldPos = bb.position
+    bb.position(startByte.asInstanceOf[Int])
+    bb.get(bytes, 0, count.asInstanceOf[Int])
+    val inputStream = new ByteArrayInputStream(bytes)
+    val rbc = java.nio.channels.Channels.newChannel(inputStream)
+    bb.position(oldPos)
+    rbc
   }
 }
 

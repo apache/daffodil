@@ -41,7 +41,7 @@
 		<tdml:errors>
 			<tdml:error>representation</tdml:error>
 			<tdml:error>lengthKind</tdml:error>
-			<tdml:error>cvc-identity-constraint</tdml:error>
+			<tdml:error>Duplicate</tdml:error>
 		</tdml:errors>
 
 	</tdml:parserTestCase>

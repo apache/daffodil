@@ -1,4 +1,4 @@
-package daffodil
+package daffodil.grammar
 
 
 

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema 
+       xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+       xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" 
+       xmlns:xs="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+       
+       <!--
+              7.1.3.2 Representation Property Binding Syntax: Element Form spec v.40
+       -->
+
+
+       <!-- Defaulted property values from sample snippet-->
+       <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                     <dfdl:format>
+                           <dfdl:property name="encoding">utf-8</dfdl:property>
+                           <dfdl:property name='separator'>%NL;</dfdl:property>
+                     </dfdl:format>
+              </xs:appinfo>
+       </xs:annotation>
+       <!--
+              the rest of schema created to ensure we handle the values set as
+              properties above
+       -->
+       <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                     <dfdl:defineFormat name="config">
+                           <dfdl:format initiator="" terminator="g" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
+                               occursCountKind="implicit" lengthUnits="bytes"
+                                  initiatedContent="no" sequenceKind="ordered" ignoreCase="yes"
+                                  textPadKind="none" textTrimKind="none" textStandardBase="10"
+                                  textNumberJustification="right" separatorPosition="infix"
+                                  separatorPolicy="required" escapeSchemeRef="" lengthKind="delimited"
+                                  documentFinalTerminatorCanBeMissing="no" outputNewLine="%LF;"
+                                  textNumberRep="standard" nilValueDelimiterPolicy="both"
+                                  textNumberRounding="pattern" />
+                     </dfdl:defineFormat>
+
+              </xs:appinfo>
+       </xs:annotation>
+
+       <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                     <dfdl:defineFormat name="baseString">
+                           <dfdl:format byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" lengthUnits="bytes" 
+                    initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no" 
+                                  ignoreCase="yes" textPadKind="none" textTrimKind="none"
+                                  textStandardBase="10" textStringJustification="right"
+                                  escapeSchemeRef="" lengthKind="delimited" occursCountKind="implicit"/>
+                     </dfdl:defineFormat>
+                     <dfdl:defineFormat name="inheritance">
+                           <dfdl:format byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" lengthUnits="bytes" 
+                    initiator="" terminator="f" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no" 
+                                  ignoreCase="yes" textPadKind="none" textTrimKind="none"
+                                  textStandardBase="10" textStringJustification="right"
+                                  escapeSchemeRef="" lengthKind="delimited" occursCountKind="implicit"/>
+                     </dfdl:defineFormat>
+              </xs:appinfo>
+       </xs:annotation>
+       
+
+
+       <xs:element name="root" dfdl:lengthKind="implicit" dfdl:ref="config">
+              <xs:complexType>
+                     <xs:sequence dfdl:ref="config" dfdl:separator="a" dfdl:terminator="b" >
+                           <xs:element name="element1" type="xs:string" dfdl:ref="baseString"
+                                  dfdl:representation="text" />
+                           <xs:element name="element2" type="xs:string" dfdl:ref="baseString"
+                                  dfdl:representation="text" />
+                           <xs:element name="element3" dfdl:ref="baseString"
+                                  dfdl:representation="text" >
+                                  <xs:complexType>
+                                         <xs:sequence dfdl:ref="config" dfdl:separator="c" dfdl:terminator="d">
+                                                <xs:element name="element3_1" type="xs:string" dfdl:ref="baseString"
+                                                       dfdl:representation="text" dfdl:terminator="e"/>
+                                                <xs:element name="element3_2" type="xs:string" dfdl:ref="inheritance"
+                                                       dfdl:representation="text" />
+                                         </xs:sequence>
+                                  </xs:complexType>
+                           </xs:element>
+                     </xs:sequence>
+              </xs:complexType>
+       </xs:element>
+
+</xsd:schema>
