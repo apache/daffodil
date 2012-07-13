@@ -26,6 +26,9 @@ class IBMTestsThatPass extends JUnit3Suite {
   
   def test_length_delimited_12_02() { runner1.runOneTest("length_delimited_12_02") }
   def test_length_delimited_12_03() { runner1.runOneTest("length_delimited_12_03") }
+  
+  def test_delimiter_12_03() { runner1.runOneTest("delimiter_12_03") }
+  def test_delimiter_12_04() { runner1.runOneTest("delimiter_12_04") }
     
 }
 
@@ -73,8 +76,7 @@ class IBMTestsThatThrow extends JUnit3Suite {
   def test_alignment_bytes_12_06() { runner1.runOneTest("alignment_bytes_12_06") }
   def test_delimiter_12_01() { runner1.runOneTest("delimiter_12_01") }
   def test_delimiter_12_02() { runner1.runOneTest("delimiter_12_02") }
-  def test_delimiter_12_03() { runner1.runOneTest("delimiter_12_03") }
-  def test_delimiter_12_04() { runner1.runOneTest("delimiter_12_04") }
+  
   def test_length_explicit_12_01() { runner1.runOneTest("length_explicit_12_01") }
   def test_length_explicit_12_02() { runner1.runOneTest("length_explicit_12_02") }
   def test_length_delimited_12_01() { runner1.runOneTest("length_delimited_12_01") }
