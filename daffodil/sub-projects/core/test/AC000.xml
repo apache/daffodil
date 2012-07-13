@@ -1,9 +1,0 @@
-<table xmlns="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-  <product type="xsd:int">6000</product>
-  <sum type="xsd:int">60</sum>
-  <concat type="xsd:string">102030</concat>
-  <x type="xsd:string">10</x>
-  <y type="xsd:string">20</y>
-  <z type="xsd:string">30</z>
-  <productAgain type="xsd:string">6000</productAgain>
-</table>
