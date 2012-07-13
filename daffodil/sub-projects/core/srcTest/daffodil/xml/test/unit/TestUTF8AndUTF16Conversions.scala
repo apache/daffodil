@@ -28,7 +28,7 @@ class TestUTF8AndUTF16Conversions extends JUnit3Suite {
     // some places we think)
     val data = <data>&#x24;&#xA2;&#x20AC;&#x2028;</data>
     val str = data.child.text
-    assertEquals(4, str.length) // 5 because that U+1d420 requires two utf-16 codepoints to represent it.
+    assertEquals(4, str.length)
     val bytes = str.getBytes("utf-8")
     assertEquals(9, bytes.length)
   }

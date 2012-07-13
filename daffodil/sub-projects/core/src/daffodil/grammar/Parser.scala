@@ -21,7 +21,6 @@ import stringsearch.constructs.EscapeScheme._
 
 import daffodil.util._
 import daffodil.exceptions.ThrowsSDE
-import daffodil.exceptions.ThrowsPE
 import java.io.ByteArrayInputStream
 import scala.collection.mutable.Stack
 
@@ -32,8 +31,7 @@ abstract class ProcessingError extends Exception with Diagnostic {
 class ParseError(sc: SchemaComponent, pstate: PState, kind: String, args: Any *) extends ProcessingError {
   def isError = true
   def getSchemaLocations = List(sc)
-  def getDataLocations = Nil
-  // TODO: Need to get Data Locations from PState
+  def getDataLocations = List(pstate.currentLocation)
 
   override def toString = {
     lazy val argsAsString = args.map{ _.toString }.mkString(", ")
@@ -46,7 +44,9 @@ class ParseError(sc: SchemaComponent, pstate: PState, kind: String, args: Any *)
     val msg =
       if (kind.contains("%")) kind.format(args : _*)
       else (kind+"(%s)").format(argsAsString)
-    val res = msg + "\nContext was : %s".format(sc)
+    val res = "Parse Error: " + msg + 
+    "\nContext was : %s".format(sc) +
+    "\nData location was preceding %s".format(pstate.currentLocation)
     res
   }
 
@@ -56,13 +56,14 @@ class ParseError(sc: SchemaComponent, pstate: PState, kind: String, args: Any *)
 /**
  * Encapsulates lower-level parsing with a uniform interface
  */
-abstract class Parser(val context: Term) extends ThrowsPE {
-
-  type PState = daffodil.grammar.PState
+abstract class Parser(val context: Term) {
 
   def PE(pstate: PState, s: String, args : Any *) = {
-    throw new ParseError(context, pstate, s, args : _*)
+    pstate.failed(new ParseError(context, pstate, s, args : _*))
   }
+  
+  def processingError(state: PState, str : String, args : Any *) = 
+    PE(state, str, args) // long form synonym
 
   def parse(pstate: PState): PState
 
@@ -75,7 +76,7 @@ abstract class Parser(val context: Term) extends ThrowsPE {
 // TODO: make this fail, and test optimizer sufficiently to know these 
 // do NOT get through.
 class EmptyGramParser(context: Term = null) extends Parser(context) {
-  def parse(pstate: PState) = pstate
+  def parse(pstate: PState) = Assert.invariantFailed("EmptyGramParsers are all supposed to optimize out!")
 }
 
 class ErrorParser(context: Term = null) extends Parser(context) {
@@ -113,14 +114,22 @@ class AltCompParser(context: Term, p: Gram, q: Gram) extends Parser(context) {
     // don't have to worry about multiple threads at all.
     //
     var pResult: PState = null
+    val numChildrenAtStart = pstate.parent.getChildren().length
     try {
       pResult = pParser.parse(pstate)
     } catch {
-      case e: Exception =>
+      case e: Exception => {
+        // TODO: we need to record the problem so that we can
+        // use it as a diagnostic in case the other alternative also fails.
+      }
     }
     if (pResult != null && pResult.status == Success) pResult
     else {
-      // TODO: Unwind any side effects on the Infoset 
+      // Unwind any side effects on the Infoset 
+      val lastChildIndex = pstate.parent.getChildren().length
+      if (lastChildIndex > numChildrenAtStart) {
+    	  pstate.parent.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
+      }
       //
       // TODO: check for discriminator evaluated to true.
       // If so, then we don't run the next alternative, we
@@ -166,7 +175,7 @@ class RepUnboundedParser(context: Term, r: => Gram) extends Parser(context) {
       val pNext = rParser.parse(pResult)
       if (pNext.status != Success) {
         pResult.restoreJDOM(cloneNode)
-        System.err.println("Failure suppressed.")
+        log(Debug("Failure suppressed."))
         return pResult
       }
       pResult = pNext
@@ -197,6 +206,10 @@ class GeneralUnparseFailure(msg : String) extends Diagnostic {
   def getMessage() = msg
 }
 
+class DataLoc(bitPos : Long, inStream : InStream) extends DataLocation {
+  override def toString() = "Location(in bits) " + bitPos + " of Stream: " + inStream
+}
+
 /**
  * A parser takes a state, and returns an updated state
  *
@@ -207,12 +220,17 @@ class GeneralUnparseFailure(msg : String) extends Diagnostic {
  * know are the places doing the mutation, and the places rolling them back
  * which should be isolated to the alternative parser.
  */
+class PStateStream(val inStream: InStream, val bitLimit: Long, val charLimit: Long = -1, val bitPos: Long = 0, val charPos: Long = -1) {
+  def withInStream(inStream: InStream, status: ProcessorResult = Success) =
+    new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)
+  def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) =
+    new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)
+  def withEndBitLimit(bitLimit: Long, status: ProcessorResult = Success) =
+    new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)
+}
+
 class PState(
-  val inStreamStack: Stack[InStream],
-  val bitPos: Long,
-  val bitLimit: Long,
-  val charPos: Long,
-  val charLimit: Long,
+  val inStreamStateStack: Stack[PStateStream],
   val parent: org.jdom.Element,
   val variableMap: VariableMap,
   val target: String,
@@ -226,36 +244,54 @@ class PState(
   def whichBit = bitPos % 8
   def groupPos = groupIndexStack.head
   def childPos = childIndexStack.head
+  def currentLocation : DataLocation = new DataLoc(bitPos, inStream)
+  def inStreamState = inStreamStateStack top
+  def inStream = inStreamState inStream
+  def bitPos = inStreamState bitPos
+  def bitLimit = inStreamState bitLimit
+  def charPos = inStreamState charPos
+  def charLimit = inStreamState charLimit
 
-  def inStream = inStreamStack top
-  /**
+/**
    * Convenience functions for creating a new state, changing only
    * one or a related subset of the state components to a new one.
    */
+  def withInStreamState(inStreamState: PStateStream, status: ProcessorResult = Success) =
+    new PState(inStreamStateStack push(inStreamState), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withInStream(inStream: InStream, status: ProcessorResult = Success) =
-    new PState(inStreamStack push(inStream), bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStateStack push(new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withLastInStream(status: ProcessorResult = Success) = {
-    inStreamStack pop()
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    var lastBitPos = bitPos
+    var lastCharPos = if (charPos > 0) charPos else 0
+    inStreamStateStack pop()
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics) withPos(bitPos + lastBitPos, charPos + lastCharPos)
   }
-  def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
-  def withEndBitLimit(bitLimit: Long, status: ProcessorResult = Success) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+  def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) = {
+    var newInStreamStateStack = inStreamStateStack clone()
+    newInStreamStateStack pop()
+    newInStreamStateStack push(new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos))
+    new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+  }
+  def withEndBitLimit(bitLimit: Long, status: ProcessorResult = Success) = {
+    var newInStreamStateStack = inStreamStateStack clone()
+    newInStreamStateStack pop()
+    newInStreamStateStack push(new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos))
+    new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+  }
   def withParent(parent: org.jdom.Element, status: ProcessorResult = Success) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withVariables(variableMap: VariableMap, status: ProcessorResult = Success) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withGroupIndexStack(groupIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withChildIndexStack(childIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def withArrayIndexStack(arrayIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
   def failed(msg: => String) : PState =
     failed(new GeneralParseFailure(msg))
   def failed(failureDiagnostic: Diagnostic) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics)
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics)
 
   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.
@@ -321,7 +357,7 @@ object PState {
     val childIndexStack = Nil
     val arrayIndexStack = Nil
     val diagnostics = Nil
-    val newState = new PState(Stack(inStream), 0, -1, 0, -1, doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    val newState = new PState(Stack(new PStateStream(inStream, 0, -1, 0, -1)), doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
     newState
   }
 

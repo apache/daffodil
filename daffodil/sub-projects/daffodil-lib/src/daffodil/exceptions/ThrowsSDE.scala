@@ -13,10 +13,3 @@ trait ThrowsSDE {
 
 }
 
-trait ThrowsPE {
-    type PState
-
-    def PE(state: PState, str : String, args : Any *) : Nothing
-    
-    def processingError(state: PState, str : String, args : Any *) : Nothing = PE(state, str, args) // long form synonym
-}

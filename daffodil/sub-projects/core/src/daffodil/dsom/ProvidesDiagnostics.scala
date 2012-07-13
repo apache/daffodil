@@ -17,12 +17,12 @@ import daffodil.dsom.OOLAG._
 import daffodil.util.Glob
 import daffodil.util.Debug
 
-class CapturedThrowDiagnostic(e : Throwable, self : ThrowsSDE) extends Diagnostic {
+class CapturedThrowDiagnostic(e : Throwable, context : Any) extends Diagnostic {
   Assert.invariant(!e.isInstanceOf[OOLAGRethrowException])
   def isError() = true
   def getSchemaLocations() = Nil
   def getDataLocations() = Nil
-  def getMessage() = "ERROR (Catch):" + e + "\nContext at catch was: " + self
+  def getMessage() = "ERROR (Catch):" + e + ". Context at catch was: " + context
 }
 
 class Warning(e : Throwable) extends Diagnostic {
@@ -33,6 +33,11 @@ class Warning(e : Throwable) extends Diagnostic {
   def getMessage() = "WARNING: " + e
 }
 
+/**
+ * Implementation of OOLAG diagnostics gathering for Daffodil (daffodil being an application of OOLAG technique)
+ * 
+ * This is for compilation. Not the runtime.
+ */
 trait DiagnosticsProviding extends OOLAGHost with HasIsError {
   type DiagnosticsList = Seq[HasIsError]
 
@@ -40,9 +45,10 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
 
   def handleThrownError(lv : OOLAGValue) {
     val e = lv.thrown
+    log(Debug("thrown error caught: %s", e))
     val diag = e match {
       case d : Diagnostic => d
-      case _ => new CapturedThrowDiagnostic(e, this.asInstanceOf[ThrowsSDE]) // no common trait to use....?
+      case _ => new CapturedThrowDiagnostic(e, this) // no common trait to use....?
     }
     addDiagnostic(diag)
     addDiagnosticChild(lv)

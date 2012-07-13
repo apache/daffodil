@@ -241,7 +241,7 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
   lazy val groupMembers = groupMembers_.value
   
-  lazy val diagnosticChildren = children
+  lazy val diagnosticChildren = annotationObjs ++ children
 
   /**
    * Factory for Terms

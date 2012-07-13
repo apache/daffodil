@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="runtime-diagnostics"
+	description="Tests of runtime diagnostic behavior."
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+	xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="PE1">
+		<dfdl:format ref="ex:daffodilTest1" />
+
+		<xs:element name="err1" type="xs:int" dfdl:lengthKind="delimited"/>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="PE1"
+		root="err1" model="PE1"
+		description="should produce a non-recoverable processing error.">
+
+		<tdml:document>A</tdml:document>
+
+		<tdml:errors>
+			<tdml:error>xs:int</tdml:error>
+			<tdml:error>A</tdml:error>
+			<tdml:error>err1</tdml:error>
+		</tdml:errors>
+
+	</tdml:parserTestCase>
+
+
+</tdml:testSuite>

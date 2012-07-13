@@ -52,11 +52,11 @@ trait ElementRuntimeValuedPropertiesMixin
 trait SequenceRuntimeValuedPropertiesMixin
   extends DelimitedRuntimeValuedPropertiesMixin
   with Sequence_AnnotationMixin
-  with RawSequenceRuntimeValuedPropertiesMixin { decl: Sequence =>
+  with RawSequenceRuntimeValuedPropertiesMixin { decl : Sequence =>
 
   lazy val separator = {
     val replaced = EntityReplacer.replaceAll(separatorRaw)
-    println(replaced)
+    // println(replaced)
     expressionCompiler.compile('String, EntityReplacer.replaceAll(separatorRaw))
   }
 }

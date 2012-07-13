@@ -13,7 +13,6 @@ import java.text.{ ParseException, ParsePosition }
 import java.math.BigInteger
 import stringsearch.constructs._
 import stringsearch.delimiter._
-import daffodil.exceptions.ThrowsPE
 
 import daffodil.util._
 
@@ -30,9 +29,12 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
      * the state to be referring to this new element as what we're parsing data into.
      */
     def parse(start: PState): PState = {
+      
       val currentElement = new org.jdom.Element(e.name, e.namespace)
+      log(Debug("currentElement = %s", currentElement))
       val priorElement = start.parent
       priorElement.addContent(currentElement)
+      log(Debug("priorElement = %s", priorElement))
       val postState = start.withParent(currentElement)
       postState
     }
@@ -68,8 +70,10 @@ case class ComplexElementBeginPattern(e: ElementBase) extends Terminal(e, e.isCo
       }
 
       val currentElement = new org.jdom.Element(e.name, e.namespace)
+      log(Debug("currentElement = %s", currentElement))
       val priorElement = postState1.parent
       priorElement.addContent(currentElement)
+      log(Debug("priorElement = %s", priorElement))
       val postState2 = postState1 withParent(currentElement)
       postState2
     }
@@ -86,7 +90,9 @@ case class ElementEnd(e: ElementBase) extends Terminal(e, e.isComplexType.value 
      */
     def parse(start: PState): PState = {
       val currentElement = start.parent
+      Assert.invariant(currentElement.getName() != "_document_" )
       val priorElement = currentElement.getParent.asInstanceOf[org.jdom.Element]
+      log(Debug("priorElement = %s", priorElement))
       val postState = start.withParent(priorElement).moveOverByOne
       postState
     }
@@ -105,7 +111,10 @@ case class ComplexElementEndPattern(e: ElementBase) extends Terminal(e, e.isComp
      */
     def parse(start: PState): PState = {
       val currentElement = start.parent
+      log(Debug("currentElement = %s", currentElement))
+      Assert.invariant(currentElement.getName() != "_document_" )
       val priorElement = currentElement.getParent.asInstanceOf[org.jdom.Element]
+      log(Debug("priorElement = %s", priorElement))
       val postState = start.withParent(priorElement).moveOverByOne.withLastInStream()
       postState
     }
@@ -139,7 +148,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
       val endBitPos = in.fillCharBuffer(cbuf, start.bitPos, decoder)
       if (endBitPos < start.bitPos + nBytes * 8) {
         // Do Something Bad
-        PE(start, "Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
+        return PE(start, "Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
       }
       val result = cbuf.toString
       log(Debug("Parsed: " + result))
@@ -338,12 +347,14 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
       val node = start.parent
       var str = node.getText
 
+      Assert.invariant(str != null) // worst case it should be empty string. But not null.
       val resultState = try {
         // Strip leading + (sign) since the DecimalFormat can't handle it
-        if (str.charAt(0) == '+') {
+        if (str.length > 0 && str.charAt(0) == '+') {
           // TODO: There needs to be a way to restore '+' in the unparse, but that will be in the format field
           str = str.substring(1)
         }
+        if (str == "") return PE(start, "Convert to %s (for xs:%s): Cannot parse number from empty string", GramDescription, GramName)
 
         // Need to use Decimal Format to parse even though this is an Integral number
         val df = new DecimalFormat()
@@ -352,8 +363,8 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
 
         // Verify that what was parsed was what was passed exactly in byte count.  Use pos to verify all characters consumed & check for errors!
         if (pos.getIndex != str.length) {
-          log(Debug("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n"))
-          throw new ParseException("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n", 0)
+          // log(Debug("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n"))
+          return PE(start, "Convert to %s (for xs:%s): Unable to parse all characters from: %s", GramDescription, GramName, str)
         }
 
         // Assume long as the most precision
@@ -362,14 +373,14 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
         // Verify no digits lost (the number was correctly transcribed)
         if (asNumber.asInstanceOf[Number] != num || isInvalidRange(asNumber)) {
           // Transcription error
-          log(Debug("Error: Invalid " + GramDescription + ": " + str + "\n"))
-          throw new ParseException("Error: Invalid " + GramDescription + ": " + str, 0)
+          // log(Debug("Error: Invalid " + GramDescription + ": " + str + "\n"))
+          return PE(start, "Convert to %s (for xs:%s): Invalid data.", GramDescription, GramName, str)
         } else {
           node.setText(asNumber.toString)
         }
 
         start
-      } catch { case e: Exception => start.failed("Failed to convert to an xs:" + GramName) }
+      } // catch { case e: Exception => start.failed("Failed to convert %s to an xs:%s" + GramName) }
 
       resultState
     }
@@ -440,20 +451,22 @@ case class ConvertTextDoublePrim(e: ElementBase) extends Terminal(e, true) {
 
     override def toString = "to(xs:double)"
 
-    def parse(start: PState): PState = {
+    def parse(start : PState) : PState = {
       val node = start.parent
       val str = node.getText
 
-      val resultState = try {
-        //convert to NumberFormat to handle format punctuation such as , . $ & etc
-        //then get the value as a double and convert to string
-        val df = new DecimalFormat()
-        val pos = new ParsePosition(0)
-        val num = df.parse(str, pos)
-        node.setText(num.doubleValue.toString)
+      val resultState =
+        // try 
+        {
+          //convert to NumberFormat to handle format punctuation such as , . $ & etc
+          //then get the value as a double and convert to string
+          val df = new DecimalFormat()
+          val pos = new ParsePosition(0)
+          val num = df.parse(str, pos)
+          node.setText(num.doubleValue.toString)
 
-        start
-      } catch { case e: Exception => start.failed("Failed to convert to an xs:double") }
+          start
+        } // catch { case e: Exception => start.failed("Failed to convert to an xs:double") }
 
       resultState
     }
@@ -469,16 +482,19 @@ case class ConvertTextFloatPrim(e: ElementBase) extends Terminal(e, true) {
       val node = start.parent
       val str = node.getText
 
-      val resultState = try {
+      val resultState = 
+        // Note: don't wrap in try-catch. The framework has everything surrounded
+        // by that already.
+        // try 
+        {
         //convert to NumberFormat to handle format punctuation such as , . $ & etc
         //then get the value as a float and convert to string
         val df = new DecimalFormat()
         val pos = new ParsePosition(0)
         val num = df.parse(str, pos)
         node.setText(num.floatValue.toString)
-
         start
-      } catch { case e: Exception => start.failed("Failed to convert to an xs:float") }
+        } // catch { case e: Exception => start.failed("Failed to convert to an xs:float") }
 
       resultState
     }
