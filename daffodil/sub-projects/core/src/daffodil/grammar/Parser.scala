@@ -211,14 +211,14 @@ class DataLoc(bitPos : Long, inStream : InStream) extends DataLocation {
 }
 
 /**
- * A parser takes a state, and returns an updated state
+ * A placeholder for holding the complete stream information so that it can be popped all at once when a new stream
+ * state is created
  *
- * The fact that there are side-effects/mutations on parts of the state
- * enables us to reuse low-level java primitives that mutate streams.
- *
- * The goal however, is to hide that fact so that the only places that have to
- * know are the places doing the mutation, and the places rolling them back
- * which should be isolated to the alternative parser.
+ * @param inStream Input Data Stream
+ * @param bitLimit Total Bits available in given Data Stream
+ * @param charLimit Total UNICODE or given Character Set Characters in given Data Stream
+ * @param bitPos Current Read Position in given Data Stream
+ * @param charPos Current Read Character Position in UNICODE or a given Character Set for the given Data Stream
  */
 class PStateStream(val inStream: InStream, val bitLimit: Long, val charLimit: Long = -1, val bitPos: Long = 0, val charPos: Long = -1) {
   def withInStream(inStream: InStream, status: ProcessorResult = Success) =
@@ -229,6 +229,16 @@ class PStateStream(val inStream: InStream, val bitLimit: Long, val charLimit: Lo
     new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)
 }
 
+/**
+ * A parser takes a state, and returns an updated state
+ *
+ * The fact that there are side-effects/mutations on parts of the state
+ * enables us to reuse low-level java primitives that mutate streams.
+ *
+ * The goal however, is to hide that fact so that the only places that have to
+ * know are the places doing the mutation, and the places rolling them back
+ * which should be isolated to the alternative parser.
+ */
 class PState(
   val inStreamStateStack: Stack[PStateStream],
   val parent: org.jdom.Element,
