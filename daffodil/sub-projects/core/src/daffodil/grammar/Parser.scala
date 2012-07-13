@@ -374,6 +374,7 @@ trait InStream {
   //  def getBinaryInt(bitOffset : Long,  isBigEndian : Boolean) : Int
 
   def fillCharBuffer(buf: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): Long
+  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, endByte: Long = -1): (Long, Boolean)
 
   def getInt(bitPos: Long, order: java.nio.ByteOrder): Int
   def getDouble(bitPos: Long, order: java.nio.ByteOrder): Double
@@ -470,7 +471,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
   def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long, 
       decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
       es: EscapeSchemeObj): (String, Long, SearchResult, Delimiter) = {
-    setLoggingLevel(LogLevel.Debug)
+   // setLoggingLevel(LogLevel.Debug)
     
     val me: String = "fillCharBufferUntilDelimiterOrEnd - "
     log(Debug("BEG_fillCharBufferUntilDelimiterOrEnd"))
@@ -668,7 +669,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     cb
   }
   
-  def decodeUntilFail(bytesArray: Array[Byte], decoder: CharsetDecoder, endByte: Int): (CharBuffer, Int) = {
+  def decodeUntilFail(bytesArray: Array[Byte], decoder: CharsetDecoder, endByte: Long): (CharBuffer, Long) = {
     var cbFinal: CharBuffer = CharBuffer.allocate(1)
     var cbPrev: CharBuffer = CharBuffer.allocate(1)
     var numBytes: Int = 1
@@ -686,7 +687,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
   
   // Fills the CharBuffer with as many bytes as can be decoded successfully.
   //
-  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): (Long, Boolean) = {
+  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, numBytes: Long = -1): (Long, Boolean) = {
     
     //TODO: Mike, how do we call these asserts now? Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
     val byteOffsetAsLong = (bitOffset >> 3)
@@ -715,13 +716,19 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     // Ends at ByteBuffer limit in Bytes minus the offset
     bb.get(byteArray, 0, (bb.limit - byteOffset))
     
-    var (result:CharBuffer, bytesDecoded: Int) = decodeUntilFail(byteArray, decoder, bb.limit())
+    var endAtByte = numBytes
+    
+    if (endAtByte == -1){ endAtByte = bb.limit}
+    
+    System.err.println("endAtByte: " + endAtByte)
+    
+    var (result:CharBuffer, bytesDecoded: Long) = decodeUntilFail(byteArray, decoder, endAtByte)
     
     if (bytesDecoded == 0){ return (-1L, true) }
     
     log(Debug("MixedDataResult: BEG_" + result + "_END , bytesDecoded: " + bytesDecoded))
     System.err.println("MixedDataResult: BEG_" + result + "_END , bytesDecoded: " + bytesDecoded)
-    
+  
     cb.clear()
     cb.append(result)
     
@@ -746,7 +753,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
   def getDelimiter(cb: CharBuffer, bitOffset: Long, 
       decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
       es: EscapeSchemeObj): (String, Long, Long, SearchResult, Delimiter) = {
-    setLoggingLevel(LogLevel.Debug)
+   // setLoggingLevel(LogLevel.Debug)
     log(Debug("BEG_getDelimiter"))
     
     val me:String = "getDelimiter - "
@@ -777,8 +784,6 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     separators foreach { x => dSearch.addSeparator(x) }
     
     terminators foreach { x => dSearch.addTerminator(x) }
-    
-    System.err.println("Input String: " + buf.toString() + " Length: " + buf.toString().length())
 
     var (theState, result, endPos, endPosDelim, theDelimiter) = dSearch.search(buf, 0)
     
@@ -828,9 +833,6 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     val resBB = charSet.encode(sb.toString())
     
     val resNumBytes = resBB.limit() // TODO: Pretty sure limit is better than length
-    
-    System.err.println("theState: " + theState + " found: BEG_" + sb.toString() + "_END")
-    System.err.println("resNumBytes: " + resNumBytes)
     
     // Calculate the new ending position of the ByteBuffer
     if (endPos != -1) {
