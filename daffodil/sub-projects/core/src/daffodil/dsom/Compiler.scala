@@ -15,6 +15,7 @@ import daffodil.util.Misc
 import daffodil.api.WithDiagnostics
 import daffodil.util.Logging
 import daffodil.util.Info
+import junit.framework.Assert.assertEquals
 
 class ProcessorFactory(sset: SchemaSet, rootElem: GlobalElementDecl)
   extends DiagnosticsProviding // (sset)
@@ -60,6 +61,8 @@ class DataProcessor(pf: ProcessorFactory, rootElem: GlobalElementDecl)
     val jdomDoc = new org.jdom.Document(jdomElem)
     val initialState = UState.createInitialState(rootElem, output, jdomDoc) // also want to pass here the externally set variables, other flags/settings.
     val resultState = unparser.unparse(initialState)
+    //write unparsed result to outputStream
+    resultState.outStream.write()
     val res = new UnparseResult(resultState)
     res
   }
@@ -92,6 +95,7 @@ class ParseResult(resultState: PState, dp: DataProcessor)
 class UnparseResult(resultState: UState)
   extends DiagnosticsProviding // DelegatesDiagnostics(dp)
   with DFDL.UnparseResult {
+
   lazy val diagnosticChildren = Nil
   lazy val prettyName = "UnparseResult"
   lazy val path = ""
@@ -208,7 +212,7 @@ object Compiler {
   }
 
   def stringToWritableByteChannel(s: String) = {
-    val size = s.length()
+    val size = s.length() //TODO: get byte count by encoding
     byteArrayToWritableByteChannel(size)
   }
 
@@ -264,6 +268,24 @@ object Compiler {
     val d = Compiler.fileToReadableByteChannel(new java.io.File(fileName))
     val actual = p.parse(d)
     actual
+  }
+
+  def testUnparsing(testSchema: scala.xml.Elem, infoset: Node, unparseTo: String) {
+    val compiler = Compiler()
+    val pf = compiler.compile(testSchema)
+    val u = pf.onPath("/")
+    val outputStream = new java.io.ByteArrayOutputStream()
+    val out = java.nio.channels.Channels.newChannel(outputStream)
+    val actual = u.unparse(out, infoset)
+    if (actual.isError) {
+      val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new Exception(msgs)
+    }
+    val unparsed = outputStream.toString
+//    System.err.println("parsed: " + infoset)
+//    System.err.println("unparsed: " + unparsed)
+    out.close()
+    assertEquals(unparseTo, unparsed)
   }
 }
 

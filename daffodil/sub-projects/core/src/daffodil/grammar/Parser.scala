@@ -21,7 +21,6 @@ import stringsearch.constructs.EscapeScheme._
 import daffodil.util._
 import daffodil.exceptions.ThrowsSDE
 
-
 /**
  * Encapsulates lower-level parsing with a uniform interface
  */
@@ -315,7 +314,7 @@ trait InStream {
   // def fillCharBufferUntilDelimiterOrEnd
 }
 
-class InStreamFromByteChannel(context : ElementBase, in: DFDL.Input, sizeHint: Long = 1024 * 128) extends InStream with Logging { // 128K characters by default.
+class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Long = 1024 * 128) extends InStream with Logging { // 128K characters by default.
   val maxCharacterWidthInBytes = 4 // worst case. Ok for testing. Don't use this pessimistic technique for real data.
   var bb = ByteBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
   // Verify there is not more data by making sure the buffer was not read to capacity.

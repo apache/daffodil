@@ -47,7 +47,9 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
       val nextElement = {
         try { //if content contains elements
           if (!start.childIndexStack.isEmpty) {
-            //TODO
+            if (start.childPos != 1) { //if not first child, write unparsed result of previous child to outputStream
+              start.outStream.write()
+            }
             start.currentElement.getContent().get(start.childPos.asInstanceOf[Int] - 1).asInstanceOf[org.jdom.Element]
           } else {
             start.currentElement.getContent().get(0).asInstanceOf[org.jdom.Element]
@@ -81,19 +83,20 @@ case class ElementEnd(e: ElementBase) extends Terminal(e, true) {
   }
 
   def unparser: Unparser = new Unparser {
-    override def toString = e.name
+    override def toString = "</" + e.name + ">"
 
     /**
      * Changes state to refer to parent element of the current one.
      */
     def unparse(start: UState): UState = {
-      val priorElement = {
-        if (start.currentElement.getName != start.rootName)
-          start.currentElement.getParentElement()
-        else
-          new org.jdom.Element("_document_") //dummy element to be parent of the root
+      val postState = {
+        if (start.currentElement.getName != start.rootName) {
+          val parent = start.currentElement.getParentElement()
+          val state = start.withCurrent(parent)
+          state
+        } else
+          start
       }
-      val postState = start.withCurrent(priorElement)
       postState
     }
   }
@@ -140,20 +143,14 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
   def unparser: Unparser = new Unparser {
     override def toString = "StringFixedLengthInBytesUnparser(" + nBytes + ")"
     val encoder = e.knownEncodingEncoder
-    var bbuf = ByteBuffer.allocate(nBytes.toInt) // TODO: Performance: get buffer from a pool. 
 
     def unparse(start: UState): UState = {
-      log(Debug("Unparsing starting at bit position: " + start.bitPos))
       val data = start.currentElement.getText
-      val endBitPos = start.outStream.fillOutStream(bbuf, start.bitPos, data, encoder)
-      val result = bbuf.toString
-      Assert.invariant(start.currentElement.getName != "_document_")
-      log(Debug("Unparsed: " + result))
-      log(Debug("Ended at bit position " + endBitPos))
-      val endCharPos = start.charPos + result.length
+      start.outStream.fillCharBuffer(nBytes, data, encoder)
+      
+      log(Debug("Unparsed: " + start.outStream.getData))
 
-      val postState = start.withPos(endBitPos, endCharPos)
-      postState
+      start
     }
   }
 }
@@ -189,7 +186,6 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
 }
 
 case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) with Logging {
-
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   lazy val tm = e.terminatingMarkup
@@ -201,7 +197,6 @@ case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) wi
     var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
 
     def parse(start: PState): PState = {
-
       log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
@@ -236,7 +231,6 @@ case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) wi
           start.failed(this.toString() + " - Reached End Of Data.")
         }
       }
-
       postState
     }
   }
@@ -280,7 +274,6 @@ case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) with L
           start.withPos(endBitPos, endCharPos)
         }
       }
-
       postState
     }
   }
@@ -297,8 +290,9 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
   protected val GramName = "number"
   protected val GramDescription = "Number"
   protected def isInvalidRange(n: S): Boolean = false
+
   def parser: Parser = new Parser {
-    override def toString = "ConvertTextNumberPrimUnparser"
+    override def toString = "ConvertTextNumberPrimParser"
 
     def parse(start: PState): PState = {
       val node = start.parent
@@ -331,9 +325,9 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
           log(Debug("Error: Invalid " + GramDescription + ": " + str + "\n"))
           throw new ParseException("Error: Invalid " + GramDescription + ": " + str, 0)
         } else {
+          log(Debug("Adding text " + asNumber.toString))
           node.setText(asNumber.toString)
         }
-
         start
       } catch { case e: Exception => start.failed("Failed to convert to an xs:" + GramName) }
 
@@ -345,11 +339,10 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
     override def toString = "ConvertTextNumberPrimUnparser"
 
     def unparse(start: UState): UState = {
-      val node = start.currentElement
-      var str = node.getText
+      var str = start.outStream.getData //gets data from element being unparsed
 
       val resultState = try {
-        // TODO: There needs to be a way to restore '+' in the unparse
+        // TODO: Restore leading '+' sign and/or 0's
 
         // Need to use Decimal Format to parse even though this is an Integral number
         val df = new DecimalFormat()
@@ -368,10 +361,12 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
         // Verify no digits lost (the number was correctly transcribed)
         if (asNumber.asInstanceOf[Number] != num || isInvalidRange(asNumber)) {
           // Transcription error
-          System.err.print("Error: Invalid " + GramDescription + ": " + str + "\n")
+          log(Debug("Error: Invalid " + GramDescription + ": " + str + "\n"))
           throw new ParseException("Error: Invalid " + GramDescription + ": " + str, 0)
+        } else {
+          log(Debug("Adding text " + asNumber.toString))
+          start.outStream.setData(asNumber.toString) //write modified number back to CharBuffer
         }
-
         start
       } catch { case e: Exception => start.failed("Failed to convert to an xs:" + GramName) }
 
@@ -462,18 +457,20 @@ case class ConvertTextDoublePrim(e: ElementBase) extends Terminal(e, true) {
   }
 
   def unparser: Unparser = new Unparser {
-    override def toString = "to(double)"
+    override def toString = "to(xs:double)"
 
     def unparse(start: UState): UState = {
-      val node = start.currentElement
-      val str = node.getText
+      var str = start.outStream.getData //gets data from element being unparsed
+
       val resultState = try {
         //convert to NumberFormat to handle format punctuation such as , . $ & etc
         //then get the value as a double and convert to string
         val df = new DecimalFormat()
         val pos = new ParsePosition(0)
         val num = df.parse(str, pos)
-        node.setText(num.doubleValue.toString)
+
+        log(Debug("Adding text " + num.doubleValue.toString))
+        start.outStream.setData(num.doubleValue.toString) //write modified number back to CharBuffer
 
         start
       } catch { case e: Exception => start.failed("Failed to convert to a double") }
@@ -485,7 +482,6 @@ case class ConvertTextDoublePrim(e: ElementBase) extends Terminal(e, true) {
 
 case class ConvertTextFloatPrim(e: ElementBase) extends Terminal(e, true) {
   def parser: Parser = new Parser {
-
     override def toString = "to(xs:float)"
 
     def parse(start: PState): PState = {
@@ -635,7 +631,6 @@ abstract class StaticText(delim: String, e: InitiatedTerminatedMixin, guard: Boo
   e.asInstanceOf[Term].terminatingMarkup
 
   def parser: Parser = new Parser {
-
     val t = e.asInstanceOf[Term]
 
     // TODO: Fix Cheezy matcher. Doesn't implement ignore case. Doesn't fail at first character that doesn't match. It grabs
@@ -770,7 +765,7 @@ case class StartSequence(sq: Sequence, guard: Boolean = true) extends Terminal(s
  * Scala has a standard type Nothing, so we use Spanish. Nada means nothing in Spanish.
  */
 case class Nada(sc: SchemaComponent) extends Terminal(sc, true) {
-  override def isEmpty = false 
+  override def isEmpty = false
   // cannot optimize this out! It is used as an alternative to things
   // with the intention of "find this and this, or find nothing"
   def parser: Parser = new Parser {

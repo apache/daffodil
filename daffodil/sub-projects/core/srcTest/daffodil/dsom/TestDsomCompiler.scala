@@ -11,7 +11,7 @@ import daffodil.schema.annotation.props._
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 
-class TestDsomCompiler extends JUnit3Suite {
+class TestDsomCompiler extends JUnit3Suite with Logging {
 
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
@@ -27,7 +27,7 @@ class TestDsomCompiler extends JUnit3Suite {
     }
     found
   }
-  /*
+
   // @Test
   def testHasProps() {
     val testSchema = TestUtils.dfdlTestSchema(
@@ -206,8 +206,8 @@ class TestDsomCompiler extends JUnit3Suite {
     assertTrue(actualString.contains("<data"))
     assertTrue(actualString.contains(">42</data>"))
 
-    testUnparsing(testSchema, actual.result, "42")
-  }*/
+    Compiler.testUnparsing(testSchema, actual.result, "42")
+  }
 
   // @Test
   def testTerminator1() {
@@ -228,7 +228,7 @@ class TestDsomCompiler extends JUnit3Suite {
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:int" dfdl:occursStopValue="-1" dfdl:textNumberRep="standard" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:length="{ 9 }"/>)
     val infoset = <mydata xmlns={ example }>123456789</mydata>
-    testUnparsing(testSchema, infoset, "123456789")
+    Compiler.testUnparsing(testSchema, infoset, "123456789")
   }
 
   // @Test
@@ -237,7 +237,7 @@ class TestDsomCompiler extends JUnit3Suite {
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:string" dfdl:occursStopValue="-1" dfdl:textNumberRep="standard" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:length="{ 6 }"/>)
     val infoset = <mydata xmlns={ example }>string</mydata>
-    testUnparsing(testSchema, infoset, "string")
+    Compiler.testUnparsing(testSchema, infoset, "string")
   }
 
   // @Test
@@ -246,7 +246,7 @@ class TestDsomCompiler extends JUnit3Suite {
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:double" dfdl:occursStopValue="-1" dfdl:textNumberRep="standard" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:length="{ 4 }"/>)
     val infoset = <mydata xmlns={ example }>3.14</mydata>
-    testUnparsing(testSchema, infoset, "3.14")
+    Compiler.testUnparsing(testSchema, infoset, "3.14")
   }
 
   // @Test
@@ -280,11 +280,11 @@ class TestDsomCompiler extends JUnit3Suite {
 
     val actual = Compiler.testString(testSchema, "112358")
     val actualString = actual.result.toString
-//    println("actualString " + actualString)
+    //    println("actualString " + actualString)
     assertTrue(actualString.contains("<list"))
     assertTrue(actualString.contains("<somedata><moredata>112358</moredata></somedata></list>"))
 
-    testUnparsing(testSchema, actual.result, "112358")
+    Compiler.testUnparsing(testSchema, actual.result, "112358")
   }
 
   // @Test
@@ -308,16 +308,55 @@ class TestDsomCompiler extends JUnit3Suite {
 
     val actual = Compiler.testString(testSchema, "246801")
     val actualString = actual.result.toString
-//    println("actualString " + actualString)
+//    System.err.println("parsed: " + actualString)
     assertTrue(actualString.contains("<list"))
     assertTrue(actualString.contains("<somedata>2468</somedata><moredata>1</moredata></list>"))
 
     //TODO unparse needs to restore leading zeros removed in parse
     //testUnparsing(testSchema, actual.result, "246801")
-    testUnparsing(testSchema, actual.result, "24681")
+    Compiler.testUnparsing(testSchema, actual.result, "24681")
   }
 
-  /* def test3 {
+  // @Test
+  def testUnparseNestedChildren() {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+
+      <xs:element name="list" type="tns:example1">
+        <xs:annotation>
+          <xs:appinfo source={ dfdl }>
+            <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+      <xs:complexType name="example1">
+        <xs:sequence dfdl:separator="">
+          <xs:element name="data" type="tns:example2">
+            <xs:annotation>
+              <xs:appinfo source={ dfdl }>
+                <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="example2">
+        <xs:sequence dfdl:separator="">
+          <xs:element name="somedata" type="xs:string" dfdl:length="3" dfdl:lengthKind="explicit"/>
+          <xs:element name="moredata" type="xs:int" dfdl:length="8" dfdl:lengthKind="explicit"/>
+        </xs:sequence>
+      </xs:complexType>)
+
+    val actual = Compiler.testString(testSchema, "abc87654321")
+    val actualString = actual.result.toString
+    println("actualString " + actualString)
+    assertTrue(actualString.contains("<list"))
+    assertTrue(actualString.contains("<data><somedata>abc</somedata><moredata>87654321</moredata></data></list>"))
+
+    Compiler.testUnparsing(testSchema, actual.result, "abc87654321")
+  }
+
+  def test3 {
     val testSchema = XML.loadFile(TestUtils.findFile("test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
 
@@ -743,8 +782,8 @@ class TestDsomCompiler extends JUnit3Suite {
     val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
     val seq = ct.modelGroup.asInstanceOf[Sequence]
 
-    val Seq(e1 : ElementBase, e2 : ElementBase, e3 : ElementBase) = seq.groupMembers
-    
+    val Seq(e1: ElementBase, e2: ElementBase, e3: ElementBase) = seq.groupMembers
+
     assertEquals(3, e1.allTerminatingMarkup.length) // 1 Level + ref on global element decl
     assertEquals("a", e1.allTerminatingMarkup(0).prettyExpr)
     assertEquals("b", e1.allTerminatingMarkup(1).prettyExpr)
@@ -753,16 +792,16 @@ class TestDsomCompiler extends JUnit3Suite {
     val ct2 = e3.asInstanceOf[ElementBase].typeDef.asInstanceOf[ComplexTypeBase]
     val seq2 = ct2.modelGroup.asInstanceOf[Sequence]
 
-    val Seq(e3_1 : ElementBase, e3_2 : ElementBase) = seq2.groupMembers
-    
-    assertEquals(6, e3_1.allTerminatingMarkup.length)	// 2 Level + ref on global element decl
+    val Seq(e3_1: ElementBase, e3_2: ElementBase) = seq2.groupMembers
+
+    assertEquals(6, e3_1.allTerminatingMarkup.length) // 2 Level + ref on global element decl
     assertEquals("e", e3_1.allTerminatingMarkup(0).prettyExpr)
     assertEquals("c", e3_1.allTerminatingMarkup(1).prettyExpr)
     assertEquals("d", e3_1.allTerminatingMarkup(2).prettyExpr)
     assertEquals("a", e3_1.allTerminatingMarkup(3).prettyExpr)
     assertEquals("b", e3_1.allTerminatingMarkup(4).prettyExpr)
     assertEquals("g", e3_1.allTerminatingMarkup(5).prettyExpr)
-    
+
     assertEquals(6, e3_2.allTerminatingMarkup.length) // 2 Level + ref on global element decl + ref on local element decl
     assertEquals("f", e3_2.allTerminatingMarkup(0).prettyExpr) // f instead of e, due to ref
     assertEquals("c", e3_2.allTerminatingMarkup(1).prettyExpr)
@@ -842,22 +881,6 @@ class TestDsomCompiler extends JUnit3Suite {
     //assertEquals("%ES; %% %#0; %NUL;%ACK; foo%#rF2;%#rF7;bar %WSP*; %#2024;%#xAABB; &amp;&#2023;&#xCCDD; -1", e1.nilValue) // TODO: Do not equal each other!
     assertEquals(NilKind.LiteralValue, e1.nilKind)
   }
-*/
-  def testUnparsing(testSchema: scala.xml.Elem, infoset: Node, unparseTo: String) {
-    val compiler = Compiler()
-    val pf = compiler.compile(testSchema)
-    val u = pf.onPath("/")
-    val outputStream = new java.io.ByteArrayOutputStream()
-    val out = java.nio.channels.Channels.newChannel(outputStream)
-    val actual = u.unparse(out, infoset)
-    if (actual.isError) {
-      val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new Exception(msgs)
-    }
-    val unparsed = outputStream.toString
-    // println("unparsed: " + unparsed)
-    out.close()
-    assertEquals(unparseTo, unparsed)
-  }
+
 }
 
