@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="choice" description="Tests for choice construct"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+	xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="basic">
+		<dfdl:format ref="ex:daffodilTest1" />
+
+		<xs:element name="ch1">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice>
+						<xs:element name="inty" type="xs:int" dfdl:lengthKind="delimited" />
+						<xs:element name="stringy" type="xs:string"
+							dfdl:lengthKind="delimited" />
+					</xs:choice>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="basic" root="ch1" model="basic"
+		description="simplest imaginable test of choice. No asserts, no discriminators.">
+
+		<tdml:document>
+			<tdml:documentPart type="text">A</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:stringy>A</ex:stringy>
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+</tdml:testSuite>

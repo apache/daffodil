@@ -13,9 +13,3 @@ trait ThrowsSDE {
 
 }
 
-trait ThrowsPE {
-    
-    def PE(str : String, args : Any *) : Nothing
-    
-    def processingError(str : String, args : Any *) : Nothing = PE(str, args) // long form synonym 
-}
