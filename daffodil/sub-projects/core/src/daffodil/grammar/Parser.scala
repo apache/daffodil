@@ -678,7 +678,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
         cbPrev = decodeNBytes(numBytes, bytesArray, decoder)
         cbFinal = cbPrev
       } catch {
-        case e: Exception => log(Debug("Exception in decodeUntilFail: " + e.toString()))
+        case e: Exception => //log(Debug("Exception in decodeUntilFail: " + e.toString()))
       }
       numBytes += 1
     }
@@ -753,7 +753,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
   def getDelimiter(cb: CharBuffer, bitOffset: Long, 
       decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
       es: EscapeSchemeObj): (String, Long, Long, SearchResult, Delimiter) = {
-   // setLoggingLevel(LogLevel.Debug)
+    setLoggingLevel(LogLevel.Debug)
     log(Debug("BEG_getDelimiter"))
     
     val me:String = "getDelimiter - "
@@ -789,9 +789,9 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     
     if (theDelimiter == null){ return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
     
-    log(Debug("theDelimiter: " + theDelimiter.typeDef))
+    log(Debug("theDelimiter: " + theDelimiter.toString() + " theState: " + theState))
     
-    if (theDelimiter.typeDef == DelimiterType.Terminator) { return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
+    //if (theDelimiter.typeDef == DelimiterType.Terminator) { return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
     
     if (theState == SearchResult.FullMatch) {
       sb.append(result)

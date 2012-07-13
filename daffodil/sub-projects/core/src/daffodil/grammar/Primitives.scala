@@ -175,7 +175,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
     val cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool. 
     
     def parse(start: PState): PState = {
-      //setLoggingLevel(LogLevel.Debug)
+      setLoggingLevel(LogLevel.Debug)
       
       log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
       
@@ -607,6 +607,7 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true) extends
   //e.asInstanceOf[Term].terminatingMarkup
   
   def parser: Parser = new Parser(e) {
+    setLoggingLevel(LogLevel.Debug)
     
     val t = e.asInstanceOf[Term]
 
