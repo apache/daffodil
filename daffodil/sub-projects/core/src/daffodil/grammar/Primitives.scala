@@ -166,20 +166,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
   }
 }
 
-//case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nBytes: Long) extends Terminal(e, true) {
-//  Assert.notYetImplemented()
-//  def parser: Parser = new Parser(e) {
-//    def parse(start: PState): PState = {
-//      Assert.notYetImplemented()
-//    }
-//
-//  }
-//}
-
 case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nBytes: Long) extends Terminal(e, true) {
-    // TODO: Implement UTF-8
-  lazy val es = e.escapeScheme
-  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   
   def parser: Parser = new Parser(e) {
     
@@ -191,79 +178,37 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
       //setLoggingLevel(LogLevel.Debug)
       
       log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
-      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
-      var bitOffset = 0L
-
-      val delimiters2 = e.allTerminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
-      val delimiters = delimiters2.flatten(x => x)
-      val delimsCooked: Queue[String] = new Queue
       
-      delimiters.foreach(x => delimsCooked.enqueue(EntityReplacer.replaceAll(x)))
-      
-      log(Debug("StringFixedLengthInBytesVariableWidthCharactersParser - Looking for: " + delimsCooked + " Count: " + delimsCooked.length))
-    
-      val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set.empty, delimsCooked.toSet, esObj)
+      // We know the nBytes, decode only until we've reached this value.
+      val in = start.inStream
+      val (endBitPos, _ ) = in.fillCharBufferMixedData(cbuf, start.bitPos, decoder, nBytes)
+      if (endBitPos < start.bitPos + nBytes * 8) {
+        return PE(start, "Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
+      }
+      val result = cbuf.toString
       
       if (result == null) {return start.failed(this.toString() + " - Result was null!")}
       
       val resultBytes = result.getBytes(decoder.charset())
       
-      if (resultBytes.length < nBytes){ return start.failed(this.toString() + " - Result(" + resultBytes.length + ") was not at least nChars (" + nBytes + ") long.")}
+      if (resultBytes.length < nBytes){ return start.failed(this.toString() + " - Result(" + resultBytes.length + ") was not at least nBytes (" + nBytes + ") long.")}
       
-      val postState = theState match {
-        case SearchResult.NoMatch => {
-          // No Terminator, so last result is a field.
-          val finalResult = resultBytes.dropRight(resultBytes.length - nBytes.toInt)
-          val finalResultBytes = finalResult.length
-          val finalBitPos = 8 * finalResultBytes + start.bitPos
-          val finalResultStr = finalResult.toString()
-          
-          log(Debug(this.toString() + " - Parsed: " + finalResult))
-          log(Debug(this.toString() + " - Ended at bit position " + finalBitPos))
-          val endCharPos = start.charPos + finalResultStr.length()
-          val currentElement = start.parent
-          currentElement.addContent(new org.jdom.Text(finalResult.toString()))
-          start.withPos(finalBitPos, endCharPos)
-        } 
-        case SearchResult.PartialMatch => start.failed(this.toString() + ": Partial match found!")
-        case SearchResult.FullMatch => {
-          val finalResult = resultBytes.dropRight(resultBytes.length - nBytes.toInt)
-          val finalResultBytes = finalResult.length
-          val finalBitPos = 8 * finalResultBytes + start.bitPos
-          val finalResultStr = finalResult.toString()
-          
-          log(Debug(this.toString() + " - Parsed: " + finalResult))
-          log(Debug(this.toString() + " - Ended at bit position " + finalBitPos))
-          //val endCharPos = start.charPos + result.length()
-          val endCharPos = start.charPos + finalResultStr.length()
-          val currentElement = start.parent
-          currentElement.addContent(new org.jdom.Text(finalResultStr))
-          start.withPos(finalBitPos, endCharPos)
-        }
-        case SearchResult.EOD => {
-          start.failed(this.toString() + " - Reached End Of Data.")
-        }
-      }
+      log(Debug("Parsed: " + result))
+      log(Debug("Ended at bit position " + endBitPos))
+      val endCharPos = start.charPos + result.length
+      val currentElement = start.parent
+      Assert.invariant(currentElement.getName != "_document_")
+      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
+      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
+      currentElement.addContent(new org.jdom.Text(result))
+      val postState = start.withPos(endBitPos, endCharPos)
       postState
     }
   }
 }
 
-//case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Long) extends Terminal(e, true) {
-//  // TODO: Implement UTF-8
-//  Assert.notYetImplemented()
-//  def parser: Parser = new Parser(e) {
-//    def parse(start: PState): PState = {
-//      Assert.notYetImplemented()
-//    }
-//  }
-//}
-
 case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Long) extends Terminal(e, true) {
-  // TODO: Implement UTF-8
-  lazy val es = e.escapeScheme
-  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
-  
+
   def parser: Parser = new Parser(e) {
     
     override def toString = "StringFixedLengthInVariableWidthCharactersParser(" + nChars + ")"
@@ -274,55 +219,31 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
       //setLoggingLevel(LogLevel.Debug)
       
       log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
-      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
-      var bitOffset = 0L
+      
+      // We don't know the width of the characters, so decode as much data as possible.
+      // We will truncate as necessary later.
+      val in = start.inStream
+      val (endBitPos, _ ) = in.fillCharBufferMixedData(cbuf, start.bitPos, decoder)
 
-      val delimiters2 = e.allTerminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
-      val delimiters = delimiters2.flatten(x => x)
-      val delimsCooked: Queue[String] = new Queue
-      
-      delimiters.foreach(x => delimsCooked.enqueue(EntityReplacer.replaceAll(x)))
-      
-      log(Debug("StringFixedLengthInVariableWidthCharactersParser - Looking for: " + delimsCooked + " Count: " + delimsCooked.length))
-    
-      val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set.empty, delimsCooked.toSet, esObj)
+      val result = cbuf.toString
       
       if (result == null) {return start.failed(this.toString() + " - Result was null!")}
+
+      val finalResult = result.substring(0, nChars.toInt) // Truncate
+      val finalResultBytes = finalResult.getBytes(decoder.charset()).length
+      val finalBitPos = 8 * finalResultBytes + start.bitPos
       
-      if (result.length() < nChars){ return start.failed(this.toString() + " - Result(" + result.length() + ") was not at least nChars (" + nChars + ") long.")}
+      if (finalResult.length < nChars){ return start.failed(this.toString() + " - Result(" + finalResult.length + ") was not at least nChars (" + nChars + ") long.")}
       
-      val postState = theState match {
-        case SearchResult.NoMatch => {
-          // No Terminator, so last result is a field.
-          val finalResult = result.substring(0, nChars.toInt)
-          val finalResultBytes = finalResult.getBytes(decoder.charset()).length
-          val finalBitPos = 8 * finalResultBytes + start.bitPos
-          
-          log(Debug(this.toString() + " - Parsed: " + finalResult))
-          log(Debug(this.toString() + " - Ended at bit position " + finalBitPos))
-          val endCharPos = start.charPos + nChars
-          val currentElement = start.parent
-          currentElement.addContent(new org.jdom.Text(finalResult))
-          start.withPos(finalBitPos, endCharPos)
-        } 
-        case SearchResult.PartialMatch => start.failed(this.toString() + ": Partial match found!")
-        case SearchResult.FullMatch => {
-          val finalResult = result.substring(0, nChars.toInt)
-          val finalResultBytes = finalResult.getBytes(decoder.charset()).length
-          val finalBitPos = 8 * finalResultBytes + start.bitPos
-          
-          log(Debug(this.toString() + " - Parsed: " + finalResult))
-          log(Debug(this.toString() + " - Ended at bit position " + finalBitPos))
-          //val endCharPos = start.charPos + result.length()
-          val endCharPos = start.charPos + nChars
-          val currentElement = start.parent
-          currentElement.addContent(new org.jdom.Text(finalResult))
-          start.withPos(finalBitPos, endCharPos)
-        }
-        case SearchResult.EOD => {
-          start.failed(this.toString() + " - Reached End Of Data.")
-        }
-      }
+      log(Debug("Parsed: " + finalResult))
+      log(Debug("Ended at bit position " + finalBitPos))
+      val endCharPos = start.charPos + nChars
+      val currentElement = start.parent
+      Assert.invariant(currentElement.getName != "_document_")
+      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
+      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
+      currentElement.addContent(new org.jdom.Text(finalResult))
+      val postState = start.withPos(finalBitPos, endCharPos)
       postState
     }
   }
