@@ -396,6 +396,7 @@ trait InStream {
   //  def getBinaryInt(bitOffset : Long,  isBigEndian : Boolean) : Int
 
   def fillCharBuffer(buf: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): Long
+  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, endByte: Long = -1): (Long, Boolean)
 
   def getInt(bitPos: Long, order: java.nio.ByteOrder): Int
   def getDouble(bitPos: Long, order: java.nio.ByteOrder): Double
@@ -492,6 +493,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
   def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long, 
       decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
       es: EscapeSchemeObj): (String, Long, SearchResult, Delimiter) = {
+   // setLoggingLevel(LogLevel.Debug)
     
     val me: String = "fillCharBufferUntilDelimiterOrEnd - "
     log(Debug("BEG_fillCharBufferUntilDelimiterOrEnd"))
@@ -515,6 +517,8 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     }
      
     //println("START_CB: " + cb.toString())
+    
+    log(Debug(me + "Looking for: " + separators + " and terminators: " + terminators))
     
     dSearch.setEscapeScheme(es)
 
@@ -680,12 +684,14 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     val list: Queue[Byte] = Queue.empty
     for (i <- 0 to N - 1){
       list += array(i).toByte
+//      System.err.println(array(i).toByte.toHexString)
     }
+//    System.err.println
     val cb = decoder.decode(ByteBuffer.wrap(list.toArray[Byte]))
     cb
   }
   
-  def decodeUntilFail(bytesArray: Array[Byte], decoder: CharsetDecoder, endByte: Int): (CharBuffer, Int) = {
+  def decodeUntilFail(bytesArray: Array[Byte], decoder: CharsetDecoder, endByte: Long): (CharBuffer, Long) = {
     var cbFinal: CharBuffer = CharBuffer.allocate(1)
     var cbPrev: CharBuffer = CharBuffer.allocate(1)
     var numBytes: Int = 1
@@ -694,7 +700,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
         cbPrev = decodeNBytes(numBytes, bytesArray, decoder)
         cbFinal = cbPrev
       } catch {
-        case e: Exception => log(Debug("Exception in decodeUntilFail: " + e.toString()))
+        case e: Exception => //log(Debug("Exception in decodeUntilFail: " + e.toString()))
       }
       numBytes += 1
     }
@@ -703,7 +709,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
   
   // Fills the CharBuffer with as many bytes as can be decoded successfully.
   //
-  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): (Long, Boolean) = {
+  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, numBytes: Long = -1): (Long, Boolean) = {
     
     //TODO: Mike, how do we call these asserts now? Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
     val byteOffsetAsLong = (bitOffset >> 3)
@@ -732,12 +738,19 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     // Ends at ByteBuffer limit in Bytes minus the offset
     bb.get(byteArray, 0, (bb.limit - byteOffset))
     
-    var (result:CharBuffer, bytesDecoded: Int) = decodeUntilFail(byteArray, decoder, bb.limit())
+    var endAtByte = numBytes
+    
+    if (endAtByte == -1){ endAtByte = bb.limit}
+    
+    System.err.println("endAtByte: " + endAtByte)
+    
+    var (result:CharBuffer, bytesDecoded: Long) = decodeUntilFail(byteArray, decoder, endAtByte)
     
     if (bytesDecoded == 0){ return (-1L, true) }
     
     log(Debug("MixedDataResult: BEG_" + result + "_END , bytesDecoded: " + bytesDecoded))
-    
+    System.err.println("MixedDataResult: BEG_" + result + "_END , bytesDecoded: " + bytesDecoded)
+  
     cb.clear()
     cb.append(result)
     
@@ -762,7 +775,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
   def getDelimiter(cb: CharBuffer, bitOffset: Long, 
       decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
       es: EscapeSchemeObj): (String, Long, Long, SearchResult, Delimiter) = {
-    
+    setLoggingLevel(LogLevel.Debug)
     log(Debug("BEG_getDelimiter"))
     
     val me:String = "getDelimiter - "
@@ -798,9 +811,9 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     
     if (theDelimiter == null){ return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
     
-    log(Debug("theDelimiter: " + theDelimiter.typeDef))
+    log(Debug("theDelimiter: " + theDelimiter.toString() + " theState: " + theState))
     
-    if (theDelimiter.typeDef == DelimiterType.Terminator) { return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
+    //if (theDelimiter.typeDef == DelimiterType.Terminator) { return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
     
     if (theState == SearchResult.FullMatch) {
       sb.append(result)
@@ -860,7 +873,7 @@ class InStreamFromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Lo
     log(Debug(me + "Ended at bitPos: " + endBitPosA))
     log(Debug("END_getDelimiter"))
     
-    if (endPos != -1 && endPosDelim != -1){ (cb.subSequence(endPos, endPosDelim).toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
+    if (endPos != -1 && endPosDelim != -1){ (cb.subSequence(endPos, endPosDelim+1).toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
     else { (cb.toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
   }
 
