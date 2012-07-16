@@ -1,0 +1,30 @@
+<transposedMatrix xmlns="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <transposedRow>
+    <transposedColumn type="xsd:string">a</transposedColumn>
+    <transposedColumn type="xsd:string">e</transposedColumn>
+    <transposedColumn type="xsd:string">h</transposedColumn>
+    <transposedColumn type="xsd:string">l</transposedColumn>
+    <transposedColumn type="xsd:string">p</transposedColumn>
+  </transposedRow>
+  <transposedRow>
+    <transposedColumn type="xsd:string">b</transposedColumn>
+    <transposedColumn type="xsd:string">d</transposedColumn>
+    <transposedColumn type="xsd:string">i</transposedColumn>
+    <transposedColumn type="xsd:string">m</transposedColumn>
+    <transposedColumn type="xsd:string">q</transposedColumn>
+  </transposedRow>
+  <transposedRow>
+    <transposedColumn type="xsd:string">c</transposedColumn>
+    <transposedColumn type="xsd:string">f</transposedColumn>
+    <transposedColumn type="xsd:string">j</transposedColumn>
+    <transposedColumn type="xsd:string">n</transposedColumn>
+    <transposedColumn type="xsd:string">r</transposedColumn>
+  </transposedRow>
+  <transposedRow>
+    <transposedColumn type="xsd:string">d</transposedColumn>
+    <transposedColumn type="xsd:string">g</transposedColumn>
+    <transposedColumn type="xsd:string">k</transposedColumn>
+    <transposedColumn type="xsd:string">o</transposedColumn>
+    <transposedColumn type="xsd:string">s</transposedColumn>
+  </transposedRow>
+</transposedMatrix>

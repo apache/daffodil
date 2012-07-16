@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
+<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+    targetNamespace="http://www.example.org/example1/"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	>
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none"
+       textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression"/>
+    </appinfo>
+  </annotation>
+
+  <!-- Patterned length and fixed length -->
+
+  <element name="list">
+    <complexType>
+      <sequence>
+	<element name="firstToken" type="xsd:string"
+		 dfdl:lengthKind="pattern"
+		 dfdl:lengthPattern="[a-zA-Z]+"
+		 dfdl:representation="text" 
+		 dfdl:textStringJustification="center"
+		 dfdl:textStringPadCharacter=" "/>
+	<element name="secondToken" type="xsd:string"
+		 dfdl:lengthKind="pattern"
+		 dfdl:lengthPattern="[0-9]+"
+		 dfdl:representation="text" 
+		 dfdl:textStringJustification="center"
+		 dfdl:textStringPadCharacter=" "/>
+	<element name="thirdToken" type="xsd:string"
+		 dfdl:lengthKind="explicit"
+		 dfdl:length="5"
+		 dfdl:representation="text" 
+		 dfdl:textStringJustification="center"
+		 dfdl:textStringPadCharacter=" "/>
+      </sequence>
+    </complexType>
+  </element>
+
+</schema>

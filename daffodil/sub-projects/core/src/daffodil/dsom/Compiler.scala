@@ -136,6 +136,7 @@ class Compiler extends DFDL.Compiler with Logging {
         diags.foreach { diag => log(daffodil.util.Error(diag.toString())) }
       } else {
         log(Info("Parser = %s.", dataProc.parser.toString))
+        log(Info("Unparser = %s.", dataProc.unparser.toString))
         log(Info("Compilation completed with no errors."))
       }
     }
@@ -226,8 +227,8 @@ object Compiler {
       throw new Exception(msgs)
     }
     val unparsed = outputStream.toString
-//    System.err.println("parsed: " + infoset)
-//    System.err.println("unparsed: " + unparsed)
+    System.err.println("parsed: " + infoset)
+    System.err.println("unparsed: " + unparsed)
     out.close()
     assertEquals(unparseTo, unparsed)
   }

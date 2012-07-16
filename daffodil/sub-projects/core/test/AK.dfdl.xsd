@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
+<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+    targetNamespace="http://www.example.org/example1/"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	>
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none"
+       textNumberRep="standard" binaryNumberRep="binary" byteOrder="bigEndian" representation="text" occursStopValue="-1" occursCountKind="expression"/>
+    </appinfo>
+  </annotation>
+
+  <!-- Simple Binary with signed and usigned types -->
+
+  <element name="list">
+    <complexType>      
+      <sequence>
+	<element name="a" type="xsd:byte">
+	  <annotation>
+	    <appinfo source="http://www.ogf.org/dfdl/">
+	      <dfdl:element representation="binary" 
+			    lengthKind="implicit"/>
+	    </appinfo>
+	  </annotation>
+	</element>
+	<element name="b" type="xsd:unsignedByte">
+	  <annotation>
+	    <appinfo source="http://www.ogf.org/dfdl/">
+	      <dfdl:element representation="binary" 
+			    lengthKind="implicit"/>
+	    </appinfo>
+	  </annotation>
+	</element>
+	<element name="c" type="xsd:short">
+	  <annotation>
+	    <appinfo source="http://www.ogf.org/dfdl/">
+	      <dfdl:element representation="binary" 
+			    lengthKind="implicit"/>
+	    </appinfo>
+	  </annotation>
+	</element>
+	<element name="d" type="xsd:unsignedShort">
+	  <annotation>
+	    <appinfo source="http://www.ogf.org/dfdl/">
+	      <dfdl:element representation="binary" 
+			    lengthKind="implicit"/>
+	    </appinfo>
+	  </annotation>
+	</element>
+	<element name="e" type="xsd:int">
+	  <annotation>
+	    <appinfo source="http://www.ogf.org/dfdl/">
+	      <dfdl:element representation="binary" 
+			    lengthKind="implicit"/>
+	    </appinfo>
+	  </annotation>
+	</element>
+	<element name="f" type="xsd:unsignedInt">
+	  <annotation>
+	    <appinfo source="http://www.ogf.org/dfdl/">
+	      <dfdl:element representation="binary" 
+			    lengthKind="implicit"/>
+	    </appinfo>
+	  </annotation>
+	</element>
+	<element name="g" type="xsd:long">
+	  <annotation>
+	    <appinfo source="http://www.ogf.org/dfdl/">
+	      <dfdl:element representation="binary" 
+			    lengthKind="implicit"/>
+	    </appinfo>
+	  </annotation>
+	</element>
+	<element name="h" type="xsd:unsignedLong">
+	  <annotation>
+	    <appinfo source="http://www.ogf.org/dfdl/">
+	      <dfdl:element representation="binary" 
+			    lengthKind="implicit"/>
+	    </appinfo>
+	  </annotation>
+	</element>
+      </sequence>
+    </complexType>
+  </element>
+
+</schema>

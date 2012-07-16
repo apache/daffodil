@@ -1,0 +1,10 @@
+<seq xmlns="http://www.example.org/example1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <x>x0</x>
+  <x>x1</x>
+  <x>x2</x>
+  <y>y0</y>
+  <y>y1</y>
+  <y>y2</y>
+  <z>z0</z>
+  <z>z1</z>
+</seq>

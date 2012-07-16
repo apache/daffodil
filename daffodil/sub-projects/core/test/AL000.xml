@@ -1,0 +1,4 @@
+<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <x type="xsd:hexBinary">DEADBEEF</x>
+  <y type="xsd:hexBinary">FA7A55</y>
+</list>

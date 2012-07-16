@@ -1,0 +1,18 @@
+<allZones xmlns="http://www.example.org/example1" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+	<a>
+		<zone1>
+			<x>x value for zone 1</x>
+		</zone1>
+	</a>
+	<a>
+		<zone2>
+			<y>y value for zone 2</y>
+		</zone2>
+	</a>
+	<a>
+		<zone3>
+			<z>z value for zone 3</z>
+		</zone3>
+	</a>
+</allZones>

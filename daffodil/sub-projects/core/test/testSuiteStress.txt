@@ -1,0 +1,7 @@
+#stress tests
+AB.dfdl.xsd,matrix,AB006.in,AB006.xml
+AB.dfdl.xsd,matrix,AB007.in,AB007.xml
+AB.dfdl.xsd,matrix,AB008.in,AB008.xml
+AB.dfdl.xsd,matrix,AB009.in,AB009.xml
+AB.dfdl.xsd,matrix,AB010.in,AB010.xml
+AB.dfdl.xsd,matrix,AB011.in,AB011.xml

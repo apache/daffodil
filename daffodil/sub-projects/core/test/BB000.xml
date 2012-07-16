@@ -1,0 +1,9 @@
+<list xmlns="http://www.example.org/example1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <x>8</x>
+  <x>9</x>
+  <x>10</x>
+  <y>7</y>
+  <y>8</y>
+  <y>9</y>
+  <z>some string</z>
+</list>

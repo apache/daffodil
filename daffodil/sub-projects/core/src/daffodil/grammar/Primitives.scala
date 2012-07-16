@@ -63,8 +63,6 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
           case e: Exception => start.currentElement //if content is text
         }
       }
-      //      System.err.println("Infoset root: " + start.root)
-      //      System.err.println("nextElement: " + nextElement)
 
       val postState = start.withCurrent(nextElement).moveOverByOne
       postState
@@ -74,7 +72,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
 
 case class ComplexElementBeginPattern(e: ElementBase) extends Terminal(e, e.isComplexType.value == true && e.lengthKind == LengthKind.Pattern) {
   Assert.invariant(e.isComplexType.value)
-  
+
   def parser: Parser = new Parser(e) {
     override def toString = "<" + e.name + " dfdl:lengthKind='pattern'>"
     val decoder = e.knownEncodingDecoder
@@ -110,7 +108,7 @@ case class ComplexElementBeginPattern(e: ElementBase) extends Terminal(e, e.isCo
       postState2
     }
   }
-  
+
   def unparser: Unparser = new Unparser {
     def unparse(start: UState): UState = {
       Assert.notYetImplemented()
@@ -159,7 +157,7 @@ case class ElementEnd(e: ElementBase) extends Terminal(e, e.isComplexType.value 
 case class ComplexElementEndPattern(e: ElementBase) extends Terminal(e, e.isComplexType.value == true && e.lengthKind == LengthKind.Pattern) {
   // TODO: Should this be more generic; is there a way to detect state from the current element to tell us if it's time
   //       to pop the input stack?
-  
+
   def parser: Parser = new Parser(e) {
     override def toString = "</" + e.name + " dfdl:lengthKind='pattern'>"
 
@@ -236,6 +234,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
       val data = start.currentElement.getText
       start.outStream.fillCharBuffer(nBytes, data, encoder)
 
+      setLoggingLevel(LogLevel.Debug)
       log(Debug("Unparsed: " + start.outStream.getData))
 
       start
@@ -880,9 +879,36 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true) extends
     }
   }
 
+  //TODO: Handles only one delimiter string. There can be whitespace-separated lists of alternative delimiters
+  //TODO: Doesn't implement ignore case
   def unparser: Unparser = new Unparser {
+    override def toString = "StaticText('" + delim + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"
+    //     setLoggingLevel(LogLevel.Debug)
+    Assert.notYetImplemented(e.ignoreCase == YesNo.Yes)
+    Assert.invariant(delim != "") //shouldn't be here at all in this case
+
+    val t = e.asInstanceOf[Term]
+
     def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
+      val tmList = t.terminatingMarkup.map(x => x.evaluate(start.currentElement, start.variableMap).asInstanceOf[String].split("\\s").toList).flatten
+      val delims = delim.split("\\s").toList ++ tmList
+
+      val separators = delim.split("\\s").toList
+      val terminators = t.terminatingMarkup.map(x => x.evaluate(start.currentElement, start.variableMap).asInstanceOf[String].split("\\s").toList).flatten
+
+      val separatorsCooked: Queue[String] = new Queue
+      val terminatorsCooked: Queue[String] = new Queue
+
+      separators.foreach(x => separatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
+      terminators.foreach(x => terminatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
+
+      //log(Debug("StaticText - Inserting separators: " + separators + " AND terminators: " + terminators))
+      log(Debug("StaticText - Inserting separators: " + separatorsCooked + " AND terminators: " + terminatorsCooked))
+
+      start.outStream.asInstanceOf[OutStreamFromByteChannel].setDelimiters(separatorsCooked.toSet, terminatorsCooked.toSet)
+      log(Debug("StaticText - Unparsed: " + start.outStream.getData))
+
+      start
     }
   }
 }

@@ -2,7 +2,6 @@ package daffodil.grammar
 
 import org.jdom._
 import daffodil.xml._
-import daffodil.xml._
 import daffodil.processors._
 import daffodil.exceptions.Assert
 import daffodil.schema.annotation.props._
@@ -19,8 +18,12 @@ import scala.util.matching.Regex
 import stringsearch.constructs._
 import stringsearch.constructs.EscapeScheme._
 import junit.framework.Assert.assertTrue
+import junit.framework.Assert.assertEquals
 
 import daffodil.util._
+import daffodil.exceptions.ThrowsSDE
+import java.io.ByteArrayOutputStream
+import scala.collection.mutable.Stack
 
 /**
  * Encapsulates lower-level unparsing with a uniform interface
@@ -297,8 +300,8 @@ object UState {
 }
 
 /**
- * Encapsulates the I/O as an abstraction that works something like a java.nio.ByteBuffer
- * but a bit more specialized for DFDL needs, e.g., supports offsets and positions in bits.
+ * Encapsulates the I/O as an abstraction that works something like a java.nio.CharBuffer, but a
+ * bit more specialized for DFDL needs.
  */
 trait OutStream {
   /**
@@ -312,7 +315,7 @@ trait OutStream {
 
   def fillCharBuffer(nBytes: Long, data: String, encoder: CharsetEncoder)
   def write()
-  def charBufferToByteBuffer()
+  def charBufferToByteBuffer(): ByteBuffer
 
   def getData(): String
   def setData(str: String)
@@ -320,39 +323,60 @@ trait OutStream {
   //  def getFloat(bitPos: Long, order: java.nio.ByteOrder): Float
 
   // def fillCharBufferUntilDelimiterOrEnd
+  def setDelimiters(separators: Set[String], terminators: Set[String])
 }
 
+/*
+ * Not thread safe. We're depending on the CharBuffer being private to us.
+ */
 class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, sizeHint: Long = 1024 * 128) extends OutStream with Logging { // 128K characters by default.
-  val maxCharacterWidthInBytes = 4 // worst case. Ok for testing. Don't use this pessimistic technique for real data.
+  val maxCharacterWidthInBytes = 4 //FIXME: worst case. Ok for testing. Don't use this pessimistic technique for real data.
   var cbuf = CharBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
-  var bbuf: ByteBuffer = null //TODO: null
-  var encoder: CharsetEncoder = null //TODO: null
+  var encoder: CharsetEncoder = null //FIXME
 
   /*
-   * Moves data to CharBuffer, resizing as necessary. Returns the bit position corresponding to 
-   * the amount of data read.
-   * Not thread safe. We're depending here on the char buffer being private to us.
+   * Moves data to CharBuffer, resizing as necessary.
    */
   def fillCharBuffer(nBytes: Long, data: String, enc: CharsetEncoder) = {
-    bbuf = ByteBuffer.allocate(nBytes.toInt)
     encoder = enc
-    cbuf.clear() //remove old data
+    cbuf.clear() //remove old data from previous element
 
     setData(data)
   }
-
+  
   /*
-   * Writes unparsed data in charBuffer to outputStream.
+   * Writes the delimiters to CharBuffer.
+   */
+  def setDelimiters(separators: Set[String], terminators: Set[String]) {
+    setLoggingLevel(LogLevel.Debug)
+    val me: String = "setDelimiters - "
+    log(Debug(me + "Inserting separators: " + separators + " and terminators: " + terminators))
+
+    //could just do in CharBuffer
+    var sb: StringBuilder = new StringBuilder(cbuf.toString())
+
+    //TODO: this is oversimplified
+    //TODO: also always selects first delimiter from Seq
+    if (!terminators.isEmpty) {
+      sb.append(terminators.head)
+    }
+    cbuf.clear()
+    setData(sb.toString())
+  }
+  
+  /*
+   * Writes unparsed data in CharBuffer to outputStream.
    */
   def write() {
-    charBufferToByteBuffer()
+    val bbuf = charBufferToByteBuffer()
     outStream.write(bbuf)
   }
 
   /*
    * Takes unparsed data from CharBuffer and encodes it in ByteBuffer
    */
-  def charBufferToByteBuffer() {
+  def charBufferToByteBuffer(): ByteBuffer = {
+    val bbuf = ByteBuffer.allocate(cbuf.length() * maxCharacterWidthInBytes)
     encoder.reset()
 
     val cr1 = encoder.encode(cbuf, bbuf, true) // true means this is all the input you get.
@@ -373,6 +397,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
       // to be suppressed, other converted, others skipped, etc. 
     }
     bbuf.flip() // so the caller can read
+    bbuf
   }
 
   def getData(): String = {

@@ -1,0 +1,10 @@
+<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <a type="xsd:byte">127</a>
+  <b type="xsd:unsignedByte">127</b>
+  <c type="xsd:short">32767</c>
+  <d type="xsd:unsignedShort">32767</d>
+  <e type="xsd:int">2147483647</e>
+  <f type="xsd:unsignedInt">2147483647</f>
+  <g type="xsd:long">9223372036854775807</g>
+  <h type="xsd:unsignedLong">9223372036854775807</h>
+</list>
