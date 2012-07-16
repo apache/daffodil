@@ -133,7 +133,7 @@ class Compiler extends DFDL.Compiler with Logging {
         log(Info("Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length))
         diags.foreach { diag => log(daffodil.util.Error(diag.toString())) }
       } else {
-        log(Info("Parser = %s.", dataProc.parser.toString))
+        log(Info("Parser = %s", dataProc.parser.toString))
         log(Info("Compilation completed with no errors."))
       }
     }

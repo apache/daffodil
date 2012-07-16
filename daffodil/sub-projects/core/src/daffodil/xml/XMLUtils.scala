@@ -625,68 +625,84 @@ object XMLUtils {
    * Each triple is the path (an x-path-like string), followed by expected, and actual values.
    */
   def computeDiff(a : Node, b : Node) = {
-    computeDiffPath(a, b, Nil)
+    computeDiffOne(Seq(a), Seq(b), Map.empty, Nil)
   }
-  def computeDiffSeqPath(as : Seq[Node], bs : Seq[Node], path : Seq[String]) : Seq[(String, String, String)] = {
-    lazy val zPath = path.reverse.mkString("/")
-    (as, bs) match {
-      case (a :: ars, b :: brs) => {
-        val diffAB = computeDiffPath(a, b, path)
-        val diffRest = computeDiffSeqPath(ars, brs, path)
-        val res = diffAB ++ diffRest
-        res
+
+  
+  def childArrayCounters(e : Elem) = {
+    val Elem(_, _, _, _, children @ _*) = e
+    val labels = children.map{_.label}
+    val groups = labels.groupBy{x=>x}
+    val counts = groups.map{ case (label, labelList) => (label, labelList.length)}
+    val arrayCounts = counts.filter{ case (label, 1) => false; case _ => true } // remove counters for scalars
+    val arrayCounters = arrayCounts.map{ case (label, _) => (label, 1.toLong)} // 1 based like XPath!
+    arrayCounters
+  }
+  
+  def computeDiffOne(as : Seq[Node], bs : Seq[Node], 
+      aCounters : Map[String, Long],
+      path : Seq[String]) : Seq[(String, String, String)] = {
+	  lazy val zPath = path.reverse.mkString("/") 
+      (as, bs) match {
+       case (a1 :: ars, b1 :: brs) if (a1.isInstanceOf[Elem] && b1.isInstanceOf[Elem]) => {
+        val (a : Elem, b : Elem) = (a1, b1)
+    	val Elem(_, labelA, _, _, childrenA @ _*) = a
+    	val Elem(_, labelB, _, _, childrenB @ _*) = b
+        if (labelA != labelB) List((zPath, a.toString, b.toString))
+        else {
+          val aIndex = aCounters.get(labelA)
+          val aIndexExpr =  aIndex.map{ n => labelA + "[" + n + "]"}
+          val newAIndex = aIndex.map{n => (labelA, n + 1)}
+          val newACounters = aCounters ++ newAIndex.toList
+          val pathStep =  aIndexExpr.getOrElse(labelA)
+          val aChildArrayCounters = childArrayCounters(a)
+          //
+          // Tricky induction here. For the rest of our peers, we must use newACounters
+          // But as we move across our children, we're using a new map, aChildArrayCounters.
+          //
+          val newPath = pathStep +: path
+          val childrenAList = childrenA.toList
+          val childrenBList = childrenB.toList
+          val childrenDiffs = 
+            computeDiffOne(childrenAList, childrenBList, aChildArrayCounters, newPath)
+          val subsequentPeerDiffs = computeDiffOne(ars, brs, newACounters, path)
+          val res = childrenDiffs ++ subsequentPeerDiffs
+          res
+          }
+        }
+      case (tA1 :: ars, tB1 :: brs) if (tA1.isInstanceOf[Text] && tB1.isInstanceOf[Text]) => {
+          val (tA : Text, tB : Text) = (tA1, tB1)
+    	  val thisDiff = computeTextDiff(zPath, tA, tB)
+    	  val restDiffs = computeDiffOne(ars, brs, aCounters, path)
+    	  val res = thisDiff ++ restDiffs
+    	  res
       }
       case (Nil, Nil) => Nil
-      // case (_, Nil) | (Nil, _) => List((zPath, as.toString, bs.toString))
-      case _ => List((zPath, as.toString, bs.toString))
+      case _ => {
+        List((zPath, as.toString, bs.toString))
+      }
     }
   }
 
-  def computeDiffPath(a : Node, b : Node, path : Seq[String]) : Seq[(String, String, String)] = {
-    lazy val zPath = path.reverse.mkString("/")
-    (a, b) match {
-      case (Elem(_, labelA, _, _, childrenA @ _*), Elem(_, labelB, _, _, childrenB @ _*)) => {
-        if (labelA != labelB) List((zPath, a.toString, b.toString))
-        else {
-          if (childrenA.length == childrenB.length) {
-            // recurse into children of Elem
-            val z = childrenA zip childrenB
-            val res = z.flatMap {
-              case (a, b) => {
-                computeDiffPath(a, b, labelA +: path)
-              }
-            }
-            res
-          } else {
-            // different lengths, so they're different, but where?
-            computeDiffSeqPath(childrenA, childrenB, labelA +: path)
+  def computeTextDiff(zPath : String, tA : Text, tB : Text) = {
+    val dataA = tA.toString
+    val dataB = tB.toString
+    def quoteIt(str : String) = "'" + str + "'"
+    if (dataA == dataB) Nil
+    else if (dataA.length != dataB.length) {
+      List((zPath, quoteIt(dataA), quoteIt(dataB)))
+    } else {
+      val ints = Stream.from(1).map { _.toString }
+      val z = dataA zip dataB zip ints
+      val res = z.flatMap {
+        case ((a1, b1), index) =>
+          if (a1 == b1) Nil
+          else {
+            val indexPath = zPath + ".charAt(" + index + ")"
+            List((indexPath, a1.toString, b1.toString))
           }
-        }
       }
-      case (tA : Text, tB : Text) => {
-        val dataA = tA.toString
-        val dataB = tB.toString
-        def quoteIt(str : String) = "'" + str + "'"
-        if (dataA == dataB) Nil
-        else if (dataA.length != dataB.length) {
-          List((zPath, quoteIt(dataA), quoteIt(dataB)))
-        } else {
-          val ints = Stream.from(0).map { _.toString }
-          val z = dataA zip dataB zip ints
-          val res = z.flatMap {
-            case ((a1, b1), index) =>
-              if (a1 == b1) Nil
-              else {
-                val indexPath = zPath + "[" + index + "]"
-                List((indexPath, a1.toString, b1.toString))
-              }
-          }
-          res
-        }
-      }
-      case _ => {
-        List((zPath, a.toString, b.toString))
-      }
+      res
     }
   }
 

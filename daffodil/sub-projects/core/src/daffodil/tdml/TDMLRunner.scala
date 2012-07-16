@@ -29,22 +29,11 @@ import daffodil.exceptions.Assert
  */
 
 //
-// TODO: plug in Daffodil API to run the tests.
-//
-// TODO: validate the TDML with the schema for TDML. (Temporarily just do this in eclipse using its validator)
-//
 // TODO: validate the infoset XML (expected result) against the DFDL Schema, that is using it as an XML Schema
 // for the infoset. This would prevent errors where the infoset instance and the schema drift apart under maintenance.
 //
 // TODO: validate the actual result against the DFDL Schema using it as an XML Schema. 
 //
-// TODO: add ability to embed the schema directly in the TDML file for a 100% self-contained test case. Note that
-// the schemas should not be inside the individual test cases, but instead should be separate top-level structures 
-// referenced from the test cases.
-//
-// TODO: Unparser variant. Inverts the whole thing by starting from the infoset, and constructing a document.
-// 
-
 /**
  * TDML test suite runner
  *
@@ -316,7 +305,8 @@ case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
     if (expected != actualNoAttrs) {
       val diffs = XMLUtils.computeDiff(expected, actualNoAttrs)
       //throw new Exception("Comparison failed. Expected: " + expected + " but got " + actualNoAttrs)
-      throw new Exception("Comparison failed. Differences were (path, expected, actual):\n" + diffs.map{_.toString}.mkString("\n"))
+      throw new Exception("Comparison failed.\nExpected %s\nActual %s\nDifferences were (path, expected, actual):\n %s".format(
+          expected.toString, actualNoAttrs.toString, diffs.map{_.toString}.mkString("\n")))
     }
   }
   

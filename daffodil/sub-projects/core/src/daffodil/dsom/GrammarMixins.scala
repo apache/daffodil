@@ -641,27 +641,25 @@ trait TermGrammarMixin { self: Term =>
   lazy val postfixSep = Prod("postfixSep", this, hasES && es.hasPostfixSep, sepRule)
   lazy val infixSep = Prod("infixSep", this, hasES && es.hasInfixSep, sepRule)
 
-  lazy val infixSepWithPriorRequiredSiblings = Prod("prefixSep", this,
-    es.hasInfixSep && hasPriorRequiredSiblings,
-    // always need an infix separator in this situation.
-    infixSep)
-
-  lazy val infixSepWithoutPriorRequiredSiblings = Prod("infixSepWithoutPriorRequiredSiblings", this,
-    es.hasInfixSep && !hasPriorRequiredSiblings && (position > 1 || !isScalar),
-    // runtime check for group pos such that we need a separator.
-    (GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this))
-  // FIXME: no backtrack to Nothing if infixSep not found.
-  // if the groupPos is > 1, then the infixSep must be found, otherwise fail. 
-  // The GroupPosGreaterThan(1) primitive can set a discriminator true, thereby turning off the alternative.
-
-  lazy val infixStaticallyFirst = Prod("infixStaticallyFirst", this,
-    es.hasInfixSep && position == 1 && isScalar && !hasPriorRequiredSiblings,
-    Nada(this))
+  lazy val isStaticallyFirst = {
+    es.hasInfixSep && 
+    this.positionInNearestEnclosingSequence == 1 && 
+    isScalar && 
+    !hasPriorRequiredSiblings
+  }
 
   lazy val infixSepRule = Prod("infixSepRule", this,
-    hasES && es.hasInfixSep,
-    infixStaticallyFirst | infixSepWithPriorRequiredSiblings | infixSepWithoutPriorRequiredSiblings)
-
+    hasES && es.hasInfixSep, 
+    if (isStaticallyFirst) Nada(this) // we're first, no infix sep.
+    else if (hasPriorRequiredSiblings) infixSep // always in this case
+    else if (positionInNearestEnclosingSequence > 1 || !isScalar) {
+    // runtime check for group pos such that we need a separator.
+    // Note that GroupPosGreaterThan(N,..) sets discriminator, so if it is true, and infixSep is not found, it won't
+    // backtrack and try nothing. Only if GroupPos is not greater than N will it backtrack.
+      (GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this)
+    }
+    else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this)
+    )
 }
 
 trait ModelGroupGrammarMixin

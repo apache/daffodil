@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="sequence" description="Tests for sequence construct"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+	xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="seqDelim">
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+		<xs:element name="ch1" dfdl:lengthKind="delimited">
+			<xs:complexType>
+					<xs:sequence dfdl:separator=",">
+				<xs:element name="inty" type="xs:int" />
+				<xs:element name="stringy" type="xs:string" />
+			    <xs:element name="inty2" type="xs:int" />
+			</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="seq1" root="ch1"
+		model="seqDelim" description="Different simple types in infix separated sequence.">
+
+		<tdml:document>
+			<tdml:documentPart type="text">999,AAA,777</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+						<ex:inty>999</ex:inty>
+						<ex:stringy>AAA</ex:stringy>
+						<ex:inty2>777</ex:inty2>
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+</tdml:testSuite>

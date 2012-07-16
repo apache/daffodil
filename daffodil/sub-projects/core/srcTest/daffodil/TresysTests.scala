@@ -1,16 +1,15 @@
 package daffodil
 
 import java.io.File
-
 import org.scalatest.junit.JUnit3Suite
 import junit.framework.Assert._
-
 import daffodil.xml.XMLUtils
 import daffodil.xml.XMLUtils._
 import scala.xml._
 import daffodil.dsom.Compiler
-
 import tdml.DFDLTestSuite
+import daffodil.util.LogLevel
+import daffodil.util.LoggingDefaults
 
 class TresysTests extends JUnit3Suite {
   val testDir = "test-suite/tresys-contributed/"
@@ -113,10 +112,25 @@ class TresysTests extends JUnit3Suite {
   val ch = testDir + "choice.tdml"
   val runnerCH= new DFDLTestSuite(new File(ch))
   def test_basicChoice() { runnerCH.runOneTest("basic")}
+  def test_choice2() { runnerCH.runOneTest("choice2")}
+  def test_choice3() { runnerCH.runOneTest("choice3")}
+  def test_choice4() { runnerCH.runOneTest("choice4") }
+  
+  def test_choice5() { runnerCH.runOneTest("choice5")}
+  def test_choice6() { runnerCH.runOneTest("choice6")}
+  def test_choiceFail1() { runnerCH.runOneTest("choiceFail1")}
+  def test_choiceDelim1() { 
+    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+    runnerCH.runOneTest("choiceDelim1")
+    }
   
   val rd = testDir + "runtime-diagnostics.tdml"
   val runnerRD = new DFDLTestSuite(new File(rd))
   runnerRD.setCheckEverything(true)
 
   def test_runtime_diagnostics1() { runnerRD.runOneTest("PE1")}
+  
+  val sq = testDir + "sequence.tdml"
+  val runnerSQ = new DFDLTestSuite(new File(sq))
+  def test_seq1() { runnerSQ.runOneTest("seq1")}
 }

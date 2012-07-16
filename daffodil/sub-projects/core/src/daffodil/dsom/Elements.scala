@@ -554,6 +554,8 @@ class GlobalElementDecl(xmlArg : Node, schemaDocumentArg : SchemaDocument, val e
   with GlobalComponentMixin
   with GlobalElementDeclGrammarMixin
   with WithDiagnostics {
+  
+  override val enclosingComponent = elementRef
 
   // We inherit the requirement for these attributes from Term. It all gets
   // too complicated in DSOM if you try to make GlobalElementDecl share with the other

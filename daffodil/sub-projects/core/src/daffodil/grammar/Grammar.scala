@@ -8,6 +8,8 @@ import daffodil.dsom.OOLAG._
 import daffodil.util.Debug
 
 abstract class Gram(val context: Term) extends DiagnosticsProviding {
+  
+  def deref = this
 
   val name = getNameFromClass(this)
   
@@ -17,23 +19,34 @@ abstract class Gram(val context: Term) extends DiagnosticsProviding {
   def isEmpty = false // they are by default not empty. Overridden in the cases where they could be.
 
   def ~(qq : => Gram) = {
-    val q = qq
-    if (q.isEmpty)
-      if (this.isEmpty) EmptyGram
-      else this
-    else if (this.isEmpty) q
-    else
-      new SeqComp(context, this, q)
+    val q = qq.deref
+    val self = this.deref
+    //
+    // The Nada terminal also behaves like empty for sequential composition
+    // It is not empty for alternative composition though.
+    //
+    if (q.isEmpty || q.isInstanceOf[Nada]) // Nada might get through to this point. Let's optimize it out.
+      if (self.isEmpty || self.isInstanceOf[Nada]) EmptyGram
+      else self
+    else if (self.isEmpty || self.isInstanceOf[Nada]) q
+    else {
+      Assert.invariant(!self.isInstanceOf[Nada])
+      Assert.invariant(!self.isEmpty)
+      Assert.invariant(!q.isInstanceOf[Nada])
+      Assert.invariant(!q.isEmpty)
+      new SeqComp(context, self, q)
+    }
   }
 
   def |(qq : => Gram) = {
-    val q = qq
+    val q = qq.deref
+    val self = this.deref
     if (q.isEmpty)
-      if (this.isEmpty) EmptyGram
-      else this
-    else if (this.isEmpty) q
+      if (self.isEmpty) EmptyGram
+      else self
+    else if (self.isEmpty) q
     else
-      new AltComp(context, this, q)
+      new AltComp(context, self, q)
   }
 
   /**
@@ -70,6 +83,8 @@ class SeqComp(context: Term, p : => Gram, q : => Gram) extends BinaryGram(contex
   def op = "~"
   def open = ""
   def close = ""
+    
+  Assert.invariant(!p.isInstanceOf[Nada])
 
   def parser = new SeqCompParser(context, p, q)
 }
@@ -170,6 +185,8 @@ abstract class Terminal(context : Term, guard : Boolean) extends NamedGram(conte
  */
 class Prod(nameArg : String, val sc : Term, guardArg : => Boolean, gramArg : => Gram)
   extends NamedGram(sc) {
+  
+  override def deref = gram
   
   def SDE(str : String, args : Any *) : Nothing = sc.SDE(str, args)
 

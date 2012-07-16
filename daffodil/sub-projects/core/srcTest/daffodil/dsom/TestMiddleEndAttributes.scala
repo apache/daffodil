@@ -117,6 +117,44 @@ class TestMiddleEndAttributes extends JUnit3Suite {
     assertTrue(s3.hasPriorRequiredSiblings)
     assertTrue(s4.hasPriorRequiredSiblings)
     assertTrue(s5.hasPriorRequiredSiblings)
+  }
+  
+  def testStaticallyFirstWithChoice {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+            <xs:choice>
+              <xs:element name="s1" type="xs:int"    dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+              <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+            </xs:choice>          
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val compiler = Compiler()
 
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    // Explore global element decl
+    val Seq(e1f) = sd.globalElementDecls
+    val e1 = e1f.forRoot()
+    val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
+    val seq = e1ct.modelGroup.asInstanceOf[Sequence]
+    val Seq(seqMem) = seq.groupMembers
+    val cho = seqMem.asInstanceOf[Choice]
+    val Seq(s1, s2) = cho.groupMembers
+    val es = s1.es
+    assertTrue(es.hasInfixSep)
+    assertEquals(1, s1.positionInNearestEnclosingSequence)
+    assertTrue(s1.isScalar)
+    assertTrue(!s1.hasPriorRequiredSiblings)
+    val es2 = s2.es
+    assertEquals(es, es2)
+    assertEquals(1, s2.positionInNearestEnclosingSequence)
+    assertTrue(s2.isScalar)
+    assertTrue(!s2.hasPriorRequiredSiblings)
   }
 }

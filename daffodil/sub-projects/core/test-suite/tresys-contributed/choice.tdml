@@ -40,4 +40,240 @@
 
 	</tdml:parserTestCase>
 
+
+	<tdml:defineSchema name="choice2">
+		<dfdl:format ref="ex:daffodilTest1" />
+
+		<xs:complexType name="ctype">
+			<xs:choice>
+				<xs:element name="inty" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+				<xs:element name="floaty" type="xs:float"
+					dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+				<xs:element name="stringy" type="xs:string"
+					dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+			</xs:choice>
+		</xs:complexType>
+
+		<xs:element name="ch1">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="">
+					<xs:element name="a" type="ex:ctype" dfdl:lengthKind="implicit"
+						maxOccurs="unbounded" minOccurs="0" dfdl:occursCountKind="parsed" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="choice2" root="ch1"
+		model="choice2" description="Many choices one after another. 3 way branches.">
+
+		<tdml:document>
+			<tdml:documentPart type="text">3.5AAA</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:a>
+						<ex:floaty>3.5</ex:floaty>
+					</ex:a>
+					<ex:a>
+						<ex:stringy>AAA</ex:stringy>
+					</ex:a>
+
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="choice3" root="ch1"
+		model="choice2" description="Many choices one after another. 3 way branches.">
+
+		<tdml:document>
+			<tdml:documentPart type="text">999888777</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:a>
+						<ex:inty>999</ex:inty>
+					</ex:a>
+					<ex:a>
+						<ex:inty>888</ex:inty>
+					</ex:a>
+					<ex:a>
+						<ex:inty>777</ex:inty>
+					</ex:a>
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="choice4" root="ch1"
+		model="choice2" description="Many choices one after another. 3 way branches.">
+
+		<tdml:document>
+			<tdml:documentPart type="text">3.54.65.7</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:a>
+						<ex:floaty>3.5</ex:floaty>
+					</ex:a>
+					<ex:a>
+						<ex:floaty>4.6</ex:floaty>
+					</ex:a>
+					<ex:a>
+						<ex:floaty>5.7</ex:floaty>
+					</ex:a>
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="choice5" root="ch1"
+		model="choice2" description="Many choices one after another. 3 way branches.">
+
+		<tdml:document>
+			<tdml:documentPart type="text">AAABBBCCC</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:a>
+						<ex:stringy>AAA</ex:stringy>
+					</ex:a>
+					<ex:a>
+						<ex:stringy>BBB</ex:stringy>
+					</ex:a>
+					<ex:a>
+						<ex:stringy>CCC</ex:stringy>
+					</ex:a>
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+
+	<tdml:parserTestCase name="choice6" root="ch1"
+		model="choice2" description="Many choices one after another. 3 way branches.">
+
+		<tdml:document>
+			<tdml:documentPart type="text">999AAA777</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:a>
+						<ex:inty>999</ex:inty>
+					</ex:a>
+					<ex:a>
+						<ex:stringy>AAA</ex:stringy>
+					</ex:a>
+					<ex:a>
+						<ex:inty>777</ex:inty>
+					</ex:a>
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="choiceSch3">
+		<dfdl:format ref="ex:daffodilTest1" />
+
+		<xs:element name="ch1" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator=",">
+					<xs:choice>
+						<xs:element name="inty" type="xs:int" 
+						    dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+						<xs:element name="floaty" type="xs:float"
+							dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+					</xs:choice>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="choiceFail1" root="ch1"
+		model="choiceSch3" description="Many choices one after another. 3 way branches.">
+
+		<tdml:document>
+			<tdml:documentPart type="text">AAA</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:errors>
+		    <tdml:error>Convert</tdml:error>
+		    <tdml:error>float</tdml:error>
+		    <tdml:error>int</tdml:error>
+			<tdml:error>Alternative failed</tdml:error>
+			<tdml:error>Both alternatives failed</tdml:error>
+		</tdml:errors>
+
+	</tdml:parserTestCase>
+	
+	
+	<tdml:defineSchema name="choiceDelim">
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+
+		<xs:complexType name="ctype">
+			<xs:choice>
+				<xs:element name="inty" type="xs:int"/>
+				<xs:element name="floaty" type="xs:float" />
+				<xs:element name="stringy" type="xs:string"/>
+			</xs:choice>
+		</xs:complexType>
+
+		<xs:element name="ch1">
+			<xs:complexType>
+				<xs:sequence dfdl:separator=",">
+					<xs:element name="a" type="ex:ctype" 
+						maxOccurs="unbounded" minOccurs="0" 
+						dfdl:occursCountKind="parsed" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="choiceDelim1" root="ch1"
+		model="choiceDelim" description="Many choices one after another with delimited lengthKinds. 3 way branches.">
+
+		<tdml:document>
+			<tdml:documentPart type="text">3.5,AAA,999</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:a>
+						<ex:floaty>3.5</ex:floaty>
+					</ex:a>
+					<ex:a>
+						<ex:stringy>AAA</ex:stringy>
+					</ex:a>
+					<ex:a>
+					    <ex:inty>999</ex:inty>
+					</ex:a>
+
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
 </tdml:testSuite>
