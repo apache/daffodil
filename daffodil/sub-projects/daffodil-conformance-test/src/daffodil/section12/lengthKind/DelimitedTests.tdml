@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="DelimitedTests" description="Section 12 - lengthKind=delimited"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="lengthKindDelimited-Embedded.dfdl.xsd">
+		
+		
+			<dfdl:format lengthKind="delimited" lengthUnits="bytes" encoding="UTF-8" separator="" initiator="" terminator=""
+		       		occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" />
+		
+		<xs:element name="NS_01">
+		<xs:complexType>
+			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+				dfdl:separator="," dfdl:separatorPolicy="suppressed" dfdl:terminator="%NL;">
+				<xs:element name="num" type="xs:int" maxOccurs="unbounded"/>	
+			</xs:sequence>
+		</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="NS_03">
+		<xs:complexType>
+			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+				dfdl:separator="," dfdl:separatorPolicy="suppressed">
+				<xs:element name="num" type="xs:int" maxOccurs="unbounded"/>	
+			</xs:sequence>
+		</xs:complexType>
+		</xs:element>
+		
+	      <xs:element name="NS_04" dfdl:lengthKind="implicit">
+	        <xs:complexType>
+	          <xs:sequence>
+	            <xs:element name="num1" type="xs:int" dfdl:lengthKind="delimited" maxOccurs="unbounded" dfdl:terminator=";"/>
+	            <xs:element name="num2" type="xs:int" dfdl:lengthKind="delimited" dfdl:terminator="."/>
+	          </xs:sequence>
+	        </xs:complexType>
+	      </xs:element>
+		
+		<xs:element name="e_01" type="error01Type" dfdl:lengthKind="implicit"/>
+		<xs:complexType name="error01Type">
+			<xs:sequence dfdl:separator="%NL;" dfdl:separatorPolicy="suppressed">
+				<xs:element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
+					<xs:complexType>
+						<xs:sequence dfdl:separator=",">
+							<xs:element name="cell" type="xs:int" minOccurs="4" maxOccurs="unbounded" dfdl:textNumberRep="standard"
+								dfdl:lengthKind="delimited" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+		
+		<xs:element name="matrix" type="matrixType" dfdl:lengthKind="implicit"/>
+		<xs:complexType name="matrixType">
+			<xs:sequence dfdl:separator="%NL;">
+				<xs:element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
+					<xs:complexType>
+						<xs:sequence dfdl:separator=",">
+							<xs:element name="cell" type="xs:int" minOccurs="4" maxOccurs="unbounded" dfdl:textNumberRep="standard"
+								dfdl:lengthKind="delimited" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+		
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="length_delimited_12_02" root="myStringSeq1"
+		model="dpaextdeltxt101.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
+
+		<tdml:document>abcd~efgh@</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<myStringSeq1>
+				<Test1>abcd</Test1>
+				<Test2>efgh</Test2>
+				</myStringSeq1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="length_delimited_12_03"
+		 model="dpaextdeltxt101.dfdl.xsd" description="Section 12.3 length -delimited - parent terminator - DFDL-12-043R"
+		 root="myStringSeq2">
+		 <tdml:document>abcde;</tdml:document>
+		 <tdml:infoset>
+		  <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		  <myStringSeq2>
+		    <Test1>abcde</Test1>
+		  </myStringSeq2>
+		</tdml:dfdlInfoset>
+		</tdml:infoset>
+	 </tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="multiple_delimiters"
+		 model="dpaextdeltxt101.dfdl.xsd" description="Section 12.3 multiple terminators DFDL-12-033R"
+		 root="myStringSeq3">
+		 <tdml:document>abcde|fghij|klmno::</tdml:document>
+		 <tdml:infoset>
+		  <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		  <myStringSeq3>
+		    <element1>abcde</element1>
+		    <element2>fghij</element2>
+		    <element3>klmno</element3>
+		  </myStringSeq3>
+		</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+ 
+	<tdml:parserTestCase name="NumSeq_01" root="NS_01"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-038R">
+
+		<tdml:document>1,2,3,4,5,6
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<NS_01>
+					<num>1</num>
+					<num>2</num>
+					<num>3</num>
+					<num>4</num>
+					<num>5</num>
+					<num>6</num>
+				</NS_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="NumSeq_03" root="NS_03"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-045R">
+
+		<tdml:document>1,2,3,4,5,6</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<NS_03>
+					<num>1</num>
+					<num>2</num>
+					<num>3</num>
+					<num>4</num>
+					<num>5</num>
+					<num>6</num>
+				</NS_03>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="NumSeq_04" root="NS_04"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-042R">
+
+		<tdml:document>1;2;3;4;5;6.</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<NS_04>
+					<num1>1</num1>
+					<num1>2</num1>
+					<num1>3</num1>
+					<num1>4</num1>
+					<num1>5</num1>
+					<num2>6</num2>
+				</NS_04>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="introduction_1_02" root="root"
+		model="dpaspc121_02.dfdl.xsd"
+		description="Section 12 lengthKind-delimited - DFDL-12-038R">
+
+		<tdml:document>5,7839372,8.6E-200,-7.1E8</tdml:document>
+
+		<tdml:infoset>
+	<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<root>
+					<w xsi:type="xs:int">5</w>
+					<x xsi:type="xs:int">7839372</x>
+					<y xsi:type="xs:double">8.6E-200</y>
+					<z xsi:type="xs:float">-7.1E8</z>
+				</root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+</tdml:testSuite>

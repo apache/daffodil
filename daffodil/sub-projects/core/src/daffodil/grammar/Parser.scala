@@ -283,6 +283,25 @@ class DataLoc(bitPos : Long, inStream : InStream) extends DataLocation {
 }
 
 /**
+ * A placeholder for holding the complete stream information so that it can be popped all at once when a new stream
+ * state is created
+ *
+ * @param inStream Input Data Stream
+ * @param bitLimit Total Bits available in given Data Stream
+ * @param charLimit Total UNICODE or given Character Set Characters in given Data Stream
+ * @param bitPos Current Read Position in given Data Stream
+ * @param charPos Current Read Character Position in UNICODE or a given Character Set for the given Data Stream
+ */
+class PStateStream(val inStream: InStream, val bitLimit: Long, val charLimit: Long = -1, val bitPos: Long = 0, val charPos: Long = -1) {
+  def withInStream(inStream: InStream, status: ProcessorResult = Success) =
+    new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)
+  def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) =
+    new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)
+  def withEndBitLimit(bitLimit: Long, status: ProcessorResult = Success) =
+    new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)
+}
+
+/**
  * A parser takes a state, and returns an updated state
  *
  * The fact that there are side-effects/mutations on parts of the state
@@ -293,19 +312,15 @@ class DataLoc(bitPos : Long, inStream : InStream) extends DataLocation {
  * which should be isolated to the alternative parser.
  */
 class PState(
-  val inStreamStack : Stack[InStream],
-  val bitPos : Long,
-  val bitLimit : Long,
-  val charPos : Long,
-  val charLimit : Long,
-  val parent : org.jdom.Element,
-  val variableMap : VariableMap,
-  val target : String,
-  val namespaces : Namespaces,
-  val status : ProcessorResult,
-  val groupIndexStack : List[Long],
-  val childIndexStack : List[Long],
-  val arrayIndexStack : List[Long],
+  val inStreamStateStack: Stack[PStateStream],
+  val parent: org.jdom.Element,
+  val variableMap: VariableMap,
+  val target: String,
+  val namespaces: Namespaces,
+  val status: ProcessorResult,
+  val groupIndexStack: List[Long],
+  val childIndexStack: List[Long],
+  val arrayIndexStack: List[Long],
   val diagnostics : List[Diagnostic],
   val discriminator : Boolean) {
   def bytePos = bitPos >> 3
@@ -313,39 +328,56 @@ class PState(
   def groupPos = groupIndexStack.head
   def childPos = childIndexStack.head
   def currentLocation : DataLocation = new DataLoc(bitPos, inStream)
+  def inStreamState = inStreamStateStack top
+  def inStream = inStreamState inStream
+  def bitPos = inStreamState bitPos
+  def bitLimit = inStreamState bitLimit
+  def charPos = inStreamState charPos
+  def charLimit = inStreamState charLimit
 
-  def inStream = inStreamStack top
-  /**
+/**
    * Convenience functions for creating a new state, changing only
    * one or a related subset of the state components to a new one.
    */
-  def withInStream(inStream : InStream, status : ProcessorResult = Success) =
-    new PState(inStreamStack push (inStream), bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
-  def withLastInStream(status : ProcessorResult = Success) = {
-    inStreamStack pop ()
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
-  }
-  def withPos(bitPos : Long, charPos : Long, status : ProcessorResult = Success) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
-  def withEndBitLimit(bitLimit : Long, status : ProcessorResult = Success) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
-  def withParent(parent : org.jdom.Element, status : ProcessorResult = Success) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
-  def withVariables(variableMap : VariableMap, status : ProcessorResult = Success) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
-  def withGroupIndexStack(groupIndexStack : List[Long], status : ProcessorResult = Success) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
-  def withChildIndexStack(childIndexStack : List[Long], status : ProcessorResult = Success) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
-  def withArrayIndexStack(arrayIndexStack : List[Long], status : ProcessorResult = Success) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
-  def failed(msg : => String) : PState =
-    failed(new GeneralParseFailure(msg))
-  def failed(failureDiagnostic : Diagnostic) =
-    new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics, discriminator)
 
+  def withInStreamState(inStreamState: PStateStream, status: ProcessorResult = Success) =
+    new PState(inStreamStateStack push(inStreamState), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  def withInStream(inStream: InStream, status: ProcessorResult = Success) =
+    new PState(inStreamStateStack push(new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  def withLastInStream(status: ProcessorResult = Success) = {
+    var lastBitPos = bitPos
+    var lastCharPos = if (charPos > 0) charPos else 0
+    inStreamStateStack pop()
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator) withPos(bitPos + lastBitPos, charPos + lastCharPos)
+  }
+  def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) = {
+    var newInStreamStateStack = inStreamStateStack clone()
+    newInStreamStateStack pop()
+    newInStreamStateStack push(new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos))
+    new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  }
+  def withEndBitLimit(bitLimit: Long, status: ProcessorResult = Success) = {
+    var newInStreamStateStack = inStreamStateStack clone()
+    newInStreamStateStack pop()
+    newInStreamStateStack push(new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos))
+    new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  }
+  def withParent(parent: org.jdom.Element, status: ProcessorResult = Success) =
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  def withVariables(variableMap: VariableMap, status: ProcessorResult = Success) =
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  def withGroupIndexStack(groupIndexStack: List[Long], status: ProcessorResult = Success) =
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  def withChildIndexStack(childIndexStack: List[Long], status: ProcessorResult = Success) =
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  def withArrayIndexStack(arrayIndexStack: List[Long], status: ProcessorResult = Success) =
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  def failed(msg: => String) : PState =
+    failed(new GeneralParseFailure(msg))
+  def failed(failureDiagnostic: Diagnostic) =
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics, discriminator)
   def withDiscriminator(disc : Boolean) = 
-     new PState(inStreamStack, bitPos, bitLimit, charPos, charLimit, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, disc)
+     new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, disc)
   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.
    *
@@ -411,7 +443,7 @@ object PState {
     val arrayIndexStack = Nil
     val diagnostics = Nil
     val discriminator = false
-    val newState = new PState(Stack(inStream), 0, -1, 0, -1, doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    val newState = new PState(Stack(new PStateStream(inStream, 0, -1, 0, -1)), doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
     newState
   }
 
@@ -449,7 +481,9 @@ trait InStream {
   //  def getBinaryLong(bitOffset : Long,  isBigEndian : Boolean) : Long
   //  def getBinaryInt(bitOffset : Long,  isBigEndian : Boolean) : Int
 
-  def fillCharBuffer(buf : CharBuffer, bitOffset : Long, decoder : CharsetDecoder) : Long
+
+  def fillCharBuffer(buf: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): Long
+  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, endByte: Long = -1): (Long, Boolean)
 
   def getInt(bitPos : Long, order : java.nio.ByteOrder) : Int
   def getDouble(bitPos : Long, order : java.nio.ByteOrder) : Double
@@ -542,11 +576,13 @@ class InStreamFromByteChannel(context : ElementBase, in : DFDL.Input, sizeHint :
 
   import SearchResult._
   import stringsearch.delimiter._
-  def fillCharBufferUntilDelimiterOrEnd(cb : CharBuffer, bitOffset : Long,
-    decoder : CharsetDecoder, separators : Set[String], terminators : Set[String],
-    es : EscapeSchemeObj) : (String, Long, SearchResult, Delimiter) = {
 
-    val me : String = "fillCharBufferUntilDelimiterOrEnd - "
+  def fillCharBufferUntilDelimiterOrEnd(cb: CharBuffer, bitOffset: Long, 
+      decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
+      es: EscapeSchemeObj): (String, Long, SearchResult, Delimiter) = {
+   // setLoggingLevel(LogLevel.Debug)
+    
+    val me: String = "fillCharBufferUntilDelimiterOrEnd - "
     log(Debug("BEG_fillCharBufferUntilDelimiterOrEnd"))
 
     val byteOffsetAsLong = (bitOffset >> 3)
@@ -569,6 +605,8 @@ class InStreamFromByteChannel(context : ElementBase, in : DFDL.Input, sizeHint :
 
     //println("START_CB: " + cb.toString())
 
+    log(Debug(me + "Looking for: " + separators + " and terminators: " + terminators))
+    
     dSearch.setEscapeScheme(es)
 
     separators foreach {
@@ -732,21 +770,27 @@ class InStreamFromByteChannel(context : ElementBase, in : DFDL.Input, sizeHint :
     val list : Queue[Byte] = Queue.empty
     for (i <- 0 to N - 1) {
       list += array(i).toByte
+//      System.err.println(array(i).toByte.toHexString)
     }
+//    System.err.println
     val cb = decoder.decode(ByteBuffer.wrap(list.toArray[Byte]))
     cb
   }
 
-  def decodeUntilFail(bytesArray : Array[Byte], decoder : CharsetDecoder, endByte : Int) : (CharBuffer, Int) = {
-    var cbFinal : CharBuffer = CharBuffer.allocate(1)
-    var cbPrev : CharBuffer = CharBuffer.allocate(1)
-    var numBytes : Int = 1
+  
+  def decodeUntilFail(bytesArray: Array[Byte], decoder: CharsetDecoder, endByte: Long): (CharBuffer, Long) = {
+    var cbFinal: CharBuffer = CharBuffer.allocate(1)
+    var cbPrev: CharBuffer = CharBuffer.allocate(1)
+    var numBytes: Int = 1
+
     while (numBytes <= endByte) {
       try {
         cbPrev = decodeNBytes(numBytes, bytesArray, decoder)
         cbFinal = cbPrev
       } catch {
-        case e : Exception => log(Debug("Exception in decodeUntilFail: " + e.toString()))
+
+        case e: Exception => //log(Debug("Exception in decodeUntilFail: " + e.toString()))
+
       }
       numBytes += 1
     }
@@ -755,8 +799,9 @@ class InStreamFromByteChannel(context : ElementBase, in : DFDL.Input, sizeHint :
 
   // Fills the CharBuffer with as many bytes as can be decoded successfully.
   //
-  def fillCharBufferMixedData(cb : CharBuffer, bitOffset : Long, decoder : CharsetDecoder) : (Long, Boolean) = {
 
+  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, numBytes: Long = -1): (Long, Boolean) = {
+    
     //TODO: Mike, how do we call these asserts now? Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
     val byteOffsetAsLong = (bitOffset >> 3)
     //TODO: Mike, how do we call these asserts now? Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
@@ -784,12 +829,21 @@ class InStreamFromByteChannel(context : ElementBase, in : DFDL.Input, sizeHint :
     // Ends at ByteBuffer limit in Bytes minus the offset
     bb.get(byteArray, 0, (bb.limit - byteOffset))
 
-    var (result : CharBuffer, bytesDecoded : Int) = decodeUntilFail(byteArray, decoder, bb.limit())
-
-    if (bytesDecoded == 0) { return (-1L, true) }
-
+    
+    var endAtByte = numBytes
+    
+    if (endAtByte == -1){ endAtByte = bb.limit}
+    
+    System.err.println("endAtByte: " + endAtByte)
+    
+    var (result:CharBuffer, bytesDecoded: Long) = decodeUntilFail(byteArray, decoder, endAtByte)
+    
+    if (bytesDecoded == 0){ return (-1L, true) }
+    
     log(Debug("MixedDataResult: BEG_" + result + "_END , bytesDecoded: " + bytesDecoded))
 
+    System.err.println("MixedDataResult: BEG_" + result + "_END , bytesDecoded: " + bytesDecoded)
+  
     cb.clear()
     cb.append(result)
 
@@ -811,9 +865,11 @@ class InStreamFromByteChannel(context : ElementBase, in : DFDL.Input, sizeHint :
 
   // Read the delimiter if possible off of the ByteBuffer
   //
-  def getDelimiter(cb : CharBuffer, bitOffset : Long,
-    decoder : CharsetDecoder, separators : Set[String], terminators : Set[String],
-    es : EscapeSchemeObj) : (String, Long, Long, SearchResult, Delimiter) = {
+
+  def getDelimiter(cb: CharBuffer, bitOffset: Long, 
+      decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
+      es: EscapeSchemeObj): (String, Long, Long, SearchResult, Delimiter) = {
+    setLoggingLevel(LogLevel.Debug)
 
     log(Debug("BEG_getDelimiter"))
 
@@ -847,13 +903,13 @@ class InStreamFromByteChannel(context : ElementBase, in : DFDL.Input, sizeHint :
     terminators foreach { x => dSearch.addTerminator(x) }
 
     var (theState, result, endPos, endPosDelim, theDelimiter) = dSearch.search(buf, 0)
-
-    if (theDelimiter == null) { return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
-
-    log(Debug("theDelimiter: " + theDelimiter.typeDef))
-
-    if (theDelimiter.typeDef == DelimiterType.Terminator) { return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
-
+    
+    if (theDelimiter == null){ return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
+    
+    log(Debug("theDelimiter: " + theDelimiter.toString() + " theState: " + theState))
+    
+    //if (theDelimiter.typeDef == DelimiterType.Terminator) { return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
+    
     if (theState == SearchResult.FullMatch) {
       sb.append(result)
     }
@@ -911,8 +967,9 @@ class InStreamFromByteChannel(context : ElementBase, in : DFDL.Input, sizeHint :
     log(Debug(me + "Ended at BytePos: " + (byteOffset + resNumBytes)))
     log(Debug(me + "Ended at bitPos: " + endBitPosA))
     log(Debug("END_getDelimiter"))
+    
+    if (endPos != -1 && endPosDelim != -1){ (cb.subSequence(endPos, endPosDelim+1).toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
 
-    if (endPos != -1 && endPosDelim != -1) { (cb.subSequence(endPos, endPosDelim).toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
     else { (cb.toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
   }
 

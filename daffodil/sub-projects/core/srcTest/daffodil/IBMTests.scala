@@ -19,6 +19,16 @@ class IBMTestsThatPass extends JUnit3Suite {
   def test_encoding_11_02() { runner1.runOneTest("encoding_11_02") }
   def test_encoding_11_03() { runner1.runOneTest("encoding_11_03") }
   def test_length_implicit_12_01() { runner1.runOneTest("length_implicit_12_01") }
+  
+  def test_syntax_entities_6_01() { runner1.runOneTest("syntax_entities_6_01") }
+  def test_syntax_entities_6_02() { runner1.runOneTest("syntax_entities_6_02") }
+  def test_syntax_entities_6_03() { runner1.runOneTest("syntax_entities_6_03") }
+  
+  def test_length_delimited_12_02() { runner1.runOneTest("length_delimited_12_02") }
+  def test_length_delimited_12_03() { runner1.runOneTest("length_delimited_12_03") }
+  
+  def test_delimiter_12_03() { runner1.runOneTest("delimiter_12_03") }
+  def test_delimiter_12_04() { runner1.runOneTest("delimiter_12_04") }
     
 }
 
@@ -46,9 +56,7 @@ class IBMTestsThatThrow extends JUnit3Suite {
   def test_schema_types_5_03() { runner1.runOneTest("schema_types_5_03") }
   def test_schema_types_5_04() { runner1.runOneTest("schema_types_5_04") }
   def test_schema_types_5_05() { runner1.runOneTest("schema_types_5_05") }
-  def test_syntax_entities_6_01() { runner1.runOneTest("syntax_entities_6_01") }
-  def test_syntax_entities_6_02() { runner1.runOneTest("syntax_entities_6_02") }
-  def test_syntax_entities_6_03() { runner1.runOneTest("syntax_entities_6_03") }
+  
   def test_syntax_entities_6_04() { runner1.runOneTest("syntax_entities_6_04") }
   def test_property_syntax_7_01() { runner1.runOneTest("property_syntax_7_01") }
   def test_property_syntax_7_02() { runner1.runOneTest("property_syntax_7_02") }
@@ -68,13 +76,11 @@ class IBMTestsThatThrow extends JUnit3Suite {
   def test_alignment_bytes_12_06() { runner1.runOneTest("alignment_bytes_12_06") }
   def test_delimiter_12_01() { runner1.runOneTest("delimiter_12_01") }
   def test_delimiter_12_02() { runner1.runOneTest("delimiter_12_02") }
-  def test_delimiter_12_03() { runner1.runOneTest("delimiter_12_03") }
-  def test_delimiter_12_04() { runner1.runOneTest("delimiter_12_04") }
+  
   def test_length_explicit_12_01() { runner1.runOneTest("length_explicit_12_01") }
   def test_length_explicit_12_02() { runner1.runOneTest("length_explicit_12_02") }
   def test_length_delimited_12_01() { runner1.runOneTest("length_delimited_12_01") }
-  def test_length_delimited_12_02() { runner1.runOneTest("length_delimited_12_02") }
-  def test_length_delimited_12_03() { runner1.runOneTest("length_delimited_12_03") }
+  
   def test_length_delimited_12_04() { runner1.runOneTest("length_delimited_12_04") }
   def test_length_delimited_12_05() { runner1.runOneTest("length_delimited_12_05") }
   def test_length_delimited_12_06() { runner1.runOneTest("length_delimited_12_06") }
