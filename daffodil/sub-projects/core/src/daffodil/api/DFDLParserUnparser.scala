@@ -99,5 +99,8 @@ object DFDL {
   
   trait UnparseResult extends WithDiagnostics 
 
+  abstract class State {
+    def currentLocation : DataLocation
+  }
 }
 

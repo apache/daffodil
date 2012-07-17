@@ -41,7 +41,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="AN000" root="path" model="AN-Embedded.dfdl.xsd"
-		description="Tests lenthKind delimited - DFDL-12-038R.">
+		description="Tests lenthKind delimited - DFDL-12-042R.">
 
 		<tdml:document>folder1/folder2/folder3/file_name
 		</tdml:document>
@@ -60,7 +60,7 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	<tdml:parserTestCase name="AN001" root="path" model="AN-Embedded.dfdl.xsd"
-		description="Tests lenthKind delimited - DFDL-12-038R">
+		description="Tests lenthKind delimited - DFDL-12-042R">
 
 		<tdml:document>folder1/folder2/folder3/</tdml:document>
 

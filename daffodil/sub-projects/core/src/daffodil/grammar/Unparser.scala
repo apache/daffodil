@@ -25,6 +25,7 @@ import daffodil.exceptions.ThrowsSDE
 import java.io.ByteArrayOutputStream
 import scala.collection.mutable.Stack
 
+
 class UnparseError(sc: SchemaComponent, ustate: UState, kind: String, args: Any*) extends ProcessingError {
   def isError = true
   def getSchemaLocations = List(sc)
@@ -100,41 +101,82 @@ class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
   val pUnparser = p.unparser
   val qUnparser = q.unparser
   def unparse(ustate: UState) = {
-
-    // TODO: capture current Infoset node (make a shallow copy of it)
-    // restoring this later (literally, clobbering the parent to point to 
-    // this copy), is the way we backtrack the side-effects on the Infoset.
-    //
-    // TBD: better Scala idiom for try/catch than this var stuff
-    // Use of var makes this code non-thread-safe. If you can avoid var, then you
-    // don't have to worry about multiple threads at all.
-    var pResult: UState = null
-
     val numChildrenAtStart = ustate.currentElement.getChildren().length
-
-    try {
-      pResult = pUnparser.unparse(ustate)
-    } catch {
-      case e: Exception => {
-        // TODO: we need to record the problem so that we can
-        // use it as a diagnostic in case the other alternative also fails.
+    var pResult : UState =
+           try {
+        log(Debug("Trying choice alternative: %s", pUnparser))
+        pUnparser.unparse(ustate)
+      } catch {
+        case e : Exception => {
+          Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
+        }
       }
+    if (pResult.status == Success) {
+      log(Debug("Choice alternative success: %s", pUnparser))
+      // Reset any discriminator. We succeeded.
+      val res = if (pResult.discriminator) pResult.withDiscriminator(false)
+                else pResult
+          res
     }
-
-    if (pResult != null && pResult.status == Success) pResult
     else {
+      log(Debug("Choice alternative failed: %s", pUnparser))
+
       // Unwind any side effects on the Infoset 
       val lastChildIndex = ustate.currentElement.getChildren().length
       if (lastChildIndex > numChildrenAtStart) {
         ustate.currentElement.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
       }
-      // TODO: check for discriminator evaluated to true.
-      // If so, then we don't run the next alternative, we
-      // consume this discriminator status result (so it doesn't ripple upward)
-      // and return the failed state.
       //
-      val qResult = qUnparser.unparse(ustate)
-      qResult
+      // check for discriminator evaluated to true.
+      if (pResult.discriminator == true) {
+        log(Debug("Failure, but discriminator true. Additional alternatives discarded."))
+        // If so, then we don't run the next alternative, we
+        // consume this discriminator status result (so it doesn't ripple upward)
+        // and return the failed state. 
+        //
+        pResult.withDiscriminator(false)
+      }
+      
+      val qResult = try {
+        log(Debug("Trying choice alternative: %s", qUnparser))
+        qUnparser.unparse(ustate)
+      } catch {
+        case e : Exception => {
+          Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
+        }
+      }
+      if (qResult.status == Success) {
+        log(Debug("Choice alternative success: %s", qUnparser))
+        val res = if (qResult.discriminator) qResult.withDiscriminator(false)
+        else qResult
+        res
+      }
+      else {
+        log(Debug("Choice alternative failure: %s", qUnparser))
+        // Unwind any side effects on the Infoset 
+        val lastChildIndex = ustate.currentElement.getChildren().length
+        if (lastChildIndex > numChildrenAtStart) {
+          ustate.currentElement.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
+        }
+        
+      // check for discriminator evaluated to true. But just FYI since this is the last alternative anyway
+      if (qResult.discriminator == true) {
+        log(Debug("Failure, but discriminator true. (last alternative anyway)"))
+      }
+        // Since both alternatives failed, we create two meta-diagnostics that 
+        // each indicate that one alternative failed due to the errors that occurred during
+        // that attempt.
+
+        val pAltErr = new AlternativeFailed(context, ustate, pResult.diagnostics)
+        val qAltErr = new AlternativeFailed(context, ustate, qResult.diagnostics)
+        val altErr = new AltParseFailed(context, ustate, pAltErr, qAltErr)
+
+        val bothFailedResult = ustate.failed(altErr)
+        log(Debug("Both AltParser alternatives failed."))
+
+        val result = UE(bothFailedResult, "Both alternatives failed.")
+        result.withDiscriminator(false)
+      }
     }
   }
 
@@ -227,7 +269,8 @@ class UState(
   val groupIndexStack: List[Long],
   val childIndexStack: List[Long],
   val arrayIndexStack: List[Long],
-  val diagnostics: List[Diagnostic]) {
+  val diagnostics : List[Diagnostic],
+  val discriminator : Boolean) extends DFDL.State {
   def bytePos = bitPos >> 3
   def whichBit = bitPos % 8
   def groupPos = groupIndexStack.head
@@ -239,23 +282,25 @@ class UState(
    * one or a related subset of the state components.
    */
   //  def withOutStream(outStream: OutStream, status: ProcessorResult = Success) =
-  //    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit,variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+  //    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit,variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   //  def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) =
-  //    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+  //    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def withCurrent(currentElement: org.jdom.Element, status: ProcessorResult = Success) =
-    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   //  def withVariables(variableMap: VariableMap, status: ProcessorResult = Success) =
-  //    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+  //    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def withGroupIndexStack(groupIndexStack: List[Long], status: ProcessorResult = Success) =
-    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def withChildIndexStack(childIndexStack: List[Long], status: ProcessorResult = Success) =
-    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def withArrayIndexStack(arrayIndexStack: List[Long], status: ProcessorResult = Success) =
-    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  def withDiscriminator(discriminator : Boolean) = 
+     new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def failed(msg: => String): UState =
     failed(new GeneralUnparseFailure(msg))
   def failed(failureDiagnostic: Diagnostic) =
-    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics)
+    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics, discriminator)
 
   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.
@@ -325,7 +370,8 @@ object UState {
     val childIndexStack = Nil
     val arrayIndexStack = Nil
     val diagnostics = Nil
-    val newState = new UState(out, infoset, root, root, rootName, 0, -1, 0, -1, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics)
+    val discriminator = false
+    val newState = new UState(out, infoset, root, root, rootName, 0, -1, 0, -1, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
     newState
   }
 

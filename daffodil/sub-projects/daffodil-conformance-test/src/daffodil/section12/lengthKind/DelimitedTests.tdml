@@ -113,7 +113,7 @@
 	</tdml:parserTestCase>
  
 	<tdml:parserTestCase name="NumSeq_01" root="NS_01"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-038R">
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
 
 		<tdml:document>1,2,3,4,5,6
 		</tdml:document>
@@ -169,7 +169,7 @@
 	
 	<tdml:parserTestCase name="introduction_1_02" root="root"
 		model="dpaspc121_02.dfdl.xsd"
-		description="Section 12 lengthKind-delimited - DFDL-12-038R">
+		description="Section 12 lengthKind-delimited - DFDL-12-043R">
 
 		<tdml:document>5,7839372,8.6E-200,-7.1E8</tdml:document>
 

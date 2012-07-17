@@ -28,6 +28,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="withManyErrors1">
+		<dfdl:format initiator="" />
 		<xs:element name="err1" type="xs:int" />
 		<xs:element name="err1" type="xs:string" />
 	</tdml:defineSchema>
@@ -47,6 +48,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="withManyErrors2">
+	    <dfdl:format initiator="" />
 		<xs:element name="v1" type="xs:int" />
 		<xs:element name="v2" type="xs:string" />
 		<xs:element name="err1">

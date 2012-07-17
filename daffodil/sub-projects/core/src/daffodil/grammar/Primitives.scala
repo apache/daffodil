@@ -445,11 +445,16 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
   protected def getNum(s: Number): S
   protected val GramName = "number"
   protected val GramDescription = "Number"
+  override def toString = "to(xs:" + GramName + ")"
+  
+  protected def numFormat : NumberFormat 
+  protected def isInt : Boolean
+  
   protected def isInvalidRange(n: S): Boolean = false
 
   def parser: Parser = new Parser(e) {
-    override def toString = "ConvertTextNumberPrimParser"
-
+    override def toString = "to(xs:" + GramName + ")"
+    
     def parse(start: PState): PState = {
       val node = start.parent
       var str = node.getText
@@ -464,28 +469,38 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
         if (str == "") return PE(start, "Convert to %s (for xs:%s): Cannot parse number from empty string", GramDescription, GramName)
 
         // Need to use Decimal Format to parse even though this is an Integral number
-        val df = new DecimalFormat()
+        val df = numFormat
         val pos = new ParsePosition(0)
-        val num = df.parse(str, pos)
-
-        // Verify that what was parsed was what was passed exactly in byte count.  Use pos to verify all characters consumed & check for errors!
-        if (pos.getIndex != str.length) {
-          // log(Debug("Error: Unable to parse all characters from " + GramDescription + ": " + str + "\n"))
-          return PE(start, "Convert to %s (for xs:%s): Unable to parse all characters from: %s", GramDescription, GramName, str)
+        val num = try {
+          df.parse(str, pos)
+        } catch { case e : Exception => 
+          return PE(start, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
+              GramDescription, GramName, str, e)
+              
         }
 
-        // Assume long as the most precision
+        // Verify that what was parsed was what was passed exactly in byte count.  
+        // Use pos to verify all characters consumed & check for errors!
+        if (pos.getIndex != str.length) {
+          return PE(start, "Convert to %s (for xs:%s): Unable to parse '%s' (using up all characters).", 
+              GramDescription, GramName, str)
+        }
+        
+        // convert to proper type
         val asNumber = getNum(num)
 
         // Verify no digits lost (the number was correctly transcribed)
-        if (asNumber.asInstanceOf[Number] != num || isInvalidRange(asNumber)) {
+        if (isInt && asNumber.asInstanceOf[Number] != num) {
           // Transcription error
-          // log(Debug("Error: Invalid " + GramDescription + ": " + str + "\n"))
-          return PE(start, "Convert to %s (for xs:%s): Invalid data.", GramDescription, GramName, str)
-        } else {
-          log(Debug("Adding text " + asNumber.toString))
-          node.setText(asNumber.toString)
-        }
+          return PE(start, "Convert to %s (for xs:%s): Invalid data: '%s' parsed into %s, which converted into %s.", 
+              GramDescription, GramName, str, num, asNumber)
+        } 
+        if (isInvalidRange(asNumber)){
+          return PE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.", 
+              GramDescription, GramName, str, asNumber)
+        } 
+        node.setText(asNumber.toString)
+
         start
       } // catch { case e: Exception => start.failed("Failed to convert %s to an xs:%s" + GramName) }
 
@@ -494,7 +509,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
   }
 
   def unparser: Unparser = new Unparser(e) {
-    override def toString = "ConvertTextNumberPrimUnparser"
+    override def toString = "to(xs:" + GramName + ")"
 
     /*
        * Converts data to number format.
@@ -509,96 +524,130 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
 
           if (str == "") return UE(start, "Convert to %s (for xs:%s): Cannot unparse number from empty string", GramDescription, GramName)
 
-          // Need to use Decimal Format to parse even though this is an Integral number
-          val df = new DecimalFormat()
+          // Need to use Decimal Format to unparse even though this is an Integral number
+          val df = numFormat
           val pos = new ParsePosition(0)
-          val num = df.parse(str, pos)
+        val num = try {
+          df.parse(str, pos)
+        } catch { case e : Exception => 
+          return UE(start, "Convert to %s (for xs:%s): Unparse of '%s' threw exception %s",
+              GramDescription, GramName, str, e)
+        }
 
-          // Verify that what was unparsed was what was passed exactly in byte count.  Use pos to verify all characters consumed & check for errors!
-          if (pos.getIndex != str.length) {
-            //          log(Debug("Error: Unable to unparse all characters from " + GramDescription + ": " + str + "\n"))
-            return UE(start, "Convert to %s (for xs:%s): Unable to parse all characters from: %s", GramDescription, GramName, str)
-          }
+        // Verify that what was parsed was what was passed exactly in byte count.  
+        // Use pos to verify all characters consumed & check for errors!
+        if (pos.getIndex != str.length) {
+          return UE(start, "Convert to %s (for xs:%s): Unable to unparse '%s' (using up all characters).", 
+              GramDescription, GramName, str)
+        }
+        
+        // convert to proper type
+        val asNumber = getNum(num)
 
-          // Assume long as the most precision
-          val asNumber = getNum(num)
-
-          // Verify no digits lost (the number was correctly transcribed)
-          if (asNumber.asInstanceOf[Number] != num || isInvalidRange(asNumber)) {
-            // Transcription error
-            //          log(Debug("Error: Invalid " + GramDescription + ": " + str + "\n"))
-            return UE(start, "Convert to %s (for xs:%s): Invalid data.", GramDescription, GramName, str)
-          } else {
+        // Verify no digits lost (the number was correctly transcribed)
+        if (isInt && asNumber.asInstanceOf[Number] != num) {
+          // Transcription error
+          return UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.", 
+              GramDescription, GramName, str, num, asNumber)
+        } 
+        if (isInvalidRange(asNumber)){
+          return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.", 
+              GramDescription, GramName, str, asNumber)
+        } 
             log(Debug("Adding text " + asNumber.toString))
             start.outStream.setData(asNumber.toString) //write modified number back to CharBuffer
-          }
-          start
-        } //catch { case e: Exception => start.failed("Failed to convert to an xs:" + GramName) }
+
+        start
+      } // catch { case e: Exception => start.failed("Failed to convert %s to an xs:%s" + GramName) }
 
       resultState
     }
   }
 }
 
-case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextNumberPrim[BigInteger](e, true) {
+abstract class ConvertTextIntegerNumberPrim[T](e : ElementBase, g : Boolean) 
+extends ConvertTextNumberPrim[T](e, g) {
+  override def numFormat = NumberFormat.getIntegerInstance()
+  override def isInt = true
+}
+
+abstract class ConvertTextFloatingPointNumberPrim[T](e : ElementBase, g : Boolean) 
+extends ConvertTextNumberPrim[T](e, g) {
+  override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
+  override def isInt = false
+}
+
+case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[BigInteger](e, true) {
   protected override def getNum(num: Number) = new BigInteger(num.toString)
   protected override val GramName = "integer"
   protected override val GramDescription = "Unbounded Integer"
 }
 
-case class ConvertTextLongPrim(e: ElementBase) extends ConvertTextNumberPrim[Long](e, true) {
+case class ConvertTextLongPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Long](e, true) {
   protected override def getNum(num: Number) = num.longValue
   protected override val GramName = "long"
   protected override val GramDescription = "Long Integer"
 }
 
-case class ConvertTextIntPrim(e: ElementBase) extends ConvertTextNumberPrim[Int](e, true) {
+case class ConvertTextIntPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Int](e, true) {
   protected override def getNum(num: Number) = num.intValue
   protected override val GramName = "int"
   protected override val GramDescription = "Integer"
 }
 
-case class ConvertTextShortPrim(e: ElementBase) extends ConvertTextNumberPrim[Short](e, true) {
+case class ConvertTextShortPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Short](e, true) {
   protected override def getNum(num: Number) = num.shortValue
   protected override val GramName = "short"
   protected override val GramDescription = "Short Integer"
 }
 
-case class ConvertTextBytePrim(e: ElementBase) extends ConvertTextNumberPrim[Byte](e, true) {
+case class ConvertTextBytePrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Byte](e, true) {
   protected override def getNum(num: Number) = num.byteValue
   protected override val GramName = "byte"
   protected override val GramDescription = "Byte"
 }
 
-case class ConvertTextUnsignedLongPrim(e: ElementBase) extends ConvertTextNumberPrim[BigInteger](e, true) {
+case class ConvertTextUnsignedLongPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[BigInteger](e, true) {
   protected override def getNum(num: Number) = new BigInteger(num.toString)
   protected override val GramName = "unsignedLong"
   protected override val GramDescription = "Unsigned Long"
   protected override def isInvalidRange(n: BigInteger) = n.compareTo(BigInteger.ZERO) < 0 || n.compareTo(BigInteger.ONE.shiftLeft(64)) >= 0
 }
 
-case class ConvertTextUnsignedIntPrim(e: ElementBase) extends ConvertTextNumberPrim[Long](e, true) {
+case class ConvertTextUnsignedIntPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Long](e, true) {
   protected override def getNum(num: Number) = num.longValue
   protected override val GramName = "unsignedInt"
   protected override val GramDescription = "Unsigned Int"
   protected override def isInvalidRange(n: Long) = n < 0 || n >= (1L << 32)
 }
 
-case class ConvertTextUnsignedShortPrim(e: ElementBase) extends ConvertTextNumberPrim[Int](e, true) {
+case class ConvertTextUnsignedShortPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Int](e, true) {
   protected override def getNum(num: Number) = num.intValue
   protected override val GramName = "unsignedShort"
   protected override val GramDescription = "Unsigned Short"
   protected override def isInvalidRange(n: Int) = n < 0 || n >= (1 << 16)
 }
 
-case class ConvertTextUnsignedBytePrim(e: ElementBase) extends ConvertTextNumberPrim[Short](e, true) {
+case class ConvertTextUnsignedBytePrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Short](e, true) {
   protected override def getNum(num: Number) = num.shortValue
   protected override val GramName = "unsignedByte"
   protected override val GramDescription = "Unsigned Byte"
   protected override def isInvalidRange(n: Short) = n < 0 || n >= (1 << 8)
 }
 
-case class ConvertTextDoublePrim(e: ElementBase) extends Terminal(e, true) {
+case class ConvertTextDoublePrim(e: ElementBase) extends ConvertTextFloatingPointNumberPrim[Double](e, true) {
+  protected override def getNum(num: Number) = num.doubleValue
+  protected override val GramName = "double"
+  protected override val GramDescription = "Double"
+}
+
+case class ConvertTextFloatPrim(e: ElementBase) extends ConvertTextFloatingPointNumberPrim[Float](e, true) {
+  protected override def getNum(num: Number) = num.floatValue
+  protected override val GramName = "float"
+  protected override val GramDescription = "Float"
+}
+
+case class ConvertTextDoublePrim1(e: ElementBase) extends Terminal(e, true) {
 
   def parser: Parser = new Parser(e) {
     override def toString = "to(xs:double)"
@@ -649,7 +698,7 @@ case class ConvertTextDoublePrim(e: ElementBase) extends Terminal(e, true) {
   }
 }
 
-case class ConvertTextFloatPrim(e: ElementBase) extends Terminal(e, true) {
+case class ConvertTextFloatPrim1(e: ElementBase) extends Terminal(e, true) {
 
   def parser: Parser = new Parser(e) {
     override def toString = "to(xs:float)"
@@ -982,13 +1031,13 @@ case class Nada(sc: Term) extends Terminal(sc, true) {
   // with the intention of "find this and this, or find nothing"
 
   def parser: Parser = new Parser(sc) {
-    override def toString = "Nothing"
+    override def toString = "Nada"
 
     def parse(start: PState): PState = start
   }
 
   def unparser: Unparser = new Unparser(sc) {
-    override def toString = "Nothing"
+    override def toString = "Nada"
 
     def unparse(start: UState): UState = start
   }
@@ -1001,7 +1050,7 @@ case class GroupPosGreaterThan(n: Long, term: Term, guard: Boolean = true) exten
 
     def parse(start: PState): PState = {
       val res = if (start.groupPos > 1) {
-        start
+        start.withDiscriminator(true)
       } else {
         start.failed("Group position not greater than n (" + n + ")")
       }

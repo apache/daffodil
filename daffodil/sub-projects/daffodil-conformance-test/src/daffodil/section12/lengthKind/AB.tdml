@@ -4,7 +4,7 @@
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
 
 	<parserTestCase name="AB000" root="matrix" model="AB.dfdl.xsd"
-		description="CSV-style tests">
+		description="CSV-style tests - DFDL-12-043R">
 
 		<document>
 			<!--  <documentPart type="text"><![CDATA[0,1,2,3,4
@@ -47,7 +47,7 @@
 	</parserTestCase>
 
 	<parserTestCase name="AB001" root="matrix" model="AB.dfdl.xsd"
-		description="CSV-style tests">
+		description="CSV-style tests - DFDL-12-043R">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,1,2,3,4
@@ -88,7 +88,7 @@
 	</parserTestCase>
 
 	<parserTestCase name="AB002" root="matrix" model="AB.dfdl.xsd"
-		description="CSV-style tests">
+		description="CSV-style tests - DFDL-12-043R">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,1,2,3,4
@@ -130,7 +130,7 @@
 	</parserTestCase>
 
 	<parserTestCase name="AB003" root="matrix" model="AB.dfdl.xsd"
-		description="CSV-style tests">
+		description="CSV-style tests - DFDL-12-043R">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,1,2,3,4

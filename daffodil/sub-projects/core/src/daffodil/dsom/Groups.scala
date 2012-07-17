@@ -24,6 +24,8 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin{
+  
+  val enclosingComponent : Option[SchemaComponent] = Some(parent) // for global objects, the enclosing will be the thing referencing them.
 
   def isScalar = true // override in local elements
   
@@ -132,6 +134,23 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
       // We should only be asking for the enclosingSequence when there is one.
       case _ => Assert.invariantFailed("No enclosing sequence for : " + this)
     }
+    res
+  }
+  
+  lazy val positionInNearestEnclosingSequence : Int = {
+    val res = 
+      if (enclosingComponent == nearestEnclosingSequence) position
+      else {
+        enclosingComponent match {
+          case Some(term : Term) => term.positionInNearestEnclosingSequence
+          case Some(ct : ComplexTypeBase) => {
+            val ctElem = ct.element
+            val ctPos = ctElem.positionInNearestEnclosingSequence
+            ctPos
+          }
+          case _ => Assert.invariantFailed("unable to compute position in nearest enclosing sequence")
+        }
+      }
     res
   }
 
