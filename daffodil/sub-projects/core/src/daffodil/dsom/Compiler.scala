@@ -20,7 +20,6 @@ import daffodil.util.LoggingDefaults
 import daffodil.util.LogLevel
 import daffodil.dsom.OOLAG.ErrorAlreadyHandled
 
-
 class ProcessorFactory(sset: SchemaSet, rootElem: GlobalElementDecl)
   extends DiagnosticsProviding // (sset)
   with DFDL.ProcessorFactory {
@@ -72,7 +71,7 @@ class Compiler extends DFDL.Compiler with Logging {
   /*
    * for unit testing of front end
    */
-  private[dsom] def frontEnd(xml : Node) : (SchemaSet, GlobalElementDecl) = {
+  private[dsom] def frontEnd(xml: Node): (SchemaSet, GlobalElementDecl) = {
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val elts = (xml \ "element")
     Assert.usage(elts.length != 0, "No top level element declarations found.")
@@ -116,7 +115,7 @@ class Compiler extends DFDL.Compiler with Logging {
     compile(schemaNode)
   }
 
-  def compile(xml : Node) : DFDL.ProcessorFactory = {
+  def compile(xml: Node): DFDL.ProcessorFactory = {
     val (sset, rootElem) = frontEnd(xml) // includes middle "end" too.
     // 	 lazy val documentProd = rootElem.document
     //   lazy val parser = documentProd.parser
@@ -227,8 +226,8 @@ object Compiler {
       throw new Exception(msgs)
     }
     val unparsed = outputStream.toString
-    System.err.println("parsed: " + infoset)
-    System.err.println("unparsed: " + unparsed)
+    //    System.err.println("parsed: " + infoset)
+    //    System.err.println("unparsed: " + unparsed)
     out.close()
     assertEquals(unparseTo, unparsed)
   }

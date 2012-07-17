@@ -9,7 +9,6 @@ import daffodil.util.Debug
 
 abstract class Gram(val context: Term) extends DiagnosticsProviding {
   val name = getNameFromClass(this)
-
   def prettyName = name
   def path = ""
 
@@ -68,7 +67,7 @@ class SeqComp(context: Term, p: => Gram, q: => Gram) extends BinaryGram(context,
   def close = ""
 
   def parser = new SeqCompParser(context, p, q)
-  def unparser = new SeqCompUnparser(p, q)
+  def unparser = new SeqCompUnparser(context, p, q)
 }
 
 class AltComp(context: Term, p: => Gram, q: => Gram) extends BinaryGram(context, p, q) {
@@ -77,14 +76,14 @@ class AltComp(context: Term, p: => Gram, q: => Gram) extends BinaryGram(context,
   def close = ")"
 
   def parser = new AltCompParser(context, p, q)
-  def unparser = new AltCompUnparser(p, q)
+  def unparser = new AltCompUnparser(context, p, q)
 }
 
 class RepExactlyN(context: Term, n: Long, r: => Gram) extends UnaryGram(context, r) {
   Assert.invariant(n > 0)
 
   def parser = new RepExactlyNParser(context, n, r)
-  def unparser = new RepExactlyNUnparser(n, r)
+  def unparser = new RepExactlyNUnparser(context, n, r)
 }
 
 object RepExactlyN {
@@ -105,7 +104,7 @@ class RepUnbounded(context: Term, r: => Gram) extends UnaryGram(context, r) {
   Assert.invariant(!r.isEmpty)
 
   def parser = new RepUnboundedParser(context, r)
-  def unparser = new RepUnboundedUnparser(r)
+  def unparser = new RepUnboundedUnparser(context, r)
 }
 
 object RepUnbounded {
@@ -172,7 +171,7 @@ abstract class Terminal(context: Term, guard: Boolean) extends NamedGram(context
  *
  * Guards are used so we can Gramess grammars that include all possibilities,
  * but where examining the format properties specifically would indicate that some of those
- * possiblities are precluded. The guard causes that term to just splice itself out
+ * possibilities are precluded. The guard causes that term to just splice itself out
  * of the grammar.
  */
 class Prod(nameArg: String, val sc: Term, guardArg: => Boolean, gramArg: => Gram)
@@ -225,8 +224,6 @@ class Prod(nameArg: String, val sc: Term, guardArg: => Boolean, gramArg: => Gram
     gram.parser
   }
 
-  // TODO. Remove override 
-  //override lazy val unparser = gram.unparser
   lazy val unparser = unparser_.value
   private lazy val unparser_ = LV {
     gram.unparser

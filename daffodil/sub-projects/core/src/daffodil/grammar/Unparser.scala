@@ -25,32 +25,67 @@ import daffodil.exceptions.ThrowsSDE
 import java.io.ByteArrayOutputStream
 import scala.collection.mutable.Stack
 
+class UnparseError(sc: SchemaComponent, ustate: UState, kind: String, args: Any*) extends ProcessingError {
+  def isError = true
+  def getSchemaLocations = List(sc)
+  def getDataLocations = List(ustate.currentLocation)
+
+  override def toString = {
+    lazy val argsAsString = args.map { _.toString }.mkString(", ")
+    //
+    // Right here is where we would lookup the symbolic error kind id, and
+    // choose a locale-based message string.
+    //
+    // For now, we'll just do an automatic English message.
+    //
+    val msg =
+      if (kind.contains("%")) kind.format(args: _*)
+      else (kind + "(%s)").format(argsAsString)
+    val res = "Unparse Error: " + msg +
+      "\nContext was : %s".format(sc) +
+      "\nData location was preceding %s".format(ustate.currentElement)
+    res
+  }
+
+  override def getMessage = toString
+}
+
 /**
  * Encapsulates lower-level unparsing with a uniform interface
  */
-trait Unparser {
-  def unparse(uState: UState): UState
+abstract class Unparser(val context: Term) {
 
+  def UE(ustate: UState, str: String, args: Any*) = {
+    ustate.failed(new UnparseError(context, ustate, str, args: _*))
+  }
+
+  def processingError(ustate: UState, str: String, args: Any*) =
+    UE(ustate, str, args) // long form synonym
+
+  def unparse(ustate: UState): UState
+
+  // TODO: other methods for things like asking for the ending position of something
+  // which would enable fixed-length formats to skip over data and not unparse it at all.
 }
 
 // No-op, in case an optimization lets one of these sneak thru. 
 // TODO: make this fail, and test optimizer sufficiently to know these 
 // do NOT get through.
-class EmptyGramUnparser extends Unparser {
-  def unparse(uState: UState) = uState
+class EmptyGramUnparser(context: Term = null) extends Unparser(context) {
+  def unparse(uState: UState) = Assert.invariantFailed("EmptyGramUnparsers are all supposed to optimize out!")
 }
 
-class ErrorUnparser extends Unparser {
+class ErrorUnparser(context: Term = null) extends Unparser(context) {
   def unparse(ustate: UState): UState = Assert.abort("Error Unparser")
   override def toString = "Error Unparser"
 }
 
-class SeqCompUnparser(p: Gram, q: Gram) extends Unparser {
+class SeqCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context) {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pUnparser = p.unparser
   val qUnparser = q.unparser
-  def unparse(uState: UState) = {
-    val pResult = pUnparser.unparse(uState)
+  def unparse(ustate: UState) = {
+    val pResult = pUnparser.unparse(ustate)
     if (pResult.status == Success) {
       val qResult = qUnparser.unparse(pResult)
       qResult
@@ -60,11 +95,11 @@ class SeqCompUnparser(p: Gram, q: Gram) extends Unparser {
   override def toString = pUnparser.toString + " ~ " + qUnparser.toString
 }
 
-class AltCompUnparser(p: Gram, q: Gram) extends Unparser {
+class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context) {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pUnparser = p.unparser
   val qUnparser = q.unparser
-  def unparse(uState: UState) = {
+  def unparse(ustate: UState) = {
 
     // TODO: capture current Infoset node (make a shallow copy of it)
     // restoring this later (literally, clobbering the parent to point to 
@@ -73,23 +108,32 @@ class AltCompUnparser(p: Gram, q: Gram) extends Unparser {
     // TBD: better Scala idiom for try/catch than this var stuff
     // Use of var makes this code non-thread-safe. If you can avoid var, then you
     // don't have to worry about multiple threads at all.
-
     var pResult: UState = null
+
+    val numChildrenAtStart = ustate.currentElement.getChildren().length
+
     try {
-      pResult = pUnparser.unparse(uState)
+      pResult = pUnparser.unparse(ustate)
     } catch {
-      case e: Exception =>
+      case e: Exception => {
+        // TODO: we need to record the problem so that we can
+        // use it as a diagnostic in case the other alternative also fails.
+      }
     }
+
     if (pResult != null && pResult.status == Success) pResult
     else {
-      // TODO: Unwind any side effects on the Infoset 
-      //
+      // Unwind any side effects on the Infoset 
+      val lastChildIndex = ustate.currentElement.getChildren().length
+      if (lastChildIndex > numChildrenAtStart) {
+        ustate.currentElement.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
+      }
       // TODO: check for discriminator evaluated to true.
       // If so, then we don't run the next alternative, we
       // consume this discriminator status result (so it doesn't ripple upward)
       // and return the failed state.
       //
-      val qResult = qUnparser.unparse(uState)
+      val qResult = qUnparser.unparse(ustate)
       qResult
     }
   }
@@ -97,7 +141,7 @@ class AltCompUnparser(p: Gram, q: Gram) extends Unparser {
   override def toString = "(" + pUnparser.toString + " | " + qUnparser.toString + ")"
 }
 
-class RepExactlyNUnparser(n: Long, r: => Gram) extends Unparser {
+class RepExactlyNUnparser(context: Term, n: Long, r: => Gram) extends Unparser(context) {
   Assert.invariant(!r.isEmpty)
   val rUnparser = r.unparser
 
@@ -117,7 +161,7 @@ class RepExactlyNUnparser(n: Long, r: => Gram) extends Unparser {
   override def toString = "RepExactlyNUnparser(" + rUnparser.toString + ")"
 }
 
-class RepUnboundedUnparser(r: => Gram) extends Unparser {
+class RepUnboundedUnparser(context: Term, r: => Gram) extends Unparser(context) {
   Assert.invariant(!r.isEmpty)
   val rUnparser = r.unparser
 
@@ -128,7 +172,7 @@ class RepUnboundedUnparser(r: => Gram) extends Unparser {
       val pNext = rUnparser.unparse(pResult)
       if (pNext.status != Success) {
         pResult.restoreJDOM(cloneNode)
-        System.err.println("Failure suppressed.")
+        log(Debug("Failure suppressed."))
         return pResult
       }
       pResult = pNext
@@ -139,7 +183,7 @@ class RepUnboundedUnparser(r: => Gram) extends Unparser {
   override def toString = "RepUnboundedUnparser(" + rUnparser.toString + ")"
 }
 
-case class DummyUnparser(sc: PropertyMixin) extends Unparser {
+case class DummyUnparser(sc: PropertyMixin) extends Unparser(null) {
   def unparse(ustate: UState): UState = Assert.abort("Unparser for " + sc + " is not yet implemented.")
   override def toString = if (sc == null) "Dummy[null]" else "Dummy[" + sc.detailName + "]"
 }
@@ -149,6 +193,10 @@ class GeneralUnparseFailure(msg: String) extends Diagnostic {
   def getSchemaLocations() = Nil
   def getDataLocations() = Nil
   def getMessage() = msg
+}
+
+class DataLocUnparse(elem: org.jdom.Element, outStream: OutStream) extends DataLocation {
+  override def toString() = "Location in infoset " + elem.getName() + " of Stream: " + outStream
 }
 
 /**
@@ -184,6 +232,7 @@ class UState(
   def whichBit = bitPos % 8
   def groupPos = groupIndexStack.head
   def childPos = childIndexStack.head
+  def currentLocation: DataLocation = new DataLocUnparse(currentElement, outStream)
 
   /**
    * Convenience functions for creating a new state, changing only
@@ -263,7 +312,7 @@ object UState {
    */
   def createInitialState(rootElemDecl: GlobalElementDecl, out: OutStream, infoset: org.jdom.Document): UState = {
     val elem = infoset.getContent()
-    //TODO: give appropriate error if not single root element in infoset
+    //TODO: give appropriate error if not single root element in infoset--infoset validation done elsewhere?
     assertTrue(elem.size() == 1)
     val root = elem(0).asInstanceOf[org.jdom.Element]
     val rootName = root.getName()
@@ -319,10 +368,7 @@ trait OutStream {
 
   def getData(): String
   def setData(str: String)
-  //  def getDouble(bitPos: Long, order: java.nio.ByteOrder): Double
-  //  def getFloat(bitPos: Long, order: java.nio.ByteOrder): Float
 
-  // def fillCharBufferUntilDelimiterOrEnd
   def setDelimiters(separators: Set[String], terminators: Set[String])
 }
 
@@ -343,7 +389,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
 
     setData(data)
   }
-  
+
   /*
    * Writes the delimiters to CharBuffer.
    */
@@ -363,7 +409,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
     cbuf.clear()
     setData(sb.toString())
   }
-  
+
   /*
    * Writes unparsed data in CharBuffer to outputStream.
    */

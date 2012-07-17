@@ -27,7 +27,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     }
     found
   }
-/*
+
   // @Test
   def testHasProps() {
     val testSchema = TestUtils.dfdlTestSchema(
@@ -207,7 +207,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertTrue(actualString.contains(">42</data>"))
 
     Compiler.testUnparsing(testSchema, actual.result, "42")
-  }*/
+  }
 
   // @Test
   def testTerminator1() {
@@ -308,7 +308,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
 
     val actual = Compiler.testString(testSchema, "246801")
     val actualString = actual.result.toString
-//    System.err.println("parsed: " + actualString)
+    //    System.err.println("parsed: " + actualString)
     assertTrue(actualString.contains("<list"))
     assertTrue(actualString.contains("<somedata>2468</somedata><moredata>1</moredata></list>"))
 
@@ -355,7 +355,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
 
     Compiler.testUnparsing(testSchema, actual.result, "abc87654321")
   }
-/*
+
   def test3 {
     val testSchema = XML.loadFile(TestUtils.findFile("test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
@@ -857,7 +857,6 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
 
   def test_element_references {
     val testSchema = XML.loadFile(TestUtils.findFile("test/example-of-most-dfdl-constructs.dfdl.xml"))
-    val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -881,6 +880,5 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     //assertEquals("%ES; %% %#0; %NUL;%ACK; foo%#rF2;%#rF7;bar %WSP*; %#2024;%#xAABB; &amp;&#2023;&#xCCDD; -1", e1.nilValue) // TODO: Do not equal each other!
     assertEquals(NilKind.LiteralValue, e1.nilKind)
   }
-*/
 }
 
