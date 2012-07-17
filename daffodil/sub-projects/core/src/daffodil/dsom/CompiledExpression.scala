@@ -59,7 +59,7 @@ abstract class CompiledExpression(val prettyExpr : String) {
   /**
    * evaluation - the runtime
    */
-  def evaluate(rootedAt : org.jdom.Element, variables : VariableMap) : Any
+  def evaluate(rootedAt : org.jdom.Parent, variables : VariableMap) : Any
 
 
 }
@@ -85,7 +85,7 @@ case class ConstantProperty[T](value: T) extends CompiledExpression(value.toStri
     def isConstant = true
     def isKnownNonEmpty = value != ""
     def constant: T = value
-    def evaluate(pre: org.jdom.Element, variables : VariableMap) = constant
+    def evaluate(pre: org.jdom.Parent, variables : VariableMap) = constant
   }
 
 case class ExpressionProperty[T](convertTo : Symbol, 
@@ -95,11 +95,11 @@ case class ExpressionProperty[T](convertTo : Symbol,
     def isKnownNonEmpty = true // expressions are not allowed to return empty string
     def constant: T = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
  
-    def evaluate(pre: org.jdom.Element, variables : VariableMap): T = {
+    def evaluate(pre: org.jdom.Parent, variables : VariableMap): T = {
       val xpathRes = XPathUtil.evalExpression(xpathText, xpathExprFactory, variables, pre)
       val converted : T = xpathRes match {
         case StringResult(s) => {
-          val cs = CompiledExpressionUtil.converter(convertTo, s)
+          val cs = CompiledExpressionUtil.converter[T](convertTo, s)
           cs
         }
         case NodeResult(n) => {
@@ -118,25 +118,28 @@ class ExpressionCompiler(edecl : AnnotatedMixin) {
    * it will throw. No throw means a value came back and it must be a constant.
    */
   def constantValue(xpathExprFactory: VariableMap => XPathExpression): Option[String] = {
-    val dummyRoot = new org.jdom.Element("dummy", "dummy")
-    val dummyDoc = new org.jdom.Document(dummyRoot)
+    // val dummyRoot = new org.jdom.Element("dummy", "dummy")
+    // val dummyDoc = new org.jdom.Document(dummyRoot)
     val dummyVars = new VariableMap
     val result =
       try {
-        val res = XPathUtil.evalExpression("", xpathExprFactory, dummyVars, dummyRoot) 
+        val res = XPathUtil.evalExpression("checking constantValue", xpathExprFactory, dummyVars, null) 
         res match {
           case StringResult(s) => Some(s)
           case NodeResult(s) => Assert.invariantFailed("Can't evaluate to a node when testing for isConstant")
         }
       }
       catch {
-        // case e: XPathEvaluationException => None
-        case e: Exception => None // dangerous
+        case e: XPathExpressionException => None
+        case e: Exception => {
+          Assert.invariantFailed("Didn't get an XPathExpressionException. Got: " + e)
+        }
       }
     result
   }
 
   def compile[T](convertTo: Symbol, expr: String): CompiledExpression = {
+    // println("compiling expression")
     if (!XPathUtil.isExpression(expr)) {
       // not an expression. For some properties like delimiters, you can use a literal string 
       // whitespace separated list of literal strings, or an expression in { .... }

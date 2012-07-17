@@ -40,7 +40,6 @@ import javax.xml.xpath._
 import javax.xml.xpath.XPathConstants.NODE
 import javax.xml.xpath.XPathConstants.STRING
 import javax.xml.namespace.QName
-
 import org.jdom.Element
 import org.jdom.Text
 import org.jdom.Parent
@@ -52,6 +51,7 @@ import net.sf.saxon.om.NodeInfo
 import daffodil.xml.Namespaces
 import daffodil.exceptions._
 import daffodil.processors.VariableMap
+import daffodil.xml.XMLUtils
 
 /**
  * Utility object for evaluating XPath expressions
@@ -120,9 +120,14 @@ object XPathUtil {
     val ce = compiledExprFactory(variables)
     try{
       val o = ce.evaluate(contextNode,NODE)
+      println("evaluated to: " + o)
       val res = o match {
-        case x : Element => new NodeResult(o.asInstanceOf[Element])
-        case x : Text => new StringResult(o.asInstanceOf[Text].getValue())
+        case x : Element => new NodeResult(x)
+        case x : Text => new StringResult(x.getValue())
+        case _ => {
+           println("First try expression eval didn't work. Got: " + o)
+           throw new XPathExpressionException("unrecognized NODE:" + o) // Assert.invariantFailed("unrecognized NODE type")
+        }
       }
       return res
     }catch{
@@ -134,11 +139,14 @@ object XPathUtil {
         // So we shouln't have to try NODE, then STRING
         // 
         try {
+          println("Expression eval trying STRING.")
           val o = ce.evaluate(contextNode,STRING)
+          println("Second try got: '" + o + "'")
           new StringResult(o.asInstanceOf[String])
         }catch {
           case e:XPathExpressionException => {
-            doUnknownXPathEvalException(expressionForErrorMsg, e)
+            // doUnknownXPathEvalException(expressionForErrorMsg, e)
+            throw e
           }
         }
       case e:Exception => {
@@ -148,9 +156,9 @@ object XPathUtil {
   }
 
   def doUnknownXPathEvalException(expression : String, exc : Exception) = {
-     val txt = "Unknown error evaluating '"+expression+"'. Cause: " + exc.toString
-     // throw new XPathEvaluationException(txt, cause = exc)
-     Assert.abort(txt) //TODO proper exception object
+     // val txt = "Unknown error evaluating '"+expression+"'. Cause: " + exc.toString
+     throw new XPathExpressionException(exc)
+     // Assert.abort(txt) //TODO proper runtime failure behavior
   }
   
   /**

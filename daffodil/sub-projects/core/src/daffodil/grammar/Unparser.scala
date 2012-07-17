@@ -83,6 +83,15 @@ class SeqCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
   override def toString = pUnparser.toString + " ~ " + qUnparser.toString
 }
 
+// Tricky: given the infoset, and a corresponding schema choice construct,
+// it's not immediately clear which choice-branch to use when unparsing.
+// The algorithm has to find the first choice branch which begins with the 
+// same first element as the infoset item. 
+// 
+// TBD: is it acceptable to just try them one by one with a UE causing backtrack to 
+// try the next branch when it fails because the infoset doesn't match the element
+// declaration of the schema somehow?
+//
 class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context) {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pUnparser = p.unparser

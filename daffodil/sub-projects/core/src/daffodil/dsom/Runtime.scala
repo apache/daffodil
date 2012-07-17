@@ -6,6 +6,7 @@ import daffodil.xml.XMLUtils
 import daffodil.exceptions.Assert
 import daffodil.processors.Success
 import daffodil.dsom.OOLAG.OOLAGException
+import daffodil.api.Diagnostic
 
 
 /**
@@ -142,19 +143,23 @@ abstract class ParseResult(dp: DataProcessor)
   extends DFDL.ParseResult
   with WithDiagnosticsImpl {
 
-  override def resultState: PState
 
-  //  lazy val prettyName = "ParseResult"
-  //  lazy val path = ""
-
+  def resultState : PState
+  
+//  lazy val prettyName = "ParseResult"
+//  lazy val path = ""
+  
   val result =
     if (resultState.status == Success) {
-      val jdomFakeRoot = resultState.parent
-      // top node is this fake root element
-      Assert.invariant(jdomFakeRoot.getName() == "_document_")
-      Assert.invariant(jdomFakeRoot.getContentSize() == 1)
-      val jdomElt = jdomFakeRoot.getContent(0).asInstanceOf[org.jdom.Element]
-      XMLUtils.element2Elem(jdomElt)
+      val docElt = resultState.parent
+      docElt match {
+        case doc : org.jdom.Document => {
+          val jdomElt = doc.getRootElement()
+          XMLUtils.element2Elem(jdomElt)
+        }
+        case _ => Assert.invariantFailed("docElt isn't a jdom Document.")
+      }
+
     } else {
       <nothing/>
     }

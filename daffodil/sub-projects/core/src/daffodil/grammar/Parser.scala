@@ -98,6 +98,7 @@ abstract class Parser(val context : Term) {
 
   // TODO: other methods for things like asking for the ending position of something
   // which would enable fixed-length formats to skip over data and not parse it at all.
+
 }
 
 // No-op, in case an optimization lets one of these sneak thru. 
@@ -132,7 +133,7 @@ class AltCompParser(context : Term, p : Gram, q : Gram) extends Parser(context) 
   val pParser = p.parser
   val qParser = q.parser
   def parse(pstate : PState) : PState = {
-    val numChildrenAtStart = pstate.parent.getChildren().length
+    val numChildrenAtStart = pstate.parent.getContent().length
     var pResult : PState =
       try {
         log(Debug("Trying choice alternative: %s", pParser))
@@ -153,7 +154,7 @@ class AltCompParser(context : Term, p : Gram, q : Gram) extends Parser(context) 
       log(Debug("Choice alternative failed: %s", pParser))
 
       // Unwind any side effects on the Infoset 
-      val lastChildIndex = pstate.parent.getChildren().length
+      val lastChildIndex = pstate.parent.getContent().length
       if (lastChildIndex > numChildrenAtStart) {
         pstate.parent.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
       }
@@ -186,7 +187,7 @@ class AltCompParser(context : Term, p : Gram, q : Gram) extends Parser(context) 
       else {
         log(Debug("Choice alternative failure: %s", qParser))
         // Unwind any side effects on the Infoset 
-        val lastChildIndex = pstate.parent.getChildren().length
+        val lastChildIndex = pstate.parent.getContent().length
         if (lastChildIndex > numChildrenAtStart) {
           pstate.parent.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
         }
@@ -306,7 +307,7 @@ class PStateStream(val inStream: InStream, val bitLimit: Long, val charLimit: Lo
  */
 class PState(
   val inStreamStateStack: Stack[PStateStream],
-  val parent: org.jdom.Element,
+  val parent: org.jdom.Parent,
   val variableMap: VariableMap,
   val target: String,
   val namespaces: Namespaces,
@@ -328,6 +329,8 @@ class PState(
   def bitLimit = inStreamState bitLimit
   def charPos = inStreamState charPos
   def charLimit = inStreamState charLimit
+  def parentElement = parent.asInstanceOf[Element]
+  def parentForAddContent = parent.asInstanceOf[{ def addContent(c: org.jdom.Content) : Unit }]
 
 /**
    * Convenience functions for creating a new state, changing only
@@ -356,7 +359,7 @@ class PState(
     newInStreamStateStack push(new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos))
     new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   }
-  def withParent(parent: org.jdom.Element, status: ProcessorResult = Success) =
+  def withParent(parent: org.jdom.Parent, status: ProcessorResult = Success) =
     new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def withVariables(variableMap: VariableMap, status: ProcessorResult = Success) =
     new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
@@ -427,7 +430,8 @@ object PState {
    */
   def createInitialState(rootElemDecl : GlobalElementDecl, in : InStream) : PState = {
     val inStream = in
-    val doc = new org.jdom.Element("_document_") // a dummy element to be parent of the root. We don't use the org.jdom.Document type.
+   
+    val doc = new org.jdom.Document() // must have a jdom document to get path evaluation to work.  
     val variables = new VariableMap()
     val targetNamespace = rootElemDecl.schemaDocument.targetNamespace
     val namespaces = new Namespaces()

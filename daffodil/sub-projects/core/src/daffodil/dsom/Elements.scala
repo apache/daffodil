@@ -89,6 +89,7 @@ abstract class ElementBase(xmlArg : Node, parent : SchemaComponent, position : I
   with NamedMixin
   with WithDiagnostics {
 
+  def inputValueCalcOption : Option[String]
   def isNillable : Boolean
   def isSimpleType : LV[Boolean]
   def isComplexType : LV[Boolean]
@@ -299,7 +300,8 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
   lazy val typeDef = referencedElement.typeDef//Assert.notYetImplemented()
 
   // Element references can have minOccurs and maxOccurs, and annotations, but nothing else.
-  
+  lazy val inputValueCalcOption = referencedElement.inputValueCalcOption // can't have ivc on element reference
+  lazy val scalarDefaultable = referencedElement.scalarDefaultable
   /**
    * It is an error if the properties on an element overlap with the properties on the simple type
    * of that element.

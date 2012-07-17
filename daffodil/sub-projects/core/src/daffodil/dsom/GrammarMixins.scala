@@ -397,10 +397,12 @@ trait ElementBaseGrammarMixin
   lazy val scalarNonDefault = Prod("scalarNonDefault", this,
     dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
       scalarNonDefaultContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
-
-  lazy val scalarDefaultable = Prod("scalarDefaultable", this,
-    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
-      scalarDefaultableContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd //      dfdlElementBegin ~ scalarDefaultableContent ~ dfdlElementEnd
+  
+   def scalarDefaultable : Prod
+   
+   lazy val scalarDefaultablePhysical = Prod("", this, 
+    	  dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
+    	      scalarDefaultableContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd 
       )
 
 }
@@ -551,6 +553,15 @@ trait LocalElementGrammarMixin { self: ElementBase with LocalElementMixin =>
 }
 
 trait ElementDeclGrammarMixin { self: ElementBase with ElementDeclMixin =>
+  
+  lazy val scalarDefaultable = Prod("scalarDefaultable", this,
+      if ( inputValueCalcOption == None) { 
+        scalarDefaultablePhysical 
+      }
+      else {
+        inputValueCalcElement
+      }
+  )
 
   lazy val inputValueCalcOption = getPropertyOption("inputValueCalc")
 
