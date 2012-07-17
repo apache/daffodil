@@ -1,25 +1,20 @@
 package daffodil.grammar
 
-import daffodil.dsom._
-import daffodil.exceptions.Assert
-import junit.framework.Assert.assertTrue
-import daffodil.schema.annotation.props._
-import daffodil.schema.annotation.props.gen._
-import daffodil.xml._
-import daffodil.processors._
-import java.nio.CharBuffer
-import java.nio.ByteBuffer
-import java.nio.charset.CharsetEncoder
-import java.nio.charset.CharsetDecoder
-import com.ibm.icu.text._
-import java.util.regex._
-import java.text.{ ParseException, ParsePosition }
 import java.math.BigInteger
-import stringsearch.constructs._
-import stringsearch.delimiter._
-import daffodil.dsom.EntityReplacer._
+import java.text.{ ParseException, ParsePosition }
+import java.util.regex.Pattern
+import java.nio.CharBuffer
+import java.nio.charset.{ CharsetEncoder, CharsetDecoder }
 import scala.collection.mutable.Queue
-import daffodil.util._
+import daffodil.dsom._
+import daffodil.xml.XMLUtils
+import daffodil.schema.annotation.props.gen.{ YesNo, LengthKind }
+import daffodil.util.{ Debug, LogLevel, Logging }
+import daffodil.processors.Success
+import daffodil.exceptions.Assert
+import stringsearch.constructs.{ EscapeScheme, SearchResult }
+import stringsearch.delimiter.Delimiter
+import com.ibm.icu.text.{ NumberFormat, DecimalFormat }
 
 case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.value != true || e.lengthKind != LengthKind.Pattern) {
 
@@ -234,7 +229,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
       //setLoggingLevel(LogLevel.Debug)
 
       val data = start.currentElement.getText
-      start.outStream.fillCharBuffer(nBytes, data, encoder)
+      start.outStream.fillCharBuffer(data, encoder)
 
       log(Debug("Unparsed: " + start.outStream.getData))
 
@@ -446,15 +441,15 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
   protected val GramName = "number"
   protected val GramDescription = "Number"
   override def toString = "to(xs:" + GramName + ")"
-  
-  protected def numFormat : NumberFormat 
-  protected def isInt : Boolean
-  
+
+  protected def numFormat: NumberFormat
+  protected def isInt: Boolean
+
   protected def isInvalidRange(n: S): Boolean = false
 
   def parser: Parser = new Parser(e) {
     override def toString = "to(xs:" + GramName + ")"
-    
+
     def parse(start: PState): PState = {
       val node = start.parent
       var str = node.getText
@@ -473,32 +468,33 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
         val pos = new ParsePosition(0)
         val num = try {
           df.parse(str, pos)
-        } catch { case e : Exception => 
-          return PE(start, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
+        } catch {
+          case e: Exception =>
+            return PE(start, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
               GramDescription, GramName, str, e)
-              
+
         }
 
         // Verify that what was parsed was what was passed exactly in byte count.  
         // Use pos to verify all characters consumed & check for errors!
         if (pos.getIndex != str.length) {
-          return PE(start, "Convert to %s (for xs:%s): Unable to parse '%s' (using up all characters).", 
-              GramDescription, GramName, str)
+          return PE(start, "Convert to %s (for xs:%s): Unable to parse '%s' (using up all characters).",
+            GramDescription, GramName, str)
         }
-        
+
         // convert to proper type
         val asNumber = getNum(num)
 
         // Verify no digits lost (the number was correctly transcribed)
         if (isInt && asNumber.asInstanceOf[Number] != num) {
           // Transcription error
-          return PE(start, "Convert to %s (for xs:%s): Invalid data: '%s' parsed into %s, which converted into %s.", 
-              GramDescription, GramName, str, num, asNumber)
-        } 
-        if (isInvalidRange(asNumber)){
-          return PE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.", 
-              GramDescription, GramName, str, asNumber)
-        } 
+          return PE(start, "Convert to %s (for xs:%s): Invalid data: '%s' parsed into %s, which converted into %s.",
+            GramDescription, GramName, str, num, asNumber)
+        }
+        if (isInvalidRange(asNumber)) {
+          return PE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
+            GramDescription, GramName, str, asNumber)
+        }
         node.setText(asNumber.toString)
 
         start
@@ -527,52 +523,53 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
           // Need to use Decimal Format to unparse even though this is an Integral number
           val df = numFormat
           val pos = new ParsePosition(0)
-        val num = try {
-          df.parse(str, pos)
-        } catch { case e : Exception => 
-          return UE(start, "Convert to %s (for xs:%s): Unparse of '%s' threw exception %s",
-              GramDescription, GramName, str, e)
-        }
+          val num = try {
+            df.parse(str, pos)
+          } catch {
+            case e: Exception =>
+              return UE(start, "Convert to %s (for xs:%s): Unparse of '%s' threw exception %s",
+                GramDescription, GramName, str, e)
+          }
 
-        // Verify that what was parsed was what was passed exactly in byte count.  
-        // Use pos to verify all characters consumed & check for errors!
-        if (pos.getIndex != str.length) {
-          return UE(start, "Convert to %s (for xs:%s): Unable to unparse '%s' (using up all characters).", 
+          // Verify that what was unparsed was what was passed exactly in byte count.  
+          // Use pos to verify all characters consumed & check for errors!
+          if (pos.getIndex != str.length) {
+            return UE(start, "Convert to %s (for xs:%s): Unable to unparse '%s' (using up all characters).",
               GramDescription, GramName, str)
-        }
-        
-        // convert to proper type
-        val asNumber = getNum(num)
+          }
 
-        // Verify no digits lost (the number was correctly transcribed)
-        if (isInt && asNumber.asInstanceOf[Number] != num) {
-          // Transcription error
-          return UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.", 
+          // convert to proper type
+          val asNumber = getNum(num)
+
+          // Verify no digits lost (the number was correctly transcribed)
+          if (isInt && asNumber.asInstanceOf[Number] != num) {
+            // Transcription error
+            return UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.",
               GramDescription, GramName, str, num, asNumber)
-        } 
-        if (isInvalidRange(asNumber)){
-          return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.", 
+          }
+          if (isInvalidRange(asNumber)) {
+            return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
               GramDescription, GramName, str, asNumber)
-        } 
-            log(Debug("Adding text " + asNumber.toString))
-            start.outStream.setData(asNumber.toString) //write modified number back to CharBuffer
+          }
+          log(Debug("Adding text " + asNumber.toString))
+          start.outStream.setData(asNumber.toString) //write modified number back to CharBuffer
 
-        start
-      } // catch { case e: Exception => start.failed("Failed to convert %s to an xs:%s" + GramName) }
+          start
+        } // catch { case e: Exception => start.failed("Failed to convert %s to an xs:%s" + GramName) }
 
       resultState
     }
   }
 }
 
-abstract class ConvertTextIntegerNumberPrim[T](e : ElementBase, g : Boolean) 
-extends ConvertTextNumberPrim[T](e, g) {
+abstract class ConvertTextIntegerNumberPrim[T](e: ElementBase, g: Boolean)
+  extends ConvertTextNumberPrim[T](e, g) {
   override def numFormat = NumberFormat.getIntegerInstance()
   override def isInt = true
 }
 
-abstract class ConvertTextFloatingPointNumberPrim[T](e : ElementBase, g : Boolean) 
-extends ConvertTextNumberPrim[T](e, g) {
+abstract class ConvertTextFloatingPointNumberPrim[T](e: ElementBase, g: Boolean)
+  extends ConvertTextNumberPrim[T](e, g) {
   override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
   override def isInt = false
 }
@@ -758,7 +755,7 @@ case class ZonedTextShortPrim(el: ElementBase) extends ZonedTextNumberPrim(el, f
 case class ZonedTextIntPrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)
 case class ZonedTextLongPrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)
 
-class Regular32bitIntPrim(context: Term, byteOrder: java.nio.ByteOrder) extends Parser(context) { //with Unparser(context) {
+class Regular32bitIntPrim(context: Term, byteOrder: java.nio.ByteOrder) extends Parser(context) with Logging {
   override def toString = "binary(xs:int, " + byteOrder + ")"
 
   def parse(start: PState): PState = {
@@ -770,6 +767,10 @@ class Regular32bitIntPrim(context: Term, byteOrder: java.nio.ByteOrder) extends 
       postState
     }
   }
+}
+
+class Regular32bitIntPrimUnparse(context: Term, byteOrder: java.nio.ByteOrder) extends Unparser(context) with Logging {
+  override def toString = "binary(xs:int, " + byteOrder + ")"
 
   def unparse(start: UState): UState = {
     Assert.notYetImplemented()
@@ -778,16 +779,16 @@ class Regular32bitIntPrim(context: Term, byteOrder: java.nio.ByteOrder) extends 
 
 case class Regular32bitBigEndianIntPrim(e: ElementBase) extends Terminal(e, true) {
   def parser = new Regular32bitIntPrim(e, java.nio.ByteOrder.BIG_ENDIAN)
-  def unparser = null //new Regular32bitIntPrim(e, java.nio.ByteOrder.BIG_ENDIAN)
+  def unparser = new Regular32bitIntPrimUnparse(e, java.nio.ByteOrder.BIG_ENDIAN)
 }
 case class Regular32bitLittleEndianIntPrim(e: ElementBase) extends Terminal(e, true) {
   def parser = new Regular32bitIntPrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
-  def unparser = null //new Regular32bitIntPrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
+  def unparser = new Regular32bitIntPrimUnparse(e, java.nio.ByteOrder.LITTLE_ENDIAN)
 }
 case class PackedIntPrim(e: ElementBase) extends Primitive(e, false)
 case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 
-case class DoublePrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(ctx) /*with Unparser(ctx)*/ with Logging {
+case class DoublePrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(ctx) with Logging {
   override def toString = "binary(xs:double, " + byteOrder + ")"
 
   def parse(start: PState): PState = {
@@ -802,6 +803,10 @@ case class DoublePrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(c
       postState
     }
   }
+}
+
+case class DoublePrimUnparse(ctx: Term, byteOrder: java.nio.ByteOrder) extends Unparser(ctx) with Logging {
+  override def toString = "binary(xs:double, " + byteOrder + ")"
 
   def unparse(start: UState): UState = {
     Assert.notYetImplemented()
@@ -810,15 +815,15 @@ case class DoublePrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(c
 
 case class BigEndianDoublePrim(e: ElementBase) extends Terminal(e, true) {
   def parser = new DoublePrim(e, java.nio.ByteOrder.BIG_ENDIAN)
-  def unparser = null //new DoublePrim(e, java.nio.ByteOrder.BIG_ENDIAN)
+  def unparser = new DoublePrimUnparse(e, java.nio.ByteOrder.BIG_ENDIAN)
 }
 
 case class LittleEndianDoublePrim(e: ElementBase) extends Terminal(e, true) {
   def parser = new DoublePrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
-  def unparser = null //new DoublePrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
+  def unparser = new DoublePrimUnparse(e, java.nio.ByteOrder.LITTLE_ENDIAN)
 }
 
-case class FloatPrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(ctx) { //with Unparser(ctx) {
+case class FloatPrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(ctx) with Logging {
   override def toString = "binary(xs:float, " + byteOrder + ")"
 
   def parse(start: PState): PState = {
@@ -830,6 +835,10 @@ case class FloatPrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(ct
       postState
     }
   }
+}
+
+case class FloatPrimUnparse(ctx: Term, byteOrder: java.nio.ByteOrder) extends Unparser(ctx) with Logging {
+  override def toString = "binary(xs:float, " + byteOrder + ")"
 
   def unparse(start: UState): UState = {
     Assert.notYetImplemented()
@@ -838,12 +847,12 @@ case class FloatPrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(ct
 
 case class BigEndianFloatPrim(e: ElementBase) extends Terminal(e, true) {
   def parser = new FloatPrim(e, java.nio.ByteOrder.BIG_ENDIAN)
-  def unparser = null //new FloatPrim(e, java.nio.ByteOrder.BIG_ENDIAN)
+  def unparser = new FloatPrimUnparse(e, java.nio.ByteOrder.BIG_ENDIAN)
 }
 
 case class LittleEndianFloatPrim(e: ElementBase) extends Terminal(e, true) {
   def parser = new FloatPrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
-  def unparser = null //new FloatPrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
+  def unparser = new FloatPrimUnparse(e, java.nio.ByteOrder.LITTLE_ENDIAN)
 }
 
 class StaticDelimiter(delim: String, e: Term, guard: Boolean = true)

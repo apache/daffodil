@@ -1,30 +1,17 @@
 package daffodil.grammar
 
-import org.jdom._
-import daffodil.xml._
-import daffodil.processors._
-import daffodil.exceptions.Assert
-import daffodil.schema.annotation.props._
-import daffodil.dsom._
-import daffodil.api._
-import java.nio._
-import java.nio.charset._
-import stringsearch._
+import java.nio.{ CharBuffer, ByteBuffer }
+import java.nio.charset.{ CharsetEncoder, CoderResult }
 import scala.collection.JavaConversions._
-import scala.util.logging.ConsoleLogger
-import stringsearch.DelimSearcherV3._
-import scala.collection.mutable.Queue
-import scala.util.matching.Regex
-import stringsearch.constructs._
-import stringsearch.constructs.EscapeScheme._
+import daffodil.xml.Namespaces
+import daffodil.dsom.{ ElementBase, GlobalElementDecl, Term, SchemaComponent, Compiler }
+import daffodil.api.{ DFDL, Diagnostic, DataLocation }
+import daffodil.processors.{ VariableMap, ProcessorResult, Failure, Success }
+import daffodil.util.{ Logging, LogLevel, Debug }
+import daffodil.exceptions.Assert
+import daffodil.schema.annotation.props.PropertyMixin
+import stringsearch.constructs.EscapeScheme.log
 import junit.framework.Assert.assertTrue
-import junit.framework.Assert.assertEquals
-
-import daffodil.util._
-import daffodil.exceptions.ThrowsSDE
-import java.io.ByteArrayOutputStream
-import scala.collection.mutable.Stack
-
 
 class UnparseError(sc: SchemaComponent, ustate: UState, kind: String, args: Any*) extends ProcessingError {
   def isError = true
@@ -45,6 +32,7 @@ class UnparseError(sc: SchemaComponent, ustate: UState, kind: String, args: Any*
     val res = "Unparse Error: " + msg +
       "\nContext was : %s".format(sc) +
       "\nData location was preceding %s".format(ustate.currentElement)
+    "\nUnparsed data is %s".format(ustate.outStream.getData())
     res
   }
 
@@ -56,12 +44,12 @@ class UnparseError(sc: SchemaComponent, ustate: UState, kind: String, args: Any*
  */
 abstract class Unparser(val context: Term) {
 
-  def UE(ustate: UState, str: String, args: Any*) = {
-    ustate.failed(new UnparseError(context, ustate, str, args: _*))
+  def UE(ustate: UState, kind: String, args: Any*) = {
+    ustate.failed(new UnparseError(context, ustate, kind, args: _*))
   }
 
-  def processingError(ustate: UState, str: String, args: Any*) =
-    UE(ustate, str, args) // long form synonym
+  def processingError(ustate: UState, kind: String, args: Any*) =
+    UE(ustate, kind, args) // long form synonym
 
   def unparse(ustate: UState): UState
 
@@ -70,8 +58,7 @@ abstract class Unparser(val context: Term) {
 }
 
 // No-op, in case an optimization lets one of these sneak thru. 
-// TODO: make this fail, and test optimizer sufficiently to know these 
-// do NOT get through.
+// TODO: Test optimizer sufficiently to know these do NOT get through.
 class EmptyGramUnparser(context: Term = null) extends Unparser(context) {
   def unparse(uState: UState) = Assert.invariantFailed("EmptyGramUnparsers are all supposed to optimize out!")
 }
@@ -102,12 +89,12 @@ class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
   val qUnparser = q.unparser
   def unparse(ustate: UState) = {
     val numChildrenAtStart = ustate.currentElement.getChildren().length
-    var pResult : UState =
-           try {
+    var pResult: UState =
+      try {
         log(Debug("Trying choice alternative: %s", pUnparser))
         pUnparser.unparse(ustate)
       } catch {
-        case e : Exception => {
+        case e: Exception => {
           Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
         }
       }
@@ -115,10 +102,9 @@ class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
       log(Debug("Choice alternative success: %s", pUnparser))
       // Reset any discriminator. We succeeded.
       val res = if (pResult.discriminator) pResult.withDiscriminator(false)
-                else pResult
-          res
-    }
-    else {
+      else pResult
+      res
+    } else {
       log(Debug("Choice alternative failed: %s", pUnparser))
 
       // Unwind any side effects on the Infoset 
@@ -136,12 +122,12 @@ class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
         //
         pResult.withDiscriminator(false)
       }
-      
+
       val qResult = try {
         log(Debug("Trying choice alternative: %s", qUnparser))
         qUnparser.unparse(ustate)
       } catch {
-        case e : Exception => {
+        case e: Exception => {
           Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
         }
       }
@@ -150,19 +136,18 @@ class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
         val res = if (qResult.discriminator) qResult.withDiscriminator(false)
         else qResult
         res
-      }
-      else {
+      } else {
         log(Debug("Choice alternative failure: %s", qUnparser))
         // Unwind any side effects on the Infoset 
         val lastChildIndex = ustate.currentElement.getChildren().length
         if (lastChildIndex > numChildrenAtStart) {
           ustate.currentElement.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
         }
-        
-      // check for discriminator evaluated to true. But just FYI since this is the last alternative anyway
-      if (qResult.discriminator == true) {
-        log(Debug("Failure, but discriminator true. (last alternative anyway)"))
-      }
+
+        // check for discriminator evaluated to true. But just FYI since this is the last alternative anyway
+        if (qResult.discriminator == true) {
+          log(Debug("Failure, but discriminator true. (last alternative anyway)"))
+        }
         // Since both alternatives failed, we create two meta-diagnostics that 
         // each indicate that one alternative failed due to the errors that occurred during
         // that attempt.
@@ -257,11 +242,6 @@ class UState(
   val root: org.jdom.Element,
   val currentElement: org.jdom.Element,
   val rootName: String,
-
-  val bitPos: Long,
-  val bitLimit: Long,
-  val charPos: Long,
-  val charLimit: Long,
   val variableMap: VariableMap,
   val target: String,
   val namespaces: Namespaces,
@@ -269,10 +249,8 @@ class UState(
   val groupIndexStack: List[Long],
   val childIndexStack: List[Long],
   val arrayIndexStack: List[Long],
-  val diagnostics : List[Diagnostic],
-  val discriminator : Boolean) extends DFDL.State {
-  def bytePos = bitPos >> 3
-  def whichBit = bitPos % 8
+  val diagnostics: List[Diagnostic],
+  val discriminator: Boolean) extends DFDL.State {
   def groupPos = groupIndexStack.head
   def childPos = childIndexStack.head
   def currentLocation: DataLocation = new DataLocUnparse(currentElement, outStream)
@@ -282,25 +260,23 @@ class UState(
    * one or a related subset of the state components.
    */
   //  def withOutStream(outStream: OutStream, status: ProcessorResult = Success) =
-  //    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit,variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
-  //  def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) =
-  //    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  //    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def withCurrent(currentElement: org.jdom.Element, status: ProcessorResult = Success) =
-    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   //  def withVariables(variableMap: VariableMap, status: ProcessorResult = Success) =
-  //    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  //    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def withGroupIndexStack(groupIndexStack: List[Long], status: ProcessorResult = Success) =
-    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def withChildIndexStack(childIndexStack: List[Long], status: ProcessorResult = Success) =
-    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def withArrayIndexStack(arrayIndexStack: List[Long], status: ProcessorResult = Success) =
-    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
-  def withDiscriminator(discriminator : Boolean) = 
-     new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  def withDiscriminator(discriminator: Boolean) =
+    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def failed(msg: => String): UState =
     failed(new GeneralUnparseFailure(msg))
   def failed(failureDiagnostic: Diagnostic) =
-    new UState(outStream, infoset, root, currentElement, rootName, bitPos, bitLimit, charPos, charLimit, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics, discriminator)
+    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics, discriminator)
 
   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.
@@ -357,8 +333,8 @@ object UState {
    */
   def createInitialState(rootElemDecl: GlobalElementDecl, out: OutStream, infoset: org.jdom.Document): UState = {
     val elem = infoset.getContent()
-    //TODO: give appropriate error if not single root element in infoset--infoset validation done elsewhere?
-    assertTrue(elem.size() == 1)
+    //TODO: even needed?
+    Assert.invariant(elem.size() == 1)
     val root = elem(0).asInstanceOf[org.jdom.Element]
     val rootName = root.getName()
 
@@ -371,7 +347,7 @@ object UState {
     val arrayIndexStack = Nil
     val diagnostics = Nil
     val discriminator = false
-    val newState = new UState(out, infoset, root, root, rootName, 0, -1, 0, -1, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    val newState = new UState(out, infoset, root, root, rootName, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
     newState
   }
 
@@ -408,7 +384,7 @@ trait OutStream {
   //  def getBinaryLong(bitOffset : Long,  isBigEndian : Boolean) : Long
   //  def getBinaryInt(bitOffset : Long,  isBigEndian : Boolean) : Int
 
-  def fillCharBuffer(nBytes: Long, data: String, encoder: CharsetEncoder)
+  def fillCharBuffer(data: String, encoder: CharsetEncoder)
   def write()
   def charBufferToByteBuffer(): ByteBuffer
 
@@ -429,10 +405,8 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
   /*
    * Moves data to CharBuffer, resizing as necessary.
    */
-  def fillCharBuffer(nBytes: Long, data: String, enc: CharsetEncoder) = {
+  def fillCharBuffer(data: String, enc: CharsetEncoder) = {
     encoder = enc
-    cbuf.clear() //remove old data from previous element
-
     setData(data)
   }
 
@@ -449,10 +423,8 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
 
     //TODO: this is oversimplified
     //TODO: also always selects first delimiter from Seq
-    if (!terminators.isEmpty) {
-      sb.append(terminators.head)
-    }
-    cbuf.clear()
+    sb.append(terminators.head)
+
     setData(sb.toString())
   }
 
@@ -473,18 +445,18 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
 
     val cr1 = encoder.encode(cbuf, bbuf, true) // true means this is all the input you get.
 
-    log(Debug("Decode Error1: " + cr1.toString()))
+    log(Debug("Encode Error1: " + cr1.toString()))
     if (cr1 != CoderResult.UNDERFLOW) {
       if (cr1 == CoderResult.OVERFLOW) {
         // it's ok. It just means we've satisfied the byte buffer.
-      } //else // for some unparsing, we need to know we couldn't decode, but this is expected behavior.
-      // Assert.abort("Something went wrong while decoding characters: CoderResult = " + cr1)   
+      } //else
+      // Assert.abort("Something went wrong while encoding characters: CoderResult = " + cr1)   
     }
     val cr2 = encoder.flush(bbuf)
-    log(Debug("Decode Error2: " + cr2.toString()))
+    log(Debug("Encode Error2: " + cr2.toString()))
     if (cr2 != CoderResult.UNDERFLOW) {
       // Something went wrong
-      // Assert.abort("Something went wrong while decoding characters: CoderResult = " + cr2) 
+      // Assert.abort("Something went wrong while encoding characters: CoderResult = " + cr2) 
       // FIXME: proper handling of errors. Some of which are 
       // to be suppressed, other converted, others skipped, etc. 
     }
@@ -497,6 +469,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
   }
 
   def setData(str: String) {
+    cbuf.clear() //remove old data from previous element
     var isTooSmall = true
     while (isTooSmall) {
       try { //writing all data to char buffer
@@ -505,7 +478,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
         isTooSmall = false
       } catch { //make sure buffer was not read to capacity
         case e: Exception =>
-          cbuf = CharBuffer.allocate(cbuf.capacity() * 4)
+          cbuf = CharBuffer.allocate(cbuf.capacity() * 4) //TODO: more efficient algorithm than size x4
       }
     }
   }

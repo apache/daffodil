@@ -1,6 +1,9 @@
 package daffodil.api
 
 import scala.xml.Node
+import daffodil.processors.ProcessorResult
+import daffodil.processors.Success
+
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -68,7 +71,7 @@ object DFDL {
      */
     def compile(schema: Node): ProcessorFactory
     def compile(schemaFileName: String): ProcessorFactory
-    
+
     def reload(fileName: String): ProcessorFactory
   }
 
@@ -81,26 +84,49 @@ object DFDL {
 
   trait DataProcessor extends WithDiagnostics {
     def save(fileName: String): Unit
-    
+
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
      */
     def unparse(output: Output, node: scala.xml.Node): UnparseResult
-    
+
     /**
      * Returns an object which contains the result, and/or diagnostic information
-     */   
-    def parse(input : Input) : ParseResult 
+     */
+    def parse(input: Input): ParseResult
   }
-  
-  trait ParseResult extends WithDiagnostics {
-    def result : scala.xml.Node
-  }
-  
-  trait UnparseResult extends WithDiagnostics 
 
+  trait ParseResult extends Result with WithDiagnostics {
+    def result: scala.xml.Node
+  }
+
+  trait UnparseResult extends Result with WithDiagnostics
+
+  /**
+   * Interface for Parse and Unparse states
+   */
   abstract class State {
-    def currentLocation : DataLocation
+    //TODO: add common elements
+    val status: ProcessorResult
+    val diagnostics: List[Diagnostic]
+    def currentLocation: DataLocation
+  }
+
+  /**
+   * Interface for Parse and Unparse results
+   */
+  abstract class Result {
+    def resultState: State
+    var diagnostics: List[Diagnostic] = Nil
+
+    def getDiagnostics = {
+      diagnostics ++ resultState.diagnostics
+    }
+
+    def addDiagnostic(d: Diagnostic) {
+      diagnostics = d +: diagnostics
+    }
+    lazy val isError = resultState.status != Success
   }
 }
 

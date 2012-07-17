@@ -1,19 +1,12 @@
 package daffodil.dsom
 
-import daffodil.exceptions.Assert
-import daffodil.api.DFDL
-import daffodil.grammar.PState
-import daffodil.grammar.UState
-import daffodil.dsom.OOLAG.ErrorAlreadyHandled
+import daffodil.grammar.{ ProcessingError, ParseError, UnparseError, PState, UState}
+import daffodil.api.{ WithDiagnostics, DFDL }
 import daffodil.xml.XMLUtils
+import daffodil.exceptions.Assert
 import daffodil.processors.Success
-import daffodil.grammar.GeneralUnparseFailure
-import daffodil.api.WithDiagnostics
 import daffodil.dsom.OOLAG.OOLAGException
-import daffodil.grammar.ParseError
-import daffodil.grammar.UnparseError
-import daffodil.grammar.ProcessingError
-import daffodil.api.Diagnostic
+
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -130,8 +123,7 @@ class DataProcessor(pf: ProcessorFactory, rootElem: GlobalElementDecl)
           }
           case sde: SchemaDefinitionError => {
             // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
-            // These are fatal, and there's no notion of backtracking them, so they propagate to top level
-            // here.
+            // These are fatal, and there's no notion of backtracking them, so they propagate to top level here.
             initialState.failed(sde)
           }
           case e: OOLAGException => {
@@ -150,20 +142,10 @@ abstract class ParseResult(dp: DataProcessor)
   extends DFDL.ParseResult
   with WithDiagnosticsImpl {
 
-  def resultState: PState
+  override def resultState: PState
 
   //  lazy val prettyName = "ParseResult"
   //  lazy val path = ""
-
-  var diagnostics: List[Diagnostic] = Nil
-
-  def getDiagnostics = {
-    diagnostics ++ resultState.diagnostics
-  }
-
-  def addDiagnostic(d: Diagnostic) {
-    diagnostics = d +: diagnostics
-  }
 
   val result =
     if (resultState.status == Success) {
@@ -176,24 +158,15 @@ abstract class ParseResult(dp: DataProcessor)
     } else {
       <nothing/>
     }
-
-  lazy val isError = resultState.status != Success
 }
 
 abstract class UnparseResult(dp: DataProcessor)
   extends DFDL.UnparseResult
   with WithDiagnosticsImpl {
-  def resultState: UState
 
-  var diagnostics: List[Diagnostic] = Nil
+  override def resultState: UState
 
-  def getDiagnostics = {
-    diagnostics ++ resultState.diagnostics
-  }
-  def addDiagnostic(d: Diagnostic) {
-    diagnostics = d +: diagnostics
-  }
-
-  lazy val isError = resultState.status != Success
+  //  lazy val prettyName = "UnparseResult"
+  //  lazy val path = ""
 }
 

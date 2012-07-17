@@ -1,24 +1,15 @@
 package daffodil.dsom
 
-import java.io._
+import java.io.ByteArrayOutputStream
+import java.io.ByteArrayInputStream
 import scala.xml.Node
 import scala.xml.XML
 import daffodil.api.DFDL
-import daffodil.exceptions._
-import daffodil.util.Validator
-import daffodil.xml.XMLUtils
-import daffodil.grammar._
-import daffodil.processors._
-import daffodil.util.Misc._
-import daffodil.api.Diagnostic
-import daffodil.util.Misc
-import daffodil.api.WithDiagnostics
-import daffodil.util.Logging
-import daffodil.util.Info
+import daffodil.exceptions.Assert
+import daffodil.util. { Logging, Info }
+import daffodil.util.Misc.hex2Bytes
 import junit.framework.Assert.assertEquals
-import daffodil.util.LoggingDefaults
-import daffodil.util.LogLevel
-import daffodil.dsom.OOLAG.ErrorAlreadyHandled
+
 
 class ProcessorFactory(sset: SchemaSet, rootElem: GlobalElementDecl)
   extends DiagnosticsProviding // (sset)

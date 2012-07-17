@@ -1,11 +1,10 @@
 package daffodil.grammar
 
 import daffodil.exceptions.Assert
-import daffodil.dsom.SchemaComponent
-import daffodil.util.Misc._
-import daffodil.dsom._
-import daffodil.dsom.OOLAG._
 import daffodil.util.Debug
+import daffodil.util.Misc.getNameFromClass
+import daffodil.dsom.{ SchemaComponent, Term, DiagnosticsProviding}
+
 
 abstract class Gram(val context: Term) extends DiagnosticsProviding {
   def deref = this
