@@ -824,67 +824,67 @@ class InStreamFromByteChannel(context : ElementBase, in : DFDL.Input, sizeHint :
   // Fills the CharBuffer with as many bytes as can be decoded successfully.
   //
 
-  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, numBytes: Long = -1): (Long, Boolean) = {
+  def fillCharBufferMixedData(cb : CharBuffer, bitOffset : Long, decoder : CharsetDecoder, numBytes : Long = -1) : (Long, Boolean) = {
+    withLoggingLevel(LogLevel.Debug) {
 
-    //TODO: Mike, how do we call these asserts now? Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
-    val byteOffsetAsLong = (bitOffset >> 3)
-    //TODO: Mike, how do we call these asserts now? Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
-    val byteOffset = byteOffsetAsLong.toInt
-    val me : String = "fillCharBufferMixedData - "
-    // 
-    // Note: not thread safe. We're depending here on the byte buffer being private to us.
-    //
-    log(Debug(me + "Start at byteOffset " + byteOffset))
-    log(Debug(me + "byteBuffer limit: " + bb.limit()))
+      //TODO: Mike, how do we call these asserts now? Assert.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
+      val byteOffsetAsLong = (bitOffset >> 3)
+      //TODO: Mike, how do we call these asserts now? Assert.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
+      val byteOffset = byteOffsetAsLong.toInt
+      val me : String = "fillCharBufferMixedData - "
+      // 
+      // Note: not thread safe. We're depending here on the byte buffer being private to us.
+      //
+      log(Debug(me + "Start at byteOffset " + byteOffset))
+      log(Debug(me + "byteBuffer limit: " + bb.limit()))
 
-    if (byteOffset >= bb.limit()) {
-      // We are at end, nothing more to do.
-      log(Debug(me + "byteOffset >= limit! Nothing more to do."))
-      return (-1L, true)
+      if (byteOffset >= bb.limit()) {
+        // We are at end, nothing more to do.
+        log(Debug(me + "byteOffset >= limit! Nothing more to do."))
+        return (-1L, true)
+      }
+
+      bb.position(byteOffset) // Set byte position of ByteBuffer to the offset
+      decoder.reset()
+
+      var byteArray : Array[Byte] = new Array[Byte](bb.limit() - byteOffset)
+
+      // Retrieve a byte array from offset to end of ByteBuffer.
+      // Starts at 0, because ByteBuffer was already set to byteOffset
+      // Ends at ByteBuffer limit in Bytes minus the offset
+      bb.get(byteArray, 0, (bb.limit - byteOffset))
+
+      var endAtByte = numBytes
+
+      if (endAtByte == -1) { endAtByte = bb.limit }
+
+      log(Debug("endAtByte: %s", endAtByte))
+
+      var (result : CharBuffer, bytesDecoded : Long) = decodeUntilFail(byteArray, decoder, endAtByte)
+
+      if (bytesDecoded == 0) { return (-1L, true) }
+
+      log(Debug("MixedDataResult: BEG_" + result + "_END , bytesDecoded: " + bytesDecoded))
+
+      cb.clear()
+      cb.append(result)
+
+      cb.flip() // so the caller can now read the sb.
+
+      val endBytePos = byteOffset + bytesDecoded
+
+      log(Debug(me + "Ended at byte pos " + endBytePos))
+
+      var EOF : Boolean = bb.limit() == bb.position()
+
+      bb.position(0) // prevent anyone depending on the buffer position across calls to any of the InStream methods.
+
+      val endBitPos : Long = endBytePos << 3
+
+      log(Debug(me + "Ended at bit pos " + endBitPos))
+
+      (endBitPos, EOF)
     }
-
-    bb.position(byteOffset) // Set byte position of ByteBuffer to the offset
-    decoder.reset()
-
-    var byteArray : Array[Byte] = new Array[Byte](bb.limit() - byteOffset)
-
-    // Retrieve a byte array from offset to end of ByteBuffer.
-    // Starts at 0, because ByteBuffer was already set to byteOffset
-    // Ends at ByteBuffer limit in Bytes minus the offset
-    bb.get(byteArray, 0, (bb.limit - byteOffset))
-
-    var endAtByte = numBytes
-
-    if (endAtByte == -1) { endAtByte = bb.limit }
-
-    System.err.println("endAtByte: " + endAtByte)
-
-    var (result: CharBuffer, bytesDecoded: Long) = decodeUntilFail(byteArray, decoder, endAtByte)
-
-    if (bytesDecoded == 0) { return (-1L, true) }
-
-    log(Debug("MixedDataResult: BEG_" + result + "_END , bytesDecoded: " + bytesDecoded))
-
-    System.err.println("MixedDataResult: BEG_" + result + "_END , bytesDecoded: " + bytesDecoded)
-
-    cb.clear()
-    cb.append(result)
-
-    cb.flip() // so the caller can now read the sb.
-
-    val endBytePos = byteOffset + bytesDecoded
-
-    log(Debug(me + "Ended at byte pos " + endBytePos))
-
-    var EOF : Boolean = bb.limit() == bb.position()
-
-    bb.position(0) // prevent anyone depending on the buffer position across calls to any of the InStream methods.
-
-    val endBitPos : Long = endBytePos << 3
-
-    log(Debug(me + "Ended at bit pos " + endBitPos))
-
-    (endBitPos, EOF)
   }
 
   // Read the delimiter if possible off of the ByteBuffer
@@ -892,7 +892,7 @@ class InStreamFromByteChannel(context : ElementBase, in : DFDL.Input, sizeHint :
   def getDelimiter(cb: CharBuffer, bitOffset: Long, 
       decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
       es: EscapeSchemeObj): (String, Long, Long, SearchResult, Delimiter) = {
-    setLoggingLevel(LogLevel.Debug)
+    // setLoggingLevel(LogLevel.Debug)
 
     log(Debug("BEG_getDelimiter"))
 

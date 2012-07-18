@@ -5,6 +5,7 @@ import daffodil.processors.xpath._
 import javax.xml.xpath._
 import daffodil.processors.VariableMap
 import org.jdom.Element
+import daffodil.processors.xpath.XPathUtil.CompiledExpressionFactory
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -90,7 +91,7 @@ case class ConstantProperty[T](value: T) extends CompiledExpression(value.toStri
 
 case class ExpressionProperty[T](convertTo : Symbol, 
     xpathText : String, 
-    xpathExprFactory: VariableMap => XPathExpression) extends CompiledExpression(xpathText) {
+    xpathExprFactory: CompiledExpressionFactory) extends CompiledExpression(xpathText) {
     def isConstant = false
     def isKnownNonEmpty = true // expressions are not allowed to return empty string
     def constant: T = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
@@ -117,13 +118,13 @@ class ExpressionCompiler(edecl : AnnotatedMixin) {
    * is to evaluate it in an environment where if it touches anything (variables, jdom tree, etc.)
    * it will throw. No throw means a value came back and it must be a constant.
    */
-  def constantValue(xpathExprFactory: VariableMap => XPathExpression): Option[String] = {
+  def constantValue(xpathExprFactory: CompiledExpressionFactory): Option[String] = {
     // val dummyRoot = new org.jdom.Element("dummy", "dummy")
     // val dummyDoc = new org.jdom.Document(dummyRoot)
     val dummyVars = new VariableMap
     val result =
       try {
-        val res = XPathUtil.evalExpression("checking constantValue", xpathExprFactory, dummyVars, null) 
+        val res = XPathUtil.evalExpression(xpathExprFactory.expression, xpathExprFactory, dummyVars, null) 
         res match {
           case StringResult(s) => Some(s)
           case NodeResult(s) => Assert.invariantFailed("Can't evaluate to a node when testing for isConstant")

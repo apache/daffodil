@@ -52,6 +52,9 @@ import daffodil.xml.Namespaces
 import daffodil.exceptions._
 import daffodil.processors.VariableMap
 import daffodil.xml.XMLUtils
+import daffodil.util.Logging
+import daffodil.util.Debug
+import daffodil.util.LogLevel
 
 /**
  * Utility object for evaluating XPath expressions
@@ -59,7 +62,7 @@ import daffodil.xml.XMLUtils
  * @version 1
  * @author Alejandro Rodriguez
  */
-object XPathUtil {
+object XPathUtil extends Logging {
 
   System.setProperty("javax.xml.xpath.XPathFactory:"+NamespaceConstant.OBJECT_MODEL_JDOM,"net.sf.saxon.xpath.XPathFactoryImpl")
   private val xpathFactory = XPathFactory.newInstance(NamespaceConstant.OBJECT_MODEL_JDOM)
@@ -89,12 +92,18 @@ object XPathUtil {
     val xpathExpr = xpath.compile(expression)
 
     // We need to supply the variables later
-    def withVariables(runtimeVars: VariableMap): XPathExpression = {
-      variables = runtimeVars
-      xpathExpr
+    val withoutVariables = new CompiledExpressionFactory(expression) {
+       def getXPathExpr(runtimeVars: VariableMap) = {
+        variables = runtimeVars
+        xpathExpr
+      }  
     }
 
-    withVariables _ // return this factory function
+    withoutVariables  // return this factory
+  }
+  
+  abstract class CompiledExpressionFactory(val expression : String){
+      def getXPathExpr(runtimeVars: VariableMap) : XPathExpression
   }
                      
   /** Evaluates an XPath 2 expression in one shot, from string to value.
@@ -114,24 +123,29 @@ object XPathUtil {
     
   def evalExpression(
       expressionForErrorMsg : String, 
-      compiledExprFactory : VariableMap => XPathExpression, 
+      compiledExprFactory : CompiledExpressionFactory, 
       variables:VariableMap, 
       contextNode:Parent) : XPathResult = {
-    val ce = compiledExprFactory(variables)
+    withLoggingLevel(LogLevel.Debug)
+    {
+    val ce = compiledExprFactory.getXPathExpr(variables)
     try{
+      log(Debug("evaluating %s", expressionForErrorMsg))
+      log(Debug("trying NODE"))
       val o = ce.evaluate(contextNode,NODE)
       println("evaluated to: " + o)
       val res = o match {
         case x : Element => new NodeResult(x)
         case x : Text => new StringResult(x.getValue())
         case _ => {
-           println("First try expression eval didn't work. Got: " + o)
+           log(Debug("First try expression eval didn't work. Got: " + o))
            throw new XPathExpressionException("unrecognized NODE:" + o) // Assert.invariantFailed("unrecognized NODE type")
         }
       }
       return res
     }catch{
       case _:XPathExpressionException =>
+        log(Debug("Didn't work to get NODE"))
         //
         // This second try to see if we can evaluate with a STRING
         // as goal should be eliminated by static analysis of
@@ -139,9 +153,9 @@ object XPathUtil {
         // So we shouln't have to try NODE, then STRING
         // 
         try {
-          println("Expression eval trying STRING.")
+          log(Debug("Expression eval trying STRING."))
           val o = ce.evaluate(contextNode,STRING)
-          println("Second try got: '" + o + "'")
+          log(Debug("Second try got: '%s'", o))
           new StringResult(o.asInstanceOf[String])
         }catch {
           case e:XPathExpressionException => {
@@ -152,6 +166,7 @@ object XPathUtil {
       case e:Exception => {
         doUnknownXPathEvalException(expressionForErrorMsg, e)
       }
+    }
     }
   }
 

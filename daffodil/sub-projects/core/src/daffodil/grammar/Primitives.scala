@@ -208,7 +208,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
         return PE(start, "Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
       }
       val result = cbuf.toString
-      log(Info("Parsed: " + result))
+      log(Debug("Parsed: " + result))
       log(Debug("Ended at bit position " + endBitPos))
       val endCharPos = start.charPos + result.length
       val currentElement = start.parentForAddContent
@@ -246,7 +246,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
     val cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool. 
 
     def parse(start: PState): PState = {
-      setLoggingLevel(LogLevel.Debug)
+      // setLoggingLevel(LogLevel.Debug)
 
       log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
 
@@ -864,7 +864,7 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true) extends
   //e.asInstanceOf[Term].terminatingMarkup
 
   def parser: Parser = new Parser(e) {
-    setLoggingLevel(LogLevel.Debug)
+    // setLoggingLevel(LogLevel.Debug)
 
     val t = e.asInstanceOf[Term]
 

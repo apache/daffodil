@@ -101,6 +101,10 @@ class TresysTests extends JUnit3Suite {
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     runnerCH.runOneTest("choiceDelim1")
     }
+  def test_nestedChoice1() { 
+    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+    runnerCH.runOneTest("nestedChoice1")
+    }
   
   val rd = testDir + "runtime-diagnostics.tdml"
   val runnerRD = new DFDLTestSuite(new File(rd))
