@@ -129,23 +129,22 @@ object XPathUtil extends Logging {
     withLoggingLevel(LogLevel.Debug)
     {
     val ce = compiledExprFactory.getXPathExpr(variables)
+    log(Debug("Evaluating %s in context %s", expressionForErrorMsg, contextNode)) // Careful. contextNode could be null.
+    log(Debug("Expression eval trying NODE"))
     try{
-      log(Debug("evaluating %s", expressionForErrorMsg))
-      log(Debug("trying NODE"))
-      val o = ce.evaluate(contextNode,NODE)
-      println("evaluated to: " + o)
+      val o = ce.evaluate(contextNode, NODE)
+      log(Debug("Evaluated to: %s", o))
       val res = o match {
         case x : Element => new NodeResult(x)
         case x : Text => new StringResult(x.getValue())
         case _ => {
-           log(Debug("First try expression eval didn't work. Got: " + o))
-           throw new XPathExpressionException("unrecognized NODE:" + o) // Assert.invariantFailed("unrecognized NODE type")
+           throw new XPathExpressionException("unrecognized NODE (not Element nor Text): " + o) 
         }
       }
       return res
     }catch{
-      case _:XPathExpressionException =>
-        log(Debug("Didn't work to get NODE"))
+      case e:XPathExpressionException =>
+        log(Debug("Didn't work to get NODE due to %s", e))
         //
         // This second try to see if we can evaluate with a STRING
         // as goal should be eliminated by static analysis of
@@ -155,11 +154,12 @@ object XPathUtil extends Logging {
         try {
           log(Debug("Expression eval trying STRING."))
           val o = ce.evaluate(contextNode,STRING)
-          log(Debug("Second try got: '%s'", o))
+          log(Debug("Evaluated to: '%s'", o))
           new StringResult(o.asInstanceOf[String])
         }catch {
           case e:XPathExpressionException => {
             // doUnknownXPathEvalException(expressionForErrorMsg, e)
+            log(Debug("Second try didn't work to get STRING due to %s", e))
             throw e
           }
         }
@@ -171,9 +171,7 @@ object XPathUtil extends Logging {
   }
 
   def doUnknownXPathEvalException(expression : String, exc : Exception) = {
-     // val txt = "Unknown error evaluating '"+expression+"'. Cause: " + exc.toString
      throw new XPathExpressionException(exc)
-     // Assert.abort(txt) //TODO proper runtime failure behavior
   }
   
   /**

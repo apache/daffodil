@@ -84,7 +84,7 @@ class AltParseFailed(sc : SchemaComponent, state : DFDL.State,
 /**
  * Encapsulates lower-level parsing with a uniform interface
  */
-abstract class Parser(val context : Term) {
+abstract class Parser(val context : Term) extends Logging {
   
   def PE(pstate : PState, s : String, args : Any*) = {
     pstate.failed(new ParseError(context, pstate, s, args : _*))

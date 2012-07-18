@@ -6,6 +6,9 @@ import javax.xml.xpath._
 import daffodil.processors.VariableMap
 import org.jdom.Element
 import daffodil.processors.xpath.XPathUtil.CompiledExpressionFactory
+import daffodil.util.Logging
+import daffodil.util.Debug
+import daffodil.util.LogLevel
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -112,26 +115,33 @@ case class ExpressionProperty[T](convertTo : Symbol,
   }
 
 
-class ExpressionCompiler(edecl : AnnotatedMixin) {
+class ExpressionCompiler(edecl : AnnotatedMixin) extends Logging {
   /**
    * The only way I know to check if the compiled expression was just a constant
    * is to evaluate it in an environment where if it touches anything (variables, jdom tree, etc.)
    * it will throw. No throw means a value came back and it must be a constant.
    */
-  def constantValue(xpathExprFactory: CompiledExpressionFactory): Option[String] = {
+  def constantValue(xpathExprFactory: CompiledExpressionFactory): Option[String] = 
+  withLoggingLevel(LogLevel.Debug){
     // val dummyRoot = new org.jdom.Element("dummy", "dummy")
     // val dummyDoc = new org.jdom.Document(dummyRoot)
     val dummyVars = new VariableMap
     val result =
       try {
-        val res = XPathUtil.evalExpression(xpathExprFactory.expression, xpathExprFactory, dummyVars, null) 
+        val res = XPathUtil.evalExpression(xpathExprFactory.expression + " (to see if constant)", xpathExprFactory, dummyVars, null) 
         res match {
-          case StringResult(s) => Some(s)
+          case StringResult(s) => {
+            log(Debug("%s is constant", xpathExprFactory.expression))
+            Some(s)
+          }
           case NodeResult(s) => Assert.invariantFailed("Can't evaluate to a node when testing for isConstant")
         }
       }
       catch {
-        case e: XPathExpressionException => None
+        case e: XPathExpressionException => {
+           log(Debug("%s is NOT constant", xpathExprFactory.expression))
+           None
+        }
         case e: Exception => {
           Assert.invariantFailed("Didn't get an XPathExpressionException. Got: " + e)
         }

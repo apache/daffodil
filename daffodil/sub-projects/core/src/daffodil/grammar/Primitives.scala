@@ -1242,8 +1242,8 @@ class IVCParser(e : ElementBase with ElementDeclMixin) extends Parser(e) {
       result
     }
     
-    def parse(start: PState): PState = {
-      println("InputValueCalc!")
+    def parse(start: PState): PState = withLoggingLevel(LogLevel.Debug){
+      log(Debug("This is %s", toString))
       val currentElement = start.parentElement
       val result = ivcExpr.evaluate(currentElement, start.variableMap)
       val res = result.asInstanceOf[String] // only strings for now.
