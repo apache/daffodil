@@ -99,6 +99,34 @@ abstract class Parser(val context : Term) {
   // TODO: other methods for things like asking for the ending position of something
   // which would enable fixed-length formats to skip over data and not parse it at all.
 
+  // 
+  // These next functions provide generic capability. The base class JDOM didn't create that shares
+  // function across jdom Element and jdom Document
+  //
+//  def getText(p : org.jdom.Parent) = {
+//    p match {
+//        case e : org.jdom.Element => e.getText()
+//        case e : org.jdom.Document => Assert.invariantFailed("Can't getText on Document")
+//        case _ => Assert.invariantFailed("couldn't getText()")
+//    }
+//  }
+//  
+//  def setText(p : org.jdom.Parent, text : String) {
+//     p match {
+//        case e : org.jdom.Element => e.setText(text)
+//        case e : org.jdom.Document => Assert.invariantFailed("Can't setText on Document")
+//        case _ => Assert.invariantFailed("couldn't setText()")
+//    }
+//  }
+//  
+//  def addContent(p: org.jdom.Parent, content : org.jdom.Content) {
+//     p match {
+//        // the structure type below is the common ground between the Document and Element jdom types
+//        case e : org.jdom.Element => e.addContent(content)
+//        case e : org.jdom.Document => e.addContent(content)
+//        case _ => Assert.invariantFailed("couldn't add content")
+//      }
+//  }
 }
 
 // No-op, in case an optimization lets one of these sneak thru. 

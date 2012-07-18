@@ -196,18 +196,18 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertTrue(elem.isInstanceOf[LocalElementDecl])
   }
 
-  // @Test
-  def testInputValueCalc1() {
-    val testSchema = TestUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="data" type="xs:string" dfdl:textNumberRep="standard" dfdl:representation="text" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:inputValueCalc="{ 42 }" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:length="1"/>)
-    val actual = Compiler.testString(testSchema, "")
-    val actualString = actual.result.toString
-    assertTrue(actualString.contains("<data"))
-    assertTrue(actualString.contains(">42</data>"))
-
-    Compiler.testUnparsing(testSchema, actual.result, "42")
-  }
+//  // @Test
+//  def testInputValueCalc1() {
+//    val testSchema = TestUtils.dfdlTestSchema(
+//      <dfdl:format ref="tns:daffodilTest1"/>,
+//      <xs:element name="data" type="xs:string" dfdl:textNumberRep="standard" dfdl:representation="text" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:inputValueCalc="{ 42 }" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:length="1"/>)
+//    val actual = Compiler.testString(testSchema, "")
+//    val actualString = actual.result.toString
+//    assertTrue(actualString.contains("<data"))
+//    assertTrue(actualString.contains(">42</data>"))
+//
+//    Compiler.testUnparsing(testSchema, actual.result, "42")
+//  }
   
     // @Test
   def testInputValueCalc2() {
@@ -227,7 +227,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertTrue(actualString.contains("<data"))
     assertTrue(actualString.contains("><e1>A</e1><e2>A</e2></data>"))
   }
-
+  
   // @Test
   def testTerminator1() {
     val testSchema = TestUtils.dfdlTestSchema(

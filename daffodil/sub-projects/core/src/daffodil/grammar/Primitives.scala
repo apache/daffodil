@@ -651,7 +651,6 @@ case class ConvertTextDoublePrim1(e: ElementBase) extends Terminal(e, true) {
 
     def parse(start : PState) : PState = {
       val node = start.parentElement
-
       val str = node.getText
 
       val resultState =
@@ -1212,12 +1211,13 @@ case class FinalUnusedRegion(e: ElementBase) extends Primitive(e, false)
 case class InputValueCalc(e: ElementBase with ElementDeclMixin) extends Terminal(e, true) {
 
   def parser: Parser = new IVCParser(e) 
-  
+
   def unparser: Unparser = new Unparser(e) {
     def unparse(start: UState): UState = {
       Assert.notYetImplemented()
     }
   }
+
 }
  
 class IVCParser(e : ElementBase with ElementDeclMixin) extends Parser(e) {
@@ -1252,8 +1252,5 @@ class IVCParser(e : ElementBase with ElementDeclMixin) extends Parser(e) {
       val postState = start // inputValueCalc consumes nothing. Just creates a value.
       postState
     }
-
-
 }
-
 
