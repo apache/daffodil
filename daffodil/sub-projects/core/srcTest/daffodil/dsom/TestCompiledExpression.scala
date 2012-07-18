@@ -234,7 +234,7 @@ class TestCompiledExpression extends JUnit3Suite {
     val sset = new SchemaSet(testSchema)
     val edecl = sset.getGlobalElementDecl(example, "data").get.forRoot()
     val ct = edecl.typeDef.asInstanceOf[ComplexTypeBase]
-    val d = Compiler.stringToReadableByteChannel("42") // it's not going to read from here.
+    val d = Compiler.stringToReadableByteChannel("42") 
     val compiler = Compiler()
     val pf = compiler.compile(testSchema)
     val dp = pf.onPath("/")
