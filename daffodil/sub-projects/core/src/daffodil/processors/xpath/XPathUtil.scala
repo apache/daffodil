@@ -130,10 +130,10 @@ object XPathUtil extends Logging {
     {
     val ce = compiledExprFactory.getXPathExpr(variables)
     try{
-      log(Debug("evaluating %s", expressionForErrorMsg))
+      log(Debug("evaluating %s in context %s", expressionForErrorMsg, contextNode.toString))
       log(Debug("trying NODE"))
       val o = ce.evaluate(contextNode,NODE)
-      println("evaluated to: " + o)
+      log(Debug("evaluated to: %s", o))
       val res = o match {
         case x : Element => new NodeResult(x)
         case x : Text => new StringResult(x.getValue())
