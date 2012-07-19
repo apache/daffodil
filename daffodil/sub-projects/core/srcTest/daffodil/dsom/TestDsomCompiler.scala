@@ -27,7 +27,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     }
     found
   }
-/*
+
   // @Test
   def testHasProps() {
     val testSchema = TestUtils.dfdlTestSchema(
@@ -196,21 +196,49 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertTrue(elem.isInstanceOf[LocalElementDecl])
   }
 
+  //  // @Test
+  //  def testInputValueCalc1() {
+  //    val testSchema = TestUtils.dfdlTestSchema(
+  //      <dfdl:format ref="tns:daffodilTest1"/>,
+  //      <xs:element name="data" type="xs:string" dfdl:textNumberRep="standard" dfdl:representation="text" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:inputValueCalc="{ 42 }" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:length="1"/>)
+  //    val actual = Compiler.testString(testSchema, "")
+  //    val actualString = actual.result.toString
+  //    assertTrue(actualString.contains("<data"))
+  //    assertTrue(actualString.contains(">42</data>"))
+  //
+  //    Compiler.testUnparsing(testSchema, actual.result, "42")
+  //  }
+
   // @Test
-  def testInputValueCalc1() {
+  //  def testInputValueCalc2() {
+  //    val testSchema = TestUtils.dfdlTestSchema(
+  //      <dfdl:format ref="tns:daffodilTest1"/>,
+  //      <xs:element name="data">
+  //        <xs:complexType>
+  //         <xs:sequence>
+  //           <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+  //           <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../e1 }" />
+  //         </xs:sequence>
+  //        </xs:complexType>
+  //      </xs:element>)
+  //
+  //    val actual = Compiler.testString(testSchema, "A")
+  //    val actualString = actual.result.toString
+  //    assertTrue(actualString.contains("<data"))
+  //    assertTrue(actualString.contains("><e1>A</e1><e2>A</e2></data>"))
+  //  }
+
+  // @Test
+  def testInitiator() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="data" type="xs:string" dfdl:textNumberRep="standard" dfdl:representation="text" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:inputValueCalc="{ 42 }" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:length="1"/>)
-    val actual = Compiler.testString(testSchema, "")
-    val actualString = actual.result.toString
-    assertTrue(actualString.contains("<data"))
-    assertTrue(actualString.contains(">42</data>"))
-
-    Compiler.testUnparsing(testSchema, actual.result, "42")
-  }*/
+      <xs:element name="data" type="xs:string" dfdl:initiator="*" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
+    val infoset = <data xmlns={ example }>word</data>
+    Compiler.testUnparsing(testSchema, infoset, "*word")
+  }
 
   // @Test
-  def testTerminator1() {
+  def testTerminator() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:string" dfdl:terminator="!" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
@@ -221,9 +249,9 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
 
     Compiler.testUnparsing(testSchema, actual.result, "37!")
   }
-  
-    // @Test
-  def testDelims1() {
+
+  // @Test
+  def testDelims() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:string" dfdl:initiator="*" dfdl:terminator="! $" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
@@ -236,102 +264,46 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
   }
 
   // @Test
-  def testUnparse1() {
+  def testUnparseInt() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="data" type="xs:int" dfdl:occursStopValue="-1" dfdl:textNumberRep="standard" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:length="{ 9 }"/>)
+      <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 9 }"/>)
     val infoset = <data xmlns={ example }>123456789</data>
     Compiler.testUnparsing(testSchema, infoset, "123456789")
   }
 
   // @Test
-  def testUnparse2() {
+  def testUnparseString() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="data" type="xs:string" dfdl:occursStopValue="-1" dfdl:textNumberRep="standard" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:length="{ 6 }"/>)
+      <xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 6 }"/>)
     val infoset = <data xmlns={ example }>string</data>
     Compiler.testUnparsing(testSchema, infoset, "string")
   }
 
   // @Test
-  def testUnparse3() {
+  def testUnparseDouble() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="data" type="xs:double" dfdl:occursStopValue="-1" dfdl:textNumberRep="standard" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:length="{ 4 }"/>)
+      <xs:element name="data" type="xs:double" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
     val infoset = <data xmlns={ example }>3.14</data>
     Compiler.testUnparsing(testSchema, infoset, "3.14")
   }
-  
-  // @Test
-  def testUnparse4() {
-    val testSchema = TestUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="data" type="xs:string" dfdl:occursStopValue="-1" dfdl:textNumberRep="standard" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator="*" dfdl:lengthKind="explicit" dfdl:encoding="US-ASCII" dfdl:representation="text" dfdl:length="{ 4 }"/>)
-    val infoset = <data xmlns={ example }>word</data>
-    Compiler.testUnparsing(testSchema, infoset, "*word")
-  }
 
   // @Test
-  def testUnparse5() {
-    val testSchema = TestUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="data" type="xs:byte" dfdl:occursStopValue="-1" dfdl:textNumberRep="standard" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:initiator="" dfdl:lengthKind="implicit" dfdl:encoding="US-ASCII" dfdl:representation="binary" dfdl:length="{ 8 }"/>)
-    val infoset = <data xmlns={ example }>00000001</data>
-    Compiler.testUnparsing(testSchema, infoset, "00000001")
-  }
-  
-  // @Test
-  def testUnparseNested() {
+  def testUnparseMultiElem1() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
 
       <xs:element name="list" type="tns:example1">
         <xs:annotation>
           <xs:appinfo source={ dfdl }>
-            <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
+            <dfdl:element alignmentUnits="bytes"/>
           </xs:appinfo>
         </xs:annotation>
       </xs:element>
       <xs:complexType name="example1">
-        <xs:sequence dfdl:separator="">
-          <xs:element name="somedata" type="tns:example2">
-            <xs:annotation>
-              <xs:appinfo source={ dfdl }>
-                <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
-              </xs:appinfo>
-            </xs:annotation>
-          </xs:element>
-        </xs:sequence>
-      </xs:complexType>
-      <xs:complexType name="example2">
-        <xs:sequence dfdl:separator="">
-          <xs:element name="moredata" type="xs:double" dfdl:length="7" dfdl:lengthKind="explicit"/>
-        </xs:sequence>
-      </xs:complexType>)
-
-    val actual = Compiler.testString(testSchema, "11235.8")
-    val actualString = actual.result.toString
-    //    println("actualString " + actualString)
-    assertTrue(actualString.contains("<list"))
-    assertTrue(actualString.contains("<somedata><moredata>11235.8</moredata></somedata></list>"))
-
-    Compiler.testUnparsing(testSchema, actual.result, "11235.8")
-  }
-
-  // @Test
-  def testUnparse2Elem() {
-    val testSchema = TestUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
-
-      <xs:element name="list" type="tns:example1">
-        <xs:annotation>
-          <xs:appinfo source={ dfdl }>
-            <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
-          </xs:appinfo>
-        </xs:annotation>
-      </xs:element>
-      <xs:complexType name="example1">
-        <xs:sequence dfdl:separator="">
+        <xs:sequence>
           <xs:element name="somedata" type="xs:int" dfdl:length="4" dfdl:lengthKind="explicit"/>
           <xs:element name="moredata" type="xs:int" dfdl:length="2" dfdl:lengthKind="explicit"/>
         </xs:sequence>
@@ -349,6 +321,69 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
   }
 
   // @Test
+  def testUnparseMultiElem2() {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+
+      <xs:element name="list" type="tns:example1">
+        <xs:annotation>
+          <xs:appinfo source={ dfdl }>
+            <dfdl:element alignmentUnits="bytes"/>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+      <xs:complexType name="example1">
+        <xs:sequence dfdl:separator="^">
+          <xs:element name="somedata" type="xs:int" dfdl:length="5" dfdl:lengthKind="explicit"/>
+          <xs:element name="moredata" type="xs:string" dfdl:length="3" dfdl:lengthKind="explicit" dfdl:initiator="%"/>
+          <xs:element name="anddata" type="xs:int" dfdl:length="2" dfdl:lengthKind="explicit"/>
+        </xs:sequence>
+      </xs:complexType>)
+
+    val infoset = <list xmlns={ example }><somedata>50.93</somedata><moredata>XYZ</moredata><anddata>42</anddata></list>
+    Compiler.testUnparsing(testSchema, infoset, "50.93^%XYZ^42")
+  }
+
+  // @Test
+  def testUnparseNested() {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+
+      <xs:element name="list" type="tns:example1">
+        <xs:annotation>
+          <xs:appinfo source={ dfdl }>
+            <dfdl:element alignmentUnits="bytes"/>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+      <xs:complexType name="example1">
+        <xs:sequence>
+          <xs:element name="somedata" type="tns:example2">
+            <xs:annotation>
+              <xs:appinfo source={ dfdl }>
+                <dfdl:element alignmentUnits="bytes"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="example2">
+        <xs:sequence>
+          <xs:element name="moredata" type="xs:double" dfdl:length="7" dfdl:lengthKind="explicit"/>
+          <xs:element name="anddata" type="xs:string" dfdl:length="6" dfdl:lengthKind="explicit"/>
+        </xs:sequence>
+      </xs:complexType>)
+
+    val actual = Compiler.testString(testSchema, "11235.8qwerty")
+    val actualString = actual.result.toString
+    //    println("actualString " + actualString)
+    assertTrue(actualString.contains("<list"))
+    assertTrue(actualString.contains("<somedata><moredata>11235.8</moredata><anddata>qwerty</anddata></somedata></list>"))
+
+    Compiler.testUnparsing(testSchema, actual.result, "11235.8qwerty")
+  }
+
+  // @Test
   def testUnparseNestedChildren() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
@@ -356,23 +391,23 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
       <xs:element name="list" type="tns:example1">
         <xs:annotation>
           <xs:appinfo source={ dfdl }>
-            <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
+            <dfdl:element alignmentUnits="bytes"/>
           </xs:appinfo>
         </xs:annotation>
       </xs:element>
       <xs:complexType name="example1">
-        <xs:sequence dfdl:separator="">
+        <xs:sequence>
           <xs:element name="data" type="tns:example2">
             <xs:annotation>
               <xs:appinfo source={ dfdl }>
-                <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
+                <dfdl:element alignmentUnits="bytes"/>
               </xs:appinfo>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="example2">
-        <xs:sequence dfdl:separator="">
+        <xs:sequence>
           <xs:element name="somedata" type="xs:string" dfdl:length="3" dfdl:lengthKind="explicit"/>
           <xs:element name="moredata" type="xs:int" dfdl:length="8" dfdl:lengthKind="explicit"/>
         </xs:sequence>
@@ -386,7 +421,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
 
     Compiler.testUnparsing(testSchema, actual.result, "abc87654321")
   }
-/*
+
   def test3 {
     val testSchema = XML.loadFile(TestUtils.findFile("test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
@@ -910,6 +945,6 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     //assertEquals(true, e1.nillable) // TODO: e1.nillable doesn't exist?
     //assertEquals("%ES; %% %#0; %NUL;%ACK; foo%#rF2;%#rF7;bar %WSP*; %#2024;%#xAABB; &amp;&#2023;&#xCCDD; -1", e1.nilValue) // TODO: Do not equal each other!
     assertEquals(NilKind.LiteralValue, e1.nilKind)
-  }*/
+  }
 }
 

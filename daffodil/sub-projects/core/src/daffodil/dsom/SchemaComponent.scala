@@ -287,7 +287,7 @@ extends CommonRuntimeValuedPropertiesMixin { self : SchemaComponent =>
     decoder
   }
   
-    lazy val knownEncodingEncoder = {
+  lazy val knownEncodingEncoder = {
     val encoder = knownEncodingCharset.newEncoder()
     encoder
   }

@@ -13,10 +13,10 @@ import daffodil.schema.annotation.props.PropertyMixin
 import stringsearch.constructs.EscapeScheme.log
 import junit.framework.Assert.assertTrue
 
-class UnparseError(sc: SchemaComponent, ustate: UState, kind: String, args: Any*) extends ProcessingError {
+class UnparseError(sc: SchemaComponent, ustate: Option[UState], kind: String, args: Any*) extends ProcessingError {
   def isError = true
   def getSchemaLocations = List(sc)
-  def getDataLocations = List(ustate.currentLocation)
+  def getDataLocations = ustate.map { _.currentLocation }.toList
 
   override def toString = {
     lazy val argsAsString = args.map { _.toString }.mkString(", ")
@@ -29,10 +29,11 @@ class UnparseError(sc: SchemaComponent, ustate: UState, kind: String, args: Any*
     val msg =
       if (kind.contains("%")) kind.format(args: _*)
       else (kind + "(%s)").format(argsAsString)
+
     val res = "Unparse Error: " + msg +
       "\nContext was : %s".format(sc) +
-      "\nData location was preceding %s".format(ustate.currentElement)
-    "\nUnparsed data is %s".format(ustate.outStream.getData())
+      ustate.map { us => "\nData location was preceding %s".format(us.currentLocation) }.getOrElse("") +
+      "\nUnparsed data is %s".format(ustate.map { us => us.outStream.getData() })
     res
   }
 
@@ -42,10 +43,10 @@ class UnparseError(sc: SchemaComponent, ustate: UState, kind: String, args: Any*
 /**
  * Encapsulates lower-level unparsing with a uniform interface
  */
-abstract class Unparser(val context: Term) {
+abstract class Unparser(val context: Term) extends Logging {
 
   def UE(ustate: UState, kind: String, args: Any*) = {
-    ustate.failed(new UnparseError(context, ustate, kind, args: _*))
+    ustate.failed(new UnparseError(context, Some(ustate), kind, args: _*))
   }
 
   def processingError(ustate: UState, kind: String, args: Any*) =
@@ -83,12 +84,21 @@ class SeqCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
   override def toString = pUnparser.toString + " ~ " + qUnparser.toString
 }
 
+// Tricky: given the infoset, and a corresponding schema choice construct,
+// it's not immediately clear which choice-branch to use when unparsing.
+// The algorithm has to find the first choice branch which begins with the 
+// same first element as the infoset item. 
+// 
+// TBD: is it acceptable to just try them one by one with a UE causing backtrack to 
+// try the next branch when it fails because the infoset doesn't match the element
+// declaration of the schema somehow?
+//
 class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context) {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pUnparser = p.unparser
   val qUnparser = q.unparser
-  def unparse(ustate: UState) = {
-    val numChildrenAtStart = ustate.currentElement.getChildren().length
+  def unparse(ustate: UState): UState = {
+    val numChildrenAtStart = ustate.currentElement.getContent().length
     var pResult: UState =
       try {
         log(Debug("Trying choice alternative: %s", pUnparser))
@@ -101,14 +111,15 @@ class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
     if (pResult.status == Success) {
       log(Debug("Choice alternative success: %s", pUnparser))
       // Reset any discriminator. We succeeded.
-      val res = if (pResult.discriminator) pResult.withDiscriminator(false)
-      else pResult
+      val res =
+        if (pResult.discriminator) pResult.withDiscriminator(false)
+        else pResult
       res
     } else {
       log(Debug("Choice alternative failed: %s", pUnparser))
 
       // Unwind any side effects on the Infoset 
-      val lastChildIndex = ustate.currentElement.getChildren().length
+      val lastChildIndex = ustate.currentElement.getContent().length
       if (lastChildIndex > numChildrenAtStart) {
         ustate.currentElement.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
       }
@@ -120,7 +131,8 @@ class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
         // consume this discriminator status result (so it doesn't ripple upward)
         // and return the failed state. 
         //
-        pResult.withDiscriminator(false)
+        val res = pResult.withDiscriminator(false)
+        return res
       }
 
       val qResult = try {
@@ -131,15 +143,17 @@ class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
           Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
         }
       }
+
       if (qResult.status == Success) {
         log(Debug("Choice alternative success: %s", qUnparser))
-        val res = if (qResult.discriminator) qResult.withDiscriminator(false)
-        else qResult
+        val res =
+          if (qResult.discriminator) qResult.withDiscriminator(false)
+          else qResult
         res
       } else {
         log(Debug("Choice alternative failure: %s", qUnparser))
         // Unwind any side effects on the Infoset 
-        val lastChildIndex = ustate.currentElement.getChildren().length
+        val lastChildIndex = ustate.currentElement.getContent().length
         if (lastChildIndex > numChildrenAtStart) {
           ustate.currentElement.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
         }
@@ -401,7 +415,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
   var encoder: CharsetEncoder = null //FIXME
   var charBufPos = bufPos //pointer to end of CharBuffer
 
-  def setEncoder(enc: CharsetEncoder) { encoder = enc}
+  def setEncoder(enc: CharsetEncoder) { encoder = enc }
 
   /*
    * Writes unparsed data in CharBuffer to outputStream.
@@ -415,7 +429,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
    * Takes unparsed data from CharBuffer and encodes it in ByteBuffer
    */
   def charBufferToByteBuffer(): ByteBuffer = {
-    val bbuf = ByteBuffer.allocate(cbuf.length() * maxCharacterWidthInBytes)
+    var bbuf = ByteBuffer.allocate(cbuf.length() * maxCharacterWidthInBytes)
     Assert.invariant(encoder != null)
     encoder.reset()
 

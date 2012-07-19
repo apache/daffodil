@@ -10,7 +10,9 @@ class IBMTestsThatPass extends JUnit3Suite {
 
   val testDir = "test-suite/ibm-contributed/"
   val tdml1 = testDir + "dpaext1.tdml"
+  val tdml2 = testDir + "dpaext2.tdml"
   val runner1 = new DFDLTestSuite(new File(tdml1))
+  val runner2 = new DFDLTestSuite(new File(tdml2))
 
   def test_introduction_1_01() { runner1.runOneTest("introduction_1_01") }
   def test_introduction_1_02() { runner1.runOneTest("introduction_1_02") }
@@ -19,30 +21,33 @@ class IBMTestsThatPass extends JUnit3Suite {
   def test_encoding_11_02() { runner1.runOneTest("encoding_11_02") }
   def test_encoding_11_03() { runner1.runOneTest("encoding_11_03") }
   def test_length_implicit_12_01() { runner1.runOneTest("length_implicit_12_01") }
-  
+
   def test_syntax_entities_6_01() { runner1.runOneTest("syntax_entities_6_01") }
   def test_syntax_entities_6_02() { runner1.runOneTest("syntax_entities_6_02") }
   def test_syntax_entities_6_03() { runner1.runOneTest("syntax_entities_6_03") }
-  
+
+  def test_length_explicit_12_01() { runner1.runOneTest("length_explicit_12_01") }
+  def test_length_explicit_12_02() { runner1.runOneTest("length_explicit_12_02") }
+  def test_length_explicit_12_03() { runner1.runOneTest("length_explicit_12_03") }
   def test_length_delimited_12_02() { runner1.runOneTest("length_delimited_12_02") }
   def test_length_delimited_12_03() { runner1.runOneTest("length_delimited_12_03") }
-  
+
   def test_delimiter_12_03() { runner1.runOneTest("delimiter_12_03") }
   def test_delimiter_12_04() { runner1.runOneTest("delimiter_12_04") }
-    
+
+  def test_schema_types_5_01() { runner1.runOneTest("schema_types_5_01") }
+  def test_schema_types_5_02() { runner1.runOneTest("schema_types_5_02") }
+  def test_schema_types_5_03() { runner1.runOneTest("schema_types_5_03") }
+  def test_schema_types_5_04() { runner1.runOneTest("schema_types_5_04") }
+  def test_schema_types_5_05() { runner1.runOneTest("schema_types_5_05") }
+
+  def test_scoping_default_format_8_01() { runner1.runOneTest("scoping_default_format_8_01") }
+  def test_scoping_define_format_8_01() { runner1.runOneTest("scoping_define_format_8_01") }
+  
+  def test_simple_type_properties_binary_number_13_02() { runner2.runOneTest("simple_type_properties_binary_number_13_02") }
+
 }
 
-class IBMTestsOnNumbers extends JUnit3Suite {
-    val testDir = "test-suite/ibm-contributed/"
-    val tdml1 = testDir + "dpaext1.tdml"
-    val runner1 = new DFDLTestSuite(new File(tdml1))
-
-    def test_schema_types_5_01() { runner1.runOneTest("schema_types_5_01") }
-    def test_schema_types_5_02() { runner1.runOneTest("schema_types_5_02") }
-    def test_schema_types_5_03() { runner1.runOneTest("schema_types_5_03") }
-    def test_schema_types_5_04() { runner1.runOneTest("schema_types_5_04") }
-    def test_schema_types_5_05() { runner1.runOneTest("schema_types_5_05") }
-}
 
 class IBMTestsThatThrow extends JUnit3Suite {
 
@@ -51,19 +56,14 @@ class IBMTestsThatThrow extends JUnit3Suite {
   val tdml2 = testDir + "dpaext2.tdml"
   val runner1 = new DFDLTestSuite(new File(tdml1))
   val runner2 = new DFDLTestSuite(new File(tdml2))
-  def test_schema_types_5_01() { runner1.runOneTest("schema_types_5_01") }
-  def test_schema_types_5_02() { runner1.runOneTest("schema_types_5_02") }
-  def test_schema_types_5_03() { runner1.runOneTest("schema_types_5_03") }
-  def test_schema_types_5_04() { runner1.runOneTest("schema_types_5_04") }
-  def test_schema_types_5_05() { runner1.runOneTest("schema_types_5_05") }
-  
+
+    
   def test_syntax_entities_6_04() { runner1.runOneTest("syntax_entities_6_04") }
   def test_property_syntax_7_01() { runner1.runOneTest("property_syntax_7_01") }
   def test_property_syntax_7_02() { runner1.runOneTest("property_syntax_7_02") }
   def test_property_syntax_7_03() { runner1.runOneTest("property_syntax_7_03") }
   def test_property_syntax_7_04() { runner1.runOneTest("property_syntax_7_04") }
-  def test_scoping_default_format_8_01() { runner1.runOneTest("scoping_default_format_8_01") }
-  def test_scoping_define_format_8_01() { runner1.runOneTest("scoping_define_format_8_01") }
+ 
   def test_scoping_define_format_8_02() { runner1.runOneTest("scoping_define_format_8_02") }
   def test_scoping_define_format_8_03() { runner1.runOneTest("scoping_define_format_8_03") }
   def test_scoping_define_format_8_04() { runner1.runOneTest("scoping_define_format_8_04") }
@@ -77,15 +77,14 @@ class IBMTestsThatThrow extends JUnit3Suite {
   def test_delimiter_12_01() { runner1.runOneTest("delimiter_12_01") }
   def test_delimiter_12_02() { runner1.runOneTest("delimiter_12_02") }
   
-  def test_length_explicit_12_01() { runner1.runOneTest("length_explicit_12_01") }
-  def test_length_explicit_12_02() { runner1.runOneTest("length_explicit_12_02") }
+
   def test_length_delimited_12_01() { runner1.runOneTest("length_delimited_12_01") }
   
   def test_length_delimited_12_04() { runner1.runOneTest("length_delimited_12_04") }
   def test_length_delimited_12_05() { runner1.runOneTest("length_delimited_12_05") }
   def test_length_delimited_12_06() { runner1.runOneTest("length_delimited_12_06") }
   def test_length_implicit_12_02() { runner1.runOneTest("length_implicit_12_02") }
-  def test_length_explicit_12_03() { runner1.runOneTest("length_explicit_12_03") }
+
 
   def test_simple_type_properties_pad_trim_13_01() { runner2.runOneTest("simple_type_properties_pad_trim_13_01") }
   def test_simple_type_properties_pad_trim_13_02() { runner2.runOneTest("simple_type_properties_pad_trim_13_02") }
@@ -95,7 +94,7 @@ class IBMTestsThatThrow extends JUnit3Suite {
   def test_simple_type_properties_text_number_13_02() { runner2.runOneTest("simple_type_properties_text_number_13_02") }
   def test_simple_type_properties_text_number_13_03() { runner2.runOneTest("simple_type_properties_text_number_13_03") }
   def test_simple_type_properties_binary_number_13_01() { runner2.runOneTest("simple_type_properties_binary_number_13_01") }
-  def test_simple_type_properties_binary_number_13_02() { runner2.runOneTest("simple_type_properties_binary_number_13_02") }
+  
   def test_simple_type_properties_text_boolean_13_01() { runner2.runOneTest("simple_type_properties_text_boolean_13_01") }
   def test_simple_type_properties_text_boolean_13_02() { runner2.runOneTest("simple_type_properties_text_boolean_13_02") }
   def test_simple_type_properties_text_boolean_13_03() { runner2.runOneTest("simple_type_properties_text_boolean_13_03") }

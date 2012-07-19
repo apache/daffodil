@@ -5,7 +5,7 @@ import org.scalatest.junit.JUnit3Suite
 import daffodil.debugger.DebugUtil
 import daffodil.dsom.Compiler
 import daffodil.xml.XMLUtils
-import junit.framework.Assert.assertEquals
+import junit.framework.Assert._
 import java.io.File
 import java.io.FileNotFoundException
 import daffodil.util.TestUtils
@@ -14,8 +14,10 @@ import daffodil.util.TestUtils
  * TODO: this test rig should go away and all these tests should be rewritten into TDML.
  */
 object TestRig {
-  def doTest(schemaFileName: String, rootName: String, inputFileName: String, expectedFileName: String) {
+    var isDebug = false
+    def doTest(schemaFileName : String, rootName : String, inputFileName : String, expectedFileName : String) {
     val compiler = daffodil.dsom.Compiler()
+
     if (isDebug)
       compiler.setDebugging(true)
     compiler.setDistinguishedRootNode(rootName)
@@ -23,21 +25,39 @@ object TestRig {
     val schemaPath = testDir + schemaFileName
     val schemaFile = TestUtils.findFile(schemaPath)
     if (schemaFile == null || !schemaFile.exists) {
-        throw new FileNotFoundException(schemaPath)
+      throw new FileNotFoundException(schemaPath)
     }
     System.err.println("\nTest " + inputFileName)
     val parserFactory = DebugUtil.time("Compiling schema", compiler.compile(schemaFile.getAbsolutePath))
-    val parser = parserFactory.onPath("/")
-    val data = Compiler.fileToReadableByteChannel(TestUtils.findFile(testDir + inputFileName))
-    //println("|" + data + "|")
-    val presult = parser.parse(data)
-    val actual = Utility.trim(presult.result)
-    val expectedXML = Utility.trim(scala.xml.XML.loadFile(TestUtils.findFile(testDir + expectedFileName)))
-    val expectedNoAttrs = XMLUtils.removeAttributes(expectedXML)
-    val actualNoAttrs = XMLUtils.removeAttributes(actual)
-    assertEquals(expectedNoAttrs, actualNoAttrs) // Need to compare in a canonicalized manner.
+    if (parserFactory.canProceed) {
+      val parser = parserFactory.onPath("/")
+      if (parser.canProceed) {
+        val data = Compiler.fileToReadableByteChannel(TestUtils.findFile(testDir + inputFileName))
+        //println("|" + data + "|")
+        val presult = parser.parse(data)
+        val actual = Utility.trim(presult.result)
+        val expectedXML = Utility.trim(scala.xml.XML.loadFile(TestUtils.findFile(testDir + expectedFileName)))
+        val expectedNoAttrs = XMLUtils.removeAttributes(expectedXML)
+        val actualNoAttrs = XMLUtils.removeAttributes(actual)
+        assertEquals(expectedNoAttrs, actualNoAttrs) // Need to compare in a canonicalized manner.
+      } else {
+
+        val diags = parser.getDiagnostics.map{ _.toString }
+        val msgs = "Parser cannot proceed." +: diags
+        val msg = msgs.mkString("\n")
+        isDebug = false
+        println(msg)
+        fail(msg)
+      }
+    } else {
+        val diags = parserFactory.getDiagnostics.map{ _.toString }
+        val msgs = "ParserFactory cannot proceed." +: diags
+        val msg = msgs.mkString("\n")
+        isDebug = false
+        println(msg)
+        fail(msg)
+    }
   }
-  val isDebug = false
 }
 
 class PassingTests extends JUnit3Suite {

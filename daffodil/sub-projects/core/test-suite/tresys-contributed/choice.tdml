@@ -46,7 +46,8 @@
 
 		<xs:complexType name="ctype">
 			<xs:choice>
-				<xs:element name="inty" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+				<xs:element name="inty" type="xs:int" dfdl:lengthKind="explicit"
+					dfdl:length="{ 3 }" />
 				<xs:element name="floaty" type="xs:float"
 					dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
 				<xs:element name="stringy" type="xs:string"
@@ -197,8 +198,8 @@
 			<xs:complexType>
 				<xs:sequence dfdl:separator=",">
 					<xs:choice>
-						<xs:element name="inty" type="xs:int" 
-						    dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+						<xs:element name="inty" type="xs:int" dfdl:lengthKind="explicit"
+							dfdl:length="{ 3 }" />
 						<xs:element name="floaty" type="xs:float"
 							dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
 					</xs:choice>
@@ -216,42 +217,42 @@
 		</tdml:document>
 
 		<tdml:errors>
-		    <tdml:error>Convert</tdml:error>
-		    <tdml:error>float</tdml:error>
-		    <tdml:error>int</tdml:error>
+			<tdml:error>Convert</tdml:error>
+			<tdml:error>float</tdml:error>
+			<tdml:error>int</tdml:error>
 			<tdml:error>Alternative failed</tdml:error>
 			<tdml:error>Both alternatives failed</tdml:error>
 		</tdml:errors>
 
 	</tdml:parserTestCase>
-	
-	
+
+
 	<tdml:defineSchema name="choiceDelim">
-		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
 
 		<xs:complexType name="ctype">
 			<xs:choice>
-				<xs:element name="inty" type="xs:int"/>
+				<xs:element name="inty" type="xs:int" />
 				<xs:element name="floaty" type="xs:float" />
-				<xs:element name="stringy" type="xs:string"/>
+				<xs:element name="stringy" type="xs:string" />
 			</xs:choice>
 		</xs:complexType>
 
 		<xs:element name="ch1">
 			<xs:complexType>
 				<xs:sequence dfdl:separator=",">
-					<xs:element name="a" type="ex:ctype" 
-						maxOccurs="unbounded" minOccurs="0" 
-						dfdl:occursCountKind="parsed" />
+					<xs:element name="a" type="ex:ctype" maxOccurs="unbounded"
+						minOccurs="0" dfdl:occursCountKind="parsed" />
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
 
 
 	</tdml:defineSchema>
-	
+
 	<tdml:parserTestCase name="choiceDelim1" root="ch1"
-		model="choiceDelim" description="Many choices one after another with delimited lengthKinds. 3 way branches.">
+		model="choiceDelim"
+		description="Many choices one after another with delimited lengthKinds. 3 way branches.">
 
 		<tdml:document>
 			<tdml:documentPart type="text">3.5,AAA,999</tdml:documentPart>
@@ -267,7 +268,7 @@
 						<ex:stringy>AAA</ex:stringy>
 					</ex:a>
 					<ex:a>
-					    <ex:inty>999</ex:inty>
+						<ex:inty>999</ex:inty>
 					</ex:a>
 
 				</ex:ch1>
@@ -276,4 +277,79 @@
 
 	</tdml:parserTestCase>
 
+
+	<tdml:defineSchema name="nestedChoice1">
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+		<xs:complexType name="intFloatOrString">
+			<xs:choice>
+				<xs:element name="inty" type="xs:int" />
+				<xs:element name="floaty" type="xs:float" />
+				<xs:element name="stringy" type="xs:string" />
+			</xs:choice>
+		</xs:complexType>
+
+		<xs:complexType name="intOrFloat">
+			<xs:choice>
+				<xs:element name="inty" type="xs:int" />
+				<xs:element name="floaty" type="xs:float" />
+			</xs:choice>
+		</xs:complexType>
+
+		<xs:element name="ch1">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="">
+					<xs:choice>
+						<xs:element name="as">
+							<xs:complexType>
+								<xs:sequence dfdl:separator=",">
+									<xs:element name="a" type="ex:intOrFloat" maxOccurs="3"
+										minOccurs="3" dfdl:occursCountKind="fixed" />
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="bs">
+							<xs:complexType>
+								<xs:sequence dfdl:separator=",">
+									<xs:element name="b" type="ex:intFloatOrString"
+										maxOccurs="3" minOccurs="3" dfdl:occursCountKind="fixed" />
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:choice>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="nestedChoice1" root="ch1"
+		model="nestedChoice1" description="Nested choices, deep backtracking.">
+
+		<tdml:document>
+			<!-- The AAA at the end causes the whole thing to unwind and choose element 
+				b which allows for strings as the 3rd alternative. -->
+			<tdml:documentPart type="text">3.5,999,AAA</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:bs>
+						<ex:b>
+							<ex:floaty>3.5</ex:floaty>
+						</ex:b>
+						<ex:b>
+							<ex:inty>999</ex:inty>
+						</ex:b>
+						<ex:b>
+							<ex:stringy>AAA</ex:stringy>
+						</ex:b>
+					</ex:bs>
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
 </tdml:testSuite>

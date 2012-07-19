@@ -6,6 +6,7 @@ import daffodil.xml.XMLUtils
 import daffodil.exceptions.Assert
 import daffodil.processors.Success
 import daffodil.dsom.OOLAG.OOLAGException
+import daffodil.api.Diagnostic
 
 
 /**
@@ -22,7 +23,7 @@ trait WithDiagnosticsImpl extends WithDiagnostics {
  * The very last aspects of compilation, and the start of the
  * back-end runtime.
  */
-class DataProcessor(pf: ProcessorFactory, rootElem: GlobalElementDecl)
+class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   extends DFDL.DataProcessor
   with DiagnosticsProviding {
   Assert.usage(pf.canProceed)
@@ -56,10 +57,14 @@ class DataProcessor(pf: ProcessorFactory, rootElem: GlobalElementDecl)
   def parse(input: DFDL.Input): DFDL.ParseResult = {
     Assert.usage(!this.isError)
 
-    val initialState = PState.createInitialState(rootElem, input) // TODO also want to pass here the externally set variables, other flags/settings.
+    val initialState = PState.createInitialState(rootElem, input, bitOffset = 0) // TODO also want to pass here the externally set variables, other flags/settings.
+    parse(initialState)
+  }
+  
+  def parse(initialState : PState) = {
     val pr = new ParseResult(this) {
 
-      lazy val resultState = {
+    val resultState = { // Not lazy. We want to parse right now.
         try {
           parser.parse(initialState)
         } catch {
@@ -103,7 +108,7 @@ class DataProcessor(pf: ProcessorFactory, rootElem: GlobalElementDecl)
     val initialState = UState.createInitialState(rootElem, output, jdomDoc) // also want to pass here the externally set variables, other flags/settings.
 
     val uRes = new UnparseResult(this) {
-      lazy val resultState = {
+       val resultState = { // Not lazy. We want to unparse right now.
 
         try {
           unparser.unparse(initialState)
@@ -142,19 +147,19 @@ abstract class ParseResult(dp: DataProcessor)
   extends DFDL.ParseResult
   with WithDiagnosticsImpl {
 
-  override def resultState: PState
-
-  //  lazy val prettyName = "ParseResult"
-  //  lazy val path = ""
-
-  val result =
+  def resultState : PState
+  
+  lazy val result = 
     if (resultState.status == Success) {
-      val jdomFakeRoot = resultState.parent
-      // top node is this fake root element
-      Assert.invariant(jdomFakeRoot.getName() == "_document_")
-      Assert.invariant(jdomFakeRoot.getContentSize() == 1)
-      val jdomElt = jdomFakeRoot.getContent(0).asInstanceOf[org.jdom.Element]
-      XMLUtils.element2Elem(jdomElt)
+      val docElt = resultState.parent
+      docElt match {
+        case doc : org.jdom.Document => {
+          val jdomElt = doc.getRootElement()
+          XMLUtils.element2Elem(jdomElt)
+        }
+        case _ => Assert.invariantFailed("docElt isn't a jdom Document.")
+      }
+
     } else {
       <nothing/>
     }
@@ -166,7 +171,5 @@ abstract class UnparseResult(dp: DataProcessor)
 
   override def resultState: UState
 
-  //  lazy val prettyName = "UnparseResult"
-  //  lazy val path = ""
 }
 

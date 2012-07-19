@@ -165,6 +165,22 @@ trait Logging extends Identity {
   def log(glob : => Glob) { if (logLevel  >= glob.lvl) logWriter.log(logID, glob)
   }
 
+  /**
+   * Use to make debug printing over small code regions convenient. Turns on
+   * your logging level of choice over a lexical region of code. Makes sure it is reset
+   * to whatever it was on the exit, even if it throws.
+   * 
+   * Call with no log level argument to turn it off (when done debugging). That way you
+   * can leave it sitting there. 
+   */
+  def withLoggingLevel[S](newLevel : LogLevel.Value = logLevel)(body : => S) = {
+    val previousLogLevel = logLevel
+    logLevel = newLevel
+    try body
+    finally {
+      logLevel = previousLogLevel
+    }
+  }
 }
 
 object LoggingDefaults {

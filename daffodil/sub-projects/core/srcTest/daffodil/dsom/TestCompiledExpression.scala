@@ -5,6 +5,9 @@ import daffodil.xml._
 import daffodil.processors._
 import daffodil.processors.xpath._
 import junit.framework.Assert._
+import daffodil.grammar.InputValueCalc
+import daffodil.grammar.PState
+import daffodil.grammar.IVCParser
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
@@ -22,10 +25,11 @@ class TestCompiledExpression extends JUnit3Suite {
   
  def testCompiledPathEvaluation() { 
     
-    val root = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
+    val r = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
     val sset = new SchemaSet(testSchema)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
-    val ignored = new org.jdom.Document(root) // root must have a document node
+    val doc = new org.jdom.Document(r) // root must have a document node
+    val root = doc.getRootElement()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/child2/child3 }"
     val compiled = ec.compile('String, xpathString) // as a string
@@ -75,5 +79,173 @@ class TestCompiledExpression extends JUnit3Suite {
     val result3 = compiled3.evaluate(root2, null)
     val r3string = result3.toString
     assertTrue(r3string.contains("<root/>"))
+  }
+  
+  def testCompiledAbsolutePathEvaluation1() { 
+    
+    val r = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
+    val sset = new SchemaSet(testSchema)
+    val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
+    val doc = new org.jdom.Document(r) // root must have a document node
+    val root = doc.getRootElement()
+    val ec = new ExpressionCompiler(edecl)
+    val xpathString = "{ /root/child1/child2/child3 }"
+    val compiled = ec.compile('String, xpathString) // as a string
+    val result = compiled.evaluate(root, new VariableMap())
+
+    assertEquals("19", result)
+    
+  }
+    
+  def testCompiledRelativePathEvaluation1() { 
+    
+    val r = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
+    val sset = new SchemaSet(testSchema)
+    val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
+    val doc = new org.jdom.Document(r) // root must have a document node
+    val root = doc.getRootElement()
+    val ec = new ExpressionCompiler(edecl)
+    val xpathString = "{ child3 }"
+    val compiled = ec.compile('String, xpathString) // as a string
+
+    val child2 = root.getChild("child1").getChild("child2")
+    val result = compiled.evaluate(child2, new VariableMap())
+
+    assertEquals("19", result)
+    
+  }
+  
+   def testCompiledRelativePathEvaluation2() { 
+    
+    val r = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
+    val sset = new SchemaSet(testSchema)
+    val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
+    val doc = new org.jdom.Document(r) // root must have a document node
+    val root = doc.getRootElement()
+    val ec = new ExpressionCompiler(edecl)
+    val xpathString = "{ ../../../child1/child2/child3 }"
+    val compiled = ec.compile('String, xpathString) // as a string
+
+    val child3 = root.getChild("child1").getChild("child2").getChild("child3")
+    val result = compiled.evaluate(child3, new VariableMap())
+
+    assertEquals("19", result)
+    
+  }
+   
+  def testCompiledRelativePathEvaluation3() { 
+    
+    val r = XMLUtils.elem2Element(<data><e1>42</e1><e2/></data>)
+    val sset = new SchemaSet(testSchema)
+    val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
+    val doc = new org.jdom.Document(r) // root must have a document node
+    val root = doc.getRootElement()
+    val ec = new ExpressionCompiler(edecl)
+    val xpathString = "{ ../e1 }"
+    val compiled = ec.compile('String, xpathString) // as a string
+
+    val child2 = root.getChild("e2")
+    val result = compiled.evaluate(child2, new VariableMap())
+
+    assertEquals("42", result)
+    
+  }
+  
+  def testCompiledRelativePathEvaluation4() {
+
+    val testSchema = <xs:schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+                       <xs:element name="data">
+                         <xs:complexType>
+                           <xs:sequence>
+                             <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"/>
+                             <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../e1 }"/>
+                           </xs:sequence>
+                         </xs:complexType>
+                       </xs:element>
+                     </xs:schema>
+
+    val r = XMLUtils.elem2Element(<data><e1>42</e1><e2/></data>)
+    val sset = new SchemaSet(testSchema)
+    val edecl = sset.getGlobalElementDecl(example, "data").get.forRoot()
+    val ct = edecl.typeDef.asInstanceOf[ComplexTypeBase]
+    val seq = ct.modelGroup.asInstanceOf[Sequence]
+    val Seq(e1, e2) = seq.groupMembers
+    val ivcPrim = InputValueCalc(e2.asInstanceOf[LocalElementDecl])
+    val parser = ivcPrim.parser.asInstanceOf[IVCParser]
+    val doc = new org.jdom.Document(r) // root must have a document node
+    val root = doc.getRootElement()
+    val child2 = root.getChild("e2")
+    val result = parser.testExpressionEvaluation(child2, new VariableMap())
+
+    assertEquals("42", result)
+    
+  }
+  
+  def testCompiledRelativePathEvaluation5() {
+
+    val testSchema = <xs:schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+                       <xs:element name="data">
+                         <xs:complexType>
+                           <xs:sequence>
+                             <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"/>
+                             <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../e1 }"/>
+                           </xs:sequence>
+                         </xs:complexType>
+                       </xs:element>
+                     </xs:schema>
+
+    val r = XMLUtils.elem2Element(<data><e1>42</e1><e2/></data>)
+    val sset = new SchemaSet(testSchema)
+    val edecl = sset.getGlobalElementDecl(example, "data").get.forRoot()
+    val ct = edecl.typeDef.asInstanceOf[ComplexTypeBase]
+    val seq = ct.modelGroup.asInstanceOf[Sequence]
+    val Seq(e1, e2) = seq.groupMembers
+    val ivcPrim = InputValueCalc(e2.asInstanceOf[LocalElementDecl])
+    val parser = ivcPrim.parser.asInstanceOf[IVCParser]
+    val d = Compiler.stringToReadableByteChannel("xx") // it's not going to read from here.
+    val initialState = PState.createInitialState(edecl, d)
+    val doc = new org.jdom.Document(r) // root must have a document node
+    val root = doc.getRootElement()
+    val child2 = root.getChild("e2")
+    val c2state = initialState.withParent(child2)
+    val resState = parser.parse(c2state)
+    val updatedChild2 = resState.parentElement
+    val dataNode = XMLUtils.element2Elem(updatedChild2.getParent().asInstanceOf[org.jdom.Element])
+    println(dataNode)
+    val result = updatedChild2.getText()
+
+    assertEquals("42", result)
+    
+  }
+  
+  def testCompiledRelativePathEvaluation6() {
+
+    val testSchema = <xs:schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+                       <xs:element name="data" dfdl:lengthKind="implicit" dfdl:initiator="" dfdl:terminator="">
+                         <xs:complexType>
+                           <xs:sequence dfdl:separator="" dfdl:initiator="" dfdl:terminator="">
+                             <xs:element name="e1" type="xs:string" dfdl:encoding="ascii" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:initiator="" dfdl:terminator=""/>
+                             <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../e1 }"/>
+                           </xs:sequence>
+                         </xs:complexType>
+                       </xs:element>
+                     </xs:schema>
+
+    val sset = new SchemaSet(testSchema)
+    val edecl = sset.getGlobalElementDecl(example, "data").get.forRoot()
+    val ct = edecl.typeDef.asInstanceOf[ComplexTypeBase]
+    val d = Compiler.stringToReadableByteChannel("42") 
+    val compiler = Compiler()
+    val pf = compiler.compile(testSchema)
+    val dp = pf.onPath("/")
+    val resState = dp.parse(d)
+    val resNode = resState.result
+    println(resNode)
+    val Seq(e2) = (resNode \\ "e2")
+    val dataNode = e2.text
+    println(dataNode)
+
+    assertEquals("42", dataNode)
+    
   }
 }

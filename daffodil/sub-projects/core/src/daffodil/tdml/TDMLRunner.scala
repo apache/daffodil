@@ -4,7 +4,6 @@ import java.io.File
 import scala.Array.canBuildFrom
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml._
-
 import org.scalatest.junit.JUnit3Suite
 import daffodil.Implicits.using
 import daffodil.dsom.Compiler
@@ -23,6 +22,7 @@ import javax.xml.transform.stream.StreamSource
 import java.net.URL
 import java.net.URI
 import daffodil.exceptions.Assert
+import java.nio.ByteBuffer
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -227,6 +227,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     compiler.setCheckEverything(parent.checkEverything)
     val pf = compiler.compile(sch)
     val data = document.map { _.data }
+    
     runProcessor(pf, data, infoset, errors, warnings)
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
@@ -556,7 +557,7 @@ case class SerializerTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     infoset: Infoset,
     errors: ExpectedErrors,
     warnings: Option[ExpectedWarnings]) {
-
+    
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
     val node = infoset.contents
@@ -572,7 +573,7 @@ case class SerializerTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     output.close()
     val actualBytes = outStream.toByteArray()
 
-    // Verify that some partial output has shown up in the bytes. 
+    // Verify that some partial output has shown up in the bytes.
     optData.map { data => verifyData(data, outStream) }
 
     // check for any test-specified errors

@@ -16,7 +16,8 @@ class TresysTests extends JUnit3Suite {
   val aa = testDir + "AA.tdml"
   val runnerAA = new DFDLTestSuite(new File(aa))
 
-  def test_AA000() { runnerAA.runOneTest("AA000") }
+  // Needs InputValueCalc to work before this has a chance.
+  // def test_AA000() { runnerAA.runOneTest("AA000") }
   
   val delimited = testDir + "dpaext1.tdml"
   val runnerDelimited = new DFDLTestSuite(new File(delimited))
@@ -76,7 +77,7 @@ class TresysTests extends JUnit3Suite {
   
   val aj = testDir + "AJ.tdml"
   val runnerAJ = new DFDLTestSuite(new File(aj))
-    
+  
   def test_AJ000() { runnerAJ.runOneTest("AJ000") }
   def test_AJ001() { runnerAJ.runOneTest("AJ001") }
   
@@ -100,6 +101,10 @@ class TresysTests extends JUnit3Suite {
   def test_choiceDelim1() { 
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     runnerCH.runOneTest("choiceDelim1")
+    }
+  def test_nestedChoice1() { 
+    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+    runnerCH.runOneTest("nestedChoice1")
     }
   
   val rd = testDir + "runtime-diagnostics.tdml"
