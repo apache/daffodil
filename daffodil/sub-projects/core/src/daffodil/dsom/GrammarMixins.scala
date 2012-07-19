@@ -98,50 +98,49 @@ trait ElementBaseGrammarMixin
     res
   }
 
-  // TODO: Specialize the binary handlers!
-  lazy val binaryInt = Prod("binaryInt", this, representation == Representation.Binary,
-    regularBinaryRepInt | bcdInt | packedInt)
 
-  lazy val binaryByte = Prod("binaryByte", this, representation == Representation.Binary,
-    regularBinaryRepInt | bcdInt | packedInt)
+//  lazy val binaryByte = Prod("binaryByte", this, representation == Representation.Binary,
+//    regularBinaryRepInt | bcdInt | packedInt)
+//
+//  lazy val binaryShort = Prod("binaryShort", this, representation == Representation.Binary,
+//    regularBinaryRepInt | bcdInt | packedInt)
+//
+//  lazy val binaryLong = Prod("binaryLong", this, representation == Representation.Binary,
+//    regularBinaryRepInt | bcdInt | packedInt)
+//
+//  lazy val binaryInteger = Prod("binaryInteger", this, representation == Representation.Binary,
+//    regularBinaryRepInt | bcdInt | packedInt)
+//
+//  lazy val binaryUnsignedInt = Prod("binaryInt", this, representation == Representation.Binary,
+//    regularBinaryRepInt | bcdInt | packedInt)
+//
+//  lazy val binaryUnsignedByte = Prod("binaryByte", this, representation == Representation.Binary,
+//    regularBinaryRepInt | bcdInt | packedInt)
+//
+//  lazy val binaryUnsignedShort = Prod("binaryShort", this, representation == Representation.Binary,
+//    regularBinaryRepInt | bcdInt | packedInt)
+//
+//  lazy val binaryUnsignedLong = Prod("binaryLong", this, representation == Representation.Binary,
+//    regularBinaryRepInt | bcdInt | packedInt)
 
-  lazy val binaryShort = Prod("binaryShort", this, representation == Representation.Binary,
-    regularBinaryRepInt | bcdInt | packedInt)
+//  lazy val regularBinaryRepInt = Prod("regularBinaryRepInt", this,
+//    binaryNumberRep == BinaryNumberRep.Binary, lengthKind match {
+//      case LengthKind.Implicit => {
+//        if (byteOrder.isConstant) {
+//          val javaByteOrder = ByteOrder(byteOrder.constantAsString, this) match {
+//            case ByteOrder.BigEndian => java.nio.ByteOrder.BigEndian
+//            case ByteOrder.LittleEndian => java.nio.ByteOrder.LittleEndian
+//          }
+//          Regular32bitIntPrim(this, javaByteOrder)
+//        else Assert.notYetImplemented() // Dynamic byte order not implemented
+//      }
+//      case _ => Assert.notYetImplemented() // binary number length kinds other than implicit not implemented
+//    })
 
-  lazy val binaryLong = Prod("binaryLong", this, representation == Representation.Binary,
-    regularBinaryRepInt | bcdInt | packedInt)
-
-  lazy val binaryInteger = Prod("binaryInteger", this, representation == Representation.Binary,
-    regularBinaryRepInt | bcdInt | packedInt)
-
-  lazy val binaryUnsignedInt = Prod("binaryInt", this, representation == Representation.Binary,
-    regularBinaryRepInt | bcdInt | packedInt)
-
-  lazy val binaryUnsignedByte = Prod("binaryByte", this, representation == Representation.Binary,
-    regularBinaryRepInt | bcdInt | packedInt)
-
-  lazy val binaryUnsignedShort = Prod("binaryShort", this, representation == Representation.Binary,
-    regularBinaryRepInt | bcdInt | packedInt)
-
-  lazy val binaryUnsignedLong = Prod("binaryLong", this, representation == Representation.Binary,
-    regularBinaryRepInt | bcdInt | packedInt)
-
-  lazy val regularBinaryRepInt = Prod("regularBinaryRepInt", this,
-    binaryNumberRep == BinaryNumberRep.Binary, lengthKind match {
-      case LengthKind.Implicit => {
-        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString, this) match {
-          case ByteOrder.BigEndian => Regular32bitBigEndianIntPrim(this)
-          case ByteOrder.LittleEndian => Regular32bitLittleEndianIntPrim(this)
-        }
-        else Assert.notYetImplemented()
-      }
-      case _ => Assert.notYetImplemented()
-    })
-
-  lazy val bcdInt = Prod("bcdInt", this,
-    binaryNumberRep == BinaryNumberRep.Bcd, BCDIntPrim(this))
-  lazy val packedInt = Prod("packedInt", this,
-    binaryNumberRep == BinaryNumberRep.Packed, PackedIntPrim(this))
+//  lazy val bcdInt = Prod("bcdInt", this,
+//    binaryNumberRep == BinaryNumberRep.Bcd, BCDIntPrim(this))
+//  lazy val packedInt = Prod("packedInt", this,
+//    binaryNumberRep == BinaryNumberRep.Packed, PackedIntPrim(this))
 
   // TODO: Handle the zonedTextXXX possibilities
   lazy val textInt = Prod("textInt", this, representation == Representation.Text,
@@ -196,40 +195,40 @@ trait ElementBaseGrammarMixin
   lazy val zonedTextInt = Prod("zonedTextInt", this,
     textNumberRep == TextNumberRep.Zoned, ZonedTextIntPrim(this))
 
-  lazy val binaryDouble = Prod("binaryDouble", this, representation == Representation.Binary,
-    ieeeBinaryRepDouble | ibm390HexBinaryRepDouble)
+//  lazy val binaryDouble = Prod("binaryDouble", this, representation == Representation.Binary,
+//    ieeeBinaryRepDouble | ibm390HexBinaryRepDouble)
 
   lazy val textDouble = Prod("textDouble", this, representation == Representation.Text,
     standardTextDouble | zonedTextDouble)
 
-  lazy val ieeeBinaryRepDouble = Prod("ieeeBinaryRepDouble", this,
-    {
-      val bfr = binaryFloatRep
-      val res = bfr.isConstant &&
-        BinaryFloatRep(bfr.constantAsString, this) == BinaryFloatRep.Ieee
-      res
-    },
-    lengthKind match {
-      case LengthKind.Implicit => {
-        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString, this) match {
-          case ByteOrder.BigEndian => BigEndianDoublePrim(this)
-          case ByteOrder.LittleEndian => LittleEndianDoublePrim(this)
-        }
-        else Assert.notYetImplemented()
-      }
-      case _ => Assert.notYetImplemented()
-    })
+//  lazy val ieeeBinaryRepDouble = Prod("ieeeBinaryRepDouble", this,
+//    {
+//      val bfr = binaryFloatRep
+//      val res = bfr.isConstant &&
+//        BinaryFloatRep(bfr.constantAsString, this) == BinaryFloatRep.Ieee
+//      res
+//    },
+//    lengthKind match {
+//      case LengthKind.Implicit => {
+//        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString, this) match {
+//          case ByteOrder.BigEndian => BigEndianDoublePrim(this)
+//          case ByteOrder.LittleEndian => LittleEndianDoublePrim(this)
+//        }
+//        else Assert.notYetImplemented()
+//      }
+//      case _ => Assert.notYetImplemented()
+//    })
 
   lazy val ibm390HexBinaryRepDouble = Prod("ibm390HexBinaryRepDouble", this,
     binaryFloatRep.isConstant &&
       binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString,
-    SDE("ibm390Hex not supported"))
+    subsetError("ibm390Hex not supported"))
 
   lazy val standardTextDouble = Prod("standardTextDouble", this,
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextDoublePrim(this))
 
   lazy val zonedTextDouble = Prod("zonedTextDouble", this,
-    textNumberRep == TextNumberRep.Zoned, SDE("Zoned not supported for float and double"))
+    textNumberRep == TextNumberRep.Zoned, subsetError(true, "Zoned not supported for float and double"))
 
   lazy val binaryFloat = Prod("binaryFloat", this, representation == Representation.Binary,
     ieeeBinaryRepFloat | ibm390HexBinaryRepFloat)
@@ -258,57 +257,129 @@ trait ElementBaseGrammarMixin
   lazy val ibm390HexBinaryRepFloat = Prod("ibm390HexBinaryRepFloat", this,
     binaryFloatRep.isConstant &&
       binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString,
-    SDE("ibm390Hex not supported"))
+    subsetError("ibm390Hex not supported"))
 
   lazy val standardTextFloat = Prod("standardTextFloat", this,
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextFloatPrim(this))
 
   lazy val zonedTextFloat = Prod("zonedTextFloat", this,
-    textNumberRep == TextNumberRep.Zoned, SDE("Zoned not supported for float and double"))
+    textNumberRep == TextNumberRep.Zoned, subsetError("Zoned not supported for float and double"))
 
-  lazy val value = 
-    Prod("value", this, isSimpleType,
+  // shorthand
+  lazy val primType = typeDef.asInstanceOf[SimpleTypeBase].primitiveType
+      
+  lazy val value = Prod("value", this, isSimpleType,
       // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
       // This gets used for array contents also.
       {
-      val simpleOrPrimType = typeDef.asInstanceOf[SimpleTypeBase]
-      val primType = simpleOrPrimType.primitiveType
-      val ptName = primType.name
-      val res = ptName match {
-          case "string" => stringValue
-          case "int" => binaryInt | textInt
-          case "byte" => binaryByte | textByte
-          case "short" => binaryShort | textShort
-          case "long" => binaryLong | textLong
-          case "integer" => binaryInteger | textInteger
-          case "unsignedInt" => binaryUnsignedInt | textUnsignedInt
-          case "unsignedByte" => binaryUnsignedByte | textUnsignedByte
-          case "unsignedShort" => binaryUnsignedShort | textUnsignedShort
-          case "unsignedLong" => binaryUnsignedLong | textUnsignedLong
-          case "double" => binaryDouble | textDouble
-          case "float" => binaryFloat | textFloat
-          case _ => schemaDefinitionError("Unrecognized primitive type: " + ptName)
+      primType.name match {
+        case "string" => stringValue
+        case _ => {
+        	val res = representation match {
+        	  case Representation.Binary => binaryValue
+        	  case Representation.Text => textValue
+        	}
+        	res  
+        }
+      }
+      })
+      
+  // This is the right name that the DFDL property should have had!
+  lazy val binaryIntRep = {
+    subset(binaryNumberRep == BinaryNumberRep.Binary, "binaryNumberRep='%s' is unsupported. Only 'binary' is supported.", binaryNumberRep.toString)
+    binaryNumberRep
+  }
+  
+  lazy val staticBinaryFloatRep = {
+    subset(binaryFloatRep.isConstant, "Dynamic binaryFloatRep is not supported.")
+    BinaryFloatRep(binaryFloatRep.constantAsString, this)
+  } 
+
+  lazy val binaryValue : Gram = {
+    type BO = java.nio.ByteOrder
+    Assert.invariant(primType.name != "string")
+    val bin = BinaryNumberRep.Binary // shorthands for table dispatch
+    val ieee = BinaryFloatRep.Ieee
+    subset(byteOrder.isConstant, "Dynamic byte order is not currently supported.")
+
+    // We have to dispatch carefully here. We cannot force evaluation of properties 
+    // that may not be necessary. E.g., float does not need property binaryNumberRep, so
+    // if our dispatch table uses that, it will create a false dependency on the property
+    // being defined. 
+    // The DFDL spec has a section where it gives the precedence order of properties. 
+    // This is in the spirit of that section.
+    val res : Gram = primType.name match {
+      case "byte" | "short" | "int" | "long" |
+        "unsignedByte" | "unsignedShort" | "unsignedInt" | "unsignedLong" =>
+        (primType.name, binaryIntRep) match {
+          case ("byte", bin) => new BinaryNumber[Byte](this, 8) {
+            def getNum(bp : Long, in : InStream, bo : BO) = in.getByte(bp, bo)
+          }
+          case ("short", bin) => new BinaryNumber[Short](this, 16) {
+            def getNum(bp : Long, in : InStream, bo : BO) = in.getShort(bp, bo)
+          }
+          case ("int", bin) => new BinaryNumber[Int](this, 32) {
+            def getNum(bp : Long, in : InStream, bo : BO) = in.getInt(bp, bo)
+          }
+          case ("long", bin) => new BinaryNumber[Long](this, 64) {
+            def getNum(bp : Long, in : InStream, bo : BO) = in.getLong(bp, bo)
+          }
+          case ("unsignedByte", bin) => new BinaryNumber[Int](this, 8) {
+            def getNum(bp : Long, in : InStream, bo : BO) = in.getByte(bp, bo) - Byte.MinValue
+          }
+          case ("unsignedShort", bin) => new BinaryNumber[Int](this, 16) {
+            def getNum(bp : Long, in : InStream, bo : BO) = in.getShort(bp, bo) - Short.MinValue
+          }
+          case ("unsignedInt", bin) => new BinaryNumber[Long](this, 32) {
+            def getNum(bp : Long, in : InStream, bo : BO) = in.getInt(bp, bo).toLong - Int.MinValue.toLong
+          }
+          case ("unsignedLong", bin) => new BinaryNumber[Long](this, 64) {
+            def getNum(bp : Long, in : InStream, bo : BO) = in.getLong(bp, bo) - Long.MinValue
+          }
+          case _ => Assert.impossibleCase()
+        }
+
+      case "integer" => subsetError("binary xs:integer not supported.")
+
+      case "double" | "float" =>
+        (primType.name, staticBinaryFloatRep) match {
+          case ("double", ieee) => new BinaryNumber[Double](this, 64) {
+
+            Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
+            def getNum(bp : Long, in : InStream, bo : BO) = in.getDouble(bp, bo)
+          }
+          case ("float", ieee) => new BinaryNumber[Float](this, 32) {
+            Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
+            def getNum(bp : Long, in : InStream, bo : BO) = in.getFloat(bp, bo)
+          }
+          case (_, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
+        }
+      case _ => schemaDefinitionError("Unrecognized primitive type: " + primType.name)
+    }
+    res
+  }
+  
+
+    
+  lazy val textValue : Gram = {
+	  Assert.invariant(primType.name != "string")
+       val res = primType.name match {
+          
+          case "int" =>  textInt
+          case "byte" =>  textByte
+          case "short" =>  textShort
+          case "long" =>  textLong
+          case "integer" =>  textInteger
+          case "unsignedInt" =>  textUnsignedInt
+          case "unsignedByte" =>  textUnsignedByte
+          case "unsignedShort" =>  textUnsignedShort
+          case "unsignedLong" =>  textUnsignedLong
+          case "double" =>  textDouble
+          case "float" =>  textFloat
+          case _ => schemaDefinitionError("Unrecognized primitive type: " + primType.name)
         }
     res
     }
-  )
-
-    //
-    // Used to be this big alternation, but that's a very slow way to go when they're known to be
-    // exclusive.
-    //
-    //  stringValue |
-    //  floatValue | doubleValue |
-    //  decimalValue | integerValue |
-    //  longValue | intValue | shortValue | byteValue |
-    //  nonNegativeIntegerValue |
-    //  unsignedLongValue | unsignedIntValue | unsignedShortValue | unsignedByteValue |
-    //  booleanValue |
-    //  dateValue | timeValue | dateTimeValue |
-    //  hexBinaryValue
-   
-    
-
   
   lazy val empty = Prod("empty", this, NYI && emptyIsAnObservableConcept, emptyRepresentation) 
   
@@ -636,13 +707,13 @@ trait TermGrammarMixin { self: Term =>
   def hasES = nearestEnclosingSequence != None
 
   lazy val staticSeparator = Prod("staticSeparator", this, hasES && es.separator.isConstant,
-    new StaticDelimiter(es.separator.constantAsString, self))
+    StaticSeparator(es, self))
   
 //  lazy val staticSeparator = Prod("staticSeparator", this, hasES && es.separator.isConstant,
 //    new StaticDelimiter(es, self))
 
   lazy val dynamicSeparator = Prod("dynamicSeparator", this, hasES && !es.separator.isConstant,
-    new DynamicDelimiter(es.separator, self))
+    DynamicSeparator(es, self))
     
 //    lazy val dynamicSeparator = Prod("dynamicSeparator", this, hasES && !es.separator.isConstant,
 //    new DynamicDelimiter(es, self))

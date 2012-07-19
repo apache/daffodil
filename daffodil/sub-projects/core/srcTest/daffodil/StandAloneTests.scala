@@ -41,16 +41,21 @@ object TestRig {
         val actualNoAttrs = XMLUtils.removeAttributes(actual)
         assertEquals(expectedNoAttrs, actualNoAttrs) // Need to compare in a canonicalized manner.
       } else {
-        println("Parser cannot proceed.")
-        parser.getDiagnostics.foreach { diag => println(diag.toString) }
+
+        val diags = parser.getDiagnostics.map{ _.toString }
+        val msgs = "Parser cannot proceed." +: diags
+        val msg = msgs.mkString("\n")
         isDebug = false
-        fail("Parser cannot proceed.")
+        println(msg)
+        fail(msg)
       }
     } else {
-      println("ParserFactory cannot proceed.")
-      parserFactory.getDiagnostics.foreach { diag => println(diag.toString) }
-      isDebug = false
-      fail("ParserFactory cannot proceed.")
+        val diags = parserFactory.getDiagnostics.map{ _.toString }
+        val msgs = "ParserFactory cannot proceed." +: diags
+        val msg = msgs.mkString("\n")
+        isDebug = false
+        println(msg)
+        fail(msg)
     }
   }
 }

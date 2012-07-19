@@ -10,7 +10,9 @@ class IBMTestsThatPass extends JUnit3Suite {
 
   val testDir = "test-suite/ibm-contributed/"
   val tdml1 = testDir + "dpaext1.tdml"
+  val tdml2 = testDir + "dpaext2.tdml"
   val runner1 = new DFDLTestSuite(new File(tdml1))
+  val runner2 = new DFDLTestSuite(new File(tdml2))
 
   def test_introduction_1_01() { runner1.runOneTest("introduction_1_01") }
   def test_introduction_1_02() { runner1.runOneTest("introduction_1_02") }
@@ -41,6 +43,8 @@ class IBMTestsThatPass extends JUnit3Suite {
 
   def test_scoping_default_format_8_01() { runner1.runOneTest("scoping_default_format_8_01") }
   def test_scoping_define_format_8_01() { runner1.runOneTest("scoping_define_format_8_01") }
+  
+  def test_simple_type_properties_binary_number_13_02() { runner2.runOneTest("simple_type_properties_binary_number_13_02") }
 
 }
 
@@ -90,7 +94,7 @@ class IBMTestsThatThrow extends JUnit3Suite {
   def test_simple_type_properties_text_number_13_02() { runner2.runOneTest("simple_type_properties_text_number_13_02") }
   def test_simple_type_properties_text_number_13_03() { runner2.runOneTest("simple_type_properties_text_number_13_03") }
   def test_simple_type_properties_binary_number_13_01() { runner2.runOneTest("simple_type_properties_binary_number_13_01") }
-  def test_simple_type_properties_binary_number_13_02() { runner2.runOneTest("simple_type_properties_binary_number_13_02") }
+  
   def test_simple_type_properties_text_boolean_13_01() { runner2.runOneTest("simple_type_properties_text_boolean_13_01") }
   def test_simple_type_properties_text_boolean_13_02() { runner2.runOneTest("simple_type_properties_text_boolean_13_02") }
   def test_simple_type_properties_text_boolean_13_03() { runner2.runOneTest("simple_type_properties_text_boolean_13_03") }

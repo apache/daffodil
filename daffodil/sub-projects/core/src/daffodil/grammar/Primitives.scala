@@ -8,7 +8,7 @@ import java.nio.charset.{ CharsetEncoder, CharsetDecoder }
 import scala.collection.mutable.Queue
 import daffodil.dsom._
 import daffodil.xml.XMLUtils
-import daffodil.schema.annotation.props.gen.{ YesNo, LengthKind }
+import daffodil.schema.annotation.props.gen.{ YesNo, LengthKind, ByteOrder }
 import daffodil.util.{ Debug, LogLevel, Logging, Info }
 import daffodil.processors.{ Success, VariableMap }
 import daffodil.exceptions.Assert
@@ -64,7 +64,9 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
   }
 }
 
-case class ComplexElementBeginPattern(e: ElementBase) extends Terminal(e, e.isComplexType.value == true && e.lengthKind == LengthKind.Pattern) {
+case class ComplexElementBeginPattern(e: ElementBase) 
+extends Terminal(e, e.isComplexType.value == true && e.lengthKind == LengthKind.Pattern) 
+with WithParseErrorThrowing {
   Assert.invariant(e.isComplexType.value)
 
   def parser: Parser = new Parser(e) {
@@ -77,7 +79,7 @@ case class ComplexElementBeginPattern(e: ElementBase) extends Terminal(e, e.isCo
      * ElementBegin just adds the element we are constructing to the infoset and changes
      * the state to be referring to this new element as what we're parsing data into.
      */
-    def parse(start: PState): PState = {
+    def parse(start: PState): PState = withParseErrorThrowing(start) {
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       val (result, endBitPos, theState) = in.fillCharBufferWithPatternMatch(cbuf, start.bitPos, decoder, pattern)
 
@@ -191,14 +193,16 @@ case class ComplexElementEndPattern(e: ElementBase) extends Terminal(e, e.isComp
  * followed by a conversion of some sort.
  */
 
-case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Terminal(e, true) {
+case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) 
+extends Terminal(e, true)
+with WithParseErrorThrowing {
 
   def parser: Parser = new Parser(e) {
     override def toString = "StringFixedLengthInBytesParser(" + nBytes + ")"
     val decoder = e.knownEncodingDecoder
     val cbuf = CharBuffer.allocate(nBytes.toInt) // TODO: Performance: get a char buffer from a pool. 
 
-    def parse(start: PState): PState = {
+    def parse(start: PState): PState = withParseErrorThrowing(start) {
       //setLoggingLevel(LogLevel.Debug)
       log(Debug("Parsing starting at bit position: " + start.bitPos))
       val in = start.inStream
@@ -238,14 +242,16 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long) extends Termin
   }
 }
 
-case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nBytes: Long) extends Terminal(e, true) {
+case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nBytes: Long) 
+extends Terminal(e, true) 
+with WithParseErrorThrowing {
 
   def parser: Parser = new Parser(e) {
     override def toString = "StringFixedLengthInBytesVariableWidthCharactersParser(" + nBytes + ")"
     val decoder = e.knownEncodingDecoder
     val cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool. 
 
-    def parse(start: PState): PState = {
+    def parse(start: PState): PState = withParseErrorThrowing(start) {
       // setLoggingLevel(LogLevel.Debug)
 
       log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
@@ -284,14 +290,16 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
   }
 }
 
-case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Long) extends Terminal(e, true) {
+case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Long) 
+extends Terminal(e, true)
+with WithParseErrorThrowing {
 
   def parser: Parser = new Parser(e) {
     override def toString = "StringFixedLengthInVariableWidthCharactersParser(" + nChars + ")"
     val decoder = e.knownEncodingDecoder
     val cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool. 
 
-    def parse(start: PState): PState = {
+    def parse(start: PState): PState = withParseErrorThrowing(start){
       //setLoggingLevel(LogLevel.Debug)
 
       log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
@@ -331,7 +339,9 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
   }
 }
 
-case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) {
+case class StringDelimitedEndOfData(e: ElementBase) 
+extends Terminal(e, true)
+with WithParseErrorThrowing {
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   lazy val tm = e.terminatingMarkup
@@ -342,7 +352,7 @@ case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) {
     val decoder = e.knownEncodingDecoder
     var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
 
-    def parse(start: PState): PState = {
+    def parse(start: PState): PState = withParseErrorThrowing(start) {
       log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
@@ -395,7 +405,9 @@ case class StringDelimitedEndOfData(e: ElementBase) extends Terminal(e, true) {
   }
 }
 
-case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) {
+case class StringPatternMatched(e: ElementBase) 
+extends Terminal(e, true)
+with WithParseErrorThrowing {
   val sequenceSeparator = e.nearestEnclosingSequence.get.separator
 
   def parser: Parser = new Parser(e) {
@@ -406,7 +418,7 @@ case class StringPatternMatched(e: ElementBase) extends Terminal(e, true) {
 
     // TODO: Add parameter for changing CharBuffer size
 
-    def parse(start: PState): PState = {
+    def parse(start: PState): PState = withParseErrorThrowing(start) {
       log(Debug("Parsing starting at bit position: " + start.bitPos))
       val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
       var bitOffset = 0L
@@ -739,8 +751,7 @@ abstract class Primitive(e: Term, guard: Boolean = false)
 abstract class ZonedTextNumberPrim(e: ElementBase, guard: Boolean) extends Terminal(e, guard) {
   def parser: Parser = new Parser(e) {
     def parse(start: PState): PState = {
-      // TODO: Compute the Zoned Number generically
-      start
+      Assert.notYetImplemented()
     }
   }
 
@@ -755,73 +766,121 @@ case class ZonedTextShortPrim(el: ElementBase) extends ZonedTextNumberPrim(el, f
 case class ZonedTextIntPrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)
 case class ZonedTextLongPrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)
 
-class Regular32bitIntPrim(context: Term, byteOrder: java.nio.ByteOrder) extends Parser(context) with Logging {
-  override def toString = "binary(xs:int, " + byteOrder + ")"
+abstract class BinaryNumber[T](e : ElementBase, nBits : Int) extends Terminal(e, true) {
+  lazy val primName = e.primType.name
 
-  def parse(start: PState): PState = {
-    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) start.failed("Not enough bits to create an xs:int")
-    else {
-      val value = start.inStream.getInt(start.bitPos, byteOrder)
-      start.parentForAddContent.addContent(new org.jdom.Text(value.toString))
-      val postState = start.withPos(start.bitPos + 32, -1)
-      postState
+  lazy val staticByteOrderString = e.byteOrder.constantAsString
+  lazy val staticByteOrder = ByteOrder(staticByteOrderString, context)
+
+  lazy val (staticJByteOrder, label) = staticByteOrder match {
+    case ByteOrder.BigEndian => (java.nio.ByteOrder.BIG_ENDIAN, "BE")
+    case ByteOrder.LittleEndian => (java.nio.ByteOrder.LITTLE_ENDIAN, "LE")
+  }
+
+  def getNum(bitPos : Long, inStream : InStream, byteOrder : java.nio.ByteOrder) : T
+  override def toString = "binary(xs:" + primName + ", " + label + ")"
+  val gram = this
+
+  def parser = new Parser(e) {
+
+    override def toString = gram.toString
+
+    def parse(start : PState) : PState = {
+      if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) start.failed("Not enough bits to create an xs:" + primName)
+      else {
+        val value = getNum(start.bitPos, start.inStream, staticJByteOrder)
+        start.parentForAddContent.addContent(new org.jdom.Text(value.toString))
+        val postState = start.withPos(start.bitPos + nBits, -1)
+        postState
+      }
+    }
+  }
+
+  def unparser = new Unparser(e) {
+    override def toString = gram.toString
+
+    def unparse(state : UState) = {
+      Assert.notYetImplemented()
     }
   }
 }
 
-class Regular32bitIntPrimUnparse(context: Term, byteOrder: java.nio.ByteOrder) extends Unparser(context) with Logging {
-  override def toString = "binary(xs:int, " + byteOrder + ")"
+//class Regular32bitIntPrim(context: Term, val byteOrder: java.nio.ByteOrder) 
+//extends RegularNBitPrim[Int](context, 32, "int") {
+//  def getNum(bitPos : Long, inStream : InStream) : Number =
+//    inStream.getInt(bitPos, byteOrder)
+//}
+//
+//class Regular32bitIntPrim1(context: Term, byteOrder: java.nio.ByteOrder) extends Parser(context) with Logging {
+//  override def toString = "binary(xs:int, " + byteOrder + ")"
+//
+//  def parse(start: PState): PState = {
+//    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) start.failed("Not enough bits to create an xs:int")
+//    else {
+//      val value = start.inStream.getInt(start.bitPos, byteOrder)
+//      start.parentForAddContent.addContent(new org.jdom.Text(value.toString))
+//      val postState = start.withPos(start.bitPos + 32, -1)
+//      postState
+//    }
+//  }
+//}
+//
+//class Regular32bitIntPrimUnparse(context: Term, byteOrder: java.nio.ByteOrder) extends Unparser(context) with Logging {
+//  override def toString = "binary(xs:int, " + byteOrder + ")"
+//
+//  def unparse(start: UState): UState = {
+//    Assert.notYetImplemented()
+//  }
+//}
 
-  def unparse(start: UState): UState = {
-    Assert.notYetImplemented()
-  }
-}
+// No point in specializing byte order. Java libs underneath just
+// parameterize on it again.
+//case class Regular32bitBigEndianIntPrim(e: ElementBase) extends Terminal(e, true) {
+//  def parser = new Regular32bitIntPrim(e, java.nio.ByteOrder.BIG_ENDIAN)
+//  def unparser = new Regular32bitIntPrimUnparse(e, java.nio.ByteOrder.BIG_ENDIAN)
+//}
+//case class Regular32bitLittleEndianIntPrim(e: ElementBase) extends Terminal(e, true) {
+//  def parser = new Regular32bitIntPrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
+//  def unparser = new Regular32bitIntPrimUnparse(e, java.nio.ByteOrder.LITTLE_ENDIAN)
+//}
 
-case class Regular32bitBigEndianIntPrim(e: ElementBase) extends Terminal(e, true) {
-  def parser = new Regular32bitIntPrim(e, java.nio.ByteOrder.BIG_ENDIAN)
-  def unparser = new Regular32bitIntPrimUnparse(e, java.nio.ByteOrder.BIG_ENDIAN)
-}
-case class Regular32bitLittleEndianIntPrim(e: ElementBase) extends Terminal(e, true) {
-  def parser = new Regular32bitIntPrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
-  def unparser = new Regular32bitIntPrimUnparse(e, java.nio.ByteOrder.LITTLE_ENDIAN)
-}
 case class PackedIntPrim(e: ElementBase) extends Primitive(e, false)
 case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 
-case class DoublePrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(ctx) with Logging {
-  override def toString = "binary(xs:double, " + byteOrder + ")"
-
-  def parse(start: PState): PState = {
-    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 64)) start.failed("Not enough bits to create an xs:double")
-    else {
-      val value = start.inStream.getDouble(start.bitPos, byteOrder)
-      start.parentForAddContent.addContent(new org.jdom.Text(value.toString))
-      log(Debug("Found binary double " + value))
-      log(Debug("Ended at bit position " + (start.bitPos + 64)))
-      //val postState = start.withPos(start.bitPos + 64, -1)
-      val postState = start.withPos(start.bitPos + 64, start.charPos + 1)
-      postState
-    }
-  }
-}
-
-case class DoublePrimUnparse(ctx: Term, byteOrder: java.nio.ByteOrder) extends Unparser(ctx) with Logging {
-  override def toString = "binary(xs:double, " + byteOrder + ")"
-
-  def unparse(start: UState): UState = {
-    Assert.notYetImplemented()
-  }
-}
-
-case class BigEndianDoublePrim(e: ElementBase) extends Terminal(e, true) {
-  def parser = new DoublePrim(e, java.nio.ByteOrder.BIG_ENDIAN)
-  def unparser = new DoublePrimUnparse(e, java.nio.ByteOrder.BIG_ENDIAN)
-}
-
-case class LittleEndianDoublePrim(e: ElementBase) extends Terminal(e, true) {
-  def parser = new DoublePrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
-  def unparser = new DoublePrimUnparse(e, java.nio.ByteOrder.LITTLE_ENDIAN)
-}
+//case class DoublePrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(ctx) {
+//  override def toString = "binary(xs:double, " + byteOrder + ")"
+//
+//  def parse(start: PState): PState = {
+//    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 64)) start.failed("Not enough bits to create an xs:double")
+//    else {
+//      val value = start.inStream.getDouble(start.bitPos, byteOrder)
+//      start.parentForAddContent.addContent(new org.jdom.Text(value.toString))
+//      log(Debug("Found binary double " + value))
+//      log(Debug("Ended at bit position " + (start.bitPos + 64)))
+//      //val postState = start.withPos(start.bitPos + 64, -1)
+//      val postState = start.withPos(start.bitPos + 64, start.charPos + 1)
+//      postState
+//    }
+//  }
+//}
+//
+//case class DoublePrimUnparse(ctx: Term, byteOrder: java.nio.ByteOrder) extends Unparser(ctx) with Logging {
+//  override def toString = "binary(xs:double, " + byteOrder + ")"
+//
+//  def unparse(start: UState): UState = {
+//    Assert.notYetImplemented()
+//  }
+//}
+//
+//case class BigEndianDoublePrim(e: ElementBase) extends Terminal(e, true) {
+//  def parser = new DoublePrim(e, java.nio.ByteOrder.BIG_ENDIAN)
+//  def unparser = new DoublePrimUnparse(e, java.nio.ByteOrder.BIG_ENDIAN)
+//}
+//
+//case class LittleEndianDoublePrim(e: ElementBase) extends Terminal(e, true) {
+//  def parser = new DoublePrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
+//  def unparser = new DoublePrimUnparse(e, java.nio.ByteOrder.LITTLE_ENDIAN)
+//}
 
 case class FloatPrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(ctx) with Logging {
   override def toString = "binary(xs:float, " + byteOrder + ")"
@@ -858,7 +917,9 @@ case class LittleEndianFloatPrim(e: ElementBase) extends Terminal(e, true) {
 class StaticDelimiter(delim: String, e: Term, guard: Boolean = true)
   extends StaticText(delim, e, guard)
 
-abstract class StaticText(delim: String, e: Term, guard: Boolean = true) extends Terminal(e, guard) {
+abstract class StaticText(delim: String, e: Term, guard: Boolean = true) 
+extends Terminal(e, guard) 
+with WithParseErrorThrowing {
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   //e.asInstanceOf[Term].terminatingMarkup
@@ -880,7 +941,7 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true) extends
     val decoder = e.knownEncodingDecoder
     val cbuf = CharBuffer.allocate(1024)
 
-    def parse(start: PState): PState = {
+    def parse(start: PState): PState = withParseErrorThrowing(start){
       log(Debug("Parsing delimiter at byte position: " + (start.bitPos >> 3)))
       log(Debug("Parsing delimiter at bit position: " + start.bitPos))
       //val tm = t.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap)).asInstanceOf[String].split("\\s").toList
@@ -989,8 +1050,8 @@ case class StaticTerminator(e: Term) extends StaticDelimiter(e.terminator.consta
 case class DynamicInitiator(e: Term) extends DynamicDelimiter(e.initiator, e)
 case class DynamicTerminator(e: Term) extends DynamicDelimiter(e.terminator, e)
 
-//case class StaticSeparator(e : Sequence) extends StaticDelimiter(e.separatorExpr.constantAsString, e)
-//case class DynamicSeparator(e : Sequence) extends DynamicDelimiter(e.separatorExpr, e)
+case class StaticSeparator(s : Sequence, t : Term) extends StaticDelimiter(s.separator.constantAsString, t)
+case class DynamicSeparator(s : Sequence, t : Term) extends DynamicDelimiter(s.separator, t)
 
 case class StartChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct.element, guard) {
 

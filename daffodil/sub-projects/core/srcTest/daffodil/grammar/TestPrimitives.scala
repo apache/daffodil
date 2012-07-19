@@ -1,13 +1,15 @@
 package daffodil.grammar
 
 import junit.framework.Assert._
-
 import org.scalatest.junit.JUnit3Suite
-
 import scala.xml._
 import daffodil.xml.XMLUtils
 import daffodil.xml.XMLUtils._
 import daffodil.dsom.Compiler
+import daffodil.util.TestUtils
+import daffodil.dsom.SchemaSet
+import daffodil.processors.Failure
+import daffodil.dsom.DataProcessor
 
 object DFDLUtils {
 
@@ -263,5 +265,23 @@ class TestPrimitives extends JUnit3Suite {
     val expected: Node = <e1>abcd</e1>
     assertEqualsXMLElements(expected, actual.result)
   }
+
+  def testNotByteAlignedCharactersErrorDetected() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
+    val pf = new Compiler().compile(sch)
+    val dp = pf.onPath("/").asInstanceOf[DataProcessor]
+
+    val edecl = dp.rootElem
+    val d = Compiler.stringToReadableByteChannel("42")
+    val initialState = PState.createInitialState(edecl, d, bitOffset = 3)
+    val resState = dp.parse(initialState)
+    assertTrue(resState.isError)
+    val Seq(err) = resState.getDiagnostics
+    assertTrue(err.isInstanceOf[ParseError])
+    assertTrue(err.toString.contains("byte"))
+  }
+  
 
 }

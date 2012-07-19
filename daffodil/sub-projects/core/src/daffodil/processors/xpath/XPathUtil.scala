@@ -153,7 +153,7 @@ object XPathUtil extends Logging {
         // 
         try {
           log(Debug("Expression eval trying STRING."))
-          val o = ce.evaluate(contextNode,STRING)
+          val o = ce.evaluate(contextNode, STRING)
           log(Debug("Evaluated to: '%s'", o))
           new StringResult(o.asInstanceOf[String])
         }catch {

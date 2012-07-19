@@ -210,23 +210,23 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
 //  }
   
     // @Test
-  def testInputValueCalc2() {
-    val testSchema = TestUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="data">
-        <xs:complexType>
-         <xs:sequence>
-           <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
-           <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../e1 }" />
-         </xs:sequence>
-        </xs:complexType>
-      </xs:element>)
-
-    val actual = Compiler.testString(testSchema, "A")
-    val actualString = actual.result.toString
-    assertTrue(actualString.contains("<data"))
-    assertTrue(actualString.contains("><e1>A</e1><e2>A</e2></data>"))
-  }
+//  def testInputValueCalc2() {
+//    val testSchema = TestUtils.dfdlTestSchema(
+//      <dfdl:format ref="tns:daffodilTest1"/>,
+//      <xs:element name="data">
+//        <xs:complexType>
+//         <xs:sequence>
+//           <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+//           <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../e1 }" />
+//         </xs:sequence>
+//        </xs:complexType>
+//      </xs:element>)
+//
+//    val actual = Compiler.testString(testSchema, "A")
+//    val actualString = actual.result.toString
+//    assertTrue(actualString.contains("<data"))
+//    assertTrue(actualString.contains("><e1>A</e1><e2>A</e2></data>"))
+//  }
   
   // @Test
   def testTerminator1() {

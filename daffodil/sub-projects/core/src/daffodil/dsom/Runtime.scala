@@ -23,7 +23,7 @@ trait WithDiagnosticsImpl extends WithDiagnostics {
  * The very last aspects of compilation, and the start of the
  * back-end runtime.
  */
-class DataProcessor(pf: ProcessorFactory, rootElem: GlobalElementDecl)
+class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   extends DFDL.DataProcessor
   with DiagnosticsProviding {
   Assert.usage(pf.canProceed)
@@ -57,10 +57,14 @@ class DataProcessor(pf: ProcessorFactory, rootElem: GlobalElementDecl)
   def parse(input: DFDL.Input): DFDL.ParseResult = {
     Assert.usage(!this.isError)
 
-    val initialState = PState.createInitialState(rootElem, input) // TODO also want to pass here the externally set variables, other flags/settings.
+    val initialState = PState.createInitialState(rootElem, input, bitOffset = 0) // TODO also want to pass here the externally set variables, other flags/settings.
+    parse(initialState)
+  }
+  
+  def parse(initialState : PState) = {
     val pr = new ParseResult(this) {
 
-      lazy val resultState = {
+    val resultState = { // Not lazy. We want to parse right now.
         try {
           parser.parse(initialState)
         } catch {
@@ -104,7 +108,7 @@ class DataProcessor(pf: ProcessorFactory, rootElem: GlobalElementDecl)
     val initialState = UState.createInitialState(rootElem, output, jdomDoc) // also want to pass here the externally set variables, other flags/settings.
 
     val uRes = new UnparseResult(this) {
-      lazy val resultState = {
+       val resultState = { // Not lazy. We want to unparse right now.
 
         try {
           unparser.unparse(initialState)
@@ -143,13 +147,9 @@ abstract class ParseResult(dp: DataProcessor)
   extends DFDL.ParseResult
   with WithDiagnosticsImpl {
 
-
   def resultState : PState
   
-//  lazy val prettyName = "ParseResult"
-//  lazy val path = ""
-  
-  val result =
+  lazy val result = 
     if (resultState.status == Success) {
       val docElt = resultState.parent
       docElt match {
@@ -171,7 +171,5 @@ abstract class UnparseResult(dp: DataProcessor)
 
   override def resultState: UState
 
-  //  lazy val prettyName = "UnparseResult"
-  //  lazy val path = ""
 }
 
