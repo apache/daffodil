@@ -384,49 +384,24 @@ trait OutStream {
   //  def getBinaryLong(bitOffset : Long,  isBigEndian : Boolean) : Long
   //  def getBinaryInt(bitOffset : Long,  isBigEndian : Boolean) : Int
 
-  def fillCharBuffer(data: String, encoder: CharsetEncoder)
+  def setEncoder(encoder: CharsetEncoder)
   def write()
   def charBufferToByteBuffer(): ByteBuffer
 
   def getData(): String
   def setData(str: String)
-
-  def setDelimiters(separators: Set[String], terminators: Set[String])
 }
 
 /*
  * Not thread safe. We're depending on the CharBuffer being private to us.
  */
-class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, sizeHint: Long = 1024 * 128) extends OutStream with Logging { // 128K characters by default.
+class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, sizeHint: Long = 1024 * 128, bufPos: Int = 0) extends OutStream with Logging { // 128K characters by default.
   val maxCharacterWidthInBytes = 4 //FIXME: worst case. Ok for testing. Don't use this pessimistic technique for real data.
   var cbuf = CharBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
   var encoder: CharsetEncoder = null //FIXME
+  var charBufPos = bufPos //pointer to end of CharBuffer
 
-  /*
-   * Moves data to CharBuffer, resizing as necessary.
-   */
-  def fillCharBuffer(data: String, enc: CharsetEncoder) = {
-    encoder = enc
-    setData(data)
-  }
-
-  /*
-   * Writes the delimiters to CharBuffer.
-   */
-  def setDelimiters(separators: Set[String], terminators: Set[String]) {
-    setLoggingLevel(LogLevel.Debug)
-    val me: String = "setDelimiters - "
-    log(Debug(me + "Inserting separators: " + separators + " and terminators: " + terminators))
-
-    //could just do in CharBuffer
-    var sb: StringBuilder = new StringBuilder(cbuf.toString())
-
-    //TODO: this is oversimplified
-    //TODO: also always selects first delimiter from Seq
-    sb.append(terminators.head)
-
-    setData(sb.toString())
-  }
+  def setEncoder(enc: CharsetEncoder) { encoder = enc}
 
   /*
    * Writes unparsed data in CharBuffer to outputStream.
@@ -441,9 +416,12 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
    */
   def charBufferToByteBuffer(): ByteBuffer = {
     val bbuf = ByteBuffer.allocate(cbuf.length() * maxCharacterWidthInBytes)
+    Assert.invariant(encoder != null)
     encoder.reset()
 
     val cr1 = encoder.encode(cbuf, bbuf, true) // true means this is all the input you get.
+    cbuf.clear() //remove old data from previous element
+    charBufPos = bufPos //reset pointer to end of CharBuffer
 
     log(Debug("Encode Error1: " + cr1.toString()))
     if (cr1 != CoderResult.UNDERFLOW) {
@@ -468,17 +446,29 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
     cbuf.toString
   }
 
+  /*
+   * Moves data to CharBuffer, resizing as necessary.
+   */
   def setData(str: String) {
-    cbuf.clear() //remove old data from previous element
     var isTooSmall = true
+    val temp =
+      if (charBufPos != 0) cbuf.toString()
+      else ""
+
     while (isTooSmall) {
       try { //writing all data to char buffer
+        cbuf.position(charBufPos)
         cbuf.put(str, 0, str.length())
+        charBufPos = cbuf.position()
+
         cbuf.flip() // prevent anyone depending on the buffer position across calls to any of the OutStream methods.
         isTooSmall = false
       } catch { //make sure buffer was not read to capacity
-        case e: Exception =>
+        case e: Exception => {
           cbuf = CharBuffer.allocate(cbuf.capacity() * 4) //TODO: more efficient algorithm than size x4
+          if (temp != "")
+            cbuf.put(temp)
+        }
       }
     }
   }

@@ -625,13 +625,13 @@ trait TermGrammarMixin { self: Term =>
   def hasES = nearestEnclosingSequence != None
 
   lazy val staticSeparator = Prod("staticSeparator", this, hasES && es.separator.isConstant,
-    new StaticDelimiter(es.separator.constantAsString, self))
+    StaticSeparator(es))
   
 //  lazy val staticSeparator = Prod("staticSeparator", this, hasES && es.separator.isConstant,
 //    new StaticDelimiter(es, self))
 
   lazy val dynamicSeparator = Prod("dynamicSeparator", this, hasES && !es.separator.isConstant,
-    new DynamicDelimiter(es.separator, self))
+    DynamicSeparator(es))
     
 //    lazy val dynamicSeparator = Prod("dynamicSeparator", this, hasES && !es.separator.isConstant,
 //    new DynamicDelimiter(es, self))
@@ -706,10 +706,11 @@ trait SequenceGrammarMixin { self: Sequence =>
   lazy val hasPrefixSep = sepExpr(SeparatorPosition.Prefix)
   lazy val hasInfixSep = sepExpr(SeparatorPosition.Infix)
   lazy val hasPostfixSep = sepExpr(SeparatorPosition.Postfix)
+  lazy val hasSeparator = separator.isKnownNonEmpty
 
   // note use of pass by value. We don't want to even need the SeparatorPosition property unless there is a separator.
   def sepExpr(pos: => SeparatorPosition): Boolean = {
-    if (separator.isKnownNonEmpty) if (separatorPosition eq pos) true else false
+    if (hasSeparator) if (separatorPosition eq pos) true else false
     else false
   }
 }

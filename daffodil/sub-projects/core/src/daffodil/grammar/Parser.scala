@@ -860,7 +860,7 @@ class InStreamFromByteChannel(context : ElementBase, in : DFDL.Input, sizeHint :
   def getDelimiter(cb: CharBuffer, bitOffset: Long, 
       decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
       es: EscapeSchemeObj): (String, Long, Long, SearchResult, Delimiter) = {
-    setLoggingLevel(LogLevel.Debug)
+//    setLoggingLevel(LogLevel.Debug)
 
     log(Debug("BEG_getDelimiter"))
 

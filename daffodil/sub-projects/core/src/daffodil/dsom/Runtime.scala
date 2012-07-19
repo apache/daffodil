@@ -127,7 +127,7 @@ class DataProcessor(pf: ProcessorFactory, rootElem: GlobalElementDecl)
             initialState.failed(sde)
           }
           case e: OOLAGException => {
-            Assert.invariantFailed("OOLAGException's like " + e + " are compiler stuff. This is runtime.")
+            Assert.invariantFailed("OOLAGExceptions like " + e.toString() + " are compiler stuff. This is runtime.")
           }
         }
       }
