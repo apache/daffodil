@@ -250,15 +250,25 @@ class OneDelimiterLiteral(rawArg: String, context : ThrowsSDE)
 }
 
 class ListOfStringValueAsLiteral(rawArg: String, context : ThrowsSDE)
-  //extends StringLiteralBase(rawArg, context) {
 {
-  //def cooked = EntityReplacer.replaceAll(raw)
- 
   def cooked = {
     val list = rawArg.split("\\s")
     val cookedList: List[String] = List.empty
     list.foreach( x => {
       val l = new StringValueAsLiteral(rawArg, context)
+      cookedList ++ l.cooked
+    })
+    cookedList
+  }
+}
+
+class ListOfSingleCharacterLiteral(rawArg: String, context : ThrowsSDE)
+{
+  def cooked = {
+    val list = rawArg.split("\\s")
+    val cookedList: List[String] = List.empty
+    list.foreach( x => {
+      val l = new SingleCharacterLiteral(rawArg, context)
       cookedList ++ l.cooked
     })
     cookedList
