@@ -1235,14 +1235,30 @@ case class LiteralNilValue(e: ElementBase)
   val stParser = super.parser
 
   override def parser = new Parser(e) {
+    override def toString = "LiteralNilValue(" + e.nilValue + ")"
+    
     def parse(start: PState): PState = {
-      val afterNilLit = stParser.parse(start)
+      withLoggingLevel(LogLevel.Debug) {
+        log(Debug("LiteralNilValue - Looking for: " + e.nilValue))
+        val afterNilLit = stParser.parse(start)
 
-      if (afterNilLit.status != Success) start.failed("Doesn't match nil literal.")
-      else {
-        val xsiNS = afterNilLit.parentElement.getNamespace(XMLUtils.XSI_NAMESPACE)
-        afterNilLit.parentElement.setAttribute("nil", "true", xsiNS)
-        afterNilLit
+        if (afterNilLit.status != Success) start.failed("Doesn't match nil literal.")
+        else {
+          // TODO: LiteralNil Namespacing does not work.
+          
+          // The following returns 'null' for namespace.
+          //val xsiNS = afterNilLit.parentElement.getNamespace(XMLUtils.XSI_NAMESPACE)
+          val xsiNS = afterNilLit.parentElement.getNamespace()
+ 
+          afterNilLit.parentElement.addContent(new org.jdom.Text(""))
+          
+          // The following fails to add the attribute due to issue with 'null' namespace.
+          //afterNilLit.parentElement.setAttribute("nil", "true", xsiNS)
+          
+          // TODO: Fix this LiteralNil Workaround!
+          afterNilLit.parentElement.setAttribute("nil", "true")
+          afterNilLit
+        }
       }
     }
   }
