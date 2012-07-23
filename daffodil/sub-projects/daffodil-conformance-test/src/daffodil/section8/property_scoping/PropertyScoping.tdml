@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="PropertyScoping" description="Section 8 - PropertyScoping"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="defineFormat-Embedded.dfdl.xsd">
+	
+		<dfdl:defineFormat name="format_01">
+			<dfdl:format lengthKind="delimited" lengthUnits="bytes" encoding="UTF-8" separator="" initiator="" terminator=""
+			       		occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" />
+		</dfdl:defineFormat>
+		       		
+		<xs:element name="myStringSeq1" dfdl:ref="format_01">
+		<xs:complexType>
+			<xs:sequence dfdl:initiatedContent="no" dfdl:ref="format_01" dfdl:separatorPosition="infix"
+				dfdl:sequenceKind="ordered" dfdl:separator="~" dfdl:terminator="@">
+				<xs:element name="Test1" type="xs:string" dfdl:ref="format_01">
+					
+				</xs:element>
+				
+				<xs:element name="Test2" type="xs:string" dfdl:ref="format_01" >
+
+				</xs:element>
+								
+			</xs:sequence>
+		</xs:complexType>
+		</xs:element>
+		
+	</tdml:defineSchema>
+	
+		<tdml:parserTestCase name="property_scoping_01" root="myStringSeq1"
+		model="defineFormat-Embedded.dfdl.xsd" description="Section 8 - reference to a named format - DFDL-8-009R">
+
+		<tdml:document>abcd~efgh@</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<myStringSeq1>
+				<Test1>abcd</Test1>
+				<Test2>efgh</Test2>
+				</myStringSeq1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+</tdml:testSuite>
