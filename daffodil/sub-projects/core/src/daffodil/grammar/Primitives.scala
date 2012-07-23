@@ -1236,31 +1236,129 @@ case class LiteralNilValue(e: ElementBase)
 
   override def parser = new Parser(e) {
     override def toString = "LiteralNilValue(" + e.nilValue + ")"
+    val decoder = e.knownEncodingDecoder
+    val cbuf = CharBuffer.allocate(1024)
+    
+//    def parse(start: PState): PState = {
+//      withLoggingLevel(LogLevel.Debug) {
+//        log(Debug("LiteralNilValue - Looking for: " + e.nilValue))
+//        val afterNilLit = stParser.parse(start)
+//
+//        if (afterNilLit.status != Success) start.failed("Doesn't match nil literal.")
+//        else {
+//          // TODO: LiteralNil Namespacing does not work.
+//          
+//          // The following returns 'null' for namespace.
+//          //val xsiNS = afterNilLit.parentElement.getNamespace(XMLUtils.XSI_NAMESPACE)
+//          val xsiNS = afterNilLit.parentElement.getNamespace()
+// 
+//          afterNilLit.parentElement.addContent(new org.jdom.Text(""))
+//          
+//          // The following fails to add the attribute due to issue with 'null' namespace.
+//          //afterNilLit.parentElement.setAttribute("nil", "true", xsiNS)
+//          
+//          // TODO: Fix this LiteralNil Workaround!
+//          afterNilLit.parentElement.setAttribute("nil", "true")
+//          afterNilLit
+//        }
+//      }
+//    }
     
     def parse(start: PState): PState = {
       withLoggingLevel(LogLevel.Debug) {
-        log(Debug("LiteralNilValue - Looking for: " + e.nilValue))
+        // determined that nilValue contained %#ES;
+        
+        // Look for nilValues first, if fails look for delimiters next
+        // If delimiter is found AND nilValue contains ES, result is empty and valid.
+        // If delimiter is not found, fail.
+        
         val afterNilLit = stParser.parse(start)
-
-        if (afterNilLit.status != Success) start.failed("Doesn't match nil literal.")
-        else {
-          // TODO: LiteralNil Namespacing does not work.
-          
-          // The following returns 'null' for namespace.
-          //val xsiNS = afterNilLit.parentElement.getNamespace(XMLUtils.XSI_NAMESPACE)
+        if (afterNilLit.status == Success) {
           val xsiNS = afterNilLit.parentElement.getNamespace()
- 
           afterNilLit.parentElement.addContent(new org.jdom.Text(""))
-          
-          // The following fails to add the attribute due to issue with 'null' namespace.
-          //afterNilLit.parentElement.setAttribute("nil", "true", xsiNS)
-          
-          // TODO: Fix this LiteralNil Workaround!
           afterNilLit.parentElement.setAttribute("nil", "true")
-          afterNilLit
+          return afterNilLit
+        }
+        val afterDelim = delimLookup(start)
+        if (afterDelim.status == Success){
+          val xsiNS = afterNilLit.parentElement.getNamespace()
+          afterDelim.parentElement.addContent(new org.jdom.Text(""))
+          afterDelim.parentElement.setAttribute("nil", "true")
+          return afterDelim
+        }
+        start.failed("Doesn't match nil literal.")
+      }
+    }
+    
+    def delimLookup(start: PState): PState = withParseErrorThrowing(start) {
+      withLoggingLevel(LogLevel.Debug) {
+    	// TODO: This code was copied exactly from StaticText.  How can I do away with this?
+        // TODO: We may need to keep track of Local Separators, Local Terminators and Enclosing Terminators.
+
+        val eName = e.toString()
+
+        log(Debug("LiteralNilValue - " + eName + " - Parsing delimiter at byte position: " + (start.bitPos >> 3)))
+        log(Debug("LiteralNilValue - " + eName + " - Parsing delimiter at bit position: " + start.bitPos))
+
+        //val separators = delim.split("\\s").toList
+        val terminators = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList).flatten
+
+        //val separatorsCooked: Queue[String] = new Queue
+        val terminatorsCooked: Queue[String] = new Queue
+
+        //separators.foreach(x => separatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
+        terminators.foreach(x => terminatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
+
+        log(Debug("LiteralNilValue - " + eName + " - Looking for: " + terminatorsCooked))
+
+        val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
+        //
+        // Lots of things could go wrong in here. We might be looking at garbage, so decoding will get errors, etc.
+        // Those should all count as "did not find the delimiter"
+        //
+        // No matter what goes wrong, we're counting on an orderly return here.
+        //
+        var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim) = in.getDelimiter(cbuf, start.bitPos, decoder, Set.empty, terminatorsCooked.toSet, esObj)
+
+        if (theMatchedDelim == null) {
+          val postState = start.failed(this.toString() + " - " + eName + ": Delimiter not found!")
+          return postState
+        }
+
+        val delimRegex = theMatchedDelim.asInstanceOf[Delimiter].buildDelimRegEx()
+
+        val p = Pattern.compile(delimRegex, Pattern.MULTILINE)
+
+        val result =
+          if (endBitPos == -1) "" // causes failure down below this
+          else cbuf.toString
+
+        // TODO: Is the below find even needed?  
+        val m = p.matcher(result)
+        if (m.find() && endBitPos == start.bitPos) {
+          // The above endBitPos == start.bitPos should ensure that the delimiter was found at the
+          // start of the offset.  If it wasn't, then this is a problem!
+
+          // TODO: For numBytes, is length correct?!
+          val numBytes = result.substring(m.start(), m.end()).getBytes(decoder.charset()).length
+          val endCharPos = start.charPos + (m.end() - m.start())
+
+          endBitPosDelim = (8 * numBytes) + start.bitPos // TODO: Is this correct?
+
+          log(Debug("LiteralNilValue - " + eName + " - Found " + theMatchedDelim.toString()))
+          log(Debug("LiteralNilValue - " + eName + " - Ended at byte position " + (endBitPosDelim >> 3)))
+          log(Debug("LiteralNilValue - " + eName + " - Ended at bit position " + endBitPosDelim))
+
+          val postState = start.withPos(endBitPosDelim, endCharPos)
+          postState
+        } else {
+          val postState = start.failed(this.toString() + " - " + eName + ": Delimiter not found!")
+          postState
         }
       }
     }
+    
+    
   }
 
   override def unparser: Unparser = new Unparser(e) {
