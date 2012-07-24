@@ -1255,40 +1255,47 @@ case class LiteralNilValue(e: ElementBase)
     override def toString = "LiteralNilValue(" + e.nilValue + ")"
     val decoder = e.knownEncodingDecoder
     val cbuf = CharBuffer.allocate(1024)
-    
-//    def parse(start: PState): PState = {
-//      withLoggingLevel(LogLevel.Debug) {
-//        log(Debug("LiteralNilValue - Looking for: " + e.nilValue))
-//        val afterNilLit = stParser.parse(start)
-//
-//        if (afterNilLit.status != Success) start.failed("Doesn't match nil literal.")
-//        else {
-//          // TODO: LiteralNil Namespacing does not work.
-//          
-//          // The following returns 'null' for namespace.
-//          //val xsiNS = afterNilLit.parentElement.getNamespace(XMLUtils.XSI_NAMESPACE)
-//          val xsiNS = afterNilLit.parentElement.getNamespace()
-// 
-//          afterNilLit.parentElement.addContent(new org.jdom.Text(""))
-//          
-//          // The following fails to add the attribute due to issue with 'null' namespace.
-//          //afterNilLit.parentElement.setAttribute("nil", "true", xsiNS)
-//          
-//          // TODO: Fix this LiteralNil Workaround!
-//          afterNilLit.parentElement.setAttribute("nil", "true")
-//          afterNilLit
-//        }
-//      }
-//    }
+
+    //    def parse(start: PState): PState = {
+    //      withLoggingLevel(LogLevel.Debug) {
+    //        log(Debug("LiteralNilValue - Looking for: " + e.nilValue))
+    //        val afterNilLit = stParser.parse(start)
+    //
+    //        if (afterNilLit.status != Success) start.failed("Doesn't match nil literal.")
+    //        else {
+    //          // TODO: LiteralNil Namespacing does not work.
+    //          
+    //          // The following returns 'null' for namespace.
+    //          //val xsiNS = afterNilLit.parentElement.getNamespace(XMLUtils.XSI_NAMESPACE)
+    //          val xsiNS = afterNilLit.parentElement.getNamespace()
+    // 
+    //          afterNilLit.parentElement.addContent(new org.jdom.Text(""))
+    //          
+    //          // The following fails to add the attribute due to issue with 'null' namespace.
+    //          //afterNilLit.parentElement.setAttribute("nil", "true", xsiNS)
+    //          
+    //          // TODO: Fix this LiteralNil Workaround!
+    //          afterNilLit.parentElement.setAttribute("nil", "true")
+    //          afterNilLit
+    //        }
+    //      }
+    //    }
     
     def parse(start: PState): PState = {
-      withLoggingLevel(LogLevel.Debug) {
-        // determined that nilValue contained %#ES;
-        
+      withLoggingLevel(LogLevel.Debug){
+        e.representation match {
+          case daffodil.schema.annotation.props.gen.Representation.Text => // CharClass Entities NL, WSP, WSP+, WSP* and ES allowed
+          case daffodil.schema.annotation.props.gen.Representation.Binary => {
+            // Only CharClass Entity ES allowed
+            if (e.nilValue.contains("%NL;") || e.nilValue.contains("%WSP;") || 
+                e.nilValue.contains("%WSP+;") || e.nilValue.contains("%WSP*;")){
+              e.SDE("Literal nilValue for Binary representaiton can only have ES as a value.")}
+          }
+        }
+
         // Look for nilValues first, if fails look for delimiters next
         // If delimiter is found AND nilValue contains ES, result is empty and valid.
         // If delimiter is not found, fail.
-        
         val afterNilLit = stParser.parse(start)
         if (afterNilLit.status == Success) {
           val xsiNS = afterNilLit.parentElement.getNamespace()
@@ -1297,7 +1304,7 @@ case class LiteralNilValue(e: ElementBase)
           return afterNilLit
         }
         val afterDelim = delimLookup(start)
-        if (afterDelim.status == Success){
+        if (afterDelim.status == Success && e.nilValue.contains("%ES;")) {
           val xsiNS = afterNilLit.parentElement.getNamespace()
           afterDelim.parentElement.addContent(new org.jdom.Text(""))
           afterDelim.parentElement.setAttribute("nil", "true")
@@ -1306,10 +1313,10 @@ case class LiteralNilValue(e: ElementBase)
         start.failed("Doesn't match nil literal.")
       }
     }
-    
+
     def delimLookup(start: PState): PState = withParseErrorThrowing(start) {
       withLoggingLevel(LogLevel.Debug) {
-    	// TODO: This code was copied exactly from StaticText.  How can I do away with this?
+        // TODO: This code was copied exactly from StaticText.  How can I do away with this?
         // TODO: We may need to keep track of Local Separators, Local Terminators and Enclosing Terminators.
 
         val eName = e.toString()
@@ -1374,8 +1381,7 @@ case class LiteralNilValue(e: ElementBase)
         }
       }
     }
-    
-    
+
   }
 
   override def unparser: Unparser = new Unparser(e) {
