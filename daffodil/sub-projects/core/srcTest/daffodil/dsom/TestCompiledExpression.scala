@@ -81,6 +81,9 @@ class TestCompiledExpression extends JUnit3Suite {
     assertTrue(r3string.contains("<root/>"))
   }
   
+  /**
+   * Test XPath evaluator, with no namespace specified on the XML or on the paths
+   */
   def testCompiledAbsolutePathEvaluation1() { 
     
     val r = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
@@ -96,7 +99,7 @@ class TestCompiledExpression extends JUnit3Suite {
     assertEquals("19", result)
     
   }
-    
+      
   def testCompiledRelativePathEvaluation1() { 
     
     val r = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
@@ -218,22 +221,23 @@ class TestCompiledExpression extends JUnit3Suite {
     
   }
   
+  
   def testCompiledRelativePathEvaluation6() {
 
-    val path = "../e1[namespace-uri()='" + example + "']"
-    val testSchema = <xs:schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+    // Note: removed targetNamespace={ example }. 
+    val testSchema = <xs:schema xmlns={ xsd }  xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
                        <xs:element name="data" dfdl:lengthKind="implicit" dfdl:initiator="" dfdl:terminator="">
                          <xs:complexType>
                            <xs:sequence dfdl:separator="" dfdl:initiator="" dfdl:terminator="">
                              <xs:element name="e1" type="xs:string" dfdl:encoding="ascii" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:initiator="" dfdl:terminator=""/>
-                             <xs:element name="e2" type="xs:string" dfdl:inputValueCalc={ path }/>
+                             <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../e1 }"/>
                            </xs:sequence>
                          </xs:complexType>
                        </xs:element>
                      </xs:schema>
 
     val sset = new SchemaSet(testSchema)
-    val edecl = sset.getGlobalElementDecl(example, "data").get.forRoot()
+    val edecl = sset.getGlobalElementDecl("", "data").get.forRoot() // removed namespace example => ""
     val ct = edecl.typeDef.asInstanceOf[ComplexTypeBase]
     val d = Compiler.stringToReadableByteChannel("42") 
     val compiler = Compiler()
