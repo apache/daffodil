@@ -17,5 +17,6 @@ class TestNillable extends JUnit3Suite {
   val runnerAA = new DFDLTestSuite(new File(aa))
 
   def test_litNil1() { runnerAA.runOneTest("litNil1") }
+  def test_litNil2() { runnerAA.runOneTest("litNil2") }
 
 }

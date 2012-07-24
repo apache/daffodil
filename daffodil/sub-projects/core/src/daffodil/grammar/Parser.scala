@@ -899,7 +899,6 @@ with WithParseErrorThrowing
 
   // Fills the CharBuffer with as many bytes as can be decoded successfully.
   //
-
   def fillCharBufferMixedData(cb : CharBuffer, bitOffset : Long, decoder : CharsetDecoder, numBytes : Long = -1) : (Long, Boolean) = {
     withLoggingLevel(LogLevel.Debug) {
 
@@ -968,7 +967,7 @@ with WithParseErrorThrowing
   def getDelimiter(cb: CharBuffer, bitOffset: Long, 
       decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
       es: EscapeSchemeObj): (String, Long, Long, SearchResult, Delimiter) = {
-    // setLoggingLevel(LogLevel.Debug)
+    withLoggingLevel(LogLevel.Debug) {
 
     log(Debug("BEG_getDelimiter"))
 
@@ -1037,6 +1036,15 @@ with WithParseErrorThrowing
         sb.append(result2)
       }
     }
+    
+    // Fix for basicNest2 failing.  Need to acknowledge that we were terminated by an enclosing terminator 
+    // but do not need to consume that terminator!  We should only consume OUR separators/terminators.
+    //
+    if (theDelimiter.typeDef == DelimiterType.Terminator) { 
+      log(Debug(me + "Enclosing terminator found (" + theDelimiter.toString() + ")"))
+      //return (sb.toString(), endPos, endPos, SearchResult.NoMatch, null) 
+      return (sb.toString(), endPos, endPos, SearchResult.NoMatch, null) 
+    }
 
     var delimLength = endPosDelim - endPos
 
@@ -1070,6 +1078,7 @@ with WithParseErrorThrowing
     if (endPos != -1 && endPosDelim != -1){ (cb.subSequence(endPos, endPosDelim+1).toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
 
     else { (cb.toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
+    }
   }
 
   def getByte(bitPos : Long, order : java.nio.ByteOrder) = {

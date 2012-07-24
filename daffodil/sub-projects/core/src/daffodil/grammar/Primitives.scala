@@ -351,7 +351,8 @@ case class StringDelimitedEndOfData(e: ElementBase)
   with WithParseErrorThrowing {
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
-  lazy val tm = e.terminatingMarkup
+  //lazy val tm = e.terminatingMarkup
+  lazy val tm = e.allTerminatingMarkup
   lazy val cname = toString
 
   def parser: Parser = new Parser(e) {
@@ -360,48 +361,52 @@ case class StringDelimitedEndOfData(e: ElementBase)
     var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
-      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
-      var bitOffset = 0L
+      withLoggingLevel(LogLevel.Debug) {
+        val eName = e.toString()
 
-      //val delimiters2 = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
-      val delimiters2 = e.allTerminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
-      val delimiters = delimiters2.flatten(x => x)
+        log(Debug(this.toString() + " - " + eName + " - Parsing starting at bit position: " + start.bitPos))
+        val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
+        var bitOffset = 0L
 
-      val delimsCooked: Queue[String] = new Queue
+        //val delimiters2 = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
+        val delimiters2 = e.allTerminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
+        val delimiters = delimiters2.flatten(x => x)
 
-      delimiters.foreach(x => delimsCooked.enqueue(EntityReplacer.replaceAll(x)))
+        val delimsCooked: Queue[String] = new Queue
 
-      //log(Debug("StringDelimitedEndOfData - Looking for: " + delimiters + " Count: " + delimiters.length))
-      log(Debug("StringDelimitedEndOfData - Looking for: " + delimsCooked + " Count: " + delimsCooked.length))
+        delimiters.foreach(x => delimsCooked.enqueue(EntityReplacer.replaceAll(x)))
 
-      val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set.empty, delimsCooked.toSet, esObj)
+        //log(Debug("StringDelimitedEndOfData - Looking for: " + delimiters + " Count: " + delimiters.length))
+        log(Debug("StringDelimitedEndOfData - " + eName + " - Looking for: " + delimsCooked + " Count: " + delimsCooked.length))
 
-      val postState = theState match {
-        case SearchResult.NoMatch => {
-          // TODO: Is this logic correct?
-          // No Terminator, so last result is a field.
-          log(Debug(this.toString() + " - Parsed: " + result))
-          log(Debug(this.toString() + " - Ended at bit position " + endBitPos))
-          val endCharPos = start.charPos + result.length()
-          val currentElement = start.parentForAddContent
-          currentElement.addContent(new org.jdom.Text(result))
-          start.withPos(endBitPos, endCharPos)
+        val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set.empty, delimsCooked.toSet, esObj)
+
+        val postState = theState match {
+          case SearchResult.NoMatch => {
+            // TODO: Is this logic correct?
+            // No Terminator, so last result is a field.
+            log(Debug(this.toString() + " - " + eName + " - Parsed: " + result))
+            log(Debug(this.toString() + " - " + eName + " - Ended at bit position " + endBitPos))
+            val endCharPos = start.charPos + result.length()
+            val currentElement = start.parentForAddContent
+            currentElement.addContent(new org.jdom.Text(result))
+            start.withPos(endBitPos, endCharPos)
+          }
+          case SearchResult.PartialMatch => start.failed(this.toString() + " - " + eName + ": Partial match found!")
+          case SearchResult.FullMatch => {
+            log(Debug(this.toString() + " - " + eName + " - Parsed: " + result))
+            log(Debug(this.toString() + " - " + eName + " - Ended at bit position " + endBitPos))
+            val endCharPos = start.charPos + result.length()
+            val currentElement = start.parentForAddContent
+            currentElement.addContent(new org.jdom.Text(result))
+            start.withPos(endBitPos, endCharPos)
+          }
+          case SearchResult.EOD => {
+            start.failed(this.toString() + " - " + eName + " - Reached End Of Data.")
+          }
         }
-        case SearchResult.PartialMatch => start.failed(this.toString() + ": Partial match found!")
-        case SearchResult.FullMatch => {
-          log(Debug(this.toString() + " - Parsed: " + result))
-          log(Debug(this.toString() + " - Ended at bit position " + endBitPos))
-          val endCharPos = start.charPos + result.length()
-          val currentElement = start.parentForAddContent
-          currentElement.addContent(new org.jdom.Text(result))
-          start.withPos(endBitPos, endCharPos)
-        }
-        case SearchResult.EOD => {
-          start.failed(this.toString() + " - Reached End Of Data.")
-        }
+        postState
       }
-      postState
     }
   }
 
@@ -728,10 +733,7 @@ case class ZonedTextShortPrim(el: ElementBase) extends ZonedTextNumberPrim(el, f
 case class ZonedTextIntPrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)
 case class ZonedTextLongPrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)
 
-
 abstract class BinaryNumber[T](e: ElementBase, nBits: Int) extends Terminal(e, true) {
-  override def toString = "binary(xs:" + primName + ", " + label + ")"
-
   lazy val primName = e.primType.name
 
   lazy val staticByteOrderString = e.byteOrder.constantAsString
@@ -744,6 +746,7 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Int) extends Terminal(e, t
 
   def getNum(bitPos: Long, inStream: InStream, byteOrder: java.nio.ByteOrder): T
   def getNum(t: Number): T
+  override def toString = "binary(xs:" + primName + ", " + label + ")"
   val gram = this
 
   protected val GramName = "binary"
@@ -934,18 +937,11 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
   with WithParseErrorThrowing {
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
-  //e.asInstanceOf[Term].terminatingMarkup
 
   def parser: Parser = new Parser(e) {
-    // setLoggingLevel(LogLevel.Debug)
 
     val t = e.asInstanceOf[Term]
 
-    // TODO: Fix Cheezy matcher. Doesn't implement ignore case. Doesn't fail at first character that doesn't match. It grabs
-    // the whole length (if it can), and then compares.
-    // Also handles only one delimiter string. They can actually be whitespace-separated lists of alternative
-    // delimiters
-    // 
     Assert.notYetImplemented(e.ignoreCase == YesNo.Yes)
 
     Assert.invariant(delim != "") // shouldn't be here at all in this case.
@@ -954,67 +950,70 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
     val cbuf = CharBuffer.allocate(1024)
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      log(Debug("Parsing delimiter at byte position: " + (start.bitPos >> 3)))
-      log(Debug("Parsing delimiter at bit position: " + start.bitPos))
-      //val tm = t.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap)).asInstanceOf[String].split("\\s").toList
-      val tm = t.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList).flatten
+      withLoggingLevel(LogLevel.Debug) {
 
-      val delims = delim.split("\\s").toList ++ tm
+        // TODO: We may need to keep track of Local Separators, Local Terminators and Enclosing Terminators.
 
-      val separators = delim.split("\\s").toList
-      val terminators = t.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList).flatten
+        val eName = e.toString()
 
-      val separatorsCooked: Queue[String] = new Queue
-      val terminatorsCooked: Queue[String] = new Queue
+        log(Debug("StaticText - " + eName + " - Parsing delimiter at byte position: " + (start.bitPos >> 3)))
+        log(Debug("StaticText - " + eName + " - Parsing delimiter at bit position: " + start.bitPos))
 
-      separators.foreach(x => separatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
-      terminators.foreach(x => terminatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
+        val separators = delim.split("\\s").toList
+        val terminators = t.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList).flatten
 
-      //log(Debug("StaticText - Looking for: " + separators + " AND " + terminators))
-      log(Debug("StaticText - Looking for: " + separatorsCooked + " AND " + terminatorsCooked))
+        val separatorsCooked: Queue[String] = new Queue
+        val terminatorsCooked: Queue[String] = new Queue
 
-      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
-      //
-      // Lots of things could go wrong in here. We might be looking at garbage, so decoding will get errors, etc.
-      // Those should all count as "did not find the delimiter"
-      //
-      // No matter what goes wrong, we're counting on an orderly return here.
-      //
+        separators.foreach(x => separatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
+        terminators.foreach(x => terminatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
 
-      //var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim) = in.getDelimiter(cbuf, start.bitPos, decoder, separators.toSet, delims.toSet, esObj)
-      var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim) = in.getDelimiter(cbuf, start.bitPos, decoder, separatorsCooked.toSet, terminatorsCooked.toSet, esObj)
+        log(Debug("StaticText - " + eName + " - Looking for: " + separatorsCooked + " AND " + terminatorsCooked))
 
-      if (theMatchedDelim == null) {
-        val postState = start.failed(this.toString() + ": Delimiter not found!")
-        return postState
-      }
+        val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
+        //
+        // Lots of things could go wrong in here. We might be looking at garbage, so decoding will get errors, etc.
+        // Those should all count as "did not find the delimiter"
+        //
+        // No matter what goes wrong, we're counting on an orderly return here.
+        //
+        var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim) = in.getDelimiter(cbuf, start.bitPos, decoder, separatorsCooked.toSet, terminatorsCooked.toSet, esObj)
 
-      val delimRegex = theMatchedDelim.asInstanceOf[Delimiter].buildDelimRegEx()
+        if (theMatchedDelim == null) {
+          val postState = start.failed(this.toString() + " - " + eName + ": Delimiter not found!")
+          return postState
+        }
 
-      val p = Pattern.compile(delimRegex, Pattern.MULTILINE)
+        val delimRegex = theMatchedDelim.asInstanceOf[Delimiter].buildDelimRegEx()
 
-      val result =
-        if (endBitPos == -1) "" // causes failure down below this
-        else cbuf.toString
+        val p = Pattern.compile(delimRegex, Pattern.MULTILINE)
 
-      // TODO: Is the below find even needed?  
-      val m = p.matcher(result)
-      if (m.find()) {
-        // TODO: For numBytes, is length correct?!
-        val numBytes = result.substring(m.start(), m.end()).getBytes(decoder.charset()).length
-        val endCharPos = start.charPos + (m.end() - m.start())
+        val result =
+          if (endBitPos == -1) "" // causes failure down below this
+          else cbuf.toString
 
-        endBitPosDelim = (8 * numBytes) + start.bitPos // TODO: Is this correct?
+        // TODO: Is the below find even needed?  
+        val m = p.matcher(result)
+        if (m.find() && endBitPos == start.bitPos) {
+          // The above endBitPos == start.bitPos should ensure that the delimiter was found at the
+          // start of the offset.  If it wasn't, then this is a problem!
 
-        log(Debug("Found " + theMatchedDelim.toString()))
-        log(Debug("Ended at byte position " + (endBitPosDelim >> 3)))
-        log(Debug("Ended at bit position " + endBitPosDelim))
+          // TODO: For numBytes, is length correct?!
+          val numBytes = result.substring(m.start(), m.end()).getBytes(decoder.charset()).length
+          val endCharPos = start.charPos + (m.end() - m.start())
 
-        val postState = start.withPos(endBitPosDelim, endCharPos)
-        postState
-      } else {
-        val postState = start.failed(this.toString() + ": Delimiter not found!")
-        postState
+          endBitPosDelim = (8 * numBytes) + start.bitPos // TODO: Is this correct?
+
+          log(Debug("StaticText - " + eName + " - Found " + theMatchedDelim.toString()))
+          log(Debug("StaticText - " + eName + " - Ended at byte position " + (endBitPosDelim >> 3)))
+          log(Debug("StaticText - " + eName + " - Ended at bit position " + endBitPosDelim))
+
+          val postState = start.withPos(endBitPosDelim, endCharPos)
+          postState
+        } else {
+          val postState = start.failed(this.toString() + " - " + eName + ": Delimiter not found!")
+          postState
+        }
       }
     }
   }
@@ -1051,11 +1050,11 @@ case class StaticTerminator(e: Term) extends StaticDelimiter(e.terminator.consta
 case class DynamicInitiator(e: Term) extends DynamicDelimiter(e.initiator, e)
 case class DynamicTerminator(e: Term) extends DynamicDelimiter(e.terminator, e)
 
-case class StaticSeparator(e: Sequence, t: Term) extends StaticDelimiter(e.separator.constantAsString, t) {
-  Assert.invariant(e.hasSeparator)
-  lazy val unparserDelim = e.separator.constantAsString.split("""\s""").head
+case class StaticSeparator(s: Sequence, t: Term) extends StaticDelimiter(s.separator.constantAsString, t) {
+  Assert.invariant(s.hasSeparator)
+  lazy val unparserDelim = s.separator.constantAsString.split("""\s""").head
 }
-case class DynamicSeparator(e: Sequence, t: Term) extends DynamicDelimiter(e.separator, t)
+case class DynamicSeparator(s: Sequence, t: Term) extends DynamicDelimiter(s.separator, t)
 
 case class StartChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct.element, guard) {
 
@@ -1253,16 +1252,130 @@ case class LiteralNilValue(e: ElementBase)
   val stParser = super.parser
 
   override def parser = new Parser(e) {
+    override def toString = "LiteralNilValue(" + e.nilValue + ")"
+    val decoder = e.knownEncodingDecoder
+    val cbuf = CharBuffer.allocate(1024)
+    
+//    def parse(start: PState): PState = {
+//      withLoggingLevel(LogLevel.Debug) {
+//        log(Debug("LiteralNilValue - Looking for: " + e.nilValue))
+//        val afterNilLit = stParser.parse(start)
+//
+//        if (afterNilLit.status != Success) start.failed("Doesn't match nil literal.")
+//        else {
+//          // TODO: LiteralNil Namespacing does not work.
+//          
+//          // The following returns 'null' for namespace.
+//          //val xsiNS = afterNilLit.parentElement.getNamespace(XMLUtils.XSI_NAMESPACE)
+//          val xsiNS = afterNilLit.parentElement.getNamespace()
+// 
+//          afterNilLit.parentElement.addContent(new org.jdom.Text(""))
+//          
+//          // The following fails to add the attribute due to issue with 'null' namespace.
+//          //afterNilLit.parentElement.setAttribute("nil", "true", xsiNS)
+//          
+//          // TODO: Fix this LiteralNil Workaround!
+//          afterNilLit.parentElement.setAttribute("nil", "true")
+//          afterNilLit
+//        }
+//      }
+//    }
+    
     def parse(start: PState): PState = {
-      val afterNilLit = stParser.parse(start)
-
-      if (afterNilLit.status != Success) start.failed("Doesn't match nil literal.")
-      else {
-        val xsiNS = afterNilLit.parentElement.getNamespace(XMLUtils.XSI_NAMESPACE)
-        afterNilLit.parentElement.setAttribute("nil", "true", xsiNS)
-        afterNilLit
+      withLoggingLevel(LogLevel.Debug) {
+        // determined that nilValue contained %#ES;
+        
+        // Look for nilValues first, if fails look for delimiters next
+        // If delimiter is found AND nilValue contains ES, result is empty and valid.
+        // If delimiter is not found, fail.
+        
+        val afterNilLit = stParser.parse(start)
+        if (afterNilLit.status == Success) {
+          val xsiNS = afterNilLit.parentElement.getNamespace()
+          afterNilLit.parentElement.addContent(new org.jdom.Text(""))
+          afterNilLit.parentElement.setAttribute("nil", "true")
+          return afterNilLit
+        }
+        val afterDelim = delimLookup(start)
+        if (afterDelim.status == Success){
+          val xsiNS = afterNilLit.parentElement.getNamespace()
+          afterDelim.parentElement.addContent(new org.jdom.Text(""))
+          afterDelim.parentElement.setAttribute("nil", "true")
+          return afterDelim
+        }
+        start.failed("Doesn't match nil literal.")
       }
     }
+    
+    def delimLookup(start: PState): PState = withParseErrorThrowing(start) {
+      withLoggingLevel(LogLevel.Debug) {
+    	// TODO: This code was copied exactly from StaticText.  How can I do away with this?
+        // TODO: We may need to keep track of Local Separators, Local Terminators and Enclosing Terminators.
+
+        val eName = e.toString()
+
+        log(Debug("LiteralNilValue - " + eName + " - Parsing delimiter at byte position: " + (start.bitPos >> 3)))
+        log(Debug("LiteralNilValue - " + eName + " - Parsing delimiter at bit position: " + start.bitPos))
+
+        //val separators = delim.split("\\s").toList
+        val terminators = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList).flatten
+
+        //val separatorsCooked: Queue[String] = new Queue
+        val terminatorsCooked: Queue[String] = new Queue
+
+        //separators.foreach(x => separatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
+        terminators.foreach(x => terminatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
+
+        log(Debug("LiteralNilValue - " + eName + " - Looking for: " + terminatorsCooked))
+
+        val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
+        //
+        // Lots of things could go wrong in here. We might be looking at garbage, so decoding will get errors, etc.
+        // Those should all count as "did not find the delimiter"
+        //
+        // No matter what goes wrong, we're counting on an orderly return here.
+        //
+        var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim) = in.getDelimiter(cbuf, start.bitPos, decoder, Set.empty, terminatorsCooked.toSet, esObj)
+
+        if (theMatchedDelim == null) {
+          val postState = start.failed(this.toString() + " - " + eName + ": Delimiter not found!")
+          return postState
+        }
+
+        val delimRegex = theMatchedDelim.asInstanceOf[Delimiter].buildDelimRegEx()
+
+        val p = Pattern.compile(delimRegex, Pattern.MULTILINE)
+
+        val result =
+          if (endBitPos == -1) "" // causes failure down below this
+          else cbuf.toString
+
+        // TODO: Is the below find even needed?  
+        val m = p.matcher(result)
+        if (m.find() && endBitPos == start.bitPos) {
+          // The above endBitPos == start.bitPos should ensure that the delimiter was found at the
+          // start of the offset.  If it wasn't, then this is a problem!
+
+          // TODO: For numBytes, is length correct?!
+          val numBytes = result.substring(m.start(), m.end()).getBytes(decoder.charset()).length
+          val endCharPos = start.charPos + (m.end() - m.start())
+
+          endBitPosDelim = (8 * numBytes) + start.bitPos // TODO: Is this correct?
+
+          log(Debug("LiteralNilValue - " + eName + " - Found " + theMatchedDelim.toString()))
+          log(Debug("LiteralNilValue - " + eName + " - Ended at byte position " + (endBitPosDelim >> 3)))
+          log(Debug("LiteralNilValue - " + eName + " - Ended at bit position " + endBitPosDelim))
+
+          val postState = start.withPos(endBitPosDelim, endCharPos)
+          postState
+        } else {
+          val postState = start.failed(this.toString() + " - " + eName + ": Delimiter not found!")
+          postState
+        }
+      }
+    }
+    
+    
   }
 
   override def unparser: Unparser = new Unparser(e) {
