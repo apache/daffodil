@@ -426,22 +426,23 @@ class TestTDMLRunner extends JUnit3Suite {
     }
   }
 
-  def testTDMLSerializeDetectsError() {
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
-                      <ts:serializerTestCase ID="some identifier" name="firstUnitTest" root="data">
+  def testTDMLUnparse() {
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } xmlns:tns={ tns } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi } suiteName="theSuiteName">
+                      <ts:defineSchema name="unparseTestSchema1">
+                        <dfdl:format ref="tns:daffodilTest1"/>
+                        <xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 9 }"/>
+                      </ts:defineSchema>
+                      <ts:serializerTestCase ID="some identifier" name="firstUnitTest" root="data" model="unparseTestSchema1">
                         <ts:infoset>
                           <ts:dfdlInfoset>
-                            <data xmlns={ example }>37</data>
+                            <data xmlns={ example }>123456789</data>
                           </ts:dfdlInfoset>
                         </ts:infoset>
-                        <ts:document></ts:document><!-- should fail with no data being output -->
-                        <ts:errors>
-                          <ts:error>not yet implemented</ts:error>
-                        </ts:errors>
+                        <ts:document>123456789</ts:document>
                       </ts:serializerTestCase>
                     </ts:testSuite>
     val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("firstUnitTest", Some(testSchema))
+    ts.runOneTest("firstUnitTest")
   }
 
   val tdmlWithUnicode2028 =
