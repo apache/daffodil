@@ -26,7 +26,7 @@
 		description="literal nil">
 
 		<document>
-			<documentPart type="text"><![CDATA[0,%#ES;;]]></documentPart>
+			<documentPart type="text"><![CDATA[0,%ES;;]]></documentPart>
 		</document>
 
 		<infoset>
