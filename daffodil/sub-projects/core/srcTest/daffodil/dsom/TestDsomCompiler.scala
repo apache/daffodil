@@ -291,6 +291,42 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
   }
 
   // @Test
+  def testUnparseBinaryIntBE() {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 8 }" dfdl:representation="binary"/>)
+    val actual = Compiler.testBinary(testSchema, "0x0000000F")
+    val actualString = actual.result.toString
+    assertTrue(actualString.contains("<data"))
+    assertTrue(actualString.contains(">15</data>"))
+
+    Compiler.testUnparsing(testSchema, actual.result, "0x0000000F")
+  }
+
+  // @Test
+  def testUnparseBinaryIntLE() {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 8 }" dfdl:representation="binary" dfdl:byteOrder='littleEndian'/>)
+    val actual = Compiler.testBinary(testSchema, "0x0F000000")
+    val actualString = actual.result.toString
+    assertTrue(actualString.contains("<data"))
+    assertTrue(actualString.contains(">15</data>"))
+
+    Compiler.testUnparsing(testSchema, actual.result, "0x0F000000")
+  }
+
+  // @Test
+  def testUnparseBinaryShortBE() {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="data" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:representation="binary"/>)
+    val actual = Compiler.testBinary(testSchema, "0xABCD")
+
+    Compiler.testUnparsing(testSchema, actual.result, "0xABCD")
+  }
+
+  // @Test
   def testUnparseMultiElem1() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
@@ -342,6 +378,30 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
 
     val infoset = <list xmlns={ example }><somedata>50.93</somedata><moredata>XYZ</moredata><anddata>42</anddata></list>
     Compiler.testUnparsing(testSchema, infoset, "50.93^%XYZ^42")
+  }
+
+  // @Test
+  def testUnparseBinary1() {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+
+      <xs:element name="list" type="tns:example1">
+        <xs:annotation>
+          <xs:appinfo source={ dfdl }>
+            <dfdl:element alignmentUnits="bytes"/>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+      <xs:complexType name="example1">
+        <xs:sequence dfdl:separator="@">
+          <xs:element name="somedata" type="xs:byte" dfdl:length="2" dfdl:lengthKind="explicit" dfdl:initiator=">" dfdl:representation="binary"/>
+          <xs:element name="moredata" type="xs:short" dfdl:length="4" dfdl:lengthKind="explicit" dfdl:representation="binary"/>
+          <xs:element name="anddata" type="xs:long" dfdl:length="16" dfdl:lengthKind="explicit" dfdl:terminator=";" dfdl:representation="binary"/>
+        </xs:sequence>
+      </xs:complexType>)
+
+    val infoset = <list xmlns={ example }><somedata>31</somedata><moredata>-21555</moredata><anddata>19088743</anddata></list>
+    Compiler.testUnparsing(testSchema, infoset, ">0x1F@0xABCD@0x0000000001234567;")
   }
 
   // @Test
@@ -420,6 +480,30 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertTrue(actualString.contains("<data><somedata>abc</somedata><moredata>87654321</moredata></data></list>"))
 
     Compiler.testUnparsing(testSchema, actual.result, "abc87654321")
+  }
+
+  // @Test
+  def testUnparseFixedArray() {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+
+      <xs:element name="root">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="#">
+            <xs:element name="data" type="xs:double" dfdl:lengthKind="explicit" dfdl:length="{ 6 }" dfdl:initiator="?" maxOccurs="2" minOccurs="2" dfdl:occursCountKind="fixed"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+
+    val actual = Compiler.testString(testSchema, "?45.670#?45.670")
+    val actualString = actual.result.toString
+    //    System.err.println("parsed: " + actualString)
+    assertTrue(actualString.contains("<root"))
+    assertTrue(actualString.contains("><data>45.67</data><data>45.67</data></root>"))
+
+    //TODO: restore trailing 0's in unparse
+    // Compiler.testUnparsing(testSchema, actual.result, "?45.670#?45.670")
+    Compiler.testUnparsing(testSchema, actual.result, "?45.67#?45.67")
   }
 
   def test3 {

@@ -403,7 +403,8 @@ trait OutStream {
   def charBufferToByteBuffer(): ByteBuffer
 
   def getData(): String
-  def setData(str: String)
+  def fillCharBuffer(str: String)
+  def toByteArray[T](num: T, name: String, order: java.nio.ByteOrder): Array[Byte]
 }
 
 /*
@@ -421,6 +422,8 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
    * Writes unparsed data in CharBuffer to outputStream.
    */
   def write() {
+    //    if (encoder != null)
+    Assert.invariant(encoder != null)
     val bbuf = charBufferToByteBuffer()
     outStream.write(bbuf)
   }
@@ -430,7 +433,6 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
    */
   def charBufferToByteBuffer(): ByteBuffer = {
     var bbuf = ByteBuffer.allocate(cbuf.length() * maxCharacterWidthInBytes)
-    Assert.invariant(encoder != null)
     encoder.reset()
 
     val cr1 = encoder.encode(cbuf, bbuf, true) // true means this is all the input you get.
@@ -463,7 +465,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
   /*
    * Moves data to CharBuffer, resizing as necessary.
    */
-  def setData(str: String) {
+  def fillCharBuffer(str: String) {
     var isTooSmall = true
     val temp =
       if (charBufPos != 0) cbuf.toString()
@@ -477,7 +479,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
 
         cbuf.flip() // prevent anyone depending on the buffer position across calls to any of the OutStream methods.
         isTooSmall = false
-      } catch { //make sure buffer was not read to capacity
+      } catch { //make sure buffer was not written to capacity
         case e: Exception => {
           cbuf = CharBuffer.allocate(cbuf.capacity() * 4) //TODO: more efficient algorithm than size x4
           if (temp != "")
@@ -485,6 +487,44 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
         }
       }
     }
+  }
+
+  /*
+   * Converts number to array of bytes.
+   */
+  def toByteArray[T](num: T, name: String, order: java.nio.ByteOrder): Array[Byte] = {
+    var bbuf = ByteBuffer.allocate(num.toString().length()) //FIXME
+    bbuf.order(order)
+    var isTooSmall = true
+
+    while (isTooSmall) {
+      try { //writing all data to buffer
+        bbuf.position(0)
+
+        name match {
+          case "byte" => bbuf.put(num.asInstanceOf[Byte])
+          case "short" => bbuf.putShort(num.asInstanceOf[Short])
+          case "int" => bbuf.putInt(num.asInstanceOf[Int])
+          case "long" => bbuf.putLong(num.asInstanceOf[Long])
+          case "unsignedByte" => bbuf.put(num.asInstanceOf[Byte])
+          case "unsignedShort" => bbuf.putShort(num.asInstanceOf[Short])
+          case "unsignedInt" => bbuf.putInt(num.asInstanceOf[Int])
+          case "unsignedLong" => bbuf.putLong(num.asInstanceOf[Long])
+          case "double" => bbuf.putDouble(num.asInstanceOf[Double])
+          case "float" => bbuf.putFloat(num.asInstanceOf[Float])
+        }
+        bbuf.flip() // prevent anyone depending on the buffer position across calls to any of the OutStream methods.
+        isTooSmall = false
+      } catch { //make sure buffer was not written to capacity
+        case e: Exception => {
+          bbuf = ByteBuffer.allocate(bbuf.capacity() * 4) //TODO: more efficient algorithm than size x4
+          bbuf.order(order)
+        }
+      }
+    }
+    val bytes: Array[Byte] = new Array[Byte](bbuf.remaining)
+    bbuf.get(bytes)
+    bytes
   }
 }
 
