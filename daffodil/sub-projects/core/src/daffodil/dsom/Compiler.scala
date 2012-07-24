@@ -6,10 +6,9 @@ import scala.xml.Node
 import scala.xml.XML
 import daffodil.api.DFDL
 import daffodil.exceptions.Assert
-import daffodil.util. { Logging, Info }
+import daffodil.util.{ Logging, Info }
 import daffodil.util.Misc.hex2Bytes
 import junit.framework.Assert.assertEquals
-
 
 class ProcessorFactory(sset: SchemaSet, rootElem: GlobalElementDecl)
   extends DiagnosticsProviding // (sset)

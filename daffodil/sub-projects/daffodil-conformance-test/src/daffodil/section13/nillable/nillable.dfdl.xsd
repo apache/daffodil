@@ -12,7 +12,7 @@
 				documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
 				representation="text" occursCountKind="parsed" 
 				nilValueDelimiterPolicy="none" 
-				nilValue="nil" 
+				nilValue="nil %#ES;" 
 				nilKind="literalValue"
 				textNumberRep="standard"
 				ignoreCase="no"/>

@@ -13,10 +13,10 @@ import daffodil.schema.annotation.props.PropertyMixin
 import stringsearch.constructs.EscapeScheme.log
 import junit.framework.Assert.assertTrue
 
-class UnparseError(sc: SchemaComponent, ustate: UState, kind: String, args: Any*) extends ProcessingError {
+class UnparseError(sc: SchemaComponent, ustate: Option[UState], kind: String, args: Any*) extends ProcessingError {
   def isError = true
   def getSchemaLocations = List(sc)
-  def getDataLocations = List(ustate.currentLocation)
+  def getDataLocations = ustate.map { _.currentLocation }.toList
 
   override def toString = {
     lazy val argsAsString = args.map { _.toString }.mkString(", ")
@@ -29,10 +29,11 @@ class UnparseError(sc: SchemaComponent, ustate: UState, kind: String, args: Any*
     val msg =
       if (kind.contains("%")) kind.format(args: _*)
       else (kind + "(%s)").format(argsAsString)
+
     val res = "Unparse Error: " + msg +
       "\nContext was : %s".format(sc) +
-      "\nData location was preceding %s".format(ustate.currentElement)
-    "\nUnparsed data is %s".format(ustate.outStream.getData())
+      ustate.map { us => "\nData location was preceding %s".format(us.currentLocation) }.getOrElse("") +
+      "\nUnparsed data is %s".format(ustate.map { us => us.outStream.getData() })
     res
   }
 
@@ -42,10 +43,10 @@ class UnparseError(sc: SchemaComponent, ustate: UState, kind: String, args: Any*
 /**
  * Encapsulates lower-level unparsing with a uniform interface
  */
-abstract class Unparser(val context: Term) {
+abstract class Unparser(val context: Term) extends Logging {
 
   def UE(ustate: UState, kind: String, args: Any*) = {
-    ustate.failed(new UnparseError(context, ustate, kind, args: _*))
+    ustate.failed(new UnparseError(context, Some(ustate), kind, args: _*))
   }
 
   def processingError(ustate: UState, kind: String, args: Any*) =
@@ -96,8 +97,8 @@ class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pUnparser = p.unparser
   val qUnparser = q.unparser
-  def unparse(ustate: UState) = {
-    val numChildrenAtStart = ustate.currentElement.getChildren().length
+  def unparse(ustate: UState): UState = {
+    val numChildrenAtStart = ustate.currentElement.getContent().length
     var pResult: UState =
       try {
         log(Debug("Trying choice alternative: %s", pUnparser))
@@ -110,14 +111,15 @@ class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
     if (pResult.status == Success) {
       log(Debug("Choice alternative success: %s", pUnparser))
       // Reset any discriminator. We succeeded.
-      val res = if (pResult.discriminator) pResult.withDiscriminator(false)
-      else pResult
+      val res =
+        if (pResult.discriminator) pResult.withDiscriminator(false)
+        else pResult
       res
     } else {
       log(Debug("Choice alternative failed: %s", pUnparser))
 
       // Unwind any side effects on the Infoset 
-      val lastChildIndex = ustate.currentElement.getChildren().length
+      val lastChildIndex = ustate.currentElement.getContent().length
       if (lastChildIndex > numChildrenAtStart) {
         ustate.currentElement.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
       }
@@ -129,7 +131,8 @@ class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
         // consume this discriminator status result (so it doesn't ripple upward)
         // and return the failed state. 
         //
-        pResult.withDiscriminator(false)
+        val res = pResult.withDiscriminator(false)
+        return res
       }
 
       val qResult = try {
@@ -140,15 +143,17 @@ class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
           Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
         }
       }
+
       if (qResult.status == Success) {
         log(Debug("Choice alternative success: %s", qUnparser))
-        val res = if (qResult.discriminator) qResult.withDiscriminator(false)
-        else qResult
+        val res =
+          if (qResult.discriminator) qResult.withDiscriminator(false)
+          else qResult
         res
       } else {
         log(Debug("Choice alternative failure: %s", qUnparser))
         // Unwind any side effects on the Infoset 
-        val lastChildIndex = ustate.currentElement.getChildren().length
+        val lastChildIndex = ustate.currentElement.getContent().length
         if (lastChildIndex > numChildrenAtStart) {
           ustate.currentElement.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
         }
@@ -393,54 +398,32 @@ trait OutStream {
   //  def getBinaryLong(bitOffset : Long,  isBigEndian : Boolean) : Long
   //  def getBinaryInt(bitOffset : Long,  isBigEndian : Boolean) : Int
 
-  def fillCharBuffer(data: String, encoder: CharsetEncoder)
+  def setEncoder(encoder: CharsetEncoder)
   def write()
   def charBufferToByteBuffer(): ByteBuffer
 
   def getData(): String
-  def setData(str: String)
-
-  def setDelimiters(separators: Set[String], terminators: Set[String])
+  def fillCharBuffer(str: String)
+  def toByteArray[T](num: T, name: String, order: java.nio.ByteOrder): Array[Byte]
 }
 
 /*
  * Not thread safe. We're depending on the CharBuffer being private to us.
  */
-class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, sizeHint: Long = 1024 * 128) extends OutStream with Logging { // 128K characters by default.
+class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, sizeHint: Long = 1024 * 128, bufPos: Int = 0) extends OutStream with Logging { // 128K characters by default.
   val maxCharacterWidthInBytes = 4 //FIXME: worst case. Ok for testing. Don't use this pessimistic technique for real data.
   var cbuf = CharBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
   var encoder: CharsetEncoder = null //FIXME
+  var charBufPos = bufPos //pointer to end of CharBuffer
 
-  /*
-   * Moves data to CharBuffer, resizing as necessary.
-   */
-  def fillCharBuffer(data: String, enc: CharsetEncoder) = {
-    encoder = enc
-    setData(data)
-  }
-
-  /*
-   * Writes the delimiters to CharBuffer.
-   */
-  def setDelimiters(separators: Set[String], terminators: Set[String]) {
-    setLoggingLevel(LogLevel.Debug)
-    val me: String = "setDelimiters - "
-    log(Debug(me + "Inserting separators: " + separators + " and terminators: " + terminators))
-
-    //could just do in CharBuffer
-    var sb: StringBuilder = new StringBuilder(cbuf.toString())
-
-    //TODO: this is oversimplified
-    //TODO: also always selects first delimiter from Seq
-    sb.append(terminators.head)
-
-    setData(sb.toString())
-  }
+  def setEncoder(enc: CharsetEncoder) { encoder = enc }
 
   /*
    * Writes unparsed data in CharBuffer to outputStream.
    */
   def write() {
+    //    if (encoder != null)
+    Assert.invariant(encoder != null)
     val bbuf = charBufferToByteBuffer()
     outStream.write(bbuf)
   }
@@ -449,10 +432,12 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
    * Takes unparsed data from CharBuffer and encodes it in ByteBuffer
    */
   def charBufferToByteBuffer(): ByteBuffer = {
-    val bbuf = ByteBuffer.allocate(cbuf.length() * maxCharacterWidthInBytes)
+    var bbuf = ByteBuffer.allocate(cbuf.length() * maxCharacterWidthInBytes)
     encoder.reset()
 
     val cr1 = encoder.encode(cbuf, bbuf, true) // true means this is all the input you get.
+    cbuf.clear() //remove old data from previous element
+    charBufPos = bufPos //reset pointer to end of CharBuffer
 
     log(Debug("Encode Error1: " + cr1.toString()))
     if (cr1 != CoderResult.UNDERFLOW) {
@@ -477,19 +462,69 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
     cbuf.toString
   }
 
-  def setData(str: String) {
-    cbuf.clear() //remove old data from previous element
+  /*
+   * Moves data to CharBuffer, resizing as necessary.
+   */
+  def fillCharBuffer(str: String) {
     var isTooSmall = true
+    val temp =
+      if (charBufPos != 0) cbuf.toString()
+      else ""
+
     while (isTooSmall) {
       try { //writing all data to char buffer
+        cbuf.position(charBufPos)
         cbuf.put(str, 0, str.length())
+        charBufPos = cbuf.position()
+
         cbuf.flip() // prevent anyone depending on the buffer position across calls to any of the OutStream methods.
         isTooSmall = false
-      } catch { //make sure buffer was not read to capacity
-        case e: Exception =>
+      } catch { //make sure buffer was not written to capacity
+        case e: Exception => {
           cbuf = CharBuffer.allocate(cbuf.capacity() * 4) //TODO: more efficient algorithm than size x4
+          if (temp != "")
+            cbuf.put(temp)
+        }
       }
     }
+  }
+
+  /*
+   * Converts number to array of bytes.
+   */
+  def toByteArray[T](num: T, name: String, order: java.nio.ByteOrder): Array[Byte] = {
+    var bbuf = ByteBuffer.allocate(num.toString().length()) //FIXME
+    bbuf.order(order)
+    var isTooSmall = true
+
+    while (isTooSmall) {
+      try { //writing all data to buffer
+        bbuf.position(0)
+
+        name match {
+          case "byte" => bbuf.put(num.asInstanceOf[Byte])
+          case "short" => bbuf.putShort(num.asInstanceOf[Short])
+          case "int" => bbuf.putInt(num.asInstanceOf[Int])
+          case "long" => bbuf.putLong(num.asInstanceOf[Long])
+          case "unsignedByte" => bbuf.put(num.asInstanceOf[Byte])
+          case "unsignedShort" => bbuf.putShort(num.asInstanceOf[Short])
+          case "unsignedInt" => bbuf.putInt(num.asInstanceOf[Int])
+          case "unsignedLong" => bbuf.putLong(num.asInstanceOf[Long])
+          case "double" => bbuf.putDouble(num.asInstanceOf[Double])
+          case "float" => bbuf.putFloat(num.asInstanceOf[Float])
+        }
+        bbuf.flip() // prevent anyone depending on the buffer position across calls to any of the OutStream methods.
+        isTooSmall = false
+      } catch { //make sure buffer was not written to capacity
+        case e: Exception => {
+          bbuf = ByteBuffer.allocate(bbuf.capacity() * 4) //TODO: more efficient algorithm than size x4
+          bbuf.order(order)
+        }
+      }
+    }
+    val bytes: Array[Byte] = new Array[Byte](bbuf.remaining)
+    bbuf.get(bytes)
+    bytes
   }
 }
 
