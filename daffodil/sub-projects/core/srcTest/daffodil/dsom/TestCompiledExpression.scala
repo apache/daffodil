@@ -220,12 +220,13 @@ class TestCompiledExpression extends JUnit3Suite {
   
   def testCompiledRelativePathEvaluation6() {
 
+    val path = "../e1[namespace-uri()='" + example + "']"
     val testSchema = <xs:schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
                        <xs:element name="data" dfdl:lengthKind="implicit" dfdl:initiator="" dfdl:terminator="">
                          <xs:complexType>
                            <xs:sequence dfdl:separator="" dfdl:initiator="" dfdl:terminator="">
                              <xs:element name="e1" type="xs:string" dfdl:encoding="ascii" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:initiator="" dfdl:terminator=""/>
-                             <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../e1 }"/>
+                             <xs:element name="e2" type="xs:string" dfdl:inputValueCalc={ path }/>
                            </xs:sequence>
                          </xs:complexType>
                        </xs:element>
