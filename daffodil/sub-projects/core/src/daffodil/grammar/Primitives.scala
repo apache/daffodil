@@ -27,7 +27,6 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
      * the state to be referring to this new element as what we're parsing data into.
      */
     def parse(start: PState): PState = {
-
       val currentElement = new org.jdom.Element(e.name, e.namespace)
       log(Debug("currentElement = %s", currentElement))
       val priorElement = start.parentForAddContent
@@ -242,9 +241,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
 
       //      start.outStream.setEncoder(encoder)
       start.outStream.fillCharBuffer(data)
-
       log(Debug("Unparsed: " + start.outStream.getData))
-
       start
     }
   }
@@ -422,9 +419,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
       //      start.outStream.setEncoder(encoder)
       start.outStream.fillCharBuffer(data)
-
       log(Debug("Unparsed: " + start.outStream.getData))
-
       start
     }
   }
@@ -1068,6 +1063,7 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
 
     def unparse(start: UState): UState = {
       start.outStream.fillCharBuffer(unparserDelim)
+      log(Debug("Unparsed: " + start.outStream.getData))
       start
     }
   }
@@ -1156,30 +1152,92 @@ case class Nada(sc: Term) extends Terminal(sc, true) {
   }
 }
 
-case class GroupPosGreaterThan(n: Long, term: Term, guard: Boolean = true) extends Terminal(term, guard) {
+case class GroupPosGreaterThan(groupPos: Long, term: Term, guard: Boolean = true) extends Terminal(term, guard) {
 
   def parser: Parser = new Parser(term) {
-    override def toString = "GroupPosGreaterThan(" + n + ")"
+    override def toString = "GroupPosGreaterThan(" + groupPos + ")"
 
     def parse(start: PState): PState = {
-      val res = if (start.groupPos > 1) {
+      val res = if (start.groupPos > groupPos) {
         start.withDiscriminator(true)
       } else {
-        start.failed("Group position not greater than n (" + n + ")")
+        start.failed("Group position not greater than (" + groupPos + ")")
       }
       res
     }
   }
 
   def unparser: Unparser = new Unparser(term) {
-    override def toString = "GroupPosGreaterThan(" + n + ")"
+    override def toString = "GroupPosGreaterThan(" + groupPos + ")"
 
     def unparse(start: UState): UState = {
-      val res = if (start.groupPos > 1) {
+      val res = if (start.groupPos > groupPos) {
         start.withDiscriminator(true)
       } else {
-        start.failed("Group position not greater than n (" + n + ")")
+        start.failed("Group position not greater than (" + groupPos + ")")
       }
+      res
+    }
+  }
+}
+
+case class ChildPosGreaterThan(childPos: Long, term: Term, guard: Boolean = true) extends Terminal(term, guard) {
+
+  def parser: Parser = new Parser(term) {
+    override def toString = "ChildPosGreaterThan(" + childPos + ")"
+
+    def parse(start: PState): PState = {
+      val res = if (start.childPos > childPos) {
+        start.withDiscriminator(true)
+      } else {
+        start.failed("Child position not greater than (" + childPos + ")")
+      }
+      res
+    }
+  }
+
+  def unparser: Unparser = new Unparser(term) {
+    override def toString = "ChildPosGreaterThan(" + childPos + ")"
+
+    def unparse(start: UState): UState = {
+      val res = if (start.childPos > childPos) {
+        start.withDiscriminator(true)
+      } else {
+        start.failed("Child position not greater than (" + childPos + ")")
+      }
+      res
+    }
+  }
+}
+
+case class ArrayPosGreaterThan(arrayPos: Long, term: Term, guard: Boolean = true) extends Terminal(term, guard) {
+
+  def parser: Parser = new Parser(term) {
+    override def toString = "ArrayPosGreaterThan(" + arrayPos + ")"
+
+    def parse(start: PState): PState = {
+      val res = try {
+        if (start.arrayPos > arrayPos) {
+          start.withDiscriminator(true)
+        } else {
+          start.failed("Array position not greater than (" + arrayPos + ")")
+        }
+      } catch { case e => start.failed("No array position") }
+      res
+    }
+  }
+
+  def unparser: Unparser = new Unparser(term) {
+    override def toString = "ArrayPosGreaterThan(" + arrayPos + ")"
+
+    def unparse(start: UState): UState = {
+      val res = try {
+        if (start.arrayPos > arrayPos) {
+          start.withDiscriminator(true)
+        } else {
+          start.failed("Array position not greater than (" + arrayPos + ")")
+        }
+      } catch { case e => start.failed("No array position") }
       res
     }
   }
@@ -1320,16 +1378,17 @@ case class LiteralNilValue(e: ElementBase)
     //        }
     //      }
     //    }
-    
+
     def parse(start: PState): PState = {
-      withLoggingLevel(LogLevel.Debug){
+      withLoggingLevel(LogLevel.Debug) {
         e.representation match {
           case daffodil.schema.annotation.props.gen.Representation.Text => // CharClass Entities NL, WSP, WSP+, WSP* and ES allowed
           case daffodil.schema.annotation.props.gen.Representation.Binary => {
             // Only CharClass Entity ES allowed
-            if (e.nilValue.contains("%NL;") || e.nilValue.contains("%WSP;") || 
-                e.nilValue.contains("%WSP+;") || e.nilValue.contains("%WSP*;")){
-              e.SDE("Literal nilValue for Binary representaiton can only have ES as a value.")}
+            if (e.nilValue.contains("%NL;") || e.nilValue.contains("%WSP;") ||
+              e.nilValue.contains("%WSP+;") || e.nilValue.contains("%WSP*;")) {
+              e.SDE("Literal nilValue for Binary representaiton can only have ES as a value.")
+            }
           }
         }
 

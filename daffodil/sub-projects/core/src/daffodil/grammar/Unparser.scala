@@ -268,6 +268,7 @@ class UState(
   val discriminator: Boolean) extends DFDL.State {
   def groupPos = groupIndexStack.head
   def childPos = childIndexStack.head
+  def arrayPos = arrayIndexStack.head
   def currentLocation: DataLocation = new DataLocUnparse(currentElement, outStream)
 
   /**
