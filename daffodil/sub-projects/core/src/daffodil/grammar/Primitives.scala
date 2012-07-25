@@ -1320,10 +1320,18 @@ case class LiteralNilValue(e: ElementBase)
     //        }
     //      }
     //    }
-
+    
     def parse(start: PState): PState = {
-      withLoggingLevel(LogLevel.Debug) {
-        // determined that nilValue contained %#ES;
+      withLoggingLevel(LogLevel.Debug){
+        e.representation match {
+          case daffodil.schema.annotation.props.gen.Representation.Text => // CharClass Entities NL, WSP, WSP+, WSP* and ES allowed
+          case daffodil.schema.annotation.props.gen.Representation.Binary => {
+            // Only CharClass Entity ES allowed
+            if (e.nilValue.contains("%NL;") || e.nilValue.contains("%WSP;") || 
+                e.nilValue.contains("%WSP+;") || e.nilValue.contains("%WSP*;")){
+              e.SDE("Literal nilValue for Binary representaiton can only have ES as a value.")}
+          }
+        }
 
         // Look for nilValues first, if fails look for delimiters next
         // If delimiter is found AND nilValue contains ES, result is empty and valid.
@@ -1337,7 +1345,7 @@ case class LiteralNilValue(e: ElementBase)
           return afterNilLit
         }
         val afterDelim = delimLookup(start)
-        if (afterDelim.status == Success) {
+        if (afterDelim.status == Success && e.nilValue.contains("%ES;")) {
           val xsiNS = afterNilLit.parentElement.getNamespace()
           afterDelim.parentElement.addContent(new org.jdom.Text(""))
           afterDelim.parentElement.setAttribute("nil", "true")

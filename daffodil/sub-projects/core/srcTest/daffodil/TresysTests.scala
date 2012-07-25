@@ -116,4 +116,14 @@ class TresysTests extends JUnit3Suite {
   val sq = testDir + "sequence.tdml"
   val runnerSQ = new DFDLTestSuite(new File(sq))
   def test_seq1() { runnerSQ.runOneTest("seq1")}
+  
+  val ln = testDir + "literal-value-nils.tdml"
+  val runnerLN = new DFDLTestSuite(new File(ln))
+  def test_text_01() { runnerLN.runOneTest("text_01")}
+  def test_text_02() { runnerLN.runOneTest("text_02")}
+  def test_text_03() { runnerLN.runOneTest("text_03")}
+  def test_text_04() { runnerLN.runOneTest("text_04")}
+  def test_text_05() { runnerLN.runOneTest("text_05")}
+  def test_text_06() { runnerLN.runOneTest("text_06")}
+  def test_binary_01() { runnerLN.runOneTest("binary_01")}
 }

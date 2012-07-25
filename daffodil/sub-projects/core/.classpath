@@ -4,6 +4,7 @@
 	<classpathentry kind="src" path="srcTest"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="test-suite"/>
+	<classpathentry kind="src" path="srcDebug"/>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/scalatest-1.6.1.jar" sourcepath="/home/mbeckerle/dataiti/sbs/tools/scalatest/1.6.1-dist/scalatest-1.6.1.zip"/>

@@ -40,9 +40,8 @@ import scala.collection.mutable.Stack
 import scala.collection.mutable.Set
 import org.jdom.Element
 import daffodil.exceptions.Assert
-
-// import daffodil.exceptions.UnimplementedException
 import daffodil.xml.Namespaces
+import daffodil.xml.XMLUtils
 // import daffodil.xml.XMLUtil
 
 abstract class VariableState
@@ -73,19 +72,18 @@ class Variable(val name:String,var state:VariableState,var variableType:String,
   }
 
   def peek:Object = {
-    Assert.notYetImplemented()
-//    variableType match {
-//      case XMLUtil.XSD_STRING | "" | null => stack.top.value
-//      case XMLUtil.XSD_INT | XMLUtil.XSD_INTEGER | XMLUtil.XSD_UNSIGNED_INT | XMLUtil.XSD_SHORT |
-//              XMLUtil.XSD_UNSIGNED_SHORT  | XMLUtil.XSD_UNSIGNED_BYTE => Predef int2Integer(stack.top.value.toInt)
-//      case XMLUtil.XSD_LONG | XMLUtil.XSD_UNSIGNED_LONG => Predef long2Long(stack.top.value.toLong)
-//      case XMLUtil.XSD_FLOAT => Predef float2Float(stack.top.value.toFloat)
-//      case XMLUtil.XSD_DOUBLE | XMLUtil.XSD_DECIMAL => Predef double2Double(stack.top.value.toDouble)
-//      case XMLUtil.XSD_BYTE  => Predef byte2Byte(stack.top.value.toByte)
-//      case XMLUtil.XSD_BOOLEAN => Predef boolean2Boolean(stack.top.value.toBoolean)
-//      case XMLUtil.XSD_DATE | XMLUtil.XSD_DATE_TIME | XMLUtil.XSD_TIME =>
-//        throw new UnimplementedException("date,dateTime,time variable types")
-//    }
+    variableType match {
+      case XMLUtils.XSD_STRING | "" | null => stack.top.value
+      case XMLUtils.XSD_INT | XMLUtils.XSD_INTEGER | XMLUtils.XSD_UNSIGNED_INT | XMLUtils.XSD_SHORT |
+              XMLUtils.XSD_UNSIGNED_SHORT  | XMLUtils.XSD_UNSIGNED_BYTE => Predef int2Integer(stack.top.value.toInt)
+      case XMLUtils.XSD_LONG | XMLUtils.XSD_UNSIGNED_LONG => Predef long2Long(stack.top.value.toLong)
+      case XMLUtils.XSD_FLOAT => Predef float2Float(stack.top.value.toFloat)
+      case XMLUtils.XSD_DOUBLE | XMLUtils.XSD_DECIMAL => Predef double2Double(stack.top.value.toDouble)
+      case XMLUtils.XSD_BYTE  => Predef byte2Byte(stack.top.value.toByte)
+      case XMLUtils.XSD_BOOLEAN => Predef boolean2Boolean(stack.top.value.toBoolean)
+      case XMLUtils.XSD_DATE | XMLUtils.XSD_DATE_TIME | XMLUtils.XSD_TIME =>
+        Assert.notYetImplemented()//"date,dateTime,time variable types")
+    }
   }
 
   def get:Object = {

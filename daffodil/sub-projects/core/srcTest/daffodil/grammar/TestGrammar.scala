@@ -161,7 +161,7 @@ class TestGrammar extends JUnit3Suite {
     assertTrue(exp.name.contains("AltComp"))
     // assertTrue(exp.toString.contains("prod1"))
     assertFalse(exp.toString.contains("prod2"))
-    assertTrue(exp.toString.contains("prod3"))
+    assertFalse(exp.toString.contains("prod3"))
     assertTrue(exp.toString.contains(" | "))
     assertFalse(exp.toString.contains(" ~ "))
     assertTrue(exp.toString.contains(" | "))

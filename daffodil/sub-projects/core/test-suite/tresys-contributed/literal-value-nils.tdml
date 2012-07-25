@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="nested-separator-delimited"
+	description="Tests separation and nested sequences." xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+	xmlns:ex="http://example.com" xmlns="http://example.com"
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
+	<tdml:defineSchema name="text_01">
+		<dfdl:format initiator="" terminator="" separator=""
+			separatorPolicy="suppressed" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
+			representation="text" occursCountKind="parsed"
+			nilValueDelimiterPolicy="none" nilValue="nil" nilKind="literalValue"
+			textNumberRep="standard" ignoreCase="no" />
+
+		<xs:element name="doc" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:terminator=";">
+					<xs:element name="e1" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e2" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="text_01" root="doc"
+		model="text_01" description="Text_01 Basic nilValue">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[0,nil;]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<e1>0</e1>
+					<e2 nil="true" />
+				</doc>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="text_02">
+		<dfdl:format initiator="" terminator="" separator=""
+			separatorPolicy="suppressed" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
+			representation="text" occursCountKind="parsed"
+			nilValueDelimiterPolicy="none" nilValue="%ES;" nilKind="literalValue"
+			textNumberRep="standard" ignoreCase="no" />
+
+		<xs:element name="doc" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:terminator=";">
+					<xs:element name="e1" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e2" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="text_02" root="doc"
+		model="text_02" description="Text_02 EmptyString nilValue">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[0,%ES;;]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<e1>0</e1>
+					<e2 nil="true" />
+				</doc>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="text_03">
+		<dfdl:format initiator="" terminator="" separator=""
+			separatorPolicy="suppressed" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
+			representation="text" occursCountKind="parsed"
+			nilValueDelimiterPolicy="none" nilValue="nil %ES;" nilKind="literalValue"
+			textNumberRep="standard" ignoreCase="no" />
+
+		<xs:element name="doc" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:terminator=";">
+					<xs:element name="e1" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e2" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e3" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="text_03" root="doc"
+		model="text_03"
+		description="Text_03 Two nilValues one a regular value the other a CharEntity">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[0,nil,%ES;;]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<e1>0</e1>
+					<e2 nil="true" />
+					<e3 nil="true" />
+				</doc>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="text_04">
+		<dfdl:format initiator="" terminator="" separator=""
+			separatorPolicy="suppressed" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
+			representation="text" occursCountKind="parsed"
+			nilValueDelimiterPolicy="none" nilValue="nil %WSP;" nilKind="literalValue"
+			textNumberRep="standard" ignoreCase="no" />
+
+		<xs:element name="doc" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:terminator=";">
+					<xs:element name="e1" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e2" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e3" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="text_04" root="doc"
+		model="text_04"
+		description="Text_04 Two nilValues one a regular value the other a WSP CharEntity">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[0,nil, ;]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<e1>0</e1>
+					<e2 nil="true" />
+					<e3 nil="true" />
+				</doc>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="text_05">
+		<dfdl:format initiator="" terminator="" separator=""
+			separatorPolicy="suppressed" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
+			representation="text" occursCountKind="parsed"
+			nilValueDelimiterPolicy="none" nilValue="nil %WSP*;" nilKind="literalValue"
+			textNumberRep="standard" ignoreCase="no" />
+
+		<xs:element name="doc" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:terminator=";">
+					<xs:element name="e1" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e2" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e3" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="text_05" root="doc"
+		model="text_05"
+		description="Text_05 Two nilValues one a regular value the other a CharEntity">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[0,nil, ;]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<e1>0</e1>
+					<e2 nil="true" />
+					<e3 nil="true" />
+				</doc>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="text_06">
+		<dfdl:format initiator="" terminator="" separator=""
+			separatorPolicy="suppressed" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
+			representation="text" occursCountKind="parsed"
+			nilValueDelimiterPolicy="none" nilValue="nil %WSP+;" nilKind="literalValue"
+			textNumberRep="standard" ignoreCase="no" />
+
+		<xs:element name="doc" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:terminator=";">
+					<xs:element name="e1" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e2" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e3" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="text_06" root="doc"
+		model="text_06"
+		description="Text_06 Two nilValues one a regular value the other a WSP+ CharEntity">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[0,nil, 	 ;]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<e1>0</e1>
+					<e2 nil="true" />
+					<e3 nil="true" />
+				</doc>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="binary_01">
+		<dfdl:format initiator="" terminator="" separator=""
+			separatorPolicy="suppressed" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing="yes" encoding="utf-8"
+			representation="binary" occursCountKind="parsed"
+			nilValueDelimiterPolicy="none" nilValue="nil" nilKind="literalValue"
+			textNumberRep="standard" ignoreCase="no" byteOrder="bigEndian"
+			binaryNumberRep="binary" />
+
+		<xs:element name="doc" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:terminator=";">
+					<xs:element name="e1" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e2" nillable="true" type="xsd:int"
+						dfdl:lengthKind="delimited" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="binary_01" root="doc"
+		model="binary_01" description="Binary_01 Basic nilValue">
+		<!-- "0,nil;" -->
+		<tdml:document>
+			<tdml:documentPart type="byte">000000002C6E696C3B
+			</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<e1>0</e1>
+					<e2 nil="true" />
+				</doc>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+</tdml:testSuite>

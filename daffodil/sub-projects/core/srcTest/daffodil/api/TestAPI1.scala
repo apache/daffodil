@@ -124,14 +124,14 @@ class TestDFDLParser extends JUnit3Suite {
   def testParseSequence5() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format separatorPolicy="required" separatorPosition="infix" ref="tns:daffodilTest1"/>,
-      <xs:element name="e1" dfdl:initiator="[[" dfdl:terminator="]]">
+      <xs:element name="e1" dfdl:initiator="[more[" dfdl:terminator="]nomore]">
         <xs:complexType>
           <xs:sequence dfdl:separator=",," dfdl:initiator="{{" dfdl:terminator="}}">
             <xs:element name="s1" type="xs:string" dfdl:initiator="((" dfdl:terminator="))" dfdl:lengthKind="explicit" dfdl:length="{ 1 + 1 }" dfdl:occursCountKind="fixed" minOccurs="3" maxOccurs="3"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = Compiler.testString(sch, "[[{{((55)),,((66)),,((77))}}]]").result
+    val actual = Compiler.testString(sch, "[more[{{((55)),,((66)),,((77))}}]nomore]").result
     val actualString = actual.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1>55</s1><s1>66</s1><s1>77</s1></e1>"))

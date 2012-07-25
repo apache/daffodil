@@ -72,9 +72,13 @@ class DFDLTestSuite(ts: Node, tdmlFile: File, tsInputSource: InputSource)
   }
 
   val parserTestCases = (ts \ "parserTestCase").map { node => ParserTestCase(node, this) }
-  val unparserTestCases = (ts \ "unparserTestCase").map { node => UnparserTestCase(node, this) }
-  val serializerTestCases = (ts \ "serializerTestCase").map { node => SerializerTestCase(node, this) }
-  val testCases: Seq[TestCase] = parserTestCases ++ unparserTestCases ++ serializerTestCases
+  //
+  // Note: IBM started this TDML file format. They call an unparser test a "serializer" test.
+  // We will use their TDML file names, but in the code here, we call it an UnparserTestCase
+  //
+  val unparserTestCases = (ts \ "serializerTestCase").map { node => UnparserTestCase(node, this) }
+  val testCases: Seq[TestCase] = parserTestCases ++ 
+		  unparserTestCases
   val suiteName = (ts \ "@suiteName").text
   val suiteID = (ts \ "@ID").text
   val description = (ts \ "@description").text
@@ -369,115 +373,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 }
 
+
 case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
-  extends TestCase(ptc, parentArg) {
-
-  // TODO: Unparser variant. Inverts the whole thing by starting from the infoset, and constructing a document.
-
-  def runProcessor(pf: DFDL.ProcessorFactory,
-    data: Option[DFDL.Input],
-    optInfoset: Option[Infoset],
-    optErrors: Option[ExpectedErrors],
-    warnings: Option[ExpectedWarnings]) = {
-
-    val dataToParse = data.get
-    (optInfoset, optErrors) match {
-      case (Some(infoset), None) => runParseExpectSuccess(pf, dataToParse, infoset, warnings)
-      case (None, Some(errors)) => runParseExpectErrors(pf, dataToParse, errors, warnings)
-      case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
-    }
-
-  }
-
-  def verifyParseInfoset(actual: DFDL.ParseResult, infoset: Infoset) {
-    val trimmed = Utility.trim(actual.result)
-    //
-    // Attributes on the XML like xsi:type and also namespaces (I think) are 
-    // making things fail these comparisons, so we strip all attributes off (since DFDL doesn't 
-    // use attributes at all)
-    // 
-    val actualNoAttrs = XMLUtils.removeAttributes(trimmed)
-    // 
-    // Would be great to validate the actuals against the DFDL schema, used as
-    // an XML schema on the returned infoset XML.
-    // Getting this to work is a bigger issue. What with stripping of attributes
-    // etc.
-    // 
-    // TODO: Fix so we can validate here.
-    //
-    // assert(Validator.validateXMLNodes(sch, actualNoAttrs) != null)
-    //
-
-    // Something about the way XML is constructed is different between our jdom-converted 
-    // results and the ones created by scala directly parsing the TDML test files.
-    // so we run the expected stuff through the same converters that were used to
-    // convert the actual.
-    val expected = XMLUtils.element2Elem(XMLUtils.elem2Element(infoset.contents))
-
-    if (expected != actualNoAttrs) {
-      val diffs = XMLUtils.computeDiff(expected, actualNoAttrs)
-      //throw new Exception("Comparison failed. Expected: " + expected + " but got " + actualNoAttrs)
-      throw new Exception("Comparison failed. Differences were (path, expected, actual):\n" + diffs.map { _.toString }.mkString("\n"))
-    }
-  }
-
-  def runParseExpectErrors(pf: DFDL.ProcessorFactory,
-    dataToParse: DFDL.Input,
-    errors: ExpectedErrors,
-    warnings: Option[ExpectedWarnings]) {
-
-    val objectToDiagnose =
-      if (pf.isError) pf
-      else {
-        val processor = pf.onPath("/")
-        val actual = processor.parse(dataToParse)
-
-        if (actual.canProceed) {
-          // We did not get an error!!
-          // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
-          throw new Exception("Expected error. Didn't get one.") // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
-        } else actual
-      }
-
-    // check for any test-specified errors
-    verifyAllDiagnosticsFound(objectToDiagnose, Some(errors))
-
-    // check for any test-specified warnings
-    verifyAllDiagnosticsFound(objectToDiagnose, warnings)
-
-  }
-
-  def runParseExpectSuccess(pf: DFDL.ProcessorFactory,
-    dataToParse: DFDL.Input,
-    infoset: Infoset,
-    warnings: Option[ExpectedWarnings]) {
-
-    if (pf.isError) {
-      val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new Exception(diags)
-    } else {
-      val processor = pf.onPath("/")
-      val actual = processor.parse(dataToParse)
-
-      if (!actual.canProceed) {
-        // Means there was an error, not just warnings.
-        val diags = actual.getDiagnostics.map(_.getMessage).mkString("\n")
-        throw new Exception(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
-      }
-
-      verifyParseInfoset(actual, infoset)
-
-      // check for any test-specified warnings
-      verifyAllDiagnosticsFound(actual, warnings)
-
-      // if we get here, the test passed. If we don't get here then some exception was
-      // thrown either during the run of the test or during the comparison.
-      log(Info("Test %s passed.", id))
-    }
-  }
-}
-
-case class SerializerTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
   def runProcessor(pf: DFDL.ProcessorFactory,
@@ -489,8 +386,8 @@ case class SerializerTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val infoset = optInfoset.get
 
     (optData, optErrors) match {
-      case (Some(data), None) => runSerializeExpectSuccess(pf, data, infoset, warnings)
-      case (_, Some(errors)) => runSerializeExpectErrors(pf, optData, infoset, errors, warnings)
+      case (Some(data), None) => runUnparserExpectSuccess(pf, data, infoset, warnings)
+      case (_, Some(errors)) => runUnparserExpectErrors(pf, optData, infoset, errors, warnings)
       case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
     }
 
@@ -511,12 +408,12 @@ case class SerializerTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     }
 
     Assert.invariant(readCount == inbuf.position())
-
+    
     // compare expected data to what was output.
     val expectedBytes = inbuf.array()
-    if (actualBytes.length != expectedBytes.length) {
+    if (actualBytes.length != inbuf.position()) {
       throw new Exception("output data length " + actualBytes.length +
-        " doesn't match expected value " + expectedBytes.length)
+        " doesn't match expected value " + inbuf.position())
     }
 
     val pairs = expectedBytes zip actualBytes zip Stream.from(1)
@@ -529,7 +426,7 @@ case class SerializerTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     }
   }
 
-  def runSerializeExpectSuccess(pf: DFDL.ProcessorFactory,
+  def runUnparserExpectSuccess(pf: DFDL.ProcessorFactory,
     data: DFDL.Input,
     infoset: Infoset,
     warnings: Option[ExpectedWarnings]) {
@@ -547,12 +444,12 @@ case class SerializerTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     verifyData(data, outStream)
 
-    // check for any test-specified warnings
-    verifyAllDiagnosticsFound(actual, warnings)
+    // TODO: Implement Warnings - check for any test-specified warnings
+    // verifyAllDiagnosticsFound(actual, warnings)
 
   }
 
-  def runSerializeExpectErrors(pf: DFDL.ProcessorFactory,
+  def runUnparserExpectErrors(pf: DFDL.ProcessorFactory,
     optData: Option[DFDL.Input],
     infoset: Infoset,
     errors: ExpectedErrors,
