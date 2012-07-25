@@ -997,11 +997,12 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
         val separators = delim.split("\\s").toList
         val terminators = t.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList).flatten
 
+        val terminatorsFiltered = terminators.filterNot(x => separators.contains(x))
         val separatorsCooked: Queue[String] = new Queue
         val terminatorsCooked: Queue[String] = new Queue
 
         separators.foreach(x => separatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
-        terminators.foreach(x => terminatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
+        terminatorsFiltered.foreach(x => terminatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
 
         log(Debug("StaticText - " + eName + " - Looking for: " + separatorsCooked + " AND " + terminatorsCooked))
 
