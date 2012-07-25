@@ -49,6 +49,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
         try { //if content contains elements
           if (!start.childIndexStack.isEmpty) {
             if (start.childPos != 1) { //if not first child, write unparsed result of previous child to outputStream
+              //TODO: encoder affecting child elements?
               val encoder = e.knownEncodingEncoder
               start.outStream.setEncoder(encoder)
               start.outStream.write()
@@ -232,14 +233,14 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
 
   def unparser: Unparser = new Unparser(e) {
     override def toString = "StringFixedLengthInBytesUnparser(" + nBytes + ")"
-//    val encoder = e.knownEncodingEncoder
+    //    val encoder = e.knownEncodingEncoder
 
     def unparse(start: UState): UState = {
       setLoggingLevel(LogLevel.Debug)
 
       val data = start.currentElement.getText
-      
-//      start.outStream.setEncoder(encoder)
+
+      //      start.outStream.setEncoder(encoder)
       start.outStream.fillCharBuffer(data)
 
       log(Debug("Unparsed: " + start.outStream.getData))
@@ -411,8 +412,20 @@ case class StringDelimitedEndOfData(e: ElementBase)
   }
 
   def unparser: Unparser = new Unparser(e) {
+    override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
+    //    val encoder = e.knownEncodingEncoder
+
     def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
+      setLoggingLevel(LogLevel.Debug)
+
+      val data = start.currentElement.getText
+
+      //      start.outStream.setEncoder(encoder)
+      start.outStream.fillCharBuffer(data)
+
+      log(Debug("Unparsed: " + start.outStream.getData))
+
+      start
     }
   }
 }
@@ -528,21 +541,53 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
     }
   }
 
+  //TODO: consolidate duplicate code
   def unparser: Unparser = new Unparser(e) {
     override def toString = "to(xs:" + GramName + ")"
 
     /*
-      * Converts data to number format.
+      * Converts data to number format, returns unparse exception if data cannot be converted to given format.
       */
     def unparse(start: UState): UState = {
-      var str = start.outStream.getData //gets data from element being unparsed
-
-      // TODO: Restore leading '+' sign and leading/trailing 0's, etc.
+      //TODO: OK to get from infoset?
+      var str = start.currentElement.getText //gets data from element being unparsed
       Assert.invariant(str != null) // worst case it should be empty string. But not null.
       if (str == "") return UE(start, "Convert to %s (for xs:%s): Cannot unparse number from empty string", GramDescription, GramName)
 
+      //make sure data can parse to appropriate type
+      val df = numFormat
+      val pos = new ParsePosition(0)
+      val num = try {
+        df.parse(str, pos)
+      } catch {
+        case e: Exception =>
+          return UE(start, "Convert to %s (for xs:%s): Unparse of '%s' threw exception %s",
+            GramDescription, GramName, str, e)
+      }
+
+      // Verify that what was unparsed was what was passed exactly in byte count.  
+      // Use pos to verify all characters consumed & check for errors!
+      if (pos.getIndex != str.length) {
+        return UE(start, "Convert to %s (for xs:%s): Unable to unparse '%s' (using up all characters).",
+          GramDescription, GramName, str)
+      }
+
+      // convert to proper type
+      val asNumber = getNum(num)
+
+      // Verify no digits lost (the number was correctly transcribed)
+      if (isInt && asNumber.asInstanceOf[Number] != num) {
+        // Transcription error
+        return UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.",
+          GramDescription, GramName, str, num, asNumber)
+      }
+      if (isInvalidRange(asNumber)) {
+        return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
+          GramDescription, GramName, str, asNumber)
+      }
+
+      // TODO: Restore leading '+' sign and leading/trailing 0's, etc. (Need to overwrite number with old formatting in CharBuffer
       //      log(Debug("Adding text number " + asNumber.toString))
-      //      start.outStream.setData(asNumber.toString) //write modified number back to CharBuffer
 
       start
     }
@@ -631,82 +676,74 @@ case class ConvertTextFloatPrim(e: ElementBase) extends ConvertTextFloatingPoint
   protected override val GramDescription = "Float"
 }
 
-case class ConvertTextDoublePrim1(e: ElementBase) extends Terminal(e, true) {
+//Is this different from ConvertTextNumberPrim?
+//case class ConvertTextDoublePrim1(e: ElementBase) extends Terminal(e, true) {
+//
+//  def parser: Parser = new Parser(e) {
+//    override def toString = "to(xs:double)"
+//
+//    def parse(start: PState): PState = {
+//      val node = start.parentElement
+//      val str = node.getText
+//
+//      val resultState =
+//        // try 
+//        {
+//          //convert to NumberFormat to handle format punctuation such as , . $ & etc
+//          //then get the value as a double and convert to string
+//          val df = new DecimalFormat()
+//          val pos = new ParsePosition(0)
+//          val num = df.parse(str, pos)
+//          node.setText(num.doubleValue.toString)
+//
+//          start
+//        } // catch { case e: Exception => start.failed("Failed to convert to an xs:double") }
+//
+//      resultState
+//    }
+//  }
+//
+//  def unparser: Unparser = new Unparser(e) {
+//    def unparse(start: UState): UState = {
+//      Assert.notYetImplemented()
+//    }
+//  }
+//}
 
-  def parser: Parser = new Parser(e) {
-    override def toString = "to(xs:double)"
-
-    def parse(start: PState): PState = {
-      val node = start.parentElement
-      val str = node.getText
-
-      val resultState =
-        // try 
-        {
-          //convert to NumberFormat to handle format punctuation such as , . $ & etc
-          //then get the value as a double and convert to string
-          val df = new DecimalFormat()
-          val pos = new ParsePosition(0)
-          val num = df.parse(str, pos)
-          node.setText(num.doubleValue.toString)
-
-          start
-        } // catch { case e: Exception => start.failed("Failed to convert to an xs:double") }
-
-      resultState
-    }
-  }
-
-  def unparser: Unparser = new Unparser(e) {
-    override def toString = "to(xs:double)"
-
-    def unparse(start: UState): UState = {
-      // TODO: Restore leading '+' sign and leading/trailing 0's, etc.
-
-      var str = start.outStream.getData //gets data from element being unparsed
-      Assert.invariant(str != null) // worst case it should be empty string. But not null.
-
-      // log(Debug("Adding text number double " + num.doubleValue.toString))
-      // start.outStream.setData(num.doubleValue.toString) //write modified number back to CharBuffer
-
-      start
-    }
-  }
-}
-
-case class ConvertTextFloatPrim1(e: ElementBase) extends Terminal(e, true) {
-
-  def parser: Parser = new Parser(e) {
-    override def toString = "to(xs:float)"
-
-    def parse(start: PState): PState = {
-      val node = start.parentElement
-      val str = node.getText()
-
-      val resultState =
-        // Note: don't wrap in try-catch. The framework has everything surrounded
-        // by that already.
-        // try 
-        {
-          //convert to NumberFormat to handle format punctuation such as , . $ & etc
-          //then get the value as a float and convert to string
-          val df = new DecimalFormat()
-          val pos = new ParsePosition(0)
-          val num = df.parse(str, pos)
-          node.setText(num.floatValue.toString)
-          start
-        } // catch { case e: Exception => start.failed("Failed to convert to an xs:float") }
-
-      resultState
-    }
-  }
-
-  def unparser: Unparser = new Unparser(e) {
-    def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
-    }
-  }
-}
+//Is this different from ConvertTextNumberPrim?
+//case class ConvertTextFloatPrim1(e: ElementBase) extends Terminal(e, true) {
+//
+//  def parser: Parser = new Parser(e) {
+//    override def toString = "to(xs:float)"
+//
+//    def parse(start: PState): PState = {
+//      val node = start.parentElement
+//      val str = node.getText()
+//
+//      val resultState =
+//        // Note: don't wrap in try-catch. The framework has everything surrounded
+//        // by that already.
+//        // try 
+//        {
+//          //convert to NumberFormat to handle format punctuation such as , . $ & etc
+//          //then get the value as a float and convert to string
+//          val df = new DecimalFormat()
+//          val pos = new ParsePosition(0)
+//          val num = df.parse(str, pos)
+//          node.setText(num.floatValue.toString)
+//          start
+//        } // catch { case e: Exception => start.failed("Failed to convert to an xs:float") }
+//
+//      resultState
+//    }
+//  }
+//
+//  def unparser: Unparser = new Unparser(e) {
+//    def unparse(start: UState): UState = {
+//      Assert.notYetImplemented()
+//    }
+//  }
+//}
 
 abstract class Primitive(e: Term, guard: Boolean = false)
   extends Terminal(e, guard) {
@@ -772,7 +809,9 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Int) extends Terminal(e, t
   def unparser = new Unparser(e) {
     override def toString = gram.toString
 
+    //TODO: returns string in hex
     def unparse(start: UState): UState = {
+      setLoggingLevel(LogLevel.Debug)
       val str = start.currentElement.getText //gets data from element being unparsed
       Assert.invariant(str != null) // worst case it should be empty string. But not null.
 
@@ -797,7 +836,7 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Int) extends Terminal(e, t
 
           // convert to proper type
           val asNumber = getNum(num)
-          
+
           // Verify no digits lost (the number was correctly transcribed)
           if (isInt && asNumber.asInstanceOf[Number] != num) { //then transcription error
             return UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.",
@@ -807,11 +846,12 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Int) extends Terminal(e, t
             return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
               GramDescription, GramName, str, asNumber)
           }
-          
+
           val bytes = start.outStream.toByteArray(asNumber, GramName, staticJByteOrder)
           val result = bytes2Hex(bytes)
-          
+
           start.outStream.fillCharBuffer(result) //write number back to CharBuffer
+          log(Debug("Unparsed: " + start.outStream.getData))
           start
         }
       }
@@ -898,7 +938,7 @@ case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 //}
 
 case class FloatPrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(ctx) {
-  override def toString = "binary(xs:float, " + byteOrder + ")"
+  override def toString = "binary(xs:float,you " + byteOrder + ")"
 
   def parse(start: PState): PState = {
     if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) start.failed("Not enough bits to create an xs:float")
@@ -1255,40 +1295,40 @@ case class LiteralNilValue(e: ElementBase)
     override def toString = "LiteralNilValue(" + e.nilValue + ")"
     val decoder = e.knownEncodingDecoder
     val cbuf = CharBuffer.allocate(1024)
-    
-//    def parse(start: PState): PState = {
-//      withLoggingLevel(LogLevel.Debug) {
-//        log(Debug("LiteralNilValue - Looking for: " + e.nilValue))
-//        val afterNilLit = stParser.parse(start)
-//
-//        if (afterNilLit.status != Success) start.failed("Doesn't match nil literal.")
-//        else {
-//          // TODO: LiteralNil Namespacing does not work.
-//          
-//          // The following returns 'null' for namespace.
-//          //val xsiNS = afterNilLit.parentElement.getNamespace(XMLUtils.XSI_NAMESPACE)
-//          val xsiNS = afterNilLit.parentElement.getNamespace()
-// 
-//          afterNilLit.parentElement.addContent(new org.jdom.Text(""))
-//          
-//          // The following fails to add the attribute due to issue with 'null' namespace.
-//          //afterNilLit.parentElement.setAttribute("nil", "true", xsiNS)
-//          
-//          // TODO: Fix this LiteralNil Workaround!
-//          afterNilLit.parentElement.setAttribute("nil", "true")
-//          afterNilLit
-//        }
-//      }
-//    }
-    
+
+    //    def parse(start: PState): PState = {
+    //      withLoggingLevel(LogLevel.Debug) {
+    //        log(Debug("LiteralNilValue - Looking for: " + e.nilValue))
+    //        val afterNilLit = stParser.parse(start)
+    //
+    //        if (afterNilLit.status != Success) start.failed("Doesn't match nil literal.")
+    //        else {
+    //          // TODO: LiteralNil Namespacing does not work.
+    //          
+    //          // The following returns 'null' for namespace.
+    //          //val xsiNS = afterNilLit.parentElement.getNamespace(XMLUtils.XSI_NAMESPACE)
+    //          val xsiNS = afterNilLit.parentElement.getNamespace()
+    // 
+    //          afterNilLit.parentElement.addContent(new org.jdom.Text(""))
+    //          
+    //          // The following fails to add the attribute due to issue with 'null' namespace.
+    //          //afterNilLit.parentElement.setAttribute("nil", "true", xsiNS)
+    //          
+    //          // TODO: Fix this LiteralNil Workaround!
+    //          afterNilLit.parentElement.setAttribute("nil", "true")
+    //          afterNilLit
+    //        }
+    //      }
+    //    }
+
     def parse(start: PState): PState = {
       withLoggingLevel(LogLevel.Debug) {
         // determined that nilValue contained %#ES;
-        
+
         // Look for nilValues first, if fails look for delimiters next
         // If delimiter is found AND nilValue contains ES, result is empty and valid.
         // If delimiter is not found, fail.
-        
+
         val afterNilLit = stParser.parse(start)
         if (afterNilLit.status == Success) {
           val xsiNS = afterNilLit.parentElement.getNamespace()
@@ -1297,7 +1337,7 @@ case class LiteralNilValue(e: ElementBase)
           return afterNilLit
         }
         val afterDelim = delimLookup(start)
-        if (afterDelim.status == Success){
+        if (afterDelim.status == Success) {
           val xsiNS = afterNilLit.parentElement.getNamespace()
           afterDelim.parentElement.addContent(new org.jdom.Text(""))
           afterDelim.parentElement.setAttribute("nil", "true")
@@ -1306,10 +1346,10 @@ case class LiteralNilValue(e: ElementBase)
         start.failed("Doesn't match nil literal.")
       }
     }
-    
+
     def delimLookup(start: PState): PState = withParseErrorThrowing(start) {
       withLoggingLevel(LogLevel.Debug) {
-    	// TODO: This code was copied exactly from StaticText.  How can I do away with this?
+        // TODO: This code was copied exactly from StaticText.  How can I do away with this?
         // TODO: We may need to keep track of Local Separators, Local Terminators and Enclosing Terminators.
 
         val eName = e.toString()
@@ -1374,8 +1414,7 @@ case class LiteralNilValue(e: ElementBase)
         }
       }
     }
-    
-    
+
   }
 
   override def unparser: Unparser = new Unparser(e) {

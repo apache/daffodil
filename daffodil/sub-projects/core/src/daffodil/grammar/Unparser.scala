@@ -46,6 +46,7 @@ class UnparseError(sc: SchemaComponent, ustate: Option[UState], kind: String, ar
 abstract class Unparser(val context: Term) extends Logging {
 
   def UE(ustate: UState, kind: String, args: Any*) = {
+    ustate.outStream.clearCharBuffer()
     ustate.failed(new UnparseError(context, Some(ustate), kind, args: _*))
   }
 
@@ -403,6 +404,7 @@ trait OutStream {
   def charBufferToByteBuffer(): ByteBuffer
 
   def getData(): String
+  def clearCharBuffer()
   def fillCharBuffer(str: String)
   def toByteArray[T](num: T, name: String, order: java.nio.ByteOrder): Array[Byte]
 }
@@ -461,6 +463,11 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
   def getData(): String = {
     cbuf.toString
   }
+  
+  def clearCharBuffer() {
+    cbuf.clear()
+    charBufPos = 0
+  }
 
   /*
    * Moves data to CharBuffer, resizing as necessary.
@@ -481,7 +488,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
         isTooSmall = false
       } catch { //make sure buffer was not written to capacity
         case e: Exception => {
-          cbuf = CharBuffer.allocate(cbuf.capacity() * 4) //TODO: more efficient algorithm than size x4
+          cbuf = CharBuffer.allocate(cbuf.position() * 4) //TODO: more efficient algorithm than size x4
           if (temp != "")
             cbuf.put(temp)
         }
