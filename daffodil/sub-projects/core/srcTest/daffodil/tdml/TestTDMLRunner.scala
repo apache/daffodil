@@ -467,5 +467,29 @@ class TestTDMLRunner extends JUnit3Suite {
     val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("firstUnitTest")
   }
+  
+  
+   val tdmlWithUnicode5E74AndCDATA =
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+      <tdml:defineSchema name="mySchema">
+        <dfdl:format ref="tns:daffodilTest1"/>
+        <xsd:element name="data" type="xsd:string" dfdl:encoding="utf-8" dfdl:lengthKind="delimited" dfdl:terminator=""/>
+      </tdml:defineSchema>
+      <parserTestCase xmlns={ tdml } name="firstUnitTest" root="data" model="mySchema">
+        <document><documentPart type="text"><![CDATA[a年]]></documentPart></document>
+        <infoset>
+          <dfdlInfoset>
+            <data xmlns={ tns }>a&#x5E74;</data>
+          </dfdlInfoset>
+        </infoset>
+      </parserTestCase>
+    </tdml:testSuite>
+
+  // @Test
+  def testMultiByteUnicodeWithCDATAWorks() {
+    val testSuite = tdmlWithUnicode5E74AndCDATA
+    val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("firstUnitTest")
+  }
 
 }
