@@ -3088,7 +3088,6 @@ trait OpaqueAGMixin extends PropertyMixin {
 trait NillableAGMixin extends PropertyMixin
   with NilKindMixin
   with NilValueDelimiterPolicyMixin {
-  lazy val nilValue = ListOfDFDLStringLiteral(getProperty("nilValue"), this)
 
   def nillableAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("nilValue") match {

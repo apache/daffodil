@@ -221,7 +221,7 @@ binaryBooleanFalseRep="0">
     comparePropValue(hasProps.emptyValueDelimiterPolicy, "none")
     comparePropValue(hasProps.nilKind, "literalValue")
     comparePropValue(hasProps.useNilForDefault, "no")
-    comparePropValue(hasProps.nilValue, "NIL")
+//    comparePropValue(hasProps.nilValue, "NIL")
     comparePropValue(hasProps.nilValueDelimiterPolicy, "none")
     comparePropValue(hasProps.binaryNumberRep, "binary")
     comparePropValue(hasProps.binaryPackedSignCodes, "C D F C")
