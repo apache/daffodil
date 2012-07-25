@@ -23,6 +23,10 @@ import java.net.URL
 import java.net.URI
 import daffodil.exceptions.Assert
 import java.nio.ByteBuffer
+import java.nio.charset.CharsetEncoder
+import com.ibm.icu.charset.CharsetICU
+import java.nio.CharBuffer
+import java.io.InputStream
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -42,17 +46,17 @@ import java.nio.ByteBuffer
  * dependency on one factory to create processors.
  */
 
-class DFDLTestSuite(ts: Node, tdmlFile: File, tsInputSource: InputSource)
+class DFDLTestSuite(ts : Node, tdmlFile : File, tsInputSource : InputSource)
   extends Logging {
 
-  var checkEverything: Boolean = false
-  def setCheckEverything(flag: Boolean) {
+  var checkEverything : Boolean = false
+  def setCheckEverything(flag : Boolean) {
     checkEverything = flag
   }
 
-  def this(tdmlFile: File) = this(XML.loadFile(tdmlFile), tdmlFile, new InputSource(tdmlFile.toURI().toASCIIString()))
-  def this(tsNode: Node) = this(tsNode, null, new InputSource(new StringReader(tsNode.toString)))
-  def this(tsURL: URL) = this(XML.load(tsURL), null, new InputSource(tsURL.toURI().toASCIIString()))
+  def this(tdmlFile : File) = this(XML.loadFile(tdmlFile), tdmlFile, new InputSource(tdmlFile.toURI().toASCIIString()))
+  def this(tsNode : Node) = this(tsNode, null, new InputSource(new StringReader(tsNode.toString)))
+  def this(tsURL : URL) = this(XML.load(tsURL), null, new InputSource(tsURL.toURI().toASCIIString()))
 
   //
   // we immediately validate the incoming test suite document
@@ -77,14 +81,14 @@ class DFDLTestSuite(ts: Node, tdmlFile: File, tsInputSource: InputSource)
   // We will use their TDML file names, but in the code here, we call it an UnparserTestCase
   //
   val unparserTestCases = (ts \ "serializerTestCase").map { node => UnparserTestCase(node, this) }
-  val testCases: Seq[TestCase] = parserTestCases ++ 
-		  unparserTestCases
+  val testCases : Seq[TestCase] = parserTestCases ++
+    unparserTestCases
   val suiteName = (ts \ "@suiteName").text
   val suiteID = (ts \ "@ID").text
   val description = (ts \ "@description").text
   val embeddedSchemas = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
 
-  def runAllTests(schema: Option[Node] = None) {
+  def runAllTests(schema : Option[Node] = None) {
     if (isTDMLFileValid)
       testCases.map { _.run(schema) }
     else {
@@ -92,7 +96,7 @@ class DFDLTestSuite(ts: Node, tdmlFile: File, tsInputSource: InputSource)
     }
   }
 
-  def runOneTest(testName: String, schema: Option[Node] = None) {
+  def runOneTest(testName : String, schema : Option[Node] = None) {
     if (isTDMLFileValid)
       runOneTestNoTDMLValidation(testName, schema)
     else {
@@ -109,7 +113,7 @@ class DFDLTestSuite(ts: Node, tdmlFile: File, tsInputSource: InputSource)
    * Without this, you can't get to the validation errors, because it
    * rejects the TDML file itself.
    */
-  def runOneTestNoTDMLValidation(testName: String, schema: Option[Node] = None) {
+  def runOneTestNoTDMLValidation(testName : String, schema : Option[Node] = None) {
     val testCase = testCases.find(_.name == testName)
     testCase match {
       case None => throw new Exception("test " + testName + " was not found.")
@@ -126,7 +130,7 @@ class DFDLTestSuite(ts: Node, tdmlFile: File, tsInputSource: InputSource)
    * so we look for the schema/model files in the working directory, and in the same
    * directory as the tdml file, and some other variations.
    */
-  def findModelFile(fileName: String): File = {
+  def findModelFile(fileName : String) : File = {
     val firstTry = new File(fileName)
     if (firstTry.exists()) return firstTry
     // see if it can be found relative to the tdml test file, like next to it.
@@ -152,7 +156,7 @@ class DFDLTestSuite(ts: Node, tdmlFile: File, tsInputSource: InputSource)
     throw new FileNotFoundException("Unable to find model file " + fileName + ".")
   }
 
-  def findModel(modelName: String): Node = {
+  def findModel(modelName : String) : Node = {
     // schemas defined with defineSchema take priority as names.
     val es = embeddedSchemas.find { defSch => defSch.name == modelName }
     es match {
@@ -167,10 +171,10 @@ class DFDLTestSuite(ts: Node, tdmlFile: File, tsInputSource: InputSource)
 
 }
 
-abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
+abstract class TestCase(ptc : NodeSeq, val parent : DFDLTestSuite)
   extends Logging {
 
-  def toOpt[T](n: Seq[T]) = {
+  def toOpt[T](n : Seq[T]) = {
     n match {
       case Seq() => None
       case Seq(a) => Some(a)
@@ -195,7 +199,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     case _ => false
   }
 
-  def findModel(modelName: String): Node = {
+  def findModel(modelName : String) : Node = {
     if (modelName == "") {
       suppliedSchema match {
         case None => throw new Exception("No model.")
@@ -205,15 +209,15 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
       parent.findModel(modelName)
   }
 
-  var suppliedSchema: Option[Node] = None
+  var suppliedSchema : Option[Node] = None
 
-  protected def runProcessor(processor: DFDL.ProcessorFactory,
-    data: Option[DFDL.Input],
-    infoset: Option[Infoset],
-    errors: Option[ExpectedErrors],
-    warnings: Option[ExpectedWarnings]): Unit
+  protected def runProcessor(processor : DFDL.ProcessorFactory,
+    data : Option[DFDL.Input],
+    infoset : Option[Infoset],
+    errors : Option[ExpectedErrors],
+    warnings : Option[ExpectedWarnings]) : Unit
 
-  def run(schema: Option[Node] = None) {
+  def run(schema : Option[Node] = None) {
     suppliedSchema = schema
     val sch = schema match {
       case Some(sch) => {
@@ -231,19 +235,19 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     compiler.setCheckEverything(parent.checkEverything)
     val pf = compiler.compile(sch)
     val data = document.map { _.data }
-    
+
     runProcessor(pf, data, infoset, errors, warnings)
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
     log(Info("Test %s passed.", id))
   }
 
-  def verifyAllDiagnosticsFound(actual: WithDiagnostics, expectedDiags: Option[ErrorWarningBase]) = {
+  def verifyAllDiagnosticsFound(actual : WithDiagnostics, expectedDiags : Option[ErrorWarningBase]) = {
     val actualDiags = actual.getDiagnostics
     if (actualDiags.length == 0) {
       throw new Exception("""No diagnostic objects found.""")
     } else {
-      actualDiags.foreach{ ad => log(Info(ad.toString))}
+      actualDiags.foreach { ad => log(Info(ad.toString)) }
     }
     val actualDiagMsgs = actualDiags.map { _.toString }
     val expectedDiagMsgs = expectedDiags.map { _.messages }.getOrElse(Nil)
@@ -265,14 +269,14 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
 
 }
 
-case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
+case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
-  def runProcessor(pf: DFDL.ProcessorFactory,
-    data: Option[DFDL.Input],
-    optInfoset: Option[Infoset],
-    optErrors: Option[ExpectedErrors],
-    warnings: Option[ExpectedWarnings]) = {
+  def runProcessor(pf : DFDL.ProcessorFactory,
+    data : Option[DFDL.Input],
+    optInfoset : Option[Infoset],
+    optErrors : Option[ExpectedErrors],
+    warnings : Option[ExpectedWarnings]) = {
 
     val dataToParse = data.get
     (optInfoset, optErrors) match {
@@ -283,7 +287,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   }
 
-  def verifyParseInfoset(actual: DFDL.ParseResult, infoset: Infoset) {
+  def verifyParseInfoset(actual : DFDL.ParseResult, infoset : Infoset) {
     val trimmed = Utility.trim(actual.result)
     //
     // Attributes on the XML like xsi:type and also namespaces (I think) are 
@@ -312,14 +316,14 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       val diffs = XMLUtils.computeDiff(expected, actualNoAttrs)
       //throw new Exception("Comparison failed. Expected: " + expected + " but got " + actualNoAttrs)
       throw new Exception("Comparison failed.\nExpected %s\nActual %s\nDifferences were (path, expected, actual):\n %s".format(
-          expected.toString, actualNoAttrs.toString, diffs.map{_.toString}.mkString("\n")))
+        expected.toString, actualNoAttrs.toString, diffs.map { _.toString }.mkString("\n")))
     }
   }
 
-  def runParseExpectErrors(pf: DFDL.ProcessorFactory,
-    dataToParse: DFDL.Input,
-    errors: ExpectedErrors,
-    warnings: Option[ExpectedWarnings]) {
+  def runParseExpectErrors(pf : DFDL.ProcessorFactory,
+    dataToParse : DFDL.Input,
+    errors : ExpectedErrors,
+    warnings : Option[ExpectedWarnings]) {
 
     val objectToDiagnose =
       if (pf.isError) pf
@@ -343,10 +347,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   }
 
-  def runParseExpectSuccess(pf: DFDL.ProcessorFactory,
-    dataToParse: DFDL.Input,
-    infoset: Infoset,
-    warnings: Option[ExpectedWarnings]) {
+  def runParseExpectSuccess(pf : DFDL.ProcessorFactory,
+    dataToParse : DFDL.Input,
+    infoset : Infoset,
+    warnings : Option[ExpectedWarnings]) {
 
     if (pf.isError) {
       val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
@@ -373,15 +377,14 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 }
 
-
-case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
+case class UnparserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
-  def runProcessor(pf: DFDL.ProcessorFactory,
-    optData: Option[DFDL.Input],
-    optInfoset: Option[Infoset],
-    optErrors: Option[ExpectedErrors],
-    warnings: Option[ExpectedWarnings]) = {
+  def runProcessor(pf : DFDL.ProcessorFactory,
+    optData : Option[DFDL.Input],
+    optInfoset : Option[Infoset],
+    optErrors : Option[ExpectedErrors],
+    warnings : Option[ExpectedWarnings]) = {
 
     val infoset = optInfoset.get
 
@@ -393,7 +396,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   }
 
-  def verifyData(data: DFDL.Input, outStream: java.io.ByteArrayOutputStream) {
+  def verifyData(data : DFDL.Input, outStream : java.io.ByteArrayOutputStream) {
     val actualBytes = outStream.toByteArray
 
     val inbuf = java.nio.ByteBuffer.allocate(1024 * 1024) // TODO: allow override? Detect overrun?
@@ -408,7 +411,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     }
 
     Assert.invariant(readCount == inbuf.position())
-    
+
     // compare expected data to what was output.
     val expectedBytes = inbuf.array()
     if (actualBytes.length != inbuf.position()) {
@@ -426,10 +429,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     }
   }
 
-  def runUnparserExpectSuccess(pf: DFDL.ProcessorFactory,
-    data: DFDL.Input,
-    infoset: Infoset,
-    warnings: Option[ExpectedWarnings]) {
+  def runUnparserExpectSuccess(pf : DFDL.ProcessorFactory,
+    data : DFDL.Input,
+    infoset : Infoset,
+    warnings : Option[ExpectedWarnings]) {
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
@@ -449,12 +452,12 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   }
 
-  def runUnparserExpectErrors(pf: DFDL.ProcessorFactory,
-    optData: Option[DFDL.Input],
-    infoset: Infoset,
-    errors: ExpectedErrors,
-    warnings: Option[ExpectedWarnings]) {
-    
+  def runUnparserExpectErrors(pf : DFDL.ProcessorFactory,
+    optData : Option[DFDL.Input],
+    infoset : Infoset,
+    errors : ExpectedErrors,
+    warnings : Option[ExpectedWarnings]) {
+
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
     val node = infoset.contents
@@ -483,7 +486,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
 }
 
-case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
+case class DefinedSchema(xml : Node, parent : DFDLTestSuite) {
   val name = (xml \ "@name").text.toString
 
   val defineFormats = (xml \ "defineFormat")
@@ -508,7 +511,7 @@ case object Byte extends DocumentContentType
 // TODO: add a Bits type so one can do 0110 1101 0010 0000 and so forth.
 // TODO: add capability to specify character set encoding into which text is to be converted (all UTF-8 currently)
 
-case class Document(d: NodeSeq, parent: TestCase) {
+case class Document(d : NodeSeq, parent : TestCase) {
   val realDocumentParts = (d \ "documentPart").map { node => new DocumentPart(node, this) }
   val documentParts = realDocumentParts match {
     case Seq() => {
@@ -531,14 +534,15 @@ case class Document(d: NodeSeq, parent: TestCase) {
 
 }
 
-case class DocumentPart(part: Node, parent: Document) {
+case class DocumentPart(part : Node, parent : Document) {
   lazy val partContentType = (part \ "@type").toString match {
     case "text" => Text
     case "byte" => Byte
   }
+  lazy val encoder = CharsetICU.forNameICU("UTF-8").newEncoder()
   lazy val partRawContent = part.child.text
-  lazy val convertedContent: Seq[Byte] = partContentType match {
-    case Text => partRawContent.getBytes
+  lazy val convertedContent : Seq[Byte] = partContentType match {
+    case Text => partRawContent.getBytes("UTF-8") //must specify charset name (JIRA DFDL-257)
     case Byte => hexContentToBytes
   }
 
@@ -555,12 +559,12 @@ case class DocumentPart(part: Node, parent: Document) {
 
 }
 
-case class Infoset(i: NodeSeq, parent: TestCase) {
+case class Infoset(i : NodeSeq, parent : TestCase) {
   lazy val Seq(dfdlInfoset) = (i \ "dfdlInfoset").map { node => new DFDLInfoset(Utility.trim(node), this) }
   lazy val contents = dfdlInfoset.contents
 }
 
-case class DFDLInfoset(di: Node, parent: Infoset) {
+case class DFDLInfoset(di : Node, parent : Infoset) {
   lazy val Seq(contents) = {
     val c = di.child(0)
     val expected = Utility.trim(c) // must be exactly one root element in here.
@@ -581,20 +585,20 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
   }
 }
 
-abstract class ErrorWarningBase(n: NodeSeq, parent: TestCase) {
+abstract class ErrorWarningBase(n : NodeSeq, parent : TestCase) {
   lazy val matchAttrib = (n \ "@match").text
-  protected def diagnosticNodes: Seq[Node]
+  protected def diagnosticNodes : Seq[Node]
   lazy val messages = diagnosticNodes.map { _.text }
 }
 
-case class ExpectedErrors(node: NodeSeq, parent: TestCase)
+case class ExpectedErrors(node : NodeSeq, parent : TestCase)
   extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "error"
 
 }
 
-case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
+case class ExpectedWarnings(node : NodeSeq, parent : TestCase)
   extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "warning"
