@@ -412,6 +412,7 @@ class PState(
   def whichBit = bitPos % 8
   def groupPos = groupIndexStack.head
   def childPos = childIndexStack.head
+  def arrayPos = arrayIndexStack.head
 
   def currentLocation : DataLocation = new DataLoc(bitPos, inStream)
   def inStreamState = inStreamStateStack top
