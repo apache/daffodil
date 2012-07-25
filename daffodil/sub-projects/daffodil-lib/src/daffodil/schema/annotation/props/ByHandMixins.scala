@@ -4,6 +4,9 @@ package daffodil.schema.annotation.props
 
 import daffodil.exceptions._
 import daffodil.dsom.OOLAG.OOLAGHost
+import daffodil.dsom.EntityReplacer
+import daffodil.dsom.ListOfStringValueAsLiteral
+import daffodil.dsom.StringValueAsLiteral
 
 /**
  * We don't want to make the code generator so sophisticated as to be
@@ -93,6 +96,49 @@ trait SeparatorSuppressionPolicyMixin extends PropertyMixin { self : OOLAGHost =
         }
       }
     }
+  }
+}
+
+trait TextNumberFormatMixin extends PropertyMixin {
+  lazy val textStandardInfinityRep = {
+    val raw = getProperty("textStandardInfinityRep")
+    
+    this.schemaDefinition(raw.length() > 0, "textStandardZeroRep cannot be empty!")
+    this.schemaDefinition(!raw.contains("%NL;"), "textStandardZeroRep cannot contain %NL;!")
+    this.schemaDefinition(!raw.contains("%ES;"), "textStandardZeroRep cannot contain %ES;!")
+    this.schemaDefinition(!raw.contains("%WSP;"), "textStandardZeroRep cannot contain %WSP;!")
+    this.schemaDefinition(!raw.contains("%WSP+;"), "textStandardZeroRep cannot contain %WSP+;!")
+    this.schemaDefinition(!raw.contains("%WSP*;"), "textStandardZeroRep cannot contain %WSP*;!")
+    //TODO: Cannot contain raw bytes
+    
+    val l = new StringValueAsLiteral(raw,this)
+    l.cooked
+  }
+  
+  lazy val textStandardNaNRep = {
+    val raw = getProperty("textStandardNaNRep")
+    
+    this.schemaDefinition(raw.length() > 0, "textStandardZeroRep cannot be empty!")
+    this.schemaDefinition(!raw.contains("%NL;"), "textStandardZeroRep cannot contain %NL;!")
+    this.schemaDefinition(!raw.contains("%ES;"), "textStandardZeroRep cannot contain %ES;!")
+    this.schemaDefinition(!raw.contains("%WSP;"), "textStandardZeroRep cannot contain %WSP;!")
+    this.schemaDefinition(!raw.contains("%WSP+;"), "textStandardZeroRep cannot contain %WSP+;!")
+    this.schemaDefinition(!raw.contains("%WSP*;"), "textStandardZeroRep cannot contain %WSP*;!")
+    //TODO: Cannot contain raw bytes
+    
+    val l = new StringValueAsLiteral(raw,this)
+    l.cooked
+  }
+  lazy val textStandardZeroRep = {
+    val raw = getProperty("textStandardZeroRep")
+    
+    // Literal Empty String allowed!
+    this.schemaDefinition(!raw.contains("%NL;"), "textStandardZeroRep cannot contain %NL;!")
+    this.schemaDefinition(!raw.contains("%ES;"), "textStandardZeroRep cannot contain %ES;!")
+    //TODO: Cannot contain raw bytes
+    
+    val l = new ListOfStringValueAsLiteral(raw, this)
+    l.cooked
   }
 }
 

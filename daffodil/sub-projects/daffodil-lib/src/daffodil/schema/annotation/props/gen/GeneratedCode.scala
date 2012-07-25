@@ -2819,9 +2819,6 @@ trait TextNumberFormatAGMixin extends PropertyMixin
   lazy val textNumberRoundingIncrement = convertToDouble(getProperty("textNumberRoundingIncrement"))
   lazy val textNumberPattern = DFDLStringLiteral(getProperty("textNumberPattern"), this)
   lazy val textStandardExponentCharacter = DFDLStringLiteral_Or_DFDLExpression(getProperty("textStandardExponentCharacter"), this)
-  lazy val textStandardInfinityRep = DFDLStringLiteral(getProperty("textStandardInfinityRep"), this)
-  lazy val textStandardNaNRep = DFDLStringLiteral(getProperty("textStandardNaNRep"), this)
-  lazy val textStandardZeroRep = ListOfDFDLStringLiteral(getProperty("textStandardZeroRep"), this)
 
   def textNumberFormatAGInit() : Unit = {
     registerToStringFunction(()=>{getPropertyOption("textNumberPattern") match {
