@@ -17,7 +17,7 @@ class TresysTests extends JUnit3Suite {
   val runnerAA = new DFDLTestSuite(new File(aa))
 
   // Needs InputValueCalc to work before this has a chance.
-  // def test_AA000() { runnerAA.runOneTest("AA000") }
+  def test_AA000() { runnerAA.runOneTest("AA000") }
   
   val delimited = testDir + "dpaext1.tdml"
   val runnerDelimited = new DFDLTestSuite(new File(delimited))
@@ -126,4 +126,10 @@ class TresysTests extends JUnit3Suite {
   def test_text_05() { runnerLN.runOneTest("text_05")}
   def test_text_06() { runnerLN.runOneTest("text_06")}
   def test_binary_01() { runnerLN.runOneTest("binary_01")}
+  
+  val ai = testDir + "AI.tdml"
+  val runnerAI = new DFDLTestSuite(new File(ai))
+
+  def test_AI000() { runnerAI.runOneTest("AI000") }
+  
 }
