@@ -11,7 +11,7 @@ import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestPropertyScoping extends JUnit3Suite {
-  val testDir = "src/daffodil/section8/property_scoping/"
+  val testDir = "srcTest/daffodil/section8/property_scoping/"
   val aa = testDir + "PropertyScoping.tdml"
   val runner = new DFDLTestSuite(new File(aa))
   

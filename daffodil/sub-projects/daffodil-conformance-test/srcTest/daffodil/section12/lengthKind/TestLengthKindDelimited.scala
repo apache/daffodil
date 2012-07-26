@@ -11,7 +11,7 @@ import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestLengthKindDelimited extends JUnit3Suite {
-  val testDir = "src/daffodil/section12/lengthKind/"
+  val testDir = "srcTest/daffodil/section12/lengthKind/"
   val aa = testDir + "DelimitedTests.tdml"
   val runner = new DFDLTestSuite(new File(aa))
   

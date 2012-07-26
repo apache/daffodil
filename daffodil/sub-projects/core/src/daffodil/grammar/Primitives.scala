@@ -1356,7 +1356,6 @@ case class LiteralNilValue(e: ElementBase)
   lazy val unparserDelim = Assert.notYetImplemented()
 
   val stParser = super.parser
-  //val terminators = e.asInstanceOf[Term].allTerminatingMarkup.map(x => x.constantAsString.split("\\s").toList).flatten
 
   override def parser = new Parser(e) {
     override def toString = "LiteralNilValue(" + e.nilValue + ")"
@@ -1365,21 +1364,10 @@ case class LiteralNilValue(e: ElementBase)
 
     def parse(start: PState): PState = {
       withLoggingLevel(LogLevel.Debug) {
-        e.representation match {
-          case daffodil.schema.annotation.props.gen.Representation.Text => // CharClass Entities NL, WSP, WSP+, WSP* and ES allowed
-          case daffodil.schema.annotation.props.gen.Representation.Binary => {
-            // Only CharClass Entity ES allowed
-            if (e.nilValue.contains("%NL;") || e.nilValue.contains("%WSP;") ||
-              e.nilValue.contains("%WSP+;") || e.nilValue.contains("%WSP*;")) {
-              e.SDE("Literal nilValue for Binary representaiton can only have ES as a value.")
-            }
-          }
-        }
 
         // Look for nilValues first, if fails look for delimiters next
         // If delimiter is found AND nilValue contains ES, result is empty and valid.
         // If delimiter is not found, fail.
-
         val afterNilLit = stParser.parse(start)
         if (afterNilLit.status == Success) {
           val xsiNS = afterNilLit.parentElement.getNamespace()
@@ -1400,7 +1388,6 @@ case class LiteralNilValue(e: ElementBase)
 
     def delimLookup(start: PState): PState = withParseErrorThrowing(start) {
       withLoggingLevel(LogLevel.Debug) {
-        // TODO: This code was copied exactly from StaticText.  How can I do away with this?
         // TODO: We may need to keep track of Local Separators, Local Terminators and Enclosing Terminators.
 
         val eName = e.toString()
@@ -1408,13 +1395,8 @@ case class LiteralNilValue(e: ElementBase)
         log(Debug("LiteralNilValue - " + eName + " - Parsing delimiter at byte position: " + (start.bitPos >> 3)))
         log(Debug("LiteralNilValue - " + eName + " - Parsing delimiter at bit position: " + start.bitPos))
 
-        //val separators = delim.split("\\s").toList
-        //val terminators = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList).flatten
-
-        //val separatorsCooked: Queue[String] = new Queue
         val terminatorsCooked: Queue[String] = new Queue
 
-        //separators.foreach(x => separatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
         terminators.foreach(x => terminatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
 
         log(Debug("LiteralNilValue - " + eName + " - Looking for: " + terminatorsCooked))
@@ -1447,7 +1429,7 @@ case class LiteralNilValue(e: ElementBase)
         log(Debug("endBitPos: " + endBitPos + " startBitPos: " + start.bitPos))
         if (m.find() && endBitPos == start.bitPos) {
           log(Debug("LiteralNilValue - " + eName + " - Found " + theMatchedDelim.toString()))
- 
+          // No need to advance past a delimiter since this is nil
           val postState = start
           postState
         } else {

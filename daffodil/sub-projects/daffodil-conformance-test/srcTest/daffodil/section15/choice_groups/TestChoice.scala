@@ -11,7 +11,7 @@ import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestChoice extends JUnit3Suite {
-  val testDir = "src/daffodil/section15/choice_groups/"
+  val testDir = "srcTest/daffodil/section15/choice_groups/"
   val aa = testDir + "choice.tdml"
   
   val runnerCH= new DFDLTestSuite(new File(aa))

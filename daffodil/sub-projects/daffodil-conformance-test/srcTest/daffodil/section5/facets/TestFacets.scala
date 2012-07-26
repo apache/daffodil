@@ -11,7 +11,7 @@ import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestFacets extends JUnit3Suite {
-  val testDir = "src/daffodil/section5/facets/"
+  val testDir = "srcTest/daffodil/section5/facets/"
   val aa = testDir + "Facets.tdml"
   val runner = new DFDLTestSuite(new File(aa))
   

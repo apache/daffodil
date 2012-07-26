@@ -11,7 +11,7 @@ import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestSimpleTypes extends JUnit3Suite {
-  val testDir = "src/daffodil/section5/simple_types/"
+  val testDir = "srcTest/daffodil/section5/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
   val runner = new DFDLTestSuite(new File(aa))
   
