@@ -127,7 +127,6 @@ class TresysTests extends JUnit3Suite {
   def test_text_06() { runnerLN.runOneTest("text_06")}
   def test_binary_01() { runnerLN.runOneTest("binary_01")}
   
-
   val entity = testDir + "entities.tdml"
   val runnerEntity = new DFDLTestSuite(new File(entity))
   def test_entity_fail_01() { runnerEntity.runOneTest("entity_fail_01") }
@@ -142,4 +141,5 @@ class TresysTests extends JUnit3Suite {
 
   def test_AI000() { runnerAI.runOneTest("AI000") }
   
+
 }
