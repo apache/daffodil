@@ -365,7 +365,9 @@ trait CurrencyMixin extends PropertyMixin {
       "textBooleanTrueRep", "textBooleanFalseRep",
       "separator",
       "occursCount",
-      "inputValueCalc", "outputValueCalc")
+      "inputValueCalc", "outputValueCalc",
+      "textStandardInfinityRep", "textStandardNaNRep", "textStandardZeroRep",
+      "nilValue")
     val res = runtimeValuedProperties.contains(propName)
     res
   }

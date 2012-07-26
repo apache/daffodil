@@ -464,6 +464,7 @@ abstract class DFDLStatement(node: Node, annotatedSC: AnnotatedMixin)
 class DFDLFormat(node: Node, sd: SchemaDocument)
   extends DFDLFormatAnnotation(node, sd)
   with Format_AnnotationMixin
+  with NillableMixin
   with SeparatorSuppressionPolicyMixin
   with RawElementRuntimeValuedPropertiesMixin
   with RawSequenceRuntimeValuedPropertiesMixin {
@@ -472,6 +473,7 @@ class DFDLFormat(node: Node, sd: SchemaDocument)
 class DFDLElement(node: Node, decl: ElementBase)
   extends DFDLFormatAnnotation(node, decl)
   with Element_AnnotationMixin
+  with NillableMixin
   with RawElementRuntimeValuedPropertiesMixin {
 }
 
@@ -500,6 +502,7 @@ class DFDLChoice(node: Node, decl: Choice)
 class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)
   extends DFDLFormatAnnotation(node, decl)
   with SimpleType_AnnotationMixin
+  with TextNumberFormatMixin
   with RawSimpleTypeRuntimeValuedPropertiesMixin {
 }
 

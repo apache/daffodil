@@ -58,11 +58,7 @@ trait SequenceRuntimeValuedPropertiesMixin
   with Sequence_AnnotationMixin
   with RawSequenceRuntimeValuedPropertiesMixin { decl: Sequence =>
 
-  lazy val separator = {
-    val replaced = EntityReplacer.replaceAll(separatorRaw)
-    // println(replaced)
-    expressionCompiler.compile('String, EntityReplacer.replaceAll(separatorRaw))
-  }
+  lazy val separator = expressionCompiler.compile('String, separatorRaw)
 }
 
 trait SimpleTypeRuntimeValuedPropertiesMixin

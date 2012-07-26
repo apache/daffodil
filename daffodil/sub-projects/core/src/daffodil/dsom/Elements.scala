@@ -83,6 +83,7 @@ abstract class ElementBase(xmlArg : Node, parent : SchemaComponent, position : I
   extends Term(xmlArg, parent, position)
   with AnnotatedMixin
   with Element_AnnotationMixin
+  with NillableMixin
   with DFDLStatementMixin
   with ElementBaseGrammarMixin
   with ElementRuntimeValuedPropertiesMixin

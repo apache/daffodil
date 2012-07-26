@@ -1081,6 +1081,119 @@ with WithParseErrorThrowing
     else { (cb.toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
     }
   }
+  
+  // Read the delimiter if possible off of the ByteBuffer
+  //
+  def getDelimiterNilValue(cb: CharBuffer, bitOffset: Long, 
+      decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
+      es: EscapeSchemeObj): (String, Long, Long, SearchResult, Delimiter) = {
+    withLoggingLevel(LogLevel.Debug) {
+
+    log(Debug("BEG_getDelimiterNilValue"))
+
+    val me : String = "getDelimiterNilValue - "
+
+    log(Debug(me + "Looking for: " + separators + " AND " + terminators))
+
+    val byteOffsetAsLong = (bitOffset >> 3)
+
+    val byteOffset = byteOffsetAsLong.toInt
+
+    log(Debug(me + "ByteOffset: " + byteOffset + " BitOffset: " + bitOffset))
+
+    var (endBitPos : Long, state) = fillCharBufferMixedData(cb, bitOffset, decoder)
+    var endBitPosA : Long = endBitPos
+
+    if (endBitPos == -1L) {
+      log(Debug(me + "Failed, reached end of buffer."))
+      log(Debug("END_getDelimiterNilValue - End of Buffer!"))
+      return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null)
+    }
+
+    var sb : StringBuilder = new StringBuilder // To keep track of the searched text
+    val dSearch = new DelimSearcher with Logging
+    var buf = cb
+
+    dSearch.setEscapeScheme(es)
+
+    separators foreach { x => dSearch.addSeparator(x) }
+
+    terminators foreach { x => dSearch.addTerminator(x) }
+
+    var (theState, result, endPos, endPosDelim, theDelimiter) = dSearch.search(buf, 0)
+
+    if (theDelimiter == null) { return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
+
+    log(Debug("theDelimiter: " + theDelimiter.toString() + " theState: " + theState))
+
+    //if (theDelimiter.typeDef == DelimiterType.Terminator) { return (cb.toString(), -1L, -1L, SearchResult.NoMatch, null) }
+
+    if (theState == SearchResult.FullMatch) {
+      sb.append(result)
+    }
+
+    var EOF : Boolean = false // Flag to indicate if we ran out of data to fill CharBuffer with
+
+    if (buf.toString().length == 0) { EOF = true } // Buffer was empty to start, nothing to do
+
+    // Proceed until we encounter a FullMatch or EOF (we ran out of data)
+    while ((theState == SearchResult.NoMatch || theState == SearchResult.PartialMatch) && endBitPosA != -1 && !EOF) {
+      buf.clear()
+      buf = CharBuffer.allocate(buf.length() * 2)
+
+      val fillState = fillCharBufferMixedData(buf, bitOffset, decoder)
+      endBitPosA = fillState._1
+      EOF = fillState._2 // Determine if we ran out of data to fill the CharBuffer with
+
+      var (state2, result2, endPos2, endPosDelim2, theDelimiter2) = dSearch.search(buf, endPosDelim, false)
+
+      theState = state2 // Determine if there was a Full, Partial or No Match
+      endPos = endPos2 // Start of delimiter
+      endPosDelim = endPosDelim2 // End of delimiter
+      theDelimiter = theDelimiter2
+
+      if (theState != SearchResult.PartialMatch) {
+        sb.append(result2)
+      }
+    }
+    
+    // For LiteralValueNil we do not care of this is an enclosing Terminator, we just
+    // need to detect that we reached it.
+
+    var delimLength = endPosDelim - endPos
+
+    if (endPosDelim == 0 && endPos == 0 && theState == SearchResult.FullMatch) { delimLength = 1 }
+
+    // Encode the found string in order to calculate
+    // the ending position of the ByteBuffer
+    //
+    val charSet = decoder.charset()
+    val resBB = charSet.encode(sb.toString())
+
+    val resNumBytes = resBB.limit() // TODO: Pretty sure limit is better than length
+
+    // Calculate the new ending position of the ByteBuffer
+    if (endPos != -1) {
+      endBitPosA = bitOffset + (resNumBytes * 8)
+    } else {
+      endPos = resBB.limit()
+      endBitPosA = (resBB.limit() << 3)
+    }
+    var endBitPosDelimA : Long = endBitPosA
+
+    if (endPosDelim != -1) {
+      endBitPosDelimA = bitOffset + (resNumBytes * 8)
+    }
+
+    log(Debug(me + "Ended at BytePos: " + (byteOffset + resNumBytes)))
+    log(Debug(me + "Ended at bitPos: " + endBitPosA))
+    log(Debug("END_getDelimiter"))
+    
+    if (endPos != -1 && endPosDelim != -1){ (cb.subSequence(endPos, endPosDelim+1).toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
+
+    else { (cb.toString(), endBitPosA, endBitPosDelimA, theState, theDelimiter) }
+    }
+  }
 
   def getByte(bitPos : Long, order : java.nio.ByteOrder) = {
     Assert.invariant(bitPos % 8 == 0)

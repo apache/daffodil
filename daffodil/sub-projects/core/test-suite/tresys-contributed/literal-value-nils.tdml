@@ -72,7 +72,7 @@
 		model="text_02" description="Text_02 EmptyString nilValue">
 
 		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[0,%ES;;]]></tdml:documentPart>
+			<tdml:documentPart type="text"><![CDATA[0,;]]></tdml:documentPart>
 		</tdml:document>
 
 		<tdml:infoset>
@@ -114,7 +114,7 @@
 		description="Text_03 Two nilValues one a regular value the other a CharEntity">
 
 		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[0,nil,%ES;;]]></tdml:documentPart>
+			<tdml:documentPart type="text"><![CDATA[0,nil,;]]></tdml:documentPart>
 		</tdml:document>
 
 		<tdml:infoset>
