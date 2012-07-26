@@ -242,8 +242,6 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
       //      start.outStream.setEncoder(encoder)
       start.outStream.fillCharBuffer(data)
 
-      //      start.outStream.setEncoder(encoder)
-      start.outStream.fillCharBuffer(data)
       log(Debug("Unparsed: " + start.outStream.getData))
       start
     }

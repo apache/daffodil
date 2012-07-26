@@ -413,10 +413,10 @@ case class UnparserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
     Assert.invariant(readCount == inbuf.position())
 
     // compare expected data to what was output.
-    val expectedBytes = inbuf.array()
-    if (actualBytes.length != inbuf.position()) {
-      throw new Exception("output data length " + actualBytes.length +
-        " doesn't match expected value " + inbuf.position())
+    val expectedBytes = inbuf.array().toList.slice(0, readCount)
+    if (actualBytes.length != readCount) {
+      throw new Exception("output data length " + actualBytes.length + " for " + actualBytes.toList + 
+        " doesn't match expected value " + readCount + " for " + expectedBytes)
     }
 
     val pairs = expectedBytes zip actualBytes zip Stream.from(1)
