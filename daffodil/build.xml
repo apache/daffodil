@@ -24,6 +24,7 @@
 		description="Rebuilds all subprojects">
 		<ant dir="${basedir}/sub-projects/daffodil-lib"/>
 		<ant dir="${basedir}/sub-projects/core"/>
+		<ant dir="${basedir}/sub-projects/daffodil-conformance-test"/>
 	</target>
 
 	<target name="core" depends=""
@@ -38,6 +39,10 @@
 	</target>
 
 
+	<target name="conformance" depends=""
+		description="Rebuilds daffodil-conformance-test">
+		<ant dir="${basedir}/sub-projects/daffodil-conformance-test"/>
+	</target>
 
 
 	

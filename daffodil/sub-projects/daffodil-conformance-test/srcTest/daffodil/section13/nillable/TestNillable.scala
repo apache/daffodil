@@ -12,7 +12,7 @@ import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestNillable extends JUnit3Suite {
-  val testDir = "src/daffodil/section13/nillable/"
+  val testDir = "srcTest/daffodil/section13/nillable/"
   val aa = testDir + "nillable.tdml"
   val runnerAA = new DFDLTestSuite(new File(aa))
 

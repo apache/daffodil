@@ -12,7 +12,7 @@ import java.io.File
 
 class TestEntities extends JUnit3Suite {
   
-  val testDir_01 = "src/daffodil/section6/entities/"
+  val testDir_01 = "srcTest/daffodil/section6/entities/"
   val aa_01 = testDir_01 + "Entities.tdml"
   val runner_01 = new DFDLTestSuite(new File(aa_01))
   
