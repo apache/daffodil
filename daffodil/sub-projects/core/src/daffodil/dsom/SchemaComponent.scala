@@ -57,7 +57,8 @@ abstract class SchemaComponent(val xml : Node)
   with ThrowsSDE {
   def schemaDocument: SchemaDocument
   lazy val schema: Schema = schemaDocument.schema
-  lazy val namespace = schemaDocument.targetNamespace
+  lazy val targetNamespace = schema.targetNamespace
+  lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace)
   def prettyName : String
   
   def context = this
@@ -247,18 +248,17 @@ extends CommonRuntimeValuedPropertiesMixin { self : SchemaComponent =>
    * An expression can be in any annotation, and its path can lead to a node
    * So, we need the namespace in which to create that node.
    */
-  lazy val jdomNamespace = {
+  lazy val jdomTargetNamespace = {
     val jdomns = org.jdom.Namespace.getNamespace(schemaDocument.targetNamespace)
     jdomns
   }
   
   /**
-   * Needed by back-end to construct jdom nodes.
+   * Needed by back-end to evaluate expressions.
    */
   lazy val namespaces = {
-    val nss = new Namespaces
-    nss.addNamespace(jdomNamespace)
-    nss
+    val res = XMLUtils.jdomNamespaceBindings(xml.scope)
+    res
   }
   
   /**
@@ -526,7 +526,6 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
 
   override lazy val schema = schemaArg
 
-  lazy val targetNamespace = schema.targetNamespace
   lazy val schemaDocument = this
 
   def annotationFactory(node: Node): DFDLAnnotation = {

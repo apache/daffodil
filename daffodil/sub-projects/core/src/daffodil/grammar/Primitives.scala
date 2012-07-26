@@ -27,7 +27,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
      * the state to be referring to this new element as what we're parsing data into.
      */
     def parse(start: PState): PState = {
-      val currentElement = new org.jdom.Element(e.name, e.namespace)
+      val currentElement = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
       log(Debug("currentElement = %s", currentElement))
       val priorElement = start.parentForAddContent
       priorElement.addContent(currentElement)
@@ -100,7 +100,7 @@ case class ComplexElementBeginPattern(e: ElementBase)
         }
       }
 
-      val currentElement = new org.jdom.Element(e.name, e.namespace)
+      val currentElement = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
       log(Debug("currentElement = %s", currentElement))
       val priorElement = postState1.parentForAddContent
       priorElement.addContent(currentElement)
@@ -1533,8 +1533,16 @@ class IVCParser(e: ElementBase with ElementDeclMixin) extends Parser(e) {
       }
     }
   }
-  Assert.notYetImplemented(!isString)
-  val ivcExpr = e.expressionCompiler.compile('String, ivcExprText)
+  Assert.invariant(e.isSimpleType)
+  val expressionTypeSymbol = e.primType.name match {
+    case "byte" => 'Long
+    case "short" => 'Long
+    case "int" => 'Long
+    case "long" => 'Long
+    case "string" => 'String
+  }
+  
+  val ivcExpr = e.expressionCompiler.compile(expressionTypeSymbol, ivcExprText)
 
   // for unit testing
   def testExpressionEvaluation(elem: org.jdom.Element, vmap: VariableMap) = {
@@ -1546,7 +1554,7 @@ class IVCParser(e: ElementBase with ElementDeclMixin) extends Parser(e) {
     log(Debug("This is %s", toString))
     val currentElement = start.parentElement
     val result = ivcExpr.evaluate(currentElement, start.variableMap)
-    val res = result.asInstanceOf[String] // only strings for now.
+    val res = result.toString // Everything in JDOM is a string!
     currentElement.addContent(new org.jdom.Text(res))
 
     val postState = start // inputValueCalc consumes nothing. Just creates a value.

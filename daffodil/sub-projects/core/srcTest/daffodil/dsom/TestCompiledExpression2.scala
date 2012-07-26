@@ -31,13 +31,16 @@ class TestCompiledExpression2 extends JUnit3Suite {
   // TODO: Not sure how one provides namespace information on the XPath expression
    def testCompiledAbsolutePathEvaluation2_withNamespace() { 
     
-    val r = XMLUtils.elem2Element(<root xmlns={ example }><child1><child2><child3>19</child3></child2></child1></root>)
-    val sset = new SchemaSet(testSchema)
+    val r = XMLUtils.elem2Element(
+        <tns:root xmlns:tns={ example }>19</tns:root>)
+    val sset = new SchemaSet(<schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+                       <element name="root" type="xs:string"/>
+                     </schema>)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
     val doc = new org.jdom.Document(r) // root must have a document node
     val root = doc.getRootElement()
     val ec = new ExpressionCompiler(edecl)
-    val xpathString = "{ /root/child1/child2/child3 }"
+    val xpathString = "{ /tns:root/text() }"
     val compiled = ec.compile('String, xpathString) // as a string
     val result = compiled.evaluate(root, new VariableMap())
 

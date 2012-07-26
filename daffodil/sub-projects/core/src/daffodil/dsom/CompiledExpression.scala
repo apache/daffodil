@@ -9,6 +9,7 @@ import daffodil.processors.xpath.XPathUtil.CompiledExpressionFactory
 import daffodil.util.Logging
 import daffodil.util.Debug
 import daffodil.util.LogLevel
+import daffodil.xml.XMLUtils
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -122,13 +123,15 @@ class ExpressionCompiler(edecl : AnnotatedMixin) extends Logging {
    * it will throw. No throw means a value came back and it must be a constant.
    */
   def constantValue(xpathExprFactory: CompiledExpressionFactory): Option[String] = 
-  withLoggingLevel(LogLevel.Debug){
-    // val dummyRoot = new org.jdom.Element("dummy", "dummy")
-    // val dummyDoc = new org.jdom.Document(dummyRoot)
+    withLoggingLevel(LogLevel.Debug){
     val dummyVars = new VariableMap
     val result =
       try {
-        val res = XPathUtil.evalExpression(xpathExprFactory.expression + " (to see if constant)", xpathExprFactory, dummyVars, null) 
+        val res = XPathUtil.evalExpression(
+            xpathExprFactory.expression + " (to see if constant)", 
+            xpathExprFactory, 
+            dummyVars, 
+            null) // context node is not needed to see if an expression is a constant. 
         res match {
           case StringResult(s) => {
             log(Debug("%s is constant", xpathExprFactory.expression))
@@ -139,7 +142,7 @@ class ExpressionCompiler(edecl : AnnotatedMixin) extends Logging {
       }
       catch {
         case e: XPathExpressionException => {
-           log(Debug("%s is NOT constant", xpathExprFactory.expression))
+           log(Debug("%s is NOT constant (due to %s)", xpathExprFactory.expression, e.toString))
            None
         }
         case e: Exception => {
@@ -150,7 +153,6 @@ class ExpressionCompiler(edecl : AnnotatedMixin) extends Logging {
   }
 
   def compile[T](convertTo: Symbol, expr: String): CompiledExpression = {
-    // println("compiling expression")
     if (!XPathUtil.isExpression(expr)) {
       // not an expression. For some properties like delimiters, you can use a literal string 
       // whitespace separated list of literal strings, or an expression in { .... }

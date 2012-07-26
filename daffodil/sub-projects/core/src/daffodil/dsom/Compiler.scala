@@ -172,6 +172,10 @@ object Compiler {
       throw new Exception(msgs)
     }
     val p = pf.onPath("/")
+    if (p.isError) {
+      val msgs = p.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new Exception(msgs)
+    }
     val d = Compiler.stringToReadableByteChannel(data)
     val actual = p.parse(d)
     if (actual.isError) {

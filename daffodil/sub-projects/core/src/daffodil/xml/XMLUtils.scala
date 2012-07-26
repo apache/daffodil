@@ -424,11 +424,50 @@ object XMLUtils {
   }
 
   def elem2Element(nodes : scala.xml.NodeSeq) : Seq[Element] = nodes.map { elem => elem2Element(elem) }
+  
+  /**
+   * Annoying, but namespace bindings are never a collection you can process like a normal collection.
+   * Instead they are linked by these parent chains. 
+   * 
+   * We need them as JDOM namespace bindings, so create a list of those.
+   */
+  def jdomNamespaceBindings(nsBinding : NamespaceBinding) : Seq[org.jdom.Namespace] = {
+    if (nsBinding == null) Nil
+    else {
+      val thisOne = 
+        if (nsBinding.uri != null) List(org.jdom.Namespace.getNamespace(nsBinding.prefix, nsBinding.uri))
+        else Nil
+      val others = jdomNamespaceBindings(nsBinding.parent)
+      thisOne ++ others
+    }
+  }
+
+  def jdomNamespaceBindings(element : org.jdom.Element) : Seq[org.jdom.Namespace] = {
+    if (element == null) Nil
+    else {
+      val ans = element.getAdditionalNamespaces.toSeq.asInstanceOf[Seq[org.jdom.Namespace]]
+      val thisOne = element.getNamespace()
+      val parentContribution = element.getParent match {
+        case parentElem : org.jdom.Element => jdomNamespaceBindings(parentElem)
+        case _ => Nil
+      }
+      val res = thisOne +: (ans ++ parentContribution)
+      res
+    }
+  }
 
   def elem2Element(node : scala.xml.Node) : Element = {
     // val jdomNode = new CompressableElement(node label,node namespace)
     val jdomNode = new Element(node.label, node.prefix, node.namespace)
-
+    var Elem(_, _, _ , nsBinding : NamespaceBinding, _*) = node.asInstanceOf[scala.xml.Elem]
+    
+    jdomNamespaceBindings(nsBinding).foreach{ ns => {
+      val prefix = ns.getPrefix()
+      if (prefix != null & prefix != ""
+        && jdomNode.getNamespace(prefix) == null)
+    	  jdomNode.addNamespaceDeclaration(ns) 
+    }}
+      
     val attribs = node.attributes.map { (attribute : MetaData) =>
       {
         // for(attribute <- attribs) {
