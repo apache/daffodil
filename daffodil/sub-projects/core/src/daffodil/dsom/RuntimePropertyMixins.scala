@@ -20,9 +20,21 @@ trait CommonRuntimeValuedPropertiesMixin
   lazy val byteOrder = expressionCompiler.compile('String, byteOrderRaw)
   lazy val encoding = expressionCompiler.compile('String, encodingRaw)
   lazy val outputNewLine = {
-    // TODO: SDE if characters not in list of allowable NL characters
-    this.schemaDefinition(outputNewLineRaw.length() > 0, "outputNewLineRaw may not be empty!")
-    expressionCompiler.compile('String, EntityReplacer.replaceAll(outputNewLineRaw))
+    val c = expressionCompiler.compile('String, EntityReplacer.replaceAll(outputNewLineRaw))
+    if (c.isConstant) {
+      val s = c.constantAsString
+      this.schemaDefinition(!s.contains("%NL;"), "outputNewLine cannot contain NL")
+      this.schemaDefinition(!s.contains("%WSP;"), "outputNewLine cannot contain WSP")
+      this.schemaDefinition(!s.contains("%WSP+;"), "outputNewLine cannot contain WSP+")
+      this.schemaDefinition(!s.contains("%WSP*;"), "outputNewLine cannot contain WSP*")
+      this.schemaDefinition(!s.contains("%ES;"), "outputNewLine cannot contain ES")
+
+      val validNLs: List[Char] = List('\u000A', '\u000D', '\u0085', '\u2028')
+      s.foreach(x => {
+        this.schemaDefinition(validNLs.contains(x), "'" + x + "' is not a valid new line character for outputNewLine!")
+      })
+    }
+    c
   }
 }
 
@@ -34,8 +46,23 @@ trait DelimitedRuntimeValuedPropertiesMixin
   // as it's possible to replace an entity with a whitespace character.
   //  lazy val initiator = expressionCompiler.compile('String, EntityReplacer.replaceAll(initiatorRaw))
   //  lazy val terminator = expressionCompiler.compile('String, EntityReplacer.replaceAll(terminatorRaw))
-  lazy val initiator = expressionCompiler.compile('String, initiatorRaw)
-  lazy val terminator = expressionCompiler.compile('String, terminatorRaw)
+  lazy val initiator = {
+    val c = expressionCompiler.compile('String, initiatorRaw)
+    if (c.isConstant) {
+      val s = c.constantAsString
+      this.schemaDefinition(!s.contains("%ES;"), "Initiator cannot contain ES")
+    }
+    c
+  }
+
+  lazy val terminator = {
+    val c = expressionCompiler.compile('String, terminatorRaw)
+    if (c.isConstant) {
+      val s = c.constantAsString
+      this.schemaDefinition(!s.contains("%ES;"), "Terminator cannot contain ES")
+    }
+    c
+  }
 
   lazy val hasInitiator = initiator.isKnownNonEmpty
   lazy val hasTerminator = terminator.isKnownNonEmpty
@@ -58,7 +85,14 @@ trait SequenceRuntimeValuedPropertiesMixin
   with Sequence_AnnotationMixin
   with RawSequenceRuntimeValuedPropertiesMixin { decl: Sequence =>
 
-  lazy val separator = expressionCompiler.compile('String, separatorRaw)
+  lazy val separator = {
+    val c = expressionCompiler.compile('String, separatorRaw)
+    if (c.isConstant) {
+      val s = c.constantAsString
+      this.schemaDefinition(!s.contains("%ES;"), "Separator cannot contain ES")
+    }
+    c
+  }
 }
 
 trait SimpleTypeRuntimeValuedPropertiesMixin
@@ -71,45 +105,78 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
   // def escapeCharacterExpr = ExpressionCompiler.compile('String, es.getProperty("escapeCharacter"))
   // def escapeEscapeCharacterExpr = ExpressionCompiler.compile('String, es.getProperty("escapeEscapeCharacter"))
 
-  //def textStandardDecimalSeparator = expressionCompiler.compile('String, textStandardDecimalSeparatorRaw)
-  def textStandardDecimalSeparator: List[CompiledExpression] = {
-    this.schemaDefinition(textStandardDecimalSeparatorRaw.length() > 0, "textStandardDecimalSeparator may not be empty!")
-    val l = new ListOfSingleCharacterLiteral(textStandardDecimalSeparatorRaw, this)
-    val res: ListBuffer[CompiledExpression] = ListBuffer.empty
-    l.cooked.foreach( x => res += expressionCompiler.compile('String, x))
-    res.toList
+  // TODO: Will need to 'evaluate' and perform entity replacement on textStandardDecimalSeparator in Parser where it is used.
+  def textStandardDecimalSeparator = {
+    val c = expressionCompiler.compile('String, textStandardDecimalSeparatorRaw)
+    if (c.isConstant) {
+      val s = c.constantAsString
+      this.schemaDefinition(!s.contains("%NL;"), "textStandardDecimalSeparator cannot contain NL")
+      this.schemaDefinition(!s.contains("%WSP;"), "textStandardDecimalSeparator cannot contain WSP")
+      this.schemaDefinition(!s.contains("%WSP*;"), "textStandardDecimalSeparator cannot contain WSP*")
+      this.schemaDefinition(!s.contains("%WSP+;"), "textStandardDecimalSeparator cannot contain WSP+")
+      this.schemaDefinition(!s.contains("%ES;"), "textStandardDecimalSeparator cannot contain ES")
+    }
+    c
   }
 
   //def textStandardGroupingSeparator = expressionCompiler.compile('String, EntityReplacer.replaceAll(textStandardGroupingSeparatorRaw))
-  def textStandardGroupingSeparator = expressionCompiler.compile('String, {
-    this.schemaDefinition(textStandardGroupingSeparatorRaw.length() > 0, "textStandardGroupingSeparator may not be empty!")
-    val l = new SingleCharacterLiteral(textStandardGroupingSeparatorRaw, this)
-    l.cooked
-  })
+  // TODO: Will need to 'evaluate' and perform entity replacement on textStandardGroupingSeparator in Parser where it is used.
+  def textStandardGroupingSeparator = {
+    val c = expressionCompiler.compile('String, textStandardGroupingSeparatorRaw)
+    if (c.isConstant) {
+      val s = c.constantAsString
+      this.schemaDefinition(!s.contains("%NL;"), "textStandardGroupingSeparator cannot contain NL")
+      this.schemaDefinition(!s.contains("%WSP;"), "textStandardGroupingSeparator cannot contain WSP")
+      this.schemaDefinition(!s.contains("%WSP*;"), "textStandardGroupingSeparator cannot contain WSP*")
+      this.schemaDefinition(!s.contains("%WSP+;"), "textStandardGroupingSeparator cannot contain WSP+")
+      this.schemaDefinition(!s.contains("%ES;"), "textStandardGroupingSeparator cannot contain ES")
+    }
+    c
+  }
 
   // TODO: update when textStandardExponentCharacter is phased out.
+  // Note: name changed to suffix of "...Rep" via Errata
   def textStandardExponentRep = {
-    this.schemaDefinition(textStandardExponentRepRaw.length() > 0, "textStandardExponentRep may not be empty!")
-    expressionCompiler.compile('String, EntityReplacer.replaceAll(textStandardExponentRepRaw)) // Note: name changed to suffix of "...Rep" via Errata
+    val c = expressionCompiler.compile('String, textStandardExponentRepRaw)
+    if (c.isConstant) {
+      val s = c.constantAsString
+      this.schemaDefinition(!s.contains("%NL;"), "textStandardExponentRep cannot contain NL")
+      this.schemaDefinition(!s.contains("%WSP;"), "textStandardExponentRep cannot contain WSP")
+      this.schemaDefinition(!s.contains("%WSP*;"), "textStandardExponentRep cannot contain WSP*")
+      this.schemaDefinition(!s.contains("%WSP+;"), "textStandardExponentRep cannot contain WSP+")
+      this.schemaDefinition(!s.contains("%ES;"), "textStandardExponentRep cannot contain ES")
+    }
+    c
   }
-  
+   
   def binaryFloatRep = expressionCompiler.compile('String, binaryFloatRepRaw)
-  
-  //def textBooleanTrueRep = expressionCompiler.compile('String, EntityReplacer.replaceAll(textBooleanTrueRepRaw))
-  def textBooleanTrueRep: List[CompiledExpression] = {
-    this.schemaDefinition(textBooleanTrueRepRaw.length > 0, "textBooleanTrueRep may not be empty!")
-    val l = new ListOfStringValueAsLiteral(textBooleanTrueRepRaw, this)
-    val res: ListBuffer[CompiledExpression] = ListBuffer.empty
-    l.cooked.foreach( x => res += expressionCompiler.compile('String, x))
-    res.toList
+
+  // TODO: Will need to 'evaluate' and perform entity replacement on textBooleanTrueRep in Parser where it is used.
+  def textBooleanTrueRep = {
+    val c = expressionCompiler.compile('String, textBooleanTrueRepRaw)
+    if (c.isConstant) {
+      val s = c.constantAsString
+      this.schemaDefinition(!s.contains("%NL;"), "textBooleanTrueRep cannot contain NL")
+      this.schemaDefinition(!s.contains("%WSP;"), "textBooleanTrueRep cannot contain WSP")
+      this.schemaDefinition(!s.contains("%WSP*;"), "textBooleanTrueRep cannot contain WSP*")
+      this.schemaDefinition(!s.contains("%WSP+;"), "textBooleanTrueRep cannot contain WSP+")
+      this.schemaDefinition(!s.contains("%ES;"), "textBooleanTrueRep cannot contain ES")
+    }
+    c
   }
-//  def textBooleanFalseRep = expressionCompiler.compile('String, EntityReplacer.replaceAll(textBooleanFalseRepRaw))
-  def textBooleanFalseRep: List[CompiledExpression] = {
-    this.schemaDefinition(textBooleanFalseRepRaw.length > 0, "textBooleanFalseRep may not be empty!")
-    val l = new ListOfStringValueAsLiteral(textBooleanFalseRepRaw, this)
-    val res: ListBuffer[CompiledExpression] = ListBuffer.empty
-    l.cooked.foreach( x => res += expressionCompiler.compile('String, x))
-    res.toList
+
+  // TODO: Will need to 'evaluate' and perform entity replacement on textBooleanFalseRep in Parser where it is used.
+  def textBooleanFalseRep = {
+    val c = expressionCompiler.compile('String, textBooleanFalseRepRaw)
+    if (c.isConstant) {
+      val s = c.constantAsString
+      this.schemaDefinition(!s.contains("%NL;"), "textBooleanFalseRep cannot contain NL")
+      this.schemaDefinition(!s.contains("%WSP;"), "textBooleanFalseRep cannot contain WSP")
+      this.schemaDefinition(!s.contains("%WSP*;"), "textBooleanFalseRep cannot contain WSP*")
+      this.schemaDefinition(!s.contains("%WSP+;"), "textBooleanFalseRep cannot contain WSP+")
+      this.schemaDefinition(!s.contains("%ES;"), "textBooleanFalseRep cannot contain ES")
+    }
+    c
   }
 
 }

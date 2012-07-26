@@ -104,12 +104,12 @@ trait TextNumberFormatMixin extends PropertyMixin {
   lazy val textStandardInfinityRep = {
     val raw = getProperty("textStandardInfinityRep")
 
-    this.schemaDefinition(raw.length() > 0, "textStandardZeroRep cannot be empty!")
-    this.schemaDefinition(!raw.contains("%NL;"), "textStandardZeroRep cannot contain %NL;!")
-    this.schemaDefinition(!raw.contains("%ES;"), "textStandardZeroRep cannot contain %ES;!")
-    this.schemaDefinition(!raw.contains("%WSP;"), "textStandardZeroRep cannot contain %WSP;!")
-    this.schemaDefinition(!raw.contains("%WSP+;"), "textStandardZeroRep cannot contain %WSP+;!")
-    this.schemaDefinition(!raw.contains("%WSP*;"), "textStandardZeroRep cannot contain %WSP*;!")
+    this.schemaDefinition(raw.length() > 0, "textStandardInfinityRep cannot be empty!")
+    this.schemaDefinition(!raw.contains("%NL;"), "textStandardInfinityRep cannot contain NL!")
+    this.schemaDefinition(!raw.contains("%ES;"), "textStandardInfinityRep cannot contain ES!")
+    this.schemaDefinition(!raw.contains("%WSP;"), "textStandardInfinityRep cannot contain WSP!")
+    this.schemaDefinition(!raw.contains("%WSP+;"), "textStandardInfinityRep cannot contain WSP+!")
+    this.schemaDefinition(!raw.contains("%WSP*;"), "textStandardInfinityRep cannot contain WSP*!")
     //TODO: Cannot contain raw bytes
 
     val l = new StringValueAsLiteral(raw, this)
@@ -119,12 +119,12 @@ trait TextNumberFormatMixin extends PropertyMixin {
   lazy val textStandardNaNRep = {
     val raw = getProperty("textStandardNaNRep")
 
-    this.schemaDefinition(raw.length() > 0, "textStandardZeroRep cannot be empty!")
-    this.schemaDefinition(!raw.contains("%NL;"), "textStandardZeroRep cannot contain %NL;!")
-    this.schemaDefinition(!raw.contains("%ES;"), "textStandardZeroRep cannot contain %ES;!")
-    this.schemaDefinition(!raw.contains("%WSP;"), "textStandardZeroRep cannot contain %WSP;!")
-    this.schemaDefinition(!raw.contains("%WSP+;"), "textStandardZeroRep cannot contain %WSP+;!")
-    this.schemaDefinition(!raw.contains("%WSP*;"), "textStandardZeroRep cannot contain %WSP*;!")
+    this.schemaDefinition(raw.length() > 0, "textStandardNaNRep cannot be empty!")
+    this.schemaDefinition(!raw.contains("%NL;"), "textStandardNaNRep cannot contain NL!")
+    this.schemaDefinition(!raw.contains("%ES;"), "textStandardNaNRep cannot contain ES!")
+    this.schemaDefinition(!raw.contains("%WSP;"), "textStandardNaNRep cannot contain WSP!")
+    this.schemaDefinition(!raw.contains("%WSP+;"), "textStandardNaNRep cannot contain WSP+!")
+    this.schemaDefinition(!raw.contains("%WSP*;"), "textStandardNaNRep cannot contain WSP*!")
     //TODO: Cannot contain raw bytes
 
     val l = new StringValueAsLiteral(raw, this)
@@ -134,8 +134,8 @@ trait TextNumberFormatMixin extends PropertyMixin {
     val raw = getProperty("textStandardZeroRep")
 
     // Literal Empty String allowed!
-    this.schemaDefinition(!raw.contains("%NL;"), "textStandardZeroRep cannot contain %NL;!")
-    this.schemaDefinition(!raw.contains("%ES;"), "textStandardZeroRep cannot contain %ES;!")
+    this.schemaDefinition(!raw.contains("%NL;"), "textStandardZeroRep cannot contain NL!")
+    this.schemaDefinition(!raw.contains("%ES;"), "textStandardZeroRep cannot contain ES!")
     //TODO: Cannot contain raw bytes
 
     val l = new ListOfStringValueAsLiteral(raw, this)
@@ -145,32 +145,49 @@ trait TextNumberFormatMixin extends PropertyMixin {
 
 trait NillableMixin extends PropertyMixin
   with daffodil.schema.annotation.props.gen.NilKindMixin
-  with daffodil.schema.annotation.props.gen.NilValueDelimiterPolicyMixin{
+  with daffodil.schema.annotation.props.gen.NilValueDelimiterPolicyMixin
+  with daffodil.schema.annotation.props.gen.RepresentationMixin {
+  
+  // Information regarding Representation was needed here to characterize
+  // appropriate behavior of nilValue
   lazy val nilValue = {
     val raw = getProperty("nilValue")
 
+    this.schemaDefinition(raw.length() > 0, "nilValue cannot be empty!")
+
+    // Commented out replacement because the replacement takes place within
+    // the Parser of StaticText/DynamicText
     this.nilKind match {
       case daffodil.schema.annotation.props.gen.NilKind.LiteralCharacter => {
-        this.schemaDefinition(!raw.contains("%NL;"), "textStandardZeroRep cannot contain %NL;!")
-        this.schemaDefinition(!raw.contains("%ES;"), "textStandardZeroRep cannot contain %ES;!")
-        this.schemaDefinition(!raw.contains("%WSP;"), "textStandardZeroRep cannot contain %WSP;!")
-        this.schemaDefinition(!raw.contains("%WSP+;"), "textStandardZeroRep cannot contain %WSP+;!")
-        this.schemaDefinition(!raw.contains("%WSP*;"), "textStandardZeroRep cannot contain %WSP*;!")
-//        val l = new SingleCharacterLiteral(raw, this)
-//        List(l.cooked)
+        this.schemaDefinition(!raw.contains("%NL;"), "nilValue cannot contain NL!")
+        this.schemaDefinition(!raw.contains("%ES;"), "nilValue cannot contain ES!")
+        this.schemaDefinition(!raw.contains("%WSP;"), "nilValue cannot contain WSP!")
+        this.schemaDefinition(!raw.contains("%WSP+;"), "nilValue cannot contain WSP+!")
+        this.schemaDefinition(!raw.contains("%WSP*;"), "nilValue cannot contain WSP*!")
+        //        val l = new SingleCharacterLiteral(raw, this)
+        //        List(l.cooked)
       }
       case daffodil.schema.annotation.props.gen.NilKind.LogicalValue => {
-        this.schemaDefinition(!raw.contains("%NL;"), "textStandardZeroRep cannot contain %NL;!")
-        this.schemaDefinition(!raw.contains("%ES;"), "textStandardZeroRep cannot contain %ES;!")
-        this.schemaDefinition(!raw.contains("%WSP;"), "textStandardZeroRep cannot contain %WSP;!")
-        this.schemaDefinition(!raw.contains("%WSP+;"), "textStandardZeroRep cannot contain %WSP+;!")
-        this.schemaDefinition(!raw.contains("%WSP*;"), "textStandardZeroRep cannot contain %WSP*;!")
-//        val l = new ListOfStringValueAsLiteral(raw, this)
-//        l.cooked
+        this.schemaDefinition(!raw.contains("%NL;"), "nilValue cannot contain NL!")
+        this.schemaDefinition(!raw.contains("%ES;"), "nilValue cannot contain ES!")
+        this.schemaDefinition(!raw.contains("%WSP;"), "nilValue cannot contain WSP!")
+        this.schemaDefinition(!raw.contains("%WSP+;"), "nilValue cannot contain WSP+!")
+        this.schemaDefinition(!raw.contains("%WSP*;"), "nilValue cannot contain WSP*!")
+        //        val l = new ListOfStringValueAsLiteral(raw, this)
+        //        l.cooked
       }
       case daffodil.schema.annotation.props.gen.NilKind.LiteralValue => {
-//        val l = new ListOfStringValueAsLiteral(raw, this)
-//        l.cooked
+        this.representation match {
+          case daffodil.schema.annotation.props.gen.Representation.Binary => {
+            this.schemaDefinition(!raw.contains("%NL;"), "nilValue can only contain ES!")
+            this.schemaDefinition(!raw.contains("%WSP;"), "nilValue can only contain ES!")
+            this.schemaDefinition(!raw.contains("%WSP+;"), "nilValue can only contain ES!")
+            this.schemaDefinition(!raw.contains("%WSP*;"), "nilValue can only contain ES!")
+          }
+          case daffodil.schema.annotation.props.gen.Representation.Text => {}
+        }
+        //        val l = new ListOfStringValueAsLiteral(raw, this)
+        //        l.cooked
       }
     }
     raw

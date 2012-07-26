@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="entities" description="Tests for entities"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+	xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="sch1">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="root" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator=", %ES;">
+					<xs:element name="a" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" />
+					<xs:element name="b" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="entity_fail_01" root="root"
+		model="sch1" description="Separator cannot contain ES.">
+		<tdml:document>
+			<tdml:documentPart type="text">0,1</tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>Separator</tdml:error>
+			<tdml:error>cannot</tdml:error>
+			<tdml:error>contain</tdml:error>
+			<tdml:error>ES</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:defineSchema name="sch2">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="root" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," >
+					<xs:element name="a" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:initiator=": %ES;" />
+					<xs:element name="b" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="entity_fail_02" root="root"
+		model="sch2" description="Initiator cannot contain ES.">
+		<tdml:document>0,1</tdml:document>
+		<tdml:errors>
+			<tdml:error>Initiator</tdml:error>
+			<tdml:error>cannot</tdml:error>
+			<tdml:error>contain</tdml:error>
+			<tdml:error>ES</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:defineSchema name="sch3">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="root" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," >
+					<xs:element name="a" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:terminator=": %ES;" />
+					<xs:element name="b" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="entity_fail_03" root="root"
+		model="sch3" description="Terminator cannot contain ES.">
+		<tdml:document>0,1</tdml:document>
+		<tdml:errors>
+			<tdml:error>Terminator</tdml:error>
+			<tdml:error>cannot</tdml:error>
+			<tdml:error>contain</tdml:error>
+			<tdml:error>ES</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:defineSchema name="sch4">
+		<dfdl:format initiator="" terminator="" separator=""
+			separatorPolicy="suppressed" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
+			representation="text" occursCountKind="parsed"
+			nilValueDelimiterPolicy="none" nilValue="" nilKind="literalValue"
+			textNumberRep="standard" ignoreCase="no" />
+		<xs:element name="root" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:terminator=";" >
+					<xs:element name="a" nillable="true" type="xs:int" dfdl:lengthKind="delimited"  />
+					<xs:element name="b" nillable="true" type="xs:int" dfdl:lengthKind="delimited"  />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="entity_fail_04" root="root"
+		model="sch4" description="nilValue when nilKind='literalValue' and representation='text' cannot be empty.">
+		<tdml:document>0,;</tdml:document>
+		<tdml:errors>
+			<tdml:error>nilValue</tdml:error>
+			<tdml:error>cannot</tdml:error>
+			<tdml:error>be</tdml:error>
+			<tdml:error>empty</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:defineSchema name="sch5">
+		<dfdl:format initiator="" terminator="" separator=""
+			separatorPolicy="suppressed" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
+			representation="binary" occursCountKind="parsed"
+			nilValueDelimiterPolicy="none" nilValue="" nilKind="literalValue"
+			textNumberRep="standard" ignoreCase="no" byteOrder="bigEndian" />
+		<xs:element name="root" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:terminator=";" >
+					<xs:element name="a" nillable="true" type="xs:int" dfdl:lengthKind="delimited"  />
+					<xs:element name="b" nillable="true" type="xs:int" dfdl:lengthKind="delimited"  />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="entity_fail_05" root="root"
+		model="sch5" description="nilValue when nilKind='literalValue' and representation='binary' cannot be empty.">
+		<tdml:document><tdml:documentPart type="byte">000000003C3B</tdml:documentPart></tdml:document>
+		<tdml:errors>
+			<tdml:error>nilValue</tdml:error>
+			<tdml:error>cannot</tdml:error>
+			<tdml:error>be</tdml:error>
+			<tdml:error>empty</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:defineSchema name="sch6">
+		<dfdl:format initiator="" terminator="" separator=""
+			separatorPolicy="suppressed" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
+			representation="binary" occursCountKind="parsed"
+			nilValueDelimiterPolicy="none" nilValue="%NL;" nilKind="literalValue"
+			textNumberRep="standard" ignoreCase="no" byteOrder="bigEndian" binaryNumberRep="binary"/>
+		<xs:element name="root" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:terminator=";" >
+					<xs:element name="a" nillable="true" type="xs:int" dfdl:lengthKind="delimited"  />
+					<xs:element name="b" nillable="true" type="xs:int" dfdl:lengthKind="delimited"  />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="entity_fail_06" root="root"
+		model="sch6" description="nilValue when nilKind='literalValue' and representation='binary' cannot contain NL, WSP/*/+">
+		<tdml:document><tdml:documentPart type="byte">000000003C3B</tdml:documentPart></tdml:document>
+		<tdml:errors>
+			<tdml:error>nilValue</tdml:error>
+			<tdml:error>can</tdml:error>
+			<tdml:error>only</tdml:error>
+			<tdml:error>contain</tdml:error>
+			<tdml:error>ES</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+</tdml:testSuite>
