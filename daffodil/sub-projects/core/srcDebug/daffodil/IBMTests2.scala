@@ -17,11 +17,8 @@ class IBMTestRegressions extends JUnit3Suite {
   val tdml2 = testDir + "dpaext2.tdml"
   val runner1 = new DFDLTestSuite(new File(tdml1))
   val runner2 = new DFDLTestSuite(new File(tdml2))
-  // MikeB: I'm not sure when this started failing. It was working at one point.
-  // not sure what broke it.
-  
-    def test_delimiter_12_03() { runner1.runOneTest("delimiter_12_03") }
-  
+
+  // Nothing here! Great!
 }
 
 class IBMTestsThatThrow extends JUnit3Suite {

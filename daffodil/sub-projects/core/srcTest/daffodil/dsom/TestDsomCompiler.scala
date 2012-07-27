@@ -196,37 +196,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertTrue(elem.isInstanceOf[LocalElementDecl])
   }
 
-  //  // @Test
-  //  def testInputValueCalc1() {
-  //    val testSchema = TestUtils.dfdlTestSchema(
-  //      <dfdl:format ref="tns:daffodilTest1"/>,
-  //      <xs:element name="data" type="xs:string" dfdl:textNumberRep="standard" dfdl:representation="text" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:inputValueCalc="{ 42 }" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:length="1"/>)
-  //    val actual = Compiler.testString(testSchema, "")
-  //    val actualString = actual.result.toString
-  //    assertTrue(actualString.contains("<data"))
-  //    assertTrue(actualString.contains(">42</data>"))
-  //
-  //    Compiler.testUnparsing(testSchema, actual.result, "42")
-  //  }
 
-  // @Test
-  //  def testInputValueCalc2() {
-  //    val testSchema = TestUtils.dfdlTestSchema(
-  //      <dfdl:format ref="tns:daffodilTest1"/>,
-  //      <xs:element name="data">
-  //        <xs:complexType>
-  //         <xs:sequence>
-  //           <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
-  //           <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../e1 }" />
-  //         </xs:sequence>
-  //        </xs:complexType>
-  //      </xs:element>)
-  //
-  //    val actual = Compiler.testString(testSchema, "A")
-  //    val actualString = actual.result.toString
-  //    assertTrue(actualString.contains("<data"))
-  //    assertTrue(actualString.contains("><e1>A</e1><e2>A</e2></data>"))
-  //  }
 
   // @Test
   def testInitiator() {
@@ -1003,6 +973,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     val (nsURI, localName) = ge1.formatAnnotation.getQName("ref1")
 
     println(nsURI + ", " + localName)
+    assertEquals("ref1", localName)
+    assertEquals(XMLUtils.EXAMPLE_NAMESPACE, nsURI)
   }
 
   def testGetAllNamespaces() {

@@ -3,7 +3,6 @@ package daffodil.grammar
 import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.charset.{ CharsetEncoder, CoderResult }
 import scala.collection.JavaConversions._
-import daffodil.xml.Namespaces
 import daffodil.dsom.{ ElementBase, GlobalElementDecl, Term, SchemaComponent, Compiler }
 import daffodil.api.{ DFDL, Diagnostic, DataLocation }
 import daffodil.processors.{ VariableMap, ProcessorResult, Failure, Success }
@@ -12,6 +11,7 @@ import daffodil.exceptions.Assert
 import daffodil.schema.annotation.props.PropertyMixin
 import stringsearch.constructs.EscapeScheme.log
 import junit.framework.Assert.assertTrue
+import daffodil.dsom.AnnotatedSchemaComponent
 
 class UnparseError(sc: SchemaComponent, ustate: Option[UState], kind: String, args: Any*) extends ProcessingError {
   def isError = true
@@ -43,7 +43,7 @@ class UnparseError(sc: SchemaComponent, ustate: Option[UState], kind: String, ar
 /**
  * Encapsulates lower-level unparsing with a uniform interface
  */
-abstract class Unparser(val context: Term) extends Logging {
+abstract class Unparser(val context: AnnotatedSchemaComponent) extends Logging {
 
   def UE(ustate: UState, kind: String, args: Any*) = {
     ustate.outStream.clearCharBuffer()
@@ -70,7 +70,7 @@ class ErrorUnparser(context: Term = null) extends Unparser(context) {
   override def toString = "Error Unparser"
 }
 
-class SeqCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context) {
+class SeqCompUnparser(context: AnnotatedSchemaComponent, p: Gram, q: Gram) extends Unparser(context) {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pUnparser = p.unparser
   val qUnparser = q.unparser
@@ -94,7 +94,7 @@ class SeqCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context)
 // try the next branch when it fails because the infoset doesn't match the element
 // declaration of the schema somehow?
 //
-class AltCompUnparser(context: Term, p: Gram, q: Gram) extends Unparser(context) {
+class AltCompUnparser(context: AnnotatedSchemaComponent, p: Gram, q: Gram) extends Unparser(context) {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pUnparser = p.unparser
   val qUnparser = q.unparser
@@ -259,7 +259,7 @@ class UState(
   val rootName: String,
   val variableMap: VariableMap,
   val target: String,
-  val namespaces: Namespaces,
+  val namespaces: Any, // Namespaces,
   val status: ProcessorResult,
   val groupIndexStack: List[Long],
   val childIndexStack: List[Long],
@@ -356,7 +356,7 @@ object UState {
 
     val variables = new VariableMap()
     val targetNamespace = rootElemDecl.schemaDocument.targetNamespace
-    val namespaces = new Namespaces()
+    val namespaces = null // new Namespaces()
     val status = Success
     val groupIndexStack = Nil
     val childIndexStack = Nil

@@ -27,7 +27,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
      * the state to be referring to this new element as what we're parsing data into.
      */
     def parse(start: PState): PState = {
-      val currentElement = new org.jdom.Element(e.name, e.namespace)
+      val currentElement = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
       log(Debug("currentElement = %s", currentElement))
       val priorElement = start.parentForAddContent
       priorElement.addContent(currentElement)
@@ -100,7 +100,7 @@ case class ComplexElementBeginPattern(e: ElementBase)
         }
       }
 
-      val currentElement = new org.jdom.Element(e.name, e.namespace)
+      val currentElement = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
       log(Debug("currentElement = %s", currentElement))
       val priorElement = postState1.parentForAddContent
       priorElement.addContent(currentElement)
@@ -241,6 +241,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
 
       //      start.outStream.setEncoder(encoder)
       start.outStream.fillCharBuffer(data)
+
       log(Debug("Unparsed: " + start.outStream.getData))
       start
     }
@@ -349,7 +350,6 @@ case class StringDelimitedEndOfData(e: ElementBase)
   with WithParseErrorThrowing {
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
-  //lazy val tm = e.terminatingMarkup
   lazy val tm = e.allTerminatingMarkup
   lazy val cname = toString
 
@@ -366,15 +366,8 @@ case class StringDelimitedEndOfData(e: ElementBase)
         val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
         var bitOffset = 0L
 
-        //val delimiters2 = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
-        val delimiters2 = e.allTerminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList)
-        val delimiters = delimiters2.flatten(x => x)
+        val delimsCooked = e.allTerminatingMarkup.map(x => { new daffodil.dsom.ListOfStringValueAsLiteral(x.evaluate(start.parent, start.variableMap).asInstanceOf[String], e).cooked }).flatten
 
-        val delimsCooked: Queue[String] = new Queue
-
-        delimiters.foreach(x => delimsCooked.enqueue(EntityReplacer.replaceAll(x)))
-
-        //log(Debug("StringDelimitedEndOfData - Looking for: " + delimiters + " Count: " + delimiters.length))
         log(Debug("StringDelimitedEndOfData - " + eName + " - Looking for: " + delimsCooked + " Count: " + delimsCooked.length))
 
         val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set.empty, delimsCooked.toSet, esObj)
@@ -740,7 +733,7 @@ case class ConvertTextFloatPrim(e: ElementBase) extends ConvertTextFloatingPoint
 //  }
 //}
 
-abstract class Primitive(e: Term, guard: Boolean = false)
+abstract class Primitive(e: AnnotatedSchemaComponent, guard: Boolean = false)
   extends Terminal(e, guard) {
   override def toString = "Prim[" + name + "]"
   def parser: Parser = DummyParser(e)
@@ -973,14 +966,23 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
 
-  def parser: Parser = new Parser(e) {
+  val term = e.asInstanceOf[Term]
+  lazy val separators = delim.split("\\s").toList
+  lazy val terminators = term.allTerminatingMarkup.map(x => x.constantAsString)
+  lazy val terminatorsFiltered = terminators.filterNot(x => separators.contains(x))
 
-    val t = e.asInstanceOf[Term]
+  val separatorsCooked: Queue[String] = new Queue
+  val terminatorsCooked: Queue[String] = new Queue
+
+  separators.foreach(x => separatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
+  terminatorsFiltered.foreach(x => terminatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
+
+  def parser: Parser = new Parser(e) {
 
     Assert.notYetImplemented(e.ignoreCase == YesNo.Yes)
 
     Assert.invariant(delim != "") // shouldn't be here at all in this case.
-    override def toString = "StaticText('" + delim + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"
+    override def toString = "StaticText('" + delim + "' with terminating markup: " + term.prettyTerminatingMarkup + ")"
     val decoder = e.knownEncodingDecoder
     val cbuf = CharBuffer.allocate(1024)
 
@@ -994,15 +996,18 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
         log(Debug("StaticText - " + eName + " - Parsing delimiter at byte position: " + (start.bitPos >> 3)))
         log(Debug("StaticText - " + eName + " - Parsing delimiter at bit position: " + start.bitPos))
 
-        val separators = delim.split("\\s").toList
-        val terminators = t.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList).flatten
+        //val separators = delim //.split("\\s").toList
+        //val separators = new daffodil.dsom.ListOfStringValueAsLiteral(delim.evaluate(start.parent, start.variableMap).asInstanceOf[String], e).cooked
+        //val terminators = t.terminatingMarkup.map(x => { new daffodil.dsom.ListOfStringValueAsLiteral(x.evaluate(start.parent, start.variableMap).asInstanceOf[String], e).cooked}).flatten
 
-        val terminatorsFiltered = terminators.filterNot(x => separators.contains(x))
-        val separatorsCooked: Queue[String] = new Queue
-        val terminatorsCooked: Queue[String] = new Queue
+//        val x = new daffodil.dsom.ListOfStringValueAsLiteral(delim.evaluate(start.parent, start.variableMap).asInstanceOf[String], e)
 
-        separators.foreach(x => separatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
-        terminatorsFiltered.foreach(x => terminatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
+        //val terminatorsFiltered = terminators.filterNot(x => separators.contains(x))
+        //        val separatorsCooked: Queue[String] = new Queue
+        //        val terminatorsCooked: Queue[String] = new Queue
+        //
+        //        separators.foreach(x => separatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
+        //        terminatorsFiltered.foreach(x => terminatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
 
         log(Debug("StaticText - " + eName + " - Looking for: " + separatorsCooked + " AND " + terminatorsCooked))
 
@@ -1016,6 +1021,7 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
         var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim) = in.getDelimiter(cbuf, start.bitPos, decoder, separatorsCooked.toSet, terminatorsCooked.toSet, esObj)
 
         if (theMatchedDelim == null) {
+          log(Debug("StaticText - " + eName + ": Delimiter not found!"))
           val postState = start.failed(this.toString() + " - " + eName + ": Delimiter not found!")
           return postState
         }
@@ -1071,6 +1077,7 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
 
   def unparserDelim: String
 }
+
 
 class DynamicDelimiter(delimExpr: CompiledExpression, e: Term, guard: Boolean = true) extends Primitive(e, guard)
 
@@ -1355,48 +1362,12 @@ case class LiteralNilValue(e: ElementBase)
     val decoder = e.knownEncodingDecoder
     val cbuf = CharBuffer.allocate(1024)
 
-    //    def parse(start: PState): PState = {
-    //      withLoggingLevel(LogLevel.Debug) {
-    //        log(Debug("LiteralNilValue - Looking for: " + e.nilValue))
-    //        val afterNilLit = stParser.parse(start)
-    //
-    //        if (afterNilLit.status != Success) start.failed("Doesn't match nil literal.")
-    //        else {
-    //          // TODO: LiteralNil Namespacing does not work.
-    //          
-    //          // The following returns 'null' for namespace.
-    //          //val xsiNS = afterNilLit.parentElement.getNamespace(XMLUtils.XSI_NAMESPACE)
-    //          val xsiNS = afterNilLit.parentElement.getNamespace()
-    // 
-    //          afterNilLit.parentElement.addContent(new org.jdom.Text(""))
-    //          
-    //          // The following fails to add the attribute due to issue with 'null' namespace.
-    //          //afterNilLit.parentElement.setAttribute("nil", "true", xsiNS)
-    //          
-    //          // TODO: Fix this LiteralNil Workaround!
-    //          afterNilLit.parentElement.setAttribute("nil", "true")
-    //          afterNilLit
-    //        }
-    //      }
-    //    }
-
     def parse(start: PState): PState = {
       withLoggingLevel(LogLevel.Debug) {
-        e.representation match {
-          case daffodil.schema.annotation.props.gen.Representation.Text => // CharClass Entities NL, WSP, WSP+, WSP* and ES allowed
-          case daffodil.schema.annotation.props.gen.Representation.Binary => {
-            // Only CharClass Entity ES allowed
-            if (e.nilValue.contains("%NL;") || e.nilValue.contains("%WSP;") ||
-              e.nilValue.contains("%WSP+;") || e.nilValue.contains("%WSP*;")) {
-              e.SDE("Literal nilValue for Binary representaiton can only have ES as a value.")
-            }
-          }
-        }
 
         // Look for nilValues first, if fails look for delimiters next
         // If delimiter is found AND nilValue contains ES, result is empty and valid.
         // If delimiter is not found, fail.
-
         val afterNilLit = stParser.parse(start)
         if (afterNilLit.status == Success) {
           val xsiNS = afterNilLit.parentElement.getNamespace()
@@ -1417,7 +1388,6 @@ case class LiteralNilValue(e: ElementBase)
 
     def delimLookup(start: PState): PState = withParseErrorThrowing(start) {
       withLoggingLevel(LogLevel.Debug) {
-        // TODO: This code was copied exactly from StaticText.  How can I do away with this?
         // TODO: We may need to keep track of Local Separators, Local Terminators and Enclosing Terminators.
 
         val eName = e.toString()
@@ -1425,13 +1395,8 @@ case class LiteralNilValue(e: ElementBase)
         log(Debug("LiteralNilValue - " + eName + " - Parsing delimiter at byte position: " + (start.bitPos >> 3)))
         log(Debug("LiteralNilValue - " + eName + " - Parsing delimiter at bit position: " + start.bitPos))
 
-        //val separators = delim.split("\\s").toList
-        val terminators = e.terminatingMarkup.map(x => x.evaluate(start.parent, start.variableMap).asInstanceOf[String].split("\\s").toList).flatten
-
-        //val separatorsCooked: Queue[String] = new Queue
         val terminatorsCooked: Queue[String] = new Queue
 
-        //separators.foreach(x => separatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
         terminators.foreach(x => terminatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
 
         log(Debug("LiteralNilValue - " + eName + " - Looking for: " + terminatorsCooked))
@@ -1443,9 +1408,10 @@ case class LiteralNilValue(e: ElementBase)
         //
         // No matter what goes wrong, we're counting on an orderly return here.
         //
-        var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim) = in.getDelimiter(cbuf, start.bitPos, decoder, Set.empty, terminatorsCooked.toSet, esObj)
+        var (resultStr, endBitPos, endBitPosDelim, theState, theMatchedDelim) = in.getDelimiterNilValue(cbuf, start.bitPos, decoder, Set.empty, terminatorsCooked.toSet, esObj)
 
         if (theMatchedDelim == null) {
+          log(Debug("LiteralNilValue - " + eName + ": Delimiter not found!"))
           val postState = start.failed(this.toString() + " - " + eName + ": Delimiter not found!")
           return postState
         }
@@ -1460,23 +1426,14 @@ case class LiteralNilValue(e: ElementBase)
 
         // TODO: Is the below find even needed?  
         val m = p.matcher(result)
+        log(Debug("endBitPos: " + endBitPos + " startBitPos: " + start.bitPos))
         if (m.find() && endBitPos == start.bitPos) {
-          // The above endBitPos == start.bitPos should ensure that the delimiter was found at the
-          // start of the offset.  If it wasn't, then this is a problem!
-
-          // TODO: For numBytes, is length correct?!
-          val numBytes = result.substring(m.start(), m.end()).getBytes(decoder.charset()).length
-          val endCharPos = start.charPos + (m.end() - m.start())
-
-          endBitPosDelim = (8 * numBytes) + start.bitPos // TODO: Is this correct?
-
           log(Debug("LiteralNilValue - " + eName + " - Found " + theMatchedDelim.toString()))
-          log(Debug("LiteralNilValue - " + eName + " - Ended at byte position " + (endBitPosDelim >> 3)))
-          log(Debug("LiteralNilValue - " + eName + " - Ended at bit position " + endBitPosDelim))
-
-          val postState = start.withPos(endBitPosDelim, endCharPos)
+          // No need to advance past a delimiter since this is nil
+          val postState = start
           postState
         } else {
+          log(Debug("LiteralNilValue - " + eName + ": Delimiter not found!"))
           val postState = start.failed(this.toString() + " - " + eName + ": Delimiter not found!")
           postState
         }
@@ -1508,6 +1465,21 @@ case class UnicodeByteOrderMark(e: GlobalElementDecl) extends Primitive(e, false
 
 case class FinalUnusedRegion(e: ElementBase) extends Primitive(e, false)
 
+case class NewVariableInstance(decl : AnnotatedSchemaComponent, stmt : DFDLNewVariableInstance) extends Primitive(decl, false)
+case class AssertPrim(decl : AnnotatedSchemaComponent, stmt : DFDLAssert) extends Primitive(decl, false)
+case class Discriminator(decl : AnnotatedSchemaComponent, stmt : DFDLDiscriminator) extends Primitive(decl, false)
+
+case class SetVariable(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable) extends Terminal(decl, true) {
+  def parser: Parser = new SetVariableParser(decl, stmt)
+
+  def unparser: Unparser = new Unparser(decl) {
+    def unparse(start: UState): UState = {
+      Assert.notYetImplemented()
+    }
+  }
+}
+
+
 case class InputValueCalc(e: ElementBase with ElementDeclMixin) extends Terminal(e, true) {
 
   def parser: Parser = new IVCParser(e)
@@ -1520,37 +1492,79 @@ case class InputValueCalc(e: ElementBase with ElementDeclMixin) extends Terminal
 
 }
 
-class IVCParser(e: ElementBase with ElementDeclMixin) extends Parser(e) {
-  override def toString = "InputValueCalc(" + ivcExprText + ")"
-  val Some(ivcExprText) = e.inputValueCalcOption
-  // Only for strings for now
-  lazy val isString = {
-    e.namedTypeQName match {
-      case None => false
-      case Some((ns, local)) => {
-        val res = (local == "string" && ns == XMLUtils.XSD_NAMESPACE)
-        res
-      }
-    }
+abstract class ExpressionEvaluationParser(e : AnnotatedSchemaComponent) 
+extends Parser(e) with WithParseErrorThrowing {
+  override def toString = baseName + "(" + exprText + ")"
+  def baseName : String
+  def exprText : String
+  def expandedTypeName : String
+  lazy val expressionTypeSymbol = {
+    // println(expandedTypeName)
+    e.expressionCompiler.convertTypeString(expandedTypeName)
   }
-  Assert.notYetImplemented(!isString)
-  val ivcExpr = e.expressionCompiler.compile('String, ivcExprText)
-
-  // for unit testing
+  
+  lazy val expr = e.expressionCompiler.compile(expressionTypeSymbol, exprText)
+  
+   // for unit testing
   def testExpressionEvaluation(elem: org.jdom.Element, vmap: VariableMap) = {
-    val result = ivcExpr.evaluate(elem, vmap)
+    val result = expr.evaluate(elem, vmap)
     result
   }
 
-  def parse(start: PState): PState = withLoggingLevel(LogLevel.Debug) {
-    log(Debug("This is %s", toString))
+  def eval(start : PState) = {
     val currentElement = start.parentElement
-    val result = ivcExpr.evaluate(currentElement, start.variableMap)
-    val res = result.asInstanceOf[String] // only strings for now.
-    currentElement.addContent(new org.jdom.Text(res))
-
-    val postState = start // inputValueCalc consumes nothing. Just creates a value.
-    postState
+    val result =
+      expr.evaluate(currentElement, start.variableMap)
+    val res = result.toString // Everything in JDOM is a string!
+    res
   }
 }
 
+class IVCParser(e: ElementBase with ElementDeclMixin) 
+  extends ExpressionEvaluationParser(e) {
+  Assert.invariant(e.isSimpleType)
+  val baseName = "InputValueCalc"
+ 
+  lazy val Some(exprText) = e.inputValueCalcOption
+ 
+  lazy val pt = e.primType
+  lazy val ptn = pt.name
+  lazy val expandedTypeName = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, ptn)
+
+  def parse(start : PState) : PState =
+    withLoggingLevel(LogLevel.Debug) {
+      withParseErrorThrowing(start) {
+        log(Debug("This is %s", toString))
+        val currentElement = start.parentElement
+        val res = eval(start)
+        currentElement.addContent(new org.jdom.Text(res))
+        val postState = start // inputValueCalc consumes nothing. Just creates a value.
+        postState
+      }
+    }
+}
+
+class SetVariableParser(decl: AnnotatedSchemaComponent, stmt : DFDLSetVariable) 
+extends ExpressionEvaluationParser(decl) {
+  val baseName = "SetVariable"
+ 
+  lazy val exprText = stmt.value
+  val (uri, localName) = XMLUtils.QName(decl.xml, stmt.ref, decl.schemaDocument)
+  val defv = decl.schema.schemaSet.getDefineVariable(uri, localName).getOrElse(
+      null // stmt.schemaDefinitionError("Unknown variable: %s", stmt.ref)
+      )
+      
+  val (typeURI, typeName) = XMLUtils.QName(decl.xml, defv.type_, decl.schemaDocument)
+  val expandedTypeName = XMLUtils.expandedQName(typeURI, typeName)
+
+  def parse(start : PState) : PState =
+    withLoggingLevel(LogLevel.Debug) {
+      withParseErrorThrowing(start) {
+        log(Debug("This is %s", toString))
+        val res = eval(start)
+        defv.variable.set(res)
+        val postState = start // setVariable consumes nothing. Just assigns a value.
+        postState
+      }
+    }
+}

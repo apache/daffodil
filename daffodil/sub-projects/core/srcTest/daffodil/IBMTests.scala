@@ -32,9 +32,7 @@ class IBMTestsThatPass extends JUnit3Suite {
   def test_length_delimited_12_02() { runner1.runOneTest("length_delimited_12_02") }
   def test_length_delimited_12_03() { runner1.runOneTest("length_delimited_12_03") }
 
-  // REGRESSED - See IBMTests2 in srcDebug tree.
-  // def test_delimiter_12_03() { runner1.runOneTest("delimiter_12_03") }
-  
+  def test_delimiter_12_03() { runner1.runOneTest("delimiter_12_03") }
   def test_delimiter_12_04() { runner1.runOneTest("delimiter_12_04") }
 
   def test_schema_types_5_01() { runner1.runOneTest("schema_types_5_01") }

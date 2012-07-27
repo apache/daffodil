@@ -17,8 +17,7 @@ import daffodil.grammar._
 
 // A term is content of a group
 abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int)
-  extends SchemaComponent(xmlArg)
-  with AnnotatedMixin
+  extends AnnotatedSchemaComponent(xmlArg)
   with LocalComponentMixin
   with DFDLStatementMixin
   with TermGrammarMixin

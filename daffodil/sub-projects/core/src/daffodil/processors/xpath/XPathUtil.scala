@@ -48,13 +48,16 @@ import net.sf.saxon.jdom.NodeWrapper
 import net.sf.saxon.jdom.DocumentWrapper
 import net.sf.saxon.Configuration
 import net.sf.saxon.om.NodeInfo
-import daffodil.xml.Namespaces
+// import daffodil.xml.Namespaces
 import daffodil.exceptions._
 import daffodil.processors.VariableMap
 import daffodil.xml.XMLUtils
 import daffodil.util.Logging
 import daffodil.util.Debug
 import daffodil.util.LogLevel
+import scala.xml.NamespaceBinding
+import javax.xml.XMLConstants
+import daffodil.dsom.SchemaComponent
 
 /**
  * Utility object for evaluating XPath expressions
@@ -74,19 +77,48 @@ object XPathUtil extends Logging {
    * Returns a VariableMap=>XPathExpression, which you can think of as
    * a CompiledXPathExpressionFactory, though we didn't create that type name
    */
-  def compileExpression(dfdlExpressionRaw: String, namespaces: Namespaces) = {
+  def compileExpression(dfdlExpressionRaw: String, 
+      namespaces: Seq[org.jdom.Namespace],
+      context : Option[SchemaComponent]) = withLoggingLevel(LogLevel.Debug){
+    log(Debug("Compiling expression"))
     val dfdlExpression = dfdlExpressionRaw.trim
     Assert.usage(dfdlExpression != "")
     // strip leading and trailing {...} if they are there.
     val expression = if (isExpression(dfdlExpression)) getExpression(dfdlExpression) else dfdlExpression
         
     val xpath = xpathFactory.newXPath()
-    var variables: VariableMap = new VariableMap() // dummy for now.
-    xpath setNamespaceContext (namespaces)
+    var variables: VariableMap = new VariableMap() // Closed over. This is modified to supply different variables
+    log(Debug("Namespaces: %s", namespaces))
+    
+    val nsContext = new javax.xml.namespace.NamespaceContext {
+      
+      val pairs = namespaces.map{ ns => (ns.getPrefix, ns.getURI)}
+      val ht = pairs.toMap
+      
+      def getNamespaceURI(prefix : String) = {
+        if (prefix == null)
+           throw new IllegalArgumentException("The prefix cannot be null.");
+        ht.get(prefix).getOrElse(null)
+      }
+      def getPrefixes(uri : String) = Assert.invariantFailed("supposed to be unused.")
+      def getPrefix(uri : String) : String = Assert.invariantFailed("supposed to be unused.")
+//      {
+//        getPrefixList(uri).head
+//      }
+//      private def getPrefixList(uri : String) : Seq[String] = {
+//        val submap = ht.filter{ case (pre, ns) => uri == ns}
+//        val prefixes = submap.map{ case (pre, ns) => pre }
+//        prefixes.toSeq
+//      }
+    } 
+    
+    xpath setNamespaceContext (nsContext)
     xpath.setXPathVariableResolver(
       new XPathVariableResolver() {
-        def resolveVariable(qName: QName): Object =
-          variables.readVariable(qName.getNamespaceURI + qName.getLocalPart)
+        def resolveVariable(qName: QName): Object = {     
+          val varName = XMLUtils.expandedQName(qName)
+          variables.readVariable(varName, context)
+        }
       })
 
     val xpathExpr = xpath.compile(expression)
@@ -106,21 +138,26 @@ object XPathUtil extends Logging {
       def getXPathExpr(runtimeVars: VariableMap) : XPathExpression
   }
                      
-  /** Evaluates an XPath 2 expression in one shot, from string to value.
+  /** 
+   * For unit testing only.
+   * Evaluates an XPath 2 expression in one shot, from string to value.
    *
-   * @param a valid XPath expression the expression to evaluate (no surrounding brackets)
-   * @param variables the variables in scope
-   * @param contextNode the context node for this expression
-   * @param namespaces the namespaces in scope
+   * @param a valid XPath expression - the expression to evaluate (no surrounding braces)
+   * @param variables - the variables in scope
+   * @param contextNode - the context node for this expression
+   * @param namespaces  - the namespaces in scope
    */
-  def evalExpression(expression:String,variables:VariableMap,
-                     contextNode:Parent,namespaces:Namespaces) : XPathResult = {
+  private[xpath] def evalExpressionFromString(expression:String,variables:VariableMap,
+                     contextNode:Parent,namespaces:Seq[org.jdom.Namespace]) : XPathResult = {
 
-    val compiledExprExceptVariables = compileExpression(expression, namespaces)
+    val compiledExprExceptVariables = compileExpression(expression, namespaces, None)
     val res = evalExpression(expression, compiledExprExceptVariables, variables, contextNode)
     res
   }
     
+  /**
+   * Evaluates an XPath expression that has been compiled.
+   */
   def evalExpression(
       expressionForErrorMsg : String, 
       compiledExprFactory : CompiledExpressionFactory, 

@@ -5,6 +5,7 @@ import java.util.regex.Pattern
 import daffodil.exceptions.Assert
 import java.lang.Byte
 import daffodil.exceptions.ThrowsSDE
+import scala.collection.mutable.ListBuffer
 
 /**
  * Replace character entities, as well as hex/decimal numeric character entities by their unicode codepoint values.
@@ -252,13 +253,13 @@ class OneDelimiterLiteral(rawArg: String, context : ThrowsSDE)
 class ListOfStringValueAsLiteral(rawArg: String, context : ThrowsSDE)
 {
   def cooked = {
-    val list = rawArg.split("\\s")
-    val cookedList: List[String] = List.empty
+    val list = rawArg.split("\\s").toList
+    val cookedList: ListBuffer[String] = ListBuffer.empty
     list.foreach( x => {
-      val l = new StringValueAsLiteral(rawArg, context)
-      cookedList ++ l.cooked
+      val l = new StringValueAsLiteral(x, context)
+      cookedList += l.cooked
     })
-    cookedList
+    cookedList.toList
   }
 }
 
@@ -266,11 +267,11 @@ class ListOfSingleCharacterLiteral(rawArg: String, context : ThrowsSDE)
 {
   def cooked = {
     val list = rawArg.split("\\s")
-    val cookedList: List[String] = List.empty
+    val cookedList: ListBuffer[String] = ListBuffer.empty
     list.foreach( x => {
-      val l = new SingleCharacterLiteral(rawArg, context)
-      cookedList ++ l.cooked
+      val l = new SingleCharacterLiteral(x, context)
+      cookedList += l.cooked
     })
-    cookedList
+    cookedList.toList
   }
 }

@@ -83,6 +83,7 @@ abstract class ElementBase(xmlArg : Node, parent : SchemaComponent, position : I
   extends Term(xmlArg, parent, position)
   with AnnotatedMixin
   with Element_AnnotationMixin
+  with NillableMixin
   with DFDLStatementMixin
   with ElementBaseGrammarMixin
   with ElementRuntimeValuedPropertiesMixin
@@ -278,7 +279,7 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
   
   // Need to go get the Element we are referencing
   lazy val referencedElement = {
-    this.schema.schemaSet.getGlobalElementDecl(namespace, name) match {
+    this.schema.schemaSet.getGlobalElementDecl(namespace, localName) match {
       case None => SDE("Referenced element not found: %s.", this.ref)
       case Some(x) => x.forElementRef(this)
     }
@@ -293,7 +294,8 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
   lazy val isDefaultable : Boolean = referencedElement.isDefaultable
 
   lazy val qname = XMLUtils.QName(xml, xsdRef, schemaDocument)
-  override lazy val (namespace, name) = qname
+  lazy val (namespace, localName) = qname
+  override lazy val name = localName
 
   // These may be trickier, as the type needs to be responsive to properties from the
   // element reference's format annotations, and its lexical context.
@@ -434,6 +436,8 @@ trait ElementDeclMixin
       case _ => Assert.invariantFailed("Must be either SimpleType or ComplexType")
     }
   }
+  
+  lazy val isPrimitiveType = typeDef.isInstanceOf[PrimitiveType]
 
   lazy val isComplexType = LV { !isSimpleType }
 
@@ -487,7 +491,7 @@ trait ElementDeclMixin
   lazy val combinedElementAndSimpleTypeProperties = {
     var props : Map[String, String] = this.localAndFormatRefProperties
 
-    if (isSimpleType) {
+    if (isSimpleType && !isPrimitiveType ) {
       props ++= this.elementSimpleType.allNonDefaultProperties
     }
     props
@@ -518,7 +522,7 @@ class LocalElementDecl(xmlArg : Node, parent : ModelGroup, position : Int)
  */
 trait DFDLStatementMixin extends ThrowsSDE {
 
-  def annotationFactoryForDFDLStatement(node : Node, self : AnnotatedMixin) : DFDLAnnotation = {
+  def annotationFactoryForDFDLStatement(node : Node, self : AnnotatedSchemaComponent) : DFDLAnnotation = {
     node match {
       case <dfdl:assert>{ content @ _* }</dfdl:assert> => new DFDLAssert(node, self)
       case <dfdl:discriminator>{ content @ _* }</dfdl:discriminator> => new DFDLDiscriminator(node, self)
