@@ -201,7 +201,7 @@ class DelimSearcher extends Logging {
     }
     // A prefixed delimiter was not found, return the first full match
     val fullMatch = matchedDelims(0).fullMatches.toList.sortBy(x => x._1).head
-    println("Matched Delims: " + matchedDelims(0) + " " + matchedDelims(0).fullMatches.toList)
+    log(Debug("Matched Delims: %s %s", matchedDelims(0), matchedDelims(0).fullMatches.toList))
     (fullMatch._1, fullMatch._2, matchedDelims(0))
   }
 

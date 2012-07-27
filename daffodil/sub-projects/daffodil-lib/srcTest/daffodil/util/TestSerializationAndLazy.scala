@@ -14,7 +14,7 @@ import java.io.ObjectInputStream
     val v = 5
     var lazyValWasEvaluated = false
     lazy val x = {
-      println("v is " + v)
+      // println("v is " + v)
       lazyValWasEvaluated = true
       2*v
     }

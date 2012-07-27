@@ -92,7 +92,7 @@ class TestCompiledExpression2 extends JUnit3Suite {
     val resState = parser.parse(c2state)
     val updatedChild2 = resState.parentElement
     val dataNode = XMLUtils.element2Elem(updatedChild2.getParent().asInstanceOf[org.jdom.Element])
-    println(dataNode)
+    // println(dataNode)
     val result = updatedChild2.getText()
 
     assertEquals("42", result)

@@ -168,7 +168,7 @@ class TestDFDLParser extends JUnit3Suite {
     val e = intercept[Exception]{
       val actual = Compiler.testString(sch, "55.001")
     }
-    println("ERROR!!!!!" + e.getMessage())
+    // println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:int"))
   }
 
@@ -200,7 +200,7 @@ class TestDFDLParser extends JUnit3Suite {
     val e = intercept[Exception]{
       val actual = Compiler.testString(sch, "70,000")
     }
-    println("ERROR!!!!!" + e.getMessage())
+    // println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:short"))
   }
 
@@ -284,7 +284,7 @@ class TestDFDLParser extends JUnit3Suite {
     val e = intercept[Exception]{
       val actual = Compiler.testString(sch, "-3")
     }
-    println("ERROR!!!!!" + e.getMessage())
+    // println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:unsignedLong"))
   }
 
@@ -296,7 +296,7 @@ class TestDFDLParser extends JUnit3Suite {
       // As of 18:31 UTC (EST+5) Jun 8, 2012
       val actual = Compiler.testString(sch, "7,018,631,476")
     }
-    println("ERROR!!!!!" + e.getMessage())
+    // println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:unsignedInt"))
   }
 
@@ -307,7 +307,7 @@ class TestDFDLParser extends JUnit3Suite {
     val e = intercept[Exception]{
       val actual = Compiler.testString(sch, "-1")
     }
-    println("ERROR!!!!!" + e.getMessage())
+    // println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:unsignedShort"))
   }
 
@@ -318,7 +318,7 @@ class TestDFDLParser extends JUnit3Suite {
     val e = intercept[Exception]{
       val actual = Compiler.testString(sch, "256")
     }
-    println("ERROR!!!!!" + e.getMessage())
+    // println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:unsignedByte"))
   }
 

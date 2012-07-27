@@ -150,7 +150,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
 
     val list0 = ds.getPrefixedDelims(prefix, delimsQ.toList)
 
-    println(list0)
+    // println(list0)
 
     assertEquals(2, list0.length)
     assertTrue(list0.filter(x => x._1 == 1 && x._2 == 2 && x._3.delimiterStr == delim1.delimiterStr).length > 0)
@@ -718,7 +718,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     // Verify expected states encountered
     val d1: Delimiter = ds.delimiters(0)
     val trace1 = d1.stateTrace.map(x => x._1)
-    println(trace1)
+    // println(trace1)
     assertEquals(7, trace1.length)
     assertEquals(SearchState.NoMatch, trace1(0))
     assertEquals(SearchState.OtherMatch, trace1(1))
@@ -2183,11 +2183,11 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     ds.setEscapeScheme(EscapeSchemeKind.Block, "/", ":", "/*", "*/")
 
     val res0 = ds.getEscapeBlockStartList(cb0)
-    println(res0)
+    // println(res0)
     assertEquals(List.empty, res0)
 
     val res1 = ds.getEscapeBlockStartList(cb1)
-    println(res1)
+    // println(res1)
     assertEquals(List((4, 5)), res1)
   }
 
@@ -2362,7 +2362,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     ds.setEscapeScheme(EscapeSchemeKind.Character, "/", ":", "", "")
 
     val res0 = ds.getEscapeCharacterList(cb0)
-    println("res0 " + res0)
+    // println("res0 " + res0)
     assertEquals(List(4), res0)
     
     ds.addDelimiter(",")
@@ -2383,7 +2383,7 @@ class TestDelimSearcherV3 extends JUnit3Suite {
     ds.setEscapeScheme(EscapeSchemeKind.Block, "/", ":", "/*", "*/")
 
     val res0 = ds.getEscapeBlocks(cb0)
-    println("res0 " + res0)
+    // println("res0 " + res0)
     assertEquals(List((4,13)), res0)
     
     ds.addDelimiter(",")
