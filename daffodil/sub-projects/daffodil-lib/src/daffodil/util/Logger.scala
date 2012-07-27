@@ -17,6 +17,7 @@ object LogLevel extends Enumeration {
   val Error = Value(10)
   val Warning = Value(20)
   val Info = Value(30)
+  val Compile = Value(35)
   val Debug = Value(40) // does not time-stamp messages. 
 }
 
@@ -30,6 +31,10 @@ object Warning {
 
 object Info {
   def apply(msg : String, args : Any*) = new Glob(LogLevel.Info, msg, args)
+}
+
+object Compile {
+  def apply(msg : String, args : Any*) = new Glob(LogLevel.Compile, msg, args)
 }
 
 object Debug {

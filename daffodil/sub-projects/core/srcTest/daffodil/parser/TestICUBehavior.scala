@@ -62,7 +62,7 @@ class DecodeMalformedHandler extends CharsetCallback.Decoder {
     buffer : Array[Char],
     length : Int,
     cr : CoderResult) : CoderResult = {
-    println("Decode: " + cr.toString)
+    // println("Decode: " + cr.toString)
     hook()
     cr.throwException()
     cr
@@ -82,7 +82,7 @@ class DecodeUnmappableHandler extends CharsetCallback.Decoder {
     buffer : Array[Char],
     length : Int,
     cr : CoderResult) : CoderResult = {
-    println("Decode: " + cr.toString)
+    // println("Decode: " + cr.toString)
     hook()
     cr.throwException()
     cr
@@ -101,7 +101,7 @@ class EncodeMalformedHandler extends CharsetCallback.Encoder {
     length : Int,
     cp : Int,
     cr : CoderResult) : CoderResult = {
-    println("Encode: " + cr.toString)
+    // println("Encode: " + cr.toString)
     hook()
     cr.throwException()
     cr
@@ -120,7 +120,7 @@ class EncodeUnmappableHandler extends CharsetCallback.Encoder {
     length : Int,
     cp : Int,
     cr : CoderResult) : CoderResult = {
-    println("Encode: " + cr.toString)
+    // println("Encode: " + cr.toString)
     hook()
     cr.throwException()
     cr
@@ -415,7 +415,7 @@ class TestUnicodeICUErrorTolerance extends JUnit3Suite {
           buffer : Array[Char],
           length : Int,
           cr : CoderResult) : CoderResult = {
-          println("Decode: " + cr.toString)
+          // println("Decode: " + cr.toString)
           counter += 1
           // CoderResult.unmappableForLength(1)
           CoderResult.UNDERFLOW // means ok actually. Or so it seems.

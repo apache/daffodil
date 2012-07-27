@@ -239,7 +239,7 @@ abstract class TestCase(ptc : NodeSeq, val parent : DFDLTestSuite)
     runProcessor(pf, data, infoset, errors, warnings)
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
-    log(Info("Test %s passed.", id))
+    // log(Debug("Test %s passed.", id))
   }
 
   def verifyAllDiagnosticsFound(actual : WithDiagnostics, expectedDiags : Option[ErrorWarningBase]) = {
@@ -247,7 +247,7 @@ abstract class TestCase(ptc : NodeSeq, val parent : DFDLTestSuite)
     if (actualDiags.length == 0) {
       throw new Exception("""No diagnostic objects found.""")
     } else {
-      actualDiags.foreach { ad => log(Info(ad.toString)) }
+      actualDiags.foreach { ad => log(Error(ad.toString)) }
     }
     val actualDiagMsgs = actualDiags.map { _.toString }
     val expectedDiagMsgs = expectedDiags.map { _.messages }.getOrElse(Nil)

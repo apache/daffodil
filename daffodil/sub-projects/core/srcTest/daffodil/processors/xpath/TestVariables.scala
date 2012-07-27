@@ -56,7 +56,7 @@ class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
         <dfdl:defineVariable name="pi" type="xs:double" defaultValue={ Pi.toString }/>
         <xs:element name="data" type="xs:double" dfdl:inputValueCalc="{ $tns:pi }"/>
       </tdml:defineSchema>
-      <tdml:parserTestCase name="firstUnitTest" root="data" model="mySchema">
+      <tdml:parserTestCase name="testVariables2" root="data" model="mySchema">
         <tdml:document/>
         <tdml:infoset>
           <tdml:dfdlInfoset>
@@ -70,7 +70,7 @@ class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
   def testVariables2() {
     val testSuite = variables2
     val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("firstUnitTest")
+    ts.runOneTest("testVariables2")
   }
 
   val variables3 =
@@ -93,7 +93,7 @@ class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
           </xs:complexType>
         </xs:element>
       </tdml:defineSchema>
-      <tdml:parserTestCase name="firstUnitTest" root="data" model="mySchema">
+      <tdml:parserTestCase name="testVariables3" root="data" model="mySchema">
         <tdml:document>3.141592653589793</tdml:document>
         <tdml:infoset>
           <tdml:dfdlInfoset>
@@ -107,7 +107,7 @@ class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
   def testVariables3() {
     val testSuite = variables3
     val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("firstUnitTest")
+    ts.runOneTest("testVariables3")
   }
 
 }

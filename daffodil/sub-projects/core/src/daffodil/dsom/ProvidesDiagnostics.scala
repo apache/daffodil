@@ -92,7 +92,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
 
   final lazy val getDiagnostics = getDiagnostics_.value
   private lazy val getDiagnostics_ = LV{
-    val res = diagnostics.toSeq //TODO: Sort into file/schema ordering so that earlier diagnostics are about
+    val res = diagnostics.toSeq // TODO: Sort into file/schema ordering so that earlier diagnostics are about
     // earlier parts of the schema.
     res
   }

@@ -161,7 +161,7 @@ class Delimiter extends Logging {
     for (i <- 0 until delimBuf.length) {
       delimBuf(i).clear
     }
-    //TODO: Is there ever a time when we would want to reset delimIdx separately?
+    // TODO: Is there ever a time when we would want to reset delimIdx separately?
     resetDelim
   }
 

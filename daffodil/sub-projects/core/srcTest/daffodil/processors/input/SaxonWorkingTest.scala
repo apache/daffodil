@@ -31,7 +31,7 @@ class SaxonWorkingTest extends JUnit3Suite with XPathVariableResolver with Names
     def testTrivialExpression1() {
         val xpf = XPathFactory.newInstance(NamespaceConstant.OBJECT_MODEL_SAXON);
         val xpe = xpf.newXPath();
-        System.err.println("Loaded XPath Provider " + xpe.getClass().getName());
+        // System.err.println("Loaded XPath Provider " + xpe.getClass().getName());
 
         val document = """<?xml version="1.0"?><FOOBAR/>"""
         val is = new InputSource(new ByteArrayInputStream(document.toString().getBytes("utf-8")));
@@ -68,7 +68,7 @@ class SaxonWorkingTest extends JUnit3Suite with XPathVariableResolver with Names
         val compiled =  xpe.compile("16 + 26");
         // val compiled = xpe.compile("//FOOBAR")
         val matchedLines = compiled.evaluate(document, XPathConstants.NODESET);
-        System.err.println(matchedLines)
+        // System.err.println(matchedLines)
         val firstRes = matchedLines.asInstanceOf[ArrayList[BigInteger]].get(0)
         val asInt = firstRes.intValue()
         assertEquals(42, asInt)
@@ -96,7 +96,7 @@ class SaxonWorkingTest extends JUnit3Suite with XPathVariableResolver with Names
      */
 
     def getNamespaceURI(prefix : String) : String = {
-        System.err.println("Looking up: " + prefix);
+        // System.err.println("Looking up: " + prefix);
         if (prefix.equals("saxon")) {
             return "http://saxon.sf.net/";
         } else {

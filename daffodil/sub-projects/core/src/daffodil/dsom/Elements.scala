@@ -331,7 +331,7 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
  * Element references and Group References use this.
  */
 trait HasRef { self : SchemaComponent =>
-  //TODO: Consolidate this and the xsdRef attributes that do QName stuff
+  // TODO: Consolidate this and the xsdRef attributes that do QName stuff
   //From GroupRef.
   lazy val xsdRef = getAttributeRequired("ref")
   lazy val ref = xsdRef

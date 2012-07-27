@@ -6,7 +6,7 @@ import daffodil.grammar._
 import daffodil.schema.annotation.props._
 import daffodil.schema.annotation.props.gen._
 import daffodil.dsom.OOLAG._
-import daffodil.util.Info
+import daffodil.util._
 import com.ibm.icu.text.NumberFormat
 
 trait InitiatedTerminatedMixin
@@ -700,7 +700,7 @@ trait GlobalElementDeclGrammarMixin { self: GlobalElementDecl =>
 
   lazy val document = Prod("document", this, {
     // TODO replace ad-hoc printing with a Prod trace/debug facility
-    log(Info("""Compiling global element "%s" as a document element.""", self.name))
+    log(Compile("""Compiling global element "%s" as a document element.""", self.name))
     UnicodeByteOrderMark(this) ~ documentElement
   })
 
@@ -789,7 +789,7 @@ trait TermGrammarMixin { self: Term =>
       // runtime check for group pos such that we need a separator.
       // Note that GroupPosGreaterThan(N,..) sets discriminator, so if it is true, and infixSep is not found, it won't
       // backtrack and try nothing. Only if GroupPos is not greater than N will it backtrack.
-      //TODO: adding ChildPosGreaterThan and ArrayPosGreaterThan fixes bug with xs:choice and array tests--check for other cases
+      // TODO: adding ChildPosGreaterThan and ArrayPosGreaterThan fixes bug with xs:choice and array tests--check for other cases
       (ArrayPosGreaterThan(1, self) ~ GroupPosGreaterThan(1, self) ~ infixSep) | 
       (ChildPosGreaterThan(1, self) ~ GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this)
     } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this))

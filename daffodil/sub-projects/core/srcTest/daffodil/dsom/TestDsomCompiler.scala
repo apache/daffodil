@@ -105,7 +105,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     val (sset, _) = Compiler().frontEnd(s)
     sset.isError // forces compilation
     val diags = sset.getDiagnostics
-    diags.foreach { println(_) }
+    // diags.foreach { println(_) }
     val msg = diags.toString
     assertTrue(sset.isError)
     val hasErrorText = msg.contains("invalidValue");
@@ -140,10 +140,10 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
 
     val fa = decl.formatAnnotation.asInstanceOf[DFDLElement]
     assertEquals(AlignmentUnits.Bytes, fa.alignmentUnits)
-    fa.alignmentUnits match {
-      case AlignmentUnits.Bits => println("was bits")
-      case AlignmentUnits.Bytes => println("was bytes")
-    }
+//    fa.alignmentUnits match {
+//      case AlignmentUnits.Bits => println("was bits")
+//      case AlignmentUnits.Bytes => println("was bytes")
+//    }
   }
 
   /* def testXsomMultifile(){
@@ -160,7 +160,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     val sds = parser.getDocuments().toList
     assertTrue(sds.size() >= 2)
   
-    sds.map{sd => println(sd.getSystemId)}
+    // sds.map{sd => println(sd.getSystemId)}
   }*/
 
   def testSequence1() {
@@ -292,7 +292,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     //    assertTrue(actualString.endsWith("><somedata>943.28</somedata><moredata>1</moredata></list>"))
 
     val infoset = <list xmlns={ example }><somedata>943.28</somedata><moredata>1</moredata></list>
-    //TODO: unparse needs to restore leading zeros removed in parse?
+    // TODO: unparse needs to restore leading zeros removed in parse?
     //testUnparsing(testSchema, infoset, "943.2801")
     Compiler.testUnparsing(testSchema, infoset, "943.281")
   }
@@ -442,7 +442,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     //    assertTrue(actualString.startsWith("<root"))
     //    assertTrue(actualString.endsWith("><data>45.67</data><data>45.67</data><data>45.67</data></root>"))
 
-    //TODO: restore trailing 0's in unparse?
+    // TODO: restore trailing 0's in unparse?
     // Compiler.testUnparsing(testSchema, actual.result, "?45.670#?45.670#?45.670")
     val infoset = <root xmlns={ example }><data>45.67</data><data>45.67</data><data>45.67</data></root>
     Compiler.testUnparsing(testSchema, infoset, "?45.67#?45.67#?45.67")
@@ -950,7 +950,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     val ge1 = ge1f.forRoot()
     val props = ge1.formatAnnotation.getFormatProperties()
 
-    println(props)
+    // println(props)
     //assertEquals(":", ge1.initiatorRaw)
   }
 
@@ -961,7 +961,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
       </dfdl:defineFormat>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
       </xs:element>)
-    println(testSchema)
+    // println(testSchema)
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
@@ -972,7 +972,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
 
     val (nsURI, localName) = ge1.formatAnnotation.getQName("ref1")
 
-    println(nsURI + ", " + localName)
+    // println(nsURI + ", " + localName)
     assertEquals("ref1", localName)
     assertEquals(XMLUtils.EXAMPLE_NAMESPACE, nsURI)
   }
@@ -983,9 +983,9 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
               </bar>
 
     val scope = (xml \ "quux")(0).scope
-    println(scope)
+    // println(scope)
     val newElem = scala.xml.Elem("dfdl", "element", null, scope)
-    println(newElem)
+    // println(newElem)
   }
 
   val delimiterInheritance = XML.loadFile(TestUtils.findFile("test/TestDelimiterInheritance.dfdl.xml"))
@@ -1063,7 +1063,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     val props = e1.allNonDefaultProperties ++ e1.defaultProperties
 
     val e1f_esref = e1.getProperty("escapeSchemeRef")
-    println(e1f_esref)
+    // println(e1f_esref)
 
     assertEquals("pound", e1f_esref)
 

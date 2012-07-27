@@ -8,7 +8,7 @@ import scala.xml._ ;import junit.framework.Assert._ ;import org.scalatest.juni
     val ex = intercept[Exception] {
         validateDFDLSchema(schema1)
     }
-    println(ex)
+    // println(ex)
     val msg = ex.getMessage()
     val hasElement1InMsg = msg.contains("element1");
     assertTrue(hasElement1InMsg);
@@ -18,11 +18,11 @@ import scala.xml._ ;import junit.framework.Assert._ ;import org.scalatest.juni
     val schema2 = xsdUsingSubset(          <dfdl:defineFormat name="foo">            <dfdl:format byteOrder1="bigEndian"/> <!-- error: incorrect property name -->          </dfdl:defineFormat>,           Nil)
     val ex = intercept[Exception] {       validateDFDLSchema(schema2);       }
     // should throw a validation error. 
-    println(ex)
+    // println(ex)
     val msg = ex.getMessage()
     val hasErrorText = msg.contains("byteOrder1")
     assertTrue(hasErrorText)
-  }   ;  def testValidationOfDFDLShortFormPropertyValueError() {    val schema2 = xsdUsingSubset(Nil,        <xs:element name="foo" dfdl:byteOrder="invalidValue" type="xs:int"/>);    val ex = intercept[Exception] {       validateDFDLSchema(schema2);       } ;    // should throw a validation error.     println(ex) ;    val msg = ex.getMessage();    val hasErrorText = msg.contains("invalidValue");    assertTrue(hasErrorText)  } 
+  }   ;  def testValidationOfDFDLShortFormPropertyValueError() {    val schema2 = xsdUsingSubset(Nil,        <xs:element name="foo" dfdl:byteOrder="invalidValue" type="xs:int"/>);    val ex = intercept[Exception] {       validateDFDLSchema(schema2);       } ;    // should throw a validation error.     // println(ex) ;    val msg = ex.getMessage();    val hasErrorText = msg.contains("invalidValue");    assertTrue(hasErrorText)  } 
    // Test related to Jira task DFDL-76   // Schema below should error out, because name 'bar' isn't a valid internal reference to the type. It should   // be caught as in the xsd namespace, which won't allow it to match the targetNS.//  def testSchemaValidationReferentialIntegrityChecking() {//    ////    // Something about this style of XML Literal breaks Eclipse's scala compilation//    // and it needs you to put semi-colons all over the place.//    ////    val schema =//      xsdUsingSubsetNoPrefix(Nil,//                       <element name="foo" type="bar"/>//                       <complexType name="bar">//                         <sequence/>//                       </complexType>//      ) ;//     println("THIS TEST SHOULD PASS, BUT VALIDATION ISNT CHECKING FOR THIS COMMON ERROR, SO THE TEST FAILS");//     val exc = intercept[Exception] {//    	 validateDFDLSchema(schema)//     } ;//     assertTrue(exc.getMessage().contains("bar"))//  }
 
 } // end class

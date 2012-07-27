@@ -98,7 +98,7 @@ class TestPrimitives extends JUnit3Suite {
       </xs:element>)
     val actual = Compiler.testString(sch, "abcd,efgh")
     val actualString = actual.result.toString
-    println(actualString)
+    // println(actualString)
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1>abcd</s1><s2>efgh</s2></e1>"))
 
@@ -119,7 +119,7 @@ class TestPrimitives extends JUnit3Suite {
       </xs:element>)
     val actual = Compiler.testString(sch, "abcd  \\\n  efgh")
     val actualString = actual.result.toString
-    println(actualString)
+    // println(actualString)
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1>abcd</s1><s2>efgh</s2></e1>"))
 
@@ -147,7 +147,7 @@ class TestPrimitives extends JUnit3Suite {
       </xs:element>)
     val actual = Compiler.testString(sch, "abcd}efgh}}}ijkl")
     val actualString = actual.result.toString
-    println(actualString)
+    // println(actualString)
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><s1><ss1>abcd</ss1><ss2>efgh</ss2></s1><s2>ijkl</s2></e1>"))
 
@@ -206,7 +206,7 @@ class TestPrimitives extends JUnit3Suite {
        </xs:element>)
     val actual = Compiler.testString(sch, "{a,b,c./d}//::")
     val actualString = actual.result.toString
-    println(actualString)
+    // println(actualString)
     assertTrue(actualString.contains("<root")) // there might be xsi:type stuff in the tag, and namespace stuff
     assertTrue(actualString.contains("><e1>a</e1><e2>b</e2><e3><e3_1>c</e3_1><e3_2>d</e3_2></e3></root>"))
     

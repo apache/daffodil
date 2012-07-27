@@ -214,7 +214,7 @@ class TestCompiledExpression extends JUnit3Suite {
     val resState = parser.parse(c2state)
     val updatedChild2 = resState.parentElement
     val dataNode = XMLUtils.element2Elem(updatedChild2.getParent().asInstanceOf[org.jdom.Element])
-    println(dataNode)
+    // println(dataNode)
     val result = updatedChild2.getText()
 
     assertEquals("42", result)
@@ -245,10 +245,10 @@ class TestCompiledExpression extends JUnit3Suite {
     val dp = pf.onPath("/")
     val resState = dp.parse(d)
     val resNode = resState.result
-    println(resNode)
+    // println(resNode)
     val Seq(e2) = (resNode \\ "e2")
     val dataNode = e2.text
-    println(dataNode)
+    // println(dataNode)
 
     assertEquals("42", dataNode)
     

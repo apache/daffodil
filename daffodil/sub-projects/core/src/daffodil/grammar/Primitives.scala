@@ -48,7 +48,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
         try { //if content contains elements
           if (!start.childIndexStack.isEmpty) {
             if (start.childPos != 1) { //if not first child, write unparsed result of previous child to outputStream
-              //TODO: encoder affecting child elements?
+              // TODO: encoder affecting child elements?
               val encoder = e.knownEncodingEncoder
               start.outStream.setEncoder(encoder)
               start.outStream.write()
@@ -235,7 +235,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
     //    val encoder = e.knownEncodingEncoder
 
     def unparse(start: UState): UState = {
-      setLoggingLevel(LogLevel.Debug)
+      // setLoggingLevel(LogLevel.Debug)
 
       val data = start.currentElement.getText
 
@@ -359,7 +359,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
     var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Debug) {
+      withLoggingLevel(LogLevel.Info) {
         val eName = e.toString()
 
         log(Debug(this.toString() + " - " + eName + " - Parsing starting at bit position: " + start.bitPos))
@@ -406,7 +406,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
     //    val encoder = e.knownEncodingEncoder
 
     def unparse(start: UState): UState = {
-      setLoggingLevel(LogLevel.Debug)
+      // setLoggingLevel(LogLevel.Debug)
 
       val data = start.currentElement.getText
 
@@ -529,7 +529,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
     }
   }
 
-  //TODO: consolidate duplicate code
+  // TODO: consolidate duplicate code
   def unparser: Unparser = new Unparser(e) {
     override def toString = "to(xs:" + GramName + ")"
 
@@ -537,7 +537,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
       * Converts data to number format, returns unparse exception if data cannot be converted to given format.
       */
     def unparse(start: UState): UState = {
-      //TODO: OK to get from infoset?
+      // TODO: OK to get from infoset?
       var str = start.currentElement.getText //gets data from element being unparsed
       Assert.invariant(str != null) // worst case it should be empty string. But not null.
       if (str == "") return UE(start, "Convert to %s (for xs:%s): Cannot unparse number from empty string", GramDescription, GramName)
@@ -797,9 +797,9 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Int) extends Terminal(e, t
   def unparser = new Unparser(e) {
     override def toString = gram.toString
 
-    //TODO: returns string in hex
+    // TODO: returns string in hex
     def unparse(start: UState): UState = {
-      setLoggingLevel(LogLevel.Debug)
+      // setLoggingLevel(LogLevel.Debug)
       val str = start.currentElement.getText //gets data from element being unparsed
       Assert.invariant(str != null) // worst case it should be empty string. But not null.
 
@@ -987,7 +987,7 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
     val cbuf = CharBuffer.allocate(1024)
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Debug) {
+      withLoggingLevel(LogLevel.Info) {
 
         // TODO: We may need to keep track of Local Separators, Local Terminators and Enclosing Terminators.
 
@@ -1060,11 +1060,10 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
     }
   }
 
-  //TODO: Doesn't implement ignore case
   def unparser: Unparser = new Unparser(e) {
     val t = e.asInstanceOf[Term]
     override def toString = "StaticText('" + delim + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"
-    setLoggingLevel(LogLevel.Debug)
+    // setLoggingLevel(LogLevel.Debug)
     Assert.notYetImplemented(e.ignoreCase == YesNo.Yes)
     Assert.invariant(delim != "") //shouldn't be here at all in this case
 
@@ -1363,7 +1362,7 @@ case class LiteralNilValue(e: ElementBase)
     val cbuf = CharBuffer.allocate(1024)
 
     def parse(start: PState): PState = {
-      withLoggingLevel(LogLevel.Debug) {
+      withLoggingLevel(LogLevel.Info) {
 
         // Look for nilValues first, if fails look for delimiters next
         // If delimiter is found AND nilValue contains ES, result is empty and valid.
@@ -1387,7 +1386,7 @@ case class LiteralNilValue(e: ElementBase)
     }
 
     def delimLookup(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Debug) {
+      withLoggingLevel(LogLevel.Info) {
         // TODO: We may need to keep track of Local Separators, Local Terminators and Enclosing Terminators.
 
         val eName = e.toString()
@@ -1532,7 +1531,7 @@ class IVCParser(e: ElementBase with ElementDeclMixin)
   lazy val expandedTypeName = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, ptn)
 
   def parse(start : PState) : PState =
-    withLoggingLevel(LogLevel.Debug) {
+    withLoggingLevel(LogLevel.Info) {
       withParseErrorThrowing(start) {
         log(Debug("This is %s", toString))
         val currentElement = start.parentElement
@@ -1558,7 +1557,7 @@ extends ExpressionEvaluationParser(decl) {
   val expandedTypeName = XMLUtils.expandedQName(typeURI, typeName)
 
   def parse(start : PState) : PState =
-    withLoggingLevel(LogLevel.Debug) {
+    withLoggingLevel(LogLevel.Info) {
       withParseErrorThrowing(start) {
         log(Debug("This is %s", toString))
         val res = eval(start)
