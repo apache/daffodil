@@ -235,7 +235,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
     //    val encoder = e.knownEncodingEncoder
 
     def unparse(start: UState): UState = {
-      setLoggingLevel(LogLevel.Debug)
+      // setLoggingLevel(LogLevel.Debug)
 
       val data = start.currentElement.getText
 
@@ -406,7 +406,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
     //    val encoder = e.knownEncodingEncoder
 
     def unparse(start: UState): UState = {
-      setLoggingLevel(LogLevel.Debug)
+      // setLoggingLevel(LogLevel.Debug)
 
       val data = start.currentElement.getText
 
@@ -799,7 +799,7 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Int) extends Terminal(e, t
 
     //TODO: returns string in hex
     def unparse(start: UState): UState = {
-      setLoggingLevel(LogLevel.Debug)
+      // setLoggingLevel(LogLevel.Debug)
       val str = start.currentElement.getText //gets data from element being unparsed
       Assert.invariant(str != null) // worst case it should be empty string. But not null.
 
@@ -1064,7 +1064,7 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
   def unparser: Unparser = new Unparser(e) {
     val t = e.asInstanceOf[Term]
     override def toString = "StaticText('" + delim + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"
-    setLoggingLevel(LogLevel.Debug)
+    // setLoggingLevel(LogLevel.Debug)
     Assert.notYetImplemented(e.ignoreCase == YesNo.Yes)
     Assert.invariant(delim != "") //shouldn't be here at all in this case
 

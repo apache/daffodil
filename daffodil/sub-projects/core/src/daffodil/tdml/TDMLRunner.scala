@@ -239,7 +239,7 @@ abstract class TestCase(ptc : NodeSeq, val parent : DFDLTestSuite)
     runProcessor(pf, data, infoset, errors, warnings)
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
-    log(Info("Test %s passed.", id))
+    // log(Debug("Test %s passed.", id))
   }
 
   def verifyAllDiagnosticsFound(actual : WithDiagnostics, expectedDiags : Option[ErrorWarningBase]) = {
