@@ -150,7 +150,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
    * it will throw. No throw means a value came back and it must be a constant.
    */
   def constantValue(xpathExprFactory : CompiledExpressionFactory) : Option[String] =
-    withLoggingLevel(LogLevel.Debug) {
+    withLoggingLevel(LogLevel.Info) {
       val dummyVars = EmptyVariableMap
       val result =
         try {

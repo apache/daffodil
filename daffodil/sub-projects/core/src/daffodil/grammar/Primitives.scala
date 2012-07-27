@@ -359,7 +359,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
     var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Debug) {
+      withLoggingLevel(LogLevel.Info) {
         val eName = e.toString()
 
         log(Debug(this.toString() + " - " + eName + " - Parsing starting at bit position: " + start.bitPos))
@@ -987,7 +987,7 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
     val cbuf = CharBuffer.allocate(1024)
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Debug) {
+      withLoggingLevel(LogLevel.Info) {
 
         // TODO: We may need to keep track of Local Separators, Local Terminators and Enclosing Terminators.
 
@@ -1363,7 +1363,7 @@ case class LiteralNilValue(e: ElementBase)
     val cbuf = CharBuffer.allocate(1024)
 
     def parse(start: PState): PState = {
-      withLoggingLevel(LogLevel.Debug) {
+      withLoggingLevel(LogLevel.Info) {
 
         // Look for nilValues first, if fails look for delimiters next
         // If delimiter is found AND nilValue contains ES, result is empty and valid.
@@ -1387,7 +1387,7 @@ case class LiteralNilValue(e: ElementBase)
     }
 
     def delimLookup(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Debug) {
+      withLoggingLevel(LogLevel.Info) {
         // TODO: We may need to keep track of Local Separators, Local Terminators and Enclosing Terminators.
 
         val eName = e.toString()
@@ -1532,7 +1532,7 @@ class IVCParser(e: ElementBase with ElementDeclMixin)
   lazy val expandedTypeName = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, ptn)
 
   def parse(start : PState) : PState =
-    withLoggingLevel(LogLevel.Debug) {
+    withLoggingLevel(LogLevel.Info) {
       withParseErrorThrowing(start) {
         log(Debug("This is %s", toString))
         val currentElement = start.parentElement
@@ -1558,7 +1558,7 @@ extends ExpressionEvaluationParser(decl) {
   val expandedTypeName = XMLUtils.expandedQName(typeURI, typeName)
 
   def parse(start : PState) : PState =
-    withLoggingLevel(LogLevel.Debug) {
+    withLoggingLevel(LogLevel.Info) {
       withParseErrorThrowing(start) {
         log(Debug("This is %s", toString))
         val res = eval(start)

@@ -247,7 +247,7 @@ abstract class TestCase(ptc : NodeSeq, val parent : DFDLTestSuite)
     if (actualDiags.length == 0) {
       throw new Exception("""No diagnostic objects found.""")
     } else {
-      actualDiags.foreach { ad => log(Info(ad.toString)) }
+      actualDiags.foreach { ad => log(Error(ad.toString)) }
     }
     val actualDiagMsgs = actualDiags.map { _.toString }
     val expectedDiagMsgs = expectedDiags.map { _.messages }.getOrElse(Nil)

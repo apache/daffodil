@@ -901,7 +901,7 @@ with WithParseErrorThrowing
   // Fills the CharBuffer with as many bytes as can be decoded successfully.
   //
   def fillCharBufferMixedData(cb : CharBuffer, bitOffset : Long, decoder : CharsetDecoder, numBytes : Long = -1) : (Long, Boolean) = {
-    withLoggingLevel(LogLevel.Debug) {
+    withLoggingLevel(LogLevel.Info) {
 
       PECheck(bitOffset % 8 == 0, "characters must begin on byte boundaries")
       val byteOffsetAsLong = (bitOffset >> 3)
@@ -968,7 +968,7 @@ with WithParseErrorThrowing
   def getDelimiter(cb: CharBuffer, bitOffset: Long, 
       decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
       es: EscapeSchemeObj): (String, Long, Long, SearchResult, Delimiter) = {
-    withLoggingLevel(LogLevel.Debug) {
+    withLoggingLevel(LogLevel.Info) {
 
     log(Debug("BEG_getDelimiter"))
 
@@ -1087,7 +1087,7 @@ with WithParseErrorThrowing
   def getDelimiterNilValue(cb: CharBuffer, bitOffset: Long, 
       decoder: CharsetDecoder, separators: Set[String], terminators: Set[String],
       es: EscapeSchemeObj): (String, Long, Long, SearchResult, Delimiter) = {
-    withLoggingLevel(LogLevel.Debug) {
+    withLoggingLevel(LogLevel.Info) {
 
     log(Debug("BEG_getDelimiterNilValue"))
 

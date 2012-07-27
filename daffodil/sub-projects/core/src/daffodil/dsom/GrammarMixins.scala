@@ -6,7 +6,7 @@ import daffodil.grammar._
 import daffodil.schema.annotation.props._
 import daffodil.schema.annotation.props.gen._
 import daffodil.dsom.OOLAG._
-import daffodil.util.Info
+import daffodil.util._
 import com.ibm.icu.text.NumberFormat
 
 trait InitiatedTerminatedMixin
@@ -700,7 +700,7 @@ trait GlobalElementDeclGrammarMixin { self: GlobalElementDecl =>
 
   lazy val document = Prod("document", this, {
     // TODO replace ad-hoc printing with a Prod trace/debug facility
-    log(Info("""Compiling global element "%s" as a document element.""", self.name))
+    log(Compile("""Compiling global element "%s" as a document element.""", self.name))
     UnicodeByteOrderMark(this) ~ documentElement
   })
 

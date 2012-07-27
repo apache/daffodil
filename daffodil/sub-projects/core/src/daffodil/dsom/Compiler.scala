@@ -6,7 +6,7 @@ import scala.xml.Node
 import scala.xml.XML
 import daffodil.api.DFDL
 import daffodil.exceptions.Assert
-import daffodil.util.{ Logging, Info }
+import daffodil.util._
 import daffodil.util.Misc.hex2Bytes
 import junit.framework.Assert.assertEquals
 
@@ -114,19 +114,19 @@ class Compiler extends DFDL.Compiler with Logging {
     if (pf.isError) {
       val diags = pf.getDiagnostics
       Assert.invariant(diags.length > 0)
-      log(Info("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
+      log(Compile("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
       diags.foreach { diag => log(daffodil.util.Error(diag.toString())) }
     } else {
-      log(Info("ProcessorFactory completed with no errors."))
+      log(Compile("ProcessorFactory completed with no errors."))
       val dataProc = pf.onPath("/").asInstanceOf[DataProcessor]
       if (dataProc.isError) {
         val diags = dataProc.getDiagnostics
-        log(Info("Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length))
+        log(Error("Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length))
         diags.foreach { diag => log(daffodil.util.Error(diag.toString())) }
       } else {
-        log(Info("Parser = %s.", dataProc.parser.toString))
-        log(Info("Unparser = %s.", dataProc.unparser.toString))
-        log(Info("Compilation completed with no errors."))
+        log(Compile("Parser = %s.", dataProc.parser.toString))
+        log(Compile("Unparser = %s.", dataProc.unparser.toString))
+        log(Compile("Compilation completed with no errors."))
       }
     }
     pf
