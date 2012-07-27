@@ -48,6 +48,7 @@ import net.sf.saxon.jdom.NodeWrapper
 import net.sf.saxon.jdom.DocumentWrapper
 import net.sf.saxon.Configuration
 import net.sf.saxon.om.NodeInfo
+import net.sf.saxon.xpath.XPathEvaluator
 // import daffodil.xml.Namespaces
 import daffodil.exceptions._
 import daffodil.processors.VariableMap
@@ -85,8 +86,10 @@ object XPathUtil extends Logging {
     Assert.usage(dfdlExpression != "")
     // strip leading and trailing {...} if they are there.
     val expression = if (isExpression(dfdlExpression)) getExpression(dfdlExpression) else dfdlExpression
-        
-    val xpath = xpathFactory.newXPath()
+
+    // Hack around bug in Saxon JAXP support by casting to Saxon-specific class.
+    // -JWC, 27Jul2012.
+    val xpath = xpathFactory.newXPath().asInstanceOf[XPathEvaluator]
     var variables: VariableMap = new VariableMap() // Closed over. This is modified to supply different variables
     log(Debug("Namespaces: %s", namespaces))
     
@@ -113,6 +116,12 @@ object XPathUtil extends Logging {
     } 
     
     xpath setNamespaceContext (nsContext)
+
+    // Finish the hack by setting the default element namespace (Saxon's API) 
+    // to the default namespace returned by the NamespaceContext (JAXP API).
+    // -JWC, 27Jul2012.
+    xpath.getStaticContext().setDefaultElementNamespace(nsContext.getNamespaceURI(XMLConstants.DEFAULT_NS_PREFIX))
+
     xpath.setXPathVariableResolver(
       new XPathVariableResolver() {
         def resolveVariable(qName: QName): Object = {     
