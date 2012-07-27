@@ -117,10 +117,13 @@ object XPathUtil extends Logging {
     
     xpath setNamespaceContext (nsContext)
 
+    // Backed out until we figure out why this breaks 9 tests in TestCompiledExpression
+    // -MikeB
+    //
     // Finish the hack by setting the default element namespace (Saxon's API) 
     // to the default namespace returned by the NamespaceContext (JAXP API).
     // -JWC, 27Jul2012.
-    xpath.getStaticContext().setDefaultElementNamespace(nsContext.getNamespaceURI(XMLConstants.DEFAULT_NS_PREFIX))
+    //xpath.getStaticContext().setDefaultElementNamespace(nsContext.getNamespaceURI(XMLConstants.DEFAULT_NS_PREFIX))
 
     xpath.setXPathVariableResolver(
       new XPathVariableResolver() {
