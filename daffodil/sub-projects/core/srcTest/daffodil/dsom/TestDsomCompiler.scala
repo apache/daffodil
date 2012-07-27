@@ -292,7 +292,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     //    assertTrue(actualString.endsWith("><somedata>943.28</somedata><moredata>1</moredata></list>"))
 
     val infoset = <list xmlns={ example }><somedata>943.28</somedata><moredata>1</moredata></list>
-    //TODO: unparse needs to restore leading zeros removed in parse?
+    // TODO: unparse needs to restore leading zeros removed in parse?
     //testUnparsing(testSchema, infoset, "943.2801")
     Compiler.testUnparsing(testSchema, infoset, "943.281")
   }
@@ -442,7 +442,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     //    assertTrue(actualString.startsWith("<root"))
     //    assertTrue(actualString.endsWith("><data>45.67</data><data>45.67</data><data>45.67</data></root>"))
 
-    //TODO: restore trailing 0's in unparse?
+    // TODO: restore trailing 0's in unparse?
     // Compiler.testUnparsing(testSchema, actual.result, "?45.670#?45.670#?45.670")
     val infoset = <root xmlns={ example }><data>45.67</data><data>45.67</data><data>45.67</data></root>
     Compiler.testUnparsing(testSchema, infoset, "?45.67#?45.67#?45.67")

@@ -106,7 +106,7 @@ object DFDL {
    * Interface for Parse and Unparse states
    */
   abstract class State {
-    //TODO: add common elements
+    // TODO: add common elements
     val status: ProcessorResult
     val diagnostics: List[Diagnostic]
     def currentLocation: DataLocation

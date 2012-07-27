@@ -233,7 +233,7 @@ binaryBooleanFalseRep="0">
     comparePropValue(hasProps.binaryBooleanTrueRep, "1")
     comparePropValue(hasProps.binaryBooleanFalseRep, "0")
 
-    //TODO: verify that toString prints all the properties and their values.
+    // TODO: verify that toString prints all the properties and their values.
   }
 
   /**

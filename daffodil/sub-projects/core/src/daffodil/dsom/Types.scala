@@ -118,10 +118,6 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
   
   lazy val diagnosticChildren = annotationObjs ++ myBaseTypeList
   
-  // TODO: Is the comment below still relevant? If not remove.
-  // Need to go and grab a list of GlobalSimpleTypes from the schema document
-  // execute a find using the name obtained from restrictionBase.
-  
   lazy val simpleTypeBaseProperties: Map[String,String] = {
     val baseProps = {
       myBaseType match {

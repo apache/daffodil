@@ -100,11 +100,6 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
   with DFDLSimpleTypeMixin
   with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: AnnotatedMixin =>
 
-  // TODO: Implement escape schemes. The escapeCharacter and escapeEscapeCharacter are part of the escapeScheme annotation only.
-  // So they're not on the object we're mixing this into.
-  // def escapeCharacterExpr = ExpressionCompiler.compile('String, es.getProperty("escapeCharacter"))
-  // def escapeEscapeCharacterExpr = ExpressionCompiler.compile('String, es.getProperty("escapeEscapeCharacter"))
-
   // TODO: Will need to 'evaluate' and perform entity replacement on textStandardDecimalSeparator in Parser where it is used.
   def textStandardDecimalSeparator = {
     val c = expressionCompiler.compile('String, textStandardDecimalSeparatorRaw)

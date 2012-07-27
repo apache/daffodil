@@ -142,7 +142,7 @@ object Compiler {
   }
 
   def stringToWritableByteChannel(s: String) = {
-    val size = s.length() //TODO: get byte count by encoding
+    val size = s.length() // TODO: get byte count by encoding
     byteArrayToWritableByteChannel(size)
   }
 

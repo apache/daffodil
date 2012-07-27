@@ -48,7 +48,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
         try { //if content contains elements
           if (!start.childIndexStack.isEmpty) {
             if (start.childPos != 1) { //if not first child, write unparsed result of previous child to outputStream
-              //TODO: encoder affecting child elements?
+              // TODO: encoder affecting child elements?
               val encoder = e.knownEncodingEncoder
               start.outStream.setEncoder(encoder)
               start.outStream.write()
@@ -529,7 +529,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
     }
   }
 
-  //TODO: consolidate duplicate code
+  // TODO: consolidate duplicate code
   def unparser: Unparser = new Unparser(e) {
     override def toString = "to(xs:" + GramName + ")"
 
@@ -537,7 +537,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
       * Converts data to number format, returns unparse exception if data cannot be converted to given format.
       */
     def unparse(start: UState): UState = {
-      //TODO: OK to get from infoset?
+      // TODO: OK to get from infoset?
       var str = start.currentElement.getText //gets data from element being unparsed
       Assert.invariant(str != null) // worst case it should be empty string. But not null.
       if (str == "") return UE(start, "Convert to %s (for xs:%s): Cannot unparse number from empty string", GramDescription, GramName)
@@ -797,7 +797,7 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Int) extends Terminal(e, t
   def unparser = new Unparser(e) {
     override def toString = gram.toString
 
-    //TODO: returns string in hex
+    // TODO: returns string in hex
     def unparse(start: UState): UState = {
       // setLoggingLevel(LogLevel.Debug)
       val str = start.currentElement.getText //gets data from element being unparsed
@@ -1060,7 +1060,6 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
     }
   }
 
-  //TODO: Doesn't implement ignore case
   def unparser: Unparser = new Unparser(e) {
     val t = e.asInstanceOf[Term]
     override def toString = "StaticText('" + delim + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"

@@ -80,7 +80,7 @@ abstract class SchemaComponent(val xml : Node)
 
   val NYI = false // our flag for Not Yet Implemented 
   
-  //TODO: create a trait to share various error stuff with DFDLAnnotation class.
+  // TODO: create a trait to share various error stuff with DFDLAnnotation class.
   // Right now there is small code duplication since annotations aren't schema components.
   def SDE(id : String, args : Any *) : Nothing = {
     throw new SchemaDefinitionError(Some(this), None, id, args : _*)
@@ -213,7 +213,7 @@ with SharedPropertyLists { self : SchemaComponent =>
             val str = n.text
             val hasRightSource = (str == "http://www.ogf.org/dfdl/dfdl-1.0/")
             val isAcceptable = str.startsWith("http://www.ogf.org/dfdl")
-            (hasRightSource || isAcceptable) //TODO: remove lax check once examples & tests are updated.
+            (hasRightSource || isAcceptable) // TODO: remove lax check once examples & tests are updated.
           }
         }
       }

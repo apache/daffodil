@@ -128,7 +128,6 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
   def convertTypeString(expandedTypeName : String) = {
     Assert.usage(expandedTypeName != null)
     expandedTypeName match {
-      // TODO: make this insensitive to the prefix used (sometimes xs, sometimes xsd, sometimes whatever)
       case XMLUtils.XSD_STRING => 'String
       case XMLUtils.XSD_BYTE => 'Long
       case XMLUtils.XSD_SHORT => 'Long
@@ -137,7 +136,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
       case XMLUtils.XSD_UNSIGNED_BYTE => 'Long
       case XMLUtils.XSD_UNSIGNED_SHORT => 'Long
       case XMLUtils.XSD_UNSIGNED_INT => 'Long
-      case XMLUtils.XSD_UNSIGNED_LONG => 'Long //TODO FIXME - this won't handle the largest unsigned longs.
+      case XMLUtils.XSD_UNSIGNED_LONG => 'Long // TODO FIXME - this won't handle the largest unsigned longs.
       case XMLUtils.XSD_DOUBLE => 'Double
       case XMLUtils.XSD_FLOAT => 'Double
       case _ => Assert.notYetImplemented()

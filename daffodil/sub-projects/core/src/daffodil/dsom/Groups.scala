@@ -481,7 +481,7 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def hasStaticallyRequiredInstances = Assert.notYetImplemented()
 
-  //TODO: Consolidate techniques with HasRef trait used by ElementRef
+  // TODO: Consolidate techniques with HasRef trait used by ElementRef
   lazy val refName = {
     val str = (xml \ "@ref").text
     if (str == "") None else Some(str)

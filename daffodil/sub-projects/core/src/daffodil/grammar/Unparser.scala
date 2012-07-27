@@ -349,7 +349,7 @@ object UState {
    */
   def createInitialState(rootElemDecl: GlobalElementDecl, out: OutStream, infoset: org.jdom.Document): UState = {
     val elem = infoset.getContent()
-    //TODO: even needed?
+    // TODO: even needed?
     Assert.invariant(elem.size() == 1)
     val root = elem(0).asInstanceOf[org.jdom.Element]
     val rootName = root.getName()
@@ -489,7 +489,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
         isTooSmall = false
       } catch { //make sure buffer was not written to capacity
         case e: Exception => {
-          cbuf = CharBuffer.allocate(cbuf.position() * 4) //TODO: more efficient algorithm than size x4
+          cbuf = CharBuffer.allocate(cbuf.position() * 4) // TODO: more efficient algorithm than size x4
           if (temp != "")
             cbuf.put(temp)
         }
@@ -525,7 +525,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
         isTooSmall = false
       } catch { //make sure buffer was not written to capacity
         case e: Exception => {
-          bbuf = ByteBuffer.allocate(bbuf.capacity() * 4) //TODO: more efficient algorithm than size x4
+          bbuf = ByteBuffer.allocate(bbuf.capacity() * 4) // TODO: more efficient algorithm than size x4
           bbuf.order(order)
         }
       }

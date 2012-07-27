@@ -28,7 +28,6 @@ class TestCompiledExpression2 extends JUnit3Suite {
   /**
    * Test the XPath evaluator, but provide namespace information on the XML  
    */
-  // TODO: Not sure how one provides namespace information on the XPath expression
    def testCompiledAbsolutePathEvaluation2_withNamespace() { 
     
     val r = XMLUtils.elem2Element(

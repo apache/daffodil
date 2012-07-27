@@ -122,7 +122,7 @@ object Main {
       if (argumentParser isSet ("debug"))
         compiler.setDebugging(true)
       if (argumentParser isSet ("root"))
-        compiler.setDistinguishedRootNode(argumentParser getSingle ("root"), "") //TODO: namespace
+        compiler.setDistinguishedRootNode(argumentParser getSingle ("root"), "") // TODO: namespace
 
       if (argumentParser.isSet("unparse")) try {
         val infoset = argumentParser.getSingle("unparse")

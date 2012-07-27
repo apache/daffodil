@@ -58,10 +58,9 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
       case _ => Assert.impossibleCase()
     }
     val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
-    // Assert.schemaDefinition(nsURI != null, "In QName " + name + ", the prefix " + prefix + " was not defined.")
-    // TODO: accumulate errors, don't just throw on one.
-    // TODO: error location for diagnostic purposes. 
-    // see: http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
+    
+    // TODO line numbers - see: http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
+ 
     if (nsURI == null && prefix == null)
       ("", localName)
     else if (nsURI == null)
@@ -116,8 +115,6 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin
 
 trait RawSimpleTypeRuntimeValuedPropertiesMixin
   extends RawCommonRuntimeValuedPropertiesMixin {
-
-  // TODO: Implement escape schemes. The escapeCharacter and escapeEscapeCharacter are part of the escapeScheme annotation only.
 
   def textStandardDecimalSeparatorRaw = getProperty("textStandardDecimalSeparator")
   def textStandardGroupingSeparatorRaw = getProperty("textStandardGroupingSeparator")

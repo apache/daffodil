@@ -110,7 +110,7 @@ trait TextNumberFormatMixin extends PropertyMixin {
     this.schemaDefinition(!raw.contains("%WSP;"), "textStandardInfinityRep cannot contain WSP!")
     this.schemaDefinition(!raw.contains("%WSP+;"), "textStandardInfinityRep cannot contain WSP+!")
     this.schemaDefinition(!raw.contains("%WSP*;"), "textStandardInfinityRep cannot contain WSP*!")
-    //TODO: Cannot contain raw bytes
+    // TODO: Cannot contain raw bytes
 
     val l = new StringValueAsLiteral(raw, this)
     l.cooked
@@ -125,7 +125,7 @@ trait TextNumberFormatMixin extends PropertyMixin {
     this.schemaDefinition(!raw.contains("%WSP;"), "textStandardNaNRep cannot contain WSP!")
     this.schemaDefinition(!raw.contains("%WSP+;"), "textStandardNaNRep cannot contain WSP+!")
     this.schemaDefinition(!raw.contains("%WSP*;"), "textStandardNaNRep cannot contain WSP*!")
-    //TODO: Cannot contain raw bytes
+    // TODO: Cannot contain raw bytes
 
     val l = new StringValueAsLiteral(raw, this)
     l.cooked
@@ -136,7 +136,7 @@ trait TextNumberFormatMixin extends PropertyMixin {
     // Literal Empty String allowed!
     this.schemaDefinition(!raw.contains("%NL;"), "textStandardZeroRep cannot contain NL!")
     this.schemaDefinition(!raw.contains("%ES;"), "textStandardZeroRep cannot contain ES!")
-    //TODO: Cannot contain raw bytes
+    // TODO: Cannot contain raw bytes
 
     val l = new ListOfStringValueAsLiteral(raw, this)
     l.cooked
