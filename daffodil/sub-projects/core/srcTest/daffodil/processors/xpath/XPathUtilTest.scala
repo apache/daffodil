@@ -42,35 +42,9 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
     }
   }
   
-  def testXPath2() { // (my second XPath test") {
-    
-    // <root><child1><child2><child3>19</child3></child2></child1></root>
-    
-    val text = new Text("19")
-    val child3 = new Element("child3")
-    val child2 = new Element("child2")
-    val child1 = new Element("child1")
-    val root = new Element("root")
-    
-    child3 addContent(text)
-    child2 addContent(child3)
-    child1 addContent(child2)
-    root addContent(child1)
-    
-    val document = new Document(root)
-    
-    var variables = new VariableMap() defineVariable("pi", XMLUtils.XSD_DOUBLE, new Namespaces())
-    variables setVariable("pi",Pi.toString,new Namespaces())
-    
-    val result = XPathUtil evalExpressionFromString("$pi",variables,root,Nil)
-    
-    result match {
-      case StringResult(x) => x should equal (Pi.toString)
-      case _ => fail
-    }
-  }
+
   
-  def testXPath3() { // (my third XPath test") {
+  def testXPath2() { // (my third XPath test") {
     
     /*    	
      * <root>

@@ -40,87 +40,150 @@ import scala.collection.mutable.Stack
 import scala.collection.mutable.Set
 import org.jdom.Element
 import daffodil.exceptions.Assert
-import daffodil.xml.Namespaces
+//import daffodil.xml.Namespaces
 import daffodil.xml.XMLUtils
+import javax.xml.namespace.QName
+import daffodil.dsom.SchemaDocument
+import daffodil.dsom.CompiledExpressionUtil
+import daffodil.dsom.DFDLDefineVariable
+import daffodil.dsom.DFDLSetVariable
+import daffodil.dsom.SchemaComponent
+import daffodil.grammar.WithParseErrorThrowing
 // import daffodil.xml.XMLUtil
 
-abstract class VariableState
+sealed abstract class VariableState
 
+case object VariableUndefined extends VariableState
 case object VariableDefined extends VariableState
 case object VariableSet extends VariableState
 case object VariableRead extends VariableState
 
-class VariableAtom(var value:String,var state:VariableState)
+class VariableAtom(var value : Option[String], var state : VariableState)
 
-class InstantVariable(val name:String,var state:VariableState,var variableType:String,
-               var value:Object)
+//class InstantVariable(val name:String,var state:VariableState,var variableType:String,
+//               var value:Object)
 
-class Variable(val name:String,var state:VariableState,var variableType:String,
-               var value:String){
-	
-	private val stack:Stack[VariableAtom] = new Stack()
- 
- 	stack push (new VariableAtom(value,state))
- 
- 	def save = stack push(stack.top)
+class Variable(varDefinitionContext : SchemaDocument, val name : String, var state : VariableState, val variableType : String,
+  var value : Option[String])
+  extends WithParseErrorThrowing {
+
+  private val stack : Stack[VariableAtom] = new Stack()
+
+  stack push (new VariableAtom(value, state))
+
+  def save = stack push (stack.top)
 
   def restore = stack pop
 
-  def set(value:String) = {
-    stack.top.value = value
+  def set(value : String) = {
+    Assert.usage(stack.top.state == VariableUndefined ||
+      stack.top.state == VariableDefined) // you can set after a default value
+    stack.top.value = Some(value)
     stack.top.state = VariableSet
   }
 
-  def peek:Object = {
+  def peek : Object = {
+    val value = stack.top.value.get
     variableType match {
-      case XMLUtils.XSD_STRING | "" | null => stack.top.value
+      case XMLUtils.XSD_STRING => value
       case XMLUtils.XSD_INT | XMLUtils.XSD_INTEGER | XMLUtils.XSD_UNSIGNED_INT | XMLUtils.XSD_SHORT |
-              XMLUtils.XSD_UNSIGNED_SHORT  | XMLUtils.XSD_UNSIGNED_BYTE => Predef int2Integer(stack.top.value.toInt)
-      case XMLUtils.XSD_LONG | XMLUtils.XSD_UNSIGNED_LONG => Predef long2Long(stack.top.value.toLong)
-      case XMLUtils.XSD_FLOAT => Predef float2Float(stack.top.value.toFloat)
-      case XMLUtils.XSD_DOUBLE | XMLUtils.XSD_DECIMAL => Predef double2Double(stack.top.value.toDouble)
-      case XMLUtils.XSD_BYTE  => Predef byte2Byte(stack.top.value.toByte)
-      case XMLUtils.XSD_BOOLEAN => Predef boolean2Boolean(stack.top.value.toBoolean)
+        XMLUtils.XSD_UNSIGNED_SHORT | XMLUtils.XSD_UNSIGNED_BYTE => Predef int2Integer (value.toInt)
+      case XMLUtils.XSD_LONG | XMLUtils.XSD_UNSIGNED_LONG => Predef long2Long (value.toLong)
+      case XMLUtils.XSD_FLOAT => Predef float2Float (value.toFloat)
+      case XMLUtils.XSD_DOUBLE | XMLUtils.XSD_DECIMAL => Predef double2Double (value.toDouble)
+      case XMLUtils.XSD_BYTE => Predef byte2Byte (value.toByte)
+      case XMLUtils.XSD_BOOLEAN => Predef boolean2Boolean (value.toBoolean)
       case XMLUtils.XSD_DATE | XMLUtils.XSD_DATE_TIME | XMLUtils.XSD_TIME =>
-        Assert.notYetImplemented()//"date,dateTime,time variable types")
+        Assert.notYetImplemented() //"date,dateTime,time variable types")
+      case _ => Assert.invariantFailed("unknown variable type: " + variableType)
     }
   }
+  
+  var context : SchemaComponent = null
 
-  def get:Object = {
+  def get(contextArg : Option[SchemaComponent]) : Object = {
+    context = contextArg.getOrElse(null)
+    PECheck(stack.top.state == VariableSet ||
+      stack.top.state == VariableDefined ||
+      stack.top.state == VariableRead,
+      "Variable %s is not readable. State is: %s", name, state.toString)
     stack.top.state = VariableRead
     peek
   }
 }
 
-class VariableMap(val hiddenNodes:Set[Element],val variables:List[Variable]) {
+/**
+ * Factory for Variable objects
+ */
+object Variable {
+  def apply(defv : DFDLDefineVariable,
+    expandedName : String,
+    type_ : String,
+    defaultValue : Option[String],
+    external : Boolean,
+    doc : SchemaDocument) = {
 
-  def this(parent:VariableMap) =
-    this(parent hiddenNodes,parent variables)
+    val state = defaultValue match {
+      case None => VariableUndefined
+      case Some(_) => VariableDefined
+    }
 
-  def this() =
-    this(Set[Element](),Nil)
+    val expTypeName = doc.expressionCompiler.expandedName(type_)
+    val typeSym = doc.expressionCompiler.convertTypeString(expTypeName)
 
-  def hideElement(ele:Element) =
-    hiddenNodes += ele
+    val defaultValExpr = defaultValue.map {
+      doc.expressionCompiler.compile(typeSym, _)
+    }
 
-  def removeHidden() = {
-    for(x <- hiddenNodes)
-      x getParent() removeContent (x)
+    val defaultVal = defaultValExpr.map { _.constantAsString }
+
+    val defaultValIsConstant = {
+      val isConst = defaultValExpr.map { _.isConstant }.getOrElse(true)
+      defv.schemaDefinition(isConst, "Variable default value %s is not a constant.", defaultValue)
+      isConst
+    }
+
+    val var_ = new Variable(defv.context.schemaDocument, expandedName, state, expTypeName, defaultVal)
+    var_
+
   }
 
-  def defineVariable(name:String,variableType:String,namespaces:Namespaces):VariableMap =
-    defineVariable(name,variableType,namespaces,"")
+}
 
-  def defineVariable(name:String,variableType:String,namespaces:Namespaces,defaultValue:String):VariableMap =
-    new VariableMap(hiddenNodes,
-      new Variable(getLongName(name,namespaces),VariableDefined,variableType,defaultValue) :: variables)
+object EmptyVariableMap extends VariableMap()
 
-  //TODO FIXME don't set the variable if it is already set
-  def setVariable(name:String,value:String,namespaces:Namespaces):Unit = {
-    val longName = getLongName(name,namespaces)
-    variables find { x:Variable => x.name == longName } match {
-      case Some(y) =>  y set(value)
-      case None => throw new IllegalArgumentException("unknown variable "+name)
+class VariableMap(val hiddenNodes : Set[Element], val variables : Map[String, Variable]) {
+  def this(variables : Map[String, Variable]) = this(Set.empty, variables)
+  def this() = this(Set.empty, Map.empty)
+
+  //  def this(parent:VariableMap) =
+  //    this(parent hiddenNodes,parent variables)
+  //
+  //  def this() =
+  //    this(Set[Element](),Nil)
+
+  //  def hideElement(ele:Element) =
+  //    hiddenNodes += ele
+  //
+  //  def removeHidden() = {
+  //    for(x <- hiddenNodes)
+  //      x getParent() removeContent (x)
+  //  }
+
+  //  def defineVariable(expandedName:String,variableType:String,namespaces:Namespaces):VariableMap =
+  //    defineVariable(expandedName,variableType,namespaces,"")
+  //
+  //  def defineVariable(expandedName:String, variableType:String,namespaces:Namespaces,defaultValue:String):VariableMap =
+  //    new VariableMap(hiddenNodes,
+  //      new Variable(expandedName,VariableDefined,variableType,defaultValue) :: variables)
+
+  def setVariable(ann : DFDLSetVariable, expandedName : String, value : String) : Unit = {
+    variables.get(expandedName) match {
+      case Some(y) => {
+        // TODO check for double set, or for already been read.
+        y set (value)
+      }
+      case None => throw new IllegalArgumentException("unknown variable " + expandedName)
     }
   }
 
@@ -131,30 +194,24 @@ class VariableMap(val hiddenNodes:Set[Element],val variables:List[Variable]) {
    *
    * @throws IllegalArgumentException if the variable is not known
    */
-  def readVariable(name:String):Object = {
-    variables find { x:Variable => x.name == name } match {
-      case Some(y) =>  y get
-      case None => throw new IllegalArgumentException("unknown variable "+name)
+  def readVariable(expandedName : String, context : Option[SchemaComponent]) : Object = {
+    variables.get(expandedName) match {
+      case Some(y) => y get(context)
+      case None => {
+        val sc = context.getOrElse(throw new IllegalArgumentException("unknown variable " + expandedName))
+        sc.schemaDefinitionError("unknown variable %s", expandedName)
+      }
     }
   }
 
-  def listVariables:List[InstantVariable] =
-    for(variable <- variables) yield
-      new InstantVariable(variable name,variable state,variable variableType,variable peek)
+  //  def listVariables:List[InstantVariable] =
+  //    for(variable <- variables) yield
+  //      new InstantVariable(variable name,variable state,variable variableType,variable peek)
 
-
-  def save =
-    variables foreach { _ save }
-
-  def restore =
-    variables foreach { _ restore }
-
-  private def getLongName(name:String,namespaces:Namespaces) = {
-    if (name.contains(":")){
-      val parts = name.split(":",2)
-      namespaces.getNamespaceURI (parts(0)) + parts(1)
-    }else
-      name
-  }
+//  def save =
+//    variables foreach { _ save }
+//
+//  def restore =
+//    variables foreach { _ restore }
 
 }

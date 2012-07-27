@@ -973,6 +973,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     val (nsURI, localName) = ge1.formatAnnotation.getQName("ref1")
 
     println(nsURI + ", " + localName)
+    assertEquals("ref1", localName)
+    assertEquals(XMLUtils.EXAMPLE_NAMESPACE, nsURI)
   }
 
   def testGetAllNamespaces() {

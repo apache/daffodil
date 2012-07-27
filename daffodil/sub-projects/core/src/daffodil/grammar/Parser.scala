@@ -85,7 +85,7 @@ class AltParseFailed(sc : SchemaComponent, state : DFDL.State,
 /**
  * Encapsulates lower-level parsing with a uniform interface
  */
-abstract class Parser(val context : Term) extends Logging {
+abstract class Parser(val context : SchemaComponent) extends Logging {
   
   def PE(pstate : PState, s : String, args : Any*) = {
     pstate.failed(new ParseError(context, Some(pstate), s, args : _*))
@@ -200,7 +200,7 @@ class ErrorParser(context : Term = null) extends Parser(context) {
   override def toString = "Error Parser"
 }
 
-class SeqCompParser(context : Term, p : Gram, q : Gram) extends Parser(context) {
+class SeqCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) extends Parser(context) {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pParser = p.parser
   val qParser = q.parser
@@ -215,7 +215,7 @@ class SeqCompParser(context : Term, p : Gram, q : Gram) extends Parser(context) 
   override def toString = pParser.toString + " ~ " + qParser.toString
 }
 
-class AltCompParser(context : Term, p : Gram, q : Gram) extends Parser(context) {
+class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) extends Parser(context) {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pParser = p.parser
   val qParser = q.parser
@@ -401,7 +401,7 @@ class PState(
   val parent: org.jdom.Parent,
   val variableMap: VariableMap,
   val target: String,
-  val namespaces: Namespaces,
+  val namespaces: Any, // Namespaces
   val status: ProcessorResult,
   val groupIndexStack: List[Long],
   val childIndexStack: List[Long],
@@ -524,9 +524,9 @@ object PState {
     val inStream = in
    
     val doc = new org.jdom.Document() // must have a jdom document to get path evaluation to work.  
-    val variables = new VariableMap()
+    val variables = rootElemDecl.schema.schemaSet.variableMap
     val targetNamespace = rootElemDecl.schemaDocument.targetNamespace
-    val namespaces = new Namespaces()
+    val namespaces = null // new Namespaces()
     val status = Success
     val groupIndexStack = Nil
     val childIndexStack = Nil

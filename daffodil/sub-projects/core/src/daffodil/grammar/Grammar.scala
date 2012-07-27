@@ -4,9 +4,10 @@ import daffodil.exceptions.Assert
 import daffodil.util.Debug
 import daffodil.util.Misc.getNameFromClass
 import daffodil.dsom.{ SchemaComponent, Term, DiagnosticsProviding}
+import daffodil.dsom.AnnotatedSchemaComponent
 
 
-abstract class Gram(val context: Term) extends DiagnosticsProviding {
+abstract class Gram(val context: AnnotatedSchemaComponent) extends DiagnosticsProviding {
   def deref = this
 
   val name = getNameFromClass(this)
@@ -63,7 +64,7 @@ abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) 
   override lazy val diagnosticChildren = if (r.isEmpty) Nil else List(r)
 }
 
-abstract class BinaryGram(context: Term, p: => Gram, q: => Gram) extends Gram(context) {
+abstract class BinaryGram(context: AnnotatedSchemaComponent, p: => Gram, q: => Gram) extends Gram(context) {
   def op: String
   def open: String
   def close: String
@@ -72,7 +73,7 @@ abstract class BinaryGram(context: Term, p: => Gram, q: => Gram) extends Gram(co
   override lazy val diagnosticChildren = List(p, q)
 }
 
-class SeqComp(context: Term, p: => Gram, q: => Gram) extends BinaryGram(context, p, q) {
+class SeqComp(context: AnnotatedSchemaComponent, p: => Gram, q: => Gram) extends BinaryGram(context, p, q) {
   def op = "~"
   def open = ""
   def close = ""
@@ -83,7 +84,7 @@ class SeqComp(context: Term, p: => Gram, q: => Gram) extends BinaryGram(context,
   def unparser = new SeqCompUnparser(context, p, q)
 }
 
-class AltComp(context: Term, p: => Gram, q: => Gram) extends BinaryGram(context, p, q) {
+class AltComp(context: AnnotatedSchemaComponent, p: => Gram, q: => Gram) extends BinaryGram(context, p, q) {
   def op = "|"
   def open = "("
   def close = ")"
@@ -159,14 +160,14 @@ object ErrorGram extends Gram(null) {
   def unparser = new ErrorUnparser
 }
 
-abstract class NamedGram(context: Term) extends Gram(context) {
+abstract class NamedGram(context: AnnotatedSchemaComponent) extends Gram(context) {
   override def toString = name //+ (if (isEmpty) "(Empty)" else "")
 }
 
 /**
  * Primitives will derive from this base
  */
-abstract class Terminal(context: Term, guard: Boolean) extends NamedGram(context) {
+abstract class Terminal(context: AnnotatedSchemaComponent, guard: Boolean) extends NamedGram(context) {
   override def isEmpty = !guard
 
   lazy val realSC = context.asInstanceOf[SchemaComponent]

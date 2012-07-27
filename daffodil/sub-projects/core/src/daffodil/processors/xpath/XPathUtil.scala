@@ -48,7 +48,7 @@ import net.sf.saxon.jdom.NodeWrapper
 import net.sf.saxon.jdom.DocumentWrapper
 import net.sf.saxon.Configuration
 import net.sf.saxon.om.NodeInfo
-import daffodil.xml.Namespaces
+// import daffodil.xml.Namespaces
 import daffodil.exceptions._
 import daffodil.processors.VariableMap
 import daffodil.xml.XMLUtils
@@ -56,6 +56,8 @@ import daffodil.util.Logging
 import daffodil.util.Debug
 import daffodil.util.LogLevel
 import scala.xml.NamespaceBinding
+import javax.xml.XMLConstants
+import daffodil.dsom.SchemaComponent
 
 /**
  * Utility object for evaluating XPath expressions
@@ -75,7 +77,9 @@ object XPathUtil extends Logging {
    * Returns a VariableMap=>XPathExpression, which you can think of as
    * a CompiledXPathExpressionFactory, though we didn't create that type name
    */
-  def compileExpression(dfdlExpressionRaw: String, namespaces: Seq[org.jdom.Namespace]) = withLoggingLevel(LogLevel.Debug){
+  def compileExpression(dfdlExpressionRaw: String, 
+      namespaces: Seq[org.jdom.Namespace],
+      context : Option[SchemaComponent]) = withLoggingLevel(LogLevel.Debug){
     log(Debug("Compiling expression"))
     val dfdlExpression = dfdlExpressionRaw.trim
     Assert.usage(dfdlExpression != "")
@@ -111,8 +115,10 @@ object XPathUtil extends Logging {
     xpath setNamespaceContext (nsContext)
     xpath.setXPathVariableResolver(
       new XPathVariableResolver() {
-        def resolveVariable(qName: QName): Object =
-          variables.readVariable(qName.getNamespaceURI + qName.getLocalPart)
+        def resolveVariable(qName: QName): Object = {     
+          val varName = XMLUtils.expandedQName(qName)
+          variables.readVariable(varName, context)
+        }
       })
 
     val xpathExpr = xpath.compile(expression)
@@ -144,7 +150,7 @@ object XPathUtil extends Logging {
   private[xpath] def evalExpressionFromString(expression:String,variables:VariableMap,
                      contextNode:Parent,namespaces:Seq[org.jdom.Namespace]) : XPathResult = {
 
-    val compiledExprExceptVariables = compileExpression(expression, namespaces)
+    val compiledExprExceptVariables = compileExpression(expression, namespaces, None)
     val res = evalExpression(expression, compiledExprExceptVariables, variables, contextNode)
     res
   }

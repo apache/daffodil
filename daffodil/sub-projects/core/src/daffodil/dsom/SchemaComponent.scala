@@ -13,6 +13,7 @@ import daffodil.grammar._
 import com.ibm.icu.charset.CharsetICU
 import daffodil.dsom.OOLAG._
 import daffodil.api._
+import daffodil.processors.VariableMap
 
 
 class SchemaDefinitionError(
@@ -91,6 +92,26 @@ abstract class SchemaComponent(val xml : Node)
   
   def subsetError(args : Any*) = SDE("Subset ", args : _*)
 
+     
+  /**
+   * Needed by back-end to construct jdom nodes. 
+   * 
+   * An expression can be in any annotation, and its path can lead to a node
+   * So, we need the namespace in which to create that node.
+   */
+  lazy val jdomTargetNamespace = {
+    val jdomns = org.jdom.Namespace.getNamespace(schemaDocument.targetNamespace)
+    jdomns
+  }
+  
+  /**
+   * Needed by back-end to evaluate expressions.
+   */
+  lazy val namespaces = {
+    val res = XMLUtils.jdomNamespaceBindings(xml.scope)
+    res
+  }
+
 }
 
 /**
@@ -124,22 +145,33 @@ trait GlobalComponentMixin
     override lazy val scPath = schemaDocument.scPath + "::" + prettyName
 }
 
+abstract class AnnotatedSchemaComponent(xml : Node)
+extends SchemaComponent(xml)
+with AnnotatedMixin
 
 /**
  * Every component that can be annotated.
  */
+// Provides some polymorphism across annotated things, 
+// and unannotated things like complex types.
+trait SharedPropertyLists {
+  // use def, can be overriden by lazy val, val, or def
+  def localAndFormatRefProperties: Map[String, String]
+  def allNonDefaultProperties = localAndFormatRefProperties
+}
+
 trait AnnotatedMixin 
-extends CommonRuntimeValuedPropertiesMixin { self : SchemaComponent =>
+extends CommonRuntimeValuedPropertiesMixin 
+with SharedPropertyLists { self : SchemaComponent =>
     
   def prettyName : String
   def path : String
   
-  def localAndFormatRefProperties: Map[String,String]
-  def allNonDefaultProperties = localAndFormatRefProperties
   def defaultProperties: Map[String,String] = {
     this.schemaDocument.localAndFormatRefProperties
   }
   
+  lazy val sDoc = self.schemaDocument
   /**
    * Primary mechanism for a component to get a format property value.
    * 
@@ -241,25 +273,6 @@ extends CommonRuntimeValuedPropertiesMixin { self : SchemaComponent =>
    */
   lazy val expressionCompiler = new ExpressionCompiler(this)
   
-   
-  /**
-   * Needed by back-end to construct jdom nodes. 
-   * 
-   * An expression can be in any annotation, and its path can lead to a node
-   * So, we need the namespace in which to create that node.
-   */
-  lazy val jdomTargetNamespace = {
-    val jdomns = org.jdom.Namespace.getNamespace(schemaDocument.targetNamespace)
-    jdomns
-  }
-  
-  /**
-   * Needed by back-end to evaluate expressions.
-   */
-  lazy val namespaces = {
-    val res = XMLUtils.jdomNamespaceBindings(xml.scope)
-    res
-  }
   
   /**
    * Character encoding common attributes
@@ -427,12 +440,25 @@ extends DiagnosticsProviding {
     case None => context.schemaDefinitionError("Failed to find a schema for namespace:  " + namespace)
     case Some(sch) => sch.getDefineFormats()
   }
-  def getDefineVariable(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineVariable(name) }
+  def getDefineVariable(namespace: String, name: String) = {
+    val res = getSchema(namespace).flatMap { _.getDefineVariable(name) }
+    res
+  }
   def getDefineEscapeScheme(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineEscapeScheme(name) }
 
   lazy val primitiveTypes = XMLUtils.DFDL_SIMPLE_BUILT_IN_TYPES.map{new PrimitiveType(_)}
   def getPrimitiveType(localName: String) = primitiveTypes.find{_.name == localName}
 
+  
+  lazy val variableMap = {
+    val dvs = schemas.flatMap{_.schemaDocuments}.flatMap{_.defineVariables}
+    val vs = dvs.map{_.variable}
+    val pairs = vs.map{v => (v.name, v)}
+    val hmap = pairs.toMap
+    val vmap = new VariableMap(hmap)
+    vmap
+  }
+  
 }
 
 /**
@@ -474,7 +500,10 @@ extends DiagnosticsProviding {
   def getGlobalGroupDef(name: String) = noneOrOne(schemaDocuments.flatMap { _.getGlobalGroupDef(name) }, name)
   def getDefineFormat(name: String) = noneOrOne(schemaDocuments.flatMap { _.getDefineFormat(name) }, name)
   def getDefineFormats() = schemaDocuments.flatMap { _.defineFormats }
-  def getDefineVariable(name: String) = noneOrOne(schemaDocuments.flatMap { _.getDefineVariable(name) }, name)
+  def getDefineVariable(name: String) = {
+    val res = noneOrOne(schemaDocuments.flatMap { _.getDefineVariable(name) }, name)
+    res
+  }
   def getDefineEscapeScheme(name: String) = noneOrOne(schemaDocuments.flatMap { _.getDefineEscapeScheme(name) }, name)
 
 }
@@ -499,7 +528,7 @@ extends DiagnosticsProviding {
  * a schema component was defined within.
  */
 class SchemaDocument(xmlArg: Node, schemaArg: Schema)
-  extends SchemaComponent(xmlArg)
+  extends AnnotatedSchemaComponent(xmlArg)
   with AnnotatedMixin
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
@@ -629,7 +658,10 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
   def getGlobalGroupDef(name: String) = globalGroupDefs.find { _.name == name }
   
   def getDefineFormat(name: String) = defineFormats.find { _.name == name }
-  def getDefineVariable(name: String) = defineVariables.find { _.name == name }
+  def getDefineVariable(name: String) = {
+    val res = defineVariables.find { _.name == name }
+    res
+  }
   def getDefineEscapeScheme(name: String) = defineEscapeSchemes.find { _.name == name }
 
 }

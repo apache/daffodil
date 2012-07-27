@@ -1,17 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testSuite suiteName="AA-BG" description="Original suite of AA through BG"
-	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+<tdml:testSuite suiteName="AA" description="AA test of InputValueCalc"
+	xmlns="http://example.com" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
 
-	<parserTestCase name="AA000" root="list" model="AA.dfdl.xsd"
+	<tdml:defineSchema name="AA.dfdl.xsd">
+		<dfdl:defineVariable name="x" type="xsd:int"
+			defaultValue="0" />
+		<dfdl:format separator="" initiator="" terminator=""
+			emptyValueDelimiterPolicy="none" textNumberRep="standard"
+			representation="text" occursStopValue="-1" occursCountKind="parsed"
+			lengthKind="explicit" length="{ 0 }" lengthUnits="bytes" encoding="US-ASCII" />
+		<xs:element name="list" type="example1" />
+
+		<xs:complexType name="example1">
+			<xs:sequence>
+				<xs:element name="w" type="xsd:int" dfdl:inputValueCalc="{ $ex:x + 1 }" />
+				<xs:element name="x" type="xsd:int" dfdl:inputValueCalc="{ $ex:x + ../ex:w + 1 }" />
+				<xs:element name="y" type="xsd:int" dfdl:inputValueCalc="{ ../ex:x + ../ex:w }" />
+				<xs:element name="z" type="xsd:int" dfdl:inputValueCalc="{ $ex:x + 4 }" />
+			</xs:sequence>
+		</xs:complexType>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="AA000" root="list" model="AA.dfdl.xsd"
 		description="Tests variables and inputValueCalc">
 
-		<document>
-			<documentPart type="byte"></documentPart>
-		</document>
+		<tdml:document>
+			<tdml:documentPart type="byte"></tdml:documentPart>
+		</tdml:document>
 
-		<infoset>
-			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
 				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
@@ -19,13 +41,9 @@
 					<x type="xsd:int">2</x>
 					<y type="xsd:int">3</y>
 					<z type="xsd:int">4</z>
-					<a type="xsd:string">UTF-8</a>
-					<b type="xsd:string">bigEndian</b>
-					<c type="xsd:string">ieee</c>
-					<d type="xsd:string" />
 				</list>
 
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
-</testSuite>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+</tdml:testSuite>

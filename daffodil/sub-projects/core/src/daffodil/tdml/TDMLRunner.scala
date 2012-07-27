@@ -329,6 +329,10 @@ case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
       if (pf.isError) pf
       else {
         val processor = pf.onPath("/")
+        if (processor.isError) {
+          val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
+          throw new Exception(diags)
+        }
         val actual = processor.parse(dataToParse)
 
         if (actual.canProceed) {
@@ -357,6 +361,10 @@ case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
       throw new Exception(diags)
     } else {
       val processor = pf.onPath("/")
+      if (processor.isError) {
+        val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
+        throw new Exception(diags)
+      }
       val actual = processor.parse(dataToParse)
 
       if (!actual.canProceed) {
@@ -415,7 +423,7 @@ case class UnparserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
     // compare expected data to what was output.
     val expectedBytes = inbuf.array().toList.slice(0, readCount)
     if (actualBytes.length != readCount) {
-      throw new Exception("output data length " + actualBytes.length + " for " + actualBytes.toList + 
+      throw new Exception("output data length " + actualBytes.length + " for " + actualBytes.toList +
         " doesn't match expected value " + readCount + " for " + expectedBytes)
     }
 
@@ -442,6 +450,10 @@ case class UnparserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
       throw new Exception(diags)
     }
     val processor = pf.onPath("/")
+    if (processor.isError) {
+      val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new Exception(diags)
+    }
     val actual = processor.unparse(output, node)
     output.close()
 
@@ -469,6 +481,10 @@ case class UnparserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
       verifyAllDiagnosticsFound(pf, warnings)
     }
     val processor = pf.onPath("/")
+    if (processor.isError) {
+      val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new Exception(diags)
+    }
     val actual = processor.unparse(output, node)
     output.close()
     val actualBytes = outStream.toByteArray()

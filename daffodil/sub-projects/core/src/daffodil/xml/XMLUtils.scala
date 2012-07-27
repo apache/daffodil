@@ -29,6 +29,8 @@ import daffodil.dsom._
 import java.io.StringReader
 import daffodil.util.Misc
 import daffodil.util.Validator
+import javax.xml.namespace.QName
+import javax.xml.XMLConstants
 
 /**
  * Utilities for handling XML
@@ -103,25 +105,25 @@ object XMLUtils {
   //
   //  //XSD data types
   //
-    val XSD_STRING = XSD_NAMESPACE+"/"+"string"
-    val XSD_FLOAT = XSD_NAMESPACE+"/"+"float"
-    val XSD_DOUBLE = XSD_NAMESPACE+"/"+"double"
-    val XSD_DECIMAL = XSD_NAMESPACE+"/"+"decimal"
-    val XSD_INTEGER = XSD_NAMESPACE+"/"+"integer"
-    val XSD_LONG = XSD_NAMESPACE+"/"+"long"
-    val XSD_INT = XSD_NAMESPACE+"/"+"int"
-    val XSD_SHORT = XSD_NAMESPACE+"/"+"short"
-    val XSD_BYTE = XSD_NAMESPACE+"/"+"byte"
-    val XSD_UNSIGNED_LONG = XSD_NAMESPACE+"/"+"unsignedLong"
-    val XSD_UNSIGNED_INT = XSD_NAMESPACE+"/"+"unsignedInt"
-    val XSD_NON_NEGATIVE_INTEGER = XSD_NAMESPACE+"/"+"nonNegativeInteger"
-    val XSD_UNSIGNED_SHORT = XSD_NAMESPACE+"/"+"unsignedShort"
-    val XSD_UNSIGNED_BYTE = XSD_NAMESPACE+"/"+"unsignedByte"
-    val XSD_BOOLEAN = XSD_NAMESPACE+"/"+"boolean"
-    val XSD_DATE = XSD_NAMESPACE+"/"+"date"
-    val XSD_TIME = XSD_NAMESPACE+"/"+"time"
-    val XSD_DATE_TIME = XSD_NAMESPACE+"/"+"dateTime"
-    val XSD_HEX_BINARY = XSD_NAMESPACE+"/"+"hexBinary"
+    val XSD_STRING = expandedQName(XSD_NAMESPACE, "string")
+    val XSD_FLOAT = expandedQName(XSD_NAMESPACE, "float")
+    val XSD_DOUBLE = expandedQName(XSD_NAMESPACE, "double")
+    val XSD_DECIMAL = expandedQName(XSD_NAMESPACE, "decimal")
+    val XSD_INTEGER = expandedQName(XSD_NAMESPACE, "integer")
+    val XSD_LONG = expandedQName(XSD_NAMESPACE, "long")
+    val XSD_INT = expandedQName(XSD_NAMESPACE, "int")
+    val XSD_SHORT = expandedQName(XSD_NAMESPACE, "short")
+    val XSD_BYTE = expandedQName(XSD_NAMESPACE, "byte")
+    val XSD_UNSIGNED_LONG = expandedQName(XSD_NAMESPACE, "unsignedLong")
+    val XSD_UNSIGNED_INT = expandedQName(XSD_NAMESPACE, "unsignedInt")
+    val XSD_NON_NEGATIVE_INTEGER = expandedQName(XSD_NAMESPACE, "nonNegativeInteger")
+    val XSD_UNSIGNED_SHORT = expandedQName(XSD_NAMESPACE, "unsignedShort")
+    val XSD_UNSIGNED_BYTE = expandedQName(XSD_NAMESPACE, "unsignedByte")
+    val XSD_BOOLEAN = expandedQName(XSD_NAMESPACE, "boolean")
+    val XSD_DATE = expandedQName(XSD_NAMESPACE, "date")
+    val XSD_TIME = expandedQName(XSD_NAMESPACE, "time")
+    val XSD_DATE_TIME = expandedQName(XSD_NAMESPACE, "dateTime")
+    val XSD_HEX_BINARY = expandedQName(XSD_NAMESPACE, "hexBinary")
   //
   val DFDL_SIMPLE_BUILT_IN_TYPES =
     List("string",
@@ -416,6 +418,22 @@ object XMLUtils {
   //    }
   //  }
 
+  def expandedQName(qName : QName) : String = {
+    val uri = qName.getNamespaceURI
+    val localName = qName.getLocalPart
+    expandedQName(uri, localName)
+  }
+  
+  def expandedQName(uri: String, localName : String) : String = {
+    Assert.usage(uri != null)
+    Assert.usage(localName != null)
+    val prefix =
+      if (uri == null || uri == XMLConstants.NULL_NS_URI) ""
+      else "{" + uri + "}"
+    val expName = prefix + localName
+    expName
+  }
+
   /**
    * super inefficient, but useful for unit tests
    */
@@ -478,9 +496,9 @@ object XMLUtils {
         val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
         val ns = Namespace getNamespace (prefix, attrNS)
         if (attribute.isPrefixed && attrNS != "") {
-          println("THE ATTRIBUTE IS: " + name)
-          println("THE NAMESPACE SHOULD BE: " + attrNS)
-          println("IT ACTUALLY IS:" + Namespace.getNamespace(name, attrNS))
+//          println("THE ATTRIBUTE IS: " + name)
+//          println("THE NAMESPACE SHOULD BE: " + attrNS)
+//          println("IT ACTUALLY IS:" + Namespace.getNamespace(name, attrNS))
 
           // jdomNode setAttribute (name, value, ns)
           new Attribute(name, value, ns)
@@ -525,18 +543,18 @@ object XMLUtils {
   //    }
   //  }
 
-  def getNamespaces(node : Element) = {
-    val namespaces = new Namespaces
-    namespaces addNamespaces (node)
-    namespaces
-  }
-
-  def getNamespaces(node : Element, targetNamespace : String) = {
-    val namespaces = new Namespaces
-    namespaces addNamespaces (node)
-    namespaces addNamespace (targetNamespace, null)
-    namespaces
-  }
+//  def getNamespaces(node : Element) = {
+//    val namespaces = new Namespaces
+//    namespaces addNamespaces (node)
+//    namespaces
+//  }
+//
+//  def getNamespaces(node : Element, targetNamespace : String) = {
+//    val namespaces = new Namespaces
+//    namespaces addNamespaces (node)
+//    namespaces addNamespace (targetNamespace, null)
+//    namespaces
+//  }
 
   //  def getListFromValue(value:String):AttributeValue =
   //    if (XPathUtil isExpression(value))

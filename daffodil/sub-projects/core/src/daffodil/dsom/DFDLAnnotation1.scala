@@ -9,19 +9,28 @@ import daffodil.xml._
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import scala.collection.JavaConversions._
+import daffodil.processors.Variable
+import daffodil.grammar.Gram
+import daffodil.grammar.AssertPrim
+import daffodil.grammar.Discriminator
+import daffodil.grammar.SetVariable
+import daffodil.grammar.EmptyGram
+import daffodil.grammar.NewVariableInstance
 
 /**
  * Base class for any DFDL annotation
  */
-abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin)
+abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
   extends DiagnosticsProviding
-  with GetAttributesMixin {
+  with GetAttributesMixin
+  with ThrowsSDE {
   lazy val xml = node
   
-  lazy val context = annotatedSC match {
-      case sc : SchemaComponent => sc 
-      case _ => Assert.invariantFailed("should be a SchemaComponent")
-    }
+  lazy val context = annotatedSC 
+//  match {
+//      case sc : SchemaComponent => sc 
+//      case _ => Assert.invariantFailed("should be a SchemaComponent")
+//    }
   
   lazy val prettyName = xml.prefix + ":" + xml.label 
   lazy val path = annotatedSC.path + "::" + prettyName
@@ -32,6 +41,33 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedMixin)
   
   def subset(testThatWillThrowIfFalse : Boolean, args : Any*) = {
     if (!testThatWillThrowIfFalse) SDE("Subset ", args : _ * )
+  }
+  
+    /**
+   * If there is no default namespace (that is, no xmlns="..." at all), then getQName("foo") should return ("", "foo").
+   * If there is a default namespace with URI "defNS", then getQName("foo") should return ("defNS", "foo")
+   * If there is no namespace definition for prefix bar, then getQName("bar:foo") should produce a schemaDefinitionError,
+   * because this is a referential integrity error.
+   * If there is a namespace definition for prefix bar of "barNS", then getQName("bar:foo") should return ("barNS", "foo")
+   */
+  def getQName(name: String): (String, String) = {
+    val parts = name.split(":").toList
+    val (prefix, localName) = parts match {
+      case List(local) => (null, local)
+      case List(pre, local) => (pre, local)
+      case _ => Assert.impossibleCase()
+    }
+    val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
+    // Assert.schemaDefinition(nsURI != null, "In QName " + name + ", the prefix " + prefix + " was not defined.")
+    // TODO: accumulate errors, don't just throw on one.
+    // TODO: error location for diagnostic purposes. 
+    // see: http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
+    if (nsURI == null && prefix == null)
+      ("", localName)
+    else if (nsURI == null)
+      schemaDefinitionError("In QName " + name + ", the prefix " + prefix + " was not defined.")
+    else
+      (nsURI, localName)
   }
   
 }
@@ -96,7 +132,7 @@ trait RawSimpleTypeRuntimeValuedPropertiesMixin
 /**
  * Base class for annotations that carry format properties
  */
-abstract class DFDLFormatAnnotation(node: Node, annotatedSC: SchemaComponent with AnnotatedMixin)
+abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
   extends DFDLAnnotation(node, annotatedSC)
   with RawCommonRuntimeValuedPropertiesMixin
   with RawEscapeSchemeRuntimeValuedPropertiesMixin {
@@ -227,32 +263,7 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: SchemaComponent wit
     case _ => Assert.impossibleCase()
   }.toSet
 
-  /**
-   * If there is no default namespace (that is, no xmlns="..." at all), then getQName("foo") should return ("", "foo").
-   * If there is a default namespace with URI "defNS", then getQName("foo") should return ("defNS", "foo")
-   * If there is no namespace definition for prefix bar, then getQName("bar:foo") should produce a schemaDefinitionError,
-   * because this is a referential integrity error.
-   * If there is a namespace definition for prefix bar of "barNS", then getQName("bar:foo") should return ("barNS", "foo")
-   */
-  def getQName(name: String): (String, String) = {
-    val parts = name.split(":").toList
-    val (prefix, localName) = parts match {
-      case List(local) => (null, local)
-      case List(pre, local) => (pre, local)
-      case _ => Assert.impossibleCase()
-    }
-    val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
-    // Assert.schemaDefinition(nsURI != null, "In QName " + name + ", the prefix " + prefix + " was not defined.")
-    // TODO: accumulate errors, don't just throw on one.
-    // TODO: error location for diagnostic purposes. 
-    // see: http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
-    if (nsURI == null && prefix == null)
-      ("", localName)
-    else if (nsURI == null)
-      schemaDefinitionError("In QName " + name + ", the prefix " + prefix + " was not defined.")
-    else
-      (nsURI, localName)
-  }
+
 
   // Added by Taylor Wise
   //
@@ -455,10 +466,11 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: SchemaComponent wit
 /**
  * Base class for assertions, variable assignments, etc
  */
-abstract class DFDLStatement(node: Node, annotatedSC: AnnotatedMixin)
+abstract class DFDLStatement(node: Node, annotatedSC: AnnotatedSchemaComponent)
   extends DFDLAnnotation(node, annotatedSC) {
   
-  lazy val diagnosticChildren : DiagnosticsList = Nil
+  lazy val diagnosticChildren : DiagnosticsList = List(gram)
+  def gram : Gram
 }
 
 class DFDLFormat(node: Node, sd: SchemaDocument)
@@ -532,7 +544,7 @@ class DFDLDefineFormat(node: Node, sd: SchemaDocument)
   lazy val diagnosticChildren = formatAnnotation +: definingAnnotationDiagnosticChildren
 }
 
-class DFDLEscapeScheme(node: Node, decl: SchemaComponent with AnnotatedMixin)
+class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLFormatAnnotation(node, decl) 
   with EscapeScheme_AnnotationMixin
   with RawEscapeSchemeRuntimeValuedPropertiesMixin {
@@ -557,7 +569,7 @@ class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument)
   }
 }
 
-abstract class DFDLAssertionBase(node: Node, decl: AnnotatedMixin)
+abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {
 
   lazy val testBody = node.child.text
@@ -570,43 +582,60 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedMixin)
   // can provide... which is nothing right now, but it could...someday).
 }
 
-class DFDLAssert(node: Node, decl: AnnotatedMixin)
-  extends DFDLAssertionBase(node, decl) // with Assert_AnnotationMixin // Note: don't use these generated mixins. Statements don't have format properties                                  
-  {
-  // all attributes come from base class
+class DFDLAssert(node : Node, decl : AnnotatedSchemaComponent)
+  extends DFDLAssertionBase(node, decl) { // with Assert_AnnotationMixin // Note: don't use these generated mixins. Statements don't have format properties
+  
+  lazy val gram = AssertPrim(decl, this)
 }
 
-class DFDLDiscriminator(node: Node, decl: AnnotatedMixin)
-  extends DFDLAssertionBase(node, decl) // with Discriminator_AnnotationMixin 
-  {
-  // all attributes come from base class
+class DFDLDiscriminator(node : Node, decl : AnnotatedSchemaComponent)
+  extends DFDLAssertionBase(node, decl) { // with Discriminator_AnnotationMixin 
+
+  lazy val gram = Discriminator(decl, this)
 }
 
-class DFDLDefineVariable(node: Node, decl: AnnotatedMixin)
-  extends DFDLStatement(node, decl) //with DefineVariable_AnnotationMixin 
+class DFDLDefineVariable(node: Node, doc: SchemaDocument)
+  extends DFDLStatement(node, doc) 
   with DFDLDefiningAnnotation
   {
-  //TODO: check: are the rest of these required or optional?
-  lazy val predefined = getAttributeOption("predefined")
-  lazy val type_ = getAttributeOption("type")
-  lazy val external = getAttributeOption("external")
-  lazy val defaultValue = getAttributeOption("defaultValue")
+  lazy val gram = EmptyGram // has to have because statements have parsers layed in by the grammar.
+  lazy val type_ = getAttributeOption("type").getOrElse("xs:string")
+  lazy val external = getAttributeOption("external").map{_.toBoolean}.getOrElse(false)
+  lazy val defaultValueAsAttribute = getAttributeOption("defaultValue")
+  lazy val defaultValueAsElement = node.child.text
+  lazy val defaultValue = (defaultValueAsAttribute, defaultValueAsElement) match {
+    case (None, "") => None
+    case (None, str) => Some(str)
+    case (Some(str), "") => Some(str)
+    case (Some(str), v) => schemaDefinitionError("Default value of variable was supplied both as attribute and element value: %s", node.toString)
+  }
   
   override lazy val diagnosticChildren = definingAnnotationDiagnosticChildren
+  
+  lazy val qname = getQName(name)
+  lazy val (uri, localName) = qname
+  lazy val expandedName = XMLUtils.expandedQName(uri, localName)
+  
+  lazy val variable = Variable(this, expandedName, type_, defaultValue, external, doc)
+  
 }
 
-class DFDLNewVariableInstance(node: Node, decl: AnnotatedMixin)
+class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) // with NewVariableInstance_AnnotationMixin 
   {
   lazy val ref = getAttributeRequired("ref")
   lazy val defaultValue = getAttributeOption("defaultValue")
+  
+  lazy val gram = NewVariableInstance(decl, this)
 }
 
-class DFDLSetVariable(node: Node, decl: AnnotatedMixin)
+class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) // with SetVariable_AnnotationMixin 
   {
   lazy val ref = getAttributeRequired("ref")
   lazy val value = getAttributeRequired("value")
+  
+  lazy val gram = SetVariable(decl, this)
 }
 
 

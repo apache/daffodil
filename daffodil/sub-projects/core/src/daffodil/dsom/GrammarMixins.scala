@@ -266,7 +266,10 @@ trait ElementBaseGrammarMixin
     textNumberRep == TextNumberRep.Zoned, subsetError("Zoned not supported for float and double"))
 
   // shorthand
-  lazy val primType = typeDef.asInstanceOf[SimpleTypeBase].primitiveType
+  lazy val primType = {
+    val res = typeDef.asInstanceOf[SimpleTypeBase].primitiveType
+    res
+  }
 
   lazy val value = Prod("value", this, isSimpleType,
     // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
@@ -496,12 +499,19 @@ trait ElementBaseGrammarMixin
   lazy val elementRightFraming = Prod("elementRightFraming", this, NYI, trailingSkipRegion)
 
   /**
-   * Placeholders for executing the DFDL 'statement' annotations and doing whatever it is they
+   * For executing the DFDL 'statement' annotations and doing whatever it is they
    * do to the processor state. This is discriminators, assertions, setVariable, etc.
    *
    * Also things that care about entry and exit of scope, like newVariableInstance
    */
-  lazy val dfdlStatementEvaluations = Prod("dfdlStatementEvaluations", this, NYI, EmptyGram)
+  lazy val statements = this.annotationObjs.filter{ st =>
+    st.isInstanceOf[DFDLStatement] &&
+    !st.isInstanceOf[DFDLNewVariableInstance]
+    }.asInstanceOf[Seq[DFDLStatement]]
+  lazy val statementGrams = statements.map{_.gram}
+  lazy val dfdlStatementEvaluations = Prod("dfdlStatementEvaluations", this, statementGrams.length > 0, 
+      statementGrams.fold(EmptyGram){_ ~ _}
+  )
   lazy val dfdlScopeBegin = Prod("dfdlScopeBegin", this, NYI, EmptyGram)
   lazy val dfdlScopeEnd = Prod("dfdlScopeEnd", this, NYI, EmptyGram)
 

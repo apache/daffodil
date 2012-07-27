@@ -10,6 +10,7 @@ import daffodil.util.Logging
 import daffodil.util.Debug
 import daffodil.util.LogLevel
 import daffodil.xml.XMLUtils
+import daffodil.processors.EmptyVariableMap
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -70,6 +71,7 @@ abstract class CompiledExpression(val prettyExpr : String) {
 }
 
 object CompiledExpressionUtil {
+  
   def converter[T](convertTo: Symbol, expr: Any) = {
     val str: String = expr match {
       case n: org.jdom.Element => n.getText()
@@ -77,6 +79,7 @@ object CompiledExpressionUtil {
     }
     val res = convertTo match {
       case 'Long => str.toLong.asInstanceOf[T]
+      case 'Double => str.toDouble.asInstanceOf[T]
       case 'String => str
       case 'Element => expr.asInstanceOf[org.jdom.Element]
       case _ => Assert.usageError("Runtime properties can only be Long, String, or Element")
@@ -116,7 +119,26 @@ case class ExpressionProperty[T](convertTo : Symbol,
   }
 
 
-class ExpressionCompiler(edecl : AnnotatedMixin) extends Logging {
+class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
+    
+  def expandedName(qname : String) = {
+    val (uri, localTypeName) = XMLUtils.QName(edecl.xml, qname, edecl.schemaDocument)
+    val expName = XMLUtils.expandedQName(uri, localTypeName)
+    expName
+  }
+  
+  def convertTypeString(expandedTypeName : String) = {
+    Assert.usage(expandedTypeName != null)
+    expandedTypeName match {
+      // TODO: make this insensitive to the prefix used (sometimes xs, sometimes xsd, sometimes whatever)
+      case XMLUtils.XSD_STRING => 'String
+      case XMLUtils.XSD_LONG => 'Long
+      case XMLUtils.XSD_DOUBLE => 'Double
+      case XMLUtils.XSD_INT => 'Long
+      case _ => Assert.notYetImplemented()
+    }
+  }
+  
   /**
    * The only way I know to check if the compiled expression was just a constant
    * is to evaluate it in an environment where if it touches anything (variables, jdom tree, etc.)
@@ -124,7 +146,7 @@ class ExpressionCompiler(edecl : AnnotatedMixin) extends Logging {
    */
   def constantValue(xpathExprFactory: CompiledExpressionFactory): Option[String] = 
     withLoggingLevel(LogLevel.Debug){
-    val dummyVars = new VariableMap
+    val dummyVars = EmptyVariableMap
     val result =
       try {
         val res = XPathUtil.evalExpression(
@@ -160,7 +182,7 @@ class ExpressionCompiler(edecl : AnnotatedMixin) extends Logging {
     } else {
 
       val xpath = XPathUtil.getExpression(expr)
-      val compiledXPath = XPathUtil.compileExpression(xpath, edecl.namespaces)
+      val compiledXPath = XPathUtil.compileExpression(xpath, edecl.namespaces, Some(edecl))
       val cv = constantValue(compiledXPath)
       val compiledExpression = cv match {
         case Some(s) => {
@@ -168,6 +190,7 @@ class ExpressionCompiler(edecl : AnnotatedMixin) extends Logging {
             case 'String => new ConstantProperty(s.asInstanceOf[String])
             case 'Long => new ConstantProperty(s.asInstanceOf[String].toLong)
             case 'Element => new ConstantProperty(s.asInstanceOf[org.jdom.Element])
+            case 'Double => new ConstantProperty(s.asInstanceOf[String].toDouble)
           }
         }
         case None => new ExpressionProperty(convertTo, expr, compiledXPath)

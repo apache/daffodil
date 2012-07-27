@@ -5,28 +5,31 @@ import daffodil.exceptions._
 import daffodil.grammar._
 import daffodil.xml._
 
+
 /////////////////////////////////////////////////////////////////
 // Type System
 /////////////////////////////////////////////////////////////////
 
-abstract class TypeBase(xmlArg : Node, context : SchemaComponent) 
-extends SchemaComponent(xmlArg) {
-  // use def, can be overriden by lazy val or def
-  def localAndFormatRefProperties: Map[String, String]
-  def allNonDefaultProperties = localAndFormatRefProperties
- 
-}
+trait TypeBase // (xmlArg : Node, context : SchemaComponent) 
+extends SharedPropertyLists // extends SchemaComponent(xmlArg)
 
-abstract class SimpleTypeBase(xmlArg : Node, context : SchemaComponent) 
-extends TypeBase(xmlArg, context) {
+trait SimpleTypeBase 
+extends TypeBase 
+with DiagnosticsProviding { 
+  
+  def context : SchemaComponent 
   def primitiveType : PrimitiveType
+
 }
 
 abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
-  extends SimpleTypeBase(xmlArg, parent) 
-with AnnotatedMixin 
-with DFDLStatementMixin {
+  extends AnnotatedSchemaComponent(xmlArg)
+  with SimpleTypeBase 
+  with DFDLStatementMixin {
 
+  def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
+  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
+    
   def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:simpleType>{ contents @ _* }</dfdl:simpleType> => new DFDLSimpleType(node, this)
@@ -111,7 +114,7 @@ with DFDLStatementMixin {
     }
   }
   
-  lazy val myBaseTypeList = List(myBaseType)
+  lazy val myBaseTypeList = List(myBaseType) 
   
   lazy val diagnosticChildren = annotationObjs ++ myBaseTypeList
   
@@ -158,9 +161,7 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
   with LocalComponentMixin {
 
   lazy val detailName = "inside " + parent.detailName
-  def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
-  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
-
+  
   lazy val baseName = (xml \ "restriction" \ "@base").text
   lazy val baseType = {
     val res = if (baseName == "") None
@@ -183,10 +184,11 @@ object Fakes {
 
 //TBD: are Primitives "global", or do they just have names like globals do?
 class PrimitiveType(name_ : String) 
-extends SimpleTypeBase(<primitive/>, Fakes.xsd_sd) // use fake schema document
-with NamedMixin { 
+extends SchemaComponent(<primitive/>)
+with SimpleTypeBase // use fake schema document
+with NamedMixin {
     
-  def primitiveType = this
+  val primitiveType = this
   
   override def toString = "PrimitiveType(" + prettyName + ")"
 
@@ -234,19 +236,21 @@ class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val e
   with GlobalComponentMixin {
 
   def schemaDocument = schemaDocumentArg
-  def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
-
-  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
 
 }
 
 abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
-  extends TypeBase(xmlArg, parent)
+  extends SchemaComponent(xmlArg)
+  with TypeBase
   with ComplexTypeBaseGrammarMixin {
   def element : ElementBase
 
+  
   lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
   lazy val Seq(modelGroup) = xmlChildren.flatMap { GroupFactory(_, this, 1) }
+  
+  // provides needed polymorphism across unannotated complex types, and
+  // the annotated objects.
   lazy val localAndFormatRefProperties: Map[String, String] = {
     Map.empty[String, String]
   }

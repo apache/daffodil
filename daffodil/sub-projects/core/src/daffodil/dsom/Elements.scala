@@ -436,6 +436,8 @@ trait ElementDeclMixin
       case _ => Assert.invariantFailed("Must be either SimpleType or ComplexType")
     }
   }
+  
+  lazy val isPrimitiveType = typeDef.isInstanceOf[PrimitiveType]
 
   lazy val isComplexType = LV { !isSimpleType }
 
@@ -489,7 +491,7 @@ trait ElementDeclMixin
   lazy val combinedElementAndSimpleTypeProperties = {
     var props : Map[String, String] = this.localAndFormatRefProperties
 
-    if (isSimpleType) {
+    if (isSimpleType && !isPrimitiveType ) {
       props ++= this.elementSimpleType.allNonDefaultProperties
     }
     props
@@ -520,7 +522,7 @@ class LocalElementDecl(xmlArg : Node, parent : ModelGroup, position : Int)
  */
 trait DFDLStatementMixin extends ThrowsSDE {
 
-  def annotationFactoryForDFDLStatement(node : Node, self : AnnotatedMixin) : DFDLAnnotation = {
+  def annotationFactoryForDFDLStatement(node : Node, self : AnnotatedSchemaComponent) : DFDLAnnotation = {
     node match {
       case <dfdl:assert>{ content @ _* }</dfdl:assert> => new DFDLAssert(node, self)
       case <dfdl:discriminator>{ content @ _* }</dfdl:discriminator> => new DFDLDiscriminator(node, self)

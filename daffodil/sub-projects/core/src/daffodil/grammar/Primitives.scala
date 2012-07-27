@@ -733,7 +733,7 @@ case class ConvertTextFloatPrim(e: ElementBase) extends ConvertTextFloatingPoint
 //  }
 //}
 
-abstract class Primitive(e: Term, guard: Boolean = false)
+abstract class Primitive(e: AnnotatedSchemaComponent, guard: Boolean = false)
   extends Terminal(e, guard) {
   override def toString = "Prim[" + name + "]"
   def parser: Parser = DummyParser(e)
@@ -1465,6 +1465,21 @@ case class UnicodeByteOrderMark(e: GlobalElementDecl) extends Primitive(e, false
 
 case class FinalUnusedRegion(e: ElementBase) extends Primitive(e, false)
 
+case class NewVariableInstance(decl : AnnotatedSchemaComponent, stmt : DFDLNewVariableInstance) extends Primitive(decl, false)
+case class AssertPrim(decl : AnnotatedSchemaComponent, stmt : DFDLAssert) extends Primitive(decl, false)
+case class Discriminator(decl : AnnotatedSchemaComponent, stmt : DFDLDiscriminator) extends Primitive(decl, false)
+
+case class SetVariable(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable) extends Terminal(decl, true) {
+  def parser: Parser = new SetVariableParser(decl, stmt)
+
+  def unparser: Unparser = new Unparser(decl) {
+    def unparse(start: UState): UState = {
+      Assert.notYetImplemented()
+    }
+  }
+}
+
+
 case class InputValueCalc(e: ElementBase with ElementDeclMixin) extends Terminal(e, true) {
 
   def parser: Parser = new IVCParser(e)
@@ -1477,45 +1492,79 @@ case class InputValueCalc(e: ElementBase with ElementDeclMixin) extends Terminal
 
 }
 
-class IVCParser(e: ElementBase with ElementDeclMixin) extends Parser(e) {
-  override def toString = "InputValueCalc(" + ivcExprText + ")"
-  val Some(ivcExprText) = e.inputValueCalcOption
-  // Only for strings for now
-  lazy val isString = {
-    e.namedTypeQName match {
-      case None => false
-      case Some((ns, local)) => {
-        val res = (local == "string" && ns == XMLUtils.XSD_NAMESPACE)
-        res
-      }
-    }
-  }
-  Assert.invariant(e.isSimpleType)
-  val expressionTypeSymbol = e.primType.name match {
-    case "byte" => 'Long
-    case "short" => 'Long
-    case "int" => 'Long
-    case "long" => 'Long
-    case "string" => 'String
+abstract class ExpressionEvaluationParser(e : AnnotatedSchemaComponent) 
+extends Parser(e) with WithParseErrorThrowing {
+  override def toString = baseName + "(" + exprText + ")"
+  def baseName : String
+  def exprText : String
+  def expandedTypeName : String
+  lazy val expressionTypeSymbol = {
+    // println(expandedTypeName)
+    e.expressionCompiler.convertTypeString(expandedTypeName)
   }
   
-  val ivcExpr = e.expressionCompiler.compile(expressionTypeSymbol, ivcExprText)
-
-  // for unit testing
+  lazy val expr = e.expressionCompiler.compile(expressionTypeSymbol, exprText)
+  
+   // for unit testing
   def testExpressionEvaluation(elem: org.jdom.Element, vmap: VariableMap) = {
-    val result = ivcExpr.evaluate(elem, vmap)
+    val result = expr.evaluate(elem, vmap)
     result
   }
 
-  def parse(start: PState): PState = withLoggingLevel(LogLevel.Debug) {
-    log(Debug("This is %s", toString))
+  def eval(start : PState) = {
     val currentElement = start.parentElement
-    val result = ivcExpr.evaluate(currentElement, start.variableMap)
+    val result =
+      expr.evaluate(currentElement, start.variableMap)
     val res = result.toString // Everything in JDOM is a string!
-    currentElement.addContent(new org.jdom.Text(res))
-
-    val postState = start // inputValueCalc consumes nothing. Just creates a value.
-    postState
+    res
   }
 }
 
+class IVCParser(e: ElementBase with ElementDeclMixin) 
+  extends ExpressionEvaluationParser(e) {
+  Assert.invariant(e.isSimpleType)
+  val baseName = "InputValueCalc"
+ 
+  lazy val Some(exprText) = e.inputValueCalcOption
+ 
+  lazy val pt = e.primType
+  lazy val ptn = pt.name
+  lazy val expandedTypeName = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, ptn)
+
+  def parse(start : PState) : PState =
+    withLoggingLevel(LogLevel.Debug) {
+      withParseErrorThrowing(start) {
+        log(Debug("This is %s", toString))
+        val currentElement = start.parentElement
+        val res = eval(start)
+        currentElement.addContent(new org.jdom.Text(res))
+        val postState = start // inputValueCalc consumes nothing. Just creates a value.
+        postState
+      }
+    }
+}
+
+class SetVariableParser(decl: AnnotatedSchemaComponent, stmt : DFDLSetVariable) 
+extends ExpressionEvaluationParser(decl) {
+  val baseName = "SetVariable"
+ 
+  lazy val exprText = stmt.value
+  val (uri, localName) = XMLUtils.QName(decl.xml, stmt.ref, decl.schemaDocument)
+  val defv = decl.schema.schemaSet.getDefineVariable(uri, localName).getOrElse(
+      null // stmt.schemaDefinitionError("Unknown variable: %s", stmt.ref)
+      )
+      
+  val (typeURI, typeName) = XMLUtils.QName(decl.xml, defv.type_, decl.schemaDocument)
+  val expandedTypeName = XMLUtils.expandedQName(typeURI, typeName)
+
+  def parse(start : PState) : PState =
+    withLoggingLevel(LogLevel.Debug) {
+      withParseErrorThrowing(start) {
+        log(Debug("This is %s", toString))
+        val res = eval(start)
+        defv.variable.set(res)
+        val postState = start // setVariable consumes nothing. Just assigns a value.
+        postState
+      }
+    }
+}
