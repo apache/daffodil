@@ -141,5 +141,9 @@ class TresysTests extends JUnit3Suite {
 
   def test_AI000() { runnerAI.runOneTest("AI000") }
   
+  val aq = testDir + "AQ.tdml"
+  val runnerAQ = new DFDLTestSuite(new File(aq))
+
+  def test_AQ000() { runnerAQ.runOneTest("AQ000") }
 
 }
