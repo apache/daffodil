@@ -1,32 +1,3 @@
-# ignore emacs save files (ends with ~)
-*.*~
-
-# ignore bin, .cache, and target anywhere
-.cache
-bin/
-bin/*
 target
-out
-out/*
-.idea/misc.xml
-.idea/workspace.xml
-.idea/libraries/ICU4J.xml
-.idea/libraries/scala_library.xml
-.idea/libraries/libScala.xml
-
-# /daffodil/
-/daffodil/.cache
-/daffodil/bin
-/daffodil/build.properties
-/daffodil/.project
-/daffodil/lib
-/daffodil/doc/api
-/daffodil/diffs
-
-# /daffodil/sub-projects/daffodil-lib/
-/daffodil/sub-projects/daffodil-lib/bin
-/daffodil/sub-projects/daffodil-lib/.cache
-
-# /daffodil/sub-projects/dfdl-property-code-generator/
-/daffodil/sub-projects/dfdl-property-code-generator/bin
-/daffodil/sub-projects/dfdl-property-code-generator/.cache
+.history
+.cache
