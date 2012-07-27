@@ -15,6 +15,10 @@ class TestLengthKindPattern_01 extends JUnit3Suite {
   val aa = testDir + "PatternTests_01.tdml"
   val runner = new DFDLTestSuite(new File(aa))
 
+  /* DFDL-253 */
   def test_LengthPatternIllegalBits() { runner.runOneTest("LengthPatternIllegalBits") }
+
+  /* DFDL-254 */
+  def test_lengthKindPatternSimpleType() { runner.runOneTest("lengthKindPatternSimpleType") }
 
 }
