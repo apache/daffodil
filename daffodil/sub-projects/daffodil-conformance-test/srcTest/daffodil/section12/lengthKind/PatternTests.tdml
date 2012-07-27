@@ -76,7 +76,7 @@
 	</tdml:defineSchema>
 	
 	<tdml:parserTestCase name="AI000_rev" root="list"
-		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-038R">
+		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R">
 
 		<tdml:document>aSingleToken123456789AAAAA</tdml:document>
 		<tdml:infoset>
@@ -91,7 +91,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="lengthKindPattern_01" root="list_01"
-		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-038R">
+		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R">
 
 		<tdml:document>batcz3 4  AAAAA</tdml:document>
 		<tdml:infoset>
@@ -108,7 +108,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="lengthKindPattern_02" root="list_01"
-		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - no match error- DFDL-12-038R">
+		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - no match error- DFDL-12-088R">
 
 		<tdml:document>datcz3 4  AAAAA</tdml:document>
 		<tdml:errors>
@@ -117,7 +117,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="lengthKindPattern_03" root="list_02"
-		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - complex element encoding - DFDL-12-038R">
+		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - complex element encoding - DFDL-12-088R">
 
 		<tdml:document>bat,AAAAA</tdml:document>
 		<tdml:infoset>
@@ -170,7 +170,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="LengthKindPattern" root="doctors"
-		model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-038R">
+		model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R">
 
 		<tdml:document>Hartnell\, William,Troughton\, Patrick,Pertwee\, Jon,Baker\, Tom,Davison\, Peter,Baker\, Colin,McCoy\, Sylvester,McGann\, Paul,Christopher Eccleston,David Tennant,Matt Smith</tdml:document>
 		<tdml:infoset>
@@ -181,7 +181,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="LengthKindPatternCompound" root="abc"
-		model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-038R">
+		model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R">
 		<tdml:document>0aaa,bb//5</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">

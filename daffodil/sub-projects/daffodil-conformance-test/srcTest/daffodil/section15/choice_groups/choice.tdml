@@ -24,7 +24,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="basic" root="ch1" model="basic"
-		description="simplest imaginable test of choice. No asserts, no discriminators.">
+		description="simplest imaginable test of choice. No asserts, no discriminators - DFDL-15-001R.">
 
 		<tdml:document>
 			<tdml:documentPart type="text">A</tdml:documentPart>
@@ -68,7 +68,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="choice2" root="ch1"
-		model="choice2" description="Many choices one after another. 3 way branches.">
+		model="choice2" description="Many choices one after another. 3 way branches - DFDL-15-001R.">
 
 		<tdml:document>
 			<tdml:documentPart type="text">3.5AAA</tdml:documentPart>
@@ -91,7 +91,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="choice3" root="ch1"
-		model="choice2" description="Many choices one after another. 3 way branches.">
+		model="choice2" description="Many choices one after another. 3 way branches - DFDL-15-001R.">
 
 		<tdml:document>
 			<tdml:documentPart type="text">999888777</tdml:documentPart>
@@ -116,7 +116,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="choice4" root="ch1"
-		model="choice2" description="Many choices one after another. 3 way branches.">
+		model="choice2" description="Many choices one after another. 3 way branches - DFDL-15-001R.">
 
 		<tdml:document>
 			<tdml:documentPart type="text">3.54.65.7</tdml:documentPart>
@@ -141,7 +141,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="choice5" root="ch1"
-		model="choice2" description="Many choices one after another. 3 way branches.">
+		model="choice2" description="Many choices one after another. 3 way branches - DFDL-15-001R.">
 
 		<tdml:document>
 			<tdml:documentPart type="text">AAABBBCCC</tdml:documentPart>
@@ -167,7 +167,7 @@
 
 
 	<tdml:parserTestCase name="choice6" root="ch1"
-		model="choice2" description="Many choices one after another. 3 way branches.">
+		model="choice2" description="Many choices one after another. 3 way branches - DFDL-15-001R.">
 
 		<tdml:document>
 			<tdml:documentPart type="text">999AAA777</tdml:documentPart>
@@ -210,7 +210,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="choiceFail1" root="ch1"
-		model="choiceSch3" description="Many choices one after another. 3 way branches.">
+		model="choiceSch3" description="Many choices one after another. 3 way branches - DFDL-15-001R.">
 
 		<tdml:document>
 			<tdml:documentPart type="text">AAA</tdml:documentPart>
@@ -252,7 +252,7 @@
 
 	<tdml:parserTestCase name="choiceDelim1" root="ch1"
 		model="choiceDelim"
-		description="Many choices one after another with delimited lengthKinds. 3 way branches.">
+		description="Many choices one after another with delimited lengthKinds. 3 way branches. - DFDL-15-001R">
 
 		<tdml:document>
 			<tdml:documentPart type="text">3.5,AAA,999</tdml:documentPart>
@@ -325,7 +325,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="nestedChoice1" root="ch1"
-		model="nestedChoice1" description="Nested choices, deep backtracking.">
+		model="nestedChoice1" description="Nested choices, deep backtracking - DFDL-15-001R.">
 
 		<tdml:document>
 			<!-- The AAA at the end causes the whole thing to unwind and choose element 

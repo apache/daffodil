@@ -46,7 +46,7 @@ is multiple bytes in UTF-8 encoding that is used"
 	
 	<tdml:parserTestCase name="syntax_entities_6_02"
 		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
-is multiple bytes in UTF-8 encoding that is used"
+is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
 		model="Entities-Embedded.dfdl.xsd" root="element2">
 		<tdml:document><tdml:documentPart type="byte">206162E280A8</tdml:documentPart></tdml:document>
 		<tdml:infoset>

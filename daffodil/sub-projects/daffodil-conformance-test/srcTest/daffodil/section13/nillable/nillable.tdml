@@ -4,7 +4,7 @@
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
 
 	<parserTestCase name="litNil1" root="doc" model="nillable.dfdl.xsd"
-		description="literal nil">
+		description="literal nil - DFDL-13-234R">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,nil;]]></documentPart>
@@ -23,7 +23,7 @@
 	</parserTestCase>
 	
 	<parserTestCase name="litNil2" root="doc" model="nillable.dfdl.xsd"
-		description="literal nil">
+		description="literal nil is a DFDL character class entity %ES; - DFDL-13-234R">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,%ES;;]]></documentPart>
