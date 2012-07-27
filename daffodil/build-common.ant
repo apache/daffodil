@@ -13,7 +13,7 @@
 	<target name="init">
 
 		<!-- check ant version first -->
-		<property name="needAtLeast" value="1.8"/>
+		<property name="needAtLeast" value="1.7.1"/>
 		<antversion property="antversion" />
 
 		<fail message="Get a later version of Ant! Need at least version ${needAtLeast}, have ${antversion}">
