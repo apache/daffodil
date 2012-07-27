@@ -23,11 +23,9 @@ class TestSimpleTypes extends JUnit3Suite {
   def test_schema_types_5_03() { runner.runOneTest("schema_types_5_03") }
   def test_schema_types_5_02() { runner.runOneTest("schema_types_5_02") }
   def test_int_error() { runner.runOneTest("int_error") }
-  def test_warning_exercise() { 
-    val exc = intercept[Exception] {
-    	runner.runOneTest("warning_exercise") }
-    	assertTrue(exc.getMessage().contains("Did not find"))
-  	}
+ 
+  // Test warning_exercise moved to srcDebug until warnings are implemented.
+  
   def test_UnsignedNumbers1() { runner.runOneTest("UnsignedNumbers1") }
   def test_unsignedLong_01() {runner.runOneTest("unsignedLong_01")}
   def test_unsignedLong_02() {runner.runOneTest("unsignedLong_02")}
