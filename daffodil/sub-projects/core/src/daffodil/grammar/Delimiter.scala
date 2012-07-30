@@ -309,10 +309,16 @@ class Delimiter extends Logging {
       delim =>
         {
           delim match {
-            case nl: NLDelim => { sb.append("(\\r\\n|\\n|\\r)") }
-            case wsp: WSPDelim => { sb.append("\\s") } // Single space
-            case wsp: WSPPlusDelim => { sb.append("\\s+") } // One or more spaces
-            case wsp: WSPStarDelim => { sb.append("\\s*") } // None or more spaces
+            case nl: NLDelim => { sb.append("(\\r\\n|\\n|\\r|\\u0085|\\u2028)") }
+            case wsp: WSPDelim => { sb.append("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" + 
+                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" + 
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)") } // Single space
+            case wsp: WSPPlusDelim => { sb.append("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" + 
+                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" + 
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)+") } // One or more spaces
+            case wsp: WSPStarDelim => { sb.append("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" + 
+                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" + 
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)*") } // None or more spaces
             case char: CharDelim => { // Some character
               char.char match {
                 case '[' => sb.append("\\[")
