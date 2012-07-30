@@ -10,9 +10,9 @@ import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-class TestClassEntities extends JUnit3Suite {
+class TestClassEntities_01 extends JUnit3Suite {
   
-  val testDir_01 = "srcTest/daffodil/section6/entities/"
+  val testDir_01 = "srcDebug/daffodil/section6/entities/"
   val aa_01 = testDir_01 + "charClassEntities.tdml"
   val runner_01 = new DFDLTestSuite(new File(aa_01))
   
