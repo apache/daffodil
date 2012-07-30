@@ -151,5 +151,42 @@
 			</dfdlInfoset>
 		</infoset>
 	</parserTestCase>
+	
+	<parserTestCase name="FormFeed" root="matrix" model="charClassEntities.dfdl.xsd"
+		description="CSV-style tests">
+
+		<document>
+			<documentPart type="text"><![CDATA[0,1,2,3,45,6,7,8,910,11,12,13,14]]></documentPart>
+		</document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<matrix>
+					<row>
+						<cell>0</cell>
+						<cell>1</cell>
+						<cell>2</cell>
+						<cell>3</cell>
+						<cell>4</cell>
+					</row>
+					<row>
+						<cell>5</cell>
+						<cell>6</cell>
+						<cell>7</cell>
+						<cell>8</cell>
+						<cell>9</cell>
+					</row>
+					<row>
+						<cell>10</cell>
+						<cell>11</cell>
+						<cell>12</cell>
+						<cell>13</cell>
+						<cell>14</cell>
+					</row>
+				</matrix>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
 
 </testSuite>

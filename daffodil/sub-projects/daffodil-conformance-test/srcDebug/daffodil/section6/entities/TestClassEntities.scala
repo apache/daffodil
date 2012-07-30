@@ -20,5 +20,6 @@ class TestClassEntities_01 extends JUnit3Suite {
   def test_CarriageReturn() { runner_01.runOneTest("CarriageReturn") }
   def test_LineSeparator() { runner_01.runOneTest("LineSeparator") }
   def test_NextLine() { runner_01.runOneTest("NextLine") }
+  def test_FormFeed() { runner_01.runOneTest("FormFeed") }
   
   }
