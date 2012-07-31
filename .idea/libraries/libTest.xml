@@ -1,8 +1,9 @@
 <component name="libraryTable">
   <library name="libTest">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/daffodil/sub-projects/daffodil-lib/lib/junit-3.8.2.jar!/" />
       <root url="jar://$PROJECT_DIR$/daffodil/sub-projects/daffodil-lib/lib/scalatest-1.6.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/daffodil/sub-projects/daffodil-lib/lib/junit-4.8.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/daffodil/sub-projects/daffodil-lib/lib/hamcrest-1.1.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

@@ -15,7 +15,6 @@
       <sourceFolder url="file://$MODULE_DIR$/test-suite" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/srcTest" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/srcDebug" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
