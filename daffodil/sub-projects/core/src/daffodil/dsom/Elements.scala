@@ -278,7 +278,8 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
   with HasRef {
   
   // Need to go get the Element we are referencing
-  lazy val referencedElement = {
+  lazy val referencedElement = referencedElement_.value
+  private lazy val referencedElement_ = LV {
     this.schema.schemaSet.getGlobalElementDecl(namespace, localName) match {
       case None => SDE("Referenced element not found: %s.", this.ref)
       case Some(x) => x.forElementRef(this)
@@ -324,7 +325,7 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
     
   }
 
-  lazy val diagnosticChildren = List(referencedElement)
+  lazy val diagnosticChildren = List(referencedElement_)
 }
 
 /**
