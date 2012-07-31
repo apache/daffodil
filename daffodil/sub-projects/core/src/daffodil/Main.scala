@@ -38,14 +38,13 @@ package daffodil
 
 import java.io.ByteArrayInputStream
 import java.io.FileOutputStream
-
 import daffodil.api.DFDL
 import daffodil.arguments.ArgumentDescription
 import daffodil.arguments.ArgumentParser
 import daffodil.arguments.OptionalSingle
 import daffodil.debugger.DebugUtil
-// import xml.XMLUtil
 import daffodil.util.Misc
+import java.io.FileInputStream
 
 /**
  * The command line interface to Daffodil
@@ -113,6 +112,7 @@ object Main {
         processorFactory = DebugUtil.time("Loading parser", compiler.reload(argumentParser getSingle ("parser")))
       } else if (argumentParser isSet "schema") {
         val schema = argumentParser getSingle ("schema")
+        System.err.println(schema)
         processorFactory = DebugUtil.time("Compiling schema", compiler.compile(schema))
       } else {
         System.err.println("Neither --schema nor --parser option specified. Nothing to do.")
@@ -148,10 +148,13 @@ object Main {
         // naming conflicts. I.e., -p is the 'parser' aka processor.
         // -i and -u control parsing versus unparsing.        
         val data = argumentParser getSingle ("input")
-        val bytes = data.getBytes()
-        val inputStream = new ByteArrayInputStream(bytes);
-        val rbc = java.nio.channels.Channels.newChannel(inputStream);
-        val result = DebugUtil.time("Parsing document", processor.parse(rbc))
+        
+        val input = new FileInputStream(argumentParser getSingle ("input"))
+        
+        //val bytes = data.getBytes()
+        //val inputStream = new ByteArrayInputStream(bytes);
+        val rbc = java.nio.channels.Channels.newChannel(input);
+        val result = DebugUtil.time("Parsing document", processor.parse(rbc).result)
 
         // DebugUtil log ("Total nodes:" + XMLUtil.getTotalNodes)
 
