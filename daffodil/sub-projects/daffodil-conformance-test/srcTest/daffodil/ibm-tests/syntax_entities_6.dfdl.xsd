@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	elementFormDefault="qualified" attributeFormDefault="unqualified"
+	>
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format ref="rdefFormat" encoding="utf-8" byteOrder="bigEndian"
+				ignoreCase="no" textStringJustification="left"
+				textStringPadCharacter="0" textTrimKind="none" textPadKind="none"
+				documentFinalTerminatorCanBeMissing="no" nilValueDelimiterPolicy="none"
+				emptyValueDelimiterPolicy="none" escapeSchemeRef="" />
+
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:defineFormat name="rdefFormat">
+				<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" textBidi="no" floating="no"   encoding="ascii" byteOrder="bigEndian"
+					ignoreCase="no" outputNewLine="%LF;"
+					truncateSpecifiedLengthString="no" decimalSigned="yes" alignment="1"
+					alignmentUnits="bytes" fillByte="1" occursCountKind="implicit" escapeSchemeRef=""
+					representation="text" lengthUnits="characters" lengthKind="explicit" />
+			</dfdl:defineFormat>
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:element name="element1" type="xs:string" dfdl:initiator="%SOH;"
+		dfdl:terminator="%ETX;" dfdl:length="2">
+
+	</xs:element>
+
+
+	<xs:element name="element2" type="xs:string" dfdl:initiator="%SP;"
+		dfdl:terminator="%LS;" dfdl:length="2">
+
+	</xs:element>
+
+	<xs:element name="Fixed_text_sequence" dfdl:lengthKind="implicit">
+		<xs:complexType>
+
+			<xs:sequence dfdl:sequenceKind="ordered"
+				dfdl:initiatedContent="no">
+
+				<xs:element name="element1" dfdl:length="1"
+					dfdl:initiator="%NL;" dfdl:terminator="" dfdl:outputNewLine="%CR;%LF;"
+					dfdl:encoding="UTF-16LE" dfdl:utf16Width="variable">
+                    <xs:simpleType>
+						<xs:restriction base="xs:string">
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="element2" dfdl:length="1"
+					dfdl:initiator="" dfdl:terminator="%NL;" dfdl:outputNewLine="%CR;%LF;"
+					dfdl:encoding="UTF-16LE" dfdl:utf16Width="variable">
+
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
+	<xs:element name="Fixed_bin_num_sequence" dfdl:alignment="implicit"
+		dfdl:lengthKind="implicit">
+		<xs:complexType>
+			<xs:sequence dfdl:sequenceKind="ordered"
+				dfdl:initiatedContent="no" dfdl:alignment="implicit">
+				<xs:element name="binbyte" type="xs:byte"
+					dfdl:lengthUnits="bytes" dfdl:lengthKind="implicit"
+					dfdl:representation="binary" dfdl:binaryNumberRep="binary"
+					dfdl:binaryNumberCheckPolicy="lax" dfdl:alignment="4"
+					dfdl:alignmentUnits="bytes" dfdl:fillByte="%#r7e;"
+					dfdl:leadingSkip="0" dfdl:trailingSkip="0">
+
+				</xs:element>
+				<xs:element name="binbyte2" type="xs:byte"
+					dfdl:lengthUnits="bytes" dfdl:lengthKind="implicit"
+					dfdl:representation="binary" dfdl:binaryNumberRep="binary"
+					dfdl:binaryNumberCheckPolicy="lax" dfdl:alignment="4"
+					dfdl:alignmentUnits="bytes" dfdl:fillByte="%#r7e;"
+					dfdl:leadingSkip="0" dfdl:trailingSkip="0">
+
+				</xs:element>
+
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

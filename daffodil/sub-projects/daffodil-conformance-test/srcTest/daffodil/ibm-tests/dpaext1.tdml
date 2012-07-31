@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="dpaext" 
+	description="Sample tests to post externally"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+
+
+   <!-- 
+The tests in this package represent a sampling of some of the basic functionality of a DFDL processor implementation.  
+They are not any guarantee of compliance. There are two test files:
+
+    dpaext1.tdml
+    dpaext2.tdml     
+     
+These XML files each contain a number of tests. Each test specifies the data to parse, the expected resultant infoset, and a pointer 
+to the DFDL schema. The following XML tags are used:
+
+    parserTestCase - this tag represents one test. It has attributes: 
+     
+	name  - (must be unique within the full xml file)
+	root - the root element of the DFDL schema from which to start processing
+	model - the location of the DFDL schema to use
+	description - a short summary of the purpose of the tests, including relevant DFDL spec section.
+     
+    Within the parserTestCase are the document and infoset tags.
+     
+	The document tag is the input document to be parsed.  In can be in readable text format, or within a documentpart with attribute of type=
+	"byte" to provide the value in the hex equivalent form, as this is clearer in showing the input values for things such as binary numbers.
+     
+	The infoset tag encloses the expected output of the parser, with the tags of the corresponding elements that are parsed using the DFDL
+	schema under test.  For string elements, the xsi:type is omitted; for other types it is explicitly provided
+   
+   
+The tests are in order relative to the content of the DFDL specification.  Not all of sections of the specification are covered.  In some cases,
+the sample schemas given in the specification are used (made into complete schemas as necessary).
+    -->
+
+
+    <!--  The first two tests pick up the samples in Section 1.2.1 of the DFDL specification.  They are here to show
+the basic demonstration of DFDL with binary and text number formats  -->
+
+	<parserTestCase name="schema_types_5_01" root="byte1"
+		model="./fvt/ext/dpa/dpanum.dfdl.xsd" description="Section 5 Schema types - byte - DFDL-5-015R">
+
+		<document>0123</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<byte1 xsi:type="xs:byte">123</byte1>
+			</dfdlInfoset>
+
+		</infoset>
+	</parserTestCase>
+
+
+	<parserTestCase name="schema_types_5_02" root="short1"
+		model="./fvt/ext/dpa/dpanum.dfdl.xsd" description="Section 5 Schema types - short - DFDL-5-014R">
+
+		<document>-123</document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<short1 xsi:type="xs:short">-123</short1>
+			</dfdlInfoset>
+
+		</infoset>
+	</parserTestCase>
+
+
+	<parserTestCase name="schema_types_5_03" root="int1"
+		model="./fvt/ext/dpa/dpanum.dfdl.xsd" description="Section 5 Schema types int - DFDL-5-013R">
+
+		<document>-2147483648</document>
+		<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<int1 xsi:type="xs:int">-2147483648</int1>
+			</dfdlInfoset>
+
+		</infoset>
+	</parserTestCase>
+
+	<parserTestCase name="schema_types_5_04" root="long1"
+		model="./fvt/ext/dpa/dpanum.dfdl.xsd" description="Section 5 Schema types - long - DFDL-5-012R">
+
+		<document>9223372036854775807</document>
+		<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<long1 xsi:type="xs:long">9223372036854775807</long1>
+			</dfdlInfoset>
+
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="schema_types_5_05" description="Section 5 Schema types - unsignedByte - DFDL-5-020R"
+		model="./fvt/ext/dpa/dpanum.dfdl.xsd" root="unsignedByte1">
+		<document>0001</document>
+		<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<unsignedByte1 xsi:type="xs:unsignedByte">1</unsignedByte1>
+			</dfdlInfoset>
+
+		</infoset>
+	</parserTestCase>
+	
+    <!-- The next tests show examples of using DFDL entities in string literals, to easily represent
+values that aren't normally representable in XML -->
+
+	<parserTestCase name="syntax_entities_6_01"
+		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator, single byte
+entities SOH and ETX - DFDL-6-041R"
+		model="./fvt/ext/dpa/syntax_entities_6.dfdl.xsd" root="element1">
+		<document><documentPart type="byte">01616203</documentPart></document>
+			<infoset>
+		<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<element1>ab</element1>
+			</dfdlInfoset>
+
+		</infoset>
+	</parserTestCase>
+
+	<parserTestCase name="syntax_entities_6_02"
+		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
+is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
+		model="./fvt/ext/dpa/syntax_entities_6.dfdl.xsd" root="element2">
+		<document><documentPart type="byte">206162E280A8</documentPart></document>
+		<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<element2>ab</element2>
+			</dfdlInfoset>
+
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="syntax_entities_6_03"
+		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator, shows use of a character class
+entity NL and also use of UTF-16 encoding - DFDL-6-045R"
+		model="./fvt/ext/dpa/syntax_entities_6.dfdl.xsd" root="Fixed_text_sequence">
+		<document><documentPart type="byte">0A00610062000A00</documentPart></document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <Fixed_text_sequence>
+			    <element1>a</element1>
+			    <element2>b</element2>
+			  </Fixed_text_sequence>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<!--  With lengthKind="delimited", tests show various ways to in indicate the end of an element's content - with terminator, with
+	parent separator, with parent of specified length, with end of input. Delimited length can also be used with BCD fields, which
+	is shown here.	 Also, an element of explicit length can be a component of a delimited sequence. -->
+	
+	<!--  A couple of valid logical types are shown with lengthKind="implicit" 	-->
+	
+
+<parserTestCase name="length_delimited_12_02"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R"
+ root="myStringSeq1">
+ <document>abcd~efgh@</document>
+ <infoset>
+ <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <myStringSeq1>
+    <Test1>abcd</Test1>
+    <Test2>efgh</Test2>
+  </myStringSeq1>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 	
+ 
+ <parserTestCase name="length_delimited_12_03_controversial"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 length -delimited - parent terminator - DFDL-12-043R"
+ root="myStringSeq2_controversial">
+ <document>abcde</document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <myStringSeq2_controversial>
+    <Test1>abcde</Test1>
+  </myStringSeq2_controversial>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 	
+	
+<parserTestCase name="length_delimited_12_03"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 Properties for specifying length -delimited - parent has specified length"
+ root="myStringSeq2">
+ <document>abcde;</document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <myStringSeq2>
+    <Test1>abcde</Test1>
+  </myStringSeq2>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 	
+	
+<!--  	<parserTestCase name="length_delimited_12_05" unsupported="true"
+ model="./fvt/ext/dpa/dpadelbcd_01.dfdl.xsd" description="Section 12.3 Properties for specifying length - binary  - bcd - delimited"
+ root="mybinDecimal2">
+ <document><documentPart type="byte">1234567840</documentPart></document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <mybinDecimal2 xsi:type="xs:decimal">123456.78</mybinDecimal2>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 
+ 
+ <parserTestCase name="length_delimited_12_06"
+ model="./fvt/ext/dpa/dpadelone107_05.dfdl.xsd" description="Section 12.3 Properties for specifying length - simple element with specified length within a delimited sequence"
+ root="groupElem">
+ <document><documentPart type="text">A:test1a~</documentPart>
+ <documentPart type="byte">0004</documentPart>
+ <documentPart type="text">~cc</documentPart></document>
+  <infoset>
+ <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <groupElem>
+    <Test1 >test1</Test1>
+    <Test2 xsi:type="xs:unsignedShort">4</Test2>
+    <Test3>cc</Test3>
+  </groupElem>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> -->
+ 
+ <parserTestCase name="multiple_delimiters"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 Properties for specifying length -delimited - parent has specified length "
+ root="myStringSeq3">
+ <document>abcde|fghij|klmno::</document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <myStringSeq3>
+    <element1>abcde</element1>
+    <element2>fghij</element2>
+    <element3>klmno</element3>
+  </myStringSeq3>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase>
+ 
+ <parserTestCase name="multiple_delimiters2"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 Properties for specifying length -delimited - parent has specified length"
+ root="myStringSeq4">
+ <document>abcde|fghij|klmno::pqrst|uvwzy|z]</document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <myStringSeq4>
+  	<seq1>
+  		<element1>abcde</element1>
+    	<element2>fghij</element2>
+    	<element3>klmno</element3>
+  	</seq1>
+  	<seq2>
+  		<element1>pqrst</element1>
+    	<element2>uvwzy</element2>
+    	<element3>z</element3>
+  	</seq2>
+  </myStringSeq4>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 	 	
+
+
+
+</testSuite>
+
+

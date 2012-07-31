@@ -13,13 +13,11 @@
 		</dfdl:defineFormat>
 		<dfdl:format ref="daffodilTest1" />
 		<xs:element name="s" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>
-		<xs:element name="long1" type="xs:long" dfdl:length="19" dfdl:lengthKind="explicit"/>
 		<xs:element name="mersenne" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="{ 207 }"/>
 		<xs:element name="integer01" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
 		<xs:element name="int01" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="13"/>
 		<xs:element name="int02" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="11"/>
 		<xs:element name="int03" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2"/>
-		<xs:element name="short01" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="4"/>
 		<xs:element name="uL_01" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
 		<xs:element name="uL_02" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>
 		<xs:element name="uL_03" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
@@ -62,17 +60,6 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="schema_types_5_04" root="long1"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-long - DFDL-5-012R">
-
-		<tdml:document>9223372036854775807</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<long1 xs:type="xs:long">9223372036854775807</long1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
 	<tdml:parserTestCase name="BigInteger1" root="mersenne"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-integer - DFDL-5-011R">
 
@@ -102,28 +89,6 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<int01 xs:type="xs:int">2147483647</int01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="schema_types_5_03" root="int02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-int - DFDL-5-013R">
-
-		<tdml:document>-2147483648</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<int02 xs:type="xs:int">-2147483648</int02>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="schema_types_5_02" root="short01"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-short - DFDL-5-014R">
-
-		<tdml:document>-123</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<short01 xs:type="xs:short">-123</short01>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>

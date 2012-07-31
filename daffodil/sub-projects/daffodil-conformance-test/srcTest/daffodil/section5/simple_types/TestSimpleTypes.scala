@@ -16,12 +16,9 @@ class TestSimpleTypes extends JUnit3Suite {
   val runner = new DFDLTestSuite(new File(aa))
   
   def test_Long1() { runner.runOneTest("Long1") }
-  def test_schema_types_5_04() { runner.runOneTest("schema_types_5_04") }
   def test_BigInteger1() { runner.runOneTest("BigInteger1") }
   def test_Integer01() { runner.runOneTest("Integer01") }
   def test_Int01() { runner.runOneTest("Int01") }
-  def test_schema_types_5_03() { runner.runOneTest("schema_types_5_03") }
-  def test_schema_types_5_02() { runner.runOneTest("schema_types_5_02") }
   def test_int_error() { runner.runOneTest("int_error") }
  
   // Test warning_exercise moved to srcDebug until warnings are implemented.
@@ -36,4 +33,13 @@ class TestSimpleTypes extends JUnit3Suite {
   def test_unsignedInt_01() { runner.runOneTest("unsignedInt_01") }
   def test_unsignedShort_01() { runner.runOneTest("unsignedShort_01") }
   def test_unsignedByte_01() { runner.runOneTest("unsignedByte_01") }
+  
+  val testDir_01 = "srcTest/daffodil/ibm-tests/"
+  val aa_01 = testDir_01 + "dpaext1.tdml"
+  val runner_01 = new DFDLTestSuite(new File(aa_01))
+  def test_schema_types_5_01() { runner_01.runOneTest("schema_types_5_01") }
+  def test_schema_types_5_02() { runner_01.runOneTest("schema_types_5_02") }
+  def test_schema_types_5_03() { runner_01.runOneTest("schema_types_5_03") }
+  def test_schema_types_5_04() { runner_01.runOneTest("schema_types_5_04") }
+  def test_schema_types_5_05() { runner_01.runOneTest("schema_types_5_05") }
   }

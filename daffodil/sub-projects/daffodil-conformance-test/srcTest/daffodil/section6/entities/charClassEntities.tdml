@@ -4,7 +4,7 @@
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
 
 	<parserTestCase name="LineFeed" root="matrix" model="charClassEntities.dfdl.xsd"
-		description="CSV-style tests">
+		description="CSV-style tests and use of %NL; - DFDL-6-045R">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,1,2,3,4
@@ -43,7 +43,7 @@
 	</parserTestCase>
 
 	<parserTestCase name="CarriageReturn" root="matrix" model="charClassEntities.dfdl.xsd"
-		description="CSV-style tests">
+		description="CSV-style tests and use of %NL; - DFDL-6-045R">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,1,2,3,45,6,7,8,910,11,12,13,14]]></documentPart>
@@ -81,7 +81,7 @@
 	</parserTestCase>
 
 	<parserTestCase name="LineSeparator" root="matrix" model="charClassEntities.dfdl.xsd"
-		description="CSV-style tests">
+		description="CSV-style tests and use of %NL; - DFDL-6-045R">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,1,2,3,4 5,6,7,8 10,11,12,13,14]]></documentPart>
@@ -118,7 +118,7 @@
 	</parserTestCase>
 
 	<parserTestCase name="NextLine" root="matrix" model="charClassEntities.dfdl.xsd"
-		description="CSV-style tests">
+		description="CSV-style tests and use of %NL; - DFDL-6-045R">
 
 		<document>
 			<documentPart type="text"><![CDATA[0,1,2,3,45,6,7,8,910,11]]></documentPart>
@@ -153,7 +153,7 @@
 	</parserTestCase>
 	
 	<parserTestCase name="FormFeed" root="matrix_01" model="charClassEntities.dfdl.xsd"
-		description="CSV-style tests">
+		description="CSV-style tests and use of %FF; - DFDL-6-042R">
 
 		<document>
 			<documentPart type="byte">302C312C322C332C340C352C362C372C382C390C31302C31312C31322C31332C3134</documentPart>
