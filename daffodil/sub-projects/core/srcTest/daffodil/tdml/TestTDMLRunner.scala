@@ -491,5 +491,12 @@ class TestTDMLRunner extends JUnit3Suite {
     val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testMultiByteUnicodeWithCDATAWorks")
   }
+  
+  def testBits() {
+    val bits = new DocumentPart(<document-part type="bits">111</document-part>, null)
+    assertEquals("111", bits.bitDigits)
+    val bytes = bits.bitContentToBytes.toList
+    assertEquals(7, bytes(0))
+  }
 
 }

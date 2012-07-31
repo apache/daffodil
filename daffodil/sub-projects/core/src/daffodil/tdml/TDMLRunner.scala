@@ -524,7 +524,7 @@ case class DefinedSchema(xml : Node, parent : DFDLTestSuite) {
 sealed abstract class DocumentContentType
 case object Text extends DocumentContentType
 case object Byte extends DocumentContentType
-// TODO: add a Bits type so one can do 0110 1101 0010 0000 and so forth.
+case object Bits extends DocumentContentType
 // TODO: add capability to specify character set encoding into which text is to be converted (all UTF-8 currently)
 
 case class Document(d : NodeSeq, parent : TestCase) {
@@ -554,17 +554,22 @@ case class DocumentPart(part : Node, parent : Document) {
   lazy val partContentType = (part \ "@type").toString match {
     case "text" => Text
     case "byte" => Byte
+    case "bits" => Bits
+    case _ => Assert.invariantFailed("invalid content type.")
   }
   lazy val encoder = CharsetICU.forNameICU("UTF-8").newEncoder()
   lazy val partRawContent = part.child.text
   lazy val convertedContent : Seq[Byte] = partContentType match {
     case Text => partRawContent.getBytes("UTF-8") //must specify charset name (JIRA DFDL-257)
     case Byte => hexContentToBytes
+    case Bits => bitContentToBytes
   }
 
   lazy val hexContentToBytes = hex2Bytes(hexDigits)
 
   val validHexDigits = "0123456789abcdefABCDEF"
+    
+ 
 
   // Note: anything that is not a valid hex digit is simply skipped
   // TODO: we should check for whitespace and other characters we want to allow, and verify them.
@@ -572,6 +577,11 @@ case class DocumentPart(part : Node, parent : Document) {
   // TODO: Consider whether to support a comment syntax. When showing data examples this may be useful.
   //
   lazy val hexDigits = partRawContent.flatMap { ch => if (validHexDigits.contains(ch)) List(ch) else Nil }
+  
+  lazy val bitContentToBytes = bits2Bytes(bitDigits)
+  val validBinaryDigits = "01"
+    
+  lazy val bitDigits = partRawContent.flatMap { ch => if(validBinaryDigits.contains(ch)) List(ch) else Nil}
 
 }
 

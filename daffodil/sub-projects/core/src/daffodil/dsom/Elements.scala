@@ -324,7 +324,7 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
     
   }
 
-  lazy val diagnosticChildren = Assert.notYetImplemented()//referencedElement.diagnosticChildren
+  lazy val diagnosticChildren = List(referencedElement)
 }
 
 /**

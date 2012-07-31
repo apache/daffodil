@@ -42,4 +42,23 @@ class TestUtil extends JUnitSuite {
     val hasFake = notices.contains("Test fake Copyright")
     assertTrue(hasFake)
   }
+  
+  
+  @Test
+  def testBitsConverters1 () {
+    val bytes = Misc.bits2Bytes("11")
+    val theByte = bytes(0)
+    assertEquals(3, theByte.toInt)
+  }
+  
+    @Test
+  def testBitsConverters2 () {
+    val bytes = Misc.bits2Bytes("110110110110")
+    val byte0 = bytes(0)
+    val byte1 = bytes(1)
+    assertEquals(-37, byte0.toInt)
+    assertEquals(6, byte1.toInt)
+  }
+  
+  
 }

@@ -82,6 +82,21 @@ object Misc {
 
     "0x" + bytes.map(cvtByte(_)).mkString.toUpperCase
   }
+  
+  def bits2Bytes(bits: String) : Array[Byte] = {
+    (for { i <- 0 to bits.length - 1 by 8 }
+      yield bits.substring(i, math.min(bits.length, i + 8)))
+      .map(Integer.parseInt(_, 2).toByte).toArray
+  }
+  
+  def bytes2Bits(bytes : Array[Byte]) : String = {
+    def cvtByte(b : Byte) = {
+      val indexes = Stream.range(0, 7)
+      val bits = indexes.map{index => (b >> index) & 0x01 }
+      bits
+    }
+    bytes.flatMap{cvtByte(_)}.mkString
+  }
 
   
 }
