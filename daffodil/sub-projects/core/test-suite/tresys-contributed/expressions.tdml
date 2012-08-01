@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="expressions"
+	description="lengthKind explicit and occursCountKind expression"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+	xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="lke1">
+		<dfdl:format ref="ex:daffodilTest1" />
+
+		<xs:element name="e1">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="len" type="xs:int"
+						dfdl:representation="binary" dfdl:lengthKind="implicit" />
+					<xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit"
+						dfdl:length="{ ../ex:len }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="lke1" root="e1" model="lke1"
+		description="simplest computed length">
+
+		<tdml:document>
+			<tdml:documentPart type="byte">00000004
+			</tdml:documentPart>
+			<tdml:documentPart type="text">abcd</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:e1>
+					<ex:len>4</ex:len>
+					<ex:s1>abcd</ex:s1>
+				</ex:e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="ocke1">
+		<dfdl:format ref="ex:daffodilTest1" />
+
+		<xs:element name="e1">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="reps" type="xs:int"
+						dfdl:representation="binary" dfdl:lengthKind="implicit" />
+					<xs:element name="scale" type="xs:int"
+						dfdl:representation="binary" dfdl:lengthKind="implicit" />
+					<xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit"
+						dfdl:length="{1}" dfdl:occursCount="{ ../ex:reps * ../ex:scale}"
+						dfdl:occursCountKind="expression" minOccurs="0" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="ocke1" root="e1" model="ocke1"
+		description="very simple occursCountKind expression">
+
+		<tdml:document>
+			<!-- two binary integers get multiplied 2x2=4 -->
+			<tdml:documentPart type="byte">00000002 00000002
+			</tdml:documentPart>
+			<!-- followed by that many characters, each is an element of the array -->
+			<tdml:documentPart type="text">abcd</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:e1>
+					<ex:reps>2</ex:reps>
+					<ex:scale>2</ex:scale>
+					<ex:s1>a</ex:s1>
+					<ex:s1>b</ex:s1>
+					<ex:s1>c</ex:s1>
+					<ex:s1>d</ex:s1>
+				</ex:e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+</tdml:testSuite>

@@ -226,7 +226,7 @@ abstract class ElementBase(xmlArg : Node, parent : SchemaComponent, position : I
 trait LocalElementMixin
   extends ParticleMixin
   with LocalComponentMixin
-  with LocalElementGrammarMixin { self : ElementBase =>
+  with LocalElementGrammarMixin { self : LocalElementBase =>
 
   lazy val hasSep = hasSep_.value
   lazy val hasSep_ = LV {
@@ -272,9 +272,12 @@ trait LocalElementMixin
   }
 }
 
+abstract class LocalElementBase(xmlArg : Node, parent : ModelGroup, position : Int)
+extends ElementBase(xmlArg, parent, position)
+with LocalElementMixin
+
 class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
-  extends ElementBase(xmlArg, parent, position)
-  with LocalElementMixin
+  extends LocalElementBase(xmlArg, parent, position)
   with HasRef {
   
   // Need to go get the Element we are referencing
@@ -506,9 +509,8 @@ trait ElementDeclMixin
 }
 
 class LocalElementDecl(xmlArg : Node, parent : ModelGroup, position : Int)
-  extends ElementBase(xmlArg, parent, position)
-  with ElementDeclMixin
-  with LocalElementMixin {
+  extends LocalElementBase(xmlArg, parent, position)
+  with ElementDeclMixin {
   // nothing here yet. All from the mixins.
 
   lazy val diagnosticChildren = elementDeclDiagnosticChildren

@@ -45,6 +45,13 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
      */
     def unparse(start: UState): UState = {
       val nextElement = {
+        //
+        // TODO FIXME: THis can't be correct. The elementBegin shouldn't be writing out element contents.
+        // That should happen in content unparsers. This unparser should just set things up so content
+        // unparsers see the correct element to take the contents of. Which really means just changing the 
+        // parent pointer in the UState.
+        //
+        // TODO: should not try/catch - should return a failed UState on error
         try { //if content contains elements
           if (!start.childIndexStack.isEmpty) {
             if (start.childPos != 1) { //if not first child, write unparsed result of previous child to outputStream
@@ -1298,8 +1305,9 @@ case class StartArray(e: ElementBase, guard: Boolean = true) extends Terminal(e,
     override def toString = "StartArray"
 
     def parse(start: PState): PState = {
-      val postState = start.withArrayIndexStack(1L :: start.arrayIndexStack)
-      postState
+      val postState1 = start.withArrayIndexStack(1L :: start.arrayIndexStack)
+      val postState2 = postState1.withOccursCountStack(Compiler.occursCountMax :: postState1.occursCountStack)
+      postState2
     }
   }
 
@@ -1319,8 +1327,9 @@ case class EndArray(e: ElementBase, guard: Boolean = true) extends Terminal(e, g
     override def toString = "EndArray"
 
     def parse(start: PState): PState = {
-      val postState = start.withArrayIndexStack(start.arrayIndexStack.tail)
-      postState
+      val postState1 = start.withArrayIndexStack(start.arrayIndexStack.tail)
+      val postState2 = postState1.withOccursCountStack(postState1.occursCountStack.tail)
+      postState2
     }
   }
 
@@ -1567,3 +1576,75 @@ extends ExpressionEvaluationParser(decl) {
       }
     }
 }
+
+case class StringExplicitLengthInBytes(e : ElementBase)
+  extends Terminal(e, true)
+  with WithParseErrorThrowing {
+  val expr = e.length
+  val exprText = expr.prettyExpr
+  val decoder = e.knownEncodingDecoder
+  // val maxBytes = daffodil.dsom.Compiler.maxFieldContentLengthInBytes
+  var cbuf : CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
+  var cbufSize = 0
+
+  def parser : Parser = new Parser(e) {
+    override def toString = "StringExplicitLengthInBytesParser(" + exprText + ")"
+
+    def parse(start : PState) : PState = withParseErrorThrowing(start) {
+      log(Debug("Parsing starting at bit position: %s", start.bitPos))
+      val nBytes = expr.evaluate(start.parent, start.variableMap).asInstanceOf[Long]
+      log(Debug("Explicit length %s", nBytes))
+
+      // Allocate larger cbuf on demand.
+      if (cbufSize < nBytes) { // worst case here 1 byte = 1 character
+        if (nBytes > Compiler.maxFieldContentLengthInBytes) {
+          // TODO: how can we go after bigger than max int bytes? We have 64-bit computers
+          // after all....
+          return PE(start, "Calculated length %s exceeds implementation maximum of %s.", nBytes, Compiler.maxFieldContentLengthInBytes)
+        }
+        val n : Int = nBytes.toInt
+        cbuf = CharBuffer.allocate(n)
+        cbufSize = n
+      }
+
+      val in = start.inStream
+
+      val (endBitPos, _) = in.fillCharBufferMixedData(cbuf, start.bitPos, decoder, nBytes)
+      if (endBitPos < start.bitPos + nBytes * 8) {
+        // Do Something Bad
+        return PE(start, "Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
+      }
+      val result = cbuf.toString
+      log(Debug("Parsed: " + result))
+      log(Debug("Ended at bit position " + endBitPos))
+      val endCharPos = start.charPos + result.length
+      val currentElement = start.parentForAddContent
+      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
+      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
+      currentElement.addContent(new org.jdom.Text(result))
+      val postState = start.withPos(endBitPos, endCharPos)
+      postState
+    }
+  }
+
+  def unparser : Unparser = new Unparser(e) {
+    override def toString = "StringExplicitLengthInBytesUnparser(" + exprText + ")"
+    //    val encoder = e.knownEncodingEncoder
+
+    def unparse(start : UState) : UState = {
+      Assert.notYetImplemented()
+      //      // setLoggingLevel(LogLevel.Debug)
+      //
+      //      val data = start.currentElement.getText
+      //
+      //      //      start.outStream.setEncoder(encoder)
+      //      start.outStream.fillCharBuffer(data)
+      //
+      //      log(Debug("Unparsed: " + start.outStream.getData))
+      //      start
+    }
+  }
+}
+
+
+

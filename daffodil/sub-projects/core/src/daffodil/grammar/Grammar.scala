@@ -5,6 +5,7 @@ import daffodil.util.Debug
 import daffodil.util.Misc.getNameFromClass
 import daffodil.dsom.{ SchemaComponent, Term, DiagnosticsProviding}
 import daffodil.dsom.AnnotatedSchemaComponent
+import daffodil.dsom.LocalElementBase
 
 
 abstract class Gram(val context: AnnotatedSchemaComponent) extends DiagnosticsProviding {
@@ -93,52 +94,33 @@ class AltComp(context: AnnotatedSchemaComponent, p: => Gram, q: => Gram) extends
   def unparser = new AltCompUnparser(context, p, q)
 }
 
-class RepExactlyN(context: Term, n: Long, r: => Gram) extends UnaryGram(context, r) {
-  Assert.invariant(n > 0)
-
-  def parser = new RepExactlyNParser(context, n, r)
-  def unparser = new RepExactlyNUnparser(context, n, r)
-}
-
-object RepExactlyN {
-  def apply(context: Term, n: Long, r: => Gram) =
-    if (n == 0) EmptyGram
-    else new RepExactlyN(context, n, r)
-}
-
-class RepAtMostTotalN(context: Term, n: Long, r: => Gram) extends UnaryGram(context, r) {
-  def parser = DummyParser(null) // stub
-  def unparser = DummyUnparser(null) // stub
-}
-object RepAtMostTotalN {
-  def apply(context: Term, n: Long, r: => Gram) = EmptyGram // new RepAtMostTotalN(n, r)
-}
-
-class RepUnbounded(context: Term, r: => Gram) extends UnaryGram(context, r) {
-  Assert.invariant(!r.isEmpty)
-
-  def parser = new RepUnboundedParser(context, r)
-  def unparser = new RepUnboundedUnparser(context, r)
-}
-
-object RepUnbounded {
-  def apply(context: Term, r: => Gram) = {
-    val rr = r
-    if (rr.isEmpty) EmptyGram
-    else new RepUnbounded(context, r)
+abstract class Rep3Arg(f : (LocalElementBase, Long, => Gram) => Gram) {
+  def apply(context: LocalElementBase, n: Long, rr: => Gram) = {
+    val r = rr
+    if (n == 0 || r.isEmpty) EmptyGram
+    else f(context, n, r)
   }
 }
 
-class RepExactlyTotalN(context: Term, n: Long, r: => Gram) extends UnaryGram(context, r) {
-  def parser = DummyParser(null) // stub
-  def unparser = DummyUnparser(null) // stub
-  override val gram = EmptyGram
-  override def isEmpty = true
+abstract class Rep2Arg(f : (LocalElementBase, => Gram) => Gram) {
+  def apply(context: LocalElementBase, r: => Gram) = {
+    val rr = r
+    if (rr.isEmpty) EmptyGram
+    else f(context, r)
+  }
 }
 
-object RepExactlyTotalN {
-  def apply(context: Term, n: Long, r: => Gram) = new RepExactlyTotalN(context, n, r)
-}
+object RepExactlyN extends Rep3Arg(new RepExactlyNPrim(_, _, _))
+
+object RepAtMostTotalN extends Rep3Arg(new RepAtMostTotalNPrim(_, _, _))
+
+object RepUnbounded extends Rep2Arg(new RepUnboundedPrim(_, _))
+
+object RepExactlyTotalN extends Rep3Arg(new RepExactlyTotalNPrim(_, _, _))
+
+object RepAtMostOccursCount extends Rep3Arg(new RepAtMostOccursCountPrim(_, _, _))
+
+object RepExactlyTotalOccursCount extends Rep2Arg(new RepExactlyTotalOccursCountPrim(_, _))
 
 object EmptyGram extends Gram(null) {
   override def isEmpty = true

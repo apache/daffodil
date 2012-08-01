@@ -146,4 +146,10 @@ class TresysTests extends JUnit3Suite {
 
   def test_AQ000() { runnerAQ.runOneTest("AQ000") }
 
+  
+  val runnerEX = new DFDLTestSuite(new File(testDir + "expressions.tdml"))
+
+  def test_expressions_lke1() { runnerEX.runOneTest("lke1") }
+  def test_expressions_ocke1() { runnerEX.runOneTest("ocke1") }
+    
 }

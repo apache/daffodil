@@ -81,7 +81,7 @@ object CompiledExpressionUtil {
       case 'Double => str.toDouble.asInstanceOf[T]
       case 'String => str
       case 'Element => expr.asInstanceOf[org.jdom.Element]
-      case _ => Assert.usageError("Runtime properties can only be Long, String, or Element")
+      case _ => Assert.invariantFailed("Unrecognized convertTo symbol: " + convertTo)
     }
     res.asInstanceOf[T]
   }

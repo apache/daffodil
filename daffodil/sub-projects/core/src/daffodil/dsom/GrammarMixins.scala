@@ -83,6 +83,17 @@ trait ElementBaseGrammarMixin
       case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, fixedLength)
       case (LengthUnits.Bits, _) => Assert.notYetImplemented()
     })
+    
+ lazy val explicitLengthString = Prod("explicitLengthString", this, !isFixedLength,
+    (lengthUnits, knownEncodingIsFixedWidth) match {
+      case (LengthUnits.Bytes, true) => StringExplicitLengthInBytes(this) 
+      case (LengthUnits.Bytes, false) => Assert.notYetImplemented()// StringExplicitLengthInBytesVariableWidthCharacters(this)
+      case (LengthUnits.Characters, true) => Assert.notYetImplemented()//StringExplicitLengthInBytes(this)
+      // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
+      // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
+      case (LengthUnits.Characters, false) => Assert.notYetImplemented()//StringExplicitLengthInVariableWidthCharacters(this)
+      case (LengthUnits.Bits, _) => Assert.notYetImplemented()
+    })
 
   lazy val stringDelimitedEndOfData = Prod("stringDelimitedEndOfData", this, StringDelimitedEndOfData(this))
   lazy val stringPatternMatched = Prod("stringPatternMatched", this, StringPatternMatched(this))
@@ -91,6 +102,7 @@ trait ElementBaseGrammarMixin
   lazy val stringValue_ = LV {
     val res = Prod("stringValue", this, lengthKind match {
       case LengthKind.Explicit if isFixedLength => fixedLengthString
+      case LengthKind.Explicit => explicitLengthString
       case LengthKind.Delimited => stringDelimitedEndOfData
       case LengthKind.Pattern => stringPatternMatched
       case LengthKind.Implicit => schemaDefinitionError("Textual data elements cannot have lengthKind='implicit'.")
@@ -536,7 +548,7 @@ trait ElementBaseGrammarMixin
 
 }
 
-trait LocalElementGrammarMixin { self: ElementBase with LocalElementMixin =>
+trait LocalElementGrammarMixin { self: LocalElementBase =>
 
   lazy val allowedValue = Prod("allowedValue", this, notStopValue | value)
 
@@ -589,19 +601,21 @@ trait LocalElementGrammarMixin { self: ElementBase with LocalElementMixin =>
    */
   lazy val stopValueSize = if (hasStopValue) 1 else 0
 
+  // TODO FIXME: We really want to have different productions for parsing and unparsing in these
+  // complex cases where there is defaulting, etc. Unparsing has many fewer cases, and is just not
+  // symmetric with parsing in these situations.
   def separatedContentExactlyN(count: Long) = {
     RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
       RepAtMostTotalN(self, count, separatedRecurringNonDefault) ~
       StopValue(this) ~
       RepExactlyTotalN(self, maxOccurs + stopValueSize, separatedEmpty) // absorb reps remaining separators
   }
-  //  def separatedContentExactlyNComputed(runtimeCount : CompiledExpression) = { 
-  //      RuntimeQuantity(runtimeCount) ~
-  //      RepExactlyN(minOccurs, separatedRecurringDefaultable) ~
-  //        RepAtMostTotalN(count, separatedRecurringNonDefault) ~
-  //        StopValue(this) ~
-  //        RepExactlyTotalN(maxOccurs + stopValueSize, separatedEmpty) // absorb reps remaining separators
-  //  }
+    
+  lazy val separatedContentExactlyNComputed = { 
+        OccursCountExpression(this) ~
+        RepAtMostOccursCount(this, minOccurs, separatedRecurringDefaultable) ~
+        RepExactlyTotalOccursCount(this, separatedRecurringNonDefault) 
+    }
 
   // keep in mind that anything here that scans for a representation either knows the length it is going after, or knows what the terminating markup is, and
   // our invariant is, that it does NOT consume that markup ever. The parser consumes it with appropriate grammar terminals. 
@@ -623,7 +637,7 @@ trait LocalElementGrammarMixin { self: ElementBase with LocalElementMixin =>
   lazy val arrayContentsNoSeparators = Prod("arrayContentsNoSeparators", this, isRecurring && !hasSep, {
     val max = maxOccurs
     val res = occursCountKind match {
-      case Expression => Assert.notYetImplemented() // separatedContentExactlyNComputed(occursCountExpr)
+      case Expression => separatedContentExactlyNComputed
       case OccursCountKind.Fixed if (max == UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
       case OccursCountKind.Fixed => separatedContentExactlyN(max)
       case OccursCountKind.Implicit if (max == UNB) => Assert.notYetImplemented() // contentUnbounded
@@ -654,7 +668,7 @@ trait LocalElementGrammarMixin { self: ElementBase with LocalElementMixin =>
   lazy val arrayContentsWithSeparators = Prod("arrayContentsWithSeparators", this, isRecurring && hasSep, {
     val triple = (separatorSuppressionPolicy, occursCountKind, maxOccurs)
     val res = triple match {
-      //       case (___________, Expression, ___) => separatedContentExactlyNComputed(occursCountExpr)
+      case (___________, Expression, ___) => separatedContentExactlyNComputed
       case (Never______, Fixed_____, UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
       case (___________, Fixed_____, max) => separatedContentExactlyN(max)
       case (Never______, Implicit__, UNB) => SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' required bounded maxOccurs.")

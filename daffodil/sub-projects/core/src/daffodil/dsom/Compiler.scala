@@ -134,6 +134,13 @@ class Compiler extends DFDL.Compiler with Logging {
 }
 
 object Compiler {
+  
+  //TODO: make tunable via setter call of compiler
+  def maxFieldContentLengthInBytes : Long = 1024 // Can be as large as Int.MaxValue
+  def occursCountMax : Long = 1024 // Can be as large as Int.MaxValue 
+  // TODO: want to lift limit of Int.MaxValue, since these are supposed to be Long integers.
+
+    
   def apply() = new Compiler()
 
   def stringToReadableByteChannel(s: String) = {

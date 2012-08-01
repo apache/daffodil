@@ -225,6 +225,11 @@ class RepUnboundedUnparser(context: Term, r: => Gram) extends Unparser(context) 
   override def toString = "RepUnboundedUnparser(" + rUnparser.toString + ")"
 }
 
+case class DoNothingUnparser(sc : Term) extends Unparser(sc) {
+  def unparse(ustate : UState) = ustate
+  override def toString = "DoNothingUnparser"
+}
+
 case class DummyUnparser(sc: PropertyMixin) extends Unparser(null) {
   def unparse(ustate: UState): UState = Assert.abort("Unparser for " + sc + " is not yet implemented.")
   override def toString = if (sc == null) "Dummy[null]" else "Dummy[" + sc.detailName + "]"

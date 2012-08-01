@@ -304,48 +304,7 @@ class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
   override def toString = "(" + pParser.toString + " | " + qParser.toString + ")"
 }
 
-class RepExactlyNParser(context : Term, n : Long, r : => Gram) extends Parser(context) {
-  Assert.invariant(!r.isEmpty)
-  val rParser = r.parser
-  def parse(pstate : PState) : PState = {
-    val intN = n.toInt // TODO: Ints aren't big enough for this.
-    var pResult = pstate
-    1 to intN foreach { _ =>
-      {
-        val pNext = rParser.parse(pResult)
-        if (pNext.status != Success) return pNext
-        pResult = pNext
-      }
-    }
-    pResult
-  }
 
-  override def toString = "RepExactlyNParser(" + rParser.toString + ")"
-}
-
-class RepUnboundedParser(context : Term, r : => Gram) extends Parser(context) {
-  Assert.invariant(!r.isEmpty)
-  val rParser = r.parser
-  def parse(pstate : PState) : PState = {
-
-    var pResult = pstate
-    while (pResult.status == Success) {
-
-      val cloneNode = pResult.captureJDOM
-      val pNext = rParser.parse(pResult)
-      if (pNext.status != Success) {
-        pResult.restoreJDOM(cloneNode)
-        log(Debug("Failure suppressed."))
-        return pResult
-      }
-      pResult = pNext
-
-    }
-    Assert.invariantFailed("Unbounded loop terminated wrong")
-  }
-
-  override def toString = "RepUnboundedParser(" + rParser.toString + ")"
-}
 
 case class DummyParser(sc : PropertyMixin) extends Parser(null) {
   def parse(pstate : PState) : PState = Assert.abort("Parser for " + sc + " is not yet implemented.")
@@ -406,6 +365,7 @@ class PState(
   val groupIndexStack: List[Long],
   val childIndexStack: List[Long],
   val arrayIndexStack: List[Long],
+  val occursCountStack : List[Long],
   val diagnostics : List[Diagnostic],
   val discriminator : Boolean) extends DFDL.State {
   def bytePos = bitPos >> 3
@@ -413,6 +373,7 @@ class PState(
   def groupPos = groupIndexStack.head
   def childPos = childIndexStack.head
   def arrayPos = arrayIndexStack.head
+  def occursCount = occursCountStack.head
 
   def currentLocation : DataLocation = new DataLoc(bitPos, inStream)
   def inStreamState = inStreamStateStack top
@@ -422,7 +383,11 @@ class PState(
   def charPos = inStreamState charPos
   def charLimit = inStreamState charLimit
   def parentElement = parent.asInstanceOf[Element]
-  def parentForAddContent = parent.asInstanceOf[{ def addContent(c: org.jdom.Content) : Unit }]
+  def parentForAddContent = 
+    parent.asInstanceOf[{ 
+      def addContent(c: org.jdom.Content) : Unit
+      def removeContent(c: org.jdom.Content) : Unit 
+      }]
 
 /**
    * Convenience functions for creating a new state, changing only
@@ -430,43 +395,47 @@ class PState(
    */
 
   def withInStreamState(inStreamState: PStateStream, status: ProcessorResult = Success) =
-    new PState(inStreamStateStack push(inStreamState), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new PState(inStreamStateStack push(inStreamState), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   def withInStream(inStream: InStream, status: ProcessorResult = Success) =
-    new PState(inStreamStateStack push(new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new PState(inStreamStateStack push(new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   def withLastInStream(status: ProcessorResult = Success) = {
     var lastBitPos = bitPos
     var lastCharPos = if (charPos > 0) charPos else 0
     inStreamStateStack pop()
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator) withPos(bitPos + lastBitPos, charPos + lastCharPos)
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator) withPos(bitPos + lastBitPos, charPos + lastCharPos)
   }
   def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) = {
     var newInStreamStateStack = inStreamStateStack clone()
     newInStreamStateStack pop()
     newInStreamStateStack push(new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos))
-    new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   }
   def withEndBitLimit(bitLimit: Long, status: ProcessorResult = Success) = {
     var newInStreamStateStack = inStreamStateStack clone()
     newInStreamStateStack pop()
     newInStreamStateStack push(new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos))
-    new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   }
   def withParent(parent: org.jdom.Parent, status: ProcessorResult = Success) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   def withVariables(variableMap: VariableMap, status: ProcessorResult = Success) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   def withGroupIndexStack(groupIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   def withChildIndexStack(childIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   def withArrayIndexStack(arrayIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
+  def setOccursCount(oc : Long) = 
+      new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, oc :: occursCountStack.tail, diagnostics, discriminator)
+  def withOccursCountStack(ocs : List[Long]) = 
+      new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, ocs, diagnostics, discriminator)
   def failed(msg: => String) : PState =
     failed(new GeneralParseFailure(msg))
   def failed(failureDiagnostic: Diagnostic) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics, discriminator)
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, failureDiagnostic :: diagnostics, discriminator)
   def withDiscriminator(disc : Boolean) = 
-     new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, disc)
+     new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, disc)
   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.
    *
@@ -531,10 +500,11 @@ object PState {
     val groupIndexStack = Nil
     val childIndexStack = Nil
     val arrayIndexStack = Nil
+    val occursCountStack = Nil
     val diagnostics = Nil
     val discriminator = false
     val initPState = PStateStream.initialPStateStream(inStream, bitOffset)
-    val newState = new PState(Stack(initPState), doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    val newState = new PState(Stack(initPState), doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
     newState
   }
 
