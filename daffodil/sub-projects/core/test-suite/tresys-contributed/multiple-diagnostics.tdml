@@ -54,7 +54,7 @@
 		<xs:element name="err1">
 			<xs:complexType>
 				<xs:sequence>
-					<xs:element ref="ex:err2" /> <!-- not supported yet -->
+					<xs:element ref="ex:err2" /> 
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
