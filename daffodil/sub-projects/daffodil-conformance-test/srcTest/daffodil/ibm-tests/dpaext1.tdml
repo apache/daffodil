@@ -40,6 +40,56 @@ the sample schemas given in the specification are used (made into complete schem
     <!--  The first two tests pick up the samples in Section 1.2.1 of the DFDL specification.  They are here to show
 the basic demonstration of DFDL with binary and text number formats  -->
 
+	<!-- example from  Simple Example 1.2  -->
+	<parserTestCase name="introduction_1_01"
+	    root="root"
+		model="./fvt/ext/dpa/dpaspc121_01.dfdl.xsd"
+		description="Section 1.2 General number example,  What is DFDL - binary numbers">
+
+		<document><documentPart type="byte">0000000500779e8c169a54dd0a1b4a3fce2946f6</documentPart></document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <root>
+			    <w xsi:type="xs:int">5</w>
+			    <x xsi:type="xs:int">7839372</x>
+			    <y xsi:type="xs:double">8.6E-200</y>
+			    <z xsi:type="xs:float">-7.1E8</z>
+			  </root>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+	<!--  Second example from  Simple Example 1.2 -->
+	<parserTestCase name="introduction_1_02" root="root"
+		model="./fvt/ext/dpa/dpaspc121_02.dfdl.xsd"
+		description="Section 12 lengthKind-delimited - DFDL-12-043R">
+
+		<document>5,7839372,8.6E-200,-7.1E8</document>
+
+		<infoset>
+	<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<root>
+					<w xsi:type="xs:int">5</w>
+					<x xsi:type="xs:int">7839372</x>
+					<y xsi:type="xs:double">8.6E-200</y>
+					<z xsi:type="xs:float">-7.1E8</z>
+				</root>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+
+    <!-- The next set of tests show a number of schema types that can be used, as per described in Section 5.  For these examples,
+  an explicit length and a simple number pattern is used.   It is not comprehensive, and further tests are provided 
+later for more variation in both length and patterns. -->
+
+    <!-- There are no error tests provided here to demonstrate failure if a DFDL schema uses any of the reserved constructs noted
+in Section 5.1 -->
+
+    <!-- Facets, default and fixed, though covered in Section 5, are optional, and so no tests here for those. min/maxOccurs 
+ will be covered with Section 16, arrays and optional elements. -->
+
 	<parserTestCase name="schema_types_5_01" root="byte1"
 		model="./fvt/ext/dpa/dpanum.dfdl.xsd" description="Section 5 Schema types - byte - DFDL-5-015R">
 
@@ -145,6 +195,473 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 		</infoset>
 	</parserTestCase>
 	
+		<parserTestCase name="syntax_entities_6_04"
+		description="Section 6.3 DFDL Character Entities - use of raw byte in fillByte for alignment"
+		model="./fvt/ext/dpa/syntax_entities_6.dfdl.xsd" root="Fixed_bin_num_sequence">
+		<document><documentPart type="byte">707E7E7E70</documentPart></document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <Fixed_bin_num_sequence>
+			    <binbyte xsi:type="xs:byte">112</binbyte>
+			    <binbyte2 xsi:type="xs:byte">112</binbyte2>
+			  </Fixed_bin_num_sequence>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+ 
+ 
+   <!-- The next tests cover some examples from the Syntax of Annotation Elements in Secion 7, showing attribute and element form,  the ability
+   to have CDATA with element form, and the short form -->   
+
+	<!--  example of dfdl component annotation in 7.1  page 37-->
+	<parserTestCase name="property_syntax_7_01" root="root"
+	description="Section 7.1.3.1 Representation Property Binding Syntax: Attribute Form"
+		model="./fvt/ext/dpa/dpaspc7131.dfdl.xsd">
+
+		<document><documentPart type="byte">61620a6263</documentPart></document>
+
+		<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<root>
+					<element1>ab</element1>
+					<element2>bc</element2>
+				</root>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+	<!--  element form in 7.1.3.2 -->
+	<parserTestCase name="property_syntax_7_02" root="root"
+	description="Section 7.1.3.2 Representation Property Binding Syntax: Element Form"
+		model="./fvt/ext/dpa/dpaspc7132.dfdl.xsd">
+
+		<document><documentPart type="byte">61620a6263</documentPart></document>
+
+		<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<root>
+					<element1>ab</element1>
+					<element2>bc</element2>
+				</root>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+	<!--  CDATA example  in 7.1.3.2-->
+	<parserTestCase name="property_syntax_7_03" root="element1"
+	description="Section 7.1.3.2 Representation Property Binding Syntax: CDATA Example"
+		model="./fvt/ext/dpa/dpaspc7132_2.dfdl.xsd">
+
+		<document><documentPart type="byte">3c212d2d6162</documentPart></document>
+
+		<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<element1>ab</element1>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+	<!--
+		first part of " example" in section 7.1.3.3 infix separator horizontal
+		tab
+	-->
+	<parserTestCase name="property_syntax_7_04" root="foo"
+	description="Section 7.1.3.3 Short Form Syntax"
+		model="./fvt/ext/dpa/dpaspc7133_01.dfdl.xsd">
+
+		<document><documentPart type="byte">310932</documentPart></document>
+
+		<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<foo>
+					<element1 xsi:type="xs:int">1</element1>
+					<element2 xsi:type="xs:int">2</element2>
+
+				</foo>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<!--  Section 8 covers property scoping. The tests include a simple unnamed format that is used for defaulting DFDL properties,
+	combining properties from a named format Also shown is combining properties from references - both user defined type
+	and element references. Finally, importing schema and how scoping applies to properties in the imported schema. -->
+	
+	<!-- scoping 8.1 -->
+	<parserTestCase name="scoping_default_format_8_01" root="book"
+		model="./fvt/ext/dpa/dpaspc81_01.dfdl.xsd"
+		description="Section 8.1 scoping example - unnamed format">
+
+		<document>abc123</document>
+
+		<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<book>
+					<title>abc</title>
+					<pages xsi:type="xs:int">123</pages>
+				</book>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+	<!-- scoping 8.2 -->
+	<parserTestCase name="scoping_define_format_8_01" root="book"
+		model="./fvt/ext/dpa/dpaspc82_01.dfdl.xsd"
+		description="Section 8.1 scoping example - combining properties from named dfdl:defineFormat">
+
+		<document>abc123</document>
+
+		<infoset>
+		<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<book>
+					<title>abc</title>
+					<pages xsi:type="xs:int">123</pages>
+				</book>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+
+	<!-- scoping 8.3 -->
+	<parserTestCase name="scoping_define_format_8_02" root="groupElem"
+		model="./fvt/ext/dpa/dpaspc83_01.dfdl.xsd"
+		description="Section 8.3 scoping example - combining DFDL properties from references">
+
+		<document><documentPart type="byte">0000001C6666666666666666666666660000002c</documentPart></document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<groupElem>
+
+					<testElement1 xsi:type="xs:integer">1</testElement1>
+					<testElement1 xsi:type="xs:integer">2</testElement1>
+				</groupElem>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+	<!-- scoping 8.3 - second example -->
+	<parserTestCase name="scoping_define_format_8_03" root="groupElem"
+		model="./fvt/ext/dpa/dpaspc83_02.dfdl.xsd"
+		description="Section 8.3 scoping example - combining DFDL properties from references, user defined type">
+
+		<document><documentPart type="byte">0000001C6666666666666666666666660000002c</documentPart></document>
+
+		<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<groupElem>
+
+					<testElement1 xsi:type="xs:int">1</testElement1>
+					<testElement1 xsi:type="xs:int">2</testElement1>
+				</groupElem>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+
+	<!-- scoping 8.3 - third example -->
+	<parserTestCase name="scoping_define_format_8_04" root="groupElem"
+		model="./fvt/ext/dpa/dpaspc83_03.dfdl.xsd"
+		description="Section 8.3 scoping example - combining DFDL properties from references - element reference">
+
+		<document><documentPart type="byte">0000000166666666666666666666666600000002</documentPart></document>
+
+		<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<groupElem>
+
+					<testElement1 xsi:type="xs:int">1</testElement1>
+					<testElement1 xsi:type="xs:int">2</testElement1>
+				</groupElem>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+	
+   
+   <!-- scoping 8.3 - fourth example -->
+	<parserTestCase name="scoping_define_format_8_05" root="book" 
+		model="./fvt/ext/dpa/dpaspc_41_83_04_01.dfdl.xsd"
+		description="Section 8.3 scoping example - combining DFDL properties from references - imported schema">
+
+		<document>custname</document>
+
+		<infoset>
+	<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">>
+				<book>
+
+					<customer>custname</customer>
+
+				</book>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<!-- Section 11 covers properties common to content and framing, so the following test will cover various encodings and byteOrder
+	 -->
+	 
+	<parserTestCase name="encoding_11_01" root="tag1"
+		model="./fvt/ext/dpa/dpaflsenc101_04_01.dfdl.xsd"
+		description="Section 11 Properties common to content and framing  - UTF-32 and byteOrder little endian">
+
+			<document><documentPart type="byte">4300000055000000</documentPart></document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <tag1>CU</tag1>
+</dfdlInfoset>
+
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="encoding_11_02" root="tag2"
+		model="./fvt/ext/dpa/dpaflsenc101_04_01.dfdl.xsd"
+		description="Section 11 Properties common to content and framing - UTF-32LE and byteOrder little endian">
+
+			<document><documentPart type="byte">4300000055000000</documentPart></document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <tag2>CU</tag2>
+</dfdlInfoset>
+
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="encoding_11_03" root="tag3"
+		model="./fvt/ext/dpa/dpaflsenc101_04_01.dfdl.xsd"
+		description="Section 11 Properties common to content and framing - UTF-32BE and byteOrder little endian ignored">
+
+			<document><documentPart type="byte">0000004300000055</documentPart></document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <tag3>CU</tag3>
+</dfdlInfoset>
+
+		</infoset>
+	</parserTestCase>
+	
+	<!--  Section 12 covers length properties and framing properties (alignment and markup such as initiators and terminators
+	 
+	 Alignment tests cover general alignment, leading and trailing skip bytes, and implicit alignment. 
+	 
+	 Delimiter tests here cover a simple initiator and terminator on a string field, use of ignoreCase property, and
+	 use of a space separated list to indicate multiple values for the initiator may be in the data. Also, a DFDL enitity NL is used 
+	 -->
+	
+	<parserTestCase name="alignment_bytes_12_01" root="Fixed_text_multi_sequence1"
+		model="./fvt/ext/dpa/dpaflsaln101_01.dfdl.xsd"
+		description="Section 12 Framing -  Alignment = 4">
+
+			<document>AfffBB</document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Fixed_text_multi_sequence1>
+    <Fixed_text_1>A</Fixed_text_1>
+    <Fixed_text_2a>BB</Fixed_text_2a>
+  </Fixed_text_multi_sequence1>
+</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="alignment_bytes_12_02" root="Fixed_text_multi_sequence2"
+		model="./fvt/ext/dpa/dpaflsaln101_01.dfdl.xsd"
+		description="Section 12 Framing -  Alignment with leadingSkip">
+
+			<document>AAAfffffBB</document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Fixed_text_multi_sequence2>
+    <Fixed_text_3>AAA</Fixed_text_3>
+    <Fixed_text_2a>BB</Fixed_text_2a>
+  </Fixed_text_multi_sequence2>
+</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+
+<parserTestCase name="alignment_bytes_12_03" root="Fixed_text_multi_sequence3"
+		model="./fvt/ext/dpa/dpaflsaln101_01.dfdl.xsd"
+		description="Section 12 Framing - Alignment with trailingSkip">
+
+			<document>AAAeeeeeBB</document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Fixed_text_multi_sequence3>
+    <Fixed_text_3>AAA</Fixed_text_3>
+    <Fixed_text_2a>BB</Fixed_text_2a>
+  </Fixed_text_multi_sequence3>
+</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+
+	<!--
+		first element is boolean with trailing skip byte, second has implicit
+		alignment
+	-->
+	<parserTestCase name="alignment_bytes_12_04" root="Fixed_bin_bol_sequence"
+		model="./fvt/ext/dpa/alignment_bytes_12.dfdl.xsd"
+		description="Section 12 Framing - Alignment with trailingSkip and implicit alignment">
+
+
+		<document>
+			<documentPart type="byte">000000017E7E7E7E00000001</documentPart>
+		</document>
+<infoset>
+		<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Fixed_bin_bol_sequence>
+    <binbol xsi:type="xs:boolean">true</binbol>
+    <binbol2 xsi:type="xs:boolean">true</binbol2>
+  </Fixed_bin_bol_sequence>
+</dfdlInfoset>
+</infoset>
+
+	</parserTestCase>
+
+	<!--  datetime -->
+	<parserTestCase name="alignment_bytes_12_05" root="Fixed_bin_cal_sequence"
+		model="./fvt/ext/dpa/alignment_bytes_12.dfdl.xsd"
+		description="Section 12 Framing - Implicit alignment with binary calendar type">
+
+
+		<document>
+			<documentPart type="byte">617e7e7e0000003C</documentPart>
+		</document>
+
+		<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<Fixed_bin_cal_sequence>
+					<mystr>a</mystr>
+					<bincal2 xsi:type="xs:dateTime">
+						1970-01-01T00:01:00.000000+00:00</bincal2>
+				</Fixed_bin_cal_sequence>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	
+	
+  <parserTestCase name="alignment_bytes_12_06" root="Fixed_bin_flt_sequence"
+		model="./fvt/ext/dpa/alignment_bytes_12.dfdl.xsd"
+		description="Section 12 Framing - Implicit alignment binary float">
+
+
+		<document>
+			<documentPart type="byte">67676767A6901D7D67676767449A4000676767673E4CCCCD</documentPart>
+		</document>
+
+		<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<Fixed_bin_flt_sequence>
+					<myFloat1 xsi:type="xs:float">-1.0E-15</myFloat1>
+					<myFloat2 xsi:type="xs:float">1234.0</myFloat2>
+					<myFloat3 xsi:type="xs:float">0.2</myFloat3>
+					
+				</Fixed_bin_flt_sequence>
+			</dfdlInfoset>
+		</infoset>
+
+
+
+	</parserTestCase>
+	
+    <parserTestCase name="delimiter_12_01" root="Fixed_string_with_Pads_10_1"
+		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 Properties for specifying delimiters - Simple initiator and terminator">
+
+		<document>iAAAAAAAAAAt</document>
+		<infoset>
+<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<Fixed_string_with_Pads_10_1 >AAAAAAAAAA</Fixed_string_with_Pads_10_1>
+			</dfdlInfoset>
+
+		</infoset>
+	</parserTestCase>
+    
+     <parserTestCase name="delimiter_12_02" root="Fixed_string_with_Pads_10_1"
+		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 simple initiator and terminator - ignore case">
+
+		<document>IAAAAAAAAAAT</document>
+		<infoset>
+		<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<Fixed_string_with_Pads_10_1>AAAAAAAAAA</Fixed_string_with_Pads_10_1>
+			</dfdlInfoset>
+
+		</infoset>
+	</parserTestCase>
+
+    <parserTestCase name="delimiter_12_03" root="Fixed_string_with_Pads_10_2"
+		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 simple initiator and terminator - space separated list - DFDL-12-032R">
+
+		<document>:AAAAAAAAAAterminator</document>
+		<infoset>
+		<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<Fixed_string_with_Pads_10_2 >AAAAAAAAAA</Fixed_string_with_Pads_10_2>
+			</dfdlInfoset>
+
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="delimiter_12_04" root="Fixed_text_sequence"
+		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 simple initiator and terminator - NL entity">
+		<document><documentPart type="byte">0A61620A</documentPart></document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <Fixed_text_sequence>
+			    <element1>a</element1>
+			    <element2>b</element2>
+			  </Fixed_text_sequence>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+		
+	<!--  Demonstrate the use of lengthUnits=bytes vs lengthUnits=characters when  multibyte character sets are used for explicit lengths -->
+	
+	<!--  section 12.3 properties for specifying length  -->
+	<parserTestCase name="length_explicit_12_01" root="multibytes_1"
+		model="./fvt/ext/dpa/length_explicit_12.dfdl.xsd" description="Section 12.3 Properties for specifying length - utf-8 multibyte characters, lengthKind='explicit', lengthUnits='bytes'">
+		<document><documentPart type="byte">e282ace282ac</documentPart></document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <multibytes_1>&#8364;&#8364;</multibytes_1>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="length_explicit_12_02" root="multibytes_2"
+		model="./fvt/ext/dpa/length_explicit_12.dfdl.xsd" description="Section 12.3 Properties for specifying length - utf-8 multibyte characters, lengthUnits='characters'
+		12.3.7.1.1">
+		<document><documentPart type="byte">e4ba9cc383e697a57e</documentPart></document>
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			  <multibytes_2>&#20124;&#195;&#26085;&#126;</multibytes_2>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<!--  With lengthKind="delimited", tests show various ways to in indicate the end of an element's content - with terminator, with
+	parent separator, with parent of specified length, with end of input. Delimited length can also be used with BCD fields, which
+	is shown here.	 Also, an element of explicit length can be a component of a delimited sequence. -->
+	
+	<!--  A couple of valid logical types are shown with lengthKind="implicit" 	-->
+	
+
+	
+<parserTestCase name="length_delimited_12_01"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 Properties for specifying length delimited - element terminator"
+ root="myDate1">
+ <document>2011-03-21@</document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <myDate1 xsi:type="xs:date">2011-03-21+00:00</myDate1>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 
+	
 	<!--  With lengthKind="delimited", tests show various ways to in indicate the end of an element's content - with terminator, with
 	parent separator, with parent of specified length, with end of input. Delimited length can also be used with BCD fields, which
 	is shown here.	 Also, an element of explicit length can be a component of a delimited sequence. -->
@@ -180,7 +697,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
  </parserTestCase> 	
 	
 <parserTestCase name="length_delimited_12_03"
- model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 Properties for specifying length -delimited - parent has specified length"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 length -delimited - parent terminator - DFDL-12-043R"
  root="myStringSeq2">
  <document>abcde;</document>
  <infoset>
@@ -221,7 +738,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
  </parserTestCase> -->
  
  <parserTestCase name="multiple_delimiters"
- model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 Properties for specifying length -delimited - parent has specified length "
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 multiple terminators DFDL-12-033R"
  root="myStringSeq3">
  <document>abcde|fghij|klmno::</document>
  <infoset>

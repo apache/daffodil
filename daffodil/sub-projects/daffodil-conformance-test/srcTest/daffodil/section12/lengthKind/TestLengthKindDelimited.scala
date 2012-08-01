@@ -15,10 +15,6 @@ class TestLengthKindDelimited extends JUnit3Suite {
   val aa = testDir + "DelimitedTests.tdml"
   val runner = new DFDLTestSuite(new File(aa))
   
-  def test_length_delimited_12_02() { runner.runOneTest("length_delimited_12_02") }
-  def test_length_delimited_12_03() { runner.runOneTest("length_delimited_12_03") }
-  def test_introduction_1_02() { runner.runOneTest("introduction_1_02") }
-  def test_multiple_delimiters() { runner.runOneTest("multiple_delimiters") }
   def test_NumSeq_01() { runner.runOneTest("NumSeq_01") }
   def test_NumSeq_03() { runner.runOneTest("NumSeq_03") }
   def test_NumSeq_04() { runner.runOneTest("NumSeq_04") }
@@ -38,5 +34,14 @@ class TestLengthKindDelimited extends JUnit3Suite {
   
   def test_AN000() { runnerAN.runOneTest("AN000") }
   def test_AN001() { runnerAN.runOneTest("AN001") }
+  
+  val testDir_01 = "srcTest/daffodil/ibm-tests/"
+  val tdml_01 = testDir_01 + "dpaext1.tdml"
+  val runner_01 = new DFDLTestSuite(new File(tdml_01))
+  
+  def test_introduction_1_02() { runner_01.runOneTest("introduction_1_02") }
+  def test_length_delimited_12_03() { runner_01.runOneTest("length_delimited_12_03") }
+  def test_length_delimited_12_02() { runner_01.runOneTest("length_delimited_12_02") }
+  def test_multiple_delimiters() { runner_01.runOneTest("multiple_delimiters") }
   
   }
