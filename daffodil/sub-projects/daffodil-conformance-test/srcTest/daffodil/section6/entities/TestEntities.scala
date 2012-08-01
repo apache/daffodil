@@ -19,6 +19,11 @@ class TestEntities extends JUnit3Suite {
   def test_CarriageReturn() { runner.runOneTest("CarriageReturn") }
   def test_LineSeparator() { runner.runOneTest("LineSeparator") }
   def test_NextLine() { runner.runOneTest("NextLine") }
+  def test_LineFeed_byte() { runner.runOneTest("LineFeed_byte") }
+  def test_CarriageReturn_byte() { runner.runOneTest("CarriageReturn_byte") }
+  def test_CRLF_byte() { runner.runOneTest("CRLF_byte") }
+  def test_LineSeparator_byte() { runner.runOneTest("LineSeparator_byte") }
+  def test_NextLine_byte() { runner.runOneTest("NextLine_byte") }
   def test_FormFeed() { runner.runOneTest("FormFeed") }
   
   val testDir_01 = "srcTest/daffodil/section6/entities/"
