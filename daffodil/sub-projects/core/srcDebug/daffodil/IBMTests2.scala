@@ -10,16 +10,16 @@ import daffodil.tdml.DFDLTestSuite
 /**
  * Delete this class once these regressions have been addressed.
  */
-class IBMTestRegressions extends JUnit3Suite {
-  
-  val testDir = "test-suite/ibm-contributed/"
-  val tdml1 = testDir + "dpaext1.tdml"
-  val tdml2 = testDir + "dpaext2.tdml"
-  val runner1 = new DFDLTestSuite(new File(tdml1))
-  val runner2 = new DFDLTestSuite(new File(tdml2))
-
-  // Nothing here! Great!
-}
+//class IBMTestRegressions extends JUnit3Suite {
+//  
+//  val testDir = "test-suite/ibm-contributed/"
+//  val tdml1 = testDir + "dpaext1.tdml"
+//  val tdml2 = testDir + "dpaext2.tdml"
+//  val runner1 = new DFDLTestSuite(new File(tdml1))
+//  val runner2 = new DFDLTestSuite(new File(tdml2))
+//
+//  // Nothing here! Great!
+//}
 
 class IBMTestsThatThrow extends JUnit3Suite {
 
@@ -34,7 +34,6 @@ class IBMTestsThatThrow extends JUnit3Suite {
   def test_property_syntax_7_01() { runner1.runOneTest("property_syntax_7_01") }
   def test_property_syntax_7_02() { runner1.runOneTest("property_syntax_7_02") }
   def test_property_syntax_7_03() { runner1.runOneTest("property_syntax_7_03") }
-  def test_property_syntax_7_04() { runner1.runOneTest("property_syntax_7_04") }
  
   def test_scoping_define_format_8_02() { runner1.runOneTest("scoping_define_format_8_02") }
   def test_scoping_define_format_8_03() { runner1.runOneTest("scoping_define_format_8_03") }
@@ -77,14 +76,12 @@ class IBMTestsThatThrow extends JUnit3Suite {
   def test_simple_type_properties_text_calendar_13_04() { runner2.runOneTest("simple_type_properties_text_calendar_13_04") }
   def test_simple_type_properties_bin_calendar_13_01() { runner2.runOneTest("simple_type_properties_bin_calendar_13_01") }
   def test_simple_type_properties_bin_calendar_13_02() { runner2.runOneTest("simple_type_properties_bin_calendar_13_02") }
-  def test_sequences_separated_14_01() { runner2.runOneTest("sequences_separated_14_01") }
-  def test_sequences_separated_14_02() { runner2.runOneTest("sequences_separated_14_02") }
+
   def test_sequences_separated_14_03() { runner2.runOneTest("sequences_separated_14_03") }
   def test_sequences_separated_14_04() { runner2.runOneTest("sequences_separated_14_04") }
   def test_sequences_separated_14_05() { runner2.runOneTest("sequences_separated_14_05") }
   def test_sequences_separated_14_06() { runner2.runOneTest("sequences_separated_14_06") }
-  def test_sequences_separated_14_07() { runner2.runOneTest("sequences_separated_14_07") }
-  def test_sequences_separated_14_08() { runner2.runOneTest("sequences_separated_14_08") }
+
   def test_choices_basic_15_01() { runner2.runOneTest("choices_basic_15_01") }
   def test_choices_basic_15_02() { runner2.runOneTest("choices_basic_15_02") }
   def test_choices_basic_15_03() { runner2.runOneTest("choices_basic_15_03") }
