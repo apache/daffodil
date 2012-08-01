@@ -22,6 +22,8 @@ class TestLengthKindDelimited extends JUnit3Suite {
   def test_NumSeq_01() { runner.runOneTest("NumSeq_01") }
   def test_NumSeq_03() { runner.runOneTest("NumSeq_03") }
   def test_NumSeq_04() { runner.runOneTest("NumSeq_04") }
+  def test_lengthKindDelimited_01() { runner.runOneTest("lengthKindDelimited_01") }
+  def test_lengthKindDelimited_02() { runner.runOneTest("lengthKindDelimited_02") }
   
   val ab = testDir + "AB.tdml"
   val runnerAB = new DFDLTestSuite(new File(ab))

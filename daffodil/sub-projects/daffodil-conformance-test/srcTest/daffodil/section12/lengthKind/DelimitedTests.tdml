@@ -68,6 +68,15 @@
 			</xs:sequence>
 		</xs:complexType>
 		
+		<xs:element name="delim_01" dfdl:lengthKind="delimited">
+	        <xs:complexType>
+	          <xs:sequence dfdl:separator="%WSP;%WSP+;+%NL;%WSP*;" dfdl:separatorPosition="infix">
+	      		<xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" />
+	      		<xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" />
+	          </xs:sequence>
+	        </xs:complexType>
+        </xs:element>
+		
 	</tdml:defineSchema>
 	
 	<tdml:parserTestCase name="length_delimited_12_02" root="myStringSeq1"
@@ -163,6 +172,36 @@
 					<num1>5</num1>
 					<num2>6</num2>
 				</NS_04>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="lengthKindDelimited_01" root="delim_01"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - use space character (0x20) as %WSP; - DFDL-12-048R">
+
+		<tdml:document>abcd  +
+		  efg</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<delim_01>
+					<s1>abcd</s1>
+					<s2>efg</s2>
+				</delim_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="lengthKindDelimited_02" root="delim_01"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - use tab character (0x09) as %WSP; - DFDL-12-048R">
+
+		<tdml:document>abcd		+
+				efg</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<delim_01>
+					<s1>abcd</s1>
+					<s2>efg</s2>
+				</delim_01>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
