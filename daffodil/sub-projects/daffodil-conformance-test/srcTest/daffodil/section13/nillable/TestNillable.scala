@@ -18,5 +18,6 @@ class TestNillable extends JUnit3Suite {
 
   def test_litNil1() { runnerAA.runOneTest("litNil1") }
   def test_litNil2() { runnerAA.runOneTest("litNil2") }
+  def test_litNil3() { runnerAA.runOneTest("litNil3") }
 
 }

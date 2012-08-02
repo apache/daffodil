@@ -30,5 +30,16 @@
 			</sequence>
 		</complexType>
 	</element>
+	
+	<element name="doc_01" dfdl:lengthKind="implicit">
+		<complexType>
+			<sequence dfdl:separator="," dfdl:terminator=";">
+				<element name="e1" nillable="true" type="xsd:int"
+					dfdl:lengthKind="delimited" />
+				<element name="e2" nillable="true" type="xsd:int"
+					dfdl:lengthKind="delimited" dfdl:terminator=":" dfdl:nilValueDelimiterPolicy="terminator"/>
+			</sequence>
+		</complexType>
+	</element>
 			
 </schema>

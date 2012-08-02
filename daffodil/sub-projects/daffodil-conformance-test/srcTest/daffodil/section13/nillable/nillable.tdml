@@ -26,7 +26,7 @@
 		description="literal nil is a DFDL character class entity %ES; - DFDL-13-234R">
 
 		<document>
-			<documentPart type="text"><![CDATA[0,%ES;;]]></documentPart>
+			<documentPart type="text"><![CDATA[0,;]]></documentPart>
 		</document>
 
 		<infoset>
@@ -41,6 +41,24 @@
 		</infoset>
 	</parserTestCase>
 
+	<parserTestCase name="litNil3" root="doc_01" model="nillable.dfdl.xsd"
+		description="literal nil is a DFDL character class entity %ES; - DFDL-13-234R">
+
+		<document>
+			<documentPart type="text"><![CDATA[0,:;]]></documentPart>
+		</document>
+
+		<infoset>
+			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<doc_01 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+					<e1>0</e1>
+					<e2 xsi:nil="true"/>	
+				</doc_01>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
 
 
 </testSuite>
