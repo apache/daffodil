@@ -95,7 +95,7 @@ class DelimSearcher extends Logging {
   // Resume functionality is broken when it comes to CRLF always leave clearState equal to true
   // until this is rectified.
   //
-  def search(input: CharBuffer, startPos: Int = 0, clearState: Boolean = true): (SearchResult, String, Int, Int, Delimiter) = {
+  def search(input: CharBuffer, startPos: Int = 0, clearState: Boolean = true, hardLimit: Int = 1000): (SearchResult, String, Int, Int, Delimiter) = {
     //setLoggingLevel(LogLevel.Debug)
     
     var matched: Boolean = false
@@ -124,12 +124,12 @@ class DelimSearcher extends Logging {
     
     if (this.escapeSchemeKind == EscapeSchemeKind.Block){
       delimiters foreach { node => node.searchWithEscapeSchemeBlock(input, startPos, crlfList, wspList,
-          escapeEscapeCharList, escapeBlockList) }
+          escapeEscapeCharList, escapeBlockList, hardLimit) }
     }else if (this.escapeSchemeKind == EscapeSchemeKind.Character) {
     	delimiters foreach { node => node.searchWithEscapeSchemeCharacter(input, startPos, crlfList, wspList,
-          escapeCharList) }
+          escapeCharList, hardLimit) }
     } else {
-      delimiters foreach { node => node.search(input, startPos, crlfList, wspList) }
+      delimiters foreach { node => node.search(input, startPos, crlfList, wspList, hardLimit) }
     }
 
     val delimsWithFullMatches = delimiters.filter(node => node.fullMatches.size > 0)
