@@ -849,7 +849,7 @@ with WithParseErrorThrowing
     cb
   }
 
-  def decodeUntilFail(bytesArray: Array[Byte], decoder: CharsetDecoder, endByte: Long): (CharBuffer, Long) = {
+  def decodeUntilFail(bytesArray: Array[Byte], decoder: CharsetDecoder, endByte: Long, maxCharBufLength: Int): (CharBuffer, Long) = {
     var cbFinal: CharBuffer = CharBuffer.allocate(1)
     var cbPrev: CharBuffer = CharBuffer.allocate(1)
     var numBytes: Int = 1
@@ -857,6 +857,7 @@ with WithParseErrorThrowing
     while (numBytes <= endByte) {
       try {
         cbPrev = decodeNBytes(numBytes, bytesArray, decoder)
+        if (cbPrev.length() > maxCharBufLength){ return (cbFinal, (numBytes -1))}
         cbFinal = cbPrev
       } catch {
 
@@ -906,7 +907,7 @@ with WithParseErrorThrowing
 
       log(Debug("endAtByte: %s", endAtByte))
 
-      var (result : CharBuffer, bytesDecoded : Long) = decodeUntilFail(byteArray, decoder, endAtByte)
+      var (result : CharBuffer, bytesDecoded : Long) = decodeUntilFail(byteArray, decoder, endAtByte, cb.length())
 
       if (bytesDecoded == 0) { return (-1L, true) }
 

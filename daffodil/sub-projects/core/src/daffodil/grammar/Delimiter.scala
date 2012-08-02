@@ -33,6 +33,7 @@ class Terminator extends Delimiter {
 // characters long.
 //
 class Delimiter extends Logging {
+  var hardLimitReached: Boolean = false
   var stateTraceEnabled: Boolean = false
   var delimiterStr: String = "" // String representation of delimiter Ex. "%WSP;,%WSP*;"
 
@@ -310,15 +311,21 @@ class Delimiter extends Logging {
         {
           delim match {
             case nl: NLDelim => { sb.append("(\\r\\n|\\n|\\r|\\u0085|\\u2028)") }
-            case wsp: WSPDelim => { sb.append("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" + 
-                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" + 
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)") } // Single space
-            case wsp: WSPPlusDelim => { sb.append("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" + 
-                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" + 
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)+") } // One or more spaces
-            case wsp: WSPStarDelim => { sb.append("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" + 
-                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" + 
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)*") } // None or more spaces
+            case wsp: WSPDelim => {
+              sb.append("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)")
+            } // Single space
+            case wsp: WSPPlusDelim => {
+              sb.append("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)+")
+            } // One or more spaces
+            case wsp: WSPStarDelim => {
+              sb.append("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)*")
+            } // None or more spaces
             case char: CharDelim => { // Some character
               char.char match {
                 case '[' => sb.append("\\[")
@@ -512,13 +519,13 @@ class Delimiter extends Logging {
   // This method iterates over the CharBuffer and delimBuf arrays.
   // Iteration is controlled by: advanceChar, advanceDelim, resetDelim
   //
-  def search(input: CharBuffer, charPosIn: Int, crlfList: List[(Int, Int)], wspList: List[(Int, Int)]) = {
+  def search(input: CharBuffer, charPosIn: Int, crlfList: List[(Int, Int)], wspList: List[(Int, Int)], hardLimit: Int = 1000) = {
     //setLoggingLevel(LogLevel.Debug)
-    
+
     val x = new WSPBase()
     charIdx = charPosIn
     log(Debug("SEARCH: charPosIn: " + charPosIn + " Delimiter: " + delimiterStr))
-    while (charIdx < input.length() && charIdx > -1) {
+    while (charIdx < input.length() && charIdx > -1 && charIdx < hardLimit) {
       // This loop shall allow us to control when we
       // move on to check the next character via
       // advanceChar method.
@@ -735,6 +742,10 @@ class Delimiter extends Logging {
     } // end-while
     processDelimBuf
     processPartials
+    if (charIdx == hardLimit) {
+      this.hardLimitReached = true
+      log(Debug("ALERT!!! SEARCH_DELIM: hardLimit was reached!"))
+    }
     log(Debug("END SEARCH DELIM: " + delimiterStr + "\n"))
   }
 
@@ -756,13 +767,13 @@ class Delimiter extends Logging {
   //
   def searchWithEscapeSchemeBlock(input: CharBuffer, charPosIn: Int,
     crlfList: List[(Int, Int)], wspList: List[(Int, Int)],
-    escapeEscapeChar: List[(Int)], escapeBlockList: List[(Int, Int)]) = {
+    escapeEscapeChar: List[(Int)], escapeBlockList: List[(Int, Int)], hardLimit: Int = 1000) = {
     val x = new WSPBase()
     var isEscapeMode: Boolean = false
 
     charIdx = charPosIn
     log(Debug("SEARCH_EscapeSchemeBlock: charPosIn: " + charPosIn + " Delimiter: " + delimiterStr))
-    while (charIdx < input.length() && charIdx > -1) {
+    while (charIdx < input.length() && charIdx > -1 && charIdx < hardLimit) {
       // This loop shall allow us to control when we
       // move on to check the next character via
       // advanceChar method.
@@ -987,6 +998,10 @@ class Delimiter extends Logging {
     } // end-while
     processDelimBuf
     processPartials
+    if (charIdx == hardLimit) {
+      this.hardLimitReached = true
+      log(Debug("ALERT!!! SEARCH_EscapeSchemeBlock: hardLimit was reached!"))
+    }
     log(Debug("END SEARCH_EscapeSchemeBlock: " + delimiterStr + "\n"))
   }
 
@@ -998,13 +1013,13 @@ class Delimiter extends Logging {
   //
   def searchWithEscapeSchemeCharacter(input: CharBuffer, charPosIn: Int,
     crlfList: List[(Int, Int)], wspList: List[(Int, Int)],
-    escapeCharList: List[(Int)]) = {
+    escapeCharList: List[(Int)], hardLimit: Int = 1000) = {
     val x = new WSPBase()
     var isEscapeMode: Boolean = false
 
     charIdx = charPosIn
     log(Debug("SEARCH_EscapeSchemeCharacter: charPosIn: " + charPosIn + " Delimiter: " + delimiterStr))
-    while (charIdx < input.length() && charIdx > -1) {
+    while (charIdx < input.length() && charIdx > -1 && charIdx < hardLimit) {
       // This loop shall allow us to control when we
       // move on to check the next character via
       // advanceChar method.
@@ -1229,6 +1244,11 @@ class Delimiter extends Logging {
     } // end-while
     processDelimBuf
     processPartials
+
+    if (charIdx == hardLimit) { 
+      this.hardLimitReached = true
+      log(Debug("ALERT!!! SEARCH_EscapeSchemeCharacter: hardLimit was reached!")) 
+      }
     log(Debug("END SEARCH_EscapeSchemeCharacter: " + delimiterStr + "\n"))
   }
 

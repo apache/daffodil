@@ -17,4 +17,10 @@ class TestSequenceGroups extends JUnit3Suite {
   
   def test_multiple_delimiters2() { runner.runOneTest("multiple_delimiters2") }
   
+  val testDir_01 = "srcTest/daffodil/section14/sequence_groups/"
+  val tdml_01 = testDir_01 + "SequenceGroupDelimiters.tdml"
+  val runner_01 = new DFDLTestSuite(new File(tdml_01))
+  
+  def test_SeqGrp_01() { runner_01.runOneTest("SeqGrp_01") }
+  
   }
