@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="AR" description="AR test of Binary Floats"
+    xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+
+	<tdml:defineSchema name="AR.dfdl.xsd" xmlns="http://www.w3.org/2001/XMLSchema">
+
+		<dfdl:format separator="" initiator="" terminator=""
+			emptyValueDelimiterPolicy="none" lengthKind="implicit" textNumberRep="standard"
+			binaryNumberRep="binary" binaryFloatRep="ieee" byteOrder="bigEndian"
+			representation="text" occursStopValue="-1" occursCountKind="expression" />
+
+		<!-- FloatBin example from old defuddle -->
+
+		<element name="DFDL" >
+			<complexType>
+				<sequence dfdl:separator="">
+					<element name="x" type="xsd:float" dfdl:representation="binary"
+						dfdl:lengthKind="implicit" />
+					<element name="y" type="xsd:float" dfdl:representation="binary"
+						dfdl:lengthKind="implicit" />
+					<element name="Multiply" type="xsd:float"
+						dfdl:inputValueCalc="{ ../tns:x * ../tns:y }" />
+					<element name="Add" type="xsd:float" dfdl:inputValueCalc="{ ../tns:x + ../tns:y }" />
+					<element name="Substract" type="xsd:float"
+						dfdl:inputValueCalc="{ ../tns:x - ../tns:y }" />
+					<element name="SubstractLiteral" type="xsd:float"
+						dfdl:inputValueCalc="{ ../tns:x - 2 }" />
+				</sequence>
+			</complexType>
+		</element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="AR000" root="DFDL"
+		model="AR.dfdl.xsd" description="Floats, inputValueCalc">
+
+		<tdml:document>
+			<tdml:documentPart type="byte">4128 0000 4140 28f6</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<DFDL xmlns="http://example.com">
+					<x type="xsd:float">10.5</x>
+					<y type="xsd:float">12.01</y>
+					<Multiply type="xsd:float">126.105</Multiply>
+					<Add type="xsd:float">22.509999999999998</Add>
+					<Substract type="xsd:float">-1.5099999999999998</Substract>
+					<SubstractLiteral type="xsd:float">8.5</SubstractLiteral>
+				</DFDL>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+</tdml:testSuite>

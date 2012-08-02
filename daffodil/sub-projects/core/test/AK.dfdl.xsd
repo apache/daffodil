@@ -7,7 +7,7 @@
 	>
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none"
+      <dfdl:format separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none" lengthKind="implicit"
        textNumberRep="standard" binaryNumberRep="binary" byteOrder="bigEndian" representation="text" occursStopValue="-1" occursCountKind="expression"/>
     </appinfo>
   </annotation>
