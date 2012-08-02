@@ -39,10 +39,64 @@ def testRegexToMatchOneDelimiterWithEscapeChars() {
     assertEquals(Some(("beforeEDstillBefore", "D", "after")), test("beforeEDstillBeforeDafter"))
 
     // just pretend RN is a CRLF, and N is a NL, and _ is a whitespace.
-    val test2 = tester("""S""", """E""", """RN|\_*N\_*""") // alternatives without shared prefix are ok.
+    val test2 = tester("""S""", """E""", """RN|\_*N\_*""") // alternatives still cause issues with longest match
 
-    assertEquals(Some(("beforeR", "N", "after")), test2("beforeRNafter"))
+    assertEquals(Some(("beforeR", "N", "after")), test2("beforeRNafter")) // see this is shortest match!
     assertEquals(Some(("beforeERNstillBefore__", "N_", "after")), test2("beforeERNstillBefore__N_after"))
+  }
+
+def testRegexToMatchOneDelimiterWithBlockEscapes() {
+
+    def tester(bStart : String, bEnd : String, escapeEscape : String, escape : String, delim : String) = {
+      val str = """(?:(?:(?!%3$s)(?!%4$s))(?:%1$s(.*)(?=(?:(?!%3$s)(?!%4$s))(?:%2$s))%2$s)|(?:(?!%1$s)(.*)))(?=(?:(?!%3$s)(?!%4$s))(?:%5$s))(%5$s)(.*)"""
+      val ContentPattern = str.format(bStart, bEnd, escapeEscape, escape, delim).r
+      println("Pattern = " + ContentPattern.pattern)
+      def test(x : String) = x match {
+        case ContentPattern(blocked, nonBlocked, delim, after) => {
+          println("'%s' parsed to blocked = '%s', nonBlocked = '%s', d = '%s', a = '%s'".
+            format(x, blocked, nonBlocked, delim, after))
+          Some((blocked, nonBlocked, delim, after))
+        }
+        case z => { println("no match: " + z); None }
+      }
+      test _
+    }
+
+    val test = tester("""T""", """N""", """S""", """E""", """D""") 
+
+    // This particular regex lets you escape either the blockstart or blockend, or the delimiter
+    
+    // no blockstart/end
+    assertEquals(Some((null, "before", "D", "after")), test("beforeDafter"))
+    
+    // no blockstart/end, but escape the delimiter
+    assertEquals(Some((null, "beforeEDstillBefore", "D", "after")), test("beforeEDstillBeforeDafter"))
+    // TODO FIXME - in the above result, the 'E' shouldn't be there as it escapes the delimiter D
+    // thereby making the D ordinary payload. 
+    
+    // with blockstart/end
+    assertEquals(Some(("beforeDstillBefore", null, "D", "after")), test("TbeforeDstillBeforeNDafter"))
+    
+    // with blockstart/end and esc and escEsc found inside (where they are inactive)
+    assertEquals(Some(("beforeEDstillBeforeSEDstillBefore", null, "D", "after")), test("TbeforeEDstillBeforeSEDstillBeforeNDafter"))
+    
+    // with blockstart/end, escape the first block end
+    assertEquals(Some(("beforeDstillBeforeENstillBefore", null, "D", "after")), test("TbeforeDstillBeforeENstillBeforeNDafter"))
+    // TODO FIXME - in the above the 'E' shouldn't be there, as it escapes the first 'N' 
+    
+    // with blockstart/end, escapeEscape the escape of the first block end
+    assertEquals(Some(("beforeDstillBeforeTstillBeforeSE", null, "D", "after")), test("TbeforeDstillBeforeTstillBeforeSENDafter"))
+    // TODO FIXME - in the above result, the 'S' second char from the end
+    // shouldn't be there. It escaped the 'E' escape, so that isn't 
+    // an escape character, thereby activating the block end 'N'
+    
+    // Note: Making the regex even more complex so as to get the active escape characters (either 'S' or 'E')
+    // out of the result is probably unwise. 
+    // Better to check for this situation exactly with a special check. 
+    
+    // with blockstart, but escape it so it's not really a block.
+    assertEquals(Some((null, "ETbefore", "D", "afterNstillafter")), test("ETbeforeDafterNstillafter"))
+    // TODO FIXME - the 'E' shouldn't be there. Active escape character.
   }
 
 
