@@ -753,7 +753,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
  </parserTestCase>
  
  <parserTestCase name="multiple_delimiters2"
- model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 Properties for specifying length -delimited - parent has specified length"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 14 Sequence groups with delimiters, a whitespace separated list for separator - DFDL-14-008R"
  root="myStringSeq4">
  <document>abcde|fghij|klmno::pqrst|uvwzy|z]</document>
  <infoset>
