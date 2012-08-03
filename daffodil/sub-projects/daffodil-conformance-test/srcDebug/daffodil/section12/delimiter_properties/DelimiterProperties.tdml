@@ -61,6 +61,14 @@
 			</xs:complexType>
 		</xs:element>
 		
+		<xs:element name="DP_03" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="s1" type="xs:float" dfdl:terminator="} ] )" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
 	</tdml:defineSchema>
 
 		<tdml:parserTestCase name="DelimProp_01"
@@ -121,6 +129,36 @@
 			<tdml:errors>
 				<tdml:error/>
 			</tdml:errors>
+		</tdml:parserTestCase>
+		
+		<tdml:parserTestCase name="DelimProp_04" root="DP_02"
+		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters -each element terminated by a different terminator, integer with a leading 0 - DFDL-12-032R">
+
+			<tdml:document>1]02)3}</tdml:document>
+			<tdml:infoset>
+				<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+					<DP_02>
+						<s1>1</s1>
+						<s1>2</s1>
+						<s1>3</s1>
+					</DP_02>
+				</tdml:dfdlInfoset>
+			</tdml:infoset>
+		</tdml:parserTestCase>
+		
+		<tdml:parserTestCase name="DelimProp_05" root="DP_03"
+		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters -each element terminated by a different terminator, integer with a leading 0 - DFDL-12-032R">
+
+			<tdml:document>.00300]-02.75)3.99}</tdml:document>
+			<tdml:infoset>
+				<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+					<DP_03>
+						<s1>.003</s1>
+						<s1>-2.75</s1>
+						<s1>3.99</s1>
+					</DP_03>
+				</tdml:dfdlInfoset>
+			</tdml:infoset>
 		</tdml:parserTestCase>
 		
 		<tdml:defineSchema name="basic">     

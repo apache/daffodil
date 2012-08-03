@@ -27,4 +27,5 @@ class TestDelimiterProperties_01 extends JUnit3Suite {
   def testParseSequence_4a() { runner_02.runOneTest("ParseSequence_4a") }
   def test_DelimProp_02() { runner_02.runOneTest("DelimProp_02") }
   def test_DelimProp_03() { runner_02.runOneTest("DelimProp_03") }
+  def test_DelimProp_05() { runner_02.runOneTest("DelimProp_05") }
   }
