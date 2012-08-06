@@ -1,9 +1,11 @@
-package daffodil.grammar
+package daffodil.processors
 
 import org.jdom._
 import daffodil.xml._
 import daffodil.xml._
 import daffodil.processors._
+import daffodil.grammar._
+import daffodil.compiler._
 import daffodil.exceptions.Assert
 import daffodil.schema.annotation.props._
 import daffodil.dsom._

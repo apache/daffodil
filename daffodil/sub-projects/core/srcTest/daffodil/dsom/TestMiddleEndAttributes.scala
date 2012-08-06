@@ -9,6 +9,7 @@ import daffodil.schema.annotation.props.gen._
 import daffodil.schema.annotation.props._
 import junit.framework.Assert._
 import daffodil.util._
+import daffodil.compiler._
 
 class TestMiddleEndAttributes extends JUnit3Suite {
   val xsd = XMLUtils.XSD_NAMESPACE

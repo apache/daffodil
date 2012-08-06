@@ -1,14 +1,20 @@
-package daffodil.dsom
+package daffodil.compiler
 
 import java.io.ByteArrayOutputStream
 import java.io.ByteArrayInputStream
 import scala.xml.Node
 import scala.xml.XML
-import daffodil.api.DFDL
+import daffodil.api.DFDL._
 import daffodil.exceptions.Assert
 import daffodil.util._
 import daffodil.util.Misc.hex2Bytes
 import junit.framework.Assert.assertEquals
+import daffodil.dsom.DiagnosticsProviding
+import daffodil.dsom.GlobalElementDecl
+import daffodil.dsom.SchemaSet
+import daffodil.processors.DataProcessor
+import daffodil.api.DFDL
+
 
 class ProcessorFactory(sset: SchemaSet, rootElem: GlobalElementDecl)
   extends DiagnosticsProviding // (sset)
@@ -61,7 +67,7 @@ class Compiler extends DFDL.Compiler with Logging {
   /*
    * for unit testing of front end
    */
-  private[dsom] def frontEnd(xml: Node): (SchemaSet, GlobalElementDecl) = {
+  def frontEnd(xml: Node): (SchemaSet, GlobalElementDecl) = {
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val elts = (xml \ "element")
     Assert.usage(elts.length != 0, "No top level element declarations found.")

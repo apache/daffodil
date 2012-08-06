@@ -1,17 +1,19 @@
-package daffodil.grammar
+package daffodil.processors
 
 import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.charset.{ CharsetEncoder, CoderResult }
 import scala.collection.JavaConversions._
-import daffodil.dsom.{ ElementBase, GlobalElementDecl, Term, SchemaComponent, Compiler }
-import daffodil.api.{ DFDL, Diagnostic, DataLocation }
-import daffodil.processors.{ VariableMap, ProcessorResult, Failure, Success }
+import daffodil.api._
+import daffodil.processors._
+import daffodil.grammar._
 import daffodil.util.{ Logging, LogLevel, Debug }
 import daffodil.exceptions.Assert
 import daffodil.schema.annotation.props.PropertyMixin
 import stringsearch.constructs.EscapeScheme.log
 import junit.framework.Assert.assertTrue
-import daffodil.dsom.AnnotatedSchemaComponent
+import daffodil.dsom._
+import daffodil.compiler._
+
 
 class UnparseError(sc: SchemaComponent, ustate: Option[UState], kind: String, args: Any*) extends ProcessingError {
   def isError = true

@@ -12,7 +12,7 @@ import scala.xml.XML
 import org.scalatest.junit.JUnit3Suite
 
 import daffodil.Implicits.using
-import daffodil.dsom.Compiler
+import daffodil.compiler.Compiler
 import daffodil.xml.XMLUtils
 import daffodil.util.Validator
 import junit.framework.Assert.assertEquals

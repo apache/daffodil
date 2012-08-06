@@ -6,7 +6,7 @@ import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml._
 import org.scalatest.junit.JUnit3Suite
 import daffodil.Implicits.using
-import daffodil.dsom.Compiler
+import daffodil.compiler.Compiler
 import daffodil.xml.XMLUtils
 import daffodil.util._
 import daffodil.api._

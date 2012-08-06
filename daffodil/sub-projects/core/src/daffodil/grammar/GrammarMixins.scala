@@ -8,6 +8,7 @@ import daffodil.schema.annotation.props.gen._
 import daffodil.dsom.OOLAG._
 import daffodil.util._
 import com.ibm.icu.text.NumberFormat
+import daffodil.processors._
 
 trait InitiatedTerminatedMixin
   extends AnnotatedMixin

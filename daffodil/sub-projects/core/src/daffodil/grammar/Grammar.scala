@@ -3,9 +3,8 @@ package daffodil.grammar
 import daffodil.exceptions.Assert
 import daffodil.util.Debug
 import daffodil.util.Misc.getNameFromClass
-import daffodil.dsom.{ SchemaComponent, Term, DiagnosticsProviding}
-import daffodil.dsom.AnnotatedSchemaComponent
-import daffodil.dsom.LocalElementBase
+import daffodil.dsom._
+import daffodil.processors._
 
 
 abstract class Gram(val context: AnnotatedSchemaComponent) extends DiagnosticsProviding {

@@ -3,7 +3,7 @@ package daffodil
 import scala.xml.Utility
 import org.scalatest.junit.JUnit3Suite
 import daffodil.debugger.DebugUtil
-import daffodil.dsom.Compiler
+import daffodil.compiler.Compiler
 import daffodil.xml.XMLUtils
 import junit.framework.Assert._
 import java.io.File
@@ -16,7 +16,7 @@ import daffodil.util.TestUtils
 object TestRig {
     var isDebug = false
     def doTest(schemaFileName : String, rootName : String, inputFileName : String, expectedFileName : String) {
-    val compiler = daffodil.dsom.Compiler()
+    val compiler = daffodil.compiler.Compiler()
 
     if (isDebug)
       compiler.setDebugging(true)

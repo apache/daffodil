@@ -2,6 +2,7 @@ package daffodil.dsom
 
 
 import daffodil.util._
+import daffodil.compiler._
 import org.scalatest.junit.JUnit3Suite
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue

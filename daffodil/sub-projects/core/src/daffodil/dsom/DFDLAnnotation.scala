@@ -9,13 +9,9 @@ import daffodil.xml._
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import scala.collection.JavaConversions._
-import daffodil.processors.Variable
-import daffodil.grammar.Gram
-import daffodil.grammar.AssertPrim
-import daffodil.grammar.Discriminator
-import daffodil.grammar.SetVariable
-import daffodil.grammar.EmptyGram
-import daffodil.grammar.NewVariableInstance
+import daffodil.processors._
+import daffodil.dsom._
+import daffodil.grammar._
 
 /**
  * Base class for any DFDL annotation

@@ -48,8 +48,6 @@ import daffodil.dsom.CompiledExpressionUtil
 import daffodil.dsom.DFDLDefineVariable
 import daffodil.dsom.DFDLSetVariable
 import daffodil.dsom.SchemaComponent
-import daffodil.grammar.WithParseErrorThrowing
-// import daffodil.xml.XMLUtil
 
 sealed abstract class VariableState
 

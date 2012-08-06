@@ -102,7 +102,7 @@ object Main {
       usage
     }
 
-    val compiler = daffodil.dsom.Compiler()
+    val compiler = daffodil.compiler.Compiler()
     var processorFactory: DFDL.ProcessorFactory = null
     var processor: DFDL.DataProcessor = null
 

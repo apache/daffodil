@@ -5,9 +5,8 @@ import daffodil.xml._
 import daffodil.processors._
 import daffodil.processors.xpath._
 import junit.framework.Assert._
-import daffodil.grammar.InputValueCalc
-import daffodil.grammar.PState
-import daffodil.grammar.IVCParser
+import daffodil.processors._
+import daffodil.compiler._
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression

@@ -1,15 +1,13 @@
-package daffodil.grammar
+package daffodil.processors
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnit3Suite
 import scala.xml._
 import daffodil.xml.XMLUtils
 import daffodil.xml.XMLUtils._
-import daffodil.dsom.Compiler
+import daffodil.compiler.Compiler
 import daffodil.util.TestUtils
 import daffodil.dsom.SchemaSet
-import daffodil.processors.Failure
-import daffodil.dsom.DataProcessor
 
 object DFDLUtils {
 

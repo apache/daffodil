@@ -5,6 +5,7 @@ import junit.framework.Assert._
 import org.scalatest.junit.JUnit3Suite
 import daffodil.dsom._
 import daffodil.exceptions.Assert
+import daffodil.processors._
 
 class TestGrammar extends JUnit3Suite {
 

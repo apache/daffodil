@@ -6,7 +6,7 @@ import junit.framework.Assert._
 import daffodil.xml.XMLUtils
 import daffodil.xml.XMLUtils._
 import scala.xml._
-import daffodil.dsom.Compiler
+import daffodil.compiler.Compiler
 import tdml.DFDLTestSuite
 import daffodil.util.LogLevel
 import daffodil.util.LoggingDefaults

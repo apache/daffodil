@@ -6,12 +6,8 @@ import daffodil.xml._
 import org.scalatest.junit.JUnit3Suite
 import junit.framework.Assert._
 import daffodil.tdml.DFDLTestSuite
-import daffodil.processors.Variable
-import daffodil.dsom.Fakes
-import daffodil.dsom.DFDLDefineVariable
-import daffodil.dsom.DFDLDefineVariable
-import daffodil.grammar.WithParseErrorThrowing
-import daffodil.dsom.SchemaComponent
+import daffodil.processors._
+import daffodil.dsom._
 
 class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
   val tdml = XMLUtils.TDML_NAMESPACE

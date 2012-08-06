@@ -1,4 +1,4 @@
-package daffodil.grammar
+package daffodil.processors
 
 import java.math.BigInteger
 import java.text.{ ParseException, ParsePosition }
@@ -7,15 +7,17 @@ import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.charset.{ CharsetEncoder, CharsetDecoder }
 import scala.collection.mutable.Queue
 import daffodil.dsom._
+import daffodil.compiler._
 import daffodil.xml.XMLUtils
 import daffodil.schema.annotation.props.gen.{ YesNo, LengthKind, ByteOrder }
 import daffodil.util.{ Debug, LogLevel, Logging, Info }
 import daffodil.util.Misc.bytes2Hex
-import daffodil.processors.{ Success, VariableMap }
+import daffodil.processors._
 import daffodil.exceptions.Assert
 import stringsearch.constructs.{ EscapeScheme, SearchResult }
 import stringsearch.delimiter.Delimiter
 import com.ibm.icu.text.{ NumberFormat, DecimalFormat }
+import daffodil.grammar.Terminal
 
 case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.value != true || e.lengthKind != LengthKind.Pattern) {
 
@@ -1583,7 +1585,7 @@ case class StringExplicitLengthInBytes(e : ElementBase)
   val expr = e.length
   val exprText = expr.prettyExpr
   val decoder = e.knownEncodingDecoder
-  // val maxBytes = daffodil.dsom.Compiler.maxFieldContentLengthInBytes
+  // val maxBytes = daffodil.compiler.Compiler.maxFieldContentLengthInBytes
   var cbuf : CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
   var cbufSize = 0
 

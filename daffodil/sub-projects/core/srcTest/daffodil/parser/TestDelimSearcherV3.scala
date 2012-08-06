@@ -5,7 +5,7 @@ import org.scalatest.junit.JUnit3Suite
 import scala.xml._
 import daffodil.xml.XMLUtils
 import daffodil.xml.XMLUtils._
-import daffodil.dsom.Compiler
+import daffodil.compiler.Compiler
 import scala.util.logging.ConsoleLogger
 import java.nio.CharBuffer
 import scala.collection.mutable.Queue

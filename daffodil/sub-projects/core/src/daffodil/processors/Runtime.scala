@@ -1,12 +1,12 @@
-package daffodil.dsom
+package daffodil.processors
 
-import daffodil.grammar.{ ProcessingError, ParseError, UnparseError, PState, UState}
 import daffodil.api.{ WithDiagnostics, DFDL }
 import daffodil.xml.XMLUtils
 import daffodil.exceptions.Assert
-import daffodil.processors.Success
 import daffodil.dsom.OOLAG.OOLAGException
 import daffodil.api.Diagnostic
+import daffodil.dsom._
+import daffodil.compiler.ProcessorFactory
 
 
 /**

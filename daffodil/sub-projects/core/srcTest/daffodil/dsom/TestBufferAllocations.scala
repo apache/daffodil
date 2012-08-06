@@ -1,7 +1,8 @@
 package daffodil.dsom
 
 import org.scalatest.junit.JUnit3Suite
-import daffodil.grammar.{InStreamFromByteChannel, PState}
+import daffodil.processors._
+import daffodil.compiler._
 
 /**
  * Created with IntelliJ IDEA.
