@@ -54,7 +54,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
     addDiagnosticChild(lv)
     lv.context match {
       case dp : Prod => {
-        dp.sc.addDiagnosticHost(dp)
+        dp.sc.addDiagnosticHost(dp) // TODO: determine is this really needed?
       }
       case _ => log(Debug("type of lv.context is %s", lv.context.getClass().getName()))
     }
@@ -116,8 +116,9 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
    */
   private lazy val diagnostics : Seq[Diagnostic] = diagnostics_.value
   private lazy val diagnostics_ = LV {
-    val dc = try diagnosticChildren ++ diagHosts.toSeq
-    catch { case e : OOLAGException => Nil }
+    val dc = 
+      try diagnosticChildren ++ diagHosts.toSeq
+      catch { case e : OOLAGException => Nil } // TODO: ? how do we accumulate the error from children if we Nil here and therefore have no list of children?
     val dcDiags = dc.flatMap { dc =>
       dc match {
         case dp : DiagnosticsProviding => dp.diagnostics
