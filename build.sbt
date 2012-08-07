@@ -16,3 +16,5 @@ libraryDependencies in ThisBuild := Seq(
 	"org.scalatest" % "scalatest_2.9.1" % "1.6.1",
 	"joda-time" % "joda-time" % "1.6"
 )
+
+retrieveManaged := true

@@ -2,7 +2,6 @@ import sbt._
 import Keys._
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
-import com.typesafe.sbteclipse.plugin.EclipsePlugin._
 
 object DaffodilBuild extends Build {
 
@@ -41,17 +40,7 @@ object DaffodilBuild extends Build {
 		(results, s) => Tests.showResults(s.log, results)
 	}
 	s ++= Seq(debugTaskSettings)
-	 
-	// eclipse configuratoin
-	s ++= Seq(
-		// include the 'resource' directory in the classpath
-		EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource,
-		// include compile, test, and debugTest sources in the project
-		EclipseKeys.configurations := Set(Compile, Test, DebugTest),
-		// attempt to get the source of library dependencies
-		EclipseKeys.withSource := true
-	)
-
+	
 	// jacoco configuration
 	s ++= Seq(jacoco.settings : _*)
 }
