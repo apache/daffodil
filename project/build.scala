@@ -27,8 +27,6 @@ object DaffodilBuild extends Build {
 
 	lazy val propgen = Project(id = "daffodil-propgen", base = file("daffodil-propgen"), settings = s)
 
-	lazy val orig    = Project(id = "daffodil-orig", base = file("daffodil-orig"))
-
 	// creates 'sbt debug:*' tasks, using src/test/scala-debug as the source directory
 	lazy val DebugTest = config("debug") extend(Test)
 	lazy val debugSettings: Seq[Setting[_]] = inConfig(DebugTest)(Defaults.testSettings ++ Seq(
