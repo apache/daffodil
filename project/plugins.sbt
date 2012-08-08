@@ -6,4 +6,4 @@ libraryDependencies ++= Seq(
   "org.jacoco" % "org.jacoco.report" % "0.5.9.201207300726" artifacts(Artifact("org.jacoco.report", "jar", "jar"))
 )
 
-addSbtPlugin("de.johoop" % "jacoco4sbt" % "1.2.2")
+addSbtPlugin("de.johoop" % "jacoco4sbt" % "1.2.3")
