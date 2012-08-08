@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="icu4j-charset-4_8_1_1.jar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/daffodil-core/lib/icu4j-charset-4_8_1_1.jar!/"></root>
+    </CLASSES>
+    <JAVADOC> </JAVADOC>
+    <SOURCES> </SOURCES>
+  </library>
+</component>

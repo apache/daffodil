@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="net.sourceforge.saxon_saxon_9.1.0.8">
+    <CLASSES> </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"></root>
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib_managed/srcs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-sources.jar!/"></root>
+    </SOURCES>
+  </library>
+</component>
