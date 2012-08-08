@@ -16,4 +16,9 @@ class TestPropertyScoping extends JUnit3Suite {
   val runner = new DFDLTestSuite(new File(aa))
   
   def test_property_scoping_01() { runner.runOneTest("property_scoping_01") }
+  
+  val tdml = testDir + "PropertyScoping_01.tdml"
+  val runner_01 = new DFDLTestSuite(new File(tdml))
+  
+  def test_property_scoping_02() { runner_01.runOneTest("property_scoping_02") }
 }
