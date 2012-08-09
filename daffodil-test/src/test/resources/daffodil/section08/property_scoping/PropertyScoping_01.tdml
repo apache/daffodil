@@ -31,4 +31,17 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	
+	<tdml:parserTestCase name="property_scoping_04" root="a"
+		model="PropertyScoping_03.dfdl.xsd" description="Section 8 Combining DFDL Representation Properties from a dfdl:defineFormat - DFDL-8-018R">
+
+		<tdml:document>
+			<tdml:documentPart type="byte">00000003</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<a>3</a>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
 </tdml:testSuite>
