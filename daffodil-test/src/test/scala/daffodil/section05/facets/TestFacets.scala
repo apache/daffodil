@@ -1,4 +1,4 @@
-package daffodil.section5.facets
+package daffodil.section05.facets
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnit3Suite
@@ -11,7 +11,7 @@ import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestFacets extends JUnit3Suite {
-  val testDir = "/daffodil/section5/facets/"
+  val testDir = "/daffodil/section05/facets/"
   val aa = testDir + "Facets.tdml"
   val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   

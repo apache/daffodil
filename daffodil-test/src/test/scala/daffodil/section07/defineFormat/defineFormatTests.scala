@@ -1,4 +1,4 @@
-package daffodil.section7.defineFormat
+package daffodil.section07.defineFormat
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnit3Suite
@@ -11,7 +11,7 @@ import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class defineFormatTests extends JUnit3Suite {
-  val testDir = "/daffodil/section7/defineFormat/"
+  val testDir = "/daffodil/section07/defineFormat/"
   val tdml = testDir + "defineFormat.tdml"
   val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
   

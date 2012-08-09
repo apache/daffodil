@@ -1,4 +1,4 @@
-package daffodil.section8.property_scoping
+package daffodil.section08.property_scoping
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnit3Suite
@@ -11,7 +11,7 @@ import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestPropertyScoping extends JUnit3Suite {
-  val testDir = "/daffodil/section8/property_scoping/"
+  val testDir = "/daffodil/section08/property_scoping/"
   val aa = testDir + "PropertyScoping.tdml"
   val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   

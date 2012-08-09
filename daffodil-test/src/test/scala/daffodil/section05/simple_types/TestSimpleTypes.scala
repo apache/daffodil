@@ -1,4 +1,4 @@
-package daffodil.section5.simple_types
+package daffodil.section05.simple_types
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnit3Suite
@@ -11,7 +11,7 @@ import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestSimpleTypes extends JUnit3Suite {
-  val testDir = "/daffodil/section5/simple_types/"
+  val testDir = "/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
   val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   

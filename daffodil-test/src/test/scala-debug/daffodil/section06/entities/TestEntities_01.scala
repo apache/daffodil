@@ -1,4 +1,4 @@
-package daffodil.section6.entities
+package daffodil.section06.entities
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnit3Suite
@@ -12,7 +12,7 @@ import java.io.File
 
 class TestEntities_01 extends JUnit3Suite {
   
-  val testDir_01 = "/daffodil/section6/entities/"
+  val testDir_01 = "/daffodil/section06/entities/"
   val aa_01 = testDir_01 + "Entities.tdml"
   val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
   
