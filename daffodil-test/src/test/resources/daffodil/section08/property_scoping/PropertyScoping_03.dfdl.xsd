@@ -30,4 +30,29 @@
 		</simpleType>
 	</element>
 	
+	<element name="aa" type="tns:c">
+		<annotation>
+			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+				<dfdl:element representation="binary" />
+			</appinfo>
+		</annotation>
+	</element>
+	
+		<simpleType name="c">
+			<xsd:annotation>
+				<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:simpleType byteOrder="bigEndian" />
+				</appinfo>
+			</xsd:annotation>
+			<restriction base="xsd:int" />
+		</simpleType>
+		
+	<element name="aaa" dfdl:lengthKind="implicit" >
+		<complexType>
+			<sequence dfdl:separator="">
+				<element ref="tns:aa" dfdl:occursCountKind="fixed" minOccurs="3" maxOccurs="3"/>	
+			</sequence>
+		</complexType>
+	</element>
+	
 </schema>
