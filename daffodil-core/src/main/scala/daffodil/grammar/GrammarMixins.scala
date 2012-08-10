@@ -7,6 +7,7 @@ import daffodil.schema.annotation.props._
 import daffodil.schema.annotation.props.gen._
 import daffodil.dsom.OOLAG._
 import daffodil.util._
+import daffodil.util.Misc.bytes2Hex
 import com.ibm.icu.text.NumberFormat
 import daffodil.processors._
 
@@ -311,6 +312,11 @@ trait ElementBaseGrammarMixin
     BinaryFloatRep(binaryFloatRep.constantAsString, this)
   }
 
+  lazy val binary = {
+    subset(lengthKind == LengthKind.Explicit, "Currently only lengthKind='explicit' is supported.")
+    LengthKind(lengthKind.toString(), this)
+  }
+
   lazy val binaryValue: Gram = {
     type BO = java.nio.ByteOrder
     Assert.invariant(primType.name != "string")
@@ -325,6 +331,23 @@ trait ElementBaseGrammarMixin
     // The DFDL spec has a section where it gives the precedence order of properties. 
     // This is in the spirit of that section.
     val res: Gram = primType.name match {
+
+      case "hexBinary" =>
+        (primType.name, binary) match { // TODO: Only takes explicit length
+          case ("hexBinary", b) => new BinaryNumber[Array[Byte]](this, this.length.constantAsLong) {
+            def getNum(bp: Long, in: InStream, bo: BO) = {
+              // FIXME: size constraints, overflow
+              in.getByteArray(bp, bo, length.constantAsLong.asInstanceOf[Int])
+            }
+            override def getNum(num: Number) = null //FIXME
+            protected override val GramName = "hexBinary"
+            protected override val GramDescription = "Hex Binary"
+            protected override def numFormat = NumberFormat.getIntegerInstance()
+            protected override def isInt = true
+          }
+          case _ => Assert.impossibleCase()
+        }
+
       case "byte" | "short" | "int" | "long" |
         "unsignedByte" | "unsignedShort" | "unsignedInt" | "unsignedLong" =>
         (primType.name, binaryIntRep) match {
@@ -517,14 +540,13 @@ trait ElementBaseGrammarMixin
    *
    * Also things that care about entry and exit of scope, like newVariableInstance
    */
-  lazy val statements = this.annotationObjs.filter{ st =>
+  lazy val statements = this.annotationObjs.filter { st =>
     st.isInstanceOf[DFDLStatement] &&
-    !st.isInstanceOf[DFDLNewVariableInstance]
-    }.asInstanceOf[Seq[DFDLStatement]]
-  lazy val statementGrams = statements.map{_.gram}
-  lazy val dfdlStatementEvaluations = Prod("dfdlStatementEvaluations", this, statementGrams.length > 0, 
-      statementGrams.fold(EmptyGram){_ ~ _}
-  )
+      !st.isInstanceOf[DFDLNewVariableInstance]
+  }.asInstanceOf[Seq[DFDLStatement]]
+  lazy val statementGrams = statements.map { _.gram }
+  lazy val dfdlStatementEvaluations = Prod("dfdlStatementEvaluations", this, statementGrams.length > 0,
+    statementGrams.fold(EmptyGram) { _ ~ _ })
   lazy val dfdlScopeBegin = Prod("dfdlScopeBegin", this, NYI, EmptyGram)
   lazy val dfdlScopeEnd = Prod("dfdlScopeEnd", this, NYI, EmptyGram)
 
@@ -805,8 +827,8 @@ trait TermGrammarMixin { self: Term =>
       // Note that GroupPosGreaterThan(N,..) sets discriminator, so if it is true, and infixSep is not found, it won't
       // backtrack and try nothing. Only if GroupPos is not greater than N will it backtrack.
       // TODO: adding ChildPosGreaterThan and ArrayPosGreaterThan fixes bug with xs:choice and array tests--check for other cases
-      (ArrayPosGreaterThan(1, self) ~ GroupPosGreaterThan(1, self) ~ infixSep) | 
-      (ChildPosGreaterThan(1, self) ~ GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this)
+      (ArrayPosGreaterThan(1, self) ~ GroupPosGreaterThan(1, self) ~ infixSep) |
+        (ChildPosGreaterThan(1, self) ~ GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this)
     } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this))
 }
 

@@ -224,7 +224,15 @@ object Compiler {
   def testUnparsing(testSchema: scala.xml.Elem, infoset: Node, unparseTo: String) {
     val compiler = Compiler()
     val pf = compiler.compile(testSchema)
+    if (pf.isError) {
+      val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new Exception(msgs)
+    }
     val u = pf.onPath("/")
+    if (u.isError) {
+      val msgs = u.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new Exception(msgs)
+    }
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
     val actual = u.unparse(out, infoset)
@@ -237,6 +245,27 @@ object Compiler {
     //    System.err.println("unparsed: " + unparsed)
     out.close()
     assertEquals(unparseTo, unparsed)
+  }
+  
+  def testUnparsingBinary(testSchema: scala.xml.Elem, infoset: Node, unparseTo: Array[Byte]) {
+    val compiler = Compiler()
+    val pf = compiler.compile(testSchema)
+    val u = pf.onPath("/")
+    val outputStream = new java.io.ByteArrayOutputStream()
+    val out = java.nio.channels.Channels.newChannel(outputStream)
+    val actual = u.unparse(out, infoset)
+    if (actual.isError) {
+      val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new Exception(msgs)
+    }
+    val unparsed = outputStream.toByteArray()
+//        System.err.println("parsed: " + infoset)
+//        System.err.println("unparsed: " + unparsed)
+    out.close()
+    assertEquals(unparsed.length, unparseTo.length)
+    for(i <- 0 until unparsed.length) {
+          assertEquals(unparseTo(i), unparsed(i))
+    }
   }
 }
 
