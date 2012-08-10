@@ -21,5 +21,10 @@ class TestLengthKindPattern extends JUnit3Suite {
   def test_lengthKindPattern_01() { runner.runOneTest("lengthKindPattern_01") }
   def test_lengthKindPattern_02() { runner.runOneTest("lengthKindPattern_02") }
   def test_lengthKindPattern_03() { runner.runOneTest("lengthKindPattern_03") }
+  
+  val ai = testDir + "AI.tdml"
+  val runnerAI = new DFDLTestSuite(Misc.getRequiredResource(ai))
+
+  def test_AI000() { runnerAI.runOneTest("AI000") }
 
   }
