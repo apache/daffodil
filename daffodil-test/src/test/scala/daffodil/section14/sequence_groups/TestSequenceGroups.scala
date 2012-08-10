@@ -22,5 +22,7 @@ class TestSequenceGroups extends JUnit3Suite {
   val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
   
   def test_SeqGrp_01() { runner_01.runOneTest("SeqGrp_01") }
-  
+  def test_SeqGrp_02() { runner_01.runOneTest("SeqGrp_02") }
+  def test_SeqGrp_03() { runner_01.runOneTest("SeqGrp_03") }
+  def test_SeqGrp_04() { runner_01.runOneTest("SeqGrp_04") }
   }

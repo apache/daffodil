@@ -51,6 +51,33 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+		
+		<xs:element name="SG_02" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separatorPosition="infix" dfdl:separator=",">
+					<xs:element name="s1" type="xs:int" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="SG_03" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separatorPosition="infix" dfdl:separator=", ,, ,,,">
+					<xs:element name="s1" type="xs:int" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="SG_04" dfdl:lengthKind="delimited">
+			<xs:complexType>
+				<xs:sequence dfdl:separatorPosition="infix" dfdl:separator="">
+					<xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3"/>
+					<xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4"/>
+					<xs:element name="s3" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="5"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
 	</tdml:defineSchema>
 
 		<tdml:parserTestCase name="SeqGrp_01"
@@ -86,6 +113,46 @@
 					</seq4>
 				</SG_01>
 			</tdml:dfdlInfoset>
+			</tdml:infoset>
+		</tdml:parserTestCase>
+		
+		<tdml:parserTestCase name="SeqGrp_02" root="SG_02"
+		model="SequenceGroupDelimiters-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters -negative test -DFDL-14-008R">
+
+			<tdml:document>,</tdml:document>
+				<tdml:errors>
+					<tdml:error/>
+				</tdml:errors>
+		</tdml:parserTestCase>
+		
+		<tdml:parserTestCase name="SeqGrp_03" root="SG_03"
+		model="SequenceGroupDelimiters-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters -multiple separators - DFDL-14-008R">
+
+			<tdml:document>1,,2,,,3,4</tdml:document>
+			<tdml:infoset>
+				<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+					<SG_03>
+						<s1>1</s1>
+						<s1>2</s1>
+						<s1>3</s1>
+						<s1>4</s1>
+					</SG_03>
+				</tdml:dfdlInfoset>
+			</tdml:infoset>
+		</tdml:parserTestCase>
+		
+		<tdml:parserTestCase name="SeqGrp_04" root="SG_04"
+		model="SequenceGroupDelimiters-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters -empty string separator - DFDL-14-008R">
+
+			<tdml:document>abcdefghijkl</tdml:document>
+			<tdml:infoset>
+				<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+					<SG_04>
+						<s1>abc</s1>
+						<s2>defg</s2>
+						<s3>hijkl</s3>
+					</SG_04>
+				</tdml:dfdlInfoset>
 			</tdml:infoset>
 		</tdml:parserTestCase>
 	
