@@ -401,7 +401,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 	 
 	<parserTestCase name="encoding_11_01" root="tag1"
 		model="./fvt/ext/dpa/dpaflsenc101_04_01.dfdl.xsd"
-		description="Section 11 Properties common to content and framing  - UTF-32 and byteOrder little endian">
+		description="Section 11 Properties common to content and framing  - UTF-32 and byteOrder little endian - DFDL-11-001R">
 
 			<document><documentPart type="byte">4300000055000000</documentPart></document>
 
@@ -415,7 +415,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 	
 	<parserTestCase name="encoding_11_02" root="tag2"
 		model="./fvt/ext/dpa/dpaflsenc101_04_01.dfdl.xsd"
-		description="Section 11 Properties common to content and framing - UTF-32LE and byteOrder little endian">
+		description="Section 11 Properties common to content and framing - UTF-32LE - DFDL-11-001R">
 
 			<document><documentPart type="byte">4300000055000000</documentPart></document>
 
@@ -429,7 +429,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 	
 	<parserTestCase name="encoding_11_03" root="tag3"
 		model="./fvt/ext/dpa/dpaflsenc101_04_01.dfdl.xsd"
-		description="Section 11 Properties common to content and framing - UTF-32BE and byteOrder little endian ignored">
+		description="Section 11 Properties common to content and framing - UTF-32BE - DFDL-11-001R">
 
 			<document><documentPart type="byte">0000004300000055</documentPart></document>
 
