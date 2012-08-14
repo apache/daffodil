@@ -26,7 +26,6 @@
 
 	<xs:element name="element2" type="xs:string" dfdl:initiator="%SP;"
 		dfdl:terminator="%LS;" dfdl:length="2">
-
 	</xs:element>
 	
 	</tdml:defineSchema>
@@ -35,7 +34,7 @@
 		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
 is multiple bytes in UTF-8 encoding that is used"
 		model="Entities-Embedded.dfdl.xsd" root="element2">
-		<tdml:document><tdml:documentPart type="text"><![CDATA[ abâ€¨]]></tdml:documentPart></tdml:document>
+		<tdml:document><tdml:documentPart type="text"><![CDATA[ ab ]]></tdml:documentPart></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<element2>ab</element2>
@@ -141,6 +140,26 @@ is multiple bytes in UTF-8 encoding that is used"
 			</xs:complexType>
 		</xs:element>
 		
+		<xs:element name="seq_08" dfdl:terminator="">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="%SP;" dfdl:separatorPosition="infix" dfdl:terminator="">	
+					<xs:element name="e1" type="xs:int" dfdl:terminator="%%"/>
+					<xs:element name="e2" type="xs:int" dfdl:terminator="%%"/>
+					<xs:element name="e3" type="xs:int" dfdl:terminator="%%"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="seq_09" dfdl:terminator="">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="%%%SP;" dfdl:separatorPosition="infix" dfdl:terminator="">	
+					<xs:element name="e1" type="xs:int" dfdl:terminator=""/>
+					<xs:element name="e2" type="xs:int" dfdl:terminator=""/>
+					<xs:element name="e3" type="xs:int" dfdl:terminator=""/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
 		<xs:element name="seq_10" dfdl:terminator="">
 			<xs:complexType>
 				<xs:sequence dfdl:separator="" dfdl:terminator="">	
@@ -154,8 +173,7 @@ is multiple bytes in UTF-8 encoding that is used"
 	</tdml:defineSchema>
 	
 	<tdml:parserTestCase name="byte_entities_6_02"
-		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
-is multiple bytes in UTF-8 encoding that is used"
+		description="Section 6.3 DFDL Character Entities - BS, HT, LF, VT, FF, CR, SO, and SI - utf-8 encoding - DFDL-6-042R"
 		model="Entities_01-Embedded.dfdl.xsd" root="seq_02">
 		<tdml:document><tdml:documentPart type="byte">30083109320a330b340c350d360e370f</tdml:documentPart></tdml:document>
 		<tdml:infoset>
@@ -176,8 +194,7 @@ is multiple bytes in UTF-8 encoding that is used"
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="byte_entities_6_01"
-		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
-is multiple bytes in UTF-8 encoding that is used"
+		description="Section 6.3 DFDL Character Entities - NUL, SOH, STX, ETX, EOT, ENQ, ACK, and BEL - utf-8 encoding - DFDL-6-042R"
 		model="Entities_01-Embedded.dfdl.xsd" root="seq_01">
 		<tdml:document><tdml:documentPart type="byte">30003101320233033404350536063707</tdml:documentPart></tdml:document>
 		<tdml:infoset>
@@ -198,8 +215,7 @@ is multiple bytes in UTF-8 encoding that is used"
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="byte_entities_6_03"
-		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
-is multiple bytes in UTF-8 encoding that is used"
+		description="Section 6.3 DFDL Character Entities - DLE, DC1, DC2, DC3, DC4, NAK, SYN, and ETB - utf-8 encoding - DFDL-6-042R"
 		model="Entities_01-Embedded.dfdl.xsd" root="seq_03">
 		<tdml:document><tdml:documentPart type="byte">30103111321233133414351536163717</tdml:documentPart></tdml:document>
 		<tdml:infoset>
@@ -220,8 +236,7 @@ is multiple bytes in UTF-8 encoding that is used"
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="byte_entities_6_04"
-		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
-is multiple bytes in UTF-8 encoding that is used"
+		description="Section 6.3 DFDL Character Entities - CAN, EM, SUB, ESC, FS, GS, RS, and US - utf-8 encoding - DFDL-6-042R"
 		model="Entities_01-Embedded.dfdl.xsd" root="seq_04">
 		<tdml:document><tdml:documentPart type="byte">30183119321a331b341c351d361e371f</tdml:documentPart></tdml:document>
 		<tdml:infoset>
@@ -242,8 +257,7 @@ is multiple bytes in UTF-8 encoding that is used"
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="byte_entities_6_05"
-		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
-is multiple bytes in UTF-8 encoding that is used"
+		description="Section 6.3 DFDL Character Entities - SP, DEL, NBSP, NEL, and LS - utf-8 encoding - DFDL-6-042R"
 		model="Entities_01-Embedded.dfdl.xsd" root="seq_05">
 		<tdml:document><tdml:documentPart type="byte">3020317f32c2a033c28534e280a8</tdml:documentPart></tdml:document>
 		<tdml:infoset>
@@ -287,6 +301,38 @@ is multiple bytes in UTF-8 encoding that is used"
 					<e2>1</e2>
 					<e3>2</e3>
 				</seq_07>
+			</tdml:dfdlInfoset>
+
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="text_entities_6_03"
+		description="Section 6.3 DFDL Character Entities - use of %% - DFDL-6-086R"
+		model="Entities_01-Embedded.dfdl.xsd" root="seq_08">
+		<tdml:document><tdml:documentPart type="text">98% 53% 100%></tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<seq_08>
+					<e1>98</e1>
+					<e2>53</e2>
+					<e3>100</e3>
+				</seq_08>
+			</tdml:dfdlInfoset>
+
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="text_entities_6_04"
+		description="Section 6.3 DFDL Character Entities - use of %% - DFDL-6-086R"
+		model="Entities_01-Embedded.dfdl.xsd" root="seq_09">
+		<tdml:document><tdml:documentPart type="text">98% 53% 100% ></tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<seq_09>
+					<e1>98</e1>
+					<e2>53</e2>
+					<e3>100</e3>
+				</seq_09>
 			</tdml:dfdlInfoset>
 
 		</tdml:infoset>

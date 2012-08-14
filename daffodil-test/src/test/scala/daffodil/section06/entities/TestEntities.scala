@@ -31,6 +31,15 @@ class TestEntities extends JUnit3Suite {
   val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
   
   //def test_text_entities_6_02() { runner_01.runOneTest("text_entities_6_02") }
+  def test_text_entities_6_03() { runner_01.runOneTest("text_entities_6_03") }
+  def test_text_entities_6_04() { runner_01.runOneTest("text_entities_6_04") }
+  def test_byte_entities_6_01() { runner_01.runOneTest("byte_entities_6_01") }
+  def test_byte_entities_6_02() { runner_01.runOneTest("byte_entities_6_02") }
+  def test_byte_entities_6_03() { runner_01.runOneTest("byte_entities_6_03") }
+  def test_byte_entities_6_04() { runner_01.runOneTest("byte_entities_6_04") }
+  def test_byte_entities_6_05() { runner_01.runOneTest("byte_entities_6_05") }
+  //def test_byte_entities_6_06() { runner_01.runOneTest("byte_entities_6_06") }
+  //def test_byte_entities_6_07() { runner_01.runOneTest("byte_entities_6_07") }
   
   val testDir_02 = "/daffodil/ibm-tests/"
   val tdml_02 = testDir_02 + "dpaext1.tdml"
@@ -38,5 +47,14 @@ class TestEntities extends JUnit3Suite {
   def test_syntax_entities_6_01() { runner_02.runOneTest("syntax_entities_6_01") }
   def test_syntax_entities_6_02() { runner_02.runOneTest("syntax_entities_6_02") }
   def test_syntax_entities_6_03() { runner_02.runOneTest("syntax_entities_6_03") }
+  
+  val entity = testDir + "entities_01.tdml"
+  val runnerEntity = new DFDLTestSuite(Misc.getRequiredResource(entity))
+  def test_entity_fail_01() { runnerEntity.runOneTest("entity_fail_01") }
+  def test_entity_fail_02() { runnerEntity.runOneTest("entity_fail_02") }
+  def test_entity_fail_03() { runnerEntity.runOneTest("entity_fail_03") }
+  def test_entity_fail_04() { runnerEntity.runOneTest("entity_fail_04") }
+  //def test_entity_fail_05() { runnerEntity.runOneTest("entity_fail_05") }
+  //def test_entity_fail_06() { runnerEntity.runOneTest("entity_fail_06") }
   
   }
