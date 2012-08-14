@@ -35,10 +35,275 @@
 		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
 is multiple bytes in UTF-8 encoding that is used"
 		model="Entities-Embedded.dfdl.xsd" root="element2">
-		<tdml:document><tdml:documentPart type="text"><![CDATA[ ab ]]></tdml:documentPart></tdml:document>
+		<tdml:document><tdml:documentPart type="text"><![CDATA[ abâ€¨]]></tdml:documentPart></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<element2>ab</element2>
+			</tdml:dfdlInfoset>
+
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:defineSchema name="Entities_01-Embedded.dfdl.xsd">
+	
+		<dfdl:format encoding="utf-8" byteOrder="bigEndian" representation="text" lengthUnits="characters"
+			textNumberRep="standard" lengthKind="delimited" initiator="" ignoreCase="no"/>
+		
+		<xs:element name="seq_01" dfdl:terminator="">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="" dfdl:terminator="">	
+					<xs:element name="e1" type="xs:int" dfdl:terminator="%NUL;"/>
+					<xs:element name="e2" type="xs:int" dfdl:terminator="%SOH;"/>
+					<xs:element name="e3" type="xs:int" dfdl:terminator="%STX;"/>
+					<xs:element name="e4" type="xs:int" dfdl:terminator="%ETX;"/>
+					<xs:element name="e5" type="xs:int" dfdl:terminator="%EOT;"/>
+					<xs:element name="e6" type="xs:int" dfdl:terminator="%ENQ;"/>
+					<xs:element name="e7" type="xs:int" dfdl:terminator="%ACK;"/>
+					<xs:element name="e8" type="xs:int" dfdl:terminator="%BEL;"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="seq_02" dfdl:terminator="">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="" dfdl:terminator="">	
+					<xs:element name="e1" type="xs:int" dfdl:terminator="%BS;"/>
+					<xs:element name="e2" type="xs:int" dfdl:terminator="%HT;"/>
+					<xs:element name="e3" type="xs:int" dfdl:terminator="%LF;"/>
+					<xs:element name="e4" type="xs:int" dfdl:terminator="%VT;"/>
+					<xs:element name="e5" type="xs:int" dfdl:terminator="%FF;"/>
+					<xs:element name="e6" type="xs:int" dfdl:terminator="%CR;"/>
+					<xs:element name="e7" type="xs:int" dfdl:terminator="%SO;"/>
+					<xs:element name="e8" type="xs:int" dfdl:terminator="%SI;"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="seq_03" dfdl:terminator="">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="" dfdl:terminator="">	
+					<xs:element name="e1" type="xs:int" dfdl:terminator="%DLE;"/>
+					<xs:element name="e2" type="xs:int" dfdl:terminator="%DC1;"/>
+					<xs:element name="e3" type="xs:int" dfdl:terminator="%DC2;"/>
+					<xs:element name="e4" type="xs:int" dfdl:terminator="%DC3;"/>
+					<xs:element name="e5" type="xs:int" dfdl:terminator="%DC4;"/>
+					<xs:element name="e6" type="xs:int" dfdl:terminator="%NAK;"/>
+					<xs:element name="e7" type="xs:int" dfdl:terminator="%SYN;"/>
+					<xs:element name="e8" type="xs:int" dfdl:terminator="%ETB;"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="seq_04" dfdl:terminator="">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="" dfdl:terminator="">	
+					<xs:element name="e1" type="xs:int" dfdl:terminator="%CAN;"/>
+					<xs:element name="e2" type="xs:int" dfdl:terminator="%EM;"/>
+					<xs:element name="e3" type="xs:int" dfdl:terminator="%SUB;"/>
+					<xs:element name="e4" type="xs:int" dfdl:terminator="%ESC;"/>
+					<xs:element name="e5" type="xs:int" dfdl:terminator="%FS;"/>
+					<xs:element name="e6" type="xs:int" dfdl:terminator="%GS;"/>
+					<xs:element name="e7" type="xs:int" dfdl:terminator="%RS;"/>
+					<xs:element name="e8" type="xs:int" dfdl:terminator="%US;"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="seq_05" dfdl:terminator="">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="" dfdl:terminator="">	
+					<xs:element name="e1" type="xs:int" dfdl:terminator="%SP;"/>
+					<xs:element name="e2" type="xs:int" dfdl:terminator="%DEL;"/>
+					<xs:element name="e3" type="xs:int" dfdl:terminator="%NBSP;"/>
+					<xs:element name="e4" type="xs:int" dfdl:terminator="%NEL;"/>
+					<xs:element name="e5" type="xs:int" dfdl:terminator="%LS;"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="seq_06" dfdl:terminator="">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="" dfdl:terminator="">	
+					<xs:element name="e1" type="xs:int" dfdl:terminator="%#xc880;"/>
+					<xs:element name="e2" type="xs:int" dfdl:terminator="%#xd49b;"/>
+					<xs:element name="e3" type="xs:int" dfdl:terminator="%#xc2ae;"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="seq_07" dfdl:terminator="">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="" dfdl:terminator="">	
+					<xs:element name="e1" type="xs:int" dfdl:terminator="%#51328;"/>
+					<xs:element name="e2" type="xs:int" dfdl:terminator="%#54427;"/>
+					<xs:element name="e3" type="xs:int" dfdl:terminator="%#49838;"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="seq_10" dfdl:terminator="">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="" dfdl:terminator="">	
+					<xs:element name="e1" type="xs:int" dfdl:terminator="%#rab;"/>
+					<xs:element name="e2" type="xs:int" dfdl:terminator="%#r32;"/>
+					<xs:element name="e3" type="xs:int" dfdl:terminator="%#r7f;"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="byte_entities_6_02"
+		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
+is multiple bytes in UTF-8 encoding that is used"
+		model="Entities_01-Embedded.dfdl.xsd" root="seq_02">
+		<tdml:document><tdml:documentPart type="byte">30083109320a330b340c350d360e370f</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<seq_02>
+					<e1>0</e1>
+					<e2>1</e2>
+					<e3>2</e3>
+					<e4>3</e4>
+					<e5>4</e5>
+					<e6>5</e6>
+					<e7>6</e7>
+					<e8>7</e8>
+				</seq_02>
+			</tdml:dfdlInfoset>
+
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="byte_entities_6_01"
+		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
+is multiple bytes in UTF-8 encoding that is used"
+		model="Entities_01-Embedded.dfdl.xsd" root="seq_01">
+		<tdml:document><tdml:documentPart type="byte">30003101320233033404350536063707</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<seq_01>
+					<e1>0</e1>
+					<e2>1</e2>
+					<e3>2</e3>
+					<e4>3</e4>
+					<e5>4</e5>
+					<e6>5</e6>
+					<e7>6</e7>
+					<e8>7</e8>
+				</seq_01>
+			</tdml:dfdlInfoset>
+
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="byte_entities_6_03"
+		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
+is multiple bytes in UTF-8 encoding that is used"
+		model="Entities_01-Embedded.dfdl.xsd" root="seq_03">
+		<tdml:document><tdml:documentPart type="byte">30103111321233133414351536163717</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<seq_03>
+					<e1>0</e1>
+					<e2>1</e2>
+					<e3>2</e3>
+					<e4>3</e4>
+					<e5>4</e5>
+					<e6>5</e6>
+					<e7>6</e7>
+					<e8>7</e8>
+				</seq_03>
+			</tdml:dfdlInfoset>
+
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="byte_entities_6_04"
+		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
+is multiple bytes in UTF-8 encoding that is used"
+		model="Entities_01-Embedded.dfdl.xsd" root="seq_04">
+		<tdml:document><tdml:documentPart type="byte">30183119321a331b341c351d361e371f</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<seq_04>
+					<e1>0</e1>
+					<e2>1</e2>
+					<e3>2</e3>
+					<e4>3</e4>
+					<e5>4</e5>
+					<e6>5</e6>
+					<e7>6</e7>
+					<e8>7</e8>
+				</seq_04>
+			</tdml:dfdlInfoset>
+
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="byte_entities_6_05"
+		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
+is multiple bytes in UTF-8 encoding that is used"
+		model="Entities_01-Embedded.dfdl.xsd" root="seq_05">
+		<tdml:document><tdml:documentPart type="byte">3020317f32c2a033c28534e280a8</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<seq_05>
+					<e1>0</e1>
+					<e2>1</e2>
+					<e3>2</e3>
+					<e4>3</e4>
+					<e5>4</e5>
+				</seq_05>
+			</tdml:dfdlInfoset>
+
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="byte_entities_6_06"
+		description="Section 6.3 DFDL Hexadecimal utf-8 code points"
+		model="Entities_01-Embedded.dfdl.xsd" root="seq_06">
+		<tdml:document><tdml:documentPart type="byte">30c88031d49b32c2ae</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<seq_06>
+					<e1>0</e1>
+					<e2>1</e2>
+					<e3>2</e3>
+				</seq_06>
+			</tdml:dfdlInfoset>
+
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="byte_entities_6_07"
+		description="Section 6.3 DFDL decimal utf-8 code points"
+		model="Entities_01-Embedded.dfdl.xsd" root="seq_07">
+		<tdml:document><tdml:documentPart type="byte">30c88031d49b32c2ae</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<seq_07>
+					<e1>0</e1>
+					<e2>1</e2>
+					<e3>2</e3>
+				</seq_07>
+			</tdml:dfdlInfoset>
+
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="byte_entities_6_10"
+		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
+is multiple bytes in UTF-8 encoding that is used"
+		model="Entities_01-Embedded.dfdl.xsd" root="seq_06">
+		<tdml:document><tdml:documentPart type="byte">30ab3132327f</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<seq_06>
+					<e1>0</e1>
+					<e2>1</e2>
+					<e3>2</e3>
+				</seq_06>
 			</tdml:dfdlInfoset>
 
 		</tdml:infoset>
