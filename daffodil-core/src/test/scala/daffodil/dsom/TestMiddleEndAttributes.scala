@@ -158,4 +158,38 @@ class TestMiddleEndAttributes extends JUnit3Suite {
     assertTrue(s2.isScalar)
     assertTrue(!s2.hasPriorRequiredSiblings)
   }
+  
+  def testNearestEnclosingSequenceElementRef () {
+     val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
+      <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+      <xs:element name="e2" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+              <xs:element ref="e1"/>      
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val compiler = Compiler()
+
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    // Explore global element decl
+    val Seq(e1f, e2f) = sd.globalElementDecls
+    val e2 = e2f.forRoot()
+    val e2ct = e2.immediateType.get.asInstanceOf[daffodil.dsom.LocalComplexTypeDef]
+    val seq = e2ct.modelGroup.asInstanceOf[Sequence]
+    val mems = seq.groupMembers
+    val Seq(t1 : Term) = mems
+    val e1ref = t1.asInstanceOf[daffodil.dsom.ElementRef]
+    val nes = e1ref.nearestEnclosingSequence
+    nes match {
+       case None => fail()
+       case Some(nes) => {
+           assertEquals(seq, nes)
+       }
+     }
+  }
 }

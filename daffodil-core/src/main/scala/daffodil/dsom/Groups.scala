@@ -79,6 +79,8 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
     res
   }
   
+    
+
   /**
    * nearestEnclosingSequence
    *
@@ -91,7 +93,8 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
    * This is why we have to have the GlobalXYZDefFactory stuff. Because this kind of back
    * pointer (contextual sensitivity) prevents sharing.
    */
-  lazy val nearestEnclosingSequence: Option[Sequence] = {
+  lazy val nearestEnclosingSequence : Option[Sequence] = nearestEnclosingSequence_.value
+  private lazy val nearestEnclosingSequence_ = LV {
     // TODO: verify this is not just lexical scope containing. It's the scope of physical containment, so 
     // must also take into consideration references (element ref to element decl, element decl to type, type to group,
     // groupref to group)
@@ -130,11 +133,12 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
         }
       }
       case gd: GlobalGroupDef => gd.groupRef.nearestEnclosingSequence
-      // We should only be asking for the enclosingSequence when there is one.
       case _ => Assert.invariantFailed("No enclosing sequence for : " + this)
     }
+    schemaDefinition(res != None, "This object: %s, has no enclosing sequence.", this)
     res
   }
+
   
   lazy val positionInNearestEnclosingSequence : Int = {
     val res = 

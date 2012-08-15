@@ -51,7 +51,7 @@ options or print a full list of options with:
 BUILDING FROM SOURCE
 ----------------
 
-See BUILD for detailed instructions on using the ant scripts.
+See BUILD for detailed instructions on using the sbt scripts.
 
 There are IDE's and eclipse plug-ins that can be used to build daffodil. See:
 
