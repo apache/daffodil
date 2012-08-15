@@ -558,6 +558,8 @@ trait InStream {
   
   def getDouble(bitPos : Long, order : java.nio.ByteOrder) : Double
   def getFloat(bitPos : Long, order : java.nio.ByteOrder) : Float
+  
+  def getByteArray(bitPos : Long, order : java.nio.ByteOrder, size: Int) : Array[Byte]
 
   // def fillCharBufferUntilDelimiterOrEnd
 }
@@ -1211,6 +1213,16 @@ with WithParseErrorThrowing
     bb.getFloat(bytePos)
   }
 
+  def getByteArray(bitPos : Long, order : java.nio.ByteOrder, size: Int) = {
+    Assert.invariant(bitPos % 8 == 0)
+    val bytePos = (bitPos >> 3).toInt
+    bb.order(order)
+    bb.position(bytePos)
+    var ret: Array[Byte] = new Array[Byte](size)
+    bb.get(ret, 0, size)
+    ret
+  }
+  
   def withLimit(startBitPos : Long, endBitPos : Long) = {
     Assert.invariant((startBitPos & 7) == 0)
     Assert.invariant((endBitPos & 7) == 0)

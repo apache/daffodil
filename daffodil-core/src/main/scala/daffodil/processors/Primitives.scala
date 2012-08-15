@@ -57,15 +57,14 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
         try { //if content contains elements
           if (!start.childIndexStack.isEmpty) {
             if (start.childPos != 1) { //if not first child, write unparsed result of previous child to outputStream
-              // TODO: encoder affecting child elements?
-              val encoder = e.knownEncodingEncoder
-              start.outStream.setEncoder(encoder)
+              //              val encoder = e.knownEncodingEncoder
+              //              start.outStream.setEncoder(encoder)
               start.outStream.write()
             }
             start.currentElement.getContent().get(start.childPos.asInstanceOf[Int] - 1).asInstanceOf[org.jdom.Element]
           } else {
-            val encoder = e.knownEncodingEncoder
-            start.outStream.setEncoder(encoder)
+            //            val encoder = e.knownEncodingEncoder
+            //            start.outStream.setEncoder(encoder)
             start.currentElement.getContent().get(0).asInstanceOf[org.jdom.Element]
           }
         } catch {
@@ -241,14 +240,14 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
 
   def unparser: Unparser = new Unparser(e) {
     override def toString = "StringFixedLengthInBytesUnparser(" + nBytes + ")"
-    //    val encoder = e.knownEncodingEncoder
+    val encoder = e.knownEncodingEncoder
 
     def unparse(start: UState): UState = {
       // setLoggingLevel(LogLevel.Debug)
 
       val data = start.currentElement.getText
 
-      //      start.outStream.setEncoder(encoder)
+      start.outStream.setEncoder(encoder)
       start.outStream.fillCharBuffer(data)
 
       log(Debug("Unparsed: " + start.outStream.getData))
@@ -412,14 +411,14 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
   def unparser: Unparser = new Unparser(e) {
     override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
-    //    val encoder = e.knownEncodingEncoder
+    val encoder = e.knownEncodingEncoder
 
     def unparse(start: UState): UState = {
       // setLoggingLevel(LogLevel.Debug)
 
       val data = start.currentElement.getText
 
-      //      start.outStream.setEncoder(encoder)
+      start.outStream.setEncoder(encoder)
       start.outStream.fillCharBuffer(data)
       log(Debug("Unparsed: " + start.outStream.getData))
       start
@@ -767,7 +766,7 @@ case class ZonedTextShortPrim(el: ElementBase) extends ZonedTextNumberPrim(el, f
 case class ZonedTextIntPrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)
 case class ZonedTextLongPrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)
 
-abstract class BinaryNumber[T](e: ElementBase, nBits: Int) extends Terminal(e, true) {
+abstract class BinaryNumber[T](e: ElementBase, nBits: Long) extends Terminal(e, true) {
   lazy val primName = e.primType.name
 
   lazy val staticByteOrderString = e.byteOrder.constantAsString
@@ -796,7 +795,16 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Int) extends Terminal(e, t
       if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) start.failed("Not enough bits to create an xs:" + primName)
       else {
         val value = getNum(start.bitPos, start.inStream, staticJByteOrder)
-        start.parentForAddContent.addContent(new org.jdom.Text(value.toString))
+        if (GramName == "hexBinary") {
+          val bytes = value.asInstanceOf[Array[Byte]]
+          var asString: StringBuilder = new StringBuilder()
+          for (i <- 0 until bytes.length) {
+            val byte = String.format("%02X", bytes(i).asInstanceOf[java.lang.Byte])
+            asString.append(byte)
+          }
+          start.parentForAddContent.addContent(new org.jdom.Text(asString.toString()))
+        } else
+          start.parentForAddContent.addContent(new org.jdom.Text(value.toString))
         val postState = start.withPos(start.bitPos + nBits, -1)
         postState
       }
@@ -806,15 +814,29 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Int) extends Terminal(e, t
   def unparser = new Unparser(e) {
     override def toString = gram.toString
 
-    // TODO: returns string in hex
     def unparse(start: UState): UState = {
-      // setLoggingLevel(LogLevel.Debug)
+      setLoggingLevel(LogLevel.Debug)
       val str = start.currentElement.getText //gets data from element being unparsed
+
       Assert.invariant(str != null) // worst case it should be empty string. But not null.
 
       val postState = {
         if (str == "") return UE(start, "Convert to %s (for xs:%s): Cannot unparse number from empty string", GramDescription, GramName)
-        else {
+        else if (GramName == "hexBinary") {
+          //regex to split string into array of two char elements ('bytes')
+          val strArray = str.split("(?<=\\G..)")
+          var asBytes = new Array[Byte](strArray.size)
+
+          for (i <- 0 until strArray.size) {
+            asBytes(i) = {
+              val asInt = Integer.parseInt(strArray(i), 16)
+              (asInt & 0xFF).byteValue()
+            }
+          }
+          start.outStream.fillByteBuffer(asBytes, "hexBinary", staticJByteOrder) //write number back to ByteBuffer
+          start
+
+        } else {
           val df = numFormat
           val pos = new ParsePosition(0)
           val num = try {
@@ -844,11 +866,7 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Int) extends Terminal(e, t
               GramDescription, GramName, str, asNumber)
           }
 
-          val bytes = start.outStream.toByteArray(asNumber, GramName, staticJByteOrder)
-          val result = bytes2Hex(bytes)
-
-          start.outStream.fillCharBuffer(result) //write number back to CharBuffer
-          log(Debug("Unparsed: " + start.outStream.getData))
+          start.outStream.fillByteBuffer(asNumber, GramName, staticJByteOrder) //write number back to ByteBuffer
           start
         }
       }
@@ -1009,7 +1027,7 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
         //val separators = new daffodil.dsom.ListOfStringValueAsLiteral(delim.evaluate(start.parent, start.variableMap).asInstanceOf[String], e).cooked
         //val terminators = t.terminatingMarkup.map(x => { new daffodil.dsom.ListOfStringValueAsLiteral(x.evaluate(start.parent, start.variableMap).asInstanceOf[String], e).cooked}).flatten
 
-//        val x = new daffodil.dsom.ListOfStringValueAsLiteral(delim.evaluate(start.parent, start.variableMap).asInstanceOf[String], e)
+        //        val x = new daffodil.dsom.ListOfStringValueAsLiteral(delim.evaluate(start.parent, start.variableMap).asInstanceOf[String], e)
 
         //val terminatorsFiltered = terminators.filterNot(x => separators.contains(x))
         //        val separatorsCooked: Queue[String] = new Queue
@@ -1077,6 +1095,8 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
     Assert.invariant(delim != "") //shouldn't be here at all in this case
 
     def unparse(start: UState): UState = {
+      val encoder = e.knownEncodingEncoder
+      start.outStream.setEncoder(encoder)
       start.outStream.fillCharBuffer(unparserDelim)
       log(Debug("Unparsed: " + start.outStream.getData))
       start
@@ -1085,7 +1105,6 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
 
   def unparserDelim: String
 }
-
 
 class DynamicDelimiter(delimExpr: CompiledExpression, e: Term, guard: Boolean = true) extends Primitive(e, guard)
 
@@ -1475,11 +1494,11 @@ case class UnicodeByteOrderMark(e: GlobalElementDecl) extends Primitive(e, false
 
 case class FinalUnusedRegion(e: ElementBase) extends Primitive(e, false)
 
-case class NewVariableInstance(decl : AnnotatedSchemaComponent, stmt : DFDLNewVariableInstance) extends Primitive(decl, false)
-case class AssertPrim(decl : AnnotatedSchemaComponent, stmt : DFDLAssert) extends Primitive(decl, false)
-case class Discriminator(decl : AnnotatedSchemaComponent, stmt : DFDLDiscriminator) extends Primitive(decl, false)
+case class NewVariableInstance(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance) extends Primitive(decl, false)
+case class AssertPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert) extends Primitive(decl, false)
+case class Discriminator(decl: AnnotatedSchemaComponent, stmt: DFDLDiscriminator) extends Primitive(decl, false)
 
-case class SetVariable(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable) extends Terminal(decl, true) {
+case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable) extends Terminal(decl, true) {
   def parser: Parser = new SetVariableParser(decl, stmt)
 
   def unparser: Unparser = new Unparser(decl) {
@@ -1488,7 +1507,6 @@ case class SetVariable(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable) 
     }
   }
 }
-
 
 case class InputValueCalc(e: ElementBase with ElementDeclMixin) extends Terminal(e, true) {
 
@@ -1502,26 +1520,26 @@ case class InputValueCalc(e: ElementBase with ElementDeclMixin) extends Terminal
 
 }
 
-abstract class ExpressionEvaluationParser(e : AnnotatedSchemaComponent) 
-extends Parser(e) with WithParseErrorThrowing {
+abstract class ExpressionEvaluationParser(e: AnnotatedSchemaComponent)
+  extends Parser(e) with WithParseErrorThrowing {
   override def toString = baseName + "(" + exprText + ")"
-  def baseName : String
-  def exprText : String
-  def expandedTypeName : String
+  def baseName: String
+  def exprText: String
+  def expandedTypeName: String
   lazy val expressionTypeSymbol = {
     // println(expandedTypeName)
     e.expressionCompiler.convertTypeString(expandedTypeName)
   }
-  
+
   lazy val expr = e.expressionCompiler.compile(expressionTypeSymbol, exprText)
-  
-   // for unit testing
+
+  // for unit testing
   def testExpressionEvaluation(elem: org.jdom.Element, vmap: VariableMap) = {
     val result = expr.evaluate(elem, vmap)
     result
   }
 
-  def eval(start : PState) = {
+  def eval(start: PState) = {
     val currentElement = start.parentElement
     val result =
       expr.evaluate(currentElement, start.variableMap)
@@ -1530,18 +1548,18 @@ extends Parser(e) with WithParseErrorThrowing {
   }
 }
 
-class IVCParser(e: ElementBase with ElementDeclMixin) 
+class IVCParser(e: ElementBase with ElementDeclMixin)
   extends ExpressionEvaluationParser(e) {
   Assert.invariant(e.isSimpleType)
   val baseName = "InputValueCalc"
- 
+
   lazy val Some(exprText) = e.inputValueCalcOption
- 
+
   lazy val pt = e.primType
   lazy val ptn = pt.name
   lazy val expandedTypeName = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, ptn)
 
-  def parse(start : PState) : PState =
+  def parse(start: PState): PState =
     withLoggingLevel(LogLevel.Info) {
       withParseErrorThrowing(start) {
         log(Debug("This is %s", toString))
@@ -1554,20 +1572,20 @@ class IVCParser(e: ElementBase with ElementDeclMixin)
     }
 }
 
-class SetVariableParser(decl: AnnotatedSchemaComponent, stmt : DFDLSetVariable) 
-extends ExpressionEvaluationParser(decl) {
+class SetVariableParser(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
+  extends ExpressionEvaluationParser(decl) {
   val baseName = "SetVariable"
- 
+
   lazy val exprText = stmt.value
   val (uri, localName) = XMLUtils.QName(decl.xml, stmt.ref, decl.schemaDocument)
   val defv = decl.schema.schemaSet.getDefineVariable(uri, localName).getOrElse(
-      null // stmt.schemaDefinitionError("Unknown variable: %s", stmt.ref)
-      )
-      
+    null // stmt.schemaDefinitionError("Unknown variable: %s", stmt.ref)
+    )
+
   val (typeURI, typeName) = XMLUtils.QName(decl.xml, defv.type_, decl.schemaDocument)
   val expandedTypeName = XMLUtils.expandedQName(typeURI, typeName)
 
-  def parse(start : PState) : PState =
+  def parse(start: PState): PState =
     withLoggingLevel(LogLevel.Info) {
       withParseErrorThrowing(start) {
         log(Debug("This is %s", toString))

@@ -368,16 +368,16 @@ object XMLUtils {
   //    sw toString
   //  }
   //  
-  //  def serialize(out:OutputStream,parent:Parent) = {
-  //    val format = Format getPrettyFormat;
-  //    format setLineSeparator(System.getProperty("line.separator"))
-  //    parent match {
-  //      case d:Document => new XMLOutputter(format).output(d,out)
-  //      case e:Element =>  new XMLOutputter(format).output(e,out)
-  //    }
-  //    out.write(System.getProperty("line.separator").getBytes())
-  //    //new PrintWriter(out).println()
-  //  }
+//    def serialize(out: OutputStream, parent: Parent) = {
+//      val format = Format.getPrettyFormat()
+//      format.setLineSeparator(System.getProperty("line.separator"))
+//      parent match {
+//        case d:Document => new XMLOutputter(format).output(d,out)
+//        case e:Element => new XMLOutputter(format).output(e,out)
+//      }
+//      out.write(System.getProperty("line.separator").getBytes())
+//      //new PrintWriter(out).println()
+//    }
   //  
   //  def getTotalNodes = nodeCount
   //

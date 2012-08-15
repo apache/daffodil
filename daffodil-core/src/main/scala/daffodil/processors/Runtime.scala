@@ -170,6 +170,5 @@ abstract class UnparseResult(dp: DataProcessor)
   with WithDiagnosticsImpl {
 
   override def resultState: UState
-
 }
 

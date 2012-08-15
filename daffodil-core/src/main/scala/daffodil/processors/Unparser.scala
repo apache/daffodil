@@ -13,7 +13,9 @@ import stringsearch.constructs.EscapeScheme.log
 import junit.framework.Assert.assertTrue
 import daffodil.dsom._
 import daffodil.compiler._
-
+import daffodil.dsom.AnnotatedSchemaComponent
+import java.io.FileOutputStream
+import java.io.File
 
 class UnparseError(sc: SchemaComponent, ustate: Option[UState], kind: String, args: Any*) extends ProcessingError {
   def isError = true
@@ -398,23 +400,14 @@ object UState {
  * bit more specialized for DFDL needs.
  */
 trait OutStream {
-  /**
-   * These return a value of the appropriate type, or they throw
-   * an exception when there is no more data, or if the offset is past the end of data,
-   * or if the offset exceeds implementation capacity such as for moving backwards in
-   * the data beyond buffering capacity.
-   */
-  //  def getBinaryLong(bitOffset : Long,  isBigEndian : Boolean) : Long
-  //  def getBinaryInt(bitOffset : Long,  isBigEndian : Boolean) : Int
-
   def setEncoder(encoder: CharsetEncoder)
   def write()
-  def charBufferToByteBuffer(): ByteBuffer
+  def charBufferToByteBuffer()
 
   def getData(): String
   def clearCharBuffer()
   def fillCharBuffer(str: String)
-  def toByteArray[T](num: T, name: String, order: java.nio.ByteOrder): Array[Byte]
+  def fillByteBuffer[T](num: T, name: String, order: java.nio.ByteOrder)
 }
 
 /*
@@ -423,6 +416,7 @@ trait OutStream {
 class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, sizeHint: Long = 1024 * 128, bufPos: Int = 0) extends OutStream with Logging { // 128K characters by default.
   val maxCharacterWidthInBytes = 4 //FIXME: worst case. Ok for testing. Don't use this pessimistic technique for real data.
   var cbuf = CharBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
+  var bbuf = ByteBuffer.allocate(0)
   var encoder: CharsetEncoder = null //FIXME
   var charBufPos = bufPos //pointer to end of CharBuffer
 
@@ -432,17 +426,18 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
    * Writes unparsed data in CharBuffer to outputStream.
    */
   def write() {
-    //    if (encoder != null)
-    Assert.invariant(encoder != null)
-    val bbuf = charBufferToByteBuffer()
+    //if CharBuffer was used, move contents to ByteBuffer
+    //FIXME: CharBuffer overwrites ByteBuffer for mixed data
+    if (encoder != null) charBufferToByteBuffer()
+
     outStream.write(bbuf)
   }
 
   /*
    * Takes unparsed data from CharBuffer and encodes it in ByteBuffer
    */
-  def charBufferToByteBuffer(): ByteBuffer = {
-    var bbuf = ByteBuffer.allocate(cbuf.length() * maxCharacterWidthInBytes)
+  def charBufferToByteBuffer() {
+    bbuf = ByteBuffer.allocate(cbuf.length() * maxCharacterWidthInBytes)
     encoder.reset()
 
     val cr1 = encoder.encode(cbuf, bbuf, true) // true means this is all the input you get.
@@ -464,14 +459,14 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
       // FIXME: proper handling of errors. Some of which are 
       // to be suppressed, other converted, others skipped, etc. 
     }
+    encoder = null
     bbuf.flip() // so the caller can read
-    bbuf
   }
 
   def getData(): String = {
     cbuf.toString
   }
-  
+
   def clearCharBuffer() {
     cbuf.clear()
     charBufPos = 0
@@ -492,7 +487,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
         cbuf.put(str, 0, str.length())
         charBufPos = cbuf.position()
 
-        cbuf.flip() // prevent anyone depending on the buffer position across calls to any of the OutStream methods.
+        cbuf.flip()
         isTooSmall = false
       } catch { //make sure buffer was not written to capacity
         case e: Exception => {
@@ -505,41 +500,54 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
   }
 
   /*
-   * Converts number to array of bytes.
+   * Moves data to ByteBuffer by data's type and byte order.
    */
-  def toByteArray[T](num: T, name: String, order: java.nio.ByteOrder): Array[Byte] = {
-    var bbuf = ByteBuffer.allocate(num.toString().length()) //FIXME
-    bbuf.order(order)
-    var isTooSmall = true
+  def fillByteBuffer[T](num: T, name: String, order: java.nio.ByteOrder) {
 
-    while (isTooSmall) {
-      try { //writing all data to buffer
-        bbuf.position(0)
-
-        name match {
-          case "byte" => bbuf.put(num.asInstanceOf[Byte])
-          case "short" => bbuf.putShort(num.asInstanceOf[Short])
-          case "int" => bbuf.putInt(num.asInstanceOf[Int])
-          case "long" => bbuf.putLong(num.asInstanceOf[Long])
-          case "unsignedByte" => bbuf.put(num.asInstanceOf[Byte])
-          case "unsignedShort" => bbuf.putShort(num.asInstanceOf[Short])
-          case "unsignedInt" => bbuf.putInt(num.asInstanceOf[Int])
-          case "unsignedLong" => bbuf.putLong(num.asInstanceOf[Long])
-          case "double" => bbuf.putDouble(num.asInstanceOf[Double])
-          case "float" => bbuf.putFloat(num.asInstanceOf[Float])
-        }
-        bbuf.flip() // prevent anyone depending on the buffer position across calls to any of the OutStream methods.
-        isTooSmall = false
-      } catch { //make sure buffer was not written to capacity
-        case e: Exception => {
-          bbuf = ByteBuffer.allocate(bbuf.capacity() * 4) // TODO: more efficient algorithm than size x4
-          bbuf.order(order)
+    name match {
+      case "byte" | "unsignedByte" => {
+        bbuf = ByteBuffer.allocate(1)
+        bbuf.order(order)
+        bbuf.put(num.asInstanceOf[Byte])
+      }
+      case "short" | "unsignedShort" => {
+        bbuf = ByteBuffer.allocate(2)
+        bbuf.order(order)
+        bbuf.putShort(num.asInstanceOf[Short])
+      }
+      case "int" | "unsignedInt" => {
+        bbuf = ByteBuffer.allocate(4)
+        bbuf.order(order)
+        bbuf.putInt(num.asInstanceOf[Int])
+      }
+      case "long" | "unsignedLong" => {
+        bbuf = ByteBuffer.allocate(8)
+        bbuf.order(order)
+        bbuf.putLong(num.asInstanceOf[Long])
+      }
+      case "double" => {
+        bbuf = ByteBuffer.allocate(8)
+        bbuf.order(order)
+        bbuf.putDouble(num.asInstanceOf[Double])
+      }
+      case "float" => {
+        bbuf = ByteBuffer.allocate(4)
+        bbuf.order(order)
+        bbuf.putFloat(num.asInstanceOf[Float])
+      }
+      case "hexBinary" => {
+        val bytes = num.asInstanceOf[Array[Byte]]
+        bbuf = ByteBuffer.allocate(bytes.length)
+        bbuf.order(order)
+        for (i <- 0 until bytes.length) {
+          bbuf.put(bytes(i))
         }
       }
+      case _ => {
+        Assert.notYetImplemented()
+      }
     }
-    val bytes: Array[Byte] = new Array[Byte](bbuf.remaining)
-    bbuf.get(bytes)
-    bytes
+    bbuf.flip() //so bbuf can be read
   }
 }
 
