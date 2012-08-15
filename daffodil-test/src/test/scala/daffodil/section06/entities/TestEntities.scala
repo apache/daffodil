@@ -30,7 +30,7 @@ class TestEntities extends JUnit3Suite {
   val tdml_01 = testDir_01 + "Entities.tdml"
   val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
   
-  //def test_text_entities_6_02() { runner_01.runOneTest("text_entities_6_02") }
+  def test_text_entities_6_02() { runner_01.runOneTest("text_entities_6_02") }
   def test_text_entities_6_03() { runner_01.runOneTest("text_entities_6_03") }
   def test_text_entities_6_04() { runner_01.runOneTest("text_entities_6_04") }
   def test_byte_entities_6_01() { runner_01.runOneTest("byte_entities_6_01") }
