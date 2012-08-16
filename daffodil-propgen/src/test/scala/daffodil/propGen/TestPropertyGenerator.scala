@@ -115,7 +115,6 @@ class TestPropertyGenerator extends JUnit3Suite {
 	</xsd:complexType>
      val pg = new PropertyGenerator(sch)   
      val mx = pg.genComplexType(sch)
-     print(mx)
      assertTrue(mx.contains("""convertToNCName(getProperty("name"))"""))
      assertTrue(mx.contains("""convertToQName(getProperty("baseFormat")"""))
    }
@@ -125,15 +124,9 @@ class TestPropertyGenerator extends JUnit3Suite {
 	<xsd:element name="defineFormat" type="dfdl:DFDLDefineFormat" />
      val pg = new PropertyGenerator(sch)   
      val mx = pg.genElement(sch)
-     print(mx)
      assertTrue(mx.contains("""with DFDLDefineFormatMixin"""))
    }
     
-  def testGenProperties() {
-    val thunks = PropertyGenerator.generateThunks()
-    thunks.foreach(System.err.print)
-  }
-  
   def testElementWithImmediateComplexType1() {
     val sch = 
 	<xsd:element name="defineVariable">
@@ -147,7 +140,6 @@ class TestPropertyGenerator extends JUnit3Suite {
     </xsd:element>
      val pg = new PropertyGenerator(sch)   
      val mx = pg.genElement(sch)
-     print(mx)
      assertTrue(mx.contains("""trait DFDLDefineVariableTypeMixin extends PropertyMixin"""))
      assertTrue(mx.contains("""trait DefineVariable_AnnotationMixin extends PropertyMixin"""))
      assertTrue(mx.contains("""with DFDLDefineVariableTypeMixin"""))

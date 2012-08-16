@@ -47,7 +47,6 @@ class PropertyGenerator(arg : Node) {
 
   def excludeType(name : String) = {
     if (exclusions.contains(name)) {
-      System.out.println("// Excluding " + name)
       true
     } else
       false
@@ -79,7 +78,6 @@ class PropertyGenerator(arg : Node) {
         case "simpleType" => genSimpleType(node)
         case "complexType" => genComplexType(node)
         case _ => {
-          println("// Ignoring " + node.label)
           ""
         }
       }
@@ -99,7 +97,6 @@ class PropertyGenerator(arg : Node) {
   }
 
   def genElement(e : Node) : String = {
-    println("generating element " + e)
     val Some(name) = attr(e, "name")
     val typeName = attr(e, "type")
     typeName match {
@@ -140,7 +137,6 @@ class PropertyGenerator(arg : Node) {
     val name = enumName.stripSuffix("Enum")
     // val name = enumName // leave suffix on. 
     if (excludeType(name)) return ""
-    System.out.println("//" + enumName)
     if (exclusions.contains(name)) return ""
     val enumNodes = (st \\ "enumeration")
     val symNodes = enumNodes \\ "@value"
@@ -214,10 +210,8 @@ class PropertyGenerator(arg : Node) {
 
       val exclusions = notFormatProperties ++ notScopedFormatProperties
       if (rawName == "binaryFloatRep") {
-        System.err.println("binaryFloatRep")
       }
       if (exclusions.contains(rawName)) {
-        System.err.println("excluding " + rawName)
         Nil
       } else {
         val name = if (isScalaKeyword(rawName)) rawName + "_" else rawName
@@ -582,9 +576,9 @@ object Currency {
 
 object PropertyGenerator {
   val dfdlSchemasForDFDLAnnotations = List(
-    "../daffodil-lib/src/xsd/DFDL_part1_simpletypes.xsd",
-    "../daffodil-lib/src/xsd/DFDL_part2_attributes.xsd",
-    "../daffodil-lib/src/xsd/DFDL_part3_model.xsd")
+    "/xsd/DFDL_part1_simpletypes.xsd",
+    "/xsd/DFDL_part2_attributes.xsd",
+    "/xsd/DFDL_part3_model.xsd")
 
   def getSchemaAsNode(name : String) : Node = {
     val is = getResourceOrFileStream(name)
@@ -592,9 +586,10 @@ object PropertyGenerator {
     node
   }
 
-  def generatedCodeFilename = "gen/GeneratedCode.scala"
+  def generatedCodeFilename = "GeneratedCode.scala"
+  def generatedCodePackage = "daffodil.schema.annotation.props.gen"
 
-  def preamble = """package daffodil.schema.annotation.props.gen
+  def preamble = "package " + generatedCodePackage + """
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // 
@@ -613,26 +608,17 @@ import daffodil.exceptions.ThrowsSDE
     
 """
 
-  def writeGeneratedCode(thunks : Seq[String]) {
-    //   try {
-    val ow = new java.io.FileWriter(generatedCodeFilename)
+  def writeGeneratedCode(thunks : Seq[String], ow : java.io.FileWriter) {
     ow.write(preamble)
     for (thunk <- thunks) {
       ow.write(thunk)
       ow.flush()
     }
     ow.close()
-    //    }
-    //    catch {
-    //      case e : Throwable => {
-    //        System.err.println(e.getMessage())
-    //      }
-    //    }
   }
 
   def generateThunks() = {
     val allThunks = dfdlSchemasForDFDLAnnotations.flatMap { fname =>
-      println("generating code for " + fname)
       val schemaNode = getSchemaAsNode(fname)
       val oneSchemaFileThunks = new PropertyGenerator(schemaNode).generate()
       oneSchemaFileThunks
@@ -643,11 +629,21 @@ import daffodil.exceptions.ThrowsSDE
   /**
    * Main - run as a scala application to actually create a new GeneratedCode.scala file in the gen directory.
    */
-  // TODO: feed in actual file names so this can be used as part of a batch build script.
   def main(args : Array[String]) {
+    if (args.length != 1) {
+      System.exit(1);
+    }
+
     val thunks = generateThunks()
-    // thunks.foreach(println)
-    writeGeneratedCode(thunks)
+
+    val outDir = new java.io.File(args(0) + "/" + generatedCodePackage.split('.').reduceLeft(_ + "/" + _))
+    outDir.mkdirs()
+    val outPath = outDir + "/" + generatedCodeFilename
+    val outwriter = new java.io.FileWriter(outPath)
+	
+    writeGeneratedCode(thunks, outwriter)
+
+    System.out.println(outPath)
   }
 
   //
@@ -665,7 +661,7 @@ import daffodil.exceptions.ThrowsSDE
   def getResourceOrFileStream(fn : String) : InputStream = {
     // TODO: This is not the modern way to do this. Update this to use the getResource technique used
     // in core.
-    var is = this.getClass().getResourceAsStream("/" + fn)
+    var is = this.getClass().getResourceAsStream(fn)
     if (is == null) {
       is = new FileInputStream(fn)
       if (is == null) {
