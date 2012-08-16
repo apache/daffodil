@@ -1,4 +1,5 @@
 target
 lib_managed
+src_managed
 .history
 .cache
