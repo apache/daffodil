@@ -24,4 +24,5 @@ class TestPropertyScoping extends JUnit3Suite {
   //def test_property_scoping_03() { runner_01.runOneTest("property_scoping_03") }
   def test_property_scoping_04() { runner_01.runOneTest("property_scoping_04") }
   def test_property_scoping_05() { runner_01.runOneTest("property_scoping_05") }
+  def testNearestEnclosingSequenceElementRef() { runner_01.runOneTest("NearestEnclosingSequenceElementRef") }
 }

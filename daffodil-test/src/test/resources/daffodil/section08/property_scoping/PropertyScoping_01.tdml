@@ -6,6 +6,31 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	
+	<tdml:defineSchema name="PropScoping-Embedded.dfdl.xsd">
+		<dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>
+	      <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+	      <xs:element name="e2" dfdl:lengthKind="implicit">
+	        <xs:complexType>
+	          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+	              <xs:element ref="e1"/>      
+	          </xs:sequence>
+	        </xs:complexType>
+	      </xs:element>
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="NearestEnclosingSequenceElementRef"
+		description="Section 8 An xs:element reference and its referenced global xs:element - DFDL-8-022R"
+		model="PropScoping-Embedded.dfdl.xsd" root="e2">
+		<tdml:document><tdml:documentPart type="byte">41</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e2>
+					<e1>A</e1>
+				</e2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
  
 	<tdml:parserTestCase name="property_scoping_02" root="easy"
 		model="PropertyScoping_01.dfdl.xsd" description="Section 8 Combining DFDL Representation Properties from a dfdl:defineFormat - DFDL-8-018R">
