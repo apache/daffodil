@@ -414,25 +414,6 @@ trait ElementDeclMixin
     }
   }
 
-//  private lazy val optionTypeDef = 
-//    optionTypeDef_.value
-//  {
-//    try optionTypeDef_.value
-//    catch {
-//      case e : ErrorAlreadyHandled => None
-//    }
-//  }
-//  private lazy val optionTypeDef_ = LV 
-//  {
-//    (immediateType, namedTypeDef) match {
-//      case (Some(ty), None) => immediateType
-//      case (None, Some(ty)) => namedTypeDef
-//      // Note: Schema validation should find this for us, but referential integrity checks like this
-//      // might not be done, so we check explicitly for this.
-//      case _ => None
-//    }
-//  }
-
   lazy val typeDef = typeDef_.value
   private lazy val typeDef_ = LV {
     (immediateType, namedTypeDef) match {

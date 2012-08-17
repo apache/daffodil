@@ -230,13 +230,6 @@ with SharedPropertyLists { self : SchemaComponent =>
    * that are subtypes of DFDLAnnotation.
    */
   lazy val annotationObjs = annotationObjs_.value 
-//  {
-//    try annotationObjs_.value
-//    catch {
-//      case e : ErrorAlreadyHandled => Nil
-//    }
-//  }
-    
   protected lazy val annotationObjs_ = LV {
     // println(dais)
     dais.flatMap { dai =>
