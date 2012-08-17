@@ -15,7 +15,10 @@ class TestDelimiterProperties extends JUnit3Suite {
   val tdml_01 = testDir_01 + "dpaext1.tdml"
   val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
   
+  //def test_delimiter_12_01() { runner_01.runOneTest("delimiter_12_01") }
+  //def test_delimiter_12_02() { runner_01.runOneTest("delimiter_12_02") }
   def test_delimiter_12_03() { runner_01.runOneTest("delimiter_12_03") }
+  def test_delimiter_12_04() { runner_01.runOneTest("delimiter_12_04") }
   
   val testDir_02 = "/daffodil/section12/delimiter_properties/"
   val tdml_02 = testDir_02 + "DelimiterProperties.tdml"

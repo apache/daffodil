@@ -570,7 +570,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 	</parserTestCase>
 	
     <parserTestCase name="delimiter_12_01" root="Fixed_string_with_Pads_10_1"
-		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 Properties for specifying delimiters - Simple initiator and terminator">
+		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 Properties for specifying delimiters - Simple initiator and terminator - DFDL-12-032R">
 
 		<document>iAAAAAAAAAAt</document>
 		<infoset>
@@ -606,7 +606,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 	</parserTestCase>
 	
 	<parserTestCase name="delimiter_12_04" root="Fixed_text_sequence"
-		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 simple initiator and terminator - NL entity">
+		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 simple initiator and terminator - NL entity - DFDL-12-032R">
 		<document><documentPart type="byte">0A61620A</documentPart></document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -623,7 +623,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 	
 	<!--  section 12.3 properties for specifying length  -->
 	<parserTestCase name="length_explicit_12_01" root="multibytes_1"
-		model="./fvt/ext/dpa/length_explicit_12.dfdl.xsd" description="Section 12.3 Properties for specifying length - utf-8 multibyte characters, lengthKind='explicit', lengthUnits='bytes'">
+		model="./fvt/ext/dpa/length_explicit_12.dfdl.xsd" description="Section 12.3 Properties for specifying length - utf-8 multibyte characters, lengthKind='explicit', lengthUnits='bytes' - DFDL-12-038R">
 		<document><documentPart type="byte">e282ace282ac</documentPart></document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -633,8 +633,8 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 	</parserTestCase>
 	
 	<parserTestCase name="length_explicit_12_02" root="multibytes_2"
-		model="./fvt/ext/dpa/length_explicit_12.dfdl.xsd" description="Section 12.3 Properties for specifying length - utf-8 multibyte characters, lengthUnits='characters'
-		12.3.7.1.1">
+		model="./fvt/ext/dpa/length_explicit_12.dfdl.xsd" description="Section 12.3 Properties for specifying length - utf-8 multibyte characters, lengthKind='explicit', lengthUnits='characters'
+		- DFDL-12-040R">
 		<document><documentPart type="byte">e4ba9cc383e697a57e</documentPart></document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -736,6 +736,41 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 </dfdlInfoset>
 </infoset>
  </parserTestCase> -->
+ 
+ <parserTestCase name="length_implicit_12_01"
+ model="./fvt/ext/dpa/dpaimpflt_bin.dfdl.xsd" description="Section 12 - Length Variations - implicit length - binary float"
+ root="Implicit">
+ <document><documentPart type="byte">3f800000</documentPart></document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Implicit xsi:type="xs:float">1.0</Implicit>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 
+ 
+ <parserTestCase name="length_implicit_12_02"
+ model="./fvt/ext/dpa/dpaimptxt.dfdl.xsd" description="Section 12 - Length Variations -  implicit length - string"
+ root="MyText">
+ <document>ABCDE</document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <MyText>ABCDE</MyText>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 
+
+<!--
+<parserTestCase name="length_explicit_12_03"
+ model="./fvt/ext/dpa/length_explicit_12.dfdl.xsd" description="Section 12 - Length Variations - encoding that has varying length characters utf-8 - lengthUnits Characters"
+ root="multibytes_2">
+ <document><documentPart type="byte">e4ba9cc383e697a57e</documentPart></document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <multibytes_2>&#20124;&#195;&#26085;&#126;</multibytes_2>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase>
+ -->
  
  <parserTestCase name="multiple_delimiters"
  model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 multiple terminators DFDL-12-033R"
