@@ -70,8 +70,7 @@ object OOLAG {
       if (hasValue) {
         log(Debug("LV: %s already has value: %s", descrip, lazyBody))
         lazyBody
-      }
-      else if (alreadyTriedThis) {
+      } else if (alreadyTriedThis) {
         log(Debug("LV: %s was tried and failed", descrip))
         val e = AlreadyTried(name)
         throw e
@@ -120,13 +119,13 @@ object OOLAG {
     }
 
     final def isError = {
-     val res = if (alreadyTriedThis) !hasValue
+      val res = if (alreadyTriedThis) !hasValue
       else try {
         valueAsAny
         !hasValue
       } catch {
-        case e : OOLAGException => { 
-          log(Debug("LV %s suppressed throw of %s", this, e))         
+        case e : OOLAGException => {
+          log(Debug("LV %s suppressed throw of %s", this, e))
           true
         }
       }
@@ -141,7 +140,17 @@ object OOLAG {
       Assert.usage(isError)
       throwable
     }
-
+    
+   protected def toListAny = {
+      val res =
+        if (!hasValue && alreadyTriedThis) Nil
+        else if (isError) Nil
+        else valueAsAny match {
+          case Some(dp) => List(dp)
+          case _ => List(valueAsAny)
+        }
+      res
+   }
   }
 
   class LV[T](body : => T, context : OOLAGHost, name : String, factory : LVFactory)
@@ -150,6 +159,10 @@ object OOLAG {
     final def value : T = {
       val res = valueAsAny
       res.asInstanceOf[T]
+    }
+    final def toList = {
+      val res = toListAny
+      res.asInstanceOf[List[T]]
     }
   }
 
@@ -189,20 +202,20 @@ object OOLAG {
     def apply(context : OOLAGHost) = new LVFactory(context)
   }
 
-//  /**
-//   * Implicitly, an LV is convertable to its underlying type.
-//   */
-//  implicit def LV_T_to_T[T](lv : LV[T]) : T = lv.value
-//
-//  /**
-//   * Implicitly, if one LV is defined so it returns another LV, then
-//   * this converts to the underlying type you want.
-//   */
-//  implicit def LVLV_T_to_T[T](lv : LV[LV[T]]) : T = lv.value.value
-//
-//  /**
-//   * And that works 3 hops deep. Beyond that you have to call ".value" yourself.
-//   */
-//  implicit def LVLVLV_T_to_T[T](lv : LV[LV[LV[T]]]) : T = lv.value.value.value
+  //  /**
+  //   * Implicitly, an LV is convertable to its underlying type.
+  //   */
+  //  implicit def LV_T_to_T[T](lv : LV[T]) : T = lv.value
+  //
+  //  /**
+  //   * Implicitly, if one LV is defined so it returns another LV, then
+  //   * this converts to the underlying type you want.
+  //   */
+  //  implicit def LVLV_T_to_T[T](lv : LV[LV[T]]) : T = lv.value.value
+  //
+  //  /**
+  //   * And that works 3 hops deep. Beyond that you have to call ".value" yourself.
+  //   */
+  //  implicit def LVLVLV_T_to_T[T](lv : LV[LV[LV[T]]]) : T = lv.value.value.value
 
 }
