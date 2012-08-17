@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="EntitiesTests" description="Section 6 - Entities"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="LengthProperties-Embedded.dfdl.xsd">
+		<dfdl:format initiator="" terminator="" separator="" encoding="utf-8" 
+			ignoreCase="no" representation="text" lengthUnits="characters" textNumberRep="standard"/>
+
+		<xs:element name="LP_01" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="num" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:occursCountKind="parsed"
+					maxOccurs="unbounded"/>	
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="LengthProp_01" root="LP_01"
+		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties">
+
+			<tdml:document>123456789</tdml:document>
+			<tdml:infoset>
+				<tdml:dfdlInfoset>
+					<LP_01>
+						<num>123</num>
+						<num>456</num>
+						<num>789</num>
+					</LP_01>
+				</tdml:dfdlInfoset>
+			</tdml:infoset>
+		</tdml:parserTestCase>
+		
+</tdml:testSuite>
