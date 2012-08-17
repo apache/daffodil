@@ -1,4 +1,4 @@
-package daffodil.section12.lengthKind
+package daffodil.dsom
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnit3Suite
@@ -11,9 +11,13 @@ import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestLengthKindPattern_01 extends JUnit3Suite {
-  val testDir = "test-suite/tresys-contributed/"
-  val aa = testDir + "PatternTests_01.tdml"
-  val runner = new DFDLTestSuite(new File(aa))
+
+  var runner = {
+    val testDir = "src/test/resources/test-suite/tresys-contributed/"
+    val aa = testDir + "PatternTests_01.tdml"
+    val runner = new DFDLTestSuite(new File(aa))
+    runner
+  }
 
   /* DFDL-253 */
   def test_LengthPatternIllegalBits() { runner.runOneTest("LengthPatternIllegalBits") }

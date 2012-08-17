@@ -49,7 +49,7 @@ extends ProcessingError {
       else (kind + "(%s)").format(argsAsString)
     val res = "Parse Error: " + msg +
       "\nContext was : %s".format(sc) +
-      pstate.map{ ps => "\nData location was preceding %s".format(ps.currentLocation) }.getOrElse("")
+      pstate.map{ ps => "\nData location was preceding %s".format(ps.currentLocation) }.getOrElse("(no data location)")
     res
   }
 
@@ -335,12 +335,13 @@ class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
  * @param charPos Current Read Character Position in UNICODE or a given Character Set for the given Data Stream
  */
 class PStateStream(val inStream: InStream, val bitLimit: Long, val charLimit: Long = -1, val bitPos: Long = 0, val charPos: Long = -1) {
+  Assert.invariant(bitPos >= 0)
   def withInStream(inStream: InStream, status: ProcessorResult = Success) =
-    new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)
+    new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos)
   def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) =
-    new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)
+    new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos)
   def withEndBitLimit(bitLimit: Long, status: ProcessorResult = Success) =
-    new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)
+    new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos)
 }
 object PStateStream {
   def initialPStateStream(in : InStream, bitOffset : Long) = 
@@ -399,7 +400,7 @@ class PState(
   def withInStreamState(inStreamState: PStateStream, status: ProcessorResult = Success) =
     new PState(inStreamStateStack push(inStreamState), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   def withInStream(inStream: InStream, status: ProcessorResult = Success) =
-    new PState(inStreamStateStack push(new PStateStream(inStream, bitPos, bitLimit, charPos, charLimit)), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
+    new PState(inStreamStateStack push(new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos)), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   def withLastInStream(status: ProcessorResult = Success) = {
     var lastBitPos = bitPos
     var lastCharPos = if (charPos > 0) charPos else 0
@@ -607,7 +608,7 @@ with WithParseErrorThrowing
   // System.err.println("InStream byte count is " + count)
   // note, our input data might just be empty string, in which case count is zero, and that's all legal.
   def fillCharBuffer(cb : CharBuffer, bitOffset : Long, decoder : CharsetDecoder) : Long = {
-    context.subset(bitOffset % 8 == 0, "characters must begin on byte boundaries")
+    context.subset(bitOffset >= 0 && bitOffset % 8 == 0, "characters must begin on byte boundaries. bitOffset is %s, which is aligned %s ", bitOffset, bitOffset % 8)
     val byteOffsetAsLong = (bitOffset >> 3)
     context.subset(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
     val byteOffset = byteOffsetAsLong.toInt
@@ -878,7 +879,7 @@ with WithParseErrorThrowing
   def fillCharBufferMixedData(cb : CharBuffer, bitOffset : Long, decoder : CharsetDecoder, numBytes : Long = -1) : (Long, Boolean) = {
     withLoggingLevel(LogLevel.Info) {
 
-      PECheck(bitOffset % 8 == 0, "characters must begin on byte boundaries")
+      PECheck(bitOffset >= 0 && bitOffset % 8 == 0, "Characters must begin on byte boundaries. bitOffset = %s, alignment %s (bits)", bitOffset, bitOffset % 8)
       val byteOffsetAsLong = (bitOffset >> 3)
       PECheck(byteOffsetAsLong <= Int.MaxValue, "maximum offset (in bytes) cannot exceed Int.MaxValue")
       val byteOffset = byteOffsetAsLong.toInt
