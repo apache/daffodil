@@ -10,6 +10,7 @@ import daffodil.processors.VariableMap
 import daffodil.api.WithDiagnostics
 import daffodil.dsom.OOLAG._
 import daffodil.exceptions.ThrowsSDE
+import daffodil.dsom.OOLAG.LV
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -58,7 +59,8 @@ trait ParticleMixin { self : ElementBase =>
     res
   }
 
-  lazy val hasStopValue = LV {
+  lazy val hasStopValue = hasStopValue_.value 
+  private lazy val hasStopValue_ = LV {
     val sv = isRecurring && occursCountKind == OccursCountKind.StopValue
     // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.
     schemaDefinition(!(sv && occursStopValue == ""), "Property occursCountKind='stopValue' requires a non-empty occursStopValue property.")
@@ -92,8 +94,8 @@ abstract class ElementBase(xmlArg : Node, parent : SchemaComponent, position : I
 
   def inputValueCalcOption : Option[String]
   def isNillable : Boolean
-  def isSimpleType : LV[Boolean]
-  def isComplexType : LV[Boolean]
+  def isSimpleType : Boolean
+  def isComplexType : Boolean
   def elementComplexType : ComplexTypeBase
   def elementSimpleType : SimpleTypeBase
   def typeDef : TypeBase
@@ -181,7 +183,8 @@ abstract class ElementBase(xmlArg : Node, parent : SchemaComponent, position : I
   /**
    * check if there are delimiters such that there is a concept of something that we can call 'empty'
    */
-  lazy val emptyIsAnObservableConcept = LV {
+  lazy val emptyIsAnObservableConcept = emptyIsAnObservableConcept_.value
+  private lazy val emptyIsAnObservableConcept_ = LV {
     val res = if ((hasSep ||
       hasEmptyValueInitiator ||
       hasEmptyValueTerminator) &&
@@ -281,11 +284,18 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
   with HasRef {
   
   // Need to go get the Element we are referencing
-  lazy val referencedElement = referencedElement_.value
+  lazy val referencedElement = optionReferencedElement.get
+  lazy val optionReferencedElement = {
+    try referencedElement_.value
+    catch {
+      case e : ErrorAlreadyHandled => None
+    }
+  }
+  
   private lazy val referencedElement_ = LV {
     this.schema.schemaSet.getGlobalElementDecl(namespace, localName) match {
       case None => SDE("Referenced element not found: %s.", this.ref)
-      case Some(x) => x.forElementRef(this)
+      case Some(x) => Some(x.forElementRef(this))
     }
   }
 
@@ -328,7 +338,7 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
     
   }
 
-  lazy val diagnosticChildren = List(referencedElement_)
+  lazy val diagnosticChildren = optionReferencedElement.toList
 }
 
 /**
@@ -404,7 +414,12 @@ trait ElementDeclMixin
     }
   }
 
-  lazy val optionTypeDef = optionTypeDef_.value
+  lazy val optionTypeDef = {
+    try optionTypeDef_.value
+    catch {
+      case e : ErrorAlreadyHandled => None
+    }
+  }
   private lazy val optionTypeDef_ = LV {
     (immediateType, namedTypeDef) match {
       case (Some(ty), None) => immediateType
@@ -425,15 +440,10 @@ trait ElementDeclMixin
     }
   }
 
-  lazy val elementDeclDiagnosticChildren = { 
-    annotationObjs ++
-    {
-      val typeDefList = if (optionTypeDef_.isError) List(optionTypeDef_) else optionTypeDef.toList
-      typeDefList
-    }
-  }
-
-  lazy val isSimpleType = LV {
+  lazy val elementDeclDiagnosticChildren = annotationObjs ++ optionTypeDef.toList
+  
+  lazy val isSimpleType = isSimpleType_.value
+  private lazy val isSimpleType_ = LV {
     typeDef match {
       case _ : SimpleTypeBase => true
       case _ : ComplexTypeBase => false
@@ -443,7 +453,7 @@ trait ElementDeclMixin
   
   lazy val isPrimitiveType = typeDef.isInstanceOf[PrimitiveType]
 
-  lazy val isComplexType = LV { !isSimpleType }
+  lazy val isComplexType =  !isSimpleType 
 
   lazy val defaultValueAsString = (xml \ "@default").text
 

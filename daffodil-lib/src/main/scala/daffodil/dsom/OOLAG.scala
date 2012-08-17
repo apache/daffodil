@@ -4,6 +4,7 @@ import daffodil.dsom.OOLAG.OOLAGValue
 import daffodil.util.Logging
 import daffodil.util._
 import daffodil.util.Glob
+import daffodil.exceptions.Abort
 
 /**
  * OOLAG = Object-oriented Lazy Attribute Grammars
@@ -20,8 +21,8 @@ object OOLAG {
   abstract class OOLAGException(msg : String) extends Exception(msg)
 
   abstract class OOLAGRethrowException(msg : String) extends OOLAGException(msg)
-  case class AlreadyTried(lvName : String) extends OOLAGException("Already Tried " + lvName)
-  case class ErrorAlreadyHandled(th : Throwable) extends OOLAGException("Error already handled: " + th)
+  case class AlreadyTried(lvName : String) extends OOLAGRethrowException(lvName)
+  case class ErrorAlreadyHandled(th : Throwable) extends OOLAGRethrowException(th.toString)
 
   /**
    * An object that uses OOLAG values.
@@ -66,9 +67,14 @@ object OOLAG {
     private lazy val catchMsg = "Catch! So %s has no value. (Exc = %s)."
 
     final def valueAsAny = {
-      if (hasValue) lazyBody
+      if (hasValue) {
+        log(Debug("LV: %s already has value: %s", descrip, lazyBody))
+        lazyBody
+      }
       else if (alreadyTriedThis) {
-        throw AlreadyTried(name)
+        log(Debug("LV: %s was tried and failed", descrip))
+        val e = AlreadyTried(name)
+        throw e
       } else {
         alreadyTriedThis = true
         log(Debug("Evaluating %s", descrip))
@@ -80,6 +86,10 @@ object OOLAG {
           log(Debug("Evaluated %s to %s.", descrip, res))
           res
         } catch {
+          // Some kinds of errors/exceptions we always want thrown to top level.
+          case le : scala.Error => { throw le } // note that Exception does NOT inherit from Error
+          case re : java.lang.RuntimeException => { throw re }
+          case abort : Abort => throw abort // never swallow up these
           case eah : ErrorAlreadyHandled => {
             log(Debug(catchMsg, descrip, eah))
             throw eah
@@ -110,16 +120,21 @@ object OOLAG {
     }
 
     final def isError = {
-      if (alreadyTriedThis) !hasValue
+     val res = if (alreadyTriedThis) !hasValue
       else try {
         valueAsAny
         !hasValue
       } catch {
-        case e => { //: OOLAGException => {
-          // throw already has been handled by context.
+        case e : OOLAGException => { 
+          log(Debug("LV %s suppressed throw of %s", this, e))         
           true
         }
       }
+      if (res == true) {
+        val x = 1
+        log(Debug("LV %s has an error", this))
+      }
+      res
     }
 
     final def thrown() = {
@@ -174,20 +189,20 @@ object OOLAG {
     def apply(context : OOLAGHost) = new LVFactory(context)
   }
 
-  /**
-   * Implicitly, an LV is convertable to its underlying type.
-   */
-  implicit def LV_T_to_T[T](lv : LV[T]) : T = lv.value
-
-  /**
-   * Implicitly, if one LV is defined so it returns another LV, then
-   * this converts to the underlying type you want.
-   */
-  implicit def LVLV_T_to_T[T](lv : LV[LV[T]]) : T = lv.value.value
-
-  /**
-   * And that works 3 hops deep. Beyond that you have to call ".value" yourself.
-   */
-  implicit def LVLVLV_T_to_T[T](lv : LV[LV[LV[T]]]) : T = lv.value.value.value
+//  /**
+//   * Implicitly, an LV is convertable to its underlying type.
+//   */
+//  implicit def LV_T_to_T[T](lv : LV[T]) : T = lv.value
+//
+//  /**
+//   * Implicitly, if one LV is defined so it returns another LV, then
+//   * this converts to the underlying type you want.
+//   */
+//  implicit def LVLV_T_to_T[T](lv : LV[LV[T]]) : T = lv.value.value
+//
+//  /**
+//   * And that works 3 hops deep. Beyond that you have to call ".value" yourself.
+//   */
+//  implicit def LVLVLV_T_to_T[T](lv : LV[LV[LV[T]]]) : T = lv.value.value.value
 
 }

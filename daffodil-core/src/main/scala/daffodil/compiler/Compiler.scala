@@ -21,7 +21,7 @@ class ProcessorFactory(sset: SchemaSet, rootElem: GlobalElementDecl)
   with DFDL.ProcessorFactory {
 
   lazy val prettyName = "ProcessorFactory"
-  lazy val path = ""
+  lazy val path = prettyName
   lazy val diagnosticChildren = List(sset)
   // println("Creating Processor Factory")
 
@@ -116,6 +116,7 @@ class Compiler extends DFDL.Compiler with Logging {
     // 	 lazy val documentProd = rootElem.document
     //   lazy val parser = documentProd.parser
     //   lazy val unparser = documentProd.unparser
+    log(Compile("Compiling %s", rootElem))
     lazy val pf = new ProcessorFactory(sset, rootElem)
     if (pf.isError) {
       val diags = pf.getDiagnostics

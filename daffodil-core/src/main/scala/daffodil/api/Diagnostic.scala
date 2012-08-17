@@ -110,5 +110,5 @@ trait WithDiagnostics {
   /**
    * Indicates whether there are any diagnostic objects available.
    */
-  def hasDiagnostics : Boolean
+  // def hasDiagnostics : Boolean
 }

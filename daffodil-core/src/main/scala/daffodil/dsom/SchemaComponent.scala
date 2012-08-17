@@ -14,6 +14,7 @@ import com.ibm.icu.charset.CharsetICU
 import daffodil.dsom.OOLAG._
 import daffodil.api._
 import daffodil.processors.VariableMap
+import daffodil.util.Compile
 
 
 class SchemaDefinitionError(
@@ -66,6 +67,8 @@ abstract class SchemaComponent(val xml : Node)
   def scPath : String
   lazy val path = scPath
   
+
+  
   private val scala.xml.Elem(_, _, emptyXMLMetadata, _, _*) = <foo/> // hack way to get empty metadata object.
   
   /**
@@ -83,7 +86,8 @@ abstract class SchemaComponent(val xml : Node)
   // TODO: create a trait to share various error stuff with DFDLAnnotation class.
   // Right now there is small code duplication since annotations aren't schema components.
   def SDE(id : String, args : Any *) : Nothing = {
-    throw new SchemaDefinitionError(Some(this), None, id, args : _*)
+    val sde = new SchemaDefinitionError(Some(this), None, id, args : _*)
+    throw sde
   }
   
   def subset(testThatWillThrowIfFalse : Boolean, args : Any*) = {
@@ -225,8 +229,14 @@ with SharedPropertyLists { self : SchemaComponent =>
    * The DFDL annotations on the component, as objects
    * that are subtypes of DFDLAnnotation.
    */
-  lazy val annotationObjs = annotationObjs_.value
-  private lazy val annotationObjs_ = LV{
+  lazy val annotationObjs = {
+    try annotationObjs_.value
+    catch {
+      case e : ErrorAlreadyHandled => Nil
+    }
+  }
+    
+  protected lazy val annotationObjs_ = LV{
     // println(dais)
     dais.flatMap { dai =>
       {
@@ -256,7 +266,8 @@ with SharedPropertyLists { self : SchemaComponent =>
   def emptyFormatFactory: DFDLFormatAnnotation
   def isMyAnnotation(a: DFDLAnnotation): Boolean
 
-  lazy val formatAnnotation : DFDLFormatAnnotation = {
+  lazy val formatAnnotation = formatAnnotation_.value
+  private lazy val formatAnnotation_ = LV {
     val format = annotationObjs.find { isMyAnnotation(_) }
     val res = format match {
       case None => emptyFormatFactory
@@ -357,9 +368,9 @@ class SchemaSet(val schemaNodeList: Seq[Node], rootNamespace: String = null, roo
 extends DiagnosticsProviding {
   // TODO Constructor(s) or companion-object methods to create a SchemaSet from files.
 
-  lazy val prettyName="schemaSet"
+  lazy val prettyName="SchemaSet"
     
-  lazy val scPath = ""
+  lazy val scPath = prettyName
   lazy val path = scPath
     
   lazy val schemaPairs = schemaNodeList.map { s =>
@@ -472,7 +483,7 @@ class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: Sche
 extends DiagnosticsProviding {
 
   lazy val prettyName = "schema"
-  lazy val scPath = ""
+  lazy val scPath = prettyName
   lazy val path = scPath
     
   lazy val targetNamespace = namespace
@@ -537,7 +548,13 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
   lazy val scPath = prettyName
     
   lazy val validatedXML = LV{
-      XMLSchemaUtils.validateDFDLSchema(xml)
+      try XMLSchemaUtils.validateDFDLSchema(xml)
+      catch {
+        case e : org.xml.sax.SAXParseException => {
+          SDE(e.toString())
+        }
+          
+      }
       // TODO: Consider this: Should each schema document call validate, or do we have to do them as a "batch", i.e.,
       // will the above validate and revalidate shared files imported by each schema document in the set???
   }

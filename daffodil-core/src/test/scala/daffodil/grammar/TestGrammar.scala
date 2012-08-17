@@ -29,7 +29,7 @@ class TestGrammar extends JUnit3Suite {
     val str = triple.toString
     // assertFalse(str.contains("triple"))
 
-    val exp = triple.gram.value
+    val exp = triple.gram
     val n = exp.name
     val s = exp.toString
     assertTrue(n.contains("SeqComp"))
@@ -49,7 +49,7 @@ class TestGrammar extends JUnit3Suite {
 
     assertFalse(triple.isEmpty)
 
-    val exp = triple.gram.value
+    val exp = triple.gram
     // println(exp)
     assertTrue(exp.name.contains("SeqComp"))
     assertTrue(exp.toString.contains("first"))
@@ -89,7 +89,7 @@ class TestGrammar extends JUnit3Suite {
 
     assertFalse(triple.isEmpty)
 
-    val exp = triple.gram.value
+    val exp = triple.gram
     // println(exp)
     assertTrue(exp.name.contains("AltComp"))
     assertTrue(exp.toString.contains("first"))
@@ -110,7 +110,7 @@ class TestGrammar extends JUnit3Suite {
 
     assertFalse(triple.isEmpty)
 
-    val exp = triple.gram.value
+    val exp = triple.gram
     // println(exp)
     assertTrue(exp.name.contains("AltComp"))
     assertTrue(exp.toString.contains("first"))
@@ -132,7 +132,7 @@ class TestGrammar extends JUnit3Suite {
 
     assertFalse(triple.isEmpty)
 
-    val exp = triple.gram.value
+    val exp = triple.gram
     // println(exp)
     assertTrue(exp.name.contains("AltComp"))
     assertTrue(exp.toString.contains("first"))
@@ -157,7 +157,7 @@ class TestGrammar extends JUnit3Suite {
 
     assertFalse(prod4.isEmpty)
 
-    val exp = prod4.gram.value
+    val exp = prod4.gram
     // println(exp)
     assertTrue(exp.name.contains("AltComp"))
     // assertTrue(exp.toString.contains("prod1"))
@@ -179,7 +179,7 @@ class TestGrammar extends JUnit3Suite {
 
     assertFalse(prod1.isEmpty)
 
-    val exp = prod1.gram.value
+    val exp = prod1.gram
     // println(exp)
     assertTrue(exp.name.contains("AltComp"))
     assertTrue(exp.toString.contains("RepExactlyN"))

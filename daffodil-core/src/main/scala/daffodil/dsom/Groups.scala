@@ -93,53 +93,32 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
    * This is why we have to have the GlobalXYZDefFactory stuff. Because this kind of back
    * pointer (contextual sensitivity) prevents sharing.
    */
-  lazy val nearestEnclosingSequence : Option[Sequence] = nearestEnclosingSequence_.value
-  private lazy val nearestEnclosingSequence_ = LV {
-    // TODO: verify this is not just lexical scope containing. It's the scope of physical containment, so 
-    // must also take into consideration references (element ref to element decl, element decl to type, type to group,
-    // groupref to group)
+  lazy val nearestEnclosingSequence : Option[Sequence] = nearestEnclosingSequence_ //.value
+  private lazy val nearestEnclosingSequence_ = { // LV {
     val res = parent match {
       case s: Sequence => Some(s)
-      case c: Choice => c.nearestEnclosingSequence
-      case d: SchemaDocument => None
-      case ct: LocalComplexTypeDef => ct.parent match {
-        case local: LocalElementDecl => local.nearestEnclosingSequence
-        case global: GlobalElementDecl => {
-          global.elementRef match {
-            case None => None
-            case Some(eRef) => eRef.nearestEnclosingSequence
-          }
-        }
-        case _ => Assert.impossibleCase()
-      }
-      // global type, we have to follow back to the element referencing this type
-      case ct: GlobalComplexTypeDef => {
-        // Since we are a term directly inside a global complex type def,
-        // our nearest enclosing sequence is the one enclosing the element that
-        // has this type. 
-        //
-        // However, that element might be local, or might be global and be referenced
-        // from an element ref.
-        //
-        ct.element match {
-          case local: LocalElementDecl => local.nearestEnclosingSequence
-          case global: GlobalElementDecl => {
-            global.elementRef match {
-              case None => None
-              case Some(eRef) => eRef.nearestEnclosingSequence
-            }
-          }
-          case _ => Assert.impossibleCase()
+      case t: Term => t.nearestEnclosingSequence
+      case d: SchemaDocument => {
+        // we're a global object. Our parent is a schema document
+        // so follow backpointers to whatever is referencing us.
+        this match {
+            case gct: GlobalComplexTypeDef => gct.element.nearestEnclosingSequence
+            case gd: GlobalGroupDef => gd.groupRef.nearestEnclosingSequence
+            case ge : GlobalElementDecl => ge.elementRef match {
+                 case None => {
+                     // we are root. So there is no enclosing sequence at all
+                     None
+                 }
+                 case Some(er) => er.nearestEnclosingSequence
+             }
         }
       }
-      case gd: GlobalGroupDef => gd.groupRef.nearestEnclosingSequence
-      case _ => Assert.invariantFailed("No enclosing sequence for : " + this)
+      case ct : ComplexTypeBase => ct.element.nearestEnclosingSequence
+      case _ => Assert.invariantFailed("nearestEnclosingSequence called on " + this + "with parent " + parent)
     }
-    schemaDefinition(res != None, "This object: %s, has no enclosing sequence.", this)
     res
   }
-
-  
+    
   lazy val positionInNearestEnclosingSequence : Int = {
     val res = 
       if (enclosingComponent == nearestEnclosingSequence) position
@@ -500,7 +479,8 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   lazy val group = groupDef.modelGroup 
     
-  lazy val groupDef : GlobalGroupDef = LV {
+  lazy val groupDef : GlobalGroupDef = groupDef_.value
+  private lazy val groupDef_ = LV {
     val res = refQName match {
       // TODO See comment above about consolidating techniques.
       case None => schemaDefinitionError("No group definition found for " + refName + ".")
@@ -519,7 +499,7 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
     res
   }
   
-  lazy val diagnosticChildren : Seq[DiagnosticsProviding] = annotationObjs :+ groupDef
+  lazy val diagnosticChildren = annotationObjs :+ groupDef
 
 }
 

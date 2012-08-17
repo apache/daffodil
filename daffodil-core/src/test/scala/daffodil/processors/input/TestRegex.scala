@@ -2,9 +2,128 @@ package daffodil.processors.input
 
 import org.scalatest.junit.JUnit3Suite
 import junit.framework.Assert._
+import scala.util.parsing.combinator._
+import java.io.StringReader
 
-class TestRegex extends JUnit3Suite {
 
+class TestRegex extends JUnit3Suite with RegexParsers {
+
+  /**
+   * Scala combinator parsers can do longest match via the '|||' combinator
+   * Let's be sure we get longest match.
+   */
+  
+  override def skipWhitespace = skipWS
+  var skipWS = false // assign this to turn on/off whitespace skipping.
+
+   /**
+   * First let's avoid everything about whitespace and use _ (underscores)
+   * instead.
+   */
+  
+  def delim0 = """_*+;_*+""" // greedy whitespace consumption
+  
+  def anyUntil(delim : String) = {
+    // at begining of string, anything repeated (lazy), followed by the delim
+    """^((?>.*?""" + """(?=(?:""" + delim + """))))"""
+    // the atomic group begining with (?> is used to reduce possibilities of backtracking
+    // but may not be doing anything.
+    // There's one capture group here
+  }
+
+  def t0 = log(anyUntil(delim0).r)("before") ~! log(delim0.r)("delim") ~! log("""(.*)""".r)("after")
+  // def t0 = anyUntil(delim0).r ~! delim0.r ~! """(.*)""".r
+
+  // test data. Stuff including whitespace, followed by the delimiter, followed by more stuff
+  // also containing whitespace
+  val rdr0 = new StringReader("b e f o r e ___;___ a f t e r")
+
+  lazy val parsed0 = parseAll(t0, rdr0)
+
+  def testParsingDelims() {
+    skipWS = false // keep all the whitespace
+    assertTrue(parsed0.successful)
+    val a = parsed0.get
+    println(a)
+    a match {
+      // We need 'ending' here, not 'end'
+      case (("b e f o r e " ~ "___;___") ~ " a f t e r") => {
+        // we're ok 
+      }
+      case _ => fail("not expected result: " + a)
+    }
+  }
+  
+  /**
+   * First let's avoid everything about whitespace and use _ (underscores)
+   * instead.
+   */
+  
+  // two regex expressions with common prefix. 2nd is longer of the two
+  // so first match would get the shorter match
+  def delim1 = ("""_*end_*""".r ||| """_*ending_*""".r)
+
+  def t1 = delim1 ~ "more"
+
+  // test data has our longer delimiter string, followed by more stuff
+  val rdr1 = new StringReader("___ending___more")
+
+  lazy val parsed1 = parseAll(t1, rdr1)
+
+  def testRegexNoWSLongestMatch() {
+    skipWS = true // this is the default setting for scala comb. parsers, but we have no ws so it doesn't matter really.
+    assertTrue(parsed1.successful)
+    val a = parsed1.get
+    println(a)
+    a match {
+      // We need 'ending' here, not 'end'
+      case ("___ending___" ~ "more") => {
+        // we're ok 
+      }
+      case _ => fail("not expected result: " + a)
+    }
+  }
+
+  /**
+   * Now let's put whitespace absorption into the definition of
+   * our delimiters. So we'll turn off scala comb. parser whitespace skipping explicitly.
+   */
+  // two regex expressions with common prefix. 2nd is longer of the two
+  // so first match would get the shorter match
+  def endWS = """\s*end\s*""".r // note use \s for whiteSpace. \w is "word character" not whitespace
+  def endingWS = """\s*ending\s*""".r
+  def delimWS = (log(endWS)("end") ||| log(endingWS)("ending"))
+
+  def t2 = delimWS ~! "more"
+
+  val rdr2 = new StringReader("   ending   more")
+
+  lazy val parsed2 = parseAll(t2, rdr2)
+  
+  def testRegexWSLongestMatch() {
+    skipWS = false // we want our delimiters to contain the whitespace.
+    println(parsed2)
+    assertTrue(parsed2.successful)
+    val a = parsed2.get
+    println(a)
+    a match {
+      // We need 'ending' here, not 'end'
+      case ("   ending   " ~ "more") => {
+        // ok.
+      }
+      case _ => fail("not expected result: " + a)
+    }
+  }
+
+  /*
+   * Next we have tests that handle complexities of escape schemes of the 
+   * escape character kind and block escape kind.
+   */
+  
+  /**
+   * Tests a regular experssion to match a delimiter but taking
+   * into account escape characters.
+   */
   def testRegexToMatchOneDelimiterWithEscapeChars() {
 
     /**

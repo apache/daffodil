@@ -49,7 +49,7 @@ class MyHost extends OOLAGHost {
   
   lazy val a4 = LV{
     // println("My LV name is " + LV.name)
-    a3
+    a3.value
   }
   
 }
@@ -62,7 +62,7 @@ class TestOOLAG extends JUnit3Suite {
     // println("get the LV")
     val a1LV = h.a1
     // println("now evaluate the LV")
-    val a1 : String = a1LV
+    val a1 : String = a1LV.value
     // println("value of LV is: " + a1)
     assertEquals("a1 value", a1)
     assertFalse(h.a1.isError)
@@ -93,7 +93,7 @@ class TestOOLAG extends JUnit3Suite {
   def testLVName() {
     val h = new MyHost
     // println("ask for the value")
-    val a3 : String = h.a3
+    val a3 : String = h.a3.value
     val a3Name = h.a3.name
     // println("a3's name is " + a3Name)
     assertEquals("a3 value", a3)
@@ -106,8 +106,8 @@ class TestOOLAG extends JUnit3Suite {
   def testLVName2() {
     val h = new MyHost
     // println("ask for the value")
-    val a4 : String = h.a4
-    val a3 : String = h.a3
+    val a4 : String = h.a4.value
+    val a3 : String = h.a3.value
     val a4Name = h.a4.name
     // println("a4's name is " + a4Name)
     assertEquals("a3 value", a4)

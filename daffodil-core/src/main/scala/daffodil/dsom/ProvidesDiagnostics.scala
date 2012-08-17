@@ -16,6 +16,8 @@ import daffodil.api.WithDiagnostics
 import daffodil.dsom.OOLAG._
 import daffodil.util.Glob
 import daffodil.util.Debug
+import daffodil.util.Info
+import daffodil.util.Compile
 
 class CapturedThrowDiagnostic(e : Throwable, context : Any) extends Diagnostic {
   Assert.invariant(!e.isInstanceOf[OOLAGRethrowException])
@@ -35,7 +37,7 @@ class Warning(e : Throwable) extends Diagnostic {
 
 /**
  * Implementation of OOLAG diagnostics gathering for Daffodil (daffodil being an application of OOLAG technique)
- * 
+ *
  * This is for compilation. Not the runtime.
  */
 trait DiagnosticsProviding extends OOLAGHost with HasIsError {
@@ -45,7 +47,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
 
   def handleThrownError(lv : OOLAGValue) {
     val e = lv.thrown
-    log(Debug("thrown error caught: %s", e))
+    log(Debug("Object %s recording error: %s", this, e))
     val diag = e match {
       case d : Diagnostic => d
       case _ => new CapturedThrowDiagnostic(e, this) // no common trait to use....?
@@ -65,33 +67,33 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
     addDiagnostic(diag)
   }
 
-  private var localDiagnostics : Seq[Diagnostic] = Nil
+  protected var localDiagnostics : Seq[Diagnostic] = Nil
   private var diagChildren : Seq[OOLAGValue] = Nil
   private var diagHosts : Seq[DiagnosticsProviding] = Nil
 
-  private def addDiagnostic(diag : Diagnostic) {
+  def addDiagnostic(diag : Diagnostic) {
     localDiagnostics = localDiagnostics :+ diag
-    log(Debug("Adding Diagnostic: %s to %s", diag, path))
+    log(Compile("Adding Diagnostic: %s to %s", diag, path))
   }
 
   private def addDiagnosticChild(lv : OOLAGValue) {
     diagChildren = diagChildren :+ lv
-    val lvmsg= lv.toString
+    val lvmsg = lv.toString
     val thismsg = this.prettyName
     log(Debug("Adding Diagnostic child %s to %s.", lvmsg, thismsg))
   }
 
   def addDiagnosticHost(h : DiagnosticsProviding) {
-    diagHosts = diagHosts :+ h 
+    diagHosts = diagHosts :+ h
     log(Debug("Adding Diagnostic host %s to %s.", h, this))
   }
 
-  final lazy val hasDiagnostics = {
-    getDiagnostics.size > 0
-  }
+  //  final lazy val hasDiagnostics = {
+  //    getDiagnostics.size > 0
+  //  }
 
   final lazy val getDiagnostics = getDiagnostics_.value
-  private lazy val getDiagnostics_ = LV{
+  private lazy val getDiagnostics_ = LV {
     val res = diagnostics.toSeq // TODO: Sort into file/schema ordering so that earlier diagnostics are about
     // earlier parts of the schema.
     res
@@ -100,13 +102,25 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
   def diagnosticChildren : DiagnosticsList
 
   lazy val isError = {
-    diagnosticChildren.map { dc =>
-      log(Debug("checking %s for error", dc))
-      try dc.isError
-      catch {
-        case e : OOLAGException => true
+    log(Debug("checking %s for error", this))
+    val dchildren = diagnosticChildren // force lazy value for sake of debugging
+    log(Debug("diagnosticChildren are: %s", dchildren))
+    val bools = dchildren.map { dc =>
+      try {
+        dc.isError
+      } catch {
+        // We suppress errors here because a rethrow indicates that somebody else
+        // has already recorded the exception in their diagnostics, and it was of the 
+        // kind that can be recorded and issued later as a compile-time diagnostic.
+        case e : OOLAGRethrowException => {
+          log(Debug("isError is suppressing exception already recorded: %s", e))
+          true
+        }
       }
-    }.exists { x => x }
+    }
+    val res = bools.exists { x => x }
+    if (res == true) log(Debug("object %s had an error", this))
+    res
   }
 
   /**
@@ -116,17 +130,33 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
    */
   private lazy val diagnostics : Seq[Diagnostic] = diagnostics_.value
   private lazy val diagnostics_ = LV {
-    val dc = 
-      try diagnosticChildren ++ diagHosts.toSeq
-      catch { case e : OOLAGException => Nil } // TODO: ? how do we accumulate the error from children if we Nil here and therefore have no list of children?
+    val dChildren = diagnosticChildren
+    log(Debug("diagnosticChildren are: %s", dChildren))
+    val dc = dChildren ++ diagHosts.toSeq
     val dcDiags = dc.flatMap { dc =>
       dc match {
-        case dp : DiagnosticsProviding => dp.diagnostics
-          // try dp.diagnostics catch { case e => Nil }
-        case _ => Nil
+        case dp : DiagnosticsProviding => {
+          try dp.diagnostics
+          catch {
+            // We suppress errors here because a rethrow indicates that somebody else
+            // has already recorded the exception in their diagnostics, and it was of the 
+            // kind that can be recorded and issued later as a compile-time diagnostic.
+            case e : OOLAGRethrowException => {
+              log(Debug("Diagnostics is suppressing exception already recorded: %s", e))
+              Nil
+            }
+          }
+        }
+        case _ => {
+          log(Debug("Diagnostics is ignoring: %s", dc))
+          Nil
+        }
       }
     }
-    val res = dcDiags ++ getLocalDiagnostics
+    val ld = getLocalDiagnostics
+    log(Debug("Object %s had localDiagnostics: %s", prettyName, ld))
+
+    val res = dcDiags ++ ld
     log(Debug("Object %s had this list of diagnostics: %s", prettyName, res))
     res
   }

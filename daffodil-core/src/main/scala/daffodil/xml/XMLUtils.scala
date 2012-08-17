@@ -843,7 +843,7 @@ object XMLSchemaUtils {
       try {
         Validator.validateXMLStream(schemaResource, docReader)
       } catch {
-        case e : Exception => {
+        case e => {
           // System.err.println(e.getMessage())
           // Really useful place for a breakpoint.
           throw e

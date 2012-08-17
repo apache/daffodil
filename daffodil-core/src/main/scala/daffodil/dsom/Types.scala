@@ -164,7 +164,7 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
     else Assert.notYetImplemented() // should go find the global simple type here
   }
   
-  lazy val prettyName = "complexType in " + parent.name
+  lazy val prettyName = "simpleType" // Of(" + parent.name + ")"
 }
 
 /**
@@ -271,5 +271,5 @@ class LocalComplexTypeDef(xmlArg: Node, val element: ElementBase)
   extends ComplexTypeBase(xmlArg, element)
   with LocalComponentMixin {
   
-  lazy val prettyName = "complexType in " + element.name
+  lazy val prettyName = "complexType" // Of(" + element.name + ")"
 }

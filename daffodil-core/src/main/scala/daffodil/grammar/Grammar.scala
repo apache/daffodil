@@ -5,10 +5,15 @@ import daffodil.util.Debug
 import daffodil.util.Misc.getNameFromClass
 import daffodil.dsom._
 import daffodil.processors._
+import daffodil.util.Info
+import daffodil.util.Compile
+import daffodil.api.Diagnostic
 
 
 abstract class Gram(val context: AnnotatedSchemaComponent) extends DiagnosticsProviding {
   def deref = this
+  
+  override def addDiagnostic(diag : Diagnostic) = context.addDiagnostic(diag)
 
   val name = getNameFromClass(this)
   def prettyName = name
@@ -164,7 +169,7 @@ abstract class Terminal(context: AnnotatedSchemaComponent, guard: Boolean) exten
  *
  * Note the call by name on the GramArg. We don't evaluate the GramArg at all unless the guard is true.
  *
- * Guards are used so we can Gramess grammars that include all possibilities,
+ * Guards are used so we can have grammars that include all possibilities,
  * but where examining the format properties specifically would indicate that some of those
  * possibilities are precluded. The guard causes that term to just splice itself out
  * of the grammar.
@@ -182,12 +187,14 @@ class Prod(nameArg: String, val sc: Term, guardArg: => Boolean, gramArg: => Gram
 
   lazy val containingClassName = getNameFromClass(sc)
 
-  lazy val guard = LV {
+  lazy val guard = guard_.value
+  private lazy val guard_ = LV {
     guardArg
   }
 
-  lazy val gram = LV {
-    guard.value match {
+  lazy val gram = gram_.value
+  private lazy val gram_ = LV {
+    guard match {
       case true => {
         //      System.err.println("Start Prod " + containingClassName + ".Prod." + name)
         gramArg
@@ -198,7 +205,7 @@ class Prod(nameArg: String, val sc: Term, guardArg: => Boolean, gramArg: => Gram
         //        System.err.println(" ok:" + g)
       }
       case false => {
-        log(Debug("Prod %s removed.", name))
+        log(Debug("Prod %s removed.", name)) 
         EmptyGram
       }
       // case None => ErrorGram

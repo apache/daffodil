@@ -29,9 +29,11 @@ class TresysTests extends JUnit3Suite {
   val runnerMD = new DFDLTestSuite(Misc.getRequiredResource(td))
   runnerMD.setCheckEverything(true)
 
-  def test_multiple_diagnostics1() { runnerMD.runOneTest("twoMissingTypeDefErrors")}
+  def test_multiple_diagnostics1() {
+    runnerMD.runOneTest("twoMissingTypeDefErrors")}
   def test_multiple_diagnostics2() { runnerMD.runOneTest("manyErrors1")}
-  def test_multiple_diagnostics3() { runnerMD.runOneTest("manyErrors2")}
+  def test_multiple_diagnostics3() {  // LoggingDefaults.setLoggingLevel(LogLevel.Compile)
+    runnerMD.runOneTest("manyErrors2")}
 
   val sv = testDir + "dfdl-schema-validation-diagnostics.tdml"
   val runnerSV = new DFDLTestSuite(Misc.getRequiredResource(sv))
@@ -130,7 +132,8 @@ class TresysTests extends JUnit3Suite {
   
   val entity = testDir + "entities.tdml"
   val runnerEntity = new DFDLTestSuite(Misc.getRequiredResource(entity))
-  def test_entity_fail_01() { runnerEntity.runOneTest("entity_fail_01") }
+  def test_entity_fail_01() { // LoggingDefaults.setLoggingLevel(LogLevel.Compile)
+    runnerEntity.runOneTest("entity_fail_01") }
   def test_entity_fail_02() { runnerEntity.runOneTest("entity_fail_02") }
   def test_entity_fail_03() { runnerEntity.runOneTest("entity_fail_03") }
   def test_entity_fail_04() { runnerEntity.runOneTest("entity_fail_04") }

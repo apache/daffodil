@@ -551,11 +551,11 @@ trait ElementBaseGrammarMixin
   lazy val dfdlScopeEnd = Prod("dfdlScopeEnd", this, NYI, EmptyGram)
 
   lazy val dfdlElementBegin = Prod("dfdlElementBegin", this, {
-    if (isComplexType.value == true && lengthKind == LengthKind.Pattern) ComplexElementBeginPattern(this)
+    if (isComplexType == true && lengthKind == LengthKind.Pattern) ComplexElementBeginPattern(this)
     else ElementBegin(this)
   })
   lazy val dfdlElementEnd = Prod("dfdlElementEnd", this, {
-    if (isComplexType.value == true && lengthKind == LengthKind.Pattern) ComplexElementEndPattern(this)
+    if (isComplexType == true && lengthKind == LengthKind.Pattern) ComplexElementEndPattern(this)
     else ElementEnd(this)
   })
 
@@ -565,7 +565,7 @@ trait ElementBaseGrammarMixin
 
   def scalarDefaultable: Prod
 
-  lazy val scalarDefaultablePhysical = Prod("", this,
+  lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
     dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
       scalarDefaultableContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
 
@@ -736,8 +736,6 @@ trait GlobalElementDeclGrammarMixin { self: GlobalElementDecl =>
   lazy val documentElement = Prod("documentElement", this, scalarDefaultable)
 
   lazy val document = Prod("document", this, {
-    // TODO replace ad-hoc printing with a Prod trace/debug facility
-    log(Compile("""Compiling global element "%s" as a document element.""", self.name))
     UnicodeByteOrderMark(this) ~ documentElement
   })
 
@@ -873,9 +871,16 @@ trait SequenceGrammarMixin { self: Sequence =>
    * The existence of an expression to compute a delimiter is assumed to imply a non-zero-length, aka a real delimiter.
    */
   lazy val hasPrefixSep = sepExpr(SeparatorPosition.Prefix)
-  lazy val hasInfixSep = sepExpr(SeparatorPosition.Infix)
+  
+  lazy val hasInfixSep = hasInfixSep_.value
+  private lazy val hasInfixSep_ = LV { sepExpr(SeparatorPosition.Infix) }
+  
   lazy val hasPostfixSep = sepExpr(SeparatorPosition.Postfix)
-  lazy val hasSeparator = separator.isKnownNonEmpty
+  
+  lazy val hasSeparator = hasSeparator_.value
+  private lazy val hasSeparator_ = LV {
+    separator.isKnownNonEmpty
+  }
 
   // note use of pass by value. We don't want to even need the SeparatorPosition property unless there is a separator.
   def sepExpr(pos: => SeparatorPosition): Boolean = {

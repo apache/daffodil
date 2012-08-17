@@ -12,6 +12,7 @@ import scala.collection.JavaConversions._
 import daffodil.processors._
 import daffodil.dsom._
 import daffodil.grammar._
+import daffodil.api.Diagnostic
 
 /**
  * Base class for any DFDL annotation
@@ -21,6 +22,9 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
   with GetAttributesMixin
   with ThrowsSDE {
   lazy val xml = node
+  
+ 
+  override def addDiagnostic(diag : Diagnostic) = annotatedSC.addDiagnostic(diag)
   
   lazy val context = annotatedSC 
 //  match {
@@ -527,7 +531,8 @@ class DFDLDefineFormat(node: Node, sd: SchemaDocument)
 
   lazy val baseFormat = getAttributeOption("baseFormat") // nor baseFormat
 
-  lazy val formatAnnotation = LV{Utility.trim(node) match {
+  lazy val formatAnnotation = formatAnnotation_.value
+  private lazy val formatAnnotation_ = LV{Utility.trim(node) match {
     case <dfdl:defineFormat>{ f @ <dfdl:format>{ contents @ _* }</dfdl:format> }</dfdl:defineFormat> =>
       new DFDLFormat(f, sd)
     case _ => Assert.impossibleCase()

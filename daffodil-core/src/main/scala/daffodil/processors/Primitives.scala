@@ -19,7 +19,7 @@ import stringsearch.delimiter.Delimiter
 import com.ibm.icu.text.{ NumberFormat, DecimalFormat }
 import daffodil.grammar.Terminal
 
-case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.value != true || e.lengthKind != LengthKind.Pattern) {
+case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType != true || e.lengthKind != LengthKind.Pattern) {
 
   def parser: Parser = new Parser(e) {
     override def toString = "<" + e.name + ">"
@@ -78,9 +78,9 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType.valu
 }
 
 case class ComplexElementBeginPattern(e: ElementBase)
-  extends Terminal(e, e.isComplexType.value == true && e.lengthKind == LengthKind.Pattern)
+  extends Terminal(e, e.isComplexType == true && e.lengthKind == LengthKind.Pattern)
   with WithParseErrorThrowing {
-  Assert.invariant(e.isComplexType.value)
+  Assert.invariant(e.isComplexType)
 
   def parser: Parser = new Parser(e) {
     override def toString = "<" + e.name + " dfdl:lengthKind='pattern'>"
@@ -125,7 +125,7 @@ case class ComplexElementBeginPattern(e: ElementBase)
   }
 }
 
-case class ElementEnd(e: ElementBase) extends Terminal(e, e.isComplexType.value != true || e.lengthKind != LengthKind.Pattern) {
+case class ElementEnd(e: ElementBase) extends Terminal(e, e.isComplexType != true || e.lengthKind != LengthKind.Pattern) {
 
   def parser: Parser = new Parser(e) {
     override def toString = "</" + e.name + ">"
@@ -164,7 +164,7 @@ case class ElementEnd(e: ElementBase) extends Terminal(e, e.isComplexType.value 
   }
 }
 
-case class ComplexElementEndPattern(e: ElementBase) extends Terminal(e, e.isComplexType.value == true && e.lengthKind == LengthKind.Pattern) {
+case class ComplexElementEndPattern(e: ElementBase) extends Terminal(e, e.isComplexType == true && e.lengthKind == LengthKind.Pattern) {
   // TODO: Should this be more generic; is there a way to detect state from the current element to tell us if it's time
   //       to pop the input stack?
 

@@ -14,9 +14,9 @@ import daffodil.compiler.ProcessorFactory
  */
 trait WithDiagnosticsImpl extends WithDiagnostics {
 
-  final lazy val hasDiagnostics = {
-    getDiagnostics.size > 0
-  }
+//  final lazy val hasDiagnostics = {
+//    getDiagnostics.size > 0
+//  }
 }
 
 /**
@@ -29,7 +29,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   Assert.usage(pf.canProceed)
 
   lazy val prettyName = "DataProcessor"
-  lazy val path = ""
+  lazy val path = prettyName
   lazy val diagnosticChildren = List(pf, rootElem, parser_)
 
   //
