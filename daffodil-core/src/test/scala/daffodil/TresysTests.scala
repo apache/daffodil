@@ -27,7 +27,7 @@ class TresysTests extends JUnit3Suite {
 
   val td = testDir + "multiple-diagnostics.tdml"
   val runnerMD = new DFDLTestSuite(Misc.getRequiredResource(td))
-  runnerMD.setCheckEverything(true)
+  runnerMD.setCheckAllTopLevel(true)
 
   def test_multiple_diagnostics1() {
     runnerMD.runOneTest("twoMissingTypeDefErrors")}
@@ -37,7 +37,7 @@ class TresysTests extends JUnit3Suite {
 
   val sv = testDir + "dfdl-schema-validation-diagnostics.tdml"
   val runnerSV = new DFDLTestSuite(Misc.getRequiredResource(sv))
-  runnerSV.setCheckEverything(true)// check every top level construct. Not just the one under specific test.
+  runnerSV.setCheckAllTopLevel(true)// check every top level construct. Not just the one under specific test.
     //
   // These must all be run without TDML validation because at least one part of the TDML file
   // contains DFDL schema validation errors, and TDML validation normally would check that
@@ -112,7 +112,7 @@ class TresysTests extends JUnit3Suite {
   
   val rd = testDir + "runtime-diagnostics.tdml"
   val runnerRD = new DFDLTestSuite(Misc.getRequiredResource(rd))
-  runnerRD.setCheckEverything(true)
+  runnerRD.setCheckAllTopLevel(true)
 
   def test_runtime_diagnostics1() { runnerRD.runOneTest("PE1")}
   

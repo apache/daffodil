@@ -72,7 +72,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    compiler.setCheckEverything(true)
+    compiler.setCheckAllTopLevel(true)
     val (sset, _) = compiler.frontEnd(sch)
     assertTrue(sset.isError)
     val diagnostics = sset.getDiagnostics
@@ -106,7 +106,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
         </xs:complexType>
       </xs:element>)
     val compiler = Compiler()
-    compiler.setCheckEverything(true)
+    compiler.setCheckAllTopLevel(true)
     val (sset, _) = Compiler().frontEnd(s)
     sset.isError // forces compilation
     val diags = sset.getDiagnostics

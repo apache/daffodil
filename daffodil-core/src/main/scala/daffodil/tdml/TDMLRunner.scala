@@ -49,9 +49,9 @@ import java.io.InputStream
 class DFDLTestSuite(ts : Node, tdmlFile : File, tsInputSource : InputSource)
   extends Logging {
 
-  var checkEverything : Boolean = false
-  def setCheckEverything(flag : Boolean) {
-    checkEverything = flag
+  var checkAllTopLevel : Boolean = false
+  def setCheckAllTopLevel(flag : Boolean) {
+    checkAllTopLevel = flag
   }
 
   def this(tdmlFile : File) = this(XML.loadFile(tdmlFile), tdmlFile, new InputSource(tdmlFile.toURI().toASCIIString()))
@@ -232,7 +232,7 @@ abstract class TestCase(ptc : NodeSeq, val parent : DFDLTestSuite)
     }
     val compiler = Compiler()
     compiler.setDistinguishedRootNode(root)
-    compiler.setCheckEverything(parent.checkEverything)
+    compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
     val pf = compiler.compile(sch)
     val data = document.map { _.data }
 

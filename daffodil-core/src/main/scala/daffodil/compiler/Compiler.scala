@@ -59,9 +59,9 @@ class Compiler extends DFDL.Compiler with Logging {
    * in them, some of which use unimplemented features. Each time we run exactly one
    * test from the set, we want to ignore errors in compilation of the others.
    */
-  private var checkEverything = false
-  def setCheckEverything(flag: Boolean) {
-    checkEverything = flag
+  private var checkAllTopLevel = false
+  def setCheckAllTopLevel(flag: Boolean) {
+    checkAllTopLevel = flag
   }
 
   /*
@@ -84,7 +84,7 @@ class Compiler extends DFDL.Compiler with Logging {
       rootNamespace = (xml \ "@targetNamespace").text
     }
 
-    val sset = if (checkEverything) {
+    val sset = if (checkAllTopLevel) {
       new SchemaSet(List(xml))
     } else {
       new SchemaSet(List(xml), rootNamespace, root)
