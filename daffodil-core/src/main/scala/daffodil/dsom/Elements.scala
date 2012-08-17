@@ -284,19 +284,19 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
   with HasRef {
   
   // Need to go get the Element we are referencing
-  lazy val referencedElement = optionReferencedElement.get
-  lazy val optionReferencedElement = {
-    try referencedElement_.value
-    catch {
-      case e : ErrorAlreadyHandled => None
-    }
-  }
+  lazy val referencedElement = referencedElement_.value // optionReferencedElement.get
+//  lazy val optionReferencedElement = {
+//    try referencedElement_.value
+//    catch {
+//      case e : ErrorAlreadyHandled => None
+//    }
+//  }
   
   private lazy val referencedElement_ = LV {
     this.schema.schemaSet.getGlobalElementDecl(namespace, localName) match {
       case None => SDE("Referenced element not found: %s.", this.ref)
-      case Some(x) => Some(x.forElementRef(this))
-    }
+      case Some(x) => x.forElementRef(this)
+      }
   }
 
   // These will just delegate to the referenced element declaration
@@ -338,7 +338,7 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
     
   }
 
-  lazy val diagnosticChildren = optionReferencedElement.toList
+  lazy val diagnosticChildren = referencedElement_.toList  // optionReferencedElement.toList
 }
 
 /**
@@ -414,33 +414,37 @@ trait ElementDeclMixin
     }
   }
 
-  lazy val optionTypeDef = {
-    try optionTypeDef_.value
-    catch {
-      case e : ErrorAlreadyHandled => None
-    }
-  }
-  private lazy val optionTypeDef_ = LV {
-    (immediateType, namedTypeDef) match {
-      case (Some(ty), None) => immediateType
-      case (None, Some(ty)) => namedTypeDef
-      // Note: Schema validation should find this for us, but referential integrity checks like this
-      // might not be done, so we check explicitly for this.
-      case _ => None
-    }
-  }
+//  private lazy val optionTypeDef = 
+//    optionTypeDef_.value
+//  {
+//    try optionTypeDef_.value
+//    catch {
+//      case e : ErrorAlreadyHandled => None
+//    }
+//  }
+//  private lazy val optionTypeDef_ = LV 
+//  {
+//    (immediateType, namedTypeDef) match {
+//      case (Some(ty), None) => immediateType
+//      case (None, Some(ty)) => namedTypeDef
+//      // Note: Schema validation should find this for us, but referential integrity checks like this
+//      // might not be done, so we check explicitly for this.
+//      case _ => None
+//    }
+//  }
 
   lazy val typeDef = typeDef_.value
   private lazy val typeDef_ = LV {
-    optionTypeDef match {
-      case Some(ty) => ty
+    (immediateType, namedTypeDef) match {
+      case (Some(ty), None) => ty
+      case (None, Some(ty)) => ty
       // Note: Schema validation should find this for us, but referential integrity checks like this
       // might not be done, so we check explicitly for this.
-      case None => SDE("Must have one of an immediate type or a named type but not both")
+      case _ => SDE("Must have one of an immediate type or a named type but not both")
     }
   }
 
-  lazy val elementDeclDiagnosticChildren = annotationObjs ++ optionTypeDef.toList
+  lazy val elementDeclDiagnosticChildren = annotationObjs_.toList.flatten ++ typeDef_.toList
   
   lazy val isSimpleType = isSimpleType_.value
   private lazy val isSimpleType_ = LV {
