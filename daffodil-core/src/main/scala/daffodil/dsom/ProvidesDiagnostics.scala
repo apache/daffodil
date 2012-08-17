@@ -24,7 +24,7 @@ class CapturedThrowDiagnostic(e : Throwable, context : Any) extends Diagnostic {
   def isError() = true
   def getSchemaLocations() = Nil
   def getDataLocations() = Nil
-  def getMessage() = "ERROR (Catch):" + e + ". Context at catch was: " + context
+  def getMessage() = "ERROR caught: " + e + ". Context at catch was: " + context
 }
 
 class Warning(e : Throwable) extends Diagnostic {
@@ -50,7 +50,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
     log(Debug("Object %s recording error: %s", this, e))
     val diag = e match {
       case d : Diagnostic => d
-      case _ => new CapturedThrowDiagnostic(e, this) // no common trait to use....?
+      case _ => new CapturedThrowDiagnostic(e, lv.context) // no common trait to use....?
     }
     addDiagnostic(diag)
     addDiagnosticChild(lv)
