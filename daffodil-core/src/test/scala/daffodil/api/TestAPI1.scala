@@ -345,6 +345,7 @@ class TestDFDLParser extends JUnit3Suite {
   }
 
   def testLengthKindPatternCompound() {
+    LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1" separatorPolicy="required" separatorPosition="infix"/>,
         <xs:element name="abc">
@@ -363,8 +364,8 @@ class TestDFDLParser extends JUnit3Suite {
         </xs:sequence>
       </xs:complexType>
     </xs:element>)
-    val actual = Compiler.testString(sch, """0aaa,bb//5""").result
-    TestUtils.assertEqualsXMLElements(<abc><nul>0</nul><ab><name>aaa</name><item>bb//</item></ab><c>5</c></abc>, actual)
+    val actual = Compiler.testString(sch, """0pqr,bb//5""").result
+    TestUtils.assertEqualsXMLElements(<abc><nul>0</nul><ab><name>pqr</name><item>bb//</item></ab><c>5</c></abc>, actual)
   }
 
   // TEST FAILS - SEE JIRA DFDL-184

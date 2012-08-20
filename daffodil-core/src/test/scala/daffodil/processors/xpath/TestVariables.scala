@@ -8,6 +8,7 @@ import junit.framework.Assert._
 import daffodil.tdml.DFDLTestSuite
 import daffodil.processors._
 import daffodil.dsom._
+import javax.xml.xpath.XPathConstants
 
 class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
   val tdml = XMLUtils.TDML_NAMESPACE
@@ -35,10 +36,10 @@ class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
 
     withParseErrorThrowing(null) {
     val ns = List(org.jdom.Namespace.getNamespace("ex", XMLUtils.EXAMPLE_NAMESPACE))
-    val result = XPathUtil evalExpressionFromString ("$ex:pi", varMap, root, ns)
+    val result = XPathUtil evalExpressionFromString ("$ex:pi", varMap, root, ns, XPathConstants.NUMBER)
 
     result match {
-      case StringResult(x) => assertEquals(Pi.toString, x)
+      case NumberResult(x) => assertEquals(Pi, x)
       case _ => fail
     }
     null // wants us to return a PState. Don't want to bother creating one.

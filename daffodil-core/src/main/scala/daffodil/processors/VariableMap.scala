@@ -44,7 +44,6 @@ import daffodil.exceptions.Assert
 import daffodil.xml.XMLUtils
 import javax.xml.namespace.QName
 import daffodil.dsom.SchemaDocument
-import daffodil.dsom.CompiledExpressionUtil
 import daffodil.dsom.DFDLDefineVariable
 import daffodil.dsom.DFDLSetVariable
 import daffodil.dsom.SchemaComponent
