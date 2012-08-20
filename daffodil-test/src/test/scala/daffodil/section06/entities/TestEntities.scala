@@ -13,7 +13,7 @@ import java.io.File
 class TestEntities extends JUnit3Suite {
   val testDir = "/daffodil/section06/entities/"
   val tdml = testDir + "charClassEntities.tdml"
-  val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
   
   def test_LineFeed() { runner.runOneTest("LineFeed") }
   def test_CarriageReturn() { runner.runOneTest("CarriageReturn") }
@@ -28,7 +28,7 @@ class TestEntities extends JUnit3Suite {
   
   val testDir_01 = "/daffodil/section06/entities/"
   val tdml_01 = testDir_01 + "Entities.tdml"
-  val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
   
   def test_text_entities_6_02() { runner_01.runOneTest("text_entities_6_02") }
   def test_text_entities_6_03() { runner_01.runOneTest("text_entities_6_03") }
@@ -43,13 +43,13 @@ class TestEntities extends JUnit3Suite {
   
   val testDir_02 = "/daffodil/ibm-tests/"
   val tdml_02 = testDir_02 + "dpaext1.tdml"
-  val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
+  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
   def test_syntax_entities_6_01() { runner_02.runOneTest("syntax_entities_6_01") }
   def test_syntax_entities_6_02() { runner_02.runOneTest("syntax_entities_6_02") }
   def test_syntax_entities_6_03() { runner_02.runOneTest("syntax_entities_6_03") }
   
   val entity = testDir + "entities_01.tdml"
-  val runnerEntity = new DFDLTestSuite(Misc.getRequiredResource(entity))
+  lazy val runnerEntity = new DFDLTestSuite(Misc.getRequiredResource(entity))
   def test_entity_fail_01() { runnerEntity.runOneTest("entity_fail_01") }
   def test_entity_fail_02() { runnerEntity.runOneTest("entity_fail_02") }
   def test_entity_fail_03() { runnerEntity.runOneTest("entity_fail_03") }

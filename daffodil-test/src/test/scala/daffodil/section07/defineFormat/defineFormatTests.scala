@@ -13,7 +13,7 @@ import java.io.File
 class defineFormatTests extends JUnit3Suite {
   val testDir = "/daffodil/section07/defineFormat/"
   val tdml = testDir + "defineFormat.tdml"
-  val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
   
   def test_defineFormat_01() { runner.runOneTest("defineFormat_01") }
   

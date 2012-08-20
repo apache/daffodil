@@ -13,7 +13,7 @@ import java.io.File
 class TestSimpleTypes extends JUnit3Suite {
   val testDir = "/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
-  val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
   def test_Long1() { runner.runOneTest("Long1") }
   def test_BigInteger1() { runner.runOneTest("BigInteger1") }
@@ -36,7 +36,7 @@ class TestSimpleTypes extends JUnit3Suite {
   
   val testDir_01 = "/daffodil/ibm-tests/"
   val aa_01 = testDir_01 + "dpaext1.tdml"
-  val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
+  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
   def test_schema_types_5_01() { runner_01.runOneTest("schema_types_5_01") }
   def test_schema_types_5_02() { runner_01.runOneTest("schema_types_5_02") }
   def test_schema_types_5_03() { runner_01.runOneTest("schema_types_5_03") }

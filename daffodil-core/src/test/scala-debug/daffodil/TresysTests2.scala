@@ -17,11 +17,11 @@ class TresysTests2 extends JUnit3Suite {
 
   // This test passes now. Left this here to cut/paste for running other tests.    
   //  val ai = testDir + "AI.tdml"
-  //  val runnerAI = new DFDLTestSuite(Misc.getRequiredResource(ai))
+  //  lazy val runnerAI = new DFDLTestSuite(Misc.getRequiredResource(ai))
   //
   //  def test_AI000() { runnerAI.runOneTest("AI000") }
 
-  val runnerBF = new DFDLTestSuite(Misc.getRequiredResource(testDir + "bitFlagExpression.tdml"))
+  lazy val runnerBF = new DFDLTestSuite(Misc.getRequiredResource(testDir + "bitFlagExpression.tdml"))
   
   def test_testNone() { 
     LoggingDefaults.setLoggingLevel(LogLevel.Compile)

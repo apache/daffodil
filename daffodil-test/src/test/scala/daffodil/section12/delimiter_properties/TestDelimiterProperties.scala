@@ -13,7 +13,7 @@ import java.io.File
 class TestDelimiterProperties extends JUnit3Suite {
   val testDir_01 = "/daffodil/ibm-tests/"
   val tdml_01 = testDir_01 + "dpaext1.tdml"
-  val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
   
   //def test_delimiter_12_01() { runner_01.runOneTest("delimiter_12_01") }
   //def test_delimiter_12_02() { runner_01.runOneTest("delimiter_12_02") }
@@ -22,7 +22,7 @@ class TestDelimiterProperties extends JUnit3Suite {
   
   val testDir_02 = "/daffodil/section12/delimiter_properties/"
   val tdml_02 = testDir_02 + "DelimiterProperties.tdml"
-  val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
+  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
   
   def test_DelimProp_01() { runner_02.runOneTest("DelimProp_01") }
   def testParseSequence4() { runner_02.runOneTest("ParseSequence4") }

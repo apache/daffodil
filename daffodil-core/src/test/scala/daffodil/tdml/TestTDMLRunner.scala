@@ -88,7 +88,7 @@ class TestTDMLRunner extends JUnit3Suite {
                 </parserTestCase>
               </testSuite>
 
-    val ts = new DFDLTestSuite(xml)
+    lazy val ts = new DFDLTestSuite(xml)
     val ptc = ts.parserTestCases(0)
     assertEquals("test1", ptc.name)
     assertEquals("byte1", ptc.root)
@@ -117,7 +117,7 @@ class TestTDMLRunner extends JUnit3Suite {
                 </parserTestCase>
               </testSuite>
 
-    val ts = new DFDLTestSuite(xml)
+    lazy val ts = new DFDLTestSuite(xml)
     val tsn = ts.suiteName
     assertEquals("theSuiteName", tsn)
     assertEquals("", ts.description)
@@ -154,7 +154,7 @@ class TestTDMLRunner extends JUnit3Suite {
                         </ts:infoset>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testTDMLParseSuccess", Some(testSchema))
   }
 
@@ -169,7 +169,7 @@ class TestTDMLRunner extends JUnit3Suite {
                         </ts:errors>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testTDMLParseDetectsErrorWithSpecificMessage", Some(testSchema))
   }
 
@@ -184,7 +184,7 @@ class TestTDMLRunner extends JUnit3Suite {
                         </ts:errors>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = new DFDLTestSuite(testSuite)
     val exc = intercept[Exception] {
       ts.runOneTest("testTDMLParseDetectsErrorWithPartMessage", Some(testSchema))
     }
@@ -201,7 +201,7 @@ class TestTDMLRunner extends JUnit3Suite {
                         </ts:errors>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testTDMLParseDetectsErrorAnyMessage", Some(testSchema))
   }
 
@@ -215,7 +215,7 @@ class TestTDMLRunner extends JUnit3Suite {
                         </ts:errors>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = new DFDLTestSuite(testSuite)
     val exc = intercept[Exception] {
       ts.runOneTest("testTDMLParseDetectsNoError", Some(testSchema))
     }
@@ -240,7 +240,7 @@ class TestTDMLRunner extends JUnit3Suite {
 //                        </ts:warnings>
 //                      </ts:parserTestCase>
 //                    </ts:testSuite>
-//    val ts = new DFDLTestSuite(testSuite)
+//    lazy val ts = new DFDLTestSuite(testSuite)
 //    val exc = intercept[Exception] {
 //      ts.runOneTest("testTDMLParseDetectsNoWarning", Some(testSchema))
 //    }
@@ -267,7 +267,7 @@ class TestTDMLRunner extends JUnit3Suite {
                         </infoset>
                       </parserTestCase>
                     </testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = new DFDLTestSuite(testSuite)
     ts.runAllTests(Some(testSchema))
   }
 
@@ -288,7 +288,7 @@ class TestTDMLRunner extends JUnit3Suite {
         fileWriter =>
           fileWriter.write(testSchema.toString())
       }
-      val ts = new DFDLTestSuite(testSuite)
+      lazy val ts = new DFDLTestSuite(testSuite)
       ts.runOneTest("testRunModelFile")
     } finally {
       val f = new java.io.File(tmpFileName)
@@ -318,7 +318,7 @@ class TestTDMLRunner extends JUnit3Suite {
         fw =>
           fw.write(testSuite.toString())
       }
-      val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+      lazy val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
       ts.runAllTests()
     } finally {
       try {
@@ -332,7 +332,7 @@ class TestTDMLRunner extends JUnit3Suite {
   }
 
   def testFindModelFile() {
-    val ts = new DFDLTestSuite(new File("daffodil-core/src/test/resources/test-suite/ibm-contributed/dpaext1.tdml"))
+    lazy val ts = new DFDLTestSuite(new File("daffodil-core/src/test/resources/test-suite/ibm-contributed/dpaext1.tdml"))
     val mf = ts.findModelFile("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
     assertTrue(mf.exists())
   }
@@ -356,7 +356,7 @@ class TestTDMLRunner extends JUnit3Suite {
   // @Test
   def testEmbeddedSchemaWorks() {
     val testSuite = tdmlWithEmbeddedSchema
-    val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testEmbeddedSchemaWorks")
   }
 
@@ -380,7 +380,7 @@ class TestTDMLRunner extends JUnit3Suite {
   def testEmbeddedSchemaValidates() {
     val testSuite = tdmlWithEmbeddedSchemaInvalid
     val exc = intercept[Exception] {
-      val ts = new DFDLTestSuite(testSuite)
+      lazy val ts = new DFDLTestSuite(testSuite)
       ts.isTDMLFileValid
     }
     val msg = exc.getMessage
@@ -396,7 +396,7 @@ class TestTDMLRunner extends JUnit3Suite {
         fw =>
           fw.write(testSuite.toString())
       }
-      val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+      lazy val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
       ts.runAllTests()
     } finally {
       val t = new java.io.File(tmpTDMLFileName)
@@ -413,7 +413,7 @@ class TestTDMLRunner extends JUnit3Suite {
           fw.write(testSuite.toString())
       }
       val exc = intercept[Exception] {
-        val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+        lazy val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
         ts.isTDMLFileValid
       }
       val msg = exc.getMessage
@@ -441,7 +441,7 @@ class TestTDMLRunner extends JUnit3Suite {
                         <ts:document>123456789</ts:document>
                       </ts:serializerTestCase>
                     </ts:testSuite>
-    val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testTDMLUnparse")
   }
 
@@ -464,7 +464,7 @@ class TestTDMLRunner extends JUnit3Suite {
   // @Test
   def testMultiByteUnicodeWorks() {
     val testSuite = tdmlWithUnicode2028
-    val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testMultiByteUnicodeWorks")
   }
   
@@ -488,7 +488,7 @@ class TestTDMLRunner extends JUnit3Suite {
   // @Test
   def testMultiByteUnicodeWithCDATAWorks() {
     val testSuite = tdmlWithUnicode5E74AndCDATA
-    val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testMultiByteUnicodeWithCDATAWorks")
   }
   

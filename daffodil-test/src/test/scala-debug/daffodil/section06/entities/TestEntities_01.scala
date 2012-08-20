@@ -14,7 +14,7 @@ class TestEntities_01 extends JUnit3Suite {
   
   val testDir_01 = "/daffodil/section06/entities/"
   val aa_01 = testDir_01 + "Entities.tdml"
-  val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
+  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
   
   def test_text_entities_6_02() { runner_01.runOneTest("text_entities_6_02") }
   def test_byte_entities_6_06() { runner_01.runOneTest("byte_entities_6_06") }

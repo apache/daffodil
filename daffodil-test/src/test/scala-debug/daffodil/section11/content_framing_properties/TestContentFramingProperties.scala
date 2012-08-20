@@ -13,7 +13,7 @@ import java.io.File
 class TestContentFramingProperties extends JUnit3Suite {
   val testDir_01 = "/daffodil/ibm-tests/"
   val tdml1 = testDir_01 + "dpaext1.tdml"
-  val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
+  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
   
   def test_encoding_11_01() { runner1.runOneTest("encoding_11_01") }
   def test_encoding_11_02() { runner1.runOneTest("encoding_11_02") }
