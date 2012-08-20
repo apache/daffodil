@@ -8,14 +8,14 @@ import daffodil.xml.XMLUtils._
 import daffodil.compiler.Compiler
 import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
-import java.io.File
+import daffodil.util.Misc
 
 class TestLengthKindPattern_01 extends JUnit3Suite {
 
   var runner = {
-    val testDir = "src/test/resources/test-suite/tresys-contributed/"
+    val testDir = "/test-suite/tresys-contributed/"
     val aa = testDir + "PatternTests_01.tdml"
-    val runner = new DFDLTestSuite(new File(aa))
+    val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
     runner
   }
 

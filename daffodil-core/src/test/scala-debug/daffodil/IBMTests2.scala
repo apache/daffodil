@@ -6,28 +6,29 @@ import org.scalatest.junit.JUnit3Suite
 
 import daffodil.tdml.DFDLTestSuite
 
+import daffodil.util.Misc
 
 /**
  * Delete this class once these regressions have been addressed.
  */
 //class IBMTestRegressions extends JUnit3Suite {
 //  
-//  val testDir = "test-suite/ibm-contributed/"
+//  val testDir = "/test-suite/ibm-contributed/"
 //  val tdml1 = testDir + "dpaext1.tdml"
 //  val tdml2 = testDir + "dpaext2.tdml"
-//  val runner1 = new DFDLTestSuite(new File(tdml1))
-//  val runner2 = new DFDLTestSuite(new File(tdml2))
+//  val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
+//  val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 //
 //  // Nothing here! Great!
 //}
 
 class IBMTestsThatThrow extends JUnit3Suite {
 
-  val testDir = "test-suite/ibm-contributed/"
+  val testDir = "/test-suite/ibm-contributed/"
   val tdml1 = testDir + "dpaext1.tdml"
   val tdml2 = testDir + "dpaext2.tdml"
-  val runner1 = new DFDLTestSuite(new File(tdml1))
-  val runner2 = new DFDLTestSuite(new File(tdml2))
+  val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
+  val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
     
   def test_syntax_entities_6_04() { runner1.runOneTest("syntax_entities_6_04") }

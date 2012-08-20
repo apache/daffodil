@@ -1,6 +1,5 @@
 package daffodil
 
-import java.io.File
 import org.scalatest.junit.JUnit3Suite
 import junit.framework.Assert._
 import daffodil.xml.XMLUtils
@@ -11,17 +10,18 @@ import tdml.DFDLTestSuite
 import daffodil.util.LogLevel
 import daffodil.util.LoggingDefaults
 import daffodil.util.Logging
+import daffodil.util.Misc
 
 class TresysTests2 extends JUnit3Suite {
-  val testDir = "test-suite/tresys-contributed/"
+  val testDir = "/test-suite/tresys-contributed/"
 
   // This test passes now. Left this here to cut/paste for running other tests.    
   //  val ai = testDir + "AI.tdml"
-  //  val runnerAI = new DFDLTestSuite(new File(ai))
+  //  val runnerAI = new DFDLTestSuite(Misc.getRequiredResource(ai))
   //
   //  def test_AI000() { runnerAI.runOneTest("AI000") }
 
-  val runnerBF = new DFDLTestSuite(new File(testDir + "bitFlagExpression.tdml"))
+  val runnerBF = new DFDLTestSuite(Misc.getRequiredResource(testDir + "bitFlagExpression.tdml"))
   
   def test_testNone() { 
     LoggingDefaults.setLoggingLevel(LogLevel.Compile)
