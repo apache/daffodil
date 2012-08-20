@@ -11,6 +11,7 @@ import daffodil.util.Debug
 import daffodil.util.LogLevel
 import daffodil.xml.XMLUtils
 import daffodil.processors.EmptyVariableMap
+import daffodil.processors.WithParseErrorThrowing
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -97,7 +98,11 @@ case class ConstantExpression[T](value : T) extends CompiledExpression(value.toS
 
 case class RuntimeExpression[T](convertTo : Symbol,
   xpathText : String,
-  xpathExprFactory : CompiledExpressionFactory) extends CompiledExpression(xpathText) {
+  xpathExprFactory : CompiledExpressionFactory,
+  sc : SchemaComponent) 
+  extends CompiledExpression(xpathText) 
+  with WithParseErrorThrowing {
+  val context = sc
   def isConstant = false
   def isKnownNonEmpty = true // expressions are not allowed to return empty string
   def constant : T = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
@@ -114,7 +119,17 @@ case class RuntimeExpression[T](convertTo : Symbol,
 
   def evaluate(pre : org.jdom.Parent, variables : VariableMap) : T = {
     val xpathResultType = toXPathType(convertTo)
-    val xpathRes = XPathUtil.evalExpression(xpathText, xpathExprFactory, variables, pre, xpathResultType)
+    
+    val xpathRes = try {
+      XPathUtil.evalExpression(xpathText, xpathExprFactory, variables, pre, xpathResultType)
+    }
+    catch {
+      case e : XPathExpressionException => {
+        // runtime processing error in expression evaluation
+        PE("Expression evaluation failed. Details: %s", e)
+      }
+        
+    }
     val converted : T = xpathRes match {
       case NumberResult(n) => {
         convertTo match {
@@ -222,7 +237,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
             case 'Double => new ConstantExpression(s.asInstanceOf[String].toDouble)
           }
         }
-        case None => new RuntimeExpression(convertTo, expr, compiledXPath)
+        case None => new RuntimeExpression(convertTo, expr, compiledXPath, edecl)
       }
       compiledExpression
     }

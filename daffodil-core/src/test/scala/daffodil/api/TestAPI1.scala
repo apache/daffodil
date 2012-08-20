@@ -345,7 +345,7 @@ class TestDFDLParser extends JUnit3Suite {
   }
 
   def testLengthKindPatternCompound() {
-    LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1" separatorPolicy="required" separatorPosition="infix"/>,
         <xs:element name="abc">

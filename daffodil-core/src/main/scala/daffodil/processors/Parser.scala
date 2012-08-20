@@ -139,6 +139,11 @@ trait WithParseErrorThrowing {
       throw new ParseError(context, None, kind, args : _*)
     }
   }
+    
+  def PE(kind : String, args : Any*) {
+    PECheck(false, kind, args : _*)
+  }
+    
   
   /**
    * Wrap around parser code that wants to throw parse errors (e.g., parsers which call things which 

@@ -15,10 +15,14 @@ import daffodil.util.Misc
 class TresysTests extends JUnit3Suite {
   val testDir = "/test-suite/tresys-contributed/"
   val aa = testDir + "AA.tdml"
-  val runnerAA = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  def runnerAA = {
+    new DFDLTestSuite(Misc.getRequiredResource(aa))
+  }
 
   // Needs InputValueCalc to work before this has a chance.
   def test_AA000() { runnerAA.runOneTest("AA000") }
+  def test_inputValueCalcErrorDiagnostic1() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic1")}
+  def test_inputValueCalcErrorDiagnostic2() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic2")}
   
   val delimited = testDir + "dpaext1.tdml"
   val runnerDelimited = new DFDLTestSuite(Misc.getRequiredResource(delimited))

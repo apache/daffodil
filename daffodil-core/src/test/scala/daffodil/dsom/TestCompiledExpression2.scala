@@ -8,15 +8,18 @@ import junit.framework.Assert._
 import daffodil.processors._
 import daffodil.compiler._
 import javax.xml.xpath.XPathExpressionException
+import daffodil.processors.WithParseErrorThrowing
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
  */
-class TestCompiledExpression2 extends JUnit3Suite {
+class TestCompiledExpression2 extends JUnit3Suite with WithParseErrorThrowing {
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
+
+  var context : SchemaComponent = null
 
   // dummy schema just so we can get a handle on a legit element declaration
   val testSchema = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
@@ -108,13 +111,20 @@ class TestCompiledExpression2 extends JUnit3Suite {
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
     val doc = new org.jdom.Document(r) // root must have a document node
     val root = doc.getRootElement()
+    context = edecl
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /tns:doesntExist/text() }"
     val compiled = ec.compile('String, xpathString) // as a string
-    val e = intercept[XPathExpressionException] {
-      val res = compiled.evaluate(root, new VariableMap())
-      res
+    val st = PState.createInitialState(edecl, "x", 0)
+    withParseErrorThrowing(st) {
+      val e = intercept[ParseError] {
+        val res = compiled.evaluate(root, new VariableMap())
+        res
+      }
+      assertTrue(e.getMessage().contains("doesntExist"))
+      assertTrue(e.getMessage().contains("XPathExpressionException"))
+      st
     }
-    assertTrue(e.getMessage().contains("doesntExist"))
+
   }
 }
