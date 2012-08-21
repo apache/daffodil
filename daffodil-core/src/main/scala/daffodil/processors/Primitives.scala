@@ -104,7 +104,9 @@ case class ComplexElementBeginPattern(e: ElementBase)
           log(Debug("Ended at bit position " + endBitPos))
           val limitedInStream = in.withLimit(start.bitPos, endBitPos)
           val count = ((endBitPos - start.bitPos + 7) / 8).asInstanceOf[Int]
-          start withEndBitLimit (endBitPos) withInStream (new InStreamFromByteChannel(e, limitedInStream, count))
+          // Since we've created a new sub-stream with just the limited part of data in it,
+          // don't forget to have the position in it start at zero.
+          start withEndBitLimit (endBitPos) withInStream (new InStreamFromByteChannel(e, limitedInStream, count)) withPos(0, 0) 
         }
       }
 
@@ -1397,7 +1399,7 @@ case class LiteralNilValue(e: ElementBase)
         // Look for nilValues first, if fails look for delimiters next
         // If delimiter is found AND nilValue contains ES, result is empty and valid.
         // If delimiter is not found, fail.
-        val afterNilLit = stParser.parse(start)
+        val afterNilLit = stParser.parse1(start, e)
         if (afterNilLit.status == Success) {
           val xsiNS = afterNilLit.parentElement.getNamespace()
           afterNilLit.parentElement.addContent(new org.jdom.Text(""))

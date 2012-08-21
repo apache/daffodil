@@ -7,33 +7,35 @@ import daffodil.processors.xpath._
 import junit.framework.Assert._
 import daffodil.processors._
 import daffodil.compiler._
+import javax.xml.xpath.XPathExpressionException
+import daffodil.processors.WithParseErrorThrowing
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
  */
-class TestCompiledExpression2 extends JUnit3Suite {
+class TestCompiledExpression2 extends JUnit3Suite with WithParseErrorThrowing {
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
+  var context : SchemaComponent = null
+
   // dummy schema just so we can get a handle on a legit element declaration
   val testSchema = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-                       <element name="root" type="xs:string"/>
-                     </schema>
-  
+                     <element name="root" type="xs:string"/>
+                   </schema>
 
-  
   /**
-   * Test the XPath evaluator, but provide namespace information on the XML  
+   * Test the XPath evaluator, but provide namespace information on the XML
    */
-   def testCompiledAbsolutePathEvaluation2_withNamespace() { 
-    
+  def testCompiledAbsolutePathEvaluation2_withNamespace() {
+
     val r = XMLUtils.elem2Element(
-        <tns:root xmlns:tns={ example }>19</tns:root>)
+      <tns:root xmlns:tns={ example }>19</tns:root>)
     val sset = new SchemaSet(<schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-                       <element name="root" type="xs:string"/>
-                     </schema>)
+                               <element name="root" type="xs:string"/>
+                             </schema>)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
     val doc = new org.jdom.Document(r) // root must have a document node
     val root = doc.getRootElement()
@@ -43,18 +45,17 @@ class TestCompiledExpression2 extends JUnit3Suite {
     val result = compiled.evaluate(root, new VariableMap())
 
     assertEquals("19", result)
-    
-  }
-    
-  
-   def testCompiledRelativePathEvaluation5_WithNamespaces() {
 
-     // Note Use of target namespace here.
-     // Note that tns is bound to the same namespace as the target namespace
-     // The relative path used below has a QName in it that uses this tns qualification.
-     //
-     // However, path evaluation seems to miss this, and the test fails because it doesn't find a node in the right namespace so the
-     // expression returns null (no nodes in the nodeset that is the result of the XPath query)
+  }
+
+  def testCompiledRelativePathEvaluation5_WithNamespaces() {
+
+    // Note Use of target namespace here.
+    // Note that tns is bound to the same namespace as the target namespace
+    // The relative path used below has a QName in it that uses this tns qualification.
+    //
+    // However, path evaluation seems to miss this, and the test fails because it doesn't find a node in the right namespace so the
+    // expression returns null (no nodes in the nodeset that is the result of the XPath query)
     val testSchema = <xs:schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
                        <xs:element name="data">
                          <xs:complexType>
@@ -67,7 +68,7 @@ class TestCompiledExpression2 extends JUnit3Suite {
                      </xs:schema>
 
     val tns = example
-    
+
     // Note that we specify the namespace of the unqualified elements here, and it matches
     // the target namespace.
     val r = XMLUtils.elem2Element(<data xmlns={ example }><e1>42</e1><e2/></data>)
@@ -94,8 +95,36 @@ class TestCompiledExpression2 extends JUnit3Suite {
     val result = updatedChild2.getText()
 
     assertEquals("42", result)
-    
-  }
-  
 
+  }
+
+  /**
+   * Negative test. Insure we get a diagnostic that is useful.
+   */
+  def testCompiledEvaluationError_DoesntExist() {
+
+    val r = XMLUtils.elem2Element(
+      <tns:root xmlns:tns={ example }>19</tns:root>)
+    val sset = new SchemaSet(<schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+                               <element name="root" type="xs:string"/>
+                             </schema>)
+    val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
+    val doc = new org.jdom.Document(r) // root must have a document node
+    val root = doc.getRootElement()
+    context = edecl
+    val ec = new ExpressionCompiler(edecl)
+    val xpathString = "{ /tns:doesntExist/text() }"
+    val compiled = ec.compile('String, xpathString) // as a string
+    val st = PState.createInitialState(edecl, "x", 0)
+    withParseErrorThrowing(st) {
+      val e = intercept[ParseError] {
+        val res = compiled.evaluate(root, new VariableMap())
+        res
+      }
+      assertTrue(e.getMessage().contains("doesntExist"))
+      assertTrue(e.getMessage().contains("XPathExpressionException"))
+      st
+    }
+
+  }
 }

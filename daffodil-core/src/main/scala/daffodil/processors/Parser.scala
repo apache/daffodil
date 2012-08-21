@@ -20,11 +20,12 @@ import scala.collection.mutable.Queue
 import scala.util.matching.Regex
 import stringsearch.constructs._
 import stringsearch.constructs.EscapeScheme._
-
 import daffodil.util._
 import daffodil.exceptions.ThrowsSDE
 import java.io.ByteArrayInputStream
 import scala.collection.mutable.Stack
+import daffodil.debugger.Debugger
+import daffodil.util.Misc._
 
 abstract class ProcessingError extends Exception with Diagnostic {
 
@@ -97,7 +98,14 @@ abstract class Parser(val context : SchemaComponent) extends Logging {
   def processingError(state : PState, str : String, args : Any*) =
     PE(state, str, args) // long form synonym
 
-  def parse(pstate : PState) : PState
+  protected def parse(pstate : PState) : PState
+  
+  final def parse1(pstate : PState, context : SchemaComponent) : PState = {
+    Debugger.before(pstate, this)
+    val afterState = parse(pstate)
+    Debugger.after(pstate, afterState, this)
+    afterState
+  }
 
   // TODO: other methods for things like asking for the ending position of something
   // which would enable fixed-length formats to skip over data and not parse it at all.
@@ -139,6 +147,11 @@ trait WithParseErrorThrowing {
       throw new ParseError(context, None, kind, args : _*)
     }
   }
+    
+  def PE(kind : String, args : Any*) {
+    PECheck(false, kind, args : _*)
+  }
+    
   
   /**
    * Wrap around parser code that wants to throw parse errors (e.g., parsers which call things which 
@@ -207,9 +220,9 @@ class SeqCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
   val pParser = p.parser
   val qParser = q.parser
   def parse(pstate : PState) = {
-    val pResult = pParser.parse(pstate)
+    val pResult = pParser.parse1(pstate, context)
     if (pResult.status == Success) {
-      val qResult = qParser.parse(pResult)
+      val qResult = qParser.parse1(pResult, context)
       qResult
     } else pResult
   }
@@ -226,7 +239,7 @@ class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
     var pResult : PState =
       try {
         log(Debug("Trying choice alternative: %s", pParser))
-        pParser.parse(pstate)
+        pParser.parse1(pstate, context)
       } catch {
         case e : Exception => {
           Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
@@ -261,7 +274,7 @@ class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
       
       val qResult = try {
         log(Debug("Trying choice alternative: %s", qParser))
-        qParser.parse(pstate)
+        qParser.parse1(pstate, context)
       } catch {
         case e : Exception => {
           Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
@@ -321,7 +334,20 @@ class GeneralParseFailure(msg: String) extends Diagnostic {
 }
 
 class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
-  override def toString() = "Location(in bits) " + bitPos + " of Stream: " + inStream
+  override def toString() = "Location(in bits) " + bitPos + " data: " + dump
+  
+  def dump = {
+    var bytes : List[Byte] = Nil
+    try {
+      for ( i <- 0 to 40 ) {
+        bytes = inStream.getByte(bitPos + (i * 8) , java.nio.ByteOrder.BIG_ENDIAN) +: bytes
+      } 
+    }
+    catch {
+      case e : IndexOutOfBoundsException =>
+    }
+    bytes2Hex(bytes.reverse.toArray)
+  }
 }
 
 /**
@@ -373,9 +399,9 @@ class PState(
   val discriminator : Boolean) extends DFDL.State {
   def bytePos = bitPos >> 3
   def whichBit = bitPos % 8
-  def groupPos = groupIndexStack.head
-  def childPos = childIndexStack.head
-  def arrayPos = arrayIndexStack.head
+  def groupPos = if (groupIndexStack != Nil) groupIndexStack.head else -1
+  def childPos = if (childIndexStack != Nil) childIndexStack.head else -1
+  def arrayPos = if (arrayIndexStack != Nil) arrayIndexStack.head else -1
   def occursCount = occursCountStack.head
 
   def currentLocation : DataLocation = new DataLoc(bitPos, inStream)
@@ -571,7 +597,7 @@ with Logging
 with WithParseErrorThrowing
 { // 128K characters by default.
   Assert.usage(sizeHint > 0)
-  val maxCharacterWidthInBytes = 4 // FIXME worst case. Ok for testing. Don't use this pessimistic technique for real data.
+  val maxCharacterWidthInBytes = 4 // FIXME this is worst case. Ok for testing. Can we do better than this pessimistic overestimate on size?
   var bb = ByteBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
   // Verify there is not more data by making sure the buffer was not read to capacity.
   var count = in.read(bb) // just pull it all into the byte buffer

@@ -11,6 +11,7 @@ import daffodil.util.Debug
 import daffodil.util.LogLevel
 import daffodil.xml.XMLUtils
 import daffodil.processors.EmptyVariableMap
+import daffodil.processors.WithParseErrorThrowing
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -69,48 +70,79 @@ abstract class CompiledExpression(val prettyExpr : String) {
 
 }
 
-object CompiledExpressionUtil {
+//object CompiledExpressionUtil {
+//
+//  def converter[T](convertTo : Symbol, expr : Any) = {
+//    val str : String = expr match {
+//      case n : org.jdom.Element => n.getText()
+//      case s : String => s
+//    }
+//    val res = convertTo match {
+//      case 'Long => str.toLong.asInstanceOf[T]
+//      case 'Double => str.toDouble.asInstanceOf[T]
+//      case 'String => str
+//      case 'Element => expr.asInstanceOf[org.jdom.Element]
+//      case _ => Assert.invariantFailed("Unrecognized convertTo symbol: " + convertTo)
+//    }
+//    res.asInstanceOf[T]
+//  }
+//
+//}
 
-  def converter[T](convertTo : Symbol, expr : Any) = {
-    val str : String = expr match {
-      case n : org.jdom.Element => n.getText()
-      case s : String => s
-    }
-    val res = convertTo match {
-      case 'Long => str.toLong.asInstanceOf[T]
-      case 'Double => str.toDouble.asInstanceOf[T]
-      case 'String => str
-      case 'Element => expr.asInstanceOf[org.jdom.Element]
-      case _ => Assert.invariantFailed("Unrecognized convertTo symbol: " + convertTo)
-    }
-    res.asInstanceOf[T]
-  }
-
-}
-
-case class ConstantProperty[T](value : T) extends CompiledExpression(value.toString) {
+case class ConstantExpression[T](value : T) extends CompiledExpression(value.toString) {
   def isConstant = true
   def isKnownNonEmpty = value != ""
   def constant : T = value
   def evaluate(pre : org.jdom.Parent, variables : VariableMap) = constant
 }
 
-case class ExpressionProperty[T](convertTo : Symbol,
+case class RuntimeExpression[T](convertTo : Symbol,
   xpathText : String,
-  xpathExprFactory : CompiledExpressionFactory) extends CompiledExpression(xpathText) {
+  xpathExprFactory : CompiledExpressionFactory,
+  sc : SchemaComponent) 
+  extends CompiledExpression(xpathText) 
+  with WithParseErrorThrowing {
+  val context = sc
   def isConstant = false
   def isKnownNonEmpty = true // expressions are not allowed to return empty string
   def constant : T = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
+  
+  def toXPathType (convertTo : Symbol) =
+    convertTo match {
+    case 'Long => XPathConstants.NUMBER
+    case 'Double => XPathConstants.NUMBER
+    case 'String => XPathConstants.STRING
+    case 'Element => XPathConstants.NODE
+    case _ => Assert.invariantFailed("convertTo not valid value: " + convertTo)
+  }
+
 
   def evaluate(pre : org.jdom.Parent, variables : VariableMap) : T = {
-    val xpathRes = XPathUtil.evalExpression(xpathText, xpathExprFactory, variables, pre)
+    val xpathResultType = toXPathType(convertTo)
+    
+    val xpathRes = try {
+      XPathUtil.evalExpression(xpathText, xpathExprFactory, variables, pre, xpathResultType)
+    }
+    catch {
+      case e : XPathExpressionException => {
+        // runtime processing error in expression evaluation
+        PE("Expression evaluation failed. Details: %s", e)
+      }
+        
+    }
     val converted : T = xpathRes match {
+      case NumberResult(n) => {
+        convertTo match {
+          case 'Long => n.toLong.asInstanceOf[T]
+          case 'Double => n.asInstanceOf[T]
+        }
+      }
       case StringResult(s) => {
-        val cs = CompiledExpressionUtil.converter[T](convertTo, s)
-        cs
+        Assert.invariant(convertTo == 'String)
+        s.asInstanceOf[T]
       }
       case NodeResult(n) => {
-        CompiledExpressionUtil.converter(convertTo, n)
+        n.asInstanceOf[T] 
       }
     }
     converted
@@ -136,7 +168,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
       case XMLUtils.XSD_UNSIGNED_BYTE => 'Long
       case XMLUtils.XSD_UNSIGNED_SHORT => 'Long
       case XMLUtils.XSD_UNSIGNED_INT => 'Long
-      case XMLUtils.XSD_UNSIGNED_LONG => 'Long // TODO FIXME - this won't handle the largest unsigned longs.
+      case XMLUtils.XSD_UNSIGNED_LONG => Assert.notYetImplemented() // TODO FIXME - handle the largest unsigned longs.
       case XMLUtils.XSD_DOUBLE => 'Double
       case XMLUtils.XSD_FLOAT => 'Double
       case _ => Assert.notYetImplemented()
@@ -157,16 +189,24 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
             xpathExprFactory.expression + " (to see if constant)",
             xpathExprFactory,
             dummyVars,
-            null) // context node is not needed to see if an expression is a constant. 
+            null, // context node is not needed to see if an expression is a constant.
+            XPathConstants.STRING)  
           res match {
             case StringResult(s) => {
               log(Debug("%s is constant", xpathExprFactory.expression))
               Some(s)
             }
-            case NodeResult(s) => Assert.invariantFailed("Can't evaluate to a node when testing for isConstant")
+            case _ => Assert.invariantFailed("Can't evaluate to " + res + " when testing for isConstant")
           }
         } catch {
           case e : XPathExpressionException => {
+            log(Debug("%s is NOT constant (due to %s)", xpathExprFactory.expression, e.toString))
+            None
+          }
+          case e : SchemaDefinitionError => {
+            // TODO differentiate between the xpath being syntax-invalid (hence, an SDE, not a constant/runtime distinction
+            // and other SDEs like variable not defined, which just indicates (for here), that the expression 
+            // is non-constant.
             log(Debug("%s is NOT constant (due to %s)", xpathExprFactory.expression, e.toString))
             None
           }
@@ -181,7 +221,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
     if (!XPathUtil.isExpression(expr)) {
       // not an expression. For some properties like delimiters, you can use a literal string 
       // whitespace separated list of literal strings, or an expression in { .... }
-      new ConstantProperty(expr)
+      new ConstantExpression(expr)
     } else {
 
       val xpath = XPathUtil.getExpression(expr)
@@ -190,13 +230,14 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
       val compiledExpression = cv match {
         case Some(s) => {
           convertTo match {
-            case 'String => new ConstantProperty(s.asInstanceOf[String])
-            case 'Long => new ConstantProperty(s.asInstanceOf[String].toLong)
-            case 'Element => new ConstantProperty(s.asInstanceOf[org.jdom.Element])
-            case 'Double => new ConstantProperty(s.asInstanceOf[String].toDouble)
+            case 'String => new ConstantExpression(s.asInstanceOf[String])
+            case 'Long => new ConstantExpression(s.asInstanceOf[String].toLong)
+            // Evaluating to an Element when we're a constant makes no sense.
+            // case 'Element => new ConstantExpression(s.asInstanceOf[org.jdom.Element])
+            case 'Double => new ConstantExpression(s.asInstanceOf[String].toDouble)
           }
         }
-        case None => new ExpressionProperty(convertTo, expr, compiledXPath)
+        case None => new RuntimeExpression(convertTo, expr, compiledXPath, edecl)
       }
       compiledExpression
     }

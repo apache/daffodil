@@ -52,3 +52,6 @@ case class NodeResult(node:Element) extends XPathResult
 
 /** The result is a string */
 case class StringResult(string:String) extends XPathResult
+
+/** The result is a number */
+case class NumberResult(num: Double) extends XPathResult

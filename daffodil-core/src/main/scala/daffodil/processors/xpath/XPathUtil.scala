@@ -37,8 +37,7 @@ package daffodil.processors.xpath
  */
 
 import javax.xml.xpath._
-import javax.xml.xpath.XPathConstants.NODE
-import javax.xml.xpath.XPathConstants.STRING
+import javax.xml.xpath.XPathConstants._
 import javax.xml.namespace.QName
 import org.jdom.Element
 import org.jdom.Text
@@ -160,68 +159,74 @@ object XPathUtil extends Logging {
    * @param namespaces  - the namespaces in scope
    */
   private[xpath] def evalExpressionFromString(expression:String,variables:VariableMap,
-                     contextNode:Parent,namespaces:Seq[org.jdom.Namespace]) : XPathResult = {
+                     contextNode:Parent,namespaces:Seq[org.jdom.Namespace], targetType : QName = NODE) : XPathResult = {
 
     val compiledExprExceptVariables = compileExpression(expression, namespaces, None)
-    val res = evalExpression(expression, compiledExprExceptVariables, variables, contextNode)
+    val res = evalExpression(expression, compiledExprExceptVariables, variables, contextNode, targetType)
     res
   }
     
   /**
    * Evaluates an XPath expression that has been compiled.
+   * 
+   * Issues: expressions like { 3 } are not nodes. Asking for a node throws. 
+   * Asking for a string works, or returns "" on illegal things.
+   * If you ask for a number, it will convert to a number or return a NaN on any failure. 
    */
   def evalExpression(
       expressionForErrorMsg : String, 
       compiledExprFactory : CompiledExpressionFactory, 
       variables:VariableMap, 
-      contextNode:Parent) : XPathResult = {
+      contextNode:Parent,
+      targetType : QName = NODE ) : XPathResult = {
     withLoggingLevel(LogLevel.Info)
     {
     val ce = compiledExprFactory.getXPathExpr(variables)
-    log(Debug("Evaluating %s in context %s", expressionForErrorMsg, contextNode)) // Careful. contextNode could be null.
-    log(Debug("Expression eval trying NODE"))
-    try{
-      val o = ce.evaluate(contextNode, NODE)
+    log(Debug("Evaluating %s in context %s to get a %s", expressionForErrorMsg, contextNode, targetType)) // Careful. contextNode could be null.
+//    try{
+      val o = ce.evaluate(contextNode, targetType)
       log(Debug("Evaluated to: %s", o))
-      val res = o match {
-        case x : Element => new NodeResult(x)
-        case x : Text => new StringResult(x.getValue())
+      val res = (o, targetType) match {
+        case (x : Element, NODE) => new NodeResult(x)
+        case (x : Element, STRING) => new StringResult(x.getContent(0).toString())
+        case (x : Element, NUMBER) => new NumberResult(x.getContent(0).toString().toDouble)
+        case (x : Text, STRING) => new StringResult(x.getValue())
+        case (x : Text, NUMBER) => new NumberResult(x.getValue().toDouble)
+        case (x : java.lang.Double, NUMBER) if (x.isNaN && contextNode != null) => {
+          // We got a NaN. If the path actually exists, then the result is a NaN
+          // If the path doesn't exist, then we want to fail.
+          val existingNode = ce.evaluate(contextNode, NODE) 
+          if (existingNode != null) new NumberResult(x.doubleValue)
+          else throw new XPathExpressionException("no node for path " + expressionForErrorMsg) 
+        }
+        case (x : java.lang.Double, NUMBER) => new NumberResult(x.doubleValue)
+        case (x : String, STRING) if (x == "" && contextNode != null) => {
+          // We got empty string. If the path actually exists, then the result is empty string.
+          // If the path doesn't exist, then we want to fail.
+           val existingNode = ce.evaluate(contextNode, NODE) 
+           if (existingNode != null) new StringResult(x)
+           else throw new XPathExpressionException("no node for path " + expressionForErrorMsg) 
+        }
+        case (x : String, STRING) => new StringResult(x)
+        case (null, _)  => {
+          // There was no such node. We're never going to get an answer for this XPath
+          // so fail.
+          throw new XPathExpressionException("no node for path " + expressionForErrorMsg) 
+        }
         case _ => {
-           throw new XPathExpressionException("unrecognized NODE (not Element nor Text): " + o) 
+           throw new XPathExpressionException("unrecognized evaluation result: " + o + " for target type " + targetType) 
         }
       }
       return res
-    }catch{
-      case e:XPathExpressionException =>
-        log(Debug("Didn't work to get NODE due to %s", e))
-        //
-        // This second try to see if we can evaluate with a STRING
-        // as goal should be eliminated by static analysis of
-        // the XPath. We should know the type it is intending to return,
-        // So we shouln't have to try NODE, then STRING
-        // 
-        try {
-          log(Debug("Expression eval trying STRING."))
-          val o = ce.evaluate(contextNode, STRING)
-          log(Debug("Evaluated to: '%s'", o))
-          new StringResult(o.asInstanceOf[String])
-        }catch {
-          case e:XPathExpressionException => {
-            // doUnknownXPathEvalException(expressionForErrorMsg, e)
-            log(Debug("Second try didn't work to get STRING due to %s", e))
-            throw e
-          }
-        }
-      case e:Exception => {
-        doUnknownXPathEvalException(expressionForErrorMsg, e)
-      }
     }
-    }
+    // Note: removed "retry looking for a string" code. That was not the right approach to using the
+    // XPath API. You don't try for a NODE, and if that fails try for a String. You try for a NODE, and 
+    // convert the result to a string if you get a node. (Text IS a node).
   }
 
-  def doUnknownXPathEvalException(expression : String, exc : Exception) = {
-     throw new XPathExpressionException(exc)
-  }
+//  def doUnknownXPathEvalException(expression : String, exc : Exception) = {
+//     throw new XPathExpressionException(exc)
+//  }
   
   /**
    * Whether a string is a DFDL expression (an XPath expression surrounded by brackets).

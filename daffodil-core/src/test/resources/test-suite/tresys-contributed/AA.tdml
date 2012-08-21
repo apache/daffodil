@@ -25,8 +25,8 @@
 		</xs:complexType>
 	</tdml:defineSchema>
 
-	<tdml:parserTestCase name="AA000" root="list" model="AA.dfdl.xsd"
-		description="Tests variables and inputValueCalc">
+	<tdml:parserTestCase name="AA000" root="list"
+		model="AA.dfdl.xsd" description="Tests variables and inputValueCalc">
 
 		<tdml:document>
 			<tdml:documentPart type="byte"></tdml:documentPart>
@@ -46,4 +46,55 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="err1">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="prob1" type="xsd:int"
+						dfdl:inputValueCalc="{ $ex:noSuchVariable }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+
+	<tdml:parserTestCase name="inputValueCalcErrorDiagnostic1"
+		root="root" model="err1" description="Tests diagnostic from missing variable">
+
+		<tdml:document />
+
+		<tdml:errors>
+			<tdml:error>noSuchVariable</tdml:error>
+			<tdml:error>prob1</tdml:error>
+		</tdml:errors>
+
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="err2">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="prob2" type="xsd:int"
+						dfdl:inputValueCalc="{ /ex:root/noSuchPath }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+
+	<tdml:parserTestCase name="inputValueCalcErrorDiagnostic2"
+		root="root" model="err2" description="Tests diagnostic from no such path.">
+
+		<tdml:document />
+
+		<tdml:errors>
+			<tdml:error>noSuchPath</tdml:error>
+			<tdml:error>prob2</tdml:error>
+		</tdml:errors>
+
+	</tdml:parserTestCase>
+
 </tdml:testSuite>
