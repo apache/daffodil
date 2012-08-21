@@ -66,7 +66,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
 
     val resultState = { // Not lazy. We want to parse right now.
         try {
-          parser.parse(initialState)
+          parser.parse1(initialState, rootElem)
         } catch {
           // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure" 
           // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an 

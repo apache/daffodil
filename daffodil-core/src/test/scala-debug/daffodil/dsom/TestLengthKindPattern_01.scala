@@ -15,7 +15,7 @@ class TestLengthKindPattern_01 extends JUnit3Suite {
   var runner = {
     val testDir = "/test-suite/tresys-contributed/"
     val aa = testDir + "PatternTests_01.tdml"
-    val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+    lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
     runner
   }
 

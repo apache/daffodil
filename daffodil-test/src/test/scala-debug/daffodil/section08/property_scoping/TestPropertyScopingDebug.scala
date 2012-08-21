@@ -13,12 +13,12 @@ import java.io.File
 class TestPropertyScopingDebug extends JUnit3Suite {
   val testDir = "/daffodil/section08/property_scoping/"
   val aa = testDir + "PropertyScoping.tdml"
-  val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
   //def test_property_scoping_01() { runner.runOneTest("property_scoping_01") }
   
   val tdml = testDir + "PropertyScoping_01.tdml"
-  val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))
   
   //def test_property_scoping_02() { runner_01.runOneTest("property_scoping_02") }
   def test_property_scoping_03() { runner_01.runOneTest("property_scoping_03") }

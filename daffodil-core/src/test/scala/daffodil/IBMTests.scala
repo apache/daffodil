@@ -12,8 +12,8 @@ class IBMTestsThatPass extends JUnit3Suite {
   val testDir = "/test-suite/ibm-contributed/"
   val tdml1 = testDir + "dpaext1.tdml"
   val tdml2 = testDir + "dpaext2.tdml"
-  val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
-  val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
+  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
   def test_introduction_1_01() { runner1.runOneTest("introduction_1_01") }
   def test_introduction_1_02() { runner1.runOneTest("introduction_1_02") }

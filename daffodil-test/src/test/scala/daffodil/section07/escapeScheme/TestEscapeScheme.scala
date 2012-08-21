@@ -13,7 +13,7 @@ import java.io.File
 class TestEscapeScheme extends JUnit3Suite {
   val testDir = "/daffodil/section07/escapeScheme/"
   val tdml = testDir + "escapeScheme.tdml"
-  val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
   
   def test_escape_scheme() { runner.runOneTest("escapeSchemeSimple") }
   

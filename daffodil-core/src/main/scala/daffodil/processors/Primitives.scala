@@ -1397,7 +1397,7 @@ case class LiteralNilValue(e: ElementBase)
         // Look for nilValues first, if fails look for delimiters next
         // If delimiter is found AND nilValue contains ES, result is empty and valid.
         // If delimiter is not found, fail.
-        val afterNilLit = stParser.parse(start)
+        val afterNilLit = stParser.parse1(start, e)
         if (afterNilLit.status == Success) {
           val xsiNS = afterNilLit.parentElement.getNamespace()
           afterNilLit.parentElement.addContent(new org.jdom.Text(""))

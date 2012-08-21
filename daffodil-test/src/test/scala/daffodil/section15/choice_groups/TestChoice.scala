@@ -14,7 +14,7 @@ class TestChoice extends JUnit3Suite {
   val testDir = "/daffodil/section15/choice_groups/"
   val aa = testDir + "choice.tdml"
   
-  val runnerCH= new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runnerCH= new DFDLTestSuite(Misc.getRequiredResource(aa))
   def test_basicChoice() { runnerCH.runOneTest("basic")}
   def test_choice2() { runnerCH.runOneTest("choice2")}
   def test_choice3() { runnerCH.runOneTest("choice3")}

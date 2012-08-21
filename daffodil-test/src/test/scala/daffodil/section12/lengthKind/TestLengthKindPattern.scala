@@ -13,7 +13,7 @@ import java.io.File
 class TestLengthKindPattern extends JUnit3Suite {
   val testDir = "/daffodil/section12/lengthKind/"
   val aa = testDir + "PatternTests.tdml"
-  val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
   def test_AI000_rev() { runner.runOneTest("AI000_rev") }
   def testLengthKindPattern() { runner.runOneTest("LengthKindPattern") }
@@ -23,7 +23,7 @@ class TestLengthKindPattern extends JUnit3Suite {
   def test_lengthKindPattern_03() { runner.runOneTest("lengthKindPattern_03") }
   
   val ai = testDir + "AI.tdml"
-  val runnerAI = new DFDLTestSuite(Misc.getRequiredResource(ai))
+  lazy val runnerAI = new DFDLTestSuite(Misc.getRequiredResource(ai))
 
   def test_AI000() { runnerAI.runOneTest("AI000") }
 

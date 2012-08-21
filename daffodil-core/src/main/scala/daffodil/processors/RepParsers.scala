@@ -40,13 +40,14 @@ abstract class RepPrim(context : LocalElementBase, n : Long, r : => Gram) extend
     }
 
     val rParser = r.parser
+    
     final def parse(pstate : PState) : PState = {
-      checkN(pstate, n).map { return _ }
-      val res = parse1(pstate)
+      checkN(pstate, n).map { perr => return perr }
+      val res = parseAllRepeats(pstate)
       res
     }
 
-    protected def parse1(pstate : PState) : PState
+    protected def parseAllRepeats(pstate : PState) : PState
 
     override def toString = "Rep" + baseName + "(" + rParser.toString + ")"
 
@@ -56,11 +57,11 @@ abstract class RepPrim(context : LocalElementBase, n : Long, r : => Gram) extend
 class RepExactlyNPrim(context : LocalElementBase, n : Long, r : => Gram) extends RepPrim(context, n, r) {
 
   def parser = new RepParser(context, "ExactlyN") {
-    def parse1(pstate : PState) : PState = {
+    def parseAllRepeats(pstate : PState) : PState = {
       var pResult = pstate // TODO: find perfect monad functional programming idiom to eliminate this var
       1 to intN foreach { _ =>
         {
-          val pNext = rParser.parse(pResult)
+          val pNext = rParser.parse1(pResult, context)
           if (pNext.status != Success) return pNext // they all must succeed, otherwise we fail here.
           pResult = pNext
         }
@@ -76,10 +77,10 @@ class RepAtMostTotalNPrim(context : LocalElementBase, n : Long, r : => Gram) ext
 
   def parser = new RepParser(context, "AtMostTotalN") {
 
-    def parse1(pstate : PState) : PState = {
+    def parseAllRepeats(pstate : PState) : PState = {
       var pResult = pstate
       while (pResult.arrayIndexStack.head <= intN) {
-        val pNext = rParser.parse(pResult)
+        val pNext = rParser.parse1(pResult, context)
         if (pNext.status != Success) return pResult // success at prior state. 
         pResult = pNext
       }
@@ -95,10 +96,10 @@ class RepAtMostTotalNPrim(context : LocalElementBase, n : Long, r : => Gram) ext
  * where we know N statically, and where dynamic evaluation computes N.
  */
 object Rep {
-  def loopExactlyTotalN(intN : Int, rParser : Parser, pstate : PState) : PState = {
+  def loopExactlyTotalN(intN : Int, rParser : Parser, pstate : PState, context : SchemaComponent) : PState = {
     var pResult = pstate
     while (pResult.arrayIndexStack.head <= intN) {
-      val pNext = rParser.parse(pResult)
+      val pNext = rParser.parse1(pResult, context)
       if (pNext.status != Success) return pNext // fail if we don't get them all 
       pResult = pNext
     }
@@ -109,8 +110,8 @@ object Rep {
 class RepExactlyTotalNPrim(context : LocalElementBase, n : Long, r : => Gram) extends RepPrim(context, n, r) {
 
   def parser = new RepParser(context, "ExactlyTotalN") {
-    def parse1(pstate : PState) : PState = {
-      Rep.loopExactlyTotalN(intN, rParser, pstate)
+    def parseAllRepeats(pstate : PState) : PState = {
+      Rep.loopExactlyTotalN(intN, rParser, pstate, context)
     }
   }
 
@@ -121,13 +122,13 @@ class RepUnboundedPrim(context : LocalElementBase, r : => Gram) extends RepPrim(
 
   def parser = new RepParser(context, "Unbounded") {
 
-    def parse1(pstate : PState) : PState = {
+    def parseAllRepeats(pstate : PState) : PState = {
 
       var pResult = pstate
       while (pResult.status == Success) {
 
         val cloneNode = pResult.captureJDOM
-        val pNext = rParser.parse(pResult)
+        val pNext = rParser.parse1(pResult, context)
         if (pNext.status != Success) {
           pResult.restoreJDOM(cloneNode)
           log(Debug("Failure suppressed."))
@@ -181,10 +182,10 @@ case class OccursCountExpression(e : ElementBase)
 class RepAtMostOccursCountPrim(e : LocalElementBase, n : Long, r : => Gram) extends RepPrim(e, n, r) {
 
   def parser = new RepParser(e, "AtMostOccursCount") {
-    def parse1(pstate : PState) : PState = {
+    def parseAllRepeats(pstate : PState) : PState = {
       // repeat either n times, or occursCount times if that's less than n.
       val n = math.min(pstate.occursCount, e.minOccurs)
-      Rep.loopExactlyTotalN(intN, rParser, pstate)
+      Rep.loopExactlyTotalN(intN, rParser, pstate, e)
     }
   }
 
@@ -194,9 +195,9 @@ class RepAtMostOccursCountPrim(e : LocalElementBase, n : Long, r : => Gram) exte
 class RepExactlyTotalOccursCountPrim(e : LocalElementBase, r : => Gram) extends RepPrim(e, 1, r) {
 
   def parser = new RepParser(e, "ExactlyTotalOccursCount") {
-    def parse1(pstate : PState) : PState = {
+    def parseAllRepeats(pstate : PState) : PState = {
       val ocInt = pstate.occursCount.toInt
-      Rep.loopExactlyTotalN(ocInt, rParser, pstate)
+      Rep.loopExactlyTotalN(ocInt, rParser, pstate, e)
     }
   }
 

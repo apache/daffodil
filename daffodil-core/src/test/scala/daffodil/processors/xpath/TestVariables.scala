@@ -66,7 +66,7 @@ class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
   // @Test
   def testVariables2() {
     val testSuite = variables2
-    val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testVariables2")
   }
 
@@ -103,7 +103,7 @@ class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
   // @Test
   def testVariables3() {
     val testSuite = variables3
-    val ts = new DFDLTestSuite(testSuite)
+    lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testVariables3")
   }
 

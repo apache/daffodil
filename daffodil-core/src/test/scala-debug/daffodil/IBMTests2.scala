@@ -16,8 +16,8 @@ import daffodil.util.Misc
 //  val testDir = "/test-suite/ibm-contributed/"
 //  val tdml1 = testDir + "dpaext1.tdml"
 //  val tdml2 = testDir + "dpaext2.tdml"
-//  val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
-//  val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+//  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
+//  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 //
 //  // Nothing here! Great!
 //}
@@ -27,8 +27,8 @@ class IBMTestsThatThrow extends JUnit3Suite {
   val testDir = "/test-suite/ibm-contributed/"
   val tdml1 = testDir + "dpaext1.tdml"
   val tdml2 = testDir + "dpaext2.tdml"
-  val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
-  val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
+  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
     
   def test_syntax_entities_6_04() { runner1.runOneTest("syntax_entities_6_04") }

@@ -13,7 +13,7 @@ import java.io.File
 class TestSimpleTypes2 extends JUnit3Suite {
   val testDir = "/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
-  val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
   def test_warning_exercise() { 
     val exc = intercept[Exception] {

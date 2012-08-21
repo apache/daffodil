@@ -20,11 +20,11 @@ import scala.collection.mutable.Queue
 import scala.util.matching.Regex
 import stringsearch.constructs._
 import stringsearch.constructs.EscapeScheme._
-
 import daffodil.util._
 import daffodil.exceptions.ThrowsSDE
 import java.io.ByteArrayInputStream
 import scala.collection.mutable.Stack
+import daffodil.debugger.Debugger
 
 abstract class ProcessingError extends Exception with Diagnostic {
 
@@ -97,7 +97,14 @@ abstract class Parser(val context : SchemaComponent) extends Logging {
   def processingError(state : PState, str : String, args : Any*) =
     PE(state, str, args) // long form synonym
 
-  def parse(pstate : PState) : PState
+  protected def parse(pstate : PState) : PState
+  
+  final def parse1(pstate : PState, context : SchemaComponent) : PState = {
+    Debugger.before(pstate, context)
+    val afterState = parse(pstate)
+    Debugger.after(pstate, afterState, context)
+    afterState
+  }
 
   // TODO: other methods for things like asking for the ending position of something
   // which would enable fixed-length formats to skip over data and not parse it at all.
@@ -212,9 +219,9 @@ class SeqCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
   val pParser = p.parser
   val qParser = q.parser
   def parse(pstate : PState) = {
-    val pResult = pParser.parse(pstate)
+    val pResult = pParser.parse1(pstate, context)
     if (pResult.status == Success) {
-      val qResult = qParser.parse(pResult)
+      val qResult = qParser.parse1(pResult, context)
       qResult
     } else pResult
   }
@@ -231,7 +238,7 @@ class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
     var pResult : PState =
       try {
         log(Debug("Trying choice alternative: %s", pParser))
-        pParser.parse(pstate)
+        pParser.parse1(pstate, context)
       } catch {
         case e : Exception => {
           Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
@@ -266,7 +273,7 @@ class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
       
       val qResult = try {
         log(Debug("Trying choice alternative: %s", qParser))
-        qParser.parse(pstate)
+        qParser.parse1(pstate, context)
       } catch {
         case e : Exception => {
           Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)

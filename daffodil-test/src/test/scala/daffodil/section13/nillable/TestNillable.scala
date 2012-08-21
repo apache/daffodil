@@ -14,7 +14,7 @@ import java.io.File
 class TestNillable extends JUnit3Suite {
   val testDir = "/daffodil/section13/nillable/"
   val aa = testDir + "nillable.tdml"
-  val runnerAA = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runnerAA = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   def test_litNil1() { runnerAA.runOneTest("litNil1") }
   def test_litNil2() { runnerAA.runOneTest("litNil2") }

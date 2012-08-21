@@ -13,7 +13,7 @@ import java.io.File
 class TestFacets extends JUnit3Suite {
   val testDir = "/daffodil/section05/facets/"
   val aa = testDir + "Facets.tdml"
-  val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
   def test_error_minOccurs() { runner.runOneTest("error_minOccurs") }
   

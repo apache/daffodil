@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
   <name>daffodil-lib</name>
   <buildSpec>
@@ -9,4 +10,11 @@
     <nature>org.scala-ide.sdt.core.scalanature</nature>
     <nature>org.eclipse.jdt.core.javanature</nature>
   </natures>
+  <linkedResources>
+    <link>
+      <name>lib_managed</name>
+      <type>2</type>
+      <locationURI>DAFFODIL_ROOT/lib_managed</locationURI>
+    </link>
+  </linkedResources>
 </projectDescription>
