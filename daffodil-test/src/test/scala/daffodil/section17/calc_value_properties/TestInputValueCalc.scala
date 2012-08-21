@@ -18,4 +18,17 @@ class TestInputValueCalc extends JUnit3Suite {
   lazy val runnerAR = new DFDLTestSuite(Misc.getRequiredResource(ar))
 
   def test_AR000() { runnerAR.runOneTest("AR000") }
+  
+  val aq = testDir + "AQ.tdml"
+  lazy val runnerAQ = new DFDLTestSuite(Misc.getRequiredResource(aq))
+
+  def test_AQ000() { runnerAQ.runOneTest("AQ000") }
+  
+  val aa = testDir + "AA.tdml"
+
+  lazy val runnerAA = { new DFDLTestSuite(Misc.getRequiredResource(aa)) }
+  
+  def test_AA000() { runnerAA.runOneTest("AA000") }
+  def test_inputValueCalcErrorDiagnostic1() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic1")}
+  def test_inputValueCalcErrorDiagnostic2() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic2")}
 }
