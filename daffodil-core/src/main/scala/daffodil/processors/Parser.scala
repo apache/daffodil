@@ -25,6 +25,7 @@ import daffodil.exceptions.ThrowsSDE
 import java.io.ByteArrayInputStream
 import scala.collection.mutable.Stack
 import daffodil.debugger.Debugger
+import daffodil.util.Misc._
 
 abstract class ProcessingError extends Exception with Diagnostic {
 
@@ -100,9 +101,9 @@ abstract class Parser(val context : SchemaComponent) extends Logging {
   protected def parse(pstate : PState) : PState
   
   final def parse1(pstate : PState, context : SchemaComponent) : PState = {
-    Debugger.before(pstate, context)
+    Debugger.before(pstate, this)
     val afterState = parse(pstate)
-    Debugger.after(pstate, afterState, context)
+    Debugger.after(pstate, afterState, this)
     afterState
   }
 
@@ -333,7 +334,20 @@ class GeneralParseFailure(msg: String) extends Diagnostic {
 }
 
 class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
-  override def toString() = "Location(in bits) " + bitPos + " of Stream: " + inStream
+  override def toString() = "Location(in bits) " + bitPos + " data: " + dump
+  
+  def dump = {
+    var bytes : List[Byte] = Nil
+    try {
+      for ( i <- 0 to 40 ) {
+        bytes = inStream.getByte(bitPos + (i * 8) , java.nio.ByteOrder.BIG_ENDIAN) +: bytes
+      } 
+    }
+    catch {
+      case e : IndexOutOfBoundsException =>
+    }
+    bytes2Hex(bytes.reverse.toArray)
+  }
 }
 
 /**
@@ -385,9 +399,9 @@ class PState(
   val discriminator : Boolean) extends DFDL.State {
   def bytePos = bitPos >> 3
   def whichBit = bitPos % 8
-  def groupPos = groupIndexStack.head
-  def childPos = childIndexStack.head
-  def arrayPos = arrayIndexStack.head
+  def groupPos = if (groupIndexStack != Nil) groupIndexStack.head else -1
+  def childPos = if (childIndexStack != Nil) childIndexStack.head else -1
+  def arrayPos = if (arrayIndexStack != Nil) arrayIndexStack.head else -1
   def occursCount = occursCountStack.head
 
   def currentLocation : DataLocation = new DataLoc(bitPos, inStream)
@@ -583,7 +597,7 @@ with Logging
 with WithParseErrorThrowing
 { // 128K characters by default.
   Assert.usage(sizeHint > 0)
-  val maxCharacterWidthInBytes = 4 // FIXME worst case. Ok for testing. Don't use this pessimistic technique for real data.
+  val maxCharacterWidthInBytes = 4 // FIXME this is worst case. Ok for testing. Can we do better than this pessimistic overestimate on size?
   var bb = ByteBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
   // Verify there is not more data by making sure the buffer was not read to capacity.
   var count = in.read(bb) // just pull it all into the byte buffer
