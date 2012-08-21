@@ -21,4 +21,7 @@ class TestSimpleTypes2 extends JUnit3Suite {
     	assertTrue(exc.getMessage().contains("Did not find"))
   	}
   
+  def test_computedByteOverflow() { runner.runOneTest("computedByteOverflow") }
+
+  
   }

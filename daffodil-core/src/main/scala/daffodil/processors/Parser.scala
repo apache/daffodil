@@ -319,8 +319,6 @@ class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
   override def toString = "(" + pParser.toString + " | " + qParser.toString + ")"
 }
 
-
-
 case class DummyParser(sc : PropertyMixin) extends Parser(null) {
   def parse(pstate : PState) : PState = Assert.abort("Parser for " + sc + " is not yet implemented.")
   override def toString = if (sc == null) "Dummy[null]" else "Dummy[" + sc.detailName + "]"
@@ -334,19 +332,22 @@ class GeneralParseFailure(msg: String) extends Diagnostic {
 }
 
 class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
-  override def toString() = "Location(in bits) " + bitPos + " data: " + dump
   
+  override def toString() = "Location(in bits) " + bitPos + " data(hex, starting at bit " + aligned64 + ") is (" + dump + ")"
+  
+  val aligned64 = ((bitPos) >> 6) << 6
+      
   def dump = {
     var bytes : List[Byte] = Nil
     try {
-      for ( i <- 0 to 40 ) {
-        bytes = inStream.getByte(bitPos + (i * 8) , java.nio.ByteOrder.BIG_ENDIAN) +: bytes
+      for ( i <- 0 to 31 ) {
+        bytes = inStream.getByte(aligned64 + (i * 8) , java.nio.ByteOrder.BIG_ENDIAN) +: bytes
       } 
     }
     catch {
-      case e : IndexOutOfBoundsException =>
+      case e : IndexOutOfBoundsException => 
     }
-    bytes2Hex(bytes.reverse.toArray)
+    bytes2Hex(bytes.reverse.toArray, prefix="")
   }
 }
 

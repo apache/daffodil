@@ -480,7 +480,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
   protected def numFormat: NumberFormat
   protected def isInt: Boolean
 
-  protected def isInvalidRange(n: S): Boolean = false
+  protected def isInvalidRange(n: java.lang.Number): Boolean = false
 
   def parser: Parser = new Parser(e) {
     override def toString = "to(xs:" + GramName + ")"
@@ -510,6 +510,11 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
 
         }
 
+        if (isInvalidRange(num)) {
+          return PE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
+            GramDescription, GramName, str, num)
+        }
+        
         // Verify that what was parsed was what was passed exactly in byte count.  
         // Use pos to verify all characters consumed & check for errors!
         if (pos.getIndex != str.length) {
@@ -526,10 +531,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
           return PE(start, "Convert to %s (for xs:%s): Invalid data: '%s' parsed into %s, which converted into %s.",
             GramDescription, GramName, str, num, asNumber)
         }
-        if (isInvalidRange(asNumber)) {
-          return PE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
-            GramDescription, GramName, str, asNumber)
-        }
+        
         node.setText(asNumber.toString)
 
         start
@@ -562,7 +564,10 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
           return UE(start, "Convert to %s (for xs:%s): Unparse of '%s' threw exception %s",
             GramDescription, GramName, str, e)
       }
-
+      if (isInvalidRange(num)) {
+        return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
+          GramDescription, GramName, str, num)
+      }
       // Verify that what was unparsed was what was passed exactly in byte count.  
       // Use pos to verify all characters consumed & check for errors!
       if (pos.getIndex != str.length) {
@@ -579,10 +584,6 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
         return UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.",
           GramDescription, GramName, str, num, asNumber)
       }
-      if (isInvalidRange(asNumber)) {
-        return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
-          GramDescription, GramName, str, asNumber)
-      }
 
       // TODO: Restore leading '+' sign and leading/trailing 0's, etc. (Need to overwrite number with old formatting in CharBuffer
       //      log(Debug("Adding text number " + asNumber.toString))
@@ -598,6 +599,27 @@ abstract class ConvertTextIntegerNumberPrim[T](e: ElementBase, g: Boolean)
   override def isInt = true
 }
 
+abstract class ConvertTextFiniteIntegerNumberPrim[T](e: ElementBase, g: Boolean)
+  extends ConvertTextIntegerNumberPrim[T](e, g) {
+  override def numFormat = NumberFormat.getIntegerInstance()
+  override def isInt = true
+  def minValue : Long
+  def maxValue : Long
+  // works for everything except for unsignedLong, and the unbounded size xs:Integer
+  final override def isInvalidRange(n: java.lang.Number) = {
+    val l = n.longValue()
+    (l > maxValue || l < minValue)
+  }
+
+}
+
+abstract class ConvertTextFiniteUnsignedIntegerNumberPrim[T](e: ElementBase, g: Boolean)
+  extends ConvertTextFiniteIntegerNumberPrim[T](e, g) {
+  override def numFormat = NumberFormat.getIntegerInstance()
+  override def isInt = true
+  def minValue = 0
+}
+
 abstract class ConvertTextFloatingPointNumberPrim[T](e: ElementBase, g: Boolean)
   extends ConvertTextNumberPrim[T](e, g) {
   override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
@@ -610,56 +632,72 @@ case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextIntegerNumb
   protected override val GramDescription = "Unbounded Integer"
 }
 
-case class ConvertTextLongPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Long](e, true) {
+case class ConvertTextLongPrim(e: ElementBase) extends ConvertTextFiniteIntegerNumberPrim[Long](e, true) {
   protected override def getNum(num: Number) = num.longValue
   protected override val GramName = "long"
   protected override val GramDescription = "Long Integer"
+  def minValue = Long.MinValue
+  def maxValue = Long.MaxValue
 }
 
-case class ConvertTextIntPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Int](e, true) {
+case class ConvertTextIntPrim(e: ElementBase) extends ConvertTextFiniteIntegerNumberPrim[Int](e, true) {
   protected override def getNum(num: Number) = num.intValue
   protected override val GramName = "int"
   protected override val GramDescription = "Integer"
+  def minValue = Int.MinValue
+  def maxValue = Int.MaxValue
 }
 
-case class ConvertTextShortPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Short](e, true) {
+case class ConvertTextShortPrim(e: ElementBase) extends ConvertTextFiniteIntegerNumberPrim[Short](e, true) {
   protected override def getNum(num: Number) = num.shortValue
   protected override val GramName = "short"
   protected override val GramDescription = "Short Integer"
+  def minValue = Short.MinValue
+  def maxValue = Short.MaxValue
 }
 
-case class ConvertTextBytePrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Byte](e, true) {
+case class ConvertTextBytePrim(e: ElementBase) extends ConvertTextFiniteIntegerNumberPrim[Byte](e, true) {
   protected override def getNum(num: Number) = num.byteValue
   protected override val GramName = "byte"
   protected override val GramDescription = "Byte"
+  def minValue = Byte.MinValue
+  def maxValue = Byte.MaxValue
 }
 
+// Due to magnitude of UnsignedLong, this doesn't use the same base as the smaller unsigned integers.
 case class ConvertTextUnsignedLongPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[BigInteger](e, true) {
   protected override def getNum(num: Number) = new BigInteger(num.toString)
   protected override val GramName = "unsignedLong"
   protected override val GramDescription = "Unsigned Long"
-  protected override def isInvalidRange(n: BigInteger) = n.compareTo(BigInteger.ZERO) < 0 || n.compareTo(BigInteger.ONE.shiftLeft(64)) >= 0
+  protected override def isInvalidRange(jn: java.lang.Number) = {
+    val n = jn match {
+      case l : java.lang.Long => BigInteger.valueOf(l)
+      case b : BigInteger => b
+      case _ => BigInteger.valueOf(jn.longValue())
+    }
+    n.compareTo(BigInteger.ZERO) < 0 || n.compareTo(BigInteger.ONE.shiftLeft(64)) >= 0
+  }
 }
 
-case class ConvertTextUnsignedIntPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Long](e, true) {
+case class ConvertTextUnsignedIntPrim(e: ElementBase) extends ConvertTextFiniteUnsignedIntegerNumberPrim[Long](e, true) {
   protected override def getNum(num: Number) = num.longValue
   protected override val GramName = "unsignedInt"
   protected override val GramDescription = "Unsigned Int"
-  protected override def isInvalidRange(n: Long) = n < 0 || n >= (1L << 32)
+  def maxValue = (1L << 32) - 1
 }
 // TODO: Restore leading '+' sign and leading/trailing 0's
-case class ConvertTextUnsignedShortPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Int](e, true) {
+case class ConvertTextUnsignedShortPrim(e: ElementBase) extends ConvertTextFiniteUnsignedIntegerNumberPrim[Int](e, true) {
   protected override def getNum(num: Number) = num.intValue
   protected override val GramName = "unsignedShort"
   protected override val GramDescription = "Unsigned Short"
-  protected override def isInvalidRange(n: Int) = n < 0 || n >= (1 << 16)
+  def maxValue = (1L << 16) - 1
 }
 
-case class ConvertTextUnsignedBytePrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Short](e, true) {
+case class ConvertTextUnsignedBytePrim(e: ElementBase) extends ConvertTextFiniteUnsignedIntegerNumberPrim[Short](e, true) {
   protected override def getNum(num: Number) = num.shortValue
   protected override val GramName = "unsignedByte"
   protected override val GramDescription = "Unsigned Byte"
-  protected override def isInvalidRange(n: Short) = n < 0 || n >= (1 << 8)
+  def maxValue = 255L
 }
 
 case class ConvertTextDoublePrim(e: ElementBase) extends ConvertTextFloatingPointNumberPrim[Double](e, true) {
@@ -849,6 +887,7 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Long) extends Terminal(e, 
                 GramDescription, GramName, str, e)
           }
 
+ 
           // Verify that what was unparsed was what was passed exactly in byte count
           if (pos.getIndex != str.length) {
             return UE(start, "Convert to %s (for xs:%s): Unable to unparse '%s' (using up all characters).",
@@ -858,16 +897,15 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Long) extends Terminal(e, 
           // convert to proper type
           val asNumber = getNum(num)
 
+          if (isInvalidRange(asNumber)) {
+            return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
+              GramDescription, GramName, str, asNumber)
+          }
           // Verify no digits lost (the number was correctly transcribed)
           if (isInt && asNumber.asInstanceOf[Number] != num) { //then transcription error
             return UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.",
               GramDescription, GramName, str, num, asNumber)
           }
-          if (isInvalidRange(asNumber)) {
-            return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
-              GramDescription, GramName, str, asNumber)
-          }
-
           start.outStream.fillByteBuffer(asNumber, GramName, staticJByteOrder) //write number back to ByteBuffer
           start
         }

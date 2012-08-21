@@ -75,12 +75,12 @@ object Misc {
       .map(Integer.parseInt(_, 16).toByte).toArray
   }
 
-  def bytes2Hex(bytes: Array[Byte]): String = {
+  def bytes2Hex(bytes: Array[Byte], prefix : String = "0x"): String = {
     def cvtByte(b: Byte): String = {
       (if ((b & 0xff) < 0x10) "0" else "") + java.lang.Long.toString(b & 0xff, 16)
     }
 
-    "0x" + bytes.map(cvtByte(_)).mkString.toUpperCase
+    prefix + bytes.map(cvtByte(_)).mkString.toUpperCase
   }
   
   def bits2Bytes(bits: String) : Array[Byte] = {
