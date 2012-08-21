@@ -1,107 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite suiteName="SimpleTypes" description="Section 5 - simple types"
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
 	<tdml:defineSchema name="SimpleTypes-Embedded.dfdl.xsd">
 		<dfdl:defineFormat name="daffodilTest1">
-			<dfdl:format lengthKind="implicit" representation="text"
-				lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
-				separator="" ignoreCase="no" textNumberRep="standard" />
+			<dfdl:format lengthKind="implicit" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no" textNumberRep="standard" />
 		</dfdl:defineFormat>
 		<dfdl:format ref="daffodilTest1" />
-		<xs:element name="s" type="xs:long" dfdl:lengthKind="explicit"
-			dfdl:length="{ 13 }" />
-		<xs:element name="mersenne" type="xs:integer"
-			dfdl:lengthKind="explicit" dfdl:length="{ 207 }" />
-		<xs:element name="integer01" type="xs:integer"
-			dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
-		<xs:element name="int01" type="xs:int" dfdl:lengthKind="explicit"
-			dfdl:length="13" />
-		<xs:element name="int02" type="xs:int" dfdl:lengthKind="explicit"
-			dfdl:length="11" />
-		<xs:element name="int03" type="xs:int" dfdl:lengthKind="explicit"
-			dfdl:length="2" />
-		<xs:element name="uL_01" type="xs:unsignedLong"
-			dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
-		<xs:element name="uL_02" type="xs:unsignedLong"
-			dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-		<xs:element name="uL_03" type="xs:unsignedLong"
-			dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
-		<xs:element name="l_2" type="xs:long" dfdl:lengthKind="explicit"
-			dfdl:length="{ 10 }" />
-		<xs:element name="s_1" type="xs:short" dfdl:lengthKind="explicit"
-			dfdl:length="{ 5 }" />
-		<xs:element name="uI_01" type="xs:unsignedInt"
-			dfdl:lengthKind="explicit" dfdl:length="{ 10 }" />
-		<xs:element name="uS_01" type="xs:unsignedShort"
-			dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
-		<xs:element name="uB_01" type="xs:unsignedByte"
-			dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
-
+		<xs:element name="s" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>
+		<xs:element name="mersenne" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="{ 207 }"/>
+		<xs:element name="integer01" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
+		<xs:element name="int01" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="13"/>
+		<xs:element name="int02" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="11"/>
+		<xs:element name="int03" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2"/>
+		<xs:element name="uL_01" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
+		<xs:element name="uL_02" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>
+		<xs:element name="uL_03" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+		<xs:element name="l_2" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="{ 10 }"/>
+		<xs:element name="s_1" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
+		<xs:element name="uI_01" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 10 }"/>
+		<xs:element name="uS_01" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>
+		<xs:element name="uB_01" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>
+		
 		<xs:element name="limits" dfdl:lengthKind="explicit">
-			<xs:complexType>
-				<xs:sequence dfdl:separator=":" dfdl:separatorPolicy="required"
-					dfdl:separatorPosition="infix">
-					<xs:element name="unsigned-byte" type="xs:unsignedByte"
-						dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
-					<xs:element name="unsigned-short" type="xs:unsignedShort"
-						dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
-					<xs:element name="unsigned-int" type="xs:unsignedInt"
-						dfdl:lengthKind="explicit" dfdl:length="{ 13 }" />
-					<xs:element name="unsigned-long" type="xs:unsignedLong"
-						dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-		<xs:element name="e1" dfdl:lengthKind="explicit">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit"
-						dfdl:length="{ 1 }" />
-					<xs:element name="s2" type="xs:int" dfdl:lengthKind="explicit"
-						dfdl:length="{ 5 }" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
+	        <xs:complexType>
+	          <xs:sequence dfdl:separator=":" dfdl:separatorPolicy="required" dfdl:separatorPosition="infix" >
+	            <xs:element name="unsigned-byte" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>
+	            <xs:element name="unsigned-short" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="{ 6 }"/>
+	            <xs:element name="unsigned-int" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>
+	            <xs:element name="unsigned-long" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
+	          </xs:sequence>
+	        </xs:complexType>
+      	</xs:element>
+      	
+      	<xs:element name="e1" dfdl:lengthKind="explicit">
+        	<xs:complexType>
+          		<xs:sequence>
+            		<xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+    				<xs:element name="s2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
+    			</xs:sequence>
+    		</xs:complexType>
+    	</xs:element>
+    	
 	</tdml:defineSchema>
-
+	
 	<tdml:parserTestCase name="Long1" root="s"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-long - DFDL-5-012R">
 
 		<tdml:document>2,000,000,000</tdml:document>
 		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<s xs:type="xs:long">2000000000</s>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
-
+	
 	<tdml:parserTestCase name="BigInteger1" root="mersenne"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-integer - DFDL-5-011R">
 
-		<tdml:document>686,479,766,013,060,971,498,190,079,908,139,321,726,943,530,014,330,540,939,446,345,918,554,318,339,765,605,212,255,964,066,145,455,497,729,631,139,148,085,803,712,198,799,971,664,381,257,402,829,111,505,715
-		</tdml:document>
+		<tdml:document>686,479,766,013,060,971,498,190,079,908,139,321,726,943,530,014,330,540,939,446,345,918,554,318,339,765,605,212,255,964,066,145,455,497,729,631,139,148,085,803,712,198,799,971,664,381,257,402,829,111,505,715</tdml:document>
 		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<mersenne xs:type="xs:integer">686479766013060971498190079908139321726943530014330540939446345918554318339765605212255964066145455497729631139148085803712198799971664381257402829111505715
-				</mersenne>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<mersenne xs:type="xs:integer">686479766013060971498190079908139321726943530014330540939446345918554318339765605212255964066145455497729631139148085803712198799971664381257402829111505715</mersenne>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
-
+	
 	<tdml:parserTestCase name="Integer01" root="integer01"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-integer - DFDL-5-011R">
 
 		<tdml:document>55555555555555555555</tdml:document>
 		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<integer01 xs:type="xs:integer">55555555555555555555</integer01>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
@@ -112,169 +87,125 @@
 
 		<tdml:document>2,147,483,647</tdml:document>
 		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<int01 xs:type="xs:int">2147483647</int01>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
-
+	
 	<tdml:parserTestCase name="int_error" root="int02"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-int - DFDL-5-013R">
-
+		
 		<tdml:document>-2147483649</tdml:document>
 		<tdml:errors>
-			<tdml:error />
+			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
-
+	
 	<tdml:parserTestCase name="warning_exercise" root="int03"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Exercise for handling a warning message">
-
+		
 		<tdml:document>37</tdml:document>
 		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<int03 xs:type="xs:int">37</int03>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 		<tdml:warnings>
-			<tdml:warning /><!-- don't care what message is -->
+			<tdml:warning/><!-- don't care what message is -->
 		</tdml:warnings>
 	</tdml:parserTestCase>
-
+	
 	<tdml:parserTestCase name="UnsignedNumbers1" root="limits"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsigned integer types - DFDL-5-014R">
 
-		<tdml:document>255:65,535:4,294,967,295:18446744073709551615
-		</tdml:document>
+		<tdml:document>255:65,535:4,294,967,295:18446744073709551615</tdml:document>
 		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<limits>
-					<unsigned-byte>255</unsigned-byte>
-					<unsigned-short>65535</unsigned-short>
-					<unsigned-int>4294967295</unsigned-int>
-					<unsigned-long>18446744073709551615</unsigned-long>
-				</limits>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<limits><unsigned-byte>255</unsigned-byte><unsigned-short>65535</unsigned-short><unsigned-int>4294967295</unsigned-int><unsigned-long>18446744073709551615</unsigned-long></limits>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
-
+	
 	<tdml:parserTestCase name="unsignedLong_01" root="uL_01"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsignedLong - DFDL-5-017R">
 
 		<tdml:document>18446744073709551616</tdml:document>
 		<tdml:errors>
-			<tdml:error />
+			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
-
+	
 	<tdml:parserTestCase name="unsignedLong_02" root="uL_02"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsignedLong - DFDL-5-017R">
 
 		<tdml:document>-1</tdml:document>
 		<tdml:errors>
-			<tdml:error />
+			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
-
+	
 	<tdml:parserTestCase name="unsignedLong_03" root="uL_03"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsignedLong - DFDL-5-017R">
 
 		<tdml:document>a</tdml:document>
 		<tdml:errors>
-			<tdml:error />
+			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
-
+	
 	<tdml:parserTestCase name="Long2" root="l_2"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-long - DFDL-5-012R">
 
 		<tdml:document>1         </tdml:document>
 		<tdml:errors>
-			<tdml:error />
+			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
-
+	
 	<tdml:parserTestCase name="int_error_02" root="e1"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-int - DFDL-5-012R">
 
 		<tdml:document>55.001</tdml:document>
 		<tdml:errors>
-			<tdml:error />
+			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
-
+	
 	<tdml:parserTestCase name="short_01" root="s_1"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-short - DFDL-5-014R">
 
 		<tdml:document>70000</tdml:document>
 		<tdml:errors>
-			<tdml:error />
+			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
-
+	
 	<tdml:parserTestCase name="unsignedInt_01" root="uI_01"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsignedInt - DFDL-5-018R">
 
 		<tdml:document>7018631476</tdml:document>
 		<tdml:errors>
-			<tdml:error />
+			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
-
+	
 	<tdml:parserTestCase name="unsignedShort_01" root="uS_01"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsignedShort - DFDL-5-018R">
 
 		<tdml:document>-1</tdml:document>
 		<tdml:errors>
-			<tdml:error />
+			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
-
+	
 	<tdml:parserTestCase name="unsignedByte_01" root="uB_01"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsignedByte - DFDL-5-020R">
 
 		<tdml:document>256</tdml:document>
 		<tdml:errors>
-			<tdml:error />
+			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
-
-	<tdml:defineSchema name="numericOverflows">
-		<dfdl:format ref="daffodilTest1" />
-		<xs:element name="b" type="xs:byte" dfdl:lengthKind="explicit"
-			dfdl:length="{ 4 }" />
-		<xs:element name="cb" type="xs:byte" dfdl:inputValueCalc="{ 2007 }" />
-		<xs:element name="ub" type="xs:unsignedByte"
-			dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
-	</tdml:defineSchema>
-
-	<tdml:parserTestCase name="textByteOverflow" root="b"
-		model="numericOverflows" description="Section 5 Schema types-byte - DFDL-5-012R">
-
-		<tdml:document>2007</tdml:document><!-- doesn't fit in a byte -->
-		<tdml:errors>
-			<tdml:error>Out of Range</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-
-	<tdml:parserTestCase name="computedByteOverflow"
-		root="cb" model="numericOverflows" description="Section 5 Schema types-byte - DFDL-5-012R">
-		<tdml:document />
-		<tdml:errors>
-			<tdml:error>Out of Range</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-
-	<tdml:parserTestCase name="textUnsignedByteOverflow"
-		root="ub" model="numericOverflows" description="Section 5 Schema types-byte - DFDL-5-012R">
-
-		<tdml:document>2007</tdml:document><!-- doesn't fit in a byte -->
-		<tdml:errors>
-			<tdml:error>Out of Range</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-
+	
 </tdml:testSuite>
