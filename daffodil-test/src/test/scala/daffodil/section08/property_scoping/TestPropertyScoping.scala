@@ -16,6 +16,7 @@ class TestPropertyScoping extends JUnit3Suite {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
   def test_property_scoping_01() { runner.runOneTest("property_scoping_01") }
+  def test_property_scoping_06() { runner.runOneTest("property_scoping_06") }
   
   val tdml = testDir + "PropertyScoping_01.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))

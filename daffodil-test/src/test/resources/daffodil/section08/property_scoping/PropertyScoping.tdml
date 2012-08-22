@@ -46,4 +46,59 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	
+	<tdml:defineSchema name="defineFormat_01-Embedded.dfdl.xsd">
+		<dfdl:format lengthKind="delimited" lengthUnits="characters" encoding="UTF-8" separator="" initiator="" terminator=""
+			separatorPolicy="suppressed" occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" />
+			       		
+		<xs:element name="shirt">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:terminator=";">
+					<xs:element name="brand" type="xs:string"/>
+					<xs:element name="size" type="xs:int"/>
+					<xs:element name="color" type="xs:string"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	
+		<xs:element name="shirts" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element ref="shirt" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+	</tdml:defineSchema>
+		
+	<tdml:parserTestCase name="property_scoping_06" root="shirts"
+		model="defineFormat_01-Embedded.dfdl.xsd" description="Section 8 An xs:element reference and its referenced global xs:element - DFDL-8-022R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">Gap,15,blue;Levi,16,green;Arrow,14,white;</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+					<shirts>
+						<shirt>
+							<brand>Gap</brand>
+							<size>15</size>
+							<color>blue</color>
+						</shirt>
+						<shirt>
+							<brand>Levi</brand>
+							<size>16</size>
+							<color>green</color>
+						</shirt>
+						<shirt>
+							<brand>Arrow</brand>
+							<size>14</size>
+							<color>white</color>
+						</shirt>
+					</shirts>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	
+	
 </tdml:testSuite>
