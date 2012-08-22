@@ -34,6 +34,12 @@ class TestSimpleTypes extends JUnit3Suite {
   def test_unsignedShort_01() { runner.runOneTest("unsignedShort_01") }
   def test_unsignedByte_01() { runner.runOneTest("unsignedByte_01") }
   
+  val aj = testDir + "AJ.tdml"
+  lazy val runnerAJ = new DFDLTestSuite(Misc.getRequiredResource(aj))
+  
+  def test_AJ000() { runnerAJ.runOneTest("AJ000") }
+  def test_AJ001() { runnerAJ.runOneTest("AJ001") }
+  
   val testDir_01 = "/daffodil/ibm-tests/"
   val aa_01 = testDir_01 + "dpaext1.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
