@@ -31,7 +31,7 @@ class TestDelimiterProperties extends JUnit3Suite {
   def test_DelimProp_02() { runner_02.runOneTest("DelimProp_02") }
   //def test_DelimProp_03() { runner_02.runOneTest("DelimProp_03") }
   def test_DelimProp_04() { runner_02.runOneTest("DelimProp_04") }
-  //def test_DelimProp_05() { runner_02.runOneTest("DelimProp_05") }
+  def test_DelimProp_05() { runner_02.runOneTest("DelimProp_05") }
   //def test_DelimProp_06() { runner_02.runOneTest("DelimProp_06") }
   def test_DelimProp_09() { runner_02.runOneTest("DelimProp_09") }
   def test_DelimProp_10() { runner_02.runOneTest("DelimProp_10") }
