@@ -122,7 +122,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="entity_fail_05" root="root"
-		model="sch5" description="nilValue when nilKind='literalValue' and representation='binary' cannot be empty.">
+		model="sch5" description="nilValue when nilKind='literalValue' and representation='binary' cannot be empty - DFDL-13-235R">
 		<tdml:document><tdml:documentPart type="byte">000000003C3B</tdml:documentPart></tdml:document>
 		<tdml:errors>
 			<tdml:error>nilValue</tdml:error>
@@ -150,7 +150,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="entity_fail_06" root="root"
-		model="sch6" description="nilValue when nilKind='literalValue' and representation='binary' cannot contain NL, WSP/*/+">
+		model="sch6" description="nilValue when nilKind='literalValue' and representation='binary' cannot contain NL, WSP/*/+ - DFDL-13-235R">
 		<tdml:document><tdml:documentPart type="byte">000000003C3B</tdml:documentPart></tdml:document>
 		<tdml:errors>
 			<tdml:error>nilValue</tdml:error>

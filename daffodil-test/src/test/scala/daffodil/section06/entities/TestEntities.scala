@@ -54,7 +54,10 @@ class TestEntities extends JUnit3Suite {
   def test_entity_fail_02() { runnerEntity.runOneTest("entity_fail_02") }
   def test_entity_fail_03() { runnerEntity.runOneTest("entity_fail_03") }
   def test_entity_fail_04() { runnerEntity.runOneTest("entity_fail_04") }
-  //def test_entity_fail_05() { runnerEntity.runOneTest("entity_fail_05") }
-  //def test_entity_fail_06() { runnerEntity.runOneTest("entity_fail_06") }
+  
+  val testDir_03 = "/daffodil/section13/nillable/"
+  val ln = testDir_03 + "literal-value-nils.tdml"
+  lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
+  def test_text_02() { runnerLN.runOneTest("text_02")}
   
   }
