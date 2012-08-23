@@ -39,6 +39,44 @@
 	          </xs:sequence>
 	        </xs:complexType>
 	      </xs:element>
+	      
+		<xs:element name="NS_05" dfdl:lengthKind="implicit">
+		<xs:complexType>
+			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+				dfdl:separator="," dfdl:separatorPolicy="suppressed">
+				<xs:element name="c_float" type="xs:float"/>
+				<xs:element name="c_string" type="xs:string"/>
+				<xs:element name="c_unsignedInt" type="xs:unsignedInt" minOccurs="0"/>
+				<xs:element name="c_int" type="xs:int"/>
+			</xs:sequence>
+		</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="NS_06">
+		<xs:complexType>
+			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+				dfdl:separator="," dfdl:separatorPolicy="suppressed">
+				<xs:element name="b_float" type="xs:float"/>
+				<xs:element name="b_string" type="xs:string"/>
+				<xs:element ref="NS_05" minOccurs="0" maxOccurs="2"/>
+				<xs:element name="b_unsignedInt" type="xs:unsignedInt" minOccurs="0"/>
+				<xs:element name="b_int" type="xs:int"/>
+			</xs:sequence>
+		</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="NS_07">
+		<xs:complexType>
+			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+				dfdl:separator="," dfdl:separatorPolicy="suppressed">
+				<xs:element name="a_float" type="xs:float"/>
+				<xs:element name="a_string" type="xs:string"/>
+				<xs:element ref="NS_06" minOccurs="0"/>
+				<xs:element name="a_unsignedInt" type="xs:unsignedInt" minOccurs="0"/>
+				<xs:element name="a_int" type="xs:int"/>
+			</xs:sequence>
+		</xs:complexType>
+		</xs:element>
 		
 		<xs:element name="e_01" type="error01Type" dfdl:lengthKind="implicit"/>
 		<xs:complexType name="error01Type">
@@ -116,6 +154,98 @@
 					<num1>5</num1>
 					<num2>6</num2>
 				</NS_04>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="NumSeq_05" root="NS_05"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
+
+		<tdml:document>3.78,abcd,-289</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<NS_05>
+					<c_float>3.78</c_float>
+					<c_string>abcd</c_string>
+					<c_int>-289</c_int>
+				</NS_05>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="NumSeq_06" root="NS_06"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
+
+		<tdml:document>27.44,vxyz,3.78,abcd,-289,-8476</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<NS_06>
+					<b_float>27.44</b_float>
+					<b_string>vxyz</b_string>
+					<NS_05>
+						<c_float>3.78</c_float>
+						<c_string>abcd</c_string>
+						<c_int>-289</c_int>
+					</NS_05>
+					<b_int>-8476</b_int>
+				</NS_06>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="NumSeq_07" root="NS_07"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
+
+		<tdml:document>.639,pqrs,27.44,vxyz,3.78,abcd,73,-289,-8476,-749</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<NS_07>
+					<a_float>0.639</a_float>
+					<a_string>pqrs</a_string>
+					<NS_06>
+						<b_float>27.44</b_float>
+						<b_string>vxyz</b_string>
+						<NS_05>
+							<c_float>3.78</c_float>
+							<c_string>abcd</c_string>
+							<c_unsignedInt>73</c_unsignedInt>
+							<c_int>-289</c_int>
+						</NS_05>
+						<b_int>-8476</b_int>
+					</NS_06>
+					<a_int>-749</a_int>
+				</NS_07>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="NumSeq_08" root="NS_07"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
+
+		<tdml:document>.639,pqrs,27.44,vxyz,3.78,abcd,73,-289,-5.89,hijk,-23,-8476,-749</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<NS_07>
+					<a_float>0.639</a_float>
+					<a_string>pqrs</a_string>
+					<NS_06>
+						<b_float>27.44</b_float>
+						<b_string>vxyz</b_string>
+						<NS_05>
+							<c_float>3.78</c_float>
+							<c_string>abcd</c_string>
+							<c_unsignedInt>73</c_unsignedInt>
+							<c_int>-289</c_int>
+						</NS_05>
+						<NS_05>
+							<c_float>-5.89</c_float>
+							<c_string>hijk</c_string>
+							<c_int>-23</c_int>
+						</NS_05>
+						<b_int>-8476</b_int>
+					</NS_06>
+					<a_int>-749</a_int>
+				</NS_07>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>

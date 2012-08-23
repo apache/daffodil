@@ -18,6 +18,10 @@ class TestLengthKindDelimited extends JUnit3Suite {
   def test_NumSeq_01() { runner.runOneTest("NumSeq_01") }
   def test_NumSeq_03() { runner.runOneTest("NumSeq_03") }
   def test_NumSeq_04() { runner.runOneTest("NumSeq_04") }
+  def test_NumSeq_05() { runner.runOneTest("NumSeq_05") }
+  def test_NumSeq_06() { runner.runOneTest("NumSeq_06") }
+  def test_NumSeq_07() { runner.runOneTest("NumSeq_07") }
+  def test_NumSeq_08() { runner.runOneTest("NumSeq_08") }
   def test_lengthKindDelimited_01() { runner.runOneTest("lengthKindDelimited_01") }
   def test_lengthKindDelimited_02() { runner.runOneTest("lengthKindDelimited_02") }
   
