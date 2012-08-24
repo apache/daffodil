@@ -26,6 +26,7 @@
 		<xs:element name="uI_01" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 10 }"/>
 		<xs:element name="uS_01" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>
 		<xs:element name="uB_01" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>
+		<xs:element name="b_01" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{4}"/>
 		
 		<xs:element name="limits" dfdl:lengthKind="explicit">
 	        <xs:complexType>
@@ -132,7 +133,7 @@
 
 		<tdml:document>18446744073709551616</tdml:document>
 		<tdml:errors>
-			<tdml:error/>
+			<tdml:error>Out of Range</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
@@ -204,7 +205,16 @@
 
 		<tdml:document>256</tdml:document>
 		<tdml:errors>
-			<tdml:error/>
+			<tdml:error>Out of Range</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+    <tdml:parserTestCase name="byte_01" root="b_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types - byte - DFDL-5-020R">
+
+		<tdml:document> 128</tdml:document>
+		<tdml:errors>
+			<tdml:error>Out of Range</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	

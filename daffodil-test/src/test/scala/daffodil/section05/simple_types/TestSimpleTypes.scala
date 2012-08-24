@@ -34,6 +34,10 @@ class TestSimpleTypes extends JUnit3Suite {
   def test_unsignedShort_01() { runner.runOneTest("unsignedShort_01") }
   def test_unsignedByte_01() { runner.runOneTest("unsignedByte_01") }
   
+  // Test range checking for signed integers too!
+  def test_byte_01() { runner.runOneTest("byte_01") }
+
+  
   val aj = testDir + "AJ.tdml"
   lazy val runnerAJ = new DFDLTestSuite(Misc.getRequiredResource(aj))
   
