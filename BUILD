@@ -35,6 +35,11 @@ project will run the command in all sub-projects.
  eclipse          Generate Eclipse project files
  gen-idea         Generate IntelliJ project files
 
+All commands can be prefixed with the project name followed by a slash to run
+that command in the project without having to change project. For example
+
+  $ sbt daffodil-lib/compile
+
 
 ---------------
 Version numbers
