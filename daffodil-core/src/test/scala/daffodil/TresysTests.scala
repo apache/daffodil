@@ -23,7 +23,7 @@ class TresysTests extends JUnit3Suite {
   // Needs InputValueCalc to work before this has a chance.
   def test_AA000() { runnerAA.runOneTest("AA000") }
   def test_inputValueCalcErrorDiagnostic1() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic1")}
-  def test_inputValueCalcErrorDiagnostic2() { runnerAA.runOneTest("")}
+  def test_inputValueCalcErrorDiagnostic2() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic2")}
   def test_inputValueCalcAbsolutePath() { runnerAA.runOneTest("inputValueCalcAbsolutePath")}
   
   val delimited = testDir + "dpaext1.tdml"

@@ -334,13 +334,16 @@ class GeneralParseFailure(msg: String) extends Diagnostic {
 }
 
 class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
-  override def toString() = "Location(in bits) " + bitPos + " data: " + dump
+  override def toString() = "Location(in bits) " + bitPos + 
+  " data aligned to 64-bits starting at " + aligned64BitsPos + "(" + dump + ")"
   
+  
+  def aligned64BitsPos = (bitPos >> 6) << 6
   def dump = {
     var bytes : List[Byte] = Nil
     try {
       for ( i <- 0 to 40 ) {
-        bytes = inStream.getByte(bitPos + (i * 8) , java.nio.ByteOrder.BIG_ENDIAN) +: bytes
+        bytes = inStream.getByte(aligned64BitsPos + (i * 8) , java.nio.ByteOrder.BIG_ENDIAN) +: bytes
       } 
     }
     catch {
