@@ -29,7 +29,7 @@
 					<element ref="tns:serializerTestCase" />
 				</choice>
 			</sequence>
-			<attribute name="suiteName" type="xs:token" use="required" />
+			<attribute name="suiteName" type="xs:token" use="optional" />
 			<attribute name="ID" type="xs:token" use="optional" />
 			<attribute name="description" type="xs:string" use="optional" />
 		</complexType>
