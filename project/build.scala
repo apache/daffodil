@@ -2,6 +2,7 @@ import sbt._
 import Keys._
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
+import com.typesafe.startscript.StartScriptPlugin
 
 object DaffodilBuild extends Build {
 
@@ -20,7 +21,7 @@ object DaffodilBuild extends Build {
 	                           .configs(DebugTest)
 	                           .dependsOn(propgen)
 
-	lazy val core    = Project(id = "daffodil-core", base = file("daffodil-core"), settings = s)
+	lazy val core    = Project(id = "daffodil-core", base = file("daffodil-core"), settings = s ++ startScriptSettings)
 	                           .configs(DebugTest)
 	                           .dependsOn(lib)
 
@@ -71,4 +72,8 @@ object DaffodilBuild extends Build {
 	
 	// jacoco configuration
 	s ++= Seq(jacoco.settings : _*)
+
+	// start-script configuration	
+	lazy val startScriptSettings = Seq(StartScriptPlugin.startScriptForJarSettings : _*) ++
+	                               Seq(mainClass in Compile := Some("daffodil.Main"))
 }

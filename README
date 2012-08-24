@@ -29,11 +29,14 @@ Daffodil is written in Scala 2.9.1
 RUNNING
 ----------------
 
-The command line of Daffodil is invoked through the provided Bash daffodil.sh.
-If $DAFFODIL is the installation directory then the easiest way to run Daffodil
-is:
+The command line of Daffodil is invoked through an autogenreated bash script.
+To generate the script run
 
-  $ $DAFFODIL/daffodil.sh -i <dataFile> -s <schemaFile> -r <rootElement>
+  $ sbt daffodil-core/start-script
+
+The script is created in daffodil-core/target/start, to execute daffodil:
+
+  $ ./daffodil-core/target/start -i <dataFile> -s <schemaFile> -r <rootElement>
 
 where <dataFile> is a data file to translate into XML, <schemaFile> is a
 XML Schema file describing the format, and <rootElement> is the name of the
@@ -42,10 +45,10 @@ might be omitted if the schema contains only one top level element.
 
 The output XML document will be output to the standard output.
 
-See the documentation at $DAFFODIL/doc/daffodil.pdf for more command line
+See the documentation at daffodil-core/doc/daffodil.pdf for more command line
 options or print a full list of options with:
 
-  $ $DAFFODIL/daffodil.sh --help
+  $ ./daffodil-core/target/start --help
 
 ----------------
 BUILDING FROM SOURCE

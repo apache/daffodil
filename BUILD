@@ -31,6 +31,7 @@ project will run the command in all sub-projects.
  doc              Create Scala API documentation via scaladoc
  package          Generate jar files
  jacoco:cover     Build coverage reports
+ start-script     Generate a script to execute daffodil on the command line (daffodil-core project only)
  eclipse          Generate Eclipse project files
  gen-idea         Generate IntelliJ project files
 
