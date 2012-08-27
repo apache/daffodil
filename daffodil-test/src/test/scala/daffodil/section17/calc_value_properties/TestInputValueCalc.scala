@@ -31,4 +31,5 @@ class TestInputValueCalc extends JUnit3Suite {
   def test_AA000() { runnerAA.runOneTest("AA000") }
   def test_inputValueCalcErrorDiagnostic1() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic1")}
   def test_inputValueCalcErrorDiagnostic2() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic2")}
+  def test_inputValueCalcAbsolutePath() { runnerAA.runOneTest("inputValueCalcAbsolutePath")}
 }

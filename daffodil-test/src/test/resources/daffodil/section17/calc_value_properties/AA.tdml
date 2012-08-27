@@ -96,5 +96,33 @@
 		</tdml:errors>
 
 	</tdml:parserTestCase>
+	
+	<tdml:defineSchema name="ivc.absolute">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="a1" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{2}"
+						 />
+					<xs:element name="a2" type="xsd:int"
+						dfdl:inputValueCalc="{ /ex:root/ex:a1 }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+
+	<tdml:parserTestCase name="inputValueCalcAbsolutePath"
+		root="root" model="ivc.absolute" description="Tests absolute paths. DFDL-17-007R">
+
+		<tdml:document>19</tdml:document>
+
+		<tdml:infoset>
+		<tdml:dfdlInfoset>
+		<ex:root><ex:a1>19</ex:a1><ex:a2>19</ex:a2></ex:root>
+		</tdml:dfdlInfoset>
+	</tdml:infoset>
+
+	</tdml:parserTestCase>
 
 </tdml:testSuite>
