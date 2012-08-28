@@ -32,4 +32,14 @@ class TestInputValueCalc extends JUnit3Suite {
   def test_inputValueCalcErrorDiagnostic1() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic1")}
   def test_inputValueCalcErrorDiagnostic2() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic2")}
   def test_inputValueCalcAbsolutePath() { runnerAA.runOneTest("inputValueCalcAbsolutePath")}
+  
+  val tdml = testDir + "inputValueCalc.tdml"
+
+  lazy val runner = { new DFDLTestSuite(Misc.getRequiredResource(tdml)) }
+  
+  def test_InputValueCalc_01() { runner.runOneTest("InputValueCalc_01")}
+  def test_InputValueCalc_02() { runner.runOneTest("InputValueCalc_02")}
+  def test_InputValueCalc_03() { runner.runOneTest("InputValueCalc_03")}
+  def test_InputValueCalc_04() { runner.runOneTest("InputValueCalc_04")}
+  def test_InputValueCalc_05() { runner.runOneTest("InputValueCalc_05")}
 }

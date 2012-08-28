@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite
+	xmlns:ex="http://example.com"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="inputValueCalc-Embedded.dfdl.xsd">
+		
+		
+		<dfdl:format lengthKind="delimited" lengthUnits="bytes" encoding="UTF-8" separator="" initiator="" terminator=""
+		       	occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" />
+		
+		<xs:element name="ivc_01" type="example1"/>
+
+		<xs:complexType name="example1">
+			<xs:sequence>
+				<xs:element name="num1" type="xs:int"/>
+				<xs:element name="num1_square" type="xs:int" dfdl:inputValueCalc="{../ex:num1 * ../ex:num1 }" />
+				<xs:element name="num2" type="xs:int" dfdl:inputValueCalc="{81}" />
+			</xs:sequence>
+		</xs:complexType>
+		
+		<xs:element name="ivc_02" type="example2"/>
+
+		<xs:complexType name="example2">
+			<xs:sequence>
+				<xs:element name="num1_square" type="xs:int" dfdl:inputValueCalc="{../ex:num1 * ../ex:num1 }" />
+				<xs:element name="num1" type="xs:int" />
+				<xs:element name="num2" type="xs:int" dfdl:inputValueCalc="{81}" />
+			</xs:sequence>
+		</xs:complexType>
+		
+		<xs:element name="ivc_03" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:terminator=";">
+					<xs:element name="e1" type="xs:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e2" nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;" type="xs:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e3" type="xs:int"
+						dfdl:lengthKind="delimited" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="ivc_05" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:terminator=";">
+					<xs:element name="e1" type="xs:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e2" nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;" type="xs:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e2_square" type="xs:int" dfdl:inputValueCalc="{../ex:e2 * ../ex:e2 }" />
+					<xs:element name="e3" type="xs:int"
+						dfdl:lengthKind="delimited" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+	</tdml:defineSchema>
+ 
+	<tdml:parserTestCase name="InputValueCalc_01" root="ivc_01"
+		model="inputValueCalc-Embedded.dfdl.xsd" description="Section 17 inputValueCalc - DFDL-17-007R">
+
+		<tdml:document>7</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ivc_01>
+					<num1>7</num1>
+					<num1_square>49</num1_square>
+					<num2>81</num2>
+				</ivc_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="InputValueCalc_02" root="ivc_02"
+		model="inputValueCalc-Embedded.dfdl.xsd" description="Section 17 inputValueCalc, forward reference- DFDL-17-007R">
+
+		<tdml:document>7</tdml:document>
+		<tdml:errors>
+			<tdml:error></tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="InputValueCalc_03" root="ivc_03"
+		model="inputValueCalc-Embedded.dfdl.xsd"
+		description="">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[0,,5;]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ivc_03>
+					<e1>0</e1>
+					<e2 nil="true" />
+					<e3>5</e3>
+				</ivc_03>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="InputValueCalc_04" root="ivc_03"
+		model="inputValueCalc-Embedded.dfdl.xsd"
+		description="">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[0,11,5;]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ivc_03>
+					<e1>0</e1>
+					<e2>11</e2>
+					<e3>5</e3>	
+				</ivc_03>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="InputValueCalc_05" root="ivc_05"
+		model="inputValueCalc-Embedded.dfdl.xsd"
+		description="Section 17 inputValueCalc - DFDL-17-007R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[0,11,5;]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ivc_05>
+					<e1>0</e1>
+					<e2>11</e2>
+					<e2_square>121</e2_square>
+					<e3>5</e3>	
+				</ivc_05>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+</tdml:testSuite>
