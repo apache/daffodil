@@ -12,7 +12,7 @@ import daffodil.util.LogLevel
 import daffodil.util.LoggingDefaults
 import daffodil.util.Misc
 
-class TestInputValueCalc extends JUnit3Suite {
+class TestInputValueCalcDebug extends JUnit3Suite {
   val testDir = "/daffodil/section17/calc_value_properties/"
   val ar = testDir + "AR.tdml"
   lazy val runnerAR = new DFDLTestSuite(Misc.getRequiredResource(ar))
@@ -33,7 +33,7 @@ class TestInputValueCalc extends JUnit3Suite {
   def test_inputValueCalcErrorDiagnostic2() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic2")}
   def test_inputValueCalcAbsolutePath() { runnerAA.runOneTest("inputValueCalcAbsolutePath")}
   
-  /*val tdml = testDir + "inputValueCalc.tdml"
+  val tdml = testDir + "inputValueCalc.tdml"
 
   lazy val runner = { new DFDLTestSuite(Misc.getRequiredResource(tdml)) }
   
@@ -41,5 +41,5 @@ class TestInputValueCalc extends JUnit3Suite {
   def test_InputValueCalc_02() { runner.runOneTest("InputValueCalc_02")}
   def test_InputValueCalc_03() { runner.runOneTest("InputValueCalc_03")}
   def test_InputValueCalc_04() { runner.runOneTest("InputValueCalc_04")}
-  def test_InputValueCalc_05() { runner.runOneTest("InputValueCalc_05")}*/
+  def test_InputValueCalc_05() { runner.runOneTest("InputValueCalc_05")}
 }
