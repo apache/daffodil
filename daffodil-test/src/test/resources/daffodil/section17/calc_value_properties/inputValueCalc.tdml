@@ -41,8 +41,23 @@
 						dfdl:lengthKind="delimited" />
 					<xs:element name="e2" nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;" type="xs:int"
 						dfdl:lengthKind="delimited" />
+					<xs:element name="e2_square" type="xs:int" dfdl:inputValueCalc="{../ex:e2 * ../ex:e2 }" />
 					<xs:element name="e3" type="xs:int"
 						dfdl:lengthKind="delimited" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="ivc_04" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:terminator=";">
+					<xs:element name="e1" type="xs:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e2" type="xs:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e3" type="xs:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="divide" type="xs:int" dfdl:inputValueCalc="{../ex:e2 div ../ex:e3 }" />
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
@@ -105,38 +120,32 @@
 	
 	<tdml:parserTestCase name="InputValueCalc_03" root="ivc_03"
 		model="inputValueCalc-Embedded.dfdl.xsd"
-		description="">
+		description="Section 17 inputValueCalc, referencing a missing nillable element - DFDL-17-007R">
 
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[0,,5;]]></tdml:documentPart>
 		</tdml:document>
-
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<ivc_03>
-					<e1>0</e1>
-					<e2 nil="true" />
-					<e3>5</e3>
-				</ivc_03>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+		
+		<tdml:errors>
+			<tdml:error></tdml:error>
+		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="InputValueCalc_04" root="ivc_03"
+	<tdml:parserTestCase name="InputValueCalc_04" root="ivc_04"
 		model="inputValueCalc-Embedded.dfdl.xsd"
-		description="">
+		description="division by zero">
 
 		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[0,11,5;]]></tdml:documentPart>
+			<tdml:documentPart type="text"><![CDATA[5,11,0;]]></tdml:documentPart>
 		</tdml:document>
 
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
-				<ivc_03>
-					<e1>0</e1>
+				<ivc_04>
+					<e1>5</e1>
 					<e2>11</e2>
-					<e3>5</e3>	
-				</ivc_03>
+					<e3>0</e3>	
+				</ivc_04>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
