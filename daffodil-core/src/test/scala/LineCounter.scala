@@ -16,27 +16,27 @@ object LineCounter extends App {
 	/**
 	 * What directories within modules contain stuff we want to count.
 	 */
-	val sourceDirectoriesToInclude = List("src/daffodil/parser", "src/daffodil/schema/annotation/enumerations", "src/daffodil/schema/annotation", "src/daffodil/schema")//List("srcTest", "src", "test")
+	val sourceDirectoriesToInclude = List("src/main", "src/test")
 	
 	/**
 	 * What to exclude (subversion artifacts, what else)
 	 */
-	val directoriesToExclude = List(".svn", "bin", ".cache")
+	val directoriesToExclude = List(".svn", "bin", ".cache", "target", "lib")
 	
 	/**
 	 * What file extensions to count.
 	 */
-	val fileSuffixesToInclude = List(".scala", ".xsd") // , ".xml") Some test .xml files are Huge. Don't include them.
+	val fileSuffixesToInclude = List(".scala", ".xsd", ".tdml") // , ".xml") Some test .xml files are Huge. Don't include them.
 	
 	/**
 	 * What modules within the sandbox to count
 	 */
-	val modulesToInclude = List("daffodil")
+	val modulesToInclude = List("daffodil-core", "daffodil-lib", "daffodil-test")
 	
 	/**
 	 * Where is this freakin' sandbox anyway....edit to point to yours.
 	 */
-	val root = "/home/mbeckerle/dataiti/sbs/sb2"
+	val root = "/home/mbeckerle/dataiti/git/daffodil"
 			
 	
 	def countLines(fi : File) : Int = {
@@ -47,14 +47,20 @@ object LineCounter extends App {
 	}
 	
 	def allSubdirsOfInterest (dir : File) : List[File] = {
+	  //println("allSubdirsOfInterest")
 	  var res : List[File] = null
-	  if (!dir.isDirectory()) res = Nil
+	  if (!dir.isDirectory()) {
+	    //println("not a directory")
+	    res = Nil
+	  }
 	  else {
+	    //println("Searching for subdirs of interest in: " + dir)
 	    val toExclude = directoriesToExclude.exists{dirName=>dir.getName() == dirName}
 	    if (toExclude) 
 	      res = Nil
 	    else {
 	      val moreDirs = dir.listFiles.toList.filter{_.isDirectory()}.flatMap{allSubdirsOfInterest(_)}
+	      //println(moreDirs)
 	      val willKeepDir = filesOfInterest(dir).length > 0
 	      val result = if (willKeepDir) dir :: moreDirs else moreDirs
 	      res = result
@@ -74,6 +80,7 @@ object LineCounter extends App {
         res
       }
     }
+    //println(filesWithExtensions)
     filesWithExtensions
   }
 	
@@ -83,8 +90,11 @@ object LineCounter extends App {
 	def totalPerSourceDir (srcDir : String) = {
 	  val topDir = new File(root).listFiles.toList
 	  val modules = topDir.filter{d:File=>modulesToInclude.contains(d.getName())}
+	  //System.err.println(modules)
 	  val modulesSrcDirs = modules.map{modDir=>new File(modDir + "/" + srcDir)}
+	  // println(modulesSrcDirs)
 	  val modulesDirs = modulesSrcDirs.flatMap{allSubdirsOfInterest(_)}
+	  // println(modulesDirs)
 	  val files = modulesDirs.flatMap{filesOfInterest(_)}
 	  val counts = files.map{file=>countLines(file)}
 	  files zip counts foreach println
