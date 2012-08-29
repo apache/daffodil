@@ -41,7 +41,7 @@ class TestInputValueCalc extends JUnit3Suite {
   def test_InputValueCalc_01() { runner.runOneTest("InputValueCalc_01")}
   def test_InputValueCalc_02() { runner.runOneTest("InputValueCalc_02")}
   def test_InputValueCalc_03() { runner.runOneTest("InputValueCalc_03")}
-  def test_InputValueCalc_04() { runner.runOneTest("InputValueCalc_04")}
+  //def test_InputValueCalc_04() { runner.runOneTest("InputValueCalc_04")}
   def test_InputValueCalc_05() { runner.runOneTest("InputValueCalc_05")}
   def test_InputValueCalc_06() { runner.runOneTest("InputValueCalc_06")}
 }
