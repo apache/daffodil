@@ -100,6 +100,8 @@ abstract class ElementBase(xmlArg : Node, parent : SchemaComponent, position : I
   def elementSimpleType : SimpleTypeBase
   def typeDef : TypeBase
   def isScalar : Boolean
+  
+  override lazy val isRepresented = inputValueCalcOption == None
 
   def annotationFactory(node : Node) : DFDLAnnotation = {
     node match {

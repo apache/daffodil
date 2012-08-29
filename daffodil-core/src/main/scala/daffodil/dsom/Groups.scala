@@ -26,6 +26,8 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
   
   val enclosingComponent : Option[SchemaComponent] = Some(parent) // for global objects, the enclosing will be the thing referencing them.
 
+  lazy val isRepresented = true // overridden by elements, which might have inputValueCalc turning this off
+    
   def isScalar = true // override in local elements
   
   lazy val allTerminatingMarkup: List[CompiledExpression] = {

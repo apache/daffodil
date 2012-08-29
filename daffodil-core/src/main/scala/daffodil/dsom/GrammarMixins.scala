@@ -721,7 +721,7 @@ trait ElementDeclGrammarMixin { self: ElementBase with ElementDeclMixin =>
       inputValueCalcElement
     })
 
-  lazy val inputValueCalcOption = getPropertyOption("inputValueCalc")
+  override lazy val inputValueCalcOption = getPropertyOption("inputValueCalc")
 
   lazy val inputValueCalcElement = Prod("inputValueCalcElement", this,
     isSimpleType && inputValueCalcOption != None,
@@ -753,9 +753,12 @@ trait TermGrammarMixin { self: Term =>
   lazy val asTermInSequence = termContentBody
   lazy val asTermInChoice = termContentBody
 
-  def separatedForPosition(body: => Gram) = {
-    val res = es.prefixSep ~ infixSepRule ~ body ~ es.postfixSep
-    res
+  def separatedForPosition(body : => Gram) = {
+    if (!isRepresented) body // no separators for things that have no representation in the data stream
+    else {
+      val res = es.prefixSep ~ infixSepRule ~ body ~ es.postfixSep
+      res
+    }
   }
 
   lazy val Some(es) = {
