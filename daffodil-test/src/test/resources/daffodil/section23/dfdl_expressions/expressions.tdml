@@ -225,4 +225,34 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	
+	<tdml:defineSchema name="expressions-Embedded.dfdl.xsd">
+		
+		<dfdl:format lengthKind="delimited" lengthUnits="bytes" encoding="UTF-8" separator="" initiator="" terminator=""
+		       	occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" />
+		
+		<xs:element name="lke_01" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"/>
+					<xs:element name="e2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{../ex:e1}"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="lke2_rel" root="lke_01"
+		model="expressions-Embedded.dfdl.xsd" description="">
+
+		<tdml:document>3538</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<lke_01>
+					<e1>3</e1>
+					<e2>538</e2>
+				</lke_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
 </tdml:testSuite>
