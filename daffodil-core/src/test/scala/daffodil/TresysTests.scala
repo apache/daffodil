@@ -170,4 +170,11 @@ class TresysTests extends JUnit3Suite {
   lazy val runnerAR = new DFDLTestSuite(Misc.getRequiredResource(ar))
 
   def test_AR000() { runnerAR.runOneTest("AR000") }
+  
+  
+  lazy val runnerVA= new DFDLTestSuite(Misc.getRequiredResource(testDir + "variables.tdml"))
+  
+  def test_setVar1() { runnerVA.runOneTest("setVar1")}
+  def test_doubleSetErr() { runnerVA.runOneTest("doubleSetErr")}
+  def test_setAfterReadErr() { runnerVA.runOneTest("setAfterReadErr")}
 }

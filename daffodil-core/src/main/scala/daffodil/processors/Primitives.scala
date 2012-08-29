@@ -1560,7 +1560,42 @@ case class UnicodeByteOrderMark(e : GlobalElementDecl) extends Primitive(e, fals
 
 case class FinalUnusedRegion(e : ElementBase) extends Primitive(e, false)
 
-case class NewVariableInstance(decl : AnnotatedSchemaComponent, stmt : DFDLNewVariableInstance) extends Primitive(decl, false)
+
+abstract class NewVariableInstanceBase (decl : AnnotatedSchemaComponent, stmt : DFDLNewVariableInstance) 
+  extends Terminal(decl, true) {
+    val (uri, localName) = XMLUtils.QName(decl.xml, stmt.ref, decl.schemaDocument)
+    val expName = XMLUtils.expandedQName(uri, localName)
+}
+
+case class NewVariableInstanceStart(decl : AnnotatedSchemaComponent, stmt : DFDLNewVariableInstance) 
+  extends NewVariableInstanceBase(decl, stmt) {
+    
+    def parser : Parser = new Parser(decl) { 
+      def parse(pstate : PState) = {
+    	  val variable = pstate.variableMap.variables.get(expName).getOrElse(Assert.invariantFailed())
+          variable.save
+          pstate  
+      }
+    }
+    
+    def unparser : Unparser = Assert.notYetImplemented()
+    
+}
+    
+case class NewVariableInstanceEnd(decl : AnnotatedSchemaComponent, stmt : DFDLNewVariableInstance) 
+  extends NewVariableInstanceBase(decl, stmt) {
+  
+  def parser : Parser = new Parser(decl) {
+    def parse(pstate : PState) = {
+        val variable = pstate.variableMap.variables.get(expName).getOrElse(Assert.invariantFailed())
+          variable.restore
+          pstate  
+    }
+  }
+  
+   def unparser : Unparser = Assert.notYetImplemented()
+}
+
 case class AssertPrim(decl : AnnotatedSchemaComponent, stmt : DFDLAssert) extends Primitive(decl, false)
 case class Discriminator(decl : AnnotatedSchemaComponent, stmt : DFDLDiscriminator) extends Primitive(decl, false)
 
@@ -1640,12 +1675,11 @@ class IVCParser(e : ElementBase with ElementDeclMixin)
 
 class SetVariableParser(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable)
   extends ExpressionEvaluationParser(decl) {
-  val baseName = "SetVariable"
-
+  val baseName = "SetVariable[" + localName + "]"
   lazy val exprText = stmt.value
   val (uri, localName) = XMLUtils.QName(decl.xml, stmt.ref, decl.schemaDocument)
   val defv = decl.schema.schemaSet.getDefineVariable(uri, localName).getOrElse(
-    null // stmt.schemaDefinitionError("Unknown variable: %s", stmt.ref)
+    stmt.schemaDefinitionError("Unknown variable: %s", stmt.ref)
     )
 
   val (typeURI, typeName) = XMLUtils.QName(decl.xml, defv.type_, decl.schemaDocument)
@@ -1656,7 +1690,7 @@ class SetVariableParser(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable)
       withParseErrorThrowing(start) {
         log(Debug("This is %s", toString))
         val res = eval(start)
-        defv.variable.set(res)
+        defv.newVariableInstance.set(res)
         val postState = start // setVariable consumes nothing. Just assigns a value.
         postState
       }

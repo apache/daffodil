@@ -20,31 +20,31 @@ class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
 
   val context : SchemaComponent = Fakes.xsd_sd
   
-  def testVariables1() {
-
-    val text = new org.jdom.Text("19")
-    val root = new org.jdom.Element("root")
-    root addContent (text)
-    val document = new org.jdom.Document(root)
-    val decl = new DFDLDefineVariable(<dfdl:defineVariable name="pi" type="xs:double"/>, context.schemaDocument)
-    val expName = XMLUtils.expandedQName(XMLUtils.EXAMPLE_NAMESPACE, "pi")
-    val variable = // new VariableMap() defineVariable("pi", XMLUtils.XSD_DOUBLE, new Namespaces())
-      Variable(decl, expName, "xs:string", Some(Pi.toString), false, context.schemaDocument)
-
-    val varMap = new VariableMap(List((expName, variable)).toMap)
-    varMap.setVariable(null, expName, Pi.toString)
-
-    withParseErrorThrowing(null) {
-    val ns = List(org.jdom.Namespace.getNamespace("ex", XMLUtils.EXAMPLE_NAMESPACE))
-    val result = XPathUtil evalExpressionFromString ("$ex:pi", varMap, root, ns, XPathConstants.NUMBER)
-
-    result match {
-      case NumberResult(x) => assertEquals(Pi, x)
-      case _ => fail
-    }
-    null // wants us to return a PState. Don't want to bother creating one.
-    }
-  }
+//  def testVariables1() {
+//
+//    val text = new org.jdom.Text("19")
+//    val root = new org.jdom.Element("root")
+//    root addContent (text)
+//    val document = new org.jdom.Document(root)
+//    val decl = new DFDLDefineVariable(<dfdl:defineVariable name="pi" type="xs:double"/>, context.schemaDocument)
+//    val expName = XMLUtils.expandedQName(XMLUtils.EXAMPLE_NAMESPACE, "pi")
+//    val variable = // new VariableMap() defineVariable("pi", XMLUtils.XSD_DOUBLE, new Namespaces())
+//      Variable(decl, expName, "xs:string", Some(Pi.toString), false, context.schemaDocument)
+//
+//    val varMap = new VariableMap(List((expName, variable)).toMap)
+//    varMap.setVariable(null, expName, Pi.toString)
+//
+//    withParseErrorThrowing(null) {
+//    val ns = List(org.jdom.Namespace.getNamespace("ex", XMLUtils.EXAMPLE_NAMESPACE))
+//    val result = XPathUtil evalExpressionFromString ("$ex:pi", varMap, root, ns, XPathConstants.NUMBER)
+//
+//    result match {
+//      case NumberResult(x) => assertEquals(Pi, x)
+//      case _ => fail
+//    }
+//    null // wants us to return a PState. Don't want to bother creating one.
+//    }
+//  }
 
   val variables2 =
     <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>

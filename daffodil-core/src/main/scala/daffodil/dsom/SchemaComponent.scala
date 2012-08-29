@@ -457,7 +457,7 @@ extends DiagnosticsProviding {
   
   lazy val variableMap = {
     val dvs = schemas.flatMap{_.schemaDocuments}.flatMap{_.defineVariables}
-    val vs = dvs.map{_.variable}
+    val vs = dvs.map{_.newVariableInstance}
     val pairs = vs.map{v => (v.name, v)}
     val hmap = pairs.toMap
     val vmap = new VariableMap(hmap)

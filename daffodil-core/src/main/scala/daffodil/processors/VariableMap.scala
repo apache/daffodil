@@ -40,13 +40,13 @@ import scala.collection.mutable.Stack
 import scala.collection.mutable.Set
 import org.jdom.Element
 import daffodil.exceptions.Assert
-//import daffodil.xml.Namespaces
 import daffodil.xml.XMLUtils
 import javax.xml.namespace.QName
 import daffodil.dsom.SchemaDocument
 import daffodil.dsom.DFDLDefineVariable
 import daffodil.dsom.DFDLSetVariable
 import daffodil.dsom.SchemaComponent
+import daffodil.dsom.SchemaDefinitionError
 
 sealed abstract class VariableState
 
@@ -56,9 +56,6 @@ case object VariableSet extends VariableState
 case object VariableRead extends VariableState
 
 class VariableAtom(var value : Option[String], var state : VariableState)
-
-//class InstantVariable(val name:String,var state:VariableState,var variableType:String,
-//               var value:Object)
 
 class Variable(varDefinitionContext : SchemaDocument, val name : String, var state : VariableState, val variableType : String,
   var value : Option[String])
@@ -73,8 +70,8 @@ class Variable(varDefinitionContext : SchemaDocument, val name : String, var sta
   def restore = stack pop
 
   def set(value : String) = {
-    Assert.usage(stack.top.state == VariableUndefined ||
-      stack.top.state == VariableDefined) // you can set after a default value
+    PECheck(stack.top.state != VariableSet, "Cannot set variable %s twice. State was: %s. Existing value: %s", name, state, stack.top.value.getOrElse(null)) // null ok here. When error occurs, there will be a value. 
+    PECheck(stack.top.state != VariableRead, "Cannot set variable %s after reading the default value. State was: %s", name, state)
     stack.top.value = Some(value)
     stack.top.state = VariableSet
   }
@@ -98,8 +95,8 @@ class Variable(varDefinitionContext : SchemaDocument, val name : String, var sta
   
   var context : SchemaComponent = null
 
-  def get(contextArg : Option[SchemaComponent]) : Object = {
-    context = contextArg.getOrElse(null)
+  def get(contextArg : SchemaComponent) : Object = {
+    context = contextArg
     PECheck(stack.top.state == VariableSet ||
       stack.top.state == VariableDefined ||
       stack.top.state == VariableRead,
@@ -174,29 +171,29 @@ class VariableMap(val hiddenNodes : Set[Element], val variables : Map[String, Va
   //    new VariableMap(hiddenNodes,
   //      new Variable(expandedName,VariableDefined,variableType,defaultValue) :: variables)
 
-  def setVariable(ann : DFDLSetVariable, expandedName : String, value : String) : Unit = {
-    variables.get(expandedName) match {
-      case Some(y) => {
-        // TODO check for double set, or for already been read.
-        y set (value)
-      }
-      case None => throw new IllegalArgumentException("unknown variable " + expandedName)
-    }
-  }
+//  def setVariable(ann : DFDLSetVariable, expandedName : String, value : String) : Unit = {
+//    variables.get(expandedName) match {
+//      case Some(y) => {
+//        // TODO check for double set, or for already been read.
+//        y set (value)
+//      }
+//      case None => throw new IllegalArgumentException("unknown variable " + expandedName)
+//    }
+//  }
 
   /**
    * Returns the value of variable
    *
    * @param name the fully qualified name of the variable
    *
-   * @throws IllegalArgumentException if the variable is not known
+   * @throws SchemaDefinitionError if the variable is not known
    */
-  def readVariable(expandedName : String, context : Option[SchemaComponent]) : Object = {
+  def readVariable(expandedName : String, context : SchemaComponent) : Object = {
     variables.get(expandedName) match {
       case Some(y) => y get(context)
       case None => {
-        val sc = context.getOrElse(throw new IllegalArgumentException("unknown variable " + expandedName))
-        sc.schemaDefinitionError("unknown variable %s", expandedName)
+        // val sc = context.getOrElse(throw new SchemaDefinitionError(None, None, "unknown variable %s.", expandedName))
+        context.schemaDefinitionError("unknown variable %s", expandedName)
       }
     }
   }

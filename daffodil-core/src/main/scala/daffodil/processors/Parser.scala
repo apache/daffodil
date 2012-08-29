@@ -138,6 +138,8 @@ trait WithParseErrorThrowing {
    * Use to check for parse errors.
    * 
    * Must be used only in the context of the withParseErrorThrowing wrapper.
+   * 
+   * The schema component providing the context is implicit (via def context virtual member)
    */
   def PECheck(
       testTrueMeansOK : => Boolean,
@@ -145,6 +147,18 @@ trait WithParseErrorThrowing {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
     if (!testTrueMeansOK) {
       throw new ParseError(context, None, kind, args : _*)
+    }
+  }
+  
+  /**
+   * Passing the context explicitly
+   */
+  def PECheck(contextArg: SchemaComponent,  
+      testTrueMeansOK : => Boolean,
+      kind : String, args : Any*) {
+    Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
+    if (!testTrueMeansOK) {
+      throw new ParseError(contextArg, None, kind, args : _*)
     }
   }
     

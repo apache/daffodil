@@ -225,7 +225,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
     } else {
 
       val xpath = XPathUtil.getExpression(expr)
-      val compiledXPath = XPathUtil.compileExpression(xpath, edecl.namespaces, Some(edecl))
+      val compiledXPath = XPathUtil.compileExpression(xpath, edecl.namespaces, edecl)
       val cv = constantValue(compiledXPath)
       val compiledExpression = cv match {
         case Some(s) => {

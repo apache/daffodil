@@ -79,7 +79,7 @@ object XPathUtil extends Logging {
    */
   def compileExpression(dfdlExpressionRaw: String, 
       namespaces: Seq[org.jdom.Namespace],
-      context : Option[SchemaComponent]) = withLoggingLevel(LogLevel.Info){
+      context : SchemaComponent) = withLoggingLevel(LogLevel.Info){
     log(Debug("Compiling expression"))
     val dfdlExpression = dfdlExpressionRaw.trim
     Assert.usage(dfdlExpression != "")
@@ -161,7 +161,7 @@ object XPathUtil extends Logging {
   private[xpath] def evalExpressionFromString(expression:String,variables:VariableMap,
                      contextNode:Parent,namespaces:Seq[org.jdom.Namespace], targetType : QName = NODE) : XPathResult = {
 
-    val compiledExprExceptVariables = compileExpression(expression, namespaces, None)
+    val compiledExprExceptVariables = compileExpression(expression, namespaces, null) // null as schema component
     val res = evalExpression(expression, compiledExprExceptVariables, variables, contextNode, targetType)
     res
   }
