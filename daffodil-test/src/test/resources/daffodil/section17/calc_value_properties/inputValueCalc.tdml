@@ -61,6 +61,22 @@
 			</xs:complexType>
 		</xs:element>
 		
+		<xs:element name="ivc_06" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:terminator=";">
+				<!-- putting an inputValueCalc element first in the sequence to insure that it correctly
+				 determines there should not be any separator before element e1 which is the first physical element. -->
+				    <xs:element name="ivc_is_first" type="xs:int" dfdl:inputValueCalc="{ 42 }" />
+					<xs:element name="e1" type="xs:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e2" nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;" type="xs:int"
+						dfdl:lengthKind="delimited" />
+					<xs:element name="e3" type="xs:int"
+						dfdl:lengthKind="delimited" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
 	</tdml:defineSchema>
  
 	<tdml:parserTestCase name="InputValueCalc_01" root="ivc_01"
@@ -141,6 +157,26 @@
 					<e2_square>121</e2_square>
 					<e3>5</e3>	
 				</ivc_05>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="InputValueCalc_06" root="ivc_06"
+		model="inputValueCalc-Embedded.dfdl.xsd"
+		description="Section 17 inputValueCalc - DFDL-17-007R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[0,11,5;]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ivc_06>
+				    <ivc_is_first>42</ivc_is_first>
+					<e1>0</e1>
+					<e2>11</e2>
+					<e3>5</e3>	
+				</ivc_06>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>

@@ -127,10 +127,15 @@ case class ComplexElementBeginPattern(e : ElementBase)
   }
 }
 
-case class ElementEnd(e : ElementBase) extends Terminal(e, e.isComplexType != true || e.lengthKind != LengthKind.Pattern) {
-
+abstract class ElementEndBase(e : ElementBase) extends Terminal(e, e.isComplexType != true || e.lengthKind != LengthKind.Pattern)
+ {
+  def toPrettyString = "</" + e.name + prettyStringModifier + ">"
+  def prettyStringModifier  : String
+    
+  def move(pstate : PState) : PState // implement for different kinds of "moving over to next thing"
+  
   def parser : Parser = new Parser(e) {
-    override def toString = "</" + e.name + ">"
+	override def toString = toPrettyString
 
     /**
      * ElementEnd just moves back to the parent element of the current one.
@@ -140,7 +145,7 @@ case class ElementEnd(e : ElementBase) extends Terminal(e, e.isComplexType != tr
       // Assert.invariant(currentElement.getName() != "_document_" )
       val priorElement = currentElement.getParent
       log(Debug("priorElement = %s", priorElement))
-      val postState = start.withParent(priorElement).moveOverByOne
+      val postState = move(start.withParent(priorElement))
       postState
     }
   }
@@ -164,6 +169,16 @@ case class ElementEnd(e : ElementBase) extends Terminal(e, e.isComplexType != tr
       postState
     }
   }
+}
+
+case class ElementEnd(e : ElementBase) extends ElementEndBase(e) {
+    def move(pstate : PState) = pstate.moveOverByOne
+    def prettyStringModifier = ""
+}
+
+case class ElementEndNoRep(e : ElementBase) extends ElementEndBase(e) {
+    def move(pstate : PState) = pstate.moveOverOneElementChildOnly
+    def prettyStringModifier = "(NoRep)"
 }
 
 case class ComplexElementEndPattern(e : ElementBase) extends Terminal(e, e.isComplexType == true && e.lengthKind == LengthKind.Pattern) {

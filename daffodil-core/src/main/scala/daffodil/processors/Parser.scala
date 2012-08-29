@@ -483,13 +483,7 @@ class PState(
         this.withGroupIndexStack(newGroupIndex :: tl)
       }
     }
-    val s2 = s1.childIndexStack match {
-      case Nil => s1
-      case hd :: tl => {
-        val newChildIndex = hd + 1
-        s1.withChildIndexStack(newChildIndex :: tl)
-      }
-    }
+    val s2 = s1.moveOverOneElementChildOnly
     val s3 = s2.arrayIndexStack match {
       case Nil => s2
       case hd :: tl => {
@@ -499,7 +493,17 @@ class PState(
     }
     s3
   }
-
+  
+  def moveOverOneElementChildOnly = { 
+    childIndexStack match {
+      case Nil => this
+      case hd :: tl => {
+        val newChildIndex = hd + 1
+        withChildIndexStack(newChildIndex :: tl)
+      }
+    }
+  }
+ 
   def captureJDOM : Int = {
     parent.getContentSize()
   }

@@ -52,7 +52,8 @@ trait ParticleMixin { self : ElementBase =>
   lazy val hasStaticallyRequiredInstances = hasStaticallyRequiredInstances_.value
   private lazy val hasStaticallyRequiredInstances_ = LV {
     val res =
-      if (isScalar) true
+      if (!isRepresented) false // if there's no rep, then it's not statically required.
+      else if (isScalar) true
       else if (isFixedOccurrences) true
       else if (minOccurs > 0) true
       else false

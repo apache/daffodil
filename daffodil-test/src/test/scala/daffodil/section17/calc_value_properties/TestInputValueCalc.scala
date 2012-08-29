@@ -11,6 +11,7 @@ import daffodil.tdml.DFDLTestSuite
 import daffodil.util.LogLevel
 import daffodil.util.LoggingDefaults
 import daffodil.util.Misc
+import daffodil.debugger.Debugger
 
 class TestInputValueCalc extends JUnit3Suite {
   val testDir = "/daffodil/section17/calc_value_properties/"
@@ -42,4 +43,5 @@ class TestInputValueCalc extends JUnit3Suite {
   def test_InputValueCalc_03() { runner.runOneTest("InputValueCalc_03")}
   def test_InputValueCalc_04() { runner.runOneTest("InputValueCalc_04")}
   def test_InputValueCalc_05() { runner.runOneTest("InputValueCalc_05")}
+  def test_InputValueCalc_06() { runner.runOneTest("InputValueCalc_06")}
 }
