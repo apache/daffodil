@@ -48,6 +48,10 @@ object Assert extends Assert {
   def usageError( message: => String = "Usage error.") = {
     abort(message)
   }
+ 
+  def notYetImplemented(info : String) = {
+    toss(new NotYetImplementedException(info + "\n" + shortBacktrace))
+  }
   
   def notYetImplemented() = {
     toss(new NotYetImplementedException(shortBacktrace))

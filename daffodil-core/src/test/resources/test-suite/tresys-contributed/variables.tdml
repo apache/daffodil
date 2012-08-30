@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite xmlns="http://example.com"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+	xmlns:ex="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+
+	<tdml:defineSchema name="v">
+		<dfdl:defineVariable name="v_no_default" type="xsd:int" />
+		<dfdl:defineVariable name="v_with_default" type="xsd:int"
+			defaultValue="42" />
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="c">
+			<xs:complexType>
+				<xs:sequence>
+
+					<xs:element name="d" type="xsd:int" dfdl:inputValueCalc="{ $ex:v_with_default }">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:setVariable ref="ex:v_no_default">{ . }</dfdl:setVariable>
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="e" type="xsd:int" dfdl:inputValueCalc="{ $ex:v_no_default }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="r1">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:annotation>
+						<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+							<dfdl:setVariable ref="ex:v_no_default">{ 41 }</dfdl:setVariable>
+							<dfdl:setVariable ref="ex:v_no_default">{ 42 }</dfdl:setVariable>
+						</xs:appinfo>
+					</xs:annotation>
+					<xs:element name="d" type="xsd:int" dfdl:inputValueCalc="{ $ex:v_no_default }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="r2">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="d" type="xsd:int" dfdl:inputValueCalc="{ $ex:v_with_default }" />
+					<xs:element name="e" type="xsd:string" dfdl:inputValueCalc="{ 'just here to carry the setVariable annotation' }">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:setVariable ref="ex:v_with_default">{ 41 }</dfdl:setVariable>
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="setVar1" root="c" model="v">
+
+		<tdml:document />
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<c xmlns="http://www.example.org/example1/">
+					<d type="xsd:int">42</d>
+					<e type="xsd:int">42</e>
+				</c>
+
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="doubleSetErr" root="r1"
+		model="v">
+
+		<tdml:document />
+
+		<tdml:errors>
+			<tdml:error>variable</tdml:error>
+			<tdml:error>twice</tdml:error>
+			<tdml:error>v_no_default</tdml:error>
+		</tdml:errors>
+
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="setAfterReadErr" root="r2"
+		model="v">
+
+		<tdml:document />
+
+		<tdml:errors>
+			<tdml:error>variable</tdml:error>
+			<tdml:error>after</tdml:error>
+			<tdml:error>v_with_default</tdml:error>
+		</tdml:errors>
+
+	</tdml:parserTestCase>
+
+
+</tdml:testSuite>

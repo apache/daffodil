@@ -59,16 +59,24 @@ abstract class CompiledExpression(val prettyExpr : String) {
    *
    * isConstantValue must be true or this will throw.
    */
-  def constant : Any
+  def constant : AnyRef
   def constantAsString = constant.toString
   def constantAsLong = constantAsString.toLong
 
   /**
    * evaluation - the runtime
+   * 
+   * Note that since we can reference variables, and those might never have been read,
+   * the act of evaluating them changes the variableMap state potentially. So an 
+   * updated variableMap must be returned as well.
    */
-  def evaluate(rootedAt : org.jdom.Parent, variables : VariableMap) : Any
+
+  
+  def evaluate(rootedAt : org.jdom.Parent, variables : VariableMap) : R
 
 }
+
+  case class R(res : AnyRef, vmap : VariableMap)
 
 //object CompiledExpressionUtil {
 //
@@ -89,14 +97,14 @@ abstract class CompiledExpression(val prettyExpr : String) {
 //
 //}
 
-case class ConstantExpression[T](value : T) extends CompiledExpression(value.toString) {
+case class ConstantExpression[T <: AnyRef](value : T) extends CompiledExpression(value.toString) {
   def isConstant = true
   def isKnownNonEmpty = value != ""
   def constant : T = value
-  def evaluate(pre : org.jdom.Parent, variables : VariableMap) = constant
+  def evaluate(pre : org.jdom.Parent, variables : VariableMap) : R = R(constant, variables)
 }
 
-case class RuntimeExpression[T](convertTo : Symbol,
+case class RuntimeExpression[T <: AnyRef](convertTo : Symbol,
   xpathText : String,
   xpathExprFactory : CompiledExpressionFactory,
   sc : SchemaComponent) 
@@ -117,19 +125,21 @@ case class RuntimeExpression[T](convertTo : Symbol,
   }
 
 
-  def evaluate(pre : org.jdom.Parent, variables : VariableMap) : T = {
+  def evaluate(pre : org.jdom.Parent, variables : VariableMap) : R = {
     val xpathResultType = toXPathType(convertTo)
     
     val xpathRes = try {
       XPathUtil.evalExpression(xpathText, xpathExprFactory, variables, pre, xpathResultType)
     }
     catch {
-      case e : XPathExpressionException => {
+      case e : XPathException => {
         // runtime processing error in expression evaluation
-        PE("Expression evaluation failed. Details: %s", e)
+        val ex = if (e.getMessage() == null) e.getCause() else e
+        PE("Expression evaluation failed. Details: %s", ex)
       }
         
     }
+    val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
     val converted : T = xpathRes match {
       case NumberResult(n) => {
         convertTo match {
@@ -145,7 +155,7 @@ case class RuntimeExpression[T](convertTo : Symbol,
         n.asInstanceOf[T] 
       }
     }
-    converted
+    R(converted, newVariableMap)
   }
 }
 
@@ -171,7 +181,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
       case XMLUtils.XSD_UNSIGNED_LONG => Assert.notYetImplemented() // TODO FIXME - handle the largest unsigned longs.
       case XMLUtils.XSD_DOUBLE => 'Double
       case XMLUtils.XSD_FLOAT => 'Double
-      case _ => Assert.notYetImplemented()
+      case _ => Assert.notYetImplemented(expandedTypeName)
     }
   }
 
@@ -231,10 +241,10 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
         case Some(s) => {
           convertTo match {
             case 'String => new ConstantExpression(s.asInstanceOf[String])
-            case 'Long => new ConstantExpression(s.asInstanceOf[String].toLong)
+            case 'Long => new ConstantExpression(Long.box(s.asInstanceOf[String].toLong))
             // Evaluating to an Element when we're a constant makes no sense.
             // case 'Element => new ConstantExpression(s.asInstanceOf[org.jdom.Element])
-            case 'Double => new ConstantExpression(s.asInstanceOf[String].toDouble)
+            case 'Double => new ConstantExpression(Double.box(s.asInstanceOf[String].toDouble))
           }
         }
         case None => new RuntimeExpression(convertTo, expr, compiledXPath, edecl)

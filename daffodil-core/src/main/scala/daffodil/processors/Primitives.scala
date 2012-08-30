@@ -391,7 +391,9 @@ case class StringDelimitedEndOfData(e : ElementBase)
         val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
         var bitOffset = 0L
 
-        val delimsCooked = e.allTerminatingMarkup.map(x => { new daffodil.dsom.ListOfStringValueAsLiteral(x.evaluate(start.parent, start.variableMap).asInstanceOf[String], e).cooked }).flatten
+        //FIXME: can't work this way. evaluation of expressions can change variable state (e.g., a variable can go from VariableSet to VariableRead state)
+        // so we can't just evaluate all of them in same variable context. We must feed variable context out of one into the next.
+        val delimsCooked = e.allTerminatingMarkup.map(x => { new daffodil.dsom.ListOfStringValueAsLiteral(x.evaluate(start.parent, start.variableMap).res.asInstanceOf[String], e).cooked }).flatten
 
         log(Debug("StringDelimitedEndOfData - " + eName + " - Looking for: " + delimsCooked + " Count: " + delimsCooked.length))
 
@@ -1572,9 +1574,7 @@ case class NewVariableInstanceStart(decl : AnnotatedSchemaComponent, stmt : DFDL
     
     def parser : Parser = new Parser(decl) { 
       def parse(pstate : PState) = {
-    	  val variable = pstate.variableMap.variables.get(expName).getOrElse(Assert.invariantFailed())
-          variable.save
-          pstate  
+        Assert.notYetImplemented()
       }
     }
     
@@ -1586,11 +1586,7 @@ case class NewVariableInstanceEnd(decl : AnnotatedSchemaComponent, stmt : DFDLNe
   extends NewVariableInstanceBase(decl, stmt) {
   
   def parser : Parser = new Parser(decl) {
-    def parse(pstate : PState) = {
-        val variable = pstate.variableMap.variables.get(expName).getOrElse(Assert.invariantFailed())
-          variable.restore
-          pstate  
-    }
+    def parse(pstate : PState) = Assert.notYetImplemented()
   }
   
    def unparser : Unparser = Assert.notYetImplemented()
@@ -1636,16 +1632,16 @@ abstract class ExpressionEvaluationParser(e : AnnotatedSchemaComponent)
 
   // for unit testing
   def testExpressionEvaluation(elem : org.jdom.Element, vmap : VariableMap) = {
-    val result = expr.evaluate(elem, vmap)
-    result
+    val R(res, newVMap) = expr.evaluate(elem, vmap)
+    R(res, newVMap)
   }
 
   def eval(start : PState) = {
     val currentElement = start.parentElement
-    val result =
+    val R(res, newVMap) =
       expr.evaluate(currentElement, start.variableMap)
-    val res = result.toString // Everything in JDOM is a string!
-    res
+    // val result = res.toString // Everything in JDOM is a string!
+    R(res, newVMap)
   }
 }
 
@@ -1665,9 +1661,9 @@ class IVCParser(e : ElementBase with ElementDeclMixin)
       withParseErrorThrowing(start) {
         log(Debug("This is %s", toString))
         val currentElement = start.parentElement
-        val res = eval(start)
-        currentElement.addContent(new org.jdom.Text(res))
-        val postState = start // inputValueCalc consumes nothing. Just creates a value.
+        val R(res, newVMap) = eval(start)
+        currentElement.addContent(new org.jdom.Text(res.toString))
+        val postState = start.withVariables(newVMap) // inputValueCalc consumes nothing. Just creates a value.
         postState
       }
     }
@@ -1681,17 +1677,16 @@ class SetVariableParser(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable)
   val defv = decl.schema.schemaSet.getDefineVariable(uri, localName).getOrElse(
     stmt.schemaDefinitionError("Unknown variable: %s", stmt.ref)
     )
-
-  val (typeURI, typeName) = XMLUtils.QName(decl.xml, defv.type_, decl.schemaDocument)
-  val expandedTypeName = XMLUtils.expandedQName(typeURI, typeName)
+    
+  lazy val expandedTypeName = defv.extType
 
   def parse(start : PState) : PState =
     withLoggingLevel(LogLevel.Info) {
       withParseErrorThrowing(start) {
         log(Debug("This is %s", toString))
-        val res = eval(start)
-        defv.newVariableInstance.set(res)
-        val postState = start // setVariable consumes nothing. Just assigns a value.
+        val R(res, newVMap) = eval(start)
+        val newVMap2 = newVMap.setVariable(defv.extName, res, decl)
+        val postState = start.withVariables(newVMap2) 
         postState
       }
     }
@@ -1710,9 +1705,11 @@ case class StringExplicitLengthInBytes(e : ElementBase)
   def parser : Parser = new Parser(e) {
     override def toString = "StringExplicitLengthInBytesParser(" + exprText + ")"
 
-    def parse(start : PState) : PState = withParseErrorThrowing(start) {
-      log(Debug("Parsing starting at bit position: %s", start.bitPos))
-      val nBytes = expr.evaluate(start.parent, start.variableMap).asInstanceOf[Long]
+    def parse(pstate : PState) : PState = withParseErrorThrowing(pstate) {
+      log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
+      val R(nBytesAsAny, newVMap) = expr.evaluate(pstate.parent, pstate.variableMap)
+      val nBytes = nBytesAsAny.asInstanceOf[Long]
+      val start = pstate.withVariables(newVMap)
       log(Debug("Explicit length %s", nBytes))
 
       // Allocate larger cbuf on demand.

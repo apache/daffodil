@@ -42,7 +42,7 @@ class TestCompiledExpression2 extends JUnit3Suite with WithParseErrorThrowing {
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /tns:root/text() }"
     val compiled = ec.compile('String, xpathString) // as a string
-    val result = compiled.evaluate(root, new VariableMap())
+    val R(result, _) = compiled.evaluate(root, new VariableMap())
 
     assertEquals("19", result)
 
@@ -118,7 +118,7 @@ class TestCompiledExpression2 extends JUnit3Suite with WithParseErrorThrowing {
     val st = PState.createInitialState(edecl, "x", 0)
     withParseErrorThrowing(st) {
       val e = intercept[ParseError] {
-        val res = compiled.evaluate(root, new VariableMap())
+        val R(res, _) = compiled.evaluate(root, new VariableMap())
         res
       }
       assertTrue(e.getMessage().contains("doesntExist"))

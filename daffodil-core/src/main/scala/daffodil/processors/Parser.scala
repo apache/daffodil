@@ -2,7 +2,6 @@ package daffodil.processors
 
 import org.jdom._
 import daffodil.xml._
-import daffodil.xml._
 import daffodil.processors._
 import daffodil.grammar._
 import daffodil.compiler._
@@ -162,9 +161,16 @@ trait WithParseErrorThrowing {
     }
   }
     
-  def PE(kind : String, args : Any*) {
-    PECheck(false, kind, args : _*)
+  def PE(kind : String, args : Any*) : Nothing = {
+    PE(context, kind, args : _*)
   }
+  
+  def PE(context : SchemaComponent, kind : String, args : Any*) : Nothing = {
+    Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
+    throw new ParseError(context, None, kind, args : _*)
+  }
+  
+  
     
   
   /**

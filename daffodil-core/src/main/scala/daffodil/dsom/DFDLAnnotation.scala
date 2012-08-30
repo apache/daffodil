@@ -597,7 +597,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   with DFDLDefiningAnnotation
   {
   lazy val gram = EmptyGram // has to have because statements have parsers layed in by the grammar.
-  lazy val type_ = getAttributeOption("type").getOrElse("xs:string")
+  lazy val typeQName = getAttributeOption("type").getOrElse("xs:string")
   lazy val external = getAttributeOption("external").map{_.toBoolean}.getOrElse(false)
   lazy val defaultValueAsAttribute = getAttributeOption("defaultValue")
   lazy val defaultValueAsElement = node.child.text
@@ -612,9 +612,12 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   
   lazy val qname = getQName(name)
   lazy val (uri, localName) = qname
-  lazy val expandedName = XMLUtils.expandedQName(uri, localName)
+  lazy val extName = XMLUtils.expandedQName(uri, localName)
   
-  lazy val newVariableInstance = Variable(this, expandedName, type_, defaultValue, external, doc)
+  val (typeURI, typeLocalName) = XMLUtils.QName(node, typeQName, doc)
+  val extType = XMLUtils.expandedQName(typeURI, typeLocalName)
+    
+  lazy val newVariableInstance = VariableFactory.create(this, extName, extType, defaultValue, external, doc)
   
 }
 

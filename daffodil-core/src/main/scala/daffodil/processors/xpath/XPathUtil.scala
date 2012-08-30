@@ -128,18 +128,22 @@ object XPathUtil extends Logging {
       new XPathVariableResolver() {
         def resolveVariable(qName: QName): Object = {     
           val varName = XMLUtils.expandedQName(qName)
-          variables.readVariable(varName, context)
+          val (res, newVMap) = variables.readVariable(varName, context)
+          variables = newVMap
+          res
         }
       })
 
     val xpathExpr = xpath.compile(expression)
 
-    // We need to supply the variables later
+    // We need to supply the variables late
     val withoutVariables = new CompiledExpressionFactory(expression) {
        def getXPathExpr(runtimeVars: VariableMap) = {
         variables = runtimeVars
         xpathExpr
       }  
+       // we need to get the variables back at the end of exprsesion evaluation.
+       def getVariables() = variables
     }
 
     withoutVariables  // return this factory
@@ -147,6 +151,7 @@ object XPathUtil extends Logging {
   
   abstract class CompiledExpressionFactory(val expression : String){
       def getXPathExpr(runtimeVars: VariableMap) : XPathExpression
+      def getVariables() : VariableMap
   }
                      
   /** 
@@ -183,7 +188,6 @@ object XPathUtil extends Logging {
     {
     val ce = compiledExprFactory.getXPathExpr(variables)
     log(Debug("Evaluating %s in context %s to get a %s", expressionForErrorMsg, contextNode, targetType)) // Careful. contextNode could be null.
-//    try{
       val o = ce.evaluate(contextNode, targetType)
       log(Debug("Evaluated to: %s", o))
       val res = (o, targetType) match {
@@ -224,9 +228,7 @@ object XPathUtil extends Logging {
     // convert the result to a string if you get a node. (Text IS a node).
   }
 
-//  def doUnknownXPathEvalException(expression : String, exc : Exception) = {
-//     throw new XPathExpressionException(exc)
-//  }
+
   
   /**
    * Whether a string is a DFDL expression (an XPath expression surrounded by brackets).
