@@ -127,15 +127,14 @@ case class ComplexElementBeginPattern(e : ElementBase)
   }
 }
 
-abstract class ElementEndBase(e : ElementBase) extends Terminal(e, e.isComplexType != true || e.lengthKind != LengthKind.Pattern)
- {
+abstract class ElementEndBase(e : ElementBase) extends Terminal(e, e.isComplexType != true || e.lengthKind != LengthKind.Pattern) {
   def toPrettyString = "</" + e.name + prettyStringModifier + ">"
-  def prettyStringModifier  : String
-    
+  def prettyStringModifier : String
+
   def move(pstate : PState) : PState // implement for different kinds of "moving over to next thing"
-  
+
   def parser : Parser = new Parser(e) {
-	override def toString = toPrettyString
+    override def toString = toPrettyString
 
     /**
      * ElementEnd just moves back to the parent element of the current one.
@@ -172,13 +171,13 @@ abstract class ElementEndBase(e : ElementBase) extends Terminal(e, e.isComplexTy
 }
 
 case class ElementEnd(e : ElementBase) extends ElementEndBase(e) {
-    def move(pstate : PState) = pstate.moveOverByOne
-    def prettyStringModifier = ""
+  def move(pstate : PState) = pstate.moveOverByOne
+  def prettyStringModifier = ""
 }
 
 case class ElementEndNoRep(e : ElementBase) extends ElementEndBase(e) {
-    def move(pstate : PState) = pstate.moveOverOneElementChildOnly
-    def prettyStringModifier = "(NoRep)"
+  def move(pstate : PState) = pstate.moveOverOneElementChildOnly
+  def prettyStringModifier = "(NoRep)"
 }
 
 case class ComplexElementEndPattern(e : ElementBase) extends Terminal(e, e.isComplexType == true && e.lengthKind == LengthKind.Pattern) {
@@ -391,13 +390,24 @@ case class StringDelimitedEndOfData(e : ElementBase)
         val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
         var bitOffset = 0L
 
-        //FIXME: can't work this way. evaluation of expressions can change variable state (e.g., a variable can go from VariableSet to VariableRead state)
-        // so we can't just evaluate all of them in same variable context. We must feed variable context out of one into the next.
-        val delimsCooked = e.allTerminatingMarkup.map(x => { new daffodil.dsom.ListOfStringValueAsLiteral(x.evaluate(start.parent, start.variableMap).res.asInstanceOf[String], e).cooked }).flatten
+        // We must feed variable context out of one evaluation and into the next.
+        // So that the resulting variable map has the updated status of all evaluated variables.
+        var vars = start.variableMap
+        val delimsRaw = e.allTerminatingMarkup.map {
+          x =>
+            {
+              val R(res, newVMap) = x.evaluate(start.parent, vars)
+              vars = newVMap
+              res
+            }
+        }
+        val delimsCooked1 = delimsRaw.map(raw => { new daffodil.dsom.ListOfStringValueAsLiteral(raw.toString, e).cooked })
+        val delimsCooked = delimsCooked1.flatten
+        val postEvalState = start.withVariables(vars)
 
         log(Debug("StringDelimitedEndOfData - " + eName + " - Looking for: " + delimsCooked + " Count: " + delimsCooked.length))
 
-        val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, start.bitPos, decoder, Set.empty, delimsCooked.toSet, esObj)
+        val (result, endBitPos, theState, theDelimiter) = in.fillCharBufferUntilDelimiterOrEnd(cbuf, postEvalState.bitPos, decoder, Set.empty, delimsCooked.toSet, esObj)
 
         val postState = theState match {
           case SearchResult.NoMatch => {
@@ -405,22 +415,22 @@ case class StringDelimitedEndOfData(e : ElementBase)
             // No Terminator, so last result is a field.
             log(Debug(this.toString() + " - " + eName + " - Parsed: " + result))
             log(Debug(this.toString() + " - " + eName + " - Ended at bit position " + endBitPos))
-            val endCharPos = start.charPos + result.length()
-            val currentElement = start.parentForAddContent
+            val endCharPos = postEvalState.charPos + result.length()
+            val currentElement = postEvalState.parentForAddContent
             currentElement.addContent(new org.jdom.Text(result))
-            start.withPos(endBitPos, endCharPos)
+            postEvalState.withPos(endBitPos, endCharPos)
           }
-          case SearchResult.PartialMatch => start.failed(this.toString() + " - " + eName + ": Partial match found!")
+          case SearchResult.PartialMatch => postEvalState.failed(this.toString() + " - " + eName + ": Partial match found!")
           case SearchResult.FullMatch => {
             log(Debug(this.toString() + " - " + eName + " - Parsed: " + result))
             log(Debug(this.toString() + " - " + eName + " - Ended at bit position " + endBitPos))
-            val endCharPos = start.charPos + result.length()
-            val currentElement = start.parentForAddContent
+            val endCharPos = postEvalState.charPos + result.length()
+            val currentElement = postEvalState.parentForAddContent
             currentElement.addContent(new org.jdom.Text(result))
-            start.withPos(endBitPos, endCharPos)
+            postEvalState.withPos(endBitPos, endCharPos)
           }
           case SearchResult.EOD => {
-            start.failed(this.toString() + " - " + eName + " - Reached End Of Data.")
+            postEvalState.failed(this.toString() + " - " + eName + " - Reached End Of Data.")
           }
         }
         postState
@@ -1562,34 +1572,33 @@ case class UnicodeByteOrderMark(e : GlobalElementDecl) extends Primitive(e, fals
 
 case class FinalUnusedRegion(e : ElementBase) extends Primitive(e, false)
 
-
-abstract class NewVariableInstanceBase (decl : AnnotatedSchemaComponent, stmt : DFDLNewVariableInstance) 
+abstract class NewVariableInstanceBase(decl : AnnotatedSchemaComponent, stmt : DFDLNewVariableInstance)
   extends Terminal(decl, true) {
-    val (uri, localName) = XMLUtils.QName(decl.xml, stmt.ref, decl.schemaDocument)
-    val expName = XMLUtils.expandedQName(uri, localName)
+  val (uri, localName) = XMLUtils.QName(decl.xml, stmt.ref, decl.schemaDocument)
+  val expName = XMLUtils.expandedQName(uri, localName)
 }
 
-case class NewVariableInstanceStart(decl : AnnotatedSchemaComponent, stmt : DFDLNewVariableInstance) 
+case class NewVariableInstanceStart(decl : AnnotatedSchemaComponent, stmt : DFDLNewVariableInstance)
   extends NewVariableInstanceBase(decl, stmt) {
-    
-    def parser : Parser = new Parser(decl) { 
-      def parse(pstate : PState) = {
-        Assert.notYetImplemented()
-      }
+
+  def parser : Parser = new Parser(decl) {
+    def parse(pstate : PState) = {
+      Assert.notYetImplemented()
     }
-    
-    def unparser : Unparser = Assert.notYetImplemented()
-    
+  }
+
+  def unparser : Unparser = Assert.notYetImplemented()
+
 }
-    
-case class NewVariableInstanceEnd(decl : AnnotatedSchemaComponent, stmt : DFDLNewVariableInstance) 
+
+case class NewVariableInstanceEnd(decl : AnnotatedSchemaComponent, stmt : DFDLNewVariableInstance)
   extends NewVariableInstanceBase(decl, stmt) {
-  
+
   def parser : Parser = new Parser(decl) {
     def parse(pstate : PState) = Assert.notYetImplemented()
   }
-  
-   def unparser : Unparser = Assert.notYetImplemented()
+
+  def unparser : Unparser = Assert.notYetImplemented()
 }
 
 case class AssertPrim(decl : AnnotatedSchemaComponent, stmt : DFDLAssert) extends Primitive(decl, false)
@@ -1675,9 +1684,8 @@ class SetVariableParser(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable)
   lazy val exprText = stmt.value
   val (uri, localName) = XMLUtils.QName(decl.xml, stmt.ref, decl.schemaDocument)
   val defv = decl.schema.schemaSet.getDefineVariable(uri, localName).getOrElse(
-    stmt.schemaDefinitionError("Unknown variable: %s", stmt.ref)
-    )
-    
+    stmt.schemaDefinitionError("Unknown variable: %s", stmt.ref))
+
   lazy val expandedTypeName = defv.extType
 
   def parse(start : PState) : PState =
@@ -1686,7 +1694,7 @@ class SetVariableParser(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable)
         log(Debug("This is %s", toString))
         val R(res, newVMap) = eval(start)
         val newVMap2 = newVMap.setVariable(defv.extName, res, decl)
-        val postState = start.withVariables(newVMap2) 
+        val postState = start.withVariables(newVMap2)
         postState
       }
     }
