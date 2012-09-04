@@ -12,15 +12,31 @@
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scalatest/scalatest_2.9.1/scalatest_2.9.1-1.6.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8.jar" sourcepath="/home/mbeckerle/dataiti/sbs/tools/saxon-b/9.1.0.8-dist/saxonb9-1-0-8source.zip">
+	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8.jar" sourcepath="lib_managed/srcs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-dom.jar"/>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-s9api.jar"/>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-jdom.jar"/>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-xpath.jar" sourcepath="/home/mbeckerle/dataiti/sbs/tools/saxon-b/9.1.0.8-dist/saxonb9-1-0-8source.zip"/>
+	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-dom.jar" sourcepath="lib_managed/srcs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-s9api.jar" sourcepath="lib_managed/srcs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-jdom.jar" sourcepath="lib_managed/srcs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-xpath.jar" sourcepath="lib_managed/srcs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/junit/junit/junit-4.8.2.jar" sourcepath="lib_managed/srcs/junit/junit/junit-4.8.2-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/junit/junit/junit-4.8.2-javadoc.jar!/"/>
