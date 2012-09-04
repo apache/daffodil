@@ -141,6 +141,12 @@ case class RuntimeExpression[T <: AnyRef](convertTo : Symbol,
     }
     val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
     val converted : T = xpathRes match {
+      case NumberResult(n) if n.isNaN() => {
+        // Problem here is that strings like 'notAnInt' will be converted to NaN
+        // 
+        // Let's treat NaN as a signaling NaN always for now. 
+    	PE("Expression %s evaluated to something that is not a number: %s.", xpathText, n)
+        }
       case NumberResult(n) => {
         convertTo match {
           case 'Long => n.toLong.asInstanceOf[T]
@@ -227,6 +233,23 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
       result
     }
 
+  def compileTimeConvertToLong(s : String) =
+    try {
+      Long.box(s.toLong)
+    } catch {
+      case n : NumberFormatException =>
+        edecl.schemaDefinitionError("Cannot convert %s to Long. Error %s.", s, n)
+    }
+
+  def compileTimeConvertToDouble(s : String) =
+    try {
+      Double.box(s.toDouble)
+    } catch {
+      case n : NumberFormatException =>
+        edecl.schemaDefinitionError("Cannot convert %s to Double. Error %s.", s, n)
+    }
+    
+
   def compile[T](convertTo : Symbol, expr : String) : CompiledExpression = {
     if (!XPathUtil.isExpression(expr)) {
       // not an expression. For some properties like delimiters, you can use a literal string 
@@ -240,11 +263,14 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
       val compiledExpression = cv match {
         case Some(s) => {
           convertTo match {
-            case 'String => new ConstantExpression(s.asInstanceOf[String])
-            case 'Long => new ConstantExpression(Long.box(s.asInstanceOf[String].toLong))
+            case 'String => new ConstantExpression(s)
+            case 'Long => {
+              val lng = compileTimeConvertToLong(s)
+              new ConstantExpression(lng)
+            }
             // Evaluating to an Element when we're a constant makes no sense.
             // case 'Element => new ConstantExpression(s.asInstanceOf[org.jdom.Element])
-            case 'Double => new ConstantExpression(Double.box(s.asInstanceOf[String].toDouble))
+            case 'Double => new ConstantExpression(compileTimeConvertToDouble(s))
           }
         }
         case None => new RuntimeExpression(convertTo, expr, compiledXPath, edecl)

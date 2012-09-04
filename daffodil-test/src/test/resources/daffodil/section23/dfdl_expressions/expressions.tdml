@@ -189,29 +189,32 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="ArrayOptionalElem-Embedded.dfdl.xsd">
-		
-		<dfdl:format lengthKind="delimited" lengthUnits="bytes" encoding="UTF-8" separator="" initiator="" terminator=""
-		       	occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" byteOrder="bigEndian"
-		       	binaryNumberRep="binary"/>
-		       	
+
+		<dfdl:format lengthKind="delimited" lengthUnits="bytes"
+			encoding="UTF-8" separator="" initiator="" terminator=""
+			occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
+			representation="text" byteOrder="bigEndian" binaryNumberRep="binary" />
+
 		<xs:element name="aoe_01">
 			<xs:complexType>
 				<xs:sequence>
 					<xs:element name="reps" type="xs:unsignedInt"
 						dfdl:representation="binary" dfdl:lengthKind="implicit" />
-					<xs:element name="rows" type="xs:byte" dfdl:representation="binary" maxOccurs="unbounded" dfdl:occursCountKind="expression"
-						dfdl:occursCount="{ ../ex:reps }"/>
+					<xs:element name="rows" type="xs:byte"
+						dfdl:representation="binary" maxOccurs="unbounded"
+						dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:reps }" />
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
 
 	</tdml:defineSchema>
-	
+
 	<tdml:parserTestCase name="ArrayOptElem_01" root="aoe_01"
 		model="ArrayOptionalElem-Embedded.dfdl.xsd" description="Section 16 Array and Optional Elements">
 
 		<tdml:document>
-			<tdml:documentPart type="byte">00000003000102</tdml:documentPart>
+			<tdml:documentPart type="byte">00000003000102
+			</tdml:documentPart>
 		</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -224,23 +227,27 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
-	
+
 	<tdml:defineSchema name="expressions-Embedded.dfdl.xsd">
-		
-		<dfdl:format lengthKind="delimited" lengthUnits="bytes" encoding="UTF-8" separator="" initiator="" terminator=""
-		       	occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" />
-		
+
+		<dfdl:format lengthKind="delimited" lengthUnits="bytes"
+			encoding="UTF-8" separator="" initiator="" terminator=""
+			occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
+			representation="text" />
+
 		<xs:element name="lke_01" dfdl:lengthKind="implicit">
 			<xs:complexType>
 				<xs:sequence>
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"/>
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{../ex:e1}"/>
+					<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit"
+						dfdl:length="1" />
+					<xs:element name="e2" type="xs:int" dfdl:lengthKind="explicit"
+						dfdl:length="{../ex:e1}" />
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
-		
+
 	</tdml:defineSchema>
-	
+
 	<tdml:parserTestCase name="lke2_rel" root="lke_01"
 		model="expressions-Embedded.dfdl.xsd" description="">
 
@@ -254,5 +261,81 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
-	
+
+	<tdml:defineSchema name="expression-type-errors.dfdl.xsd">
+
+		<dfdl:format lengthKind="delimited" lengthUnits="bytes"
+			encoding="UTF-8" separator="" initiator="" terminator=""
+			occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
+			representation="text" />
+
+		<xs:element name="e" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="e1" type="xs:string"
+						dfdl:inputValueCalc="{ 'S' }" />
+					<xs:element name="e2" type="xs:int" dfdl:inputValueCalc="{ 2 }" />
+					<xs:element name="e3" type="xs:int" dfdl:inputValueCalc="{ ../ex:e2 + ../ex:e1 }" /> <!-- type error adding string to int is n.g. -->
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="f" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="e3" type="xs:int" dfdl:inputValueCalc="{ 2.5 }" /> <!-- type error as result is not int. -->
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="g" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="e1" type="xs:string"
+						dfdl:inputValueCalc="{ 'notAnInt' }" />
+					<xs:element name="e3" type="xs:int" dfdl:inputValueCalc="{ ../ex:e1 }" /> <!-- type error -->
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="expression-type-error1"
+		root="e" model="expression-type-errors.dfdl.xsd" description="get a type error from an expression at runtime.">
+
+		<tdml:document />
+		<tdml:errors>
+			<tdml:error>Parse Error</tdml:error>
+			<tdml:error>convert</tdml:error>
+			<tdml:error>double</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="expression-type-error2"
+		root="f" model="expression-type-errors.dfdl.xsd" description="get a type error from an expression at runtime.">
+		<tdml:document />
+		<tdml:errors>
+			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>convert</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="expression-type-error3"
+		root="g" model="expression-type-errors.dfdl.xsd" description="get a type error from an expression at runtime.">
+		<tdml:document />
+		 <tdml:errors> 
+		 <tdml:error>Parse Error</tdml:error> 
+		 <tdml:error>NaN</tdml:error> 
+		</tdml:errors> 
+		<!-- <tdml:infoset>
+			<tdml:dfdlInfoset xmlns="http://example.com">
+				<g>
+					<e1>notAnInt</e1>
+					<e3>2</e3>
+				</g>
+			</tdml:dfdlInfoset>
+		</tdml:infoset> -->
+	</tdml:parserTestCase>
+
+
 </tdml:testSuite>

@@ -20,4 +20,7 @@ class TestDFDLExpressions extends JUnit3Suite {
   def test_expressions_ocke1() { runner.runOneTest("ocke1") }
   def test_expressions_ocke2() { runner.runOneTest("ocke2") }
   //def test_ArrayOptElem_01() { runner.runOneTest("ArrayOptElem_01") }
+  def test_expression_type_error1() { runner.runOneTest("expression-type-error1")}
+  def test_expression_type_error2() { runner.runOneTest("expression-type-error2")}
+  def test_expression_type_error3() { runner.runOneTest("expression-type-error3")}
   }

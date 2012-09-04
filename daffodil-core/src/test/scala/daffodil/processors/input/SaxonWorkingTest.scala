@@ -16,14 +16,9 @@ import java.io.ByteArrayInputStream
 import java.util.ArrayList
 import java.math.BigInteger
 import org.jdom._
-
-
-/**
- * Test that Saxon XPath is working the way we need it to. Good test to have in case we upgrade to a new version of Saxon.
- */
-
 import org.scalatest.junit.JUnit3Suite
 import junit.framework.Assert._
+import daffodil.xml.XMLUtils
 
 class SaxonWorkingTest extends JUnit3Suite with XPathVariableResolver with NamespaceContext {
  
@@ -74,6 +69,38 @@ class SaxonWorkingTest extends JUnit3Suite with XPathVariableResolver with Names
         assertEquals(42, asInt)
   
     }
+    
+        // @Test
+    //
+    // This test is an attempt to get SAXON/XPath to take heed of xsi:type attributes on JDOM objects
+    //
+    // It is incomplete. Doesn't show this working. You just get an error because a clearly non-numeric string
+    // can't be turned into a double, but this check is just because the addition requires the values to be coerced 
+    // to double to do arithmetic.
+    //
+//    def testXSITypeCheck1() {
+//        System.setProperty("javax.xml.xpath.XPathFactory:"+NamespaceConstant.OBJECT_MODEL_JDOM,"net.sf.saxon.xpath.XPathFactoryImpl")
+//        val xpf = XPathFactory.newInstance(NamespaceConstant.OBJECT_MODEL_JDOM)
+//        val xpe = xpf.newXPath();          xpe.setXPathVariableResolver(this);
+//
+//         val document = new Document()
+//         val g = XMLUtils.elem2Element(<g  xmlns:xsi={ XMLUtils.XSI_NAMESPACE } xmlns:xs={ XMLUtils.XSD_NAMESPACE }><e1 xsi:type="xs:string">notAnInt</e1><e2 xsi:type="xs:int">2</e2></g>)
+//         document.setRootElement(g)
+//
+//
+//        //xpe.setNamespaceContext(this);
+//
+//        val compiled =  xpe.compile(" /g/e1 + /g/e2 ");
+//        val e = intercept[Exception] {
+//         compiled.evaluate(document, XPathConstants.NODESET);
+//        }
+//        assertNotNull(e)
+//        val msg = e.getMessage()
+//        val m = if (msg == null) e.getCause().getMessage() else msg
+//        println(m)
+//        assertTrue(m.contains("notAnInt"))
+//
+//    }
 
     /**
      * This class serves as a variable resolver. The only variable used is $word.
