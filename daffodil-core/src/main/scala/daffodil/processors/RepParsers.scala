@@ -159,14 +159,15 @@ case class OccursCountExpression(e : ElementBase)
       val priorElement = pstate.parentForAddContent
       priorElement.addContent(pseudoElement)
       val res = try {
-        val oc = e.occursCount.evaluate(pseudoElement, pstate.variableMap)
+        val R(oc, newVMap) = e.occursCount.evaluate(pseudoElement, pstate.variableMap)
+        val postEvalState = pstate.withVariables(newVMap)
         priorElement.removeContent(pseudoElement) // TODO: faster way? This might involve searching. We should keep the index.
         val ocLong = oc.asInstanceOf[Long]
         if (ocLong < 0 ||
           ocLong > Compiler.occursCountMax) {
-          return PE(pstate, "Evaluation of occursCount expression %s returned out of range value %s.", exprText, ocLong)
+          return PE(postEvalState, "Evaluation of occursCount expression %s returned out of range value %s.", exprText, ocLong)
         }
-        pstate.setOccursCount(ocLong)
+        postEvalState.setOccursCount(ocLong)
       } catch {
         case e : Exception =>
           PE(pstate, "Evaluation of occursCount expression %s threw exception %s", exprText, e)

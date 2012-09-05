@@ -597,7 +597,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   with DFDLDefiningAnnotation
   {
   lazy val gram = EmptyGram // has to have because statements have parsers layed in by the grammar.
-  lazy val type_ = getAttributeOption("type").getOrElse("xs:string")
+  lazy val typeQName = getAttributeOption("type").getOrElse("xs:string")
   lazy val external = getAttributeOption("external").map{_.toBoolean}.getOrElse(false)
   lazy val defaultValueAsAttribute = getAttributeOption("defaultValue")
   lazy val defaultValueAsElement = node.child.text
@@ -612,9 +612,12 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   
   lazy val qname = getQName(name)
   lazy val (uri, localName) = qname
-  lazy val expandedName = XMLUtils.expandedQName(uri, localName)
+  lazy val extName = XMLUtils.expandedQName(uri, localName)
   
-  lazy val variable = Variable(this, expandedName, type_, defaultValue, external, doc)
+  val (typeURI, typeLocalName) = XMLUtils.QName(node, typeQName, doc)
+  val extType = XMLUtils.expandedQName(typeURI, typeLocalName)
+    
+  lazy val newVariableInstance = VariableFactory.create(this, extName, extType, defaultValue, external, doc)
   
 }
 
@@ -624,15 +627,35 @@ class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
   lazy val ref = getAttributeRequired("ref")
   lazy val defaultValue = getAttributeOption("defaultValue")
   
-  lazy val gram = NewVariableInstance(decl, this)
+  lazy val gram : Gram = NewVariableInstanceStart(decl, this)
+  lazy val endGram : Gram = NewVariableInstanceEnd(decl, this)
+  
+  override lazy val diagnosticChildren : DiagnosticsList = List(gram, endGram)
+  
+   lazy val (uri, localName) = XMLUtils.QName(decl.xml, ref, decl.schemaDocument)
+   lazy val expName = XMLUtils.expandedQName(uri, localName)
+   lazy val defv = decl.schema.schemaSet.getDefineVariable(uri, localName).getOrElse(
+       this.schemaDefinitionError("Variable not found: %s", ref))
+       
+   lazy val newVariableInstance = defv.newVariableInstance
+   
+   
 }
 
-class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
+class DFDLSetVariable(node : Node, decl : AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) // with SetVariable_AnnotationMixin 
   {
   lazy val ref = getAttributeRequired("ref")
-  lazy val value = getAttributeRequired("value")
-  
+  lazy val attrValue = getAttributeOption("value")
+  lazy val <dfdl:setVariable>{ eltChildren @ _* }</dfdl:setVariable> = node
+  lazy val eltValue = eltChildren.text
+  lazy val value = (attrValue, eltValue) match {
+    case (None, v) if (v != "") => v
+    case (Some(v), "") => v
+    case (Some(v), ev) if (ev != "") => decl.SDE("Cannot have both a value attribute and an element value: %s", node)
+    case (None, "") => decl.SDE("Must have either a value attribute or an element value: %s", node)
+  }
+
   lazy val gram = SetVariable(decl, this)
 }
 

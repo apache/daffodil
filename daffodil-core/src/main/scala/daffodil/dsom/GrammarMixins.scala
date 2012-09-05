@@ -534,21 +534,9 @@ trait ElementBaseGrammarMixin
 
   lazy val elementRightFraming = Prod("elementRightFraming", this, NYI, trailingSkipRegion)
 
-  /**
-   * For executing the DFDL 'statement' annotations and doing whatever it is they
-   * do to the processor state. This is discriminators, assertions, setVariable, etc.
-   *
-   * Also things that care about entry and exit of scope, like newVariableInstance
-   */
-  lazy val statements = this.annotationObjs.filter { st =>
-    st.isInstanceOf[DFDLStatement] &&
-      !st.isInstanceOf[DFDLNewVariableInstance]
-  }.asInstanceOf[Seq[DFDLStatement]]
-  lazy val statementGrams = statements.map { _.gram }
-  lazy val dfdlStatementEvaluations = Prod("dfdlStatementEvaluations", this, statementGrams.length > 0,
-    statementGrams.fold(EmptyGram) { _ ~ _ })
-  lazy val dfdlScopeBegin = Prod("dfdlScopeBegin", this, NYI, EmptyGram)
-  lazy val dfdlScopeEnd = Prod("dfdlScopeEnd", this, NYI, EmptyGram)
+  
+    
+ 
 
   lazy val dfdlElementBegin = Prod("dfdlElementBegin", this, {
     if (isComplexType == true && lengthKind == LengthKind.Pattern) ComplexElementBeginPattern(this)
@@ -748,6 +736,36 @@ trait GlobalElementDeclGrammarMixin { self: GlobalElementDecl =>
 /////////////////////////////////////////////////////////////////
 
 trait TermGrammarMixin { self: Term =>
+  
+  
+  lazy val newVars = this.annotationObjs.filter { st =>
+    st.isInstanceOf[DFDLNewVariableInstance]
+  }.asInstanceOf[Seq[DFDLNewVariableInstance]]
+  
+  lazy val newVarStarts = newVars.map{ _.gram }
+  lazy val newVarEnds = newVars.map{ _.endGram }
+  
+  lazy val dfdlScopeBegin = Prod("dfdlScopeBegin", this, newVarStarts.length > 0,
+    newVarStarts.fold(EmptyGram) { _ ~ _ })
+
+  lazy val dfdlScopeEnd = Prod("dfdlScopeEnd", this, newVarEnds.length > 0,
+    newVarEnds.fold(EmptyGram) { _ ~ _ })
+    
+  /** For executing the DFDL 'statement' annotations and doing whatever it is they
+   * do to the processor state. This is discriminators, assertions, setVariable, etc.
+   *
+   * Also things that care about entry and exit of scope, like newVariableInstance
+   */
+  lazy val statements = this.annotationObjs.filter { st =>
+    st.isInstanceOf[DFDLStatement] &&
+      !st.isInstanceOf[DFDLNewVariableInstance]
+  }.asInstanceOf[Seq[DFDLStatement]]
+  lazy val statementGrams = statements.map { _.gram }
+  
+  // TODO: statements (but specifically not newVariableInstance) can appear on simple type definitions as well as terms.
+  
+  lazy val dfdlStatementEvaluations = Prod("dfdlStatementEvaluations", this, statementGrams.length > 0,
+    statementGrams.fold(EmptyGram) { _ ~ _ })
 
   def termContentBody: Prod
 
@@ -846,7 +864,7 @@ trait ModelGroupGrammarMixin
   // we're nested inside another group as a term.
   lazy val asChildOfComplexType = termContentBody
 
-  lazy val termContentBody = Prod("termContentBody", this, groupLeftFraming ~ groupContent ~ groupRightFraming)
+  lazy val termContentBody = Prod("termContentBody", this, dfdlStatementEvaluations ~ groupLeftFraming ~ groupContent ~ groupRightFraming)
 
   def mt = EmptyGram.asInstanceOf[Gram] // cast trick to shut up foldLeft compile errors below
 

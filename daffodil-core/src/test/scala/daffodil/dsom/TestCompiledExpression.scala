@@ -33,17 +33,17 @@ class TestCompiledExpression extends JUnit3Suite {
     val xpathString = "{ /root/child1/child2/child3 }"
     val compiled = ec.compile('String, xpathString) // as a string
 
-    val result = compiled.evaluate(root, new VariableMap())
+    val R(result, newVMap) = compiled.evaluate(root, new VariableMap())
 
     assertEquals("19", result)
     
     val compiled2 = ec.compile('Long, xpathString) // as a Long
-    val result2 = compiled2.evaluate(root, new VariableMap())
+    val R(result2, _) = compiled2.evaluate(root, new VariableMap())
     
     assertEquals(19L, result2)
     
     val compiled3 = ec.compile('Element, xpathString) // as a jdom element
-    val result3 = compiled3.evaluate(root, new VariableMap())
+    val R(result3, _) = compiled3.evaluate(root, new VariableMap())
     val r3string = result3.toString
     assertTrue(r3string.contains("<child3/>"))
     val r3value = result3.asInstanceOf[org.jdom.Element].getText()
@@ -61,13 +61,13 @@ class TestCompiledExpression extends JUnit3Suite {
     val compiled = ec.compile('String, xpathString) // as a string
     assertTrue(compiled.isConstant)
 
-    val result = compiled.evaluate(root, null)
+    val R(result, _) = compiled.evaluate(root, null)
 
     assertEquals("42", result)
     
     val compiled2 = ec.compile('Long, xpathString) // as a Long
     assertTrue(compiled2.isConstant)
-    val result2 = compiled2.evaluate(root, null)
+    val R(result2, _) = compiled2.evaluate(root, null)
     
     assertEquals(42L, result2)
     
@@ -75,7 +75,7 @@ class TestCompiledExpression extends JUnit3Suite {
     val ignored = new org.jdom.Document(root2)
     val compiled3 = ec.compile('Element, "{ /root }") // as a jdom Element
     assertFalse(compiled3.isConstant)
-    val result3 = compiled3.evaluate(root2, null)
+    val R(result3, _) = compiled3.evaluate(root2, null)
     val r3string = result3.toString
     assertTrue(r3string.contains("<root/>"))
   }
@@ -93,7 +93,7 @@ class TestCompiledExpression extends JUnit3Suite {
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/child2/child3 }"
     val compiled = ec.compile('String, xpathString) // as a string
-    val result = compiled.evaluate(root, new VariableMap())
+    val R(result, _) = compiled.evaluate(root, new VariableMap())
 
     assertEquals("19", result)
     
@@ -111,7 +111,7 @@ class TestCompiledExpression extends JUnit3Suite {
     val compiled = ec.compile('String, xpathString) // as a string
 
     val child2 = root.getChild("child1").getChild("child2")
-    val result = compiled.evaluate(child2, new VariableMap())
+    val R(result, _) = compiled.evaluate(child2, new VariableMap())
 
     assertEquals("19", result)
     
@@ -129,7 +129,7 @@ class TestCompiledExpression extends JUnit3Suite {
     val compiled = ec.compile('String, xpathString) // as a string
 
     val child3 = root.getChild("child1").getChild("child2").getChild("child3")
-    val result = compiled.evaluate(child3, new VariableMap())
+    val R(result, _) = compiled.evaluate(child3, new VariableMap())
 
     assertEquals("19", result)
     
@@ -147,7 +147,7 @@ class TestCompiledExpression extends JUnit3Suite {
     val compiled = ec.compile('String, xpathString) // as a string
 
     val child2 = root.getChild("e2")
-    val result = compiled.evaluate(child2, new VariableMap())
+    val R(result, _) = compiled.evaluate(child2, new VariableMap())
 
     assertEquals("42", result)
     
@@ -177,7 +177,7 @@ class TestCompiledExpression extends JUnit3Suite {
     val doc = new org.jdom.Document(r) // root must have a document node
     val root = doc.getRootElement()
     val child2 = root.getChild("e2")
-    val result = parser.testExpressionEvaluation(child2, new VariableMap())
+    val R(result, _) = parser.testExpressionEvaluation(child2, new VariableMap())
 
     assertEquals("42", result)
     

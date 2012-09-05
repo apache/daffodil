@@ -72,6 +72,17 @@
 		      </xs:sequence>
 		    </xs:complexType>
 		  </xs:element>
+		  
+		<xs:element name="simple" type="newType"/>
+		  
+		<xs:simpleType name="newType">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/">
+					<dfdl:simpleType lengthKind="pattern" lengthPattern="(b|c|h)at"/>
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:restriction base="xs:string"/>
+		</xs:simpleType>
 		
 	</tdml:defineSchema>
 	
@@ -126,6 +137,17 @@
   					<first>bat,</first>
   					<fifth>AAAAA</fifth>
 				</list_02>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="lengthKindPattern_04" root="simple"
+		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - simpleType - DFDL-12-038R">
+
+		<tdml:document>hat</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<simple>hat</simple>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>

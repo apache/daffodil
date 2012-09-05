@@ -15,9 +15,6 @@ class TestDFDLExpressionsDebug extends JUnit3Suite {
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
   
-  def test_expressions_lke1_rel() { runner.runOneTest("lke1_rel") }
-  def test_expressions_lke1_abs() { runner.runOneTest("lke1_abs") }
-  def test_expressions_ocke1() { runner.runOneTest("ocke1") }
-  def test_expressions_ocke2() { runner.runOneTest("ocke2") }
   def test_ArrayOptElem_01() { runner.runOneTest("ArrayOptElem_01") }
+  def test_expressions_lke2_rel() { runner.runOneTest("lke2_rel") }
   }
