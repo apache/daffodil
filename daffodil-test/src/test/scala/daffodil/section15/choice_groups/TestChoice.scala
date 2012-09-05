@@ -25,11 +25,19 @@ class TestChoice extends JUnit3Suite {
   def test_choiceFail1() { runnerCH.runOneTest("choiceFail1")}
   def test_choiceDelim1() { 
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-    runnerCH.runOneTest("choiceDelim1")
-    }
+    runnerCH.runOneTest("choiceDelim1")}
+  def test_choiceDelim2() { runnerCH.runOneTest("choiceDelim2")}
+  def test_choiceDelimFloat() { runnerCH.runOneTest("choiceDelimFloat")}
+  def test_choiceDelimString() { runnerCH.runOneTest("choiceDelimString")}
+  def test_choiceDelimStringwSp() { runnerCH.runOneTest("choiceDelimStringwSp")}
+  def test_choiceDelimInt() { runnerCH.runOneTest("choiceDelimInt")}
+
   def test_nestedChoice1() { 
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-    runnerCH.runOneTest("nestedChoice1")
-    }
+    runnerCH.runOneTest("nestedChoice1")}
   
-  }
+ 
+  def test_nestedChoiceAllString() { runnerCH.runOneTest("nestedChoiceAllString")}
+  def test_nestedChoiceAllFloat() { runnerCH.runOneTest("nestedChoiceAllFloat")}
+  def test_nestedChoiceAllInt() { runnerCH.runOneTest("nestedChoiceAllInt")}
+}

@@ -301,7 +301,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="expression-type-error1"
-		root="e" model="expression-type-errors.dfdl.xsd" description="get a type error from an expression at runtime.">
+		root="e" model="expression-type-errors.dfdl.xsd" description="get a type error from an expression at runtime - DFDL-23-006R">
 
 		<tdml:document />
 		<tdml:errors>
@@ -312,7 +312,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="expression-type-error2"
-		root="f" model="expression-type-errors.dfdl.xsd" description="get a type error from an expression at runtime.">
+		root="f" model="expression-type-errors.dfdl.xsd" description="get a type error from an expression at runtime - DFDL-23-006R">
 		<tdml:document />
 		<tdml:errors>
 			<tdml:error>Schema Definition Error</tdml:error>
@@ -321,7 +321,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="expression-type-error3"
-		root="g" model="expression-type-errors.dfdl.xsd" description="get a type error from an expression at runtime.">
+		root="g" model="expression-type-errors.dfdl.xsd" description="get a type error from an expression at runtime - DFDL-23-006R">
 		<tdml:document />
 		 <tdml:errors> 
 		 <tdml:error>Parse Error</tdml:error> 
