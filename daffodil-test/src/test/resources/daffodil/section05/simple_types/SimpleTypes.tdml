@@ -117,7 +117,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="warning_exercise" root="int03"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Exercise for handling a warning message">
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Exercise for handling a warning message - DFDL-2-012R">
 		
 		<tdml:document>37</tdml:document>
 		<tdml:infoset>

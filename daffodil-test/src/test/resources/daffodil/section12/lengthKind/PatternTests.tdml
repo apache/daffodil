@@ -142,7 +142,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="lengthKindPattern_04" root="simple"
-		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - simpleType - DFDL-12-038R">
+		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - simpleType - DFDL-12-087R">
 
 		<tdml:document>hat</tdml:document>
 		<tdml:infoset>

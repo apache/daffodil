@@ -23,7 +23,7 @@
 	</tdml:defineSchema>
 	
 	<tdml:parserTestCase name="LengthProp_01" root="LP_01"
-		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties">
+		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
 
 			<tdml:document>123456789</tdml:document>
 			<tdml:infoset>

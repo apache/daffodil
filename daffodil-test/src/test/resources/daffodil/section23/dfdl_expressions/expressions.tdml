@@ -210,7 +210,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="ArrayOptElem_01" root="aoe_01"
-		model="ArrayOptionalElem-Embedded.dfdl.xsd" description="Section 16 Array and Optional Elements">
+		model="ArrayOptionalElem-Embedded.dfdl.xsd" description="Section 16 Array and Optional Elements - DFDL-16-003R">
 
 		<tdml:document>
 			<tdml:documentPart type="byte">00000003000102
