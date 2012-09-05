@@ -618,7 +618,7 @@
 	
 	
 				<tdml:parserTestCase name="nestedChoiceAllString" root="ch1"
-		model="nestedChoice2" description="Nested choices - all string, with no backtracking - DFDL-15-001R.">
+		model="nestedChoice2" description="Nested choices - all strings, with no backtracking - DFDL-15-001R.">
 
 		<tdml:document>
 			<!-- three strings with special characters, a number and decimal point . -->
