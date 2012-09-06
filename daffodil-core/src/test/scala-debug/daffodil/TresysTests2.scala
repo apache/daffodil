@@ -29,5 +29,7 @@ class TresysTests2 extends JUnit3Suite {
   def test_testOne() { runnerBF.runOneTest("testOne") }
   def test_testMany() { runnerBF.runOneTest("testMany") }
   
-
+  val ab = testDir + "AB.tdml"
+  lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))
+  def test_AB006() { runnerAB.runOneTest("AB006") }
 }
