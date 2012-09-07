@@ -188,6 +188,42 @@
 	        </xs:sequence>
 	      </xs:complexType>
 	    </xs:element>
+	    
+	    <xs:element name="def" dfdl:lengthKind="pattern" dfdl:lengthPattern="!!.*!!" dfdl:encoding="utf-8">
+        <xs:complexType>
+           <xs:sequence>
+               <xs:element name="first" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{2}"/>
+               <xs:element name="inner" type="xs:int"
+                          dfdl:representation="binary" 
+                          dfdl:binaryNumberRep="binary"
+                         dfdl:lengthKind="implicit"/>
+               <xs:element name="last" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{2}"/>
+           </xs:sequence>
+        </xs:complexType>
+        </xs:element>
+	    
+	    <xs:element name="def_01" dfdl:lengthKind="pattern" dfdl:lengthPattern="!!.*!!" dfdl:encoding="utf-8">
+        <xs:complexType>
+           <xs:sequence>
+               <xs:element name="first" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{2}"/>
+               <xs:element name="inner" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{5}"/>
+               <xs:element name="last" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{2}"/>
+           </xs:sequence>
+        </xs:complexType>
+        </xs:element>
+        
+        <xs:element name="def_02" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="!!.*!!" dfdl:encoding="utf-8"/>
+	    <xs:element name="def_03" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{9}"/>
+        
+        <xs:element name="def_04" dfdl:lengthKind="pattern" dfdl:lengthPattern="!!.*!!" dfdl:lengthUnits="characters" dfdl:encoding="utf-8">
+        <xs:complexType>
+           <xs:sequence>
+               <xs:element name="first" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{2}" dfdl:lengthUnits="characters"/>
+               <xs:element name="inner" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{1}" dfdl:lengthUnits="characters"/>
+               <xs:element name="last" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{2}" dfdl:lengthUnits="characters"/>
+           </xs:sequence>
+        </xs:complexType>
+        </xs:element>
 	
 	</tdml:defineSchema>
 
@@ -208,6 +244,84 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<abc><nul>0</nul><ab><name>aaa</name><item>bb//</item></ab><c>5</c></abc>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="LengthPatternIllegalBits" root="def"
+		model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R">
+		<tdml:document>!!c2c2!!</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<first>!!</first>
+				<inner>49858</inner>
+				<last>!!</last>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="LengthPatternIllegalBits_01" root="def_01"
+		model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R">
+		<tdml:document>
+			<tdml:documentPart type="byte">2121343938353a2121</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<def_01>
+					<first>!!</first>
+					<inner>49858</inner>
+					<last>!!</last>
+				</def_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="LengthPatternIllegalBits_02" root="def_04"
+		model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R">
+		<tdml:document>
+			<tdml:documentPart type="byte">2121c2c22121</tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="LengthPatternLegalBits_01" root="def_01"
+		model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R">
+		<tdml:document>
+			<tdml:documentPart type="byte">212134393835382121</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<def_01>
+					<first>!!</first>
+					<inner>49858</inner>
+					<last>!!</last>
+				</def_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="LengthPatternLegalBits_02" root="def_02"
+		model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R">
+		<tdml:document>
+			<tdml:documentPart type="byte">212134393835382121</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<def_02>!!49858!!</def_02>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="ExplicitLength" root="def_03"
+		model="DFDL-207-Embedded.dfdl.xsd" description="">
+		<tdml:document>
+			<tdml:documentPart type="byte">212134393835382121</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<def_03>!!49858!!</def_03>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
