@@ -10,7 +10,7 @@ import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-class TestContentFramingProperties extends JUnit3Suite {
+class TestContentFramingPropertiesDebug extends JUnit3Suite {
   val testDir_01 = "/daffodil/ibm-tests/"
   val tdml1 = testDir_01 + "dpaext1.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
