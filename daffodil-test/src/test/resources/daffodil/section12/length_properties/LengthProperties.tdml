@@ -20,6 +20,46 @@
 			</xs:complexType>
 		</xs:element>
 		
+		<xs:element name="LP_02" type="lp_02"/>
+		<xs:simpleType name="lp_02">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/">
+					<dfdl:simpleType lengthKind="explicit" lengthUnits="bytes" length="2" byteOrder="bigEndian"/>
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:restriction base="xs:string"/>
+		</xs:simpleType>
+		
+		<xs:element name="LP_03" type="lp_03"/>
+		<xs:simpleType name="lp_03">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/">
+					<dfdl:simpleType lengthKind="explicit" lengthUnits="bytes" length="3" byteOrder="bigEndian"/>
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:restriction base="xs:string"/>
+		</xs:simpleType>
+		
+		<xs:element name="LP_04" type="lp_04"/>
+		<xs:simpleType name="lp_04">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/">
+					<dfdl:simpleType lengthKind="explicit" length="3"/>
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:restriction base="xs:string"/>
+		</xs:simpleType>
+		
+		<xs:element name="LP_05" type="lp_05"/>
+		<xs:simpleType name="lp_05">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/">
+					<dfdl:simpleType lengthKind="explicit" length="3" encoding="ASCII"/>
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:restriction base="xs:string"/>
+		</xs:simpleType>
+		
 	</tdml:defineSchema>
 	
 	<tdml:parserTestCase name="LengthProp_01" root="LP_01"
@@ -33,6 +73,50 @@
 						<num>456</num>
 						<num>789</num>
 					</LP_01>
+				</tdml:dfdlInfoset>
+			</tdml:infoset>
+		</tdml:parserTestCase>
+		
+		<tdml:parserTestCase name="LengthProp_02" root="LP_02"
+		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-161R">
+
+			<tdml:document><tdml:documentPart type="byte">c2a9</tdml:documentPart></tdml:document>
+			<tdml:infoset>
+				<tdml:dfdlInfoset>
+					<LP_02>&#169;</LP_02>
+				</tdml:dfdlInfoset>
+			</tdml:infoset>
+		</tdml:parserTestCase>
+		
+		<tdml:parserTestCase name="LengthProp_03" root="LP_03"
+		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
+
+			<tdml:document><tdml:documentPart type="byte">2a2b2c</tdml:documentPart></tdml:document>
+			<tdml:infoset>
+				<tdml:dfdlInfoset>
+					<LP_03>*+,</LP_03>
+				</tdml:dfdlInfoset>
+			</tdml:infoset>
+		</tdml:parserTestCase>
+		
+		<tdml:parserTestCase name="LengthProp_04" root="LP_04"
+		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-161R">
+
+			<tdml:document><tdml:documentPart type="byte">c2a2c2a3c2ae</tdml:documentPart></tdml:document>
+			<tdml:infoset>
+				<tdml:dfdlInfoset>
+					<LP_04>&#162;&#163;&#174;</LP_04>
+				</tdml:dfdlInfoset>
+			</tdml:infoset>
+		</tdml:parserTestCase>
+		
+		<tdml:parserTestCase name="LengthProp_05" root="LP_05"
+		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-161R">
+
+			<tdml:document>3Ax</tdml:document>
+			<tdml:infoset>
+				<tdml:dfdlInfoset>
+					<LP_05>3Ax</LP_05>
 				</tdml:dfdlInfoset>
 			</tdml:infoset>
 		</tdml:parserTestCase>
