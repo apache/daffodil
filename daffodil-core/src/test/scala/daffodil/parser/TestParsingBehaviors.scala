@@ -330,26 +330,26 @@ class TestParsingBehaviors extends JUnit3Suite {
     })
   }
 
-  def testParseSingleFieldFromAB007 = {
-    ////println(System.getProperty("user.dir"))
-    //val channel = new FileInputStream(testFileDir + "AB007.in").getChannel()
-   val channel = new FileInputStream(new File(rsrcAB007.getPath().substring(1))).getChannel()
-
-    val byteR = new delimsearch.DFDLByteReader(channel)
-
-    val r = byteR.charReader("UTF-8")
-
-    val d = new delimsearch.DelimParser
-
-    val separators = Set[String](",")
-
-    val terminators = Set[String]("%NL;")
-
-    val res = d.parseInput(separators, terminators, r)
-
-    assertEquals("1", res.field)
-    assertEquals(",", res.delimiter)
-  }
+//  def testParseSingleFieldFromAB007 = {
+//    ////println(System.getProperty("user.dir"))
+//    //val channel = new FileInputStream(testFileDir + "AB007.in").getChannel()
+//   val channel = new FileInputStream(new File(rsrcAB007.getPath().substring(1))).getChannel()
+//
+//    val byteR = new delimsearch.DFDLByteReader(channel)
+//
+//    val r = byteR.charReader("UTF-8")
+//
+//    val d = new delimsearch.DelimParser
+//
+//    val separators = Set[String](",")
+//
+//    val terminators = Set[String]("%NL;")
+//
+//    val res = d.parseInput(separators, terminators, r)
+//
+//    assertEquals("1", res.field)
+//    assertEquals(",", res.delimiter)
+//  }
 
   def testParsingEscapeSchemeBlockAtStart = {
     val r = new CharSequenceReader("/*hidden/*:text*/:def:ghi") // Input 1
