@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
+<testSuite suiteName="AM"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	
+	<parserTestCase name="AM000" root="mimeType" model="AM.dfdl.xsd"
+		description="MIME type detect - hiddenGroupRef, discriminators, and inputValueCalc">
+	<document>
+		<documentPart type="byte">
+ 4947 3846 6139 0064 0064 64c6 0000 0000 0101 0201 0202 0303 0703 0707 0808 0908
+ 0909 0a0a 0f0a 0f0f 1111 1211 1212 1414 1614 1616 1717 1917 1919 1a1a 1b1a 1b1b
+ 1d1d 201d 2020 2222 2522 2525 2727 2827 2828 2929 2c29 2c2c 2d2d 2f2d 2f2f 3030
+ 3230 3232 3535 3635 3636 3737 3837 3838 3939 3a39 3a3a 3b3b 3c3b 3c3c 3e3e 3f3e
+ 3f3f 4040 4140 4141 4242 4442 4444 4646 4746 4747 4848 4948 4949 4c4c 4d4c 4d4d
+ 4e4e 504e 5050 5757 5857 5858 5a5a 5b5a 5b5b 5c5c 5e5c 5e5e 5f5f 605f 6060 6666
+ 6866 6868 6969 6d69 6d6d 7070 7b70 7b7b 7d7d 807d 8080 8383 8c83 8c8c 9090 9390
+ 9393 9595 9895 9898 9a9a 9b9a 9b9b 9e9e 9f9e 9f9f a3a3 ada3 adad aeae b3ae b3b3
+ b8b8 bfb8 bfbf c5c5 cac5 caca cccc cdcc cdcd cfcf d9cf d9d9 dada deda dede dfdf
+ e5df e5e5 e6e6 ece6 ecec efef f1ef f1f1 f3f3 f9f3 f9f9 fefe fffe ffff ffff ffff
+ ffff ffff ffff ffff ffff ffff ffff ffff ffff ffff ffff ffff ffff ffff ffff ffff
+ ffff ffff ffff ffff ffff ffff ffff ffff ffff ffff ffff ffff ffff ffff ffff ffff
+ ffff ffff ffff ffff ffff ffff 21ff 11fe 7243 6165 6574 2064 6977 6874 4720 4d49
+ 0050 002c 0000 6400 6400 0000 fe07 6480 8382 8584 8786 8988 8b8a 8d8c 8f8e 9190
+ 9392 9594 9796 9998 9b9a 9d9c 9f9e a1a0 a3a2 a5a4 a7a6 9aa8 575f 424c 4c42 5f57
+ b3a9 5f88 324c 0012 1200 4c32 b4b2 64c0 1ab6 c5ba 1a00 c1be 57b4 c631 31c6 ca57
+ 4ab3 ce0e 0ec5 d24a 3ea9 c6d6 da3e 35a8 c5dd 6332 a6e0 e332 18ba e760 3ca5 00ea
+ 5a0f a4ee 0143 4ff1 a3f5 0653 45f1 44fb 4171 cf10 4046 1f51 cde2 1838 43aa 123c
+ 410c 88bd 22f7 27e2 f113 583e a4f4 1e23 8d88 7e9d 4bc4 0bf0 2664 f128 4400 9933
+ 4b09 23ca 332c 5989 8f10 cc47 1b4c c5e2 89b8 4489 153c 2f3c 88b9 22e7 a5a8 f114
+ 1852 d4ad dd4c a5ce 4693 1bc4 7501 44d2 1575 46ab aa92 aa8e 4856 c74d fd3d 08ea
+ 3aa9 64a5 0d1d 5755 6d34 b323 e3fe bad0 045d 9bb7 b9dc d689 6b8e 378b 5d51 776b
+ 1afb db0a ac6d 4360 c75c d579 c626 164b 562b 78b2 e311 eae9 acb8 beca 0150 a272
+ ae81 0a02 a026 f108 4462 148c 522e 4ea0 6311 e944 a9d3 b757 bd7e a09a 043a 67a9
+ 5e9b db2d eef5 b9d8 c77d 5158 87c3 5892 be8c 2928 2071 f3a5 d0e7 4ba3 65d7 c8e1
+ 4496 2eb6 df4c bdce f3fb d71a 5d0f e749 bcbd f2f9 c23a 6217 eb92 fbbc cff7 484f
+ 2439 be04 fbfd 84dd c7d0 1fcf 7ebf ec43 27f5 7ba0 15ff de32 0880 2776 21df e4b6
+ e094 d083 57a5 2dcb e811 8032 1000 6866 848c b1d8 4422 4610 d138 1144 d039 4250
+ 3069 d0a0 0a02 a1bd 0288 2870 20c0 8b82 d9a9 0e36 ac6e 38cd 8a42 ca2b 63a6 b18a
+ 08ad 6f83 9030 01f0 ba04 da90 84c0 da7a 6610 618d 1187 97f2 8133 2945 5e88 f0dd
+ e565 5320 531a 95a5 165d 65f3 5894 a35a 96e5 8464 cba9 8798 e939 940c 265b cdd6
+ 6862 6192 3759 d598 41c9 263c 39d4 9ec8 e8ea a7e0 0430 f3c4 a0c3 a457 c504 47a0
+ 84a4 a0c5 a8f0 0123 7e65 69ba 078c 9283 42a1 283c 5a64 33a6 6e67 26a9 6c00 660a
+ 3169 5a70 a729 7435 79a2 35a7 a279 aab9 ad33 796e 2eaa 46a9 6a39 7da9 6a7d a84c
+ 2660 e995 9eae 9512 4fa9 b0ea 6990 f109 90e0 03e9 f4f1 6990 f105 912c 0669 44f1
+ 2991 0c12 738c 1743 5699 c141 4938 9184 1929 5ae2 ee53 82b9 4154 3544 ec00 8500
+ ecb9 1bd6 2053 3b00
+ </documentPart>
+	</document>
+		<infoset>
+			<dfdlInfoset>
+				<mimeType xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+				  <mime>
+				    <type type="xsd:string">image/gif</type>
+				  </mime>
+				</mimeType>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="AM001" root="mimeType" model="AM.dfdl.xsd"
+		description="hiddenGroupRef, discriminators, and inputValueCalc">
+	<document>
+		<documentPart type="byte">
+ d8ff e0ff 1000 464a 4649 0100 0101 4800 4800 0000 feff 1300 7243 6165 6574 2064
+ 6977 6874 4720 4d49 ff50 00db 0043 0305 0404 0304 0405 0404 0505 0605 0c07 0708
+ 0707 0f07 0b0b 0c09 0f11 1212 0f11 1111 1613 171c 1413 151a 1111 2118 1a18 1d1d
+ 1f1f 131f 2217 2224 241e 1e1c 1e1f dbff 4300 0501 0505 0607 0e07 0808 1e0e 1114
+ 1e14 1e1e 1e1e 1e1e 1e1e 1e1e 1e1e 1e1e 1e1e 1e1e 1e1e 1e1e 1e1e 1e1e 1e1e 1e1e
+ 1e1e 1e1e 1e1e 1e1e 1e1e 1e1e 1e1e 1e1e 1e1e ff1e 00c0 0811 6400 6400 0103 0022
+ 1102 0301 0111 c4ff 1c00 0100 0001 0103 0101 0001 0000 0000 0000 0000 0609 0807
+ 0405 0201 c4ff 4b00 0010 0301 0203 0201 0b0f 0909 0000 0000 0100 0200 0403 0605
+ 1107 2108 0931 1312 1716 3218 5141 7161 9181 d3d2 1514 3833 5342 7456 a194 22b3
+ 3423 5452 7562 9592 8365 8584 a3a2 c1b2 fff0 00c4 0114 0001 0000 0000 0000 0000
+ 0000 0000 0000 ff00 00c4 1114 0001 0000 0000 0000 0000 0000 0000 0000 ff00 00da
+ 030c 0001 1102 1103 3f00 ec00 44b4 4440 0444 cf45 727c 3dea 02f3 cbd3 2675 543d
+ 3afa cddb e14b 2c35 a3ee 8d8d db05 0978 0ddc 74d0 2922 a27d c95a e199 83fa ad6e
+ ff96 5f00 4157 5451 56d6 d4d3 64ce d863 b1e3 943f 0879 75df 4150 6e04 e00e 22a0
+ 0222 2022 2222 2202 2220 0222 4ee6 c588 1aae 1d9d ddb4 f01d 57f4 3196 f787 8a64
+ 984e 5a7a 42df b5e9 38a5 b5de e732 86c3 2343 12be 4a86 b86a a2fc 3466 00ff eea5
+ 3441 4bda 2048 4790 2328 abbc 9fde cb56 c072 eb71 ee8c a5e9 b5aa 4cd3 e1f3 a273
+ 8f6b 54de 5583 8647 ac3b 9dd7 c200 aaeb 3237 5c0b 1270 cf79 2652 7c20 88e1 3a36
+ 2022 2222 2202 2220 64fe 237b 7c61 6b8f d118 73b9 c08e 8705 6ad4 99ae d7d3 82ba
+ 3fa3 21c6 69a9 d1d9 e7be 480b 3d3e 83dc 4532 0d8d c041 dc88 f866 ffc9 3500 d683
+ 27f1 0c64 e90b 35be fdcb 07ab e3ad 3208 a955 bff8 b7f8 5f66 8b55 e3f1 9f59 1c64
+ e90b 35be 56fd 590f fe6a b32b 3e2c c3e5 5bde 6f43 ecca 9555 d352 2346 0b82 5284
+ f248 8c27 1aec b91d 3ce6 04de 7113 0e54 3e10 d82d d56f fc65 1479 54bf 858f cf2c
+ b60f f770 5189 725c 15bb 5415 d254 2109 b8a8 1b45 7ad8 87b4 a595 8edb 5e4e 1b54
+ 16d5 d935 0303 6edf b1bd fcad fa1e ebc1 6427 0b1c fa6d c6f7 feb6 072b 83ac 4525
+ 768d c040 dbf7 6caf fa6b 1eac 88b7 66af 75d7 5db6 ea60 bbf6 1d8d 5f74 4daf 643b
+ a56f a0a4 11fb 0711 7437 b240 fd0b 4a97 2928 d2ac 05cf c235 a8b7 4dd7 8b13 6048
+ e16e 8ea4 3cf1 7c8a 531e 56b9 2f07 acc6 6d99 a286 90c7 e15b a0ae 1ba8 293e fe06
+ e071 353e 9fa6 3ec2 b98c 8f92 6e7b cfc1 8724 8b0b 67c1 7390 417a 3841 50d1 c1d3
+ 91be 7f12 923f f18f e4ec 00ff 3b6d f44d e78b 5ff2 b3b7 a0d9 489e 6fa8 be69 fe91
+ 92d1 bdfd cd9e ba60 c3fd 9b16 fa60 9041 76e5 af59 e1a6 856f 808f 584f 47d7 95b9
+ e58d 8301 477e fa1e 2c0e 5d44 a0a7 315c b669 a373 f6f8 7955 fa9a 85db 07c2 71be
+ 584f b3c6 2371 36da 8705 466e fa8e 2c0e 4345 4d7b 8bf4 fa7d 4bbe f7e4 3d7b 769a
+ e99b df1e 64a4 6fdf b367 3c41 bd97 6581 fc37 283f bda2 95e3 54d5 b0b5 d2ca 0f04
+ aa23 fb8d 3982 8143 d8e6 bb82 f0bc a46f 3f5f fd92 9ebd ffcf 6c00 0cbd 8437 28dd
+ b2c6 2f38 6d6d edea 3b25 90c4 dcd3 636a 0c7c 3b70 d283 36b6 7997 481c bb41 15ac
+ 5753 ad58 b5f5 9811 a8a6 8ea5 1859 4b7e d09c f348 8b12 68ec 680d 406b 0d00 1d80
+ 41e4 88fa 0888 8088 27b5 9218 2eb2 731b 3d17 a0c1 c2d3 b9d1 26e7 20a2 de07 dab6
+ bee7 1588 d054 fb70 5124 b538 3795 686a 03a5 34e5 ef74 f9db d398 41e6 d53a e142
+ 8e11 0e67 6818 d878 92fb e643 4833 dc47 eaa5 7aad 4731 060d e190 74f4 e9ed 8a63
+ 46c7 fe00 84e5 4e9f 32e8 44d4 4440 0444 4044 4444 4404 5c40 d1e9 db0b 24b0 c63f
+ ffe9 e100 e82a cfb5 101d 4a4a adca 6b02 61e9 4732 784d 9aa7 8fa4 1f91 2349 fe77
+ 3067 d079 e54e f45c 6ea3 b8c5 dc9e f2de fe51 1403 a192 a8a5 adae 8a82 2792 514b
+ 2351 8a62 f336 eebd 003b a43c 5f85 cb30 ed7b 7d38 d596 7727 6f47 9d82 56de d646
+ 00ff 0fd2 1159 1110 0111 1011 1111 1101 1710 72cf a3a1 5bb9 2dea 0af7 aa68 2aa9
+ 3123 0c4d 0eac 8c64 6223 0fd2 2838 3088 473c f443 13a7 fac8 b0e1 9461 9734 e230
+ 4cf6 9664 a45e fc4e b5b1 2dee 9c8f 20f7 882d 8088 8888 8808 8880 3f88 d9ff
+ </documentPart>
+	</document>
+		<infoset>
+			<dfdlInfoset>
+				<mimeType xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+				  <mime>
+				    <type type="xsd:string">image/gif</type>
+				  </mime>
+				</mimeType>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+</testSuite>
