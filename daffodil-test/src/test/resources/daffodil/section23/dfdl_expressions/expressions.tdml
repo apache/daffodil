@@ -323,18 +323,29 @@
 	<tdml:parserTestCase name="expression-type-error3"
 		root="g" model="expression-type-errors.dfdl.xsd" description="get a type error from an expression at runtime.">
 		<tdml:document />
-		 <tdml:errors> 
-		 <tdml:error>Parse Error</tdml:error> 
-		 <tdml:error>NaN</tdml:error> 
-		</tdml:errors> 
-		<!-- <tdml:infoset>
-			<tdml:dfdlInfoset xmlns="http://example.com">
-				<g>
-					<e1>notAnInt</e1>
-					<e3>2</e3>
-				</g>
-			</tdml:dfdlInfoset>
-		</tdml:infoset> -->
+		<tdml:errors>
+			<tdml:error>Parse Error</tdml:error>
+			<tdml:error>NaN</tdml:error>
+		</tdml:errors>
+		<!-- <tdml:infoset> <tdml:dfdlInfoset xmlns="http://example.com"> <g> <e1>notAnInt</e1> 
+			<e3>2</e3> </g> </tdml:dfdlInfoset> </tdml:infoset> -->
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="unknown-prefix">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="theElementName" type="xs:int"
+			dfdl:inputValueCalc="{ theUnknownPrefix:x }" />
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="expression-unknown-prefix"
+		root="theElementName" model="unknown-prefix"
+		description="get compilation time error due to unknown prefix.">
+		<tdml:document />
+		<tdml:errors>
+			<tdml:error>Schema Definition</tdml:error>
+			<tdml:error>theUnknownPrefix</tdml:error>
+			<tdml:error>theElementName</tdml:error>
+		</tdml:errors>
 	</tdml:parserTestCase>
 
 
