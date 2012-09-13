@@ -59,24 +59,23 @@ abstract class CompiledExpression(val prettyExpr : String) {
    *
    * isConstantValue must be true or this will throw.
    */
-  def constant : AnyRef
+  def constant : Any
   def constantAsString = constant.toString
   def constantAsLong = constantAsString.toLong
 
   /**
    * evaluation - the runtime
-   * 
+   *
    * Note that since we can reference variables, and those might never have been read,
-   * the act of evaluating them changes the variableMap state potentially. So an 
+   * the act of evaluating them changes the variableMap state potentially. So an
    * updated variableMap must be returned as well.
    */
 
-  
   def evaluate(rootedAt : org.jdom.Parent, variables : VariableMap) : R
 
 }
 
-  case class R(res : AnyRef, vmap : VariableMap)
+case class R(res : Any, vmap : VariableMap)
 
 //object CompiledExpressionUtil {
 //
@@ -97,7 +96,7 @@ abstract class CompiledExpression(val prettyExpr : String) {
 //
 //}
 
-case class ConstantExpression[T <: AnyRef](value : T) extends CompiledExpression(value.toString) {
+case class ConstantExpression[T](value : T) extends CompiledExpression(value.toString) {
   def isConstant = true
   def isKnownNonEmpty = value != ""
   def constant : T = value
@@ -107,37 +106,36 @@ case class ConstantExpression[T <: AnyRef](value : T) extends CompiledExpression
 case class RuntimeExpression[T <: AnyRef](convertTo : Symbol,
   xpathText : String,
   xpathExprFactory : CompiledExpressionFactory,
-  sc : SchemaComponent) 
-  extends CompiledExpression(xpathText) 
+  sc : SchemaComponent)
+  extends CompiledExpression(xpathText)
   with WithParseErrorThrowing {
   val context = sc
   def isConstant = false
   def isKnownNonEmpty = true // expressions are not allowed to return empty string
   def constant : T = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
-  
-  def toXPathType (convertTo : Symbol) =
-    convertTo match {
-    case 'Long => XPathConstants.NUMBER
-    case 'Double => XPathConstants.NUMBER
-    case 'String => XPathConstants.STRING
-    case 'Element => XPathConstants.NODE
-    case _ => Assert.invariantFailed("convertTo not valid value: " + convertTo)
-  }
 
+  def toXPathType(convertTo : Symbol) =
+    convertTo match {
+      case 'Long => XPathConstants.NUMBER
+      case 'Double => XPathConstants.NUMBER
+      case 'String => XPathConstants.STRING
+      case 'Element => XPathConstants.NODE
+      case 'Boolean => XPathConstants.BOOLEAN
+      case _ => Assert.invariantFailed("convertTo not valid value: " + convertTo)
+    }
 
   def evaluate(pre : org.jdom.Parent, variables : VariableMap) : R = {
     val xpathResultType = toXPathType(convertTo)
-    
+
     val xpathRes = try {
       XPathUtil.evalExpression(xpathText, xpathExprFactory, variables, pre, xpathResultType)
-    }
-    catch {
+    } catch {
       case e : XPathException => {
         // runtime processing error in expression evaluation
         val ex = if (e.getMessage() == null) e.getCause() else e
         PE("Expression evaluation failed. Details: %s", ex)
       }
-        
+
     }
     val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
     val converted : T = xpathRes match {
@@ -145,8 +143,8 @@ case class RuntimeExpression[T <: AnyRef](convertTo : Symbol,
         // Problem here is that strings like 'notAnInt' will be converted to NaN
         // 
         // Let's treat NaN as a signaling NaN always for now. 
-    	PE("Expression %s evaluated to something that is not a number: %s.", xpathText, n)
-        }
+        PE("Expression %s evaluated to something that is not a number: %s.", xpathText, n)
+      }
       case NumberResult(n) => {
         convertTo match {
           case 'Long => n.toLong.asInstanceOf[T]
@@ -157,8 +155,12 @@ case class RuntimeExpression[T <: AnyRef](convertTo : Symbol,
         Assert.invariant(convertTo == 'String)
         s.asInstanceOf[T]
       }
+      case BooleanResult(v) => {
+        Assert.invariant(convertTo == 'Boolean)
+        v.asInstanceOf[T]
+      }
       case NodeResult(n) => {
-        n.asInstanceOf[T] 
+        n.asInstanceOf[T]
       }
     }
     R(converted, newVariableMap)
@@ -187,6 +189,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
       case XMLUtils.XSD_UNSIGNED_LONG => Assert.notYetImplemented() // TODO FIXME - handle the largest unsigned longs.
       case XMLUtils.XSD_DOUBLE => 'Double
       case XMLUtils.XSD_FLOAT => 'Double
+      case XMLUtils.XSD_BOOLEAN => 'Boolean
       case _ => Assert.notYetImplemented(expandedTypeName)
     }
   }
@@ -196,7 +199,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
    * is to evaluate it in an environment where if it touches anything (variables, jdom tree, etc.)
    * it will throw. No throw means a value came back and it must be a constant.
    */
-  def constantValue(xpathExprFactory : CompiledExpressionFactory) : Option[String] =
+  def constantValue(xpathExprFactory : CompiledExpressionFactory) : Option[Any] =
     withLoggingLevel(LogLevel.Info) {
       val dummyVars = EmptyVariableMap
       val result =
@@ -206,9 +209,13 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
             xpathExprFactory,
             dummyVars,
             null, // context node is not needed to see if an expression is a constant.
-            XPathConstants.STRING)  
+            XPathConstants.STRING)
           res match {
             case StringResult(s) => {
+              log(Debug("%s is constant", xpathExprFactory.expression))
+              Some(s)
+            }
+            case BooleanResult(s) => {
               log(Debug("%s is constant", xpathExprFactory.expression))
               Some(s)
             }
@@ -233,22 +240,29 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
       result
     }
 
-  def compileTimeConvertToLong(s : String) =
+  def compileTimeConvertToLong(s : Any) =
     try {
-      Long.box(s.toLong)
+      Long.box(s.toString.toLong)
     } catch {
       case n : NumberFormatException =>
         edecl.schemaDefinitionError("Cannot convert %s to Long. Error %s.", s, n)
     }
 
-  def compileTimeConvertToDouble(s : String) =
+  def compileTimeConvertToDouble(s : Any) =
     try {
-      Double.box(s.toDouble)
+      Double.box(s.toString.toDouble)
     } catch {
       case n : NumberFormatException =>
         edecl.schemaDefinitionError("Cannot convert %s to Double. Error %s.", s, n)
     }
-    
+
+  def compileTimeConvertToBoolean(s : Any) =
+    try {
+      Boolean.box(s.toString.toBoolean)
+    } catch {
+      case n : Exception =>
+        edecl.schemaDefinitionError("Cannot convert %s to Boolean. Error %s.", s, n)
+    }
 
   def compile[T](convertTo : Symbol, expr : String) : CompiledExpression = {
     if (!XPathUtil.isExpression(expr)) {
@@ -258,7 +272,17 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
     } else {
 
       val xpath = XPathUtil.getExpression(expr)
-      val compiledXPath = XPathUtil.compileExpression(xpath, edecl.namespaces, edecl)
+      val compiledXPath =
+        try {
+          XPathUtil.compileExpression(xpath, edecl.namespaces, edecl)
+        } catch {
+          case e : XPathExpressionException => {
+            val exc = e // debugger never seems to show the case variable itself.
+            val realExc = e.getCause()
+            Assert.invariant(realExc != null) // it's always an encapsulation of an underlying error.
+            edecl.SDE("XPath Compilation Error: %s", realExc)
+          }
+        }
       val cv = constantValue(compiledXPath)
       val compiledExpression = cv match {
         case Some(s) => {
@@ -271,6 +295,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
             // Evaluating to an Element when we're a constant makes no sense.
             // case 'Element => new ConstantExpression(s.asInstanceOf[org.jdom.Element])
             case 'Double => new ConstantExpression(compileTimeConvertToDouble(s))
+            case 'Boolean => new ConstantExpression(compileTimeConvertToBoolean(s))
           }
         }
         case None => new RuntimeExpression(convertTo, expr, compiledXPath, edecl)

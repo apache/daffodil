@@ -1601,29 +1601,68 @@ case class NewVariableInstanceEnd(decl : AnnotatedSchemaComponent, stmt : DFDLNe
   def unparser : Unparser = Assert.notYetImplemented()
 }
 
-case class AssertPrim(decl : AnnotatedSchemaComponent, stmt : DFDLAssert) extends Primitive(decl, false)
-case class Discriminator(decl : AnnotatedSchemaComponent, stmt : DFDLDiscriminator) extends Primitive(decl, false)
+case class AssertPatternPrim(decl : AnnotatedSchemaComponent, stmt : DFDLAssert) extends Terminal(decl, true) {
+
+  def parser : Parser = Assert.notYetImplemented()
+  def unparser : Unparser = Assert.notYetImplemented()
+
+}
+
+class AssertBooleanPrimBase(
+  decl : AnnotatedSchemaComponent,
+  stmt : DFDLAssertionBase,
+  discrim : Boolean, // are we a discriminator or not.
+  assertKindName : String
+  )
+  extends Terminal(decl, true) {
+  
+  def unparser = DummyUnparser
+
+  def parser : Parser = new ExpressionEvaluationParser(decl) {
+    val baseName = assertKindName
+
+    lazy val exprText = stmt.testTxt
+    lazy val expandedTypeName = XMLUtils.XSD_BOOLEAN
+    def parse(start : PState) : PState =
+      withLoggingLevel(LogLevel.Info) {
+        withParseErrorThrowing(start) {
+          log(Debug("This is %s", toString))
+          val R(res, newVMap) = eval(start)
+          val testResult = res.asInstanceOf[Boolean]
+          val postState = start.withVariables(newVMap)
+          if (testResult) {
+            postState.withDiscriminator(discrim)
+          } else {
+            // The assertion failed. Prepare a failure message etc. in case backtracking ultimately fails from here.
+            val diag = new AssertionFailed(decl, postState, stmt)
+            postState.failed(diag)
+          }
+        }
+      }
+  }
+}
+
+case class AssertBooleanPrim(
+  decl : AnnotatedSchemaComponent,
+  stmt : DFDLAssertionBase)
+  extends AssertBooleanPrimBase(decl, stmt, false, "assert") {
+}
+
+case class DiscriminatorBooleanPrim(
+  decl : AnnotatedSchemaComponent,
+  stmt : DFDLAssertionBase)
+  extends AssertBooleanPrimBase(decl, stmt, true, "discriminator")
 
 case class SetVariable(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable) extends Terminal(decl, true) {
   def parser : Parser = new SetVariableParser(decl, stmt)
+  def unparser = DummyUnparser
 
-  def unparser : Unparser = new Unparser(decl) {
-    def unparse(start : UState) : UState = {
-      Assert.notYetImplemented()
-    }
-  }
 }
 
 case class InputValueCalc(e : ElementBase with ElementDeclMixin) extends Terminal(e, true) {
 
   def parser : Parser = new IVCParser(e)
-
-  def unparser : Unparser = new Unparser(e) {
-    def unparse(start : UState) : UState = {
-      Assert.notYetImplemented()
-    }
-  }
-
+  def unparser = DummyUnparser
 }
 
 abstract class ExpressionEvaluationParser(e : AnnotatedSchemaComponent)

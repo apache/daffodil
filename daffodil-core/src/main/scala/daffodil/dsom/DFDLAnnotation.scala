@@ -569,27 +569,49 @@ class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument)
 
 abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {
+  private lazy val testAttrib = getAttributeOption("test")
+  private [dsom] lazy val testBody = node.child.text // package visible for unit testing
+  private lazy val testPattern = getAttributeOption("testPattern")
+  lazy val testKind = getAttributeOption("testKind") match {
+    case Some(str) => TestKind(str, decl)
+    case None => TestKind.Expression
+  }
+  
+  private lazy val messageAttrib = getAttributeOption("message")
+  lazy val message = messageAttrib match {
+    case None => "%s failed".format(testTxt)
+    case Some(s) => s
+  }
 
-  lazy val testBody = node.child.text
-  lazy val testPattern = getAttributeOption("testPattern")
-  lazy val message = getAttributeOption("message")
-  lazy val test = getAttributeOption("test")
+  lazy val testTxt = (testKind, testBody, testAttrib, testPattern) match {
+    case (TestKind.Expression, "", Some(txt), None) => txt
+    case (TestKind.Expression, txt, None, None) => txt
+    case (TestKind.Pattern, txt, None, None) => txt
+    case (TestKind.Expression, _, _, Some(txt)) => SDE("testPattern attribute requires testKind='pattern'")
+    case (TestKind.Expression, bdy, Some(attrib), _) => SDE("You may not specify both test attribute and a body expression.")
+    case (TestKind.Expression, "", None, _) => SDE("You must specify either a test attribute or a body expression.")
+    case (TestKind.Pattern, bdy, _, Some(txt)) => SDE("You may not specify both testPattern attribute and a body expression.")
+    case (TestKind.Pattern, "", _, None) => SDE("You must specify either a testPattern attribute or a body expression. for testKind='pattern'")
+    case _ => Assert.invariantFailed("unexpected case.")
+  }
+  
   //
   // TODO: override diagnosticChildren if we compile the testBody/pattern into an object
   // which can provide error/diagnostic information itself (beyond what this class itself
   // can provide... which is nothing right now, but it could...someday).
+  //
 }
 
 class DFDLAssert(node : Node, decl : AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Assert_AnnotationMixin // Note: don't use these generated mixins. Statements don't have format properties
-  
-  lazy val gram = AssertPrim(decl, this)
+  Assert.notYetImplemented(testKind == TestKind.Pattern)
+  lazy val gram = AssertBooleanPrim(decl, this)
 }
 
 class DFDLDiscriminator(node : Node, decl : AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Discriminator_AnnotationMixin 
-
-  lazy val gram = Discriminator(decl, this)
+  Assert.notYetImplemented(testKind == TestKind.Pattern)
+  lazy val gram = DiscriminatorBooleanPrim(decl, this)
 }
 
 class DFDLDefineVariable(node: Node, doc: SchemaDocument)

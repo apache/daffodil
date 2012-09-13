@@ -61,9 +61,6 @@ import daffodil.dsom.SchemaComponent
 
 /**
  * Utility object for evaluating XPath expressions
- *
- * @version 1
- * @author Alejandro Rodriguez
  */
 object XPathUtil extends Logging {
 
@@ -74,8 +71,8 @@ object XPathUtil extends Logging {
    * Compile an xpath. It insures functions called actually exist etc.
    * Should help with performance also.
    *
-   * Returns a VariableMap=>XPathExpression, which you can think of as
-   * a CompiledXPathExpressionFactory, though we didn't create that type name
+   * Returns a VariableMap=>XPathExpression, that is, 
+   * a CompiledExpressionFactory
    */
   def compileExpression(dfdlExpressionRaw: String, 
       namespaces: Seq[org.jdom.Namespace],
@@ -134,7 +131,20 @@ object XPathUtil extends Logging {
         }
       })
 
-    val xpathExpr = xpath.compile(expression)
+    val xpathExpr = try {
+      xpath.compile(expression)
+    } catch {
+      case e : XPathExpressionException => {
+        val exc = e // debugger never seems to show the case variable itself.
+        val realExc = e.getCause()
+        Assert.invariant(realExc != null) // it's always an encapsulation of an underlying error.
+
+        // compilation threw an error. That's a compilation time error.
+        // we just rethrow here. This is here to be a good place for a breakpoint/debug feature.
+        log(Debug("compilation error in xpath expression. error %s, expression %s", exc, expression))
+        throw exc
+      }
+    }
 
     // We need to supply the variables late
     val withoutVariables = new CompiledExpressionFactory(expression) {
@@ -204,14 +214,15 @@ object XPathUtil extends Logging {
           else throw new XPathExpressionException("no node for path " + expressionForErrorMsg) 
         }
         case (x : java.lang.Double, NUMBER) => new NumberResult(x.doubleValue)
-        case (x : String, STRING) if (x == "" && contextNode != null) => {
+        case ("", STRING) if (contextNode != null) => {
           // We got empty string. If the path actually exists, then the result is empty string.
           // If the path doesn't exist, then we want to fail.
            val existingNode = ce.evaluate(contextNode, NODE) 
-           if (existingNode != null) new StringResult(x)
+           if (existingNode != null) new StringResult("")
            else throw new XPathExpressionException("no node for path " + expressionForErrorMsg) 
         }
         case (x : String, STRING) => new StringResult(x)
+        case (x : java.lang.Boolean, BOOLEAN) => new BooleanResult(x)
         case (null, _)  => {
           // There was no such node. We're never going to get an answer for this XPath
           // so fail.

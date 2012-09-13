@@ -19,20 +19,64 @@ import daffodil.util.Debug
 import daffodil.util.Info
 import daffodil.util.Compile
 
-class CapturedThrowDiagnostic(e : Throwable, context : Any) extends Diagnostic {
+object Diagnostic {
+  /**
+   * Java throwable/exception objects may or may not have a message. They are supposed to have a cause if they
+   * don't have a message of their own, but might have neither, or might have both.
+   *
+   * This is too painful to deal with in code when you want to be generic about converting throws/exceptions
+   * into diagnostic information.
+   *
+   * So we have a more uniform behavior. Never returns null. Always gets a message.
+   * If the argument has none, but has a cause object, then it
+   * gets the message from that, if that has no message, it chases further.
+   * Ultimately, if there's no message, it just uses the innermost cause object's class name.
+   */
+
+  def getSomeMessage(th : Throwable) : Some[String] = {
+    val m = th.getMessage()
+    val c = th.getCause()
+    val res = (m, c) match {
+      case (null, null) => th.getClass.getName
+      case (m, null) => m
+      case (null, c) => getSomeMessage(c).get
+      case (m, c) => {
+        val Some(cmsg) = getSomeMessage(c)
+        cmsg + "(within " + m + ")"
+      }
+    }
+    Some(res)
+  }
+
+  def getSomeCause(th : Throwable) : Some[Throwable] = {
+    val c = th.getCause()
+    val res = c match {
+      case null => th
+      case _ => getSomeCause(c).get
+    }
+    Some(res)
+  }
+}
+
+trait DiagnosticImplMixin extends Diagnostic { self : Throwable =>
+  def getSomeCause() = Diagnostic.getSomeCause(self)
+  def getSomeMessage() = Diagnostic.getSomeMessage(self)
+}
+
+class CapturedThrowDiagnostic(e : Throwable, context : Any) extends Throwable with DiagnosticImplMixin {
   Assert.invariant(!e.isInstanceOf[OOLAGRethrowException])
   def isError() = true
   def getSchemaLocations() = Nil
   def getDataLocations() = Nil
-  def getMessage() = "ERROR caught: " + e + ". Context at catch was: " + context
+  override def getMessage() = "ERROR caught: " + e + ". Context at catch was: " + context
 }
 
-class Warning(e : Throwable) extends Diagnostic {
+class Warning(e : Throwable) extends Throwable with DiagnosticImplMixin {
   Assert.invariant(!e.isInstanceOf[OOLAGRethrowException])
   def isError() = false
   def getSchemaLocations() = Nil
   def getDataLocations() = Nil
-  def getMessage() = "WARNING: " + e
+  override def getMessage() = "WARNING: " + e
 }
 
 /**

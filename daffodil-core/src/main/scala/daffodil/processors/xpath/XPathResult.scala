@@ -55,3 +55,5 @@ case class StringResult(string:String) extends XPathResult
 
 /** The result is a number */
 case class NumberResult(num: Double) extends XPathResult
+
+case class BooleanResult(v : Boolean) extends XPathResult

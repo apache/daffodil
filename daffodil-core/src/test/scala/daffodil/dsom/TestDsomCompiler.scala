@@ -638,7 +638,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     val Seq(b1, b2, b3, b4) = st1.forElement(e1).annotationObjs // first one has 4 annotations
     assertEquals(AlignmentUnits.Bytes, b1.asInstanceOf[DFDLSimpleType].alignmentUnits) // first has alignmentUnits
     assertEquals("tns:myVar1", b2.asInstanceOf[DFDLSetVariable].ref) // second is setVariable with a ref
-    assertEquals("yadda yadda yadda", b4.asInstanceOf[DFDLAssert].message.get) // foruth is an assert with yadda message
+    assertEquals("yadda yadda yadda", b4.asInstanceOf[DFDLAssert].message) // fourth is an assert with yadda message
 
     // Explore define formats
     val Seq(df1, df2) = sd.defineFormats // there are two
@@ -700,7 +700,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     val Seq(asrt1) = cd2.asInstanceOf[LocalElementDecl].annotationObjs // Obtain Annotation object that is child
     // of cd2.
 
-    assertEquals("{ $myVar1 eq xs:int(xs:string(fn:round-half-to-even(8.5))) }", asrt1.asInstanceOf[DFDLAssert].test.get)
+    assertEquals("{ $myVar1 eq xs:int(xs:string(fn:round-half-to-even(8.5))) }", asrt1.asInstanceOf[DFDLAssert].testTxt)
   }
 
   def test_named_format_chaining {

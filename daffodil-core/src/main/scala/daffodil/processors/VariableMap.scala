@@ -196,7 +196,7 @@ class VariableMap(private val variables : Map[String, List[List[Variable]]] = Ma
   /**
    * Assigns a variable, returning a new VariableMap which shows the state of the variable.
    */
-  def setVariable(expandedName : String, newValue : AnyRef, referringContext : SchemaComponent) : VariableMap = {
+  def setVariable(expandedName : String, newValue : Any, referringContext : SchemaComponent) : VariableMap = {
     variables.get(expandedName) match {
 
       case None => referringContext.schemaDefinitionError("unknown variable %s", expandedName)

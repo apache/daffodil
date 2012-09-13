@@ -339,7 +339,7 @@
 	
 	<tdml:parserTestCase name="expression-unknown-prefix"
 		root="theElementName" model="unknown-prefix"
-		description="get compilation time error due to unknown prefix.">
+		description="get compilation time error due to unknown prefix. DFDL-2-001R">
 		<tdml:document />
 		<tdml:errors>
 			<tdml:error>Schema Definition</tdml:error>

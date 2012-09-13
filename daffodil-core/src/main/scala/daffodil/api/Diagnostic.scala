@@ -27,7 +27,7 @@ package daffodil.api
  * 
  * Allows for lazy message creation, internationalization, etc.
  */
-trait Diagnostic {
+trait Diagnostic { self : Throwable => // these are always throwables.
 
   /**
    * Turns the diagnostic object into a string.
@@ -56,6 +56,13 @@ trait Diagnostic {
    * Determine if a diagnostic object represents an error or something less serious.
    */
   def isError : Boolean
+  
+  /**
+   * Positively get these things. No returning 'null' and making caller figure out
+   * whether to look for cause object.
+   */
+  def getSomeCause : Some[Throwable]
+  def getSomeMessage : Some[String]
   
 }
 

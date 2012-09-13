@@ -26,16 +26,14 @@ import scala.collection.mutable.Stack
 import daffodil.debugger.Debugger
 import daffodil.util.Misc._
 
-abstract class ProcessingError extends Exception with Diagnostic {
-
-}
+abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
 class ParseError(sc : SchemaComponent, val pstate : Option[PState], kind : String, args : Any*) 
 extends ProcessingError {
   def isError = true
   def getSchemaLocations = List(sc)
   def getDataLocations = pstate.map { _.currentLocation }.toList
-
+  
   override def toString = {
     lazy val argsAsString = args.map { _.toString }.mkString(", ")
     //
@@ -55,6 +53,10 @@ extends ProcessingError {
 
   override def getMessage = toString
 }
+
+class AssertionFailed(sc: SchemaComponent, state : PState, stmt : DFDLAssertionBase) 
+extends ParseError(sc, Some(state), "Assertion failed. %s", stmt.message)
+
 
 class AlternativeFailed(sc : SchemaComponent, state : DFDL.State, val errors : Seq[Diagnostic]) extends ProcessingError {
   def isError = true
@@ -194,6 +196,18 @@ trait WithParseErrorThrowing {
           val res = maybePS.map{ _.failed(e) }.getOrElse(pstate.failed(e))
           res
         }
+        case e : SchemaDefinitionError => {
+          val res = pstate.failed(e)
+          res
+        }
+        //
+        // Note: We specifically do not catch other exceptions here
+        // On purpose. If those exist, then there's someplace that should have already caught them
+        // and turned them into a thrown parse error, or a schema definition error.
+        //
+        // Other kinds of spontaneous throws are bugs, and we don't want to mask them by 
+        // putting blanket catches in. 
+        //
       }
     finally {
       WithParseErrorThrowing.flag = saveCanThrowParseErrors
@@ -346,11 +360,12 @@ case class DummyParser(sc : PropertyMixin) extends Parser(null) {
   override def toString = if (sc == null) "Dummy[null]" else "Dummy[" + sc.detailName + "]"
 }
 
-class GeneralParseFailure(msg: String) extends Diagnostic {
+class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixin {
+  Assert.usage(msg != null && msg != "")
   def isError() = true
   def getSchemaLocations() = Nil
   def getDataLocations() = Nil
-  def getMessage() = msg
+  override def getMessage() = msg
 }
 
 class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {

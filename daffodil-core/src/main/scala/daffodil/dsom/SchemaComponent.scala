@@ -21,7 +21,7 @@ class SchemaDefinitionError(
     val schemaContext : Option[SchemaComponent],
     val annotationContext : Option[DFDLAnnotation],
     val kind : String,
-    val args : Any*) extends Exception with Diagnostic {
+    val args : Any*) extends Exception with DiagnosticImplMixin {
   def isError = true
   def getSchemaLocations = schemaContext.toList
   def getDataLocations = Nil 
