@@ -23,4 +23,8 @@ class TestLengthProperties extends JUnit3Suite {
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
   
   //def test_LengthProp_01() { runner_02.runOneTest("LengthProp_01") }
+  def test_LengthProp_02() { runner_02.runOneTest("LengthProp_02") }
+  def test_LengthProp_03() { runner_02.runOneTest("LengthProp_03") }
+  def test_LengthProp_04() { runner_02.runOneTest("LengthProp_04") }
+  def test_LengthProp_05() { runner_02.runOneTest("LengthProp_05") }
   }

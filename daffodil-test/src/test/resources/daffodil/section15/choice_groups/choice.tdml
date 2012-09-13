@@ -7,6 +7,7 @@
 
 	<tdml:defineSchema name="basic">
 		<dfdl:format ref="ex:daffodilTest1" />
+		
 
 		<xs:element name="ch1">
 			<xs:complexType>
@@ -278,6 +279,134 @@
 	</tdml:parserTestCase>
 
 
+	<tdml:parserTestCase name="choiceDelim2" root="ch1"
+		model="choiceDelim"
+		description="varied length delimited lengthKinds. 5 way branches. - DFDL-15-001R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1.2,ABC,-12,567,END</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:a>
+						<ex:floaty>1.2</ex:floaty>
+					</ex:a>
+					<ex:a>
+						<ex:stringy>ABC</ex:stringy>
+					</ex:a>
+					<ex:a>
+						<ex:inty>-12</ex:inty>
+					</ex:a>
+					<ex:a>
+						<ex:inty>567</ex:inty>
+					</ex:a>
+					<ex:a>
+						<ex:stringy>END</ex:stringy>
+					</ex:a>
+
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+	
+	
+		<tdml:parserTestCase name="choiceDelimFloat" root="ch1"
+		model="choiceDelim"
+		description="1 way branches. - DFDL-15-001R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">8.9</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:a>
+						<ex:floaty>8.9</ex:floaty>
+					</ex:a>
+	
+
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+	
+	
+		<tdml:parserTestCase name="choiceDelimString" root="ch1"
+		model="choiceDelim"
+		description="1 way branches, string only with many spaces inserted after value. - DFDL-15-001R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">$40                                                        </tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:a>
+						<ex:stringy>$40</ex:stringy>
+					</ex:a>
+
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+	
+	
+			<tdml:parserTestCase name="choiceDelimStringwSp" root="ch1"
+		model="choiceDelim"
+		description="1 way branches, string only with many spaces between characters after value. - DFDL-15-001R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">^ $	9</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:a>
+						<ex:stringy>^ $ 9</ex:stringy>
+					</ex:a>
+
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+	
+
+	<tdml:parserTestCase name="choiceDelimInt" root="ch1"
+		model="choiceDelim"
+		description="1 way branches. - DFDL-15-001R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">-54</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+						<ex:a>
+						<ex:inty>-54</ex:inty>
+					</ex:a>
+
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+
+
+
+
+
+
 	<tdml:defineSchema name="nestedChoice1">
 		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
 
@@ -352,4 +481,170 @@
 		</tdml:infoset>
 
 	</tdml:parserTestCase>
+
+
+
+
+	
+		<tdml:parserTestCase name="nestedChoice2" root="ch1"
+		model="nestedChoice1" description="Nested choices, with no backtracking - DFDL-15-001R.">
+
+		<tdml:document>
+			<!-- one negative integer, float and integer. -->
+			<tdml:documentPart type="text">-12,2.0,000</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:as>
+						<ex:a>
+							<ex:inty>-12</ex:inty>
+						</ex:a>
+						<ex:a>
+							<ex:floaty>2.0</ex:floaty>
+						</ex:a>
+						<ex:a>
+							<ex:inty>0</ex:inty>
+						</ex:a>
+					</ex:as>
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+	
+			<tdml:parserTestCase name="nestedChoiceAllFloat" root="ch1"
+		model="nestedChoice1" description="Nested choices - all floats, with no backtracking - DFDL-15-001R.">
+
+		<tdml:document>
+			<!-- three floats. -->
+			<tdml:documentPart type="text">5.1,9.9,1.7</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:as>
+						<ex:a>
+							<ex:floaty>5.1</ex:floaty>
+						</ex:a>
+						<ex:a>
+							<ex:floaty>9.9</ex:floaty>
+						</ex:a>
+						<ex:a>
+							<ex:floaty>1.7</ex:floaty>
+						</ex:a>
+					</ex:as>
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+	
+				<tdml:parserTestCase name="nestedChoiceAllInt" root="ch1"
+		model="nestedChoice1" description="Nested choices - all Integers, with no backtracking - DFDL-15-001R.">
+
+		<tdml:document>
+			<!-- three integers. -->
+			<tdml:documentPart type="text">000,000,000</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:as>
+						<ex:a>
+							<ex:inty>0</ex:inty>
+						</ex:a>
+						<ex:a>
+							<ex:inty>0</ex:inty>
+						</ex:a>
+						<ex:a>
+							<ex:inty>0</ex:inty>
+						</ex:a>
+					</ex:as>
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+	
+	
+		<tdml:defineSchema name="nestedChoice2">
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+		<xs:complexType name="String">
+			<xs:choice>
+				<xs:element name="stringy" type="xs:string" />
+			</xs:choice>
+		</xs:complexType>
+
+		<xs:complexType name="intOrFloat">
+			<xs:choice>
+				<xs:element name="inty" type="xs:int" />
+				<xs:element name="floaty" type="xs:float" />
+			</xs:choice>
+		</xs:complexType>
+
+		<xs:element name="ch1">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="">
+					<xs:choice>
+						<xs:element name="as">
+							<xs:complexType>
+								<xs:sequence dfdl:separator=",">
+									<xs:element name="a" type="ex:intOrFloat" maxOccurs="3"
+										minOccurs="3" dfdl:occursCountKind="fixed" />
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="bs">
+							<xs:complexType>
+								<xs:sequence dfdl:separator=",">
+									<xs:element name="b" type="ex:String"
+										maxOccurs="3" minOccurs="3" dfdl:occursCountKind="fixed" />
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:choice>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+
+	</tdml:defineSchema>
+	
+	
+	
+				<tdml:parserTestCase name="nestedChoiceAllString" root="ch1"
+		model="nestedChoice2" description="Nested choices - all strings, with no backtracking - DFDL-15-001R.">
+
+		<tdml:document>
+			<!-- three strings with special characters, a number and decimal point . -->
+			<tdml:documentPart type="text">X4Z,^^#,5.5</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:ex="http://example.com">
+				<ex:ch1>
+					<ex:bs>
+						<ex:b>
+							<ex:stringy>X4Z</ex:stringy>
+						</ex:b>
+						<ex:b>
+							<ex:stringy>^^#</ex:stringy>
+						</ex:b>
+						<ex:b>
+							<ex:stringy>5.5</ex:stringy>
+						</ex:b>
+					</ex:bs>
+				</ex:ch1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+	
+	
+	
 </tdml:testSuite>

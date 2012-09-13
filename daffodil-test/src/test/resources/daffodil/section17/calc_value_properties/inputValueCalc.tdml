@@ -133,7 +133,7 @@
 	
 	<tdml:parserTestCase name="InputValueCalc_04" root="ivc_04"
 		model="inputValueCalc-Embedded.dfdl.xsd"
-		description="division by zero">
+		description="division by zero - DFDL-17-007R">
 
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[5,11,0;]]></tdml:documentPart>

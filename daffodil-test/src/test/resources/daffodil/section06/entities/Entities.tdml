@@ -275,7 +275,7 @@ is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="byte_entities_6_06"
-		description="Section 6.3 DFDL Hexadecimal utf-8 code points"
+		description="Section 6.3 DFDL Hexadecimal utf-8 code points - DFDL-6-044R"
 		model="Entities_01-Embedded.dfdl.xsd" root="seq_06">
 		<tdml:document><tdml:documentPart type="byte">30c88031d49b32c2ae</tdml:documentPart></tdml:document>
 		<tdml:infoset>
@@ -291,7 +291,7 @@ is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="byte_entities_6_07"
-		description="Section 6.3 DFDL decimal utf-8 code points"
+		description="Section 6.3 DFDL decimal utf-8 code points - DFDL-6-043R"
 		model="Entities_01-Embedded.dfdl.xsd" root="seq_07">
 		<tdml:document><tdml:documentPart type="byte">30c88031d49b32c2ae</tdml:documentPart></tdml:document>
 		<tdml:infoset>

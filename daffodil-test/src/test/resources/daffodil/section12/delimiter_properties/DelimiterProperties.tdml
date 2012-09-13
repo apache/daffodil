@@ -131,7 +131,7 @@
 		</tdml:parserTestCase>
 		
 		<tdml:parserTestCase name="DelimProp_03" root="DP_02"
-		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 12 property delimiters -expected error - a float instead of int - DFDL-12-032R">
+		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 12 property delimiters -expected error - a float instead of int - DFDL-12-033R">
 
 			<tdml:document>1]2.3)3}</tdml:document>
 			<tdml:errors>
@@ -170,7 +170,7 @@
 		</tdml:parserTestCase>
 		
 		<tdml:parserTestCase name="DelimProp_06" root="DP_04"
-		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-032R">
+		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R">
 
 			<tdml:document>.00300 -02.75
 			3.9900	7.33</tdml:document>

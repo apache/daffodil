@@ -73,9 +73,7 @@ class TresysTests extends JUnit3Suite {
   def test_escape_scheme() { runnerEscapeScheme.runOneTest("escapeSchemeSimple") }
 
   /* Very big test data files, so each is in its own TDML file */
-  //  val ab6 = testDir + "AB006.tdml"
-  //  lazy val runnerAB6 = new DFDLTestSuite(Misc.getRequiredResource(ab6))
-  //  def test_AB006() { runnerAB6.runOneTest("AB006") }
+
   //  val ab7 = testDir + "AB007.tdml"
   //  lazy val runnerAB7 = new DFDLTestSuite(Misc.getRequiredResource(ab7))
   //  def test_AB007() { runnerAB7.runOneTest("AB007") }
