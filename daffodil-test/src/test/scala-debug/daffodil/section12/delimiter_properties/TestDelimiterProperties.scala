@@ -16,6 +16,6 @@ class TestDelimiterProperties_01 extends JUnit3Suite {
   val tdml_02 = testDir_02 + "DelimiterProperties.tdml"
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
   
-  def test_DelimProp_03() { runner_02.runOneTest("DelimProp_03") }
+  // def test_DelimProp_03() { runner_02.runOneTest("DelimProp_03") }
   def test_DelimProp_06() { runner_02.runOneTest("DelimProp_06") }
   }
