@@ -28,6 +28,8 @@ class TestSimpleTypes extends JUnit3Suite {
   def test_unsignedLong_02() {runner.runOneTest("unsignedLong_02")}
   def test_unsignedLong_03() {runner.runOneTest("unsignedLong_03")}
   def test_Long2() {runner.runOneTest("Long2")}
+  def test_Long3() {runner.runOneTest("Long3")}
+  def test_Long4() {runner.runOneTest("Long4")}
   def test_int_error_02() { runner.runOneTest("int_error_02") }
   def test_int_error_03() { runner.runOneTest("int_error_03") }
   def test_short_01() { runner.runOneTest("short_01") }

@@ -182,7 +182,7 @@
 
 		<tdml:document>-9223372036854775809</tdml:document>
 		<tdml:errors>
-			<tdml:error>Out of Range</tdml:error>
+			<tdml:error>Invalid data</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
@@ -191,7 +191,7 @@
 
 		<tdml:document>+9223372036854775808</tdml:document>
 		<tdml:errors>
-			<tdml:error>Out of Range</tdml:error>
+			<tdml:error>Invalid data</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	

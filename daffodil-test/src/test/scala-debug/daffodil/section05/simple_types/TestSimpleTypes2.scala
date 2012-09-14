@@ -20,6 +20,6 @@ class TestSimpleTypes2 extends JUnit3Suite {
     	runner.runOneTest("warning_exercise") }
     	assertTrue(exc.getMessage().contains("Did not find"))
   	}
-  def test_Long3() {runner.runOneTest("Long3")}
-  def test_Long4() {runner.runOneTest("Long4")}
+//  def test_Long3() {runner.runOneTest("Long3")}
+//  def test_Long4() {runner.runOneTest("Long4")}
   }

@@ -625,7 +625,22 @@ abstract class ConvertTextIntegerNumberPrim[T](e : ElementBase, g : Boolean)
   override def numFormat = NumberFormat.getIntegerInstance()
   override def isInt = true
   protected def isInvalidRange(n : java.lang.Number) : Boolean = {
-    Assert.invariant(!n.isInstanceOf[BigInteger]) // This method only for things that fit in range of a Long. (i.e., not unbounded size Integer, and not unsignedLong.
+    //
+    // Note: Scala has no class analogous to java.lang.Number. There's no common 
+    // base class above its number types (as there isn't above the Java *primitive* number types.)
+    //
+    // We're being handed here a java 'boxed' number type, and those have common parent Number.
+    //
+    // println("number's actual type is: " + n.getClass.getName)
+    //
+    // This method only for things that fit in range of a Long. (i.e., not unbounded size Integer, and not unsignedLong
+    // Nevertheless, if invalid data much too long for the real numeric type is what is found in the data
+    // then a java BigInteger (or maybe even BigDecimal might get passed here.
+    // 
+    // The only thing we can check is whether there is conversion to a long available.
+    // e.g., like this: Assert.invariant(n.isInstanceOf[{ def longValue : Long}]) 
+    // But that's eliminated by erasure, so we'll just do without.
+    //
     if (n == null) false // we tolerate null here. Something else figures out the error.
     else {
       val l = n.longValue
