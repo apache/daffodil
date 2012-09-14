@@ -68,7 +68,7 @@ class Compiler extends DFDL.Compiler with Logging {
    * for unit testing of front end
    */
   def frontEnd(xml: Node): (SchemaSet, GlobalElementDecl) = {
-    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+    //LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val elts = (xml \ "element")
     Assert.usage(elts.length != 0, "No top level element declarations found.")
 

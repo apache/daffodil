@@ -158,12 +158,20 @@ object DFDLByteReader {
       csMap.put(csName, emptyCharReaderMap)
       charReaderMap.put(psb, csMap)
     }
+    
+    // TRW - Added for Compound Pattern Match to work
+    if (charReaderMap.get(psb) == None){
+      var csMap: CSMap = HashMap.empty
+      val emptyCharReaderMap: PosMap = HashMap.empty
+      csMap.put(csName, emptyCharReaderMap)
+      charReaderMap.put(psb, csMap)
+    }
+    
     val charReaders = charReaderMap.get(psb).get.get(csName).get
     charReaders.get(bytePos) match {
       case None => {
         val newrdr = new DFDLCharReader(psb, bytePos, csName)
         charReaders.put(bytePos, newrdr)
-        System.err.println("newReader")
         newrdr
       }
       case Some(rdr) => rdr

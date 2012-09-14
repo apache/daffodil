@@ -678,6 +678,16 @@ with WithParseErrorThrowing
 { 
   var byteReader: delimsearch.DFDLByteReader = new delimsearch.DFDLByteReader(in)
   
+  def getBytes(bitPos: Long, numBytes: Int): Array[Byte] = {
+    Assert.invariant(bitPos % 8 == 0)
+    val bytePos = (bitPos >> 3).toInt
+    val bb = byteReader.bb
+    bb.position(bytePos)
+    val result: Array[Byte] = new Array[Byte](numBytes)
+    bb.get(result, 0, numBytes)
+    result
+  }
+  
   def getByte(bitPos : Long, order : java.nio.ByteOrder) = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt

@@ -96,6 +96,57 @@ class DelimParser extends RegexParsers {
     val delimRegex = sb.toString().replaceFirst("[\\|]$", "") // trimEnd("|")
     delimRegex
   }
+  
+  def parseInputPatterned(pattern: String, input: Reader[Char], charset: Charset): DelimParseResult = {
+    val EOF: Parser[String] = """\z""".r
+    
+    val thePattern: Parser[String] = pattern.r
+    val entry = thePattern <~ opt(EOF)
+    
+    val res = this.parse(this.log(entry)("DelimParser.parseInputPatterned"), input)
+    
+    var fieldResult = ""
+    var delimiterResult = ""
+    var isSuccess: Boolean = false
+    var delimiterType = DelimiterType.Delimiter
+    var fieldResultBytes: Int = 0
+    
+    if (!res.isEmpty){
+      fieldResult = res.get
+      isSuccess = true
+      fieldResultBytes = fieldResult.getBytes(charset).length
+    }
+    
+    val result: DelimParseResult = new DelimParseResult
+    result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes)
+    result
+  }
+  
+  def parseInputNCharacters(nChars: Long, input: Reader[Char], charset: Charset): DelimParseResult = {
+    val EOF: Parser[String] = """\z""".r
+    val anything: Parser[String] = """.*""".r
+    val firstNChars: Parser[String] = String.format(""".{%s}""", nChars.toString()).r
+    
+    val entry = firstNChars //<~ anything // Technically shouldn't need to add anything, we only want the first nChars
+    
+    val res = this.parse(this.log(entry)("DelimParser.parseInputNCharacters"), input)
+    
+    var fieldResult = ""
+    var delimiterResult = ""
+    var isSuccess: Boolean = false
+    var delimiterType = DelimiterType.Delimiter
+    var fieldResultBytes: Int = 0
+    
+    if (!res.isEmpty){
+      fieldResult = res.get
+      isSuccess = true
+      fieldResultBytes = fieldResult.getBytes(charset).length
+    }
+    
+    val result: DelimParseResult = new DelimParseResult
+    result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes)
+    result
+  }
 
   // Default parseInput method
   // Looks for a field followed by a separator or terminator
@@ -119,7 +170,6 @@ class DelimParser extends RegexParsers {
     val delims: Parser[String] = (seps | terms)
     val entry = (field ~ ( delims | (delims <~ opt(EOF)))) | (field ~ EOF)
     val res = this.parse(this.log(entry)("DelimParser." + name), input)
-    res
 
     var fieldResult = ""
     var delimiterResult = ""
@@ -276,6 +326,17 @@ class DelimParser extends RegexParsers {
     }
     sb.append(")")
     sb.toString()
+  }
+  
+  def getDfdlLiteralRegex (dfdlLiteralList: Set[String]): String = {
+    val (_, regex) = this.buildDelims(dfdlLiteralList)
+    combineDelimitersRegex(regex, Array.empty[String])
+  }
+  
+  def isFieldDfdlLiteral(field: String, dfdlLiteralList: Set[String]): Boolean = {
+    val dfdlLiteralRegex = getDfdlLiteralRegex(dfdlLiteralList)
+    val m = Pattern.compile(dfdlLiteralRegex).matcher(field)
+    m.find()
   }
   
   // Here eses must be of type String as it's possible for it to be empty.
