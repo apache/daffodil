@@ -16,6 +16,16 @@ class TestFacets extends JUnitSuite {
   val aa = testDir + "Facets.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
-  @Test def test_error_minOccurs() { runner.runOneTest("error_minOccurs") }
-  
+  @Test def test_correctNumCells0() { runner.runOneTest("correctNumCells0") }
+  @Test def test_extraCellsParsed() { runner.runOneTest("extraCellsParsed") }
+  @Test def test_scalarElements() { runner.runOneTest("scalarElements") }
+  @Test def test_lessThanMinBasic() { runner.runOneTest("lessThanMinBasic") }
+  @Test def test_moreThanMaxBasic() { runner.runOneTest("moreThanMaxBasic") }
+  @Test def test_arrayElements() { runner.runOneTest("arrayElements") }
+  @Test def test_upToMaxParsed() { runner.runOneTest("upToMaxParsed") }
+  @Test def test_lessThanMinCells() { runner.runOneTest("lessThanMinCells") }
+  @Test def test_moreThanMinCells() { runner.runOneTest("moreThanMinCells") }
+  @Test def test_lessThanMinCellsAfterLargeRow() { runner.runOneTest("lessThanMinCellsAfterLargeRow") }
+  @Test def test_largeNumRows() { runner.runOneTest("largeNumRows") }
+
   }

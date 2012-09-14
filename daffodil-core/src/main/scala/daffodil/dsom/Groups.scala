@@ -22,14 +22,14 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
   with DFDLStatementMixin
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
-  with InitiatedTerminatedMixin{
-  
-  val enclosingComponent : Option[SchemaComponent] = Some(parent) // for global objects, the enclosing will be the thing referencing them.
+  with InitiatedTerminatedMixin {
+
+  val enclosingComponent: Option[SchemaComponent] = Some(parent) // for global objects, the enclosing will be the thing referencing them.
 
   lazy val isRepresented = true // overridden by elements, which might have inputValueCalc turning this off
-    
+
   def isScalar = true // override in local elements
-  
+
   lazy val allTerminatingMarkup: List[CompiledExpression] = {
     val tm = List(this.terminator) ++ this.allParentTerminatingMarkup
     tm.filter(x => x.isKnownNonEmpty)
@@ -42,7 +42,20 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
     val pTM = parent match {
       case s: Sequence => List(s.separator, s.terminator) ++ s.allParentTerminatingMarkup
       case c: Choice => c.allParentTerminatingMarkup
-      case d: SchemaDocument => List.empty
+      case d: SchemaDocument =>
+        // we're a global object. Our parent is a schema document
+        // so follow backpointers to whatever is referencing us.
+        this match {
+          case gct: GlobalComplexTypeDef => gct.element.allParentTerminatingMarkup
+          case gd: GlobalGroupDef => gd.groupRef.allParentTerminatingMarkup
+          case ge: GlobalElementDecl => ge.elementRef match {
+            case None => {
+              // we are root. So there is no enclosing sequence at all
+              List.empty
+            }
+            case Some(er) => er.allParentTerminatingMarkup
+          }
+        }
       case ct: LocalComplexTypeDef => ct.parent match {
         case local: LocalElementDecl => List(local.terminator) ++ local.allParentTerminatingMarkup
         case global: GlobalElementDecl => {
@@ -80,8 +93,6 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
     val res = pTM.filter(x => x.isKnownNonEmpty)
     res
   }
-  
-    
 
   /**
    * nearestEnclosingSequence
@@ -95,7 +106,7 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
    * This is why we have to have the GlobalXYZDefFactory stuff. Because this kind of back
    * pointer (contextual sensitivity) prevents sharing.
    */
-  lazy val nearestEnclosingSequence : Option[Sequence] = nearestEnclosingSequence_ //.value
+  lazy val nearestEnclosingSequence: Option[Sequence] = nearestEnclosingSequence_ //.value
   private lazy val nearestEnclosingSequence_ = { // LV {
     val res = parent match {
       case s: Sequence => Some(s)
@@ -104,24 +115,25 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
         // we're a global object. Our parent is a schema document
         // so follow backpointers to whatever is referencing us.
         this match {
-            case gct: GlobalComplexTypeDef => gct.element.nearestEnclosingSequence
-            case gd: GlobalGroupDef => gd.groupRef.nearestEnclosingSequence
-            case ge : GlobalElementDecl => ge.elementRef match {
-                 case None => {
-                     // we are root. So there is no enclosing sequence at all
-                     None
-                 }
-                 case Some(er) => er.nearestEnclosingSequence
-             }
+          case gct: GlobalComplexTypeDef => gct.element.nearestEnclosingSequence
+          case gd: GlobalGroupDef => gd.groupRef.nearestEnclosingSequence
+          case ge: GlobalElementDecl => ge.elementRef match {
+            case None => {
+              // we are root. So there is no enclosing sequence at all
+              None
+            }
+            case Some(er) => er.nearestEnclosingSequence
+          }
         }
       }
-      case ct : ComplexTypeBase => ct.element.nearestEnclosingSequence
+      case ct: ComplexTypeBase => ct.element.nearestEnclosingSequence
+      case gd: GlobalGroupDef => gd.groupRef.nearestEnclosingSequence
       case _ => Assert.invariantFailed("nearestEnclosingSequence called on " + this + "with parent " + parent)
     }
     res
   }
-  
-  lazy val immediatelyEnclosingModelGroup : Option[ModelGroup] = { 
+
+  lazy val immediatelyEnclosingModelGroup: Option[ModelGroup] = {
     val res = parent match {
       case c: Choice => Some(c)
       case s: Sequence => Some(s)
@@ -129,30 +141,30 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
         // we're a global object. Our parent is a schema document
         // so follow backpointers to whatever is referencing us.
         this match {
-            case gct: GlobalComplexTypeDef => gct.element.immediatelyEnclosingModelGroup
-            case gd: GlobalGroupDef => gd.groupRef.immediatelyEnclosingModelGroup
-            case ge : GlobalElementDecl => ge.elementRef match {
-                 case None => {
-                     // we are root. So there is no enclosing model group at all
-                     None
-                 }
-                 case Some(er) => er.immediatelyEnclosingModelGroup
-             }
+          case gct: GlobalComplexTypeDef => gct.element.immediatelyEnclosingModelGroup
+          case gd: GlobalGroupDef => gd.groupRef.immediatelyEnclosingModelGroup
+          case ge: GlobalElementDecl => ge.elementRef match {
+            case None => {
+              // we are root. So there is no enclosing model group at all
+              None
+            }
+            case Some(er) => er.immediatelyEnclosingModelGroup
+          }
         }
       }
-      case ct : ComplexTypeBase => ct.element.immediatelyEnclosingModelGroup
+      case ct: ComplexTypeBase => ct.element.immediatelyEnclosingModelGroup
       case _ => Assert.invariantFailed("immediatelyEnclosingModelGroup called on " + this + "with parent " + parent)
     }
     res
   }
-    
-  lazy val positionInNearestEnclosingSequence : Int = {
-    val res = 
+
+  lazy val positionInNearestEnclosingSequence: Int = {
+    val res =
       if (enclosingComponent == nearestEnclosingSequence) position
       else {
         enclosingComponent match {
-          case Some(term : Term) => term.positionInNearestEnclosingSequence
-          case Some(ct : ComplexTypeBase) => {
+          case Some(term: Term) => term.positionInNearestEnclosingSequence
+          case Some(ct: ComplexTypeBase) => {
             val ctElem = ct.element
             val ctPos = ctElem.positionInNearestEnclosingSequence
             ctPos
@@ -182,7 +194,7 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
       }
     }
   }
-  
+
   lazy val prettyTerminatingMarkup =
     terminatingMarkup.map { _.prettyExpr }.map { "'" + _ + "'" }.mkString(" ")
 
@@ -230,14 +242,14 @@ abstract class GroupBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   lazy val immediateGroup: Option[GroupBase] = {
-    
+
     val res: Option[GroupBase] = this.group match {
       case (s: Sequence) => Some(s)
       case (c: Choice) => Some(c)
       case (g: GroupRef) => Some(g)
       case _ => None
     }
-    
+
     res
   }
 
@@ -251,7 +263,7 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
   with ModelGroupGrammarMixin {
 
   lazy val prettyName = xmlArg.label
-  
+
   val xmlChildren: Seq[Node]
 
   private val goodXmlChildren = xmlChildren.flatMap { removeNonInteresting(_) }
@@ -259,16 +271,16 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
   private val pairs = goodXmlChildren zip positions
   private lazy val children = pairs.flatMap {
     case (n, i) =>
-       termFactory(n, this, i) 
+      termFactory(n, this, i)
   }
 
   def group = this
 
-  lazy val groupMembers_ = LV{
+  lazy val groupMembers_ = LV {
     children
   }
   lazy val groupMembers = groupMembers_.value
-  
+
   lazy val diagnosticChildren = annotationObjs ++ children
 
   /**
@@ -325,13 +337,13 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   lazy val combinedGroupRefAndGlobalGroupDefProperties: Map[String, String] = {
     schemaDefinition(overlappingProps.size == 0,
-      "Overlap detected between the properties in the model group of a global group definition (%s) and its group reference.", 
+      "Overlap detected between the properties in the model group of a global group definition (%s) and its group reference.",
       this.detailName)
 
     val props = myGroupReferenceProps ++ this.localAndFormatRefProperties
     props
   }
-  
+
   override lazy val allNonDefaultProperties: Map[String, String] = {
     val theLocalUnion = this.combinedGroupRefAndGlobalGroupDefProperties
     theLocalUnion
@@ -476,9 +488,9 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
 class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends GroupBase(xmlArg, parent, position)
   with GroupRefGrammarMixin {
-  
+
   lazy val prettyName = "groupRef"
-    
+
   def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:group>{ contents @ _* }</dfdl:group> => new DFDLGroup(node, this)
@@ -504,9 +516,9 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }
 
-  lazy val group = groupDef.modelGroup 
-    
-  lazy val groupDef : GlobalGroupDef = groupDef_.value
+  lazy val group = groupDef.modelGroup
+
+  lazy val groupDef: GlobalGroupDef = groupDef_.value
   private lazy val groupDef_ = LV {
     val res = refQName match {
       // TODO See comment above about consolidating techniques.
@@ -525,14 +537,13 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
     res
   }
-  
+
   lazy val diagnosticChildren = annotationObjs :+ groupDef
 
 }
 
 class GlobalGroupDefFactory(val xml: Node, schemaDocument: SchemaDocument)
-extends NamedMixin
-{
+  extends NamedMixin {
   //  def forComplexType(ct : ComplexTypeBase) = {
   //    new GlobalGroupDef(xmlArg, schemaDocument, ct, 1)
   //  }
@@ -554,8 +565,8 @@ class GlobalGroupDef(val xmlArg: Node, val schemaDocument: SchemaDocument, val g
   // So we have to flatMap, so that we can tolerate annotation objects (like documentation objects).
   // and our ModelGroup factory has to return Nil for annotations and Text nodes.
   //
-  lazy val Seq(modelGroup: ModelGroup) = xmlChildren.flatMap { GroupFactory(_, this, position) } 
-  
+  lazy val Seq(modelGroup: ModelGroup) = xmlChildren.flatMap { GroupFactory(_, this, position) }
+
   lazy val diagnosticChildren = List(modelGroup)
 
 }

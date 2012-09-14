@@ -929,7 +929,7 @@ trait SequenceGrammarMixin { self : Sequence =>
 
 trait GroupRefGrammarMixin { self : GroupRef =>
 
-  def termContentBody = Assert.notYetImplemented()
+  def termContentBody = self.group.termContentBody//Assert.notYetImplemented()
 
 }
 
