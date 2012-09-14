@@ -5,6 +5,7 @@ import daffodil.util.Logging
 import daffodil.util._
 import daffodil.util.Glob
 import daffodil.exceptions.Abort
+import daffodil.exceptions.NotYetImplementedException
 
 /**
  * OOLAG = Object-oriented Lazy Attribute Grammars
@@ -89,6 +90,7 @@ object OOLAG {
           case le : scala.Error => { throw le } // note that Exception does NOT inherit from Error
           case re : java.lang.RuntimeException => { throw re }
           case abort : Abort => throw abort // never swallow up these
+          case nyi : NotYetImplementedException => throw nyi
           case eah : ErrorAlreadyHandled => {
             log(Debug(catchMsg, descrip, eah))
             throw eah
