@@ -23,4 +23,6 @@ class TestSimpleTypes2 extends JUnitSuite {
   	}
 //  @Test def test_Long3() {runner.runOneTest("Long3")}
 //  @Test def test_Long4() {runner.runOneTest("Long4")}
+    @Test def test_unsignedInt_error_08() { runner.runOneTest("unsignedInt_error_08") }
+    @Test def test_unsignedInt_error_09() { runner.runOneTest("unsignedInt_error_09") }
   }
