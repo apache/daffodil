@@ -38,11 +38,11 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_unsignedInt_01() { runner.runOneTest("unsignedInt_01") }
   @Test def test_unsignedInt_02() { runner.runOneTest("unsignedInt_02") }
   
-  @Test def test_unsignedInt_error_03() { runner.runOneTest("unsignedInt_error_03") }
-  @Test def test_unsignedInt_error_04() { runner.runOneTest("unsignedInt_error_04") }
-  @Test def test_unsignedInt_error_05() { runner.runOneTest("unsignedInt_error_05") }
-  @Test def test_unsignedInt_error_06() { runner.runOneTest("unsignedInt_error_06") }
-  @Test def test_unsignedInt_error_07() { runner.runOneTest("unsignedInt_error_07") }
+  @Test def test_unsignedIntNegativeValue() { runner.runOneTest("unsignedIntNegativeValue") }
+  @Test def test_whiteSpaceAfterLengthExceeded() { runner.runOneTest("whiteSpaceAfterLengthExceeded") }
+  @Test def test_whiteSpaceBeforeLengthExceeded() { runner.runOneTest("whiteSpaceBeforeLengthExceeded") }
+  @Test def test_whiteSpaceDuringLengthExceeded() { runner.runOneTest("whiteSpaceDuringLengthExceeded") }
+  @Test def test_whiteSpaceAfterValidValue() { runner.runOneTest("whiteSpaceAfterValidValue") }
    
   @Test def test_unsignedShort_01() { runner.runOneTest("unsignedShort_01") }
   @Test def test_unsignedByte_01() { runner.runOneTest("unsignedByte_01") }
