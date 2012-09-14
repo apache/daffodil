@@ -26,6 +26,49 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+
+		<xs:element name="e2" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice>
+						<xs:element name="x1" dfdl:lengthKind="implicit">
+							<xs:complexType>
+								<xs:choice dfdl:initiatedContent="yes"
+									dfdl:separatorPosition="infix" dfdl:separator="">
+									<xs:element name="a1" dfdl:initiator="[" type="xs:int"
+										dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+									<xs:element name="a2" dfdl:initiator="[" type="xs:string"
+										dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+								</xs:choice>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="x2" type="xs:string" dfdl:lengthKind="delimited" />
+					</xs:choice>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="e2WithoutInitiatedContent" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice>
+						<xs:element name="x1" dfdl:lengthKind="implicit">
+							<xs:complexType>
+								<xs:choice dfdl:initiatedContent="no"
+									dfdl:separatorPosition="infix" dfdl:separator="">
+									<xs:element name="a1" dfdl:initiator="[" type="xs:int"
+										dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+									<xs:element name="a2" dfdl:initiator="[" type="xs:string"
+										dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+								</xs:choice>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="x2" type="xs:string" dfdl:lengthKind="delimited" />
+					</xs:choice>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="initiatedContent1"
@@ -52,6 +95,32 @@
 			<tdml:error>[s1:noi]</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="initiatedContent3"
+		description="test that insures initiatedContent the initiator behaves as a discriminator and cuts off other choice alternatives."
+		model="s1" root="e2">
+		<tdml:document>[abc]</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e2>
+					<x2>[abc]</x2>
+				</e2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 	
-	
+	<tdml:parserTestCase name="initiatedContent4"
+		description="test that insures initiatedContent the initiator behaves as a discriminator and cuts off other choice alternatives."
+		model="s1" root="e2WithoutInitiatedContent">
+		<tdml:document>[abc]</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e2WithoutInitiatedContent>
+					<x1><a2>abc</a2></x1>
+				</e2WithoutInitiatedContent>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+
 </tdml:testSuite>
