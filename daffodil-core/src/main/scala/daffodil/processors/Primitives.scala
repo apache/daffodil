@@ -1608,9 +1608,10 @@ case class AssertPatternPrim(decl : AnnotatedSchemaComponent, stmt : DFDLAssert)
 
 }
 
-class AssertBooleanPrimBase(
+abstract class AssertBase(
   decl : AnnotatedSchemaComponent,
-  stmt : DFDLAssertionBase,
+  exprTextArg : String,
+  msg : String,
   discrim : Boolean, // are we a discriminator or not.
   assertKindName : String
   )
@@ -1621,7 +1622,7 @@ class AssertBooleanPrimBase(
   def parser : Parser = new ExpressionEvaluationParser(decl) {
     val baseName = assertKindName
 
-    lazy val exprText = stmt.testTxt
+    lazy val exprText = exprTextArg
     lazy val expandedTypeName = XMLUtils.XSD_BOOLEAN
     def parse(start : PState) : PState =
       withLoggingLevel(LogLevel.Info) {
@@ -1634,13 +1635,20 @@ class AssertBooleanPrimBase(
             postState.withDiscriminator(discrim)
           } else {
             // The assertion failed. Prepare a failure message etc. in case backtracking ultimately fails from here.
-            val diag = new AssertionFailed(decl, postState, stmt)
+            val diag = new AssertionFailed(decl, postState, msg)
             postState.failed(diag)
           }
         }
       }
   }
 }
+
+abstract class AssertBooleanPrimBase(
+  decl : AnnotatedSchemaComponent,
+  stmt : DFDLAssertionBase,
+  discrim : Boolean, // are we a discriminator or not.
+  assertKindName : String
+  ) extends AssertBase(decl, stmt.testTxt, stmt.message, discrim, assertKindName)
 
 case class AssertBooleanPrim(
   decl : AnnotatedSchemaComponent,
@@ -1652,6 +1660,14 @@ case class DiscriminatorBooleanPrim(
   decl : AnnotatedSchemaComponent,
   stmt : DFDLAssertionBase)
   extends AssertBooleanPrimBase(decl, stmt, true, "discriminator")
+
+case class InitiatedContent(
+  decl : AnnotatedSchemaComponent)
+  extends AssertBase(decl, 
+      "{ xs:boolean('true') }", // always true. We're just an assertion
+      "initiatedContent. This message should not be used.", 
+      true, 
+      "initiatedContent")
 
 case class SetVariable(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable) extends Terminal(decl, true) {
   def parser : Parser = new SetVariableParser(decl, stmt)

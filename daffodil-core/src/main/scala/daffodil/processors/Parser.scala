@@ -25,6 +25,8 @@ import java.io.ByteArrayInputStream
 import scala.collection.mutable.Stack
 import daffodil.debugger.Debugger
 import daffodil.util.Misc._
+import java.io.InputStreamReader
+import java.io.BufferedReader
 
 abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
@@ -54,8 +56,8 @@ extends ProcessingError {
   override def getMessage = toString
 }
 
-class AssertionFailed(sc: SchemaComponent, state : PState, stmt : DFDLAssertionBase) 
-extends ParseError(sc, Some(state), "Assertion failed. %s", stmt.message)
+class AssertionFailed(sc: SchemaComponent, state : PState, msg : String) 
+extends ParseError(sc, Some(state), "Assertion failed. %s", msg)
 
 
 class AlternativeFailed(sc : SchemaComponent, state : DFDL.State, val errors : Seq[Diagnostic]) extends ProcessingError {
@@ -369,12 +371,14 @@ class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixi
 }
 
 class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
-  override def toString() = "Location(in bits) " + bitPos + 
-  " data aligned to 64-bits starting at " + aligned64BitsPos + "(" + dump + ")"
+  
+  override def toString() = "Location (in bits) " + bitPos + " (in bytes) " + bitPos / 8 + 
+  ". UTF-8 text is: (" + utf8Dump + ")" + " Data aligned to 8-bytes starting at bit " + aligned64BitsPos + " byte " + aligned64BitsPos / 8 + " (" + dump + ")" 
   
   
   def aligned64BitsPos = (bitPos >> 6) << 6
-  def dump = {
+  
+  def byteDump = {
     var bytes : List[Byte] = Nil
     try {
       for ( i <- 0 to 40 ) {
@@ -384,8 +388,42 @@ class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
     catch {
       case e : IndexOutOfBoundsException =>
     }
-    bytes2Hex(bytes.reverse.toArray)
+    bytes.reverse.toArray
   }
+  
+  //val cBuf = 
+  /**
+   * Assumes utf-8
+   */
+  def utf8Dump = {
+    val cb = CharBuffer.allocate(128)
+    val is = new ByteArrayInputStream(byteDump) 
+    val ir = new InputStreamReader(is)
+    val count = ir.read(cb)
+    val arr = cb.array
+    val chars = for {i <- 0 to count - 1} yield arr(i)
+    chars.mkString("")
+    }
+    
+  def dump = {
+    bytes2Hex(byteDump)
+  }
+  
+  /*
+   * We're at the end if an attempt to get a byte fails with an index exception
+   */
+  def isAtEnd : Boolean = {
+    try {
+      inStream.getByte(bitPos, java.nio.ByteOrder.BIG_ENDIAN)
+      false
+    }
+    catch {
+      case e : IndexOutOfBoundsException => {
+      val exc = e
+      true
+      }
+    }
+    }
 }
 
 /**

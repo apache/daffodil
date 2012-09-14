@@ -120,6 +120,31 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
     }
     res
   }
+  
+  lazy val immediatelyEnclosingModelGroup : Option[ModelGroup] = { 
+    val res = parent match {
+      case c: Choice => Some(c)
+      case s: Sequence => Some(s)
+      case d: SchemaDocument => {
+        // we're a global object. Our parent is a schema document
+        // so follow backpointers to whatever is referencing us.
+        this match {
+            case gct: GlobalComplexTypeDef => gct.element.immediatelyEnclosingModelGroup
+            case gd: GlobalGroupDef => gd.groupRef.immediatelyEnclosingModelGroup
+            case ge : GlobalElementDecl => ge.elementRef match {
+                 case None => {
+                     // we are root. So there is no enclosing model group at all
+                     None
+                 }
+                 case Some(er) => er.immediatelyEnclosingModelGroup
+             }
+        }
+      }
+      case ct : ComplexTypeBase => ct.element.immediatelyEnclosingModelGroup
+      case _ => Assert.invariantFailed("immediatelyEnclosingModelGroup called on " + this + "with parent " + parent)
+    }
+    res
+  }
     
   lazy val positionInNearestEnclosingSequence : Int = {
     val res = 

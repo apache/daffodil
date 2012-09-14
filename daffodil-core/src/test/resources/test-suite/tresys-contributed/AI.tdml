@@ -9,7 +9,7 @@
 		<dfdl:format separator="" initiator="" terminator=""
 			emptyValueDelimiterPolicy="none" textNumberRep="standard"
 			representation="text" lengthUnits="bytes" encoding="ascii"
-			occursStopValue="-1" occursCountKind="expression" ignoreCase="no"/>
+			occursStopValue="-1" occursCountKind="expression" ignoreCase="no" initiatedContent="no"/>
 
 
 		<!-- Patterned length and fixed length -->

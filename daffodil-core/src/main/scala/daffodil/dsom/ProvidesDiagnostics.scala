@@ -19,7 +19,7 @@ import daffodil.util.Debug
 import daffodil.util.Info
 import daffodil.util.Compile
 
-object Diagnostic {
+object DiagnosticUtils {
   /**
    * Java throwable/exception objects may or may not have a message. They are supposed to have a cause if they
    * don't have a message of their own, but might have neither, or might have both.
@@ -59,8 +59,8 @@ object Diagnostic {
 }
 
 trait DiagnosticImplMixin extends Diagnostic { self : Throwable =>
-  def getSomeCause() = Diagnostic.getSomeCause(self)
-  def getSomeMessage() = Diagnostic.getSomeMessage(self)
+  def getSomeCause() = DiagnosticUtils.getSomeCause(self)
+  def getSomeMessage() = DiagnosticUtils.getSomeMessage(self)
 }
 
 class CapturedThrowDiagnostic(e : Throwable, context : Any) extends Throwable with DiagnosticImplMixin {

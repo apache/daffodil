@@ -27,6 +27,7 @@ import java.nio.charset.CharsetEncoder
 import com.ibm.icu.charset.CharsetICU
 import java.nio.CharBuffer
 import java.io.InputStream
+import daffodil.processors.GeneralParseFailure
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -335,10 +336,17 @@ case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
         }
         val actual = processor.parse(dataToParse)
 
+        val loc : DataLocation = actual.resultState.currentLocation
+
         if (actual.canProceed) {
-          // We did not get an error!!
-          // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
-          throw new Exception("Expected error. Didn't get one. Actual result was " + actual.result) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
+          if (!loc.isAtEnd) {
+            actual.addDiagnostic(new GeneralParseFailure("Left over data: " + loc.toString))
+            actual
+          } else {
+            // We did not get an error!!
+            // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
+            throw new Exception("Expected error. Didn't get one. Actual result was " + actual.result) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
+          }
         } else actual
       }
 
@@ -371,6 +379,11 @@ case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
         // Means there was an error, not just warnings.
         val diags = actual.getDiagnostics.map(_.getMessage).mkString("\n")
         throw new Exception(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
+      }
+
+      val loc : DataLocation = actual.resultState.currentLocation
+      if (!loc.isAtEnd) {
+        throw new Exception("Left over data: " + loc.toString)
       }
 
       verifyParseInfoset(actual, infoset)
@@ -568,8 +581,6 @@ case class DocumentPart(part : Node, parent : Document) {
   lazy val hexContentToBytes = hex2Bytes(hexDigits)
 
   val validHexDigits = "0123456789abcdefABCDEF"
-    
- 
 
   // Note: anything that is not a valid hex digit is simply skipped
   // TODO: we should check for whitespace and other characters we want to allow, and verify them.
@@ -577,11 +588,11 @@ case class DocumentPart(part : Node, parent : Document) {
   // TODO: Consider whether to support a comment syntax. When showing data examples this may be useful.
   //
   lazy val hexDigits = partRawContent.flatMap { ch => if (validHexDigits.contains(ch)) List(ch) else Nil }
-  
+
   lazy val bitContentToBytes = bits2Bytes(bitDigits)
   val validBinaryDigits = "01"
-    
-  lazy val bitDigits = partRawContent.flatMap { ch => if(validBinaryDigits.contains(ch)) List(ch) else Nil}
+
+  lazy val bitDigits = partRawContent.flatMap { ch => if (validBinaryDigits.contains(ch)) List(ch) else Nil }
 
 }
 

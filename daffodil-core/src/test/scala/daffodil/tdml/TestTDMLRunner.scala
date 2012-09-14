@@ -259,10 +259,10 @@ class TestTDMLRunner extends JUnit3Suite {
                         </infoset>
                       </parserTestCase>
                       <parserTestCase name="testTDMLParseRunAll2" root="data">
-                        <document>37\n</document>
+                        <document>92</document>
                         <infoset>
                           <dfdlInfoset xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-                            <data>37</data>
+                            <data>92</data>
                           </dfdlInfoset>
                         </infoset>
                       </parserTestCase>

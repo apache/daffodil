@@ -71,6 +71,7 @@ trait Diagnostic { self : Throwable => // these are always throwables.
  */
 trait DataLocation {
   def toString : String
+  def isAtEnd : Boolean 
 }
 
 /**
