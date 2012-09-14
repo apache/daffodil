@@ -62,6 +62,7 @@ class DFDLCharReader private (psc: PagedSeq[Char], override val offset: Int)
       val codec = scala.io.Codec.charset2codec(cs)
       // TODO: Determine if the right thing here to do is to ignore malformed input which is default behavior
       //codec.onMalformedInput(CodingErrorAction.REPORT)
+      codec.onMalformedInput(CodingErrorAction.IGNORE)
       val psc = PagedSeq.fromSource(scala.io.Source.fromInputStream(is)(codec))
       psc
     }, 0)
