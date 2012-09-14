@@ -6,6 +6,7 @@ import scala.collection.immutable.PagedSeq
 import scala.collection.mutable.HashMap
 import scala.util.parsing.input.OffsetPosition
 import java.nio.charset.CodingErrorAction
+import java.nio.ByteBuffer
 
 /**
  * Pure functional Reader[Byte] that gets its data from a DFDL.Input (aka a ReadableByteChannel)
@@ -24,6 +25,11 @@ class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos: Int = 0)
   lazy val atEnd: Boolean = !psb.isDefinedAt(bytePos)
   
   def atPos(bytePosition: Int): DFDLByteReader = { new DFDLByteReader(psb, bytePosition) }
+  
+  def getByte(bytePosition: Int): Byte = { psb(bytePosition) }
+  
+  lazy val byteArray: Array[Byte] = psb.toArray[Byte]
+  lazy val bb: ByteBuffer = ByteBuffer.wrap(byteArray)
 
   /**
    * Factory for a Reader[Char] that constructs characters by decoding them from this

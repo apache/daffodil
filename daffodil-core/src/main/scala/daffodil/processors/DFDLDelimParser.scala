@@ -112,7 +112,13 @@ class DelimParser extends RegexParsers {
     //
     // However, the addition of "~ (seps | terms)" guarantees that we will receive a failure
     // if a separator or terminator is not found!
-    val res = this.parse(this.log(field ~ (seps | terms))("DelimParser." + name), input)
+    val EOF: Parser[String] = """\z""".r
+    //val res = this.parse(this.log(field ~ (seps | terms))("DelimParser." + name), input)
+    //val delims: Parser[String] = (seps | terms) <~ opt(EOF)
+    //val entry = phrase((field ~ (seps | terms)))
+    val delims: Parser[String] = (seps | terms)
+    val entry = (field ~ ( delims | (delims <~ opt(EOF)))) | (field ~ EOF)
+    val res = this.parse(this.log(entry)("DelimParser." + name), input)
     res
 
     var fieldResult = ""
@@ -154,6 +160,7 @@ class DelimParser extends RegexParsers {
 
     // A word is anything but a delimiter or EOF
     val wordRegex: String = """((.*?)(?=(%s)|\z))"""
+    //  val wordRegex: String = """(.*?)(?=(%s|\z))"""
     val word: Parser[String] = String.format(wordRegex, delimsRegex).r
 
     val result = parseInputDefault(word, pSeps, pTerms, input, "default", charset)

@@ -14,10 +14,10 @@ import daffodil.compiler._
 
 class TestBufferAllocations extends JUnit3Suite {
 
-  def testMakeTooSmallBufferAndRead() {
-    var in = Compiler.stringToReadableByteChannel("One Two Three Four, Can I have a little more, Five Six Seven Eight Nine Ten I love you!")
-    val inStream = new InStreamFromByteChannel(null, in, 3)
-    // This should not be true as the byte buffer should have spare capacity at the end meaning it read everything
-    assert(inStream.bb.capacity > inStream.count)
-  }
+//  def testMakeTooSmallBufferAndRead() {
+//    var in = Compiler.stringToReadableByteChannel("One Two Three Four, Can I have a little more, Five Six Seven Eight Nine Ten I love you!")
+//    val inStream = new InStreamFromByteChannel(null, in, 3)
+//    // This should not be true as the byte buffer should have spare capacity at the end meaning it read everything
+//    assert(inStream.bb.capacity > inStream.count)
+//  }
 }
