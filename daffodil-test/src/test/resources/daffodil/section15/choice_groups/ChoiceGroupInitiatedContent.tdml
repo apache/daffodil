@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="InitiatedContent" description="Section 15 - ChoiceGroups"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ex="http://example.com" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="s1">
+		<dfdl:format ref="ex:daffodilTest1" />
+
+		<xs:element name="e1" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="s" dfdl:lengthKind="implicit"
+						minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind='parsed'>
+						<xs:complexType>
+							<xs:choice dfdl:initiatedContent="yes"
+								dfdl:separatorPosition="infix" dfdl:separator="">
+								<xs:element name="s1" dfdl:initiator="[s1:" type="xs:int"
+									dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+								<xs:element name="s2" dfdl:initiator="[s2:" type="xs:string"
+									dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="initiatedContent1"
+		model="s1" root="e1">
+		<tdml:document>[s2:abc][s1:123]</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e1>
+					<s>
+						<s2>abc</s2>
+					</s>
+					<s>
+						<s1>123</s1>
+					</s>
+				</e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="initiatedContent2"
+		model="s1" root="e1">
+		<tdml:document>[s2:abc][s1:noi]</tdml:document>
+		<tdml:errors>
+			<tdml:error>[s1:noi]</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	
+</tdml:testSuite>

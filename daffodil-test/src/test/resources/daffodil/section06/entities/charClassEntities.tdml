@@ -46,7 +46,7 @@
 		description="CSV-style tests and use of %NL; - DFDL-6-045R">
 
 		<document>
-			<documentPart type="text"><![CDATA[0,1,2,3,45,6,7,8,910,11,12,13,14]]></documentPart>
+			<documentPart type="text"><![CDATA[0,1,2,3,45,6,7,8,910,11,12,13,14]]></documentPart>
 		</document>
 
 		<infoset>
@@ -121,7 +121,7 @@
 		description="CSV-style tests and use of %NL; - DFDL-6-045R">
 
 		<document>
-			<documentPart type="text"><![CDATA[0,1,2,3,45,6,7,8,910,11]]></documentPart>
+			<documentPart type="text"><![CDATA[0,1,2,3,45,6,7,8,910,11]]></documentPart>
 		</document>
 
 		<infoset>

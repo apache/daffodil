@@ -82,7 +82,7 @@
 		<tdml:parserTestCase name="DelimProp_01"
 			model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 12 property delimiters, a whitespace separated list of initiators and terminators - DFDL-12-032R"
 			root="DP_01">
-			<tdml:document>+1,+2,+3,+4:-5.-6.-7.-8${{9;10;11;12]]::13|14|15|16||</tdml:document>
+			<tdml:document>+1,+2,+3,+4:-5.-6.-7.-8${{9;10;11;12]]::13|14|15|16</tdml:document>
 			<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<DP_01>
@@ -274,7 +274,7 @@
 		<tdml:parserTestCase name="ParseSequence_4a" root="e2"
 		model="basic" description="Section 12 property delimiters -data after final terminator - DFDL-12-032R">
 
-			<tdml:document>[{(5),(6),(7)}]{(8)}</tdml:document>
+			<tdml:document>[{(5),(6),(7)}]</tdml:document>
 			<tdml:infoset>
 				<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 					<e2>

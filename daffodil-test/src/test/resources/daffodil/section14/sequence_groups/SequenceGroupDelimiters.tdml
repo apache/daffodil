@@ -83,7 +83,7 @@
 		<tdml:parserTestCase name="SeqGrp_01"
 			model="SequenceGroupDelimiters-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters, a whitespace separated list for separator - DFDL-14-008R"
 			root="SG_01">
-			<tdml:document>1,2,3,4:5.6.7.8$9;10;11;12::13|14|15|16||</tdml:document>
+			<tdml:document>1,2,3,4:5.6.7.8$9;10;11;12::13|14|15|16</tdml:document>
 			<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<SG_01>
