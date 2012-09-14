@@ -16,6 +16,7 @@ import daffodil.compiler._
 import daffodil.dsom.AnnotatedSchemaComponent
 import java.io.FileOutputStream
 import java.io.File
+import daffodil.exceptions.UnsuppressableException
 
 class UnparseError(sc : SchemaComponent, ustate : Option[UState], kind : String, args : Any*) extends ProcessingError {
   def isError = true
@@ -115,6 +116,7 @@ class AltCompUnparser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) ex
         log(Debug("Trying choice alternative: %s", pUnparser))
         pUnparser.unparse(ustate)
       } catch {
+        case u: UnsuppressableException => throw u
         case e : Exception => {
           Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
         }
@@ -150,6 +152,7 @@ class AltCompUnparser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) ex
         log(Debug("Trying choice alternative: %s", qUnparser))
         qUnparser.unparse(ustate)
       } catch {
+        case u: UnsuppressableException => throw u
         case e : Exception => {
           Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
         }
@@ -498,6 +501,7 @@ class OutStreamFromByteChannel(context : ElementBase, outStream : DFDL.Output, s
         cbuf.flip()
         isTooSmall = false
       } catch { //make sure buffer was not written to capacity
+        case u: UnsuppressableException => throw u
         case e : Exception => {
           cbuf = CharBuffer.allocate(cbuf.position() * 4) // TODO: more efficient algorithm than size x4
           if (temp != "")

@@ -27,6 +27,7 @@ import daffodil.debugger.Debugger
 import daffodil.util.Misc._
 import java.io.InputStreamReader
 import java.io.BufferedReader
+import daffodil.exceptions.UnsuppressableException
 
 abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
@@ -277,6 +278,7 @@ class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
         log(Debug("Trying choice alternative: %s", pParser))
         pParser.parse1(pstate, context)
       } catch {
+        case u :UnsuppressableException => throw u
         case e : Exception => {
           Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
         }
@@ -312,6 +314,7 @@ class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
         log(Debug("Trying choice alternative: %s", qParser))
         qParser.parse1(pstate, context)
       } catch {
+        case u :UnsuppressableException => throw u
         case e : Exception => {
           Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
         }

@@ -9,6 +9,7 @@ import daffodil.tdml.DFDLTestSuite
 import daffodil.processors._
 import daffodil.dsom._
 import javax.xml.xpath.XPathConstants
+import daffodil.debugger.Debugger
 
 class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
   val tdml = XMLUtils.TDML_NAMESPACE
@@ -102,6 +103,7 @@ class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
 
   // @Test
   def testVariables3() {
+    // Debugger.setDebugging(true)
     val testSuite = variables3
     lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testVariables3")

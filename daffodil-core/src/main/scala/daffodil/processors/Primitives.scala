@@ -14,6 +14,7 @@ import daffodil.util.{ Debug, LogLevel, Logging, Info }
 import daffodil.util.Misc.bytes2Hex
 import daffodil.processors._
 import daffodil.exceptions.Assert
+import daffodil.exceptions.UnsuppressableException
 import stringsearch.constructs.{ EscapeScheme, SearchResult }
 import stringsearch.delimiter.Delimiter
 import com.ibm.icu.text.{ NumberFormat, DecimalFormat }
@@ -68,6 +69,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType != t
             start.currentElement.getContent().get(0).asInstanceOf[org.jdom.Element]
           }
         } catch {
+          case u :UnsuppressableException => throw u
           case e: Exception => start.currentElement //if content is text
         }
       }
@@ -272,6 +274,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
         } catch {
           case e: java.nio.BufferUnderflowException => { return PE(start, "StringFixedLengthInBytes - Insufficient Bits in field; required " + nBytes * 8) }
           case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytes - IndexOutOfBounds: " + e.getMessage()) }
+          case u: UnsuppressableException => throw u
           case e: Exception => { return start.failed("StringFixedLengthInBytes - Exception: " + e.getStackTraceString) }
         }
       }
@@ -332,6 +335,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
         } catch {
           case e: java.nio.BufferUnderflowException => { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - Insufficient Bits in field; required " + nBytes * 8) }
           case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - " + e.getMessage()) }
+          case u: UnsuppressableException => throw u
           case e: Exception => { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - " + e.getMessage()) }
         }
         //      // setLoggingLevel(LogLevel.Debug)
@@ -651,6 +655,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
         val num = try {
           df.parse(str, pos)
         } catch {
+          case u: UnsuppressableException => throw u
           case e: Exception =>
             return PE(start, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
               GramDescription, GramName, str, e)
@@ -706,6 +711,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
       val num = try {
         df.parse(str, pos)
       } catch {
+        case u: UnsuppressableException => throw u
         case e: Exception =>
           return UE(start, "Convert to %s (for xs:%s): Unparse of '%s' threw exception %s",
             GramDescription, GramName, str, e)
@@ -1056,6 +1062,7 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Long) extends Terminal(e, 
           val num = try {
             df.parse(str, pos)
           } catch {
+            case u: UnsuppressableException => throw u
             case e: Exception =>
               return UE(start, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
                 GramDescription, GramName, str, e)
@@ -1905,6 +1912,7 @@ case class StringExplicitLengthInBytes(e: ElementBase)
       } catch {
         case e: java.nio.BufferUnderflowException => { return PE(start, "StringExplicitLengthInBytesParser - Insufficient Bits in field; required " + nBytes * 8) }
         case e: IndexOutOfBoundsException => { return PE(start, "StringExplicitLengthInBytesParser - IndexOutOfBounds: " + e.getMessage()) }
+        case u: UnsuppressableException => throw u
         case e: Exception => { return start.failed("StringExplicitLengthInBytesParser - Exception: " + e.getStackTraceString) }
       }
 

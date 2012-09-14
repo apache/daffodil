@@ -888,7 +888,7 @@ trait ModelGroupGrammarMixin
 
 trait ChoiceGrammarMixin { self : Choice =>
 
-  lazy val groupContent = Prod("choiceContent", this, alternatives.foldLeft(mt)(folder))
+  lazy val groupContent = Prod("choiceContent", this, alternatives.foldRight(mt)(folder))
 
   def folder(p : Gram, q : Gram) : Gram = p | q
 
@@ -898,7 +898,7 @@ trait ChoiceGrammarMixin { self : Choice =>
 
 trait SequenceGrammarMixin { self : Sequence =>
 
-  lazy val groupContent = Prod("sequenceContent", this, StartSequence(this) ~ terms.foldLeft(mt)(folder) ~ EndSequence(this))
+  lazy val groupContent = Prod("sequenceContent", this, StartSequence(this) ~ terms.foldRight(mt)(folder) ~ EndSequence(this))
 
   def folder(p : Gram, q : Gram) : Gram = p ~ q
 

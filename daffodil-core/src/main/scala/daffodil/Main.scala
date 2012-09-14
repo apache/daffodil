@@ -45,6 +45,7 @@ import daffodil.arguments.OptionalSingle
 import daffodil.debugger.DebugUtil
 import daffodil.util.Misc
 import java.io.FileInputStream
+import daffodil.exceptions.UnsuppressableException
 
 /**
  * The command line interface to Daffodil
@@ -57,7 +58,7 @@ object Main {
   private val MINOR_VERSION = 2
   private val YEAR = 2012
 
-  def main(arguments: Array[String]): Unit = {
+  def main(arguments : Array[String]) : Unit = {
     val argumentParser = new ArgumentParser
 
     argumentParser add (new ArgumentDescription("schema", "schema", "s", true, OptionalSingle))
@@ -80,7 +81,7 @@ object Main {
     try {
       argumentParser parse (arguments)
     } catch {
-      case e: IllegalArgumentException => System.err.println(e.getMessage); usage
+      case e : IllegalArgumentException => System.err.println(e.getMessage); usage
     }
 
     if (argumentParser isSet ("help"))
@@ -103,8 +104,8 @@ object Main {
     }
 
     val compiler = daffodil.compiler.Compiler()
-    var processorFactory: DFDL.ProcessorFactory = null
-    var processor: DFDL.DataProcessor = null
+    var processorFactory : DFDL.ProcessorFactory = null
+    var processor : DFDL.DataProcessor = null
 
     try {
 
@@ -148,9 +149,9 @@ object Main {
         // naming conflicts. I.e., -p is the 'parser' aka processor.
         // -i and -u control parsing versus unparsing.        
         val data = argumentParser getSingle ("input")
-        
+
         val input = new FileInputStream(argumentParser getSingle ("input"))
-        
+
         //val bytes = data.getBytes()
         //val inputStream = new ByteArrayInputStream(bytes);
         val rbc = java.nio.channels.Channels.newChannel(input);
@@ -192,7 +193,8 @@ object Main {
       }
 
     } catch {
-      case e: Exception => DebugUtil.printException(e)
+      case u : UnsuppressableException => throw u
+      case e : Exception => DebugUtil.printException(e)
     }
   }
 
@@ -265,12 +267,11 @@ object Main {
     System exit (1)
   }
 
-  
   private def printVersion = {
-//    print(NAME+" "+YEAR+"-"+MAJOR_VERSION+"."+MINOR_VERSION)
+    //    print(NAME+" "+YEAR+"-"+MAJOR_VERSION+"."+MINOR_VERSION)
     val versions = Misc.getDaffodilVersion
     println(NAME + " version " + versions._1 + " (build " + versions._2 + ")")
-    System exit(1)
+    System exit (1)
   }
 
 }
