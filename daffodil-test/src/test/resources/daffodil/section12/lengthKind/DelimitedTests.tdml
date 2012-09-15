@@ -14,7 +14,7 @@
 		       		occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" />
 		
 		
-	    <xs:element name="NS_00a" type="xs:int" dfdl:terminator="a"/>
+	    <xs:element name="NS_00a" type="xs:int" dfdl:terminator="a aab"/>
 	    <xs:element name="NS_00nl" type="xs:int" dfdl:terminator="%NL;"/>
 		
 		<xs:element name="NS_01">
@@ -110,7 +110,7 @@
  	<tdml:parserTestCase name="NumSeq_00a" root="NS_00a"
 		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
 
-		<tdml:document><![CDATA[1a]]></tdml:document>
+		<tdml:document><![CDATA[1aab]]></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<NS_00a>1</NS_00a>
