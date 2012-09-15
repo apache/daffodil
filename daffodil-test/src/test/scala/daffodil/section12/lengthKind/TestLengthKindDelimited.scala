@@ -10,13 +10,19 @@ import daffodil.compiler.Compiler
 import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
+import daffodil.debugger.Debugger
 
 class TestLengthKindDelimited extends JUnitSuite {
   val testDir = "/daffodil/section12/lengthKind/"
   val aa = testDir + "DelimitedTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
-  @Test def test_NumSeq_01() { runner.runOneTest("NumSeq_01") }
+  @Test def test_NumSeq_00a() { Debugger.setDebugging(true)
+    runner.runOneTest("NumSeq_00a") }
+  @Test def test_NumSeq_00nl() { Debugger.setDebugging(true)
+    runner.runOneTest("NumSeq_00nl") }
+  @Test def test_NumSeq_01() { Debugger.setDebugging(true)
+    runner.runOneTest("NumSeq_01") }
   @Test def test_NumSeq_03() { runner.runOneTest("NumSeq_03") }
   @Test def test_NumSeq_04() { runner.runOneTest("NumSeq_04") }
   @Test def test_NumSeq_05() { runner.runOneTest("NumSeq_05") }
