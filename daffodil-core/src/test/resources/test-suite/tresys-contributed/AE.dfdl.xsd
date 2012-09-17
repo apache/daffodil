@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+	targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tns="http://example.com">
+
+  <!-- Parsing CSV as matrix, then transposing.
+       Uses hidden layers, inputValueCalc,
+       evaluated OccursCount, and variables -->
+
+  <!-- Against the DFDL specification, this example
+       allows reassignment of variables -->
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:defineVariable name="i" type="xsd:int" defaultValue="0"/>
+    </appinfo>
+  </annotation>
+
+  <group name="originalMatrix">
+    <sequence >
+      <element name="row" maxOccurs="unbounded">
+	<complexType>
+	  <sequence>
+	    <element name="column" type="xsd:string"
+		     dfdl:separator=","
+		     dfdl:terminator="%NL;"
+		     maxOccurs="unbounded"
+		     dfdl:representation="text"/>
+	  </sequence>
+	</complexType>
+      </element>
+    </sequence>
+  </group>
+  
+  <element name="transposedMatrix">
+    <complexType>
+      <sequence>
+	<sequence dfdl:hiddenGroupRef="tns:originalMatrix"/>
+	<element name="transposedRow" 
+		 dfdl:occursCountKind="expression"
+		 dfdl:occursCount="{ count(../tns:row[1]/tns:column) }">
+	  <complexType>
+	    <sequence>
+	      <element name="transposedColumn"
+		       type="xsd:string"
+		       dfdl:occursCountKind="expression"
+		       dfdl:occursCount="{ count(../../tns:row) }"
+		       dfdl:inputValueCalc="{ /tns:transposedMatrix/tns:row[count(/tns:transposedMatrix/tns:transposedRow[$i]/tns:transposedColumn)]/tns:column[$i] }">
+		<annotation>
+		  <appinfo source="http://www.ogf.org/dfdl/">
+		    <!-- Notice that transposedColumn is an array. The variable assigment will be performed
+			 once per array instance, NOT once per element instance -->
+		    <dfdl:setVariable ref="tns:i">{ $i + 1 }</dfdl:setVariable>
+		  </appinfo>
+		</annotation>
+	      </element>
+	    </sequence>
+	  </complexType>
+	</element>
+      </sequence>
+    </complexType>
+  </element>
+</schema>

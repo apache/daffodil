@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="AW"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	
+	<parserTestCase name="AW000" root="list" model="AW.dfdl.xsd"
+		description="escape character and escape block, variable length">
+<document>item0,item#01,#Ai#Bt#Ce#Dm#E2,#A#B#Citem3,ite#,m4
+Item/*AAA*/0,Item1,Item/*/AAA*/2,Item/*AAA/**]*/3,Item*/4,Item/**/5,Item/*,*/6,Item/!7
+</document>
+		<infoset>
+			<dfdlInfoset>
+				<list xmlns="http://www.example.org/example1">
+				  <character>item0</character>
+				  <character>item1</character>
+				  <character>item2</character>
+				  <character>item3</character>
+				  <character>item4</character>
+				  <block>Item0</block>
+				  <block>Item1</block>
+				  <block>Item2</block>
+				  <block>Item3</block>
+				  <block>Item*/4</block>
+				  <block>Item5</block>
+				  <block>Item6</block>
+				  <block>Item/!7</block>
+				</list>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+	<parserTestCase name="AW001" root="list" model="AW.dfdl.xsd"
+		description="escape character and escape block, variable length">
+<document>item0,item#01,#Ai#Bt#Ce#Dm#E2,#A#B#Citem3,ite#,m4#
+,item5
+Item0,Item1,Item/*AAA*/2,Item/*AAA/*/3,Item*/4,Item/**/5,Item/*,*/6,Item/*
+
+
+
+
+*/7
+</document>
+		<infoset>
+			<dfdlInfoset>
+				<list xmlns="http://www.example.org/example1">
+				  <character>item0</character>
+				  <character>item1</character>
+				  <character>item2</character>
+				  <character>item3</character>
+				  <character>item4</character>
+				  <character>item5</character>
+				  <block>Item0</block>
+				  <block>Item1</block>
+				  <block>Item2</block>
+				  <block>Item3</block>
+				  <block>Item*/4</block>
+				  <block>Item5</block>
+				  <block>Item6</block>
+				  <block>Item7</block>
+				</list>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+</testSuite>

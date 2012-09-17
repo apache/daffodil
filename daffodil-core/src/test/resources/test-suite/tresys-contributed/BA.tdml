@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="BA"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	
+	<parserTestCase name="BA000" root="list" model="BA.dfdl.xsd"
+		description="Schema Escaping: escape escape character, variable length">
+<document>:item1,item#X2,item!#3,item!4,item!!5
+:item1,item#X2,item##3,item###A4
+:item1,itemSTARTXXXXXEND2,item!STARTXXXEND3,item!S4
+:item1,itemS2,itemSS3,itemSTARTXXXEND4,itemSSTARTXXXEND5
+</document>
+		<infoset>
+			<dfdlInfoset>
+				<list xmlns="http://www.example.org/example1">
+				  <character1>item1</character1>
+				  <character1>item2</character1>
+				  <character1>item#3</character1>
+				  <character1>item!4</character1>
+				  <character1>item!!5</character1>
+				  <character2>item1</character2>
+				  <character2>item2</character2>
+				  <character2>item#3</character2>
+				  <character2>item#4</character2>
+				  <block1>item1</block1>
+				  <block1>item2</block1>
+				  <block1>itemSTARTXXXEND3</block1>
+				  <block1>itemS4</block1>
+				  <block2>item1</block2>
+				  <block2>itemS2</block2>
+				  <block2>itemS3</block2>
+				  <block2>item4</block2>
+				  <block2>itemSTARTXXXEND5</block2>
+				</list>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+</testSuite>

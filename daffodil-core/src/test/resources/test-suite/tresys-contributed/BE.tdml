@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="BE"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	
+	<parserTestCase name="BE000" root="seq" model="BE.dfdl.xsd"
+		description="Unordered sequences">
+<document>Z:z0
+X:x0
+X:x1
+X:x2
+Y:y0
+Z:z1
+Y:y1
+Y:y2
+</document>
+		<infoset>
+			<dfdlInfoset>
+				<seq xmlns="http://www.example.org/example1">
+				  <x>x0</x>
+				  <x>x1</x>
+				  <x>x2</x>
+				  <y>y0</y>
+				  <y>y1</y>
+				  <y>y2</y>
+				  <z>z0</z>
+				  <z>z1</z>
+				</seq>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="BE001" root="seq" model="BE.dfdl.xsd"
+		description="Unordered sequences">
+<document>Z:z0
+X:x0
+X:x1
+X:x2
+Y:y0
+Z:z1
+Y:y1
+Y:y2
+Z:z2
+Z:z3
+Y:y3
+X:x3
+Z:z4
+
+
+</document>
+		<infoset>
+			<dfdlInfoset>
+				<seq xmlns="http://www.example.org/example1">
+				  <x>x0</x>
+				  <x>x1</x>
+				  <x>x2</x>
+				  <x>x3</x>
+				  <y>y0</y>
+				  <y>y1</y>
+				  <y>y2</y>
+				  <y>y3</y>
+				  <z>z0</z>
+				  <z>z1</z>
+				  <z>z2</z>
+				  <z>z3</z>
+				</seq>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+</testSuite>

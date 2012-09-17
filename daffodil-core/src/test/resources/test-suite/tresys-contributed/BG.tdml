@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="BG"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	
+	<parserTestCase name="BG000" root="list" model="BG.dfdl.xsd"
+		description="Text number properties">
+<document><![CDATA[  9#876#543#210!012345678***   12#345!6E+12*** 123456789123456789*** INFINITO***    NNN***   ZERO*** NA *** nil
+  aabbccddeeff*** 0f0f0f*** 123456789
+  10.1 *** 20.3***   -912E-13
+]]></document>
+		<infoset>
+			<dfdlInfoset>
+				<list xmlns="http://www.example.org/example1">
+				  <x>9876543210.012345678</x>
+				  <x>12345600000000000</x>
+				  <x>123456789123456789</x>
+				  <x>Infinity</x>
+				  <x>NaN</x>
+				  <x>0</x>
+				  <x>0</x>
+				  <x>0</x>
+				  <y>187723572702975</y>
+				  <y>986895</y>
+				  <y>4886718345</y>
+				  <z>10.1</z>
+				  <z>20.3</z>
+				  <z>-0.0000000000912</z>
+				</list>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+</testSuite>

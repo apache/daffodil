@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+    targetNamespace="http://www.example.org/example1/"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	>
+
+
+  <!-- Schema Escaping: define -->
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+      <dfdl:format separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none"
+       textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression"/>
+      <dfdl:defineEscapeScheme name="mySweetEscape">
+	<dfdl:escapeScheme escapeKind="escapeCharacter" escapeCharacter="#"/>
+      </dfdl:defineEscapeScheme>
+    </appinfo>
+  </annotation>
+
+  <element name="list">
+    <complexType>
+      <sequence>
+	<element name="character" type="xsd:string" maxOccurs="unbounded"
+		 dfdl:representation="text"
+		 dfdl:separator=","
+		 dfdl:terminator="%NL;"
+		 dfdl:escapeSchemeRef="mySweetEscape"/>
+      </sequence>
+    </complexType>
+  </element>
+
+</schema>

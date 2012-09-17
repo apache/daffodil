@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="AK"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	
+	<parserTestCase name="AK000" root="list" model="AK.dfdl.xsd"
+		description="Simple Binary with signed and usigned types">
+	<document>
+		<documentPart type="byte">ffff
+		ffffffffffffffffffffffffffffffffffffffffffffffffffffffff</documentPart>
+	</document>
+		<infoset>
+			<dfdlInfoset>
+				<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+				  <a type="xsd:byte">-1</a>
+				  <b type="xsd:unsignedByte">255</b>
+				  <c type="xsd:short">-1</c>
+				  <d type="xsd:unsignedShort">65535</d>
+				  <e type="xsd:int">-1</e>
+				  <f type="xsd:unsignedInt">4294967295</f>
+				  <g type="xsd:long">-1</g>
+				  <h type="xsd:unsignedLong">18446744073709551615</h>
+				</list>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="AK001" root="list" model="AK.dfdl.xsd"
+		description="Simple Binary with signed and usigned types">
+	<document>
+		<documentPart type="byte">7f7f7fff7fff7fffffff7fffffff7fffffffffffffff7fffffffffffffff</documentPart>
+	</document>
+		<infoset>
+			<dfdlInfoset>
+				<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+				  <a type="xsd:byte">127</a>
+				  <b type="xsd:unsignedByte">127</b>
+				  <c type="xsd:short">32767</c>
+				  <d type="xsd:unsignedShort">32767</d>
+				  <e type="xsd:int">2147483647</e>
+				  <f type="xsd:unsignedInt">2147483647</f>
+				  <g type="xsd:long">9223372036854775807</g>
+				  <h type="xsd:unsignedLong">9223372036854775807</h>
+				</list>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+</testSuite>

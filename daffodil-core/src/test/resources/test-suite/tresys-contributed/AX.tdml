@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="AX"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	
+	<parserTestCase name="AX000" root="list" model="AX.dfdl.xsd"
+		description="escape character and escape block, fixed length">
+<document><![CDATA[aaaaa,bb#0b,ccc#0,dddd#,ee#
+e,fffff
+AAAAAAAAAAAAAAA,BBBBBB/*xxx*/BB,CCCCCC/*,,,*/CC,D/*x*/D/*z*/DDD,EE/*
+       */E,FFFFFF/*xxxxxxx,GGG/!GGGGGGGGGG,GGGGGGGGGGGGGG/
+]]></document>
+		<infoset>
+			<dfdlInfoset>
+				<list xmlns="http://www.example.org/example1">
+				  <character>aaaaa</character>
+				  <character>bbb</character>
+				  <character>ccc</character>
+				  <character>dddd</character>
+				  <character>eee</character>
+				  <character>fffff</character>
+				  <block>AAAAAAAAAAAAAAA</block>
+				  <block>BBBBBBBB</block>
+				  <block>CCCCCCCC</block>
+				  <block>DDDDD</block>
+				  <block>EEE</block>
+				  <block>FFFFFF</block>
+				  <block>GGG/!GGGGGGGGGG</block>
+				  <block>GGGGGGGGGGGGGG/</block>
+				</list>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+</testSuite>

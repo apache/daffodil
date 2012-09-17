@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="AZ"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	
+	<parserTestCase name="AZ000" root="list" model="AZ.dfdl.xsd"
+		description="defineEscapeScheme">
+<document>item0,item#X1,item#
+2
+</document>
+		<infoset>
+			<dfdlInfoset>
+				<list xmlns="http://www.example.org/example1">
+				  <character>item0</character>
+				  <character>item1</character>
+				  <character>item2</character>
+				</list>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+</testSuite>

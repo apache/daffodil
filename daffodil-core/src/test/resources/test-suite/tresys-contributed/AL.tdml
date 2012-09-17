@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="AL"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	
+	<parserTestCase name="AL000" root="list" model="AL.dfdl.xsd"
+		description="xsd:hexBinary type">
+	<document>
+		<documentPart type="byte">deadbeeffa7a55</documentPart>
+	</document>
+		<infoset>
+			<dfdlInfoset>
+				<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+				  <x type="xsd:hexBinary">DEADBEEF</x>
+				  <y type="xsd:hexBinary">FA7A55</y>
+				</list>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+</testSuite>

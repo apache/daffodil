@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
+<?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
     targetNamespace="http://example.com"
     xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"

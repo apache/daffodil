@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+    targetNamespace="http://example.com"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tns="http://example.com">
+
+
+	<!-- Evaluated occursCount based on hidden elements -->
+
+	<group name="xCountGroup">
+		<sequence>
+			<element name="xCount" type="xsd:int" dfdl:representation="text"
+				dfdl:terminator="%NL;" />
+		</sequence>
+	</group>
+
+	<group name="yCountGroup">
+		<sequence>
+			<element name="yCount" type="xsd:int" dfdl:terminator="%NL;"
+				dfdl:representation="text" />
+		</sequence>
+	</group>
+
+
+	<element name="list">
+		<complexType>
+			<sequence>
+				<sequence dfdl:hiddenGroupRef="tns:xCountGroup" />
+				<element name="x" type="xsd:string" dfdl:separator="%NL;"
+					dfdl:separatorPosition="postfix" dfdl:occursCountKind="expression"
+					dfdl:occursCount="{ ../tns:xCount }" dfdl:representation="text" />
+				<sequence dfdl:hiddenGroupRef="tns:yCountGroup" />
+				<element name="y" type="xsd:string" dfdl:separator="%NL;"
+					dfdl:separatorPosition="postfix" dfdl:occursCountKind="expression"
+					dfdl:occursCount="{ ../tns:yCount }" dfdl:representation="text" />
+			</sequence>
+		</complexType>
+	</element>
+
+</schema>

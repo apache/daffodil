@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="AH"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	
+	<parserTestCase name="AH000" root="allZones" model="AH.dfdl.xsd"
+		description="Discriminated choices">
+<document>2
+</document>
+		<infoset>
+			<dfdlInfoset>
+				<allZones xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+				  <lessThan3>2</lessThan3>
+				</allZones>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="AH001" root="allZones" model="AH.dfdl.xsd"
+		description="Discriminated choices">
+<document>5
+</document>
+		<infoset>
+			<dfdlInfoset>
+				<allZones xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+				  <lessThan10>5</lessThan10>
+				</allZones>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	
+	<parserTestCase name="AH002" root="allZones" model="AH.dfdl.xsd"
+		description="Discriminated choices">
+<document>20
+</document>
+		<infoset>
+			<dfdlInfoset>
+				<allZones xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+				  <greaterThan10>20</greaterThan10>
+				</allZones>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+</testSuite>

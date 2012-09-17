@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="AV000"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	
+	<parserTestCase name="AV000" root="wholeFile" model="AV.dfdl.xsd"
+		description="HR/CU Medical data">
+	<document>E(s5TTR0104                            CENTRAMAX.M                      Page:    1
+                                  Triage Calls
+                       Call Summary by Presenting Symptom
+                             Call Types: I O M T R N
+                        Report Date:  04/08/2008 12:53 AM
+                     Calls From: 04/07/2008 To: 04/07/2008
+
+                          Presenting Symptom   # Times
+-------------------------------------------------------------------------------
+                               ABDPAINS            4
+                               BACKPAIN            2
+                               BLEEDING            3
+                               BREATHDI            4
+                               BURN                1
+                               CHESTPN             3
+                               COLDSYM             2
+                               CONGESTS            2
+                               COUGH               2
+                               DEPRESS             1
+                               DIARRHEA            1
+                               DISCHARG            1
+                               DIZZINES            1
+                               EARACHE             3
+                               EARPLUG             1
+                               EYEFBODY            2
+                               FAINTING            1
+                               FEVER               1
+                               FOOTPAIN            1
+                               HANDPAIN            1
+                               HEADACHE            2
+                               HIVES               1
+                               INFO                3
+                               IRRITAT             1
+                               MEDS                2
+                               MENSTRA             1
+                               NASALCON            1
+                               NAUSEA              1
+                               NOSYMPTO            1
+                               PAIN                1
+                               RASH                2
+                               RECBLEED            1
+                               REFILL              1
+                               REPORT              4
+                               SORETHRO            2
+                               SUNBURN             1
+                               TOOTHACH            1
+                               TRAUMA              1
+                               VAGDISCH            1
+                               VOMITING            3
+
+                         Grand Total:             68
+E</document>
+		<infoset>
+			<dfdlInfoset>
+<wholeFile xmlns="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+  <table>
+    <metadata>
+      <repdate type="xs:date">2008-04-08</repdate>
+      <reptime type="xs:time">12:53:00-0600</reptime>
+      <startDate type="xs:date">2008-04-07</startDate>
+      <endDate type="xs:date">2008-04-07</endDate>
+    </metadata>
+    <data>
+      <Symptom type="xs:string">ABDPAINS</Symptom>
+      <Count type="xs:int">4</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">BACKPAIN</Symptom>
+      <Count type="xs:int">2</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">BLEEDING</Symptom>
+      <Count type="xs:int">3</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">BREATHDI</Symptom>
+      <Count type="xs:int">4</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">BURN</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">CHESTPN</Symptom>
+      <Count type="xs:int">3</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">COLDSYM</Symptom>
+      <Count type="xs:int">2</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">CONGESTS</Symptom>
+      <Count type="xs:int">2</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">COUGH</Symptom>
+      <Count type="xs:int">2</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">DEPRESS</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">DIARRHEA</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">DISCHARG</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">DIZZINES</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">EARACHE</Symptom>
+      <Count type="xs:int">3</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">EARPLUG</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">EYEFBODY</Symptom>
+      <Count type="xs:int">2</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">FAINTING</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">FEVER</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">FOOTPAIN</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">HANDPAIN</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">HEADACHE</Symptom>
+      <Count type="xs:int">2</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">HIVES</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">INFO</Symptom>
+      <Count type="xs:int">3</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">IRRITAT</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">MEDS</Symptom>
+      <Count type="xs:int">2</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">MENSTRA</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">NASALCON</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">NAUSEA</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">NOSYMPTO</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">PAIN</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">RASH</Symptom>
+      <Count type="xs:int">2</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">RECBLEED</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">REFILL</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">REPORT</Symptom>
+      <Count type="xs:int">4</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">SORETHRO</Symptom>
+      <Count type="xs:int">2</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">SUNBURN</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">TOOTHACH</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">TRAUMA</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">VAGDISCH</Symptom>
+      <Count type="xs:int">1</Count>
+    </data>
+    <data>
+      <Symptom type="xs:string">VOMITING</Symptom>
+      <Count type="xs:int">3</Count>
+    </data>
+    <GT type="xs:int">68</GT>
+  </table>
+</wholeFile>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+</testSuite>

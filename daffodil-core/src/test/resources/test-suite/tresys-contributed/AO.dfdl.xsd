@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+    targetNamespace="http://www.example.org/example1/"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	>
+
+
+<!-- a schema with recursion -->
+<!-- { name1 : "value", name2 : "value", name3 : { nestedName : "value" } }-->
+
+<group name="separatorGroup"><sequence><element name="separator" 
+			     type="xsd:string"
+			     dfdl:representation="text"
+			     dfdl:lengthKind="pattern"
+			     dfdl:lengthPattern=":"/></sequence></group>
+
+  <element name="element" 
+	   dfdl:representation="text"
+	   dfdl:initiator="{"
+	   dfdl:textStringJustification="center"
+	   dfdl:textStringPadCharacter="%WSP;">
+    <complexType>
+      <sequence>
+	<element name="pair" maxOccurs="unbounded"
+		 dfdl:representation="text"
+		 dfdl:separator=","
+		 dfdl:terminator="}">
+	  <complexType>
+	    <sequence>
+	      <element name="name" type="xsd:string"
+		       dfdl:lengthKind="pattern"
+		       dfdl:representation="text"
+		       dfdl:lengthPattern="[a-zA-Z0-9]+"
+		       dfdl:textStringJustification="center"
+		       dfdl:textStringPadCharacter="%WSP;"/>
+	      <sequence dfdl:hiddenGroupRef="separatorGroup"/>
+	      <choice>
+		<element name="atomicValue"
+			 type="xsd:string"
+			 dfdl:representation="text"
+			 dfdl:textStringJustification="center"
+			 dfdl:textStringPadCharacter="%WSP;"
+			 dfdl:initiator="&quot;"
+			 dfdl:terminator="&quot;"/>
+		<element ref="element"/>
+	      </choice>
+	    </sequence>
+	  </complexType>
+	</element>
+      </sequence>
+    </complexType>
+  </element>
+</schema>

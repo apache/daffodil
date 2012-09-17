@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="BB"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	
+	<parserTestCase name="BB000" root="list" model="BB.dfdl.xsd"
+		description="occursCountKind='stopValue'">
+<document>0000800009000107,8,9,10,some string</document>
+		<infoset>
+			<dfdlInfoset>
+				<list xmlns="http://www.example.org/example1">
+				  <x>8</x>
+				  <x>9</x>
+				  <x>10</x>
+				  <y>7</y>
+				  <y>8</y>
+				  <y>9</y>
+				  <z>some string</z>
+				</list>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+</testSuite>
