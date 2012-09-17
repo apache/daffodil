@@ -7,6 +7,7 @@ import scala.collection.mutable.HashMap
 import scala.util.parsing.input.OffsetPosition
 import java.nio.charset.CodingErrorAction
 import java.nio.ByteBuffer
+import java.io.InputStreamReader
 
 /**
  * Pure functional Reader[Byte] that gets its data from a DFDL.Input (aka a ReadableByteChannel)
@@ -63,7 +64,12 @@ class DFDLCharReader private (psc: PagedSeq[Char], override val offset: Int)
       // TODO: Determine if the right thing here to do is to ignore malformed input which is default behavior
       //codec.onMalformedInput(CodingErrorAction.REPORT)
       codec.onMalformedInput(CodingErrorAction.IGNORE)
-      val psc = PagedSeq.fromSource(scala.io.Source.fromInputStream(is)(codec))
+      // TRW - The following line was changed because the fromSource
+      // method was causing the readLine method of the BufferedReader class to be
+      // called.  This resulted in the loss of \n, \r and \r\n characters from the data.
+      //val psc = PagedSeq.fromSource(scala.io.Source.fromInputStream(is)(codec))
+      val r = new InputStreamReader(is, codec.decoder)
+      val psc = PagedSeq.fromReader(r)
       psc
     }, 0)
 
