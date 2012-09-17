@@ -35,6 +35,9 @@
             </xs:sequence>
 			</xs:complexType>
 		</xs:element>
+		
+	    <xs:element name="d" type="xsd:string"
+						dfdl:terminator="," />
 
 	</tdml:defineSchema>
 
@@ -104,6 +107,68 @@
 				</c>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	
+	<tdml:parserTestCase name="codingErrorAction" root="d" model="v"
+		description="CodingErrorAction.IGNORE should ignore.">
+
+		<tdml:document>
+			<tdml:documentPart type="text">abcd</tdml:documentPart>
+			<!-- 
+			
+			The point of this test is to understand character decoding, and errors while 
+			decoding characters.
+			
+			If scanning skips these next FF (illegal character codes in utf-8) 
+			then this test will scan past them and find the 2c (comma) delimiter
+			that it wants. <d> will have value abcd. 
+			
+			Since DFDLCharReader uses codec.onMalformedInput(CodingErrorAction.IGNORE) the above 
+			is the expected behavior right now.
+			
+			The test is currently set up to expect this; hence, the test fails.
+			
+			
+			The above behavior is NOT right long term. Really it should error
+			out on these illegal characters, but that *SHOULD* require us to use CodingErrorAction.REPORT in the
+			DFDLCharReader.
+			
+			So something is up. (Maybe this codec that we're setting onMalformedInput(CodingErrorAction.IGNORE) isn't
+			even the one that is being used????)
+			
+			Side note: If scanning converts these illegals into substitution characters (CodingErrorAction.Replace), then
+			it will also find the comma, but the value will be abcd... 
+			(where the "." is whatever the substitution character is.). That would also be incorrect behavior.
+			
+			The right behavior is that scanning should error on these illegal FF bytes. 
+			CodingErrorAction.REPORT should do this.
+			This terminates the scan for the "," because of the error, then
+			it will isolate abcd as the value of the <d> element properly. But then it will pick up
+			with trying to find the "," delimiter in the bytes FFFFFF2c, and that will 
+			again fail, and it will fail to find the delimiter. 
+			
+			
+			
+			See http://docs.oracle.com/javase/1.5.0/docs/api/java/nio/charset/CodingErrorAction.html
+			
+			
+              -->
+			<tdml:documentPart type="byte">FFFFFF2C</tdml:documentPart><!-- binary -212 -->
+		</tdml:document>
+		
+		<!-- This is the behavior we think SHOULD be happening
+		since DFDLCharReader is using CodingErrorAction.IGNORE -->
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<d>abcd</d>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<!-- If we fix DFDLCharReader to use CodingErrorAction.REPORT, then 
+		this is the behavior we expect for this test. -->
+		<!-- 
+		     <tdml:errors><tdml:error>Delimiter not found</tdml:error></tdml:errors>
+		 -->
 	</tdml:parserTestCase>
 
 </tdml:testSuite>

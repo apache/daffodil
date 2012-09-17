@@ -22,6 +22,10 @@ class TresysTests2 extends JUnitSuite {
   //
   //  @Test def test_AI000() { runnerAI.runOneTest("AI000") }
 
+  lazy val runnerMB = new DFDLTestSuite(Misc.getRequiredResource(testDir + "mixed-binary-text.tdml"))
+
+  @Test def test_codingErrorAction() { runnerMB.runOneTest("codingErrorAction") }
+  
   lazy val runnerBF = new DFDLTestSuite(Misc.getRequiredResource(testDir + "bitFlagExpression.tdml"))
   
   @Test def test_testNone() { 

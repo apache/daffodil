@@ -21,4 +21,8 @@ class TestEntities_01 extends JUnitSuite {
   @Test def test_byte_entities_6_06() { runner_01.runOneTest("byte_entities_6_06") }
   @Test def test_byte_entities_6_07() { runner_01.runOneTest("byte_entities_6_07") }
   
+  val tdml = testDir_01 + "charClassEntities.tdml"
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  @Test def test_HexCodePoint() { runner.runOneTest("HexCodePoint") }
+  
   }

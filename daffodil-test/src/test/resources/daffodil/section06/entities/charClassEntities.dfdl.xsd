@@ -53,5 +53,7 @@
 			</element>
 		</sequence>
 	</complexType>
+	
+	<xsd:element name="hcp" type="xsd:string" dfdl:encoding="utf-8" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="2"/>
 
 </schema>
