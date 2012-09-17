@@ -239,7 +239,6 @@
 	
 	<tdml:parserTestCase name="unsignedInt_02" root="uI_02"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsignedInt - DFDL-5-018R">
-
 		<tdml:document>-3</tdml:document>
 		<tdml:errors>
 			<tdml:error>Out of Range</tdml:error>
@@ -247,44 +246,39 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="negativeUnsignedInt" root="uI_03"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a signed negitive number who's absolute value would be a valid unsigned int - DFDL-5-018R">
-		
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a signed negitive number whose absolute value would be a valid unsigned int - DFDL-5-018R">
 		<tdml:document>-999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringValidUnsignedInt" root="uI_03"
+	<tdml:parserTestCase name="characterDuringValidUnsignedInt" root="uI_03"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid unsigned int - DFDL-5-018R">
-		
 		<tdml:document>9a9</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceAfterUnsignedIntLengthExceeded" root="uI_03"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceAfterLengthExceededUnsignedInt" root="uI_03"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an invalid unsigned int - DFDL-5-018R">
 		<tdml:document>9999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceBeforeUnsignedIntLengthExceeded" root="uI_03"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceBeforeLengthExceededUnsignedInt" root="uI_03"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an invalid unsigned int - DFDL-5-018R">
 		<tdml:document> 9999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringUnsignedIntLengthExceeded" root="uI_03"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceDuringLengthExceededUnsignedInt" root="uI_03"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a invalid unsigned int - DFDL-5-018R">
 		<tdml:document>99 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -293,7 +287,6 @@
 
 	<tdml:parserTestCase name="whiteSpaceAfterValidUnsignedInt" root="uI_03"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid unsigned int - DFDL-5-018R">
-		
 		<tdml:document>999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -302,16 +295,14 @@
 
 	<tdml:parserTestCase name="whiteSpaceBeforeValidUnsignedInt" root="uI_03"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid unsigned int - DFDL-5-018R">
-		
 		<tdml:document> 999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringValidVUnsignedInt" root="uI_03"
+	<tdml:parserTestCase name="whiteSpaceDuringValidUnsignedInt" root="uI_03"
 		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
 		<tdml:document>9 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -319,36 +310,32 @@
 	</tdml:parserTestCase>
 			
 	<!-- int int05 length 4-->
-	<tdml:parserTestCase name="whiteSpaceDuringValidInt" root="int05"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="characterDuringValidInt" root="int05"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid int - DFDL-5-018R">
 		<tdml:document>9a9</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceAfterIntLengthExceeded" root="int05"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceAfterLengthExceededInt" root="int05"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an invalid int - DFDL-5-018R">
 		<tdml:document>9999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceBeforeIntLengthExceeded" root="int05"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceBeforeLengthExceededInt" root="int05"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an invalid int - DFDL-5-018R">
 		<tdml:document> 9999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringIntLengthExceeded" root="int05"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceDuringLengthExceededInt" root="int05"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a invalid int - DFDL-5-018R">
 		<tdml:document>99 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -356,8 +343,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="whiteSpaceAfterValidInt" root="int05"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid unsigned int - DFDL-5-018R">
-		
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid int - DFDL-5-018R">
 		<tdml:document>999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -365,8 +351,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="whiteSpaceBeforeValidInt" root="int05"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid unsigned int - DFDL-5-018R">
-		
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid int - DFDL-5-018R">
 		<tdml:document> 999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -374,8 +359,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="whiteSpaceDuringValidInt" root="int05"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid int - DFDL-5-018R">
 		<tdml:document>9 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -384,35 +368,31 @@
 	
 	<!-- integer integer02 length 4-->
 	<tdml:parserTestCase name="characterDuringValidInteger" root="integer02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid unsigned int - DFDL-5-018R">
-		
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid integer - DFDL-5-018R">
 		<tdml:document>9a9</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceAfterIntegerLengthExceeded" root="integer02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceAfterLengthExceededInteger" root="integer02"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an invalid integer - DFDL-5-018R">
 		<tdml:document>9999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceBeforeIntegerLengthExceeded" root="integer02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceBeforeLengthExceededInteger" root="integer02"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an invalid integer - DFDL-5-018R">
 		<tdml:document> 9999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringIntegerLengthExceeded" root="integer02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceDuringLengthExceededInteger" root="integer02"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a invalid integer - DFDL-5-018R">
 		<tdml:document>99 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -420,8 +400,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="whiteSpaceAfterValidInteger" root="integer02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid unsigned int - DFDL-5-018R">
-		
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid integer - DFDL-5-018R">
 		<tdml:document>999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -429,8 +408,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="whiteSpaceBeforeValidInteger" root="integer02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid unsigned int - DFDL-5-018R">
-		
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid integer - DFDL-5-018R">
 		<tdml:document> 999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -438,8 +416,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="whiteSpaceDuringValidInteger" root="integer02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid integer - DFDL-5-018R">
 		<tdml:document>9 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -449,35 +426,31 @@
 	
 	<!-- long l_4 length 4-->
 	<tdml:parserTestCase name="characterDuringValidLong" root="l_4"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid unsigned int - DFDL-5-018R">
-		
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid long - DFDL-5-018R">
 		<tdml:document>9a9</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceAfterLongLengthExceeded" root="l_4"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceAfterLengthExceededLong" root="l_4"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an invalid long - DFDL-5-018R">
 		<tdml:document>9999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceBeforeLongLengthExceeded" root="l_4"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceBeforeLengthExceededLong" root="l_4"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an invalid long - DFDL-5-018R">
 		<tdml:document> 9999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringLongLengthExceeded" root="l_4"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceDuringLengthExceededLong" root="l_4"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during an invalid long - DFDL-5-018R">
 		<tdml:document>99 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -485,8 +458,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="whiteSpaceAfterValidLong" root="l_4"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid unsigned int - DFDL-5-018R">
-		
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid long - DFDL-5-018R">
 		<tdml:document>999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -494,8 +466,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="whiteSpaceBeforeValidLong" root="l_4"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid unsigned int - DFDL-5-018R">
-		
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid long - DFDL-5-018R">
 		<tdml:document> 999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -503,8 +474,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="whiteSpaceDuringValidLong" root="l_4"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid long - DFDL-5-018R">
 		<tdml:document>9 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -513,190 +483,177 @@
 		
 	<!-- short s_1 length 5-->
 	<tdml:parserTestCase name="characterDuringValidShort" root="s_1"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid unsigned int - DFDL-5-018R">
-		
-		<tdml:document>9a9</tdml:document>
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid short - DFDL-5-018R">
+		<tdml:document>9a99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceAfterLengthExceeded" root="s_1"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceAfterLengthExceededShort" root="s_1"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an invalid short - DFDL-5-018R">
+		<tdml:document>99999 </tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="whiteSpaceBeforeLengthExceededShort" root="s_1"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an invalid short - DFDL-5-018R">
+		<tdml:document> 99999</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="whiteSpaceDuringLengthExceededShort" root="s_1"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid invalid short - DFDL-5-018R">
+		<tdml:document>99 999</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="whiteSpaceAfterValidShort" root="s_1"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid short - DFDL-5-018R">
 		<tdml:document>9999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceBeforeLengthExceeded" root="s_1"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceBeforeValidShort" root="s_1"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid short - DFDL-5-018R">
 		<tdml:document> 9999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringLengthExceeded" root="s_1"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceDuringValidShort" root="s_1"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid short - DFDL-5-018R">
 		<tdml:document>99 99</tdml:document>
-		<tdml:errors>
-			<tdml:error/>
-		</tdml:errors>
-	</tdml:parserTestCase>
-
-	<tdml:parserTestCase name="whiteSpaceAfterValidValue" root="s_1"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid unsigned int - DFDL-5-018R">
-		
-		<tdml:document>999 </tdml:document>
-		<tdml:errors>
-			<tdml:error/>
-		</tdml:errors>
-	</tdml:parserTestCase>
-
-	<tdml:parserTestCase name="whiteSpaceBeforeValidValue" root="s_1"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid unsigned int - DFDL-5-018R">
-		
-		<tdml:document> 999</tdml:document>
-		<tdml:errors>
-			<tdml:error/>
-		</tdml:errors>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="whiteSpaceDuringValidValue" root="s_1"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
-		<tdml:document>9 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 		
 	<!-- byte b_01 length 4-->
-		<tdml:parserTestCase name="whiteSpaceDuringValidValue" root="b_01"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid unsigned int - DFDL-5-018R">
-		
+		<tdml:parserTestCase name="characterDuringValidByte" root="b_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid byte - DFDL-5-018R">
 		<tdml:document>9a9</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceAfterLengthExceeded" root="b_01"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceAfterLengthExceededByte" root="b_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an invalid byte - DFDL-5-018R">
 		<tdml:document>9999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceBeforeLengthExceeded" root="b_01"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceBeforeLengthExceededByte" root="b_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an invalid byte - DFDL-5-018R">
 		<tdml:document> 9999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringLengthExceeded" root="b_01"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceDuringLengthExceededByte" root="b_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during an invalid byte - DFDL-5-018R">
 		<tdml:document>99 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceAfterValidValue" root="b_01"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceAfterValidByte" root="b_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid byte - DFDL-5-018R">
 		<tdml:document>999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceBeforeValidValue" root="b_01"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceBeforeValidByte" root="b_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid byte - DFDL-5-018R">
 		<tdml:document> 999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringValidValue" root="b_01"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
-		<tdml:document>9 99</tdml:document>
+	<tdml:parserTestCase name="whiteSpaceDuringValidByte" root="b_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid byte - DFDL-5-018R">
+		<tdml:document>99 9</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
 	<!-- unisgned long ul_04 length 4-->
-		<tdml:parserTestCase name="whiteSpaceDuringValidValue" root="ul_04"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="negativeUnsignedLong" root="uL_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a signed negitive number whose absolute value would be a valid unsigned long - DFDL-5-018R">
+		<tdml:document>-999</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>	
+	
+		<tdml:parserTestCase name="characterDuringValidUnsignedLong" root="uL_04"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid unsigned long - DFDL-5-018R">
 		<tdml:document>9a9</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceAfterLengthExceeded" root="ul_04"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceAfterLengthExceededUnsignedLong" root="uL_04"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an invalid insigned long - DFDL-5-018R">
 		<tdml:document>9999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceBeforeLengthExceeded" root="ul_04"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceBeforeLengthExceededUnsignedLong" root="uL_04"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an invalid unsigned long - DFDL-5-018R">
 		<tdml:document> 9999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringLengthExceeded" root="ul_04"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceDuringLengthExceededUnsignedLong" root="uL_04"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a invalid unsigned long - DFDL-5-018R">
 		<tdml:document>99 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceAfterValidValue" root="ul_04"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceAfterValidUnsignedLong" root="uL_04"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid unsigned long - DFDL-5-018R">
 		<tdml:document>999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceBeforeValidValue" root="ul_04"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceBeforeValidUnsignedLong" root="uL_04"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid unsigned long - DFDL-5-018R">
 		<tdml:document> 999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringValidValue" root="ul_04"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceDuringValidUnsignedLong" root="uL_04"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned long - DFDL-5-018R">
 		<tdml:document>9 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
@@ -704,128 +661,130 @@
 	</tdml:parserTestCase>	
 
 	<!-- unisgned short us_02 length 4-->
-		<tdml:parserTestCase name="whiteSpaceDuringValidValue" root="us_02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="negativeUnsignedShort" root="uS_02"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a signed negitive number whose absolute value would be a valid unsigned short - DFDL-5-018R">
+		<tdml:document>-999</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>	
+	
+	<tdml:parserTestCase name="characterDuringValidUnsignedShort" root="uS_02"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid unsigned short - DFDL-5-018R">
 		<tdml:document>9a9</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceAfterLengthExceeded" root="us_02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceAfterLengthExceededUnsignedShort" root="uS_02"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an invalid unsigned short - DFDL-5-018R">
 		<tdml:document>9999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceBeforeLengthExceeded" root="us_02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an unvalid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceBeforeLengthExceededUnsignedShort" root="uS_02"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an invalid unsigned short - DFDL-5-018R">
 		<tdml:document> 9999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringLengthExceeded" root="us_02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceDuringLengthExceededUnsignedShort" root="uS_02"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a invalid unsigned short - DFDL-5-018R">
 		<tdml:document>99 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceAfterValidValue" root="us_02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceAfterValidUnsignedShort" root="uS_02"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid unsigned short - DFDL-5-018R">
 		<tdml:document>999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceBeforeValidValue" root="us_02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceBeforeValidUnsignedShort" root="uS_02"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid unsigned short - DFDL-5-018R">
 		<tdml:document> 999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringValidValue" root="us_02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
+	<tdml:parserTestCase name="whiteSpaceDuringValidUnsignedShort" root="uS_02"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned short - DFDL-5-018R">
 		<tdml:document>9 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>	
 	
-	<!-- unsigned byte uB_01 length 3-->		
-		<tdml:parserTestCase name="whiteSpaceDuringValidValue" root="us_02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid unsigned int - DFDL-5-018R">
-		
-		<tdml:document>99a9</tdml:document>
+	<!-- unsigned byte uB_01 length 3-->
+	<tdml:parserTestCase name="negativeUnsignedByte" root="uB_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a signed negitive number whose absolute value would be a valid unsigned byte - DFDL-5-018R">
+		<tdml:document>-999</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+			
+		<tdml:parserTestCase name="characterDuringValidUnsignedByte" root="uB_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid unsigned byte - DFDL-5-018R">
+		<tdml:document>9a</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceAfterLengthExceeded" root="us_02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an unvalid unsigned int - DFDL-5-018R">
-		
-		<tdml:document>9999 </tdml:document>
+	<tdml:parserTestCase name="whiteSpaceAfterLengthExceededUnsignedByte" root="uB_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after an invalid unsigned byte - DFDL-5-018R">
+		<tdml:document>999 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceBeforeLengthExceeded" root="us_02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an unvalid unsigned int - DFDL-5-018R">
-		
-		<tdml:document> 9999</tdml:document>
+	<tdml:parserTestCase name="whiteSpaceBeforeLengthExceededUnsignedByte" root="uB_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before an invalid unsigned uB_01 - DFDL-5-018R">
+		<tdml:document> 999</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringLengthExceeded" root="us_02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
-		<tdml:document>99 99</tdml:document>
+	<tdml:parserTestCase name="whiteSpaceDuringLengthExceededUnsignedByte" root="uB_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned byte - DFDL-5-018R">
+		<tdml:document>99 9</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceAfterValidValue" root="us_02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid unsigned int - DFDL-5-018R">
-		
-		<tdml:document>200 </tdml:document>
+	<tdml:parserTestCase name="whiteSpaceAfterValidUnsignedByte" root="uB_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character after a valid Unsigned byte - DFDL-5-018R">
+		<tdml:document>99 </tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="whiteSpaceBeforeValidValue" root="us_02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid unsigned int - DFDL-5-018R">
-		
-		<tdml:document> 200</tdml:document>
+	<tdml:parserTestCase name="whiteSpaceBeforeValidUnsignedByte" root="uB_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character before a valid Unsigned byte - DFDL-5-018R">
+		<tdml:document> 99</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="whiteSpaceDuringValidValue" root="us_02"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
-		
-		<tdml:document>2 00</tdml:document>
+	<tdml:parserTestCase name="whiteSpaceDuringValidUnsignedByte" root="uB_01"
+		model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a whitespace character during a valid unsigned byte - DFDL-5-018R">
+		<tdml:document>9 9</tdml:document>
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
