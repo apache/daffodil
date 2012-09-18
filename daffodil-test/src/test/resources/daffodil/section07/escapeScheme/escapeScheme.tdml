@@ -52,12 +52,12 @@ the basic demonstration of DFDL with binary and text number formats  -->
 <parserTestCase name="escapeSchemeSimple"
  model="./fvt/ext/dpa/escapeScheme.dfdl.xsd" description="Section 7 defineEscapeScheme - DFDL-7-079R"
  root="list1">
- <document>ab#,cd,ef/*,*/gh</document>
+ <document>ab#,cd,/*ef,gh*/</document>
  <infoset>
  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <list1>
-    <character>ab#,cd</character>
-    <block>ef/*,*/gh</block>
+    <character>ab,cd</character>
+    <block>ef,gh</block>
   </list1>
 </dfdlInfoset>
 </infoset>
