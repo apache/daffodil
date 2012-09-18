@@ -69,7 +69,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType != t
             start.currentElement.getContent().get(0).asInstanceOf[org.jdom.Element]
           }
         } catch {
-          case u :UnsuppressableException => throw u
+          case u: UnsuppressableException => throw u
           case e: Exception => start.currentElement //if content is text
         }
       }
@@ -472,7 +472,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
     val decoder = e.knownEncodingDecoder
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Info) {
+      withLoggingLevel(LogLevel.Debug) {
 
         val eName = e.toString()
 
@@ -504,6 +504,10 @@ case class StringDelimitedEndOfData(e: ElementBase)
         val d = new delimsearch.DelimParser()
 
         var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
+        
+//        val remaining = in.getBytesRemaining(start.bitPos)
+//        
+//        System.err.println(remaining.toList)
 
         if (esObj.escapeSchemeKind == stringsearch.constructs.EscapeSchemeKind.Block) {
           result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
@@ -751,7 +755,7 @@ abstract class ConvertTextIntegerNumberPrim[T](e: ElementBase, g: Boolean)
   override def numFormat = NumberFormat.getIntegerInstance()
   override def isInt = true
 
-  protected def isInvalidRange(n : java.lang.Number) : Boolean = {
+  protected def isInvalidRange(n: java.lang.Number): Boolean = {
     //
     // Note: Scala has no class analogous to java.lang.Number. There's no common 
     // base class above its number types (as there isn't above the Java *primitive* number types.)
@@ -1234,7 +1238,7 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
     val decoder = e.knownEncodingDecoder
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Info) {
+      withLoggingLevel(LogLevel.Debug) {
         val eName = e.toString()
 
         log(Debug(eName + " - Parsing delimiter at byte position: " + (start.bitPos >> 3)))
@@ -1251,11 +1255,10 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
 
         var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
 
-        result = d.parseInput(separatorsCooked.toSet, terminatorsCooked.toSet, reader, decoder.charset())
+        //result = d.parseInput(separatorsCooked.toSet, terminatorsCooked.toSet, reader, decoder.charset())
+        result = d.parseInputDelimiter(separatorsCooked.toSet, reader, decoder.charset())
 
         if (!result.isSuccess) {
-          return start.failed(this.toString() + " - " + eName + ": Delimiter not found!")
-        } else if (result.delimiterType == delimsearch.DelimiterType.Delimiter || result.delimiterType == delimsearch.DelimiterType.Terminator) {
           return start.failed(this.toString() + " - " + eName + ": Delimiter not found!")
         } else {
           val numBytes = result.delimiter.getBytes(decoder.charset()).length
@@ -1640,12 +1643,12 @@ case class LiteralNilValue(e: ElementBase)
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
             return PE(postEvalState, eName + " - Empty field found but not allowed!")
-          } else if (d.isFieldDfdlLiteral(field,nilValuesCooked.toSet)) {
+          } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
             // Contains a nilValue, Success!
             val xsiNS = start.parentElement.getNamespace()
             start.parentElement.addContent(new org.jdom.Text(""))
             start.parentElement.setAttribute("nil", "true")
-            
+
             val numBytes = result.field.getBytes(decoder.charset()).length
             val endCharPos = start.charPos + result.field.length()
             val endBitPos = (8 * numBytes) + start.bitPos
@@ -1717,30 +1720,29 @@ case class NewVariableInstanceEnd(decl: AnnotatedSchemaComponent, stmt: DFDLNewV
   def unparser: Unparser = Assert.notYetImplemented()
 }
 
-case class AssertPatternPrim(decl : AnnotatedSchemaComponent, stmt : DFDLAssert) extends Terminal(decl, true) {
+case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert) extends Terminal(decl, true) {
 
-  def parser : Parser = Assert.notYetImplemented()
-  def unparser : Unparser = Assert.notYetImplemented()
+  def parser: Parser = Assert.notYetImplemented()
+  def unparser: Unparser = Assert.notYetImplemented()
 
 }
 
 abstract class AssertBase(
-  decl : AnnotatedSchemaComponent,
-  exprTextArg : String,
-  msg : String,
-  discrim : Boolean, // are we a discriminator or not.
-  assertKindName : String
-  )
+  decl: AnnotatedSchemaComponent,
+  exprTextArg: String,
+  msg: String,
+  discrim: Boolean, // are we a discriminator or not.
+  assertKindName: String)
   extends Terminal(decl, true) {
-  
+
   def unparser = DummyUnparser
 
-  def parser : Parser = new ExpressionEvaluationParser(decl) {
+  def parser: Parser = new ExpressionEvaluationParser(decl) {
     val baseName = assertKindName
 
     lazy val exprText = exprTextArg
     lazy val expandedTypeName = XMLUtils.XSD_BOOLEAN
-    def parse(start : PState) : PState =
+    def parse(start: PState): PState =
       withLoggingLevel(LogLevel.Info) {
         withParseErrorThrowing(start) {
           log(Debug("This is %s", toString))
@@ -1760,39 +1762,38 @@ abstract class AssertBase(
 }
 
 abstract class AssertBooleanPrimBase(
-  decl : AnnotatedSchemaComponent,
-  stmt : DFDLAssertionBase,
-  discrim : Boolean, // are we a discriminator or not.
-  assertKindName : String
-  ) extends AssertBase(decl, stmt.testTxt, stmt.message, discrim, assertKindName)
+  decl: AnnotatedSchemaComponent,
+  stmt: DFDLAssertionBase,
+  discrim: Boolean, // are we a discriminator or not.
+  assertKindName: String) extends AssertBase(decl, stmt.testTxt, stmt.message, discrim, assertKindName)
 
 case class AssertBooleanPrim(
-  decl : AnnotatedSchemaComponent,
-  stmt : DFDLAssertionBase)
+  decl: AnnotatedSchemaComponent,
+  stmt: DFDLAssertionBase)
   extends AssertBooleanPrimBase(decl, stmt, false, "assert") {
 }
 
 case class DiscriminatorBooleanPrim(
-  decl : AnnotatedSchemaComponent,
-  stmt : DFDLAssertionBase)
+  decl: AnnotatedSchemaComponent,
+  stmt: DFDLAssertionBase)
   extends AssertBooleanPrimBase(decl, stmt, true, "discriminator")
 
 case class InitiatedContent(
-  decl : AnnotatedSchemaComponent)
-  extends AssertBase(decl, 
-      "{ xs:boolean('true') }", // always true. We're just an assertion
-      "initiatedContent. This message should not be used.", 
-      true, 
-      "initiatedContent")
+  decl: AnnotatedSchemaComponent)
+  extends AssertBase(decl,
+    "{ xs:boolean('true') }", // always true. We're just an assertion
+    "initiatedContent. This message should not be used.",
+    true,
+    "initiatedContent")
 
-case class SetVariable(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable) extends Terminal(decl, true) {
-  def parser : Parser = new SetVariableParser(decl, stmt)
+case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable) extends Terminal(decl, true) {
+  def parser: Parser = new SetVariableParser(decl, stmt)
   def unparser = DummyUnparser
 }
 
 case class InputValueCalc(e: ElementBase with ElementDeclMixin) extends Terminal(e, true) {
 
-  def parser : Parser = new IVCParser(e)
+  def parser: Parser = new IVCParser(e)
   def unparser = DummyUnparser
 }
 

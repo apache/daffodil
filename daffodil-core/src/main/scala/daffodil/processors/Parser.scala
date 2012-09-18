@@ -691,6 +691,17 @@ with WithParseErrorThrowing
     result
   }
   
+  def getBytesRemaining(bitPos: Long): Array[Byte] = {
+    Assert.invariant(bitPos % 8 == 0)
+    val bytePos = (bitPos >> 3).toInt
+    val bb = byteReader.bb
+    bb.position(bytePos)
+    val numBytesRemaining = bb.remaining()
+    val result: Array[Byte] = new Array[Byte](numBytesRemaining)
+    bb.get(result, 0, numBytesRemaining)
+    result
+  }
+  
   def getByte(bitPos : Long, order : java.nio.ByteOrder) = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
