@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite xmlns="http://example.com"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+	xmlns:ex="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd"
+	description="This test suite distinguishes whether decode of the binary stream of bytes
+	  into characters is done using a SKIP semantics (not right) versus a FAIL and END semantics (correct).">
+
+	<tdml:defineSchema name="v">
+
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+			encoding="us-ascii" />
+
+		<xs:element name="c">
+			<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element name="textDelimited" type="xsd:int"
+						dfdl:terminator="," />
+					<!-- If the comma is missing, then we'll scan into the subsequent binary 
+						data. -->
+					<!-- what happens will depend on whether there are decode errors or 
+						the binary data just so happens to decode without error, and whether a comma 
+						is part of this false decode, or we find a comma in subsequent data. -->
+
+					<!-- If the data is sufficiently broken, we'll end up on this alternative -->
+					<xs:element name="textLength4" type="xsd:int"
+						dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
+
+				</xs:choice>
+				<xs:element name="binary1" type="xsd:int"
+					dfdl:representation="binary" />
+				<xs:element name="text2" type="xs:string" />
+            </xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="t1" root="c" model="v"
+		description="Ok that this fools the parser because binary data just happened to decode without error.">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1234</tdml:documentPart>
+			<!-- This next chunk of data looks like 222, that is, it will correctly decode as more digits,
+			with a comma at the end, eventhough this chunk of data is supposed to be binary stuff. We're simulating
+			a data error here where the preceding field is missing its terminating comma, and the binary data
+			just so happens to look enough like text to be succesfully decoded, fooling the parser into thinking
+			it found the delimiter it wanted. -->
+			<tdml:documentPart type="byte">3232322C</tdml:documentPart><!-- as characters that's 222, -->
+			<tdml:documentPart type="text">1111foobar</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<c>
+					<textDelimited>1234222</textDelimited>
+					<binary1>825307441</binary1><!-- 0x31313131 -->
+					<text2>foobar</text2>
+				</c>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="t2" root="c" model="v"
+		description="The parser should detect and recognize decode errors, and stop scanning.">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1234</tdml:documentPart>
+			<!-- This next binary field should decode with failure. If the failures were skipped,
+			 then it would eventually find the 2c, which is a comma, at the end of it.
+			 Correct behavior requires that it NOT find the 2c, but fail before that. -->
+			<tdml:documentPart type="byte">FFFFFF2C</tdml:documentPart><!-- binary -212 -->
+			<tdml:documentPart type="text">1111foobar</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<c>
+					<textLength4>1234</textLength4>
+					<binary1>-212</binary1>
+					<text2>1111foobar</text2>
+				</c>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+</tdml:testSuite>

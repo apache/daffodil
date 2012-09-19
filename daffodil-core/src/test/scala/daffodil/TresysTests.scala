@@ -84,10 +84,15 @@ class TresysTests extends JUnit3Suite {
   val sq = testDir + "sequence.tdml"
   lazy val runnerSQ = new DFDLTestSuite(Misc.getRequiredResource(sq))
   def test_seq1() { runnerSQ.runOneTest("seq1") }
-  
-  lazy val runnerVA= new DFDLTestSuite(Misc.getRequiredResource(testDir + "variables.tdml"))
-  
-  def test_setVar1() { runnerVA.runOneTest("setVar1")}
-  def test_doubleSetErr() { runnerVA.runOneTest("doubleSetErr")}
-  def test_setAfterReadErr() { runnerVA.runOneTest("setAfterReadErr")}
+
+  lazy val runnerVA = new DFDLTestSuite(Misc.getRequiredResource(testDir + "variables.tdml"))
+
+  def test_setVar1() { runnerVA.runOneTest("setVar1") }
+  def test_doubleSetErr() { runnerVA.runOneTest("doubleSetErr") }
+  def test_setAfterReadErr() { runnerVA.runOneTest("setAfterReadErr") }
+
+  lazy val runnerMB = new DFDLTestSuite(Misc.getRequiredResource(testDir + "mixed-binary-text.tdml"))
+
+  def test_t1() { runnerMB.runOneTest("t1") }
+  def test_t2() { runnerMB.runOneTest("t2") }
 }
