@@ -69,9 +69,28 @@
 			</xs:complexType>
 		</xs:element>
 		
+		<xs:element name="e1a" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="s" dfdl:lengthKind="implicit"
+						minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind='parsed'>
+						<xs:complexType>
+							<xs:choice dfdl:initiatedContent="yes"
+								dfdl:separatorPosition="infix" dfdl:separator="">
+								<xs:element name="s1" type="xs:int"
+									dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+								<xs:element name="s2" dfdl:initiator="[s2:" type="xs:string"
+									dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
 	</tdml:defineSchema>
 
-	<tdml:parserTestCase name="initiatedContent1"
+	<tdml:parserTestCase name="initiatedContent1" description="initiatedContent='yes' - DFDL-15-003R"
 		model="s1" root="e1">
 		<tdml:document>[s2:abc][s1:123]</tdml:document>
 		<tdml:infoset>
@@ -88,7 +107,7 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="initiatedContent2"
+	<tdml:parserTestCase name="initiatedContent2" description="parsing error in branch - DFDL-15-003R"
 		model="s1" root="e1">
 		<tdml:document>[s2:abc][s1:noi]</tdml:document>
 		<tdml:errors>
@@ -97,7 +116,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="initiatedContent3"
-		description="test that insures initiatedContent the initiator behaves as a discriminator and cuts off other choice alternatives."
+		description="test that insures initiatedContent the initiator behaves as a discriminator and cuts off other choice alternatives. DFDL-15-003R"
 		model="s1" root="e2">
 		<tdml:document>[abc]</tdml:document>
 		<tdml:infoset>
@@ -110,7 +129,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="initiatedContent4"
-		description="test that insures initiatedContent the initiator behaves as a discriminator and cuts off other choice alternatives."
+		description="backtracking occurs - DFDL-15-003R."
 		model="s1" root="e2WithoutInitiatedContent">
 		<tdml:document>[abc]</tdml:document>
 		<tdml:infoset>
@@ -121,6 +140,13 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
-
+	
+	<tdml:parserTestCase name="initiatedContent5" description="one of branches is not initiated - DFDL-15-003R"
+		model="s1" root="e1a">
+		<tdml:document>[s2:abc]123]</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
 
 </tdml:testSuite>
