@@ -862,8 +862,8 @@ trait TermGrammarMixin { self : Term =>
       // Note that GroupPosGreaterThan(N,..) sets discriminator, so if it is true, and infixSep is not found, it won't
       // backtrack and try nothing. Only if GroupPos is not greater than N will it backtrack.
       // TODO: adding ChildPosGreaterThan and ArrayPosGreaterThan fixes bug with xs:choice and array tests--check for other cases
-      (ArrayPosGreaterThan(1, self) ~ GroupPosGreaterThan(1, self) ~ infixSep) |
-        ((ChildPosGreaterThan(1, self) ~ GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this))
+      (ArrayPosGreaterThan(1, self) ~ infixSep) |
+        ( (GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this) )
     } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this))
 }
 
