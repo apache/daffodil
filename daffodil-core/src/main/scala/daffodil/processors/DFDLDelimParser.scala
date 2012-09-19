@@ -271,13 +271,13 @@ class DelimParser extends RegexParsers {
     val pTerms: Parser[String] = this.combineLongest(termsParser)
 
     // A word is anything but a delimiter or EOF
-    val wordRegex: String = """(.*?)(?=(%s)|\z)"""
+    val wordRegex: String = """(?s)(.*?)(?=(%s)|\z)"""
     
     val word: Parser[String] = {
       // No Delimiters? Give me everything.
       if (separators.size == 0 && terminators.size == 0){ 
         System.err.println("no terminating markup")
-        """.*""".r}
+        """(?s).*""".r}
       else { 
         val delimsRegex = combineDelimitersRegex(sepsRegex, termsRegex)
         val finalRegex = String.format(wordRegex, delimsRegex).r
@@ -298,11 +298,11 @@ class DelimParser extends RegexParsers {
     if (escapeBlockStart.length() == 0 || escapeBlockEnd.length() == 0) { return failedResult }
 
     // PARAMETERS:	(1) EscapeBlockStart (2) EscapeBlockEnd (3) Delimiters
-    val wordRegexUnescaped: String = """^(%1$s)(.*?)(%2$s)(?=(%3$s)|\z)"""
+    val wordRegexUnescaped: String = """^(%1$s)(?s)(.*?)(%2$s)(?=(%3$s)|\z)"""
 
     // PARAMETERS:	(1) EscapeEscapeCharacter (2) EscapeBlockStart 
     // 				(3) EscapeEscapeCharacter (4) EscapeBlockEnd (5) Delimiters
-    val wordRegexEscaped: String = """^((?<!%1$s)%2$s)(.*?)((?<!%3$s)%4$s)(?=(%5$s)|\z)"""
+    val wordRegexEscaped: String = """^((?<!%1$s)%2$s)(?s)(.*?)((?<!%3$s)%4$s)(?=(%5$s)|\z)"""
 
     val (sepsParser, sepsRegex) = this.buildDelims(separators)
     val (termsParser, termsRegex) = this.buildDelims(terminators)
@@ -317,13 +317,13 @@ class DelimParser extends RegexParsers {
     val word: Parser[String] = escapeEscapeCharacter match {
       case "" => {
         if (separators.size == 0 && terminators.size == 0) {
-          """.*""".r
+          """(?s).*""".r
         } else { String.format(wordRegexUnescaped, escapeBlockStartRegex, escapeBlockEndRegex, delimsRegex).r }
       }
       case _ => {
         val escapeEscapeCharacterRegex = convertDFDLLiteralToRegex(escapeEscapeCharacter)
         if (separators.size == 0 && terminators.size == 0) {
-          """.*""".r
+          """(?s).*""".r
         } else { String.format(wordRegexEscaped, escapeEscapeCharacterRegex, escapeBlockStartRegex, escapeEscapeCharacterRegex, escapeBlockEndRegex, delimsRegex).r }
       }
     }
@@ -356,10 +356,10 @@ class DelimParser extends RegexParsers {
     if (escapeCharacter.length() == 0) { return failedResult }
 
     // PARAMETERS: (1) EscapeEscapeCharacter (2) EscapeCharacter (3) Delimiters
-    val wordRegexEscaped: String = """(.*?)(?=(?<!(?<!%1$s)%2$s)%3$s|\z)"""
+    val wordRegexEscaped: String = """(?s)(.*?)(?=(?<!(?<!%1$s)%2$s)%3$s|\z)"""
 
     // PARAMETERS: (1) EscapeCharacter (2) Delimiters
-    val wordRegexUnescaped: String = """(.*?)(?=(?<!%1$s)%2$s|\z)"""
+    val wordRegexUnescaped: String = """(?s)(.*?)(?=(?<!%1$s)%2$s|\z)"""
 
     val (sepsParser, sepsRegex) = this.buildDelims(separators)
     val (termsParser, termsRegex) = this.buildDelims(terminators)
@@ -373,12 +373,12 @@ class DelimParser extends RegexParsers {
 
     val word: Parser[String] = escapeEscapeCharacter match {
       case "" => {
-        if (separators.size == 0 && terminators.size == 0) { """.*""".r }
+        if (separators.size == 0 && terminators.size == 0) { """(?s).*""".r }
         else { String.format(wordRegexUnescaped, escapeCharacterRegex, delimsRegex).r }
       }
       case _ => {
         val escapeEscapeCharacterRegex = convertDFDLLiteralToRegex(escapeEscapeCharacter)
-        if (separators.size == 0 && terminators.size == 0) { """.*""".r }
+        if (separators.size == 0 && terminators.size == 0) { """(?s).*""".r }
         else { String.format(wordRegexEscaped, escapeEscapeCharacterRegex, escapeCharacterRegex, delimsRegex).r }
       }
     }
