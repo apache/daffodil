@@ -73,7 +73,11 @@ object Debugger {
     if (before.arrayPos != after.arrayPos) println("%s array index = %d".format(ba, after.arrayPos))
     if (before.groupPos != after.arrayPos) println("%s group index = %d".format(ba, after.groupPos))
     if (before.childPos != after.arrayPos) println("%s child index = %d".format(ba, after.childPos))
-    println("%s node = %s".format(ba, after.parentElement))
+    val etext = after.parent match {
+      case e : org.jdom.Element => println("%s node.getText() = '%s'".format(ba, e.getText()))
+      case _ =>
+    }
+     
   }
 
   def after(beforePState : PState, afterPState : PState, parser : Parser) {
