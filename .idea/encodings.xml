@@ -1,5 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding" native2AsciiForPropertiesFiles="false" useUTFGuessing="true" defaultCharsetForPropertiesFiles="ISO-8859-1">
-    <file charset="UTF-8" url="PROJECT"></file>
+  <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false" defaultCharsetForPropertiesFiles="ISO-8859-1">
+    <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>
+

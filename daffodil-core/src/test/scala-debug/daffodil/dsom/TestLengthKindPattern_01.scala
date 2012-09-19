@@ -1,7 +1,8 @@
 package daffodil.dsom
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
+import org.junit.Test
 import scala.xml._
 import daffodil.xml.XMLUtils
 import daffodil.xml.XMLUtils._
@@ -10,7 +11,7 @@ import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import daffodil.util.Misc
 
-class TestLengthKindPattern_01 extends JUnit3Suite {
+class TestLengthKindPattern_01 extends JUnitSuite {
 
   var runner = {
     val testDir = "/test-suite/tresys-contributed/"
@@ -20,9 +21,11 @@ class TestLengthKindPattern_01 extends JUnit3Suite {
   }
 
   /* DFDL-253 */
+  @Test
   def test_LengthPatternIllegalBits() { runner.runOneTest("LengthPatternIllegalBits") }
 
   /* DFDL-254 */
+  @Test
   def test_lengthKindPatternSimpleType() { runner.runOneTest("lengthKindPatternSimpleType") }
 
 }

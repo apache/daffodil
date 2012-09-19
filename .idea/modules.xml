@@ -1,12 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/project.iml" filepath="$PROJECT_DIR$/.idea_modules/project.iml" ></module>
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/daffodil-propgen.iml" filepath="$PROJECT_DIR$/.idea_modules/daffodil-propgen.iml" ></module>
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/daffodil.iml" filepath="$PROJECT_DIR$/.idea_modules/daffodil.iml" ></module>
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/daffodil-core.iml" filepath="$PROJECT_DIR$/.idea_modules/daffodil-core.iml" ></module>
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/daffodil-lib.iml" filepath="$PROJECT_DIR$/.idea_modules/daffodil-lib.iml" ></module>
-      <module fileurl="file://$PROJECT_DIR$/.idea_modules/daffodil-test.iml" filepath="$PROJECT_DIR$/.idea_modules/daffodil-test.iml" ></module>
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/daffodil.iml" filepath="$PROJECT_DIR$/.idea_modules/daffodil.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/daffodil-core.iml" filepath="$PROJECT_DIR$/.idea_modules/daffodil-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/daffodil-lib.iml" filepath="$PROJECT_DIR$/.idea_modules/daffodil-lib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/daffodil-propgen.iml" filepath="$PROJECT_DIR$/.idea_modules/daffodil-propgen.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/daffodil-test.iml" filepath="$PROJECT_DIR$/.idea_modules/daffodil-test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/project.iml" filepath="$PROJECT_DIR$/.idea_modules/project.iml" />
     </modules>
   </component>
 </project>
+

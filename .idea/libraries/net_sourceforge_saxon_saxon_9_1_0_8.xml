@@ -1,11 +1,17 @@
 <component name="libraryTable">
   <library name="net.sourceforge.saxon_saxon_9.1.0.8">
-    <CLASSES> </CLASSES>
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-dom.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-jdom.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-s9api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-xpath.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8.jar!/" />
+    </CLASSES>
     <JAVADOC>
-      <root url="jar://$PROJECT_DIR$/lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"></root>
+      <root url="jar://$PROJECT_DIR$/lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$PROJECT_DIR$/lib_managed/srcs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-sources.jar!/"></root>
+      <root url="jar://$PROJECT_DIR$/lib_managed/srcs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

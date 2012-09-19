@@ -1,13 +1,13 @@
 <component name="libraryTable">
   <library name="junit_junit_4.8.2">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib_managed/jars/junit/junit/junit-4.8.2.jar!/"></root>
+      <root url="jar://$PROJECT_DIR$/lib_managed/jars/junit/junit/junit-4.8.2.jar!/" />
     </CLASSES>
     <JAVADOC>
-      <root url="jar://$PROJECT_DIR$/lib_managed/docs/junit/junit/junit-4.8.2-javadoc.jar!/"></root>
+      <root url="jar://$PROJECT_DIR$/lib_managed/docs/junit/junit/junit-4.8.2-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$PROJECT_DIR$/lib_managed/srcs/junit/junit/junit-4.8.2-sources.jar!/"></root>
+      <root url="jar://$PROJECT_DIR$/lib_managed/srcs/junit/junit/junit-4.8.2-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

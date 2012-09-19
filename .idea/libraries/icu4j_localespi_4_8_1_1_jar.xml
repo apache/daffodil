@@ -1,9 +1,9 @@
 <component name="libraryTable">
   <library name="icu4j-localespi-4_8_1_1.jar">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/daffodil-core/lib/icu4j-localespi-4_8_1_1.jar!/"></root>
+      <root url="jar://$PROJECT_DIR$/daffodil-core/lib/icu4j-localespi-4_8_1_1.jar!/" />
     </CLASSES>
-    <JAVADOC> </JAVADOC>
-    <SOURCES> </SOURCES>
+    <JAVADOC />
+    <SOURCES />
   </library>
 </component>
