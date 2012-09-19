@@ -83,5 +83,27 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+	
+    <tdml:parserTestCase name="t3" root="c" model="v"
+		description="The parser should detect and recognize decode errors, and stop scanning.">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1234</tdml:documentPart>
+			<!-- This next binary field should decode with failure. It begins with C2FF, which is 
+			not valid utf-8 encoding. If this is skipped, it will find a 3f2c which is "5," after that.
+			This will result in the initial string being 12345, not 1234. -->
+			<tdml:documentPart type="byte">C2FF352C</tdml:documentPart><!-- binary -1023462100-->
+			<tdml:documentPart type="text">1111foobar</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<c>
+					<textLength4>1234</textLength4>
+					<binary1>-1023462100</binary1>
+					<text2>1111foobar</text2>
+				</c>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 
 </tdml:testSuite>

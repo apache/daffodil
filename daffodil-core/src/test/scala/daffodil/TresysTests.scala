@@ -95,4 +95,5 @@ class TresysTests extends JUnit3Suite {
 
   def test_t1() { runnerMB.runOneTest("t1") }
   def test_t2() { runnerMB.runOneTest("t2") }
+  def test_t3() { runnerMB.runOneTest("t3") }
 }
