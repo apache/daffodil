@@ -18,5 +18,7 @@ class TestChoiceGroupInitiatedContentDebug extends JUnit3Suite {
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 
   def test_5() { runner_01.runOneTest("initiatedContent5") }
+  def test_6() { runner_01.runOneTest("initiatedContent6") }
+  def test_8() { runner_01.runOneTest("initiatedContent8") }
 
 }
