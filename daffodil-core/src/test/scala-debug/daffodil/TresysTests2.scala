@@ -24,7 +24,7 @@ class TresysTests2 extends JUnit3Suite {
   lazy val runnerBF = new DFDLTestSuite(Misc.getRequiredResource(testDir + "bitFlagExpression.tdml"))
   
   def test_testNone() { 
-    LoggingDefaults.setLoggingLevel(LogLevel.Compile)
+    // LoggingDefaults.setLoggingLevel(LogLevel.Compile)
     runnerBF.runOneTest("testNone") }
   def test_testOne() { runnerBF.runOneTest("testOne") }
   def test_testMany() { runnerBF.runOneTest("testMany") }
