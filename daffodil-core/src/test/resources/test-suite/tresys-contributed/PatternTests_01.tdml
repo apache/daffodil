@@ -57,9 +57,11 @@
         <tdml:document>!!c2c2!!</tdml:document>
         <tdml:infoset>
             <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                <first>!!</first>
-                <inner>1664246578</inner>
-                <last>!!</last>
+                <def>
+                    <first>!!</first>
+                    <inner>1664246578</inner>
+                    <last>!!</last>
+                </def>
             </tdml:dfdlInfoset>
         </tdml:infoset>
     </tdml:parserTestCase>
