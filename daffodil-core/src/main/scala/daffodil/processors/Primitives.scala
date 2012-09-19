@@ -194,7 +194,8 @@ case class ComplexElementEndPattern(e : ElementBase) extends Terminal(e, e.isCom
       val currentElement = start.parent
       log(Debug("currentElement = %s", currentElement))
       // Assert.invariant(currentElement.getName() != "_document_" )
-      val priorElement = currentElement.getParent.asInstanceOf[org.jdom.Element]
+      //val priorElement = currentElement.getParent.asInstanceOf[org.jdom.Element]
+      var priorElement = currentElement.getParent
       log(Debug("priorElement = %s", priorElement))
       val postState = start.withParent(priorElement).moveOverByOne.withLastInStream()
       postState
@@ -458,7 +459,6 @@ case class StringDelimitedEndOfData(e : ElementBase)
 case class StringPatternMatched(e : ElementBase)
   extends Terminal(e, true)
   with WithParseErrorThrowing {
-  val sequenceSeparator = e.nearestEnclosingSequence.get.separator
 
   def parser : Parser = new Parser(e) {
     override def toString = "StringPatternMatched"

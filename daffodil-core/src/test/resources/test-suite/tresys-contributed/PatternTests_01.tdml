@@ -58,7 +58,7 @@
         <tdml:infoset>
             <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                 <first>!!</first>
-                <inner>49858</inner>
+                <inner>1664246578</inner>
                 <last>!!</last>
             </tdml:dfdlInfoset>
         </tdml:infoset>
