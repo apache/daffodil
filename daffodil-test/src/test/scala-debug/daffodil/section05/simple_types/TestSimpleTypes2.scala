@@ -1,7 +1,8 @@
 package daffodil.section05.simple_types
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
+import org.junit.Test
 import scala.xml._
 import daffodil.xml.XMLUtils
 import daffodil.xml.XMLUtils._
@@ -10,16 +11,16 @@ import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-class TestSimpleTypes2 extends JUnit3Suite {
+class TestSimpleTypes2 extends JUnitSuite {
   val testDir = "/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
-  def test_warning_exercise() { 
+  @Test def test_warning_exercise() { 
     val exc = intercept[Exception] {
     	runner.runOneTest("warning_exercise") }
     	assertTrue(exc.getMessage().contains("Did not find"))
   	}
-//  def test_Long3() {runner.runOneTest("Long3")}
-//  def test_Long4() {runner.runOneTest("Long4")}
+//  @Test def test_Long3() {runner.runOneTest("Long3")}
+//  @Test def test_Long4() {runner.runOneTest("Long4")}
   }

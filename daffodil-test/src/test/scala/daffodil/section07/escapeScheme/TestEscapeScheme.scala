@@ -1,7 +1,8 @@
 package daffodil.section07.escapeScheme
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
+import org.junit.Test
 import scala.xml._
 import daffodil.xml.XMLUtils
 import daffodil.xml.XMLUtils._
@@ -10,11 +11,11 @@ import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-class TestEscapeScheme extends JUnit3Suite {
+class TestEscapeScheme extends JUnitSuite {
   val testDir = "/daffodil/section07/escapeScheme/"
   val tdml = testDir + "escapeScheme.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
   
-  def test_escape_scheme() { runner.runOneTest("escapeSchemeSimple") }
+  @Test def test_escape_scheme() { runner.runOneTest("escapeSchemeSimple") }
   
   }
