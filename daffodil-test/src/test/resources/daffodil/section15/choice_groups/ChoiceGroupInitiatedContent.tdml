@@ -87,7 +87,58 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
-
+		
+		<xs:element name="e3" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="%WSP;" dfdl:separatorPosition="infix">
+						<xs:element name="x" dfdl:lengthKind="implicit" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:choice dfdl:initiatedContent="yes">
+									<xs:element name="a1" dfdl:initiator="[" type="xs:int" dfdl:lengthKind="delimited"/>
+									<xs:element name="a2" dfdl:initiator="[" type="xs:float" dfdl:lengthKind="delimited"/>
+								</xs:choice>
+							</xs:complexType>
+						</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="e4" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="%WSP;" dfdl:separatorPosition="infix">
+						<xs:element name="x" dfdl:lengthKind="implicit" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:choice dfdl:initiatedContent="no">
+									<xs:element name="a1" dfdl:initiator="[" type="xs:int" dfdl:lengthKind="delimited"/>
+									<xs:element name="a2" dfdl:initiator="[" type="xs:float" dfdl:lengthKind="delimited"/>
+								</xs:choice>
+							</xs:complexType>
+						</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="e5" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice>
+						<xs:element name="x1" dfdl:lengthKind="implicit">
+							<xs:complexType>
+								<xs:choice dfdl:initiatedContent="yes"
+									dfdl:separatorPosition="infix" dfdl:separator="">
+									<xs:element name="a1" dfdl:initiator="[" type="xs:string"
+										dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+									<xs:element name="a2" dfdl:initiator="[" type="xs:int"
+										dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+								</xs:choice>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="x2" type="xs:string" dfdl:lengthKind="delimited" />
+					</xs:choice>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="initiatedContent1" description="initiatedContent='yes' - DFDL-15-003R"
@@ -147,6 +198,48 @@
 		<tdml:errors>
 			<tdml:error/>
 		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="initiatedContent6"
+		description="initiatedContent with delimited elements - - DFDL-15-003R"
+		model="s1" root="e3">
+		<tdml:document>[1789 [3.25</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e3>
+					<x><a1>1789</a1></x>
+					<x><a2>3.25</a2></x>
+				</e3>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="initiatedContent7"
+		description="same as initiatedConten6 except initiatedContent='no' - - DFDL-15-003R"
+		model="s1" root="e4">
+		<tdml:document>[1789 [3.25</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e4>
+					<x><a1>1789</a1></x>
+					<x><a2>3.25</a2></x>
+				</e4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="initiatedContent8"
+		description="First choice branch is selected because it is a string type - - DFDL-15-003R"
+		model="s1" root="e5">
+		<tdml:document>[123][abc]</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e5>
+					<x1><a1>123</a1></x1>
+					<x1><a1>abc</a1></x1>
+				</e5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
 	</tdml:parserTestCase>
 
 </tdml:testSuite>

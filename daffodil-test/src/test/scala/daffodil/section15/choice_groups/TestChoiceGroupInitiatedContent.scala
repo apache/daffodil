@@ -21,7 +21,9 @@ class TestChoiceGroupInitiatedContent extends JUnit3Suite {
   def test_2() { runner_01.runOneTest("initiatedContent2") }
   def test_3() { runner_01.runOneTest("initiatedContent3") }
   def test_4() { runner_01.runOneTest("initiatedContent4") }
-
-
+  def test_5() { runner_01.runOneTest("initiatedContent5") }
+  //def test_6() { runner_01.runOneTest("initiatedContent6") }
+  def test_7() { runner_01.runOneTest("initiatedContent7") }
+  //def test_8() { runner_01.runOneTest("initiatedContent8") }
 
 }
