@@ -1209,32 +1209,28 @@ case class LittleEndianFloatPrim(e: ElementBase) extends Terminal(e, true) {
   def unparser = new FloatPrimUnparse(e, java.nio.ByteOrder.LITTLE_ENDIAN)
 }
 
-abstract class StaticDelimiter(delim: String, e: Term, guard: Boolean = true)
-  extends StaticText(delim, e, guard)
+abstract class StaticDelimiter(kindString : String, delim: String, e: Term, guard: Boolean = true)
+  extends StaticText(delim, e, kindString, guard)
 
-abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
+abstract class StaticText(delim: String, e: Term, kindString : String, guard: Boolean = true)
   extends Terminal(e, guard)
   with WithParseErrorThrowing {
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
 
   val term = e.asInstanceOf[Term]
-  lazy val separators = delim.split("\\s").toList
-  lazy val terminators = term.allTerminatingMarkup.map(x => x.constantAsString)
-  lazy val terminatorsFiltered = terminators.filterNot(x => separators.contains(x))
+  lazy val staticTexts = delim.split("\\s").toList
 
-  val separatorsCooked: Queue[String] = new Queue
-  val terminatorsCooked: Queue[String] = new Queue
+  val staticTextsCooked: Queue[String] = new Queue
 
-  separators.foreach(x => separatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
-  terminatorsFiltered.foreach(x => terminatorsCooked.enqueue(EntityReplacer.replaceAll(x)))
+  staticTexts.foreach(x => staticTextsCooked.enqueue(EntityReplacer.replaceAll(x)))
 
   def parser: Parser = new Parser(e) {
 
     Assert.notYetImplemented(e.ignoreCase == YesNo.Yes)
 
     Assert.invariant(delim != "") // shouldn't be here at all in this case.
-    override def toString = "StaticText('" + delim + "' with terminating markup: " + term.prettyTerminatingMarkup + ")"
+    override def toString = kindString + "('" + delim + "')" //  with terminating markup: " + term.prettyTerminatingMarkup + ")"
     val decoder = e.knownEncodingDecoder
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
@@ -1255,8 +1251,9 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
 
         var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
 
-        //result = d.parseInput(separatorsCooked.toSet, terminatorsCooked.toSet, reader, decoder.charset())
-        result = d.parseInputDelimiter(separatorsCooked.toSet, reader, decoder.charset())
+        // Well they may not be delimiters, but the logic is the same as for a 
+        // set of static delimiters.
+        result = d.parseInputDelimiter(staticTextsCooked.toSet, reader, decoder.charset())
 
         if (!result.isSuccess) {
           return start.failed(this.toString() + " - " + eName + ": Delimiter not found!")
@@ -1298,19 +1295,19 @@ abstract class StaticText(delim: String, e: Term, guard: Boolean = true)
 class DynamicDelimiter(delimExpr: CompiledExpression, e: Term, guard: Boolean = true) extends Primitive(e, guard)
 
 //case class StaticInitiator(e: Term) extends StaticDelimiter(e.initiator.constantAsString, e)
-case class StaticInitiator(e: Term) extends StaticDelimiter(e.initiator.constantAsString, e) {
+case class StaticInitiator(e: Term) extends StaticDelimiter("Init", e.initiator.constantAsString, e) {
   Assert.invariant(e.hasInitiator)
   lazy val unparserDelim = e.initiator.constantAsString.split("""\s""").head
 }
 //case class StaticTerminator(e : Term) extends StaticDelimiter(e.terminator.constantAsString, e)
-case class StaticTerminator(e: Term) extends StaticDelimiter(e.terminator.constantAsString, e) {
+case class StaticTerminator(e: Term) extends StaticDelimiter("Term", e.terminator.constantAsString, e) {
   Assert.invariant(e.hasTerminator)
   lazy val unparserDelim = e.terminator.constantAsString.split("""\s""").head
 }
 case class DynamicInitiator(e: Term) extends DynamicDelimiter(e.initiator, e)
 case class DynamicTerminator(e: Term) extends DynamicDelimiter(e.terminator, e)
 
-case class StaticSeparator(s: Sequence, t: Term) extends StaticDelimiter(s.separator.constantAsString, t) {
+case class StaticSeparator(s: Sequence, t: Term) extends StaticDelimiter("Sep", s.separator.constantAsString, t) {
   Assert.invariant(s.hasSeparator)
   lazy val unparserDelim = s.separator.constantAsString.split("""\s""").head
 }
@@ -1570,7 +1567,7 @@ case class StopValue(e: ElementBase with LocalElementMixin) extends Primitive(e,
 case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 
 case class LiteralNilValue(e: ElementBase)
-  extends StaticText(e.nilValue, e, e.isNillable) {
+  extends StaticText(e.nilValue, e, "LiteralNil", e.isNillable) {
   lazy val unparserDelim = Assert.notYetImplemented()
   //  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   val stParser = super.parser
