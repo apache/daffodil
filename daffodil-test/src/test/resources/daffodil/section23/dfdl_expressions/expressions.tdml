@@ -276,6 +276,17 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+		
+		<xs:element name="lke_02" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="e1" type="xs:int" dfdl:encoding="utf-8" dfdl:lengthKind="explicit"
+						dfdl:length="1" />
+					<xs:element name="e2" type="xs:int" dfdl:encoding="utf-8" dfdl:lengthKind="explicit"
+						dfdl:length="{../ex:e1}" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
 
 	</tdml:defineSchema>
 
@@ -289,6 +300,20 @@
 					<e1>3</e1>
 					<e2>538</e2>
 				</lke_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="lke3_rel" root="lke_02"
+		model="expressions-Embedded.dfdl.xsd" description="">
+
+		<tdml:document>3538</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<lke_02>
+					<e1>3</e1>
+					<e2>538</e2>
+				</lke_02>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
