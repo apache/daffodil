@@ -11,14 +11,11 @@ import daffodil.dsom._
 import daffodil.api._
 import java.nio._
 import java.nio.charset._
-import stringsearch._
 import scala.collection.JavaConversions._
 import scala.util.logging.ConsoleLogger
 import stringsearch.DelimSearcherV3._
 import scala.collection.mutable.Queue
 import scala.util.matching.Regex
-import stringsearch.constructs._
-import stringsearch.constructs.EscapeScheme._
 import daffodil.util._
 import daffodil.exceptions.ThrowsSDE
 import java.io.ByteArrayInputStream
@@ -34,8 +31,8 @@ abstract class ProcessingError extends Exception with DiagnosticImplMixin
 class ParseError(sc : SchemaComponent, val pstate : Option[PState], kind : String, args : Any*) 
 extends ProcessingError {
   def isError = true
-  def getSchemaLocations = List(sc)
-  def getDataLocations = pstate.map { _.currentLocation }.toList
+  def getSchemaLocations : Seq[SchemaLocation] = List(sc)
+  def getDataLocations : Seq[DataLocation] = pstate.map { _.currentLocation }.toList
   
   override def toString = {
     lazy val argsAsString = args.map { _.toString }.mkString(", ")
@@ -61,32 +58,20 @@ class AssertionFailed(sc: SchemaComponent, state : PState, msg : String)
 extends ParseError(sc, Some(state), "Assertion failed. %s", msg)
 
 
-class AlternativeFailed(sc : SchemaComponent, state : DFDL.State, val errors : Seq[Diagnostic]) extends ProcessingError {
-  def isError = true
-  def getSchemaLocations = List(sc)
-  def getDataLocations = List(state.currentLocation)
-  
-  override def toString() = {
-    val msg = "Alternative failed: Reason(s): " + errors.map{_.toString}.mkString("\n")
-    msg
-  }
-}
+class ParseAlternativeFailed(sc : SchemaComponent, state : PState, val errors : Seq[Diagnostic]) 
+extends ParseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors) 
 
-class AltParseFailed(sc : SchemaComponent, state : DFDL.State,
-  val p : Diagnostic, val q : Diagnostic) extends ProcessingError {
-  def isError = true
-  def getSchemaLocations = p.getSchemaLocations ++ q.getSchemaLocations
-  def getDataLocations = {
+class AltParseFailed(sc : SchemaComponent, state : PState,
+  val p : Diagnostic, val q : Diagnostic) 
+  extends ParseError(sc, Some(state), "All alternatives failed. Reason(s): %s", List(p, q)) {
+  
+  override def getSchemaLocations : Seq[SchemaLocation] = p.getSchemaLocations ++ q.getSchemaLocations
+  
+  override def getDataLocations : Seq[DataLocation] = {
     // both should have the same starting location if they are alternatives.
     Assert.invariant(p.getDataLocations == q.getDataLocations)
     p.getDataLocations
   }
-  
-  override def toString() = {
-    val msg = p.toString + "\n" + q.toString
-    msg
-  }
-
 }
 
 /**
@@ -342,14 +327,14 @@ class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
         // each indicate that one alternative failed due to the errors that occurred during
         // that attempt.
 
-        val pAltErr = new AlternativeFailed(context, pstate, pResult.diagnostics)
-        val qAltErr = new AlternativeFailed(context, pstate, qResult.diagnostics)
+        val pAltErr = new ParseAlternativeFailed(context, pstate, pResult.diagnostics)
+        val qAltErr = new ParseAlternativeFailed(context, pstate, qResult.diagnostics)
         val altErr = new AltParseFailed(context, pstate, pAltErr, qAltErr)
 
         val bothFailedResult = pstate.failed(altErr)
         log(Debug("Both AltParser alternatives failed."))
 
-        val result = PE(bothFailedResult, "Both alternatives failed.")
+        val result = bothFailedResult
         result.withDiscriminator(false)
       }
     }
