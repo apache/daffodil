@@ -205,7 +205,7 @@ class AltCompUnparser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) ex
         val bothFailedResult = ustate.failed(altErr)
         log(Debug("Both AltParser alternatives failed."))
 
-        val result = UE(bothFailedResult, "Both alternatives failed.")
+        val result = bothFailedResult
         result.withDiscriminator(false)
       }
     }

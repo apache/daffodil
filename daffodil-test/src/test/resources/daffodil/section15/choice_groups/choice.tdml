@@ -222,7 +222,8 @@
 			<tdml:error>float</tdml:error>
 			<tdml:error>int</tdml:error>
 			<tdml:error>Alternative failed</tdml:error>
-			<tdml:error>Both alternatives failed</tdml:error>
+		    <tdml:error>All alternatives failed</tdml:error>
+			
 		</tdml:errors>
 
 	</tdml:parserTestCase>
