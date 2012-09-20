@@ -56,11 +56,6 @@ class TresysTests extends JUnit3Suite {
   // Fails infinite loop
   // def test_nested_separator_delimited_nest3() { runnerNSD.runOneTest("nest3")}
 
-  val escapeScheme = testDir + "escapeScheme.tdml"
-  lazy val runnerEscapeScheme = new DFDLTestSuite(Misc.getRequiredResource(escapeScheme))
-
-  def test_escape_scheme() { runnerEscapeScheme.runOneTest("escapeSchemeSimple") }
-
   /* Very big test data files, so each is in its own TDML file */
 
   //  val ab7 = testDir + "AB007.tdml"
@@ -80,25 +75,6 @@ class TresysTests extends JUnit3Suite {
   def test_simpleTypeOverlapPrimError() { runnerST.runOneTest("st-prim-err1") }
   def test_simpleTypeOverlapSimpleTypeError() { runnerST.runOneTest("st-st-err1") }
 
-  val ch = testDir + "choice.tdml"
-  lazy val runnerCH = new DFDLTestSuite(Misc.getRequiredResource(ch))
-  def test_basicChoice() { runnerCH.runOneTest("basic") }
-  def test_choice2() { runnerCH.runOneTest("choice2") }
-  def test_choice3() { runnerCH.runOneTest("choice3") }
-  def test_choice4() { runnerCH.runOneTest("choice4") }
-
-  def test_choice5() { runnerCH.runOneTest("choice5") }
-  def test_choice6() { runnerCH.runOneTest("choice6") }
-  def test_choiceFail1() { runnerCH.runOneTest("choiceFail1") }
-  def test_choiceDelim1() {
-    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-    runnerCH.runOneTest("choiceDelim1")
-  }
-  def test_nestedChoice1() {
-    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-    runnerCH.runOneTest("nestedChoice1")
-  }
-
   val rd = testDir + "runtime-diagnostics.tdml"
   lazy val runnerRD = new DFDLTestSuite(Misc.getRequiredResource(rd))
   runnerRD.setCheckAllTopLevel(true)
@@ -108,34 +84,6 @@ class TresysTests extends JUnit3Suite {
   val sq = testDir + "sequence.tdml"
   lazy val runnerSQ = new DFDLTestSuite(Misc.getRequiredResource(sq))
   def test_seq1() { runnerSQ.runOneTest("seq1") }
-
-  val ln = testDir + "literal-value-nils.tdml"
-  lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
-  def test_text_01() { runnerLN.runOneTest("text_01") }
-  def test_text_02() { runnerLN.runOneTest("text_02") }
-  def test_text_03() { runnerLN.runOneTest("text_03") }
-  def test_text_04() { runnerLN.runOneTest("text_04") }
-  def test_text_05() { runnerLN.runOneTest("text_05") }
-  def test_text_06() { runnerLN.runOneTest("text_06") }
-  def test_binary_01() { runnerLN.runOneTest("binary_01") }
-
-  val entity = testDir + "entities.tdml"
-  lazy val runnerEntity = new DFDLTestSuite(Misc.getRequiredResource(entity))
-  def test_entity_fail_01() { // LoggingDefaults.setLoggingLevel(LogLevel.Compile)
-    runnerEntity.runOneTest("entity_fail_01")
-  }
-  def test_entity_fail_02() { runnerEntity.runOneTest("entity_fail_02") }
-  def test_entity_fail_03() { runnerEntity.runOneTest("entity_fail_03") }
-  def test_entity_fail_04() { runnerEntity.runOneTest("entity_fail_04") }
-  def test_entity_fail_05() { runnerEntity.runOneTest("entity_fail_05") }
-  def test_entity_fail_06() { runnerEntity.runOneTest("entity_fail_06") }
-
-  lazy val runnerEX = new DFDLTestSuite(Misc.getRequiredResource(testDir + "expressions.tdml"))
-
-  def test_expressions_lke1_rel() { runnerEX.runOneTest("lke1_rel") }
-  def test_expressions_lke1_abs() { runnerEX.runOneTest("lke1_abs") }
-  def test_expressions_ocke1() { runnerEX.runOneTest("ocke1") }
-  def test_expressions_ocke2() { runnerEX.runOneTest("ocke2") }
   
   lazy val runnerVA= new DFDLTestSuite(Misc.getRequiredResource(testDir + "variables.tdml"))
   
