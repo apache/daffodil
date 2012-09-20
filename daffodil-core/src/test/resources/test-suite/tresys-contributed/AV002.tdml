@@ -5,7 +5,7 @@
 	
 	<parserTestCase name="AV002" root="wholeFile" model="AV.dfdl.xsd"
 		description="HR/CU Medical data">
-	<document>E(s5TTR0104                            CENTRAMAX.M                      Page:    1
+	<document><documentPart type="byte">1b</documentPart><documentPart type="text">E</documentPart><documentPart type="byte">1b</documentPart><documentPart type="text">(s5TTR0104                            CENTRAMAX.M                      Page:    1
                                   Triage Calls
                        Call Summary by Presenting Symptom
                              Call Types: I O M T R N
@@ -62,7 +62,7 @@
                                SOB                 3
                                SUNBURN             1
                                SWOLLEN             1
-TR0104                            CENTRAMAX.M                      Page:    2
+</documentPart><documentPart type="byte">0c</documentPart><documentPart type="text">TR0104                            CENTRAMAX.M                      Page:    2
                                   Triage Calls
                        Call Summary by Presenting Symptom
                              Call Types: I O M T R N
@@ -79,7 +79,7 @@
                                WOUND               1
 
                          Grand Total:            109
-E</document>
+</documentPart><documentPart type="byte">0c1b</documentPart><documentPart type="text">E</documentPart></document>
 		<infoset>
 			<dfdlInfoset>
 <wholeFile xmlns="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
