@@ -52,7 +52,10 @@ object Debugger {
     if (pstate.arrayPos != -1) println("%s array index = %d".format(ba, pstate.arrayPos))
     if (pstate.groupPos != -1) println("%s group index = %d".format(ba, pstate.groupPos))
     if (pstate.childPos != -1) println("%s child index = %d".format(ba, pstate.childPos))
-    println("Current JDOM element: " + pstate.parent)
+      val etext = pstate.parent match {
+      case e : org.jdom.Element => println("%s Infoset node.getText() = '%s'".format(ba, e.getText()))
+      case _ =>
+    }
     val loc = pstate.currentLocation
     println(loc)
   }

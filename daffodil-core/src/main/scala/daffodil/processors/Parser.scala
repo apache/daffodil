@@ -375,8 +375,9 @@ class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixi
 
 class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
   
-  override def toString() = "Location (in bits) " + bitPos + " (in bytes) " + bitPos / 8 + 
-  ". UTF-8 text is: (" + utf8Dump + ")" + " Data aligned to 8-bytes starting at bit " + aligned64BitsPos + " byte " + aligned64BitsPos / 8 + " (" + dump + ")" 
+  override def toString() = "Location is byte " + bitPos / 8 + 
+  "\nUTF-8 text starting at byte " + aligned64BitsPos / 8 + " is: (" + utf8Dump + ")" + 
+  "\nData (hex) starting at byte " + aligned64BitsPos / 8 + " is: (" + dump + ")" 
   
   
   def aligned64BitsPos = (bitPos >> 6) << 6
