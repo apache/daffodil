@@ -10,8 +10,10 @@ import daffodil.compiler.Compiler
 import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
+import daffodil.debugger.Debugger
 
 class TestDelimiterProperties extends JUnitSuite {
+
   val testDir_01 = "/daffodil/ibm-tests/"
   val tdml_01 = testDir_01 + "dpaext1.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
@@ -35,5 +37,8 @@ class TestDelimiterProperties extends JUnitSuite {
   @Test def test_DelimProp_05() { runner_02.runOneTest("DelimProp_05") }
   //@Test def test_DelimProp_06() { runner_02.runOneTest("DelimProp_06") }
   @Test def test_DelimProp_09() { runner_02.runOneTest("DelimProp_09") }
-  @Test def test_DelimProp_10() { runner_02.runOneTest("DelimProp_10") }
+  @Test def test_DelimProp_10() { Debugger.setDebugging(true)
+    runner_02.runOneTest("DelimProp_10") }
+  @Test def test_DelimProp_10_01() { Debugger.setDebugging(true)
+    runner_02.runOneTest("DelimProp_10_01") }
   }

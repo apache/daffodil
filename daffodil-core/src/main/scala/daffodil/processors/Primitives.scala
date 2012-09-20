@@ -490,7 +490,13 @@ case class StringDelimitedEndOfData(e: ElementBase)
         val delimsCooked1 = delimsRaw.map(raw => { new daffodil.dsom.ListOfStringValueAsLiteral(raw.toString, e).cooked })
         val delimsCooked = delimsCooked1.flatten
         val postEvalState = start.withVariables(vars)
-
+        
+        if (delimsCooked.filter(x => x == "%WSP*;").length > 0){
+          // We cannot detect this error until expressions have been evaluated!
+          log(Debug(eName + " - Failed due to WSP* detected as a delimiter for lengthKind=delimited"))
+          e.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited!")
+        }
+        
         log(Debug(eName + " - Looking for: " + delimsCooked + " Count: " + delimsCooked.length))
         val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
 

@@ -79,8 +79,11 @@ class DelimParser extends RegexParsers {
     sortDelims(delimList).toList.foreach(str => {
       val d = new Delimiter()
       d(str)
+//      System.err.println(d.delimRegExParseUntil)
+//      System.err.println(d.delimRegExParseDelim)
       delimsParser.enqueue(d.delimRegExParseDelim.r) // The regex representing the actual delimiter
-      delimsRegex.enqueue(d.delimRegExParseUntil) // The regex used to parse until we reach a delimiter
+      //delimsRegex.enqueue(d.delimRegExParseUntil) // The regex used to parse until we reach a delimiter
+      delimsRegex.enqueue(d.delimRegExParseDelim) // The regex used to parse until we reach a delimiter
     })
     (delimsParser.toArray, delimsRegex.toArray)
   }

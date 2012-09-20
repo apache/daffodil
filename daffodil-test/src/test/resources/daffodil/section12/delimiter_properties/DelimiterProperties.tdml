@@ -77,6 +77,14 @@
 			</xs:complexType>
 		</xs:element>
 		
+		<xs:element name="DP_04_01" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="s1" type="xs:float" dfdl:terminator="%WSP+;" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
 	</tdml:defineSchema>
 
 		<tdml:parserTestCase name="DelimProp_01"
@@ -202,19 +210,30 @@
 		</tdml:parserTestCase>
 		
 		<tdml:parserTestCase name="DelimProp_10" root="DP_04"
-		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 12 property delimiters -use of %WSP*; as terminator - DFDL-12-033R">
+		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 12 property delimiters -use of %WSP*; as terminator - DFDL-12-033R Should error">
+
+			<tdml:document>.00300 -02.75
+			3.9900	7.33
+			</tdml:document>
+			<tdml:errors>
+				<tdml:error/>
+			</tdml:errors>
+		</tdml:parserTestCase>
+		
+		<tdml:parserTestCase name="DelimProp_10_01" root="DP_04_01"
+		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 12 property delimiters -use of %WSP+; as terminator - DFDL-12-033R Should pass">
 
 			<tdml:document>.00300 -02.75
 			3.9900	7.33
 			</tdml:document>
 			<tdml:infoset>
 				<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-					<DP_04>
+					<DP_04_01>
 						<s1>0.003</s1>
 						<s1>-2.75</s1>
 						<s1>3.99</s1>
 						<s1>7.33</s1>
-					</DP_04>
+					</DP_04_01>
 				</tdml:dfdlInfoset>
 			</tdml:infoset>
 		</tdml:parserTestCase>
