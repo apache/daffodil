@@ -14,6 +14,7 @@ import daffodil.dsom.GlobalElementDecl
 import daffodil.dsom.SchemaSet
 import daffodil.processors.DataProcessor
 import daffodil.api.DFDL
+import daffodil.debugger.Debugger
 
 
 class ProcessorFactory(sset: SchemaSet, rootElem: GlobalElementDecl)
@@ -36,7 +37,6 @@ class ProcessorFactory(sset: SchemaSet, rootElem: GlobalElementDecl)
 class Compiler extends DFDL.Compiler with Logging {
   var root: String = ""
   var rootNamespace: String = ""
-  var debugMode = false
 
   def setDistinguishedRootNode(name: String, namespace: String = ""): Unit = {
     root = name
@@ -48,7 +48,7 @@ class Compiler extends DFDL.Compiler with Logging {
   }
 
   def setDebugging(flag: Boolean) {
-    debugMode = flag
+    Debugger.setDebugging(flag)
   }
 
   /**

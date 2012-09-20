@@ -10,18 +10,18 @@ import daffodil.compiler.Compiler
 import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
-import daffodil.debugger.Debugger
+import daffodil.debugger.Debugger.withDebugger
 
 class TestLengthKindDelimited extends JUnitSuite {
   val testDir = "/daffodil/section12/lengthKind/"
   val aa = testDir + "DelimitedTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
-  @Tets def test_NumSeq_00a() { //Debugger.setDebugging(true)
+  @Test def test_NumSeq_00a() = withDebugger { 
     runner.runOneTest("NumSeq_00a") }
-  @Tets def test_NumSeq_00nl() { //Debugger.setDebugging(true)
+  @Test def test_NumSeq_00nl() = withDebugger { 
     runner.runOneTest("NumSeq_00nl") }
-  @Tets def test_NumSeq_01() { //Debugger.setDebugging(true)
+  @Test def test_NumSeq_01() = withDebugger { 
     runner.runOneTest("NumSeq_01") }
   @Test def test_NumSeq_03() { runner.runOneTest("NumSeq_03") }
   @Test def test_NumSeq_04() { runner.runOneTest("NumSeq_04") }

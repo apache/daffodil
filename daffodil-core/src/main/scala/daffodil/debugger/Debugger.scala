@@ -9,8 +9,23 @@ import daffodil.processors.Parser
  * Really simplistic debugger.
  */
 object Debugger {
+  
+  /**
+   * Wrap things to debug with this rather than just calling setDebugging(true).
+   * That way it doesn't get turned on for every subsequent test after when
+   * batches of tests are being run.
+   */
+  def withDebugger[T] (body : => T ) {
+    try {
+      setDebugging(true)
+      body
+    }
+    finally {
+      setDebugging(false)
+    }
+  }
 
-  var areDebugging = false
+  private var areDebugging = false
   var pause = true
 
   def setDebugging(flag : Boolean) {
