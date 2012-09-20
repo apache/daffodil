@@ -14,17 +14,6 @@ import daffodil.util.Misc
 
 class TresysTests extends JUnit3Suite {
   val testDir = "/test-suite/tresys-contributed/"
-  val aa = testDir + "AA.tdml"
-
-  def runnerAA = {
-    new DFDLTestSuite(Misc.getRequiredResource(aa))
-  }
-
-  // Needs InputValueCalc to work before this has a chance.
-  def test_AA000() { runnerAA.runOneTest("AA000") }
-  def test_inputValueCalcErrorDiagnostic1() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic1") }
-  def test_inputValueCalcErrorDiagnostic2() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic2") }
-  def test_inputValueCalcAbsolutePath() { runnerAA.runOneTest("inputValueCalcAbsolutePath") }
 
   val delimited = testDir + "dpaext1.tdml"
   lazy val runnerDelimited = new DFDLTestSuite(Misc.getRequiredResource(delimited))
@@ -84,12 +73,6 @@ class TresysTests extends JUnit3Suite {
   //  lazy val runnerAB9 = new DFDLTestSuite(Misc.getRequiredResource(ab9))
   //  def test_AB009() { runnerAB9.runOneTest("AB009") }
 
-  val aj = testDir + "AJ.tdml"
-  lazy val runnerAJ = new DFDLTestSuite(Misc.getRequiredResource(aj))
-
-  def test_AJ000() { runnerAJ.runOneTest("AJ000") }
-  def test_AJ001() { runnerAJ.runOneTest("AJ001") }
-
   val st = testDir + "simple-type-bases.tdml"
   lazy val runnerST = new DFDLTestSuite(Misc.getRequiredResource(st))
   def test_simpleTypeDerivedFromPrimitiveType() { runnerST.runOneTest("st-prim") }
@@ -147,28 +130,12 @@ class TresysTests extends JUnit3Suite {
   def test_entity_fail_05() { runnerEntity.runOneTest("entity_fail_05") }
   def test_entity_fail_06() { runnerEntity.runOneTest("entity_fail_06") }
 
-  val ai = testDir + "AI.tdml"
-  lazy val runnerAI = new DFDLTestSuite(Misc.getRequiredResource(ai))
-
-  def test_AI000() { runnerAI.runOneTest("AI000") }
-
-  val aq = testDir + "AQ.tdml"
-  lazy val runnerAQ = new DFDLTestSuite(Misc.getRequiredResource(aq))
-
-  def test_AQ000() { runnerAQ.runOneTest("AQ000") }
-
   lazy val runnerEX = new DFDLTestSuite(Misc.getRequiredResource(testDir + "expressions.tdml"))
 
   def test_expressions_lke1_rel() { runnerEX.runOneTest("lke1_rel") }
   def test_expressions_lke1_abs() { runnerEX.runOneTest("lke1_abs") }
   def test_expressions_ocke1() { runnerEX.runOneTest("ocke1") }
   def test_expressions_ocke2() { runnerEX.runOneTest("ocke2") }
-
-  val ar = testDir + "AR.tdml"
-  lazy val runnerAR = new DFDLTestSuite(Misc.getRequiredResource(ar))
-
-  def test_AR000() { runnerAR.runOneTest("AR000") }
-  
   
   lazy val runnerVA= new DFDLTestSuite(Misc.getRequiredResource(testDir + "variables.tdml"))
   
