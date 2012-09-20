@@ -251,6 +251,8 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
     def parse(start: PState): PState = withParseErrorThrowing(start) {
       withLoggingLevel(LogLevel.Info) {
         log(Debug("StringFixedLengthInBytes - Parsing starting at bit position: " + start.bitPos))
+        
+        if (start.bitPos % 8 != 0){ return PE(start, "StringFixedLengthInBytes - not byte aligned.")}
 
         val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
 
@@ -310,6 +312,8 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
     def parse(start: PState): PState = withParseErrorThrowing(start) {
       withLoggingLevel(LogLevel.Info) {
         log(Debug("Parsing starting at bit position: " + start.bitPos))
+        
+        if (start.bitPos % 8 != 0){ return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - not byte aligned.")}
 
         val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
 
@@ -389,6 +393,8 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
     def parse(start: PState): PState = withParseErrorThrowing(start) {
       withLoggingLevel(LogLevel.Info) {
         log(Debug("Parsing starting at bit position: " + start.bitPos))
+        
+        if (start.bitPos % 8 != 0){ return PE(start, "StringFixedLengthInVariableWidthCharacters - not byte aligned.")}
 
         val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
 
@@ -503,6 +509,8 @@ case class StringDelimitedEndOfData(e: ElementBase)
         val bytePos = (postEvalState.bitPos >> 3).toInt
         log(Debug(eName + " - Starting at bit pos: " + postEvalState.bitPos))
         log(Debug(eName + " - Starting at byte pos: " + bytePos))
+        
+        if (postEvalState.bitPos % 8 != 0){ return PE(postEvalState, "StringDelimitedEndOfData - not byte aligned.")}
 
         val byteReader = in.byteReader.atPos(bytePos)
         val reader = byteReader.charReader(decoder.charset().name())
@@ -575,6 +583,8 @@ case class StringPatternMatched(e: ElementBase)
 
         log(Debug("StringPatternMatched - " + eName + " - Parsing pattern at byte position: " + (start.bitPos >> 3)))
         log(Debug("StringPatternMatched - " + eName + " - Parsing pattern at bit position: " + start.bitPos))
+        
+        if (start.bitPos % 8 != 0){ return PE(start, "StringPatternMatched - not byte aligned.")}
 
         val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
 
@@ -1245,6 +1255,8 @@ abstract class StaticText(delim: String, e: Term, kindString : String, guard: Bo
 
         log(Debug(eName + " - Parsing delimiter at byte position: " + (start.bitPos >> 3)))
         log(Debug(eName + " - Parsing delimiter at bit position: " + start.bitPos))
+        
+        if (start.bitPos % 8 != 0){ return PE(start, kindString + " - not byte aligned.")}
 
         val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
 
@@ -1609,6 +1621,8 @@ case class LiteralNilValue(e: ElementBase)
         val bytePos = (postEvalState.bitPos >> 3).toInt
         log(Debug(eName + " - Starting at bit pos: " + postEvalState.bitPos))
         log(Debug(eName + " - Starting at byte pos: " + bytePos))
+        
+        if (postEvalState.bitPos % 8 != 0){ return PE(start, "LiteralNilValue - not byte aligned.")}
 
         val byteReader = in.byteReader.atPos(bytePos)
         val reader = byteReader.charReader(decoder.charset().name())
@@ -1889,10 +1903,15 @@ case class StringExplicitLengthInBytes(e: ElementBase)
 
     def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
       log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
+      
+      
+      
       val R(nBytesAsAny, newVMap) = expr.evaluate(pstate.parent, pstate.variableMap)
       val nBytes = nBytesAsAny.asInstanceOf[Long]
       val start = pstate.withVariables(newVMap)
       log(Debug("Explicit length %s", nBytes))
+      
+      if (start.bitPos % 8 != 0){ return PE(start, "StringExplicitLengthInBytes - not byte aligned.")}
 
       val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
 

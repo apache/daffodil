@@ -247,7 +247,7 @@ class DelimParser extends RegexParsers {
     
     //val entry = (delim <~ opt(EOF))
     val entry = delimParser <~ opt(EOF)
-    System.err.println("SRC: >>" + input.source + "<<" + " " + input.source.length())
+//    System.err.println("SRC: >>" + input.source + "<<" + " " + input.source.length())
     val res = this.parse(this.log(entry)("DelimParser.parseInputDelimiter"), input)
 
     var fieldResult = ""
@@ -279,12 +279,12 @@ class DelimParser extends RegexParsers {
     val word: Parser[String] = {
       // No Delimiters? Give me everything.
       if (separators.size == 0 && terminators.size == 0){ 
-        System.err.println("no terminating markup")
+//        System.err.println("no terminating markup")
         """(?s).*""".r}
       else { 
         val delimsRegex = combineDelimitersRegex(sepsRegex, termsRegex)
         val finalRegex = String.format(wordRegex, delimsRegex).r
-        System.err.println(finalRegex)
+//        System.err.println(finalRegex)
         finalRegex
         }
     }

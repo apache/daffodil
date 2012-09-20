@@ -184,10 +184,11 @@ trait WithParseErrorThrowing {
           val res = maybePS.map{ _.failed(e) }.getOrElse(pstate.failed(e))
           res
         }
-        case e : SchemaDefinitionError => {
-          val res = pstate.failed(e)
-          res
-        }
+        // TODO: Runtime SDEs should be distinguished somehow usefully.
+//        case e : SchemaDefinitionError => {
+//          val res = pstate.failed(e)
+//          res
+//        }
         //
         // Note: We specifically do not catch other exceptions here
         // On purpose. If those exist, then there's someplace that should have already caught them
