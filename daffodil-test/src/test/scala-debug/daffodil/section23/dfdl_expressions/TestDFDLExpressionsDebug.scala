@@ -19,4 +19,5 @@ class TestDFDLExpressionsDebug extends JUnitSuite {
   // ArrayOptElem_02 should pass when binary unsignedInt is implemented.
   @Test def test_ArrayOptElem_02() { runner.runOneTest("ArrayOptElem_02") }
   @Test def test_expressions_lke3_rel() { runner.runOneTest("lke3_rel") }
+  @Test def test_ocke_rel() { runner.runOneTest("ocke_rel") }
   }

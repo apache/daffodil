@@ -287,6 +287,23 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+		
+		<xs:element name="ocke" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:initiator="" >
+					<xs:element name="nrows" type="xs:int" dfdl:lengthKind="delimited" dfdl:terminator=","/>
+					<xs:element name="ncols" type="xs:int" dfdl:lengthKind="delimited" dfdl:terminator=","/>
+					<xs:element name="rows" maxOccurs="unbounded" dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:nrows }">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="cols" type="xs:int" maxOccurs="unbounded" dfdl:lengthKind="delimited" dfdl:terminator=","
+								dfdl:occursCountKind="expression" dfdl:occursCount=" { ../../ex:ncols } " />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
 
 	</tdml:defineSchema>
 
@@ -314,6 +331,26 @@
 					<e1>3</e1>
 					<e2>538</e2>
 				</lke_02>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="ocke_rel" root="ocke"
+		model="expressions-Embedded.dfdl.xsd" description="">
+
+		<tdml:document>2,3,1,2,3,4,5,6,</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ocke>
+					<nrows>2</nrows>
+					<ncols>3</ncols>
+					<rows>
+						<cols>1</cols><cols>2</cols><cols>3</cols>
+					</rows>
+					<rows>
+						<cols>4</cols><cols>5</cols><cols>6</cols>
+					</rows>
+				</ocke>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
