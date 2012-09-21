@@ -23,5 +23,5 @@ class TestLengthPropertiesDebug extends JUnitSuite {
   val tdml_02 = testDir_02 + "LengthProperties.tdml"
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
   
-  @Test def test_LengthProp_01() { runner_02.runOneTest("LengthProp_01") }
+//  @Test def test_LengthProp_01() { runner_02.runOneTest("LengthProp_01") }
   }
