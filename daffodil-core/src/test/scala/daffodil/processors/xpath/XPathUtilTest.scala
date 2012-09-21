@@ -107,7 +107,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
     result match {
       case NodeResult(x) => x.getText() should equal("19")
       case _ => {
-        println(result)
+        // println(result)
         fail
       }
     }
@@ -138,7 +138,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
     result match {
       case NodeResult(x) => x.getText() should equal("19")
       case _ => {
-        println(result)
+        // println(result)
         fail
       }
     }
@@ -162,7 +162,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
     result match {
       case NodeResult(x) => x.getText() should equal("19")
       case _ => {
-        println(result)
+        // println(result)
         fail
       }
     }
@@ -192,7 +192,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
     result match {
       case StringResult(x) => x should equal("19")
       case _ => {
-        println(result)
+        // println(result)
         fail
       }
     }

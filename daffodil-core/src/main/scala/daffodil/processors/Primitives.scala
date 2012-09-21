@@ -478,7 +478,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
     val decoder = e.knownEncodingDecoder
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Debug) {
+      withLoggingLevel(LogLevel.Info) {
 
         val eName = e.toString()
 
@@ -1055,7 +1055,7 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Long) extends Terminal(e, 
     override def toString = gram.toString
 
     def unparse(start: UState): UState = {
-      setLoggingLevel(LogLevel.Debug)
+      setLoggingLevel(LogLevel.Info)
       val str = start.currentElement.getText //gets data from element being unparsed
 
       Assert.invariant(str != null) // worst case it should be empty string. But not null.
@@ -1250,7 +1250,7 @@ abstract class StaticText(delim: String, e: Term, kindString : String, guard: Bo
     val decoder = e.knownEncodingDecoder
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Debug) {
+      withLoggingLevel(LogLevel.Info) {
         val eName = e.toString()
 
         log(Debug(eName + " - Parsing delimiter at byte position: " + (start.bitPos >> 3)))

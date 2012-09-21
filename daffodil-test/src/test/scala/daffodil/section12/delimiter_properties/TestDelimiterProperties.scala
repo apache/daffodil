@@ -27,7 +27,7 @@ class TestDelimiterProperties extends JUnitSuite {
   val tdml_02 = testDir_02 + "DelimiterProperties.tdml"
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
   
-  @Test def test_DelimProp_01() = Debugger.withDebugger { runner_02.runOneTest("DelimProp_01") }
+  @Test def test_DelimProp_01() = { runner_02.runOneTest("DelimProp_01") }
   @Test def testParseSequence4() { runner_02.runOneTest("ParseSequence4") }
   @Test def testParseSequence5() { runner_02.runOneTest("ParseSequence5") }
   @Test def testParseSequence_4a() { runner_02.runOneTest("ParseSequence_4a") }
@@ -37,8 +37,8 @@ class TestDelimiterProperties extends JUnitSuite {
   @Test def test_DelimProp_05() { runner_02.runOneTest("DelimProp_05") }
   //@Test def test_DelimProp_06() { runner_02.runOneTest("DelimProp_06") }
   @Test def test_DelimProp_09() { runner_02.runOneTest("DelimProp_09") }
-  @Test def test_DelimProp_10() = Debugger.withDebugger {
+  @Test def test_DelimProp_10() = {
     runner_02.runOneTest("DelimProp_10") }
-  @Test def test_DelimProp_10_01() = Debugger.withDebugger { 
+  @Test def test_DelimProp_10_01() = { 
     runner_02.runOneTest("DelimProp_10_01") }
   }

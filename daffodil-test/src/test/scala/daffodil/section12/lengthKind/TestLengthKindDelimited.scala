@@ -17,11 +17,11 @@ class TestLengthKindDelimited extends JUnitSuite {
   val aa = testDir + "DelimitedTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
-  @Test def test_NumSeq_00a() = withDebugger { 
+  @Test def test_NumSeq_00a() =  { 
     runner.runOneTest("NumSeq_00a") }
-  @Test def test_NumSeq_00nl() = withDebugger { 
+  @Test def test_NumSeq_00nl() =  { 
     runner.runOneTest("NumSeq_00nl") }
-  @Test def test_NumSeq_01() = withDebugger { 
+  @Test def test_NumSeq_01() =  { 
     runner.runOneTest("NumSeq_01") }
   @Test def test_NumSeq_03() { runner.runOneTest("NumSeq_03") }
   @Test def test_NumSeq_04() { runner.runOneTest("NumSeq_04") }

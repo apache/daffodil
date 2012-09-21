@@ -142,7 +142,9 @@ class DelimParser extends RegexParsers {
     val thePattern: Parser[String] = pattern.r
     val entry = thePattern <~ opt(EOF)
 
-    val res = this.parse(this.log(entry)("DelimParser.parseInputPatterned"), input)
+    // FOR DEBUGGING might want this logging version
+    // val res = this.parse(this.log(entry)("DelimParser.parseInputPatterned"), input)
+    val res = this.parse(entry, input)
 
     var fieldResult = ""
     var delimiterResult = ""
@@ -168,7 +170,9 @@ class DelimParser extends RegexParsers {
 
     val entry = firstNChars //<~ anything // Technically shouldn't need to add anything, we only want the first nChars
 
-    val res = this.parse(this.log(entry)("DelimParser.parseInputNCharacters"), input)
+    // For debug can use this logging parser instead.
+    // val res = this.parse(this.log(entry)("DelimParser.parseInputNCharacters"), input)
+    val res = this.parse(entry, input)
 
     var fieldResult = ""
     var delimiterResult = ""
@@ -208,7 +212,10 @@ class DelimParser extends RegexParsers {
     //val entry = phrase((field ~ (seps | terms)))
     val delims: Parser[String] = (seps | terms)
     val entry = (field ~ (delims | (delims <~ opt(EOF)))) | (field ~ EOF)
-    val res = this.parse(this.log(entry)("DelimParser." + name), input)
+   
+    // FOR DEBUG: might want to use this logging variant.
+    // val res = this.parse(this.log(entry)("DelimParser." + name), input)
+    val res = this.parse(entry, input)
 
     var fieldResult = ""
     var delimiterResult = ""
@@ -248,7 +255,11 @@ class DelimParser extends RegexParsers {
     //val entry = (delim <~ opt(EOF))
     val entry = delimParser <~ opt(EOF)
 //    System.err.println("SRC: >>" + input.source + "<<" + " " + input.source.length())
-    val res = this.parse(this.log(entry)("DelimParser.parseInputDelimiter"), input)
+    
+    // FOR DEBUG: might want this logging variant
+    // val res = this.parse(this.log(entry)("DelimParser.parseInputDelimiter"), input)
+    val res = this.parse(entry, input)
+
 
     var fieldResult = ""
     var delimiterResult = ""
