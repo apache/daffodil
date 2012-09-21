@@ -696,7 +696,7 @@ trait LocalElementGrammarMixin { self : LocalElementBase =>
     val triple = (separatorSuppressionPolicy, occursCountKind, maxOccurs)
     val res = triple match {
       case (___________, Expression, ___) => separatedContentExactlyNComputed
-      case (Never______, Fixed_____, UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+      case (___________, Fixed_____, UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
       case (___________, Fixed_____, max) => separatedContentExactlyN(max)
       case (Never______, Implicit__, UNB) => SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' required bounded maxOccurs.")
       case (Never______, Implicit__, max) => separatedContentExactlyN(max)

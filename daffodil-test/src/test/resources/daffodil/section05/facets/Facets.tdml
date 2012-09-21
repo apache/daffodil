@@ -241,6 +241,46 @@
 		
 	</tdml:defineSchema>
 
+<!--
+	Schema name: facets-fixedUnboundedMax-schemaErr.dfdl.xsd
+	    Purpose: This schema tests the condition if maxOccurs is unbounded occursCountKind="fixed"
+-->
+
+	<tdml:defineSchema name="facets-fixedUnboundedMax-schemaErr.dfdl.xsd">
+		
+				<dfdl:format initiator="" terminator="" 
+				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
+				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
+				alignmentUnits="bytes" fillByte="f" 
+		   		occursCountKind="fixed" 
+				truncateSpecifiedLengthString="no" ignoreCase="no"
+				representation="text"  lengthKind="delimited"
+				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+				separatorPolicy="required" separatorPosition="infix"
+				
+				/>
+			
+		<xs:element name="basic" type="basicType" dfdl:lengthKind="implicit"/>
+		
+		<xs:complexType name="basicType">
+			<xs:sequence dfdl:separator="|">
+				<xs:element name="data" type="xs:int" dfdl:occursCountKind="fixed" minOccurs="2" maxOccurs="unbounded" dfdl:textNumberRep="standard"
+					dfdl:lengthKind="delimited" />
+			</xs:sequence>
+		</xs:complexType>
+		
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="">
+					<xs:element name="basic" type="basicType" dfdl:lenghtKind="implicit"/>
+					<xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		
+	</tdml:defineSchema>
 
 <!--
 	Schema name: facets-cell-min1max1.dfdl.xsd
@@ -580,9 +620,29 @@
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9|1|2|3|4|5]]></tdml:documentPart>
 		</tdml:document>
-		
+		 
 		<tdml:errors> 
 			<tdml:error />
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+<!--
+	Test name: fixedUnboundedMax
+	   Schema: facets-unboundedMax-schemaErr.dfdl.xsd
+	  Purpose: This test verifies that when occursCountKind is "fixed", there is a parsing error if maxOccurs is unbounded.
+-->
+		
+	<tdml:parserTestCase name="fixedUnboundedMax" root="root" model="facets-fixedUnboundedMax-schemaErr.dfdl.xsd"
+		description="Section 5 - minOccurs 2 maxOccurs 3 - DFDL-5-060R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[SDE]]></tdml:documentPart>
+		</tdml:document>
+		
+		<tdml:errors> 
+			<tdml:error>fixed</tdml:error>
+			<tdml:error>unbounded</tdml:error>
+			<tdml:error>maxOccurs</tdml:error>
 		</tdml:errors>
 	
 
