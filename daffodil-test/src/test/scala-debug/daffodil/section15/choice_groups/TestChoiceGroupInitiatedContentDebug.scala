@@ -21,5 +21,6 @@ class TestChoiceGroupInitiatedContentDebug extends JUnitSuite {
   @Test def test_5() { runner_01.runOneTest("initiatedContent5") }
   @Test def test_6() { runner_01.runOneTest("initiatedContent6") }
   @Test def test_8() { runner_01.runOneTest("initiatedContent8") }
+  @Test def test_9() { runner_01.runOneTest("initiatedContent9") }
 
 }
