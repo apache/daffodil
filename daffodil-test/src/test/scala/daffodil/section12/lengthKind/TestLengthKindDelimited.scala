@@ -31,6 +31,8 @@ class TestLengthKindDelimited extends JUnitSuite {
   @Test def test_NumSeq_08() { runner.runOneTest("NumSeq_08") }
   @Test def test_lengthKindDelimited_01() { runner.runOneTest("lengthKindDelimited_01") }
   @Test def test_lengthKindDelimited_02() { runner.runOneTest("lengthKindDelimited_02") }
+  //@Test def test_lengthKindDelimited_03() { runner.runOneTest("lengthKindDelimited_03") }
+  //@Test def test_lengthKindDelimited_04() { runner.runOneTest("lengthKindDelimited_04") }
   
   val ab = testDir + "AB.tdml"
   lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))

@@ -104,6 +104,22 @@
 	          </xs:sequence>
 	        </xs:complexType>
         </xs:element>
+        
+        <xs:element name="delim_02" dfdl:lengthKind="delimited">
+	        <xs:complexType>
+	          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:separatorPolicy="suppressed">
+	      		<xs:element name="s" type="xs:string" maxOccurs="5" dfdl:occursCountKind="implicit" dfdl:lengthKind="delimited" />
+	          </xs:sequence>
+	        </xs:complexType>
+        </xs:element>
+        
+        <xs:element name="delim_03" dfdl:lengthKind="delimited">
+	        <xs:complexType>
+	          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+	      		<xs:element name="s" type="xs:string" maxOccurs="5" dfdl:occursCountKind="implicit" dfdl:lengthKind="delimited" />
+	          </xs:sequence>
+	        </xs:complexType>
+        </xs:element>
 		
 	</tdml:defineSchema>
  
@@ -304,6 +320,40 @@
 					<s1>abcd</s1>
 					<s2>efg</s2>
 				</delim_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="lengthKindDelimited_03" root="delim_02"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - unused bytes - DFDL-12-048R">
+
+		<tdml:document>abc,defg,hijklm,no,pqrst,uvwxyz,hacdf</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<delim_02>
+					<s>abc</s>
+					<s>defg</s>
+					<s>hijklm</s>
+					<s>no</s>
+					<s>pqrst</s>
+				</delim_02>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="lengthKindDelimited_04" root="delim_03"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - unused bytes - DFDL-12-048R">
+
+		<tdml:document>abc,defg,hijklm,no,pqrst,uvwxyz,hacdf</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<delim_03>
+					<s>abc</s>
+					<s>defg</s>
+					<s>hijklm</s>
+					<s>no</s>
+					<s>pqrst</s>
+				</delim_03>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
