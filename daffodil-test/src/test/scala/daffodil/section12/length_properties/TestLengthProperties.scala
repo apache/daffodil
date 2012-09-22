@@ -28,4 +28,5 @@ class TestLengthProperties extends JUnitSuite {
   @Test def test_LengthProp_03() { runner_02.runOneTest("LengthProp_03") }
   @Test def test_LengthProp_04() { runner_02.runOneTest("LengthProp_04") }
   @Test def test_LengthProp_05() { runner_02.runOneTest("LengthProp_05") }
+  //@Test def test_LengthProp_06() { runner_02.runOneTest("LengthProp_06") }
   }

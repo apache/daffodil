@@ -60,6 +60,14 @@
 			<xs:restriction base="xs:string"/>
 		</xs:simpleType>
 		
+		<xs:element name="LP_06" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:lengthUnits="bytes"/>	
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
 	</tdml:defineSchema>
 	
 	<tdml:parserTestCase name="LengthProp_01" root="LP_01"
@@ -117,6 +125,17 @@
 			<tdml:infoset>
 				<tdml:dfdlInfoset>
 					<LP_05>3Ax</LP_05>
+				</tdml:dfdlInfoset>
+			</tdml:infoset>
+		</tdml:parserTestCase>
+		
+		<tdml:parserTestCase name="LengthProp_06" root="LP_06"
+		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-161R">
+
+			<tdml:document>3Ax57t</tdml:document>
+			<tdml:infoset>
+				<tdml:dfdlInfoset>
+					<LP_06><data>3Ax</data></LP_06>
 				</tdml:dfdlInfoset>
 			</tdml:infoset>
 		</tdml:parserTestCase>
