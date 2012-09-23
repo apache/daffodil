@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="SequenceGroup-Embedded.dfdl.xsd">
+		<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" encoding="utf-8" 
+			occursCountKind="parsed" separatorPolicy="suppressed" textNumberRep="standard" ignoreCase="no"
+			representation="text" lengthUnits="bytes" lengthKind="implicit" />
+
+		<xs:element name="SG_05">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"/>
+					<xs:element name="e2" type="xs:float" dfdl:lengthKind="explicit" dfdl:length="5"/>
+					<xs:element name="e3" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="4"/>
+				</xs:sequence>
+			</xs:complexType>	
+		</xs:element>
+	</tdml:defineSchema>
+
+		<tdml:parserTestCase name="SeqGrp_05"
+			model="SequenceGroup-Embedded.dfdl.xsd" description="Section 14 Sequence group with left over data - DFDL-14-008R"
+			root="SG_05">
+			<tdml:document>837742.8-1197108</tdml:document>
+			<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<SG_05>
+					<e1>837</e1>
+					<e2>742.8</e2>
+					<e3>-119</e3>
+				</SG_05>
+			</tdml:dfdlInfoset>
+			</tdml:infoset>
+		</tdml:parserTestCase>
+</tdml:testSuite>
