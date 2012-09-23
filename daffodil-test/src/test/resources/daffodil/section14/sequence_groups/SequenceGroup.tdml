@@ -24,7 +24,7 @@
 	</tdml:defineSchema>
 
 		<tdml:parserTestCase name="SeqGrp_05"
-			model="SequenceGroup-Embedded.dfdl.xsd" description="Section 14 Sequence group with left over data - DFDL-14-008R"
+			model="SequenceGroup-Embedded.dfdl.xsd" description="Section 14 Sequence group with left over data - DFDL-14-001R"
 			root="SG_05">
 			<tdml:document>837742.8-1197108</tdml:document>
 			<tdml:infoset>
