@@ -120,6 +120,15 @@
 	          </xs:sequence>
 	        </xs:complexType>
         </xs:element>
+        
+        <xs:element name="NS_08" dfdl:lengthKind="explicit" dfdl:length="20">
+        	<xs:complexType>
+			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+				dfdl:separator="," dfdl:separatorPolicy="suppressed">
+				<xs:element name="num" type="xs:int" maxOccurs="unbounded" dfdl:lengthKind="delimited"/>	
+			</xs:sequence>
+			</xs:complexType>
+		</xs:element>
 		
 	</tdml:defineSchema>
  
@@ -354,6 +363,23 @@
 					<s>no</s>
 					<s>pqrst</s>
 				</delim_03>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="NumSeq_09" root="NS_08"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="an enclosing element of a known length - DFDL-12-044R">
+
+		<tdml:document>123,2789,30,408,52283,22,66210</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<NS_08>
+					<num>123</num>
+					<num>2789</num>
+					<num>30</num>
+					<num>408</num>
+					<num>5228</num>
+				</NS_08>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
