@@ -69,8 +69,11 @@ object DaffodilBuild extends Build {
 	
 	// creates 'sbt debug' task, which is essentially an alias for 'sbt debug:test'
 	lazy val debugTask = TaskKey[Unit]("debug", "Executes all debug tests")
-	lazy val debugTaskSettings = debugTask <<= (executeTests in DebugTest, streams in DebugTest) map {
-		(results, s) => Tests.showResults(s.log, results)
+	lazy val debugTaskSettings = debugTask <<= (executeTests in DebugTest, streams in DebugTest, resolvedScoped in DebugTest, state in DebugTest) map {
+		(results, s, scoped, state) => {
+			val display = Project.showContextKey(state)
+			Tests.showResults(s.log, results, "No tests to run for " + display(scoped))
+		}
 	}
 	s ++= Seq(debugTaskSettings)
 
@@ -85,8 +88,11 @@ object DaffodilBuild extends Build {
 	
 	// creates 'sbt new' task, which is essentially an alias for 'sbt new:test'
 	lazy val newTask = TaskKey[Unit]("new", "Executes all new tests")
-	lazy val newTaskSettings = newTask <<= (executeTests in NewTest, streams in NewTest) map {
-		(results, s) => Tests.showResults(s.log, results)
+	lazy val newTaskSettings = newTask <<= (executeTests in NewTest, streams in NewTest, resolvedScoped in NewTest, state in NewTest) map {
+		(results, s, scoped, state) => {
+			val display = Project.showContextKey(state)
+			Tests.showResults(s.log, results, "No tests to run for " + display(scoped))
+		}
 	}
 	s ++= Seq(newTaskSettings)
 

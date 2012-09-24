@@ -21,9 +21,9 @@ required though, so Daffodil should be able to run in other platforms as long
 as Java is installed.
 
 
-SBT (11.3 or higher) is required for building using the provided script.
+SBT (0.12.1 or higher) is required for building using the provided script.
 
-Daffodil is written in Scala 2.9.1
+Daffodil requires Scala 2.9.2
 
 ----------------
 RUNNING
