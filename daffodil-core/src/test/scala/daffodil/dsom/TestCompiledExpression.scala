@@ -1,17 +1,18 @@
 package daffodil.dsom
 
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import daffodil.xml._
 import daffodil.processors._
 import daffodil.compiler._
 import daffodil.processors.xpath._
 import junit.framework.Assert._
+import org.junit.Test
 
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
  */
-class TestCompiledExpression extends JUnit3Suite {
+class TestCompiledExpression extends JUnitSuite {
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE
@@ -22,7 +23,7 @@ class TestCompiledExpression extends JUnit3Suite {
                        <element name="root" type="xs:string"/>
                      </schema>
   
- def testCompiledPathEvaluation() { 
+ @Test def testCompiledPathEvaluation() { 
     
     val r = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
     val sset = new SchemaSet(testSchema)
@@ -50,7 +51,7 @@ class TestCompiledExpression extends JUnit3Suite {
     assertEquals("19", r3value)
   }
  
-  def testCompiledPathConstant() { 
+  @Test def testCompiledPathConstant() { 
     
     val root = null // won't be used.
     val sset = new SchemaSet(testSchema)
@@ -83,7 +84,7 @@ class TestCompiledExpression extends JUnit3Suite {
   /**
    * Test XPath evaluator, with no namespace specified on the XML or on the paths
    */
-  def testCompiledAbsolutePathEvaluation1() { 
+  @Test def testCompiledAbsolutePathEvaluation1() { 
     
     val r = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
     val sset = new SchemaSet(testSchema)
@@ -99,7 +100,7 @@ class TestCompiledExpression extends JUnit3Suite {
     
   }
       
-  def testCompiledRelativePathEvaluation1() { 
+  @Test def testCompiledRelativePathEvaluation1() { 
     
     val r = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
     val sset = new SchemaSet(testSchema)
@@ -117,7 +118,7 @@ class TestCompiledExpression extends JUnit3Suite {
     
   }
   
-   def testCompiledRelativePathEvaluation2() { 
+   @Test def testCompiledRelativePathEvaluation2() { 
     
     val r = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
     val sset = new SchemaSet(testSchema)
@@ -135,7 +136,7 @@ class TestCompiledExpression extends JUnit3Suite {
     
   }
    
-  def testCompiledRelativePathEvaluation3() { 
+  @Test def testCompiledRelativePathEvaluation3() { 
     
     val r = XMLUtils.elem2Element(<data><e1>42</e1><e2/></data>)
     val sset = new SchemaSet(testSchema)
@@ -153,7 +154,7 @@ class TestCompiledExpression extends JUnit3Suite {
     
   }
   
-  def testCompiledRelativePathEvaluation4() {
+  @Test def testCompiledRelativePathEvaluation4() {
 
     val testSchema = <xs:schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
                        <xs:element name="data">
@@ -183,7 +184,7 @@ class TestCompiledExpression extends JUnit3Suite {
     
   }
   
-  def testCompiledRelativePathEvaluation5() {
+  @Test def testCompiledRelativePathEvaluation5() {
 
     val testSchema = <xs:schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
                        <xs:element name="data">
@@ -221,7 +222,7 @@ class TestCompiledExpression extends JUnit3Suite {
   }
   
   
-  def testCompiledRelativePathEvaluation6() {
+  @Test def testCompiledRelativePathEvaluation6() {
 
     // Note: removed targetNamespace={ example }. 
     val testSchema = <xs:schema xmlns={ xsd }  xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi }>

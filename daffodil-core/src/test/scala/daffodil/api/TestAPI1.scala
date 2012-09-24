@@ -1,18 +1,17 @@
 package daffodil.api
 
 import junit.framework.Assert._
-
-import org.scalatest.junit.JUnit3Suite
-
+import org.scalatest.junit.JUnitSuite
 import scala.xml._
 import daffodil.xml.XMLUtils
 import daffodil.xml.XMLUtils._
 import daffodil.compiler.Compiler
 import daffodil.util._
+import org.junit.Test
 
-class TestDFDLParser extends JUnit3Suite {
+class TestDFDLParser extends JUnitSuite {
 
-  def testParseSimple1() {
+  @Test def testParseSimple1() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
@@ -25,7 +24,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  def testParseSequenceOfJustOneScalar() {
+  @Test def testParseSequenceOfJustOneScalar() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -43,7 +42,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  def testParseSequence1() {
+  @Test def testParseSequence1() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -62,7 +61,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  def testParseSequence2() {
+  @Test def testParseSequence2() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1">
@@ -80,7 +79,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  def testParseSequence3() {
+  @Test def testParseSequence3() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format separatorPolicy="required" separatorPosition="infix" ref="tns:daffodilTest1"/>,
       <xs:element name="e1">
@@ -98,7 +97,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  def testParseSequence4() {
+  @Test def testParseSequence4() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format separatorPolicy="required" separatorPosition="infix" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:initiator="[" dfdl:terminator="]">
@@ -121,7 +120,7 @@ class TestDFDLParser extends JUnit3Suite {
    * Shows that simple expressions like 1 + 1 get evaluated to constants
    * Shows that initiator and terminator work on a sequence as well as on elements.
    */
-  def testParseSequence5() {
+  @Test def testParseSequence5() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format separatorPolicy="required" separatorPosition="infix" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:initiator="[more[" dfdl:terminator="]nomore]">
@@ -139,7 +138,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  def testInt1() {
+  @Test def testInt1() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
@@ -154,7 +153,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(<e1><s1>5</s1><s2>5000</s2></e1>, actual)
   }
 
-  def testInt2() {
+  @Test def testInt2() {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
@@ -172,7 +171,7 @@ class TestDFDLParser extends JUnit3Suite {
     assertTrue(e.getMessage().contains("xs:int"))
   }
 
-  def testShort1() {
+  @Test def testShort1() {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
@@ -187,7 +186,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(<e1><s1>5</s1><s2>5000</s2></e1>, actual)
   }
 
-  def testShort2() {
+  @Test def testShort2() {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
@@ -204,7 +203,7 @@ class TestDFDLParser extends JUnit3Suite {
     assertTrue(e.getMessage().contains("xs:short"))
   }
 
-  def testByte1() {
+  @Test def testByte1() {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
@@ -219,7 +218,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(<e1><s1>55</s1><s2>123</s2></e1>, actual)
   }
 
-  def testNumber1() {
+  @Test def testNumber1() {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
@@ -236,7 +235,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(<e1><country>1</country><area>-800</area><region>-555</region><number>-1212</number></e1>, actual)
   }
 
-  def testNumber2() {
+  @Test def testNumber2() {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="mersenne" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
@@ -244,7 +243,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(<mersenne>-127</mersenne>, actual)
   }
 
-  def testNumber3() {
+  @Test def testNumber3() {
     val sch = TestUtils.dfdlTestSchema(
         <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="perfect" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
@@ -252,7 +251,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(<perfect>3</perfect>, actual)
   }
 
-  def testUnsignedLong1() {
+  @Test def testUnsignedLong1() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="needs-square-root" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
@@ -263,7 +262,7 @@ class TestDFDLParser extends JUnit3Suite {
     assertTrue(e.getMessage().contains("xs:unsignedLong"))
   }
 
-  def testUnsignedInt1() {
+  @Test def testUnsignedInt1() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="world-population" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>)
@@ -275,7 +274,7 @@ class TestDFDLParser extends JUnit3Suite {
     assertTrue(e.getMessage().contains("xs:unsignedInt"))
   }
 
-  def testUnsignedShort1() {
+  @Test def testUnsignedShort1() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="last-element-indicator" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
@@ -286,7 +285,7 @@ class TestDFDLParser extends JUnit3Suite {
     assertTrue(e.getMessage().contains("xs:unsignedShort"))
   }
 
-  def testUnsignedByte1() {
+  @Test def testUnsignedByte1() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="bits" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>)
@@ -298,7 +297,7 @@ class TestDFDLParser extends JUnit3Suite {
   }
 
   // TEST FAILS - SEE JIRA DFDL-184
-//  def testIntTooLong() {
+//  @Test def testIntTooLong() {
 //    val sch = TestUtils.dfdlTestSchema(
 //      <dfdl:format ref="tns:daffodilTest1"/>,
 //      <xs:element name="e1" dfdl:lengthKind="explicit">
@@ -314,7 +313,7 @@ class TestDFDLParser extends JUnit3Suite {
 //    //println("ERROR!!!!!" + e.getMessage())//    assertTrue(e.getMessage().contains("xs:int"))
 //  }
 
-  def testParseSequenceInt() {
+  @Test def testParseSequenceInt() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format separatorPolicy="required" separatorPosition="infix" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:initiator="[[" dfdl:terminator="]]">
@@ -332,7 +331,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
   
-  def testBadInt() {
+  @Test def testBadInt() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>)
@@ -343,7 +342,7 @@ class TestDFDLParser extends JUnit3Suite {
     assertTrue(e.getMessage().contains("xs:int"))
   }
   
-  def testParseOccursCountKindOfParsed() {
+  @Test def testParseOccursCountKindOfParsed() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -359,7 +358,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  def testParseOccursCountKindOfParsedWithTerminator() {
+  @Test def testParseOccursCountKindOfParsedWithTerminator() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -375,7 +374,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
   
-  def testParseOccursCountKindOfParsedDelimitedByTerminator() {
+  @Test def testParseOccursCountKindOfParsedDelimitedByTerminator() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -391,7 +390,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
   
-  def testParseOccursCountKindOfParsedDelimitedByTerminator2() {
+  @Test def testParseOccursCountKindOfParsedDelimitedByTerminator2() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:terminator=".">
@@ -406,7 +405,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
   
-  def testParseOccursCountKindOfParsedDelimitedBySeparator() {
+  @Test def testParseOccursCountKindOfParsedDelimitedBySeparator() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:terminator=".">
@@ -421,7 +420,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
   
-  def testBinaryInts() {
+  @Test def testBinaryInts() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -437,7 +436,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)    
   }
   
-  def testBinaryDoubles() {
+  @Test def testBinaryDoubles() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -453,7 +452,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  def testTextDoubles() {
+  @Test def testTextDoubles() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
@@ -470,7 +469,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  def testBinaryFloats() {
+  @Test def testBinaryFloats() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -486,7 +485,7 @@ class TestDFDLParser extends JUnit3Suite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  def testTextFloats() {
+  @Test def testTextFloats() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">

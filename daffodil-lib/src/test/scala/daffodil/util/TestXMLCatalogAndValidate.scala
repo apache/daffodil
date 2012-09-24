@@ -2,7 +2,7 @@
 //
 //import scala.xml._
 //import junit.framework.Assert._;
-//import org.scalatest.junit.JUnit3Suite;
+//import org.scalatest.junit.JUnitSuite;
 //import java.io.StringReader;
 //import java.io.InputStreamReader;
 //import java.io.File
@@ -58,7 +58,7 @@
  * and data, and then runs tests, then cleans up the files. This pattern will be 
  * prevalent in tests for Daffodil generally.
  */
-//class TestXMLCatalogAndValidate extends JUnit3Suite {
+//class TestXMLCatalogAndValidate extends JUnitSuite {
 //
 //  val tdml = XMLUtil.TDML_NAMESPACE
 //  val dfdl = XMLUtil.DFDL_NAMESPACE
@@ -69,7 +69,7 @@
 //  val ex2 = example + "2"
 //  val sub = XMLUtil.DFDL_XMLSCHEMASUBSET_NAMESPACE
 //
-//  def test1() {
+//  @Test def test1() {
 //    val testSchema =
 //      <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
 //        <element name="data" type="xsd:int"/>
@@ -125,7 +125,7 @@
 //    }
 //  }
 //
-//  def test2() {
+//  @Test def test2() {
 //    val tmpSchema1FileName = getClass.getName() + "1.xsd"
 //    val tmpSchema2FileNamePart = getClass.getName() + "2.xsd"
 //    val tmpSchema2FileName = "lib/" + tmpSchema2FileNamePart

@@ -2,11 +2,11 @@ package daffodil.xml.test.unit
 
 import scala.xml._
 import junit.framework.Assert._
-import org.scalatest.junit.JUnit3Suite
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import org.scalatest.junit.JUnitSuite
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.util.Arrays;
+import org.junit.Test
 
 /**
  * These tests characterize utf-8 and utf-16 character set conversion behavior
@@ -20,9 +20,9 @@ import java.util.Arrays;
  * Really great converter site: http://rishida.net/tools/conversion/
  */
 
-class TestUTF8AndUTF16Conversions extends JUnit3Suite {
+class TestUTF8AndUTF16Conversions extends JUnitSuite {
 
-  def testDecoding() {
+  @Test def testDecoding() {
     // This is dollar sign, cents sign, euro symbol, 
     // and a 3-byte unicode whitespace character (which has been problematic
     // some places we think)
@@ -33,13 +33,13 @@ class TestUTF8AndUTF16Conversions extends JUnit3Suite {
     assertEquals(9, bytes.length)
   }
   
-  def testEquality() {
+  @Test def testEquality() {
     val data = <data><d>&#x24;</d></data>
     val data2 = <data><d>$</d></data>
     assertEquals(data2, data)
   }
   
-  def testSupplementalCharSurrogates() {
+  @Test def testSupplementalCharSurrogates() {
     // U+1d420 is a script capital A which is part of the unicode supplemental characters
     // which requires a surrogate pair in the JVM/Java/Scala, and 4 bytes of UTF-8 representation.
     val data = <data>&#x1d420;</data>
@@ -59,7 +59,7 @@ class TestUTF8AndUTF16Conversions extends JUnit3Suite {
    * (total of 6 bytes for the character) instead of the more modern
    * (and required!) 4-byte utf-8 encoding.
    */
-  def testReadSurrogateCodePointsLikeCharacters() {
+  @Test def testReadSurrogateCodePointsLikeCharacters() {
 
     val data = <data>&#xd835;&#xdcd0;</data> //technically, this is illegal.
     val str = data.child.text

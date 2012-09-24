@@ -3,8 +3,8 @@ package daffodil.grammar
 
 
 import junit.framework.Assert._
-
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
+import org.junit.Test
 
 
 
@@ -14,17 +14,16 @@ import org.scalatest.junit.JUnit3Suite
  * It is important that the Eclipse IDE make it convenient to run the unit tests, step the user directly to the point
  * of failure, etc.
  *
- * Scalatest doesn't do this directly, but using it driven by JUnit3 does. 
+ * Scalatest doesn't do this directly, but using it driven by JUnit does. 
  *
- * So I'm advocating that a much more vanilla approach be taken to unit tests. Straight use of Junit3.
+ * So I'm advocating that a much more vanilla approach be taken to unit tests. Straight use of Junit.
  *
  * Here is an example. Some simple tests, some that intercept exceptions, and demonstrate that the intercept
  * device works properly.
  */
-class HowToUseJUnit extends JUnit3Suite {
+class HowToUseJUnit extends JUnitSuite {
 
-  // @Test
-  def test() {
+  @Test def test() {
     assertEquals(42, 6 * 7)
     assertTrue(42 == 6 * 7)
     if (42 != 6 * 7) 
@@ -35,8 +34,7 @@ class HowToUseJUnit extends JUnit3Suite {
     throw new NumberFormatException()
   }
 
-  // @Test
-  def testOfInterceptToTestExpectedThrows() {
+  @Test def testOfInterceptToTestExpectedThrows() {
     intercept[NumberFormatException] {
       //println("here we are")
       somethingThatThrows()

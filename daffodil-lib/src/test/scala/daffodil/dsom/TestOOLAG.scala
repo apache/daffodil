@@ -2,11 +2,12 @@ package daffodil.dsom
 
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import daffodil.dsom.OOLAG._
 import daffodil.util.LoggingDefaults
 import daffodil.util.LogLevel
 import daffodil.util.LogLevel
+import org.junit.Test
 
 class MyHost extends OOLAGHost {
   def LV = LVFactory(this)
@@ -55,9 +56,9 @@ class MyHost extends OOLAGHost {
 }
 
 
-class TestOOLAG extends JUnit3Suite {
+class TestOOLAG extends JUnitSuite {
   
-  def testSuccessLazyVal () {
+  @Test def testSuccessLazyVal () {
     val h = new MyHost
     // println("get the LV")
     val a1LV = h.a1
@@ -68,7 +69,7 @@ class TestOOLAG extends JUnit3Suite {
     assertFalse(h.a1.isError)
   }
     
-  def testFailLazyVal () {
+  @Test def testFailLazyVal () {
     val h = new MyHost
     // println("ask host for the LV")
     val a2LV = h.a2
@@ -90,7 +91,7 @@ class TestOOLAG extends JUnit3Suite {
    * scala compilation model evolves. So if these tests break, then search
    * OOLAG.scala for "magic number" and see what is going on there.
    */
-  def testLVName() {
+  @Test def testLVName() {
     val h = new MyHost
     // println("ask for the value")
     val a3 : String = h.a3.value
@@ -103,7 +104,7 @@ class TestOOLAG extends JUnit3Suite {
   /**
    * Make sure one LV calling another doesn't confuse things.
    */
-  def testLVName2() {
+  @Test def testLVName2() {
     val h = new MyHost
     // println("ask for the value")
     val a4 : String = h.a4.value

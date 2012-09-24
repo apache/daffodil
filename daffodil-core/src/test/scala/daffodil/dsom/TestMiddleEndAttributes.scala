@@ -2,22 +2,21 @@ package daffodil.dsom
 
 import daffodil.xml.XMLUtils
 import scala.xml._
-
-import org.scalatest.junit.JUnit3Suite
-
+import org.scalatest.junit.JUnitSuite
 import daffodil.schema.annotation.props.gen._
 import daffodil.schema.annotation.props._
 import junit.framework.Assert._
 import daffodil.util._
 import daffodil.compiler._
+import org.junit.Test
 
-class TestMiddleEndAttributes extends JUnit3Suite {
+class TestMiddleEndAttributes extends JUnitSuite {
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
-  def testHasPriorRequiredSiblings {
+  @Test def testHasPriorRequiredSiblings {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -47,7 +46,7 @@ class TestMiddleEndAttributes extends JUnit3Suite {
 
   }
 
-  def testDoesNotHavePriorRequiredSiblings {
+  @Test def testDoesNotHavePriorRequiredSiblings {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -77,7 +76,7 @@ class TestMiddleEndAttributes extends JUnit3Suite {
 
   }
 
-  def testRequiredSiblings {
+  @Test def testRequiredSiblings {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -120,7 +119,7 @@ class TestMiddleEndAttributes extends JUnit3Suite {
     assertTrue(s5.hasPriorRequiredSiblings)
   }
   
-  def testStaticallyFirstWithChoice {
+  @Test def testStaticallyFirstWithChoice {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -159,7 +158,7 @@ class TestMiddleEndAttributes extends JUnit3Suite {
     assertTrue(!s2.hasPriorRequiredSiblings)
   }
   
-  def testNearestEnclosingSequenceElementRef () {
+  @Test def testNearestEnclosingSequenceElementRef () {
      val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>

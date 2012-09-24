@@ -16,14 +16,14 @@ import java.io.ByteArrayInputStream
 import java.util.ArrayList
 import java.math.BigInteger
 import org.jdom._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import daffodil.xml.XMLUtils
+import org.junit.Test
 
-class SaxonWorkingTest extends JUnit3Suite with XPathVariableResolver with NamespaceContext {
+class SaxonWorkingTest extends JUnitSuite with XPathVariableResolver with NamespaceContext {
  
-   // @Test
-    def testTrivialExpression1() {
+    @Test def testTrivialExpression1() {
         val xpf = XPathFactory.newInstance(NamespaceConstant.OBJECT_MODEL_SAXON);
         val xpe = xpf.newXPath();
         // System.err.println("Loaded XPath Provider " + xpe.getClass().getName());
@@ -46,8 +46,7 @@ class SaxonWorkingTest extends JUnit3Suite with XPathVariableResolver with Names
   
     }
 
-    // @Test
-    def testTrivialExpression2() {
+    @Test def testTrivialExpression2() {
         System.setProperty("javax.xml.xpath.XPathFactory:"+NamespaceConstant.OBJECT_MODEL_JDOM,"net.sf.saxon.xpath.XPathFactoryImpl")
         val xpf = XPathFactory.newInstance(NamespaceConstant.OBJECT_MODEL_JDOM)
         val xpe = xpf.newXPath();
@@ -78,7 +77,7 @@ class SaxonWorkingTest extends JUnit3Suite with XPathVariableResolver with Names
     // can't be turned into a double, but this check is just because the addition requires the values to be coerced 
     // to double to do arithmetic.
     //
-//    def testXSITypeCheck1() {
+//    @Test def testXSITypeCheck1() {
 //        System.setProperty("javax.xml.xpath.XPathFactory:"+NamespaceConstant.OBJECT_MODEL_JDOM,"net.sf.saxon.xpath.XPathFactoryImpl")
 //        val xpf = XPathFactory.newInstance(NamespaceConstant.OBJECT_MODEL_JDOM)
 //        val xpe = xpf.newXPath();          xpe.setXPathVariableResolver(this);

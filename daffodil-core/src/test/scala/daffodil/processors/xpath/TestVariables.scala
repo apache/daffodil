@@ -3,15 +3,16 @@ package daffodil.processors.xpath
 import scala.math.Pi
 import daffodil.processors.VariableMap
 import daffodil.xml._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import daffodil.tdml.DFDLTestSuite
 import daffodil.processors._
 import daffodil.dsom._
 import javax.xml.xpath.XPathConstants
 import daffodil.debugger.Debugger
+import org.junit.Test
 
-class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
+class TestVariables extends JUnitSuite with WithParseErrorThrowing {
   val tdml = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE
@@ -21,7 +22,7 @@ class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
 
   val context : SchemaComponent = Fakes.xsd_sd
   
-//  def testVariables1() {
+//  @Test def testVariables1() {
 //
 //    val text = new org.jdom.Text("19")
 //    val root = new org.jdom.Element("root")
@@ -64,8 +65,8 @@ class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
       </tdml:parserTestCase>
     </tdml:testSuite>
 
-  // @Test
-  def testVariables2() {
+
+  @Test def testVariables2() {
     val testSuite = variables2
     lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testVariables2")
@@ -101,8 +102,7 @@ class TestVariables extends JUnit3Suite with WithParseErrorThrowing {
       </tdml:parserTestCase>
     </tdml:testSuite>
 
-  // @Test
-  def testVariables3() {
+  @Test def testVariables3() {
     // Debugger.setDebugging(true)
     val testSuite = variables3
     lazy val ts = new DFDLTestSuite(testSuite)

@@ -5,17 +5,18 @@ import org.jdom.Element
 import org.jdom.Text
 import daffodil.processors.VariableMap
 import daffodil.xml._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
+import org.junit.Test
 
 
-class XPathUtilTest2 extends JUnit3Suite {
+class XPathUtilTest2 extends JUnitSuite {
 
  
   /**
    * Test that uses default namespace, not no-namespace.
    */
-   def testXPathWithDefaultNS1() { 
+   @Test def testXPathWithDefaultNS1() { 
     
     // <root xmlns="urn:foobarNS><child1>19</child1></root>
     val text = new Text("19")
@@ -40,7 +41,7 @@ class XPathUtilTest2 extends JUnit3Suite {
     }
   }
    
-    def testXPathWithNoNamespace() { 
+    @Test def testXPathWithNoNamespace() { 
     
     // <root xmlns="urn:foobarNS><child1>19</child1></root>
     val text = new Text("19")
@@ -68,7 +69,7 @@ class XPathUtilTest2 extends JUnit3Suite {
    /**
     * Variation just gets the namespace by way of the root.getNamespace() call. 
     */
-  def testXPathWithDefaultNS2() { 
+  @Test def testXPathWithDefaultNS2() { 
     
     // <root xmlns="urn:foobarNS><child1>19</child1></root>
     val text = new Text("19")

@@ -1,6 +1,6 @@
 package daffodil.parser
 
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import scala.collection.mutable.Queue
 import java.util.regex.Pattern
@@ -11,14 +11,15 @@ import javax.xml.transform.stream.StreamSource
 import java.io.File
 import java.nio.charset.Charset
 import java.net.URI
+import org.junit.Test
 
-class TestParsingBehaviors extends JUnit3Suite {
+class TestParsingBehaviors extends JUnitSuite {
 
   val testFileDir = "/test/"
 
   val rsrcAB007 = Misc.getRequiredResource(testFileDir + "AB007.in")
 
-  def testEscapeCharacterRemoval_Same = {
+  @Test def testEscapeCharacterRemoval_Same = {
     // escape and escapeEscape are the same
     val input0 = "texttexttext"
     val input1 = "text1//text2"
@@ -47,7 +48,7 @@ class TestParsingBehaviors extends JUnit3Suite {
     assertEquals(",text1", d.removeEscapeCharacters(input10, "/", '/', ","))
   }
 
-  def testEscapeCharacterRemoval_Diff = {
+  @Test def testEscapeCharacterRemoval_Diff = {
     // different escape and escapeEscape characters
     val input0 = "texttexttext"
     val input1 = "text1%/text2"
@@ -84,7 +85,7 @@ class TestParsingBehaviors extends JUnit3Suite {
     assertEquals("text1/%text2", d.removeEscapeCharacters(input14, "%", '/', ","))
   }
 
-  def testEscapeCharacterRemoval_Diff_MultiCharDelim = {
+  @Test def testEscapeCharacterRemoval_Diff_MultiCharDelim = {
     val d = new delimsearch.DelimParser
     val input0 = "text1/septext2"
     val input1 = "text1%//septext2"
@@ -95,7 +96,7 @@ class TestParsingBehaviors extends JUnit3Suite {
     assertEquals("septext1text2", d.removeEscapeCharacters(input2, "%", '/', "sep"))
   }
 
-  def testEscapeBlockRemoval_Diff = {
+  @Test def testEscapeBlockRemoval_Diff = {
     // Different Start/End characters
     val qInputOutput = Queue.empty[(String, String)]
     val qOutput = Queue.empty[String]
@@ -144,7 +145,7 @@ class TestParsingBehaviors extends JUnit3Suite {
     })
   }
 
-  def testEscapeBlockRemoval_Same = {
+  @Test def testEscapeBlockRemoval_Same = {
     // Same Start/End characters
     val qInputOutput = Queue.empty[(String, String)]
     val qOutput = Queue.empty[String]
@@ -193,7 +194,7 @@ class TestParsingBehaviors extends JUnit3Suite {
     })
   }
 
-  def testParseSingleFieldFromAB007 = {
+  @Test def testParseSingleFieldFromAB007 = {
     ////println(System.getProperty("user.dir"))
     //val channel = new FileInputStream(testFileDir + "AB007.in").getChannel()
     val channel = new FileInputStream(new File(new URI(rsrcAB007.toString()))).getChannel()
@@ -216,7 +217,7 @@ class TestParsingBehaviors extends JUnit3Suite {
     assertEquals(",", res.delimiter)
   }
 
-  def testParsingEscapeSchemeBlockAtStart = {
+  @Test def testParsingEscapeSchemeBlockAtStart = {
     // Valid escapeBlockStart and escapeBlockEnd
     // escBS starts at beginning of field AND
     // escBE ends immediately followed by a delimiter.
@@ -239,7 +240,7 @@ class TestParsingBehaviors extends JUnit3Suite {
     assertEquals(17, res.numBytes)
   }
 
-  def testParsingEscapedEscapeSchemeBlockAtStart = {
+  @Test def testParsingEscapedEscapeSchemeBlockAtStart = {
     // Not a valid escapeBlockStart as it does not start
     // at the beginning of the field
     //
@@ -261,7 +262,7 @@ class TestParsingBehaviors extends JUnit3Suite {
     assertEquals(11, res.numBytes)
   }
 
-  def testParsingEscapeSchemeBlockInMiddle = {
+  @Test def testParsingEscapeSchemeBlockInMiddle = {
     // Not a valid escapeBlockStart as it does not start
     // at the beginning of the field
     //
@@ -283,7 +284,7 @@ class TestParsingBehaviors extends JUnit3Suite {
     assertEquals(13, res.numBytes)
   }
 
-  def testParsingEscapeSchemeBlock_PartialBlock = {
+  @Test def testParsingEscapeSchemeBlock_PartialBlock = {
     // Because there are no full escape blocks, we expect this to parse
     // normally
     //
@@ -305,7 +306,7 @@ class TestParsingBehaviors extends JUnit3Suite {
     assertEquals(11, res.numBytes)
   }
 
-  def testParsingEscapeSchemeBlock_NoBlocks = {
+  @Test def testParsingEscapeSchemeBlock_NoBlocks = {
     // Because there are no escape blocks, we expect this to parse
     // normally
     //
@@ -327,7 +328,7 @@ class TestParsingBehaviors extends JUnit3Suite {
     assertEquals(10, res.numBytes)
   }
 
-  def testParsingEscapeSchemeCharacter_NoEscapes = {
+  @Test def testParsingEscapeSchemeCharacter_NoEscapes = {
     // Because there are no escapes present we expect
     // this to parse normally.
     //
@@ -347,7 +348,7 @@ class TestParsingBehaviors extends JUnit3Suite {
     assertEquals(3, res.numBytes)
   }
 
-  def testParsingEscapeSchemeCharacter_UnescapedEscape = {
+  @Test def testParsingEscapeSchemeCharacter_UnescapedEscape = {
 
     val charset: Charset = Charset.defaultCharset()
     val r = new CharSequenceReader("abc/:def:ghi") // Input 1
@@ -365,7 +366,7 @@ class TestParsingBehaviors extends JUnit3Suite {
     assertEquals(8, res.numBytes)
   }
 
-  def testParsingEscapeSchemeCharacter_EscapedEscape = {
+  @Test def testParsingEscapeSchemeCharacter_EscapedEscape = {
 
     val charset: Charset = Charset.defaultCharset()
     val r = new CharSequenceReader("abc//:def:ghi") // Input 1

@@ -1,8 +1,9 @@
 package daffodil.dsom
 
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import daffodil.processors._
 import daffodil.compiler._
+import org.junit.Test
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,9 +13,9 @@ import daffodil.compiler._
  * To change this template use File | Settings | File Templates.
  */
 
-//class TestBufferAllocations extends JUnit3Suite {
+//class TestBufferAllocations extends JUnitSuite {
 //
-////  def testMakeTooSmallBufferAndRead() {
+////  @Test def testMakeTooSmallBufferAndRead() {
 ////    var in = Compiler.stringToReadableByteChannel("One Two Three Four, Can I have a little more, Five Six Seven Eight Nine Ten I love you!")
 ////    val inStream = new InStreamFromByteChannel(null, in, 3)
 ////    // This should not be true as the byte buffer should have spare capacity at the end meaning it read everything

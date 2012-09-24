@@ -4,7 +4,7 @@ import daffodil.xml.XMLUtils
 import daffodil.util._
 import scala.xml._
 import daffodil.compiler._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import daffodil.schema.annotation.props.gen._
 import daffodil.schema.annotation.props._
 import daffodil.util.Misc
@@ -15,8 +15,9 @@ import java.nio.channels.WritableByteChannel
 import java.io.FileWriter
 import java.io.File
 import java.nio.ByteBuffer
+import org.junit.Test
 
-class TestDsomCompiler2 extends JUnit3Suite with Logging {
+class TestDsomCompiler2 extends JUnitSuite with Logging {
 
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
@@ -35,8 +36,7 @@ class TestDsomCompiler2 extends JUnit3Suite with Logging {
 
 
 
-  // @Test
-  def testUnparseChoice1() {
+  @Test def testUnparseChoice1() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
 
@@ -70,8 +70,7 @@ class TestDsomCompiler2 extends JUnit3Suite with Logging {
     Compiler.testUnparsing(testSchema, infoset, "567,word,choice1:203867")
   }
 
-  // @Test
-  def testUnparseChoice2() {
+  @Test def testUnparseChoice2() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
 

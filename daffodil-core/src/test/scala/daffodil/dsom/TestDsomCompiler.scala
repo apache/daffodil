@@ -4,7 +4,7 @@ import daffodil.xml.XMLUtils
 import daffodil.util._
 import scala.xml._
 import daffodil.compiler._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import daffodil.schema.annotation.props.gen._
 import daffodil.schema.annotation.props._
 import daffodil.util.Misc
@@ -15,8 +15,9 @@ import java.nio.channels.WritableByteChannel
 import java.io.FileWriter
 import java.io.File
 import java.nio.ByteBuffer
+import org.junit.Test
 
-class TestDsomCompiler extends JUnit3Suite with Logging {
+class TestDsomCompiler extends JUnitSuite with Logging {
 
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
@@ -33,8 +34,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     found
   }
 
-  // @Test
-  def testHasProps() {
+  
+  @Test def testHasProps() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="list" type="tns:example1"/>
@@ -58,8 +59,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertEquals(TextNumberRep.Standard, tnr2)
   }
 
-  // @Test
-  def testSchemaValidationSubset() {
+  
+  @Test def testSchemaValidationSubset() {
     val sch: Node = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="list">
@@ -82,8 +83,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
   }
 
-  // @Test
-  def testTypeReferentialError() {
+  
+  @Test def testTypeReferentialError() {
     val sch: Node = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="list" type="typeDoesNotExist"/>)
@@ -94,8 +95,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
   }
 
-  // @Test
-  def testSchemaValidationPropertyChecking() {
+  
+  @Test def testSchemaValidationPropertyChecking() {
     val s: Node = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="list">
@@ -117,7 +118,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
   }
 
-  def test2() {
+  @Test def test2() {
     val sc = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
 
@@ -151,7 +152,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     //    }
   }
 
-  /* def testXsomMultifile(){
+  /* @Test def testXsomMultifile(){
    
     val parser = new XSOMParser()
     val apf = new DomAnnotationParserFactory()
@@ -168,7 +169,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     // sds.map{sd => println(sd.getSystemId)}
   }*/
 
-  def testSequence1() {
+  @Test def testSequence1() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
 
@@ -201,8 +202,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertTrue(elem.isInstanceOf[LocalElementDecl])
   }
 
-  // @Test
-  def testInitiator() {
+  
+  @Test def testInitiator() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:string" dfdl:initiator="*" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
@@ -215,8 +216,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     Compiler.testUnparsing(testSchema, infoset, "*word")
   }
 
-  // @Test
-  def testTerminator() {
+  
+  @Test def testTerminator() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:string" dfdl:terminator="!" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
@@ -229,8 +230,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     Compiler.testUnparsing(testSchema, infoset, "37!")
   }
 
-  // @Test
-  def testDelims() {
+  
+  @Test def testDelims() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:string" dfdl:initiator="*" dfdl:terminator="! $" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
@@ -243,8 +244,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     Compiler.testUnparsing(testSchema, infoset, "*37!")
   }
 
-  // @Test
-  def testUnparseBinaryIntBE() {
+  
+  @Test def testUnparseBinaryIntBE() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:int" dfdl:representation="binary"/>)
@@ -258,8 +259,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     Compiler.testUnparsingBinary(testSchema, infoset, bytes)
   }
 
-  // @Tests
-  def testUnparseBinaryIntLE() {
+  @Test def testUnparseBinaryIntLE() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:int" dfdl:representation="binary" dfdl:byteOrder='littleEndian'/>)
@@ -273,8 +273,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     Compiler.testUnparsingBinary(testSchema, infoset, bytes)
   }
 
-  // @Test
-  def testUnparseMultiElem1() {
+  
+  @Test def testUnparseMultiElem1() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
 
@@ -302,8 +302,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     Compiler.testUnparsing(testSchema, infoset, "943.281")
   }
 
-  // @Test
-  def testUnparseMultiElem2() {
+  
+  @Test def testUnparseMultiElem2() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
 
@@ -330,8 +330,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     Compiler.testUnparsing(testSchema, infoset, "50.93^%XYZ^42")
   }
 
-  // @Test
-//  def testBMP() {
+  
+//  @Test def testBMP() {
 //    val infoset = scala.xml.XML.loadFile("header.xml")
 //    val compiler = Compiler()
 //    val pf = compiler.compile("BMPtest.xsd") //pass compiler the schema
@@ -342,8 +342,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
 //    out.close()
 //  }
 
-  // @Test
-//  def testBMPPixels() {
+  
+//  @Test def testBMPPixels() {
 //    val infoset = scala.xml.XML.loadFile("pixeldata.xml")
 //    val compiler = Compiler()
 //    val pf = compiler.compile("BMPtestPixels.xsd") //pass compiler the schema
@@ -354,8 +354,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
 //    out.close()
 //  }
   
-  // @Test
-  def testUnparseBinary1() {
+  
+  @Test def testUnparseBinary1() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
 
@@ -379,8 +379,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     Compiler.testUnparsingBinary(testSchema, infoset, bytes)
   }
 
-  // @Test
-  def testUnparseNested() {
+  
+  @Test def testUnparseNested() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
 
@@ -417,8 +417,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     Compiler.testUnparsing(testSchema, infoset, "11235.8qwerty")
   }
 
-  // @Test
-  def testUnparseNestedChildren() {
+  
+  @Test def testUnparseNestedChildren() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
 
@@ -455,8 +455,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     Compiler.testUnparsing(testSchema, infoset, "abc87654321")
   }
 
-  // @Test
-  def testUnparseFixedArray() {
+  
+  @Test def testUnparseFixedArray() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
 
@@ -478,8 +478,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     Compiler.testUnparsing(testSchema, infoset, "?45.67#?45.67#?45.67")
   }
 
-  // @Test
-  def testUnparseDelimited() {
+  
+  @Test def testUnparseDelimited() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
 
@@ -507,8 +507,8 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     Compiler.testUnparsing(testSchema, infoset, "246813579,90.3761,hello,100")
   }
 
-  // @Test
-  def testUnparseAlignmentBits() {
+  
+  @Test def testUnparseAlignmentBits() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
 
@@ -533,7 +533,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
   }
 
 
-  def test3 {
+  @Test def test3 {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
 
@@ -610,7 +610,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertEquals(0, seq1s1.asInstanceOf[Sequence].groupMembers.length)
   }
 
-  def test4 {
+  @Test def test4 {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
 
@@ -634,7 +634,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertEquals("{ $myVar1 eq xs:int(xs:string(fn:round-half-to-even(8.5))) }", asrt1.asInstanceOf[DFDLAssert].testTxt)
   }
 
-  def test_named_format_chaining {
+  @Test def test_named_format_chaining {
     val testSchema =
       XML.load(
         Misc.getRequiredResource(
@@ -665,7 +665,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertEquals(true, foundValues(props, "binaryNumberRep", "packed"))
   }
 
-  def test_simple_types_access_works {
+  @Test def test_simple_types_access_works {
     val testSchema =
       XML.load(
         Misc.getRequiredResource(
@@ -684,7 +684,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertEquals(AlignmentUnits.Bytes, x.alignmentUnits)
   }
 
-  def test_simple_types_property_combining {
+  @Test def test_simple_types_property_combining {
     val testSchema =
       XML.load(
         Misc.getRequiredResource(
@@ -724,7 +724,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertEquals(BinaryNumberRep.Packed, ge6.binaryNumberRep)
   }
 
-  def testTerminatingMarkup {
+  @Test def testTerminatingMarkup {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -749,7 +749,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertEquals(";", ce.constant)
   }
 
-  def testTerminatingMarkup2 {
+  @Test def testTerminatingMarkup2 {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -781,7 +781,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertEquals(";", ce2.constant)
   }
 
-  def test_simpleType_base_combining {
+  @Test def test_simpleType_base_combining {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
 
@@ -817,7 +817,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     intercept[daffodil.dsom.SchemaDefinitionError] { gs3.allNonDefaultProperties }
   }
 
-  def test_group_references {
+  @Test def test_group_references {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml"))
     val compiler = Compiler()
 
@@ -868,7 +868,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
 
   }
 
-  def test_ibm_7132 {
+  @Test def test_ibm_7132 {
     val ibm7132Schema = XML.load(Misc.getRequiredResource("/test/TestRefChainingIBM7132.dfdl.xml"))
     val compiler = Compiler()
     val sset = new SchemaSet(ibm7132Schema)
@@ -905,7 +905,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     e1f.lengthKind
   }
 
-  def testDfdlRef = {
+  @Test def testDfdlRef = {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:defineFormat name="ref1"> <dfdl:format initiator=":"/> </dfdl:defineFormat>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
@@ -922,7 +922,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     //assertEquals(":", ge1.initiatorRaw)
   }
 
-  def testGetQName = {
+  @Test def testGetQName = {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:defineFormat name="ref1">
         <dfdl:format initiator=":"/>
@@ -945,7 +945,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertEquals(XMLUtils.EXAMPLE_NAMESPACE, nsURI)
   }
 
-  def testGetAllNamespaces() {
+  @Test def testGetAllNamespaces() {
     val xml = <bar xmlns:foo="fooNS" xmlns:bar="barNS">
                 <quux xmlns:baz="bazNS" attr1="x"/>
               </bar>
@@ -956,7 +956,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     // println(newElem)
   }
 
-  def test_delim_inheritance {
+  @Test def test_delim_inheritance {
     val delimiterInheritance = XML.load(Misc.getRequiredResource("/test/TestDelimiterInheritance.dfdl.xml"))
 
     val compiler = Compiler()
@@ -999,7 +999,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertEquals("g", e3_2.allTerminatingMarkup(5).prettyExpr)
   }
 
-  def test_escapeSchemeOverride = {
+  @Test def test_escapeSchemeOverride = {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none" textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression" escapeSchemeRef="pound"/>
       <dfdl:defineEscapeScheme name="pound">
@@ -1043,7 +1043,7 @@ class TestDsomCompiler extends JUnit3Suite with Logging {
     assertEquals("cStyleComment", e2f_esref)
   }
 
-  def test_element_references {
+  @Test def test_element_references {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml"))
 
     val sset = new SchemaSet(testSchema)

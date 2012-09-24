@@ -1,12 +1,13 @@
 package daffodil.processors.input
 
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import scala.util.parsing.combinator._
 import java.io.StringReader
+import org.junit.Test
 
 
-class TestRegex extends JUnit3Suite with RegexParsers {
+class TestRegex extends JUnitSuite with RegexParsers {
 
   /**
    * Scala combinator parsers can do longest match via the '|||' combinator
@@ -40,7 +41,7 @@ class TestRegex extends JUnit3Suite with RegexParsers {
 
   lazy val parsed0 = parseAll(t0, rdr0)
 
-  def testParsingDelims() {
+  @Test def testParsingDelims() {
     skipWS = false // keep all the whitespace
     assertTrue(parsed0.successful)
     val a = parsed0.get
@@ -70,7 +71,7 @@ class TestRegex extends JUnit3Suite with RegexParsers {
 
   lazy val parsed1 = parseAll(t1, rdr1)
 
-  def testRegexNoWSLongestMatch() {
+  @Test def testRegexNoWSLongestMatch() {
     skipWS = true // this is the default setting for scala comb. parsers, but we have no ws so it doesn't matter really.
     assertTrue(parsed1.successful)
     val a = parsed1.get
@@ -101,7 +102,7 @@ class TestRegex extends JUnit3Suite with RegexParsers {
 
   lazy val parsed2 = parseAll(t2, rdr2)
   
-  def testRegexWSLongestMatch() {
+  @Test def testRegexWSLongestMatch() {
     skipWS = false // we want our delimiters to contain the whitespace.
     // (parsed2)
     assertTrue(parsed2.successful)
@@ -125,7 +126,7 @@ class TestRegex extends JUnit3Suite with RegexParsers {
    * Tests a regular experssion to match a delimiter but taking
    * into account escape characters.
    */
-  def testRegexToMatchOneDelimiterWithEscapeChars() {
+  @Test def testRegexToMatchOneDelimiterWithEscapeChars() {
 
     /**
      * tester regexps and postprocessing algorithms are different
@@ -246,7 +247,7 @@ class TestRegex extends JUnit3Suite with RegexParsers {
    * Or, if you choose not to use the block escapes, you can still escape the delimiter.
    *
    */
-  def testRegexToMatchOneDelimiterWithBlockEscapes() {
+  @Test def testRegexToMatchOneDelimiterWithBlockEscapes() {
 
     def tester(bStart : String, bEnd : String, escapeEscape : String, escape : String, delim : String) = {
       val str = """(?>""" +
