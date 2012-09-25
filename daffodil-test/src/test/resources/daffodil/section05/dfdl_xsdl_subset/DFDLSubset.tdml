@@ -117,4 +117,76 @@
 			</tdml:infoset>
 	</tdml:parserTestCase>
 	
+	<tdml:defineSchema name="groupRef.xsd">
+		
+		
+				<dfdl:format initiator="" terminator="" 
+				encoding="utf-8" byteOrder="bigEndian"
+                occursCountKind="parsed" ignoreCase="no"
+				representation="text"  lengthKind="delimited"
+				textNumberRep="standard"
+				separatorPolicy="suppressed"/>
+		
+		<xs:element name="description" type="xs:string"/>
+		<xs:element name="comment" type="xs:string"/>
+		<xs:element name="quantity" type="xs:int"/>
+		<xs:element name="price" type="xs:float"/>
+		
+		<xs:group name="namedGroup">
+			<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+				<xs:element ref="description"/>
+				<xs:element ref="comment"/>
+				<xs:element ref="quantity"/>
+				<xs:element ref="price" dfdl:initiator="$"/>
+			</xs:sequence>
+		</xs:group>
+		
+		<xs:group name="SalesGroup">
+			<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+				
+			</xs:sequence>
+		</xs:group>
+		
+		<xs:element name="Item" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				
+					<xs:group ref="namedGroup" />
+				
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="list" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="||" dfdl:separatorPosition="infix">
+					<xs:element ref="Item" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+				
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="groupRef" root="list" model="groupRef.xsd"
+		description="Section 5 - DFDL XSDL subset - DFDL-5-041R">
+
+		<tdml:document>Shirts,Sold on Monday,30,17.99||Shoes,Sold on Tuesday,23,89.99</tdml:document>
+			<tdml:infoset>
+				<tdml:dfdlInfoset>
+					<list>
+						<Item>
+							<description>Shirts</description>
+							<comment>Sold on Monday</comment>
+							<quantity>30</quantity>
+							<price>17.99</price>
+						</Item>
+						<Item>
+							<description>Shoes</description>
+							<comment>Sold on Tuesday</comment>
+							<quantity>23</quantity>
+							<price>89.99</price>
+						</Item>
+					</list>
+				</tdml:dfdlInfoset>
+			</tdml:infoset>
+	</tdml:parserTestCase>
+	
 </tdml:testSuite>
