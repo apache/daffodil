@@ -18,13 +18,13 @@ class TestChoiceGroupInitiatedContent extends JUnitSuite {
   val tdml_01 = testDir_01 + "ChoiceGroupInitiatedContent.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 
-  @Test def test_1() { runner_01.runOneTest("initiatedContent1") }
-  @Test def test_2() { runner_01.runOneTest("initiatedContent2") }
-  @Test def test_3() { runner_01.runOneTest("initiatedContent3") }
-  @Test def test_4() { runner_01.runOneTest("initiatedContent4") }
-  //@Test def test_5() { runner_01.runOneTest("initiatedContent5") }
-  //@Test def test_6() { runner_01.runOneTest("initiatedContent6") }
-  @Test def test_7() { runner_01.runOneTest("initiatedContent7") }
-  //@Test def test_8() { runner_01.runOneTest("initiatedContent8") }
+  @Test def test_1() { runner_01.runOneTest("initiatedContentChoice1") }
+  @Test def test_2() { runner_01.runOneTest("initiatedContentChoice2") }
+  @Test def test_3() { runner_01.runOneTest("initiatedContentChoice3") }
+  @Test def test_4() { runner_01.runOneTest("initiatedContentChoice4") }
+  //@Test def test_5() { runner_01.runOneTest("initiatedContentChoice5") }
+  //@Test def test_6() { runner_01.runOneTest("initiatedContentChoice6") }
+  @Test def test_7() { runner_01.runOneTest("initiatedContentChoice7") }
+  //@Test def test_8() { runner_01.runOneTest("initiatedContentChoice8") }
 
 }

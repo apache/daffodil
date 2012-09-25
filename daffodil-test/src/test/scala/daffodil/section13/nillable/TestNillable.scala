@@ -25,6 +25,7 @@ class TestNillable extends JUnitSuite {
   val ln = testDir + "literal-value-nils.tdml"
   lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
   @Test def test_text_01() { runnerLN.runOneTest("text_01")}
+  @Test def test_text_02() { runnerLN.runOneTest("text_02")}
   @Test def test_text_03() { runnerLN.runOneTest("text_03")}
   @Test def test_text_04() { runnerLN.runOneTest("text_04")}
   @Test def test_text_05() { runnerLN.runOneTest("text_05")}

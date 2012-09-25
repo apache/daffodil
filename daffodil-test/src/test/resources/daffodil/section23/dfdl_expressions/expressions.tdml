@@ -222,7 +222,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="ArrayOptElem_01" root="aoe_01"
-		model="ArrayOptionalElem-Embedded.dfdl.xsd" description="Section 16 Array and Optional Elements - DFDL-16-003R">
+		model="ArrayOptionalElem-Embedded.dfdl.xsd" description="occursCountKind expression with relative path - DFDL-23-011R">
 
 		<tdml:document>
 			<tdml:documentPart type="byte">00000003000102
@@ -241,7 +241,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="ArrayOptElem_02" root="aoe_02"
-		model="ArrayOptionalElem-Embedded.dfdl.xsd" description="an unsignedInt value in an occursCount expression - DFDL-16-003R">
+		model="ArrayOptionalElem-Embedded.dfdl.xsd" description="an unsignedInt value in an occursCount expression - DFDL-23-011R">
 
 		<tdml:document>
 			<tdml:documentPart type="byte">00000003000102
@@ -308,7 +308,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="lke2_rel" root="lke_01"
-		model="expressions-Embedded.dfdl.xsd" description="">
+		model="expressions-Embedded.dfdl.xsd" description="length expression, relative path - DFDL-23-011R">
 
 		<tdml:document>3538</tdml:document>
 		<tdml:infoset>
@@ -322,7 +322,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="lke3_rel" root="lke_02"
-		model="expressions-Embedded.dfdl.xsd" description="">
+		model="expressions-Embedded.dfdl.xsd" description="length expression, relative path - DFDL-23-011R">
 
 		<tdml:document>3538</tdml:document>
 		<tdml:infoset>
@@ -336,7 +336,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="ocke_rel" root="ocke"
-		model="expressions-Embedded.dfdl.xsd" description="">
+		model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
 
 		<tdml:document>2,3,1,2,3,4,5,6,</tdml:document>
 		<tdml:infoset>
@@ -432,7 +432,7 @@
 	
 	<tdml:parserTestCase name="expression-unknown-prefix"
 		root="theElementName" model="unknown-prefix"
-		description="get compilation time error due to unknown prefix. DFDL-2-001R">
+		description="get compilation time error due to unknown prefix - DFDL-2-001R requirement makes a reference to this test -Assigned to requirement DFDL-23-011R">
 		<tdml:document />
 		<tdml:errors>
 			<tdml:error>Schema Definition</tdml:error>

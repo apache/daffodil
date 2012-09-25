@@ -69,7 +69,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="text_02" root="doc"
-		model="text_02" description="Text_02 EmptyString nilValue - DFDL-6-046R">
+		model="text_02" description="Text_02 EmptyString nilValue - DFDL-13-235R">
 
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[0,;]]></tdml:documentPart>

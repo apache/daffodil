@@ -18,9 +18,9 @@ class TestSequenceGroupInitiatedContent extends JUnitSuite {
   val tdml_01 = testDir_01 + "SequenceGroupInitiatedContent.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 
-  @Test def test_baseline() { runner_01.runOneTest("initiatedContentBaseline") }
-  @Test def test_1() { runner_01.runOneTest("initiatedContent1") }
-  @Test def test_2() { runner_01.runOneTest("initiatedContent2") }
-  @Test def test_3() { runner_01.runOneTest("initiatedContent3") }
+  @Test def test_baseline() { runner_01.runOneTest("initiatedContentSeqBaseline") }
+  @Test def test_1() { runner_01.runOneTest("initiatedContentSeq1") }
+  @Test def test_2() { runner_01.runOneTest("initiatedContentSeq2") }
+  @Test def test_3() { runner_01.runOneTest("initiatedContentSeq3") }
 
 }

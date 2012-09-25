@@ -130,7 +130,7 @@
 		</tdml:parserTestCase>
 		
 		<tdml:parserTestCase name="LengthProp_06" root="LP_06"
-		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-161R">
+		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-134R">
 
 			<tdml:document>3Ax57t</tdml:document>
 			<tdml:infoset>

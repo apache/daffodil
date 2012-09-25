@@ -44,7 +44,7 @@
 
 
 	<tdml:parserTestCase name="assertPass" root="e1"
-		model="s1" description="Section 7 - Assertions - ">
+		model="s1" description="Section 7 - assert as a value - DFDL-7-045R">
 		<tdml:document />
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -54,7 +54,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="assertFail1" root="e2"
-		model="s1" description="Section 7 - Assertions - ">
+		model="s1" description="Section 7 - negative test for assert expression - DFDL-7-043R">
 		<tdml:document />
 		<tdml:errors>
 			<tdml:error>Assertion</tdml:error>
@@ -62,7 +62,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="assertFail2" root="e3"
-		model="s1" description="Section 7 - Assertions - ">
+		model="s1" description="Section 7 - negative test for assert expression - DFDL-7-043R">
 		<tdml:document />
 		<tdml:errors>
 			<tdml:error>Assertion</tdml:error>
@@ -97,7 +97,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="assertGuidesChoice"
-		root="c1" model="choice1" description="Section 7 - Assertions - ">
+		root="c1" model="choice1" description="Section 7 - assert on an element declaration - DFDL-7-048R">
 		<tdml:document />
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -110,45 +110,4 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
-
-	<tdml:defineSchema name="choice2">
-		<dfdl:format ref="ex:daffodilTest1" />
-		<xs:element name="c1">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="c">
-						<xs:complexType>
-							<xs:choice>
-								<xs:element name="a1">
-
-									<xs:complexType>
-										<xs:sequence>
-											<xs:annotation>
-												<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-													<dfdl:discriminator><![CDATA[{ xs:boolean('true') }]]></dfdl:discriminator>
-												</xs:appinfo>
-											</xs:annotation>
-											<xs:element name="str" type="xs:string"
-												dfdl:lengthKind="explicit" dfdl:length="{ 80 }" /> <!-- fails because there is no data -->
-										</xs:sequence>
-									</xs:complexType>
-								</xs:element>
-								<xs:element name="a2" type="xs:string"
-									dfdl:inputValueCalc="{ 'a2' }" />
-							</xs:choice>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
-
-	<tdml:parserTestCase name="discriminatorGuidesChoice"
-		root="c1" model="choice2" description="Section 7 - Assertions - ">
-		<tdml:document />
-		<tdml:errors>
-			<tdml:error>Parse Error</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-
 </tdml:testSuite>
