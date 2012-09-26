@@ -3,20 +3,12 @@ import daffodil.dsom.OOLAG.OOLAGException
 
 // Copyright (C) 2012, Michael J. Beckerle. All Rights Reserved.
 
-abstract class AnException(m : String) extends OOLAGException(m) {
+abstract class UnsuppressableException(m : String) extends Exception(m) {
   def this() = this("") // no arg constructor also.
 }
-class UsageException(m : String) extends Exception(m)
-class NotYetImplementedException(m : String) extends AnException("Not yet implemented.\n" + m)
-class Abort(m : String) extends Exception(m)
-
-abstract class DFDLException(m : String) extends AnException(m) {
-  def this() = this("") // no arg constructor also.
-  
-  val msg = {
-    m // just here for the sake of putting a breakpoint here.
-  }
-}
+class UsageException(m : String) extends UnsuppressableException(m)
+class NotYetImplementedException(m : String) extends UnsuppressableException("Not yet implemented.\n" + m)
+class Abort(m : String) extends UnsuppressableException(m)
 
 class Assert  {
   def shortBacktrace = {

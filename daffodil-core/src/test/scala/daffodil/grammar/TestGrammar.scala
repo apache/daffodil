@@ -2,12 +2,13 @@
 package daffodil.grammar
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import daffodil.dsom._
 import daffodil.exceptions.Assert
 import daffodil.processors._
+import org.junit.Test
 
-class TestGrammar extends JUnit3Suite {
+class TestGrammar extends JUnitSuite {
 
   val fakeTerm = new GlobalElementDeclFactory(<element name="foo" type="xs:int"/>, Fakes.xsd_sd).forRoot()
   case class Primitive1(e: Term, guard: Boolean = true) extends Terminal(e, guard) {
@@ -17,7 +18,7 @@ class TestGrammar extends JUnit3Suite {
   //  case class Primitive2(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard)
   //  case class Primitive3(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard)
 
-  def testBasicTripleSequential() {
+  @Test def testBasicTripleSequential() {
 
     object first extends Primitive1(fakeTerm)
     object mid extends Primitive1(fakeTerm)
@@ -39,7 +40,7 @@ class TestGrammar extends JUnit3Suite {
     assertTrue(s.contains(" ~ "))
   }
 
-  def testMiddleSplicedOut() {
+  @Test def testMiddleSplicedOut() {
 
     object first extends Primitive1(fakeTerm)
     object mid extends Primitive1(fakeTerm, false)
@@ -59,7 +60,7 @@ class TestGrammar extends JUnit3Suite {
 
   }
 
-  def testTopProdSplicedOut() {
+  @Test def testTopProdSplicedOut() {
 
     object first extends Primitive1(fakeTerm)
     object mid extends Primitive1(fakeTerm, false)
@@ -79,7 +80,7 @@ class TestGrammar extends JUnit3Suite {
 
   }
 
-  def testMultipleSpliceOuts() {
+  @Test def testMultipleSpliceOuts() {
 
     object first extends Primitive1(fakeTerm)
     object mid extends Primitive1(fakeTerm, false)
@@ -100,7 +101,7 @@ class TestGrammar extends JUnit3Suite {
 
   }
 
-  def testPrecedence1() {
+  @Test def testPrecedence1() {
 
     object first extends Primitive1(fakeTerm)
     object mid extends Primitive1(fakeTerm)
@@ -122,7 +123,7 @@ class TestGrammar extends JUnit3Suite {
 
   }
 
-  def testPrecedence2() {
+  @Test def testPrecedence2() {
 
     object first extends Primitive1(fakeTerm)
     object mid extends Primitive1(fakeTerm)
@@ -144,7 +145,7 @@ class TestGrammar extends JUnit3Suite {
 
   }
 
-  def testProdsSpliceOut() {
+  @Test def testProdsSpliceOut() {
 
     object first extends Primitive1(fakeTerm)
     object mid extends Primitive1(fakeTerm, false)
@@ -169,7 +170,7 @@ class TestGrammar extends JUnit3Suite {
 
   }
 
-  def testUnary() {
+  @Test def testUnary() {
 
     object first extends Primitive1(fakeTerm)
     object mid extends Primitive1(fakeTerm)

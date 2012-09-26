@@ -19,7 +19,7 @@
 								dfdl:separator=":: || : $">
 						<xs:element name="seq1">
 							<xs:complexType>
-								<xs:sequence dfdl:initiatedContent="yes" dfdl:separatorPosition="infix"
+								<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
 									dfdl:separator=",">
 									<xs:element name="num1" type="xs:int" dfdl:initiator="+" maxOccurs="unbounded"/>	
 								</xs:sequence>
@@ -27,7 +27,7 @@
 						</xs:element>
 						<xs:element name="seq2">
 							<xs:complexType>
-								<xs:sequence dfdl:initiatedContent="yes" dfdl:separatorPosition="infix"
+								<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
 									dfdl:separator=".">
 									<xs:element name="num2" type="xs:int" dfdl:initiator="-" maxOccurs="unbounded"/>	
 								</xs:sequence>
@@ -35,7 +35,7 @@
 						</xs:element>
 						<xs:element name="seq3">
 							<xs:complexType>
-								<xs:sequence dfdl:initiatedContent="yes" dfdl:initiator="{ {{ [" dfdl:terminator=") ] ]]" dfdl:separatorPosition="infix"
+								<xs:sequence dfdl:initiatedContent="no" dfdl:initiator="{ {{ [" dfdl:terminator=") ] ]]" dfdl:separatorPosition="infix"
 									dfdl:separator=";">
 									<xs:element name="num3" type="xs:int" maxOccurs="unbounded"/>	
 								</xs:sequence>
@@ -73,6 +73,14 @@
 			<xs:complexType>
 				<xs:sequence>
 					<xs:element name="s1" type="xs:float" dfdl:terminator="%WSP*;" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="DP_04_01" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="s1" type="xs:float" dfdl:terminator="%WSP+;" maxOccurs="unbounded"/>
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
@@ -170,21 +178,32 @@
 		</tdml:parserTestCase>
 		
 		<tdml:parserTestCase name="DelimProp_06" root="DP_04"
-		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R">
+		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R should fail">
+
+			<tdml:document>.00300 -02.75
+			3.9900	7.33</tdml:document>
+			<tdml:errors>
+				<tdml:error>WSP*</tdml:error>
+			</tdml:errors>
+		</tdml:parserTestCase>
+		
+		<!-- The below test is a problem because you cannot have WSP* as a delimiter by itself. -->
+		<!-- <tdml:parserTestCase name="DelimProp_06_01" root="DP_04_01"
+		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R should pass">
 
 			<tdml:document>.00300 -02.75
 			3.9900	7.33</tdml:document>
 			<tdml:infoset>
 				<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-					<DP_04>
+					<DP_04_01>
 						<s1>0.003</s1>
 						<s1>-2.75</s1>
 						<s1>3.99</s1>
 						<s1>7.33</s1>
-					</DP_04>
+					</DP_04_01>
 				</tdml:dfdlInfoset>
 			</tdml:infoset>
-		</tdml:parserTestCase>
+		</tdml:parserTestCase> -->
 		
 		<tdml:parserTestCase name="DelimProp_09" root="DP_03"
 		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 12 property delimiters -multiple terminators - DFDL-12-033R">
@@ -202,19 +221,30 @@
 		</tdml:parserTestCase>
 		
 		<tdml:parserTestCase name="DelimProp_10" root="DP_04"
-		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 12 property delimiters -use of %WSP*; as terminator - DFDL-12-033R">
+		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 12 property delimiters -use of %WSP*; as terminator - DFDL-12-033R Should error">
+
+			<tdml:document>.00300 -02.75
+			3.9900	7.33
+			</tdml:document>
+			<tdml:errors>
+				<tdml:error>WSP*</tdml:error>
+			</tdml:errors>
+		</tdml:parserTestCase>
+		
+		<tdml:parserTestCase name="DelimProp_10_01" root="DP_04_01"
+		model="DelimiterProperties-Embedded.dfdl.xsd" description="Section 12 property delimiters -use of %WSP+; as terminator - DFDL-12-033R Should pass">
 
 			<tdml:document>.00300 -02.75
 			3.9900	7.33
 			</tdml:document>
 			<tdml:infoset>
 				<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-					<DP_04>
+					<DP_04_01>
 						<s1>0.003</s1>
 						<s1>-2.75</s1>
 						<s1>3.99</s1>
 						<s1>7.33</s1>
-					</DP_04>
+					</DP_04_01>
 				</tdml:dfdlInfoset>
 			</tdml:infoset>
 		</tdml:parserTestCase>
@@ -283,6 +313,88 @@
 						<s1>7</s1>
 					</e2>
 				</tdml:dfdlInfoset>
+			</tdml:infoset>
+		</tdml:parserTestCase>
+		
+		<tdml:defineSchema name="initiatedContentSchema">
+		<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" encoding="utf-8" 
+			occursCountKind="parsed" separatorPolicy="suppressed" textNumberRep="standard" ignoreCase="no"
+			representation="text" lengthUnits="characters" lengthKind="delimited" />
+			
+			<xs:element name="DP_07" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+								dfdl:separator=":: || : $">
+						<xs:element name="seq1">
+							<xs:complexType>
+								<xs:sequence dfdl:initiatedContent="yes" dfdl:separatorPosition="infix"
+									dfdl:separator=",">
+									<xs:element name="num1" type="xs:int" dfdl:initiator="+" maxOccurs="unbounded"/>	
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="seq2">
+							<xs:complexType>
+								<xs:sequence dfdl:initiatedContent="yes" dfdl:separatorPosition="infix"
+									dfdl:separator=".">
+									<xs:element name="num2" type="xs:int" dfdl:initiator="-" maxOccurs="unbounded"/>	
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="seq3">
+							<xs:complexType>
+								<xs:sequence dfdl:initiatedContent="no" dfdl:initiator="{ {{ [" dfdl:terminator=") ] ]]" dfdl:separatorPosition="infix"
+									dfdl:separator=";">
+									<xs:element name="num3" type="xs:int" maxOccurs="unbounded"/>	
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="seq4">
+							<xs:complexType>
+								<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+									dfdl:separator="|">
+									<xs:element name="num4" type="xs:int" maxOccurs="unbounded"/>	
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		</tdml:defineSchema>
+		
+		<tdml:parserTestCase name="DelimProp_07"
+			model="initiatedContentSchema" description="Section 12 property delimiters, a whitespace separated list of initiators and terminators - DFDL-12-032R"
+			root="DP_07">
+			<tdml:document>+1,+2,+3,+4:-5.-6.-7.-8${{9;10;11;12]]::13|14|15|16</tdml:document>
+			<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<DP_07>
+					<seq1>
+						<num1>1</num1>
+						<num1>2</num1>
+						<num1>3</num1>
+						<num1>4</num1>
+					</seq1>
+					<seq2>
+						<num2>5</num2>
+						<num2>6</num2>
+						<num2>7</num2>
+						<num2>8</num2>
+					</seq2>
+					<seq3>
+						<num3>9</num3>
+						<num3>10</num3>
+						<num3>11</num3>
+						<num3>12</num3>
+					</seq3>
+					<seq4>
+						<num4>13</num4>
+						<num4>14</num4>
+						<num4>15</num4>
+						<num4>16</num4>
+					</seq4>
+				</DP_07>
+			</tdml:dfdlInfoset>
 			</tdml:infoset>
 		</tdml:parserTestCase>
 	

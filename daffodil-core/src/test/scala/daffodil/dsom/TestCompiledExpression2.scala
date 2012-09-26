@@ -1,6 +1,6 @@
 package daffodil.dsom
 
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import daffodil.xml._
 import daffodil.processors._
 import daffodil.processors.xpath._
@@ -9,11 +9,12 @@ import daffodil.processors._
 import daffodil.compiler._
 import javax.xml.xpath.XPathExpressionException
 import daffodil.processors.WithParseErrorThrowing
+import org.junit.Test
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
  */
-class TestCompiledExpression2 extends JUnit3Suite with WithParseErrorThrowing {
+class TestCompiledExpression2 extends JUnitSuite with WithParseErrorThrowing {
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE
@@ -29,7 +30,7 @@ class TestCompiledExpression2 extends JUnit3Suite with WithParseErrorThrowing {
   /**
    * Test the XPath evaluator, but provide namespace information on the XML
    */
-  def testCompiledAbsolutePathEvaluation2_withNamespace() {
+  @Test def testCompiledAbsolutePathEvaluation2_withNamespace() {
 
     val r = XMLUtils.elem2Element(
       <tns:root xmlns:tns={ example }>19</tns:root>)
@@ -48,7 +49,7 @@ class TestCompiledExpression2 extends JUnit3Suite with WithParseErrorThrowing {
 
   }
 
-  def testCompiledRelativePathEvaluation5_WithNamespaces() {
+  @Test def testCompiledRelativePathEvaluation5_WithNamespaces() {
 
     // Note Use of target namespace here.
     // Note that tns is bound to the same namespace as the target namespace
@@ -101,7 +102,7 @@ class TestCompiledExpression2 extends JUnit3Suite with WithParseErrorThrowing {
   /**
    * Negative test. Insure we get a diagnostic that is useful.
    */
-  def testCompiledEvaluationError_DoesntExist() {
+  @Test def testCompiledEvaluationError_DoesntExist() {
 
     val r = XMLUtils.elem2Element(
       <tns:root xmlns:tns={ example }>19</tns:root>)

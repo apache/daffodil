@@ -222,7 +222,7 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="ArrayOptElem_01" root="aoe_01"
-		model="ArrayOptionalElem-Embedded.dfdl.xsd" description="Section 16 Array and Optional Elements - DFDL-16-003R">
+		model="ArrayOptionalElem-Embedded.dfdl.xsd" description="occursCountKind expression with relative path - DFDL-23-011R">
 
 		<tdml:document>
 			<tdml:documentPart type="byte">00000003000102
@@ -241,7 +241,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="ArrayOptElem_02" root="aoe_02"
-		model="ArrayOptionalElem-Embedded.dfdl.xsd" description="an unsignedInt value in an occursCount expression - DFDL-16-003R">
+		model="ArrayOptionalElem-Embedded.dfdl.xsd" description="an unsignedInt value in an occursCount expression - DFDL-23-011R">
 
 		<tdml:document>
 			<tdml:documentPart type="byte">00000003000102
@@ -287,11 +287,28 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+		
+		<xs:element name="ocke" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:initiator="" >
+					<xs:element name="nrows" type="xs:int" dfdl:lengthKind="delimited" dfdl:terminator=","/>
+					<xs:element name="ncols" type="xs:int" dfdl:lengthKind="delimited" dfdl:terminator=","/>
+					<xs:element name="rows" maxOccurs="unbounded" dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:nrows }">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="cols" type="xs:int" maxOccurs="unbounded" dfdl:lengthKind="delimited" dfdl:terminator=","
+								dfdl:occursCountKind="expression" dfdl:occursCount=" { ../../ex:ncols } " />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
 
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="lke2_rel" root="lke_01"
-		model="expressions-Embedded.dfdl.xsd" description="">
+		model="expressions-Embedded.dfdl.xsd" description="length expression, relative path - DFDL-23-011R">
 
 		<tdml:document>3538</tdml:document>
 		<tdml:infoset>
@@ -305,7 +322,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="lke3_rel" root="lke_02"
-		model="expressions-Embedded.dfdl.xsd" description="">
+		model="expressions-Embedded.dfdl.xsd" description="length expression, relative path - DFDL-23-011R">
 
 		<tdml:document>3538</tdml:document>
 		<tdml:infoset>
@@ -314,6 +331,26 @@
 					<e1>3</e1>
 					<e2>538</e2>
 				</lke_02>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="ocke_rel" root="ocke"
+		model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+		<tdml:document>2,3,1,2,3,4,5,6,</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ocke>
+					<nrows>2</nrows>
+					<ncols>3</ncols>
+					<rows>
+						<cols>1</cols><cols>2</cols><cols>3</cols>
+					</rows>
+					<rows>
+						<cols>4</cols><cols>5</cols><cols>6</cols>
+					</rows>
+				</ocke>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
@@ -395,7 +432,7 @@
 	
 	<tdml:parserTestCase name="expression-unknown-prefix"
 		root="theElementName" model="unknown-prefix"
-		description="get compilation time error due to unknown prefix. DFDL-2-001R">
+		description="get compilation time error due to unknown prefix - DFDL-2-001R requirement makes a reference to this test -Assigned to requirement DFDL-23-011R">
 		<tdml:document />
 		<tdml:errors>
 			<tdml:error>Schema Definition</tdml:error>

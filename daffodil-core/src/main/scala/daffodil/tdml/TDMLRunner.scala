@@ -4,7 +4,7 @@ import java.io.File
 import scala.Array.canBuildFrom
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import daffodil.Implicits.using
 import daffodil.compiler.Compiler
 import daffodil.xml.XMLUtils

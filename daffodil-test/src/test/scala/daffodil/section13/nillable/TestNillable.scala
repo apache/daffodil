@@ -11,6 +11,7 @@ import daffodil.compiler.Compiler
 import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
+import daffodil.debugger.Debugger.withDebugger
 
 class TestNillable extends JUnitSuite {
   val testDir = "/daffodil/section13/nillable/"
@@ -24,10 +25,11 @@ class TestNillable extends JUnitSuite {
   val ln = testDir + "literal-value-nils.tdml"
   lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
   @Test def test_text_01() { runnerLN.runOneTest("text_01")}
+  @Test def test_text_02() { runnerLN.runOneTest("text_02")}
   @Test def test_text_03() { runnerLN.runOneTest("text_03")}
   @Test def test_text_04() { runnerLN.runOneTest("text_04")}
   @Test def test_text_05() { runnerLN.runOneTest("text_05")}
-  @Test def test_text_06() { runnerLN.runOneTest("text_06")}
+  @Test def test_text_06() = { runnerLN.runOneTest("text_06")}
   @Test def test_binary_01() { runnerLN.runOneTest("binary_01")}
   
   val testDir_01 = "/daffodil/section06/entities/"

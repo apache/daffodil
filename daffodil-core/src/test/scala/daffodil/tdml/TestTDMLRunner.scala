@@ -1,16 +1,13 @@
 package daffodil.tdml
 
 import java.io.File
-
 import scala.Array.canBuildFrom
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.Node
 import scala.xml.NodeSeq
 import scala.xml.Utility
 import scala.xml.XML
-
-import org.scalatest.junit.JUnit3Suite
-
+import org.scalatest.junit.JUnitSuite
 import daffodil.Implicits.using
 import daffodil.compiler.Compiler
 import daffodil.xml.XMLUtils
@@ -18,8 +15,9 @@ import daffodil.util.Validator
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import daffodil.util._
+import org.junit.Test
 
-class TestTDMLRunner extends JUnit3Suite {
+class TestTDMLRunner extends JUnitSuite {
 
   val tdml = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
@@ -29,7 +27,7 @@ class TestTDMLRunner extends JUnit3Suite {
   val tns = example
   val sub = XMLUtils.DFDL_XMLSCHEMASUBSET_NAMESPACE
 
-  def testDocPart1() {
+  @Test def testDocPart1() {
     val xml = <documentPart type="text">abcde</documentPart>
     val dp = new DocumentPart(xml, null)
     val actual = dp.convertedContent
@@ -37,7 +35,7 @@ class TestTDMLRunner extends JUnit3Suite {
     assertEquals(expected, actual)
   }
 
-  def testDocPart2() {
+  @Test def testDocPart2() {
     val xml = <documentPart type="byte">123abc</documentPart>
     val dp = new DocumentPart(xml, null)
     val hexDigits = dp.hexDigits
@@ -47,7 +45,7 @@ class TestTDMLRunner extends JUnit3Suite {
     assertEquals(expected, actual)
   }
 
-  def testDocPart3() {
+  @Test def testDocPart3() {
     val xml = <document>
                 <documentPart type="byte">12</documentPart>
                 <documentPart type="byte">3abc</documentPart>
@@ -63,7 +61,7 @@ class TestTDMLRunner extends JUnit3Suite {
     assertEquals(expected, actual)
   }
 
-  def testDocWithMultiByteUnicode() {
+  @Test def testDocWithMultiByteUnicode() {
     val xml = <document>
                 <documentPart type="text">&#x24;&#xA2;&#x20AC;&#x2028;</documentPart>
               </document>
@@ -76,7 +74,7 @@ class TestTDMLRunner extends JUnit3Suite {
     assertEquals("$¢€\u2028", str)
   }
 
-  def test1() {
+  @Test def test1() {
     val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
                   <document>0123</document>
@@ -105,7 +103,7 @@ class TestTDMLRunner extends JUnit3Suite {
     assertEquals(expected, trimmed)
   }
 
-  def test2() {
+  @Test def test2() {
     val xml = <testSuite xmlns={ tdml } suiteName="theSuiteName">
                 <parserTestCase ID="some identifier" name="test2" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd">
                   <document>0123</document>
@@ -141,8 +139,8 @@ class TestTDMLRunner extends JUnit3Suite {
     <dfdl:format ref="tns:daffodilTest1"/>,
     <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
 
-  // @Test
-  def testTDMLParseSuccess() {
+  
+  @Test def testTDMLParseSuccess() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLParseSuccess" root="data">
@@ -158,7 +156,7 @@ class TestTDMLRunner extends JUnit3Suite {
     ts.runOneTest("testTDMLParseSuccess", Some(testSchema))
   }
 
-  def testTDMLParseDetectsErrorWithSpecificMessage() {
+  @Test def testTDMLParseDetectsErrorWithSpecificMessage() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLParseDetectsErrorWithSpecificMessage" root="data">
@@ -173,7 +171,7 @@ class TestTDMLRunner extends JUnit3Suite {
     ts.runOneTest("testTDMLParseDetectsErrorWithSpecificMessage", Some(testSchema))
   }
 
-  def testTDMLParseDetectsErrorWithPartMessage() {
+  @Test def testTDMLParseDetectsErrorWithPartMessage() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLParseDetectsErrorWithPartMessage" root="data">
@@ -191,7 +189,7 @@ class TestTDMLRunner extends JUnit3Suite {
     assertTrue(exc.getMessage().contains("""message "xs:float""""))
   }
 
-  def testTDMLParseDetectsErrorAnyMessage() {
+  @Test def testTDMLParseDetectsErrorAnyMessage() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLParseDetectsErrorAnyMessage" root="data">
@@ -205,7 +203,7 @@ class TestTDMLRunner extends JUnit3Suite {
     ts.runOneTest("testTDMLParseDetectsErrorAnyMessage", Some(testSchema))
   }
 
-  def testTDMLParseDetectsNoError() {
+  @Test def testTDMLParseDetectsNoError() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:parserTestCase ID="some identifier" name="testTDMLParseDetectsNoError" root="data">
@@ -225,7 +223,7 @@ class TestTDMLRunner extends JUnit3Suite {
 
 // TODO: Implement Warnings
 //
-//  def testTDMLParseDetectsNoWarning() {
+//  @Test def testTDMLParseDetectsNoWarning() {
 //
 //    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
 //                      <ts:parserTestCase ID="some identifier" name="testTDMLParseDetectsNoWarning" root="data">
@@ -247,8 +245,8 @@ class TestTDMLRunner extends JUnit3Suite {
 //    assertTrue(exc.getMessage().contains("Did not find"))
 //  }
 
-  // @Test
-  def testTDMLParseRunAll() {
+  
+  @Test def testTDMLParseRunAll() {
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
                       <parserTestCase name="testTDMLParseRunAll1" root="data">
                         <document>37</document>
@@ -271,7 +269,7 @@ class TestTDMLRunner extends JUnit3Suite {
     ts.runAllTests(Some(testSchema))
   }
 
-  def testRunModelFile() {
+  @Test def testRunModelFile() {
     val tmpFileName = getClass.getName() + ".dfdl.xsd"
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
                       <parserTestCase name="testRunModelFile" root="data" model={ tmpFileName }>
@@ -296,7 +294,7 @@ class TestTDMLRunner extends JUnit3Suite {
     }
   }
 
-  def testRunTDMLFileReferencingModelFile() {
+  @Test def testRunTDMLFileReferencingModelFile() {
     val tmpFileName = getClass.getName() + ".dfdl.xsd"
     val tmpTDMLFileName = getClass.getName() + ".tdml"
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
@@ -331,7 +329,7 @@ class TestTDMLRunner extends JUnit3Suite {
     }
   }
 
-  def testFindModelFile() {
+  @Test def testFindModelFile() {
     lazy val ts = new DFDLTestSuite(new File("daffodil-core/src/test/resources/test-suite/ibm-contributed/dpaext1.tdml"))
     val mf = ts.findModelFile("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
     assertTrue(mf.exists())
@@ -353,8 +351,8 @@ class TestTDMLRunner extends JUnit3Suite {
       </parserTestCase>
     </tdml:testSuite>
 
-  // @Test
-  def testEmbeddedSchemaWorks() {
+  
+  @Test def testEmbeddedSchemaWorks() {
     val testSuite = tdmlWithEmbeddedSchema
     lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testEmbeddedSchemaWorks")
@@ -376,8 +374,8 @@ class TestTDMLRunner extends JUnit3Suite {
       </parserTestCase>
     </tdml:testSuite>
 
-  // @Test
-  def testEmbeddedSchemaValidates() {
+  
+  @Test def testEmbeddedSchemaValidates() {
     val testSuite = tdmlWithEmbeddedSchemaInvalid
     val exc = intercept[Exception] {
       lazy val ts = new DFDLTestSuite(testSuite)
@@ -388,7 +386,7 @@ class TestTDMLRunner extends JUnit3Suite {
     assertTrue(msg.contains("notAllowed"))
   }
 
-  def testRunTDMLSelfContainedFile() {
+  @Test def testRunTDMLSelfContainedFile() {
     val tmpTDMLFileName = getClass.getName() + ".tdml"
     val testSuite = tdmlWithEmbeddedSchema
     try {
@@ -404,7 +402,7 @@ class TestTDMLRunner extends JUnit3Suite {
     }
   }
 
-  def testTDMLSelfContainedFileValidates() {
+  @Test def testTDMLSelfContainedFileValidates() {
     val tmpTDMLFileName = getClass.getName() + ".tdml"
     val testSuite = tdmlWithEmbeddedSchemaInvalid
     try {
@@ -426,7 +424,7 @@ class TestTDMLRunner extends JUnit3Suite {
     }
   }
 
-  def testTDMLUnparse() {
+  @Test def testTDMLUnparse() {
     val testSuite = <ts:testSuite xmlns:ts={ tdml } xmlns:tns={ tns } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi } suiteName="theSuiteName">
                       <ts:defineSchema name="unparseTestSchema1">
                         <dfdl:format ref="tns:daffodilTest1"/>
@@ -461,8 +459,8 @@ class TestTDMLRunner extends JUnit3Suite {
       </parserTestCase>
     </tdml:testSuite>
 
-  // @Test
-  def testMultiByteUnicodeWorks() {
+  
+  @Test def testMultiByteUnicodeWorks() {
     val testSuite = tdmlWithUnicode2028
     lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testMultiByteUnicodeWorks")
@@ -485,14 +483,14 @@ class TestTDMLRunner extends JUnit3Suite {
       </parserTestCase>
     </tdml:testSuite>
 
-  // @Test
-  def testMultiByteUnicodeWithCDATAWorks() {
+  
+  @Test def testMultiByteUnicodeWithCDATAWorks() {
     val testSuite = tdmlWithUnicode5E74AndCDATA
     lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testMultiByteUnicodeWithCDATAWorks")
   }
   
-  def testBits() {
+  @Test def testBits() {
     val bits = new DocumentPart(<document-part type="bits">111</document-part>, null)
     assertEquals("111", bits.bitDigits)
     val bytes = bits.bitContentToBytes.toList

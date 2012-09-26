@@ -8,14 +8,15 @@ import org.scalatest.matchers.ShouldMatchers
 import scala.math.Pi
 import daffodil.processors.VariableMap
 import daffodil.xml._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathExpressionException
+import org.junit.Test
 
-class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
+class XPathUtilTest extends JUnitSuite with ShouldMatchers {
 
-  def testXPath1() {
+  @Test def testXPath1() {
 
     // <root><child1><child2><child3>19</child3></child2></child1></root>
 
@@ -40,7 +41,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
     }
   }
 
-  def testXPath2() {
+  @Test def testXPath2() {
 
     /*    	
      * <root>
@@ -88,7 +89,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
    * Illustrates xpath with QNames so it is specific about the
    * namespaces.
    */
-  def testXPathWithQNamesInXPathForNamespaces() {
+  @Test def testXPathWithQNamesInXPathForNamespaces() {
 
     // <f:root xmlns:f="foobarNS><f:child1>19</f:child1></f:root>
     val text = new Text("19")
@@ -107,7 +108,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
     result match {
       case NodeResult(x) => x.getText() should equal("19")
       case _ => {
-        println(result)
+        // println(result)
         fail
       }
     }
@@ -119,7 +120,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
    * both a prefix and a namespace uri (and the name), then one can get the namespaces
    * directly from the element itself.
    */
-  def testXPathWithQNamesInXPathForNamespaces2() {
+  @Test def testXPathWithQNamesInXPathForNamespaces2() {
 
     // <f:root xmlns:f="foobarNS><f:child1>19</f:child1></f:root>
     val text = new Text("19")
@@ -138,7 +139,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
     result match {
       case NodeResult(x) => x.getText() should equal("19")
       case _ => {
-        println(result)
+        // println(result)
         fail
       }
     }
@@ -147,7 +148,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
   /**
    * Test if converting the XML from Scala's representation changes anything.
    */
-  def testXPathWithQNamesInXPathForNamespaces3() {
+  @Test def testXPathWithQNamesInXPathForNamespaces3() {
 
     val root = XMLUtils.elem2Element(
       <f:root xmlns:f="urn:foobarNS"><f:child1>19</f:child1></f:root>)
@@ -162,7 +163,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
     result match {
       case NodeResult(x) => x.getText() should equal("19")
       case _ => {
-        println(result)
+        // println(result)
         fail
       }
     }
@@ -171,7 +172,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
   /**
    * Test text() in paths
    */
-  def testXPathWithTextInPath() {
+  @Test def testXPathWithTextInPath() {
 
     val root = XMLUtils.elem2Element(
       <f:root xmlns:f="urn:foobarNS"><f:child1>19</f:child1></f:root>)
@@ -192,7 +193,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
     result match {
       case StringResult(x) => x should equal("19")
       case _ => {
-        println(result)
+        // println(result)
         fail
       }
     }
@@ -201,7 +202,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
   /**
    * We always get back "" on failures, even if the path is invalid and the node cannot exist.
    */
-  def testXPathForString() {
+  @Test def testXPathForString() {
 
     val text = new Text("ABC")
     val root = new Element("root")
@@ -215,7 +216,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
     assertEquals(StringResult("ABC"), result)
   }
 
-  def testXPathForEmptyString() {
+  @Test def testXPathForEmptyString() {
     val root = new Element("root")
     val document = new Document(root)
 
@@ -233,7 +234,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
   /**
    * We always get back a NaN on failures. Even if the path itself is invalid and the value can't exist.
    */
-  def testXPathForNumber() {
+  @Test def testXPathForNumber() {
 
     val text = new Text("19")
     val root = new Element("root")
@@ -247,7 +248,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
     assertEquals(NumberResult(19.0), result)
   }
 
-  def testXPathForNumberFailures() {
+  @Test def testXPathForNumberFailures() {
 
     val text = new Text("ABC")
     val root = new Element("root")
@@ -276,7 +277,7 @@ class XPathUtilTest extends JUnit3Suite with ShouldMatchers {
   /**
    *
    */
-  def testXPathForConstantPaths() {
+  @Test def testXPathForConstantPaths() {
 
     //    val root = new Element("root")
     //    val document = new Document(root)

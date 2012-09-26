@@ -213,7 +213,6 @@
         </xs:element>
         
         <xs:element name="def_02" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="!!.*!!" dfdl:encoding="utf-8"/>
-	    <xs:element name="def_03" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{9}"/>
         
         <xs:element name="def_04" dfdl:lengthKind="pattern" dfdl:lengthPattern="!!.*!!" dfdl:lengthUnits="characters" dfdl:encoding="utf-8">
         <xs:complexType>
@@ -249,35 +248,32 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="LengthPatternIllegalBits" root="def"
-		model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R">
-		<tdml:document>!!c2c2!!</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<first>!!</first>
-				<inner>49858</inner>
-				<last>!!</last>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+                         model="DFDL-207-Embedded.dfdl.xsd" 
+                         description="Section 12 lengthKind-pattern -originally a test for illegal bit pattern for DFDL-253 but test changed to be case with legal bits - DFDL-12-088R">
+        <tdml:document>!!c2c2!!</tdml:document>
+        <tdml:infoset>
+            <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <def>
+                    <first>!!</first>
+                    <inner>1664246578</inner>
+                    <last>!!</last>
+                </def>
+            </tdml:dfdlInfoset>
+        </tdml:infoset>
+    </tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="LengthPatternIllegalBits_01" root="def_01"
 		model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R">
 		<tdml:document>
 			<tdml:documentPart type="byte">2121343938353a2121</tdml:documentPart>
 		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<def_01>
-					<first>!!</first>
-					<inner>49858</inner>
-					<last>!!</last>
-				</def_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="LengthPatternIllegalBits_02" root="def_04"
-		model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R">
+		model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern -c2c2 is an invalid code point in utf-8 - DFDL-12-088R">
 		<tdml:document>
 			<tdml:documentPart type="byte">2121c2c22121</tdml:documentPart>
 		</tdml:document>
@@ -310,18 +306,6 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<def_02>!!49858!!</def_02>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="ExplicitLength" root="def_03"
-		model="DFDL-207-Embedded.dfdl.xsd" description="">
-		<tdml:document>
-			<tdml:documentPart type="byte">212134393835382121</tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<def_03>!!49858!!</def_03>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>

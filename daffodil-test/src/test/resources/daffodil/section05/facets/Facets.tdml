@@ -7,14 +7,286 @@
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
-	<tdml:defineSchema name="facets-Embedded.dfdl.xsd">
+<!-- ===================================================================== Schemas ======================================================================= -->
+
+<!--
+	Schema name: facets-min0max0.dfdl.xsd
+	    Purpose: This schema tests the condition that minOccurs is 0 and maxOccurs is 0 in a simple one-element sequence
+-->
+
+	<tdml:defineSchema name="facets-min0max0.dfdl.xsd">
+
+				<dfdl:format initiator="" terminator="" 
+				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
+				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
+				alignmentUnits="bytes" fillByte="f" 
+				occursCountKind="implicit" 
+				truncateSpecifiedLengthString="no" ignoreCase="no"
+				representation="text"  lengthKind="delimited"
+				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+				separatorPolicy="required" separatorPosition="infix"
+
+				/>
+
+		<xs:complexType name="basicType">
+			<xs:sequence dfdl:separator="|">
+				<xs:element name="data" type="xs:int" minOccurs="0" maxOccurs="0" dfdl:textNumberRep="standard"
+					dfdl:lengthKind="delimited" />
+			</xs:sequence>
+		</xs:complexType>
+
+		<xs:element name="root">
+                <xs:complexType>
+                	<xs:sequence dfdl:separator="">
+                        	<xs:element name="basic" type="basicType" dfdl:lengthKind="implicit"/>
+                                <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
+                        </xs:sequence>
+                </xs:complexType>
+                </xs:element>
+		
+
+
+	</tdml:defineSchema>
+
+<!--
+	Schema name: facets-min1max1-scalar.dfdl.xsd
+	    Purpose: This schema tests the condition that minOccurs is 1 and maxOccurs is 1 in a simple one-element sequence
+-->
+
+	<tdml:defineSchema name="facets-min1max1-scalar.dfdl.xsd">
+
+				<dfdl:format initiator="" terminator="" 
+				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
+				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
+				alignmentUnits="bytes" fillByte="f" 
+				occursCountKind="implicit" 
+				truncateSpecifiedLengthString="no" ignoreCase="no"
+				representation="text"  lengthKind="delimited"
+				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+				separatorPolicy="required" separatorPosition="infix"
+
+				/>
+
+
+		<xs:element name="scalar" type="scalarType" dfdl:lengthKind="implicit"/>
+
+		<xs:complexType name="scalarType">
+			<xs:sequence dfdl:separator="|">
+				<xs:element name="data" type="xs:int" minOccurs="1" maxOccurs="1" dfdl:textNumberRep="standard"
+					dfdl:lengthKind="delimited" />
+			</xs:sequence>
+		</xs:complexType>
+
+
+	</tdml:defineSchema>
+
+<!--
+	Schema name: facets-min2max20-array.dfdl.xsd
+	    Purpose: This schema tests the condition that minOccurs is 2 and maxOccurs is 20 in a simple array
+-->
+
+	<tdml:defineSchema name="facets-min2max20-array.dfdl.xsd">
+
+				<dfdl:format initiator="" terminator="" 
+				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
+				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
+				alignmentUnits="bytes" fillByte="f" 
+				occursCountKind="parsed" 
+				truncateSpecifiedLengthString="no" ignoreCase="no"
+				representation="text"  lengthKind="delimited"
+				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+				separatorPolicy="suppressed" separatorPosition="infix"
+
+				/>
+
+
+		<xs:element name="array" type="arrayType" dfdl:lengthKind="implicit"/>
+
+		<xs:complexType name="arrayType">
+			<xs:sequence dfdl:separator="|">
+				<xs:element name="data" type="xs:int" minOccurs="2" maxOccurs="20" dfdl:textNumberRep="standard"
+					dfdl:lengthKind="delimited" />
+			</xs:sequence>
+		</xs:complexType>
+
+
+	</tdml:defineSchema>
+
+
+<!--
+	Schema name: facets-min5max10.dfdl.xsd
+	    Purpose: This schema tests the condition that minOccurs is 5 and maxOccurs is 10 in a simple one-element sequence,
+		     where occursCountKind equals "parsed" and separatorPolicy is "suppressed"
+-->
+
+	<tdml:defineSchema name="facets-min5max10.dfdl.xsd">
+	
+				<dfdl:format initiator="" terminator="" 
+				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
+				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
+				alignmentUnits="bytes" fillByte="f" 
+		   		occursCountKind="parsed" 
+				truncateSpecifiedLengthString="no" ignoreCase="no"
+				representation="text"  lengthKind="delimited"
+				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+				separatorPolicy="suppressed" separatorPosition="infix"
+
+				/>
+
+
+		<xs:element name="basic" type="basicType" dfdl:lengthKind="implicit"/>
+		
+		<xs:complexType name="basicType">
+			<xs:sequence dfdl:separator="|">
+				<xs:element name="data" type="xs:int" minOccurs="5" maxOccurs="10" dfdl:textNumberRep="standard"
+					dfdl:lengthKind="delimited" />
+			</xs:sequence>
+		</xs:complexType>
+		
+		
+	</tdml:defineSchema>
+
+<!--
+	Schema name: facets-min5max10-2.dfdl.xsd
+	    Purpose: This schema tests the condition that minOccurs is 5 and maxOccurs is 10 in a simple one-element sequence,
+	    	     with occursCountKind set to "implicit" and separatorPolicy set to "required"
+-->
+
+	<tdml:defineSchema name="facets-min5max10-2.dfdl.xsd">
+		
+				<dfdl:format initiator="" terminator="" 
+				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
+				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
+				alignmentUnits="bytes" fillByte="f" 
+		   		occursCountKind="implicit" 
+				truncateSpecifiedLengthString="no" ignoreCase="no"
+				representation="text"  lengthKind="delimited"
+				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+				separatorPolicy="required" separatorPosition="infix"
+				
+				/>
+			
+		
+		<xs:element name="basic" type="basicType" dfdl:lengthKind="implicit"/>
+		
+		<xs:complexType name="basicType">
+			<xs:sequence dfdl:separator="|">
+				<xs:element name="data" type="xs:int" minOccurs="5" maxOccurs="10" dfdl:textNumberRep="standard"
+					dfdl:lengthKind="delimited" />
+			</xs:sequence>
+		</xs:complexType>
+		
+		<xs:element name="root">
+                <xs:complexType>
+                	<xs:sequence dfdl:separator="">
+                        	<xs:element name="basic" type="basicType" dfdl:lengthKind="implicit"/>
+                                <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
+                        </xs:sequence>
+                </xs:complexType>
+                </xs:element>
+		
+	</tdml:defineSchema>
+
+<!--
+	Schema name: facets-min2max3-schemaErr.dfdl.xsd
+	    Purpose: This schema tests the condition that minOccurs does not match maxOccurs when occursCountKind="fixed"
+-->
+
+	<tdml:defineSchema name="facets-min2max3-schemaErr.dfdl.xsd">
+		
+				<dfdl:format initiator="" terminator="" 
+				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
+				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
+				alignmentUnits="bytes" fillByte="f" 
+		   		occursCountKind="fixed" 
+				truncateSpecifiedLengthString="no" ignoreCase="no"
+				representation="text"  lengthKind="delimited"
+				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+				separatorPolicy="required" separatorPosition="infix"
+				
+				/>
+			
+		
+		<xs:element name="basic" type="basicType" dfdl:lengthKind="implicit"/>
+		
+		<xs:complexType name="basicType">
+			<xs:sequence dfdl:separator="|">
+				<xs:element name="data" type="xs:int" dfdl:occursCountKind="fixed" minOccurs="2" maxOccurs="3" dfdl:textNumberRep="standard"
+					dfdl:lengthKind="delimited" />
+			</xs:sequence>
+		</xs:complexType>
+		
+		<xs:element name="root">
+                <xs:complexType>
+                	<xs:sequence dfdl:separator="">
+                        	<xs:element name="basic" type="basicType" dfdl:lengthKind="implicit"/>
+                                <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
+                        </xs:sequence>
+                </xs:complexType>
+                </xs:element>
+		
+	</tdml:defineSchema>
+
+
+<!--
+	Schema name: facets-cell-min1max1.dfdl.xsd
+	    Purpose: This schema tests the condition that the minOccurs and maxOccurs values are both 1 in a nested element (matrix->row->cell)
+	              Only one cell entry should be parsed.
+-->
+
+	<tdml:defineSchema name="facets-cell-min1max1.dfdl.xsd">
 		
 		
 				<dfdl:format initiator="" terminator="" 
 				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
 				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
 				alignmentUnits="bytes" fillByte="f" 
-                occursCountKind="parsed" 
+		   		occursCountKind="implicit" 
+				truncateSpecifiedLengthString="no" ignoreCase="no"
+				representation="text"  lengthKind="delimited"
+				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+				separatorPolicy="required" separatorPosition="infix"
+				
+				/>
+			
+		
+		<xs:element name="matrix" type="matrixType" dfdl:lengthKind="implicit"/>
+		
+		<xs:complexType name="matrixType">
+			<xs:sequence dfdl:separator="|">
+				<xs:element name="row" minOccurs="1" maxOccurs="5" dfdl:lengthKind="implicit">
+					<xs:complexType>
+						<xs:sequence dfdl:separator=",">
+							<xs:element name="cell" type="xs:int" minOccurs="1" maxOccurs="1" dfdl:textNumberRep="standard"
+								dfdl:lengthKind="delimited" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+		
+	</tdml:defineSchema>
+	
+<!--
+	Schema name: facets-rowcell-min2maxUnbounded.dfdl.xsd
+	    Purpose: This schema tests the condition that you must have a minimum of 2 rows within a matrix.
+-->
+
+	<tdml:defineSchema name="facets-rowcell-min2maxUnbounded.dfdl.xsd">
+		
+		
+				<dfdl:format initiator="" terminator="" 
+				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
+				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
+				alignmentUnits="bytes" fillByte="f" 
+		   		occursCountKind="parsed" 
 				truncateSpecifiedLengthString="no" ignoreCase="no"
 				representation="text"  lengthKind="delimited"
 				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
@@ -24,14 +296,12 @@
 				/>
 			
 		
-		<xs:element name="matrix" type="matrixType" dfdl:lengthKind="implicit"/>
-		
 		<xs:complexType name="matrixType">
-			<xs:sequence dfdl:separator="%NL;">
-				<xs:element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
+			<xs:sequence dfdl:separator="|">
+				<xs:element name="row" minOccurs="2" maxOccurs="unbounded" dfdl:lengthKind="implicit">
 					<xs:complexType>
 						<xs:sequence dfdl:separator=",">
-							<xs:element name="cell" type="xs:int" minOccurs="4" maxOccurs="unbounded" dfdl:textNumberRep="standard"
+							<xs:element name="cell" type="xs:int" minOccurs="2" maxOccurs="unbounded" dfdl:textNumberRep="standard"
 								dfdl:lengthKind="delimited" />
 						</xs:sequence>
 					</xs:complexType>
@@ -39,22 +309,369 @@
 			</xs:sequence>
 		</xs:complexType>
 		
+		<xs:element name="root">
+                <xs:complexType>
+                	<xs:sequence dfdl:separator="">
+                        	<xs:element name="matrix" type="matrixType" dfdl:lengthKind="implicit"/>
+                                <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
+                        </xs:sequence>
+                </xs:complexType>
+                </xs:element>
 		
 	</tdml:defineSchema>
-	
-	<tdml:parserTestCase name="error_minOccurs" root="matrix" model="facets-Embedded.dfdl.xsd"
-		description="Section 5 - minOccurs error - DFDL-5-062R">
+
+<!--
+	Schema name: facets-min2max3-schemaErr.dfdl.xsd
+	    Purpose: This schema tests the condition that minOccurs does not match maxOccurs when occursCountKind="fixed"
+-->
+
+	<tdml:defineSchema name="facets-min2max3-schemaErr.dfdl.xsd">
+		
+				<dfdl:format initiator="" terminator="" 
+				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
+				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
+				alignmentUnits="bytes" fillByte="f" 
+		   		occursCountKind="fixed" 
+				truncateSpecifiedLengthString="no" ignoreCase="no"
+				representation="text"  lengthKind="delimited"
+				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+				separatorPolicy="required" separatorPosition="infix"
+				
+				/>
+			
+		
+		<xs:element name="basic" type="basicType" dfdl:lengthKind="implicit"/>
+		
+		<xs:complexType name="basicType">
+			<xs:sequence dfdl:separator="|">
+				<xs:element name="data" type="xs:int" dfdl:occursCountKind="fixed" minOccurs="2" maxOccurs="3" dfdl:textNumberRep="standard"
+					dfdl:lengthKind="delimited" />
+			</xs:sequence>
+		</xs:complexType>
+		
+		
+	</tdml:defineSchema>
+
+<!-- ===================================================================== Tests ======================================================================== -->
+
+<!--
+	Test name: correctNumCells0
+	   Schema: facets-min0max0.dfdl.xsd
+	  Purpose: This document has zero entries and should pass.
+-->
+		
+	<tdml:parserTestCase name="correctNumCells0" root="root" model="facets-min0max0.dfdl.xsd"
+		description="Section 5 - minOccurs 0 maxOccurs 0 - DFDL-5-057R">
 
 		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[0,1,2
-5,6,7,8,9
-10,11,12,13,14
-]]></tdml:documentPart>
+			<tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
+		</tdml:document>
+		
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<root>
+					<basic/>
+					<extra/>
+				</root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+<!--
+	Test name: extraCellsParsed
+	   Schema: facets-min0max0.dfdl.xsd
+	  Purpose: This document has more than the maximum number of cells in a row and should be parsed accordingly.
+-->
+		
+	<tdml:parserTestCase name="extraCellsParsed" root="root" model="facets-min0max0.dfdl.xsd"
+		description="Section 5 - minOccurs 0 maxOccurs 0 - DFDL-5-061R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1|2|3]]></tdml:documentPart>
 		</tdml:document>
 
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<root>
+					<basic></basic>
+					<extra>1|2|3</extra>
+				</root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+<!--
+	Test name: scalarElements
+	   Schema: facets-min1max1-scalar.dfdl.xsd
+	  Purpose: This document has a single element and should be parsed accordingly.
+-->
+		
+	<tdml:parserTestCase name="scalarElements" root="scalar" model="facets-min1max1-scalar.dfdl.xsd"
+		description="Section 5 - minOccurs 1 maxOccurs 1 - DFDL-5-057R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<scalar>
+					<data>1</data>
+				</scalar>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+<!--
+	Test name: lessThanMinBasic
+	   Schema: facets-min5max10.dfdl.xsd
+	  Purpose: This document has less than the minimum number of entries and should fail parsing.
+-->
+		
+	<tdml:parserTestCase name="lessThanMinBasic" root="basic" model="facets-min5max10.dfdl.xsd"
+		description="Section 5 - minOccurs 5 maxOccurs 10 - DFDL-5-062R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1|2|3]]></tdml:documentPart>
+		</tdml:document>
+		
 		<tdml:errors>
 			<tdml:error />
 		</tdml:errors>
+	
+	</tdml:parserTestCase>
+
+<!--
+	Test name: moreThanMaxBasic
+	   Schema: facets-min5max10.dfdl.xsd
+	  Purpose: This document has more than the maximum number of entries but maxOccurs should be ignored,
+	           because occursCountKind="parsed" and separatorPolicy is "suppressed"
+-->
+		
+	<tdml:parserTestCase name="moreThanMaxBasic" root="basic" model="facets-min5max10.dfdl.xsd"
+		description="Section 5 - minOccurs 5 maxOccurs 10 - DFDL-5-062R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9|1|2|3|4|5]]></tdml:documentPart>
+		</tdml:document>
+		
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<basic>
+					<data>1</data>
+					<data>2</data>
+					<data>3</data>
+					<data>4</data>
+					<data>5</data>
+					<data>6</data>
+					<data>7</data>
+					<data>8</data>
+					<data>9</data>
+					<data>1</data>
+					<data>2</data>
+					<data>3</data>
+					<data>4</data>
+					<data>5</data>
+				</basic>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		
+	
+	</tdml:parserTestCase>
+
+<!--
+	Test name: arrayElements
+	   Schema: facets-min2max20-array.dfdl.xsd
+	  Purpose: This document has an array of entries and should be correctly parsed.
+-->
+		
+	<tdml:parserTestCase name="arrayElements" root="array" model="facets-min2max20-array.dfdl.xsd"
+		description="Section 5 - minOccurs 5 maxOccurs 10 - DFDL-5-057R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9]]></tdml:documentPart>
+		</tdml:document>
+		
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<array>
+					<data>1</data>
+					<data>2</data>
+					<data>3</data>
+					<data>4</data>
+					<data>5</data>
+					<data>6</data>
+					<data>7</data>
+					<data>8</data>
+					<data>9</data>
+				</array>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		
+	
+	</tdml:parserTestCase>
+
+
+<!--
+	Test name: upToMaxParsed
+	   Schema: facets-min5max10-2.dfdl.xsd
+	  Purpose: This document has more than the maximum number of entries but should be parsed accordingly.
+-->
+		
+	<tdml:parserTestCase name="upToMaxParsed" root="root" model="facets-min5max10-2.dfdl.xsd"
+		description="Section 5 - minOccurs 5 maxOccurs 10 - DFDL-5-061R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9|1|2|3|4|5]]></tdml:documentPart>
+		</tdml:document>
+		
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<root>
+					<basic>
+						<data>1</data>
+						<data>2</data>
+						<data>3</data>
+						<data>4</data>
+						<data>5</data>
+						<data>6</data>
+						<data>7</data>
+						<data>8</data>
+						<data>9</data>
+						<data>1</data>
+					</basic>
+					<extra>|2|3|4|5</extra>
+				</root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	
+	</tdml:parserTestCase>
+
+<!--
+	Test name: minMaxDoNotMatch
+	   Schema: facets-min2max3-schemaErr.dfdl.xsd
+	  Purpose: This test verifies that when occursCountKind is "fixed", there is a parsing error if minOccurs does 
+	  	   not equal maxOccurs.
+-->
+		
+	<tdml:parserTestCase name="minMaxDoNotMatch" root="root" model="facets-min2max3-schemaErr.dfdl.xsd"
+		description="Section 5 - minOccurs 2 maxOccurs 3 - DFDL-5-060R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9|1|2|3|4|5]]></tdml:documentPart>
+		</tdml:document>
+		
+		<tdml:errors> 
+			<tdml:error />
+		</tdml:errors>
+	
+
+	</tdml:parserTestCase>
+
+<!-- 
+	Test name: largeNumRows
+	   Schema: facet-rowcell-min2maxUnbounded.dfdl.xsd
+	  Purpose: This test set has a very high number of rows within the matrix and should pass.
+-->
+	
+	<tdml:parserTestCase name="largeNumRows" root="root" model="facets-rowcell-min2maxUnbounded.dfdl.xsd"
+		description="Section 5 - minOccurs 2 maxOccurs Unbounded - DFDL-5-061R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4|1,3|2,4|3,2,3,4,5,4|55,3,4,4]]></tdml:documentPart>
+
+		</tdml:document>
+		
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+<root><matrix><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row><row><cell>1</cell><cell>3</cell></row><row><cell>2</cell><cell>4</cell></row><row><cell>3</cell><cell>2</cell><cell>3</cell><cell>4</cell><cell>5</cell><cell>4</cell></row><row><cell>55</cell><cell>3</cell><cell>4</cell><cell>4</cell></row></matrix><extra></extra></root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
 	</tdml:parserTestCase>
 	
+
+<!--
+	Test name: lessThanMinCells
+	   Schema: facets-rowcell-min2maxUnbounded.dfdl.xsd
+	  Purpose: This test set does not have the minimum number of cells (2) in the second row and would be parsed accordingly, 
+	  	   but in this case the number of rows would be less than 2, so there is a parse error.
+-->
+
+	<tdml:parserTestCase name="lessThanMinCells" root="root" model="facets-rowcell-min2maxUnbounded.dfdl.xsd"
+		description="Section 5 - minOccurs 2 maxOccurs Unbounded - DFDL-5-058R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1,4,2,1|4|5,4,3]]></tdml:documentPart>
+		</tdml:document>
+		
+		<tdml:errors> 
+			<tdml:error />
+		</tdml:errors>
+	
+	</tdml:parserTestCase>
+
+	
+<!--
+	Test name: moreThanMinCells
+	   Schema: facets-rowcell-min2maxUnbounded.dfdl.xsd
+	  Purpose: This test set has the minimum number of cells and rows and should pass.
+-->
+		
+	<tdml:parserTestCase name="moreThanMinCells" root="root" model="facets-rowcell-min2maxUnbounded.dfdl.xsd"
+		description="Section 5 - minOccurs 2 maxOccurs Unbounded - DFDL-5-057R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1,3|3,1]]></tdml:documentPart>
+		</tdml:document>
+		
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<root>
+					<matrix>
+						<row>
+							<cell>1</cell>
+							<cell>3</cell>
+						</row>
+						<row>
+							<cell>3</cell>
+							<cell>1</cell>
+						</row>
+					</matrix>
+					<extra></extra>
+				</root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+	
+<!-- 
+	Test name: lessThanMinCellsAfterLargeRow
+	   Schema: facets-rowcell-min2maxUnbounded.dfdl.xsd
+	  Purpose: This test set several rows containing a very high number of cells, followed by a row with less than the minimum required, and should be
+	  	   parsed accordingly.
+-->
+	
+	<tdml:parserTestCase name="lessThanMinCellsAfterLargeRow" root="root" model="facets-rowcell-min2maxUnbounded.dfdl.xsd"
+		description="Section 5 - minOccurs 2 maxOccurs Unbounded - DFDL-5-058R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1|2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2|1|8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,22]]></tdml:documentPart>
+		</tdml:document>
+		
+		
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+<root><matrix><row><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>1</cell></row><row><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>2</cell></row></matrix><extra>|1|8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,22</extra></root>
+
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
 </tdml:testSuite>

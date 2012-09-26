@@ -1,12 +1,13 @@
 package daffodil.processors.input
 
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import scala.util.parsing.combinator._
 import java.io.StringReader
+import org.junit.Test
 
 
-class TestRegex extends JUnit3Suite with RegexParsers {
+class TestRegex extends JUnitSuite with RegexParsers {
 
   /**
    * Scala combinator parsers can do longest match via the '|||' combinator
@@ -31,8 +32,8 @@ class TestRegex extends JUnit3Suite with RegexParsers {
     // There's one capture group here
   }
 
-  def t0 = log(anyUntil(delim0).r)("before") ~! log(delim0.r)("delim") ~! log("""(.*)""".r)("after")
-  // def t0 = anyUntil(delim0).r ~! delim0.r ~! """(.*)""".r
+  // def t0 = log(anyUntil(delim0).r)("before") ~! log(delim0.r)("delim") ~! log("""(.*)""".r)("after")
+  def t0 = anyUntil(delim0).r ~! delim0.r ~! """(.*)""".r
 
   // test data. Stuff including whitespace, followed by the delimiter, followed by more stuff
   // also containing whitespace
@@ -40,11 +41,11 @@ class TestRegex extends JUnit3Suite with RegexParsers {
 
   lazy val parsed0 = parseAll(t0, rdr0)
 
-  def testParsingDelims() {
+  @Test def testParsingDelims() {
     skipWS = false // keep all the whitespace
     assertTrue(parsed0.successful)
     val a = parsed0.get
-    println(a)
+    // println(a)
     a match {
       // We need 'ending' here, not 'end'
       case (("b e f o r e " ~ "___;___") ~ " a f t e r") => {
@@ -70,11 +71,11 @@ class TestRegex extends JUnit3Suite with RegexParsers {
 
   lazy val parsed1 = parseAll(t1, rdr1)
 
-  def testRegexNoWSLongestMatch() {
+  @Test def testRegexNoWSLongestMatch() {
     skipWS = true // this is the default setting for scala comb. parsers, but we have no ws so it doesn't matter really.
     assertTrue(parsed1.successful)
     val a = parsed1.get
-    println(a)
+    // println(a)
     a match {
       // We need 'ending' here, not 'end'
       case ("___ending___" ~ "more") => {
@@ -92,7 +93,8 @@ class TestRegex extends JUnit3Suite with RegexParsers {
   // so first match would get the shorter match
   def endWS = """\s*end\s*""".r // note use \s for whiteSpace. \w is "word character" not whitespace
   def endingWS = """\s*ending\s*""".r
-  def delimWS = (log(endWS)("end") ||| log(endingWS)("ending"))
+  // def delimWS = (log(endWS)("end") ||| log(endingWS)("ending"))
+  def delimWS = (endWS ||| endingWS)
 
   def t2 = delimWS ~! "more"
 
@@ -100,12 +102,12 @@ class TestRegex extends JUnit3Suite with RegexParsers {
 
   lazy val parsed2 = parseAll(t2, rdr2)
   
-  def testRegexWSLongestMatch() {
+  @Test def testRegexWSLongestMatch() {
     skipWS = false // we want our delimiters to contain the whitespace.
-    println(parsed2)
+    // (parsed2)
     assertTrue(parsed2.successful)
     val a = parsed2.get
-    println(a)
+    // println(a)
     a match {
       // We need 'ending' here, not 'end'
       case ("   ending   " ~ "more") => {
@@ -124,7 +126,7 @@ class TestRegex extends JUnit3Suite with RegexParsers {
    * Tests a regular experssion to match a delimiter but taking
    * into account escape characters.
    */
-  def testRegexToMatchOneDelimiterWithEscapeChars() {
+  @Test def testRegexToMatchOneDelimiterWithEscapeChars() {
 
     /**
      * tester regexps and postprocessing algorithms are different
@@ -153,7 +155,7 @@ class TestRegex extends JUnit3Suite with RegexParsers {
       // followed by anything leftover
       val str = """(.*?)(?=(?<!(?<!%1$s)%2$s)%3$s)(%3$s)(.*)"""
       val ContentPattern = str.format(escapeEscape, escape, delim).r
-      println("Pattern = " + ContentPattern.pattern)
+      // println("Pattern = " + ContentPattern.pattern)
 
       // used to cleanup active escape characters 
       val EDSplit = """(.*)%1$s(%2$s)(.*)""".format(escape, delim).r
@@ -167,12 +169,13 @@ class TestRegex extends JUnit3Suite with RegexParsers {
        */
       def test(x : String) = x match {
         case ContentPattern(before, delim, after) => {
-          println("'%s' parsed to b = '%s', d = '%s', a = '%s'".
-            format(x, before, delim, after))
+          // println("'%s' parsed to b = '%s', d = '%s', a = '%s'".format(x, before, delim, after))
           val before1 = removeActiveEscapes(before)
           Some((before1, delim, after))
         }
-        case z => { println("no match: " + z); None }
+        case z => { 
+          // println("no match: " + z); 
+          None }
       }
 
       /**
@@ -244,7 +247,7 @@ class TestRegex extends JUnit3Suite with RegexParsers {
    * Or, if you choose not to use the block escapes, you can still escape the delimiter.
    *
    */
-  def testRegexToMatchOneDelimiterWithBlockEscapes() {
+  @Test def testRegexToMatchOneDelimiterWithBlockEscapes() {
 
     def tester(bStart : String, bEnd : String, escapeEscape : String, escape : String, delim : String) = {
       val str = """(?>""" +
@@ -259,7 +262,7 @@ class TestRegex extends JUnit3Suite with RegexParsers {
         """)"""
 
       val ContentPattern = str.format(escapeEscape, escape, delim, bStart, bEnd).r
-      println("Pattern = " + ContentPattern.pattern)
+      // println("Pattern = " + ContentPattern.pattern)
 
       // used to cleanup active escape characters 
       val EDSplit = """(.*)%1$s(%2$s)(.*)""".format(escape, delim).r
@@ -268,17 +271,19 @@ class TestRegex extends JUnit3Suite with RegexParsers {
       def test(x : String) = x match {
         case ContentPattern(before, delim, after, null, null, null) => {
           val before1 = removeActiveEscapesBlocked(before)
-          println("'%s' parsed to b = '%s', d = '%s', a = '%s'".
-            format(x, before1, delim, after))
+//          println("'%s' parsed to b = '%s', d = '%s', a = '%s'".
+//            format(x, before1, delim, after))
           Some((before1, delim, after))
         }
         case ContentPattern(null, null, null, before, delim, after) => {
           val before1 = removeActiveEscapesUnblocked(before)
-          println("'%s' parsed to b = '%s', d = '%s', a = '%s'".
-            format(x, before1, delim, after))
+//          println("'%s' parsed to b = '%s', d = '%s', a = '%s'".
+//            format(x, before1, delim, after))
           Some((before1, delim, after))
         }
-        case z => { println("no match: " + z); None }
+        case z => { 
+          // println("no match: " + z); 
+          None }
       }
 
       // postprocessing to remove active escape characters

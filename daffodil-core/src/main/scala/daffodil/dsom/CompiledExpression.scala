@@ -222,6 +222,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
             case _ => Assert.invariantFailed("Can't evaluate to " + res + " when testing for isConstant")
           }
         } catch {
+          case u : UnsuppressableException => throw u
           case e : XPathExpressionException => {
             log(Debug("%s is NOT constant (due to %s)", xpathExprFactory.expression, e.toString))
             None
@@ -233,9 +234,9 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
             log(Debug("%s is NOT constant (due to %s)", xpathExprFactory.expression, e.toString))
             None
           }
-          case e : Exception => {
-            Assert.invariantFailed("Didn't get an XPathExpressionException. Got: " + e)
-          }
+//          case e : Exception => {
+//            Assert.invariantFailed("Didn't get an XPathExpressionException. Got: " + e)
+//          }
         }
       result
     }
@@ -260,6 +261,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
     try {
       Boolean.box(s.toString.toBoolean)
     } catch {
+      case u :UnsuppressableException => throw u
       case n : Exception =>
         edecl.schemaDefinitionError("Cannot convert %s to Boolean. Error %s.", s, n)
     }

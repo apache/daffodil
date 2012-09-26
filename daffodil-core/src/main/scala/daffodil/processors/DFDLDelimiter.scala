@@ -16,7 +16,8 @@ class Delimiter {
   var delimBuf: Array[DelimBase] = Array.empty[DelimBase] /* Buffer where each cell (DelimBase) represents a character
 		  												     in the delimiter string */
   
-  var delimRegEx: String = ""
+  var delimRegExParseDelim: String = "" // Regex to actually parse the entire delimiter
+  var delimRegExParseUntil: String = "" // Regex to specify everything until this delimiter
 
   // Pre-compiled RegEx patterns for finding character classes
   lazy val NL = Pattern.compile("%(NL);", Pattern.MULTILINE)
@@ -35,7 +36,9 @@ class Delimiter {
   def apply(pDelimiter: String) = {
     delimiterStr = pDelimiter
     delimBuf = buildDelimBuf(delimiterStr)
-    delimRegEx = this.buildDelimRegEx(delimBuf)
+    //delimRegEx = this.buildDelimRegEx(delimBuf)
+    delimRegExParseUntil = this.delimRegexParseUntil(delimBuf)
+    delimRegExParseDelim = this.delimRegexParseDelim(delimBuf)
   }
 
   // Reduces complicated delimiters containing consecutive WSP, WSP* and WSP+
@@ -177,26 +180,26 @@ class Delimiter {
   // if the delimiter/data was in the expected format.
   //
   def buildDelimRegEx(delimiterBuf: Array[DelimBase] = delimBuf): String = {
-    var sb: StringBuilder = new StringBuilder("(")
+    var sb: StringBuilder = new StringBuilder//("(")
     delimiterBuf foreach {
       delim =>
         {
           delim match {
             case nl: NLDelim => { sb.append("(\\r\\n|\\n|\\r|\\u0085|\\u2028)") }
             case wsp: WSPDelim => {
-              sb.append("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
                 "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
                 "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)")
             } // Single space
             case wsp: WSPPlusDelim => {
-              sb.append("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
                 "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
                 "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)+")
             } // One or more spaces
             case wsp: WSPStarDelim => {
-              sb.append("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
                 "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)?")
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)")
             } // None or more spaces
             case char: CharDelim => { // Some character
               char.char match {
@@ -219,7 +222,101 @@ class Delimiter {
           }
         }
     }
-    sb.append(")")
+    //sb.append(")")
+    sb.toString()
+  }
+  
+  def delimRegexParseUntil(delimiterBuf: Array[DelimBase] = delimBuf): String = {
+    var sb: StringBuilder = new StringBuilder//("(")
+    delimiterBuf foreach {
+      delim =>
+        {
+          delim match {
+            case nl: NLDelim => { sb.append("(\\r\\n|\\n|\\r|\\u0085|\\u2028)") }
+            case wsp: WSPDelim  => {
+              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)")
+            } // Single space
+            case wsp: WSPPlusDelim => {
+              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)")
+            } // One or more spaces
+            case wsp: WSPStarDelim => {
+              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)")
+            } // None or more spaces
+            case char: CharDelim => { // Some character
+              char.char match {
+                case '[' => sb.append("\\[")
+                case '\\' => sb.append("\\\\")
+                case '^' => sb.append("\\^")
+                case '$' => sb.append("\\$")
+                case '.' => sb.append("\\.")
+                case '|' => sb.append("\\|")
+                case '?' => sb.append("\\?")
+                case '*' => sb.append("\\*")
+                case '+' => sb.append("\\+")
+                case '(' => sb.append("\\(")
+                case ')' => sb.append("\\)")
+                case '{' => sb.append("\\{")
+                case '}' => sb.append("\\}")
+                case x => sb.append(x)
+              }
+            }
+          }
+        }
+    }
+    //sb.append(")")
+    sb.toString()
+  }
+  
+  def delimRegexParseDelim(delimiterBuf: Array[DelimBase] = delimBuf): String = {
+    var sb: StringBuilder = new StringBuilder//("(")
+    delimiterBuf foreach {
+      delim =>
+        {
+          delim match {
+            case nl: NLDelim => { sb.append("(\\r\\n|\\n|\\r|\\u0085|\\u2028)") }
+            case wsp: WSPDelim => {
+              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)")
+            } // Single space
+            case wsp: WSPPlusDelim => {
+              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)+")
+            } // One or more spaces
+            case wsp: WSPStarDelim => {
+              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)*")
+            } // None or more spaces
+            case char: CharDelim => { // Some character
+              char.char match {
+                case '[' => sb.append("\\[")
+                case '\\' => sb.append("\\\\")
+                case '^' => sb.append("\\^")
+                case '$' => sb.append("\\$")
+                case '.' => sb.append("\\.")
+                case '|' => sb.append("\\|")
+                case '?' => sb.append("\\?")
+                case '*' => sb.append("\\*")
+                case '+' => sb.append("\\+")
+                case '(' => sb.append("\\(")
+                case ')' => sb.append("\\)")
+                case '{' => sb.append("\\{")
+                case '}' => sb.append("\\}")
+                case x => sb.append(x)
+              }
+            }
+          }
+        }
+    }
+    //sb.append(")")
     sb.toString()
   }
 

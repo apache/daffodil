@@ -88,6 +88,25 @@
 			</xs:complexType>
 		</xs:element>
 		
+		<xs:element name="s1" type="xs:int" dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+		<xs:element name="e1b" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="s" dfdl:lengthKind="implicit"
+						minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind='parsed'>
+						<xs:complexType>
+							<xs:choice dfdl:initiatedContent="yes"
+								dfdl:separatorPosition="infix" dfdl:separator="">
+								<xs:element ref="ex:s1"/>
+								<xs:element name="s2" dfdl:initiator="[s2:" type="xs:string"
+									dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
 		<xs:element name="e3" dfdl:lengthKind="implicit">
 			<xs:complexType>
 				<xs:sequence dfdl:separator="%WSP;" dfdl:separatorPosition="infix">
@@ -141,7 +160,7 @@
 		
 	</tdml:defineSchema>
 
-	<tdml:parserTestCase name="initiatedContent1" description="initiatedContent='yes' - DFDL-15-003R"
+	<tdml:parserTestCase name="initiatedContentChoice1" description="initiatedContent='yes' - DFDL-15-003R"
 		model="s1" root="e1">
 		<tdml:document>[s2:abc][s1:123]</tdml:document>
 		<tdml:infoset>
@@ -158,7 +177,7 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="initiatedContent2" description="parsing error in branch - DFDL-15-003R"
+	<tdml:parserTestCase name="initiatedContentChoice2" description="parsing error in branch - DFDL-15-003R"
 		model="s1" root="e1">
 		<tdml:document>[s2:abc][s1:noi]</tdml:document>
 		<tdml:errors>
@@ -166,7 +185,7 @@
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="initiatedContent3"
+	<tdml:parserTestCase name="initiatedContentChoice3"
 		description="test that insures initiatedContent the initiator behaves as a discriminator and cuts off other choice alternatives. DFDL-15-003R"
 		model="s1" root="e2">
 		<tdml:document>[abc]</tdml:document>
@@ -179,7 +198,7 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="initiatedContent4"
+	<tdml:parserTestCase name="initiatedContentChoice4"
 		description="backtracking occurs - DFDL-15-003R."
 		model="s1" root="e2WithoutInitiatedContent">
 		<tdml:document>[abc]</tdml:document>
@@ -192,7 +211,7 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="initiatedContent5" description="one of branches is not initiated - DFDL-15-003R"
+	<tdml:parserTestCase name="initiatedContentChoice5" description="one of branches is not initiated - DFDL-15-003R"
 		model="s1" root="e1a">
 		<tdml:document>[s2:abc]123]</tdml:document>
 		<tdml:errors>
@@ -200,7 +219,7 @@
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="initiatedContent6"
+	<tdml:parserTestCase name="initiatedContentChoice6"
 		description="initiatedContent with delimited elements - - DFDL-15-003R"
 		model="s1" root="e3">
 		<tdml:document>[1789 [3.25</tdml:document>
@@ -214,7 +233,7 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="initiatedContent7"
+	<tdml:parserTestCase name="initiatedContentChoice7"
 		description="same as initiatedConten6 except initiatedContent='no' - - DFDL-15-003R"
 		model="s1" root="e4">
 		<tdml:document>[1789 [3.25</tdml:document>
@@ -228,7 +247,7 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="initiatedContent8"
+	<tdml:parserTestCase name="initiatedContentChoice8"
 		description="First choice branch is selected because it is a string type - - DFDL-15-003R"
 		model="s1" root="e5">
 		<tdml:document>[123][abc]</tdml:document>
@@ -240,6 +259,14 @@
 				</e5>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="initiatedContentChoice9" description="one of branches is not initiated, an element reference - DFDL-15-003R"
+		model="s1" root="e1b">
+		<tdml:document>[s2:abc]123]</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
 	</tdml:parserTestCase>
 
 </tdml:testSuite>

@@ -16,11 +16,30 @@ import daffodil.compiler._
 import daffodil.dsom.AnnotatedSchemaComponent
 import java.io.FileOutputStream
 import java.io.File
+import daffodil.exceptions.UnsuppressableException
+
+
+
+class UnparseAlternativeFailed(sc : SchemaComponent, state : UState, val errors : Seq[Diagnostic]) 
+extends UnparseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors) 
+
+class AltUnparseFailed(sc : SchemaComponent, state : UState,
+  val p : Diagnostic, val q : Diagnostic) 
+  extends UnparseError(sc, Some(state), "All alternatives failed. Reason(s): %s", p, q) {
+  
+  override def getSchemaLocations : Seq[SchemaLocation] = p.getSchemaLocations ++ q.getSchemaLocations
+  
+  override def getDataLocations : Seq[DataLocation] = {
+    // both should have the same starting location if they are alternatives.
+    Assert.invariant(p.getDataLocations == q.getDataLocations)
+    p.getDataLocations
+  }
+}
 
 class UnparseError(sc : SchemaComponent, ustate : Option[UState], kind : String, args : Any*) extends ProcessingError {
   def isError = true
-  def getSchemaLocations = List(sc)
-  def getDataLocations = ustate.map { _.currentLocation }.toList
+  def getSchemaLocations : Seq[SchemaLocation] = List(sc)
+  def getDataLocations : Seq[DataLocation] = ustate.map { _.currentLocation }.toList
 
   override def toString = {
     lazy val argsAsString = args.map { _.toString }.mkString(", ")
@@ -115,6 +134,7 @@ class AltCompUnparser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) ex
         log(Debug("Trying choice alternative: %s", pUnparser))
         pUnparser.unparse(ustate)
       } catch {
+        case u: UnsuppressableException => throw u
         case e : Exception => {
           Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
         }
@@ -150,6 +170,7 @@ class AltCompUnparser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) ex
         log(Debug("Trying choice alternative: %s", qUnparser))
         qUnparser.unparse(ustate)
       } catch {
+        case u: UnsuppressableException => throw u
         case e : Exception => {
           Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
         }
@@ -177,14 +198,14 @@ class AltCompUnparser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) ex
         // each indicate that one alternative failed due to the errors that occurred during
         // that attempt.
 
-        val pAltErr = new AlternativeFailed(context, ustate, pResult.diagnostics)
-        val qAltErr = new AlternativeFailed(context, ustate, qResult.diagnostics)
-        val altErr = new AltParseFailed(context, ustate, pAltErr, qAltErr)
+        val pAltErr = new UnparseAlternativeFailed(context, ustate, pResult.diagnostics)
+        val qAltErr = new UnparseAlternativeFailed(context, ustate, qResult.diagnostics)
+        val altErr = new AltUnparseFailed(context, ustate, pAltErr, qAltErr)
 
         val bothFailedResult = ustate.failed(altErr)
         log(Debug("Both AltParser alternatives failed."))
 
-        val result = UE(bothFailedResult, "Both alternatives failed.")
+        val result = bothFailedResult
         result.withDiscriminator(false)
       }
     }
@@ -498,6 +519,7 @@ class OutStreamFromByteChannel(context : ElementBase, outStream : DFDL.Output, s
         cbuf.flip()
         isTooSmall = false
       } catch { //make sure buffer was not written to capacity
+        case u: UnsuppressableException => throw u
         case e : Exception => {
           cbuf = CharBuffer.allocate(cbuf.position() * 4) // TODO: more efficient algorithm than size x4
           if (temp != "")

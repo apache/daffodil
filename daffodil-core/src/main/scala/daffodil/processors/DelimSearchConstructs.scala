@@ -38,8 +38,6 @@ object EscapeSchemeKind extends Enumeration {
   val Character, Block, None = Value
 }
 
-
-
 object EscapeScheme extends Logging {
 
   class EscapeSchemeObj {

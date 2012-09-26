@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="Discriminator" description="Section 7 - Discriminator"
+	xmlns:ex="http://example.com" xmlns="http://example.com"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="choice2">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="c1">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="c">
+						<xs:complexType>
+							<xs:choice>
+								<xs:element name="a1">
+
+									<xs:complexType>
+										<xs:sequence>
+											<xs:annotation>
+												<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+													<dfdl:discriminator><![CDATA[{ xs:boolean('true') }]]></dfdl:discriminator>
+												</xs:appinfo>
+											</xs:annotation>
+											<xs:element name="str" type="xs:string"
+												dfdl:lengthKind="explicit" dfdl:length="{ 80 }" /> <!-- fails because there is no data -->
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="a2" type="xs:string"
+									dfdl:inputValueCalc="{ 'a2' }" />
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="discriminatorGuidesChoice"
+		root="c1" model="choice2" description="Section 7 - Discriminator with boolean test expression - DFDL-7-060R">
+		<tdml:document />
+		<tdml:errors>
+			<tdml:error>Parse Error</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+</tdml:testSuite>

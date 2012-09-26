@@ -1,8 +1,9 @@
 package daffodil.util
 
-import junit.framework.Assert._ ;
-import org.scalatest.junit.JUnit3Suite ;
+import junit.framework.Assert._
+import org.scalatest.junit.JUnitSuite
 import daffodil.exceptions._
+import org.junit.Test
 
 class MyClass extends Logging {
   
@@ -36,9 +37,9 @@ class MyClass extends Logging {
   }
 }
 
-class TestLogger extends JUnit3Suite {
+class TestLogger extends JUnitSuite {
 
-  def test1() {
+  @Test def test1() {
     val c = new MyClass
     c.logSomething()
     Console.out.flush()

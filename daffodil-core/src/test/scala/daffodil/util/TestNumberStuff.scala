@@ -1,18 +1,19 @@
 package daffodil.util
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import com.ibm.icu.text.DecimalFormat
 import java.text.ParsePosition
+import org.junit.Test
 
 /**
  * Tests that characterize ICU number parsing specifically with respect
  * to dealing with numbers big enough for unsignedLong. 
  */
-class TestNumberStuff extends JUnit3Suite {
+class TestNumberStuff extends JUnitSuite {
   
    
-	  // @Test 
+	  @Test 
 	  def test1() {
 	    val dl = UnsignedLongConverter()
 	    val p = dl.parser
@@ -21,7 +22,7 @@ class TestNumberStuff extends JUnit3Suite {
 	    assertEquals(maxUL, bi.toString)
 	  }
 	  
-	  	  // @Test 
+	  @Test 
 	  def test2() {
 	    val dl = UnsignedLongConverter()
 	    val p = dl.parser
@@ -32,7 +33,7 @@ class TestNumberStuff extends JUnit3Suite {
 	    assertTrue(exc.getMessage().contains("negative"))
 	  }
 	  
-	  	  	  // @Test 
+	  @Test 
 	  def test3() {
 	    val dl = UnsignedLongConverter()
 	    val p = dl.parser
@@ -45,7 +46,7 @@ class TestNumberStuff extends JUnit3Suite {
 	    assertTrue(msg.contains("big"))
 	  }
 	  
-	  	  	  	  // @Test 
+	  @Test 
 	  def test4() {
 	    val dl = UnsignedLongConverter()
 	    val p = dl.parser
@@ -54,7 +55,7 @@ class TestNumberStuff extends JUnit3Suite {
 	    assertEquals(v, bi.toString)
 	  }
    
-  	  // @Test 
+  	  @Test 
 	  def test5() {
 	    val dl = UnsignedLongConverter()
 	    val p = dl.parser
@@ -65,7 +66,7 @@ class TestNumberStuff extends JUnit3Suite {
 	    assertTrue(exc.getMessage().contains("negative"))
 	  }
 	  
-	  	  // @Test 
+	  @Test 
 	  def test6() {
 	    val dl = UnsignedLongConverter()
 	    val p = dl.parser
@@ -75,7 +76,7 @@ class TestNumberStuff extends JUnit3Suite {
 	    assertEquals(maxUL, bi.toString)
 	  }
 	  
-	  	  	  // @Test 
+	  @Test 
 	  def test7() {
 	    val dl = UnsignedLongConverter()
 	    val p = dl.parser
@@ -86,7 +87,7 @@ class TestNumberStuff extends JUnit3Suite {
 	    assertTrue(exc.getMessage().contains("not a valid"))
 	  }
 	  
-	  def test8() {
+	  @Test def test8() {
 	    val dl = LongConverter()
 	    val p = dl.parser
 	    val v = "definitelyNotANumber"
@@ -96,7 +97,7 @@ class TestNumberStuff extends JUnit3Suite {
 	    assertTrue(exc.getMessage().contains("not a valid"))
 	  }
 	  
-	  def test9() {
+	  @Test def test9() {
 	    val dl = LongConverter()
 	    val p = dl.parser
 	    val v = "1              " // lots of spaces after

@@ -1,13 +1,14 @@
 package daffodil.processors
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import scala.xml._
 import daffodil.xml.XMLUtils
 import daffodil.xml.XMLUtils._
 import daffodil.compiler.Compiler
 import daffodil.util.TestUtils
 import daffodil.dsom.SchemaSet
+import org.junit.Test
 
 object DFDLUtils {
 
@@ -26,7 +27,7 @@ object DFDLUtils {
   }
 }
 
-class TestPrimitives extends JUnit3Suite {
+class TestPrimitives extends JUnitSuite {
 
   def assertEqualsXMLElements(expected : Node, actual : Node) = {
     val exp = XMLUtils.removeAttributes(expected)
@@ -34,7 +35,7 @@ class TestPrimitives extends JUnit3Suite {
     assertEquals(exp, act)
   }
   
-  def testInitiator {
+  @Test def testInitiator {
     val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:initiator="abcd">
@@ -49,7 +50,7 @@ class TestPrimitives extends JUnit3Suite {
     assertEqualsXMLElements(expected, actual.result)
   }
   
-  def testTerminator {
+  @Test def testTerminator {
     val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:terminator="efgh">
@@ -63,7 +64,7 @@ class TestPrimitives extends JUnit3Suite {
     assertEqualsXMLElements(expected, actual.result)
   }
   
-  def testSeparator {
+  @Test def testSeparator {
      val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -83,7 +84,7 @@ class TestPrimitives extends JUnit3Suite {
     assertEqualsXMLElements(expected, actual.result)  
   }
   
-  def testLengthKindDelimited {
+  @Test def testLengthKindDelimited {
      val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="delimited">
@@ -104,7 +105,7 @@ class TestPrimitives extends JUnit3Suite {
     assertEqualsXMLElements(expected, actual.result)  
   }
   
-  def testLengthKindDelimited2 {
+  @Test def testLengthKindDelimited2 {
      val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="delimited">
@@ -125,7 +126,7 @@ class TestPrimitives extends JUnit3Suite {
     assertEqualsXMLElements(expected, actual.result)  
   }
   
-  def testLengthKindDelimited3 {
+  @Test def testLengthKindDelimited3 {
      val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="delimited">
@@ -153,7 +154,7 @@ class TestPrimitives extends JUnit3Suite {
     assertEqualsXMLElements(expected, actual.result)  
   }
   
-  def testDelimiterInheritance {
+  @Test def testDelimiterInheritance {
      val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:defineFormat name="config">
                            <dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
@@ -215,7 +216,7 @@ class TestPrimitives extends JUnit3Suite {
     assertEqualsXMLElements(expected, actual.result)  
   }
   
-  def testEntityReplacementSeparator {
+  @Test def testEntityReplacementSeparator {
      val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -235,7 +236,7 @@ class TestPrimitives extends JUnit3Suite {
     assertEqualsXMLElements(expected, actual.result)  
   }
   
-  def testEntityReplacementInitiator {
+  @Test def testEntityReplacementInitiator {
     val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:initiator="%NUL;">
@@ -250,7 +251,7 @@ class TestPrimitives extends JUnit3Suite {
     assertEqualsXMLElements(expected, actual.result)
   }
   
-  def testEntityReplacementTerminator {
+  @Test def testEntityReplacementTerminator {
     val sch = DFDLUtils.dfdlTestSchema(
       <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:terminator="%NUL;">
@@ -264,7 +265,7 @@ class TestPrimitives extends JUnit3Suite {
     assertEqualsXMLElements(expected, actual.result)
   }
 
-  def testNotByteAlignedCharactersErrorDetected() {
+  @Test def testNotByteAlignedCharactersErrorDetected() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)

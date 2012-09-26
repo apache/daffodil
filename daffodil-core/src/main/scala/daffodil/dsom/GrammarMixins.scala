@@ -891,8 +891,8 @@ trait TermGrammarMixin { self : Term =>
       // Note that GroupPosGreaterThan(N,..) sets discriminator, so if it is true, and infixSep is not found, it won't
       // backtrack and try nothing. Only if GroupPos is not greater than N will it backtrack.
       // TODO: adding ChildPosGreaterThan and ArrayPosGreaterThan fixes bug with xs:choice and array tests--check for other cases
-      (ArrayPosGreaterThan(1, self) ~ GroupPosGreaterThan(1, self) ~ infixSep) |
-        (ChildPosGreaterThan(1, self) ~ GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this)
+      (ArrayPosGreaterThan(1, self) ~ infixSep) |
+        ( (GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this) )
     } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this))
 }
 
@@ -917,7 +917,7 @@ trait ModelGroupGrammarMixin
 
 trait ChoiceGrammarMixin { self : Choice =>
 
-  lazy val groupContent = Prod("choiceContent", this, alternatives.foldLeft(mt)(folder))
+  lazy val groupContent = Prod("choiceContent", this, alternatives.foldRight(mt)(folder))
 
   def folder(p : Gram, q : Gram) : Gram = p | q
 
@@ -927,7 +927,7 @@ trait ChoiceGrammarMixin { self : Choice =>
 
 trait SequenceGrammarMixin { self : Sequence =>
 
-  lazy val groupContent = Prod("sequenceContent", this, StartSequence(this) ~ terms.foldLeft(mt)(folder) ~ EndSequence(this))
+  lazy val groupContent = Prod("sequenceContent", this, StartSequence(this) ~ terms.foldRight(mt)(folder) ~ EndSequence(this))
 
   def folder(p : Gram, q : Gram) : Gram = p ~ q
 
@@ -958,7 +958,7 @@ trait SequenceGrammarMixin { self : Sequence =>
 
 trait GroupRefGrammarMixin { self : GroupRef =>
 
-  def termContentBody = Assert.notYetImplemented()
+  def termContentBody = self.group.termContentBody//Assert.notYetImplemented()
 
 }
 

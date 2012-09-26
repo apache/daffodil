@@ -6,6 +6,8 @@ import scala.collection.immutable.PagedSeq
 import scala.collection.mutable.HashMap
 import scala.util.parsing.input.OffsetPosition
 import java.nio.charset.CodingErrorAction
+import java.nio.ByteBuffer
+import java.io.InputStreamReader
 
 /**
  * Pure functional Reader[Byte] that gets its data from a DFDL.Input (aka a ReadableByteChannel)
@@ -24,6 +26,11 @@ class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos: Int = 0)
   lazy val atEnd: Boolean = !psb.isDefinedAt(bytePos)
   
   def atPos(bytePosition: Int): DFDLByteReader = { new DFDLByteReader(psb, bytePosition) }
+  
+  def getByte(bytePosition: Int): Byte = { psb(bytePosition) }
+  
+  lazy val byteArray: Array[Byte] = psb.toArray[Byte]
+  lazy val bb: ByteBuffer = ByteBuffer.wrap(byteArray)
 
   /**
    * Factory for a Reader[Char] that constructs characters by decoding them from this
@@ -56,7 +63,13 @@ class DFDLCharReader private (psc: PagedSeq[Char], override val offset: Int)
       val codec = scala.io.Codec.charset2codec(cs)
       // TODO: Determine if the right thing here to do is to ignore malformed input which is default behavior
       //codec.onMalformedInput(CodingErrorAction.REPORT)
-      val psc = PagedSeq.fromSource(scala.io.Source.fromInputStream(is)(codec))
+      codec.onMalformedInput(CodingErrorAction.IGNORE)
+      // TRW - The following line was changed because the fromSource
+      // method was causing the readLine method of the BufferedReader class to be
+      // called.  This resulted in the loss of \n, \r and \r\n characters from the data.
+      //val psc = PagedSeq.fromSource(scala.io.Source.fromInputStream(is)(codec))
+      val r = new InputStreamReader(is, codec.decoder)
+      val psc = PagedSeq.fromReader(r)
       psc
     }, 0)
 
@@ -152,12 +165,20 @@ object DFDLByteReader {
       csMap.put(csName, emptyCharReaderMap)
       charReaderMap.put(psb, csMap)
     }
+    
+    // TRW - Added for Compound Pattern Match to work
+    if (charReaderMap.get(psb) == None){
+      var csMap: CSMap = HashMap.empty
+      val emptyCharReaderMap: PosMap = HashMap.empty
+      csMap.put(csName, emptyCharReaderMap)
+      charReaderMap.put(psb, csMap)
+    }
+    
     val charReaders = charReaderMap.get(psb).get.get(csName).get
     charReaders.get(bytePos) match {
       case None => {
         val newrdr = new DFDLCharReader(psb, bytePos, csName)
         charReaders.put(bytePos, newrdr)
-        System.err.println("newReader")
         newrdr
       }
       case Some(rdr) => rdr

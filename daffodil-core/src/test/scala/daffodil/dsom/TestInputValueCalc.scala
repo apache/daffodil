@@ -3,14 +3,15 @@ package daffodil.dsom
 
 import daffodil.util._
 import daffodil.compiler._
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
+import org.junit.Test
 
-class TestInputValueCalc extends JUnit3Suite with Logging {
+class TestInputValueCalc extends JUnitSuite with Logging {
 
   // @Test
-  def testInputValueCalc1() {
+  @Test def testInputValueCalc1() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:string" dfdl:textNumberRep="standard" dfdl:representation="text" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:inputValueCalc="{ 42 }" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:length="1"/>)
@@ -21,7 +22,7 @@ class TestInputValueCalc extends JUnit3Suite with Logging {
   }
 
   // @Test
-  def testInputValueCalcString2() {
+  @Test def testInputValueCalcString2() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data">
@@ -40,7 +41,7 @@ class TestInputValueCalc extends JUnit3Suite with Logging {
   }
   
   // @Test
-  def testInputValueCalcInt3() {
+  @Test def testInputValueCalcInt3() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data">

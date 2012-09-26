@@ -20,11 +20,11 @@ import scala.collection.mutable.Queue
 import scala.util.matching.Regex
 import stringsearch.constructs._
 import stringsearch.constructs.EscapeScheme._
-
 import daffodil.util._
 import daffodil.exceptions.ThrowsSDE
 import java.io.ByteArrayInputStream
 import scala.collection.mutable.Stack
+import daffodil.exceptions.UnsuppressableException
 
 abstract class RepPrim(context : LocalElementBase, n : Long, r : => Gram) extends UnaryGram(context, r) {
   Assert.invariant(n > 0)
@@ -169,6 +169,7 @@ case class OccursCountExpression(e : ElementBase)
         }
         postEvalState.setOccursCount(ocLong)
       } catch {
+        case u: UnsuppressableException => throw u
         case e : Exception =>
           PE(pstate, "Evaluation of occursCount expression %s threw exception %s", exprText, e)
       }

@@ -1,11 +1,10 @@
 package daffodil.dsom
 
 import scala.xml._
-
-import org.scalatest.junit.JUnit3Suite
-
+import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
+import org.junit.Test
 
 /**
  * Characterize namespace behavior for scala's xml support
@@ -13,12 +12,12 @@ import junit.framework.Assert.assertTrue
  * This is here to illustrate how it works, and our assumptions 
  * about how it works.
  */
-class TestNamespaces extends JUnit3Suite {
+class TestNamespaces extends JUnitSuite {
 
   /**
    * basic namespace access from prefix.
    */
-  def testScalaNamespace1() {
+  @Test def testScalaNamespace1() {
     val xml = <bar xmlns:foo="fooNamespaceID" >
                  <quux attr1="x"/>
               </bar>
@@ -29,7 +28,7 @@ class TestNamespaces extends JUnit3Suite {
   /**
    * Pass null (not "") to retrieve the default NS
    */
-  def testScalaNamespace2() {
+  @Test def testScalaNamespace2() {
     val xml = <bar xmlns="defaultNamespaceID">
                  <quux attr1="x"/>
               </bar>                      
@@ -41,7 +40,7 @@ class TestNamespaces extends JUnit3Suite {
    * When the prefix doesn't correspond to any ns definition
    * you get null back.
    */
-  def testScalaNamespace3() {
+  @Test def testScalaNamespace3() {
     val xml = <bar>
                  <quux attr1="x"/>
               </bar>                      
@@ -53,7 +52,7 @@ class TestNamespaces extends JUnit3Suite {
    * Pass null in order to retrieve the default namespace. 
    * If there isn't one, you get null back.
    */
-  def testScalaNamespace4() {
+  @Test def testScalaNamespace4() {
     val xml = <bar>
                  <quux attr1="x"/>
               </bar>
@@ -64,7 +63,7 @@ class TestNamespaces extends JUnit3Suite {
   /**
    * Passing "" to getNamespace() is problematic.
    */
-  def testScalaNamespace5() {
+  @Test def testScalaNamespace5() {
     val xml = <bar>
                  <quux attr1="x"/>
               </bar>                       
@@ -75,7 +74,7 @@ class TestNamespaces extends JUnit3Suite {
   /**
    * Illustrates that you cannot use "" to access the default namespace.
    */
-  def testScalaNamespace6() {
+  @Test def testScalaNamespace6() {
     val xml = <bar xmlns="defaultNS">
                  <quux attr1="x"/>
               </bar>                       
@@ -87,7 +86,7 @@ class TestNamespaces extends JUnit3Suite {
    * This test illustrates the technique for constructing a new
    * xml element that has the same namespaces as some other XML context.
    */
-  def testNewElementWithNamespaces() {
+  @Test def testNewElementWithNamespaces() {
     val xml = <bar xmlns="defaultNS" xmlns:foo="fooNS" xmlns:bar="barNS">
                 <quux xmlns:baz="bazNS" attr1="x"/>
               </bar>

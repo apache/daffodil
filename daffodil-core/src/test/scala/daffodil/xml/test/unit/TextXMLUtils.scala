@@ -2,14 +2,14 @@ package daffodil.xml.test.unit
 
 
 import scala.xml._
-
 import daffodil.xml.XMLUtils
-import org.scalatest.junit.JUnit3Suite
+import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
+import org.junit.Test
 
-class TextXMLUtils extends JUnit3Suite {
+class TextXMLUtils extends JUnitSuite {
 
-  def testDiff0() {
+  @Test def testDiff0() {
     val d1 = new Text("a")
     val d2 = new Text("b")
     val diffs = XMLUtils.computeTextDiff("", d1, d2)
@@ -19,7 +19,7 @@ class TextXMLUtils extends JUnit3Suite {
     assertEquals("b", b)
   }
   
-  def testDiff1() {
+  @Test def testDiff1() {
     val d1 = <d>a</d>
     val d2 = <d>b</d>
     val diffs = XMLUtils.computeDiff(d1, d2)
@@ -29,7 +29,7 @@ class TextXMLUtils extends JUnit3Suite {
     assertEquals("b", b)
   }
    
-  def testDiff2() {
+  @Test def testDiff2() {
     val d1 = <a><d>a</d><d>x</d></a>
     val d2 = <a><d>a</d><d>y</d></a>
     val diffs = XMLUtils.computeDiff(d1, d2)
@@ -39,7 +39,7 @@ class TextXMLUtils extends JUnit3Suite {
     assertEquals("y", b)
   }
 
-  def testDiff3() {
+  @Test def testDiff3() {
     val d1 = <a><d>a</d><e>e</e><d>xxx</d><e>e</e></a>
     val d2 = <a><d>a</d><e>f</e><d>xxy</d><e>e</e></a>
     val diffs = XMLUtils.computeDiff(d1, d2)

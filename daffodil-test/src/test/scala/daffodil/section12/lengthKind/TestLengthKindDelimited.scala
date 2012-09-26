@@ -10,13 +10,19 @@ import daffodil.compiler.Compiler
 import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
+import daffodil.debugger.Debugger.withDebugger
 
 class TestLengthKindDelimited extends JUnitSuite {
   val testDir = "/daffodil/section12/lengthKind/"
   val aa = testDir + "DelimitedTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
-  @Test def test_NumSeq_01() { runner.runOneTest("NumSeq_01") }
+  @Test def test_NumSeq_00a() =  { 
+    runner.runOneTest("NumSeq_00a") }
+  @Test def test_NumSeq_00nl() =  { 
+    runner.runOneTest("NumSeq_00nl") }
+  @Test def test_NumSeq_01() =  { 
+    runner.runOneTest("NumSeq_01") }
   @Test def test_NumSeq_03() { runner.runOneTest("NumSeq_03") }
   @Test def test_NumSeq_04() { runner.runOneTest("NumSeq_04") }
   @Test def test_NumSeq_05() { runner.runOneTest("NumSeq_05") }
@@ -25,6 +31,8 @@ class TestLengthKindDelimited extends JUnitSuite {
   @Test def test_NumSeq_08() { runner.runOneTest("NumSeq_08") }
   @Test def test_lengthKindDelimited_01() { runner.runOneTest("lengthKindDelimited_01") }
   @Test def test_lengthKindDelimited_02() { runner.runOneTest("lengthKindDelimited_02") }
+  //@Test def test_lengthKindDelimited_03() { runner.runOneTest("lengthKindDelimited_03") }
+  //@Test def test_lengthKindDelimited_04() { runner.runOneTest("lengthKindDelimited_04") }
   
   val ab = testDir + "AB.tdml"
   lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))

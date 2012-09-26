@@ -13,11 +13,15 @@
 			<dfdl:format lengthKind="delimited" lengthUnits="bytes" encoding="UTF-8" separator="" initiator="" terminator=""
 		       		occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" />
 		
+		
+	    <xs:element name="NS_00a" type="xs:int" dfdl:terminator="a aab"/>
+	    <xs:element name="NS_00nl" type="xs:int" dfdl:terminator="%NL;"/>
+		
 		<xs:element name="NS_01">
 		<xs:complexType>
 			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
 				dfdl:separator="," dfdl:separatorPolicy="suppressed" dfdl:terminator="%NL;">
-				<xs:element name="num" type="xs:int" maxOccurs="unbounded"/>	
+				<xs:element name="num" type="xs:int" maxOccurs="unbounded" minOccurs="0"/>	
 			</xs:sequence>
 		</xs:complexType>
 		</xs:element>
@@ -100,9 +104,58 @@
 	          </xs:sequence>
 	        </xs:complexType>
         </xs:element>
+        
+        <xs:element name="delim_02" dfdl:lengthKind="delimited">
+	        <xs:complexType>
+	          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:separatorPolicy="suppressed">
+	      		<xs:element name="s" type="xs:string" maxOccurs="5" dfdl:occursCountKind="implicit" dfdl:lengthKind="delimited" />
+	          </xs:sequence>
+	        </xs:complexType>
+        </xs:element>
+        
+        <xs:element name="delim_03" dfdl:lengthKind="delimited">
+	        <xs:complexType>
+	          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+	      		<xs:element name="s" type="xs:string" maxOccurs="5" dfdl:occursCountKind="implicit" dfdl:lengthKind="delimited" />
+	          </xs:sequence>
+	        </xs:complexType>
+        </xs:element>
+        
+        <xs:element name="NS_08" dfdl:lengthKind="explicit" dfdl:length="20">
+        	<xs:complexType>
+			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+				dfdl:separator="," dfdl:separatorPolicy="suppressed">
+				<xs:element name="num" type="xs:int" maxOccurs="unbounded" dfdl:lengthKind="delimited"/>	
+			</xs:sequence>
+			</xs:complexType>
+		</xs:element>
 		
 	</tdml:defineSchema>
  
+ 	<tdml:parserTestCase name="NumSeq_00a" root="NS_00a"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
+
+		<tdml:document><![CDATA[1aab]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<NS_00a>1</NS_00a>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	 <tdml:parserTestCase name="NumSeq_00nl" root="NS_00nl"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
+
+		<tdml:document><![CDATA[1
+]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<NS_00nl>1</NS_00nl>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	
 	<tdml:parserTestCase name="NumSeq_01" root="NS_01"
 		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
 
@@ -276,6 +329,57 @@
 					<s1>abcd</s1>
 					<s2>efg</s2>
 				</delim_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="lengthKindDelimited_03" root="delim_02"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - unused bytes - DFDL-12-048R">
+
+		<tdml:document>abc,defg,hijklm,no,pqrst,uvwxyz,hacdf</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<delim_02>
+					<s>abc</s>
+					<s>defg</s>
+					<s>hijklm</s>
+					<s>no</s>
+					<s>pqrst</s>
+				</delim_02>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="lengthKindDelimited_04" root="delim_03"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - unused bytes - DFDL-12-048R">
+
+		<tdml:document>abc,defg,hijklm,no,pqrst,uvwxyz,hacdf</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<delim_03>
+					<s>abc</s>
+					<s>defg</s>
+					<s>hijklm</s>
+					<s>no</s>
+					<s>pqrst</s>
+				</delim_03>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="NumSeq_09" root="NS_08"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="an enclosing element of a known length - DFDL-12-044R">
+
+		<tdml:document>123,2789,30,408,52283,22,66210</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<NS_08>
+					<num>123</num>
+					<num>2789</num>
+					<num>30</num>
+					<num>408</num>
+					<num>5228</num>
+				</NS_08>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
