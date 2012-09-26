@@ -222,6 +222,14 @@
 			</xs:sequence>
 		</xs:complexType>
 		
+		<xs:element name="root">
+                <xs:complexType>
+                	<xs:sequence dfdl:separator="">
+                        	<xs:element name="basic" type="basicType" dfdl:lengthKind="implicit"/>
+                                <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
+                        </xs:sequence>
+                </xs:complexType>
+                </xs:element>
 		
 	</tdml:defineSchema>
 
@@ -550,7 +558,7 @@
 	  	   not equal maxOccurs.
 -->
 		
-	<tdml:parserTestCase name="minMaxDoNotMatch" root="basic" model="facets-min2max3-schemaErr.dfdl.xsd"
+	<tdml:parserTestCase name="minMaxDoNotMatch" root="root" model="facets-min2max3-schemaErr.dfdl.xsd"
 		description="Section 5 - minOccurs 2 maxOccurs 3 - DFDL-5-060R">
 
 		<tdml:document>
@@ -561,6 +569,7 @@
 			<tdml:error />
 		</tdml:errors>
 	
+
 	</tdml:parserTestCase>
 
 <!-- 
