@@ -16,17 +16,16 @@ class TestFacets extends JUnitSuite {
   val aa = testDir + "Facets.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
-    def test_correctNumCells0() { runner.runOneTest("correctNumCells0") }
-    def test_extraCellsParsed() { runner.runOneTest("extraCellsParsed") }
-    def test_scalarElements() { runner.runOneTest("scalarElements") }
-    def test_lessThanMinBasic() { runner.runOneTest("lessThanMinBasic") }
-    def test_moreThanMaxBasic() { runner.runOneTest("moreThanMaxBasic") }
-    def test_arrayElements() { runner.runOneTest("arrayElements") }
-    def test_upToMaxParsed() { runner.runOneTest("upToMaxParsed") }
-    def test_lessThanMinCells() { runner.runOneTest("lessThanMinCells") }
-    def test_moreThanMinCells() { runner.runOneTest("moreThanMinCells") }
-    def test_lessThanMinCellsAfterLargeRow() { runner.runOneTest("lessThanMinCellsAfterLargeRow") }
-    def test_largeNumRows() { runner.runOneTest("largeNumRows") }
-    def test_minMaxDoNotMatch() { runner.runOneTest("minMaxDoNotMatch") }
+  @Test def test_correctNumCells0() { runner.runOneTest("correctNumCells0") }
+  @Test def test_extraCellsParsed() { runner.runOneTest("extraCellsParsed") }
+  @Test def test_scalarElements() { runner.runOneTest("scalarElements") }
+  @Test def test_lessThanMinBasic() { runner.runOneTest("lessThanMinBasic") }
+  @Test def test_moreThanMaxBasic() { runner.runOneTest("moreThanMaxBasic") }
+  @Test def test_arrayElements() { runner.runOneTest("arrayElements") }
+  @Test def test_upToMaxParsed() { runner.runOneTest("upToMaxParsed") }
+  @Test def test_lessThanMinCells() { runner.runOneTest("lessThanMinCells") }
+  @Test def test_moreThanMinCells() { runner.runOneTest("moreThanMinCells") }
+  @Test def test_lessThanMinCellsAfterLargeRow() { runner.runOneTest("lessThanMinCellsAfterLargeRow") }
+  @Test def test_largeNumRows() { runner.runOneTest("largeNumRows") }
 
   }
