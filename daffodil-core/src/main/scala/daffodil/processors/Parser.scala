@@ -1277,6 +1277,22 @@ with WithParseErrorThrowing
     }
   }
 
+  def getPartialByte(bitPos : Long, bitCount : Long) = {
+    val bytePos = (bitPos >> 3).toInt
+    var result = bb.get(bytePos)
+
+    if (bitCount != 8) {
+      val bitOffset = (bitPos % 8).toByte
+      Assert.invariant(0 < bitCount && bitCount <= 8 && bitOffset + bitCount <= 8)
+
+      // Shift so LSB of result is at LSB of octet then mask off top bits
+      (result >> (8 - bitCount - bitOffset).asInstanceOf[Byte]) & ((1 << bitCount) - 1)
+    }
+    else {
+      result
+    }
+  }
+
   def getByte(bitPos : Long, order : java.nio.ByteOrder) = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt

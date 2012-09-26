@@ -90,6 +90,25 @@ trait ElementBaseGrammarMixin
 
   def allowedValue : Prod // provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
 
+  lazy val explicitLengthBinary = Prod("explicitLengthString", this, !isFixedLength,
+    lengthUnits match {
+      case LengthUnits.Bytes => BinaryExplicitLengthInBytes(this)
+      case LengthUnits.Characters => schemaDefinitionError("Binary data elements cannot have lengthUnits='Character'.")
+      case LengthUnits.Bits => BinaryExplicitLengthInBits(this)
+    })
+
+  lazy val binaryValueLength = binaryValueLength_.value
+  lazy val binaryValueLength_ = LV {
+    val res = Prod("BinaryValueLength", this, lengthKind match {
+      case LengthKind.Explicit => explicitLengthBinary
+      case LengthKind.Delimited => Assert.notYetImplemented() // Binary Data delimiters aren't supported TODO: Should we?
+      case LengthKind.Pattern => schemaDefinitionError("Binary data elements cannot have lengthKind='Pattern'.")
+      case LengthKind.Implicit => Assert.notYetImplemented() // TODO: Get size from xs:type
+      case _ => Assert.notYetImplemented()
+    })
+    res
+  }
+
   lazy val fixedLengthString = Prod("fixedLengthString", this, isFixedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
       case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength) // TODO: make sure it divides evenly.
@@ -365,7 +384,7 @@ trait ElementBaseGrammarMixin
         }
 
       case "byte" | "short" | "int" | "long" |
-        "unsignedByte" | "unsignedShort" | "unsignedInt" | "unsignedLong" =>
+        "unsignedByte" | "unsignedShort" | "unsignedInt" | "unsignedLong"  | "boolean" =>
         (primType.name, binaryIntRep) match {
           case ("byte", bin) => new BinaryNumber[Byte](this, 8) {
             def getNum(bp : Long, in : InStream, bo : BO) = in.getByte(bp, bo)
@@ -434,6 +453,16 @@ trait ElementBaseGrammarMixin
             protected override def isInvalidRange(n : Long) = n < 0 || n >= (1L << 32)
             protected override def numFormat = NumberFormat.getIntegerInstance()
             protected override def isInt = true
+          }
+          case ("boolean", bin) => new BinaryNumber[Long](this, 32) {
+            def getNum(bp : Long, in : InStream, bo : BO) = in.getInt(bp, bo).toLong - Int.MinValue.toLong
+            override def getNum(num : Number) = num.longValue
+            protected override val GramName = "boolean"
+            protected override val GramDescription = "Boolean"
+            protected override def isInvalidRange(n : Long) = n < 0 || n >= (1L << 32)
+            protected override def numFormat = NumberFormat.getIntegerInstance()
+            protected override def isInt = true
+            // TODO: Handle binaryBooleanTrueRep and binaryBooleanFalseRep
           }
           case _ => Assert.impossibleCase()
         }

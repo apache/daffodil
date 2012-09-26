@@ -1770,7 +1770,84 @@ class SetVariableParser(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable)
     }
 }
 
-case class StringExplicitLengthInBytes(e : ElementBase)
+case class BinaryExplicitLengthInBytes(e : ElementBase)
+  extends Terminal(e, true)
+  with WithParseErrorThrowing {
+  val expr = e.length
+  val exprText = expr.prettyExpr
+
+  def parser : Parser = new Parser(e) {
+    override def toString = "BinaryExplicitLengthInBytes(" + exprText + ")"
+
+    def parse(pstate : PState) : PState = withParseErrorThrowing(pstate) {
+      log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
+      val R(nBytesAsAny, newVMap) = expr.evaluate(pstate.parent, pstate.variableMap)
+      val nBytes = nBytesAsAny.asInstanceOf[Long]
+      val start = pstate.withVariables(newVMap)
+      if (nBytes > 8) {
+        // Do Something Bad
+        return PE(start, "Binary value exceeds the limit allowed by the processing subsystem: " + nBytes)
+      }
+
+      log(Debug("Explicit length %s", nBytes))
+
+      // TODO: Longest possible field is Long
+
+      val in = start.inStream
+
+      // TODO: Get requested bytes from stream
+
+      if (false) {
+        // Do Something Bad
+        return PE(start, "Insufficent Bits in field; required " + nBytes * 8)
+      }
+
+      // log(Debug("Parsed: " + result))
+      // log(Debug("Ended at bit position " + endBitPos))
+      // val endCharPos = start.charPos + result.length
+      val currentElement = start.parentForAddContent
+      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
+      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
+      // currentElement.addContent(new org.jdom.Text(result))
+      // val postState = start.withPos(endBitPos, endCharPos)
+      // postState
+      pstate
+    }
+  }
+
+  def unparser : Unparser = new Unparser(e) {
+    override def toString = "BinaryExplicitLengthInBytesUnparser(" + exprText + ")"
+
+    def unparse(start : UState) : UState = {
+      Assert.notYetImplemented()
+    }
+  }
+}
+
+  case class BinaryExplicitLengthInBits(e : ElementBase)
+    extends Terminal(e, true)
+    with WithParseErrorThrowing {
+    val expr = e.length
+    val exprText = expr.prettyExpr
+
+    def parser : Parser = new Parser(e) {
+      override def toString = "BinaryExplicitLengthInBitsParser(" + exprText + ")"
+
+      def parse(start : PState) : PState = {
+        Assert.notYetImplemented()
+      }
+    }
+    def unparser : Unparser = new Unparser(e) {
+      override def toString = "BinaryExplicitLengthInBitsUnparser(" + exprText + ")"
+
+      def unparse(start : UState) : UState = {
+        Assert.notYetImplemented()
+      }
+    }
+
+  }
+
+  case class StringExplicitLengthInBytes(e : ElementBase)
   extends Terminal(e, true)
   with WithParseErrorThrowing {
   val expr = e.length

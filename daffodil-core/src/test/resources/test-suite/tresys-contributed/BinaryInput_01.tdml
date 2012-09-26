@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="binaryInput" description="Section 13 - Simple Types of Binary Format"
+                xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+    <tdml:defineSchema name="DFDL-307-one-octet.dfdl.xsd">
+
+        <dfdl:format representation="binary" binaryNumberRep="binary" lengthUnits="bits"
+                     byteOrder='bigEndian'
+                     initiatedContent='no'
+                     lengthKind='explicit'
+                     occursCountKind='parsed'
+                     separatorPolicy='suppressed' separatorPosition='infix'
+                     textNumberRep='standard'
+                     initiator="" terminator="" separator=""
+                />
+
+        <xs:element name="is-signed" dfdl:lengthKind="explicit" dfdl:length="{8}">
+            <xs:complexType>
+                <xs:sequence dfdl:byteOrder="bigEndian">
+                    <xs:element name="sign-bit" type="xs:unsignedByte"
+                                dfdl:alignment="1" dfdl:alignmentUnits="bits" dfdl:lengthUnits="bits" dfdl:length="{1}"
+                                dfdl:representation="binary"/>
+                    <xs:element name="abs" type="xs:unsignedByte"
+                                dfdl:alignment="1" dfdl:alignmentUnits="bits" dfdl:lengthUnits="bits" dfdl:length="{7}"
+                                dfdl:representation="binary"
+                                dfdl:byteOrder="bigEndian"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+    </tdml:defineSchema>
+
+    <tdml:parserTestCase name="OneOctetBinaryParse" root="is-signed"
+                         model="DFDL-307-one-octet.dfdl.xsd" description="Section 13 - Simple Types of Binary Format">
+        <tdml:document>0</tdml:document>
+        <tdml:infoset>
+            <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <is-signed>
+                    <sign>0</sign>
+                    <abs>48</abs>
+                </is-signed>
+            </tdml:dfdlInfoset>
+        </tdml:infoset>
+    </tdml:parserTestCase>
+</tdml:testSuite>
