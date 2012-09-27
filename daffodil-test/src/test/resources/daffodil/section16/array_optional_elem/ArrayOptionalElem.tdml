@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="Array-OptionalElemTests" description="Section 16 - Arrays and Optional Elements"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema name="array-optionalElem.dfdl.xsd">
+
+				<dfdl:format lengthKind="delimited" lengthUnits="bytes" encoding="UTF-8" separator="" initiator="" terminator=""
+		       		occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" />
+
+		<xs:element name="root">
+                <xs:complexType>
+                	<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:separatorPolicy="suppressed">
+                        	<xs:element name="e1" type="xs:int" minOccurs="0"/>
+                            <xs:element name="e2" type="xs:float" minOccurs="0"/>
+                            <xs:element name="e3" type="xs:unsignedByte" minOccurs="0"/>
+                     </xs:sequence>
+                </xs:complexType>
+		</xs:element>
+		
+	</tdml:defineSchema>
+		
+	<tdml:parserTestCase name="optionalElem" root="root" model="array-optionalElem.dfdl.xsd"
+		description="Section 16 - a sequence of optional elements - DFDL-16-001R">
+
+		<tdml:document>127.9,abcde,109</tdml:document>
+		
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<root>
+					<e3>109</e3>
+				</root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+</tdml:testSuite>
