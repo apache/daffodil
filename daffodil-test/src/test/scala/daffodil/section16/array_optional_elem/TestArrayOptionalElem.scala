@@ -11,7 +11,7 @@ import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-class TestArrayOptionalElemDebug extends JUnitSuite {
+class TestArrayOptionalElem extends JUnitSuite {
   val testDir = "/daffodil/section16/array_optional_elem/"
   val aa = testDir + "ArrayOptionalElem.tdml"
   
