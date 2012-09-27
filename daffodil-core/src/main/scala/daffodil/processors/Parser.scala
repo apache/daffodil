@@ -691,7 +691,7 @@ with WithParseErrorThrowing
 
   def getPartialByte(bitPos : Long, bitCount : Long) = {
     val bytePos = (bitPos >> 3).toInt
-    var result = bb.get(bytePos)
+    var result = byteReader.bb.get(bytePos)
 
     if (bitCount != 8) {
       val bitOffset = (bitPos % 8).toByte
