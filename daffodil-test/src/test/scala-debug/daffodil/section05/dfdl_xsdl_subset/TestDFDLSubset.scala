@@ -21,5 +21,6 @@ class TestDFDLSubset extends JUnitSuite {
   @Test def test_group_ref() { runner.runOneTest("group_ref") }
   @Test def test_prefix() { runner.runOneTest("prefix") }
    @Test def test_groupRef() { Debugger.withDebugger{runner.runOneTest("groupRef") }}
+   @Test def test_refInitiator() { Debugger.withDebugger{runner.runOneTest("refInitiator") }}
   
   }
