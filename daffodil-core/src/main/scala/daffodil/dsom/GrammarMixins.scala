@@ -663,9 +663,11 @@ trait LocalElementGrammarMixin { self : LocalElementBase =>
 
   lazy val arrayContentsNoSeparators = Prod("arrayContentsNoSeparators", this, isRecurring && !hasSep, {
     val max = maxOccurs
+    val min = minOccurs
     val res = occursCountKind match {
       case Expression => separatedContentExactlyNComputed
       case OccursCountKind.Fixed if (max == UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+      case OccursCountKind.Fixed if (min != max) => SDE("occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)", min, max)
       case OccursCountKind.Fixed => separatedContentExactlyN(max)
       case OccursCountKind.Implicit if (max == UNB) => Assert.notYetImplemented() // contentUnbounded
       case OccursCountKind.Implicit => Assert.notYetImplemented() // contentAtMostN // uses maxOccurs
@@ -696,7 +698,8 @@ trait LocalElementGrammarMixin { self : LocalElementBase =>
     val triple = (separatorSuppressionPolicy, occursCountKind, maxOccurs)
     val res = triple match {
       case (___________, Expression, ___) => separatedContentExactlyNComputed
-      case (Never______, Fixed_____, UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+      case (___________, Fixed_____, UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+      case (___________, Fixed_____, max) if (max != minOccurs) => SDE("occursCountKind='fixed' requires minOccurs to equal maxOccurs (%d != %d)", minOccurs, max)
       case (___________, Fixed_____, max) => separatedContentExactlyN(max)
       case (Never______, Implicit__, UNB) => SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' required bounded maxOccurs.")
       case (Never______, Implicit__, max) => separatedContentExactlyN(max)

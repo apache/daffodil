@@ -17,5 +17,4 @@ class TestFacets2 extends JUnitSuite {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   @Test def test_minMaxDoNotMatch() { runner.runOneTest("minMaxDoNotMatch") }
-  
   }
