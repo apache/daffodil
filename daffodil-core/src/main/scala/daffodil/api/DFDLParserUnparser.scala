@@ -105,7 +105,7 @@ object DFDL {
   /**
    * Interface for Parse and Unparse states
    */
-  abstract class State {
+  trait State {
     // TODO: add common elements
     val status: ProcessorResult
     val diagnostics: List[Diagnostic]

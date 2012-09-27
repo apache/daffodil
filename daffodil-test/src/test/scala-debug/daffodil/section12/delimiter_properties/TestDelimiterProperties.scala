@@ -10,6 +10,7 @@ import daffodil.compiler.Compiler
 import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
+import daffodil.debugger.Debugger
 
 class TestDelimiterProperties_01 extends JUnitSuite {
   
@@ -20,6 +21,8 @@ class TestDelimiterProperties_01 extends JUnitSuite {
     
   // @Test def test_DelimProp_03() { runner_02.runOneTest("DelimProp_03") }
 //  @Test def test_DelimProp_06() { runner_02.runOneTest("DelimProp_06") }
-  @Test def test_DelimProp_07() { runner_02.runOneTest("DelimProp_07") }
-  
+//  @Test def test_DelimProp_07() = Debugger.withDebugger { 
+//    runner_02.runOneTest("DelimProp_07") }
+//  @Test def test_initiatedContentSimple1() = Debugger.withDebugger { runner_02.runOneTest("initiatedContentSimple1") }
+//  
   }

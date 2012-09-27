@@ -279,6 +279,7 @@ class DataLocUnparse(elem : org.jdom.Element, outStream : OutStream) extends Dat
   def isAtEnd : Boolean = Assert.notYetImplemented()
 }
 
+
 /**
  * An unparser takes a state, and returns an updated state
  *
@@ -303,7 +304,8 @@ class UState(
   val childIndexStack : List[Long],
   val arrayIndexStack : List[Long],
   val diagnostics : List[Diagnostic],
-  val discriminator : Boolean) extends DFDL.State {
+  val discriminator : Boolean) 
+  extends DFDL.State {
   def groupPos = groupIndexStack.head
   def childPos = childIndexStack.head
   def arrayPos = arrayIndexStack.head
@@ -332,36 +334,48 @@ class UState(
   def failed(failureDiagnostic : Diagnostic) =
     new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics, discriminator)
 
-  /**
+   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.
    *
    * These can be different because an element can have sequences nested directly in sequences. Those effectively all
    * get flattened into children of the element. The start of a sequence doesn't start the numbering of children. It's
    * the start of a complex type that does that.
    */
-  def moveOverByOne = {
-    val s1 = groupIndexStack match {
+  def moveOverByOneElement = {
+    val s1 = moveOverOneGroupIndexOnly
+    val s2 = s1.moveOverOneElementChildOnly
+    val s3 = s2.moveOverOneArrayIndexOnly 
+    s3
+  }
+  
+  def moveOverOneElementChildOnly = { 
+    childIndexStack match {
+      case Nil => this
+      case hd :: tl => {
+        val newChildIndex = hd + 1
+        withChildIndexStack(newChildIndex :: tl)
+      }
+    }
+  }
+  
+  def moveOverOneGroupIndexOnly = { 
+    groupIndexStack match {
       case Nil => this
       case hd :: tl => {
         val newGroupIndex = hd + 1
-        this.withGroupIndexStack(newGroupIndex :: tl)
+        withGroupIndexStack(newGroupIndex :: tl)
       }
     }
-    val s2 = s1.childIndexStack match {
-      case Nil => s1
-      case hd :: tl => {
-        val newChildIndex = hd + 1
-        s1.withChildIndexStack(newChildIndex :: tl)
-      }
-    }
-    val s3 = s2.arrayIndexStack match {
-      case Nil => s2
+  }
+  
+  def moveOverOneArrayIndexOnly = { 
+    arrayIndexStack match {
+      case Nil => this
       case hd :: tl => {
         val newArrayIndex = hd + 1
-        s1.withArrayIndexStack(newArrayIndex :: tl)
+        withArrayIndexStack(newArrayIndex :: tl)
       }
     }
-    s3
   }
 
   def captureJDOM : Int = {

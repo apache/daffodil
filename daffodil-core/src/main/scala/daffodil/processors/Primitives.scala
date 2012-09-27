@@ -74,7 +74,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType != t
         }
       }
 
-      start.withCurrent(nextElement).moveOverByOne
+      start.withCurrent(nextElement).moveOverByOneElement
     }
   }
 }
@@ -188,7 +188,7 @@ abstract class ElementEndBase(e: ElementBase) extends Terminal(e, e.isComplexTyp
 }
 
 case class ElementEnd(e: ElementBase) extends ElementEndBase(e) {
-  def move(pstate: PState) = pstate.moveOverByOne
+  def move(pstate: PState) = pstate.moveOverByOneElement
   def prettyStringModifier = ""
 }
 
@@ -214,7 +214,7 @@ case class ComplexElementEndPattern(e: ElementBase) extends Terminal(e, e.isComp
       //val priorElement = currentElement.getParent.asInstanceOf[org.jdom.Element]
       var priorElement = currentElement.getParent
       log(Debug("priorElement = %s", priorElement))
-      val postState = start.withParent(priorElement).moveOverByOne.withLastInStream()
+      val postState = start.withParent(priorElement).moveOverByOneElement.withLastInStream()
       postState
     }
   }
@@ -1509,7 +1509,7 @@ case class EndSequence(sq: Sequence, guard: Boolean = true) extends Terminal(sq,
     override def toString = "EndSequence"
 
     def parse(start: PState): PState = {
-      val postState = start.withGroupIndexStack(start.groupIndexStack.tail)
+      val postState = start.withGroupIndexStack(start.groupIndexStack.tail).moveOverOneGroupIndexOnly
       postState
     }
   }
@@ -1518,7 +1518,7 @@ case class EndSequence(sq: Sequence, guard: Boolean = true) extends Terminal(sq,
     override def toString = "EndSequence"
 
     def unparse(start: UState): UState = {
-      val postState = start.withGroupIndexStack(start.groupIndexStack.tail)
+      val postState = start.withGroupIndexStack(start.groupIndexStack.tail).moveOverOneGroupIndexOnly
       postState
     }
   }
@@ -1798,7 +1798,7 @@ case class DiscriminatorBooleanPrim(
 case class InitiatedContent(
   decl: AnnotatedSchemaComponent)
   extends AssertBase(decl,
-    "{ xs:boolean('true') }", // always true. We're just an assertion
+    "{ xs:boolean('true') }", // always true. We're just an assertion that says an initiator was found.
     "initiatedContent. This message should not be used.",
     true,
     "initiatedContent")
