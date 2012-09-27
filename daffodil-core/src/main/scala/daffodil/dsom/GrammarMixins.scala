@@ -90,7 +90,7 @@ trait ElementBaseGrammarMixin
 
   def allowedValue : Prod // provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
 
-  lazy val explicitLengthBinary = Prod("explicitLengthString", this, !isFixedLength,
+  lazy val explicitLengthBinary = Prod("explicitLengthBinary", this, !isFixedLength,
     lengthUnits match {
       case LengthUnits.Bytes => BinaryExplicitLengthInBytes(this)
       case LengthUnits.Characters => schemaDefinitionError("Binary data elements cannot have lengthUnits='Character'.")
