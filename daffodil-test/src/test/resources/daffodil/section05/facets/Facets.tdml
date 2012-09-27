@@ -189,6 +189,14 @@
                         </xs:sequence>
                 </xs:complexType>
                 </xs:element>
+                
+		<xs:element name="root1">
+                <xs:complexType>
+                	<xs:sequence dfdl:separator="">
+                        	<xs:element name="basic" type="basicType" dfdl:lengthKind="implicit"/>
+                        </xs:sequence>
+                </xs:complexType>
+                </xs:element>
 		
 	</tdml:defineSchema>
 
@@ -314,6 +322,14 @@
                 	<xs:sequence dfdl:separator="">
                         	<xs:element name="matrix" type="matrixType" dfdl:lengthKind="implicit"/>
                                 <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
+                        </xs:sequence>
+                </xs:complexType>
+                </xs:element>
+
+		<xs:element name="root1">
+                <xs:complexType>
+                	<xs:sequence dfdl:separator="">
+                        	<xs:element name="matrix" type="matrixType" dfdl:lengthKind="implicit"/>
                         </xs:sequence>
                 </xs:complexType>
                 </xs:element>
@@ -671,6 +687,44 @@
 
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
+
+	</tdml:parserTestCase>
+	
+	<!--
+	Test name: leftOverData_Neg
+	   Schema: facets-min5max10-2.dfdl.xsd
+	  Purpose: A negative test to verify that left over data appears in the diagnostic message for DFDL-277.
+-->
+		
+	<tdml:parserTestCase name="leftOverData_Neg" root="root1" model="facets-min5max10-2.dfdl.xsd"
+		description="Section 16 occursCountKind=‘implicit’ means that the maxOccurs and minOccurs attributes of the element are used to bound speculative parsing. - DFDL-16-002R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9|1|2|3|4|5]]></tdml:documentPart>
+		</tdml:document>
+		
+		<tdml:errors> 
+			<tdml:error />
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<!-- 
+	Test name: lessThanMinCellsAfterLargeRow_Neg
+	   Schema: facets-rowcell-min2maxUnbounded.dfdl.xsd
+	  Purpose: A negative test satisfying the minimum of 2 rows followed by a third row with number of cells less than minOccurs and followed by left over data.
+-->
+	
+	<tdml:parserTestCase name="lessThanMinCellsAfterLargeRow_Neg" root="root1" model="facets-rowcell-min2maxUnbounded.dfdl.xsd"
+		description="Section 5 - minOccurs 2 maxOccurs Unbounded - DFDL-5-062R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1|2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2|1|8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,22]]></tdml:documentPart>
+		</tdml:document>
+		
+		
+		<tdml:errors> 
+			<tdml:error />
+		</tdml:errors>
 
 	</tdml:parserTestCase>
 
