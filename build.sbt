@@ -6,6 +6,8 @@ scalaVersion := "2.9.1"
 
 parallelExecution in ThisBuild := false
 
+logBuffered in ThisBuild := false
+
 transitiveClassifiers := Seq("sources", "javadoc")
 
 libraryDependencies in ThisBuild := Seq(
