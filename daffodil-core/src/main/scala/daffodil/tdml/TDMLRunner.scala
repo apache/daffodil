@@ -4,6 +4,8 @@ import java.io.File
 import scala.Array.canBuildFrom
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml._
+import scala.util.matching.Regex
+import scala.util.matching.Regex.Match
 import org.scalatest.junit.JUnitSuite
 import daffodil.Implicits.using
 import daffodil.compiler.Compiler
@@ -573,9 +575,93 @@ case class DocumentPart(part : Node, parent : Document) {
   lazy val encoder = CharsetICU.forNameICU("UTF-8").newEncoder()
   lazy val partRawContent = part.child.text
   lazy val convertedContent : Seq[Byte] = partContentType match {
-    case Text => partRawContent.getBytes("UTF-8") //must specify charset name (JIRA DFDL-257)
+    case Text => textContentToBytes
     case Byte => hexContentToBytes
     case Bits => bitContentToBytes
+  }
+
+  lazy val textContentToBytes = {
+    // replace DFDL character entities
+    val regex = new Regex("%(%|([^;]*;))")
+    val replacedRawContent = regex.replaceAllIn(partRawContent,
+      m => convertDFDLCharEntity(m.group(0)) match {
+        case "$" => "\\$" // the dollar sign charater means smething special
+                          // in Java's Matcher::AppendReplacement (which is used by
+                          // regex.replaceAllIn), so we need to escape it
+        case converted => converted
+      }
+    )
+
+    val bytes = replacedRawContent.getBytes("UTF-8") //must specify charset name (JIRA DFDL-257)
+    bytes
+  }
+
+
+  /**
+   * Convert a character entity to its unicode equivalent. Returns the empty
+   * string if not a valid DFDL entity 
+   */
+  def convertDFDLCharEntity(s : String) : String = {
+    val HexCodePoint = "%#x([0-9a-fA-F]+);".r
+    val DecCodePoint = "%#([0-9]+);".r
+    val converted = s match {
+      case "%%" => "%" //special case, percent escapes percent
+      case HexCodePoint(hex) => {
+        try {
+          val i = Integer.parseInt(hex, 16)
+          new String(Character.toChars(i))
+        } catch {
+          case e => ""
+        }
+      }
+      case DecCodePoint(dec) => {
+        try {
+          val i = Integer.parseInt(dec, 10)
+          new String(Character.toChars(i))
+        } catch {
+          case e => ""
+        }
+      }
+      case "%NUL;"  => "\u0000"
+      case "%SOH;"  => "\u0001"
+      case "%STX;"  => "\u0002"
+      case "%ETX;"  => "\u0003"
+      case "%EOT;"  => "\u0004"
+      case "%ENQ;"  => "\u0005"
+      case "%ACK;"  => "\u0006"
+      case "%BEL;"  => "\u0007"
+      case "%BS;"   => "\u0008"
+      case "%HT;"   => "\u0009"
+      case "%LF;"   => "\u000A"
+      case "%VT;"   => "\u000B"
+      case "%FF;"   => "\u000C"
+      case "%CR;"   => "\u000D"
+      case "%SO;"   => "\u000E"
+      case "%SI;"   => "\u000F"
+      case "%DLE;"  => "\u0010"
+      case "%DC1;"  => "\u0011"
+      case "%DC2;"  => "\u0012"
+      case "%DC3;"  => "\u0013"
+      case "%DC4;"  => "\u0014"
+      case "%NAK;"  => "\u0015"
+      case "%SYN;"  => "\u0016"
+      case "%ETB;"  => "\u0017"
+      case "%CAN;"  => "\u0018"
+      case "%EM;"   => "\u0019"
+      case "%SUB;"  => "\u001A"
+      case "%ESC;"  => "\u001B"
+      case "%FS;"   => "\u001C"
+      case "%GS;"   => "\u001D"
+      case "%RS;"   => "\u001E"
+      case "%US;"   => "\u001F"
+      case "%SP;"   => "\u0020"
+      case "%DEL;"  => "\u007F"
+      case "%NBSP;" => "\u00A0"
+      case "%NEL;"  => "\u0085"
+      case "%LS;"   => "\u2028"
+      case _ => ""
+    }
+    converted
   }
 
   lazy val hexContentToBytes = hex2Bytes(hexDigits)
