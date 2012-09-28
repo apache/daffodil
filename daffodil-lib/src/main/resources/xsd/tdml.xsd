@@ -54,10 +54,16 @@
 
 	<element name="defineSchema" type="tns:defineSchemaType" />
 	<complexType name="defineSchemaType">
-		<sequence>
-		    <any maxOccurs="unbounded" processContents="strict"/>
-			<!-- <element ref="sub:schema" /> -->
-		</sequence>
+		<choice maxOccurs='unbounded'>
+			<element ref='dfdl:format' />
+			<element ref='dfdl:defineVariable' />
+			<element ref='dfdl:defineEscapeScheme' />
+			<element ref='dfdl:defineFormat' />
+			<element ref='xs:element' />
+			<element ref='xs:complexType' />
+			<element ref='xs:group' />
+			<element ref='xs:simpleType' />
+		</choice>
 		<attribute name="name" type="xs:NCName" use="required" />
 	</complexType>
 
