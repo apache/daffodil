@@ -5,10 +5,11 @@
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xmlns:ex="http://example.com"
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 	
 	<tdml:defineSchema name="PropScoping-Embedded.dfdl.xsd">
-		<dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>
+		<dfdl:format ref="ex:daffodilTest1" representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>
 	      <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
 	      <xs:element name="e2" dfdl:lengthKind="implicit">
 	        <xs:complexType>

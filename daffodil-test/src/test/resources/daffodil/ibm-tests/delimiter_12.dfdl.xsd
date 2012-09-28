@@ -73,7 +73,7 @@
 	<xs:element name="Fixed_text_sequence"  dfdl:lengthKind="implicit">
   <xs:complexType>
   
-  <xs:sequence  dfdl:sequenceKind="ordered" dfdl:initiatedContent="no" >
+  <xs:sequence  dfdl:sequenceKind="ordered" >
   
     <xs:element name="element1" 
 	minOccurs="1" maxOccurs="1" 

@@ -4,7 +4,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
 	<tdml:defineSchema name="Entities-Embedded.dfdl.xsd">
@@ -45,8 +45,8 @@ is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
 	
 	<tdml:defineSchema name="Entities_01-Embedded.dfdl.xsd">
 	
-		<dfdl:format encoding="utf-8" byteOrder="bigEndian" representation="text" lengthUnits="characters"
-			textNumberRep="standard" lengthKind="delimited" initiator="" ignoreCase="no"/>
+		<dfdl:format ref="ex:daffodilTest1" encoding="utf-8" byteOrder="bigEndian" representation="text" lengthUnits="characters"
+			textNumberRep="standard" lengthKind="delimited" initiator="" ignoreCase="no" initiatedContent="no"/>
 		
 		<xs:element name="seq_01" dfdl:terminator="">
 			<xs:complexType>

@@ -28,7 +28,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="withManyErrors1">
-		<dfdl:format initiator="" />
+		<dfdl:format initiator="" initiatedContent="no"/>
 		<xs:element name="err1" type="xs:int" />
 		<xs:element name="err1" type="xs:string" />
 	</tdml:defineSchema>

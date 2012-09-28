@@ -9,7 +9,7 @@
 
 	<annotation>
 		<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-				<dfdl:format lengthKind="delimited" separator="" initiator="" terminator=""/>
+				<dfdl:format lengthKind="delimited" separator="" initiator="" terminator="" initiatedContent="no"/>
 		</appinfo>
 	</annotation>
 	

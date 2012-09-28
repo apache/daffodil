@@ -5,6 +5,7 @@
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xmlns:ex="http://example.com"
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
 	<tdml:defineSchema name="defineFormat-Embedded.dfdl.xsd">
@@ -47,7 +48,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:defineSchema name="defineFormat_01-Embedded.dfdl.xsd">
-		<dfdl:format lengthKind="delimited" lengthUnits="characters" encoding="UTF-8" separator="" initiator="" terminator=""
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" lengthUnits="characters" encoding="UTF-8" separator="" initiator="" terminator=""
 			separatorPolicy="suppressed" occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" />
 			       		
 		<xs:element name="shirt">

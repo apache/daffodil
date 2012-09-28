@@ -9,7 +9,7 @@
 
 
 	<tdml:defineSchema name="text_01">
-		<dfdl:format initiator="" terminator="" separator=""
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator=""
 			separatorPolicy="suppressed" separatorPosition="infix"
 			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
 			representation="text" occursCountKind="parsed"
@@ -48,7 +48,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="text_02">
-		<dfdl:format initiator="" terminator="" separator=""
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator=""
 			separatorPolicy="suppressed" separatorPosition="infix"
 			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
 			representation="text" occursCountKind="parsed"
@@ -87,7 +87,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="text_03">
-		<dfdl:format initiator="" terminator="" separator=""
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator=""
 			separatorPolicy="suppressed" separatorPosition="infix"
 			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
 			representation="text" occursCountKind="parsed"
@@ -130,7 +130,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="text_04">
-		<dfdl:format initiator="" terminator="" separator=""
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator=""
 			separatorPolicy="suppressed" separatorPosition="infix"
 			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
 			representation="text" occursCountKind="parsed"
@@ -173,7 +173,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="text_05">
-		<dfdl:format initiator="" terminator="" separator=""
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator=""
 			separatorPolicy="suppressed" separatorPosition="infix"
 			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
 			representation="text" occursCountKind="parsed"
@@ -216,7 +216,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="text_06">
-		<dfdl:format initiator="" terminator="" separator=""
+		<dfdl:format ref="ex:daffodilTest1"  initiator="" terminator="" separator=""
 			separatorPolicy="suppressed" separatorPosition="infix"
 			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
 			representation="text" occursCountKind="parsed"
@@ -259,7 +259,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="binary_01">
-		<dfdl:format initiator="" terminator="" separator=""
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator=""
 			separatorPolicy="suppressed" separatorPosition="infix"
 			documentFinalTerminatorCanBeMissing="yes" encoding="utf-8"
 			representation="binary" occursCountKind="parsed"

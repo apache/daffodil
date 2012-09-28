@@ -66,7 +66,7 @@ class TestPrimitives extends JUnitSuite {
   
   @Test def testSeparator {
      val sch = DFDLUtils.dfdlTestSchema(
-      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
+      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no" initiatedContent="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
@@ -86,7 +86,7 @@ class TestPrimitives extends JUnitSuite {
   
   @Test def testLengthKindDelimited {
      val sch = DFDLUtils.dfdlTestSchema(
-      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
+      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no" initiatedContent="no"/>,
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
           <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
@@ -107,7 +107,7 @@ class TestPrimitives extends JUnitSuite {
   
   @Test def testLengthKindDelimited2 {
      val sch = DFDLUtils.dfdlTestSchema(
-      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
+      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no" initiatedContent="no"/>,
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
           <xs:sequence dfdl:separator="%WSP;%WSP*;\%NL;%WSP;%WSP*;" dfdl:separatorPosition="infix">
@@ -128,7 +128,7 @@ class TestPrimitives extends JUnitSuite {
   
   @Test def testLengthKindDelimited3 {
      val sch = DFDLUtils.dfdlTestSchema(
-      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
+      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no" initiatedContent="no"/>,
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
           <xs:sequence dfdl:separator="}}}" dfdl:separatorPosition="infix">
@@ -181,7 +181,7 @@ class TestPrimitives extends JUnitSuite {
                                   textStandardBase="10" textStringJustification="right"
                                   escapeSchemeRef="" lengthKind="delimited" occursCountKind="implicit"/>
                      </dfdl:defineFormat>
-         <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
+         <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no" initiatedContent="no"/>,
       <xs:element name="root" dfdl:lengthKind="implicit" dfdl:ref="config" dfdl:initiator="{">
               <xs:complexType>
                      <xs:sequence dfdl:ref="config" dfdl:separator="," dfdl:terminator="::" >
@@ -218,7 +218,7 @@ class TestPrimitives extends JUnitSuite {
   
   @Test def testEntityReplacementSeparator {
      val sch = DFDLUtils.dfdlTestSchema(
-      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
+      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no" initiatedContent="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator="%NUL;" dfdl:separatorPosition="infix">
@@ -238,7 +238,7 @@ class TestPrimitives extends JUnitSuite {
   
   @Test def testEntityReplacementInitiator {
     val sch = DFDLUtils.dfdlTestSchema(
-      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" terminator="" separator="" ignoreCase="no"/>,
+      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" terminator="" separator="" ignoreCase="no" initiatedContent="no"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:initiator="%NUL;">
       </xs:element>)
     val actual = Compiler.testString(sch, "\u0000efgh")
@@ -253,7 +253,7 @@ class TestPrimitives extends JUnitSuite {
   
   @Test def testEntityReplacementTerminator {
     val sch = DFDLUtils.dfdlTestSchema(
-      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" ignoreCase="no"/>,
+      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" ignoreCase="no" initiatedContent="no"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:terminator="%NUL;">
       </xs:element>)
     val actual = Compiler.testString(sch, "abcd\u0000")

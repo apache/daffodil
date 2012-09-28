@@ -20,10 +20,19 @@ trait InitiatedTerminatedMixin
         case Some(s) if (s.initiatedContent == YesNo.Yes) => true
         case _ => false
       }
-      if (parentSays)
-        schemaDefinition(hasInitiator, "Enclosing group has initiatedContent='yes', but initiator is not defined." )
       parentSays
     }
+  
+  lazy val hasInitiator = {
+    val hasOne = initiator.isKnownNonEmpty
+      if (parentSaysInitiatedContent)
+        schemaDefinition(hasOne, "Enclosing group has initiatedContent='yes', but initiator is not defined." )
+      hasOne
+  }
+  
+  lazy val hasTerminator = terminator.isKnownNonEmpty
+
+ 
 
   lazy val initiatorDiscriminator = Prod("initiatorDiscriminator", this, parentSaysInitiatedContent, InitiatedContent(this))
 
@@ -36,9 +45,6 @@ trait InitiatedTerminatedMixin
   lazy val terminatorRegion = Prod("terminatorRegion", this, hasTerminator,
     if (terminator.isConstant) StaticTerminator(this)
     else DynamicTerminator(this))
-
-  override def hasInitiator : Boolean
-  override def hasTerminator : Boolean
 
   lazy val escapeScheme : Option[DFDLEscapeScheme] = {
     val er = getPropertyOption("escapeSchemeRef")

@@ -15,7 +15,8 @@
 				nilValue="nil %ES;" 
 				nilKind="literalValue"
 				textNumberRep="standard"
-				ignoreCase="no"/>
+				ignoreCase="no"
+				initiatedContent="no" />
 		</appinfo>
 	</annotation>
 
