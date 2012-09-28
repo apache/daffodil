@@ -154,7 +154,7 @@
 	
 	<tdml:defineSchema name="DFDL-207-Embedded.dfdl.xsd">
                          
-		<dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" 
+		<dfdl:format ref="ex:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" 
                          byteOrder='bigEndian' 
                          ignoreCase='no' initiatedContent='no' 
                          lengthKind='implicit' 
