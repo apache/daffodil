@@ -301,6 +301,7 @@
 			</tdml:infoset>
 		</tdml:parserTestCase>
 		
+		<!--  This test is same as ParseSequence4 ...
 		<tdml:parserTestCase name="ParseSequence_4a" root="e2"
 		model="basic" description="Section 12 property delimiters -data after final terminator - DFDL-12-032R">
 
@@ -314,7 +315,7 @@
 					</e2>
 				</tdml:dfdlInfoset>
 			</tdml:infoset>
-		</tdml:parserTestCase>
+		</tdml:parserTestCase> -->
 		
 		<tdml:defineSchema name="initiatedContentSchema">
 		<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" encoding="utf-8" 
