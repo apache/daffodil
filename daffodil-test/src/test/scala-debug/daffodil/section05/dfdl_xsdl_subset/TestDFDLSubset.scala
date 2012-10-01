@@ -20,12 +20,16 @@ class TestDFDLSubset extends JUnitSuite {
 
   @Test def test_group_ref() { runner.runOneTest("group_ref") }
   @Test def test_prefix() { runner.runOneTest("prefix") }
-  @Test def test_groupRef() { Debugger.withDebugger { runner.runOneTest("groupRef") } }
-  @Test def test_refInitiator() { Debugger.withDebugger { runner.runOneTest("refInitiator") } }
-  @Test def test_groupRefInheritProps() { Debugger.withDebugger { runner.runOneTest("groupRefInheritProps") } }
   
+  // Fails due to not laying down separator correctly for sequence within sequence
    @Test def test_groupRefGroupRef() { Debugger.withDebugger { runner.runOneTest("groupRefGroupRef") } }
    
+   // Fails, not laying down separator correctly
    @Test def test_sequenceWithinSequence() { Debugger.withDebugger { runner.runOneTest("sequenceWithinSequence") } }
+   
+   // Running as of 09282012
+   @Test def test_groupRef() { Debugger.withDebugger { runner.runOneTest("groupRef") } }
+   @Test def test_refInitiator() { Debugger.withDebugger { runner.runOneTest("refInitiator") } }
+   @Test def test_groupRefInheritProps() { Debugger.withDebugger { runner.runOneTest("groupRefInheritProps") } }
 
 }
