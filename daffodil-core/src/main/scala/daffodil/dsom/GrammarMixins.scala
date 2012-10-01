@@ -874,6 +874,7 @@ trait TermGrammarMixin { self : Term =>
       (ArrayPosGreaterThan(1, self) ~ infixSep) |
         ( (GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this) )
     } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this))
+  
 }
 
 trait ModelGroupGrammarMixin

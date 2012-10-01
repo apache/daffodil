@@ -93,6 +93,52 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+		
+		<xs:element name="ivc_08" type="example3" />
+
+		<xs:complexType name="example3">
+			<xs:sequence>
+				<xs:element name="num1" type="xs:int" />
+				<xs:element name="num1_square" type="xs:int" 
+					dfdl:inputValueCalc="{parent::ex:ivc_08/ex:num1 * parent::ex:ivc_08/ex:num1 }" />
+				<xs:element name="num2" type="xs:int"
+					dfdl:inputValueCalc="{81}" />
+			</xs:sequence>
+		</xs:complexType>
+		
+		<xs:element name="ivc_09" type="example4" />
+
+		<xs:complexType name="example4">
+			<xs:sequence>
+				<xs:element name="num1" type="xs:int" />
+				<xs:element name="num1_square" type="xs:int" 
+					dfdl:inputValueCalc="{parent::ez:ivc_09/ex:num1 * parent::ez:ivc_09/ex:num1 }" />
+				<xs:element name="num2" type="xs:int"
+					dfdl:inputValueCalc="{81}" />
+			</xs:sequence>
+		</xs:complexType>
+		
+		<xs:element name="ivc_10" type="example5" />
+
+		<xs:complexType name="example5">
+			<xs:sequence>
+				<xs:element name="num1" type="xs:int" />
+				<xs:element name="num1_square" type="xs:int" 
+					dfdl:inputValueCalc="{parent::ex:ivc_10/ex:num1 * parent::ex:ivc_10/ex:num1 }" />
+				<xs:element name="num2" type="xs:int"
+					dfdl:inputValueCalc="{ $ex:var }" />
+			</xs:sequence>
+		</xs:complexType>
+		
+		<xs:element name="ivc_11">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="num" type="xs:int" />
+					<xs:element name="str" type="xs:string"
+						dfdl:inputValueCalc="{ ..\abcde }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
 
 	</tdml:defineSchema>
 
@@ -184,5 +230,47 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="InputValueCalc_08" root="ivc_08"
+		model="inputValueCalc-Embedded.dfdl.xsd" description="Same as InputValueCalc_01 except use of parent:: - DFDL-17-007R">
 
+		<tdml:document>7</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ivc_08>
+					<num1>7</num1>
+					<num1_square>49</num1_square>
+					<num2>81</num2>
+				</ivc_08>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="InputValueCalc_09" root="ivc_09"
+		model="inputValueCalc-Embedded.dfdl.xsd" description="Same as InputValueCalc_08 except invalid prefix before ivc_09 - DFDL-17-007R">
+
+		<tdml:document>7</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="InputValueCalc_10" root="ivc_10"
+		model="inputValueCalc-Embedded.dfdl.xsd" description="Same as InputValueCalc_08 except using an undefined variable - DFDL-17-007R">
+
+		<tdml:document>7</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="InputValueCalc_11" root="ivc_11"
+		model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+		<tdml:document>7</tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
 </tdml:testSuite>
