@@ -36,7 +36,7 @@ class TestPrimitives extends JUnit3Suite {
   
   def testInitiator {
     val sch = DFDLUtils.dfdlTestSchema(
-      <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" terminator="" separator="" ignoreCase="no"/>,
+      <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:initiator="abcd">
       </xs:element>)
     val actual = Compiler.testString(sch, "abcdefgh")

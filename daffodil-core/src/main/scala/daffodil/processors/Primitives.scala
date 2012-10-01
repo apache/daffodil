@@ -1696,7 +1696,26 @@ case class LogicalNilValue(e: ElementBase) extends Primitive(e, e.isNillable)
 
 // As soon as you turn these on (by removing the false and putting the real guard), then schemas all need to have
 // these properties in them, which is inconvenient until we have multi-file schema support and format references.
-case class LeadingSkipRegion(e: Term) extends Primitive(e, false) // e.leadingSkip > 0)
+case class LeadingSkipRegion(e: Term) extends Terminal(e, e.leadingSkip > 0) {
+  e.schemaDefinition(e.leadingSkip < Compiler.maxSkipLength, "Property leadingSkip %s is larger than limit %s", e.leadingSkip, Compiler.maxSkipLength)
+  
+  def parser : Parser = new Parser(e) {
+    def parse(pstate : PState) = {
+      
+      val newBitPos = 8 * (pstate.bytePos + e.leadingSkip)
+      pstate.withPos(newBitPos, -1)
+    }
+    
+    override def toString = "leadingSkip(" + e.leadingSkip + ")"
+  }
+  
+  def unparser : Unparser = new Unparser(e) {
+    def unparse(ustate: UState) = {
+      
+      Assert.notYetImplemented()
+    }
+  }
+}
 
 case class AlignmentFill(e: Term) extends Primitive(e, false) // e.alignment != AlignmentType.Implicit)
 
