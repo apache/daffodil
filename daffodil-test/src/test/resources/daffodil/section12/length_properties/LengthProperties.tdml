@@ -64,7 +64,7 @@
 		<xs:element name="LP_06" dfdl:lengthKind="implicit">
 			<xs:complexType>
 				<xs:sequence>
-					<xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:lengthUnits="bytes"/>	
+					<xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="6" dfdl:lengthUnits="bytes" dfdl:encoding="utf-32BE"/>	
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
@@ -133,10 +133,10 @@
 		<tdml:parserTestCase name="LengthProp_06" root="LP_06"
 		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-134R">
 
-			<tdml:document>3Ax57t</tdml:document>
+			<tdml:document><tdml:documentPart type="byte">00000032AA55</tdml:documentPart></tdml:document>
 			<tdml:infoset>
 				<tdml:dfdlInfoset>
-					<LP_06><data>3Ax</data></LP_06>
+					<LP_06><data>2</data></LP_06>
 				</tdml:dfdlInfoset>
 			</tdml:infoset>
 		</tdml:parserTestCase>
