@@ -277,7 +277,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
           case e: java.nio.BufferUnderflowException => { return PE(start, "StringFixedLengthInBytes - Insufficient Bits in field; required " + nBytes * 8) }
           case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytes - IndexOutOfBounds: " + e.getMessage()) }
           case u: UnsuppressableException => throw u
-          case e: Exception => { return start.failed("StringFixedLengthInBytes - Exception: " + e.getStackTraceString) }
+          case e: Exception => { return PE(start, "StringFixedLengthInBytes - Exception: " + e.getStackTraceString) }
         }
       }
     }
