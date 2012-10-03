@@ -689,18 +689,136 @@ with WithParseErrorThrowing
     result
   }
 
-  def getPartialByte(bitPos : Long, bitCount : Long) = {
-    val bytePos = (bitPos >> 3).toInt
+  abstract class EndianProperties(val startBit : Long, val bitCount : Long) {
+    lazy val byteLength = 8.toLong
+    lazy val alignmentOffsetLength = startBit & 7
+    lazy val isAligned = alignmentOffsetLength == 0
+    lazy val startBitInByteRemaining = if (isAligned) byteLength - alignmentOffsetLength else 0
+    lazy val shortByteLength = bitCount & 7
+    lazy val wholeBytesLength = bitCount - shortByteLength
+    lazy val wholeBytesSize = wholeBytesLength >>> 3
+    lazy val isShortSplit = alignmentOffsetLength + shortByteLength > byteLength
+    lazy val restOfBytesAlignment = (alignmentOffsetLength + initialByteLength) & 7
+    lazy val finalBytesAlignment = (alignmentOffsetLength + shortByteLength) & 7
+    lazy val isSplit = restOfBytesAlignment != 0
+    lazy val longByteLength = if (wholeBytesSize == 0) 0 else byteLength
+    val isInitialSplit : Boolean
+    val isFinalSplit : Boolean
+    val initialShiftLeft : Long
+    val nextByteShiftLeft : Long
+    val initialByteLength : Long
+    val finalByteLength : Long
+    lazy val initialTopByteShiftCount = if (isInitialSplit) restOfBytesAlignment else 0
+    lazy val topByteShiftCount = restOfBytesAlignment
+    lazy val finalTopByteShiftCount = if (isFinalSplit) finalBytesAlignment else 0
+    lazy val initialTopByteLength = initialByteLength - initialTopByteShiftCount
+    lazy val topByteLength = byteLength - restOfBytesAlignment
+    lazy val finalTopByteLength = finalByteLength - finalTopByteShiftCount
+    lazy val initialBottomByteLength = initialTopByteShiftCount
+    lazy val bottomByteLength = topByteShiftCount
+    lazy val finalBottomByteLength = finalTopByteShiftCount
+    lazy val hasInitialByte = initialByteLength != 0
+    lazy val hasFinalByte = finalByteLength != 0
+    lazy val hasShortByte = shortByteLength != 0
+  }
+  case class BigEndianProperties(override val startBit : Long, override val bitCount : Long) extends EndianProperties(startBit, bitCount) {
+    lazy val isInitialSplit = isShortSplit
+    lazy val isFinalSplit = isSplit
+    lazy val initialShiftLeft = if (hasShortByte) wholeBytesLength else wholeBytesLength - byteLength
+    lazy val nextByteShiftLeft = -byteLength
+    lazy val initialByteLength = shortByteLength
+    lazy val finalByteLength = longByteLength
+  }
+  case class LittleEndianProperties(override val startBit : Long, override val bitCount : Long) extends EndianProperties(startBit, bitCount) {
+    lazy val isInitialSplit = isSplit
+    lazy val isFinalSplit = isShortSplit
+    lazy val initialShiftLeft = 0.toLong
+    lazy val nextByteShiftLeft = byteLength
+    lazy val initialByteLength = longByteLength
+    lazy val finalByteLength = shortByteLength
+  }
+
+  def getEndianProperties(bitPos: Long, bitCount : Long, order : java.nio.ByteOrder) = order match {
+    case java.nio.ByteOrder.BIG_ENDIAN => BigEndianProperties(bitPos, bitCount)
+    case java.nio.ByteOrder.LITTLE_ENDIAN => LittleEndianProperties(bitPos, bitCount)
+    case _ => Assert.invariantFailed("Invalid Byte Order: " + order)
+  }
+
+  def getBitSequence(bitPos: Long, bitCount : Long, order : java.nio.ByteOrder) : BigInt = {
+    val worker : EndianProperties = getEndianProperties(bitPos, bitCount, order)
+    var result = BigInt(0)
+    var position = worker.startBit
+    var outShift = worker.initialShiftLeft
+
+    // Read first byte (be it complete or partial)
+    if (worker.hasInitialByte) {
+      result =
+        (BigInt(
+          if (worker.isInitialSplit) {
+            (getPartialByte(position, worker.initialTopByteLength, worker.initialTopByteShiftCount) |
+             getPartialByte(position + worker.initialTopByteLength, worker.initialBottomByteLength, 0)).toByte
+         }
+          else {
+            getPartialByte(position, worker.initialByteLength, 0)
+          }) & 0xFF) << outShift.toInt
+      position = position + worker.initialByteLength
+      outShift = outShift + worker.nextByteShiftLeft
+    }
+
+    // Next all the middle bytes; we skip one byte because that will be handled either in the initial or final handler
+    for (thisByte <- 1 until worker.wholeBytesSize.toInt) {
+      result = result +
+        ((BigInt(
+          if (worker.isSplit) {
+            (getPartialByte(position, worker.topByteLength, worker.topByteShiftCount) |
+              getPartialByte(position + worker.topByteLength, worker.bottomByteLength, 0)).toByte
+          }
+          else {
+            getPartialByte(position, worker.byteLength, 0)
+          }
+        ) & 0xFF) << outShift.toInt)
+      position = position + worker.byteLength
+      outShift = outShift + worker.nextByteShiftLeft
+    }
+
+    // Read first byte (be it complete or partial)
+    if (worker.hasFinalByte) {
+      result = result +
+        ((BigInt(
+          if (worker.isFinalSplit) {
+            (getPartialByte(position, worker.finalTopByteLength, worker.finalTopByteShiftCount) |
+              getPartialByte(position + worker.finalTopByteLength, worker.finalBottomByteLength, 0)).toByte
+          }
+          else {
+            getPartialByte(position, worker.finalByteLength, 0)
+          }) & 0xFF) << outShift.toInt)
+      position = position + worker.finalByteLength
+      outShift = outShift + worker.nextByteShiftLeft
+    }
+
+    result
+  }
+
+  // littleEndian shift left except last, bigEndian shift right except first
+  def getPartialByte(bitPos : Long, bitCount : Long, shift : Long = 0) : Byte = {
+    Assert.invariant(shift >= 0 && shift + bitCount <= 8)
+    val bytePos = (bitPos >>> 3).toInt
+    val bitOffset = (bitPos % 8).toByte
     var result = byteReader.bb.get(bytePos)
 
     if (bitCount != 8) {
-      val bitOffset = (bitPos % 8).toByte
       Assert.invariant(0 < bitCount && bitCount <= 8 && bitOffset + bitCount <= 8)
+      val mask = ((1 << bitCount) - 1) << (8 - bitOffset - bitCount)
+
+      result = (result & mask).toByte
 
       // Shift so LSB of result is at LSB of octet then mask off top bits
-      (result >> (8 - bitCount - bitOffset).asInstanceOf[Byte]) & ((1 << bitCount) - 1)
+      val finalShift = 8 - bitCount - bitOffset - shift
+      (if (finalShift < 0) result << -finalShift else result >> finalShift).toByte
     }
     else {
+      // Verify byte alignment and disallow shift
+      Assert.invariant(bitOffset == 0 && shift == 0)
       result
     }
   }

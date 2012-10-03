@@ -109,6 +109,15 @@ trait ElementBaseGrammarMixin
     res
   }
 
+  // Length is in bits, (size would be in bytes) (from DFDL Spec 12.3.3)
+  lazy val implicitBinaryLength = primType.name match {
+      case "byte" | "unsigendByte" => 8
+      case "short" | "unsignedShort" => 16
+      case "float" | "int" | "unsignedInt" | "boolean" => 32
+      case "double" | "long" | "unsignedLong" => 64
+      case _ => schemaDefinitionError("Size of binary data '" + primType.name + "' cannot be determined implicitly.")
+  }
+
   lazy val fixedLengthString = Prod("fixedLengthString", this, isFixedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
       case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength) // TODO: make sure it divides evenly.

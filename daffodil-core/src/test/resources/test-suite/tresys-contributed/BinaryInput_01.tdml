@@ -33,6 +33,33 @@
         </xs:element>
     </tdml:defineSchema>
 
+    <tdml:defineSchema name="DFDL-307-one-octet.dfdl.xsd">
+
+        <dfdl:format representation="binary" binaryNumberRep="binary" lengthUnits="bits"
+                     byteOrder='bigEndian'
+                     initiatedContent='no'
+                     lengthKind='explicit'
+                     occursCountKind='parsed'
+                     separatorPolicy='suppressed' separatorPosition='infix'
+                     textNumberRep='standard'
+                     initiator="" terminator="" separator=""
+                />
+
+        <xs:element name="is-signed" dfdl:lengthKind="explicit" dfdl:length="{8}">
+            <xs:complexType>
+                <xs:sequence dfdl:byteOrder="bigEndian">
+                    <xs:element name="sign-bit" type="xs:unsignedByte"
+                                dfdl:alignment="1" dfdl:alignmentUnits="bits" dfdl:lengthUnits="bits" dfdl:length="{1}"
+                                dfdl:representation="binary"/>
+                    <xs:element name="abs" type="xs:unsignedByte"
+                                dfdl:alignment="1" dfdl:alignmentUnits="bits" dfdl:lengthUnits="bits" dfdl:length="{7}"
+                                dfdl:representation="binary"
+                                dfdl:byteOrder="bigEndian"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+    </tdml:defineSchema>
+
     <tdml:parserTestCase name="OneOctetBinaryParse" root="is-signed"
                          model="DFDL-307-one-octet.dfdl.xsd" description="Section 13 - Simple Types of Binary Format">
         <tdml:document>0</tdml:document>
