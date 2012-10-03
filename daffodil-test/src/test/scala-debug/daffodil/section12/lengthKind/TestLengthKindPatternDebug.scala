@@ -16,6 +16,6 @@ class TestLengthKindPatternDebug extends JUnitSuite {
   val aa = testDir + "PatternTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
-  @Test def test_LengthPatternIllegalBits_02() { runner.runOneTest("LengthPatternIllegalBits_02") }
+  //@Test def test_LengthPatternIllegalBits_02() { runner.runOneTest("LengthPatternIllegalBits_02") }
 
   }
