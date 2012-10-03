@@ -7,7 +7,7 @@
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
 
 	<tdml:defineSchema name="AQ.dfdl.xsd">
-		<dfdl:format separator="" initiator="" terminator=""
+		<dfdl:format ref="ex:daffodilTest1" separator="" initiator="" terminator=""
 			emptyValueDelimiterPolicy="none" textNumberRep="standard"
 			representation="text" occursStopValue="-1" occursCountKind="parsed"
 			lengthKind="delimited" lengthUnits="bytes" encoding="US-ASCII"

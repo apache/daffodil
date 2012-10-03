@@ -20,10 +20,19 @@ trait InitiatedTerminatedMixin
         case Some(s) if (s.initiatedContent == YesNo.Yes) => true
         case _ => false
       }
-      if (parentSays)
-        schemaDefinition(hasInitiator, "Enclosing group has initiatedContent='yes', but initiator is not defined." )
       parentSays
     }
+  
+  lazy val hasInitiator = {
+    val hasOne = initiator.isKnownNonEmpty
+      if (parentSaysInitiatedContent)
+        schemaDefinition(hasOne, "Enclosing group has initiatedContent='yes', but initiator is not defined." )
+      hasOne
+  }
+  
+  lazy val hasTerminator = terminator.isKnownNonEmpty
+
+ 
 
   lazy val initiatorDiscriminator = Prod("initiatorDiscriminator", this, parentSaysInitiatedContent, InitiatedContent(this))
 
@@ -36,9 +45,6 @@ trait InitiatedTerminatedMixin
   lazy val terminatorRegion = Prod("terminatorRegion", this, hasTerminator,
     if (terminator.isConstant) StaticTerminator(this)
     else DynamicTerminator(this))
-
-  override def hasInitiator : Boolean
-  override def hasTerminator : Boolean
 
   lazy val escapeScheme : Option[DFDLEscapeScheme] = {
     val er = getPropertyOption("escapeSchemeRef")
@@ -701,9 +707,11 @@ trait LocalElementGrammarMixin { self : LocalElementBase =>
 
   lazy val arrayContentsNoSeparators = Prod("arrayContentsNoSeparators", this, isRecurring && !hasSep, {
     val max = maxOccurs
+    val min = minOccurs
     val res = occursCountKind match {
       case Expression => separatedContentExactlyNComputed
       case OccursCountKind.Fixed if (max == UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+      case OccursCountKind.Fixed if (min != max) => SDE("occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)", min, max)
       case OccursCountKind.Fixed => separatedContentExactlyN(max)
       case OccursCountKind.Implicit if (max == UNB) => Assert.notYetImplemented() // contentUnbounded
       case OccursCountKind.Implicit => Assert.notYetImplemented() // contentAtMostN // uses maxOccurs
@@ -734,7 +742,8 @@ trait LocalElementGrammarMixin { self : LocalElementBase =>
     val triple = (separatorSuppressionPolicy, occursCountKind, maxOccurs)
     val res = triple match {
       case (___________, Expression, ___) => separatedContentExactlyNComputed
-      case (Never______, Fixed_____, UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+      case (___________, Fixed_____, UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+      case (___________, Fixed_____, max) if (max != minOccurs) => SDE("occursCountKind='fixed' requires minOccurs to equal maxOccurs (%d != %d)", minOccurs, max)
       case (___________, Fixed_____, max) => separatedContentExactlyN(max)
       case (Never______, Implicit__, UNB) => SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' required bounded maxOccurs.")
       case (Never______, Implicit__, max) => separatedContentExactlyN(max)
@@ -903,6 +912,7 @@ trait TermGrammarMixin { self : Term =>
       (ArrayPosGreaterThan(1, self) ~ infixSep) |
         ( (GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this) )
     } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this))
+  
 }
 
 trait ModelGroupGrammarMixin

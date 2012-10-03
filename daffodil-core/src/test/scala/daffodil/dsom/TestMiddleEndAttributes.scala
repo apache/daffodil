@@ -160,7 +160,7 @@ class TestMiddleEndAttributes extends JUnitSuite {
   
   @Test def testNearestEnclosingSequenceElementRef () {
      val testSchema = TestUtils.dfdlTestSchema(
-      <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
+      <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no" initiatedContent="no"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
       <xs:element name="e2" dfdl:lengthKind="implicit">
         <xs:complexType>

@@ -14,7 +14,7 @@
 					dfdl:separatorPosition="infix" dfdl:separator="">
 					<xs:element name="s1" dfdl:initiator="[" type="xs:int" dfdl:terminator="]"
 						minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
-					<xs:element name="s2" dfdl:initiator="[" type="xs:string" dfdl:terminator="]"
+					<xs:element name="s2" dfdl:initiator="( [" type="xs:string" dfdl:terminator=") ]"
 						minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
 				</xs:sequence>
 			</xs:complexType>
@@ -37,7 +37,7 @@
 	<tdml:parserTestCase name="initiatedContentSeqBaseline"
 		model="s1" description="Baseline to be sure initiated content doesn't prevent basics from parsing.  DFDL-14-002R"
 		root="e1">
-		<tdml:document>[123][abc]</tdml:document>
+		<tdml:document>[123](abc)</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<e1>
@@ -51,7 +51,7 @@
 	<tdml:parserTestCase name="initiatedContentSeq1"
 		model="s1" description="Verifies that initiatedContent acts as a discriminator, preventing s1 from parsing.  DFDL-14-002R"
 		root="e1">
-		<tdml:document>[abc][123]</tdml:document>
+		<tdml:document>(abc)[123]</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<e1> 
@@ -82,7 +82,8 @@
 		root="e2">
 		<tdml:document>[s1:ABC]</tdml:document>
 		<tdml:errors>
-			<tdml:error>Left over</tdml:error>
+			<tdml:error>ABC</tdml:error>
+			<tdml:error>xs:int</tdml:error>
 			<tdml:error>[s1:ABC]</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>

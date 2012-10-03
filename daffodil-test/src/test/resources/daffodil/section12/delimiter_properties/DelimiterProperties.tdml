@@ -11,7 +11,7 @@
 	<tdml:defineSchema name="DelimiterProperties-Embedded.dfdl.xsd">
 		<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" encoding="utf-8" 
 			occursCountKind="parsed" separatorPolicy="suppressed" textNumberRep="standard" ignoreCase="no"
-			representation="text" lengthUnits="characters" lengthKind="delimited" />
+			representation="text" lengthUnits="characters" lengthKind="delimited" initiatedContent="no"/>
 
 		<xs:element name="DP_01" dfdl:lengthKind="implicit">
 			<xs:complexType>
@@ -301,6 +301,7 @@
 			</tdml:infoset>
 		</tdml:parserTestCase>
 		
+		<!--  This test is same as ParseSequence4 ...
 		<tdml:parserTestCase name="ParseSequence_4a" root="e2"
 		model="basic" description="Section 12 property delimiters -data after final terminator - DFDL-12-032R">
 
@@ -314,7 +315,7 @@
 					</e2>
 				</tdml:dfdlInfoset>
 			</tdml:infoset>
-		</tdml:parserTestCase>
+		</tdml:parserTestCase> -->
 		
 		<tdml:defineSchema name="initiatedContentSchema">
 		<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" encoding="utf-8" 
@@ -397,5 +398,40 @@
 			</tdml:dfdlInfoset>
 			</tdml:infoset>
 		</tdml:parserTestCase>
+		
+	<tdml:defineSchema name="initiatedContentSimple1">
+	<dfdl:format initiator="" terminator="" leadingSkip="0"
+		trailingSkip="0" separator="" encoding="utf-8" occursCountKind="parsed"
+		separatorPolicy="suppressed" textNumberRep="standard" ignoreCase="no"
+		representation="text" lengthUnits="characters" lengthKind="delimited"
+		initiatedContent="no" separatorPosition="infix"/>
+
+	<xs:element name="e" dfdl:lengthKind="implicit">
+		<xs:complexType>
+			<xs:sequence dfdl:separator=":">
+
+				<xs:sequence dfdl:initiatedContent="yes">
+					<xs:element name="b1" type="xs:int" 
+						 dfdl:initiator="+" maxOccurs="1" minOccurs="0" />
+				</xs:sequence>
+
+				<xs:element name="s2" type="xs:string"  />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="initiatedContentSimple1"
+		model="initiatedContentSimple1" description="TBD" root="e">
+		<tdml:document>+1:3</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e>
+					<b1>1</b1>
+					<s2>3</s2>
+				</e>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 	
 </tdml:testSuite>

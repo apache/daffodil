@@ -10,6 +10,7 @@ import daffodil.compiler.Compiler
 import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
+import daffodil.debugger.Debugger
 
 class TestLengthPropertiesDebug extends JUnitSuite {
   val testDir_01 = "/daffodil/ibm-tests/"
@@ -24,5 +25,5 @@ class TestLengthPropertiesDebug extends JUnitSuite {
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
   
 //  @Test def test_LengthProp_01() { runner_02.runOneTest("LengthProp_01") }
-  @Test def test_LengthProp_06() { runner_02.runOneTest("LengthProp_06") }
+  @Test def test_LengthProp_06() = Debugger.withDebugger { runner_02.runOneTest("LengthProp_06") }
   }

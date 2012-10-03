@@ -379,5 +379,16 @@
 			</dfdlInfoset>
 		</infoset>
 	</parserTestCase>
+	
+	<parserTestCase name="HexCodePoint" root="hcp" model="charClassEntities.dfdl.xsd"
+		description="Hexadecimal code point used in documentPart type text tag - DFDL-6-044R">
+
+		<document>%#xc2a9;</document>
+		<infoset>
+			<dfdlInfoset>
+				<hcp>&#169;</hcp>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
 
 </testSuite>

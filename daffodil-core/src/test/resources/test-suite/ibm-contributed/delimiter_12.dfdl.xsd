@@ -13,7 +13,6 @@
 					textOutputMinLength="1"
 					alignment="1" alignmentUnits="bytes" fillByte="%NUL;" leadingSkip="0" trailingSkip="0"
 					ignoreCase="no" lengthKind="delimited" sequenceKind="ordered"
-					initiatedContent="no"	
 					outputNewLine="%CR;%LF;"
 					occursCountKind="implicit"
 					/>
@@ -26,7 +25,8 @@
 			<dfdl:defineFormat name="config">
    <dfdl:format  encoding="UTF-8" byteOrder="littleEndian" ignoreCase="yes"
 				textStringJustification="right"
-				textStringPadCharacter="x" textTrimKind="padChar"  textPadKind="padChar" documentFinalTerminatorCanBeMissing="yes"/>
+				textStringPadCharacter="x" textTrimKind="padChar"  textPadKind="padChar" 
+				documentFinalTerminatorCanBeMissing="yes"/>
 			</dfdl:defineFormat>
 		</xs:appinfo>
 	</xs:annotation>
@@ -73,7 +73,7 @@
 	<xs:element name="Fixed_text_sequence"  dfdl:lengthKind="implicit">
   <xs:complexType>
   
-  <xs:sequence  dfdl:sequenceKind="ordered" dfdl:initiatedContent="no" >
+  <xs:sequence  dfdl:sequenceKind="ordered" >
   
     <xs:element name="element1" 
 	minOccurs="1" maxOccurs="1" 

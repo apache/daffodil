@@ -531,6 +531,7 @@ class PState(
     new PState(inStreamStateStack, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, failureDiagnostic :: diagnostics, discriminator)
   def withDiscriminator(disc : Boolean) = 
      new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, disc)
+
   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.
    *
@@ -538,22 +539,10 @@ class PState(
    * get flattened into children of the element. The start of a sequence doesn't start the numbering of children. It's
    * the start of a complex type that does that.
    */
-  def moveOverByOne = {
-    val s1 = groupIndexStack match {
-      case Nil => this
-      case hd :: tl => {
-        val newGroupIndex = hd + 1
-        this.withGroupIndexStack(newGroupIndex :: tl)
-      }
-    }
+  def moveOverByOneElement = {
+    val s1 = moveOverOneGroupIndexOnly
     val s2 = s1.moveOverOneElementChildOnly
-    val s3 = s2.arrayIndexStack match {
-      case Nil => s2
-      case hd :: tl => {
-        val newArrayIndex = hd + 1
-        s1.withArrayIndexStack(newArrayIndex :: tl)
-      }
-    }
+    val s3 = s2.moveOverOneArrayIndexOnly 
     s3
   }
   
@@ -563,6 +552,26 @@ class PState(
       case hd :: tl => {
         val newChildIndex = hd + 1
         withChildIndexStack(newChildIndex :: tl)
+      }
+    }
+  }
+  
+  def moveOverOneGroupIndexOnly = { 
+    groupIndexStack match {
+      case Nil => this
+      case hd :: tl => {
+        val newGroupIndex = hd + 1
+        withGroupIndexStack(newGroupIndex :: tl)
+      }
+    }
+  }
+  
+  def moveOverOneArrayIndexOnly = { 
+    arrayIndexStack match {
+      case Nil => this
+      case hd :: tl => {
+        val newArrayIndex = hd + 1
+        withArrayIndexStack(newArrayIndex :: tl)
       }
     }
   }

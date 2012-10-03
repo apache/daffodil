@@ -22,7 +22,6 @@
 				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
 				documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
 				separatorPolicy="suppressed" separatorPosition="infix"
-				
 				/>
 		</appinfo>
 	</annotation>

@@ -189,6 +189,14 @@
                         </xs:sequence>
                 </xs:complexType>
                 </xs:element>
+                
+		<xs:element name="root1">
+                <xs:complexType>
+                	<xs:sequence dfdl:separator="">
+                        	<xs:element name="basic" type="basicType" dfdl:lengthKind="implicit"/>
+                        </xs:sequence>
+                </xs:complexType>
+                </xs:element>
 		
 	</tdml:defineSchema>
 
@@ -233,6 +241,46 @@
 		
 	</tdml:defineSchema>
 
+<!--
+	Schema name: facets-fixedUnboundedMax-schemaErr.dfdl.xsd
+	    Purpose: This schema tests the condition if maxOccurs is unbounded occursCountKind="fixed"
+-->
+
+	<tdml:defineSchema name="facets-fixedUnboundedMax-schemaErr.dfdl.xsd">
+		
+				<dfdl:format initiator="" terminator="" 
+				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
+				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
+				alignmentUnits="bytes" fillByte="f" 
+		   		occursCountKind="fixed" 
+				truncateSpecifiedLengthString="no" ignoreCase="no"
+				representation="text"  lengthKind="delimited"
+				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+				separatorPolicy="required" separatorPosition="infix"
+				
+				/>
+			
+		<xs:element name="basic" type="basicType" dfdl:lengthKind="implicit"/>
+		
+		<xs:complexType name="basicType">
+			<xs:sequence dfdl:separator="|">
+				<xs:element name="data" type="xs:int" dfdl:occursCountKind="fixed" minOccurs="2" maxOccurs="unbounded" dfdl:textNumberRep="standard"
+					dfdl:lengthKind="delimited" />
+			</xs:sequence>
+		</xs:complexType>
+		
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="">
+					<xs:element name="basic" type="basicType" dfdl:lenghtKind="implicit"/>
+					<xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		
+	</tdml:defineSchema>
 
 <!--
 	Schema name: facets-cell-min1max1.dfdl.xsd
@@ -314,6 +362,14 @@
                 	<xs:sequence dfdl:separator="">
                         	<xs:element name="matrix" type="matrixType" dfdl:lengthKind="implicit"/>
                                 <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
+                        </xs:sequence>
+                </xs:complexType>
+                </xs:element>
+
+		<xs:element name="root1">
+                <xs:complexType>
+                	<xs:sequence dfdl:separator="">
+                        	<xs:element name="matrix" type="matrixType" dfdl:lengthKind="implicit"/>
                         </xs:sequence>
                 </xs:complexType>
                 </xs:element>
@@ -564,9 +620,29 @@
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9|1|2|3|4|5]]></tdml:documentPart>
 		</tdml:document>
-		
+		 
 		<tdml:errors> 
 			<tdml:error />
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+<!--
+	Test name: fixedUnboundedMax
+	   Schema: facets-unboundedMax-schemaErr.dfdl.xsd
+	  Purpose: This test verifies that when occursCountKind is "fixed", there is a parsing error if maxOccurs is unbounded.
+-->
+		
+	<tdml:parserTestCase name="fixedUnboundedMax" root="root" model="facets-fixedUnboundedMax-schemaErr.dfdl.xsd"
+		description="Section 5 - minOccurs 2 maxOccurs 3 - DFDL-5-060R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[SDE]]></tdml:documentPart>
+		</tdml:document>
+		
+		<tdml:errors> 
+			<tdml:error>fixed</tdml:error>
+			<tdml:error>unbounded</tdml:error>
+			<tdml:error>maxOccurs</tdml:error>
 		</tdml:errors>
 	
 
@@ -671,6 +747,44 @@
 
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
+
+	</tdml:parserTestCase>
+	
+	<!--
+	Test name: leftOverData_Neg
+	   Schema: facets-min5max10-2.dfdl.xsd
+	  Purpose: A negative test to verify that left over data appears in the diagnostic message for DFDL-277.
+-->
+		
+	<tdml:parserTestCase name="leftOverData_Neg" root="root1" model="facets-min5max10-2.dfdl.xsd"
+		description="Section 16 occursCountKind=‘implicit’ means that the maxOccurs and minOccurs attributes of the element are used to bound speculative parsing. - DFDL-16-002R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9|1|2|3|4|5]]></tdml:documentPart>
+		</tdml:document>
+		
+		<tdml:errors> 
+			<tdml:error />
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<!-- 
+	Test name: lessThanMinCellsAfterLargeRow_Neg
+	   Schema: facets-rowcell-min2maxUnbounded.dfdl.xsd
+	  Purpose: A negative test satisfying the minimum of 2 rows followed by a third row with number of cells less than minOccurs and followed by left over data.
+-->
+	
+	<tdml:parserTestCase name="lessThanMinCellsAfterLargeRow_Neg" root="root1" model="facets-rowcell-min2maxUnbounded.dfdl.xsd"
+		description="Section 5 - minOccurs 2 maxOccurs Unbounded - DFDL-5-062R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1|2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2|1|8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,22]]></tdml:documentPart>
+		</tdml:document>
+		
+		
+		<tdml:errors> 
+			<tdml:error />
+		</tdml:errors>
 
 	</tdml:parserTestCase>
 

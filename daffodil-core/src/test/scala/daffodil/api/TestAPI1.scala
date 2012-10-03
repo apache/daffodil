@@ -96,7 +96,7 @@ class TestDFDLParser extends JUnitSuite {
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
-
+/* This test is in daffodil-test.
   @Test def testParseSequence4() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format separatorPolicy="required" separatorPosition="infix" ref="tns:daffodilTest1"/>,
@@ -113,13 +113,14 @@ class TestDFDLParser extends JUnitSuite {
     assertTrue(actualString.contains("><s1>5</s1><s1>6</s1><s1>7</s1></e1>"))
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
-  }
+  }*/
 
   /**
    * Shows that delimiters longer than 1 character work.
    * Shows that simple expressions like 1 + 1 get evaluated to constants
    * Shows that initiator and terminator work on a sequence as well as on elements.
    */
+  /* This test is in daffodil-test.
   @Test def testParseSequence5() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format separatorPolicy="required" separatorPosition="infix" ref="tns:daffodilTest1"/>,
@@ -136,7 +137,7 @@ class TestDFDLParser extends JUnitSuite {
     assertTrue(actualString.contains("><s1>55</s1><s1>66</s1><s1>77</s1></e1>"))
     val expected = <e1><s1>55</s1><s1>66</s1><s1>77</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
-  }
+  }*/
 
   @Test def testInt1() {
     val sch = TestUtils.dfdlTestSchema(

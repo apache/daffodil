@@ -64,8 +64,6 @@ trait DelimitedRuntimeValuedPropertiesMixin
     c
   }
 
-  lazy val hasInitiator = initiator.isKnownNonEmpty
-  lazy val hasTerminator = terminator.isKnownNonEmpty
 
 }
 

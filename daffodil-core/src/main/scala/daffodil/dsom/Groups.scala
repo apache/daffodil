@@ -152,6 +152,7 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
           }
         }
       }
+      case gdd: GlobalGroupDef => gdd.groupRef.immediatelyEnclosingModelGroup
       case ct: ComplexTypeBase => ct.element.immediatelyEnclosingModelGroup
       case _ => Assert.invariantFailed("immediatelyEnclosingModelGroup called on " + this + "with parent " + parent)
     }
@@ -501,7 +502,7 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   def emptyFormatFactory = new DFDLGroup(newDFDLAnnotationXML("group"), this)
   def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLGroup]
 
-  def hasStaticallyRequiredInstances = Assert.notYetImplemented()
+  def hasStaticallyRequiredInstances = group.hasStaticallyRequiredInstances//Assert.notYetImplemented()
 
   // TODO: Consolidate techniques with HasRef trait used by ElementRef
   lazy val refName = {

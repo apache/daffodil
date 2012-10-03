@@ -114,7 +114,7 @@
 							<xs:complexType>
 								<xs:choice dfdl:initiatedContent="yes">
 									<xs:element name="a1" dfdl:initiator="[" type="xs:int" dfdl:lengthKind="delimited"/>
-									<xs:element name="a2" dfdl:initiator="[" type="xs:float" dfdl:lengthKind="delimited"/>
+									<xs:element name="a2" dfdl:initiator="(" type="xs:float" dfdl:lengthKind="delimited"/>
 								</xs:choice>
 							</xs:complexType>
 						</xs:element>
@@ -140,11 +140,9 @@
 		<xs:element name="e5" dfdl:lengthKind="implicit">
 			<xs:complexType>
 				<xs:sequence>
-					<xs:choice>
 						<xs:element name="x1" dfdl:lengthKind="implicit">
 							<xs:complexType>
-								<xs:choice dfdl:initiatedContent="yes"
-									dfdl:separatorPosition="infix" dfdl:separator="">
+								<xs:choice dfdl:initiatedContent="yes">
 									<xs:element name="a1" dfdl:initiator="[" type="xs:string"
 										dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
 									<xs:element name="a2" dfdl:initiator="[" type="xs:int"
@@ -153,12 +151,11 @@
 							</xs:complexType>
 						</xs:element>
 						<xs:element name="x2" type="xs:string" dfdl:lengthKind="delimited" />
-					</xs:choice>
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
-		
 	</tdml:defineSchema>
+	
 
 	<tdml:parserTestCase name="initiatedContentChoice1" description="initiatedContent='yes' - DFDL-15-003R"
 		model="s1" root="e1">
@@ -215,14 +212,14 @@
 		model="s1" root="e1a">
 		<tdml:document>[s2:abc]123]</tdml:document>
 		<tdml:errors>
-			<tdml:error/>
+			<tdml:error>initiator</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="initiatedContentChoice6"
 		description="initiatedContent with delimited elements - - DFDL-15-003R"
 		model="s1" root="e3">
-		<tdml:document>[1789 [3.25</tdml:document>
+		<tdml:document>[1789 (3.25</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<e3>
@@ -255,7 +252,7 @@
 			<tdml:dfdlInfoset>
 				<e5>
 					<x1><a1>123</a1></x1>
-					<x1><a1>abc</a1></x1>
+					<x2>[abc]</x2>
 				</e5>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
@@ -265,8 +262,101 @@
 		model="s1" root="e1b">
 		<tdml:document>[s2:abc]123]</tdml:document>
 		<tdml:errors>
-			<tdml:error/>
+			<tdml:error>initiator</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
+	<tdml:defineSchema name="s2">
+	<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+	<xs:element name="e" dfdl:lengthKind="implicit">
+		<xs:complexType>
+			<xs:sequence dfdl:separator="%WSP+;"
+				dfdl:separatorPosition="infix">
+				<xs:element name="s" minOccurs="0" maxOccurs="unbounded"
+					dfdl:occursCountKind="parsed" dfdl:lengthKind="implicit">
+					<xs:complexType>
+						<xs:choice dfdl:initiatedContent="no">
+
+							<xs:element name="t0" type="xs:int" dfdl:initiator="t0:" />
+							<xs:element name="t1" type="xs:int" dfdl:initiator="t1:" />
+							<xs:element name="t2" type="xs:int" dfdl:initiator="t2:" />
+							<xs:element name="t2f" type="xs:float" dfdl:initiator="t2:" />
+							<xs:element name="t3" type="xs:int" dfdl:initiator="t3:" />
+							<xs:element name="t4" type="xs:int" dfdl:initiator="t4:" />
+							<xs:element name="other" type="xs:string" />
+						</xs:choice>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="f" dfdl:lengthKind="implicit">
+		<xs:complexType>
+			<xs:sequence dfdl:separator="%WSP+;"
+				dfdl:separatorPosition="infix">
+				<xs:element name="s" minOccurs="0" maxOccurs="unbounded"
+					dfdl:occursCountKind="parsed" dfdl:lengthKind="implicit">
+					<xs:complexType>
+						<xs:choice dfdl:initiatedContent="yes">
+							<xs:element name="t0" type="xs:int" dfdl:initiator="t0:" />
+							<xs:element name="t1" type="xs:int" dfdl:initiator="t1:" />
+							<xs:element name="t2" type="xs:int" dfdl:initiator="t2:" />
+							<!-- t2f can never happen because of the initiator.and initiatedContent -->
+							<xs:element name="t2f" type="xs:float" dfdl:initiator="t2:" />
+							<xs:element name="t3" type="xs:int" dfdl:initiator="t3:" />
+							<xs:element name="t4" type="xs:int" dfdl:initiator="t4:" />
+						</xs:choice>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="leftOver" type="xs:string"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+
+</tdml:defineSchema>
+
+	<tdml:parserTestCase name="arrayOfChoice"
+		description="Somewhat realistic example of array of choice - DFDL-15-003R"
+		model="s2" root="e">
+		<tdml:document>t4:400 t1:100 otherStuff t2:200.0</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e>
+					<s>
+						<t4>400</t4>
+					</s>
+					<s>
+						<t1>100</t1>
+					</s>
+					<s>
+						<other>otherStuff</other>
+					</s>
+					<s>
+						<t2f>200.0</t2f>
+					</s>
+				</e>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="arrayOfChoice2"
+		description="Somewhat realistic example of array of choice - DFDL-15-003R"
+		model="s2" root="f">
+		<tdml:document>t4:400 t1:100 t2:200.0</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<f>
+					<s>
+						<t4>400</t4>
+					</s>
+					<s>
+						<t1>100</t1>
+					</s>
+					<leftOver>t2:200.0</leftOver>
+				</f>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 </tdml:testSuite>

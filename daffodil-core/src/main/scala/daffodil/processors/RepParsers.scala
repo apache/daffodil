@@ -130,11 +130,24 @@ class RepUnboundedPrim(context : LocalElementBase, r : => Gram) extends RepPrim(
         val cloneNode = pResult.captureJDOM
         val pNext = rParser.parse1(pResult, context)
         if (pNext.status != Success) {
+          // 
+          // Did not succeed
+          // 
+          // Was a discriminator set?
+          // 
+          if (pNext.discriminator == true) {
+            // we fail the whole RepUnbounded, because there was a discriminator set 
+            // before the failure.
+            return pNext.withDiscriminator(false)
+          }
+          // 
+          // no discriminator, so suppress the failure. Loop terminated with prior element.
+          //
           pResult.restoreJDOM(cloneNode)
           log(Debug("Failure suppressed."))
           return pResult
         }
-        pResult = pNext
+        pResult = pNext.withDiscriminator(false) // point of uncertainty has been resolved.
 
       }
       Assert.invariantFailed("Unbounded loop terminated wrong")

@@ -8,7 +8,8 @@
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
       <dfdl:format separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none"
-       textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression"/>
+       textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression"
+       initiatedContent="no"/>
     </appinfo>
   </annotation>
 

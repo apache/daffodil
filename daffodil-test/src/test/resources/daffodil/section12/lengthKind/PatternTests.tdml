@@ -10,7 +10,7 @@
 
 	<tdml:defineSchema name="lengthKindPattern-Embedded.dfdl.xsd">
 		
-		<dfdl:format lengthKind="implicit" lengthUnits="bytes" encoding="US-ASCII" separator="" initiator="" terminator=""
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="implicit" lengthUnits="bytes" encoding="US-ASCII" separator="" initiator="" terminator=""
 	       		textNumberRep="standard" representation="text" />
 	  	
 		<!-- Patterned length and fixed length -->
@@ -154,7 +154,7 @@
 	
 	<tdml:defineSchema name="DFDL-207-Embedded.dfdl.xsd">
                          
-		<dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" 
+		<dfdl:format ref="ex:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" 
                          byteOrder='bigEndian' 
                          ignoreCase='no' initiatedContent='no' 
                          lengthKind='implicit' 
@@ -278,7 +278,10 @@
 			<tdml:documentPart type="byte">2121c2c22121</tdml:documentPart>
 		</tdml:document>
 		<tdml:errors>
-			<tdml:error/>
+			<tdml:error>invalid</tdml:error>
+			<!-- might not be this word 'invalid', but has to produce a diagnostic.
+			Right now this test fails because it throws to top level rather than producing 
+			a diagnostic at all. -->
 		</tdml:errors>
 	</tdml:parserTestCase>
 	

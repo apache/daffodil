@@ -30,12 +30,15 @@ class TestDelimiterProperties extends JUnitSuite {
   @Test def test_DelimProp_01() = { runner_02.runOneTest("DelimProp_01") }
   @Test def testParseSequence4() { runner_02.runOneTest("ParseSequence4") }
   @Test def testParseSequence5() { runner_02.runOneTest("ParseSequence5") }
-  @Test def testParseSequence_4a() { runner_02.runOneTest("ParseSequence_4a") }
+  //@Test def testParseSequence_4a() { runner_02.runOneTest("ParseSequence_4a") }
   @Test def test_DelimProp_02() { runner_02.runOneTest("DelimProp_02") }
   @Test def test_DelimProp_03() { runner_02.runOneTest("DelimProp_03") }
   @Test def test_DelimProp_04() { runner_02.runOneTest("DelimProp_04") }
   @Test def test_DelimProp_05() { runner_02.runOneTest("DelimProp_05") }
   @Test def test_DelimProp_06() { runner_02.runOneTest("DelimProp_06") }
+  @Test def test_DelimProp_07() { runner_02.runOneTest("DelimProp_07") }
+  @Test def test_initiatedContentSimple1() { runner_02.runOneTest("initiatedContentSimple1") }
+  
   @Test def test_DelimProp_09() { runner_02.runOneTest("DelimProp_09") }
   @Test def test_DelimProp_10() = {
     runner_02.runOneTest("DelimProp_10") }

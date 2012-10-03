@@ -9,7 +9,7 @@
 	<annotation>
 		<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
 			<dfdl:format initiator="" terminator="" 
-                encoding="utf-8" binaryNumberRep="binary" />
+                encoding="utf-8" binaryNumberRep="binary" initiatedContent="no" />
         </appinfo>
     </annotation>
                 

@@ -73,6 +73,19 @@ class TestTDMLRunner extends JUnitSuite {
     assertEquals(4, str.length)
     assertEquals("$¢€\u2028", str)
   }
+  
+  @Test def testDocWithDFDLEntities() {
+    val xml = <document>
+                <documentPart type="text">\%#x24;%#xA2;%#x20AC;%%%NUL;%LS;%#IGNORED;</documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    val docPart = doc.documentParts(0)
+    val bytes = docPart.convertedContent
+    assertEquals(12, bytes.length)
+    val orig = new String(bytes.toArray, "UTF8")
+    assertEquals(7, orig.length)
+    assertEquals("\\$¢€%\u0000\u2028", orig)
+  }
 
   @Test def test1() {
     val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
