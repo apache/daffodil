@@ -25,7 +25,7 @@ class TestLengthKindPattern extends JUnitSuite {
   @Test def test_lengthKindPattern_04() { runner.runOneTest("lengthKindPattern_04") }
   @Test def test_LengthPatternIllegalBits() { runner.runOneTest("LengthPatternIllegalBits") }
   @Test def test_LengthPatternIllegalBits_01() { runner.runOneTest("LengthPatternIllegalBits_01") }
-  @Test def test_LengthPatternIllegalBits_02() { runner.runOneTest("LengthPatternIllegalBits_02") }
+  // @Test def test_LengthPatternIllegalBits_02() { runner.runOneTest("LengthPatternIllegalBits_02") }
   @Test def test_LengthPatternLegalBits_01() { runner.runOneTest("LengthPatternLegalBits_01") }
   @Test def test_LengthPatternLegalBits_02() { runner.runOneTest("LengthPatternLegalBits_02") }
   
