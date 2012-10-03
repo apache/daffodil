@@ -547,7 +547,7 @@ trait ElementBaseGrammarMixin
   /**
    * the element left framing does not include the initiator nor the element right framing the terminator
    */
-  lazy val elementLeftFraming = Prod("elementLeftFraming", this,
+  lazy val elementLeftFraming = Prod("elementLeftFraming", this, NYI,
     leadingSkipRegion ~ alignmentFill ~ PrefixLength(this))
 
   lazy val elementRightFraming = Prod("elementRightFraming", this, NYI, trailingSkipRegion)

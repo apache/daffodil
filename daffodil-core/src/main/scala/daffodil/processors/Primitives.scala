@@ -1696,8 +1696,8 @@ case class LogicalNilValue(e: ElementBase) extends Primitive(e, e.isNillable)
 
 // As soon as you turn these on (by removing the false and putting the real guard), then schemas all need to have
 // these properties in them, which is inconvenient until we have multi-file schema support and format references.
-case class LeadingSkipRegion(e: Term) extends Terminal(e, e.leadingSkip > 0) {
-  e.schemaDefinition(e.leadingSkip < Compiler.maxSkipLength, "Property leadingSkip %s is larger than limit %s", e.leadingSkip, Compiler.maxSkipLength)
+case class LeadingSkipRegion(e: Term) extends Terminal(e, false) { // e.leadingSkip > 0) {
+  // e.schemaDefinition(e.leadingSkip < Compiler.maxSkipLength, "Property leadingSkip %s is larger than limit %s", e.leadingSkip, Compiler.maxSkipLength)
   
   def parser : Parser = new Parser(e) {
     def parse(pstate : PState) = {
