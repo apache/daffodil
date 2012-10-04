@@ -652,6 +652,8 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
   protected def isInt: Boolean
 
   protected def isInvalidRange(n: java.lang.Number): Boolean
+  
+  protected def getStringFormat(n: S): String
 
   def parser: Parser = new Parser(e) {
     override def toString = "to(xs:" + GramName + ")"
@@ -703,7 +705,14 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
             GramDescription, GramName, str, num, asNumber)
         }
 
-        node.setText(asNumber.toString)
+        // The following change was made because of the issues with the float
+        // adding a position of precision to the Number object.  At some point we
+        // will want to revert this back to the actual type but this is a quick fix
+        // for the issues we were having with the 0.003 vs 0.0030 error in test_DelimProp_05
+        //
+        //node.setText(asNumber.toString)
+        val result = getStringFormat(asNumber)
+        node.setText(result)
 
         start
       } // catch { case e: Exception => start.failed("Failed to convert %s to an xs:%s" + GramName) }
@@ -766,10 +775,13 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean) extends 
   }
 }
 
+
 abstract class ConvertTextIntegerNumberPrim[T](e: ElementBase, g: Boolean)
   extends ConvertTextNumberPrim[T](e, g) {
   override def numFormat = NumberFormat.getIntegerInstance()
   override def isInt = true
+  
+  protected override def getStringFormat(n: T): String = n.toString()
 
   protected def isInvalidRange(n: java.lang.Number): Boolean = {
     //
@@ -805,6 +817,23 @@ abstract class ConvertTextFloatingPointNumberPrim[T](e: ElementBase, g: Boolean)
   extends ConvertTextNumberPrim[T](e, g) {
   override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
   override def isInt = false
+  protected override def getStringFormat(n: T): String = {
+    //val trailingZeroes = """0*(?!<[1-9])$"""
+    val trailingZeroes = """(?<=[1-9])(0*)$""".r
+    val trailingZeroesBeforeExponent = """(?<=[1-9])(0*?)(?=E.*)""".r
+      
+    val nAsStr = n.toString()
+    
+    if (nAsStr.contains("E") || nAsStr.contains("e")){
+      // Exponent
+      return trailingZeroesBeforeExponent.replaceAllIn(nAsStr, "")
+    }
+    else {
+      return trailingZeroes.replaceAllIn(nAsStr, "")
+    }
+    
+    nAsStr
+  }
 }
 
 case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[BigInteger](e, true) {
