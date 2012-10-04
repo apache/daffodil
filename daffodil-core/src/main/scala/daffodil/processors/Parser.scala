@@ -698,7 +698,7 @@ with WithParseErrorThrowing
     result
   }
 
-  abstract class EndianProperties(val startBit : Long, val bitCount : Long) {
+  abstract class EndianTraits(val startBit : Long, val bitCount : Long) {
     lazy val byteLength = 8.toLong
     lazy val alignmentOffsetLength = startBit & 7
     lazy val isAligned = alignmentOffsetLength == 0
@@ -730,7 +730,7 @@ with WithParseErrorThrowing
     lazy val hasFinalByte = finalByteLength != 0
     lazy val hasShortByte = shortByteLength != 0
   }
-  case class BigEndianProperties(override val startBit : Long, override val bitCount : Long) extends EndianProperties(startBit, bitCount) {
+  case class BigEndianTraits(override val startBit : Long, override val bitCount : Long) extends EndianTraits(startBit, bitCount) {
     lazy val isInitialSplit = isShortSplit
     lazy val isFinalSplit = isSplit
     lazy val initialShiftLeft = if (hasShortByte) wholeBytesLength else wholeBytesLength - byteLength
@@ -738,7 +738,7 @@ with WithParseErrorThrowing
     lazy val initialByteLength = shortByteLength
     lazy val finalByteLength = longByteLength
   }
-  case class LittleEndianProperties(override val startBit : Long, override val bitCount : Long) extends EndianProperties(startBit, bitCount) {
+  case class LittleEndianTraits(override val startBit : Long, override val bitCount : Long) extends EndianTraits(startBit, bitCount) {
     lazy val isInitialSplit = isSplit
     lazy val isFinalSplit = isShortSplit
     lazy val initialShiftLeft = 0.toLong
@@ -747,14 +747,14 @@ with WithParseErrorThrowing
     lazy val finalByteLength = shortByteLength
   }
 
-  def getEndianProperties(bitPos: Long, bitCount : Long, order : java.nio.ByteOrder) = order match {
-    case java.nio.ByteOrder.BIG_ENDIAN => BigEndianProperties(bitPos, bitCount)
-    case java.nio.ByteOrder.LITTLE_ENDIAN => LittleEndianProperties(bitPos, bitCount)
+  def getEndianTraits(bitPos: Long, bitCount : Long, order : java.nio.ByteOrder) = order match {
+    case java.nio.ByteOrder.BIG_ENDIAN => BigEndianTraits(bitPos, bitCount)
+    case java.nio.ByteOrder.LITTLE_ENDIAN => LittleEndianTraits(bitPos, bitCount)
     case _ => Assert.invariantFailed("Invalid Byte Order: " + order)
   }
 
   def getBitSequence(bitPos: Long, bitCount : Long, order : java.nio.ByteOrder) : BigInt = {
-    val worker : EndianProperties = getEndianProperties(bitPos, bitCount, order)
+    val worker : EndianTraits = getEndianTraits(bitPos, bitCount, order)
     var result = BigInt(0)
     var position = worker.startBit
     var outShift = worker.initialShiftLeft

@@ -8,7 +8,7 @@ import daffodil.processors.InStreamFromByteChannel
 import daffodil.processors._
 import daffodil.compiler._
 
-// Do no harm number 16 of 558 fail in regression, 115 in total of 660
+// Do no harm number 17 of 624 fail in regression, 117 in total of 749
 
 class TestBinaryInput_01 extends JUnitSuite {
 
@@ -19,7 +19,7 @@ class TestBinaryInput_01 extends JUnitSuite {
     runner
   }
 
-  /*** DFDL-307 ***/
+  /*** DFDL-334 ***/
   // Verify Bit Extraction
   @Test
   def testBufferBitExtraction() {
@@ -189,6 +189,7 @@ class TestBinaryInput_01 extends JUnitSuite {
     assert(inStream.getBitSequence(2, 22, java.nio.ByteOrder.LITTLE_ENDIAN) == 1313101)
   }
 
+  /*** DFDL-307 ***/
   @Test
   def test_one_octet() {
     runner.runOneTest("OneOctetBinaryParse")
