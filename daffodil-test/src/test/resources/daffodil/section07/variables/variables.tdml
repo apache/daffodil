@@ -9,6 +9,8 @@
 		<dfdl:defineVariable name="v_no_default" type="xsd:int" />
 		<dfdl:defineVariable name="v_with_default" type="xsd:int"
 			defaultValue="42" />
+		<dfdl:defineVariable name="myVar1" type="xs:int"
+				defaultValue="6" />
 		<dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" 
                          alignment='1' alignmentUnits='bytes' textStandardBase='10' 
                          binaryFloatRep='ieee' binaryNumberRep='binary' byteOrder='bigEndian' 
@@ -65,6 +67,20 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+		
+		<xs:element name="a">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:annotation>
+						<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+							<dfdl:newVariableInstance ref="ex:myVar1"
+								defaultValue="7" />
+						</xs:appinfo>
+					</xs:annotation>
+					<xs:element name="b" type="xsd:int" dfdl:inputValueCalc="{ $ex:myVar1 }"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
 
 
 	</tdml:defineSchema>
@@ -108,6 +124,19 @@
 			<tdml:error>v_with_default</tdml:error>
 		</tdml:errors>
 
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="varInstance" root="a" model="v">
+
+		<tdml:document />
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<a xmlns="http://www.example.org/example1/">
+					<b type="xsd:int">7</b>
+				</a>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
 	</tdml:parserTestCase>
 	
 </tdml:testSuite>
