@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ex="http://example.com"
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	
+	
+	<tdml:defineSchema name="s1">
+		
+		
+		<dfdl:format ref="ex:daffodilTest1"/>
+		
+		<xs:element name="e" type="xs:string" dfdl:lengthKind="delimited" dfdl:leadingSkip="3"/>
+		<xs:element name="e2" type="xs:string" dfdl:lengthKind="delimited" dfdl:leadingSkip="3000000"/>
+		
+		
+	</tdml:defineSchema>
+ 
+	<tdml:parserTestCase name="leadingSkip1" root="e"
+		model="s1" description="Section 12.1 Aligned Data - DFDL-12-005R">
+
+		<tdml:document><tdml:documentPart type="byte">aabbcc</tdml:documentPart><tdml:documentPart type="text">Hello</tdml:documentPart>	
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e>Hello</e>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="leadingSkip2" root="e2"
+		model="s1" description="Section 12.1 Aligned Data - DFDL-12-005R">
+
+		<tdml:document/>
+
+		<tdml:errors>
+			<tdml:error>3000000</tdml:error>
+			<tdml:error>leadingSkip</tdml:error>
+		</tdml:errors>
+		
+	</tdml:parserTestCase>
+	
+</tdml:testSuite>

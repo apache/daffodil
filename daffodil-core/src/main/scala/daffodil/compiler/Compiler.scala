@@ -145,6 +145,7 @@ object Compiler {
   //TODO: make tunable via setter call of compiler
   def maxFieldContentLengthInBytes : Long = 1024 // Can be as large as Int.MaxValue
   def occursCountMax : Long = 1024 // Can be as large as Int.MaxValue 
+  def maxSkipLength : Long = 1024 // applicable to leadingSkip and trailingSkip
   // TODO: want to lift limit of Int.MaxValue, since these are supposed to be Long integers.
 
     
