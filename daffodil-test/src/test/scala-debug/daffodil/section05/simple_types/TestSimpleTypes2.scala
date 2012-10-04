@@ -23,6 +23,7 @@ class TestSimpleTypes2 extends JUnitSuite {
   	}
 //  @Test def test_Long3() {runner.runOneTest("Long3")}
 //  @Test def test_Long4() {runner.runOneTest("Long4")}
+
     @Test def test_whiteSpaceBeforeValidInt() { runner.runOneTest("whiteSpaceBeforeValidInt") }
     @Test def test_whiteSpaceDuringValidInt() { runner.runOneTest("whiteSpaceDuringValidInt") }
     
@@ -40,4 +41,8 @@ class TestSimpleTypes2 extends JUnitSuite {
 
     @Test def test_whiteSpaceBeforeValidUnsignedByte() { runner.runOneTest("whiteSpaceBeforeValidUnsignedByte") }
     @Test def test_whiteSpaceDuringValidUnsignedByte() { runner.runOneTest("whiteSpaceDuringValidUnsignedByte") }    
+
+//    @Test def test_whiteSpaceBeforeValidValue() { runner.runOneTest("whiteSpaceBeforeValidValue") }
+//    @Test def test_whiteSpaceDuringValidValue() { runner.runOneTest("whiteSpaceDuringValidValue") }
+
   }

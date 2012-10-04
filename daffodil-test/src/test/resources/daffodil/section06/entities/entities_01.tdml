@@ -31,7 +31,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:defineSchema name="sch2">
-		<dfdl:format ref="ex:daffodilTest1" />
+		<dfdl:format ref="ex:daffodilTest1"/>
 		<xs:element name="root" dfdl:lengthKind="implicit">
 			<xs:complexType>
 				<xs:sequence dfdl:separator="," >
@@ -54,7 +54,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:defineSchema name="sch3">
-		<dfdl:format ref="ex:daffodilTest1" />
+		<dfdl:format ref="ex:daffodilTest1"/>
 		<xs:element name="root" dfdl:lengthKind="implicit">
 			<xs:complexType>
 				<xs:sequence dfdl:separator="," >
@@ -77,7 +77,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:defineSchema name="sch4">
-		<dfdl:format initiator="" terminator="" separator=""
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator=""
 			separatorPolicy="suppressed" separatorPosition="infix"
 			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
 			representation="text" occursCountKind="parsed"
@@ -105,7 +105,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:defineSchema name="sch5">
-		<dfdl:format initiator="" terminator="" separator=""
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator=""
 			separatorPolicy="suppressed" separatorPosition="infix"
 			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
 			representation="binary" occursCountKind="parsed"
@@ -133,7 +133,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:defineSchema name="sch6">
-		<dfdl:format initiator="" terminator="" separator=""
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator=""
 			separatorPolicy="suppressed" separatorPosition="infix"
 			documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
 			representation="binary" occursCountKind="parsed"

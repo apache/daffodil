@@ -5,11 +5,112 @@
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
-	xmlns:ex="http://example.com"
+	xmlns:tns="http://example.com"
+
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	
+	<tdml:defineSchema name="s1">
+		<dfdl:defineFormat name="def">
+				<dfdl:format ref="tns:def1" encoding="utf-8" lengthKind="explicit" lengthUnits="characters" length="5" textNumberRep="zoned"/>
+		</dfdl:defineFormat>
+			
+		<dfdl:format initiator="" terminator="" representation="text"
+            lengthKind="explicit" lengthUnits="characters" length="3"/>
+            
+        <xs:element name="easy" type="xs:int" dfdl:ref="tns:def" dfdl:textNumberRep="standard"/>
+	</tdml:defineSchema>
+	
+	
+	
+	<tdml:defineSchema name="s2">
+		<dfdl:format ref="tns:def1" initiator="" terminator="" 
+                encoding="utf-8" binaryNumberRep="binary" />
+                
+        <!-- immediate simple type definition -->
+		<xs:element name="c3">
+			<xs:simpleType>
+				<xs:restriction base="tns:aType">
+					<xs:maxInclusive value="3" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+		
+		<!-- global simple type definition -->
+		<xs:simpleType name="aType">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:simpleType representation="binary" />
+				</xs:appinfo>
+			</xs:annotation>
+			<!-- base type reference -->
+			<xs:restriction base="tns:aaType" />
+		</xs:simpleType>
+
+		<!-- global simple type definition (used as a base) -->
+		<xs:simpleType name="aaType" >
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:simpleType byteOrder="bigEndian" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:restriction base="xs:int" />
+		</xs:simpleType>  
+	</tdml:defineSchema>
+
+
+	
+	<tdml:defineSchema name="s3">
+		<dfdl:format ref="tns:daffodilTest1" initiator="" terminator="" 
+                encoding="utf-8" binaryNumberRep="binary" initiatedContent="no" />
+                
+		<xs:element name="a">
+			<!-- should have representation from locally, and byteOrder from the simpleType -->
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:element representation="binary" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+						<dfdl:simpleType byteOrder="bigEndian" />
+					</xs:appinfo>
+				</xs:annotation>
+				<xs:restriction base="xs:int" />
+			</xs:simpleType>
+		</xs:element>
+	
+		<xs:element name="aa" type="tns:c">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:element representation="binary" />
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
+	
+			<xs:simpleType name="c">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+						<dfdl:simpleType byteOrder="bigEndian" />
+					</xs:appinfo>
+				</xs:annotation>
+				<xs:restriction base="xs:int" />
+			</xs:simpleType>
+		
+		<xs:element name="aaa" dfdl:lengthKind="implicit" >
+			<xs:complexType>
+				<xs:sequence dfdl:separator="">
+					<xs:element ref="tns:aa" dfdl:occursCountKind="fixed" minOccurs="3" maxOccurs="3"/>	
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+	
+	
 	
 	<tdml:defineSchema name="PropScoping-Embedded.dfdl.xsd">
-		<dfdl:format ref="ex:daffodilTest1" representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>
+		<dfdl:format ref="tns:daffodilTest1" representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>
 	      <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
 	      <xs:element name="e2" dfdl:lengthKind="implicit">
 	        <xs:complexType>
@@ -19,6 +120,8 @@
 	        </xs:complexType>
 	      </xs:element>
 	</tdml:defineSchema>
+	
+	
 	
 	<tdml:parserTestCase name="NearestEnclosingSequenceElementRef"
 		description="Section 8 An xs:element reference and its referenced global xs:element - DFDL-8-022R"
@@ -33,9 +136,10 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
  
+ 
+ 
 	<tdml:parserTestCase name="property_scoping_02" root="easy"
-		model="PropertyScoping_01.dfdl.xsd" description="Section 8 Combining DFDL Representation Properties from a dfdl:defineFormat - DFDL-8-018R">
-
+		model="s1" description="Section 8 Combining DFDL Representation Properties from a dfdl:defineFormat - DFDL-8-018R">
 		<tdml:document>-1009</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -45,7 +149,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="property_scoping_03" root="c3"
-		model="PropertyScoping_02.dfdl.xsd" description="Section 8 An xs:simpleType restriction and its base xs:simpleType restriction - DFDL-8-024R">
+		model="s2" description="Section 8 An xs:simpleType restriction and its base xs:simpleType restriction - DFDL-8-024R">
 
 		<tdml:document>
 			<tdml:documentPart type="byte">00000003</tdml:documentPart>
@@ -58,7 +162,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="property_scoping_04" root="a"
-		model="PropertyScoping_03.dfdl.xsd" description="Section 8 An xs:element and its referenced xs:simpleType restriction - DFDL-8-021R">
+		model="s3" description="Section 8 An xs:element and its referenced xs:simpleType restriction - DFDL-8-021R">
 
 		<tdml:document>
 			<tdml:documentPart type="byte">00000003</tdml:documentPart>
@@ -71,7 +175,7 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="property_scoping_05" root="aaa"
-		model="PropertyScoping_03.dfdl.xsd" description="Section 8 An xs:element reference and its referenced global xs:element - DFDL-8-022R">
+		model="s3" description="Section 8 An xs:element reference and its referenced global xs:element - DFDL-8-022R">
 
 		<tdml:document>
 			<tdml:documentPart type="byte">000000030000000600000001</tdml:documentPart>

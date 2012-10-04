@@ -1,64 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testSuite suiteName="AA-BG" description="Original suite of AA through BG"
-	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+<tdml:testSuite 
+    xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+	xmlns:ex="http://example.com"
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
-	<parserTestCase name="litNil1" root="doc" model="nillable.dfdl.xsd"
+<tdml:defineSchema name="s1">
+	<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator=""
+				separatorPolicy="suppressed" separatorPosition="infix"
+				documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
+				representation="text" occursCountKind="parsed" 
+				nilValueDelimiterPolicy="none" 
+				nilValue="nil %ES;" 
+				nilKind="literalValue"
+				textNumberRep="standard"
+				ignoreCase="no"
+				initiatedContent="no" />
+				
+	<xs:element name="doc" dfdl:lengthKind="implicit">
+		<xs:complexType>
+			<xs:sequence dfdl:separator="," dfdl:terminator=";">
+				<xs:element name="e1" nillable="true" type="xs:int"
+					dfdl:lengthKind="delimited" />
+				<xs:element name="e2" nillable="true" type="xs:int"
+					dfdl:lengthKind="delimited" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="doc_01" dfdl:lengthKind="implicit">
+		<xs:complexType>
+			<xs:sequence dfdl:separator="," dfdl:terminator=";">
+				<xs:element name="e1" nillable="true" type="xs:int"
+					dfdl:lengthKind="delimited" />
+				<xs:element name="e2" nillable="true" type="xs:int"
+					dfdl:lengthKind="delimited" dfdl:terminator=":" dfdl:nilValueDelimiterPolicy="terminator"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+</tdml:defineSchema>
+
+	<tdml:parserTestCase name="litNil1" root="doc" model="s1"
 		description="literal nil - DFDL-13-234R">
 
-		<document>
-			<documentPart type="text"><![CDATA[0,nil;]]></documentPart>
-		</document>
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[0,nil;]]></tdml:documentPart>
+		</tdml:document>
 
-		<infoset>
-			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc>
 					<e1>0</e1>
 					<e2 xsi:nil="true"/>	
 				</doc>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 	
-	<parserTestCase name="litNil2" root="doc" model="nillable.dfdl.xsd"
+	<tdml:parserTestCase name="litNil2" root="doc" model="s1"
 		description="literal nil is a DFDL character class entity %ES; - DFDL-13-234R">
 
-		<document>
-			<documentPart type="text"><![CDATA[0,;]]></documentPart>
-		</document>
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[0,;]]></tdml:documentPart>
+		</tdml:document>
 
-		<infoset>
-			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+		<tdml:infoset>
+			<tdml:dfdlInfoset >
+				<doc>
 					<e1>0</e1>
 					<e2 xsi:nil="true"/>	
 				</doc>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 
-	<parserTestCase name="litNil3" root="doc_01" model="nillable.dfdl.xsd"
+	<tdml:parserTestCase name="litNil3" root="doc_01" model="s1"
 		description="literal nil is a DFDL character class entity %ES; - DFDL-13-234R">
 
-		<document>
-			<documentPart type="text"><![CDATA[0,:;]]></documentPart>
-		</document>
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[0,:;]]></tdml:documentPart>
+		</tdml:document>
 
-		<infoset>
-			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<doc_01 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc_01>
 					<e1>0</e1>
 					<e2 xsi:nil="true"/>	
 				</doc_01>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 
 
-</testSuite>
+</tdml:testSuite>

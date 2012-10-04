@@ -9,7 +9,7 @@
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
 	<tdml:defineSchema name="DelimiterProperties-Embedded.dfdl.xsd">
-		<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" encoding="utf-8" 
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" encoding="utf-8" 
 			occursCountKind="parsed" separatorPolicy="suppressed" textNumberRep="standard" ignoreCase="no"
 			representation="text" lengthUnits="characters" lengthKind="delimited" initiatedContent="no"/>
 

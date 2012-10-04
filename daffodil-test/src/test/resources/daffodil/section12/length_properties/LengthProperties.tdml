@@ -132,11 +132,11 @@
 		
 		<tdml:parserTestCase name="LengthProp_06" root="LP_06"
 		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-134R">
-
 			<tdml:document><tdml:documentPart type="byte">00000032AA55</tdml:documentPart></tdml:document>
 			<tdml:infoset>
 				<tdml:dfdlInfoset>
 					<LP_06><data>2</data></LP_06>
+
 				</tdml:dfdlInfoset>
 			</tdml:infoset>
 		</tdml:parserTestCase>

@@ -20,9 +20,11 @@ class TestPrimitives extends JUnitSuite {
   }
   
 
+
   @Test def testInitiator {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" terminator="" separator="" ignoreCase="no"/>,
+
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:initiator="abcd">
       </xs:element>)
     val actual = Compiler.testString(sch, "abcdefgh")
@@ -36,9 +38,11 @@ class TestPrimitives extends JUnitSuite {
   }
   
 
+
   @Test def testTerminator {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" ignoreCase="no"/>,
+
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:terminator="efgh">
       </xs:element>)
     val actual = Compiler.testString(sch, "abcdefgh")
@@ -51,9 +55,11 @@ class TestPrimitives extends JUnitSuite {
   }
   
 
+
   @Test def testSeparator {
      val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
+
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
@@ -73,7 +79,9 @@ class TestPrimitives extends JUnitSuite {
   
   @Test def testLengthKindDelimited {
      val sch = TestUtils.dfdlTestSchema(
+
       <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
+
 
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
@@ -95,7 +103,9 @@ class TestPrimitives extends JUnitSuite {
   
   @Test def testLengthKindDelimited2 {
      val sch = TestUtils.dfdlTestSchema(
+
       <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
+
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
           <xs:sequence dfdl:separator="%WSP;%WSP*;\%NL;%WSP;%WSP*;" dfdl:separatorPosition="infix">
@@ -116,7 +126,9 @@ class TestPrimitives extends JUnitSuite {
   
   @Test def testLengthKindDelimited3 {
      val sch = TestUtils.dfdlTestSchema(
+
       <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
+
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
           <xs:sequence dfdl:separator="}}}" dfdl:separatorPosition="infix">
@@ -145,7 +157,7 @@ class TestPrimitives extends JUnitSuite {
   @Test def testDelimiterInheritance {
      val sch = TestUtils.dfdlTestSchema(
       <dfdl:defineFormat name="config">
-                           <dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
+                           <dfdl:format xmlns:tns="http://example.com" ref="tns:daffodilTest1" initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
                                occursCountKind="implicit" lengthUnits="bytes"
                                   initiatedContent="no" sequenceKind="ordered" ignoreCase="no"
                                   textPadKind="none" textTrimKind="none" textStandardBase="10"
@@ -156,20 +168,22 @@ class TestPrimitives extends JUnitSuite {
                                   textNumberRounding="pattern" />
                      </dfdl:defineFormat>
       <dfdl:defineFormat name="baseString">
-                           <dfdl:format byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" lengthUnits="bytes" 
+                           <dfdl:format xmlns:tns="http://example.com" ref="tns:daffodilTest1" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" lengthUnits="bytes" 
                     initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no" 
                                   ignoreCase="no" textPadKind="none" textTrimKind="none"
                                   textStandardBase="10" textStringJustification="right"
                                   escapeSchemeRef="" lengthKind="delimited" occursCountKind="implicit"/>
                      </dfdl:defineFormat>
                      <dfdl:defineFormat name="inheritance">
-                           <dfdl:format byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" lengthUnits="bytes" 
+                           <dfdl:format xmlns:tns="http://example.com" ref="tns:daffodilTest1" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" lengthUnits="bytes" 
                     initiator="" terminator="}" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no" 
                                   ignoreCase="no" textPadKind="none" textTrimKind="none"
                                   textStandardBase="10" textStringJustification="right"
                                   escapeSchemeRef="" lengthKind="delimited" occursCountKind="implicit"/>
                      </dfdl:defineFormat>
+
          <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no" initiatedContent="no"/>,
+
       <xs:element name="root" dfdl:lengthKind="implicit" dfdl:ref="config" dfdl:initiator="{">
               <xs:complexType>
                      <xs:sequence dfdl:ref="config" dfdl:separator="," dfdl:terminator="::" >
@@ -206,7 +220,9 @@ class TestPrimitives extends JUnitSuite {
   
   @Test def testEntityReplacementSeparator {
      val sch = TestUtils.dfdlTestSchema(
+
       <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
+
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator="%NUL;" dfdl:separatorPosition="infix">
@@ -226,7 +242,9 @@ class TestPrimitives extends JUnitSuite {
   
   @Test def testEntityReplacementInitiator {
     val sch = TestUtils.dfdlTestSchema(
+
       <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" terminator="" separator="" ignoreCase="no"/>,
+
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:initiator="%NUL;">
       </xs:element>)
     val actual = Compiler.testString(sch, "\u0000efgh")
@@ -241,7 +259,9 @@ class TestPrimitives extends JUnitSuite {
   
   @Test def testEntityReplacementTerminator {
     val sch = TestUtils.dfdlTestSchema(
+
       <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" ignoreCase="no"/>,
+
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:terminator="%NUL;">
       </xs:element>)
     val actual = Compiler.testString(sch, "abcd\u0000")
@@ -255,7 +275,7 @@ class TestPrimitives extends JUnitSuite {
 
   @Test def testNotByteAlignedCharactersErrorDetected() {
     val sch = TestUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format xmlns:tns="http://example.com" ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
     val pf = new Compiler().compile(sch)
     val dp = pf.onPath("/").asInstanceOf[DataProcessor]

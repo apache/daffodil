@@ -357,7 +357,7 @@
 
 	<tdml:defineSchema name="expression-type-errors.dfdl.xsd">
 
-		<dfdl:format lengthKind="delimited" lengthUnits="bytes"
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" lengthUnits="bytes"
 			encoding="UTF-8" separator="" initiator="" terminator=""
 			occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
 			representation="text" />

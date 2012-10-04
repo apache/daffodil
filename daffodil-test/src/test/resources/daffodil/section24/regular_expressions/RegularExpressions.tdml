@@ -10,7 +10,8 @@
 
 	<tdml:defineSchema name="RegularExpressions-Embedded.dfdl.xsd">
 		
-		<dfdl:format lengthKind="implicit" lengthUnits="bytes" encoding="US-ASCII" separator="" initiator="" terminator=""
+
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="implicit" lengthUnits="bytes" encoding="US-ASCII" separator="" initiator="" terminator=""
 	       		textNumberRep="standard" representation="text" />
 	  	
 		<xs:element name="regExpr_01" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="[A-Za-z]{1,8}(-[A-Za-z0-9]{1,8})*"/>

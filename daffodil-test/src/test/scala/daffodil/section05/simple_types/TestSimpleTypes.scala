@@ -105,6 +105,12 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_whiteSpaceDuringLengthExceededUnsignedShort() { runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedShort") }
   @Test def test_whiteSpaceAfterValidUnsignedShort() { runner.runOneTest("whiteSpaceAfterValidUnsignedShort") }
   
+//  @Test def test_unsignedIntNegativeValue() { runner.runOneTest("unsignedIntNegativeValue") }
+//  @Test def test_whiteSpaceAfterLengthExceeded() { runner.runOneTest("whiteSpaceAfterLengthExceeded") }
+//  @Test def test_whiteSpaceBeforeLengthExceeded() { runner.runOneTest("whiteSpaceBeforeLengthExceeded") }
+//  @Test def test_whiteSpaceDuringLengthExceeded() { runner.runOneTest("whiteSpaceDuringLengthExceeded") }
+//  @Test def test_whiteSpaceAfterValidValue() { runner.runOneTest("whiteSpaceAfterValidValue") }
+   
   @Test def test_unsignedShort_01() { runner.runOneTest("unsignedShort_01") }
   @Test def test_unsignedByte_01() { runner.runOneTest("unsignedByte_01") }
   @Test def test_unsignedByte_02() { runner.runOneTest("unsignedByte_02") }

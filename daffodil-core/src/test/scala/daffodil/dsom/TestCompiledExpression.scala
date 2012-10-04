@@ -7,6 +7,8 @@ import daffodil.compiler._
 import daffodil.processors.xpath._
 import junit.framework.Assert._
 import org.junit.Test
+import daffodil.util.TestUtils
+
 
 
 /**
@@ -156,7 +158,8 @@ class TestCompiledExpression extends JUnitSuite {
   
   @Test def testCompiledRelativePathEvaluation4() {
 
-    val testSchema = <xs:schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format xmlns:tns="http://example.com" ref="tns:daffodilTest1"/>,
                        <xs:element name="data">
                          <xs:complexType>
                            <xs:sequence>
@@ -164,8 +167,8 @@ class TestCompiledExpression extends JUnitSuite {
                              <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../e1 }"/>
                            </xs:sequence>
                          </xs:complexType>
-                       </xs:element>
-                     </xs:schema>
+                       </xs:element>)
+                     
 
     val r = XMLUtils.elem2Element(<data><e1>42</e1><e2/></data>)
     val sset = new SchemaSet(testSchema)
@@ -186,7 +189,8 @@ class TestCompiledExpression extends JUnitSuite {
   
   @Test def testCompiledRelativePathEvaluation5() {
 
-    val testSchema = <xs:schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format xmlns:tns="http://example.com" ref="tns:daffodilTest1"/>,
                        <xs:element name="data">
                          <xs:complexType>
                            <xs:sequence>
@@ -194,8 +198,8 @@ class TestCompiledExpression extends JUnitSuite {
                              <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../e1 }"/>
                            </xs:sequence>
                          </xs:complexType>
-                       </xs:element>
-                     </xs:schema>
+                       </xs:element>)
+                  
 
     val r = XMLUtils.elem2Element(<data><e1>42</e1><e2/></data>)
     val sset = new SchemaSet(testSchema)
@@ -225,19 +229,21 @@ class TestCompiledExpression extends JUnitSuite {
   @Test def testCompiledRelativePathEvaluation6() {
 
     // Note: removed targetNamespace={ example }. 
-    val testSchema = <xs:schema xmlns={ xsd }  xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format xmlns:tns="http://example.com" ref="tns:daffodilTest1" />,
                        <xs:element name="data" dfdl:lengthKind="implicit" dfdl:initiator="" dfdl:terminator="">
                          <xs:complexType>
                            <xs:sequence dfdl:separator="" dfdl:initiator="" dfdl:terminator="" dfdl:initiatedContent="no">
                              <xs:element name="e1" type="xs:string" dfdl:encoding="ascii" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:initiator="" dfdl:terminator=""/>
-                             <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../e1 }"/>
+                             <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../tns:e1 }"/>
                            </xs:sequence>
                          </xs:complexType>
-                       </xs:element>
-                     </xs:schema>
+                       </xs:element>)
+        
+                   
 
     val sset = new SchemaSet(testSchema)
-    val edecl = sset.getGlobalElementDecl("", "data").get.forRoot() // removed namespace example => ""
+    val edecl = sset.getGlobalElementDecl("http://example.com", "data").get.forRoot() // removed namespace example => ""
     val ct = edecl.typeDef.asInstanceOf[ComplexTypeBase]
     val d = Compiler.stringToReadableByteChannel("42") 
     val compiler = Compiler()
@@ -245,10 +251,10 @@ class TestCompiledExpression extends JUnitSuite {
     val dp = pf.onPath("/")
     val resState = dp.parse(d)
     val resNode = resState.result
-    // println(resNode)
+    //println(resNode)
     val Seq(e2) = (resNode \\ "e2")
     val dataNode = e2.text
-    // println(dataNode)
+    //println(dataNode)
 
     assertEquals("42", dataNode)
     
