@@ -56,13 +56,13 @@ import org.junit.Test
  */
 class DecodeMalformedHandler extends CharsetCallback.Decoder {
   def call(decoder : CharsetDecoderICU,
-    context : Any,
-    source : ByteBuffer,
-    target : CharBuffer,
-    offsets : IntBuffer,
-    buffer : Array[Char],
-    length : Int,
-    cr : CoderResult) : CoderResult = {
+           context : Any,
+           source : ByteBuffer,
+           target : CharBuffer,
+           offsets : IntBuffer,
+           buffer : Array[Char],
+           length : Int,
+           cr : CoderResult) : CoderResult = {
     // println("Decode: " + cr.toString)
     hook()
     cr.throwException()
@@ -76,13 +76,13 @@ class DecodeMalformedHandler extends CharsetCallback.Decoder {
 
 class DecodeUnmappableHandler extends CharsetCallback.Decoder {
   def call(decoder : CharsetDecoderICU,
-    context : Any,
-    source : ByteBuffer,
-    target : CharBuffer,
-    offsets : IntBuffer,
-    buffer : Array[Char],
-    length : Int,
-    cr : CoderResult) : CoderResult = {
+           context : Any,
+           source : ByteBuffer,
+           target : CharBuffer,
+           offsets : IntBuffer,
+           buffer : Array[Char],
+           length : Int,
+           cr : CoderResult) : CoderResult = {
     // println("Decode: " + cr.toString)
     hook()
     cr.throwException()
@@ -94,14 +94,14 @@ class DecodeUnmappableHandler extends CharsetCallback.Decoder {
 
 class EncodeMalformedHandler extends CharsetCallback.Encoder {
   def call(encoder : CharsetEncoderICU,
-    context : Any,
-    source : CharBuffer,
-    target : ByteBuffer,
-    offsets : IntBuffer,
-    buffer : Array[Char],
-    length : Int,
-    cp : Int,
-    cr : CoderResult) : CoderResult = {
+           context : Any,
+           source : CharBuffer,
+           target : ByteBuffer,
+           offsets : IntBuffer,
+           buffer : Array[Char],
+           length : Int,
+           cp : Int,
+           cr : CoderResult) : CoderResult = {
     // println("Encode: " + cr.toString)
     hook()
     cr.throwException()
@@ -113,14 +113,14 @@ class EncodeMalformedHandler extends CharsetCallback.Encoder {
 
 class EncodeUnmappableHandler extends CharsetCallback.Encoder {
   def call(encoder : CharsetEncoderICU,
-    context : Any,
-    source : CharBuffer,
-    target : ByteBuffer,
-    offsets : IntBuffer,
-    buffer : Array[Char],
-    length : Int,
-    cp : Int,
-    cr : CoderResult) : CoderResult = {
+           context : Any,
+           source : CharBuffer,
+           target : ByteBuffer,
+           offsets : IntBuffer,
+           buffer : Array[Char],
+           length : Int,
+           cp : Int,
+           cr : CoderResult) : CoderResult = {
     // println("Encode: " + cr.toString)
     hook()
     cr.throwException()
@@ -163,8 +163,6 @@ object Converter {
     intArray.map(int => int.asInstanceOf[Byte]).toArray
   }
 }
-
-
 
 class TestUnicodeICUErrorTolerance extends JUnitSuite {
 
@@ -401,29 +399,46 @@ class TestUnicodeICUErrorTolerance extends JUnitSuite {
   }
 
   def howManyCallbacks(inBuf : Array[Byte]) : Int = {
+
     val cs = CharsetICU.forNameICU("utf-8")
     val dn = cs.displayName()
     var counter : Int = 0
+
     assertEquals("UTF-8", dn)
+
     val decoder = cs.newDecoder().asInstanceOf[CharsetDecoderICU]
-    decoder.setToUCallback(CoderResult.malformedForLength(1),
-      new CharsetCallback.Decoder {
-        def call(decoder : CharsetDecoderICU,
-          context : Any,
-          source : ByteBuffer,
-          target : CharBuffer,
-          offsets : IntBuffer,
-          buffer : Array[Char],
-          length : Int,
-          cr : CoderResult) : CoderResult = {
-          // println("Decode: " + cr.toString)
-          counter += 1
-          // CoderResult.unmappableForLength(1)
-          CoderResult.UNDERFLOW // means ok actually. Or so it seems.
-          // cr
-        }
-      },
-      this)
+    val handler = new CharsetCallback.Decoder {
+      def call(decoder : CharsetDecoderICU,
+               context : Any,
+               source : ByteBuffer,
+               target : CharBuffer,
+               offsets : IntBuffer,
+               buffer : Array[Char],
+               length : Int,
+               cr : CoderResult) : CoderResult = {
+        // println("cr = " + cr.toString)
+
+        // 
+        // We just want to count how many times this thing
+        // gets called in various error situations
+        //
+        counter += 1
+        //
+        // We want to return here something that tells ICU to 
+        // ignore this error (skip) and just keep going after the malformed sequence.
+        //
+        CoderResult.UNDERFLOW // Hmmm.. means ok actually. Or so it seems.
+        // cr
+      }
+    }
+
+    // We pass a CoderResult.malformedForLength object to tell 
+    // it that's the callback we want to handle. But these malformedForLength objects are also used to 
+    // communicate back about exactly how long the malformed sequence of bytes is. But to tell it 
+    // that we want to handle malformed it doesn't matter which one we pass. So the 
+    // malformedForLength(1) object will do nicely thank you.
+    decoder.setToUCallback(CoderResult.malformedForLength(1), handler, this)
+
     val input = new ByteArrayInputStream(inBuf);
     val act = Converter.parse(input, decoder)
     counter
@@ -445,11 +460,13 @@ class TestUnicodeICUErrorTolerance extends JUnitSuite {
   // situations. 
 
   // Fails: throws MalformedInputException which is not being caught.
-  //    @Test def testHowManyCallbacks3() {
-  //       val inBuf = Array[Int](0xE2, 0xA2, 0xCC) // a bad 3-byte sequence 3rd byte bad = 1 error
-  //       val count = howManyCallbacks(inBuf)
-  //       assertEquals(1, count)
-  //    }
+  // I think that's because we are returning from our handler, in a disposition where it 
+  // decides based on our return that it should throw rather than continue.
+  //  @Test def testHowManyCallbacks3() {
+  //    val inBuf = Array[Int](0xE2, 0xA2, 0xCC) // a bad 3-byte sequence 3rd byte bad = 1 error
+  //    val count = howManyCallbacks(inBuf)
+  //    assertEquals(1, count)
+  //  }
   //    
   // Fails: throws MalformedInputException which is not being caught.
   //    @Test def testHowManyCallbacks4() {
@@ -459,24 +476,15 @@ class TestUnicodeICUErrorTolerance extends JUnitSuite {
   //    }
 
   /**
-   * I fail to understand a rationale for this to be 2 error calls.
-   * It's a 4-byte sequence. It's broken at byte 2, so the first 2 characters are an immediate error.
-   * Then it should pick up at the 3rd byte BF, which is an error, and the character after that also.
-   * That's 3 errors.
-   * FIXME: This is because our callback isn't moving past the bad bytes the way it should.
+   * Here is why the below is 2 error calls.
+   * It's a 4-byte sequence. It's broken at byte 2, which isn't a suitable follow on for byte 1.
+   * So byte 1 is deemed an error.
+   * Then it picks up with byte 2. Turns out CF BF is a valid 2-byte sequence for character U+03FF.
+   * Then it should pick up at the last byte. BF by itself is not valid alone or as first byte of
+   * a multi-byte character, so that's an error also. Two errors total.
    */
   @Test def testHowManyCallbacks5() { // That's character U+10FFFF, but with an error
-    val inBuf = Array[Int](0xF4, 0xCF, 0xBF, 0xBF) // a bad 4-byte sequence, but bad in 2nd byte. = 3 errors
-    val count = howManyCallbacks(inBuf)
-    assertEquals(2, count)
-  }
-
-  /**
-   * Seems like it should be 3 errors here also.
-   * FIXME: This is because our callback isn't moving past the bad bytes the way it should.
-   */
-  @Test def testHowManyCallbacks6() { // Gibberish. 1st byte of a 3-byte sequence, 2nd byte bad, then 2 more bad.
-    val inBuf = Array[Int](0xE2, 0xCF, 0xBF, 0xBF) // a bad 4-byte sequence, but bad in 2nd byte. = 3 errors
+    val inBuf = Array[Int](0xF4, 0xCF, 0xBF, 0xBF)
     val count = howManyCallbacks(inBuf)
     assertEquals(2, count)
   }
@@ -530,13 +538,19 @@ class TestUnicodeICUErrorTolerance extends JUnitSuite {
     assertEquals("\uFFFD", act)
   }
 
-  @Test def testHowManyReplacements5() { // That's character U+10FFFF, but with an error
-    val inBuf = Array[Int](0xF4, 0xCF, 0xBF, 0xBF) // a bad 4-byte sequence, but bad in 2nd byte. = 2 errors
+  @Test def testHowManyReplacements5() {
+    // That's character U+10FFFF, but with an error
+    // a bad 4-byte sequence, 2nd byte doesn't go with first.
+    // 2nd and 3rd bytes go together, but fourth is illegal on its own. 
+    // so 2 errors
+    val inBuf = Array[Int](0xF4, 0xCF, 0xBF, 0xBF)
     val act = replaceBadCharacters(inBuf)
     assertEquals("\uFFFD\u03ff\uFFFD", act)
   }
 
-  @Test def testHowManyReplacements6() { // Gibberish. 1st byte of a 3-byte sequence, 2nd byte bad, then 2 more bad.
+  @Test def testHowManyReplacements6() {
+    // Gibberish. 1st byte of a 3-byte sequence, 2nd byte doesn't go with it,
+    // but the sequence of 2nd and 3rd byte is valid (U+03FF). 4th byte invalid alone. 
     val inBuf = Array[Int](0xE2, 0xCF, 0xBF, 0xBF) // a bad 4-byte sequence, but bad in 2nd byte. = 3 errors
     val act = replaceBadCharacters(inBuf)
     assertEquals("\uFFFD\u03ff\uFFFD", act)
