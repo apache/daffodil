@@ -86,6 +86,15 @@
 		</xs:complexType>
 		</xs:element>
 		
+		<xs:element name="NS_10">
+		<xs:complexType>
+			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+				dfdl:separator="," dfdl:separatorPolicy="suppressed" dfdl:terminator="%NL;" dfdl:documentFinalTerminatorCanBeMissing="yes">
+				<xs:element name="num" type="xs:int" maxOccurs="unbounded"/>	
+			</xs:sequence>
+		</xs:complexType>
+		</xs:element>
+		
 		<xs:element name="e_01" type="error01Type" dfdl:lengthKind="implicit"/>
 		<xs:complexType name="error01Type">
 			<xs:sequence dfdl:separator="%NL;" dfdl:separatorPolicy="suppressed">
@@ -303,6 +312,24 @@
 					</NS_06>
 					<a_int>-749</a_int>
 				</NS_07>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="NumSeq_10" root="NS_10"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-038R">
+
+		<tdml:document>1,2,3,4,5,6</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<NS_05>
+					<num>1</num>
+					<num>2</num>
+					<num>3</num>
+					<num>4</num>
+					<num>5</num>
+					<num>6</num>
+				</NS_05>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
