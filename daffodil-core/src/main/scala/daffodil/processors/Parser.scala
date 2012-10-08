@@ -25,15 +25,17 @@ import daffodil.util.Misc._
 import java.io.InputStreamReader
 import java.io.BufferedReader
 import daffodil.exceptions.UnsuppressableException
+import scala.util.parsing.input.Reader
+import delimsearch.DFDLCharReader
 
 abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
-class ParseError(sc : SchemaComponent, val pstate : Option[PState], kind : String, args : Any*) 
-extends ProcessingError {
+class ParseError(sc: SchemaComponent, val pstate: Option[PState], kind: String, args: Any*)
+  extends ProcessingError {
   def isError = true
-  def getSchemaLocations : Seq[SchemaLocation] = List(sc)
-  def getDataLocations : Seq[DataLocation] = pstate.map { _.currentLocation }.toList
-  
+  def getSchemaLocations: Seq[SchemaLocation] = List(sc)
+  def getDataLocations: Seq[DataLocation] = pstate.map { _.currentLocation }.toList
+
   override def toString = {
     lazy val argsAsString = args.map { _.toString }.mkString(", ")
     //
@@ -43,31 +45,30 @@ extends ProcessingError {
     // For now, we'll just do an automatic English message.
     //
     val msg =
-      if (kind.contains("%")) kind.format(args : _*)
+      if (kind.contains("%")) kind.format(args: _*)
       else (kind + "(%s)").format(argsAsString)
     val res = "Parse Error: " + msg +
       "\nContext was : %s".format(sc) +
-      pstate.map{ ps => "\nData location was preceding %s".format(ps.currentLocation) }.getOrElse("(no data location)")
+      pstate.map { ps => "\nData location was preceding %s".format(ps.currentLocation) }.getOrElse("(no data location)")
     res
   }
 
   override def getMessage = toString
 }
 
-class AssertionFailed(sc: SchemaComponent, state : PState, msg : String) 
-extends ParseError(sc, Some(state), "Assertion failed. %s", msg)
+class AssertionFailed(sc: SchemaComponent, state: PState, msg: String)
+  extends ParseError(sc, Some(state), "Assertion failed. %s", msg)
 
+class ParseAlternativeFailed(sc: SchemaComponent, state: PState, val errors: Seq[Diagnostic])
+  extends ParseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors)
 
-class ParseAlternativeFailed(sc : SchemaComponent, state : PState, val errors : Seq[Diagnostic]) 
-extends ParseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors) 
-
-class AltParseFailed(sc : SchemaComponent, state : PState,
-  val p : Diagnostic, val q : Diagnostic) 
+class AltParseFailed(sc: SchemaComponent, state: PState,
+  val p: Diagnostic, val q: Diagnostic)
   extends ParseError(sc, Some(state), "All alternatives failed. Reason(s): %s", List(p, q)) {
-  
-  override def getSchemaLocations : Seq[SchemaLocation] = p.getSchemaLocations ++ q.getSchemaLocations
-  
-  override def getDataLocations : Seq[DataLocation] = {
+
+  override def getSchemaLocations: Seq[SchemaLocation] = p.getSchemaLocations ++ q.getSchemaLocations
+
+  override def getDataLocations: Seq[DataLocation] = {
     // both should have the same starting location if they are alternatives.
     Assert.invariant(p.getDataLocations == q.getDataLocations)
     p.getDataLocations
@@ -77,19 +78,18 @@ class AltParseFailed(sc : SchemaComponent, state : PState,
 /**
  * Encapsulates lower-level parsing with a uniform interface
  */
-abstract class Parser(val context : SchemaComponent) extends Logging {
-  
-  def PE(pstate : PState, s : String, args : Any*) = {
-    pstate.failed(new ParseError(context, Some(pstate), s, args : _*))
+abstract class Parser(val context: SchemaComponent) extends Logging {
+
+  def PE(pstate: PState, s: String, args: Any*) = {
+    pstate.failed(new ParseError(context, Some(pstate), s, args: _*))
   }
 
-
-  def processingError(state : PState, str : String, args : Any*) =
+  def processingError(state: PState, str: String, args: Any*) =
     PE(state, str, args) // long form synonym
 
-  protected def parse(pstate : PState) : PState
-  
-  final def parse1(pstate : PState, context : SchemaComponent) : PState = {
+  protected def parse(pstate: PState): PState
+
+  final def parse1(pstate: PState, context: SchemaComponent): PState = {
     Debugger.before(pstate, this)
     val afterState = parse(pstate)
     Debugger.after(pstate, afterState, this)
@@ -100,15 +100,14 @@ abstract class Parser(val context : SchemaComponent) extends Logging {
   // which would enable fixed-length formats to skip over data and not parse it at all.
 }
 
-
 /**
- * Mix this into parsers that have deep algorithms that are spread over multiple classes. 
- * 
+ * Mix this into parsers that have deep algorithms that are spread over multiple classes.
+ *
  * These allow one to bend the rule about parsers not throwing ParseError so that
  * if you are inside a parser, but you are way down a bunch of calls away from the parser itself
  * you can throw, and it will be intercepted and proper behavior (not throwing, but returning
  * a failed status) will result.
- * 
+ *
  * Use like this:
  * <pre>
  * withParseErrorThrowing(pstate) { // something enclosing like the parser
@@ -117,78 +116,75 @@ abstract class Parser(val context : SchemaComponent) extends Logging {
  *       PECheck(bitOffset % 8 == 0, "must be byte boundary, not bit %s", bitOffset)
  * ...
  * }
- * </pre> 
+ * </pre>
  */
 trait WithParseErrorThrowing {
-  
-  def context : SchemaComponent
-  
+
+  def context: SchemaComponent
+
   /**
    * Use to check for parse errors.
-   * 
+   *
    * Must be used only in the context of the withParseErrorThrowing wrapper.
-   * 
+   *
    * The schema component providing the context is implicit (via def context virtual member)
    */
   def PECheck(
-      testTrueMeansOK : => Boolean,
-      kind : String, args : Any*) {
+    testTrueMeansOK: => Boolean,
+    kind: String, args: Any*) {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
     if (!testTrueMeansOK) {
-      throw new ParseError(context, None, kind, args : _*)
+      throw new ParseError(context, None, kind, args: _*)
     }
   }
-  
+
   /**
    * Passing the context explicitly
    */
-  def PECheck(contextArg: SchemaComponent,  
-      testTrueMeansOK : => Boolean,
-      kind : String, args : Any*) {
+  def PECheck(contextArg: SchemaComponent,
+    testTrueMeansOK: => Boolean,
+    kind: String, args: Any*) {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
     if (!testTrueMeansOK) {
-      throw new ParseError(contextArg, None, kind, args : _*)
+      throw new ParseError(contextArg, None, kind, args: _*)
     }
   }
-    
-  def PE(kind : String, args : Any*) : Nothing = {
-    PE(context, kind, args : _*)
+
+  def PE(kind: String, args: Any*): Nothing = {
+    PE(context, kind, args: _*)
   }
-  
-  def PE(context : SchemaComponent, kind : String, args : Any*) : Nothing = {
+
+  def PE(context: SchemaComponent, kind: String, args: Any*): Nothing = {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
-    throw new ParseError(context, None, kind, args : _*)
+    throw new ParseError(context, None, kind, args: _*)
   }
-  
-  
-    
-  
+
   /**
-   * Wrap around parser code that wants to throw parse errors (e.g., parsers which call things which 
+   * Wrap around parser code that wants to throw parse errors (e.g., parsers which call things which
    * call things which detect a parse error want to throw back to this)
-   * 
-   * This wrapper then implements the required behavior for parsers 
+   *
+   * This wrapper then implements the required behavior for parsers
    * that being returning a failed parser state.
    */
-  def withParseErrorThrowing(pstate : PState)(body : => PState) : PState = {
+  def withParseErrorThrowing(pstate: PState)(body: => PState): PState = {
     val saveCanThrowParseErrors = WithParseErrorThrowing.flag
     WithParseErrorThrowing.flag = true
-    val result = 
+    val result =
       try body
       catch {
-        case e : ParseError => {
+        case e: ParseError => {
           val maybePS = e.pstate
           // if there is a maybePS, then use it to create the failed state (because it 
           // is probably more specific about the failure location), otherwise
           // use the one passed as an argument. 
-          val res = maybePS.map{ _.failed(e) }.getOrElse(pstate.failed(e))
+          val res = maybePS.map { _.failed(e) }.getOrElse(pstate.failed(e))
           res
         }
         // TODO: Runtime SDEs should be distinguished somehow usefully.
-//        case e : SchemaDefinitionError => {
-//          val res = pstate.failed(e)
-//          res
-//        }
+        //        case e : SchemaDefinitionError => {
+        //          val res = pstate.failed(e)
+        //          res
+        //        }
         //
         // Note: We specifically do not catch other exceptions here
         // On purpose. If those exist, then there's someplace that should have already caught them
@@ -197,52 +193,51 @@ trait WithParseErrorThrowing {
         // Other kinds of spontaneous throws are bugs, and we don't want to mask them by 
         // putting blanket catches in. 
         //
+      } finally {
+        WithParseErrorThrowing.flag = saveCanThrowParseErrors
       }
-    finally {
-      WithParseErrorThrowing.flag = saveCanThrowParseErrors
-    }
     result
   }
-  
+
   /**
    * Use to check things that really are schema-definition issues, but we can't check until run-time.
-   * E.g., since byteOrder might be an expression, if the expression returns neither bigEndian nor littleEndian, 
+   * E.g., since byteOrder might be an expression, if the expression returns neither bigEndian nor littleEndian,
    * then it's an SDE, but we didn't know until runtime.
-   * 
+   *
    * No catching for this SDE throw, since SDEs are fatal.
    */
-  def SDECheck(testTrueMeansOK : => Boolean, context : SchemaComponent, pstate : PState, kind : String, args : Any*) = {
+  def SDECheck(testTrueMeansOK: => Boolean, context: SchemaComponent, pstate: PState, kind: String, args: Any*) = {
     if (!testTrueMeansOK) {
-      throw new SchemaDefinitionError(Some(context), None, kind, args : _*)
+      throw new SchemaDefinitionError(Some(context), None, kind, args: _*)
     }
   }
 }
 
 /**
- * Global flag to insure we aren't throwing ParseErrors in a context that won't catch them 
+ * Global flag to insure we aren't throwing ParseErrors in a context that won't catch them
  * properly.
  */
 object WithParseErrorThrowing {
-  var flag : Boolean = false
+  var flag: Boolean = false
 }
 
 // No-op, in case an optimization lets one of these sneak thru. 
 // TODO: make this fail, and test optimizer sufficiently to know these 
 // do NOT get through.
-class EmptyGramParser(context : Term = null) extends Parser(context) {
-  def parse(pstate : PState) = Assert.invariantFailed("EmptyGramParsers are all supposed to optimize out!")
+class EmptyGramParser(context: Term = null) extends Parser(context) {
+  def parse(pstate: PState) = Assert.invariantFailed("EmptyGramParsers are all supposed to optimize out!")
 }
 
-class ErrorParser(context : Term = null) extends Parser(context) {
-  def parse(pstate : PState) : PState = Assert.abort("Error Parser")
+class ErrorParser(context: Term = null) extends Parser(context) {
+  def parse(pstate: PState): PState = Assert.abort("Error Parser")
   override def toString = "Error Parser"
 }
 
-class SeqCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) extends Parser(context) {
+class SeqCompParser(context: AnnotatedSchemaComponent, p: Gram, q: Gram) extends Parser(context) {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pParser = p.parser
   val qParser = q.parser
-  def parse(pstate : PState) = {
+  def parse(pstate: PState) = {
     val pResult = pParser.parse1(pstate, context)
     if (pResult.status == Success) {
       val qResult = qParser.parse1(pResult, context)
@@ -253,19 +248,19 @@ class SeqCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
   override def toString = pParser.toString + " ~ " + qParser.toString
 }
 
-class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) extends Parser(context) {
+class AltCompParser(context: AnnotatedSchemaComponent, p: Gram, q: Gram) extends Parser(context) {
   Assert.invariant(!p.isEmpty && !q.isEmpty)
   val pParser = p.parser
   val qParser = q.parser
-  def parse(pstate : PState) : PState = {
+  def parse(pstate: PState): PState = {
     val numChildrenAtStart = pstate.parent.getContent().length
-    var pResult : PState =
+    var pResult: PState =
       try {
         log(Debug("Trying choice alternative: %s", pParser))
         pParser.parse1(pstate, context)
       } catch {
-        case u :UnsuppressableException => throw u
-        case e : Exception => {
+        case u: UnsuppressableException => throw u
+        case e: Exception => {
           Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
         }
       }
@@ -273,10 +268,9 @@ class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
       log(Debug("Choice alternative success: %s", pParser))
       // Reset any discriminator. We succeeded.
       val res = if (pResult.discriminator) pResult.withDiscriminator(false)
-                else pResult
-          res
-    }
-    else {
+      else pResult
+      res
+    } else {
       log(Debug("Choice alternative failed: %s", pParser))
 
       // Unwind any side effects on the Infoset 
@@ -295,13 +289,13 @@ class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
         val res = pResult.withDiscriminator(false)
         return res
       }
-      
+
       val qResult = try {
         log(Debug("Trying choice alternative: %s", qParser))
         qParser.parse1(pstate, context)
       } catch {
-        case u :UnsuppressableException => throw u
-        case e : Exception => {
+        case u: UnsuppressableException => throw u
+        case e: Exception => {
           Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
         }
       }
@@ -310,19 +304,18 @@ class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
         val res = if (qResult.discriminator) qResult.withDiscriminator(false)
         else qResult
         res
-      }
-      else {
+      } else {
         log(Debug("Choice alternative failure: %s", qParser))
         // Unwind any side effects on the Infoset 
         val lastChildIndex = pstate.parent.getContent().length
         if (lastChildIndex > numChildrenAtStart) {
           pstate.parent.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
         }
-        
-      // check for discriminator evaluated to true. But just FYI since this is the last alternative anyway
-      if (qResult.discriminator == true) {
-        log(Debug("Failure, but discriminator true. (last alternative anyway)"))
-      }
+
+        // check for discriminator evaluated to true. But just FYI since this is the last alternative anyway
+        if (qResult.discriminator == true) {
+          log(Debug("Failure, but discriminator true. (last alternative anyway)"))
+        }
 
         // Since both alternatives failed, we create two meta-diagnostics that 
         // each indicate that one alternative failed due to the errors that occurred during
@@ -344,10 +337,8 @@ class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) exte
   override def toString = "(" + pParser.toString + " | " + qParser.toString + ")"
 }
 
-
-
-case class DummyParser(sc : PropertyMixin) extends Parser(null) {
-  def parse(pstate : PState) : PState = Assert.abort("Parser for " + sc + " is not yet implemented.")
+case class DummyParser(sc: PropertyMixin) extends Parser(null) {
+  def parse(pstate: PState): PState = Assert.abort("Parser for " + sc + " is not yet implemented.")
   override def toString = if (sc == null) "Dummy[null]" else "Dummy[" + sc.detailName + "]"
 }
 
@@ -360,60 +351,57 @@ class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixi
 }
 
 class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
-  
-  override def toString() = "Location is byte " + bitPos / 8 + 
-  "\nUTF-8 text starting at byte " + aligned64BitsPos / 8 + " is: (" + utf8Dump + ")" + 
-  "\nData (hex) starting at byte " + aligned64BitsPos / 8 + " is: (" + dump + ")" 
-  
-  
+
+  override def toString() = "Location is byte " + bitPos / 8 +
+    "\nUTF-8 text starting at byte " + aligned64BitsPos / 8 + " is: (" + utf8Dump + ")" +
+    "\nData (hex) starting at byte " + aligned64BitsPos / 8 + " is: (" + dump + ")"
+
   def aligned64BitsPos = (bitPos >> 6) << 6
-  
+
   def byteDump = {
-    var bytes : List[Byte] = Nil
+    var bytes: List[Byte] = Nil
     try {
-      for ( i <- 0 to 40 ) {
-        bytes = inStream.getByte(aligned64BitsPos + (i * 8) , java.nio.ByteOrder.BIG_ENDIAN) +: bytes
-      } 
-    }
-    catch {
-      case e : IndexOutOfBoundsException =>
+      for (i <- 0 to 40) {
+        bytes = inStream.getByte(aligned64BitsPos + (i * 8), java.nio.ByteOrder.BIG_ENDIAN) +: bytes
+      }
+    } catch {
+      case e: IndexOutOfBoundsException =>
     }
     bytes.reverse.toArray
   }
-  
+
   //val cBuf = 
   /**
    * Assumes utf-8
    */
   def utf8Dump = {
     val cb = CharBuffer.allocate(128)
-    val is = new ByteArrayInputStream(byteDump) 
+    val is = new ByteArrayInputStream(byteDump)
     val ir = new InputStreamReader(is)
     val count = ir.read(cb)
     val arr = cb.array
-    val chars = for {i <- 0 to count - 1} yield arr(i)
+    val chars = for { i <- 0 to count - 1 } yield arr(i)
     chars.mkString("")
-    }
-    
+  }
+
   def dump = {
     bytes2Hex(byteDump)
   }
-  
+
   /*
    * We're at the end if an attempt to get a byte fails with an index exception
    */
-  def isAtEnd : Boolean = {
+  def isAtEnd: Boolean = {
     try {
       inStream.getByte(bitPos, java.nio.ByteOrder.BIG_ENDIAN)
       false
-    }
-    catch {
-      case e : IndexOutOfBoundsException => {
-      val exc = e
-      true
+    } catch {
+      case e: IndexOutOfBoundsException => {
+        val exc = e
+        true
       }
     }
-    }
+  }
 }
 
 /**
@@ -426,18 +414,18 @@ class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
  * @param bitPos Current Read Position in given Data Stream
  * @param charPos Current Read Character Position in UNICODE or a given Character Set for the given Data Stream
  */
-class PStateStream(val inStream: InStream, val bitLimit: Long, val charLimit: Long = -1, val bitPos: Long = 0, val charPos: Long = -1) {
+class PStateStream(val inStream: InStream, val bitLimit: Long, val charLimit: Long = -1, val bitPos: Long = 0, val charPos: Long = 0, val reader: Option[DFDLCharReader]) {
   Assert.invariant(bitPos >= 0)
   def withInStream(inStream: InStream, status: ProcessorResult = Success) =
-    new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos)
+    new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, reader)
   def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) =
-    new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos)
+    new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, reader)
   def withEndBitLimit(bitLimit: Long, status: ProcessorResult = Success) =
-    new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos)
+    new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, reader)
 }
 object PStateStream {
-  def initialPStateStream(in : InStream, bitOffset : Long) = 
-    new PStateStream(in, bitLimit = -1, bitPos = bitOffset )
+  def initialPStateStream(in: InStream, bitOffset: Long) =
+    new PStateStream(in, bitLimit = -1, bitPos = bitOffset, reader = None)
 }
 
 /**
@@ -460,9 +448,9 @@ class PState(
   val groupIndexStack: List[Long],
   val childIndexStack: List[Long],
   val arrayIndexStack: List[Long],
-  val occursCountStack : List[Long],
-  val diagnostics : List[Diagnostic],
-  val discriminator : Boolean) extends DFDL.State {
+  val occursCountStack: List[Long],
+  val diagnostics: List[Diagnostic],
+  val discriminator: Boolean) extends DFDL.State {
   def bytePos = bitPos >> 3
   def whichBit = bitPos % 8
   def groupPos = if (groupIndexStack != Nil) groupIndexStack.head else -1
@@ -470,7 +458,7 @@ class PState(
   def arrayPos = if (arrayIndexStack != Nil) arrayIndexStack.head else -1
   def occursCount = occursCountStack.head
 
-  def currentLocation : DataLocation = new DataLoc(bitPos, inStream)
+  def currentLocation: DataLocation = new DataLoc(bitPos, inStream)
   def inStreamState = inStreamStateStack top
   def inStream = inStreamState inStream
   def bitPos = inStreamState bitPos
@@ -478,37 +466,38 @@ class PState(
   def charPos = inStreamState charPos
   def charLimit = inStreamState charLimit
   def parentElement = parent.asInstanceOf[Element]
-  def parentForAddContent = 
-    parent.asInstanceOf[{ 
-      def addContent(c: org.jdom.Content) : Unit
-      def removeContent(c: org.jdom.Content) : Unit 
-      }]
+  def parentForAddContent =
+    parent.asInstanceOf[{
+      def addContent(c: org.jdom.Content): Unit
+      def removeContent(c: org.jdom.Content): Unit
+    }]
+  def textReader = inStreamState reader
 
-/**
+  /**
    * Convenience functions for creating a new state, changing only
    * one or a related subset of the state components to a new one.
    */
 
   def withInStreamState(inStreamState: PStateStream, status: ProcessorResult = Success) =
-    new PState(inStreamStateStack push(inStreamState), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
+    new PState(inStreamStateStack push (inStreamState), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   def withInStream(inStream: InStream, status: ProcessorResult = Success) =
-    new PState(inStreamStateStack push(new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos)), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
+    new PState(inStreamStateStack push (new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, textReader)), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   def withLastInStream(status: ProcessorResult = Success) = {
     var lastBitPos = bitPos
     var lastCharPos = if (charPos > 0) charPos else 0
-    inStreamStateStack pop()
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator) withPos(bitPos + lastBitPos, charPos + lastCharPos)
+    inStreamStateStack pop ()
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator) withPos (bitPos + lastBitPos, charPos + lastCharPos)
   }
   def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) = {
-    var newInStreamStateStack = inStreamStateStack clone()
-    newInStreamStateStack pop()
-    newInStreamStateStack push(new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos))
+    var newInStreamStateStack = inStreamStateStack clone ()
+    newInStreamStateStack pop ()
+    newInStreamStateStack push (new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, None))
     new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   }
   def withEndBitLimit(bitLimit: Long, status: ProcessorResult = Success) = {
-    var newInStreamStateStack = inStreamStateStack clone()
-    newInStreamStateStack pop()
-    newInStreamStateStack push(new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos))
+    var newInStreamStateStack = inStreamStateStack clone ()
+    newInStreamStateStack pop ()
+    newInStreamStateStack push (new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, textReader))
     new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   }
   def withParent(parent: org.jdom.Parent, status: ProcessorResult = Success) =
@@ -521,17 +510,26 @@ class PState(
     new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
   def withArrayIndexStack(arrayIndexStack: List[Long], status: ProcessorResult = Success) =
     new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
-  def setOccursCount(oc : Long) = 
-      new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, oc :: occursCountStack.tail, diagnostics, discriminator)
-  def withOccursCountStack(ocs : List[Long]) = 
-      new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, ocs, diagnostics, discriminator)
-  def failed(msg: => String) : PState =
+  def setOccursCount(oc: Long) =
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, oc :: occursCountStack.tail, diagnostics, discriminator)
+  def withOccursCountStack(ocs: List[Long]) =
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, ocs, diagnostics, discriminator)
+  def failed(msg: => String): PState =
     failed(new GeneralParseFailure(msg))
   def failed(failureDiagnostic: Diagnostic) =
     new PState(inStreamStateStack, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, failureDiagnostic :: diagnostics, discriminator)
-  def withDiscriminator(disc : Boolean) = 
-     new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, disc)
-
+  def withDiscriminator(disc: Boolean) =
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, disc)
+  def withReader(newReader: Option[DFDLCharReader]) =
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
+  def withReaderPos(bitPos: Long, charPos: Long, reader: DFDLCharReader, status: ProcessorResult = Success) = {
+    var newInStreamStateStack = inStreamStateStack clone ()
+    newInStreamStateStack pop ()
+    val newReader = reader.atPos(charPos.toInt)
+    newInStreamStateStack push (new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, Some(newReader)))
+    new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
+  }
+  
   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.
    *
@@ -542,11 +540,11 @@ class PState(
   def moveOverByOneElement = {
     val s1 = moveOverOneGroupIndexOnly
     val s2 = s1.moveOverOneElementChildOnly
-    val s3 = s2.moveOverOneArrayIndexOnly 
+    val s3 = s2.moveOverOneArrayIndexOnly
     s3
   }
-  
-  def moveOverOneElementChildOnly = { 
+
+  def moveOverOneElementChildOnly = {
     childIndexStack match {
       case Nil => this
       case hd :: tl => {
@@ -555,8 +553,8 @@ class PState(
       }
     }
   }
-  
-  def moveOverOneGroupIndexOnly = { 
+
+  def moveOverOneGroupIndexOnly = {
     groupIndexStack match {
       case Nil => this
       case hd :: tl => {
@@ -565,8 +563,8 @@ class PState(
       }
     }
   }
-  
-  def moveOverOneArrayIndexOnly = { 
+
+  def moveOverOneArrayIndexOnly = {
     arrayIndexStack match {
       case Nil => this
       case hd :: tl => {
@@ -575,12 +573,12 @@ class PState(
       }
     }
   }
- 
-  def captureJDOM : Int = {
+
+  def captureJDOM: Int = {
     parent.getContentSize()
   }
 
-  def restoreJDOM(previousContentSize : Int) = {
+  def restoreJDOM(previousContentSize: Int) = {
     for (i <- previousContentSize until parent.getContentSize()) {
       parent.removeContent(i)
     }
@@ -597,9 +595,9 @@ object PState {
   /**
    * Initialize the state block given our InStream and a root element declaration.
    */
-  def createInitialState(rootElemDecl : GlobalElementDecl, in : InStream, bitOffset : Long) : PState = {
+  def createInitialState(rootElemDecl: GlobalElementDecl, in: InStream, bitOffset: Long): PState = {
     val inStream = in
-   
+
     val doc = new org.jdom.Document() // must have a jdom document to get path evaluation to work.  
     val variables = rootElemDecl.schema.schemaSet.variableMap
     val targetNamespace = rootElemDecl.schemaDocument.targetNamespace
@@ -612,6 +610,7 @@ object PState {
     val diagnostics = Nil
     val discriminator = false
     val initPState = PStateStream.initialPStateStream(inStream, bitOffset)
+    val textReader: Option[DFDLCharReader] = None
     val newState = new PState(Stack(initPState), doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminator)
     newState
   }
@@ -619,7 +618,7 @@ object PState {
   /**
    * For testing it is convenient to just hand it strings for data.
    */
-  def createInitialState(rootElemDecl : GlobalElementDecl, data : String, bitOffset : Long) : PState = {
+  def createInitialState(rootElemDecl: GlobalElementDecl, data: String, bitOffset: Long): PState = {
     val in = Compiler.stringToReadableByteChannel(data)
     createInitialState(rootElemDecl, in, data.length, bitOffset)
   }
@@ -627,13 +626,13 @@ object PState {
   /**
    * Construct our InStream object and initialize the state block.
    */
-  def createInitialState(rootElemDecl : GlobalElementDecl, input : DFDL.Input, sizeHint : Long = -1, bitOffset : Long = 0) : PState = {
+  def createInitialState(rootElemDecl: GlobalElementDecl, input: DFDL.Input, sizeHint: Long = -1, bitOffset: Long = 0): PState = {
     val inStream =
       if (sizeHint != -1) new InStreamFromByteChannel(rootElemDecl, input, sizeHint)
       else new InStreamFromByteChannel(rootElemDecl, input)
     createInitialState(rootElemDecl, inStream, bitOffset)
   }
-  
+
 }
 
 /**
@@ -651,32 +650,30 @@ trait InStream {
   //  def getBinaryLong(bitOffset : Long,  isBigEndian : Boolean) : Long
   //  def getBinaryInt(bitOffset : Long,  isBigEndian : Boolean) : Int
 
-
-//  def fillCharBuffer(buf: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): Long
-//  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, endByte: Long = -1): (Long, Boolean)
+  //  def fillCharBuffer(buf: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): Long
+  //  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, endByte: Long = -1): (Long, Boolean)
 
   // yes we do need byte order for getByte, because the byte might not be aligned to a byte boundary,
   // that is, it might straddle byte boundaries, in which case the issue of byte order arises.
-  def getByte(bitPos : Long, order : java.nio.ByteOrder) : Byte
-  def getShort(bitPos : Long, order : java.nio.ByteOrder) : Short  
-  def getInt(bitPos : Long, order : java.nio.ByteOrder) : Int
-  def getLong(bitPos : Long, order : java.nio.ByteOrder) : Long
-  
-  def getDouble(bitPos : Long, order : java.nio.ByteOrder) : Double
-  def getFloat(bitPos : Long, order : java.nio.ByteOrder) : Float
-  
-  def getByteArray(bitPos : Long, order : java.nio.ByteOrder, size: Int) : Array[Byte]
+  def getByte(bitPos: Long, order: java.nio.ByteOrder): Byte
+  def getShort(bitPos: Long, order: java.nio.ByteOrder): Short
+  def getInt(bitPos: Long, order: java.nio.ByteOrder): Int
+  def getLong(bitPos: Long, order: java.nio.ByteOrder): Long
+
+  def getDouble(bitPos: Long, order: java.nio.ByteOrder): Double
+  def getFloat(bitPos: Long, order: java.nio.ByteOrder): Float
+
+  def getByteArray(bitPos: Long, order: java.nio.ByteOrder, size: Int): Array[Byte]
 
   // def fillCharBufferUntilDelimiterOrEnd
 }
 
-class InStreamFromByteChannel(val context : ElementBase, in : DFDL.Input, sizeHint : Long = 1024 * 128) 
-extends InStream 
-with Logging 
-with WithParseErrorThrowing
-{ 
+class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint: Long = 1024 * 128)
+  extends InStream
+  with Logging
+  with WithParseErrorThrowing {
   var byteReader: delimsearch.DFDLByteReader = new delimsearch.DFDLByteReader(in)
-  
+
   def getBytes(bitPos: Long, numBytes: Int): Array[Byte] = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
@@ -686,7 +683,7 @@ with WithParseErrorThrowing
     bb.get(result, 0, numBytes)
     result
   }
-  
+
   def getBytesRemaining(bitPos: Long): Array[Byte] = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
@@ -698,7 +695,7 @@ with WithParseErrorThrowing
     result
   }
 
-  abstract class EndianTraits(val startBit : Long, val bitCount : Long) {
+  abstract class EndianTraits(val startBit: Long, val bitCount: Long) {
     lazy val byteLength = 8.toLong
     lazy val alignmentOffsetLength = startBit & 7
     lazy val isAligned = alignmentOffsetLength == 0
@@ -711,12 +708,12 @@ with WithParseErrorThrowing
     lazy val finalBytesAlignment = (alignmentOffsetLength + shortByteLength) & 7
     lazy val isSplit = restOfBytesAlignment != 0
     lazy val longByteLength = if (wholeBytesSize == 0) 0 else byteLength
-    val isInitialSplit : Boolean
-    val isFinalSplit : Boolean
-    val initialShiftLeft : Long
-    val nextByteShiftLeft : Long
-    val initialByteLength : Long
-    val finalByteLength : Long
+    val isInitialSplit: Boolean
+    val isFinalSplit: Boolean
+    val initialShiftLeft: Long
+    val nextByteShiftLeft: Long
+    val initialByteLength: Long
+    val finalByteLength: Long
     lazy val initialTopByteShiftCount = if (isInitialSplit) restOfBytesAlignment else 0
     lazy val topByteShiftCount = restOfBytesAlignment
     lazy val finalTopByteShiftCount = if (isFinalSplit) finalBytesAlignment else 0
@@ -730,7 +727,7 @@ with WithParseErrorThrowing
     lazy val hasFinalByte = finalByteLength != 0
     lazy val hasShortByte = shortByteLength != 0
   }
-  case class BigEndianTraits(override val startBit : Long, override val bitCount : Long) extends EndianTraits(startBit, bitCount) {
+  case class BigEndianTraits(override val startBit: Long, override val bitCount: Long) extends EndianTraits(startBit, bitCount) {
     lazy val isInitialSplit = isShortSplit
     lazy val isFinalSplit = isSplit
     lazy val initialShiftLeft = if (hasShortByte) wholeBytesLength else wholeBytesLength - byteLength
@@ -738,7 +735,7 @@ with WithParseErrorThrowing
     lazy val initialByteLength = shortByteLength
     lazy val finalByteLength = longByteLength
   }
-  case class LittleEndianTraits(override val startBit : Long, override val bitCount : Long) extends EndianTraits(startBit, bitCount) {
+  case class LittleEndianTraits(override val startBit: Long, override val bitCount: Long) extends EndianTraits(startBit, bitCount) {
     lazy val isInitialSplit = isSplit
     lazy val isFinalSplit = isShortSplit
     lazy val initialShiftLeft = 0.toLong
@@ -747,14 +744,14 @@ with WithParseErrorThrowing
     lazy val finalByteLength = shortByteLength
   }
 
-  def getEndianTraits(bitPos: Long, bitCount : Long, order : java.nio.ByteOrder) = order match {
+  def getEndianTraits(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder) = order match {
     case java.nio.ByteOrder.BIG_ENDIAN => BigEndianTraits(bitPos, bitCount)
     case java.nio.ByteOrder.LITTLE_ENDIAN => LittleEndianTraits(bitPos, bitCount)
     case _ => Assert.invariantFailed("Invalid Byte Order: " + order)
   }
 
-  def getBitSequence(bitPos: Long, bitCount : Long, order : java.nio.ByteOrder) : BigInt = {
-    val worker : EndianTraits = getEndianTraits(bitPos, bitCount, order)
+  def getBitSequence(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder): BigInt = {
+    val worker: EndianTraits = getEndianTraits(bitPos, bitCount, order)
     var result = BigInt(0)
     var position = worker.startBit
     var outShift = worker.initialShiftLeft
@@ -765,9 +762,8 @@ with WithParseErrorThrowing
         (BigInt(
           if (worker.isInitialSplit) {
             (getPartialByte(position, worker.initialTopByteLength, worker.initialTopByteShiftCount) |
-             getPartialByte(position + worker.initialTopByteLength, worker.initialBottomByteLength, 0)).toByte
-         }
-          else {
+              getPartialByte(position + worker.initialTopByteLength, worker.initialBottomByteLength, 0)).toByte
+          } else {
             getPartialByte(position, worker.initialByteLength, 0)
           }) & 0xFF) << outShift.toInt
       position = position + worker.initialByteLength
@@ -781,11 +777,9 @@ with WithParseErrorThrowing
           if (worker.isSplit) {
             (getPartialByte(position, worker.topByteLength, worker.topByteShiftCount) |
               getPartialByte(position + worker.topByteLength, worker.bottomByteLength, 0)).toByte
-          }
-          else {
+          } else {
             getPartialByte(position, worker.byteLength, 0)
-          }
-        ) & 0xFF) << outShift.toInt)
+          }) & 0xFF) << outShift.toInt)
       position = position + worker.byteLength
       outShift = outShift + worker.nextByteShiftLeft
     }
@@ -797,8 +791,7 @@ with WithParseErrorThrowing
           if (worker.isFinalSplit) {
             (getPartialByte(position, worker.finalTopByteLength, worker.finalTopByteShiftCount) |
               getPartialByte(position + worker.finalTopByteLength, worker.finalBottomByteLength, 0)).toByte
-          }
-          else {
+          } else {
             getPartialByte(position, worker.finalByteLength, 0)
           }) & 0xFF) << outShift.toInt)
       position = position + worker.finalByteLength
@@ -809,7 +802,7 @@ with WithParseErrorThrowing
   }
 
   // littleEndian shift left except last, bigEndian shift right except first
-  def getPartialByte(bitPos : Long, bitCount : Long, shift : Long = 0) : Byte = {
+  def getPartialByte(bitPos: Long, bitCount: Long, shift: Long = 0): Byte = {
     Assert.invariant(shift >= 0 && shift + bitCount <= 8)
     val bytePos = (bitPos >>> 3).toInt
     val bitOffset = (bitPos % 8).toByte
@@ -824,43 +817,42 @@ with WithParseErrorThrowing
       // Shift so LSB of result is at LSB of octet then mask off top bits
       val finalShift = 8 - bitCount - bitOffset - shift
       (if (finalShift < 0) result << -finalShift else result >> finalShift).toByte
-    }
-    else {
+    } else {
       // Verify byte alignment and disallow shift
       Assert.invariant(bitOffset == 0 && shift == 0)
       result
     }
   }
 
-  def getByte(bitPos : Long, order : java.nio.ByteOrder) = {
+  def getByte(bitPos: Long, order: java.nio.ByteOrder) = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
     byteReader.bb.order(order)
     byteReader.bb.get(bytePos) // NOT called getByte(pos)
   }
-    
-  def getShort(bitPos : Long, order : java.nio.ByteOrder) = {
+
+  def getShort(bitPos: Long, order: java.nio.ByteOrder) = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
     byteReader.bb.order(order)
     byteReader.bb.getShort(bytePos)
   }
-    
-  def getInt(bitPos : Long, order : java.nio.ByteOrder) = {
-    Assert.invariant(bitPos % 8 == 0)
-    val bytePos = (bitPos >> 3).toInt
-    byteReader.bb.order(order)
-    byteReader.bb.getInt(bytePos)
-  }
-  
-  def getLong(bitPos : Long, order : java.nio.ByteOrder) = {
+
+  def getInt(bitPos: Long, order: java.nio.ByteOrder) = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
     byteReader.bb.order(order)
     byteReader.bb.getInt(bytePos)
   }
 
-  def getDouble(bitPos : Long, order : java.nio.ByteOrder) = {
+  def getLong(bitPos: Long, order: java.nio.ByteOrder) = {
+    Assert.invariant(bitPos % 8 == 0)
+    val bytePos = (bitPos >> 3).toInt
+    byteReader.bb.order(order)
+    byteReader.bb.getInt(bytePos)
+  }
+
+  def getDouble(bitPos: Long, order: java.nio.ByteOrder) = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
     byteReader.bb.order(order)
@@ -868,14 +860,14 @@ with WithParseErrorThrowing
     double
   }
 
-  def getFloat(bitPos : Long, order : java.nio.ByteOrder) = {
+  def getFloat(bitPos: Long, order: java.nio.ByteOrder) = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
     byteReader.bb.order(order)
-   byteReader.bb.getFloat(bytePos)
+    byteReader.bb.getFloat(bytePos)
   }
 
-  def getByteArray(bitPos : Long, order : java.nio.ByteOrder, size: Int) = {
+  def getByteArray(bitPos: Long, order: java.nio.ByteOrder, size: Int) = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
     byteReader.bb.order(order)
@@ -884,8 +876,8 @@ with WithParseErrorThrowing
     byteReader.bb.get(ret, 0, size)
     ret
   }
-  
-  def withLimit(startBitPos : Long, endBitPos : Long) = {
+
+  def withLimit(startBitPos: Long, endBitPos: Long) = {
     // Appears to only be called from lengthKind=Pattern match code
     Assert.invariant((startBitPos & 7) == 0)
     Assert.invariant((endBitPos & 7) == 0)

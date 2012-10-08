@@ -47,7 +47,7 @@ trait Identity {
 
 abstract class LogWriter {
   protected def write (msg : String) : Unit
-  protected val tstampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ")
+  protected val tstampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS ")
 
   def tstamp = tstampFormat.format(new Date)
 

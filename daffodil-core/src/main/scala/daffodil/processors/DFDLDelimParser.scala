@@ -14,6 +14,7 @@ class DelimParseResult {
   var delimiter: String = ""
   var delimiterType: DelimiterType = DelimiterType.Delimiter
   var numBytes: Int = 0
+  var numCharsRead: Int = 0 // Number of characters read
 
   def apply(pField: String, pIsSuccess: Boolean, pDelimiter: String, pDelimiterType: DelimiterType, pNumBytes: Int) = {
     field = pField // The parsed field
@@ -72,53 +73,53 @@ class DelimParser extends RegexParsers {
   def buildDelims(delimList: Set[String]): (Array[Parser[String]], Array[String]) = {
     var delimsParser: Queue[Parser[String]] = Queue.empty
     var delimsRegex: Queue[String] = Queue.empty
-    
+
     // We probably always want delims ordered:
     // Multi-char delims containing WSP+/*, WSP+, WSP*, multi-char delims, WSP, single-char delims
-  
+
     sortDelims(delimList).toList.foreach(str => {
       val d = new Delimiter()
       d(str)
-//      System.err.println(d.delimRegExParseUntil)
-//      System.err.println(d.delimRegExParseDelim)
+      //      System.err.println(d.delimRegExParseUntil)
+      //      System.err.println(d.delimRegExParseDelim)
       delimsParser.enqueue(d.delimRegExParseDelim.r) // The regex representing the actual delimiter
       //delimsRegex.enqueue(d.delimRegExParseUntil) // The regex used to parse until we reach a delimiter
       delimsRegex.enqueue(d.delimRegExParseDelim) // The regex used to parse until we reach a delimiter
     })
     (delimsParser.toArray, delimsRegex.toArray)
   }
-  
+
   def sortDelims(delimList: Set[String]): Seq[String] = {
     val wspStarByItself = delimList.filter(s => s == "%WSP*;")
     val wspPlusByItself = delimList.filter(s => s == "%WSP+;")
-    
+
     val filteredDelimList = (delimList -- (wspStarByItself union wspPlusByItself))
-    
+
     val multiCharUnboundedLength = filteredDelimList.filter(s => (s.contains("%WSP*;") || s.contains("%WSP+;")))
     val multiChar = (filteredDelimList -- multiCharUnboundedLength).filter(s => s.length() > 1)
     val singleChar = filteredDelimList -- (multiChar union multiCharUnboundedLength)
-    
+
     val sortedUnbounded = multiCharUnboundedLength.toArray[String]
     val sortedMultiChar = multiChar.toArray[String]
-    
+
     scala.util.Sorting.quickSort(sortedUnbounded)
     scala.util.Sorting.quickSort(sortedMultiChar)
 
     val orderedResultSeq: Seq[String] = sortedUnbounded.reverse.toSeq ++ wspPlusByItself ++ wspStarByItself ++ sortedMultiChar.reverse.toSeq ++ singleChar
     orderedResultSeq
   }
-  
-//  def buildDelims(delimList: Set[String]): (Array[Parser[String]], Array[String]) = {
-//    var delimsParser: Queue[Parser[String]] = Queue.empty
-//    var delimsRegex: Queue[String] = Queue.empty
-//    delimList.foreach(str => {
-//      val d = new Delimiter()
-//      d(str)
-//      delimsParser.enqueue(d.delimRegEx.r)
-//      delimsRegex.enqueue(d.delimRegEx)
-//    })
-//    (delimsParser.toArray, delimsRegex.toArray)
-//  }
+
+  //  def buildDelims(delimList: Set[String]): (Array[Parser[String]], Array[String]) = {
+  //    var delimsParser: Queue[Parser[String]] = Queue.empty
+  //    var delimsRegex: Queue[String] = Queue.empty
+  //    delimList.foreach(str => {
+  //      val d = new Delimiter()
+  //      d(str)
+  //      delimsParser.enqueue(d.delimRegEx.r)
+  //      delimsRegex.enqueue(d.delimRegEx)
+  //    })
+  //    (delimsParser.toArray, delimsRegex.toArray)
+  //  }
 
   // Combines the delimiters into a single alternation
   //
@@ -160,6 +161,7 @@ class DelimParser extends RegexParsers {
 
     val result: DelimParseResult = new DelimParseResult
     result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes)
+    result.numCharsRead = fieldResult.length()
     result
   }
 
@@ -188,6 +190,7 @@ class DelimParser extends RegexParsers {
 
     val result: DelimParseResult = new DelimParseResult
     result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes)
+    result.numCharsRead = fieldResult.length()
     result
   }
 
@@ -212,7 +215,7 @@ class DelimParser extends RegexParsers {
     //val entry = phrase((field ~ (seps | terms)))
     val delims: Parser[String] = (seps | terms)
     val entry = (field ~ (delims | (delims <~ opt(EOF)))) | (field ~ EOF)
-   
+
     // FOR DEBUG: might want to use this logging variant.
     // val res = this.parse(this.log(entry)("DelimParser." + name), input)
     val res = this.parse(entry, input)
@@ -235,6 +238,7 @@ class DelimParser extends RegexParsers {
 
     val result: DelimParseResult = new DelimParseResult
     result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes)
+    result.numCharsRead = fieldResult.length()
     result
   }
 
@@ -243,7 +247,7 @@ class DelimParser extends RegexParsers {
     result("", false, "", DelimiterType.Delimiter, 0)
     result
   }
-  
+
   def parseInputDelimiter(delimiters: Set[String], input: Reader[Char], charset: Charset): DelimParseResult = {
     val (sepsParser, sepsRegex) = this.buildDelims(delimiters)
     val delimParser = this.combineLongest(sepsParser)
@@ -251,28 +255,28 @@ class DelimParser extends RegexParsers {
     val wordRegex: String = """%s"""
     val delim: Parser[String] = delimsRegex.r //String.format(wordRegex, delimsRegex).r
     val EOF: Parser[String] = """\z""".r
-    
+
     //val entry = (delim <~ opt(EOF))
     val entry = delimParser <~ opt(EOF)
-//    System.err.println("SRC: >>" + input.source + "<<" + " " + input.source.length())
-    
-    // FOR DEBUG: might want this logging variant
-    // val res = this.parse(this.log(entry)("DelimParser.parseInputDelimiter"), input)
-    val res = this.parse(entry, input)
+    //    System.err.println("SRC: >>" + input.source + "<<" + " " + input.source.length())
 
+    // FOR DEBUG: might want this logging variant
+    //val res = this.parse(this.log(entry)("DelimParser.parseInputDelimiter"), input)
+    val res = this.parse(entry, input)
 
     var fieldResult = ""
     var delimiterResult = ""
     var isSuccess: Boolean = false
     var delimiterType = DelimiterType.Delimiter
     var fieldResultBytes: Int = 0
-    
-    if (!res.isEmpty){
+
+    if (!res.isEmpty) {
       delimiterResult = res.get
       isSuccess = true
     }
     val result: DelimParseResult = new DelimParseResult
     result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes)
+    result.numCharsRead = delimiterResult.length()
     result
   }
 
@@ -286,18 +290,18 @@ class DelimParser extends RegexParsers {
 
     // A word is anything but a delimiter or EOF
     val wordRegex: String = """(?s)(.*?)(?=(%s)|\z)"""
-    
+
     val word: Parser[String] = {
       // No Delimiters? Give me everything.
-      if (separators.size == 0 && terminators.size == 0){ 
-//        System.err.println("no terminating markup")
-        """(?s).*""".r}
-      else { 
+      if (separators.size == 0 && terminators.size == 0) {
+        //        System.err.println("no terminating markup")
+        """(?s).*""".r
+      } else {
         val delimsRegex = combineDelimitersRegex(sepsRegex, termsRegex)
         val finalRegex = String.format(wordRegex, delimsRegex).r
-//        System.err.println(finalRegex)
+        //        System.err.println(finalRegex)
         finalRegex
-        }
+      }
     }
 
     val result = parseInputDefault(word, pSeps, pTerms, input, "default", charset)
@@ -357,7 +361,7 @@ class DelimParser extends RegexParsers {
     if (!result.isSuccess) { return parseInput(separators, terminators, input, charset) }
 
     val newField = removeEscapesBlocks(result.field, escapeEscapeCharacter, escapeBlockStartRegex, escapeBlockEndRegex)
-
+    result.numCharsRead = result.field.length()
     result.field = newField
 
     result
@@ -400,6 +404,8 @@ class DelimParser extends RegexParsers {
     val result = parseInputDefault(word, pSeps, pTerms, input, "escapeCharacter", charset)
 
     val newField = removeEscapeCharacters(result.field, escapeEscapeCharacter, escapeCharacter.charAt(0), delimsRegex)
+
+    result.numCharsRead = result.field.length()
 
     result.field = newField
 
