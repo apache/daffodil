@@ -355,21 +355,11 @@
 		<xs:element name="LP_exp01">
 			<xs:complexType>
 				<xs:sequence>
-					<xs:element name="num" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ ../ex:LP_05 }" dfdl:occursCountKind="parsed"
-					maxOccurs="unbounded"/>	
+					<xs:element name="len" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"/>
+					<xs:element name="num" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ ../ex:len }"/>
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
-		
-		<xs:element name="LP_exp01" type="lp_02"/>
-		<xs:simpleType name="lp_02">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/">
-					<dfdl:simpleType lengthKind="explicit" lengthUnits="bytes" length="{ ../ex:LP_04 }" byteOrder="bigEndian"/>
-				</xs:appinfo>
-			</xs:annotation>
-			<xs:restriction base="xs:string"/>
-		</xs:simpleType>
 	</tdml:defineSchema>
 
 <!--
@@ -380,10 +370,13 @@
 		<tdml:parserTestCase name="LengthProp_lengthExpression1" root="LP_exp01"
 		model="LengthProperties-lengthExpression.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-040R">
 
-			<tdml:document>123</tdml:document>
+			<tdml:document>512345</tdml:document>
 			<tdml:infoset>
 				<tdml:dfdlInfoset>
-					<LP_exp01>123</LP_exp01>
+					<LP_exp01>
+						<len>5</len>
+						<num>12345</num>
+					</LP_exp01>
 				</tdml:dfdlInfoset>
 			</tdml:infoset>
 		</tdml:parserTestCase>
