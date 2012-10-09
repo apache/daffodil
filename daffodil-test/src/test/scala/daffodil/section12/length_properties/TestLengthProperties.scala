@@ -31,5 +31,11 @@ class TestLengthProperties extends JUnitSuite {
   @Test def test_LengthProp_03d() { runner_02.runOneTest("LengthProp_03d") }
   @Test def test_LengthProp_04() { runner_02.runOneTest("LengthProp_04") }
   @Test def test_LengthProp_05() { runner_02.runOneTest("LengthProp_05") }
-  //@Test def test_LengthProp_06() { runner_02.runOneTest("LengthProp_06") }
+//  @Test def test_LengthProp_06() { runner_02.runOneTest("LengthProp_06") }
+
+  @Test def test_LengthProp_zeroLength() { runner_02.runOneTest("LengthProp_zeroLength") }
+  @Test def test_LengthProp_byteLength() { runner_02.runOneTest("LengthProp_byteLength") }
+  @Test def test_LengthProp_longByteLength() { runner_02.runOneTest("LengthProp_longByteLength") }
+  @Test def test_LengthProp_longTextLength() { runner_02.runOneTest("LengthProp_longTextLength") }
+//  @Test def test_LengthProp_lengthExpression() { runner_02.runOneTest("LengthProp_lengthExpression1") }
   }
