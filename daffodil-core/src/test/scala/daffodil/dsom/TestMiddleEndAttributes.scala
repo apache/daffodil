@@ -118,7 +118,7 @@ class TestMiddleEndAttributes extends JUnitSuite {
     assertTrue(s4.hasPriorRequiredSiblings)
     assertTrue(s5.hasPriorRequiredSiblings)
   }
-  
+
   @Test def testStaticallyFirstWithChoice {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no"/>,
@@ -126,9 +126,9 @@ class TestMiddleEndAttributes extends JUnitSuite {
         <xs:complexType>
           <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
             <xs:choice>
-              <xs:element name="s1" type="xs:int"    dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+              <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
               <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
-            </xs:choice>          
+            </xs:choice>
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
@@ -157,18 +157,17 @@ class TestMiddleEndAttributes extends JUnitSuite {
     assertTrue(s2.isScalar)
     assertTrue(!s2.hasPriorRequiredSiblings)
   }
-  
-  @Test def testNearestEnclosingSequenceElementRef () {
-     val testSchema = TestUtils.dfdlTestSchema(
 
-      <dfdl:format ref="tns:daffodilTest1" representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" 
-                   separator="" ignoreCase="no" initiatedContent="no"/>,
+  @Test def testNearestEnclosingSequenceElementRef() {
+    val testSchema = TestUtils.dfdlTestSchema(
+
+      <dfdl:format ref="tns:daffodilTest1" representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no" initiatedContent="no"/>,
 
       <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
       <xs:element name="e2" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-              <xs:element ref="e1"/>      
+            <xs:element ref="e1"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
@@ -188,10 +187,66 @@ class TestMiddleEndAttributes extends JUnitSuite {
     val e1ref = t1.asInstanceOf[daffodil.dsom.ElementRef]
     val nes = e1ref.nearestEnclosingSequence
     nes match {
-       case None => fail()
-       case Some(nes) => {
-           assertEquals(seq, nes)
-       }
-     }
+      case None => fail()
+      case Some(nes) => {
+        assertEquals(seq, nes)
+      }
+    }
+  }
+
+  @Test def testImmediatelyEnclosingModelGroup1() {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>,
+
+      <xs:element name="doc">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="msg" type="ex:msgType" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:complexType name="msgType">
+        <xs:choice dfdl:initiatedContent="yes">
+          <xs:element ref="ex:fWithInitiator"/>
+          <!-- Only one in the choice -->
+        </xs:choice>
+      </xs:complexType>
+      <xs:element name="fWithInitiator" dfdl:initiator="$">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="f" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val compiler = Compiler()
+
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    // Explore global element decl
+    val Seq(e1f, e2f) = sd.globalElementDecls
+    val e1 = e1f.forRoot()
+    val e1ct = e1.immediateType.get.asInstanceOf[daffodil.dsom.LocalComplexTypeDef]
+    val e1seq = e1ct.modelGroup.asInstanceOf[Sequence]
+    val Seq(t1 : Term) = e1seq.groupMembers
+
+    val eMsg = t1.asInstanceOf[daffodil.dsom.LocalElementDecl]
+    val eMsgct = eMsg.typeDef.asInstanceOf[daffodil.dsom.GlobalComplexTypeDef]
+    val eMsgChoice = eMsgct.modelGroup.asInstanceOf[Choice]
+    val Seq(t2 : Term) = eMsgChoice.groupMembers
+    val e2ref = t2.asInstanceOf[daffodil.dsom.ElementRef]
+    val e3 = e2ref.referencedElement
+    val e3ct = e3.immediateType.get.asInstanceOf[daffodil.dsom.LocalComplexTypeDef]
+    val e3seq = e3ct.modelGroup.asInstanceOf[Sequence]
+    val e3seqImmediatelyEnclosingModelGroup = e3seq.immediatelyEnclosingModelGroup
+    // Sequence inside an element doesn't have an immediately enclosing model group
+    assertEquals(None, e3seqImmediatelyEnclosingModelGroup)
+    // Global element instance appears inside the group that immediately contains the 
+    // element reference.
+    assertEquals(Some(eMsgChoice), e3.immediatelyEnclosingModelGroup)
+    // element reference also contained inside same
+    assertEquals(Some(eMsgChoice), e2ref.immediatelyEnclosingModelGroup)
+
   }
 }
