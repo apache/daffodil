@@ -101,8 +101,8 @@ case class ComplexElementBeginPattern(e: ElementBase)
       withLoggingLevel(LogLevel.Info) {
         val eName = e.toString()
 
-        log(Debug("ComplexElementBeginPattern - " + eName + " - Parsing pattern at byte position: " + (start.bitPos >> 3)))
-        log(Debug("ComplexElementBeginPattern - " + eName + " - Parsing pattern at bit position: " + start.bitPos))
+        log(Debug("ComplexElementBeginPattern - %s - Parsing pattern at byte position: %s", eName,  (start.bitPos >> 3)))
+        log(Debug("ComplexElementBeginPattern - %s - Parsing pattern at bit position: %s", eName, start.bitPos))
 
         val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
 
@@ -120,14 +120,14 @@ case class ComplexElementBeginPattern(e: ElementBase)
         val postState1 = result.isSuccess match {
           case true => {
             val endBitPos = start.bitPos + (result.numBytes * 8)
-            log(Debug("Parsed: " + result.field))
-            log(Debug("Ended at bit position " + endBitPos))
+            log(Debug("Parsed: %s", result.field))
+            log(Debug("Ended at bit position %s", endBitPos))
             val limitedInStream = in.withLimit(start.bitPos, endBitPos)
             // Since we've created a new sub-stream with just the limited part of data in it,
             // don't forget to have the position in it start at zero.
             start withEndBitLimit (endBitPos) withInStream (new InStreamFromByteChannel(e, limitedInStream)) withPos (0, 0)
           }
-          case false => { start.failed(this.toString() + ": No match found!") }
+          case false => { PE(start, "%s: No match found!", this.toString()) }
         }
         val currentElement = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
         log(Debug("currentElement = %s", currentElement))
@@ -256,7 +256,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
         log(Debug("StringFixedLengthInBytes - Saving reader state."))
         setReader(start)
 
-        log(Debug("StringFixedLengthInBytes - Parsing starting at bit position: " + start.bitPos))
+        log(Debug("StringFixedLengthInBytes - Parsing starting at bit position: %s", start.bitPos))
 
         if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInBytes - not byte aligned.") }
 
@@ -269,8 +269,8 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
           val cb = decoder.decode(ByteBuffer.wrap(bytes))
           val result = cb.toString
           val endBitPos = start.bitPos + (nBytes.toInt * 8)
-          log(Debug("Parsed: " + result))
-          log(Debug("Ended at bit position " + endBitPos))
+          log(Debug("Parsed: %s", result))
+          log(Debug("Ended at bit position %s", endBitPos))
           val endCharPos = start.charPos + result.length
           val currentElement = start.parentForAddContent
           // Assert.invariant(currentElement.getName != "_document_")
@@ -282,10 +282,10 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
           // a new reader at said bitPosition
           return postState
         } catch {
-          case e: java.nio.BufferUnderflowException => { return PE(start, "StringFixedLengthInBytes - Insufficient Bits in field; required " + nBytes * 8) }
-          case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytes - IndexOutOfBounds: \n" + e.getMessage()) }
+          case e: java.nio.BufferUnderflowException => { return PE(start, "StringFixedLengthInBytes - Insufficient Bits in field; required %s", nBytes * 8) }
+          case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytes - IndexOutOfBounds: \n%s", e.getMessage()) }
           case u: UnsuppressableException => throw u
-          case e: Exception => { return PE(start, "StringFixedLengthInBytes - Exception: \n" + e.getMessage()) }
+          case e: Exception => { return PE(start, "StringFixedLengthInBytes - Exception: \n%s", e.getMessage()) }
         }
       }
     }
@@ -322,7 +322,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
         log(Debug("Saving Reader state."))
         setReader(start)
 
-        log(Debug("Parsing starting at bit position: " + start.bitPos))
+        log(Debug("Parsing starting at bit position: %s" , start.bitPos))
 
         if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - not byte aligned.") }
 
@@ -337,8 +337,8 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
           val cb = decoder.decode(ByteBuffer.wrap(bytes))
           val result = cb.toString
           val endBitPos = start.bitPos + (nBytes.toInt * 8)
-          log(Debug("Parsed: " + result))
-          log(Debug("Ended at bit position " + endBitPos))
+          log(Debug("Parsed: %s" , result))
+          log(Debug("Ended at bit position %s" , endBitPos))
           val endCharPos = start.charPos + result.length
           val currentElement = start.parentForAddContent
           // Assert.invariant(currentElement.getName != "_document_")
@@ -350,10 +350,10 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
           // a new reader at said bitPos
           return postState
         } catch {
-          case e: java.nio.BufferUnderflowException => { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - Insufficient Bits in field; required " + nBytes * 8) }
-          case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - " + e.getMessage()) }
+          case e: java.nio.BufferUnderflowException => { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - Insufficient Bits in field; required %s" , nBytes * 8) }
+          case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - IndexOutOfBoundsException: \n%s" , e.getMessage()) }
           case u: UnsuppressableException => throw u
-          case e: Exception => { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - " + e.getMessage()) }
+          case e: Exception => { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - Exception: \n%s" , e.getMessage()) }
         }
         //      // setLoggingLevel(LogLevel.Info)
         //
@@ -406,7 +406,7 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
     def parse(start: PState): PState = withParseErrorThrowing(start) {
       withLoggingLevel(LogLevel.Info) {
 
-        log(Debug("Parsing starting at bit position: " + start.bitPos))
+        log(Debug("Parsing starting at bit position: %s" , start.bitPos))
 
         if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInVariableWidthCharacters - not byte aligned.") }
 
@@ -427,15 +427,15 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
         val result = d.parseInputNCharacters(nChars, reader, decoder.charset())
 
         if (!result.isSuccess) {
-          return PE(start, "Parse failed to find exactly " + nChars + " characters.")
+          return PE(start, "Parse failed to find exactly %s characters.", nChars)
         }
 
         val parsedField = result.field
         val parsedBytes = result.numBytes
         val endBitPos = start.bitPos + (parsedBytes * 8)
 
-        log(Debug("Parsed: " + parsedField))
-        log(Debug("Ended at bit position: " + endBitPos))
+        log(Debug("Parsed: %s" , parsedField))
+        log(Debug("Ended at bit position: %s" , endBitPos))
 
         //val endCharPos = start.charPos + nChars
         //val endCharPos = reader.characterPos + nChars
@@ -521,16 +521,16 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
         if (delimsCooked.filter(x => x == "%WSP*;").length > 0) {
           // We cannot detect this error until expressions have been evaluated!
-          log(Debug(eName + " - Failed due to WSP* detected as a delimiter for lengthKind=delimited"))
+          log(Debug("%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited", eName))
           e.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited!")
         }
 
-        log(Debug(eName + " - Looking for: " + delimsCooked + " Count: " + delimsCooked.length))
+        log(Debug("%s - Looking for: %s Count: %s", eName, delimsCooked , delimsCooked.length))
         val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
 
         val bytePos = (postEvalState.bitPos >> 3).toInt
-        log(Debug(eName + " - Starting at bit pos: " + postEvalState.bitPos))
-        log(Debug(eName + " - Starting at byte pos: " + bytePos))
+        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
+        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
         
         //System.err.println("StringDelimitedEndOfData_START: " + new Timestamp(System.currentTimeMillis()));
 
@@ -567,12 +567,12 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
         if (!result.isSuccess) {
           //System.err.println("StringDelimitedEndOfData_END: " + new Timestamp(System.currentTimeMillis()));
-          return PE(postEvalState, this.toString() + " - " + eName + " - Parse failed.")
+          return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
         } else {
           //System.err.println("StringDelimitedEndOfData_END: " + new Timestamp(System.currentTimeMillis()));
           val field = result.field
           val numBytes = result.numBytes
-          log(Debug(eName + " - Parsed: " + field + " Parsed Bytes: " + numBytes))
+          log(Debug("%s - Parsed: %s Parsed Bytes: %s", eName, field, numBytes))
           //System.err.println(postEvalState.charPos)
           //val endCharPos = reader.characterPos + field.length()
           val endCharPos = if (postEvalState.charPos == -1) result.numCharsRead else postEvalState.charPos + result.numCharsRead
@@ -619,8 +619,8 @@ case class StringPatternMatched(e: ElementBase)
       withLoggingLevel(LogLevel.Info) {
         val eName = e.toString()
 
-        log(Debug("StringPatternMatched - " + eName + " - Parsing pattern at byte position: " + (start.bitPos >> 3)))
-        log(Debug("StringPatternMatched - " + eName + " - Parsing pattern at bit position: " + start.bitPos))
+        log(Debug("StringPatternMatched - %s - Parsing pattern at byte position: %s", eName, (start.bitPos >> 3)))
+        log(Debug("StringPatternMatched - %s - Parsing pattern at bit position: %s", eName,  start.bitPos))
 
         if (start.bitPos % 8 != 0) { return PE(start, "StringPatternMatched - not byte aligned.") }
 
@@ -644,8 +644,8 @@ case class StringPatternMatched(e: ElementBase)
         val postState = result.isSuccess match {
           case true => {
             val endBitPos = start.bitPos + (result.numBytes * 8)
-            log(Debug("StringPatternMatched - Parsed: " + result.field))
-            log(Debug("StringPatternMatched - Ended at bit position " + endBitPos))
+            log(Debug("StringPatternMatched - Parsed: %s" , result.field))
+            log(Debug("StringPatternMatched - Ended at bit position %s" , endBitPos))
             // val endCharPos = start.charPos + result.field.length()
             //val endCharPos = reader.characterPos + result.field.length()
             val endCharPos = if (start.charPos == -1) result.field.length() else start.charPos + result.field.length()
@@ -654,7 +654,7 @@ case class StringPatternMatched(e: ElementBase)
             //start.withPos(endBitPos, endCharPos)
             start.withReaderPos(endBitPos, endCharPos, reader)
           }
-          case false => { PE(start,this.toString() + ": No match found!") }
+          case false => { PE(start, "%s: No match found!", this.toString()) }
         }
         //      log(Debug("Parsing starting at bit position: " + start.bitPos))
         //      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
@@ -1111,7 +1111,7 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Long) extends Terminal(e, 
       log(Debug("Saving reader state."))
       setReader(start)
 
-      if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) start.failed("Not enough bits to create an xs:" + primName)
+      if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) PE(start,"Not enough bits to create an xs:%s" , primName)
       else {
         val value = getNum(start.bitPos, start.inStream, staticJByteOrder)
         if (GramName == "hexBinary") {
@@ -1279,7 +1279,7 @@ case class FloatPrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(ct
     log(Debug("Saving reader state."))
     setReader(start)
 
-    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) start.failed("Not enough bits to create an xs:float")
+    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) PE(start,"Not enough bits to create an xs:float")
     else {
       val value = start.inStream.getFloat(start.bitPos, byteOrder)
       start.parentForAddContent.addContent(new org.jdom.Text(value.toString))
@@ -1335,14 +1335,14 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
       withLoggingLevel(LogLevel.Info) {
         val eName = e.toString()
 
-        log(Debug(eName + " - Parsing delimiter at byte position: " + (start.bitPos >> 3)))
-        log(Debug(eName + " - Parsing delimiter at bit position: " + start.bitPos))
+        log(Debug("%s - Parsing delimiter at byte position: %s", eName , (start.bitPos >> 3)))
+        log(Debug("%s - Parsing delimiter at bit position: %s", eName, start.bitPos))
         
         //System.err.println("StaticText_START: " + new Timestamp(System.currentTimeMillis()));
 
         if (start.bitPos % 8 != 0) { 
           //System.err.println("StaticText_END: " + new Timestamp(System.currentTimeMillis()));
-          return PE(start, kindString + " - not byte aligned.") }
+          return PE(start, "%s - not byte aligned.", kindString) }
 
         val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
 
@@ -1366,9 +1366,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
         result = d.parseInputDelimiter(staticTextsCooked.toSet, reader, decoder.charset())
 
         if (!result.isSuccess) {
-          //System.err.println("StaticText_END: " + new Timestamp(System.currentTimeMillis()));
-          return PE(start, this.toString() + " - " + eName + ": Delimiter not found!")
-          //return start.failed(this.toString() + " - " + eName + ": Delimiter not found!")
+          return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
         } else {
           //System.err.println("StaticText_END: " + new Timestamp(System.currentTimeMillis()));
           val numBytes = result.delimiter.getBytes(decoder.charset()).length
@@ -1378,9 +1376,9 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
           val endCharPos = if (start.charPos == -1) result.delimiter.length else start.charPos + result.delimiter.length()
           val endBitPosDelim = (8 * numBytes) + start.bitPos
 
-          log(Debug(eName + " - Found " + result.delimiter))
-          log(Debug(eName + " - Ended at byte position " + (endBitPosDelim >> 3)))
-          log(Debug(eName + " - Ended at bit position " + endBitPosDelim))
+          log(Debug("%s - Found %s", eName, result.delimiter))
+          log(Debug("%s - Ended at byte position %s", eName , (endBitPosDelim >> 3)))
+          log(Debug("%s - Ended at bit position %s", eName , endBitPosDelim))
 
           // return start.withPos(endBitPosDelim, endCharPos)
           return start.withReaderPos(endBitPosDelim, endCharPos, reader)
@@ -1499,7 +1497,7 @@ case class GroupPosGreaterThan(groupPos: Long, term: Term, guard: Boolean = true
       val res = if (start.groupPos > groupPos) {
         start.withDiscriminator(true)
       } else {
-        start.failed("Group position not greater than (" + groupPos + ")")
+        PE(start, "Group position not greater than (%s)", groupPos)
       }
       res
     }
@@ -1512,7 +1510,7 @@ case class GroupPosGreaterThan(groupPos: Long, term: Term, guard: Boolean = true
       val res = if (start.groupPos > groupPos) {
         start.withDiscriminator(true)
       } else {
-        start.failed("Group position not greater than (" + groupPos + ")")
+        UE(start,"Group position not greater than (%s)", groupPos)
       }
       res
     }
@@ -1528,7 +1526,7 @@ case class ChildPosGreaterThan(childPos: Long, term: Term, guard: Boolean = true
       val res = if (start.childPos > childPos) {
         start.withDiscriminator(true)
       } else {
-        start.failed("Child position not greater than (" + childPos + ")")
+        PE(start,"Child position not greater than (%s)", childPos)
       }
       res
     }
@@ -1541,7 +1539,7 @@ case class ChildPosGreaterThan(childPos: Long, term: Term, guard: Boolean = true
       val res = if (start.childPos > childPos) {
         start.withDiscriminator(true)
       } else {
-        start.failed("Child position not greater than (" + childPos + ")")
+        UE(start,"Child position not greater than (%s)", childPos)
       }
       res
     }
@@ -1558,9 +1556,9 @@ case class ArrayPosGreaterThan(arrayPos: Long, term: Term, guard: Boolean = true
         if (start.arrayPos > arrayPos) {
           start.withDiscriminator(true)
         } else {
-          start.failed("Array position not greater than (" + arrayPos + ")")
+          PE(start,"Array position not greater than (%s)", arrayPos)
         }
-      } catch { case e => start.failed("No array position") }
+      } catch { case e => PE(start,"No array position") }
       res
     }
   }
@@ -1573,9 +1571,9 @@ case class ArrayPosGreaterThan(arrayPos: Long, term: Term, guard: Boolean = true
         if (start.arrayPos > arrayPos) {
           start.withDiscriminator(true)
         } else {
-          start.failed("Array position not greater than (" + arrayPos + ")")
+          UE(start,"Array position not greater than (%s)", arrayPos)
         }
-      } catch { case e => start.failed("No array position") }
+      } catch { case e => UE(start,"No array position") }
       res
     }
   }
@@ -1714,12 +1712,12 @@ case class LiteralNilValue(e: ElementBase)
         val nilValuesCooked = nilValuesCooked1.flatten
         val postEvalState = start.withVariables(vars)
 
-        log(Debug(eName + " - Looking for: " + delimsCooked + " Count: " + delimsCooked.length))
+        log(Debug("%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))
         val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
 
         val bytePos = (postEvalState.bitPos >> 3).toInt
-        log(Debug(eName + " - Starting at bit pos: " + postEvalState.bitPos))
-        log(Debug(eName + " - Starting at byte pos: " + bytePos))
+        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
+        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
 
         if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilValue - not byte aligned.") }
 
@@ -1746,7 +1744,7 @@ case class LiteralNilValue(e: ElementBase)
         }
 
         if (!result.isSuccess) {
-          return PE(postEvalState, this.toString() + " - " + eName + " - Parse failed.")
+          return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
         } else {
           // We have a field, is it empty?
           val field = result.field
@@ -1760,7 +1758,7 @@ case class LiteralNilValue(e: ElementBase)
             return postEvalState // Empty, no need to advance
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
-            return PE(postEvalState, eName + " - Empty field found but not allowed!")
+            return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
           } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
             // Contains a nilValue, Success!
             val xsiNS = start.parentElement.getNamespace()
@@ -1772,15 +1770,15 @@ case class LiteralNilValue(e: ElementBase)
             val endCharPos = if (postEvalState.charPos == -1) result.field.length else postEvalState.charPos + result.field.length
             val endBitPos = (8 * numBytes) + start.bitPos
 
-            log(Debug(eName + " - Found " + result.field))
-            log(Debug(eName + " - Ended at byte position " + (endBitPos >> 3)))
-            log(Debug(eName + " - Ended at bit position " + endBitPos))
+            log(Debug("%s - Found %s", eName , result.field))
+            log(Debug("%s - Ended at byte position %s", eName , (endBitPos >> 3)))
+            log(Debug("%s - Ended at bit position ", eName , endBitPos))
 
             //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
             return postEvalState.withReaderPos(endBitPos, endCharPos, reader) // Need to advance past found nilValue
           } else {
             // Fail!
-            return PE(postEvalState, eName + " - Does not contain a nil literal!")
+            return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
           }
         }
       }
@@ -2031,7 +2029,7 @@ case class BinaryExplicitLengthInBytes(e: ElementBase)
       val start = pstate.withVariables(newVMap)
       if (nBytes > 8) {
         // Do Something Bad
-        return PE(start, "Binary value exceeds the limit allowed by the processing subsystem: " + nBytes)
+        return PE(start, "Binary value exceeds the limit allowed by the processing subsystem: %s" , nBytes)
       }
 
       log(Debug("Explicit length %s", nBytes))
@@ -2044,7 +2042,7 @@ case class BinaryExplicitLengthInBytes(e: ElementBase)
 
       if (false) {
         // Do Something Bad
-        return PE(start, "Insufficent Bits in field; required " + nBytes * 8)
+        return PE(start, "Insufficent Bits in field; required %s" , nBytes * 8)
       }
 
       // log(Debug("Parsed: " + result))
@@ -2138,10 +2136,10 @@ case class StringExplicitLengthInBytes(e: ElementBase)
         val postState = start.withPos(endBitPos, endCharPos)
         return postState
       } catch {
-        case e: java.nio.BufferUnderflowException => { return PE(start, "StringExplicitLengthInBytesParser - Insufficient Bits in field; required " + nBytes * 8) }
-        case e: IndexOutOfBoundsException => { return PE(start, "StringExplicitLengthInBytesParser - IndexOutOfBounds: " + e.getMessage()) }
+        case e: java.nio.BufferUnderflowException => { return PE(start, "StringExplicitLengthInBytesParser - Insufficient Bits in field; required %s" , nBytes * 8) }
+        case e: IndexOutOfBoundsException => { return PE(start, "StringExplicitLengthInBytesParser - IndexOutOfBounds: \n%s" , e.getMessage()) }
         case u: UnsuppressableException => throw u
-        case e: Exception => { return start.failed("StringExplicitLengthInBytesParser - Exception: " + e.getStackTraceString) }
+        case e: Exception => { return PE(start, "StringExplicitLengthInBytesParser - Exception: \n%s" , e.getStackTraceString) }
       }
 
       //      log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
@@ -2217,7 +2215,7 @@ trait TextReader extends Logging {
             // Retrieve one if possible
             // TODO: Does the underlying call throw if we are out of data? How will this fail?
             val in: InStreamFromByteChannel = state.inStream.asInstanceOf[InStreamFromByteChannel]
-            System.err.println(in.byteReader.bb.array().toList.map(b => b.toByte.toHexString))
+            //System.err.println(in.byteReader.bb.array().toList.map(b => b.toByte.toHexString))
             in.byteReader.atPos(bytePos).charReader(csName).asInstanceOf[DFDLCharReader]
           }
 
