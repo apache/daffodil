@@ -283,9 +283,9 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
           return postState
         } catch {
           case e: java.nio.BufferUnderflowException => { return PE(start, "StringFixedLengthInBytes - Insufficient Bits in field; required " + nBytes * 8) }
-          case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytes - IndexOutOfBounds: " + e.getMessage()) }
+          case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytes - IndexOutOfBounds: \n" + e.getMessage()) }
           case u: UnsuppressableException => throw u
-          case e: Exception => { return PE(start, "StringFixedLengthInBytes - Exception: " + e.getStackTraceString) }
+          case e: Exception => { return PE(start, "StringFixedLengthInBytes - Exception: \n" + e.getMessage()) }
         }
       }
     }
@@ -567,7 +567,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
         if (!result.isSuccess) {
           //System.err.println("StringDelimitedEndOfData_END: " + new Timestamp(System.currentTimeMillis()));
-          return postEvalState.failed(this.toString() + " - " + eName + " - Parse failed.")
+          return PE(postEvalState, this.toString() + " - " + eName + " - Parse failed.")
         } else {
           //System.err.println("StringDelimitedEndOfData_END: " + new Timestamp(System.currentTimeMillis()));
           val field = result.field
@@ -654,7 +654,7 @@ case class StringPatternMatched(e: ElementBase)
             //start.withPos(endBitPos, endCharPos)
             start.withReaderPos(endBitPos, endCharPos, reader)
           }
-          case false => { start.failed(this.toString() + ": No match found!") }
+          case false => { PE(start,this.toString() + ": No match found!") }
         }
         //      log(Debug("Parsing starting at bit position: " + start.bitPos))
         //      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
