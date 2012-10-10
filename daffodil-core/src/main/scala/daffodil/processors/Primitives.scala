@@ -1338,10 +1338,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
         log(Debug("%s - Parsing delimiter at byte position: %s", eName , (start.bitPos >> 3)))
         log(Debug("%s - Parsing delimiter at bit position: %s", eName, start.bitPos))
         
-        //System.err.println("StaticText_START: " + new Timestamp(System.currentTimeMillis()));
-
         if (start.bitPos % 8 != 0) { 
-          //System.err.println("StaticText_END: " + new Timestamp(System.currentTimeMillis()));
           return PE(start, "%s - not byte aligned.", kindString) }
 
         val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
@@ -1368,7 +1365,6 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
         if (!result.isSuccess) {
           return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
         } else {
-          //System.err.println("StaticText_END: " + new Timestamp(System.currentTimeMillis()));
           val numBytes = result.delimiter.getBytes(decoder.charset()).length
           //val endCharPos = start.charPos + result.field.length()
           //System.err.println(reader.characterPos + "-" + result.delimiter.length())
@@ -1681,20 +1677,112 @@ case class StopValue(e: ElementBase with LocalElementMixin) extends Primitive(e,
 
 case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 
-case class LiteralNilValue(e: ElementBase)
-  extends StaticText(e.nilValue, e, "LiteralNil", e.isNillable) {
+case class LiteralNilPattern(e: ElementBase)
+  extends StaticText(e.nilValue, e, "LiteralNilPattern", e.isNillable) {
+  lazy val unparserDelim = Assert.notYetImplemented()
+  //val stParser = super.parser
+
+  override def parser = new Parser(e) {
+    override def toString = "LiteralNilPattern(" + e.nilValue + ")"
+    val decoder = e.knownEncodingDecoder
+    val pattern = e.lengthPattern
+
+    def parse(start: PState): PState = {
+      withLoggingLevel(LogLevel.Info) {
+        val eName = e.toString()
+
+        val nilValuesCooked =  new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked 
+        val postEvalState = start//start.withVariables(vars)
+
+        log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
+        val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
+
+        val bytePos = (postEvalState.bitPos >> 3).toInt
+        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
+        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+
+        if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
+
+        log(Debug("Retrieving reader state."))
+        val reader = getReader(bytePos, decoder.charset().name(), start)
+
+        //        val byteReader = in.byteReader.atPos(bytePos)
+        //        val reader = byteReader.charReader(decoder.charset().name())
+
+        val d = new delimsearch.DelimParser()
+
+        var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
+
+        result = d.parseInputPatterned(pattern, reader, decoder.charset())
+
+        if (!result.isSuccess) {
+          return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
+        } else {
+          // We have a field, is it empty?
+          val field = result.field
+          val isFieldEmpty = field.length() == 0
+          val isEmptyAllowed = e.nilValue.contains("%ES;")
+          if (isFieldEmpty && isEmptyAllowed) {
+            // Valid!
+            val xsiNS = start.parentElement.getNamespace()
+            start.parentElement.addContent(new org.jdom.Text(""))
+            start.parentElement.setAttribute("nil", "true")
+            return postEvalState // Empty, no need to advance
+          } else if (isFieldEmpty && !isEmptyAllowed) {
+            // Fail!
+            return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
+          } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
+            // Contains a nilValue, Success!
+            val xsiNS = start.parentElement.getNamespace()
+            start.parentElement.addContent(new org.jdom.Text(""))
+            start.parentElement.setAttribute("nil", "true")
+
+            val numBytes = result.field.getBytes(decoder.charset()).length
+            //val endCharPos = start.charPos + result.field.length()
+            val endCharPos = if (postEvalState.charPos == -1) result.field.length else postEvalState.charPos + result.field.length
+            val endBitPos = (8 * numBytes) + start.bitPos
+
+            log(Debug("%s - Found %s", eName , result.field))
+            log(Debug("%s - Ended at byte position %s", eName , (endBitPos >> 3)))
+            log(Debug("%s - Ended at bit position ", eName , endBitPos))
+
+            //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
+            return postEvalState.withReaderPos(endBitPos, endCharPos, reader) // Need to advance past found nilValue
+          } else {
+            // Fail!
+            return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+          }
+        }
+      }
+    }
+
+  }
+
+  override def unparser: Unparser = new Unparser(e) {
+    def unparse(start: UState): UState = {
+      Assert.notYetImplemented()
+    }
+  }
+}
+
+case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
+  extends StaticText(e.nilValue, e, "LiteralNilDelimitedOrEndOfData", e.isNillable) {
   lazy val unparserDelim = Assert.notYetImplemented()
   //  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   val stParser = super.parser
 
   override def parser = new Parser(e) {
-    override def toString = "LiteralNilValue(" + e.nilValue + ")"
+    override def toString = "LiteralNilDelimitedOrEndOfData(" + e.nilValue + ")"
     val decoder = e.knownEncodingDecoder
 
     def parse(start: PState): PState = {
       withLoggingLevel(LogLevel.Info) {
         val eName = e.toString()
 
+        // TODO: Why are we even doing this here?  LiteralNils don't care about delimiters
+        // and LiteralNils don't have expressions! I think we can get rid of this variable
+        // mapping stuff.
+        //
         // We must feed variable context out of one evaluation and into the next.
         // So that the resulting variable map has the updated status of all evaluated variables.
         var vars = start.variableMap
@@ -1719,7 +1807,7 @@ case class LiteralNilValue(e: ElementBase)
         log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
         log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
 
-        if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilValue - not byte aligned.") }
+        if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilDelimitedOrEndOfData - not byte aligned.") }
 
         log(Debug("Retrieving reader state."))
         val reader = getReader(bytePos, decoder.charset().name(), start)

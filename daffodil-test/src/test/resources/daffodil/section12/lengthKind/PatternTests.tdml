@@ -84,6 +84,50 @@
 			<xs:restriction base="xs:string"/>
 		</xs:simpleType>
 		
+		<xs:element name="list_03">
+		    <xs:complexType>
+		      <xs:sequence>
+			<xs:element name="firstToken" type="xs:string"
+				 dfdl:lengthKind="pattern"
+				 dfdl:lengthPattern="[a-zA-Z]+"
+				 dfdl:nilValue="nil"
+				 dfdl:nilKind="literalValue"
+				 nillable="true"
+				 dfdl:representation="text" />
+			<xs:element name="secondToken" type="xs:string"
+				 dfdl:lengthKind="pattern"
+				 dfdl:lengthPattern="[0-9]+"
+				 dfdl:representation="text" />
+			<xs:element name="thirdToken" type="xs:string"
+				 dfdl:lengthKind="explicit"
+				 dfdl:length="5"
+				 dfdl:representation="text" />
+		      </xs:sequence>
+		    </xs:complexType>
+		  </xs:element>
+		  
+		  <xs:element name="list_03_01">
+		    <xs:complexType>
+		      <xs:sequence>
+			<xs:element name="firstToken" type="xs:string"
+				 dfdl:lengthKind="pattern"
+				 dfdl:lengthPattern="[a-zA-Z]*"
+				 dfdl:nilValue="%ES;"
+				 dfdl:nilKind="literalValue"
+				 nillable="true"
+				 dfdl:representation="text" />
+			<xs:element name="secondToken" type="xs:string"
+				 dfdl:lengthKind="pattern"
+				 dfdl:lengthPattern="[0-9]+"
+				 dfdl:representation="text" />
+			<xs:element name="thirdToken" type="xs:string"
+				 dfdl:lengthKind="explicit"
+				 dfdl:length="5"
+				 dfdl:representation="text" />
+		      </xs:sequence>
+		    </xs:complexType>
+		  </xs:element>
+		
 	</tdml:defineSchema>
 	
 	<tdml:parserTestCase name="AI000_rev" root="list"
@@ -309,6 +353,51 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<def_02>!!49858!!</def_02>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="LengthPatternNil_FindsNil" root="list_03"
+		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+
+		<tdml:document>nil123456789AAAAA</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<list_03>
+  					<firstToken></firstToken>
+  					<secondToken>123456789</secondToken>
+  					<thirdToken>AAAAA</thirdToken>
+				</list_03>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="LengthPatternNil_NoNil" root="list_03"
+		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+
+		<tdml:document>aSingleToken123456789AAAAA</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<list_03>
+  					<firstToken>aSingleToken</firstToken>
+  					<secondToken>123456789</secondToken>
+  					<thirdToken>AAAAA</thirdToken>
+				</list_03>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="LengthPatternNil_EmptyStringAllowed" root="list_03_01"
+		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+
+		<tdml:document>123456789AAAAA</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<list_03_01>
+  					<firstToken></firstToken>
+  					<secondToken>123456789</secondToken>
+  					<thirdToken>AAAAA</thirdToken>
+				</list_03_01>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
