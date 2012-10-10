@@ -30,4 +30,6 @@ class TestChoiceGroupInitiatedContent extends JUnitSuite {
 
   @Test def test_arrayOfChoice() { runner_01.runOneTest("arrayOfChoice") }
   @Test def test_arrayOfChoice2() { runner_01.runOneTest("arrayOfChoice2") }
+  @Test def test_discriminatorNesting1() { runner_01.runOneTest("discriminatorNesting1") }
+  // @Test def test_discriminatorNesting2() = Debugger.withDebugger { runner_01.runOneTest("discriminatorNesting2") }
 }
