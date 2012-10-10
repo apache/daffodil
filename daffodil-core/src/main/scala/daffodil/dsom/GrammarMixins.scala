@@ -591,10 +591,10 @@ trait ElementBaseGrammarMixin
   /**
    * the element left framing does not include the initiator nor the element right framing the terminator
    */
-  lazy val elementLeftFraming = Prod("elementLeftFraming", this, NYI,
+  lazy val elementLeftFraming = Prod("elementLeftFraming", this,
     leadingSkipRegion ~ alignmentFill ~ PrefixLength(this))
 
-  lazy val elementRightFraming = Prod("elementRightFraming", this, NYI, trailingSkipRegion)
+  lazy val elementRightFraming = Prod("elementRightFraming", this, trailingSkipRegion)
 
   lazy val dfdlElementBegin = Prod("dfdlElementBegin", this, {
     if (isComplexType == true && lengthKind == LengthKind.Pattern) ComplexElementBeginPattern(this)

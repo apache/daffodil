@@ -18,8 +18,8 @@ class TestAlignedData extends JUnitSuite {
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
   
   @Test def test_leadingSkip_1() = { 
-   //  runner1.runOneTest("leadingSkip1")
+    runner1.runOneTest("leadingSkip1")
     }
-  //@Test def test_leadingSkip_2() = { runner1.runOneTest("leadingSkip2") }
+  @Test def test_leadingSkip_2() = { runner1.runOneTest("leadingSkip2") }
   
  }
