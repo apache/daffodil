@@ -3,16 +3,13 @@
 	xmlns="http://example.com" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+	xmlns:ex="http://example.com"
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
 
 	<tdml:defineSchema name="AA.dfdl.xsd">
 		<dfdl:defineVariable name="x" type="xsd:int"
 			defaultValue="0" />
-		<dfdl:format separator="" initiator="" terminator=""
-			emptyValueDelimiterPolicy="none" textNumberRep="standard"
-			representation="text" occursStopValue="-1" occursCountKind="parsed"
-			lengthKind="explicit" length="{ 0 }" lengthUnits="bytes" encoding="US-ASCII" />
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" length="{ 0 }" lengthUnits="bytes" encoding="US-ASCII" />
 		<xs:element name="list" type="example1" />
 
 		<xs:complexType name="example1">

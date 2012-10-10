@@ -24,6 +24,6 @@ class TestContentFramingProperties extends JUnitSuite {
   val tdml2 = testDir_02 + "ContentFramingProps.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
   
-  @Test def test_UTF_16_01() { runner2.runOneTest("UTF-16_01") }
+  @Test def test_UTF_16_01() { runner2.runOneTest("UTF_16_01") }
   
   }

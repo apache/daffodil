@@ -2,15 +2,11 @@
 <tdml:testSuite suiteName="AI" description="AI - lengthKind pattern"
 	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+	xmlns:ex="http://example.com"
 	xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
 	<tdml:defineSchema name="AI.dfdl.xsd">
-		<dfdl:format separator="" initiator="" terminator=""
-			emptyValueDelimiterPolicy="none" textNumberRep="standard"
-			representation="text" lengthUnits="bytes" encoding="ascii"
-			occursStopValue="-1" occursCountKind="expression" ignoreCase="no" initiatedContent="no"/>
-
+		<dfdl:format ref="ex:daffodilTest1" encoding="ascii"/>
 
 		<!-- Patterned length and fixed length -->
 

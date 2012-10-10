@@ -4,14 +4,13 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xmlns:tns="http://example.com"
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
 	<tdml:defineSchema name="ContentFramingProperties-Embedded.dfdl.xsd">
 		
 		
-		<dfdl:format lengthKind="delimited" lengthUnits="characters" encoding="UTF-8" separator="" initiator="" terminator=""
-		       	occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" />
+		<dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" lengthUnits="characters" encoding="UTF-8"/>
 		
 		<xs:element name="CFP_01" type="cfp_01"/>
 		<xs:simpleType name="cfp_01">
@@ -25,7 +24,7 @@
 		
 	</tdml:defineSchema>
  
-	<tdml:parserTestCase name="UTF-16_01" root="CFP_01"
+	<tdml:parserTestCase name="UTF_16_01" root="CFP_01"
 		model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R">
 
 		<tdml:document><tdml:documentPart type="byte">006300610074</tdml:documentPart>

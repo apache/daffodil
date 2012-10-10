@@ -4,7 +4,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
 	xmlns:tns="http://example.com"
 
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
@@ -15,8 +14,7 @@
 				<dfdl:format ref="tns:def1" encoding="utf-8" lengthKind="explicit" lengthUnits="characters" length="5" textNumberRep="zoned"/>
 		</dfdl:defineFormat>
 			
-		<dfdl:format initiator="" terminator="" representation="text"
-            lengthKind="explicit" lengthUnits="characters" length="3"/>
+		<dfdl:format ref="tns:daffodilTest1" lengthKind="explicit" lengthUnits="characters" length="3"/>
             
         <xs:element name="easy" type="xs:int" dfdl:ref="tns:def" dfdl:textNumberRep="standard"/>
 	</tdml:defineSchema>
@@ -24,6 +22,20 @@
 	
 	
 	<tdml:defineSchema name="s2">
+	
+		<dfdl:defineFormat name="def2">
+				<dfdl:format ref="tns:def3" lengthKind="explicit" lengthUnits="characters" length="4" 
+					representation="text" textNumberRep="standard"/>
+		</dfdl:defineFormat>
+			
+		<dfdl:defineFormat name="def3">
+				<dfdl:format ref="tns:daffodilTest1" representation="binary"/>
+		</dfdl:defineFormat>
+		
+		<dfdl:defineFormat name="def1">
+				<dfdl:format ref="tns:def2"/>
+		</dfdl:defineFormat>
+			
 		<dfdl:format ref="tns:def1" initiator="" terminator="" 
                 encoding="utf-8" binaryNumberRep="binary" />
                 

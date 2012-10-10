@@ -1,48 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testSuite suiteName="AA-BG" description="Original suite of AA through BG"
-	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+<tdml:testSuite suiteName="AA-BG" description="Original suite of AA through BG"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://example.com">
 
-	<parserTestCase name="AJ000" root="list" model="AJ.dfdl.xsd"
+
+	<tdml:defineSchema name="AJ">
+		<dfdl:format ref="tns:daffodilTest1" binaryNumberRep="binary"
+			byteOrder="bigEndian" />
+
+		<element name="list" xmlns="http://www.w3.org/2001/XMLSchema">
+			<complexType>
+				<sequence>
+					<element name="x" type="xsd:byte">
+						<annotation>
+							<appinfo source="http://www.ogf.org/dfdl/">
+								<dfdl:element representation="binary" lengthKind="implicit" />
+							</appinfo>
+						</annotation>
+					</element>
+					<element name="y" type="xsd:byte">
+						<annotation>
+							<appinfo source="http://www.ogf.org/dfdl/">
+								<dfdl:element representation="binary" lengthKind="implicit" />
+							</appinfo>
+						</annotation>
+					</element>
+					<element name="z" type="xsd:byte">
+						<annotation>
+							<appinfo source="http://www.ogf.org/dfdl/">
+								<dfdl:element representation="binary" lengthKind="implicit" />
+							</appinfo>
+						</annotation>
+					</element>
+					<element name="w" type="xsd:byte">
+						<annotation>
+							<appinfo source="http://www.ogf.org/dfdl/">
+								<dfdl:element representation="binary" lengthKind="implicit" />
+							</appinfo>
+						</annotation>
+					</element>
+				</sequence>
+			</complexType>
+		</element>
+
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="AJ000" root="list" model="AJ"
 		description="Simple binary tests - DFDL-5-015R">
 
-		<document>
-			<documentPart type="byte">00010203</documentPart>
-		</document>
+		<tdml:document>
+			<tdml:documentPart type="byte">00010203</tdml:documentPart>
+		</tdml:document>
 
-		<infoset>
-			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<list xmlns="http://example.com">
 					<x type="xsd:byte">0</x>
 					<y type="xsd:byte">1</y>
 					<z type="xsd:byte">2</z>
 					<w type="xsd:byte">3</w>
 				</list>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 
-	<parserTestCase name="AJ001" root="list" model="AJ.dfdl.xsd"
+	<tdml:parserTestCase name="AJ001" root="list" model="AJ"
 		description="Simple Binary tests - DFDL-5-015R">
 
-		<document>
-			<documentPart type="byte">FFFEFDFC</documentPart>
-		</document>
+		<tdml:document>
+			<tdml:documentPart type="byte">FFFEFDFC</tdml:documentPart>
+		</tdml:document>
 
-		<infoset>
-			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<list xmlns="http://example.com">
 					<x type="xsd:byte">-1</x>
 					<y type="xsd:byte">-2</y>
 					<z type="xsd:byte">-3</z>
 					<w type="xsd:byte">-4</w>
 				</list>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 
-</testSuite>
+</tdml:testSuite>
