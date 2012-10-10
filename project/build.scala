@@ -14,7 +14,7 @@ object DaffodilBuild extends Build {
 	                           .configs(DebugTest)
 	                           .aggregate(propgen, lib, core, test)
 
-	lazy val propgen = Project(id = "daffodil-propgen", base = file("daffodil-propgen"), settings = s)
+	lazy val propgen = Project(id = "daffodil-propgen", base = file("daffodil-propgen"), settings = s ++ nopub)
 	                           .configs(DebugTest)
 
 	lazy val lib     = Project(id = "daffodil-lib", base = file("daffodil-lib"), settings = s ++ propgenSettings)

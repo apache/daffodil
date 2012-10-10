@@ -20,4 +20,5 @@ class TestDFDLExpressionsDebug extends JUnitSuite {
   @Test def test_ArrayOptElem_02() { runner.runOneTest("ArrayOptElem_02") }
   @Test def test_expressions_lke3_rel() { runner.runOneTest("lke3_rel") }
   @Test def test_ocke_rel() { runner.runOneTest("ocke_rel") }
+  @Test def test_expresion_bad_path_to_variable() { runner.runOneTest("expresion_bad_path_to_variable") }
   }
