@@ -21,108 +21,181 @@ import scala.util.control.Breaks._
 import java.nio.charset.CoderResult
 import sun.nio.cs.HistoricallyNamedCharset
 import java.nio.channels.Channels
+import daffodil.exceptions.Assert
 
 /**
  * Pure functional Reader[Byte] that gets its data from a DFDL.Input (aka a ReadableByteChannel)
  */
-class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos: Int = 0)
+class DFDLByteReader private (psb : PagedSeq[Byte], val bytePos : Int = 0)
   extends scala.util.parsing.input.Reader[Byte] {
 
-  def this(in: ReadableByteChannel) = this(PagedSeq.fromIterator(new IterableReadableByteChannel(in)), 0)
+  def this(in : ReadableByteChannel) = this(PagedSeq.fromIterator(new IterableReadableByteChannel(in)), 0)
 
-  lazy val first: Byte = psb(bytePos)
+  lazy val first : Byte = psb(bytePos)
 
-  lazy val rest: DFDLByteReader = new DFDLByteReader(psb, bytePos + 1)
+  lazy val rest : DFDLByteReader = new DFDLByteReader(psb, bytePos + 1)
 
-  lazy val pos: scala.util.parsing.input.Position = new DFDLBytePosition(bytePos)
+  lazy val pos : scala.util.parsing.input.Position = new DFDLBytePosition(bytePos)
 
-  lazy val atEnd: Boolean = !psb.isDefinedAt(bytePos)
+  lazy val atEnd : Boolean = !psb.isDefinedAt(bytePos)
 
-  def atPos(bytePosition: Int): DFDLByteReader = { new DFDLByteReader(psb, bytePosition) }
+  def atPos(bytePosition : Int) : DFDLByteReader = { new DFDLByteReader(psb, bytePosition) }
 
-  def getByte(bytePosition: Int): Byte = { psb(bytePosition) }
+  def getByte(bytePosition : Int) : Byte = { psb(bytePosition) }
 
-  lazy val byteArray: Array[Byte] = psb.toArray[Byte]
-  lazy val bb: ByteBuffer = ByteBuffer.wrap(byteArray)
+  lazy val byteArray : Array[Byte] = psb.toArray[Byte]
+  lazy val bb : ByteBuffer = ByteBuffer.wrap(byteArray)
 
   /**
    * Factory for a Reader[Char] that constructs characters by decoding them from this
    * Reader[Byte] for a specific encoding starting at a particular byte position.
    */
-  def charReader(csName: String): scala.util.parsing.input.Reader[Char] = {
+  def charReader(csName : String) : scala.util.parsing.input.Reader[Char] = {
     DFDLByteReader.getCharReader(psb, bytePos, csName) // new DFDLCharReader(psb, bytePos, csName)
   }
 
   // Retrieves a new charReader every time
-  def newCharReader(csName: String): scala.util.parsing.input.Reader[Char] = {
+  def newCharReader(csName : String) : scala.util.parsing.input.Reader[Char] = {
     DFDLByteReader.getNewReader(psb, bytePos, csName)
   }
 
-  def updateCharReader(reader: DFDLCharReader) = {
+  def updateCharReader(reader : DFDLCharReader) = {
     DFDLByteReader.setCharReader(reader, psb)
   }
 
 }
 
+// Review: move all quasi-java to separate file. 
+//
+// Block comment at top should provide motivation for the whole reimplementation, which is NOT
+// because we don't want a java file in our code base. It's becasue we needed to change a very
+// inner behavior of what happens when the decoder gets a decode error. (Which took me a while to find,
+// but search for "DFDL Implementors:" to find it. The whole motivation is to be able to change that
+// one inner-loop line of code. We should make that clear.
+//
+// Also Mixed scala/functional and scala-in-java-style code in one file leaves
+// programmers confused as to what style and how to maintain code.
+// Put block comments to make legacy of code as scala version of former java code clear.
+//
+// Preserve relevant javadoc from the java classes.
+// 
 object DFDLStreamDecoder {
-  private val MIN_BYTE_BUFFER_SIZE: Int = 32
-  private val DEFAULT_BYTE_BUFFER_SIZE: Int = 8192
+  private val MIN_BYTE_BUFFER_SIZE : Int = 32
+  private val DEFAULT_BYTE_BUFFER_SIZE : Int = 8192
 
-  def forInputStreamReader(in: InputStream, lock: Object, charsetName: String): DFDLStreamDecoder = {
+  def forInputStreamReader(in : InputStream, lock : Object, charsetName : String) : DFDLStreamDecoder = {
 
-    var csn: String = charsetName
+    // REVIEW: I think we should throw if csn is nil. Tolerating this would just lead to bugs.
+    Assert.usage(charsetName != Nil)
+    // There is no notion of a default charset in DFDL.
+    // So this can be val.
+    val csn : String = charsetName
 
-    if (csn == Nil || csn.length() == 0) { csn = Charset.defaultCharset().name() }
+    // REVIEW: this next line can then go
+    // if (csn == Nil || csn.length() == 0) { csn = Charset.defaultCharset().name() }
     try {
       if (Charset.isSupported(csn)) { return new DFDLStreamDecoder(in, Charset.forName(csn)) }
     } catch {
-      case e: IllegalCharsetNameException => // Nothing
+      case e : IllegalCharsetNameException => // Nothing
     }
     throw new UnsupportedEncodingException(csn)
   }
 
-  def forInputStreamReader(in: InputStream, lock: Object, cs: Charset): DFDLStreamDecoder = {
+  def forInputStreamReader(in : InputStream, lock : Object, cs : Charset) : DFDLStreamDecoder = {
     return new DFDLStreamDecoder(in, cs)
   }
 
-  def forInputStreamReader(in: InputStream, lock: Object, dec: CharsetDecoder): DFDLStreamDecoder = {
+  def forInputStreamReader(in : InputStream, lock : Object, dec : CharsetDecoder) : DFDLStreamDecoder = {
     return new DFDLStreamDecoder(in, dec)
   }
 
   private var channelsAvailable = true
 
-  private def getChannel(in: FileInputStream): FileChannel = {
+  private def getChannel(in : FileInputStream) : FileChannel = {
     if (!channelsAvailable) return null
     try {
       return in.getChannel
     } catch {
-      case e: UnsatisfiedLinkError => {
+      case e : UnsatisfiedLinkError => {
         channelsAvailable = false
         return null
       }
     }
   }
 }
-class DFDLStreamDecoder(var cs: Charset, var decoder: CharsetDecoder, var bb: ByteBuffer,
-  var in: InputStream, var ch: ReadableByteChannel)
+// Review: Naming convention: 
+// I had started doing DFDL prefixes on scala functional classes to tag them as our variants of those
+// objects. 
+// For these reimplementations of the java objects I'd like to use names that make it clear 
+// these are not functional I/O but are java-style mutating IO.
+// 
+// So how about MutatingStreamDecoder or
+// If the part after the DFDL prefix is exactly the name of a java class in e.g., package java.io, then maybe
+// DFDLJavaIOStreamDecoder
+//
+class DFDLStreamDecoder(var cs : Charset, var decoder : CharsetDecoder, var bb : ByteBuffer,
+                        var in : InputStream, var ch : ReadableByteChannel)
   extends java.io.Reader {
 
-  @volatile private var isOpen: Boolean = true
+  // 
+  // Review: locking related stuff should just be commented out
+  // Seriously, are you going to test that this is thread safe, or do a formal proof?
+  // No, so don't even try to make the code thread safe.
+  //
+  // However, as you are transliterating from java that purports to have figure that
+  // stuff out (I am always dubious of such claims), you should put the constructs in,
+  // but comment them out with comments like "// java code had synchronized method" or
+  // "// java code took a lock here"
+  //
+  @volatile
+  private var isOpen : Boolean = true
   def ensureOpen = { if (!isOpen) throw new java.io.IOException("Stream closed") }
 
-  private var haveLeftoverChar: Boolean = false
-  private var leftoverChar: Char = 0
+  private var haveLeftoverChar : Boolean = false
+  private var leftoverChar : Char = 0
 
-  def getEncoding: String = {
+  def getEncoding : String = {
     if (isOpen) { return encodingName }
     return null
   }
 
-  override def read: Int = {
+  override def read : Int = {
     return read0
   }
 
-  private def read0: Int = {
+  // Insert a comment here about leftover char stuff. E.g.,
+  //
+  // Leftover char is needed because of utf-16 and the surrogate pair stuff.
+  // In that encoding, we need to read two codepoints, and if they are a surrogate pair
+  // synthesize one character from them.
+  //
+  // Presumably this happens in the decoder, but in the case where it isn't a surrogate
+  // pair, we save work by returning two decoded characters, not one since we've already
+  // decoded the second one. (This little optimization seems very not worth it to me, but
+  // is necessary if you can't peek forward 2 bytes into the underlying bytes without 
+  // consuming them.)
+  //
+  // Issue is that UTF-16 is really a variable-width 2-byte or 4-byte character encoding. But 
+  // In the early days of unicode and java, it was treated as a fixed width 2-byte.
+  //
+  // Hence, in DFDL we provide control.
+  // This depends on dfdl:utf16Width="variable". If dfdl:utf16Width="fixed", then 
+  // we do NOT process surrogate pairs, and return them each as a separate codepoint.
+  //
+  // So at some point our decoder must implement utf16Width="fixed" which means it must 
+  // not do this surrogate pair processing. That means either we find a feature for that
+  // in CharsetDecoder (it may be there as this is a common need), or we'll have to clone
+  // and reimplement that class too.
+  //
+  // TBD: implement utf16Width="variable". For now we can SDE on utf16Width="variable".
+  //
+  // This code assumes implicitly that it is ok if the byte stream has been advanced 
+  // further (by one character decoding) than it would have to produce one character only.
+  // 
+  // So long as we're never asking this stream of characters for a byte position we're ok.
+  // 
+  // 
+  private def read0 : Int = {
     lock.synchronized {
 
       // Return the leftover char, if there is one
@@ -132,8 +205,8 @@ class DFDLStreamDecoder(var cs: Charset, var decoder: CharsetDecoder, var bb: By
       }
 
       // Convert more bytes
-      val cb: Array[Char] = new Array[Char](2)
-      val n: Int = read(cb, 0, 2)
+      val cb : Array[Char] = new Array[Char](2)
+      val n : Int = read(cb, 0, 2)
       n match {
         case -1 => return -1
         case 2 => {
@@ -150,11 +223,28 @@ class DFDLStreamDecoder(var cs: Charset, var decoder: CharsetDecoder, var bb: By
     }
   }
 
-  def read(cbuf: Array[Char], offset: Int, length: Int): Int = {
-    var off: Int = offset
-    var len: Int = length
+  // REVIEW: until a programming language lets us associated units
+  // with integers so that a byte index and a char index can't be added,
+  // I think code which has both byte and char contexts needs to use qualified names.
+  // E.g., cLength or bLength instead of length to make the units clear, and cOffset or bOffset
+  // and cIndex or bIndex, etc.
+  //
+  // Having written that, I now see that the code these are all character offsets
+  // and lengths of character buffers, so a comment will be sufficient e.g.,
+  //
+  // All lengths and offsets below are in character units.
+  //
+  def read(cbuf : Array[Char], offset : Int, length : Int) : Int = {
+    var off : Int = offset
+    var len : Int = length
 
-    lock.synchronized {
+    // REVIEW: I would comment out all locking stuff using the style I've used for this one below
+    // which leaves the block structure intact as is.
+    // Approximately that is. Maybe in this case the whole object was just synchronized. 
+    // So modify comment as appropriate.
+
+    // lock.synchronized // in java this was a synchronized method 
+    {
       ensureOpen
       if ((off < 0) || (off > cbuf.length) || (len < 0)
         || ((off + len) > cbuf.length) || ((off + len) < 0)) {
@@ -162,7 +252,7 @@ class DFDLStreamDecoder(var cs: Charset, var decoder: CharsetDecoder, var bb: By
       }
 
       if (len == 0) { return 0 }
-      var n: Int = 0
+      var n : Int = 0
 
       if (haveLeftoverChar) {
         // Copy the leftover char into the buffer
@@ -177,9 +267,13 @@ class DFDLStreamDecoder(var cs: Charset, var decoder: CharsetDecoder, var bb: By
         }
       }
 
+      // REVIEW: Insert comment
+      // If length is 1, then we recursively end up back here with length 2, 
+      // and that's why it's not a stack overflow.
+
       if (len == 1) {
         // Treat single-character array reads just like read()
-        val c: Int = read0
+        val c : Int = read0
         if (c == -1) {
           return if (n == 0) -1 else n
         }
@@ -191,14 +285,14 @@ class DFDLStreamDecoder(var cs: Charset, var decoder: CharsetDecoder, var bb: By
 
   }
 
-  override def ready: Boolean = {
+  override def ready : Boolean = {
     lock.synchronized {
       ensureOpen
       return haveLeftoverChar || implReady
     }
   }
 
-  def close: Unit = {
+  def close : Unit = {
     lock.synchronized {
       if (!isOpen) { return }
       implClose
@@ -206,12 +300,13 @@ class DFDLStreamDecoder(var cs: Charset, var decoder: CharsetDecoder, var bb: By
     }
   }
 
-  def this(in: InputStream, dec: CharsetDecoder) = {
+  // REVIEW: move constructors to top of class. Carryover javadoc to explain them if there is some.
+  def this(in : InputStream, dec : CharsetDecoder) = {
     // TODO: What's up with super(lock) ?
     //super(lock)
 
     this(dec.charset(), dec, {
-      var myBB: ByteBuffer = null
+      var myBB : ByteBuffer = null
       myBB = ByteBuffer.allocateDirect(DFDLStreamDecoder.DEFAULT_BYTE_BUFFER_SIZE)
       myBB.flip()
       myBB
@@ -221,25 +316,26 @@ class DFDLStreamDecoder(var cs: Charset, var decoder: CharsetDecoder, var bb: By
     }) //in.asInstanceOf[FileInputStream].getChannel())
   }
 
-  def this(in: InputStream, cs: Charset) = {
+  // REVIEW: do we want to support this constructor? Might want to just Assert.NYI for this.
+  def this(in : InputStream, cs : Charset) = {
     this(in, cs.newDecoder().onMalformedInput(CodingErrorAction.REPLACE).onUnmappableCharacter(CodingErrorAction.REPLACE))
   }
 
-  private def readBytes: Int = {
+  private def readBytes : Int = {
     bb.compact()
     try {
       if (ch != null) {
         // Read from the channel
-        val n: Int = ch.read(bb)
+        val n : Int = ch.read(bb)
         if (n < 0) return n
       } else {
         // Read from the input stream, and hten update the buffer
-        val lim: Int = bb.limit()
-        val pos: Int = bb.position()
+        val lim : Int = bb.limit()
+        val pos : Int = bb.position()
         assert(pos <= lim)
-        val rem: Int = if (pos <= lim) lim - pos else 0
+        val rem : Int = if (pos <= lim) lim - pos else 0
         assert(rem > 0)
-        val n: Int = in.read(bb.array, bb.arrayOffset() + pos, rem)
+        val n : Int = in.read(bb.array, bb.arrayOffset() + pos, rem)
         if (n < 0) return n
         if (n == 0) throw new IOException("Underlying input stream returned zero bytes")
         //assert(n <= rem) : "n = " + n + ", rem = " + rem
@@ -251,35 +347,36 @@ class DFDLStreamDecoder(var cs: Charset, var decoder: CharsetDecoder, var bb: By
       // otherwise the stream will stutter
       bb.flip()
     }
-    val rem: Int = bb.remaining()
+    val rem : Int = bb.remaining()
     // assert(rem != 0) : rem
     assert(rem != 0)
     return rem
   }
 
-  def implRead(cbuf: Array[Char], off: Int, end: Int): Int = {
+  // REVIEW: private?
+  def implRead(cbuf : Array[Char], off : Int, end : Int) : Int = {
     // In order to handle surrogate pairs, this method requires that
     // the invoker attempt to read at least two characters.  Saving the
     // extra character, if any, at a higher level is easier
     // to deal with it here.
     assert(end - off > 1)
-    var cb: CharBuffer = CharBuffer.wrap(cbuf, off, end - off)
+    var cb : CharBuffer = CharBuffer.wrap(cbuf, off, end - off)
     if (cb.position != 0) {
       // Ensure that cb[0] == cbuf[off]
       cb = cb.slice
     }
 
-    var eof: Boolean = false
-    var continue: Boolean = false
-    
+    var eof : Boolean = false
+    var continue : Boolean = false
+
     breakable {
       while (true) {
-        val cr: CoderResult = decoder.decode(bb, cb, eof)
+        val cr : CoderResult = decoder.decode(bb, cb, eof)
         if (cr.isUnderflow) {
           if (eof) { break }
           if (!cb.hasRemaining()) { break }
           if ((cb.position() > 0) && !inReady) { break }
-          val n: Int = readBytes
+          val n : Int = readBytes
           if (n < 0) {
             eof = true
             if ((cb.position() == 0) && (!bb.hasRemaining())) { break }
@@ -293,7 +390,17 @@ class DFDLStreamDecoder(var cs: Charset, var decoder: CharsetDecoder, var bb: By
             assert(cb.position() > 0)
             break
           }
-          // This is where we should act as though eof was reached
+          // REVIEW: Put louder commentary here.
+          // Took me a while to even find this spot.
+          // E.g.,I was searching for the catch that would 
+          // catch this throw but didn't find it. 
+
+          // DFDL Implementors:
+          // The whole reason we reimplemented this code in scala is
+          // to change this behavior here.
+          //
+          // DFDL needs decode errors to behave as if end of data was reached.
+          // So instead of throw, just set eof true. 
           // cr.throwException
           eof = true
           break
@@ -311,59 +418,65 @@ class DFDLStreamDecoder(var cs: Charset, var decoder: CharsetDecoder, var bb: By
       if (eof) return -1
       assert(false)
     }
-    
+
     return cb.position()
   }
 
-  def encodingName: String = {
+  def encodingName : String = {
     return if (cs.isInstanceOf[HistoricallyNamedCharset]) cs.asInstanceOf[HistoricallyNamedCharset].historicalName else cs.name()
   }
 
-  private def inReady: Boolean = {
+  private def inReady : Boolean = {
     try {
       return (((in != null) && (in.available() > 0)) || (ch.isInstanceOf[FileChannel]))
     } catch {
-      case e: IOException => return false
+      case e : IOException => return false
     }
   }
 
-  def implReady: Boolean = { return bb.hasRemaining() || inReady }
+  def implReady : Boolean = { return bb.hasRemaining() || inReady }
 
-  def implClose: Unit = {
+  def implClose : Unit = {
     if (ch != null) ch.close()
     else in.close()
   }
 
 }
 
-class DFDLInputStreamReader(val in: InputStream, val sd: DFDLStreamDecoder) extends java.io.Reader(in: InputStream) {
+// REVIEW: move quasi-java to separate file.
+// 
+// Naming convention? Perhaps these should make their java-like behavior clearer
+// e.g., MutatingInputStreamReader
+// which would make it clear that the object is changing as you read from it.
+//
+class DFDLInputStreamReader(val in : InputStream, val sd : DFDLStreamDecoder) extends java.io.Reader(in : InputStream) {
 
-  def this(in: InputStream, charsetName: String) = {
+  def this(in : InputStream, charsetName : String) = {
     this(in, DFDLStreamDecoder.forInputStreamReader(in, new Object, {
       if (charsetName == null) { throw new NullPointerException("charsetName") }
       charsetName
     }))
   }
 
-  def this(in: InputStream, cs: Charset) = {
+  def this(in : InputStream, cs : Charset) = {
     this(in, DFDLStreamDecoder.forInputStreamReader(in, new Object, {
       if (cs == null) { throw new NullPointerException("charset") }
       cs
     }))
   }
 
-  def this(in: InputStream, dec: CharsetDecoder) = {
+  def this(in : InputStream, dec : CharsetDecoder) = {
     this(in, DFDLStreamDecoder.forInputStreamReader(in, new Object, {
       if (dec == null) { throw new NullPointerException("charset decoder") }
       dec
     }))
   }
 
-  def getEncoding: String = sd.getEncoding
-  override def read: Int = sd.read()
-  def read(cbuf: Array[Char], offset: Int, length: Int): Int = sd.read(cbuf, offset, length)
-  override def ready: Boolean = sd.ready()
-  def close: Unit = sd.close()
+  def getEncoding : String = sd.getEncoding
+  override def read : Int = sd.read()
+  def read(cbuf : Array[Char], offset : Int, length : Int) : Int = sd.read(cbuf, offset, length)
+  override def ready : Boolean = sd.ready()
+  def close : Unit = sd.close()
 }
 
 /**
@@ -371,14 +484,14 @@ class DFDLInputStreamReader(val in: InputStream, val sd: DFDLStreamDecoder) exte
  * a particular character set encoding. Ends if there is any error trying to decode a
  * character.
  */
-class DFDLCharReader private (charsetName: String, theStartingBytePos: Int, psc: PagedSeq[Char], override val offset: Int)
+class DFDLCharReader private (charsetName : String, theStartingBytePos : Int, psc : PagedSeq[Char], override val offset : Int)
   extends scala.util.parsing.input.Reader[Char] {
 
-  override lazy val source: CharSequence = psc
+  override lazy val source : CharSequence = psc
 
-  def startingBytePos: Int = theStartingBytePos
+  def startingBytePos : Int = theStartingBytePos
 
-  def this(psb: PagedSeq[Byte], bytePos: Int, csName: String) = {
+  def this(psb : PagedSeq[Byte], bytePos : Int, csName : String) = {
     this(csName, bytePos, {
       // TRW - The following change was made because we want the
       // IteratorInputStream to start at bytePos.
@@ -401,29 +514,29 @@ class DFDLCharReader private (charsetName: String, theStartingBytePos: Int, psc:
     }, 0)
   }
 
-  def first: Char = psc(offset)
+  def first : Char = psc(offset)
 
-  def rest: scala.util.parsing.input.Reader[Char] =
+  def rest : scala.util.parsing.input.Reader[Char] =
     if (psc.isDefinedAt(offset)) new DFDLCharReader(charsetName, startingBytePos, psc, offset + 1)
     else this //new DFDLCharReader(psc, offset + 1)
 
-  def atEnd: Boolean = !psc.isDefinedAt(offset)
+  def atEnd : Boolean = !psc.isDefinedAt(offset)
 
-  def pos: scala.util.parsing.input.Position = new OffsetPosition(source, offset) //new DFDLCharPosition(offset)
+  def pos : scala.util.parsing.input.Position = new OffsetPosition(source, offset) //new DFDLCharPosition(offset)
 
-  override def drop(n: Int): DFDLCharReader = new DFDLCharReader(charsetName, startingBytePos, psc, offset + n)
+  override def drop(n : Int) : DFDLCharReader = new DFDLCharReader(charsetName, startingBytePos, psc, offset + n)
 
-  def atPos(characterPos: Int): DFDLCharReader = {
+  def atPos(characterPos : Int) : DFDLCharReader = {
     new DFDLCharReader(charsetName, startingBytePos, psc, characterPos)
   }
 
-  def getCharsetName: String = charsetName
+  def getCharsetName : String = charsetName
 
-  def characterPos: Int = offset
+  def characterPos : Int = offset
 
   // def isDefinedAt(charPos : Int) : Boolean = psc.isDefinedAt(charPos)
 
-  def print: String = {
+  def print : String = {
     "DFDLCharReader - " + source.length() + ": " + source + "\nDFDLCharReader - " + characterPos + ": " + source.subSequence(characterPos, source.length())
   }
 
@@ -437,12 +550,12 @@ class DFDLCharReader private (charsetName: String, theStartingBytePos: Int, psc:
  * All this excess buffering layer for lack of a way to convert a ReadableByteChannel directly into
  * a PagedSeq. We need an Iterator[Byte] first to construct a PagedSeq[Byte].
  */
-class IterableReadableByteChannel(rbc: ReadableByteChannel)
+class IterableReadableByteChannel(rbc : ReadableByteChannel)
   extends scala.collection.Iterator[Byte] {
 
   private final val bufferSize = 10000
-  private var currentBuf: java.nio.ByteBuffer = _
-  private var sz: Int = _
+  private var currentBuf : java.nio.ByteBuffer = _
+  private var sz : Int = _
 
   private def advanceToNextBuf() {
     currentBuf = java.nio.ByteBuffer.allocate(bufferSize)
@@ -452,7 +565,7 @@ class IterableReadableByteChannel(rbc: ReadableByteChannel)
 
   advanceToNextBuf()
 
-  def hasNext(): Boolean = {
+  def hasNext() : Boolean = {
     if (sz == -1) return false
     if (currentBuf.hasRemaining()) return true
     advanceToNextBuf()
@@ -461,9 +574,9 @@ class IterableReadableByteChannel(rbc: ReadableByteChannel)
     return false
   }
 
-  var pos: Int = 0
+  var pos : Int = 0
 
-  def next(): Byte = {
+  def next() : Byte = {
     if (!hasNext()) throw new IndexOutOfBoundsException(pos.toString)
     pos += 1
     currentBuf.get()
@@ -475,7 +588,7 @@ class IterableReadableByteChannel(rbc: ReadableByteChannel)
  * line numbers and column numbers.
  *
  */
-class DFDLBytePosition(i: Int) extends scala.util.parsing.input.Position {
+class DFDLBytePosition(i : Int) extends scala.util.parsing.input.Position {
   def line = 1
   def column = i + 1
   // IDEA: could we assume a 'line' of bytes is 32 bytes because those print out nicely as 
@@ -488,24 +601,24 @@ object DFDLByteReader {
   type PosMap = HashMap[Int, (DFDLCharReader, Int)]
   type CSMap = HashMap[String, PosMap]
   type PSMap = HashMap[PagedSeq[Byte], CSMap]
-  private var charReaderMap: PSMap = HashMap.empty
+  private var charReaderMap : PSMap = HashMap.empty
 
   // CharPosMap [bytePos + csName, CharPos]
   type CharPosMap = HashMap[String, Int]
-  private var charPositionsMap: CharPosMap = HashMap.empty
+  private var charPositionsMap : CharPosMap = HashMap.empty
 
-  private def getNewReader(psb: PagedSeq[Byte], bytePos: Int, csName: String): DFDLCharReader = {
+  private def getNewReader(psb : PagedSeq[Byte], bytePos : Int, csName : String) : DFDLCharReader = {
     if (charReaderMap.isEmpty) {
-      var csMap: CSMap = HashMap.empty
-      val emptyCharReaderMap: PosMap = HashMap.empty
+      var csMap : CSMap = HashMap.empty
+      val emptyCharReaderMap : PosMap = HashMap.empty
       csMap.put(csName, emptyCharReaderMap)
       charReaderMap.put(psb, csMap)
     }
 
     // TRW - Added for Compound Pattern Match to work
     if (charReaderMap.get(psb) == None) {
-      var csMap: CSMap = HashMap.empty
-      val emptyCharReaderMap: PosMap = HashMap.empty
+      var csMap : CSMap = HashMap.empty
+      val emptyCharReaderMap : PosMap = HashMap.empty
       csMap.put(csName, emptyCharReaderMap)
       charReaderMap.put(psb, csMap)
     }
@@ -522,18 +635,18 @@ object DFDLByteReader {
    *
    * Memoizes so that we don't re-decode as we backtrack around.
    */
-  private def getCharReader(psb: PagedSeq[Byte], bytePos: Int, csName: String): DFDLCharReader = {
+  private def getCharReader(psb : PagedSeq[Byte], bytePos : Int, csName : String) : DFDLCharReader = {
     if (charReaderMap.isEmpty) {
-      var csMap: CSMap = HashMap.empty
-      val emptyCharReaderMap: PosMap = HashMap.empty
+      var csMap : CSMap = HashMap.empty
+      val emptyCharReaderMap : PosMap = HashMap.empty
       csMap.put(csName, emptyCharReaderMap)
       charReaderMap.put(psb, csMap)
     }
 
     // TRW - Added for Compound Pattern Match to work
     if (charReaderMap.get(psb) == None) {
-      var csMap: CSMap = HashMap.empty
-      val emptyCharReaderMap: PosMap = HashMap.empty
+      var csMap : CSMap = HashMap.empty
+      val emptyCharReaderMap : PosMap = HashMap.empty
       csMap.put(csName, emptyCharReaderMap)
       charReaderMap.put(psb, csMap)
     }
@@ -589,7 +702,7 @@ object DFDLByteReader {
     //    }
   }
 
-  private def setCharReader(reader: DFDLCharReader, psb: PagedSeq[Byte]) = {
+  private def setCharReader(reader : DFDLCharReader, psb : PagedSeq[Byte]) = {
     //    val charReaders = charReaderMap.get(psb).get.get(reader.getCharsetName).get
     //    //charReaders.put(bytePos, reader)
     //    //System.err.println("Before insert: " + charReaders)
@@ -617,7 +730,7 @@ object DFDLByteReader {
  *
  * We ignore line/column structure. It's all one "line" as far as we are concerned.
  */
-class DFDLCharPosition(i: Int) extends scala.util.parsing.input.Position {
+class DFDLCharPosition(i : Int) extends scala.util.parsing.input.Position {
   def line = 1
   def column = i + 1
   val lineContents = "" // unused
@@ -631,10 +744,10 @@ class DFDLCharPosition(i: Int) extends scala.util.parsing.input.Position {
  *
  * Convert an iterator of bytes into an InputStream
  */
-class IteratorInputStream(ib: Iterator[Byte])
+class IteratorInputStream(ib : Iterator[Byte])
   extends InputStream {
 
-  def read(): Int =
+  def read() : Int =
     if (!ib.hasNext) -1
     else {
       val res = ib.next()
