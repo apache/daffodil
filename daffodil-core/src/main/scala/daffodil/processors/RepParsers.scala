@@ -147,6 +147,12 @@ class RepUnboundedPrim(context : LocalElementBase, r : => Gram) extends RepPrim(
           log(Debug("Failure suppressed."))
           return pResult
         }
+        // Success
+        // Need to check for forward progress
+        if (pResult.bitPos == pNext.bitPos){ return PE(pNext, 
+            "RepUnbounded - No forward progress at byte %s. Attempt to parse %s " + 
+            "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.", 
+            pResult.bytePos, context.prettyName)}
         pResult = pNext.withDiscriminator(false) // point of uncertainty has been resolved.
 
       }
