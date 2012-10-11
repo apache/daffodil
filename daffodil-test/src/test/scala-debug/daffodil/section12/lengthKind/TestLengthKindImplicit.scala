@@ -22,5 +22,6 @@ class TestLengthKindImplicit extends JUnitSuite {
   @Test def test_seq_02() { runner_01.runOneTest("seq_02") }
   @Test def test_seq_03() { runner_01.runOneTest("seq_03") }
   @Test def test_nested_seq() { runner_01.runOneTest("nested_seq") }
+  @Test def test_nested_seq_01() { runner_01.runOneTest("nested_seq_01") }
   
   }
