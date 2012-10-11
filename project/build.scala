@@ -19,7 +19,6 @@ object DaffodilBuild extends Build {
 
 	lazy val lib     = Project(id = "daffodil-lib", base = file("daffodil-lib"), settings = s ++ propgenSettings)
 	                           .configs(DebugTest)
-	                           .dependsOn(propgen)
 
 	lazy val core    = Project(id = "daffodil-core", base = file("daffodil-core"), settings = s ++ startScriptSettings)
 	                           .configs(DebugTest)
