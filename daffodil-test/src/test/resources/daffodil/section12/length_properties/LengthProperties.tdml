@@ -70,8 +70,14 @@
 		</xs:element>
 		
 	</tdml:defineSchema>
+
+<!--
+	Test name: LengthProp_sequenceByLength
+	   Schema: LengthProperties-Embedded.dfdl.xsd
+	  Purpose: This document contains a sequence of 3 elements of character length 3, and should be parsed accordingly
+-->
 	
-	<tdml:parserTestCase name="LengthProp_01" root="LP_01"
+	<tdml:parserTestCase name="LengthProp_sequenceByLength" root="LP_01"
 		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
 
 			<tdml:document>123456789</tdml:document>
@@ -98,11 +104,11 @@
 		</tdml:parserTestCase>
 		
 <!--
-	Test name: LengthProp_03a
+	Test name: LengthProp_charVsBytes
 	   Schema: LengthProperties-Embedded.dfdl.xsd
-	  Purpose: This document is the correct size, consists of 3 characters, and should be parsed correctly.
+	  Purpose: This document is the correct size (3 bytes), consists of 3 characters, and should be parsed correctly.
 -->
-		<tdml:parserTestCase name="LengthProp_03a" root="LP_03"
+		<tdml:parserTestCase name="LengthProp_charVsBytes" root="LP_03"
 		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
 
 			<tdml:document><tdml:documentPart type="byte">2a2b2c</tdml:documentPart></tdml:document>
@@ -114,11 +120,11 @@
 		</tdml:parserTestCase>
 		
 <!--
-	Test name: LengthProp_03b
+	Test name: LengthProp_charVsBytes2
 	   Schema: LengthProperties-Embedded.dfdl.xsd
-	  Purpose: This document is the correct size, consists of 2 characters, and should be parsed correctly.
+	  Purpose: This document is the correct size (3 bytes), consists of 2 characters, and should be parsed correctly.
 -->
-		<tdml:parserTestCase name="LengthProp_03b" root="LP_03"
+		<tdml:parserTestCase name="LengthProp_charVsBytes2" root="LP_03"
 		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
 
 			<tdml:document><tdml:documentPart type="byte">c2a22c</tdml:documentPart></tdml:document>
@@ -130,11 +136,11 @@
 		</tdml:parserTestCase>
 
 <!--
-	Test name: LengthProp_03c
+	Test name: LengthProp_tooShortFailure
 	   Schema: LengthProperties-Embedded.dfdl.xsd
 	  Purpose: This document is shorter than the length specified in the schema and should throw an error.
 -->
-		<tdml:parserTestCase name="LengthProp_03c" root="LP_03"
+		<tdml:parserTestCase name="LengthProp_tooShortFailure" root="LP_03"
 		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
 
 			<tdml:document><tdml:documentPart type="byte">c2a2</tdml:documentPart></tdml:document>
@@ -144,11 +150,11 @@
 		</tdml:parserTestCase>
 
 <!--
-	Test name: LengthProp_03d
+	Test name: LengthProp_tooLongFailure
 	   Schema: LengthProperties-Embedded.dfdl.xsd
 	  Purpose: This document is longer than the length specified in the schema and should throw an error.
 -->
-		<tdml:parserTestCase name="LengthProp_03d" root="LP_03"
+		<tdml:parserTestCase name="LengthProp_tooLongFailure" root="LP_03"
 		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
 
 			<tdml:document><tdml:documentPart type="byte">74657374</tdml:documentPart></tdml:document>
@@ -246,6 +252,17 @@
 			</xs:annotation>
 			<xs:restriction base="xs:string"/>
 		</xs:simpleType>
+		
+		<xs:element name="LP_06" type="lp_06"/>
+		<xs:simpleType name="lp_06">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/">
+					<dfdl:simpleType encoding="utf-16" lengthKind="explicit" lengthUnits="bytes" length="2" byteOrder="bigEndian"/>
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:restriction base="xs:string"/>
+		</xs:simpleType>
+
 	</tdml:defineSchema>
 
 <!--
@@ -283,7 +300,7 @@
 <!--
 	Test name: LengthProp_byteLength2
 	   Schema: LengthProperties-lengthNumeric.dfdl.xsd
-	  Purpose: This document has the correct length of 10 bytes and should be parsed correctly
+	  Purpose: This document has the correct length of 2 bytes and should be parsed correctly
 -->
 		<tdml:parserTestCase name="LengthProp_byteLength2" root="LP_05"
 		model="LengthProperties-lengthNumeric.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-040R">
@@ -327,19 +344,33 @@
 		</tdml:parserTestCase>
 
 <!--
-	Test name: LengthProp_byteLength2
+	Test name: LengthProp_byteLength_UTF16
 	   Schema: LengthProperties-lengthNumeric.dfdl.xsd
-	  Purpose: This document has the correct length of 10 bytes and should be parsed correctly
+	  Purpose: This document has the correct length of 2 bytes (UTF-16) and should be parsed correctly
 -->
-		<tdml:parserTestCase name="LengthProp_byteLength2" root="LP_05"
+		<tdml:parserTestCase name="LengthProp_byteLength_UTF16" root="LP_06"
 		model="LengthProperties-lengthNumeric.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-040R">
 
-			<tdml:document><tdml:documentPart type="byte">3033</tdml:documentPart></tdml:document>
+			<tdml:document><tdml:documentPart type="byte">0030</tdml:documentPart></tdml:document>
 			<tdml:infoset>
 				<tdml:dfdlInfoset>
-					<ex:LP_05>03</ex:LP_05>
+					<ex:LP_06>0</ex:LP_06>
 				</tdml:dfdlInfoset>
 			</tdml:infoset>
+		</tdml:parserTestCase>
+
+<!--
+	Test name: LengthProp_byteLength_UTF16fail
+	   Schema: LengthProperties-lengthNumeric.dfdl.xsd
+	  Purpose: This document has the incorrect length of 8 bytes (UTF-16) and should fail
+-->
+		<tdml:parserTestCase name="LengthProp_byteLength_UTF16fail" root="LP_06"
+		model="LengthProperties-lengthNumeric.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-040R">
+
+			<tdml:document><tdml:documentPart type="byte">0030006E006F000A</tdml:documentPart></tdml:document>
+			<tdml:errors>
+				<tdml:error>Left over data</tdml:error>
+			</tdml:errors>
 		</tdml:parserTestCase>
 
 <!--
