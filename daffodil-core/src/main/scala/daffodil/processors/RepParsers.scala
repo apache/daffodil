@@ -40,7 +40,7 @@ abstract class RepPrim(context : LocalElementBase, n : Long, r : => Gram) extend
     }
 
     val rParser = r.parser
-    
+
     final def parse(pstate : PState) : PState = {
       checkN(pstate, n).map { perr => return perr }
       val res = parseAllRepeats(pstate)
@@ -51,6 +51,11 @@ abstract class RepPrim(context : LocalElementBase, n : Long, r : => Gram) extend
 
     override def toString = "Rep" + baseName + "(" + rParser.toString + ")"
 
+    def toBriefXML(depthLimit : Int = -1) : String = {
+      if (depthLimit == 0) "..." else
+        "<" + baseName + ">" + rParser.toBriefXML(depthLimit - 1) +
+          "</" + baseName + ">"
+    }
   }
 }
 
@@ -149,10 +154,12 @@ class RepUnboundedPrim(context : LocalElementBase, r : => Gram) extends RepPrim(
         }
         // Success
         // Need to check for forward progress
-        if (pResult.bitPos == pNext.bitPos){ return PE(pNext, 
-            "RepUnbounded - No forward progress at byte %s. Attempt to parse %s " + 
-            "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.", 
-            pResult.bytePos, context.prettyName)}
+        if (pResult.bitPos == pNext.bitPos) {
+          return PE(pNext,
+            "RepUnbounded - No forward progress at byte %s. Attempt to parse %s " +
+              "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.",
+            pResult.bytePos, context.prettyName)
+        }
         pResult = pNext.withDiscriminator(false) // point of uncertainty has been resolved.
 
       }
@@ -166,7 +173,7 @@ class RepUnboundedPrim(context : LocalElementBase, r : => Gram) extends RepPrim(
 case class OccursCountExpression(e : ElementBase)
   extends Terminal(e, true) {
   val pseudoElement = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
- 
+
   def parser = new Parser(e) {
     def parse(pstate : PState) : PState = {
       val exprText = e.occursCount.prettyExpr
@@ -174,7 +181,7 @@ case class OccursCountExpression(e : ElementBase)
       // Because the occurs count expression will be written as if we were already in a child node
       // (e.g., ../countField where countField is a peer) we have to make a fake node, and attach it
       // just for purposes of having the right relative path stuff here.
-     
+
       val priorElement = pstate.parentForAddContent
       priorElement.addContent(pseudoElement)
       val res = try {
@@ -188,13 +195,18 @@ case class OccursCountExpression(e : ElementBase)
         }
         postEvalState.setOccursCount(ocLong)
       } catch {
-        case u: UnsuppressableException => throw u
+        case u : UnsuppressableException => throw u
         case e : Exception =>
           PE(pstate, "Evaluation of occursCount expression %s threw exception %s", exprText, e)
       }
       res
     }
-    override def toString = "OccursCount(" + e.occursCount.prettyExpr + ")"
+
+    override def toString = toBriefXML() // "OccursCount(" + e.occursCount.prettyExpr + ")"
+
+    def toBriefXML(depthLimit : Int = -1) = {
+      "<OccursCount>" + e.occursCount.prettyExpr + "</OccursCount>"
+    }
   }
 
   def unparser = new DummyUnparser(e)

@@ -36,7 +36,7 @@ abstract class Gram(val context: AnnotatedSchemaComponent) extends DiagnosticsPr
       Assert.invariant(!self.isEmpty)
       Assert.invariant(!q.isInstanceOf[Nada])
       Assert.invariant(!q.isEmpty)
-      new SeqComp(context, self, q)
+      SeqComp(context, self, q)
     }
   }
 
@@ -69,27 +69,48 @@ abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) 
   override lazy val diagnosticChildren = if (r.isEmpty) Nil else List(r)
 }
 
-abstract class BinaryGram(context: AnnotatedSchemaComponent, p: => Gram, q: => Gram) extends Gram(context) {
+/**
+ * BinaryGram isn't really 'binary' it's n-ary. It is called binary because it comes from 
+ * the binary grammar operations ~ and |, but in the abstract syntax tree we want 
+ * these flattened to lists of children so that a ~ b ~ c is ONE SeqComp with 3 children, not a tree
+ * of two binary SeqComps.
+ */
+abstract class BinaryGram(context: AnnotatedSchemaComponent, childrenArg : Seq[Gram]) extends Gram(context) {
   def op: String
   def open: String
   def close: String
-  override def toString = open + p + " " + op + " " + q + close
+  val children = childrenArg
+  override def toString = open + children.fold(""){(p, q)=> p + " " + op + " " + q} + close
 
-  override lazy val diagnosticChildren = List(p, q)
+  override lazy val diagnosticChildren = children
 }
 
-class SeqComp(context: AnnotatedSchemaComponent, p: => Gram, q: => Gram) extends BinaryGram(context, p, q) {
+object SeqComp {
+  def apply(context: AnnotatedSchemaComponent, p: => Gram, q: => Gram) = {
+    val children = (p, q) match {
+      case (ps : SeqComp, qs : SeqComp) => {
+        ps.children ++ qs.children
+      }
+      case (ps : SeqComp, _) => ps.children ++ List(q)
+      case (_, qs : SeqComp) => p +: qs.children
+      case (_, _) => List (p, q)
+    }
+    val res = new SeqComp(context, children)
+    res
+  }
+}
+class SeqComp(context: AnnotatedSchemaComponent, children : Seq[Gram]) extends BinaryGram(context, children) {
   def op = "~"
   def open = ""
   def close = ""
     
-  Assert.invariant(!p.isInstanceOf[Nada])
+  Assert.invariant(!children.exists{_.isInstanceOf[Nada]})
 
-  def parser = new SeqCompParser(context, p, q)
-  def unparser = new SeqCompUnparser(context, p, q)
+  def parser = new SeqCompParser(context, children)
+  def unparser = new SeqCompUnparser(context, children)
 }
 
-class AltComp(context: AnnotatedSchemaComponent, p: => Gram, q: => Gram) extends BinaryGram(context, p, q) {
+class AltComp(context: AnnotatedSchemaComponent, p: => Gram, q: => Gram) extends BinaryGram(context, List(p, q)) {
   def op = "|"
   def open = "("
   def close = ")"

@@ -18,17 +18,15 @@ import java.io.FileOutputStream
 import java.io.File
 import daffodil.exceptions.UnsuppressableException
 
-
-
-class UnparseAlternativeFailed(sc : SchemaComponent, state : UState, val errors : Seq[Diagnostic]) 
-extends UnparseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors) 
+class UnparseAlternativeFailed(sc : SchemaComponent, state : UState, val errors : Seq[Diagnostic])
+  extends UnparseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors)
 
 class AltUnparseFailed(sc : SchemaComponent, state : UState,
-  val p : Diagnostic, val q : Diagnostic) 
+                       val p : Diagnostic, val q : Diagnostic)
   extends UnparseError(sc, Some(state), "All alternatives failed. Reason(s): %s", p, q) {
-  
+
   override def getSchemaLocations : Seq[SchemaLocation] = p.getSchemaLocations ++ q.getSchemaLocations
-  
+
   override def getDataLocations : Seq[DataLocation] = {
     // both should have the same starting location if they are alternatives.
     Assert.invariant(p.getDataLocations == q.getDataLocations)
@@ -82,7 +80,7 @@ abstract class Unparser(val context : AnnotatedSchemaComponent) extends Logging 
   // which would enable fixed-length formats to skip over data and not unparse it at all.
 }
 
-object DummyUnparser extends Unparser(null){
+object DummyUnparser extends Unparser(null) {
   def unparse(start : UState) : UState = {
     Assert.notYetImplemented()
   }
@@ -99,19 +97,28 @@ class ErrorUnparser(context : Term = null) extends Unparser(context) {
   override def toString = "Error Unparser"
 }
 
-class SeqCompUnparser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) extends Unparser(context) {
-  Assert.invariant(!p.isEmpty && !q.isEmpty)
-  val pUnparser = p.unparser
-  val qUnparser = q.unparser
-  def unparse(ustate : UState) = {
-    val pResult = pUnparser.unparse(ustate)
-    if (pResult.status == Success) {
-      val qResult = qUnparser.unparse(pResult)
-      qResult
-    } else pResult
+class SeqCompUnparser(context : AnnotatedSchemaComponent, children : Seq[Gram]) extends Unparser(context) {
+  Assert.invariant(!children.exists { _.isEmpty })
+  val childUnparsers = children.map { _.unparser }
+  def unparse(ustate : UState) : UState = {
+    var pResult = ustate
+    childUnparsers.foreach { unparser =>
+      {
+        pResult = unparser.unparse(pResult)
+        if (pResult.status != Success) {
+          // failed in a sequence
+          return pResult
+        }
+        pResult = pResult
+      }
+    }
+    pResult
   }
 
-  override def toString = pUnparser.toString + " ~ " + qUnparser.toString
+  override def toString : String = {
+    val strings = childUnparsers map { _.toString }
+    strings.mkString(" ~ ")
+  }
 }
 
 // Tricky: given the infoset, and a corresponding schema choice construct,
@@ -134,7 +141,7 @@ class AltCompUnparser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) ex
         log(Debug("Trying choice alternative: %s", pUnparser))
         pUnparser.unparse(ustate)
       } catch {
-        case u: UnsuppressableException => throw u
+        case u : UnsuppressableException => throw u
         case e : Exception => {
           Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
         }
@@ -170,7 +177,7 @@ class AltCompUnparser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) ex
         log(Debug("Trying choice alternative: %s", qUnparser))
         qUnparser.unparse(ustate)
       } catch {
-        case u: UnsuppressableException => throw u
+        case u : UnsuppressableException => throw u
         case e : Exception => {
           Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
         }
@@ -279,7 +286,6 @@ class DataLocUnparse(elem : org.jdom.Element, outStream : OutStream) extends Dat
   def isAtEnd : Boolean = Assert.notYetImplemented()
 }
 
-
 /**
  * An unparser takes a state, and returns an updated state
  *
@@ -304,7 +310,7 @@ class UState(
   val childIndexStack : List[Long],
   val arrayIndexStack : List[Long],
   val diagnostics : List[Diagnostic],
-  val discriminator : Boolean) 
+  val discriminator : Boolean)
   extends DFDL.State {
   def groupPos = groupIndexStack.head
   def childPos = childIndexStack.head
@@ -334,7 +340,7 @@ class UState(
   def failed(failureDiagnostic : Diagnostic) =
     new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics, discriminator)
 
-   /**
+  /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.
    *
    * These can be different because an element can have sequences nested directly in sequences. Those effectively all
@@ -344,11 +350,11 @@ class UState(
   def moveOverByOneElement = {
     val s1 = moveOverOneGroupIndexOnly
     val s2 = s1.moveOverOneElementChildOnly
-    val s3 = s2.moveOverOneArrayIndexOnly 
+    val s3 = s2.moveOverOneArrayIndexOnly
     s3
   }
-  
-  def moveOverOneElementChildOnly = { 
+
+  def moveOverOneElementChildOnly = {
     childIndexStack match {
       case Nil => this
       case hd :: tl => {
@@ -357,8 +363,8 @@ class UState(
       }
     }
   }
-  
-  def moveOverOneGroupIndexOnly = { 
+
+  def moveOverOneGroupIndexOnly = {
     groupIndexStack match {
       case Nil => this
       case hd :: tl => {
@@ -367,8 +373,8 @@ class UState(
       }
     }
   }
-  
-  def moveOverOneArrayIndexOnly = { 
+
+  def moveOverOneArrayIndexOnly = {
     arrayIndexStack match {
       case Nil => this
       case hd :: tl => {
@@ -533,7 +539,7 @@ class OutStreamFromByteChannel(context : ElementBase, outStream : DFDL.Output, s
         cbuf.flip()
         isTooSmall = false
       } catch { //make sure buffer was not written to capacity
-        case u: UnsuppressableException => throw u
+        case u : UnsuppressableException => throw u
         case e : Exception => {
           cbuf = CharBuffer.allocate(cbuf.position() * 4) // TODO: more efficient algorithm than size x4
           if (temp != "")
