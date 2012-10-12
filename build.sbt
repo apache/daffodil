@@ -2,7 +2,7 @@ name := "daffodil"
 
 version in ThisBuild := "0.4.0"
 
-scalaVersion := "2.9.1"
+scalaVersion in ThisBuild := "2.9.1"
 
 parallelExecution in ThisBuild := false
 
