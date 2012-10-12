@@ -53,14 +53,15 @@ abstract class RepPrim(context : LocalElementBase, n : Long, r : => Gram) extend
 
     def toBriefXML(depthLimit : Int = -1) : String = {
       if (depthLimit == 0) "..." else
-        "<" + baseName + ">" + rParser.toBriefXML(depthLimit - 1) +
-          "</" + baseName + ">"
+        "<Rep" + baseName + ">" + rParser.toBriefXML(depthLimit - 1) +
+          "</Rep" + baseName + ">"
     }
   }
 }
 
 class RepExactlyNPrim(context : LocalElementBase, n : Long, r : => Gram) extends RepPrim(context, n, r) {
 
+  // Since this is Exactly N, there is no new point of uncertainty considerations here.
   def parser = new RepParser(context, "ExactlyN") {
     def parseAllRepeats(pstate : PState) : PState = {
       var pResult = pstate // TODO: find perfect monad functional programming idiom to eliminate this var
@@ -85,9 +86,10 @@ class RepAtMostTotalNPrim(context : LocalElementBase, n : Long, r : => Gram) ext
     def parseAllRepeats(pstate : PState) : PState = {
       var pResult = pstate
       while (pResult.arrayIndexStack.head <= intN) {
-        val pNext = rParser.parse1(pResult, context)
+        // Since each one could fail, each is a new point of uncertainty.
+        val pNext = rParser.parse1(pResult.withNewPointOfUncertainty, context)
         if (pNext.status != Success) return pResult // success at prior state. 
-        pResult = pNext
+        pResult = pNext.withRestoredPointOfUncertainty
       }
       pResult
     }
@@ -99,6 +101,9 @@ class RepAtMostTotalNPrim(context : LocalElementBase, n : Long, r : => Gram) ext
 /**
  * This object is so that we can share the iteration idioms between situations
  * where we know N statically, and where dynamic evaluation computes N.
+ * <p>
+ * In these cases, there are no new points of uncertainty because computed or
+ * otherwise, we know N.
  */
 object Rep {
   def loopExactlyTotalN(intN : Int, rParser : Parser, pstate : PState, context : SchemaComponent) : PState = {
@@ -133,7 +138,9 @@ class RepUnboundedPrim(context : LocalElementBase, r : => Gram) extends RepPrim(
       while (pResult.status == Success) {
 
         val cloneNode = pResult.captureJDOM
-        val pNext = rParser.parse1(pResult, context)
+        //
+        // Every parse is a new point of uncertainty.
+        val pNext = rParser.parse1(pResult.withNewPointOfUncertainty, context)
         if (pNext.status != Success) {
           // 
           // Did not succeed
@@ -143,14 +150,14 @@ class RepUnboundedPrim(context : LocalElementBase, r : => Gram) extends RepPrim(
           if (pNext.discriminator == true) {
             // we fail the whole RepUnbounded, because there was a discriminator set 
             // before the failure.
-            return pNext.withDiscriminator(false)
+            return pNext.withRestoredPointOfUncertainty
           }
           // 
           // no discriminator, so suppress the failure. Loop terminated with prior element.
           //
           pResult.restoreJDOM(cloneNode)
           log(Debug("Failure suppressed."))
-          return pResult
+          return pResult // note that it has the prior point of uncertainty. No restore needed.
         }
         // Success
         // Need to check for forward progress
@@ -160,7 +167,7 @@ class RepUnboundedPrim(context : LocalElementBase, r : => Gram) extends RepPrim(
               "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.",
             pResult.bytePos, context.prettyName)
         }
-        pResult = pNext.withDiscriminator(false) // point of uncertainty has been resolved.
+        pResult = pNext.withRestoredPointOfUncertainty // point of uncertainty has been resolved.
 
       }
       Assert.invariantFailed("Unbounded loop terminated wrong")

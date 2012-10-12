@@ -4,23 +4,23 @@ import daffodil.dsom._
 import daffodil.schema.annotation.props.gen.Representation
 import daffodil.processors.Success
 import daffodil.processors.Parser
+import daffodil.xml.XMLUtils
 
 /**
  * Really simplistic debugger.
  */
 object Debugger {
-  
+
   /**
    * Wrap things to debug with this rather than just calling setDebugging(true).
    * That way it doesn't get turned on for every subsequent test after when
    * batches of tests are being run.
    */
-  def withDebugger[T] (body : => T ) {
+  def withDebugger[T](body : => T) {
     try {
       setDebugging(true)
       body
-    }
-    finally {
+    } finally {
       setDebugging(false)
     }
   }
@@ -68,8 +68,12 @@ object Debugger {
     if (pstate.arrayPos != -1) println("%s array index = %d".format(ba, pstate.arrayPos))
     if (pstate.groupPos != -1) println("%s group index = %d".format(ba, pstate.groupPos))
     if (pstate.childPos != -1) println("%s child index = %d".format(ba, pstate.childPos))
-      val etext = pstate.parent match {
-      case e : org.jdom.Element => println("%s Infoset node.getText() = '%s'".format(ba, e.getText()))
+    val etext = pstate.parent match {
+      case e : org.jdom.Element => {
+        val xmlVerbose = XMLUtils.element2Elem(e)
+        val xml = XMLUtils.removeAttributes(xmlVerbose)
+        println("%s Infoset node = '%s'".format(ba, xml))
+      }
       case _ =>
     }
     val loc = pstate.currentLocation
@@ -94,15 +98,18 @@ object Debugger {
     else if (after.discriminator == true)
       println("%s discriminator %s".format(ba, after.discriminator))
 
-
     if (before.arrayPos != after.arrayPos) println("%s array index = %d".format(ba, after.arrayPos))
     if (before.groupPos != after.arrayPos) println("%s group index = %d".format(ba, after.groupPos))
     if (before.childPos != after.arrayPos) println("%s child index = %d".format(ba, after.childPos))
     val etext = after.parent match {
-      case e : org.jdom.Element => println("%s node.getText() = '%s'".format(ba, e.getText()))
+      case e : org.jdom.Element => {
+        val xmlVerbose = XMLUtils.element2Elem(e)
+        val xml = XMLUtils.removeAttributes(xmlVerbose)
+        println("%s Infoset node = '%s'".format(ba, xml))
+      }
       case _ =>
     }
-     
+
   }
 
   def after(beforePState : PState, afterPState : PState, parser : Parser) {

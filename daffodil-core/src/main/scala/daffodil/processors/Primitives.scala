@@ -267,7 +267,13 @@ case class StringFixedLengthInBytes(e : ElementBase, nBytes : Long)
   with WithParseErrorThrowing {
 
   def parser : Parser = new PrimParser(this, e) {
-    override def toString = "StringFixedLengthInBytesParser(" + nBytes + ")"
+
+    override def toBriefXML(depthLimit : Int = -1) = {
+      "<StringFixedLengthInBytesParser length='" + nBytes + "'/>"
+    }
+
+    override def toString = toBriefXML()
+
     val decoder = e.knownEncodingDecoder
 
     def parse(start : PState) : PState = withParseErrorThrowing(start) {
@@ -1333,6 +1339,7 @@ abstract class StaticDelimiter(kindString : String, delim : String, e : Term, gu
 abstract class StaticText(delim : String, e : Term, kindString : String, guard : Boolean = true)
   extends Terminal(e, guard)
   with WithParseErrorThrowing with TextReader {
+
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
 
@@ -1344,6 +1351,10 @@ abstract class StaticText(delim : String, e : Term, kindString : String, guard :
   staticTexts.foreach(x => staticTextsCooked.enqueue(EntityReplacer.replaceAll(x)))
 
   def parser : Parser = new PrimParser(this, e) {
+
+    override def toBriefXML(depthLimit : Int = -1) = {
+      "<" + kindString + ">" + delim + "</" + kindString + ">"
+    }
 
     Assert.notYetImplemented(e.ignoreCase == YesNo.Yes)
 
