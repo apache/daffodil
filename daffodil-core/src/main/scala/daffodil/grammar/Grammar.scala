@@ -9,10 +9,9 @@ import daffodil.util.Info
 import daffodil.util.Compile
 import daffodil.api.Diagnostic
 
-
-abstract class Gram(val context: AnnotatedSchemaComponent) extends DiagnosticsProviding {
+abstract class Gram(val context : AnnotatedSchemaComponent) extends DiagnosticsProviding {
   def deref = this
-  
+
   override def addDiagnostic(diag : Diagnostic) = context.addDiagnostic(diag)
 
   val name = getNameFromClass(this)
@@ -48,18 +47,18 @@ abstract class Gram(val context: AnnotatedSchemaComponent) extends DiagnosticsPr
       else self
     else if (self.isEmpty) q
     else
-      new AltComp(context, self, q)
+      AltComp(context, self, q)
   }
 
   /**
    * Parser - a Gram can provide a parser, which... parses what the Gram describes
    */
-  def parser: Parser
+  def parser : Parser
 
-  def unparser: Unparser
+  def unparser : Unparser
 }
 
-abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) {
+abstract class UnaryGram(context : Term, rr : => Gram) extends NamedGram(context) {
   val r = rr
   val gram = {
     if (r.isEmpty) EmptyGram
@@ -70,57 +69,71 @@ abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) 
 }
 
 /**
- * BinaryGram isn't really 'binary' it's n-ary. It is called binary because it comes from 
- * the binary grammar operations ~ and |, but in the abstract syntax tree we want 
+ * BinaryGram isn't really 'binary' it's n-ary. It is called binary because it comes from
+ * the binary grammar operations ~ and |, but in the abstract syntax tree we want
  * these flattened to lists of children so that a ~ b ~ c is ONE SeqComp with 3 children, not a tree
  * of two binary SeqComps.
  */
-abstract class BinaryGram(context: AnnotatedSchemaComponent, childrenArg : Seq[Gram]) extends Gram(context) {
-  def op: String
-  def open: String
-  def close: String
+abstract class BinaryGram(context : AnnotatedSchemaComponent, childrenArg : Seq[Gram]) extends Gram(context) {
+  def op : String
+  def open : String
+  def close : String
   val children = childrenArg
-  override def toString = open + children.fold(""){(p, q)=> p + " " + op + " " + q} + close
+  override def toString = open + children.fold("") { (p, q) => p + " " + op + " " + q } + close
 
   override lazy val diagnosticChildren = children
 }
 
 object SeqComp {
-  def apply(context: AnnotatedSchemaComponent, p: => Gram, q: => Gram) = {
+  def apply(context : AnnotatedSchemaComponent, p : => Gram, q : => Gram) = {
     val children = (p, q) match {
       case (ps : SeqComp, qs : SeqComp) => {
         ps.children ++ qs.children
       }
       case (ps : SeqComp, _) => ps.children ++ List(q)
       case (_, qs : SeqComp) => p +: qs.children
-      case (_, _) => List (p, q)
+      case (_, _) => List(p, q)
     }
     val res = new SeqComp(context, children)
     res
   }
 }
-class SeqComp(context: AnnotatedSchemaComponent, children : Seq[Gram]) extends BinaryGram(context, children) {
+class SeqComp(context : AnnotatedSchemaComponent, children : Seq[Gram]) extends BinaryGram(context, children) {
   def op = "~"
   def open = ""
   def close = ""
-    
-  Assert.invariant(!children.exists{_.isInstanceOf[Nada]})
+
+  Assert.invariant(!children.exists { _.isInstanceOf[Nada] })
 
   def parser = new SeqCompParser(context, children)
   def unparser = new SeqCompUnparser(context, children)
 }
 
-class AltComp(context: AnnotatedSchemaComponent, p: => Gram, q: => Gram) extends BinaryGram(context, List(p, q)) {
+object AltComp {
+  def apply(context : AnnotatedSchemaComponent, p : => Gram, q : => Gram) = {
+    val children = (p, q) match {
+      case (ps : AltComp, qs : AltComp) => {
+        ps.children ++ qs.children
+      }
+      case (ps : AltComp, _) => ps.children ++ List(q)
+      case (_, qs : AltComp) => p +: qs.children
+      case (_, _) => List(p, q)
+    }
+    val res = new AltComp(context, children)
+    res
+  }
+}
+class AltComp(context : AnnotatedSchemaComponent, children : Seq[Gram]) extends BinaryGram(context, children) {
   def op = "|"
   def open = "("
   def close = ")"
 
-  def parser = new AltCompParser(context, p, q)
-  def unparser = new AltCompUnparser(context, p, q)
+  def parser = new AltCompParser(context, children)
+  def unparser = new AltCompUnparser(context, children)
 }
 
 abstract class Rep3Arg(f : (LocalElementBase, Long, => Gram) => Gram) {
-  def apply(context: LocalElementBase, n: Long, rr: => Gram) = {
+  def apply(context : LocalElementBase, n : Long, rr : => Gram) = {
     val r = rr
     if (n == 0 || r.isEmpty) EmptyGram
     else f(context, n, r)
@@ -128,7 +141,7 @@ abstract class Rep3Arg(f : (LocalElementBase, Long, => Gram) => Gram) {
 }
 
 abstract class Rep2Arg(f : (LocalElementBase, => Gram) => Gram) {
-  def apply(context: LocalElementBase, r: => Gram) = {
+  def apply(context : LocalElementBase, r : => Gram) = {
     val rr = r
     if (rr.isEmpty) EmptyGram
     else f(context, r)
@@ -167,20 +180,20 @@ object ErrorGram extends Gram(null) {
   def unparser = new ErrorUnparser
 }
 
-abstract class NamedGram(context: AnnotatedSchemaComponent) extends Gram(context) {
+abstract class NamedGram(context : AnnotatedSchemaComponent) extends Gram(context) {
   override def toString = name //+ (if (isEmpty) "(Empty)" else "")
 }
 
 /**
  * Primitives will derive from this base
  */
-abstract class Terminal(context: AnnotatedSchemaComponent, guard: Boolean) extends NamedGram(context) {
+abstract class Terminal(context : AnnotatedSchemaComponent, guard : Boolean) extends NamedGram(context) {
   override def isEmpty = !guard
 
   lazy val realSC = context.asInstanceOf[SchemaComponent]
   override lazy val path = realSC.path + "@@" + prettyName
 
-  def SDE(str: String, args: Any*): Nothing = realSC.SDE(str, args)
+  def SDE(str : String, args : Any*) : Nothing = realSC.SDE(str, args)
 
   lazy val diagnosticChildren = Nil
 }
@@ -195,12 +208,12 @@ abstract class Terminal(context: AnnotatedSchemaComponent, guard: Boolean) exten
  * possibilities are precluded. The guard causes that term to just splice itself out
  * of the grammar.
  */
-class Prod(nameArg: String, val sc: Term, guardArg: => Boolean, gramArg: => Gram)
+class Prod(nameArg : String, val sc : Term, guardArg : => Boolean, gramArg : => Gram)
   extends NamedGram(sc) {
-  
+
   override def deref = gram
-  
-  def SDE(str : String, args : Any *) : Nothing = sc.SDE(str, args)
+
+  def SDE(str : String, args : Any*) : Nothing = sc.SDE(str, args)
 
   override val name = nameArg
 
@@ -226,7 +239,7 @@ class Prod(nameArg: String, val sc: Term, guardArg: => Boolean, gramArg: => Gram
         //        System.err.println(" ok:" + g)
       }
       case false => {
-        log(Debug("Prod %s removed.", name)) 
+        log(Debug("Prod %s removed.", name))
         EmptyGram
       }
       // case None => ErrorGram
@@ -262,8 +275,8 @@ class Prod(nameArg: String, val sc: Term, guardArg: => Boolean, gramArg: => Gram
 }
 
 object Prod {
-  def apply(nameArg: String, sc: Term, gram: => Gram) = new Prod(nameArg, sc, true, gram)
+  def apply(nameArg : String, sc : Term, gram : => Gram) = new Prod(nameArg, sc, true, gram)
 
-  def apply(nameArg: String, sc: Term, guard: => Boolean, gram: => Gram) = new Prod(nameArg, sc, guard, gram)
+  def apply(nameArg : String, sc : Term, guard : => Boolean, gram : => Gram) = new Prod(nameArg, sc, guard, gram)
 }
 

@@ -130,95 +130,97 @@ class SeqCompUnparser(context : AnnotatedSchemaComponent, children : Seq[Gram]) 
 // try the next branch when it fails because the infoset doesn't match the element
 // declaration of the schema somehow?
 //
-class AltCompUnparser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) extends Unparser(context) {
-  Assert.invariant(!p.isEmpty && !q.isEmpty)
-  val pUnparser = p.unparser
-  val qUnparser = q.unparser
-  def unparse(ustate : UState) : UState = {
-    val numChildrenAtStart = ustate.currentElement.getContent().length
-    var pResult : UState =
-      try {
-        log(Debug("Trying choice alternative: %s", pUnparser))
-        pUnparser.unparse(ustate)
-      } catch {
-        case u : UnsuppressableException => throw u
-        case e : Exception => {
-          Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
-        }
-      }
-    if (pResult.status == Success) {
-      log(Debug("Choice alternative success: %s", pUnparser))
-      // Reset any discriminator. We succeeded.
-      val res =
-        if (pResult.discriminator) pResult.withDiscriminator(false)
-        else pResult
-      res
-    } else {
-      log(Debug("Choice alternative failed: %s", pUnparser))
+class AltCompUnparser(context : AnnotatedSchemaComponent, children : Seq[Gram]) extends Unparser(context) {
+  Assert.invariant(!children.exists { _.isEmpty })
 
-      // Unwind any side effects on the Infoset 
-      val lastChildIndex = ustate.currentElement.getContent().length
-      if (lastChildIndex > numChildrenAtStart) {
-        ustate.currentElement.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
-      }
-      //
-      // check for discriminator evaluated to true.
-      if (pResult.discriminator == true) {
-        log(Debug("Failure, but discriminator true. Additional alternatives discarded."))
-        // If so, then we don't run the next alternative, we
-        // consume this discriminator status result (so it doesn't ripple upward)
-        // and return the failed state. 
-        //
-        val res = pResult.withDiscriminator(false)
-        return res
-      }
+  val childUnparsers = children.map { _.unparser }
 
-      val qResult = try {
-        log(Debug("Trying choice alternative: %s", qUnparser))
-        qUnparser.unparse(ustate)
-      } catch {
-        case u : UnsuppressableException => throw u
-        case e : Exception => {
-          Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
-        }
-      }
+  def unparse(ustate : UState) : UState = Assert.notYetImplemented("unparsing of choices")
+  //  {
+  //    val numChildrenAtStart = ustate.currentElement.getContent().length
+  //    var pResult : UState =
+  //      try {
+  //        log(Debug("Trying choice alternative: %s", pUnparser))
+  //        pUnparser.unparse(ustate)
+  //      } catch {
+  //        case u : UnsuppressableException => throw u
+  //        case e : Exception => {
+  //          Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
+  //        }
+  //      }
+  //    if (pResult.status == Success) {
+  //      log(Debug("Choice alternative success: %s", pUnparser))
+  //      // Reset any discriminator. We succeeded.
+  //      val res =
+  //        if (pResult.discriminator) pResult.withDiscriminator(false)
+  //        else pResult
+  //      res
+  //    } else {
+  //      log(Debug("Choice alternative failed: %s", pUnparser))
+  //
+  //      // Unwind any side effects on the Infoset 
+  //      val lastChildIndex = ustate.currentElement.getContent().length
+  //      if (lastChildIndex > numChildrenAtStart) {
+  //        ustate.currentElement.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
+  //      }
+  //      //
+  //      // check for discriminator evaluated to true.
+  //      if (pResult.discriminator == true) {
+  //        log(Debug("Failure, but discriminator true. Additional alternatives discarded."))
+  //        // If so, then we don't run the next alternative, we
+  //        // consume this discriminator status result (so it doesn't ripple upward)
+  //        // and return the failed state. 
+  //        //
+  //        val res = pResult.withDiscriminator(false)
+  //        return res
+  //      }
+  //
+  //      val qResult = try {
+  //        log(Debug("Trying choice alternative: %s", qUnparser))
+  //        qUnparser.unparse(ustate)
+  //      } catch {
+  //        case u : UnsuppressableException => throw u
+  //        case e : Exception => {
+  //          Assert.invariantFailed("Runtime unparsers should not throw exceptions: " + e)
+  //        }
+  //      }
+  //
+  //      if (qResult.status == Success) {
+  //        log(Debug("Choice alternative success: %s", qUnparser))
+  //        val res =
+  //          if (qResult.discriminator) qResult.withDiscriminator(false)
+  //          else qResult
+  //        res
+  //      } else {
+  //        log(Debug("Choice alternative failure: %s", qUnparser))
+  //        // Unwind any side effects on the Infoset 
+  //        val lastChildIndex = ustate.currentElement.getContent().length
+  //        if (lastChildIndex > numChildrenAtStart) {
+  //          ustate.currentElement.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
+  //        }
+  //
+  //        // check for discriminator evaluated to true. But just FYI since this is the last alternative anyway
+  //        if (qResult.discriminator == true) {
+  //          log(Debug("Failure, but discriminator true. (last alternative anyway)"))
+  //        }
+  //        // Since both alternatives failed, we create two meta-diagnostics that 
+  //        // each indicate that one alternative failed due to the errors that occurred during
+  //        // that attempt.
+  //
+  //        val pAltErr = new UnparseAlternativeFailed(context, ustate, pResult.diagnostics)
+  //        val qAltErr = new UnparseAlternativeFailed(context, ustate, qResult.diagnostics)
+  //        val altErr = new AltUnparseFailed(context, ustate, pAltErr, qAltErr)
+  //
+  //        val bothFailedResult = ustate.failed(altErr)
+  //        log(Debug("Both AltParser alternatives failed."))
+  //
+  //        val result = bothFailedResult
+  //        result.withDiscriminator(false)
+  //      }
+  //    }
+  //  }
 
-      if (qResult.status == Success) {
-        log(Debug("Choice alternative success: %s", qUnparser))
-        val res =
-          if (qResult.discriminator) qResult.withDiscriminator(false)
-          else qResult
-        res
-      } else {
-        log(Debug("Choice alternative failure: %s", qUnparser))
-        // Unwind any side effects on the Infoset 
-        val lastChildIndex = ustate.currentElement.getContent().length
-        if (lastChildIndex > numChildrenAtStart) {
-          ustate.currentElement.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
-        }
-
-        // check for discriminator evaluated to true. But just FYI since this is the last alternative anyway
-        if (qResult.discriminator == true) {
-          log(Debug("Failure, but discriminator true. (last alternative anyway)"))
-        }
-        // Since both alternatives failed, we create two meta-diagnostics that 
-        // each indicate that one alternative failed due to the errors that occurred during
-        // that attempt.
-
-        val pAltErr = new UnparseAlternativeFailed(context, ustate, pResult.diagnostics)
-        val qAltErr = new UnparseAlternativeFailed(context, ustate, qResult.diagnostics)
-        val altErr = new AltUnparseFailed(context, ustate, pAltErr, qAltErr)
-
-        val bothFailedResult = ustate.failed(altErr)
-        log(Debug("Both AltParser alternatives failed."))
-
-        val result = bothFailedResult
-        result.withDiscriminator(false)
-      }
-    }
-  }
-
-  override def toString = "(" + pUnparser.toString + " | " + qUnparser.toString + ")"
+  override def toString = "(" + childUnparsers.map { _.toString }.mkString(" | ") + ")"
 }
 
 class RepExactlyNUnparser(context : Term, n : Long, r : => Gram) extends Unparser(context) {

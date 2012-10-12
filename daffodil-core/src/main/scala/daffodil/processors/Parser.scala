@@ -63,15 +63,22 @@ class ParseAlternativeFailed(sc : SchemaComponent, state : PState, val errors : 
   extends ParseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors)
 
 class AltParseFailed(sc : SchemaComponent, state : PState,
-                     val p : Diagnostic, val q : Diagnostic)
-  extends ParseError(sc, Some(state), "All alternatives failed. Reason(s): %s", List(p, q)) {
+                     diags : Seq[Diagnostic])
+  extends ParseError(sc, Some(state), "All alternatives failed. Reason(s): %s", diags) {
 
-  override def getSchemaLocations : Seq[SchemaLocation] = p.getSchemaLocations ++ q.getSchemaLocations
+  override def getSchemaLocations : Seq[SchemaLocation] = diags.flatMap { _.getSchemaLocations }
 
   override def getDataLocations : Seq[DataLocation] = {
-    // both should have the same starting location if they are alternatives.
-    Assert.invariant(p.getDataLocations == q.getDataLocations)
-    p.getDataLocations
+    // all should have the same starting location if they are alternatives.
+    val dataLocs = diags.flatMap { _.getDataLocations }
+    // TBD: what is the idiom for "insert a equals sign between all the elements of the list...??"
+    // Well, this works, but isn't there a one-liner for this idiom.
+    val allAreSame = dataLocs match {
+      case f :: r => !r.exists { _ != f }
+      case _ => true
+    }
+    Assert.invariant(allAreSame)
+    diags.head.getDataLocations
   }
 }
 
@@ -245,8 +252,30 @@ class ErrorParser(context : Term = null) extends Parser(context) {
   override def toString = "Error Parser"
 }
 
-class SeqCompParser(context : AnnotatedSchemaComponent, children : Seq[Gram]) extends Parser(context) {
+trait ToBriefXMLImpl {
+
+  def nom : String
+  def childParsers : Seq[Parser]
+
+  // TODO: make this do indenting and newlines (maybe optionally?)
+  def toBriefXML(depthLimit : Int = -1) = {
+    if (depthLimit == 0) "..."
+    else if (depthLimit == 1) "<seq>...</seq>"
+    else {
+      val lessDepth = depthLimit - 1
+      "<" + nom + ">" + childParsers.map { _.toBriefXML(lessDepth) }.mkString + "</" + nom + ">"
+    }
+  }
+
+  override def toString = toBriefXML() // pParser.toString + " ~ " + qParser.toString
+}
+
+class SeqCompParser(context : AnnotatedSchemaComponent, children : Seq[Gram])
+  extends Parser(context)
+  with ToBriefXMLImpl {
   Assert.invariant(!children.exists { _.isEmpty })
+
+  val nom = "seq"
 
   val childParsers = children.map { _.parser }
 
@@ -265,115 +294,71 @@ class SeqCompParser(context : AnnotatedSchemaComponent, children : Seq[Gram]) ex
     pResult
   }
 
-  // TODO: make this do indenting and newlines (maybe optionally?)
-  def toBriefXML(depthLimit : Int = -1) = {
-    if (depthLimit == 0) "..."
-    else if (depthLimit == 1) "<seq>...</seq>"
-    else {
-      val lessDepth = depthLimit - 1
-      "<seq>" + childParsers.map { _.toBriefXML(lessDepth) }.mkString + "</seq>"
-    }
-  }
-
-  override def toString = toBriefXML() // pParser.toString + " ~ " + qParser.toString
 }
 
-class AltCompParser(context : AnnotatedSchemaComponent, p : Gram, q : Gram) extends Parser(context) {
-  Assert.invariant(!p.isEmpty && !q.isEmpty)
-  val pParser = p.parser
-  val qParser = q.parser
-  def parse(pstate : PState) : PState = {
-    val numChildrenAtStart = pstate.parent.getContent().length
-    var pResult : PState =
-      try {
-        log(Debug("Trying choice alternative: %s", pParser))
-        pParser.parse1(pstate, context)
-      } catch {
-        case u : UnsuppressableException => throw u
-        case e : Exception => {
-          Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
-        }
-      }
-    if (pResult.status == Success) {
-      log(Debug("Choice alternative success: %s", pParser))
-      // Reset any discriminator. We succeeded.
-      val res = if (pResult.discriminator) pResult.withDiscriminator(false)
-      else pResult
-      res
-    } else {
-      log(Debug("Choice alternative failed: %s", pParser))
+class AltCompParser(context : AnnotatedSchemaComponent, children : Seq[Gram])
+  extends Parser(context)
+  with ToBriefXMLImpl {
+  Assert.invariant(!children.exists { _.isEmpty })
 
-      // Unwind any side effects on the Infoset 
-      val lastChildIndex = pstate.parent.getContent().length
-      if (lastChildIndex > numChildrenAtStart) {
-        pstate.parent.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
-      }
-      //
-      // check for discriminator evaluated to true.
-      if (pResult.discriminator == true) {
-        log(Debug("Failure, but discriminator true. Additional alternatives discarded."))
-        // If so, then we don't run the next alternative, we
-        // consume this discriminator status result (so it doesn't ripple upward)
-        // and return the failed state. 
-        //
-        val res = pResult.withDiscriminator(false)
-        return res
-      }
+  val nom = "alt"
 
-      val qResult = try {
-        log(Debug("Trying choice alternative: %s", qParser))
-        qParser.parse1(pstate, context)
-      } catch {
-        case u : UnsuppressableException => throw u
-        case e : Exception => {
-          Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
+  val childParsers = children.map { _.parser }
+
+  def parse(pStart : PState) : PState = {
+    var pResult : PState = null
+    var diagnostics : Seq[Diagnostic] = Nil
+    val numChildrenAtStart = pStart.parent.getContent().length
+    childParsers.foreach { parser =>
+      {
+        log(Debug("Trying choice alternative: %s", parser))
+        try {
+          pResult = parser.parse1(pStart, context)
+        } catch {
+          case u : UnsuppressableException => throw u
+          case e : Exception => Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
         }
-      }
-      if (qResult.status == Success) {
-        log(Debug("Choice alternative success: %s", qParser))
-        val res = if (qResult.discriminator) qResult.withDiscriminator(false)
-        else qResult
-        res
-      } else {
-        log(Debug("Choice alternative failure: %s", qParser))
+        if (pResult.status == Success) {
+          log(Debug("Choice alternative success: %s", parser))
+          // Reset any discriminator. We succeeded.
+          val res = if (pResult.discriminator) pResult.withDiscriminator(false)
+          else pResult
+          return res
+        }
+        // If we get here, then we had a failure
+        log(Debug("Choice alternative failed: %s", parser))
         // Unwind any side effects on the Infoset 
-        val lastChildIndex = pstate.parent.getContent().length
+        // The infoset is the primary non-functional data structure. We have to un-side-effect it.
+        val lastChildIndex = pStart.parent.getContent().length
         if (lastChildIndex > numChildrenAtStart) {
-          pstate.parent.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
+          pStart.parent.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
         }
-
-        // check for discriminator evaluated to true. But just FYI since this is the last alternative anyway
-        if (qResult.discriminator == true) {
-          log(Debug("Failure, but discriminator true. (last alternative anyway)"))
+        val diag = new ParseAlternativeFailed(context, pStart, pResult.diagnostics)
+        diagnostics = diag +: diagnostics
+        // check for discriminator evaluated to true.
+        if (pResult.discriminator == true) {
+          log(Debug("Failure, but discriminator true. Additional alternatives discarded."))
+          // If so, then we don't run the next alternative, we
+          // consume this discriminator status result (so it doesn't ripple upward)
+          // and return the failed state withall the diagnostics.
+          //
+          val allDiags = new AltParseFailed(context, pResult, diagnostics.reverse)
+          val res = pResult.failed(allDiags).withDiscriminator(false)
+          return res
         }
-
-        // Since both alternatives failed, we create two meta-diagnostics that 
-        // each indicate that one alternative failed due to the errors that occurred during
-        // that attempt.
-
-        val pAltErr = new ParseAlternativeFailed(context, pstate, pResult.diagnostics)
-        val qAltErr = new ParseAlternativeFailed(context, pstate, qResult.diagnostics)
-        val altErr = new AltParseFailed(context, pstate, pAltErr, qAltErr)
-
-        val bothFailedResult = pstate.failed(altErr)
-        log(Debug("Both AltParser alternatives failed."))
-
-        val result = bothFailedResult
-        result.withDiscriminator(false)
+        //
+        // Here we have a failure, but no discriminator was set, so we try the next alternative.
+        // Which means we just go around the loop
       }
     }
+    // Out of alternatives. All of them failed. 
+    val allDiags = new AltParseFailed(context, pStart, diagnostics.reverse)
+    val allFailedResult = pStart.failed(allDiags)
+    log(Debug("All AltParser alternatives failed."))
+    val result = allFailedResult
+    result.withDiscriminator(false)
   }
 
-  def toBriefXML(depthLimit : Int = -1) : String = {
-    if (depthLimit == 0) "..." else {
-      val lim = depthLimit - 1
-      val pXML = pParser.toBriefXML(lim)
-      val qXML = qParser.toBriefXML(lim)
-      "<alt>" + pXML + qXML + "</alt>"
-    }
-  }
-
-  override def toString = toBriefXML() // "(" + pParser.toString + " | " + qParser.toString + ")"
 }
 
 case class DummyParser(sc : PropertyMixin) extends Parser(null) {
