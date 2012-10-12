@@ -98,6 +98,6 @@ class TresysTests extends JUnitSuite {
   @Test def test_t2() { runnerMB.runOneTest("t2") }
   @Test def test_t3() { runnerMB.runOneTest("t3") }
 
-  // @Test def test_codingErrorAction() { runnerMB.runOneTest("codingErrorAction") }
+  @Test def test_codingErrorAction() { runnerMB.runOneTest("codingErrorAction") }
 
 }
