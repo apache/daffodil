@@ -51,6 +51,15 @@
 			</xs:complexType>
 	</xs:element>
 	
+	<xs:element name="doc_03" dfdl:lengthKind="implicit" dfdl:initiator="$">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="e1" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="cat" minOccurs="0" maxOccurs="1"/>
+					<xs:element name="e2" type="xs:string" nillable="true" dfdl:lengthKind="pattern" dfdl:lengthPattern="dog" dfdl:nilKind="literalValue" dfdl:nilValue="5"/>
+				</xs:sequence>
+			</xs:complexType>
+	</xs:element>
+	
 </tdml:defineSchema>
 
 	<tdml:parserTestCase name="litNil1" root="doc" model="s1"
@@ -117,6 +126,41 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="litNil5" root="doc_03" model="s1"
+		description="literal nil - DFDL-13-234R">
 
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[$catdog]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc_03>
+					<e1>cat</e1>
+					<e2>dog</e2>
+				</doc_03>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="litNil6" root="doc_03" model="s1"
+		description="literal nil - DFDL-13-234R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[$cat5]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc_03>
+					<e1>cat</e1>
+					<e2 xsi:nil="true"/>
+				</doc_03>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	
 
 </tdml:testSuite>
