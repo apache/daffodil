@@ -42,6 +42,15 @@
 		</xs:complexType>
 	</xs:element>
 	
+	<xs:element name="doc_02" nillable="true" dfdl:lengthKind="implicit" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="e1" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="cat"/>
+					<xs:element name="e2" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="dog"/>
+				</xs:sequence>
+			</xs:complexType>
+	</xs:element>
+	
 </tdml:defineSchema>
 
 	<tdml:parserTestCase name="litNil1" root="doc" model="s1"
@@ -91,6 +100,20 @@
 					<e1>0</e1>
 					<e2 xsi:nil="true"/>	
 				</doc_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="litNil4" root="doc_02" model="s1"
+		description="literal nil is a DFDL character class entity %ES; on an element of complex type- DFDL-13-234R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc_02 xsi:nil="true"/>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
