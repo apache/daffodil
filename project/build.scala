@@ -11,22 +11,18 @@ object DaffodilBuild extends Build {
 
 	// daffodil projects
 	lazy val root    = Project(id = "daffodil", base = file("."), settings = s ++ nopub)
-	                           .configs(DebugTest)
 	                           .aggregate(propgen, lib, core, test)
 
 	lazy val propgen = Project(id = "daffodil-propgen", base = file("daffodil-propgen"), settings = s ++ nopub)
-	                           .configs(DebugTest)
 
 	lazy val lib     = Project(id = "daffodil-lib", base = file("daffodil-lib"), settings = s ++ propgenSettings)
-	                           .configs(DebugTest)
 
 	lazy val core    = Project(id = "daffodil-core", base = file("daffodil-core"), settings = s ++ startScriptSettings)
-	                           .configs(DebugTest)
 	                           .dependsOn(lib)
 
 	lazy val test    = Project(id = "daffodil-test", base = file("daffodil-test"), settings = s ++ nopub)
-	                           .configs(DebugTest)
 	                           .dependsOn(core)
+
 
 	val propertyGenerator = TaskKey[Seq[File]]("gen-props", "Generate properties scala source")
 	lazy val propgenSettings = Seq(
@@ -51,24 +47,46 @@ object DaffodilBuild extends Build {
 		files	
 	}
 
+
 	// modify the managed source directories so that any generated code can be more easily included in IDE's
 	s ++= Seq(sourceManaged <<= baseDirectory(_ / "src_managed"))
 
-	// creates 'sbt debug:*' tasks, using src/test/scala-debug as the source directory
-	lazy val DebugTest = config("debug") extend(Test)
-	lazy val debugSettings: Seq[Setting[_]] = inConfig(DebugTest)(Defaults.testSettings ++ Seq(
-		sourceDirectory <<= baseDirectory(_ / "src" / "test"),
-		scalaSource <<= sourceDirectory(_ / "scala-debug")
-	))
-	s ++= Seq(debugSettings : _*)
-	
-	// creates 'sbt debug' task, which is essentially an alias for 'sbt debug:test'
-	lazy val debugTask = TaskKey[Unit]("debug", "Executes all debug tests")
-	lazy val debugTaskSettings = debugTask <<= (executeTests in DebugTest, streams in DebugTest) map {
-		(results, s) => Tests.showResults(s.log, results)
+
+	// function for creating a new type of test, creates the 'sbt name' and
+	// 'sbt name:*' commands which looks in src/test/scala-X for source files
+	def createTestTask(name : String, buildWithTest : Boolean) : Seq[Setting[_]] = {
+		// creates 'sbt name:*' tasks, using src/test/scala-name as the source directory
+		lazy val NewTest = config(name) extend(Test)
+		var newTestSettings: Seq[Setting[_]] = inConfig(NewTest)(Defaults.testSettings ++ Seq(
+			sourceDirectory <<= baseDirectory(_ / "src" / "test"),
+			scalaSource <<= sourceDirectory(_ / "scala-%s".format(name))
+		))
+		
+		// creates 'sbt name' task, which is essentially an alias for 'sbt name:test'
+		lazy val newTestTask = TaskKey[Unit](name, "Executes all %s tests".format(name))
+		lazy val newTestTaskSettings = newTestTask <<= (executeTests in NewTest, streams in NewTest) map {
+			(results, s) => Tests.showResults(s.log, results)
+		}
+		newTestSettings ++= Seq(newTestTaskSettings)
+
+		if (buildWithTest) {
+			// add scala-new as a source test directory for the 'sbt test' commands
+			lazy val buildWithTestSettings = unmanagedSourceDirectories in Test <++= baseDirectory { base =>
+				Seq(base / "src/test/scala-%s".format(name))
+			}
+			newTestSettings ++= Seq(buildWithTestSettings)
+		}
+
+		newTestSettings
 	}
-	s ++= Seq(debugTaskSettings)
+
+	// add 'sbt debug' and 'sbt debug:*' commands
+	s ++= createTestTask("debug", false)
 	
+	// add 'sbt new' and 'sbt new:*' commands
+	s ++= createTestTask("new", true)
+
+
 	// jacoco configuration
 	s ++= Seq(jacoco.settings : _*)
 
