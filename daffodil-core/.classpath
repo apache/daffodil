@@ -3,8 +3,9 @@
 	<classpathentry kind="src" output="target/scala-2.9.1/classes" path="src/main/scala"/>
 	<classpathentry kind="src" output="target/scala-2.9.1/classes" path="src/main/resources"/>
 	<classpathentry kind="src" output="target/scala-2.9.1/test-classes" path="src/test/scala"/>
+	<classpathentry kind="src" output="target/scala-2.9.1/test-classes" path="src/test/scala-new"/>
 	<classpathentry kind="src" output="target/scala-2.9.1/test-classes" path="src/test/resources"/>
-	<classpathentry kind="src" path="src/test/scala-debug"/>
+	<classpathentry kind="src" output="target/scala-2.9.1/debug-classes" path="src/test/scala-debug"/>
 	<classpathentry kind="lib" path="lib/icu4j-charset-4_8_1_1.jar"/>
 	<classpathentry kind="lib" path="lib/icu4j-localespi-4_8_1_1.jar"/>
 	<classpathentry kind="lib" path="lib_managed/jars/org.scalatest/scalatest_2.9.1/scalatest_2.9.1-1.6.1.jar" sourcepath="lib_managed/srcs/org.scalatest/scalatest_2.9.1/scalatest_2.9.1-1.6.1-sources.jar">
