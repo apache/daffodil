@@ -38,6 +38,8 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
   lazy val allParentTerminatingMarkup : List[CompiledExpression] = {
     // Retrieves the terminating markup for all parent
     // objects
+    // println(this + " with parent " + parent)
+
     //
     val pTM = parent match {
       case s : Sequence => List(s.separator, s.terminator) ++ s.allParentTerminatingMarkup
@@ -46,22 +48,22 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
         // we're a global object. Our parent is a schema document
         // so follow backpointers to whatever is referencing us.
         this match {
-          case gct : GlobalComplexTypeDef => gct.element.allParentTerminatingMarkup
-          case gd : GlobalGroupDef => gd.groupRef.allParentTerminatingMarkup
+          case gct : GlobalComplexTypeDef => gct.element.allTerminatingMarkup
+          case gd : GlobalGroupDef => gd.groupRef.allTerminatingMarkup
           case ge : GlobalElementDecl => ge.elementRef match {
             case None => {
               // we are root. So there is no enclosing sequence at all
               List.empty
             }
-            case Some(er) => er.allParentTerminatingMarkup
+            case Some(er) => er.allTerminatingMarkup
           }
         }
       case ct : LocalComplexTypeDef => ct.parent match {
-        case local : LocalElementDecl => List(local.terminator) ++ local.allParentTerminatingMarkup
+        case local : LocalElementDecl => local.allTerminatingMarkup
         case global : GlobalElementDecl => {
           global.elementRef match {
             case None => List(global.terminator)
-            case Some(eRef) => eRef.allParentTerminatingMarkup
+            case Some(eRef) => eRef.allTerminatingMarkup
           }
         }
         case _ => Assert.impossibleCase()
@@ -76,21 +78,22 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
         // from an element ref.
         //
         ct.element match {
-          case local : LocalElementDecl => List(local.terminator) ++ local.allParentTerminatingMarkup
+          case local : LocalElementDecl => local.allTerminatingMarkup
           case global : GlobalElementDecl => {
             global.elementRef match {
               case None => List(global.terminator)
-              case Some(eRef) => eRef.allParentTerminatingMarkup
+              case Some(eRef) => eRef.allTerminatingMarkup
             }
           }
           case _ => Assert.impossibleCase()
         }
       }
-      case gd : GlobalGroupDef => gd.groupRef.allParentTerminatingMarkup
+      case gd : GlobalGroupDef => gd.groupRef.allTerminatingMarkup
       // We should only be asking for the enclosingSequence when there is one.
       case _ => Assert.invariantFailed("No parent terminating markup for : " + this)
     }
     val res = pTM.filter(x => x.isKnownNonEmpty)
+    // println(res)
     res
   }
 

@@ -1353,7 +1353,7 @@ abstract class StaticText(delim : String, e : Term, kindString : String, guard :
   def parser : Parser = new PrimParser(this, e) {
 
     override def toBriefXML(depthLimit : Int = -1) = {
-      "<" + kindString + ">" + delim + "</" + kindString + ">"
+      "<" + kindString + ">" + delimsCooked + "</" + kindString + ">"
     }
 
     Assert.notYetImplemented(e.ignoreCase == YesNo.Yes)
@@ -1362,33 +1362,28 @@ abstract class StaticText(delim : String, e : Term, kindString : String, guard :
     override def toString = kindString + "('" + delim + "')" //  with terminating markup: " + term.prettyTerminatingMarkup + ")"
     val decoder = e.knownEncodingDecoder
 
+    val delimsRaw = e.allTerminatingMarkup.map { _.constantAsString }
+    val delimsCooked1 = delimsRaw.map(raw => { new daffodil.dsom.ListOfStringValueAsLiteral(raw.toString, e).cooked })
+    val delimsCooked = delimsCooked1.flatten
+
+    // Here we expect that remoteDelims shall be defined as those delimiters who are not
+    // also defined locally.  That is to say that local should win over remote.
+    val remoteDelims = delimsCooked.toSet.diff(staticTextsCooked.toSet)
+    //System.err.println("startCharPos: " + start.charPos)
+
     def parse(start : PState) : PState = withParseErrorThrowing(start) {
       withLoggingLevel(LogLevel.Info) {
         val eName = e.toString()
-        
+
         // We must feed variable context out of one evaluation and into the next.
         // So that the resulting variable map has the updated status of all evaluated variables.
         var vars = start.variableMap
-        val delimsRaw = e.allTerminatingMarkup.map {
-          x =>
-            {
-              val R(res, newVMap) = x.evaluate(start.parent, vars)
-              vars = newVMap
-              res
-            }
-        }
-        val delimsCooked1 = delimsRaw.map(raw => { new daffodil.dsom.ListOfStringValueAsLiteral(raw.toString, e).cooked })
-        val delimsCooked = delimsCooked1.flatten
-        
-        // Here we expect that remoteDelims shall be defined as those delimiters who are not
-        // also defined locally.  That is to say that local should win over remote.
-        val remoteDelims = delimsCooked.toSet.diff(staticTextsCooked.toSet)
-        //System.err.println("startCharPos: " + start.charPos)
+
         val postEvalState = start.withVariables(vars)
 
         log(Debug("%s - Parsing delimiter at byte position: %s", eName, (postEvalState.bitPos >> 3)))
         log(Debug("%s - Parsing delimiter at bit position: %s", eName, postEvalState.bitPos))
-        
+
         log(Debug("%s - Looking for local(%s) not remote (%s).", eName, staticTextsCooked.toSet, remoteDelims))
 
         if (postEvalState.bitPos % 8 != 0) {
@@ -1418,14 +1413,14 @@ abstract class StaticText(delim : String, e : Term, kindString : String, guard :
         result = d.parseInputDelimiter(staticTextsCooked.toSet, remoteDelims, reader, decoder.charset())
 
         log(Debug("%s - %s - DelimParseResult: %s", this.toString(), eName, result))
-        
+
         if (!result.isSuccess) {
           log(Debug("%s - %s: Delimiter not found!", this.toString(), eName))
           return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
         } else if (result.delimiterLoc == delimsearch.DelimiterLocation.Remote) {
           log(Debug("%s - %s: Remote delimiter found instead of local!", this.toString(), eName))
           return PE(start, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
-        }else {
+        } else {
           val numBytes = result.delimiter.getBytes(decoder.charset()).length
           //val endCharPos = start.charPos + result.field.length()
           //System.err.println(reader.characterPos + "-" + result.delimiter.length())

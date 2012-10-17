@@ -5,6 +5,12 @@ import daffodil.schema.annotation.props.gen.Representation
 import daffodil.processors.Success
 import daffodil.processors.Parser
 import daffodil.xml.XMLUtils
+import daffodil.processors.EndSequence
+import daffodil.processors.EndArray
+import daffodil.processors.StartSequence
+import daffodil.processors.StartArray
+import daffodil.processors.StartChildren
+import daffodil.processors.EndChildren
 
 /**
  * Really simplistic debugger.
@@ -32,8 +38,22 @@ object Debugger {
     areDebugging = flag
   }
 
+  def dontTrace(parser : Parser)(body : => Unit) = {
+    parser.toString match {
+      case "EndSequence" => body
+      case "EndArray" => body
+      case "StartSequence" => body
+      case "StartArray" => body
+      case "StartChildren" => body
+      case "EndChildren" => body
+      case _ => // nothing
+    }
+  }
+
   def before(pstate : PState, parser : Parser) {
     if (!areDebugging) return
+
+    dontTrace(parser) { return }
 
     printState("!!!Before!!!", pstate, parser)
 
@@ -114,6 +134,7 @@ object Debugger {
 
   def after(beforePState : PState, afterPState : PState, parser : Parser) {
     if (!areDebugging) return
+    dontTrace(parser) { return }
     printStateDelta("!!!After!!!", beforePState, afterPState, parser)
   }
 
