@@ -10,6 +10,11 @@ object DelimiterType extends Enumeration {
   val Separator, Terminator, Delimiter = Value
 }
 
+object DelimiterLocation extends Enumeration {
+  type DelimiterLocation = Value
+  val Local, Remote = Value
+}
+
 class Delimiter {
   var delimiterStr: String = "" // String representation of delimiter Ex. "%WSP;,%WSP*;"
 

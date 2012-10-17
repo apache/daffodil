@@ -4,6 +4,7 @@ import scala.collection.mutable.Queue
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.parsing.input.Reader
 import delimsearch.DelimiterType.DelimiterType
+import delimsearch.DelimiterLocation.DelimiterLocation
 import scala.util.matching.Regex
 import java.nio.charset.Charset
 import java.util.regex.Pattern
@@ -13,20 +14,22 @@ class DelimParseResult {
   var isSuccess: Boolean = false
   var delimiter: String = ""
   var delimiterType: DelimiterType = DelimiterType.Delimiter
+  var delimiterLoc: DelimiterLocation = DelimiterLocation.Local
   var numBytes: Int = 0
   var numCharsRead: Int = 0 // Number of characters read
 
-  def apply(pField: String, pIsSuccess: Boolean, pDelimiter: String, pDelimiterType: DelimiterType, pNumBytes: Int) = {
+  def apply(pField: String, pIsSuccess: Boolean, pDelimiter: String, pDelimiterType: DelimiterType, pNumBytes: Int, pDelimiterLoc: DelimiterLocation = DelimiterLocation.Local) = {
     field = pField // The parsed field
     isSuccess = pIsSuccess // parse success or failure
     delimiter = pDelimiter // delimiter denoting the field
     delimiterType = pDelimiterType // Might be useful to know if the delimiter was a separator or terminator
     numBytes = pNumBytes // Number of bytes consumed to create result
+    delimiterLoc = pDelimiterLoc
     //TODO: Would it be useful to provide the underlying ParseResult object?
   }
 
   override def toString(): String = {
-    "DelimParseResult - Field: " + field + "\tisSuccess: " + isSuccess + "\tDelimiter: " + delimiter + " DelimiterType: " + delimiterType
+    "DelimParseResult - Field: " + field + "\tisSuccess: " + isSuccess + "\tDelimiter: " + delimiter + " DelimiterType: " + delimiterType + " DelimiterLoc: " + delimiterLoc
   }
 }
 
@@ -80,11 +83,8 @@ class DelimParser extends RegexParsers {
     sortDelims(delimList).toList.foreach(str => {
       val d = new Delimiter()
       d(str)
-      //      System.err.println(d.delimRegExParseUntil)
-      //      System.err.println(d.delimRegExParseDelim)
       delimsParser.enqueue(d.delimRegExParseDelim.r) // The regex representing the actual delimiter
-      //delimsRegex.enqueue(d.delimRegExParseUntil) // The regex used to parse until we reach a delimiter
-      delimsRegex.enqueue(d.delimRegExParseDelim) // The regex used to parse until we reach a delimiter
+      delimsRegex.enqueue(d.delimRegExParseDelim) // The regex representing the actual delimiter
     })
     (delimsParser.toArray, delimsRegex.toArray)
   }
@@ -247,17 +247,27 @@ class DelimParser extends RegexParsers {
     result("", false, "", DelimiterType.Delimiter, 0)
     result
   }
-
-  def parseInputDelimiter(delimiters: Set[String], input: Reader[Char], charset: Charset): DelimParseResult = {
-    val (sepsParser, sepsRegex) = this.buildDelims(delimiters)
-    val delimParser = this.combineLongest(sepsParser)
-    val delimsRegex = combineDelimitersRegex(sepsRegex, Array.empty[String])
-    val wordRegex: String = """%s"""
-    val delim: Parser[String] = delimsRegex.r //String.format(wordRegex, delimsRegex).r
+/***
+ * localDelims - delimiters local to the component in question
+ * remoteDelims - delimiters of an enclosing container of this component
+ * 
+ * Assumes that remoteDelims does not contain any String found in localDelims
+ * 
+ * The call to buildDelims sorts the delimiters by length or possible length.
+ */
+  def parseInputDelimiter(localDelims: Set[String], remoteDelims: Set[String], input: Reader[Char], charset: Charset): DelimParseResult = {
+    val (localDelimsParser, localDelimsRegex) = this.buildDelims(localDelims)
+    val combinedLocalDelimsParser = this.combineLongest(localDelimsParser)
+    
+    val (remoteDelimsParser, remoteDelimsRegex) = this.buildDelims(remoteDelims)
+    
+    val combinedDelims = remoteDelimsParser ++ localDelimsParser
+    val combinedDelimsParser = this.combineLongest(combinedDelims)
+    
     val EOF: Parser[String] = """\z""".r
 
-    //val entry = (delim <~ opt(EOF))
-    val entry = delimParser <~ opt(EOF)
+    //val entry = combinedLocalDelimsParser <~ opt(EOF)
+    val entry = combinedDelimsParser <~ opt(EOF) // Should yield longest match of all the delimiters
     //    System.err.println("SRC: >>" + input.source + "<<" + " " + input.source.length())
 
     // FOR DEBUG: might want this logging variant
@@ -268,14 +278,28 @@ class DelimParser extends RegexParsers {
     var delimiterResult = ""
     var isSuccess: Boolean = false
     var delimiterType = DelimiterType.Delimiter
+    var delimiterLoc = DelimiterLocation.Local
     var fieldResultBytes: Int = 0
 
     if (!res.isEmpty) {
+      // We have a result but was it a remote or local match?
       delimiterResult = res.get
       isSuccess = true
+      
+      // We need the regex to match exactly the whole delimiterResult
+      
+      // Here localDelimsRegex should have already been sorted by the buildDelims call
+      // we simply need to tell the regex that it has to match the full delimiterResult String.
+      // If it doesn't match, then that means the match had to be a remote delimiter.
+      val newLocalDelimsRegex = "(?s)^(" + combineDelimitersRegex(localDelimsRegex, Array.empty[String]) + ")$"
+      val newLocalDelimsParser: Parser[String] = newLocalDelimsRegex.r
+      
+      //val result = this.parseAll(this.log(newLocalDelimsParser)("DelimParser.parseInputDelimiter"), delimiterResult)
+      val result = this.parseAll(newLocalDelimsParser, delimiterResult)
+      if (result.isEmpty){ delimiterLoc = DelimiterLocation.Remote}
     }
     val result: DelimParseResult = new DelimParseResult
-    result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes)
+    result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes, delimiterLoc)
     result.numCharsRead = delimiterResult.length()
     result
   }

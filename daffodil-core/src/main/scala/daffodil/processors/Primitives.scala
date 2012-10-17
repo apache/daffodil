@@ -1365,21 +1365,43 @@ abstract class StaticText(delim : String, e : Term, kindString : String, guard :
     def parse(start : PState) : PState = withParseErrorThrowing(start) {
       withLoggingLevel(LogLevel.Info) {
         val eName = e.toString()
+        
+        // We must feed variable context out of one evaluation and into the next.
+        // So that the resulting variable map has the updated status of all evaluated variables.
+        var vars = start.variableMap
+        val delimsRaw = e.allTerminatingMarkup.map {
+          x =>
+            {
+              val R(res, newVMap) = x.evaluate(start.parent, vars)
+              vars = newVMap
+              res
+            }
+        }
+        val delimsCooked1 = delimsRaw.map(raw => { new daffodil.dsom.ListOfStringValueAsLiteral(raw.toString, e).cooked })
+        val delimsCooked = delimsCooked1.flatten
+        
+        // Here we expect that remoteDelims shall be defined as those delimiters who are not
+        // also defined locally.  That is to say that local should win over remote.
+        val remoteDelims = delimsCooked.toSet.diff(staticTextsCooked.toSet)
+        //System.err.println("startCharPos: " + start.charPos)
+        val postEvalState = start.withVariables(vars)
 
-        log(Debug("%s - Parsing delimiter at byte position: %s", eName, (start.bitPos >> 3)))
-        log(Debug("%s - Parsing delimiter at bit position: %s", eName, start.bitPos))
+        log(Debug("%s - Parsing delimiter at byte position: %s", eName, (postEvalState.bitPos >> 3)))
+        log(Debug("%s - Parsing delimiter at bit position: %s", eName, postEvalState.bitPos))
+        
+        log(Debug("%s - Looking for local(%s) not remote (%s).", eName, staticTextsCooked.toSet, remoteDelims))
 
-        if (start.bitPos % 8 != 0) {
+        if (postEvalState.bitPos % 8 != 0) {
           return PE(start, "%s - not byte aligned.", kindString)
         }
 
-        val in : InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
+        val in : InStreamFromByteChannel = postEvalState.inStream.asInstanceOf[InStreamFromByteChannel]
 
-        val bytePos = (start.bitPos >> 3).toInt
+        val bytePos = (postEvalState.bitPos >> 3).toInt
 
         //System.err.println("PState.charPos = " + start.charPos)
         log(Debug("Retrieving reader state."))
-        val reader = getReader(bytePos, decoder.charset().name(), start)
+        val reader = getReader(bytePos, decoder.charset().name(), postEvalState)
 
         //System.err.println("StaticText - " + reader.characterPos)
 
@@ -1392,26 +1414,33 @@ abstract class StaticText(delim : String, e : Term, kindString : String, guard :
 
         // Well they may not be delimiters, but the logic is the same as for a 
         // set of static delimiters.
-        result = d.parseInputDelimiter(staticTextsCooked.toSet, reader, decoder.charset())
+        //result = d.parseInputDelimiter(staticTextsCooked.toSet, reader, decoder.charset())
+        result = d.parseInputDelimiter(staticTextsCooked.toSet, remoteDelims, reader, decoder.charset())
 
+        log(Debug("%s - %s - DelimParseResult: %s", this.toString(), eName, result))
+        
         if (!result.isSuccess) {
+          log(Debug("%s - %s: Delimiter not found!", this.toString(), eName))
           return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
-        } else {
+        } else if (result.delimiterLoc == delimsearch.DelimiterLocation.Remote) {
+          log(Debug("%s - %s: Remote delimiter found instead of local!", this.toString(), eName))
+          return PE(start, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
+        }else {
           val numBytes = result.delimiter.getBytes(decoder.charset()).length
           //val endCharPos = start.charPos + result.field.length()
           //System.err.println(reader.characterPos + "-" + result.delimiter.length())
           //val endCharPos = reader.characterPos + result.delimiter.length
-          val endCharPos = if (start.charPos == -1) result.delimiter.length else start.charPos + result.delimiter.length()
-          val endBitPosDelim = (8 * numBytes) + start.bitPos
+          val endCharPos = if (postEvalState.charPos == -1) result.delimiter.length else postEvalState.charPos + result.delimiter.length()
+          val endBitPosDelim = (8 * numBytes) + postEvalState.bitPos
 
           log(Debug("%s - Found %s", eName, result.delimiter))
           log(Debug("%s - Ended at byte position %s", eName, (endBitPosDelim >> 3)))
           log(Debug("%s - Ended at bit position %s", eName, endBitPosDelim))
 
           // return start.withPos(endBitPosDelim, endCharPos)
-          return start.withReaderPos(endBitPosDelim, endCharPos, reader)
+          return postEvalState.withReaderPos(endBitPosDelim, endCharPos, reader)
         }
-        start
+        postEvalState
       }
     }
   }
