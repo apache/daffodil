@@ -8,6 +8,9 @@ import delimsearch.DelimiterLocation.DelimiterLocation
 import scala.util.matching.Regex
 import java.nio.charset.Charset
 import java.util.regex.Pattern
+import daffodil.util.Logging
+import daffodil.util.LogLevel
+import daffodil.util.Debug
 
 class DelimParseResult {
   var field: String = ""
@@ -33,8 +36,21 @@ class DelimParseResult {
   }
 }
 
-class DelimParser extends RegexParsers {
+class DelimParser extends RegexParsers with Logging {
   override val skipWhitespace = false
+  
+  /** A helper method that turns a `Parser` into one that will
+   *  print debugging information to stdout before and after
+   *  being applied.
+   */
+   override def log[T](p: => Parser[T])(name: String): Parser[T] = Parser{ in =>
+    //println("trying "+ name +" at "+ in)
+    log(Debug("trying %s at %s", name, in))
+    val r = p(in)
+    //println(name +" --> "+ r)
+    log(Debug("%s --> %s", name, r))
+    r
+  }
 
   // Need a parser that will always fail.
   // Essentially a parser to reflect the ability to pass in an empty Separator
@@ -109,18 +125,6 @@ class DelimParser extends RegexParsers {
     orderedResultSeq
   }
 
-  //  def buildDelims(delimList: Set[String]): (Array[Parser[String]], Array[String]) = {
-  //    var delimsParser: Queue[Parser[String]] = Queue.empty
-  //    var delimsRegex: Queue[String] = Queue.empty
-  //    delimList.foreach(str => {
-  //      val d = new Delimiter()
-  //      d(str)
-  //      delimsParser.enqueue(d.delimRegEx.r)
-  //      delimsRegex.enqueue(d.delimRegEx)
-  //    })
-  //    (delimsParser.toArray, delimsRegex.toArray)
-  //  }
-
   // Combines the delimiters into a single alternation
   //
   def combineDelimitersRegex(sepsRegex: Array[String], termsRegex: Array[String]): String = {
@@ -137,15 +141,15 @@ class DelimParser extends RegexParsers {
     delimRegex
   }
 
-  def parseInputPatterned(pattern: String, input: Reader[Char], charset: Charset): DelimParseResult = {
+  def parseInputPatterned(pattern: String, input: Reader[Char], charset: Charset): DelimParseResult = { withLoggingLevel(LogLevel.Info) {
     val EOF: Parser[String] = """\z""".r
 
     val thePattern: Parser[String] = pattern.r
     val entry = thePattern <~ opt(EOF)
 
     // FOR DEBUGGING might want this logging version
-    // val res = this.parse(this.log(entry)("DelimParser.parseInputPatterned"), input)
-    val res = this.parse(entry, input)
+    val res = this.parse(this.log(entry)("DelimParser.parseInputPatterned"), input)
+    //val res = this.parse(entry, input)
 
     var fieldResult = ""
     var delimiterResult = ""
@@ -164,8 +168,9 @@ class DelimParser extends RegexParsers {
     result.numCharsRead = fieldResult.length()
     result
   }
+  }
 
-  def parseInputNCharacters(nChars: Long, input: Reader[Char], charset: Charset): DelimParseResult = {
+  def parseInputNCharacters(nChars: Long, input: Reader[Char], charset: Charset): DelimParseResult = { withLoggingLevel(LogLevel.Info) {
     val EOF: Parser[String] = """\z""".r
     val anything: Parser[String] = """.*""".r
     val firstNChars: Parser[String] = String.format(""".{%s}""", nChars.toString()).r
@@ -173,8 +178,8 @@ class DelimParser extends RegexParsers {
     val entry = firstNChars //<~ anything // Technically shouldn't need to add anything, we only want the first nChars
 
     // For debug can use this logging parser instead.
-    // val res = this.parse(this.log(entry)("DelimParser.parseInputNCharacters"), input)
-    val res = this.parse(entry, input)
+    val res = this.parse(this.log(entry)("DelimParser.parseInputNCharacters"), input)
+    //val res = this.parse(entry, input)
 
     var fieldResult = ""
     var delimiterResult = ""
@@ -192,6 +197,7 @@ class DelimParser extends RegexParsers {
     result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes)
     result.numCharsRead = fieldResult.length()
     result
+  }
   }
 
   // Default parseInput method
@@ -200,25 +206,20 @@ class DelimParser extends RegexParsers {
   // Assumes postfix, the grammar should handle all prefix, infix, postfix stuff
   //
   def parseInputDefault(field: Parser[String], seps: Parser[String], terms: Parser[String],
-    input: Reader[Char], name: String, charset: Charset): DelimParseResult = {
-    // TODO: Should we have EOF passed as a separator or terminator?  That way we can error when we do not
-    // expect the data to be terminated by EOF?
-
+    input: Reader[Char], name: String, charset: Charset): DelimParseResult = { withLoggingLevel(LogLevel.Info) {
     // The Parse Statement: field ~ (seps | terms)
     // might be overkill as the field parser seems to find the field no problem.
     //
     // However, the addition of "~ (seps | terms)" guarantees that we will receive a failure
     // if a separator or terminator is not found!
     val EOF: Parser[String] = """\z""".r
-    //val res = this.parse(this.log(field ~ (seps | terms))("DelimParser." + name), input)
-    //val delims: Parser[String] = (seps | terms) <~ opt(EOF)
-    //val entry = phrase((field ~ (seps | terms)))
+
     val delims: Parser[String] = (seps | terms)
     val entry = (field ~ (delims | (delims <~ opt(EOF)))) | (field ~ EOF)
 
     // FOR DEBUG: might want to use this logging variant.
-    // val res = this.parse(this.log(entry)("DelimParser." + name), input)
-    val res = this.parse(entry, input)
+    val res = this.parse(this.log(entry)("DelimParser." + name), input)
+    //val res = this.parse(entry, input)
 
     var fieldResult = ""
     var delimiterResult = ""
@@ -240,13 +241,19 @@ class DelimParser extends RegexParsers {
     result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes)
     result.numCharsRead = fieldResult.length()
     result
+    }
   }
 
+  /**
+   * This is a canned failedResult so that we don't have to continually
+   * set the constructor.
+   */
   def failedResult: DelimParseResult = {
     val result: DelimParseResult = new DelimParseResult
     result("", false, "", DelimiterType.Delimiter, 0)
     result
   }
+  
 /***
  * localDelims - delimiters local to the component in question
  * remoteDelims - delimiters of an enclosing container of this component
@@ -255,7 +262,8 @@ class DelimParser extends RegexParsers {
  * 
  * The call to buildDelims sorts the delimiters by length or possible length.
  */
-  def parseInputDelimiter(localDelims: Set[String], remoteDelims: Set[String], input: Reader[Char], charset: Charset): DelimParseResult = {
+  def parseInputDelimiter(localDelims: Set[String], remoteDelims: Set[String], 
+      input: Reader[Char], charset: Charset): DelimParseResult = { withLoggingLevel(LogLevel.Info) {
     val (localDelimsParser, localDelimsRegex) = this.buildDelims(localDelims)
     val combinedLocalDelimsParser = this.combineLongest(localDelimsParser)
     
@@ -268,11 +276,10 @@ class DelimParser extends RegexParsers {
 
     //val entry = combinedLocalDelimsParser <~ opt(EOF)
     val entry = combinedDelimsParser <~ opt(EOF) // Should yield longest match of all the delimiters
-    //    System.err.println("SRC: >>" + input.source + "<<" + " " + input.source.length())
 
     // FOR DEBUG: might want this logging variant
-    //val res = this.parse(this.log(entry)("DelimParser.parseInputDelimiter"), input)
-    val res = this.parse(entry, input)
+    val res = this.parse(this.log(entry)("DelimParser.parseInputDelimiter.allDelims"), input)
+    //val res = this.parse(entry, input)
 
     var fieldResult = ""
     var delimiterResult = ""
@@ -294,19 +301,18 @@ class DelimParser extends RegexParsers {
       val newLocalDelimsRegex = "(?s)^(" + combineDelimitersRegex(localDelimsRegex, Array.empty[String]) + ")$"
       val newLocalDelimsParser: Parser[String] = newLocalDelimsRegex.r
       
-      //val result = this.parseAll(this.log(newLocalDelimsParser)("DelimParser.parseInputDelimiter"), delimiterResult)
-      val result = this.parseAll(newLocalDelimsParser, delimiterResult)
+      val result = this.parseAll(this.log(newLocalDelimsParser)("DelimParser.parseInputDelimiter.isLocal"), delimiterResult)
+      //val result = this.parseAll(newLocalDelimsParser, delimiterResult)
       if (result.isEmpty){ delimiterLoc = DelimiterLocation.Remote}
     }
     val result: DelimParseResult = new DelimParseResult
     result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes, delimiterLoc)
     result.numCharsRead = delimiterResult.length()
     result
+      }
   }
 
   def parseInput(separators: Set[String], terminators: Set[String], input: Reader[Char], charset: Charset): DelimParseResult = {
-    //if (terminators.size == 0 && separators.size == 0) { return failedResult }
-
     val (sepsParser, sepsRegex) = this.buildDelims(separators)
     val (termsParser, termsRegex) = this.buildDelims(terminators)
     val pSeps: Parser[String] = this.combineLongest(sepsParser)
@@ -336,15 +342,14 @@ class DelimParser extends RegexParsers {
     input: Reader[Char], escapeBlockStart: String, escapeBlockEnd: String,
     escapeEscapeCharacter: String = "", charset: Charset): DelimParseResult = {
 
-    //if (terminators.size == 0 && separators.size == 0) { return failedResult }
     if (escapeBlockStart.length() == 0 || escapeBlockEnd.length() == 0) { return failedResult }
 
     // PARAMETERS:	(1) EscapeBlockStart (2) EscapeBlockEnd (3) Delimiters
-    val wordRegexUnescaped: String = """^(%1$s)(?s)(.*?)(%2$s)(?=(%3$s)|\z)"""
+    val wordRegexUnescaped: String = """(?s)^(%1$s)(?s)(.*?)(%2$s)(?=(%3$s)|\z)"""
 
     // PARAMETERS:	(1) EscapeEscapeCharacter (2) EscapeBlockStart 
     // 				(3) EscapeEscapeCharacter (4) EscapeBlockEnd (5) Delimiters
-    val wordRegexEscaped: String = """^((?<!%1$s)%2$s)(?s)(.*?)((?<!%3$s)%4$s)(?=(%5$s)|\z)"""
+    val wordRegexEscaped: String = """(?s)^((?<!%1$s)%2$s)(?s)(.*?)((?<!%3$s)%4$s)(?=(%5$s)|\z)"""
 
     val (sepsParser, sepsRegex) = this.buildDelims(separators)
     val (termsParser, termsRegex) = this.buildDelims(terminators)
@@ -369,15 +374,6 @@ class DelimParser extends RegexParsers {
         } else { String.format(wordRegexEscaped, escapeEscapeCharacterRegex, escapeBlockStartRegex, escapeEscapeCharacterRegex, escapeBlockEndRegex, delimsRegex).r }
       }
     }
-
-    //    val word: Parser[String] = escapeEscapeCharacter match {
-    //      case "" => String.format(wordRegexUnescaped, escapeBlockStartRegex, escapeBlockEndRegex, delimsRegex).r
-    //      case _ => {
-    //        val escapeEscapeCharacterRegex = convertDFDLLiteralToRegex(escapeEscapeCharacter)
-    //        String.format(wordRegexEscaped, escapeEscapeCharacterRegex, escapeBlockStartRegex,
-    //          escapeEscapeCharacterRegex, escapeBlockEndRegex, delimsRegex).r
-    //      }
-    //    }
 
     val result = parseInputDefault(word, pSeps, pTerms, input, "escapeBlock", charset)
 
