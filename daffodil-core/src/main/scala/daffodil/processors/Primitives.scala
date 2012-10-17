@@ -1221,7 +1221,87 @@ abstract class BinaryNumber[T](e : ElementBase, nBits : Long) extends Terminal(e
   }
 }
 
-//class Regular32bitIntPrim(context: Term, val byteOrder: java.nio.ByteOrder) 
+case class BinaryExplicitLengthInBytes(e : ElementBase)
+  extends Terminal(e, true)
+  with WithParseErrorThrowing with BinaryReader {
+  val expr = e.length
+  val exprText = expr.prettyExpr
+
+  def parser : Parser = new PrimParser(this, e) {
+    override def toString = "BinaryExplicitLengthInBytes(" + exprText + ")"
+
+    def parse(pstate : PState) : PState = withParseErrorThrowing(pstate) {
+      log(Debug("Saving reader state."))
+      setReader(pstate)
+
+      log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
+      val R(nBytesAsAny, newVMap) = expr.evaluate(pstate.parent, pstate.variableMap)
+      val nBytes = nBytesAsAny.asInstanceOf[Long]
+      val start = pstate.withVariables(newVMap)
+      if (nBytes > 8) {
+        // Do Something Bad
+        return PE(start, "Binary value exceeds the limit allowed by the processing subsystem: %s", nBytes)
+      }
+
+      log(Debug("Explicit length %s", nBytes))
+
+      // TODO: Longest possible field is Long
+
+      val in = start.inStream
+
+      // TODO: Get requested bytes from stream
+
+      if (false) {
+        // Do Something Bad
+        return PE(start, "Insufficent Bits in field; required %s", nBytes * 8)
+      }
+
+      // log(Debug("Parsed: " + result))
+      // log(Debug("Ended at bit position " + endBitPos))
+      // val endCharPos = start.charPos + result.length
+      val currentElement = start.parentForAddContent
+      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
+      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
+      // currentElement.addContent(new org.jdom.Text(result))
+      // val postState = start.withPos(endBitPos, endCharPos)
+      // postState
+      pstate
+    }
+  }
+
+  def unparser : Unparser = new Unparser(e) {
+    override def toString = "BinaryExplicitLengthInBytesUnparser(" + exprText + ")"
+
+    def unparse(start : UState) : UState = {
+      Assert.notYetImplemented()
+    }
+  }
+}
+
+case class BinaryExplicitLengthInBits(e : ElementBase)
+  extends Terminal(e, true)
+  with WithParseErrorThrowing {
+  val expr = e.length
+  val exprText = expr.prettyExpr
+
+  def parser : Parser = new PrimParser(this, e) {
+    override def toString = "BinaryExplicitLengthInBitsParser(" + exprText + ")"
+
+    def parse(start : PState) : PState = {
+      Assert.notYetImplemented()
+    }
+  }
+  def unparser : Unparser = new Unparser(e) {
+    override def toString = "BinaryExplicitLengthInBitsUnparser(" + exprText + ")"
+
+    def unparse(start : UState) : UState = {
+      Assert.notYetImplemented()
+    }
+  }
+
+}
+
+//class Regular32bitIntPrim(context: Term, val byteOrder: java.nio.ByteOrder)
 //extends RegularNBitPrim[Int](context, 32, "int") {
 //  def getNum(bitPos : Long, inStream : InStream) : Number =
 //    inStream.getInt(bitPos, byteOrder)
@@ -2158,86 +2238,6 @@ class SetVariableParser(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable)
         postState
       }
     }
-}
-
-case class BinaryExplicitLengthInBytes(e : ElementBase)
-  extends Terminal(e, true)
-  with WithParseErrorThrowing with BinaryReader {
-  val expr = e.length
-  val exprText = expr.prettyExpr
-
-  def parser : Parser = new PrimParser(this, e) {
-    override def toString = "BinaryExplicitLengthInBytes(" + exprText + ")"
-
-    def parse(pstate : PState) : PState = withParseErrorThrowing(pstate) {
-      log(Debug("Saving reader state."))
-      setReader(pstate)
-
-      log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
-      val R(nBytesAsAny, newVMap) = expr.evaluate(pstate.parent, pstate.variableMap)
-      val nBytes = nBytesAsAny.asInstanceOf[Long]
-      val start = pstate.withVariables(newVMap)
-      if (nBytes > 8) {
-        // Do Something Bad
-        return PE(start, "Binary value exceeds the limit allowed by the processing subsystem: %s", nBytes)
-      }
-
-      log(Debug("Explicit length %s", nBytes))
-
-      // TODO: Longest possible field is Long
-
-      val in = start.inStream
-
-      // TODO: Get requested bytes from stream
-
-      if (false) {
-        // Do Something Bad
-        return PE(start, "Insufficent Bits in field; required %s", nBytes * 8)
-      }
-
-      // log(Debug("Parsed: " + result))
-      // log(Debug("Ended at bit position " + endBitPos))
-      // val endCharPos = start.charPos + result.length
-      val currentElement = start.parentForAddContent
-      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
-      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-      // currentElement.addContent(new org.jdom.Text(result))
-      // val postState = start.withPos(endBitPos, endCharPos)
-      // postState
-      pstate
-    }
-  }
-
-  def unparser : Unparser = new Unparser(e) {
-    override def toString = "BinaryExplicitLengthInBytesUnparser(" + exprText + ")"
-
-    def unparse(start : UState) : UState = {
-      Assert.notYetImplemented()
-    }
-  }
-}
-
-case class BinaryExplicitLengthInBits(e : ElementBase)
-  extends Terminal(e, true)
-  with WithParseErrorThrowing {
-  val expr = e.length
-  val exprText = expr.prettyExpr
-
-  def parser : Parser = new PrimParser(this, e) {
-    override def toString = "BinaryExplicitLengthInBitsParser(" + exprText + ")"
-
-    def parse(start : PState) : PState = {
-      Assert.notYetImplemented()
-    }
-  }
-  def unparser : Unparser = new Unparser(e) {
-    override def toString = "BinaryExplicitLengthInBitsUnparser(" + exprText + ")"
-
-    def unparse(start : UState) : UState = {
-      Assert.notYetImplemented()
-    }
-  }
-
 }
 
 case class StringExplicitLengthInBytes(e : ElementBase)
