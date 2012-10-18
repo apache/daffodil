@@ -5,7 +5,6 @@
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="scala-2.9.1" />
-        <option name="fsc" value="true" />
       </configuration>
     </facet>
   </component>
@@ -20,6 +19,8 @@
       <sourceFolder url="file://$DAFFODIL_ROOT$/daffodil-test/src/test/scala" isTestSource="true" />
       <sourceFolder url="file://$DAFFODIL_ROOT$/daffodil-test/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$DAFFODIL_ROOT$/daffodil-test/src/test/resources" isTestSource="true" />
+      <sourceFolder url="file://$DAFFODIL_ROOT$/daffodil-test/src/test/scala-new" isTestSource="true" />
+      <sourceFolder url="file://$DAFFODIL_ROOT$/daffodil-test/src/test/scala-debug" isTestSource="true" />
       <excludeFolder url="file://$DAFFODIL_ROOT$/daffodil-test/target" />
     </content>
     <orderEntry type="inheritedJdk" />
@@ -34,6 +35,15 @@
     <orderEntry type="library" name="icu4j-charset-4_8_1_1.jar" level="project" />
     <orderEntry type="library" name="icu4j-localespi-4_8_1_1.jar" level="project" />
     <orderEntry type="module" module-name="daffodil-core" exported="" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$DAFFODIL_ROOT$/daffodil-test/src/test/resources" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
 

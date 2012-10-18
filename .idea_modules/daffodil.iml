@@ -5,7 +5,6 @@
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="scala-2.9.1" />
-        <option name="fsc" value="true" />
       </configuration>
     </facet>
   </component>
@@ -13,15 +12,7 @@
     <output url="file://$DAFFODIL_ROOT$/target/scala-2.9.1/classes" />
     <output-test url="file://$DAFFODIL_ROOT$/target/scala-2.9.1/test-classes" />
     <exclude-output />
-    <content url="file:///home/slawrence/tresys/daffodil/daffodil.git">
-      <sourceFolder url="file://$DAFFODIL_ROOT$/src/main/scala" isTestSource="false" />
-      <sourceFolder url="file://$DAFFODIL_ROOT$/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$DAFFODIL_ROOT$/src/main/resources" isTestSource="false" />
-      <sourceFolder url="file://$DAFFODIL_ROOT$/src/test/scala" isTestSource="true" />
-      <sourceFolder url="file://$DAFFODIL_ROOT$/src/test/java" isTestSource="true" />
-      <sourceFolder url="file://$DAFFODIL_ROOT$/src/test/resources" isTestSource="true" />
-      <excludeFolder url="file://$DAFFODIL_ROOT$/target" />
-    </content>
+    <content url="file://$DAFFODIL_ROOT$" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="junit_junit_4.8.2" level="project" />
@@ -34,6 +25,15 @@
     <orderEntry type="module" module-name="daffodil-lib" exported="" />
     <orderEntry type="module" module-name="daffodil-core" exported="" />
     <orderEntry type="module" module-name="daffodil-test" exported="" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$DAFFODIL_ROOT$/daffodil-core/src/test/resources" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
 
