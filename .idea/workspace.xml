@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="86b52493-32a4-458f-995e-442f2db7dce7" name="Default" comment="This files should no longer be under revision control.">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/daffodil-core/src/main/scala/daffodil/processors/Parser.scala" afterPath="$PROJECT_DIR$/daffodil-core/src/main/scala/daffodil/processors/Parser.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/daffodil-core/src/test/scala-debug/daffodil/dsom/TestBinaryInput_01.scala" afterPath="$PROJECT_DIR$/daffodil-core/src/test/scala-debug/daffodil/dsom/TestBinaryInput_01.scala" />
-    </list>
+    <list default="true" id="86b52493-32a4-458f-995e-442f2db7dce7" name="Default" comment="This files should no longer be under revision control." />
     <ignored path="dfdl.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path="daffodil-core/errors" />
@@ -80,7 +76,7 @@
       <file leaf-file-name="TestBinaryInput_01.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/daffodil-core/src/test/scala-debug/daffodil/dsom/TestBinaryInput_01.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="59" column="7" selection-start="1867" selection-end="1867" vertical-scroll-proportion="0.0">
+            <state line="59" column="7" selection-start="1853" selection-end="1853" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -98,21 +94,8 @@
       <file leaf-file-name="Parser.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/daffodil-core/src/main/scala/daffodil/processors/Parser.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="840" column="28" selection-start="35829" selection-end="35829" vertical-scroll-proportion="0.0">
-              <folding>
-                <marker date="1350590454000" expanded="true" signature="32450:32568" placeholder="{...}" />
-                <marker date="1350590454000" expanded="true" signature="32665:32688" placeholder="{...}" />
-                <marker date="1350590454000" expanded="true" signature="32888:32930" placeholder="{...}" />
-                <marker date="1350590454000" expanded="true" signature="34459:34809" placeholder="(...)" />
-                <marker date="1350590454000" expanded="true" signature="34532:34594" placeholder="{...}" />
-                <marker date="1350590454000" expanded="true" signature="34600:34808" placeholder="{...}" />
-                <marker date="1350590454000" expanded="true" signature="35186:35509" placeholder="(...)" />
-                <marker date="1350590454000" expanded="true" signature="35260:35391" placeholder="{...}" />
-                <marker date="1350590454000" expanded="true" signature="35397:35508" placeholder="{...}" />
-                <marker date="1350590454000" expanded="true" signature="35817:36169" placeholder="(...)" />
-                <marker date="1350590454000" expanded="true" signature="35865:36085" placeholder="{...}" />
-                <marker date="1350590454000" expanded="true" signature="36212:36230" placeholder="(...)" />
-              </folding>
+            <state line="840" column="28" selection-start="35642" selection-end="35642" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -227,7 +210,7 @@
     <ConfirmationsSetting value="0" id="Remove" />
   </component>
   <component name="ProjectReloadState">
-    <option name="STATE" value="2" />
+    <option name="STATE" value="0" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1" splitterProportion="0.5">
@@ -242,26 +225,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope">
-        <subPane subId="Project Files">
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="PackagesPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="dfdl" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -286,18 +249,38 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope">
+        <subPane subId="Project Files">
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="PackagesPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dfdl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="project.structure.last.edited" value="Modules" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth0" value="223" />
-    <property name="project.structure.proportion" value="0.15" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth1" value="233" />
+    <property name="project.structure.proportion" value="0.15" />
     <property name="options.splitter.main.proportions" value="0.3" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth0" value="223" />
-    <property name="MemberChooser.sorted" value="false" />
-    <property name="recentsLimit" value="5" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder1" value="1" />
+    <property name="recentsLimit" value="5" />
+    <property name="MemberChooser.sorted" value="false" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth0" value="223" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder0" value="0" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth2" value="238" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth3" value="1148" />
@@ -319,8 +302,8 @@
     <property name="options.lastSelected" value="preferences.editor" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="MemberChooser.copyJavadoc" value="false" />
-    <property name="dynamic.classpath" value="false" />
     <property name="options.searchVisible" value="true" />
+    <property name="dynamic.classpath" value="false" />
   </component>
   <component name="RunManager" selected="JUnit.All Tests in Core">
     <configuration default="false" name="TestBinaryInput_01" type="ScalaTestRunConfiguration" factoryName="ScalaTest" temporary="true">
@@ -370,25 +353,6 @@
         <option name="SBT.BeforeRunTask" enabled="false" action="test:products" runInCurrentModule="true" />
       </method>
     </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-        <option name="SBT.BeforeRunTask" enabled="false" action="test:products" runInCurrentModule="true" />
-      </method>
-    </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <module name="" />
@@ -415,6 +379,25 @@
       <envs />
       <properties />
       <listeners />
+      <method>
+        <option name="AntTarget" enabled="false" />
+        <option name="BuildArtifacts" enabled="false" />
+        <option name="Make" enabled="true" />
+        <option name="Maven.BeforeRunTask" enabled="false" />
+        <option name="SBT.BeforeRunTask" enabled="false" action="test:products" runInCurrentModule="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -617,7 +600,7 @@
     <editor active="false" />
     <layout>
       <window_info id="Data Sources" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Changes" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32976654" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32976654" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -629,17 +612,17 @@
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32879376" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="IvyIDEA" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32879376" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3296355" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20352565" sideWeight="0.6702335" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20352565" sideWeight="0.6702335" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.20233463" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32879376" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32879376" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -783,7 +766,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/daffodil-core/src/test/scala-debug/daffodil/dsom/TestBinaryInput_01.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="59" column="7" selection-start="1867" selection-end="1867" vertical-scroll-proportion="0.0">
+        <state line="59" column="7" selection-start="1853" selection-end="1853" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -791,6 +774,13 @@
     <entry file="file://$PROJECT_DIR$/daffodil-core/src/main/scala/daffodil/processors/Primitives.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="1130" column="24" selection-start="47381" selection-end="47381" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/daffodil-core/src/main/scala/daffodil/processors/Parser.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="840" column="28" selection-start="35642" selection-end="35642" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -805,26 +795,6 @@
     <entry file="file://$PROJECT_DIR$/daffodil-core/src/main/scala/daffodil/dsom/GrammarMixins.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="410" column="68" selection-start="19067" selection-end="19067" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/daffodil-core/src/main/scala/daffodil/processors/Parser.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="840" column="28" selection-start="35829" selection-end="35829" vertical-scroll-proportion="0.0">
-          <folding>
-            <marker date="1350590454000" expanded="true" signature="32450:32568" placeholder="{...}" />
-            <marker date="1350590454000" expanded="true" signature="32665:32688" placeholder="{...}" />
-            <marker date="1350590454000" expanded="true" signature="32888:32930" placeholder="{...}" />
-            <marker date="1350590454000" expanded="true" signature="34459:34809" placeholder="(...)" />
-            <marker date="1350590454000" expanded="true" signature="34532:34594" placeholder="{...}" />
-            <marker date="1350590454000" expanded="true" signature="34600:34808" placeholder="{...}" />
-            <marker date="1350590454000" expanded="true" signature="35186:35509" placeholder="(...)" />
-            <marker date="1350590454000" expanded="true" signature="35260:35391" placeholder="{...}" />
-            <marker date="1350590454000" expanded="true" signature="35397:35508" placeholder="{...}" />
-            <marker date="1350590454000" expanded="true" signature="35817:36169" placeholder="(...)" />
-            <marker date="1350590454000" expanded="true" signature="35865:36085" placeholder="{...}" />
-            <marker date="1350590454000" expanded="true" signature="36212:36230" placeholder="(...)" />
-          </folding>
-        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
@@ -886,7 +856,7 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>daffodil</last-edited>
+          <last-edited>daffodil-core</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
