@@ -114,12 +114,22 @@ trait ElementBaseGrammarMixin
   }
 
   // Length is in bits, (size would be in bytes) (from DFDL Spec 12.3.3)
-  lazy val implicitBinaryLength = primType.name match {
-    case "byte" | "unsigendByte" => 8
-    case "short" | "unsignedShort" => 16
-    case "float" | "int" | "unsignedInt" | "boolean" => 32
-    case "double" | "long" | "unsignedLong" => 64
-    case _ => schemaDefinitionError("Size of binary data '" + primType.name + "' cannot be determined implicitly.")
+  def binaryLength(e : ElementBase, pstate : PState) = {
+    def getLength(e : ElementBase, pstate : PState, multiplier : Long) {
+      val lenExpr = e.length
+      var txt = lenExpr.prettyExpr
+      val R(len, vMap) = lenExpr.evaluate(pstate.parent, pstate.variableMap)
+      (len.asInstanceOf[Long] * multiplier, txt, Some(vMap))
+    }
+    (lengthKind, lengthUnits, primType.name) match {
+      case (LengthKind.Implicit, _, "byte" | "unsigendByte") => (8, "8", None)
+      case (LengthKind.Implicit, _, "short" | "unsignedShort") => (16, "16", None)
+      case (LengthKind.Implicit, _, "float" | "int" | "unsignedInt" | "boolean") => (32, "32", None)
+      case (LengthKind.Implicit, _, "double" | "long" | "unsignedLong") => (64, "64", None)
+      case (LengthKind.Explicit, LengthUnits.Bits, _) => getLength(e, pstate, 1)
+      case (LengthKind.Explicit, LengthUnits.Bytes, _) => getLength(e, pstate, 8)
+      case _ => schemaDefinitionError("Size of binary data '" + primType.name + "' cannot be determined implicitly.")
+    }
   }
 
   lazy val fixedLengthString = Prod("fixedLengthString", this, isFixedLength,
