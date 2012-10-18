@@ -92,7 +92,7 @@ object DaffodilBuild extends Build {
 
 	// add scala-new as a source test directory for the 'sbt test' commands
 	lazy val buildNewWithTestSettings = unmanagedSourceDirectories in Test <++= baseDirectory { base =>
-		Seq(base / "src/test/scala-%s".format(name))
+		Seq(base / "src/test/scala-new")
 	}
 	s ++= Seq(buildNewWithTestSettings)	
 
