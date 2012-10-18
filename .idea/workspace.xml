@@ -2,27 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="86b52493-32a4-458f-995e-442f2db7dce7" name="Default" comment="This files should no longer be under revision control.">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/ant.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/copyright/profiles_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/dictionaries/timehorse.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/scala_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/scopes/scope_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea_modules/daffodil-core.iml" afterPath="$PROJECT_DIR$/.idea_modules/daffodil-core.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea_modules/daffodil-lib.iml" afterPath="$PROJECT_DIR$/.idea_modules/daffodil-lib.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea_modules/daffodil-propgen.iml" afterPath="$PROJECT_DIR$/.idea_modules/daffodil-propgen.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea_modules/daffodil-test.iml" afterPath="$PROJECT_DIR$/.idea_modules/daffodil-test.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea_modules/daffodil.iml" afterPath="$PROJECT_DIR$/.idea_modules/daffodil.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea_modules/project.iml" afterPath="$PROJECT_DIR$/.idea_modules/project.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/daffodil-core/src/main/scala/daffodil/processors/Parser.scala" afterPath="$PROJECT_DIR$/daffodil-core/src/main/scala/daffodil/processors/Parser.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/daffodil-core/src/test/scala-debug/daffodil/dsom/TestBinaryInput_01.scala" afterPath="$PROJECT_DIR$/daffodil-core/src/test/scala-debug/daffodil/dsom/TestBinaryInput_01.scala" />
     </list>
     <ignored path="dfdl.iws" />
     <ignored path=".idea/workspace.xml" />
+    <ignored path="daffodil-core/errors" />
+    <ignored path="errors" />
+    <ignored path="daffodil-lib/errors" />
+    <ignored path="daffodil-test/errors" />
+    <ignored path="project/errors" />
+    <ignored path="daffodil-propgen/errors" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,10 +95,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Parser.scala" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Parser.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/daffodil-core/src/main/scala/daffodil/processors/Parser.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="840" column="28" selection-start="35829" selection-end="35829" vertical-scroll-proportion="0.3923077">
+            <state line="840" column="28" selection-start="35829" selection-end="35829" vertical-scroll-proportion="0.0">
               <folding>
                 <marker date="1350590454000" expanded="true" signature="32450:32568" placeholder="{...}" />
                 <marker date="1350590454000" expanded="true" signature="32665:32688" placeholder="{...}" />
@@ -122,6 +113,15 @@
                 <marker date="1350590454000" expanded="true" signature="35865:36085" placeholder="{...}" />
                 <marker date="1350590454000" expanded="true" signature="36212:36230" placeholder="(...)" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="13" column="0" selection-start="175" selection-end="175" vertical-scroll-proportion="0.29411766">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -162,9 +162,9 @@
         <option value="$PROJECT_DIR$/daffodil-core/src/main/scala/daffodil/dsom/GrammarMixins.scala" />
         <option value="$PROJECT_DIR$/daffodil-core/src/main/scala/daffodil/processors/Primitives.scala" />
         <option value="$PROJECT_DIR$/build.sbt" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/daffodil-core/src/test/scala-debug/daffodil/dsom/TestBinaryInput_01.scala" />
         <option value="$PROJECT_DIR$/daffodil-core/src/main/scala/daffodil/processors/Parser.scala" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -585,7 +585,11 @@
       <created>1350511839560</created>
       <updated>1350511839560</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Ignore the error folders created by git.">
+      <created>1350590865243</created>
+      <updated>1350590865243</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -676,7 +680,7 @@
     <option name="SHOW_VCS_ERROR_NOTIFICATIONS" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="This files should no longer be under revision control." />
+    <option name="LAST_COMMIT_MESSAGE" value="Ignore the error folders created by git." />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="false" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -693,6 +697,7 @@
     <MESSAGE value="DFDL-307 Moved code for explicit length binary closer to code for implicit length binary." />
     <MESSAGE value="Allowing the internal Intellij project files will force Steve Lawrence's path as the only path used by Intellij every time a rebase is cast." />
     <MESSAGE value="This files should no longer be under revision control." />
+    <MESSAGE value="Ignore the error folders created by git." />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -802,16 +807,9 @@
         <state line="410" column="68" selection-start="19067" selection-end="19067" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="0" selection-start="67" selection-end="67" vertical-scroll-proportion="0.15837105">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/daffodil-core/src/main/scala/daffodil/processors/Parser.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="840" column="28" selection-start="35829" selection-end="35829" vertical-scroll-proportion="0.3923077">
+        <state line="840" column="28" selection-start="35829" selection-end="35829" vertical-scroll-proportion="0.0">
           <folding>
             <marker date="1350590454000" expanded="true" signature="32450:32568" placeholder="{...}" />
             <marker date="1350590454000" expanded="true" signature="32665:32688" placeholder="{...}" />
@@ -826,6 +824,13 @@
             <marker date="1350590454000" expanded="true" signature="35865:36085" placeholder="{...}" />
             <marker date="1350590454000" expanded="true" signature="36212:36230" placeholder="(...)" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="0" selection-start="175" selection-end="175" vertical-scroll-proportion="0.29411766">
+          <folding />
         </state>
       </provider>
     </entry>
