@@ -17,5 +17,7 @@ class TestAssertions extends JUnitSuite {
   @Test def test_assertions_assertFail2() { runner.runOneTest("assertFail2") }
 
   @Test def test_assertions_assertGuidesChoice() { runner.runOneTest("assertGuidesChoice") }
+  
+  @Test def test_assertions_assertPatternPass() = Debugger.withDebugger{ runner.runOneTest("assertPatternPass") }
 
 }

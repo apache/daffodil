@@ -39,6 +39,31 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+		
+		<xs:element name="e4" type="xs:int" dfdl:lengthKind="delimited">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert testKind="pattern" testPattern="\d\d" message="Assertion failed for pattern '\d\d'"/>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
+		
+		<xs:element name="e5" type="xs:int" dfdl:lengthKind="delimited">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert testKind="pattern" testPattern="\d\d\d" message="Assertion failed for pattern '\d\d\d'"/>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
+		
+		<xs:element name="e6" type="xs:int" dfdl:lengthKind="pattern" dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert testKind="pattern" testPattern="\d\d" message="Assertion failed for pattern '\d\d'"/>
+					<dfdl:assert testKind="pattern" testPattern="\d\d:" message="Assertion failed for pattern '\d\d:'"/>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
 
 	</tdml:defineSchema>
 
@@ -110,4 +135,43 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="assertPatternPass" root="e4"
+		model="s1" description="Section 7 - assert as a value - DFDL-7-045R">
+		<tdml:document><![CDATA[43]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e4>43</e4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="assertPatternFail" root="e5"
+		model="s1" description="Section 7 - assert as a value - DFDL-7-045R">
+		<tdml:document>43</tdml:document>
+		<tdml:errors>
+			<tdml:error>Assert</tdml:error>
+			<tdml:error>pattern</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="assertPatternPass2" root="e6"
+		model="s1" description="Section 7 - assert pattern pass multiple assert - DFDL-7-045R">
+		<tdml:document>43:</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e6>43</e6>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="assertPatternFail2" root="e6"
+		model="s1" description="Section 7 - assert pattern fail multiple assert - DFDL-7-045R">
+		<tdml:document>43,</tdml:document>
+		<tdml:errors>
+			<tdml:error>Assert</tdml:error>
+			<tdml:error>pattern</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
 </tdml:testSuite>

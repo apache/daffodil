@@ -484,6 +484,9 @@ class PState(
   def arrayPos = if (arrayIndexStack != Nil) arrayIndexStack.head else -1
   def occursCount = occursCountStack.head
 
+  override def toString() = {
+    "bitPos=%s charPos=%s success=%s".format(bitPos, charPos, status)
+  }
   def discriminator = discriminatorStack.head
   def currentLocation : DataLocation = new DataLoc(bitPos, inStream)
   def inStreamState = inStreamStateStack top
@@ -561,6 +564,13 @@ class PState(
     val newReader = reader.atPos(charPos.toInt)
     newInStreamStateStack push (new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, Some(newReader)))
     new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
+  }
+  
+  // Need last state for Assertion Pattern
+  def withLastState = {
+    var newInStreamStateStack = inStreamStateStack clone ()
+    newInStreamStateStack pop ()
+    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
   }
 
   /**

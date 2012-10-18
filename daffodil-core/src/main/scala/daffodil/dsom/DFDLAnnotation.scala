@@ -22,28 +22,27 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
   with GetAttributesMixin
   with ThrowsSDE {
   lazy val xml = node
-  
- 
-  override def addDiagnostic(diag : Diagnostic) = annotatedSC.addDiagnostic(diag)
-  
-  lazy val context = annotatedSC 
-//  match {
-//      case sc : SchemaComponent => sc 
-//      case _ => Assert.invariantFailed("should be a SchemaComponent")
-//    }
-  
-  lazy val prettyName = xml.prefix + ":" + xml.label 
+
+  override def addDiagnostic(diag: Diagnostic) = annotatedSC.addDiagnostic(diag)
+
+  lazy val context = annotatedSC
+  //  match {
+  //      case sc : SchemaComponent => sc 
+  //      case _ => Assert.invariantFailed("should be a SchemaComponent")
+  //    }
+
+  lazy val prettyName = xml.prefix + ":" + xml.label
   lazy val path = annotatedSC.path + "::" + prettyName
-  
-  def SDE(id : String, args : Any *) = {
-    throw new SchemaDefinitionError(Some(context), Some(this), id, args : _*)
+
+  def SDE(id: String, args: Any*) = {
+    throw new SchemaDefinitionError(Some(context), Some(this), id, args: _*)
   }
-  
-  def subset(testThatWillThrowIfFalse : Boolean, args : Any*) = {
-    if (!testThatWillThrowIfFalse) SDE("Subset ", args : _ * )
+
+  def subset(testThatWillThrowIfFalse: Boolean, args: Any*) = {
+    if (!testThatWillThrowIfFalse) SDE("Subset ", args: _*)
   }
-  
-    /**
+
+  /**
    * If there is no default namespace (that is, no xmlns="..." at all), then getQName("foo") should return ("", "foo").
    * If there is a default namespace with URI "defNS", then getQName("foo") should return ("defNS", "foo")
    * If there is no namespace definition for prefix bar, then getQName("bar:foo") should produce a schemaDefinitionError,
@@ -58,9 +57,9 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
       case _ => Assert.impossibleCase()
     }
     val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
-    
+
     // TODO line numbers - see: http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
- 
+
     if (nsURI == null && prefix == null)
       ("", localName)
     else if (nsURI == null)
@@ -68,7 +67,7 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
     else
       (nsURI, localName)
   }
-  
+
 }
 
 trait RawCommonRuntimeValuedPropertiesMixin
@@ -104,13 +103,13 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin
 
   //lazy val escapeKind = getProperty("escapeKind")
   lazy val escapeSchemeObject = {
-    
+
   }
-  
+
   lazy val escapeCharacterRaw = getProperty("escapeCharacter")
   lazy val escapeEscapeCharacterRaw = getProperty("escapeEscapeCharacter")
-//  lazy val escapeBlockStartRaw = getProperty("escapeBlockStart")
-//  lazy val escapeBlockEndRaw = getProperty("escapeBlockEnd")
+  //  lazy val escapeBlockStartRaw = getProperty("escapeBlockStart")
+  //  lazy val escapeBlockEndRaw = getProperty("escapeBlockEnd")
 }
 
 trait RawSimpleTypeRuntimeValuedPropertiesMixin
@@ -136,8 +135,6 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComp
 
   lazy val diagnosticChildren = Nil
 
-
-  
   private[dsom] def getLocalFormatRef(): String = {
     val ref = combinedLocalProperties.get("ref")
     ref match {
@@ -193,11 +190,10 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComp
         if (ref.length() > 0) {
           val refChainProp = getRefPropertyOption(ref, name)
           refChainProp
-        } 
-        else if (ref2.length() > 0 ) {
+        } else if (ref2.length() > 0) {
           val refChainProp = getRefPropertyOption(ref2, name)
           refChainProp
-        }else { None }
+        } else { None }
       }
     }
   }
@@ -260,8 +256,6 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComp
     case _ => Assert.impossibleCase()
   }.toSet
 
-
-
   // Added by Taylor Wise
   //
   def combinePropertiesWithOverriding(localProps: Map[String, String], refProps: Map[String, String]): Map[String, String] = {
@@ -302,7 +296,7 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComp
     // Retrieve the defineFormat that matches this qName
     val ss = annotatedSC.schema.schemaSet
     val dfs = ss.getDefineFormats(nsURI, this)
-    
+
     //val refEscapeSchemeProps = this.escapeSchemeRefProperties // TODO: EscapeScheme
 
     val foundDF = dfs.find { df => df.name == localName }
@@ -323,9 +317,9 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComp
 
           // Has a ref, go get the ref's properties
           val refFormatProps = getDefineFormatPropertiesByRef(ref, localRefStack)
-          
+
           val result: Map[String, String] = combinePropertiesWithOverriding(formatProps, refFormatProps)
-          
+
           props = props ++ result
         } else {
           // No ref, just return this format's properties
@@ -336,7 +330,7 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComp
       }
       case None => { /* Do Nothing */ }
     } // end-match
-    
+
     props
   } // end-getDefineFormatProperties
 
@@ -355,7 +349,6 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComp
 
     props
   } // end-getFormatProperties
-
 
   // Added by Taylor W.
   // 
@@ -384,78 +377,78 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComp
     props
   }
 
-//  lazy val escapeSchemeRefProperties: Map[String, String] = {
-//    var refStack: Set[String] = Set.empty[String]
-//    var props: Map[String, String] = Map.empty[String, String]
-//    var ref = getLocalEscapeSchemeRef()
-//    if (ref.length() == 0) {
-//      val found = this.combinedLocalProperties.filter(x => x._1 == "escapeSchemeRef")
-//      if (found.size > 0) {
-//        ref = found.toSeq(0)._2
-//      }
-//    }
-//    if (ref.length() != 0) {
-//      props = getDefineEscapeSchemePropertiesByRef(ref, refStack)
-//    }
-//    //props.filterNot(x => x._1 == "escapeSchemeRef")
-//    props
-//  }
+  //  lazy val escapeSchemeRefProperties: Map[String, String] = {
+  //    var refStack: Set[String] = Set.empty[String]
+  //    var props: Map[String, String] = Map.empty[String, String]
+  //    var ref = getLocalEscapeSchemeRef()
+  //    if (ref.length() == 0) {
+  //      val found = this.combinedLocalProperties.filter(x => x._1 == "escapeSchemeRef")
+  //      if (found.size > 0) {
+  //        ref = found.toSeq(0)._2
+  //      }
+  //    }
+  //    if (ref.length() != 0) {
+  //      props = getDefineEscapeSchemePropertiesByRef(ref, refStack)
+  //    }
+  //    //props.filterNot(x => x._1 == "escapeSchemeRef")
+  //    props
+  //  }
 
-//  // Added by Taylor Wise
-//  //
-//  def getDefineEscapeSchemePropertiesByRef(qName: String, refStack: Set[String]): Map[String, String] = {
-//    Assert.usage(qName.length() > 0)
-//    var props = Map.empty[String, String]
-//    var localRefStack = refStack.toSet[String]
-//    val qnamePair = getQName(qName)
-//    val (nsURI, localName) = qnamePair
-//
-//    // Verify that we don't have circular references
-//    if (refStack.contains(localName)) {
-//      Assert.schemaDefinitionError("Circular reference detected for "
-//        + localName + " while obtaining Escape Scheme Properties!\nStack: "
-//        + refStack.toString())
-//    }
-//
-//    localRefStack = localRefStack + localName
-//
-//    // Retrieve the defineFormat that matches this qName
-//    val ss = annotatedSC.schema.schemaSet
-//    val des = ss.getDefineEscapeScheme(nsURI, localName)
-//
-//    des match {
-//      case Some(aES) => {
-//        // Found a escapeScheme
-//        val es = aES.escapeScheme
-//
-//        val ref: String = es.getLocalEscapeSchemeRef()
-//
-//        // Does this escapeScheme have a ref?
-//        if (ref.length() > 0) {
-//          // Local format properties
-//          val esProps = es.combinedLocalProperties
-//
-//          // Add the local properties to the props list
-//          esProps foreach { case (key, value) => props += (key -> value) }
-//
-//          // Has a ref, go get the ref's properties
-//          val refFormatProps = getDefineEscapeSchemePropertiesByRef(ref, localRefStack)
-//
-//          val result: Map[String, String] = combinePropertiesWithOverriding(esProps, refFormatProps)
-//          props = props ++ result
-//        } else {
-//          // No ref, just return this format's properties
-//          val esProps = es.combinedLocalProperties
-//          props = esProps
-//        } // end-if-else
-//
-//      }
-//      case None => { /* Do Nothing */ }
-//    } // end-match
-//
-//    props
-//  } // end-getDefineEscapeSchemePropertiesByRef
-  
+  //  // Added by Taylor Wise
+  //  //
+  //  def getDefineEscapeSchemePropertiesByRef(qName: String, refStack: Set[String]): Map[String, String] = {
+  //    Assert.usage(qName.length() > 0)
+  //    var props = Map.empty[String, String]
+  //    var localRefStack = refStack.toSet[String]
+  //    val qnamePair = getQName(qName)
+  //    val (nsURI, localName) = qnamePair
+  //
+  //    // Verify that we don't have circular references
+  //    if (refStack.contains(localName)) {
+  //      Assert.schemaDefinitionError("Circular reference detected for "
+  //        + localName + " while obtaining Escape Scheme Properties!\nStack: "
+  //        + refStack.toString())
+  //    }
+  //
+  //    localRefStack = localRefStack + localName
+  //
+  //    // Retrieve the defineFormat that matches this qName
+  //    val ss = annotatedSC.schema.schemaSet
+  //    val des = ss.getDefineEscapeScheme(nsURI, localName)
+  //
+  //    des match {
+  //      case Some(aES) => {
+  //        // Found a escapeScheme
+  //        val es = aES.escapeScheme
+  //
+  //        val ref: String = es.getLocalEscapeSchemeRef()
+  //
+  //        // Does this escapeScheme have a ref?
+  //        if (ref.length() > 0) {
+  //          // Local format properties
+  //          val esProps = es.combinedLocalProperties
+  //
+  //          // Add the local properties to the props list
+  //          esProps foreach { case (key, value) => props += (key -> value) }
+  //
+  //          // Has a ref, go get the ref's properties
+  //          val refFormatProps = getDefineEscapeSchemePropertiesByRef(ref, localRefStack)
+  //
+  //          val result: Map[String, String] = combinePropertiesWithOverriding(esProps, refFormatProps)
+  //          props = props ++ result
+  //        } else {
+  //          // No ref, just return this format's properties
+  //          val esProps = es.combinedLocalProperties
+  //          props = esProps
+  //        } // end-if-else
+  //
+  //      }
+  //      case None => { /* Do Nothing */ }
+  //    } // end-match
+  //
+  //    props
+  //  } // end-getDefineEscapeSchemePropertiesByRef
+
   // def escapeCharacterExpr = ExpressionCompiler.compile('String, es.getProperty("escapeCharacter"))
   // def escapeEscapeCharacterExpr = ExpressionCompiler.compile('String, es.getProperty("escapeEscapeCharacter"))
 }
@@ -465,9 +458,9 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComp
  */
 abstract class DFDLStatement(node: Node, annotatedSC: AnnotatedSchemaComponent)
   extends DFDLAnnotation(node, annotatedSC) {
-  
-  lazy val diagnosticChildren : DiagnosticsList = List(gram)
-  def gram : Gram
+
+  lazy val diagnosticChildren: DiagnosticsList = List(gram)
+  def gram: Gram
 }
 
 class DFDLFormat(node: Node, sd: SchemaDocument)
@@ -515,43 +508,42 @@ class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)
   with RawSimpleTypeRuntimeValuedPropertiesMixin {
 }
 
-trait DFDLDefiningAnnotation { self : DFDLAnnotation =>
+trait DFDLDefiningAnnotation { self: DFDLAnnotation =>
   lazy val nom = getAttributeRequired("name") // validation will check this for us.
-  override lazy val prettyName : String = nom // note: name is not a format property.
-  lazy val name : String = nom
-  
-  lazy val definingAnnotationDiagnosticChildren : DiagnosticsList = Nil
+  override lazy val prettyName: String = nom // note: name is not a format property.
+  lazy val name: String = nom
+
+  lazy val definingAnnotationDiagnosticChildren: DiagnosticsList = Nil
 }
 
 class DFDLDefineFormat(node: Node, sd: SchemaDocument)
   extends DFDLAnnotation(node, sd) // Note: DefineFormat is not a format annotation
-  with DFDLDefiningAnnotation
-  // with DefineFormat_AnnotationMixin // mixins are only for format annotations.
+  with DFDLDefiningAnnotation // with DefineFormat_AnnotationMixin // mixins are only for format annotations.
   {
 
   lazy val baseFormat = getAttributeOption("baseFormat") // nor baseFormat
 
   lazy val formatAnnotation = formatAnnotation_.value
-  private lazy val formatAnnotation_ = LV{Utility.trim(node) match {
-    case <dfdl:defineFormat>{ f @ <dfdl:format>{ contents @ _* }</dfdl:format> }</dfdl:defineFormat> =>
-      new DFDLFormat(f, sd)
-    case _ => Assert.impossibleCase()
+  private lazy val formatAnnotation_ = LV {
+    Utility.trim(node) match {
+      case <dfdl:defineFormat>{ f @ <dfdl:format>{ contents @ _* }</dfdl:format> }</dfdl:defineFormat> =>
+        new DFDLFormat(f, sd)
+      case _ => Assert.impossibleCase()
+    }
   }
-  }
-  
+
   lazy val diagnosticChildren = formatAnnotation +: definingAnnotationDiagnosticChildren
 }
 
 class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent)
-  extends DFDLFormatAnnotation(node, decl) 
+  extends DFDLFormatAnnotation(node, decl)
   with EscapeScheme_AnnotationMixin
   with RawEscapeSchemeRuntimeValuedPropertiesMixin {
 }
 
 class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument)
   extends DFDLAnnotation(node, decl) // Note: defineEscapeScheme isn't a format annotation itself.
-  with DFDLDefiningAnnotation
-  // with DefineEscapeScheme_AnnotationMixin 
+  with DFDLDefiningAnnotation // with DefineEscapeScheme_AnnotationMixin 
   {
 
   lazy val escapeScheme = Utility.trim(node) match {
@@ -570,13 +562,17 @@ class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument)
 abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {
   private lazy val testAttrib = getAttributeOption("test")
-  private [dsom] lazy val testBody = node.child.text // package visible for unit testing
+  private[dsom] lazy val testBody: Option[String] = node.child.text match {
+    case s if (s.length() == 0) => {
+      None}
+    case txt => Some(txt)
+  } // package visible for unit testing
   private lazy val testPattern = getAttributeOption("testPattern")
   lazy val testKind = getAttributeOption("testKind") match {
     case Some(str) => TestKind(str, decl)
     case None => TestKind.Expression
   }
-  
+
   private lazy val messageAttrib = getAttributeOption("message")
   lazy val message = messageAttrib match {
     case None => "%s failed".format(testTxt)
@@ -584,17 +580,17 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   }
 
   lazy val testTxt = (testKind, testBody, testAttrib, testPattern) match {
-    case (TestKind.Expression, "", Some(txt), None) => txt
-    case (TestKind.Expression, txt, None, None) => txt
-    case (TestKind.Pattern, txt, None, None) => txt
+    case (TestKind.Expression, None, Some(txt), None) => txt
+    case (TestKind.Expression, txt, None, None) => txt.get
+    case (TestKind.Pattern, None, None, pat) => pat.get
     case (TestKind.Expression, _, _, Some(txt)) => SDE("testPattern attribute requires testKind='pattern'")
-    case (TestKind.Expression, bdy, Some(attrib), _) => SDE("You may not specify both test attribute and a body expression.")
-    case (TestKind.Expression, "", None, _) => SDE("You must specify either a test attribute or a body expression.")
-    case (TestKind.Pattern, bdy, _, Some(txt)) => SDE("You may not specify both testPattern attribute and a body expression.")
-    case (TestKind.Pattern, "", _, None) => SDE("You must specify either a testPattern attribute or a body expression. for testKind='pattern'")
+    case (TestKind.Expression, Some(bdy), Some(attrib), _) => SDE("You may not specify both test attribute and a body expression.")
+    case (TestKind.Expression, None, None, _) => SDE("You must specify either a test attribute or a body expression.")
+    case (TestKind.Pattern, Some(bdy), _, Some(txt)) => SDE("You may not specify both testPattern attribute and a body expression.")
+    case (TestKind.Pattern, None, _, None) => SDE("You must specify either a testPattern attribute or a body expression. for testKind='pattern'")
     case _ => Assert.invariantFailed("unexpected case.")
   }
-  
+
   //
   // TODO: override diagnosticChildren if we compile the testBody/pattern into an object
   // which can provide error/diagnostic information itself (beyond what this class itself
@@ -602,25 +598,32 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   //
 }
 
-class DFDLAssert(node : Node, decl : AnnotatedSchemaComponent)
+class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Assert_AnnotationMixin // Note: don't use these generated mixins. Statements don't have format properties
-  Assert.notYetImplemented(testKind == TestKind.Pattern)
-  lazy val gram = AssertBooleanPrim(decl, this)
+  lazy val gram = {
+    testKind match {
+      case TestKind.Pattern => AssertPatternPrim(decl, this)
+      case TestKind.Expression => AssertBooleanPrim(decl, this)
+    }
+  }
 }
 
-class DFDLDiscriminator(node : Node, decl : AnnotatedSchemaComponent)
+class DFDLDiscriminator(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Discriminator_AnnotationMixin 
-  Assert.notYetImplemented(testKind == TestKind.Pattern)
-  lazy val gram = DiscriminatorBooleanPrim(decl, this)
+  lazy val gram = {
+    testKind match {
+      case TestKind.Pattern => DiscriminatorPatternPrim(decl, this)
+      case TestKind.Expression => DiscriminatorBooleanPrim(decl, this)
+    }
+  }
 }
 
 class DFDLDefineVariable(node: Node, doc: SchemaDocument)
-  extends DFDLStatement(node, doc) 
-  with DFDLDefiningAnnotation
-  {
+  extends DFDLStatement(node, doc)
+  with DFDLDefiningAnnotation {
   lazy val gram = EmptyGram // has to have because statements have parsers layed in by the grammar.
   lazy val typeQName = getAttributeOption("type").getOrElse("xs:string")
-  lazy val external = getAttributeOption("external").map{_.toBoolean}.getOrElse(false)
+  lazy val external = getAttributeOption("external").map { _.toBoolean }.getOrElse(false)
   lazy val defaultValueAsAttribute = getAttributeOption("defaultValue")
   lazy val defaultValueAsElement = node.child.text
   lazy val defaultValue = (defaultValueAsAttribute, defaultValueAsElement) match {
@@ -629,18 +632,18 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
     case (Some(str), "") => Some(str)
     case (Some(str), v) => schemaDefinitionError("Default value of variable was supplied both as attribute and element value: %s", node.toString)
   }
-  
+
   override lazy val diagnosticChildren = definingAnnotationDiagnosticChildren
-  
+
   lazy val qname = getQName(name)
   lazy val (uri, localName) = qname
   lazy val extName = XMLUtils.expandedQName(uri, localName)
-  
+
   val (typeURI, typeLocalName) = XMLUtils.QName(node, typeQName, doc)
   val extType = XMLUtils.expandedQName(typeURI, typeLocalName)
-    
+
   lazy val newVariableInstance = VariableFactory.create(this, extName, extType, defaultValue, external, doc)
-  
+
 }
 
 class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
@@ -648,23 +651,22 @@ class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
   {
   lazy val ref = getAttributeRequired("ref")
   lazy val defaultValue = getAttributeOption("defaultValue")
-  
-  lazy val gram : Gram = NewVariableInstanceStart(decl, this)
-  lazy val endGram : Gram = NewVariableInstanceEnd(decl, this)
-  
-  override lazy val diagnosticChildren : DiagnosticsList = List(gram, endGram)
-  
-   lazy val (uri, localName) = XMLUtils.QName(decl.xml, ref, decl.schemaDocument)
-   lazy val expName = XMLUtils.expandedQName(uri, localName)
-   lazy val defv = decl.schema.schemaSet.getDefineVariable(uri, localName).getOrElse(
-       this.schemaDefinitionError("Variable not found: %s", ref))
-       
-   lazy val newVariableInstance = defv.newVariableInstance
-   
-   
+
+  lazy val gram: Gram = NewVariableInstanceStart(decl, this)
+  lazy val endGram: Gram = NewVariableInstanceEnd(decl, this)
+
+  override lazy val diagnosticChildren: DiagnosticsList = List(gram, endGram)
+
+  lazy val (uri, localName) = XMLUtils.QName(decl.xml, ref, decl.schemaDocument)
+  lazy val expName = XMLUtils.expandedQName(uri, localName)
+  lazy val defv = decl.schema.schemaSet.getDefineVariable(uri, localName).getOrElse(
+    this.schemaDefinitionError("Variable not found: %s", ref))
+
+  lazy val newVariableInstance = defv.newVariableInstance
+
 }
 
-class DFDLSetVariable(node : Node, decl : AnnotatedSchemaComponent)
+class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) // with SetVariable_AnnotationMixin 
   {
   lazy val ref = getAttributeRequired("ref")

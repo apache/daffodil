@@ -173,7 +173,7 @@ class DelimParser extends RegexParsers with Logging {
   def parseInputNCharacters(nChars: Long, input: Reader[Char], charset: Charset): DelimParseResult = { withLoggingLevel(LogLevel.Info) {
     val EOF: Parser[String] = """\z""".r
     val anything: Parser[String] = """.*""".r
-    val firstNChars: Parser[String] = String.format(""".{%s}""", nChars.toString()).r
+    val firstNChars: Parser[String] = String.format("""(?s).{%s}""", nChars.toString()).r
 
     val entry = firstNChars //<~ anything // Technically shouldn't need to add anything, we only want the first nChars
 

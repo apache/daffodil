@@ -16,6 +16,7 @@ import java.io.FileWriter
 import java.io.File
 import java.nio.ByteBuffer
 import org.junit.Test
+import daffodil.debugger.Debugger
 
 class TestDsomCompiler extends JUnitSuite with Logging {
 
@@ -224,7 +225,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     Compiler.testUnparsing(testSchema, infoset, "37!")
   }
 
-  @Test def testDelims() {
+  @Test def testDelims() = Debugger.withDebugger{
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:string" dfdl:initiator="*" dfdl:terminator="! $" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
@@ -580,7 +581,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val led = gr2c1.asInstanceOf[LocalElementDecl]
     assertEquals(1, led.maxOccurs)
     val Seq(leda) = led.annotationObjs
-    assertEquals("{ $myVar1 eq (+47 mod 4) }", leda.asInstanceOf[DFDLDiscriminator].testBody)
+    assertEquals("{ $myVar1 eq (+47 mod 4) }", leda.asInstanceOf[DFDLDiscriminator].testBody.get)
 
     // Explore sequence
     val Seq(seq1a : DFDLSequence) = seq1.annotationObjs // one format annotation with a property

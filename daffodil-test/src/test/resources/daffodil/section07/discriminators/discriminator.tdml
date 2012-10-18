@@ -35,13 +35,160 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+
+
+	</tdml:defineSchema>
+
+	<tdml:defineSchema name="s1">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:discriminator testKind="pattern"
+						testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
+
+		<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:discriminator testKind="pattern"
+						testPattern="\d\d\d" message="Discriminator failed for pattern '\d\d\d'" />
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
+
+		<xs:element name="e3" type="xs:int" dfdl:lengthKind="pattern" dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:discriminator testKind="pattern"
+						testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
+					<dfdl:discriminator testKind="pattern"
+						testPattern="\d\d:" message="Discriminator failed for pattern '\d\d:'" />
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
+		
+		<xs:element name="e4" type="xs:int" dfdl:lengthKind="pattern" dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:discriminator testKind="pattern"
+						testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
+					<dfdl:discriminator testKind="pattern"
+						testPattern="\d\d:" message="Discriminator failed for pattern '\d\d:'" />
+					<dfdl:discriminator testKind="pattern"
+						testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
+		
+		<xs:element name="e5" type="xs:int" dfdl:lengthKind="pattern" dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert testKind="pattern" testPattern="\d\d" message="Assertion failed for pattern '\d\d'"/>
+					<dfdl:discriminator testKind="pattern"
+						testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
+					<dfdl:discriminator testKind="pattern"
+						testPattern="\d\d:" message="Discriminator failed for pattern '\d:'" />
+					<dfdl:discriminator testKind="pattern"
+						testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
+		
+		<xs:element name="e6" type="xs:int" dfdl:lengthKind="pattern" dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert testKind="pattern" testPattern="\d\d\d" message="Assertion failed for pattern '\d\d\d'"/>
+					<dfdl:discriminator testKind="pattern"
+						testPattern="\d\d:" message="Discriminator failed for pattern '\d\d:'" />
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="discriminatorGuidesChoice"
-		root="c1" model="choice2" description="Section 7 - Discriminator with boolean test expression - DFDL-7-060R">
+		root="c1" model="choice2"
+		description="Section 7 - Discriminator with boolean test expression - DFDL-7-060R">
 		<tdml:document />
 		<tdml:errors>
 			<tdml:error>Parse Error</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="discrimPatternPass"
+		root="e1" model="s1" description="Section 7 - discrim as a pattern - DFDL-7-045R">
+		<tdml:document><![CDATA[43]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e1>43</e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="discrimPatternFail"
+		root="e2" model="s1" description="Section 7 - discrim as a pattern - DFDL-7-045R">
+		<tdml:document><![CDATA[43]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>Discrim</tdml:error>
+			<tdml:error>pattern</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="discrimPatternPass2"
+		root="e3" model="s1" description="Section 7 - multiple discrim as a pattern - DFDL-7-045R">
+		<tdml:document><![CDATA[43:]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e3>43</e3>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="discrimPatternFail2"
+		root="e3" model="s1" description="Section 7 - multiple discrim as a pattern - DFDL-7-045R">
+		<tdml:document><![CDATA[43,]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>Discrim</tdml:error>
+			<tdml:error>pattern</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="discrimPatternFail3"
+		root="e4" model="s1" description="Section 7 - multiple discrim as a pattern, verify failed discrim 
+		is not set to true with subsequent success - DFDL-7-045R">
+		<tdml:document><![CDATA[43,]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>Discrim</tdml:error>
+			<tdml:error>pattern</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="discrimPatternFail4"
+		root="e5" model="s1" description="Section 7 - verify discrim still called even when asserts present - DFDL-7-045R">
+		<tdml:document><![CDATA[43,]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>Discrim</tdml:error>
+			<tdml:error>pattern</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="discrimPatternFail5"
+		root="e5" model="s1" description="Section 7 - verify discrim still called even when asserts present - DFDL-7-045R">
+		<tdml:document><![CDATA[4,]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>Discrim</tdml:error>
+			<tdml:error>pattern</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="discrimPatternFail6"
+		root="e6" model="s1" description="Section 7 - verify test fails even when discrim is true but assert is false - DFDL-7-045R">
+		<tdml:document><![CDATA[44:]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>Assert</tdml:error>
+			<tdml:error>pattern</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 

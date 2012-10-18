@@ -646,16 +646,24 @@ trait ElementBaseGrammarMixin
     else if (isRepresented) ElementEnd(this)
     else ElementEndNoRep(this)
   })
+  
+//  lazy val scalarNonDefault = Prod("scalarNonDefault", this,
+//    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
+//      scalarNonDefaultContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
+
 
   lazy val scalarNonDefault = Prod("scalarNonDefault", this,
-    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
-      scalarNonDefaultContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
+    StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
+      scalarNonDefaultContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd)
 
   def scalarDefaultable : Prod
 
-  lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
-    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
-      scalarDefaultableContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
+//  lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
+//    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
+//      scalarDefaultableContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
+ lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
+    StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
+      scalarDefaultableContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd)
 
 }
 
@@ -816,8 +824,8 @@ trait ElementDeclGrammarMixin { self : ElementBase with ElementDeclMixin =>
 
   lazy val inputValueCalcElement = Prod("inputValueCalcElement", this,
     isSimpleType && inputValueCalcOption != None,
-    dfdlElementBegin ~ dfdlScopeBegin ~
-      InputValueCalc(self) ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
+    StmtEval(this, dfdlElementBegin ~ dfdlScopeBegin ~
+      InputValueCalc(self)) ~ dfdlScopeEnd ~ dfdlElementEnd)
 }
 
 trait GlobalElementDeclGrammarMixin { self : GlobalElementDecl =>
