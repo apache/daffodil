@@ -461,7 +461,8 @@ object PStateStream {
  *
  * The goal however, is to hide that fact so that the only places that have to
  * know are the places doing the mutation, and the places rolling them back
- * which should be isolated to the alternative parser.
+ * which should be isolated to the alternative parser, and repParsers, i.e.,
+ * places where points-of-uncertainty are handled.
  */
 class PState(
   val inStreamStateStack : Stack[PStateStream],
@@ -696,6 +697,8 @@ trait InStream {
   def getFloat(bitPos : Long, order : java.nio.ByteOrder) : Float
 
   def getByteArray(bitPos : Long, order : java.nio.ByteOrder, size : Int) : Array[Byte]
+
+  def getBitSequence(bitPos : Long, bitCount : Long, order : java.nio.ByteOrder) : BigInt
 
   // def fillCharBufferUntilDelimiterOrEnd
 }

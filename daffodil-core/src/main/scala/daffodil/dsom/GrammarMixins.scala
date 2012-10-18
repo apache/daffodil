@@ -94,12 +94,29 @@ trait ElementBaseGrammarMixin
 
   def allowedValue : Prod // provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
 
-  lazy val explicitLengthBinary = Prod("explicitLengthBinary", this, !isFixedLength,
-    lengthUnits match {
-      case LengthUnits.Bytes => BinaryExplicitLengthInBytes(this)
-      case LengthUnits.Characters => schemaDefinitionError("Binary data elements cannot have lengthUnits='Character'.")
-      case LengthUnits.Bits => BinaryExplicitLengthInBits(this)
-    })
+  lazy val explicitLengthBinary = Prod("explicitLengthBinary", this, {
+    val scale =
+      lengthUnits match {
+        case LengthUnits.Bytes => 8
+        case LengthUnits.Characters => schemaDefinitionError("Binary data elements cannot have lengthUnits='Character'.")
+        case LengthUnits.Bits => 1
+      }
+    (primType.name, binaryNumberRep) match {
+      case ("unsignedByte", bin) =>
+        new BinaryExplicitLength[Long](this, scale, bitStringSize) {
+          def getNum(num : BigInt) = num.longValue.toString
+          val GramName = "unsignedByte"
+          val GramDescription = "Unsigned Byte"
+          def isInvalidRange(n : BigInt) = n < 0 || n >= (1 << (bitStringSize))
+          def numFormat = NumberFormat.getIntegerInstance()
+          def isInt = true
+        }
+    }
+  })
+
+  lazy val bitStringSize = {
+    1
+  }
 
   lazy val binaryValueLength = binaryValueLength_.value
   lazy val binaryValueLength_ = LV {
@@ -375,11 +392,14 @@ trait ElementBaseGrammarMixin
     LengthKind(lengthKind.toString(), this)
   }
 
+  val bin = BinaryNumberRep.Binary // shorthands for table dispatch
+  val ieee = BinaryFloatRep.Ieee
+  type BO = java.nio.ByteOrder
+
   lazy val binaryValue : Gram = {
-    type BO = java.nio.ByteOrder
+
     Assert.invariant(primType.name != "string")
-    val bin = BinaryNumberRep.Binary // shorthands for table dispatch
-    val ieee = BinaryFloatRep.Ieee
+
     subset(byteOrder.isConstant, "Dynamic byte order is not currently supported.")
 
     // We have to dispatch carefully here. We cannot force evaluation of properties 
@@ -441,15 +461,19 @@ trait ElementBaseGrammarMixin
             protected override def numFormat = NumberFormat.getIntegerInstance()
             protected override def isInt = true
           }
-          case ("unsignedByte", bin) => new BinaryNumber[Int](this, 8) {
-            def getNum(bp : Long, in : InStream, bo : BO) = in.getByte(bp, bo) - Byte.MinValue
-            override def getNum(num : Number) = num.shortValue
-            protected override val GramName = "unsignedByte"
-            protected override val GramDescription = "Unsigned Byte"
-            protected def isInvalidRange(n : Short) = n < 0 || n >= (1 << 8)
-            protected override def numFormat = NumberFormat.getIntegerInstance()
-            protected override def isInt = true
+          case ("unsignedByte", bin) => {
+            // plug unsignedByte into newer bit-able framework
+            explicitLengthBinary
           }
+          //            new BinaryNumber[Int](this, 8) {
+          //            def getNum(bp : Long, in : InStream, bo : BO) = in.getByte(bp, bo) - Byte.MinValue
+          //            override def getNum(num : Number) = num.shortValue
+          //            protected override val GramName = "unsignedByte"
+          //            protected override val GramDescription = "Unsigned Byte"
+          //            protected def isInvalidRange(n : Short) = n < 0 || n >= (1 << 8)
+          //            protected override def numFormat = NumberFormat.getIntegerInstance()
+          //            protected override def isInt = true
+          //          }
           case ("unsignedShort", bin) => new BinaryNumber[Int](this, 16) {
             def getNum(bp : Long, in : InStream, bo : BO) = in.getShort(bp, bo) - Short.MinValue
             override def getNum(num : Number) = num.intValue

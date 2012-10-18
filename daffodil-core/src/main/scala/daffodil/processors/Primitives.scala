@@ -716,8 +716,8 @@ case class StringPatternMatched(e : ElementBase)
 abstract class ConvertTextNumberPrim[S](e : ElementBase, guard : Boolean)
   extends Terminal(e, guard) with BinaryReader {
   protected def getNum(s : Number) : S
-  protected val GramName = "number"
-  protected val GramDescription = "Number"
+  protected val GramName : String
+  protected val GramDescription : String
   override def toString = "to(xs:" + GramName + ")"
 
   protected def numFormat : NumberFormat
@@ -1108,7 +1108,8 @@ case class ZonedTextShortPrim(el : ElementBase) extends ZonedTextNumberPrim(el, 
 case class ZonedTextIntPrim(el : ElementBase) extends ZonedTextNumberPrim(el, false)
 case class ZonedTextLongPrim(el : ElementBase) extends ZonedTextNumberPrim(el, false)
 
-abstract class BinaryNumber[T](e : ElementBase, nBits : Long) extends Terminal(e, true) with BinaryReader {
+abstract class BinaryNumber[T](e : ElementBase, nBits : Long) extends Terminal(e, true)
+  with BinaryReader {
   lazy val primName = e.primType.name
 
   lazy val staticByteOrderString = e.byteOrder.constantAsString
@@ -2238,6 +2239,88 @@ class SetVariableParser(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable)
         postState
       }
     }
+}
+
+abstract class BinaryNumberParser[T](gram : BinaryExplicitLength[T], context : SchemaComponent) extends PrimParser(gram, context) {
+
+  override def toBriefXML(depth : Int = -1) = {
+    "<" + gram.GramName + " lengthInBits='" + gram.lenInBits + "' />"
+  }
+
+}
+/**
+ *
+ */
+abstract class BinaryExplicitLength[ResType](e : ElementBase, sizeMultiplier : Int, bitStringLength : Int)
+  extends Terminal(e, true)
+  with WithParseErrorThrowing with BinaryReader {
+
+  val expr : CompiledExpression = e.length
+  val exprText = expr.prettyExpr
+  e.schemaDefinition(expr.isConstant, "Bit strings may only have constant length.")
+  e.schemaDefinition(e.byteOrder.isConstant, "Property byteOrder must be a constant, not an expression.")
+  val lenInBits = expr.constantAsLong * sizeMultiplier
+  val staticByteOrderString = e.byteOrder.constantAsString
+  val staticByteOrder = ByteOrder(staticByteOrderString, context)
+  val javaByteOrder = staticByteOrder match {
+    case ByteOrder.BigEndian => java.nio.ByteOrder.BIG_ENDIAN
+    case ByteOrder.LittleEndian => java.nio.ByteOrder.LITTLE_ENDIAN
+  }
+
+  // Convert to string for the infoset
+  def getNum(num : BigInt) : String
+  def GramName : String
+
+  def parser : Parser = new BinaryNumberParser(this, e) {
+    override def toString = "BinaryExplicitLengthInBytes(" + exprText + ")"
+
+    def parse(pstate : PState) : PState = withParseErrorThrowing(pstate) {
+
+      log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
+
+      val start = pstate
+      if (lenInBits > 64) {
+        // Do Something Bad
+        return PE(start, "Binary string length exceeds the limit allowed by the processing subsystem: %s", lenInBits)
+      }
+
+      log(Debug("Explicit length %s", lenInBits))
+
+      // TODO: Longest possible field is Long
+
+      val in = start.inStream
+      val num = in.getBitSequence(start.bitPos, lenInBits, javaByteOrder)
+
+      // TODO: what happens if there aren't that many bits?
+
+      if (false) {
+        // Do Something Bad
+        return PE(start, "Insufficent Bits in field; required %s", lenInBits)
+      }
+
+      val res = getNum(num)
+      val endBitPos = start.bitPos + lenInBits
+
+      // log(Debug("Parsed: " + result))
+      // log(Debug("Ended at bit position " + endBitPos))
+      // val endCharPos = start.charPos + result.length
+      val currentElement = start.parentForAddContent
+      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
+      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
+      currentElement.addContent(new org.jdom.Text(res))
+      val postState = start.withPos(endBitPos, -1)
+      postState
+
+    }
+  }
+
+  def unparser : Unparser = new Unparser(e) {
+    override def toString = "BinaryExplicitLengthInBytesUnparser(" + exprText + ")"
+
+    def unparse(start : UState) : UState = {
+      Assert.notYetImplemented()
+    }
+  }
 }
 
 case class StringExplicitLengthInBytes(e : ElementBase)
