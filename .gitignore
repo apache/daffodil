@@ -3,3 +3,11 @@ lib_managed
 src_managed
 .history
 .cache
+.idea
+.idea_modules
+daffodil-core/errors
+daffodil-lib/errors
+daffodil-propgen/errors
+daffodil-test/errors
+errors
+project/errors
