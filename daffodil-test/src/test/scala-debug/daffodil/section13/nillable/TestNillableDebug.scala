@@ -12,6 +12,7 @@ import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
 import daffodil.debugger.Debugger.withDebugger
+import daffodil.debugger.Debugger
 
 class TestNillableDebug extends JUnitSuite {
   val testDir = "/daffodil/section13/nillable/"
@@ -19,7 +20,5 @@ class TestNillableDebug extends JUnitSuite {
   lazy val runnerAA = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   @Test def test_litNil4() { runnerAA.runOneTest("litNil4") }
-  @Test def test_litNil5() { runnerAA.runOneTest("litNil5") }
-  @Test def test_litNil6() { runnerAA.runOneTest("litNil6") }
 
 }
