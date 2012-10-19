@@ -1820,15 +1820,22 @@ case class LiteralNilPattern(e : ElementBase)
   //val stParser = super.parser
 
   override def parser = new PrimParser(this, e) {
-    override def toString = "LiteralNilPattern(" + e.nilValue + ")"
+
+    override def toBriefXML(depthLimit : Int = -1) : String = {
+      "<" + name + " nilValue='" + e.nilValue + "'/>"
+    }
+
     val decoder = e.knownEncodingDecoder
     val pattern = e.lengthPattern
 
+    val isEmptyAllowed = e.nilValue.contains("%ES;")
+    val eName = e.toString()
+    val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked
+    val charsetName = decoder.charset().name()
+
     def parse(start : PState) : PState = {
       withLoggingLevel(LogLevel.Info) {
-        val eName = e.toString()
 
-        val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked
         val postEvalState = start //start.withVariables(vars)
 
         log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
@@ -1841,16 +1848,14 @@ case class LiteralNilPattern(e : ElementBase)
         if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 
         log(Debug("Retrieving reader state."))
-        val reader = getReader(bytePos, decoder.charset().name(), start)
+        val reader = getReader(bytePos, charsetName, start)
 
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
         val d = new delimsearch.DelimParser()
 
-        var result : delimsearch.DelimParseResult = new delimsearch.DelimParseResult
-
-        result = d.parseInputPatterned(pattern, reader, decoder.charset())
+        val result = d.parseInputPatterned(pattern, reader, decoder.charset())
 
         if (!result.isSuccess) {
           return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
@@ -1858,25 +1863,25 @@ case class LiteralNilPattern(e : ElementBase)
           // We have a field, is it empty?
           val field = result.field
           val isFieldEmpty = field.length() == 0
-          val isEmptyAllowed = e.nilValue.contains("%ES;")
+
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
-            val xsiNS = start.parentElement.getNamespace()
             start.parentElement.addContent(new org.jdom.Text(""))
-            start.parentElement.setAttribute("nil", "true")
+            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
             return postEvalState // Empty, no need to advance
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
             return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
           } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
             // Contains a nilValue, Success!
-            val xsiNS = start.parentElement.getNamespace()
             start.parentElement.addContent(new org.jdom.Text(""))
-            start.parentElement.setAttribute("nil", "true")
+            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
 
             val numBytes = result.field.getBytes(decoder.charset()).length
             //val endCharPos = start.charPos + result.field.length()
-            val endCharPos = if (postEvalState.charPos == -1) result.field.length else postEvalState.charPos + result.field.length
+            val endCharPos =
+              if (postEvalState.charPos == -1) result.field.length
+              else postEvalState.charPos + result.field.length
             val endBitPos = (8 * numBytes) + start.bitPos
 
             log(Debug("%s - Found %s", eName, result.field))
@@ -1977,18 +1982,16 @@ case class LiteralNilDelimitedOrEndOfData(e : ElementBase)
           val isEmptyAllowed = e.nilValue.contains("%ES;")
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
-            val xsiNS = start.parentElement.getNamespace()
             start.parentElement.addContent(new org.jdom.Text(""))
-            start.parentElement.setAttribute("nil", "true")
+            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
             return postEvalState // Empty, no need to advance
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
             return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
           } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
             // Contains a nilValue, Success!
-            val xsiNS = start.parentElement.getNamespace()
             start.parentElement.addContent(new org.jdom.Text(""))
-            start.parentElement.setAttribute("nil", "true")
+            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
 
             val numBytes = result.field.getBytes(decoder.charset()).length
             //val endCharPos = start.charPos + result.field.length()

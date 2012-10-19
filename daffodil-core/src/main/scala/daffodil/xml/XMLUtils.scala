@@ -46,6 +46,7 @@ object XMLUtils {
 
   val XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema" // removed trailing slash (namespaces care)
   val XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance"
+  val xsiNS = Namespace.getNamespace("xsi", XSI_NAMESPACE)
   val DFDL_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/" // dfdl ns does have a trailing slash
   val DFDL_SUBSET_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
   val TDML_NAMESPACE = "http://www.ibm.com/xmlns/dfdl/testData"
@@ -105,25 +106,25 @@ object XMLUtils {
   //
   //  //XSD data types
   //
-    val XSD_STRING = expandedQName(XSD_NAMESPACE, "string")
-    val XSD_FLOAT = expandedQName(XSD_NAMESPACE, "float")
-    val XSD_DOUBLE = expandedQName(XSD_NAMESPACE, "double")
-    val XSD_DECIMAL = expandedQName(XSD_NAMESPACE, "decimal")
-    val XSD_INTEGER = expandedQName(XSD_NAMESPACE, "integer")
-    val XSD_LONG = expandedQName(XSD_NAMESPACE, "long")
-    val XSD_INT = expandedQName(XSD_NAMESPACE, "int")
-    val XSD_SHORT = expandedQName(XSD_NAMESPACE, "short")
-    val XSD_BYTE = expandedQName(XSD_NAMESPACE, "byte")
-    val XSD_UNSIGNED_LONG = expandedQName(XSD_NAMESPACE, "unsignedLong")
-    val XSD_UNSIGNED_INT = expandedQName(XSD_NAMESPACE, "unsignedInt")
-    val XSD_NON_NEGATIVE_INTEGER = expandedQName(XSD_NAMESPACE, "nonNegativeInteger")
-    val XSD_UNSIGNED_SHORT = expandedQName(XSD_NAMESPACE, "unsignedShort")
-    val XSD_UNSIGNED_BYTE = expandedQName(XSD_NAMESPACE, "unsignedByte")
-    val XSD_BOOLEAN = expandedQName(XSD_NAMESPACE, "boolean")
-    val XSD_DATE = expandedQName(XSD_NAMESPACE, "date")
-    val XSD_TIME = expandedQName(XSD_NAMESPACE, "time")
-    val XSD_DATE_TIME = expandedQName(XSD_NAMESPACE, "dateTime")
-    val XSD_HEX_BINARY = expandedQName(XSD_NAMESPACE, "hexBinary")
+  val XSD_STRING = expandedQName(XSD_NAMESPACE, "string")
+  val XSD_FLOAT = expandedQName(XSD_NAMESPACE, "float")
+  val XSD_DOUBLE = expandedQName(XSD_NAMESPACE, "double")
+  val XSD_DECIMAL = expandedQName(XSD_NAMESPACE, "decimal")
+  val XSD_INTEGER = expandedQName(XSD_NAMESPACE, "integer")
+  val XSD_LONG = expandedQName(XSD_NAMESPACE, "long")
+  val XSD_INT = expandedQName(XSD_NAMESPACE, "int")
+  val XSD_SHORT = expandedQName(XSD_NAMESPACE, "short")
+  val XSD_BYTE = expandedQName(XSD_NAMESPACE, "byte")
+  val XSD_UNSIGNED_LONG = expandedQName(XSD_NAMESPACE, "unsignedLong")
+  val XSD_UNSIGNED_INT = expandedQName(XSD_NAMESPACE, "unsignedInt")
+  val XSD_NON_NEGATIVE_INTEGER = expandedQName(XSD_NAMESPACE, "nonNegativeInteger")
+  val XSD_UNSIGNED_SHORT = expandedQName(XSD_NAMESPACE, "unsignedShort")
+  val XSD_UNSIGNED_BYTE = expandedQName(XSD_NAMESPACE, "unsignedByte")
+  val XSD_BOOLEAN = expandedQName(XSD_NAMESPACE, "boolean")
+  val XSD_DATE = expandedQName(XSD_NAMESPACE, "date")
+  val XSD_TIME = expandedQName(XSD_NAMESPACE, "time")
+  val XSD_DATE_TIME = expandedQName(XSD_NAMESPACE, "dateTime")
+  val XSD_HEX_BINARY = expandedQName(XSD_NAMESPACE, "hexBinary")
   //
   val DFDL_SIMPLE_BUILT_IN_TYPES =
     List("string",
@@ -368,16 +369,16 @@ object XMLUtils {
   //    sw toString
   //  }
   //  
-//    def serialize(out: OutputStream, parent: Parent) = {
-//      val format = Format.getPrettyFormat()
-//      format.setLineSeparator(System.getProperty("line.separator"))
-//      parent match {
-//        case d:Document => new XMLOutputter(format).output(d,out)
-//        case e:Element => new XMLOutputter(format).output(e,out)
-//      }
-//      out.write(System.getProperty("line.separator").getBytes())
-//      //new PrintWriter(out).println()
-//    }
+  //    def serialize(out: OutputStream, parent: Parent) = {
+  //      val format = Format.getPrettyFormat()
+  //      format.setLineSeparator(System.getProperty("line.separator"))
+  //      parent match {
+  //        case d:Document => new XMLOutputter(format).output(d,out)
+  //        case e:Element => new XMLOutputter(format).output(e,out)
+  //      }
+  //      out.write(System.getProperty("line.separator").getBytes())
+  //      //new PrintWriter(out).println()
+  //    }
   //  
   //  def getTotalNodes = nodeCount
   //
@@ -423,8 +424,8 @@ object XMLUtils {
     val localName = qName.getLocalPart
     expandedQName(uri, localName)
   }
-  
-  def expandedQName(uri: String, localName : String) : String = {
+
+  def expandedQName(uri : String, localName : String) : String = {
     Assert.usage(uri != null)
     Assert.usage(localName != null)
     val prefix =
@@ -442,17 +443,17 @@ object XMLUtils {
   }
 
   def elem2Element(nodes : scala.xml.NodeSeq) : Seq[Element] = nodes.map { elem => elem2Element(elem) }
-  
+
   /**
    * Annoying, but namespace bindings are never a collection you can process like a normal collection.
-   * Instead they are linked by these parent chains. 
-   * 
+   * Instead they are linked by these parent chains.
+   *
    * We need them as JDOM namespace bindings, so create a list of those.
    */
   def jdomNamespaceBindings(nsBinding : NamespaceBinding) : Seq[org.jdom.Namespace] = {
     if (nsBinding == null) Nil
     else {
-      val thisOne = 
+      val thisOne =
         if (nsBinding.uri != null) List(org.jdom.Namespace.getNamespace(nsBinding.prefix, nsBinding.uri))
         else Nil
       val others = jdomNamespaceBindings(nsBinding.parent)
@@ -477,15 +478,17 @@ object XMLUtils {
   def elem2Element(node : scala.xml.Node) : Element = {
     // val jdomNode = new CompressableElement(node label,node namespace)
     val jdomNode = new Element(node.label, node.prefix, node.namespace)
-    var Elem(_, _, _ , nsBinding : NamespaceBinding, _*) = node.asInstanceOf[scala.xml.Elem]
-    
-    jdomNamespaceBindings(nsBinding).foreach{ ns => {
-      val prefix = ns.getPrefix()
-      if (prefix != null & prefix != ""
-        && jdomNode.getNamespace(prefix) == null)
-    	  jdomNode.addNamespaceDeclaration(ns) 
-    }}
-      
+    var Elem(_, _, _, nsBinding : NamespaceBinding, _*) = node.asInstanceOf[scala.xml.Elem]
+
+    jdomNamespaceBindings(nsBinding).foreach { ns =>
+      {
+        val prefix = ns.getPrefix()
+        if (prefix != null & prefix != ""
+          && jdomNode.getNamespace(prefix) == null)
+          jdomNode.addNamespaceDeclaration(ns)
+      }
+    }
+
     val attribs = node.attributes.map { (attribute : MetaData) =>
       {
         // for(attribute <- attribs) {
@@ -496,9 +499,9 @@ object XMLUtils {
         val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
         val ns = Namespace getNamespace (prefix, attrNS)
         if (attribute.isPrefixed && attrNS != "") {
-//          println("THE ATTRIBUTE IS: " + name)
-//          println("THE NAMESPACE SHOULD BE: " + attrNS)
-//          println("IT ACTUALLY IS:" + Namespace.getNamespace(name, attrNS))
+          //          println("THE ATTRIBUTE IS: " + name)
+          //          println("THE NAMESPACE SHOULD BE: " + attrNS)
+          //          println("IT ACTUALLY IS:" + Namespace.getNamespace(name, attrNS))
 
           // jdomNode setAttribute (name, value, ns)
           new Attribute(name, value, ns)
@@ -543,18 +546,18 @@ object XMLUtils {
   //    }
   //  }
 
-//  def getNamespaces(node : Element) = {
-//    val namespaces = new Namespaces
-//    namespaces addNamespaces (node)
-//    namespaces
-//  }
-//
-//  def getNamespaces(node : Element, targetNamespace : String) = {
-//    val namespaces = new Namespaces
-//    namespaces addNamespaces (node)
-//    namespaces addNamespace (targetNamespace, null)
-//    namespaces
-//  }
+  //  def getNamespaces(node : Element) = {
+  //    val namespaces = new Namespaces
+  //    namespaces addNamespaces (node)
+  //    namespaces
+  //  }
+  //
+  //  def getNamespaces(node : Element, targetNamespace : String) = {
+  //    val namespaces = new Namespaces
+  //    namespaces addNamespaces (node)
+  //    namespaces addNamespace (targetNamespace, null)
+  //    namespaces
+  //  }
 
   //  def getListFromValue(value:String):AttributeValue =
   //    if (XPathUtil isExpression(value))
@@ -685,33 +688,32 @@ object XMLUtils {
     computeDiffOne(Seq(a), Seq(b), Map.empty, Nil)
   }
 
-  
   def childArrayCounters(e : Elem) = {
     val Elem(_, _, _, _, children @ _*) = e
-    val labels = children.map{_.label}
-    val groups = labels.groupBy{x=>x}
-    val counts = groups.map{ case (label, labelList) => (label, labelList.length)}
-    val arrayCounts = counts.filter{ case (label, 1) => false; case _ => true } // remove counters for scalars
-    val arrayCounters = arrayCounts.map{ case (label, _) => (label, 1.toLong)} // 1 based like XPath!
+    val labels = children.map { _.label }
+    val groups = labels.groupBy { x => x }
+    val counts = groups.map { case (label, labelList) => (label, labelList.length) }
+    val arrayCounts = counts.filter { case (label, 1) => false; case _ => true } // remove counters for scalars
+    val arrayCounters = arrayCounts.map { case (label, _) => (label, 1.toLong) } // 1 based like XPath!
     arrayCounters
   }
-  
-  def computeDiffOne(as : Seq[Node], bs : Seq[Node], 
-      aCounters : Map[String, Long],
-      path : Seq[String]) : Seq[(String, String, String)] = {
-	  lazy val zPath = path.reverse.mkString("/") 
-      (as, bs) match {
-       case (a1 :: ars, b1 :: brs) if (a1.isInstanceOf[Elem] && b1.isInstanceOf[Elem]) => {
+
+  def computeDiffOne(as : Seq[Node], bs : Seq[Node],
+                     aCounters : Map[String, Long],
+                     path : Seq[String]) : Seq[(String, String, String)] = {
+    lazy val zPath = path.reverse.mkString("/")
+    (as, bs) match {
+      case (a1 :: ars, b1 :: brs) if (a1.isInstanceOf[Elem] && b1.isInstanceOf[Elem]) => {
         val (a : Elem, b : Elem) = (a1, b1)
-    	val Elem(_, labelA, _, _, childrenA @ _*) = a
-    	val Elem(_, labelB, _, _, childrenB @ _*) = b
+        val Elem(_, labelA, _, _, childrenA @ _*) = a
+        val Elem(_, labelB, _, _, childrenB @ _*) = b
         if (labelA != labelB) List((zPath, a.toString, b.toString))
         else {
           val aIndex = aCounters.get(labelA)
-          val aIndexExpr =  aIndex.map{ n => labelA + "[" + n + "]"}
-          val newAIndex = aIndex.map{n => (labelA, n + 1)}
+          val aIndexExpr = aIndex.map { n => labelA + "[" + n + "]" }
+          val newAIndex = aIndex.map { n => (labelA, n + 1) }
           val newACounters = aCounters ++ newAIndex.toList
-          val pathStep =  aIndexExpr.getOrElse(labelA)
+          val pathStep = aIndexExpr.getOrElse(labelA)
           val aChildArrayCounters = childArrayCounters(a)
           //
           // Tricky induction here. For the rest of our peers, we must use newACounters
@@ -720,19 +722,19 @@ object XMLUtils {
           val newPath = pathStep +: path
           val childrenAList = childrenA.toList
           val childrenBList = childrenB.toList
-          val childrenDiffs = 
+          val childrenDiffs =
             computeDiffOne(childrenAList, childrenBList, aChildArrayCounters, newPath)
           val subsequentPeerDiffs = computeDiffOne(ars, brs, newACounters, path)
           val res = childrenDiffs ++ subsequentPeerDiffs
           res
-          }
         }
+      }
       case (tA1 :: ars, tB1 :: brs) if (tA1.isInstanceOf[Text] && tB1.isInstanceOf[Text]) => {
-          val (tA : Text, tB : Text) = (tA1, tB1)
-    	  val thisDiff = computeTextDiff(zPath, tA, tB)
-    	  val restDiffs = computeDiffOne(ars, brs, aCounters, path)
-    	  val res = thisDiff ++ restDiffs
-    	  res
+        val (tA : Text, tB : Text) = (tA1, tB1)
+        val thisDiff = computeTextDiff(zPath, tA, tB)
+        val restDiffs = computeDiffOne(ars, brs, aCounters, path)
+        val res = thisDiff ++ restDiffs
+        res
       }
       case (Nil, Nil) => Nil
       case _ => {
@@ -776,7 +778,7 @@ object XMLUtils {
       case _ => Assert.impossibleCase()
     }
     val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
-  
+
     // TODO: Clarify whether we should be tolerant this way, or strict
     val finalURI = if (nsURI == null || nsURI == "") sd.targetNamespace else nsURI
     (finalURI, localName)
