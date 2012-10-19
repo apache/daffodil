@@ -69,21 +69,21 @@ object OOLAG {
 
     final def valueAsAny = {
       if (hasValue) {
-        log(Debug("LV: %s already has value: %s", descrip, lazyBody))
+        log(OOLAGDebug("LV: %s already has value: %s", descrip, lazyBody))
         lazyBody
       } else if (alreadyTriedThis) {
-        log(Debug("LV: %s was tried and failed", descrip))
+        log(OOLAGDebug("LV: %s was tried and failed", descrip))
         val e = AlreadyTried(name)
         throw e
       } else {
         alreadyTriedThis = true
-        log(Debug("Evaluating %s", descrip))
+        log(OOLAGDebug("Evaluating %s", descrip))
         factory.name = name // NOTE: Sequential. Not concurrent/thread safe.
 
         try {
           val res = lazyBody
           hasValue = true
-          log(Debug("Evaluated %s to %s.", descrip, res))
+          log(OOLAGDebug("Evaluated %s to %s.", descrip, res))
           res
         } catch {
           // Some kinds of errors/exceptions we always want thrown to top level.
@@ -92,11 +92,11 @@ object OOLAG {
           case abort : Abort => throw abort // never swallow up these
           case nyi : NotYetImplementedException => throw nyi
           case eah : ErrorAlreadyHandled => {
-            log(Debug(catchMsg, descrip, eah))
+            log(OOLAGDebug(catchMsg, descrip, eah))
             throw eah
           }
           case at : AlreadyTried => {
-            log(Debug("Caught %s", at))
+            log(OOLAGDebug("Caught %s", at))
             throw at
           }
           case e => {
@@ -107,7 +107,7 @@ object OOLAG {
             throwable = e
             // let the host do what it wants with the situation
             context.handleThrownError(this)
-            log(Debug(catchMsg, descrip, e))
+            log(OOLAGDebug(catchMsg, descrip, e))
             // 
             // Catch this if you can carry on with more error gathering
             // from other contexts. Otherwise just let it propagate.
@@ -127,13 +127,13 @@ object OOLAG {
         !hasValue
       } catch {
         case e : OOLAGException => {
-          log(Debug("LV %s suppressed throw of %s", this, e))
+          log(OOLAGDebug("LV %s suppressed throw of %s", this, e))
           true
         }
       }
       if (res == true) {
         val x = 1
-        log(Debug("LV %s has an error", this))
+        log(OOLAGDebug("LV %s has an error", this))
       }
       res
     }
@@ -142,8 +142,8 @@ object OOLAG {
       Assert.usage(isError)
       throwable
     }
-    
-   protected def toListAny = {
+
+    protected def toListAny = {
       val res =
         if (!hasValue && alreadyTriedThis) Nil
         else if (isError) Nil
@@ -152,7 +152,7 @@ object OOLAG {
           case _ => List(valueAsAny)
         }
       res
-   }
+    }
   }
 
   class LV[T](body : => T, context : OOLAGHost, name : String, factory : LVFactory)

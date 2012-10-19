@@ -19,6 +19,7 @@ object LogLevel extends Enumeration {
   val Info = Value(30)
   val Compile = Value(35)
   val Debug = Value(40) // does not time-stamp messages. 
+  val OOLAGDebug = Value(50)
 }
 
 object Error {
@@ -41,12 +42,16 @@ object Debug {
   def apply(msg : String, args : Any*) = new Glob(LogLevel.Debug, msg, args)
 }
 
+object OOLAGDebug {
+  def apply(msg : String, args : Any*) = new Glob(LogLevel.OOLAGDebug, msg, args)
+}
+
 trait Identity {
   def logID : String
 }
 
 abstract class LogWriter {
-  protected def write (msg : String) : Unit
+  protected def write(msg : String) : Unit
   protected val tstampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS ")
 
   def tstamp = tstampFormat.format(new Date)
@@ -64,16 +69,16 @@ abstract class LogWriter {
         System.err.println("Glob was: " + glob.msg + glob.args.toList.toString)
       }
     }
-  }	
+  }
 }
 
 object ForUnitTestLogWriter extends LogWriter {
   var loggedMsg : String = null
-//  protected val writer = actor { loop { react { case msg : String => 
-//    loggedMsg = msg
-//    Console.out.println("Was Logged: " + loggedMsg)
-//    Console.out.flush()
-//    } } }
+  //  protected val writer = actor { loop { react { case msg : String => 
+  //    loggedMsg = msg
+  //    Console.out.println("Was Logged: " + loggedMsg)
+  //    Console.out.flush()
+  //    } } }
   def write(msg : String) {
     loggedMsg = msg
   }
@@ -87,15 +92,15 @@ object NullLogWriter extends LogWriter {
 }
 
 object ConsoleWriter extends LogWriter {
-//  protected val writer = actor {
-//    loop {
-//      react {
-//        case msg : String =>
-//          Console.out.println(msg);
-//          Console.flush case _ =>
-//      }
-//    }
-//  }
+  //  protected val writer = actor {
+  //    loop {
+  //      react {
+  //        case msg : String =>
+  //          Console.out.println(msg);
+  //          Console.flush case _ =>
+  //      }
+  //    }
+  //  }
   def write(msg : String) {
     Console.out.println(msg)
     Console.flush
@@ -167,16 +172,17 @@ trait Logging extends Identity {
 
   def setLogWriter(lw : LogWriter) { if (lw != null) logWriter = lw }
 
-  def log(glob : => Glob) { if (logLevel  >= glob.lvl) logWriter.log(logID, glob)
+  def log(glob : => Glob) {
+    if (logLevel >= glob.lvl) logWriter.log(logID, glob)
   }
 
   /**
    * Use to make debug printing over small code regions convenient. Turns on
    * your logging level of choice over a lexical region of code. Makes sure it is reset
    * to whatever it was on the exit, even if it throws.
-   * 
+   *
    * Call with no log level argument to turn it off (when done debugging). That way you
-   * can leave it sitting there. 
+   * can leave it sitting there.
    */
   def withLoggingLevel[S](newLevel : LogLevel.Value = logLevel)(body : => S) = {
     val previousLogLevel = logLevel
