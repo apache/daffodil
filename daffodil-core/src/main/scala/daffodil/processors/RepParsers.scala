@@ -181,8 +181,8 @@ case class OccursCountExpression(e : ElementBase)
   extends Terminal(e, true) {
   val pseudoElement = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
 
-  def parser = new Parser(e) {
-    def parse(pstate : PState) : PState = {
+  def parser = new Parser(e) with WithParseErrorThrowing {
+    def parse(pstate : PState) : PState = withParseErrorThrowing(pstate) {
       val exprText = e.occursCount.prettyExpr
       //
       // Because the occurs count expression will be written as if we were already in a child node
