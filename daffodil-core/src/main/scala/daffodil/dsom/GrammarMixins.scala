@@ -877,7 +877,7 @@ trait TermGrammarMixin { self : Term =>
   def separatedForPosition(body : => Gram) = {
     if (!isRepresented) body // no separators for things that have no representation in the data stream
     else {
-      val res = es.prefixSep ~ infixSepRule ~ body ~ es.postfixSep
+      val res = prefixSep ~ infixSepRule ~ body ~ postfixSep
       res
     }
   }
@@ -929,7 +929,13 @@ trait TermGrammarMixin { self : Term =>
 
   lazy val sepRule = staticSeparator | dynamicSeparator
 
-  lazy val prefixSep = Prod("prefixSep", this, hasES && es.hasPrefixSep, sepRule)
+  lazy val prefixSep = Prod("prefixSep", this,
+    {
+      val res = hasES && es.hasPrefixSep
+      res
+    },
+    sepRule)
+
   lazy val postfixSep = Prod("postfixSep", this, hasES && es.hasPostfixSep, sepRule)
   lazy val infixSep = Prod("infixSep", this, hasES && es.hasInfixSep, sepRule)
 
@@ -996,23 +1002,13 @@ trait SequenceGrammarMixin { self : Sequence =>
    * These are static properties even though the delimiters can have runtime-computed values.
    * The existence of an expression to compute a delimiter is assumed to imply a non-zero-length, aka a real delimiter.
    */
-  lazy val hasPrefixSep = {
-    val res = sepExpr(SeparatorPosition.Prefix)
-    if (res) {
-      println("prefix") // for a breakpoint
-    }
-    res
-  }
+  lazy val hasPrefixSep = sepExpr(SeparatorPosition.Prefix)
 
-  lazy val hasInfixSep = hasInfixSep_.value
-  private lazy val hasInfixSep_ = LV { sepExpr(SeparatorPosition.Infix) }
+  lazy val hasInfixSep = sepExpr(SeparatorPosition.Infix)
 
   lazy val hasPostfixSep = sepExpr(SeparatorPosition.Postfix)
 
-  lazy val hasSeparator = hasSeparator_.value
-  private lazy val hasSeparator_ = LV {
-    separator.isKnownNonEmpty
-  }
+  lazy val hasSeparator = separator.isKnownNonEmpty
 
   // note use of pass by value. We don't want to even need the SeparatorPosition property unless there is a separator.
   def sepExpr(pos : => SeparatorPosition) : Boolean = {

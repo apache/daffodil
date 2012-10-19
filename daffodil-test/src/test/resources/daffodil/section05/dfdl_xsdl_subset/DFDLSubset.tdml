@@ -98,7 +98,7 @@
 			<xs:complexType>
 				<xs:sequence dfdl:separator="||" dfdl:separatorPosition="prefix">
 					<xs:element name="Item" dfdl:lengthKind="delimited"
-						type="xs:string" maxOccurs="unbounded">
+						type="xs:string" maxOccurs="unbounded" minOccurs="0">
 					</xs:element>
 				</xs:sequence>
 			</xs:complexType>
