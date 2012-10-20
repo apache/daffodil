@@ -22,11 +22,10 @@
 
   <element name="list">
     <complexType>
-      <sequence>
+      <sequence dfdl:separator=","
+		 dfdl:terminator="%NL;">
 	<element name="character" type="xsd:string" maxOccurs="unbounded"
 		 dfdl:representation="text"
-		 dfdl:separator=","
-		 dfdl:terminator="%NL;"
 		 dfdl:escapeSchemeRef="mySweetEscape"/>
       </sequence>
     </complexType>

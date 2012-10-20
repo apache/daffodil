@@ -5,6 +5,11 @@
 	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	>
+<annotation>
+	<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+		<dfdl:format documentFinalTerminatorCanBeMissing="yes" />
+	</appinfo>
+</annotation>
 
   <!-- Stop Values -->
   <element name="list">
@@ -15,13 +20,14 @@
 		 dfdl:length="5"	       
 		 dfdl:occursCountKind="stopValue"
 		 dfdl:occursStopValue="10"/>
+	<sequence dfdl:separator=",">
 	<element name="y" type="xsd:int" maxOccurs="unbounded"
 		 dfdl:lengthKind="delimited"
-		 dfdl:separator=","
 		 dfdl:occursCountKind="stopValue"
 		 dfdl:occursStopValue="10"/>
+	</sequence>
 	<element name="z" type="xsd:string"
-		 dfdl:documentFinalTerminatorCanBeMissing="yes"/>
+		 />
       </sequence>
     </complexType>
   </element>

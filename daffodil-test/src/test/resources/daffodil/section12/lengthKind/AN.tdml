@@ -34,7 +34,7 @@
 					</xs:element>
 					<xs:element name="file" type="xs:string" minOccurs="0"
 						dfdl:representation="text" dfdl:terminator="%NL;"
-						dfdl:documentFinalTerminatorCanBeMissing="yes" dfdl:lengthKind="delimited" />
+						dfdl:lengthKind="delimited" />
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>

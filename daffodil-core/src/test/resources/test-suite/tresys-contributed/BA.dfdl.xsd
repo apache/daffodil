@@ -36,35 +36,31 @@
 
   <!-- Schema Escaping: escape escape character, variable length -->
 
-  <element name="list">
-    <complexType>
-      <sequence>
-	<element name="character1" type="xsd:string" maxOccurs="unbounded"
-		 dfdl:representation="text"
-		 dfdl:separator=","
-		 dfdl:initiator=":"
-		 dfdl:terminator="%NL;"
-		 dfdl:escapeSchemeRef="poundBang"/> 
-	<element name="character2" type="xsd:string" maxOccurs="unbounded"
-		 dfdl:representation="text"
-		 dfdl:separator=","
-		 dfdl:initiator=":"
-		 dfdl:terminator="%NL;"
-		 dfdl:escapeSchemeRef="poundPound"/>	
-	<element name="block1" type="xsd:string" maxOccurs="unbounded"
-		 dfdl:representation="text"		 
-		 dfdl:separator=","
-		 dfdl:initiator=":"
-		 dfdl:terminator="%NL;"
-		 dfdl:escapeSchemeRef="StartEndBang"/> 
-	<element name="block2" type="xsd:string" maxOccurs="unbounded"
-		 dfdl:representation="text"		 
-		 dfdl:separator=","
-		 dfdl:initiator=":"
-		 dfdl:terminator="%NL;"
-		 dfdl:escapeSchemeRef="StartEndS"/>	
-      </sequence>
-    </complexType>
-  </element>
+	<element name="list">
+		<complexType>
+			<sequence>
+				<sequence dfdl:separator="," dfdl:initiator=":"
+					dfdl:terminator="%NL;">
+					<element name="character1" type="xsd:string" maxOccurs="unbounded"
+						dfdl:representation="text" dfdl:escapeSchemeRef="poundBang" />
+				</sequence>
+				<sequence dfdl:separator="," dfdl:initiator=":"
+					dfdl:terminator="%NL;">
+					<element name="character2" type="xsd:string" maxOccurs="unbounded"
+						dfdl:representation="text" dfdl:escapeSchemeRef="poundPound" />
+				</sequence>
+				<sequence dfdl:separator="," dfdl:initiator=":"
+					dfdl:terminator="%NL;">
+					<element name="block1" type="xsd:string" maxOccurs="unbounded"
+						dfdl:representation="text" dfdl:escapeSchemeRef="StartEndBang" />
+				</sequence>
+				<sequence dfdl:separator="," dfdl:initiator=":"
+					dfdl:terminator="%NL;">
+					<element name="block2" type="xsd:string" maxOccurs="unbounded"
+						dfdl:representation="text" dfdl:escapeSchemeRef="StartEndS" />
+				</sequence>
+			</sequence>
+		</complexType>
+	</element>
 
 </schema>

@@ -22,16 +22,14 @@
 
   <element name="list">
     <complexType>
-      <sequence>
+      <sequence dfdl:separator="SEPARATOR">
 	<element name="character" type="xsd:string" maxOccurs="unbounded"
 		 dfdl:representation="text"
-		 dfdl:separator="SEPARATOR"
 		 dfdl:initiator="INITIATOR"
 		 dfdl:terminator="TERMINATOR"
 		 dfdl:escapeSchemeRef="pound"/>
 	<element name="block" type="xsd:string" maxOccurs="unbounded"
 		 dfdl:representation="text"		 
-		 dfdl:separator="SEPARATOR"
 		 dfdl:initiator="INITIATOR"
 		 dfdl:terminator="TERMINATOR"
 		 dfdl:escapeSchemeRef="StartEnd"/>

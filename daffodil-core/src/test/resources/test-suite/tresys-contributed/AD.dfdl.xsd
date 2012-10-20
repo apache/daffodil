@@ -26,14 +26,13 @@
 
 	<element name="list">
 		<complexType>
-			<sequence>
+			<sequence dfdl:separator="%NL;"
+					dfdl:separatorPosition="postfix" >
 				<sequence dfdl:hiddenGroupRef="tns:xCountGroup" />
-				<element name="x" type="xsd:string" dfdl:separator="%NL;"
-					dfdl:separatorPosition="postfix" dfdl:occursCountKind="expression"
+				<element name="x" type="xsd:string" dfdl:occursCountKind="expression"
 					dfdl:occursCount="{ ../tns:xCount }" dfdl:representation="text" />
 				<sequence dfdl:hiddenGroupRef="tns:yCountGroup" />
-				<element name="y" type="xsd:string" dfdl:separator="%NL;"
-					dfdl:separatorPosition="postfix" dfdl:occursCountKind="expression"
+				<element name="y" type="xsd:string" dfdl:occursCountKind="expression"
 					dfdl:occursCount="{ ../tns:yCount }" dfdl:representation="text" />
 			</sequence>
 		</complexType>

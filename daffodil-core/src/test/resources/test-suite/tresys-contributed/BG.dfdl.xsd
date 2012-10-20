@@ -13,10 +13,9 @@
 
   <complexType name="example1">  
     <sequence>
+      <sequence dfdl:separator="***" dfdl:terminator="%NL;">
       <element name="x" type="xsd:decimal" maxOccurs="unbounded"
 	       dfdl:lengthKind="delimited"
-	       dfdl:separator="***"
-	       dfdl:terminator="%NL;"
 	       dfdl:textNumberRep="standard"
 	       dfdl:textNumberJustification="right"
 	       dfdl:textNumberPadCharacter="%WSP;"
@@ -28,20 +27,21 @@
 	       dfdl:textStandardNaNRep="NNN"
 	       dfdl:textStandardZeroRep="ZERO NA NIL"
 	       dfdl:ignoreCase="yes"/>
+	  </sequence>
+      <sequence dfdl:separator="***" dfdl:terminator="%NL;">
       <element name="y" type="xsd:decimal" maxOccurs="unbounded"
 	       dfdl:lengthKind="delimited"
-	       dfdl:separator="***"
-	       dfdl:terminator="%NL;"
 	       dfdl:textNumberRep="standard"	       
 	       dfdl:textNumberJustification="right"
 	       dfdl:textNumberPadCharacter="%WSP;"
 	       dfdl:textStandardBase="16"/>
+	  </sequence>
+      <sequence dfdl:separator="***" dfdl:terminator="%NL;">
       <element name="z" type="xsd:float" maxOccurs="unbounded"
 	       dfdl:lengthKind="delimited"
-	       dfdl:separator="***"
-	       dfdl:terminator="%NL;"
 	       dfdl:textNumberJustification="right"
 	       dfdl:textNumberPadCharacter="%WSP;"/>
+	  </sequence>
     </sequence>
   </complexType>
 </schema>

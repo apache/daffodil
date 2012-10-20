@@ -22,12 +22,10 @@
 	   dfdl:initiator="{"
 	   dfdl:terminator="}">
     <complexType>
-      <sequence>
+      <sequence dfdl:separator="," dfdl:separatorPosition="infix">
 	<element name="child" type="xsd:string" maxOccurs="unbounded"
 		 dfdl:lengthKind="endOfParent"
 		 dfdl:representation="text"
-		 dfdl:separator=","
-		 dfdl:separatorPosition="infix"
 		 dfdl:textStringJustification="right"
 		 dfdl:textStringPadCharacter="\s"/>
       </sequence>

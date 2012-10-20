@@ -17,16 +17,16 @@
   <element name="list">
     <complexType>  
       <sequence>
-	<element name="x" type="xsd:boolean" maxOccurs="unbounded"
-		 dfdl:separator=","
-		 dfdl:terminator="%NL;"
+      <sequence dfdl:separator="," dfdl:terminator="%NL;">
+	  <element name="x" type="xsd:boolean" maxOccurs="unbounded"
 		 dfdl:textBooleanTrueRep="yes Y 1"
 		 dfdl:textBooleanFalseRep="no N 0"/>
-	<element name="y" type="xsd:boolean" maxOccurs="unbounded"
-		 dfdl:separator=","
-		 dfdl:terminator="%NL;"
+	  </sequence>
+      <sequence dfdl:separator="," dfdl:terminator="%NL;">
+	  <element name="y" type="xsd:boolean" maxOccurs="unbounded"
 		 dfdl:textBooleanTrueRep="{ 1*10 }"
 		 dfdl:textBooleanFalseRep="{'a b c'}"/>
+	  </sequence>
       </sequence>
     </complexType>
   </element>

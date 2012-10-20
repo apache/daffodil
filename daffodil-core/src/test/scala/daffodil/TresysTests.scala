@@ -80,7 +80,7 @@ class TresysTests extends JUnitSuite {
   lazy val runnerRD = new DFDLTestSuite(Misc.getRequiredResource(rd))
   runnerRD.setCheckAllTopLevel(true)
 
-  @Test def test_runtime_diagnostics1() { runnerRD.runOneTest("PE1") }
+  @Test def test_runtime_diagnostics1() { runnerRD.runOneTestNoTDMLValidation("PE1") }
 
   val sq = testDir + "sequence.tdml"
   lazy val runnerSQ = new DFDLTestSuite(Misc.getRequiredResource(sq))

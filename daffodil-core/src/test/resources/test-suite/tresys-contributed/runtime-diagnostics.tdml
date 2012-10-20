@@ -10,6 +10,8 @@
 		<dfdl:format ref="ex:daffodilTest1" />
 
 		<xs:element name="err1" type="xs:int" dfdl:lengthKind="delimited"/>
+		
+		<!-- <xs:simpleType name="foo"/> -->
 
 	</tdml:defineSchema>
 

@@ -8,6 +8,11 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	>
 
+<annotation>
+	<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+		<dfdl:format documentFinalTerminatorCanBeMissing="yes" />
+	</appinfo>
+</annotation>
 
 	<!-- HR/CU Medical data -->
 	<!-- Lots of hidden. Multiple pages. Bytes not allowed in XML -->
@@ -64,9 +69,9 @@
 	</complexType>
 
 	<group name="junk_line">
-		<sequence>
+		<sequence dfdl:separator="%NL;">
 			<element name="junk_line" type="xs:string" minOccurs="1"
-				maxOccurs="4" dfdl:separator="%NL;" dfdl:encoding="ASCII"
+				maxOccurs="4"  dfdl:encoding="ASCII"
 				dfdl:representation="text" dfdl:lengthKind="delimited" />
 		</sequence>
 	</group>
@@ -82,8 +87,7 @@
 	<group name="junk3">
 		<sequence>
 			<element name="junk3" type="xs:string" dfdl:terminator=":"
-				dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited"
-				dfdl:documentFinalTerminatorCanBeMissing="yes" />
+				dfdl:encoding="ASCII" dfdl:representation="text" dfdl:lengthKind="delimited" />
 		</sequence>
 	</group>
 
@@ -92,7 +96,7 @@
 			<element name="junk4" type="xs:string" minOccurs="1"
 				maxOccurs="1" dfdl:encoding="ASCII" dfdl:representation="text"
 				dfdl:lengthKind="pattern" dfdl:lengthPattern="[ ]+"
-				dfdl:documentFinalTerminatorCanBeMissing="yes" />
+				 />
 		</sequence>
 	</group>
 
@@ -101,7 +105,7 @@
 			<element name="junk5" type="xs:string" maxOccurs="1"
 				dfdl:terminator=":" dfdl:encoding="ASCII" dfdl:representation="text"
 				dfdl:lengthKind="delimited"
-				dfdl:documentFinalTerminatorCanBeMissing="yes" />
+				/>
 		</sequence>
 	</group>
 
@@ -109,7 +113,7 @@
 		<sequence>
 			<element name="junk6" type="xs:string" maxOccurs="1"
 				dfdl:lengthKind="pattern" dfdl:lengthPattern="[ ]+" dfdl:encoding="ASCII"
-				dfdl:representation="text" dfdl:documentFinalTerminatorCanBeMissing="yes" />
+				dfdl:representation="text" />
 		</sequence>
 	</group>
 
@@ -118,7 +122,7 @@
 			<element name="junk7" type="xs:string" maxOccurs="1"
 				dfdl:terminator=":" dfdl:encoding="ASCII" dfdl:representation="text"
 				dfdl:lengthKind="delimited"
-				dfdl:documentFinalTerminatorCanBeMissing="yes" />
+				/>
 		</sequence>
 	</group>
 
@@ -127,7 +131,7 @@
 		<sequence>
 			<element name="junk8" type="xs:string" maxOccurs="1"
 				dfdl:lengthKind="pattern" dfdl:lengthPattern="[ ]+" dfdl:encoding="ASCII"
-				dfdl:representation="text" dfdl:documentFinalTerminatorCanBeMissing="yes" />
+				dfdl:representation="text" />
 		</sequence>
 	</group>
 
@@ -136,7 +140,7 @@
 			<element name="junk4" type="xs:string" maxOccurs="1"
 				dfdl:terminator="-%NL;" dfdl:encoding="ASCII" dfdl:representation="text"
 				dfdl:lengthKind="delimited"
-				dfdl:documentFinalTerminatorCanBeMissing="yes" />
+				/>
 		</sequence>
 	</group>
 

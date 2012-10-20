@@ -13,7 +13,13 @@
 	* Schema Version 1.0
  	******************************************************************
  -->
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd ">
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+attributeFormDefault="unqualified" 
+elementFormDefault="qualified" 
+targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/" 
+xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd ">
 	
 	<xsd:include schemaLocation="DFDL_part1_simpletypes.xsd"/>
 	
@@ -506,5 +512,295 @@
 			<xsd:enumeration value="decimalSigned"/>
 		</xsd:restriction>
 	</xsd:simpleType>
+	
+	<!-- Qualified Form Attributes (for validating Short-form annotations) -->
+		
+	<xsd:attributeGroup name="BaseAGQualified">
+		<xsd:attribute form="qualified" name="ref" type="xsd:QName"/>
+	</xsd:attributeGroup>
+
+	<xsd:attributeGroup name="CommonAGQualified">
+		<xsd:attribute form="qualified" name="byteOrder" type="dfdl:ByteOrderEnum_Or_DFDLExpression"/>
+		<xsd:attribute form="qualified" name="encoding" type="dfdl:EncodingEnum_Or_DFDLExpression"/>
+		<xsd:attribute form="qualified" name="utf16Width" type="dfdl:UTF16WidthEnum"/>
+		<xsd:attribute form="qualified" name="ignoreCase" type="dfdl:YesNoEnum"/>
+	</xsd:attributeGroup>
+
+	<!-- 12.1 Aligned Data-->
+
+	<xsd:attributeGroup name="AlignmentAGQualified">
+		<xsd:attribute form="qualified" name="alignment" type="dfdl:AlignmentType"/>
+		<xsd:attribute form="qualified" name="alignmentUnits" type="dfdl:AlignmentUnitsEnum"/>
+		<xsd:attribute form="qualified" name="fillByte" type="dfdl:DFDLStringLiteral"/>
+		<xsd:attribute form="qualified" name="leadingSkip" type="dfdl:DFDLNonNegativeInteger"/>
+		<xsd:attribute form="qualified" name="trailingSkip" type="dfdl:DFDLNonNegativeInteger"/>
+	</xsd:attributeGroup>
+
+	<!-- 12.2 Delimiters and Text Mark up -->
+
+	<xsd:attributeGroup name="MarkupAGQualified">
+		<xsd:attribute form="qualified" name="initiator" type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression"/>
+		<xsd:attribute form="qualified" name="terminator" type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression"/>
+		<xsd:attribute form="qualified" name="outputNewLine" type="dfdl:DFDLStringLiteral"/>
+	</xsd:attributeGroup>
+
+	<xsd:attributeGroup name="NonGroupMarkupAGQualified">
+		<xsd:attribute form="qualified" name="emptyValueDelimiterPolicy" type="dfdl:EmptyValueDelimiterPolicyEnum" />
+	</xsd:attributeGroup>
+	
+	<!-- 12.3 Length Properties -->
+
+	<xsd:attributeGroup name="LengthAGQualified">
+		<xsd:attribute form="qualified" name="lengthKind" type="dfdl:LengthKindEnum"/>
+		<xsd:attribute form="qualified" name="length" type="dfdl:DFDLNonNegativeInteger_Or_DFDLExpression"/>
+		<xsd:attribute form="qualified" name="lengthPattern" type="dfdl:DFDLRegularExpression"/>
+		<xsd:attribute form="qualified" name="lengthUnits" type="dfdl:LengthUnitsEnum"/>
+		<xsd:attribute form="qualified" name="prefixIncludesPrefixLength" type="dfdl:YesNoEnum"/>
+		<xsd:attribute form="qualified" name="prefixLengthType" type="xsd:QName"/>
+	</xsd:attributeGroup>
+
+	<!-- 13 Simple Types-->
+	
+	<xsd:attributeGroup name="RepresentationAGQualified">
+		<xsd:attribute form="qualified" name="representation" type="dfdl:RepresentationEnum"/>
+	</xsd:attributeGroup>
+	
+	<!-- 14.4 Simple or complex local element or element reference -->
+	
+	<xsd:attributeGroup name="FloatingAGQualified">
+		<xsd:attribute form="qualified" name="floating" type="dfdl:YesNoEnum"/>
+	</xsd:attributeGroup>
+
+	<!--13.2 Properties Common to All Simple Types with Text representation-->
+	
+	<xsd:attributeGroup name="SimpleTypesTextAGQualified">
+		<xsd:attribute form="qualified" name="textPadKind" type="dfdl:TextPadKindEnum"/>
+		<xsd:attribute form="qualified" name="textTrimKind" type="dfdl:TextTrimKindEnum"/>
+		<xsd:attribute form="qualified" name="textOutputMinLength" type="dfdl:DFDLNonNegativeInteger"/>
+		<xsd:attribute form="qualified" name="escapeSchemeRef" type="dfdl:DFDLQName"/>
+	</xsd:attributeGroup>
+
+	<!-- 13.2.1 Escape Scheme -->
+	<!-- Note that these can never appear in short form -->
+	<xsd:attributeGroup name="EscapeSchemeAGQualified">
+		<xsd:attribute form="qualified" name="escapeKind" type="dfdl:EscapeKindEnum"/>
+		<xsd:attribute form="qualified" name="escapeCharacter" type="dfdl:DFDLStringLiteral_Or_DFDLExpression"/>
+		<xsd:attribute form="qualified" name="escapeBlockStart" type="dfdl:DFDLStringLiteral"/>
+		<xsd:attribute form="qualified" name="escapeBlockEnd" type="dfdl:DFDLStringLiteral"/>
+		<xsd:attribute form="qualified" name="escapeEscapeCharacter" type="dfdl:DFDLStringLiteral_Or_DFDLExpression"/>
+		<xsd:attribute form="qualified" name="extraEscapedCharacters" type="dfdl:ListOfDFDLStringLiteral"/>
+		<xsd:attribute form="qualified" name="generateEscapeBlock" type="dfdl:GenerateEscapeEnum"/>
+	</xsd:attributeGroup>
+
+	<!-- 13.3 Properties for Bidirectional support for all Simple Types with Text representation -->
+
+	<xsd:attributeGroup name="TextBidiSchemeAGQualified">
+		<xsd:attribute form="qualified" name="textBidi" type="dfdl:YesNoEnum"/>
+		<xsd:attribute form="qualified" name="textBidiTextOrdering" type="dfdl:TextBidiTextOrderingEnum"/>
+		<xsd:attribute form="qualified" name="textBidiOrientation" type="dfdl:TextBidiOrientationEnum"/>
+		<xsd:attribute form="qualified" name="textBidiSymmetric" type="dfdl:YesNoEnum"/>
+		<xsd:attribute form="qualified" name="textBidiTextShaped" type="dfdl:YesNoEnum"/>
+		<xsd:attribute form="qualified" name="textBidiNumeralShapes" type="dfdl:TextBidiNumeralShapesEnum"/>
+	</xsd:attributeGroup>
+
+	<!-- 13.4 Properties Specific to Strings with Text representation  -->
+
+	<xsd:attributeGroup name="StringTextAGQualified">
+		<xsd:attribute form="qualified" name="textStringJustification" type="dfdl:TextStringJustificationEnum"/>
+		<xsd:attribute form="qualified" name="textStringPadCharacter" type="dfdl:DFDLStringLiteral"/>
+		<xsd:attribute form="qualified" name="truncateSpecifiedLengthString" type="dfdl:YesNoEnum"/>
+	</xsd:attributeGroup>
+	
+	<!-- Properties Specific to Number with Text or Binary representation -->
+
+	<xsd:attributeGroup name="NumberAGQualified">
+		<xsd:attribute form="qualified" name="decimalSigned" type="dfdl:YesNoEnum"/>
+	</xsd:attributeGroup>
+	
+	<!-- Properties Specific to Number with Text representation -->
+
+	<xsd:attributeGroup name="NumberTextAGQualified">
+		<xsd:attribute form="qualified" name="textNumberRep" type="dfdl:TextNumberRepEnum"/>
+		<xsd:attribute form="qualified" name="textNumberJustification" type="dfdl:TextNumberJustificationEnum"/>
+		<xsd:attribute form="qualified" name="textNumberPadCharacter" type="dfdl:DFDLStringLiteral"/>
+		<xsd:attribute form="qualified" name="textStandardBase" type="dfdl:TextNumberBaseEnum"/>
+	</xsd:attributeGroup>
+
+	<!-- Text number format attributes -->
+
+	<xsd:attributeGroup name="TextNumberFormatAGQualified">
+		<xsd:attribute form="qualified" name="textNumberPattern" type="dfdl:DFDLStringLiteral"/>
+		<xsd:attribute form="qualified" name="textStandardGroupingSeparator" type="dfdl:DFDLStringLiteral_Or_DFDLExpression"/>
+		<xsd:attribute form="qualified" name="textStandardDecimalSeparator" type="dfdl:DFDLStringLiteral_Or_DFDLExpression"/>
+		<xsd:attribute form="qualified" name="textStandardExponentCharacter" type="dfdl:DFDLStringLiteral_Or_DFDLExpression"/>
+		<xsd:attribute form="qualified" name="textNumberCheckPolicy" type="dfdl:TextNumberCheckPolicyEnum"/>
+		<xsd:attribute form="qualified" name="textStandardInfinityRep" type="dfdl:DFDLStringLiteral"/>
+		<xsd:attribute form="qualified" name="textStandardNaNRep" type="dfdl:DFDLStringLiteral"/>		
+		<xsd:attribute form="qualified" name="textNumberRoundingMode" type="dfdl:TextNumberRoundingModeEnum"/>
+		<xsd:attribute form="qualified" name="textNumberRounding" type="dfdl:TextNumberRoundingEnum"/>
+		<xsd:attribute form="qualified" name="textNumberRoundingIncrement" type="xsd:double"/>
+		<xsd:attribute form="qualified" name="textZonedSignStyle" type="dfdl:TextZonedSignStyleEnum"/>
+		<xsd:attribute form="qualified" name="textStandardZeroRep" type="dfdl:ListOfDFDLStringLiteral"/>
+	</xsd:attributeGroup>
+
+	<!-- 13.6 Properties Specific to Number with Binary representation-->
+
+	<xsd:attributeGroup name="NumberBinaryAGQualified">
+		<xsd:attribute form="qualified" name="binaryNumberRep" type="dfdl:BinaryNumberRepEnum"/>
+		<xsd:attribute form="qualified" name="binaryDecimalVirtualPoint" type="xsd:int"/>
+		<xsd:attribute form="qualified" name="binaryPackedSignCodes" type="dfdl:BinaryPackedSignCodes"/>
+		<xsd:attribute form="qualified" name="binaryNumberCheckPolicy" type="dfdl:BinaryNumberCheckPolicyEnum"/>
+	</xsd:attributeGroup>
+
+	<!-- 13.7 Float/Double with Binary representation -->
+
+	<xsd:attributeGroup name="FloatBinaryAGQualified">
+		<xsd:attribute form="qualified" name="binaryFloatRep" type="dfdl:BinaryFloatRepEnum_Or_DFDLExpression"/>
+	</xsd:attributeGroup>
+
+	<!-- 13.8 Properties Specific to Boolean with Text representation -->
+
+	<xsd:attributeGroup name="BooleanTextAGQualified">
+		<xsd:attribute form="qualified" name="textBooleanTrueRep" type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression"/>
+		<xsd:attribute form="qualified" name="textBooleanFalseRep" type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression"/>
+		<xsd:attribute form="qualified" name="textBooleanJustification" type="dfdl:TextBooleanJustificationEnum"/>
+		<xsd:attribute form="qualified" name="textBooleanPadCharacter" type="dfdl:DFDLStringLiteral"/>
+	</xsd:attributeGroup>
+
+	<!-- 13.9 Properties Specific to Boolean with Binary representation -->
+
+	<xsd:attributeGroup name="BooleanBinaryAGQualified">
+		<xsd:attribute form="qualified" name="binaryBooleanTrueRep" type="dfdl:DFDLNonNegativeInteger"/>
+		<xsd:attribute form="qualified" name="binaryBooleanFalseRep" type="dfdl:DFDLNonNegativeInteger"/>
+	</xsd:attributeGroup>
+
+	<!-- 13.10	Properties Specific to Calendar Format -->
+
+	<xsd:attributeGroup name="CalendarFormatAGQualified">
+		<xsd:attribute form="qualified" name="calendarPattern" type="dfdl:DFDLStringLiteral"/>
+		<xsd:attribute form="qualified" name="calendarPatternKind" type="dfdl:CalendarPatternKindEnum"/>
+		<xsd:attribute form="qualified" name="calendarCheckPolicy" type="dfdl:CalendarCheckPolicyEnum"/>
+		<xsd:attribute form="qualified" name="calendarTimeZone" type="dfdl:CalendarTimeZoneType"/>
+		<xsd:attribute form="qualified" name="calendarObserveDST" type="dfdl:YesNoEnum"/>		
+		<xsd:attribute form="qualified" name="calendarFirstDayOfWeek" type="dfdl:CalendarFirstDayOfWeekEnum"/>
+		<xsd:attribute form="qualified" name="calendarDaysInFirstWeek" type="dfdl:CalendarDaysInFirstWeek"/>
+		<xsd:attribute form="qualified" name="calendarCenturyStart" type="dfdl:CalendarCenturyStart"/>
+		<xsd:attribute form="qualified" name="calendarLanguage" type="dfdl:CalendarLanguageType"/>
+	</xsd:attributeGroup>
+
+	<!-- 13.11 Properties Specific to Calendar with Text Representation -->
+
+	<xsd:attributeGroup name="CalendarTextAGQualified">
+		<xsd:attribute form="qualified" name="textCalendarJustification" type="dfdl:TextCalendarJustificationEnum"/>
+		<xsd:attribute form="qualified" name="textCalendarPadCharacter" type="dfdl:DFDLStringLiteral"/>
+	</xsd:attributeGroup>
+
+	<!-- 13.12 Properties Specific to Calendar with Binary Representation -->
+
+	<xsd:attributeGroup name="CalendarBinaryAGQualified">
+		<xsd:attribute form="qualified" name="binaryCalendarRep" type="dfdl:BinaryCalendarRepEnum"/>
+		<xsd:attribute form="qualified" name="binaryCalendarEpoch" type="xsd:string"/>
+	</xsd:attributeGroup>
+
+	<!-- 13.13	Properties Specific to Opaque Types (hexBinary) -->
+	<xsd:attributeGroup name="OpaqueAGQualified">
+	</xsd:attributeGroup>
+
+	<!-- 13.14 Properties for Nillable Elements -->
+
+	<xsd:attributeGroup name="NillableAGQualified">
+		<xsd:attribute form="qualified" name="nilKind" type="dfdl:NilKindEnum"/>
+		<xsd:attribute form="qualified" name="nilValue" type="dfdl:ListOfDFDLStringLiteral"/>
+		<xsd:attribute form="qualified" name="nilValueDelimiterPolicy" type="dfdl:NilValueDelimiterPolicyEnum"/>
+	</xsd:attributeGroup>
+
+	<!-- 13.15 Properties for Default Value Control -->
+
+	<xsd:attributeGroup name="DefaultValueControlAGQualified">
+		<xsd:attribute form="qualified" name="useNilForDefault" type="dfdl:YesNoEnum"/>
+	</xsd:attributeGroup>
+ 
+	<!-- 14 Sequence Groups -->
+
+	<xsd:attributeGroup name="SequenceAGQualified">
+		<xsd:attribute form="qualified" name="sequenceKind" type="dfdl:SequenceKindEnum"/>
+		<xsd:attribute form="qualified" name="hiddenGroupRef" type="xsd:QName"/>
+	</xsd:attributeGroup>
+
+	<!-- 14.2 Sequence Groups with Delimiters-->
+
+	<xsd:attributeGroup name="SeparatorAGQualified">
+		<xsd:attribute form="qualified" name="separator" type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression"/>
+		<xsd:attribute form="qualified" name="separatorPosition" type="dfdl:SeparatorPositionEnum"/>
+		<xsd:attribute form="qualified" name="separatorPolicy" type="dfdl:SeparatorPolicyEnum"/>
+	</xsd:attributeGroup>
+	
+	<xsd:attributeGroup name="GroupCommonAGQualified">
+		<xsd:attribute form="qualified" name="initiatedContent" type="dfdl:YesNoEnum"/>
+	</xsd:attributeGroup>
+
+	<!-- 15 Choices-->
+
+	<xsd:attributeGroup name="ChoiceAGQualified">
+		<xsd:attribute form="qualified" name="choiceLengthKind" type="dfdl:ChoiceLengthKindEnum"/>
+		<xsd:attribute form="qualified" name="choiceLength" type="dfdl:DFDLNonNegativeInteger"/>
+	</xsd:attributeGroup>
+
+	<!--16 Arrays and Optional Elements: Properties for Repeating and Variable-Occurrence Data Items-->
+
+	<xsd:attributeGroup name="OccursAGQualified">
+		<xsd:attribute form="qualified" name="occursCountKind" type="dfdl:OccursCountKindEnum"/>
+		<xsd:attribute form="qualified" name="occursCount" type="dfdl:DFDLExpression"/>
+		<xsd:attribute form="qualified" name="occursStopValue" type="dfdl:ListOfDFDLStringLiteral"/>
+	</xsd:attributeGroup>
+
+	<!-- 19	Calculated Value Properties.-->
+
+	<xsd:attributeGroup name="CalculatedValueAGQualified">
+		<xsd:attribute form="qualified" name="inputValueCalc" type="dfdl:DFDLExpression"/>
+		<xsd:attribute form="qualified" name="outputValueCalc" type="dfdl:DFDLExpression"/>
+	</xsd:attributeGroup>
+
+	<!-- document only markup properties -->
+	
+	<xsd:attributeGroup name="DocumentPropertiesAGQualified">
+		<xsd:attribute form="qualified" name="documentFinalTerminatorCanBeMissing" type="dfdl:YesNoEnum"/>
+	</xsd:attributeGroup>
+	
+	<xsd:attributeGroup name="ElementAGQualified">
+		<xsd:attributeGroup ref="dfdl:SimpleTypeAGQualified" />
+		<xsd:attributeGroup ref="dfdl:FloatingAGQualified" />
+		<xsd:attributeGroup ref="dfdl:NillableAGQualified" />
+		<xsd:attributeGroup ref="dfdl:DefaultValueControlAGQualified" />
+		<xsd:attributeGroup ref="dfdl:OccursAGQualified" />
+		<xsd:attributeGroup ref="dfdl:CalculatedValueAGQualified" />
+	</xsd:attributeGroup>
+
+	<!-- dfdl:group takes the union of dfdl:sequence and dfdl:choice properties -->
+	<xsd:attributeGroup name="GroupAGQualified">
+		<xsd:attributeGroup ref="dfdl:GroupCommonAGQualified" />
+		<xsd:attributeGroup ref="dfdl:SequenceAGQualified" />
+		<xsd:attributeGroup ref="dfdl:ChoiceAGQualified" />
+		<xsd:attributeGroup ref="dfdl:SeparatorAGQualified" />
+	</xsd:attributeGroup>
+
+	<xsd:attributeGroup name="SimpleTypeAGQualified">
+		<xsd:attributeGroup ref="dfdl:RepresentationAGQualified" />
+		<xsd:attributeGroup ref="dfdl:NonGroupMarkupAGQualified" />
+		<xsd:attributeGroup ref="dfdl:LengthAGQualified" />
+		<xsd:attributeGroup ref="dfdl:SimpleTypesTextAGQualified" />
+		<xsd:attributeGroup ref="dfdl:StringTextAGQualified" />
+		<xsd:attributeGroup ref="dfdl:NumberAGQualified" />
+		<xsd:attributeGroup ref="dfdl:NumberTextAGQualified" />
+		<xsd:attributeGroup ref="dfdl:TextNumberFormatAGQualified" />
+		<xsd:attributeGroup ref="dfdl:NumberBinaryAGQualified" />
+		<xsd:attributeGroup ref="dfdl:FloatBinaryAGQualified" />
+		<xsd:attributeGroup ref="dfdl:TextBidiSchemeAGQualified" />
+		<xsd:attributeGroup ref="dfdl:CalendarTextAGQualified" />
+		<xsd:attributeGroup ref="dfdl:CalendarBinaryAGQualified" />
+		<xsd:attributeGroup ref="dfdl:CalendarFormatAGQualified" />
+		<xsd:attributeGroup ref="dfdl:BooleanTextAGQualified" />
+		<xsd:attributeGroup ref="dfdl:BooleanBinaryAGQualified" />
+	</xsd:attributeGroup>
 	
 </xsd:schema>

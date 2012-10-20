@@ -21,10 +21,8 @@
     <sequence >
       <element name="row" maxOccurs="unbounded">
 	<complexType>
-	  <sequence>
+	  <sequence dfdl:separator="," dfdl:terminator="%NL;">
 	    <element name="column" type="xsd:string"
-		     dfdl:separator=","
-		     dfdl:terminator="%NL;"
 		     maxOccurs="unbounded"
 		     dfdl:representation="text"/>
 	  </sequence>

@@ -89,7 +89,7 @@
 		<xs:element name="NS_10">
 		<xs:complexType>
 			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-				dfdl:separator="," dfdl:separatorPolicy="suppressed" dfdl:terminator="%NL;" dfdl:documentFinalTerminatorCanBeMissing="yes">
+				dfdl:separator="," dfdl:separatorPolicy="suppressed" dfdl:terminator="%NL;" >
 				<xs:element name="num" type="xs:int" maxOccurs="unbounded"/>	
 			</xs:sequence>
 		</xs:complexType>

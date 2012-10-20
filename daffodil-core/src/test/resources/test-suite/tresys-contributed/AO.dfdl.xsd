@@ -22,10 +22,9 @@
 	   dfdl:textStringJustification="center"
 	   dfdl:textStringPadCharacter="%WSP;">
     <complexType>
-      <sequence>
+      <sequence dfdl:separator=",">
 	<element name="pair" maxOccurs="unbounded"
 		 dfdl:representation="text"
-		 dfdl:separator=","
 		 dfdl:terminator="}">
 	  <complexType>
 	    <sequence>

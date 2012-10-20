@@ -64,6 +64,9 @@ NOT XML
 			</xsd:appinfo>
 		</xsd:annotation>
 	</xsd:element>
+	
+	<!-- incorrect property on element (separator can't be on element) -->
+	<xsd:element name="t5short" type="xsd:int" dfdl:separator=","/>
 
 	<!-- annotation element name on long form error -->
 	<xsd:element name="t6" type="xsd:int" dfdl:representation="text">
@@ -82,6 +85,8 @@ NOT XML
 
 <!-- 
 VERY WIERD... It won't check errors below this point.
+
+(Hmmm. as of 2012-10-19, it seems to be checking them below here too.)
  -->
 	<!-- namespace prefix on long form error -->
 	<xsd:element name="t8" type="xsd:int" dfdl:representation="text">

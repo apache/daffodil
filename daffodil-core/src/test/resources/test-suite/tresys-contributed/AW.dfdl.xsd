@@ -23,21 +23,19 @@
 
   <!-- Schema Escaping: escape character and escape block, variable length -->
 
-  <element name="list">
-    <complexType>
-      <sequence>
-	<element name="character" type="xsd:string" maxOccurs="unbounded"
-		 dfdl:representation="text"
-		 dfdl:separator=","
-		 dfdl:terminator="%NL;"
-		 dfdl:escapeSchemeRef="pound"/>
-	<element name="block" type="xsd:string" maxOccurs="unbounded"
-		 dfdl:representation="text"
-		 dfdl:separator=","
-		 dfdl:terminator="%NL;"
-		 dfdl:escapeSchemeRef="cStyleComment"/>
-      </sequence>
-    </complexType>
-  </element>
+	<element name="list">
+		<complexType>
+			<sequence>
+				<sequence dfdl:separator="," dfdl:terminator="%NL;">
+					<element name="character" type="xsd:string" maxOccurs="unbounded"
+						dfdl:representation="text" dfdl:escapeSchemeRef="pound" />
+				</sequence>
+				<sequence dfdl:separator="," dfdl:terminator="%NL;">
+					<element name="block" type="xsd:string" maxOccurs="unbounded"
+						dfdl:representation="text" dfdl:escapeSchemeRef="cStyleComment" />
+				</sequence>
+			</sequence>
+		</complexType>
+	</element>
 
 </schema>

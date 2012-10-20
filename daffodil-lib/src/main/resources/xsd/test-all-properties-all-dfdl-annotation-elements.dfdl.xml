@@ -91,11 +91,11 @@
 		dfdl:byteOrder="littleEndian" 
 		dfdl:encoding=""
 		dfdl:escapeSchemeRef="ex:myScheme" dfdl:fillByte="1"
-		dfdl:initiator="" dfdl:ignoreCase="yes" dfdl:inputValueCalc="{}"
+		dfdl:initiator="" dfdl:ignoreCase="yes" 
 		dfdl:leadingSkip="1" dfdl:length="3" dfdl:lengthKind="implicit"
 		dfdl:lengthPattern="" dfdl:lengthUnits="bits" 
 		
-		dfdl:outputNewLine="" dfdl:outputValueCalc="{}"
+		dfdl:outputNewLine="" 
 		dfdl:prefixIncludesPrefixLength="yes"
 		dfdl:prefixLengthType="QName" dfdl:representation="binary"
 		dfdl:terminator=""
@@ -109,7 +109,7 @@
 	</xsd:simpleType>
 
 	
-	<xsd:group name="myGroup" dfdl:representation="text">
+	<xsd:group name="myGroup">
 		<xsd:sequence>
 			<xsd:element name="e1" type="xsd:hexBinary" />
 		</xsd:sequence>
@@ -183,17 +183,13 @@
 
 	<xsd:element name="t3">
 		<xsd:complexType>
-			<xsd:sequence dfdl:escapeSchemeRef="ex:myEscapeScheme"
-				dfdl:initiator=""
-				 dfdl:length="5" dfdl:lengthKind="implicit"
-				dfdl:lengthUnits="bits" dfdl:separator="" 
+			<xsd:sequence 
+				dfdl:initiator="" dfdl:separator="" 
 				dfdl:separatorPolicy="required" dfdl:separatorPosition="infix"
 				dfdl:sequenceKind="ordered" dfdl:terminator=""
 				>
 
-				<xsd:choice dfdl:choiceLengthKind="implicit"
-					dfdl:lengthUnits="bits" dfdl:terminator=""
-					>
+				<xsd:choice dfdl:choiceLengthKind="implicit" dfdl:terminator="">
 
 					<xsd:element name="f1" type="xsd:int" maxOccurs="unbounded"
 						dfdl:alignment="implicit" dfdl:alignmentUnits="bits"

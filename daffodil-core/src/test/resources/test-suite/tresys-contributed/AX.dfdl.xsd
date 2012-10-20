@@ -24,26 +24,21 @@
   <!-- Schema Escaping: escape character and escape block, fixed length -->
 
   <element name="list">
-    <complexType>
-      <sequence>
-	<element name="character" type="xsd:string" maxOccurs="unbounded"
-		 dfdl:representation="text"
-		 dfdl:lengthKind="explicit"
-		 dfdl:length="5"
-		 dfdl:separator=","
-		 dfdl:terminator="%NL;"
-		 dfdl:encoding="US-ASCII"
-		 dfdl:escapeSchemeRef="pound"/>
-	<element name="block" type="xsd:string" maxOccurs="unbounded"
-		 dfdl:representation="text"
-		 dfdl:separator=","
-		 dfdl:terminator="%NL;"
-		 dfdl:encoding="US-ASCII"
-		 dfdl:lengthKind="explicit"
-		 dfdl:length="15"
-		 dfdl:escapeSchemeRef="cStyleComment"/>
-      </sequence>
-    </complexType>
-  </element>
+	<complexType>
+		<sequence>
+			<sequence dfdl:separator="," dfdl:terminator="%NL;">
+				<element name="character" type="xsd:string" maxOccurs="unbounded"
+					dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5"
+
+					dfdl:encoding="US-ASCII" dfdl:escapeSchemeRef="pound" />
+			</sequence>
+			<sequence dfdl:separator="," dfdl:terminator="%NL;">
+				<element name="block" type="xsd:string" maxOccurs="unbounded"
+					dfdl:representation="text" dfdl:encoding="US-ASCII"
+					dfdl:lengthKind="explicit" dfdl:length="15" dfdl:escapeSchemeRef="cStyleComment" />
+			</sequence>
+		</sequence>
+	</complexType>
+</element>
 
 </schema>

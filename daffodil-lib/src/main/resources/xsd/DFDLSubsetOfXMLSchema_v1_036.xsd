@@ -372,12 +372,13 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
   </xsd:sequence>
  </xsd:group>
 
+<!-- 
  <xsd:element name="anyAttribute" type="sub:wildcard" id="anyAttribute">
   <xsd:annotation>
    <xsd:documentation source="http://www.w3.org/TR/xmlschema-1/#element-anyAttribute"/>
   </xsd:annotation>
  </xsd:element>
-
+-->
  <xsd:group name="complexTypeModel">
   <xsd:choice>
     <!--  <xsd:element ref="sub:simpleContent"/> Not DFDL v1.0 -->
@@ -494,11 +495,20 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
  -->
  
  <xsd:attributeGroup name="anyOther">
- <!-- XSD normally does lax validation, but to find more typographical errors in our examples
-      we use strict validation
+ <!-- 
+    For DFDL, XSD normally does lax validation, but to find more typographical 
+      errors in our examples we want strict validation
+      
+    However, going even further, we want to validate short form annotations,
+    so we don't use wildcards for the dfdl namespace at all because if we do
+    our ability to enforce proper use of dfdl short form properties is lost.
    -->
   <!--  <xsd:anyAttribute namespace="##other" processContents="lax"/> -->
-     <xsd:anyAttribute namespace="##other" processContents="strict"/>
+  <!--  <xsd:anyAttribute namespace="##other" processContents="strict"/> -->
+  
+  <!-- need this much wildcard to allow xml:lang etc. which do appear in schemas -->
+  <xsd:anyAttribute namespace="http://www.w3.org/XML/1998/namespace"/>
+  
  </xsd:attributeGroup>
   
  <xsd:complexType name="topLevelComplexType">
@@ -663,8 +673,17 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
     <xsd:attribute name="abstract" type="xsd:boolean" use="optional" default="false"/>
     <xsd:attribute name="final" type="sub:derivationSet"/>
     <xsd:attribute name="block" type="sub:blockSet"/>
-    -->
     <xsd:attribute name="form" type="sub:formChoice"/>
+    -->
+     <!-- 
+    Include short-form DFDL Attributes. 
+    -->
+    <xsd:attributeGroup ref="dfdl:BaseAGQualified" />
+	<xsd:attributeGroup ref="dfdl:CommonAGQualified" />
+	<xsd:attributeGroup ref="dfdl:AlignmentAGQualified" />
+	<xsd:attributeGroup ref="dfdl:MarkupAGQualified" />
+	<xsd:attributeGroup ref="dfdl:ElementAGQualified" />
+	
    </xsd:extension>
   </xsd:complexContent>
  </xsd:complexType>
@@ -685,7 +704,8 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
     <xsd:attribute name="minOccurs" use="prohibited"/>
     <xsd:attribute name="maxOccurs" use="prohibited"/>
     <xsd:attribute name="name" use="required" type="xsd:NCName"/>
-    <xsd:attributeGroup ref="sub:anyOther"/>
+    <xsd:attributeGroup ref="sub:anyOther"/> 
+				
    </xsd:restriction>
   </xsd:complexContent>
  </xsd:complexType>
@@ -749,33 +769,32 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
 
  <xsd:complexType name="namedGroup">
   <xsd:complexContent>
-   <xsd:restriction base="sub:realGroup">
-    <xsd:sequence>
-     <xsd:element ref="sub:annotation" minOccurs="0"/>
-     <xsd:choice minOccurs="1" maxOccurs="1">
-      <xsd:element name="choice" type="sub:simpleExplicitGroup"/>
-      <xsd:element name="sequence" type="sub:simpleExplicitGroup"/>
-     </xsd:choice>
-    </xsd:sequence>
-    <xsd:attribute name="name" use="required" type="xsd:NCName"/>
+   <xsd:extension base="sub:realGroup">
+  <!-- <xsd:attribute name="name" use="required" type="xsd:NCName"/> -->
     <xsd:attribute name="ref" use="prohibited"/>
     <xsd:attribute name="minOccurs" use="prohibited"/>
     <xsd:attribute name="maxOccurs" use="prohibited"/>
     <xsd:attributeGroup ref="sub:anyOther"/>
-   </xsd:restriction>
+   </xsd:extension>
   </xsd:complexContent>
  </xsd:complexType>
 
  <xsd:complexType name="groupRef">
   <xsd:complexContent>
-   <xsd:restriction base="sub:realGroup">
-    <xsd:sequence>
-     <xsd:element ref="sub:annotation" minOccurs="0"/>
-    </xsd:sequence>
+   <xsd:extension base="sub:annotated">
     <xsd:attribute name="ref" use="required" type="xsd:QName"/>
     <xsd:attribute name="name" use="prohibited"/>
     <xsd:attributeGroup ref="sub:anyOther"/>
-   </xsd:restriction>
+    
+    <!-- DFDL -->
+
+    <xsd:attributeGroup ref="dfdl:BaseAGQualified" />
+    <xsd:attributeGroup ref="dfdl:CommonAGQualified" />
+	<xsd:attributeGroup ref="dfdl:AlignmentAGQualified" />
+	<xsd:attributeGroup ref="dfdl:MarkupAGQualified" />
+    <xsd:attributeGroup ref="dfdl:GroupAGQualified" />
+    	
+   </xsd:extension>
   </xsd:complexContent>
  </xsd:complexType>
 
@@ -784,17 +803,18 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
    <xsd:documentation>
    group type for the three kinds of group</xsd:documentation>
   </xsd:annotation>
-  <xsd:complexContent>
-   <xsd:restriction base="sub:group">
     <xsd:sequence>
      <xsd:element ref="sub:annotation" minOccurs="0"/>
      <xsd:group ref="sub:nestedParticle" minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
-    <xsd:attribute name="name" type="xsd:NCName" use="prohibited"/>
-    <xsd:attribute name="ref" type="xsd:QName" use="prohibited"/>
     <xsd:attributeGroup ref="sub:anyOther"/>
-   </xsd:restriction>
-  </xsd:complexContent>
+    
+    <!-- DFDL attributes for short form -->
+    <xsd:attributeGroup ref="dfdl:BaseAGQualified" />
+    <xsd:attributeGroup ref="dfdl:CommonAGQualified" />
+	<xsd:attributeGroup ref="dfdl:AlignmentAGQualified" />
+	<xsd:attributeGroup ref="dfdl:MarkupAGQualified" />
+    <xsd:attributeGroup ref="dfdl:GroupCommonAGQualified" />
  </xsd:complexType>
  
  <xsd:complexType name="simpleExplicitGroup">
@@ -862,15 +882,32 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
   </xsd:complexContent>
  </xsd:complexType>
 
- 
+ <xsd:complexType name="explicitChoiceGroup">
+	<xsd:complexContent>
+		<xsd:extension base="sub:explicitGroup">
+			<!-- DFDL -->
+			<xsd:attributeGroup ref="dfdl:ChoiceAGQualified" />
+		</xsd:extension>
+	</xsd:complexContent>
+ </xsd:complexType>
 
- <xsd:element name="choice" type="sub:explicitGroup" id="choice">
+ <xsd:element name="choice" type="sub:explicitChoiceGroup" id="choice">
   <xsd:annotation>
    <xsd:documentation source="http://www.w3.org/TR/xmlschema-1/#element-choice"/>
   </xsd:annotation>
  </xsd:element>
+ 
+  <xsd:complexType name="explicitSequenceGroup">
+	<xsd:complexContent>
+		<xsd:extension base="sub:explicitGroup">
+			<!-- DFDL -->
+			<xsd:attributeGroup ref="dfdl:SequenceAGQualified" />
+			<xsd:attributeGroup ref="dfdl:SeparatorAGQualified" />
+		</xsd:extension>
+	</xsd:complexContent>
+  </xsd:complexType>
 
- <xsd:element name="sequence" type="sub:explicitGroup" id="sequence">
+ <xsd:element name="sequence" type="sub:explicitSequenceGroup" id="sequence">
   <xsd:annotation>
    <xsd:documentation source="http://www.w3.org/TR/xmlschema-1/#element-sequence"/>
   </xsd:annotation>
@@ -882,10 +919,11 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
   </xsd:annotation>
  </xsd:element>
 
- <xsd:complexType name="wildcard">
+<!--  <xsd:complexType name="wildcard">
   <xsd:complexContent>
    <xsd:extension base="sub:annotated">
     <xsd:attribute name="namespace" type="sub:namespaceList" use="optional" default="##any"/>
+    -->
     <!--  Chapter 21: processContents not allowed in v1
     <xsd:attribute name="processContents" use="optional" default="strict">
      <xsd:simpleType>
@@ -896,10 +934,11 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
       </xsd:restriction>
      </xsd:simpleType>
      </xsd:attribute>
-     -->
+     --> <!--
    </xsd:extension>
   </xsd:complexContent>
  </xsd:complexType>
+ -->
 <!-- No ANY wildcards in DFDL v1.0
  <xsd:element name="any" id="any">
   <xsd:annotation>
@@ -915,7 +954,7 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
   </xsd:complexType>
  </xsd:element>
 -->
-
+<!-- 
   <xsd:annotation>
    <xsd:documentation>
    simple type for the value of the 'namespace' attr of
@@ -969,7 +1008,7 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
    </xsd:simpleType>
   </xsd:union>
  </xsd:simpleType>
-
+-->
 <!-- 
  <xsd:element name="attribute" type="sub:topLevelAttribute" id="attribute">
   <xsd:annotation>
@@ -1322,6 +1361,13 @@ use</xsd:documentation>
             </xsd:documentation>
           </xsd:annotation>
         </xsd:attribute>
+        
+        <!-- DFDL -->
+            <xsd:attributeGroup ref="dfdl:BaseAGQualified" />
+            <xsd:attributeGroup ref="dfdl:CommonAGQualified" />
+			<xsd:attributeGroup ref="dfdl:AlignmentAGQualified" />
+			<xsd:attributeGroup ref="dfdl:MarkupAGQualified" />
+        	<xsd:attributeGroup ref="dfdl:SimpleTypeAGQualified" />
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>

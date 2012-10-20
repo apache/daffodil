@@ -14,8 +14,7 @@
 					<xs:element name="s" dfdl:lengthKind="implicit"
 						minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind='parsed'>
 						<xs:complexType>
-							<xs:choice dfdl:initiatedContent="yes"
-								dfdl:separatorPosition="infix" dfdl:separator="">
+							<xs:choice dfdl:initiatedContent="yes">
 								<xs:element name="s1" dfdl:initiator="[s1:" type="xs:int"
 									dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
 								<xs:element name="s2" dfdl:initiator="[s2:" type="xs:string"
@@ -33,8 +32,7 @@
 					<xs:choice>
 						<xs:element name="x1" dfdl:lengthKind="implicit">
 							<xs:complexType>
-								<xs:choice dfdl:initiatedContent="yes"
-									dfdl:separatorPosition="infix" dfdl:separator="">
+								<xs:choice dfdl:initiatedContent="yes">
 									<xs:element name="a1" dfdl:initiator="[" type="xs:int"
 										dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
 									<xs:element name="a2" dfdl:initiator="[" type="xs:string"
@@ -55,8 +53,7 @@
 					<xs:choice>
 						<xs:element name="x1" dfdl:lengthKind="implicit">
 							<xs:complexType>
-								<xs:choice dfdl:initiatedContent="no"
-									dfdl:separatorPosition="infix" dfdl:separator="">
+								<xs:choice dfdl:initiatedContent="no">
 									<xs:element name="a1" dfdl:initiator="[" type="xs:int"
 										dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
 									<xs:element name="a2" dfdl:initiator="[" type="xs:string"
@@ -76,8 +73,7 @@
 					<xs:element name="s" dfdl:lengthKind="implicit"
 						minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind='parsed'>
 						<xs:complexType>
-							<xs:choice dfdl:initiatedContent="yes"
-								dfdl:separatorPosition="infix" dfdl:separator="">
+							<xs:choice dfdl:initiatedContent="yes">
 								<xs:element name="s1" type="xs:int" dfdl:terminator="]"
 									dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
 								<xs:element name="s2" dfdl:initiator="[s2:" type="xs:string"
@@ -97,8 +93,7 @@
 					<xs:element name="s" dfdl:lengthKind="implicit"
 						minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind='parsed'>
 						<xs:complexType>
-							<xs:choice dfdl:initiatedContent="yes"
-								dfdl:separatorPosition="infix" dfdl:separator="">
+							<xs:choice dfdl:initiatedContent="yes">
 								<xs:element ref="ex:s1" />
 								<xs:element name="s2" dfdl:initiator="[s2:" type="xs:string"
 									dfdl:terminator="]" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
