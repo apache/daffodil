@@ -4,13 +4,12 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
+	xmlns:ex="http://example.com"
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
 	<tdml:defineSchema name="SequenceGroup-Embedded.dfdl.xsd">
-		<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" encoding="utf-8" 
-			occursCountKind="parsed" separatorPolicy="suppressed" textNumberRep="standard" ignoreCase="no"
-			representation="text" lengthUnits="bytes" lengthKind="implicit" />
+		<dfdl:format ref="ex:daffodilTest1" 
+			 lengthUnits="bytes" lengthKind="implicit" />
 
 		<xs:element name="SG_05">
 			<xs:complexType>
@@ -18,6 +17,7 @@
 					<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"/>
 					<xs:element name="e2" type="xs:float" dfdl:lengthKind="explicit" dfdl:length="5"/>
 					<xs:element name="e3" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="4"/>
+					<xs:element name="leftover" type="xs:string" dfdl:lengthKind="delimited"/>
 				</xs:sequence>
 			</xs:complexType>	
 		</xs:element>
@@ -33,6 +33,7 @@
 					<e1>837</e1>
 					<e2>742.8</e2>
 					<e3>-119</e3>
+					<leftover>7108</leftover>
 				</SG_05>
 			</tdml:dfdlInfoset>
 			</tdml:infoset>

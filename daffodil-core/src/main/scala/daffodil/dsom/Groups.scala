@@ -129,7 +129,7 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
           }
         }
       }
-      case ct : ComplexTypeBase => ct.element.nearestEnclosingSequence
+      case ct : ComplexTypeBase => None // Stop when we get to an element // ct.element.nearestEnclosingSequence
       case gd : GlobalGroupDef => gd.groupRef.nearestEnclosingSequence
       case _ => Assert.invariantFailed("nearestEnclosingSequence called on " + this + "with parent " + parent)
     }
@@ -440,8 +440,10 @@ class Choice(xmlArg : Node, parent : SchemaComponent, position : Int)
   lazy val <choice>{ xmlChildren @ _* }</choice> = xml
 
   lazy val hasStaticallyRequiredInstances = {
-    // true if all arms of the choice have statically required instances.
-    groupMembers.forall { _.hasStaticallyRequiredInstances }
+    // true if the choice has syntactic features (initiator, terminator)
+    hasInitiator || hasTerminator ||
+      // or if all arms of the choice have statically required instances.
+      groupMembers.forall { _.hasStaticallyRequiredInstances }
   }
 
   /**
@@ -488,8 +490,10 @@ class Sequence(xmlArg : Node, parent : SchemaComponent, position : Int)
   lazy val <sequence>{ xmlChildren @ _* }</sequence> = xml
 
   lazy val hasStaticallyRequiredInstances = {
-    // true if any child of the sequence has statically required instances.
-    groupMembers.exists { _.hasStaticallyRequiredInstances }
+    // true if there are syntactic features
+    hasInitiator || hasTerminator ||
+      // or if any child of the sequence has statically required instances.
+      groupMembers.exists { _.hasStaticallyRequiredInstances }
   }
 
 }
@@ -510,7 +514,7 @@ class GroupRef(xmlArg : Node, parent : SchemaComponent, position : Int)
   def emptyFormatFactory = new DFDLGroup(newDFDLAnnotationXML("group"), this)
   def isMyAnnotation(a : DFDLAnnotation) = a.isInstanceOf[DFDLGroup]
 
-  def hasStaticallyRequiredInstances = group.hasStaticallyRequiredInstances //Assert.notYetImplemented()
+  def hasStaticallyRequiredInstances = group.hasStaticallyRequiredInstances
 
   // TODO: Consolidate techniques with HasRef trait used by ElementRef
   lazy val refName = {

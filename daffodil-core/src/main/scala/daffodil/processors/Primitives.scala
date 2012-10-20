@@ -1434,7 +1434,7 @@ abstract class StaticText(delim : String, e : Term, kindString : String, guard :
   def parser : Parser = new PrimParser(this, e) {
 
     override def toBriefXML(depthLimit : Int = -1) = {
-      "<" + kindString + ">" + delimsCooked + "</" + kindString + ">"
+      "<" + kindString + ">" + delim + " " + delimsRaw + "</" + kindString + ">"
     }
 
     Assert.notYetImplemented(e.ignoreCase == YesNo.Yes)

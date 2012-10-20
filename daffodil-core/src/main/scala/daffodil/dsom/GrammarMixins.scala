@@ -973,7 +973,8 @@ trait ModelGroupGrammarMixin
   // we're nested inside another group as a term.
   lazy val asChildOfComplexType = termContentBody
 
-  lazy val termContentBody = Prod("termContentBody", this, dfdlStatementEvaluations ~ groupLeftFraming ~ groupContent ~ groupRightFraming)
+  lazy val termContentBody = Prod("termContentBody", this, separatedForPosition(modelGroupSyntax))
+  lazy val modelGroupSyntax = Prod("modelGroupSyntax", this, dfdlStatementEvaluations ~ groupLeftFraming ~ groupContent ~ groupRightFraming)
 
   def mt = EmptyGram.asInstanceOf[Gram] // cast trick to shut up foldLeft compile errors below
 

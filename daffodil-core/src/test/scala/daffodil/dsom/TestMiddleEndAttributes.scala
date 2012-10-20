@@ -9,6 +9,7 @@ import junit.framework.Assert._
 import daffodil.util._
 import daffodil.compiler._
 import org.junit.Test
+import daffodil.debugger.Debugger
 
 class TestMiddleEndAttributes extends JUnitSuite {
   val xsd = XMLUtils.XSD_NAMESPACE
@@ -248,5 +249,42 @@ class TestMiddleEndAttributes extends JUnitSuite {
     // element reference also contained inside same
     assertEquals(Some(eMsgChoice), e2ref.immediatelyEnclosingModelGroup)
 
+  }
+
+  @Test def testNestedSequencePrefixSep() = {
+    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+    val testSchema = TestUtils.dfdlTestSchema(
+
+      <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited"/>,
+
+      <xs:element name="e1">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix">
+            <xs:sequence>
+              <xs:element name="x" type="xs:int"/>
+            </xs:sequence>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val compiler = Compiler()
+
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    // Explore global element decl
+    val Seq(e1f) = sd.globalElementDecls
+    val e1 = e1f.forRoot()
+    val e1ct = e1.immediateType.get.asInstanceOf[daffodil.dsom.LocalComplexTypeDef]
+    val seq1 = e1ct.modelGroup.asInstanceOf[Sequence]
+    val mems = seq1.groupMembers
+    val Seq(t1 : Term) = mems
+    val seq2 = t1.asInstanceOf[Sequence]
+    println(seq1.hasPrefixSep)
+    println(seq2.hasPrefixSep)
+    val actual = Compiler.testString(testSchema, "/5").result
+    val actualString = actual.toString
+    val expected = <e1><x>5</x></e1>
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 }
