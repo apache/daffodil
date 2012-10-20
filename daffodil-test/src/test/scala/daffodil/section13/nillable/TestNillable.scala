@@ -22,6 +22,7 @@ class TestNillable extends JUnitSuite {
   @Test def test_litNil2() { runnerAA.runOneTest("litNil2") }
   @Test def test_litNil3() { runnerAA.runOneTest("litNil3") }
   @Test def test_litNil6() { runnerAA.runOneTest("litNil6") }
+  @Test def test_missing_scalar() { runnerAA.runOneTest("missing_scalar") }
   
   val ln = testDir + "literal-value-nils.tdml"
   lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))

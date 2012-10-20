@@ -60,6 +60,33 @@
 			</xs:complexType>
 	</xs:element>
 	
+	<xs:element name="doc_04">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"/>
+					<xs:element name="e2" type="xs:int" nillable="true" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:nilKind="literalValue" dfdl:nilValue="99"/>
+				</xs:sequence>
+			</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="doc_05">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"/>
+					<xs:element name="e2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2"/>
+				</xs:sequence>
+			</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="doc_06">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"/>
+					<xs:element name="e2" type="xs:int" nillable="true" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;"/>
+				</xs:sequence>
+			</xs:complexType>
+	</xs:element>
+	
 </tdml:defineSchema>
 
 	<tdml:parserTestCase name="litNil1" root="doc" model="s1"
@@ -127,6 +154,23 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	
+	<tdml:parserTestCase name="litNil5" root="doc_04" model="s1"
+		description="nilKind = literalValue, an is nil element - DFDL-13-190R, DFDL-13-204R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[12399]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc_04>
+					<e1>123</e1>
+					<e2 xsi:nil="true"/>
+				</doc_04>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
 	<tdml:parserTestCase name="litNil6" root="doc_03" model="s1"
 		description="literal nil - DFDL-13-234R">
 
@@ -144,6 +188,33 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	
+	<tdml:parserTestCase name="missing_scalar" root="doc_05" model="s1"
+		description="a missing element that is a required scalar element in a required parent context that is the document root - DFDL-13-177R, DFDL-13-184R, DFDL-13-198R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[123]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
 	
+	<tdml:parserTestCase name="litNil7" root="doc_06" model="s1"
+		description="a missing element and an is nil element - DFDL-13-196R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[123]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc_06>
+					<e1>123</e1>
+					<e2 xsi:nil="true"/>
+				</doc_06>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 
 </tdml:testSuite>
