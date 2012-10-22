@@ -138,4 +138,14 @@ object Debugger {
     printStateDelta("!!!After!!!", beforePState, afterPState, parser)
   }
 
+  def beforeRepetition(pstate : PState, parser : Parser) {
+    if (!areDebugging) return
+    println("!!! BeforeIteration !!!" + parser)
+  }
+
+  def afterRepetition(beforePState : PState, afterPState : PState, parser : Parser) {
+    if (!areDebugging) return
+    println("!!! AfterIteration !!! " + parser)
+  }
+
 }

@@ -12,6 +12,7 @@ import daffodil.util.LogLevel
 import daffodil.util.LoggingDefaults
 import daffodil.util.Misc
 import org.junit.Test
+import daffodil.debugger.Debugger
 
 class TresysTests extends JUnitSuite {
   val testDir = "/test-suite/tresys-contributed/"
@@ -99,5 +100,10 @@ class TresysTests extends JUnitSuite {
   @Test def test_t3() { runnerMB.runOneTest("t3") }
 
   @Test def test_codingErrorAction() { runnerMB.runOneTest("codingErrorAction") }
+
+  lazy val runnerex = new DFDLTestSuite(Misc.getRequiredResource(testDir + "expressions.tdml"))
+  @Test def test_nonFunctionIsDetected() = Debugger.withDebugger { runnerex.runOneTest("nonFunctionIsDetected") }
+  @Test def test_dfdlPosition1() = Debugger.withDebugger { runnerex.runOneTest("dfdlPosition1") }
+  @Test def test_dfdlPosition2() = Debugger.withDebugger { runnerex.runOneTest("dfdlPosition2") }
 
 }

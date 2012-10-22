@@ -38,12 +38,13 @@ class TestCompiledExpression2 extends JUnitSuite with WithParseErrorThrowing {
                                <element name="root" type="xs:string"/>
                              </schema>)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
+    val dummyState = PState.createInitialState(edecl, "", 0)
     val doc = new org.jdom.Document(r) // root must have a document node
     val root = doc.getRootElement()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /tns:root/text() }"
     val compiled = ec.compile('String, xpathString) // as a string
-    val R(result, _) = compiled.evaluate(root, new VariableMap())
+    val R(result, _) = compiled.evaluate(root, new VariableMap(), dummyState)
 
     assertEquals("19", result)
 
@@ -110,6 +111,7 @@ class TestCompiledExpression2 extends JUnitSuite with WithParseErrorThrowing {
                                <element name="root" type="xs:string"/>
                              </schema>)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
+    val dummyState = PState.createInitialState(edecl, "", 0)
     val doc = new org.jdom.Document(r) // root must have a document node
     val root = doc.getRootElement()
     context = edecl
@@ -119,7 +121,7 @@ class TestCompiledExpression2 extends JUnitSuite with WithParseErrorThrowing {
     val st = PState.createInitialState(edecl, "x", 0)
     withParseErrorThrowing(st) {
       val e = intercept[ParseError] {
-        val R(res, _) = compiled.evaluate(root, new VariableMap())
+        val R(res, _) = compiled.evaluate(root, new VariableMap(), dummyState)
         res
       }
       assertTrue(e.getMessage().contains("doesntExist"))

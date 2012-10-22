@@ -135,7 +135,7 @@ trait ElementBaseGrammarMixin
     def getLength(e : ElementBase, pstate : PState, multiplier : Long) {
       val lenExpr = e.length
       var txt = lenExpr.prettyExpr
-      val R(len, vMap) = lenExpr.evaluate(pstate.parent, pstate.variableMap)
+      val R(len, vMap) = lenExpr.evaluate(pstate.parent, pstate.variableMap, pstate)
       (len.asInstanceOf[Long] * multiplier, txt, Some(vMap))
     }
     (lengthKind, lengthUnits, primType.name) match {
@@ -646,22 +646,22 @@ trait ElementBaseGrammarMixin
     else if (isRepresented) ElementEnd(this)
     else ElementEndNoRep(this)
   })
-  
-//  lazy val scalarNonDefault = Prod("scalarNonDefault", this,
-//    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
-//      scalarNonDefaultContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
 
+  //  lazy val scalarNonDefault = Prod("scalarNonDefault", this,
+  //    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
+  //      scalarNonDefaultContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
 
-  lazy val scalarNonDefault = Prod("scalarNonDefault", this,
-    StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
-      scalarNonDefaultContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd)
+  lazy val scalarNonDefaultPhysical = Prod("scalarNonDefault", this,
+    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
+      scalarNonDefaultContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
 
   def scalarDefaultable : Prod
+  def scalarNonDefault : Prod
 
-//  lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
-//    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
-//      scalarDefaultableContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
- lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
+  //  lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
+  //    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
+  //      scalarDefaultableContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
+  lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
     StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
       scalarDefaultableContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd)
 
@@ -816,6 +816,13 @@ trait ElementDeclGrammarMixin { self : ElementBase with ElementDeclMixin =>
   lazy val scalarDefaultable = Prod("scalarDefaultable", this,
     if (inputValueCalcOption == None) {
       scalarDefaultablePhysical
+    } else {
+      inputValueCalcElement
+    })
+
+  lazy val scalarNonDefault = Prod("scalarNonDefault", this,
+    if (inputValueCalcOption == None) {
+      scalarNonDefaultPhysical
     } else {
       inputValueCalcElement
     })

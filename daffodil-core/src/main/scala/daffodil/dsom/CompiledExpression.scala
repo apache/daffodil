@@ -12,6 +12,7 @@ import daffodil.util.LogLevel
 import daffodil.xml.XMLUtils
 import daffodil.processors.EmptyVariableMap
 import daffodil.processors.WithParseErrorThrowing
+import daffodil.processors.PState
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -71,7 +72,7 @@ abstract class CompiledExpression(val prettyExpr : String) {
    * updated variableMap must be returned as well.
    */
 
-  def evaluate(rootedAt : org.jdom.Parent, variables : VariableMap) : R
+  def evaluate(rootedAt : org.jdom.Parent, variables : VariableMap, pstate : PState) : R
 
 }
 
@@ -100,13 +101,13 @@ case class ConstantExpression[T](value : T) extends CompiledExpression(value.toS
   def isConstant = true
   def isKnownNonEmpty = value != ""
   def constant : T = value
-  def evaluate(pre : org.jdom.Parent, variables : VariableMap) : R = R(constant, variables)
+  def evaluate(pre : org.jdom.Parent, variables : VariableMap, ignored : PState) : R = R(constant, variables)
 }
 
 case class RuntimeExpression[T <: AnyRef](convertTo : Symbol,
-  xpathText : String,
-  xpathExprFactory : CompiledExpressionFactory,
-  sc : SchemaComponent)
+                                          xpathText : String,
+                                          xpathExprFactory : CompiledExpressionFactory,
+                                          sc : SchemaComponent)
   extends CompiledExpression(xpathText)
   with WithParseErrorThrowing {
   val context = sc
@@ -124,10 +125,10 @@ case class RuntimeExpression[T <: AnyRef](convertTo : Symbol,
       case _ => Assert.invariantFailed("convertTo not valid value: " + convertTo)
     }
 
-  def evaluate(pre : org.jdom.Parent, variables : VariableMap) : R = {
+  def evaluate(pre : org.jdom.Parent, variables : VariableMap, pstate : PState) : R = {
     val xpathResultType = toXPathType(convertTo)
-
     val xpathRes = try {
+      DFDLFunctions.currentPState = Some(pstate)
       XPathUtil.evalExpression(xpathText, xpathExprFactory, variables, pre, xpathResultType)
     } catch {
       case e : XPathException => {
@@ -135,7 +136,8 @@ case class RuntimeExpression[T <: AnyRef](convertTo : Symbol,
         val ex = if (e.getMessage() == null) e.getCause() else e
         PE("Expression evaluation failed. Details: %s", ex)
       }
-
+    } finally {
+      DFDLFunctions.currentPState = None // put it back off
     }
     val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
     val converted : T = xpathRes match {
@@ -204,6 +206,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
       val dummyVars = EmptyVariableMap
       val result =
         try {
+          DFDLFunctions.currentPState = None // no state if we're trying for a constant value.
           val res = XPathUtil.evalExpression(
             xpathExprFactory.expression + " (to see if constant)",
             xpathExprFactory,
@@ -234,9 +237,11 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
             log(Debug("%s is NOT constant (due to %s)", xpathExprFactory.expression, e.toString))
             None
           }
-//          case e : Exception => {
-//            Assert.invariantFailed("Didn't get an XPathExpressionException. Got: " + e)
-//          }
+          //          case e : Exception => {
+          //            Assert.invariantFailed("Didn't get an XPathExpressionException. Got: " + e)
+          //          }
+        } finally {
+          DFDLFunctions.currentPState = None
         }
       result
     }
@@ -261,7 +266,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
     try {
       Boolean.box(s.toString.toBoolean)
     } catch {
-      case u :UnsuppressableException => throw u
+      case u : UnsuppressableException => throw u
       case n : Exception =>
         edecl.schemaDefinitionError("Cannot convert %s to Boolean. Error %s.", s, n)
     }
@@ -280,8 +285,8 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
         } catch {
           case e : XPathExpressionException => {
             val exc = e // debugger never seems to show the case variable itself.
-            val realExc = e.getCause()
-            Assert.invariant(realExc != null) // it's always an encapsulation of an underlying error.
+            val realExc = if (e.getCause() != null) e.getCause() else exc
+            // Assert.invariant(realExc != null) // it's always an encapsulation of an underlying error.
             edecl.SDE("XPath Compilation Error: %s", realExc)
           }
         }

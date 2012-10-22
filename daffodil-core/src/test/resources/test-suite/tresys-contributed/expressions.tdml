@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite xmlns="http://example.com"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+
+	<tdml:defineSchema name="v">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="e">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="cnt" type="xsd:int" dfdl:lengthKind="delimited" />
+					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+						dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt) }">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="v" type="xs:int"
+									dfdl:inputValueCalc="{ dfdl:position() }" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="noFunc">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="err" type="xsd:int"
+						dfdl:inputValueCalc="{ dfdl:notAFunction(1, 2, 3) }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="nonFunctionIsDetected"
+		root="noFunc" model="v">
+
+		<tdml:document />
+
+		<tdml:errors>
+			<tdml:error>notAFunction</tdml:error>
+			<tdml:error>arity 3</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+
+	<tdml:parserTestCase name="dfdlPosition1" root="e"
+		model="v">
+
+		<tdml:document>1</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e>
+					<cnt>1</cnt>
+					<a>
+						<v>1</v>
+					</a>
+				</e>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="dfdlPosition2" root="e"
+		model="v">
+
+		<tdml:document>2</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e>
+					<cnt>2</cnt>
+					<a>
+						<v>1</v>
+					</a>
+					<a>
+						<v>2</v>
+					</a>
+				</e>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+
+</tdml:testSuite>

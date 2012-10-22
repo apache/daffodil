@@ -60,7 +60,7 @@ trait ParticleMixin { self : ElementBase =>
     res
   }
 
-  lazy val hasStopValue = hasStopValue_.value 
+  lazy val hasStopValue = hasStopValue_.value
   private lazy val hasStopValue_ = LV {
     val sv = isRecurring && occursCountKind == OccursCountKind.StopValue
     // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.
@@ -101,7 +101,7 @@ abstract class ElementBase(xmlArg : Node, parent : SchemaComponent, position : I
   def elementSimpleType : SimpleTypeBase
   def typeDef : TypeBase
   def isScalar : Boolean
-  
+
   override lazy val isRepresented = inputValueCalcOption == None
 
   def annotationFactory(node : Node) : DFDLAnnotation = {
@@ -279,34 +279,34 @@ trait LocalElementMixin
 }
 
 abstract class LocalElementBase(xmlArg : Node, parent : ModelGroup, position : Int)
-extends ElementBase(xmlArg, parent, position)
-with LocalElementMixin
+  extends ElementBase(xmlArg, parent, position)
+  with LocalElementMixin
 
 class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
   extends LocalElementBase(xmlArg, parent, position)
   with HasRef {
-  
+
   // Need to go get the Element we are referencing
   lazy val referencedElement = referencedElement_.value // optionReferencedElement.get
-//  lazy val optionReferencedElement = {
-//    try referencedElement_.value
-//    catch {
-//      case e : ErrorAlreadyHandled => None
-//    }
-//  }
-  
+  //  lazy val optionReferencedElement = {
+  //    try referencedElement_.value
+  //    catch {
+  //      case e : ErrorAlreadyHandled => None
+  //    }
+  //  }
+
   private lazy val referencedElement_ = LV {
     this.schema.schemaSet.getGlobalElementDecl(namespace, localName) match {
       case None => SDE("Referenced element not found: %s.", this.ref)
       case Some(x) => x.forElementRef(this)
-      }
+    }
   }
 
   // These will just delegate to the referenced element declaration
   lazy val isNillable = referencedElement.isNillable
   lazy val isSimpleType = referencedElement.isSimpleType
   lazy val isComplexType = referencedElement.isComplexType
-  lazy val elementComplexType = referencedElement.elementComplexType 
+  lazy val elementComplexType = referencedElement.elementComplexType
   lazy val elementSimpleType = referencedElement.elementSimpleType
   lazy val isDefaultable : Boolean = referencedElement.isDefaultable
 
@@ -316,44 +316,45 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
 
   // These may be trickier, as the type needs to be responsive to properties from the
   // element reference's format annotations, and its lexical context.
-  lazy val typeDef = referencedElement.typeDef//Assert.notYetImplemented()
+  lazy val typeDef = referencedElement.typeDef //Assert.notYetImplemented()
 
   // Element references can have minOccurs and maxOccurs, and annotations, but nothing else.
   lazy val inputValueCalcOption = referencedElement.inputValueCalcOption // can't have ivc on element reference
   lazy val scalarDefaultable = referencedElement.scalarDefaultable
+  lazy val scalarNonDefault = referencedElement.scalarNonDefault
   /**
    * It is an error if the properties on an element overlap with the properties on the simple type
    * of that element.
    */
   lazy val overlappingProperties = {
-   System.err.println("\ttypeDef: " + this.typeDef)
+    System.err.println("\ttypeDef: " + this.typeDef)
     val referencedProperties = referencedElement.localAndFormatRefProperties.keySet
     val myLocalPropertiesNames = formatAnnotation.getFormatPropertiesNonDefault().keySet
     System.err.println(referencedElement.name)
-     System.err.println("\tRefProps: " + referencedProperties)
-      System.err.println("\tLocalProps: " + myLocalPropertiesNames)
+    System.err.println("\tRefProps: " + referencedProperties)
+    System.err.println("\tLocalProps: " + myLocalPropertiesNames)
     val intersect = referencedProperties.intersect(myLocalPropertiesNames)
     System.err.println("\tIntersect: " + intersect)
     intersect
   }
-  
+
   lazy val localAndFormatRefProperties = {
-//    val referencedProperties = referencedElement.localAndFormatRefProperties
-//    val myLocalProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
-//    schemaDefinition(overlappingProperties.size == 0, "Element reference properties overlap with global element properties. Overlaps: %s.", overlappingProperties.mkString(" "))
-//    val theUnion = referencedProperties ++ myLocalProperties
-//    theUnion
-    
+    //    val referencedProperties = referencedElement.localAndFormatRefProperties
+    //    val myLocalProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
+    //    schemaDefinition(overlappingProperties.size == 0, "Element reference properties overlap with global element properties. Overlaps: %s.", overlappingProperties.mkString(" "))
+    //    val theUnion = referencedProperties ++ myLocalProperties
+    //    theUnion
+
     // Removed check here for overlapping properties because it creates a circular reference
     // the check should instead take place in the referencedElement.
     val referencedProperties = referencedElement.localAndFormatRefProperties
     val myProperties = localProperties ++ referencedProperties
     myProperties
   }
-  
+
   lazy val localProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
 
-  lazy val diagnosticChildren = referencedElement_.toList  // optionReferencedElement.toList
+  lazy val diagnosticChildren = referencedElement_.toList // optionReferencedElement.toList
 }
 
 /**
@@ -441,7 +442,7 @@ trait ElementDeclMixin
   }
 
   lazy val elementDeclDiagnosticChildren = annotationObjs_.toList.flatten ++ typeDef_.toList
-  
+
   lazy val isSimpleType = isSimpleType_.value
   private lazy val isSimpleType_ = LV {
     typeDef match {
@@ -450,10 +451,10 @@ trait ElementDeclMixin
       case _ => Assert.invariantFailed("Must be either SimpleType or ComplexType")
     }
   }
-  
+
   lazy val isPrimitiveType = typeDef.isInstanceOf[PrimitiveType]
 
-  lazy val isComplexType =  !isSimpleType 
+  lazy val isComplexType = !isSimpleType
 
   lazy val defaultValueAsString = (xml \ "@default").text
 
@@ -505,7 +506,7 @@ trait ElementDeclMixin
   lazy val combinedElementAndSimpleTypeProperties = {
     var props : Map[String, String] = this.localAndFormatRefProperties
 
-    if (isSimpleType && !isPrimitiveType ) {
+    if (isSimpleType && !isPrimitiveType) {
       props ++= this.elementSimpleType.allNonDefaultProperties
     }
     props
@@ -573,13 +574,11 @@ class GlobalElementDecl(xmlArg : Node, schemaDocumentArg : SchemaDocument, val e
   with GlobalComponentMixin
   with GlobalElementDeclGrammarMixin
   with WithDiagnostics {
-  
+
   override val enclosingComponent = elementRef
-  
 
   // GlobalElementDecls need to have access to elementRef's local properties.
-  
-  
+
   // We inherit the requirement for these attributes from Term. It all gets
   // too complicated in DSOM if you try to make GlobalElementDecl share with the other
   // element structures but not be a Term.

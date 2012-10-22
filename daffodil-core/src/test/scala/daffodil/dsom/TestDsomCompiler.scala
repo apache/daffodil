@@ -212,7 +212,8 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     Compiler.testUnparsing(testSchema, infoset, "*word")
   }
 
-  @Test def testTerminator() {
+  @Test def testTerminator() = Debugger.withDebugger {
+    LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:string" dfdl:terminator="!" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
