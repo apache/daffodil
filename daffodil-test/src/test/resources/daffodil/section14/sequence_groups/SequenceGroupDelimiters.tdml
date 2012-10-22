@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tdml:testSuite suiteName="EntitiesTests" description="Section 6 - Entities"
+<tdml:testSuite suiteName="Sequence Groups" description="Section 14 - Sequence Groups with Delimiters"
 	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
@@ -156,5 +156,88 @@
 				</tdml:dfdlInfoset>
 			</tdml:infoset>
 		</tdml:parserTestCase>
+		
+		
+	<tdml:defineSchema name="dfdlPrefix.xsd">
+	
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" encoding="utf-8"
+			byteOrder="bigEndian" occursCountKind="parsed" ignoreCase="no"
+			representation="text" lengthKind="delimited" separatorPolicy="suppressed"
+			initiatedContent="no" documentFinalTerminatorCanBeMissing="yes" />
+
+		<xs:element name="description" type="xs:string" />
+		<xs:element name="comment" type="xs:string" />
+		<xs:element name="quantity" type="xs:int" />
+		<xs:element name="price" type="xs:float" />
+
+		<xs:element name="list" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="||" dfdl:separatorPosition="prefix">
+					<xs:element name="Item" dfdl:lengthKind="delimited"
+						type="xs:string" maxOccurs="unbounded" minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="list_01" dfdl:lengthKind="delimited">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="Start" dfdl:separatorPosition="prefix">
+					<xs:element name="Item" dfdl:lengthKind="delimited" maxOccurs="unbounded" minOccurs="0">
+						<xs:complexType>
+							<xs:sequence dfdl:separator=":" dfdl:separatorPosition="prefix">
+								<xs:element ref="ex:description"/>
+								<xs:element ref="ex:comment"/>
+								<xs:element ref="ex:quantity"/>
+								<xs:element ref="ex:price"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="prefix" root="list"
+		model="dfdlPrefix.xsd" description="separatorPosition is prefix - DFDL-14-009R">
+
+		<tdml:document>||Shirts,Sold on Monday,30,$17.99||Shoes,Sold on
+			Tuesday,23,$89.99
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<list>
+					<Item>Shirts,Sold on Monday,30,$17.99</Item>
+					<Item>Shoes,Sold on Tuesday,23,$89.99</Item>
+				</list>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="prefix_01" root="list_01"
+		model="dfdlPrefix.xsd" description="separatorPosition is prefix - DFDL-14-009R">
+
+		<tdml:document>Start:Shirts:Sold on Monday:30:17.99Start:Shoes:Sold on Tuesday:23:89.99
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<list_01>
+					<Item>
+						<description>Shirts</description>
+						<comment>Sold on Monday</comment>
+						<quantity>30</quantity>
+						<price>17.99</price>
+					</Item>
+					<Item>
+						<description>Shoes</description>
+						<comment>Sold on Tuesday</comment>
+						<quantity>23</quantity>
+						<price>89.99</price>
+					</Item>
+				</list_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 	
 </tdml:testSuite>
