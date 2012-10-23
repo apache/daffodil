@@ -19,9 +19,9 @@ class TestSequenceGroupsDebug extends JUnitSuite {
   
   //@Test def test_SeqGrp_05() { runner_02.runOneTest("SeqGrp_05") }
   
-  val tdml_01 = testDir_01 + "SequenceGroupDelimiters.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+  //val tdml_01 = testDir_01 + "SequenceGroupDelimiters.tdml"
+  //lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
   
   //@Test def test_prefix() { runner_01.runOneTest("prefix") }
-  @Test def test_prefix_01() { runner_01.runOneTest("prefix_01") }
+  //@Test def test_prefix_01() { runner_01.runOneTest("prefix_01") }
   }

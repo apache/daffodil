@@ -218,8 +218,7 @@
 	<tdml:parserTestCase name="prefix_01" root="list_01"
 		model="dfdlPrefix.xsd" description="separatorPosition is prefix - DFDL-14-009R">
 
-		<tdml:document>Start:Shirts:Sold on Monday:30:17.99Start:Shoes:Sold on Tuesday:23:89.99
-		</tdml:document>
+		<tdml:document><![CDATA[Start:Shirts:Sold on Monday:30:17.99Start:Shoes:Sold on Tuesday:23:89.99]]></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<list_01>
