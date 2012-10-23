@@ -2276,7 +2276,7 @@ case class DiscriminatorBooleanPrim(
 case class InitiatedContent(
   decl : AnnotatedSchemaComponent)
   extends AssertBase(decl,
-    "{ xs:boolean('true') }", // always true. We're just an assertion that says an initiator was found.
+    "{ true() }", // always true. We're just an assertion that says an initiator was found.
     "initiatedContent. This message should not be used.",
     true,
     "initiatedContent")

@@ -19,7 +19,7 @@
 										<xs:sequence>
 											<xs:annotation>
 												<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-													<dfdl:discriminator><![CDATA[{ xs:boolean('true') }]]></dfdl:discriminator>
+													<dfdl:discriminator><![CDATA[{ true() }]]></dfdl:discriminator>
 												</xs:appinfo>
 											</xs:annotation>
 											<xs:element name="str" type="xs:string"
