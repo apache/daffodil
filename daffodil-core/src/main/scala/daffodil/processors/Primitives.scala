@@ -141,7 +141,7 @@ case class ComplexElementBeginPattern(e : ElementBase)
             // don't forget to have the position in it start at zero.
             start withEndBitLimit (endBitPos) withInStream (new InStreamFromByteChannel(e, limitedInStream)) withPos (0, 0)
           }
-          case false => { PE(start, "%s: No match found!", this.toString()) }
+          case false => { return PE(start, "%s: No match found!", this.toString()) }
         }
         val currentElement = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
         log(Debug("currentElement = %s", currentElement))
