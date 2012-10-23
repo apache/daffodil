@@ -128,6 +128,24 @@
 		    </xs:complexType>
 		  </xs:element>
 		
+		<xs:element name="list_04" dfdl:lengthKind="pattern" dfdl:lengthPattern="(?s)cat(\r\n)?,dog(\r\n)?,house.">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="%NL;, ," dfdl:separatorPosition="infix" dfdl:terminator=".">
+					<xs:element name="firstToken" type="xs:string"
+						 dfdl:lengthKind="pattern"
+						 dfdl:lengthPattern="cat"
+						 dfdl:representation="text" />
+					<xs:element name="secondToken" type="xs:string"
+						 dfdl:lengthKind="pattern"
+						 dfdl:lengthPattern="dog"
+						 dfdl:representation="text" />
+					<xs:element name="thirdToken" type="xs:string"
+						 dfdl:lengthKind="pattern"
+						 dfdl:lengthPattern="house"
+						 dfdl:representation="text" />
+				</xs:sequence>
+		    </xs:complexType>
+		  </xs:element>
 	</tdml:defineSchema>
 	
 	<tdml:parserTestCase name="AI000_rev" root="list"
@@ -398,6 +416,37 @@
   					<secondToken>123456789</secondToken>
   					<thirdToken>AAAAA</thirdToken>
 				</list_03_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="nested_patterns" root="list_04"
+		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+
+		<tdml:document>cat,dog,house.</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<list_04>
+  					<firstToken>cat</firstToken>
+  					<secondToken>dog</secondToken>
+  					<thirdToken>house</thirdToken>
+				</list_04>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="nested_patterns_01" root="list_04"
+		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+
+		<tdml:document><![CDATA[cat,dog
+,house.]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<list_04>
+  					<firstToken>cat</firstToken>
+  					<secondToken>dog</secondToken>
+  					<thirdToken>house</thirdToken>
+				</list_04>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
