@@ -598,12 +598,22 @@ trait ElementBaseGrammarMixin
 
   lazy val nilLit = {
     Prod("nilLit", this,
-      isNillable && nilKind == NilKind.LiteralValue,
+      isNillable && nilKind == NilKind.LiteralValue && representation == Representation.Text,
       nilElementInitiator ~ {
         lengthKind match {
           case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
           case LengthKind.Pattern => LiteralNilPattern(this)
-          case _ => Assert.notYetImplemented()
+          case LengthKind.Explicit => {
+            System.err.println(lengthUnits)
+            lengthUnits match {
+              case LengthUnits.Bits => Assert.notYetImplemented()
+              case LengthUnits.Bytes => LiteralNilExplicitLengthInBytes(this)
+              case LengthUnits.Characters => LiteralNilExplicitLengthInChars(this)
+            }
+          }
+          case LengthKind.Implicit => Assert.notYetImplemented() // TODO: What to do about implicit literal nil?
+          case LengthKind.Prefixed => Assert.notYetImplemented()
+          case LengthKind.EndOfParent => Assert.notYetImplemented()
         }
       } ~ nilElementTerminator)
   }

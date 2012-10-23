@@ -711,9 +711,9 @@ case class StringPatternMatched(e : ElementBase)
 abstract class ConvertTextNumberPrim[S](e : ElementBase, guard : Boolean)
   extends Terminal(e, guard) with BinaryReader {
 
-  protected def getNum(s : Number) : S
-  protected val GramName : String
-  protected val GramDescription : String
+  protected def getNum(s: Number): S
+  protected val GramName: String
+  protected val GramDescription: String
 
   override def toString = "to(xs:" + GramName + ")"
 
@@ -1105,7 +1105,7 @@ case class ZonedTextShortPrim(el : ElementBase) extends ZonedTextNumberPrim(el, 
 case class ZonedTextIntPrim(el : ElementBase) extends ZonedTextNumberPrim(el, false)
 case class ZonedTextLongPrim(el : ElementBase) extends ZonedTextNumberPrim(el, false)
 
-abstract class BinaryNumber[T](e : ElementBase, nBits : Long) extends Terminal(e, true)
+abstract class BinaryNumber[T](e: ElementBase, nBits: Long) extends Terminal(e, true)
   with BinaryReader {
 
   lazy val primName = e.primType.name
@@ -1220,16 +1220,16 @@ abstract class BinaryNumber[T](e : ElementBase, nBits : Long) extends Terminal(e
   }
 }
 
-case class BinaryExplicitLengthInBytes(e : ElementBase)
+case class BinaryExplicitLengthInBytes(e: ElementBase)
   extends Terminal(e, true)
   with WithParseErrorThrowing with BinaryReader {
   val expr = e.length
   val exprText = expr.prettyExpr
 
-  def parser : Parser = new PrimParser(this, e) {
+  def parser: Parser = new PrimParser(this, e) {
     override def toString = "BinaryExplicitLengthInBytes(" + exprText + ")"
 
-    def parse(pstate : PState) : PState = withParseErrorThrowing(pstate) {
+    def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
       log(Debug("Saving reader state."))
       setReader(pstate)
 
@@ -1268,32 +1268,32 @@ case class BinaryExplicitLengthInBytes(e : ElementBase)
     }
   }
 
-  def unparser : Unparser = new Unparser(e) {
+  def unparser: Unparser = new Unparser(e) {
     override def toString = "BinaryExplicitLengthInBytesUnparser(" + exprText + ")"
 
-    def unparse(start : UState) : UState = {
+    def unparse(start: UState): UState = {
       Assert.notYetImplemented()
     }
   }
 }
 
-case class BinaryExplicitLengthInBits(e : ElementBase)
+case class BinaryExplicitLengthInBits(e: ElementBase)
   extends Terminal(e, true)
   with WithParseErrorThrowing {
   val expr = e.length
   val exprText = expr.prettyExpr
 
-  def parser : Parser = new PrimParser(this, e) {
+  def parser: Parser = new PrimParser(this, e) {
     override def toString = "BinaryExplicitLengthInBitsParser(" + exprText + ")"
 
-    def parse(start : PState) : PState = {
+    def parse(start: PState): PState = {
       Assert.notYetImplemented()
     }
   }
-  def unparser : Unparser = new Unparser(e) {
+  def unparser: Unparser = new Unparser(e) {
     override def toString = "BinaryExplicitLengthInBitsUnparser(" + exprText + ")"
 
-    def unparse(start : UState) : UState = {
+    def unparse(start: UState): UState = {
       Assert.notYetImplemented()
     }
   }
@@ -1431,7 +1431,7 @@ abstract class StaticText(delim : String, e : Term, kindString : String, guard :
 
   def parser : Parser = new PrimParser(this, e) {
 
-    override def toBriefXML(depthLimit : Int = -1) = {
+    override def toBriefXML(depthLimit: Int = -1) = {
       "<" + kindString + ">" + delim + " " + delimsRaw + "</" + kindString + ">"
     }
 
@@ -1814,14 +1814,231 @@ case class StopValue(e : ElementBase with LocalElementMixin) extends Primitive(e
 
 case class TheDefaultValue(e : ElementBase) extends Primitive(e, e.isDefaultable)
 
-case class LiteralNilPattern(e : ElementBase)
-  extends StaticText(e.nilValue, e, "LiteralNilPattern", e.isNillable) {
+case class LiteralNilExplicitLengthInBytes(e: ElementBase)
+  extends StaticText(e.nilValue, e, "LiteralNilExplicit", e.isNillable)
+  with BinaryReader {
+  // We are to assume that we can always read nBytes
+  // a failure to read nBytes is a failure period.
+
+  lazy val unparserDelim = Assert.notYetImplemented()
+
+  override def parser = new PrimParser(this, e) {
+
+    override def toBriefXML(depthLimit: Int = -1): String = {
+      "<" + name + " nilValue='" + e.nilValue + "'/>"
+    }
+
+    val decoder = e.knownEncodingDecoder
+
+    val isEmptyAllowed = e.nilValue.contains("%ES;")
+    val eName = e.toString()
+    val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked
+    val charsetName = decoder.charset().name()
+    val expr = e.length
+    val exprText = expr.prettyExpr
+
+    def parse(start: PState): PState = {
+      withLoggingLevel(LogLevel.Info) {
+
+        // TODO: What if someone passes in nBytes = 0 for Explicit length, is this legal?
+
+        val R(nBytesAsAny, newVMap) = expr.evaluate(start.parent, start.variableMap)
+        val nBytes = nBytesAsAny.asInstanceOf[String] //nBytesAsAny.asInstanceOf[Long]
+        val postEvalState = start.withVariables(newVMap)
+        log(Debug("Explicit length %s", nBytes))
+
+        //val postEvalState = start //start.withVariables(vars)
+
+        log(Debug("Saving reader..."))
+        setReader(postEvalState)
+
+        log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
+        val in: InStreamFromByteChannel = postEvalState.inStream.asInstanceOf[InStreamFromByteChannel]
+
+        val bytePos = (postEvalState.bitPos >> 3).toInt
+        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
+        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+
+        if (postEvalState.bitPos % 8 != 0) { return PE(postEvalState, "LiteralNilPattern - not byte aligned.") }
+
+        try {
+          val bytes = in.getBytes(postEvalState.bitPos, nBytes.toInt)
+          val cb = decoder.decode(ByteBuffer.wrap(bytes))
+          val result = cb.toString
+          val endBitPos = postEvalState.bitPos + (nBytes.toInt * 8)
+          val endCharPos = if (postEvalState.charPos == -1) result.length() else postEvalState.charPos + result.length()
+
+          // We have a field, is it empty?
+          val isFieldEmpty = result.length() == 0
+          val d = new delimsearch.DelimParser()
+
+          if (isFieldEmpty && isEmptyAllowed) {
+            // Valid!
+            postEvalState.parentElement.addContent(new org.jdom.Text(""))
+            postEvalState.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            return postEvalState // Empty, no need to advance
+          } else if (isFieldEmpty && !isEmptyAllowed) {
+            // Fail!
+            return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
+          } else if (d.isFieldDfdlLiteral(result, nilValuesCooked.toSet)) {
+            // Contains a nilValue, Success!
+            postEvalState.parentElement.addContent(new org.jdom.Text(""))
+            postEvalState.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+
+            log(Debug("%s - Found %s", eName, result))
+            log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
+            log(Debug("%s - Ended at bit position ", eName, endBitPos))
+
+            return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
+            //return postEvalState.withReaderPos(endBitPos, endCharPos, reader) // Need to advance past found nilValue
+          } else {
+            // Fail!
+            return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+          }
+        } catch {
+          case e: java.nio.BufferUnderflowException => {
+            // In this case, we failed to get the bytes
+            //            if (isEmptyAllowed) {
+            //              log(Debug("%s - we failed to find explicit length of %s and %ES; found as nilValue.", eName, nBytes))
+            //              postEvalState.parentElement.addContent(new org.jdom.Text(""))
+            //              postEvalState.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            //              return postEvalState // Empty, no need to advance
+            //            }
+            
+            return PE(postEvalState, "%s - Insufficient Bytes in field; required %s", name, nBytes)
+          }
+          case e: IndexOutOfBoundsException => { return PE(postEvalState, "%s - IndexOutOfBounds: \n%s",name, e.getMessage()) }
+          case u: UnsuppressableException => throw u
+          case e: Exception => { return PE(postEvalState, "%s - Exception: \n%s", name, e.getMessage()) }
+        }
+      }
+    }
+
+  }
+
+  override def unparser: Unparser = new Unparser(e) {
+    def unparse(start: UState): UState = {
+      Assert.notYetImplemented()
+    }
+  }
+}
+
+case class LiteralNilExplicitLengthInChars(e: ElementBase)
+  extends StaticText(e.nilValue, e, "LiteralNilExplicit", e.isNillable) {
+  // We are to assume that we can always read nChars
+  // a failure to read nChars is a failure period.
+
+  // TODO: LiteralNilExplicitLengthInChars really is a variation of LiteralNilPattern
+  lazy val unparserDelim = Assert.notYetImplemented()
+
+  override def parser = new PrimParser(this, e) {
+
+    override def toBriefXML(depthLimit: Int = -1): String = {
+      "<" + name + " nilValue='" + e.nilValue + "'/>"
+    }
+
+    val decoder = e.knownEncodingDecoder
+
+    val isEmptyAllowed = e.nilValue.contains("%ES;")
+    val eName = e.toString()
+    val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked
+    val charsetName = decoder.charset().name()
+    val expr = e.length
+    val exprText = expr.prettyExpr
+
+    def parse(start: PState): PState = {
+      withLoggingLevel(LogLevel.Info) {
+
+        //val postEvalState = start //start.withVariables(vars)
+
+        val R(nCharsAsAny, newVMap) = expr.evaluate(start.parent, start.variableMap)
+        val nChars = nCharsAsAny.asInstanceOf[String] //nBytesAsAny.asInstanceOf[Long]
+        val postEvalState = start.withVariables(newVMap)
+        log(Debug("Explicit length %s", nChars))
+
+        val pattern = "(?s)^.{%s}".format(nChars)
+
+        log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
+        val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
+
+        val bytePos = (postEvalState.bitPos >> 3).toInt
+        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
+        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+
+        if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
+
+        log(Debug("Retrieving reader state."))
+        val reader = getReader(bytePos, charsetName, start)
+
+        if (nChars == 0 && isEmptyAllowed) {
+          log(Debug("%s - explicit length of 0 and %ES; found as nilValue.", eName))
+          postEvalState.parentElement.addContent(new org.jdom.Text(""))
+          postEvalState.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+          return postEvalState // Empty, no need to advance
+        }
+
+        val d = new delimsearch.DelimParser()
+
+        val result = d.parseInputPatterned(pattern, reader, decoder.charset())
+
+        if (!result.isSuccess) {
+          return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
+        } else {
+          // We have a field, is it empty?
+          val field = result.field
+          val isFieldEmpty = field.length() == 0
+
+          if (isFieldEmpty && isEmptyAllowed) {
+            // Valid!
+            start.parentElement.addContent(new org.jdom.Text(""))
+            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            return postEvalState // Empty, no need to advance
+          } else if (isFieldEmpty && !isEmptyAllowed) {
+            // Fail!
+            return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
+          } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
+            // Contains a nilValue, Success!
+            start.parentElement.addContent(new org.jdom.Text(""))
+            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+
+            val numBytes = result.field.getBytes(decoder.charset()).length
+            val endCharPos =
+              if (postEvalState.charPos == -1) result.field.length
+              else postEvalState.charPos + result.field.length
+            val endBitPos = (8 * numBytes) + start.bitPos
+
+            log(Debug("%s - Found %s", eName, result.field))
+            log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
+            log(Debug("%s - Ended at bit position ", eName, endBitPos))
+
+            //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
+            return postEvalState.withReaderPos(endBitPos, endCharPos, reader) // Need to advance past found nilValue
+          } else {
+            // Fail!
+            return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+          }
+        }
+      }
+    }
+
+  }
+
+  override def unparser: Unparser = new Unparser(e) {
+    def unparse(start: UState): UState = {
+      Assert.notYetImplemented()
+    }
+  }
+
+}
+
+case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
+  extends StaticText(e.nilValue, e, "LiteralNilExplicit", e.isNillable) {
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
 
   override def parser = new PrimParser(this, e) {
 
-    override def toBriefXML(depthLimit : Int = -1) : String = {
+    override def toBriefXML(depthLimit: Int = -1): String = {
       "<" + name + " nilValue='" + e.nilValue + "'/>"
     }
 
@@ -1833,7 +2050,100 @@ case class LiteralNilPattern(e : ElementBase)
     val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked
     val charsetName = decoder.charset().name()
 
-    def parse(start : PState) : PState = {
+    def parse(start: PState): PState = {
+      withLoggingLevel(LogLevel.Info) {
+
+        val postEvalState = start //start.withVariables(vars)
+
+        log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
+        val in: InStreamFromByteChannel = start.inStream.asInstanceOf[InStreamFromByteChannel]
+
+        val bytePos = (postEvalState.bitPos >> 3).toInt
+        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
+        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+
+        if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
+
+        log(Debug("Retrieving reader state."))
+        val reader = getReader(bytePos, charsetName, start)
+
+        //        val byteReader = in.byteReader.atPos(bytePos)
+        //        val reader = byteReader.charReader(decoder.charset().name())
+
+        val d = new delimsearch.DelimParser()
+
+        val result = d.parseInputPatterned(pattern, reader, decoder.charset())
+
+        if (!result.isSuccess) {
+          return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
+        } else {
+          // We have a field, is it empty?
+          val field = result.field
+          val isFieldEmpty = field.length() == 0
+
+          if (isFieldEmpty && isEmptyAllowed) {
+            // Valid!
+            start.parentElement.addContent(new org.jdom.Text(""))
+            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            return postEvalState // Empty, no need to advance
+          } else if (isFieldEmpty && !isEmptyAllowed) {
+            // Fail!
+            return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
+          } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
+            // Contains a nilValue, Success!
+            start.parentElement.addContent(new org.jdom.Text(""))
+            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+
+            val numBytes = result.field.getBytes(decoder.charset()).length
+            //val endCharPos = start.charPos + result.field.length()
+            val endCharPos =
+              if (postEvalState.charPos == -1) result.field.length
+              else postEvalState.charPos + result.field.length
+            val endBitPos = (8 * numBytes) + start.bitPos
+
+            log(Debug("%s - Found %s", eName, result.field))
+            log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
+            log(Debug("%s - Ended at bit position ", eName, endBitPos))
+
+            //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
+            return postEvalState.withReaderPos(endBitPos, endCharPos, reader) // Need to advance past found nilValue
+          } else {
+            // Fail!
+            return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+          }
+        }
+      }
+    }
+
+  }
+
+  override def unparser: Unparser = new Unparser(e) {
+    def unparse(start: UState): UState = {
+      Assert.notYetImplemented()
+    }
+  }
+}
+
+case class LiteralNilPattern(e: ElementBase)
+  extends StaticText(e.nilValue, e, "LiteralNilPattern", e.isNillable) {
+  lazy val unparserDelim = Assert.notYetImplemented()
+  //val stParser = super.parser
+
+  override def parser = new PrimParser(this, e) {
+
+    override def toBriefXML(depthLimit: Int = -1): String = {
+      "<" + name + " nilValue='" + e.nilValue + "'/>"
+    }
+
+    val decoder = e.knownEncodingDecoder
+    val pattern = e.lengthPattern
+
+    val isEmptyAllowed = e.nilValue.contains("%ES;")
+    val eName = e.toString()
+    val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked
+    val charsetName = decoder.charset().name()
+
+    def parse(start: PState): PState = {
       withLoggingLevel(LogLevel.Info) {
 
         val postEvalState = start //start.withVariables(vars)
@@ -2106,9 +2416,9 @@ case class AssertPatternPrim(decl : AnnotatedSchemaComponent, stmt : DFDLAssert)
 
   val kindString = "AssertPatternPrim"
 
-  def parser : Parser = new PrimParser(this, decl) {
+  def parser: Parser = new PrimParser(this, decl) {
 
-    override def toBriefXML(depthLimit : Int = -1) = {
+    override def toBriefXML(depthLimit: Int = -1) = {
       "<" + kindString + ">" + testPattern + "</" + kindString + ">"
     }
 
@@ -2165,9 +2475,9 @@ case class DiscriminatorPatternPrim(decl : AnnotatedSchemaComponent, stmt : DFDL
 
   val kindString = "DiscriminatorPatternPrim"
 
-  def parser : Parser = new PrimParser(this, decl) {
+  def parser: Parser = new PrimParser(this, decl) {
 
-    override def toBriefXML(depthLimit : Int = -1) = {
+    override def toBriefXML(depthLimit: Int = -1) = {
       "<" + kindString + ">" + testPattern + "</" + kindString + ">"
     }
 
@@ -2362,9 +2672,9 @@ class SetVariableParser(decl : AnnotatedSchemaComponent, stmt : DFDLSetVariable)
     }
 }
 
-abstract class BinaryNumberParser[T](gram : BinaryExplicitLength[T], context : SchemaComponent) extends PrimParser(gram, context) {
+abstract class BinaryNumberParser[T](gram: BinaryExplicitLength[T], context: SchemaComponent) extends PrimParser(gram, context) {
 
-  override def toBriefXML(depth : Int = -1) = {
+  override def toBriefXML(depth: Int = -1) = {
     "<" + gram.GramName + " lengthInBits='" + gram.lenInBits + "' />"
   }
 
@@ -2372,11 +2682,11 @@ abstract class BinaryNumberParser[T](gram : BinaryExplicitLength[T], context : S
 /**
  *
  */
-abstract class BinaryExplicitLength[ResType](e : ElementBase, sizeMultiplier : Int, bitStringLength : Int)
+abstract class BinaryExplicitLength[ResType](e: ElementBase, sizeMultiplier: Int, bitStringLength: Int)
   extends Terminal(e, true)
   with WithParseErrorThrowing with BinaryReader {
 
-  val expr : CompiledExpression = e.length
+  val expr: CompiledExpression = e.length
   val exprText = expr.prettyExpr
   e.schemaDefinition(expr.isConstant, "Bit strings may only have constant length.")
   e.schemaDefinition(e.byteOrder.isConstant, "Property byteOrder must be a constant, not an expression.")
@@ -2389,13 +2699,13 @@ abstract class BinaryExplicitLength[ResType](e : ElementBase, sizeMultiplier : I
   }
 
   // Convert to string for the infoset
-  def getNum(num : BigInt) : String
-  def GramName : String
+  def getNum(num: BigInt): String
+  def GramName: String
 
-  def parser : Parser = new BinaryNumberParser(this, e) {
+  def parser: Parser = new BinaryNumberParser(this, e) {
     override def toString = "BinaryExplicitLengthInBytes(" + exprText + ")"
 
-    def parse(pstate : PState) : PState = withParseErrorThrowing(pstate) {
+    def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
 
       log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
 
@@ -2435,7 +2745,7 @@ abstract class BinaryExplicitLength[ResType](e : ElementBase, sizeMultiplier : I
     }
   }
 
-  def unparser : Unparser = new Unparser(e) {
+  def unparser: Unparser = new Unparser(e) {
     override def toString = "BinaryExplicitLengthInBytesUnparser(" + exprText + ")"
 
     def unparse(start : UState) : UState = {
