@@ -72,7 +72,7 @@ class RepExactlyNPrim(context : LocalElementBase, n : Long, r : => Gram) extends
           val pNext = rParser.parse1(pResult, context)
           Debugger.afterRepetition(pResult, pNext, this)
           if (pNext.status != Success) return pNext // they all must succeed, otherwise we fail here.
-          pResult = pNext
+          pResult = pNext.moveOverOneArrayIndexOnly
         }
       }
       pResult
@@ -95,7 +95,7 @@ class RepAtMostTotalNPrim(context : LocalElementBase, n : Long, r : => Gram) ext
         val pNext = rParser.parse1(newpou, context)
         Debugger.afterRepetition(newpou, pNext, this)
         if (pNext.status != Success) return pResult // success at prior state. 
-        pResult = pNext.withRestoredPointOfUncertainty
+        pResult = pNext.moveOverOneArrayIndexOnly.withRestoredPointOfUncertainty
       }
       pResult
     }
@@ -119,7 +119,7 @@ object Rep {
       val pNext = rParser.parse1(pResult, context)
       Debugger.afterRepetition(pResult, pNext, iParser)
       if (pNext.status != Success) return pNext // fail if we don't get them all 
-      pResult = pNext
+      pResult = pNext.moveOverOneArrayIndexOnly
     }
     pResult
   }
@@ -178,7 +178,7 @@ class RepUnboundedPrim(context : LocalElementBase, r : => Gram) extends RepPrim(
               "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.",
             pResult.bytePos, context.prettyName)
         }
-        pResult = pNext.withRestoredPointOfUncertainty // point of uncertainty has been resolved.
+        pResult = pNext.moveOverOneArrayIndexOnly.withRestoredPointOfUncertainty // point of uncertainty has been resolved.
 
       }
       Assert.invariantFailed("Unbounded loop terminated wrong")

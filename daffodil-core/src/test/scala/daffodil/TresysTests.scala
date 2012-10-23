@@ -101,9 +101,4 @@ class TresysTests extends JUnitSuite {
 
   @Test def test_codingErrorAction() { runnerMB.runOneTest("codingErrorAction") }
 
-  lazy val runnerex = new DFDLTestSuite(Misc.getRequiredResource(testDir + "expressions.tdml"))
-  @Test def test_nonFunctionIsDetected() = Debugger.withDebugger { runnerex.runOneTest("nonFunctionIsDetected") }
-  @Test def test_dfdlPosition1() = Debugger.withDebugger { runnerex.runOneTest("dfdlPosition1") }
-  @Test def test_dfdlPosition2() = Debugger.withDebugger { runnerex.runOneTest("dfdlPosition2") }
-
 }

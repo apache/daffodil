@@ -658,26 +658,40 @@ object XMLUtils {
   import xml.{ NodeSeq, Node, Elem }
   import xml.Utility.trim
 
+  //  private class RemoveAttributes extends RewriteRule {
+  //    override def transform(n : Node) = n match {
+  //      case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
+  //        val childrenWithoutAttributes : NodeSeq = children.map { removeAttributes(_) }
+  //        val noNamespaces = xml.TopScope // empty scope
+  //        Elem(null, label, noAttributes, noNamespaces, childrenWithoutAttributes : _*)
+  //      }
+  //      case other => other
+  //    }
+  //  }
+  //
+  //  private val noAttributes = Null
+  //  private val myRule = new RuleTransformer(new RemoveAttributes)
+
   /**
-   * Removes attributes, and also element prefixes.
+   * Removes attributes, and also element namespace prefixes, associated xmlns quasi-attributes.
+   * Allows easier visual (human) inspection of the differences between to XML element-oriented structures.
+   *
    */
-  private class RemoveAttributes extends RewriteRule {
-    override def transform(n : Node) = n match {
+  def removeAttributes(n : Node) : Node = {
+    n match {
       case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
-        val childrenWithoutAttributes : NodeSeq = children.map { myRule.transform(_)(0) }
-        Elem(null, label, noAttributes, scope, childrenWithoutAttributes : _*)
+        val childrenWithoutAttributes : NodeSeq = children.map { removeAttributes(_) }
+        val noNamespaces = xml.TopScope // empty scope
+        val noAttributesExceptNil = attributes.filter { m =>
+          m match {
+            case xsiNilAttr @ PrefixedAttribute(pre, "nil", Text("true"), _) if (xsiNilAttr.getNamespace(e) == xsiNS) => true
+            case _ => false
+          }
+        }
+        Elem(null, label, noAttributesExceptNil, noNamespaces, childrenWithoutAttributes : _*)
       }
       case other => other
     }
-  }
-
-  private val noAttributes = Null
-  private val myRule = new RuleTransformer(new RemoveAttributes)
-
-  def removeAttributes(node : Node) : Node = {
-    val nseq = myRule.transform(trim(node))
-    val res = nseq(0)
-    res
   }
 
   /**

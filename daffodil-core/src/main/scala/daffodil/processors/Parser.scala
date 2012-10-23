@@ -565,7 +565,7 @@ class PState(
     newInStreamStateStack push (new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, Some(newReader)))
     new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
   }
-  
+
   // Need last state for Assertion Pattern
   def withLastState = {
     var newInStreamStateStack = inStreamStateStack clone ()
@@ -583,8 +583,8 @@ class PState(
   def moveOverByOneElement = {
     val s1 = moveOverOneGroupIndexOnly
     val s2 = s1.moveOverOneElementChildOnly
-    val s3 = s2.moveOverOneArrayIndexOnly
-    s3
+    // val s3 = s2.moveOverOneArrayIndexOnly // move over in array happens only in the RepParsers
+    s2
   }
 
   def moveOverOneElementChildOnly = {

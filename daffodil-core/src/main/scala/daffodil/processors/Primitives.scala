@@ -215,6 +215,10 @@ case class ElementEnd(e : ElementBase) extends ElementEndBase(e) {
 }
 
 case class ElementEndNoRep(e : ElementBase) extends ElementEndBase(e) {
+  // if there is no rep (inputValueCalc), then we do create a new child so that index must advance,
+  // but we don't create anything new as far as the group is concerned, and we don't want 
+  // the group 'thinking' that there's a prior sibling inside the group and placing a 
+  // separator after it. So in the case of NoRep, we don't advance group child, just element child.
   def move(pstate : PState) = pstate.moveOverOneElementChildOnly
   def prettyStringModifier = "(NoRep)"
 }
@@ -1744,6 +1748,8 @@ case class EndSequence(sq : Sequence, guard : Boolean = true) extends Terminal(s
     override def toString = "EndSequence"
 
     def parse(start : PState) : PState = {
+      // When we end a sequence group, we have created a group child in the parent
+      // so we advance that index. 
       val postState = start.withGroupIndexStack(start.groupIndexStack.tail).moveOverOneGroupIndexOnly
       postState
     }

@@ -41,9 +41,9 @@ object Debugger {
   def dontTrace(parser : Parser)(body : => Unit) = {
     parser.toString match {
       case "EndSequence" => body
-      case "EndArray" => body
+      // case "EndArray" => body
       case "StartSequence" => body
-      case "StartArray" => body
+      // case "StartArray" => body
       case "StartChildren" => body
       case "EndChildren" => body
       case _ => // nothing

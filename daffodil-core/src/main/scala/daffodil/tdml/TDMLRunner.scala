@@ -215,10 +215,10 @@ abstract class TestCase(ptc : NodeSeq, val parent : DFDLTestSuite)
   var suppliedSchema : Option[Node] = None
 
   protected def runProcessor(processor : DFDL.ProcessorFactory,
-    data : Option[DFDL.Input],
-    infoset : Option[Infoset],
-    errors : Option[ExpectedErrors],
-    warnings : Option[ExpectedWarnings]) : Unit
+                             data : Option[DFDL.Input],
+                             infoset : Option[Infoset],
+                             errors : Option[ExpectedErrors],
+                             warnings : Option[ExpectedWarnings]) : Unit
 
   def run(schema : Option[Node] = None) {
     suppliedSchema = schema
@@ -276,10 +276,10 @@ case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
   def runProcessor(pf : DFDL.ProcessorFactory,
-    data : Option[DFDL.Input],
-    optInfoset : Option[Infoset],
-    optErrors : Option[ExpectedErrors],
-    warnings : Option[ExpectedWarnings]) = {
+                   data : Option[DFDL.Input],
+                   optInfoset : Option[Infoset],
+                   optErrors : Option[ExpectedErrors],
+                   warnings : Option[ExpectedWarnings]) = {
 
     val dataToParse = data.get
     (optInfoset, optErrors) match {
@@ -314,19 +314,27 @@ case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
     // so we run the expected stuff through the same converters that were used to
     // convert the actual.
     val expected = XMLUtils.element2Elem(XMLUtils.elem2Element(infoset.contents))
+    val expectedNoAttrs = XMLUtils.removeAttributes(expected)
 
-    if (expected != actualNoAttrs) {
-      val diffs = XMLUtils.computeDiff(expected, actualNoAttrs)
+    if (expectedNoAttrs != actualNoAttrs) {
+      val diffs = XMLUtils.computeDiff(expectedNoAttrs, actualNoAttrs)
       //throw new Exception("Comparison failed. Expected: " + expected + " but got " + actualNoAttrs)
-      throw new Exception("Comparison failed.\nExpected %s\nActual %s\nDifferences were (path, expected, actual):\n %s".format(
-        expected.toString, actualNoAttrs.toString, diffs.map { _.toString }.mkString("\n")))
+      throw new Exception("""
+Comparison failed.
+Expected 
+          %s
+Actual 
+          %s
+Differences were (path, expected, actual):
+ %s""".format(
+        expectedNoAttrs.toString, actualNoAttrs.toString, diffs.map { _.toString }.mkString("\n")))
     }
   }
 
   def runParseExpectErrors(pf : DFDL.ProcessorFactory,
-    dataToParse : DFDL.Input,
-    errors : ExpectedErrors,
-    warnings : Option[ExpectedWarnings]) {
+                           dataToParse : DFDL.Input,
+                           errors : ExpectedErrors,
+                           warnings : Option[ExpectedWarnings]) {
 
     val objectToDiagnose =
       if (pf.isError) pf
@@ -362,9 +370,9 @@ case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
   }
 
   def runParseExpectSuccess(pf : DFDL.ProcessorFactory,
-    dataToParse : DFDL.Input,
-    infoset : Infoset,
-    warnings : Option[ExpectedWarnings]) {
+                            dataToParse : DFDL.Input,
+                            infoset : Infoset,
+                            warnings : Option[ExpectedWarnings]) {
 
     if (pf.isError) {
       val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
@@ -384,11 +392,15 @@ case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
       }
 
       val loc : DataLocation = actual.resultState.currentLocation
-      if (!loc.isAtEnd) {
-        throw new Exception("Left over data: " + loc.toString)
-      }
+      val leftOverException = if (!loc.isAtEnd) {
+        val leftOverMsg = "Left over data: " + loc.toString
+        println(leftOverMsg)
+        Some(new Exception(leftOverMsg))
+      } else None
 
       verifyParseInfoset(actual, infoset)
+
+      leftOverException.map { throw _ } // if we get here, throw the left over data exception.
 
       // TODO: Implement Warnings
       // check for any test-specified warnings
@@ -404,10 +416,10 @@ case class UnparserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
   def runProcessor(pf : DFDL.ProcessorFactory,
-    optData : Option[DFDL.Input],
-    optInfoset : Option[Infoset],
-    optErrors : Option[ExpectedErrors],
-    warnings : Option[ExpectedWarnings]) = {
+                   optData : Option[DFDL.Input],
+                   optInfoset : Option[Infoset],
+                   optErrors : Option[ExpectedErrors],
+                   warnings : Option[ExpectedWarnings]) = {
 
     val infoset = optInfoset.get
 
@@ -453,9 +465,9 @@ case class UnparserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
   }
 
   def runUnparserExpectSuccess(pf : DFDL.ProcessorFactory,
-    data : DFDL.Input,
-    infoset : Infoset,
-    warnings : Option[ExpectedWarnings]) {
+                               data : DFDL.Input,
+                               infoset : Infoset,
+                               warnings : Option[ExpectedWarnings]) {
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
@@ -480,10 +492,10 @@ case class UnparserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
   }
 
   def runUnparserExpectErrors(pf : DFDL.ProcessorFactory,
-    optData : Option[DFDL.Input],
-    infoset : Infoset,
-    errors : ExpectedErrors,
-    warnings : Option[ExpectedWarnings]) {
+                              optData : Option[DFDL.Input],
+                              infoset : Infoset,
+                              errors : ExpectedErrors,
+                              warnings : Option[ExpectedWarnings]) {
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
@@ -586,20 +598,18 @@ case class DocumentPart(part : Node, parent : Document) {
     val replacedRawContent = regex.replaceAllIn(partRawContent,
       m => convertDFDLCharEntity(m.group(0)) match {
         case "$" => "\\$" // the dollar sign charater means smething special
-                          // in Java's Matcher::AppendReplacement (which is used by
-                          // regex.replaceAllIn), so we need to escape it
+        // in Java's Matcher::AppendReplacement (which is used by
+        // regex.replaceAllIn), so we need to escape it
         case converted => converted
-      }
-    )
+      })
 
     val bytes = replacedRawContent.getBytes("UTF-8") //must specify charset name (JIRA DFDL-257)
     bytes
   }
 
-
   /**
    * Convert a character entity to its unicode equivalent. Returns the empty
-   * string if not a valid DFDL entity 
+   * string if not a valid DFDL entity
    */
   def convertDFDLCharEntity(s : String) : String = {
     val HexCodePoint = "%#x([0-9a-fA-F]+);".r
@@ -622,43 +632,43 @@ case class DocumentPart(part : Node, parent : Document) {
           case e => ""
         }
       }
-      case "%NUL;"  => "\u0000"
-      case "%SOH;"  => "\u0001"
-      case "%STX;"  => "\u0002"
-      case "%ETX;"  => "\u0003"
-      case "%EOT;"  => "\u0004"
-      case "%ENQ;"  => "\u0005"
-      case "%ACK;"  => "\u0006"
-      case "%BEL;"  => "\u0007"
-      case "%BS;"   => "\u0008"
-      case "%HT;"   => "\u0009"
-      case "%LF;"   => "\u000A"
-      case "%VT;"   => "\u000B"
-      case "%FF;"   => "\u000C"
-      case "%CR;"   => "\u000D"
-      case "%SO;"   => "\u000E"
-      case "%SI;"   => "\u000F"
-      case "%DLE;"  => "\u0010"
-      case "%DC1;"  => "\u0011"
-      case "%DC2;"  => "\u0012"
-      case "%DC3;"  => "\u0013"
-      case "%DC4;"  => "\u0014"
-      case "%NAK;"  => "\u0015"
-      case "%SYN;"  => "\u0016"
-      case "%ETB;"  => "\u0017"
-      case "%CAN;"  => "\u0018"
-      case "%EM;"   => "\u0019"
-      case "%SUB;"  => "\u001A"
-      case "%ESC;"  => "\u001B"
-      case "%FS;"   => "\u001C"
-      case "%GS;"   => "\u001D"
-      case "%RS;"   => "\u001E"
-      case "%US;"   => "\u001F"
-      case "%SP;"   => "\u0020"
-      case "%DEL;"  => "\u007F"
+      case "%NUL;" => "\u0000"
+      case "%SOH;" => "\u0001"
+      case "%STX;" => "\u0002"
+      case "%ETX;" => "\u0003"
+      case "%EOT;" => "\u0004"
+      case "%ENQ;" => "\u0005"
+      case "%ACK;" => "\u0006"
+      case "%BEL;" => "\u0007"
+      case "%BS;" => "\u0008"
+      case "%HT;" => "\u0009"
+      case "%LF;" => "\u000A"
+      case "%VT;" => "\u000B"
+      case "%FF;" => "\u000C"
+      case "%CR;" => "\u000D"
+      case "%SO;" => "\u000E"
+      case "%SI;" => "\u000F"
+      case "%DLE;" => "\u0010"
+      case "%DC1;" => "\u0011"
+      case "%DC2;" => "\u0012"
+      case "%DC3;" => "\u0013"
+      case "%DC4;" => "\u0014"
+      case "%NAK;" => "\u0015"
+      case "%SYN;" => "\u0016"
+      case "%ETB;" => "\u0017"
+      case "%CAN;" => "\u0018"
+      case "%EM;" => "\u0019"
+      case "%SUB;" => "\u001A"
+      case "%ESC;" => "\u001B"
+      case "%FS;" => "\u001C"
+      case "%GS;" => "\u001D"
+      case "%RS;" => "\u001E"
+      case "%US;" => "\u001F"
+      case "%SP;" => "\u0020"
+      case "%DEL;" => "\u007F"
       case "%NBSP;" => "\u00A0"
-      case "%NEL;"  => "\u0085"
-      case "%LS;"   => "\u2028"
+      case "%NEL;" => "\u0085"
+      case "%LS;" => "\u2028"
       case _ => ""
     }
     converted
