@@ -489,15 +489,30 @@ object XMLUtils {
       }
     }
 
-    val attribs = node.attributes.map { (attribute : MetaData) =>
+    val attribsList = if (node.attributes == null) Nil else node.attributes
+
+    val attribs = attribsList.map { (attribute : MetaData) =>
       {
         // for(attribute <- attribs) {
         val attrNS = attribute getNamespace (node)
         val name = attribute key
-        val value = attribute.value.apply(0).text
+        val value = attribute.value.text
         val prefixedKey = attribute.prefixedKey
         val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
-        val ns = Namespace getNamespace (prefix, attrNS)
+        val ns = (prefix, attrNS) match {
+          //
+          // to make our test cases less cluttered and more compact visually, we're 
+          // going to specifically allow for an attribute named xsi:nil where xsi prefix
+          // is NOT defined.
+          //
+          case ("xsi", null) | ("xsi", "") => xsiNS
+          case (_, null) | (_, "") => {
+            Assert.invariantFailed("attribute with prefix '%s', but no associated namespace".format(prefix))
+          }
+          case ("", uri) => Namespace.getNamespace(uri)
+          case (pre, uri) => Namespace.getNamespace(pre, uri)
+        }
+
         if (attribute.isPrefixed && attrNS != "") {
           //          println("THE ATTRIBUTE IS: " + name)
           //          println("THE NAMESPACE SHOULD BE: " + attrNS)
@@ -684,11 +699,21 @@ object XMLUtils {
         val noNamespaces = xml.TopScope // empty scope
         val noAttributesExceptNil = attributes.filter { m =>
           m match {
-            case xsiNilAttr @ PrefixedAttribute(pre, "nil", Text("true"), _) if (xsiNilAttr.getNamespace(e) == xsiNS) => true
+            case xsiNilAttr @ PrefixedAttribute(pre, "nil", Text("true"), _) if (xsiNilAttr.getNamespace(e) == XMLUtils.XSI_NAMESPACE) => {
+              //              println(xsiNilAttr.getNamespace(e))
+              //              println(xsiNS)
+              true
+            }
             case _ => false
           }
+        }.toList
+        // println(noAttributesExceptNil)
+        val newAttributes = noAttributesExceptNil match {
+          case Nil => Null // The empty attribute list.
+          case a :: Nil => a
+          case _ => Assert.invariantFailed("can only be one attribute, and that one must be xsi:nil")
         }
-        Elem(null, label, noAttributesExceptNil, noNamespaces, childrenWithoutAttributes : _*)
+        Elem(null, label, newAttributes, noNamespaces, childrenWithoutAttributes : _*)
       }
       case other => other
     }
@@ -719,10 +744,19 @@ object XMLUtils {
     (as, bs) match {
       case (a1 :: ars, b1 :: brs) if (a1.isInstanceOf[Elem] && b1.isInstanceOf[Elem]) => {
         val (a : Elem, b : Elem) = (a1, b1)
-        val Elem(_, labelA, _, _, childrenA @ _*) = a
-        val Elem(_, labelB, _, _, childrenB @ _*) = b
+        val Elem(_, labelA, attribsA, _, childrenA @ _*) = a
+        val Elem(_, labelB, attribsB, _, childrenB @ _*) = b
         if (labelA != labelB) List((zPath, a.toString, b.toString))
-        else {
+        else if (attribsA != attribsB
+          && !((attribsA == null && (attribsB == null || attribsB.length == 0))
+            || (attribsB == null) && attribsA.length == 0)) {
+
+          // println("attributes are different")
+
+          val aA = if (attribsA == null || attribsA == "") "null" else attribsA.toString
+          val aB = if (attribsB == null || attribsB == "") "null" else attribsB.toString
+          List((zPath, aA, aB))
+        } else {
           val aIndex = aCounters.get(labelA)
           val aIndexExpr = aIndex.map { n => labelA + "[" + n + "]" }
           val newAIndex = aIndex.map { n => (labelA, n + 1) }

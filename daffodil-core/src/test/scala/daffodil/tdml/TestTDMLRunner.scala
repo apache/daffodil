@@ -16,6 +16,7 @@ import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import daffodil.util._
 import org.junit.Test
+import daffodil.debugger.Debugger
 
 class TestTDMLRunner extends JUnitSuite {
 
@@ -73,7 +74,7 @@ class TestTDMLRunner extends JUnitSuite {
     assertEquals(4, str.length)
     assertEquals("$¢€\u2028", str)
   }
-  
+
   @Test def testDocWithDFDLEntities() {
     val xml = <document>
                 <documentPart type="text">\%#x24;%#xA2;%#x20AC;%%%NUL;%LS;%#IGNORED;</documentPart>
@@ -112,7 +113,7 @@ class TestTDMLRunner extends JUnitSuite {
     val infoset = ptc.infoset.get
     val actualContent = infoset.dfdlInfoset.contents
     val trimmed = actualContent
-    val expected = <byte1 xmlns:xsi={ xsi } xmlns:xs={ xsd }>123</byte1>
+    val expected = <byte1>123</byte1>
     assertEquals(expected, trimmed)
   }
 
@@ -144,7 +145,7 @@ class TestTDMLRunner extends JUnitSuite {
     val infoset = ptc.infoset.get
     val actualContent = infoset.dfdlInfoset.contents
     val trimmed = actualContent
-    val expected = <byte1 xmlns:xsi={ xsi } xmlns:xs={ xsd }>123</byte1>
+    val expected = <byte1>123</byte1>
     assertEquals(expected, trimmed)
   }
 
@@ -152,7 +153,6 @@ class TestTDMLRunner extends JUnitSuite {
     <dfdl:format ref="tns:daffodilTest1"/>,
     <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
 
-  
   @Test def testTDMLParseSuccess() {
 
     val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
@@ -234,31 +234,30 @@ class TestTDMLRunner extends JUnitSuite {
     assertTrue(exc.getMessage().contains("Expected error"))
   }
 
-// TODO: Implement Warnings
-//
-//  @Test def testTDMLParseDetectsNoWarning() {
-//
-//    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
-//                      <ts:parserTestCase ID="some identifier" name="testTDMLParseDetectsNoWarning" root="data">
-//                        <ts:document>37</ts:document>
-//                        <ts:infoset>
-//                          <ts:dfdlInfoset>
-//                            <data xmlns={ example }>37</data>
-//                          </ts:dfdlInfoset>
-//                        </ts:infoset>
-//                        <ts:warnings>
-//                          <ts:warning/><!-- don't care what message is -->
-//                        </ts:warnings>
-//                      </ts:parserTestCase>
-//                    </ts:testSuite>
-//    lazy val ts = new DFDLTestSuite(testSuite)
-//    val exc = intercept[Exception] {
-//      ts.runOneTest("testTDMLParseDetectsNoWarning", Some(testSchema))
-//    }
-//    assertTrue(exc.getMessage().contains("Did not find"))
-//  }
+  // TODO: Implement Warnings
+  //
+  //  @Test def testTDMLParseDetectsNoWarning() {
+  //
+  //    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName">
+  //                      <ts:parserTestCase ID="some identifier" name="testTDMLParseDetectsNoWarning" root="data">
+  //                        <ts:document>37</ts:document>
+  //                        <ts:infoset>
+  //                          <ts:dfdlInfoset>
+  //                            <data xmlns={ example }>37</data>
+  //                          </ts:dfdlInfoset>
+  //                        </ts:infoset>
+  //                        <ts:warnings>
+  //                          <ts:warning/><!-- don't care what message is -->
+  //                        </ts:warnings>
+  //                      </ts:parserTestCase>
+  //                    </ts:testSuite>
+  //    lazy val ts = new DFDLTestSuite(testSuite)
+  //    val exc = intercept[Exception] {
+  //      ts.runOneTest("testTDMLParseDetectsNoWarning", Some(testSchema))
+  //    }
+  //    assertTrue(exc.getMessage().contains("Did not find"))
+  //  }
 
-  
   @Test def testTDMLParseRunAll() {
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
                       <parserTestCase name="testTDMLParseRunAll1" root="data">
@@ -364,7 +363,6 @@ class TestTDMLRunner extends JUnitSuite {
       </parserTestCase>
     </tdml:testSuite>
 
-  
   @Test def testEmbeddedSchemaWorks() {
     val testSuite = tdmlWithEmbeddedSchema
     lazy val ts = new DFDLTestSuite(testSuite)
@@ -387,7 +385,6 @@ class TestTDMLRunner extends JUnitSuite {
       </parserTestCase>
     </tdml:testSuite>
 
-  
   @Test def testEmbeddedSchemaValidates() {
     val testSuite = tdmlWithEmbeddedSchemaInvalid
     val exc = intercept[Exception] {
@@ -472,15 +469,13 @@ class TestTDMLRunner extends JUnitSuite {
       </parserTestCase>
     </tdml:testSuite>
 
-  
   @Test def testMultiByteUnicodeWorks() {
     val testSuite = tdmlWithUnicode2028
     lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testMultiByteUnicodeWorks")
   }
-  
-  
-   val tdmlWithUnicode5E74AndCDATA =
+
+  val tdmlWithUnicode5E74AndCDATA =
     <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
       <tdml:defineSchema name="mySchema">
         <dfdl:format ref="tns:daffodilTest1"/>
@@ -496,13 +491,12 @@ class TestTDMLRunner extends JUnitSuite {
       </parserTestCase>
     </tdml:testSuite>
 
-  
   @Test def testMultiByteUnicodeWithCDATAWorks() {
     val testSuite = tdmlWithUnicode5E74AndCDATA
     lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testMultiByteUnicodeWithCDATAWorks")
   }
-  
+
   @Test def testBits() {
     val bits = new DocumentPart(<document-part type="bits">111</document-part>, null)
     assertEquals("111", bits.bitDigits)
@@ -510,4 +504,50 @@ class TestTDMLRunner extends JUnitSuite {
     assertEquals(7, bytes(0))
   }
 
+  @Test def testNilCompare() = {
+    val testSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+        <tdml:defineSchema name="mySchema">
+          <dfdl:format ref="tns:daffodilTest1" nilKind="literalValue" nilValueDelimiterPolicy="terminator"/>
+          <xsd:element name="data" type="xsd:int" nillable="true" dfdl:lengthKind="delimited" dfdl:nilValue="nil" dfdl:terminator=";"/>
+        </tdml:defineSchema>
+        <tdml:parserTestCase xmlns={ tdml } name="testNilCompare" root="data" model="mySchema">
+          <tdml:document>nil;</tdml:document>
+          <tdml:infoset>
+            <tdml:dfdlInfoset>
+              <tns:data xsi:nil="true"/>
+            </tdml:dfdlInfoset>
+          </tdml:infoset>
+        </tdml:parserTestCase>
+      </tdml:testSuite>
+
+    lazy val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("testNilCompare")
+  }
+
+  @Test def testNilCompare2() = {
+    val testSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+        <tdml:defineSchema name="mySchema">
+          <dfdl:format ref="tns:daffodilTest1" nilKind="literalValue" nilValueDelimiterPolicy="terminator"/>
+          <xsd:element name="data" type="xsd:int" nillable="true" dfdl:lengthKind="delimited" dfdl:nilValue="nil" dfdl:terminator=";"/>
+        </tdml:defineSchema>
+        <tdml:parserTestCase xmlns={ tdml } name="testNilCompare" root="data" model="mySchema">
+          <tdml:document>0;</tdml:document>
+          <tdml:infoset>
+            <tdml:dfdlInfoset>
+              <tns:data xsi:nil='true'/>
+            </tdml:dfdlInfoset>
+          </tdml:infoset>
+        </tdml:parserTestCase>
+      </tdml:testSuite>
+
+    lazy val ts = new DFDLTestSuite(testSuite)
+    val e = intercept[Exception] {
+      ts.runOneTest("testNilCompare")
+    }
+    val msg = e.getMessage()
+    assertTrue(msg.contains("Comparison failed"))
+    assertTrue(msg.contains("xsi:nil=\"true\""))
+  }
 }

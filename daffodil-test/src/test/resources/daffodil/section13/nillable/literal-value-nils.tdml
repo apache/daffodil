@@ -43,8 +43,8 @@
 				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
 					<e1>0</e1>
-					<e2 nil="true" />
-					<e3 nil="true" />
+					<e2 xsi:nil="true" />
+					<e3 xsi:nil="true" />
 				</doc>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
@@ -86,8 +86,8 @@
 				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
 					<e1>0</e1>
-					<e2 nil="true" />
-					<e3 nil="true" />
+					<e2 xsi:nil="true" />
+					<e3 xsi:nil="true" />
 				</doc>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
@@ -129,8 +129,8 @@
 				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
 					<e1>0</e1>
-					<e2 nil="true" />
-					<e3 nil="true" />
+					<e2 xsi:nil="true" />
+					<e3 xsi:nil="true" />
 				</doc>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
@@ -172,8 +172,8 @@
 				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
 					<e1>0</e1>
-					<e2 nil="true" />
-					<e3 nil="true" />
+					<e2 xsi:nil="true" />
+					<e3 xsi:nil="true" />
 				</doc>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
@@ -214,7 +214,7 @@
 				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
 					<e1>0</e1>
-					<e2 nil="true" />
+					<e2 xsi:nil="true" />
 				</doc>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>

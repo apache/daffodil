@@ -1,6 +1,5 @@
 package daffodil.xml.test.unit
 
-
 import scala.xml._
 import daffodil.xml.XMLUtils
 import org.scalatest.junit.JUnitSuite
@@ -18,7 +17,7 @@ class TextXMLUtils extends JUnitSuite {
     assertEquals("a", a)
     assertEquals("b", b)
   }
-  
+
   @Test def testDiff1() {
     val d1 = <d>a</d>
     val d2 = <d>b</d>
@@ -28,7 +27,7 @@ class TextXMLUtils extends JUnitSuite {
     assertEquals("a", a)
     assertEquals("b", b)
   }
-   
+
   @Test def testDiff2() {
     val d1 = <a><d>a</d><d>x</d></a>
     val d2 = <a><d>a</d><d>y</d></a>
@@ -50,7 +49,23 @@ class TextXMLUtils extends JUnitSuite {
     assertEquals("a/d[2].charAt(3)", p2)
     assertEquals("x", x)
     assertEquals("y", y)
-    
+
   }
-  
+
+  @Test def testNilDiff1() {
+    val d1 = <a xmlns:xsi={ XMLUtils.XSI_NAMESPACE } xsi:nil="true" foo="bar"/>
+    val d2 = <a baz="quuxly"/>
+    val d1NoA = XMLUtils.removeAttributes(d1)
+    // println(d1NoA)
+    val d2NoA = XMLUtils.removeAttributes(d2)
+    val diffs = XMLUtils.computeDiff(d1NoA, d2NoA)
+    // println(diffs)
+    val Seq((path, d1attribs, d2attribs)) = diffs
+    assertEquals("", path)
+    // for whatever reason, an attribute prints with a leading space or something.
+    // so we make the comparison be a 'contains' style comparison.
+    assertTrue(d1attribs.contains("xsi:nil=\"true\""))
+    assertEquals("", d2attribs)
+  }
+
 }

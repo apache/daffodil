@@ -311,15 +311,22 @@ case class ParserTestCase(ptc : NodeSeq, parentArg : DFDLTestSuite)
 
     // Something about the way XML is constructed is different between our jdom-converted 
     // results and the ones created by scala directly parsing the TDML test files.
+    //
+    // This has something to do with values being lists of text nodes and entities
+    // and not just simple strings. I.e., if you write: <foo>a&#x5E74;</foo>, that's not
+    // an element with a string as its value. It's an element with several text nodes as
+    // its values.
+    //
     // so we run the expected stuff through the same converters that were used to
     // convert the actual.
     val expected = XMLUtils.element2Elem(XMLUtils.elem2Element(infoset.contents))
-    val expectedNoAttrs = XMLUtils.removeAttributes(expected)
+    // infoset.contents already has attributes removed.
 
-    if (expectedNoAttrs != actualNoAttrs) {
-      val diffs = XMLUtils.computeDiff(expectedNoAttrs, actualNoAttrs)
-      //throw new Exception("Comparison failed. Expected: " + expected + " but got " + actualNoAttrs)
-      throw new Exception("""
+    if (expected != actualNoAttrs) {
+      val diffs = XMLUtils.computeDiff(expected, actualNoAttrs)
+      if (diffs.length > 0) {
+        //throw new Exception("Comparison failed. Expected: " + expected + " but got " + actualNoAttrs)
+        throw new Exception("""
 Comparison failed.
 Expected 
           %s
@@ -327,7 +334,8 @@ Actual
           %s
 Differences were (path, expected, actual):
  %s""".format(
-        expectedNoAttrs.toString, actualNoAttrs.toString, diffs.map { _.toString }.mkString("\n")))
+          expected.toString, actualNoAttrs.toString, diffs.map { _.toString }.mkString("\n")))
+      }
     }
   }
 
