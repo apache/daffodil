@@ -340,7 +340,7 @@
 			<tdml:documentPart type="byte">2121c2c22121</tdml:documentPart>
 		</tdml:document>
 		<tdml:errors>
-			<tdml:error>StringFixedLengthInBytes - Exception: </tdml:error>
+			<tdml:error>No match found!</tdml:error>
 			<!-- might not be this word 'invalid', but has to produce a diagnostic.
 			Right now this test fails because it throws to top level rather than producing 
 			a diagnostic at all. -->
@@ -382,7 +382,7 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<list_03>
-  					<firstToken></firstToken>
+  					<firstToken xsi:nil="true"></firstToken>
   					<secondToken>123456789</secondToken>
   					<thirdToken>AAAAA</thirdToken>
 				</list_03>
@@ -412,7 +412,7 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<list_03_01>
-  					<firstToken></firstToken>
+  					<firstToken xsi:nil="true"></firstToken>
   					<secondToken>123456789</secondToken>
   					<thirdToken>AAAAA</thirdToken>
 				</list_03_01>
