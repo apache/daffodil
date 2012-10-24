@@ -11,6 +11,7 @@ import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
 import daffodil.debugger.Debugger.withDebugger
+import daffodil.debugger.Debugger
 
 class TestLengthKindDelimited extends JUnitSuite {
   val testDir = "/daffodil/section12/lengthKind/"
@@ -28,7 +29,7 @@ class TestLengthKindDelimited extends JUnitSuite {
   @Test def test_NumSeq_05() { runner.runOneTest("NumSeq_05") }
   @Test def test_NumSeq_06() { runner.runOneTest("NumSeq_06") }
   @Test def test_NumSeq_07() { runner.runOneTest("NumSeq_07") }
-  @Test def test_NumSeq_08() { runner.runOneTest("NumSeq_08") }
+  @Test def test_NumSeq_08() = Debugger.withDebugger { runner.runOneTest("NumSeq_08") }
   @Test def test_lengthKindDelimited_01() { runner.runOneTest("lengthKindDelimited_01") }
   @Test def test_lengthKindDelimited_02() { runner.runOneTest("lengthKindDelimited_02") }
   //@Test def test_lengthKindDelimited_03() { runner.runOneTest("lengthKindDelimited_03") }
