@@ -41,7 +41,7 @@ class DFDLByteReader private (psb : PagedSeq[Byte], val bytePos : Int = 0)
 
   lazy val atEnd : Boolean = !psb.isDefinedAt(bytePos)
 
-  def atPos(bytePosition : Int) : DFDLByteReader = { new DFDLByteReader(psb, bytePosition) }
+  def atPos(bytePosition : Int) : DFDLByteReader = { new DFDLByteReader(psb.slice(bytePosition), 0) }
 
   def getByte(bytePosition : Int) : Byte = { psb(bytePosition) }
 
@@ -200,24 +200,24 @@ object DFDLByteReader {
   private var charPositionsMap : CharPosMap = HashMap.empty
 
   private def getNewReader(psb : PagedSeq[Byte], bytePos : Int, csName : String) : DFDLCharReader = {
-    if (charReaderMap.isEmpty) {
-      var csMap : CSMap = HashMap.empty
-      val emptyCharReaderMap : PosMap = HashMap.empty
-      csMap.put(csName, emptyCharReaderMap)
-      charReaderMap.put(psb, csMap)
-    }
-
-    // TRW - Added for Compound Pattern Match to work
-    if (charReaderMap.get(psb) == None) {
-      var csMap : CSMap = HashMap.empty
-      val emptyCharReaderMap : PosMap = HashMap.empty
-      csMap.put(csName, emptyCharReaderMap)
-      charReaderMap.put(psb, csMap)
-    }
-    val charReaders = charReaderMap.get(psb).get.get(csName).get
+//    if (charReaderMap.isEmpty) {
+//      var csMap : CSMap = HashMap.empty
+//      val emptyCharReaderMap : PosMap = HashMap.empty
+//      csMap.put(csName, emptyCharReaderMap)
+//      charReaderMap.put(psb, csMap)
+//    }
+//
+//    // TRW - Added for Compound Pattern Match to work
+//    if (charReaderMap.get(psb) == None) {
+//      var csMap : CSMap = HashMap.empty
+//      val emptyCharReaderMap : PosMap = HashMap.empty
+//      csMap.put(csName, emptyCharReaderMap)
+//      charReaderMap.put(psb, csMap)
+//    }
+//    val charReaders = charReaderMap.get(psb).get.get(csName).get
     val newrdr = new DFDLCharReader(psb, bytePos, csName)
-    charReaders.put(bytePos, newrdr -> 0)
-    charPositionsMap.put(bytePos + csName, 0)
+//    charReaders.put(bytePos, newrdr -> 0)
+//    charPositionsMap.put(bytePos + csName, 0)
     newrdr
   }
 

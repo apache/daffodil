@@ -568,22 +568,11 @@ case class StringDelimitedEndOfData(e : ElementBase)
           return PE(postEvalState, "StringDelimitedEndOfData - not byte aligned.")
         }
 
-        log(Debug("Retrieving reader"))
-
         val reader = getReader(bytePos, decoder.charset().name(), start)
-
-        //System.err.println("StringDelimitedEndOfData - " + reader.characterPos)
-
-        //        val byteReader = in.byteReader.atPos(bytePos)
-        //        val reader = byteReader.charReader(decoder.charset().name())
 
         val d = new delimsearch.DelimParser()
 
         var result : delimsearch.DelimParseResult = new delimsearch.DelimParseResult
-
-        //        val remaining = in.getBytesRemaining(start.bitPos)
-        //        
-        //        //System.err.println(remaining.toList)
 
         if (esObj.escapeSchemeKind == stringsearch.constructs.EscapeSchemeKind.Block) {
           result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
@@ -2567,28 +2556,39 @@ case class StringExplicitLengthInBytes(e : ElementBase)
 
 trait TextReader extends Logging {
 
+  /**
+   * This function bypasses the caching operation for now. Instead
+   * readers are stored in the PState.
+   */
   def getReader(bytePos : Int, csName : String, state : PState) : DFDLCharReader = {
     withLoggingLevel(LogLevel.Info) {
+      log(Debug("Retrieving reader"))
       // Do we already have a reader in the PState?
       val res = state.textReader match {
         case Some(rdr) if (rdr.getCharsetName == csName && state.charPos != -1) => {
+          log(Debug("Reader already exists."))
           if (rdr.atEnd) {
+            log(Debug("Reader atEnd, construct new reader atBytePos(%s)", bytePos))
             val in : InStreamFromByteChannel = state.inStream.asInstanceOf[InStreamFromByteChannel]
             in.byteReader.atPos(bytePos).newCharReader(csName).asInstanceOf[DFDLCharReader]
           } else { rdr }
         }
         case None => {
+          log(Debug("Reader does not exist in state."))
+          // TODO: The following if-else can probably just be condensed as they perform the same operation
+          // The trick here is that we may, at some point, need to tell the difference between when we were
+          // in text mode vs binary mode.  PState.charPos = -1 means we were not in text mode.
           if (state.charPos == -1) {
+            log(Debug("Wasn't in 'text' mode. Construct a new reader atBytePos(%s)", bytePos))
             val in : InStreamFromByteChannel = state.inStream.asInstanceOf[InStreamFromByteChannel]
             in.byteReader.atPos(bytePos).newCharReader(csName).asInstanceOf[DFDLCharReader]
           } else {
+            log(Debug("Construct a new reader atBytePos(%s), charPos(%s)", bytePos, state.charPos))
             // Retrieve one if possible
             // TODO: Does the underlying call throw if we are out of data? How will this fail?
             val in : InStreamFromByteChannel = state.inStream.asInstanceOf[InStreamFromByteChannel]
-            //System.err.println(in.byteReader.bb.array().toList.map(b => b.toByte.toHexString))
             in.byteReader.atPos(bytePos).charReader(csName).asInstanceOf[DFDLCharReader]
           }
-
         }
       }
       log(Debug("Retrieval complete."))

@@ -141,7 +141,8 @@ class DelimParser extends RegexParsers with Logging {
     delimRegex
   }
 
-  def parseInputPatterned(pattern: String, input: Reader[Char], charset: Charset): DelimParseResult = { withLoggingLevel(LogLevel.Info) {
+  def parseInputPatterned(pattern: String, input: Reader[Char], charset: Charset): DelimParseResult = { 
+    withLoggingLevel(LogLevel.Info) {
     val EOF: Parser[String] = """\z""".r
 
     val thePattern: Parser[String] = ("(?s)" + pattern).r
