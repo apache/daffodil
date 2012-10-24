@@ -1842,7 +1842,7 @@ case class LiteralNilExplicitLengthInBytes(e: ElementBase)
 
         // TODO: What if someone passes in nBytes = 0 for Explicit length, is this legal?
 
-        val R(nBytesAsAny, newVMap) = expr.evaluate(start.parent, start.variableMap)
+        val R(nBytesAsAny, newVMap) = expr.evaluate(start.parent, start.variableMap, start)
         val nBytes = nBytesAsAny.asInstanceOf[String] //nBytesAsAny.asInstanceOf[Long]
         val postEvalState = start.withVariables(newVMap)
         log(Debug("Explicit length %s", nBytes))
@@ -1951,7 +1951,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
 
         //val postEvalState = start //start.withVariables(vars)
 
-        val R(nCharsAsAny, newVMap) = expr.evaluate(start.parent, start.variableMap)
+        val R(nCharsAsAny, newVMap) = expr.evaluate(start.parent, start.variableMap, start)
         val nChars = nCharsAsAny.asInstanceOf[String] //nBytesAsAny.asInstanceOf[Long]
         val postEvalState = start.withVariables(newVMap)
         log(Debug("Explicit length %s", nChars))
