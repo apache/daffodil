@@ -15,5 +15,7 @@ class TestAssertions2 extends JUnitSuite {
   @Test def test_assertions_assertPatternLiteralTextMatch() = Debugger.withDebugger {
     runner.runOneTest("assertPatternLiteralTextMatch")
   }
+  @Test def test_assertPatternPass3() { runner.runOneTest("assertPatternPass3") }
+  @Test def test_assertPatternPass4() { runner.runOneTest("assertPatternPass4") }
 
 }
