@@ -12,6 +12,7 @@ class TestAssertionsNew extends JUnitSuite {
   val tdml = testDir + "assert.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
+  @Test def test_assertions_assertPatternLiteralTextMatch() = { runner.runOneTest("assertPatternLiteralTextMatch") }
   @Test def test_assertions_assertPatternPass() { runner.runOneTest("assertPatternPass") }
   @Test def test_assertions_assertPatternFail() { runner.runOneTest("assertPatternFail") }
   
