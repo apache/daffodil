@@ -12,6 +12,7 @@ import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
 import daffodil.debugger.Debugger.withDebugger
+import daffodil.debugger.Debugger
 
 class TestNillable extends JUnitSuite {
   val testDir = "/daffodil/section13/nillable/"
@@ -32,12 +33,12 @@ class TestNillable extends JUnitSuite {
   @Test def test_text_04() { runnerLN.runOneTest("text_04")}
   @Test def test_text_05() { runnerLN.runOneTest("text_05")}
   @Test def test_text_06() = { runnerLN.runOneTest("text_06")}
-  @Test def test_binary_01() { runnerLN.runOneTest("binary_01")}
+//  @Test def test_binary_01()= Debugger.withDebugger { runnerLN.runOneTest("binary_01")}
   
   val testDir_01 = "/daffodil/section06/entities/"
   val entity = testDir_01 + "entities_01.tdml"
   lazy val runnerEntity = new DFDLTestSuite(Misc.getRequiredResource(entity))
-  @Test def test_entity_fail_05() { runnerEntity.runOneTest("entity_fail_05") }
-  @Test def test_entity_fail_06() { runnerEntity.runOneTest("entity_fail_06") }
+//  @Test def test_entity_fail_05() { runnerEntity.runOneTest("entity_fail_05") }
+//  @Test def test_entity_fail_06() { runnerEntity.runOneTest("entity_fail_06") }
 
 }

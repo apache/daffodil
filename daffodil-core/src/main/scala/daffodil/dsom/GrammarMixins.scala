@@ -598,20 +598,20 @@ trait ElementBaseGrammarMixin
 
   lazy val nilLit = {
     Prod("nilLit", this,
-      isNillable && nilKind == NilKind.LiteralValue && representation == Representation.Text,
+      isNillable && nilKind == NilKind.LiteralValue,
       nilElementInitiator ~ {
+      if (representation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
         lengthKind match {
           case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
           case LengthKind.Pattern => LiteralNilPattern(this)
           case LengthKind.Explicit => {
-            System.err.println(lengthUnits)
             lengthUnits match {
               case LengthUnits.Bits => Assert.notYetImplemented()
               case LengthUnits.Bytes => LiteralNilExplicitLengthInBytes(this)
               case LengthUnits.Characters => LiteralNilExplicitLengthInChars(this)
             }
           }
-          case LengthKind.Implicit => Assert.notYetImplemented() // TODO: What to do about implicit literal nil?
+          case LengthKind.Implicit => Assert.notYetImplemented()// Text representation can't be Implicit!
           case LengthKind.Prefixed => Assert.notYetImplemented()
           case LengthKind.EndOfParent => Assert.notYetImplemented()
         }
