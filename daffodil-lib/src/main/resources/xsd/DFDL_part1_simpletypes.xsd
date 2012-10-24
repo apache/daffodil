@@ -50,6 +50,18 @@
 	   Reverse the order and then just empty whitespace will validate.
 	   -->
 	</xsd:simpleType>
+	
+	<xsd:simpleType name="DFDLExpressionOrPatternOrNothing">
+	  <xsd:annotation>
+		<xsd:documentation>An expression, a regex, or nothing at all.</xsd:documentation>
+	  </xsd:annotation>
+	  <xsd:union memberTypes="dfdl:EmptyString dfdl:DFDLExpression dfdl:DFDLRegularExpression" />
+	  <!-- 
+	  2012-01-04 mbeckerle - If you change the order of this union,
+	   it stops enforcing the empty string aspect.
+	   Reverse the order and then just empty whitespace will validate.
+	   -->
+	</xsd:simpleType>
 		
 	<xsd:simpleType name="DFDLStringLiteral">
 		<xsd:restriction base="xsd:string">

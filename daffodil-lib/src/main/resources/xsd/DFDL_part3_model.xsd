@@ -148,13 +148,13 @@
 	<xsd:attributeGroup name="TestConditionAG">
 		<xsd:attribute name="test" type="dfdl:DFDLExpression" />
 		<xsd:attribute name="testKind" type="dfdl:TestKindEnum" />
-		<xsd:attribute name="testPattern" type="xsd:string" />
+		<xsd:attribute name="testPattern" type="dfdl:DFDLRegularExpression" />
 		<xsd:attribute name="message" type="xsd:string" />
 	</xsd:attributeGroup>
 
 	<xsd:complexType name="TestCondition">
 		<xsd:simpleContent>
-			<xsd:extension base="dfdl:DFDLExpressionOrNothing">
+			<xsd:extension base="dfdl:DFDLExpressionOrPatternOrNothing"> <!-- changed to accept regex -->
 				<xsd:attributeGroup ref="dfdl:TestConditionAG" />
 			</xsd:extension>
 		</xsd:simpleContent>
