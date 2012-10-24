@@ -16,11 +16,6 @@ class TestLengthKindImplicit extends JUnitSuite {
   val tdml = testDir + "implicit.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))
   
-  @Test def test_data_01() { runner_01.runOneTest("data_01") }
-  @Test def test_data_02() { runner_01.runOneTest("data_02") }
-  @Test def test_seq_01() { runner_01.runOneTest("seq_01") }
-  @Test def test_seq_02() { runner_01.runOneTest("seq_02") }
-  @Test def test_seq_03() { runner_01.runOneTest("seq_03") }
   @Test def test_nested_seq() { runner_01.runOneTest("nested_seq") }
   @Test def test_nested_seq_01() { runner_01.runOneTest("nested_seq_01") }
   
