@@ -600,7 +600,7 @@ trait ElementBaseGrammarMixin
     Prod("nilLit", this,
       isNillable && nilKind == NilKind.LiteralValue,
       nilElementInitiator ~ {
-      if (representation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
+        if (representation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
         lengthKind match {
           case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
           case LengthKind.Pattern => LiteralNilPattern(this)
@@ -611,7 +611,7 @@ trait ElementBaseGrammarMixin
               case LengthUnits.Characters => LiteralNilExplicitLengthInChars(this)
             }
           }
-          case LengthKind.Implicit => Assert.notYetImplemented()// Text representation can't be Implicit!
+          case LengthKind.Implicit => Assert.notYetImplemented() // Text representation can't be Implicit!
           case LengthKind.Prefixed => Assert.notYetImplemented()
           case LengthKind.EndOfParent => Assert.notYetImplemented()
         }
@@ -771,7 +771,7 @@ trait LocalElementGrammarMixin { self : LocalElementBase =>
       case OccursCountKind.Fixed if (max == UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
       case OccursCountKind.Fixed if (min != max) => SDE("occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)", min, max)
       case OccursCountKind.Fixed => separatedContentExactlyN(max)
-      case OccursCountKind.Implicit if (max == UNB) => Assert.notYetImplemented() // contentUnbounded
+      case OccursCountKind.Implicit if (max == UNB) => contentUnbounded // same as parsed
       case OccursCountKind.Implicit => separatedContentAtMostN // uses maxOccurs
       case OccursCountKind.Parsed => contentUnbounded
       case OccursCountKind.StopValue => contentUnbounded
