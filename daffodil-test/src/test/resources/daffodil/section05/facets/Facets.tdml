@@ -120,6 +120,117 @@
 
 
   <!--
+    Schema name: arrays-min0max5.dfdl.xsd
+    Purpose: This schema tests the minOccurs of an array is 0 and maxOccurs 5
+	Note: This is not the same as testing for min and max elements in an array.
+  -->
+
+  <tdml:defineSchema name="arrays-min0max5.dfdl.xsd">
+
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
+      floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
+      alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
+      truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
+      lengthKind="delimited" nilValueDelimiterPolicy="both"
+      emptyValueDelimiterPolicy="none"
+      documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+      separatorPolicy="suppressed" separatorPosition="infix" />
+
+    <xs:element name="arrays" type="arrayOutter"
+      dfdl:lengthKind="implicit" />
+
+    <xs:complexType name="arrayOutter">
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="array" type="array" minOccurs="0"
+          maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="array">
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="data" type="xs:int" minOccurs="3"
+          maxOccurs="20" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:complexType>
+
+
+  </tdml:defineSchema>
+
+  <!--
+    Schema name: arrays-min1max5.dfdl.xsd
+    Purpose: This schema tests the minOccurs of an array is 1 and maxOccurs 5
+  -->
+
+  <tdml:defineSchema name="arrays-min1max5.dfdl.xsd">
+
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
+      floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
+      alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
+      truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
+      lengthKind="delimited" nilValueDelimiterPolicy="both"
+      emptyValueDelimiterPolicy="none"
+      documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+      separatorPolicy="suppressed" separatorPosition="infix" />
+
+    <xs:element name="arrays" type="arrayOutter"
+      dfdl:lengthKind="implicit" />
+
+    <xs:complexType name="arrayOutter">
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="array" type="array" minOccurs="1"
+          maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="array">
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="data" type="xs:int" minOccurs="3"
+          maxOccurs="20" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:complexType>
+
+
+  </tdml:defineSchema>
+
+  <!--
+    Schema name: arrays-min3max5.dfdl.xsd
+    Purpose: This schema tests the minOccurs of an array is 3 and maxOccurs 5
+  -->
+
+  <tdml:defineSchema name="arrays-min3max5.dfdl.xsd">
+
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
+      floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
+      alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
+      truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
+      lengthKind="delimited" nilValueDelimiterPolicy="both"
+      emptyValueDelimiterPolicy="none"
+      documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+      separatorPolicy="suppressed" separatorPosition="infix" />
+
+    <xs:element name="arrays" type="arrayOutter"
+      dfdl:lengthKind="implicit" />
+
+    <xs:complexType name="arrayOutter">
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="array" type="array" minOccurs="3"
+          maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="array">
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="data" type="xs:int" minOccurs="3"
+          maxOccurs="20" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:complexType>
+
+
+  </tdml:defineSchema>
+  <!--
     Schema name: facets-min5max10.dfdl.xsd
     Purpose: This schema tests the condition that minOccurs is 5 and maxOccurs 
     is 10 in a simple one-element sequence,
@@ -3118,4 +3229,204 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+
+  <!--
+    Test name: ArrayMinOccurs{$foo}
+    Schema: arrays-min3max5.dfdl.xsd
+    Purpose: This document has 4 arrays of entries which is within the expected range
+     as such it should parse
+  -->
+
+  <tdml:parserTestCase name="arraysMinOccursZero" root="arrays"
+    model="arrays-min0max5.dfdl.xsd" description="Section 5 - minOccurs 0 maxOccurs 5 - DFDL-5-058R2">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <arrays></arrays>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+    <tdml:parserTestCase name="arraysOccursInRange_01" root="arrays"
+    model="arrays-min0max5.dfdl.xsd" description="Section 5 - minOccurs 0 maxOccurs 5 - DFDL-5-058R2">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1|2|3|4|5]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <arrays>
+          <array>
+            <data>1</data>
+            <data>2</data>
+            <data>3</data>
+            <data>4</data>
+            <data>5</data>
+          </array>
+        </arrays>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+    <tdml:parserTestCase name="arraysOccursInRange_02" root="arrays"
+    model="arrays-min0max5.dfdl.xsd" description="Section 5 - minOccurs 0 maxOccurs 5 - DFDL-5-058R2">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1|2|3|4|5,11|22|33|44|55]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <arrays>
+          <array>
+            <data>1</data>
+            <data>2</data>
+            <data>3</data>
+            <data>4</data>
+            <data>5</data>
+          </array>
+          <array>
+            <data>11</data>
+            <data>22</data>
+            <data>33</data>
+            <data>44</data>
+            <data>55</data>
+          </array>
+        </arrays>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+    <tdml:parserTestCase name="arraysOccursInRange_03" root="arrays"
+    model="arrays-min1max5.dfdl.xsd" description="Section 5 - minOccurs 1 maxOccurs 5 - DFDL-5-058R2">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1|2|3|4|5]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <arrays>
+          <array>
+            <data>1</data>
+            <data>2</data>
+            <data>3</data>
+            <data>4</data>
+            <data>5</data>
+          </array>
+        </arrays>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+      <tdml:parserTestCase name="arraysOccursInRange_04" root="arrays"
+    model="arrays-min1max5.dfdl.xsd" description="Section 5 - minOccurs 1 maxOccurs 5 - DFDL-5-058R2">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1|2|3|4|5,11|22|33|44|55]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <arrays>
+          <array>
+            <data>1</data>
+            <data>2</data>
+            <data>3</data>
+            <data>4</data>
+            <data>5</data>
+          </array>
+          <array>
+            <data>11</data>
+            <data>22</data>
+            <data>33</data>
+            <data>44</data>
+            <data>55</data>
+          </array>
+        </arrays>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+      <tdml:parserTestCase name="arraysOccursOutOfRange_01" root="arrays"
+    model="arrays-min1max5.dfdl.xsd" description="Section 5 - minOccurs 1 maxOccurs 5 - DFDL-5-058R2">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error />
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  
+      <tdml:parserTestCase name="arraysOccursInRange_05" root="arrays"
+    model="arrays-min3max5.dfdl.xsd" description="Section 5 - minOccurs 3 maxOccurs 5 - DFDL-5-058R2">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1|2|3|4|5,11|22|33|44|55,111|222|333|444|555,1111|2222|3333|4444|5555,11111|22222|33333|44444|55555]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <arrays>
+          <array>
+            <data>1</data>
+            <data>2</data>
+            <data>3</data>
+            <data>4</data>
+            <data>5</data>
+          </array>
+          <array>
+            <data>11</data>
+            <data>22</data>
+            <data>33</data>
+            <data>44</data>
+            <data>55</data>
+          </array>
+          <array>
+            <data>111</data>
+            <data>222</data>
+            <data>333</data>
+            <data>444</data>
+            <data>555</data>
+          </array>
+          <array>
+            <data>1111</data>
+            <data>2222</data>
+            <data>3333</data>
+            <data>4444</data>
+            <data>5555</data>
+          </array>
+          <array>
+            <data>11111</data>
+            <data>22222</data>
+            <data>33333</data>
+            <data>44444</data>
+            <data>55555</data>
+          </array>     
+        </arrays>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+    <tdml:parserTestCase name="arraysOccursOutOfRange_02" root="arrays"
+    model="arrays-min3max5.dfdl.xsd" description="Section 5 - minOccurs 3 maxOccurs 5 - DFDL-5-058R2">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1|2|3|4|5]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error />
+    </tdml:errors>
+    
+  </tdml:parserTestCase>  
 </tdml:testSuite>

@@ -32,7 +32,6 @@ class TestFacets extends JUnitSuite {
   @Test def test_lessThanMinCellsAfterLargeRow_Neg() { runner.runOneTest("lessThanMinCellsAfterLargeRow_Neg") }
   @Test def test_fixedUnboundedMax() { runner.runOneTest("fixedUnboundedMax") }
   @Test def test_minMaxDoNotMatch() { runner.runOneTest("minMaxDoNotMatch") }
-
   @Test def test_facet_pattern_01() { runner.runOneTest("facetPattern01") }
   @Test def test_facet_pattern_02() { runner.runOneTest("facetPattern02") }
   @Test def test_facet_pattern_03() { runner.runOneTest("facetPattern03") }

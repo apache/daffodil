@@ -9,7 +9,17 @@
     <dfdl:defineEscapeScheme name="pound"/>
     <xs:element name="elem" type="xs:int"/>
   </tdml:defineSchema>
+
+  <defineSchema name="es2">
+    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:defineEscapeScheme NCName="foo:bar">
+      <dfdl:escapeScheme escapeCharacter='#'
+        escapeKind="escapeCharacter" escapeEscapeCharacter=""/>
+    </dfdl:defineEscapeScheme>
+    <xs:element name="elem" type="xs:int"/>
+  </defineSchema>
   
+
   <!--
        Test Name: escapeSchemeNeg
           Schema: es1
@@ -23,6 +33,23 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>The content of element 'dfdl:defineEscapeScheme' is not complete</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <!--
+       Test Name: escapeSchemeNeg_NCName
+          Schema: es:2
+            Root: elem
+         Purpose: This is a negative test to demonstrate that an NCNamed schema that contains a colon will be caught  
+  -->
+
+  <tdml:parserTestCase name="escapeSchemeNeg2" model="es2"
+    description="Section 7 defineEscapeScheme - DFDL-7-082R" root="elem">
+    <tdml:document><![CDATA[123]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>
+      </tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

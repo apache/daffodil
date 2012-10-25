@@ -18,7 +18,7 @@ class TestNillableNew extends JUnitSuite {
   val testDir = "/daffodil/section13/nillable/"
   val aa = testDir + "nillable.tdml"
   lazy val runnerAA = new DFDLTestSuite(Misc.getRequiredResource(aa))
-
+  //@Test def test_nil8() { runnerAA.runOneTest("nil8") }
   val ln = testDir + "literal-value-nils.tdml"
   lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
   @Test def test_padded_nils() = { runnerLN.runOneTest("test_padded_nils") }
