@@ -13,6 +13,19 @@
 		<dfdl:defineFormat name="def">
 				<dfdl:format ref="tns:def1" encoding="utf-8" lengthKind="explicit" lengthUnits="characters" length="5" textNumberRep="zoned"/>
 		</dfdl:defineFormat>
+		
+		<dfdl:defineFormat name="def2">
+				<dfdl:format ref="tns:def3" lengthKind="explicit" lengthUnits="characters" length="4" 
+					representation="text" textNumberRep="standard"/>
+		</dfdl:defineFormat>
+			
+		<dfdl:defineFormat name="def3">
+				<dfdl:format ref="tns:daffodilTest1" representation="binary"/>
+		</dfdl:defineFormat>
+		
+		<dfdl:defineFormat name="def1">
+				<dfdl:format ref="tns:def2"/>
+		</dfdl:defineFormat>
 			
 		<dfdl:format ref="tns:daffodilTest1" lengthKind="explicit" lengthUnits="characters" length="3"/>
             
@@ -149,6 +162,95 @@
 	</tdml:parserTestCase>
  
  
+ <tdml:defineSchema name="dfdlRefNotFound">
+		<dfdl:defineFormat name="def">
+				<dfdl:format ref="tns:noWayMan" encoding="utf-8" lengthKind="explicit" lengthUnits="characters" length="5" textNumberRep="zoned"/>
+		</dfdl:defineFormat>
+		
+		<dfdl:defineFormat name="def2">
+				<dfdl:format ref="tns:def3" lengthKind="explicit" lengthUnits="characters" length="4" 
+					representation="text" textNumberRep="standard"/>
+		</dfdl:defineFormat>
+			
+		<dfdl:defineFormat name="def3">
+				<dfdl:format ref="tns:daffodilTest1" representation="binary"/>
+		</dfdl:defineFormat>
+		
+		<dfdl:defineFormat name="def1">
+				<dfdl:format ref="tns:def2"/>
+		</dfdl:defineFormat>
+			
+		<dfdl:format ref="tns:daffodilTest1" lengthKind="explicit" lengthUnits="characters" length="3"/>
+            
+        <xs:element name="easy" type="xs:int" dfdl:ref="tns:DNE" dfdl:textNumberRep="standard"/>
+        <xs:element name="easy2" type="xs:int" dfdl:ref="tns:def" dfdl:textNumberRep="standard"/>
+	</tdml:defineSchema>
+	
+	<tdml:defineSchema name="formatRefLongVsShortForm">
+
+		<dfdl:defineFormat name="aFormat">
+			<dfdl:format ref="tns:daffodilTest1" representation="text" lengthKind="delimited"
+				initiator="" terminator="" encoding="utf-8" initiatedContent="no" 
+				occursCountKind="parsed"/>
+		</dfdl:defineFormat>
+		<dfdl:format ref="tns:daffodilTest1" initiator="" terminator="" 
+                encoding="utf-8" binaryNumberRep="binary" initiatedContent="no" />
+	
+		<xs:element name="aa" type="tns:c">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:element representation="binary" />
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
+	
+			<xs:simpleType name="c">
+				<xs:annotation>
+					<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+						<dfdl:simpleType byteOrder="bigEndian" />
+					</xs:appinfo>
+				</xs:annotation>
+				<xs:restriction base="xs:int" />
+			</xs:simpleType>
+		
+		<xs:element name="long" dfdl:lengthKind="implicit" >
+			<xs:complexType>
+				<xs:sequence dfdl:separator="">
+					<xs:element ref="tns:aa" dfdl:occursCountKind="fixed" minOccurs="3" maxOccurs="3">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:element ref="tns:dummy" />
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>	
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="short" dfdl:lengthKind="implicit" >
+			<xs:complexType>
+				<xs:sequence dfdl:separator="">
+					<xs:element ref="tns:aa" dfdl:occursCountKind="fixed" dfdl:ref="tns:dummy" minOccurs="3" maxOccurs="3"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="longAndShort" >
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+					<xs:element name="overlap" type="xs:string" 
+						dfdl:occursCountKind="parsed" dfdl:ref="tns:aFormat" >
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:element ref="tns:aFormat" />
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>	
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+ 
  
 	<tdml:parserTestCase name="property_scoping_02" root="easy"
 		model="s1" description="Section 8 Combining DFDL Representation Properties from a dfdl:defineFormat - DFDL-8-018R">
@@ -201,6 +303,75 @@
 				</aaa>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="property_scoping_07" root="easy"
+		model="dfdlRefNotFound" description="A test to verify that when a format ref is not found (from element) an error occurs">
+		<tdml:document>-1009</tdml:document>
+		<tdml:errors>
+			<tdml:error>Reference</tdml:error>
+			<tdml:error>tns:DNE</tdml:error>
+			<tdml:error>not</tdml:error>
+			<tdml:error>found</tdml:error>
+			<tdml:error>easy</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="property_scoping_08" root="easy2"
+		model="dfdlRefNotFound" description="A test to verify that when a format ref is not found (from format) an error occurs">
+		<tdml:document>-1009</tdml:document>
+		<tdml:errors>
+			<tdml:error>Reference</tdml:error>
+			<tdml:error>tns:noWayMan</tdml:error>
+			<tdml:error>not</tdml:error>
+			<tdml:error>found</tdml:error>
+			<tdml:error>easy2</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="property_scoping_09" root="long"
+		model="formatRefLongVsShortForm" 
+		description="A test to verify that when a format ref is not found in longForm an error occurs">
+		<tdml:document>
+			<tdml:documentPart type="byte">000000030000000600000001</tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>Reference</tdml:error>
+			<tdml:error>tns:dummy</tdml:error>
+			<tdml:error>not</tdml:error>
+			<tdml:error>found</tdml:error>
+			<tdml:error>aa</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="property_scoping_10" root="short"
+		model="formatRefLongVsShortForm" 
+		description="A test to verify that when a format ref is not found in shortForm an error occurs">
+		<tdml:document>
+			<tdml:documentPart type="byte">000000030000000600000001</tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>Reference</tdml:error>
+			<tdml:error>tns:dummy</tdml:error>
+			<tdml:error>not</tdml:error>
+			<tdml:error>found</tdml:error>
+			<tdml:error>aa</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="property_scoping_11" root="longAndShort"
+		model="formatRefLongVsShortForm" 
+		description="A test to verify that when a format ref is not found in shortForm an error occurs">
+		<tdml:document>
+			<tdml:documentPart type="text">000000030000000600000001</tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>Short</tdml:error>
+			<tdml:error>and</tdml:error>
+			<tdml:error>long</tdml:error>
+			<tdml:error>properties</tdml:error>
+			<tdml:error>overlap</tdml:error>
+		</tdml:errors>
 	</tdml:parserTestCase>
 	
 </tdml:testSuite>

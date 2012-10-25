@@ -492,7 +492,7 @@ class PState(
   def inStreamState = inStreamStateStack top
   def inStream = inStreamState inStream
   def bitPos = inStreamState bitPos
-  def bitLimit = inStreamState bitLimit
+  def bitLimit = inStream.asInstanceOf[InStreamFromByteChannel].byteReader.bb.limit() * 8//inStreamState bitLimit
   def charPos = inStreamState charPos
   def charLimit = inStreamState charLimit
   def parentElement = parent.asInstanceOf[Element]

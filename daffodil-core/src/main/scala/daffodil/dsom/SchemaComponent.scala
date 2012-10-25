@@ -440,7 +440,11 @@ extends DiagnosticsProviding {
   /**
    * DFDL Schema top-level global objects
    */
-  def getDefineFormat(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineFormat(name) }
+  def getDefaultFormat(namespace: String, name: String) = getSchema(namespace).flatMap{ x => Some(x.getDefaultFormat)}
+  def getDefineFormat(namespace: String, name: String) = {
+    val s = getSchema(namespace)
+    getSchema(namespace).flatMap { _.getDefineFormat(name) }
+  }
   def getDefineFormats(namespace: String, context : ThrowsSDE) = getSchema(namespace) match {
     case None => context.schemaDefinitionError("Failed to find a schema for namespace:  " + namespace)
     case Some(sch) => sch.getDefineFormats()
@@ -506,8 +510,12 @@ extends DiagnosticsProviding {
     val res = noneOrOne(schemaDocuments.flatMap { _.getDefineVariable(name) }, name)
     res
   }
+  def getDefaultFormat = schemaDocuments.flatMap{ x => Some(x.getDefaultFormat) }
   def getDefineEscapeScheme(name: String) = noneOrOne(schemaDocuments.flatMap { _.getDefineEscapeScheme(name) }, name)
-
+  def getGlobalElementDecls = schemaDocuments.flatMap( _.globalElementDecls )
+  def getGlobalGroupDefs = schemaDocuments.flatMap( _.globalGroupDefs )
+  def getGlobalSimpleTypeDefs = schemaDocuments.flatMap( _.globalSimpleTypeDefs )
+  def getGlobalComplexTypeDefs = schemaDocuments.flatMap( _.globalComplexTypeDefs )
 }
 
 /**
@@ -670,6 +678,7 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
     val res = defineVariables.find { _.name == name }
     res
   }
+  def getDefaultFormat = this.defaultFormat
   def getDefineEscapeScheme(name: String) = defineEscapeSchemes.find { _.name == name }
 
 }

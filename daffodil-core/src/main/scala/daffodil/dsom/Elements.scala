@@ -327,14 +327,9 @@ class ElementRef(xmlArg : Node, parent : ModelGroup, position : Int)
    * of that element.
    */
   lazy val overlappingProperties = {
-    System.err.println("\ttypeDef: " + this.typeDef)
     val referencedProperties = referencedElement.localAndFormatRefProperties.keySet
     val myLocalPropertiesNames = formatAnnotation.getFormatPropertiesNonDefault().keySet
-    System.err.println(referencedElement.name)
-    System.err.println("\tRefProps: " + referencedProperties)
-    System.err.println("\tLocalProps: " + myLocalPropertiesNames)
     val intersect = referencedProperties.intersect(myLocalPropertiesNames)
-    System.err.println("\tIntersect: " + intersect)
     intersect
   }
 

@@ -610,7 +610,7 @@ case class StringDelimitedEndOfData(e : ElementBase)
     override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
     val encoder = e.knownEncodingEncoder
 
-    def unparse(start : UState) : UState = withLoggingLevel(LogLevel.Debug) {
+    def unparse(start : UState) : UState = withLoggingLevel(LogLevel.Info) {
       {
         // setLoggingLevel(LogLevel.Info)
 
@@ -1135,6 +1135,8 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Long) extends Terminal(e, 
     def parse(start : PState) : PState = {
       log(Debug("Saving reader state."))
       setReader(start)
+      
+      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
 
       if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) PE(start, "Not enough bits to create an xs:%s", primName)
       else {
