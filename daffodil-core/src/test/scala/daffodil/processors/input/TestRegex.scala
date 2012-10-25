@@ -5,7 +5,7 @@ import junit.framework.Assert._
 import scala.util.parsing.combinator._
 import java.io.StringReader
 import org.junit.Test
-
+import daffodil.exceptions.Assert
 
 class TestRegex extends JUnitSuite with RegexParsers {
 
@@ -13,17 +13,17 @@ class TestRegex extends JUnitSuite with RegexParsers {
    * Scala combinator parsers can do longest match via the '|||' combinator
    * Let's be sure we get longest match.
    */
-  
+
   override def skipWhitespace = skipWS
   var skipWS = false // assign this to turn on/off whitespace skipping.
 
-   /**
+  /**
    * First let's avoid everything about whitespace and use _ (underscores)
    * instead.
    */
-  
+
   def delim0 = """_*+;_*+""" // greedy whitespace consumption
-  
+
   def anyUntil(delim : String) = {
     // at begining of string, anything repeated (lazy), followed by the delim
     """^((?>.*?""" + """(?=(?:""" + delim + """))))"""
@@ -54,12 +54,12 @@ class TestRegex extends JUnitSuite with RegexParsers {
       case _ => fail("not expected result: " + a)
     }
   }
-  
+
   /**
    * First let's avoid everything about whitespace and use _ (underscores)
    * instead.
    */
-  
+
   // two regex expressions with common prefix. 2nd is longer of the two
   // so first match would get the shorter match
   def delim1 = ("""_*end_*""".r ||| """_*ending_*""".r)
@@ -101,7 +101,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
   val rdr2 = new StringReader("   ending   more")
 
   lazy val parsed2 = parseAll(t2, rdr2)
-  
+
   @Test def testRegexWSLongestMatch() {
     skipWS = false // we want our delimiters to contain the whitespace.
     // (parsed2)
@@ -121,10 +121,10 @@ class TestRegex extends JUnitSuite with RegexParsers {
    * Next we have tests that handle complexities of escape schemes of the 
    * escape character kind and block escape kind.
    */
-  
+
   /**
    * Tests a regular experssion to match a delimiter but taking
-   * into account escape characters.
+   * into account escape characters and padChar trimming.
    */
   @Test def testRegexToMatchOneDelimiterWithEscapeChars() {
 
@@ -133,7 +133,8 @@ class TestRegex extends JUnitSuite with RegexParsers {
      * depending on whether you have escapeBlock or escapeCharacter type
      * escaping.
      */
-    def tester(escapeEscape : String, escape : String, delim : String) = {
+    def tester(escapeEscape : String, escape : String, delim : String, padChar : String) = {
+      Assert.usage(padChar.length == 1)
       //
       // Let S be the escape escape character
       // Let E be the escape character
@@ -153,8 +154,13 @@ class TestRegex extends JUnitSuite with RegexParsers {
       //   We're left before the lookahead part of the match.
       // followed by delimiter, 
       // followed by anything leftover
-      val str = """(.*?)(?=(?<!(?<!%1$s)%2$s)%3$s)(%3$s)(.*)"""
-      val ContentPattern = str.format(escapeEscape, escape, delim).r
+      val str =
+        """(?:%4$s*)""" + // trim pad char. aka right or center justified.
+          """(.*?)""" + // content [before]. lazy so it won't absorb pad characters
+          """(?:%4$s*)""" + // trim pad char. aka left or center justified.
+          """(?<!(?<!%1$s)%2$s)(%3$s)""" + // unescaped delimiter [delim]
+          """(.*)""" // trailing stuff [after]
+      val ContentPattern = str.format(escapeEscape, escape, delim, padChar).r
       // println("Pattern = " + ContentPattern.pattern)
 
       // used to cleanup active escape characters 
@@ -173,9 +179,10 @@ class TestRegex extends JUnitSuite with RegexParsers {
           val before1 = removeActiveEscapes(before)
           Some((before1, delim, after))
         }
-        case z => { 
+        case z => {
           // println("no match: " + z); 
-          None }
+          None
+        }
       }
 
       /**
@@ -206,32 +213,32 @@ class TestRegex extends JUnitSuite with RegexParsers {
       test _
     }
 
-    //                escEsc     esc       delim
-    val test = tester("""S""", """E""", """\_*D\_*""") // put any regex in there for the delimiter
+    //                escEsc     esc       delim        padChar
+    val test = tester("""S""", """E""", """\_*D\_*""", """P""") // put any regex in there for the delimiter
 
-    assertEquals(Some(("before", "D", "after")), test("beforeDafter"))
+    assertEquals(Some(("before", "D", "after")), test("PPPbeforePPPDafter"))
 
     // Notice how (.*?) is non-greedy matching. SO we don't get "before_", we get "before" 
-    assertEquals(Some(("before", "_D_", "after")), test("before_D_after"))
+    assertEquals(Some(("before", "_D_", "after")), test("PPPbefore_D_after"))
 
-    assertEquals(Some(("beforeE", "__D_", "after")), test("beforeSE__D_after"))
+    assertEquals(Some(("beforeE", "__D_", "after")), test("PPPbeforeSE__D_after"))
 
-    assertEquals(Some(("beforeDstillBefore", "D", "after")), test("beforeEDstillBeforeDafter"))
+    assertEquals(Some(("beforeDstillBefore", "D", "after")), test("PPPbeforeEDstillBeforePPPDafter"))
 
     // In the test below. Note that S does NOT escape D.
-    assertEquals(Some(("beforeS", "D", "after")), test("beforeSDafter"))
+    assertEquals(Some(("beforeS", "D", "after")), test("PPPbeforeSDafter"))
 
     // In the test below note that SE is just data because D doesn't follow E
-    assertEquals(Some(("beforeSEstillBefore", "D", "after")), test("beforeSEstillBeforeDafter"))
+    assertEquals(Some(("beforeSEstillBefore", "D", "after")), test("PPPbeforeSEstillBeforePPPDafter"))
 
     // to keep out of slash hell, just pretend RN is a \r\n, and N is a \n, and _ is a whitespace.
-    //                 escEsc     esc          delim
-    val test2 = tester("""S""", """E""", """(?>RN|\_*N\_*)""")
+    //                 escEsc     esc          delim           padChar
+    val test2 = tester("""S""", """E""", """(?>RN|\_*N\_*)""", """P""")
     // in the above note careful use of ?> in delim, which is disjunction with no backtracking.
 
-    assertEquals(Some(("before", "RN", "after")), test2("beforeRNafter")) // works because (.*?) is lazy not greedy
+    assertEquals(Some(("before", "RN", "after")), test2("PPPbeforePPPRNafter")) // works because (.*?) is lazy not greedy
 
-    assertEquals(Some(("beforeRNstillBefore", "__N_", "after")), test2("beforeRENstillBefore__N_after"))
+    assertEquals(Some(("beforeRNstillBefore", "__N_", "after")), test2("PPPbeforeRENstillBeforePPP__N_after"))
   }
 
   /**
@@ -245,23 +252,36 @@ class TestRegex extends JUnitSuite with RegexParsers {
    *
    * We also assume that you can escape the block start or block end.
    * Or, if you choose not to use the block escapes, you can still escape the delimiter.
+   * <p>
+   * Also illustrates how one would add padChar absorbing into the mix on the left, right, or both
    *
    */
-  @Test def testRegexToMatchOneDelimiterWithBlockEscapes() {
+  @Test def testRegexToMatchOneDelimiterWithBlockEscapesAndPaddingCharacters() {
 
-    def tester(bStart : String, bEnd : String, escapeEscape : String, escape : String, delim : String) = {
+    def tester(bStart : String, bEnd : String, escapeEscape : String, escape : String, delim : String, padChar : String) = {
+      Assert.usage(padChar.length == 1)
       val str = """(?>""" +
         // First alternative is if the start is an unescaped Block start. In that case you must
-        // have an unescaped block end followed directly by the delimiter as the termination. 
-        // The delimiter may not be escaped in this case.
-        """(?<!(?<!%1$s)%2$s)(?:%4$s(.*)(?=(?<!(?<!%1$s)?!%2$s)%5$s)%5$s)(%3$s)(.*)""" +
+        // have an unescaped block end followed directly by an unescaped delimiter as the termination.
+        """(?:%6$s*)""" + // trim padChar off on the left. Aka right or center justified.
+        """(?<!(?<!%1$s)%2$s)%4$s""" + // unescaped block start
+        """(.*)""" + // captured content (before)
+        """(?<!(?<!%1$s)%2$s)%5$s""" + // unescaped block end
+        """(?:%6$s*)""" + // trim padChar off on the right. aka left or center justified.
+        """(?<!(?<!%1$s)%2$s)(%3$s)""" + // unescaped delimiter (delim)
+        """(.*)""" + // trailing stuff (after)
         """|""" +
         // Second alternative is if the start is NOT a block start, in which case we are looking 
         // for an unescaped delimiter at the end.
-        """(?<!%4$s)(.*)(?=(?:(?!%1$s)(?!%2$s))(?:%3$s))(%3$s)(.*)""" +
+        """(?:%6$s*)""" + // trim padChar off. Aka right or center justified.
+        """(?<!%4$s)""" + // not a block start
+        """(.*?)""" + // lazy content so it won't absorb the padChars (before2)
+        """(?:%6$s*)""" + // trim padChar off. aka left or center justified.
+        """(?<!(?<!%1$s)%2$s)(%3$s)""" + // unescaped delimiter (delim2)
+        """(.*)""" + // trailing stuff (after2)
         """)"""
 
-      val ContentPattern = str.format(escapeEscape, escape, delim, bStart, bEnd).r
+      val ContentPattern = str.format(escapeEscape, escape, delim, bStart, bEnd, padChar).r
       // println("Pattern = " + ContentPattern.pattern)
 
       // used to cleanup active escape characters 
@@ -271,19 +291,20 @@ class TestRegex extends JUnitSuite with RegexParsers {
       def test(x : String) = x match {
         case ContentPattern(before, delim, after, null, null, null) => {
           val before1 = removeActiveEscapesBlocked(before)
-//          println("'%s' parsed to b = '%s', d = '%s', a = '%s'".
-//            format(x, before1, delim, after))
+          //          println("'%s' parsed to b = '%s', d = '%s', a = '%s'".
+          //            format(x, before1, delim, after))
           Some((before1, delim, after))
         }
         case ContentPattern(null, null, null, before, delim, after) => {
           val before1 = removeActiveEscapesUnblocked(before)
-//          println("'%s' parsed to b = '%s', d = '%s', a = '%s'".
-//            format(x, before1, delim, after))
+          //          println("'%s' parsed to b = '%s', d = '%s', a = '%s'".
+          //            format(x, before1, delim, after))
           Some((before1, delim, after))
         }
-        case z => { 
+        case z => {
           // println("no match: " + z); 
-          None }
+          None
+        }
       }
 
       // postprocessing to remove active escape characters
@@ -340,32 +361,32 @@ class TestRegex extends JUnitSuite with RegexParsers {
       test _
     }
 
-    //                blkStart blkEnd   escEsc   esc      delim
-    val test = tester("""T""", """N""", """S""", """E""", """D""")
+    //                blkStart blkEnd   escEsc   esc      delim    padChar
+    val test = tester("""T""", """N""", """S""", """E""", """D""", """P""")
 
     // This particular regex lets you escape either the blockstart or blockend, or the delimiter
 
     // no blockstart/end
-    assertEquals(Some(("before", "D", "after")), test("beforeDafter"))
+    assertEquals(Some(("before", "D", "after")), test("PPPbeforePPPDafter"))
 
     // no blockstart/end, but escape the delimiter
-    assertEquals(Some(("beforeDstillBefore", "D", "after")), test("beforeEDstillBeforeDafter"))
+    assertEquals(Some(("beforeDstillBefore", "D", "after")), test("PPPbeforeEDstillBeforePPPDafter"))
 
     // with blockstart/end
-    assertEquals(Some(("beforeDstillBefore", "D", "after")), test("TbeforeDstillBeforeNDafter"))
+    assertEquals(Some(("beforeDstillBefore", "D", "after")), test("PPPTbeforeDstillBeforeNPPPDafter"))
 
     // with blockstart/end and esc and escEsc found inside (where they are inactive)
-    assertEquals(Some(("beforeEDstillBeforeSEDstillBefore", "D", "after")), test("TbeforeEDstillBeforeSEDstillBeforeNDafter"))
+    assertEquals(Some(("beforeEDstillBeforeSEDstillBefore", "D", "after")), test("PPPTbeforeEDstillBeforeSEDstillBeforeNPPPDafter"))
     // Note: in the above, the SED is ok. No postprocessing. It is escaped in entirety by the T---N pair.
 
     // with blockstart/end, escape the first block end
-    assertEquals(Some(("beforeDstillBeforeNstillBefore", "D", "after")), test("TbeforeDstillBeforeENstillBeforeNDafter"))
+    assertEquals(Some(("beforeDstillBeforeNstillBefore", "D", "after")), test("PPPTbeforeDstillBeforeENstillBeforeNPPPDafter"))
 
     // with blockstart/end, escapeEscape the escape of the first block end
-    assertEquals(Some(("beforeDstillBeforeTstillBeforeE", "D", "after")), test("TbeforeDstillBeforeTstillBeforeSENDafter"))
+    assertEquals(Some(("beforeDstillBeforeTstillBeforeE", "D", "after")), test("PPPTbeforeDstillBeforeTstillBeforeSENPPPDafter"))
 
     // with blockstart, but escape it so it's not really a block.
-    assertEquals(Some(("Tbefore", "D", "afterNstillafter")), test("ETbeforeDafterNstillafter"))
+    assertEquals(Some(("Tbefore", "D", "afterNstillafter")), test("PPPETbeforePPPDafterNstillafter"))
   }
 
 }
