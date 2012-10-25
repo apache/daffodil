@@ -13,50 +13,17 @@
 					<xs:element name="c">
 						<xs:complexType>
 							<xs:choice>
-								<xs:element name="a1">
-									<xs:complexType>
-										<xs:sequence>
-											<xs:element name="e1" type="xs:int"
-												dfdl:initiator="4" dfdl:lengthKind="explicit" dfdl:length="2">
-												<xs:annotation>
-													<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-														<dfdl:discriminator testKind="pattern"
-																			testPattern="44" message="discriminator failed for pattern '44'" />
-													</xs:appinfo>
-												</xs:annotation>
-											</xs:element>
-											<xs:element name="e2" type="xs:string"
-												dfdl:lengthKind="explicit" dfdl:length="6" dfdl:lengthUnits="characters" />
-										</xs:sequence>
-									</xs:complexType>
+								<xs:element name="a1" type="xs:int"
+											dfdl:lengthKind="explicit" dfdl:length="4">
+									<xs:annotation>
+										<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+											<dfdl:discriminator testKind="pattern"
+																testPattern="\d;" message="discriminator failed for pattern '\d;'" />
+										</xs:appinfo>
+									</xs:annotation>
 								</xs:element>
 								<xs:element name="a2" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:initiator="k" dfdl:length="5" dfdl:lengthUnits="characters" />
-							</xs:choice>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		<xs:element name="c2">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="c">
-						<xs:complexType>
-							<xs:choice>
-								<xs:element name="a1">
-									<xs:complexType>
-										<xs:sequence>
-											<xs:element name="e1" type="xs:int"
-												dfdl:initiator="4" dfdl:lengthKind="explicit" dfdl:length="2">
-											</xs:element>
-											<xs:element name="e2" type="xs:string"
-												dfdl:lengthKind="explicit" dfdl:length="6" dfdl:lengthUnits="characters" />
-										</xs:sequence>
-									</xs:complexType>
-								</xs:element>
-								<xs:element name="a2" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:initiator="k" dfdl:length="5" dfdl:lengthUnits="characters" />
+									dfdl:lengthKind="explicit" dfdl:initiator="5" dfdl:length="5" dfdl:lengthUnits="characters" />
 							</xs:choice>
 						</xs:complexType>
 					</xs:element>
@@ -68,42 +35,17 @@
 <!--
 	Test name: discriminatorGuidesChoice2
 	   Schema: choice1, root c1
-	  Purpose: For the first element of the choice (a1), this document does not meet the criteria for element 1
-			   or the discriminator for element 1, so element 2 shouldn't even be checked. The document doesn't
-			   meet the criteria for the second element of the choice (a2) either and should fail. 
+	  Purpose: The element should fail, and the discriminator should still be checked. The error message should express
+	  		   the discriminator failure. 
 -->
 	
 	<tdml:parserTestCase name="discriminatorGuidesChoice2"
 		root="c1" model="choice1"
 		description="Section 7 - Discriminator must evaluate even if element fails">
-		<tdml:document>324OHI</tdml:document>
+		<tdml:document>3</tdml:document>
 		<tdml:errors>
-			<tdml:error>Parse Error: All alternatives failed</tdml:error>
+			<tdml:error>discriminator failed</tdml:error>
 		</tdml:errors>
-	</tdml:parserTestCase>
-
-<!--
-	Test name: discriminatorGuidesChoice3
-	   Schema: choice1, root c2
-	  Purpose: For the first element of the choice (a1), this document does not meet the criteria for element 1,
-			   but does meet criteria for element 2. The document should be parsed accordingly. 
--->
-	
-	<tdml:parserTestCase name="discriminatorGuidesChoice3"
-		root="c2" model="choice1"
-		description="Section 7 - Discriminator must evaluate even if element fails">
-		<tdml:document>324OHI</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<c2>
-					<c>
-						<a1>
-							<e2>324OH</e2>
-						</a1>
-					</c>
-				</c2>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="choice2">

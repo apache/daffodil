@@ -13,6 +13,7 @@ class TestDiscriminators extends JUnitSuite {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
   @Test def test_assertions_discriminatorGuidesChoice() { runner.runOneTest("discriminatorGuidesChoice") }
+  @Test def test_assertions_discriminatorGuidesChoice2() { runner.runOneTest("discriminatorGuidesChoice2") }
 
   @Test def test_discriminators_discrimPatternPass() { runner.runOneTest("discrimPatternPass") }
   @Test def test_discriminators_discrimPatternFail() { runner.runOneTest("discrimPatternFail") }
