@@ -5,7 +5,8 @@
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
-	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData/xsd/tdml.xsd"
+	xmlns:ex="http://example.com" >
 
 <!-- ===================================================================== Schemas ======================================================================= -->
 
@@ -16,7 +17,7 @@
 
 	<tdml:defineSchema name="facets-min0max0.dfdl.xsd">
 
-				<dfdl:format initiator="" terminator="" 
+				<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" 
 				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
 				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
 				alignmentUnits="bytes" fillByte="f" 
@@ -56,7 +57,7 @@
 
 	<tdml:defineSchema name="facets-min1max1-scalar.dfdl.xsd">
 
-				<dfdl:format initiator="" terminator="" 
+				<dfdl:format ref="ex:daffodilTest1"    initiator="" terminator="" 
 				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
 				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
 				alignmentUnits="bytes" fillByte="f" 
@@ -89,7 +90,7 @@
 
 	<tdml:defineSchema name="facets-min2max20-array.dfdl.xsd">
 
-				<dfdl:format initiator="" terminator="" 
+				<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" 
 				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
 				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
 				alignmentUnits="bytes" fillByte="f" 
@@ -124,7 +125,7 @@
 
 	<tdml:defineSchema name="facets-min5max10.dfdl.xsd">
 	
-				<dfdl:format initiator="" terminator="" 
+				<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" 
 				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
 				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
 				alignmentUnits="bytes" fillByte="f" 
@@ -158,7 +159,7 @@
 
 	<tdml:defineSchema name="facets-min5max10-2.dfdl.xsd">
 		
-				<dfdl:format initiator="" terminator="" 
+				<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" 
 				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
 				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
 				alignmentUnits="bytes" fillByte="f" 
@@ -207,7 +208,7 @@
 
 	<tdml:defineSchema name="facets-min2max3-schemaErr.dfdl.xsd">
 		
-				<dfdl:format initiator="" terminator="" 
+				<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" 
 				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
 				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
 				alignmentUnits="bytes" fillByte="f" 
@@ -248,7 +249,7 @@
 
 	<tdml:defineSchema name="facets-fixedUnboundedMax-schemaErr.dfdl.xsd">
 		
-				<dfdl:format initiator="" terminator="" 
+				<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" 
 				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
 				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
 				alignmentUnits="bytes" fillByte="f" 
@@ -291,7 +292,7 @@
 	<tdml:defineSchema name="facets-cell-min1max1.dfdl.xsd">
 		
 		
-				<dfdl:format initiator="" terminator="" 
+				<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" 
 				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
 				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
 				alignmentUnits="bytes" fillByte="f" 
@@ -330,7 +331,7 @@
 	<tdml:defineSchema name="facets-rowcell-min2maxUnbounded.dfdl.xsd">
 		
 		
-				<dfdl:format initiator="" terminator="" 
+				<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" 
 				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
 				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
 				alignmentUnits="bytes" fillByte="f" 
@@ -383,7 +384,7 @@
 
 	<tdml:defineSchema name="facets-min2max3-schemaErr.dfdl.xsd">
 		
-				<dfdl:format initiator="" terminator="" 
+				<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" 
 				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
 				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
 				alignmentUnits="bytes" fillByte="f" 

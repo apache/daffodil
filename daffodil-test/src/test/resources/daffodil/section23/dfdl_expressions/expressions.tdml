@@ -3,8 +3,7 @@
 	description="lengthKind explicit and occursCountKind expression"
 	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
-	xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	xmlns:ex="http://example.com">
 
 	<tdml:defineSchema name="lke1_rel">
 		<dfdl:format ref="ex:daffodilTest1" />
@@ -495,5 +494,251 @@
 
 <!--- end ssustrich's test -->
 
+	<tdml:defineSchema name="v">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="e">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="cnt" type="xs:int" dfdl:lengthKind="delimited" />
+					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+						dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt) }">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="v" type="xs:int"
+									dfdl:inputValueCalc="{ dfdl:position() }" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="f">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="cnt1" type="xs:int" dfdl:lengthKind="delimited"
+						dfdl:terminator=";" />
+					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+						dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt1) }">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="v" type="xs:int"
+									dfdl:inputValueCalc="{ dfdl:position() }" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="cnt2" type="xs:int" dfdl:lengthKind="delimited" />
+					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+						dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt2) }">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="v" type="xs:int"
+									dfdl:inputValueCalc="{ dfdl:position() }" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="g">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="cnt1" type="xs:int" dfdl:lengthKind="delimited"
+						dfdl:terminator=";" />
+					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+						dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt1) }">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="v" type="xs:int"
+									dfdl:inputValueCalc="{ dfdl:position() }" />
+								<xs:element name="cnt2" type="xs:int"
+									dfdl:lengthKind="delimited" dfdl:terminator=";"/>
+								<xs:element name="b" minOccurs="0" maxOccurs="unbounded"
+									dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt2) }">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="w" type="xs:int"
+												dfdl:inputValueCalc="{ dfdl:position() }" />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="h">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="cnt" type="xs:int" dfdl:lengthKind="delimited" />
+					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+						dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt) }">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="v" type="xs:int"
+									dfdl:inputValueCalc="{ if (dfdl:position() mod 2 eq 1) then 0 else dfdl:position() }" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="noFunc">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="err" type="xs:int"
+						dfdl:inputValueCalc="{ dfdl:notAFunction(1, 2, 3) }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="nonFunctionIsDetected"
+		root="noFunc" model="v">
+
+		<tdml:document />
+
+		<tdml:errors>
+			<tdml:error>notAFunction</tdml:error>
+			<tdml:error>arity 3</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+
+	<tdml:parserTestCase name="dfdlPosition1" root="e"
+		model="v">
+
+		<tdml:document>1</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e>
+					<cnt>1</cnt>
+					<a>
+						<v>1</v>
+					</a>
+				</e>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="dfdlPosition2" root="e"
+		model="v">
+
+		<tdml:document>2</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e>
+					<cnt>2</cnt>
+					<a>
+						<v>1</v>
+					</a>
+					<a>
+						<v>2</v>
+					</a>
+				</e>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="dfdlPosition3" root="f"
+		model="v">
+
+		<tdml:document>2;2</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<f>
+					<cnt1>2</cnt1>
+					<a>
+						<v>1</v>
+					</a>
+					<a>
+						<v>2</v>
+					</a>
+					<cnt2>2</cnt2>
+					<a>
+						<v>1</v>
+					</a>
+					<a>
+						<v>2</v>
+					</a>
+				</f>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="dfdlPosition4" root="g"
+		model="v" description="nested array case. Tests indexes are kept independently.">
+
+		<tdml:document>2;2;2;</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<g>
+					<cnt1>2</cnt1>
+					<a>
+						<v>1</v>
+						<cnt2>2</cnt2>
+						<b>
+							<w>1</w>
+						</b>
+						<b>
+							<w>2</w>
+						</b>
+					</a>
+					<a>
+						<v>2</v>
+						<cnt2>2</cnt2>
+						<b>
+							<w>1</w>
+						</b>
+						<b>
+							<w>2</w>
+						</b>
+					</a>
+
+				</g>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="dfdlPosition5" root="h"
+			     model="v">
+
+		<tdml:document>6</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+                                <h>
+                                        <cnt>6</cnt>
+                                        <a>
+                                                <v>0</v>
+                                        </a>
+                                        <a>
+                                                <v>2</v>
+                                        </a>
+                                        <a>
+                                                <v>0</v>
+                                        </a>
+                                        <a>
+                                                <v>4</v>
+                                        </a>
+                                        <a>
+                                                <v>0</v>
+                                        </a>
+                                        <a>
+                                                <v>6</v>
+                                        </a>
+                                </h>
+                        </tdml:dfdlInfoset>
+                </tdml:infoset>
+        </tdml:parserTestCase>
 
 </tdml:testSuite>

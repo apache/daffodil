@@ -10,6 +10,7 @@ import daffodil.compiler.Compiler
 import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
+import daffodil.debugger.Debugger
 
 class TestDFDLExpressions extends JUnitSuite {
   val testDir = "/daffodil/section23/dfdl_expressions/"
@@ -28,4 +29,11 @@ class TestDFDLExpressions extends JUnitSuite {
   @Test def test_expression_unknown_prefix() { runner.runOneTest("expression-unknown-prefix")}
   //@Test def test_ocke_rel() { runner.runOneTest("ocke_rel") }
   //@Test def test_expresion_bad_path_to_variable() { runner.runOneTest("expresion_bad_path_to_variable") }
+
+//  @Test def test_dfdlPosition1() = Debugger.withDebugger{ runner.runOneTest("dfdlPosition1") }
+  @Test def test_dfdlPosition2() { runner.runOneTest("dfdlPosition2") }
+  @Test def test_dfdlPosition3() { runner.runOneTest("dfdlPosition3") }
+  @Test def test_dfdlPosition4() { runner.runOneTest("dfdlPosition4") }
+  @Test def test_dfdlPosition5() { runner.runOneTest("dfdlPosition5") }
+
   }

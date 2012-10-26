@@ -10,6 +10,7 @@ import daffodil.compiler.Compiler
 import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
+import daffodil.debugger.Debugger
 
 class TestFacets extends JUnitSuite {
   val testDir = "/daffodil/section05/facets/"
