@@ -12,6 +12,7 @@ import daffodil.util.LoggingDefaults
 import daffodil.util.Logging
 import daffodil.util.Misc
 import org.junit.Test
+import daffodil.debugger.Debugger
 
 class TresysTests2 extends JUnitSuite {
   val testDir = "/test-suite/tresys-contributed/"
@@ -34,6 +35,14 @@ class TresysTests2 extends JUnitSuite {
   }
   @Test def test_testOne() { runnerBF.runOneTest("testOne") }
   @Test def test_testMany() { runnerBF.runOneTest("testMany") }
+
+  val nsd = testDir + "nested-separator-delimited.tdml"
+  lazy val runnerNSD = new DFDLTestSuite(Misc.getRequiredResource(nsd))
+  /**
+   * Test fails - you get an empty <a></a> element which shouldn't have appeared at all
+   * since its initiator was not found.
+   */
+  @Test def test_optionalWithSeparators() = Debugger.withDebugger { runnerNSD.runOneTest("optionalWithSeparators") }
 
   val ab = testDir + "AB.tdml"
   lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))

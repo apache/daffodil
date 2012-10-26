@@ -1,306 +1,342 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite suiteName="nested-separator-delimited"
-	description="Tests separation and nested sequences." xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-	xmlns:ex="http://example.com" xmlns="http://example.com"
-	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  description="Tests separation and nested sequences." xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com" xmlns="http://example.com"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
 
-	<tdml:defineSchema name="baseline">
-		<dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
+  <tdml:defineSchema name="baseline">
+    <dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
 
-		<xs:element name="e1" dfdl:lengthKind="implicit"
-			dfdl:terminator=".">
-			<xs:complexType>
-				<xs:sequence dfdl:separator=";" dfdl:terminator=";">
-					<xs:element name="s1" type="xs:int" dfdl:lengthKind="delimited"
-						minOccurs="0" dfdl:occursCountKind="parsed" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="e1" dfdl:lengthKind="implicit"
+      dfdl:terminator=".">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";" dfdl:terminator=";">
+          <xs:element name="s1" type="xs:int"
+            dfdl:lengthKind="delimited" minOccurs="0"
+            dfdl:occursCountKind="parsed" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="baseline" root="e1"
-		model="baseline" description="Baseline. Basic Separators">
+  <tdml:parserTestCase name="baseline" root="e1"
+    model="baseline" description="Baseline. Basic Separators">
 
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[5;6;7;8;.]]></tdml:documentPart>
-		</tdml:document>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[5;6;7;8;.]]></tdml:documentPart>
+    </tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e1>
-					<s1>5</s1>
-					<s1>6</s1>
-					<s1>7</s1>
-					<s1>8</s1>
-				</e1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-
-
-	<tdml:defineSchema name="basicNest">
-		<dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
-
-		<xs:element name="e1" dfdl:lengthKind="implicit"
-			dfdl:terminator=".">
-			<xs:complexType>
-				<xs:sequence dfdl:separator=";" dfdl:terminator="!">
-					<xs:element name="s2" dfdl:lengthKind="implicit"
-						minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
-						<xs:complexType>
-							<xs:sequence dfdl:separator="," dfdl:terminator="?">
-								<xs:element name="s1" type="xs:int" dfdl:lengthKind="delimited"
-									minOccurs="0" dfdl:occursCountKind="parsed" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-	</tdml:defineSchema>
-
-	<tdml:parserTestCase name="basicNest" root="e1"
-		model="basicNest" description="Nested sequences, terminators make every transition clear.">
-
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[5,6?;7,8?!.]]></tdml:documentPart>
-		</tdml:document>
-
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e1>
-					<s2>
-						<s1>5</s1>
-						<s1>6</s1>
-					</s2>
-					<s2>
-						<s1>7</s1>
-						<s1>8</s1>
-					</s2>
-				</e1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:defineSchema name="basicNest2">
-		<dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
-
-		<xs:element name="e1" dfdl:lengthKind="implicit"
-			dfdl:terminator=".">
-			<xs:complexType>
-				<xs:sequence dfdl:separator=";" >
-					<xs:element name="s2" dfdl:lengthKind="implicit"
-						minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
-						<xs:complexType>
-							<xs:sequence dfdl:separator="," >
-								<xs:element name="s1" type="xs:int" dfdl:lengthKind="delimited"
-									minOccurs="0" dfdl:occursCountKind="parsed" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-	</tdml:defineSchema>
-
-	<tdml:parserTestCase name="basicNest2" root="e1"
-		model="basicNest2" description="Nested sequences, with only separators.">
-
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[5,6;7,8.]]></tdml:documentPart>
-		</tdml:document>
-
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e1>
-					<s2>
-						<s1>5</s1>
-						<s1>6</s1>
-					</s2>
-					<s2>
-						<s1>7</s1>
-						<s1>8</s1>
-					</s2>
-				</e1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <s1>5</s1>
+          <s1>6</s1>
+          <s1>7</s1>
+          <s1>8</s1>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 
-	<tdml:defineSchema name="nest1">
-		<dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
+  <tdml:defineSchema name="basicNest">
+    <dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
 
-		<xs:element name="nest1" dfdl:lengthKind="implicit"
-			dfdl:terminator="!">
-			<xs:complexType>
-				<xs:sequence dfdl:separator=";">
-					<xs:sequence dfdl:separator=",">
-						<xs:element name="a" type="xs:int" minOccurs="0"
-							maxOccurs="unbounded" dfdl:occursCountKind="parsed"
-							dfdl:lengthKind="delimited" />
-					</xs:sequence>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
+    <xs:element name="e1" dfdl:lengthKind="implicit"
+      dfdl:terminator=".">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";" dfdl:terminator="!">
+          <xs:element name="s2" dfdl:lengthKind="implicit"
+            minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=","
+                dfdl:terminator="?">
+                <xs:element name="s1" type="xs:int"
+                  dfdl:lengthKind="delimited" minOccurs="0"
+                  dfdl:occursCountKind="parsed" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	<tdml:parserTestCase name="nest1" root="nest1"
-		model="nest1" description="Unambiguous nested separators, no terminators.">
+  </tdml:defineSchema>
 
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[0,1,2;3,4,5;6,7;8;9!]]></tdml:documentPart>
-		</tdml:document>
+  <tdml:parserTestCase name="basicNest" root="e1"
+    model="basicNest" description="Nested sequences, terminators make every transition clear.">
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<nest1 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-					<a>0</a>
-					<a>1</a>
-					<a>2</a>
-					<a>3</a>
-					<a>4</a>
-					<a>5</a>
-					<a>6</a>
-					<a>7</a>
-					<a>8</a>
-					<a>9</a>
-				</nest1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[5,6?;7,8?!.]]></tdml:documentPart>
+    </tdml:document>
 
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <s2>
+            <s1>5</s1>
+            <s1>6</s1>
+          </s2>
+          <s2>
+            <s1>7</s1>
+            <s1>8</s1>
+          </s2>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="nest2">
-		<dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
-		<!-- test the issue of ambiguous delimiters, which requires the parser 
-			to keep track of what's got priority over what else. (i.e., that inner wins) -->
-		<xs:element name="nest2" dfdl:lengthKind="implicit"
-			dfdl:terminator="ddd">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="; ddd">
-					<xs:element name="b" minOccurs="0" maxOccurs="unbounded"
-						dfdl:occursCountKind="parsed" dfdl:lengthKind="implicit">
-						<xs:complexType>
-							<xs:sequence dfdl:separator=", ddd">
-								<xs:element name="a" type="xs:int" minOccurs="0"
-									maxOccurs="unbounded" dfdl:occursCountKind="parsed"
-									dfdl:lengthKind="delimited" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
+  <tdml:defineSchema name="basicNest2">
+    <dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
 
-	<tdml:parserTestCase name="nest2" root="nest2"
-		model="nest2" description="Nested separators with same separator at multiple levels">
+    <xs:element name="e1" dfdl:lengthKind="implicit"
+      dfdl:terminator=".">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="s2" dfdl:lengthKind="implicit"
+            minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="s1" type="xs:int"
+                  dfdl:lengthKind="delimited" minOccurs="0"
+                  dfdl:occursCountKind="parsed" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[0ddd1,2;3ddd4ddd5;6ddd7;8;9!]]></tdml:documentPart>
-		</tdml:document>
+  </tdml:defineSchema>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<nest2 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-					<b>
-						<a>0</a>
-						<a>1</a>
-						<a>2</a>
-					</b>
-					<b>
-						<a>3</a>
-						<a>4</a>
-						<a>5</a>
-					</b>
-					<b>
-						<a>6</a>
-						<a>7</a>
-					</b>
-					<b>
-						<a>8</a>
-					</b>
-					<b>
-						<a>9</a>
-					</b>
-				</nest2>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="basicNest2" root="e1"
+    model="basicNest2" description="Nested sequences, with only separators.">
 
-	<tdml:defineSchema name="nest3">
-		<dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
-		<!-- test the issue of shared prefixes among the delimiters. This makes 
-			it challenging to determine longest match, as several contenders must be 
-			kept in consideration as more characters are parsed until it becomes unambiguous. -->
-		<xs:element name="nest3" dfdl:lengthKind="implicit"
-			dfdl:terminator="! ddd">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="; dd">
-					<xs:element name="b" minOccurs="0" maxOccurs="unbounded"
-						dfdl:occursCountKind="parsed" dfdl:lengthKind="implicit">
-						<xs:complexType>
-							<xs:sequence dfdl:separator=", d">
-								<xs:element name="a" type="xs:int" minOccurs="0"
-									maxOccurs="unbounded" dfdl:occursCountKind="parsed"
-									dfdl:lengthKind="delimited" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[5,6;7,8.]]></tdml:documentPart>
+    </tdml:document>
 
-	<tdml:parserTestCase name="nest3" root="nest3"
-		model="nest3"
-		description="Nested separators with separators that share prefixes at multiple levels">
-
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[0d1d2dd3d4d5dd6d7dd8dd9ddd]]></tdml:documentPart>
-		</tdml:document>
-
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<nest3 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-					<b>
-						<a>0</a>
-						<a>1</a>
-						<a>2</a>
-					</b>
-					<b>
-						<a>3</a>
-						<a>4</a>
-						<a>5</a>
-					</b>
-					<b>
-						<a>6</a>
-						<a>7</a>
-					</b>
-					<b>
-						<a>8</a>
-					</b>
-					<b>
-						<a>9</a>
-					</b>
-				</nest3>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <s2>
+            <s1>5</s1>
+            <s1>6</s1>
+          </s2>
+          <s2>
+            <s1>7</s1>
+            <s1>8</s1>
+          </s2>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 
+
+  <tdml:defineSchema name="nest1">
+    <dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
+
+    <xs:element name="nest1" dfdl:lengthKind="implicit"
+      dfdl:terminator="!">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:sequence dfdl:separator=",">
+            <xs:element name="a" type="xs:int" minOccurs="0"
+              maxOccurs="unbounded" dfdl:occursCountKind="parsed"
+              dfdl:lengthKind="delimited" />
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="nest1" root="nest1"
+    model="nest1" description="Unambiguous nested separators, no terminators.">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[0,1,2;3,4,5;6,7;8;9!]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <nest1 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <a>0</a>
+          <a>1</a>
+          <a>2</a>
+          <a>3</a>
+          <a>4</a>
+          <a>5</a>
+          <a>6</a>
+          <a>7</a>
+          <a>8</a>
+          <a>9</a>
+        </nest1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <tdml:defineSchema name="nest2">
+    <dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
+    <!-- test the issue of ambiguous delimiters, which requires the parser
+      to keep track of what's got priority over what else. (i.e., that inner
+      wins) -->
+    <xs:element name="nest2" dfdl:lengthKind="implicit"
+      dfdl:terminator="ddd">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="; ddd">
+          <xs:element name="b" minOccurs="0" maxOccurs="unbounded"
+            dfdl:occursCountKind="parsed" dfdl:lengthKind="implicit">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=", ddd">
+                <xs:element name="a" type="xs:int" minOccurs="0"
+                  maxOccurs="unbounded" dfdl:occursCountKind="parsed"
+                  dfdl:lengthKind="delimited" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="nest2" root="nest2"
+    model="nest2" description="Nested separators with same separator at multiple levels">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[0ddd1,2;3ddd4ddd5;6ddd7;8;9!]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <nest2 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <b>
+            <a>0</a>
+            <a>1</a>
+            <a>2</a>
+          </b>
+          <b>
+            <a>3</a>
+            <a>4</a>
+            <a>5</a>
+          </b>
+          <b>
+            <a>6</a>
+            <a>7</a>
+          </b>
+          <b>
+            <a>8</a>
+          </b>
+          <b>
+            <a>9</a>
+          </b>
+        </nest2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="nest3">
+    <dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
+    <!-- test the issue of shared prefixes among the delimiters. This makes
+      it challenging to determine longest match, as several contenders must
+      be
+      kept in consideration as more characters are parsed until it becomes
+      unambiguous. -->
+    <xs:element name="nest3" dfdl:lengthKind="implicit"
+      dfdl:terminator="! ddd">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="; dd">
+          <xs:element name="b" minOccurs="0" maxOccurs="unbounded"
+            dfdl:occursCountKind="parsed" dfdl:lengthKind="implicit">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=", d">
+                <xs:element name="a" type="xs:int" minOccurs="0"
+                  maxOccurs="unbounded" dfdl:occursCountKind="parsed"
+                  dfdl:lengthKind="delimited" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="nest3" root="nest3"
+    model="nest3"
+    description="Nested separators with separators that share prefixes at multiple levels">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[0d1d2dd3d4d5dd6d7dd8dd9ddd]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <nest3 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <b>
+            <a>0</a>
+            <a>1</a>
+            <a>2</a>
+          </b>
+          <b>
+            <a>3</a>
+            <a>4</a>
+            <a>5</a>
+          </b>
+          <b>
+            <a>6</a>
+            <a>7</a>
+          </b>
+          <b>
+            <a>8</a>
+          </b>
+          <b>
+            <a>9</a>
+          </b>
+        </nest3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="arrays1">
+
+    <dfdl:format ref="ex:daffodilTest1" occursCountKind="implicit"
+      lengthKind="delimited" separatorPolicy="suppressedAtEndStrict"
+      separatorPosition="prefix" />
+
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="$">
+          <xs:element name="a" type="xs:string" minOccurs="0"
+            dfdl:initiator="a:" dfdl:terminator=";" />
+          <xs:element name="b" type="xs:string"
+            dfdl:terminator=";" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="optionalWithSeparators"
+    model="arrays1" root="r">
+    <tdml:document><![CDATA[$x;]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r>
+          <b>x</b>
+        </r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
