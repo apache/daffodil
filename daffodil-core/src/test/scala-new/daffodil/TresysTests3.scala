@@ -19,6 +19,7 @@ class TresysTests3 extends JUnitSuite {
 
   lazy val runnerex = new DFDLTestSuite(Misc.getRequiredResource(testDir + "expressions.tdml"))
   @Test def test_nonFunctionIsDetected() = { runnerex.runOneTest("nonFunctionIsDetected") }
+  @Test def test_constantFunction1() = Debugger.withDebugger { runnerex.runOneTest("constantFunction1") }
   @Test def test_dfdlPosition1() = { runnerex.runOneTest("dfdlPosition1") }
   @Test def test_dfdlPosition2() = { runnerex.runOneTest("dfdlPosition2") }
   @Test def test_dfdlPosition3() = { runnerex.runOneTest("dfdlPosition3") }
