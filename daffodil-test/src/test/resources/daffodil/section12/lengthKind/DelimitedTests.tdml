@@ -95,6 +95,46 @@
 		</xs:complexType>
 		</xs:element>
 		
+		<xs:element name="NS_11">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+					<xs:sequence dfdl:initiator="!" dfdl:terminator="?" dfdl:separator=";" dfdl:separatorPosition="infix">
+						<xs:element name="e1" type="xs:int" maxOccurs="unbounded"/>
+					</xs:sequence>
+					<xs:element name="e2" type="xs:int" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="NS_12">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+					<xs:sequence dfdl:initiator="!" dfdl:terminator="?"/>
+					<xs:element name="e2" type="xs:int" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="NS_13">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+					<xs:sequence/>
+					<xs:element name="e2" type="xs:int" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="NS_14">
+			<xs:complexType>
+				<xs:sequence dfdl:separator=":" dfdl:separatorPosition="prefix">
+					<xs:sequence>
+						<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3" maxOccurs="unbounded"/>
+					</xs:sequence>
+					<xs:element name="e2" type="xs:int" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
 		<xs:element name="e_01" type="error01Type" dfdl:lengthKind="implicit"/>
 		<xs:complexType name="error01Type">
 			<xs:sequence dfdl:separator="%NL;" dfdl:separatorPolicy="suppressed">
@@ -411,6 +451,72 @@
 					<num>408</num>
 					<num>5228</num>
 				</NS_08>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="NumSeq_11" root="NS_11"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="lengthKind delimited with nested delimited sequence - DFDL-12-043R">
+
+		<tdml:document>!123;2789;30?,408,52283,22</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<NS_11>
+					<e1>123</e1>
+					<e1>2789</e1>
+					<e1>30</e1>
+					<e2>408</e2>
+					<e2>52283</e2>
+					<e2>22</e2>
+				</NS_11>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="NumSeq_12" root="NS_12"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="lengthKind delimited infix separator - DFDL-12-043R">
+
+		<tdml:document>!?,408,52283,22</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<NS_12>
+					<e2>408</e2>
+					<e2>52283</e2>
+					<e2>22</e2>
+				</NS_12>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="NumSeq_13" root="NS_13"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="lengthKind delimited infix separator - DFDL-12-043R">
+
+		<tdml:document>,408,52283,22</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<NS_13>
+					<e2>408</e2>
+					<e2>52283</e2>
+					<e2>22</e2>
+				</NS_13>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="NumSeq_14" root="NS_14"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="lengthKind delimited prefix separator- DFDL-12-043R, DFDL-12-046R, DFDL-14-009R">
+
+		<tdml:document>:408522835:22:19:154</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<NS_14>
+					<e1>408</e1>
+					<e1>522</e1>
+					<e1>835</e1>
+					<e2>22</e2>
+					<e2>19</e2>
+					<e2>154</e2>
+				</NS_14>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
