@@ -438,8 +438,9 @@
 	<tdml:parserTestCase name="nested_patterns_01" root="list_04"
 		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R">
 
-		<tdml:document><![CDATA[cat,dog
-,house.]]></tdml:document>
+		<tdml:document>
+			<tdml:documentPart type="byte">6361742C646F670D0A2C686F7573652E</tdml:documentPart>
+		</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<list_04>
