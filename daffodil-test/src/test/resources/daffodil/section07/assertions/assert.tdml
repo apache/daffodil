@@ -3,7 +3,7 @@
 	xmlns:ex="http://example.com" xmlns="http://example.com"
 	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
 	<tdml:defineSchema name="s1">
 		<dfdl:format ref="ex:daffodilTest1" />
@@ -90,6 +90,11 @@
 
 	</tdml:defineSchema>
 
+<!--
+	Test name: assertPass
+	   Schema: s1
+	  Purpose: This document contains the value that is asserted by the schema and should pass.
+-->
 
 	<tdml:parserTestCase name="assertPass" root="e1"
 		model="s1" description="Section 7 - assert as a value - DFDL-7-045R">
@@ -101,6 +106,12 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
+<!--
+	Test name: assertFail1
+	   Schema: s1
+	  Purpose: This document does not contain the value asserted in the schema and should fail.
+-->
+
 	<tdml:parserTestCase name="assertFail1" root="e2"
 		model="s1" description="Section 7 - negative test for assert expression - DFDL-7-043R">
 		<tdml:document />
@@ -108,6 +119,12 @@
 			<tdml:error>Assertion</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
+
+<!--
+	Test name: assertFail2
+	   Schema: s1
+	  Purpose: This document does not contain the value asserted in the schema and should fail (uses a reference to another element).
+-->
 
 	<tdml:parserTestCase name="assertFail2" root="e3"
 		model="s1" description="Section 7 - negative test for assert expression - DFDL-7-043R">
@@ -144,6 +161,13 @@
 		</xs:element>
 	</tdml:defineSchema>
 
+<!--
+	Test name: assertGuidesChoice
+	   Schema: choice1
+	  Purpose: This document demonstrates the use of an assertion in a choice. 
+	  	   The output should match the infoset and it should pass. 
+-->
+
 	<tdml:parserTestCase name="assertGuidesChoice"
 		root="c1" model="choice1"
 		description="Section 7 - assert on an element declaration - DFDL-7-048R">
@@ -160,6 +184,12 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
+<!--
+	Test name: assertPatternPass
+	   Schema: s1
+	  Purpose: This document demonstrates the use of a pattern assertion regarding a value in a document and should pass. 
+-->
+
 	<tdml:parserTestCase name="assertPatternPass" root="e4"
 		model="s1" description="Section 7 - assert as a value - DFDL-7-045R">
 		<tdml:document><![CDATA[43]]></tdml:document>
@@ -170,6 +200,12 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
+<!--
+	Test name: assertPatternFail
+	   Schema: s1
+	  Purpose: This document does not adhere to the assertion pattern and should fail. 
+-->
+
 	<tdml:parserTestCase name="assertPatternFail" root="e5"
 		model="s1" description="Section 7 - assert as a value - DFDL-7-045R">
 		<tdml:document>43</tdml:document>
@@ -179,9 +215,15 @@
 		</tdml:errors>
 	</tdml:parserTestCase>
 
+<!--
+	Test name: assertPatternPass2
+	   Schema: s1
+	  Purpose: This document demonstrates the use of multiple pattern assertions regarding a value in a document and should pass. 
+-->
+
 	<tdml:parserTestCase name="assertPatternPass2"
 		root="e6" model="s1"
-		description="Section 7 - assert pattern pass multiple assert - DFDL-7-045R">
+		description="Section 7 - assert pattern pass multiple assert - DFDL-7-053R">
 		<tdml:document>43:</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -190,9 +232,15 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
+<!--
+	Test name: assertPatternFail2
+	   Schema: s1
+	  Purpose: This document demonstrates the use of multiple pattern assertions regarding a value in a document and should fail. 
+-->
+
 	<tdml:parserTestCase name="assertPatternFail2"
 		root="e6" model="s1"
-		description="Section 7 - assert pattern fail multiple assert - DFDL-7-045R">
+		description="Section 7 - assert pattern fail multiple assert - DFDL-7-053R">
 		<tdml:document>43,</tdml:document>
 		<tdml:errors>
 			<tdml:error>Assert</tdml:error>
@@ -200,9 +248,15 @@
 		</tdml:errors>
 	</tdml:parserTestCase>
 
+<!--
+	Test name: assertPatternPass3
+	   Schema: s1
+	  Purpose: This document demonstrates the use of POSIX regex patterns in assertions and should pass. 
+-->
+
 	<tdml:parserTestCase name="assertPatternPass3"
 		root="e7" model="s1"
-		description="Section 7 - assert pattern pass multiple assert - DFDL-7-045R">
+		description="Section 7 - assert pattern pass - DFDL-7-045R">
 		<tdml:document>abcDEFG</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -238,8 +292,28 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+		<xs:element name="combined1" type="xs:string" >
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert testKind="pattern">\dNUM\d</dfdl:assert>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
+		<xs:element name="combined2" type="xs:string" >
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert testKind="pattern">three digit number: \d\d\d</dfdl:assert>
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
 
 	</tdml:defineSchema>
+
+<!--
+	Test Name: assertPatternLiteralTextMatch
+	   Schema: literalTextMatch
+	  Purpose: This document contains the literal text asserted in the schema and should pass.
+-->
 
 	<tdml:parserTestCase name="assertPatternLiteralTextMatch"
 		root="root" model="literalTextMatch" description="pattern asserts - DFDL-7-045R">
@@ -249,6 +323,51 @@
 				<root><e1>XYZZY</e1></root>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+	Test Name: assertPatternCombinedTextMatch
+	   Schema: literalTextMatch
+	  Purpose: This document contains the literal text  asserted in the schema and adheres to the pattern and should pass.
+-->
+	
+	<tdml:parserTestCase name="assertPatternCombinedTextMatch"
+		root="combined1" model="literalTextMatch" description="pattern asserts - DFDL-7-045R">
+		<tdml:document>4NUM6</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<combined1>4NUM6</combined1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+	Test Name: assertPatternCombinedTextMatch2
+	   Schema: literalTextMatch
+	  Purpose: This document contains the literal text asserted in the schema and adheres to the pattern and should pass.
+-->
+	
+	<tdml:parserTestCase name="assertPatternCombinedTextMatch2"
+		root="combined2" model="literalTextMatch" description="pattern asserts - DFDL-7-045R">
+		<tdml:document>three digit number: 563</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<combined2>three digit number: 563</combined2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+	Test Name: assertPatternCombinedTextMatch3
+	   Schema: literalTextMatch
+	  Purpose: This document does not contain the literal text asserted in the schema or adhere to the pattern and should fail.
+-->
+	<tdml:parserTestCase name="assertPatternCombinedTextMatch3"
+		root="combined2" model="literalTextMatch" description="pattern asserts - DFDL-7-045R">
+		<tdml:document>two digit number: 56</tdml:document>
+		<tdml:errors>
+			<tdml:error>Assertion</tdml:error>
+		</tdml:errors>
 	</tdml:parserTestCase>
 
 </tdml:testSuite>
