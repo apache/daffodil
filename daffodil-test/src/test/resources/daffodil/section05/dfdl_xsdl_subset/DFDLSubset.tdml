@@ -2,7 +2,7 @@
 <tdml:testSuite suiteName="FacetTests" description="Section 5 - facets"
 	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ex="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	xmlns:ex="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData http://www.ibm.com/xmlns/dfdl/testData">
 	
 	<!-- A cannonical TDML test style:
 	Use xmlns:ex="http://example.com" in tdml:testSuite
@@ -105,22 +105,6 @@
 		</xs:element>
 
 	</tdml:defineSchema>
-
-	<tdml:parserTestCase name="prefix" root="list"
-		model="dfdlPrefix.xsd" description="Section 5 - DFDL XSDL subset - DFDL-5-041R">
-
-		<tdml:document>||Shirts,Sold on Monday,30,$17.99||Shoes,Sold on
-			Tuesday,23,$89.99
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<list>
-					<Item>Shirts,Sold on Monday,30,$17.99</Item>
-					<Item>Shoes,Sold on Tuesday,23,$89.99</Item>
-				</list>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="groupRef.xsd">
 
