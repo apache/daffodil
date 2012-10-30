@@ -15,14 +15,14 @@ class TestLengthProperties extends JUnitSuite {
   val testDir_01 = "/daffodil/ibm-tests/"
   val tdml_01 = testDir_01 + "dpaext1.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
-  
+ 
   @Test def test_length_explicit_12_01() { runner_01.runOneTest("length_explicit_12_01") }
   @Test def test_length_explicit_12_02() { runner_01.runOneTest("length_explicit_12_02") }
-  
+
   val testDir_02 = "/daffodil/section12/length_properties/"
   val tdml_02 = testDir_02 + "LengthProperties.tdml"
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
-  
+
   @Test def test_LengthProp_02() { runner_02.runOneTest("LengthProp_02") }
   @Test def test_LengthProp_04() { runner_02.runOneTest("LengthProp_04") }
   @Test def test_LengthProp_05() { runner_02.runOneTest("LengthProp_05") }
@@ -41,4 +41,6 @@ class TestLengthProperties extends JUnitSuite {
   @Test def test_LengthProp_longByteLength() { runner_02.runOneTest("LengthProp_longByteLength") }
   @Test def test_LengthProp_longTextLength() { runner_02.runOneTest("LengthProp_longTextLength") }
 //  @Test def test_LengthProp_lengthExpression() { runner_02.runOneTest("LengthProp_lengthExpression1") }
+
+//  @Test def test_LengthProp_LengthProp_bits_01() { runner_02.runOneTest("LengthProp_bits_01") }
   }

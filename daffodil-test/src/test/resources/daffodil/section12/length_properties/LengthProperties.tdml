@@ -69,7 +69,39 @@
 			</xs:complexType>
 		</xs:element>
 		
+		<xs:element name="LP_07">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="data" dfdl:alignmentUnits='bits' dfdl:alignment='1' dfdl:encoding="utf-8" type="xs:int"
+						    dfdl:lengthKind="explicit" dfdl:length="32" dfdl:representation="binary"
+						    dfdl:lengthUnits="bits" dfdl:byteOrder="bigEndian"/>	
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
 	</tdml:defineSchema>
+
+<!--
+	Test name: LengthProp_bits_01
+	   Schema: LengthProperties-Embedded.dfdl.xsd
+	  Purpose: 
+-->
+	
+	<tdml:parserTestCase name="LengthProp_bits_01" root="LP_07"
+		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-150Rish">
+
+			<tdml:document>
+				<tdml:documentPart type="byte"><![CDATA[00110001001100100011001100110100]]></tdml:documentPart>
+			</tdml:document>
+			<tdml:infoset>
+				<tdml:dfdlInfoset>
+					<LP_07>
+						<data>1234</data>
+					</LP_07>
+				</tdml:dfdlInfoset>
+			</tdml:infoset>
+		</tdml:parserTestCase>
+		
 
 <!--
 	Test name: LengthProp_sequenceByLength
