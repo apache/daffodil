@@ -16,7 +16,7 @@ import daffodil.grammar._
 /////////////////////////////////////////////////////////////////
 
 // A term is content of a group
-abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : Int)
+abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int)
   extends AnnotatedSchemaComponent(xmlArg)
   with LocalComponentMixin
   with DFDLStatementMixin
@@ -24,33 +24,33 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin {
 
-  val enclosingComponent : Option[SchemaComponent] = Some(parent) // for global objects, the enclosing will be the thing referencing them.
+  val enclosingComponent: Option[SchemaComponent] = Some(parent) // for global objects, the enclosing will be the thing referencing them.
 
   lazy val isRepresented = true // overridden by elements, which might have inputValueCalc turning this off
 
   def isScalar = true // override in local elements
 
-  lazy val allTerminatingMarkup : List[CompiledExpression] = {
+  lazy val allTerminatingMarkup: List[CompiledExpression] = {
     val tm = List(this.terminator) ++ this.allParentTerminatingMarkup
     tm.filter(x => x.isKnownNonEmpty)
   }
 
-  lazy val allParentTerminatingMarkup : List[CompiledExpression] = {
+  lazy val allParentTerminatingMarkup: List[CompiledExpression] = {
     // Retrieves the terminating markup for all parent
     // objects
     // println(this + " with parent " + parent)
 
     //
     val pTM = parent match {
-      case s : Sequence => List(s.separator, s.terminator) ++ s.allParentTerminatingMarkup
-      case c : Choice => c.allParentTerminatingMarkup
-      case d : SchemaDocument =>
+      case s: Sequence => List(s.separator, s.terminator) ++ s.allParentTerminatingMarkup
+      case c: Choice => c.allParentTerminatingMarkup
+      case d: SchemaDocument =>
         // we're a global object. Our parent is a schema document
         // so follow backpointers to whatever is referencing us.
         this match {
-          case gct : GlobalComplexTypeDef => gct.element.allTerminatingMarkup
-          case gd : GlobalGroupDef => gd.groupRef.allTerminatingMarkup
-          case ge : GlobalElementDecl => ge.elementRef match {
+          case gct: GlobalComplexTypeDef => gct.element.allTerminatingMarkup
+          case gd: GlobalGroupDef => gd.groupRef.allTerminatingMarkup
+          case ge: GlobalElementDecl => ge.elementRef match {
             case None => {
               // we are root. So there is no enclosing sequence at all
               List.empty
@@ -58,9 +58,9 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
             case Some(er) => er.allTerminatingMarkup
           }
         }
-      case ct : LocalComplexTypeDef => ct.parent match {
-        case local : LocalElementDecl => local.allTerminatingMarkup
-        case global : GlobalElementDecl => {
+      case ct: LocalComplexTypeDef => ct.parent match {
+        case local: LocalElementDecl => local.allTerminatingMarkup
+        case global: GlobalElementDecl => {
           global.elementRef match {
             case None => List(global.terminator)
             case Some(eRef) => eRef.allTerminatingMarkup
@@ -69,7 +69,7 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
         case _ => Assert.impossibleCase()
       }
       // global type, we have to follow back to the element referencing this type
-      case ct : GlobalComplexTypeDef => {
+      case ct: GlobalComplexTypeDef => {
         // Since we are a term directly inside a global complex type def,
         // our nearest enclosing sequence is the one enclosing the element that
         // has this type. 
@@ -78,8 +78,8 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
         // from an element ref.
         //
         ct.element match {
-          case local : LocalElementDecl => local.allTerminatingMarkup
-          case global : GlobalElementDecl => {
+          case local: LocalElementDecl => local.allTerminatingMarkup
+          case global: GlobalElementDecl => {
             global.elementRef match {
               case None => List(global.terminator)
               case Some(eRef) => eRef.allTerminatingMarkup
@@ -88,7 +88,7 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
           case _ => Assert.impossibleCase()
         }
       }
-      case gd : GlobalGroupDef => gd.groupRef.allTerminatingMarkup
+      case gd: GlobalGroupDef => gd.groupRef.allTerminatingMarkup
       // We should only be asking for the enclosingSequence when there is one.
       case _ => Assert.invariantFailed("No parent terminating markup for : " + this)
     }
@@ -109,18 +109,18 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
    * This is why we have to have the GlobalXYZDefFactory stuff. Because this kind of back
    * pointer (contextual sensitivity) prevents sharing.
    */
-  lazy val nearestEnclosingSequence : Option[Sequence] = nearestEnclosingSequence_ //.value
+  lazy val nearestEnclosingSequence: Option[Sequence] = nearestEnclosingSequence_ //.value
   private lazy val nearestEnclosingSequence_ = { // LV {
     val res = parent match {
-      case s : Sequence => Some(s)
-      case t : Term => t.nearestEnclosingSequence
-      case d : SchemaDocument => {
+      case s: Sequence => Some(s)
+      case t: Term => t.nearestEnclosingSequence
+      case d: SchemaDocument => {
         // we're a global object. Our parent is a schema document
         // so follow backpointers to whatever is referencing us.
         this match {
-          case gct : GlobalComplexTypeDef => gct.element.nearestEnclosingSequence
-          case gd : GlobalGroupDef => gd.groupRef.nearestEnclosingSequence
-          case ge : GlobalElementDecl => ge.elementRef match {
+          case gct: GlobalComplexTypeDef => gct.element.nearestEnclosingSequence
+          case gd: GlobalGroupDef => gd.groupRef.nearestEnclosingSequence
+          case ge: GlobalElementDecl => ge.elementRef match {
             case None => {
               // we are root. So there is no enclosing sequence at all
               None
@@ -129,24 +129,24 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
           }
         }
       }
-      case ct : ComplexTypeBase => None // Stop when we get to an element // ct.element.nearestEnclosingSequence
-      case gd : GlobalGroupDef => gd.groupRef.nearestEnclosingSequence
+      case ct: ComplexTypeBase => None // Stop when we get to an element // ct.element.nearestEnclosingSequence
+      case gd: GlobalGroupDef => gd.groupRef.nearestEnclosingSequence
       case _ => Assert.invariantFailed("nearestEnclosingSequence called on " + this + "with parent " + parent)
     }
     res
   }
 
-  lazy val immediatelyEnclosingModelGroup : Option[ModelGroup] = {
+  lazy val immediatelyEnclosingModelGroup: Option[ModelGroup] = {
     val res = parent match {
-      case c : Choice => Some(c)
-      case s : Sequence => Some(s)
-      case d : SchemaDocument => {
+      case c: Choice => Some(c)
+      case s: Sequence => Some(s)
+      case d: SchemaDocument => {
         // we're a global object. Our parent is a schema document
         // so follow backpointers to whatever is referencing us.
         this match {
-          case gct : GlobalComplexTypeDef => gct.element.immediatelyEnclosingModelGroup
-          case gd : GlobalGroupDef => gd.groupRef.immediatelyEnclosingModelGroup
-          case ge : GlobalElementDecl => ge.elementRef match {
+          case gct: GlobalComplexTypeDef => gct.element.immediatelyEnclosingModelGroup
+          case gd: GlobalGroupDef => gd.groupRef.immediatelyEnclosingModelGroup
+          case ge: GlobalElementDecl => ge.elementRef match {
             case None => {
               // we are root. So there is no enclosing model group at all
               None
@@ -155,8 +155,8 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
           }
         }
       }
-      case gdd : GlobalGroupDef => gdd.groupRef.immediatelyEnclosingModelGroup
-      case ct : ComplexTypeBase => {
+      case gdd: GlobalGroupDef => gdd.groupRef.immediatelyEnclosingModelGroup
+      case ct: ComplexTypeBase => {
         None
         // The above formerly was ct.element.immediatelyEnclosingModelGroup, 
         // but if we have a CT as our parent, the group around the element whose type 
@@ -167,24 +167,25 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
     res
   }
 
-  lazy val positionInNearestEnclosingSequence : Int = {
+  lazy val positionInNearestEnclosingSequence: Int = {
     val res =
       if (enclosingComponent == nearestEnclosingSequence) position
       else {
         enclosingComponent match {
-          case Some(term : Term) => term.positionInNearestEnclosingSequence
-          case Some(ct : ComplexTypeBase) => {
+          case Some(term: Term) => term.positionInNearestEnclosingSequence
+          case Some(ct: ComplexTypeBase) => {
             val ctElem = ct.element
             val ctPos = ctElem.positionInNearestEnclosingSequence
             ctPos
           }
+          case Some(ggd: GlobalGroupDef) =>  ggd.groupRef.positionInNearestEnclosingSequence
           case _ => Assert.invariantFailed("unable to compute position in nearest enclosing sequence")
         }
       }
     res
   }
 
-  lazy val terminatingMarkup : List[CompiledExpression] = {
+  lazy val terminatingMarkup: List[CompiledExpression] = {
     if (hasTerminator) List(terminator)
     else nearestEnclosingSequence match {
       case None => Nil
@@ -211,10 +212,10 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
 
   import daffodil.util.ListUtils
 
-  lazy val hasLaterRequiredSiblings : Boolean = hasRequiredSiblings(ListUtils.tailAfter _)
-  lazy val hasPriorRequiredSiblings : Boolean = hasRequiredSiblings(ListUtils.preceding _)
+  lazy val hasLaterRequiredSiblings: Boolean = hasRequiredSiblings(ListUtils.tailAfter _)
+  lazy val hasPriorRequiredSiblings: Boolean = hasRequiredSiblings(ListUtils.preceding _)
 
-  def hasRequiredSiblings(splitter : ListUtils.SubListFinder[Term]) = {
+  def hasRequiredSiblings(splitter: ListUtils.SubListFinder[Term]) = {
     val res = nearestEnclosingSequence.map { es =>
       {
         val allSiblings = es.groupMembers
@@ -226,15 +227,15 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
     res
   }
 
-  def hasStaticallyRequiredInstances : Boolean
+  def hasStaticallyRequiredInstances: Boolean
 
 }
 
-abstract class GroupBase(xmlArg : Node, parent : SchemaComponent, position : Int)
+abstract class GroupBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends Term(xmlArg, parent, position) {
 
   lazy val detailName = ""
-  def group : ModelGroup
+  def group: ModelGroup
 
   lazy val localAndFormatRefProperties = { this.formatAnnotation.getFormatPropertiesNonDefault() }
 
@@ -250,12 +251,12 @@ abstract class GroupBase(xmlArg : Node, parent : SchemaComponent, position : Int
     this.formatAnnotation.formatRefProperties
   }
 
-  lazy val immediateGroup : Option[GroupBase] = {
+  lazy val immediateGroup: Option[GroupBase] = {
 
-    val res : Option[GroupBase] = this.group match {
-      case (s : Sequence) => Some(s)
-      case (c : Choice) => Some(c)
-      case (g : GroupRef) => Some(g)
+    val res: Option[GroupBase] = this.group match {
+      case (s: Sequence) => Some(s)
+      case (c: Choice) => Some(c)
+      case (g: GroupRef) => Some(g)
       case _ => None
     }
 
@@ -267,13 +268,13 @@ abstract class GroupBase(xmlArg : Node, parent : SchemaComponent, position : Int
 /**
  * Base class for all model groups, which are term containers.
  */
-abstract class ModelGroup(xmlArg : Node, parent : SchemaComponent, position : Int)
+abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends GroupBase(xmlArg, parent, position)
   with ModelGroupGrammarMixin {
 
   lazy val prettyName = xmlArg.label
 
-  val xmlChildren : Seq[Node]
+  val xmlChildren: Seq[Node]
 
   private val goodXmlChildren = xmlChildren.flatMap { removeNonInteresting(_) }
   private val positions = List.range(1, goodXmlChildren.length + 1) // range is exclusive on 2nd arg. So +1.
@@ -301,15 +302,15 @@ abstract class ModelGroup(xmlArg : Node, parent : SchemaComponent, position : In
    * This could be static code in an object. It doesn't reference any of the state of the ModelGroup,
    * it's here so that type-specific overrides are possible in Sequence or Choice
    */
-  def termFactory(child : Node, parent : ModelGroup, position : Int) = {
-    val childList : List[Term] = child match {
+  def termFactory(child: Node, parent: ModelGroup, position: Int) = {
+    val childList: List[Term] = child match {
       case <element>{ _* }</element> => {
         val refProp = (child \ "@ref").text
         if (refProp == "") List(new LocalElementDecl(child, parent, position))
         else List(new ElementRef(child, parent, position))
       }
       case <annotation>{ _* }</annotation> => Nil
-      case textNode : Text => Nil
+      case textNode: Text => Nil
       case _ => GroupFactory(child, parent, position)
     }
     childList
@@ -318,42 +319,42 @@ abstract class ModelGroup(xmlArg : Node, parent : SchemaComponent, position : In
   /**
    * XML is full of uninteresting text nodes. We just want the element children, not all children.
    */
-  def removeNonInteresting(child : Node) = {
-    val childList : List[Node] = child match {
-      case _ : Text => Nil
+  def removeNonInteresting(child: Node) = {
+    val childList: List[Node] = child match {
+      case _: Text => Nil
       case <annotation>{ _* }</annotation> => Nil
       case _ => List(child)
     }
     childList
   }
 
-  lazy val myGroupReferenceProps : Map[String, String] = {
+  lazy val myGroupReferenceProps: Map[String, String] = {
     val noProps = Map.empty[String, String]
     parent match {
-      case ggd : GlobalGroupDef => ggd.groupRef.localAndFormatRefProperties
-      case mg : ModelGroup => noProps
-      case ct : ComplexTypeBase => noProps
+      case ggd: GlobalGroupDef => ggd.groupRef.localProperties//ggd.groupRef.localAndFormatRefProperties
+      case mg: ModelGroup => noProps
+      case ct: ComplexTypeBase => noProps
       case _ => Assert.invariantFailed("parent of group is not one of the allowed parent types.")
     }
   }
 
-  lazy val overlappingProps : Set[String] = {
+  lazy val overlappingProps: Set[String] = {
     val parentProps = myGroupReferenceProps.keySet
     val localProps = this.localAndFormatRefProperties.keySet
     val theIntersect = parentProps.intersect(localProps)
     theIntersect
   }
 
-  lazy val combinedGroupRefAndGlobalGroupDefProperties : Map[String, String] = {
+  lazy val combinedGroupRefAndGlobalGroupDefProperties: Map[String, String] = {
     schemaDefinition(overlappingProps.size == 0,
-      "Overlap detected between the properties in the model group of a global group definition (%s) and its group reference.",
-      this.detailName)
-
+      "Overlap detected between the properties in the model group of a global group definition (%s) and its group reference. The overlap: %s",
+      this.detailName, overlappingProps)
+      
     val props = myGroupReferenceProps ++ this.localAndFormatRefProperties
     props
   }
 
-  override lazy val allNonDefaultProperties : Map[String, String] = {
+  override lazy val allNonDefaultProperties: Map[String, String] = {
     val theLocalUnion = this.combinedGroupRefAndGlobalGroupDefProperties
     theLocalUnion
   }
@@ -370,18 +371,18 @@ object GroupFactory {
    * flatmap it to get a collection of model groups. Nil for non-model groups, non-Nil for the model group
    * object. There should be only one non-Nil.
    */
-  def apply(child : Node, parent : SchemaComponent, position : Int) = {
-    val childList : List[GroupBase] = child match {
+  def apply(child: Node, parent: SchemaComponent, position: Int) = {
+    val childList: List[GroupBase] = child match {
       case <sequence>{ _* }</sequence> => List(new Sequence(child, parent, position))
       case <choice>{ _* }</choice> => List(new Choice(child, parent, position))
       case <group>{ _* }</group> => {
         parent match {
-          case ct : ComplexTypeBase => List(new GroupRef(child, ct, 1))
-          case mg : ModelGroup => List(new GroupRef(child, mg, position))
+          case ct: ComplexTypeBase => List(new GroupRef(child, ct, 1))
+          case mg: ModelGroup => List(new GroupRef(child, mg, position))
         }
       }
       case <annotation>{ _* }</annotation> => Nil
-      case textNode : Text => Nil
+      case textNode: Text => Nil
       case _ => Assert.impossibleCase()
     }
     childList
@@ -423,11 +424,11 @@ object GroupFactory {
  *
  */
 
-class Choice(xmlArg : Node, parent : SchemaComponent, position : Int)
+class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends ModelGroup(xmlArg, parent, position)
   with ChoiceGrammarMixin {
 
-  def annotationFactory(node : Node) : DFDLAnnotation = {
+  def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:choice>{ contents @ _* }</dfdl:choice> => new DFDLChoice(node, this)
       case _ => annotationFactoryForDFDLStatement(node, this)
@@ -435,7 +436,7 @@ class Choice(xmlArg : Node, parent : SchemaComponent, position : Int)
   }
 
   def emptyFormatFactory = new DFDLChoice(newDFDLAnnotationXML("choice"), this)
-  def isMyAnnotation(a : DFDLAnnotation) = a.isInstanceOf[DFDLChoice]
+  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLChoice]
 
   lazy val <choice>{ xmlChildren @ _* }</choice> = xml
 
@@ -452,8 +453,8 @@ class Choice(xmlArg : Node, parent : SchemaComponent, position : Int)
    *
    * TODO: someday lift this restriction.
    */
-  override def termFactory(child : Node, parent : ModelGroup, position : Int) = {
-    val childList : List[Term] = child match {
+  override def termFactory(child: Node, parent: ModelGroup, position: Int) = {
+    val childList: List[Term] = child match {
       case <element>{ _* }</element> => {
         val refProp = (child \ "@ref").text
         val elt =
@@ -463,21 +464,21 @@ class Choice(xmlArg : Node, parent : SchemaComponent, position : Int)
         List(elt)
       }
       case <annotation>{ _* }</annotation> => Nil
-      case textNode : Text => Nil
+      case textNode: Text => Nil
       case _ => subsetError("Non-element child type. Choices may only have scalar element children (minOccurs = maxOccurs = 1).")
     }
     childList
   }
 }
 
-class Sequence(xmlArg : Node, parent : SchemaComponent, position : Int)
+class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends ModelGroup(xmlArg, parent, position)
   with Sequence_AnnotationMixin
   with SequenceRuntimeValuedPropertiesMixin
   with SequenceGrammarMixin
   with SeparatorSuppressionPolicyMixin {
 
-  def annotationFactory(node : Node) : DFDLAnnotation = {
+  def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:sequence>{ contents @ _* }</dfdl:sequence> => new DFDLSequence(node, this)
       case _ => annotationFactoryForDFDLStatement(node, this)
@@ -485,7 +486,7 @@ class Sequence(xmlArg : Node, parent : SchemaComponent, position : Int)
   }
 
   def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
-  def isMyAnnotation(a : DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
+  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
 
   lazy val <sequence>{ xmlChildren @ _* }</sequence> = xml
 
@@ -498,13 +499,33 @@ class Sequence(xmlArg : Node, parent : SchemaComponent, position : Int)
 
 }
 
-class GroupRef(xmlArg : Node, parent : SchemaComponent, position : Int)
+class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends GroupBase(xmlArg, parent, position)
-  with GroupRefGrammarMixin {
+  with GroupRefGrammarMixin
+  with HasRef {
 
   lazy val prettyName = "groupRef"
 
-  def annotationFactory(node : Node) : DFDLAnnotation = {
+  // BEGIN NEW CODE 10/30/2012
+  lazy val qname = XMLUtils.QName(xml, xsdRef, schemaDocument)
+  lazy val (namespace, localName) = qname
+  override lazy val localProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
+  override lazy val localAndFormatRefProperties = {
+    // Removed check here for overlapping properties because it creates a circular reference
+    // the check should instead take place in the referencedElement.
+    val referencedProperties = group.localAndFormatRefProperties
+    val myProperties = localProperties ++ referencedProperties
+    myProperties
+  }
+  private lazy val referencedGroup_ = LV {
+    this.schema.schemaSet.getGlobalGroupDef(namespace, localName) match {
+      case None => SDE("Referenced groupDef not found: %s", this.ref)
+      case Some(x) => x.forGroupRef(this, position)
+    }
+  }
+  // END NEW CODE 10/30/2012
+
+  def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:group>{ contents @ _* }</dfdl:group> => new DFDLGroup(node, this)
       case _ => annotationFactoryForDFDLStatement(node, this)
@@ -512,61 +533,64 @@ class GroupRef(xmlArg : Node, parent : SchemaComponent, position : Int)
   }
 
   def emptyFormatFactory = new DFDLGroup(newDFDLAnnotationXML("group"), this)
-  def isMyAnnotation(a : DFDLAnnotation) = a.isInstanceOf[DFDLGroup]
+  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLGroup]
 
   def hasStaticallyRequiredInstances = group.hasStaticallyRequiredInstances
 
-  // TODO: Consolidate techniques with HasRef trait used by ElementRef
-  lazy val refName = {
-    val str = (xml \ "@ref").text
-    if (str == "") None else Some(str)
-  }
-
-  lazy val refQName = {
-    refName match {
-      case Some(rname) => Some(XMLUtils.QName(xml, rname, schemaDocument))
-      case None => None
-    }
-  }
+//  // TODO: Consolidate techniques with HasRef trait used by ElementRef
+//  lazy val refName = {
+//    val str = (xml \ "@ref").text
+//    if (str == "") None else Some(str)
+//  }
+//
+//  lazy val refQName = {
+//    refName match {
+//      case Some(rname) => Some(XMLUtils.QName(xml, rname, schemaDocument))
+//      case None => None
+//    }
+//  }
 
   lazy val group = groupDef.modelGroup
 
-  lazy val groupDef : GlobalGroupDef = groupDef_.value
-  private lazy val groupDef_ = LV {
-    val res = refQName match {
-      // TODO See comment above about consolidating techniques.
-      case None => schemaDefinitionError("No group definition found for " + refName + ".")
-      case Some((ns, localpart)) => {
-        val ss = schema.schemaSet
-        val ggdf = ss.getGlobalGroupDef(ns, localpart)
-        val res = ggdf match {
-          case Some(ggdFactory) => ggdFactory.forGroupRef(this, position)
-          case None => schemaDefinitionError("No group definition found for " + refName + ".")
-          // FIXME: do we need to do these checks, or has schema validation checked this for us?
-          // FIXME: if we do have to check, then the usual problems: don't stop on first error, and need location of error in diagnostic.
-        }
-        res
-      }
-    }
-    res
-  }
+  lazy val groupDef: GlobalGroupDef = referencedGroup_.value
+  // 10/30/2012
+  //lazy val groupDef: GlobalGroupDef = referencedGroup_.value//groupDef_.value
+
+  //  private lazy val groupDef_ = LV {
+  //    val res = refQName match {
+  //      // TODO See comment above about consolidating techniques.
+  //      case None => schemaDefinitionError("No group definition found for " + refName + ".")
+  //      case Some((ns, localpart)) => {
+  //        val ss = schema.schemaSet
+  //        val ggdf = ss.getGlobalGroupDef(ns, localpart)
+  //        val res = ggdf match {
+  //          case Some(ggdFactory) => ggdFactory.forGroupRef(this, position)
+  //          case None => schemaDefinitionError("No group definition found for " + refName + ".")
+  //          // FIXME: do we need to do these checks, or has schema validation checked this for us?
+  //          // FIXME: if we do have to check, then the usual problems: don't stop on first error, and need location of error in diagnostic.
+  //        }
+  //        res
+  //      }
+  //    }
+  //    res
+  //  }
 
   lazy val diagnosticChildren = annotationObjs :+ groupDef
 
 }
 
-class GlobalGroupDefFactory(val xml : Node, schemaDocument : SchemaDocument)
+class GlobalGroupDefFactory(val xml: Node, schemaDocument: SchemaDocument)
   extends NamedMixin {
   //  def forComplexType(ct : ComplexTypeBase) = {
   //    new GlobalGroupDef(xmlArg, schemaDocument, ct, 1)
   //  }
 
-  def forGroupRef(gref : GroupRef, position : Int) = {
+  def forGroupRef(gref: GroupRef, position: Int) = {
     new GlobalGroupDef(xml, schemaDocument, gref, position)
   }
 }
 
-class GlobalGroupDef(val xmlArg : Node, val schemaDocument : SchemaDocument, val groupRef : GroupRef, position : Int)
+class GlobalGroupDef(val xmlArg: Node, val schemaDocument: SchemaDocument, val groupRef: GroupRef, position: Int)
   extends SchemaComponent(xmlArg) with GlobalComponentMixin {
   //
   // Note: Dealing with XML can be fragile. It's easy to forget some of these children
@@ -578,7 +602,7 @@ class GlobalGroupDef(val xmlArg : Node, val schemaDocument : SchemaDocument, val
   // So we have to flatMap, so that we can tolerate annotation objects (like documentation objects).
   // and our ModelGroup factory has to return Nil for annotations and Text nodes.
   //
-  lazy val Seq(modelGroup : ModelGroup) = xmlChildren.flatMap { GroupFactory(_, this, position) }
+  lazy val Seq(modelGroup: ModelGroup) = xmlChildren.flatMap { GroupFactory(_, this, position) }
 
   lazy val diagnosticChildren = List(modelGroup)
 

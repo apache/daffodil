@@ -155,9 +155,7 @@
 	<tdml:parserTestCase name="groupRef" root="list"
 		model="groupRef.xsd" description="Section 5 - DFDL XSDL subset - DFDL-5-041R">
 
-		<tdml:document>Shirts,Sold on Monday,30,$17.99||Shoes,Sold on
-			Tuesday,23,$89.99
-		</tdml:document>
+		<tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<list>
@@ -240,9 +238,7 @@
 	<tdml:parserTestCase name="refInitiator" root="list"
 		model="refInitiator.xsd" description="Section 5 - DFDL XSDL subset - DFDL-5-041R">
 
-		<tdml:document>Shirts,Sold on Monday,30,$17.99||Shoes,Sold on
-			Tuesday,23,$89.99
-		</tdml:document>
+		<tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<list>
@@ -306,9 +302,7 @@
 	<tdml:parserTestCase name="groupRefInheritProps"
 		root="list" model="groupRefInheritProps.xsd" description="Section 5 - DFDL XSDL subset - DFDL-5-041R">
 
-		<tdml:document>Shirts,Sold on Monday,30,$17.99||Shoes,Sold on
-			Tuesday,23,$89.99
-		</tdml:document>
+		<tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<list>
@@ -378,9 +372,7 @@
 	<tdml:parserTestCase name="groupRefGroupRef" root="list"
 		model="groupRefGroupRef.xsd" description="Section 5 - DFDL XSDL subset - DFDL-5-041R">
 
-		<tdml:document>Shirts,Sold on Monday,30,$17.99||Shoes,Sold on
-			Tuesday,23,$89.99
-		</tdml:document>
+		<tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<list>
@@ -440,9 +432,7 @@
 	<tdml:parserTestCase name="sequenceWithinSequence"
 		root="list" model="sequenceWithinSequence.xsd" description="Section 5 - DFDL XSDL subset - DFDL-5-041R">
 
-		<tdml:document>Shirts,Sold on Monday,30,$17.99||Shoes,Sold on
-			Tuesday,23,$89.99
-		</tdml:document>
+		<tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<list>
@@ -502,9 +492,7 @@
 	<tdml:parserTestCase name="refInitiator2" root="list"
 		model="refInitiator2.xsd" description="Section 5 - DFDL XSDL subset - DFDL-5-041R">
 
-		<tdml:document>Shirts,Sold on Monday,30,$17.99||Shoes,Sold on
-			Tuesday,23,$89.99
-		</tdml:document>
+		<tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<list>
@@ -539,8 +527,8 @@
 		<xs:element name="price" type="xs:float" dfdl:initiator="$" />
 
 		<xs:group name="namedGroup">
-			<xs:sequence dfdl:separator="||" dfdl:separatorPosition="infix">
-				<xs:element ref="ex:price" />
+			<xs:sequence dfdl:separator="||" dfdl:separatorPosition="infix" >
+				<xs:element ref="ex:price" maxOccurs="unbounded" />
 			</xs:sequence>
 		</xs:group>
 
@@ -557,12 +545,12 @@
 	<tdml:parserTestCase name="refInitiator3" root="list"
 		model="refInitiator3.xsd" description="Section 5 - DFDL XSDL subset - DFDL-5-041R">
 
-		<tdml:document>$1.00||$2.00||$17.99</tdml:document>
+		<tdml:document><![CDATA[$1.00||$2.00||$17.99]]></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<list>
-					<price>1.00</price>
-					<price>2.00</price>
+					<price>1.0</price>
+					<price>2.0</price>
 					<price>17.99</price>
 				</list>
 			</tdml:dfdlInfoset>

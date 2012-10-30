@@ -13,7 +13,7 @@ import daffodil.processors._
 
 trait InitiatedTerminatedMixin
   extends AnnotatedMixin
-  with DelimitedRuntimeValuedPropertiesMixin { self : Term =>
+  with DelimitedRuntimeValuedPropertiesMixin { self: Term =>
 
   lazy val parentSaysInitiatedContent = {
     val parentSays = self.immediatelyEnclosingModelGroup match {
@@ -44,7 +44,7 @@ trait InitiatedTerminatedMixin
     if (terminator.isConstant) StaticTerminator(this)
     else DynamicTerminator(this))
 
-  lazy val escapeScheme : Option[DFDLEscapeScheme] = {
+  lazy val escapeScheme: Option[DFDLEscapeScheme] = {
     val er = getPropertyOption("escapeSchemeRef")
     er match {
       case None => None
@@ -65,7 +65,7 @@ trait InitiatedTerminatedMixin
   }
 }
 
-trait AlignedMixin { self : Term =>
+trait AlignedMixin { self: Term =>
   lazy val leadingSkipRegion = Prod("leadingSkipRegion", this, LeadingSkipRegion(this))
   lazy val trailingSkipRegion = Prod("trailingSkipRegion", this, TrailingSkipRegion(this))
   lazy val alignmentFill = Prod("alignmentFill", this, AlignmentFill(this))
@@ -77,7 +77,7 @@ trait AlignedMixin { self : Term =>
 
 trait ElementBaseGrammarMixin
   extends InitiatedTerminatedMixin
-  with AlignedMixin { self : ElementBase =>
+  with AlignedMixin { self: ElementBase =>
   // 
   // This silly redundancy where the variable name has to also be passed as a string,
   // is, by the way, a good reason Scala needs real Lisp-style macros, that can take an argument and
@@ -92,7 +92,7 @@ trait ElementBaseGrammarMixin
     res
   }
 
-  def allowedValue : Prod // provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
+  def allowedValue: Prod // provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
 
   lazy val explicitLengthBinary = Prod("explicitLengthBinary", this, {
     val scale =
@@ -104,10 +104,10 @@ trait ElementBaseGrammarMixin
     (primType.name, binaryNumberRep) match {
       case ("unsignedByte", bin) =>
         new BinaryExplicitLength[Long](this, scale, bitStringSize) {
-          def getNum(num : BigInt) = num.longValue.toString
+          def getNum(num: BigInt) = num.longValue.toString
           val GramName = "unsignedByte"
           val GramDescription = "Unsigned Byte"
-          def isInvalidRange(n : BigInt) = n < 0 || n >= (1 << (bitStringSize))
+          def isInvalidRange(n: BigInt) = n < 0 || n >= (1 << (bitStringSize))
           def numFormat = NumberFormat.getIntegerInstance()
           def isInt = true
         }
@@ -131,8 +131,8 @@ trait ElementBaseGrammarMixin
   }
 
   // Length is in bits, (size would be in bytes) (from DFDL Spec 12.3.3)
-  def binaryLength(e : ElementBase, pstate : PState) = {
-    def getLength(e : ElementBase, pstate : PState, multiplier : Long) {
+  def binaryLength(e: ElementBase, pstate: PState) = {
+    def getLength(e: ElementBase, pstate: PState, multiplier: Long) {
       val lenExpr = e.length
       var txt = lenExpr.prettyExpr
       val R(len, vMap) = lenExpr.evaluate(pstate.parent, pstate.variableMap, pstate)
@@ -396,7 +396,7 @@ trait ElementBaseGrammarMixin
   val ieee = BinaryFloatRep.Ieee
   type BO = java.nio.ByteOrder
 
-  lazy val binaryValue : Gram = {
+  lazy val binaryValue: Gram = {
 
     Assert.invariant(primType.name != "string")
 
@@ -408,16 +408,16 @@ trait ElementBaseGrammarMixin
     // being defined. 
     // The DFDL spec has a section where it gives the precedence order of properties. 
     // This is in the spirit of that section.
-    val res : Gram = primType.name match {
+    val res: Gram = primType.name match {
 
       case "hexBinary" =>
         (primType.name, binary) match { // TODO: Only takes explicit length
           case ("hexBinary", b) => new BinaryNumber[Array[Byte]](this, this.length.constantAsLong) {
-            def getNum(bp : Long, in : InStream, bo : BO) = {
+            def getNum(bp: Long, in: InStream, bo: BO) = {
               // FIXME: size constraints, overflow
               in.getByteArray(bp, bo, length.constantAsLong.asInstanceOf[Int])
             }
-            override def getNum(num : Number) = null //FIXME
+            override def getNum(num: Number) = null //FIXME
             protected override val GramName = "hexBinary"
             protected override val GramDescription = "Hex Binary"
             protected override def numFormat = NumberFormat.getIntegerInstance()
@@ -430,32 +430,32 @@ trait ElementBaseGrammarMixin
         "unsignedByte" | "unsignedShort" | "unsignedInt" | "unsignedLong" | "boolean" =>
         (primType.name, binaryIntRep) match {
           case ("byte", bin) => new BinaryNumber[Byte](this, 8) {
-            def getNum(bp : Long, in : InStream, bo : BO) = in.getByte(bp, bo)
-            override def getNum(num : Number) = num.byteValue
+            def getNum(bp: Long, in: InStream, bo: BO) = in.getByte(bp, bo)
+            override def getNum(num: Number) = num.byteValue
             protected override val GramName = "byte"
             protected override val GramDescription = "Byte"
             protected override def numFormat = NumberFormat.getIntegerInstance()
             protected override def isInt = true
           }
           case ("short", bin) => new BinaryNumber[Short](this, 16) {
-            def getNum(bp : Long, in : InStream, bo : BO) = in.getShort(bp, bo)
-            override def getNum(num : Number) = num.shortValue
+            def getNum(bp: Long, in: InStream, bo: BO) = in.getShort(bp, bo)
+            override def getNum(num: Number) = num.shortValue
             protected override val GramName = "short"
             protected override val GramDescription = "Short Integer"
             protected override def numFormat = NumberFormat.getIntegerInstance()
             protected override def isInt = true
           }
           case ("int", bin) => new BinaryNumber[Int](this, 32) {
-            def getNum(bp : Long, in : InStream, bo : BO) = in.getInt(bp, bo)
-            override def getNum(num : Number) = num.intValue
+            def getNum(bp: Long, in: InStream, bo: BO) = in.getInt(bp, bo)
+            override def getNum(num: Number) = num.intValue
             protected override val GramName = "int"
             protected override val GramDescription = "Integer"
             protected override def numFormat = NumberFormat.getIntegerInstance()
             protected override def isInt = true
           }
           case ("long", bin) => new BinaryNumber[Long](this, 64) {
-            def getNum(bp : Long, in : InStream, bo : BO) = in.getLong(bp, bo)
-            override def getNum(num : Number) = num.longValue
+            def getNum(bp: Long, in: InStream, bo: BO) = in.getLong(bp, bo)
+            override def getNum(num: Number) = num.longValue
             protected override val GramName = "long"
             protected override val GramDescription = "Long Integer"
             protected override def numFormat = NumberFormat.getIntegerInstance()
@@ -475,38 +475,38 @@ trait ElementBaseGrammarMixin
           //            protected override def isInt = true
           //          }
           case ("unsignedShort", bin) => new BinaryNumber[Int](this, 16) {
-            def getNum(bp : Long, in : InStream, bo : BO) = in.getShort(bp, bo) - Short.MinValue
-            override def getNum(num : Number) = num.intValue
+            def getNum(bp: Long, in: InStream, bo: BO) = in.getShort(bp, bo) - Short.MinValue
+            override def getNum(num: Number) = num.intValue
             protected override val GramName = "unsignedShort"
             protected override val GramDescription = "Unsigned Short"
-            protected override def isInvalidRange(n : Int) = n < 0 || n >= (1 << 16)
+            protected override def isInvalidRange(n: Int) = n < 0 || n >= (1 << 16)
             protected override def numFormat = NumberFormat.getIntegerInstance()
             protected override def isInt = true
           }
           case ("unsignedInt", bin) => new BinaryNumber[Long](this, 32) {
-            def getNum(bp : Long, in : InStream, bo : BO) = in.getInt(bp, bo).toLong - Int.MinValue.toLong
-            override def getNum(num : Number) = num.longValue
+            def getNum(bp: Long, in: InStream, bo: BO) = in.getInt(bp, bo).toLong - Int.MinValue.toLong
+            override def getNum(num: Number) = num.longValue
             protected override val GramName = "unsignedInt"
             protected override val GramDescription = "Unsigned Int"
-            protected override def isInvalidRange(n : Long) = n < 0 || n >= (1L << 32)
+            protected override def isInvalidRange(n: Long) = n < 0 || n >= (1L << 32)
             protected override def numFormat = NumberFormat.getIntegerInstance()
             protected override def isInt = true
           }
           case ("unsignedLong", bin) => new BinaryNumber[Long](this, 64) {
-            def getNum(bp : Long, in : InStream, bo : BO) = in.getLong(bp, bo) - Long.MinValue
-            override def getNum(num : Number) = num.longValue
+            def getNum(bp: Long, in: InStream, bo: BO) = in.getLong(bp, bo) - Long.MinValue
+            override def getNum(num: Number) = num.longValue
             protected override val GramName = "unsignedLong"
             protected override val GramDescription = "Unsigned Long"
-            protected override def isInvalidRange(n : Long) = n < 0 || n >= (1L << 32)
+            protected override def isInvalidRange(n: Long) = n < 0 || n >= (1L << 32)
             protected override def numFormat = NumberFormat.getIntegerInstance()
             protected override def isInt = true
           }
           case ("boolean", bin) => new BinaryNumber[Long](this, 32) {
-            def getNum(bp : Long, in : InStream, bo : BO) = in.getInt(bp, bo).toLong - Int.MinValue.toLong
-            override def getNum(num : Number) = num.longValue
+            def getNum(bp: Long, in: InStream, bo: BO) = in.getInt(bp, bo).toLong - Int.MinValue.toLong
+            override def getNum(num: Number) = num.longValue
             protected override val GramName = "boolean"
             protected override val GramDescription = "Boolean"
-            protected override def isInvalidRange(n : Long) = n < 0 || n >= (1L << 32)
+            protected override def isInvalidRange(n: Long) = n < 0 || n >= (1L << 32)
             protected override def numFormat = NumberFormat.getIntegerInstance()
             protected override def isInt = true
             // TODO: Handle binaryBooleanTrueRep and binaryBooleanFalseRep
@@ -520,8 +520,8 @@ trait ElementBaseGrammarMixin
         (primType.name, staticBinaryFloatRep) match {
           case ("double", ieee) => new BinaryNumber[Double](this, 64) {
             Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
-            def getNum(bp : Long, in : InStream, bo : BO) = in.getDouble(bp, bo)
-            override def getNum(num : Number) = num.doubleValue
+            def getNum(bp: Long, in: InStream, bo: BO) = in.getDouble(bp, bo)
+            override def getNum(num: Number) = num.doubleValue
             protected override val GramName = "double"
             protected override val GramDescription = "Double"
             protected override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
@@ -529,8 +529,8 @@ trait ElementBaseGrammarMixin
           }
           case ("float", ieee) => new BinaryNumber[Float](this, 32) {
             Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
-            def getNum(bp : Long, in : InStream, bo : BO) = in.getFloat(bp, bo)
-            override def getNum(num : Number) = num.floatValue
+            def getNum(bp: Long, in: InStream, bo: BO) = in.getFloat(bp, bo)
+            override def getNum(num: Number) = num.floatValue
             protected override val GramName = "float"
             protected override val GramDescription = "Float"
             protected override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
@@ -543,7 +543,7 @@ trait ElementBaseGrammarMixin
     res
   }
 
-  lazy val textValue : Gram = {
+  lazy val textValue: Gram = {
     Assert.invariant(primType.name != "string")
     val res = primType.name match {
 
@@ -665,8 +665,8 @@ trait ElementBaseGrammarMixin
     dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
       scalarNonDefaultContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
 
-  def scalarDefaultable : Prod
-  def scalarNonDefault : Prod
+  def scalarDefaultable: Prod
+  def scalarNonDefault: Prod
 
   //  lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
   //    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
@@ -677,7 +677,7 @@ trait ElementBaseGrammarMixin
 
 }
 
-trait LocalElementGrammarMixin { self : LocalElementBase =>
+trait LocalElementGrammarMixin { self: LocalElementBase =>
 
   lazy val allowedValue = Prod("allowedValue", this, notStopValue | value)
 
@@ -733,7 +733,7 @@ trait LocalElementGrammarMixin { self : LocalElementBase =>
   // TODO FIXME: We really want to have different productions for parsing and unparsing in these
   // complex cases where there is defaulting, etc. Unparsing has many fewer cases, and is just not
   // symmetric with parsing in these situations.
-  def separatedContentExactlyN(count : Long) = {
+  def separatedContentExactlyN(count: Long) = {
     RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
       RepAtMostTotalN(self, count, separatedRecurringNonDefault) ~
       StopValue(this) ~
@@ -782,7 +782,7 @@ trait LocalElementGrammarMixin { self : LocalElementBase =>
   //
   // Silly constants to make the lookup table below more readable without using fragile whitespace
   val Never______ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.Never
-  val TrailingLax : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingLax
+  val TrailingLax: SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingLax
   val Trailing___ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.Trailing
   val Always_____ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.Always
   val StopValue_ = OccursCountKind.StopValue
@@ -821,7 +821,7 @@ trait LocalElementGrammarMixin { self : LocalElementBase =>
   })
 }
 
-trait ElementDeclGrammarMixin { self : ElementBase with ElementDeclMixin =>
+trait ElementDeclGrammarMixin { self: ElementBase with ElementDeclMixin =>
 
   lazy val scalarDefaultable = Prod("scalarDefaultable", this,
     if (inputValueCalcOption == None) {
@@ -845,7 +845,7 @@ trait ElementDeclGrammarMixin { self : ElementBase with ElementDeclMixin =>
       InputValueCalc(self)) ~ dfdlScopeEnd ~ dfdlElementEnd)
 }
 
-trait GlobalElementDeclGrammarMixin { self : GlobalElementDecl =>
+trait GlobalElementDeclGrammarMixin { self: GlobalElementDecl =>
 
   lazy val allowedValue = Prod("allowedValue", this, value)
 
@@ -861,7 +861,7 @@ trait GlobalElementDeclGrammarMixin { self : GlobalElementDecl =>
 // Groups System
 /////////////////////////////////////////////////////////////////
 
-trait TermGrammarMixin { self : Term =>
+trait TermGrammarMixin { self: Term =>
 
   lazy val newVars = this.annotationObjs.filter { st =>
     st.isInstanceOf[DFDLNewVariableInstance]
@@ -893,13 +893,13 @@ trait TermGrammarMixin { self : Term =>
   lazy val dfdlStatementEvaluations = Prod("dfdlStatementEvaluations", this, statementGrams.length > 0,
     statementGrams.fold(EmptyGram) { _ ~ _ })
 
-  def termContentBody : Prod
+  def termContentBody: Prod
 
   // I am not sure we need to distinguish these two. 
   lazy val asTermInSequence = termContentBody
   lazy val asTermInChoice = termContentBody
 
-  def separatedForPosition(body : => Gram) = {
+  def separatedForPosition(body: => Gram) = {
     if (!isRepresented) body // no separators for things that have no representation in the data stream
     else {
       val res = prefixSep ~ infixSepRule ~ body ~ postfixSep
@@ -972,24 +972,25 @@ trait TermGrammarMixin { self : Term =>
   }
 
   lazy val infixSepRule = Prod("infixSepRule", this,
-    hasES && es.hasInfixSep,
-    if (isStaticallyFirst) Nada(this) // we're first, no infix sep.
-    else if (hasPriorRequiredSiblings) infixSep // always in this case
-    else if (positionInNearestEnclosingSequence > 1 || !isScalar) {
-      // runtime check for group pos such that we need a separator.
-      // Note that GroupPosGreaterThan(N,..) sets discriminator, so if it is true, and infixSep is not found, it won't
-      // backtrack and try nothing. Only if GroupPos is not greater than N will it backtrack.
-      // TODO: adding ChildPosGreaterThan and ArrayPosGreaterThan fixes bug with xs:choice and array tests--check for other cases
-      (ArrayPosGreaterThan(1, self) ~ infixSep) |
-        ((GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this))
-    } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this))
+    hasES && es.hasInfixSep, {
+      if (isStaticallyFirst) Nada(this) // we're first, no infix sep.
+      else if (hasPriorRequiredSiblings) infixSep // always in this case
+      else if (positionInNearestEnclosingSequence > 1 || !isScalar) {
+        // runtime check for group pos such that we need a separator.
+        // Note that GroupPosGreaterThan(N,..) sets discriminator, so if it is true, and infixSep is not found, it won't
+        // backtrack and try nothing. Only if GroupPos is not greater than N will it backtrack.
+        // TODO: adding ChildPosGreaterThan and ArrayPosGreaterThan fixes bug with xs:choice and array tests--check for other cases
+        (ArrayPosGreaterThan(1, self) ~ infixSep) |
+          ((GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this))
+      } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this)
+    })
 
 }
 
 trait ModelGroupGrammarMixin
   extends InitiatedTerminatedMixin
   with AlignedMixin
-  with GroupCommonAGMixin { self : ModelGroup =>
+  with GroupCommonAGMixin { self: ModelGroup =>
 
   lazy val groupLeftFraming = Prod("groupLeftFraming", this, leadingSkipRegion ~ alignmentFill ~ initiatorRegion)
   lazy val groupRightFraming = Prod("groupRightFraming", this, terminatorRegion ~ trailingSkipRegion)
@@ -1003,24 +1004,24 @@ trait ModelGroupGrammarMixin
 
   def mt = EmptyGram.asInstanceOf[Gram] // cast trick to shut up foldLeft compile errors below
 
-  def groupContent : Prod
+  def groupContent: Prod
 }
 
-trait ChoiceGrammarMixin { self : Choice =>
+trait ChoiceGrammarMixin { self: Choice =>
 
   lazy val groupContent = Prod("choiceContent", this, alternatives.foldRight(mt)(folder))
 
-  def folder(p : Gram, q : Gram) : Gram = p | q
+  def folder(p: Gram, q: Gram): Gram = p | q
 
   lazy val alternatives = groupMembers.map { _.asTermInChoice }
 
 }
 
-trait SequenceGrammarMixin { self : Sequence =>
+trait SequenceGrammarMixin { self: Sequence =>
 
   lazy val groupContent = Prod("sequenceContent", this, StartSequence(this) ~ terms.foldRight(mt)(folder) ~ EndSequence(this))
 
-  def folder(p : Gram, q : Gram) : Gram = p ~ q
+  def folder(p: Gram, q: Gram): Gram = p ~ q
 
   lazy val terms = groupMembers.map { _.asTermInSequence }
 
@@ -1037,13 +1038,13 @@ trait SequenceGrammarMixin { self : Sequence =>
   lazy val hasSeparator = separator.isKnownNonEmpty
 
   // note use of pass by value. We don't want to even need the SeparatorPosition property unless there is a separator.
-  def sepExpr(pos : => SeparatorPosition) : Boolean = {
+  def sepExpr(pos: => SeparatorPosition): Boolean = {
     if (hasSeparator) if (separatorPosition eq pos) true else false
     else false
   }
 }
 
-trait GroupRefGrammarMixin { self : GroupRef =>
+trait GroupRefGrammarMixin { self: GroupRef =>
 
   def termContentBody = self.group.termContentBody //Assert.notYetImplemented()
 
@@ -1053,7 +1054,7 @@ trait GroupRefGrammarMixin { self : GroupRef =>
 // Types System
 /////////////////////////////////////////////////////////////////
 
-trait ComplexTypeBaseGrammarMixin { self : ComplexTypeBase =>
+trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
   lazy val startChildren = StartChildren(this, true)
   lazy val endChildren = EndChildren(this, true)
 
