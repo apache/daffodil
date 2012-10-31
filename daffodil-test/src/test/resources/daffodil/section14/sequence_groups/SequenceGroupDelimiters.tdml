@@ -196,6 +196,15 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+		
+		<xs:element name="NS_02">
+		<xs:complexType>
+			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+				dfdl:separator="," dfdl:separatorPolicy="required" dfdl:terminator="%NL;">
+				<xs:element name="num" type="xs:int" maxOccurs="unbounded"/>	
+			</xs:sequence>
+		</xs:complexType>
+		</xs:element>
 
 	</tdml:defineSchema>
 	
@@ -237,6 +246,16 @@
 				</list_01>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="NumSeq_02" root="NS_02"
+		model="dfdlPrefix.xsd" description="Schema definition error for occursCountKind 'parsed' with separatorPolicy 'required' (or separatorSuppressionPolicy 'never').">
+
+		<tdml:document>1,2,3,4,5,6
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error></tdml:error>
+		</tdml:errors>
 	</tdml:parserTestCase>
 	
 </tdml:testSuite>
