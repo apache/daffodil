@@ -4,8 +4,10 @@ import scala.xml._
 import daffodil.exceptions._
 import daffodil.grammar._
 import daffodil.xml._
+<<<<<<< OURS
 import scala.collection.mutable.Queue
 import scala.util.matching.Regex
+
 
 /////////////////////////////////////////////////////////////////
 // Type System
@@ -18,8 +20,8 @@ trait SimpleTypeBase
   extends TypeBase
   with DiagnosticsProviding {
 
-  def context: SchemaComponent
-  def primitiveType: PrimitiveType
+  def context : SchemaComponent
+  def primitiveType : PrimitiveType
 
 }
 
@@ -65,25 +67,28 @@ object FacetTypes {
   type ElemFacetsR = Seq[FacetValueR]
 }
 
-abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
+abstract class SimpleTypeDefBase(xmlArg : Node, val parent : SchemaComponent)
   extends AnnotatedSchemaComponent(xmlArg)
   with SimpleTypeBase
+
   with DFDLStatementMixin
   with Facets {
   
   import daffodil.dsom.FacetTypes._
 
-  def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
-  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
 
-  def annotationFactory(node: Node): DFDLAnnotation = {
+  def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
+
+  def isMyAnnotation(a : DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
+
+  def annotationFactory(node : Node) : DFDLAnnotation = {
     node match {
       case <dfdl:simpleType>{ contents @ _* }</dfdl:simpleType> => new DFDLSimpleType(node, this)
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
 
-  lazy val localAndFormatRefProperties: Map[String, String] = {
+  lazy val localAndFormatRefProperties : Map[String, String] = {
     this.formatAnnotation.getFormatPropertiesNonDefault()
   }
 
@@ -107,7 +112,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
   // Returns name of base class in the form of
   // ex:myType
   //
-  lazy val restrictionBase: String = {
+  lazy val restrictionBase : String = {
     val rsb = xml \\ "restriction" \ "@base"
     rsb.head.text
   }
@@ -191,7 +196,8 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
 
   lazy val baseTypeQName = XMLUtils.QName(xml, restrictionBase, schemaDocument)
 
-  lazy val myBaseType: SimpleTypeBase = {
+
+  lazy val myBaseType : SimpleTypeBase = {
     myPrimitiveType match {
       case Some(pt) => pt
       case None => {
@@ -208,10 +214,13 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
 
   lazy val diagnosticChildren = annotationObjs ++ myBaseTypeList
 
-  lazy val simpleTypeBaseProperties: Map[String, String] = {
+
+
+  lazy val simpleTypeBaseProperties : Map[String, String] = {
+
     val baseProps = {
       myBaseType match {
-        case st: SimpleTypeDefBase => st.localAndFormatRefProperties
+        case st : SimpleTypeDefBase => st.localAndFormatRefProperties
         case _ => Map.empty[String, String]
       }
     }
@@ -225,7 +234,8 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
     intersect
   }
 
-  lazy val hasOverlap: Boolean = {
+
+  lazy val hasOverlap : Boolean = {
     if (overlappingLocalProperties.size > 0) {
       true
     } else {
@@ -285,7 +295,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
   }
 }
 
-class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
+class LocalSimpleTypeDef(xmlArg : Node, parent : ElementBase)
   extends SimpleTypeDefBase(xmlArg, parent)
   with LocalComponentMixin {
 
@@ -346,20 +356,22 @@ class PrimitiveType(name_ : String)
  * I.e., the context is clear and kept separate for each place a global type is used.
  */
 
-class GlobalSimpleTypeDefFactory(val xml: Node, schemaDocument: SchemaDocument)
+
+class GlobalSimpleTypeDefFactory(val xml : Node, schemaDocument : SchemaDocument)
   extends NamedMixin {
   def forRoot() = new GlobalSimpleTypeDef(xml, schemaDocument, None)
 
   /**
    * Create a private instance for this element's use.
    */
-  def forElement(element: ElementBase) = new GlobalSimpleTypeDef(xml, schemaDocument, Some(element))
-  def forDerivedType(derivedType: SimpleTypeDefBase) = new GlobalSimpleTypeDef(xml, schemaDocument, None)
+  def forElement(element : ElementBase) = new GlobalSimpleTypeDef(xml, schemaDocument, Some(element))
+  def forDerivedType(derivedType : SimpleTypeDefBase) = new GlobalSimpleTypeDef(xml, schemaDocument, None)
 }
 /**
  * The instance type for global simple type definitions.
  */
-class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: Option[AnnotatedMixin])
+
+class GlobalSimpleTypeDef(xmlArg : Node, schemaDocumentArg : SchemaDocument, val element : Option[AnnotatedMixin])
   extends SimpleTypeDefBase(xmlArg, schemaDocumentArg) with NamedMixin
   with GlobalComponentMixin {
 
@@ -367,37 +379,42 @@ class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val e
 
 }
 
-abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
+abstract class ComplexTypeBase(xmlArg : Node, val parent : SchemaComponent)
   extends SchemaComponent(xmlArg)
   with TypeBase
   with ComplexTypeBaseGrammarMixin {
   def element: ElementBase
 
   lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
-  lazy val Seq(modelGroup) = xmlChildren.flatMap { GroupFactory(_, this, 1) }
+
+  lazy val Seq(modelGroup : ModelGroup) = smg.value
+  lazy val smg = LV {
+    xmlChildren.flatMap { GroupFactory(_, this, 1) }
+  }
 
   // provides needed polymorphism across unannotated complex types, and
   // the annotated objects.
-  lazy val localAndFormatRefProperties: Map[String, String] = {
+  lazy val localAndFormatRefProperties : Map[String, String] = {
     Map.empty[String, String]
   }
 
   lazy val diagnosticChildren = List(modelGroup)
 }
 
-class GlobalComplexTypeDefFactory(val xml: Node, schemaDocument: SchemaDocument)
+
+class GlobalComplexTypeDefFactory(val xml : Node, schemaDocument : SchemaDocument)
   extends NamedMixin {
-  def forElement(element: ElementBase) = new GlobalComplexTypeDef(xml, schemaDocument, element)
+  def forElement(element : ElementBase) = new GlobalComplexTypeDef(xml, schemaDocument, element)
 }
 
-class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: ElementBase)
+class GlobalComplexTypeDef(xmlArg : Node, schemaDocumentArg : SchemaDocument, val element : ElementBase)
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
   def schemaDocument = schemaDocumentArg
 
 }
 
-class LocalComplexTypeDef(xmlArg: Node, val element: ElementBase)
+class LocalComplexTypeDef(xmlArg : Node, val element : ElementBase)
   extends ComplexTypeBase(xmlArg, element)
   with LocalComponentMixin {
 
