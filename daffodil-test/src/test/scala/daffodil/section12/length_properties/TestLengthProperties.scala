@@ -10,6 +10,7 @@ import daffodil.compiler.Compiler
 import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
+import daffodil.debugger.Debugger
 
 class TestLengthProperties extends JUnitSuite {
   val testDir_01 = "/daffodil/ibm-tests/"
@@ -42,5 +43,6 @@ class TestLengthProperties extends JUnitSuite {
   @Test def test_LengthProp_longTextLength() { runner_02.runOneTest("LengthProp_longTextLength") }
 //  @Test def test_LengthProp_lengthExpression() { runner_02.runOneTest("LengthProp_lengthExpression1") }
 
-//  @Test def test_LengthProp_LengthProp_bits_01() { runner_02.runOneTest("LengthProp_bits_01") }
+  @Test def test_LengthProp_bits_01() { runner_02.runOneTest("LengthProp_bits_01") }
+//  @Test def test_LengthProp_bits_02() = Debugger.withDebugger { runner_02.runOneTest("LengthProp_bits_02") }
   }
