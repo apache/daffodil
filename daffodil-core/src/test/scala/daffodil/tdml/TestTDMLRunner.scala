@@ -342,7 +342,8 @@ class TestTDMLRunner extends JUnitSuite {
   }
 
   @Test def testFindModelFile() {
-    lazy val ts = new DFDLTestSuite(new File("daffodil-core/src/test/resources/test-suite/ibm-contributed/dpaext1.tdml"))
+    lazy val res = Misc.getRequiredResource("/test-suite/ibm-contributed/dpaext1.tdml")
+    lazy val ts = new DFDLTestSuite(new File(res.toURI()))
     val mf = ts.findModelFile("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
     assertTrue(mf.exists())
   }
