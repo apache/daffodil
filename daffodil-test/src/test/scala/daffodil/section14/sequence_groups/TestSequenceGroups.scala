@@ -29,6 +29,8 @@ class TestSequenceGroups extends JUnitSuite {
   @Test def test_prefix() { runner_01.runOneTest("prefix") }
   @Test def test_prefix_01() { runner_01.runOneTest("prefix_01") }
   @Test def test_NumSeq_02() { runner_01.runOneTest("NumSeq_02") }
+  @Test def test_groupRefInheritProps() { runner_01.runOneTest("groupRefInheritProps") }
+  @Test def test_sequenceWithinSequence() { runner_01.runOneTest("sequenceWithinSequence") }
   
   val tdml_02 = testDir_01 + "SequenceGroup.tdml"
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))

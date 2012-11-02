@@ -38,6 +38,10 @@ class TestLengthKindDelimited extends JUnitSuite {
   @Test def test_NumSeq_12() { runner.runOneTest("NumSeq_12") }
   @Test def test_NumSeq_13() { runner.runOneTest("NumSeq_13") }
   @Test def test_NumSeq_14() { runner.runOneTest("NumSeq_14") }
+  // Tests that initiator is found when on ElementRef
+  @Test def test_refInitiator() { runner.runOneTest("refInitiator") }
+  // Tests that initiator is found when on GlobalElmentDecl
+  @Test def test_refInitiator2() { runner.runOneTest("refInitiator2") }
   
   val ab = testDir + "AB.tdml"
   lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))

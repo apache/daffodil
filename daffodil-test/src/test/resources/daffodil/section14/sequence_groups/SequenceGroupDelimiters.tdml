@@ -258,4 +258,127 @@
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
+	<tdml:defineSchema name="groupRefInheritProps.xsd">
+
+
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" encoding="utf-8"
+			byteOrder="bigEndian" occursCountKind="parsed" ignoreCase="no"
+			representation="text" lengthKind="delimited" textNumberRep="standard"
+			separatorPolicy="suppressed" initiatedContent="no" />
+
+		<xs:element name="description" type="xs:string" />
+		<xs:element name="comment" type="xs:string" />
+		<xs:element name="quantity" type="xs:int" />
+		<xs:element name="price" type="xs:float" />
+
+		<xs:group name="namedGroup">
+			<xs:sequence dfdl:separatorPosition="infix">
+				<xs:element ref="ex:description" />
+				<xs:element ref="ex:comment" />
+				<xs:element ref="ex:quantity" />
+				<xs:element ref="ex:price" dfdl:initiator="$" />
+			</xs:sequence>
+		</xs:group>
+
+		<xs:element name="Item" dfdl:lengthKind="implicit">
+			<xs:complexType>
+
+				<xs:group ref="ex:namedGroup" dfdl:separator="," />
+
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="list" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="||" dfdl:separatorPosition="infix">
+					<xs:element ref="ex:Item" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="groupRefInheritProps"
+		root="list" model="groupRefInheritProps.xsd" description="separator defined on a group reference - DFDL-14-008R">
+
+		<tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<list>
+					<Item>
+						<description>Shirts</description>
+						<comment>Sold on Monday</comment>
+						<quantity>30</quantity>
+						<price>17.99</price>
+					</Item>
+					<Item>
+						<description>Shoes</description>
+						<comment>Sold on Tuesday</comment>
+						<quantity>23</quantity>
+						<price>89.99</price>
+					</Item>
+				</list>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:defineSchema name="sequenceWithinSequence.xsd">
+
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" encoding="utf-8"
+			byteOrder="bigEndian" occursCountKind="parsed" ignoreCase="no"
+			representation="text" lengthKind="delimited" textNumberRep="standard"
+			separatorPolicy="suppressed" initiatedContent="no" />
+
+		<xs:element name="description" type="xs:string" />
+		<xs:element name="comment" type="xs:string" />
+		<xs:element name="quantity" type="xs:int" />
+		<xs:element name="price" type="xs:float" />
+
+		<xs:element name="Item" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+					<xs:element ref="ex:description" />
+					<xs:element ref="ex:comment" />
+					<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+						<xs:element ref="ex:quantity" />
+						<xs:element ref="ex:price" dfdl:initiator="$" />
+					</xs:sequence>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="list" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="||" dfdl:separatorPosition="infix">
+					<xs:element ref="ex:Item" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="sequenceWithinSequence"
+		root="list" model="sequenceWithinSequence.xsd" description="nested delimited sequences, infix separators - DFDL-14-008R">
+
+		<tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<list>
+					<Item>
+						<description>Shirts</description>
+						<comment>Sold on Monday</comment>
+						<quantity>30</quantity>
+						<price>17.99</price>
+					</Item>
+					<Item>
+						<description>Shoes</description>
+						<comment>Sold on Tuesday</comment>
+						<quantity>23</quantity>
+						<price>89.99</price>
+					</Item>
+				</list>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
 </tdml:testSuite>

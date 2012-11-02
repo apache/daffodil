@@ -521,4 +521,123 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	
+	<tdml:defineSchema name="refInitiator.xsd">
+
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" encoding="utf-8"
+			byteOrder="bigEndian" occursCountKind="parsed" ignoreCase="no"
+			representation="text" lengthKind="delimited" textNumberRep="standard"
+			separatorPolicy="suppressed" initiatedContent="no" />
+
+		<xs:element name="description" type="xs:string" />
+		<xs:element name="comment" type="xs:string" />
+		<xs:element name="quantity" type="xs:int" />
+		<xs:element name="price" type="xs:float" />
+		
+		<xs:element name="list" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="||" dfdl:separatorPosition="infix">
+					<xs:element name="Item" dfdl:lengthKind="implicit"
+						maxOccurs="unbounded">
+						<xs:complexType>
+
+							<xs:sequence dfdl:separator=","
+								dfdl:separatorPosition="infix">
+								<xs:element ref="ex:description" />
+								<xs:element ref="ex:comment" />
+								<xs:element ref="ex:quantity" />
+								<xs:element ref="ex:price" dfdl:initiator="$" />
+							</xs:sequence>
+
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="refInitiator" root="list"
+		model="refInitiator.xsd" description="initiator on an element reference - DFDL-12-032R">
+
+		<tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<list>
+					<Item>
+						<description>Shirts</description>
+						<comment>Sold on Monday</comment>
+						<quantity>30</quantity>
+						<price>17.99</price>
+					</Item>
+					<Item>
+						<description>Shoes</description>
+						<comment>Sold on Tuesday</comment>
+						<quantity>23</quantity>
+						<price>89.99</price>
+					</Item>
+				</list>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:defineSchema name="refInitiator2.xsd">
+
+
+		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" encoding="utf-8"
+			byteOrder="bigEndian" occursCountKind="parsed" ignoreCase="no"
+			representation="text" lengthKind="delimited" textNumberRep="standard"
+			separatorPolicy="suppressed" initiatedContent="no" />
+
+		<xs:element name="description" type="xs:string" />
+		<xs:element name="comment" type="xs:string" />
+		<xs:element name="quantity" type="xs:int" />
+		<xs:element name="price" type="xs:float" dfdl:initiator="$" />
+
+		<xs:element name="list" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="||" dfdl:separatorPosition="infix">
+					<xs:element name="Item" dfdl:lengthKind="implicit"
+						maxOccurs="unbounded">
+						<xs:complexType>
+
+							<xs:sequence dfdl:separator=","
+								dfdl:separatorPosition="infix">
+								<xs:element ref="ex:description" />
+								<xs:element ref="ex:comment" />
+								<xs:element ref="ex:quantity" />
+								<xs:element ref="ex:price" />
+							</xs:sequence>
+
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="refInitiator2" root="list"
+		model="refInitiator2.xsd" description="initiator on an element declaration - DFDL-12-032R">
+
+		<tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<list>
+					<Item>
+						<description>Shirts</description>
+						<comment>Sold on Monday</comment>
+						<quantity>30</quantity>
+						<price>17.99</price>
+					</Item>
+					<Item>
+						<description>Shoes</description>
+						<comment>Sold on Tuesday</comment>
+						<quantity>23</quantity>
+						<price>89.99</price>
+					</Item>
+				</list>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
 </tdml:testSuite>

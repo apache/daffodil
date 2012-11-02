@@ -100,6 +100,52 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	
-	
+	<tdml:defineSchema name="dfdl_subset-Embedded">
+
+		<dfdl:format ref="ex:daffodilTest1" initiator=""
+			terminator="" encoding="utf-8" byteOrder="bigEndian" occursCountKind="parsed"
+			ignoreCase="no" representation="text" lengthKind="delimited" />
+
+		<xs:element name="description" type="xs:string" />
+		<xs:element name="comment" type="xs:string" />
+		<xs:element name="quantity" type="xs:int" />
+		<xs:element name="price" type="xs:float" />
+
+		<xs:group name="namedGroup">
+			<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+				<xs:element ref="ex:description" />
+				<xs:element ref="ex:comment" />
+				<xs:element ref="ex:quantity" />
+				<xs:element ref="ex:price" dfdl:initiator="$" />
+			</xs:sequence>
+		</xs:group>
+
+		<xs:element name="Item" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:group ref="ex:namedGroup" dfdl:separator="||"
+						dfdl:separatorPosition="prefix" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="list" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element ref="ex:Item" maxOccurs="unbounded" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="group_ref" root="list"
+		model="dfdl_subset-Embedded" description="More than one separator and separatorPosition properties on the sequence in namedGroup - DFDL-8-023R">
+
+		<tdml:document><![CDATA[||Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+	</tdml:parserTestCase>
 	
 </tdml:testSuite>
