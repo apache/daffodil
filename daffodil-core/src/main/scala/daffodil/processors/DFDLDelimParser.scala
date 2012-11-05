@@ -209,7 +209,8 @@ class DelimParser extends RegexParsers with Logging {
   // Assumes postfix, the grammar should handle all prefix, infix, postfix stuff
   //
   def parseInputDefault(field: Parser[String], seps: Parser[String], terms: Parser[String],
-    input: Reader[Char], name: String, charset: Charset): DelimParseResult = { withLoggingLevel(LogLevel.Info) {
+    input: Reader[Char], name: String, charset: Charset): DelimParseResult = { 
+    withLoggingLevel(LogLevel.Info) {
     // The Parse Statement: field ~ (seps | terms)
     // might be overkill as the field parser seems to find the field no problem.
     //
@@ -266,7 +267,8 @@ class DelimParser extends RegexParsers with Logging {
  * The call to buildDelims sorts the delimiters by length or possible length.
  */
   def parseInputDelimiter(localDelims: Set[String], remoteDelims: Set[String], 
-      input: Reader[Char], charset: Charset): DelimParseResult = { withLoggingLevel(LogLevel.Info) {
+      input: Reader[Char], charset: Charset): DelimParseResult = { 
+    withLoggingLevel(LogLevel.Info) {
     val (localDelimsParser, localDelimsRegex) = this.buildDelims(localDelims)
     val combinedLocalDelimsParser = this.combineLongest(localDelimsParser)
     

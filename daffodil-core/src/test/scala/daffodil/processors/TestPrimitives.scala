@@ -9,6 +9,7 @@ import daffodil.compiler.Compiler
 import daffodil.util.TestUtils
 import daffodil.dsom.SchemaSet
 import org.junit.Test
+import daffodil.debugger.Debugger
 
 
 class TestPrimitives extends JUnitSuite {
@@ -56,7 +57,7 @@ class TestPrimitives extends JUnitSuite {
   
 
 
-  @Test def testSeparator {
+  @Test def testSeparator = Debugger.withDebugger {
      val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
 
@@ -71,7 +72,9 @@ class TestPrimitives extends JUnitSuite {
     val actual = Compiler.testString(sch, "abcd,efgh")
     val actualString = actual.result.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
-    assertTrue(actualString.contains("><s1>abcd</s1><s2>efgh</s2></e1>"))
+    assertTrue(actualString.contains("><s1")) // context attr
+    assertTrue(actualString.contains(">abcd</s1><s2")) // context attr
+    assertTrue(actualString.contains(">efgh</s2></e1>"))
 
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
     assertEqualsXMLElements(expected, actual.result)  
@@ -95,7 +98,9 @@ class TestPrimitives extends JUnitSuite {
     val actualString = actual.result.toString
     // println(actualString)
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
-    assertTrue(actualString.contains("><s1>abcd</s1><s2>efgh</s2></e1>"))
+    assertTrue(actualString.contains("><s1")) // context attr
+    assertTrue(actualString.contains(">abcd</s1><s2")) // context attr
+    assertTrue(actualString.contains(">efgh</s2></e1>"))
 
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
     assertEqualsXMLElements(expected, actual.result)  
@@ -116,9 +121,10 @@ class TestPrimitives extends JUnitSuite {
       </xs:element>)
     val actual = Compiler.testString(sch, "abcd  \\\n  efgh")
     val actualString = actual.result.toString
-    // println(actualString)
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
-    assertTrue(actualString.contains("><s1>abcd</s1><s2>efgh</s2></e1>"))
+    assertTrue(actualString.contains("><s1"))
+    assertTrue(actualString.contains(">abcd</s1><s2"))
+    assertTrue(actualString.contains(">efgh</s2></e1>"))
 
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
     assertEqualsXMLElements(expected, actual.result)  
@@ -146,9 +152,12 @@ class TestPrimitives extends JUnitSuite {
       </xs:element>)
     val actual = Compiler.testString(sch, "abcd}efgh}}}ijkl")
     val actualString = actual.result.toString
-    // println(actualString)
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
-    assertTrue(actualString.contains("><s1><ss1>abcd</ss1><ss2>efgh</ss2></s1><s2>ijkl</s2></e1>"))
+    assertTrue(actualString.contains("><s1")) // context attr
+    assertTrue(actualString.contains("><ss1")) // context attr
+    assertTrue(actualString.contains(">abcd</ss1><ss2")) // context attr
+    assertTrue(actualString.contains(">efgh</ss2></s1><s2")) // context attr
+    assertTrue(actualString.contains(">ijkl</s2></e1>"))
 
     val expected: Node = <e1><s1><ss1>abcd</ss1><ss2>efgh</ss2></s1><s2>ijkl</s2></e1>
     assertEqualsXMLElements(expected, actual.result)  
@@ -209,7 +218,13 @@ class TestPrimitives extends JUnitSuite {
     val actualString = actual.result.toString
     // println(actualString)
     assertTrue(actualString.contains("<root")) // there might be xsi:type stuff in the tag, and namespace stuff
-    assertTrue(actualString.contains("><e1>a</e1><e2>b</e2><e3><e3_1>c</e3_1><e3_2>d</e3_2></e3></root>"))
+    assertTrue(actualString.contains("><e1"))
+    assertTrue(actualString.contains(">a</e1><e2"))
+    assertTrue(actualString.contains(">b</e2><e3"))
+    assertTrue(actualString.contains("><e3_1"))
+    assertTrue(actualString.contains(">c</e3_1><e3_2"))
+    assertTrue(actualString.contains(">d</e3_2"))
+    assertTrue(actualString.contains("></e3></root>"))
     
     // <root><e1></e1><e2></e2><e3><e3_1></e3_1><e3_2></e3_2></e3></root>
     // a,b,c./d//::
@@ -234,7 +249,9 @@ class TestPrimitives extends JUnitSuite {
     val actual = Compiler.testString(sch, "abcd\u0000efgh")
     val actualString = actual.result.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
-    assertTrue(actualString.contains("><s1>abcd</s1><s2>efgh</s2></e1>"))
+    assertTrue(actualString.contains("><s1"))
+    assertTrue(actualString.contains(">abcd</s1><s2"))
+    assertTrue(actualString.contains(">efgh</s2></e1>"))
 
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
     assertEqualsXMLElements(expected, actual.result)  

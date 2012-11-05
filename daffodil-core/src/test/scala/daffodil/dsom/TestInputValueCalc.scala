@@ -37,7 +37,9 @@ class TestInputValueCalc extends JUnitSuite with Logging {
     val actual = Compiler.testString(testSchema, "A")
     val actualString = actual.result.toString
     assertTrue(actualString.contains("<data"))
-    assertTrue(actualString.contains("><e1>A</e1><e2>A</e2></data>"))
+    assertTrue(actualString.contains("><e1"))
+    assertTrue(actualString.contains(">A</e1><e2"))
+    assertTrue(actualString.contains(">A</e2></data>"))
   }
   
   // @Test
@@ -56,6 +58,8 @@ class TestInputValueCalc extends JUnitSuite with Logging {
     val actual = Compiler.testString(testSchema, "8")
     val actualString = actual.result.toString
     assertTrue(actualString.contains("<data"))
-    assertTrue(actualString.contains("><e1>8</e1><e2>8</e2></data>"))
+    assertTrue(actualString.contains("><e1"))
+    assertTrue(actualString.contains(">8</e1><e2"))
+    assertTrue(actualString.contains(">8</e2></data>"))
   }
 }

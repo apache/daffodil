@@ -11,6 +11,8 @@ import daffodil.api.WithDiagnostics
 import daffodil.dsom.OOLAG._
 import daffodil.exceptions.ThrowsSDE
 import daffodil.dsom.OOLAG.LV
+import scala.util.matching.Regex
+import daffodil.dsom.Facet._
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -218,6 +220,31 @@ abstract class ElementBase(xmlArg : Node, parent : SchemaComponent, position : I
     // Note: if we are potentially the last item (not required, but no downstream required siblings)
     Assert.notYetImplemented()
   }
+  
+  // 11/1/2012 - moved to base since needed by patternValue
+  lazy val isPrimitiveType = typeDef.isInstanceOf[PrimitiveType]
+
+  import daffodil.dsom.FacetTypes._
+  
+  // 11/1/2012
+  lazy val patternValues: Seq[ElemFacetsR] = {
+    // TODO: Allowed only on xs:string
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      st.patternValues
+    } else Seq.empty
+  }
+  
+  lazy val allFacets: Seq[ElemFacets] = {
+    if (isSimpleType && !isPrimitiveType){
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      st.combinedBaseFacets
+    }
+    else scala.collection.mutable.Seq.empty
+  }
+  
+  // 11/1/2012
+  lazy val hasPatternValue: Boolean = patternValues.length > 0
 
   /**
    * Does the element have a default value?
@@ -447,7 +474,7 @@ trait ElementDeclMixin
     }
   }
 
-  lazy val isPrimitiveType = typeDef.isInstanceOf[PrimitiveType]
+  //lazy val isPrimitiveType = typeDef.isInstanceOf[PrimitiveType]
 
   lazy val isComplexType = !isSimpleType
 

@@ -48,6 +48,18 @@ case class ElementBegin(e : ElementBase) extends Terminal(e, e.isComplexType != 
      */
     def parse(start : PState) : PState = {
       val currentElement = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
+      
+      // We need to add an additional attribute named 'daffodil:context'
+      // where 'daffodil' is a namespace like 'uri:daffodil'
+      // This should allow us to implement checkConstraints
+      val name = "context"
+      val uuid = start.addContext(e)
+      
+      if (e.targetNamespace != null && e.targetNamespacePrefix!= null){
+        val ns = org.jdom.Namespace.getNamespace(e.targetNamespacePrefix, e.targetNamespace)
+        currentElement.setAttribute(name, uuid.toString(), ns)}
+      else { currentElement.setAttribute(name, uuid.toString())}
+      
       log(Debug("currentElement = %s", currentElement))
       val priorElement = start.parentForAddContent
       priorElement.addContent(currentElement)

@@ -37,7 +37,8 @@ class TestDFDLParser extends JUnitSuite {
     val actual = Compiler.testString(sch, "5").result
     val actualString = actual.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
-    assertTrue(actualString.contains("><s1>5</s1></e1>"))
+    assertTrue(actualString.contains("><s1"))
+    assertTrue(actualString.contains(">5</s1></e1>"))
     val expected = <e1><s1>5</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -56,7 +57,9 @@ class TestDFDLParser extends JUnitSuite {
     val actual = Compiler.testString(sch, "56").result
     val actualString = actual.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
-    assertTrue(actualString.contains("><s1>5</s1><s2>6</s2></e1>"))
+    assertTrue(actualString.contains("><s1"))
+    assertTrue(actualString.contains(">5</s1><s2"))
+    assertTrue(actualString.contains(">6</s2></e1>"))
     val expected = <e1><s1>5</s1><s2>6</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -74,7 +77,10 @@ class TestDFDLParser extends JUnitSuite {
     val actual = Compiler.testString(sch, "567").result
     val actualString = actual.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
-    assertTrue(actualString.contains("><s1>5</s1><s1>6</s1><s1>7</s1></e1>"))
+    assertTrue(actualString.contains("><s1"))
+    assertTrue(actualString.contains(">5</s1><s1"))
+    assertTrue(actualString.contains(">6</s1><s1"))
+    assertTrue(actualString.contains(">7</s1></e1>"))
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -92,7 +98,10 @@ class TestDFDLParser extends JUnitSuite {
     val actual = Compiler.testString(sch, "5,6,7").result
     val actualString = actual.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
-    assertTrue(actualString.contains("><s1>5</s1><s1>6</s1><s1>7</s1></e1>"))
+    assertTrue(actualString.contains("><s1"))
+    assertTrue(actualString.contains(">5</s1><s1"))
+    assertTrue(actualString.contains(">6</s1><s1"))
+    assertTrue(actualString.contains(">7</s1></e1>"))
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -327,7 +336,10 @@ class TestDFDLParser extends JUnitSuite {
     val actual = Compiler.testString(sch, "[[{{((55)),,((66)),,((77))}}]]").result
     val actualString = actual.toString
     assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
-    assertTrue(actualString.contains("><s1>55</s1><s1>66</s1><s1>77</s1></e1>"))
+    assertTrue(actualString.contains("><s1"))
+    assertTrue(actualString.contains(">55</s1><s1"))
+    assertTrue(actualString.contains(">66</s1><s1"))
+    assertTrue(actualString.contains(">77</s1></e1>"))
     val expected = <e1><s1>55</s1><s1>66</s1><s1>77</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }

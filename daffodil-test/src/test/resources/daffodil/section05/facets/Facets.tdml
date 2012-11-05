@@ -788,5 +788,98 @@
 		</tdml:errors>
 
 	</tdml:parserTestCase>
+	
+	<tdml:defineSchema name="pattern">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="e1" dfdl:lengthKind="delimited">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert test="{ dfdl:checkConstraints(.) }"
+						message="Assertion failed for dfdl:checkConstraints(.)" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:pattern value="[0-9]+"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+		<xs:element name="e2" dfdl:lengthKind="delimited">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert test="{ dfdl:checkConstraints(.) }"
+						message="Assertion failed for dfdl:checkConstraints(.)" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="ex:st1">
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+		<xs:element name="e3" dfdl:lengthKind="delimited">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert test="{ dfdl:checkConstraints(.) }"
+						message="Assertion failed for dfdl:checkConstraints(.)" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="ex:st1">
+					<xs:pattern value="1"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+		<xs:simpleType name="st1">
+			<xs:restriction base="ex:st2">
+				<xs:pattern value="[0-9]+"/>
+			</xs:restriction>
+		</xs:simpleType>
+		<xs:simpleType name="st2">
+			<xs:restriction base="ex:st3">
+				<xs:pattern value="[0-9]{3}"/>
+			</xs:restriction>
+		</xs:simpleType>
+		<xs:simpleType name="st3">
+			<xs:restriction base="xs:string">
+				<xs:pattern value="[0-9]*"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="facetPattern01"
+		root="e1" model="pattern">
+		<!-- Tests basic pattern facet -->
+		<tdml:document>6</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e1>6</e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="facetPattern02"
+		root="e2" model="pattern">
+		<!-- This passes because at least one of the patterns
+		for all of the inherited types succeeds. That is to say that
+		a patterns between simpleTypes are AND'd and patterns within a simpleType
+		are OR'd.  -->
+		<tdml:document>123</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e2>123</e2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="facetPattern03"
+		root="e3" model="pattern">
+		<!-- This fails because the pattern "1" does not match value "123" -->
+		<tdml:document>123</tdml:document>
+		<tdml:errors>
+			<tdml:error>Assertion</tdml:error>
+			<tdml:error>failed</tdml:error>
+			<tdml:error>dfdl:checkConstraints</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
 
 </tdml:testSuite>

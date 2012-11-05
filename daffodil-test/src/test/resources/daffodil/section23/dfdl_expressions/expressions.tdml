@@ -741,4 +741,108 @@
                 </tdml:infoset>
         </tdml:parserTestCase>
 
+	<tdml:defineSchema name="checkConstraints">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="e1">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="cnt" type="xs:int" dfdl:lengthKind="delimited" />
+					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+						dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt) }">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="v" type="xs:int"
+									dfdl:inputValueCalc="{ dfdl:checkConstraints(.) }" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		<xs:element name="e2" dfdl:lengthKind="delimited">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert test="{ dfdl:checkConstraints(.) }"
+						message="Assertion failed for dfdl:checkConstraints(.)" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:int">
+					<xs:pattern value="[0-9]+"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+		<xs:element name="e3" dfdl:lengthKind="delimited">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert test="{ dfdl:checkConstraints(.) }"
+						message="Assertion failed for dfdl:checkConstraints(.)" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="ex:st1">
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+		<xs:element name="e4" dfdl:lengthKind="delimited">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert test="{ dfdl:checkConstraints(.) }"
+						message="Assertion failed for dfdl:checkConstraints(.)" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="ex:st1">
+					<xs:pattern value="1"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+		<xs:simpleType name="st1">
+			<xs:restriction base="ex:st2">
+				<xs:pattern value="[0-9]+"/>
+			</xs:restriction>
+		</xs:simpleType>
+		<xs:simpleType name="st2">
+			<xs:restriction base="ex:st3">
+				<xs:pattern value="[0-9]{3}"/>
+			</xs:restriction>
+		</xs:simpleType>
+		<xs:simpleType name="st3">
+			<xs:restriction base="xs:string">
+				<xs:pattern value="[0-9]*"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="dfdlCheckConstraints"
+		root="e1" model="checkConstraints">
+
+		<tdml:document>6</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e1>
+					<cnt>6</cnt>
+					<a>
+						<v>0</v>
+					</a>
+					<a>
+						<v>0</v>
+					</a>
+					<a>
+						<v>0</v>
+					</a>
+					<a>
+						<v>0</v>
+					</a>
+					<a>
+						<v>0</v>
+					</a>
+					<a>
+						<v>0</v>
+					</a>
+				</e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
 </tdml:testSuite>

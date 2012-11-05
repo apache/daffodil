@@ -59,14 +59,16 @@ import javax.xml.XMLConstants
 import daffodil.dsom.SchemaComponent
 import java.util.HashMap
 import daffodil.processors.PState
+import scala.util.parsing.combinator.RegexParsers
 
-abstract class DFDLFunction(val name : String, val arity : Int) extends XPathFunction {
+abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunction {
   val qName = new QName(XMLUtils.DFDL_NAMESPACE, name)
   val ID = (qName, arity)
 
   DFDLFunctions.functionList +:= this
 
-  def evaluate(args : java.util.List[_]) : Object = {
+  // TODO: Do we want to use a List here? Direct access takes time to traverse.
+  def evaluate(args: java.util.List[_]): Object = {
     if (args.size() < arity)
       throw new XPathExpressionException("Wrong number of arguments to " + name + ". Should be " + arity + ". Args were: " + args)
     val state = DFDLFunctions.currentPState
@@ -80,23 +82,77 @@ abstract class DFDLFunction(val name : String, val arity : Int) extends XPathFun
     res
   }
 
-  protected def evaluate1(args : java.util.List[_], pstate : PState) : Object
+  protected def evaluate1(args: java.util.List[_], pstate: PState): Object
 }
 
 object DFDLFunctions {
-  var functionList : List[DFDLFunction] = Nil
+  var functionList: List[DFDLFunction] = Nil
 
   /**
    * This var must be bound to the current state when an expression is evaluated so that
    * the DFDL functions which access the state can work.
    */
-  var currentPState : Option[PState] = None
+  var currentPState: Option[PState] = None
 }
 
 object DFDLPositionFunction extends DFDLFunction("position", 0) {
-  def evaluate1(args : java.util.List[_], pstate : PState) : Object = {
-    val res : java.lang.Long = pstate.arrayPos
+  def evaluate1(args: java.util.List[_], pstate: PState): Object = {
+    val res: java.lang.Long = pstate.arrayPos
     res
+  }
+}
+
+object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) {
+  import daffodil.dsom.FacetTypes._
+  import util.control.Breaks._
+
+  def evaluate1(args: java.util.List[_], pstate: PState): Object = {
+    // Assumes that a JDOM element was already created
+    val expr = args.get(0)
+    val currentElement = pstate.parentElement
+    val attr = currentElement.getAttributeValue("context", currentElement.getNamespace())
+    attr match {
+      case null => return java.lang.Boolean.FALSE
+      case uuid => {
+        // We have a uuid, retrieve the schema component
+        pstate.getContextByUID(uuid) match {
+          case Some(e) => {
+            // We have an ElementBase, retrieve the constraints
+            val patterns = e.patternValues
+            val data = currentElement.getText()
+            if (checkPatterns(data, patterns)) { return java.lang.Boolean.TRUE }
+          }
+          case None => return java.lang.Boolean.FALSE
+        }
+      }
+    }
+    java.lang.Boolean.FALSE
+  }
+
+  def checkPatterns(data: String, patterns: Seq[ElemFacetsR]): Boolean = {
+    var isSuccess: Boolean = false
+    
+    breakable {
+      for (elem <- patterns) {
+    	  // each pattern with an elem is OR'd
+    	  // each pattern between elem's is AND'd
+          
+          // The way we have structured things we expect each simpleType
+          // to have only one (pattern, List(regex)) where the List
+          // represents all of the patterns that exist locally on this simpleType
+          val elemPatternList = elem(0)._2
+          breakable {
+            for (pattern <- elemPatternList){
+             if (data.matches(pattern.toString())){
+               isSuccess = true
+               break
+             }
+            }
+          }
+          if (!isSuccess){break}
+      }
+    }
+  	return isSuccess
   }
 }
 
@@ -104,10 +160,11 @@ object DFDLPositionFunction extends DFDLFunction("position", 0) {
  * XPath function library for non-built-in functions
  */
 object Functions {
-  def get(pair : (QName, Int)) = funcs.get(pair)
+  def get(pair: (QName, Int)) = funcs.get(pair)
 
   val funcList = List(
-    DFDLPositionFunction)
+    DFDLPositionFunction,
+    DFDLCheckConstraintsFunction)
   val funcs = funcList.map { f => ((f.ID, f)) }.toMap
 
 }
@@ -127,9 +184,9 @@ object XPathUtil extends Logging {
    * Returns a VariableMap=>XPathExpression, that is,
    * a CompiledExpressionFactory
    */
-  def compileExpression(dfdlExpressionRaw : String,
-                        namespaces : Seq[org.jdom.Namespace],
-                        context : SchemaComponent) = withLoggingLevel(LogLevel.Info) {
+  def compileExpression(dfdlExpressionRaw: String,
+    namespaces: Seq[org.jdom.Namespace],
+    context: SchemaComponent) = withLoggingLevel(LogLevel.Info) {
     log(Debug("Compiling expression"))
     val dfdlExpression = dfdlExpressionRaw.trim
     Assert.usage(dfdlExpression != "")
@@ -139,7 +196,7 @@ object XPathUtil extends Logging {
     // Hack around bug in Saxon JAXP support by casting to Saxon-specific class.
     // -JWC, 27Jul2012.
     val xpath = xpathFactory.newXPath().asInstanceOf[XPathEvaluator]
-    var variables : VariableMap = new VariableMap() // Closed over. This is modified to supply different variables
+    var variables: VariableMap = new VariableMap() // Closed over. This is modified to supply different variables
     log(Debug("Namespaces: %s", namespaces))
 
     val nsContext = new javax.xml.namespace.NamespaceContext {
@@ -147,13 +204,13 @@ object XPathUtil extends Logging {
       val pairs = namespaces.map { ns => (ns.getPrefix, ns.getURI) }
       val ht = pairs.toMap
 
-      def getNamespaceURI(prefix : String) = {
+      def getNamespaceURI(prefix: String) = {
         if (prefix == null)
           throw new IllegalArgumentException("The prefix cannot be null.");
         ht.get(prefix).getOrElse(null)
       }
-      def getPrefixes(uri : String) = Assert.invariantFailed("supposed to be unused.")
-      def getPrefix(uri : String) : String = Assert.invariantFailed("supposed to be unused.")
+      def getPrefixes(uri: String) = Assert.invariantFailed("supposed to be unused.")
+      def getPrefix(uri: String): String = Assert.invariantFailed("supposed to be unused.")
       //      {
       //        getPrefixList(uri).head
       //      }
@@ -176,7 +233,7 @@ object XPathUtil extends Logging {
 
     xpath.setXPathVariableResolver(
       new XPathVariableResolver() {
-        def resolveVariable(qName : QName) : Object = {
+        def resolveVariable(qName: QName): Object = {
           val varName = XMLUtils.expandedQName(qName)
           val (res, newVMap) = variables.readVariable(varName, context)
           variables = newVMap
@@ -186,7 +243,7 @@ object XPathUtil extends Logging {
 
     xpath.setXPathFunctionResolver(
       new XPathFunctionResolver() {
-        def resolveFunction(functionName : QName, arity : Int) : XPathFunction = {
+        def resolveFunction(functionName: QName, arity: Int): XPathFunction = {
           val maybeF = Functions.get((functionName, arity))
           maybeF match {
             case None => throw new XPathExpressionException("no such function: " + functionName + " with arity " + arity)
@@ -199,7 +256,7 @@ object XPathUtil extends Logging {
     val xpathExpr = try {
       xpath.compile(expression)
     } catch {
-      case e : XPathExpressionException => {
+      case e: XPathExpressionException => {
         val exc = e // debugger never seems to show the case variable itself.
         val realExc = e.getCause()
         // Assert.invariant(realExc != null) // it's always an encapsulation of an underlying error.
@@ -213,7 +270,7 @@ object XPathUtil extends Logging {
 
     // We need to supply the variables late
     val withoutVariables = new CompiledExpressionFactory(expression) {
-      def getXPathExpr(runtimeVars : VariableMap) = {
+      def getXPathExpr(runtimeVars: VariableMap) = {
         variables = runtimeVars
         xpathExpr
       }
@@ -224,9 +281,9 @@ object XPathUtil extends Logging {
     withoutVariables // return this factory
   }
 
-  abstract class CompiledExpressionFactory(val expression : String) {
-    def getXPathExpr(runtimeVars : VariableMap) : XPathExpression
-    def getVariables() : VariableMap
+  abstract class CompiledExpressionFactory(val expression: String) {
+    def getXPathExpr(runtimeVars: VariableMap): XPathExpression
+    def getVariables(): VariableMap
   }
 
   /**
@@ -238,8 +295,8 @@ object XPathUtil extends Logging {
    * @param contextNode - the context node for this expression
    * @param namespaces  - the namespaces in scope
    */
-  private[xpath] def evalExpressionFromString(expression : String, variables : VariableMap,
-                                              contextNode : Parent, namespaces : Seq[org.jdom.Namespace], targetType : QName = NODE) : XPathResult = {
+  private[xpath] def evalExpressionFromString(expression: String, variables: VariableMap,
+    contextNode: Parent, namespaces: Seq[org.jdom.Namespace], targetType: QName = NODE): XPathResult = {
 
     val compiledExprExceptVariables = compileExpression(expression, namespaces, null) // null as schema component
     val res = evalExpression(expression, compiledExprExceptVariables, variables, contextNode, targetType)
@@ -254,30 +311,30 @@ object XPathUtil extends Logging {
    * If you ask for a number, it will convert to a number or return a NaN on any failure.
    */
   def evalExpression(
-    expressionForErrorMsg : String,
-    compiledExprFactory : CompiledExpressionFactory,
-    variables : VariableMap,
-    contextNode : Parent,
-    targetType : QName = NODE) : XPathResult = {
+    expressionForErrorMsg: String,
+    compiledExprFactory: CompiledExpressionFactory,
+    variables: VariableMap,
+    contextNode: Parent,
+    targetType: QName = NODE): XPathResult = {
     withLoggingLevel(LogLevel.Info) {
       val ce = compiledExprFactory.getXPathExpr(variables)
       log(Debug("Evaluating %s in context %s to get a %s", expressionForErrorMsg, contextNode, targetType)) // Careful. contextNode could be null.
       val o = ce.evaluate(contextNode, targetType)
       log(Debug("Evaluated to: %s", o))
       val res = (o, targetType) match {
-        case (x : Element, NODE) => new NodeResult(x)
-        case (x : Element, STRING) => new StringResult(x.getContent(0).toString())
-        case (x : Element, NUMBER) => new NumberResult(x.getContent(0).toString().toDouble)
-        case (x : Text, STRING) => new StringResult(x.getValue())
-        case (x : Text, NUMBER) => new NumberResult(x.getValue().toDouble)
-        case (x : java.lang.Double, NUMBER) if (x.isNaN && contextNode != null) => {
+        case (x: Element, NODE) => new NodeResult(x)
+        case (x: Element, STRING) => new StringResult(x.getContent(0).toString())
+        case (x: Element, NUMBER) => new NumberResult(x.getContent(0).toString().toDouble)
+        case (x: Text, STRING) => new StringResult(x.getValue())
+        case (x: Text, NUMBER) => new NumberResult(x.getValue().toDouble)
+        case (x: java.lang.Double, NUMBER) if (x.isNaN && contextNode != null) => {
           // We got a NaN. If the path actually exists, then the result is a NaN
           // If the path doesn't exist, then we want to fail.
           val existingNode = ce.evaluate(contextNode, NODE)
           if (existingNode != null) new NumberResult(x.doubleValue)
           else throw new XPathExpressionException("no node for path " + expressionForErrorMsg)
         }
-        case (x : java.lang.Double, NUMBER) => new NumberResult(x.doubleValue)
+        case (x: java.lang.Double, NUMBER) => new NumberResult(x.doubleValue)
         case ("", STRING) if (contextNode != null) => {
           // We got empty string. If the path actually exists, then the result is empty string.
           // If the path doesn't exist, then we want to fail.
@@ -285,8 +342,8 @@ object XPathUtil extends Logging {
           if (existingNode != null) new StringResult("")
           else throw new XPathExpressionException("no node for path " + expressionForErrorMsg)
         }
-        case (x : String, STRING) => new StringResult(x)
-        case (x : java.lang.Boolean, BOOLEAN) => new BooleanResult(x)
+        case (x: String, STRING) => new StringResult(x)
+        case (x: java.lang.Boolean, BOOLEAN) => new BooleanResult(x)
         case (null, _) => {
           // There was no such node. We're never going to get an answer for this XPath
           // so fail.
@@ -308,7 +365,7 @@ object XPathUtil extends Logging {
    *
    * This function does not verify a string conforms to the DFDL subset of XPath
    */
-  def isExpression(expression : String) : Boolean =
+  def isExpression(expression: String): Boolean =
     expression.startsWith("{") && expression.endsWith("}") &&
       (expression(1) != '{')
 
@@ -317,7 +374,7 @@ object XPathUtil extends Logging {
    *
    * @param expression a valid DFDL expression
    */
-  def getExpression(expression : String) : String = {
+  def getExpression(expression: String): String = {
     val v = expression.trim
     v.substring(1, v.length - 1)
   }
