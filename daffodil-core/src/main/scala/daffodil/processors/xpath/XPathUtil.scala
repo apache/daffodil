@@ -60,6 +60,9 @@ import daffodil.dsom.SchemaComponent
 import java.util.HashMap
 import daffodil.processors.PState
 import scala.util.parsing.combinator.RegexParsers
+import daffodil.dsom.LocalElementDecl
+import daffodil.dsom.GlobalElementDecl
+import daffodil.dsom.ElementBase
 
 abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunction {
   val qName = new QName(XMLUtils.DFDL_NAMESPACE, name)
@@ -120,39 +123,66 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
             // We have an ElementBase, retrieve the constraints
             val patterns = e.patternValues
             val data = currentElement.getText()
-            if (checkPatterns(data, patterns)) { return java.lang.Boolean.TRUE }
+            if (patterns.size > 0 && !checkPatterns(data, patterns)) { return java.lang.Boolean.FALSE }
+            if (!checkMinMaxOccurs(e, pstate.arrayPos)) { return java.lang.Boolean.FALSE }
           }
           case None => return java.lang.Boolean.FALSE
         }
       }
     }
-    java.lang.Boolean.FALSE
+    java.lang.Boolean.TRUE
   }
 
   def checkPatterns(data: String, patterns: Seq[ElemFacetsR]): Boolean = {
     var isSuccess: Boolean = false
-    
+
     breakable {
       for (elem <- patterns) {
-    	  // each pattern with an elem is OR'd
-    	  // each pattern between elem's is AND'd
-          
-          // The way we have structured things we expect each simpleType
-          // to have only one (pattern, List(regex)) where the List
-          // represents all of the patterns that exist locally on this simpleType
-          val elemPatternList = elem(0)._2
-          breakable {
-            for (pattern <- elemPatternList){
-             if (data.matches(pattern.toString())){
-               isSuccess = true
-               break
-             }
+        // each pattern with an elem is OR'd
+        // each pattern between elem's is AND'd
+
+        // The way we have structured things we expect each simpleType
+        // to have only one (pattern, List(regex)) where the List
+        // represents all of the patterns that exist locally on this simpleType
+        val elemPatternList = elem(0)._2
+        breakable {
+          for (pattern <- elemPatternList) {
+            if (data.matches(pattern.toString())) {
+              isSuccess = true
+              break
             }
           }
-          if (!isSuccess){break}
+        }
+        if (!isSuccess) { break }
       }
     }
-  	return isSuccess
+    return isSuccess
+  }
+
+  def checkMinMaxOccurs(element: ElementBase, position: Long): Boolean = {
+	// We only want to fail here if the element is in an array AND
+    // the position isn't within the confines of min/max occurs
+    //
+    if (element.isInstanceOf[LocalElementDecl]) {
+      val led = element.asInstanceOf[LocalElementDecl]
+      if (!led.isScalar) { return checkOccurrance(led.minOccurs, led.maxOccurs, position) }
+    } else if (element.isInstanceOf[GlobalElementDecl]) {
+      val ged = element.asInstanceOf[GlobalElementDecl]
+      ged.elementRef match {
+        case Some(ref) => {
+          if (!ref.isScalar) { return checkOccurrance(ref.minOccurs, ref.maxOccurs, position) }
+        }
+        case None =>
+      }
+    }
+    return true
+  }
+
+  def checkOccurrance(minOccurs: Int, maxOccurs: Int, position: Long): Boolean = {
+    //System.err.println("checkOccurrance(%s, %s, %s)".format(minOccurs, maxOccurs, position))
+    // A maxOccurs of -1 signifies unbounded
+    if (position > minOccurs && ((position <= maxOccurs) || (maxOccurs == -1))){ return true }
+    return false
   }
 }
 

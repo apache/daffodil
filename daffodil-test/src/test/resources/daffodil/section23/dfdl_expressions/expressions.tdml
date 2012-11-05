@@ -189,9 +189,9 @@
 
 	<tdml:defineSchema name="ArrayOptionalElem-Embedded.dfdl.xsd">
 
-		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" lengthUnits="bytes"
-			encoding="UTF-8" separator="" initiator="" terminator=""
-			occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+			lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+			terminator="" occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
 			representation="text" byteOrder="bigEndian" binaryNumberRep="binary" />
 
 		<xs:element name="aoe_01">
@@ -205,7 +205,7 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
-		
+
 		<xs:element name="aoe_02">
 			<xs:complexType>
 				<xs:sequence>
@@ -238,9 +238,10 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
-	
+
 	<tdml:parserTestCase name="ArrayOptElem_02" root="aoe_02"
-		model="ArrayOptionalElem-Embedded.dfdl.xsd" description="an unsignedInt value in an occursCount expression - DFDL-23-011R">
+		model="ArrayOptionalElem-Embedded.dfdl.xsd"
+		description="an unsignedInt value in an occursCount expression - DFDL-23-011R">
 
 		<tdml:document>
 			<tdml:documentPart type="byte">00000003000102
@@ -260,9 +261,9 @@
 
 	<tdml:defineSchema name="expressions-Embedded.dfdl.xsd">
 
-		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" lengthUnits="bytes"
-			encoding="US-ASCII" separator="" initiator="" terminator=""
-			occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+			lengthUnits="bytes" encoding="US-ASCII" separator="" initiator=""
+			terminator="" occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
 			representation="text" />
 
 		<xs:element name="lke_01" dfdl:lengthKind="implicit">
@@ -275,28 +276,32 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
-		
+
 		<xs:element name="lke_02" dfdl:lengthKind="implicit">
 			<xs:complexType>
 				<xs:sequence>
-					<xs:element name="e1" type="xs:int" dfdl:encoding="utf-8" dfdl:lengthKind="explicit"
-						dfdl:length="1" />
-					<xs:element name="e2" type="xs:int" dfdl:encoding="utf-8" dfdl:lengthKind="explicit"
-						dfdl:length="{../ex:e1}" />
+					<xs:element name="e1" type="xs:int" dfdl:encoding="utf-8"
+						dfdl:lengthKind="explicit" dfdl:length="1" />
+					<xs:element name="e2" type="xs:int" dfdl:encoding="utf-8"
+						dfdl:lengthKind="explicit" dfdl:length="{../ex:e1}" />
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
-		
+
 		<xs:element name="ocke" dfdl:lengthKind="implicit">
 			<xs:complexType>
-				<xs:sequence dfdl:initiator="" >
-					<xs:element name="nrows" type="xs:int" dfdl:lengthKind="delimited" dfdl:terminator=","/>
-					<xs:element name="ncols" type="xs:int" dfdl:lengthKind="delimited" dfdl:terminator=","/>
-					<xs:element name="rows" maxOccurs="unbounded" dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:nrows }">
+				<xs:sequence dfdl:initiator="">
+					<xs:element name="nrows" type="xs:int" dfdl:lengthKind="delimited"
+						dfdl:terminator="," />
+					<xs:element name="ncols" type="xs:int" dfdl:lengthKind="delimited"
+						dfdl:terminator="," />
+					<xs:element name="rows" maxOccurs="unbounded"
+						dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:nrows }">
 						<xs:complexType>
 							<xs:sequence>
-								<xs:element name="cols" type="xs:int" maxOccurs="unbounded" dfdl:lengthKind="delimited" dfdl:terminator=","
-								dfdl:occursCountKind="expression" dfdl:occursCount=" { ../../ex:ncols } " />
+								<xs:element name="cols" type="xs:int" maxOccurs="unbounded"
+									dfdl:lengthKind="delimited" dfdl:terminator=","
+									dfdl:occursCountKind="expression" dfdl:occursCount=" { ../../ex:ncols } " />
 							</xs:sequence>
 						</xs:complexType>
 					</xs:element>
@@ -319,7 +324,7 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
-	
+
 	<tdml:parserTestCase name="lke3_rel" root="lke_02"
 		model="expressions-Embedded.dfdl.xsd" description="length expression, relative path - DFDL-23-011R">
 
@@ -333,7 +338,7 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
-	
+
 	<tdml:parserTestCase name="ocke_rel" root="ocke"
 		model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
 
@@ -344,10 +349,14 @@
 					<nrows>2</nrows>
 					<ncols>3</ncols>
 					<rows>
-						<cols>1</cols><cols>2</cols><cols>3</cols>
+						<cols>1</cols>
+						<cols>2</cols>
+						<cols>3</cols>
 					</rows>
 					<rows>
-						<cols>4</cols><cols>5</cols><cols>6</cols>
+						<cols>4</cols>
+						<cols>5</cols>
+						<cols>6</cols>
 					</rows>
 				</ocke>
 			</tdml:dfdlInfoset>
@@ -356,9 +365,9 @@
 
 	<tdml:defineSchema name="expression-type-errors.dfdl.xsd">
 
-		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" lengthUnits="bytes"
-			encoding="UTF-8" separator="" initiator="" terminator=""
-			occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+			lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+			terminator="" occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
 			representation="text" />
 
 		<xs:element name="e" dfdl:lengthKind="implicit">
@@ -393,7 +402,8 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="expression-type-error1"
-		root="e" model="expression-type-errors.dfdl.xsd" description="get a type error from an expression at runtime - DFDL-23-006R">
+		root="e" model="expression-type-errors.dfdl.xsd"
+		description="get a type error from an expression at runtime - DFDL-23-006R">
 
 		<tdml:document />
 		<tdml:errors>
@@ -404,7 +414,8 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="expression-type-error2"
-		root="f" model="expression-type-errors.dfdl.xsd" description="get a type error from an expression at runtime - DFDL-23-006R">
+		root="f" model="expression-type-errors.dfdl.xsd"
+		description="get a type error from an expression at runtime - DFDL-23-006R">
 		<tdml:document />
 		<tdml:errors>
 			<tdml:error>Schema Definition Error</tdml:error>
@@ -413,7 +424,8 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="expression-type-error3"
-		root="g" model="expression-type-errors.dfdl.xsd" description="get a type error from an expression at runtime - DFDL-23-006R">
+		root="g" model="expression-type-errors.dfdl.xsd"
+		description="get a type error from an expression at runtime - DFDL-23-006R">
 		<tdml:document />
 		<tdml:errors>
 			<tdml:error>Parse Error</tdml:error>
@@ -428,7 +440,7 @@
 		<xs:element name="theElementName" type="xs:int"
 			dfdl:inputValueCalc="{ theUnknownPrefix:x }" />
 	</tdml:defineSchema>
-	
+
 	<tdml:parserTestCase name="expression-unknown-prefix"
 		root="theElementName" model="unknown-prefix"
 		description="get compilation time error due to unknown prefix - DFDL-2-001R requirement makes a reference to this test -Assigned to requirement DFDL-23-011R">
@@ -440,7 +452,7 @@
 		</tdml:errors>
 	</tdml:parserTestCase>
 
-<!--- begin ssustrich's test -->
+	<!--- begin ssustrich's test -->
 
 	<tdml:defineSchema name="expresion_path_error">
 		<dfdl:format ref="ex:daffodilTest1" />
@@ -453,7 +465,7 @@
 					<xs:element name="scale" type="xs:int"
 						dfdl:representation="binary" dfdl:lengthKind="implicit" />
 					<xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit"
-						dfdl:length="{1}" dfdl:occursCount="{ ../../ex:reps * /ex:e1/ex:scale}" 
+						dfdl:length="{1}" dfdl:occursCount="{ ../../ex:reps * /ex:e1/ex:scale}"
 						dfdl:occursCountKind="expression" minOccurs="0" maxOccurs="unbounded" />
 				</xs:sequence>
 			</xs:complexType>
@@ -461,7 +473,8 @@
 
 	</tdml:defineSchema>
 
-	<tdml:parserTestCase name="expresion_bad_path_to_variable" root="e1" model="expresion_path_error"
+	<tdml:parserTestCase name="expresion_bad_path_to_variable"
+		root="e1" model="expresion_path_error"
 		description="very simple occursCountKind expression - DFDL-23-XXXR">
 
 		<tdml:document>
@@ -472,27 +485,16 @@
 			<tdml:documentPart type="text">abcd</tdml:documentPart>
 		</tdml:document>
 		<tdml:errors>
-			<tdml:error/>
+			<tdml:error />
 		</tdml:errors>
-		
-		<!--
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<ex:e1>
-						<ex:reps>2</ex:reps>
-						<ex:scale>2</ex:scale>
-						<ex:s1>a</ex:s1>
-						<ex:s1>b</ex:s1>
-						<ex:s1>c</ex:s1>
-						<ex:s1>d</ex:s1>
-					</ex:e1>
-				</tdml:dfdlInfoset>
-			</tdml:infoset> 
-		-->
+
+		<!-- <tdml:infoset> <tdml:dfdlInfoset> <ex:e1> <ex:reps>2</ex:reps> <ex:scale>2</ex:scale> 
+			<ex:s1>a</ex:s1> <ex:s1>b</ex:s1> <ex:s1>c</ex:s1> <ex:s1>d</ex:s1> </ex:e1> 
+			</tdml:dfdlInfoset> </tdml:infoset> -->
 	</tdml:parserTestCase>
 
 
-<!--- end ssustrich's test -->
+	<!--- end ssustrich's test -->
 
 	<tdml:defineSchema name="v">
 		<dfdl:format ref="ex:daffodilTest1" />
@@ -553,7 +555,7 @@
 								<xs:element name="v" type="xs:int"
 									dfdl:inputValueCalc="{ dfdl:position() }" />
 								<xs:element name="cnt2" type="xs:int"
-									dfdl:lengthKind="delimited" dfdl:terminator=";"/>
+									dfdl:lengthKind="delimited" dfdl:terminator=";" />
 								<xs:element name="b" minOccurs="0" maxOccurs="unbounded"
 									dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt2) }">
 									<xs:complexType>
@@ -711,35 +713,35 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="dfdlPosition5" root="h"
-			     model="v">
+		model="v">
 
 		<tdml:document>6</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
-                                <h>
-                                        <cnt>6</cnt>
-                                        <a>
-                                                <v>0</v>
-                                        </a>
-                                        <a>
-                                                <v>2</v>
-                                        </a>
-                                        <a>
-                                                <v>0</v>
-                                        </a>
-                                        <a>
-                                                <v>4</v>
-                                        </a>
-                                        <a>
-                                                <v>0</v>
-                                        </a>
-                                        <a>
-                                                <v>6</v>
-                                        </a>
-                                </h>
-                        </tdml:dfdlInfoset>
-                </tdml:infoset>
-        </tdml:parserTestCase>
+				<h>
+					<cnt>6</cnt>
+					<a>
+						<v>0</v>
+					</a>
+					<a>
+						<v>2</v>
+					</a>
+					<a>
+						<v>0</v>
+					</a>
+					<a>
+						<v>4</v>
+					</a>
+					<a>
+						<v>0</v>
+					</a>
+					<a>
+						<v>6</v>
+					</a>
+				</h>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="checkConstraints">
 		<dfdl:format ref="ex:daffodilTest1" />
@@ -768,7 +770,7 @@
 			</xs:annotation>
 			<xs:simpleType>
 				<xs:restriction base="xs:int">
-					<xs:pattern value="[0-9]+"/>
+					<xs:pattern value="[0-9]+" />
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:element>
@@ -793,54 +795,117 @@
 			</xs:annotation>
 			<xs:simpleType>
 				<xs:restriction base="ex:st1">
-					<xs:pattern value="1"/>
+					<xs:pattern value="1" />
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:element>
+		<xs:element name="e5">
+			<xs:complexType>
+				<xs:sequence dfdl:initiatedContent="no"
+					dfdl:separatorPosition="infix" dfdl:separator=",">
+					<xs:element name="a" minOccurs="0" maxOccurs="3" type="xs:int"
+						dfdl:occursCountKind="parsed" dfdl:lengthKind="delimited">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:assert test="{ dfdl:checkConstraints(.) }"
+									message="Assertion failed for dfdl:checkConstraints(.)" />
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		<xs:element name="e6">
+			<xs:complexType>
+				<xs:sequence dfdl:initiatedContent="no"
+					dfdl:separatorPosition="infix" dfdl:separator=",">
+					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+						type="xs:int" dfdl:occursCountKind="parsed" dfdl:lengthKind="delimited">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:assert test="{ dfdl:checkConstraints(.) }"
+									message="Assertion failed for dfdl:checkConstraints(.)" />
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
 		<xs:simpleType name="st1">
 			<xs:restriction base="ex:st2">
-				<xs:pattern value="[0-9]+"/>
+				<xs:pattern value="[0-9]+" />
 			</xs:restriction>
 		</xs:simpleType>
 		<xs:simpleType name="st2">
 			<xs:restriction base="ex:st3">
-				<xs:pattern value="[0-9]{3}"/>
+				<xs:pattern value="[0-9]{3}" />
 			</xs:restriction>
 		</xs:simpleType>
 		<xs:simpleType name="st3">
 			<xs:restriction base="xs:string">
-				<xs:pattern value="[0-9]*"/>
+				<xs:pattern value="[0-9]*" />
 			</xs:restriction>
 		</xs:simpleType>
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="dfdlCheckConstraints"
 		root="e1" model="checkConstraints">
-
+		<!-- check constraints should return true as there are no constraints on 
+			the data as a result the data values should be '1' -->
 		<tdml:document>6</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<e1>
 					<cnt>6</cnt>
 					<a>
-						<v>0</v>
+						<v>1</v>
 					</a>
 					<a>
-						<v>0</v>
+						<v>1</v>
 					</a>
 					<a>
-						<v>0</v>
+						<v>1</v>
 					</a>
 					<a>
-						<v>0</v>
+						<v>1</v>
 					</a>
 					<a>
-						<v>0</v>
+						<v>1</v>
 					</a>
 					<a>
-						<v>0</v>
+						<v>1</v>
 					</a>
 				</e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="checkMaxOccurs_Pass"
+		root="e5" model="checkConstraints">
+
+		<tdml:document>1,2,3</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e5>
+					<a>1</a>
+					<a>2</a>
+					<a>3</a>
+				</e5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="checkMaxOccursUnbounded_Pass"
+		root="e6" model="checkConstraints">
+
+		<tdml:document>1,2,3</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e6>
+					<a>1</a>
+					<a>2</a>
+					<a>3</a>
+				</e6>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
