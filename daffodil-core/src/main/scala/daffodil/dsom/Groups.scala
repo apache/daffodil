@@ -178,7 +178,7 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
             val ctPos = ctElem.positionInNearestEnclosingSequence
             ctPos
           }
-          case Some(ggd: GlobalGroupDef) =>  ggd.groupRef.positionInNearestEnclosingSequence
+          case Some(ggd: GlobalGroupDef) => ggd.groupRef.positionInNearestEnclosingSequence
           case _ => Assert.invariantFailed("unable to compute position in nearest enclosing sequence")
         }
       }
@@ -328,10 +328,36 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
     childList
   }
 
+  /**
+   * For executing the DFDL 'statement' annotations and doing whatever it is they
+   * do to the processor state. This is discriminators, assertions, setVariable, etc.
+   *
+   * Also things that care about entry and exit of scope, like newVariableInstance
+   */
+  override lazy val statements = {
+    val local = this.annotationObjs.filter { st =>
+      st.isInstanceOf[DFDLStatement] &&
+        !st.isInstanceOf[DFDLNewVariableInstance]
+    }.asInstanceOf[Seq[DFDLStatement]]
+    val ref = {
+      parent match {
+        case ggd: GlobalGroupDef => {
+          ggd.groupRef.annotationObjs.filter { st =>
+            st.isInstanceOf[DFDLStatement] &&
+              !st.isInstanceOf[DFDLNewVariableInstance]
+          }.asInstanceOf[Seq[DFDLStatement]]
+        }
+        case _ => Seq.empty[DFDLStatement]
+      }
+    }
+    local ++ ref
+  }
+  override lazy val statementGrams = statements.map { _.gram }
+
   lazy val myGroupReferenceProps: Map[String, String] = {
     val noProps = Map.empty[String, String]
     parent match {
-      case ggd: GlobalGroupDef => ggd.groupRef.localProperties//ggd.groupRef.localAndFormatRefProperties
+      case ggd: GlobalGroupDef => ggd.groupRef.localProperties //ggd.groupRef.localAndFormatRefProperties
       case mg: ModelGroup => noProps
       case ct: ComplexTypeBase => noProps
       case _ => Assert.invariantFailed("parent of group is not one of the allowed parent types.")
@@ -349,7 +375,7 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
     schemaDefinition(overlappingProps.size == 0,
       "Overlap detected between the properties in the model group of a global group definition (%s) and its group reference. The overlap: %s",
       this.detailName, overlappingProps)
-      
+
     val props = myGroupReferenceProps ++ this.localAndFormatRefProperties
     props
   }
@@ -537,18 +563,18 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def hasStaticallyRequiredInstances = group.hasStaticallyRequiredInstances
 
-//  // TODO: Consolidate techniques with HasRef trait used by ElementRef
-//  lazy val refName = {
-//    val str = (xml \ "@ref").text
-//    if (str == "") None else Some(str)
-//  }
-//
-//  lazy val refQName = {
-//    refName match {
-//      case Some(rname) => Some(XMLUtils.QName(xml, rname, schemaDocument))
-//      case None => None
-//    }
-//  }
+  //  // TODO: Consolidate techniques with HasRef trait used by ElementRef
+  //  lazy val refName = {
+  //    val str = (xml \ "@ref").text
+  //    if (str == "") None else Some(str)
+  //  }
+  //
+  //  lazy val refQName = {
+  //    refName match {
+  //      case Some(rname) => Some(XMLUtils.QName(xml, rname, schemaDocument))
+  //      case None => None
+  //    }
+  //  }
 
   lazy val group = groupDef.modelGroup
 
