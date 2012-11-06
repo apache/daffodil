@@ -131,10 +131,6 @@
 					<dfdl:assert testKind="pattern" testPattern="\d\d" message="Assertion failed for pattern '\d\d'"/>
 					<dfdl:discriminator testKind="pattern"
 						testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
-					<dfdl:discriminator testKind="pattern"
-						testPattern="\d\d:" message="Discriminator failed for pattern '\d:'" />
-					<dfdl:discriminator testKind="pattern"
-						testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
 				</xs:appinfo>
 			</xs:annotation>
 		</xs:element>
@@ -227,59 +223,29 @@
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="discrimPatternPass2"
-		root="e3" model="s1" description="Section 7 - multiple discrim as a pattern - DFDL-7-045R">
-		<tdml:document><![CDATA[43:]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e3>43</e3>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
 	<tdml:parserTestCase name="discrimPatternFail2"
 		root="e3" model="s1" description="Section 7 - multiple discrim as a pattern - DFDL-7-045R">
 		<tdml:document><![CDATA[43,]]></tdml:document>
 		<tdml:errors>
-			<tdml:error>Discrim</tdml:error>
-			<tdml:error>pattern</tdml:error>
+			<tdml:error>More</tdml:error>
+			<tdml:error>than</tdml:error>
+			<tdml:error>one</tdml:error>
+			<tdml:error>discriminator</tdml:error>
+			<tdml:error>not</tdml:error>
+			<tdml:error>allowed</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="discrimPatternFail3"
-		root="e4" model="s1" description="Section 7 - multiple discrim as a pattern, verify failed discrim 
-		is not set to true with subsequent success - DFDL-7-045R">
+		root="e5" model="s1" description="Section 7 - verify SDE occurs when both discriminator and assert present - DFDL-7-045R">
 		<tdml:document><![CDATA[43,]]></tdml:document>
 		<tdml:errors>
-			<tdml:error>Discrim</tdml:error>
-			<tdml:error>pattern</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="discrimPatternFail4"
-		root="e5" model="s1" description="Section 7 - verify discrim still called even when asserts present - DFDL-7-045R">
-		<tdml:document><![CDATA[43,]]></tdml:document>
-		<tdml:errors>
-			<tdml:error>Discrim</tdml:error>
-			<tdml:error>pattern</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="discrimPatternFail5"
-		root="e5" model="s1" description="Section 7 - verify discrim still called even when asserts present - DFDL-7-045R">
-		<tdml:document><![CDATA[4,]]></tdml:document>
-		<tdml:errors>
-			<tdml:error>Discrim</tdml:error>
-			<tdml:error>pattern</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="discrimPatternFail6"
-		root="e6" model="s1" description="Section 7 - verify test fails even when discrim is true but assert is false - DFDL-7-045R">
-		<tdml:document><![CDATA[44:]]></tdml:document>
-		<tdml:errors>
-			<tdml:error>Assert</tdml:error>
-			<tdml:error>pattern</tdml:error>
+			<tdml:error>1</tdml:error>
+			<tdml:error>discriminator</tdml:error>
+			<tdml:error>OR</tdml:error>
+			<tdml:error>1</tdml:error>
+			<tdml:error>more</tdml:error>
+			<tdml:error>asserts</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	

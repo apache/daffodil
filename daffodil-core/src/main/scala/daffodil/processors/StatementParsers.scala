@@ -49,6 +49,14 @@ class StmtEval(context : ElementBase, eGram : => Gram)
     }
 
     def parse(pstate : PState) : PState = {
+      // Can have 1 discriminator OR
+      // 1 or more asserts
+      val numDiscrims = patDiscrim.size + testDiscrim.size
+      val numAsserts = patAssert.size + testAssert.size
+      
+      if (numDiscrims > 1){ context.SDE("More than one discriminator is not allowed.") }
+      if (numDiscrims >= 1 && numAsserts >= 1){ context.SDE("Can have 1 discriminator OR 1 or more asserts.  Not both a discriminator AND asserts.")}
+      
       val postEState = eParser.parse1(pstate, context)
 
       var afterSetVar = postEState

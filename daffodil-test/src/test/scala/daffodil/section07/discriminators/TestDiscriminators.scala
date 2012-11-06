@@ -18,12 +18,8 @@ class TestDiscriminators extends JUnitSuite {
   @Test def test_discriminators_discrimPatternPass() { runner.runOneTest("discrimPatternPass") }
   @Test def test_discriminators_discrimPatternFail() { runner.runOneTest("discrimPatternFail") }
   
-  @Test def test_discriminators_discrimPatternPass2() { runner.runOneTest("discrimPatternPass2") }
   @Test def test_discriminators_discrimPatternFail2() { runner.runOneTest("discrimPatternFail2") }
   @Test def test_discriminators_discrimPatternFail3() { runner.runOneTest("discrimPatternFail3") }
-  @Test def test_discriminators_discrimPatternFail4() { runner.runOneTest("discrimPatternFail4") }
-  @Test def test_discriminators_discrimPatternFail5() { runner.runOneTest("discrimPatternFail5") }
-  @Test def test_discriminators_discrimPatternFail6() { runner.runOneTest("discrimPatternFail6") }
   @Test def test_discriminators_choiceBranchDiscrim() { runner.runOneTest("choiceBranchDiscrim") }
 
 }
