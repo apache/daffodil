@@ -28,6 +28,7 @@ class TestLengthKindPattern extends JUnitSuite {
   // @Test def test_LengthPatternIllegalBits_02() { runner.runOneTest("LengthPatternIllegalBits_02") }
   @Test def test_LengthPatternLegalBits_01() { runner.runOneTest("LengthPatternLegalBits_01") }
   @Test def test_LengthPatternLegalBits_02() { runner.runOneTest("LengthPatternLegalBits_02") }
+  @Test def testlengthKindPatternFail() { runner.runOneTest("lengthKindPatternFail") }
   
   val ai = testDir + "AI.tdml"
   lazy val runnerAI = new DFDLTestSuite(Misc.getRequiredResource(ai))

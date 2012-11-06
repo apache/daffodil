@@ -79,13 +79,65 @@
 			</xs:annotation>
 		</xs:element>
 		
-		<xs:element name="e8" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="\p{L}{2,5}">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:assert testKind="pattern" testPattern="\p{L}{2,5}"
-						message="Assertion failed for pattern '\p{L}{2,5}'" />
-				</xs:appinfo>
-			</xs:annotation>
+		<xs:element name="e8">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:annotation>
+						<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+							<dfdl:assert testKind="pattern" testPattern="\p{L}{3},\d{3}"
+								message="Assertion failed for pattern '\p{L}{3},\d{3}'" />
+						</xs:appinfo>
+					</xs:annotation>
+					<xs:element name="e1" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator=","/>
+					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="description" type="xs:string" />
+		<xs:element name="quantity" type="xs:int" />
+		
+		<xs:group name="namedGroup">
+			<xs:sequence>
+				<xs:element name="e1" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator=","/>
+				<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"/>
+			</xs:sequence>
+		</xs:group>
+		
+		<xs:element name="Item" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:group ref="ex:namedGroup">
+					<xs:annotation>
+						<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+							<dfdl:assert testKind="pattern" testPattern="\p{L}{3},\d{3}"
+								message="Assertion failed for pattern '\p{L}{3},\d{3}'" />
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:group>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="Item_01" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+					<xs:element ref="ex:description" dfdl:lengthKind="delimited">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:assert testKind="pattern" testPattern="\p{L}{3}"
+									message="Assertion failed for pattern '\p{L}{3}'" />
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+					<xs:element ref="ex:quantity" dfdl:lengthKind="delimited">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:assert testKind="pattern" testPattern="\d{3}"
+									message="Assertion failed for pattern '\d{3}'" />
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
 		</xs:element>
 
 	</tdml:defineSchema>
@@ -265,15 +317,34 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	
-	<tdml:parserTestCase name="assertPatternPass4"
+	<tdml:parserTestCase name="assertOnSequence"
 		root="e8" model="s1"
-		description="Section 7 - assert pattern pass multiple assert - DFDL-7-045R">
-		<tdml:document>abcDEFG</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e8>abcDEFG</e8>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+		description="assert on a sequence - DFDL-7-051R">
+		<tdml:document>ab,12</tdml:document>
+		<tdml:errors>
+			<tdml:error>Assert</tdml:error>
+			<tdml:error>pattern</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="assertOnGroupRef" root="Item"
+		model="s1" description="assert on a group reference - DFDL-7-050R">
+
+		<tdml:document><![CDATA[Shirts,30]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>Assert</tdml:error>
+			<tdml:error>pattern</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="assertOnElemRef" root="Item_01"
+		model="s1" description="assert on an element reference - DFDL-7-049R">
+
+		<tdml:document><![CDATA[Shirts,30]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>Assert</tdml:error>
+			<tdml:error>pattern</tdml:error>
+		</tdml:errors>
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="literalTextMatch">

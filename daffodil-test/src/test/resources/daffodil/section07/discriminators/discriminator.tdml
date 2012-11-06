@@ -148,6 +148,55 @@
 				</xs:appinfo>
 			</xs:annotation>
 		</xs:element>
+		
+		<xs:element name="e7">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="c">
+						<xs:complexType>
+							<xs:choice>
+								<xs:element name="a1" type="xs:int"
+											dfdl:lengthKind="explicit" dfdl:length="5">
+									<xs:annotation>
+										<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+											<dfdl:discriminator testKind="pattern"
+																testPattern="\d{4}" message="discriminator failed for pattern '\d{4}'" />
+										</xs:appinfo>
+									</xs:annotation>
+								</xs:element>
+								<xs:element name="a2" type="xs:string"
+									dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="characters" />
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="e8">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="c">
+						<xs:complexType>
+							<xs:choice>
+								<xs:element name="a1" type="xs:int"
+											dfdl:lengthKind="explicit" dfdl:length="3">
+									<xs:annotation>
+										<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+											<dfdl:discriminator testKind="pattern"
+																testPattern="\d{4}" message="discriminator failed for pattern '\d{4}'" />
+										</xs:appinfo>
+									</xs:annotation>
+								</xs:element>
+								<xs:element name="a2" type="xs:string"
+									dfdl:lengthKind="explicit" dfdl:length="3" dfdl:lengthUnits="characters" />
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="discriminatorGuidesChoice"
@@ -233,5 +282,22 @@
 			<tdml:error>pattern</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
-
+	
+	<tdml:parserTestCase name="choiceBranchDiscrimFail"
+		root="e7" model="s1" description="Parser bound to first choice branch by discriminator - DFDL-7-060R, DFDL--15-015R">
+		<tdml:document><![CDATA[1234]]></tdml:document>
+		<tdml:errors>
+		    <tdml:error></tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="choiceBranchDiscrim"
+		root="e8" model="s1" description="Backtracking occurs immediately because discriminator fails- DFDL-7-061R">
+		<tdml:document><![CDATA[123]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e8><c><a2>123</a2></c></e8>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 </tdml:testSuite>

@@ -146,7 +146,26 @@
 				</xs:sequence>
 		    </xs:complexType>
 		  </xs:element>
+		  
+		<xs:element name="e8" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="\p{L}{2,5}">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert testKind="pattern" testPattern="\p{L}{2,5}"
+						message="Assertion failed for pattern '\p{L}{2,5}'" />
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
 	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="lengthKindPatternFail"
+		root="e8" model="lengthKindPattern-Embedded.dfdl.xsd"
+		description="lengthKind pattern - length of the element is given by scanning for a regular expression - DFDL-12-038R">
+		<tdml:document>abcDEFG</tdml:document>
+		<tdml:errors>
+			<tdml:error></tdml:error>
+			<tdml:error></tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="AI000_rev" root="list"
 		model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R">
