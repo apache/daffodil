@@ -91,10 +91,26 @@ class RepAtMostTotalNPrim(context : LocalElementBase, n : Long, r : => Gram) ext
       while (pResult.arrayIndexStack.head <= intN) {
         // Since each one could fail, each is a new point of uncertainty.
         val newpou = pResult.withNewPointOfUncertainty
+        // 
+        // save the state of the infoset
+        //
+        val numChildrenAtStart = newpou.parent.getContent().length
+
         Debugger.beforeRepetition(newpou, this)
         val pNext = rParser.parse1(newpou, context)
         Debugger.afterRepetition(newpou, pNext, this)
-        if (pNext.status != Success) return pResult // success at prior state. 
+
+        if (pNext.status != Success) {
+          //
+          // backout any element appended as part of this attempt.
+          //
+          val lastChildIndex = pNext.parent.getContent().length
+          if (lastChildIndex > numChildrenAtStart) {
+            pNext.parent.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
+          }
+
+          return pResult // success at prior state. 
+        }
         pResult = pNext.moveOverOneArrayIndexOnly.withRestoredPointOfUncertainty
       }
       pResult

@@ -360,18 +360,17 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
  </xsd:complexType>
 -->
 
+<!--  No attribute decls of any sort in DFDL v1.0
  <xsd:group name="attrDecls">
   <xsd:sequence>
-  <!-- No attribute decls of any sort in DFDL v1.0
-   <xsd:choice minOccurs="0" maxOccurs="unbounded">
+    <xsd:choice minOccurs="0" maxOccurs="unbounded">
     <xsd:element name="attribute" type="sub:attribute"/>
     <xsd:element name="attributeGroup" type="sub:attributeGroupRef"/>
    </xsd:choice>
    <xsd:element ref="sub:anyAttribute" minOccurs="0"/>
-   -->
   </xsd:sequence>
  </xsd:group>
-
+ -->
 <!-- 
  <xsd:element name="anyAttribute" type="sub:wildcard" id="anyAttribute">
   <xsd:annotation>
@@ -394,7 +393,7 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
    &lt;/complexContent></xsd:documentation>
        </xsd:annotation>
        <xsd:group ref="sub:typeDefParticle" minOccurs="0"/>
-       <xsd:group ref="sub:attrDecls"/>
+       <!-- <xsd:group ref="sub:attrDecls"/> --> <!-- no attributes in DFDL -->
       </xsd:sequence>
   </xsd:choice>
  </xsd:group>
@@ -562,6 +561,7 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
  </xsd:complexType>
 -->
  
+ <!-- 
  <xsd:element name="complexContent" id="complexContent">
   <xsd:annotation>
    <xsd:documentation source="http://www.w3.org/TR/xmlschema-1/#element-complexContent"/>
@@ -569,25 +569,25 @@ xmlns:xs="http://www.w3.org/2001/XMLSchema"
   <xsd:complexType>
    <xsd:complexContent>
     <xsd:extension base="sub:annotated">
-    <!-- 
+    
      <xsd:choice>
       <xsd:element name="restriction" type="sub:complexRestrictionType"/>
       <xsd:element name="extension" type="sub:extensionType"/>
      </xsd:choice> 
-     --> 
-     <!-- No mixed content in DFDL v1.0   
+     
+      No mixed content in DFDL v1.0   
      <xsd:attribute name="mixed" type="xsd:boolean">
       <xsd:annotation>
        <xsd:documentation>
        Overrides any setting on complexType parent.</xsd:documentation>
       </xsd:annotation>
     </xsd:attribute>
-    -->
+    
     </xsd:extension>
    </xsd:complexContent>
   </xsd:complexType>
  </xsd:element>
-
+ -->
 <!-- 
  <xsd:complexType name="simpleRestrictionType">
   <xsd:complexContent>
@@ -1254,11 +1254,15 @@ use</xsd:documentation>
      <xsd:documentation source="http://www.w3.org/TR/xmlschema-1/#element-appinfo"/>
    </xsd:annotation>
    <xsd:complexType mixed="true">
-    <xsd:sequence minOccurs="0" maxOccurs="unbounded">
-     <!-- strict so tooling will check DFDL annotations 
-     <xsd:any processContents="lax"/> -->
-     <xsd:any processContents="strict"/>
-    </xsd:sequence>
+    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+     <!-- strict so tooling will check DFDL annotations --> 
+     <xsd:any processContents="lax"/>
+     <!-- 
+     <xsd:any namespace="http://www.ogf.org/dfdl/dfdl-1.0/" processContents="strict"/>
+     <xsd:any namespace="##targetNamespace" processContents="lax"/>
+     <xsd:any namespace="##other" processContents="lax"/>
+      --> 
+    </xsd:choice>
     <xsd:attribute name="source" type="xsd:anyURI"/>
     <xsd:attributeGroup ref="sub:anyOther"/>
    </xsd:complexType>

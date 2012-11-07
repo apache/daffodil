@@ -54,6 +54,18 @@ object XMLUtils {
   val EXAMPLE_NAMESPACE = "http://example.com"
 
   /**
+   * Added to support extensions and proposed future features as part of daffodil.
+   * <p>
+   * The DFDL standard requires us to keep these out of the primary DFDL namespace, and
+   * we really should be using URN-style notation, not http URLs for these.
+   * (for why http URLs are a bad idea for these, see:
+   * http://www.w3.org/blog/systeam/2008/02/08/w3c_s_excessive_dtd_traffic/ )
+   */
+  private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT = "urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu" // TODO: finalize syntax of this URN
+  private val DAFFODIL_EXTENSION_NAMESPACE = DAFFODIL_EXTENSIONS_NAMESPACE_ROOT
+  val EXT_NAMESPACE = DAFFODIL_EXTENSION_NAMESPACE
+
+  /**
    * This namespace for extensions above and beyond DFDL v1.0
    */
   val DFDL_EXTENSIONS_NAMESPACE = "http://www.dataiti.com/dfdl/dfdl-1.0/extensions"
@@ -688,6 +700,13 @@ object XMLUtils {
   //  private val myRule = new RuleTransformer(new RemoveAttributes)
 
   /**
+   * We don't want to be sensitive to which prefix people bind
+   */
+  def attributesInNamespace(ns : String, n : Node) = n.attributes filter { _.getNamespace(n) == ns }
+
+  def dfdlAttributes(n : Node) = attributesInNamespace(DFDL_NAMESPACE, n)
+
+  /**
    * Removes attributes, and also element namespace prefixes, associated xmlns quasi-attributes.
    * Allows easier visual (human) inspection of the differences between to XML element-oriented structures.
    *
@@ -894,7 +913,8 @@ object XMLSchemaUtils {
         Validator.validateXMLStream(schemaResource, docReader)
       } catch {
         case e => {
-          // System.err.println(e.getMessage())
+          val exc = e
+          System.err.println(exc.getMessage())
           // Really useful place for a breakpoint.
           throw e
         }

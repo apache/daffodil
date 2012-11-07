@@ -179,7 +179,6 @@ abstract class Term(xmlArg : Node, val parent : SchemaComponent, val position : 
             ctPos
           }
           case Some(ggd : GlobalGroupDef) => ggd.groupRef.positionInNearestEnclosingSequence
-          case Some(ggd : GlobalGroupDef) => ggd.groupRef.positionInNearestEnclosingSequence
           case _ => Assert.invariantFailed("unable to compute position in nearest enclosing sequence")
         }
       }
