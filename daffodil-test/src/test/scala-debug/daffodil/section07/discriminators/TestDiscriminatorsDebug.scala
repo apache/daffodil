@@ -13,5 +13,6 @@ class TestDiscriminatorsDebug extends JUnitSuite {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
   @Test def test_choiceBranchDiscrimFail() { runner.runOneTest("choiceBranchDiscrimFail") }
+  @Test def test_discriminators_discrimInvalidSchema() { runner.runOneTest("discrimInvalidSchema") }
 
 }

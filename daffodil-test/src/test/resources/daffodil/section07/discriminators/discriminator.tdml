@@ -266,4 +266,179 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+	
+	<tdml:defineSchema name="invalid">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:discriminator testKind="pattern" test='{. eq "123"}' testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
+				</xs:appinfo>
+			</xs:annotation>
+		</xs:element>
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="discrimInvalidSchema"
+		root="e1" model="invalid" description="It is a schema definition error if both a test expression and a test pattern are specified - DFDL-7-069R">
+		<tdml:document><![CDATA[123]]></tdml:document>
+	                <tdml:errors>
+	                    <tdml:error>Schema Definition Error</tdml:error>
+	                </tdml:errors>
+	</tdml:parserTestCase>
+	
+	<tdml:defineSchema name="choice3">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="c1">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="c">
+						<xs:complexType>
+							<xs:choice>
+								<xs:element name="a1">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:annotation>
+												<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+													<dfdl:discriminator><![CDATA[{ false() }]]></dfdl:discriminator>
+												</xs:appinfo>
+											</xs:annotation>
+											<xs:element name="str" type="xs:string"
+												dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="a2">
+									<xs:complexType>
+										<xs:sequence>
+												<xs:element name="single" type="xs:string"
+													dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
+												<xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="discriminatorGuidesChoice3"
+		root="c1" model="choice3" description="Discriminator to be used when resolving a point of uncertainty such as choice branches or optional elements- DFDL-6-011R">
+		<tdml:document><![CDATA[123]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+			<c1>
+				<c>
+					<a2>
+						<single>1</single>
+						<extra>23</extra>
+					</a2>
+				</c>
+			</c1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:defineSchema name="choice4">
+		<dfdl:format ref="ex:daffodilTest1" />
+		<xs:element name="c1">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="c">
+						<xs:complexType>
+							<xs:choice>
+								<xs:element name="a1">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:annotation>
+												<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+													<dfdl:discriminator><![CDATA[{ true() }]]></dfdl:discriminator>
+												</xs:appinfo>
+											</xs:annotation>
+											<xs:element name="num" dfdl:lengthKind="delimited" type="xs:int" minOccurs="0" maxOccurs="1"/>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="a2">
+									<xs:complexType>
+										<xs:sequence>
+												<xs:element name="single" type="xs:int"
+													dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		<xs:element name="c2">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="c">
+						<xs:complexType>
+							<xs:choice>
+								<xs:element name="a1">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:annotation>
+												<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+													<dfdl:discriminator><![CDATA[{ false() }]]></dfdl:discriminator>
+												</xs:appinfo>
+											</xs:annotation>
+											<xs:element name="num" dfdl:lengthKind="delimited" type="xs:int" minOccurs="0" maxOccurs="1"/>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="a2">
+									<xs:complexType>
+										<xs:sequence>
+												<xs:element name="single" type="xs:int"
+													dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="discriminatorGuidesChoice4"
+		root="c1" model="choice4" description="Discriminator to be used when resolving a point of uncertainty such as choice branches or optional elements- DFDL-6-011R">
+		<tdml:document><![CDATA[123]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+			<c1>
+				<c>
+					<a1>
+						<num>123</num>
+					</a1>
+				</c>
+			</c1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="discriminatorGuidesChoice5"
+		root="c2" model="choice4" description="Discriminator to be used when resolving a point of uncertainty such as choice branches or optional elements- DFDL-6-011R">
+		<tdml:document><![CDATA[123]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+			<c2>
+				<c>
+					<a2>
+						<single>123</single>
+					</a2>
+				</c>
+			</c2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
 </tdml:testSuite>

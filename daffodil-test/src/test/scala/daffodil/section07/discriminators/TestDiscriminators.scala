@@ -14,6 +14,9 @@ class TestDiscriminators extends JUnitSuite {
 
   @Test def test_assertions_discriminatorGuidesChoice() { runner.runOneTest("discriminatorGuidesChoice") }
   @Test def test_assertions_discriminatorGuidesChoice2() { runner.runOneTest("discriminatorGuidesChoice2") }
+  @Test def test_assertions_discriminatorGuidesChoice3() { runner.runOneTest("discriminatorGuidesChoice3") }
+  @Test def test_assertions_discriminatorGuidesChoice4() { runner.runOneTest("discriminatorGuidesChoice4") }
+  @Test def test_assertions_discriminatorGuidesChoice5() { runner.runOneTest("discriminatorGuidesChoice5") }
 
   @Test def test_discriminators_discrimPatternPass() { runner.runOneTest("discrimPatternPass") }
   @Test def test_discriminators_discrimPatternFail() { runner.runOneTest("discrimPatternFail") }
@@ -21,5 +24,7 @@ class TestDiscriminators extends JUnitSuite {
   @Test def test_discriminators_discrimPatternFail2() { runner.runOneTest("discrimPatternFail2") }
   @Test def test_discriminators_discrimPatternFail3() { runner.runOneTest("discrimPatternFail3") }
   @Test def test_discriminators_choiceBranchDiscrim() { runner.runOneTest("choiceBranchDiscrim") }
+  
+//  @Test def test_discriminators_discrimInvalidSchema() { runner.runOneTest("discrimInvalidSchema") }
 
 }
