@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="ProcessingErrorTests" description="Section 2.3 - Processing Errors"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ex="http://example.com" >
+
+<!-- ===================================================================== Schemas ======================================================================= -->
+
+<!--
+	Schema name: upaFailure
+	    Purpose: This schema does not adhere to the Unique Particule Attribution schema constraint
+-->
+
+	<tdml:defineSchema name="SDE">
+
+				<dfdl:format ref="ex:daffodilTest1"/>
+
+		<xs:element name="matrix">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="row" minOccurs="10" maxOccurs="10">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="cell" type="xs:int" maxOccurs="unbounded" 
+								     dfdl:terminator="%NL;" dfdl:separator="," 
+								     dfdl:separatorPolicy="required" dfdl:encoding="ASCII" 
+								     dfdl:separatorPosition="infix" dfdl:representation="text"
+								     dfdl:lengthKind="delimited" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+	</tdml:defineSchema>
+		
+	<tdml:parserTestCase name="AS000_rev" root="matrix"
+		model="SDE" description="Property is not applicable to the component’s DFDL annotation - DFDL-2-005R6">
+
+		<tdml:document />
+
+		<tdml:errors>
+			<tdml:error/>
+		</tdml:errors>
+
+	</tdml:parserTestCase>
+</tdml:testSuite>
