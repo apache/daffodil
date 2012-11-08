@@ -11,18 +11,7 @@
 			defaultValue="42" />
 		<dfdl:defineVariable name="myVar1" type="xs:int"
 				defaultValue="6" />
-		<dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" 
-                         alignment='1' alignmentUnits='bytes' textStandardBase='10' 
-                         binaryFloatRep='ieee' binaryNumberRep='binary' byteOrder='bigEndian' 
-                         calendarPatternKind='implicit' 
-                         escapeSchemeRef='' documentFinalTerminatorCanBeMissing='no' 
-                         ignoreCase='no' initiatedContent='no' 
-                         leadingSkip='0' lengthKind='implicit' 
-                         occursCountKind='parsed' 
-                         separatorPolicy='suppressed' separatorPosition='infix' sequenceKind='ordered' 
-                         textNumberRep='standard' textNumberCheckPolicy='strict' textStringJustification='left' trailingSkip='0' 
-                         initiator="" terminator="" separator=""
-                         />
+		<dfdl:format ref="ex:daffodilTest1" />
 		<xs:element name="c">
 			<xs:complexType>
 				<xs:sequence>
@@ -81,11 +70,115 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+		
+		<xs:element name="e1">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="{ $ex:v1_with_default }" dfdl:separatorPosition="infix">
+					<xs:element name="b" type="xsd:int" maxOccurs="unbounded" dfdl:lengthKind="delimited"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="e2" type="xsd:string" dfdl:inputValueCalc="{ $ex:v1_with_default }"/>
 
+		<dfdl:defineVariable name="v1_with_default">,</dfdl:defineVariable>
+		<dfdl:defineVariable name="v1_no_default"/>
+		<dfdl:defineVariable name="v2_with_default" type="xsd:int">7</dfdl:defineVariable>
+		
+		<xs:element name="day" type="xsd:int"/>
+		<xs:element name="e3">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:annotation>
+						<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+							<dfdl:setVariable ref="ex:v1_no_default">{ "January" }</dfdl:setVariable>
+						</xs:appinfo>
+					</xs:annotation>
+					<xs:element name="month" type="xsd:string" dfdl:inputValueCalc="{ $ex:v1_no_default }"/>
+					<xs:element ref="day" dfdl:lengthKind="delimited">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:setVariable ref="ex:v2_with_default">{ 9 }</dfdl:setVariable>
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="hour" type="xsd:int" dfdl:inputValueCalc="{ $ex:v2_with_default }"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="e4" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice>
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:setVariable ref="ex:v1_no_default">{ "January" }</dfdl:setVariable>
+							</xs:appinfo>
+						</xs:annotation>
+						<xs:element name="Sale" type="xs:string" dfdl:lengthKind="delimited">
+							<xs:annotation>
+								<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+									<dfdl:setVariable ref="ex:v2_with_default">{ 29 }</dfdl:setVariable>
+									<dfdl:assert><![CDATA[{ xs:string(.) eq "Friday" }]]></dfdl:assert>
+								</xs:appinfo>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="NoSale" type="xs:string" dfdl:lengthKind="delimited">
+							<xs:annotation>
+								<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+									<dfdl:assert><![CDATA[{ xs:string(.) eq "Monday" }]]></dfdl:assert>
+									<dfdl:setVariable ref="ex:v2_with_default">{ 36 }</dfdl:setVariable>
+								</xs:appinfo>
+							</xs:annotation>
+						</xs:element>
+					</xs:choice>
+					<xsd:element name="month" type="xs:string" dfdl:inputValueCalc="{ $ex:v1_no_default }"/>
+					<xsd:element name="price" type="xs:int" dfdl:inputValueCalc="{ $ex:v2_with_default }"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:simpleType name="s1">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:setVariable ref="ex:v_no_default">{ 41 }</dfdl:setVariable>
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:restriction base="xs:int"/>
+		</xs:simpleType>
+				
+		<xs:group name="g5">
+			<xs:sequence>
+				<xs:element name="month" type="xsd:string" dfdl:inputValueCalc="{ $ex:v1_no_default }"/>
+				<xs:element ref="day" dfdl:lengthKind="explicit" dfdl:length="2"/>
+			</xs:sequence>
+		</xs:group>
+		
+		<xs:element name="e5">
+			<xs:complexType>
+				<xs:group ref="ex:g5">
+					<xs:annotation>
+						<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+							<dfdl:setVariable ref="ex:v1_no_default">{ "January" }</dfdl:setVariable>
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:group>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="e6">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="e1" type="ex:s1" dfdl:lengthKind="delimited"/>
+					<xs:element name="e2" type="xs:int" dfdl:inputValueCalc="{ $ex:v_no_default }"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
 
 	</tdml:defineSchema>
 	
- 	<tdml:parserTestCase name="setVar1" root="c" model="v">
+ 	<tdml:parserTestCase name="setVar1" root="c" model="v" description="Use of defineVariable and setVariable - DFDL-7-091R">
 
 		<tdml:document />
 
@@ -101,7 +194,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="doubleSetErr" root="r1"
-		model="v">
+		model="v" description="Error to set the value of a variable instance twice - DFDL-7-130R">
 
 		<tdml:document />
 
@@ -114,7 +207,7 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="setAfterReadErr" root="r2"
-		model="v">
+		model="v" description="Error to set the value of a variable instance after it is referenced - DFDL-7-131R">
 
 		<tdml:document />
 
@@ -135,6 +228,71 @@
 				<a xmlns="http://www.example.org/example1/">
 					<b type="xsd:int">7</b>
 				</a>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="varAsSeparator" root="e1" model="v" description="variable referenced as a separator; the defineVariable annotation occurs after the element declaration that references it - DFDL-7-107R">
+		<tdml:document><![CDATA[23,45,110]]></tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e1 xmlns="http://www.example.org/example1/">
+					<b type="xsd:int">23</b>
+					<b type="xsd:int">45</b>
+					<b type="xsd:int">110</b>
+				</e1>
+
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="setVarOnSeqAndElemRef" root="e3" model="v" description="setVariable on a sequence and an element reference - DFDL-7-121R">
+		<tdml:document><![CDATA[23]]></tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e3 xmlns="http://www.example.org/example1/">
+					<month>January</month>
+					<day>23</day>
+					<hour>9</hour>
+				</e3>
+
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="setVarChoice" root="e4" model="v" description="setVariable on a choice and choice branches - DFDL-7-132R, DFDL-7-121R">
+		<tdml:document><![CDATA[Monday]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e4 xmlns="http://www.example.org/example1/"><NoSale>Monday</NoSale><month>January</month><price>36</price></e4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="setVarOnGroupRef" root="e5" model="v" description="setVariable on a group reference - DFDL-7-121R">
+		<tdml:document><![CDATA[23]]></tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e5 xmlns="http://www.example.org/example1/">
+					<month>January</month>
+					<day>23</day>
+				</e5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="setVarSimpleType" root="e6" model="v" description="setVariable on a simpleType - DFDL-7-121R">
+		<tdml:document><![CDATA[23]]></tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e6 xmlns="http://www.example.org/example1/">
+					<e1>23</e1>
+					<e2>41</e2>
+				</e6>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>

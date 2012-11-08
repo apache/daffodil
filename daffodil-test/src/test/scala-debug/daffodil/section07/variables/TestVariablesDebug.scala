@@ -16,10 +16,9 @@ class TestVariablesDebug extends JUnitSuite {
   val tdml = testDir + "variables.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
   
-  @Test def test_setVar1() { runner.runOneTest("setVar1") }
-  @Test def test_doubleSetErr() { runner.runOneTest("doubleSetErr") }
-  @Test def test_setAfterReadErr() { runner.runOneTest("setAfterReadErr") }
   @Test def test_varInstance() { runner.runOneTest("varInstance") }
+  @Test def test_varAsSeparator() { runner.runOneTest("varAsSeparator") }
+  @Test def test_setVarSimpleType() { runner.runOneTest("setVarSimpleType") }
   
   val tdml_01 = testDir + "variables_01.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
