@@ -64,7 +64,7 @@
 		<dfdl:format ref="ex:daffodilTest1" representation="binary" lengthUnits="bytes" />
 		<xs:element name="integer01" type="xs:integer"/>
 		<xs:element name="int01" type="xs:int"/>
-		<xs:element name="l_2" type="xs:long"/>
+		<xs:element name="l_1" type="xs:long"/>
 		<xs:element name="s_1" type="xs:short"/>
 		<xs:element name="b_01" type="xs:byte"/>
 		<xs:element name="uI_01" type="xs:unsignedInt"/>
@@ -822,6 +822,18 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="signedLong_binary" root="l_1"
+		model="SimpleTypes-binary" description="Section 5 Schema types-signedLong - DFDL-5-014R">
+
+		<tdml:document><tdml:documentPart type="bits">0000000000000000000000000000000100000000000000000000000111001010</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<l_1>2147483877</l_1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
 	
 	<tdml:parserTestCase name="signedShort_binary" root="s_1"
 		model="SimpleTypes-binary" description="Section 5 Schema types-signedShort - DFDL-5-014R">
