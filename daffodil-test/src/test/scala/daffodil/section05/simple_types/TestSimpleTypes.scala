@@ -115,6 +115,9 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_unsignedByte_01() { runner.runOneTest("unsignedByte_01") }
   @Test def test_unsignedByte_02() { runner.runOneTest("unsignedByte_02") }
   
+  @Test def test_signedShort_binary() { runner.runOneTest("signedShort_binary") }
+  @Test def test_signedShort_binary2() { runner.runOneTest("signedShort_binary2") }
+  
   // Test range checking for signed integers too!
   @Test def test_byte_01() { runner.runOneTest("byte_01") }
   @Test def test_byte_02() { runner.runOneTest("byte_02") }

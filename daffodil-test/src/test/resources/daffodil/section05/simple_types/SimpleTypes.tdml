@@ -61,53 +61,16 @@
 	</tdml:defineSchema>
 	
 	<tdml:defineSchema name="SimpleTypes-binary">
-		<dfdl:format ref="ex:daffodilTest1" representation="binary" encoding="utf-16" lengthUnits="bytes" />
-		<xs:element name="s" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>
-		<xs:element name="mersenne" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="{ 207 }"/>
-		<xs:element name="integer01" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
-		<xs:element name="integer02" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>
-		<xs:element name="int01" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="13"/>
-		<xs:element name="int02" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="11"/>
-		<xs:element name="int03" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2"/>
-		<xs:element name="int04" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="10"/>
-		<xs:element name="int05" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="4"/>
-		<xs:element name="l_2" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="{ 10 }"/>
-		<xs:element name="l_3" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
-		<xs:element name="l_4" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>		
-		<xs:element name="s_1" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
-		<xs:element name="s_2" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 6 }"/>		
-		<xs:element name="b_01" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{4}"/>
-		<xs:element name="uI_01" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 10 }"/>
-		<xs:element name="uI_02" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>
-		<xs:element name="uI_03" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>
-		<xs:element name="uS_01" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>
-		<xs:element name="uS_02" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>
-		<xs:element name="uB_01" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>
-		<xs:element name="uL_01" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
-		<xs:element name="uL_02" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>
-		<xs:element name="uL_03" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
-		<xs:element name="uL_04" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>		
-		
-		<xs:element name="limits" dfdl:lengthKind="explicit">
-	        <xs:complexType>
-	          <xs:sequence dfdl:separator=":" dfdl:separatorPolicy="required" dfdl:separatorPosition="infix" >
-	            <xs:element name="unsigned-byte" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>
-	            <xs:element name="unsigned-short" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="{ 6 }"/>
-	            <xs:element name="unsigned-int" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>
-	            <xs:element name="unsigned-long" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
-	          </xs:sequence>
-	        </xs:complexType>
-      	</xs:element>
-      	
-      	<xs:element name="e1" dfdl:lengthKind="explicit">
-        	<xs:complexType>
-          		<xs:sequence>
-            		<xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
-    				<xs:element name="s2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
-    			</xs:sequence>
-    		</xs:complexType>
-    	</xs:element>
-    	
+		<dfdl:format ref="ex:daffodilTest1" representation="binary" lengthUnits="bytes" />
+		<xs:element name="integer01" type="xs:integer"/>
+		<xs:element name="int01" type="xs:int"/>
+		<xs:element name="l_2" type="xs:long"/>
+		<xs:element name="s_1" type="xs:short"/>
+		<xs:element name="b_01" type="xs:byte"/>
+		<xs:element name="uI_01" type="xs:unsignedInt"/>
+		<xs:element name="uS_01" type="xs:unsignedShort"/>
+		<xs:element name="uB_01" type="xs:unsignedByte"/>
+		<xs:element name="uL_01" type="xs:unsignedLong"/>
 	</tdml:defineSchema>
 	
 	<tdml:parserTestCase name="Long1" root="s"
@@ -856,6 +819,28 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<uS_01>55</uS_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="signedShort_binary" root="s_1"
+		model="SimpleTypes-binary" description="Section 5 Schema types-signedShort - DFDL-5-014R">
+
+		<tdml:document><tdml:documentPart type="bits">1111111111001001</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<s_1>-55</s_1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="signedShort_binary2" root="s_1"
+		model="SimpleTypes-binary" description="Section 5 Schema types-signedShort - DFDL-5-014R">
+
+		<tdml:document><tdml:documentPart type="bits">0000000111001010</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<s_1>458</s_1>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
