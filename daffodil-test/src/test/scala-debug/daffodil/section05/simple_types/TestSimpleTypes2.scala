@@ -48,6 +48,12 @@ class TestSimpleTypes2 extends JUnitSuite {
   
 
     @Test def test_unsignedShort_binary() { runner.runOneTest("unsignedShort_binary") }
-    @Test def test_signedLong_binary() { runner.runOneTest("signedLong_binary") }
+    @Test def test_signedLong_binary() { 
+//   val l = "2147483877".toLong //java.lang.Long.getLong("2147483877")
+//   System.err.println(l)
+//   val str = java.lang.Long.toBinaryString(l)
+//      System.err.println(str)
+//      System.err.println(str.length())
+      runner.runOneTest("signedLong_binary") }
 
   }

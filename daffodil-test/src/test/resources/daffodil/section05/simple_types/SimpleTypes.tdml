@@ -826,7 +826,7 @@
 	<tdml:parserTestCase name="signedLong_binary" root="l_1"
 		model="SimpleTypes-binary" description="Section 5 Schema types-signedLong - DFDL-5-014R">
 
-		<tdml:document><tdml:documentPart type="bits">0000000000000000000000000000000100000000000000000000000111001010</tdml:documentPart></tdml:document>
+		<tdml:document><tdml:documentPart type="bits">0000000000000000000000000000000010000000000000000000000011100101</tdml:documentPart></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<l_1>2147483877</l_1>

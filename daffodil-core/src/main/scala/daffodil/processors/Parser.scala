@@ -924,7 +924,8 @@ class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
     byteReader.bb.order(order)
-    byteReader.bb.getInt(bytePos)
+    val res = byteReader.bb.getLong(bytePos)
+    res
   }
 
   def getDouble(bitPos: Long, order: java.nio.ByteOrder) = {
