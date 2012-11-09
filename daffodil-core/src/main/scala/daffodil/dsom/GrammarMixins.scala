@@ -10,6 +10,7 @@ import daffodil.util._
 import daffodil.util.Misc.bytes2Hex
 import com.ibm.icu.text.NumberFormat
 import daffodil.processors._
+import java.math.BigInteger
 
 trait InitiatedTerminatedMixin
   extends AnnotatedMixin
@@ -475,7 +476,14 @@ trait ElementBaseGrammarMixin
           //            protected override def isInt = true
           //          }
           case ("unsignedShort", bin) => new BinaryNumber[Int](this, 16) {
-            def getNum(bp: Long, in: InStream, bo: BO) = in.getShort(bp, bo) - Short.MinValue
+            def getNum(bp: Long, in: InStream, bo: BO) = {
+              // Why were we doing in.getShort(bp, bo) - Short.MinValue?
+              // This resulted in the wrong output.
+              //
+              //val res = in.getShort(bp, bo) - Short.MinValue
+              val res = in.getUnsignedShort(bp, bo)
+              res
+              }
             override def getNum(num: Number) = num.intValue
             protected override val GramName = "unsignedShort"
             protected override val GramDescription = "Unsigned Short"
@@ -484,7 +492,14 @@ trait ElementBaseGrammarMixin
             protected override def isInt = true
           }
           case ("unsignedInt", bin) => new BinaryNumber[Long](this, 32) {
-            def getNum(bp: Long, in: InStream, bo: BO) = in.getInt(bp, bo).toLong - Int.MinValue.toLong
+            def getNum(bp: Long, in: InStream, bo: BO) = {
+              // Why were we doing in.getInt(bp, bo) - Int.MinValue.toLong?
+              // This resulted in the wrong output.
+              //
+              //val res = in.getInt(bp, bo).toLong - Int.MinValue.toLong
+              val res = in.getUnsignedInt(bp, bo)
+              res
+              }
             override def getNum(num: Number) = num.longValue
             protected override val GramName = "unsignedInt"
             protected override val GramDescription = "Unsigned Int"
@@ -492,12 +507,27 @@ trait ElementBaseGrammarMixin
             protected override def numFormat = NumberFormat.getIntegerInstance()
             protected override def isInt = true
           }
-          case ("unsignedLong", bin) => new BinaryNumber[Long](this, 64) {
-            def getNum(bp: Long, in: InStream, bo: BO) = in.getLong(bp, bo) - Long.MinValue
-            override def getNum(num: Number) = num.longValue
+          case ("unsignedLong", bin) => new BinaryNumber[BigInteger](this, 64) {
+            // TODO: unsignedLong isn't fully implemented? Wouldn't we need a type larger to contain it?
+            def getNum(bp: Long, in: InStream, bo: BO) = {
+              in.getLong(bp, bo) - Long.MinValue
+              val res = in.getUnsignedLong(bp, bo)
+              res
+              }
+            override def getNum(num: Number) = num.asInstanceOf[BigInteger]//num.longValue()
             protected override val GramName = "unsignedLong"
             protected override val GramDescription = "Unsigned Long"
-            protected override def isInvalidRange(n: Long) = n < 0 || n >= (1L << 32)
+            //protected override def isInvalidRange(n: Long) = n < 0 || n >= (1L << 32)
+            protected override def isInvalidRange(n: BigInteger) = {
+              val zero = new BigInteger("0")
+              val nAsBigInt = n.asInstanceOf[BigInteger]
+              val shiftRight64 = nAsBigInt.shiftRight(64)
+              
+              val two = new BigInteger("2")
+              val maximumUnsignedLong = two.pow(64).subtract(new BigInteger("1"))
+              val differenceFromMax = maximumUnsignedLong.subtract(nAsBigInt)
+              (shiftRight64.compareTo(zero) != 0 || differenceFromMax.compareTo(zero) == 1)
+            }
             protected override def numFormat = NumberFormat.getIntegerInstance()
             protected override def isInt = true
           }

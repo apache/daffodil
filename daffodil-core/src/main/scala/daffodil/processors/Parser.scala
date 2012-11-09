@@ -29,6 +29,7 @@ import scala.util.parsing.input.Reader
 import delimsearch.DFDLCharReader
 import scala.collection.mutable.HashMap
 import java.util.UUID
+import java.math.BigInteger
 
 abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
@@ -728,6 +729,10 @@ trait InStream {
 
   def getDouble(bitPos: Long, order: java.nio.ByteOrder): Double
   def getFloat(bitPos: Long, order: java.nio.ByteOrder): Float
+  
+  def getUnsignedShort(bitPos: Long, order: java.nio.ByteOrder): Int
+  def getUnsignedInt(bitPos: Long, order: java.nio.ByteOrder): Long
+  def getUnsignedLong(bitPos: Long, order: java.nio.ByteOrder): BigInteger
 
   def getByteArray(bitPos: Long, order: java.nio.ByteOrder, size: Int): Array[Byte]
 
@@ -903,7 +908,9 @@ class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
     byteReader.bb.order(order)
-    byteReader.bb.getShort(bytePos)
+    val res = byteReader.bb.getShort(bytePos)
+    //val res = (byteReader.bb.getShort(bytePos) & 0xffff).asInstanceOf[Short]
+    res
   }
 
   def getInt(bitPos: Long, order: java.nio.ByteOrder) = {
@@ -933,6 +940,35 @@ class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint
     val bytePos = (bitPos >> 3).toInt
     byteReader.bb.order(order)
     byteReader.bb.getFloat(bytePos)
+  }
+  
+  def getUnsignedShort(bitPos: Long, order: java.nio.ByteOrder): Int = {
+    Assert.invariant(bitPos % 8 == 0)
+    val bytePos = (bitPos >> 3).toInt
+    byteReader.bb.order(order)
+    val res = (byteReader.bb.getShort(bytePos) & 0xffff)
+    res
+  }
+  
+  def getUnsignedInt(bitPos: Long, order: java.nio.ByteOrder): Long = {
+    Assert.invariant(bitPos % 8 == 0)
+    val bytePos = (bitPos >> 3).toInt
+    byteReader.bb.order(order)
+    val res = (byteReader.bb.getInt(bytePos) & 0xffffffffL)
+    res
+  }
+  
+  def getUnsignedLong(bitPos: Long, order: java.nio.ByteOrder): BigInteger = {
+    Assert.invariant(bitPos % 8 == 0)
+    val bytePos = (bitPos >> 3).toInt
+    byteReader.bb.order(order)
+    //val res = (byteReader.bb.getLong(bytePos)).asInstanceOf[BigInteger]
+    // What we want to do here is retrieve the bytes manually and convert
+    // them to BigInteger?
+    val dst: Array[Byte] = new Array[Byte](64)
+    byteReader.bb.get(dst, bytePos, 64)
+    val res: BigInteger = new BigInteger(dst)
+    res
   }
 
   def getByteArray(bitPos: Long, order: java.nio.ByteOrder, size: Int) = {

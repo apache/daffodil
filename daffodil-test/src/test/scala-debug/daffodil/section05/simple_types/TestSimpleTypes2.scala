@@ -10,6 +10,7 @@ import daffodil.compiler.Compiler
 import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
+import daffodil.debugger.Debugger
 
 class TestSimpleTypes2 extends JUnitSuite {
   val testDir = "/daffodil/section05/simple_types/"
@@ -45,6 +46,8 @@ class TestSimpleTypes2 extends JUnitSuite {
     @Test def test_whiteSpaceBeforeValidValue() { runner.runOneTest("whiteSpaceBeforeValidValue") }
     @Test def test_whiteSpaceDuringValidValue() { runner.runOneTest("whiteSpaceDuringValidValue") }
   
+
     @Test def test_unsignedShort_binary() { runner.runOneTest("unsignedShort_binary") }
     @Test def test_signedLong_binary() { runner.runOneTest("signedLong_binary") }
+
   }
