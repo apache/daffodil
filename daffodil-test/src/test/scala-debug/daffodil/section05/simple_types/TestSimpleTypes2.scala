@@ -45,15 +45,14 @@ class TestSimpleTypes2 extends JUnitSuite {
 
     @Test def test_whiteSpaceBeforeValidValue() { runner.runOneTest("whiteSpaceBeforeValidValue") }
     @Test def test_whiteSpaceDuringValidValue() { runner.runOneTest("whiteSpaceDuringValidValue") }
-  
 
-    @Test def test_unsignedShort_binary() { runner.runOneTest("unsignedShort_binary") }
-    @Test def test_signedLong_binary() { 
-//   val l = "2147483877".toLong //java.lang.Long.getLong("2147483877")
-//   System.err.println(l)
-//   val str = java.lang.Long.toBinaryString(l)
-//      System.err.println(str)
-//      System.err.println(str.length())
-      runner.runOneTest("signedLong_binary") }
+    @Test def test_unsignedLong_binary2() { runner.runOneTest("unsignedLong_binary2") }
+    @Test def test_unsignedLong_binary() {
+//     val l = "-55".toLong
+//     System.err.println(l)
+//     val str = java.lang.Long.toBinaryString(l)
+//     System.err.println(str)
+//     System.err.println(str.length())
+     runner.runOneTest("unsignedLong_binary") }
 
-  }
+}  

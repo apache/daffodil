@@ -812,13 +812,43 @@
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
+	<tdml:parserTestCase name="unsignedInt_binary" root="uI_01"
+		model="SimpleTypes-binary" description="Section 5 Schema types-unsignedInt - DFDL-5-018R">
+		<tdml:document><tdml:documentPart type="bits">00000000000000000000000000001000</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<uI_01>8</uI_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="unsignedInt_binary2" root="uI_01"
+		model="SimpleTypes-binary" description="Section 5 Schema types-unsignedInt - DFDL-5-018R">
+		<tdml:document><tdml:documentPart type="bits">10000000000000000000000000001000</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<uI_01>2147483656</uI_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
 	<tdml:parserTestCase name="unsignedShort_binary" root="uS_01"
 		model="SimpleTypes-binary" description="Section 5 Schema types-unsignedShort - DFDL-5-018R">
-
 		<tdml:document><tdml:documentPart type="bits">0000000000110111</tdml:documentPart></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<uS_01>55</uS_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="unsignedShort_binary2" root="uS_01"
+		model="SimpleTypes-binary" description="Section 5 Schema types-unsignedShort - DFDL-5-018R">
+
+		<tdml:document><tdml:documentPart type="bits">1111111111111111</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<uS_01>65535</uS_01>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
@@ -834,6 +864,16 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 	
+	<tdml:parserTestCase name="signedLong_binary2" root="l_1"
+		model="SimpleTypes-binary" description="Section 5 Schema types-signedLong - DFDL-5-014R">
+
+		<tdml:document><tdml:documentPart type="bits">1111111111111111111111111111111111111111111111111111111111001001</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<l_1>-55</l_1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="signedShort_binary" root="s_1"
 		model="SimpleTypes-binary" description="Section 5 Schema types-signedShort - DFDL-5-014R">
@@ -853,6 +893,28 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<s_1>458</s_1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="unsignedLong_binary" root="uL_01"
+		model="SimpleTypes-binary" description="Section 5 Schema types-unsignedShort - DFDL-5-018R">
+
+		<tdml:document><tdml:documentPart type="bits">0000000000000000000000000000000000000000000000000000000000000001</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<uL_01>1</uL_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="unsignedLong_binary2" root="uL_01"
+		model="SimpleTypes-binary" description="Section 5 Schema types-unsignedShort - DFDL-5-018R">
+
+		<tdml:document><tdml:documentPart type="bits">0000000000000000000000000000000000000000000000000000000000110111</tdml:documentPart></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<uL_01>55</uL_01>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
