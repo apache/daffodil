@@ -44,5 +44,7 @@ class TestSimpleTypes2 extends JUnitSuite {
 
     @Test def test_whiteSpaceBeforeValidValue() { runner.runOneTest("whiteSpaceBeforeValidValue") }
     @Test def test_whiteSpaceDuringValidValue() { runner.runOneTest("whiteSpaceDuringValidValue") }
+  
+    @Test def test_unsignedShort_binary() { runner.runOneTest("unsignedShort_binary") }
 
   }
