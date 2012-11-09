@@ -274,7 +274,7 @@
 		<xs:element name="root">
 			<xs:complexType>
 				<xs:sequence dfdl:separator="">
-					<xs:element name="basic" type="basicType" dfdl:lenghtKind="implicit"/>
+					<xs:element name="basic" type="basicType" dfdl:lengthKind="implicit"/>
 					<xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
 				</xs:sequence>
 			</xs:complexType>
