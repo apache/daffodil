@@ -158,7 +158,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
         """(?:%4$s*)""" + // trim pad char. aka right or center justified.
           """(.*?)""" + // content [before]. lazy so it won't absorb pad characters
           """(?:%4$s*)""" + // trim pad char. aka left or center justified.
-          """(?<!(?<!%1$s)%2$s)(%3$s)""" + // unescaped delimiter [delim]
+          """(?:(?<!(?:(?<!%1$s)%2$s))(%3$s))""" + // unescaped delimiter [delim]
           """(.*)""" // trailing stuff [after]
       val ContentPattern = str.format(escapeEscape, escape, delim, padChar).r
       // println("Pattern = " + ContentPattern.pattern)
@@ -239,6 +239,115 @@ class TestRegex extends JUnitSuite with RegexParsers {
     assertEquals(Some(("before", "RN", "after")), test2("PPPbeforePPPRNafter")) // works because (.*?) is lazy not greedy
 
     assertEquals(Some(("beforeRNstillBefore", "__N_", "after")), test2("PPPbeforeRENstillBeforePPP__N_after"))
+
+  }
+
+  /**
+   * Tests a regular experssion to match a delimiter but taking
+   * into account escape characters and padChar trimming.
+   *
+   * Special case for when EEC and EC are same.
+   */
+  @Test def testRegexToMatchOneDelimiterWithEscapeCharsWhenEECAndECAreSame() {
+
+    /**
+     * tester regexps and postprocessing algorithms are different
+     * depending on whether you have escapeBlock or escapeCharacter type
+     * escaping.
+     */
+    def tester(escape : String, delimiter : String, padChar : String) = {
+      Assert.usage(padChar.length == 1)
+      //
+      // Let E be the escape character
+      // Let D be the delimiter
+      // Let P be the pad char
+      //
+      // (?<!E)((?:EE)*)P matches unescaped pad characters 
+
+      val str =
+        """(?<!%1$s)((?:%1$s%1$s)*)(?:%3$s*)""" + // trim unescaped pad char. aka right or center justified.
+          """(.*?)""" + // content [before]. lazy so it won't absorb pad characters
+          """(?:""" +
+          """(?<!%1$s)((?:%1$s%1$s)*)(?:%3$s*)(?<!%1$s)(%2$s)""" + // trim unescaped pad char. aka left or center justified. Then delim. (and if pad is size zero, then delimiter must be unescaped.)
+          """|""" + // OR
+          """(?<!%1$s)((?:%1$s%1$s)*)(%2$s)""" + // unescaped delimiter [delim] which is delim preceded by NOT an odd number of escapes.
+          """)""" +
+          """(.*)""" // trailing stuff [after]
+      val ContentPattern = str.format(escape, delimiter, padChar).r
+      // println("Pattern = " + ContentPattern.pattern)
+
+      // used to cleanup escape characters 
+      val ERSplit = """(.*?)%1$s(.)(.*)""".format(escape).r
+
+      /**
+       * Really really we want to use the java APIs that let us construct a matcher from
+       * a pattern (which 'compiles' the pattern), then use that over and over.
+       *
+       * This code is just about figuring out the right regex, and putting
+       * groups inside it that let us get at what we need.
+       */
+      def test(x : String) = x match {
+        case ContentPattern(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
+          println("'%s' parsed to ee1s = '%s', b = '%s', ee2s = '%s', delimAfterPad = '%s', ee3s = '%s', delimAfterEEs = '%s', a = '%s'".format(
+            x, ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after))
+          val before1 = removeActiveEscapes(
+            (if (ee1s == null) "" else ee1s) +
+              before +
+              (if (ee2s == null) "" else ee2s) +
+              (if (ee3s == null) "" else ee3s))
+          val delim1 = if (delimAfterPad == null) delimAfterEEs else delimAfterPad
+          Some((before1, delim1, after))
+        }
+        case z => {
+          // println("no match: " + z); 
+          None
+        }
+      }
+
+      /**
+       * postprocessing to remove active escape characters
+       */
+      // TBD: Are we supposed to remove ALL escape characters?
+      // DFDL spec seems to say so. Only escape-escaped escape characters are preserved.
+      //
+      def removeActiveEscapes(str : String) : String = {
+
+        // if contains ER, replace with just R
+        val str2 = removeActiveEscapes1(str)
+        str2
+      }
+
+      def removeActiveEscapes1(str : String) : String = {
+        val res = str match {
+          case ERSplit(before, delim, after) => {
+            val rest = removeActiveEscapes1(after)
+            before + delim + rest
+          }
+          case _ => str
+        }
+        res
+      }
+
+      test _
+    }
+    val test3 = tester("""E""", """D""", """P""")
+
+    assertEquals(Some("before", "D", "after"), test3("beforeDafter"))
+
+    assertEquals(Some("beforeDstillBefore", "D", "after"), test3("beforeEDstillBeforeDafter"))
+
+    assertEquals(Some("beforeE", "D", "after"), test3("beforeEEDafter"))
+
+    assertEquals(Some("beforeEDstillBefore", "D", "after"), test3("beforeEEEDstillBeforeDafter"))
+
+    assertEquals(Some("beforeEE", "D", "after"), test3("beforeEEEEDafter"))
+
+    assertEquals(Some("beforeEE", "D", "after"), test3("PPPbeforeEEEEPPPDafter"))
+
+    // We can escape a pad character (thereby making it "non pad")
+    assertEquals(Some("PbeforeP", "D", "after"), test3("PPEPbeforeEPPPDafter"))
+
+    assertEquals(Some("PPPbeforePPP", "D", "after"), test3("PEPPEPbeforeEPPEPDafter"))
   }
 
   /**
