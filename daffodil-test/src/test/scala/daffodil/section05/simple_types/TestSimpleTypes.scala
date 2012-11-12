@@ -125,8 +125,8 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_unsignedShort_binary() { runner.runOneTest("unsignedShort_binary") }
   @Test def test_unsignedShort_binary2() { runner.runOneTest("unsignedShort_binary2") }
 
-//  @Test def test_unsignedLong_binary() { runner.runOneTest("unsignedLong_binary") }
-//  @Test def test_unsignedLong_binary2() { runner.runOneTest("unsignedLong_binary2") }
+  @Test def test_unsignedLong_binary() { runner.runOneTest("unsignedLong_binary") }
+  @Test def test_unsignedLong_binary2() { runner.runOneTest("unsignedLong_binary2") }
   
   @Test def test_signedLong_binary() { runner.runOneTest("signedLong_binary") }
   @Test def test_signedLong_binary2() { runner.runOneTest("signedLong_binary2") }
