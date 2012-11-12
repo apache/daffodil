@@ -966,8 +966,8 @@ class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint
     //val res = (byteReader.bb.getLong(bytePos)).asInstanceOf[BigInteger]
     // What we want to do here is retrieve the bytes manually and convert
     // them to BigInteger?
-    val dst: Array[Byte] = new Array[Byte](64)
-    byteReader.bb.get(dst, bytePos, 64)
+    val dst: Array[Byte] = new Array[Byte](8)
+    byteReader.bb.get(dst, bytePos, 8)
     val res: BigInteger = new BigInteger(dst)
     res
   }

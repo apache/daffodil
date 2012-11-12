@@ -396,6 +396,10 @@ trait ElementBaseGrammarMixin
   val bin = BinaryNumberRep.Binary // shorthands for table dispatch
   val ieee = BinaryFloatRep.Ieee
   type BO = java.nio.ByteOrder
+  
+  lazy val zero = new BigInteger("0")
+  lazy val two = new BigInteger("2")
+  lazy val maximumUnsignedLong = two.pow(64).subtract(new BigInteger("1"))
 
   lazy val binaryValue: Gram = {
 
@@ -519,12 +523,12 @@ trait ElementBaseGrammarMixin
             protected override val GramDescription = "Unsigned Long"
             //protected override def isInvalidRange(n: Long) = n < 0 || n >= (1L << 32)
             protected override def isInvalidRange(n: BigInteger) = {
-              val zero = new BigInteger("0")
+//              val zero = new BigInteger("0")
               val nAsBigInt = n.asInstanceOf[BigInteger]
               val shiftRight64 = nAsBigInt.shiftRight(64)
               
-              val two = new BigInteger("2")
-              val maximumUnsignedLong = two.pow(64).subtract(new BigInteger("1"))
+//              val two = new BigInteger("2")
+//              val maximumUnsignedLong = two.pow(64).subtract(new BigInteger("1"))
               val differenceFromMax = maximumUnsignedLong.subtract(nAsBigInt)
               (shiftRight64.compareTo(zero) != 0 || differenceFromMax.compareTo(zero) == 1)
             }
