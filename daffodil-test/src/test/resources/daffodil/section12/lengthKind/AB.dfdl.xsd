@@ -42,5 +42,20 @@
 			</element>
 		</sequence>
 	</complexType>
+	
+	<element name="matrix_01" type="tns:matrixType_01" dfdl:lengthKind="implicit"  />
+
+	<complexType name="matrixType_01">
+		<sequence dfdl:separator="%NL;">
+			<element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
+				<complexType>
+					<sequence dfdl:separator="," dfdl:terminator="%NL;">
+						<element name="cell" type="xsd:int" maxOccurs="unbounded" dfdl:textNumberRep="standard"
+							dfdl:lengthKind="delimited" />
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
 
 </schema>
