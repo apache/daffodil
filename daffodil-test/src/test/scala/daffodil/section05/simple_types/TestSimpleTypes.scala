@@ -134,4 +134,20 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_unsignedInt_binary() { runner.runOneTest("unsignedInt_binary") }
   @Test def test_unsignedInt_binary2() { runner.runOneTest("unsignedInt_binary2") }
 
+  val aj = testDir + "AJ.tdml"
+  lazy val runnerAJ = new DFDLTestSuite(Misc.getRequiredResource(aj))
+   
+  @Test def test_AJ000() { runnerAJ.runOneTest("AJ000") }
+  @Test def test_AJ001() { runnerAJ.runOneTest("AJ001") }
+   
+  val testDir_01 = "/daffodil/ibm-tests/"
+  val aa_01 = testDir_01 + "dpaext1.tdml"
+  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
+  @Test def test_schema_types_5_01() { runner_01.runOneTest("schema_types_5_01") }
+  @Test def test_schema_types_5_02() { runner_01.runOneTest("schema_types_5_02") }
+  @Test def test_schema_types_5_03() { runner_01.runOneTest("schema_types_5_03") }
+  @Test def test_schema_types_5_04() { runner_01.runOneTest("schema_types_5_04") }
+  @Test def test_schema_types_5_05() { runner_01.runOneTest("schema_types_5_05") }
+
+
   }
