@@ -99,7 +99,7 @@ object DFDLFunctions {
 }
 
 object DFDLPositionFunction extends DFDLFunction("position", 0) {
-  def evaluate1(args: java.util.List[_], pstate: PState): Object = {
+  def evaluate1(hasNoArgs: java.util.List[_], pstate: PState): Object = {
     val res: java.lang.Long = pstate.arrayPos
     res
   }
@@ -160,7 +160,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   def checkMinMaxOccurs(element: ElementBase, position: Long): Boolean = {
-	// We only want to fail here if the element is in an array AND
+    // We only want to fail here if the element is in an array AND
     // the position isn't within the confines of min/max occurs
     //
     if (element.isInstanceOf[LocalElementDecl]) {
@@ -181,7 +181,9 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   def checkOccurrance(minOccurs: Int, maxOccurs: Int, position: Long): Boolean = {
     //System.err.println("checkOccurrance(%s, %s, %s)".format(minOccurs, maxOccurs, position))
     // A maxOccurs of -1 signifies unbounded
-    if (position > minOccurs && ((position <= maxOccurs) || (maxOccurs == -1))){ return true }
+    if ( // position > minOccurs && // DON"T CHECK MIN OCCURS. 
+    // That can't work. If minOccurs is 5 the first element at position 1 will fail this check.
+    ((position <= maxOccurs) || (maxOccurs == -1))) { return true }
     return false
   }
 }
@@ -215,8 +217,8 @@ object XPathUtil extends Logging {
    * a CompiledExpressionFactory
    */
   def compileExpression(dfdlExpressionRaw: String,
-    namespaces: Seq[org.jdom.Namespace],
-    context: SchemaComponent) = withLoggingLevel(LogLevel.Info) {
+                        namespaces: Seq[org.jdom.Namespace],
+                        context: SchemaComponent) = withLoggingLevel(LogLevel.Info) {
     log(Debug("Compiling expression"))
     val dfdlExpression = dfdlExpressionRaw.trim
     Assert.usage(dfdlExpression != "")
@@ -326,7 +328,7 @@ object XPathUtil extends Logging {
    * @param namespaces  - the namespaces in scope
    */
   private[xpath] def evalExpressionFromString(expression: String, variables: VariableMap,
-    contextNode: Parent, namespaces: Seq[org.jdom.Namespace], targetType: QName = NODE): XPathResult = {
+                                              contextNode: Parent, namespaces: Seq[org.jdom.Namespace], targetType: QName = NODE): XPathResult = {
 
     val compiledExprExceptVariables = compileExpression(expression, namespaces, null) // null as schema component
     val res = evalExpression(expression, compiledExprExceptVariables, variables, contextNode, targetType)
