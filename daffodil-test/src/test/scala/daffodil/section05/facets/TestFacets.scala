@@ -32,4 +32,9 @@ class TestFacets extends JUnitSuite {
   @Test def test_fixedUnboundedMax() { runner.runOneTest("fixedUnboundedMax") }
   @Test def test_minMaxDoNotMatch() { runner.runOneTest("minMaxDoNotMatch") }
 
+  @Test def test_facet_pattern_01() { runner.runOneTest("facetPattern01") }
+  @Test def test_facet_pattern_02() { runner.runOneTest("facetPattern02") }
+  @Test def test_facet_pattern_03() { runner.runOneTest("facetPattern03") }
+  @Test def test_facet_pattern_04() { runner.runOneTest("facetPattern04") }
+//  @Test def test_facet_pattern_05() { runner.runOneTest("facetPattern05") }
   }
