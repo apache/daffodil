@@ -9,25 +9,29 @@
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
 	<tdml:defineSchema name="lengthKindDelimited-Embedded.dfdl.xsd">
-		
-		
-
+	
 			<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" lengthUnits="bytes" encoding="UTF-8" separator="" initiator="" terminator=""
 		       		occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" 
 		       		initiatedContent="no"/>
 		       		
-		
-		
 	    <xs:element name="NS_00a" type="xs:int" dfdl:terminator="a aab"/>
 	    <xs:element name="NS_00nl" type="xs:int" dfdl:terminator="%NL;"/>
 		
 		<xs:element name="NS_01">
-		<xs:complexType>
-			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-				dfdl:separator="," dfdl:separatorPolicy="suppressed" dfdl:terminator="%NL;">
-				<xs:element name="num" type="xs:int" maxOccurs="unbounded" minOccurs="0"/>	
-			</xs:sequence>
-		</xs:complexType>
+			<xs:complexType>
+				<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+					dfdl:separator="," dfdl:separatorPolicy="suppressed" dfdl:terminator="%NL;">
+					<xs:element name="num" type="xs:int" maxOccurs="unbounded" minOccurs="0"/>	
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+		<xs:element name="nested_NS_01">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="%NL;">
+					<xs:element ref="ex:NS_01" maxOccurs="unbounded" dfdl:lengthKind="delimited"/>
+				</xs:sequence>
+			</xs:complexType>
 		</xs:element>
 		
 		<xs:element name="NS_03">
@@ -224,6 +228,33 @@
 					<num>5</num>
 					<num>6</num>
 				</NS_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="nested_NumSeq_01" root="nested_NS_01"
+		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
+
+		<tdml:document><![CDATA[1,2,3,4,5,6
+7,8,9
+]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<nested_NS_01>
+					<NS_01>
+						<num>1</num>
+						<num>2</num>
+						<num>3</num>
+						<num>4</num>
+						<num>5</num>
+						<num>6</num>
+					</NS_01>
+					<NS_01>
+						<num>7</num>
+						<num>8</num>
+						<num>9</num>
+					</NS_01>
+				</nested_NS_01>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>

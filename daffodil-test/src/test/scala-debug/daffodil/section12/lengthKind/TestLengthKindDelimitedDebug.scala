@@ -30,5 +30,6 @@ class TestLengthKindDelimitedDebug extends JUnitSuite {
   @Test def test_NumSeq_09() { runner.runOneTest("NumSeq_09") }
   @Test def test_NumSeq_10() { runner.runOneTest("NumSeq_10") }
   //@Test def test_NumSeq_02() { runner.runOneTest("NumSeq_02") }
+  @Test def test_nested_NumSeq_01() =  { runner.runOneTest("nested_NumSeq_01") }
   
   }
