@@ -1,913 +1,1031 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite suiteName="expressions"
-	description="lengthKind explicit and occursCountKind expression"
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ex="http://example.com">
+  description="lengthKind explicit and occursCountKind expression"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
-	<tdml:defineSchema name="lke1_rel">
-		<dfdl:format ref="ex:daffodilTest1" />
+  <tdml:defineSchema name="lke1_rel">
+    <dfdl:format ref="ex:daffodilTest1" />
 
-		<xs:element name="e1">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="len" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" />
-					<xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit"
-						dfdl:length="{ ../ex:len }" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" />
+          <xs:element name="s1" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{ ../ex:len }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="lke1_rel" root="e1"
-		model="lke1_rel" description="simplest computed length - DFDL-23-011R">
+  <tdml:parserTestCase name="lke1_rel" root="e1"
+    model="lke1_rel" description="simplest computed length - DFDL-23-011R">
 
-		<tdml:document>
-			<tdml:documentPart type="byte">00000004
+    <tdml:document>
+      <tdml:documentPart type="byte">00000004
 			</tdml:documentPart>
-			<tdml:documentPart type="text">abcd</tdml:documentPart>
-		</tdml:document>
+      <tdml:documentPart type="text">abcd</tdml:documentPart>
+    </tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<ex:e1>
-					<ex:len>4</ex:len>
-					<ex:s1>abcd</ex:s1>
-				</ex:e1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:len>4</ex:len>
+          <ex:s1>abcd</ex:s1>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="lke1_abs">
-		<dfdl:format ref="ex:daffodilTest1" />
+  <tdml:defineSchema name="lke1_abs">
+    <dfdl:format ref="ex:daffodilTest1" />
 
-		<xs:element name="e1">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="len" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" />
-					<xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit"
-						dfdl:length="{ /ex:e1/ex:len }" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" />
+          <xs:element name="s1" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{ /ex:e1/ex:len }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
 
-	<tdml:parserTestCase name="lke1_abs" root="e1"
-		model="lke1_abs" description="simplest computed length - DFDL-23-011R">
+  <tdml:parserTestCase name="lke1_abs" root="e1"
+    model="lke1_abs" description="simplest computed length - DFDL-23-011R">
 
-		<tdml:document>
-			<tdml:documentPart type="byte">00000004
+    <tdml:document>
+      <tdml:documentPart type="byte">00000004
 			</tdml:documentPart>
-			<tdml:documentPart type="text">abcd</tdml:documentPart>
-		</tdml:document>
+      <tdml:documentPart type="text">abcd</tdml:documentPart>
+    </tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<ex:e1>
-					<ex:len>4</ex:len>
-					<ex:s1>abcd</ex:s1>
-				</ex:e1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:len>4</ex:len>
+          <ex:s1>abcd</ex:s1>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="ocke1">
-		<dfdl:format ref="ex:daffodilTest1" />
+  <tdml:defineSchema name="ocke1">
+    <dfdl:format ref="ex:daffodilTest1" />
 
-		<xs:element name="e1">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="reps" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" />
-					<xs:element name="scale" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" />
-					<xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit"
-						dfdl:length="{1}" dfdl:occursCount="{ ../ex:reps * /ex:e1/ex:scale}"
-						dfdl:occursCountKind="expression" minOccurs="0" maxOccurs="unbounded" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="reps" type="xs:int"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" />
+          <xs:element name="scale" type="xs:int"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" />
+          <xs:element name="s1" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{1}"
+            dfdl:occursCount="{ ../ex:reps * /ex:e1/ex:scale}"
+            dfdl:occursCountKind="expression" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="ocke1" root="e1" model="ocke1"
-		description="very simple occursCountKind expression - DFDL-23-011R">
+  <tdml:parserTestCase name="ocke1" root="e1" model="ocke1"
+    description="very simple occursCountKind expression - DFDL-23-011R">
 
-		<tdml:document>
-			<!-- two binary integers get multiplied 2x2=4 -->
-			<tdml:documentPart type="byte">00000002 00000002
+    <tdml:document>
+      <!-- two binary integers get multiplied 2x2=4 -->
+      <tdml:documentPart type="byte">00000002 00000002
 			</tdml:documentPart>
-			<!-- followed by that many characters, each is an element of the array -->
-			<tdml:documentPart type="text">abcd</tdml:documentPart>
-		</tdml:document>
+      <!-- followed by that many characters, each is an element of the array -->
+      <tdml:documentPart type="text">abcd</tdml:documentPart>
+    </tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<ex:e1>
-					<ex:reps>2</ex:reps>
-					<ex:scale>2</ex:scale>
-					<ex:s1>a</ex:s1>
-					<ex:s1>b</ex:s1>
-					<ex:s1>c</ex:s1>
-					<ex:s1>d</ex:s1>
-				</ex:e1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:reps>2</ex:reps>
+          <ex:scale>2</ex:scale>
+          <ex:s1>a</ex:s1>
+          <ex:s1>b</ex:s1>
+          <ex:s1>c</ex:s1>
+          <ex:s1>d</ex:s1>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="ocke2">
-		<dfdl:format ref="ex:daffodilTest1" />
+  <tdml:defineSchema name="ocke2">
+    <dfdl:format ref="ex:daffodilTest1" />
 
-		<xs:element name="e1">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="scale" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" />
-					<xs:element name="hdr">
-						<xs:complexType>
-							<xs:sequence>
-								<xs:element name="reps" type="xs:int"
-									dfdl:representation="binary" dfdl:lengthKind="implicit" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-					<xs:element name="body">
-						<xs:complexType>
-							<xs:sequence>
-								<xs:element name="s1" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{1}"
-									dfdl:occursCount="{ ../../ex:hdr/ex:reps * /ex:e1/ex:scale}"
-									dfdl:occursCountKind="expression" minOccurs="0" maxOccurs="unbounded" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="scale" type="xs:int"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" />
+          <xs:element name="hdr">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="reps" type="xs:int"
+                  dfdl:representation="binary" dfdl:lengthKind="implicit" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="body">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="s1" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{1}"
+                  dfdl:occursCount="{ ../../ex:hdr/ex:reps * /ex:e1/ex:scale}"
+                  dfdl:occursCountKind="expression" minOccurs="0"
+                  maxOccurs="unbounded" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="ocke2" root="e1" model="ocke2"
-		description="very simple occursCountKind expression - DFDL-23-011R">
+  <tdml:parserTestCase name="ocke2" root="e1" model="ocke2"
+    description="very simple occursCountKind expression - DFDL-23-011R">
 
-		<tdml:document>
-			<!-- two binary integers get multiplied 2x2=4 -->
-			<tdml:documentPart type="byte">00000003 00000002
+    <tdml:document>
+      <!-- two binary integers get multiplied 2x2=4 -->
+      <tdml:documentPart type="byte">00000003 00000002
 			</tdml:documentPart>
-			<!-- followed by that many characters, each is an element of the array -->
-			<tdml:documentPart type="text">abcdef</tdml:documentPart>
-		</tdml:document>
+      <!-- followed by that many characters, each is an element of the array -->
+      <tdml:documentPart type="text">abcdef</tdml:documentPart>
+    </tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<ex:e1>
-					<ex:scale>3</ex:scale>
-					<ex:hdr>
-						<ex:reps>2</ex:reps>
-					</ex:hdr>
-					<ex:body>
-						<ex:s1>a</ex:s1>
-						<ex:s1>b</ex:s1>
-						<ex:s1>c</ex:s1>
-						<ex:s1>d</ex:s1>
-						<ex:s1>e</ex:s1>
-						<ex:s1>f</ex:s1>
-					</ex:body>
-				</ex:e1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:scale>3</ex:scale>
+          <ex:hdr>
+            <ex:reps>2</ex:reps>
+          </ex:hdr>
+          <ex:body>
+            <ex:s1>a</ex:s1>
+            <ex:s1>b</ex:s1>
+            <ex:s1>c</ex:s1>
+            <ex:s1>d</ex:s1>
+            <ex:s1>e</ex:s1>
+            <ex:s1>f</ex:s1>
+          </ex:body>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="ArrayOptionalElem-Embedded.dfdl.xsd">
+  <tdml:defineSchema name="ArrayOptionalElem-Embedded.dfdl.xsd">
 
-		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
-			lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
-			terminator="" occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
-			representation="text" byteOrder="bigEndian" binaryNumberRep="binary" />
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="text" byteOrder="bigEndian"
+      binaryNumberRep="binary" />
 
-		<xs:element name="aoe_01">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="reps" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" />
-					<xs:element name="rows" type="xs:byte"
-						dfdl:representation="binary" maxOccurs="unbounded"
-						dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:reps }" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="aoe_01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="reps" type="xs:int"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" />
+          <xs:element name="rows" type="xs:byte"
+            dfdl:representation="binary" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:reps }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="aoe_02">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="reps" type="xs:unsignedInt"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" />
-					<xs:element name="rows" type="xs:byte"
-						dfdl:representation="binary" maxOccurs="unbounded"
-						dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:reps }" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="aoe_02">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="reps" type="xs:unsignedInt"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" />
+          <xs:element name="rows" type="xs:byte"
+            dfdl:representation="binary" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:reps }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="ArrayOptElem_01" root="aoe_01"
-		model="ArrayOptionalElem-Embedded.dfdl.xsd" description="occursCountKind expression with relative path - DFDL-23-011R">
+  <tdml:parserTestCase name="ArrayOptElem_01" root="aoe_01"
+    model="ArrayOptionalElem-Embedded.dfdl.xsd" description="occursCountKind expression with relative path - DFDL-23-011R">
 
-		<tdml:document>
-			<tdml:documentPart type="byte">00000003000102
+    <tdml:document>
+      <tdml:documentPart type="byte">00000003000102
 			</tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<aoe_01>
-					<reps>3</reps>
-					<rows>0</rows>
-					<rows>1</rows>
-					<rows>2</rows>
-				</aoe_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <aoe_01>
+          <reps>3</reps>
+          <rows>0</rows>
+          <rows>1</rows>
+          <rows>2</rows>
+        </aoe_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="ArrayOptElem_02" root="aoe_02"
-		model="ArrayOptionalElem-Embedded.dfdl.xsd"
-		description="an unsignedInt value in an occursCount expression - DFDL-23-011R">
+  <tdml:parserTestCase name="ArrayOptElem_02" root="aoe_02"
+    model="ArrayOptionalElem-Embedded.dfdl.xsd"
+    description="an unsignedInt value in an occursCount expression - DFDL-23-011R">
 
-		<tdml:document>
-			<tdml:documentPart type="byte">00000003000102
+    <tdml:document>
+      <tdml:documentPart type="byte">00000003000102
 			</tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<aoe_01>
-					<reps>3</reps>
-					<rows>0</rows>
-					<rows>1</rows>
-					<rows>2</rows>
-				</aoe_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <aoe_01>
+          <reps>3</reps>
+          <rows>0</rows>
+          <rows>1</rows>
+          <rows>2</rows>
+        </aoe_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="expressions-Embedded.dfdl.xsd">
+  <tdml:defineSchema name="expressions-Embedded.dfdl.xsd">
 
-		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
-			lengthUnits="bytes" encoding="US-ASCII" separator="" initiator=""
-			terminator="" occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
-			representation="text" />
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+      lengthUnits="bytes" encoding="US-ASCII" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="text" />
 
-		<xs:element name="lke_01" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit"
-						dfdl:length="1" />
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="explicit"
-						dfdl:length="{../ex:e1}" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="lke_01" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="e2" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="{../ex:e1}" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="lke_02" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="e1" type="xs:int" dfdl:encoding="utf-8"
-						dfdl:lengthKind="explicit" dfdl:length="1" />
-					<xs:element name="e2" type="xs:int" dfdl:encoding="utf-8"
-						dfdl:lengthKind="explicit" dfdl:length="{../ex:e1}" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="lke_02" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int" dfdl:encoding="utf-8"
+            dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="e2" type="xs:int" dfdl:encoding="utf-8"
+            dfdl:lengthKind="explicit" dfdl:length="{../ex:e1}" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="ocke" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence dfdl:initiator="">
-					<xs:element name="nrows" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:terminator="," />
-					<xs:element name="ncols" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:terminator="," />
-					<xs:element name="rows" maxOccurs="unbounded"
-						dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:nrows }">
-						<xs:complexType>
-							<xs:sequence>
-								<xs:element name="cols" type="xs:int" maxOccurs="unbounded"
-									dfdl:lengthKind="delimited" dfdl:terminator=","
-									dfdl:occursCountKind="expression" dfdl:occursCount=" { ../../ex:ncols } " />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="ocke" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:initiator="">
+          <xs:element name="nrows" type="xs:int"
+            dfdl:lengthKind="delimited" dfdl:terminator="," />
+          <xs:element name="ncols" type="xs:int"
+            dfdl:lengthKind="delimited" dfdl:terminator="," />
+          <xs:element name="rows" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:nrows }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="cols" type="xs:int"
+                  maxOccurs="unbounded" dfdl:lengthKind="delimited"
+                  dfdl:terminator="," dfdl:occursCountKind="expression"
+                  dfdl:occursCount=" { ../../ex:ncols } " />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="lke2_rel" root="lke_01"
-		model="expressions-Embedded.dfdl.xsd" description="length expression, relative path - DFDL-23-011R">
+  <tdml:parserTestCase name="lke2_rel" root="lke_01"
+    model="expressions-Embedded.dfdl.xsd" description="length expression, relative path - DFDL-23-011R">
 
-		<tdml:document>3538</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<lke_01>
-					<e1>3</e1>
-					<e2>538</e2>
-				</lke_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <tdml:document>3538</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <lke_01>
+          <e1>3</e1>
+          <e2>538</e2>
+        </lke_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="lke3_rel" root="lke_02"
-		model="expressions-Embedded.dfdl.xsd" description="length expression, relative path - DFDL-23-011R">
+  <tdml:parserTestCase name="lke3_rel" root="lke_02"
+    model="expressions-Embedded.dfdl.xsd" description="length expression, relative path - DFDL-23-011R">
 
-		<tdml:document>3538</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<lke_02>
-					<e1>3</e1>
-					<e2>538</e2>
-				</lke_02>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <tdml:document>3538</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <lke_02>
+          <e1>3</e1>
+          <e2>538</e2>
+        </lke_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="ocke_rel" root="ocke"
-		model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+  <tdml:parserTestCase name="ocke_rel" root="ocke"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
 
-		<tdml:document>2,3,1,2,3,4,5,6,</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<ocke>
-					<nrows>2</nrows>
-					<ncols>3</ncols>
-					<rows>
-						<cols>1</cols>
-						<cols>2</cols>
-						<cols>3</cols>
-					</rows>
-					<rows>
-						<cols>4</cols>
-						<cols>5</cols>
-						<cols>6</cols>
-					</rows>
-				</ocke>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <tdml:document>2,3,1,2,3,4,5,6,</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ocke>
+          <nrows>2</nrows>
+          <ncols>3</ncols>
+          <rows>
+            <cols>1</cols>
+            <cols>2</cols>
+            <cols>3</cols>
+          </rows>
+          <rows>
+            <cols>4</cols>
+            <cols>5</cols>
+            <cols>6</cols>
+          </rows>
+        </ocke>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="expression-type-errors.dfdl.xsd">
+  <tdml:defineSchema name="expression-type-errors.dfdl.xsd">
 
-		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
-			lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
-			terminator="" occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
-			representation="text" />
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="text" />
 
-		<xs:element name="e" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="e1" type="xs:string"
-						dfdl:inputValueCalc="{ 'S' }" />
-					<xs:element name="e2" type="xs:int" dfdl:inputValueCalc="{ 2 }" />
-					<xs:element name="e3" type="xs:int" dfdl:inputValueCalc="{ ../ex:e2 + ../ex:e1 }" /> <!-- type error adding string to int is n.g. -->
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="e" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string"
+            dfdl:inputValueCalc="{ 'S' }" />
+          <xs:element name="e2" type="xs:int"
+            dfdl:inputValueCalc="{ 2 }" />
+          <xs:element name="e3" type="xs:int"
+            dfdl:inputValueCalc="{ ../ex:e2 + ../ex:e1 }" /> <!-- type error adding string to int is n.g. -->
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="f" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="e3" type="xs:int" dfdl:inputValueCalc="{ 2.5 }" /> <!-- type error as result is not int. -->
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="f" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e3" type="xs:int"
+            dfdl:inputValueCalc="{ 2.5 }" /> <!-- type error as result is not int. -->
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="g" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="e1" type="xs:string"
-						dfdl:inputValueCalc="{ 'notAnInt' }" />
-					<xs:element name="e3" type="xs:int" dfdl:inputValueCalc="{ ../ex:e1 }" /> <!-- type error -->
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="g" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string"
+            dfdl:inputValueCalc="{ 'notAnInt' }" />
+          <xs:element name="e3" type="xs:int"
+            dfdl:inputValueCalc="{ ../ex:e1 }" /> <!-- type error -->
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="expression-type-error1"
-		root="e" model="expression-type-errors.dfdl.xsd"
-		description="get a type error from an expression at runtime - DFDL-23-006R">
+  <tdml:parserTestCase name="expression-type-error1"
+    root="e" model="expression-type-errors.dfdl.xsd"
+    description="get a type error from an expression at runtime - DFDL-23-006R">
 
-		<tdml:document />
-		<tdml:errors>
-			<tdml:error>Parse Error</tdml:error>
-			<tdml:error>convert</tdml:error>
-			<tdml:error>double</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>convert</tdml:error>
+      <tdml:error>double</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="expression-type-error2"
-		root="f" model="expression-type-errors.dfdl.xsd"
-		description="get a type error from an expression at runtime - DFDL-23-006R">
-		<tdml:document />
-		<tdml:errors>
-			<tdml:error>Schema Definition Error</tdml:error>
-			<tdml:error>convert</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="expression-type-error2"
+    root="f" model="expression-type-errors.dfdl.xsd"
+    description="get a type error from an expression at runtime - DFDL-23-006R">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>convert</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="expression-type-error3"
-		root="g" model="expression-type-errors.dfdl.xsd"
-		description="get a type error from an expression at runtime - DFDL-23-006R">
-		<tdml:document />
-		<tdml:errors>
-			<tdml:error>Parse Error</tdml:error>
-			<tdml:error>NaN</tdml:error>
-		</tdml:errors>
-		<!-- <tdml:infoset> <tdml:dfdlInfoset xmlns="http://example.com"> <g> <e1>notAnInt</e1> 
-			<e3>2</e3> </g> </tdml:dfdlInfoset> </tdml:infoset> -->
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="expression-type-error3"
+    root="g" model="expression-type-errors.dfdl.xsd"
+    description="get a type error from an expression at runtime - DFDL-23-006R">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>NaN</tdml:error>
+    </tdml:errors>
+    <!-- <tdml:infoset> <tdml:dfdlInfoset xmlns="http://example.com"> <g>
+      <e1>notAnInt</e1>
+      <e3>2</e3> </g> </tdml:dfdlInfoset> </tdml:infoset> -->
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="unknown-prefix">
-		<dfdl:format ref="ex:daffodilTest1" />
-		<xs:element name="theElementName" type="xs:int"
-			dfdl:inputValueCalc="{ theUnknownPrefix:x }" />
-	</tdml:defineSchema>
+  <tdml:defineSchema name="unknown-prefix">
+    <dfdl:format ref="ex:daffodilTest1" />
+    <xs:element name="theElementName" type="xs:int"
+      dfdl:inputValueCalc="{ theUnknownPrefix:x }" />
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="expression-unknown-prefix"
-		root="theElementName" model="unknown-prefix"
-		description="get compilation time error due to unknown prefix - DFDL-2-001R requirement makes a reference to this test -Assigned to requirement DFDL-23-011R">
-		<tdml:document />
-		<tdml:errors>
-			<tdml:error>Schema Definition</tdml:error>
-			<tdml:error>theUnknownPrefix</tdml:error>
-			<tdml:error>theElementName</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="expression-unknown-prefix"
+    root="theElementName" model="unknown-prefix"
+    description="get compilation time error due to unknown prefix - DFDL-2-001R requirement makes a reference to this test -Assigned to requirement DFDL-23-011R">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition</tdml:error>
+      <tdml:error>theUnknownPrefix</tdml:error>
+      <tdml:error>theElementName</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-	<!--- begin ssustrich's test -->
+  <!--- begin ssustrich's test -->
 
-	<tdml:defineSchema name="expresion_path_error">
-		<dfdl:format ref="ex:daffodilTest1" />
+  <tdml:defineSchema name="expresion_path_error">
+    <dfdl:format ref="ex:daffodilTest1" />
 
-		<xs:element name="e1">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="reps" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" />
-					<xs:element name="scale" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" />
-					<xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit"
-						dfdl:length="{1}" dfdl:occursCount="{ ../../ex:reps * /ex:e1/ex:scale}"
-						dfdl:occursCountKind="expression" minOccurs="0" maxOccurs="unbounded" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="reps" type="xs:int"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" />
+          <xs:element name="scale" type="xs:int"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" />
+          <xs:element name="s1" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{1}"
+            dfdl:occursCount="{ ../../ex:reps * /ex:e1/ex:scale}"
+            dfdl:occursCountKind="expression" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="expresion_bad_path_to_variable"
-		root="e1" model="expresion_path_error"
-		description="very simple occursCountKind expression - DFDL-23-XXXR">
+  <tdml:parserTestCase name="expresion_bad_path_to_variable"
+    root="e1" model="expresion_path_error"
+    description="very simple occursCountKind expression - DFDL-23-XXXR">
 
-		<tdml:document>
-			<!-- two binary integers get multiplied 2x2=4 -->
-			<tdml:documentPart type="byte">00000002 00000002
+    <tdml:document>
+      <!-- two binary integers get multiplied 2x2=4 -->
+      <tdml:documentPart type="byte">00000002 00000002
 			</tdml:documentPart>
-			<!-- followed by that many characters, each is an element of the array -->
-			<tdml:documentPart type="text">abcd</tdml:documentPart>
-		</tdml:document>
-		<tdml:errors>
-			<tdml:error />
-		</tdml:errors>
+      <!-- followed by that many characters, each is an element of the array -->
+      <tdml:documentPart type="text">abcd</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error />
+    </tdml:errors>
 
-		<!-- <tdml:infoset> <tdml:dfdlInfoset> <ex:e1> <ex:reps>2</ex:reps> <ex:scale>2</ex:scale> 
-			<ex:s1>a</ex:s1> <ex:s1>b</ex:s1> <ex:s1>c</ex:s1> <ex:s1>d</ex:s1> </ex:e1> 
-			</tdml:dfdlInfoset> </tdml:infoset> -->
-	</tdml:parserTestCase>
-
-
-	<!--- end ssustrich's test -->
-
-	<tdml:defineSchema name="v">
-		<dfdl:format ref="ex:daffodilTest1" />
-		<xs:element name="e">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="cnt" type="xs:int" dfdl:lengthKind="delimited" />
-					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
-						dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt) }">
-						<xs:complexType>
-							<xs:sequence>
-								<xs:element name="v" type="xs:int"
-									dfdl:inputValueCalc="{ dfdl:position() }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-		<xs:element name="f">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="cnt1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:terminator=";" />
-					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
-						dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt1) }">
-						<xs:complexType>
-							<xs:sequence>
-								<xs:element name="v" type="xs:int"
-									dfdl:inputValueCalc="{ dfdl:position() }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-					<xs:element name="cnt2" type="xs:int" dfdl:lengthKind="delimited" />
-					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
-						dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt2) }">
-						<xs:complexType>
-							<xs:sequence>
-								<xs:element name="v" type="xs:int"
-									dfdl:inputValueCalc="{ dfdl:position() }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-		<xs:element name="g">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="cnt1" type="xs:int" dfdl:lengthKind="delimited"
-						dfdl:terminator=";" />
-					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
-						dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt1) }">
-						<xs:complexType>
-							<xs:sequence>
-								<xs:element name="v" type="xs:int"
-									dfdl:inputValueCalc="{ dfdl:position() }" />
-								<xs:element name="cnt2" type="xs:int"
-									dfdl:lengthKind="delimited" dfdl:terminator=";" />
-								<xs:element name="b" minOccurs="0" maxOccurs="unbounded"
-									dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt2) }">
-									<xs:complexType>
-										<xs:sequence>
-											<xs:element name="w" type="xs:int"
-												dfdl:inputValueCalc="{ dfdl:position() }" />
-										</xs:sequence>
-									</xs:complexType>
-								</xs:element>
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-		<xs:element name="h">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="cnt" type="xs:int" dfdl:lengthKind="delimited" />
-					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
-						dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt) }">
-						<xs:complexType>
-							<xs:sequence>
-								<xs:element name="v" type="xs:int"
-									dfdl:inputValueCalc="{ if (dfdl:position() mod 2 eq 1) then 0 else dfdl:position() }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-		<xs:element name="noFunc">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="err" type="xs:int"
-						dfdl:inputValueCalc="{ dfdl:notAFunction(1, 2, 3) }" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-	</tdml:defineSchema>
-
-	<tdml:parserTestCase name="nonFunctionIsDetected"
-		root="noFunc" model="v">
-
-		<tdml:document />
-
-		<tdml:errors>
-			<tdml:error>notAFunction</tdml:error>
-			<tdml:error>arity 3</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
+    <!-- <tdml:infoset> <tdml:dfdlInfoset> <ex:e1> <ex:reps>2</ex:reps> <ex:scale>2</ex:scale>
+      <ex:s1>a</ex:s1> <ex:s1>b</ex:s1> <ex:s1>c</ex:s1> <ex:s1>d</ex:s1>
+      </ex:e1>
+      </tdml:dfdlInfoset> </tdml:infoset> -->
+  </tdml:parserTestCase>
 
 
-	<tdml:parserTestCase name="dfdlPosition1" root="e"
-		model="v">
+  <!--- end ssustrich's test -->
 
-		<tdml:document>1</tdml:document>
+  <tdml:defineSchema name="v">
+    <dfdl:format ref="ex:daffodilTest1" />
+    <xs:element name="e">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="cnt" type="xs:int"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt) }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="v" type="xs:int"
+                  dfdl:inputValueCalc="{ dfdl:position() }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e>
-					<cnt>1</cnt>
-					<a>
-						<v>1</v>
-					</a>
-				</e>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <xs:element name="f">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="cnt1" type="xs:int"
+            dfdl:lengthKind="delimited" dfdl:terminator=";" />
+          <xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt1) }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="v" type="xs:int"
+                  dfdl:inputValueCalc="{ dfdl:position() }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="cnt2" type="xs:int"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt2) }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="v" type="xs:int"
+                  dfdl:inputValueCalc="{ dfdl:position() }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	<tdml:parserTestCase name="dfdlPosition2" root="e"
-		model="v">
+    <xs:element name="g">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="cnt1" type="xs:int"
+            dfdl:lengthKind="delimited" dfdl:terminator=";" />
+          <xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt1) }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="v" type="xs:int"
+                  dfdl:inputValueCalc="{ dfdl:position() }" />
+                <xs:element name="cnt2" type="xs:int"
+                  dfdl:lengthKind="delimited" dfdl:terminator=";" />
+                <xs:element name="b" minOccurs="0" maxOccurs="unbounded"
+                  dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt2) }">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="w" type="xs:int"
+                        dfdl:inputValueCalc="{ dfdl:position() }" />
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
 
-		<tdml:document>2</tdml:document>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e>
-					<cnt>2</cnt>
-					<a>
-						<v>1</v>
-					</a>
-					<a>
-						<v>2</v>
-					</a>
-				</e>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <xs:element name="h">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="cnt" type="xs:int"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt) }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="v" type="xs:int"
+                  dfdl:inputValueCalc="{ if (dfdl:position() mod 2 eq 1) then 0 else dfdl:position() }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	<tdml:parserTestCase name="dfdlPosition3" root="f"
-		model="v">
+    <xs:element name="noFunc">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="err" type="xs:int"
+            dfdl:inputValueCalc="{ dfdl:notAFunction(1, 2, 3) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<tdml:document>2;2</tdml:document>
+  </tdml:defineSchema>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<f>
-					<cnt1>2</cnt1>
-					<a>
-						<v>1</v>
-					</a>
-					<a>
-						<v>2</v>
-					</a>
-					<cnt2>2</cnt2>
-					<a>
-						<v>1</v>
-					</a>
-					<a>
-						<v>2</v>
-					</a>
-				</f>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="nonFunctionIsDetected"
+    root="noFunc" model="v">
 
-	<tdml:parserTestCase name="dfdlPosition4" root="g"
-		model="v" description="nested array case. Tests indexes are kept independently.">
+    <tdml:document />
 
-		<tdml:document>2;2;2;</tdml:document>
+    <tdml:errors>
+      <tdml:error>notAFunction</tdml:error>
+      <tdml:error>arity 3</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<g>
-					<cnt1>2</cnt1>
-					<a>
-						<v>1</v>
-						<cnt2>2</cnt2>
-						<b>
-							<w>1</w>
-						</b>
-						<b>
-							<w>2</w>
-						</b>
-					</a>
-					<a>
-						<v>2</v>
-						<cnt2>2</cnt2>
-						<b>
-							<w>1</w>
-						</b>
-						<b>
-							<w>2</w>
-						</b>
-					</a>
 
-				</g>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="dfdlPosition1" root="e"
+    model="v">
 
-	<tdml:parserTestCase name="dfdlPosition5" root="h"
-		model="v">
+    <tdml:document>1</tdml:document>
 
-		<tdml:document>6</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<h>
-					<cnt>6</cnt>
-					<a>
-						<v>0</v>
-					</a>
-					<a>
-						<v>2</v>
-					</a>
-					<a>
-						<v>0</v>
-					</a>
-					<a>
-						<v>4</v>
-					</a>
-					<a>
-						<v>0</v>
-					</a>
-					<a>
-						<v>6</v>
-					</a>
-				</h>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <cnt>1</cnt>
+          <a>
+            <v>1</v>
+          </a>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="checkConstraints">
-		<dfdl:format ref="ex:daffodilTest1" />
-		<xs:element name="e1">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="cnt" type="xs:int" dfdl:lengthKind="delimited" />
-					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
-						dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt) }">
-						<xs:complexType>
-							<xs:sequence>
-								<xs:element name="v" type="xs:int"
-									dfdl:inputValueCalc="{ dfdl:checkConstraints(.) }" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		<xs:element name="e2" dfdl:lengthKind="delimited">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:assert test="{ dfdl:checkConstraints(.) }"
-						message="Assertion failed for dfdl:checkConstraints(.)" />
-				</xs:appinfo>
-			</xs:annotation>
-			<xs:simpleType>
-				<xs:restriction base="xs:int">
-					<xs:pattern value="[0-9]+" />
-				</xs:restriction>
-			</xs:simpleType>
-		</xs:element>
-		<xs:element name="e3" dfdl:lengthKind="delimited">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:assert test="{ dfdl:checkConstraints(.) }"
-						message="Assertion failed for dfdl:checkConstraints(.)" />
-				</xs:appinfo>
-			</xs:annotation>
-			<xs:simpleType>
-				<xs:restriction base="ex:st1">
-				</xs:restriction>
-			</xs:simpleType>
-		</xs:element>
-		<xs:element name="e4" dfdl:lengthKind="delimited">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:assert test="{ dfdl:checkConstraints(.) }"
-						message="Assertion failed for dfdl:checkConstraints(.)" />
-				</xs:appinfo>
-			</xs:annotation>
-			<xs:simpleType>
-				<xs:restriction base="ex:st1">
-					<xs:pattern value="1" />
-				</xs:restriction>
-			</xs:simpleType>
-		</xs:element>
-		<xs:element name="e5">
-			<xs:complexType>
-				<xs:sequence dfdl:initiatedContent="no"
-					dfdl:separatorPosition="infix" dfdl:separator=",">
-					<xs:element name="a" minOccurs="0" maxOccurs="3" type="xs:int"
-						dfdl:occursCountKind="parsed" dfdl:lengthKind="delimited">
-						<xs:annotation>
-							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-								<dfdl:assert test="{ dfdl:checkConstraints(.) }"
-									message="Assertion failed for dfdl:checkConstraints(.)" />
-							</xs:appinfo>
-						</xs:annotation>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		<xs:element name="e6">
-			<xs:complexType>
-				<xs:sequence dfdl:initiatedContent="no"
-					dfdl:separatorPosition="infix" dfdl:separator=",">
-					<xs:element name="a" minOccurs="0" maxOccurs="unbounded"
-						type="xs:int" dfdl:occursCountKind="parsed" dfdl:lengthKind="delimited">
-						<xs:annotation>
-							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-								<dfdl:assert test="{ dfdl:checkConstraints(.) }"
-									message="Assertion failed for dfdl:checkConstraints(.)" />
-							</xs:appinfo>
-						</xs:annotation>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		<xs:simpleType name="st1">
-			<xs:restriction base="ex:st2">
-				<xs:pattern value="[0-9]+" />
-			</xs:restriction>
-		</xs:simpleType>
-		<xs:simpleType name="st2">
-			<xs:restriction base="ex:st3">
-				<xs:pattern value="[0-9]{3}" />
-			</xs:restriction>
-		</xs:simpleType>
-		<xs:simpleType name="st3">
-			<xs:restriction base="xs:string">
-				<xs:pattern value="[0-9]*" />
-			</xs:restriction>
-		</xs:simpleType>
-	</tdml:defineSchema>
+  <tdml:parserTestCase name="dfdlPosition2" root="e"
+    model="v">
 
-	<tdml:parserTestCase name="dfdlCheckConstraints"
-		root="e1" model="checkConstraints">
-		<!-- check constraints should return true as there are no constraints on 
-			the data as a result the data values should be '1' -->
-		<tdml:document>6</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e1>
-					<cnt>6</cnt>
-					<a>
-						<v>1</v>
-					</a>
-					<a>
-						<v>1</v>
-					</a>
-					<a>
-						<v>1</v>
-					</a>
-					<a>
-						<v>1</v>
-					</a>
-					<a>
-						<v>1</v>
-					</a>
-					<a>
-						<v>1</v>
-					</a>
-				</e1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <tdml:document>2</tdml:document>
 
-	<tdml:parserTestCase name="checkMaxOccurs_Pass"
-		root="e5" model="checkConstraints">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <cnt>2</cnt>
+          <a>
+            <v>1</v>
+          </a>
+          <a>
+            <v>2</v>
+          </a>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document>1,2,3</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e5>
-					<a>1</a>
-					<a>2</a>
-					<a>3</a>
-				</e5>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="dfdlPosition3" root="f"
+    model="v">
 
-	<tdml:parserTestCase name="checkMaxOccursUnbounded_Pass"
-		root="e6" model="checkConstraints">
+    <tdml:document>2;2</tdml:document>
 
-		<tdml:document>1,2,3</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e6>
-					<a>1</a>
-					<a>2</a>
-					<a>3</a>
-				</e6>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <f>
+          <cnt1>2</cnt1>
+          <a>
+            <v>1</v>
+          </a>
+          <a>
+            <v>2</v>
+          </a>
+          <cnt2>2</cnt2>
+          <a>
+            <v>1</v>
+          </a>
+          <a>
+            <v>2</v>
+          </a>
+        </f>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dfdlPosition4" root="g"
+    model="v" description="nested array case. Tests indexes are kept independently.">
+
+    <tdml:document>2;2;2;</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <g>
+          <cnt1>2</cnt1>
+          <a>
+            <v>1</v>
+            <cnt2>2</cnt2>
+            <b>
+              <w>1</w>
+            </b>
+            <b>
+              <w>2</w>
+            </b>
+          </a>
+          <a>
+            <v>2</v>
+            <cnt2>2</cnt2>
+            <b>
+              <w>1</w>
+            </b>
+            <b>
+              <w>2</w>
+            </b>
+          </a>
+
+        </g>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dfdlPosition5" root="h"
+    model="v">
+
+    <tdml:document>6</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <h>
+          <cnt>6</cnt>
+          <a>
+            <v>0</v>
+          </a>
+          <a>
+            <v>2</v>
+          </a>
+          <a>
+            <v>0</v>
+          </a>
+          <a>
+            <v>4</v>
+          </a>
+          <a>
+            <v>0</v>
+          </a>
+          <a>
+            <v>6</v>
+          </a>
+        </h>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="checkConstraints">
+    <dfdl:format ref="ex:daffodilTest1" />
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="cnt" type="xs:int"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ xs:int(../ex:cnt) }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="v" type="xs:int"
+                  dfdl:inputValueCalc="{ dfdl:checkConstraints(.) }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="e2" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:pattern value="[0-9]+" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e3" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="ex:st1">
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e4" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="ex:st1">
+          <xs:pattern value="1" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=",">
+          <xs:element name="a" minOccurs="0" maxOccurs="3"
+            type="xs:int" dfdl:occursCountKind="parsed" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="e6">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=",">
+          <xs:element name="a" minOccurs="0" maxOccurs="unbounded"
+            type="xs:int" dfdl:occursCountKind="parsed" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="st1">
+      <xs:restriction base="ex:st2">
+        <xs:pattern value="[0-9]+" />
+      </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="st2">
+      <xs:restriction base="ex:st3">
+        <xs:pattern value="[0-9]{3}" />
+      </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="st3">
+      <xs:restriction base="xs:string">
+        <xs:pattern value="[0-9]*" />
+      </xs:restriction>
+    </xs:simpleType>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="dfdlCheckConstraints"
+    root="e1" model="checkConstraints">
+    <!-- check constraints should return true as there are no constraints
+      on
+      the data as a result the data values should be '1' -->
+    <tdml:document>6</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <cnt>6</cnt>
+          <a>
+            <v>1</v>
+          </a>
+          <a>
+            <v>1</v>
+          </a>
+          <a>
+            <v>1</v>
+          </a>
+          <a>
+            <v>1</v>
+          </a>
+          <a>
+            <v>1</v>
+          </a>
+          <a>
+            <v>1</v>
+          </a>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="checkMaxOccurs_Pass"
+    root="e5" model="checkConstraints">
+
+    <tdml:document>1,2,3</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5>
+          <a>1</a>
+          <a>2</a>
+          <a>3</a>
+        </e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="checkMaxOccursUnbounded_Pass"
+    root="e6" model="checkConstraints">
+
+    <tdml:document>1,2,3</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e6>
+          <a>1</a>
+          <a>2</a>
+          <a>3</a>
+        </e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="repeatFlags">
+    <dfdl:format ref="ex:daffodilTest1" />
+    <xs:element name="e">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="present" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="s" minOccurs="0" maxOccurs="1"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:present }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="r" minOccurs="1" maxOccurs="unbounded"
+                  dfdl:occursCountKind="parsed">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:annotation>
+                        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                          <dfdl:discriminator><![CDATA[{ 
+                                    dfdl:position() = 1 
+                                    or 
+                                    fn:trace(../ex:r,"r")[dfdl:position() - 1]/ex:more = 1 
+                          }]]></dfdl:discriminator>
+                        </xs:appinfo>
+                      </xs:annotation>
+                      <xs:element name="more" type="xs:int"
+                        dfdl:lengthKind="explicit" dfdl:length="1" />
+                      <xs:element name="c" type="xs:string"
+                        dfdl:lengthKind="explicit" dfdl:length="1" />
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="repeatFlags1" model="repeatFlags"
+    root="e">
+    <tdml:document>0</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <present>0</present>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="repeatFlags2" model="repeatFlags"
+    root="e">
+    <tdml:document>10A</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <present>1</present>
+          <s>
+            <r>
+              <more>0</more>
+              <c>A</c>
+            </r>
+          </s>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="repeatFlags3" model="repeatFlags"
+    root="e">
+    <tdml:document>11A1B1C0D</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <present>1</present>
+          <s>
+            <r>
+              <more>1</more>
+              <c>A</c>
+            </r>
+            <r>
+              <more>1</more>
+              <c>B</c>
+            </r>
+            <r>
+              <more>1</more>
+              <c>C</c>
+            </r>
+            <r>
+              <more>0</more>
+              <c>D</c>
+            </r>
+          </s>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
