@@ -1027,5 +1027,108 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  
+   <tdml:defineSchema name="repeatBitFlags">
+    <dfdl:format ref="ex:daffodilTest1" 
+    lengthUnits="bits" alignment="1" alignmentUnits="bits" representation="binary"/>
+    <xs:element name="e">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="present" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="s" minOccurs="0" maxOccurs="1"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:present }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="r" minOccurs="1" maxOccurs="unbounded"
+                  dfdl:occursCountKind="parsed">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:annotation>
+                        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                          <dfdl:discriminator><![CDATA[{ 
+                                    dfdl:position() = 1 
+                                    or 
+                                    fn:trace(../ex:r,"r")[dfdl:position() - 1]/ex:more = 1 
+                          }]]></dfdl:discriminator>
+                        </xs:appinfo>
+                      </xs:annotation>
+                      <xs:element name="more" type="xs:int"
+                        dfdl:lengthKind="explicit" dfdl:length="1" />
+                      <xs:element name="c" type="xs:int"
+                        dfdl:lengthKind="explicit" dfdl:length="3" />
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="repeatBitFlags1" model="repeatBitFlags"
+    root="e">
+    <tdml:document><tdml:documentPart type="bits">0</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <present>0</present>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="repeatBitFlags2" model="repeatBitFlags"
+    root="e">
+    <tdml:document><tdml:documentPart type="bits">1 0 001</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <present>1</present>
+          <s>
+            <r>
+              <more>0</more>
+              <c>1</c>
+            </r>
+          </s>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="repeatBitFlags3" model="repeatBitFlags"
+    root="e">
+    <tdml:document><tdml:documentPart type="bits">1 1 001 1 010 1 011 0 100</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <present>1</present>
+          <s>
+            <r>
+              <more>1</more>
+              <c>1</c>
+            </r>
+            <r>
+              <more>1</more>
+              <c>2</c>
+            </r>
+            <r>
+              <more>1</more>
+              <c>3</c>
+            </r>
+            <r>
+              <more>0</more>
+              <c>4</c>
+            </r>
+          </s>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

@@ -20,4 +20,9 @@ class TestDFDLExpressionsDebug extends JUnitSuite {
   @Test def test_ArrayOptElem_02() { runner.runOneTest("ArrayOptElem_02") }
   @Test def test_expressions_lke3_rel() { runner.runOneTest("lke3_rel") }
   @Test def test_ocke_rel() { runner.runOneTest("ocke_rel") }
+
+  // Once bit-alignment and bit lengthUnits are implemented these should work.
+  @Test def test_repeatBitFlags1() { runner.runOneTest("repeatBitFlags1") }
+  @Test def test_repeatBitFlags2() = { runner.runOneTest("repeatBitFlags2") }
+  @Test def test_repeatBitFlags3() { runner.runOneTest("repeatBitFlags3") }
 }
