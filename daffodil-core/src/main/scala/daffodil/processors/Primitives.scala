@@ -158,7 +158,8 @@ case class ComplexElementBeginPattern(e: ElementBase)
         val bytePos = (start.bitPos >> 3).toInt
 
         val byteReader = in.byteReader.atPos(bytePos)
-        val reader = byteReader.charReader(decoder.charset().name())
+        //val reader = byteReader.charReader(decoder.charset().name())
+        val reader = byteReader.newCharReader(decoder.charset().name)
 
         val d = new delimsearch.DelimParser()
 
@@ -2934,7 +2935,8 @@ trait TextReader extends Logging {
             // Retrieve one if possible
             // TODO: Does the underlying call throw if we are out of data? How will this fail?
             val in: InStreamFromByteChannel = state.inStream.asInstanceOf[InStreamFromByteChannel]
-            in.byteReader.atPos(bytePos).charReader(csName).asInstanceOf[DFDLCharReader]
+            //in.byteReader.atPos(bytePos).charReader(csName).asInstanceOf[DFDLCharReader]
+            in.byteReader.atPos(bytePos).newCharReader(csName).asInstanceOf[DFDLCharReader]
           }
         }
       }
