@@ -151,6 +151,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
               isSuccess = true
               break
             }
+            else { isSuccess = false }
           }
         }
         if (!isSuccess) { break }

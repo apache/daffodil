@@ -12,7 +12,7 @@ import daffodil.tdml.DFDLTestSuite
 import java.io.File
 import daffodil.debugger.Debugger
 
-class TestFacets extends JUnitSuite {
+class TestFacetsDebug extends JUnitSuite {
   val testDir = "/daffodil/section05/facets/"
   val aa = testDir + "Facets.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
