@@ -8,7 +8,7 @@ import daffodil.processors.InStreamFromByteChannel
 import daffodil.processors._
 import daffodil.compiler._
 
-// Do no harm number 17 of 624 fail in regression, 117 in total of 749
+// Do no harm number 16 of 626 fail in regression, 154 in total of 797
 
 class TestBinaryInput_01 extends JUnitSuite {
 
