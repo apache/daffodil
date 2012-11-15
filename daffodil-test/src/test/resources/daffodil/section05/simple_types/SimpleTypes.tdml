@@ -17,7 +17,7 @@
 		<xs:element name="integer02" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>
 		<xs:element name="int01" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="13"/>
 		<xs:element name="int02" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="11"/>
-		<xs:element name="int03" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2"/>
+		<xs:element name="int03" type="xs:int" dfdl:binaryNumberRep ="binary"/>
 		<xs:element name="int04" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="10"/>
 		<xs:element name="int05" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="4"/>
 		<xs:element name="l_2" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="{ 10 }"/>
@@ -135,9 +135,9 @@
 	</tdml:parserTestCase>
 	
 	<tdml:parserTestCase name="warning_exercise" root="int03"
-		model="SimpleTypes-Embedded.dfdl.xsd" description="Exercise for handling a warning message - DFDL-2-012R">
+		model="SimpleTypes-Embedded.dfdl.xsd" description="A warning message should be generated - use of binaryNumperRep 'binary' with representation 'text'- DFDL-2-012R">
 		
-		<tdml:document>37</tdml:document>
+		<tdml:document><tdml:documentPart type="byte">00000025</tdml:documentPart></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<int03 xs:type="xs:int">37</int03>
