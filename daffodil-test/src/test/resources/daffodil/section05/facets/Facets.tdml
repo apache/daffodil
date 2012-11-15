@@ -841,6 +841,18 @@
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:element>
+		<xs:element name="e5" dfdl:lengthKind="delimited">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert test="{ dfdl:checkConstraints(.) }"
+						message="Assertion failed for dfdl:checkConstraints(.)" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="ex:st6">
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
 		<xs:simpleType name="st1">
 			<xs:restriction base="ex:st2">
 				<xs:pattern value="[0-9]+"/>
@@ -865,6 +877,16 @@
 			<xs:restriction base="ex:st4">
 				<xs:pattern value="[0-5]"/>
 				<xs:pattern value="[7-9]"/>
+			</xs:restriction>
+		</xs:simpleType>
+		<xs:simpleType name="st6">
+			<xs:restriction base="ex:st7">
+				<xs:pattern value=".*(a|e|i|o|u).*"/>
+			</xs:restriction>
+		</xs:simpleType>
+		<xs:simpleType name="st7">
+			<xs:restriction base="xs:string">
+				<xs:pattern value=".*(t|n).*"/>
 			</xs:restriction>
 		</xs:simpleType>
 	</tdml:defineSchema>
@@ -953,4 +975,49 @@
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
+<!--
+	test name: facetpattern06
+	   schema: pattern
+	  purpose: this test should fail because it does not meet either of the assertions
+-->
+	<tdml:parserTestCase name="facetPattern06"
+		root="e5" model="pattern">
+		<tdml:document>fly</tdml:document>
+		<tdml:errors>
+			<tdml:error>Assertion</tdml:error>
+			<tdml:error>failed</tdml:error>
+			<tdml:error>dfdl:checkConstraints</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+<!--
+	test name: facetpattern07
+	   schema: pattern
+	  purpose: this test should pass because it meets the assertions
+-->
+	<tdml:parserTestCase name="facetPattern07"
+		root="e5" model="pattern">
+		<tdml:document>note</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:e5>note</ex:e5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+	test name: facetpattern08
+	   schema: pattern
+	  purpose: this test should fail because it does not meet one of the assertions
+-->
+	<tdml:parserTestCase name="facetPattern08"
+		root="e5" model="pattern">
+		<tdml:document>note</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:e5>note</ex:e5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
 </tdml:testSuite>

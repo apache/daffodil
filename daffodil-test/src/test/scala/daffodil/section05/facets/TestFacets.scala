@@ -36,5 +36,9 @@ class TestFacets extends JUnitSuite {
   @Test def test_facet_pattern_02() { runner.runOneTest("facetPattern02") }
   @Test def test_facet_pattern_03() { runner.runOneTest("facetPattern03") }
   @Test def test_facet_pattern_04() { runner.runOneTest("facetPattern04") }
-//  @Test def test_facet_pattern_05() { runner.runOneTest("facetPattern05") }
+  @Test def test_facet_pattern_05() { runner.runOneTest("facetPattern05") }
+  @Test def test_facet_pattern_06() { runner.runOneTest("facetPattern06") }
+  @Test def test_facet_pattern_07() { runner.runOneTest("facetPattern07") }
+  @Test def test_facet_pattern_08() { runner.runOneTest("facetPattern08") }
+
   }
