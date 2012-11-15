@@ -562,7 +562,8 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
 
 class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Assert_AnnotationMixin // Note: don't use these generated mixins. Statements don't have format properties
-  lazy val gram = {
+  lazy val gram = gram_.value
+  private lazy val gram_ = LV {
     testKind match {
       case TestKind.Pattern => AssertPatternPrim(decl, this)
       case TestKind.Expression => AssertBooleanPrim(decl, this)
@@ -572,7 +573,8 @@ class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
 
 class DFDLDiscriminator(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Discriminator_AnnotationMixin 
-  lazy val gram = {
+  lazy val gram = gram_.value
+  private lazy val gram_ = LV {
     testKind match {
       case TestKind.Pattern => DiscriminatorPatternPrim(decl, this)
       case TestKind.Expression => DiscriminatorBooleanPrim(decl, this)
@@ -642,6 +644,9 @@ class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
     case (None, "") => decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
 
-  lazy val gram = SetVariable(decl, this)
+  lazy val gram = gram_.value
+  private lazy val gram_ = LV {
+    SetVariable(decl, this)
+  }
 }
 
