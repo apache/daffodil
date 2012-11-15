@@ -176,7 +176,7 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComp
   // package private since we want to unit test these and put the test code in a different object.
   // (Note: I hate repeating the darn package name all over the place here....)
   private[dsom] def getLocalPropertyOption(name: String): Option[String] = {
-	// TODO: This does not appear to get called in the case of property_scoping_11
+    // TODO: This does not appear to get called in the case of property_scoping_11
     if (hasConflictingPropertyError) {
       SDE("Short and long form properties overlap: %s", conflictingProperties)
     }
@@ -236,7 +236,7 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComp
     Assert.usage(name != "ref", name + " is not a format property")
     Assert.usage(name != "name", name + " is not a format property")
     Assert.usage(name != "type", name + " is not a format property")
-    
+
     // TODO: Is this correct? Don't default properties always apply?
     val nonDef = getPropertyOptionNoDefault(name) // local and local ref chain
     nonDef match {
@@ -543,12 +543,13 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
     case (TestKind.Expression, None, Some(txt), None) => txt
     case (TestKind.Expression, txt, None, None) => txt.get
     case (TestKind.Pattern, None, None, pat) => pat.get
-    case (TestKind.Expression, _, _, Some(txt)) => SDE("testPattern attribute requires testKind='pattern'")
     case (TestKind.Expression, Some(bdy), Some(attrib), _) => SDE("You may not specify both test attribute and a body expression.")
     case (TestKind.Expression, None, None, _) => SDE("You must specify either a test attribute or a body expression.")
     case (TestKind.Pattern, Some(bdy), _, Some(txt)) => SDE("You may not specify both testPattern attribute and a body expression.")
     case (TestKind.Pattern, None, _, None) => SDE("You must specify either a testPattern attribute or a body expression. for testKind='pattern'")
     case (TestKind.Pattern, Some(bdy), None, None) => bdy // pattern as body of assert element
+    case (TestKind.Pattern, _, Some(tst), _) => SDE("You cannot specify test='%s' for testKind='pattern'", tst)
+    case (TestKind.Expression, _, _, Some(pat)) => SDE("You cannot specify testPattern='%s' for testKind='expression' (which is the default test kind.)", pat)
     case _ => Assert.invariantFailed("unexpected case.")
   }
 
