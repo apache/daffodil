@@ -2,8 +2,7 @@
 <tdml:testSuite suiteName="Assert" description="Section 7 - Assert"
 	xmlns:ex="http://example.com" xmlns="http://example.com"
 	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
 	<tdml:defineSchema name="s1">
 		<dfdl:format ref="ex:daffodilTest1" />

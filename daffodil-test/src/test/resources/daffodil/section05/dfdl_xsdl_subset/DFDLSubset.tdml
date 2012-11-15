@@ -2,7 +2,7 @@
 <tdml:testSuite suiteName="FacetTests" description="Section 5 - facets"
 	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ex="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData http://www.ibm.com/xmlns/dfdl/testData">
+	xmlns:ex="http://example.com">
 	
 	<!-- A cannonical TDML test style:
 	Use xmlns:ex="http://example.com" in tdml:testSuite

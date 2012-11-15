@@ -5,8 +5,7 @@
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
-	xmlns:ex="http://example.com"
-	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+	xmlns:ex="http://example.com">
 
 	<tdml:defineSchema name="LengthProperties-Embedded.dfdl.xsd">
 		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator="" encoding="utf-8" 

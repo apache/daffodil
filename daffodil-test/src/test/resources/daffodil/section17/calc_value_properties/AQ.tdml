@@ -3,8 +3,7 @@
 	xmlns="http://example.com" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
-	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com">
 
 	<tdml:defineSchema name="AQ.dfdl.xsd">
 		<dfdl:format ref="ex:daffodilTest1" separator="" initiator="" terminator=""

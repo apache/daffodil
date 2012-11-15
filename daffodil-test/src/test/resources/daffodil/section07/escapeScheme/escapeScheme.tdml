@@ -2,8 +2,7 @@
 <testSuite suiteName="escapeScheme" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
 	xmlns:tns="http://example.com" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 	<defineSchema name="es1">
 		<dfdl:format ref="tns:daffodilTest1" lengthKind="delimited"/>
