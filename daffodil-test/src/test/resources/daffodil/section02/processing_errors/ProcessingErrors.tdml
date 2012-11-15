@@ -4,7 +4,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData/xsd/tdml.xsd"
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData xsd/tdml.xsd"
 	xmlns:ex="http://example.com" >
 
 <!-- ===================================================================== Schemas ======================================================================= -->
