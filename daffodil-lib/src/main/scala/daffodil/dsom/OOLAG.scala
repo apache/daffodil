@@ -16,24 +16,24 @@ import daffodil.exceptions.NotYetImplementedException
 object OOLAG {
 
   trait HasIsError {
-    def isError : Boolean
+    def isError: Boolean
   }
 
-  abstract class OOLAGException(msg : String) extends Exception(msg)
+  abstract class OOLAGException(msg: String) extends Exception(msg)
 
-  abstract class OOLAGRethrowException(msg : String) extends OOLAGException(msg)
-  case class AlreadyTried(lvName : String) extends OOLAGRethrowException(lvName)
-  case class ErrorAlreadyHandled(th : Throwable) extends OOLAGRethrowException(th.toString)
+  abstract class OOLAGRethrowException(msg: String) extends OOLAGException(msg)
+  case class AlreadyTried(lvName: String) extends OOLAGRethrowException(lvName)
+  case class ErrorAlreadyHandled(th: Throwable, lv: OOLAGValue) extends OOLAGRethrowException(th.toString)
 
   /**
    * An object that uses OOLAG values.
    */
   trait OOLAGHost extends Logging {
-    def handleThrownError(e : OOLAGValue) : Unit
-    def handleWarning(e : OOLAGValue, th : Throwable) : Unit
-    def prettyName : String
-    def path : String
-    def LV : LVFactory
+    def handleThrownError(th: Throwable, ov: OOLAGValue): Unit
+    def handleWarning(e: OOLAGValue, th: Throwable): Unit
+    def prettyName: String
+    def path: String
+    def LV: LVFactory
   }
 
   /**
@@ -52,15 +52,14 @@ object OOLAG {
    * An OOLAG value is most commonly a lazy val of an OOLAG host class. If it is a regular val then it
    * is computed eagerly.
    */
-  abstract class OOLAGValue(val context : OOLAGHost, final val name : String, factory : LVFactory)
+  abstract class OOLAGValue(val context: OOLAGHost, final val name: String, factory: LVFactory)
     extends HasIsError
     with Logging {
     protected var alreadyTriedThis = false
     protected var hasValue = false
-    protected var throwable : Throwable = null
-    protected def lazyBody : Any
+    protected def lazyBody: Any
 
-    final def warn(th : Throwable) = context.handleWarning(this, th)
+    final def warn(th: Throwable) = context.handleWarning(this, th)
 
     final override def toString = descrip
 
@@ -87,15 +86,15 @@ object OOLAG {
           res
         } catch {
           // Some kinds of errors/exceptions we always want thrown to top level.
-          case le : scala.Error => { throw le } // note that Exception does NOT inherit from Error
-          case re : java.lang.RuntimeException => { throw re }
-          case abort : Abort => throw abort // never swallow up these
-          case nyi : NotYetImplementedException => throw nyi
-          case eah : ErrorAlreadyHandled => {
+          case le: scala.Error => { throw le } // note that Exception does NOT inherit from Error
+          case re: java.lang.RuntimeException => { throw re }
+          case abort: Abort => throw abort // never swallow up these
+          case nyi: NotYetImplementedException => throw nyi
+          case eah: ErrorAlreadyHandled => {
             log(OOLAGDebug(catchMsg, descrip, eah))
             throw eah
           }
-          case at : AlreadyTried => {
+          case at: AlreadyTried => {
             log(OOLAGDebug("Caught %s", at))
             throw at
           }
@@ -103,16 +102,15 @@ object OOLAG {
             // we threw, instead of producing a value
             Assert.invariant(hasValue == false)
             Assert.invariant(alreadyTriedThis == true)
-            // save it
-            throwable = e
+
             // let the host do what it wants with the situation
-            context.handleThrownError(this)
+            context.handleThrownError(e, this)
             log(OOLAGDebug(catchMsg, descrip, e))
             // 
             // Catch this if you can carry on with more error gathering
             // from other contexts. Otherwise just let it propagate.
             //
-            throw new ErrorAlreadyHandled(e)
+            throw new ErrorAlreadyHandled(e, this)
           }
         } finally {
           factory.name = null
@@ -126,7 +124,7 @@ object OOLAG {
         valueAsAny
         !hasValue
       } catch {
-        case e : OOLAGException => {
+        case e: OOLAGException => {
           log(OOLAGDebug("LV %s suppressed throw of %s", this, e))
           true
         }
@@ -136,11 +134,6 @@ object OOLAG {
         log(OOLAGDebug("LV %s has an error", this))
       }
       res
-    }
-
-    final def thrown() = {
-      Assert.usage(isError)
-      throwable
     }
 
     protected def toListAny = {
@@ -155,10 +148,10 @@ object OOLAG {
     }
   }
 
-  class LV[T](body : => T, context : OOLAGHost, name : String, factory : LVFactory)
+  class LV[T](body: => T, context: OOLAGHost, name: String, factory: LVFactory)
     extends OOLAGValue(context, name, factory) {
     final protected lazy val lazyBody = body
-    final def value : T = {
+    final def value: T = {
       val res = valueAsAny
       res.asInstanceOf[T]
     }
@@ -168,7 +161,7 @@ object OOLAG {
     }
   }
 
-  class LVFactory(context : OOLAGHost) {
+  class LVFactory(context: OOLAGHost) {
 
     /**
      * Don't get this unless you really need it, because it
@@ -186,14 +179,14 @@ object OOLAG {
     /**
      * State used to convey the name of the LV to the body code
      */
-    var name : String = null
+    var name: String = null
 
     /**
      * We call this factory to obtain a lazy value (LV).
      * It is at that point that we can obtain the name
      * automatically.
      */
-    def apply[T](body : => T) = {
+    def apply[T](body: => T) = {
       val n = LVName // TODO: do this conditionally based on trace request.
       new LV(body, context, n, this)
     }
@@ -201,7 +194,7 @@ object OOLAG {
   }
 
   object LVFactory {
-    def apply(context : OOLAGHost) = new LVFactory(context)
+    def apply(context: OOLAGHost) = new LVFactory(context)
   }
 
   //  /**

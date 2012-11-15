@@ -31,6 +31,12 @@
 				<xs:element ref="ex:price" dfdl:initiator="$" />
 			</xs:sequence>
 		</xs:group>
+    
+    <xs:element name="badGroupRef" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:group ref="noSuchGroup" />
+      </xs:complexType>
+    </xs:element>
 
 		<xs:element name="Item" dfdl:lengthKind="implicit">
 			<xs:complexType>
@@ -62,6 +68,12 @@
 		</xs:element>
 
 	</tdml:defineSchema>
+  
+  <tdml:parserTestCase name="badGroupRef" root="badGroupRef"
+    model="groupRef.xsd" description="Section 5 - reusable group - DFDL-5-041R">
+    <tdml:document/>
+    <tdml:errors><tdml:error>group</tdml:error><tdml:error>noSuchGroup</tdml:error></tdml:errors>
+  </tdml:parserTestCase>
 
 	<tdml:parserTestCase name="groupRef" root="list"
 		model="groupRef.xsd" description="Section 5 - reusable group - DFDL-5-041R">
