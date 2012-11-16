@@ -13,16 +13,16 @@ import java.io.File
 
 class TestLengthKindDelimitedDebug extends JUnitSuite {
   val testDir = "/daffodil/section12/lengthKind/"
-  
+
   val ab = testDir + "AB.tdml"
   lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))
-    
+
   @Test def test_AB001() { runnerAB.runOneTest("AB001") }
   @Test def test_AB002() { runnerAB.runOneTest("AB002") }
   @Test def test_AB003() { runnerAB.runOneTest("AB003") }
   @Test def test_AB004() { runnerAB.runOneTest("AB004") }
   @Test def test_AB005() { runnerAB.runOneTest("AB005") }
-  
+
   val aa = testDir + "DelimitedTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   @Test def test_lengthKindDelimited_03() { runner.runOneTest("lengthKindDelimited_03") }
@@ -30,6 +30,6 @@ class TestLengthKindDelimitedDebug extends JUnitSuite {
   @Test def test_NumSeq_09() { runner.runOneTest("NumSeq_09") }
   @Test def test_NumSeq_10() { runner.runOneTest("NumSeq_10") }
   //@Test def test_NumSeq_02() { runner.runOneTest("NumSeq_02") }
-  @Test def test_nested_NumSeq_01() =  { runner.runOneTest("nested_NumSeq_01") }
-  
-  }
+  //@Test def test_nested_NumSeq_01() =  { runner.runOneTest("nested_NumSeq_01") }
+
+}

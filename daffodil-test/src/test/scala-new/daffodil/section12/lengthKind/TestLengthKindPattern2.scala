@@ -18,10 +18,4 @@ class TestLengthKindPattern2 extends JUnitSuite {
 
   @Test def test_LengthPatternIllegalBits_02() { runner.runOneTest("LengthPatternIllegalBits_02") }
 
-  @Test def test_LengthPatternNil_NoNil() { runner.runOneTest("LengthPatternNil_NoNil") }
-  @Test def test_LengthPatternNil_FindsNil() { runner.runOneTest("LengthPatternNil_FindsNil") }
-  @Test def test_LengthPatternNil_EmptyStringAllowed() { runner.runOneTest("LengthPatternNil_EmptyStringAllowed") }
-  @Test def test_nested_patterns() { runner.runOneTest("nested_patterns") }
-  @Test def test_nested_patterns_01() { runner.runOneTest("nested_patterns_01") }
-
 }
