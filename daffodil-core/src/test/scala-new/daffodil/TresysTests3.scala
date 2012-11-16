@@ -25,4 +25,8 @@ class TresysTests3 extends JUnitSuite {
   @Test def test_dfdlPosition3() = { runnerex.runOneTest("dfdlPosition3") }
   @Test def test_dfdlPosition4() = { runnerex.runOneTest("dfdlPosition4") }
 
+  val nsd = testDir + "nested-separator-delimited.tdml"
+  lazy val runnerNSD = new DFDLTestSuite(Misc.getRequiredResource(nsd))
+
+  @Test def test_optionalWithSeparators() { runnerNSD.runOneTest("optionalWithSeparators") }
 }

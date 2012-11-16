@@ -27,12 +27,12 @@ import scala.collection.mutable.Stack
 import daffodil.exceptions.UnsuppressableException
 import daffodil.debugger.Debugger
 
-abstract class RepPrim(context : LocalElementBase, n : Long, r : => Gram) extends UnaryGram(context, r) {
+abstract class RepPrim(context: LocalElementBase, n: Long, r: => Gram) extends UnaryGram(context, r) {
   Assert.invariant(n > 0)
   val intN = n.toInt
 
-  abstract class RepParser(context : LocalElementBase, baseName : String) extends Parser(context) {
-    def checkN(pstate : PState, n : Long) : Option[PState] = {
+  abstract class RepParser(context: LocalElementBase, baseName: String) extends Parser(context) {
+    def checkN(pstate: PState, n: Long): Option[PState] = {
       if (n > Compiler.occursCountMax) {
         // TODO: how can we go after bigger than max int bytes? We have 64-bit computers
         // after all....
@@ -42,17 +42,17 @@ abstract class RepPrim(context : LocalElementBase, n : Long, r : => Gram) extend
 
     val rParser = r.parser
 
-    final def parse(pstate : PState) : PState = {
+    final def parse(pstate: PState): PState = {
       checkN(pstate, n).map { perr => return perr }
       val res = parseAllRepeats(pstate)
       res
     }
 
-    protected def parseAllRepeats(pstate : PState) : PState
+    protected def parseAllRepeats(pstate: PState): PState
 
     override def toString = "Rep" + baseName + "(" + rParser.toString + ")"
 
-    def toBriefXML(depthLimit : Int = -1) : String = {
+    def toBriefXML(depthLimit: Int = -1): String = {
       if (depthLimit == 0) "..." else
         "<Rep" + baseName + ">" + rParser.toBriefXML(depthLimit - 1) +
           "</Rep" + baseName + ">"
@@ -60,11 +60,11 @@ abstract class RepPrim(context : LocalElementBase, n : Long, r : => Gram) extend
   }
 }
 
-class RepExactlyNPrim(context : LocalElementBase, n : Long, r : => Gram) extends RepPrim(context, n, r) {
+class RepExactlyNPrim(context: LocalElementBase, n: Long, r: => Gram) extends RepPrim(context, n, r) {
 
   // Since this is Exactly N, there is no new point of uncertainty considerations here.
   def parser = new RepParser(context, "ExactlyN") {
-    def parseAllRepeats(pstate : PState) : PState = {
+    def parseAllRepeats(pstate: PState): PState = {
       var pResult = pstate // TODO: find perfect monad functional programming idiom to eliminate this var
       1 to intN foreach { _ =>
         {
@@ -82,11 +82,11 @@ class RepExactlyNPrim(context : LocalElementBase, n : Long, r : => Gram) extends
   def unparser = new RepExactlyNUnparser(context, n, r)
 }
 
-class RepAtMostTotalNPrim(context : LocalElementBase, n : Long, r : => Gram) extends RepPrim(context, n, r) {
+class RepAtMostTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) extends RepPrim(context, n, r) {
 
   def parser = new RepParser(context, "AtMostTotalN") {
 
-    def parseAllRepeats(pstate : PState) : PState = {
+    def parseAllRepeats(pstate: PState): PState = {
       var pResult = pstate
       while (pResult.arrayIndexStack.head <= intN) {
         // Since each one could fail, each is a new point of uncertainty.
@@ -94,21 +94,27 @@ class RepAtMostTotalNPrim(context : LocalElementBase, n : Long, r : => Gram) ext
         // 
         // save the state of the infoset
         //
-        val numChildrenAtStart = newpou.parent.getContent().length
+        val cloneNode = newpou.captureJDOM
 
         Debugger.beforeRepetition(newpou, this)
         val pNext = rParser.parse1(newpou, context)
         Debugger.afterRepetition(newpou, pNext, this)
 
         if (pNext.status != Success) {
+          // 
+          // Did not succeed
+          // 
+          // Was a discriminator set?
+          // 
+          if (pNext.discriminator == true) {
+            // we fail the whole RepUnbounded, because there was a discriminator set 
+            // before the failure.
+            return pNext.withRestoredPointOfUncertainty
+          }
           //
           // backout any element appended as part of this attempt.
           //
-          val lastChildIndex = pNext.parent.getContent().length
-          if (lastChildIndex > numChildrenAtStart) {
-            pNext.parent.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
-          }
-
+          newpou.restoreJDOM(cloneNode)
           return pResult // success at prior state. 
         }
         pResult = pNext.moveOverOneArrayIndexOnly.withRestoredPointOfUncertainty
@@ -128,7 +134,7 @@ class RepAtMostTotalNPrim(context : LocalElementBase, n : Long, r : => Gram) ext
  * otherwise, we know N.
  */
 object Rep {
-  def loopExactlyTotalN(intN : Int, rParser : Parser, pstate : PState, context : SchemaComponent, iParser : Parser) : PState = {
+  def loopExactlyTotalN(intN: Int, rParser: Parser, pstate: PState, context: SchemaComponent, iParser: Parser): PState = {
     var pResult = pstate
     while (pResult.arrayPos <= intN) {
       Debugger.beforeRepetition(pResult, iParser)
@@ -141,10 +147,10 @@ object Rep {
   }
 }
 
-class RepExactlyTotalNPrim(context : LocalElementBase, n : Long, r : => Gram) extends RepPrim(context, n, r) {
+class RepExactlyTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) extends RepPrim(context, n, r) {
 
   def parser = new RepParser(context, "ExactlyTotalN") {
-    def parseAllRepeats(pstate : PState) : PState = {
+    def parseAllRepeats(pstate: PState): PState = {
       Rep.loopExactlyTotalN(intN, rParser, pstate, context, this)
     }
   }
@@ -152,11 +158,11 @@ class RepExactlyTotalNPrim(context : LocalElementBase, n : Long, r : => Gram) ex
   def unparser = DoNothingUnparser(context) // all elements will already have been output
 }
 
-class RepUnboundedPrim(context : LocalElementBase, r : => Gram) extends RepPrim(context, 1, r) {
+class RepUnboundedPrim(context: LocalElementBase, r: => Gram) extends RepPrim(context, 1, r) {
 
   def parser = new RepParser(context, "Unbounded") {
 
-    def parseAllRepeats(pstate : PState) : PState = {
+    def parseAllRepeats(pstate: PState): PState = {
 
       var pResult = pstate
       while (pResult.status == Success) {
@@ -183,7 +189,7 @@ class RepUnboundedPrim(context : LocalElementBase, r : => Gram) extends RepPrim(
           // no discriminator, so suppress the failure. Loop terminated with prior element.
           //
           pResult.restoreJDOM(cloneNode)
-          log(Debug("Failure suppressed."))
+          log(Debug("Failure suppressed. This is normal termination of a occursCountKind='parsed' array."))
           return pResult // note that it has the prior point of uncertainty. No restore needed.
         }
         // Success
@@ -204,12 +210,12 @@ class RepUnboundedPrim(context : LocalElementBase, r : => Gram) extends RepPrim(
   def unparser = new RepUnboundedUnparser(context, r)
 }
 
-case class OccursCountExpression(e : ElementBase)
+case class OccursCountExpression(e: ElementBase)
   extends Terminal(e, true) {
   val pseudoElement = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
 
   def parser = new Parser(e) with WithParseErrorThrowing {
-    def parse(pstate : PState) : PState = withParseErrorThrowing(pstate) {
+    def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
       val exprText = e.occursCount.prettyExpr
       //
       // Because the occurs count expression will be written as if we were already in a child node
@@ -229,8 +235,8 @@ case class OccursCountExpression(e : ElementBase)
         }
         postEvalState.setOccursCount(ocLong)
       } catch {
-        case u : UnsuppressableException => throw u
-        case e : Exception =>
+        case u: UnsuppressableException => throw u
+        case e: Exception =>
           PE(pstate, "Evaluation of occursCount expression %s threw exception %s", exprText, e)
       }
       res
@@ -238,7 +244,7 @@ case class OccursCountExpression(e : ElementBase)
 
     override def toString = toBriefXML() // "OccursCount(" + e.occursCount.prettyExpr + ")"
 
-    def toBriefXML(depthLimit : Int = -1) = {
+    def toBriefXML(depthLimit: Int = -1) = {
       "<OccursCount>" + e.occursCount.prettyExpr + "</OccursCount>"
     }
   }
@@ -246,10 +252,10 @@ case class OccursCountExpression(e : ElementBase)
   def unparser = new DummyUnparser(e)
 }
 
-class RepAtMostOccursCountPrim(e : LocalElementBase, n : Long, r : => Gram) extends RepPrim(e, n, r) {
+class RepAtMostOccursCountPrim(e: LocalElementBase, n: Long, r: => Gram) extends RepPrim(e, n, r) {
 
   def parser = new RepParser(e, "AtMostOccursCount") {
-    def parseAllRepeats(pstate : PState) : PState = {
+    def parseAllRepeats(pstate: PState): PState = {
       // repeat either n times, or occursCount times if that's less than n.
       val n = math.min(pstate.occursCount, e.minOccurs)
       Rep.loopExactlyTotalN(intN, rParser, pstate, e, this)
@@ -259,10 +265,10 @@ class RepAtMostOccursCountPrim(e : LocalElementBase, n : Long, r : => Gram) exte
   def unparser = new DummyUnparser(context)
 }
 
-class RepExactlyTotalOccursCountPrim(e : LocalElementBase, r : => Gram) extends RepPrim(e, 1, r) {
+class RepExactlyTotalOccursCountPrim(e: LocalElementBase, r: => Gram) extends RepPrim(e, 1, r) {
 
   def parser = new RepParser(e, "ExactlyTotalOccursCount") {
-    def parseAllRepeats(pstate : PState) : PState = {
+    def parseAllRepeats(pstate: PState): PState = {
       val ocInt = pstate.occursCount.toInt
       Rep.loopExactlyTotalN(ocInt, rParser, pstate, e, this)
     }

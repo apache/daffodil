@@ -66,7 +66,7 @@ class ParseAlternativeFailed(sc: SchemaComponent, state: PState, val errors: Seq
   extends ParseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors)
 
 class AltParseFailed(sc: SchemaComponent, state: PState,
-  diags: Seq[Diagnostic])
+                     diags: Seq[Diagnostic])
   extends ParseError(sc, Some(state), "All alternatives failed. Reason(s): %s", diags) {
 
   override def getSchemaLocations: Seq[SchemaLocation] = diags.flatMap { _.getSchemaLocations }
@@ -161,8 +161,8 @@ trait WithParseErrorThrowing {
    * Passing the context explicitly
    */
   def PECheck(contextArg: SchemaComponent,
-    testTrueMeansOK: => Boolean,
-    kind: String, args: Any*) {
+              testTrueMeansOK: => Boolean,
+              kind: String, args: Any*) {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
     if (!testTrueMeansOK) {
       throw new ParseError(contextArg, None, kind, args: _*)
@@ -312,7 +312,7 @@ class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
     val pStart = pInitial.withNewPointOfUncertainty
     var pResult: PState = null
     var diagnostics: Seq[Diagnostic] = Nil
-    val numChildrenAtStart = pStart.parent.getContent().length
+    val cloneNode = pStart.captureJDOM // we must undo side-effects on the JDOM if we backtrack.
     childParsers.foreach { parser =>
       {
         log(Debug("Trying choice alternative: %s", parser))
@@ -331,10 +331,7 @@ class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
         log(Debug("Choice alternative failed: %s", parser))
         // Unwind any side effects on the Infoset 
         // The infoset is the primary non-functional data structure. We have to un-side-effect it.
-        val lastChildIndex = pStart.parent.getContent().length
-        if (lastChildIndex > numChildrenAtStart) {
-          pStart.parent.removeContent(lastChildIndex - 1) // Note: XML is 1-based indexing, but JDOM is zero based
-        }
+        pStart.restoreJDOM(cloneNode)
         val diag = new ParseAlternativeFailed(context, pStart, pResult.diagnostics)
         diagnostics = diag +: diagnostics
         // check for discriminator evaluated to true.
@@ -443,8 +440,8 @@ class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
  * @param charPos Current Read Character Position in UNICODE or a given Character Set for the given Data Stream
  */
 class PStateStream(val inStream: InStream, val bitLimit: Long, val charLimit: Long = -1,
-  val bitPos: Long = 0, val charPos: Long = 0, val reader: Option[DFDLCharReader],
-  val contextMap: HashMap[UUID, ElementBase] = HashMap.empty) {
+                   val bitPos: Long = 0, val charPos: Long = 0, val reader: Option[DFDLCharReader],
+                   val contextMap: HashMap[UUID, ElementBase] = HashMap.empty) {
   Assert.invariant(bitPos >= 0)
   def withInStream(inStream: InStream, status: ProcessorResult = Success) =
     new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, reader, contextMap)
@@ -523,7 +520,7 @@ class PState(
   def addContext(sc: ElementBase): UUID = {
     val ctxMap = inStreamState.contextMap
     val uuid = UUID.randomUUID()
-    ctxMap.put(uuid, sc) 
+    ctxMap.put(uuid, sc)
     uuid
   }
 
@@ -729,7 +726,7 @@ trait InStream {
 
   def getDouble(bitPos: Long, order: java.nio.ByteOrder): Double
   def getFloat(bitPos: Long, order: java.nio.ByteOrder): Float
-  
+
   def getUnsignedShort(bitPos: Long, order: java.nio.ByteOrder): Int
   def getUnsignedInt(bitPos: Long, order: java.nio.ByteOrder): Long
   def getUnsignedLong(bitPos: Long, order: java.nio.ByteOrder): BigInteger
@@ -942,7 +939,7 @@ class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint
     byteReader.bb.order(order)
     byteReader.bb.getFloat(bytePos)
   }
-  
+
   def getUnsignedShort(bitPos: Long, order: java.nio.ByteOrder): Int = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
@@ -950,7 +947,7 @@ class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint
     val res = (byteReader.bb.getShort(bytePos) & 0xffff)
     res
   }
-  
+
   def getUnsignedInt(bitPos: Long, order: java.nio.ByteOrder): Long = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
@@ -958,7 +955,7 @@ class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint
     val res = (byteReader.bb.getInt(bytePos) & 0xffffffffL)
     res
   }
-  
+
   def getUnsignedLong(bitPos: Long, order: java.nio.ByteOrder): BigInteger = {
     Assert.invariant(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
