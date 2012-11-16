@@ -2572,6 +2572,10 @@ abstract class AssertBase(
   def parser: Parser = new ExpressionEvaluationParser(decl) {
     val baseName = assertKindName
 
+    override def toBriefXML(depthLimit: Int = -1) = {
+      "<" + baseName + ">" + exprText + "</" + baseName + ">"
+    }
+
     lazy val exprText = exprTextArg
     lazy val expandedTypeName = XMLUtils.XSD_BOOLEAN
     def parse(start: PState): PState =

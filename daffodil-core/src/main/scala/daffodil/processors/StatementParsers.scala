@@ -22,13 +22,25 @@ object StmtEval {
 
 class StmtEval(context: ElementBase, eGram: => Gram)
   extends NamedGram(context) {
-  lazy val diagnosticChildren = List(eGram) ++ patAssert ++ testAssert ++ patDiscrim ++ testDiscrim ++ setVar
 
-  val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram)
-  val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram)
+  // The order of things matters in some cases, so to be consistent we'll always use the 
+  // same order even when it doesn't matter
+
+  // The order of evaluation of statements is:
+  // - pattern discriminators
+  // - pattern asserts
+  // - the parsing of the element itself
+  // - setVariables
+  // - test discriminators (must be attempted even if the parsing of element or setVariable statements fail)
+  // - test asserts
+
+  lazy val diagnosticChildren = patDiscrim ++ patAssert ++ List(eGram) ++ setVar ++ testDiscrim ++ testAssert
+
   val patDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Pattern).map(_.gram)
-  val testDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Expression).map(_.gram)
+  val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram)
   val setVar = context.setVariableStatements.map(_.gram)
+  val testDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Expression).map(_.gram)
+  val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram)
 
   val eParser = eGram.parser
 
@@ -37,26 +49,59 @@ class StmtEval(context: ElementBase, eGram: => Gram)
   class StatementElementParser(context: ElementBase) extends PrimParser(this, context) {
 
     Assert.invariant(context.notNewVariableInstanceStatements.size > 0)
+    Assert.invariant(testDiscrim.size <= 1)
+    Assert.invariant(patDiscrim.size <= 1)
 
     override def toBriefXML(depthLimit: Int = -1): String = {
       if (depthLimit == 0) "..." else
-        "<StmtEval>" + eParser.toBriefXML(depthLimit - 1) +
-          setVar.mkString + testDiscrim.mkString +
-          patDiscrim.mkString + testAssert.mkString +
-          patAssert.mkString +
+        "<StmtEval>" +
+          patDiscrim.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
+          patAssert.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
+          eParser.toBriefXML(depthLimit - 1) +
+          setVar.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
+          testDiscrim.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
+          testAssert.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
           "</StmtEval>"
     }
 
     def parse(pstate: PState): PState = {
       //Removed checks now done at compilation
 
-      val postEState = eParser.parse1(pstate, context)
+      var afterPatDisc = pstate.withPos(pstate.bitPos, pstate.charPos)
+      patDiscrim.map(_.parser).foreach(d => {
+        afterPatDisc = d.parse1(afterPatDisc, context)
+        // Pattern fails at the start of the Element
+        if (afterPatDisc.status != Success) { return afterPatDisc }
+      })
+
+      var afterPatAssrt = afterPatDisc.withPos(pstate.bitPos, pstate.charPos)
+      patAssert.map(_.parser).foreach(d => {
+        afterPatAssrt = d.parse1(afterPatAssrt, context)
+        // Pattern fails at the start of the Element
+        if (afterPatAssrt.status != Success) { return afterPatAssrt }
+      })
+
+      val postEState = eParser.parse1(afterPatAssrt, context)
+
+      var someSetVarFailed: Option[PState] = None
 
       var afterSetVar = postEState
       if (postEState.status == Success) {
         setVar.map(_.parser).foreach(d => {
-          afterSetVar = d.parse1(afterSetVar, context)
-          if (afterSetVar.status != Success) { return afterSetVar }
+          val afterOneSetVar = d.parse1(afterSetVar, context)
+          if (afterOneSetVar.status == Success) {
+            afterSetVar = afterOneSetVar
+          } else {
+            // a setVariable statement failed. But we want to continue to try 
+            // more of the setVariable statements, as they may be necessary
+            // to evaluate the test discriminator below, and some might 
+            // be successful even if one fails, allowing the discriminator to be true.
+            //
+            // So it's a bit odd, but we're going to just keep parsing using this
+            // failed state as the input to the next setVariable parse step.
+            someSetVarFailed = Some(afterOneSetVar)
+            afterSetVar = afterOneSetVar
+          }
         })
       }
 
@@ -67,12 +112,11 @@ class StmtEval(context: ElementBase, eGram: => Gram)
         if (afterTestDisc.status != Success) { return afterTestDisc }
       })
 
-      var afterPatDisc = afterTestDisc.withPos(pstate.bitPos, pstate.charPos)
-      patDiscrim.map(_.parser).foreach(d => {
-        afterPatDisc = d.parse1(afterPatDisc, context)
-        // Pattern fails at the start of the Element
-        if (afterPatDisc.status != Success) { return afterPatDisc }
-      })
+      // 
+      // We're done with the discriminator, so now we revisit the set variable statements.
+      // If a failure occurred there, then now we can fail out right here.
+      // 
+      someSetVarFailed.exists { return _ }
 
       // Element evaluation failed, return
       if (postEState.status != Success) { return postEState }
@@ -84,12 +128,6 @@ class StmtEval(context: ElementBase, eGram: => Gram)
         if (afterTestAssrt.status != Success) { return afterTestAssrt }
       })
 
-      var afterPatAssrt = afterTestAssrt.withPos(pstate.bitPos, pstate.charPos)
-      patAssert.map(_.parser).foreach(d => {
-        afterPatAssrt = d.parse1(afterPatAssrt, context)
-        // Pattern fails at the start of the Element
-        if (afterPatAssrt.status != Success) { return afterPatAssrt }
-      })
       afterTestAssrt
     }
   }
