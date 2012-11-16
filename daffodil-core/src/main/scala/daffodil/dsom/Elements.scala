@@ -104,6 +104,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   def typeDef: TypeBase
   def isScalar: Boolean
 
+  def elementRef: Option[ElementRef]
+
   override lazy val isRepresented = inputValueCalcOption == None
 
   def annotationFactory(node: Node): DFDLAnnotation = {
@@ -115,7 +117,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def emptyFormatFactory = new DFDLElement(newDFDLAnnotationXML("element"), this)
 
-  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
+  def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
 
   /**
    * Tells us if we have a specific length.
@@ -250,6 +252,49 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    */
   def isDefaultable: Boolean
 
+  /**
+   * Combine our statements with those of the ref that is referencing us (if there is one), and
+   * those of our simpleType (if we're a simple type element)
+   *
+   * The order here is important. The statements from type come first, then from declaration, then from
+   * reference.
+   */
+  lazy val statements: Seq[DFDLStatement] =
+    stForStatements.map { _.statements }.getOrElse(Nil) ++
+      localStatements ++
+      elementRef.map { _.statements }.getOrElse(Nil)
+
+  lazy val newVariableInstanceStatements: Seq[DFDLNewVariableInstance] =
+    stForStatements.map { _.newVariableInstanceStatements }.getOrElse(Nil) ++
+      localNewVariableInstanceStatements ++
+      elementRef.map { _.newVariableInstanceStatements }.getOrElse(Nil)
+
+  lazy val (discriminatorStatements, assertStatements) =
+    checkDiscriminatorsAssertsDisjoint(combinedDiscrims, combinedAsserts)
+
+  private lazy val combinedAsserts: Seq[DFDLAssert] =
+    stForStatements.map { _.assertStatements }.getOrElse(Nil) ++
+      localAssertStatements ++
+      elementRef.map { _.assertStatements }.getOrElse(Nil)
+
+  private lazy val combinedDiscrims: Seq[DFDLDiscriminator] =
+    stForStatements.map { _.discriminatorStatements }.getOrElse(Nil) ++
+      localDiscriminatorStatements ++
+      elementRef.map { _.discriminatorStatements }.getOrElse(Nil)
+
+  lazy val setVariableStatements: Seq[DFDLSetVariable] = {
+    val combinedSvs =
+      stForStatements.map { _.setVariableStatements }.getOrElse(Nil) ++
+        localSetVariableStatements ++
+        elementRef.map { _.setVariableStatements }.getOrElse(Nil)
+    checkDistinctVariableNames(combinedSvs)
+  }
+
+  private lazy val stForStatements = typeDef match {
+    case st: SimpleTypeDefBase => Some(st)
+    case _ => None
+  }
+
 }
 
 /**
@@ -311,6 +356,8 @@ abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup, position: Int)
 class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   extends LocalElementBase(xmlArg, parent, position)
   with HasRef {
+
+  val elementRef = None
 
   // Need to go get the Element we are referencing
   lazy val referencedElement = referencedElement_.value // optionReferencedElement.get
@@ -374,6 +421,12 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   }
 
   lazy val localProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
+
+  override lazy val statements = localStatements
+  override lazy val newVariableInstanceStatements = localNewVariableInstanceStatements
+  override lazy val assertStatements = localAssertStatements
+  override lazy val discriminatorStatements = localDiscriminatorStatements
+  override lazy val setVariableStatements = localSetVariableStatements
 
   lazy val diagnosticChildren = referencedElement_.toList // optionReferencedElement.toList
 }
@@ -543,30 +596,10 @@ trait ElementDeclMixin
 class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
   extends LocalElementBase(xmlArg, parent, position)
   with ElementDeclMixin {
-  // nothing here yet. All from the mixins.
+
+  val elementRef = None
 
   lazy val diagnosticChildren = elementDeclDiagnosticChildren
-}
-
-/**
- * The other kind of DFDL annotations are DFDL 'statements'.
- * This trait is everything shared by schema components that can have
- * statements.
- *
- * Factory for creating the corresponding DFDLAnnotation objects.
- */
-trait DFDLStatementMixin extends ThrowsSDE {
-
-  def annotationFactoryForDFDLStatement(node: Node, self: AnnotatedSchemaComponent): DFDLAnnotation = {
-    node match {
-      case <dfdl:assert>{ content @ _* }</dfdl:assert> => new DFDLAssert(node, self)
-      case <dfdl:discriminator>{ content @ _* }</dfdl:discriminator> => new DFDLDiscriminator(node, self)
-      case <dfdl:setVariable>{ content @ _* }</dfdl:setVariable> => new DFDLSetVariable(node, self)
-      case <dfdl:newVariableInstance>{ content @ _* }</dfdl:newVariableInstance> => new DFDLNewVariableInstance(node, self)
-      case _ => SDE("Invalid DFDL annotation found: %s", node)
-    }
-  }
-
 }
 
 /**
@@ -599,28 +632,6 @@ class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val ele
   override val enclosingComponent = elementRef
 
   // GlobalElementDecls need to have access to elementRef's local properties.
-
-  /**
-   * For executing the DFDL 'statement' annotations and doing whatever it is they
-   * do to the processor state. This is discriminators, assertions, setVariable, etc.
-   *
-   * Also things that care about entry and exit of scope, like newVariableInstance
-   */
-  override lazy val statements = {
-    val local = this.annotationObjs.filter { st =>
-      st.isInstanceOf[DFDLStatement] &&
-        !st.isInstanceOf[DFDLNewVariableInstance]
-    }.asInstanceOf[Seq[DFDLStatement]]
-    val ref = elementRef match {
-      case Some(r) => r.annotationObjs.filter { st =>
-        st.isInstanceOf[DFDLStatement] &&
-          !st.isInstanceOf[DFDLNewVariableInstance]
-      }.asInstanceOf[Seq[DFDLStatement]]
-      case None => Seq.empty[DFDLStatement]
-    }
-    local ++ ref
-  }
-  override lazy val statementGrams = statements.map { _.gram }
 
   // We inherit the requirement for these attributes from Term. It all gets
   // too complicated in DSOM if you try to make GlobalElementDecl share with the other

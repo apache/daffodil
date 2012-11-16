@@ -227,12 +227,8 @@
 		root="e3" model="s1" description="Section 7 - multiple discrim as a pattern - DFDL-7-045R">
 		<tdml:document><![CDATA[43,]]></tdml:document>
 		<tdml:errors>
-			<tdml:error>More</tdml:error>
-			<tdml:error>than</tdml:error>
 			<tdml:error>one</tdml:error>
 			<tdml:error>discriminator</tdml:error>
-			<tdml:error>not</tdml:error>
-			<tdml:error>allowed</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	
@@ -240,12 +236,9 @@
 		root="e5" model="s1" description="Section 7 - verify SDE occurs when both discriminator and assert present - DFDL-7-045R">
 		<tdml:document><![CDATA[43,]]></tdml:document>
 		<tdml:errors>
-			<tdml:error>1</tdml:error>
+			<tdml:error>both</tdml:error>
 			<tdml:error>discriminator</tdml:error>
-			<tdml:error>OR</tdml:error>
-			<tdml:error>1</tdml:error>
-			<tdml:error>more</tdml:error>
-			<tdml:error>asserts</tdml:error>
+			<tdml:error>assert</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 	

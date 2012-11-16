@@ -19,7 +19,6 @@ import daffodil.grammar._
 abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int)
   extends AnnotatedSchemaComponent(xmlArg)
   with LocalComponentMixin
-  with DFDLStatementMixin
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin {
@@ -270,6 +269,7 @@ abstract class GroupBase(xmlArg: Node, parent: SchemaComponent, position: Int)
  */
 abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends GroupBase(xmlArg, parent, position)
+  with DFDLStatementMixin
   with ModelGroupGrammarMixin {
 
   lazy val prettyName = xmlArg.label
@@ -328,32 +328,6 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
     childList
   }
 
-  /**
-   * For executing the DFDL 'statement' annotations and doing whatever it is they
-   * do to the processor state. This is discriminators, assertions, setVariable, etc.
-   *
-   * Also things that care about entry and exit of scope, like newVariableInstance
-   */
-  override lazy val statements = {
-    val local = this.annotationObjs.filter { st =>
-      st.isInstanceOf[DFDLStatement] &&
-        !st.isInstanceOf[DFDLNewVariableInstance]
-    }.asInstanceOf[Seq[DFDLStatement]]
-    val ref = {
-      parent match {
-        case ggd: GlobalGroupDef => {
-          ggd.groupRef.annotationObjs.filter { st =>
-            st.isInstanceOf[DFDLStatement] &&
-              !st.isInstanceOf[DFDLNewVariableInstance]
-          }.asInstanceOf[Seq[DFDLStatement]]
-        }
-        case _ => Seq.empty[DFDLStatement]
-      }
-    }
-    local ++ ref
-  }
-  override lazy val statementGrams = statements.map { _.gram }
-
   lazy val myGroupReferenceProps: Map[String, String] = {
 
     val noProps = Map.empty[String, String]
@@ -384,6 +358,26 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
   override lazy val allNonDefaultProperties: Map[String, String] = {
     val theLocalUnion = this.combinedGroupRefAndGlobalGroupDefProperties
     theLocalUnion
+  }
+
+  /**
+   * Combine our statements with those of the group ref that is referencing us (if there is one)
+   */
+  lazy val statements: Seq[DFDLStatement] = localStatements ++ groupRef.map { _.statements }.getOrElse(Nil)
+  lazy val newVariableInstanceStatements: Seq[DFDLNewVariableInstance] =
+    localNewVariableInstanceStatements ++ groupRef.map { _.newVariableInstanceStatements }.getOrElse(Nil)
+  lazy val (discriminatorStatements, assertStatements) = checkDiscriminatorsAssertsDisjoint(combinedDiscrims, combinedAsserts)
+  private lazy val combinedAsserts: Seq[DFDLAssert] = localAssertStatements ++ groupRef.map { _.assertStatements }.getOrElse(Nil)
+  private lazy val combinedDiscrims: Seq[DFDLDiscriminator] = localDiscriminatorStatements ++ groupRef.map { _.discriminatorStatements }.getOrElse(Nil)
+
+  lazy val setVariableStatements: Seq[DFDLSetVariable] = {
+    val combinedSvs = localSetVariableStatements ++ groupRef.map { _.setVariableStatements }.getOrElse(Nil)
+    checkDistinctVariableNames(combinedSvs)
+  }
+
+  lazy val groupRef = parent match {
+    case ggd: GlobalGroupDef => Some(ggd.groupRef)
+    case _ => None
   }
 
 }
@@ -465,7 +459,7 @@ class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   def emptyFormatFactory = new DFDLChoice(newDFDLAnnotationXML("choice"), this)
-  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLChoice]
+  def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLChoice]
 
   lazy val <choice>{ xmlChildren @ _* }</choice> = xml
 
@@ -515,7 +509,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
-  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
+  def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
 
   lazy val <sequence>{ xmlChildren @ _* }</sequence> = xml
 
@@ -530,6 +524,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
 
 class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends GroupBase(xmlArg, parent, position)
+  with DFDLStatementMixin
   with GroupRefGrammarMixin
   with HasRef {
 
@@ -565,7 +560,7 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   def emptyFormatFactory = new DFDLGroup(newDFDLAnnotationXML("group"), this)
-  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLGroup]
+  def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLGroup]
 
   def hasStaticallyRequiredInstances = group.hasStaticallyRequiredInstances
 
@@ -606,6 +601,12 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   //    }
   //    res
   //  }
+
+  lazy val statements = localStatements
+  lazy val newVariableInstanceStatements = localNewVariableInstanceStatements
+  lazy val assertStatements = localAssertStatements
+  lazy val discriminatorStatements = localDiscriminatorStatements
+  lazy val setVariableStatements = localSetVariableStatements
 
   lazy val diagnosticChildren = annotationObjs :+ groupDef
 

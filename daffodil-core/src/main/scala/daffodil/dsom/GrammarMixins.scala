@@ -78,7 +78,8 @@ trait AlignedMixin { self: Term =>
 
 trait ElementBaseGrammarMixin
   extends InitiatedTerminatedMixin
-  with AlignedMixin { self: ElementBase =>
+  with AlignedMixin
+  with HasStatementsGrammarMixin { self: ElementBase =>
   // 
   // This silly redundancy where the variable name has to also be passed as a string,
   // is, by the way, a good reason Scala needs real Lisp-style macros, that can take an argument and
@@ -396,7 +397,7 @@ trait ElementBaseGrammarMixin
   val bin = BinaryNumberRep.Binary // shorthands for table dispatch
   val ieee = BinaryFloatRep.Ieee
   type BO = java.nio.ByteOrder
-  
+
   lazy val zero = new BigInteger("0")
   lazy val two = new BigInteger("2")
   lazy val maximumUnsignedLong = two.pow(64).subtract(new BigInteger("1"))
@@ -487,7 +488,7 @@ trait ElementBaseGrammarMixin
               //val res = in.getShort(bp, bo) - Short.MinValue
               val res = in.getUnsignedShort(bp, bo)
               res
-              }
+            }
             override def getNum(num: Number) = num.intValue
             protected override val GramName = "unsignedShort"
             protected override val GramDescription = "Unsigned Short"
@@ -503,7 +504,7 @@ trait ElementBaseGrammarMixin
               //val res = in.getInt(bp, bo).toLong - Int.MinValue.toLong
               val res = in.getUnsignedInt(bp, bo)
               res
-              }
+            }
             override def getNum(num: Number) = num.longValue
             protected override val GramName = "unsignedInt"
             protected override val GramDescription = "Unsigned Int"
@@ -517,18 +518,18 @@ trait ElementBaseGrammarMixin
               in.getLong(bp, bo) - Long.MinValue
               val res = in.getUnsignedLong(bp, bo)
               res
-              }
-            override def getNum(num: Number) = num.asInstanceOf[BigInteger]//num.longValue()
+            }
+            override def getNum(num: Number) = num.asInstanceOf[BigInteger] //num.longValue()
             protected override val GramName = "unsignedLong"
             protected override val GramDescription = "Unsigned Long"
             //protected override def isInvalidRange(n: Long) = n < 0 || n >= (1L << 32)
             protected override def isInvalidRange(n: BigInteger) = {
-//              val zero = new BigInteger("0")
+              //              val zero = new BigInteger("0")
               val nAsBigInt = n.asInstanceOf[BigInteger]
               val shiftRight64 = nAsBigInt.shiftRight(64)
-              
-//              val two = new BigInteger("2")
-//              val maximumUnsignedLong = two.pow(64).subtract(new BigInteger("1"))
+
+              //              val two = new BigInteger("2")
+              //              val maximumUnsignedLong = two.pow(64).subtract(new BigInteger("1"))
               val differenceFromMax = maximumUnsignedLong.subtract(nAsBigInt)
               (shiftRight64.compareTo(zero) != 0 || differenceFromMax.compareTo(zero) == 1)
             }
@@ -696,8 +697,8 @@ trait ElementBaseGrammarMixin
   //      scalarNonDefaultContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
 
   lazy val scalarNonDefaultPhysical = Prod("scalarNonDefault", this,
-    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
-      scalarNonDefaultContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
+    StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
+      scalarNonDefaultContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd)
 
   def scalarDefaultable: Prod
   def scalarNonDefault: Prod
@@ -910,23 +911,6 @@ trait TermGrammarMixin { self: Term =>
   lazy val dfdlScopeEnd = Prod("dfdlScopeEnd", this, newVarEnds.length > 0,
     newVarEnds.fold(EmptyGram) { _ ~ _ })
 
-  /**
-   * For executing the DFDL 'statement' annotations and doing whatever it is they
-   * do to the processor state. This is discriminators, assertions, setVariable, etc.
-   *
-   * Also things that care about entry and exit of scope, like newVariableInstance
-   */
-  lazy val statements = this.annotationObjs.filter { st =>
-    st.isInstanceOf[DFDLStatement] &&
-      !st.isInstanceOf[DFDLNewVariableInstance]
-  }.asInstanceOf[Seq[DFDLStatement]]
-  lazy val statementGrams = statements.map { _.gram }
-
-  // TODO: statements (but specifically not newVariableInstance) can appear on simple type definitions as well as terms.
-
-  lazy val dfdlStatementEvaluations = Prod("dfdlStatementEvaluations", this, statementGrams.length > 0,
-    statementGrams.fold(EmptyGram) { _ ~ _ })
-
   def termContentBody: Prod
 
   // I am not sure we need to distinguish these two. 
@@ -1021,9 +1005,20 @@ trait TermGrammarMixin { self: Term =>
 
 }
 
+trait HasStatementsGrammarMixin { self: Term with DFDLStatementMixin =>
+
+  final lazy val statementGrams = statements.map { _.gram }
+  // TODO: statements (but specifically not newVariableInstance) can appear on simple type definitions as well as terms.
+
+  lazy val dfdlStatementEvaluations = Prod("dfdlStatementEvaluations", this, statementGrams.length > 0,
+    statementGrams.fold(EmptyGram) { _ ~ _ })
+
+}
+
 trait ModelGroupGrammarMixin
   extends InitiatedTerminatedMixin
   with AlignedMixin
+  with HasStatementsGrammarMixin
   with GroupCommonAGMixin { self: ModelGroup =>
 
   lazy val groupLeftFraming = Prod("groupLeftFraming", this, leadingSkipRegion ~ alignmentFill ~ initiatorRegion)

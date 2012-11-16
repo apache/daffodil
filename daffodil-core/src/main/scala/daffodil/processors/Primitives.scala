@@ -2690,20 +2690,17 @@ class IVCParser(e: ElementBase with ElementDeclMixin)
 
 class SetVariableParser(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
   extends ExpressionEvaluationParser(decl) {
-  val baseName = "SetVariable[" + localName + "]"
+  val baseName = "SetVariable[" + stmt.localName + "]"
   lazy val exprText = stmt.value
-  val (uri, localName) = XMLUtils.QName(decl.xml, stmt.ref, decl.schemaDocument)
-  val defv = decl.schema.schemaSet.getDefineVariable(uri, localName).getOrElse(
-    stmt.schemaDefinitionError("Unknown variable: %s", stmt.ref))
 
-  lazy val expandedTypeName = defv.extType
+  lazy val expandedTypeName = stmt.defv.extType
 
   def parse(start: PState): PState =
     withLoggingLevel(LogLevel.Info) {
       withParseErrorThrowing(start) {
         log(Debug("This is %s", toString))
         val R(res, newVMap) = eval(start)
-        val newVMap2 = newVMap.setVariable(defv.extName, res, decl)
+        val newVMap2 = newVMap.setVariable(stmt.defv.extName, res, decl)
         val postState = start.withVariables(newVMap2)
         postState
       }

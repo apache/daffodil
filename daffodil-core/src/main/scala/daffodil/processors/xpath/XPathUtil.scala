@@ -115,7 +115,10 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
     val currentElement = pstate.parentElement
     val attr = currentElement.getAttributeValue("context", currentElement.getNamespace())
     attr match {
-      case null => return java.lang.Boolean.FALSE
+      case null => {
+        Assert.invariantFailed("No schema component context attribute on JDOM element")
+        // return java.lang.Boolean.FALSE
+      }
       case uuid => {
         // We have a uuid, retrieve the schema component
         pstate.getContextByUID(uuid) match {
@@ -123,10 +126,18 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
             // We have an ElementBase, retrieve the constraints
             val patterns = e.patternValues
             val data = currentElement.getText()
-            if (patterns.size > 0 && !checkPatterns(data, patterns)) { return java.lang.Boolean.FALSE }
-            if (!checkMinMaxOccurs(e, pstate.arrayPos)) { return java.lang.Boolean.FALSE }
+            if (!XMLUtils.isNil(currentElement) && patterns.size > 0) {
+              val check = checkPatterns(data, patterns)
+              if (!check) {
+                return java.lang.Boolean.FALSE
+              }
+            }
+            // Note: dont check occurs counts // if(!checkMinMaxOccurs(e, pstate.arrayPos)) { return java.lang.Boolean.FALSE }
           }
-          case None => return java.lang.Boolean.FALSE
+          case None => {
+            Assert.invariantFailed("Schema context component was not found in lookup table")
+            // return java.lang.Boolean.FALSE
+          }
         }
       }
     }
@@ -150,8 +161,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
             if (data.matches(pattern.toString())) {
               isSuccess = true
               break
-            }
-            else { isSuccess = false }
+            } else { isSuccess = false }
           }
         }
         if (!isSuccess) { break }

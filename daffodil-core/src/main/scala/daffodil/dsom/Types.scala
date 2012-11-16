@@ -18,35 +18,35 @@ trait SimpleTypeBase
   extends TypeBase
   with DiagnosticsProviding {
 
-  def context : SchemaComponent
-  def primitiveType : PrimitiveType
+  def context: SchemaComponent
+  def primitiveType: PrimitiveType
 
 }
 
 trait Facets {
   import Facet._
-  def retrieveFacetValueFromRestrictionBase(xml : Node, facetName : Facet) : String = {
+  def retrieveFacetValueFromRestrictionBase(xml: Node, facetName: Facet): String = {
     val res = xml \\ "restriction" \ facetName.toString() \ "@value"
     if (res.length > 0) res.head.text else ""
   }
-  def retrieveFacetValuesFromRestrictionBase(xml : Node, facetName : Facet) : Seq[String] = {
+  def retrieveFacetValuesFromRestrictionBase(xml: Node, facetName: Facet): Seq[String] = {
     val res = xml \\ "restriction" \ facetName.toString() \\ "@value"
     if (res.length > 0) res.map(n => n.text).toList else List.empty
   }
-  def enumeration(xml : Node) : Seq[String] = { retrieveFacetValuesFromRestrictionBase(xml, Facet.enumeration) }
-  def fractionDigits(xml : Node) : String = { retrieveFacetValueFromRestrictionBase(xml, Facet.fractionDigits) }
-  def maxExclusive(xml : Node) : String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxExclusive) }
-  def maxInclusive(xml : Node) : String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxInclusive) }
-  def maxLength(xml : Node) : String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxLength) }
-  def minExclusive(xml : Node) : String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minExclusive) }
-  def minInclusive(xml : Node) : String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minInclusive) }
-  def minLength(xml : Node) : String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minLength) }
-  def pattern(xml : Node) : Seq[String] = {
+  def enumeration(xml: Node): Seq[String] = { retrieveFacetValuesFromRestrictionBase(xml, Facet.enumeration) }
+  def fractionDigits(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.fractionDigits) }
+  def maxExclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxExclusive) }
+  def maxInclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxInclusive) }
+  def maxLength(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxLength) }
+  def minExclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minExclusive) }
+  def minInclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minInclusive) }
+  def minLength(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minLength) }
+  def pattern(xml: Node): Seq[String] = {
     // Patterns are OR'd locally, AND'd remotely
     retrieveFacetValuesFromRestrictionBase(xml, Facet.pattern).map(p => p)
   }
-  def totalDigits(xml : Node) : String = { retrieveFacetValueFromRestrictionBase(xml, Facet.totalDigits) }
-  def whitespace(xml : Node) : String = { retrieveFacetValueFromRestrictionBase(xml, Facet.whiteSpace) }
+  def totalDigits(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.totalDigits) }
+  def whitespace(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.whiteSpace) }
 }
 
 object Facet extends Enumeration {
@@ -65,10 +65,9 @@ object FacetTypes {
   type ElemFacetsR = Seq[FacetValueR]
 }
 
-abstract class SimpleTypeDefBase(xmlArg : Node, val parent : SchemaComponent)
+abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
   extends AnnotatedSchemaComponent(xmlArg)
   with SimpleTypeBase
-
   with DFDLStatementMixin
   with Facets {
 
@@ -76,16 +75,16 @@ abstract class SimpleTypeDefBase(xmlArg : Node, val parent : SchemaComponent)
 
   def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
 
-  def isMyAnnotation(a : DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
+  def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
 
-  def annotationFactory(node : Node) : DFDLAnnotation = {
+  def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:simpleType>{ contents @ _* }</dfdl:simpleType> => new DFDLSimpleType(node, this)
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
 
-  lazy val localAndFormatRefProperties : Map[String, String] = {
+  lazy val localAndFormatRefProperties: Map[String, String] = {
     this.formatAnnotation.getFormatPropertiesNonDefault()
   }
 
@@ -109,54 +108,54 @@ abstract class SimpleTypeDefBase(xmlArg : Node, val parent : SchemaComponent)
   // Returns name of base class in the form of
   // ex:myType
   //
-  lazy val restrictionBase : String = {
+  lazy val restrictionBase: String = {
     val rsb = xml \\ "restriction" \ "@base"
     rsb.head.text
   }
 
   // Returns pattern value of base class
   // 11/1/2012
-  lazy val localPatternValue : Seq[String] = pattern(xml)
+  lazy val localPatternValue: Seq[String] = pattern(xml)
 
   // Returns minInclusive value of base class
   // 11/1/2012
-  lazy val localMinInclusiveValue : String = minInclusive(xml)
+  lazy val localMinInclusiveValue: String = minInclusive(xml)
 
   // Returns maxInclusive value of base class
   // 11/1/2012
-  lazy val localMaxInclusiveValue : String = maxInclusive(xml)
+  lazy val localMaxInclusiveValue: String = maxInclusive(xml)
 
   // Returns minExclusive value of base class
   // 11/1/2012
-  lazy val localMinExclusiveValue : String = minExclusive(xml)
+  lazy val localMinExclusiveValue: String = minExclusive(xml)
 
   // Returns maxExclusive value of base class
   // 11/1/2012
-  lazy val localMaxExclusiveValue : String = maxExclusive(xml)
+  lazy val localMaxExclusiveValue: String = maxExclusive(xml)
 
   // Returns minLength value of base class
   // 11/1/2012
-  lazy val localMinLengthValue : String = minLength(xml)
+  lazy val localMinLengthValue: String = minLength(xml)
 
   // Returns maxLength value of base class
   // 11/1/2012
-  lazy val localMaxLengthValue : String = maxLength(xml)
+  lazy val localMaxLengthValue: String = maxLength(xml)
 
   // Returns totalDigits value of base class
   // 11/1/2012
-  lazy val localTotalDigitsValue : String = totalDigits(xml)
+  lazy val localTotalDigitsValue: String = totalDigits(xml)
 
   // Returns fractionDigitsValue value of base class
   // 11/1/2012
-  lazy val localFractionDigitsValue : String = fractionDigits(xml)
+  lazy val localFractionDigitsValue: String = fractionDigits(xml)
 
   // Returns enumeration values of base class
   // 11/1/2012
-  lazy val localEnumerationValues : Seq[String] = enumeration(xml)
+  lazy val localEnumerationValues: Seq[String] = enumeration(xml)
 
   // Returns whitespace value of base class
   // 11/1/2012
-  lazy val localWhitespaceValue : String = {
+  lazy val localWhitespaceValue: String = {
     whitespace(xml)
     Assert.notYetImplemented("whitespaceValue is not implemented for DFDL v1.0 schemas but reserved for future use.")
   }
@@ -193,7 +192,7 @@ abstract class SimpleTypeDefBase(xmlArg : Node, val parent : SchemaComponent)
 
   lazy val baseTypeQName = XMLUtils.QName(xml, restrictionBase, schemaDocument)
 
-  lazy val myBaseType : SimpleTypeBase = {
+  lazy val myBaseType: SimpleTypeBase = {
     myPrimitiveType match {
       case Some(pt) => pt
       case None => {
@@ -210,15 +209,20 @@ abstract class SimpleTypeDefBase(xmlArg : Node, val parent : SchemaComponent)
 
   lazy val diagnosticChildren = annotationObjs ++ myBaseTypeList
 
-  lazy val simpleTypeBaseProperties : Map[String, String] = {
+  lazy val simpleTypeBaseProperties: Map[String, String] = {
 
     val baseProps = {
-      myBaseType match {
-        case st : SimpleTypeDefBase => st.localAndFormatRefProperties
-        case _ => Map.empty[String, String]
+      myBaseDef match {
+        case Some(st) => st.localAndFormatRefProperties
+        case None => Map.empty[String, String]
       }
     }
     baseProps
+  }
+
+  lazy val myBaseDef = myBaseType match {
+    case st: SimpleTypeDefBase => Some(st)
+    case _ => None
   }
 
   lazy val overlappingLocalProperties = {
@@ -228,7 +232,7 @@ abstract class SimpleTypeDefBase(xmlArg : Node, val parent : SchemaComponent)
     intersect
   }
 
-  lazy val hasOverlap : Boolean = {
+  lazy val hasOverlap: Boolean = {
     if (overlappingLocalProperties.size > 0) {
       true
     } else {
@@ -243,29 +247,29 @@ abstract class SimpleTypeDefBase(xmlArg : Node, val parent : SchemaComponent)
     theLocalUnion
   }
   import Facet._
-  private val facetList : List[Facet] = List(Facet.enumeration, Facet.fractionDigits,
+  private val facetList: List[Facet] = List(Facet.enumeration, Facet.fractionDigits,
     Facet.maxExclusive, Facet.maxInclusive, Facet.maxLength, Facet.minExclusive,
     Facet.minInclusive, Facet.minLength, Facet.pattern, Facet.totalDigits, Facet.whiteSpace)
 
-  lazy val patternValues : Seq[ElemFacetsR] = {
+  lazy val patternValues: Seq[ElemFacetsR] = {
     val remotePatternValues = combinedBaseFacets.filter { s => s.filter { case (f, _) => f == Facet.pattern }.size > 0 }
     if (remotePatternValues.size > 0) {
-      val res : Seq[ElemFacetsR] = remotePatternValues.map(s => s.map { case (f, v) => (f, v.map(r => r.r)) })
+      val res: Seq[ElemFacetsR] = remotePatternValues.map(s => s.map { case (f, v) => (f, v.map(r => r.r)) })
       res
     } else Seq.empty
   }
-  lazy val localBaseFacets : ElemFacets = {
-    var myFacets : Queue[FacetValue] = Queue.empty
+  lazy val localBaseFacets: ElemFacets = {
+    var myFacets: Queue[FacetValue] = Queue.empty
     if (localPatternValue.length > 0) { myFacets.enqueue((Facet.pattern, localPatternValue)) }
-    val res : ElemFacets = myFacets.toSeq
+    val res: ElemFacets = myFacets.toSeq
     res
   }
 
-  lazy val combinedBaseFacets : Seq[ElemFacets] = {
+  lazy val combinedBaseFacets: Seq[ElemFacets] = {
     //localBaseFacets.union(remoteBaseFacets)
     // Here we really want a Set of Set[(Facet, Any)]
-    val local : Seq[ElemFacets] = Seq(localBaseFacets)
-    val combined : Seq[ElemFacets] = local.union(remoteBaseFacets)
+    val local: Seq[ElemFacets] = Seq(localBaseFacets)
+    val combined: Seq[ElemFacets] = local.union(remoteBaseFacets)
     combined
   }
 
@@ -284,9 +288,27 @@ abstract class SimpleTypeDefBase(xmlArg : Node, val parent : SchemaComponent)
       res.get.combinedBaseFacets
     }
   }
+
+  /**
+   * Combine our statements with those of our base def (if there is one)
+   *
+   * The order is important here. I.e., we FIRST put in each list those from our base. Then our own local ones.
+   */
+  lazy val statements: Seq[DFDLStatement] = myBaseDef.map { _.statements }.getOrElse(Nil) ++ localStatements
+  lazy val newVariableInstanceStatements: Seq[DFDLNewVariableInstance] =
+    myBaseDef.map { _.newVariableInstanceStatements }.getOrElse(Nil) ++ localNewVariableInstanceStatements
+  lazy val (discriminatorStatements, assertStatements) = checkDiscriminatorsAssertsDisjoint(combinedDiscrims, combinedAsserts)
+  private lazy val combinedAsserts: Seq[DFDLAssert] = myBaseDef.map { _.assertStatements }.getOrElse(Nil) ++ localAssertStatements
+  private lazy val combinedDiscrims: Seq[DFDLDiscriminator] = myBaseDef.map { _.discriminatorStatements }.getOrElse(Nil) ++ localDiscriminatorStatements
+
+  lazy val setVariableStatements: Seq[DFDLSetVariable] = {
+    val combinedSvs = myBaseDef.map { _.setVariableStatements }.getOrElse(Nil) ++ localSetVariableStatements
+    checkDistinctVariableNames(combinedSvs)
+  }
+
 }
 
-class LocalSimpleTypeDef(xmlArg : Node, parent : ElementBase)
+class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
   extends SimpleTypeDefBase(xmlArg, parent)
   with LocalComponentMixin {
 
@@ -347,21 +369,21 @@ class PrimitiveType(name_ : String)
  * I.e., the context is clear and kept separate for each place a global type is used.
  */
 
-class GlobalSimpleTypeDefFactory(val xml : Node, schemaDocument : SchemaDocument)
+class GlobalSimpleTypeDefFactory(val xml: Node, schemaDocument: SchemaDocument)
   extends NamedMixin {
   def forRoot() = new GlobalSimpleTypeDef(xml, schemaDocument, None)
 
   /**
    * Create a private instance for this element's use.
    */
-  def forElement(element : ElementBase) = new GlobalSimpleTypeDef(xml, schemaDocument, Some(element))
-  def forDerivedType(derivedType : SimpleTypeDefBase) = new GlobalSimpleTypeDef(xml, schemaDocument, None)
+  def forElement(element: ElementBase) = new GlobalSimpleTypeDef(xml, schemaDocument, Some(element))
+  def forDerivedType(derivedType: SimpleTypeDefBase) = new GlobalSimpleTypeDef(xml, schemaDocument, None)
 }
 /**
  * The instance type for global simple type definitions.
  */
 
-class GlobalSimpleTypeDef(xmlArg : Node, schemaDocumentArg : SchemaDocument, val element : Option[AnnotatedMixin])
+class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: Option[AnnotatedMixin])
   extends SimpleTypeDefBase(xmlArg, schemaDocumentArg) with NamedMixin
   with GlobalComponentMixin {
 
@@ -369,11 +391,11 @@ class GlobalSimpleTypeDef(xmlArg : Node, schemaDocumentArg : SchemaDocument, val
 
 }
 
-abstract class ComplexTypeBase(xmlArg : Node, val parent : SchemaComponent)
+abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
   extends SchemaComponent(xmlArg)
   with TypeBase
   with ComplexTypeBaseGrammarMixin {
-  def element : ElementBase
+  def element: ElementBase
 
   lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
 
@@ -384,26 +406,26 @@ abstract class ComplexTypeBase(xmlArg : Node, val parent : SchemaComponent)
 
   // provides needed polymorphism across unannotated complex types, and
   // the annotated objects.
-  lazy val localAndFormatRefProperties : Map[String, String] = {
+  lazy val localAndFormatRefProperties: Map[String, String] = {
     Map.empty[String, String]
   }
 
   lazy val diagnosticChildren = List(modelGroup)
 }
 
-class GlobalComplexTypeDefFactory(val xml : Node, schemaDocument : SchemaDocument)
+class GlobalComplexTypeDefFactory(val xml: Node, schemaDocument: SchemaDocument)
   extends NamedMixin {
-  def forElement(element : ElementBase) = new GlobalComplexTypeDef(xml, schemaDocument, element)
+  def forElement(element: ElementBase) = new GlobalComplexTypeDef(xml, schemaDocument, element)
 }
 
-class GlobalComplexTypeDef(xmlArg : Node, schemaDocumentArg : SchemaDocument, val element : ElementBase)
+class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: ElementBase)
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
   def schemaDocument = schemaDocumentArg
 
 }
 
-class LocalComplexTypeDef(xmlArg : Node, val element : ElementBase)
+class LocalComplexTypeDef(xmlArg: Node, val element: ElementBase)
   extends ComplexTypeBase(xmlArg, element)
   with LocalComponentMixin {
 

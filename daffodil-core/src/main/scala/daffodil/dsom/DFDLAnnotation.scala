@@ -644,6 +644,10 @@ class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
     case (None, "") => decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
 
+  lazy val (uri, localName) = XMLUtils.QName(decl.xml, ref, decl.schemaDocument)
+  lazy val defv = decl.schema.schemaSet.getDefineVariable(uri, localName).getOrElse(
+    schemaDefinitionError("Unknown variable: %s", ref))
+
   lazy val gram = gram_.value
   private lazy val gram_ = LV {
     SetVariable(decl, this)

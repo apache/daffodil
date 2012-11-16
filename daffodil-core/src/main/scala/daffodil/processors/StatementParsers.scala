@@ -9,37 +9,36 @@ import daffodil.schema.annotation.props.gen.TestKind
 import daffodil.exceptions.Assert
 
 object StmtEval {
-  def apply(context : ElementBase, eGram : => Gram) = new StmtEval(context, eGram)
+  def apply(context: ElementBase, eGram: => Gram) = {
+    // little optimization here. If there are no statements (most common case), then let's 
+    // shortcut and just use the guts parser.
+    val hasStatements = context.notNewVariableInstanceStatements.size > 0
+    if (hasStatements)
+      new StmtEval(context, eGram)
+    else
+      eGram
+  }
 }
 
-class StmtEval(context : ElementBase, eGram : => Gram)
+class StmtEval(context: ElementBase, eGram: => Gram)
   extends NamedGram(context) {
   lazy val diagnosticChildren = List(eGram) ++ patAssert ++ testAssert ++ patDiscrim ++ testDiscrim ++ setVar
-  val patAssert = context.statements.filter(x => x match {
-    case a : DFDLAssert => a.testKind == TestKind.Pattern
-    case _ => false
-  }).map(_.gram)
-  val testAssert = context.statements.filter(x => x match {
-    case a : DFDLAssert => a.testKind == TestKind.Expression
-    case _ => false
-  }).map(_.gram)
-  val patDiscrim = context.statements.filter(x => x match {
-    case a : DFDLDiscriminator => a.testKind == TestKind.Pattern
-    case _ => false
-  }).map(_.gram)
-  val testDiscrim = context.statements.filter(x => x match {
-    case a : DFDLDiscriminator => a.testKind == TestKind.Expression
-    case _ => false
-  }).map(_.gram)
-  val setVar = context.statements.filter(x => x match {
-    case a : DFDLSetVariable => true
-    case _ => false
-  }).map(_.gram)
+
+  val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram)
+  val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram)
+  val patDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Pattern).map(_.gram)
+  val testDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Expression).map(_.gram)
+  val setVar = context.setVariableStatements.map(_.gram)
 
   val eParser = eGram.parser
 
-  def parser : Parser = new PrimParser(this, context) {
-    override def toBriefXML(depthLimit : Int = -1) : String = {
+  def parser: Parser = new StatementElementParser(context)
+
+  class StatementElementParser(context: ElementBase) extends PrimParser(this, context) {
+
+    Assert.invariant(context.notNewVariableInstanceStatements.size > 0)
+
+    override def toBriefXML(depthLimit: Int = -1): String = {
       if (depthLimit == 0) "..." else
         "<StmtEval>" + eParser.toBriefXML(depthLimit - 1) +
           setVar.mkString + testDiscrim.mkString +
@@ -48,15 +47,9 @@ class StmtEval(context : ElementBase, eGram : => Gram)
           "</StmtEval>"
     }
 
-    def parse(pstate : PState) : PState = {
-      // Can have 1 discriminator OR
-      // 1 or more asserts
-      val numDiscrims = patDiscrim.size + testDiscrim.size
-      val numAsserts = patAssert.size + testAssert.size
-      
-      if (numDiscrims > 1){ context.SDE("More than one discriminator is not allowed.") }
-      if (numDiscrims >= 1 && numAsserts >= 1){ context.SDE("Can have 1 discriminator OR 1 or more asserts.  Not both a discriminator AND asserts.")}
-      
+    def parse(pstate: PState): PState = {
+      //Removed checks now done at compilation
+
       val postEState = eParser.parse1(pstate, context)
 
       var afterSetVar = postEState
@@ -101,10 +94,9 @@ class StmtEval(context : ElementBase, eGram : => Gram)
     }
   }
 
-  def unparser : Unparser = new Unparser(context) {
-    def unparse(start : UState) : UState = {
-      // We want to delegate to the grammar to handle this
-      // as the dfdl statements have nothing to do.
+  def unparser: Unparser = new Unparser(context) {
+    def unparse(start: UState): UState = {
+      // FIXME: setVariables have to execute. We don't do asserts and discriminators when unparsing however.
       val eUnParser = eGram.unparser
       val postEState = eUnParser.unparse(start)
       postEState

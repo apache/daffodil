@@ -53,6 +53,14 @@ object XMLUtils {
   val DFDL_XMLSCHEMASUBSET_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
   val EXAMPLE_NAMESPACE = "http://example.com"
 
+  def isNil(e: Element) = {
+    val nilAttr = e.getAttribute("nil", xsiNS)
+    val res =
+      if (nilAttr == null) false
+      else nilAttr.getValue() == "true"
+    res
+  }
+
   /**
    * Added to support extensions and proposed future features as part of daffodil.
    * <p>
@@ -164,7 +172,7 @@ object XMLUtils {
   //  private var shouldCompress = false
   //  private var hasCompressed = false
 
-  def slashify(s : String) : String = if (s == "" || s.endsWith("/")) s else s + "/"
+  def slashify(s: String): String = if (s == "" || s.endsWith("/")) s else s + "/"
 
   //  // TODO: Somehow the term "Full" name has come to mean the short name (no namespace qualification, nor prefix.
   //  def getFullName(e:Element) = e.getName()
@@ -431,13 +439,13 @@ object XMLUtils {
   //    }
   //  }
 
-  def expandedQName(qName : QName) : String = {
+  def expandedQName(qName: QName): String = {
     val uri = qName.getNamespaceURI
     val localName = qName.getLocalPart
     expandedQName(uri, localName)
   }
 
-  def expandedQName(uri : String, localName : String) : String = {
+  def expandedQName(uri: String, localName: String): String = {
     Assert.usage(uri != null)
     Assert.usage(localName != null)
     val prefix =
@@ -450,11 +458,11 @@ object XMLUtils {
   /**
    * super inefficient, but useful for unit tests
    */
-  def element2Elem(jElem : Element) : scala.xml.Node = {
+  def element2Elem(jElem: Element): scala.xml.Node = {
     return scala.xml.XML.loadString(new org.jdom.output.XMLOutputter().outputString(jElem))
   }
 
-  def elem2Element(nodes : scala.xml.NodeSeq) : Seq[Element] = nodes.map { elem => elem2Element(elem) }
+  def elem2Element(nodes: scala.xml.NodeSeq): Seq[Element] = nodes.map { elem => elem2Element(elem) }
 
   /**
    * Annoying, but namespace bindings are never a collection you can process like a normal collection.
@@ -462,7 +470,7 @@ object XMLUtils {
    *
    * We need them as JDOM namespace bindings, so create a list of those.
    */
-  def jdomNamespaceBindings(nsBinding : NamespaceBinding) : Seq[org.jdom.Namespace] = {
+  def jdomNamespaceBindings(nsBinding: NamespaceBinding): Seq[org.jdom.Namespace] = {
     if (nsBinding == null) Nil
     else {
       val thisOne =
@@ -473,13 +481,13 @@ object XMLUtils {
     }
   }
 
-  def jdomNamespaceBindings(element : org.jdom.Element) : Seq[org.jdom.Namespace] = {
+  def jdomNamespaceBindings(element: org.jdom.Element): Seq[org.jdom.Namespace] = {
     if (element == null) Nil
     else {
       val ans = element.getAdditionalNamespaces.toSeq.asInstanceOf[Seq[org.jdom.Namespace]]
       val thisOne = element.getNamespace()
       val parentContribution = element.getParent match {
-        case parentElem : org.jdom.Element => jdomNamespaceBindings(parentElem)
+        case parentElem: org.jdom.Element => jdomNamespaceBindings(parentElem)
         case _ => Nil
       }
       val res = thisOne +: (ans ++ parentContribution)
@@ -487,10 +495,10 @@ object XMLUtils {
     }
   }
 
-  def elem2Element(node : scala.xml.Node) : Element = {
+  def elem2Element(node: scala.xml.Node): Element = {
     // val jdomNode = new CompressableElement(node label,node namespace)
     val jdomNode = new Element(node.label, node.prefix, node.namespace)
-    var Elem(_, _, _, nsBinding : NamespaceBinding, _*) = node.asInstanceOf[scala.xml.Elem]
+    var Elem(_, _, _, nsBinding: NamespaceBinding, _*) = node.asInstanceOf[scala.xml.Elem]
 
     jdomNamespaceBindings(nsBinding).foreach { ns =>
       {
@@ -503,7 +511,7 @@ object XMLUtils {
 
     val attribsList = if (node.attributes == null) Nil else node.attributes
 
-    val attribs = attribsList.map { (attribute : MetaData) =>
+    val attribs = attribsList.map { (attribute: MetaData) =>
       {
         // for(attribute <- attribs) {
         val attrNS = attribute getNamespace (node)
@@ -702,19 +710,19 @@ object XMLUtils {
   /**
    * We don't want to be sensitive to which prefix people bind
    */
-  def attributesInNamespace(ns : String, n : Node) = n.attributes filter { _.getNamespace(n) == ns }
+  def attributesInNamespace(ns: String, n: Node) = n.attributes filter { _.getNamespace(n) == ns }
 
-  def dfdlAttributes(n : Node) = attributesInNamespace(DFDL_NAMESPACE, n)
+  def dfdlAttributes(n: Node) = attributesInNamespace(DFDL_NAMESPACE, n)
 
   /**
    * Removes attributes, and also element namespace prefixes, associated xmlns quasi-attributes.
    * Allows easier visual (human) inspection of the differences between to XML element-oriented structures.
    *
    */
-  def removeAttributes(n : Node) : Node = {
+  def removeAttributes(n: Node): Node = {
     n match {
       case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
-        val childrenWithoutAttributes : NodeSeq = children.map { removeAttributes(_) }
+        val childrenWithoutAttributes: NodeSeq = children.map { removeAttributes(_) }
         val noNamespaces = xml.TopScope // empty scope
         val noAttributesExceptNil = attributes.filter { m =>
           m match {
@@ -732,7 +740,7 @@ object XMLUtils {
           case a :: Nil => a
           case _ => Assert.invariantFailed("can only be one attribute, and that one must be xsi:nil")
         }
-        Elem(null, label, newAttributes, noNamespaces, childrenWithoutAttributes : _*)
+        Elem(null, label, newAttributes, noNamespaces, childrenWithoutAttributes: _*)
       }
       case other => other
     }
@@ -742,11 +750,11 @@ object XMLUtils {
    * computes a precise difference list which is a sequence of triples.
    * Each triple is the path (an x-path-like string), followed by expected, and actual values.
    */
-  def computeDiff(a : Node, b : Node) = {
+  def computeDiff(a: Node, b: Node) = {
     computeDiffOne(Seq(a), Seq(b), Map.empty, Nil)
   }
 
-  def childArrayCounters(e : Elem) = {
+  def childArrayCounters(e: Elem) = {
     val Elem(_, _, _, _, children @ _*) = e
     val labels = children.map { _.label }
     val groups = labels.groupBy { x => x }
@@ -756,13 +764,13 @@ object XMLUtils {
     arrayCounters
   }
 
-  def computeDiffOne(as : Seq[Node], bs : Seq[Node],
-                     aCounters : Map[String, Long],
-                     path : Seq[String]) : Seq[(String, String, String)] = {
+  def computeDiffOne(as: Seq[Node], bs: Seq[Node],
+                     aCounters: Map[String, Long],
+                     path: Seq[String]): Seq[(String, String, String)] = {
     lazy val zPath = path.reverse.mkString("/")
     (as, bs) match {
       case (a1 :: ars, b1 :: brs) if (a1.isInstanceOf[Elem] && b1.isInstanceOf[Elem]) => {
-        val (a : Elem, b : Elem) = (a1, b1)
+        val (a: Elem, b: Elem) = (a1, b1)
         val Elem(_, labelA, attribsA, _, childrenA @ _*) = a
         val Elem(_, labelB, attribsB, _, childrenB @ _*) = b
         if (labelA != labelB) List((zPath, a.toString, b.toString))
@@ -797,7 +805,7 @@ object XMLUtils {
         }
       }
       case (tA1 :: ars, tB1 :: brs) if (tA1.isInstanceOf[Text] && tB1.isInstanceOf[Text]) => {
-        val (tA : Text, tB : Text) = (tA1, tB1)
+        val (tA: Text, tB: Text) = (tA1, tB1)
         val thisDiff = computeTextDiff(zPath, tA, tB)
         val restDiffs = computeDiffOne(ars, brs, aCounters, path)
         val res = thisDiff ++ restDiffs
@@ -810,10 +818,10 @@ object XMLUtils {
     }
   }
 
-  def computeTextDiff(zPath : String, tA : Text, tB : Text) = {
+  def computeTextDiff(zPath: String, tA: Text, tB: Text) = {
     val dataA = tA.toString
     val dataB = tB.toString
-    def quoteIt(str : String) = "'" + str + "'"
+    def quoteIt(str: String) = "'" + str + "'"
     if (dataA == dataB) Nil
     else if (dataA.length != dataB.length) {
       List((zPath, quoteIt(dataA), quoteIt(dataB)))
@@ -837,7 +845,7 @@ object XMLUtils {
    *
    * Currently makes an effort to take unqualified names into the targetNamespace of the schema,
    */
-  def QName(xml : Node, nom : String, sd : daffodil.dsom.SchemaDocument) : (String, String) = {
+  def QName(xml: Node, nom: String, sd: daffodil.dsom.SchemaDocument): (String, String) = {
     val parts = nom.split(":").toList
     val (prefix, localName) = parts match {
       case List(local) => ("", local)
@@ -853,13 +861,13 @@ object XMLUtils {
 }
 
 trait GetAttributesMixin {
-  def xml : Node
+  def xml: Node
 
-  def context : ThrowsSDE
+  def context: ThrowsSDE
   /**
    * Use to retrieve things that are not format properties.
    */
-  def getAttributeRequired(name : String) = {
+  def getAttributeRequired(name: String) = {
     getAttributeOption(name) match {
       case None => context.schemaDefinitionError("The attribute " + name + " is required.")
       case Some(s) => s
@@ -869,7 +877,7 @@ trait GetAttributesMixin {
   /**
    * Use to retrieve things that are not format properties.
    */
-  def getAttributeOption(name : String) : Option[String] = {
+  def getAttributeOption(name: String): Option[String] = {
     val attrString = (xml \ ("@" + name)).text
     val res = if (attrString == "") None else Some(attrString)
     res
@@ -883,7 +891,7 @@ object XMLSchemaUtils {
    * This validates the XML Schema language subset that DFDL uses, and also all the annotations
    * hung off of it.
    */
-  def validateDFDLSchema(doc : Node) = {
+  def validateDFDLSchema(doc: Node) = {
     // TODO: should this do something other than throw an exception on a validation error?
     //
     // Users will write DFDL Schemas, using the xs or xsd prefix (usually) bound to the XML Schema namespace,

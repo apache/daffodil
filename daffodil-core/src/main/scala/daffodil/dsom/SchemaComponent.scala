@@ -16,90 +16,86 @@ import daffodil.api._
 import daffodil.processors.VariableMap
 import daffodil.util.Compile
 
-
 class SchemaDefinitionError(
-    val schemaContext : Option[SchemaComponent],
-    val annotationContext : Option[DFDLAnnotation],
-    val kind : String,
-    val args : Any*) extends Exception with DiagnosticImplMixin {
+  val schemaContext: Option[SchemaComponent],
+  val annotationContext: Option[DFDLAnnotation],
+  val kind: String,
+  val args: Any*) extends Exception with DiagnosticImplMixin {
   def isError = true
   def getSchemaLocations = schemaContext.toList
-  def getDataLocations = Nil 
+  def getDataLocations = Nil
   // TODO: Alternate constructor that allows data locations.
   // Because some SDEs are caught only once Processing starts. 
   // They're still SDE but they will have data location information.
-  
+
   override def toString = {
-    lazy val argsAsString = args.map{ _.toString }.mkString(", ")
+    lazy val argsAsString = args.map { _.toString }.mkString(", ")
     //
     // Right here is where we would lookup the symbolic error kind id, and 
     // choose a locale-based message string.
     //
     // For now, we'll just do an automatic English message.
     //
-    val msg = 
-      if (kind.contains("%")) kind.format(args : _*)
-      else (kind+"(%s)").format(argsAsString)
+    val msg =
+      if (kind.contains("%")) kind.format(args: _*)
+      else (kind + "(%s)").format(argsAsString)
     val res = "Schema Definition Error: " + msg + " Context was: " + schemaContext.getOrElse("top level")
     res
   }
-  
+
   override def getMessage = toString
 }
 
 /**
  * The core root class of the DFDL Schema object model.
- * 
+ *
  * Every schema component has a schema document, and a schema, and a namespace.
  */
-abstract class SchemaComponent(val xml : Node)
+abstract class SchemaComponent(val xml: Node)
   extends DiagnosticsProviding
-  with GetAttributesMixin 
-  with SchemaLocation 
+  with GetAttributesMixin
+  with SchemaLocation
   with ThrowsSDE {
   def schemaDocument: SchemaDocument
   lazy val schema: Schema = schemaDocument.schema
   lazy val targetNamespace = schema.targetNamespace
   lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace)
-  def prettyName : String
-  
-  def context = this
-  def scPath : String
-  lazy val path = scPath
-  
+  def prettyName: String
 
-  
+  def context = this
+  def scPath: String
+  lazy val path = scPath
+
   private val scala.xml.Elem(_, _, emptyXMLMetadata, _, _*) = <foo/> // hack way to get empty metadata object.
-  
+
   /**
    * Used as factory for the XML Node with the right namespace and prefix etc.
-   * 
+   *
    * Given "element" it creates <dfdl:element /> with the namespace definitions
    * based on this schema component's corresponding XSD construct.
    */
-  def newDFDLAnnotationXML(label : String) = {
+  def newDFDLAnnotationXML(label: String) = {
     scala.xml.Elem("dfdl", label, emptyXMLMetadata, xml.scope)
   }
 
   val NYI = false // our flag for Not Yet Implemented 
-  
+
   // TODO: create a trait to share various error stuff with DFDLAnnotation class.
   // Right now there is small code duplication since annotations aren't schema components.
-  def SDE(id : String, args : Any *) : Nothing = {
-    val sde = new SchemaDefinitionError(Some(this), None, id, args : _*)
+  def SDE(id: String, args: Any*): Nothing = {
+    val sde = new SchemaDefinitionError(Some(this), None, id, args: _*)
     throw sde
   }
-  
-  def subset(testThatWillThrowIfFalse : Boolean, args : Any*) = {
-    if (!testThatWillThrowIfFalse) subsetError(args : _ * )
-  }
-  
-  def subsetError(args : Any*) = SDE("Subset ", args : _*)
 
-     
+  def subset(testThatWillThrowIfFalse: Boolean, args: Any*) = {
+    if (!testThatWillThrowIfFalse) subsetError(args: _*)
+  }
+
+  def subsetError(args: Any*) = SDE("Subset ", args: _*)
+
   /**
-   * Needed by back-end to construct jdom nodes. 
-   * 
+   * Needed by back-end to construct jdom nodes.
+   *
    * An expression can be in any annotation, and its path can lead to a node
    * So, we need the namespace in which to create that node.
    */
@@ -107,7 +103,7 @@ abstract class SchemaComponent(val xml : Node)
     val jdomns = org.jdom.Namespace.getNamespace(schemaDocument.targetNamespace)
     jdomns
   }
-  
+
   /**
    * Needed by back-end to evaluate expressions.
    */
@@ -121,20 +117,20 @@ abstract class SchemaComponent(val xml : Node)
 /**
  * Local components have a lexical parent that contains them
  */
-trait LocalComponentMixin { self : SchemaComponent =>
+trait LocalComponentMixin { self: SchemaComponent =>
   def parent: SchemaComponent
   lazy val schemaDocument = parent.schemaDocument
-  
+
   lazy val scPath = {
     parent.scPath + "::" + prettyName
   }
-  
+
 }
 
 /**
- * Anything named has a name from its corresponding xml's name attribute 
+ * Anything named has a name from its corresponding xml's name attribute
  */
-trait NamedMixin { self : { def xml : Node } => // this scala idiom means the object this is mixed into has a def for xml of type Node
+trait NamedMixin { self: { def xml: Node } => // this scala idiom means the object this is mixed into has a def for xml of type Node
   lazy val name = (xml \ "@name").text
   lazy val detailName = name // TODO: remove synonym name unless there is a good reason for this.
   lazy val prettyName = name
@@ -145,13 +141,13 @@ trait NamedMixin { self : { def xml : Node } => // this scala idiom means the ob
  */
 trait GlobalComponentMixin
   extends NamedMixin { self: SchemaComponent =>
-    // nothing here yet
-    override lazy val scPath = schemaDocument.scPath + "::" + prettyName
+  // nothing here yet
+  override lazy val scPath = schemaDocument.scPath + "::" + prettyName
 }
 
-abstract class AnnotatedSchemaComponent(xml : Node)
-extends SchemaComponent(xml)
-with AnnotatedMixin
+abstract class AnnotatedSchemaComponent(xml: Node)
+  extends SchemaComponent(xml)
+  with AnnotatedMixin
 
 /**
  * Every component that can be annotated.
@@ -164,25 +160,25 @@ trait SharedPropertyLists {
   def allNonDefaultProperties = localAndFormatRefProperties
 }
 
-trait AnnotatedMixin 
-extends CommonRuntimeValuedPropertiesMixin 
-with SharedPropertyLists { self : SchemaComponent =>
-    
-  def prettyName : String
-  def path : String
-  
-  def defaultProperties: Map[String,String] = {
+trait AnnotatedMixin
+  extends CommonRuntimeValuedPropertiesMixin
+  with SharedPropertyLists { self: SchemaComponent =>
+
+  def prettyName: String
+  def path: String
+
+  def defaultProperties: Map[String, String] = {
     this.schemaDocument.localAndFormatRefProperties
   }
-  
+
   lazy val sDoc = self.schemaDocument
   /**
    * Primary mechanism for a component to get a format property value.
-   * 
-   * Note: use only for format properties, not any old attribute. 
+   *
+   * Note: use only for format properties, not any old attribute.
    */
   def getPropertyOption(pname: String) = {
-    val local = allNonDefaultProperties.get(pname) 
+    val local = allNonDefaultProperties.get(pname)
     local match {
       case None => {
         defaultProperties.get(pname)
@@ -192,7 +188,7 @@ with SharedPropertyLists { self : SchemaComponent =>
       }
     }
   }
-    
+
   /**
    * Anything annotated must be able to construct the
    * appropriate DFDLAnnotation object from the xml.
@@ -229,7 +225,7 @@ with SharedPropertyLists { self : SchemaComponent =>
    * The DFDL annotations on the component, as objects
    * that are subtypes of DFDLAnnotation.
    */
-  lazy val annotationObjs = annotationObjs_.value 
+  lazy val annotationObjs = annotationObjs_.value
   protected lazy val annotationObjs_ = LV {
     // println(dais)
     dais.flatMap { dai =>
@@ -252,67 +248,66 @@ with SharedPropertyLists { self : SchemaComponent =>
    *
    * To realize this, every concrete class must implement (or inherit) an implementation of
    * emptyFormatFactory, which constructs an empty format annotation,
-   * and isMyAnnotation which tests if an annotation is the corresponding kind.
+   * and isMyFormatAnnotation which tests if an annotation is the corresponding kind.
    *
    * Given that, formatAnnotation then either finds the right annotation, or constructs one, but our invariant
    * is imposed. There *is* a formatAnnotation.
    */
   def emptyFormatFactory: DFDLFormatAnnotation
-  def isMyAnnotation(a: DFDLAnnotation): Boolean
+  def isMyFormatAnnotation(a: DFDLAnnotation): Boolean
 
   lazy val formatAnnotation = formatAnnotation_.value
   private lazy val formatAnnotation_ = LV {
-    val format = annotationObjs.find { isMyAnnotation(_) }
+    val format = annotationObjs.find { isMyFormatAnnotation(_) }
     val res = format match {
       case None => emptyFormatFactory
       case Some(x) => x
     }
     res.asInstanceOf[DFDLFormatAnnotation]
   }
-  
+
   /**
    * Annotations can contain expressions, so we need to be able to compile them.
-   * 
+   *
    * We need our own instance so that the expression compiler has this schema
    * component as its context.
    */
   lazy val expressionCompiler = new ExpressionCompiler(this)
-  
-  
+
   /**
    * Character encoding common attributes
-   * 
-   * Note that since encoding can be computed at runtime, we 
+   *
+   * Note that since encoding can be computed at runtime, we
    * create values to tell us if the encoding is known or not
    * so that we can decide things at compile time when possible.
    */
- 
+
   lazy val isKnownEncoding = encoding.isConstant
-  
+
   lazy val knownEncodingName = {
     Assert.invariant(isKnownEncoding)
     val res = encoding.constantAsString.toUpperCase()
     res
   }
-  
+
   lazy val knownEncodingCharset = {
     val charset = CharsetICU.forNameICU(knownEncodingName).asInstanceOf[CharsetICU]
     charset
   }
-  
+
   lazy val knownEncodingDecoder = {
     val decoder = knownEncodingCharset.newDecoder()
     decoder
   }
-  
+
   lazy val knownEncodingEncoder = {
     val encoder = knownEncodingCharset.newEncoder()
     encoder
   }
-  
+
   /**
    * enables optimizations and random-access
-   * 
+   *
    * variable-width character sets require scanning to determine
    * their end.
    */
@@ -322,15 +317,15 @@ with SharedPropertyLists { self : SchemaComponent =>
       case "US-ASCII" | "ASCII" => true
       case "UTF-8" => false
       case "UTF-16" | "UTF-16LE" | "UTF-16BE" | "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
-//      case "UTF-8" | "UTF-16" | "UTF-16LE" | "UTF-16BE"  => false
-//      case "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
+      //      case "UTF-8" | "UTF-16" | "UTF-16LE" | "UTF-16BE"  => false
+      //      case "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
       case _ => Assert.notYetImplemented() // TODO change to SDE charset unsupported, not NYI.
     }
     res
   }
 
   lazy val couldBeVariableWidthEncoding = !knownEncodingIsFixedWidth
-  
+
   lazy val knownEncodingWidth = {
     // knownEncodingCharset.width()
     val res = knownEncodingName match {
@@ -342,7 +337,77 @@ with SharedPropertyLists { self : SchemaComponent =>
     }
     res
   }
-  
+
+}
+
+/**
+ * The other kind of DFDL annotations are DFDL 'statements'.
+ * This trait is everything shared by schema components that can have
+ * statements.
+ *
+ * Factory for creating the corresponding DFDLAnnotation objects.
+ */
+trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedMixin =>
+
+  def annotationFactoryForDFDLStatement(node: Node, self: AnnotatedSchemaComponent): DFDLAnnotation = {
+    node match {
+      case <dfdl:assert>{ content @ _* }</dfdl:assert> => new DFDLAssert(node, self)
+      case <dfdl:discriminator>{ content @ _* }</dfdl:discriminator> => new DFDLDiscriminator(node, self)
+      case <dfdl:setVariable>{ content @ _* }</dfdl:setVariable> => new DFDLSetVariable(node, self)
+      case <dfdl:newVariableInstance>{ content @ _* }</dfdl:newVariableInstance> => new DFDLNewVariableInstance(node, self)
+      case _ => SDE("Invalid DFDL annotation found: %s", node)
+    }
+  }
+
+  /**
+   * Validation won't check whether these are validly in place on a DFDL schema, so
+   * we allow any annotated object to have them, and then we can do checking on this list
+   * to enforce rules about which kinds of statements are allowed and where.
+   *
+   * Implement these abstract methods to do the right thing w.r.t. combining
+   * statements from group refs and their referenced groups, element refs and their elements,
+   * element decls and their simple types.
+   *
+   * The local ingredients are here for doing the needed combining and also for checking.
+   * E.g., dfdl:newVariableInstance isn't allowed on simpleType, can only have one discriminator per
+   * annotation point, and per combined annotation point, discriminators and assertions exclude each other, etc.
+   */
+  def statements: Seq[DFDLStatement]
+  def newVariableInstanceStatements: Seq[DFDLNewVariableInstance]
+  final lazy val notNewVariableInstanceStatements = setVariableStatements ++ discriminatorStatements ++ assertStatements
+  def assertStatements: Seq[DFDLAssert]
+  def discriminatorStatements: Seq[DFDLDiscriminator]
+  def setVariableStatements: Seq[DFDLSetVariable]
+
+  final lazy val localStatements = this.annotationObjs.collect { case st: DFDLStatement => st }
+  final lazy val localNewVariableInstanceStatements = localStatements.collect { case nve: DFDLNewVariableInstance => nve }
+  final lazy val localNotNewVariableInstanceStatements = localStatements.diff(localNewVariableInstanceStatements)
+  final lazy val (localDiscriminatorStatements,
+    localAssertStatements) = {
+    val discrims = localStatements.collect { case disc: DFDLDiscriminator => disc }
+    val asserts = localStatements.collect { case asrt: DFDLAssert => asrt }
+    checkDiscriminatorsAssertsDisjoint(discrims, asserts)
+  }
+
+  final def checkDiscriminatorsAssertsDisjoint(discrims: Seq[DFDLDiscriminator], asserts: Seq[DFDLAssert]): (Seq[DFDLDiscriminator], Seq[DFDLAssert]) = {
+    schemaDefinition(discrims.size <= 1, "At most one discriminator allowed at same location: %s", discrims)
+    schemaDefinition(asserts == Nil || discrims == Nil,
+      "Cannot have both dfdl:discriminator annotations and dfdl:assert annotations at the same location.")
+    (discrims, asserts)
+  }
+
+  final def checkDistinctVariableNames(svs: Seq[DFDLSetVariable]) = {
+    val names = svs.map { _.defv.extName }
+    val areAllDistinct = names.distinct.size == names.size
+    schemaDefinition(areAllDistinct, "Variable names must all be distinct at the same location: %s", names)
+    svs
+  }
+
+  final lazy val localSetVariableStatements = {
+    val svs = localStatements.collect { case sv: DFDLSetVariable => sv }
+    checkDistinctVariableNames(svs)
+  }
+
 }
 
 /**
@@ -358,23 +423,23 @@ with SharedPropertyLists { self : SchemaComponent =>
  * being included/imported don't have to be within the list.
  *
  */
-class SchemaSet(val schemaNodeList: Seq[Node], rootNamespace: String = null, root : String = null) 
-extends DiagnosticsProviding {
+class SchemaSet(val schemaNodeList: Seq[Node], rootNamespace: String = null, root: String = null)
+  extends DiagnosticsProviding {
   // TODO Constructor(s) or companion-object methods to create a SchemaSet from files.
 
-  lazy val prettyName="SchemaSet"
-    
+  lazy val prettyName = "SchemaSet"
+
   lazy val scPath = prettyName
   lazy val path = scPath
-    
+
   lazy val schemaPairs = schemaNodeList.map { s =>
     {
       val ns = (s \ "@targetNamespace").text
       (ns, s)
     }
   }
-  
-  lazy val onlyCheckingRoot : Boolean = rootNamespace != null
+
+  lazy val onlyCheckingRoot: Boolean = rootNamespace != null
 
   lazy val schemaGroups = schemaPairs.groupBy {
     case (ns, s) => ns
@@ -387,13 +452,13 @@ extends DiagnosticsProviding {
       res
     }
   }
-  
+
   /**
    * We control how much checking for errors by supplying root element or not.
    * If supplied, then only that is checked for errors.
    * If not supplied, then everything in the schema set is checked.
    */
-  lazy val rootElement =  {
+  lazy val rootElement = {
     if (onlyCheckingRoot) {
       val geFactory = getGlobalElementDecl(rootNamespace, root)
       val ge = geFactory match {
@@ -401,20 +466,19 @@ extends DiagnosticsProviding {
         case Some(f) => f.forRoot()
       }
       Some(ge)
-    }
-    else None
+    } else None
   }
-    
+
   /**
-   * In the case there is no root element, then we'll check all element decls, 
+   * In the case there is no root element, then we'll check all element decls,
    * actually all global elements and other top-level constructs of each
    * schema document.
-   * 
-   * If a root element is specified, then we'll validate the schema documents, 
+   *
+   * If a root element is specified, then we'll validate the schema documents,
    * but we will only check the root element.
    */
   lazy val diagnosticChildren = {
-    schemas ++ rootElement.toList 
+    schemas ++ rootElement.toList
   }
 
   /**
@@ -429,7 +493,7 @@ extends DiagnosticsProviding {
   /**
    * XML Schema global objects.
    * Given a namespace and name, try to retrieve the named object
-   * 
+   *
    * These all return factories for the objects, not the objects themselves.
    */
   def getGlobalElementDecl(namespace: String, name: String) = getSchema(namespace).flatMap { _.getGlobalElementDecl(name) }
@@ -440,12 +504,12 @@ extends DiagnosticsProviding {
   /**
    * DFDL Schema top-level global objects
    */
-  def getDefaultFormat(namespace: String, name: String) = getSchema(namespace).flatMap{ x => Some(x.getDefaultFormat)}
+  def getDefaultFormat(namespace: String, name: String) = getSchema(namespace).flatMap { x => Some(x.getDefaultFormat) }
   def getDefineFormat(namespace: String, name: String) = {
     val s = getSchema(namespace)
     getSchema(namespace).flatMap { _.getDefineFormat(name) }
   }
-  def getDefineFormats(namespace: String, context : ThrowsSDE) = getSchema(namespace) match {
+  def getDefineFormats(namespace: String, context: ThrowsSDE) = getSchema(namespace) match {
     case None => context.schemaDefinitionError("Failed to find a schema for namespace:  " + namespace)
     case Some(sch) => sch.getDefineFormats()
   }
@@ -455,16 +519,15 @@ extends DiagnosticsProviding {
   }
   def getDefineEscapeScheme(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineEscapeScheme(name) }
 
-  lazy val primitiveTypes = XMLUtils.DFDL_SIMPLE_BUILT_IN_TYPES.map{new PrimitiveType(_)}
-  def getPrimitiveType(localName: String) = primitiveTypes.find{_.name == localName}
+  lazy val primitiveTypes = XMLUtils.DFDL_SIMPLE_BUILT_IN_TYPES.map { new PrimitiveType(_) }
+  def getPrimitiveType(localName: String) = primitiveTypes.find { _.name == localName }
 
-  
   lazy val variableMap = {
-    val dvs = schemas.flatMap{_.schemaDocuments}.flatMap{_.defineVariables}
+    val dvs = schemas.flatMap { _.schemaDocuments }.flatMap { _.defineVariables }
     val vmap = VariableMap.create(dvs)
     vmap
   }
-  
+
 }
 
 /**
@@ -474,17 +537,17 @@ extends DiagnosticsProviding {
  * same target namespace, and in that case all those schema documents make up
  * the 'schema'.
  */
-class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: SchemaSet) 
-extends DiagnosticsProviding {
+class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: SchemaSet)
+  extends DiagnosticsProviding {
 
   lazy val prettyName = "schema"
   lazy val scPath = prettyName
   lazy val path = scPath
-    
+
   lazy val targetNamespace = namespace
 
   lazy val schemaDocuments = schemaDocs.map { new SchemaDocument(_, this) }
-  
+
   lazy val diagnosticChildren = schemaDocuments
 
   private def noneOrOne[T](scs: Seq[T], name: String): Option[T] = {
@@ -497,7 +560,7 @@ extends DiagnosticsProviding {
 
   /**
    * Given a name, try to retrieve the appropriate object.
-   * 
+   *
    * This just scans each schema document in the schema, checking each one.
    */
   def getGlobalElementDecl(name: String) = noneOrOne(schemaDocuments.flatMap { _.getGlobalElementDecl(name) }, name)
@@ -510,12 +573,12 @@ extends DiagnosticsProviding {
     val res = noneOrOne(schemaDocuments.flatMap { _.getDefineVariable(name) }, name)
     res
   }
-  def getDefaultFormat = schemaDocuments.flatMap{ x => Some(x.getDefaultFormat) }
+  def getDefaultFormat = schemaDocuments.flatMap { x => Some(x.getDefaultFormat) }
   def getDefineEscapeScheme(name: String) = noneOrOne(schemaDocuments.flatMap { _.getDefineEscapeScheme(name) }, name)
-  def getGlobalElementDecls = schemaDocuments.flatMap( _.globalElementDecls )
-  def getGlobalGroupDefs = schemaDocuments.flatMap( _.globalGroupDefs )
-  def getGlobalSimpleTypeDefs = schemaDocuments.flatMap( _.globalSimpleTypeDefs )
-  def getGlobalComplexTypeDefs = schemaDocuments.flatMap( _.globalComplexTypeDefs )
+  def getGlobalElementDecls = schemaDocuments.flatMap(_.globalElementDecls)
+  def getGlobalGroupDefs = schemaDocuments.flatMap(_.globalGroupDefs)
+  def getGlobalSimpleTypeDefs = schemaDocuments.flatMap(_.globalSimpleTypeDefs)
+  def getGlobalComplexTypeDefs = schemaDocuments.flatMap(_.globalComplexTypeDefs)
 }
 
 /**
@@ -539,35 +602,34 @@ extends DiagnosticsProviding {
  */
 class SchemaDocument(xmlArg: Node, schemaArg: Schema)
   extends AnnotatedSchemaComponent(xmlArg)
-  with AnnotatedMixin
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
-  
+
   lazy val prettyName = "schemaDoc"
   lazy val scPath = prettyName
-    
-  lazy val validatedXML = LV{
-      try XMLSchemaUtils.validateDFDLSchema(xml)
-      catch {
-        case e : org.xml.sax.SAXParseException => {
-          SDE(e.toString())
-        }
-          
+
+  lazy val validatedXML = LV {
+    try XMLSchemaUtils.validateDFDLSchema(xml)
+    catch {
+      case e: org.xml.sax.SAXParseException => {
+        SDE(e.toString())
       }
-      // TODO: Consider this: Should each schema document call validate, or do we have to do them as a "batch", i.e.,
-      // will the above validate and revalidate shared files imported by each schema document in the set???
+
+    }
+    // TODO: Consider this: Should each schema document call validate, or do we have to do them as a "batch", i.e.,
+    // will the above validate and revalidate shared files imported by each schema document in the set???
   }
-  
+
   lazy val localAndFormatRefProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
-  
+
   /**
-   * A schema document doesn't have default properties of its own. 
+   * A schema document doesn't have default properties of its own.
    * The schema document's localAndFormatRefProperties become the default properties for
    * the components contained within this schema document.
    */
   override lazy val defaultProperties = Map.empty[String, String]
-  
-  lazy val detailName="" // TODO: Maybe a filename would be nice if available.
+
+  lazy val detailName = "" // TODO: Maybe a filename would be nice if available.
 
   override lazy val schema = schemaArg
 
@@ -584,7 +646,7 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
   }
 
   def emptyFormatFactory = new DFDLFormat(newDFDLAnnotationXML("format"), this)
-  def isMyAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLFormat]
+  def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLFormat]
 
   private lazy val sset = schema.schemaSet
 
@@ -641,30 +703,28 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
     dv
   }
 
-  lazy val alwaysCheckedChildren = 
+  lazy val alwaysCheckedChildren =
     List(validatedXML, defaultFormat)
-    
+
   lazy val diagnosticChildren = {
     if (schema.schemaSet.onlyCheckingRoot) alwaysCheckedChildren // we'll still validate the schema, just not recurse into children.
     else allGlobalDiagnosticChildren
   }
-  
+
   lazy val allGlobalDiagnosticChildren = {
     alwaysCheckedChildren ++
-    globalElementDecls.map{ _.forRoot() } ++
-    defineEscapeSchemes ++
-    defineFormats ++
-    defineVariables
+      globalElementDecls.map { _.forRoot() } ++
+      defineEscapeSchemes ++
+      defineFormats ++
+      defineVariables
   }
-// Not these, because we'll pick these up when elements reference them.
-// And we don't compile them independently of that (since they could be very
-// incomplete and would lead to many errors for missing this or that.)
-//    globalSimpleTypeDefs ++
-//    globalComplexTypeDefs ++
-//    globalGroupDefs ++
-    
-    
-    
+  // Not these, because we'll pick these up when elements reference them.
+  // And we don't compile them independently of that (since they could be very
+  // incomplete and would lead to many errors for missing this or that.)
+  //    globalSimpleTypeDefs ++
+  //    globalComplexTypeDefs ++
+  //    globalGroupDefs ++
+
   /**
    * by name getters for the global things that can be referenced.
    */
@@ -672,7 +732,7 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
   def getGlobalSimpleTypeDef(name: String) = globalSimpleTypeDefs.find { _.name == name }
   def getGlobalComplexTypeDef(name: String) = globalComplexTypeDefs.find { _.name == name }
   def getGlobalGroupDef(name: String) = globalGroupDefs.find { _.name == name }
-  
+
   def getDefineFormat(name: String) = defineFormats.find { _.name == name }
   def getDefineVariable(name: String) = {
     val res = defineVariables.find { _.name == name }

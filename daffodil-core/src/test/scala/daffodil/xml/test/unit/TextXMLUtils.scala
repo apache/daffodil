@@ -68,4 +68,10 @@ class TextXMLUtils extends JUnitSuite {
     assertEquals("", d2attribs)
   }
 
+  @Test def testIsNil() {
+    val d1 = XMLUtils.elem2Element(<a xmlns:xsi={ XMLUtils.XSI_NAMESPACE } xsi:nil="true"/>)
+    val d2 = XMLUtils.elem2Element(<a xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>foo</a>)
+    assertTrue(XMLUtils.isNil(d1))
+    assertFalse(XMLUtils.isNil(d2))
+  }
 }
