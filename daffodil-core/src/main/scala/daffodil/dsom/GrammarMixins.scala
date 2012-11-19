@@ -151,6 +151,12 @@ trait ElementBaseGrammarMixin
     }
   }
 
+  lazy val binaryNumberKnownLength = lengthKind match {
+    case LengthKind.Implicit => implicitBinaryLength
+    case LengthKind.Explicit if (length.isConstant) => length.constantAsLong
+    case _ => -1
+  }
+
   lazy val fixedLengthString = Prod("fixedLengthString", this, isFixedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
       case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength) // TODO: make sure it divides evenly.
@@ -416,163 +422,65 @@ trait ElementBaseGrammarMixin
     // This is in the spirit of that section.
     val res: Gram = primType.name match {
 
-      case "hexBinary" =>
-        (primType.name, binary) match { // TODO: Only takes explicit length
-          case ("hexBinary", b) => new BinaryNumber[Array[Byte]](this, this.length.constantAsLong) {
-            def getNum(bp: Long, in: InStream, bo: BO) = {
-              // FIXME: size constraints, overflow
-              in.getByteArray(bp, bo, length.constantAsLong.asInstanceOf[Int])
-            }
-            override def getNum(num: Number) = null //FIXME
-            protected override val GramName = "hexBinary"
-            protected override val GramDescription = "Hex Binary"
-            protected override def numFormat = NumberFormat.getIntegerInstance()
-            protected override def isInt = true
-          }
-          case _ => Assert.impossibleCase()
+//      case "hexBinary" =>
+//        (primType.name, binary) match { // TODO: Only takes explicit length
+//          case ("hexBinary", b) => new BinaryNumberBase[Array[Byte]](this, this.length.constantAsLong) {
+//            def getNum(bp : Long, in : InStream, bo : BO) = {
+//              // FIXME: size constraints, overflow
+//              in.getByteArray(bp, bo, length.constantAsLong.asInstanceOf[Int])
+//            }
+//            override def getNum(num : Number) = null //FIXME
+//            protected override val GramName = "hexBinary"
+//            protected override val GramDescription = "Hex Binary"
+//            protected override def numFormat = NumberFormat.getIntegerInstance()
+//            protected override def isInt = true
+//          }
+//          case _ => Assert.impossibleCase()
+//        }
+
+      case "byte" | "short" | "int" | "long" | "integer" => {
+        Assert.invariant(binaryIntRep == bin)
+        binaryNumberKnownLength match {
+          case -1 => new SignedRuntimeLengthRuntimeByteOrderBinaryNumber(this)
+          case _ => new SignedKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLength)
         }
+      }
 
-      case "byte" | "short" | "int" | "long" |
-        "unsignedByte" | "unsignedShort" | "unsignedInt" | "unsignedLong" | "boolean" =>
-        (primType.name, binaryIntRep) match {
-          case ("byte", bin) => new BinaryNumber[Byte](this, 8) {
-            def getNum(bp: Long, in: InStream, bo: BO) = in.getByte(bp, bo)
-            override def getNum(num: Number) = num.byteValue
-            protected override val GramName = "byte"
-            protected override val GramDescription = "Byte"
-            protected override def numFormat = NumberFormat.getIntegerInstance()
-            protected override def isInt = true
-          }
-          case ("short", bin) => new BinaryNumber[Short](this, 16) {
-            def getNum(bp: Long, in: InStream, bo: BO) = in.getShort(bp, bo)
-            override def getNum(num: Number) = num.shortValue
-            protected override val GramName = "short"
-            protected override val GramDescription = "Short Integer"
-            protected override def numFormat = NumberFormat.getIntegerInstance()
-            protected override def isInt = true
-          }
-          case ("int", bin) => new BinaryNumber[Int](this, 32) {
-            def getNum(bp: Long, in: InStream, bo: BO) = in.getInt(bp, bo)
-            override def getNum(num: Number) = num.intValue
-            protected override val GramName = "int"
-            protected override val GramDescription = "Integer"
-            protected override def numFormat = NumberFormat.getIntegerInstance()
-            protected override def isInt = true
-          }
-          case ("long", bin) => new BinaryNumber[Long](this, 64) {
-            def getNum(bp: Long, in: InStream, bo: BO) = in.getLong(bp, bo)
-            override def getNum(num: Number) = num.longValue
-            protected override val GramName = "long"
-            protected override val GramDescription = "Long Integer"
-            protected override def numFormat = NumberFormat.getIntegerInstance()
-            protected override def isInt = true
-          }
-          case ("unsignedByte", bin) => {
-            // plug unsignedByte into newer bit-able framework
-            explicitLengthBinary
-          }
-          //            new BinaryNumber[Int](this, 8) {
-          //            def getNum(bp : Long, in : InStream, bo : BO) = in.getByte(bp, bo) - Byte.MinValue
-          //            override def getNum(num : Number) = num.shortValue
-          //            protected override val GramName = "unsignedByte"
-          //            protected override val GramDescription = "Unsigned Byte"
-          //            protected def isInvalidRange(n : Short) = n < 0 || n >= (1 << 8)
-          //            protected override def numFormat = NumberFormat.getIntegerInstance()
-          //            protected override def isInt = true
-          //          }
-          case ("unsignedShort", bin) => new BinaryNumber[Int](this, 16) {
-            def getNum(bp: Long, in: InStream, bo: BO) = {
-              // Why were we doing in.getShort(bp, bo) - Short.MinValue?
-              // This resulted in the wrong output.
-              //
-              //val res = in.getShort(bp, bo) - Short.MinValue
-              val res = in.getUnsignedShort(bp, bo)
-              res
-            }
-            override def getNum(num: Number) = num.intValue
-            protected override val GramName = "unsignedShort"
-            protected override val GramDescription = "Unsigned Short"
-            protected override def isInvalidRange(n: Int) = n < 0 || n >= (1 << 16)
-            protected override def numFormat = NumberFormat.getIntegerInstance()
-            protected override def isInt = true
-          }
-          case ("unsignedInt", bin) => new BinaryNumber[Long](this, 32) {
-            def getNum(bp: Long, in: InStream, bo: BO) = {
-              // Why were we doing in.getInt(bp, bo) - Int.MinValue.toLong?
-              // This resulted in the wrong output.
-              //
-              //val res = in.getInt(bp, bo).toLong - Int.MinValue.toLong
-              val res = in.getUnsignedInt(bp, bo)
-              res
-            }
-            override def getNum(num: Number) = num.longValue
-            protected override val GramName = "unsignedInt"
-            protected override val GramDescription = "Unsigned Int"
-            protected override def isInvalidRange(n: Long) = n < 0 || n >= (1L << 32)
-            protected override def numFormat = NumberFormat.getIntegerInstance()
-            protected override def isInt = true
-          }
-          case ("unsignedLong", bin) => new BinaryNumber[BigInteger](this, 64) {
-            // TODO: unsignedLong isn't fully implemented? Wouldn't we need a type larger to contain it?
-            def getNum(bp: Long, in: InStream, bo: BO) = {
-              in.getLong(bp, bo) - Long.MinValue
-              val res = in.getUnsignedLong(bp, bo)
-              res
-            }
-            override def getNum(num: Number) = num.asInstanceOf[BigInteger] //num.longValue()
-            protected override val GramName = "unsignedLong"
-            protected override val GramDescription = "Unsigned Long"
-            //protected override def isInvalidRange(n: Long) = n < 0 || n >= (1L << 32)
-            protected override def isInvalidRange(n: BigInteger) = {
-              //              val zero = new BigInteger("0")
-              val nAsBigInt = n.asInstanceOf[BigInteger]
-              val shiftRight64 = nAsBigInt.shiftRight(64)
-
-              //              val two = new BigInteger("2")
-              //              val maximumUnsignedLong = two.pow(64).subtract(new BigInteger("1"))
-              val differenceFromMax = maximumUnsignedLong.subtract(nAsBigInt)
-              (shiftRight64.compareTo(zero) != 0 || differenceFromMax.compareTo(zero) == 1)
-            }
-            protected override def numFormat = NumberFormat.getIntegerInstance()
-            protected override def isInt = true
-          }
-          case ("boolean", bin) => new BinaryNumber[Long](this, 32) {
-            def getNum(bp: Long, in: InStream, bo: BO) = in.getInt(bp, bo).toLong - Int.MinValue.toLong
-            override def getNum(num: Number) = num.longValue
-            protected override val GramName = "boolean"
-            protected override val GramDescription = "Boolean"
-            protected override def isInvalidRange(n: Long) = n < 0 || n >= (1L << 32)
-            protected override def numFormat = NumberFormat.getIntegerInstance()
-            protected override def isInt = true
-            // TODO: Handle binaryBooleanTrueRep and binaryBooleanFalseRep
-          }
-          case _ => Assert.impossibleCase()
+      case "unsignedByte" | "unsignedShort" | "unsignedInt" | "unsignedLong" => {
+        Assert.invariant(binaryIntRep == bin)
+        binaryNumberKnownLength match {
+          case -1 => new UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber(this)
+          case _ => new UnsignedKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLength)
         }
-
-      case "integer" => subsetError("binary xs:integer not supported.")
+      }
 
       case "double" | "float" =>
-        (primType.name, staticBinaryFloatRep) match {
-          case ("double", ieee) => new BinaryNumber[Double](this, 64) {
-            Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
-            def getNum(bp: Long, in: InStream, bo: BO) = in.getDouble(bp, bo)
-            override def getNum(num: Number) = num.doubleValue
-            protected override val GramName = "double"
-            protected override val GramDescription = "Double"
-            protected override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
-            protected override def isInt = false
-          }
-          case ("float", ieee) => new BinaryNumber[Float](this, 32) {
-            Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
-            def getNum(bp: Long, in: InStream, bo: BO) = in.getFloat(bp, bo)
-            override def getNum(num: Number) = num.floatValue
-            protected override val GramName = "float"
-            protected override val GramDescription = "Float"
-            protected override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
-            protected override def isInt = false
-          }
+        (binaryNumberKnownLength, staticBinaryFloatRep) match {
+          case (-1, BinaryFloatRep.Ieee) => new FloatingPointRuntimeLengthRuntimeByteOrderBinaryNumber(this)
+          case (nBits, BinaryFloatRep.Ieee) => new FloatingPointKnownLengthRuntimeByteOrderBinaryNumber(this, nBits)
           case (_, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
         }
+//        (primType.name, staticBinaryFloatRep) match {
+//          case ("double", ieee) => new BinaryNumber[Double](this, 64) {
+//            Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
+//            def getNum(bp : Long, in : InStream, bo : BO) = in.getDouble(bp, bo)
+//            override def getNum(num : Number) = num.doubleValue
+//            protected override val GramName = "double"
+//            protected override val GramDescription = "Double"
+//            protected override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
+//            protected override def isInt = false
+//          }
+//          case ("float", ieee) => new BinaryNumber[Float](this, 32) {
+//            Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
+//            def getNum(bp : Long, in : InStream, bo : BO) = in.getFloat(bp, bo)
+//            override def getNum(num : Number) = num.floatValue
+//            protected override val GramName = "float"
+//            protected override val GramDescription = "Float"
+//            protected override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
+//            protected override def isInt = false
+//          }
+//          case (_, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
+//        }
       case _ => schemaDefinitionError("Unrecognized primitive type: " + primType.name)
     }
     res

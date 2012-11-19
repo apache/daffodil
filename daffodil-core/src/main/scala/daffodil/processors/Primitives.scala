@@ -9,7 +9,7 @@ import scala.collection.mutable.Queue
 import daffodil.dsom._
 import daffodil.compiler._
 import daffodil.xml.XMLUtils
-import daffodil.schema.annotation.props.gen.{ YesNo, LengthKind, ByteOrder }
+import daffodil.schema.annotation.props.gen.{ YesNo, LengthKind, ByteOrder, LengthUnits }
 import daffodil.util.{ Debug, LogLevel, Logging, Info }
 import daffodil.util.Misc.bytes2Hex
 import daffodil.processors._
@@ -1141,10 +1141,62 @@ case class ZonedTextShortPrim(el: ElementBase) extends ZonedTextNumberPrim(el, f
 case class ZonedTextIntPrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)
 case class ZonedTextLongPrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)
 
-abstract class BinaryNumber[T](e: ElementBase, nBits: Long) extends Terminal(e, true)
-  with BinaryReader {
+trait RuntimeExplicitLengthMixin[T] {
+  self: BinaryNumberBase[T] =>
+  def e: ElementBase
+  def getBitLength(s: PState): (PState, Long) = {
+    val R(nBytesAsAny, newVMap) = e.length.evaluate(s.parent, s.variableMap)
+    val nBytes = nBytesAsAny.asInstanceOf[Long]
+    val start = s.withVariables(newVMap)
+    (start, nBytes * toBits)
+  }
+}
 
+trait KnownLengthMixin[T] {
+  self: BinaryNumberBase[T] =>
+  def len: Long
+  def getBitLength(s: PState) = (s, len * toBits)
+}
+
+trait RuntimeExplicitByteOrderMixin[T] {
+  self: BinaryNumberBase[T] =>
+  def e: ElementBase
+  def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {
+    val R(byteOrderAsAny, newVMap) = e.byteOrder.evaluate(s.parent, s.variableMap)
+    val byteOrder = byteOrderAsAny.asInstanceOf[java.nio.ByteOrder]
+    val start = s.withVariables(newVMap)
+    (start, byteOrder)
+  }
+}
+
+trait SignedNumberMixin[T] {
+  self: BinaryNumberBase[T] =>
+  def applySign(n: BigInt, msb: Int): BigInt =
+    n.testBit(msb) match {
+      case true => n - (BigInt(1) << msb)
+      case false => n
+    }
+}
+
+trait UnsignedNumberMixin[T] {
+  self: BinaryNumberBase[T] =>
+  def applySign(n: BigInt, msb: Int): BigInt = n
+}
+
+trait FloatingPointMixin[T] {
+  self: BinaryNumberBase[T] =>
+  def applySign(n: BigInt, msb: Int): BigInt = n // TODO: Make it a float given mantissa and ordinate?
+}
+
+// TODO: Double Conversion as a Sign-Trait
+
+abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true) {
   lazy val primName = e.primType.name
+  lazy val toBits = e.lengthUnits match {
+    case LengthUnits.Bits => 1
+    case LengthUnits.Bytes => 8
+    case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
+  }
 
   lazy val staticByteOrderString = e.byteOrder.constantAsString
   lazy val staticByteOrder = ByteOrder(staticByteOrderString, context)
@@ -1154,188 +1206,135 @@ abstract class BinaryNumber[T](e: ElementBase, nBits: Long) extends Terminal(e, 
     case ByteOrder.LittleEndian => (java.nio.ByteOrder.LITTLE_ENDIAN, "LE")
   }
 
-  def getNum(bitPos: Long, inStream: InStream, byteOrder: java.nio.ByteOrder): T
-  def getNum(t: Number): T
+  //def getNum(t: Number): BigInt
+  protected def getBitLength(s: PState): (PState, Long)
+  protected def getByteOrder(s: PState): (PState, java.nio.ByteOrder)
+  protected def applySign(n: BigInt, msb: Int): BigInt
   override def toString = "binary(xs:" + primName + ", " + label + ")"
   val gram = this
 
-  protected val GramName = "binary"
-  protected val GramDescription = "Binary"
-  protected def numFormat: NumberFormat
-  protected def isInt: Boolean
-  protected def isInvalidRange(n: T): Boolean = false
+  protected val GramName = e.primType.name
+  protected val GramDescription = { GramName(0).toUpper + GramName.substring(1, GramName.length) }
+  //protected def numFormat: NumberFormat
+  //protected def isInt: Boolean
+  //protected def isInvalidRange(n: T): Boolean = false
 
   def parser = new PrimParser(this, e) {
     override def toString = gram.toString
 
-    def parse(start: PState): PState = {
-      log(Debug("Saving reader state."))
-      setReader(start)
-
-      val in = start.inStream.asInstanceOf[InStreamFromByteChannel]
-
-      if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) PE(start, "Not enough bits to create an xs:%s", primName)
+    def parse(start0: PState): PState = {
+      val (start1, nBits) = getBitLength(start0)
+      val (start, bo) = getByteOrder(start1)
+      if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) start.failed("Not enough bits to create an xs:" + primName)
       else {
-        val value = getNum(start.bitPos, start.inStream, staticJByteOrder)
-        if (GramName == "hexBinary") {
-          val bytes = value.asInstanceOf[Array[Byte]]
-          var asString: StringBuilder = new StringBuilder()
-          for (i <- 0 until bytes.length) {
-            val byte = String.format("%02X", bytes(i).asInstanceOf[java.lang.Byte])
-            asString.append(byte)
-          }
-          start.parentForAddContent.addContent(new org.jdom.Text(asString.toString()))
-        } else
-          start.parentForAddContent.addContent(new org.jdom.Text(value.toString))
+        val value = start.inStream.getBitSequence(start.bitPos, nBits, bo)
+        //if (GramName == "hexBinary") {
+        //  val bytes = value.asInstanceOf[Array[Byte]]
+        //  var asString: StringBuilder = new StringBuilder()
+        //  for (i <- 0 until bytes.length) {
+        //    val byte = String.format("%02X", bytes(i).asInstanceOf[java.lang.Byte])
+        //    asString.append(byte)
+        //  }
+        //  start.parentForAddContent.addContent(new org.jdom.Text(asString.toString()))
+        //} else
+        val signedValue = applySign(value, nBits toInt)
+          start.parentForAddContent.addContent(new org.jdom.Text(signedValue.toString))
         val postState = start.withPos(start.bitPos + nBits, -1)
         postState
+      //}
       }
     }
   }
 
-  def unparser = new Unparser(e) {
-    override def toString = gram.toString
+  def unparser = DummyUnparser
 
-    def unparse(start: UState): UState = {
-      setLoggingLevel(LogLevel.Info)
-      val str = start.currentElement.getText //gets data from element being unparsed
-
-      Assert.invariant(str != null) // worst case it should be empty string. But not null.
-
-      val postState = {
-        if (str == "") return UE(start, "Convert to %s (for xs:%s): Cannot unparse number from empty string", GramDescription, GramName)
-        else if (GramName == "hexBinary") {
-          //regex to split string into array of two char elements ('bytes')
-          val strArray = str.split("(?<=\\G..)")
-          var asBytes = new Array[Byte](strArray.size)
-
-          for (i <- 0 until strArray.size) {
-            asBytes(i) = {
-              val asInt = Integer.parseInt(strArray(i), 16)
-              (asInt & 0xFF).byteValue()
-            }
-          }
-          start.outStream.fillByteBuffer(asBytes, "hexBinary", staticJByteOrder) //write number back to ByteBuffer
-          start
-
-        } else {
-          val df = numFormat
-          val pos = new ParsePosition(0)
-          val num = try {
-            df.parse(str, pos)
-          } catch {
-            case u: UnsuppressableException => throw u
-            case e: Exception =>
-              return UE(start, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
-                GramDescription, GramName, str, e)
-          }
-
-          // Verify that what was unparsed was what was passed exactly in byte count
-          if (pos.getIndex != str.length) {
-            return UE(start, "Convert to %s (for xs:%s): Unable to unparse '%s' (using up all characters).",
-              GramDescription, GramName, str)
-          }
-
-          // convert to proper type
-          val asNumber = getNum(num)
-
-          // Verify no digits lost (the number was correctly transcribed)
-          if (isInt && asNumber.asInstanceOf[Number] != num) { //then transcription error
-            return UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.",
-              GramDescription, GramName, str, num, asNumber)
-          }
-          if (isInvalidRange(asNumber)) {
-            return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
-              GramDescription, GramName, str, asNumber)
-          }
-
-          start.outStream.fillByteBuffer(asNumber, GramName, staticJByteOrder) //write number back to ByteBuffer
-          start
-        }
-      }
-      postState
-    }
-  }
+//  def unparser = new Unparser(e) {
+//    override def toString = gram.toString
+//
+//    def unparse(start: UState): UState = {
+//      setLoggingLevel(LogLevel.Info)
+//      val str = start.currentElement.getText //gets data from element being unparsed
+//
+//      Assert.invariant(str != null) // worst case it should be empty string. But not null.
+//
+//      val postState = {
+//        if (str == "") return UE(start, "Convert to %s (for xs:%s): Cannot unparse number from empty string", GramDescription, GramName)
+//        else if (GramName == "hexBinary") {
+//          //regex to split string into array of two char elements ('bytes')
+//          val strArray = str.split("(?<=\\G..)")
+//          var asBytes = new Array[Byte](strArray.size)
+//
+//          for (i <- 0 until strArray.size) {
+//            asBytes(i) = {
+//              val asInt = Integer.parseInt(strArray(i), 16)
+//              (asInt & 0xFF).byteValue()
+//            }
+//          }
+//          start.outStream.fillByteBuffer(asBytes, "hexBinary", staticJByteOrder) //write number back to ByteBuffer
+//          start
+//
+//        } else {
+//          val df = numFormat
+//          val pos = new ParsePosition(0)
+//          val num = try {
+//            df.parse(str, pos)
+//          } catch {
+//            case u: UnsuppressableException => throw u
+//            case e: Exception =>
+//              return UE(start, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
+//                GramDescription, GramName, str, e)
+//          }
+//
+//          // Verify that what was unparsed was what was passed exactly in byte count
+//          if (pos.getIndex != str.length) {
+//            return UE(start, "Convert to %s (for xs:%s): Unable to unparse '%s' (using up all characters).",
+//              GramDescription, GramName, str)
+//          }
+//
+//          // convert to proper type
+//          val asNumber = getNum(num)
+//
+//          // Verify no digits lost (the number was correctly transcribed)
+//          if (isInt && asNumber.asInstanceOf[Number] != num) { //then transcription error
+//            return UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.",
+//              GramDescription, GramName, str, num, asNumber)
+//          }
+//          if (isInvalidRange(asNumber)) {
+//            return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
+//              GramDescription, GramName, str, asNumber)
+//          }
+//
+//          start.outStream.fillByteBuffer(asNumber, GramName, staticJByteOrder) //write number back to ByteBuffer
+//          start
+//        }
+//      }
+//      postState
+//    }
+//  }
 }
 
-case class BinaryExplicitLengthInBytes(e: ElementBase)
-  extends Terminal(e, true)
-  with WithParseErrorThrowing with BinaryReader {
-  val expr = e.length
-  val exprText = expr.prettyExpr
-
-  def parser: Parser = new PrimParser(this, e) {
-    override def toString = "BinaryExplicitLengthInBytes(" + exprText + ")"
-
-    def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
-      log(Debug("Saving reader state."))
-      setReader(pstate)
-
-      log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
-      val R(nBytesAsAny, newVMap) = expr.evaluate(pstate.parent, pstate.variableMap, pstate)
-      val nBytes = nBytesAsAny.asInstanceOf[Long]
-      val start = pstate.withVariables(newVMap)
-      if (nBytes > 8) {
-        // Do Something Bad
-        return PE(start, "Binary value exceeds the limit allowed by the processing subsystem: %s", nBytes)
-      }
-
-      log(Debug("Explicit length %s", nBytes))
-
-      // TODO: Longest possible field is Long
-
-      val in = start.inStream
-
-      // TODO: Get requested bytes from stream
-
-      if (false) {
-        // Do Something Bad
-        return PE(start, "Insufficent Bits in field; required %s", nBytes * 8)
-      }
-
-      // log(Debug("Parsed: " + result))
-      // log(Debug("Ended at bit position " + endBitPos))
-      // val endCharPos = start.charPos + result.length
-      val currentElement = start.parentForAddContent
-      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
-      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-      // currentElement.addContent(new org.jdom.Text(result))
-      // val postState = start.withPos(endBitPos, endCharPos)
-      // postState
-      pstate
-    }
-  }
-
-  def unparser: Unparser = new Unparser(e) {
-    override def toString = "BinaryExplicitLengthInBytesUnparser(" + exprText + ")"
-
-    def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
-    }
-  }
+class UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)
+  with RuntimeExplicitLengthMixin[T] with RuntimeExplicitByteOrderMixin[T] with UnsignedNumberMixin[T] {
 }
 
-case class BinaryExplicitLengthInBits(e: ElementBase)
-  extends Terminal(e, true)
-  with WithParseErrorThrowing {
-  val expr = e.length
-  val exprText = expr.prettyExpr
+class UnsignedKnownLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase, val len: Long) extends BinaryNumberBase[T](e)
+  with RuntimeExplicitByteOrderMixin[T] with KnownLengthMixin[T] with UnsignedNumberMixin[T] {
+}
 
-  def parser: Parser = new PrimParser(this, e) {
-    override def toString = "BinaryExplicitLengthInBitsParser(" + exprText + ")"
+class SignedRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)
+  with RuntimeExplicitLengthMixin[T] with RuntimeExplicitByteOrderMixin[T] with SignedNumberMixin[T] {
+}
 
-    def parse(start: PState): PState = {
-      Assert.notYetImplemented()
-    }
-  }
-  def unparser: Unparser = new Unparser(e) {
-    override def toString = "BinaryExplicitLengthInBitsUnparser(" + exprText + ")"
+class SignedKnownLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase, val len: Long) extends BinaryNumberBase[T](e)
+  with RuntimeExplicitByteOrderMixin[T] with KnownLengthMixin[T] with SignedNumberMixin[T] {
+}
 
-    def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
-    }
-  }
+class FloatingPointRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)
+  with RuntimeExplicitLengthMixin[T] with RuntimeExplicitByteOrderMixin[T] with FloatingPointMixin[T] {
+}
 
+class FloatingPointKnownLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase, val len: Long) extends BinaryNumberBase[T](e)
+  with RuntimeExplicitByteOrderMixin[T] with KnownLengthMixin[T] with FloatingPointMixin[T] {
 }
 
 //class Regular32bitIntPrim(context: Term, val byteOrder: java.nio.ByteOrder)

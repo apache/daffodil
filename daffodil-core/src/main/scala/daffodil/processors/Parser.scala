@@ -720,21 +720,16 @@ trait InStream {
 
   // yes we do need byte order for getByte, because the byte might not be aligned to a byte boundary,
   // that is, it might straddle byte boundaries, in which case the issue of byte order arises.
-  def getByte(bitPos: Long, order: java.nio.ByteOrder): Byte
-  def getShort(bitPos: Long, order: java.nio.ByteOrder): Short
-  def getInt(bitPos: Long, order: java.nio.ByteOrder): Int
-  def getLong(bitPos: Long, order: java.nio.ByteOrder): Long
-
-  def getDouble(bitPos: Long, order: java.nio.ByteOrder): Double
-  def getFloat(bitPos: Long, order: java.nio.ByteOrder): Float
-
-  def getUnsignedShort(bitPos: Long, order: java.nio.ByteOrder): Int
-  def getUnsignedInt(bitPos: Long, order: java.nio.ByteOrder): Long
-  def getUnsignedLong(bitPos: Long, order: java.nio.ByteOrder): BigInteger
-
-  def getByteArray(bitPos: Long, order: java.nio.ByteOrder, size: Int): Array[Byte]
-
-  def getBitSequence(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder): BigInt
+  def getByte(bitPos : Long, order : java.nio.ByteOrder) : Byte
+  def getShort(bitPos : Long, order : java.nio.ByteOrder) : Short  
+  def getInt(bitPos : Long, order : java.nio.ByteOrder) : Int
+  def getLong(bitPos : Long, order : java.nio.ByteOrder) : Long
+  
+  def getDouble(bitPos : Long, order : java.nio.ByteOrder) : Double
+  def getFloat(bitPos : Long, order : java.nio.ByteOrder) : Float
+  
+  def getByteArray(bitPos : Long, order : java.nio.ByteOrder, size: Int) : Array[Byte]
+  def getBitSequence(bitPos: Long, bitCount : Long, order : java.nio.ByteOrder) : BigInt
 
   // def fillCharBufferUntilDelimiterOrEnd
 }
