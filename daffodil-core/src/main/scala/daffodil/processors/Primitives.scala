@@ -1227,9 +1227,12 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
     override def toString = gram.toString
 
     def parse(start0: PState): PState = {
+      log(Debug("Saving reader state."))
+      setReader(start0)
+
       val (start1, nBits) = getBitLength(start0)
       val (start, bo) = getByteOrder(start1)
-      if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) start.failed("Not enough bits to create an xs:" + primName)
+      if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) PE(start, "Not enough bits to create an xs:" + primName)
       else {
         val (value, newPos) = start.inStream.getBitSequence(start.bitPos, nBits, bo)
         //if (GramName == "hexBinary") {
@@ -1242,78 +1245,78 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
         //  start.parentForAddContent.addContent(new org.jdom.Text(asString.toString()))
         //} else
         val signedValue = applySign(value, nBits toInt)
-          start.parentForAddContent.addContent(new org.jdom.Text(signedValue.toString))
+        start.parentForAddContent.addContent(new org.jdom.Text(signedValue.toString))
         start.withPos(newPos, -1)
-      //}
+        //}
       }
     }
   }
 
   def unparser = DummyUnparser
 
-//  def unparser = new Unparser(e) {
-//    override def toString = gram.toString
-//
-//    def unparse(start: UState): UState = {
-//      setLoggingLevel(LogLevel.Info)
-//      val str = start.currentElement.getText //gets data from element being unparsed
-//
-//      Assert.invariant(str != null) // worst case it should be empty string. But not null.
-//
-//      val postState = {
-//        if (str == "") return UE(start, "Convert to %s (for xs:%s): Cannot unparse number from empty string", GramDescription, GramName)
-//        else if (GramName == "hexBinary") {
-//          //regex to split string into array of two char elements ('bytes')
-//          val strArray = str.split("(?<=\\G..)")
-//          var asBytes = new Array[Byte](strArray.size)
-//
-//          for (i <- 0 until strArray.size) {
-//            asBytes(i) = {
-//              val asInt = Integer.parseInt(strArray(i), 16)
-//              (asInt & 0xFF).byteValue()
-//            }
-//          }
-//          start.outStream.fillByteBuffer(asBytes, "hexBinary", staticJByteOrder) //write number back to ByteBuffer
-//          start
-//
-//        } else {
-//          val df = numFormat
-//          val pos = new ParsePosition(0)
-//          val num = try {
-//            df.parse(str, pos)
-//          } catch {
-//            case u: UnsuppressableException => throw u
-//            case e: Exception =>
-//              return UE(start, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
-//                GramDescription, GramName, str, e)
-//          }
-//
-//          // Verify that what was unparsed was what was passed exactly in byte count
-//          if (pos.getIndex != str.length) {
-//            return UE(start, "Convert to %s (for xs:%s): Unable to unparse '%s' (using up all characters).",
-//              GramDescription, GramName, str)
-//          }
-//
-//          // convert to proper type
-//          val asNumber = getNum(num)
-//
-//          // Verify no digits lost (the number was correctly transcribed)
-//          if (isInt && asNumber.asInstanceOf[Number] != num) { //then transcription error
-//            return UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.",
-//              GramDescription, GramName, str, num, asNumber)
-//          }
-//          if (isInvalidRange(asNumber)) {
-//            return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
-//              GramDescription, GramName, str, asNumber)
-//          }
-//
-//          start.outStream.fillByteBuffer(asNumber, GramName, staticJByteOrder) //write number back to ByteBuffer
-//          start
-//        }
-//      }
-//      postState
-//    }
-//  }
+  //  def unparser = new Unparser(e) {
+  //    override def toString = gram.toString
+  //
+  //    def unparse(start: UState): UState = {
+  //      setLoggingLevel(LogLevel.Info)
+  //      val str = start.currentElement.getText //gets data from element being unparsed
+  //
+  //      Assert.invariant(str != null) // worst case it should be empty string. But not null.
+  //
+  //      val postState = {
+  //        if (str == "") return UE(start, "Convert to %s (for xs:%s): Cannot unparse number from empty string", GramDescription, GramName)
+  //        else if (GramName == "hexBinary") {
+  //          //regex to split string into array of two char elements ('bytes')
+  //          val strArray = str.split("(?<=\\G..)")
+  //          var asBytes = new Array[Byte](strArray.size)
+  //
+  //          for (i <- 0 until strArray.size) {
+  //            asBytes(i) = {
+  //              val asInt = Integer.parseInt(strArray(i), 16)
+  //              (asInt & 0xFF).byteValue()
+  //            }
+  //          }
+  //          start.outStream.fillByteBuffer(asBytes, "hexBinary", staticJByteOrder) //write number back to ByteBuffer
+  //          start
+  //
+  //        } else {
+  //          val df = numFormat
+  //          val pos = new ParsePosition(0)
+  //          val num = try {
+  //            df.parse(str, pos)
+  //          } catch {
+  //            case u: UnsuppressableException => throw u
+  //            case e: Exception =>
+  //              return UE(start, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
+  //                GramDescription, GramName, str, e)
+  //          }
+  //
+  //          // Verify that what was unparsed was what was passed exactly in byte count
+  //          if (pos.getIndex != str.length) {
+  //            return UE(start, "Convert to %s (for xs:%s): Unable to unparse '%s' (using up all characters).",
+  //              GramDescription, GramName, str)
+  //          }
+  //
+  //          // convert to proper type
+  //          val asNumber = getNum(num)
+  //
+  //          // Verify no digits lost (the number was correctly transcribed)
+  //          if (isInt && asNumber.asInstanceOf[Number] != num) { //then transcription error
+  //            return UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.",
+  //              GramDescription, GramName, str, num, asNumber)
+  //          }
+  //          if (isInvalidRange(asNumber)) {
+  //            return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
+  //              GramDescription, GramName, str, asNumber)
+  //          }
+  //
+  //          start.outStream.fillByteBuffer(asNumber, GramName, staticJByteOrder) //write number back to ByteBuffer
+  //          start
+  //        }
+  //      }
+  //      postState
+  //    }
+  //  }
 }
 
 class UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)
@@ -2944,7 +2947,7 @@ trait TextReader extends Logging {
         }
       }
       log(Debug("Retrieval complete."))
-     // System.err.println(res.print)
+      // System.err.println(res.print)
       res
     }
   }

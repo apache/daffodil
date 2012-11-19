@@ -157,8 +157,6 @@ trait ElementBaseGrammarMixin
     case _ => -1
   }
 
-
-
   lazy val fixedLengthString = Prod("fixedLengthString", this, isFixedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
       case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength) // TODO: make sure it divides evenly.
@@ -424,21 +422,21 @@ trait ElementBaseGrammarMixin
     // This is in the spirit of that section.
     val res: Gram = primType.name match {
 
-//      case "hexBinary" =>
-//        (primType.name, binary) match { // TODO: Only takes explicit length
-//          case ("hexBinary", b) => new BinaryNumberBase[Array[Byte]](this, this.length.constantAsLong) {
-//            def getNum(bp : Long, in : InStream, bo : BO) = {
-//              // FIXME: size constraints, overflow
-//              in.getByteArray(bp, bo, length.constantAsLong.asInstanceOf[Int])
-//            }
-//            override def getNum(num : Number) = null //FIXME
-//            protected override val GramName = "hexBinary"
-//            protected override val GramDescription = "Hex Binary"
-//            protected override def numFormat = NumberFormat.getIntegerInstance()
-//            protected override def isInt = true
-//          }
-//          case _ => Assert.impossibleCase()
-//        }
+      //      case "hexBinary" =>
+      //        (primType.name, binary) match { // TODO: Only takes explicit length
+      //          case ("hexBinary", b) => new BinaryNumberBase[Array[Byte]](this, this.length.constantAsLong) {
+      //            def getNum(bp : Long, in : InStream, bo : BO) = {
+      //              // FIXME: size constraints, overflow
+      //              in.getByteArray(bp, bo, length.constantAsLong.asInstanceOf[Int])
+      //            }
+      //            override def getNum(num : Number) = null //FIXME
+      //            protected override val GramName = "hexBinary"
+      //            protected override val GramDescription = "Hex Binary"
+      //            protected override def numFormat = NumberFormat.getIntegerInstance()
+      //            protected override def isInt = true
+      //          }
+      //          case _ => Assert.impossibleCase()
+      //        }
 
       case "byte" | "short" | "int" | "long" | "integer" => {
         Assert.invariant(binaryIntRep == bin)
@@ -462,27 +460,28 @@ trait ElementBaseGrammarMixin
           case (nBits, BinaryFloatRep.Ieee) => new FloatingPointKnownLengthRuntimeByteOrderBinaryNumber(this, nBits)
           case (_, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
         }
-//        (primType.name, staticBinaryFloatRep) match {
-//          case ("double", ieee) => new BinaryNumber[Double](this, 64) {
-//            Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
-//            def getNum(bp : Long, in : InStream, bo : BO) = in.getDouble(bp, bo)
-//            override def getNum(num : Number) = num.doubleValue
-//            protected override val GramName = "double"
-//            protected override val GramDescription = "Double"
-//            protected override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
-//            protected override def isInt = false
-//          }
-//          case ("float", ieee) => new BinaryNumber[Float](this, 32) {
-//            Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
-//            def getNum(bp : Long, in : InStream, bo : BO) = in.getFloat(bp, bo)
-//            override def getNum(num : Number) = num.floatValue
-//            protected override val GramName = "float"
-//            protected override val GramDescription = "Float"
-//            protected override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
-//            protected override def isInt = false
-//          }
-//          case (_, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
-//        }
+
+      //        (primType.name, staticBinaryFloatRep) match {
+      //          case ("double", ieee) => new BinaryNumber[Double](this, 64) {
+      //            Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
+      //            def getNum(bp : Long, in : InStream, bo : BO) = in.getDouble(bp, bo)
+      //            override def getNum(num : Number) = num.doubleValue
+      //            protected override val GramName = "double"
+      //            protected override val GramDescription = "Double"
+      //            protected override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
+      //            protected override def isInt = false
+      //          }
+      //          case ("float", ieee) => new BinaryNumber[Float](this, 32) {
+      //            Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
+      //            def getNum(bp : Long, in : InStream, bo : BO) = in.getFloat(bp, bo)
+      //            override def getNum(num : Number) = num.floatValue
+      //            protected override val GramName = "float"
+      //            protected override val GramDescription = "Float"
+      //            protected override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
+      //            protected override def isInt = false
+      //          }
+      //          case (_, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
+      //        }
       case _ => schemaDefinitionError("Unrecognized primitive type: " + primType.name)
     }
     res
