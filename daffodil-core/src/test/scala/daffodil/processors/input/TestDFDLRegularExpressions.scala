@@ -19,10 +19,227 @@ class TestDFDLRegularExpressions extends JUnitSuite {
   def bStart = "T"
   def bEnd = "N"
 
+  def delims = "D|C|F"
+
+  @Test def testSameEscapeRegExNoPadding = {
+    val cp = DFDLRegularExpressions.getSameEscapeRegEx(escape, delim)
+    def test(x: String) = x match {
+      case cp(before, rubbish, delim, after) => {
+        //System.err.println(before + ", " + rubbish + ", " + delim + ", " + after)
+        Some((before, delim))
+      }
+      case z => None
+    }
+    assertEquals(Some("before", "D"), test("beforeDafter"))
+    assertEquals(Some("beforeEDstillBefore", "D"), test("beforeEDstillBeforeDafter"))
+    assertEquals(Some("before", "D"), test("beforeEEDstillBeforeDafter"))
+    assertEquals(None, test("beforeE"))
+    assertEquals(Some("PPPbeforeEDstillBeforePPP", "D"), test("PPPbeforeEDstillBeforePPPDafter"))
+    assertEquals(Some("beforeS", "D"), test("beforeSDstillBeforeDafter"))
+    assertEquals(Some("beforeEEEDstillBefore", "D"), test("beforeEEEDstillBeforeDafter"))
+    assertEquals(Some("before", "D"), test("beforeEEEEDafter"))
+
+    // What about multiple delimiters?
+    val cp2 = DFDLRegularExpressions.getSameEscapeRegEx(escape, delims)
+    def test2(x: String) = x match {
+      case cp2(before, rubbish, delim, after) => {
+        //System.err.println(before + ", " + rubbish + ", " + delim + ", " + after)
+        Some((before, delim))
+      }
+      case z => None
+    }
+    assertEquals(Some("before", "D"), test2("beforeDafter"))
+    assertEquals(Some("before", "C"), test2("beforeCafter"))
+    assertEquals(Some("before", "F"), test2("beforeFafter"))
+    assertEquals(None, test2("beforeGafter"))
+    assertEquals(Some("beforeEDstillBefore", "D"), test2("beforeEDstillBeforeDafter"))
+    assertEquals(Some("before", "D"), test2("beforeEEDstillBeforeDafter"))
+    assertEquals(None, test2("beforeE"))
+    assertEquals(Some("PPPbeforeEDstillBeforePPP", "D"), test2("PPPbeforeEDstillBeforePPPDafter"))
+    assertEquals(Some("beforeS", "D"), test2("beforeSDstillBeforeDafter"))
+    assertEquals(Some("beforeEEEDstillBefore", "D"), test2("beforeEEEDstillBeforeDafter"))
+    assertEquals(Some("before", "D"), test2("beforeEEEEDafter"))
+  }
+
+  @Test def testSameEscapeRegExLeftJustified = {
+    val cp = DFDLRegularExpressions.getSameEscapeRegExWithPadding(escape, delim, padChar, TextStringJustification.Left)
+    def test(x: String) = x match {
+      case cp(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
+        //System.err.println(before + ", " + rubbish + ", " + delim + ", " + after)
+        val delim1 = if (delimAfterPad == null) delimAfterEEs else delimAfterPad
+        Some((before, delim1))
+      }
+      case cp(before, rubbish, delim, null, null, after) => {
+        Some((before, delim))
+      }
+      case cp(before, null, null, ee, delim, after) => {
+        //System.err.println(a + ", " + b + ", " + c + "," + d + ", " + e + ", " + f)
+        Some((before, delim))
+      }
+      case z => None
+    }
+    assertEquals(Some("before", "D"), test("beforeDafter"))
+    assertEquals(Some("beforeEDstillBefore", "D"), test("beforeEDstillBeforePPPDafter"))
+    assertEquals(Some("before", "D"), test("beforeEEDstillBeforeDafter"))
+    assertEquals(None, test("beforeE"))
+    assertEquals(Some("PPPbeforeEDstillBefore", "D"), test("PPPbeforeEDstillBeforePPPDafter"))
+    assertEquals(Some("beforeS", "D"), test("beforeSDstillBeforeDafter"))
+    assertEquals(Some("beforeEEEDstillBefore", "D"), test("beforeEEEDstillBeforeDafter"))
+    assertEquals(Some("before", "D"), test("beforeEEEEDafter"))
+
+    // What about multiple delimiters?
+    val cp2 = DFDLRegularExpressions.getSameEscapeRegExWithPadding(escape, delims, padChar, TextStringJustification.Left)
+    def test2(x: String) = x match {
+      case cp2(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
+        //System.err.println(before + ", " + rubbish + ", " + delim + ", " + after)
+        val delim1 = if (delimAfterPad == null) delimAfterEEs else delimAfterPad
+        Some((before, delim1))
+      }
+      case cp2(before, rubbish, delim, null, null, after) => {
+        Some((before, delim))
+      }
+      case cp2(before, null, null, ee, delim, after) => {
+        //System.err.println(a + ", " + b + ", " + c + "," + d + ", " + e + ", " + f)
+        Some((before, delim))
+      }
+      case z => None
+    }
+    assertEquals(Some("before", "D"), test2("beforeDafter"))
+    assertEquals(Some("before", "C"), test2("beforeCafter"))
+    assertEquals(Some("before", "F"), test2("beforeFafter"))
+    assertEquals(None, test2("beforeGafter"))
+    assertEquals(Some("beforeEDstillBefore", "D"), test2("beforeEDstillBeforePPPDafter"))
+    assertEquals(Some("before", "D"), test2("beforeEEDstillBeforeDafter"))
+    assertEquals(None, test("beforeE"))
+    assertEquals(Some("PPPbeforeEDstillBefore", "D"), test2("PPPbeforeEDstillBeforePPPDafter"))
+    assertEquals(Some("beforeS", "D"), test2("beforeSDstillBeforeDafter"))
+    assertEquals(Some("beforeEEEDstillBefore", "D"), test2("beforeEEEDstillBeforeDafter"))
+    assertEquals(Some("before", "D"), test2("beforeEEEEDafter"))
+  }
+
+  @Test def testSameEscapeRegExRightJustified = {
+    val cp = DFDLRegularExpressions.getSameEscapeRegExWithPadding(escape, delim, padChar, TextStringJustification.Right)
+    def test(x: String) = x match {
+      case cp(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
+        //System.err.println(before + ", " + rubbish + ", " + delim + ", " + after)
+        val delim1 = if (delimAfterPad == null) delimAfterEEs else delimAfterPad
+        Some((before, delim1))
+      }
+      case cp(before, rubbish, delim, null, null, after) => {
+        Some((before, delim))
+      }
+      case cp(before, null, null, ee, delim, after) => {
+        //System.err.println(a + ", " + b + ", " + c + "," + d + ", " + e + ", " + f)
+        Some((before, delim))
+      }
+      case cp(rubbish, before, rubbish2, delim, after) => {
+        Some((before, delim))
+      }
+      case z => None
+    }
+    assertEquals(Some("before", "D"), test("beforeDafter"))
+    assertEquals(Some("beforeEDstillBefore", "D"), test("PPPbeforeEDstillBeforeDafter"))
+    assertEquals(Some("before", "D"), test("PPPbeforeEEDstillBeforeDafter"))
+    assertEquals(None, test("beforeE"))
+    assertEquals(Some("beforeEDstillBeforePPP", "D"), test("PPPbeforeEDstillBeforePPPDafter"))
+    assertEquals(Some("beforeS", "D"), test("beforeSDstillBeforePPPDafter"))
+    assertEquals(Some("beforeEEEDstillBefore", "D"), test("beforeEEEDstillBeforeDafter"))
+    assertEquals(Some("before", "D"), test("beforeEEEEDafter"))
+
+    // What about multiple delimiters?
+    val cp2 = DFDLRegularExpressions.getSameEscapeRegExWithPadding(escape, delims, padChar, TextStringJustification.Right)
+    def test2(x: String) = x match {
+      case cp2(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
+        //System.err.println(before + ", " + rubbish + ", " + delim + ", " + after)
+        val delim1 = if (delimAfterPad == null) delimAfterEEs else delimAfterPad
+        Some((before, delim1))
+      }
+      case cp2(before, rubbish, delim, null, null, after) => {
+        Some((before, delim))
+      }
+      case cp2(before, null, null, ee, delim, after) => {
+        //System.err.println(a + ", " + b + ", " + c + "," + d + ", " + e + ", " + f)
+        Some((before, delim))
+      }
+      case cp2(rubbish, before, rubbish2, delim, after) => {
+        Some((before, delim))
+      }
+      case z => None
+    }
+    assertEquals(Some("before", "D"), test2("beforeDafter"))
+    assertEquals(Some("beforeEDstillBefore", "D"), test2("PPPbeforeEDstillBeforeDafter"))
+    assertEquals(Some("before", "D"), test2("PPPbeforeEEDstillBeforeDafter"))
+    assertEquals(None, test2("beforeE"))
+    assertEquals(Some("beforeEDstillBeforePPP", "D"), test2("PPPbeforeEDstillBeforePPPDafter"))
+    assertEquals(Some("beforeS", "D"), test2("beforeSDstillBeforePPPDafter"))
+    assertEquals(Some("beforeEEEDstillBefore", "D"), test2("beforeEEEDstillBeforeDafter"))
+    assertEquals(Some("before", "D"), test2("beforeEEEEDafter"))
+  }
+
+  @Test def testSameEscapeRegExCenterJustified = {
+    val cp = DFDLRegularExpressions.getSameEscapeRegExWithPadding(escape, delim, padChar, TextStringJustification.Center)
+    def test(x: String) = x match {
+      case cp(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
+        //System.err.println(before + ", " + rubbish + ", " + delim + ", " + after)
+        val delim1 = if (delimAfterPad == null) delimAfterEEs else delimAfterPad
+        Some((before, delim1))
+      }
+      case cp(before, rubbish, delim, null, null, after) => {
+        Some((before, delim))
+      }
+      case cp(before, null, null, ee, delim, after) => {
+        //System.err.println(a + ", " + b + ", " + c + "," + d + ", " + e + ", " + f)
+        Some((before, delim))
+      }
+      case cp(rubbish, before, rubbish2, delim, after) => {
+        Some((before, delim))
+      }
+      case z => None
+    }
+    assertEquals(Some("before", "D"), test("beforeDafter"))
+    assertEquals(Some("beforeEDstillBefore", "D"), test("PPPbeforeEDstillBeforePPPDafter"))
+    assertEquals(Some("beforePPP", "D"), test("PPPbeforePPPEEDafter"))
+    assertEquals(None, test("beforeE"))
+    assertEquals(Some("beforePPPEDstillBefore", "D"), test("PPPbeforePPPEDstillBeforePPPDafter"))
+    assertEquals(Some("beforeS", "D"), test("beforeSDstillBeforePPPDafter"))
+    assertEquals(Some("beforeEEEDstillBefore", "D"), test("beforeEEEDstillBeforeDafter"))
+    assertEquals(Some("before", "D"), test("beforeEEEEDafter"))
+
+    // What about multiple delimiters?
+    val cp2 = DFDLRegularExpressions.getSameEscapeRegExWithPadding(escape, delims, padChar, TextStringJustification.Center)
+    def test2(x: String) = x match {
+      case cp2(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
+        //System.err.println(before + ", " + rubbish + ", " + delim + ", " + after)
+        val delim1 = if (delimAfterPad == null) delimAfterEEs else delimAfterPad
+        Some((before, delim1))
+      }
+      case cp2(before, rubbish, delim, null, null, after) => {
+        Some((before, delim))
+      }
+      case cp2(before, null, null, ee, delim, after) => {
+        //System.err.println(a + ", " + b + ", " + c + "," + d + ", " + e + ", " + f)
+        Some((before, delim))
+      }
+      case cp2(rubbish, before, rubbish2, delim, after) => {
+        Some((before, delim))
+      }
+      case z => None
+    }
+    assertEquals(Some("before", "D"), test2("beforeDafter"))
+    assertEquals(Some("beforeEDstillBefore", "D"), test2("PPPbeforeEDstillBeforePPPDafter"))
+    assertEquals(Some("beforePPP", "D"), test2("PPPbeforePPPEEDafter"))
+    assertEquals(None, test("beforeE"))
+    assertEquals(Some("beforePPPEDstillBefore", "D"), test2("PPPbeforePPPEDstillBeforePPPDafter"))
+    assertEquals(Some("beforeS", "D"), test2("beforeSDstillBeforePPPDafter"))
+    assertEquals(Some("beforeEEEDstillBefore", "D"), test2("beforeEEEDstillBeforeDafter"))
+    assertEquals(Some("before", "D"), test2("beforeEEEEDafter"))
+  }
+
   @Test def testEscapeRegExNoPadding = {
     val cp = DFDLRegularExpressions.getEscapeRegEx(escape, escapeEscape, delim)
+
     def test(x: String) = x match {
-      case cp(before, delim, after) => Some((before, delim))
+      case cp(before, delim, blah, after) => Some((before, delim))
       case z => None
     }
     assertEquals(Some("before", "D"), test("beforeDafter"))
@@ -153,8 +370,12 @@ class TestDFDLRegularExpressions extends JUnitSuite {
 
     // with blockstart, but escape it so it's not really a block.
     assertEquals(Some(("PPPETbefore", "D", "afterNstillafter")), test("PPPETbeforePPPDafterNstillafter"))
+
+    // here it would appear that the additional padding to the left of the block start
+    // invalidates the escape scheme as we were only expecting padding to the right of block end
+    assertEquals(Some(("PPPTbefore", "D", "NPPPDafter")), test("PPPTbeforeDNPPPDafter"))
   }
-  
+
   @Test def testEscapeBlockRegExRightJustified = {
     val cp = DFDLRegularExpressions.getEscapeBlockRegExWithPadding(bStart, bEnd, escapeEscape, escape, padChar, delim, TextStringJustification.Right)
     def test(x: String) = x match {
@@ -192,6 +413,12 @@ class TestDFDLRegularExpressions extends JUnitSuite {
 
     // with blockstart, but escape it so it's not really a block.
     assertEquals(Some(("ETbeforePPP", "D", "afterNstillafter")), test("PPPETbeforePPPDafterNstillafter"))
+
+    assertEquals(Some(("beforeD", "D", "after")), test("PPPTbeforeDNDafter"))
+
+    // here it would appear that the additional padding to the right of the block end
+    // invalidates the escape scheme as we were only expecting padding to the left of block start
+    assertEquals(Some(("Tbefore", "D", "NPPPDafter")), test("PPPTbeforeDNPPPDafter"))
   }
 
   @Test def testEscapeBlockRegExCenterJustified = {
