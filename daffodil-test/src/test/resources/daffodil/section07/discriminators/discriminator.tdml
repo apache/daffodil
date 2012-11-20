@@ -5,6 +5,121 @@
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
 	
+	<tdml:defineSchema name="s0">
+		<dfdl:format ref="ex:daffodilTest1" />
+    
+		<xs:simpleType name="simpleAssert">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:discriminator testKind="pattern" testPattern="\d;" message="discriminator failed for pattern '\d;'" />
+				</xs:appinfo>
+			</xs:annotation>
+		      	<xs:restriction base="xs:string"/>
+    		</xs:simpleType>
+		
+		<xs:group name="namedGroup">
+			<xs:sequence>
+				<xs:element name="e1" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator=","/>
+				<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"/>
+			</xs:sequence>
+		</xs:group>
+		
+		<xs:element name="Item" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:group ref="ex:namedGroup">
+					<xs:annotation>
+						<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+							<dfdl:discriminator testKind="pattern" testPattern="\p{L}{3},\d{3}" message="discriminator failed for pattern '\p{L}{3},\d{3}'" />
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:group>
+			</xs:complexType>
+		</xs:element>
+          
+		<xs:element name="e0" dfdl:lengthKind="explicit" dfdl:length="2" type="simpleAssert"/>
+		<xs:element name="description" type="xs:string" />
+		<xs:element name="quantity" type="xs:int" />
+		
+		<xs:element name="Item_01" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+					<xs:element ref="ex:description" dfdl:lengthKind="delimited">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:discriminator testKind="pattern" testPattern="\p{L}{3}" message="discriminator failed for pattern '\p{L}{3}'" />
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+					<xs:element ref="ex:quantity" dfdl:lengthKind="delimited">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:discriminator testKind="pattern" testPattern="\d{3}" message="discriminator failed for pattern '\d{3}'" />
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+<!--
+	Test name: discrimOnSimpleType
+	   Schema: s0, root e0
+	  Purpose: This test demonstrates the use of a discriminator on a simple type. The document meets the discriminator and should pass. 
+-->
+	
+	<tdml:parserTestCase name="discrimOnSimpleType"
+		root="e0" model="s0"
+		description="Section 7 - Discriminator on simpleType">
+		<tdml:document>3;</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:e0>3;</ex:e0>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+	Test name: discrimOnGroupRef
+	   Schema: s0, root Item
+	  Purpose: This test demonstrates the use of a discriminator on a group reference. The document meets the discriminator and should pass. 
+-->
+	
+	<tdml:parserTestCase name="discrimOnGroupRef"
+		root="Item" model="s0"
+		description="Section 7 - Discriminator on Group Reference - DFDL-7-071R">
+		<tdml:document>Hat,400</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<Item>
+					<e1>Hat</e1>
+					<e2>400</e2>
+				</Item>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+	Test name: discrimOnElementRef
+	   Schema: s0, root Item_01
+	  Purpose: This test demonstrates the use of a discriminator on an element reference. The document meets the discriminator and should pass. 
+-->
+	
+	<tdml:parserTestCase name="discrimOnElementRef"
+		root="Item_01" model="s0"
+		description="Section 7 - Discriminator on Element Reference - DFDL-7-070R">
+		<tdml:document>Hat,400</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<Item_01>
+					<description>Hat</description>
+					<quantity>400</quantity>
+				</Item_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
 	<tdml:defineSchema name="choice1">
 		<dfdl:format ref="ex:daffodilTest1" />
 		<xs:element name="c1">

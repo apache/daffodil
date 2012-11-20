@@ -29,5 +29,9 @@ class TestAssertions extends JUnitSuite {
   @Test def test_assertions_assertPatternPass3() { runner.runOneTest("assertPatternPass3") }
   @Test def test_assertions_assertPatternFail2() { runner.runOneTest("assertPatternFail2") }
   @Test def test_assertOnSequence() { runner.runOneTest("assertOnSequence") }
+  
+  @Test def test_assertOnGroupRef() { runner.runOneTest("assertOnGroupRef") }
+  @Test def test_assertOnElemRef() { runner.runOneTest("assertOnElemRef") }
+  @Test def test_assertOnSimpleType() { runner.runOneTest("assertOnSimpleType") }
 
 }

@@ -6,6 +6,20 @@
 
 	<tdml:defineSchema name="s1">
 		<dfdl:format ref="ex:daffodilTest1" />
+    
+		<xs:simpleType name="simpleAssert">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert><![CDATA[{ xs:int(.) eq 42 }]]></dfdl:assert>
+				</xs:appinfo>
+			</xs:annotation>
+		      	<xs:restriction base="xs:int">
+			 	<xs:pattern value="{\d}*"/>
+		      	</xs:restriction>
+    		</xs:simpleType>
+          
+		<xs:element name="e0" dfdl:lengthKind="explicit" dfdl:length="2" type="simpleAssert"/>
+
 		<xs:element name="e1" type="xs:int" dfdl:inputValueCalc="{ 42 }">
 			<xs:annotation>
 				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -56,7 +70,6 @@
 				</xs:appinfo>
 			</xs:annotation>
 		</xs:element>
-
 		<xs:element name="e6" type="xs:int" dfdl:lengthKind="pattern"
 			dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
 			<xs:annotation>
@@ -68,7 +81,7 @@
 				</xs:appinfo>
 			</xs:annotation>
 		</xs:element>
-		
+
 		<xs:element name="e7" type="xs:string" dfdl:lengthKind="delimited">
 			<xs:annotation>
 				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -438,6 +451,16 @@
 		<tdml:errors>
 			<tdml:error>Assertion</tdml:error>
 		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="assertOnSimpleType"
+		root="e0" model="s1" description="pattern asserts - DFDL-7-045R">
+		<tdml:document>42</tdml:document>
+	    	<tdml:infoset>
+	      		<tdml:dfdlInfoset>
+				<ex:e0>42</ex:e0>
+	      		</tdml:dfdlInfoset>
+	    	</tdml:infoset>
 	</tdml:parserTestCase>
 
 </tdml:testSuite>
