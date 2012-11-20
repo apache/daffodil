@@ -729,7 +729,7 @@ trait InStream {
   def getFloat(bitPos : Long, order : java.nio.ByteOrder) : Float
   
   def getByteArray(bitPos : Long, order : java.nio.ByteOrder, size: Int) : Array[Byte]
-  def getBitSequence(bitPos: Long, bitCount : Long, order : java.nio.ByteOrder) : BigInt
+  def getBitSequence(bitPos: Long, bitCount : Long, order : java.nio.ByteOrder) : (BigInt, Long)
 
   // def fillCharBufferUntilDelimiterOrEnd
 }
@@ -816,8 +816,8 @@ class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint
     case _ => Assert.invariantFailed("Invalid Byte Order: " + order)
   }
 
-  def getBitSequence(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder): BigInt = {
-    val worker: EndianTraits = getEndianTraits(bitPos, bitCount, order)
+  def getBitSequence(bitPos: Long, bitCount : Long, order : java.nio.ByteOrder) : (BigInt, Long) = {
+    val worker : EndianTraits = getEndianTraits(bitPos, bitCount, order)
     var result = BigInt(0)
     var position = worker.startBit
     var outShift = worker.initialShiftLeft
@@ -864,7 +864,7 @@ class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint
       outShift = outShift + worker.nextByteShiftLeft
     }
 
-    result
+    (result, position)
   }
 
   // littleEndian shift left except last, bigEndian shift right except first

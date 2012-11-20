@@ -1163,7 +1163,11 @@ trait RuntimeExplicitByteOrderMixin[T] {
   def e: ElementBase
   def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {
     val R(byteOrderAsAny, newVMap) = e.byteOrder.evaluate(s.parent, s.variableMap)
-    val byteOrder = byteOrderAsAny.asInstanceOf[java.nio.ByteOrder]
+    val byteOrder = byteOrderAsAny match {
+      case "bigEndian" => java.nio.ByteOrder.BIG_ENDIAN
+      case "liggleEndian" => java.nio.ByteOrder.LITTLE_ENDIAN
+      case other => other.asInstanceOf[java.nio.ByteOrder]
+    }
     val start = s.withVariables(newVMap)
     (start, byteOrder)
   }
@@ -1227,7 +1231,7 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
       val (start, bo) = getByteOrder(start1)
       if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) start.failed("Not enough bits to create an xs:" + primName)
       else {
-        val value = start.inStream.getBitSequence(start.bitPos, nBits, bo)
+        val (value, newPos) = start.inStream.getBitSequence(start.bitPos, nBits, bo)
         //if (GramName == "hexBinary") {
         //  val bytes = value.asInstanceOf[Array[Byte]]
         //  var asString: StringBuilder = new StringBuilder()
@@ -1239,8 +1243,7 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
         //} else
         val signedValue = applySign(value, nBits toInt)
           start.parentForAddContent.addContent(new org.jdom.Text(signedValue.toString))
-        val postState = start.withPos(start.bitPos + nBits, -1)
-        postState
+        start.withPos(newPos, -1)
       //}
       }
     }

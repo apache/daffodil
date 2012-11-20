@@ -157,6 +157,8 @@ trait ElementBaseGrammarMixin
     case _ => -1
   }
 
+
+
   lazy val fixedLengthString = Prod("fixedLengthString", this, isFixedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
       case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength) // TODO: make sure it divides evenly.
