@@ -13,16 +13,14 @@ import java.io.File
 import daffodil.debugger.Debugger
 
 class TestDelimiterProperties_01 extends JUnitSuite {
-  
+
   val testDir_02 = "/daffodil/section12/delimiter_properties/"
   val tdml_02 = testDir_02 + "DelimiterProperties.tdml"
-  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
-  
-    
-  // @Test def test_DelimProp_03() { runner_02.runOneTest("DelimProp_03") }
-//  @Test def test_DelimProp_06() { runner_02.runOneTest("DelimProp_06") }
-//  @Test def test_DelimProp_07() = Debugger.withDebugger { 
-//    runner_02.runOneTest("DelimProp_07") }
-//  @Test def test_initiatedContentSimple1() = Debugger.withDebugger { runner_02.runOneTest("initiatedContentSimple1") }
-//  
+  lazy val r = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
+
+  @Test def test_E1() = Debugger.withDebugger {
+    LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+    r.runOneTest("E1")
   }
+
+}
