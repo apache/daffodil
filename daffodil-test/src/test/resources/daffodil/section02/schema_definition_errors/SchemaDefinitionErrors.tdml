@@ -38,7 +38,7 @@
 	</tdml:defineSchema>
 		
 	<tdml:parserTestCase name="AS000_rev" root="matrix"
-		model="SDE" description="Property is not applicable to the component’s DFDL annotation - DFDL-2-005R6">
+		model="SDE" description="Properties, separator, separatorPolicy, and separatorPosition, are not applicable to the xs:element’s DFDL annotation - DFDL-2-005R6">
 
 		<tdml:document />
 
