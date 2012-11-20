@@ -613,11 +613,20 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="constantFunction">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="six" type="xs:int"
+            dfdl:length="{ fn:string-length('123456') }" dfdl:lengthKind="explicit" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="nonFunctionIsDetected"
-    root="noFunc" model="v">
+    root="noFunc" model="v" description="Schema definition error in general syntax of DFDL expression - DFDL-23-063R">
 
     <tdml:document />
 
@@ -627,9 +636,23 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="constantFunction1"
+    root="constantFunction" model="v" description="Use of fn:string-length() - DFDL-23-101R">
+
+    <tdml:document>999999</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <constantFunction>
+          <six>999999</six>
+        </constantFunction>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dfdlPosition1" root="e"
-    model="v">
+    model="v" description="Use of dfdl:position() - DFDL-23-134R">
 
     <tdml:document>1</tdml:document>
 
@@ -646,7 +669,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dfdlPosition2" root="e"
-    model="v">
+    model="v" description="Use of dfdl:position() - DFDL-23-134R">
 
     <tdml:document>2</tdml:document>
 
@@ -666,7 +689,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dfdlPosition3" root="f"
-    model="v">
+    model="v" description="Use of dfdl:position() - DFDL-23-134R">
 
     <tdml:document>2;2</tdml:document>
 
