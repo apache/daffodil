@@ -34,8 +34,6 @@ class TestDsomCompiler2 extends JUnitSuite with Logging {
     found
   }
 
-
-
   @Test def testUnparseChoice1() {
     val testSchema = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
@@ -104,6 +102,78 @@ class TestDsomCompiler2 extends JUnitSuite with Logging {
     Compiler.testUnparsing(testSchema, infoset, "567,word,choice2:2038.67")
   }
 
- 
+  @Test def testUnparseBinaryIntBE() {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="data" type="xs:int" dfdl:representation="binary"/>)
+    //        val actual = Compiler.testBinary(testSchema, "0000000F")
+    //        val actualString = actual.result.toString
+    //        assertTrue(actualString.startsWith("<data"))
+    //        assertTrue(actualString.endsWith(">15</data>"))
+
+    val infoset = <data xmlns={ example }>15</data>
+    val bytes = Array[Byte](0, 0, 0, 15)
+    Compiler.testUnparsingBinary(testSchema, infoset, bytes)
+  }
+
+  @Test def testUnparseBinaryIntLE() {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="data" type="xs:int" dfdl:representation="binary" dfdl:byteOrder='littleEndian'/>)
+    //        val actual = Compiler.testBinary(testSchema, "0F000000")
+    //        val actualString = actual.result.toString
+    //        assertTrue(actualString.startsWith("<data"))
+    //        assertTrue(actualString.endsWith(">15</data>"))
+
+    val infoset = <data xmlns={ example }>15</data>
+    val bytes = Array[Byte](15, 0, 0, 0)
+    Compiler.testUnparsingBinary(testSchema, infoset, bytes)
+  }
+
+  //  @Test def testBMP() {
+  //    val infoset = scala.xml.XML.loadFile("header.xml")
+  //    val compiler = Compiler()
+  //    val pf = compiler.compile("BMPtest.xsd") //pass compiler the schema
+  //    val unparser = pf.onPath("/") //create unparser for given schema
+  //    val outputStream = new FileOutputStream("testBMP")
+  //    val out = java.nio.channels.Channels.newChannel(outputStream)
+  //    unparser.unparse(out, infoset) //pass infoset to unparser
+  //    out.close()
+  //  }
+
+  //  @Test def testBMPPixels() {
+  //    val infoset = scala.xml.XML.loadFile("pixeldata.xml")
+  //    val compiler = Compiler()
+  //    val pf = compiler.compile("BMPtestPixels.xsd") //pass compiler the schema
+  //    val unparser = pf.onPath("/") //create unparser for given schema
+  //    val outputStream = new FileOutputStream("testBMPPixels")
+  //    val out = java.nio.channels.Channels.newChannel(outputStream)
+  //    unparser.unparse(out, infoset) //pass infoset to unparser
+  //    out.close()
+  //  }
+
+  @Test def testUnparseBinary1() {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+
+      <xs:element name="list" type="tns:example1">
+        <xs:annotation>
+          <xs:appinfo source={ dfdl }>
+            <dfdl:element alignmentUnits="bytes"/>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+      <xs:complexType name="example1">
+        <xs:sequence dfdl:separator="">
+          <xs:element name="byte" type="xs:byte" dfdl:length="2" dfdl:lengthKind="explicit" dfdl:representation="binary"/>
+          <xs:element name="short" type="xs:short" dfdl:length="4" dfdl:lengthKind="explicit" dfdl:representation="binary"/>
+          <xs:element name="long" type="xs:long" dfdl:length="4" dfdl:lengthKind="explicit" dfdl:representation="binary"/>
+        </xs:sequence>
+      </xs:complexType>)
+
+    val infoset = <list xmlns={ example }><byte>31</byte><short>-112</short><long>1030</long></list>
+    val bytes = Array[Byte](31, -1, -112, 0, 0, 0, 0, 0, 0, 4, 6)
+    Compiler.testUnparsingBinary(testSchema, infoset, bytes)
+  }
 }
 

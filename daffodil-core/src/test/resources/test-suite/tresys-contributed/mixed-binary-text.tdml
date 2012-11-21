@@ -30,7 +30,7 @@
 
 				</xs:choice>
 				<xs:element name="binary1" type="xsd:int"
-					dfdl:representation="binary" />
+					dfdl:representation="binary" dfdl:lengthKind="implicit"/>
 				<xs:element name="text2" type="xs:string" />
             </xs:sequence>
 			</xs:complexType>
