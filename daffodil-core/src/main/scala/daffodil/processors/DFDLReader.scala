@@ -28,107 +28,114 @@ import delimsearch.io.DFDLJavaIOInputStreamReader
 /**
  * Pure functional Reader[Byte] that gets its data from a DFDL.Input (aka a ReadableByteChannel)
  */
-class DFDLByteReader private (psb : PagedSeq[Byte], val bytePos : Int = 0)
+class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos: Int = 0)
   extends scala.util.parsing.input.Reader[Byte] {
 
-  def this(in : ReadableByteChannel) = this(PagedSeq.fromIterator(new IterableReadableByteChannel(in)), 0)
+  def this(in: ReadableByteChannel) = this(PagedSeq.fromIterator(new IterableReadableByteChannel(in)), 0)
 
-  lazy val first : Byte = psb(bytePos)
+  lazy val first: Byte = psb(bytePos)
 
-  lazy val rest : DFDLByteReader = new DFDLByteReader(psb, bytePos + 1)
+  lazy val rest: DFDLByteReader = new DFDLByteReader(psb, bytePos + 1)
 
-  lazy val pos : scala.util.parsing.input.Position = new DFDLBytePosition(bytePos)
+  lazy val pos: scala.util.parsing.input.Position = new DFDLBytePosition(bytePos)
 
-  lazy val atEnd : Boolean = !psb.isDefinedAt(bytePos)
+  lazy val atEnd: Boolean = !psb.isDefinedAt(bytePos)
 
-  def atPos(bytePosition : Int) : DFDLByteReader = { new DFDLByteReader(psb.slice(bytePosition), 0) }
+  def atPos(bytePosition: Int): DFDLByteReader = {
+    //System.err.println("DFDLByteReader psb length: " + psb.length)
+    //new DFDLByteReader(psb.slice(bytePosition), 0) 
+    new DFDLByteReader(psb, bytePosition)
+  }
 
-  def getByte(bytePosition : Int) : Byte = { psb(bytePosition) }
+  def getByte(bytePosition: Int): Byte = { psb(bytePosition) }
 
-  lazy val byteArray : Array[Byte] = psb.toArray[Byte]
-  lazy val bb : ByteBuffer = ByteBuffer.wrap(byteArray)
+  lazy val byteArray: Array[Byte] = psb.toArray[Byte]
+  lazy val bb: ByteBuffer = ByteBuffer.wrap(byteArray)
 
   /**
    * Factory for a Reader[Char] that constructs characters by decoding them from this
    * Reader[Byte] for a specific encoding starting at a particular byte position.
    */
-//  def charReader(csName : String) : scala.util.parsing.input.Reader[Char] = {
-//    DFDLByteReader.getCharReader(psb, bytePos, csName) // new DFDLCharReader(psb, bytePos, csName)
-//  }
+  //  def charReader(csName : String) : scala.util.parsing.input.Reader[Char] = {
+  //    DFDLByteReader.getCharReader(psb, bytePos, csName) // new DFDLCharReader(psb, bytePos, csName)
+  //  }
 
   // Retrieves a new charReader every time
-  def newCharReader(csName : String) : scala.util.parsing.input.Reader[Char] = {
+  def newCharReader(csName: String): scala.util.parsing.input.Reader[Char] = {
     DFDLByteReader.getNewReader(psb, bytePos, csName)
   }
 
-  def updateCharReader(reader : DFDLCharReader) = {
-    DFDLByteReader.setCharReader(reader, psb)
-  }
+//  def updateCharReader(reader: DFDLCharReader) = {
+//    DFDLByteReader.setCharReader(reader, psb)
+//  }
 
 }
-
-
-
-
 
 /**
  * Reader[Char] constructed from a specific point within a PagedSeq[Byte], for
  * a particular character set encoding. Ends if there is any error trying to decode a
  * character.
  */
-class DFDLCharReader private (charsetName : String, theStartingBytePos : Int, psc : PagedSeq[Char], override val offset : Int)
+class DFDLCharReader private (charsetName: String, theStartingBytePos: Int, psc: PagedSeq[Char], override val offset: Int, psb: PagedSeq[Byte])
   extends scala.util.parsing.input.Reader[Char] {
 
-  override lazy val source : CharSequence = psc
+  override lazy val source: CharSequence = psc
 
-  def startingBytePos : Int = theStartingBytePos
+  def startingBytePos: Int = theStartingBytePos
 
-  def this(psb : PagedSeq[Byte], bytePos : Int, csName : String) = {
+  def this(thePsb: PagedSeq[Byte], bytePos: Int, csName: String) = {
     this(csName, bytePos, {
       // TRW - The following change was made because we want the
       // IteratorInputStream to start at bytePos.
       //
       //val is = new IteratorInputStream(psb.iterator)
-      val is = new IteratorInputStream(psb.slice(bytePos).iterator)
-//      val cs = java.nio.charset.Charset.forName(csName)
-//      val codec = scala.io.Codec.charset2codec(cs)
-//      codec.onMalformedInput(CodingErrorAction.REPORT)
-      
+      val is = new IteratorInputStream(thePsb.slice(bytePos).iterator)
+      //      val cs = java.nio.charset.Charset.forName(csName)
+      //      val codec = scala.io.Codec.charset2codec(cs)
+      //      codec.onMalformedInput(CodingErrorAction.REPORT)
+
       //val r = new DFDLJavaIOInputStreamReader(is, codec.decoder)
       val r = new DFDLJavaIOInputStreamReader(is, csName)
-      
+
       // TRW - The following line was changed because the fromSource
       // method was causing the readLine method of the BufferedReader class to be
       // called.  This resulted in the loss of \n, \r and \r\n characters from the data.
       //val psc = PagedSeq.fromSource(scala.io.Source.fromInputStream(is)(codec))
       val psc = PagedSeq.fromReader(r)
       psc
-    }, 0)
+    }, 0, thePsb)
   }
 
-  def first : Char = psc(offset)
+  def first: Char = psc(offset)
 
-  def rest : scala.util.parsing.input.Reader[Char] =
-    if (psc.isDefinedAt(offset)) new DFDLCharReader(charsetName, startingBytePos, psc, offset + 1)
+  def rest: scala.util.parsing.input.Reader[Char] =
+    if (psc.isDefinedAt(offset)) new DFDLCharReader(charsetName, startingBytePos, psc, offset + 1, psb)
     else this //new DFDLCharReader(psc, offset + 1)
 
-  def atEnd : Boolean = !psc.isDefinedAt(offset)
+  def atEnd: Boolean = !psc.isDefinedAt(offset)
 
-  def pos : scala.util.parsing.input.Position = new OffsetPosition(source, offset) //new DFDLCharPosition(offset)
+  def pos: scala.util.parsing.input.Position = new OffsetPosition(source, offset) //new DFDLCharPosition(offset)
 
-  override def drop(n : Int) : DFDLCharReader = new DFDLCharReader(charsetName, startingBytePos, psc, offset + n)
+  override def drop(n: Int): DFDLCharReader = new DFDLCharReader(charsetName, startingBytePos, psc, offset + n, psb)
 
-  def atPos(characterPos : Int) : DFDLCharReader = {
-    new DFDLCharReader(charsetName, startingBytePos, psc, characterPos)
+  def atPos(characterPos: Int): DFDLCharReader = {
+    new DFDLCharReader(charsetName, startingBytePos, psc, characterPos, psb)
   }
 
-  def getCharsetName : String = charsetName
+  // We really want to be able to ask for a CharReader starting at
+  // said bytePosition.
+  def atBytePos(bytePosition: Int): DFDLCharReader = {
+    //System.err.println("DFDLCharReader.atBytePos(" + bytePosition + ")")
+    new DFDLCharReader(psb, bytePosition, charsetName)
+  }
 
-  def characterPos : Int = offset
+  def getCharsetName: String = charsetName
+
+  def characterPos: Int = offset
 
   // def isDefinedAt(charPos : Int) : Boolean = psc.isDefinedAt(charPos)
 
-  def print : String = {
+  def print: String = {
     "DFDLCharReader - " + source.length() + ": " + source + "\nDFDLCharReader - " + characterPos + ": " + source.subSequence(characterPos, source.length())
   }
 
@@ -142,12 +149,12 @@ class DFDLCharReader private (charsetName : String, theStartingBytePos : Int, ps
  * All this excess buffering layer for lack of a way to convert a ReadableByteChannel directly into
  * a PagedSeq. We need an Iterator[Byte] first to construct a PagedSeq[Byte].
  */
-class IterableReadableByteChannel(rbc : ReadableByteChannel)
+class IterableReadableByteChannel(rbc: ReadableByteChannel)
   extends scala.collection.Iterator[Byte] {
 
   private final val bufferSize = 10000
-  private var currentBuf : java.nio.ByteBuffer = _
-  private var sz : Int = _
+  private var currentBuf: java.nio.ByteBuffer = _
+  private var sz: Int = _
 
   private def advanceToNextBuf() {
     currentBuf = java.nio.ByteBuffer.allocate(bufferSize)
@@ -157,7 +164,7 @@ class IterableReadableByteChannel(rbc : ReadableByteChannel)
 
   advanceToNextBuf()
 
-  def hasNext() : Boolean = {
+  def hasNext(): Boolean = {
     if (sz == -1) return false
     if (currentBuf.hasRemaining()) return true
     advanceToNextBuf()
@@ -166,9 +173,9 @@ class IterableReadableByteChannel(rbc : ReadableByteChannel)
     return false
   }
 
-  var pos : Int = 0
+  var pos: Int = 0
 
-  def next() : Byte = {
+  def next(): Byte = {
     if (!hasNext()) throw new IndexOutOfBoundsException(pos.toString)
     pos += 1
     currentBuf.get()
@@ -180,7 +187,7 @@ class IterableReadableByteChannel(rbc : ReadableByteChannel)
  * line numbers and column numbers.
  *
  */
-class DFDLBytePosition(i : Int) extends scala.util.parsing.input.Position {
+class DFDLBytePosition(i: Int) extends scala.util.parsing.input.Position {
   def line = 1
   def column = i + 1
   // IDEA: could we assume a 'line' of bytes is 32 bytes because those print out nicely as 
@@ -193,13 +200,17 @@ object DFDLByteReader {
   type PosMap = HashMap[Int, (DFDLCharReader, Int)]
   type CSMap = HashMap[String, PosMap]
   type PSMap = HashMap[PagedSeq[Byte], CSMap]
-  private var charReaderMap : PSMap = HashMap.empty
+  private var charReaderMap: PSMap = HashMap.empty
 
   // CharPosMap [bytePos + csName, CharPos]
   type CharPosMap = HashMap[String, Int]
-  private var charPositionsMap : CharPosMap = HashMap.empty
+  private var charPositionsMap: CharPosMap = HashMap.empty
 
-  private def getNewReader(psb : PagedSeq[Byte], bytePos : Int, csName : String) : DFDLCharReader = {
+  /**
+   * Constructs a new DFDLCharReader using the same PagedSeq[Byte] but
+   * starts reading characters from the bytePos.
+   */
+  private def getNewReader(psb: PagedSeq[Byte], bytePos: Int, csName: String): DFDLCharReader = {
     val newrdr = new DFDLCharReader(psb, bytePos, csName)
     newrdr
   }
@@ -209,19 +220,22 @@ object DFDLByteReader {
    * Reader[Byte] for a specific encoding starting at a particular byte position.
    *
    * Memoizes so that we don't re-decode as we backtrack around.
+   * 
+   * TRW - 11/21/2012 - This is no longer used.  Reader is kept around now in state.
+   * Code here is left in-case we wish to revert back to using this call.
    */
-  private def getCharReader(psb : PagedSeq[Byte], bytePos : Int, csName : String) : DFDLCharReader = {
+  private def getCharReader(psb: PagedSeq[Byte], bytePos: Int, csName: String): DFDLCharReader = {
     if (charReaderMap.isEmpty) {
-      var csMap : CSMap = HashMap.empty
-      val emptyCharReaderMap : PosMap = HashMap.empty
+      var csMap: CSMap = HashMap.empty
+      val emptyCharReaderMap: PosMap = HashMap.empty
       csMap.put(csName, emptyCharReaderMap)
       charReaderMap.put(psb, csMap)
     }
 
     // TRW - Added for Compound Pattern Match to work
     if (charReaderMap.get(psb) == None) {
-      var csMap : CSMap = HashMap.empty
-      val emptyCharReaderMap : PosMap = HashMap.empty
+      var csMap: CSMap = HashMap.empty
+      val emptyCharReaderMap: PosMap = HashMap.empty
       csMap.put(csName, emptyCharReaderMap)
       charReaderMap.put(psb, csMap)
     }
@@ -277,7 +291,7 @@ object DFDLByteReader {
     //    }
   }
 
-  private def setCharReader(reader : DFDLCharReader, psb : PagedSeq[Byte]) = {
+  private def setCharReader(reader: DFDLCharReader, psb: PagedSeq[Byte]) = {
     //    val charReaders = charReaderMap.get(psb).get.get(reader.getCharsetName).get
     //    //charReaders.put(bytePos, reader)
     //    //System.err.println("Before insert: " + charReaders)
@@ -305,7 +319,7 @@ object DFDLByteReader {
  *
  * We ignore line/column structure. It's all one "line" as far as we are concerned.
  */
-class DFDLCharPosition(i : Int) extends scala.util.parsing.input.Position {
+class DFDLCharPosition(i: Int) extends scala.util.parsing.input.Position {
   def line = 1
   def column = i + 1
   val lineContents = "" // unused
@@ -319,10 +333,10 @@ class DFDLCharPosition(i : Int) extends scala.util.parsing.input.Position {
  *
  * Convert an iterator of bytes into an InputStream
  */
-class IteratorInputStream(ib : Iterator[Byte])
+class IteratorInputStream(ib: Iterator[Byte])
   extends InputStream {
 
-  def read() : Int =
+  def read(): Int =
     if (!ib.hasNext) -1
     else {
       val res = ib.next()

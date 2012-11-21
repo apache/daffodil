@@ -582,7 +582,8 @@ class PState(
   def withReaderPos(bitPos: Long, charPos: Long, reader: DFDLCharReader, status: ProcessorResult = Success) = {
     var newInStreamStateStack = inStreamStateStack clone ()
     newInStreamStateStack pop ()
-    val newReader = reader.atPos(charPos.toInt)
+    //val newReader = reader.atPos(charPos.toInt)
+    val newReader = reader.atBytePos((bitPos >> 3).toInt)
     newInStreamStateStack push (new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, Some(newReader), contextMap))
     new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
   }

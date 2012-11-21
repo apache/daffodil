@@ -2942,6 +2942,7 @@ trait TextReader extends Logging {
         }
       }
       log(Debug("Retrieval complete."))
+     // System.err.println(res.print)
       res
     }
   }
@@ -2953,6 +2954,10 @@ trait TextReader extends Logging {
 
 trait BinaryReader extends Logging {
 
+  /**
+   * This call doesn't really do anything as the reader
+   * is now carried within the state.
+   */
   def setReader(state: PState) = {
     withLoggingLevel(LogLevel.Info) {
       // If a reader exists, save it
@@ -2963,7 +2968,7 @@ trait BinaryReader extends Logging {
       state.textReader match {
         case Some(rdr) => {
           val in: InStreamFromByteChannel = state.inStream.asInstanceOf[InStreamFromByteChannel]
-          in.byteReader.updateCharReader(rdr)
+          //in.byteReader.updateCharReader(rdr)
         }
         case None => {
           // Nothing to do

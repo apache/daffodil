@@ -18,9 +18,5 @@ class TestDelimiterProperties_01 extends JUnitSuite {
   val tdml_02 = testDir_02 + "DelimiterProperties.tdml"
   lazy val r = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 
-  @Test def test_E1() = Debugger.withDebugger {
-    LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-    r.runOneTest("E1")
-  }
 
 }
