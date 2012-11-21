@@ -126,7 +126,15 @@ trait ElementBaseGrammarMixin
 
   lazy val binaryNumberKnownLengthInBits: Long = lengthKind match {
     case LengthKind.Implicit => implicitBinaryLengthInBits
-    case LengthKind.Explicit if (length.isConstant) => length.constantAsLong
+    case LengthKind.Explicit if (length.isConstant) => {
+      val lengthFromProp = length.constantAsLong
+      val nbits = lengthUnits match {
+        case LengthUnits.Bits => lengthFromProp
+        case LengthUnits.Bytes => lengthFromProp * 8
+        case LengthUnits.Characters => SDE("The lengthUnits for binary numbers must be either 'bits' or 'bytes'. Not 'characters'.")
+      }
+      nbits
+    }
     case LengthKind.Explicit => -1 // means must be computed at runtime.
     case LengthKind.Delimited => schemaDefinitionError("Binary data elements cannot have lengthKind='delimited'.")
     case LengthKind.Pattern => schemaDefinitionError("Binary data elements cannot have lengthKind='pattern'.")
@@ -431,10 +439,13 @@ trait ElementBaseGrammarMixin
       }
 
       case "double" | "float" =>
-        (binaryNumberKnownLengthInBits, staticBinaryFloatRep) match {
-          case (-1, BinaryFloatRep.Ieee) => new FloatingPointRuntimeLengthRuntimeByteOrderBinaryNumber(this)
-          case (nBits, BinaryFloatRep.Ieee) => new FloatingPointKnownLengthRuntimeByteOrderBinaryNumber(this, nBits)
-          case (_, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
+        (primType.name, binaryNumberKnownLengthInBits, staticBinaryFloatRep) match {
+          case (_, -1, BinaryFloatRep.Ieee) => SDE("Floating point binary numbers may not have runtime-specified lengths.")
+          case ("float", 32, BinaryFloatRep.Ieee) => new FloatKnownLengthRuntimeByteOrderBinaryNumber(this, 32)
+          case ("float", n, BinaryFloatRep.Ieee) => SDE("binary xs:float must be 32 bits. Length in bits was %s.", n)
+          case ("double", 64, BinaryFloatRep.Ieee) => new DoubleKnownLengthRuntimeByteOrderBinaryNumber(this, 64)
+          case ("double", n, BinaryFloatRep.Ieee) => SDE("binary xs:double must be 64 bits. Length in bits was %s.", n)
+          case (_, _, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
         }
 
       //        (primType.name, staticBinaryFloatRep) match {

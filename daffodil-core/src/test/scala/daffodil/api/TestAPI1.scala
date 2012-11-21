@@ -464,6 +464,33 @@ class TestDFDLParser extends JUnitSuite {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
+  @Test def testBinaryDoubleOne() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" type="xs:double" dfdl:lengthKind="implicit"/>)
+    val actual = Compiler.testBinary(sch, "3FF0000000000000").result
+    val expected = <e1>1.0</e1>
+    TestUtils.assertEqualsXMLElements(expected, actual)
+  }
+
+  @Test def testBinaryDoubleMinusOne() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" type="xs:double" dfdl:lengthKind="implicit"/>)
+    val actual = Compiler.testBinary(sch, "BFF0000000000000").result
+    val expected = <e1>-1.0</e1>
+    TestUtils.assertEqualsXMLElements(expected, actual)
+  }
+
+  @Test def testBinaryDoubleLSB() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" type="xs:double" dfdl:lengthKind="implicit"/>)
+    val actual = Compiler.testBinary(sch, "0000000000000001").result
+    val expected = <e1>4.9E-324</e1>
+    TestUtils.assertEqualsXMLElements(expected, actual)
+  }
+
   @Test def testBinaryDoubles() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,

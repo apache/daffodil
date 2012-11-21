@@ -1175,21 +1175,18 @@ trait RuntimeExplicitByteOrderMixin[T] {
 
 trait SignedNumberMixin[T] {
   self: BinaryNumberBase[T] =>
-  def applySign(n: BigInt, msb: Int): BigInt =
-    n.testBit(msb - 1) match { // msb is zero-based bit counting
+  def convertValue(n: BigInt, msb: Int): T = {
+    val signed = n.testBit(msb - 1) match { // msb is zero-based bit counting
       case true => n - (BigInt(1) << msb)
       case false => n
     }
+    signed.asInstanceOf[T]
+  }
 }
 
 trait UnsignedNumberMixin[T] {
   self: BinaryNumberBase[T] =>
-  def applySign(n: BigInt, msb: Int): BigInt = n
-}
-
-trait FloatingPointMixin[T] {
-  self: BinaryNumberBase[T] =>
-  def applySign(n: BigInt, msb: Int): BigInt = n // TODO: Make it a float given mantissa and ordinate?
+  def convertValue(n: BigInt, msb: Int): T = n.asInstanceOf[T]
 }
 
 // TODO: Double Conversion as a Sign-Trait
@@ -1213,7 +1210,7 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
   //def getNum(t: Number): BigInt
   protected def getBitLength(s: PState): (PState, Long)
   protected def getByteOrder(s: PState): (PState, java.nio.ByteOrder)
-  protected def applySign(n: BigInt, msb: Int): BigInt
+  protected def convertValue(n: BigInt, msb: Int): T
   override def toString = "binary(xs:" + primName + ", " + label + ")"
   val gram = this
 
@@ -1244,8 +1241,8 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
         //  }
         //  start.parentForAddContent.addContent(new org.jdom.Text(asString.toString()))
         //} else
-        val signedValue = applySign(value, nBits toInt)
-        start.parentForAddContent.addContent(new org.jdom.Text(signedValue.toString))
+        val convertedValue: T = convertValue(value, nBits toInt)
+        start.parentForAddContent.addContent(new org.jdom.Text(convertedValue.toString))
         start.withPos(newPos, -1)
         //}
       }
@@ -1335,12 +1332,43 @@ class SignedKnownLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase, val len: 
   with RuntimeExplicitByteOrderMixin[T] with KnownLengthInBitsMixin[T] with SignedNumberMixin[T] {
 }
 
-class FloatingPointRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)
-  with RuntimeExplicitLengthMixin[T] with RuntimeExplicitByteOrderMixin[T] with FloatingPointMixin[T] {
+// Not needed. No runtime-determined lengths for binary floats.
+//class FloatingPointRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)
+//  with RuntimeExplicitLengthMixin[T] with RuntimeExplicitByteOrderMixin[T] with FloatingPointMixin[T] {
+//}
+
+class FloatKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long)
+  extends BinaryNumberBase[Float](e)
+  with RuntimeExplicitByteOrderMixin[Float]
+  with KnownLengthInBitsMixin[Float] {
+
+  final def convertValue(n: BigInt, ignored_msb: Int): Float = {
+    val nWith33rdBit = n | (BigInt(1) << 33) // make sure we have 5 bytes here. Then we'll ignore 5th byte.
+    val ba = nWith33rdBit.toByteArray
+    val bb = java.nio.ByteBuffer.wrap(ba)
+    val res = ba.length match {
+      case 5 => bb.getFloat(1)
+      case _ => Assert.invariantFailed("byte array should be 5 long")
+    }
+    res
+  }
 }
 
-class FloatingPointKnownLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase, val len: Long) extends BinaryNumberBase[T](e)
-  with RuntimeExplicitByteOrderMixin[T] with KnownLengthInBitsMixin[T] with FloatingPointMixin[T] {
+class DoubleKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long)
+  extends BinaryNumberBase[Double](e)
+  with RuntimeExplicitByteOrderMixin[Double]
+  with KnownLengthInBitsMixin[Double] {
+
+  final def convertValue(n: BigInt, ignored_msb: Int): Double = {
+    val nWith65thBit = n | (BigInt(1) << 65) // make sure we have 9 bytes of bigint here. Then we'll ignore the 9th byte.
+    val ba = nWith65thBit.toByteArray
+    val bb = java.nio.ByteBuffer.wrap(ba)
+    val res = ba.length match {
+      case 9 => bb.getDouble(1) // ignore first byte.
+      case _ => Assert.invariantFailed("byte array should be 9 long")
+    }
+    res
+  }
 }
 
 //class Regular32bitIntPrim(context: Term, val byteOrder: java.nio.ByteOrder)
