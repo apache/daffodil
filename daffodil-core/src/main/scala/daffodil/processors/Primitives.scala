@@ -1152,10 +1152,10 @@ trait RuntimeExplicitLengthMixin[T] {
   }
 }
 
-trait KnownLengthMixin[T] {
+trait KnownLengthInBitsMixin[T] {
   self: BinaryNumberBase[T] =>
   def len: Long
-  def getBitLength(s: PState) = (s, len * toBits)
+  def getBitLength(s: PState) = (s, len) // already in bits, so no multiply by 8 for this one.
 }
 
 trait RuntimeExplicitByteOrderMixin[T] {
@@ -1324,7 +1324,7 @@ class UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) exten
 }
 
 class UnsignedKnownLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase, val len: Long) extends BinaryNumberBase[T](e)
-  with RuntimeExplicitByteOrderMixin[T] with KnownLengthMixin[T] with UnsignedNumberMixin[T] {
+  with RuntimeExplicitByteOrderMixin[T] with KnownLengthInBitsMixin[T] with UnsignedNumberMixin[T] {
 }
 
 class SignedRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)
@@ -1332,7 +1332,7 @@ class SignedRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends
 }
 
 class SignedKnownLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase, val len: Long) extends BinaryNumberBase[T](e)
-  with RuntimeExplicitByteOrderMixin[T] with KnownLengthMixin[T] with SignedNumberMixin[T] {
+  with RuntimeExplicitByteOrderMixin[T] with KnownLengthInBitsMixin[T] with SignedNumberMixin[T] {
 }
 
 class FloatingPointRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)
@@ -1340,7 +1340,7 @@ class FloatingPointRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) 
 }
 
 class FloatingPointKnownLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase, val len: Long) extends BinaryNumberBase[T](e)
-  with RuntimeExplicitByteOrderMixin[T] with KnownLengthMixin[T] with FloatingPointMixin[T] {
+  with RuntimeExplicitByteOrderMixin[T] with KnownLengthInBitsMixin[T] with FloatingPointMixin[T] {
 }
 
 //class Regular32bitIntPrim(context: Term, val byteOrder: java.nio.ByteOrder)
@@ -2378,11 +2378,11 @@ case class LogicalNilValue(e: ElementBase) extends Primitive(e, e.isNillable)
 
 // As soon as you turn these on (by removing the false and putting the real guard), then schemas all need to have
 // these properties in them, which is inconvenient until we have multi-file schema support and format references.
-
 case class LeadingSkipRegion(e: Term) extends Terminal(e, e.leadingSkip > 0) {
   e.schemaDefinition(e.leadingSkip < Compiler.maxSkipLength, "Property leadingSkip %s is larger than limit %s", e.leadingSkip, Compiler.maxSkipLength)
 
   def parser: Parser = new PrimParser(this, e) {
+
     def parse(pstate: PState) = {
 
       val newBitPos = 8 * (pstate.bytePos + e.leadingSkip)
@@ -2716,17 +2716,7 @@ class SetVariableParser(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
     }
 }
 
-abstract class BinaryNumberParser[T](gram: BinaryExplicitLength[T], context: SchemaComponent) extends PrimParser(gram, context) {
-
-  override def toBriefXML(depth: Int = -1) = {
-    "<" + gram.GramName + " lengthInBits='" + gram.lenInBits + "' />"
-  }
-
-}
-/**
- *
- */
-abstract class BinaryExplicitLength[ResType](e: ElementBase, sizeMultiplier: Int, bitStringLength: Int)
+case class BinaryExplicitLengthInBytes(e: ElementBase)
   extends Terminal(e, true)
   with WithParseErrorThrowing with BinaryReader {
 
@@ -2746,11 +2736,10 @@ abstract class BinaryExplicitLength[ResType](e: ElementBase, sizeMultiplier: Int
   def getNum(num: BigInt): String
   def GramName: String
 
-  def parser: Parser = new BinaryNumberParser(this, e) {
+  def parser: Parser = new Parser(e) {
     override def toString = "BinaryExplicitLengthInBytes(" + exprText + ")"
 
     def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
-
       log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
 
       val start = pstate

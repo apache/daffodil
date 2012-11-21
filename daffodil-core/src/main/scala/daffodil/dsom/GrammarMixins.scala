@@ -133,31 +133,19 @@ trait ElementBaseGrammarMixin
   }
 
   // Length is in bits, (size would be in bytes) (from DFDL Spec 12.3.3)
-  def binaryLength(e: ElementBase, pstate: PState) = {
-    def getLength(e: ElementBase, pstate: PState, multiplier: Long) {
-      val lenExpr = e.length
-      var txt = lenExpr.prettyExpr
-      val R(len, vMap) = lenExpr.evaluate(pstate.parent, pstate.variableMap, pstate)
-      (len.asInstanceOf[Long] * multiplier, txt, Some(vMap))
-    }
-    (lengthKind, lengthUnits, primType.name) match {
-      case (LengthKind.Implicit, _, "byte" | "unsigendByte") => (8, "8", None)
-      case (LengthKind.Implicit, _, "short" | "unsignedShort") => (16, "16", None)
-      case (LengthKind.Implicit, _, "float" | "int" | "unsignedInt" | "boolean") => (32, "32", None)
-      case (LengthKind.Implicit, _, "double" | "long" | "unsignedLong") => (64, "64", None)
-      case (LengthKind.Explicit, LengthUnits.Bits, _) => getLength(e, pstate, 1)
-      case (LengthKind.Explicit, LengthUnits.Bytes, _) => getLength(e, pstate, 8)
-      case _ => schemaDefinitionError("Size of binary data '" + primType.name + "' cannot be determined implicitly.")
-    }
+  lazy val implicitBinaryLengthInBits = primType.name match {
+    case "byte" | "unsigendByte" => 8
+    case "short" | "unsignedShort" => 16
+    case "float" | "int" | "unsignedInt" | "boolean" => 32
+    case "double" | "long" | "unsignedLong" => 64
+    case _ => schemaDefinitionError("Size of binary data '" + primType.name + "' cannot be determined implicitly.")
   }
 
-  lazy val binaryNumberKnownLength = lengthKind match {
-    case LengthKind.Implicit => implicitBinaryLength
+  lazy val binaryNumberKnownLengthInBits = lengthKind match {
+    case LengthKind.Implicit => implicitBinaryLengthInBits
     case LengthKind.Explicit if (length.isConstant) => length.constantAsLong
     case _ => -1
   }
-
-
 
   lazy val fixedLengthString = Prod("fixedLengthString", this, isFixedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
@@ -411,7 +399,6 @@ trait ElementBaseGrammarMixin
   lazy val maximumUnsignedLong = two.pow(64).subtract(new BigInteger("1"))
 
   lazy val binaryValue: Gram = {
-
     Assert.invariant(primType.name != "string")
 
     subset(byteOrder.isConstant, "Dynamic byte order is not currently supported.")
@@ -442,22 +429,22 @@ trait ElementBaseGrammarMixin
 
       case "byte" | "short" | "int" | "long" | "integer" => {
         Assert.invariant(binaryIntRep == bin)
-        binaryNumberKnownLength match {
+        binaryNumberKnownLengthInBits match {
           case -1 => new SignedRuntimeLengthRuntimeByteOrderBinaryNumber(this)
-          case _ => new SignedKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLength)
+          case _ => new SignedKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLengthInBits)
         }
       }
 
       case "unsignedByte" | "unsignedShort" | "unsignedInt" | "unsignedLong" => {
         Assert.invariant(binaryIntRep == bin)
-        binaryNumberKnownLength match {
+        binaryNumberKnownLengthInBits match {
           case -1 => new UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber(this)
-          case _ => new UnsignedKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLength)
+          case _ => new UnsignedKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLengthInBits)
         }
       }
 
       case "double" | "float" =>
-        (binaryNumberKnownLength, staticBinaryFloatRep) match {
+        (binaryNumberKnownLengthInBits, staticBinaryFloatRep) match {
           case (-1, BinaryFloatRep.Ieee) => new FloatingPointRuntimeLengthRuntimeByteOrderBinaryNumber(this)
           case (nBits, BinaryFloatRep.Ieee) => new FloatingPointKnownLengthRuntimeByteOrderBinaryNumber(this, nBits)
           case (_, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
@@ -612,6 +599,7 @@ trait ElementBaseGrammarMixin
       scalarNonDefaultContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd)
 
   def scalarDefaultable: Prod
+
   def scalarNonDefault: Prod
 
   //  lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
@@ -923,7 +911,6 @@ trait HasStatementsGrammarMixin { self: Term with DFDLStatementMixin =>
 
   lazy val dfdlStatementEvaluations = Prod("dfdlStatementEvaluations", this, statementGrams.length > 0,
     statementGrams.fold(EmptyGram) { _ ~ _ })
-
 }
 
 trait ModelGroupGrammarMixin
