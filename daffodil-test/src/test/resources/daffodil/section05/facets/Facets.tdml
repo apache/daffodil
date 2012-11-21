@@ -888,6 +888,29 @@
 				<xs:pattern value=".*(t|n).*"/>
 			</xs:restriction>
 		</xs:simpleType>
+		
+		<xs:element name="doc" dfdl:lengthKind="implicit">
+		<xs:complexType>
+			<xs:sequence dfdl:separator="," dfdl:terminator=";">
+				<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited" />
+				<xs:element name="e2" nillable="true" type="ex:st8" dfdl:lengthKind="delimited" dfdl:nilValueDelimiterPolicy="terminator" 
+					dfdl:nilValue="567 %ES;" dfdl:nilKind="literalValue">
+					<xs:annotation>
+						<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+							<dfdl:assert test="{ dfdl:checkConstraints(.) }"
+								message="Assertion failed for dfdl:checkConstraints(.)" />
+						</xs:appinfo>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+		</xs:element>
+		
+		<xs:simpleType name="st8">
+			<xs:restriction base="xs:int">
+				<xs:pattern value="\d{1,2}"/>
+			</xs:restriction>
+		</xs:simpleType>
 	</tdml:defineSchema>
 
 <!--
@@ -1015,6 +1038,16 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<ex:e5>note</ex:e5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="facetPattern09"
+		root="doc" model="pattern">
+		<tdml:document>123,567;</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<doc><e1>123</e1><e2 xsi:nil="true"></e2></doc>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
