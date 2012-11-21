@@ -47,63 +47,65 @@ class TestBinaryInput_01 extends JUnitSuite {
   def testBufferByteBigEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("3")
     val inStream = new InStreamFromByteChannel(null, in, 1)
-    assert(inStream.getBitSequence(0, 8, java.nio.ByteOrder.BIG_ENDIAN) _1 == 51)
+    assert(inStream.getBitSequence(0, 8, java.nio.ByteOrder.BIG_ENDIAN)._1 == 51)
   }
 
   @Test
   def testBufferByteLittleEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("3")
     val inStream = new InStreamFromByteChannel(null, in, 1)
-    assert(inStream.getBitSequence(0, 8, java.nio.ByteOrder.LITTLE_ENDIAN) _1 == 51)
+    assert(inStream.getBitSequence(0, 8, java.nio.ByteOrder.LITTLE_ENDIAN)._1 == 51)
   }
 
   @Test
   def testBufferShortBigEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("Om")
     val inStream = new InStreamFromByteChannel(null, in, 2)
-    assert(inStream.getBitSequence(0, 16, java.nio.ByteOrder.BIG_ENDIAN) _1 == 20333)
+    assert(inStream.getBitSequence(0, 16, java.nio.ByteOrder.BIG_ENDIAN)._1 == 20333)
   }
 
   @Test
   def testBufferShortLittleEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("Om")
     val inStream = new InStreamFromByteChannel(null, in, 2)
-    assert(inStream.getBitSequence(0, 16, java.nio.ByteOrder.LITTLE_ENDIAN) _1 == 27983)
+    assert(inStream.getBitSequence(0, 16, java.nio.ByteOrder.LITTLE_ENDIAN)._1 == 27983)
   }
 
   @Test
   def testBufferIntBigEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("Help")
     val inStream = new InStreamFromByteChannel(null, in, 4)
-    assert(inStream.getBitSequence(0, 32, java.nio.ByteOrder.BIG_ENDIAN) _1 == 1214606448)
+    assert(inStream.getBitSequence(0, 32, java.nio.ByteOrder.BIG_ENDIAN)._1 == 1214606448)
   }
 
   @Test
   def testBufferIntLittleEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("Help")
     val inStream = new InStreamFromByteChannel(null, in, 4)
-    assert(inStream.getBitSequence(0, 32, java.nio.ByteOrder.LITTLE_ENDIAN) _1 == 1886152008)
+    assert(inStream.getBitSequence(0, 32, java.nio.ByteOrder.LITTLE_ENDIAN)._1 == 1886152008)
   }
 
   @Test
   def testBufferLongBigEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("Harrison")
     val inStream = new InStreamFromByteChannel(null, in, 8)
-    assert(inStream.getBitSequence(0, 64, java.nio.ByteOrder.BIG_ENDIAN).toString _1 == "5215575679192756078")
+    assert(inStream.getBitSequence(0, 64, java.nio.ByteOrder.BIG_ENDIAN)._1.toString ==
+      "5215575679192756078")
   }
 
   @Test
   def testBufferLongLittleEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("Harrison")
     val inStream = new InStreamFromByteChannel(null, in, 8)
-    assert(inStream.getBitSequence(0, 64, java.nio.ByteOrder.LITTLE_ENDIAN).toString _1 == "7957705963315814728")
+    assert(inStream.getBitSequence(0, 64, java.nio.ByteOrder.LITTLE_ENDIAN)._1.toString ==
+      "7957705963315814728")
   }
 
   @Test
   def testBufferBigIntBigEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("Something in the way she moves, ")
     val inStream = new InStreamFromByteChannel(null, in, 32)
-    assert(inStream.getBitSequence(0, 256, java.nio.ByteOrder.BIG_ENDIAN) _1 toString ==
+    assert(inStream.getBitSequence(0, 256, java.nio.ByteOrder.BIG_ENDIAN)._1.toString ==
       "37738841482167102822784581157237036764884875846207476558974346160344516471840")
   }
 
@@ -111,7 +113,7 @@ class TestBinaryInput_01 extends JUnitSuite {
   def testBufferBigIntLittleEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("Something in the way she moves, ")
     val inStream = new InStreamFromByteChannel(null, in, 32)
-    assert(inStream.getBitSequence(0, 256, java.nio.ByteOrder.LITTLE_ENDIAN) _1 toString ==
+    assert(inStream.getBitSequence(0, 256, java.nio.ByteOrder.LITTLE_ENDIAN)._1.toString ==
       "14552548861771956163454220823873430243364312915206513831353612029437431082835")
   }
 
@@ -120,14 +122,14 @@ class TestBinaryInput_01 extends JUnitSuite {
   def testBufferPartialIntBigEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("SBT")
     val inStream = new InStreamFromByteChannel(null, in, 3)
-    assert(inStream.getBitSequence(0, 24, java.nio.ByteOrder.BIG_ENDIAN) _1 == 5456468)
+    assert(inStream.getBitSequence(0, 24, java.nio.ByteOrder.BIG_ENDIAN)._1 == 5456468)
   }
 
   @Test
   def testBufferPartialIntLittleEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("SBT")
     val inStream = new InStreamFromByteChannel(null, in, 3)
-    assert(inStream.getBitSequence(0, 24, java.nio.ByteOrder.LITTLE_ENDIAN) _1 == 5522003)
+    assert(inStream.getBitSequence(0, 24, java.nio.ByteOrder.LITTLE_ENDIAN)._1 == 5522003)
   }
 
   // Non-Aligned 1 Byte or less
@@ -135,28 +137,28 @@ class TestBinaryInput_01 extends JUnitSuite {
   def testBufferBitNumberBigEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("3")
     val inStream = new InStreamFromByteChannel(null, in, 1)
-    assert(inStream.getBitSequence(1, 3, java.nio.ByteOrder.BIG_ENDIAN) _1 == 3)
+    assert(inStream.getBitSequence(1, 3, java.nio.ByteOrder.BIG_ENDIAN)._1 == 3)
   }
 
   @Test
   def testBufferBitNumberLittleEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("3")
     val inStream = new InStreamFromByteChannel(null, in, 1)
-    assert(inStream.getBitSequence(1, 3, java.nio.ByteOrder.LITTLE_ENDIAN) _1 == 3)
+    assert(inStream.getBitSequence(1, 3, java.nio.ByteOrder.LITTLE_ENDIAN)._1 == 3)
   }
 
   @Test
   def testBufferBitByteBigEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("3>")
     val inStream = new InStreamFromByteChannel(null, in, 2)
-    assert(inStream.getBitSequence(2, 8, java.nio.ByteOrder.BIG_ENDIAN) _1 == 204)
+    assert(inStream.getBitSequence(2, 8, java.nio.ByteOrder.BIG_ENDIAN)._1 == 204)
   }
 
   @Test
   def testBufferBitByteLittleEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("3>")
     val inStream = new InStreamFromByteChannel(null, in, 2)
-    assert(inStream.getBitSequence(2, 8, java.nio.ByteOrder.LITTLE_ENDIAN) _1 == 204)
+    assert(inStream.getBitSequence(2, 8, java.nio.ByteOrder.LITTLE_ENDIAN)._1 == 204)
   }
 
   // Non-Aligned multi-byte
@@ -164,29 +166,28 @@ class TestBinaryInput_01 extends JUnitSuite {
   def testBufferPartialInt22At0BigEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("SBT")
     val inStream = new InStreamFromByteChannel(null, in, 3)
-    assert(inStream.getBitSequence(0, 22, java.nio.ByteOrder.BIG_ENDIAN) _1 == 1364117)
+    assert(inStream.getBitSequence(0, 22, java.nio.ByteOrder.BIG_ENDIAN)._1 == 1364117)
   }
 
   @Test
   def testBufferPartialInt22At0LittleEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("SBT")
     val inStream = new InStreamFromByteChannel(null, in, 3)
-    assert(inStream.getBitSequence(0, 22, java.nio.ByteOrder.LITTLE_ENDIAN) _1 == 1393235)
+    assert(inStream.getBitSequence(0, 22, java.nio.ByteOrder.LITTLE_ENDIAN)._1 == 1393235)
   }
-
 
   @Test
   def testBufferPartialInt22At2BigEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("SBT")
     val inStream = new InStreamFromByteChannel(null, in, 3)
-    assert(inStream.getBitSequence(2, 22, java.nio.ByteOrder.BIG_ENDIAN) _1 == 1262164)
+    assert(inStream.getBitSequence(2, 22, java.nio.ByteOrder.BIG_ENDIAN)._1 == 1262164)
   }
 
   @Test
   def testBufferPartialInt22At2LittleEndianExtraction() {
     var in = Compiler.stringToReadableByteChannel("SBT")
     val inStream = new InStreamFromByteChannel(null, in, 3)
-    assert(inStream.getBitSequence(2, 22, java.nio.ByteOrder.LITTLE_ENDIAN) _1 == 1313101)
+    assert(inStream.getBitSequence(2, 22, java.nio.ByteOrder.LITTLE_ENDIAN)._1 == 1313101)
   }
 
   /*** DFDL-307 ***/
