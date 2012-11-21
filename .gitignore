@@ -15,6 +15,7 @@ project/errors
 daffodil-core/src/main/daffodil-core.iml
 daffodil-core/src/test/Test1.iml
 daffodil-lib/src/main/daffodil-lib.iml
+daffodil-lib/src/test/daffodil-lib.iml
 daffodil-lib/src/test/Test.iml
 daffodil-propgen/src/main/daffodil-propgen.iml
 daffodil-propgen/src/test/Test3.iml
