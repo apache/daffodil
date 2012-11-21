@@ -179,13 +179,19 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="binary_01">
+  
+  <!-- Note how in this format the nilValue looks like text, but will be used
+  to match binary data. The encoding is iso-8859-1, which allowed every byte to 
+  be a valid character. This is an advanced DFDL techique for dealing with binary
+  data as if it were text so as to be able to use features like literalValue nilKind
+  with binary data -->
 		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator=""
 			separatorPolicy="suppressed" separatorPosition="infix"
-			documentFinalTerminatorCanBeMissing="yes" encoding="utf-8"
+			documentFinalTerminatorCanBeMissing="yes" encoding="iso-8859-1"
 			representation="binary" occursCountKind="parsed"
-			nilValueDelimiterPolicy="none" nilValue="nil" nilKind="literalValue"
+			nilValueDelimiterPolicy="none" nilValue="%NUL;%NUL;%NUL;%NUL;" nilKind="literalValue"
 			textNumberRep="standard" ignoreCase="no" byteOrder="bigEndian"
-			binaryNumberRep="binary" />
+			binaryNumberRep="binary" lengthUnits="bytes" />
 
 		<xs:element name="doc" dfdl:lengthKind="implicit">
 			<xs:complexType>
@@ -204,16 +210,15 @@
 		model="binary_01" description="Binary_01 Basic nilValue - DFDL-13-235R">
 		<!-- "0,nil;" -->
 		<tdml:document>
-			<tdml:documentPart type="byte">000000002C6E696C3B
-			</tdml:documentPart>
+			<tdml:documentPart type="byte">000000002CFFFFFFFF3B</tdml:documentPart>
 		</tdml:document>
 
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-					<e1>0</e1>
-					<e2 xsi:nil="true" />
+					<e1 xsi:nil="true"/>
+					<e2>-1</e2>
 				</doc>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>

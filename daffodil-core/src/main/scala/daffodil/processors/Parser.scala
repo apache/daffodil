@@ -722,14 +722,19 @@ trait InStream {
   // that is, it might straddle byte boundaries, in which case the issue of byte order arises.
 
   def getByte(bitPos: Long, order: java.nio.ByteOrder): Byte
-  def getShort(bitPos: Long, order: java.nio.ByteOrder): Short
-  def getInt(bitPos: Long, order: java.nio.ByteOrder): Int
-  def getLong(bitPos: Long, order: java.nio.ByteOrder): Long
+  //  def getShort(bitPos: Long, order: java.nio.ByteOrder): Short
+  //  def getInt(bitPos: Long, order: java.nio.ByteOrder): Int
+  //  def getLong(bitPos: Long, order: java.nio.ByteOrder): Long
+  //
+  //  def getDouble(bitPos: Long, order: java.nio.ByteOrder): Double
+  //  def getFloat(bitPos: Long, order: java.nio.ByteOrder): Float
+  //
+  //  def getUnsignedShort(bitPos: Long, order: java.nio.ByteOrder): Int
+  //  def getUnsignedInt(bitPos: Long, order: java.nio.ByteOrder): Long
+  //  def getUnsignedLong(bitPos: Long, order: java.nio.ByteOrder): BigInteger
+  //
+  //  def getByteArray(bitPos: Long, order: java.nio.ByteOrder, size: Int): Array[Byte]
 
-  def getDouble(bitPos: Long, order: java.nio.ByteOrder): Double
-  def getFloat(bitPos: Long, order: java.nio.ByteOrder): Float
-
-  def getByteArray(bitPos: Long, order: java.nio.ByteOrder, size: Int): Array[Byte]
   def getBitSequence(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder): (BigInt, Long)
 
   // def fillCharBufferUntilDelimiterOrEnd
@@ -897,55 +902,55 @@ class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint
     byteReader.bb.order(order)
     byteReader.bb.get(bytePos) // NOT called getByte(pos)
   }
-
-  def getShort(bitPos: Long, order: java.nio.ByteOrder) = {
-    Assert.invariant(bitPos % 8 == 0)
-    val bytePos = (bitPos >> 3).toInt
-    byteReader.bb.order(order)
-    val res = byteReader.bb.getShort(bytePos)
-    //val res = (byteReader.bb.getShort(bytePos) & 0xffff).asInstanceOf[Short]
-    res
-  }
-
-  def getInt(bitPos: Long, order: java.nio.ByteOrder) = {
-    Assert.invariant(bitPos % 8 == 0)
-    val bytePos = (bitPos >> 3).toInt
-    byteReader.bb.order(order)
-    byteReader.bb.getInt(bytePos)
-  }
-
-  def getLong(bitPos: Long, order: java.nio.ByteOrder) = {
-    Assert.invariant(bitPos % 8 == 0)
-    val bytePos = (bitPos >> 3).toInt
-    byteReader.bb.order(order)
-    val res = byteReader.bb.getLong(bytePos)
-    res
-  }
-
-  def getDouble(bitPos: Long, order: java.nio.ByteOrder) = {
-    Assert.invariant(bitPos % 8 == 0)
-    val bytePos = (bitPos >> 3).toInt
-    byteReader.bb.order(order)
-    val double = byteReader.bb.getDouble(bytePos)
-    double
-  }
-
-  def getFloat(bitPos: Long, order: java.nio.ByteOrder) = {
-    Assert.invariant(bitPos % 8 == 0)
-    val bytePos = (bitPos >> 3).toInt
-    byteReader.bb.order(order)
-    byteReader.bb.getFloat(bytePos)
-  }
-
-  def getByteArray(bitPos: Long, order: java.nio.ByteOrder, size: Int) = {
-    Assert.invariant(bitPos % 8 == 0)
-    val bytePos = (bitPos >> 3).toInt
-    byteReader.bb.order(order)
-    byteReader.bb.position(bytePos)
-    var ret: Array[Byte] = new Array[Byte](size)
-    byteReader.bb.get(ret, 0, size)
-    ret
-  }
+  //
+  //  def getShort(bitPos: Long, order: java.nio.ByteOrder) = {
+  //    Assert.invariant(bitPos % 8 == 0)
+  //    val bytePos = (bitPos >> 3).toInt
+  //    byteReader.bb.order(order)
+  //    val res = byteReader.bb.getShort(bytePos)
+  //    //val res = (byteReader.bb.getShort(bytePos) & 0xffff).asInstanceOf[Short]
+  //    res
+  //  }
+  //
+  //  def getInt(bitPos: Long, order: java.nio.ByteOrder) = {
+  //    Assert.invariant(bitPos % 8 == 0)
+  //    val bytePos = (bitPos >> 3).toInt
+  //    byteReader.bb.order(order)
+  //    byteReader.bb.getInt(bytePos)
+  //  }
+  //
+  //  def getLong(bitPos: Long, order: java.nio.ByteOrder) = {
+  //    Assert.invariant(bitPos % 8 == 0)
+  //    val bytePos = (bitPos >> 3).toInt
+  //    byteReader.bb.order(order)
+  //    val res = byteReader.bb.getLong(bytePos)
+  //    res
+  //  }
+  //
+  //  def getDouble(bitPos: Long, order: java.nio.ByteOrder) = {
+  //    Assert.invariant(bitPos % 8 == 0)
+  //    val bytePos = (bitPos >> 3).toInt
+  //    byteReader.bb.order(order)
+  //    val double = byteReader.bb.getDouble(bytePos)
+  //    double
+  //  }
+  //
+  //  def getFloat(bitPos: Long, order: java.nio.ByteOrder) = {
+  //    Assert.invariant(bitPos % 8 == 0)
+  //    val bytePos = (bitPos >> 3).toInt
+  //    byteReader.bb.order(order)
+  //    byteReader.bb.getFloat(bytePos)
+  //  }
+  //
+  //  def getByteArray(bitPos: Long, order: java.nio.ByteOrder, size: Int) = {
+  //    Assert.invariant(bitPos % 8 == 0)
+  //    val bytePos = (bitPos >> 3).toInt
+  //    byteReader.bb.order(order)
+  //    byteReader.bb.position(bytePos)
+  //    var ret: Array[Byte] = new Array[Byte](size)
+  //    byteReader.bb.get(ret, 0, size)
+  //    ret
+  //  }
 
   def withLimit(startBitPos: Long, endBitPos: Long) = {
     // Appears to only be called from lengthKind=Pattern match code

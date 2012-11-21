@@ -312,34 +312,34 @@ trait ElementBaseGrammarMixin
   lazy val zonedTextDouble = Prod("zonedTextDouble", this,
     textNumberRep == TextNumberRep.Zoned, subsetError(true, "Zoned not supported for float and double"))
 
-  lazy val binaryFloat = Prod("binaryFloat", this, representation == Representation.Binary,
-    ieeeBinaryRepFloat | ibm390HexBinaryRepFloat)
+  //  lazy val binaryFloat = Prod("binaryFloat", this, representation == Representation.Binary,
+  //    ieeeBinaryRepFloat | ibm390HexBinaryRepFloat)
 
   lazy val textFloat = Prod("textFloat", this, representation == Representation.Text,
     standardTextFloat | zonedTextFloat)
 
-  lazy val ieeeBinaryRepFloat = Prod("ieeeBinaryRepFloat", this,
-    {
-      val bfr = binaryFloatRep
-      val res = bfr.isConstant &&
-        BinaryFloatRep(bfr.constantAsString, this) == BinaryFloatRep.Ieee
-      res
-    },
-    lengthKind match {
-      case LengthKind.Implicit => {
-        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString, this) match {
-          case ByteOrder.BigEndian => BigEndianFloatPrim(this)
-          case ByteOrder.LittleEndian => LittleEndianFloatPrim(this)
-        }
-        else Assert.notYetImplemented()
-      }
-      case _ => Assert.notYetImplemented()
-    })
-
-  lazy val ibm390HexBinaryRepFloat = Prod("ibm390HexBinaryRepFloat", this,
-    binaryFloatRep.isConstant &&
-      binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString,
-    subsetError("ibm390Hex not supported"))
+  //  lazy val ieeeBinaryRepFloat = Prod("ieeeBinaryRepFloat", this,
+  //    {
+  //      val bfr = binaryFloatRep
+  //      val res = bfr.isConstant &&
+  //        BinaryFloatRep(bfr.constantAsString, this) == BinaryFloatRep.Ieee
+  //      res
+  //    },
+  //    lengthKind match {
+  //      case LengthKind.Implicit => {
+  //        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString, this) match {
+  //          case ByteOrder.BigEndian => BigEndianFloatPrim(this)
+  //          case ByteOrder.LittleEndian => LittleEndianFloatPrim(this)
+  //        }
+  //        else Assert.notYetImplemented()
+  //      }
+  //      case _ => Assert.notYetImplemented()
+  //    })
+  //
+  //  lazy val ibm390HexBinaryRepFloat = Prod("ibm390HexBinaryRepFloat", this,
+  //    binaryFloatRep.isConstant &&
+  //      binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString,
+  //    subsetError("ibm390Hex not supported"))
 
   lazy val standardTextFloat = Prod("standardTextFloat", this,
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextFloatPrim(this))
@@ -531,7 +531,7 @@ trait ElementBaseGrammarMixin
     Prod("nilLit", this,
       isNillable && nilKind == NilKind.LiteralValue,
       nilElementInitiator ~ {
-        if (representation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
+        // if (representation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
         lengthKind match {
           case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
           case LengthKind.Pattern => LiteralNilPattern(this)
@@ -542,7 +542,11 @@ trait ElementBaseGrammarMixin
               case LengthUnits.Characters => LiteralNilExplicitLengthInChars(this)
             }
           }
-          case LengthKind.Implicit => Assert.notYetImplemented() // Text representation can't be Implicit!
+          case LengthKind.Implicit => {
+            schemaDefinition(representation != Representation.Text, "LiteralValue Nils with lengthKind='implicit' cannot have representation='text'.")
+            val lengthInBytes = implicitBinaryLengthInBits / 8
+            LiteralNilKnownLengthInBytes(this, lengthInBytes)
+          }
           case LengthKind.Prefixed => Assert.notYetImplemented()
           case LengthKind.EndOfParent => Assert.notYetImplemented()
         }

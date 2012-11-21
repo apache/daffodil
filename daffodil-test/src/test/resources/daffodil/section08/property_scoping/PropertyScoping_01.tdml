@@ -40,7 +40,7 @@
 		</dfdl:defineFormat>
 			
 		<dfdl:defineFormat name="def3">
-				<dfdl:format ref="tns:daffodilTest1" representation="binary"/>
+				<dfdl:format ref="tns:daffodilTest1" representation="binary" lengthUnits="bytes"/>
 		</dfdl:defineFormat>
 		
 		<dfdl:defineFormat name="def1">

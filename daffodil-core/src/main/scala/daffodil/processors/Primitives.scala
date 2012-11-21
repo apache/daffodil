@@ -24,7 +24,8 @@ import delimsearch.DFDLCharReader
 import java.sql.Timestamp
 import daffodil.grammar.Gram
 
-abstract class PrimParser(gram: Gram, context: SchemaComponent) extends Parser(context) {
+abstract class PrimParser(gram: Gram, context: SchemaComponent)
+  extends Parser(context) {
 
   def toBriefXML(depthLimit: Int = -1): String = {
     "<" + gram.name + "/>"
@@ -1145,7 +1146,7 @@ trait RuntimeExplicitLengthMixin[T] {
   self: BinaryNumberBase[T] =>
   def e: ElementBase
   def getBitLength(s: PState): (PState, Long) = {
-    val R(nBytesAsAny, newVMap) = e.length.evaluate(s.parent, s.variableMap)
+    val R(nBytesAsAny, newVMap) = e.length.evaluate(s.parent, s.variableMap, s)
     val nBytes = nBytesAsAny.asInstanceOf[Long]
     val start = s.withVariables(newVMap)
     (start, nBytes * toBits)
@@ -1162,7 +1163,7 @@ trait RuntimeExplicitByteOrderMixin[T] {
   self: BinaryNumberBase[T] =>
   def e: ElementBase
   def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {
-    val R(byteOrderAsAny, newVMap) = e.byteOrder.evaluate(s.parent, s.variableMap)
+    val R(byteOrderAsAny, newVMap) = e.byteOrder.evaluate(s.parent, s.variableMap, s)
     val dfdlByteOrderEnum = ByteOrder(byteOrderAsAny.toString, e)
     val byteOrder = dfdlByteOrderEnum match {
       case ByteOrder.BigEndian => java.nio.ByteOrder.BIG_ENDIAN
@@ -1191,7 +1192,7 @@ trait UnsignedNumberMixin[T] {
 
 // TODO: Double Conversion as a Sign-Trait
 
-abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true) {
+abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true) with BinaryReader {
   lazy val primName = e.primType.name
   lazy val toBits = e.lengthUnits match {
     case LengthUnits.Bits => 1
@@ -1448,40 +1449,40 @@ case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 //  def unparser = new DoublePrimUnparse(e, java.nio.ByteOrder.LITTLE_ENDIAN)
 //}
 
-case class FloatPrim(gram: Gram, ctx: Term, byteOrder: java.nio.ByteOrder) extends PrimParser(gram, ctx) with BinaryReader {
-  override def toString = "binary(xs:float,you " + byteOrder + ")"
-
-  def parse(start: PState): PState = {
-    log(Debug("Saving reader state."))
-    setReader(start)
-
-    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) PE(start, "Not enough bits to create an xs:float")
-    else {
-      val value = start.inStream.getFloat(start.bitPos, byteOrder)
-      start.parentForAddContent.addContent(new org.jdom.Text(value.toString))
-      val postState = start.withPos(start.bitPos + 32, -1)
-      postState
-    }
-  }
-}
-
-case class FloatPrimUnparse(ctx: Term, byteOrder: java.nio.ByteOrder) extends Unparser(ctx) {
-  override def toString = "binary(xs:float, " + byteOrder + ")"
-
-  def unparse(start: UState): UState = {
-    Assert.notYetImplemented()
-  }
-}
-
-case class BigEndianFloatPrim(e: ElementBase) extends Terminal(e, true) {
-  def parser = new FloatPrim(this, e, java.nio.ByteOrder.BIG_ENDIAN)
-  def unparser = new FloatPrimUnparse(e, java.nio.ByteOrder.BIG_ENDIAN)
-}
-
-case class LittleEndianFloatPrim(e: ElementBase) extends Terminal(e, true) {
-  def parser = new FloatPrim(this, e, java.nio.ByteOrder.LITTLE_ENDIAN)
-  def unparser = new FloatPrimUnparse(e, java.nio.ByteOrder.LITTLE_ENDIAN)
-}
+//case class FloatPrim(gram: Gram, ctx: Term, byteOrder: java.nio.ByteOrder) extends PrimParser(gram, ctx) with BinaryReader {
+//  override def toString = "binary(xs:float,you " + byteOrder + ")"
+//
+//  def parse(start: PState): PState = {
+//    log(Debug("Saving reader state."))
+//    setReader(start)
+//
+//    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) PE(start, "Not enough bits to create an xs:float")
+//    else {
+//      val value = start.inStream.getFloat(start.bitPos, byteOrder)
+//      start.parentForAddContent.addContent(new org.jdom.Text(value.toString))
+//      val postState = start.withPos(start.bitPos + 32, -1)
+//      postState
+//    }
+//  }
+//}
+//
+//case class FloatPrimUnparse(ctx: Term, byteOrder: java.nio.ByteOrder) extends Unparser(ctx) {
+//  override def toString = "binary(xs:float, " + byteOrder + ")"
+//
+//  def unparse(start: UState): UState = {
+//    Assert.notYetImplemented()
+//  }
+//}
+//
+//case class BigEndianFloatPrim(e: ElementBase) extends Terminal(e, true) {
+//  def parser = new FloatPrim(this, e, java.nio.ByteOrder.BIG_ENDIAN)
+//  def unparser = new FloatPrimUnparse(e, java.nio.ByteOrder.BIG_ENDIAN)
+//}
+//
+//case class LittleEndianFloatPrim(e: ElementBase) extends Terminal(e, true) {
+//  def parser = new FloatPrim(this, e, java.nio.ByteOrder.LITTLE_ENDIAN)
+//  def unparser = new FloatPrimUnparse(e, java.nio.ByteOrder.LITTLE_ENDIAN)
+//}
 
 abstract class StaticDelimiter(kindString: String, delim: String, e: Term, guard: Boolean = true)
   extends StaticText(delim, e, kindString, guard)
@@ -1886,8 +1887,34 @@ case class StopValue(e: ElementBase with LocalElementMixin) extends Primitive(e,
 case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 
 case class LiteralNilExplicitLengthInBytes(e: ElementBase)
-  extends StaticText(e.nilValue, e, "LiteralNilExplicit", e.isNillable)
+  extends LiteralNilInBytesBase(e, "LiteralNilExplicit") {
+
+  val expr = e.length
+  val exprText = expr.prettyExpr
+
+  final def computeLength(start: PState) = {
+    val R(nBytesAsAny, newVMap) = expr.evaluate(start.parent, start.variableMap, start)
+    val nBytes = nBytesAsAny.asInstanceOf[Long]
+    (nBytes, newVMap)
+  }
+
+}
+
+case class LiteralNilKnownLengthInBytes(e: ElementBase, lengthInBytes: Long)
+  extends LiteralNilInBytesBase(e, "LiteralNilKnown") {
+
+  final def computeLength(start: PState) = {
+    (lengthInBytes, start.variableMap)
+  }
+
+}
+
+abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
+  extends StaticText(e.nilValue, e, label, e.isNillable)
   with BinaryReader {
+
+  protected def computeLength(start: PState): (Long, VariableMap)
+
   // We are to assume that we can always read nBytes
   // a failure to read nBytes is a failure period.
 
@@ -1905,16 +1932,13 @@ case class LiteralNilExplicitLengthInBytes(e: ElementBase)
     val eName = e.toString()
     val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked
     val charsetName = decoder.charset().name()
-    val expr = e.length
-    val exprText = expr.prettyExpr
 
     def parse(start: PState): PState = {
       withLoggingLevel(LogLevel.Info) {
 
         // TODO: What if someone passes in nBytes = 0 for Explicit length, is this legal?
 
-        val R(nBytesAsAny, newVMap) = expr.evaluate(start.parent, start.variableMap, start)
-        val nBytes = nBytesAsAny.asInstanceOf[String] //nBytesAsAny.asInstanceOf[Long]
+        val (nBytes: Long, newVMap: VariableMap) = computeLength(start)
         val postEvalState = start.withVariables(newVMap)
         log(Debug("Explicit length %s", nBytes))
 
@@ -2742,77 +2766,6 @@ class SetVariableParser(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
         postState
       }
     }
-}
-
-case class BinaryExplicitLengthInBytes(e: ElementBase)
-  extends Terminal(e, true)
-  with WithParseErrorThrowing with BinaryReader {
-
-  val expr: CompiledExpression = e.length
-  val exprText = expr.prettyExpr
-  e.schemaDefinition(expr.isConstant, "Bit strings may only have constant length.")
-  e.schemaDefinition(e.byteOrder.isConstant, "Property byteOrder must be a constant, not an expression.")
-  val lenInBits = expr.constantAsLong * sizeMultiplier
-  val staticByteOrderString = e.byteOrder.constantAsString
-  val staticByteOrder = ByteOrder(staticByteOrderString, context)
-  val javaByteOrder = staticByteOrder match {
-    case ByteOrder.BigEndian => java.nio.ByteOrder.BIG_ENDIAN
-    case ByteOrder.LittleEndian => java.nio.ByteOrder.LITTLE_ENDIAN
-  }
-
-  // Convert to string for the infoset
-  def getNum(num: BigInt): String
-  def GramName: String
-
-  def parser: Parser = new Parser(e) {
-    override def toString = "BinaryExplicitLengthInBytes(" + exprText + ")"
-
-    def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
-      log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
-
-      val start = pstate
-      if (lenInBits > 64) {
-        // Do Something Bad
-        return PE(start, "Binary string length exceeds the limit allowed by the processing subsystem: %s", lenInBits)
-      }
-
-      log(Debug("Explicit length %s", lenInBits))
-
-      // TODO: Longest possible field is Long
-
-      val in = start.inStream
-      val num = in.getBitSequence(start.bitPos, lenInBits, javaByteOrder)
-
-      // TODO: what happens if there aren't that many bits?
-
-      if (false) {
-        // Do Something Bad
-        return PE(start, "Insufficent Bits in field; required %s", lenInBits)
-      }
-
-      val res = getNum(num)
-      val endBitPos = start.bitPos + lenInBits
-
-      // log(Debug("Parsed: " + result))
-      // log(Debug("Ended at bit position " + endBitPos))
-      // val endCharPos = start.charPos + result.length
-      val currentElement = start.parentForAddContent
-      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
-      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-      currentElement.addContent(new org.jdom.Text(res))
-      val postState = start.withPos(endBitPos, -1)
-      postState
-
-    }
-  }
-
-  def unparser: Unparser = new Unparser(e) {
-    override def toString = "BinaryExplicitLengthInBytesUnparser(" + exprText + ")"
-
-    def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
-    }
-  }
 }
 
 case class StringExplicitLengthInBytes(e: ElementBase)
