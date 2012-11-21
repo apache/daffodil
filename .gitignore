@@ -11,3 +11,13 @@ daffodil-propgen/errors
 daffodil-test/errors
 errors
 project/errors
+.~*#
+daffodil-core/src/main/daffodil-core.iml
+daffodil-core/src/test/Test1.iml
+daffodil-lib/src/main/daffodil-lib.iml
+daffodil-lib/src/test/Test.iml
+daffodil-propgen/src/main/daffodil-propgen.iml
+daffodil-propgen/src/test/Test3.iml
+daffodil-test/src/test/Test2.iml
+daffodil-test/src/test/daffodil-test.iml
+out
