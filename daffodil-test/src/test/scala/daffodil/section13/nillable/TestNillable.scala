@@ -1,6 +1,5 @@
 package daffodil.section13.nillable
 
-
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
@@ -33,8 +32,8 @@ class TestNillable extends JUnitSuite {
   @Test def test_text_04() { runnerLN.runOneTest("text_04")}
   @Test def test_text_05() { runnerLN.runOneTest("text_05")}
   @Test def test_text_06() = { runnerLN.runOneTest("text_06")}
-//  @Test def test_binary_01()= Debugger.withDebugger { runnerLN.runOneTest("binary_01")}
-  
+  @Test def test_binary_01() = { runnerLN.runOneTest("binary_01") }
+
   val testDir_01 = "/daffodil/section06/entities/"
   val entity = testDir_01 + "entities_01.tdml"
   lazy val runnerEntity = new DFDLTestSuite(Misc.getRequiredResource(entity))

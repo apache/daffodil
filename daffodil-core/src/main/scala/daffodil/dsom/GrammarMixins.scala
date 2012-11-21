@@ -96,44 +96,27 @@ trait ElementBaseGrammarMixin
 
   def allowedValue: Prod // provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
 
-  lazy val explicitLengthBinary = Prod("explicitLengthBinary", this, {
-    val scale =
-      lengthUnits match {
-        case LengthUnits.Bytes => 8
-        case LengthUnits.Characters => schemaDefinitionError("Binary data elements cannot have lengthUnits='Character'.")
-        case LengthUnits.Bits => 1
-      }
-    (primType.name, binaryNumberRep) match {
-      case ("unsignedByte", bin) =>
-        new BinaryExplicitLength[Long](this, scale, bitStringSize) {
-          def getNum(num: BigInt) = num.longValue.toString
-          val GramName = "unsignedByte"
-          val GramDescription = "Unsigned Byte"
-          def isInvalidRange(n: BigInt) = n < 0 || n >= (1 << (bitStringSize))
-          def numFormat = NumberFormat.getIntegerInstance()
-          def isInt = true
-        }
-    }
-  })
-
-  lazy val bitStringSize = {
-    1
-  }
-
-  lazy val binaryValueLength = binaryValueLength_.value
-  lazy val binaryValueLength_ = LV {
-    val res = Prod("BinaryValueLength", this, lengthKind match {
-      case LengthKind.Explicit => explicitLengthBinary
-      case LengthKind.Delimited => Assert.notYetImplemented() // Binary Data delimiters aren't supported TODO: Should we?
-      case LengthKind.Pattern => schemaDefinitionError("Binary data elements cannot have lengthKind='Pattern'.")
-      case LengthKind.Implicit => Assert.notYetImplemented() // TODO: Get size from xs:type
-      case _ => Assert.notYetImplemented()
-    })
-    res
-  }
+  //  lazy val explicitLengthBinary = Prod("explicitLengthBinary", this, !isFixedLength,
+  //    lengthUnits match {
+  //      case LengthUnits.Bytes => BinaryExplicitLengthInBytes(this)
+  //      case LengthUnits.Characters => schemaDefinitionError("Binary data elements cannot have lengthUnits='Character'.")
+  //      case LengthUnits.Bits => BinaryExplicitLengthInBits(this)
+  //    })
+  //
+  //  lazy val binaryValueLength = binaryValueLength_.value
+  //  lazy val binaryValueLength_ = LV {
+  //    val res = Prod("BinaryValueLength", this, lengthKind match {
+  //      case LengthKind.Explicit => explicitLengthBinary
+  //      case LengthKind.Delimited => Assert.notYetImplemented() // Binary Data delimiters aren't supported TODO: Should we?
+  //      case LengthKind.Pattern => schemaDefinitionError("Binary data elements cannot have lengthKind='Pattern'.")
+  //      case LengthKind.Implicit => Assert.notYetImplemented() // TODO: Get size from xs:type
+  //      case _ => Assert.notYetImplemented()
+  //    })
+  //    res
+  //  }
 
   // Length is in bits, (size would be in bytes) (from DFDL Spec 12.3.3)
-  lazy val implicitBinaryLengthInBits = primType.name match {
+  lazy val implicitBinaryLengthInBits: Long = primType.name match {
     case "byte" | "unsigendByte" => 8
     case "short" | "unsignedShort" => 16
     case "float" | "int" | "unsignedInt" | "boolean" => 32
@@ -141,10 +124,14 @@ trait ElementBaseGrammarMixin
     case _ => schemaDefinitionError("Size of binary data '" + primType.name + "' cannot be determined implicitly.")
   }
 
-  lazy val binaryNumberKnownLengthInBits = lengthKind match {
+  lazy val binaryNumberKnownLengthInBits: Long = lengthKind match {
     case LengthKind.Implicit => implicitBinaryLengthInBits
     case LengthKind.Explicit if (length.isConstant) => length.constantAsLong
-    case _ => -1
+    case LengthKind.Explicit => -1 // means must be computed at runtime.
+    case LengthKind.Delimited => schemaDefinitionError("Binary data elements cannot have lengthKind='delimited'.")
+    case LengthKind.Pattern => schemaDefinitionError("Binary data elements cannot have lengthKind='pattern'.")
+    case LengthKind.Prefixed => subsetError("lengthKind='prefixed' not yet supported.")
+    case LengthKind.EndOfParent => schemaDefinitionError("Binary data elements cannot have lengthKind='endOfParent'.")
   }
 
   lazy val fixedLengthString = Prod("fixedLengthString", this, isFixedLength,

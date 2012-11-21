@@ -191,9 +191,9 @@
 			<xs:complexType>
 				<xs:sequence dfdl:separator="," dfdl:terminator=";">
 					<xs:element name="e1" nillable="true" type="xsd:int"
-						dfdl:lengthKind="delimited" />
+						dfdl:lengthKind="implicit" />
 					<xs:element name="e2" nillable="true" type="xsd:int"
-						dfdl:lengthKind="delimited" />
+						dfdl:lengthKind="implicit" />
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
