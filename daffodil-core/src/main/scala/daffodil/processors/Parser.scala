@@ -414,11 +414,11 @@ class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
   }
 
   /*
-   * We're at the end if an attempt to get a byte fails with an index exception
+   * We're at the end if an attempt to get a bit fails with an index exception
    */
   def isAtEnd: Boolean = {
     try {
-      inStream.getByte(bitPos, java.nio.ByteOrder.BIG_ENDIAN)
+      inStream.getBitSequence(bitPos, 1, java.nio.ByteOrder.BIG_ENDIAN)
       false
     } catch {
       case e: IndexOutOfBoundsException => {
@@ -935,35 +935,6 @@ class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint
     val bytePos = (bitPos >> 3).toInt
     byteReader.bb.order(order)
     byteReader.bb.getFloat(bytePos)
-  }
-
-  def getUnsignedShort(bitPos: Long, order: java.nio.ByteOrder): Int = {
-    Assert.invariant(bitPos % 8 == 0)
-    val bytePos = (bitPos >> 3).toInt
-    byteReader.bb.order(order)
-    val res = (byteReader.bb.getShort(bytePos) & 0xffff)
-    res
-  }
-
-  def getUnsignedInt(bitPos: Long, order: java.nio.ByteOrder): Long = {
-    Assert.invariant(bitPos % 8 == 0)
-    val bytePos = (bitPos >> 3).toInt
-    byteReader.bb.order(order)
-    val res = (byteReader.bb.getInt(bytePos) & 0xffffffffL)
-    res
-  }
-
-  def getUnsignedLong(bitPos: Long, order: java.nio.ByteOrder): BigInteger = {
-    Assert.invariant(bitPos % 8 == 0)
-    val bytePos = (bitPos >> 3).toInt
-    byteReader.bb.order(order)
-    //val res = (byteReader.bb.getLong(bytePos)).asInstanceOf[BigInteger]
-    // What we want to do here is retrieve the bytes manually and convert
-    // them to BigInteger?
-    val dst: Array[Byte] = new Array[Byte](8)
-    byteReader.bb.get(dst, bytePos, 8)
-    val res: BigInteger = new BigInteger(dst)
-    res
   }
 
   def getByteArray(bitPos: Long, order: java.nio.ByteOrder, size: Int) = {

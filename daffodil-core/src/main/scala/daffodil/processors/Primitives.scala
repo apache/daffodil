@@ -1176,7 +1176,7 @@ trait RuntimeExplicitByteOrderMixin[T] {
 trait SignedNumberMixin[T] {
   self: BinaryNumberBase[T] =>
   def applySign(n: BigInt, msb: Int): BigInt =
-    n.testBit(msb) match {
+    n.testBit(msb - 1) match { // msb is zero-based bit counting
       case true => n - (BigInt(1) << msb)
       case false => n
     }
