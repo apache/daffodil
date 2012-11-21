@@ -105,7 +105,7 @@ class TestDFDLParser extends JUnitSuite {
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
-/* This test is in daffodil-test.
+  /* This test is in daffodil-test.
   @Test def testParseSequence4() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format separatorPolicy="required" separatorPosition="infix" ref="tns:daffodilTest1"/>,
@@ -158,23 +158,23 @@ class TestDFDLParser extends JUnitSuite {
             <xs:element name="s2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)    
+      </xs:element>)
     val actual = Compiler.testString(sch, "55,000").result
     TestUtils.assertEqualsXMLElements(<e1><s1>5</s1><s2>5000</s2></e1>, actual)
   }
 
   @Test def testInt2() {
     val sch = TestUtils.dfdlTestSchema(
-        <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
-    <xs:element name="s2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
-    </xs:sequence>
-    </xs:complexType>
-    </xs:element>)
-    val e = intercept[Exception]{
+            <xs:element name="s2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val e = intercept[Exception] {
       val actual = Compiler.testString(sch, "55.001")
     }
     // println("ERROR!!!!!" + e.getMessage())
@@ -183,30 +183,30 @@ class TestDFDLParser extends JUnitSuite {
 
   @Test def testShort1() {
     val sch = TestUtils.dfdlTestSchema(
-        <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="s1" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
-    <xs:element name="s2" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
-    </xs:sequence>
-    </xs:complexType>
-    </xs:element>)
+            <xs:element name="s2" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 5 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
     val actual = Compiler.testString(sch, "55,000").result
     TestUtils.assertEqualsXMLElements(<e1><s1>5</s1><s2>5000</s2></e1>, actual)
   }
 
   @Test def testShort2() {
     val sch = TestUtils.dfdlTestSchema(
-        <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
         <xs:complexType>
           <xs:sequence>
-          <xs:element name="s" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 6 }"/>
+            <xs:element name="s" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 6 }"/>
           </xs:sequence>
         </xs:complexType>
-    </xs:element>)
-    val e = intercept[Exception]{
+      </xs:element>)
+    val e = intercept[Exception] {
       val actual = Compiler.testString(sch, "70,000")
     }
     // println("ERROR!!!!!" + e.getMessage())
@@ -215,22 +215,22 @@ class TestDFDLParser extends JUnitSuite {
 
   @Test def testByte1() {
     val sch = TestUtils.dfdlTestSchema(
-        <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="s1" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>
-    <xs:element name="s2" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>
-    </xs:sequence>
-    </xs:complexType>
-    </xs:element>)
+            <xs:element name="s2" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
     val actual = Compiler.testString(sch, "55123").result
     TestUtils.assertEqualsXMLElements(<e1><s1>55</s1><s2>123</s2></e1>, actual)
   }
 
   @Test def testNumber1() {
     val sch = TestUtils.dfdlTestSchema(
-        <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="explicit">
         <xs:complexType>
           <xs:sequence>
@@ -247,7 +247,7 @@ class TestDFDLParser extends JUnitSuite {
 
   @Test def testNumber2() {
     val sch = TestUtils.dfdlTestSchema(
-        <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="mersenne" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
     val actual = Compiler.testString(sch, "-127").result
     TestUtils.assertEqualsXMLElements(<mersenne>-127</mersenne>, actual)
@@ -255,7 +255,7 @@ class TestDFDLParser extends JUnitSuite {
 
   @Test def testNumber3() {
     val sch = TestUtils.dfdlTestSchema(
-        <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="perfect" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
     val actual = Compiler.testString(sch, "+3").result
     TestUtils.assertEqualsXMLElements(<perfect>3</perfect>, actual)
@@ -265,7 +265,7 @@ class TestDFDLParser extends JUnitSuite {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="needs-square-root" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
-    val e = intercept[Exception]{
+    val e = intercept[Exception] {
       val actual = Compiler.testString(sch, "-3")
     }
     // println("ERROR!!!!!" + e.getMessage())
@@ -276,7 +276,7 @@ class TestDFDLParser extends JUnitSuite {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="world-population" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>)
-    val e = intercept[Exception]{
+    val e = intercept[Exception] {
       // As of 18:31 UTC (EST+5) Jun 8, 2012
       val actual = Compiler.testString(sch, "7,018,631,476")
     }
@@ -288,7 +288,7 @@ class TestDFDLParser extends JUnitSuite {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="last-element-indicator" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
-    val e = intercept[Exception]{
+    val e = intercept[Exception] {
       val actual = Compiler.testString(sch, "-1")
     }
     // println("ERROR!!!!!" + e.getMessage())
@@ -299,7 +299,7 @@ class TestDFDLParser extends JUnitSuite {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="bits" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>)
-    val e = intercept[Exception]{
+    val e = intercept[Exception] {
       val actual = Compiler.testString(sch, "256")
     }
     // println("ERROR!!!!!" + e.getMessage())
@@ -307,21 +307,21 @@ class TestDFDLParser extends JUnitSuite {
   }
 
   // TEST FAILS - SEE JIRA DFDL-184
-//  @Test def testIntTooLong() {
-//    val sch = TestUtils.dfdlTestSchema(
-//      <dfdl:format ref="tns:daffodilTest1"/>,
-//      <xs:element name="e1" dfdl:lengthKind="explicit">
-//        <xs:complexType>
-//          <xs:sequence>
-//            <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
-//          </xs:sequence>
-//        </xs:complexType>
-//      </xs:element>)
-//       val e = intercept[Exception]{
-//      val actual = Compiler.testString(sch, "55555555555555555555")
-//    }
-//    //println("ERROR!!!!!" + e.getMessage())//    assertTrue(e.getMessage().contains("xs:int"))
-//  }
+  //  @Test def testIntTooLong() {
+  //    val sch = TestUtils.dfdlTestSchema(
+  //      <dfdl:format ref="tns:daffodilTest1"/>,
+  //      <xs:element name="e1" dfdl:lengthKind="explicit">
+  //        <xs:complexType>
+  //          <xs:sequence>
+  //            <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
+  //          </xs:sequence>
+  //        </xs:complexType>
+  //      </xs:element>)
+  //       val e = intercept[Exception]{
+  //      val actual = Compiler.testString(sch, "55555555555555555555")
+  //    }
+  //    //println("ERROR!!!!!" + e.getMessage())//    assertTrue(e.getMessage().contains("xs:int"))
+  //  }
 
   @Test def testParseSequenceInt() {
     val sch = TestUtils.dfdlTestSchema(
@@ -343,18 +343,18 @@ class TestDFDLParser extends JUnitSuite {
     val expected = <e1><s1>55</s1><s1>66</s1><s1>77</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
-  
+
   @Test def testBadInt() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>)
-    val e = intercept[Exception]{
+    val e = intercept[Exception] {
       val actual = Compiler.testString(sch, "A").result
     }
     //println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:int"))
   }
-  
+
   @Test def testParseOccursCountKindOfParsed() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
@@ -386,7 +386,7 @@ class TestDFDLParser extends JUnitSuite {
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1><s2>A</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
-  
+
   @Test def testParseOccursCountKindOfParsedDelimitedByTerminator() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
@@ -402,7 +402,7 @@ class TestDFDLParser extends JUnitSuite {
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1><s2>A</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
-  
+
   @Test def testParseOccursCountKindOfParsedDelimitedByTerminator2() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
@@ -417,7 +417,7 @@ class TestDFDLParser extends JUnitSuite {
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
-  
+
   @Test def testParseOccursCountKindOfParsedDelimitedBySeparator() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
@@ -432,31 +432,46 @@ class TestDFDLParser extends JUnitSuite {
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
-  
+
+  @Test def testBinaryIntMinusOne() {
+    val sch = TestUtils.dfdlTestSchema(
+      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="s1" type="xs:int" dfdl:lengthKind="implicit"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = Compiler.testBinary(sch, "FFFFFFFF").result
+    val expected = <e1><s1>-1</s1></e1>
+    TestUtils.assertEqualsXMLElements(expected, actual)
+  }
+
   @Test def testBinaryInts() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="s1" type="xs:int" dfdl:lengthKind="implicit"  minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>
-            <xs:element name="s2" type="xs:int" dfdl:byteOrder="littleEndian" dfdl:lengthKind="implicit" />
+            <xs:element name="s1" type="xs:int" dfdl:lengthKind="implicit" minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>
+            <xs:element name="s2" type="xs:int" dfdl:byteOrder="littleEndian" dfdl:lengthKind="implicit"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
     val actual = Compiler.testBinary(sch, "000000013bFFFFFFFF3b080402013b000000003bFFFFFF7F").result
     val expected = <e1><s1>1</s1><s1>-1</s1><s1>134480385</s1><s1>0</s1><s2>2147483647</s2></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)    
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
-  
+
   @Test def testBinaryDoubles() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="s1" type="xs:double" dfdl:lengthKind="implicit"  minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>
-            <xs:element name="s2" type="xs:double" dfdl:byteOrder="littleEndian" dfdl:lengthKind="implicit" />
+            <xs:element name="s1" type="xs:double" dfdl:lengthKind="implicit" minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>
+            <xs:element name="s2" type="xs:double" dfdl:byteOrder="littleEndian" dfdl:lengthKind="implicit"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
@@ -488,8 +503,8 @@ class TestDFDLParser extends JUnitSuite {
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="s1" type="xs:float" dfdl:lengthKind="implicit"  minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>
-            <xs:element name="s2" type="xs:float" dfdl:byteOrder="littleEndian" dfdl:lengthKind="implicit" />
+            <xs:element name="s1" type="xs:float" dfdl:lengthKind="implicit" minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>
+            <xs:element name="s2" type="xs:float" dfdl:byteOrder="littleEndian" dfdl:lengthKind="implicit"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
