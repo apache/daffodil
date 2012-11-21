@@ -226,23 +226,6 @@
     </tdml:infoset>
     </tdml:parserTestCase> -->
 
-  <tdml:parserTestCase name="DelimProp_09" root="DP_03"
-    model="DelimiterProperties-Embedded.dfdl.xsd"
-    description="Section 12 property delimiters -multiple terminators - DFDL-12-033R">
-
-    <tdml:document>.00300]-02.75)3.9900}</tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <DP_03>
-          <s1>0.003</s1>
-          <s1>-2.75</s1>
-          <s1>3.99</s1>
-        </DP_03>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
   <tdml:parserTestCase name="DelimProp_10" root="DP_04"
     model="DelimiterProperties-Embedded.dfdl.xsd"
     description="Section 12 property delimiters -use of %WSP*; as terminator - DFDL-12-033R Should error">
