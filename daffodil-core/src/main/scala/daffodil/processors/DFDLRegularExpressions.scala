@@ -67,7 +67,7 @@ object DFDLRegularExpressions {
         """)""" +
         """(.*)""" // trailing stuff [after]
     val contentPattern = str.format(escape, delim, padChar).r
-    System.err.println(contentPattern)
+    //System.err.println(contentPattern)
     contentPattern
   }
 
