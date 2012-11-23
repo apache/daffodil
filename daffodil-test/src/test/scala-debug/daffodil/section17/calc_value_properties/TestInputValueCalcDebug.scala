@@ -19,6 +19,6 @@ class TestInputValueCalcDebug extends JUnitSuite {
   val tdml = testDir + "inputValueCalc.tdml"
 
   lazy val runner = { new DFDLTestSuite(Misc.getRequiredResource(tdml)) }
-  
+
   // @Test def test_InputValueCalc_04() { runner.runOneTest("InputValueCalc_04")}
 }

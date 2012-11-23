@@ -1,150 +1,159 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite suiteName="PropertyScoping" description="Section 8 - PropertyScoping"
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
-	xmlns:ex="http://example.com">
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com">
 
-	<tdml:defineSchema name="defineFormat-Embedded.dfdl.xsd">
-	
-		<dfdl:defineFormat name="format_01">
-			<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" lengthUnits="bytes" encoding="UTF-8" separator="" initiator="" terminator=""
-			       		occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" />
-		</dfdl:defineFormat>
-		       		
-		<xs:element name="myStringSeq1" dfdl:ref="format_01">
-		<xs:complexType>
-			<xs:sequence dfdl:initiatedContent="no" dfdl:ref="format_01" dfdl:separatorPosition="infix"
-				dfdl:sequenceKind="ordered" dfdl:separator="~" dfdl:terminator="@">
-				<xs:element name="Test1" type="xs:string" dfdl:ref="format_01">
-					
-				</xs:element>
-				
-				<xs:element name="Test2" type="xs:string" dfdl:ref="format_01" >
+  <tdml:defineSchema name="defineFormat-Embedded.dfdl.xsd">
 
-				</xs:element>
-								
-			</xs:sequence>
-		</xs:complexType>
-		</xs:element>
-		
-	</tdml:defineSchema>
-	
-		<tdml:parserTestCase name="property_scoping_01" root="myStringSeq1"
-		model="defineFormat-Embedded.dfdl.xsd" description="Section 8 - reference to a named format - DFDL-8-009R">
+    <dfdl:defineFormat name="format_01">
+      <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+        lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+        terminator="" occursCountKind="parsed" ignoreCase="no"
+        textNumberRep="standard" representation="text" />
+    </dfdl:defineFormat>
 
-		<tdml:document>abcd~efgh@</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<myStringSeq1>
-				<Test1>abcd</Test1>
-				<Test2>efgh</Test2>
-				</myStringSeq1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:defineSchema name="defineFormat_01-Embedded.dfdl.xsd">
-		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" lengthUnits="characters" encoding="UTF-8" separator="" initiator="" terminator=""
-			separatorPolicy="suppressed" occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" />
-			       		
-		<xs:element name="shirt">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:terminator=";">
-					<xs:element name="brand" type="xs:string"/>
-					<xs:element name="size" type="xs:int"/>
-					<xs:element name="color" type="xs:string"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	
-		<xs:element name="shirts" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element ref="shirt" maxOccurs="unbounded"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-	</tdml:defineSchema>
-		
-	<tdml:parserTestCase name="property_scoping_06" root="shirts"
-		model="defineFormat_01-Embedded.dfdl.xsd" description="Section 8 An xs:element reference and its referenced global xs:element - DFDL-8-022R">
+    <xs:element name="myStringSeq1" dfdl:ref="format_01">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no" dfdl:ref="format_01"
+          dfdl:separatorPosition="infix" dfdl:sequenceKind="ordered"
+          dfdl:separator="~" dfdl:terminator="@">
+          <xs:element name="Test1" type="xs:string" dfdl:ref="format_01">
 
-		<tdml:document>
-			<tdml:documentPart type="text">Gap,15,blue;Levi,16,green;Arrow,14,white;</tdml:documentPart>
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-					<shirts>
-						<shirt>
-							<brand>Gap</brand>
-							<size>15</size>
-							<color>blue</color>
-						</shirt>
-						<shirt>
-							<brand>Levi</brand>
-							<size>16</size>
-							<color>green</color>
-						</shirt>
-						<shirt>
-							<brand>Arrow</brand>
-							<size>14</size>
-							<color>white</color>
-						</shirt>
-					</shirts>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:defineSchema name="dfdl_subset-Embedded">
+          </xs:element>
 
-		<dfdl:format ref="ex:daffodilTest1" initiator=""
-			terminator="" encoding="utf-8" byteOrder="bigEndian" occursCountKind="parsed"
-			ignoreCase="no" representation="text" lengthKind="delimited" />
+          <xs:element name="Test2" type="xs:string" dfdl:ref="format_01">
 
-		<xs:element name="description" type="xs:string" />
-		<xs:element name="comment" type="xs:string" />
-		<xs:element name="quantity" type="xs:int" />
-		<xs:element name="price" type="xs:float" />
+          </xs:element>
 
-		<xs:group name="namedGroup">
-			<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-				<xs:element ref="ex:description" />
-				<xs:element ref="ex:comment" />
-				<xs:element ref="ex:quantity" />
-				<xs:element ref="ex:price" dfdl:initiator="$" />
-			</xs:sequence>
-		</xs:group>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="Item" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:group ref="ex:namedGroup" dfdl:separator="||"
-						dfdl:separatorPosition="prefix" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+  </tdml:defineSchema>
 
-		<xs:element name="list" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element ref="ex:Item" maxOccurs="unbounded" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+  <tdml:parserTestCase name="property_scoping_01"
+    root="myStringSeq1" model="defineFormat-Embedded.dfdl.xsd"
+    description="Section 8 - reference to a named format - DFDL-8-009R">
 
-	</tdml:defineSchema>
+    <tdml:document><![CDATA[abcd~efgh@]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <myStringSeq1>
+          <Test1>abcd</Test1>
+          <Test2>efgh</Test2>
+        </myStringSeq1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="group_ref" root="list"
-		model="dfdl_subset-Embedded" description="More than one separator and separatorPosition properties on the sequence in namedGroup - DFDL-8-023R">
+  <tdml:defineSchema name="defineFormat_01-Embedded.dfdl.xsd">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+      lengthUnits="characters" encoding="UTF-8" separator="" initiator=""
+      terminator="" separatorPolicy="suppressed" occursCountKind="parsed"
+      ignoreCase="no" textNumberRep="standard" representation="text" />
 
-		<tdml:document><![CDATA[||Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
-		<tdml:errors>
-			<tdml:error/>
-		</tdml:errors>
-	</tdml:parserTestCase>
-	
+    <xs:element name="shirt">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=","
+          dfdl:separatorPosition="infix" dfdl:terminator=";">
+          <xs:element name="brand" type="xs:string" />
+          <xs:element name="size" type="xs:int" />
+          <xs:element name="color" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="shirts" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="shirt" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="property_scoping_06"
+    root="shirts" model="defineFormat_01-Embedded.dfdl.xsd"
+    description="Section 8 An xs:element reference and its referenced global xs:element - DFDL-8-022R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[Gap,15,blue;Levi,16,green;Arrow,14,white;]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <shirts>
+          <shirt>
+            <brand>Gap</brand>
+            <size>15</size>
+            <color>blue</color>
+          </shirt>
+          <shirt>
+            <brand>Levi</brand>
+            <size>16</size>
+            <color>green</color>
+          </shirt>
+          <shirt>
+            <brand>Arrow</brand>
+            <size>14</size>
+            <color>white</color>
+          </shirt>
+        </shirts>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="dfdl_subset-Embedded">
+
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" encoding="utf-8" byteOrder="bigEndian"
+      occursCountKind="parsed" ignoreCase="no" representation="text"
+      lengthKind="delimited" />
+
+    <xs:element name="description" type="xs:string" />
+    <xs:element name="comment" type="xs:string" />
+    <xs:element name="quantity" type="xs:int" />
+    <xs:element name="price" type="xs:float" />
+
+    <xs:group name="namedGroup">
+      <xs:sequence dfdl:separator=","
+        dfdl:separatorPosition="infix">
+        <xs:element ref="ex:description" />
+        <xs:element ref="ex:comment" />
+        <xs:element ref="ex:quantity" />
+        <xs:element ref="ex:price" dfdl:initiator="$" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="Item" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:group ref="ex:namedGroup" dfdl:separator="||"
+            dfdl:separatorPosition="prefix" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="list" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="ex:Item" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="group_ref" root="list"
+    model="dfdl_subset-Embedded"
+    description="More than one separator and separatorPosition properties on the sequence in namedGroup - DFDL-8-023R">
+
+    <tdml:document><![CDATA[||Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
+    <tdml:errors>
+      <tdml:error />
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

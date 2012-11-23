@@ -1,49 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite xmlns="http://example.com"
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-	xmlns:ex="http://example.com">
- 
- 	<tdml:parserTestCase name="setVar1_d" root="c" model="variables_01.dfdl.xsd">
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com">
 
-		<tdml:document />
+  <tdml:parserTestCase name="setVar1_d" root="c"
+    model="variables_01.dfdl.xsd">
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<c xmlns="http://www.example.org/example1/">
-					<d type="xsd:int">42</d>
-					<e type="xsd:int">42</e>
-				</c>
+    <tdml:document />
 
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <c xmlns="http://www.example.org/example1/">
+          <d type="xsd:int">42</d>
+          <e type="xsd:int">42</e>
+        </c>
 
-	<tdml:parserTestCase name="doubleSetErr_d" root="r1"
-		model="variables_01.dfdl.xsd">
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document />
+  <tdml:parserTestCase name="doubleSetErr_d" root="r1"
+    model="variables_01.dfdl.xsd">
 
-		<tdml:errors>
-			<tdml:error>variable</tdml:error>
-			<tdml:error>twice</tdml:error>
-			<tdml:error>v_no_default</tdml:error>
-		</tdml:errors>
+    <tdml:document />
 
-	</tdml:parserTestCase>
+    <tdml:errors>
+      <tdml:error>variable</tdml:error>
+      <tdml:error>twice</tdml:error>
+      <tdml:error>v_no_default</tdml:error>
+    </tdml:errors>
 
-	<tdml:parserTestCase name="setAfterReadErr_d" root="r2"
-		model="variables_01.dfdl.xsd">
+  </tdml:parserTestCase>
 
-		<tdml:document />
+  <tdml:parserTestCase name="setAfterReadErr_d"
+    root="r2" model="variables_01.dfdl.xsd">
 
-		<tdml:errors>
-			<tdml:error>variable</tdml:error>
-			<tdml:error>after</tdml:error>
-			<tdml:error>v_with_default</tdml:error>
-		</tdml:errors>
+    <tdml:document />
 
-	</tdml:parserTestCase>
-	
+    <tdml:errors>
+      <tdml:error>variable</tdml:error>
+      <tdml:error>after</tdml:error>
+      <tdml:error>v_with_default</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

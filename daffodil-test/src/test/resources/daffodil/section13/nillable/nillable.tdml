@@ -1,219 +1,235 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tdml:testSuite 
-    xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-	xmlns:ex="http://example.com">
+<tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com">
 
-<tdml:defineSchema name="s1">
-	<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator=""
-				separatorPolicy="suppressed" separatorPosition="infix"
-				documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
-				representation="text" occursCountKind="parsed" 
-				nilValueDelimiterPolicy="none" 
-				nilValue="nil %ES;" 
-				nilKind="literalValue"
-				textNumberRep="standard"
-				ignoreCase="no"
-				initiatedContent="no" />
-				
-	<xs:element name="doc" dfdl:lengthKind="implicit">
-		<xs:complexType>
-			<xs:sequence dfdl:separator="," dfdl:terminator=";">
-				<xs:element name="e1" nillable="true" type="xs:int"
-					dfdl:lengthKind="delimited" />
-				<xs:element name="e2" nillable="true" type="xs:int"
-					dfdl:lengthKind="delimited" />
-			</xs:sequence>
-		</xs:complexType>
-	</xs:element>
-	
-	<xs:element name="doc_01" dfdl:lengthKind="implicit">
-		<xs:complexType>
-			<xs:sequence dfdl:separator="," dfdl:terminator=";">
-				<xs:element name="e1" nillable="true" type="xs:int"
-					dfdl:lengthKind="delimited" />
-				<xs:element name="e2" nillable="true" type="xs:int"
-					dfdl:lengthKind="delimited" dfdl:terminator=":" dfdl:nilValueDelimiterPolicy="terminator"/>
-			</xs:sequence>
-		</xs:complexType>
-	</xs:element>
-	
-	<xs:element name="doc_02" nillable="true" dfdl:lengthKind="implicit" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="e1" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="cat"/>
-					<xs:element name="e2" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="dog"/>
-				</xs:sequence>
-			</xs:complexType>
-	</xs:element>
-	
-	<xs:element name="doc_03" dfdl:lengthKind="implicit" dfdl:initiator="$">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="e1" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="cat" minOccurs="0" maxOccurs="1"/>
-					<xs:element name="e2" type="xs:string" nillable="true" dfdl:lengthKind="pattern" dfdl:lengthPattern="\d" dfdl:nilKind="literalValue" dfdl:nilValue="5"/>
-				</xs:sequence>
-			</xs:complexType>
-	</xs:element>
-	
-	<xs:element name="doc_04">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"/>
-					<xs:element name="e2" type="xs:int" nillable="true" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:nilKind="literalValue" dfdl:nilValue="99"/>
-				</xs:sequence>
-			</xs:complexType>
-	</xs:element>
-	
-	<xs:element name="doc_05">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"/>
-					<xs:element name="e2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2"/>
-				</xs:sequence>
-			</xs:complexType>
-	</xs:element>
-	
-	<xs:element name="doc_06">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"/>
-					<xs:element name="e2" type="xs:int" nillable="true" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;"/>
-				</xs:sequence>
-			</xs:complexType>
-	</xs:element>
-	
-</tdml:defineSchema>
+  <tdml:defineSchema name="s1">
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" separator="" separatorPolicy="suppressed"
+      separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
+      encoding="ASCII" representation="text" occursCountKind="parsed"
+      nilValueDelimiterPolicy="none" nilValue="nil %ES;" nilKind="literalValue"
+      textNumberRep="standard" ignoreCase="no" initiatedContent="no" />
 
-	<tdml:parserTestCase name="litNil1" root="doc" model="s1"
-		description="literal nil - DFDL-13-234R">
+    <xs:element name="doc" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:terminator=";">
+          <xs:element name="e1" nillable="true" type="xs:int"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="e2" nillable="true" type="xs:int"
+            dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[0,nil;]]></tdml:documentPart>
-		</tdml:document>
+    <xs:element name="doc_01" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:terminator=";">
+          <xs:element name="e1" nillable="true" type="xs:int"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="e2" nillable="true" type="xs:int"
+            dfdl:lengthKind="delimited" dfdl:terminator=":"
+            dfdl:nilValueDelimiterPolicy="terminator" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<doc>
-					<e1>0</e1>
-					<e2 xsi:nil="true"/>	
-				</doc>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="litNil2" root="doc" model="s1"
-		description="literal nil is a DFDL character class entity %ES; - DFDL-13-234R">
+    <xs:element name="doc_02" nillable="true"
+      dfdl:lengthKind="implicit" dfdl:nilKind="literalValue"
+      dfdl:nilValue="%ES;">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string"
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="cat" />
+          <xs:element name="e2" type="xs:string"
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="dog" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[0,;]]></tdml:documentPart>
-		</tdml:document>
+    <xs:element name="doc_03" dfdl:lengthKind="implicit"
+      dfdl:initiator="$">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string"
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="cat"
+            minOccurs="0" maxOccurs="1" />
+          <xs:element name="e2" type="xs:string" nillable="true"
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="\d"
+            dfdl:nilKind="literalValue" dfdl:nilValue="5" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset >
-				<doc>
-					<e1>0</e1>
-					<e2 xsi:nil="true"/>	
-				</doc>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <xs:element name="doc_04">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="3" />
+          <xs:element name="e2" type="xs:int" nillable="true"
+            dfdl:lengthKind="explicit" dfdl:length="2" dfdl:nilKind="literalValue"
+            dfdl:nilValue="99" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	<tdml:parserTestCase name="litNil3" root="doc_01" model="s1"
-		description="literal nil is a DFDL character class entity %ES; - DFDL-13-234R">
+    <xs:element name="doc_05">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="3" />
+          <xs:element name="e2" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="2" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[0,:;]]></tdml:documentPart>
-		</tdml:document>
+    <xs:element name="doc_06">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="3" />
+          <xs:element name="e2" type="xs:int" nillable="true"
+            dfdl:lengthKind="explicit" dfdl:length="2" dfdl:nilKind="literalValue"
+            dfdl:nilValue="%ES;" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<doc_01>
-					<e1>0</e1>
-					<e2 xsi:nil="true"/>	
-				</doc_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="litNil4" root="doc_02" model="s1"
-		description="literal nil is a DFDL character class entity %ES; on an element of complex type- DFDL-13-234R">
+  </tdml:defineSchema>
 
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
-		</tdml:document>
+  <tdml:parserTestCase name="litNil1" root="doc"
+    model="s1" description="literal nil - DFDL-13-234R">
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<doc_02 xsi:nil="true"/>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="litNil5" root="doc_04" model="s1"
-		description="nilKind = literalValue, an is nil element - DFDL-13-190R, DFDL-13-204R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[0,nil;]]></tdml:documentPart>
+    </tdml:document>
 
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[12399]]></tdml:documentPart>
-		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc>
+          <e1>0</e1>
+          <e2 xsi:nil="true" />
+        </doc>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<doc_04>
-					<e1>123</e1>
-					<e2 xsi:nil="true"/>
-				</doc_04>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="litNil6" root="doc_03" model="s1"
-		description="literal nil - DFDL-13-234R">
+  <tdml:parserTestCase name="litNil2" root="doc"
+    model="s1"
+    description="literal nil is a DFDL character class entity %ES; - DFDL-13-234R">
 
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[$cat5]]></tdml:documentPart>
-		</tdml:document>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[0,;]]></tdml:documentPart>
+    </tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<doc_03>
-					<e1>cat</e1>
-					<e2 xsi:nil="true"/>
-				</doc_03>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="missing_scalar" root="doc_05" model="s1"
-		description="a missing element that is a required scalar element in a required parent context that is the document root - DFDL-13-177R, DFDL-13-184R, DFDL-13-198R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc>
+          <e1>0</e1>
+          <e2 xsi:nil="true" />
+        </doc>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[123]]></tdml:documentPart>
-		</tdml:document>
+  <tdml:parserTestCase name="litNil3" root="doc_01"
+    model="s1"
+    description="literal nil is a DFDL character class entity %ES; - DFDL-13-234R">
 
-		<tdml:errors>
-			<tdml:error/>
-		</tdml:errors>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="litNil7" root="doc_06" model="s1"
-		description="a missing element and an is nil element - DFDL-13-196R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[0,:;]]></tdml:documentPart>
+    </tdml:document>
 
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[123]]></tdml:documentPart>
-		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc_01>
+          <e1>0</e1>
+          <e2 xsi:nil="true" />
+        </doc_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<doc_06>
-					<e1>123</e1>
-					<e2 xsi:nil="true"/>
-				</doc_06>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="litNil4" root="doc_02"
+    model="s1"
+    description="literal nil is a DFDL character class entity %ES; on an element of complex type- DFDL-13-234R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc_02 xsi:nil="true" />
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="litNil5" root="doc_04"
+    model="s1"
+    description="nilKind = literalValue, an is nil element - DFDL-13-190R, DFDL-13-204R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[12399]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc_04>
+          <e1>123</e1>
+          <e2 xsi:nil="true" />
+        </doc_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="litNil6" root="doc_03"
+    model="s1" description="literal nil - DFDL-13-234R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[$cat5]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc_03>
+          <e1>cat</e1>
+          <e2 xsi:nil="true" />
+        </doc_03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="missing_scalar" root="doc_05"
+    model="s1"
+    description="a missing element that is a required scalar element in a required parent context that is the document root - DFDL-13-177R, DFDL-13-184R, DFDL-13-198R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[123]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error />
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="litNil7" root="doc_06"
+    model="s1" description="a missing element and an is nil element - DFDL-13-196R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[123]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc_06>
+          <e1>123</e1>
+          <e2 xsi:nil="true" />
+        </doc_06>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

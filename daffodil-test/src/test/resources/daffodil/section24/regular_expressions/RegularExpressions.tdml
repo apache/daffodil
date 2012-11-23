@@ -1,41 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tdml:testSuite suiteName="Regular expressions" description="Section 24"
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-	xmlns:ex="http://example.com">
+<tdml:testSuite suiteName="Regular expressions"
+  description="Section 24" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com">
 
-	<tdml:defineSchema name="RegularExpressions-Embedded.dfdl.xsd">
-		
+  <tdml:defineSchema name="RegularExpressions-Embedded.dfdl.xsd">
 
-		<dfdl:format ref="ex:daffodilTest1" lengthKind="implicit" lengthUnits="bytes" encoding="US-ASCII" separator="" initiator="" terminator=""
-	       		textNumberRep="standard" representation="text" />
-	  	
-		<xs:element name="regExpr_01" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="[A-Za-z]{1,8}(-[A-Za-z0-9]{1,8})*"/>
-		<xs:element name="regExpr_02" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="[A-Za-z]{1,8}([-][A-Za-z0-9]{1,8})*"/>
-	
-	</tdml:defineSchema>
-	
-	<tdml:parserTestCase name="testRegEx_01" root="regExpr_01"
-		model="RegularExpressions-Embedded.dfdl.xsd" description="Section 24 java regular expressions - DFDL-24-002R">
-		<tdml:document>en-US</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<regExpr_01>en-US</regExpr_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="testRegEx_02" root="regExpr_02"
-		model="RegularExpressions-Embedded.dfdl.xsd" description="Section 24 java regular expressions - DFDL-24-002R">
-		<tdml:document>en-US</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<regExpr_02>en-US</regExpr_02>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
+
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="implicit"
+      lengthUnits="bytes" encoding="US-ASCII" separator="" initiator=""
+      terminator="" textNumberRep="standard" representation="text" />
+
+    <xs:element name="regExpr_01" type="xs:string"
+      dfdl:lengthKind="pattern" dfdl:lengthPattern="[A-Za-z]{1,8}(-[A-Za-z0-9]{1,8})*" />
+    <xs:element name="regExpr_02" type="xs:string"
+      dfdl:lengthKind="pattern" dfdl:lengthPattern="[A-Za-z]{1,8}([-][A-Za-z0-9]{1,8})*" />
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="testRegEx_01" root="regExpr_01"
+    model="RegularExpressions-Embedded.dfdl.xsd" description="Section 24 java regular expressions - DFDL-24-002R">
+    <tdml:document>en-US</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <regExpr_01>en-US</regExpr_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testRegEx_02" root="regExpr_02"
+    model="RegularExpressions-Embedded.dfdl.xsd" description="Section 24 java regular expressions - DFDL-24-002R">
+    <tdml:document>en-US</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <regExpr_02>en-US</regExpr_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

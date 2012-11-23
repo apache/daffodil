@@ -15,7 +15,7 @@ class defineFormatTests extends JUnitSuite {
   val testDir = "/daffodil/section07/defineFormat/"
   val tdml = testDir + "defineFormat.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
-  
+
   @Test def test_defineFormat_01() { runner.runOneTest("defineFormat_01") }
-  
-  }
+
+}

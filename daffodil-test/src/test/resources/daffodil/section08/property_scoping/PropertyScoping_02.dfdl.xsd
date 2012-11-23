@@ -1,46 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
 <schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-	targetNamespace="http://www.example.org/example1/" 
-	xmlns:tns="http://www.example.org/example1/" 
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	
-	<annotation>
-		<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-			<dfdl:format ref="tns:def1" initiator="" terminator="" 
-                encoding="utf-8" binaryNumberRep="binary" />
-        </appinfo>
-    </annotation>
-                
-	<!-- immediate simple type definition -->
-	<element name="c3">
-		<simpleType>
-			<restriction base="tns:aType">
-				<maxInclusive value="3" />
-			</restriction>
-		</simpleType>
-	</element>
+  targetNamespace="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-	<!-- global simple type definition -->
-	<simpleType name="aType">
-		<xsd:annotation>
-			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-				<dfdl:simpleType representation="binary" />
-			</appinfo>
-		</xsd:annotation>
-		<!-- base type reference -->
-		<restriction base="tns:aaType" />
-	</simpleType>
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format ref="tns:def1" initiator="" terminator=""
+        encoding="utf-8" binaryNumberRep="binary" />
+    </appinfo>
+  </annotation>
 
-	<!-- global simple type definition (used as a base) -->
-	<simpleType name="aaType" >
-		<xsd:annotation>
-			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-				<dfdl:simpleType byteOrder="bigEndian" />
-			</appinfo>
-		</xsd:annotation>
-		<restriction base="xsd:int" />
-	</simpleType>
-	
+  <!-- immediate simple type definition -->
+  <element name="c3">
+    <simpleType>
+      <restriction base="tns:aType">
+        <maxInclusive value="3" />
+      </restriction>
+    </simpleType>
+  </element>
+
+  <!-- global simple type definition -->
+  <simpleType name="aType">
+    <xsd:annotation>
+      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:simpleType representation="binary" />
+      </appinfo>
+    </xsd:annotation>
+    <!-- base type reference -->
+    <restriction base="tns:aaType" />
+  </simpleType>
+
+  <!-- global simple type definition (used as a base) -->
+  <simpleType name="aaType">
+    <xsd:annotation>
+      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:simpleType byteOrder="bigEndian" />
+      </appinfo>
+    </xsd:annotation>
+    <restriction base="xsd:int" />
+  </simpleType>
+
 </schema>

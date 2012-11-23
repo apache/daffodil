@@ -1,124 +1,132 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite suiteName="AA" description="AA test of InputValueCalc"
-	xmlns="http://example.com" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns:ex="http://example.com">
+  xmlns="http://example.com" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com">
 
-	<tdml:defineSchema name="AA.dfdl.xsd">
-		<dfdl:defineVariable name="x" type="xsd:int"
-			defaultValue="0" />
-		<dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" length="{ 0 }" lengthUnits="bytes" encoding="US-ASCII" />
-		<xs:element name="list" type="example1" />
+  <tdml:defineSchema name="AA.dfdl.xsd">
+    <dfdl:defineVariable name="x" type="xsd:int"
+      defaultValue="0" />
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit"
+      length="{ 0 }" lengthUnits="bytes" encoding="US-ASCII" />
+    <xs:element name="list" type="example1" />
 
-		<xs:complexType name="example1">
-			<xs:sequence>
-				<xs:element name="w" type="xsd:int" dfdl:inputValueCalc="{ $ex:x + 1 }" />
-				<xs:element name="x" type="xsd:int" dfdl:inputValueCalc="{ $ex:x + ../ex:w + 1 }" />
-				<xs:element name="y" type="xsd:int" dfdl:inputValueCalc="{ ../ex:x + ../ex:w }" />
-				<xs:element name="z" type="xsd:int" dfdl:inputValueCalc="{ $ex:x + 4 }" />
-			</xs:sequence>
-		</xs:complexType>
-	</tdml:defineSchema>
+    <xs:complexType name="example1">
+      <xs:sequence>
+        <xs:element name="w" type="xsd:int"
+          dfdl:inputValueCalc="{ $ex:x + 1 }" />
+        <xs:element name="x" type="xsd:int"
+          dfdl:inputValueCalc="{ $ex:x + ../ex:w + 1 }" />
+        <xs:element name="y" type="xsd:int"
+          dfdl:inputValueCalc="{ ../ex:x + ../ex:w }" />
+        <xs:element name="z" type="xsd:int"
+          dfdl:inputValueCalc="{ $ex:x + 4 }" />
+      </xs:sequence>
+    </xs:complexType>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="AA000" root="list"
-		model="AA.dfdl.xsd" description="Tests variables and inputValueCalc - DFDL-17-007R">
+  <tdml:parserTestCase name="AA000" root="list"
+    model="AA.dfdl.xsd" description="Tests variables and inputValueCalc - DFDL-17-007R">
 
-		<tdml:document>
-			<tdml:documentPart type="byte"></tdml:documentPart>
-		</tdml:document>
+    <tdml:document />
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-					<w type="xsd:int">1</w>
-					<x type="xsd:int">2</x>
-					<y type="xsd:int">3</y>
-					<z type="xsd:int">4</z>
-				</list>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <w type="xsd:int">1</w>
+          <x type="xsd:int">2</x>
+          <y type="xsd:int">3</y>
+          <z type="xsd:int">4</z>
+        </list>
 
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="err1">
-		<dfdl:format ref="ex:daffodilTest1" />
-		<xs:element name="root">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="prob1" type="xsd:int"
-						dfdl:inputValueCalc="{ $ex:noSuchVariable }" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
-
-
-	<tdml:parserTestCase name="inputValueCalcErrorDiagnostic1"
-		root="root" model="err1" description="Tests diagnostic from missing variable - - DFDL-17-007R">
-
-		<tdml:document />
-
-		<tdml:errors>
-			<tdml:error>noSuchVariable</tdml:error>
-			<tdml:error>prob1</tdml:error>
-		</tdml:errors>
-
-	</tdml:parserTestCase>
-
-	<tdml:defineSchema name="err2">
-		<dfdl:format ref="ex:daffodilTest1" />
-		<xs:element name="root">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="prob2" type="xsd:int"
-						dfdl:inputValueCalc="{ /ex:root/noSuchPath }" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
+  <tdml:defineSchema name="err1">
+    <dfdl:format ref="ex:daffodilTest1" />
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="prob1" type="xsd:int"
+            dfdl:inputValueCalc="{ $ex:noSuchVariable }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
 
 
-	<tdml:parserTestCase name="inputValueCalcErrorDiagnostic2"
-		root="root" model="err2" description="Tests diagnostic from no such path - - DFDL-17-007R">
+  <tdml:parserTestCase name="inputValueCalcErrorDiagnostic1"
+    root="root" model="err1"
+    description="Tests diagnostic from missing variable - - DFDL-17-007R">
 
-		<tdml:document />
+    <tdml:document />
 
-		<tdml:errors>
-			<tdml:error>noSuchPath</tdml:error>
-			<tdml:error>prob2</tdml:error>
-		</tdml:errors>
+    <tdml:errors>
+      <tdml:error>noSuchVariable</tdml:error>
+      <tdml:error>prob1</tdml:error>
+    </tdml:errors>
 
-	</tdml:parserTestCase>
-	
-	<tdml:defineSchema name="ivc.absolute">
-		<dfdl:format ref="ex:daffodilTest1" />
-		<xs:element name="root">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="a1" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{2}"
-						 />
-					<xs:element name="a2" type="xsd:int"
-						dfdl:inputValueCalc="{ /ex:root/ex:a1 }" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="err2">
+    <dfdl:format ref="ex:daffodilTest1" />
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="prob2" type="xsd:int"
+            dfdl:inputValueCalc="{ /ex:root/noSuchPath }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
 
 
-	<tdml:parserTestCase name="inputValueCalcAbsolutePath"
-		root="root" model="ivc.absolute" description="Tests absolute paths. DFDL-17-007R">
+  <tdml:parserTestCase name="inputValueCalcErrorDiagnostic2"
+    root="root" model="err2"
+    description="Tests diagnostic from no such path - - DFDL-17-007R">
 
-		<tdml:document>19</tdml:document>
+    <tdml:document />
 
-		<tdml:infoset>
-		<tdml:dfdlInfoset>
-		<ex:root><ex:a1>19</ex:a1><ex:a2>19</ex:a2></ex:root>
-		</tdml:dfdlInfoset>
-	</tdml:infoset>
+    <tdml:errors>
+      <tdml:error>noSuchPath</tdml:error>
+      <tdml:error>prob2</tdml:error>
+    </tdml:errors>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="ivc.absolute">
+    <dfdl:format ref="ex:daffodilTest1" />
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a1" type="xsd:int"
+            dfdl:lengthKind="explicit" dfdl:length="{2}" />
+          <xs:element name="a2" type="xsd:int"
+            dfdl:inputValueCalc="{ /ex:root/ex:a1 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+
+  <tdml:parserTestCase name="inputValueCalcAbsolutePath"
+    root="root" model="ivc.absolute" description="Tests absolute paths. DFDL-17-007R">
+
+    <tdml:document>19</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <ex:a1>19</ex:a1>
+          <ex:a2>19</ex:a2>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

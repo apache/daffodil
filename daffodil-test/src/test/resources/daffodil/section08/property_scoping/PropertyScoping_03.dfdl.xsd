@@ -1,58 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
 <schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-	targetNamespace="http://www.example.org/example1/" 
-	xmlns:tns="http://www.example.org/example1/" 
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	
-	<annotation>
-		<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-			<dfdl:format initiator="" terminator="" 
-                encoding="utf-8" binaryNumberRep="binary" initiatedContent="no" />
-        </appinfo>
+  targetNamespace="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format initiator="" terminator="" encoding="utf-8"
+        binaryNumberRep="binary" initiatedContent="no" />
+    </appinfo>
+  </annotation>
+
+  <element name="a">
+    <!-- should have representation from locally, and byteOrder from the 
+      simpleType -->
+    <annotation>
+      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:element representation="binary" />
+      </appinfo>
     </annotation>
-                
-	<element name="a">
-		<!-- should have representation from locally, and byteOrder from the simpleType -->
-		<annotation>
-			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-				<dfdl:element representation="binary" />
-			</appinfo>
-		</annotation>
-		<simpleType>
-			<xsd:annotation>
-				<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:simpleType byteOrder="bigEndian" />
-				</appinfo>
-			</xsd:annotation>
-			<restriction base="xsd:int" />
-		</simpleType>
-	</element>
-	
-	<element name="aa" type="tns:c">
-		<annotation>
-			<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-				<dfdl:element representation="binary" />
-			</appinfo>
-		</annotation>
-	</element>
-	
-		<simpleType name="c">
-			<xsd:annotation>
-				<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:simpleType byteOrder="bigEndian" />
-				</appinfo>
-			</xsd:annotation>
-			<restriction base="xsd:int" />
-		</simpleType>
-		
-	<element name="aaa" dfdl:lengthKind="implicit" >
-		<complexType>
-			<sequence dfdl:separator="">
-				<element ref="tns:aa" dfdl:occursCountKind="fixed" minOccurs="3" maxOccurs="3"/>	
-			</sequence>
-		</complexType>
-	</element>
-	
+    <simpleType>
+      <xsd:annotation>
+        <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:simpleType byteOrder="bigEndian" />
+        </appinfo>
+      </xsd:annotation>
+      <restriction base="xsd:int" />
+    </simpleType>
+  </element>
+
+  <element name="aa" type="tns:c">
+    <annotation>
+      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:element representation="binary" />
+      </appinfo>
+    </annotation>
+  </element>
+
+  <simpleType name="c">
+    <xsd:annotation>
+      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:simpleType byteOrder="bigEndian" />
+      </appinfo>
+    </xsd:annotation>
+    <restriction base="xsd:int" />
+  </simpleType>
+
+  <element name="aaa" dfdl:lengthKind="implicit">
+    <complexType>
+      <sequence dfdl:separator="">
+        <element ref="tns:aa" dfdl:occursCountKind="fixed"
+          minOccurs="3" maxOccurs="3" />
+      </sequence>
+    </complexType>
+  </element>
+
 </schema>

@@ -1,383 +1,413 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tdml:testSuite suiteName="Sequence Groups" description="Section 14 - Sequence Groups with Delimiters"
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
-    xmlns:ex="http://example.com">
+<tdml:testSuite suiteName="Sequence Groups"
+  description="Section 14 - Sequence Groups with Delimiters" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com">
 
-	<tdml:defineSchema name="SequenceGroupDelimiters-Embedded.dfdl.xsd">
-		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" encoding="utf-8" 
-			occursCountKind="parsed" separatorPolicy="suppressed" textNumberRep="standard" ignoreCase="no"
-			representation="text" lengthUnits="characters" lengthKind="delimited" />
+  <tdml:defineSchema name="SequenceGroupDelimiters-Embedded.dfdl.xsd">
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" leadingSkip="0" trailingSkip="0" separator=""
+      encoding="utf-8" occursCountKind="parsed" separatorPolicy="suppressed"
+      textNumberRep="standard" ignoreCase="no" representation="text"
+      lengthUnits="characters" lengthKind="delimited" />
 
-		<xs:element name="SG_01" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-								dfdl:separator=":: || : $">
-						<xs:element name="seq1">
-							<xs:complexType>
-								<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-									dfdl:separator=",">
-									<xs:element name="num1" type="xs:int" maxOccurs="unbounded"/>	
-								</xs:sequence>
-							</xs:complexType>
-						</xs:element>
-						<xs:element name="seq2">
-							<xs:complexType>
-								<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-									dfdl:separator=".">
-									<xs:element name="num2" type="xs:int" maxOccurs="unbounded"/>	
-								</xs:sequence>
-							</xs:complexType>
-						</xs:element>
-						<xs:element name="seq3">
-							<xs:complexType>
-								<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-									dfdl:separator=";">
-									<xs:element name="num3" type="xs:int" maxOccurs="unbounded"/>	
-								</xs:sequence>
-							</xs:complexType>
-						</xs:element>
-						<xs:element name="seq4">
-							<xs:complexType>
-								<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-									dfdl:separator="|">
-									<xs:element name="num4" type="xs:int" maxOccurs="unbounded"/>	
-								</xs:sequence>
-							</xs:complexType>
-						</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="SG_02" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence dfdl:separatorPosition="infix" dfdl:separator=",">
-					<xs:element name="s1" type="xs:int" maxOccurs="unbounded"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="SG_03" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence dfdl:separatorPosition="infix" dfdl:separator=", ,, ,,,">
-					<xs:element name="s1" type="xs:int" maxOccurs="unbounded"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="SG_04" dfdl:lengthKind="delimited">
-			<xs:complexType>
-				<xs:sequence dfdl:separatorPosition="infix" dfdl:separator="">
-					<xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3"/>
-					<xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4"/>
-					<xs:element name="s3" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="5"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-	</tdml:defineSchema>
+    <xs:element name="SG_01" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=":: || : $">
+          <xs:element name="seq1">
+            <xs:complexType>
+              <xs:sequence dfdl:initiatedContent="no"
+                dfdl:separatorPosition="infix" dfdl:separator=",">
+                <xs:element name="num1" type="xs:int"
+                  maxOccurs="unbounded" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="seq2">
+            <xs:complexType>
+              <xs:sequence dfdl:initiatedContent="no"
+                dfdl:separatorPosition="infix" dfdl:separator=".">
+                <xs:element name="num2" type="xs:int"
+                  maxOccurs="unbounded" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="seq3">
+            <xs:complexType>
+              <xs:sequence dfdl:initiatedContent="no"
+                dfdl:separatorPosition="infix" dfdl:separator=";">
+                <xs:element name="num3" type="xs:int"
+                  maxOccurs="unbounded" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="seq4">
+            <xs:complexType>
+              <xs:sequence dfdl:initiatedContent="no"
+                dfdl:separatorPosition="infix" dfdl:separator="|">
+                <xs:element name="num4" type="xs:int"
+                  maxOccurs="unbounded" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<tdml:parserTestCase name="SeqGrp_01"
-			model="SequenceGroupDelimiters-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters, a whitespace separated list for separator - DFDL-14-008R"
-			root="SG_01">
-			<tdml:document>1,2,3,4:5.6.7.8$9;10;11;12::13|14|15|16</tdml:document>
-			<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<SG_01>
-					<seq1>
-						<num1>1</num1>
-						<num1>2</num1>
-						<num1>3</num1>
-						<num1>4</num1>
-					</seq1>
-					<seq2>
-						<num2>5</num2>
-						<num2>6</num2>
-						<num2>7</num2>
-						<num2>8</num2>
-					</seq2>
-					<seq3>
-						<num3>9</num3>
-						<num3>10</num3>
-						<num3>11</num3>
-						<num3>12</num3>
-					</seq3>
-					<seq4>
-						<num4>13</num4>
-						<num4>14</num4>
-						<num4>15</num4>
-						<num4>16</num4>
-					</seq4>
-				</SG_01>
-			</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
-		
-		<tdml:parserTestCase name="SeqGrp_02" root="SG_02"
-		model="SequenceGroupDelimiters-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters -negative test -DFDL-14-008R">
+    <xs:element name="SG_02" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="infix"
+          dfdl:separator=",">
+          <xs:element name="s1" type="xs:int" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-			<tdml:document>,</tdml:document>
-				<tdml:errors>
-					<tdml:error/>
-				</tdml:errors>
-		</tdml:parserTestCase>
-		
-		<tdml:parserTestCase name="SeqGrp_03" root="SG_03"
-		model="SequenceGroupDelimiters-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters -multiple separators - DFDL-14-008R">
+    <xs:element name="SG_03" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="infix"
+          dfdl:separator=", ,, ,,,">
+          <xs:element name="s1" type="xs:int" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-			<tdml:document>1,,2,,,3,4</tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-					<SG_03>
-						<s1>1</s1>
-						<s1>2</s1>
-						<s1>3</s1>
-						<s1>4</s1>
-					</SG_03>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
-		
-		<tdml:parserTestCase name="SeqGrp_04" root="SG_04"
-		model="SequenceGroupDelimiters-Embedded.dfdl.xsd" description="Section 14 Sequence groups with delimiters -empty string separator - DFDL-14-008R">
+    <xs:element name="SG_04" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="infix"
+          dfdl:separator="">
+          <xs:element name="s1" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="3" />
+          <xs:element name="s2" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="4" />
+          <xs:element name="s3" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="5" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-			<tdml:document>abcdefghijkl</tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-					<SG_04>
-						<s1>abc</s1>
-						<s2>defg</s2>
-						<s3>hijkl</s3>
-					</SG_04>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
-		
-		
-	<tdml:defineSchema name="dfdlPrefix.xsd">
-	
-		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" encoding="utf-8"
-			byteOrder="bigEndian" occursCountKind="parsed" ignoreCase="no"
-			representation="text" lengthKind="delimited" separatorPolicy="suppressed"
-			initiatedContent="no" documentFinalTerminatorCanBeMissing="yes" />
+  </tdml:defineSchema>
 
-		<xs:element name="description" type="xs:string" />
-		<xs:element name="comment" type="xs:string" />
-		<xs:element name="quantity" type="xs:int" />
-		<xs:element name="price" type="xs:float" />
+  <tdml:parserTestCase name="SeqGrp_01"
+    model="SequenceGroupDelimiters-Embedded.dfdl.xsd"
+    description="Section 14 Sequence groups with delimiters, a whitespace separated list for separator - DFDL-14-008R"
+    root="SG_01">
+    <tdml:document><![CDATA[1,2,3,4:5.6.7.8$9;10;11;12::13|14|15|16]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <SG_01>
+          <seq1>
+            <num1>1</num1>
+            <num1>2</num1>
+            <num1>3</num1>
+            <num1>4</num1>
+          </seq1>
+          <seq2>
+            <num2>5</num2>
+            <num2>6</num2>
+            <num2>7</num2>
+            <num2>8</num2>
+          </seq2>
+          <seq3>
+            <num3>9</num3>
+            <num3>10</num3>
+            <num3>11</num3>
+            <num3>12</num3>
+          </seq3>
+          <seq4>
+            <num4>13</num4>
+            <num4>14</num4>
+            <num4>15</num4>
+            <num4>16</num4>
+          </seq4>
+        </SG_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<xs:element name="list" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="||" dfdl:separatorPosition="prefix">
-					<xs:element name="Item" dfdl:lengthKind="delimited"
-						type="xs:string" maxOccurs="unbounded" minOccurs="0">
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="list_01" dfdl:lengthKind="delimited">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="Start" dfdl:separatorPosition="prefix">
-					<xs:element name="Item" dfdl:lengthKind="delimited" maxOccurs="unbounded" minOccurs="0">
-						<xs:complexType>
-							<xs:sequence dfdl:separator=":" dfdl:separatorPosition="prefix">
-								<xs:element ref="ex:description"/>
-								<xs:element ref="ex:comment"/>
-								<xs:element ref="ex:quantity"/>
-								<xs:element ref="ex:price"/>
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="NS_02">
-		<xs:complexType>
-			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-				dfdl:separator="," dfdl:separatorPolicy="required" dfdl:terminator="%NL;">
-				<xs:element name="num" type="xs:int" maxOccurs="unbounded"/>	
-			</xs:sequence>
-		</xs:complexType>
-		</xs:element>
+  <tdml:parserTestCase name="SeqGrp_02" root="SG_02"
+    model="SequenceGroupDelimiters-Embedded.dfdl.xsd"
+    description="Section 14 Sequence groups with delimiters -negative test -DFDL-14-008R">
 
-	</tdml:defineSchema>
-	
-	<tdml:parserTestCase name="prefix" root="list"
-		model="dfdlPrefix.xsd" description="separatorPosition is prefix - DFDL-14-009R">
+    <tdml:document><![CDATA[,]]></tdml:document>
+    <tdml:errors>
+      <tdml:error />
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-		<tdml:document>||Shirts,Sold on Monday,30,$17.99||Shoes,Sold on
-			Tuesday,23,$89.99
-		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<list>
-					<Item>Shirts,Sold on Monday,30,$17.99</Item>
-					<Item>Shoes,Sold on Tuesday,23,$89.99</Item>
-				</list>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="prefix_01" root="list_01"
-		model="dfdlPrefix.xsd" description="separatorPosition is prefix - DFDL-14-009R">
+  <tdml:parserTestCase name="SeqGrp_03" root="SG_03"
+    model="SequenceGroupDelimiters-Embedded.dfdl.xsd"
+    description="Section 14 Sequence groups with delimiters -multiple separators - DFDL-14-008R">
 
-		<tdml:document><![CDATA[Start:Shirts:Sold on Monday:30:17.99Start:Shoes:Sold on Tuesday:23:89.99]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<list_01>
-					<Item>
-						<description>Shirts</description>
-						<comment>Sold on Monday</comment>
-						<quantity>30</quantity>
-						<price>17.99</price>
-					</Item>
-					<Item>
-						<description>Shoes</description>
-						<comment>Sold on Tuesday</comment>
-						<quantity>23</quantity>
-						<price>89.99</price>
-					</Item>
-				</list_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="NumSeq_02" root="NS_02"
-		model="dfdlPrefix.xsd" description="Schema definition error for occursCountKind 'parsed' with separatorPolicy 'required' (or separatorSuppressionPolicy 'never').">
+    <tdml:document><![CDATA[1,,2,,,3,4]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <SG_03>
+          <s1>1</s1>
+          <s1>2</s1>
+          <s1>3</s1>
+          <s1>4</s1>
+        </SG_03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document>1,2,3,4,5,6
-		</tdml:document>
-		<tdml:errors>
-			<tdml:error></tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-	
-	<tdml:defineSchema name="groupRefInheritProps.xsd">
+  <tdml:parserTestCase name="SeqGrp_04" root="SG_04"
+    model="SequenceGroupDelimiters-Embedded.dfdl.xsd"
+    description="Section 14 Sequence groups with delimiters -empty string separator - DFDL-14-008R">
+
+    <tdml:document><![CDATA[abcdefghijkl]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <SG_04>
+          <s1>abc</s1>
+          <s2>defg</s2>
+          <s3>hijkl</s3>
+        </SG_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 
-		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" encoding="utf-8"
-			byteOrder="bigEndian" occursCountKind="parsed" ignoreCase="no"
-			representation="text" lengthKind="delimited" textNumberRep="standard"
-			separatorPolicy="suppressed" initiatedContent="no" />
+  <tdml:defineSchema name="dfdlPrefix.xsd">
 
-		<xs:element name="description" type="xs:string" />
-		<xs:element name="comment" type="xs:string" />
-		<xs:element name="quantity" type="xs:int" />
-		<xs:element name="price" type="xs:float" />
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" encoding="utf-8" byteOrder="bigEndian"
+      occursCountKind="parsed" ignoreCase="no" representation="text"
+      lengthKind="delimited" separatorPolicy="suppressed"
+      initiatedContent="no" documentFinalTerminatorCanBeMissing="yes" />
 
-		<xs:group name="namedGroup">
-			<xs:sequence dfdl:separatorPosition="infix">
-				<xs:element ref="ex:description" />
-				<xs:element ref="ex:comment" />
-				<xs:element ref="ex:quantity" />
-				<xs:element ref="ex:price" dfdl:initiator="$" />
-			</xs:sequence>
-		</xs:group>
+    <xs:element name="description" type="xs:string" />
+    <xs:element name="comment" type="xs:string" />
+    <xs:element name="quantity" type="xs:int" />
+    <xs:element name="price" type="xs:float" />
 
-		<xs:element name="Item" dfdl:lengthKind="implicit">
-			<xs:complexType>
+    <xs:element name="list" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="||"
+          dfdl:separatorPosition="prefix">
+          <xs:element name="Item" dfdl:lengthKind="delimited"
+            type="xs:string" maxOccurs="unbounded" minOccurs="0">
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-				<xs:group ref="ex:namedGroup" dfdl:separator="," />
+    <xs:element name="list_01" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="Start"
+          dfdl:separatorPosition="prefix">
+          <xs:element name="Item" dfdl:lengthKind="delimited"
+            maxOccurs="unbounded" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=":"
+                dfdl:separatorPosition="prefix">
+                <xs:element ref="ex:description" />
+                <xs:element ref="ex:comment" />
+                <xs:element ref="ex:quantity" />
+                <xs:element ref="ex:price" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="NS_02">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=","
+          dfdl:separatorPolicy="required" dfdl:terminator="%NL;">
+          <xs:element name="num" type="xs:int" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="list" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="||" dfdl:separatorPosition="infix">
-					<xs:element ref="ex:Item" maxOccurs="unbounded" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+  </tdml:defineSchema>
 
-	</tdml:defineSchema>
+  <tdml:parserTestCase name="prefix" root="list"
+    model="dfdlPrefix.xsd" description="separatorPosition is prefix - DFDL-14-009R">
 
-	<tdml:parserTestCase name="groupRefInheritProps"
-		root="list" model="groupRefInheritProps.xsd" description="separator defined on a group reference - DFDL-14-008R">
+    <tdml:document><![CDATA[||Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <list>
+          <Item>Shirts,Sold on Monday,30,$17.99</Item>
+          <Item>Shoes,Sold on Tuesday,23,$89.99</Item>
+        </list>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<list>
-					<Item>
-						<description>Shirts</description>
-						<comment>Sold on Monday</comment>
-						<quantity>30</quantity>
-						<price>17.99</price>
-					</Item>
-					<Item>
-						<description>Shoes</description>
-						<comment>Sold on Tuesday</comment>
-						<quantity>23</quantity>
-						<price>89.99</price>
-					</Item>
-				</list>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:defineSchema name="sequenceWithinSequence.xsd">
+  <tdml:parserTestCase name="prefix_01" root="list_01"
+    model="dfdlPrefix.xsd" description="separatorPosition is prefix - DFDL-14-009R">
 
-		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" encoding="utf-8"
-			byteOrder="bigEndian" occursCountKind="parsed" ignoreCase="no"
-			representation="text" lengthKind="delimited" textNumberRep="standard"
-			separatorPolicy="suppressed" initiatedContent="no" />
+    <tdml:document><![CDATA[Start:Shirts:Sold on Monday:30:17.99Start:Shoes:Sold on Tuesday:23:89.99]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <list_01>
+          <Item>
+            <description>Shirts</description>
+            <comment>Sold on Monday</comment>
+            <quantity>30</quantity>
+            <price>17.99</price>
+          </Item>
+          <Item>
+            <description>Shoes</description>
+            <comment>Sold on Tuesday</comment>
+            <quantity>23</quantity>
+            <price>89.99</price>
+          </Item>
+        </list_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<xs:element name="description" type="xs:string" />
-		<xs:element name="comment" type="xs:string" />
-		<xs:element name="quantity" type="xs:int" />
-		<xs:element name="price" type="xs:float" />
+  <tdml:parserTestCase name="NumSeq_02" root="NS_02"
+    model="dfdlPrefix.xsd"
+    description="Schema definition error for occursCountKind 'parsed' with separatorPolicy 'required' (or separatorSuppressionPolicy 'never').">
 
-		<xs:element name="Item" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-					<xs:element ref="ex:description" />
-					<xs:element ref="ex:comment" />
-					<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-						<xs:element ref="ex:quantity" />
-						<xs:element ref="ex:price" dfdl:initiator="$" />
-					</xs:sequence>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <tdml:document><![CDATA[1,2,3,4,5,6
+		]]></tdml:document>
+    <tdml:errors>
+      <tdml:error></tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-		<xs:element name="list" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="||" dfdl:separatorPosition="infix">
-					<xs:element ref="ex:Item" maxOccurs="unbounded" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+  <tdml:defineSchema name="groupRefInheritProps.xsd">
 
-	</tdml:defineSchema>
 
-	<tdml:parserTestCase name="sequenceWithinSequence"
-		root="list" model="sequenceWithinSequence.xsd" description="nested delimited sequences, infix separators - DFDL-14-008R">
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" encoding="utf-8" byteOrder="bigEndian"
+      occursCountKind="parsed" ignoreCase="no" representation="text"
+      lengthKind="delimited" textNumberRep="standard" separatorPolicy="suppressed"
+      initiatedContent="no" />
 
-		<tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<list>
-					<Item>
-						<description>Shirts</description>
-						<comment>Sold on Monday</comment>
-						<quantity>30</quantity>
-						<price>17.99</price>
-					</Item>
-					<Item>
-						<description>Shoes</description>
-						<comment>Sold on Tuesday</comment>
-						<quantity>23</quantity>
-						<price>89.99</price>
-					</Item>
-				</list>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
+    <xs:element name="description" type="xs:string" />
+    <xs:element name="comment" type="xs:string" />
+    <xs:element name="quantity" type="xs:int" />
+    <xs:element name="price" type="xs:float" />
+
+    <xs:group name="namedGroup">
+      <xs:sequence dfdl:separatorPosition="infix">
+        <xs:element ref="ex:description" />
+        <xs:element ref="ex:comment" />
+        <xs:element ref="ex:quantity" />
+        <xs:element ref="ex:price" dfdl:initiator="$" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="Item" dfdl:lengthKind="implicit">
+      <xs:complexType>
+
+        <xs:group ref="ex:namedGroup" dfdl:separator="," />
+
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="list" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="||"
+          dfdl:separatorPosition="infix">
+          <xs:element ref="ex:Item" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="groupRefInheritProps"
+    root="list" model="groupRefInheritProps.xsd"
+    description="separator defined on a group reference - DFDL-14-008R">
+
+    <tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <list>
+          <Item>
+            <description>Shirts</description>
+            <comment>Sold on Monday</comment>
+            <quantity>30</quantity>
+            <price>17.99</price>
+          </Item>
+          <Item>
+            <description>Shoes</description>
+            <comment>Sold on Tuesday</comment>
+            <quantity>23</quantity>
+            <price>89.99</price>
+          </Item>
+        </list>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="sequenceWithinSequence.xsd">
+
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" encoding="utf-8" byteOrder="bigEndian"
+      occursCountKind="parsed" ignoreCase="no" representation="text"
+      lengthKind="delimited" textNumberRep="standard" separatorPolicy="suppressed"
+      initiatedContent="no" />
+
+    <xs:element name="description" type="xs:string" />
+    <xs:element name="comment" type="xs:string" />
+    <xs:element name="quantity" type="xs:int" />
+    <xs:element name="price" type="xs:float" />
+
+    <xs:element name="Item" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=","
+          dfdl:separatorPosition="infix">
+          <xs:element ref="ex:description" />
+          <xs:element ref="ex:comment" />
+          <xs:sequence dfdl:separator=","
+            dfdl:separatorPosition="infix">
+            <xs:element ref="ex:quantity" />
+            <xs:element ref="ex:price" dfdl:initiator="$" />
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="list" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="||"
+          dfdl:separatorPosition="infix">
+          <xs:element ref="ex:Item" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="sequenceWithinSequence"
+    root="list" model="sequenceWithinSequence.xsd"
+    description="nested delimited sequences, infix separators - DFDL-14-008R">
+
+    <tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <list>
+          <Item>
+            <description>Shirts</description>
+            <comment>Sold on Monday</comment>
+            <quantity>30</quantity>
+            <price>17.99</price>
+          </Item>
+          <Item>
+            <description>Shoes</description>
+            <comment>Sold on Tuesday</comment>
+            <quantity>23</quantity>
+            <price>89.99</price>
+          </Item>
+        </list>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

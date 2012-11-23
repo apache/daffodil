@@ -1,55 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite suiteName="AI" description="AI - lengthKind pattern"
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ex="http://example.com"
-	xmlns="http://example.com">
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" xmlns="http://example.com">
 
-	<tdml:defineSchema name="AI.dfdl.xsd">
-		<dfdl:format ref="ex:daffodilTest1" encoding="ascii"/>
+  <tdml:defineSchema name="AI.dfdl.xsd">
+    <dfdl:format ref="ex:daffodilTest1" encoding="ascii" />
 
-		<!-- Patterned length and fixed length -->
+    <!-- Patterned length and fixed length -->
 
-		<xs:element name="list" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="firstToken" type="xs:string"
-						dfdl:lengthKind="pattern" dfdl:lengthPattern="[a-zA-Z]+"
-						dfdl:representation="text" dfdl:initiator="%WSP+;" />
-					<xs:element name="secondToken" type="xs:string"
-						dfdl:lengthKind="pattern" dfdl:lengthPattern="[0-9]+"
-						dfdl:representation="text" dfdl:textStringJustification="center"
-						dfdl:textStringPadCharacter=" " />
-					<xs:element name="thirdToken" type="xs:string"
-						dfdl:lengthKind="explicit" dfdl:length="5" dfdl:representation="text"
-						dfdl:textStringJustification="center" dfdl:textStringPadCharacter=" "
-						dfdl:terminator="%NL;%WSP*;" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="list" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="firstToken" type="xs:string"
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="[a-zA-Z]+"
+            dfdl:representation="text" dfdl:initiator="%WSP+;" />
+          <xs:element name="secondToken" type="xs:string"
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="[0-9]+"
+            dfdl:representation="text" dfdl:textStringJustification="center"
+            dfdl:textStringPadCharacter=" " />
+          <xs:element name="thirdToken" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="5"
+            dfdl:representation="text" dfdl:textStringJustification="center"
+            dfdl:textStringPadCharacter=" " dfdl:terminator="%NL;%WSP*;" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="AI000" root="list"
-		model="AI.dfdl.xsd" description="AI - length kind pattern test - DFDL-12-038R">
+  <tdml:parserTestCase name="AI000" root="list"
+    model="AI.dfdl.xsd" description="AI - length kind pattern test - DFDL-12-038R">
 
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[
 				aSingleToken123456789AAAAA
 				]]>
 			</tdml:documentPart>
-		</tdml:document>
+    </tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:ex="http://example.com">
-				<ex:list xmlns="http://www.example.org/example1" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-					<ex:firstToken>aSingleToken</ex:firstToken>
-					<ex:secondToken>123456789</ex:secondToken>
-					<ex:thirdToken>AAAAA</ex:thirdToken>
-				</ex:list>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:list xmlns="http://www.example.org/example1"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <ex:firstToken>aSingleToken</ex:firstToken>
+          <ex:secondToken>123456789</ex:secondToken>
+          <ex:thirdToken>AAAAA</ex:thirdToken>
+        </ex:list>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 </tdml:testSuite>

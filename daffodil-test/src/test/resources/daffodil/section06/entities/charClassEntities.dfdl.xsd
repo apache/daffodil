@@ -1,59 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
 <schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-	targetNamespace="http://www.example.org/example1/" 
-	xmlns:tns="http://www.example.org/example1/" 
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  targetNamespace="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-	<annotation>
-		<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-				<dfdl:format initiator="" terminator="" 
-				leadingSkip="0" trailingSkip="0"  textBidi="no" floating="no"
-				encoding="ASCII" byteOrder="bigEndian" alignment="1" 
-				alignmentUnits="bytes" fillByte="f" 
-                occursCountKind="parsed" 
-				truncateSpecifiedLengthString="no" ignoreCase="no"
-				representation="text"  lengthKind="delimited"
-				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
-				documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-				separatorPolicy="suppressed" separatorPosition="infix"
-				
-				/>
-		</appinfo>
-	</annotation>
-	<!-- Parsing of CSV -->
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format initiator="" terminator="" leadingSkip="0"
+        trailingSkip="0" textBidi="no" floating="no" encoding="ASCII"
+        byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"
+        fillByte="f" occursCountKind="parsed"
+        truncateSpecifiedLengthString="no" ignoreCase="no"
+        representation="text" lengthKind="delimited"
+        nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none"
+        documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+        separatorPolicy="suppressed" separatorPosition="infix" />
+    </appinfo>
+  </annotation>
+  <!-- Parsing of CSV -->
 
-	<element name="matrix" type="tns:matrixType" dfdl:lengthKind="implicit" />
+  <element name="matrix" type="tns:matrixType" dfdl:lengthKind="implicit" />
 
-	<complexType name="matrixType">
-		<sequence dfdl:separator="%NL;" dfdl:encoding="utf-8">
-			<element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit" dfdl:encoding="utf-8">
-				<complexType>
-					<sequence dfdl:separator="," dfdl:encoding="utf-8">
-						<element name="cell" type="xsd:int" maxOccurs="unbounded" dfdl:textNumberRep="standard"
-							dfdl:lengthKind="delimited" dfdl:encoding="utf-8"/>
-					</sequence>
-				</complexType>
-			</element>
-		</sequence>
-	</complexType>
-	
-	<element name="matrix_01" type="tns:matrixType_01" dfdl:lengthKind="implicit"  />
+  <complexType name="matrixType">
+    <sequence dfdl:separator="%NL;" dfdl:encoding="utf-8">
+      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit"
+        dfdl:encoding="utf-8">
+        <complexType>
+          <sequence dfdl:separator="," dfdl:encoding="utf-8">
+            <element name="cell" type="xsd:int" maxOccurs="unbounded"
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"
+              dfdl:encoding="utf-8" />
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
 
-	<complexType name="matrixType_01">
-		<sequence dfdl:separator="%FF;">
-			<element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
-				<complexType>
-					<sequence dfdl:separator=",">
-						<element name="cell" type="xsd:int" maxOccurs="unbounded" dfdl:textNumberRep="standard"
-							dfdl:lengthKind="delimited" />
-					</sequence>
-				</complexType>
-			</element>
-		</sequence>
-	</complexType>
-	
-	<xsd:element name="hcp" type="xsd:string" dfdl:encoding="utf-8" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="2"/>
+  <element name="matrix_01" type="tns:matrixType_01"
+    dfdl:lengthKind="implicit" />
+
+  <complexType name="matrixType_01">
+    <sequence dfdl:separator="%FF;">
+      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
+        <complexType>
+          <sequence dfdl:separator=",">
+            <element name="cell" type="xsd:int" maxOccurs="unbounded"
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+
+  <xsd:element name="hcp" type="xsd:string" dfdl:encoding="utf-8"
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="2" />
 
 </schema>

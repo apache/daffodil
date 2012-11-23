@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tdml:testSuite suiteName="DelimitedTests" description="Section 12 - lengthKind=delimited"
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
-	xmlns:tns="http://example.com">
-	
-	
-  <tdml:defineSchema name="s1">
-  	<dfdl:defineFormat name="def2">
-				<dfdl:format ref="tns:def3" lengthKind="explicit" lengthUnits="characters" length="4" 
-					representation="text" textNumberRep="standard"/>
-		</dfdl:defineFormat>
-			
-		<dfdl:defineFormat name="def3">
-				<dfdl:format ref="tns:daffodilTest1" representation="binary"/>
-		</dfdl:defineFormat>
-		
-		<dfdl:format ref="tns:def1" initiator="" terminator="" encoding="utf-8"/>            
-	
-		<dfdl:defineFormat name="def1">
-				<dfdl:format ref="tns:def2"/>
-		</dfdl:defineFormat>
-			
-		<xs:element name="easy" type="xs:int"/>
-                
- </tdml:defineSchema>
- 
-	<tdml:parserTestCase name="defineFormat_01" root="easy"
-		model="s1" description="Section 7 - Multiple defineFormat elements - DFDL-7-028R">
+<tdml:testSuite suiteName="DelimitedTests"
+  description="Section 12 - lengthKind=delimited" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:tns="http://example.com">
 
-		<tdml:document>1009</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<easy>1009</easy>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
+
+  <tdml:defineSchema name="s1">
+    <dfdl:defineFormat name="def2">
+      <dfdl:format ref="tns:def3" lengthKind="explicit"
+        lengthUnits="characters" length="4" representation="text"
+        textNumberRep="standard" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="def3">
+      <dfdl:format ref="tns:daffodilTest1" representation="binary" />
+    </dfdl:defineFormat>
+
+    <dfdl:format ref="tns:def1" initiator="" terminator=""
+      encoding="utf-8" />
+
+    <dfdl:defineFormat name="def1">
+      <dfdl:format ref="tns:def2" />
+    </dfdl:defineFormat>
+
+    <xs:element name="easy" type="xs:int" />
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="defineFormat_01" root="easy"
+    model="s1" description="Section 7 - Multiple defineFormat elements - DFDL-7-028R">
+
+    <tdml:document>1009</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <easy>1009</easy>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

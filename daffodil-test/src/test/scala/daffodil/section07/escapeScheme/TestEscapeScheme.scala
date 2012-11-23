@@ -15,7 +15,7 @@ class TestEscapeScheme extends JUnitSuite {
   val testDir = "/daffodil/section07/escapeScheme/"
   val tdml = testDir + "escapeScheme.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
-  
+
   @Test def test_escape_scheme() { runner.runOneTest("escapeSchemeSimple") }
-  
-  }
+
+}

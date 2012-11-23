@@ -16,7 +16,7 @@ class TestSDE extends JUnitSuite {
   val testDir = "/daffodil/section02/schema_definition_errors/"
   val aa = testDir + "SchemaDefinitionErrors.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def test_AS000_rev() { runner.runOneTest("AS000_rev") }
 
-  }
+}

@@ -1,142 +1,147 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tdml:testSuite suiteName="ImplicitTests" description="Section 12 - lengthKind=implicit"
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
-	xmlns:ex="http://example.com">
+<tdml:testSuite suiteName="ImplicitTests"
+  description="Section 12 - lengthKind=implicit" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com">
 
-	<tdml:defineSchema name="implicit_tests_embedded">
-				
-		<dfdl:format ref="ex:daffodilTest1"/>
-			
-		<xs:element name="data_01" type="xs:string" dfdl:lengthKind="pattern" 
-			dfdl:lengthPattern="(a|b|c)"/>
-			
-		<xs:element name="data_02" type="xs:string" dfdl:lengthKind="pattern"
-			dfdl:lengthPattern="(1|2|3)"/>
-			
-		<xs:element name="seq_01">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element ref="ex:data_02"/>
-					<xs:element ref="ex:data_01"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-			
-		<xs:element name="seq_02" dfdl:lengthKind="implicit" dfdl:initiator="?">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:choice>
-						<xs:element ref="ex:seq_01"/>
-						<xs:element ref="ex:data_01"/>
-					</xs:choice>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-			
-		<xs:element name="seq_03" dfdl:lengthKind="implicit" dfdl:initiator="%WSP*;">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element ref="ex:seq_02" minOccurs="1" maxOccurs="unbounded"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="nested_seq" dfdl:lengthKind="implicit" dfdl:terminator="$">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element ref="ex:seq_03" minOccurs="0" maxOccurs="unbounded"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="nested_seq_01" dfdl:lengthKind="implicit" dfdl:terminator="$">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element ref="ex:seq_03" minOccurs="0" maxOccurs="1"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-							   
-	</tdml:defineSchema>
-	
-	<tdml:parserTestCase name="nested_seq" root="nested_seq"
-		model="implicit_tests_embedded" description="lengthKind implicit on complex element - DFDL-12-055R">
+  <tdml:defineSchema name="implicit_tests_embedded">
 
-		<tdml:document><![CDATA[?a?2a?a?b?c?a?b$]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<nested_seq>
-						<seq_03>
-							<seq_02>
-								<data_01>a</data_01>
-							</seq_02>
-							<seq_02>
-								<seq_01>
-									<data_02>2</data_02>
-									<data_01>a</data_01>
-								</seq_01>
-							</seq_02>
-							<seq_02>
-								<data_01>a</data_01>
-							</seq_02>
-							<seq_02>
-								<data_01>b</data_01>
-							</seq_02>
-							<seq_02>
-								<data_01>c</data_01>
-							</seq_02>
-							<seq_02>
-								<data_01>a</data_01>
-							</seq_02>
-							<seq_02>
-								<data_01>b</data_01>
-							</seq_02>
-						</seq_03>
-				</nested_seq>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="nested_seq_01" root="nested_seq_01"
-		model="implicit_tests_embedded" description="lengthKind implicit on complex element - DFDL-12-055R">
+    <dfdl:format ref="ex:daffodilTest1" />
 
-		<tdml:document><![CDATA[?a?2a?a?b?c?a?b$]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<nested_seq_01>
-						<seq_03>
-							<seq_02>
-								<data_01>a</data_01>
-							</seq_02>
-							<seq_02>
-								<seq_01>
-									<data_02>2</data_02>
-									<data_01>a</data_01>
-								</seq_01>
-							</seq_02>
-							<seq_02>
-								<data_01>a</data_01>
-							</seq_02>
-							<seq_02>
-								<data_01>b</data_01>
-							</seq_02>
-							<seq_02>
-								<data_01>c</data_01>
-							</seq_02>
-							<seq_02>
-								<data_01>a</data_01>
-							</seq_02>
-							<seq_02>
-								<data_01>b</data_01>
-							</seq_02>
-						</seq_03>
-				</nested_seq_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
+    <xs:element name="data_01" type="xs:string"
+      dfdl:lengthKind="pattern" dfdl:lengthPattern="(a|b|c)" />
+
+    <xs:element name="data_02" type="xs:string"
+      dfdl:lengthKind="pattern" dfdl:lengthPattern="(1|2|3)" />
+
+    <xs:element name="seq_01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="ex:data_02" />
+          <xs:element ref="ex:data_01" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="seq_02" dfdl:lengthKind="implicit"
+      dfdl:initiator="?">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:choice>
+            <xs:element ref="ex:seq_01" />
+            <xs:element ref="ex:data_01" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="seq_03" dfdl:lengthKind="implicit"
+      dfdl:initiator="%WSP*;">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="ex:seq_02" minOccurs="1"
+            maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nested_seq" dfdl:lengthKind="implicit"
+      dfdl:terminator="$">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="ex:seq_03" minOccurs="0"
+            maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nested_seq_01" dfdl:lengthKind="implicit"
+      dfdl:terminator="$">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="ex:seq_03" minOccurs="0"
+            maxOccurs="1" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="nested_seq" root="nested_seq"
+    model="implicit_tests_embedded" description="lengthKind implicit on complex element - DFDL-12-055R">
+
+    <tdml:document><![CDATA[?a?2a?a?b?c?a?b$]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nested_seq>
+          <seq_03>
+            <seq_02>
+              <data_01>a</data_01>
+            </seq_02>
+            <seq_02>
+              <seq_01>
+                <data_02>2</data_02>
+                <data_01>a</data_01>
+              </seq_01>
+            </seq_02>
+            <seq_02>
+              <data_01>a</data_01>
+            </seq_02>
+            <seq_02>
+              <data_01>b</data_01>
+            </seq_02>
+            <seq_02>
+              <data_01>c</data_01>
+            </seq_02>
+            <seq_02>
+              <data_01>a</data_01>
+            </seq_02>
+            <seq_02>
+              <data_01>b</data_01>
+            </seq_02>
+          </seq_03>
+        </nested_seq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nested_seq_01" root="nested_seq_01"
+    model="implicit_tests_embedded" description="lengthKind implicit on complex element - DFDL-12-055R">
+
+    <tdml:document><![CDATA[?a?2a?a?b?c?a?b$]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nested_seq_01>
+          <seq_03>
+            <seq_02>
+              <data_01>a</data_01>
+            </seq_02>
+            <seq_02>
+              <seq_01>
+                <data_02>2</data_02>
+                <data_01>a</data_01>
+              </seq_01>
+            </seq_02>
+            <seq_02>
+              <data_01>a</data_01>
+            </seq_02>
+            <seq_02>
+              <data_01>b</data_01>
+            </seq_02>
+            <seq_02>
+              <data_01>c</data_01>
+            </seq_02>
+            <seq_02>
+              <data_01>a</data_01>
+            </seq_02>
+            <seq_02>
+              <data_01>b</data_01>
+            </seq_02>
+          </seq_03>
+        </nested_seq_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

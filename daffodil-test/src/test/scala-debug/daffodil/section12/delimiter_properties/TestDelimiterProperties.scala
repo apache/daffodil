@@ -18,5 +18,4 @@ class TestDelimiterProperties_01 extends JUnitSuite {
   val tdml_02 = testDir_02 + "DelimiterProperties.tdml"
   lazy val r = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 
-
 }

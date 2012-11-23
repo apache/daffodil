@@ -20,34 +20,34 @@ class TestInputValueCalc extends JUnitSuite {
   lazy val runnerAR = new DFDLTestSuite(Misc.getRequiredResource(ar))
 
   @Test def test_AR000() { runnerAR.runOneTest("AR000") }
-  
+
   val aq = testDir + "AQ.tdml"
   lazy val runnerAQ = new DFDLTestSuite(Misc.getRequiredResource(aq))
 
   @Test def test_AQ000() { runnerAQ.runOneTest("AQ000") }
-  
+
   val aa = testDir + "AA.tdml"
 
   lazy val runnerAA = { new DFDLTestSuite(Misc.getRequiredResource(aa)) }
-  
+
   @Test def test_AA000() { runnerAA.runOneTest("AA000") }
-  @Test def test_inputValueCalcErrorDiagnostic1() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic1")}
-  @Test def test_inputValueCalcErrorDiagnostic2() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic2")}
-  @Test def test_inputValueCalcAbsolutePath() { runnerAA.runOneTest("inputValueCalcAbsolutePath")}
-  
+  @Test def test_inputValueCalcErrorDiagnostic1() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic1") }
+  @Test def test_inputValueCalcErrorDiagnostic2() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic2") }
+  @Test def test_inputValueCalcAbsolutePath() { runnerAA.runOneTest("inputValueCalcAbsolutePath") }
+
   val tdml = testDir + "inputValueCalc.tdml"
 
   lazy val runner = { new DFDLTestSuite(Misc.getRequiredResource(tdml)) }
-  
-  @Test def test_InputValueCalc_01() { runner.runOneTest("InputValueCalc_01")}
-  @Test def test_InputValueCalc_02() { runner.runOneTest("InputValueCalc_02")}
-  @Test def test_InputValueCalc_03() { runner.runOneTest("InputValueCalc_03")}
-  @Test def test_InputValueCalc_04() { runner.runOneTest("InputValueCalc_04")}
-  @Test def test_InputValueCalc_05() { runner.runOneTest("InputValueCalc_05")}
-  @Test def test_InputValueCalc_06() { runner.runOneTest("InputValueCalc_06")}
+
+  @Test def test_InputValueCalc_01() { runner.runOneTest("InputValueCalc_01") }
+  @Test def test_InputValueCalc_02() { runner.runOneTest("InputValueCalc_02") }
+  @Test def test_InputValueCalc_03() { runner.runOneTest("InputValueCalc_03") }
+  @Test def test_InputValueCalc_04() { runner.runOneTest("InputValueCalc_04") }
+  @Test def test_InputValueCalc_05() { runner.runOneTest("InputValueCalc_05") }
+  @Test def test_InputValueCalc_06() { runner.runOneTest("InputValueCalc_06") }
   //@Test def test_InputValueCalc_07() { runner.runOneTest("InputValueCalc_07")}
-  @Test def test_InputValueCalc_08() { runner.runOneTest("InputValueCalc_08")}
-  @Test def test_InputValueCalc_09() { runner.runOneTest("InputValueCalc_09")}
-  @Test def test_InputValueCalc_10() { runner.runOneTest("InputValueCalc_10")}
-  @Test def test_InputValueCalc_11() { runner.runOneTest("InputValueCalc_11")}
+  @Test def test_InputValueCalc_08() { runner.runOneTest("InputValueCalc_08") }
+  @Test def test_InputValueCalc_09() { runner.runOneTest("InputValueCalc_09") }
+  @Test def test_InputValueCalc_10() { runner.runOneTest("InputValueCalc_10") }
+  @Test def test_InputValueCalc_11() { runner.runOneTest("InputValueCalc_11") }
 }

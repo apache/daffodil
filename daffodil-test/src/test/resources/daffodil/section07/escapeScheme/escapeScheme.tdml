@@ -1,47 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testSuite suiteName="escapeScheme" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-	xmlns:tns="http://example.com" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  xmlns:tns="http://example.com" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-	<defineSchema name="es1">
-		<dfdl:format ref="tns:daffodilTest1" lengthKind="delimited"/>
+  <defineSchema name="es1">
+    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
 
-		<dfdl:defineEscapeScheme name="pound">
-			<dfdl:escapeScheme escapeCharacter='#'
-				escapeKind="escapeCharacter" escapeEscapeCharacter="" />
-		</dfdl:defineEscapeScheme>
-		<dfdl:defineEscapeScheme name='cStyleComment'>
-			<dfdl:escapeScheme escapeBlockStart='/*'
-				escapeBlockEnd='*/' escapeKind="escapeBlock" escapeEscapeCharacter="" />
-		</dfdl:defineEscapeScheme>
+    <dfdl:defineEscapeScheme name="pound">
+      <dfdl:escapeScheme escapeCharacter='#'
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" />
+    </dfdl:defineEscapeScheme>
+    <dfdl:defineEscapeScheme name='cStyleComment'>
+      <dfdl:escapeScheme escapeBlockStart='/*'
+        escapeBlockEnd='*/' escapeKind="escapeBlock"
+        escapeEscapeCharacter="" />
+    </dfdl:defineEscapeScheme>
 
-		<xs:element name="list1">
-			<xs:complexType>
-				<xs:sequence dfdl:initiatedContent="no"
-					dfdl:separatorPosition="infix" dfdl:sequenceKind="ordered"
-					dfdl:separator=",">
-					<xs:element name="character" type="xs:string"
-						dfdl:escapeSchemeRef="tns:pound" />
-					<xs:element name="block" type="xs:string"
-						dfdl:escapeSchemeRef="tns:cStyleComment" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</defineSchema>
+    <xs:element name="list1">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:sequenceKind="ordered"
+          dfdl:separator=",">
+          <xs:element name="character" type="xs:string"
+            dfdl:escapeSchemeRef="tns:pound" />
+          <xs:element name="block" type="xs:string"
+            dfdl:escapeSchemeRef="tns:cStyleComment" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </defineSchema>
 
-	<parserTestCase name="escapeSchemeSimple" model="es1"
-		description="Section 7 defineEscapeScheme - DFDL-7-079R" root="list1">
-		<document>ab#,cd,/*ef,gh*/</document>
-		<infoset>
-			<dfdlInfoset>
-				<list1>
-					<character>ab,cd</character>
-					<block>ef,gh</block>
-				</list1>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+  <parserTestCase name="escapeSchemeSimple" model="es1"
+    description="Section 7 defineEscapeScheme - DFDL-7-079R" root="list1">
+    <document><![CDATA[ab#,cd,/*ef,gh*/]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <list1>
+          <character>ab,cd</character>
+          <block>ef,gh</block>
+        </list1>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 
 
 </testSuite>

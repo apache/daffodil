@@ -12,7 +12,7 @@ import daffodil.tdml.DFDLTestSuite
 import java.io.File
 import daffodil.debugger.Debugger
 
-class TestDelimiterPropertiesNew extends JUnitSuite  {
+class TestDelimiterPropertiesNew extends JUnitSuite {
   val testDir_02 = "/daffodil/section12/delimiter_properties/"
   val tdml_02 = testDir_02 + "DelimiterProperties.tdml"
   lazy val r = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))

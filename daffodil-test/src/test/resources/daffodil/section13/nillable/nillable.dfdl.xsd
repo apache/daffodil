@@ -1,46 +1,41 @@
 <schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-	targetNamespace="http://www.example.org/example1/" 
-	xmlns:tns="http://www.example.org/example1/" 
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  targetNamespace="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-	<annotation>
-		<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-			<dfdl:format initiator="" terminator="" separator=""
-				separatorPolicy="suppressed" separatorPosition="infix"
-				documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
-				representation="text" occursCountKind="parsed" 
-				nilValueDelimiterPolicy="none" 
-				nilValue="nil %ES;" 
-				nilKind="literalValue"
-				textNumberRep="standard"
-				ignoreCase="no"
-				initiatedContent="no" />
-		</appinfo>
-	</annotation>
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format initiator="" terminator="" separator=""
+        separatorPolicy="suppressed" separatorPosition="infix"
+        documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
+        representation="text" occursCountKind="parsed"
+        nilValueDelimiterPolicy="none" nilValue="nil %ES;" nilKind="literalValue"
+        textNumberRep="standard" ignoreCase="no" initiatedContent="no" />
+    </appinfo>
+  </annotation>
 
 
-	<element name="doc" dfdl:lengthKind="implicit">
-		<complexType>
-			<sequence dfdl:separator="," dfdl:terminator=";">
-				<element name="e1" nillable="true" type="xsd:int"
-					dfdl:lengthKind="delimited" />
-				<element name="e2" nillable="true" type="xsd:int"
-					dfdl:lengthKind="delimited" />
-			</sequence>
-		</complexType>
-	</element>
-	
-	<element name="doc_01" dfdl:lengthKind="implicit">
-		<complexType>
-			<sequence dfdl:separator="," dfdl:terminator=";">
-				<element name="e1" nillable="true" type="xsd:int"
-					dfdl:lengthKind="delimited" />
-				<element name="e2" nillable="true" type="xsd:int"
-					dfdl:lengthKind="delimited" dfdl:terminator=":" dfdl:nilValueDelimiterPolicy="terminator"/>
-			</sequence>
-		</complexType>
-	</element>
-			
+  <element name="doc" dfdl:lengthKind="implicit">
+    <complexType>
+      <sequence dfdl:separator="," dfdl:terminator=";">
+        <element name="e1" nillable="true" type="xsd:int"
+          dfdl:lengthKind="delimited" />
+        <element name="e2" nillable="true" type="xsd:int"
+          dfdl:lengthKind="delimited" />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="doc_01" dfdl:lengthKind="implicit">
+    <complexType>
+      <sequence dfdl:separator="," dfdl:terminator=";">
+        <element name="e1" nillable="true" type="xsd:int"
+          dfdl:lengthKind="delimited" />
+        <element name="e2" nillable="true" type="xsd:int"
+          dfdl:lengthKind="delimited" dfdl:terminator=":"
+          dfdl:nilValueDelimiterPolicy="terminator" />
+      </sequence>
+    </complexType>
+  </element>
+
 </schema>

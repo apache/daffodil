@@ -16,8 +16,8 @@ class TestProcessingErrors extends JUnitSuite {
   val testDir = "/daffodil/section02/processing_errors/"
   val aa = testDir + "ProcessingErrors.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def test_upaInvalidSchema() { runner.runOneTest("upaInvalidSchema") }
   @Test def test_upaInvalidSchema2() { runner.runOneTest("upaInvalidSchema2") }
 
-  }
+}

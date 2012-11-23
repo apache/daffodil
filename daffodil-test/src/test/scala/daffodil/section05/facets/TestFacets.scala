@@ -16,7 +16,7 @@ class TestFacets extends JUnitSuite {
   val testDir = "/daffodil/section05/facets/"
   val aa = testDir + "Facets.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def test_correctNumCells0() { runner.runOneTest("correctNumCells0") }
   @Test def test_extraCellsParsed() { runner.runOneTest("extraCellsParsed") }
   @Test def test_scalarElements() { runner.runOneTest("scalarElements") }
@@ -42,4 +42,4 @@ class TestFacets extends JUnitSuite {
   @Test def test_facet_pattern_08() { runner.runOneTest("facetPattern08") }
   @Test def test_facet_pattern_09() { runner.runOneTest("facetPattern09") }
 
-  }
+}

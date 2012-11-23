@@ -1,104 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tdml:testSuite suiteName="ProcessingErrorTests" description="Section 2.3 - Processing Errors"
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ex="http://example.com" >
+<tdml:testSuite suiteName="ProcessingErrorTests"
+  description="Section 2.3 - Processing Errors" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
 
-<!-- ===================================================================== Schemas ======================================================================= -->
+  <!-- ===================================================================== 
+    Schemas ======================================================================= -->
 
-<!--
-	Schema name: upaFailure
-	    Purpose: This schema does not adhere to the Unique Particule Attribution schema constraint
--->
+  <!--
+    Schema name: upaFailure
+    Purpose: This schema does not adhere to the Unique Particule Attribution 
+    schema constraint
+  -->
 
-	<tdml:defineSchema name="upaFailure">
+  <tdml:defineSchema name="upaFailure">
 
-				<dfdl:format ref="ex:daffodilTest1"    initiator="" terminator="" 
-				textBidi="no" floating="no"
-				encoding="utf-8" byteOrder="bigEndian" alignment="1" 
-				alignmentUnits="bytes" fillByte="f" 
-				occursCountKind="implicit" 
-				truncateSpecifiedLengthString="no" ignoreCase="no"
-				representation="text"  lengthKind="delimited"
-				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
-				documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-				separatorPolicy="required" separatorPosition="infix"
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" textBidi="no" floating="no" encoding="utf-8"
+      byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"
+      fillByte="f" occursCountKind="implicit"
+      truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
+      lengthKind="delimited" nilValueDelimiterPolicy="both"
+      emptyValueDelimiterPolicy="none"
+      documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+      separatorPolicy="required" separatorPosition="infix" />
 
-				/>
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="a1" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
+          <xs:element name="a1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a1" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
+                <xs:element name="a1" type="xs:string"
+                  dfdl:lengthKind="delimited" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
 
-		<xs:element name="root">
-                <xs:complexType>
-					<xs:choice>
-						<xs:element name="a1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
-						<xs:element name="a1">
-							<xs:complexType>
-								<xs:sequence>
-										<xs:element name="a1" type="xs:string"
-											dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
-										<xs:element name="a1" type="xs:string" dfdl:lengthKind="delimited"/>
-								</xs:sequence>
-							</xs:complexType>
-						</xs:element>
-					</xs:choice>
-                </xs:complexType>
-		</xs:element>
-		
-		<xs:element name="root2">
-			<xs:complexType>
-				<xs:sequence>
-						<xs:element name="a1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" minOccurs="1" maxOccurs="4" />
-						<xs:element name="a1" type="xs:string" minOccurs="2" maxOccurs="3"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <xs:element name="root2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a1" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="1" minOccurs="1"
+            maxOccurs="4" />
+          <xs:element name="a1" type="xs:string" minOccurs="2"
+            maxOccurs="3" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-<!-- ===================================================================== Tests ======================================================================== -->
+  <!-- ===================================================================== 
+    Tests ======================================================================== -->
 
-<!--
-	Test name: upaInvalidSchema
-	   Schema: upaFailure
-	  Purpose: This document uses an invalid schema and should fail.
--->
-		
-	<tdml:parserTestCase name="upaInvalidSchema" root="root" model="upaFailure"
-		description="Section 2 - Schema Component Constraint - DFDL-2-005R5-1">
+  <!--
+    Test name: upaInvalidSchema
+    Schema: upaFailure
+    Purpose: This document uses an invalid schema and should fail.
+  -->
 
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[123]]></tdml:documentPart>
-		</tdml:document>
-		
-		<tdml:errors>
-			<tdml:error />
-		</tdml:errors>
+  <tdml:parserTestCase name="upaInvalidSchema" root="root"
+    model="upaFailure" description="Section 2 - Schema Component Constraint - DFDL-2-005R5-1">
 
-	</tdml:parserTestCase>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[123]]></tdml:documentPart>
+    </tdml:document>
 
-<!--
-	Test name: upaInvalidSchema2
-	   Schema: upaFailure
-	  Purpose: This document uses an invalid schema and should fail.
--->
-		
-	<tdml:parserTestCase name="upaInvalidSchema2" root="root2" model="upaFailure"
-		description="Section 2 - Schema Component Constraint - DFDL-2-005R5-1">
+    <tdml:errors>
+      <tdml:error />
+    </tdml:errors>
 
-		<tdml:document>
-			<tdml:documentPart type="text"><![CDATA[123gj]]></tdml:documentPart>
-		</tdml:document>
-		
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<root>
-					<basic/>
-					<extra/>
-				</root>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+  </tdml:parserTestCase>
 
-	</tdml:parserTestCase>
+  <!--
+    Test name: upaInvalidSchema2
+    Schema: upaFailure
+    Purpose: This document uses an invalid schema and should fail.
+  -->
+
+  <tdml:parserTestCase name="upaInvalidSchema2"
+    root="root2" model="upaFailure"
+    description="Section 2 - Schema Component Constraint - DFDL-2-005R5-1">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[123gj]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <basic />
+          <extra />
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

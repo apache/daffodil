@@ -15,16 +15,16 @@ class TestVariablesDebug extends JUnitSuite {
   val testDir = "/daffodil/section07/variables/"
   val tdml = testDir + "variables.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
-  
+
   @Test def test_varInstance() { runner.runOneTest("varInstance") }
   @Test def test_varAsSeparator() { runner.runOneTest("varAsSeparator") }
-  
+
   val tdml_01 = testDir + "variables_01.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
-  
+
   @Test def test_setVar1_d() { runner_01.runOneTest("setVar1_d") }
   @Test def test_doubleSetErr_d() { runner_01.runOneTest("doubleSetErr_d") }
   @Test def test_setAfterReadErr_d() { runner_01.runOneTest("setAfterReadErr_d") }
   //@Test def test_var_01() { runner_01.runOneTest("var_01") }
-  
-  }
+
+}

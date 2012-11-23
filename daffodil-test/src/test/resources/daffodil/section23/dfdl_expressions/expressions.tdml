@@ -3,8 +3,7 @@
   description="lengthKind explicit and occursCountKind expression"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ex="http://example.com"
-  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  xmlns:ex="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
   <tdml:defineSchema name="lke1_rel">
     <dfdl:format ref="ex:daffodilTest1" />
@@ -204,8 +203,9 @@
           <xs:element name="reps" type="xs:int"
             dfdl:representation="binary" dfdl:lengthKind="implicit" />
           <xs:element name="rows" type="xs:byte"
-            dfdl:representation="binary" maxOccurs="unbounded" dfdl:lengthKind="implicit"
-            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:reps }" />
+            dfdl:representation="binary" maxOccurs="unbounded"
+            dfdl:lengthKind="implicit" dfdl:occursCountKind="expression"
+            dfdl:occursCount="{ ../ex:reps }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -347,7 +347,7 @@
   <tdml:parserTestCase name="ocke_rel" root="ocke"
     model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
 
-    <tdml:document>2,3,1,2,3,4,5,6,</tdml:document>
+    <tdml:document><![CDATA[2,3,1,2,3,4,5,6,]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ocke>
@@ -613,12 +613,13 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
     <xs:element name="constantFunction">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="six" type="xs:int"
-            dfdl:length="{ fn:string-length('123456') }" dfdl:lengthKind="explicit" />
+            dfdl:length="{ fn:string-length('123456') }"
+            dfdl:lengthKind="explicit" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -626,7 +627,8 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="nonFunctionIsDetected"
-    root="noFunc" model="v" description="Schema definition error in general syntax of DFDL expression - DFDL-23-063R">
+    root="noFunc" model="v"
+    description="Schema definition error in general syntax of DFDL expression - DFDL-23-063R">
 
     <tdml:document />
 
@@ -637,7 +639,8 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="constantFunction1"
-    root="constantFunction" model="v" description="Use of fn:string-length() - DFDL-23-101R">
+    root="constantFunction" model="v"
+    description="Use of fn:string-length() - DFDL-23-101R">
 
     <tdml:document>999999</tdml:document>
 
@@ -718,7 +721,7 @@
   <tdml:parserTestCase name="dfdlPosition4" root="g"
     model="v" description="nested array case. Tests indexes are kept independently.">
 
-    <tdml:document>2;2;2;</tdml:document>
+    <tdml:document><![CDATA[2;2;2;]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1050,15 +1053,16 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
-  
-   <tdml:defineSchema name="repeatBitFlags">
-    <dfdl:format ref="ex:daffodilTest1" 
-    lengthUnits="bits" lengthKind="implicit" alignment="1" alignmentUnits="bits" 
-    representation="binary" byteOrder="bigEndian"/>
-   
-   <xs:element name="bit1" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="1"/>
-   
+
+
+  <tdml:defineSchema name="repeatBitFlags">
+    <dfdl:format ref="ex:daffodilTest1" lengthUnits="bits"
+      lengthKind="implicit" alignment="1" alignmentUnits="bits"
+      representation="binary" byteOrder="bigEndian" />
+
+    <xs:element name="bit1" type="xs:unsignedInt"
+      dfdl:lengthKind="explicit" dfdl:length="1" />
+
     <xs:element name="e">
       <xs:complexType>
         <xs:sequence>
@@ -1097,21 +1101,25 @@
 
 
   </tdml:defineSchema>
-  
+
   <tdml:parserTestCase name="bit1" model="repeatBitFlags"
     root="bit1">
-    <tdml:document><tdml:documentPart type="bits">1000 0000</tdml:documentPart></tdml:document>
+    <tdml:document>
+      <tdml:documentPart type="bits">1000 0000</tdml:documentPart>
+    </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <bit1>1</bit1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
 
   <tdml:parserTestCase name="repeatBitFlags1" model="repeatBitFlags"
     root="e">
-    <tdml:document><tdml:documentPart type="bits">0000 0000</tdml:documentPart></tdml:document>
+    <tdml:document>
+      <tdml:documentPart type="bits">0000 0000</tdml:documentPart>
+    </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e>
@@ -1123,7 +1131,9 @@
 
   <tdml:parserTestCase name="repeatBitFlags2" model="repeatBitFlags"
     root="e">
-    <tdml:document><tdml:documentPart type="bits">1 0 001 000</tdml:documentPart></tdml:document>
+    <tdml:document>
+      <tdml:documentPart type="bits">1 0 001 000</tdml:documentPart>
+    </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e>
@@ -1141,7 +1151,9 @@
 
   <tdml:parserTestCase name="repeatBitFlags3" model="repeatBitFlags"
     root="e">
-    <tdml:document><tdml:documentPart type="bits">1 1 001 1 010 1 011 0 100 0000000</tdml:documentPart></tdml:document>
+    <tdml:document>
+      <tdml:documentPart type="bits">1 1 001 1 010 1 011 0 100 0000000</tdml:documentPart>
+    </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e>

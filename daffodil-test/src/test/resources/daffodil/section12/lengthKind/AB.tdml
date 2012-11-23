@@ -1,249 +1,249 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testSuite suiteName="AA-BG" description="Original suite of AA through BG"
-	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
 
-	<parserTestCase name="AB000" root="matrix" model="AB.dfdl.xsd"
-		description="CSV-style tests - DFDL-12-043R">
+  <parserTestCase name="AB000" root="matrix" model="AB.dfdl.xsd"
+    description="CSV-style tests - DFDL-12-043R">
 
-		<document>
-			<!--  <documentPart type="text"><![CDATA[0,1,2,3,4
-5,6,7,8,9
-10,11,12,13,14]]></documentPart> -->
-			<documentPart type="text"><![CDATA[0,1,2,3,4
+    <document>
+      <!-- <documentPart type="text"><![CDATA[0,1,2,3,4
+        5,6,7,8,9
+        10,11,12,13,14]]></documentPart> -->
+      <documentPart type="text"><![CDATA[0,1,2,3,4
 5,6,7,8,9
 10,11,12,13,14]]></documentPart>
-		</document>
+    </document>
 
-		<infoset>
-			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<matrix>
-					<row>
-						<cell>0</cell>
-						<cell>1</cell>
-						<cell>2</cell>
-						<cell>3</cell>
-						<cell>4</cell>
-					</row>
-					<row>
-						<cell>5</cell>
-						<cell>6</cell>
-						<cell>7</cell>
-						<cell>8</cell>
-						<cell>9</cell>
-					</row>
-					<row>
-						<cell>10</cell>
-						<cell>11</cell>
-						<cell>12</cell>
-						<cell>13</cell>
-						<cell>14</cell>
-					</row>
-				</matrix>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+    <infoset>
+      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <matrix>
+          <row>
+            <cell>0</cell>
+            <cell>1</cell>
+            <cell>2</cell>
+            <cell>3</cell>
+            <cell>4</cell>
+          </row>
+          <row>
+            <cell>5</cell>
+            <cell>6</cell>
+            <cell>7</cell>
+            <cell>8</cell>
+            <cell>9</cell>
+          </row>
+          <row>
+            <cell>10</cell>
+            <cell>11</cell>
+            <cell>12</cell>
+            <cell>13</cell>
+            <cell>14</cell>
+          </row>
+        </matrix>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 
-	<parserTestCase name="AB001" root="matrix_01" model="AB.dfdl.xsd"
-		description="CSV-style tests - DFDL-12-043R">
+  <parserTestCase name="AB001" root="matrix_01" model="AB.dfdl.xsd"
+    description="CSV-style tests - DFDL-12-043R">
 
-		<document>
-			<documentPart type="text"><![CDATA[0,1,2,3,4
+    <document>
+      <documentPart type="text"><![CDATA[0,1,2,3,4
 5,6,7,8,9
 10,11,12,13,14
 ]]></documentPart>
-		</document>
+    </document>
 
-		<infoset>
-			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<matrix xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-					<row>
-						<cell>0</cell>
-						<cell>1</cell>
-						<cell>2</cell>
-						<cell>3</cell>
-						<cell>4</cell>
-					</row>
-					<row>
-						<cell>5</cell>
-						<cell>6</cell>
-						<cell>7</cell>
-						<cell>8</cell>
-						<cell>9</cell>
-					</row>
-					<row>
-						<cell>10</cell>
-						<cell>11</cell>
-						<cell>12</cell>
-						<cell>13</cell>
-						<cell>14</cell>
-					</row>
-				</matrix>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+    <infoset>
+      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <matrix xmlns="http://www.example.org/example1/"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <row>
+            <cell>0</cell>
+            <cell>1</cell>
+            <cell>2</cell>
+            <cell>3</cell>
+            <cell>4</cell>
+          </row>
+          <row>
+            <cell>5</cell>
+            <cell>6</cell>
+            <cell>7</cell>
+            <cell>8</cell>
+            <cell>9</cell>
+          </row>
+          <row>
+            <cell>10</cell>
+            <cell>11</cell>
+            <cell>12</cell>
+            <cell>13</cell>
+            <cell>14</cell>
+          </row>
+        </matrix>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 
-	<parserTestCase name="AB002" root="matrix_01" model="AB.dfdl.xsd"
-		description="CSV-style tests - DFDL-12-043R">
+  <parserTestCase name="AB002" root="matrix_01" model="AB.dfdl.xsd"
+    description="CSV-style tests - DFDL-12-043R">
 
-		<document>
-			<documentPart type="text"><![CDATA[0,1,2,3,4
+    <document>
+      <documentPart type="text"><![CDATA[0,1,2,3,4
 5,6,7,8,9
 10,11,12,13,14
 
 ]]></documentPart>
-		</document>
+    </document>
 
-		<infoset>
-			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<matrix xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-					<row>
-						<cell>0</cell>
-						<cell>1</cell>
-						<cell>2</cell>
-						<cell>3</cell>
-						<cell>4</cell>
-					</row>
-					<row>
-						<cell>5</cell>
-						<cell>6</cell>
-						<cell>7</cell>
-						<cell>8</cell>
-						<cell>9</cell>
-					</row>
-					<row>
-						<cell>10</cell>
-						<cell>11</cell>
-						<cell>12</cell>
-						<cell>13</cell>
-						<cell>14</cell>
-					</row>
-				</matrix>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+    <infoset>
+      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <matrix xmlns="http://www.example.org/example1/"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <row>
+            <cell>0</cell>
+            <cell>1</cell>
+            <cell>2</cell>
+            <cell>3</cell>
+            <cell>4</cell>
+          </row>
+          <row>
+            <cell>5</cell>
+            <cell>6</cell>
+            <cell>7</cell>
+            <cell>8</cell>
+            <cell>9</cell>
+          </row>
+          <row>
+            <cell>10</cell>
+            <cell>11</cell>
+            <cell>12</cell>
+            <cell>13</cell>
+            <cell>14</cell>
+          </row>
+        </matrix>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 
-	<parserTestCase name="AB003" root="matrix_01" model="AB.dfdl.xsd"
-		description="CSV-style tests - DFDL-12-043R">
+  <parserTestCase name="AB003" root="matrix_01" model="AB.dfdl.xsd"
+    description="CSV-style tests - DFDL-12-043R">
 
-		<document>
-			<documentPart type="text"><![CDATA[0,1,2,3,4
+    <document>
+      <documentPart type="text"><![CDATA[0,1,2,3,4
 5,6,7,8,9
 10,11
 ]]></documentPart>
-		</document>
+    </document>
 
-		<infoset>
-			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<matrix xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-					<row>
-						<cell>0</cell>
-						<cell>1</cell>
-						<cell>2</cell>
-						<cell>3</cell>
-						<cell>4</cell>
-					</row>
-					<row>
-						<cell>5</cell>
-						<cell>6</cell>
-						<cell>7</cell>
-						<cell>8</cell>
-						<cell>9</cell>
-					</row>
-					<row>
-						<cell>10</cell>
-						<cell>11</cell>
-					</row>
-				</matrix>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+    <infoset>
+      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <matrix xmlns="http://www.example.org/example1/"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <row>
+            <cell>0</cell>
+            <cell>1</cell>
+            <cell>2</cell>
+            <cell>3</cell>
+            <cell>4</cell>
+          </row>
+          <row>
+            <cell>5</cell>
+            <cell>6</cell>
+            <cell>7</cell>
+            <cell>8</cell>
+            <cell>9</cell>
+          </row>
+          <row>
+            <cell>10</cell>
+            <cell>11</cell>
+          </row>
+        </matrix>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 
-	<parserTestCase name="AB004" root="matrix" model="AB.dfdl.xsd"
-		description="CSV-style tests - DFDL-12-038R">
+  <parserTestCase name="AB004" root="matrix" model="AB.dfdl.xsd"
+    description="CSV-style tests - DFDL-12-038R">
 
-		<document>
-			<documentPart type="text"><![CDATA[0,1,2,3,4
+    <document>
+      <documentPart type="text"><![CDATA[0,1,2,3,4
 5,6,7,8,9
 10,11,,13
 ]]></documentPart>
-		</document>
+    </document>
 
-		<infoset>
-			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<matrix xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-					<row>
-						<cell type="xsd:int">0</cell>
-						<cell type="xsd:int">1</cell>
-						<cell type="xsd:int">2</cell>
-						<cell type="xsd:int">3</cell>
-						<cell type="xsd:int">4</cell>
-					</row>
-					<row>
-						<cell type="xsd:int">5</cell>
-						<cell type="xsd:int">6</cell>
-						<cell type="xsd:int">7</cell>
-						<cell type="xsd:int">8</cell>
-						<cell type="xsd:int">9</cell>
-					</row>
-					<row>
-						<cell type="xsd:int">10</cell>
-						<cell type="xsd:int">11</cell>
-						<cell type="xsd:int"></cell>
-						<cell type="xsd:int">13</cell>
-					</row>
-				</matrix>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+    <infoset>
+      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <matrix xmlns="http://www.example.org/example1/"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <row>
+            <cell type="xsd:int">0</cell>
+            <cell type="xsd:int">1</cell>
+            <cell type="xsd:int">2</cell>
+            <cell type="xsd:int">3</cell>
+            <cell type="xsd:int">4</cell>
+          </row>
+          <row>
+            <cell type="xsd:int">5</cell>
+            <cell type="xsd:int">6</cell>
+            <cell type="xsd:int">7</cell>
+            <cell type="xsd:int">8</cell>
+            <cell type="xsd:int">9</cell>
+          </row>
+          <row>
+            <cell type="xsd:int">10</cell>
+            <cell type="xsd:int">11</cell>
+            <cell type="xsd:int"></cell>
+            <cell type="xsd:int">13</cell>
+          </row>
+        </matrix>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 
-	<parserTestCase name="AB005" root="matrix" model="AB.dfdl.xsd"
-		description="CSV-style tests - DFDL-12-038R">
+  <parserTestCase name="AB005" root="matrix" model="AB.dfdl.xsd"
+    description="CSV-style tests - DFDL-12-038R">
 
-		<document>
-			<documentPart type="text"><![CDATA[0,1,2,3,4
+    <document>
+      <documentPart type="text"><![CDATA[0,1,2,3,4
 5,6,7,8,9
 10,11,,
 ]]></documentPart>
-		</document>
+    </document>
 
-		<infoset>
-			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<matrix xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-					xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-					<row>
-						<cell type="xsd:int">0</cell>
-						<cell type="xsd:int">1</cell>
-						<cell type="xsd:int">2</cell>
-						<cell type="xsd:int">3</cell>
-						<cell type="xsd:int">4</cell>
-					</row>
-					<row>
-						<cell type="xsd:int">5</cell>
-						<cell type="xsd:int">6</cell>
-						<cell type="xsd:int">7</cell>
-						<cell type="xsd:int">8</cell>
-						<cell type="xsd:int">9</cell>
-					</row>
-					<row>
-						<cell type="xsd:int">10</cell>
-						<cell type="xsd:int">11</cell>
-						<cell type="xsd:int"></cell>
-					</row>
-				</matrix>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+    <infoset>
+      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <matrix xmlns="http://www.example.org/example1/"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <row>
+            <cell type="xsd:int">0</cell>
+            <cell type="xsd:int">1</cell>
+            <cell type="xsd:int">2</cell>
+            <cell type="xsd:int">3</cell>
+            <cell type="xsd:int">4</cell>
+          </row>
+          <row>
+            <cell type="xsd:int">5</cell>
+            <cell type="xsd:int">6</cell>
+            <cell type="xsd:int">7</cell>
+            <cell type="xsd:int">8</cell>
+            <cell type="xsd:int">9</cell>
+          </row>
+          <row>
+            <cell type="xsd:int">10</cell>
+            <cell type="xsd:int">11</cell>
+            <cell type="xsd:int"></cell>
+          </row>
+        </matrix>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 
 
 

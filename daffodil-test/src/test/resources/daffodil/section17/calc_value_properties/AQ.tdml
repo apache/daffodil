@@ -1,58 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite suiteName="AQ" description="AQ test of InputValueCalc"
-	xmlns="http://example.com" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com">
+  xmlns="http://example.com" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com">
 
-	<tdml:defineSchema name="AQ.dfdl.xsd">
-		<dfdl:format ref="ex:daffodilTest1" separator="" initiator="" terminator=""
-			emptyValueDelimiterPolicy="none" textNumberRep="standard"
-			representation="text" occursStopValue="-1" occursCountKind="parsed"
-			lengthKind="delimited" lengthUnits="bytes" encoding="US-ASCII"
-			ignoreCase="no" />
-		<!-- Basic Math in DFDL Representations -->
-		<xs:element name="ROOT">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="x" type="xsd:float" dfdl:terminator=","
-						dfdl:encoding="US-ASCII" />
-					<xs:element name="y" type="xsd:float"
-						dfdl:encoding="US-ASCII" dfdl:terminator="%NL;%WSP*;" />
-					<xs:element name="Multiply" type="xsd:float"
-						dfdl:inputValueCalc="{ ../tns:x * ../tns:y }" />
-					<xs:element name="Add" type="xsd:float"
-						dfdl:inputValueCalc="{ ../tns:x + ../tns:y }" />
-					<xs:element name="Substract" type="xsd:float"
-						dfdl:inputValueCalc="{ ../tns:x - ../tns:y }" />
-					<xs:element name="SubstractLiteral" type="xsd:float"
-						dfdl:inputValueCalc="{ ../tns:x - 2 }" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
+  <tdml:defineSchema name="AQ.dfdl.xsd">
+    <dfdl:format ref="ex:daffodilTest1" separator=""
+      initiator="" terminator="" emptyValueDelimiterPolicy="none"
+      textNumberRep="standard" representation="text" occursStopValue="-1"
+      occursCountKind="parsed" lengthKind="delimited" lengthUnits="bytes"
+      encoding="US-ASCII" ignoreCase="no" />
+    <!-- Basic Math in DFDL Representations -->
+    <xs:element name="ROOT">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="x" type="xsd:float"
+            dfdl:terminator="," dfdl:encoding="US-ASCII" />
+          <xs:element name="y" type="xsd:float"
+            dfdl:encoding="US-ASCII" dfdl:terminator="%NL;%WSP*;" />
+          <xs:element name="Multiply" type="xsd:float"
+            dfdl:inputValueCalc="{ ../tns:x * ../tns:y }" />
+          <xs:element name="Add" type="xsd:float"
+            dfdl:inputValueCalc="{ ../tns:x + ../tns:y }" />
+          <xs:element name="Substract" type="xsd:float"
+            dfdl:inputValueCalc="{ ../tns:x - ../tns:y }" />
+          <xs:element name="SubstractLiteral" type="xsd:float"
+            dfdl:inputValueCalc="{ ../tns:x - 2 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="AQ000" root="ROOT"
-		model="AQ.dfdl.xsd" description="Section 17 Tests variables, arithmetic, and inputValueCalc - DFDL-17-007R">
+  <tdml:parserTestCase name="AQ000" root="ROOT"
+    model="AQ.dfdl.xsd"
+    description="Section 17 Tests variables, arithmetic, and inputValueCalc - DFDL-17-007R">
 
-	<tdml:document>
-		<tdml:documentPart type="text"><![CDATA[10.5,12.01
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[10.5,12.01
  ]]></tdml:documentPart>
-	</tdml:document>
+    </tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<ROOT xmlns="http://www.example.org/example1">
-					<x>10.5</x>
-					<y>12.01</y>
-					<Multiply type="xsd:float">126.105</Multiply>
-					<Add type="xsd:float">22.509999999999998</Add>
-					<Substract type="xsd:float">-1.5099999999999998</Substract>
-					<SubstractLiteral type="xsd:float">8.5</SubstractLiteral>
-				</ROOT>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ROOT xmlns="http://www.example.org/example1">
+          <x>10.5</x>
+          <y>12.01</y>
+          <Multiply type="xsd:float">126.105</Multiply>
+          <Add type="xsd:float">22.509999999999998</Add>
+          <Substract type="xsd:float">-1.5099999999999998</Substract>
+          <SubstractLiteral type="xsd:float">8.5</SubstractLiteral>
+        </ROOT>
 
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 </tdml:testSuite>

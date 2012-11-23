@@ -1,482 +1,577 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tdml:testSuite suiteName="LengthPropertiesTests" description="Section 12 - Length Properties"
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
-	xmlns:ex="http://example.com">
+<tdml:testSuite suiteName="LengthPropertiesTests"
+  description="Section 12 - Length Properties" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com">
 
-	<tdml:defineSchema name="LengthProperties-Embedded.dfdl.xsd">
-		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator="" encoding="utf-8" 
-			ignoreCase="no" representation="text" lengthUnits="characters" textNumberRep="standard"/>
+  <tdml:defineSchema name="LengthProperties-Embedded.dfdl.xsd">
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" separator="" encoding="utf-8" ignoreCase="no"
+      representation="text" lengthUnits="characters" textNumberRep="standard" />
 
-		<xs:element name="LP_01" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="num" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:occursCountKind="parsed"
-					maxOccurs="unbounded"/>	
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="LP_02" type="lp_02"/>
-		<xs:simpleType name="lp_02">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/">
-					<dfdl:simpleType lengthKind="explicit" lengthUnits="bytes" length="2" byteOrder="bigEndian"/>
-				</xs:appinfo>
-			</xs:annotation>
-			<xs:restriction base="xs:string"/>
-		</xs:simpleType>
-		
-		<xs:element name="LP_03" type="lp_03"/>
-		<xs:simpleType name="lp_03">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/">
-					<dfdl:simpleType lengthKind="explicit" lengthUnits="bytes" length="3" byteOrder="bigEndian"/>
-				</xs:appinfo>
-			</xs:annotation>
-			<xs:restriction base="xs:string"/>
-		</xs:simpleType>
-		
-		<xs:element name="LP_04" type="lp_04"/>
-		<xs:simpleType name="lp_04">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/">
-					<dfdl:simpleType lengthKind="explicit" length="3"/>
-				</xs:appinfo>
-			</xs:annotation>
-			<xs:restriction base="xs:string"/>
-		</xs:simpleType>
-		
-		<xs:element name="LP_05" type="lp_05"/>
-		<xs:simpleType name="lp_05">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/">
-					<dfdl:simpleType lengthKind="explicit" length="3" encoding="ASCII"/>
-				</xs:appinfo>
-			</xs:annotation>
-			<xs:restriction base="xs:string"/>
-		</xs:simpleType>
-		
-		<xs:element name="LP_06" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="6" dfdl:lengthUnits="bytes" dfdl:encoding="utf-32BE"/>	
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="LP_07">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="data" dfdl:alignmentUnits='bits' dfdl:alignment='1' dfdl:encoding="utf-8" type="xs:int"
-						    dfdl:lengthKind="explicit" dfdl:length="32" dfdl:representation="binary"
-						    dfdl:lengthUnits="bits" dfdl:byteOrder="bigEndian"/>	
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="LP_08">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="ignored" dfdl:alignmentUnits='bits' dfdl:alignment='1' type="xs:unsignedByte"
-						    dfdl:lengthKind="explicit" dfdl:length="1" dfdl:representation="binary"
-						    dfdl:lengthUnits="bits" dfdl:byteOrder="bigEndian"/>	
-					<xs:element name="data" dfdl:alignmentUnits='bits' dfdl:alignment='1' type="xs:unsignedShort"
-						    dfdl:lengthKind="explicit" dfdl:length="13" dfdl:representation="binary"
-						    dfdl:lengthUnits="bits" dfdl:byteOrder="bigEndian"/>	
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-	</tdml:defineSchema>
+    <xs:element name="LP_01" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="3"
+            dfdl:occursCountKind="parsed" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-<!--
-	Test name: LengthProp_bits_01
-	   Schema: LengthProperties-Embedded.dfdl.xsd
-	  Purpose: 
--->
-	
-	<tdml:parserTestCase name="LengthProp_bits_01" root="LP_07"
-		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-150Rish">
+    <xs:element name="LP_02" type="lp_02" />
+    <xs:simpleType name="lp_02">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:simpleType lengthKind="explicit"
+            lengthUnits="bytes" length="2" byteOrder="bigEndian" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
 
-			<tdml:document>
-				<tdml:documentPart type="bits"><![CDATA[00000000000000000000010011010010]]></tdml:documentPart>
-			</tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<LP_07>
-						<data>1234</data>
-					</LP_07>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
+    <xs:element name="LP_03" type="lp_03" />
+    <xs:simpleType name="lp_03">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:simpleType lengthKind="explicit"
+            lengthUnits="bytes" length="3" byteOrder="bigEndian" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
 
-<!--
-	Test name: LengthProp_bits_02
-	   Schema: LengthProperties-Embedded.dfdl.xsd
-	  Purpose: 
--->
-	
-	<tdml:parserTestCase name="LengthProp_bits_02" root="LP_08"
-		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-150Rish">
+    <xs:element name="LP_04" type="lp_04" />
+    <xs:simpleType name="lp_04">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:simpleType lengthKind="explicit" length="3" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
 
-			<tdml:document>
-				<tdml:documentPart type="bits"><![CDATA[010110101001001000000000]]></tdml:documentPart>
-			</tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<LP_08>
-						<ignored>0</ignored>
-						<data>5796</data>
-					</LP_08>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
-		
+    <xs:element name="LP_05" type="lp_05" />
+    <xs:simpleType name="lp_05">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:simpleType lengthKind="explicit" length="3"
+            encoding="ASCII" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
 
-<!--
-	Test name: LengthProp_sequenceByLength
-	   Schema: LengthProperties-Embedded.dfdl.xsd
-	  Purpose: This document contains a sequence of 3 elements of character length 3, and should be parsed accordingly
--->
-	
-	<tdml:parserTestCase name="LengthProp_sequenceByLength" root="LP_01"
-		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
+    <xs:element name="LP_06" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="data" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="6" dfdl:lengthUnits="bytes"
+            dfdl:encoding="utf-32BE" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-			<tdml:document>123456789</tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<LP_01>
-						<num>123</num>
-						<num>456</num>
-						<num>789</num>
-					</LP_01>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
-		
-		<tdml:parserTestCase name="LengthProp_02" root="LP_02"
-		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-161R">
+    <xs:element name="LP_07">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="data" dfdl:alignmentUnits='bits'
+            dfdl:alignment='1' dfdl:encoding="utf-8" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="32"
+            dfdl:representation="binary" dfdl:lengthUnits="bits"
+            dfdl:byteOrder="bigEndian" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-			<tdml:document><tdml:documentPart type="byte">c2a9</tdml:documentPart></tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<LP_02>&#169;</LP_02>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
-		
-<!--
-	Test name: LengthProp_charVsBytes
-	   Schema: LengthProperties-Embedded.dfdl.xsd
-	  Purpose: This document is the correct size (3 bytes), consists of 3 characters, and should be parsed correctly.
--->
-		<tdml:parserTestCase name="LengthProp_charVsBytes" root="LP_03"
-		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
+    <xs:element name="LP_08">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="ignored" dfdl:alignmentUnits='bits'
+            dfdl:alignment='1' type="xs:unsignedByte" dfdl:lengthKind="explicit"
+            dfdl:length="1" dfdl:representation="binary"
+            dfdl:lengthUnits="bits" dfdl:byteOrder="bigEndian" />
+          <xs:element name="data" dfdl:alignmentUnits='bits'
+            dfdl:alignment='1' type="xs:unsignedShort" dfdl:lengthKind="explicit"
+            dfdl:length="13" dfdl:representation="binary"
+            dfdl:lengthUnits="bits" dfdl:byteOrder="bigEndian" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-			<tdml:document><tdml:documentPart type="byte">2a2b2c</tdml:documentPart></tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<LP_03>*+,</LP_03>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
-		
-<!--
-	Test name: LengthProp_charVsBytes2
-	   Schema: LengthProperties-Embedded.dfdl.xsd
-	  Purpose: This document is the correct size (3 bytes), consists of 2 characters, and should be parsed correctly.
--->
-		<tdml:parserTestCase name="LengthProp_charVsBytes2" root="LP_03"
-		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
+  </tdml:defineSchema>
 
-			<tdml:document><tdml:documentPart type="byte">c2a22c</tdml:documentPart></tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<LP_03>¢,</LP_03>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
+  <!--
+    Test name: LengthProp_bits_01
+    Schema: LengthProperties-Embedded.dfdl.xsd
+    Purpose:
+  -->
 
-<!--
-	Test name: LengthProp_tooShortFailure
-	   Schema: LengthProperties-Embedded.dfdl.xsd
-	  Purpose: This document is shorter than the length specified in the schema and should throw an error.
--->
-		<tdml:parserTestCase name="LengthProp_tooShortFailure" root="LP_03"
-		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
+  <tdml:parserTestCase name="LengthProp_bits_01"
+    root="LP_07" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-150Rish">
 
-			<tdml:document><tdml:documentPart type="byte">c2a2</tdml:documentPart></tdml:document>
-			<tdml:errors>
-				<tdml:error>Insufficient Bits in field; required 24</tdml:error>
-			</tdml:errors>
-		</tdml:parserTestCase>
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[00000000000000000000010011010010]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_07>
+          <data>1234</data>
+        </LP_07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-<!--
-	Test name: LengthProp_tooLongFailure
-	   Schema: LengthProperties-Embedded.dfdl.xsd
-	  Purpose: This document is longer than the length specified in the schema and should throw an error.
--->
-		<tdml:parserTestCase name="LengthProp_tooLongFailure" root="LP_03"
-		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
+  <!--
+    Test name: LengthProp_bits_02
+    Schema: LengthProperties-Embedded.dfdl.xsd
+    Purpose:
+  -->
 
-			<tdml:document><tdml:documentPart type="byte">74657374</tdml:documentPart></tdml:document>
-			<tdml:errors>
-				<tdml:error>Left over data: Location is byte 3</tdml:error>
-			</tdml:errors>
-		</tdml:parserTestCase>
-		
-		<tdml:parserTestCase name="LengthProp_04" root="LP_04"
-		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-161R">
+  <tdml:parserTestCase name="LengthProp_bits_02"
+    root="LP_08" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-150Rish">
 
-			<tdml:document><tdml:documentPart type="byte">c2a2c2a3c2ae</tdml:documentPart></tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<LP_04>&#162;&#163;&#174;</LP_04>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
-		
-		<tdml:parserTestCase name="LengthProp_05" root="LP_05"
-		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[010110101001001000000000]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_08>
+          <ignored>0</ignored>
+          <data>5796</data>
+        </LP_08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-			<tdml:document>3Ax</tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<LP_05>3Ax</LP_05>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
-		
-		<tdml:parserTestCase name="LengthProp_06" root="LP_06"
-		model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-134R">
-			<tdml:document><tdml:documentPart type="byte">00000032AA55</tdml:documentPart></tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<LP_06><data>2</data></LP_06>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
 
-<!--
-      Schema name: LengthProperties-lengthNumeric.dfdl.xsd
-	  Purpose: This schema is used specifically to test DFDL-12-040R: The 'length' property.
--->
+  <!--
+    Test name: LengthProp_sequenceByLength
+    Schema: LengthProperties-Embedded.dfdl.xsd
+    Purpose: This document contains a sequence of 3 elements of character 
+    length 3, and should be parsed accordingly
+  -->
 
-	<tdml:defineSchema name="LengthProperties-lengthNumeric.dfdl.xsd">
-		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator="" encoding="utf-8" 
-			ignoreCase="no" representation="text" lengthUnits="characters" textNumberRep="standard"/>
+  <tdml:parserTestCase name="LengthProp_sequenceByLength"
+    root="LP_01" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
 
-		<xs:element name="LP_01">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="num" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="0" dfdl:occursCountKind="parsed"
-					maxOccurs="unbounded"/>	
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="LP_02" type="lp_02"/>
-		<xs:simpleType name="lp_02">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/">
-					<dfdl:simpleType lengthKind="explicit" lengthUnits="bytes" length="10" byteOrder="bigEndian"/>
-				</xs:appinfo>
-			</xs:annotation>
-			<xs:restriction base="xs:string"/>
-		</xs:simpleType>
-		
-		<xs:element name="LP_03" type="lp_03"/>
-		<xs:simpleType name="lp_03">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/">
-					<dfdl:simpleType lengthKind="explicit" lengthUnits="bytes" length="2620" byteOrder="bigEndian"/>
-				</xs:appinfo>
-			</xs:annotation>
-			<xs:restriction base="xs:string"/>
-		</xs:simpleType>
-		
-		<xs:element name="LP_04" type="lp_04"/>
-		<xs:simpleType name="lp_04">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/">
-					<dfdl:simpleType lengthKind="explicit" length="557"/>
-				</xs:appinfo>
-			</xs:annotation>
-			<xs:restriction base="xs:string"/>
-		</xs:simpleType>
-		
-		<xs:element name="LP_05" type="lp_05"/>
-		<xs:simpleType name="lp_05">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/">
-					<dfdl:simpleType lengthKind="explicit" lengthUnits="bytes" length="2" byteOrder="bigEndian"/>
-				</xs:appinfo>
-			</xs:annotation>
-			<xs:restriction base="xs:string"/>
-		</xs:simpleType>
-		
-		<xs:element name="LP_06" type="lp_06"/>
-		<xs:simpleType name="lp_06">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/">
-					<dfdl:simpleType encoding="utf-16" lengthKind="explicit" lengthUnits="bytes" length="2" byteOrder="bigEndian"/>
-				</xs:appinfo>
-			</xs:annotation>
-			<xs:restriction base="xs:string"/>
-		</xs:simpleType>
+    <tdml:document>123456789</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_01>
+          <num>123</num>
+          <num>456</num>
+          <num>789</num>
+        </LP_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	</tdml:defineSchema>
+  <tdml:parserTestCase name="LengthProp_02" root="LP_02"
+    model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-161R">
 
-<!--
-	Test name: LengthProp_zeroLength
-	   Schema: LengthProperties-lengthNumeric.dfdl.xsd
-	  Purpose: This document has the correct length of zero and should be parsed correctly.
--->
-	<tdml:parserTestCase name="LengthProp_zeroLength" root="LP_01"
-		model="LengthProperties-lengthNumeric.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-040R">
+    <tdml:document>
+      <tdml:documentPart type="byte">c2a9</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_02>&#169;</LP_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-			<tdml:document></tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<LP_01></LP_01>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
+  <!--
+    Test name: LengthProp_charVsBytes
+    Schema: LengthProperties-Embedded.dfdl.xsd
+    Purpose: This document is the correct size (3 bytes), consists of 3 characters, 
+    and should be parsed correctly.
+  -->
+  <tdml:parserTestCase name="LengthProp_charVsBytes"
+    root="LP_03" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
 
-<!--
-	Test name: LengthProp_byteLength
-	   Schema: LengthProperties-lengthNumeric.dfdl.xsd
-	  Purpose: This document has the correct length of 10 bytes and should be parsed correctly
--->
-		<tdml:parserTestCase name="LengthProp_byteLength" root="LP_02"
-		model="LengthProperties-lengthNumeric.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-040R">
+    <tdml:document>
+      <tdml:documentPart type="byte">2a2b2c</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_03>*+,</LP_03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-			<tdml:document><tdml:documentPart type="byte">62616e616e6174726565</tdml:documentPart></tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<LP_02>bananatree</LP_02>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
+  <!--
+    Test name: LengthProp_charVsBytes2
+    Schema: LengthProperties-Embedded.dfdl.xsd
+    Purpose: This document is the correct size (3 bytes), consists of 2 characters, 
+    and should be parsed correctly.
+  -->
+  <tdml:parserTestCase name="LengthProp_charVsBytes2"
+    root="LP_03" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
 
-<!--
-	Test name: LengthProp_byteLength2
-	   Schema: LengthProperties-lengthNumeric.dfdl.xsd
-	  Purpose: This document has the correct length of 2 bytes and should be parsed correctly
--->
-		<tdml:parserTestCase name="LengthProp_byteLength2" root="LP_05"
-		model="LengthProperties-lengthNumeric.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-040R">
+    <tdml:document>
+      <tdml:documentPart type="byte">c2a22c</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_03>¢,</LP_03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-			<tdml:document><tdml:documentPart type="byte">3033</tdml:documentPart></tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<LP_05>03</LP_05>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
-<!--
-	Test name: LengthProp_longByteLength
-	   Schema: LengthProperties-lengthNumeric.dfdl.xsd
-	  Purpose: This document is the correct length of 557 bytes and should be parsed correctly.
--->
-		<tdml:parserTestCase name="LengthProp_longByteLength" root="LP_03"
-		model="LengthProperties-lengthNumeric.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
+  <!--
+    Test name: LengthProp_tooShortFailure
+    Schema: LengthProperties-Embedded.dfdl.xsd
+    Purpose: This document is shorter than the length specified in the schema 
+    and should throw an error.
+  -->
+  <tdml:parserTestCase name="LengthProp_tooShortFailure"
+    root="LP_03" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
 
-			<tdml:document><tdml:documentPart type="byte">28E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB</tdml:documentPart></tdml:document>
-			<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<LP_03 xmlns:ex="http://example.com">(╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻</LP_03>
-			</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
-		
-<!--
-	Test name: LengthProp_longTextLength
-	   Schema: LengthProperties-lengthNumeric.dfdl.xsd
-	  Purpose: This document is only 556 bytes (expected 557 bytes) and should cause an error.
--->
-	<tdml:parserTestCase name="LengthProp_longTextLength" root="LP_04"
-		model="LengthProperties-lengthNumeric.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="byte">c2a2</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Insufficient Bits in field; required 24</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-			<tdml:document><tdml:documentPart type="byte">
-			</tdml:documentPart>Four score and seven years ago our fathers brought forth on this continent a new nation, conceived in liberty, and dedicated to the proposition that all men are created equal. Now we are engaged in a great civil war, testing whether that nation, or any nation, so conceived and so dedicated, can long endure. We are met on a great battle-field of that war. We have come to dedicate a portion of that field, as a final resting place for those who here gave their lives that that nation might live. It is altogether fitting and proper that we should do this</tdml:document>
-			<tdml:errors>
-				<tdml:error>Parse failed to find exactly 557 characters</tdml:error>
-			</tdml:errors>
-		</tdml:parserTestCase>
+  <!--
+    Test name: LengthProp_tooLongFailure
+    Schema: LengthProperties-Embedded.dfdl.xsd
+    Purpose: This document is longer than the length specified in the schema 
+    and should throw an error.
+  -->
+  <tdml:parserTestCase name="LengthProp_tooLongFailure"
+    root="LP_03" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
 
-<!--
-	Test name: LengthProp_byteLength_UTF16
-	   Schema: LengthProperties-lengthNumeric.dfdl.xsd
-	  Purpose: This document has the correct length of 2 bytes (UTF-16) and should be parsed correctly
--->
-		<tdml:parserTestCase name="LengthProp_byteLength_UTF16" root="LP_06"
-		model="LengthProperties-lengthNumeric.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-040R">
+    <tdml:document>
+      <tdml:documentPart type="byte">74657374</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over data: Location is byte 3</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
-			<tdml:document><tdml:documentPart type="byte">0030</tdml:documentPart></tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<ex:LP_06>0</ex:LP_06>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
+  <tdml:parserTestCase name="LengthProp_04" root="LP_04"
+    model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-161R">
 
-<!--
-	Test name: LengthProp_byteLength_UTF16fail
-	   Schema: LengthProperties-lengthNumeric.dfdl.xsd
-	  Purpose: This document has the incorrect length of 8 bytes (UTF-16) and should fail
--->
-		<tdml:parserTestCase name="LengthProp_byteLength_UTF16fail" root="LP_06"
-		model="LengthProperties-lengthNumeric.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-040R">
+    <tdml:document>
+      <tdml:documentPart type="byte">c2a2c2a3c2ae</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_04>&#162;&#163;&#174;</LP_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-			<tdml:document><tdml:documentPart type="byte">0030006E006F000A</tdml:documentPart></tdml:document>
-			<tdml:errors>
-				<tdml:error>Left over data</tdml:error>
-			</tdml:errors>
-		</tdml:parserTestCase>
+  <tdml:parserTestCase name="LengthProp_05" root="LP_05"
+    model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-161R">
 
-<!--
-      Schema name: LengthProperties-lengthExpression.dfdl.xsd
-	  Purpose: This schema is used specifically to test DFDL-12-040R: The 'length' property.
-	  	   All lengths specified here will use expressions to get values from previously-defined tests.
--->
+    <tdml:document>3Ax</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_05>3Ax</LP_05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="LengthProperties-lengthExpression.dfdl.xsd">
-		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator="" encoding="utf-8" 
-			ignoreCase="no" representation="text" lengthUnits="characters" textNumberRep="standard"/>
+  <tdml:parserTestCase name="LengthProp_06" root="LP_06"
+    model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-134R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00000032AA55</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_06>
+          <data>2</data>
+        </LP_06>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<xs:element name="LP_exp01">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="len" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"/>
-					<xs:element name="num" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ ../ex:len }"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
+  <!--
+    Schema name: LengthProperties-lengthNumeric.dfdl.xsd
+    Purpose: This schema is used specifically to test DFDL-12-040R: The 'length' 
+    property.
+  -->
 
-<!--
-	Test name: LengthProp_lengthExpression1
-	   Schema: LengthProperties-lengthExpression.dfdl.xsd
-	  Purpose: This document should have a length of 3 as defined in the previous test.
--->
-		<tdml:parserTestCase name="LengthProp_lengthExpression1" root="LP_exp01"
-		model="LengthProperties-lengthExpression.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-040R">
+  <tdml:defineSchema name="LengthProperties-lengthNumeric.dfdl.xsd">
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" separator="" encoding="utf-8" ignoreCase="no"
+      representation="text" lengthUnits="characters" textNumberRep="standard" />
 
-			<tdml:document>512345</tdml:document>
-			<tdml:infoset>
-				<tdml:dfdlInfoset>
-					<LP_exp01>
-						<len>5</len>
-						<num>12345</num>
-					</LP_exp01>
-				</tdml:dfdlInfoset>
-			</tdml:infoset>
-		</tdml:parserTestCase>
+    <xs:element name="LP_01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="0"
+            dfdl:occursCountKind="parsed" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="LP_02" type="lp_02" />
+    <xs:simpleType name="lp_02">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:simpleType lengthKind="explicit"
+            lengthUnits="bytes" length="10" byteOrder="bigEndian" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
+
+    <xs:element name="LP_03" type="lp_03" />
+    <xs:simpleType name="lp_03">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:simpleType lengthKind="explicit"
+            lengthUnits="bytes" length="2620" byteOrder="bigEndian" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
+
+    <xs:element name="LP_04" type="lp_04" />
+    <xs:simpleType name="lp_04">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:simpleType lengthKind="explicit" length="557" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
+
+    <xs:element name="LP_05" type="lp_05" />
+    <xs:simpleType name="lp_05">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:simpleType lengthKind="explicit"
+            lengthUnits="bytes" length="2" byteOrder="bigEndian" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
+
+    <xs:element name="LP_06" type="lp_06" />
+    <xs:simpleType name="lp_06">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:simpleType encoding="utf-16" lengthKind="explicit"
+            lengthUnits="bytes" length="2" byteOrder="bigEndian" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
+
+  </tdml:defineSchema>
+
+  <!--
+    Test name: LengthProp_zeroLength
+    Schema: LengthProperties-lengthNumeric.dfdl.xsd
+    Purpose: This document has the correct length of zero and should be parsed 
+    correctly.
+  -->
+  <tdml:parserTestCase name="LengthProp_zeroLength"
+    root="LP_01" model="LengthProperties-lengthNumeric.dfdl.xsd"
+    description="Section 12 Length Properties - DFDL-12-040R">
+
+    <tdml:document></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_01></LP_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: LengthProp_byteLength
+    Schema: LengthProperties-lengthNumeric.dfdl.xsd
+    Purpose: This document has the correct length of 10 bytes and should 
+    be parsed correctly
+  -->
+  <tdml:parserTestCase name="LengthProp_byteLength"
+    root="LP_02" model="LengthProperties-lengthNumeric.dfdl.xsd"
+    description="Section 12 Length Properties - DFDL-12-040R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">62616e616e6174726565</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_02>bananatree</LP_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: LengthProp_byteLength2
+    Schema: LengthProperties-lengthNumeric.dfdl.xsd
+    Purpose: This document has the correct length of 2 bytes and should be 
+    parsed correctly
+  -->
+  <tdml:parserTestCase name="LengthProp_byteLength2"
+    root="LP_05" model="LengthProperties-lengthNumeric.dfdl.xsd"
+    description="Section 12 Length Properties - DFDL-12-040R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">3033</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_05>03</LP_05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  <!--
+    Test name: LengthProp_longByteLength
+    Schema: LengthProperties-lengthNumeric.dfdl.xsd
+    Purpose: This document is the correct length of 557 bytes and should 
+    be parsed correctly.
+  -->
+  <tdml:parserTestCase name="LengthProp_longByteLength"
+    root="LP_03" model="LengthProperties-lengthNumeric.dfdl.xsd"
+    description="Section 12 Length Properties - DFDL-12-039R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">28E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB202020202028E295AFC2B0E296A1C2B0EFBC89E295AFEFB8B520E294BBE29481E294BB</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_03 xmlns:ex="http://example.com">(╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻
+          (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵
+          ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻
+          (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵
+          ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻
+          (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵
+          ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻
+          (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵
+          ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻
+          (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵
+          ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻
+          (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵
+          ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻
+          (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵
+          ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻
+          (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵
+          ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻ (╯°□°）╯︵ ┻━┻</LP_03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: LengthProp_longTextLength
+    Schema: LengthProperties-lengthNumeric.dfdl.xsd
+    Purpose: This document is only 556 bytes (expected 557 bytes) and should 
+    cause an error.
+  -->
+  <tdml:parserTestCase name="LengthProp_longTextLength"
+    root="LP_04" model="LengthProperties-lengthNumeric.dfdl.xsd"
+    description="Section 12 Length Properties - DFDL-12-161R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">
+			</tdml:documentPart>
+      Four score and seven years ago our fathers brought forth on this
+      continent a new nation, conceived in liberty, and dedicated to the
+      proposition that all men are created equal. Now we are engaged in
+      a great civil war, testing whether that nation, or any nation, so
+      conceived and so dedicated, can long endure. We are met on a great
+      battle-field of that war. We have come to dedicate a portion of
+      that field, as a final resting place for those who here gave their
+      lives that that nation might live. It is altogether fitting and
+      proper that we should do this
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse failed to find exactly 557 characters</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: LengthProp_byteLength_UTF16
+    Schema: LengthProperties-lengthNumeric.dfdl.xsd
+    Purpose: This document has the correct length of 2 bytes (UTF-16) and 
+    should be parsed correctly
+  -->
+  <tdml:parserTestCase name="LengthProp_byteLength_UTF16"
+    root="LP_06" model="LengthProperties-lengthNumeric.dfdl.xsd"
+    description="Section 12 Length Properties - DFDL-12-040R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">0030</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:LP_06>0</ex:LP_06>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: LengthProp_byteLength_UTF16fail
+    Schema: LengthProperties-lengthNumeric.dfdl.xsd
+    Purpose: This document has the incorrect length of 8 bytes (UTF-16) and 
+    should fail
+  -->
+  <tdml:parserTestCase name="LengthProp_byteLength_UTF16fail"
+    root="LP_06" model="LengthProperties-lengthNumeric.dfdl.xsd"
+    description="Section 12 Length Properties - DFDL-12-040R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">0030006E006F000A</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over data</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Schema name: LengthProperties-lengthExpression.dfdl.xsd
+    Purpose: This schema is used specifically to test DFDL-12-040R: The 'length' 
+    property.
+    All lengths specified here will use expressions to get values from previously-defined 
+    tests.
+  -->
+
+  <tdml:defineSchema name="LengthProperties-lengthExpression.dfdl.xsd">
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" separator="" encoding="utf-8" ignoreCase="no"
+      representation="text" lengthUnits="characters" textNumberRep="standard" />
+
+    <xs:element name="LP_exp01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="num" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="{ ../ex:len }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <!--
+    Test name: LengthProp_lengthExpression1
+    Schema: LengthProperties-lengthExpression.dfdl.xsd
+    Purpose: This document should have a length of 3 as defined in the previous 
+    test.
+  -->
+  <tdml:parserTestCase name="LengthProp_lengthExpression1"
+    root="LP_exp01" model="LengthProperties-lengthExpression.dfdl.xsd"
+    description="Section 12 Length Properties - DFDL-12-040R">
+
+    <tdml:document>512345</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_exp01>
+          <len>5</len>
+          <num>12345</num>
+        </LP_exp01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
 

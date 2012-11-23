@@ -1,552 +1,593 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite suiteName="Discriminator" description="Section 7 - Discriminator"
-	xmlns:ex="http://example.com" xmlns="http://example.com"
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
-	
-	<tdml:defineSchema name="s0">
-		<dfdl:format ref="ex:daffodilTest1" />
-    
-		<xs:simpleType name="simpleAssert">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:discriminator testKind="pattern" testPattern="\d;" message="discriminator failed for pattern '\d;'" />
-				</xs:appinfo>
-			</xs:annotation>
-		      	<xs:restriction base="xs:string"/>
-    		</xs:simpleType>
-		
-		<xs:group name="namedGroup">
-			<xs:sequence>
-				<xs:element name="e1" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator=","/>
-				<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"/>
-			</xs:sequence>
-		</xs:group>
-		
-		<xs:element name="Item" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:group ref="ex:namedGroup">
-					<xs:annotation>
-						<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-							<dfdl:discriminator testKind="pattern" testPattern="\p{L}{3},\d{3}" message="discriminator failed for pattern '\p{L}{3},\d{3}'" />
-						</xs:appinfo>
-					</xs:annotation>
-				</xs:group>
-			</xs:complexType>
-		</xs:element>
-          
-		<xs:element name="e0" dfdl:lengthKind="explicit" dfdl:length="2" type="simpleAssert"/>
-		<xs:element name="description" type="xs:string" />
-		<xs:element name="quantity" type="xs:int" />
-		
-		<xs:element name="Item_01" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-					<xs:element ref="ex:description" dfdl:lengthKind="delimited">
-						<xs:annotation>
-							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-								<dfdl:discriminator testKind="pattern" testPattern="\p{L}{3}" message="discriminator failed for pattern '\p{L}{3}'" />
-							</xs:appinfo>
-						</xs:annotation>
-					</xs:element>
-					<xs:element ref="ex:quantity" dfdl:lengthKind="delimited">
-						<xs:annotation>
-							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-								<dfdl:discriminator testKind="pattern" testPattern="\d{3}" message="discriminator failed for pattern '\d{3}'" />
-							</xs:appinfo>
-						</xs:annotation>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+  xmlns:ex="http://example.com" xmlns="http://example.com"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
 
-	</tdml:defineSchema>
+  <tdml:defineSchema name="s0">
+    <dfdl:format ref="ex:daffodilTest1" />
 
-<!--
-	Test name: discrimOnSimpleType
-	   Schema: s0, root e0
-	  Purpose: This test demonstrates the use of a discriminator on a simple type. The document meets the discriminator and should pass. 
--->
-	
-	<tdml:parserTestCase name="discrimOnSimpleType"
-		root="e0" model="s0"
-		description="Section 7 - Discriminator on simpleType">
-		<tdml:document>3;</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<ex:e0>3;</ex:e0>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <xs:simpleType name="simpleAssert">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:discriminator testKind="pattern"
+            testPattern="\d;" message="discriminator failed for pattern '\d;'" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
 
-<!--
-	Test name: discrimOnGroupRef
-	   Schema: s0, root Item
-	  Purpose: This test demonstrates the use of a discriminator on a group reference. The document meets the discriminator and should pass. 
--->
-	
-	<tdml:parserTestCase name="discrimOnGroupRef"
-		root="Item" model="s0"
-		description="Section 7 - Discriminator on Group Reference - DFDL-7-071R">
-		<tdml:document>Hat,400</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<Item>
-					<e1>Hat</e1>
-					<e2>400</e2>
-				</Item>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <xs:group name="namedGroup">
+      <xs:sequence>
+        <xs:element name="e1" type="xs:string"
+          dfdl:lengthKind="delimited" dfdl:terminator="," />
+        <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:group>
 
-<!--
-	Test name: discrimOnElementRef
-	   Schema: s0, root Item_01
-	  Purpose: This test demonstrates the use of a discriminator on an element reference. The document meets the discriminator and should pass. 
--->
-	
-	<tdml:parserTestCase name="discrimOnElementRef"
-		root="Item_01" model="s0"
-		description="Section 7 - Discriminator on Element Reference - DFDL-7-070R">
-		<tdml:document>Hat,400</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<Item_01>
-					<description>Hat</description>
-					<quantity>400</quantity>
-				</Item_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <xs:element name="Item" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:group ref="ex:namedGroup">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <dfdl:discriminator testKind="pattern"
+                testPattern="\p{L}{3},\d{3}"
+                message="discriminator failed for pattern '\p{L}{3},\d{3}'" />
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:group>
+      </xs:complexType>
+    </xs:element>
 
-	<tdml:defineSchema name="choice1">
-		<dfdl:format ref="ex:daffodilTest1" />
-		<xs:element name="c1">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="c">
-						<xs:complexType>
-							<xs:choice>
-								<xs:element name="a1" type="xs:int"
-											dfdl:lengthKind="explicit" dfdl:length="4">
-									<xs:annotation>
-										<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-											<dfdl:discriminator testKind="pattern"
-																testPattern="\d;" message="discriminator failed for pattern '\d;'" />
-										</xs:appinfo>
-									</xs:annotation>
-								</xs:element>
-								<xs:element name="a2" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:initiator="5" dfdl:length="5" dfdl:lengthUnits="characters" />
-							</xs:choice>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
+    <xs:element name="e0" dfdl:lengthKind="explicit"
+      dfdl:length="2" type="simpleAssert" />
+    <xs:element name="description" type="xs:string" />
+    <xs:element name="quantity" type="xs:int" />
 
-<!--
-	Test name: discriminatorGuidesChoice2
-	   Schema: choice1, root c1
-	  Purpose: The element should fail, and the discriminator should still be checked. The error message should express
-	  		   the discriminator failure. 
--->
-	
-	<tdml:parserTestCase name="discriminatorGuidesChoice2"
-		root="c1" model="choice1"
-		description="Section 7 - Discriminator must evaluate even if element fails">
-		<tdml:document>3</tdml:document>
-		<tdml:errors>
-			<tdml:error>discriminator failed</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
+    <xs:element name="Item_01" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=","
+          dfdl:separatorPosition="infix">
+          <xs:element ref="ex:description" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:discriminator testKind="pattern"
+                  testPattern="\p{L}{3}"
+                  message="discriminator failed for pattern '\p{L}{3}'" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element ref="ex:quantity" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:discriminator testKind="pattern"
+                  testPattern="\d{3}" message="discriminator failed for pattern '\d{3}'" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	<tdml:defineSchema name="choice2">
-		<dfdl:format ref="ex:daffodilTest1" />
-		<xs:element name="c1">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="c">
-						<xs:complexType>
-							<xs:choice>
-								<xs:element name="a1">
+  </tdml:defineSchema>
 
-									<xs:complexType>
-										<xs:sequence>
-											<xs:annotation>
-												<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-													<dfdl:discriminator><![CDATA[{ true() }]]></dfdl:discriminator>
-												</xs:appinfo>
-											</xs:annotation>
-											<xs:element name="str" type="xs:string"
-												dfdl:lengthKind="explicit" dfdl:length="{ 80 }" /> <!-- fails because there is no data -->
-										</xs:sequence>
-									</xs:complexType>
-								</xs:element>
-								<xs:element name="a2" type="xs:string"
-									dfdl:inputValueCalc="{ 'a2' }" />
-							</xs:choice>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+  <!--
+    Test name: discrimOnSimpleType
+    Schema: s0, root e0
+    Purpose: This test demonstrates the use of a discriminator on a simple 
+    type. The document meets the discriminator and should pass.
+  -->
 
-	</tdml:defineSchema>
+  <tdml:parserTestCase name="discrimOnSimpleType"
+    root="e0" model="s0" description="Section 7 - Discriminator on simpleType">
+    <tdml:document>3;</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e0>3;</ex:e0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="s1">
-		<dfdl:format ref="ex:daffodilTest1" />
-		<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:discriminator testKind="pattern"
-						testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
-				</xs:appinfo>
-			</xs:annotation>
-		</xs:element>
+  <!--
+    Test name: discrimOnGroupRef
+    Schema: s0, root Item
+    Purpose: This test demonstrates the use of a discriminator on a group 
+    reference. The document meets the discriminator and should pass.
+  -->
 
-		<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:discriminator testKind="pattern"
-						testPattern="\d\d\d" message="Discriminator failed for pattern '\d\d\d'" />
-				</xs:appinfo>
-			</xs:annotation>
-		</xs:element>
+  <tdml:parserTestCase name="discrimOnGroupRef"
+    root="Item" model="s0"
+    description="Section 7 - Discriminator on Group Reference - DFDL-7-071R">
+    <tdml:document>Hat,400</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <Item>
+          <e1>Hat</e1>
+          <e2>400</e2>
+        </Item>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<xs:element name="e3" type="xs:int" dfdl:lengthKind="pattern" dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:discriminator testKind="pattern"
-						testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
-					<dfdl:discriminator testKind="pattern"
-						testPattern="\d\d:" message="Discriminator failed for pattern '\d\d:'" />
-				</xs:appinfo>
-			</xs:annotation>
-		</xs:element>
-		
-		<xs:element name="e4" type="xs:int" dfdl:lengthKind="pattern" dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:discriminator testKind="pattern"
-						testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
-					<dfdl:discriminator testKind="pattern"
-						testPattern="\d\d:" message="Discriminator failed for pattern '\d\d:'" />
-					<dfdl:discriminator testKind="pattern"
-						testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
-				</xs:appinfo>
-			</xs:annotation>
-		</xs:element>
-		
-		<xs:element name="e5" type="xs:int" dfdl:lengthKind="pattern" dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:assert testKind="pattern" testPattern="\d\d" message="Assertion failed for pattern '\d\d'"/>
-					<dfdl:discriminator testKind="pattern"
-						testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
-				</xs:appinfo>
-			</xs:annotation>
-		</xs:element>
-		
-		<xs:element name="e6" type="xs:int" dfdl:lengthKind="pattern" dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:assert testKind="pattern" testPattern="\d\d\d" message="Assertion failed for pattern '\d\d\d'"/>
-					<dfdl:discriminator testKind="pattern"
-						testPattern="\d\d:" message="Discriminator failed for pattern '\d\d:'" />
-				</xs:appinfo>
-			</xs:annotation>
-		</xs:element>
-		
-		<xs:element name="e7">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="c">
-						<xs:complexType>
-							<xs:choice>
-								<xs:element name="a1" type="xs:int"
-											dfdl:lengthKind="explicit" dfdl:length="5">
-									<xs:annotation>
-										<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-											<dfdl:discriminator testKind="pattern"
-																testPattern="\d{4}" message="discriminator failed for pattern '\d{4}'" />
-										</xs:appinfo>
-									</xs:annotation>
-								</xs:element>
-								<xs:element name="a2" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="characters" />
-							</xs:choice>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="e8">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="c">
-						<xs:complexType>
-							<xs:choice>
-								<xs:element name="a1" type="xs:int"
-											dfdl:lengthKind="explicit" dfdl:length="3">
-									<xs:annotation>
-										<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-											<dfdl:discriminator testKind="pattern"
-																testPattern="\d{4}" message="discriminator failed for pattern '\d{4}'" />
-										</xs:appinfo>
-									</xs:annotation>
-								</xs:element>
-								<xs:element name="a2" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="3" dfdl:lengthUnits="characters" />
-							</xs:choice>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-	</tdml:defineSchema>
+  <!--
+    Test name: discrimOnElementRef
+    Schema: s0, root Item_01
+    Purpose: This test demonstrates the use of a discriminator on an element 
+    reference. The document meets the discriminator and should pass.
+  -->
 
-	<tdml:parserTestCase name="discriminatorGuidesChoice"
-		root="c1" model="choice2"
-		description="Section 7 - Discriminator with boolean test expression - DFDL-7-060R">
-		<tdml:document />
-		<tdml:errors>
-			<tdml:error>Parse Error</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
+  <tdml:parserTestCase name="discrimOnElementRef"
+    root="Item_01" model="s0"
+    description="Section 7 - Discriminator on Element Reference - DFDL-7-070R">
+    <tdml:document>Hat,400</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <Item_01>
+          <description>Hat</description>
+          <quantity>400</quantity>
+        </Item_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="discrimPatternPass"
-		root="e1" model="s1" description="Section 7 - discrim as a pattern - DFDL-7-045R">
-		<tdml:document><![CDATA[43]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e1>43</e1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <tdml:defineSchema name="choice1">
+    <dfdl:format ref="ex:daffodilTest1" />
+    <xs:element name="c1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="c">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="a1" type="xs:int"
+                  dfdl:lengthKind="explicit" dfdl:length="4">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                      <dfdl:discriminator testKind="pattern"
+                        testPattern="\d;"
+                        message="discriminator failed for pattern '\d;'" />
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="a2" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:initiator="5"
+                  dfdl:length="5" dfdl:lengthUnits="characters" />
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="discrimPatternFail"
-		root="e2" model="s1" description="Section 7 - discrim as a pattern - DFDL-7-045R">
-		<tdml:document><![CDATA[43]]></tdml:document>
-		<tdml:errors>
-			<tdml:error>Discrim</tdml:error>
-			<tdml:error>pattern</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="discrimPatternFail2"
-		root="e3" model="s1" description="Section 7 - multiple discrim as a pattern - DFDL-7-045R">
-		<tdml:document><![CDATA[43,]]></tdml:document>
-		<tdml:errors>
-			<tdml:error>one</tdml:error>
-			<tdml:error>discriminator</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="discrimPatternFail3"
-		root="e5" model="s1" description="Section 7 - verify SDE occurs when both discriminator and assert present - DFDL-7-045R">
-		<tdml:document><![CDATA[43,]]></tdml:document>
-		<tdml:errors>
-			<tdml:error>both</tdml:error>
-			<tdml:error>discriminator</tdml:error>
-			<tdml:error>assert</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="choiceBranchDiscrimFail"
-		root="e7" model="s1" description="Parser bound to first choice branch by discriminator - DFDL-7-060R, DFDL--15-015R">
-		<tdml:document><![CDATA[1234]]></tdml:document>
-		<tdml:errors>
-		    <tdml:error></tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="choiceBranchDiscrim"
-		root="e8" model="s1" description="Backtracking occurs immediately because discriminator fails- DFDL-7-061R">
-		<tdml:document><![CDATA[123]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e8><c><a2>123</a2></c></e8>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:defineSchema name="invalid">
-		<dfdl:format ref="ex:daffodilTest1" />
-		<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:discriminator testKind="pattern" test='{. eq "123"}' testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
-				</xs:appinfo>
-			</xs:annotation>
-		</xs:element>
-	</tdml:defineSchema>
-	
-	<tdml:parserTestCase name="discrimInvalidSchema"
-		root="e1" model="invalid" description="It is a schema definition error if both a test expression and a test pattern are specified - DFDL-7-069R">
-		<tdml:document><![CDATA[123]]></tdml:document>
-	                <tdml:errors>
-	                    <tdml:error>Schema Definition Error</tdml:error>
-	                </tdml:errors>
-	</tdml:parserTestCase>
-	
-	<tdml:defineSchema name="choice3">
-		<dfdl:format ref="ex:daffodilTest1" />
-		<xs:element name="c1">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="c">
-						<xs:complexType>
-							<xs:choice>
-								<xs:element name="a1">
-									<xs:complexType>
-										<xs:sequence>
-											<xs:annotation>
-												<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-													<dfdl:discriminator><![CDATA[{ false() }]]></dfdl:discriminator>
-												</xs:appinfo>
-											</xs:annotation>
-											<xs:element name="str" type="xs:string"
-												dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
-										</xs:sequence>
-									</xs:complexType>
-								</xs:element>
-								<xs:element name="a2">
-									<xs:complexType>
-										<xs:sequence>
-												<xs:element name="single" type="xs:string"
-													dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
-												<xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
-										</xs:sequence>
-									</xs:complexType>
-								</xs:element>
-							</xs:choice>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
-	
-	<tdml:parserTestCase name="discriminatorGuidesChoice3"
-		root="c1" model="choice3" description="Discriminator to be used when resolving a point of uncertainty such as choice branches or optional elements- DFDL-6-011R">
-		<tdml:document><![CDATA[123]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-			<c1>
-				<c>
-					<a2>
-						<single>1</single>
-						<extra>23</extra>
-					</a2>
-				</c>
-			</c1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:defineSchema name="choice4">
-		<dfdl:format ref="ex:daffodilTest1" />
-		<xs:element name="c1">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="c">
-						<xs:complexType>
-							<xs:choice>
-								<xs:element name="a1">
-									<xs:complexType>
-										<xs:sequence>
-											<xs:annotation>
-												<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-													<dfdl:discriminator><![CDATA[{ true() }]]></dfdl:discriminator>
-												</xs:appinfo>
-											</xs:annotation>
-											<xs:element name="num" dfdl:lengthKind="delimited" type="xs:int" minOccurs="0" maxOccurs="1"/>
-										</xs:sequence>
-									</xs:complexType>
-								</xs:element>
-								<xs:element name="a2">
-									<xs:complexType>
-										<xs:sequence>
-												<xs:element name="single" type="xs:int"
-													dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
-										</xs:sequence>
-									</xs:complexType>
-								</xs:element>
-							</xs:choice>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		<xs:element name="c2">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="c">
-						<xs:complexType>
-							<xs:choice>
-								<xs:element name="a1">
-									<xs:complexType>
-										<xs:sequence>
-											<xs:annotation>
-												<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-													<dfdl:discriminator><![CDATA[{ false() }]]></dfdl:discriminator>
-												</xs:appinfo>
-											</xs:annotation>
-											<xs:element name="num" dfdl:lengthKind="delimited" type="xs:int" minOccurs="0" maxOccurs="1"/>
-										</xs:sequence>
-									</xs:complexType>
-								</xs:element>
-								<xs:element name="a2">
-									<xs:complexType>
-										<xs:sequence>
-												<xs:element name="single" type="xs:int"
-													dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
-										</xs:sequence>
-									</xs:complexType>
-								</xs:element>
-							</xs:choice>
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
-	
-	<tdml:parserTestCase name="discriminatorGuidesChoice4"
-		root="c1" model="choice4" description="Discriminator to be used when resolving a point of uncertainty such as choice branches or optional elements- DFDL-6-011R">
-		<tdml:document><![CDATA[123]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-			<c1>
-				<c>
-					<a1>
-						<num>123</num>
-					</a1>
-				</c>
-			</c1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="discriminatorGuidesChoice5"
-		root="c2" model="choice4" description="Discriminator to be used when resolving a point of uncertainty such as choice branches or optional elements- DFDL-6-011R">
-		<tdml:document><![CDATA[123]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-			<c2>
-				<c>
-					<a2>
-						<single>123</single>
-					</a2>
-				</c>
-			</c2>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+  <!--
+    Test name: discriminatorGuidesChoice2
+    Schema: choice1, root c1
+    Purpose: The element should fail, and the discriminator should still 
+    be checked. The error message should express
+    the discriminator failure.
+  -->
+
+  <tdml:parserTestCase name="discriminatorGuidesChoice2"
+    root="c1" model="choice1"
+    description="Section 7 - Discriminator must evaluate even if element fails">
+    <tdml:document>3</tdml:document>
+    <tdml:errors>
+      <tdml:error>discriminator failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="choice2">
+    <dfdl:format ref="ex:daffodilTest1" />
+    <xs:element name="c1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="c">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="a1">
+
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:annotation>
+                        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                          <dfdl:discriminator><![CDATA[{ true() }]]></dfdl:discriminator>
+                        </xs:appinfo>
+                      </xs:annotation>
+                      <xs:element name="str" type="xs:string"
+                        dfdl:lengthKind="explicit" dfdl:length="{ 80 }" /> <!-- fails because there is no data -->
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="a2" type="xs:string"
+                  dfdl:inputValueCalc="{ 'a2' }" />
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="s1">
+    <dfdl:format ref="ex:daffodilTest1" />
+    <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:discriminator testKind="pattern"
+            testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:discriminator testKind="pattern"
+            testPattern="\d\d\d" message="Discriminator failed for pattern '\d\d\d'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="e3" type="xs:int" dfdl:lengthKind="pattern"
+      dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:discriminator testKind="pattern"
+            testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
+          <dfdl:discriminator testKind="pattern"
+            testPattern="\d\d:" message="Discriminator failed for pattern '\d\d:'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="e4" type="xs:int" dfdl:lengthKind="pattern"
+      dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:discriminator testKind="pattern"
+            testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
+          <dfdl:discriminator testKind="pattern"
+            testPattern="\d\d:" message="Discriminator failed for pattern '\d\d:'" />
+          <dfdl:discriminator testKind="pattern"
+            testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="e5" type="xs:int" dfdl:lengthKind="pattern"
+      dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert testKind="pattern" testPattern="\d\d"
+            message="Assertion failed for pattern '\d\d'" />
+          <dfdl:discriminator testKind="pattern"
+            testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="e6" type="xs:int" dfdl:lengthKind="pattern"
+      dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert testKind="pattern" testPattern="\d\d\d"
+            message="Assertion failed for pattern '\d\d\d'" />
+          <dfdl:discriminator testKind="pattern"
+            testPattern="\d\d:" message="Discriminator failed for pattern '\d\d:'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="e7">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="c">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="a1" type="xs:int"
+                  dfdl:lengthKind="explicit" dfdl:length="5">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                      <dfdl:discriminator testKind="pattern"
+                        testPattern="\d{4}"
+                        message="discriminator failed for pattern '\d{4}'" />
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="a2" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="4"
+                  dfdl:lengthUnits="characters" />
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e8">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="c">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="a1" type="xs:int"
+                  dfdl:lengthKind="explicit" dfdl:length="3">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                      <dfdl:discriminator testKind="pattern"
+                        testPattern="\d{4}"
+                        message="discriminator failed for pattern '\d{4}'" />
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="a2" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="3"
+                  dfdl:lengthUnits="characters" />
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="discriminatorGuidesChoice"
+    root="c1" model="choice2"
+    description="Section 7 - Discriminator with boolean test expression - DFDL-7-060R">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="discrimPatternPass"
+    root="e1" model="s1" description="Section 7 - discrim as a pattern - DFDL-7-045R">
+    <tdml:document><![CDATA[43]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>43</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="discrimPatternFail"
+    root="e2" model="s1" description="Section 7 - discrim as a pattern - DFDL-7-045R">
+    <tdml:document><![CDATA[43]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Discrim</tdml:error>
+      <tdml:error>pattern</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="discrimPatternFail2"
+    root="e3" model="s1"
+    description="Section 7 - multiple discrim as a pattern - DFDL-7-045R">
+    <tdml:document><![CDATA[43,]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>one</tdml:error>
+      <tdml:error>discriminator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="discrimPatternFail3"
+    root="e5" model="s1"
+    description="Section 7 - verify SDE occurs when both discriminator and assert present - DFDL-7-045R">
+    <tdml:document><![CDATA[43,]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>both</tdml:error>
+      <tdml:error>discriminator</tdml:error>
+      <tdml:error>assert</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceBranchDiscrimFail"
+    root="e7" model="s1"
+    description="Parser bound to first choice branch by discriminator - DFDL-7-060R, DFDL--15-015R">
+    <tdml:document><![CDATA[1234]]></tdml:document>
+    <tdml:errors>
+      <tdml:error></tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceBranchDiscrim"
+    root="e8" model="s1"
+    description="Backtracking occurs immediately because discriminator fails- DFDL-7-061R">
+    <tdml:document><![CDATA[123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e8>
+          <c>
+            <a2>123</a2>
+          </c>
+        </e8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="invalid">
+    <dfdl:format ref="ex:daffodilTest1" />
+    <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:discriminator testKind="pattern"
+            test='{. eq "123"}' testPattern="\d\d"
+            message="Discriminator failed for pattern '\d\d'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="discrimInvalidSchema"
+    root="e1" model="invalid"
+    description="It is a schema definition error if both a test expression and a test pattern are specified - DFDL-7-069R">
+    <tdml:document><![CDATA[123]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="choice3">
+    <dfdl:format ref="ex:daffodilTest1" />
+    <xs:element name="c1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="c">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="a1">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:annotation>
+                        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                          <dfdl:discriminator><![CDATA[{ false() }]]></dfdl:discriminator>
+                        </xs:appinfo>
+                      </xs:annotation>
+                      <xs:element name="str" type="xs:string"
+                        dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="a2">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="single" type="xs:string"
+                        dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
+                      <xs:element name="extra" type="xs:string"
+                        dfdl:lengthKind="delimited" />
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="discriminatorGuidesChoice3"
+    root="c1" model="choice3"
+    description="Discriminator to be used when resolving a point of uncertainty such as choice branches or optional elements- DFDL-6-011R">
+    <tdml:document><![CDATA[123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <c1>
+          <c>
+            <a2>
+              <single>1</single>
+              <extra>23</extra>
+            </a2>
+          </c>
+        </c1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="choice4">
+    <dfdl:format ref="ex:daffodilTest1" />
+    <xs:element name="c1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="c">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="a1">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:annotation>
+                        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                          <dfdl:discriminator><![CDATA[{ true() }]]></dfdl:discriminator>
+                        </xs:appinfo>
+                      </xs:annotation>
+                      <xs:element name="num" dfdl:lengthKind="delimited"
+                        type="xs:int" minOccurs="0" maxOccurs="1" />
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="a2">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="single" type="xs:int"
+                        dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="c2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="c">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="a1">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:annotation>
+                        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                          <dfdl:discriminator><![CDATA[{ false() }]]></dfdl:discriminator>
+                        </xs:appinfo>
+                      </xs:annotation>
+                      <xs:element name="num" dfdl:lengthKind="delimited"
+                        type="xs:int" minOccurs="0" maxOccurs="1" />
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="a2">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="single" type="xs:int"
+                        dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="discriminatorGuidesChoice4"
+    root="c1" model="choice4"
+    description="Discriminator to be used when resolving a point of uncertainty such as choice branches or optional elements- DFDL-6-011R">
+    <tdml:document><![CDATA[123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <c1>
+          <c>
+            <a1>
+              <num>123</num>
+            </a1>
+          </c>
+        </c1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="discriminatorGuidesChoice5"
+    root="c2" model="choice4"
+    description="Discriminator to be used when resolving a point of uncertainty such as choice branches or optional elements- DFDL-6-011R">
+    <tdml:document><![CDATA[123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <c2>
+          <c>
+            <a2>
+              <single>123</single>
+            </a2>
+          </c>
+        </c2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

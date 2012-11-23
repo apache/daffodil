@@ -1,674 +1,731 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tdml:testSuite suiteName="DelimitedTests" description="Section 12 - lengthKind=delimited"
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" 
-	xmlns:ex="http://example.com">
+<tdml:testSuite suiteName="DelimitedTests"
+  description="Section 12 - lengthKind=delimited" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com">
 
-	<tdml:defineSchema name="lengthKindDelimited-Embedded.dfdl.xsd">
-	
-			<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" lengthUnits="bytes" encoding="UTF-8" separator="" initiator="" terminator=""
-		       		occursCountKind="parsed" ignoreCase="no" textNumberRep="standard" representation="text" 
-		       		initiatedContent="no"/>
-		       		
-	    <xs:element name="NS_00a" type="xs:int" dfdl:terminator="a aab"/>
-	    <xs:element name="NS_00nl" type="xs:int" dfdl:terminator="%NL;"/>
-		
-		<xs:element name="NS_01">
-			<xs:complexType>
-				<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-					dfdl:separator="," dfdl:separatorPolicy="suppressed" dfdl:terminator="%NL;">
-					<xs:element name="num" type="xs:int" maxOccurs="unbounded" minOccurs="0"/>	
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="nested_NS_01">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="%NL;">
-					<xs:element ref="ex:NS_01" maxOccurs="unbounded" dfdl:lengthKind="delimited"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="NS_03">
-		<xs:complexType>
-			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-				dfdl:separator="," dfdl:separatorPolicy="suppressed">
-				<xs:element name="num" type="xs:int" maxOccurs="unbounded"/>	
-			</xs:sequence>
-		</xs:complexType>
-		</xs:element>
-		
-	      <xs:element name="NS_04" dfdl:lengthKind="implicit">
-	        <xs:complexType>
-	          <xs:sequence>
-	            <xs:element name="num1" type="xs:int" dfdl:lengthKind="delimited" maxOccurs="unbounded" dfdl:terminator=";"/>
-	            <xs:element name="num2" type="xs:int" dfdl:lengthKind="delimited" dfdl:terminator="."/>
-	          </xs:sequence>
-	        </xs:complexType>
-	      </xs:element>
-	      
-		<xs:element name="NS_05" dfdl:lengthKind="implicit">
-		<xs:complexType>
-			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-				dfdl:separator="," dfdl:separatorPolicy="suppressed">
-				<xs:element name="c_float" type="xs:float"/>
-				<xs:element name="c_string" type="xs:string"/>
-				<xs:element name="c_unsignedInt" type="xs:unsignedInt" minOccurs="0"/>
-				<xs:element name="c_int" type="xs:int"/>
-			</xs:sequence>
-		</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="NS_06">
-		<xs:complexType>
-			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-				dfdl:separator="," dfdl:separatorPolicy="suppressed">
-				<xs:element name="b_float" type="xs:float"/>
-				<xs:element name="b_string" type="xs:string"/>
-				<xs:element ref="NS_05" minOccurs="0" maxOccurs="2"/>
-				<xs:element name="b_unsignedInt" type="xs:unsignedInt" minOccurs="0"/>
-				<xs:element name="b_int" type="xs:int"/>
-			</xs:sequence>
-		</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="NS_07">
-		<xs:complexType>
-			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-				dfdl:separator="," dfdl:separatorPolicy="suppressed">
-				<xs:element name="a_float" type="xs:float"/>
-				<xs:element name="a_string" type="xs:string"/>
-				<xs:element ref="NS_06" minOccurs="0"/>
-				<xs:element name="a_unsignedInt" type="xs:unsignedInt" minOccurs="0"/>
-				<xs:element name="a_int" type="xs:int"/>
-			</xs:sequence>
-		</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="NS_10">
-		<xs:complexType>
-			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-				dfdl:separator="," dfdl:separatorPolicy="suppressed" dfdl:terminator="%NL;" >
-				<xs:element name="num" type="xs:int" maxOccurs="unbounded"/>	
-			</xs:sequence>
-		</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="NS_11">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-					<xs:sequence dfdl:initiator="!" dfdl:terminator="?" dfdl:separator=";" dfdl:separatorPosition="infix">
-						<xs:element name="e1" type="xs:int" maxOccurs="unbounded"/>
-					</xs:sequence>
-					<xs:element name="e2" type="xs:int" maxOccurs="unbounded"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="NS_12">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-					<xs:sequence dfdl:initiator="!" dfdl:terminator="?"/>
-					<xs:element name="e2" type="xs:int" maxOccurs="unbounded"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="NS_13">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-					<xs:sequence/>
-					<xs:element name="e2" type="xs:int" maxOccurs="unbounded"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-		<xs:element name="NS_14">
-			<xs:complexType>
-				<xs:sequence dfdl:separator=":" dfdl:separatorPosition="prefix">
-					<xs:sequence>
-						<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3" maxOccurs="unbounded"/>
-					</xs:sequence>
-					<xs:element name="e2" type="xs:int" maxOccurs="unbounded"/>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+  <tdml:defineSchema name="lengthKindDelimited-Embedded.dfdl.xsd">
 
-		<xs:element name="e_01" type="error01Type" dfdl:lengthKind="implicit"/>
-		<xs:complexType name="error01Type">
-			<xs:sequence dfdl:separator="%NL;" dfdl:separatorPolicy="suppressed">
-				<xs:element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
-					<xs:complexType>
-						<xs:sequence dfdl:separator=",">
-							<xs:element name="cell" type="xs:int" minOccurs="4" maxOccurs="unbounded" dfdl:textNumberRep="standard"
-								dfdl:lengthKind="delimited" />
-						</xs:sequence>
-					</xs:complexType>
-				</xs:element>
-			</xs:sequence>
-		</xs:complexType>
-		
-		<xs:element name="delim_01" dfdl:lengthKind="delimited">
-	        <xs:complexType>
-	          <xs:sequence dfdl:separator="%WSP;%WSP+;+%NL;%WSP*;" dfdl:separatorPosition="infix">
-	      		<xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" />
-	      		<xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" />
-	          </xs:sequence>
-	        </xs:complexType>
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="text" initiatedContent="no" />
+
+    <xs:element name="NS_00a" type="xs:int" dfdl:terminator="a aab" />
+    <xs:element name="NS_00nl" type="xs:int" dfdl:terminator="%NL;" />
+
+    <xs:element name="NS_01">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=","
+          dfdl:separatorPolicy="suppressed" dfdl:terminator="%NL;">
+          <xs:element name="num" type="xs:int" maxOccurs="unbounded"
+            minOccurs="0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nested_NS_01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%NL;">
+          <xs:element ref="ex:NS_01" maxOccurs="unbounded"
+            dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="NS_03">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=","
+          dfdl:separatorPolicy="suppressed">
+          <xs:element name="num" type="xs:int" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="NS_04" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num1" type="xs:int"
+            dfdl:lengthKind="delimited" maxOccurs="unbounded"
+            dfdl:terminator=";" />
+          <xs:element name="num2" type="xs:int"
+            dfdl:lengthKind="delimited" dfdl:terminator="." />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="NS_05" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=","
+          dfdl:separatorPolicy="suppressed">
+          <xs:element name="c_float" type="xs:float" />
+          <xs:element name="c_string" type="xs:string" />
+          <xs:element name="c_unsignedInt" type="xs:unsignedInt"
+            minOccurs="0" />
+          <xs:element name="c_int" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="NS_06">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=","
+          dfdl:separatorPolicy="suppressed">
+          <xs:element name="b_float" type="xs:float" />
+          <xs:element name="b_string" type="xs:string" />
+          <xs:element ref="NS_05" minOccurs="0" maxOccurs="2" />
+          <xs:element name="b_unsignedInt" type="xs:unsignedInt"
+            minOccurs="0" />
+          <xs:element name="b_int" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="NS_07">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=","
+          dfdl:separatorPolicy="suppressed">
+          <xs:element name="a_float" type="xs:float" />
+          <xs:element name="a_string" type="xs:string" />
+          <xs:element ref="NS_06" minOccurs="0" />
+          <xs:element name="a_unsignedInt" type="xs:unsignedInt"
+            minOccurs="0" />
+          <xs:element name="a_int" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="NS_10">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=","
+          dfdl:separatorPolicy="suppressed" dfdl:terminator="%NL;">
+          <xs:element name="num" type="xs:int" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="NS_11">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=","
+          dfdl:separatorPosition="infix">
+          <xs:sequence dfdl:initiator="!" dfdl:terminator="?"
+            dfdl:separator=";" dfdl:separatorPosition="infix">
+            <xs:element name="e1" type="xs:int" maxOccurs="unbounded" />
+          </xs:sequence>
+          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="NS_12">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=","
+          dfdl:separatorPosition="infix">
+          <xs:sequence dfdl:initiator="!" dfdl:terminator="?" />
+          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="NS_13">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=","
+          dfdl:separatorPosition="infix">
+          <xs:sequence />
+          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="NS_14">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=":"
+          dfdl:separatorPosition="prefix">
+          <xs:sequence>
+            <xs:element name="e1" type="xs:int"
+              dfdl:lengthKind="explicit" dfdl:length="3" maxOccurs="unbounded" />
+          </xs:sequence>
+          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_01" type="error01Type"
+      dfdl:lengthKind="implicit" />
+    <xs:complexType name="error01Type">
+      <xs:sequence dfdl:separator="%NL;"
+        dfdl:separatorPolicy="suppressed">
+        <xs:element name="row" maxOccurs="unbounded"
+          dfdl:lengthKind="implicit">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="cell" type="xs:int"
+                minOccurs="4" maxOccurs="unbounded" dfdl:textNumberRep="standard"
+                dfdl:lengthKind="delimited" />
+            </xs:sequence>
+          </xs:complexType>
         </xs:element>
-        
-        <xs:element name="delim_02" dfdl:lengthKind="delimited">
-	        <xs:complexType>
-	          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:separatorPolicy="suppressed">
-	      		<xs:element name="s" type="xs:string" maxOccurs="5" dfdl:occursCountKind="implicit" dfdl:lengthKind="delimited" />
-	          </xs:sequence>
-	        </xs:complexType>
-        </xs:element>
-        
-        <xs:element name="delim_03" dfdl:lengthKind="delimited">
-	        <xs:complexType>
-	          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-	      		<xs:element name="s" type="xs:string" maxOccurs="5" dfdl:occursCountKind="implicit" dfdl:lengthKind="delimited" />
-	          </xs:sequence>
-	        </xs:complexType>
-        </xs:element>
-        
-        <xs:element name="NS_08" dfdl:lengthKind="explicit" dfdl:length="20">
-        	<xs:complexType>
-			<xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-				dfdl:separator="," dfdl:separatorPolicy="suppressed">
-				<xs:element name="num" type="xs:int" maxOccurs="unbounded" dfdl:lengthKind="delimited"/>	
-			</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		
-	</tdml:defineSchema>
- 
- 	<tdml:parserTestCase name="NumSeq_00a" root="NS_00a"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
+      </xs:sequence>
+    </xs:complexType>
 
-		<tdml:document><![CDATA[1aab]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<NS_00a>1</NS_00a>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	 <tdml:parserTestCase name="NumSeq_00nl" root="NS_00nl"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
+    <xs:element name="delim_01" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%WSP;%WSP+;+%NL;%WSP*;"
+          dfdl:separatorPosition="infix">
+          <xs:element name="s1" type="xs:string"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="s2" type="xs:string"
+            dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<tdml:document><![CDATA[1
+    <xs:element name="delim_02" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=","
+          dfdl:separatorPosition="infix" dfdl:separatorPolicy="suppressed">
+          <xs:element name="s" type="xs:string" maxOccurs="5"
+            dfdl:occursCountKind="implicit" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="delim_03" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=","
+          dfdl:separatorPosition="infix">
+          <xs:element name="s" type="xs:string" maxOccurs="5"
+            dfdl:occursCountKind="implicit" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="NS_08" dfdl:lengthKind="explicit"
+      dfdl:length="20">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=","
+          dfdl:separatorPolicy="suppressed">
+          <xs:element name="num" type="xs:int" maxOccurs="unbounded"
+            dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="NumSeq_00a" root="NS_00a"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
+
+    <tdml:document><![CDATA[1aab]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <NS_00a>1</NS_00a>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="NumSeq_00nl" root="NS_00nl"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
+
+    <tdml:document><![CDATA[1
 ]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<NS_00nl>1</NS_00nl>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	
-	<tdml:parserTestCase name="NumSeq_01" root="NS_01"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <NS_00nl>1</NS_00nl>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document><![CDATA[1,2,3,4,5,6
+
+  <tdml:parserTestCase name="NumSeq_01" root="NS_01"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
+
+    <tdml:document><![CDATA[1,2,3,4,5,6
 ]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<NS_01>
-					<num>1</num>
-					<num>2</num>
-					<num>3</num>
-					<num>4</num>
-					<num>5</num>
-					<num>6</num>
-				</NS_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="nested_NumSeq_01" root="nested_NS_01"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <NS_01>
+          <num>1</num>
+          <num>2</num>
+          <num>3</num>
+          <num>4</num>
+          <num>5</num>
+          <num>6</num>
+        </NS_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document><![CDATA[1,2,3,4,5,6
+  <tdml:parserTestCase name="nested_NumSeq_01" root="nested_NS_01"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
+
+    <tdml:document><![CDATA[1,2,3,4,5,6
 
 7,8,9
 ]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<nested_NS_01>
-					<NS_01>
-						<num>1</num>
-						<num>2</num>
-						<num>3</num>
-						<num>4</num>
-						<num>5</num>
-						<num>6</num>
-					</NS_01>
-					<NS_01>
-						<num>7</num>
-						<num>8</num>
-						<num>9</num>
-					</NS_01>
-				</nested_NS_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="NumSeq_03" root="NS_03"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-045R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <nested_NS_01>
+          <NS_01>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+            <num>4</num>
+            <num>5</num>
+            <num>6</num>
+          </NS_01>
+          <NS_01>
+            <num>7</num>
+            <num>8</num>
+            <num>9</num>
+          </NS_01>
+        </nested_NS_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document>1,2,3,4,5,6</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<NS_03>
-					<num>1</num>
-					<num>2</num>
-					<num>3</num>
-					<num>4</num>
-					<num>5</num>
-					<num>6</num>
-				</NS_03>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="NumSeq_04" root="NS_04"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-042R">
+  <tdml:parserTestCase name="NumSeq_03" root="NS_03"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-045R">
 
-		<tdml:document>1;2;3;4;5;6.</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<NS_04>
-					<num1>1</num1>
-					<num1>2</num1>
-					<num1>3</num1>
-					<num1>4</num1>
-					<num1>5</num1>
-					<num2>6</num2>
-				</NS_04>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="NumSeq_05" root="NS_05"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
+    <tdml:document><![CDATA[1,2,3,4,5,6]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <NS_03>
+          <num>1</num>
+          <num>2</num>
+          <num>3</num>
+          <num>4</num>
+          <num>5</num>
+          <num>6</num>
+        </NS_03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document>3.78,abcd,-289</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<NS_05>
-					<c_float>3.78</c_float>
-					<c_string>abcd</c_string>
-					<c_int>-289</c_int>
-				</NS_05>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="NumSeq_06" root="NS_06"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
+  <tdml:parserTestCase name="NumSeq_04" root="NS_04"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-042R">
 
-		<tdml:document>27.44,vxyz,3.78,abcd,-289,-8476</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<NS_06>
-					<b_float>27.44</b_float>
-					<b_string>vxyz</b_string>
-					<NS_05>
-						<c_float>3.78</c_float>
-						<c_string>abcd</c_string>
-						<c_int>-289</c_int>
-					</NS_05>
-					<b_int>-8476</b_int>
-				</NS_06>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="NumSeq_07" root="NS_07"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
+    <tdml:document><![CDATA[1;2;3;4;5;6.]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <NS_04>
+          <num1>1</num1>
+          <num1>2</num1>
+          <num1>3</num1>
+          <num1>4</num1>
+          <num1>5</num1>
+          <num2>6</num2>
+        </NS_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document>.639,pqrs,27.44,vxyz,3.78,abcd,73,-289,-8476,-749</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<NS_07>
-					<a_float>0.639</a_float>
-					<a_string>pqrs</a_string>
-					<NS_06>
-						<b_float>27.44</b_float>
-						<b_string>vxyz</b_string>
-						<NS_05>
-							<c_float>3.78</c_float>
-							<c_string>abcd</c_string>
-							<c_unsignedInt>73</c_unsignedInt>
-							<c_int>-289</c_int>
-						</NS_05>
-						<b_int>-8476</b_int>
-					</NS_06>
-					<a_int>-749</a_int>
-				</NS_07>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="NumSeq_08" root="NS_07"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
+  <tdml:parserTestCase name="NumSeq_05" root="NS_05"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
 
-		<tdml:document>.639,pqrs,27.44,vxyz,3.78,abcd,73,-289,-5.89,hijk,-23,-8476,-749</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<NS_07>
-					<a_float>0.639</a_float>
-					<a_string>pqrs</a_string>
-					<NS_06>
-						<b_float>27.44</b_float>
-						<b_string>vxyz</b_string>
-						<NS_05>
-							<c_float>3.78</c_float>
-							<c_string>abcd</c_string>
-							<c_unsignedInt>73</c_unsignedInt>
-							<c_int>-289</c_int>
-						</NS_05>
-						<NS_05>
-							<c_float>-5.89</c_float>
-							<c_string>hijk</c_string>
-							<c_int>-23</c_int>
-						</NS_05>
-						<b_int>-8476</b_int>
-					</NS_06>
-					<a_int>-749</a_int>
-				</NS_07>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="NumSeq_10" root="NS_10"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-038R">
+    <tdml:document><![CDATA[3.78,abcd,-289]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <NS_05>
+          <c_float>3.78</c_float>
+          <c_string>abcd</c_string>
+          <c_int>-289</c_int>
+        </NS_05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document>1,2,3,4,5,6</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<NS_05>
-					<num>1</num>
-					<num>2</num>
-					<num>3</num>
-					<num>4</num>
-					<num>5</num>
-					<num>6</num>
-				</NS_05>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="lengthKindDelimited_01" root="delim_01"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - use space character (0x20) as %WSP; - DFDL-12-048R">
+  <tdml:parserTestCase name="NumSeq_06" root="NS_06"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
 
-		<tdml:document>abcd  +
-		  efg</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<delim_01>
-					<s1>abcd</s1>
-					<s2>efg</s2>
-				</delim_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="lengthKindDelimited_02" root="delim_01"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - use tab character (0x09) as %WSP; - DFDL-12-048R">
+    <tdml:document><![CDATA[27.44,vxyz,3.78,abcd,-289,-8476]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <NS_06>
+          <b_float>27.44</b_float>
+          <b_string>vxyz</b_string>
+          <NS_05>
+            <c_float>3.78</c_float>
+            <c_string>abcd</c_string>
+            <c_int>-289</c_int>
+          </NS_05>
+          <b_int>-8476</b_int>
+        </NS_06>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document>abcd		+
-				efg</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<delim_01>
-					<s1>abcd</s1>
-					<s2>efg</s2>
-				</delim_01>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="lengthKindDelimited_03" root="delim_02"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - unused bytes - DFDL-12-048R">
+  <tdml:parserTestCase name="NumSeq_07" root="NS_07"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
 
-		<tdml:document>abc,defg,hijklm,no,pqrst,uvwxyz,hacdf</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<delim_02>
-					<s>abc</s>
-					<s>defg</s>
-					<s>hijklm</s>
-					<s>no</s>
-					<s>pqrst</s>
-				</delim_02>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="lengthKindDelimited_04" root="delim_03"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - unused bytes - DFDL-12-048R">
+    <tdml:document><![CDATA[.639,pqrs,27.44,vxyz,3.78,abcd,73,-289,-8476,-749]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <NS_07>
+          <a_float>0.639</a_float>
+          <a_string>pqrs</a_string>
+          <NS_06>
+            <b_float>27.44</b_float>
+            <b_string>vxyz</b_string>
+            <NS_05>
+              <c_float>3.78</c_float>
+              <c_string>abcd</c_string>
+              <c_unsignedInt>73</c_unsignedInt>
+              <c_int>-289</c_int>
+            </NS_05>
+            <b_int>-8476</b_int>
+          </NS_06>
+          <a_int>-749</a_int>
+        </NS_07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document>abc,defg,hijklm,no,pqrst,uvwxyz,hacdf</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<delim_03>
-					<s>abc</s>
-					<s>defg</s>
-					<s>hijklm</s>
-					<s>no</s>
-					<s>pqrst</s>
-				</delim_03>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="NumSeq_09" root="NS_08"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="an enclosing element of a known length - DFDL-12-044R">
+  <tdml:parserTestCase name="NumSeq_08" root="NS_07"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
 
-		<tdml:document>123,2789,30,408,52283,22,66210</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<NS_08>
-					<num>123</num>
-					<num>2789</num>
-					<num>30</num>
-					<num>408</num>
-					<num>5228</num>
-				</NS_08>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="NumSeq_11" root="NS_11"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="lengthKind delimited with nested delimited sequence - DFDL-12-043R">
+    <tdml:document><![CDATA[.639,pqrs,27.44,vxyz,3.78,abcd,73,-289,-5.89,hijk,-23,-8476,-749]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <NS_07>
+          <a_float>0.639</a_float>
+          <a_string>pqrs</a_string>
+          <NS_06>
+            <b_float>27.44</b_float>
+            <b_string>vxyz</b_string>
+            <NS_05>
+              <c_float>3.78</c_float>
+              <c_string>abcd</c_string>
+              <c_unsignedInt>73</c_unsignedInt>
+              <c_int>-289</c_int>
+            </NS_05>
+            <NS_05>
+              <c_float>-5.89</c_float>
+              <c_string>hijk</c_string>
+              <c_int>-23</c_int>
+            </NS_05>
+            <b_int>-8476</b_int>
+          </NS_06>
+          <a_int>-749</a_int>
+        </NS_07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document>!123;2789;30?,408,52283,22</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<NS_11>
-					<e1>123</e1>
-					<e1>2789</e1>
-					<e1>30</e1>
-					<e2>408</e2>
-					<e2>52283</e2>
-					<e2>22</e2>
-				</NS_11>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="NumSeq_12" root="NS_12"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="lengthKind delimited infix separator - DFDL-12-043R">
+  <tdml:parserTestCase name="NumSeq_10" root="NS_10"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-038R">
 
-		<tdml:document>!?,408,52283,22</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<NS_12>
-					<e2>408</e2>
-					<e2>52283</e2>
-					<e2>22</e2>
-				</NS_12>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="NumSeq_13" root="NS_13"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="lengthKind delimited infix separator - DFDL-12-043R">
+    <tdml:document><![CDATA[1,2,3,4,5,6]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <NS_05>
+          <num>1</num>
+          <num>2</num>
+          <num>3</num>
+          <num>4</num>
+          <num>5</num>
+          <num>6</num>
+        </NS_05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document>,408,52283,22</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<NS_13>
-					<e2>408</e2>
-					<e2>52283</e2>
-					<e2>22</e2>
-				</NS_13>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:parserTestCase name="NumSeq_14" root="NS_14"
-		model="lengthKindDelimited-Embedded.dfdl.xsd" description="lengthKind delimited prefix separator- DFDL-12-043R, DFDL-12-046R, DFDL-14-009R">
+  <tdml:parserTestCase name="lengthKindDelimited_01"
+    root="delim_01" model="lengthKindDelimited-Embedded.dfdl.xsd"
+    description="Section 12 lengthKind-delimited - use space character (0x20) as %WSP; - DFDL-12-048R">
 
-		<tdml:document>:408522835:22:19:154</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<NS_14>
-					<e1>408</e1>
-					<e1>522</e1>
-					<e1>835</e1>
-					<e2>22</e2>
-					<e2>19</e2>
-					<e2>154</e2>
-				</NS_14>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:defineSchema name="refInitiator.xsd">
+    <tdml:document><![CDATA[abcd  +
+		  efg]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <delim_01>
+          <s1>abcd</s1>
+          <s2>efg</s2>
+        </delim_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" encoding="utf-8"
-			byteOrder="bigEndian" occursCountKind="parsed" ignoreCase="no"
-			representation="text" lengthKind="delimited" textNumberRep="standard"
-			separatorPolicy="suppressed" initiatedContent="no" />
+  <tdml:parserTestCase name="lengthKindDelimited_02"
+    root="delim_01" model="lengthKindDelimited-Embedded.dfdl.xsd"
+    description="Section 12 lengthKind-delimited - use tab character (0x09) as %WSP; - DFDL-12-048R">
 
-		<xs:element name="description" type="xs:string" />
-		<xs:element name="comment" type="xs:string" />
-		<xs:element name="quantity" type="xs:int" />
-		<xs:element name="price" type="xs:float" />
-		
-		<xs:element name="list" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="||" dfdl:separatorPosition="infix">
-					<xs:element name="Item" dfdl:lengthKind="implicit"
-						maxOccurs="unbounded">
-						<xs:complexType>
+    <tdml:document><![CDATA[abcd		+
+				efg]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <delim_01>
+          <s1>abcd</s1>
+          <s2>efg</s2>
+        </delim_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-							<xs:sequence dfdl:separator=","
-								dfdl:separatorPosition="infix">
-								<xs:element ref="ex:description" />
-								<xs:element ref="ex:comment" />
-								<xs:element ref="ex:quantity" />
-								<xs:element ref="ex:price" dfdl:initiator="$" />
-							</xs:sequence>
+  <tdml:parserTestCase name="lengthKindDelimited_03"
+    root="delim_02" model="lengthKindDelimited-Embedded.dfdl.xsd"
+    description="Section 12 lengthKind-delimited - unused bytes - DFDL-12-048R">
 
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+    <tdml:document><![CDATA[abc,defg,hijklm,no,pqrst,uvwxyz,hacdf]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <delim_02>
+          <s>abc</s>
+          <s>defg</s>
+          <s>hijklm</s>
+          <s>no</s>
+          <s>pqrst</s>
+        </delim_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-	</tdml:defineSchema>
+  <tdml:parserTestCase name="lengthKindDelimited_04"
+    root="delim_03" model="lengthKindDelimited-Embedded.dfdl.xsd"
+    description="Section 12 lengthKind-delimited - unused bytes - DFDL-12-048R">
 
-	<tdml:parserTestCase name="refInitiator" root="list"
-		model="refInitiator.xsd" description="initiator on an element reference - DFDL-12-032R">
+    <tdml:document><![CDATA[abc,defg,hijklm,no,pqrst,uvwxyz,hacdf]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <delim_03>
+          <s>abc</s>
+          <s>defg</s>
+          <s>hijklm</s>
+          <s>no</s>
+          <s>pqrst</s>
+        </delim_03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
-		<tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<list>
-					<Item>
-						<description>Shirts</description>
-						<comment>Sold on Monday</comment>
-						<quantity>30</quantity>
-						<price>17.99</price>
-					</Item>
-					<Item>
-						<description>Shoes</description>
-						<comment>Sold on Tuesday</comment>
-						<quantity>23</quantity>
-						<price>89.99</price>
-					</Item>
-				</list>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
-	<tdml:defineSchema name="refInitiator2.xsd">
+  <tdml:parserTestCase name="NumSeq_09" root="NS_08"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="an enclosing element of a known length - DFDL-12-044R">
+
+    <tdml:document><![CDATA[123,2789,30,408,52283,22,66210]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <NS_08>
+          <num>123</num>
+          <num>2789</num>
+          <num>30</num>
+          <num>408</num>
+          <num>5228</num>
+        </NS_08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="NumSeq_11" root="NS_11"
+    model="lengthKindDelimited-Embedded.dfdl.xsd"
+    description="lengthKind delimited with nested delimited sequence - DFDL-12-043R">
+
+    <tdml:document><![CDATA[!123;2789;30?,408,52283,22]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <NS_11>
+          <e1>123</e1>
+          <e1>2789</e1>
+          <e1>30</e1>
+          <e2>408</e2>
+          <e2>52283</e2>
+          <e2>22</e2>
+        </NS_11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="NumSeq_12" root="NS_12"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="lengthKind delimited infix separator - DFDL-12-043R">
+
+    <tdml:document><![CDATA[!?,408,52283,22]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <NS_12>
+          <e2>408</e2>
+          <e2>52283</e2>
+          <e2>22</e2>
+        </NS_12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="NumSeq_13" root="NS_13"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="lengthKind delimited infix separator - DFDL-12-043R">
+
+    <tdml:document><![CDATA[,408,52283,22]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <NS_13>
+          <e2>408</e2>
+          <e2>52283</e2>
+          <e2>22</e2>
+        </NS_13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="NumSeq_14" root="NS_14"
+    model="lengthKindDelimited-Embedded.dfdl.xsd"
+    description="lengthKind delimited prefix separator- DFDL-12-043R, DFDL-12-046R, DFDL-14-009R">
+
+    <tdml:document><![CDATA[:408522835:22:19:154]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <NS_14>
+          <e1>408</e1>
+          <e1>522</e1>
+          <e1>835</e1>
+          <e2>22</e2>
+          <e2>19</e2>
+          <e2>154</e2>
+        </NS_14>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="refInitiator.xsd">
+
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" encoding="utf-8" byteOrder="bigEndian"
+      occursCountKind="parsed" ignoreCase="no" representation="text"
+      lengthKind="delimited" textNumberRep="standard" separatorPolicy="suppressed"
+      initiatedContent="no" />
+
+    <xs:element name="description" type="xs:string" />
+    <xs:element name="comment" type="xs:string" />
+    <xs:element name="quantity" type="xs:int" />
+    <xs:element name="price" type="xs:float" />
+
+    <xs:element name="list" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="||"
+          dfdl:separatorPosition="infix">
+          <xs:element name="Item" dfdl:lengthKind="implicit"
+            maxOccurs="unbounded">
+            <xs:complexType>
+
+              <xs:sequence dfdl:separator=","
+                dfdl:separatorPosition="infix">
+                <xs:element ref="ex:description" />
+                <xs:element ref="ex:comment" />
+                <xs:element ref="ex:quantity" />
+                <xs:element ref="ex:price" dfdl:initiator="$" />
+              </xs:sequence>
+
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="refInitiator" root="list"
+    model="refInitiator.xsd" description="initiator on an element reference - DFDL-12-032R">
+
+    <tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <list>
+          <Item>
+            <description>Shirts</description>
+            <comment>Sold on Monday</comment>
+            <quantity>30</quantity>
+            <price>17.99</price>
+          </Item>
+          <Item>
+            <description>Shoes</description>
+            <comment>Sold on Tuesday</comment>
+            <quantity>23</quantity>
+            <price>89.99</price>
+          </Item>
+        </list>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="refInitiator2.xsd">
 
 
-		<dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" encoding="utf-8"
-			byteOrder="bigEndian" occursCountKind="parsed" ignoreCase="no"
-			representation="text" lengthKind="delimited" textNumberRep="standard"
-			separatorPolicy="suppressed" initiatedContent="no" />
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" encoding="utf-8" byteOrder="bigEndian"
+      occursCountKind="parsed" ignoreCase="no" representation="text"
+      lengthKind="delimited" textNumberRep="standard" separatorPolicy="suppressed"
+      initiatedContent="no" />
 
-		<xs:element name="description" type="xs:string" />
-		<xs:element name="comment" type="xs:string" />
-		<xs:element name="quantity" type="xs:int" />
-		<xs:element name="price" type="xs:float" dfdl:initiator="$" />
+    <xs:element name="description" type="xs:string" />
+    <xs:element name="comment" type="xs:string" />
+    <xs:element name="quantity" type="xs:int" />
+    <xs:element name="price" type="xs:float" dfdl:initiator="$" />
 
-		<xs:element name="list" dfdl:lengthKind="implicit">
-			<xs:complexType>
-				<xs:sequence dfdl:separator="||" dfdl:separatorPosition="infix">
-					<xs:element name="Item" dfdl:lengthKind="implicit"
-						maxOccurs="unbounded">
-						<xs:complexType>
+    <xs:element name="list" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="||"
+          dfdl:separatorPosition="infix">
+          <xs:element name="Item" dfdl:lengthKind="implicit"
+            maxOccurs="unbounded">
+            <xs:complexType>
 
-							<xs:sequence dfdl:separator=","
-								dfdl:separatorPosition="infix">
-								<xs:element ref="ex:description" />
-								<xs:element ref="ex:comment" />
-								<xs:element ref="ex:quantity" />
-								<xs:element ref="ex:price" />
-							</xs:sequence>
+              <xs:sequence dfdl:separator=","
+                dfdl:separatorPosition="infix">
+                <xs:element ref="ex:description" />
+                <xs:element ref="ex:comment" />
+                <xs:element ref="ex:quantity" />
+                <xs:element ref="ex:price" />
+              </xs:sequence>
 
-						</xs:complexType>
-					</xs:element>
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="refInitiator2" root="list"
-		model="refInitiator2.xsd" description="initiator on an element declaration - DFDL-12-032R">
+  <tdml:parserTestCase name="refInitiator2" root="list"
+    model="refInitiator2.xsd" description="initiator on an element declaration - DFDL-12-032R">
 
-		<tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<list>
-					<Item>
-						<description>Shirts</description>
-						<comment>Sold on Monday</comment>
-						<quantity>30</quantity>
-						<price>17.99</price>
-					</Item>
-					<Item>
-						<description>Shoes</description>
-						<comment>Sold on Tuesday</comment>
-						<quantity>23</quantity>
-						<price>89.99</price>
-					</Item>
-				</list>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
-	
+    <tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <list>
+          <Item>
+            <description>Shirts</description>
+            <comment>Sold on Monday</comment>
+            <quantity>30</quantity>
+            <price>17.99</price>
+          </Item>
+          <Item>
+            <description>Shoes</description>
+            <comment>Sold on Tuesday</comment>
+            <quantity>23</quantity>
+            <price>89.99</price>
+          </Item>
+        </list>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

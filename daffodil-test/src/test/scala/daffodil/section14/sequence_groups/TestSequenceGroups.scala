@@ -15,13 +15,13 @@ class TestSequenceGroups extends JUnitSuite {
   val testDir = "/daffodil/ibm-tests/"
   val aa = testDir + "dpaext1.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def test_multiple_delimiters2() { runner.runOneTest("multiple_delimiters2") }
-  
+
   val testDir_01 = "/daffodil/section14/sequence_groups/"
   val tdml_01 = testDir_01 + "SequenceGroupDelimiters.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
-  
+
   @Test def test_SeqGrp_01() { runner_01.runOneTest("SeqGrp_01") }
   @Test def test_SeqGrp_02() { runner_01.runOneTest("SeqGrp_02") }
   @Test def test_SeqGrp_03() { runner_01.runOneTest("SeqGrp_03") }
@@ -31,9 +31,9 @@ class TestSequenceGroups extends JUnitSuite {
   @Test def test_NumSeq_02() { runner_01.runOneTest("NumSeq_02") }
   @Test def test_groupRefInheritProps() { runner_01.runOneTest("groupRefInheritProps") }
   @Test def test_sequenceWithinSequence() { runner_01.runOneTest("sequenceWithinSequence") }
-  
+
   val tdml_02 = testDir_01 + "SequenceGroup.tdml"
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
-  
+
   @Test def test_SeqGrp_05() { runner_02.runOneTest("SeqGrp_05") }
-  }
+}
