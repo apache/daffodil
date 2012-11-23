@@ -11,90 +11,7 @@ import org.junit.Test
  */
 class TestGeneratedProperties extends JUnitSuite {
 
-  val bagOfProps = <dfdl:format encoding="UTF-8" 
-utf16Width="fixed" 
-byteOrder="bigEndian" 
-ignoreCase="no" 
-outputNewLine="%CR;%LF;" 
-alignment="1" 
-alignmentUnits="bytes" 
-fillByte="0" 
-leadingSkip="0" 
-trailingSkip="0" 
-lengthKind="delimited" 
-lengthUnits="characters" 
-prefixIncludesPrefixLength="no" 
-representation="text" 
-textPadKind="none" 
-textTrimKind="none" 
-escapeSchemeRef="tns:GeneralBlockEscapeScheme" 
-textBidi="no" 
-textBidiTextOrdering="implicit" 
-textBidiSymmetric="yes" 
-textBidiTextShaped="no" 
-textBidiNumeralShapes="nominal" 
-textBidiOrientation="RTL" 
-textStringJustification="left" 
-textStringPadCharacter="%SP;" 
-truncateSpecifiedLengthString="no" 
-textOutputMinLength="0" 
-textNumberJustification="right" 
-textNumberPadCharacter="0" 
-decimalSigned="yes" 
-textNumberCheckPolicy="lax" 
-textNumberRep="standard" 
-textStandardBase="10" 
-textNumberRounding="pattern" 
-textNumberRoundingMode="roundUp" 
-textNumberRoundingIncrement="0.0" 
-textStandardDecimalSeparator="." 
-textStandardGroupingSeparator="," 
-textStandardExponentCharacter="E" 
-textStandardZeroRep="0" 
-textStandardInfinityRep="Inf" 
-textStandardNaNRep="NaN" 
-textNumberPattern="#0" 
-textZonedSignStyle="asciiStandard" 
-textBooleanJustification="left" 
-textBooleanPadCharacter="%SP;" 
-textBooleanTrueRep="true" 
-textBooleanFalseRep="false" 
-textCalendarJustification="left" 
-textCalendarPadCharacter="%SP;" 
-calendarPatternKind="implicit" 
-calendarPattern="yyyy-MM-dd'T'HH:mm:ss" 
-calendarCheckPolicy="lax" 
-calendarTimeZone="UTC" 
-calendarObserveDST="yes" 
-calendarFirstDayOfWeek="Monday" 
-calendarDaysInFirstWeek="4" 
-calendarCenturyStart="53" 
-calendarLanguage="en-US" 
-occursCountKind="parsed" 
-sequenceKind="ordered" 
-separator="," 
-separatorPolicy="required" 
-separatorPosition="infix" 
-initiatedContent="no" 
-floating="no" 
-choiceLengthKind="implicit" 
-initiator="" 
-terminator="" 
-documentFinalTerminatorCanBeMissing="no" 
-emptyValueDelimiterPolicy="none" 
-nilKind="literalValue" 
-useNilForDefault="no" 
-nilValue="NIL" 
-nilValueDelimiterPolicy="none" 
-binaryNumberRep="binary" 
-binaryPackedSignCodes="C D F C" 
-binaryDecimalVirtualPoint="0" 
-binaryNumberCheckPolicy="lax" 
-binaryFloatRep="ieee" 
-binaryCalendarRep="bcd" 
-binaryCalendarEpoch="1970-01-01T00:00:00+00:00" 
-binaryBooleanTrueRep="1" 
-binaryBooleanFalseRep="0">
+  val bagOfProps = <dfdl:format encoding="UTF-8" utf16Width="fixed" byteOrder="bigEndian" ignoreCase="no" outputNewLine="%CR;%LF;" alignment="1" alignmentUnits="bytes" fillByte="0" leadingSkip="0" trailingSkip="0" lengthKind="delimited" lengthUnits="characters" prefixIncludesPrefixLength="no" representation="text" textPadKind="none" textTrimKind="none" escapeSchemeRef="tns:GeneralBlockEscapeScheme" textBidi="no" textBidiTextOrdering="implicit" textBidiSymmetric="yes" textBidiTextShaped="no" textBidiNumeralShapes="nominal" textBidiOrientation="RTL" textStringJustification="left" textStringPadCharacter="%SP;" truncateSpecifiedLengthString="no" textOutputMinLength="0" textNumberJustification="right" textNumberPadCharacter="0" decimalSigned="yes" textNumberCheckPolicy="lax" textNumberRep="standard" textStandardBase="10" textNumberRounding="pattern" textNumberRoundingMode="roundUp" textNumberRoundingIncrement="0.0" textStandardDecimalSeparator="." textStandardGroupingSeparator="," textStandardExponentCharacter="E" textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN" textNumberPattern="#0" textZonedSignStyle="asciiStandard" textBooleanJustification="left" textBooleanPadCharacter="%SP;" textBooleanTrueRep="true" textBooleanFalseRep="false" textCalendarJustification="left" textCalendarPadCharacter="%SP;" calendarPatternKind="implicit" calendarPattern="yyyy-MM-dd'T'HH:mm:ss" calendarCheckPolicy="lax" calendarTimeZone="UTC" calendarObserveDST="yes" calendarFirstDayOfWeek="Monday" calendarDaysInFirstWeek="4" calendarCenturyStart="53" calendarLanguage="en-US" occursCountKind="parsed" sequenceKind="ordered" separator="," separatorPolicy="required" separatorPosition="infix" initiatedContent="no" floating="no" choiceLengthKind="implicit" initiator="" terminator="" documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="none" nilKind="literalValue" useNilForDefault="no" nilValue="NIL" nilValueDelimiterPolicy="none" binaryNumberRep="binary" binaryPackedSignCodes="C D F C" binaryDecimalVirtualPoint="0" binaryNumberCheckPolicy="lax" binaryFloatRep="ieee" binaryCalendarRep="bcd" binaryCalendarEpoch="1970-01-01T00:00:00+00:00" binaryBooleanTrueRep="1" binaryBooleanFalseRep="0">
                    </dfdl:format>
 
   /**
@@ -103,15 +20,15 @@ binaryBooleanFalseRep="0">
    * retrieves the property if it is present.
    */
   class HasLotsOfProperties extends Format_AnnotationMixin {
-    
-    def SDE(id : String, args : Any *) : Nothing = {
+
+    def SDE(id: String, args: Any*): Nothing = {
       throw new Exception(id.toString + args)
     }
 
-    val detailName="HasLotsOfProperties"
+    val detailName = "HasLotsOfProperties"
     /**
      * In this case, we're just going to lookup the attribute on the above
-     * big piece of XML. In real use, this would look at some list built up 
+     * big piece of XML. In real use, this would look at some list built up
      * by using the DFDL property scoping rules to have the right set of property
      * definitions in it.
      */
@@ -146,16 +63,15 @@ binaryBooleanFalseRep="0">
       assertEquals(value, prop.toString)
   }
 
-  
   @Test
   def testProps1() {
     val hasProps = new HasLotsOfProperties
 
-//    comparePropValue(hasProps.encoding, "UTF-8")
+    //    comparePropValue(hasProps.encoding, "UTF-8")
     comparePropValue(hasProps.utf16Width, "fixed")
-//    comparePropValue(hasProps.byteOrder, "bigEndian")
+    //    comparePropValue(hasProps.byteOrder, "bigEndian")
     comparePropValue(hasProps.ignoreCase, "no")
-//    comparePropValue(hasProps.outputNewLine, "%CR;%LF;")
+    //    comparePropValue(hasProps.outputNewLine, "%CR;%LF;")
     comparePropValue(hasProps.alignment, "1")
     comparePropValue(hasProps.alignmentUnits, "bytes")
     comparePropValue(hasProps.fillByte, "0")
@@ -187,18 +103,18 @@ binaryBooleanFalseRep="0">
     comparePropValue(hasProps.textNumberRounding, "pattern")
     comparePropValue(hasProps.textNumberRoundingMode, "roundUp")
     comparePropValue(hasProps.textNumberRoundingIncrement, "0.0")
-//    comparePropValue(hasProps.textStandardDecimalSeparator, ".")
-//    comparePropValue(hasProps.textStandardGroupingSeparator, ",")
+    //    comparePropValue(hasProps.textStandardDecimalSeparator, ".")
+    //    comparePropValue(hasProps.textStandardGroupingSeparator, ",")
     comparePropValue(hasProps.textStandardExponentCharacter, "E")
-//    comparePropValue(hasProps.textStandardZeroRep, "0")
-//    comparePropValue(hasProps.textStandardInfinityRep, "Inf")
-//    comparePropValue(hasProps.textStandardNaNRep, "NaN")
+    //    comparePropValue(hasProps.textStandardZeroRep, "0")
+    //    comparePropValue(hasProps.textStandardInfinityRep, "Inf")
+    //    comparePropValue(hasProps.textStandardNaNRep, "NaN")
     comparePropValue(hasProps.textNumberPattern, "#0")
     comparePropValue(hasProps.textZonedSignStyle, "asciiStandard")
     comparePropValue(hasProps.textBooleanJustification, "left")
     comparePropValue(hasProps.textBooleanPadCharacter, "%SP;")
-//    comparePropValue(hasProps.textBooleanTrueRep, "true")
-//    comparePropValue(hasProps.textBooleanFalseRep, "false")
+    //    comparePropValue(hasProps.textBooleanTrueRep, "true")
+    //    comparePropValue(hasProps.textBooleanFalseRep, "false")
     comparePropValue(hasProps.textCalendarJustification, "left")
     comparePropValue(hasProps.textCalendarPadCharacter, "%SP;")
     comparePropValue(hasProps.calendarPatternKind, "implicit")
@@ -212,25 +128,25 @@ binaryBooleanFalseRep="0">
     comparePropValue(hasProps.calendarLanguage, "en-US")
     comparePropValue(hasProps.occursCountKind, "parsed")
     comparePropValue(hasProps.sequenceKind, "ordered")
-//    comparePropValue(hasProps.separator, ",")
+    //    comparePropValue(hasProps.separator, ",")
     comparePropValue(hasProps.separatorPolicy, "required")
     comparePropValue(hasProps.separatorPosition, "infix")
     comparePropValue(hasProps.initiatedContent, "no")
     comparePropValue(hasProps.floating, "no")
     comparePropValue(hasProps.choiceLengthKind, "implicit")
-//    comparePropValue(hasProps.initiator, "")
-//    comparePropValue(hasProps.terminator, "")
+    //    comparePropValue(hasProps.initiator, "")
+    //    comparePropValue(hasProps.terminator, "")
     comparePropValue(hasProps.documentFinalTerminatorCanBeMissing, "no")
     comparePropValue(hasProps.emptyValueDelimiterPolicy, "none")
     comparePropValue(hasProps.nilKind, "literalValue")
     comparePropValue(hasProps.useNilForDefault, "no")
-//    comparePropValue(hasProps.nilValue, "NIL")
+    //    comparePropValue(hasProps.nilValue, "NIL")
     comparePropValue(hasProps.nilValueDelimiterPolicy, "none")
     comparePropValue(hasProps.binaryNumberRep, "binary")
     comparePropValue(hasProps.binaryPackedSignCodes, "C D F C")
     comparePropValue(hasProps.binaryDecimalVirtualPoint, "0")
     comparePropValue(hasProps.binaryNumberCheckPolicy, "lax")
-//    comparePropValue(hasProps.binaryFloatRep, "ieee")
+    //    comparePropValue(hasProps.binaryFloatRep, "ieee")
     comparePropValue(hasProps.binaryCalendarRep, "bcd")
     comparePropValue(hasProps.binaryCalendarEpoch, "1970-01-01T00:00:00+00:00")
     comparePropValue(hasProps.binaryBooleanTrueRep, "1")
@@ -240,20 +156,20 @@ binaryBooleanFalseRep="0">
   }
 
   /**
-   * Note that toString forces the evaluation of every property that has been 
+   * Note that toString forces the evaluation of every property that has been
    * mixed into the object. (This is good for debugging.)
    * <p>
    * If a property is not present; however, then it will not error. It will
    * print the properties that are defined for the object. I.e., suppose you
-   * mixed in property Foobar, but the getPropertiesOption doesn't find a 
+   * mixed in property Foobar, but the getPropertiesOption doesn't find a
    * property definition foobar="whatever" in whatever it looks in for those.
    * <p>
    * In that case, toString just won't print anything for foobar. So the fact
    * that it is mixed in, but not defined, isn't an error (nor should it be).
    * <p>
-   * In other words, it is safe to mix in property mixins, for things you 
+   * In other words, it is safe to mix in property mixins, for things you
    * don't need, and won't use. If the code doesn't ask for them, it won't cause
-   * any error. Conversely, if you do ask for them, and it's not defined, 
+   * any error. Conversely, if you do ask for them, and it's not defined,
    * that's a schema definition error always.
    */
   @Test
@@ -264,10 +180,10 @@ binaryBooleanFalseRep="0">
     // System.err.println("There are " + fl.length + " toString functions.")
     assertTrue(fl.length >= 84) // Note: There are extra print functions for things that won't be requested. like "ref". 
     // These tests don't work because we no longer make the printed rep of a object contain a listing of all its props.
-//    val str = h.toString
-//    println(str)
-//    assertTrue(str.contains("binaryCalendarRep=\"bcd\""))
-//    assertTrue(str.contains("binaryBooleanFalseRep='0'")) 
-//    assertTrue(str.contains("textBooleanPadCharacter='%SP;'"))
+    //    val str = h.toString
+    //    println(str)
+    //    assertTrue(str.contains("binaryCalendarRep=\"bcd\""))
+    //    assertTrue(str.contains("binaryBooleanFalseRep='0'")) 
+    //    assertTrue(str.contains("textBooleanPadCharacter='%SP;'"))
   }
 }

@@ -23,40 +23,40 @@ object LogLevel extends Enumeration {
 }
 
 object Error {
-  def apply(msg : String, args : Any*) = new Glob(LogLevel.Error, msg, args)
+  def apply(msg: String, args: Any*) = new Glob(LogLevel.Error, msg, args)
 }
 
 object Warning {
-  def apply(msg : String, args : Any*) = new Glob(LogLevel.Warning, msg, args)
+  def apply(msg: String, args: Any*) = new Glob(LogLevel.Warning, msg, args)
 }
 
 object Info {
-  def apply(msg : String, args : Any*) = new Glob(LogLevel.Info, msg, args)
+  def apply(msg: String, args: Any*) = new Glob(LogLevel.Info, msg, args)
 }
 
 object Compile {
-  def apply(msg : String, args : Any*) = new Glob(LogLevel.Compile, msg, args)
+  def apply(msg: String, args: Any*) = new Glob(LogLevel.Compile, msg, args)
 }
 
 object Debug {
-  def apply(msg : String, args : Any*) = new Glob(LogLevel.Debug, msg, args)
+  def apply(msg: String, args: Any*) = new Glob(LogLevel.Debug, msg, args)
 }
 
 object OOLAGDebug {
-  def apply(msg : String, args : Any*) = new Glob(LogLevel.OOLAGDebug, msg, args)
+  def apply(msg: String, args: Any*) = new Glob(LogLevel.OOLAGDebug, msg, args)
 }
 
 trait Identity {
-  def logID : String
+  def logID: String
 }
 
 abstract class LogWriter {
-  protected def write(msg : String) : Unit
+  protected def write(msg: String): Unit
   protected val tstampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS ")
 
   def tstamp = tstampFormat.format(new Date)
 
-  def log(logID : String, glob : daffodil.util.Glob) {
+  def log(logID: String, glob: daffodil.util.Glob) {
     try {
       val mess = glob.stringify
       val areStamping = glob.lvl < LogLevel.Debug
@@ -64,7 +64,7 @@ abstract class LogWriter {
       val prefix = (if (areStamping) tstamp + " " else "")
       write(prefix + suffix + " [" + mess + "]")
     } catch {
-      case e : Exception => {
+      case e: Exception => {
         System.err.println("Exception while logging." + e)
         System.err.println("Glob was: " + glob.msg + glob.args.toList.toString)
       }
@@ -73,20 +73,20 @@ abstract class LogWriter {
 }
 
 object ForUnitTestLogWriter extends LogWriter {
-  var loggedMsg : String = null
+  var loggedMsg: String = null
   //  protected val writer = actor { loop { react { case msg : String => 
   //    loggedMsg = msg
   //    Console.out.println("Was Logged: " + loggedMsg)
   //    Console.out.flush()
   //    } } }
-  def write(msg : String) {
+  def write(msg: String) {
     loggedMsg = msg
   }
 }
 
 object NullLogWriter extends LogWriter {
   //protected val writer = actor { loop { react { case msg : String => } } }
-  def write(msg : String) {
+  def write(msg: String) {
     // do nothing.
   }
 }
@@ -101,18 +101,18 @@ object ConsoleWriter extends LogWriter {
   //      }
   //    }
   //  }
-  def write(msg : String) {
+  def write(msg: String) {
     Console.out.println(msg)
     Console.flush
   }
 }
 
-class FileWriter(val file : File) extends LogWriter {
+class FileWriter(val file: File) extends LogWriter {
   require(file != null)
   require(file.canWrite)
 
   // protected val writer = actor { loop { react { case msg : String => destFile.println(msg); destFile.flush case _ => } } }
-  def write(msg : String) {
+  def write(msg: String) {
     destFile.println(msg)
     destFile.flush
   }
@@ -134,7 +134,7 @@ class FileWriter(val file : File) extends LogWriter {
  * Just make a Glob (short for globalized message). This is intended to be passed by name,
  *
  */
-class Glob(val lvl : LogLevel.Value, val msg : String, val args : Seq[Any]) {
+class Glob(val lvl: LogLevel.Value, val msg: String, val args: Seq[Any]) {
   // for now: quick and dirty English-centric approach.
   // In the future, use msg to index into i18n resource bundle for 
   // properly i18n-ized string. Can use context to avoid ambiguities.
@@ -143,10 +143,10 @@ class Glob(val lvl : LogLevel.Value, val msg : String, val args : Seq[Any]) {
       try { // this can fail, if for example the string uses % for other than 
         // formats (so if the string is something that mentions DFDL entities,
         // which use % signs in their syntax.
-        val str = msg.format(args : _*)
+        val str = msg.format(args: _*)
         str
       } catch {
-        case e : Exception => {
+        case e: Exception => {
           // If it fails, we punt on formatting, and just 
           // concatenate 
           val str = args.mkString(" ")
@@ -165,14 +165,14 @@ trait Logging extends Identity {
     else className
   }
 
-  protected var logWriter : LogWriter = LoggingDefaults.logWriter
+  protected var logWriter: LogWriter = LoggingDefaults.logWriter
   protected var logLevel = LoggingDefaults.logLevel
 
-  def setLoggingLevel(level : LogLevel.Value) { logLevel = level }
+  def setLoggingLevel(level: LogLevel.Value) { logLevel = level }
 
-  def setLogWriter(lw : LogWriter) { if (lw != null) logWriter = lw }
+  def setLogWriter(lw: LogWriter) { if (lw != null) logWriter = lw }
 
-  def log(glob : => Glob) {
+  def log(glob: => Glob) {
     if (logLevel >= glob.lvl) logWriter.log(logID, glob)
   }
 
@@ -184,7 +184,7 @@ trait Logging extends Identity {
    * Call with no log level argument to turn it off (when done debugging). That way you
    * can leave it sitting there.
    */
-  def withLoggingLevel[S](newLevel : LogLevel.Value = logLevel)(body : => S) = {
+  def withLoggingLevel[S](newLevel: LogLevel.Value = logLevel)(body: => S) = {
     val previousLogLevel = logLevel
     logLevel = newLevel
     try body
@@ -197,9 +197,9 @@ trait Logging extends Identity {
 object LoggingDefaults {
 
   var logLevel = LogLevel.Info
-  var logWriter : LogWriter = ConsoleWriter
+  var logWriter: LogWriter = ConsoleWriter
 
-  def setLoggingLevel(level : LogLevel.Value) { logLevel = level }
+  def setLoggingLevel(level: LogLevel.Value) { logLevel = level }
 
-  def setLogWriter(lw : LogWriter) { if (lw != null) logWriter = lw }
+  def setLogWriter(lw: LogWriter) { if (lw != null) logWriter = lw }
 }

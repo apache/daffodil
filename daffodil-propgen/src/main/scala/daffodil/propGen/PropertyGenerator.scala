@@ -39,13 +39,13 @@ import java.io.InputStream
  * will most definitely break.
  */
 
-class PropertyGenerator(arg : Node) {
+class PropertyGenerator(arg: Node) {
 
   val dfdlSchema = arg
 
   val exclusions = List("TextNumberBase", "AlignmentType", "FillByteType") // Do these by hand.
 
-  def excludeType(name : String) = {
+  def excludeType(name: String) = {
     if (exclusions.contains(name)) {
       true
     } else
@@ -65,7 +65,7 @@ class PropertyGenerator(arg : Node) {
   //    dfdlsc
   //  }
 
-  def genAll() : Seq[String] = {
+  def genAll(): Seq[String] = {
     val allTopLevel = dfdlSchema.child
     //      val allNamed = allTopLevel.filter(st => {
     //      val name = attr(st, "name")
@@ -90,13 +90,13 @@ class PropertyGenerator(arg : Node) {
    *
    * TODO: move to some utilities library
    */
-  def attr(xsElem : Node, attr : String) = {
+  def attr(xsElem: Node, attr: String) = {
     val ns = (xsElem \ ("@" + attr))
     if (ns.length != 1) None
     else Some(ns(0).text)
   }
 
-  def genElement(e : Node) : String = {
+  def genElement(e: Node): String = {
     val Some(name) = attr(e, "name")
     val typeName = attr(e, "type")
     typeName match {
@@ -105,7 +105,7 @@ class PropertyGenerator(arg : Node) {
     }
   }
 
-  def genElementNamedType(e : Node, typeName : String, name : String) : String = {
+  def genElementNamedType(e: Node, typeName: String, name: String): String = {
     val elementType = stripDFDLPrefix(typeName)
     if (excludeType(name)) return ""
     val subAgs = e \\ "attributeGroup"
@@ -117,7 +117,7 @@ class PropertyGenerator(arg : Node) {
     block
   }
 
-  def genElementImmediateType(e : Node, name : String) : String = {
+  def genElementImmediateType(e: Node, name: String): String = {
     // construct a type name from element name as if it were <element name="foo" type="dfdl:DFDLFooType"/>
     val firstLetter = name.substring(0, 1).toUpperCase()
     val restLetters = name.substring(1)
@@ -132,7 +132,7 @@ class PropertyGenerator(arg : Node) {
     res
   }
 
-  def genSimpleType(st : Node) : String = {
+  def genSimpleType(st: Node): String = {
     val enumName = attr(st, "name").get
     val name = enumName.stripSuffix("Enum")
     // val name = enumName // leave suffix on. 
@@ -158,13 +158,13 @@ class PropertyGenerator(arg : Node) {
     block
   }
 
-  def isScalaKeyword(s : String) = {
+  def isScalaKeyword(s: String) = {
     val scalaKeywords = List("type", "implicit", "class", "val", "extends", "with", "if", "else", "trait", "abstract")
     val res = scalaKeywords.contains(s)
     res
   }
 
-  def genAttributeGroup(ag : Node) : String = {
+  def genAttributeGroup(ag: Node): String = {
     // val name = stripSuffix("AG", attr(ag, "name"))
     val name = attr(ag, "name").get // let's try leaving AG suffix in place so we can distinguish generated type mixins from AG mixins.
     if (excludeType(name)) return ""
@@ -230,12 +230,12 @@ class PropertyGenerator(arg : Node) {
     block
   }
 
-  def genComplexType(ct : Node) : String = {
+  def genComplexType(ct: Node): String = {
     val name = attr(ct, "name").get
     genComplexTypeWithName(ct, name)
   }
 
-  def genComplexTypeWithName(ct : Node, name : String) : String = {
+  def genComplexTypeWithName(ct: Node, name: String): String = {
     if (excludeType(name)) return ""
     val baseNames = (ct \\ "extension" \ "@base").map { base => stripDFDLPrefix(base.text) }.filterNot { _.startsWith("xsd:") }
     val subAgs = ct \\ "attributeGroup"
@@ -250,16 +250,16 @@ class PropertyGenerator(arg : Node) {
     block
   }
 
-  def stripDFDLPrefix(s : String) = stripPrefix("dfdl:", s)
+  def stripDFDLPrefix(s: String) = stripPrefix("dfdl:", s)
 
-  def stripPrefix(prefix : String, source : String) = {
+  def stripPrefix(prefix: String, source: String) = {
     if (source.startsWith(prefix)) {
       val r = source.split(prefix)
       r(1)
     } else source
   }
 
-  def stripSuffix(suffix : String, source : String) = {
+  def stripSuffix(suffix: String, source: String) = {
     if (source.endsWith(suffix)) {
       val r = source.split(suffix)
       r.head
@@ -268,7 +268,7 @@ class PropertyGenerator(arg : Node) {
 
   val sep = """////////////////////////////////////"""
 
-  def comment(n : Node) : String = {
+  def comment(n: Node): String = {
     val res = n.toString.split("\n").toList.map("\n// " + _).reduce(_ + _)
     sep + res + "\n\n"
   }
@@ -347,7 +347,7 @@ trait CurrencyMixin extends PropertyMixin {
    * exclude these since code should use the CompiledExpression created from these values,
    * not the property values themselves. We'll do these by hand.
    */
-  def excludeRuntimeProperties(propName : String) = {
+  def excludeRuntimeProperties(propName: String) = {
     val runtimeValuedProperties = List(
       "byteOrder", "encoding",
       "initiator", "terminator",
@@ -366,7 +366,7 @@ trait CurrencyMixin extends PropertyMixin {
     res
   }
 
-  def generateEnumProperty(pname : String, pvalues : Seq[String]) = {
+  def generateEnumProperty(pname: String, pvalues: Seq[String]) = {
     val traitName = initialUpperCase(pname)
     val propName = initialLowerCase(pname)
     val middle = templateMiddle.replaceAll("Currency", traitName)
@@ -386,7 +386,7 @@ trait CurrencyMixin extends PropertyMixin {
     res
   }
 
-  def generateEnumInstantiation(propName : String, typeName : String) = {
+  def generateEnumInstantiation(propName: String, typeName: String) = {
     val midTemplate = """  lazy val EUR = Currency(getProperty("EUR"), this)
 """
     val mid =
@@ -411,21 +411,21 @@ object Currency {
 }
 """
 
-  def generateStringProperty(pname : String) = {
+  def generateStringProperty(pname: String) = {
     val traitName = initialUpperCase(pname)
     val propName = initialLowerCase(pname)
     val res = stringPropertyTemplate.replaceAll("Currency", traitName).replaceAll("currency", propName)
     res
   }
 
-  def generateIntProperty(pname : String) = {
+  def generateIntProperty(pname: String) = {
     val traitName = initialUpperCase(pname)
     val propName = initialLowerCase(pname)
     val res = intPropertyTemplate.replaceAll("Currency", traitName).replaceAll("currency", propName)
     res
   }
 
-  def isXSDTypeName(typeName : String) = {
+  def isXSDTypeName(typeName: String) = {
     val arr = typeName.split(":")
     arr match {
       case Array(prefix, otherPart) => (prefix == "xsd")
@@ -433,7 +433,7 @@ object Currency {
     }
   }
 
-  def getConverterTypeName(typeName : String) : String = {
+  def getConverterTypeName(typeName: String): String = {
     val Array(prefix, name) = typeName.split(":")
     assert(prefix == "xsd")
     val converterName = name match {
@@ -451,7 +451,7 @@ object Currency {
     converterName
   }
 
-  def generateNonEnumInstantiation(propName : String, typeName : String) = {
+  def generateNonEnumInstantiation(propName: String, typeName: String) = {
     val midTemplate = """  lazy val EUR = convertToTYPE(getProperty("EUR"))
 """
     val converterName = getConverterTypeName(typeName)
@@ -463,11 +463,11 @@ object Currency {
     mid
   }
 
-  def isEnumQName(str : String) = {
+  def isEnumQName(str: String) = {
     str.startsWith("dfdl:") && str.endsWith("Enum")
   }
 
-  def generatePropertyGroup(pgName : String, pgList : Seq[(String, String)], agList : Seq[String], enumList : Seq[String]) = {
+  def generatePropertyGroup(pgName: String, pgList: Seq[(String, String)], agList: Seq[String], enumList: Seq[String]) = {
     val traitName = initialUpperCase(pgName)
     //    if (traitName == "TextNumberFormatAG") {
     //      println("stop here in breakpoint")
@@ -523,7 +523,7 @@ object Currency {
    * For properties that are not Enum types. We still need to initialize so that
    * we get a toString behavior that displays these properties.
    */
-  def generateNonEnumStringPropInit(propName : String) = {
+  def generateNonEnumStringPropInit(propName: String) = {
     val template =
       """registerToStringFunction(()=>{getPropertyOption("currency") match {
         case None => ""
@@ -538,7 +538,7 @@ object Currency {
    * For a whole mixin we need an initializer which runs the initialization thunks for
    * all the properties the mixin contains.
    */
-  def generateNonEnumStringInit(pgName : String, propInits : Seq[String]) = {
+  def generateNonEnumStringInit(pgName: String, propInits: Seq[String]) = {
     val initFuncName = initialLowerCase(pgName)
     """
   def """ + initFuncName + """Init() : Unit = {""" +
@@ -558,14 +558,14 @@ object Currency {
   // So this generator depends on as little as possible
   // 
 
-  def stripQuotes(s : String) = {
+  def stripQuotes(s: String) = {
     val stripFirst = if (s.startsWith("\"")) s.substring(1) else s
     val stripLast = if (stripFirst.endsWith("\"")) stripFirst.substring(0, stripFirst.length - 1) else stripFirst
     stripLast
   }
 
-  def initialUpperCase(s : String) : String = s.head.toUpper + s.substring(1)
-  def initialLowerCase(s : String) : String = {
+  def initialUpperCase(s: String): String = s.head.toUpper + s.substring(1)
+  def initialLowerCase(s: String): String = {
     // special case for the way we lowercase the utf16Width property.
     if (s == "UTF16Width") "utf16Width"
     else
@@ -580,7 +580,7 @@ object PropertyGenerator {
     "/xsd/DFDL_part2_attributes.xsd",
     "/xsd/DFDL_part3_model.xsd")
 
-  def getSchemaAsNode(name : String) : Node = {
+  def getSchemaAsNode(name: String): Node = {
     val is = getResourceOrFileStream(name)
     val node = XML.load(is)
     node
@@ -608,7 +608,7 @@ import daffodil.exceptions.ThrowsSDE
     
 """
 
-  def writeGeneratedCode(thunks : Seq[String], ow : java.io.FileWriter) {
+  def writeGeneratedCode(thunks: Seq[String], ow: java.io.FileWriter) {
     ow.write(preamble)
     for (thunk <- thunks) {
       ow.write(thunk)
@@ -629,7 +629,7 @@ import daffodil.exceptions.ThrowsSDE
   /**
    * Main - run as a scala application to actually create a new GeneratedCode.scala file in the gen directory.
    */
-  def main(args : Array[String]) {
+  def main(args: Array[String]) {
     if (args.length != 1) {
       System.exit(1);
     }
@@ -640,7 +640,7 @@ import daffodil.exceptions.ThrowsSDE
     outDir.mkdirs()
     val outPath = outDir + "/" + generatedCodeFilename
     val outwriter = new java.io.FileWriter(outPath)
-	
+
     writeGeneratedCode(thunks, outwriter)
 
     System.out.println(outPath)
@@ -658,7 +658,7 @@ import daffodil.exceptions.ThrowsSDE
    * Takes care of using the resource built-in to the jar, or
    * if we're just running interactively in eclipse, doesn't use the jar.
    */
-  def getResourceOrFileStream(fn : String) : InputStream = {
+  def getResourceOrFileStream(fn: String): InputStream = {
     // TODO: This is not the modern way to do this. Update this to use the getResource technique used
     // in core.
     var is = this.getClass().getResourceAsStream(fn)

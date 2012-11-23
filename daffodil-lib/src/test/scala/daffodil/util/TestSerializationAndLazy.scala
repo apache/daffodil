@@ -9,29 +9,28 @@ import java.io.ObjectInputStream
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 
+class ToSerialize extends Serializable {
 
-  class ToSerialize extends Serializable {
-    
-    val v = 5
-    var lazyValWasEvaluated = false
-    lazy val x = {
-      // println("v is " + v)
-      lazyValWasEvaluated = true
-      2*v
-    }
-    
+  val v = 5
+  var lazyValWasEvaluated = false
+  lazy val x = {
+    // println("v is " + v)
+    lazyValWasEvaluated = true
+    2 * v
   }
+
+}
 
 /**
  * This test shows that use of lazy val does not interfere with object serialization.
  * An unevaluated lazy val remains that way across serialization/deserialization.
- * 
+ *
  * We're going to be very dependent on this not being broken by some Scala release patch, so leave
  * this test in just in case of that so we can detect it.
  */
 class TestSerializationAndLazy extends JUnitSuite {
-  
-  @Test 
+
+  @Test
   def testSerializeBeforeLazyEval() {
     val instance = new ToSerialize
     val baos = new ByteArrayOutputStream

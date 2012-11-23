@@ -147,7 +147,7 @@ trait NillableMixin extends PropertyMixin
   with daffodil.schema.annotation.props.gen.NilKindMixin
   with daffodil.schema.annotation.props.gen.NilValueDelimiterPolicyMixin
   with daffodil.schema.annotation.props.gen.RepresentationMixin {
-  
+
   // Information regarding Representation was needed here to characterize
   // appropriate behavior of nilValue
   lazy val nilValue = {
@@ -193,5 +193,4 @@ trait NillableMixin extends PropertyMixin
     raw
   }
 }
-
 

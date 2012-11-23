@@ -2,7 +2,7 @@ package daffodil.util
 
 object TresysCopyright {
 
- private val tresysCopyright = """
+  private val tresysCopyright = """
 /*
  * Portions of this software Copyright (c) 2012 Tresys
  * Technology LLC, Columbia, Maryland, USA
@@ -24,6 +24,6 @@ object TresysCopyright {
  * of the computer software.
  */
  """
-   
-    CopyrightNotices.add(tresysCopyright)
+
+  CopyrightNotices.add(tresysCopyright)
 }
