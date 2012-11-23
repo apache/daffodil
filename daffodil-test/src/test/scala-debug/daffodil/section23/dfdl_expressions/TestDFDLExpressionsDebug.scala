@@ -10,6 +10,7 @@ import daffodil.compiler.Compiler
 import daffodil.util._
 import daffodil.tdml.DFDLTestSuite
 import java.io.File
+import daffodil.debugger.Debugger
 
 class TestDFDLExpressionsDebug extends JUnitSuite {
   val testDir = "/daffodil/section23/dfdl_expressions/"
@@ -22,7 +23,9 @@ class TestDFDLExpressionsDebug extends JUnitSuite {
   @Test def test_ocke_rel() { runner.runOneTest("ocke_rel") }
 
   // Once bit-alignment and bit lengthUnits are implemented these should work.
+  @Test def test_bit1() = Debugger.withDebugger { runner.runOneTest("bit1") }
+
   @Test def test_repeatBitFlags1() { runner.runOneTest("repeatBitFlags1") }
-  @Test def test_repeatBitFlags2() = { runner.runOneTest("repeatBitFlags2") }
+  @Test def test_repeatBitFlags2() = Debugger.withDebugger { runner.runOneTest("repeatBitFlags2") }
   @Test def test_repeatBitFlags3() { runner.runOneTest("repeatBitFlags3") }
 }

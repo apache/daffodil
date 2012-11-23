@@ -1054,7 +1054,11 @@
   
    <tdml:defineSchema name="repeatBitFlags">
     <dfdl:format ref="ex:daffodilTest1" 
-    lengthUnits="bits" alignment="1" alignmentUnits="bits" representation="binary"/>
+    lengthUnits="bits" lengthKind="implicit" alignment="1" alignmentUnits="bits" 
+    representation="binary" byteOrder="bigEndian"/>
+   
+   <xs:element name="bit1" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="1"/>
+   
     <xs:element name="e">
       <xs:complexType>
         <xs:sequence>
@@ -1093,10 +1097,21 @@
 
 
   </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="bit1" model="repeatBitFlags"
+    root="bit1">
+    <tdml:document><tdml:documentPart type="bits">1000 0000</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit1>1</bit1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
 
   <tdml:parserTestCase name="repeatBitFlags1" model="repeatBitFlags"
     root="e">
-    <tdml:document><tdml:documentPart type="bits">0</tdml:documentPart></tdml:document>
+    <tdml:document><tdml:documentPart type="bits">0000 0000</tdml:documentPart></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e>
@@ -1108,7 +1123,7 @@
 
   <tdml:parserTestCase name="repeatBitFlags2" model="repeatBitFlags"
     root="e">
-    <tdml:document><tdml:documentPart type="bits">1 0 001</tdml:documentPart></tdml:document>
+    <tdml:document><tdml:documentPart type="bits">1 0 001 000</tdml:documentPart></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e>
@@ -1126,7 +1141,7 @@
 
   <tdml:parserTestCase name="repeatBitFlags3" model="repeatBitFlags"
     root="e">
-    <tdml:document><tdml:documentPart type="bits">1 1 001 1 010 1 011 0 100</tdml:documentPart></tdml:document>
+    <tdml:document><tdml:documentPart type="bits">1 1 001 1 010 1 011 0 100 0000000</tdml:documentPart></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e>

@@ -1523,7 +1523,8 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
     //System.err.println("startCharPos: " + start.charPos)
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Info) {
+      // withLoggingLevel(LogLevel.Info) 
+      {
         val eName = e.toString()
 
         // We must feed variable context out of one evaluation and into the next.

@@ -72,7 +72,17 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
 
 trait RawCommonRuntimeValuedPropertiesMixin
   extends PropertyMixin {
-  lazy val byteOrderRaw = getProperty("byteOrder")
+
+  lazy val byteOrderRaw = {
+    val s = getProperty("byteOrder")
+    val res = s match {
+      case "bigEndian" => """{ "bigEndian" }"""
+      case "littleEndian" => """{ "littleEndian" }"""
+      case a => a
+    }
+    res
+  }
+
   lazy val encodingRaw = getProperty("encoding")
   lazy val outputNewLineRaw = getProperty("outputNewLine")
 }
