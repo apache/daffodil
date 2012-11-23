@@ -23,7 +23,7 @@ class DelimSearcher extends Logging {
 
   // A list of delimiters, each delimiter is represented as a Delimiter object
   var delimiters: List[Delimiter] = List.empty[Delimiter]
-  
+
   var escapeSchemeKind: EscapeSchemeKind = EscapeSchemeKind.None
   var esCharacter: String = ""
   var esEsCharacter: String = ""
@@ -35,13 +35,13 @@ class DelimSearcher extends Logging {
     d(strDelim)
     delimiters ++= List[Delimiter] { d }
   }
-  
+
   def addSeparator(strDelim: String) = {
     val d = new Separator with Logging
     d(strDelim)
     delimiters ++= List[Delimiter] { d }
   }
-  
+
   def addTerminator(strDelim: String) = {
     val d = new Terminator with Logging
     d(strDelim)
@@ -97,7 +97,7 @@ class DelimSearcher extends Logging {
   //
   def search(input: CharBuffer, startPos: Int = 0, clearState: Boolean = true, hardLimit: Int = 1000): (SearchResult, String, Int, Int, Delimiter) = {
     //setLoggingLevel(LogLevel.Debug)
-    
+
     var matched: Boolean = false
     var partialMatched: Boolean = false
     var EOF: Boolean = false
@@ -121,13 +121,17 @@ class DelimSearcher extends Logging {
     val escapeCharList: List[(Int)] = getEscapeCharacterList(input)
     val (escapeEscapeCharList, _) = this.getEscapeEscapeCharacterList(input)
     val escapeBlockList: List[(Int, Int)] = getEscapeBlocks(input)
-    
-    if (this.escapeSchemeKind == EscapeSchemeKind.Block){
-      delimiters foreach { node => node.searchWithEscapeSchemeBlock(input, startPos, crlfList, wspList,
-          escapeEscapeCharList, escapeBlockList, hardLimit) }
-    }else if (this.escapeSchemeKind == EscapeSchemeKind.Character) {
-    	delimiters foreach { node => node.searchWithEscapeSchemeCharacter(input, startPos, crlfList, wspList,
-          escapeCharList, hardLimit) }
+
+    if (this.escapeSchemeKind == EscapeSchemeKind.Block) {
+      delimiters foreach { node =>
+        node.searchWithEscapeSchemeBlock(input, startPos, crlfList, wspList,
+          escapeEscapeCharList, escapeBlockList, hardLimit)
+      }
+    } else if (this.escapeSchemeKind == EscapeSchemeKind.Character) {
+      delimiters foreach { node =>
+        node.searchWithEscapeSchemeCharacter(input, startPos, crlfList, wspList,
+          escapeCharList, hardLimit)
+      }
     } else {
       delimiters foreach { node => node.search(input, startPos, crlfList, wspList, hardLimit) }
     }
@@ -401,7 +405,7 @@ class DelimSearcher extends Logging {
     this.esBlockStart = pBlockStart
     this.esBlockEnd = pBlockEnd
   }
-  
+
   def setEscapeScheme(esObj: EscapeSchemeObj) = {
     this.escapeSchemeKind = esObj.escapeSchemeKind
     this.esCharacter = esObj.escapeCharacter
@@ -495,8 +499,8 @@ class DelimSearcher extends Logging {
     }
     val escapeEscapeList = escapeEscapeQ.toList.sortBy(x => x)
     val escapedEscapeEscapeList = escapedEscapeEscapeQ.toList.sortBy(x => x._1)
-    log(Debug("getEscapeCharacterList - EscapeEscapeList:\t" + escapeEscapeList 
-        + "\nEscapedEscapeEscapeList:\t" + escapedEscapeEscapeList))
+    log(Debug("getEscapeCharacterList - EscapeEscapeList:\t" + escapeEscapeList
+      + "\nEscapedEscapeEscapeList:\t" + escapedEscapeEscapeList))
     (escapeEscapeList, escapedEscapeEscapeList)
   }
 
@@ -536,17 +540,17 @@ class DelimSearcher extends Logging {
   //	Each Tuple represents the Start and End of an EscapeBlock
   //
   def getEscapeBlocks(input: CharBuffer): List[(Int, Int)] = {
-    if(this.escapeSchemeKind != EscapeSchemeKind.Block){return List.empty}
-    
+    if (this.escapeSchemeKind != EscapeSchemeKind.Block) { return List.empty }
+
     val (escapeEscapeList, _) = this.getEscapeEscapeCharacterList(input)
     val startList = getEscapeBlockStartList(input)
     val endList = getEscapeBlockEndList(input)
-    val q = new Queue[(Int, Int)]	// Result
+    val q = new Queue[(Int, Int)] // Result
 
     val sLength = startList.length
     val eLength = endList.length
-    var sIdx = 0	// Index for startList
-    var eIdx = 0	// Index for endList
+    var sIdx = 0 // Index for startList
+    var eIdx = 0 // Index for endList
 
     if (sLength == 0) {
       return List.empty
@@ -563,26 +567,25 @@ class DelimSearcher extends Logging {
 
       // Does this value already occur within a block?
       val qHasStart = q.filter(x => start._1 >= x._1 && start._2 <= x._2).length >= 1
-     
+
       if (!qHasStart) {
         if (eIdx < eLength) {
           val end = endList(eIdx)
 
           if (end._1 > start._2 && end._2 > start._2) {
-        	// This value is not a duplicate of start
-            
+            // This value is not a duplicate of start
+
             // Was this value escaped by the escapeEscapeCharacter?
-            val isEscaped:Boolean = escapeEscapeList.filter(x => x == (end._1 - 1)).length >= 1
-         
-            if (!isEscaped){
+            val isEscaped: Boolean = escapeEscapeList.filter(x => x == (end._1 - 1)).length >= 1
+
+            if (!isEscaped) {
               q += (start._1 -> end._2)
-            }
-            else {
+            } else {
               // This value was escaped,
               // Advance eIdx only!
               repeat = true
             }
-            
+
           } else {
             // This value has already been added!
             // Advance eIdx only!

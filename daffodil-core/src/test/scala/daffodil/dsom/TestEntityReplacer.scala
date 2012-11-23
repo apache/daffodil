@@ -22,7 +22,7 @@ class TestEntityReplacer extends JUnitSuite {
     assertEquals(e.replaceAll("Text%%%#%%Text"), "Text%%#%Text") // Works multiple
     assertEquals(e.replaceAll("Text%%#65;Text"), "Text%AText") // Works multiple
   }
-  
+
   @Test def testEntityReplacement = {
     val e = new EntityReplacer
     assertEquals(e.replaceAll("Text%NUL;Text"), "Text\u0000Text") // Works basic case

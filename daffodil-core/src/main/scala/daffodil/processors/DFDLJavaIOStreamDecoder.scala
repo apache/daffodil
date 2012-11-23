@@ -74,11 +74,11 @@ object DFDLJavaIOStreamDecoder {
  * how the StreamDecoder handles malformed input.  In DFDL we want the
  * malformed input error to be treated as the end of data.  Java's
  * StreamDecoder only ignores, replaces or treats it as an error.
- * 
+ *
  * Forces the decoder to REPORT on malformed input.
  */
 class DFDLJavaIOStreamDecoder(var cs: Charset, var decoder: CharsetDecoder, var bb: ByteBuffer,
-  var in: InputStream, var ch: ReadableByteChannel)
+                              var in: InputStream, var ch: ReadableByteChannel)
   extends java.io.Reader {
 
   def this(in: InputStream, dec: CharsetDecoder) = {

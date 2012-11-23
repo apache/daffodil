@@ -26,7 +26,7 @@ object TestUtils {
                 <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" alignment='1' alignmentUnits='bytes' textStandardBase='10' binaryFloatRep='ieee' binaryNumberRep='binary' byteOrder='bigEndian' calendarPatternKind='implicit' escapeSchemeRef='' documentFinalTerminatorCanBeMissing='no' ignoreCase='no' initiatedContent='no' leadingSkip='0' lengthKind='implicit' occursCountKind='parsed' separatorPolicy='suppressed' separatorPosition='infix' sequenceKind='ordered' textNumberRep='standard' textNumberCheckPolicy='strict' textStringJustification='left' trailingSkip='0' initiator="" terminator="" separator="" emptyValueDelimiterPolicy="both"/>
               </dfdl:defineFormat>
 
-  def dfdlTestSchema(topLevelAnnotations : Seq[Node], contentElements : Seq[Node]) = {
+  def dfdlTestSchema(topLevelAnnotations: Seq[Node], contentElements: Seq[Node]) = {
     val realSchema = <xs:schema xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns={ targetNS } xmlns:tns={ targetNS } targetNamespace={ targetNS }>
                        <xs:annotation>
                          <xs:appinfo source={ dfdlURI }>
@@ -48,7 +48,7 @@ object TestUtils {
    * Just like dfdlTestSchema, but without any namespace or targetNamespace definitions, which is
    * the way many self-contained one-file schemas are written.
    */
-  def dfdlTestSchemaNoNamespace(topLevelAnnotations : Seq[Node], contentElements : Seq[Node]) = {
+  def dfdlTestSchemaNoNamespace(topLevelAnnotations: Seq[Node], contentElements: Seq[Node]) = {
     val realSchema = <xs:schema xmlns:xs={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI }>
                        <xs:annotation>
                          <xs:appinfo source={ dfdlURI }>
@@ -71,7 +71,7 @@ object TestUtils {
    *
    * NOTE: Has Side Effects: strips off attributes
    */
-  def assertEqualsXMLElements(expected : Node, actual : Node) {
+  def assertEqualsXMLElements(expected: Node, actual: Node) {
     val exp = XMLUtils.removeAttributes(expected)
     val act = XMLUtils.removeAttributes(actual)
     assertEquals(exp, act)
@@ -89,8 +89,8 @@ object TestUtils {
    *
    * Returns null if the file cannot be found.
    */
-  def findFile(fn : String) : File = findFile(new File(fn))
-  def findFile(f : File) : File = {
+  def findFile(fn: String): File = findFile(new File(fn))
+  def findFile(f: File): File = {
     if (f.exists()) return f
     val cwd = new File("").getAbsolutePath
     throw new FileNotFoundException("Couldn't find file " + f + " relative to " + cwd + ".")

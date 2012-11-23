@@ -1,159 +1,168 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite suiteName="repeatBits"
-	description="Tests for occursCountKind parsed with discriminators."
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
-	xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  description="Tests for occursCountKind parsed with discriminators."
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+  xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
-	<tdml:defineSchema name="sch1">
-		<dfdl:format ref="ex:daffodilTest1" representation="binary" alignment="1" alignmentUnits="bits"
-			byteOrder="bigEndian" lengthUnits="bits" initiatedContent="no" />
+  <tdml:defineSchema name="sch1">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+      alignment="1" alignmentUnits="bits" byteOrder="bigEndian"
+      lengthUnits="bits" initiatedContent="no" />
 
-		<!-- This is an example of how to implement presence and repeat bits for 
-			use in variable-occurrance but dense packed binary data formats. This comes 
-			from discussions on the DFDL Workgroup email list and on DFDL workgroup calls. 
-			The example was originally created by NRL as an abstraction of what comes 
-			up in some message formats of interest to them. -->
+    <!-- This is an example of how to implement presence and repeat bits 
+      for
+      use in variable-occurrance but dense packed binary data formats. This 
+      comes
+      from discussions on the DFDL Workgroup email list and on DFDL workgroup 
+      calls.
+      The example was originally created by NRL as an abstraction of what 
+      comes
+      up in some message formats of interest to them. -->
 
-		<!-- The goal here is to package this so that the complexities are encapsulated 
-			and hidden from all the places that use repeat bits. -->
+    <!-- The goal here is to package this so that the complexities are encapsulated
+      and hidden from all the places that use repeat bits. -->
 
-		<!-- Note: also, I renamed dfdl:position to dfdl:arrayIndex for clarity, 
-			and I am allowing it to have an argument (parent axis only) -->
+    <!-- Note: also, I renamed dfdl:position to dfdl:arrayIndex for clarity,
+      and I am allowing it to have an argument (parent axis only) -->
 
-		<!-- repeatBit is a reusable global element for repeat-control-flag bits. 
-			Works in conjunction with a presenceBit element. -->
-		<xs:element name="repeatBit" type="xs:unsignedByte">
-			<xs:annotation>
-				<xs:appinfo source="...">
-					<dfdl:discriminator>
-						{if ../ex:presenceBit eq 0 then false
-						else if
-						dfdl:arrayIndex(..) eq 1 then true
-						else if
-						..[dfdl:arrayIndex(..)-1]/ex:repeatBit eq 0 then false
-						else true}
-					</dfdl:discriminator>
-					<dfdl:element outputValueCalc='{ if dfdl:arrayIndex(..) eq dfdl:count(..) then 0 }' />
-				</xs:appinfo>
-			</xs:annotation>
-		</xs:element>
-		<!-- note in above that outputValueCalc not allowed on a simpleType definition, 
-			only elements. Similarly, discriminator not allowed on simpleType. Since 
-			our expressions depend on the names of other elements, the reusable things 
-			here must be global elements, not merely types. -->
-
-
-		<!-- Reusable global element for presence bit. -->
-		<xs:element name="presenceBit" type="xs:unsignedByte"
-			 dfdl:lengthKind="explicit" dfdl:length="1" />
-
-		<!-- Example of array A1 which repeats depending on a repeat flag. Flag 
-			when set means "there are more occurrances", when clear means "this was last 
-			occurrance". -->
-		<xs:element name="example">
-			<xs:complexType>
-				<xs:sequence>
-					<!-- Note that the outputValueCalc can't be hidden because it references 
-						A1, which could be any name at all. -->
-					<xs:element ref="ex:presenceBit"
-						dfdl:outputValueCalc='{ if dfdl:count(../A1) eq 0 then 0 else 1 }' />
-					<xs:element name="A1" minOccurs="0" maxOccurs="10"
-						dfdl:occursCountKind='parsed'>
-						<xs:complexType>
-							<xs:sequence>
-								<xs:element ref="ex:repeatBit" />
-								<xs:element name="someField" type="xs:unsignedByte"
-									dfdl:lengthKind="explicit" dfdl:length="2" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-					<xs:element name="aFieldAfterA1" type="xs:unsignedByte"
-						dfdl:lengthKind="explicit" dfdl:length="3" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-	</tdml:defineSchema>
+    <!-- repeatBit is a reusable global element for repeat-control-flag bits.
+      Works in conjunction with a presenceBit element. -->
+    <xs:element name="repeatBit" type="xs:unsignedByte">
+      <xs:annotation>
+        <xs:appinfo source="...">
+          <dfdl:discriminator>
+            {if ../ex:presenceBit eq 0 then false
+            else if
+            dfdl:arrayIndex(..) eq 1 then true
+            else if
+            ..[dfdl:arrayIndex(..)-1]/ex:repeatBit eq 0 then false
+            else true}
+          </dfdl:discriminator>
+          <dfdl:element
+            outputValueCalc='{ if dfdl:arrayIndex(..) eq dfdl:count(..) then 0 }' />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+    <!-- note in above that outputValueCalc not allowed on a simpleType definition,
+      only elements. Similarly, discriminator not allowed on simpleType. 
+      Since
+      our expressions depend on the names of other elements, the reusable 
+      things
+      here must be global elements, not merely types. -->
 
 
+    <!-- Reusable global element for presence bit. -->
+    <xs:element name="presenceBit" type="xs:unsignedByte"
+      dfdl:lengthKind="explicit" dfdl:length="1" />
 
-	<tdml:parserTestCase name="testNone" root="example"
-		model="sch1" description="Tests small variable-length bit-packed format.">
+    <!-- Example of array A1 which repeats depending on a repeat flag. Flag
+      when set means "there are more occurrances", when clear means "this 
+      was last
+      occurrance". -->
+    <xs:element name="example">
+      <xs:complexType>
+        <xs:sequence>
+          <!-- Note that the outputValueCalc can't be hidden because it references
+            A1, which could be any name at all. -->
+          <xs:element ref="ex:presenceBit"
+            dfdl:outputValueCalc='{ if dfdl:count(../A1) eq 0 then 0 else 1 }' />
+          <xs:element name="A1" minOccurs="0" maxOccurs="10"
+            dfdl:occursCountKind='parsed'>
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element ref="ex:repeatBit" />
+                <xs:element name="someField" type="xs:unsignedByte"
+                  dfdl:lengthKind="explicit" dfdl:length="2" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="aFieldAfterA1" type="xs:unsignedByte"
+            dfdl:lengthKind="explicit" dfdl:length="3" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
-		<tdml:document>
-			<tdml:documentPart type="bits">0 111
-			</tdml:documentPart>
-		</tdml:document>
+  </tdml:defineSchema>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:ex="http://example.com">
-				<ex:example>
-					<ex:presenceBit>0</ex:presenceBit>
-					<ex:aFieldAfterA1>7</ex:aFieldAfterA1>
-				</ex:example>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
 
-	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="testOne" root="example"
-		model="sch1" description="Tests small variable-length bit-packed format.">
+  <tdml:parserTestCase name="testNone" root="example"
+    model="sch1" description="Tests small variable-length bit-packed format.">
 
-		<tdml:document>
-			<tdml:documentPart type="bits">1 011 111
-			</tdml:documentPart>
-		</tdml:document>
+    <tdml:document>
+      <tdml:documentPart type="bits">0 111
+      </tdml:documentPart>
+    </tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:ex="http://example.com">
-				<ex:example>
-					<ex:presenceBit>1</ex:presenceBit>
-					<ex:A1>
-						<ex:repeatBit>0</ex:repeatBit>
-						<ex:someField>3</ex:someField>
-					</ex:A1>
-					<ex:aFieldAfterA1>7</ex:aFieldAfterA1>
-				</ex:example>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:example>
+          <ex:presenceBit>0</ex:presenceBit>
+          <ex:aFieldAfterA1>7</ex:aFieldAfterA1>
+        </ex:example>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="testMany" root="example"
-		model="sch1" description="Tests small variable-length bit-packed format.">
+  <tdml:parserTestCase name="testOne" root="example"
+    model="sch1" description="Tests small variable-length bit-packed format.">
 
-		<tdml:document>
-			<tdml:documentPart type="bits">1 100 101 110 011 111
-			</tdml:documentPart>
-		</tdml:document>
+    <tdml:document>
+      <tdml:documentPart type="bits">1 011 111
+      </tdml:documentPart>
+    </tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:ex="http://example.com">
-				<ex:example>
-					<ex:presenceBit>1</ex:presenceBit>
-					<ex:A1>
-						<ex:repeatBit>1</ex:repeatBit>
-						<ex:someField>0</ex:someField>
-					</ex:A1>
-					<ex:A1>
-						<ex:repeatBit>1</ex:repeatBit>
-						<ex:someField>1</ex:someField>
-					</ex:A1>
-					<ex:A1>
-						<ex:repeatBit>1</ex:repeatBit>
-						<ex:someField>2</ex:someField>
-					</ex:A1>
-					<ex:A1>
-						<ex:repeatBit>0</ex:repeatBit>
-						<ex:someField>3</ex:someField>
-					</ex:A1>
-					<ex:aFieldAfterA1>7</ex:aFieldAfterA1>
-				</ex:example>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:example>
+          <ex:presenceBit>1</ex:presenceBit>
+          <ex:A1>
+            <ex:repeatBit>0</ex:repeatBit>
+            <ex:someField>3</ex:someField>
+          </ex:A1>
+          <ex:aFieldAfterA1>7</ex:aFieldAfterA1>
+        </ex:example>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testMany" root="example"
+    model="sch1" description="Tests small variable-length bit-packed format.">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1 100 101 110 011 111
+      </tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:example>
+          <ex:presenceBit>1</ex:presenceBit>
+          <ex:A1>
+            <ex:repeatBit>1</ex:repeatBit>
+            <ex:someField>0</ex:someField>
+          </ex:A1>
+          <ex:A1>
+            <ex:repeatBit>1</ex:repeatBit>
+            <ex:someField>1</ex:someField>
+          </ex:A1>
+          <ex:A1>
+            <ex:repeatBit>1</ex:repeatBit>
+            <ex:someField>2</ex:someField>
+          </ex:A1>
+          <ex:A1>
+            <ex:repeatBit>0</ex:repeatBit>
+            <ex:someField>3</ex:someField>
+          </ex:A1>
+          <ex:aFieldAfterA1>7</ex:aFieldAfterA1>
+        </ex:example>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
 </tdml:testSuite>
  

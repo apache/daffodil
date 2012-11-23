@@ -34,7 +34,7 @@ import daffodil.processors.PState
  *
  * TODO: provide enough scope information for this to optimize.
  */
-abstract class CompiledExpression(val prettyExpr : String) {
+abstract class CompiledExpression(val prettyExpr: String) {
   /**
    * used to determine whether we need a runtime evaluation or
    * we can just use a constant value.
@@ -43,7 +43,7 @@ abstract class CompiledExpression(val prettyExpr : String) {
    * as their values, much of the time people will not take advantage
    * of this generality.
    */
-  def isConstant : Boolean
+  def isConstant: Boolean
 
   /**
    * tells us if the property is non-empty. This is true if it is a constant non-empty expression
@@ -53,14 +53,14 @@ abstract class CompiledExpression(val prettyExpr : String) {
    * Issue: are there properties which are string-valued, and where "" can in fact be returned at run time?
    * Assumed no. This was clarified in an errata to the DFDL spec.
    */
-  def isKnownNonEmpty : Boolean
+  def isKnownNonEmpty: Boolean
 
   /**
    * used to obtain a constant value.
    *
    * isConstantValue must be true or this will throw.
    */
-  def constant : Any
+  def constant: Any
   def constantAsString = constant.toString
   def constantAsLong = constantAsString.toLong
 
@@ -72,11 +72,11 @@ abstract class CompiledExpression(val prettyExpr : String) {
    * updated variableMap must be returned as well.
    */
 
-  def evaluate(rootedAt : org.jdom.Parent, variables : VariableMap, pstate : PState) : R
+  def evaluate(rootedAt: org.jdom.Parent, variables: VariableMap, pstate: PState): R
 
 }
 
-case class R(res : Any, vmap : VariableMap)
+case class R(res: Any, vmap: VariableMap)
 
 //object CompiledExpressionUtil {
 //
@@ -97,25 +97,25 @@ case class R(res : Any, vmap : VariableMap)
 //
 //}
 
-case class ConstantExpression[T](value : T) extends CompiledExpression(value.toString) {
+case class ConstantExpression[T](value: T) extends CompiledExpression(value.toString) {
   def isConstant = true
   def isKnownNonEmpty = value != ""
-  def constant : T = value
-  def evaluate(pre : org.jdom.Parent, variables : VariableMap, ignored : PState) : R = R(constant, variables)
+  def constant: T = value
+  def evaluate(pre: org.jdom.Parent, variables: VariableMap, ignored: PState): R = R(constant, variables)
 }
 
-case class RuntimeExpression[T <: AnyRef](convertTo : Symbol,
-                                          xpathText : String,
-                                          xpathExprFactory : CompiledExpressionFactory,
-                                          sc : SchemaComponent)
+case class RuntimeExpression[T <: AnyRef](convertTo: Symbol,
+                                          xpathText: String,
+                                          xpathExprFactory: CompiledExpressionFactory,
+                                          sc: SchemaComponent)
   extends CompiledExpression(xpathText)
   with WithParseErrorThrowing {
   val context = sc
   def isConstant = false
   def isKnownNonEmpty = true // expressions are not allowed to return empty string
-  def constant : T = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
+  def constant: T = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
 
-  def toXPathType(convertTo : Symbol) =
+  def toXPathType(convertTo: Symbol) =
     convertTo match {
       case 'Long => XPathConstants.NUMBER
       case 'Double => XPathConstants.NUMBER
@@ -125,13 +125,13 @@ case class RuntimeExpression[T <: AnyRef](convertTo : Symbol,
       case _ => Assert.invariantFailed("convertTo not valid value: " + convertTo)
     }
 
-  def evaluate(pre : org.jdom.Parent, variables : VariableMap, pstate : PState) : R = {
+  def evaluate(pre: org.jdom.Parent, variables: VariableMap, pstate: PState): R = {
     val xpathResultType = toXPathType(convertTo)
     val xpathRes = try {
       DFDLFunctions.currentPState = Some(pstate)
       XPathUtil.evalExpression(xpathText, xpathExprFactory, variables, pre, xpathResultType)
     } catch {
-      case e : XPathException => {
+      case e: XPathException => {
         // runtime processing error in expression evaluation
         val ex = if (e.getMessage() == null) e.getCause() else e
         PE("Expression evaluation failed. Details: %s", ex)
@@ -140,7 +140,7 @@ case class RuntimeExpression[T <: AnyRef](convertTo : Symbol,
       DFDLFunctions.currentPState = None // put it back off
     }
     val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
-    val converted : T = xpathRes match {
+    val converted: T = xpathRes match {
       case NumberResult(n) if n.isNaN() => {
         // Problem here is that strings like 'notAnInt' will be converted to NaN
         // 
@@ -169,15 +169,15 @@ case class RuntimeExpression[T <: AnyRef](convertTo : Symbol,
   }
 }
 
-class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
+class ExpressionCompiler(edecl: SchemaComponent) extends Logging {
 
-  def expandedName(qname : String) = {
+  def expandedName(qname: String) = {
     val (uri, localTypeName) = XMLUtils.QName(edecl.xml, qname, edecl.schemaDocument)
     val expName = XMLUtils.expandedQName(uri, localTypeName)
     expName
   }
 
-  def convertTypeString(expandedTypeName : String) = {
+  def convertTypeString(expandedTypeName: String) = {
     Assert.usage(expandedTypeName != null)
     expandedTypeName match {
       case XMLUtils.XSD_STRING => 'String
@@ -201,7 +201,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
    * is to evaluate it in an environment where if it touches anything (variables, jdom tree, etc.)
    * it will throw. No throw means a value came back and it must be a constant.
    */
-  def constantValue(xpathExprFactory : CompiledExpressionFactory) : Option[Any] =
+  def constantValue(xpathExprFactory: CompiledExpressionFactory): Option[Any] =
     withLoggingLevel(LogLevel.Info) {
       val dummyVars = EmptyVariableMap
       val result =
@@ -225,12 +225,12 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
             case _ => Assert.invariantFailed("Can't evaluate to " + res + " when testing for isConstant")
           }
         } catch {
-          case u : UnsuppressableException => throw u
-          case e : XPathExpressionException => {
+          case u: UnsuppressableException => throw u
+          case e: XPathExpressionException => {
             log(Debug("%s is NOT constant (due to %s)", xpathExprFactory.expression, e.toString))
             None
           }
-          case e : SchemaDefinitionError => {
+          case e: SchemaDefinitionError => {
             // TODO differentiate between the xpath being syntax-invalid (hence, an SDE, not a constant/runtime distinction
             // and other SDEs like variable not defined, which just indicates (for here), that the expression 
             // is non-constant.
@@ -246,32 +246,32 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
       result
     }
 
-  def compileTimeConvertToLong(s : Any) =
+  def compileTimeConvertToLong(s: Any) =
     try {
       Long.box(s.toString.toLong)
     } catch {
-      case n : NumberFormatException =>
+      case n: NumberFormatException =>
         edecl.schemaDefinitionError("Cannot convert %s to Long. Error %s.", s, n)
     }
 
-  def compileTimeConvertToDouble(s : Any) =
+  def compileTimeConvertToDouble(s: Any) =
     try {
       Double.box(s.toString.toDouble)
     } catch {
-      case n : NumberFormatException =>
+      case n: NumberFormatException =>
         edecl.schemaDefinitionError("Cannot convert %s to Double. Error %s.", s, n)
     }
 
-  def compileTimeConvertToBoolean(s : Any) =
+  def compileTimeConvertToBoolean(s: Any) =
     try {
       Boolean.box(s.toString.toBoolean)
     } catch {
-      case u : UnsuppressableException => throw u
-      case n : Exception =>
+      case u: UnsuppressableException => throw u
+      case n: Exception =>
         edecl.schemaDefinitionError("Cannot convert %s to Boolean. Error %s.", s, n)
     }
 
-  def compile[T](convertTo : Symbol, expr : String) : CompiledExpression = {
+  def compile[T](convertTo: Symbol, expr: String): CompiledExpression = {
     if (!XPathUtil.isExpression(expr)) {
       // not an expression. For some properties like delimiters, you can use a literal string 
       // whitespace separated list of literal strings, or an expression in { .... }
@@ -283,7 +283,7 @@ class ExpressionCompiler(edecl : SchemaComponent) extends Logging {
         try {
           XPathUtil.compileExpression(xpath, edecl.namespaces, edecl)
         } catch {
-          case e : XPathExpressionException => {
+          case e: XPathExpressionException => {
             val exc = e // debugger never seems to show the case variable itself.
             val realExc = if (e.getCause() != null) e.getCause() else exc
             // Assert.invariant(realExc != null) // it's always an encapsulation of an underlying error.

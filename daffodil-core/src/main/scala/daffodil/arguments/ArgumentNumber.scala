@@ -2,7 +2,7 @@ package daffodil.arguments
 
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.
- * Developed by: NCSA Cyberenvironments and Technologies 
+ * Developed by: NCSA Cyberenvironments and Technologies
  *               University of Illinois at Urbana-Champaign
  *               http://cet.ncsa.uiuc.edu/
  *
@@ -17,8 +17,8 @@ package daffodil.arguments
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- *  3. Neither the names of NCSA, University of Illinois, nor the names of its 
- *     contributors may be used to endorse or promote products derived from this 
+ *  3. Neither the names of NCSA, University of Illinois, nor the names of its
+ *     contributors may be used to endorse or promote products derived from this
  *     Software without specific prior written permission.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -30,21 +30,22 @@ package daffodil.arguments
  * WITH THE SOFTWARE.
  *
  */
- 
+
 /* 
  * Created By: Alejandro Rodriguez < alejandr @ ncsa . uiuc . edu > 
  * Date: 2010
  */
 
-/** The objects of this class describe whether an argument is required or optional and whether is single-valued
+/**
+ * The objects of this class describe whether an argument is required or optional and whether is single-valued
  * or multi-valued.
  *
  * @author Alejandro Rodriguez
- * @version 1  
+ * @version 1
  */
 sealed abstract class ArgumentNumber
 
 case object OptionalSingle extends ArgumentNumber
 case object OptionalMultiple extends ArgumentNumber
 case object RequiredSingle extends ArgumentNumber
-case object RequiredMultiple  extends ArgumentNumber
+case object RequiredMultiple extends ArgumentNumber

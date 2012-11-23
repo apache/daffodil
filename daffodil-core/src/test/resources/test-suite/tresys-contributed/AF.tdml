@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testSuite suiteName="AF"
-	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
-	
-	<parserTestCase name="AF000" root="allZones" model="AF.dfdl.xsd"
-		description="Initiated choices">
-<document>[BEGIN ZONE1]
+<testSuite suiteName="AF" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+  <parserTestCase name="AF000" root="allZones" model="AF.dfdl.xsd"
+    description="Initiated choices">
+    <document><![CDATA[[BEGIN ZONE1]
    x=x value for zone 1
 [END ZONE1]
 [BEGIN ZONE2]
@@ -14,82 +14,82 @@
 [BEGIN ZONE3]
    z=z value for zone 3
 [END ZONE3]
-</document>
-		<infoset>
-			<dfdlInfoset>
-				<allZones xmlns="http://example.com">
-					<a>
-						<zone1>
-							<x>x value for zone 1</x>
-						</zone1>
-					</a>
-					<a>
-						<zone2>
-							<y>y value for zone 2</y>
-						</zone2>
-					</a>
-					<a>
-						<zone3>
-							<z>z value for zone 3</z>
-						</zone3>
-					</a>
-				</allZones>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
-	
-	<parserTestCase name="AF001" root="allZones" model="AF.dfdl.xsd"
-		description="Initiated choices">
-<document>[BEGIN ZONE2]
-   y=y value for zone 2
-[END ZONE2]
-[BEGIN ZONE3]
-   z=z value for zone 3
-[END ZONE3]
-[BEGIN ZONE1]
-   x=x value for zone 1
-[END ZONE1]
-</document>
-		<infoset>
-			<dfdlInfoset>
-				<allZones xmlns="http://example.com">
-					<a>
-						<zone2>
-							<y>y value for zone 2</y>
-						</zone2>
-					</a>
-					<a>
-						<zone3>
-							<z>z value for zone 3</z>
-						</zone3>
-					</a>
-					<a>
-						<zone1>
-							<x>x value for zone 1</x>
-						</zone1>
-					</a>
-				</allZones>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
-	
-	<parserTestCase name="AF002" root="allZones" model="AF.dfdl.xsd"
-		description="Initiated choices">
-<document>[BEGIN ZONE2]
-   y=y value for zone 2
-[END ZONE2]
+]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <allZones xmlns="http://example.com">
+          <a>
+            <zone1>
+              <x>x value for zone 1</x>
+            </zone1>
+          </a>
+          <a>
+            <zone2>
+              <y>y value for zone 2</y>
+            </zone2>
+          </a>
+          <a>
+            <zone3>
+              <z>z value for zone 3</z>
+            </zone3>
+          </a>
+        </allZones>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 
-</document>
-		<infoset>
-			<dfdlInfoset>
-				<allZones xmlns="http://example.com">
-					<a>
-						<zone2>
-							<y>y value for zone 2</y>
-						</zone2>
-					</a>
-				</allZones>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+  <parserTestCase name="AF001" root="allZones" model="AF.dfdl.xsd"
+    description="Initiated choices">
+    <document>[BEGIN ZONE2]
+      y=y value for zone 2
+      [END ZONE2]
+      [BEGIN ZONE3]
+      z=z value for zone 3
+      [END ZONE3]
+      [BEGIN ZONE1]
+      x=x value for zone 1
+      [END ZONE1]
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <allZones xmlns="http://example.com">
+          <a>
+            <zone2>
+              <y>y value for zone 2</y>
+            </zone2>
+          </a>
+          <a>
+            <zone3>
+              <z>z value for zone 3</z>
+            </zone3>
+          </a>
+          <a>
+            <zone1>
+              <x>x value for zone 1</x>
+            </zone1>
+          </a>
+        </allZones>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="AF002" root="allZones" model="AF.dfdl.xsd"
+    description="Initiated choices">
+    <document>[BEGIN ZONE2]
+      y=y value for zone 2
+      [END ZONE2]
+
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <allZones xmlns="http://example.com">
+          <a>
+            <zone2>
+              <y>y value for zone 2</y>
+            </zone2>
+          </a>
+        </allZones>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 </testSuite>

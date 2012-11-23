@@ -111,7 +111,7 @@ class EntityReplacer {
 
     res
   }
-  
+
   def replaceDecimal(input: String, prefix: String): String = {
     var res: String = input
 
@@ -146,9 +146,9 @@ class EntityReplacer {
       if (m.find()) {
         val rawStr = m.group().toString()
         val trimmedStr = rawStr.replace(prefix, "").replace(";", "")
-        val byteStr0: Byte = Byte.parseByte(trimmedStr.substring(0,1), 16)
+        val byteStr0: Byte = Byte.parseByte(trimmedStr.substring(0, 1), 16)
         val byteStr1: Byte = Byte.parseByte(trimmedStr.substring(1), 16)
-        
+
         res = res.replaceAll(rawStr, byteStr0.asInstanceOf[Char].toString() + byteStr1.asInstanceOf[Char].toString())
         m = p.matcher(res) // update Matcher
       }
@@ -156,9 +156,9 @@ class EntityReplacer {
 
     res
   }
-  
+
   def replaceByte(input: String): String = {
-    replaceBytes(input,"%#r")
+    replaceBytes(input, "%#r")
   }
 
   def replaceHex(input: String): String = {
@@ -180,7 +180,7 @@ class EntityReplacer {
   def replaceAll(input: String, shouldReplaceByte: Boolean = false): String = {
     var res: String = input
 
-    if (shouldReplaceByte){ res = replaceByte(input) }
+    if (shouldReplaceByte) { res = replaceByte(input) }
     res = replaceHex(res)
     res = replaceDecimal(res)
     res = replace(res, entityCharacterUnicode)
@@ -210,7 +210,7 @@ class EntityReplacer {
 
 object EntityReplacer extends EntityReplacer
 
-abstract class StringLiteralBase(rawArg: String, context : ThrowsSDE) {
+abstract class StringLiteralBase(rawArg: String, context: ThrowsSDE) {
   val raw: String = rawArg
   def cooked: String
 }
@@ -220,22 +220,22 @@ abstract class StringLiteralBase(rawArg: String, context : ThrowsSDE) {
  *
  *  This is the kind of string literal you can use within an expression.
  */
-class StringValueAsLiteral(rawArg: String, context : ThrowsSDE)
+class StringValueAsLiteral(rawArg: String, context: ThrowsSDE)
   extends StringLiteralBase(rawArg, context) {
   def cooked = EntityReplacer.replaceAll(raw)
 }
 
-class SingleCharacterLiteral(rawArg: String, context : ThrowsSDE)
+class SingleCharacterLiteral(rawArg: String, context: ThrowsSDE)
   extends StringValueAsLiteral(rawArg, context) {
   context.schemaDefinition(cooked.length == 1, "Length of string must be exactly 1 character.")
 }
 
-class SingleCharacterLiteralES(rawArg: String, context : ThrowsSDE)
-	extends StringValueAsLiteral(rawArg, context) {
+class SingleCharacterLiteralES(rawArg: String, context: ThrowsSDE)
+  extends StringValueAsLiteral(rawArg, context) {
   context.schemaDefinition(cooked.length() == 1 || cooked.length() == 0, "Length of string must be exactly 1 character or be empty.")
 }
 
-class OneDelimiterLiteral(rawArg: String, context : ThrowsSDE)
+class OneDelimiterLiteral(rawArg: String, context: ThrowsSDE)
   extends StringLiteralBase(rawArg, context) {
   def cooked = EntityReplacer.replaceAll(raw)
   // deal with raw bytes entities
@@ -250,12 +250,11 @@ class OneDelimiterLiteral(rawArg: String, context : ThrowsSDE)
 
 }
 
-class ListOfStringValueAsLiteral(rawArg: String, context : ThrowsSDE)
-{
+class ListOfStringValueAsLiteral(rawArg: String, context: ThrowsSDE) {
   def cooked = {
     val list = rawArg.split("\\s").toList
     val cookedList: ListBuffer[String] = ListBuffer.empty
-    list.foreach( x => {
+    list.foreach(x => {
       val l = new StringValueAsLiteral(x, context)
       cookedList += l.cooked
     })
@@ -263,12 +262,11 @@ class ListOfStringValueAsLiteral(rawArg: String, context : ThrowsSDE)
   }
 }
 
-class ListOfSingleCharacterLiteral(rawArg: String, context : ThrowsSDE)
-{
+class ListOfSingleCharacterLiteral(rawArg: String, context: ThrowsSDE) {
   def cooked = {
     val list = rawArg.split("\\s")
     val cookedList: ListBuffer[String] = ListBuffer.empty
-    list.foreach( x => {
+    list.foreach(x => {
       val l = new SingleCharacterLiteral(x, context)
       cookedList += l.cooked
     })

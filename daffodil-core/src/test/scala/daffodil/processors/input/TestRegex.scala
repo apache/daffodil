@@ -24,7 +24,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
 
   def delim0 = """_*+;_*+""" // greedy whitespace consumption
 
-  def anyUntil(delim : String) = {
+  def anyUntil(delim: String) = {
     // at begining of string, anything repeated (lazy), followed by the delim
     """^((?>.*?""" + """(?=(?:""" + delim + """))))"""
     // the atomic group begining with (?> is used to reduce possibilities of backtracking
@@ -133,7 +133,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
      * depending on whether you have escapeBlock or escapeCharacter type
      * escaping.
      */
-    def tester(escapeEscape : String, escape : String, delim : String, padChar : String) = {
+    def tester(escapeEscape: String, escape: String, delim: String, padChar: String) = {
       Assert.usage(padChar.length == 1)
       //
       // Let S be the escape escape character
@@ -173,7 +173,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
        * This code is just about figuring out the right regex, and putting
        * groups inside it that let us get at what we need.
        */
-      def test(x : String) = x match {
+      def test(x: String) = x match {
         case ContentPattern(before, delim, after) => {
           // println("'%s' parsed to b = '%s', d = '%s', a = '%s'".format(x, before, delim, after))
           val before1 = removeActiveEscapes(before)
@@ -188,7 +188,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
       /**
        * postprocessing to remove active escape characters
        */
-      def removeActiveEscapes(str : String) : String = {
+      def removeActiveEscapes(str: String): String = {
         // if ends with SE (an escaped escape), then change to end with just E
         // because the S was active.
         val str1 = if (str.endsWith(escapeEscape + escape)) {
@@ -199,7 +199,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
         str2
       }
 
-      def removeActiveEscapes1(str : String) : String = {
+      def removeActiveEscapes1(str: String): String = {
         val res = str match {
           case EDSplit(before, delim, after) => {
             val rest = removeActiveEscapes1(after)
@@ -255,7 +255,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
      * depending on whether you have escapeBlock or escapeCharacter type
      * escaping.
      */
-    def tester(escape : String, delimiter : String, padChar : String) = {
+    def tester(escape: String, delimiter: String, padChar: String) = {
       Assert.usage(padChar.length == 1)
       //
       // Let E be the escape character
@@ -286,7 +286,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
        * This code is just about figuring out the right regex, and putting
        * groups inside it that let us get at what we need.
        */
-      def test(x : String) = x match {
+      def test(x: String) = x match {
         case ContentPattern(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
           println("'%s' parsed to ee1s = '%s', b = '%s', ee2s = '%s', delimAfterPad = '%s', ee3s = '%s', delimAfterEEs = '%s', a = '%s'".format(
             x, ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after))
@@ -310,14 +310,14 @@ class TestRegex extends JUnitSuite with RegexParsers {
       // TBD: Are we supposed to remove ALL escape characters?
       // DFDL spec seems to say so. Only escape-escaped escape characters are preserved.
       //
-      def removeActiveEscapes(str : String) : String = {
+      def removeActiveEscapes(str: String): String = {
 
         // if contains ER, replace with just R
         val str2 = removeActiveEscapes1(str)
         str2
       }
 
-      def removeActiveEscapes1(str : String) : String = {
+      def removeActiveEscapes1(str: String): String = {
         val res = str match {
           case ERSplit(before, delim, after) => {
             val rest = removeActiveEscapes1(after)
@@ -367,7 +367,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
    */
   @Test def testRegexToMatchOneDelimiterWithBlockEscapesAndPaddingCharacters() {
 
-    def tester(bStart : String, bEnd : String, escapeEscape : String, escape : String, delim : String, padChar : String) = {
+    def tester(bStart: String, bEnd: String, escapeEscape: String, escape: String, delim: String, padChar: String) = {
       Assert.usage(padChar.length == 1)
       val str = """(?>""" +
         // First alternative is if the start is an unescaped Block start. In that case you must
@@ -397,7 +397,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
       val EDSplit = """(.*)%1$s(%2$s)(.*)""".format(escape, delim).r
       val ENSplit = """(.*)%1$s(%2$s)(.*)""".format(escape, bEnd).r
 
-      def test(x : String) = x match {
+      def test(x: String) = x match {
         case ContentPattern(before, delim, after, null, null, null) => {
           val before1 = removeActiveEscapesBlocked(before)
           //          println("'%s' parsed to b = '%s', d = '%s', a = '%s'".
@@ -417,7 +417,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
       }
 
       // postprocessing to remove active escape characters
-      def removeActiveEscapesUnblocked(str : String) : String = {
+      def removeActiveEscapesUnblocked(str: String): String = {
         if (str == null) return str
         // if ends with SE (an escaped escape), then change to end with just E
         // because the S was active.
@@ -432,7 +432,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
         str3
       }
 
-      def removeActiveEscapesUnblocked1(str : String) : String = {
+      def removeActiveEscapesUnblocked1(str: String): String = {
         val res = str match {
           case EDSplit(before, delim, after) => {
             val rest = removeActiveEscapesUnblocked1(after)
@@ -444,7 +444,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
       }
 
       // postprocessing to remove active escape characters
-      def removeActiveEscapesBlocked(str : String) : String = {
+      def removeActiveEscapesBlocked(str: String): String = {
         if (str == null) return str
         // if ends with SE (an escaped escape), then change to end with just E
         // because the S was active.
@@ -456,7 +456,7 @@ class TestRegex extends JUnitSuite with RegexParsers {
         str2
       }
 
-      def removeActiveEscapesBlocked1(str : String) : String = {
+      def removeActiveEscapesBlocked1(str: String): String = {
         val res = str match {
           case ENSplit(before, delim, after) => {
             val rest = removeActiveEscapesBlocked1(after)

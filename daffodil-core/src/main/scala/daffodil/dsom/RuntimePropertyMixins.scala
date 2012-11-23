@@ -64,7 +64,6 @@ trait DelimitedRuntimeValuedPropertiesMixin
     c
   }
 
-
 }
 
 trait ElementRuntimeValuedPropertiesMixin
@@ -141,7 +140,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     }
     c
   }
-   
+
   def binaryFloatRep = expressionCompiler.compile('String, binaryFloatRepRaw)
 
   // TODO: Will need to 'evaluate' and perform entity replacement on textBooleanTrueRep in Parser where it is used.

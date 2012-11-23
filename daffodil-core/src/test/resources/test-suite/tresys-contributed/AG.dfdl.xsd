@@ -1,52 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-    targetNamespace="http://example.com"
-    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:tns="http://example.com"
-	>
+  targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
 
   <!-- Discriminated choices -->
 
   <group name="choiceGroup">
     <choice>
       <element name="zone1" type="xsd:string" dfdl:terminator="%NL;"
-	       dfdl:representation="text">
-	<annotation>
-	  <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-	    <dfdl:discriminator test="{ ../tns:zoneNumber = '1' }"/>
-	  </appinfo>
-	</annotation>
+        dfdl:representation="text">
+        <annotation>
+          <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <dfdl:discriminator test="{ ../tns:zoneNumber = '1' }" />
+          </appinfo>
+        </annotation>
       </element>
       <element name="zone2" type="xsd:string" dfdl:terminator="%NL;"
-	       dfdl:representation="text">
-	<annotation>
-	  <appinfo source="http://www.ogf.org/dfdl/">
-	    <dfdl:discriminator test="{ ../tns:zoneNumber = '2' }"/>
-	  </appinfo>
-	</annotation>
+        dfdl:representation="text">
+        <annotation>
+          <appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:discriminator test="{ ../tns:zoneNumber = '2' }" />
+          </appinfo>
+        </annotation>
       </element>
       <element name="zone3" type="xsd:string" dfdl:terminator="%NL;"
-	       dfdl:representation="text">
-	<annotation>
-	  <appinfo source="http://www.ogf.org/dfdl/">
-	    <dfdl:discriminator test="{ ../tns:zoneNumber = '3' }"/>
-	  </appinfo>
-	</annotation>
+        dfdl:representation="text">
+        <annotation>
+          <appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:discriminator test="{ ../tns:zoneNumber = '3' }" />
+          </appinfo>
+        </annotation>
       </element>
     </choice>
   </group>
-  
-  <group name="zoneNumberGroup"><sequence><element name="zoneNumber" type="xsd:int" 
-		       dfdl:representation="text" 
-		       dfdl:terminator="%NL;"/></sequence></group>
+
+  <group name="zoneNumberGroup">
+    <sequence>
+      <element name="zoneNumber" type="xsd:int"
+        dfdl:representation="text" dfdl:terminator="%NL;" />
+    </sequence>
+  </group>
 
   <element name="allZones">
-    <complexType>      
+    <complexType>
       <sequence>
-	<sequence dfdl:hiddenGroupRef="tns:zoneNumberGroup"/>
-	<group ref="tns:choiceGroup" /> <!-- maxOccurs="1" -->
+        <sequence dfdl:hiddenGroupRef="tns:zoneNumberGroup" />
+        <group ref="tns:choiceGroup" /> <!-- maxOccurs="1" -->
       </sequence>
     </complexType>
   </element>

@@ -59,16 +59,16 @@ case object VariableRead extends VariableState
 /**
  * Core tuple of a pure functional "state" for variables.
  */
-case class Variable(state : VariableState, value : Option[AnyRef], defv : DFDLDefineVariable) 
+case class Variable(state: VariableState, value: Option[AnyRef], defv: DFDLDefineVariable)
 
 object VariableUtil {
-  
+
   /**
-   * Needed to deal with saxon XPath evaluation. Many things are implicitly converted. In JDOM 
+   * Needed to deal with saxon XPath evaluation. Many things are implicitly converted. In JDOM
    * everything is a string, so the only way to add, is to implicitly convert into the specified
    * type of the variable.
    */
-  def convert(v : String, extType : String) = {
+  def convert(v: String, extType: String) = {
     extType match {
       case XMLUtils.XSD_STRING => v
       case XMLUtils.XSD_INT | XMLUtils.XSD_INTEGER | XMLUtils.XSD_UNSIGNED_INT | XMLUtils.XSD_SHORT |
@@ -103,12 +103,12 @@ object VariableUtil {
  * Factory for Variable objects
  */
 object VariableFactory {
-  def create(defv : DFDLDefineVariable,
-    expandedName : String,
-    extType : String,
-    defaultValue : Option[String],
-    external : Boolean,
-    doc : SchemaDocument) = {
+  def create(defv: DFDLDefineVariable,
+             expandedName: String,
+             extType: String,
+             defaultValue: Option[String],
+             external: Boolean,
+             doc: SchemaDocument) = {
 
     val state = defaultValue match {
       case None => VariableUndefined
@@ -153,12 +153,12 @@ object EmptyVariableMap extends VariableMap()
  * no-set-after-default-value-has-been-read behavior. This requires that reading the variables causes a state transition.
  * Our "pure functional" desire lives in tension with this.
  */
-class VariableMap(private val variables : Map[String, List[List[Variable]]] = Map.empty)
+class VariableMap(private val variables: Map[String, List[List[Variable]]] = Map.empty)
   extends WithParseErrorThrowing {
 
   lazy val context = Assert.invariantFailed("unused.")
 
-  private def mkVMap(newVar : Variable, firstTier : List[Variable], enclosingScopes : List[List[Variable]]) = {
+  private def mkVMap(newVar: Variable, firstTier: List[Variable], enclosingScopes: List[List[Variable]]) = {
     val newMap = variables + ((newVar.defv.extName, (newVar :: firstTier) :: enclosingScopes))
     new VariableMap(newMap)
   }
@@ -168,7 +168,7 @@ class VariableMap(private val variables : Map[String, List[List[Variable]]] = Ma
    * shows that the variable has been read (state VariableRead), when the variable hadn't
    * previously been read yet.
    */
-  def readVariable(expandedName : String, referringContext : SchemaComponent) : (AnyRef, VariableMap) = {
+  def readVariable(expandedName: String, referringContext: SchemaComponent): (AnyRef, VariableMap) = {
     val lists = variables.get(expandedName)
     lists match {
 
@@ -196,7 +196,7 @@ class VariableMap(private val variables : Map[String, List[List[Variable]]] = Ma
   /**
    * Assigns a variable, returning a new VariableMap which shows the state of the variable.
    */
-  def setVariable(expandedName : String, newValue : Any, referringContext : SchemaComponent) : VariableMap = {
+  def setVariable(expandedName: String, newValue: Any, referringContext: SchemaComponent): VariableMap = {
     variables.get(expandedName) match {
 
       case None => referringContext.schemaDefinitionError("unknown variable %s", expandedName)
@@ -233,7 +233,7 @@ class VariableMap(private val variables : Map[String, List[List[Variable]]] = Ma
 }
 
 object VariableMap {
-  def create(dvs : Seq[DFDLDefineVariable]) : VariableMap = {
+  def create(dvs: Seq[DFDLDefineVariable]): VariableMap = {
     val pairs = dvs.map { dv => (dv.extName, List(List(dv.newVariableInstance))) }
     val hmap = pairs.toMap
     val vmap = new VariableMap(hmap)

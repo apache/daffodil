@@ -4,7 +4,6 @@ import scala.xml.Node
 import daffodil.processors.ProcessorResult
 import daffodil.processors.Success
 
-
 /**
  * This file contains traits that define an abstract API that any DFDL processor
  * can satisfy. The intention is to allow test rigs and other systems to run tests

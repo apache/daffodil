@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testSuite suiteName="AM"
-	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
-	
-	<parserTestCase name="AM000" root="mimeType" model="AM.dfdl.xsd"
-		description="MIME type detect - hiddenGroupRef, discriminators, and inputValueCalc">
-	<document>
-		<documentPart type="byte">
+<testSuite suiteName="AM" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+  <parserTestCase name="AM000" root="mimeType" model="AM.dfdl.xsd"
+    description="MIME type detect - hiddenGroupRef, discriminators, and inputValueCalc">
+    <document>
+      <documentPart type="byte"><![CDATA[
  4947 3846 6139 0064 0064 64c6 0000 0000 0101 0201 0202 0303 0703 0707 0808 0908
  0909 0a0a 0f0a 0f0f 1111 1211 1212 1414 1614 1616 1717 1917 1919 1a1a 1b1a 1b1b
  1d1d 201d 2020 2222 2522 2525 2727 2827 2828 2929 2c29 2c2c 2d2d 2f2d 2f2f 3030
@@ -44,23 +44,24 @@
  2660 e995 9eae 9512 4fa9 b0ea 6990 f109 90e0 03e9 f4f1 6990 f105 912c 0669 44f1
  2991 0c12 738c 1743 5699 c141 4938 9184 1929 5ae2 ee53 82b9 4154 3544 ec00 8500
  ecb9 1bd6 2053 3b00
- </documentPart>
-	</document>
-		<infoset>
-			<dfdlInfoset>
-				<mimeType xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-				  <mime>
-				    <type type="xsd:string">image/gif</type>
-				  </mime>
-				</mimeType>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
-	
-	<parserTestCase name="AM001" root="mimeType" model="AM.dfdl.xsd"
-		description="hiddenGroupRef, discriminators, and inputValueCalc">
-	<document>
-		<documentPart type="byte">
+ ]]></documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <mimeType xmlns="http://www.example.org/example1/"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <mime>
+            <type type="xsd:string">image/gif</type>
+          </mime>
+        </mimeType>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="AM001" root="mimeType" model="AM.dfdl.xsd"
+    description="hiddenGroupRef, discriminators, and inputValueCalc">
+    <document>
+      <documentPart type="byte"><![CDATA[
  d8ff e0ff 1000 464a 4649 0100 0101 4800 4800 0000 feff 1300 7243 6165 6574 2064
  6977 6874 4720 4d49 ff50 00db 0043 0305 0404 0304 0405 0404 0505 0605 0c07 0708
  0707 0f07 0b0b 0c09 0f11 1212 0f11 1111 1613 171c 1413 151a 1111 2118 1a18 1d1d
@@ -108,16 +109,17 @@
  00ff 0fd2 1159 1110 0111 1011 1111 1101 1710 72cf a3a1 5bb9 2dea 0af7 aa68 2aa9
  3123 0c4d 0eac 8c64 6223 0fd2 2838 3088 473c f443 13a7 fac8 b0e1 9461 9734 e230
  4cf6 9664 a45e fc4e b5b1 2dee 9c8f 20f7 882d 8088 8888 8808 8880 3f88 d9ff
- </documentPart>
-	</document>
-		<infoset>
-			<dfdlInfoset>
-				<mimeType xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-				  <mime>
-				    <type type="xsd:string">image/jpeg</type>
-				  </mime>
-				 </mimeType>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+ ]]></documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <mimeType xmlns="http://www.example.org/example1/"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <mime>
+            <type type="xsd:string">image/jpeg</type>
+          </mime>
+        </mimeType>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 </testSuite>

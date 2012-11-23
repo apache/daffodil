@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testSuite suiteName="BF"
-	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
-	
-	<parserTestCase name="BF000" root="root" model="BF.dfdl.xsd"
-		description="Unordered sequences">
-<document>Y:y0
+<testSuite suiteName="BF" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+  <parserTestCase name="BF000" root="root" model="BF.dfdl.xsd"
+    description="Unordered sequences">
+    <document><![CDATA[Y:y0
 Y:y1
 Y:y2
 Y:y3
@@ -14,28 +14,28 @@ X:x1
 X:x2
 X:x3
 X:beyond
-</document>
-		<infoset>
-			<dfdlInfoset>
-				<root xmlns="http://www.example.org/example1">
-				  <seq>
-				    <x>x0</x>
-				    <x>x1</x>
-				    <x>x2</x>
-				    <x>x3</x>
-				    <y>y0</y>
-				    <y>y1</y>
-				    <y>y2</y>
-				    <y>y3</y>
-				  </seq>
-				</root>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
-	
-	<parserTestCase name="BF001" root="root" model="BF.dfdl.xsd"
-		description="Unordered sequences">
-<document>Y:y0
+]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <root xmlns="http://www.example.org/example1">
+          <seq>
+            <x>x0</x>
+            <x>x1</x>
+            <x>x2</x>
+            <x>x3</x>
+            <y>y0</y>
+            <y>y1</y>
+            <y>y2</y>
+            <y>y3</y>
+          </seq>
+        </root>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="BF001" root="root" model="BF.dfdl.xsd"
+    description="Unordered sequences">
+    <document><![CDATA[Y:y0
 Y:y1
 Y:y2
 Y:y3
@@ -44,21 +44,21 @@ X:x1
 X:x2
 X:x3
 X:beyond
-</document>
-		<infoset>
-			<dfdlInfoset>
-				<root xmlns="http://www.example.org/example1">
-				  <plain>Y:y0
-				Y:y1
-				Y:y2
-				Y:y3
-				Y:y4
-				X:x1
-				X:x2
-				X:x3
-				X:beyond</plain>
-				</root>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <root xmlns="http://www.example.org/example1">
+          <plain><![CDATA[Y:y0
+Y:y1
+Y:y2
+Y:y3
+Y:y4
+X:x1
+X:x2
+X:x3
+X:beyond]]></plain>
+        </root>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 </testSuite>

@@ -23,98 +23,98 @@ package daffodil.api
 
 /**
  * Base trait for all error, warning, info, and other sorts of objects
- * that capture diagnostic information. 
- * 
+ * that capture diagnostic information.
+ *
  * Allows for lazy message creation, internationalization, etc.
  */
-trait Diagnostic { self : Throwable => // these are always throwables.
+trait Diagnostic { self: Throwable => // these are always throwables.
 
   /**
    * Turns the diagnostic object into a string.
-   * 
-   * Should utilize locale information to properly internationalize. But if that is 
+   *
+   * Should utilize locale information to properly internationalize. But if that is
    * unavailable, will still construct an English-language string.
    */
-  def getMessage : String
-  
-  override def toString() = getMessage 
+  def getMessage: String
+
+  override def toString() = getMessage
   /**
    * Get data location information relevant to this diagnostic object.
-   * 
+   *
    * For example, this might be a file name, and position within the file.
    */
-  def getDataLocations : Seq[DataLocation]
-  
-   /**
+  def getDataLocations: Seq[DataLocation]
+
+  /**
    * Get schema location information relevant to this diagnostic object.
-   * 
+   *
    * For example, this might be a file name of a schema, and position within the schema file.
    */
-  def getSchemaLocations : Seq[SchemaLocation]
-  
+  def getSchemaLocations: Seq[SchemaLocation]
+
   /**
    * Determine if a diagnostic object represents an error or something less serious.
    */
-  def isError : Boolean
-  
+  def isError: Boolean
+
   /**
    * Positively get these things. No returning 'null' and making caller figure out
    * whether to look for cause object.
    */
-  def getSomeCause : Some[Throwable]
-  def getSomeMessage : Some[String]
-  
+  def getSomeCause: Some[Throwable]
+  def getSomeMessage: Some[String]
+
 }
 
 /**
  * Relevant data location for a diagnostic message. E.g., file and line number.
  */
 trait DataLocation {
-  def toString : String
-  def isAtEnd : Boolean 
+  def toString: String
+  def isAtEnd: Boolean
 }
 
 /**
  * Relevant schema location for a diagnostic message. E.g., file and line number.
  */
 trait SchemaLocation {
-  def toString : String
+  def toString: String
 }
 
 /**
  * Mix into classes that can carry diagnostic information as part of their structure.
  */
 trait WithDiagnostics {
-  
+
   /**
-   * If multiple diagnostic messages can be created by an action, then this 
-   * returns a sequence of multiple diagnostic objects. If the message is 
-   * a fatal runtime issue, then this might be a singleton list, or it could be 
+   * If multiple diagnostic messages can be created by an action, then this
+   * returns a sequence of multiple diagnostic objects. If the message is
+   * a fatal runtime issue, then this might be a singleton list, or it could be
    * a bunch of warnings followed by a fatal runtime error.
-   * 
+   *
    * The order of the sequence is important. When the diagnostics are about
    * a file of text, then diagnostics that are about lines earlier in the file
-   * are earlier in the list. 
+   * are earlier in the list.
    */
-  def getDiagnostics : Seq[Diagnostic]
-  
+  def getDiagnostics: Seq[Diagnostic]
+
   /**
-   * This predicate indicates whether the object in question succeeded or failed 
-   * at whatever some action was trying to do. That is to say, 
+   * This predicate indicates whether the object in question succeeded or failed
+   * at whatever some action was trying to do. That is to say,
    * do the diagnostics contain a hard error, or do the diagnostics
    * only contain warnings and/or advisory content. If true then only warnings
-   * and other non-fatal diagnostics have appeared, so subsequent actions can 
+   * and other non-fatal diagnostics have appeared, so subsequent actions can
    * proceed.
-   * 
+   *
    * The classic example of this is compilation. If only warnings were produced
    * then one can proceed to run the compiled entity.
-   * 
+   *
    * This list is lazily constructed, so asking a compiler for its diagnostics forces
    * the completion of all compilation so that any diagnostics will have been
    * created. That is, this isn't for polling for diagnostics or anything like that.
    */
-  final lazy val canProceed : Boolean = !isError
-  def isError : Boolean 
+  final lazy val canProceed: Boolean = !isError
+  def isError: Boolean
   /**
    * Indicates whether there are any diagnostic objects available.
    */

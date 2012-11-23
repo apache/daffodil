@@ -2,7 +2,7 @@ package daffodil.arguments
 
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.
- * Developed by: NCSA Cyberenvironments and Technologies 
+ * Developed by: NCSA Cyberenvironments and Technologies
  *               University of Illinois at Urbana-Champaign
  *               http://cet.ncsa.uiuc.edu/
  *
@@ -17,8 +17,8 @@ package daffodil.arguments
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- *  3. Neither the names of NCSA, University of Illinois, nor the names of its 
- *     contributors may be used to endorse or promote products derived from this 
+ *  3. Neither the names of NCSA, University of Illinois, nor the names of its
+ *     contributors may be used to endorse or promote products derived from this
  *     Software without specific prior written permission.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -30,7 +30,7 @@ package daffodil.arguments
  * WITH THE SOFTWARE.
  *
  */
- 
+
 /* 
  * Created By: Alejandro Rodriguez < alejandr @ ncsa . uiuc . edu > 
  * Date: 2010
@@ -41,11 +41,11 @@ package daffodil.arguments
  * @see ArgumentParser
  *
  * @author Alejandro Rodriguez
- * @version 1 
+ * @version 1
  */
 sealed abstract class ArgumentValue
 
-case class SingleValue(value:String) extends ArgumentValue
-case class MultipleValue(value:List[String]) extends ArgumentValue
+case class SingleValue(value: String) extends ArgumentValue
+case class MultipleValue(value: List[String]) extends ArgumentValue
 case object NoValue extends ArgumentValue
 case object UnsetValue extends ArgumentValue

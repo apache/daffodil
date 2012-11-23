@@ -38,16 +38,16 @@ object LineCounter extends App {
    */
   val root = "/home/mbeckerle/dataiti/git/daffodil"
 
-  def countLines(fi : File) : Int = {
+  def countLines(fi: File): Int = {
     val src = Source.fromFile(fi)
     val cnt = src.getLines.foldLeft(0) { (i, line) => i + 1 }
     System.out.println(fi.getAbsolutePath() + " line count = " + cnt)
     cnt
   }
 
-  def allSubdirsOfInterest(dir : File) : List[File] = {
+  def allSubdirsOfInterest(dir: File): List[File] = {
     //println("allSubdirsOfInterest")
-    var res : List[File] = null
+    var res: List[File] = null
     if (!dir.isDirectory()) {
       //println("not a directory")
       res = Nil
@@ -67,11 +67,11 @@ object LineCounter extends App {
     res
   }
 
-  def filesOfInterest(dir : File) : List[File] = {
+  def filesOfInterest(dir: File): List[File] = {
     val files =
       if (!dir.isDirectory()) Nil
       else dir.listFiles.toList.filterNot(_.isDirectory())
-    val filesWithoutExcluded = files.filterNot { f : File => filesToExclude.contains(f.getName()) }
+    val filesWithoutExcluded = files.filterNot { f: File => filesToExclude.contains(f.getName()) }
     val filesWithExtensions = filesWithoutExcluded.filter { file =>
       {
         val res = fileSuffixesToInclude.exists { ext => file.getName().endsWith(ext) }
@@ -85,9 +85,9 @@ object LineCounter extends App {
   /**
    * This is the thing that uses all the very sandbox specific paths above.
    */
-  def totalPerSourceDir(srcDir : String) = {
+  def totalPerSourceDir(srcDir: String) = {
     val topDir = new File(root).listFiles.toList
-    val modules = topDir.filter { d : File => modulesToInclude.contains(d.getName()) }
+    val modules = topDir.filter { d: File => modulesToInclude.contains(d.getName()) }
     //System.err.println(modules)
     val modulesSrcDirs = modules.map { modDir => new File(modDir + "/" + srcDir) }
     // println(modulesSrcDirs)

@@ -766,8 +766,8 @@ class Delimiter extends Logging {
   // Iteration is controlled by: advanceChar, advanceDelim, resetDelim
   //
   def searchWithEscapeSchemeBlock(input: CharBuffer, charPosIn: Int,
-    crlfList: List[(Int, Int)], wspList: List[(Int, Int)],
-    escapeEscapeChar: List[(Int)], escapeBlockList: List[(Int, Int)], hardLimit: Int = 1000) = {
+                                  crlfList: List[(Int, Int)], wspList: List[(Int, Int)],
+                                  escapeEscapeChar: List[(Int)], escapeBlockList: List[(Int, Int)], hardLimit: Int = 1000) = {
     val x = new WSPBase()
     var isEscapeMode: Boolean = false
 
@@ -1012,8 +1012,8 @@ class Delimiter extends Logging {
   // Iteration is controlled by: advanceChar, advanceDelim, resetDelim
   //
   def searchWithEscapeSchemeCharacter(input: CharBuffer, charPosIn: Int,
-    crlfList: List[(Int, Int)], wspList: List[(Int, Int)],
-    escapeCharList: List[(Int)], hardLimit: Int = 1000) = {
+                                      crlfList: List[(Int, Int)], wspList: List[(Int, Int)],
+                                      escapeCharList: List[(Int)], hardLimit: Int = 1000) = {
     val x = new WSPBase()
     var isEscapeMode: Boolean = false
 
@@ -1245,10 +1245,10 @@ class Delimiter extends Logging {
     processDelimBuf
     processPartials
 
-    if (charIdx == hardLimit) { 
+    if (charIdx == hardLimit) {
       this.hardLimitReached = true
-      log(Debug("ALERT!!! SEARCH_EscapeSchemeCharacter: hardLimit was reached!")) 
-      }
+      log(Debug("ALERT!!! SEARCH_EscapeSchemeCharacter: hardLimit was reached!"))
+    }
     log(Debug("END SEARCH_EscapeSchemeCharacter: " + delimiterStr + "\n"))
   }
 

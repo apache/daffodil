@@ -2,7 +2,7 @@ package daffodil.arguments
 
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.
- * Developed by: NCSA Cyberenvironments and Technologies 
+ * Developed by: NCSA Cyberenvironments and Technologies
  *               University of Illinois at Urbana-Champaign
  *               http://cet.ncsa.uiuc.edu/
  *
@@ -17,8 +17,8 @@ package daffodil.arguments
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- *  3. Neither the names of NCSA, University of Illinois, nor the names of its 
- *     contributors may be used to endorse or promote products derived from this 
+ *  3. Neither the names of NCSA, University of Illinois, nor the names of its
+ *     contributors may be used to endorse or promote products derived from this
  *     Software without specific prior written permission.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -30,7 +30,7 @@ package daffodil.arguments
  * WITH THE SOFTWARE.
  *
  */
- 
+
 /* 
  * Created by: Alejandro Rodriguez < alejandr @ ncsa . uiuc . edu >
  * Date: 2010
@@ -48,14 +48,14 @@ package daffodil.arguments
  * @author Alejandro Rodriguez
  * @version 1
  */
-class ArgumentDescription(val key:String,val longName:String,
-                          val shortName:String,val argument:Boolean,val number:ArgumentNumber) {
+class ArgumentDescription(val key: String, val longName: String,
+                          val shortName: String, val argument: Boolean, val number: ArgumentNumber) {
 
   /** The default value for this argument */
-  var default:Option[String] = None
+  var default: Option[String] = None
 
-
-  /**A description of an argument to be parsed by ArgumentParser
+  /**
+   * A description of an argument to be parsed by ArgumentParser
    * @see ArgumentParser
    * @param key the name or id of the argument
    * @param longName the long version of the argument to be passed in the command line
@@ -64,8 +64,8 @@ class ArgumentDescription(val key:String,val longName:String,
    * @param number whether this argument can be specified multiple 0, 1 or multiple times in the command line
    * @param default the default value for this argument
    */
-  def this(key:String,longName:String,shortName:String,argument:Boolean,number:ArgumentNumber,default:String) = {
-    this(key,longName,shortName,argument,number)
+  def this(key: String, longName: String, shortName: String, argument: Boolean, number: ArgumentNumber, default: String) = {
+    this(key, longName, shortName, argument, number)
     this.default = Some(default)
   }
 

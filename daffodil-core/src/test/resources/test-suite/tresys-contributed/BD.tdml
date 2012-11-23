@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testSuite suiteName="BD"
-	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
-	
-	<parserTestCase name="BD000" root="list" model="BD.dfdl.xsd"
-		description="Binary boolean">
-<document>
-	<documentPart type="byte">00 00 00 0f 00 00 00 07 00 00 00 07 00 00 00 0f</documentPart>
-	</document>
-		<infoset>
-			<dfdlInfoset>
-				<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-				  <x type="xsd:boolean">true</x>
-				  <x type="xsd:boolean">false</x>
-				  <x type="xsd:boolean">false</x>
-				  <x type="xsd:boolean">true</x>
-				</list>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+<testSuite suiteName="BD" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+  <parserTestCase name="BD000" root="list" model="BD.dfdl.xsd"
+    description="Binary boolean">
+    <document>
+      <documentPart type="byte"><![CDATA[00 00 00 0f 00 00 00 07 00 00 00 07 00 00 00 0f]]></documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <x type="xsd:boolean">true</x>
+          <x type="xsd:boolean">false</x>
+          <x type="xsd:boolean">false</x>
+          <x type="xsd:boolean">true</x>
+        </list>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 </testSuite>

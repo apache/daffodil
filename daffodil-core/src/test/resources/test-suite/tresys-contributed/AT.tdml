@@ -5,7 +5,7 @@
 	
 	<parserTestCase name="AT000" root="PRP" model="AT.dfdl.xsd"
 		description="PRP file example - defineVariable, calendarPattern, textStringJustification">
-	<document>     79 06/06/05   13:38:32     1    0
+	<document><![CDATA[     79 06/06/05   13:38:32     1    0
 Step                                              
 Time                                            ps
 Number solvent-solvent interactions SR            
@@ -1303,7 +1303,7 @@ frame
  8.72188E+02 1.68532E+03 0.00000E+00 1.98543E+03
  0.00000E+00 8.04423E+02 9.07812E+03-1.30473E+03
 -1.44648E+04 2.66579E+03-5.67604E+03
-</document>
+]]></document>
 		<infoset>
 			<dfdlInfoset>
 <PRP xmlns="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">

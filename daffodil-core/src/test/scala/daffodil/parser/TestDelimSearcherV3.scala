@@ -551,21 +551,21 @@ class TestDelimSearcherV3 extends JUnitSuite {
     assertEquals("abc", res1)
     assertEquals("a(\\r\\n|\\n|\\r|\\u0085|\\u2028)a", res2)
     assertEquals("c%NLb", res3)
-    assertEquals("a(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" + 
-                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" + 
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)b", res4)
-    assertEquals("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" + 
-                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" + 
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" + 
-                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" + 
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)", res5)
-    assertEquals(",(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" + 
-                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" + 
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)+", res6)
+    assertEquals("a(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+      "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
+      "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)b", res4)
+    assertEquals("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+      "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
+      "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+      "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
+      "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)", res5)
+    assertEquals(",(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+      "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
+      "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)+", res6)
     assertEquals("\\+\\^\\$", res7)
-    assertEquals("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" + 
-                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" + 
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)*", res8)
+    assertEquals("(\\s|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+      "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
+      "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)*", res8)
   }
 
   /*
@@ -2090,7 +2090,7 @@ class TestDelimSearcherV3 extends JUnitSuite {
     val cb4: CharBuffer = CharBuffer.allocate(tricky2.length() + 1)
     cb4.put(tricky2)
     cb4.flip()
-    
+
     ds.setEscapeScheme(EscapeSchemeKind.Character, "/", "/", "", "")
 
     val res0 = ds.getEscapeCharacterList(cb0)
@@ -2345,10 +2345,10 @@ class TestDelimSearcherV3 extends JUnitSuite {
     val res5 = ds.getEscapeBlocks(cb5)
     assertEquals(List((4, 9), (14, -1)), res5)
   }
-  
+
   @Test def testComputeEscapeBlockListEscapes = {
     val block: String = "text\"mo:\"re\"text"
-      
+
     val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
 
     val cb0: CharBuffer = CharBuffer.allocate(block.length() + 1)
@@ -2358,12 +2358,12 @@ class TestDelimSearcherV3 extends JUnitSuite {
     ds.setEscapeScheme(EscapeSchemeKind.Block, "/", ":", "\"", "\"")
 
     val res0 = ds.getEscapeBlocks(cb0)
-    assertEquals(List((4,11)), res0)
+    assertEquals(List((4, 11)), res0)
   }
-  
+
   @Test def testSearchEscapeCharacter = {
     val block: String = "text/,more,text"
-      
+
     val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
 
     val cb0: CharBuffer = CharBuffer.allocate(block.length() + 1)
@@ -2375,16 +2375,16 @@ class TestDelimSearcherV3 extends JUnitSuite {
     val res0 = ds.getEscapeCharacterList(cb0)
     // println("res0 " + res0)
     assertEquals(List(4), res0)
-    
+
     ds.addDelimiter(",")
-    
+
     val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb0)
     assertEquals("text/,more", result1)
   }
-  
+
   @Test def testSearchEscapeBlock = {
     val block: String = "text/*,more,*/text,yay"
-      
+
     val ds: stringsearch.DelimSearcherV3.DelimSearcher = new stringsearch.DelimSearcherV3.DelimSearcher with ConsoleLogger
 
     val cb0: CharBuffer = CharBuffer.allocate(block.length() + 1)
@@ -2395,10 +2395,10 @@ class TestDelimSearcherV3 extends JUnitSuite {
 
     val res0 = ds.getEscapeBlocks(cb0)
     // println("res0 " + res0)
-    assertEquals(List((4,13)), res0)
-    
+    assertEquals(List((4, 13)), res0)
+
     ds.addDelimiter(",")
-    
+
     val (state1, result1, endPos1, endPosDelim1, _) = ds.search(cb0)
     assertEquals("text/*,more,*/text", result1)
   }

@@ -1,92 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite suiteName="multiple-diagnostics"
-	description="Show that more than one diagnostic is returned from various scenarios."
-	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
-	xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  description="Show that more than one diagnostic is returned from various scenarios."
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+  xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
-	<tdml:defineSchema name="twoMissingTypeDefs">
-		<dfdl:format ref="ex:daffodilTest1" />
+  <tdml:defineSchema name="twoMissingTypeDefs">
+    <dfdl:format ref="ex:daffodilTest1" />
 
-		<xs:element name="err1" type="type_doesnt_exist" />
-		<xs:element name="err2" type="another_type_doesnt_exist" />
+    <xs:element name="err1" type="type_doesnt_exist" />
+    <xs:element name="err2" type="another_type_doesnt_exist" />
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="twoMissingTypeDefErrors"
-		root="err1" model="twoMissingTypeDefs"
-		description="Two errors from two different elements of the same schema document.">
+  <tdml:parserTestCase name="twoMissingTypeDefErrors"
+    root="err1" model="twoMissingTypeDefs"
+    description="Two errors from two different elements of the same schema document.">
 
-		<tdml:document />
+    <tdml:document />
 
-		<tdml:errors>
-			<tdml:error>type_doesnt_exist</tdml:error>
-			<tdml:error>another_type_doesnt_exist</tdml:error>
-		</tdml:errors>
+    <tdml:errors>
+      <tdml:error>type_doesnt_exist</tdml:error>
+      <tdml:error>another_type_doesnt_exist</tdml:error>
+    </tdml:errors>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
 
-	<tdml:defineSchema name="withManyErrors1">
-		<dfdl:format initiator="" leadingSkip="0" trailingSkip="0" initiatedContent="no"/>
-		<xs:element name="err1" type="xs:int" />
-		<xs:element name="err1" type="xs:string" />
-	</tdml:defineSchema>
+  <tdml:defineSchema name="withManyErrors1">
+    <dfdl:format initiator="" leadingSkip="0" trailingSkip="0"
+      initiatedContent="no" />
+    <xs:element name="err1" type="xs:int" />
+    <xs:element name="err1" type="xs:string" />
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="manyErrors1" root="err1"
-		model="withManyErrors1"
-		description="We would like many different errors here since there are many top level elements, and sequences with many terms in them.">
+  <tdml:parserTestCase name="manyErrors1" root="err1"
+    model="withManyErrors1"
+    description="We would like many different errors here since there are many top level elements, and sequences with many terms in them.">
 
-		<tdml:document />
+    <tdml:document />
 
-		<tdml:errors>
-			<!-- <tdml:error>representation</tdml:error> -->
-			<tdml:error>lengthKind</tdml:error>
-			<tdml:error>Duplicate</tdml:error>
-		</tdml:errors>
+    <tdml:errors>
+      <!-- <tdml:error>representation</tdml:error> -->
+      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>Duplicate</tdml:error>
+    </tdml:errors>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
-	<tdml:defineSchema name="withManyErrors2">
-	    <dfdl:format initiator="" leadingSkip="0" trailingSkip="0"/>
-		<xs:element name="v1" type="xs:int" />
-		<xs:element name="v2" type="xs:string" />
-		<xs:element name="err1">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element ref="ex:err2" /> 
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-		<xs:element name="foo" type="xs:float">
-			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-					<dfdl:format /> <!-- wrong annotation. Should be dfdl:element -->
-				</xs:appinfo>
-			</xs:annotation>
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="foo" type="xs:int" />
-					<xs:element name="bar" type="xs:string" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-	</tdml:defineSchema>
+  <tdml:defineSchema name="withManyErrors2">
+    <dfdl:format initiator="" leadingSkip="0" trailingSkip="0" />
+    <xs:element name="v1" type="xs:int" />
+    <xs:element name="v2" type="xs:string" />
+    <xs:element name="err1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="ex:err2" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="foo" type="xs:float">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:format /> <!-- wrong annotation. Should be dfdl:element -->
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="foo" type="xs:int" />
+          <xs:element name="bar" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="manyErrors2" root="err1"
-		model="withManyErrors2"
-		description="We would like many different errors here since there are many top level elements, and sequences with many terms in them.">
+  <tdml:parserTestCase name="manyErrors2" root="err1"
+    model="withManyErrors2"
+    description="We would like many different errors here since there are many top level elements, and sequences with many terms in them.">
 
-		<tdml:document />
+    <tdml:document />
 
-		<tdml:errors>
-			<!-- <tdml:error>representation</tdml:error> -->
-			<tdml:error>lengthKind</tdml:error>
-			<tdml:error>dfdl:format</tdml:error>
-			<tdml:error>Property</tdml:error>
-		</tdml:errors>
+    <tdml:errors>
+      <!-- <tdml:error>representation</tdml:error> -->
+      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>dfdl:format</tdml:error>
+      <tdml:error>Property</tdml:error>
+    </tdml:errors>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

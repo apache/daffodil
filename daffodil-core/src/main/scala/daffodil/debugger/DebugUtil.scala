@@ -40,8 +40,8 @@ package daffodil.debugger
  * Utilities for printing exceptions and log messages in a user-friendly manner to stderr
  *
  * @author Alejandro Rodriguez
- * @version 1 
- * */
+ * @version 1
+ */
 object DebugUtil {
 
   /** Whether log messages and extra information on errors should be printed */
@@ -49,14 +49,14 @@ object DebugUtil {
 
   /** Whether to print the partial output when an error halts the parsing */
   var onErrorPrintOutput = false
-  
-  private var start:Map[String,Long] = Map()
 
-  def printException(e:Exception) = {
-    System.err.println(e.getClass.getName+":")
-    if (e.getMessage!=null)
-      System.err.println("  "+e.getMessage)
-    else{
+  private var start: Map[String, Long] = Map()
+
+  def printException(e: Exception) = {
+    System.err.println(e.getClass.getName + ":")
+    if (e.getMessage != null)
+      System.err.println("  " + e.getMessage)
+    else {
       System.err.println("  No further information")
       if (!verbose)
         System.err.println("Try rerunning with -V option")
@@ -71,28 +71,28 @@ object DebugUtil {
       System.err.println(message)
 
   /** Times the execution of f, logging the time if verbose, and returning the result of f */
-  def time[A](message:String,f: => A):A =
-    if (verbose){
-      System.err.println("Start:"+message)
+  def time[A](message: String, f: => A): A =
+    if (verbose) {
+      System.err.println("Start:" + message)
       val start = System.currentTimeMillis
       val result = f
       val end = System.currentTimeMillis
-      System.err.println("Stop:"+message)
-      printTime(end-start)
+      System.err.println("Stop:" + message)
+      printTime(end - start)
       result
-    }else
-      f                                               
+    } else
+      f
 
-  def startTimer(key:String) =
-    start += ((key,System.currentTimeMillis))
+  def startTimer(key: String) =
+    start += ((key, System.currentTimeMillis))
 
-  def stopTimer(key:String) =
-    start += ((key,System.currentTimeMillis-start(key)))
+  def stopTimer(key: String) =
+    start += ((key, System.currentTimeMillis - start(key)))
 
-  def printTime(key:String):Unit =
+  def printTime(key: String): Unit =
     printTime(start(key))
 
-  private def printTime(time:Long):Unit =
-    System.err.println("[Time:"+time+"ms]")
+  private def printTime(time: Long): Unit =
+    System.err.println("[Time:" + time + "ms]")
 
 }

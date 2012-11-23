@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testSuite suiteName="AY"
-	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
-	
-	<parserTestCase name="AY000" root="list" model="AY.dfdl.xsd"
-		description="escape character and escape block, variable length">
-<document>INI#XTIA#XTORitem0SEPARATORitem1SEP#XARATORitem2TERMI#XNATORINISTARTXXXENDTIATORItem0SEPARATORItem1SEPSTARTXXXENDARATORItem2TERMINASTARTXXXENDTOR</document>
-		<infoset>
-			<dfdlInfoset>
-				<list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-				  <character type="xsd:string">item0</character>
-				  <character type="xsd:string">item1</character>
-				  <character type="xsd:string">item2</character>
-				  <block type="xsd:string">Item0</block>
-				  <block type="xsd:string">Item1</block>
-				  <block type="xsd:string">Item2</block>
-				</list>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+<testSuite suiteName="AY" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+  <parserTestCase name="AY000" root="list" model="AY.dfdl.xsd"
+    description="escape character and escape block, variable length">
+    <document><![CDATA[INI#XTIA#XTORitem0SEPARATORitem1SEP#XARATORitem2TERMI#XNATORINISTARTXXXENDTIATORItem0SEPARATORItem1SEPSTARTXXXENDARATORItem2TERMINASTARTXXXENDTOR]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <character type="xsd:string">item0</character>
+          <character type="xsd:string">item1</character>
+          <character type="xsd:string">item2</character>
+          <block type="xsd:string">Item0</block>
+          <block type="xsd:string">Item1</block>
+          <block type="xsd:string">Item2</block>
+        </list>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 </testSuite>

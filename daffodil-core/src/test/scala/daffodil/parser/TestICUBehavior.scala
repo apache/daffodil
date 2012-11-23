@@ -55,14 +55,14 @@ import org.junit.Test
  * numeric entities.
  */
 class DecodeMalformedHandler extends CharsetCallback.Decoder {
-  def call(decoder : CharsetDecoderICU,
-           context : Any,
-           source : ByteBuffer,
-           target : CharBuffer,
-           offsets : IntBuffer,
-           buffer : Array[Char],
-           length : Int,
-           cr : CoderResult) : CoderResult = {
+  def call(decoder: CharsetDecoderICU,
+           context: Any,
+           source: ByteBuffer,
+           target: CharBuffer,
+           offsets: IntBuffer,
+           buffer: Array[Char],
+           length: Int,
+           cr: CoderResult): CoderResult = {
     // println("Decode: " + cr.toString)
     hook()
     cr.throwException()
@@ -75,14 +75,14 @@ class DecodeMalformedHandler extends CharsetCallback.Decoder {
 }
 
 class DecodeUnmappableHandler extends CharsetCallback.Decoder {
-  def call(decoder : CharsetDecoderICU,
-           context : Any,
-           source : ByteBuffer,
-           target : CharBuffer,
-           offsets : IntBuffer,
-           buffer : Array[Char],
-           length : Int,
-           cr : CoderResult) : CoderResult = {
+  def call(decoder: CharsetDecoderICU,
+           context: Any,
+           source: ByteBuffer,
+           target: CharBuffer,
+           offsets: IntBuffer,
+           buffer: Array[Char],
+           length: Int,
+           cr: CoderResult): CoderResult = {
     // println("Decode: " + cr.toString)
     hook()
     cr.throwException()
@@ -93,15 +93,15 @@ class DecodeUnmappableHandler extends CharsetCallback.Decoder {
 }
 
 class EncodeMalformedHandler extends CharsetCallback.Encoder {
-  def call(encoder : CharsetEncoderICU,
-           context : Any,
-           source : CharBuffer,
-           target : ByteBuffer,
-           offsets : IntBuffer,
-           buffer : Array[Char],
-           length : Int,
-           cp : Int,
-           cr : CoderResult) : CoderResult = {
+  def call(encoder: CharsetEncoderICU,
+           context: Any,
+           source: CharBuffer,
+           target: ByteBuffer,
+           offsets: IntBuffer,
+           buffer: Array[Char],
+           length: Int,
+           cp: Int,
+           cr: CoderResult): CoderResult = {
     // println("Encode: " + cr.toString)
     hook()
     cr.throwException()
@@ -112,15 +112,15 @@ class EncodeMalformedHandler extends CharsetCallback.Encoder {
 }
 
 class EncodeUnmappableHandler extends CharsetCallback.Encoder {
-  def call(encoder : CharsetEncoderICU,
-           context : Any,
-           source : CharBuffer,
-           target : ByteBuffer,
-           offsets : IntBuffer,
-           buffer : Array[Char],
-           length : Int,
-           cp : Int,
-           cr : CoderResult) : CoderResult = {
+  def call(encoder: CharsetEncoderICU,
+           context: Any,
+           source: CharBuffer,
+           target: ByteBuffer,
+           offsets: IntBuffer,
+           buffer: Array[Char],
+           length: Int,
+           cp: Int,
+           cr: CoderResult): CoderResult = {
     // println("Encode: " + cr.toString)
     hook()
     cr.throwException()
@@ -131,7 +131,7 @@ class EncodeUnmappableHandler extends CharsetCallback.Encoder {
 }
 
 object Converter {
-  def convert(in : InputStream, out : OutputStream, inDecoder : CharsetDecoder, outEncoder : CharsetEncoder) = {
+  def convert(in: InputStream, out: OutputStream, inDecoder: CharsetDecoder, outEncoder: CharsetEncoder) = {
     val i = new BufferedReader(new InputStreamReader(in, inDecoder));
     val o = new BufferedWriter(new OutputStreamWriter(out, outEncoder));
     val cb = CharBuffer.allocate(65536);
@@ -147,19 +147,19 @@ object Converter {
     o.flush();
   }
 
-  def parse(in : InputStream, inDecoder : CharsetDecoder) : String = {
+  def parse(in: InputStream, inDecoder: CharsetDecoder): String = {
     val r = new BufferedReader((new InputStreamReader(in, inDecoder)))
     val s = r.readLine()
     s
   }
 
-  def unparse(out : OutputStream, outEncoder : CharsetEncoder)(s : String) = {
+  def unparse(out: OutputStream, outEncoder: CharsetEncoder)(s: String) = {
     val o = new BufferedWriter(new OutputStreamWriter(out, outEncoder));
     o.append(s);
     o.flush();
   }
 
-  implicit def intArrayToByteArray(intArray : Array[Int]) : Array[Byte] = {
+  implicit def intArrayToByteArray(intArray: Array[Int]): Array[Byte] = {
     intArray.map(int => int.asInstanceOf[Byte]).toArray
   }
 }
@@ -259,7 +259,7 @@ class TestUnicodeICUErrorTolerance extends JUnitSuite {
     //
     encoder.setFromUCallback(CoderResult.malformedForLength(1), new EncodeMalformedHandler(), this)
     encoder.setFromUCallback(CoderResult.unmappableForLength(1), new EncodeUnmappableHandler(), this)
-    val exp : Array[Byte] = Array[Int]( // 3 byte encoding of 2nd half of surrogate pair for U+1d4d0                   
+    val exp: Array[Byte] = Array[Int]( // 3 byte encoding of 2nd half of surrogate pair for U+1d4d0                   
       0xED, 0xB3, 0x90)
     val output = new ByteArrayOutputStream();
 
@@ -280,7 +280,7 @@ class TestUnicodeICUErrorTolerance extends JUnitSuite {
     val decoder = cs.newDecoder().asInstanceOf[CharsetDecoderICU]
     decoder.setToUCallback(CoderResult.malformedForLength(1), new DecodeMalformedHandler(), this)
     decoder.setToUCallback(CoderResult.unmappableForLength(1), new DecodeUnmappableHandler(), this)
-    val inBuf : Array[Byte] = Array[Int](
+    val inBuf: Array[Byte] = Array[Int](
       // 4 byte encoding of U+010000 (that's hex) which is the first character that requires a surrogate pair.                  
       0xF0, 0x90, 0x80, 0x80)
     val input = new ByteArrayInputStream(inBuf);
@@ -302,7 +302,7 @@ class TestUnicodeICUErrorTolerance extends JUnitSuite {
     val decoder = cs.newDecoder().asInstanceOf[CharsetDecoderICU]
     decoder.setToUCallback(CoderResult.malformedForLength(1), new DecodeMalformedHandler(), this)
     decoder.setToUCallback(CoderResult.unmappableForLength(1), new DecodeUnmappableHandler(), this)
-    val inBuf : Array[Byte] = Array[Int](
+    val inBuf: Array[Byte] = Array[Int](
       // 6 byte encoding of \x7FFFFFFF                
       0xFD, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF)
     val input = new ByteArrayInputStream(inBuf);
@@ -319,7 +319,7 @@ class TestUnicodeICUErrorTolerance extends JUnitSuite {
     val decoder = cs.newDecoder().asInstanceOf[CharsetDecoderICU]
     decoder.setToUCallback(CoderResult.malformedForLength(1), new DecodeMalformedHandler(), this)
     decoder.setToUCallback(CoderResult.unmappableForLength(1), new DecodeUnmappableHandler(), this)
-    val inBuf : Array[Byte] = Array[Int](
+    val inBuf: Array[Byte] = Array[Int](
       // 4 byte encoding of \x110000                
       0xF4, 0x90, 0x80, 0x80)
     val input = new ByteArrayInputStream(inBuf);
@@ -398,24 +398,24 @@ class TestUnicodeICUErrorTolerance extends JUnitSuite {
     assertEquals(exp, act)
   }
 
-  def howManyCallbacks(inBuf : Array[Byte]) : Int = {
+  def howManyCallbacks(inBuf: Array[Byte]): Int = {
 
     val cs = CharsetICU.forNameICU("utf-8")
     val dn = cs.displayName()
-    var counter : Int = 0
+    var counter: Int = 0
 
     assertEquals("UTF-8", dn)
 
     val decoder = cs.newDecoder().asInstanceOf[CharsetDecoderICU]
     val handler = new CharsetCallback.Decoder {
-      def call(decoder : CharsetDecoderICU,
-               context : Any,
-               source : ByteBuffer,
-               target : CharBuffer,
-               offsets : IntBuffer,
-               buffer : Array[Char],
-               length : Int,
-               cr : CoderResult) : CoderResult = {
+      def call(decoder: CharsetDecoderICU,
+               context: Any,
+               source: ByteBuffer,
+               target: CharBuffer,
+               offsets: IntBuffer,
+               buffer: Array[Char],
+               length: Int,
+               cr: CoderResult): CoderResult = {
         // println("cr = " + cr.toString)
 
         // 
@@ -489,10 +489,10 @@ class TestUnicodeICUErrorTolerance extends JUnitSuite {
     assertEquals(2, count)
   }
 
-  def replaceBadCharacters(inBuf : Array[Byte]) : String = {
+  def replaceBadCharacters(inBuf: Array[Byte]): String = {
     val cs = CharsetICU.forNameICU("utf-8")
     val dn = cs.displayName()
-    var counter : Int = 0
+    var counter: Int = 0
     assertEquals("UTF-8", dn)
     val decoder = cs.newDecoder().asInstanceOf[CharsetDecoderICU]
     decoder.onMalformedInput(CodingErrorAction.REPLACE)
@@ -501,10 +501,10 @@ class TestUnicodeICUErrorTolerance extends JUnitSuite {
     act
   }
 
-  def replaceBadCharactersEncoding(s : String) : Array[Byte] = {
+  def replaceBadCharactersEncoding(s: String): Array[Byte] = {
     val cs = CharsetICU.forNameICU("utf-8")
     val dn = cs.displayName()
-    var counter : Int = 0
+    var counter: Int = 0
     assertEquals("UTF-8", dn)
     val encoder = cs.newEncoder().asInstanceOf[CharsetEncoderICU]
     encoder.onMalformedInput(CodingErrorAction.REPLACE)

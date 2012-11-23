@@ -22,7 +22,7 @@ object Debugger {
    * That way it doesn't get turned on for every subsequent test after when
    * batches of tests are being run.
    */
-  def withDebugger[T](body : => T) {
+  def withDebugger[T](body: => T) {
     try {
       setDebugging(true)
       body
@@ -34,11 +34,11 @@ object Debugger {
   private var areDebugging = false
   var pause = true
 
-  def setDebugging(flag : Boolean) {
+  def setDebugging(flag: Boolean) {
     areDebugging = flag
   }
 
-  def dontTrace(parser : Parser)(body : => Unit) = {
+  def dontTrace(parser: Parser)(body: => Unit) = {
     parser.toString match {
       case "EndSequence" => body
       // case "EndArray" => body
@@ -50,7 +50,7 @@ object Debugger {
     }
   }
 
-  def before(pstate : PState, parser : Parser) {
+  def before(pstate: PState, parser: Parser) {
     if (!areDebugging) return
 
     dontTrace(parser) { return }
@@ -58,7 +58,7 @@ object Debugger {
     printState("!!!Before!!!", pstate, parser)
 
     parser.context match {
-      case e : ElementBase => {
+      case e: ElementBase => {
         if (e.representation == Representation.Text) {
 
         } else {
@@ -80,7 +80,7 @@ object Debugger {
 
   }
 
-  def printState(ba : String, pstate : PState, parser : Parser) {
+  def printState(ba: String, pstate: PState, parser: Parser) {
     println("%s %s %s".format(ba, parser.context, parser))
     println("%s position (bytes) = %d".format(ba, pstate.bytePos))
     if (pstate.bitLimit != -1) println("%s limit (bytes) = %d".format(ba, pstate.bitLimit / 8))
@@ -89,7 +89,7 @@ object Debugger {
     if (pstate.groupPos != -1) println("%s group index = %d".format(ba, pstate.groupPos))
     if (pstate.childPos != -1) println("%s child index = %d".format(ba, pstate.childPos))
     val etext = pstate.parent match {
-      case e : org.jdom.Element => {
+      case e: org.jdom.Element => {
         val xmlVerbose = XMLUtils.element2Elem(e)
         val xml = XMLUtils.removeAttributes(xmlVerbose)
         println("%s Infoset node = '%s'".format(ba, xml))
@@ -100,7 +100,7 @@ object Debugger {
     println(loc)
   }
 
-  def printStateDelta(ba : String, before : PState, after : PState, parser : Parser) {
+  def printStateDelta(ba: String, before: PState, after: PState, parser: Parser) {
     println("%s %s %s".format(ba, parser.context, parser))
     if (after.status != Success) {
       println(after.status)
@@ -122,7 +122,7 @@ object Debugger {
     if (before.groupPos != after.arrayPos) println("%s group index = %d".format(ba, after.groupPos))
     if (before.childPos != after.arrayPos) println("%s child index = %d".format(ba, after.childPos))
     val etext = after.parent match {
-      case e : org.jdom.Element => {
+      case e: org.jdom.Element => {
         val xmlVerbose = XMLUtils.element2Elem(e)
         val xml = XMLUtils.removeAttributes(xmlVerbose)
         println("%s Infoset node = '%s'".format(ba, xml))
@@ -132,18 +132,18 @@ object Debugger {
 
   }
 
-  def after(beforePState : PState, afterPState : PState, parser : Parser) {
+  def after(beforePState: PState, afterPState: PState, parser: Parser) {
     if (!areDebugging) return
     dontTrace(parser) { return }
     printStateDelta("!!!After!!!", beforePState, afterPState, parser)
   }
 
-  def beforeRepetition(pstate : PState, parser : Parser) {
+  def beforeRepetition(pstate: PState, parser: Parser) {
     if (!areDebugging) return
     println("!!! BeforeIteration !!!" + parser)
   }
 
-  def afterRepetition(beforePState : PState, afterPState : PState, parser : Parser) {
+  def afterRepetition(beforePState: PState, afterPState: PState, parser: Parser) {
     if (!areDebugging) return
     println("!!! AfterIteration !!! " + parser)
   }

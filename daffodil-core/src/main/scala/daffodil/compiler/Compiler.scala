@@ -16,7 +16,6 @@ import daffodil.processors.DataProcessor
 import daffodil.api.DFDL
 import daffodil.debugger.Debugger
 
-
 class ProcessorFactory(sset: SchemaSet, rootElem: GlobalElementDecl)
   extends DiagnosticsProviding // (sset)
   with DFDL.ProcessorFactory {
@@ -141,14 +140,13 @@ class Compiler extends DFDL.Compiler with Logging {
 }
 
 object Compiler {
-  
+
   //TODO: make tunable via setter call of compiler
-  def maxFieldContentLengthInBytes : Long = 1024 // Can be as large as Int.MaxValue
-  def occursCountMax : Long = 1024 // Can be as large as Int.MaxValue 
-  def maxSkipLength : Long = 1024 // applicable to leadingSkip and trailingSkip
+  def maxFieldContentLengthInBytes: Long = 1024 // Can be as large as Int.MaxValue
+  def occursCountMax: Long = 1024 // Can be as large as Int.MaxValue 
+  def maxSkipLength: Long = 1024 // applicable to leadingSkip and trailingSkip
   // TODO: want to lift limit of Int.MaxValue, since these are supposed to be Long integers.
 
-    
   def apply() = new Compiler()
 
   def stringToReadableByteChannel(s: String) = {
@@ -248,7 +246,7 @@ object Compiler {
     out.close()
     assertEquals(unparseTo, unparsed)
   }
-  
+
   def testUnparsingBinary(testSchema: scala.xml.Elem, infoset: Node, unparseTo: Array[Byte]) {
     val compiler = Compiler()
     val pf = compiler.compile(testSchema)
@@ -261,12 +259,12 @@ object Compiler {
       throw new Exception(msgs)
     }
     val unparsed = outputStream.toByteArray()
-//        System.err.println("parsed: " + infoset)
-//        System.err.println("unparsed: " + unparsed)
+    //        System.err.println("parsed: " + infoset)
+    //        System.err.println("unparsed: " + unparsed)
     out.close()
     assertEquals(unparsed.length, unparseTo.length)
-    for(i <- 0 until unparsed.length) {
-          assertEquals(unparseTo(i), unparsed(i))
+    for (i <- 0 until unparsed.length) {
+      assertEquals(unparseTo(i), unparsed(i))
     }
   }
 }

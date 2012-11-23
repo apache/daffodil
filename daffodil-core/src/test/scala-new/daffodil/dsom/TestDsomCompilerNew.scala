@@ -96,12 +96,12 @@ class TestDsomCompilerNew extends JUnitSuite with Logging {
     val Seq(schemaDoc) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
-    
+
     assertEquals(3, decl.patternValues.length)
     val facets1 = decl.patternValues(0)
     val facets2 = decl.patternValues(1)
     val facets3 = decl.patternValues(2)
-    
+
     assertEquals(1, facets1.length)
     val facet1_1 = facets1(0)
     val patterns1 = facet1_1._2
@@ -109,7 +109,7 @@ class TestDsomCompilerNew extends JUnitSuite with Logging {
     assertEquals("1", patterns1(0).toString())
     assertEquals("2", patterns1(1).toString())
     assertEquals("3", patterns1(2).toString())
-    
+
     assertEquals(1, facets2.length)
     val facet2_1 = facets2(0)
     val patterns2 = facet2_1._2
@@ -117,7 +117,7 @@ class TestDsomCompilerNew extends JUnitSuite with Logging {
     assertEquals("4", patterns2(0).toString())
     assertEquals("5", patterns2(1).toString())
     assertEquals("6", patterns2(2).toString())
-    
+
     assertEquals(1, facets3.length)
     val facet3_1 = facets3(0)
     val patterns3 = facet3_1._2

@@ -10,7 +10,6 @@ import daffodil.exceptions.Assert
 import daffodil.processors.DFDLRegularExpressions
 import daffodil.schema.annotation.props.gen.TextStringJustification
 
-
 /**
  * The purpose of this class is to verify that the configurable
  * nature of the regular expressions does not negatively affect

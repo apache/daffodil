@@ -1,33 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-    targetNamespace="http://www.example.org/example1/"
-    xmlns:tns="http://www.example.org/example1/"
-    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	>
+  targetNamespace="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <!-- Binary values packed and bsd -->
 
   <element name="list" type="tns:example1" />
 
-  <complexType name="example1">  
+  <complexType name="example1">
     <sequence>
-      <element name="bcd" type="xsd:int" minOccurs="4" maxOccurs="4"
-	       dfdl:representation="binary"
-	       dfdl:binaryNumberRep="bcd"
-	       dfdl:lengthKind="explicit"
-	       dfdl:length="2"/>
-      <element name="packed" type="xsd:int" minOccurs="4" maxOccurs="4"
-	       dfdl:representation="binary"
-	       dfdl:binaryNumberRep="packed"
-	       dfdl:lengthKind="explicit"
-	       dfdl:length="2"/>
+      <element name="bcd" type="xsd:int" minOccurs="4"
+        maxOccurs="4" dfdl:representation="binary" dfdl:binaryNumberRep="bcd"
+        dfdl:lengthKind="explicit" dfdl:length="2" />
+      <element name="packed" type="xsd:int" minOccurs="4"
+        maxOccurs="4" dfdl:representation="binary" dfdl:binaryNumberRep="packed"
+        dfdl:lengthKind="explicit" dfdl:length="2" />
       <element name="string" type="xsd:string"
-	       dfdl:representation="text"
-	       dfdl:lengthKind="explicit"
-	       dfdl:encoding="ASCII"
-	       dfdl:length="16"/>
+        dfdl:representation="text" dfdl:lengthKind="explicit"
+        dfdl:encoding="ASCII" dfdl:length="16" />
     </sequence>
   </complexType>
 

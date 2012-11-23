@@ -1,84 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite suiteName="simple type bases"
-	description="Simple type definitions and derivations." xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-	xmlns:ex="http://example.com" xmlns="http://example.com"
-	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  description="Simple type definitions and derivations." xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com" xmlns="http://example.com"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
-	<tdml:defineSchema name="stb">
-		<dfdl:format ref="ex:daffodilTest1" />
+  <tdml:defineSchema name="stb">
+    <dfdl:format ref="ex:daffodilTest1" />
 
-		<xs:element name="e1" type="ex:ty" />
-		<xs:simpleType name="ty" dfdl:lengthKind="explicit"
-			dfdl:length="{ 1 }">
-			<xs:restriction base="xs:int" />
-		</xs:simpleType>
+    <xs:element name="e1" type="ex:ty" />
+    <xs:simpleType name="ty" dfdl:lengthKind="explicit"
+      dfdl:length="{ 1 }">
+      <xs:restriction base="xs:int" />
+    </xs:simpleType>
 
-		<xs:element name="e2" type="ex:ty2" />
-		<xs:simpleType name="ty2">
-			<xs:restriction base="ex:ty" />
-		</xs:simpleType>
+    <xs:element name="e2" type="ex:ty2" />
+    <xs:simpleType name="ty2">
+      <xs:restriction base="ex:ty" />
+    </xs:simpleType>
 
-		<xs:element name="err1" type="ex:tyErr1" dfdl:byteOrder="bigEndian" />
-		<xs:simpleType name="tyErr1" dfdl:byteOrder="littleEndian">
-			<xs:restriction base="xs:int" />
-		</xs:simpleType>
+    <xs:element name="err1" type="ex:tyErr1" dfdl:byteOrder="bigEndian" />
+    <xs:simpleType name="tyErr1" dfdl:byteOrder="littleEndian">
+      <xs:restriction base="xs:int" />
+    </xs:simpleType>
 
-		<xs:element name="err2" type="ex:tyErr2" dfdl:byteOrder="bigEndian" />
-		<xs:simpleType name="tyErr2">
-			<xs:restriction base="ex:tyErr1" />
-		</xs:simpleType>
+    <xs:element name="err2" type="ex:tyErr2" dfdl:byteOrder="bigEndian" />
+    <xs:simpleType name="tyErr2">
+      <xs:restriction base="ex:tyErr1" />
+    </xs:simpleType>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="st-prim" root="e1"
-		model="stb" description="Simple type defined in terms of primitive int.">
+  <tdml:parserTestCase name="st-prim" root="e1"
+    model="stb" description="Simple type defined in terms of primitive int.">
 
-		<tdml:document>1</tdml:document>
+    <tdml:document>1</tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e1>1</e1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>1</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
 
-	<tdml:parserTestCase name="st-derived" root="e2"
-		model="stb" description="Simple type defined in terms of primitive int.">
+  <tdml:parserTestCase name="st-derived" root="e2"
+    model="stb" description="Simple type defined in terms of primitive int.">
 
-		<tdml:document>1</tdml:document>
+    <tdml:document>1</tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e2>1</e2>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>1</e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="st-prim-err1" root="err1"
-		model="stb" description="Simple type conflict with element on properties">
+  <tdml:parserTestCase name="st-prim-err1" root="err1"
+    model="stb" description="Simple type conflict with element on properties">
 
-		<tdml:document>1</tdml:document>
+    <tdml:document>1</tdml:document>
 
-		<tdml:errors>
-			<tdml:error>overlap</tdml:error>
-		</tdml:errors>
+    <tdml:errors>
+      <tdml:error>overlap</tdml:error>
+    </tdml:errors>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="st-st-err1" root="err1"
-		model="stb" description="Simple type conflict with element on properties - indirect">
+  <tdml:parserTestCase name="st-st-err1" root="err1"
+    model="stb" description="Simple type conflict with element on properties - indirect">
 
-		<tdml:document>1</tdml:document>
+    <tdml:document>1</tdml:document>
 
-		<tdml:errors>
-			<tdml:error>overlap</tdml:error>
-		</tdml:errors>
+    <tdml:errors>
+      <tdml:error>overlap</tdml:error>
+    </tdml:errors>
 
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

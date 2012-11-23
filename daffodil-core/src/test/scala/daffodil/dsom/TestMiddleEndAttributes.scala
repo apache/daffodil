@@ -184,7 +184,7 @@ class TestMiddleEndAttributes extends JUnitSuite {
     val e2ct = e2.immediateType.get.asInstanceOf[daffodil.dsom.LocalComplexTypeDef]
     val seq = e2ct.modelGroup.asInstanceOf[Sequence]
     val mems = seq.groupMembers
-    val Seq(t1 : Term) = mems
+    val Seq(t1: Term) = mems
     val e1ref = t1.asInstanceOf[daffodil.dsom.ElementRef]
     val nes = e1ref.nearestEnclosingSequence
     nes match {
@@ -230,12 +230,12 @@ class TestMiddleEndAttributes extends JUnitSuite {
     val e1 = e1f.forRoot()
     val e1ct = e1.immediateType.get.asInstanceOf[daffodil.dsom.LocalComplexTypeDef]
     val e1seq = e1ct.modelGroup.asInstanceOf[Sequence]
-    val Seq(t1 : Term) = e1seq.groupMembers
+    val Seq(t1: Term) = e1seq.groupMembers
 
     val eMsg = t1.asInstanceOf[daffodil.dsom.LocalElementDecl]
     val eMsgct = eMsg.typeDef.asInstanceOf[daffodil.dsom.GlobalComplexTypeDef]
     val eMsgChoice = eMsgct.modelGroup.asInstanceOf[Choice]
-    val Seq(t2 : Term) = eMsgChoice.groupMembers
+    val Seq(t2: Term) = eMsgChoice.groupMembers
     val e2ref = t2.asInstanceOf[daffodil.dsom.ElementRef]
     val e3 = e2ref.referencedElement
     val e3ct = e3.immediateType.get.asInstanceOf[daffodil.dsom.LocalComplexTypeDef]
@@ -278,7 +278,7 @@ class TestMiddleEndAttributes extends JUnitSuite {
     val e1ct = e1.immediateType.get.asInstanceOf[daffodil.dsom.LocalComplexTypeDef]
     val seq1 = e1ct.modelGroup.asInstanceOf[Sequence]
     val mems = seq1.groupMembers
-    val Seq(t1 : Term) = mems
+    val Seq(t1: Term) = mems
     val seq2 = t1.asInstanceOf[Sequence]
     println(seq1.hasPrefixSep)
     println(seq2.hasPrefixSep)

@@ -10,7 +10,6 @@ import daffodil.util._
 import EscapeSchemeKind.EscapeSchemeKind
 import daffodil.exceptions.ThrowsSDE
 
-
 object DelimiterType extends Enumeration {
   type DelimType = Value
   val Separator, Terminator, Delimiter = Value
@@ -48,7 +47,7 @@ object EscapeScheme extends Logging {
     var escapeBlockEnd = ""
   }
 
-  def getEscapeScheme(pEs: Option[DFDLEscapeScheme], context : ThrowsSDE): EscapeSchemeObj = {
+  def getEscapeScheme(pEs: Option[DFDLEscapeScheme], context: ThrowsSDE): EscapeSchemeObj = {
     var escapeSchemeKind = EscapeSchemeKind.None
     var escapeCharacter = ""
     var escapeEscapeCharacter = ""

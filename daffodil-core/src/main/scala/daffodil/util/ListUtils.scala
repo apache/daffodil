@@ -1,7 +1,5 @@
 package daffodil.util
 
-
-
 object ListUtils {
   type SubListFinder[T] = (Seq[T], Any) => Seq[T]
 
@@ -20,7 +18,7 @@ object ListUtils {
     res
   }
 
-  private def preceding1[T](lst : Seq[T], valueToFind : Any, onto : List[T]) : Seq[T] = {
+  private def preceding1[T](lst: Seq[T], valueToFind: Any, onto: List[T]): Seq[T] = {
     lst match {
       case Nil => Nil
       case hd :: tl if hd == valueToFind => onto.reverse

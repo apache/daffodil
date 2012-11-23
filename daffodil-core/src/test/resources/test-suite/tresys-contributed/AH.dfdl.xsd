@@ -1,53 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-    targetNamespace="http://example.com"
-    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:tns="http://example.com"
-	>
+  targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none" lengthKind="delimited"
-       textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression"
-       initiatedContent="no"/>
+      <dfdl:format separator="" initiator="" terminator=""
+        emptyValueDelimiterPolicy="none" lengthKind="delimited"
+        textNumberRep="standard" representation="text" occursStopValue="-1"
+        occursCountKind="expression" initiatedContent="no" />
     </appinfo>
   </annotation>
 
-  <!-- Discriminated choices with after timing-->
+  <!-- Discriminated choices with after timing -->
 
   <group name="choiceGroup">
     <choice>
       <element name="lessThan3" type="xsd:int"
-	       dfdl:representation="text" dfdl:terminator="%NL;">
-	<annotation>
-	  <appinfo source="http://www.ogf.org/dfdl/">
-	    <dfdl:discriminator test="{ . &lt; 3 }"/>
-	  </appinfo>
-	</annotation>
+        dfdl:representation="text" dfdl:terminator="%NL;">
+        <annotation>
+          <appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:discriminator test="{ . &lt; 3 }" />
+          </appinfo>
+        </annotation>
       </element>
       <element name="lessThan10" type="xsd:int"
-	       dfdl:representation="text" dfdl:terminator="%NL;">
-	<annotation>
-	  <appinfo source="http://www.ogf.org/dfdl/">
-	    <dfdl:discriminator test="{ . &lt; 10 }" />
-	  </appinfo>
-	</annotation>
+        dfdl:representation="text" dfdl:terminator="%NL;">
+        <annotation>
+          <appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:discriminator test="{ . &lt; 10 }" />
+          </appinfo>
+        </annotation>
       </element>
       <element name="greaterThan10" type="xsd:int"
-	       dfdl:representation="text" dfdl:terminator="%NL;">
-	<annotation>
-	  <appinfo source="http://www.ogf.org/dfdl/">
-	    <dfdl:discriminator test="{ . &gt; 10 }" />
-	  </appinfo>
-	</annotation>
+        dfdl:representation="text" dfdl:terminator="%NL;">
+        <annotation>
+          <appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:discriminator test="{ . &gt; 10 }" />
+          </appinfo>
+        </annotation>
       </element>
     </choice>
   </group>
 
   <element name="allZones">
-    <complexType>      
-      <group ref="tns:choiceGroup"/>
+    <complexType>
+      <group ref="tns:choiceGroup" />
     </complexType>
   </element>
 

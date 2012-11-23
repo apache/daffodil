@@ -20,7 +20,7 @@ class Delimiter {
 
   var delimBuf: Array[DelimBase] = Array.empty[DelimBase] /* Buffer where each cell (DelimBase) represents a character
 		  												     in the delimiter string */
-  
+
   var delimRegExParseDelim: String = "" // Regex to actually parse the entire delimiter
   var delimRegExParseUntil: String = "" // Regex to specify everything until this delimiter
 
@@ -185,7 +185,7 @@ class Delimiter {
   // if the delimiter/data was in the expected format.
   //
   def buildDelimRegEx(delimiterBuf: Array[DelimBase] = delimBuf): String = {
-    var sb: StringBuilder = new StringBuilder//("(")
+    var sb: StringBuilder = new StringBuilder //("(")
     delimiterBuf foreach {
       delim =>
         {
@@ -230,15 +230,15 @@ class Delimiter {
     //sb.append(")")
     sb.toString()
   }
-  
+
   def delimRegexParseUntil(delimiterBuf: Array[DelimBase] = delimBuf): String = {
-    var sb: StringBuilder = new StringBuilder//("(")
+    var sb: StringBuilder = new StringBuilder //("(")
     delimiterBuf foreach {
       delim =>
         {
           delim match {
             case nl: NLDelim => { sb.append("(\\r\\n|\\n|\\r|\\u0085|\\u2028)") }
-            case wsp: WSPDelim  => {
+            case wsp: WSPDelim => {
               sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
                 "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
                 "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)")
@@ -277,9 +277,9 @@ class Delimiter {
     //sb.append(")")
     sb.toString()
   }
-  
+
   def delimRegexParseDelim(delimiterBuf: Array[DelimBase] = delimBuf): String = {
-    var sb: StringBuilder = new StringBuilder//("(")
+    var sb: StringBuilder = new StringBuilder //("(")
     delimiterBuf foreach {
       delim =>
         {

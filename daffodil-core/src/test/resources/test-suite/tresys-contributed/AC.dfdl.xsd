@@ -1,50 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-    targetNamespace="http://example.com"
-    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:tns="http://example.com"
-	>
+  targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
 
-	<annotation>
-		<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-				<dfdl:format lengthKind="delimited" separator="" initiator="" terminator="" initiatedContent="no"/>
-		</appinfo>
-	</annotation>
-	
-  <!-- Parsing values as a hidden layer, then 
-       creating elements by evaluating XPath expressions on the layer -->
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format lengthKind="delimited" separator=""
+        initiator="" terminator="" initiatedContent="no" />
+    </appinfo>
+  </annotation>
+
+  <!-- Parsing values as a hidden layer, then
+    creating elements by evaluating XPath expressions on the layer -->
 
   <group name="data">
     <sequence dfdl:separator="">
-      <element name="x" type="int" dfdl:representation="text" 
-	       dfdl:terminator="%NL;"/>
-      <element name="y" type="int" dfdl:representation="text" 
-	       dfdl:terminator="%NL;"/>
-      <element name="z" type="int" dfdl:representation="text" 
-	       dfdl:terminator="%NL;"/>      
+      <element name="x" type="int" dfdl:representation="text"
+        dfdl:terminator="%NL;" />
+      <element name="y" type="int" dfdl:representation="text"
+        dfdl:terminator="%NL;" />
+      <element name="z" type="int" dfdl:representation="text"
+        dfdl:terminator="%NL;" />
     </sequence>
   </group>
 
   <element name="table">
-    <complexType>        
+    <complexType>
       <sequence>
-	    <sequence dfdl:hiddenGroupRef="tns:data"/>
-	<element name="product" type="int" 
-		 dfdl:inputValueCalc="{ /tns:table/tns:x * /tns:table/tns:y * /tns:table/tns:z }"/>
-	<element name="sum" type="int" 
-		 dfdl:inputValueCalc="{ /tns:table/tns:x + /tns:table/tns:y + /tns:table/tns:z }"/>
-	<element name="concat" type="string"
-		 dfdl:inputValueCalc="{ concat(concat(/tns:table/tns:x,/tns:table/tns:y),/tns:table/tns:z) }"/>
-	<element name="x" type="string"
-		 dfdl:inputValueCalc="{ ../tns:x }"/>
-	<element name="y" type="string"
-		 dfdl:inputValueCalc="{ ../tns:y }"/>
-	<element name="z" type="string"
-		 dfdl:inputValueCalc="{ ../tns:z }"/>
-	<element name="productAgain" type="string"
-		 dfdl:inputValueCalc="{ ../tns:product }"/>
+        <sequence dfdl:hiddenGroupRef="tns:data" />
+        <element name="product" type="int"
+          dfdl:inputValueCalc="{ /tns:table/tns:x * /tns:table/tns:y * /tns:table/tns:z }" />
+        <element name="sum" type="int"
+          dfdl:inputValueCalc="{ /tns:table/tns:x + /tns:table/tns:y + /tns:table/tns:z }" />
+        <element name="concat" type="string"
+          dfdl:inputValueCalc="{ concat(concat(/tns:table/tns:x,/tns:table/tns:y),/tns:table/tns:z) }" />
+        <element name="x" type="string" dfdl:inputValueCalc="{ ../tns:x }" />
+        <element name="y" type="string" dfdl:inputValueCalc="{ ../tns:y }" />
+        <element name="z" type="string" dfdl:inputValueCalc="{ ../tns:z }" />
+        <element name="productAgain" type="string"
+          dfdl:inputValueCalc="{ ../tns:product }" />
       </sequence>
     </complexType>
   </element>

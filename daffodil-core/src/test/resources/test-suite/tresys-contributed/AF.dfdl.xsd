@@ -1,62 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-	targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:tns="http://example.com">
+  targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none" lengthKind="delimited"
-       textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression"
-       initiatedContent="no"/>
+      <dfdl:format separator="" initiator="" terminator=""
+        emptyValueDelimiterPolicy="none" lengthKind="delimited"
+        textNumberRep="standard" representation="text" occursStopValue="-1"
+        occursCountKind="expression" initiatedContent="no" />
     </appinfo>
   </annotation>
-	<!-- Initiated choices -->
+  <!-- Initiated choices -->
 
-	<group name="choiceGroup">
-		<choice>
-			<element name="zone1" dfdl:initiator="[BEGIN%WSP;ZONE1]%NL;"
-				dfdl:terminator="[END%WSP;ZONE1]%NL;" dfdl:representation="text">
-				<complexType>
-					<sequence>
-						<element name="x" type="xsd:string" dfdl:initiator="x="
-							dfdl:representation="text" dfdl:terminator="%NL;"
-							dfdl:textStringJustification="right" dfdl:textStringPadCharacter=" " />
-					</sequence>
-				</complexType>
-			</element>
-			<element name="zone2" dfdl:initiator="[BEGIN%WSP;ZONE2]%NL;"
-				dfdl:terminator="[END%WSP;ZONE2]%NL;" dfdl:representation="text">
-				<complexType>
-					<sequence>
-						<element name="y" type="xsd:string" dfdl:initiator="y="
-							dfdl:terminator="%NL;" dfdl:representation="text"
-							dfdl:textStringJustification="right" dfdl:textStringPadCharacter=" " />
-					</sequence>
-				</complexType>
-			</element>
-			<element name="zone3" dfdl:initiator="[BEGIN%WSP;ZONE3]%NL;"
-				dfdl:terminator="[END%WSP;ZONE3]%NL;" dfdl:representation="text">
-				<complexType>
-					<sequence>
-						<element name="z" type="xsd:string" dfdl:initiator="z="
-							dfdl:terminator="%NL;" dfdl:representation="text"
-							dfdl:textStringJustification="right" dfdl:textStringPadCharacter=" " />
-					</sequence>
-				</complexType>
-			</element>
-		</choice>
-	</group>
+  <group name="choiceGroup">
+    <choice>
+      <element name="zone1" dfdl:initiator="[BEGIN%WSP;ZONE1]%NL;"
+        dfdl:terminator="[END%WSP;ZONE1]%NL;" dfdl:representation="text">
+        <complexType>
+          <sequence>
+            <element name="x" type="xsd:string" dfdl:initiator="x="
+              dfdl:representation="text" dfdl:terminator="%NL;"
+              dfdl:textStringJustification="right"
+              dfdl:textStringPadCharacter=" " />
+          </sequence>
+        </complexType>
+      </element>
+      <element name="zone2" dfdl:initiator="[BEGIN%WSP;ZONE2]%NL;"
+        dfdl:terminator="[END%WSP;ZONE2]%NL;" dfdl:representation="text">
+        <complexType>
+          <sequence>
+            <element name="y" type="xsd:string" dfdl:initiator="y="
+              dfdl:terminator="%NL;" dfdl:representation="text"
+              dfdl:textStringJustification="right"
+              dfdl:textStringPadCharacter=" " />
+          </sequence>
+        </complexType>
+      </element>
+      <element name="zone3" dfdl:initiator="[BEGIN%WSP;ZONE3]%NL;"
+        dfdl:terminator="[END%WSP;ZONE3]%NL;" dfdl:representation="text">
+        <complexType>
+          <sequence>
+            <element name="z" type="xsd:string" dfdl:initiator="z="
+              dfdl:terminator="%NL;" dfdl:representation="text"
+              dfdl:textStringJustification="right"
+              dfdl:textStringPadCharacter=" " />
+          </sequence>
+        </complexType>
+      </element>
+    </choice>
+  </group>
 
-	<element name="allZones">
-		<complexType>
-			<sequence>
-				<element name="a" maxOccurs="unbounded">
-					<complexType>
-						<group ref="tns:choiceGroup" /> <!-- removed maxOccurs="unbounded" -->
-					</complexType>
-				</element>
-			</sequence>
-		</complexType>
-	</element>
+  <element name="allZones">
+    <complexType>
+      <sequence>
+        <element name="a" maxOccurs="unbounded">
+          <complexType>
+            <group ref="tns:choiceGroup" /> <!-- removed maxOccurs="unbounded" -->
+          </complexType>
+        </element>
+      </sequence>
+    </complexType>
+  </element>
 
 </schema>

@@ -65,9 +65,9 @@ class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos: Int = 0)
     DFDLByteReader.getNewReader(psb, bytePos, csName)
   }
 
-//  def updateCharReader(reader: DFDLCharReader) = {
-//    DFDLByteReader.setCharReader(reader, psb)
-//  }
+  //  def updateCharReader(reader: DFDLCharReader) = {
+  //    DFDLByteReader.setCharReader(reader, psb)
+  //  }
 
 }
 
@@ -220,7 +220,7 @@ object DFDLByteReader {
    * Reader[Byte] for a specific encoding starting at a particular byte position.
    *
    * Memoizes so that we don't re-decode as we backtrack around.
-   * 
+   *
    * TRW - 11/21/2012 - This is no longer used.  Reader is kept around now in state.
    * Code here is left in-case we wish to revert back to using this call.
    */

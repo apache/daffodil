@@ -8,15 +8,14 @@ import daffodil.api.Diagnostic
 import daffodil.dsom._
 import daffodil.compiler.ProcessorFactory
 
-
 /**
  * Implementation mixin - provides simple helper methods
  */
 trait WithDiagnosticsImpl extends WithDiagnostics {
 
-//  final lazy val hasDiagnostics = {
-//    getDiagnostics.size > 0
-//  }
+  //  final lazy val hasDiagnostics = {
+  //    getDiagnostics.size > 0
+  //  }
 }
 
 /**
@@ -60,11 +59,11 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
     val initialState = PState.createInitialState(rootElem, input, bitOffset = 0) // TODO also want to pass here the externally set variables, other flags/settings.
     parse(initialState)
   }
-  
-  def parse(initialState : PState) = {
+
+  def parse(initialState: PState) = {
     val pr = new ParseResult(this) {
 
-    val resultState = { // Not lazy. We want to parse right now.
+      val resultState = { // Not lazy. We want to parse right now.
         try {
           parser.parse1(initialState, rootElem)
         } catch {
@@ -108,7 +107,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
     val initialState = UState.createInitialState(rootElem, output, jdomDoc) // also want to pass here the externally set variables, other flags/settings.
 
     val uRes = new UnparseResult(this) {
-       val resultState = { // Not lazy. We want to unparse right now.
+      val resultState = { // Not lazy. We want to unparse right now.
 
         try {
           unparser.unparse(initialState)
@@ -147,13 +146,13 @@ abstract class ParseResult(dp: DataProcessor)
   extends DFDL.ParseResult
   with WithDiagnosticsImpl {
 
-  def resultState : PState
-  
-  lazy val result = 
+  def resultState: PState
+
+  lazy val result =
     if (resultState.status == Success) {
       val docElt = resultState.parent
       docElt match {
-        case doc : org.jdom.Document => {
+        case doc: org.jdom.Document => {
           val jdomElt = doc.getRootElement()
           XMLUtils.element2Elem(jdomElt)
         }

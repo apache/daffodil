@@ -4,7 +4,7 @@ import daffodil.schema.annotation.props.gen.TextStringJustification
 object DFDLRegularExpressions {
 
   def getEscapeRegEx(escape: String, escapeEscape: String, delim: String,
-    dotMatchesAll: Boolean = true) = {
+                     dotMatchesAll: Boolean = true) = {
     val str =
       (if (dotMatchesAll) """(?s)""" else """""") +
         """(.*?)""" + // content [before]. lazy so it won't absorb pad characters
@@ -15,8 +15,8 @@ object DFDLRegularExpressions {
   }
 
   def getEscapeRegExWithPadding(escape: String, escapeEscape: String, delim: String,
-    padChar: String, justification: TextStringJustification,
-    dotMatchesAll: Boolean = true) = {
+                                padChar: String, justification: TextStringJustification,
+                                dotMatchesAll: Boolean = true) = {
     val str =
       (if (dotMatchesAll) """(?s)""" else """""") +
         (if (justification == TextStringJustification.Right
@@ -33,9 +33,9 @@ object DFDLRegularExpressions {
     val contentPattern = str.format(escapeEscape, escape, delim, padChar).r
     contentPattern
   }
-  
+
   def getSameEscapeRegEx(escape: String, delim: String,
-    dotMatchesAll: Boolean = true) = {
+                         dotMatchesAll: Boolean = true) = {
     val str =
       (if (dotMatchesAll) """(?s)""" else """""") +
         """(.*?)""" + // content [before]. lazy so it won't absorb pad characters
@@ -48,8 +48,8 @@ object DFDLRegularExpressions {
   }
 
   def getSameEscapeRegExWithPadding(escape: String, delim: String,
-    padChar: String, justification: TextStringJustification,
-    dotMatchesAll: Boolean = true) = {
+                                    padChar: String, justification: TextStringJustification,
+                                    dotMatchesAll: Boolean = true) = {
     val str =
       (if (dotMatchesAll) """(?s)""" else """""") +
         (if (justification == TextStringJustification.Right
@@ -72,7 +72,7 @@ object DFDLRegularExpressions {
   }
 
   def getEscapeBlockRegEx(bStart: String, bEnd: String, escapeEscape: String,
-    escape: String, delim: String, dotMatchesAll: Boolean = true) = {
+                          escape: String, delim: String, dotMatchesAll: Boolean = true) = {
     // Based upon assumption that String.format ignores extra arguments for which there
     // are no specifiers
     //
@@ -99,8 +99,8 @@ object DFDLRegularExpressions {
   }
 
   def getEscapeBlockRegExWithPadding(bStart: String, bEnd: String, escapeEscape: String,
-    escape: String, padChar: String, delim: String, justification: TextStringJustification,
-    dotMatchesAll: Boolean = true) = {
+                                     escape: String, padChar: String, delim: String, justification: TextStringJustification,
+                                     dotMatchesAll: Boolean = true) = {
     // Based upon assumption that String.format ignores extra arguments for which there
     // are no specifiers
     //

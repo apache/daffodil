@@ -119,7 +119,7 @@ class TestGrammar extends JUnitSuite {
     assertTrue(exp.toString.contains("last"))
     assertTrue(exp.toString.contains(" | "))
     assertTrue(exp.toString.contains(" ~ "))
- //   assertTrue(exp.toString.contains(" | (")) // ~ binds tighter
+    //   assertTrue(exp.toString.contains(" | (")) // ~ binds tighter
 
   }
 
@@ -141,7 +141,7 @@ class TestGrammar extends JUnitSuite {
     assertTrue(exp.toString.contains("last"))
     assertTrue(exp.toString.contains(" | "))
     assertTrue(exp.toString.contains(" ~ "))
- //   assertTrue(exp.toString.contains(") | ")) // ~ binds tighter
+    //   assertTrue(exp.toString.contains(") | ")) // ~ binds tighter
 
   }
 

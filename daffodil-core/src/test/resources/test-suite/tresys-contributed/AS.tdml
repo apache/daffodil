@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testSuite suiteName="AS"
-	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
-	
-	<parserTestCase name="AS000" root="table" model="AS.dfdl.xsd"
-		description="hiddenGroupRef">
-<document>Creator: NCSA
+<testSuite suiteName="AS" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+  <parserTestCase name="AS000" root="table" model="AS.dfdl.xsd"
+    description="hiddenGroupRef">
+    <document><![CDATA[Creator: NCSA
 Date: Mon Feb 23 15:20:47 CST 2009
 0,1,2,3,4,5,6,7,8,9
 1,2,3,4,5,6,7,8,9,10
@@ -17,134 +17,134 @@ Date: Mon Feb 23 15:20:47 CST 2009
 7,8,9,10,11,12,13,14,15,16
 8,9,10,11,12,13,14,15,16,17
 9,10,11,12,13,14,15,16,17,18
-</document>
-		<infoset>
-			<dfdlInfoset>
-				<table xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-				  <matrix>
-				    <row>
-				      <cell type="xsd:int">0</cell>
-				      <cell type="xsd:int">1</cell>
-				      <cell type="xsd:int">2</cell>
-				      <cell type="xsd:int">3</cell>
-				      <cell type="xsd:int">4</cell>
-				      <cell type="xsd:int">5</cell>
-				      <cell type="xsd:int">6</cell>
-				      <cell type="xsd:int">7</cell>
-				      <cell type="xsd:int">8</cell>
-				      <cell type="xsd:int">9</cell>
-				    </row>
-				    <row>
-				      <cell type="xsd:int">1</cell>
-				      <cell type="xsd:int">2</cell>
-				      <cell type="xsd:int">3</cell>
-				      <cell type="xsd:int">4</cell>
-				      <cell type="xsd:int">5</cell>
-				      <cell type="xsd:int">6</cell>
-				      <cell type="xsd:int">7</cell>
-				      <cell type="xsd:int">8</cell>
-				      <cell type="xsd:int">9</cell>
-				      <cell type="xsd:int">10</cell>
-				    </row>
-				    <row>
-				      <cell type="xsd:int">2</cell>
-				      <cell type="xsd:int">3</cell>
-				      <cell type="xsd:int">4</cell>
-				      <cell type="xsd:int">5</cell>
-				      <cell type="xsd:int">6</cell>
-				      <cell type="xsd:int">7</cell>
-				      <cell type="xsd:int">8</cell>
-				      <cell type="xsd:int">9</cell>
-				      <cell type="xsd:int">10</cell>
-				      <cell type="xsd:int">11</cell>
-				    </row>
-				    <row>
-				      <cell type="xsd:int">3</cell>
-				      <cell type="xsd:int">4</cell>
-				      <cell type="xsd:int">5</cell>
-				      <cell type="xsd:int">6</cell>
-				      <cell type="xsd:int">7</cell>
-				      <cell type="xsd:int">8</cell>
-				      <cell type="xsd:int">9</cell>
-				      <cell type="xsd:int">10</cell>
-				      <cell type="xsd:int">11</cell>
-				      <cell type="xsd:int">12</cell>
-				    </row>
-				    <row>
-				      <cell type="xsd:int">4</cell>
-				      <cell type="xsd:int">5</cell>
-				      <cell type="xsd:int">6</cell>
-				      <cell type="xsd:int">7</cell>
-				      <cell type="xsd:int">8</cell>
-				      <cell type="xsd:int">9</cell>
-				      <cell type="xsd:int">10</cell>
-				      <cell type="xsd:int">11</cell>
-				      <cell type="xsd:int">12</cell>
-				      <cell type="xsd:int">13</cell>
-				    </row>
-				    <row>
-				      <cell type="xsd:int">5</cell>
-				      <cell type="xsd:int">6</cell>
-				      <cell type="xsd:int">7</cell>
-				      <cell type="xsd:int">8</cell>
-				      <cell type="xsd:int">9</cell>
-				      <cell type="xsd:int">10</cell>
-				      <cell type="xsd:int">11</cell>
-				      <cell type="xsd:int">12</cell>
-				      <cell type="xsd:int">13</cell>
-				      <cell type="xsd:int">14</cell>
-				    </row>
-				    <row>
-				      <cell type="xsd:int">6</cell>
-				      <cell type="xsd:int">7</cell>
-				      <cell type="xsd:int">8</cell>
-				      <cell type="xsd:int">9</cell>
-				      <cell type="xsd:int">10</cell>
-				      <cell type="xsd:int">11</cell>
-				      <cell type="xsd:int">12</cell>
-				      <cell type="xsd:int">13</cell>
-				      <cell type="xsd:int">14</cell>
-				      <cell type="xsd:int">15</cell>
-				    </row>
-				    <row>
-				      <cell type="xsd:int">7</cell>
-				      <cell type="xsd:int">8</cell>
-				      <cell type="xsd:int">9</cell>
-				      <cell type="xsd:int">10</cell>
-				      <cell type="xsd:int">11</cell>
-				      <cell type="xsd:int">12</cell>
-				      <cell type="xsd:int">13</cell>
-				      <cell type="xsd:int">14</cell>
-				      <cell type="xsd:int">15</cell>
-				      <cell type="xsd:int">16</cell>
-				    </row>
-				    <row>
-				      <cell type="xsd:int">8</cell>
-				      <cell type="xsd:int">9</cell>
-				      <cell type="xsd:int">10</cell>
-				      <cell type="xsd:int">11</cell>
-				      <cell type="xsd:int">12</cell>
-				      <cell type="xsd:int">13</cell>
-				      <cell type="xsd:int">14</cell>
-				      <cell type="xsd:int">15</cell>
-				      <cell type="xsd:int">16</cell>
-				      <cell type="xsd:int">17</cell>
-				    </row>
-				    <row>
-				      <cell type="xsd:int">9</cell>
-				      <cell type="xsd:int">10</cell>
-				      <cell type="xsd:int">11</cell>
-				      <cell type="xsd:int">12</cell>
-				      <cell type="xsd:int">13</cell>
-				      <cell type="xsd:int">14</cell>
-				      <cell type="xsd:int">15</cell>
-				      <cell type="xsd:int">16</cell>
-				      <cell type="xsd:int">17</cell>
-				      <cell type="xsd:int">18</cell>
-				    </row>
-				  </matrix>
-				</table>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <table xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <matrix>
+            <row>
+              <cell type="xsd:int">0</cell>
+              <cell type="xsd:int">1</cell>
+              <cell type="xsd:int">2</cell>
+              <cell type="xsd:int">3</cell>
+              <cell type="xsd:int">4</cell>
+              <cell type="xsd:int">5</cell>
+              <cell type="xsd:int">6</cell>
+              <cell type="xsd:int">7</cell>
+              <cell type="xsd:int">8</cell>
+              <cell type="xsd:int">9</cell>
+            </row>
+            <row>
+              <cell type="xsd:int">1</cell>
+              <cell type="xsd:int">2</cell>
+              <cell type="xsd:int">3</cell>
+              <cell type="xsd:int">4</cell>
+              <cell type="xsd:int">5</cell>
+              <cell type="xsd:int">6</cell>
+              <cell type="xsd:int">7</cell>
+              <cell type="xsd:int">8</cell>
+              <cell type="xsd:int">9</cell>
+              <cell type="xsd:int">10</cell>
+            </row>
+            <row>
+              <cell type="xsd:int">2</cell>
+              <cell type="xsd:int">3</cell>
+              <cell type="xsd:int">4</cell>
+              <cell type="xsd:int">5</cell>
+              <cell type="xsd:int">6</cell>
+              <cell type="xsd:int">7</cell>
+              <cell type="xsd:int">8</cell>
+              <cell type="xsd:int">9</cell>
+              <cell type="xsd:int">10</cell>
+              <cell type="xsd:int">11</cell>
+            </row>
+            <row>
+              <cell type="xsd:int">3</cell>
+              <cell type="xsd:int">4</cell>
+              <cell type="xsd:int">5</cell>
+              <cell type="xsd:int">6</cell>
+              <cell type="xsd:int">7</cell>
+              <cell type="xsd:int">8</cell>
+              <cell type="xsd:int">9</cell>
+              <cell type="xsd:int">10</cell>
+              <cell type="xsd:int">11</cell>
+              <cell type="xsd:int">12</cell>
+            </row>
+            <row>
+              <cell type="xsd:int">4</cell>
+              <cell type="xsd:int">5</cell>
+              <cell type="xsd:int">6</cell>
+              <cell type="xsd:int">7</cell>
+              <cell type="xsd:int">8</cell>
+              <cell type="xsd:int">9</cell>
+              <cell type="xsd:int">10</cell>
+              <cell type="xsd:int">11</cell>
+              <cell type="xsd:int">12</cell>
+              <cell type="xsd:int">13</cell>
+            </row>
+            <row>
+              <cell type="xsd:int">5</cell>
+              <cell type="xsd:int">6</cell>
+              <cell type="xsd:int">7</cell>
+              <cell type="xsd:int">8</cell>
+              <cell type="xsd:int">9</cell>
+              <cell type="xsd:int">10</cell>
+              <cell type="xsd:int">11</cell>
+              <cell type="xsd:int">12</cell>
+              <cell type="xsd:int">13</cell>
+              <cell type="xsd:int">14</cell>
+            </row>
+            <row>
+              <cell type="xsd:int">6</cell>
+              <cell type="xsd:int">7</cell>
+              <cell type="xsd:int">8</cell>
+              <cell type="xsd:int">9</cell>
+              <cell type="xsd:int">10</cell>
+              <cell type="xsd:int">11</cell>
+              <cell type="xsd:int">12</cell>
+              <cell type="xsd:int">13</cell>
+              <cell type="xsd:int">14</cell>
+              <cell type="xsd:int">15</cell>
+            </row>
+            <row>
+              <cell type="xsd:int">7</cell>
+              <cell type="xsd:int">8</cell>
+              <cell type="xsd:int">9</cell>
+              <cell type="xsd:int">10</cell>
+              <cell type="xsd:int">11</cell>
+              <cell type="xsd:int">12</cell>
+              <cell type="xsd:int">13</cell>
+              <cell type="xsd:int">14</cell>
+              <cell type="xsd:int">15</cell>
+              <cell type="xsd:int">16</cell>
+            </row>
+            <row>
+              <cell type="xsd:int">8</cell>
+              <cell type="xsd:int">9</cell>
+              <cell type="xsd:int">10</cell>
+              <cell type="xsd:int">11</cell>
+              <cell type="xsd:int">12</cell>
+              <cell type="xsd:int">13</cell>
+              <cell type="xsd:int">14</cell>
+              <cell type="xsd:int">15</cell>
+              <cell type="xsd:int">16</cell>
+              <cell type="xsd:int">17</cell>
+            </row>
+            <row>
+              <cell type="xsd:int">9</cell>
+              <cell type="xsd:int">10</cell>
+              <cell type="xsd:int">11</cell>
+              <cell type="xsd:int">12</cell>
+              <cell type="xsd:int">13</cell>
+              <cell type="xsd:int">14</cell>
+              <cell type="xsd:int">15</cell>
+              <cell type="xsd:int">16</cell>
+              <cell type="xsd:int">17</cell>
+              <cell type="xsd:int">18</cell>
+            </row>
+          </matrix>
+        </table>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 </testSuite>

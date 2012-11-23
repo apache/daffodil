@@ -48,12 +48,12 @@ import org.jdom.Element
 sealed abstract class XPathResult
 
 /** The result is a DOM node */
-case class NodeResult(node:Element) extends XPathResult
+case class NodeResult(node: Element) extends XPathResult
 
 /** The result is a string */
-case class StringResult(string:String) extends XPathResult
+case class StringResult(string: String) extends XPathResult
 
 /** The result is a number */
 case class NumberResult(num: Double) extends XPathResult
 
-case class BooleanResult(v : Boolean) extends XPathResult
+case class BooleanResult(v: Boolean) extends XPathResult

@@ -45,7 +45,7 @@ import org.jdom.Namespace
 
 // import daffodil.exceptions.UnimplementedException
 import daffodil.schema._
-import java.io.{ObjectInputStream, ObjectOutputStream, Serializable}
+import java.io.{ ObjectInputStream, ObjectOutputStream, Serializable }
 import daffodil.exceptions.Assert
 
 //@SerialVersionUID(1)

@@ -184,7 +184,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
     val document = new Document(root)
 
     val ns = XMLUtils.jdomNamespaceBindings(root)
-    val result : XPathResult = XPathUtil evalExpressionFromString ("/f:root/f:child1/text()",
+    val result: XPathResult = XPathUtil evalExpressionFromString ("/f:root/f:child1/text()",
       new VariableMap(),
       root,
       ns,
@@ -210,7 +210,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
 
     val document = new Document(root)
     val vars = new VariableMap()
-    var result : XPathResult = XPathUtil evalExpressionFromString ("/root/text()", vars, root, Nil, XPathConstants.STRING)
+    var result: XPathResult = XPathUtil evalExpressionFromString ("/root/text()", vars, root, Nil, XPathConstants.STRING)
     assertEquals(StringResult("ABC"), result)
     result = XPathUtil evalExpressionFromString ("/root", vars, root, Nil, XPathConstants.STRING)
     assertEquals(StringResult("ABC"), result)
@@ -221,7 +221,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
     val document = new Document(root)
 
     val vars = new VariableMap()
-    var result : XPathResult = XPathUtil evalExpressionFromString ("/root", vars, root, Nil, XPathConstants.STRING)
+    var result: XPathResult = XPathUtil evalExpressionFromString ("/root", vars, root, Nil, XPathConstants.STRING)
     assertEquals(StringResult(""), result)
 
     val e = intercept[XPathExpressionException] {
@@ -242,7 +242,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
 
     val document = new Document(root)
     val vars = new VariableMap()
-    var result : XPathResult = XPathUtil evalExpressionFromString ("/root/text()", vars, root, Nil, XPathConstants.NUMBER)
+    var result: XPathResult = XPathUtil evalExpressionFromString ("/root/text()", vars, root, Nil, XPathConstants.NUMBER)
     assertEquals(NumberResult(19.0), result)
     result = XPathUtil evalExpressionFromString ("/root", vars, root, Nil, XPathConstants.NUMBER)
     assertEquals(NumberResult(19.0), result)
@@ -256,7 +256,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
 
     val document = new Document(root)
     val vars = new VariableMap()
-    var result : XPathResult = XPathUtil evalExpressionFromString ("/root", vars, root, Nil, XPathConstants.NUMBER)
+    var result: XPathResult = XPathUtil evalExpressionFromString ("/root", vars, root, Nil, XPathConstants.NUMBER)
     result match {
       case NumberResult(n) => assertTrue(n.isNaN())
       case _ => fail
@@ -264,7 +264,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
     result = XPathUtil evalExpressionFromString ("/root", vars, root, Nil, XPathConstants.NODE)
     result match {
       case NodeResult(n) => {
-	    assertEquals("root", n.getName())
+        assertEquals("root", n.getName())
       }
       case _ => fail
     }
@@ -283,7 +283,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
     //    val document = new Document(root)
 
     val vars = new VariableMap()
-    var result : XPathResult = XPathUtil evalExpressionFromString (" 19 ", vars, null, Nil, XPathConstants.NUMBER)
+    var result: XPathResult = XPathUtil evalExpressionFromString (" 19 ", vars, null, Nil, XPathConstants.NUMBER)
     assertEquals(NumberResult(19.0), result)
     result = XPathUtil evalExpressionFromString (" 19 * 47 ", vars, null, Nil, XPathConstants.NUMBER)
     assertEquals(NumberResult(19.0 * 47.0), result)

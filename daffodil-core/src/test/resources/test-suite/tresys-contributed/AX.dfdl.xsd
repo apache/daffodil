@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-    targetNamespace="http://www.example.org/example1/"
-    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	>
-<annotation>
-	<appinfo source='http://www.ogf.org/dfdl/'>
-	  <dfdl:format separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none"
-       textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression"
-       initiatedContent="no"/>
-		<dfdl:defineEscapeScheme name="pound">
-			<dfdl:escapeScheme escapeCharacter='#'
-				escapeKind="escapeCharacter" />
-		</dfdl:defineEscapeScheme>
-		<dfdl:defineEscapeScheme name='cStyleComment'>
-			<dfdl:escapeScheme escapeBlockStart='/*'
-				escapeBlockEnd='*/' escapeKind="escapeBlock" />
-		</dfdl:defineEscapeScheme>
-	</appinfo>
-</annotation>
+  targetNamespace="http://www.example.org/example1/" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <annotation>
+    <appinfo source='http://www.ogf.org/dfdl/'>
+      <dfdl:format separator="" initiator="" terminator=""
+        emptyValueDelimiterPolicy="none" textNumberRep="standard"
+        representation="text" occursStopValue="-1" occursCountKind="expression"
+        initiatedContent="no" />
+      <dfdl:defineEscapeScheme name="pound">
+        <dfdl:escapeScheme escapeCharacter='#'
+          escapeKind="escapeCharacter" />
+      </dfdl:defineEscapeScheme>
+      <dfdl:defineEscapeScheme name='cStyleComment'>
+        <dfdl:escapeScheme escapeBlockStart='/*'
+          escapeBlockEnd='*/' escapeKind="escapeBlock" />
+      </dfdl:defineEscapeScheme>
+    </appinfo>
+  </annotation>
 
   <!-- Schema Escaping: escape character and escape block, fixed length -->
 
   <element name="list">
-	<complexType>
-		<sequence>
-			<sequence dfdl:separator="," dfdl:terminator="%NL;">
-				<element name="character" type="xsd:string" maxOccurs="unbounded"
-					dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5"
-
-					dfdl:encoding="US-ASCII" dfdl:escapeSchemeRef="pound" />
-			</sequence>
-			<sequence dfdl:separator="," dfdl:terminator="%NL;">
-				<element name="block" type="xsd:string" maxOccurs="unbounded"
-					dfdl:representation="text" dfdl:encoding="US-ASCII"
-					dfdl:lengthKind="explicit" dfdl:length="15" dfdl:escapeSchemeRef="cStyleComment" />
-			</sequence>
-		</sequence>
-	</complexType>
-</element>
+    <complexType>
+      <sequence>
+        <sequence dfdl:separator="," dfdl:terminator="%NL;">
+          <element name="character" type="xsd:string" maxOccurs="unbounded"
+            dfdl:representation="text" dfdl:lengthKind="explicit"
+            dfdl:length="5" dfdl:encoding="US-ASCII"
+            dfdl:escapeSchemeRef="pound" />
+        </sequence>
+        <sequence dfdl:separator="," dfdl:terminator="%NL;">
+          <element name="block" type="xsd:string" maxOccurs="unbounded"
+            dfdl:representation="text" dfdl:encoding="US-ASCII"
+            dfdl:lengthKind="explicit" dfdl:length="15"
+            dfdl:escapeSchemeRef="cStyleComment" />
+        </sequence>
+      </sequence>
+    </complexType>
+  </element>
 
 </schema>

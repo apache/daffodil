@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testSuite suiteName="AP"
-	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
-	
-	<parserTestCase name="AP000" root="parent" model="AP.dfdl.xsd"
-		description="lengthKind is endOfParent">
-	<document>{ element 1, element 2, element 3}</document>
-		<infoset>
-			<dfdlInfoset>
-				<parent xmlns="http://www.example.org/example1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-				  <child>element 1</child>
-				  <child>element 2</child>
-				  <child>element 3</child>
-				</parent>
-			</dfdlInfoset>
-		</infoset>
-	</parserTestCase>
+<testSuite suiteName="AP" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+  <parserTestCase name="AP000" root="parent" model="AP.dfdl.xsd"
+    description="lengthKind is endOfParent">
+    <document><![CDATA[{ element 1, element 2, element 3}]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <parent xmlns="http://www.example.org/example1"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <child>element 1</child>
+          <child>element 2</child>
+          <child>element 3</child>
+        </parent>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 </testSuite>

@@ -1,60 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-    targetNamespace="http://example.com"
-    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:tns="http://example.com"
-	>
+  targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
 
-<annotation>
-	<appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-		<dfdl:format documentFinalTerminatorCanBeMissing="yes" />
-	</appinfo>
-</annotation>
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format documentFinalTerminatorCanBeMissing="yes" />
+    </appinfo>
+  </annotation>
 
   <!-- CSV with metadata header, remove header -->
 
-  <element name="matrix" type="tns:matrixType"/>
+  <element name="matrix" type="tns:matrixType" />
 
-  <element name="table" type="tns:SimpleTable"/>
+  <element name="table" type="tns:SimpleTable" />
 
   <group name="hdrGroup">
-	<sequence>
-		<element name="hdrblock" type="tns:header" />
-	</sequence>
-</group>
-  
+    <sequence>
+      <element name="hdrblock" type="tns:header" />
+    </sequence>
+  </group>
+
   <complexType name="SimpleTable">
     <sequence>
-      <sequence dfdl:hiddenGroupRef="tns:hdrGroup"/>      
-      <element name="matrix" type="tns:matrixType"/>
+      <sequence dfdl:hiddenGroupRef="tns:hdrGroup" />
+      <element name="matrix" type="tns:matrixType" />
     </sequence>
   </complexType>
-  
+
   <complexType name="header">
     <sequence>
-      <element name="Creator" type="xsd:string" 
-	       dfdl:terminator="%NL;" dfdl:initiator="Creator:" 
-	       dfdl:encoding="ASCII" dfdl:representation="text" 
-	       dfdl:lengthKind="delimited"/>
-      <element name="Date" type="xsd:string" 
-	       dfdl:terminator="%NL;" dfdl:initiator="Date:"
-	       dfdl:encoding="ASCII" dfdl:representation="text"/>
+      <element name="Creator" type="xsd:string" dfdl:terminator="%NL;"
+        dfdl:initiator="Creator:" dfdl:encoding="ASCII"
+        dfdl:representation="text" dfdl:lengthKind="delimited" />
+      <element name="Date" type="xsd:string" dfdl:terminator="%NL;"
+        dfdl:initiator="Date:" dfdl:encoding="ASCII"
+        dfdl:representation="text" />
     </sequence>
   </complexType>
-  
-  <complexType name="matrixType">  
+
+  <complexType name="matrixType">
     <sequence>
       <element name="row" maxOccurs="unbounded">
-	<complexType>
-	  <sequence dfdl:separator="," dfdl:terminator="%NL;" dfdl:separatorPolicy="required"  dfdl:separatorPosition="infix">
-	    <element name="cell" type="xsd:int" maxOccurs="unbounded" 
-		      dfdl:encoding="ASCII" 
-		      dfdl:representation="text"
-		     dfdl:lengthKind="delimited"/>
-	  </sequence>
-	</complexType>
+        <complexType>
+          <sequence dfdl:separator="," dfdl:terminator="%NL;"
+            dfdl:separatorPolicy="required" dfdl:separatorPosition="infix">
+            <element name="cell" type="xsd:int" maxOccurs="unbounded"
+              dfdl:encoding="ASCII" dfdl:representation="text"
+              dfdl:lengthKind="delimited" />
+          </sequence>
+        </complexType>
       </element>
     </sequence>
   </complexType>

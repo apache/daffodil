@@ -58,7 +58,7 @@ object Main {
   private val MINOR_VERSION = 2
   private val YEAR = 2012
 
-  def main(arguments : Array[String]) : Unit = {
+  def main(arguments: Array[String]): Unit = {
     val argumentParser = new ArgumentParser
 
     argumentParser add (new ArgumentDescription("schema", "schema", "s", true, OptionalSingle))
@@ -81,7 +81,7 @@ object Main {
     try {
       argumentParser parse (arguments)
     } catch {
-      case e : IllegalArgumentException => System.err.println(e.getMessage); usage
+      case e: IllegalArgumentException => System.err.println(e.getMessage); usage
     }
 
     if (argumentParser isSet ("help"))
@@ -104,8 +104,8 @@ object Main {
     }
 
     val compiler = daffodil.compiler.Compiler()
-    var processorFactory : DFDL.ProcessorFactory = null
-    var processor : DFDL.DataProcessor = null
+    var processorFactory: DFDL.ProcessorFactory = null
+    var processor: DFDL.DataProcessor = null
 
     try {
 
@@ -193,8 +193,8 @@ object Main {
       }
 
     } catch {
-      case u : UnsuppressableException => throw u
-      case e : Exception => DebugUtil.printException(e)
+      case u: UnsuppressableException => throw u
+      case e: Exception => DebugUtil.printException(e)
     }
   }
 

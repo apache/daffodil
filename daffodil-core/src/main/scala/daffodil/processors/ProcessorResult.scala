@@ -1,6 +1,5 @@
 package daffodil.processors
 
-
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.
  * Developed by: NCSA Cyberenvironments and Technologies
@@ -49,7 +48,7 @@ sealed abstract class ProcessorResult;
 case object Success extends ProcessorResult
 case object Last extends ProcessorResult
 case object LastEmpty extends ProcessorResult
-class Failure( msgArg: => String) extends ProcessorResult {
+class Failure(msgArg: => String) extends ProcessorResult {
   lazy val msg = msgArg
   // System.err.println("FAILURE: " + msg)
 }
