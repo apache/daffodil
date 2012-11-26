@@ -45,4 +45,8 @@ class TestDelimiterProperties extends JUnitSuite {
   @Test def test_DelimProp_10_01() = {
     runner_02.runOneTest("DelimProp_10_01")
   }
+
+  @Test def test_E1() = {
+    runner_02.runOneTest("E1")
+  }
 }
