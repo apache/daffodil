@@ -499,5 +499,26 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+ <tdml:defineSchema name="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:element name="E2" dfdl:terminator="$$">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="$"
+          dfdl:separatorPosition="prefix">
+          <xs:element name="A" type="xs:string" />
+          <xs:element name="B" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator" root="E2"
+    model="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator">
+    <tdml:document><![CDATA[$A$$]]></tdml:document>
+    <tdml:errors><tdml:error>missing</tdml:error></tdml:errors>
+  </tdml:parserTestCase>
+
 
 </tdml:testSuite>
