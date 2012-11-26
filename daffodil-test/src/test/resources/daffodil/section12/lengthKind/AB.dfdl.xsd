@@ -42,12 +42,60 @@
     dfdl:lengthKind="implicit" />
 
   <complexType name="matrixType_01">
-    <sequence dfdl:separator="%NL;">
+    <sequence dfdl:separator="%NL;" dfdl:terminator="%NL;">
       <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
         <complexType>
-          <sequence dfdl:separator="," dfdl:terminator="%NL;">
+          <sequence dfdl:separator=",">
             <element name="cell" type="xsd:int" maxOccurs="unbounded"
-              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"/>
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+  
+  <element name="matrix_02" type="tns:matrixType_02"
+    dfdl:lengthKind="implicit" />
+
+  <complexType name="matrixType_02">
+    <sequence dfdl:separator="%NL;" dfdl:terminator="%NL;">
+      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
+        <complexType>
+          <sequence dfdl:separator=",">
+            <element name="cell" type="xsd:int" maxOccurs="unbounded" nillable="true"
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;"/>
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+  
+  <element name="matrix_03" type="tns:matrixType_03"
+    dfdl:lengthKind="implicit" />
+
+  <complexType name="matrixType_03">
+    <sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix" dfdl:terminator="%NL;">
+      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
+        <complexType>
+          <sequence dfdl:separator=",">
+            <element name="cell" type="xsd:int" maxOccurs="unbounded"
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"/>
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+  
+  <element name="matrix_04" type="tns:matrixType_04"
+    dfdl:lengthKind="implicit" />
+
+  <complexType name="matrixType_04">
+    <sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix" dfdl:terminator="%NL;">
+      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
+        <complexType>
+          <sequence dfdl:separator=",">
+            <element name="cell" type="xsd:int" maxOccurs="unbounded" nillable="true"
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;"/>
           </sequence>
         </complexType>
       </element>
