@@ -67,17 +67,28 @@ object Misc {
     }
   }
 
+  /**
+   * Requires an even number of nibbles.
+   */
   def hex2Bytes(hex: String): Array[Byte] = {
     (for { i <- 0 to hex.length - 1 by 2 if i > 0 || !hex.startsWith("0x") }
       yield hex.substring(i, i + 2))
       .map(Integer.parseInt(_, 16).toByte).toArray
   }
 
-  def bytes2Hex(bytes: Array[Byte]): String = {
-    def cvtByte(b: Byte): String = {
-      (if ((b & 0xff) < 0x10) "0" else "") + java.lang.Long.toString(b & 0xff, 16)
-    }
+  def hex2Bits(hex: String): String = {
+    val nums = hex.map { ch => Integer.parseInt(ch.toString, 16) }
+    val bits = nums map { java.lang.Long.toString(_, 2) }
+    val paddedBits = bits map { "%4s".format(_).replaceAll(" ", "0") }
+    val res = paddedBits.mkString
+    res
+  }
 
+  def cvtByte(b: Byte): String = {
+    (if ((b & 0xff) < 0x10) "0" else "") + java.lang.Long.toString(b & 0xff, 16)
+  }
+
+  def bytes2Hex(bytes: Array[Byte]): String = {
     "0x" + bytes.map(cvtByte(_)).mkString.toUpperCase
   }
 
@@ -89,11 +100,13 @@ object Misc {
 
   def bytes2Bits(bytes: Array[Byte]): String = {
     def cvtByte(b: Byte) = {
-      val indexes = Stream.range(0, 7)
+      val indexes = (0 to 7).reverse
       val bits = indexes.map { index => (b >> index) & 0x01 }
       bits
     }
-    bytes.flatMap { cvtByte(_) }.mkString
+    val converted = bytes.flatMap { cvtByte(_) }
+    val res = converted.mkString
+    res
   }
 
 }

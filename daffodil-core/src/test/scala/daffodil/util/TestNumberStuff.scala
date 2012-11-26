@@ -106,6 +106,19 @@ class TestNumberStuff extends JUnitSuite {
     assertTrue(exc.getMessage().contains("consume all"))
   }
 
+  @Test def testHex2Bits() {
+    val actual = Misc.hex2Bits("ab3")
+    assertEquals("101010110011", actual)
+  }
+
+  @Test def testBytesToBits() {
+    val xml = <foo>&#xA2;</foo>
+    val bytes = xml.child(0).text.getBytes("utf-8")
+    val actual = Misc.bytes2Bits(bytes)
+    val expected = Misc.hex2Bits("C2A2")
+    assertEquals(expected, actual)
+  }
+
 }
 
 abstract class NumVerifier[T] {

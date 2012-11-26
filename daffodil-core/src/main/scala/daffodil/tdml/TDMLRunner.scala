@@ -563,15 +563,47 @@ case object Bits extends DocumentContentType
 // TODO: add capability to specify character set encoding into which text is to be converted (all UTF-8 currently)
 
 case class Document(d: NodeSeq, parent: TestCase) {
-  val realDocumentParts = (d \ "documentPart").map { node => new DocumentPart(node, this) }
-  val documentParts = realDocumentParts match {
-    case Seq() => {
-      val docPart = new DocumentPart(<documentPart type="text">{ d.text }</documentPart>, this)
-      List(docPart)
-    }
-    case _ => realDocumentParts
+
+  val Seq(<document>{ children @ _* }</document>) = d
+
+  val actualDocumentPartElementChildren = children.toList.flatMap {
+    child =>
+      child match {
+        case <documentPart>{ _* }</documentPart> => List(new DocumentPart(child, this))
+        case _ => Nil
+      }
   }
-  val documentBytes = documentParts.map { _.convertedContent }.flatten
+
+  // check that document element either contains text content directly with no other documentPart children, 
+  // or it contains ONLY documentPart children (and whitespace around them).
+  //
+  if (actualDocumentPartElementChildren.length > 0) {
+    children.foreach { child =>
+      child match {
+        case <documentPart>{ _* }</documentPart> => // ok
+        case scala.xml.Text(s) if (s.matches("""\s+""")) => // whitespace text nodes ok
+        case x => Assert.usageError("Illegal TDML data document content '" + x + "'")
+      }
+    }
+  }
+
+  val documentParts =
+    if (actualDocumentPartElementChildren.length > 0) actualDocumentPartElementChildren
+    else List(new DocumentPart(<documentPart type="text">{ children }</documentPart>, this))
+
+  /**
+   * Due to alignment, and bits-granularity issues, everything is lowered into
+   * bits first, and then concatenated, and then converted back into bytes
+   */
+  val documentBits = documentParts.map { _.contentAsBits }.mkString
+
+  val nBits = documentBits.length
+  val nFragBits = nBits % 8
+  val nAddOnBits = if (nFragBits == 0) 0 else 8 - nFragBits
+  val addOnBits = (1 to nAddOnBits) collect { case _ => "0" } mkString
+  val documentBitsFullBytes = documentBits + addOnBits
+
+  val documentBytes = bits2Bytes(documentBitsFullBytes)
 
   /**
    * this 'data' is the kind our parser's parse method expects.
@@ -586,6 +618,9 @@ case class Document(d: NodeSeq, parent: TestCase) {
 }
 
 case class DocumentPart(part: Node, parent: Document) {
+  val validHexDigits = "0123456789abcdefABCDEF"
+  val validBinaryDigits = "01"
+
   lazy val partContentType = (part \ "@type").toString match {
     case "text" => Text
     case "byte" => Byte
@@ -594,10 +629,14 @@ case class DocumentPart(part: Node, parent: Document) {
   }
   lazy val encoder = CharsetICU.forNameICU("UTF-8").newEncoder()
   lazy val partRawContent = part.child.text
-  lazy val convertedContent: Seq[Byte] = partContentType match {
-    case Text => textContentToBytes
-    case Byte => hexContentToBytes
-    case Bits => bitContentToBytes
+
+  lazy val contentAsBits = {
+    val res = partContentType match {
+      case Text => textContentAsBits
+      case Byte => hexContentAsBits
+      case Bits => bitDigits
+    }
+    res
   }
 
   lazy val textContentToBytes = {
@@ -614,6 +653,8 @@ case class DocumentPart(part: Node, parent: Document) {
     val bytes = replacedRawContent.getBytes("UTF-8") //must specify charset name (JIRA DFDL-257)
     bytes
   }
+
+  lazy val textContentAsBits = bytes2Bits(textContentToBytes)
 
   /**
    * Convert a character entity to its unicode equivalent. Returns the empty
@@ -682,22 +723,25 @@ case class DocumentPart(part: Node, parent: Document) {
     converted
   }
 
-  lazy val hexContentToBytes = hex2Bytes(hexDigits)
+  lazy val hexContentAsBits = hex2Bits(hexDigits)
 
-  val validHexDigits = "0123456789abcdefABCDEF"
-
-  // Note: anything that is not a valid hex digit is simply skipped
+  // Note: anything that is not a valid hex digit (or binary digit for binary) is simply skipped
   // TODO: we should check for whitespace and other characters we want to allow, and verify them.
   // TODO: Or better, validate this in the XML Schema for tdml via a pattern facet
   // TODO: Consider whether to support a comment syntax. When showing data examples this may be useful.
   //
   lazy val hexDigits = partRawContent.flatMap { ch => if (validHexDigits.contains(ch)) List(ch) else Nil }
 
-  lazy val bitContentToBytes = bits2Bytes(bitDigits)
-  val validBinaryDigits = "01"
+  lazy val bitContentToBytes = bits2Bytes(bitDigits).toList
 
-  lazy val bitDigits = partRawContent.flatMap { ch => if (validBinaryDigits.contains(ch)) List(ch) else Nil }
-
+  lazy val bitDigits = partRawContent.flatMap {
+    ch =>
+      {
+        if (validBinaryDigits.contains(ch))
+          List(ch)
+        else Nil
+      }
+  }
 }
 
 case class Infoset(i: NodeSeq, parent: TestCase) {

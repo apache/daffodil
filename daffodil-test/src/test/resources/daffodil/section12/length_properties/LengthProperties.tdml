@@ -471,19 +471,15 @@
     root="LP_04" model="LengthProperties-lengthNumeric.dfdl.xsd"
     description="Section 12 Length Properties - DFDL-12-161R">
 
-    <tdml:document>
-      <tdml:documentPart type="byte">
-			</tdml:documentPart>
-      Four score and seven years ago our fathers brought forth on this
-      continent a new nation, conceived in liberty, and dedicated to the
-      proposition that all men are created equal. Now we are engaged in
-      a great civil war, testing whether that nation, or any nation, so
-      conceived and so dedicated, can long endure. We are met on a great
-      battle-field of that war. We have come to dedicate a portion of
-      that field, as a final resting place for those who here gave their
-      lives that that nation might live. It is altogether fitting and
-      proper that we should do this
-    </tdml:document>
+    <tdml:document><![CDATA[Four score and seven years ago our fathers brought forth on this
+continent a new nation, conceived in liberty, and dedicated to the
+proposition that all men are created equal. Now we are engaged in
+a great civil war, testing whether that nation, or any nation, so
+conceived and so dedicated, can long endure. We are met on a great
+battle-field of that war. We have come to dedicate a portion of
+that field, as a final resting place for those who here gave their
+lives that that nation might live. It is altogether fitting and
+proper that we should do this]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse failed to find exactly 557 characters</tdml:error>
     </tdml:errors>

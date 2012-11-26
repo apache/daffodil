@@ -1,7 +1,6 @@
 package daffodil.tdml
 
 import java.io.File
-import scala.Array.canBuildFrom
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.Node
 import scala.xml.NodeSeq
@@ -31,19 +30,32 @@ class TestTDMLRunner extends JUnitSuite {
   @Test def testDocPart1() {
     val xml = <documentPart type="text">abcde</documentPart>
     val dp = new DocumentPart(xml, null)
-    val actual = dp.convertedContent
-    val expected = Vector('a'.toByte, 'b'.toByte, 'c'.toByte, 'd'.toByte, 'e'.toByte)
+    val actual = dp.textContentToBytes.toList
+    val expected = Vector('a'.toByte, 'b'.toByte, 'c'.toByte, 'd'.toByte, 'e'.toByte).toList
     assertEquals(expected, actual)
   }
 
   @Test def testDocPart2() {
-    val xml = <documentPart type="byte">123abc</documentPart>
-    val dp = new DocumentPart(xml, null)
+    val xml = <document><documentPart type="byte">123abc</documentPart></document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts(0)
     val hexDigits = dp.hexDigits
     assertEquals("123abc", hexDigits)
-    val actual = dp.convertedContent
-    val expected = Vector(0x12, 0x3a, 0xbc).map { _.toByte }
+    val actual = doc.documentBytes.toList
+    val expected = Vector(0x12, 0x3a, 0xbc).map { _.toByte }.toList
     assertEquals(expected, actual)
+  }
+
+  @Test def testHexOddNumberOfNibbles() {
+    val xml = <document><documentPart type="byte">123</documentPart></document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts(0)
+    val hexDigits = dp.hexDigits
+    assertEquals("123", hexDigits)
+    val actual = doc.documentBytes.toList
+    val expected = Array(0x12, 0x30).map { _.toByte }.toList
+    assertEquals(expected, actual)
+    assertEquals(12, doc.nBits)
   }
 
   @Test def testDocPart3() {
@@ -57,8 +69,8 @@ class TestTDMLRunner extends JUnitSuite {
     val secondPart = doc.documentParts(1)
     assertEquals("12", firstPart.hexDigits)
     assertEquals("3abc", secondPart.hexDigits)
-    val actual = doc.documentBytes
-    val expected = Vector(0x12, 0x3a, 0xbc).map { _.toByte }
+    val actual = doc.documentBytes.toList
+    val expected = Vector(0x12, 0x3a, 0xbc).map { _.toByte }.toList
     assertEquals(expected, actual)
   }
 
@@ -68,7 +80,7 @@ class TestTDMLRunner extends JUnitSuite {
               </document>
     val doc = new Document(xml, null)
     val docPart = doc.documentParts(0)
-    val bytes = docPart.convertedContent
+    val bytes = doc.documentBytes
     assertEquals(9, bytes.length)
     val str = docPart.partRawContent // a string
     assertEquals(4, str.length)
@@ -81,7 +93,7 @@ class TestTDMLRunner extends JUnitSuite {
               </document>
     val doc = new Document(xml, null)
     val docPart = doc.documentParts(0)
-    val bytes = docPart.convertedContent
+    val bytes = doc.documentBytes
     assertEquals(12, bytes.length)
     val orig = new String(bytes.toArray, "UTF8")
     assertEquals(7, orig.length)
@@ -107,8 +119,8 @@ class TestTDMLRunner extends JUnitSuite {
     assertEquals("test-suite/ibm-contributed/dpanum.dfdl.xsd", ptc.model)
     assertTrue(ptc.description.contains("Some test case description."))
     val doc = ptc.document.get
-    val expectedBytes = Vector('0'.toByte, '1'.toByte, '2'.toByte, '3'.toByte)
-    val actualBytes = doc.documentBytes
+    val expectedBytes = Vector('0'.toByte, '1'.toByte, '2'.toByte, '3'.toByte).toList
+    val actualBytes = doc.documentBytes.toList
     assertEquals(expectedBytes, actualBytes)
     val infoset = ptc.infoset.get
     val actualContent = infoset.dfdlInfoset.contents
@@ -139,8 +151,8 @@ class TestTDMLRunner extends JUnitSuite {
     assertEquals("byte1", ptc.root)
     assertEquals("test-suite/ibm-contributed/dpanum.dfdl.xsd", ptc.model)
     val doc = ptc.document.get
-    val expectedBytes = Vector('0'.toByte, '1'.toByte, '2'.toByte, '3'.toByte)
-    val actualBytes = doc.documentBytes
+    val expectedBytes = Vector('0'.toByte, '1'.toByte, '2'.toByte, '3'.toByte).toList
+    val actualBytes = doc.documentBytes.toList
     assertEquals(expectedBytes, actualBytes)
     val infoset = ptc.infoset.get
     val actualContent = infoset.dfdlInfoset.contents
@@ -499,10 +511,12 @@ class TestTDMLRunner extends JUnitSuite {
   }
 
   @Test def testBits() {
-    val bits = new DocumentPart(<document-part type="bits">111</document-part>, null)
-    assertEquals("111", bits.bitDigits)
-    val bytes = bits.bitContentToBytes.toList
-    assertEquals(7, bytes(0))
+    val doc = new Document(<document><documentPart type="bits">111</documentPart></document>, null)
+    val bits = doc.documentParts(0)
+    assertEquals("11100000", doc.documentBitsFullBytes)
+    val bytes = doc.documentBytes.toList
+    assertEquals(-32, bytes(0))
+    assertEquals(3, doc.nBits)
   }
 
   @Test def testNilCompare() = {
