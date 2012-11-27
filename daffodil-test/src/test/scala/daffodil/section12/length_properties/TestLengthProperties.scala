@@ -53,4 +53,10 @@ class TestLengthProperties extends JUnitSuite {
   @Test def test_seqBit1() { runner_02.runOneTest("seqBit1") }
   @Test def test_seqBitLeftOver() { runner_02.runOneTest("seqBitLeftOver") }
 
+  @Test def test_twoByteLittleEndian() { runner_02.runOneTest("twoByteLittleEndian") }
+  @Test def test_twoByteBigEndian() { runner_02.runOneTest("twoByteBigEndian") }
+
+  @Test def test_bit1() { runner_02.runOneTest("bit1") }
+  @Test def test_bit2() { runner_02.runOneTest("bit2") }
+  @Test def test_bit3() { runner_02.runOneTest("bit3") }
 }

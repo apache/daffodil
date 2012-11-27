@@ -105,7 +105,7 @@
   <!--
     Test name: LengthProp_bits_01
     Schema: LengthProperties-Embedded.dfdl.xsd
-    Purpose:
+    Purpose: this test demonstrates the representation of data in bits, with lengthUnits also set to bits
   -->
 
   <tdml:parserTestCase name="LengthProp_bits_01"
@@ -126,7 +126,7 @@
   <!--
     Test name: LengthProp_bits_02
     Schema: LengthProperties-Embedded.dfdl.xsd
-    Purpose:
+    Purpose: This test demonstrates that a bit string of an arbitrary length will be properly interpreted
   -->
 
   <tdml:parserTestCase name="LengthProp_bits_02"
@@ -624,6 +624,61 @@ proper that we should do this]]></tdml:document>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:defineSchema name="bitSchema">
+    <dfdl:format ref="ex:daffodilTest1" lengthUnits="bits"
+      lengthKind="implicit" alignment="1" alignmentUnits="bits"
+      representation="binary" byteOrder="bigEndian" />
+
+    <xs:element name="bit1" type="xs:unsignedInt"
+      dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="littleEndian" />
+    <xs:element name="bit2" type="xs:unsignedInt"
+      dfdl:lengthKind="explicit" dfdl:length="2" dfdl:byteOrder="littleEndian" />
+    <xs:element name="bit3" type="xs:unsignedInt"
+      dfdl:lengthKind="explicit" dfdl:length="3" dfdl:byteOrder="littleEndian" />
+    <xs:element name="bit4" type="xs:unsignedInt"
+      dfdl:lengthKind="explicit" dfdl:length="16" dfdl:byteOrder="littleEndian" />
+    <xs:element name="bit5" type="xs:unsignedInt"
+      dfdl:lengthKind="explicit" dfdl:length="16" dfdl:byteOrder="bigEndian" />
+    <xs:element name="bit6" type="xs:unsignedInt"
+      dfdl:lengthKind="implicit" dfdl:alignment="320" dfdl:byteOrder="bigEndian" />
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: bit1
+    Schema: bitSchema
+    Purpose: this test demonstrates the use of lengthUnits 'bits' with a single bit
+  -->
+
+  <tdml:parserTestCase name="bit1" model="bitSchema"
+    root="bit1">
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit1>1</bit1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: twoByteBigEndian
+    Schema: bitSchema
+    Purpose: this test demonstrates the use of lengthUnits 'bits' with bigEndian byte order
+  -->
+  
+  <tdml:parserTestCase name="twoByteBigEndian" model="bitSchema"
+    root="bit5">
+    <tdml:document>
+      <tdml:documentPart type="bits">0000000110000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit5>384</bit5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
   
   <!--
     Test name: ThreeBit1
@@ -640,6 +695,24 @@ proper that we should do this]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e2>6</e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: twoByteLittleEndian
+    Schema: bitSchema
+    Purpose: this test demonstrates the use of lengthUnits 'bits' with littleEndian byte order
+  -->
+
+  <tdml:parserTestCase name="twoByteLittleEndian" model="bitSchema"
+    root="bit4">
+    <tdml:document>
+      <tdml:documentPart type="bits">0000000110000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit4>32769</bit4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -667,6 +740,24 @@ proper that we should do this]]></tdml:document>
   </tdml:parserTestCase>
   
   <!--
+    Test name: bit2
+    Schema: bitSchema
+    Purpose: this test demonstrates the use of lengthUnits 'bits' with a 2-bit dataset
+  -->
+
+  <tdml:parserTestCase name="bit2" model="bitSchema"
+    root="bit2">
+    <tdml:document>
+      <tdml:documentPart type="bits">10</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit2>2</bit2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
     Test name: seqBitLeftOver
     Schema: DFDL-307-one-octet.dfdl.xsd
     Purpose: This test demonstrates that the number of available bits (for checking for leftover data) does not include any bits added on. In this case however, the 
@@ -681,6 +772,24 @@ proper that we should do this]]></tdml:document>
     <tdml:errors>
       <tdml:error>Left over</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bit3
+    Schema: bitSchema
+    Purpose: this test demonstrates the use of lengthUnits 'bits' with a 3-bit dataset
+  -->
+
+  <tdml:parserTestCase name="bit3" model="bitSchema"
+    root="bit3">
+    <tdml:document>
+      <tdml:documentPart type="bits">110</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit3>6</bit3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>
