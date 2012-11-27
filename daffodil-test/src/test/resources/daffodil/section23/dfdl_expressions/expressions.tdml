@@ -191,11 +191,10 @@
 
   <tdml:defineSchema name="ArrayOptionalElem-Embedded.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" 
-      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
-      terminator="" occursCountKind="parsed" ignoreCase="no"
-      textNumberRep="standard" representation="text" byteOrder="bigEndian"
-      binaryNumberRep="binary" />
+    <dfdl:format ref="ex:daffodilTest1" lengthUnits="bytes"
+      encoding="UTF-8" separator="" initiator="" terminator=""
+      occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
+      representation="text" byteOrder="bigEndian" binaryNumberRep="binary" />
 
     <xs:element name="aoe_01">
       <xs:complexType>
@@ -1063,6 +1062,23 @@
     <xs:element name="bit1" type="xs:unsignedInt"
       dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="littleEndian" />
 
+    <!-- intended for use in arrays with occursCountKind='parsed' environments -->
+    <xs:group name="more">
+      <xs:sequence>
+        <xs:annotation>
+          <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <dfdl:discriminator><![CDATA[{ 
+                                    dfdl:position() = 1 
+                                    or 
+                                    ../ex:r[dfdl:position() - 1]/ex:more = 1 
+                          }]]></dfdl:discriminator>
+          </xs:appinfo>
+        </xs:annotation>
+        <xs:element name="more" type="xs:unsignedInt"
+          dfdl:lengthKind="explicit" dfdl:length="1" />
+      </xs:sequence>
+    </xs:group>
+
     <xs:element name="e">
       <xs:complexType>
         <xs:sequence>
@@ -1076,17 +1092,7 @@
                   dfdl:occursCountKind="parsed">
                   <xs:complexType>
                     <xs:sequence>
-                      <xs:annotation>
-                        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-                          <dfdl:discriminator><![CDATA[{ 
-                                    dfdl:position() = 1 
-                                    or 
-                                    ../ex:r[dfdl:position() - 1]/ex:more = 1 
-                          }]]></dfdl:discriminator>
-                        </xs:appinfo>
-                      </xs:annotation>
-                      <xs:element name="more" type="xs:unsignedInt"
-                        dfdl:lengthKind="explicit" dfdl:length="1" />
+                      <xs:group ref="ex:more" />
                       <xs:element name="c" type="xs:unsignedInt"
                         dfdl:lengthKind="explicit" dfdl:length="3" />
                     </xs:sequence>
