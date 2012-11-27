@@ -91,6 +91,14 @@ class DFDLTestSuite(ts: Node, tdmlFile: File, tsInputSource: InputSource)
   val description = (ts \ "@description").text
   val embeddedSchemas = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
 
+  private val embeddedSchemaGroups = embeddedSchemas.groupBy { _.name }
+
+  embeddedSchemaGroups.foreach {
+    case (name, Seq(sch)) => // ok
+    case (name, seq) =>
+      Assert.usageError("More than one definition for embedded schema " + name)
+  }
+
   def runAllTests(schema: Option[Node] = None) {
     if (isTDMLFileValid)
       testCases.map { _.run(schema) }
@@ -216,6 +224,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
 
   protected def runProcessor(processor: DFDL.ProcessorFactory,
                              data: Option[DFDL.Input],
+                             nBits: Option[Long],
                              infoset: Option[Infoset],
                              errors: Option[ExpectedErrors],
                              warnings: Option[ExpectedWarnings]): Unit
@@ -238,8 +247,9 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
     val pf = compiler.compile(sch)
     val data = document.map { _.data }
+    val nBits = document.map { _.nBits }
 
-    runProcessor(pf, data, infoset, errors, warnings)
+    runProcessor(pf, data, nBits, infoset, errors, warnings)
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
     // log(Debug("Test %s passed.", id))
@@ -277,14 +287,16 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   def runProcessor(pf: DFDL.ProcessorFactory,
                    data: Option[DFDL.Input],
+                   lengthLimitInBits: Option[Long],
                    optInfoset: Option[Infoset],
                    optErrors: Option[ExpectedErrors],
                    warnings: Option[ExpectedWarnings]) = {
 
+    val nBits = lengthLimitInBits.get
     val dataToParse = data.get
     (optInfoset, optErrors) match {
-      case (Some(infoset), None) => runParseExpectSuccess(pf, dataToParse, infoset, warnings)
-      case (None, Some(errors)) => runParseExpectErrors(pf, dataToParse, errors, warnings)
+      case (Some(infoset), None) => runParseExpectSuccess(pf, dataToParse, nBits, infoset, warnings)
+      case (None, Some(errors)) => runParseExpectErrors(pf, dataToParse, nBits, errors, warnings)
       case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
     }
 
@@ -341,6 +353,7 @@ Differences were (path, expected, actual):
 
   def runParseExpectErrors(pf: DFDL.ProcessorFactory,
                            dataToParse: DFDL.Input,
+                           lengthLimitInBits: Long,
                            errors: ExpectedErrors,
                            warnings: Option[ExpectedWarnings]) {
 
@@ -352,7 +365,7 @@ Differences were (path, expected, actual):
           val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
           throw new Exception(diags)
         }
-        val actual = processor.parse(dataToParse)
+        val actual = processor.parse(dataToParse, lengthLimitInBits)
 
         val loc: DataLocation = actual.resultState.currentLocation
 
@@ -379,6 +392,7 @@ Differences were (path, expected, actual):
 
   def runParseExpectSuccess(pf: DFDL.ProcessorFactory,
                             dataToParse: DFDL.Input,
+                            lengthLimitInBits: Long,
                             infoset: Infoset,
                             warnings: Option[ExpectedWarnings]) {
 
@@ -391,7 +405,7 @@ Differences were (path, expected, actual):
         val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
         throw new Exception(diags)
       }
-      val actual = processor.parse(dataToParse)
+      val actual = processor.parse(dataToParse, lengthLimitInBits)
 
       if (!actual.canProceed) {
         // Means there was an error, not just warnings.
@@ -425,6 +439,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   def runProcessor(pf: DFDL.ProcessorFactory,
                    optData: Option[DFDL.Input],
+                   optNBits: Option[Long],
                    optInfoset: Option[Infoset],
                    optErrors: Option[ExpectedErrors],
                    warnings: Option[ExpectedWarnings]) = {
@@ -597,8 +612,8 @@ case class Document(d: NodeSeq, parent: TestCase) {
    */
   val documentBits = documentParts.map { _.contentAsBits }.mkString
 
-  val nBits = documentBits.length
-  val nFragBits = nBits % 8
+  val nBits: Long = documentBits.length
+  val nFragBits = (nBits % 8).toInt
   val nAddOnBits = if (nFragBits == 0) 0 else 8 - nFragBits
   val addOnBits = (1 to nAddOnBits) collect { case _ => "0" } mkString
   val documentBitsFullBytes = documentBits + addOnBits

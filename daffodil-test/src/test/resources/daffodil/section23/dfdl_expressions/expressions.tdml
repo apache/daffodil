@@ -191,7 +191,7 @@
 
   <tdml:defineSchema name="ArrayOptionalElem-Embedded.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+    <dfdl:format ref="ex:daffodilTest1" 
       lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="text" byteOrder="bigEndian"
@@ -253,12 +253,12 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <aoe_01>
+        <aoe_02>
           <reps>3</reps>
           <rows>0</rows>
           <rows>1</rows>
           <rows>2</rows>
-        </aoe_01>
+        </aoe_02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -306,7 +306,7 @@
                 <xs:element name="cols" type="xs:int"
                   maxOccurs="unbounded" dfdl:lengthKind="delimited"
                   dfdl:terminator="," dfdl:occursCountKind="expression"
-                  dfdl:occursCount=" { ../../ex:ncols } " />
+                  dfdl:occursCount="{ ../../ex:ncols }" />
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -1061,12 +1061,12 @@
       representation="binary" byteOrder="bigEndian" />
 
     <xs:element name="bit1" type="xs:unsignedInt"
-      dfdl:lengthKind="explicit" dfdl:length="1" />
+      dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="littleEndian" />
 
     <xs:element name="e">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="present" type="xs:int"
+          <xs:element name="present" type="xs:unsignedInt"
             dfdl:lengthKind="explicit" dfdl:length="1" />
           <xs:element name="s" minOccurs="0" maxOccurs="1"
             dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:present }">
@@ -1081,13 +1081,13 @@
                           <dfdl:discriminator><![CDATA[{ 
                                     dfdl:position() = 1 
                                     or 
-                                    fn:trace(../ex:r,"r")[dfdl:position() - 1]/ex:more = 1 
+                                    ../ex:r[dfdl:position() - 1]/ex:more = 1 
                           }]]></dfdl:discriminator>
                         </xs:appinfo>
                       </xs:annotation>
-                      <xs:element name="more" type="xs:int"
+                      <xs:element name="more" type="xs:unsignedInt"
                         dfdl:lengthKind="explicit" dfdl:length="1" />
-                      <xs:element name="c" type="xs:int"
+                      <xs:element name="c" type="xs:unsignedInt"
                         dfdl:lengthKind="explicit" dfdl:length="3" />
                     </xs:sequence>
                   </xs:complexType>
@@ -1105,7 +1105,7 @@
   <tdml:parserTestCase name="bit1" model="repeatBitFlags"
     root="bit1">
     <tdml:document>
-      <tdml:documentPart type="bits">1000 0000</tdml:documentPart>
+      <tdml:documentPart type="bits">1</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1118,7 +1118,7 @@
   <tdml:parserTestCase name="repeatBitFlags1" model="repeatBitFlags"
     root="e">
     <tdml:document>
-      <tdml:documentPart type="bits">0000 0000</tdml:documentPart>
+      <tdml:documentPart type="bits">0</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1132,7 +1132,7 @@
   <tdml:parserTestCase name="repeatBitFlags2" model="repeatBitFlags"
     root="e">
     <tdml:document>
-      <tdml:documentPart type="bits">1 0 001 000</tdml:documentPart>
+      <tdml:documentPart type="bits">1 0 001</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1152,7 +1152,7 @@
   <tdml:parserTestCase name="repeatBitFlags3" model="repeatBitFlags"
     root="e">
     <tdml:document>
-      <tdml:documentPart type="bits">1 1 001 1 010 1 011 0 100 0000000</tdml:documentPart>
+      <tdml:documentPart type="bits">1 1 001 1 010 1 011 0 100</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

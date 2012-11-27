@@ -375,7 +375,7 @@ class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixi
   override def getMessage() = msg
 }
 
-class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
+class DataLoc(bitPos: Long, bitLimit: Long, inStream: InStream) extends DataLocation {
 
   override def toString() = "Location is byte " + bitPos / 8 +
     "\nUTF-8 text starting at byte " + aligned64BitsPos / 8 + " is: (" + utf8Dump + ")" +
@@ -417,16 +417,19 @@ class DataLoc(bitPos: Long, inStream: InStream) extends DataLocation {
    * We're at the end if an attempt to get a bit fails with an index exception
    */
   def isAtEnd: Boolean = {
-    try {
-      inStream.getBitSequence(bitPos, 1, java.nio.ByteOrder.BIG_ENDIAN)
-      false
-    } catch {
-      case e: IndexOutOfBoundsException => {
-        val exc = e
-        true
-      }
-    }
+    bitPos >= bitLimit
   }
+  //  def isAtEnd: Boolean = {
+  //    try {
+  //      inStream.getBitSequence(bitPos, 1, java.nio.ByteOrder.BIG_ENDIAN)
+  //      false
+  //    } catch {
+  //      case e: IndexOutOfBoundsException => {
+  //        val exc = e
+  //        true
+  //      }
+  //    }
+  //  }
 }
 
 /**
@@ -451,8 +454,8 @@ class PStateStream(val inStream: InStream, val bitLimit: Long, val charLimit: Lo
     new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, reader, contextMap)
 }
 object PStateStream {
-  def initialPStateStream(in: InStream, bitOffset: Long) =
-    new PStateStream(in, bitLimit = -1, bitPos = bitOffset, reader = None, contextMap = HashMap.empty)
+  def initialPStateStream(in: InStream, bitOffset: Long, bitLimit: Long) =
+    new PStateStream(in, bitLimit, bitPos = bitOffset, reader = None, contextMap = HashMap.empty)
 }
 
 /**
@@ -490,11 +493,11 @@ class PState(
     "PState( bitPos=%s charPos=%s success=%s contextMapCount=%s )".format(bitPos, charPos, status, contextMapCount)
   }
   def discriminator = discriminatorStack.head
-  def currentLocation: DataLocation = new DataLoc(bitPos, inStream)
+  def currentLocation: DataLocation = new DataLoc(bitPos, bitLimit, inStream)
   def inStreamState = inStreamStateStack top
   def inStream = inStreamState inStream
   def bitPos = inStreamState bitPos
-  def bitLimit = inStream.asInstanceOf[InStreamFromByteChannel].byteReader.bb.limit() * 8 //inStreamState bitLimit
+  def bitLimit = inStreamState bitLimit
   def charPos = inStreamState charPos
   def charLimit = inStreamState charLimit
   def parentElement = parent.asInstanceOf[Element]
@@ -660,7 +663,11 @@ object PState {
   /**
    * Initialize the state block given our InStream and a root element declaration.
    */
-  def createInitialState(rootElemDecl: GlobalElementDecl, in: InStream, bitOffset: Long): PState = {
+  def createInitialState(
+    rootElemDecl: GlobalElementDecl,
+    in: InStream, bitOffset: Long,
+    bitLimit: Long): PState = {
+
     val inStream = in
 
     val doc = new org.jdom.Document() // must have a jdom document to get path evaluation to work.  
@@ -674,7 +681,7 @@ object PState {
     val occursCountStack = Nil
     val diagnostics = Nil
     val discriminator = false
-    val initPState = PStateStream.initialPStateStream(inStream, bitOffset)
+    val initPState = PStateStream.initialPStateStream(inStream, bitOffset, bitLimit)
     val textReader: Option[DFDLCharReader] = None
     val newState = new PState(Stack(initPState), doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, List(false))
     newState
@@ -691,11 +698,16 @@ object PState {
   /**
    * Construct our InStream object and initialize the state block.
    */
-  def createInitialState(rootElemDecl: GlobalElementDecl, input: DFDL.Input, sizeHint: Long = -1, bitOffset: Long = 0): PState = {
+  def createInitialState(
+    rootElemDecl: GlobalElementDecl,
+    input: DFDL.Input,
+    sizeHint: Long = -1,
+    bitOffset: Long = 0,
+    bitLengthLimit: Long = -1): PState = {
     val inStream =
       if (sizeHint != -1) new InStreamFromByteChannel(rootElemDecl, input, sizeHint)
       else new InStreamFromByteChannel(rootElemDecl, input)
-    createInitialState(rootElemDecl, inStream, bitOffset)
+    createInitialState(rootElemDecl, inStream, bitOffset, bitLengthLimit)
   }
 
 }
@@ -874,21 +886,25 @@ class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint
   }
 
   // littleEndian shift left except last, bigEndian shift right except first
-  def getPartialByte(bitPos: Long, bitCount: Long, shift: Long = 0): Byte = {
+  def getPartialByte(bitPos: Long, bitCount: Long, shift: Long = 0): Int = {
     Assert.invariant(shift >= 0 && shift + bitCount <= 8)
     val bytePos = (bitPos >>> 3).toInt
     val bitOffset = (bitPos % 8).toByte
-    var result = byteReader.bb.get(bytePos)
+    var result: Int = byteReader.bb.get(bytePos)
+    result = if (result < 0) 256 + result else result
 
     if (bitCount != 8) {
       Assert.invariant(0 < bitCount && bitCount <= 8 && bitOffset + bitCount <= 8)
       val mask = ((1 << bitCount) - 1) << (8 - bitOffset - bitCount)
 
-      result = (result & mask).toByte
+      result = (result & mask)
 
       // Shift so LSB of result is at LSB of octet then mask off top bits
       val finalShift = 8 - bitCount - bitOffset - shift
-      (if (finalShift < 0) result << -finalShift else result >> finalShift).toByte
+      val res =
+        if (finalShift < 0) result << -finalShift
+        else result >> finalShift
+      res
     } else {
       // Verify byte alignment and disallow shift
       Assert.invariant(bitOffset == 0 && shift == 0)

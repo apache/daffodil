@@ -380,39 +380,6 @@
 
   </tdml:defineSchema>
 
-  <!--
-    Schema name: facets-min2max3-schemaErr.dfdl.xsd
-    Purpose: This schema tests the condition that minOccurs does not match 
-    maxOccurs when occursCountKind="fixed"
-  -->
-
-  <tdml:defineSchema name="facets-min2max3-schemaErr.dfdl.xsd">
-
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
-      terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
-      floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
-      alignmentUnits="bytes" fillByte="f" occursCountKind="fixed"
-      truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
-      lengthKind="delimited" nilValueDelimiterPolicy="both"
-      emptyValueDelimiterPolicy="none"
-      documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="required" separatorPosition="infix" />
-
-
-    <xs:element name="basic" type="basicType"
-      dfdl:lengthKind="implicit" />
-
-    <xs:complexType name="basicType">
-      <xs:sequence dfdl:separator="|">
-        <xs:element name="data" type="xs:int"
-          dfdl:occursCountKind="fixed" minOccurs="2" maxOccurs="3"
-          dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
-      </xs:sequence>
-    </xs:complexType>
-
-
-  </tdml:defineSchema>
-
   <!-- ===================================================================== 
     Tests ======================================================================== -->
 

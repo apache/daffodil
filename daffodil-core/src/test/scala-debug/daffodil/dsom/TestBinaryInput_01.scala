@@ -22,6 +22,35 @@ class TestBinaryInput_01 extends JUnitSuite {
 
   /*** DFDL-334 ***/
   // Verify Bit Extraction
+
+  @Test def testOneBit1() {
+    val in = Compiler.byteArrayToReadableByteChannel(Misc.bits2Bytes("00000011"))
+    val inStream = new InStreamFromByteChannel(null, in, 1)
+    val bit1 = inStream.getPartialByte(6, 2, 0)
+    assertEquals(3, bit1)
+    val bit2 = inStream.getPartialByte(4, 2, 0)
+    assertEquals(0, bit2)
+  }
+
+  @Test def testOneBit2() {
+    val in = Compiler.byteArrayToReadableByteChannel(Misc.bits2Bytes("11000000"))
+    val inStream = new InStreamFromByteChannel(null, in, 1)
+    val bit1 = inStream.getPartialByte(0, 2, 0)
+    assertEquals(3, bit1)
+    val bit2 = inStream.getPartialByte(2, 2, 0)
+    assertEquals(0, bit2)
+  }
+
+  @Test def testOneBit3() {
+    val in = Compiler.byteArrayToReadableByteChannel(Misc.bits2Bytes("00000011"))
+    val inStream = new InStreamFromByteChannel(null, in, 1)
+    val (n, len) = inStream.getBitSequence(6, 2, java.nio.ByteOrder.BIG_ENDIAN)
+    assertEquals(BigInt(3), n)
+    assertEquals(8, len)
+    //    val bit2 = inStream.getPartialByte(4, 2, 0)
+    //    assertEquals(0, bit2)
+  }
+
   @Test
   def testBufferBitExtraction() {
     var in = Compiler.stringToReadableByteChannel("3")
@@ -192,8 +221,8 @@ class TestBinaryInput_01 extends JUnitSuite {
   }
 
   /*** DFDL-307 ***/
-  @Test
-  def test_one_octet() {
-    runner.runOneTest("OneOctetBinaryParse")
-  }
+  @Test def test_one_octet() { runner.runOneTest("OneOctetBinaryParse") }
+  @Test def test_oneBitLeftOver() { runner.runOneTest("OneBitLeftOver") }
+  @Test def test_oneBit1() { runner.runOneTest("OneBit1") }
+  @Test def test_oneBit2() { runner.runOneTest("OneBit2") }
 }

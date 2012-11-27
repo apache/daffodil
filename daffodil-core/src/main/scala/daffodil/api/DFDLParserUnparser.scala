@@ -90,9 +90,12 @@ object DFDL {
     def unparse(output: Output, node: scala.xml.Node): UnparseResult
 
     /**
-     * Returns an object which contains the result, and/or diagnostic information
+     * Returns an object which contains the result, and/or diagnostic information.
+     *
+     * For testing purposes (mostly), you can restrict the number of bits to
+     * fewer than the entire input.
      */
-    def parse(input: Input): ParseResult
+    def parse(input: Input, lengthLimitInBits: Long = -1): ParseResult
   }
 
   trait ParseResult extends Result with WithDiagnostics {

@@ -17,15 +17,8 @@ class TestDFDLExpressionsDebug extends JUnitSuite {
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
-  // ArrayOptElem_02 should pass when binary unsignedInt is implemented.
-  @Test def test_ArrayOptElem_02() { runner.runOneTest("ArrayOptElem_02") }
+  // waiting for feature where string length can be given in units of bytes
+  // even for variable-width character sets like utf-8 (which use 1 to 4 bytes per character)
   @Test def test_expressions_lke3_rel() { runner.runOneTest("lke3_rel") }
-  @Test def test_ocke_rel() { runner.runOneTest("ocke_rel") }
 
-  // Once bit-alignment and bit lengthUnits are implemented these should work.
-  @Test def test_bit1() = Debugger.withDebugger { runner.runOneTest("bit1") }
-
-  @Test def test_repeatBitFlags1() { runner.runOneTest("repeatBitFlags1") }
-  @Test def test_repeatBitFlags2() = Debugger.withDebugger { runner.runOneTest("repeatBitFlags2") }
-  @Test def test_repeatBitFlags3() { runner.runOneTest("repeatBitFlags3") }
 }

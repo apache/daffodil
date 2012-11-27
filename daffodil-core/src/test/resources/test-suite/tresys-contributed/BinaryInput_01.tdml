@@ -2,61 +2,48 @@
 <tdml:testSuite suiteName="binaryInput"
   description="Section 13 - Simple Types of Binary Format" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://example.com"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
   <tdml:defineSchema name="DFDL-307-one-octet.dfdl.xsd">
 
-    <dfdl:format representation="binary" binaryNumberRep="binary"
-      lengthUnits="bits" byteOrder='bigEndian' initiatedContent='no'
-      lengthKind='explicit' occursCountKind='parsed' separatorPolicy='suppressed'
-      separatorPosition='infix' textNumberRep='standard' initiator=""
-      terminator="" separator="" />
+    <dfdl:format ref="tns:daffodilTest1" representation="binary"
+      binaryNumberRep="binary" lengthUnits="bits" byteOrder='bigEndian'
+      alignment="1" alignmentUnits="bits" lengthKind='explicit' />
 
-    <xs:element name="is-signed" dfdl:lengthKind="explicit"
-      dfdl:length="{8}">
+    <xs:element name="is-signed" dfdl:lengthKind="implicit">
       <xs:complexType>
-        <xs:sequence dfdl:byteOrder="bigEndian">
-          <xs:element name="sign-bit" type="xs:unsignedByte"
-            dfdl:alignment="1" dfdl:alignmentUnits="bits"
-            dfdl:lengthUnits="bits" dfdl:length="{1}"
-            dfdl:representation="binary" />
+        <xs:sequence>
+          <xs:element name="sign" type="xs:unsignedByte"
+            dfdl:length="1" />
           <xs:element name="abs" type="xs:unsignedByte"
-            dfdl:alignment="1" dfdl:alignmentUnits="bits"
-            dfdl:lengthUnits="bits" dfdl:length="{7}"
-            dfdl:representation="binary" dfdl:byteOrder="bigEndian" />
+            dfdl:length="7" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-  </tdml:defineSchema>
 
-  <tdml:defineSchema name="DFDL-307-one-octet.dfdl.xsd">
+    <xs:element name="e1" type="xs:unsignedByte" dfdl:length="1" />
 
-    <dfdl:format representation="binary" binaryNumberRep="binary"
-      lengthUnits="bits" byteOrder='bigEndian' initiatedContent='no'
-      lengthKind='explicit' occursCountKind='parsed' separatorPolicy='suppressed'
-      separatorPosition='infix' textNumberRep='standard' initiator=""
-      terminator="" separator="" />
-
-    <xs:element name="is-signed" dfdl:lengthKind="explicit"
-      dfdl:length="{8}">
+    <xs:element name="e2">
       <xs:complexType>
-        <xs:sequence dfdl:byteOrder="bigEndian">
-          <xs:element name="sign-bit" type="xs:unsignedByte"
-            dfdl:alignment="1" dfdl:alignmentUnits="bits"
-            dfdl:lengthUnits="bits" dfdl:length="{1}"
-            dfdl:representation="binary" />
-          <xs:element name="abs" type="xs:unsignedByte"
-            dfdl:alignment="1" dfdl:alignmentUnits="bits"
-            dfdl:lengthUnits="bits" dfdl:length="{7}"
-            dfdl:representation="binary" dfdl:byteOrder="bigEndian" />
+        <xs:sequence>
+          <xs:element name="others" type="xs:unsignedInt"
+            dfdl:length="7" />
+          <xs:element name="v" type="xs:unsignedByte"
+            dfdl:length="1" />
+
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="OneOctetBinaryParse"
     root="is-signed" model="DFDL-307-one-octet.dfdl.xsd" description="Section 13 - Simple Types of Binary Format">
-    <tdml:document>0</tdml:document>
+    <tdml:document>
+      <tdml:documentPart type="bits">00110000
+      </tdml:documentPart>
+    </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -67,4 +54,43 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="OneBitLeftOver" root="e1"
+    model="DFDL-307-one-octet.dfdl.xsd" description="Section 13 - Simple Types of Binary Format">
+    <tdml:document>
+      <tdml:documentPart type="bits">11</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="OneBit1" root="e1"
+    model="DFDL-307-one-octet.dfdl.xsd" description="Section 13 - Simple Types of Binary Format">
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>1</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="OneBit2" root="e2"
+    model="DFDL-307-one-octet.dfdl.xsd" description="Section 13 - Simple Types of Binary Format">
+    <tdml:document>
+      <tdml:documentPart type="bits">00000001
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>
+          <others>0</others>
+          <v>1</v>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

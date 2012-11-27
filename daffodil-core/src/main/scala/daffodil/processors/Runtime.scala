@@ -53,10 +53,14 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
    * Here begins the parser runtime. Compiler-oriented mechanisms (OOLAG etc.) aren't used in the
    * runtime. Instead we deal with success and failure statuses.
    */
-  def parse(input: DFDL.Input): DFDL.ParseResult = {
+  def parse(input: DFDL.Input, lengthLimitInBits: Long = -1): DFDL.ParseResult = {
     Assert.usage(!this.isError)
 
-    val initialState = PState.createInitialState(rootElem, input, bitOffset = 0) // TODO also want to pass here the externally set variables, other flags/settings.
+    val initialState = PState.createInitialState(
+      rootElem,
+      input,
+      bitOffset = 0,
+      bitLengthLimit = lengthLimitInBits) // TODO also want to pass here the externally set variables, other flags/settings.
     parse(initialState)
   }
 
