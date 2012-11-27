@@ -16,12 +16,31 @@ import daffodil.api._
 import daffodil.processors.VariableMap
 import daffodil.util.Compile
 
-class SchemaDefinitionError(
+class SchemaDefinitionError(schemaContext: Option[SchemaComponent],
+                            annotationContext: Option[DFDLAnnotation],
+                            kind: String,
+                            args: Any*)
+  extends SchemaDefinitionDiagnosticBase(schemaContext, annotationContext, kind, args: _*) {
+  val isError = true
+  val diagnosticKind = "Error"
+}
+
+class SchemaDefinitionWarning(schemaContext: Option[SchemaComponent],
+                              annotationContext: Option[DFDLAnnotation],
+                              kind: String,
+                              args: Any*)
+  extends SchemaDefinitionDiagnosticBase(schemaContext, annotationContext, kind, args: _*) {
+  val isError = false
+  val diagnosticKind = "Warning"
+}
+
+abstract class SchemaDefinitionDiagnosticBase(
   val schemaContext: Option[SchemaComponent],
   val annotationContext: Option[DFDLAnnotation],
   val kind: String,
   val args: Any*) extends Exception with DiagnosticImplMixin {
-  def isError = true
+  def isError: Boolean
+  def diagnosticKind: String
   def getSchemaLocations = schemaContext.toList
   def getDataLocations = Nil
   // TODO: Alternate constructor that allows data locations.
@@ -39,7 +58,7 @@ class SchemaDefinitionError(
     val msg =
       if (kind.contains("%")) kind.format(args: _*)
       else (kind + "(%s)").format(argsAsString)
-    val res = "Schema Definition Error: " + msg + " Context was: " + schemaContext.getOrElse("top level")
+    val res = "Schema Definition " + diagnosticKind + ": " + msg + " Context was: " + schemaContext.getOrElse("top level")
     res
   }
 
@@ -87,11 +106,19 @@ abstract class SchemaComponent(val xml: Node)
     throw sde
   }
 
-  def subset(testThatWillThrowIfFalse: Boolean, args: Any*) = {
-    if (!testThatWillThrowIfFalse) subsetError(args: _*)
+  def SDW(id: String, args: Any*): Unit = {
+    val sdw = new SchemaDefinitionWarning(Some(this), None, id, args: _*)
+    addDiagnostic(sdw)
   }
 
-  def subsetError(args: Any*) = SDE("Subset ", args: _*)
+  def subset(testThatWillThrowIfFalse: Boolean, msg: String, args: Any*) = {
+    if (!testThatWillThrowIfFalse) subsetError(msg, args: _*)
+  }
+
+  def subsetError(msg: String, args: Any*) = {
+    val msgTxt = msg.format(args: _*)
+    SDE("Subset " + msgTxt)
+  }
 
   /**
    * Needed by back-end to construct jdom nodes.

@@ -16,6 +16,9 @@ object MyProp extends Enum[MyPropType] with ThrowsSDE {
   def SDE(id: String, args: Any*): Nothing = {
     throw new Exception(id.toString + args)
   }
+  def SDW(id: String, args: Any*): Unit = {
+    System.err.println(new Exception(id.toString + args))
+  }
 }
 
 class MyPropMixin {
@@ -73,6 +76,9 @@ trait TheExamplePropMixin extends PropertyMixin {
 
   def SDE(id: String, args: Any*): Nothing = {
     throw new Exception(id.toString + args)
+  }
+  def SDW(id: String, args: Any*): Unit = {
+    System.err.println(new Exception(id.toString + args))
   }
 
   /**

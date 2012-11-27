@@ -175,7 +175,7 @@ trait ElementBaseGrammarMixin
       case LengthKind.Explicit => explicitLengthString
       case LengthKind.Delimited => stringDelimitedEndOfData
       case LengthKind.Pattern => stringPatternMatched
-      case LengthKind.Implicit => schemaDefinitionError("Textual data elements cannot have lengthKind='implicit'.")
+      case LengthKind.Implicit => subsetError("Textual data elements cannot have lengthKind='implicit'.")
       case _ => Assert.notYetImplemented()
     })
     res
@@ -310,7 +310,7 @@ trait ElementBaseGrammarMixin
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextDoublePrim(this))
 
   lazy val zonedTextDouble = Prod("zonedTextDouble", this,
-    textNumberRep == TextNumberRep.Zoned, subsetError(true, "Zoned not supported for float and double"))
+    textNumberRep == TextNumberRep.Zoned, subsetError("Zoned not supported for float and double"))
 
   //  lazy val binaryFloat = Prod("binaryFloat", this, representation == Representation.Binary,
   //    ieeeBinaryRepFloat | ibm390HexBinaryRepFloat)
@@ -749,6 +749,7 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
       case (Trailing___, Implicit__, UNB) => separatedContentUnboundedWithoutTrailingEmpties // we're depending on optionalEmptyPart failing on empty content.
       case (Trailing___, Implicit__, max) => separatedContentAtMostNWithoutTrailingEmpties
       case (Always_____, Implicit__, UNB) => separatedContentUnbounded
+      case (Always_____, Implicit__, max) => separatedContentAtMostN
       case (Always_____, Parsed____, ___) => separatedContentUnbounded
       case (Always_____, StopValue_, ___) => separatedContentUnbounded
       case (policy, ock, max) => SDE("separatorSuppressionPolicy='" + policy + "' not allowed with occursCountKind='" + ock + "'.")

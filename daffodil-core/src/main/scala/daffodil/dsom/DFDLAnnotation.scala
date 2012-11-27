@@ -38,6 +38,11 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
     throw new SchemaDefinitionError(Some(context), Some(this), id, args: _*)
   }
 
+  def SDW(id: String, args: Any*): Unit = {
+    val sdw = new SchemaDefinitionWarning(Some(context), Some(this), id, args: _*)
+    context.addDiagnostic(sdw)
+  }
+
   def subset(testThatWillThrowIfFalse: Boolean, args: Any*) = {
     if (!testThatWillThrowIfFalse) SDE("Subset ", args: _*)
   }

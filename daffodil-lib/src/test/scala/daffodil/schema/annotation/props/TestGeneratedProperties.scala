@@ -25,6 +25,10 @@ class TestGeneratedProperties extends JUnitSuite {
       throw new Exception(id.toString + args)
     }
 
+    def SDW(id: String, args: Any*): Unit = {
+      System.err.println(new Exception(id.toString + args))
+    }
+
     val detailName = "HasLotsOfProperties"
     /**
      * In this case, we're just going to lookup the attribute on the above

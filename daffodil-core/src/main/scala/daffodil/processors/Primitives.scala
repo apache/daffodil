@@ -1507,7 +1507,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
       "<" + kindString + ">" + delim + " " + delimsRaw + "</" + kindString + ">"
     }
 
-    Assert.notYetImplemented(e.ignoreCase == YesNo.Yes)
+    e.schemaDefintionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
     Assert.invariant(delim != "") // shouldn't be here at all in this case.
     override def toString = kindString + "('" + delim + "')" //  with terminating markup: " + term.prettyTerminatingMarkup + ")"
@@ -1596,7 +1596,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
     val t = e.asInstanceOf[Term]
     override def toString = "StaticText('" + delim + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"
     // setLoggingLevel(LogLevel.Info)
-    Assert.notYetImplemented(e.ignoreCase == YesNo.Yes)
+    e.schemaDefintionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' is not supported.")
     Assert.invariant(delim != "") //shouldn't be here at all in this case
 
     def unparse(start: UState): UState = {

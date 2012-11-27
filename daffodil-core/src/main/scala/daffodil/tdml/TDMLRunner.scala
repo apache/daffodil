@@ -401,9 +401,11 @@ Differences were (path, expected, actual):
       throw new Exception(diags)
     } else {
       val processor = pf.onPath("/")
+      val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
       if (processor.isError) {
-        val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
         throw new Exception(diags)
+      } else if (diags.length > 0) {
+        System.err.println(diags)
       }
       val actual = processor.parse(dataToParse, lengthLimitInBits)
 
