@@ -24,10 +24,10 @@ class TestLengthPropertiesDebug extends JUnitSuite {
   val tdml_02 = testDir_02 + "LengthProperties.tdml"
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 
-  //  @Test def test_LengthProp_01() { runner_02.runOneTest("LengthProp_01") }
-
+  // should just skip the 2 excess bytes
   @Test def test_LengthProp_06() { runner_02.runOneTest("LengthProp_06") }
+
+  // waiting for lengthUnits characters to be implemented.
   @Test def test_LengthProp_lengthExpression() { runner_02.runOneTest("LengthProp_lengthExpression1") }
 
-  @Test def test_LengthProp_bits_02() { runner_02.runOneTest("LengthProp_bits_02") }
 }

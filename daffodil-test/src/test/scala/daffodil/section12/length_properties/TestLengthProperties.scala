@@ -44,5 +44,5 @@ class TestLengthProperties extends JUnitSuite {
   //  @Test def test_LengthProp_lengthExpression() { runner_02.runOneTest("LengthProp_lengthExpression1") }
 
   @Test def test_LengthProp_bits_01() { runner_02.runOneTest("LengthProp_bits_01") }
-  //  @Test def test_LengthProp_bits_02() = Debugger.withDebugger { runner_02.runOneTest("LengthProp_bits_02") }
+  @Test def test_LengthProp_bits_02() = Debugger.withDebugger { runner_02.runOneTest("LengthProp_bits_02") }
 }

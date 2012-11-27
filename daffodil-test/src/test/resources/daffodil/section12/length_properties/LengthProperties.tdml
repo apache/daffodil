@@ -133,7 +133,7 @@
     root="LP_08" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-150Rish">
 
     <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[010110101001001000000000]]></tdml:documentPart>
+      <tdml:documentPart type="bits"><![CDATA[0 1 0110 1010 0100]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
