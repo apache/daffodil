@@ -590,4 +590,75 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="discrimWithVariable">
+    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:defineVariable name="var"/>
+
+    <xs:element name="r1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <dfdl:setVariable ref="ex:var">{ 41 }</dfdl:setVariable>
+              <dfdl:discriminator testKind="pattern" testPattern="o_o" message="Discriminator failed for pattern 'o_o'" />
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:int" dfdl:inputValueCalc="{ $ex:var }"/>
+          <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="r2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <dfdl:setVariable ref="ex:var">{ 41 }</dfdl:setVariable>
+              <dfdl:discriminator testKind="pattern" testPattern="41" message="Discriminator failed for pattern '41'" />
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:int" dfdl:inputValueCalc="{ $ex:var }"/>
+          <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: discrimPatternMatch
+    Schema: discrimWithVariable
+    Purpose: This test demonstrates that discriminators are evaluated before the data is parsed.
+  -->
+
+  <tdml:parserTestCase name="discrimPatternMatch"
+    root="r1" model="discrimWithVariable"
+    description="Section 7 - asserts/discriminators with testKind='pattern' need to be evaluated before the element">
+    <tdml:document><![CDATA[o_o]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r1>
+          <e1>41</e1>
+          <extra>o_o</extra>
+        </r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: discrimPatternNoMatch
+    Schema: discrimWithVariable
+    Purpose: This negative test demonstrates that discriminators are evaluated before the data is parsed.
+  -->
+
+  <tdml:parserTestCase name="discrimPatternNoMatch"
+    root="r2" model="discrimWithVariable"
+    description="Section 7 - asserts/discriminators with testKind='pattern' need to be evaluated before the element">
+    <tdml:document><![CDATA[o_o]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Discriminator failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

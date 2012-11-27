@@ -110,6 +110,41 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <dfdl:defineEscapeScheme name="table1">
+      <dfdl:escapeScheme escapeCharacter='5' escapeEscapeCharacter="/"
+        escapeKind="escapeCharacter"/>
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="e9" type="xs:int" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="ex:table1">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert testKind="pattern" testPattern="12345"
+            message="Assertion failed for pattern '12345'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+    
+    <xs:element name="seq_01" dfdl:terminator="">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert testKind="pattern" testPattern="\d:\d;\d,\d."
+            message="Assertion failed for pattern '12345'" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+        <xs:sequence dfdl:separator="" dfdl:terminator="">
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"
+            dfdl:terminator=":" />
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"
+            dfdl:terminator=";" />
+          <xs:element name="e3" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"
+            dfdl:terminator="," />
+          <xs:element name="e4" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"
+            dfdl:terminator="." />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:element name="description" type="xs:string" />
     <xs:element name="quantity" type="xs:int" />
@@ -208,6 +243,43 @@
     <tdml:errors>
       <tdml:error>Assertion</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: assertPatternMatch
+    Schema: s1
+    Purpose: This test demonstrates that assertions are evaluated before the element is parsed (last character of assert pattern is an escapeCharacter).
+  -->
+
+  <tdml:parserTestCase name="assertPatternMatch" root="e9"
+    model="s1" description="Section 7 - asserts/discriminators with testKind='pattern' need to be evaluated before the element">
+    <tdml:document><![CDATA[12345]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e9>1234</e9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: assertPatternMatch2
+    Schema: s1
+    Purpose: This test demonstrates that assertions are evaluated before the element is parsed (terminators included).
+  -->
+
+  <tdml:parserTestCase name="assertPatternMatch2" root="seq_01"
+    model="s1" description="Section 7 - asserts/discriminators with testKind='pattern' need to be evaluated before the element">
+    <tdml:document><![CDATA[1:2;3,4.]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq_01>
+          <e1>1</e1>
+          <e2>2</e2>
+          <e3>3</e3>
+          <e4>4</e4>
+        </seq_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choice1">

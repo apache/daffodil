@@ -34,4 +34,6 @@ class TestAssertions extends JUnitSuite {
   @Test def test_assertOnElemRef() { runner.runOneTest("assertOnElemRef") }
   @Test def test_assertOnSimpleType() { runner.runOneTest("assertOnSimpleType") }
 
+  @Test def test_assertPatternMatch() { runner.runOneTest("assertPatternMatch") }
+  @Test def test_assertPatternMatch2() { runner.runOneTest("assertPatternMatch2") }
 }

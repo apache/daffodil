@@ -31,4 +31,6 @@ class TestDiscriminators extends JUnitSuite {
   @Test def test_discriminators_discrimOnElementRef() { runner.runOneTest("discrimOnElementRef") }
   @Test def test_choiceBranchDiscrimFail() = { runner.runOneTest("choiceBranchDiscrimFail") }
 
+  @Test def test_discrimPatternMatch() = { runner.runOneTest("discrimPatternMatch") }
+  @Test def test_discrimPatternNoMatch() = { runner.runOneTest("discrimPatternNoMatch") }
 }
