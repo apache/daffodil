@@ -167,7 +167,7 @@
   </parserTestCase>
 
   <parserTestCase name="AB004" root="matrix_02" model="AB.dfdl.xsd"
-    description="CSV-style tests - data stream is scanned for element's enclosing construct's separator and terminator.  separatorPosition is infix.  Sequence has is nil element. - DFDL-12-043R">
+    description="CSV-style tests - data stream is scanned for element's enclosing construct's separator.  separatorPosition is postfix.  Sequence has is nil element. - DFDL-12-043R">
 
     <document>
       <documentPart type="text"><![CDATA[0,1,2,3,4
@@ -206,8 +206,8 @@
     </infoset>
   </parserTestCase>
 
-  <parserTestCase name="AB005" root="matrix_04" model="AB.dfdl.xsd"
-    description="CSV-style tests - data stream is scanned for element's enclosing construct's separator and terminator.  separatorPosition is postfix.  Sequence has is nil elements.  A test for documentFinalTerminatorCanBeMissing property. - DFDL-12-043R">
+  <parserTestCase name="AB005" root="matrix_02" model="AB.dfdl.xsd"
+    description="CSV-style tests - data stream is scanned for element's enclosing construct's separator.  separatorPosition is postfix.  Sequence has is nil elements. - DFDL-12-043R">
 
     <document>
       <documentPart type="text"><![CDATA[0,1,2,3,4
@@ -219,7 +219,7 @@
     <infoset>
       <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <matrix_04 xmlns="http://www.example.org/example1/"
+        <matrix_02 xmlns="http://www.example.org/example1/"
           xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
           <row>
             <cell type="xsd:int">0</cell>
@@ -241,7 +241,7 @@
             <cell type="xsd:int" xsi:nil="true"></cell>
             <cell type="xsd:int" xsi:nil="true"></cell>
           </row>
-        </matrix_04>
+        </matrix_02>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
