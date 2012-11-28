@@ -20,6 +20,7 @@ class TestFacets extends JUnitSuite {
   @Test def test_correctNumCells0() { runner.runOneTest("correctNumCells0") }
   @Test def test_extraCellsParsed() { runner.runOneTest("extraCellsParsed") }
   @Test def test_scalarElements() { runner.runOneTest("scalarElements") }
+  @Test def test_scalarElementsExtra() { runner.runOneTest("scalarElementsExtra") }
   @Test def test_lessThanMinBasic() { runner.runOneTest("lessThanMinBasic") }
   @Test def test_moreThanMaxBasic() { runner.runOneTest("moreThanMaxBasic") }
   @Test def test_arrayElements() { runner.runOneTest("arrayElements") }

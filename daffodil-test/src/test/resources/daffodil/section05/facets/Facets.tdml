@@ -65,16 +65,23 @@
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
       separatorPolicy="required" separatorPosition="infix" />
 
-
-    <xs:element name="scalar" type="scalarType"
-      dfdl:lengthKind="implicit" />
-
     <xs:complexType name="scalarType">
       <xs:sequence dfdl:separator="|">
         <xs:element name="data" type="xs:int" minOccurs="1"
           maxOccurs="1" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
       </xs:sequence>
     </xs:complexType>
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="scalar" type="scalarType"
+            dfdl:lengthKind="implicit" />
+          <xs:element name="extra" type="xs:string"
+            dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
 
   </tdml:defineSchema>
@@ -438,7 +445,7 @@
     Purpose: This document has a single element and should be parsed accordingly.
   -->
 
-  <tdml:parserTestCase name="scalarElements" root="scalar"
+  <tdml:parserTestCase name="scalarElements" root="root"
     model="facets-min1max1-scalar.dfdl.xsd" description="Section 5 - minOccurs 1 maxOccurs 1 - DFDL-5-057R">
 
     <tdml:document>
@@ -447,9 +454,38 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <scalar>
-          <data>1</data>
-        </scalar>
+        <root>
+          <scalar>
+            <data>1</data>
+          </scalar>
+            <extra></extra>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: scalarElementsExtra
+    Schema: facets-min1max1-scalar.dfdl.xsd
+    Purpose: This document has more than a single element and should be parsed accordingly.
+  -->
+
+  <tdml:parserTestCase name="scalarElementsExtra" root="root"
+    model="facets-min1max1-scalar.dfdl.xsd" description="Section 5 - minOccurs 1 maxOccurs 1 - DFDL-5-057R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1|2|3|4]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <scalar>
+            <data>1</data>
+          </scalar>
+          <extra>|2|3|4</extra>
+        </root>        
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
