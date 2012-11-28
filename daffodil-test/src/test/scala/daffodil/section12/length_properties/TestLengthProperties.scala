@@ -19,6 +19,7 @@ class TestLengthProperties extends JUnitSuite {
 
   @Test def test_length_explicit_12_01() { runner_01.runOneTest("length_explicit_12_01") }
   @Test def test_length_explicit_12_02() { runner_01.runOneTest("length_explicit_12_02") }
+  @Test def test_length_delimited_12_06() { runner_01.runOneTest("length_delimited_12_06") }
 
   val testDir_02 = "/daffodil/section12/length_properties/"
   val tdml_02 = testDir_02 + "LengthProperties.tdml"

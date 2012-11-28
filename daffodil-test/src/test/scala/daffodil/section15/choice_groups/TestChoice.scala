@@ -43,4 +43,12 @@ class TestChoice extends JUnitSuite {
   @Test def test_nestedChoiceAllString() { runnerCH.runOneTest("nestedChoiceAllString") }
   @Test def test_nestedChoiceAllFloat() { runnerCH.runOneTest("nestedChoiceAllFloat") }
   @Test def test_nestedChoiceAllInt() { runnerCH.runOneTest("nestedChoiceAllInt") }
+  
+  val testDir1 = "/daffodil/ibm-tests/"
+  val tdml1 = testDir1 + "dpaext2.tdml"
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
+  
+  @Test def test_choices_basic_15_01() { runner.runOneTest("choices_basic_15_01") }
+  @Test def test_choices_basic_15_02() { runner.runOneTest("choices_basic_15_02") }
+  @Test def test_choices_basic_15_03() { runner.runOneTest("choices_basic_15_03") }
 }

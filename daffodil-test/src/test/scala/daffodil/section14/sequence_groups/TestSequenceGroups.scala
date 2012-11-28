@@ -17,6 +17,12 @@ class TestSequenceGroups extends JUnitSuite {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   @Test def test_multiple_delimiters2() { runner.runOneTest("multiple_delimiters2") }
+  
+  val tdml2 = testDir + "dpaext2.tdml"
+  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+  @Test def test_sequences_separated_14_03() { runner2.runOneTest("sequences_separated_14_03") }
+  @Test def test_sequences_separated_14_05() { runner2.runOneTest("sequences_separated_14_05") }
+  @Test def test_sequences_separated_14_06() { runner2.runOneTest("sequences_separated_14_06") }
 
   val testDir_01 = "/daffodil/section14/sequence_groups/"
   val tdml_01 = testDir_01 + "SequenceGroupDelimiters.tdml"

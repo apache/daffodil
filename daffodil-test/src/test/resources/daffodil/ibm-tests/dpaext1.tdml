@@ -214,7 +214,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 
 	<!--  example of dfdl component annotation in 7.1  page 37-->
 	<parserTestCase name="property_syntax_7_01" root="root"
-	description="Section 7.1.3.1 Representation Property Binding Syntax: Attribute Form"
+	description="Section 7.1.3.1 Representation Property Binding Syntax: Attribute Form - DFDL-7-021R"
 		model="./fvt/ext/dpa/dpaspc7131.dfdl.xsd">
 
 		<document><documentPart type="byte">61620a6263</documentPart></document>
@@ -231,7 +231,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 
 	<!--  element form in 7.1.3.2 -->
 	<parserTestCase name="property_syntax_7_02" root="root"
-	description="Section 7.1.3.2 Representation Property Binding Syntax: Element Form"
+	description="Section 7.1.3.2 Representation Property Binding Syntax: Element Form - DFDL-7-022R"
 		model="./fvt/ext/dpa/dpaspc7132.dfdl.xsd">
 
 		<document><documentPart type="byte">61620a6263</documentPart></document>
@@ -248,7 +248,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 
 	<!--  CDATA example  in 7.1.3.2-->
 	<parserTestCase name="property_syntax_7_03" root="element1"
-	description="Section 7.1.3.2 Representation Property Binding Syntax: CDATA Example"
+	description="Section 7.1.3.2 Representation Property Binding Syntax: CDATA Example - DFDL-7-022R"
 		model="./fvt/ext/dpa/dpaspc7132_2.dfdl.xsd">
 
 		<document><documentPart type="byte">3c212d2d6162</documentPart></document>
@@ -707,8 +707,19 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 </dfdlInfoset>
 </infoset>
  </parserTestCase> 	
-	
-<!--  	<parserTestCase name="length_delimited_12_05" unsupported="true"
+
+<parserTestCase name="length_delimited_12_04"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 Properties for specifying length -delimited - end of input"
+ root="myDate2">
+ <document>2011-03-21</document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <myDate2 xsi:type="xs:date">2011-03-21+00:00</myDate2>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase>
+ 
+<parserTestCase name="length_delimited_12_05" unsupported="true"
  model="./fvt/ext/dpa/dpadelbcd_01.dfdl.xsd" description="Section 12.3 Properties for specifying length - binary  - bcd - delimited"
  root="mybinDecimal2">
  <document><documentPart type="byte">1234567840</documentPart></document>
@@ -717,10 +728,10 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
   <mybinDecimal2 xsi:type="xs:decimal">123456.78</mybinDecimal2>
 </dfdlInfoset>
 </infoset>
- </parserTestCase> 
+ </parserTestCase>
  
  <parserTestCase name="length_delimited_12_06"
- model="./fvt/ext/dpa/dpadelone107_05.dfdl.xsd" description="Section 12.3 Properties for specifying length - simple element with specified length within a delimited sequence"
+ model="./fvt/ext/dpa/dpadelone107_05.dfdl.xsd" description="Section 12.3 Properties for specifying length - simple element with specified length within a delimited sequence - DFDL-12-038R"
  root="groupElem">
  <document><documentPart type="text">A:test1a~</documentPart>
  <documentPart type="byte">0004</documentPart>
@@ -734,7 +745,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
   </groupElem>
 </dfdlInfoset>
 </infoset>
- </parserTestCase> -->
+ </parserTestCase>
  
  <parserTestCase name="length_implicit_12_01"
  model="./fvt/ext/dpa/dpaimpflt_bin.dfdl.xsd" description="Section 12 - Length Variations - implicit length - binary float"
@@ -758,7 +769,6 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 </infoset>
  </parserTestCase> 
 
-<!--
 <parserTestCase name="length_explicit_12_03"
  model="./fvt/ext/dpa/length_explicit_12.dfdl.xsd" description="Section 12 - Length Variations - encoding that has varying length characters utf-8 - lengthUnits Characters"
  root="multibytes_2">
@@ -769,7 +779,6 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 </dfdlInfoset>
 </infoset>
  </parserTestCase>
- -->
  
  <parserTestCase name="multiple_delimiters"
  model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 multiple terminators DFDL-12-033R"

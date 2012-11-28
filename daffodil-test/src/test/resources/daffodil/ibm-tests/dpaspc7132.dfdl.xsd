@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:cal="http://www.saf.cal/" elementFormDefault="unqualified"
+	attributeFormDefault="unqualified" >
+	<!--  Portions of this schema taken from example in 
+	Data Format Description Language (DFDL) v1.0 Specification, Copyright © Global Grid Forum (2004-2006).  All Rights Reserved.
+Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
+	 -->
+	 
+	<!--
+		7.1.3.2 Representation Property Binding Syntax: Element Form spec v.40
+	-->
+
+
+	<!-- Defaulted property values from sample snippet-->
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format>
+				<dfdl:property name="encoding">utf-8</dfdl:property>
+				<dfdl:property name='separator'>%NL;</dfdl:property>
+			</dfdl:format>
+		</xs:appinfo>
+	</xs:annotation>
+	<!--
+		the rest of schema created to ensure we handle the values set as
+		properties above
+	-->
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:defineFormat name="config">
+				<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
+				    occursCountKind="implicit" lengthUnits="bytes"
+					initiatedContent="no" sequenceKind="ordered" ignoreCase="yes"
+					textPadKind="none" textTrimKind="none" textStandardBase="10"
+					textNumberJustification="right" separatorPosition="infix"
+					separatorPolicy="required" escapeSchemeRef="" lengthKind="delimited"
+					documentFinalTerminatorCanBeMissing="no" outputNewLine="%LF;"
+					textNumberRep="standard" nilValueDelimiterPolicy="both"
+					textNumberRounding="pattern" />
+			</dfdl:defineFormat>
+
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:defineFormat name="baseString">
+				<dfdl:format byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" lengthUnits="bytes"
+                    initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no" 
+					ignoreCase="yes" textPadKind="none" textTrimKind="none"
+					textStandardBase="10" textStringJustification="right"
+					escapeSchemeRef="" lengthKind="delimited" occursCountKind="implicit"/>
+			</dfdl:defineFormat>
+
+		</xs:appinfo>
+	</xs:annotation>
+	
+
+
+	<xs:element name="root" dfdl:lengthKind="implicit" dfdl:ref="config">
+		<xs:complexType>
+			<xs:sequence dfdl:ref="config">
+				<xs:element name="element1" type="xs:string" dfdl:ref="baseString"
+					dfdl:representation="text" />
+				<xs:element name="element2" type="xs:string" dfdl:ref="baseString"
+					dfdl:representation="text" />
+
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

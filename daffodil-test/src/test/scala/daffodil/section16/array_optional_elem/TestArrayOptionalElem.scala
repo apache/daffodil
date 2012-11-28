@@ -22,4 +22,9 @@ class TestArrayOptionalElem extends JUnitSuite {
   val ab = testDir01 + "Facets.tdml"
   lazy val runner01 = new DFDLTestSuite(Misc.getRequiredResource(ab))
   @Test def test_leftOverData_Neg() { runner01.runOneTest("leftOverData_Neg") }
+  
+  val testDir1 = "/daffodil/ibm-tests/"
+  val tdml1 = testDir1 + "dpaext2.tdml"
+  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
+  @Test def test_arrays_16_01() { runner1.runOneTest("arrays_16_01") }
 }

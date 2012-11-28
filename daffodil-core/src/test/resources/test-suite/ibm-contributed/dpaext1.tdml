@@ -2,8 +2,7 @@
 <testSuite suiteName="dpaext" 
 	description="Sample tests to post externally"
 	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
 
 
    <!-- 
@@ -63,7 +62,7 @@ the basic demonstration of DFDL with binary and text number formats  -->
 	<!--  Second example from  Simple Example 1.2 -->
 	<parserTestCase name="introduction_1_02" root="root"
 		model="./fvt/ext/dpa/dpaspc121_02.dfdl.xsd"
-		description="Section 1.2 General number example, What is DFDL - text numbers">
+		description="Section 12 lengthKind-delimited - DFDL-12-043R">
 
 		<document>5,7839372,8.6E-200,-7.1E8</document>
 
@@ -90,10 +89,8 @@ in Section 5.1 -->
     <!-- Facets, default and fixed, though covered in Section 5, are optional, and so no tests here for those. min/maxOccurs 
  will be covered with Section 16, arrays and optional elements. -->
 
-
- 
 	<parserTestCase name="schema_types_5_01" root="byte1"
-		model="./fvt/ext/dpa/dpanum.dfdl.xsd" description="Section 5 Schema types - byte">
+		model="./fvt/ext/dpa/dpanum.dfdl.xsd" description="Section 5 Schema types - byte - DFDL-5-015R">
 
 		<document>0123</document>
 		<infoset>
@@ -106,7 +103,7 @@ in Section 5.1 -->
 
 
 	<parserTestCase name="schema_types_5_02" root="short1"
-		model="./fvt/ext/dpa/dpanum.dfdl.xsd" description="Section 5 Schema types - short">
+		model="./fvt/ext/dpa/dpanum.dfdl.xsd" description="Section 5 Schema types - short - DFDL-5-014R">
 
 		<document>-123</document>
 		<infoset>
@@ -119,7 +116,7 @@ in Section 5.1 -->
 
 
 	<parserTestCase name="schema_types_5_03" root="int1"
-		model="./fvt/ext/dpa/dpanum.dfdl.xsd" description="Section 5 Schema types - byte">
+		model="./fvt/ext/dpa/dpanum.dfdl.xsd" description="Section 5 Schema types int - DFDL-5-013R">
 
 		<document>-2147483648</document>
 		<infoset>
@@ -131,7 +128,7 @@ in Section 5.1 -->
 	</parserTestCase>
 
 	<parserTestCase name="schema_types_5_04" root="long1"
-		model="./fvt/ext/dpa/dpanum.dfdl.xsd" description="Section 5 Schema types - long">
+		model="./fvt/ext/dpa/dpanum.dfdl.xsd" description="Section 5 Schema types - long - DFDL-5-012R">
 
 		<document>9223372036854775807</document>
 		<infoset>
@@ -142,7 +139,7 @@ in Section 5.1 -->
 		</infoset>
 	</parserTestCase>
 	
-	<parserTestCase name="schema_types_5_05" description="Section 5 Schema types - unsignedByte"
+	<parserTestCase name="schema_types_5_05" description="Section 5 Schema types - unsignedByte - DFDL-5-020R"
 		model="./fvt/ext/dpa/dpanum.dfdl.xsd" root="unsignedByte1">
 		<document>0001</document>
 		<infoset>
@@ -152,13 +149,13 @@ in Section 5.1 -->
 
 		</infoset>
 	</parserTestCase>
-
+	
     <!-- The next tests show examples of using DFDL entities in string literals, to easily represent
 values that aren't normally representable in XML -->
 
 	<parserTestCase name="syntax_entities_6_01"
 		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator, single byte
-entities SOH and ETX"
+entities SOH and ETX - DFDL-6-041R"
 		model="./fvt/ext/dpa/syntax_entities_6.dfdl.xsd" root="element1">
 		<document><documentPart type="byte">01616203</documentPart></document>
 			<infoset>
@@ -171,7 +168,7 @@ entities SOH and ETX"
 
 	<parserTestCase name="syntax_entities_6_02"
 		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator - SP and LS, the later 
-is multiple bytes in UTF-8 encoding that is used"
+is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
 		model="./fvt/ext/dpa/syntax_entities_6.dfdl.xsd" root="element2">
 		<document><documentPart type="byte">206162E280A8</documentPart></document>
 		<infoset>
@@ -184,7 +181,7 @@ is multiple bytes in UTF-8 encoding that is used"
 	
 	<parserTestCase name="syntax_entities_6_03"
 		description="Section 6.3 DFDL Character Entities - single DFDLEntityName in initiator and terminator, shows use of a character class
-entity NL and also use of UTF-16 encoding"
+entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 		model="./fvt/ext/dpa/syntax_entities_6.dfdl.xsd" root="Fixed_text_sequence">
 		<document><documentPart type="byte">0A00610062000A00</documentPart></document>
 		<infoset>
@@ -197,7 +194,7 @@ entity NL and also use of UTF-16 encoding"
 		</infoset>
 	</parserTestCase>
 	
-	<parserTestCase name="syntax_entities_6_04"
+		<parserTestCase name="syntax_entities_6_04"
 		description="Section 6.3 DFDL Character Entities - use of raw byte in fillByte for alignment"
 		model="./fvt/ext/dpa/syntax_entities_6.dfdl.xsd" root="Fixed_bin_num_sequence">
 		<document><documentPart type="byte">707E7E7E70</documentPart></document>
@@ -217,7 +214,7 @@ entity NL and also use of UTF-16 encoding"
 
 	<!--  example of dfdl component annotation in 7.1  page 37-->
 	<parserTestCase name="property_syntax_7_01" root="root"
-	description="Section 7.1.3.1 Representation Property Binding Syntax: Attribute Form"
+	description="Section 7.1.3.1 Representation Property Binding Syntax: Attribute Form - DFDL-7-021R"
 		model="./fvt/ext/dpa/dpaspc7131.dfdl.xsd">
 
 		<document><documentPart type="byte">61620a6263</documentPart></document>
@@ -234,7 +231,7 @@ entity NL and also use of UTF-16 encoding"
 
 	<!--  element form in 7.1.3.2 -->
 	<parserTestCase name="property_syntax_7_02" root="root"
-	description="Section 7.1.3.2 Representation Property Binding Syntax: Element Form"
+	description="Section 7.1.3.2 Representation Property Binding Syntax: Element Form - DFDL-7-022R"
 		model="./fvt/ext/dpa/dpaspc7132.dfdl.xsd">
 
 		<document><documentPart type="byte">61620a6263</documentPart></document>
@@ -251,7 +248,7 @@ entity NL and also use of UTF-16 encoding"
 
 	<!--  CDATA example  in 7.1.3.2-->
 	<parserTestCase name="property_syntax_7_03" root="element1"
-	description="Section 7.1.3.2 Representation Property Binding Syntax: CDATA Example"
+	description="Section 7.1.3.2 Representation Property Binding Syntax: CDATA Example - DFDL-7-022R"
 		model="./fvt/ext/dpa/dpaspc7132_2.dfdl.xsd">
 
 		<document><documentPart type="byte">3c212d2d6162</documentPart></document>
@@ -403,7 +400,7 @@ entity NL and also use of UTF-16 encoding"
 	 
 	<parserTestCase name="encoding_11_01" root="tag1"
 		model="./fvt/ext/dpa/dpaflsenc101_04_01.dfdl.xsd"
-		description="Section 11 Properties common to content and framing  - UTF-32 and byteOrder little endian">
+		description="Section 11 Properties common to content and framing  - UTF-32 and byteOrder little endian - DFDL-11-001R">
 
 			<document><documentPart type="byte">4300000055000000</documentPart></document>
 
@@ -417,7 +414,7 @@ entity NL and also use of UTF-16 encoding"
 	
 	<parserTestCase name="encoding_11_02" root="tag2"
 		model="./fvt/ext/dpa/dpaflsenc101_04_01.dfdl.xsd"
-		description="Section 11 Properties common to content and framing - UTF-32LE and byteOrder little endian">
+		description="Section 11 Properties common to content and framing - UTF-32LE - DFDL-11-001R">
 
 			<document><documentPart type="byte">4300000055000000</documentPart></document>
 
@@ -431,7 +428,7 @@ entity NL and also use of UTF-16 encoding"
 	
 	<parserTestCase name="encoding_11_03" root="tag3"
 		model="./fvt/ext/dpa/dpaflsenc101_04_01.dfdl.xsd"
-		description="Section 11 Properties common to content and framing - UTF-32BE and byteOrder little endian ignored">
+		description="Section 11 Properties common to content and framing - UTF-32BE - DFDL-11-001R">
 
 			<document><documentPart type="byte">0000004300000055</documentPart></document>
 
@@ -572,7 +569,7 @@ entity NL and also use of UTF-16 encoding"
 	</parserTestCase>
 	
     <parserTestCase name="delimiter_12_01" root="Fixed_string_with_Pads_10_1"
-		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 Properties for specifying delimiters - Simple initiator and terminator">
+		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 Properties for specifying delimiters - Simple initiator and terminator - DFDL-12-032R">
 
 		<document>iAAAAAAAAAAt</document>
 		<infoset>
@@ -596,7 +593,7 @@ entity NL and also use of UTF-16 encoding"
 	</parserTestCase>
 
     <parserTestCase name="delimiter_12_03" root="Fixed_string_with_Pads_10_2"
-		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 simple initiator and terminator - space separated list">
+		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 simple initiator and terminator - space separated list - DFDL-12-032R">
 
 		<document>:AAAAAAAAAAterminator</document>
 		<infoset>
@@ -608,7 +605,7 @@ entity NL and also use of UTF-16 encoding"
 	</parserTestCase>
 	
 	<parserTestCase name="delimiter_12_04" root="Fixed_text_sequence"
-		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 simple initiator and terminator - NL entity">
+		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 simple initiator and terminator - NL entity - DFDL-12-032R">
 		<document><documentPart type="byte">0A61620A</documentPart></document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -625,7 +622,7 @@ entity NL and also use of UTF-16 encoding"
 	
 	<!--  section 12.3 properties for specifying length  -->
 	<parserTestCase name="length_explicit_12_01" root="multibytes_1"
-		model="./fvt/ext/dpa/length_explicit_12.dfdl.xsd" description="Section 12.3 Properties for specifying length - utf-8 multibyte characters, lengthKind='explicit', lengthUnits='bytes'">
+		model="./fvt/ext/dpa/length_explicit_12.dfdl.xsd" description="Section 12.3 Properties for specifying length - utf-8 multibyte characters, lengthKind='explicit', lengthUnits='bytes' - DFDL-12-038R">
 		<document><documentPart type="byte">e282ace282ac</documentPart></document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -635,8 +632,8 @@ entity NL and also use of UTF-16 encoding"
 	</parserTestCase>
 	
 	<parserTestCase name="length_explicit_12_02" root="multibytes_2"
-		model="./fvt/ext/dpa/length_explicit_12.dfdl.xsd" description="Section 12.3 Properties for specifying length - utf-8 multibyte characters, lengthUnits='characters'
-		12.3.7.1.1">
+		model="./fvt/ext/dpa/length_explicit_12.dfdl.xsd" description="Section 12.3 Properties for specifying length - utf-8 multibyte characters, lengthKind='explicit', lengthUnits='characters'
+		- DFDL-12-040R">
 		<document><documentPart type="byte">e4ba9cc383e697a57e</documentPart></document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -664,10 +661,15 @@ entity NL and also use of UTF-16 encoding"
 </infoset>
  </parserTestCase> 
 	
-
+	<!--  With lengthKind="delimited", tests show various ways to in indicate the end of an element's content - with terminator, with
+	parent separator, with parent of specified length, with end of input. Delimited length can also be used with BCD fields, which
+	is shown here.	 Also, an element of explicit length can be a component of a delimited sequence. -->
+	
+	<!--  A couple of valid logical types are shown with lengthKind="implicit" 	-->
+	
 
 <parserTestCase name="length_delimited_12_02"
- model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 Properties for specifying length -delimited - parent separator and terminator"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R"
  root="myStringSeq1">
  <document>abcd~efgh@</document>
  <infoset>
@@ -679,11 +681,24 @@ entity NL and also use of UTF-16 encoding"
 </dfdlInfoset>
 </infoset>
  </parserTestCase> 	
+ 
+ <parserTestCase name="length_delimited_12_03_controversial"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 length -delimited - parent terminator - DFDL-12-043R"
+ root="myStringSeq2_controversial">
+ <document>abcde</document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <myStringSeq2_controversial>
+    <Test1>abcde</Test1>
+  </myStringSeq2_controversial>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 	
 	
 <parserTestCase name="length_delimited_12_03"
- model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 Properties for specifying length -delimited - parent has specified length"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 length -delimited - parent terminator - DFDL-12-043R"
  root="myStringSeq2">
- <document>abcde</document>
+ <document>abcde;</document>
  <infoset>
   <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <myStringSeq2>
@@ -692,8 +707,8 @@ entity NL and also use of UTF-16 encoding"
 </dfdlInfoset>
 </infoset>
  </parserTestCase> 	
- 
- <parserTestCase name="length_delimited_12_04"
+
+<parserTestCase name="length_delimited_12_04"
  model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 Properties for specifying length -delimited - end of input"
  root="myDate2">
  <document>2011-03-21</document>
@@ -702,9 +717,9 @@ entity NL and also use of UTF-16 encoding"
   <myDate2 xsi:type="xs:date">2011-03-21+00:00</myDate2>
 </dfdlInfoset>
 </infoset>
- </parserTestCase> 
-	
-	<parserTestCase name="length_delimited_12_05" unsupported="true"
+ </parserTestCase>
+ 
+<parserTestCase name="length_delimited_12_05" unsupported="true"
  model="./fvt/ext/dpa/dpadelbcd_01.dfdl.xsd" description="Section 12.3 Properties for specifying length - binary  - bcd - delimited"
  root="mybinDecimal2">
  <document><documentPart type="byte">1234567840</documentPart></document>
@@ -713,10 +728,10 @@ entity NL and also use of UTF-16 encoding"
   <mybinDecimal2 xsi:type="xs:decimal">123456.78</mybinDecimal2>
 </dfdlInfoset>
 </infoset>
- </parserTestCase> 
+ </parserTestCase>
  
  <parserTestCase name="length_delimited_12_06"
- model="./fvt/ext/dpa/dpadelone107_05.dfdl.xsd" description="Section 12.3 Properties for specifying length - simple element with specified length within a delimited sequence"
+ model="./fvt/ext/dpa/dpadelone107_05.dfdl.xsd" description="Section 12.3 Properties for specifying length - simple element with specified length within a delimited sequence - DFDL-12-038R"
  root="groupElem">
  <document><documentPart type="text">A:test1a~</documentPart>
  <documentPart type="byte">0004</documentPart>
@@ -730,9 +745,9 @@ entity NL and also use of UTF-16 encoding"
   </groupElem>
 </dfdlInfoset>
 </infoset>
- </parserTestCase> 
+ </parserTestCase>
  
- 	<parserTestCase name="length_implicit_12_01"
+ <parserTestCase name="length_implicit_12_01"
  model="./fvt/ext/dpa/dpaimpflt_bin.dfdl.xsd" description="Section 12 - Length Variations - implicit length - binary float"
  root="Implicit">
  <document><documentPart type="byte">3f800000</documentPart></document>
@@ -754,7 +769,6 @@ entity NL and also use of UTF-16 encoding"
 </infoset>
  </parserTestCase> 
 
-
 <parserTestCase name="length_explicit_12_03"
  model="./fvt/ext/dpa/length_explicit_12.dfdl.xsd" description="Section 12 - Length Variations - encoding that has varying length characters utf-8 - lengthUnits Characters"
  root="multibytes_2">
@@ -764,8 +778,44 @@ entity NL and also use of UTF-16 encoding"
   <multibytes_2>&#20124;&#195;&#26085;&#126;</multibytes_2>
 </dfdlInfoset>
 </infoset>
- </parserTestCase> 
-
+ </parserTestCase>
+ 
+ <parserTestCase name="multiple_delimiters"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 12.3 multiple terminators DFDL-12-033R"
+ root="myStringSeq3">
+ <document>abcde|fghij|klmno::</document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <myStringSeq3>
+    <element1>abcde</element1>
+    <element2>fghij</element2>
+    <element3>klmno</element3>
+  </myStringSeq3>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase>
+ 
+ <parserTestCase name="multiple_delimiters2"
+ model="./fvt/ext/dpa/dpaextdeltxt101.dfdl.xsd" description="Section 14 Sequence groups with delimiters, a whitespace separated list for separator - DFDL-14-008R"
+ root="myStringSeq4">
+ <document>abcde|fghij|klmno::pqrst|uvwzy|z]</document>
+ <infoset>
+  <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <myStringSeq4>
+  	<seq1>
+  		<element1>abcde</element1>
+    	<element2>fghij</element2>
+    	<element3>klmno</element3>
+  	</seq1>
+  	<seq2>
+  		<element1>pqrst</element1>
+    	<element2>uvwzy</element2>
+    	<element3>z</element3>
+  	</seq2>
+  </myStringSeq4>
+</dfdlInfoset>
+</infoset>
+ </parserTestCase> 	 	
 
 
 
