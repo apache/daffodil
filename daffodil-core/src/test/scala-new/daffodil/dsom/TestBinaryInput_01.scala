@@ -222,8 +222,6 @@ class TestBinaryInput_01 extends JUnitSuite {
 
   /*** DFDL-307 ***/
   @Test def test_one_octet() { runner.runOneTest("OneOctetBinaryParse") }
-  @Test def test_oneBitLeftOver() { runner.runOneTest("OneBitLeftOver") }
-  @Test def test_oneBit1() { runner.runOneTest("OneBit1") }
   @Test def test_oneBit2() { runner.runOneTest("OneBit2") }
 
   /*** DFDL-379 US-ASCII-7-bit-packed text ***/

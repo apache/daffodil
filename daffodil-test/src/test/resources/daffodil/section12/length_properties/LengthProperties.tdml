@@ -568,6 +568,120 @@ proper that we should do this]]></tdml:document>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="DFDL-307-one-octet.dfdl.xsd">
+
+    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+      binaryNumberRep="binary" lengthUnits="bits" byteOrder='bigEndian'
+      alignment="1" alignmentUnits="bits" lengthKind='explicit' />
+
+    <xs:element name="e1" type="xs:unsignedByte" dfdl:length="1" />
+    <xs:element name="e2" type="xs:unsignedByte" dfdl:length="3" />
+
+    <xs:element name="s1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="e3" type="xs:unsignedByte" dfdl:length="3" />
+          <xs:element name="e4" type="xs:unsignedByte" dfdl:length="1" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: OneBitLeftOver
+    Schema: DFDL-307-one-octet.dfdl.xsd
+    Purpose: This test demonstrates that the number of available bits (for checking for leftover data) does not include any bits added on. In this case however, the 
+             number of significant bits is still more than what is being consumed, so parsing fails.
+  -->
+
+  <tdml:parserTestCase name="OneBitLeftOver" root="e1"
+    model="DFDL-307-one-octet.dfdl.xsd" description="Section 12 - Length Properties (binary)">
+    <tdml:document>
+      <tdml:documentPart type="bits">11</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: OneBit1
+    Schema: DFDL-307-one-octet.dfdl.xsd
+    Purpose: This test demonstrates that even though additional bits are added onto the document in order for it to represent a complete
+             byte, the test runner does not see this as excess data that has not been parsed. 
+  -->
+
+  <tdml:parserTestCase name="OneBit1" root="e1"
+    model="DFDL-307-one-octet.dfdl.xsd" description="Section 12 - Length Properties (binary)">
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>1</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ThreeBit1
+    Schema: DFDL-307-one-octet.dfdl.xsd
+    Purpose: This test demonstrates that even though additional bits are added onto the document in order for it to represent a complete
+             byte, the test runner does not see this as excess data that has not been parsed. 
+  -->
+
+  <tdml:parserTestCase name="ThreeBit1" root="e2"
+    model="DFDL-307-one-octet.dfdl.xsd" description="Section 12 - Length Properties (binary)">
+    <tdml:document>
+      <tdml:documentPart type="bits">110</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>6</e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: seqBit1
+    Schema: DFDL-307-one-octet.dfdl.xsd
+    Purpose: This test demonstrates that even though additional bits are added onto the document in order for it to represent a complete
+             byte, the test runner does not see this as excess data that has not been parsed (in the case of sequences) 
+  -->
+
+  <tdml:parserTestCase name="seqBit1" root="s1"
+    model="DFDL-307-one-octet.dfdl.xsd" description="Section 12 - Length Properties (binary)">
+    <tdml:document>
+      <tdml:documentPart type="bits">1111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <s1>
+          <e3>7</e3>
+          <e4>1</e4>
+        </s1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: seqBitLeftOver
+    Schema: DFDL-307-one-octet.dfdl.xsd
+    Purpose: This test demonstrates that the number of available bits (for checking for leftover data) does not include any bits added on. In this case however, the 
+                 number of significant bits is still more than what is being consumed, so parsing fails (in the case of sequences).
+  -->
+
+  <tdml:parserTestCase name="seqBitLeftOver" root="s1"
+    model="DFDL-307-one-octet.dfdl.xsd" description="Section 12 - Length Properties (binary)">
+    <tdml:document>
+      <tdml:documentPart type="bits">111101</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
 

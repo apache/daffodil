@@ -55,28 +55,6 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="OneBitLeftOver" root="e1"
-    model="DFDL-307-one-octet.dfdl.xsd" description="Section 13 - Simple Types of Binary Format">
-    <tdml:document>
-      <tdml:documentPart type="bits">11</tdml:documentPart>
-    </tdml:document>
-    <tdml:errors>
-      <tdml:error>Left over</tdml:error>
-    </tdml:errors>
-  </tdml:parserTestCase>
-
-  <tdml:parserTestCase name="OneBit1" root="e1"
-    model="DFDL-307-one-octet.dfdl.xsd" description="Section 13 - Simple Types of Binary Format">
-    <tdml:document>
-      <tdml:documentPart type="bits">1</tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <e1>1</e1>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
   <tdml:parserTestCase name="OneBit2" root="e2"
     model="DFDL-307-one-octet.dfdl.xsd" description="Section 13 - Simple Types of Binary Format">
     <tdml:document>

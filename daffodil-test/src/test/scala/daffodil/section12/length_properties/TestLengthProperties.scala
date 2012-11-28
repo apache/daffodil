@@ -44,5 +44,12 @@ class TestLengthProperties extends JUnitSuite {
   //  @Test def test_LengthProp_lengthExpression() { runner_02.runOneTest("LengthProp_lengthExpression1") }
 
   @Test def test_LengthProp_bits_01() { runner_02.runOneTest("LengthProp_bits_01") }
-  @Test def test_LengthProp_bits_02() = Debugger.withDebugger { runner_02.runOneTest("LengthProp_bits_02") }
+  @Test def test_LengthProp_bits_02() { runner_02.runOneTest("LengthProp_bits_02") }
+  
+  @Test def test_oneBitLeftOver() { runner_02.runOneTest("OneBitLeftOver") }
+  @Test def test_oneBit1() { runner_02.runOneTest("OneBit1") }
+  @Test def test_threeBit1() { runner_02.runOneTest("ThreeBit1") }
+  @Test def test_seqBit1() { runner_02.runOneTest("seqBit1") }
+  @Test def test_seqBitLeftOver() { runner_02.runOneTest("seqBitLeftOver") }
+
 }
