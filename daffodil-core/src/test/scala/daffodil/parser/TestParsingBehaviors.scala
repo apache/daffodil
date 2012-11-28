@@ -13,6 +13,7 @@ import java.nio.charset.Charset
 import java.net.URI
 import org.junit.Test
 import daffodil.dsom.Fakes
+import daffodil.processors.DFDLByteReader
 
 class TestParsingBehaviors extends JUnitSuite {
 
@@ -200,12 +201,10 @@ class TestParsingBehaviors extends JUnitSuite {
     //val channel = new FileInputStream(testFileDir + "AB007.in").getChannel()
     val channel = new FileInputStream(new File(new URI(rsrcAB007.toString()))).getChannel()
 
-    val charset: Charset = Charset.defaultCharset()
-
-    val byteR = new delimsearch.DFDLByteReader(channel)
+    val byteR = new DFDLByteReader(channel)
 
     //val r = byteR.charReader("UTF-8")
-    val r = byteR.newCharReader("UTF-8")
+    val r = byteR.newCharReader(Charset.forName("UTF-8"))
 
     val d = new delimsearch.DelimParser(Fakes.fakeElem)
 
@@ -213,7 +212,7 @@ class TestParsingBehaviors extends JUnitSuite {
 
     val terminators = Set[String]("%NL;")
 
-    val res = d.parseInput(separators, terminators, r, charset)
+    val res = d.parseInput(separators, terminators, r)
 
     assertEquals("1", res.field)
     assertEquals(",", res.delimiter)
@@ -224,7 +223,6 @@ class TestParsingBehaviors extends JUnitSuite {
     // escBS starts at beginning of field AND
     // escBE ends immediately followed by a delimiter.
     //
-    val charset: Charset = Charset.defaultCharset()
     val r = new CharSequenceReader("/*hidden/*:text*/:def:ghi") // Input 1
     val d = new delimsearch.DelimParser(Fakes.fakeElem)
     val separators = Set[String](":")
@@ -234,7 +232,7 @@ class TestParsingBehaviors extends JUnitSuite {
     val escapeEscapeCharacter = ""
 
     val res = d.parseInputEscapeBlock(separators, terminators, r,
-      escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter, charset)
+      escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter)
 
     assertTrue(res.isSuccess)
     assertEquals("hidden/*:text", res.field)
@@ -246,7 +244,6 @@ class TestParsingBehaviors extends JUnitSuite {
     // Not a valid escapeBlockStart as it does not start
     // at the beginning of the field
     //
-    val charset: Charset = Charset.defaultCharset()
     val r = new CharSequenceReader("//*hidden/*:text*/:def:ghi") // Input 1
     val d = new delimsearch.DelimParser(Fakes.fakeElem)
     val separators = Set[String](":")
@@ -256,7 +253,7 @@ class TestParsingBehaviors extends JUnitSuite {
     val escapeEscapeCharacter = "/"
 
     val res = d.parseInputEscapeBlock(separators, terminators, r,
-      escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter, charset)
+      escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter)
 
     assertTrue(res.isSuccess)
     assertEquals("//*hidden/*", res.field)
@@ -268,7 +265,6 @@ class TestParsingBehaviors extends JUnitSuite {
     // Not a valid escapeBlockStart as it does not start
     // at the beginning of the field
     //
-    val charset: Charset = Charset.defaultCharset()
     val r = new CharSequenceReader("abc/*hidden/*:text*/:def:ghi") // Input 1
     val d = new delimsearch.DelimParser(Fakes.fakeElem)
     val separators = Set[String](":")
@@ -278,7 +274,7 @@ class TestParsingBehaviors extends JUnitSuite {
     val escapeEscapeCharacter = ""
 
     val res = d.parseInputEscapeBlock(separators, terminators, r,
-      escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter, charset)
+      escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter)
 
     assertTrue(res.isSuccess)
     assertEquals("abc/*hidden/*", res.field)
@@ -290,7 +286,6 @@ class TestParsingBehaviors extends JUnitSuite {
     // Because there are no full escape blocks, we expect this to parse
     // normally
     //
-    val charset: Charset = Charset.defaultCharset()
     val r = new CharSequenceReader("/*abchidden:text:def:ghi") // Input 1
     val d = new delimsearch.DelimParser(Fakes.fakeElem)
     val separators = Set[String](":")
@@ -300,7 +295,7 @@ class TestParsingBehaviors extends JUnitSuite {
     val escapeEscapeCharacter = ""
 
     val res = d.parseInputEscapeBlock(separators, terminators, r,
-      escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter, charset)
+      escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter)
 
     assertTrue(res.isSuccess)
     assertEquals("/*abchidden", res.field)
@@ -312,7 +307,6 @@ class TestParsingBehaviors extends JUnitSuite {
     // Because there are no escape blocks, we expect this to parse
     // normally
     //
-    val charset: Charset = Charset.defaultCharset()
     val r = new CharSequenceReader("abchidden*:text:def:ghi") // Input 1
     val d = new delimsearch.DelimParser(Fakes.fakeElem)
     val separators = Set[String](":")
@@ -322,7 +316,7 @@ class TestParsingBehaviors extends JUnitSuite {
     val escapeEscapeCharacter = ""
 
     val res = d.parseInputEscapeBlock(separators, terminators, r,
-      escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter, charset)
+      escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter)
 
     assertTrue(res.isSuccess)
     assertEquals("abchidden*", res.field)
@@ -334,7 +328,6 @@ class TestParsingBehaviors extends JUnitSuite {
     // Because there are no escapes present we expect
     // this to parse normally.
     //
-    val charset: Charset = Charset.defaultCharset()
     val r = new CharSequenceReader("abc:def:ghi") // Input 1
     val d = new delimsearch.DelimParser(Fakes.fakeElem)
     val separators = Set[String](":")
@@ -342,7 +335,7 @@ class TestParsingBehaviors extends JUnitSuite {
     val escapeCharacter = "/"
     val escapeEscapeCharacter = "/"
 
-    val res = d.parseInputEscapeCharacter(separators, terminators, r, escapeCharacter, escapeEscapeCharacter, charset)
+    val res = d.parseInputEscapeCharacter(separators, terminators, r, escapeCharacter, escapeEscapeCharacter)
 
     assertTrue(res.isSuccess)
     assertEquals("abc", res.field)
@@ -352,7 +345,6 @@ class TestParsingBehaviors extends JUnitSuite {
 
   @Test def testParsingEscapeSchemeCharacter_UnescapedEscape = {
 
-    val charset: Charset = Charset.defaultCharset()
     val r = new CharSequenceReader("abc/:def:ghi") // Input 1
     val d = new delimsearch.DelimParser(Fakes.fakeElem)
     val separators = Set[String](":")
@@ -360,7 +352,7 @@ class TestParsingBehaviors extends JUnitSuite {
     val escapeCharacter = "/"
     val escapeEscapeCharacter = "/"
 
-    val res = d.parseInputEscapeCharacter(separators, terminators, r, escapeCharacter, escapeEscapeCharacter, charset)
+    val res = d.parseInputEscapeCharacter(separators, terminators, r, escapeCharacter, escapeEscapeCharacter)
 
     assertTrue(res.isSuccess)
     assertEquals("abc:def", res.field)
@@ -370,7 +362,6 @@ class TestParsingBehaviors extends JUnitSuite {
 
   @Test def testParsingEscapeSchemeCharacter_EscapedEscape = {
 
-    val charset: Charset = Charset.defaultCharset()
     val r = new CharSequenceReader("abc//:def:ghi") // Input 1
     val d = new delimsearch.DelimParser(Fakes.fakeElem)
     val separators = Set[String](":")
@@ -378,7 +369,7 @@ class TestParsingBehaviors extends JUnitSuite {
     val escapeCharacter = "/"
     val escapeEscapeCharacter = "/"
 
-    val res = d.parseInputEscapeCharacter(separators, terminators, r, escapeCharacter, escapeEscapeCharacter, charset)
+    val res = d.parseInputEscapeCharacter(separators, terminators, r, escapeCharacter, escapeEscapeCharacter)
 
     assertTrue(res.isSuccess)
     assertEquals("abc/", res.field)

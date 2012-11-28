@@ -143,7 +143,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
     delimRegex
   }
 
-  def parseInputPatterned(pattern: String, input: Reader[Char], charset: Charset): DelimParseResult = {
+  def parseInputPatterned(pattern: String, input: Reader[Char]): DelimParseResult = {
     withLoggingLevel(LogLevel.Info) {
       val EOF: Parser[String] = """\z""".r
 
@@ -175,7 +175,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
     }
   }
 
-  def parseInputNCharacters(nChars: Long, input: Reader[Char], charset: Charset): DelimParseResult = {
+  def parseInputNCharacters(nChars: Long, input: Reader[Char]): DelimParseResult = {
     withLoggingLevel(LogLevel.Info) {
       val EOF: Parser[String] = """\z""".r
       val anything: Parser[String] = """.*""".r
@@ -212,7 +212,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
   // Assumes postfix, the grammar should handle all prefix, infix, postfix stuff
   //
   def parseInputDefault(field: Parser[String], seps: Parser[String], terms: Parser[String],
-                        input: Reader[Char], name: String, charset: Charset): DelimParseResult = {
+                        input: Reader[Char], name: String): DelimParseResult = {
     withLoggingLevel(LogLevel.Info) {
       // The Parse Statement: field ~ (seps | terms)
       // might be overkill as the field parser seems to find the field no problem.
@@ -271,7 +271,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
    * The call to buildDelims sorts the delimiters by length or possible length.
    */
   def parseInputDelimiter(localDelims: Set[String], remoteDelims: Set[String],
-                          input: Reader[Char], charset: Charset): DelimParseResult = {
+                          input: Reader[Char]): DelimParseResult = {
     withLoggingLevel(LogLevel.Info) {
       val (localDelimsParser, localDelimsRegex) = this.buildDelims(localDelims)
       val combinedLocalDelimsParser = this.combineLongest(localDelimsParser)
@@ -321,7 +321,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
     }
   }
 
-  def parseInput(separators: Set[String], terminators: Set[String], input: Reader[Char], charset: Charset): DelimParseResult = {
+  def parseInput(separators: Set[String], terminators: Set[String], input: Reader[Char]): DelimParseResult = {
     val (sepsParser, sepsRegex) = this.buildDelims(separators)
     val (termsParser, termsRegex) = this.buildDelims(terminators)
     val pSeps: Parser[String] = this.combineLongest(sepsParser)
@@ -343,13 +343,13 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
       }
     }
 
-    val result = parseInputDefault(word, pSeps, pTerms, input, "default", charset)
+    val result = parseInputDefault(word, pSeps, pTerms, input, "default")
     result
   }
 
   def parseInputEscapeBlock(separators: Set[String], terminators: Set[String],
                             input: Reader[Char], escapeBlockStart: String, escapeBlockEnd: String,
-                            escapeEscapeCharacter: String = "", charset: Charset): DelimParseResult = {
+                            escapeEscapeCharacter: String = ""): DelimParseResult = {
 
     if (escapeBlockStart.length() == 0 || escapeBlockEnd.length() == 0) { return failedResult }
 
@@ -384,10 +384,10 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
       }
     }
 
-    val result = parseInputDefault(word, pSeps, pTerms, input, "escapeBlock", charset)
+    val result = parseInputDefault(word, pSeps, pTerms, input, "escapeBlock")
 
     // If failed, try regular parse.
-    if (!result.isSuccess) { return parseInput(separators, terminators, input, charset) }
+    if (!result.isSuccess) { return parseInput(separators, terminators, input) }
 
     val newField = removeEscapesBlocks(result.field, escapeEscapeCharacter, escapeBlockStartRegex, escapeBlockEndRegex)
     result.numCharsRead = result.field.length()
@@ -397,7 +397,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
   }
 
   def parseInputEscapeCharacter(separators: Set[String], terminators: Set[String],
-                                input: Reader[Char], escapeCharacter: String, escapeEscapeCharacter: String = "", charset: Charset): DelimParseResult = {
+                                input: Reader[Char], escapeCharacter: String, escapeEscapeCharacter: String = ""): DelimParseResult = {
 
     //if (terminators.size == 0 && separators.size == 0) { return failedResult }
     if (escapeCharacter.length() == 0) { return failedResult }
@@ -430,7 +430,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
       }
     }
 
-    val result = parseInputDefault(word, pSeps, pTerms, input, "escapeCharacter", charset)
+    val result = parseInputDefault(word, pSeps, pTerms, input, "escapeCharacter")
 
     val newField = removeEscapeCharacters(result.field, escapeEscapeCharacter, escapeCharacter.charAt(0), delimsRegex)
 

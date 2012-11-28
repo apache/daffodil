@@ -32,6 +32,7 @@ class USASCII7BitPackedDecoder
   extends java.nio.charset.CharsetDecoder(USASCII7BitPackedCharset, 1, 1) {
 
   override def implReset() {
+    println("Reset")
     isInitialized = false
     buf = null
     bitLimit = Long.MaxValue

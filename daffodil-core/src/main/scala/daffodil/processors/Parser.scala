@@ -26,7 +26,6 @@ import java.io.InputStreamReader
 import java.io.BufferedReader
 import daffodil.exceptions.UnsuppressableException
 import scala.util.parsing.input.Reader
-import delimsearch.DFDLCharReader
 import scala.collection.mutable.HashMap
 import java.util.UUID
 import java.math.BigInteger
@@ -705,58 +704,52 @@ object PState {
     bitOffset: Long = 0,
     bitLengthLimit: Long = -1): PState = {
     val inStream =
-      if (sizeHint != -1) new InStreamFromByteChannel(rootElemDecl, input, sizeHint)
-      else new InStreamFromByteChannel(rootElemDecl, input)
+      if (sizeHint != -1) InStream.fromByteChannel(rootElemDecl, input, sizeHint)
+      else InStream.fromByteChannel(rootElemDecl, input)
     createInitialState(rootElemDecl, inStream, bitOffset, bitLengthLimit)
   }
 
+}
+
+object InStream {
+  def fromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Long = 1024 * 128) = {
+    new InStreamFromByteChannel(context, in, sizeHint)
+  }
 }
 
 /**
  * Encapsulates the I/O as an abstraction that works something like a java.nio.ByteBuffer
  * but a bit more specialized for DFDL needs, e.g., supports offsets and positions in bits.
  */
-
 trait InStream {
-  /**
-   * These return a value of the appropriate type, or they throw
-   * an exception when there is no more data, or if the offset is past the end of data,
-   * or if the offset exceeds implementation capacity such as for moving backwards in
-   * the data beyond buffering capacity.
-   */
-  //  def getBinaryLong(bitOffset : Long,  isBigEndian : Boolean) : Long
-  //  def getBinaryInt(bitOffset : Long,  isBigEndian : Boolean) : Int
 
-  //  def fillCharBuffer(buf: CharBuffer, bitOffset: Long, decoder: CharsetDecoder): Long
-  //  def fillCharBufferMixedData(cb: CharBuffer, bitOffset: Long, decoder: CharsetDecoder, endByte: Long = -1): (Long, Boolean)
-
-  // yes we do need byte order for getByte, because the byte might not be aligned to a byte boundary,
-  // that is, it might straddle byte boundaries, in which case the issue of byte order arises.
+  def byteReader: DFDLByteReader
 
   def getByte(bitPos: Long, order: java.nio.ByteOrder): Byte
-  //  def getShort(bitPos: Long, order: java.nio.ByteOrder): Short
-  //  def getInt(bitPos: Long, order: java.nio.ByteOrder): Int
-  //  def getLong(bitPos: Long, order: java.nio.ByteOrder): Long
-  //
-  //  def getDouble(bitPos: Long, order: java.nio.ByteOrder): Double
-  //  def getFloat(bitPos: Long, order: java.nio.ByteOrder): Float
-  //
-  //  def getUnsignedShort(bitPos: Long, order: java.nio.ByteOrder): Int
-  //  def getUnsignedInt(bitPos: Long, order: java.nio.ByteOrder): Long
-  //  def getUnsignedLong(bitPos: Long, order: java.nio.ByteOrder): BigInteger
-  //
-  //  def getByteArray(bitPos: Long, order: java.nio.ByteOrder, size: Int): Array[Byte]
+
+  def getBytes(bitPos: Long, numBytes: Int): Array[Byte]
 
   def getBitSequence(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder): (BigInt, Long)
 
-  // def fillCharBufferUntilDelimiterOrEnd
+  def withLimit(startBitPos: Long, endBitPos: Long): InStream
 }
 
-class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint: Long = 1024 * 128)
+/**
+ * Don't use this class directly. Use the factory on InStream to create.
+ */
+class InStreamFromByteChannel private (val context: ElementBase, val byteReader: DFDLByteReader, sizeHint: Long)
   extends InStream
   with Logging
   with WithParseErrorThrowing {
-  var byteReader: delimsearch.DFDLByteReader = new delimsearch.DFDLByteReader(in)
+
+  // 
+  // the reason for the private constructor above, and this public constructor is that the methods 
+  // of this class should NOT have access to the DFDL.Input argument 'in', but only to the DFDLByteReader
+  // created from it.
+  // 
+  // This guarantees then that nobody is doing I/O by going around the DFDLByteReader layer.
+  //
+  def this(context: ElementBase, in: DFDL.Input, sizeHint: Long) = this(context, new DFDLByteReader(in), sizeHint)
 
   def getBytes(bitPos: Long, numBytes: Int): Array[Byte] = {
     Assert.invariant(bitPos % 8 == 0)
@@ -918,57 +911,8 @@ class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint
     byteReader.bb.order(order)
     byteReader.bb.get(bytePos) // NOT called getByte(pos)
   }
-  //
-  //  def getShort(bitPos: Long, order: java.nio.ByteOrder) = {
-  //    Assert.invariant(bitPos % 8 == 0)
-  //    val bytePos = (bitPos >> 3).toInt
-  //    byteReader.bb.order(order)
-  //    val res = byteReader.bb.getShort(bytePos)
-  //    //val res = (byteReader.bb.getShort(bytePos) & 0xffff).asInstanceOf[Short]
-  //    res
-  //  }
-  //
-  //  def getInt(bitPos: Long, order: java.nio.ByteOrder) = {
-  //    Assert.invariant(bitPos % 8 == 0)
-  //    val bytePos = (bitPos >> 3).toInt
-  //    byteReader.bb.order(order)
-  //    byteReader.bb.getInt(bytePos)
-  //  }
-  //
-  //  def getLong(bitPos: Long, order: java.nio.ByteOrder) = {
-  //    Assert.invariant(bitPos % 8 == 0)
-  //    val bytePos = (bitPos >> 3).toInt
-  //    byteReader.bb.order(order)
-  //    val res = byteReader.bb.getLong(bytePos)
-  //    res
-  //  }
-  //
-  //  def getDouble(bitPos: Long, order: java.nio.ByteOrder) = {
-  //    Assert.invariant(bitPos % 8 == 0)
-  //    val bytePos = (bitPos >> 3).toInt
-  //    byteReader.bb.order(order)
-  //    val double = byteReader.bb.getDouble(bytePos)
-  //    double
-  //  }
-  //
-  //  def getFloat(bitPos: Long, order: java.nio.ByteOrder) = {
-  //    Assert.invariant(bitPos % 8 == 0)
-  //    val bytePos = (bitPos >> 3).toInt
-  //    byteReader.bb.order(order)
-  //    byteReader.bb.getFloat(bytePos)
-  //  }
-  //
-  //  def getByteArray(bitPos: Long, order: java.nio.ByteOrder, size: Int) = {
-  //    Assert.invariant(bitPos % 8 == 0)
-  //    val bytePos = (bitPos >> 3).toInt
-  //    byteReader.bb.order(order)
-  //    byteReader.bb.position(bytePos)
-  //    var ret: Array[Byte] = new Array[Byte](size)
-  //    byteReader.bb.get(ret, 0, size)
-  //    ret
-  //  }
 
-  def withLimit(startBitPos: Long, endBitPos: Long) = {
+  def withLimit(startBitPos: Long, endBitPos: Long): InStream = {
     // Appears to only be called from lengthKind=Pattern match code
     Assert.invariant((startBitPos & 7) == 0)
     Assert.invariant((endBitPos & 7) == 0)
@@ -982,7 +926,8 @@ class InStreamFromByteChannel(val context: ElementBase, in: DFDL.Input, sizeHint
     val inputStream = new ByteArrayInputStream(bytes)
     val rbc = java.nio.channels.Channels.newChannel(inputStream)
     byteReader.bb.position(oldPos)
-    rbc
+    val newInStream = InStream.fromByteChannel(context, rbc, sizeHint)
+    newInStream
   }
 }
 

@@ -23,47 +23,43 @@ import daffodil.processors.charset.CharsetUtils
  * how the StreamDecoder handles malformed input.  In DFDL we want the
  * malformed input error to be treated as the end of data.  Java's
  * StreamDecoder only ignores, replaces or treats it as an error.
+ *
+ * Mostly this class tries to remain true to the Java code from which it was derived
+ * so as to preserve future inter-operation potential. However, some modifications
+ * (for bit-level positioning) make that a lot less likely.
  */
 object DFDLJavaIOStreamDecoder {
-  private val MIN_BYTE_BUFFER_SIZE: Int = 32
-  private val DEFAULT_BYTE_BUFFER_SIZE: Int = 8192
+
+  private val DEFAULT_BYTE_BUFFER_SIZE: Int = daffodil.compiler.Compiler.readerByteBufferSize.toInt
 
   // Factories for DFDLJavaIOInputStreamReader
-  def forInputStreamReader(in: InputStream, lock: Object, charsetName: String): DFDLJavaIOStreamDecoder = {
+  def forInputStreamReader(in: InputStream, charset: Charset): DFDLJavaIOStreamDecoder = {
 
-    // We should throw if csn is null. Tolerating this would just lead to bugs.
-    Assert.usage(charsetName != null)
-    Assert.usage(charsetName != "")
-
-    // There is no notion of a default charset in DFDL.
-    // So this can be val.
-    val csn: String = charsetName
-
-    val cs = CharsetUtils.getCharset(csn) // centralized the resolution of name to charset to avoid dup code.
-    return new DFDLJavaIOStreamDecoder(in, cs)
+    return new DFDLJavaIOStreamDecoder(in, charset)
   }
 
-  def forInputStreamReader(in: InputStream, lock: Object, cs: Charset): DFDLJavaIOStreamDecoder = {
-    return new DFDLJavaIOStreamDecoder(in, cs)
-  }
-
-  def forInputStreamReader(in: InputStream, lock: Object, dec: CharsetDecoder): DFDLJavaIOStreamDecoder = {
-    return new DFDLJavaIOStreamDecoder(in, dec)
-  }
-
-  private var channelsAvailable = true
-
-  private def getChannel(in: FileInputStream): FileChannel = {
-    if (!channelsAvailable) return null
-    try {
-      return in.getChannel
-    } catch {
-      case e: UnsatisfiedLinkError => {
-        channelsAvailable = false
-        return null
-      }
-    }
-  }
+  // TODO: Remove unused constructors entirely
+  //  def forInputStreamReader(in: InputStream, lock: Object, cs: Charset): DFDLJavaIOStreamDecoder = {
+  //    return new DFDLJavaIOStreamDecoder(in, cs)
+  //  }
+  //
+  //  def forInputStreamReader(in: InputStream, lock: Object, dec: CharsetDecoder): DFDLJavaIOStreamDecoder = {
+  //    return new DFDLJavaIOStreamDecoder(in, dec)
+  //  }
+  //
+  //  private var channelsAvailable = true
+  //
+  //  private def getChannel(in: FileInputStream): FileChannel = {
+  //    if (!channelsAvailable) return null
+  //    try {
+  //      return in.getChannel
+  //    } catch {
+  //      case e: UnsatisfiedLinkError => {
+  //        channelsAvailable = false
+  //        return null
+  //      }
+  //    }
+  //  }
 }
 
 /**
@@ -74,16 +70,18 @@ object DFDLJavaIOStreamDecoder {
  *
  * Forces the decoder to REPORT on malformed input.
  */
-class DFDLJavaIOStreamDecoder(var cs: Charset, var decoder: CharsetDecoder, var bb: ByteBuffer,
-                              var in: InputStream, var ch: ReadableByteChannel)
+class DFDLJavaIOStreamDecoder private (var cs: Charset, var bb: ByteBuffer,
+                                       var in: InputStream, var ch: ReadableByteChannel)
   extends java.io.Reader {
 
-  def this(in: InputStream, dec: CharsetDecoder) = {
+  val decoder = cs.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
+
+  def this(in: InputStream, charset: Charset) = {
     //super(lock) // Java lock/synchronizing code
 
     // In order for this customized version of the StreamDecoder to work
     // as we expect it, we should force the decoder to REPORT on malformed input.
-    this(dec.charset(), dec.onMalformedInput(CodingErrorAction.REPORT), {
+    this(charset, {
       var myBB: ByteBuffer = null
       myBB = ByteBuffer.allocateDirect(DFDLJavaIOStreamDecoder.DEFAULT_BYTE_BUFFER_SIZE)
       myBB.flip()
@@ -94,14 +92,15 @@ class DFDLJavaIOStreamDecoder(var cs: Charset, var decoder: CharsetDecoder, var 
     })
   }
 
-  // TODO: Do we want to support this constructor? Might want to just Assert.NYI for this.
-  def this(in: InputStream, cs: Charset) = {
-    // In this case we always want to report the error in order for us to treat a malformed
-    // input as end of data.
-    //
-    //this(in, cs.newDecoder().onMalformedInput(CodingErrorAction.REPLACE).onUnmappableCharacter(CodingErrorAction.REPLACE))
-    this(in, cs.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT))
-  }
+  // TODO: Remove excess constructors entirely.
+  //  // TODO: Do we want to support this constructor? Might want to just Assert.NYI for this.
+  //  def this(in: InputStream, cs: Charset) = {
+  //    // In this case we always want to report the error in order for us to treat a malformed
+  //    // input as end of data.
+  //    //
+  //    //this(in, cs.newDecoder().onMalformedInput(CodingErrorAction.REPLACE).onUnmappableCharacter(CodingErrorAction.REPLACE))
+  //    this(in, cs.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT))
+  //  }
 
   @volatile
   private var isOpen: Boolean = true

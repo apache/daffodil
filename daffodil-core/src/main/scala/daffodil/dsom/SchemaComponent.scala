@@ -335,15 +335,18 @@ trait AnnotatedMixin
     CharsetUtils.getCharset(knownEncodingName)
   }
 
-  lazy val knownEncodingDecoder = {
-    val decoder = knownEncodingCharset.newDecoder()
-    decoder
-  }
-
-  lazy val knownEncodingEncoder = {
-    val encoder = knownEncodingCharset.newEncoder()
-    encoder
-  }
+  // Really bad idea. Don't save these. Decoders and Encoders are stateful
+  // so they can't be precomputed here and reused without all sorts of 
+  // thread issues and reset protocols.
+  //  lazy val knownEncodingDecoder = {
+  //    val decoder = knownEncodingCharset.newDecoder()
+  //    decoder
+  //  }
+  //
+  //  lazy val knownEncodingEncoder = {
+  //    val encoder = knownEncodingCharset.newEncoder()
+  //    encoder
+  //  }
 
   /**
    * enables optimizations and random-access
