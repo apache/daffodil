@@ -15,6 +15,8 @@ import daffodil.dsom.OOLAG._
 import daffodil.api._
 import daffodil.processors.VariableMap
 import daffodil.util.Compile
+import daffodil.processors.charset.USASCII7BitPackedCharset
+import daffodil.processors.charset.CharsetUtils
 
 class SchemaDefinitionError(schemaContext: Option[SchemaComponent],
                             annotationContext: Option[DFDLAnnotation],
@@ -309,7 +311,19 @@ trait AnnotatedMixin
    * so that we can decide things at compile time when possible.
    */
 
-  lazy val isKnownEncoding = encoding.isConstant
+  lazy val isKnownEncoding = {
+    val res = encoding.isConstant
+    if (res) {
+      val encName = encoding.constantAsString.toUpperCase()
+      if (encName.startsWith("UTF-16")) {
+        schemaDefinition(utf16Width == UTF16Width.Fixed, "Property utf16Width='variable' not supported.")
+        //
+        // TODO: when runtime encoding is supproted, must also check for utf16Width
+        // (and error if unsupported then, or just implement it!)
+      }
+    }
+    res
+  }
 
   lazy val knownEncodingName = {
     Assert.invariant(isKnownEncoding)
@@ -318,8 +332,7 @@ trait AnnotatedMixin
   }
 
   lazy val knownEncodingCharset = {
-    val charset = CharsetICU.forNameICU(knownEncodingName).asInstanceOf[CharsetICU]
-    charset
+    CharsetUtils.getCharset(knownEncodingName)
   }
 
   lazy val knownEncodingDecoder = {
@@ -342,27 +355,57 @@ trait AnnotatedMixin
     // val res = knownEncodingCharset.isFixedWidth
     val res = knownEncodingName match {
       case "US-ASCII" | "ASCII" => true
+      case "US-ASCII-7-BIT-PACKED" => true
       case "UTF-8" => false
-      case "UTF-16" | "UTF-16LE" | "UTF-16BE" | "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
-      //      case "UTF-8" | "UTF-16" | "UTF-16LE" | "UTF-16BE"  => false
-      //      case "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
-      case _ => Assert.notYetImplemented() // TODO change to SDE charset unsupported, not NYI.
+      case "UTF-16" | "UTF-16LE" | "UTF-16BE" => {
+        if (utf16Width == UTF16Width.Fixed) true
+        else false
+      }
+      case "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
+      case "ISO-8859-1" => true
+      case _ => schemaDefinitionError("Charset %s is not supported.", knownEncodingName)
     }
     res
   }
 
   lazy val couldBeVariableWidthEncoding = !knownEncodingIsFixedWidth
 
-  lazy val knownEncodingWidth = {
+  lazy val knownEncodingWidthInBits = {
     // knownEncodingCharset.width()
     val res = knownEncodingName match {
-      case "US-ASCII" | "ASCII" => 1
+      case "US-ASCII" | "ASCII" => 8
+      case "US-ASCII-7-BIT-PACKED" => 7 // NOTE! 7-bit characters dense packed. 8th bit is NOT unused. 
       case "UTF-8" => -1
-      case "UTF-16" | "UTF-16LE" | "UTF-16BE" => 2
-      case "UTF-32" | "UTF-32BE" | "UTF-32LE" => 4
-      case _ => Assert.notYetImplemented() // TODO change to SDE charset unsupported, not NYI.
+      case "UTF-16" | "UTF-16LE" | "UTF-16BE" => {
+        if (utf16Width == UTF16Width.Fixed) 16
+        else -1
+      }
+      case "UTF-32" | "UTF-32BE" | "UTF-32LE" => 32
+      case "ISO-8859-1" => 8
+      case _ => schemaDefinitionError("Charset %s is not supported.", knownEncodingName)
     }
     res
+  }
+
+  lazy val knownEncodingStringBitLength = {
+    //
+    // This will be called at runtime, so let's decide
+    // what we can, and return an optimized function that 
+    // has characteristics of the encoding wired down.
+    //
+    if (knownEncodingIsFixedWidth) {
+      def stringBitLength(str: String) = str.length * knownEncodingWidthInBits
+      stringBitLength _
+    } else {
+      def stringBitLength(str: String) = {
+        // variable width encoding, so we have to convert each character 
+        // We assume here that it will be a multiple of bytes
+        // that is, that variable-width encodings are all some number
+        // of bytes.
+        str.getBytes(knownEncodingName).length * 8
+      }
+      stringBitLength _
+    }
   }
 
 }

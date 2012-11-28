@@ -25,4 +25,10 @@ class TestEntities_01 extends JUnitSuite {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
   @Test def test_HexCodePoint() { runner.runOneTest("HexCodePoint") }
 
+  val testDir_02 = "/daffodil/ibm-tests/"
+  val tdml_02 = testDir_02 + "dpaext1.tdml"
+  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
+  // Needs dfdl:utf16Width='variable' implementation
+  @Test def test_syntax_entities_6_03() { runner_02.runOneTest("syntax_entities_6_03") }
+
 }

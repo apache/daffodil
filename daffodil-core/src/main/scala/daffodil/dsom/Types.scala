@@ -6,6 +6,7 @@ import daffodil.grammar._
 import daffodil.xml._
 import scala.collection.mutable.Queue
 import scala.util.matching.Regex
+import daffodil.util.TestUtils
 
 /////////////////////////////////////////////////////////////////
 // Type System
@@ -329,9 +330,13 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
  * holds true.
  */
 object Fakes {
-  lazy val xsd_sd = new SchemaDocument(<xs:schema xmlns:xs={ XMLUtils.XSD_NAMESPACE }/>, xsd_schema)
-  lazy val xsd_schema = new Schema(XMLUtils.XSD_NAMESPACE, NodeSeq.Empty, xsd_sset)
-  lazy val xsd_sset = new SchemaSet(NodeSeq.Empty)
+  lazy val sch = TestUtils.dfdlTestSchema(
+    <dfdl:format ref="tns:daffodilTest1"/>,
+    <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>)
+  lazy val xsd_sset = new SchemaSet(sch, "http://example.com", "fake")
+  lazy val xsd_schema = xsd_sset.getSchema("http://example.com").get
+  lazy val xsd_sd = xsd_schema.schemaDocuments(0)
+  lazy val fakeElem = xsd_sd.getGlobalElementDecl("fake").get.forRoot()
 }
 
 //TBD: are Primitives "global", or do they just have names like globals do?

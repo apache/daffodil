@@ -147,7 +147,21 @@ trait ElementBaseGrammarMixin
       case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength) // TODO: make sure it divides evenly.
       //case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
       case (LengthUnits.Bytes, false) => StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength)
-      case (LengthUnits.Characters, true) => StringFixedLengthInBytes(this, fixedLength * knownEncodingWidth)
+      case (LengthUnits.Characters, true) => {
+        //
+        // we deal with the fact that some encodings have characters taking up smaller than 
+        // a full byte. E.g., encoding='US-ASCII-7-bit-packed' are 7-bits packed with no unused
+        // bits
+        //
+        val lengthInBits = fixedLength * knownEncodingWidthInBits
+        val lengthInBytes = lengthInBits / 8
+        val hasWholeBytesOnly = (lengthInBits % 8) == 0
+        if (hasWholeBytesOnly)
+          StringFixedLengthInBytes(this, lengthInBytes)
+        else
+          StringFixedLengthInBytes(this, lengthInBytes + 1) // 1 more for fragment byte
+      }
+      //
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
       // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
       case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, fixedLength)

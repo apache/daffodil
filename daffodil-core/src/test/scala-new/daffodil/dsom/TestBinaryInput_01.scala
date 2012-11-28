@@ -225,4 +225,9 @@ class TestBinaryInput_01 extends JUnitSuite {
   @Test def test_oneBitLeftOver() { runner.runOneTest("OneBitLeftOver") }
   @Test def test_oneBit1() { runner.runOneTest("OneBit1") }
   @Test def test_oneBit2() { runner.runOneTest("OneBit2") }
+
+  /*** DFDL-379 US-ASCII-7-bit-packed text ***/
+  @Test def test_packed7BitASCII1() { runner.runOneTest("packed7BitASCII1") }
+  @Test def test_packed7BitASCII2() { runner.runOneTest("packed7BitASCII2") }
+
 }

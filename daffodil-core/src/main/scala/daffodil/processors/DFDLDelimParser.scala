@@ -11,6 +11,7 @@ import java.util.regex.Pattern
 import daffodil.util.Logging
 import daffodil.util.LogLevel
 import daffodil.util.Debug
+import daffodil.dsom.AnnotatedSchemaComponent
 
 class DelimParseResult {
   var field: String = ""
@@ -18,15 +19,15 @@ class DelimParseResult {
   var delimiter: String = ""
   var delimiterType: DelimiterType = DelimiterType.Delimiter
   var delimiterLoc: DelimiterLocation = DelimiterLocation.Local
-  var numBytes: Int = 0
+  var numBits: Int = 0
   var numCharsRead: Int = 0 // Number of characters read
 
-  def apply(pField: String, pIsSuccess: Boolean, pDelimiter: String, pDelimiterType: DelimiterType, pNumBytes: Int, pDelimiterLoc: DelimiterLocation = DelimiterLocation.Local) = {
+  def apply(pField: String, pIsSuccess: Boolean, pDelimiter: String, pDelimiterType: DelimiterType, pNumBits: Int, pDelimiterLoc: DelimiterLocation = DelimiterLocation.Local) = {
     field = pField // The parsed field
     isSuccess = pIsSuccess // parse success or failure
     delimiter = pDelimiter // delimiter denoting the field
     delimiterType = pDelimiterType // Might be useful to know if the delimiter was a separator or terminator
-    numBytes = pNumBytes // Number of bytes consumed to create result
+    numBits = pNumBits // Number of bits consumed to create result
     delimiterLoc = pDelimiterLoc
     //TODO: Would it be useful to provide the underlying ParseResult object?
   }
@@ -36,7 +37,7 @@ class DelimParseResult {
   }
 }
 
-class DelimParser extends RegexParsers with Logging {
+class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging {
   override val skipWhitespace = false
 
   /**
@@ -159,16 +160,16 @@ class DelimParser extends RegexParsers with Logging {
       var delimiterResult = ""
       var isSuccess: Boolean = false
       var delimiterType = DelimiterType.Delimiter
-      var fieldResultBytes: Int = 0
+      var fieldResultBits: Int = 0
 
       if (!res.isEmpty) {
         fieldResult = res.get
         isSuccess = true
-        fieldResultBytes = fieldResult.getBytes(charset).length
+        fieldResultBits = e.knownEncodingStringBitLength(fieldResult)
       }
 
       val result: DelimParseResult = new DelimParseResult
-      result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes)
+      result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBits)
       result.numCharsRead = fieldResult.length()
       result
     }
@@ -190,16 +191,16 @@ class DelimParser extends RegexParsers with Logging {
       var delimiterResult = ""
       var isSuccess: Boolean = false
       var delimiterType = DelimiterType.Delimiter
-      var fieldResultBytes: Int = 0
+      var fieldResultBits: Int = 0
 
       if (!res.isEmpty) {
         fieldResult = res.get
         isSuccess = true
-        fieldResultBytes = fieldResult.getBytes(charset).length
+        fieldResultBits = e.knownEncodingStringBitLength(fieldResult)
       }
 
       val result: DelimParseResult = new DelimParseResult
-      result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes)
+      result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBits)
       result.numCharsRead = fieldResult.length()
       result
     }
@@ -231,20 +232,20 @@ class DelimParser extends RegexParsers with Logging {
       var delimiterResult = ""
       var isSuccess: Boolean = false
       var delimiterType = DelimiterType.Delimiter
-      var fieldResultBytes: Int = 0
+      var fieldResultBits: Int = 0
 
       if (!res.isEmpty) {
         fieldResult = res.get._1
         delimiterResult = res.get._2
         isSuccess = true
-        fieldResultBytes = fieldResult.getBytes(charset).length
+        fieldResultBits = e.knownEncodingStringBitLength(fieldResult)
         val result = this.parse(seps, delimiterResult)
         if (result.isEmpty) { delimiterType = DelimiterType.Terminator }
         else { delimiterType = DelimiterType.Separator }
       }
 
       val result: DelimParseResult = new DelimParseResult
-      result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes)
+      result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBits)
       result.numCharsRead = fieldResult.length()
       result
     }

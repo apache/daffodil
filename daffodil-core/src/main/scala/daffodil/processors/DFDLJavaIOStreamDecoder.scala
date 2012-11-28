@@ -2,13 +2,11 @@ package delimsearch.io
 
 import java.nio.CharBuffer
 import java.io.FileInputStream
-import java.io.UnsupportedEncodingException
 import java.nio.charset.Charset
 import sun.nio.cs.HistoricallyNamedCharset
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.Channels
 import java.io.IOException
-import java.nio.charset.IllegalCharsetNameException
 import java.nio.channels.FileChannel
 import java.nio.charset.CharsetDecoder
 import daffodil.exceptions.Assert
@@ -17,6 +15,8 @@ import java.nio.ByteBuffer
 import java.io.InputStream
 import scala.util.control.Breaks._
 import java.nio.charset.CoderResult
+import daffodil.processors.charset.USASCII7BitPackedCharset
+import daffodil.processors.charset.CharsetUtils
 
 /**
  * The purpose of re-implementing this class is to gain control over
@@ -31,19 +31,16 @@ object DFDLJavaIOStreamDecoder {
   // Factories for DFDLJavaIOInputStreamReader
   def forInputStreamReader(in: InputStream, lock: Object, charsetName: String): DFDLJavaIOStreamDecoder = {
 
-    // We should throw if csn is nil. Tolerating this would just lead to bugs.
-    Assert.usage(charsetName != Nil)
+    // We should throw if csn is null. Tolerating this would just lead to bugs.
+    Assert.usage(charsetName != null)
+    Assert.usage(charsetName != "")
 
     // There is no notion of a default charset in DFDL.
     // So this can be val.
     val csn: String = charsetName
 
-    try {
-      if (Charset.isSupported(csn)) { return new DFDLJavaIOStreamDecoder(in, Charset.forName(csn)) }
-    } catch {
-      case e: IllegalCharsetNameException => // Nothing
-    }
-    throw new UnsupportedEncodingException(csn)
+    val cs = CharsetUtils.getCharset(csn) // centralized the resolution of name to charset to avoid dup code.
+    return new DFDLJavaIOStreamDecoder(in, cs)
   }
 
   def forInputStreamReader(in: InputStream, lock: Object, cs: Charset): DFDLJavaIOStreamDecoder = {

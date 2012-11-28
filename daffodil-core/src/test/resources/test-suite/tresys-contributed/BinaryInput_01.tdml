@@ -92,5 +92,96 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="packed7BitASCII">
+  
+  <dfdl:format ref="tns:daffodilTest1"
+     encoding="US-ASCII-7-bit-packed" lengthUnits="characters"/>
+     
+  <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"/>
+  <xs:element name="e2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="64"/>
+  <xs:element name="e3" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator=","/>
+  
+  <xs:element name="e4">
+    <xs:complexType>
+    <xs:choice>
+      <xs:element name="d0" type="xs:string" dfdl:terminator="%NUL;" dfdl:lengthKind="delimited">
+       <xs:annotation>
+       <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+         <!-- 0 to 63 occurrences of not a NUL, followed by a NUL -->
+         <dfdl:discriminator testKind="pattern">[^\x00]{0,63}\x00</dfdl:discriminator>
+       </xs:appinfo>
+       </xs:annotation>
+      </xs:element>
+      <xs:element name="d1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="64"/>
+    </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  
+  </tdml:defineSchema>
 
+<tdml:parserTestCase name="packed7BitASCII1" root="e1"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110100 0110010
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>42</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="packed7BitASCII2" root="e2"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
+      0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
+      0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
+      0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
+      0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
+      0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
+      0110001 0110010 0110011 0110100 
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>1234567890123456789012345678901234567890123456789012345678901234</e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="packed7BitASCII3" root="e3"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110001 0101100 
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3>1</e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  
+    <tdml:parserTestCase name="packed7BitASCII4" root="e4"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110001 0000000 
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4><d0>1</d0></e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  
 </tdml:testSuite>

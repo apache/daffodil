@@ -162,7 +162,7 @@ case class ComplexElementBeginPattern(e: ElementBase)
         //val reader = byteReader.charReader(decoder.charset().name())
         val reader = byteReader.newCharReader(decoder.charset().name)
 
-        val d = new delimsearch.DelimParser()
+        val d = new delimsearch.DelimParser(e)
 
         var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
 
@@ -170,7 +170,7 @@ case class ComplexElementBeginPattern(e: ElementBase)
 
         val postState1 = result.isSuccess match {
           case true => {
-            val endBitPos = start.bitPos + (result.numBytes * 8)
+            val endBitPos = start.bitPos + result.numBits
             log(Debug("Parsed: %s", result.field))
             log(Debug("Ended at bit position %s", endBitPos))
             val limitedInStream = in.withLimit(start.bitPos, endBitPos)
@@ -316,6 +316,8 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
     override def toString = toBriefXML()
 
     val decoder = e.knownEncodingDecoder
+    val codepointWidth = e.knownEncodingWidthInBits
+    Assert.invariant(codepointWidth != -1)
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
       withLoggingLevel(LogLevel.Info) {
@@ -331,10 +333,15 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
         val bytePos = (start.bitPos >> 3).toInt
 
         try {
+          //
+          // nBytes can be a little bit longer that the decoder actually consumes
+          // because some characters are less than a byte wide (7-bit ascii packed variant)
+          //
           val bytes = in.getBytes(start.bitPos, nBytes.toInt)
+          decoder.reset()
           val cb = decoder.decode(ByteBuffer.wrap(bytes))
           val result = cb.toString
-          val endBitPos = start.bitPos + (nBytes.toInt * 8)
+          val endBitPos = start.bitPos + (result.length * codepointWidth) // handles 7-bit or wider chars
           log(Debug("Parsed: %s", result))
           log(Debug("Ended at bit position %s", endBitPos))
           val endCharPos = start.charPos + result.length
@@ -351,7 +358,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
           case e: java.nio.BufferUnderflowException => { return PE(start, "StringFixedLengthInBytes - Insufficient Bits in field; required %s", nBytes * 8) }
           case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytes - IndexOutOfBounds: \n%s", e.getMessage()) }
           case u: UnsuppressableException => throw u
-          case e: Exception => { return PE(start, "StringFixedLengthInBytes - Exception: \n%s", e.getMessage()) }
+          // case e: Exception => { return PE(start, "StringFixedLengthInBytes - Exception: \n%s", e.getMessage()) }
         }
       }
     }
@@ -488,7 +495,7 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
         //
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val d = new delimsearch.DelimParser()
+        val d = new delimsearch.DelimParser(e)
 
         val result = d.parseInputNCharacters(nChars, reader, decoder.charset())
 
@@ -497,8 +504,8 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
         }
 
         val parsedField = result.field
-        val parsedBytes = result.numBytes
-        val endBitPos = start.bitPos + (parsedBytes * 8)
+        val parsedBits = result.numBits
+        val endBitPos = start.bitPos + parsedBits
 
         log(Debug("Parsed: %s", parsedField))
         log(Debug("Ended at bit position: %s", endBitPos))
@@ -600,14 +607,14 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
         //System.err.println("StringDelimitedEndOfData_START: " + new Timestamp(System.currentTimeMillis()));
 
-        if (postEvalState.bitPos % 8 != 0) {
-          //System.err.println("StringDelimitedEndOfData_END: " + new Timestamp(System.currentTimeMillis()));
-          return PE(postEvalState, "StringDelimitedEndOfData - not byte aligned.")
-        }
+        //        if (postEvalState.bitPos % 8 != 0) {
+        //          //System.err.println("StringDelimitedEndOfData_END: " + new Timestamp(System.currentTimeMillis()));
+        //          return PE(postEvalState, "StringDelimitedEndOfData - not byte aligned.")
+        //        }
 
         val reader = getReader(bytePos, decoder.charset().name(), start)
 
-        val d = new delimsearch.DelimParser()
+        val d = new delimsearch.DelimParser(e)
 
         var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
 
@@ -627,13 +634,13 @@ case class StringDelimitedEndOfData(e: ElementBase)
         } else {
           //System.err.println("StringDelimitedEndOfData_END: " + new Timestamp(System.currentTimeMillis()));
           val field = result.field
-          val numBytes = result.numBytes
-          log(Debug("%s - Parsed: %s Parsed Bytes: %s", eName, field, numBytes))
+          val numBits = result.numBits
+          log(Debug("%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits))
           //System.err.println(postEvalState.charPos)
           //val endCharPos = reader.characterPos + field.length()
           val endCharPos = if (postEvalState.charPos == -1) result.numCharsRead else postEvalState.charPos + result.numCharsRead
           //val endCharPos = postEvalState.charPos + field.length()
-          val endBitPos = postEvalState.bitPos + (numBytes * 8)
+          val endBitPos = postEvalState.bitPos + numBits
           val currentElement = postEvalState.parentForAddContent
           currentElement.addContent(new org.jdom.Text(field))
           //return postEvalState.withPos(endBitPos, endCharPos)
@@ -693,7 +700,7 @@ case class StringPatternMatched(e: ElementBase)
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val d = new delimsearch.DelimParser()
+        val d = new delimsearch.DelimParser(e)
 
         var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
 
@@ -701,7 +708,7 @@ case class StringPatternMatched(e: ElementBase)
 
         val postState = result.isSuccess match {
           case true => {
-            val endBitPos = start.bitPos + (result.numBytes * 8)
+            val endBitPos = start.bitPos + result.numBits
             log(Debug("StringPatternMatched - Parsed: %s", result.field))
             log(Debug("StringPatternMatched - Ended at bit position %s", endBitPos))
             // val endCharPos = start.charPos + result.field.length()
@@ -1538,9 +1545,9 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
 
         log(Debug("%s - Looking for local(%s) not remote (%s).", eName, staticTextsCooked.toSet, remoteDelims))
 
-        if (postEvalState.bitPos % 8 != 0) {
-          return PE(start, "%s - not byte aligned.", kindString)
-        }
+        //        if (postEvalState.bitPos % 8 != 0) {
+        //          return PE(start, "%s - not byte aligned.", kindString)
+        //        }
 
         val in: InStreamFromByteChannel = postEvalState.inStream.asInstanceOf[InStreamFromByteChannel]
 
@@ -1555,7 +1562,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val d = new delimsearch.DelimParser()
+        val d = new delimsearch.DelimParser(e)
 
         var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
 
@@ -1573,12 +1580,12 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
           log(Debug("%s - %s: Remote delimiter found instead of local!", this.toString(), eName))
           return PE(start, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
         } else {
-          val numBytes = result.delimiter.getBytes(decoder.charset()).length
+          val numBits = e.knownEncodingStringBitLength(result.delimiter)
           //val endCharPos = start.charPos + result.field.length()
           //System.err.println(reader.characterPos + "-" + result.delimiter.length())
           //val endCharPos = reader.characterPos + result.delimiter.length
           val endCharPos = if (postEvalState.charPos == -1) result.delimiter.length else postEvalState.charPos + result.delimiter.length()
-          val endBitPosDelim = (8 * numBytes) + postEvalState.bitPos
+          val endBitPosDelim = numBits + postEvalState.bitPos
 
           log(Debug("%s - Found %s", eName, result.delimiter))
           log(Debug("%s - Ended at byte position %s", eName, (endBitPosDelim >> 3)))
@@ -1966,7 +1973,7 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
 
           // We have a field, is it empty?
           val isFieldEmpty = result.length() == 0
-          val d = new delimsearch.DelimParser()
+          val d = new delimsearch.DelimParser(e)
 
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
@@ -2073,7 +2080,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
           return postEvalState // Empty, no need to advance
         }
 
-        val d = new delimsearch.DelimParser()
+        val d = new delimsearch.DelimParser(e)
 
         val result = d.parseInputPatterned(pattern, reader, decoder.charset())
 
@@ -2097,11 +2104,11 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
             start.parentElement.addContent(new org.jdom.Text(""))
             start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
 
-            val numBytes = result.field.getBytes(decoder.charset()).length
+            val numBits = e.knownEncodingStringBitLength(result.field)
             val endCharPos =
               if (postEvalState.charPos == -1) result.field.length
               else postEvalState.charPos + result.field.length
-            val endBitPos = (8 * numBytes) + start.bitPos
+            val endBitPos = numBits + start.bitPos
 
             log(Debug("%s - Found %s", eName, result.field))
             log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
@@ -2166,7 +2173,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val d = new delimsearch.DelimParser()
+        val d = new delimsearch.DelimParser(e)
 
         val result = d.parseInputPatterned(pattern, reader, decoder.charset())
 
@@ -2190,12 +2197,12 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
             start.parentElement.addContent(new org.jdom.Text(""))
             start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
 
-            val numBytes = result.field.getBytes(decoder.charset()).length
+            val numBits = e.knownEncodingStringBitLength(result.field)
             //val endCharPos = start.charPos + result.field.length()
             val endCharPos =
               if (postEvalState.charPos == -1) result.field.length
               else postEvalState.charPos + result.field.length
-            val endBitPos = (8 * numBytes) + start.bitPos
+            val endBitPos = numBits + start.bitPos
 
             log(Debug("%s - Found %s", eName, result.field))
             log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
@@ -2259,7 +2266,7 @@ case class LiteralNilPattern(e: ElementBase)
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val d = new delimsearch.DelimParser()
+        val d = new delimsearch.DelimParser(e)
 
         val result = d.parseInputPatterned(pattern, reader, decoder.charset())
 
@@ -2283,12 +2290,12 @@ case class LiteralNilPattern(e: ElementBase)
             start.parentElement.addContent(new org.jdom.Text(""))
             start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
 
-            val numBytes = result.field.getBytes(decoder.charset()).length
+            val numBits = e.knownEncodingStringBitLength(result.field)
             //val endCharPos = start.charPos + result.field.length()
             val endCharPos =
               if (postEvalState.charPos == -1) result.field.length
               else postEvalState.charPos + result.field.length
-            val endBitPos = (8 * numBytes) + start.bitPos
+            val endBitPos = numBits + start.bitPos
 
             log(Debug("%s - Found %s", eName, result.field))
             log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
@@ -2366,7 +2373,7 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
         // 2. Compare resultant field to nilValue(s)
         //		Same, success
         //		Diff, fail
-        val d = new delimsearch.DelimParser()
+        val d = new delimsearch.DelimParser(e)
         var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
 
         if (esObj.escapeSchemeKind == stringsearch.constructs.EscapeSchemeKind.Block) {
@@ -2399,10 +2406,10 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
             start.parentElement.addContent(new org.jdom.Text(""))
             start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
 
-            val numBytes = result.field.getBytes(decoder.charset()).length
+            val numBits = e.knownEncodingStringBitLength(result.field)
             //val endCharPos = start.charPos + result.field.length()
             val endCharPos = if (postEvalState.charPos == -1) result.field.length else postEvalState.charPos + result.field.length
-            val endBitPos = (8 * numBytes) + start.bitPos
+            val endBitPos = numBits + start.bitPos
 
             log(Debug("%s - Found %s", eName, result.field))
             log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
@@ -2535,7 +2542,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
         val reader = getReader(bytePos, csName, lastState)
 
-        val d = new delimsearch.DelimParser()
+        val d = new delimsearch.DelimParser(decl)
 
         var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
 
@@ -2543,7 +2550,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
         val postState = result.isSuccess match {
           case true => {
-            val endBitPos = lastState.bitPos + (result.numBytes * 8)
+            val endBitPos = lastState.bitPos + result.numBits
             log(Debug("Assert Pattern success for testPattern %s", testPattern))
             start
           }
@@ -2594,7 +2601,7 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
         val reader = getReader(bytePos, csName, lastState)
 
-        val d = new delimsearch.DelimParser()
+        val d = new delimsearch.DelimParser(decl)
 
         var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
 

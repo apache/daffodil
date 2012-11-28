@@ -150,7 +150,7 @@ object Compiler {
   def apply() = new Compiler()
 
   def stringToReadableByteChannel(s: String) = {
-    val bytes = s.getBytes()
+    val bytes = s.getBytes("utf-8") // never use default charset. NEVER.
     byteArrayToReadableByteChannel(bytes)
   }
 
