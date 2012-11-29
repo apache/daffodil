@@ -1,7 +1,16 @@
-package delimsearch.io
+package daffodil.processors
+
 import java.nio.charset.Charset
 import java.nio.charset.CharsetDecoder
 import java.io.InputStream
+
+object DFDLJavaIOInputStreamReader {
+
+  def apply(in: InputStream, charset: Charset, bitOffset0to7: Int) = {
+    new DFDLJavaIOInputStreamReader(in, DFDLJavaIOStreamDecoder.forInputStreamReader(in, charset, bitOffset0to7))
+  }
+
+}
 
 /**
  * This class was ported from java in order to use our customized
@@ -10,27 +19,8 @@ import java.io.InputStream
  * This was necessary because in DFDL we want malformed input to be
  * treated as the end of a data stream.
  */
-class DFDLJavaIOInputStreamReader(val in: InputStream, val sd: DFDLJavaIOStreamDecoder)
+class DFDLJavaIOInputStreamReader private (val in: InputStream, val sd: DFDLJavaIOStreamDecoder)
   extends java.io.Reader(in: InputStream) {
-
-  def this(in: InputStream, charset: Charset) = {
-    this(in, DFDLJavaIOStreamDecoder.forInputStreamReader(in, charset))
-  }
-
-  // TODO: Remove unused constructors entirely.
-  //  def this(in: InputStream, cs: Charset) = {
-  //    this(in, DFDLJavaIOStreamDecoder.forInputStreamReader(in, new Object, {
-  //      if (cs == null) { throw new NullPointerException("charset") }
-  //      cs
-  //    }))
-  //  }
-  //
-  //  def this(in: InputStream, dec: CharsetDecoder) = {
-  //    this(in, DFDLJavaIOStreamDecoder.forInputStreamReader(in, new Object, {
-  //      if (dec == null) { throw new NullPointerException("charset decoder") }
-  //      dec
-  //    }))
-  //  }
 
   def getEncoding: String = sd.getEncoding
   override def read: Int = sd.read()

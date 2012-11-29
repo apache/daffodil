@@ -50,7 +50,7 @@ class TestPrimitives extends JUnitSuite {
     assertEqualsXMLElements(expected, actual.result)
   }
 
-  @Test def testSeparator = Debugger.withDebugger {
+  @Test def testSeparator() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
 

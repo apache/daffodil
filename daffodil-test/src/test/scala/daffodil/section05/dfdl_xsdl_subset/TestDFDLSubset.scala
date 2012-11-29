@@ -18,9 +18,9 @@ class TestDFDLSubset extends JUnitSuite {
   val tdml = testDir + "DFDLSubset.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
-  @Test def test_groupRefGroupRef() { Debugger.withDebugger { runner.runOneTest("groupRefGroupRef") } }
-  @Test def test_refInitiator3() { Debugger.withDebugger { runner.runOneTest("refInitiator3") } }
-  @Test def test_groupRef() { Debugger.withDebugger { runner.runOneTest("groupRef") } }
+  @Test def test_groupRefGroupRef() { { runner.runOneTest("groupRefGroupRef") } }
+  @Test def test_refInitiator3() { { runner.runOneTest("refInitiator3") } }
+  @Test def test_groupRef() { { runner.runOneTest("groupRef") } }
   @Test def test_groupRefChoice() { runner.runOneTest("groupRefChoice") }
-  @Test def test_badGroupRef() { Debugger.withDebugger { runner.runOneTest("badGroupRef") } }
+  @Test def test_badGroupRef() { { runner.runOneTest("badGroupRef") } }
 }

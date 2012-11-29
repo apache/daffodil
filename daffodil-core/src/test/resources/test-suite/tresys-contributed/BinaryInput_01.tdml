@@ -86,12 +86,12 @@
       <xs:element name="d0" type="xs:string" dfdl:terminator="%NUL;" dfdl:lengthKind="delimited">
        <xs:annotation>
        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-         <!-- 0 to 63 occurrences of not a NUL, followed by a NUL -->
-         <dfdl:discriminator testKind="pattern">[^\x00]{0,63}\x00</dfdl:discriminator>
+         <!-- 0 to 4 occurrences of not a NUL, followed by a NUL -->
+         <dfdl:discriminator testKind="pattern">[^\x00]{0,3}\x00</dfdl:discriminator>
        </xs:appinfo>
        </xs:annotation>
       </xs:element>
-      <xs:element name="d1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="64"/>
+      <xs:element name="d1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4"/>
     </xs:choice>
     </xs:complexType>
   </xs:element>
@@ -160,6 +160,36 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  
+  <tdml:parserTestCase name="packed7BitASCII5" root="e4"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110001 0110010 0110011 0110100 
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4><d1>1234</d1></e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="packed7BitASCII6" root="e4"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110001 0110010 0110011 0000000 
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4><d0>123</d0></e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
   
   
 </tdml:testSuite>

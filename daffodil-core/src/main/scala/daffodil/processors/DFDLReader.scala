@@ -23,10 +23,12 @@ import sun.nio.cs.HistoricallyNamedCharset
 import java.nio.channels.Channels
 import daffodil.exceptions.Assert
 
-import delimsearch.io.DFDLJavaIOInputStreamReader
-
 /**
  * Pure functional Reader[Byte] that gets its data from a DFDL.Input (aka a ReadableByteChannel)
+ *
+ * All reading of data ultimately comes to this layer which retrieves data on demand.
+ *
+ * This layer doesn't know anything about bits and bit positions like all the higher layers do.
  */
 class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos: Int = 0)
   extends scala.util.parsing.input.Reader[Byte] {
@@ -54,20 +56,38 @@ class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos: Int = 0)
 
   /**
    * Factory for a Reader[Char] that constructs characters by decoding them from this
-   * Reader[Byte] for a specific encoding starting at a particular byte position.
+   * Reader[Byte] for a specific encoding starting at a particular bit position.
+   *
+   * Yes, I said "bit" position.
+   *
+   * These are kept in the processor state for reuse.
    */
-  //  def charReader(csName : String) : scala.util.parsing.input.Reader[Char] = {
-  //    DFDLByteReader.getCharReader(psb, bytePos, csName) // new DFDLCharReader(psb, bytePos, csName)
-  //  }
-
-  // Retrieves a new charReader every time
-  def newCharReader(charset: Charset): scala.util.parsing.input.Reader[Char] = {
-    DFDLByteReader.getNewReader(psb, bytePos, charset)
+  def newCharReader(charset: Charset, bitPos: Long): DFDLCharReader = {
+    DFDLCharReader(psb, bitPos, charset)
   }
 
-  //  def updateCharReader(reader: DFDLCharReader) = {
-  //    DFDLByteReader.setCharReader(reader, psb)
-  //  }
+}
+
+object DFDLCharReader {
+
+  def apply(thePsb: PagedSeq[Byte], bitPosition: Long, charset: Charset) = {
+
+    Assert.usage(bitPosition <= Int.MaxValue, "bit positions are limited to 32-bit signed integer by underlying libraries.")
+    val bitPos = bitPosition.toInt
+
+    val bitOffset = bitPos & 0x7
+    val bytePos = bitPos >> 3
+    val is = new IteratorInputStream(thePsb.slice(bytePos).iterator)
+    val r = DFDLJavaIOInputStreamReader(is, charset, bitOffset)
+    // TRW - The following line was changed because the fromSource
+    // method was causing the readLine method of the BufferedReader class to be
+    // called.  This resulted in the loss of \n, \r and \r\n characters from the data.
+    //val psc = PagedSeq.fromSource(scala.io.Source.fromInputStream(is)(codec))
+    val psc = PagedSeq.fromReader(r)
+    val charOffset = 0
+    val rdr = new DFDLCharReader(charset, bitOffset, psc, charOffset, thePsb)
+    rdr
+  }
 
 }
 
@@ -76,57 +96,31 @@ class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos: Int = 0)
  * a particular character set encoding. Ends if there is any error trying to decode a
  * character.
  */
-class DFDLCharReader private (charset: Charset, theStartingBytePos: Int, psc: PagedSeq[Char], override val offset: Int, psb: PagedSeq[Byte])
+class DFDLCharReader private (charset: Charset, startingBitPos: Int, psc: PagedSeq[Char], override val offset: Int, psb: PagedSeq[Byte])
   extends scala.util.parsing.input.Reader[Char] {
 
   override lazy val source: CharSequence = psc
 
-  def startingBytePos: Int = theStartingBytePos
-
-  def this(thePsb: PagedSeq[Byte], bytePos: Int, charset: Charset) = {
-    this(charset, bytePos, {
-      // TRW - The following change was made because we want the
-      // IteratorInputStream to start at bytePos.
-      //
-      //val is = new IteratorInputStream(psb.iterator)
-      val is = new IteratorInputStream(thePsb.slice(bytePos).iterator)
-      //      val cs = java.nio.charset.Charset.forName(csName)
-      //      val codec = scala.io.Codec.charset2codec(cs)
-      //      codec.onMalformedInput(CodingErrorAction.REPORT)
-
-      //val r = new DFDLJavaIOInputStreamReader(is, codec.decoder)
-      val r = new DFDLJavaIOInputStreamReader(is, charset)
-
-      // TRW - The following line was changed because the fromSource
-      // method was causing the readLine method of the BufferedReader class to be
-      // called.  This resulted in the loss of \n, \r and \r\n characters from the data.
-      //val psc = PagedSeq.fromSource(scala.io.Source.fromInputStream(is)(codec))
-      val psc = PagedSeq.fromReader(r)
-      psc
-    }, 0, thePsb)
-  }
-
   def first: Char = psc(offset)
 
   def rest: scala.util.parsing.input.Reader[Char] =
-    if (psc.isDefinedAt(offset)) new DFDLCharReader(charset, startingBytePos, psc, offset + 1, psb)
+    if (psc.isDefinedAt(offset)) new DFDLCharReader(charset, startingBitPos, psc, offset + 1, psb)
     else this //new DFDLCharReader(psc, offset + 1)
 
   def atEnd: Boolean = !psc.isDefinedAt(offset)
 
   def pos: scala.util.parsing.input.Position = new OffsetPosition(source, offset) //new DFDLCharPosition(offset)
 
-  override def drop(n: Int): DFDLCharReader = new DFDLCharReader(charset, startingBytePos, psc, offset + n, psb)
+  override def drop(n: Int): DFDLCharReader = new DFDLCharReader(charset, startingBitPos, psc, offset + n, psb)
 
   def atPos(characterPos: Int): DFDLCharReader = {
-    new DFDLCharReader(charset, startingBytePos, psc, characterPos, psb)
+    new DFDLCharReader(charset, startingBitPos, psc, characterPos, psb)
   }
 
-  // We really want to be able to ask for a CharReader starting at
-  // said bytePosition.
-  def atBytePos(bytePosition: Int): DFDLCharReader = {
+  // We really want to be able to ask for a CharReader starting at said bitPos
+  def atBitPos(bitPos: Long): DFDLCharReader = {
     //System.err.println("DFDLCharReader.atBytePos(" + bytePosition + ")")
-    new DFDLCharReader(psb, bytePosition, charset)
+    DFDLCharReader(psb, bitPos, charset)
   }
 
   def getCharsetName: String = charset.name()
@@ -196,126 +190,127 @@ class DFDLBytePosition(i: Int) extends scala.util.parsing.input.Position {
   val lineContents = "" // unused. Maybe this should throw. NoSuchOperation, or something.
 }
 
-object DFDLByteReader {
-  type PosMap = HashMap[Int, (DFDLCharReader, Int)]
-  type CSMap = HashMap[String, PosMap]
-  type PSMap = HashMap[PagedSeq[Byte], CSMap]
-  private var charReaderMap: PSMap = HashMap.empty
-
-  // CharPosMap [bytePos + csName, CharPos]
-  type CharPosMap = HashMap[String, Int]
-  private var charPositionsMap: CharPosMap = HashMap.empty
-
-  /**
-   * Constructs a new DFDLCharReader using the same PagedSeq[Byte] but
-   * starts reading characters from the bytePos.
-   */
-  private def getNewReader(psb: PagedSeq[Byte], bytePos: Int, charset: Charset): DFDLCharReader = {
-    val newrdr = new DFDLCharReader(psb, bytePos, charset)
-    newrdr
-  }
-
-  /**
-   * Factory for a Reader[Char] that constructs characters by decoding them from this
-   * Reader[Byte] for a specific encoding starting at a particular byte position.
-   *
-   * Memoizes so that we don't re-decode as we backtrack around.
-   *
-   * TRW - 11/21/2012 - This is no longer used.  Reader is kept around now in state.
-   * Code here is left in-case we wish to revert back to using this call.
-   */
-  //  private def getCharReader(psb: PagedSeq[Byte], bytePos: Int, decoder: CharsetDecoder): DFDLCharReader = {
-  //
-  //    val csName = decoder.charset().name()
-  //
-  //    if (charReaderMap.isEmpty) {
-  //      var csMap: CSMap = HashMap.empty
-  //      val emptyCharReaderMap: PosMap = HashMap.empty
-  //      csMap.put(csName, emptyCharReaderMap)
-  //      charReaderMap.put(psb, csMap)
-  //    }
-  //
-  //    // TRW - Added for Compound Pattern Match to work
-  //    if (charReaderMap.get(psb) == None) {
-  //      var csMap: CSMap = HashMap.empty
-  //      val emptyCharReaderMap: PosMap = HashMap.empty
-  //      csMap.put(csName, emptyCharReaderMap)
-  //      charReaderMap.put(psb, csMap)
-  //    }
-  //
-  //    // We need to know what bytePositions currently exist in the HashMap
-  //    // so we can determine if there exists an entry containing this bytePos.
-  //    // We need to then ask the reader if it's currently at the end.  If it is then
-  //    // we need to create a new reader.
-  //
-  //    val charReaders = charReaderMap.get(psb).get.get(csName).get
-  //
-  //    val ks = charReaders.keySet
-  //    val diffs = ks.map(k => k -> (bytePos - k)).filter(x => x._2 >= 0)
-  //    val sortedDiffs = diffs.toList.sortWith((e1, e2) => e1._2 < e2._2)
-  //
-  //    if (sortedDiffs.length > 0) {
-  //      val closestEntryKey = sortedDiffs(0)._1
-  //      val result = charReaders.get(closestEntryKey) match {
-  //        case Some((rdr, charPos)) => {
-  //          val closestEntry = rdr.asInstanceOf[DFDLCharReader]
-  //          if (closestEntry.atEnd) {
-  //            val newrdr = new DFDLCharReader(psb, bytePos, decoder)
-  //            charReaders.put(bytePos, newrdr -> 0)
-  //            charPositionsMap.put(bytePos + csName, 0)
-  //            newrdr
-  //          } else {
-  //            rdr.atPos(charPos)
-  //          }
-  //        }
-  //        case None => {
-  //          val newrdr = new DFDLCharReader(psb, bytePos, decoder)
-  //          charReaders.put(bytePos, newrdr -> 0)
-  //          charPositionsMap.put(bytePos + csName, 0)
-  //          newrdr
-  //        }
-  //      }
-  //      return result
-  //    } else {
-  //      // A valid entry doesn't exist
-  //      val newrdr = new DFDLCharReader(psb, bytePos, decoder)
-  //      charReaders.put(bytePos, newrdr -> 0)
-  //      charPositionsMap.put(bytePos + csName, 0)
-  //      return newrdr
-  //    }
-  //
-  //    //    charReaders.get(bytePos) match {
-  //    //      case None => {
-  //    //        val newrdr = new DFDLCharReader(psb, bytePos, decoder)
-  //    //        charReaders.put(bytePos, newrdr)
-  //    //        newrdr
-  //    //      }
-  //    //      case Some(rdr) => rdr
-  //    //    }
-  //  }
-  //
-  //  private def setCharReader(reader: DFDLCharReader, psb: PagedSeq[Byte]) = {
-  //    //    val charReaders = charReaderMap.get(psb).get.get(reader.getCharsetName).get
-  //    //    //charReaders.put(bytePos, reader)
-  //    //    //System.err.println("Before insert: " + charReaders)
-  //    //
-  //    ////    charReaders.get(reader.startingBytePos) match {
-  //    ////      case Some((rdr, _)) => charReaders.put(reader.startingBytePos, (rdr -> reader.characterPos))
-  //    ////      case None => charReaders.put(reader.startingBytePos, (reader -> reader.characterPos))
-  //    ////    }
-  //    //    
-  //    //    // Don't need to do a get here, we only need to check if it exists
-  //    //    if (!charReaders.contains(reader.startingBytePos)) {
-  //    //      // This shouldn't ever really happen, right?  The reader is initially created
-  //    //      // and stored in the HashMap.  So a reader should always be there.
-  //    //        charReaders.put(reader.startingBytePos, (reader -> reader.characterPos))
-  //    //    }
-  //    // This assumes that the reader already exists in the HashMap (as it should)
-  //    // thus avoiding all of the delay for having to do execute a get against the charReaderMap
-  //    charPositionsMap.put(reader.startingBytePos + reader.getCharsetName, reader.characterPos)
-  //  }
-
-}
+//object DFDLByteReader {
+//  type PosMap = HashMap[Int, (DFDLCharReader, Int)]
+//  type CSMap = HashMap[String, PosMap]
+//  type PSMap = HashMap[PagedSeq[Byte], CSMap]
+//  private var charReaderMap: PSMap = HashMap.empty
+//
+//  // CharPosMap [bytePos + csName, CharPos]
+//  type CharPosMap = HashMap[String, Int]
+//  private var charPositionsMap: CharPosMap = HashMap.empty
+//
+//  /**
+//   * Constructs a new DFDLCharReader using the same PagedSeq[Byte] but
+//   * starts reading characters from the bitPos.
+//   */
+//  private def getNewReader(psb: PagedSeq[Byte], bitPos: Long, charset: Charset): DFDLCharReader = {
+//    Assert.usage(bitPos <= Int.MaxValue) // Limitation due to underlying stuff being so Int oriented.
+//    val newrdr = new DFDLCharReader(psb, bitPos.toInt, charset)
+//    newrdr
+//  }
+//
+//  /**
+//   * Factory for a Reader[Char] that constructs characters by decoding them from this
+//   * Reader[Byte] for a specific encoding starting at a particular byte position.
+//   *
+//   * Memoizes so that we don't re-decode as we backtrack around.
+//   *
+//   * TRW - 11/21/2012 - This is no longer used.  Reader is kept around now in state.
+//   * Code here is left in-case we wish to revert back to using this call.
+//   */
+//  //  private def getCharReader(psb: PagedSeq[Byte], bytePos: Int, decoder: CharsetDecoder): DFDLCharReader = {
+//  //
+//  //    val csName = decoder.charset().name()
+//  //
+//  //    if (charReaderMap.isEmpty) {
+//  //      var csMap: CSMap = HashMap.empty
+//  //      val emptyCharReaderMap: PosMap = HashMap.empty
+//  //      csMap.put(csName, emptyCharReaderMap)
+//  //      charReaderMap.put(psb, csMap)
+//  //    }
+//  //
+//  //    // TRW - Added for Compound Pattern Match to work
+//  //    if (charReaderMap.get(psb) == None) {
+//  //      var csMap: CSMap = HashMap.empty
+//  //      val emptyCharReaderMap: PosMap = HashMap.empty
+//  //      csMap.put(csName, emptyCharReaderMap)
+//  //      charReaderMap.put(psb, csMap)
+//  //    }
+//  //
+//  //    // We need to know what bytePositions currently exist in the HashMap
+//  //    // so we can determine if there exists an entry containing this bytePos.
+//  //    // We need to then ask the reader if it's currently at the end.  If it is then
+//  //    // we need to create a new reader.
+//  //
+//  //    val charReaders = charReaderMap.get(psb).get.get(csName).get
+//  //
+//  //    val ks = charReaders.keySet
+//  //    val diffs = ks.map(k => k -> (bytePos - k)).filter(x => x._2 >= 0)
+//  //    val sortedDiffs = diffs.toList.sortWith((e1, e2) => e1._2 < e2._2)
+//  //
+//  //    if (sortedDiffs.length > 0) {
+//  //      val closestEntryKey = sortedDiffs(0)._1
+//  //      val result = charReaders.get(closestEntryKey) match {
+//  //        case Some((rdr, charPos)) => {
+//  //          val closestEntry = rdr.asInstanceOf[DFDLCharReader]
+//  //          if (closestEntry.atEnd) {
+//  //            val newrdr = new DFDLCharReader(psb, bytePos, decoder)
+//  //            charReaders.put(bytePos, newrdr -> 0)
+//  //            charPositionsMap.put(bytePos + csName, 0)
+//  //            newrdr
+//  //          } else {
+//  //            rdr.atPos(charPos)
+//  //          }
+//  //        }
+//  //        case None => {
+//  //          val newrdr = new DFDLCharReader(psb, bytePos, decoder)
+//  //          charReaders.put(bytePos, newrdr -> 0)
+//  //          charPositionsMap.put(bytePos + csName, 0)
+//  //          newrdr
+//  //        }
+//  //      }
+//  //      return result
+//  //    } else {
+//  //      // A valid entry doesn't exist
+//  //      val newrdr = new DFDLCharReader(psb, bytePos, decoder)
+//  //      charReaders.put(bytePos, newrdr -> 0)
+//  //      charPositionsMap.put(bytePos + csName, 0)
+//  //      return newrdr
+//  //    }
+//  //
+//  //    //    charReaders.get(bytePos) match {
+//  //    //      case None => {
+//  //    //        val newrdr = new DFDLCharReader(psb, bytePos, decoder)
+//  //    //        charReaders.put(bytePos, newrdr)
+//  //    //        newrdr
+//  //    //      }
+//  //    //      case Some(rdr) => rdr
+//  //    //    }
+//  //  }
+//  //
+//  //  private def setCharReader(reader: DFDLCharReader, psb: PagedSeq[Byte]) = {
+//  //    //    val charReaders = charReaderMap.get(psb).get.get(reader.getCharsetName).get
+//  //    //    //charReaders.put(bytePos, reader)
+//  //    //    //System.err.println("Before insert: " + charReaders)
+//  //    //
+//  //    ////    charReaders.get(reader.startingBytePos) match {
+//  //    ////      case Some((rdr, _)) => charReaders.put(reader.startingBytePos, (rdr -> reader.characterPos))
+//  //    ////      case None => charReaders.put(reader.startingBytePos, (reader -> reader.characterPos))
+//  //    ////    }
+//  //    //    
+//  //    //    // Don't need to do a get here, we only need to check if it exists
+//  //    //    if (!charReaders.contains(reader.startingBytePos)) {
+//  //    //      // This shouldn't ever really happen, right?  The reader is initially created
+//  //    //      // and stored in the HashMap.  So a reader should always be there.
+//  //    //        charReaders.put(reader.startingBytePos, (reader -> reader.characterPos))
+//  //    //    }
+//  //    // This assumes that the reader already exists in the HashMap (as it should)
+//  //    // thus avoiding all of the delay for having to do execute a get against the charReaderMap
+//  //    charPositionsMap.put(reader.startingBytePos + reader.getCharsetName, reader.characterPos)
+//  //  }
+//
+//}
 
 /**
  * Position in a character stream.

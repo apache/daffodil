@@ -1,4 +1,4 @@
-package delimsearch.io
+package daffodil.processors
 
 import java.nio.CharBuffer
 import java.io.FileInputStream
@@ -17,6 +17,7 @@ import scala.util.control.Breaks._
 import java.nio.charset.CoderResult
 import daffodil.processors.charset.USASCII7BitPackedCharset
 import daffodil.processors.charset.CharsetUtils
+import daffodil.processors.charset.SupportsInitialBitOffset
 
 /**
  * The purpose of re-implementing this class is to gain control over
@@ -32,34 +33,19 @@ object DFDLJavaIOStreamDecoder {
 
   private val DEFAULT_BYTE_BUFFER_SIZE: Int = daffodil.compiler.Compiler.readerByteBufferSize.toInt
 
-  // Factories for DFDLJavaIOInputStreamReader
-  def forInputStreamReader(in: InputStream, charset: Charset): DFDLJavaIOStreamDecoder = {
+  def forInputStreamReader(in: InputStream, charset: Charset, bitOffset0to7: Int): DFDLJavaIOStreamDecoder = {
 
-    return new DFDLJavaIOStreamDecoder(in, charset)
+    val myBB = ByteBuffer.allocateDirect(DFDLJavaIOStreamDecoder.DEFAULT_BYTE_BUFFER_SIZE)
+    myBB.flip()
+
+    val chan = in match {
+      case fis: FileInputStream => fis.getChannel()
+      case _ => Channels.newChannel(in)
+    }
+
+    new DFDLJavaIOStreamDecoder(bitOffset0to7, charset, myBB, in, chan)
   }
 
-  // TODO: Remove unused constructors entirely
-  //  def forInputStreamReader(in: InputStream, lock: Object, cs: Charset): DFDLJavaIOStreamDecoder = {
-  //    return new DFDLJavaIOStreamDecoder(in, cs)
-  //  }
-  //
-  //  def forInputStreamReader(in: InputStream, lock: Object, dec: CharsetDecoder): DFDLJavaIOStreamDecoder = {
-  //    return new DFDLJavaIOStreamDecoder(in, dec)
-  //  }
-  //
-  //  private var channelsAvailable = true
-  //
-  //  private def getChannel(in: FileInputStream): FileChannel = {
-  //    if (!channelsAvailable) return null
-  //    try {
-  //      return in.getChannel
-  //    } catch {
-  //      case e: UnsatisfiedLinkError => {
-  //        channelsAvailable = false
-  //        return null
-  //      }
-  //    }
-  //  }
 }
 
 /**
@@ -70,37 +56,28 @@ object DFDLJavaIOStreamDecoder {
  *
  * Forces the decoder to REPORT on malformed input.
  */
-class DFDLJavaIOStreamDecoder private (var cs: Charset, var bb: ByteBuffer,
+class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, var cs: Charset, var bb: ByteBuffer,
                                        var in: InputStream, var ch: ReadableByteChannel)
   extends java.io.Reader {
 
+  Assert.usage(ch != null)
+  Assert.usage(bitOffsetWithinAByte >= 0)
+  Assert.usage(bitOffsetWithinAByte <= 7)
+
   val decoder = cs.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
 
-  def this(in: InputStream, charset: Charset) = {
-    //super(lock) // Java lock/synchronizing code
-
-    // In order for this customized version of the StreamDecoder to work
-    // as we expect it, we should force the decoder to REPORT on malformed input.
-    this(charset, {
-      var myBB: ByteBuffer = null
-      myBB = ByteBuffer.allocateDirect(DFDLJavaIOStreamDecoder.DEFAULT_BYTE_BUFFER_SIZE)
-      myBB.flip()
-      myBB
-    }, in, {
-      if (in.isInstanceOf[FileInputStream]) in.asInstanceOf[FileInputStream].getChannel()
-      else Channels.newChannel(in)
-    })
+  //
+  // Now we deal with bit positioning. If the decoder is capable of dealing with a starting bit offset
+  // then we configure it that way. If not we insist we are byte aligned and fail if not. 
+  //
+  decoder match {
+    case decoderWithBits: SupportsInitialBitOffset =>
+      decoderWithBits.setInitialBitOffset(bitOffsetWithinAByte)
+    case _ if (bitOffsetWithinAByte == 0) => // ok. Do nothing. We are luckily, aligned to a byte.
+    // We're counting on the parser surrounding us to catch this error and turn it into 
+    // a ParseError.
+    case _ => Assert.usageError("Character set %s requires byte alignment, but alignment was %s (bits)".format(cs.name, bitOffsetWithinAByte))
   }
-
-  // TODO: Remove excess constructors entirely.
-  //  // TODO: Do we want to support this constructor? Might want to just Assert.NYI for this.
-  //  def this(in: InputStream, cs: Charset) = {
-  //    // In this case we always want to report the error in order for us to treat a malformed
-  //    // input as end of data.
-  //    //
-  //    //this(in, cs.newDecoder().onMalformedInput(CodingErrorAction.REPLACE).onUnmappableCharacter(CodingErrorAction.REPLACE))
-  //    this(in, cs.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT))
-  //  }
 
   @volatile
   private var isOpen: Boolean = true
@@ -240,24 +217,24 @@ class DFDLJavaIOStreamDecoder private (var cs: Charset, var bb: ByteBuffer,
   private def readBytes: Int = {
     bb.compact()
     try {
-      if (ch != null) {
-        // Read from the channel
-        val n: Int = ch.read(bb)
-        if (n < 0) return n
-      } else {
-        // Read from the input stream, and hten update the buffer
-        val lim: Int = bb.limit()
-        val pos: Int = bb.position()
-        assert(pos <= lim)
-        val rem: Int = if (pos <= lim) lim - pos else 0
-        assert(rem > 0)
-        val n: Int = in.read(bb.array, bb.arrayOffset() + pos, rem)
-        if (n < 0) return n
-        if (n == 0) throw new IOException("Underlying input stream returned zero bytes")
-        //assert(n <= rem) : "n = " + n + ", rem = " + rem
-        assert(n <= rem)
-        bb.position(pos + n)
-      }
+      //      if (ch != null) {
+      // Read from the channel
+      val n: Int = ch.read(bb)
+      if (n < 0) return n
+      //      } else {
+      //        // Read from the input stream, and hten update the buffer
+      //        val lim: Int = bb.limit()
+      //        val pos: Int = bb.position()
+      //        assert(pos <= lim)
+      //        val rem: Int = if (pos <= lim) lim - pos else 0
+      //        assert(rem > 0)
+      //        val n: Int = in.read(bb.array, bb.arrayOffset() + pos, rem)
+      //        if (n < 0) return n
+      //        if (n == 0) throw new IOException("Underlying input stream returned zero bytes")
+      //        //assert(n <= rem) : "n = " + n + ", rem = " + rem
+      //        assert(n <= rem)
+      //        bb.position(pos + n)
+      //      }
     } finally {
       // Flip even when an IOException is thrown,
       // otherwise the stream will stutter

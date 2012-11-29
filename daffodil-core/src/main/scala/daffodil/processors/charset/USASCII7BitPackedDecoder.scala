@@ -23,37 +23,62 @@ object USASCII7BitPackedCharset
 }
 
 /**
+ * Mixin for Charsets which support initial bit offsets so that
+ * their character codepoints need not be byte-aligned.
+ */
+trait SupportsInitialBitOffset {
+
+  private var startBitOffset = 0
+  private var startBitOffsetHasBeenSet = false
+  private var startBitOffsetHasBeenUsed = false
+
+  def setInitialBitOffset(bitOffset0to7: Int) {
+    Assert.usage(!startBitOffsetHasBeenSet, "Already set. Cannot set again until decoder is reset().")
+    Assert.usage(bitOffset0to7 <= 7 && bitOffset0to7 >= 0)
+    startBitOffset = bitOffset0to7
+    startBitOffsetHasBeenSet = true
+  }
+
+  def getStartBitOffset() = {
+    if (startBitOffsetHasBeenUsed) 0 // one time we return the value. After that 0 until a reset.
+    else {
+      startBitOffsetHasBeenUsed = true
+      startBitOffset
+    }
+  }
+
+  def resetStartBit() {
+    startBitOffsetHasBeenUsed = false
+    startBitOffset = 0
+    startBitOffsetHasBeenSet = false
+  }
+
+}
+
+/**
  * You have to initialize one of these for a specific ByteBuffer because
  * the encoding is 7-bits wide, so we need additional state beyond just
  * the byte position and limit that a ByteBuffer provides in order to
  * properly sequence through the data.
  */
 class USASCII7BitPackedDecoder
-  extends java.nio.charset.CharsetDecoder(USASCII7BitPackedCharset, 1, 1) {
+  extends java.nio.charset.CharsetDecoder(USASCII7BitPackedCharset, 1, 1)
+  with SupportsInitialBitOffset {
 
   override def implReset() {
-    println("Reset")
-    isInitialized = false
+    // println("Reset")
+    resetStartBit()
     buf = null
     bitLimit = Long.MaxValue
     bitPos = 0
     hasPriorByte = false
     priorByte = 0
     priorByteBitCount = 0
-
-  }
-
-  def initialize(b: ByteBuffer, bitLim: Long = Long.MaxValue) {
-    Assert.usage(!isInitialized, "Already initialized. Cannot re-initialize.")
-    buf = b
-    bitLimit = bitLim
-    isInitialized = true
   }
 
   var bitLimit: Long = Long.MaxValue
   var bitPos = 0
 
-  private var isInitialized = false
   private var buf: ByteBuffer = _
 
   private var priorByte = 0
@@ -87,7 +112,7 @@ class USASCII7BitPackedDecoder
   final def decodeLoop(in: ByteBuffer, out: CharBuffer): CoderResult = {
 
     def output(charCode: Int) {
-      println("charcode = %2x".format(charCode))
+      // println("charcode = %2x".format(charCode))
       val char = charCode.toChar
       out.put(char)
       bitPos += widthOfAByte
@@ -99,9 +124,15 @@ class USASCII7BitPackedDecoder
       Misc.hex2Bits(hex)
     }
 
-    if (!isInitialized) initialize(in)
-    Assert.usage(in eq buf, "decoding must use the same ByteBuffer supplied at initialization (or on first use).")
     Assert.invariant(bitPos <= bitLimit)
+
+    //
+    // Now we have to adjust for the starting bit offset
+    //
+    val bitOffset0to7 = getStartBitOffset()
+    if (bitOffset0to7 != 0) {
+      priorByteBitCount = 8 - bitOffset0to7
+    }
 
     while (true) {
       if (bitPos + this.widthOfAByte > bitLimit) {
@@ -116,7 +147,7 @@ class USASCII7BitPackedDecoder
         //
         case (NoPrior, 0, YesData, YesSpace) => {
           val currentByte = asUnsignedByte(in.get())
-          println("no prior byte, current byte = %s".format(asBits(currentByte)))
+          // println("no prior byte, current byte = %s".format(asBits(currentByte)))
 
           priorByte = currentByte
           priorByteBitCount = 8 - widthOfAByte
@@ -129,14 +160,20 @@ class USASCII7BitPackedDecoder
         }
         case (NoPrior, 0, NoData, _) => return CoderResult.UNDERFLOW
         case (NoPrior, 0, _, NoSpace) => return CoderResult.OVERFLOW
-        case (NoPrior, n, _, _) => Assert.invariantFailed("priorByteBitCount should be 0 when there is no prior byte")
+        case (NoPrior, n, YesData, _) => {
+          // This happens if we're starting the decode loop at a startBitOffset that is non-zero.
+          // we basically grab one byte and pretend it's the prior byte. 
+          priorByte = asUnsignedByte(in.get())
+          hasPriorByte = true
+        }
+        case (NoPrior, n, NoData, _) => return CoderResult.UNDERFLOW
         case (YesPrior, 0, _, _) => Assert.invariantFailed("priorByteBitCount should not be 0 when there is a prior byte")
         case (YesPrior, n, _, _) if (n > 7) => Assert.invariantFailed("priorByteBitCount should be from 1 to 7 when there is a prior byte")
         case (YesPrior, 7, _, YesSpace) => {
           // Case where we previously used only 1 bit from the prior byte
           // so we can produce the next character from the remaining 7 bits of this byte.
           // We don't need more input.
-          println("prior byte = %s, no current byte needed, priorByteBitCount = %d".format(asBits(priorByte), priorByteBitCount))
+          // println("prior byte = %s, no current byte needed, priorByteBitCount = %d".format(asBits(priorByte), priorByteBitCount))
 
           val currentByte = priorByte
           val currentCharCode = currentByte & 0x7F // least significant bits for remainder
@@ -154,7 +191,7 @@ class USASCII7BitPackedDecoder
         case (YesPrior, n, YesData, YesSpace) => {
           // Straddling bytes. We need another input byte to make up a full character.
           val currentByte = asUnsignedByte(in.get())
-          println("prior byte = %s, current byte = %s, priorByteBitCount = %d".format(asBits(priorByte), asBits(currentByte), priorByteBitCount))
+          // println("prior byte = %s, current byte = %s, priorByteBitCount = %d".format(asBits(priorByte), asBits(currentByte), priorByteBitCount))
           val priorMask = 0xFF >> (8 - priorByteBitCount)
           val priorBits = priorByte & priorMask // keeps LSBs we're going to use
           val currentByteBitCount = widthOfAByte - priorByteBitCount
@@ -187,104 +224,3 @@ class USASCII7BitPackedEncoder
   }
 }
 
-//
-//case class BitState(bitLimit: Long, bitPos: Long, byteWidth: Int) {
-//  Assert.usage(byteWidth <= 8)
-//  Assert.usage(bitPos >= 0)
-//  Assert.usage(bitLimit >= bitPos)
-//}
-
-///**
-// * This variant on ByteBuffer supports widths, that is, you can provide a width of 7, 
-// * and it will consume 7 bits per 'byte' returned. It will only end when all bits have been 
-// * used up, or there aren't enough bits. 
-// */
-//class ByteBufferWithBitSupport private (val state: BitState, private val delegate: ByteBuffer)
-//  extends java.nio.ByteBufferBase {
-//
-//  def bitPos = state.bitPos
-//  def bitLimit = state.bitLimit
-//
-//  def this(bitLimit: Long, byteWidth: Int) = this(BitState(bitLimit, 0, byteWidth), ByteBuffer.allocate(daffodil.compiler.Compiler.byteBufferInitialSize.toInt))
-//
-//  def get(): Byte = { delegate.get() }
-//
-//  def slice(): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def duplicate(): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def asReadOnlyBuffer(): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def put(b: Byte): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def get(index: Int): Byte = { Assert.usageError("operation not supported.") }
-//
-//  def put(index: Int, b: Byte): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def compact(): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def isDirect(): Boolean = { delegate.isDirect() }
-//
-//  def getChar(): Char = { Assert.usageError("operation not supported.") }
-//
-//  def putChar(value: Char): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def getChar(index: Int): Char = { Assert.usageError("operation not supported.") }
-//
-//  def putChar(index: Int, value: Char): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def asCharBuffer(): CharBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def getShort(): Short = { Assert.usageError("operation not supported.") }
-//
-//  def putShort(value: Short): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def getShort(index: Int): Short = { Assert.usageError("operation not supported.") }
-//
-//  def putShort(index: Int, value: Short): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def asShortBuffer(): java.nio.ShortBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def getInt(): Int = { Assert.usageError("operation not supported.") }
-//
-//  def putInt(value: Int): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def getInt(index: Int): Int = { Assert.usageError("operation not supported.") }
-//
-//  def putInt(index: Int, value: Int): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def asIntBuffer(): java.nio.IntBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def getLong(): Long = { Assert.usageError("operation not supported.") }
-//
-//  def putLong(value: Long): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def getLong(index: Int): Long = { Assert.usageError("operation not supported.") }
-//
-//  def putLong(index: Int, value: Long): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def asLongBuffer(): java.nio.LongBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def getFloat(): Float = { Assert.usageError("operation not supported.") }
-//
-//  def putFloat(value: Float): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def getFloat(index: Int): Float = { Assert.usageError("operation not supported.") }
-//
-//  def putFloat(index: Int, value: Float): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def asFloatBuffer(): java.nio.FloatBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def getDouble(): Double = { Assert.usageError("operation not supported.") }
-//
-//  def putDouble(value: Double): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def getDouble(index: Int): Double = { Assert.usageError("operation not supported.") }
-//
-//  def putDouble(index: Int, value: Double): ByteBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def asDoubleBuffer(): java.nio.DoubleBuffer = { Assert.usageError("operation not supported.") }
-//
-//  def compareTo(o: ByteBuffer): Int = { Assert.usageError("operation not supported.") }
-//
-//}

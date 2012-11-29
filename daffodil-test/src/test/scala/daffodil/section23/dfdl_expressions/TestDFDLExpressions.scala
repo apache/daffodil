@@ -31,8 +31,8 @@ class TestDFDLExpressions extends JUnitSuite {
   //@Test def test_expresion_bad_path_to_variable() { runner.runOneTest("expresion_bad_path_to_variable") }
 
   @Test def test_nonFunctionIsDetected() = { runner.runOneTest("nonFunctionIsDetected") }
-  @Test def test_constantFunction1() = Debugger.withDebugger { runner.runOneTest("constantFunction1") }
-  @Test def test_dfdlPosition1() = Debugger.withDebugger { runner.runOneTest("dfdlPosition1") }
+  @Test def test_constantFunction1() { runner.runOneTest("constantFunction1") }
+  @Test def test_dfdlPosition1() { runner.runOneTest("dfdlPosition1") }
   @Test def test_dfdlPosition2() { runner.runOneTest("dfdlPosition2") }
   @Test def test_dfdlPosition3() { runner.runOneTest("dfdlPosition3") }
   @Test def test_dfdlPosition4() { runner.runOneTest("dfdlPosition4") }

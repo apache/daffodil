@@ -204,7 +204,7 @@ class TestParsingBehaviors extends JUnitSuite {
     val byteR = new DFDLByteReader(channel)
 
     //val r = byteR.charReader("UTF-8")
-    val r = byteR.newCharReader(Charset.forName("UTF-8"))
+    val r = byteR.newCharReader(Charset.forName("UTF-8"), 0)
 
     val d = new delimsearch.DelimParser(Fakes.fakeElem)
 
