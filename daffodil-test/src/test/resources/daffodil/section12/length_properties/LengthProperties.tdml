@@ -645,6 +645,44 @@ proper that we should do this]]></tdml:document>
   </tdml:defineSchema>
   
   <!--
+    Test name: bitsRepresentedAsText1
+    Schema: bitSchema
+    Purpose: this test demonstrates the use of lengthUnits 'bits' when the document uses a text representation (big endian).
+             no -> 01101110 01101111 -> 28271
+  -->
+
+  <tdml:parserTestCase name="bitsRepresentedAsText1" model="bitSchema"
+    root="bit5">
+    <tdml:document>
+      <tdml:documentPart type="text">no</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit5>28271</bit5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitsRepresentedAsText2
+    Schema: bitSchema
+    Purpose: this test demonstrates the use of lengthUnits 'bits' when the document uses a text representation (big endian).
+             no -> 01101110 01101111 -> (LE) -> 28526
+  -->
+
+  <tdml:parserTestCase name="bitsRepresentedAsText2" model="bitSchema"
+    root="bit4">
+    <tdml:document>
+      <tdml:documentPart type="text">no</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit4>28526</bit4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
     Test name: bit1
     Schema: bitSchema
     Purpose: this test demonstrates the use of lengthUnits 'bits' with a single bit

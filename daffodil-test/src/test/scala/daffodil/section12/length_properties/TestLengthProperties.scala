@@ -59,4 +59,7 @@ class TestLengthProperties extends JUnitSuite {
   @Test def test_bit1() { runner_02.runOneTest("bit1") }
   @Test def test_bit2() { runner_02.runOneTest("bit2") }
   @Test def test_bit3() { runner_02.runOneTest("bit3") }
+
+  @Test def test_bitsRepresentedAsText1() { runner_02.runOneTest("bitsRepresentedAsText1") }
+  @Test def test_bitsRepresentedAsText2() { runner_02.runOneTest("bitsRepresentedAsText2") }
 }
