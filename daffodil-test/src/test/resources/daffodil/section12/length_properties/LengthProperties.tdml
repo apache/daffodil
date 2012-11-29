@@ -109,7 +109,7 @@
   -->
 
   <tdml:parserTestCase name="LengthProp_bits_01"
-    root="LP_07" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-150Rish">
+    root="LP_07" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-129R">
 
     <tdml:document>
       <tdml:documentPart type="bits"><![CDATA[00000000000000000000010011010010]]></tdml:documentPart>
@@ -130,7 +130,7 @@
   -->
 
   <tdml:parserTestCase name="LengthProp_bits_02"
-    root="LP_08" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-150Rish">
+    root="LP_08" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-152R">
 
     <tdml:document>
       <tdml:documentPart type="bits"><![CDATA[0 1 0110 1010 0100]]></tdml:documentPart>
@@ -640,10 +640,119 @@ proper that we should do this]]></tdml:document>
       dfdl:lengthKind="explicit" dfdl:length="16" dfdl:byteOrder="littleEndian" />
     <xs:element name="bit5" type="xs:unsignedInt"
       dfdl:lengthKind="explicit" dfdl:length="16" dfdl:byteOrder="bigEndian" />
-    <xs:element name="bit6" type="xs:unsignedInt"
-      dfdl:lengthKind="implicit" dfdl:alignment="320" dfdl:byteOrder="bigEndian" />
+    <xs:element name="bit6" type="xs:unsignedShort"
+      dfdl:lengthKind="explicit" dfdl:length="24" dfdl:alignment="1" dfdl:byteOrder="bigEndian" />
+    <xs:element name="bit7" type="xs:unsignedShort"
+      dfdl:lengthKind="explicit" dfdl:length="24" dfdl:alignment="1" dfdl:byteOrder="littleEndian" />
+    <xs:element name="bit8" type="xs:unsignedShort"
+      dfdl:lengthKind="explicit" dfdl:length="9" dfdl:alignment="1" dfdl:byteOrder="bigEndian" />
+    <xs:element name="bit9" type="xs:unsignedShort"
+      dfdl:lengthKind="explicit" dfdl:length="9" dfdl:alignment="1" dfdl:byteOrder="littleEndian" />
+
+    <xs:element name="s1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="bit10" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="9" dfdl:byteOrder="bigEndian" />
+          <xs:element name="bit11" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="10" dfdl:byteOrder="littleEndian"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
   
+  <!--
+    Test name: lengthGreaterThanEight1
+    Schema: bitSchema
+    Purpose: This test demonstrates that a bit string of an arbitrary length will be properly interpreted (Big Endian)
+  -->
+
+  <tdml:parserTestCase name="lengthGreaterThanEight1"
+    root="bit6" model="bitSchema" description="Section 12 Length Properties - DFDL-12-153R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[110000000010100100100101]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit6>12593445</bit6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: lengthGreaterThanEight2
+    Schema: bitSchema
+    Purpose: This test demonstrates that a bit string of an arbitrary length will be properly interpreted (Little Endian)
+  -->
+
+  <tdml:parserTestCase name="lengthGreaterThanEight2"
+    root="bit7" model="bitSchema" description="Section 12 Length Properties - DFDL-12-154R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[110000000010100100100101]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit7>2435520</bit7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: lengthGreaterThanEight3
+    Schema: bitSchema
+    Purpose: This test demonstrates that a bit string of an arbitrary length will be properly interpreted (Big Endian)
+  -->
+
+  <tdml:parserTestCase name="lengthGreaterThanEight3"
+    root="bit8" model="bitSchema" description="Section 12 Length Properties - DFDL-12-153R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[100000001]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit8>257</bit8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: lengthGreaterThanEight4
+    Schema: bitSchema
+    Purpose: This test demonstrates that a bit string of an arbitrary length will be properly interpreted (Little Endian)
+  -->
+
+  <tdml:parserTestCase name="lengthGreaterThanEight4"
+    root="bit9" model="bitSchema" description="Section 12 Length Properties - DFDL-12-154R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[100000001]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit9>384</bit9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: lengthGreaterThanEight5
+    Schema: bitSchema
+    Purpose: This test demonstrates that a bit string of an arbitrary length will be properly interpreted (Big & Little Endian)
+  -->
+
+  <tdml:parserTestCase name="lengthGreaterThanEight5"
+    root="s1" model="bitSchema" description="Section 12 Length Properties - DFDL-12-153R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[1000000011000000001]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <s1>
+          <bit10>257</bit10>
+          <bit11>384</bit11>
+        </s1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <!--
     Test name: bitsRepresentedAsText1
     Schema: bitSchema
