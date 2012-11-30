@@ -24,8 +24,7 @@ trait InStream {
 
   def getByte(bitPos: Long, order: java.nio.ByteOrder): Byte
 
-  // FIXME: since bitPos might not be aligned, needs ByteOrder
-  def getBytes(bitPos: Long, numBytes: Int): Array[Byte]
+  def getBytes(bitPos: Long, numBytes: Long): Array[Byte]
 
   def getBitSequence(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder): (BigInt, Long)
 
@@ -54,26 +53,61 @@ class InStreamFromByteChannel private (val context: ElementBase, val byteReader:
   //
   def this(context: ElementBase, in: DFDL.Input, sizeHint: Long) = this(context, new DFDLByteReader(in), sizeHint)
 
-  def getBytes(bitPos: Long, numBytes: Int): Array[Byte] = {
-    Assert.invariant(bitPos % 8 == 0)
-    val bytePos = (bitPos >> 3).toInt
+  private val emptyByteArray = Array[Byte]()
+
+  def getBytes(bitPos: Long, numBytes: Long): Array[Byte] = {
+    if (bitPos % 8 == 0) {
+      val bytePos = (bitPos >> 3)
+      getByteAlignedBytes(bytePos, numBytes)
+    } else {
+      getUnalignedBytes(bitPos, numBytes)
+    }
+
+  }
+
+  private def asUnsignedByte(b: Byte): Int = if (b < 0) 256 + b else b
+  private def asSignedByte(i: Int) = {
+    Assert.usage(i >= 0)
+    val res = if (i > 127) i - 256 else i
+    res.toByte
+  }
+
+  private def getUnalignedBytes(bitPos: Long, numBytes: Long): Array[Byte] = {
+    Assert.usage(numBytes <= Int.MaxValue, "32-bit limit on number of bytes (due to underlying libraries restriction.)")
+    Assert.usage((bitPos >> 3) <= Int.MaxValue, "32-bit limit on byte position (due to underlying libraries restriction.)")
+    val bytePos = bitPos >> 3
+    val byteShift = bitPos & 0x7
+    Assert.usage(byteShift != 0, "Shouldn't be called if bytes are aligned.")
+    val byteSuperset = getByteAlignedBytes(bytePos, numBytes + 1).map { asUnsignedByte(_) }
+    val bitsKeeping = byteSuperset.map { b => ((b << byteShift) & 0xFF) >> byteShift }.slice(1, byteSuperset.length - 1)
+    val bitsAddingToNextByte = byteSuperset.map { b => (b >> byteShift) << byteShift }.slice(1, byteSuperset.length)
+    val bothParts = bitsAddingToNextByte zip bitsKeeping
+    val resultInts = bothParts.map { case (adding, keeping) => adding | keeping }
+    val resultBytes = resultInts.map { asSignedByte(_) }
+    resultBytes
+  }
+
+  private def getByteAlignedBytes(bytePos: Long, numBytes: Long): Array[Byte] = {
+    Assert.usage(numBytes <= Int.MaxValue, "32-bit limit on number of bytes (due to underlying libraries restriction.)")
+    Assert.usage(bytePos <= Int.MaxValue, "32-bit limit on byte position (due to underlying libraries restriction.)")
     val bb = byteReader.bb
-    bb.position(bytePos)
-    val result: Array[Byte] = new Array[Byte](numBytes)
-    bb.get(result, 0, numBytes)
+    bb.position(bytePos.toInt)
+    val result: Array[Byte] = new Array[Byte](numBytes.toInt)
+    bb.get(result, 0, numBytes.toInt)
     result
   }
 
-  def getBytesRemaining(bitPos: Long): Array[Byte] = {
-    Assert.invariant(bitPos % 8 == 0)
-    val bytePos = (bitPos >> 3).toInt
-    val bb = byteReader.bb
-    bb.position(bytePos)
-    val numBytesRemaining = bb.remaining()
-    val result: Array[Byte] = new Array[Byte](numBytesRemaining)
-    bb.get(result, 0, numBytesRemaining)
-    result
-  }
+  // TODO: remove entirely
+  //  def getBytesRemaining(bitPos: Long): Array[Byte] = {
+  //    Assert.invariant(bitPos % 8 == 0)
+  //    val bytePos = (bitPos >> 3).toInt
+  //    val bb = byteReader.bb
+  //    bb.position(bytePos)
+  //    val numBytesRemaining = bb.remaining()
+  //    val result: Array[Byte] = new Array[Byte](numBytesRemaining)
+  //    bb.get(result, 0, numBytesRemaining)
+  //    result
+  //  }
 
   abstract class EndianTraits(val startBit: Long, val bitCount: Long) {
     lazy val byteLength = 8.toLong
@@ -208,8 +242,9 @@ class InStreamFromByteChannel private (val context: ElementBase, val byteReader:
     }
   }
 
+  // This still requires alignment.
   def getByte(bitPos: Long, order: java.nio.ByteOrder) = {
-    Assert.invariant(bitPos % 8 == 0)
+    Assert.usage(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
     byteReader.bb.order(order)
     byteReader.bb.get(bytePos) // NOT called getByte(pos)

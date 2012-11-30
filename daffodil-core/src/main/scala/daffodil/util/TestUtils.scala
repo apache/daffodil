@@ -27,7 +27,7 @@ object TestUtils {
               </dfdl:defineFormat>
 
   def dfdlTestSchema(topLevelAnnotations: Seq[Node], contentElements: Seq[Node]) = {
-    val realSchema = <xs:schema xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns={ targetNS } xmlns:tns={ targetNS } targetNamespace={ targetNS }>
+    val realSchema = <xs:schema xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns={ targetNS } xmlns:tns={ targetNS } targetNamespace={ targetNS }>
                        <xs:annotation>
                          <xs:appinfo source={ dfdlURI }>
                            { test1 }

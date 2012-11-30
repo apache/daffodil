@@ -231,4 +231,7 @@ class TestBinaryInput_01 extends JUnitSuite {
   @Test def test_packed7BitASCII5() = { runner.runOneTest("packed7BitASCII5") }
   @Test def test_packed7BitASCII6() = { runner.runOneTest("packed7BitASCII6") }
 
+  @Test def test_packed7BitASCII7() = { runner.runOneTest("packed7BitASCII7") }
+  @Test def test_packed7BitASCII8() = { runner.runOneTest("packed7BitASCII8") }
+
 }

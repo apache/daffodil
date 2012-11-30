@@ -321,7 +321,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
 
         log(Debug("StringFixedLengthInBytes - Parsing starting at bit position: %s", start.bitPos))
 
-        if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInBytes - not byte aligned.") }
+        // if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInBytes - not byte aligned.") }
 
         val in = start.inStream
 
@@ -396,7 +396,8 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
 
         log(Debug("Parsing starting at bit position: %s", start.bitPos))
 
-        if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - not byte aligned.") }
+        // no longer require alignment (some charsets aren't aligned.)
+        // if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - not byte aligned.") }
 
         val in = start.inStream
 
@@ -480,7 +481,8 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
 
         log(Debug("Parsing starting at bit position: %s", start.bitPos))
 
-        if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInVariableWidthCharacters - not byte aligned.") }
+        // no longer require alignment (some encodings aren't whole bytes)
+        // if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInVariableWidthCharacters - not byte aligned.") }
 
         val in = start.inStream
 
@@ -686,7 +688,8 @@ case class StringPatternMatched(e: ElementBase)
         log(Debug("StringPatternMatched - %s - Parsing pattern at byte position: %s", eName, (start.bitPos >> 3)))
         log(Debug("StringPatternMatched - %s - Parsing pattern at bit position: %s", eName, start.bitPos))
 
-        if (start.bitPos % 8 != 0) { return PE(start, "StringPatternMatched - not byte aligned.") }
+        // some encodings aren't whole bytes.
+        // if (start.bitPos % 8 != 0) { return PE(start, "StringPatternMatched - not byte aligned.") }
 
         val in = start.inStream
 
@@ -1954,7 +1957,8 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
         log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
         log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
 
-        if (postEvalState.bitPos % 8 != 0) { return PE(postEvalState, "LiteralNilPattern - not byte aligned.") }
+        // some encodings aren't whole bytes
+        // if (postEvalState.bitPos % 8 != 0) { return PE(postEvalState, "LiteralNilPattern - not byte aligned.") }
 
         val decoder = charset.newDecoder()
 

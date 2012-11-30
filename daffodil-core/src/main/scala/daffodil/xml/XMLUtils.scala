@@ -46,6 +46,7 @@ object XMLUtils {
 
   val XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema" // removed trailing slash (namespaces care)
   val XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance"
+  val XPATH_FUNCTION_NAMESPACE = "http://www.w3.org/2005/xpath-functions"
   val xsiNS = Namespace.getNamespace("xsi", XSI_NAMESPACE)
   val DFDL_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/" // dfdl ns does have a trailing slash
   val DFDL_SUBSET_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
@@ -84,6 +85,7 @@ object XMLUtils {
   val dfdlURI = DFDL_NAMESPACE
   val targetNS = EXAMPLE_NAMESPACE // we use this for tests.
   val xsiURI = XSI_NAMESPACE
+  val fnURI = XPATH_FUNCTION_NAMESPACE
 
   //  val PCDATA = "#PCDATA"
   //  val REM = "#REM"
