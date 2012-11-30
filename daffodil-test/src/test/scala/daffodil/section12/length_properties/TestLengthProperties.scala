@@ -68,4 +68,6 @@ class TestLengthProperties extends JUnitSuite {
   @Test def test_lengthGreaterThanEight3() { runner_02.runOneTest("lengthGreaterThanEight3") }
   @Test def test_lengthGreaterThanEight4() { runner_02.runOneTest("lengthGreaterThanEight4") }
   @Test def test_lengthGreaterThanEight5() { runner_02.runOneTest("lengthGreaterThanEight5") }
+  
+  @Test def test_bitULong() { runner_02.runOneTest("bitULong") }
 }

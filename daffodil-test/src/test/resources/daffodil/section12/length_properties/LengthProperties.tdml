@@ -657,8 +657,51 @@ proper that we should do this]]></tdml:document>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-
+    
+    <xs:element name="bit12" type="xs:unsignedLong"
+      dfdl:lengthKind="explicit" dfdl:length="32" dfdl:byteOrder="bigEndian" />
+    
+    <xs:element name="bit13" type="xs:short"
+      dfdl:lengthKind="explicit" dfdl:length="16" dfdl:byteOrder="bigEndian" />
+  
   </tdml:defineSchema>
+  
+  <!--
+    Test name: bitULong
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey an unsigned Long
+  -->
+
+  <tdml:parserTestCase name="bitULong"
+    root="bit12" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[11000011010100001100001101010000]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit12>3276850000</bit12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitShort
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey a signed Short
+  -->
+
+  <tdml:parserTestCase name="bitShort"
+    root="bit13" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[1100001101010000]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit13>-15536</bit13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
   
   <!--
     Test name: lengthGreaterThanEight1
