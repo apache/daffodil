@@ -38,4 +38,17 @@ class TestDFDLExpressions extends JUnitSuite {
   @Test def test_dfdlPosition4() { runner.runOneTest("dfdlPosition4") }
   @Test def test_dfdlPosition5() { runner.runOneTest("dfdlPosition5") }
 
+  @Test def test_repeatFlags1() { runner.runOneTest("repeatFlags1") }
+  @Test def test_repeatFlags2() { runner.runOneTest("repeatFlags2") }
+  @Test def test_repeatFlags3() { runner.runOneTest("repeatFlags3") }
+  @Test def test_repeatFlags4() { runner.runOneTest("repeatFlags4") }
+  @Test def test_repeatFlags5() { runner.runOneTest("repeatFlags5") }
+
+  @Test def test_repeatBitFlags1() { runner.runOneTest("repeatBitFlags1") }
+  @Test def test_repeatBitFlags2() { runner.runOneTest("repeatBitFlags2") }
+  @Test def test_repeatBitFlags3() { runner.runOneTest("repeatBitFlags3") }
+  @Test def test_repeatBitFlags4() { runner.runOneTest("repeatBitFlags4") }
+  @Test def test_repeatBitFlags5() { runner.runOneTest("repeatBitFlags5") }
+  @Test def test_repeatBitFlags6() { runner.runOneTest("repeatBitFlags6") }
+
 }

@@ -956,7 +956,7 @@
     <dfdl:format ref="ex:daffodilTest1" />
     <xs:element name="e">
       <xs:complexType>
-        <xs:sequence>
+        <xs:sequence dfdl:separator="">
           <xs:element name="present" type="xs:int"
             dfdl:lengthKind="explicit" dfdl:length="1" />
           <xs:element name="s" minOccurs="0" maxOccurs="1"
@@ -986,12 +986,20 @@
               </xs:sequence>
             </xs:complexType>
           </xs:element>
+          <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
 
 
   </tdml:defineSchema>
+
+<!--
+     Test Name: repeatFlags1
+        Schema: repeatFlags
+       Purpose: This test demonstrates the use of presence and repeat flags. In this case, the presence flag is 0,
+                so there are no occurrences.
+-->
 
   <tdml:parserTestCase name="repeatFlags1" model="repeatFlags"
     root="e">
@@ -1000,10 +1008,19 @@
       <tdml:dfdlInfoset>
         <e>
           <present>0</present>
+          <extra></extra>
         </e>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: repeatFlags2
+        Schema: repeatFlags
+       Purpose: This test demonstrates the use of presence and repeat flags. In this case, the presence flag is 1,
+                so there is at least one occurrence. The repeat flag is 0, so there is only one occurrence, which
+                in this case is the character "A".
+-->
 
   <tdml:parserTestCase name="repeatFlags2" model="repeatFlags"
     root="e">
@@ -1018,10 +1035,18 @@
               <c>A</c>
             </r>
           </s>
+          <extra></extra>
         </e>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: repeatFlags3
+        Schema: repeatFlags
+       Purpose: This test demonstrates the use of presence and repeat flags. In this case, the presence flag is 1,
+                so there is at least one occurrence. The repeat flag is 1, so there is at least one more, etc.
+-->
 
   <tdml:parserTestCase name="repeatFlags3" model="repeatFlags"
     root="e">
@@ -1048,11 +1073,71 @@
               <c>D</c>
             </r>
           </s>
+          <extra></extra>
         </e>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
+<!--
+     Test Name: repeatFlags4
+        Schema: repeatFlags
+       Purpose: This test demonstrates the use of presence and repeat flags. In this case, though the fourth repeat bit
+                is 0, there is more data, which should be caught by the "extra" element and not included in the primary
+                element tree
+-->
+
+  <tdml:parserTestCase name="repeatFlags4" model="repeatFlags"
+    root="e">
+    <tdml:document>11A1B1C0D1E1F0G</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <present>1</present>
+          <s>
+            <r>
+              <more>1</more>
+              <c>A</c>
+            </r>
+            <r>
+              <more>1</more>
+              <c>B</c>
+            </r>
+            <r>
+              <more>1</more>
+              <c>C</c>
+            </r>
+            <r>
+              <more>0</more>
+              <c>D</c>
+            </r>
+          </s>
+          <extra>1E1F0G</extra>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: repeatFlags5
+        Schema: repeatFlags
+       Purpose: This test demonstrates the use of presence and repeat flags. In this case, the presence flag is 0, but there
+                is still data in the document. This data should be consumed by the "extra" element and not included in the primary
+                element tree
+-->
+
+  <tdml:parserTestCase name="repeatFlags5" model="repeatFlags"
+    root="e">
+    <tdml:document>01A1B1C1D1E1F0G</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <present>0</present>
+          <extra>1A1B1C1D1E1F0G</extra>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <tdml:defineSchema name="repeatBitFlags">
     <dfdl:format ref="ex:daffodilTest1" lengthUnits="bits"
@@ -1105,6 +1190,32 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="f">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="present" type="xs:unsignedInt"
+            dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="s" minOccurs="0" maxOccurs="1"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:present }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="r" minOccurs="1" maxOccurs="unbounded"
+                  dfdl:occursCountKind="parsed">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:group ref="ex:more" />
+                      <xs:element name="c" type="xs:unsignedInt"
+                        dfdl:lengthKind="explicit" dfdl:length="3" />
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="extra" minOccurs="0" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="8"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -1120,6 +1231,12 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+<!--
+     Test Name: repeatBitFlags1
+        Schema: repeatBitFlags
+       Purpose: This test demonstrates the use of presence and repeat bits. In this case, the presence bit is 0,
+                so there are no occurrences.
+-->
 
   <tdml:parserTestCase name="repeatBitFlags1" model="repeatBitFlags"
     root="e">
@@ -1134,6 +1251,14 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: repeatBitFlags2
+        Schema: repeatBitFlags
+       Purpose: This test demonstrates the use of presence and repeat bits. In this case, the presence bit is 1,
+                so there is at least one occurrence. The repeat bit is zero, so there will only be one occurrence,
+                which in this case is the binary representation (in 3 bits) of 1.
+-->
 
   <tdml:parserTestCase name="repeatBitFlags2" model="repeatBitFlags"
     root="e">
@@ -1154,6 +1279,15 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: repeatBitFlags3
+        Schema: repeatBitFlags
+       Purpose: This test demonstrates the use of presence and repeat bits. In this case, the presence bit is 1,
+                so there is at least one occurrence. The repeat bit is 1, so after this occurrence there will be at least one more.
+                After the first occurrence of the c element, the next repeat bit is also 1, followed by the next occurrence, etc.
+                Eventually the repeat bit is 0, so the last bit of data is consumed, and parsing stops.
+-->
 
   <tdml:parserTestCase name="repeatBitFlags3" model="repeatBitFlags"
     root="e">
@@ -1183,6 +1317,97 @@
             </r>
           </s>
         </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: repeatBitFlags4
+        Schema: repeatBitFlags
+       Purpose: This test demonstrates the use of presence and repeat bits. In this case, the presence bit is 1,
+                so there is at least one occurrence. The repeat bit is zero, so there will only be one occurrence.
+                However, the document has extra data and the test runner should complain that there is leftover data.
+-->
+
+  <tdml:parserTestCase name="repeatBitFlags4" model="repeatBitFlags"
+    root="e">
+    <tdml:document>
+      <tdml:documentPart type="bits">1 0 001 0 010</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over data</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: repeatBitFlags5
+        Schema: repeatBitFlags
+       Purpose: This test demonstrates the use of presence and repeat bits. In this case, the presence bit is 1,
+                so there is at least one occurrence. The repeat bit is zero, so there will only be one occurrence.
+                However, the document has extra data which should be parsed as the "extra" element.
+-->
+
+  <tdml:parserTestCase name="repeatBitFlags5" model="repeatBitFlags"
+    root="f">
+    <tdml:document>
+      <tdml:documentPart type="bits">1 1 001 0 010 1 101 0 111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <f>
+          <present>1</present>
+          <s>
+            <r>
+              <more>1</more>
+              <c>1</c>
+            </r>
+            <r>
+              <more>0</more>
+              <c>2</c>
+            </r>
+          </s>
+          <extra>215</extra>
+        </f>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: repeatBitFlags6
+        Schema: repeatBitFlags
+       Purpose: This test demonstrates the use of presence and repeat bits. In this case, the presence bit is 1,
+                so there is at least one occurrence. The repeat bit is 1, so there will be another occurrence, and so forth.
+                In this case the optional extra element should not be needed.
+-->
+
+  <tdml:parserTestCase name="repeatBitFlags6" model="repeatBitFlags"
+    root="f">
+    <tdml:document>
+      <tdml:documentPart type="bits">1 1 001 1 010 1 101 0 111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <f>
+          <present>1</present>
+          <s>
+            <r>
+              <more>1</more>
+              <c>1</c>
+            </r>
+            <r>
+              <more>1</more>
+              <c>2</c>
+            </r>
+            <r>
+              <more>1</more>
+              <c>5</c>
+            </r>
+            <r>
+              <more>0</more>
+              <c>7</c>
+            </r>
+          </s>
+        </f>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

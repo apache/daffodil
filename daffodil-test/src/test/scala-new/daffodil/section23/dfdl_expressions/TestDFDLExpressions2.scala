@@ -26,12 +26,4 @@ class TestDFDLExpressions2 extends JUnitSuite {
   @Test def test_maxOccursPass() { runner.runOneTest("checkMaxOccurs_Pass") }
   @Test def test_maxOccursUnboundedPass() { runner.runOneTest("checkMaxOccursUnbounded_Pass") }
 
-  @Test def test_repeatFlags1() { runner.runOneTest("repeatFlags1") }
-  @Test def test_repeatFlags2() = { runner.runOneTest("repeatFlags2") }
-  @Test def test_repeatFlags3() { runner.runOneTest("repeatFlags3") }
-
-  @Test def test_repeatBitFlags1() { runner.runOneTest("repeatBitFlags1") }
-  @Test def test_repeatBitFlags2() { runner.runOneTest("repeatBitFlags2") }
-  @Test def test_repeatBitFlags3() { runner.runOneTest("repeatBitFlags3") }
-
 }
