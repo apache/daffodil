@@ -6,7 +6,7 @@
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format lengthKind="delimited" separator=""
+      <dfdl:format lengthKind="delimited" separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
         initiator="" terminator="" initiatedContent="no" />
     </appinfo>
   </annotation>
