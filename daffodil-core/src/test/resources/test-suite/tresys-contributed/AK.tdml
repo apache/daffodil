@@ -6,8 +6,7 @@
   <parserTestCase name="AK000" root="list" model="AK.dfdl.xsd"
     description="Simple Binary with signed and usigned types">
     <document>
-      <documentPart type="byte">ffff
-        ffffffffffffffffffffffffffffffffffffffffffffffffffffffff</documentPart>
+      <documentPart type="byte">ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</documentPart>
     </document>
     <infoset>
       <dfdlInfoset>
