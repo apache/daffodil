@@ -27,6 +27,7 @@ class TestEscapes extends JUnitSuite {
   @Test def test_escapes09() { runner.runOneTest("escape_entry9") }
   //  @Test def test_escapes10() { runner.runOneTest("escape_entry10") }
   @Test def test_escapes11() { runner.runOneTest("escape_entry11") }
+  @Test def test_escapes12() { runner.runOneTest("escape_entry12") }
 
   @Test def test_escapes2_01() { runner.runOneTest("escape_entry2-1") }
   @Test def test_escapes2_02() { runner.runOneTest("escape_entry2-2") }
@@ -78,4 +79,33 @@ class TestEscapes extends JUnitSuite {
 //  @Test def test_escapes3_29() { runner.runOneTest("escape_entry3-29") }
   @Test def test_escapes3_30() { runner.runOneTest("escape_entry3-30") }
   @Test def test_escapes3_31() { runner.runOneTest("escape_entry3-31") }
+  
+  @Test def test_escape_entry4_1() { runner.runOneTest("escape_entry4-1") }
+  @Test def test_escape_entry4_2() { runner.runOneTest("escape_entry4-2") }
+  @Test def test_escape_entry4_3() { runner.runOneTest("escape_entry4-3") }
+  @Test def test_escape_entry4_4() { runner.runOneTest("escape_entry4-4") }
+  @Test def test_escape_entry4_5() { runner.runOneTest("escape_entry4-5") }
+  @Test def test_escape_entry4_6() { runner.runOneTest("escape_entry4-6") }
+  @Test def test_escape_entry4_7() { runner.runOneTest("escape_entry4-7") }
+  @Test def test_escape_entry4_8() { runner.runOneTest("escape_entry4-8") }
+  @Test def test_escape_entry4_9() { runner.runOneTest("escape_entry4-9") }
+  @Test def test_escape_entry4_10() { runner.runOneTest("escape_entry4-10") }
+  @Test def test_escape_entry4_11() { runner.runOneTest("escape_entry4-11") }
+  @Test def test_escape_entry4_12() { runner.runOneTest("escape_entry4-12") }
+  @Test def test_escape_entry4_13() { runner.runOneTest("escape_entry4-13") }
+  @Test def test_escape_entry4_14() { runner.runOneTest("escape_entry4-14") }
+  @Test def test_escape_entry4_15() { runner.runOneTest("escape_entry4-15") }
+  @Test def test_escape_entry4_16() { runner.runOneTest("escape_entry4-16") }
+  @Test def test_escape_entry4_17() { runner.runOneTest("escape_entry4-17") }
+  @Test def test_escape_entry4_18() { runner.runOneTest("escape_entry4-18") }
+  @Test def test_escape_entry4_19() { runner.runOneTest("escape_entry4-19") }
+//  @Test def test_escape_entry4_20() { runner.runOneTest("escape_entry4-20") }
+  @Test def test_escape_entry4_21() { runner.runOneTest("escape_entry4-21") }
+  @Test def test_escape_entry4_22() { runner.runOneTest("escape_entry4-22") }
+//  @Test def test_escape_entry4_23() { runner.runOneTest("escape_entry4-23") }
+  @Test def test_escape_entry4_24() { runner.runOneTest("escape_entry4-24") }
+//  @Test def test_escape_entry4_25() { runner.runOneTest("escape_entry4-25") }
+//  @Test def test_escape_entry4_26() { runner.runOneTest("escape_entry4-26") }
+  @Test def test_escape_entry4_27() { runner.runOneTest("escape_entry4-27") }
+
 }

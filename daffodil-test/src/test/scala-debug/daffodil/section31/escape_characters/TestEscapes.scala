@@ -24,4 +24,9 @@ class TestEscapes2 extends JUnitSuite {
   @Test def test_escapes3_27() { runner.runOneTest("escape_entry3-27") }
   @Test def test_escapes3_29() { runner.runOneTest("escape_entry3-29") }
 
+  @Test def test_escape_entry4_20() { runner.runOneTest("escape_entry4-20") }
+  @Test def test_escape_entry4_23() { runner.runOneTest("escape_entry4-23") }
+  @Test def test_escape_entry4_25() { runner.runOneTest("escape_entry4-25") }
+  @Test def test_escape_entry4_26() { runner.runOneTest("escape_entry4-26") }
+
 }
