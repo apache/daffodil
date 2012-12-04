@@ -20,4 +20,8 @@ class TestEscapes2 extends JUnitSuite {
   @Test def test_escapes2_10() { runner.runOneTest("escape_entry2-10") }
   @Test def test_escapes2_14() { runner.runOneTest("escape_entry2-14") }
 
+  @Test def test_escapes3_20() { runner.runOneTest("escape_entry3-20") }
+  @Test def test_escapes3_27() { runner.runOneTest("escape_entry3-27") }
+  @Test def test_escapes3_29() { runner.runOneTest("escape_entry3-29") }
+
 }
