@@ -359,21 +359,14 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-
-  <tdml:parserTestCase name="LengthPatternIllegalBits"
+  
+  <tdml:parserTestCase name="ComplexWithBinaryChild"
     root="def" model="DFDL-207-Embedded.dfdl.xsd"
-    description="Section 12 lengthKind-pattern -originally a test for illegal bit pattern for DFDL-253 but test changed to be case with legal bits - DFDL-12-088R">
+    description="Section 12 lengthKind-pattern -elements of complex type must have child content with representation 'text' - DFDL-12-088R">
     <tdml:document><![CDATA[!!c2c2!!]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <def>
-          <first>!!</first>
-          <inner>1664246578</inner>
-          <last>!!</last>
-        </def>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error/>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="LengthPatternIllegalBits_01"
