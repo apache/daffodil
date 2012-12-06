@@ -22,8 +22,13 @@
         <xs:sequence dfdl:initiatedContent="no"
           dfdl:separatorPosition="infix" dfdl:sequenceKind="ordered"
           dfdl:separator=",">
-          <xs:element name="character" type="xs:string"
-            dfdl:escapeSchemeRef="tns:pound" />
+          <xs:element name="character" type="xs:string">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:element escapeSchemeRef="tns:pound"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
           <xs:element name="block" type="xs:string"
             dfdl:escapeSchemeRef="tns:cStyleComment" />
         </xs:sequence>

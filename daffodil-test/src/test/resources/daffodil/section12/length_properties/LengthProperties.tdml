@@ -21,13 +21,8 @@
     </xs:element>
 
     <xs:element name="LP_02" type="lp_02" />
-    <xs:simpleType name="lp_02">
-      <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/">
-          <dfdl:simpleType lengthKind="explicit"
-            lengthUnits="bytes" length="2" byteOrder="bigEndian" />
-        </xs:appinfo>
-      </xs:annotation>
+    <xs:simpleType name="lp_02" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" 
+      dfdl:length="2" dfdl:byteOrder="bigEndian">
       <xs:restriction base="xs:string" />
     </xs:simpleType>
 
@@ -55,7 +50,7 @@
     <xs:element name="LP_05" type="lp_05" />
     <xs:simpleType name="lp_05">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
           <dfdl:simpleType lengthKind="explicit" length="3"
             encoding="ASCII" />
         </xs:appinfo>

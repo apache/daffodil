@@ -121,7 +121,9 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="groupRefGroupRef.xsd">
-
+    <dfdl:defineFormat name="def">
+      <dfdl:format separator=","/>
+    </dfdl:defineFormat>
 
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
@@ -152,7 +154,7 @@
     <xs:element name="Item" dfdl:lengthKind="implicit">
       <xs:complexType>
 
-        <xs:group ref="ex:namedGroup" dfdl:separator="," />
+        <xs:group ref="ex:namedGroup" dfdl:ref="ex:def" />
 
       </xs:complexType>
     </xs:element>

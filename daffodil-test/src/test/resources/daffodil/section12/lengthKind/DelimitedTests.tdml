@@ -631,7 +631,13 @@
                 <xs:element ref="ex:description" />
                 <xs:element ref="ex:comment" />
                 <xs:element ref="ex:quantity" />
-                <xs:element ref="ex:price" dfdl:initiator="$" />
+                <xs:element ref="ex:price">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:element initiator="$"/>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
               </xs:sequence>
 
             </xs:complexType>

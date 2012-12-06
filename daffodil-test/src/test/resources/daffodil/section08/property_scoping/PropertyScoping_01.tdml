@@ -29,8 +29,13 @@
     <dfdl:format ref="tns:daffodilTest1" lengthKind="explicit"
       lengthUnits="characters" length="3" />
 
-    <xs:element name="easy" type="xs:int" dfdl:ref="tns:def"
-      dfdl:textNumberRep="standard" />
+    <xs:element name="easy" type="xs:int" dfdl:textNumberRep="standard">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:element ref="tns:def"/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
   </tdml:defineSchema>
 
 

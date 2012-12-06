@@ -19,5 +19,11 @@ class TestPropertySyntax extends JUnitSuite {
   @Test def test_property_syntax_7_01() { runner.runOneTest("property_syntax_7_01") }
   @Test def test_property_syntax_7_02() { runner.runOneTest("property_syntax_7_02") }
   @Test def test_property_syntax_7_03() { runner.runOneTest("property_syntax_7_03") }
+  
+  val testDir1 = "/daffodil/section07/property_syntax/"
+  val aa = testDir1 + "PropertySyntax.tdml"
+  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  
+  @Test def test_ShortAndLongForm() { runner1.runOneTest("ShortAndLongForm") }
 
 }
