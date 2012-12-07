@@ -13,6 +13,7 @@ import daffodil.exceptions.ThrowsSDE
 import daffodil.dsom.OOLAG.LV
 import scala.util.matching.Regex
 import daffodil.dsom.Facet._
+import daffodil.processors.Infoset
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -95,6 +96,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with NamedMixin
   with WithDiagnostics {
 
+  val schemaComponentID = Infoset.addComponent(this)
+
   def inputValueCalcOption: Option[String]
   def isNillable: Boolean
   def isSimpleType: Boolean
@@ -129,6 +132,13 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    */
   lazy val isFixedLength = {
     lengthKind == LengthKind.Explicit && length.isConstant
+  }
+
+  lazy val hasSpecifiedLength = {
+    isFixedLength ||
+      lengthKind == LengthKind.Pattern ||
+      lengthKind == LengthKind.Prefixed ||
+      lengthKind == LengthKind.Implicit
   }
 
   lazy val fixedLength = {

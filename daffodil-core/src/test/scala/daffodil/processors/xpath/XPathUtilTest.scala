@@ -130,7 +130,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
     root addContent (child1)
     val document = new Document(root)
 
-    val ns = XMLUtils.jdomNamespaceBindings(root)
+    val ns = XMLUtils.namespaceBindings(root)
     val result = XPathUtil evalExpressionFromString ("/f:root/f:child1",
       new VariableMap(),
       root,
@@ -154,7 +154,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
       <f:root xmlns:f="urn:foobarNS"><f:child1>19</f:child1></f:root>)
     val document = new Document(root)
 
-    val ns = XMLUtils.jdomNamespaceBindings(root)
+    val ns = XMLUtils.namespaceBindings(root)
     val result = XPathUtil evalExpressionFromString ("/f:root/f:child1",
       new VariableMap(),
       root,
@@ -183,7 +183,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
     //    root addContent(child1)
     val document = new Document(root)
 
-    val ns = XMLUtils.jdomNamespaceBindings(root)
+    val ns = XMLUtils.namespaceBindings(root)
     val result: XPathResult = XPathUtil evalExpressionFromString ("/f:root/f:child1/text()",
       new VariableMap(),
       root,

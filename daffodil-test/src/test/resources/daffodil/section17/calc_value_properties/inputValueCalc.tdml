@@ -258,7 +258,7 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error />
+      <tdml:error>syntax</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

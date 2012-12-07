@@ -1,6 +1,5 @@
 package daffodil.processors
 
-import org.jdom._
 import daffodil.xml._
 import daffodil.processors._
 import daffodil.grammar._
@@ -14,19 +13,17 @@ import java.nio.charset._
 import scala.collection.JavaConversions._
 import scala.util.logging.ConsoleLogger
 import stringsearch.DelimSearcherV3._
-import scala.collection.mutable.Queue
 import scala.util.matching.Regex
 import daffodil.util._
 import daffodil.exceptions.ThrowsSDE
 import java.io.ByteArrayInputStream
-import scala.collection.mutable.Stack
+import scala.collection.immutable.Stack
 import daffodil.debugger.Debugger
 import daffodil.util.Misc._
 import java.io.InputStreamReader
 import java.io.BufferedReader
 import daffodil.exceptions.UnsuppressableException
 import scala.util.parsing.input.Reader
-import scala.collection.mutable.HashMap
 import java.util.UUID
 import java.math.BigInteger
 
@@ -311,7 +308,7 @@ class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
     val pStart = pInitial.withNewPointOfUncertainty
     var pResult: PState = null
     var diagnostics: Seq[Diagnostic] = Nil
-    val cloneNode = pStart.captureJDOM // we must undo side-effects on the JDOM if we backtrack.
+    val cloneNode = pStart.captureInfosetElementState // we must undo side-effects on the JDOM if we backtrack.
     childParsers.foreach { parser =>
       {
         log(Debug("Trying choice alternative: %s", parser))
@@ -330,7 +327,7 @@ class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
         log(Debug("Choice alternative failed: %s", parser))
         // Unwind any side effects on the Infoset 
         // The infoset is the primary non-functional data structure. We have to un-side-effect it.
-        pStart.restoreJDOM(cloneNode)
+        pStart.restoreInfosetElementState(cloneNode)
         val diag = new ParseAlternativeFailed(context, pStart, pResult.diagnostics)
         diagnostics = diag +: diagnostics
         // check for discriminator evaluated to true.
@@ -382,23 +379,20 @@ class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixi
  * @param bitLimit Total Bits available in given Data Stream
  * @param charLimit Total UNICODE or given Character Set Characters in given Data Stream
  * @param bitPos Current Read Position in given Data Stream
- * @param charPos Current Read Character Position in UNICODE or a given Character Set for the given Data Stream
+ * @param charPos Current Read Character Position (in decoded characters, i.e., does not correspond to bytes in any way) for the given Data Stream
  */
-class PStateStream(val inStream: InStream, val bitLimit: Long, val charLimit: Long = -1,
-                   val bitPos: Long = 0, val charPos: Long = 0, val reader: Option[DFDLCharReader],
-                   val contextMap: HashMap[UUID, ElementBase] = HashMap.empty) {
-  Assert.invariant(bitPos >= 0)
-  def withInStream(inStream: InStream, status: ProcessorResult = Success) =
-    new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, reader, contextMap)
-  def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) =
-    new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, reader, contextMap)
-  def withEndBitLimit(bitLimit: Long, status: ProcessorResult = Success) =
-    new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, reader, contextMap)
-}
-object PStateStream {
-  def initialPStateStream(in: InStream, bitOffset: Long, bitLimit: Long) =
-    new PStateStream(in, bitLimit, bitPos = bitOffset, reader = None, contextMap = HashMap.empty)
-}
+//case class PStateStream private (val inStream: InStream, val bitLimit: Long, val charLimit: Long = -1,
+//                                 val bitPos: Long = 0, val charPos: Long = 0, val reader: Option[DFDLCharReader]) {
+//  Assert.invariant(bitPos >= 0)
+//  def withInStream(newInStream: InStream) = copy(inStream = newInStream)
+//  def withPos(newBitPos: Long, newCharPos: Long, newReader: Option[DFDLCharReader]) = copy(bitPos = newBitPos, charPos = newCharPos, reader = newReader)
+//  def withEndBitLimit(newBitLimit: Long) = copy(bitLimit = newBitLimit)
+//}
+//
+//object PStateStream {
+//  def initialPStateStream(in: InStream, bitOffset: Long, bitLimit: Long) =
+//    PStateStream(in, bitLimit, bitPos = bitOffset, reader = None)
+//}
 
 /**
  * A parser takes a state, and returns an updated state
@@ -411,9 +405,9 @@ object PStateStream {
  * which should be isolated to the alternative parser, and repParsers, i.e.,
  * places where points-of-uncertainty are handled.
  */
-class PState(
-  val inStreamStateStack: Stack[PStateStream],
-  val parent: org.jdom.Parent,
+case class PState(
+  val inStream: InStream,
+  val infoset: InfosetItem,
   val variableMap: VariableMap,
   val target: String,
   val namespaces: Any, // Namespaces
@@ -424,6 +418,7 @@ class PState(
   val occursCountStack: List[Long],
   val diagnostics: List[Diagnostic],
   val discriminatorStack: List[Boolean]) extends DFDL.State {
+
   def bytePos = bitPos >> 3
   def whichBit = bitPos % 8
   def groupPos = if (groupIndexStack != Nil) groupIndexStack.head else -1
@@ -432,113 +427,95 @@ class PState(
   def occursCount = occursCountStack.head
 
   override def toString() = {
-    "PState( bitPos=%s charPos=%s success=%s contextMapCount=%s )".format(bitPos, charPos, status, contextMapCount)
+    "PState( bitPos=%s charPos=%s status=%s )".format(bitPos, charPos, status)
   }
   def discriminator = discriminatorStack.head
   def currentLocation: DataLocation = new DataLoc(bitPos, bitLimit, inStream)
-  def inStreamState = inStreamStateStack top
-  def inStream = inStreamState inStream
-  def bitPos = inStreamState bitPos
-  def bitLimit = inStreamState bitLimit
-  def charPos = inStreamState charPos
-  def charLimit = inStreamState charLimit
-  def parentElement = parent.asInstanceOf[Element]
-  def parentForAddContent =
-    parent.asInstanceOf[{
-      def addContent(c: org.jdom.Content): Unit
-      def removeContent(c: org.jdom.Content): Unit
-    }]
-  def textReader = inStreamState reader
-  def contextMap = inStreamState contextMap
-  def contextMapCount = contextMap.size
-  def getContextByUID(uid: String): Option[ElementBase] = {
-    val ctxMap = inStreamState.contextMap
-    try {
-      val uuid = UUID.fromString(uid)
-      return ctxMap.get(uuid)
-    } catch {
-      case u: UnsuppressableException => throw u
-      case e: Exception => return None
-    }
-    None
-  }
-  def addContext(sc: ElementBase): UUID = {
-    val ctxMap = inStreamState.contextMap
-    val uuid = UUID.randomUUID()
-    ctxMap.put(uuid, sc)
-    uuid
-  }
+  // def inStreamState = inStreamStateStack top
+  def bitPos = inStream bitPos
+  def bitLimit = inStream bitLimit
+  def charPos = inStream charPos
+  def charLimit = inStream charLimit
+  def parentElement = infoset.asInstanceOf[InfosetElement]
+  def parentDocument = infoset.asInstanceOf[InfosetDocument]
+  def textReader = inStream reader
 
   /**
    * Convenience functions for creating a new state, changing only
    * one or a related subset of the state components to a new one.
    */
 
-  def withInStreamState(inStreamState: PStateStream, status: ProcessorResult = Success) =
-    new PState(inStreamStateStack push (inStreamState), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
-  def withInStream(inStream: InStream, status: ProcessorResult = Success) =
-    new PState(inStreamStateStack push (new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, textReader, contextMap)), parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
-  def withLastInStream(status: ProcessorResult = Success) = {
-    var lastBitPos = bitPos
-    var lastCharPos = if (charPos > 0) charPos else 0
-    inStreamStateStack pop ()
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack) withPos (bitPos + lastBitPos, charPos + lastCharPos)
+  //  def withInStreamState(newInStreamState: PStateStream, newStatus: ProcessorResult = Success) =
+  //    copy(inStreamState = newInStreamState, status = newStatus)
+  //
+  //  def withInStream(newInStream: InStream, newStatus: ProcessorResult = Success) = {
+  //    val newInStreamState = inStreamState.withInStream(newInStream)
+  //    copy(inStreamState = newInStreamState, status = newStatus)
+  //  }
+
+  //  def withLastInStream(newStatus: ProcessorResult = Success) = {
+  //    val lastBitPos = bitPos
+  //    val lastCharPos = if (charPos > 0) charPos else 0
+  //    val cp = copy(inStreamStateStack = inStreamStateStack pop, status = newStatus)
+  //    val res = cp.withPos(bitPos + lastBitPos, charPos + lastCharPos)
+  //    res
+  //  }
+
+  def withPos(bitPos: Long, charPos: Long, newStatus: ProcessorResult = Success) = {
+    val newInStream = inStream.withPos(bitPos, charPos, None)
+    copy(inStream = newInStream, status = newStatus)
   }
-  def withPos(bitPos: Long, charPos: Long, status: ProcessorResult = Success) = {
-    var newInStreamStateStack = inStreamStateStack clone ()
-    newInStreamStateStack pop ()
-    newInStreamStateStack push (new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, None, contextMap))
-    new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
+
+  def withEndBitLimit(bitLimit: Long, newStatus: ProcessorResult = Success) = {
+    var newInStream = inStream.withEndBitLimit(bitLimit)
+    copy(inStream = newInStream, status = newStatus)
   }
-  def withEndBitLimit(bitLimit: Long, status: ProcessorResult = Success) = {
-    var newInStreamStateStack = inStreamStateStack clone ()
-    newInStreamStateStack pop ()
-    newInStreamStateStack push (new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, textReader, contextMap))
-    new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
-  }
-  def withParent(parent: org.jdom.Parent, status: ProcessorResult = Success) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
-  def withVariables(variableMap: VariableMap, status: ProcessorResult = Success) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
-  def withGroupIndexStack(groupIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
-  def withChildIndexStack(childIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
-  def withArrayIndexStack(arrayIndexStack: List[Long], status: ProcessorResult = Success) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
+
+  def withParent(newParent: InfosetItem, newStatus: ProcessorResult = Success) =
+    copy(infoset = newParent, status = newStatus)
+  def withVariables(newVariableMap: VariableMap, newStatus: ProcessorResult = Success) =
+    copy(variableMap = newVariableMap, status = newStatus)
+  def withGroupIndexStack(newGroupIndexStack: List[Long], newStatus: ProcessorResult = Success) =
+    copy(groupIndexStack = newGroupIndexStack, status = newStatus)
+  def withChildIndexStack(newChildIndexStack: List[Long], newStatus: ProcessorResult = Success) =
+    copy(childIndexStack = newChildIndexStack, status = newStatus)
+  def withArrayIndexStack(newArrayIndexStack: List[Long], newStatus: ProcessorResult = Success) =
+    copy(arrayIndexStack = newArrayIndexStack, status = newStatus)
   def setOccursCount(oc: Long) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, oc :: occursCountStack.tail, diagnostics, discriminatorStack)
+    copy(occursCountStack = oc :: occursCountStack.tail)
   def withOccursCountStack(ocs: List[Long]) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, ocs, diagnostics, discriminatorStack)
+    copy(occursCountStack = ocs)
+
   def failed(msg: => String): PState =
     failed(new GeneralParseFailure(msg))
-  def failed(failureDiagnostic: Diagnostic) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, failureDiagnostic :: diagnostics, discriminatorStack)
 
-  def withNewPointOfUncertainty =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, false +: discriminatorStack)
+  def failed(failureDiagnostic: Diagnostic) = {
+    copy(status = new Failure(failureDiagnostic.getMessage),
+      diagnostics = failureDiagnostic :: diagnostics)
+  }
+
+  def withNewPointOfUncertainty = {
+    copy(discriminatorStack = false +: discriminatorStack)
+  }
+
   def withRestoredPointOfUncertainty =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack.tail)
+    copy(discriminatorStack = discriminatorStack.tail)
 
   def withDiscriminator(disc: Boolean) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, disc +: discriminatorStack.tail)
-  def withReader(newReader: Option[DFDLCharReader]) =
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
+    copy(discriminatorStack = disc +: discriminatorStack.tail)
+
+  // TODO: REMOVE Has to be broken. Doesn't do anything.
+  //def withReader(newReader: Option[DFDLCharReader]) =
+  //    copy()
+
   def withReaderPos(bitPos: Long, charPos: Long, reader: DFDLCharReader, status: ProcessorResult = Success) = {
-    var newInStreamStateStack = inStreamStateStack clone ()
-    newInStreamStateStack pop ()
-    //val newReader = reader.atPos(charPos.toInt)
     val newReader = reader.atBitPos(bitPos)
-    newInStreamStateStack push (new PStateStream(inStream, bitLimit, charLimit, bitPos, charPos, Some(newReader), contextMap))
-    new PState(newInStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
+    val newInStream = inStream.withPos(bitPos, charPos, Some(newReader))
+    copy(inStream = newInStream)
   }
 
   // Need last state for Assertion Pattern
-  def withLastState = {
-    var newInStreamStateStack = inStreamStateStack clone ()
-    newInStreamStateStack pop ()
-    new PState(inStreamStateStack, parent, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, discriminatorStack)
-  }
+  // def withLastState = copy(inStreamStateStack = inStreamStateStack.pop)
 
   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.
@@ -584,20 +561,10 @@ class PState(
     }
   }
 
-  def captureJDOM: Int = {
-    parent.getContentSize()
-  }
+  def captureInfosetElementState = parentElement.captureState()
 
-  def restoreJDOM(previousContentSize: Int) = {
-    for (i <- previousContentSize until parent.getContentSize()) {
-      parent.removeContent(i)
-    }
-    this
-    //    val pp = parent.getParent().asInstanceOf[org.jdom.Element] // Parent's Parent.
-    //    val pi :: ppi :: rest = childIndexStack
-    //    pp.setContent(ppi.toInt, newElem)
-    //    newElem
-  }
+  def restoreInfosetElementState(st: Infoset.ElementState) = parentElement.restoreState(st)
+
 }
 
 object PState {
@@ -607,12 +574,9 @@ object PState {
    */
   def createInitialState(
     rootElemDecl: GlobalElementDecl,
-    in: InStream, bitOffset: Long,
-    bitLimit: Long): PState = {
+    in: InStream): PState = {
 
-    val inStream = in
-
-    val doc = new org.jdom.Document() // must have a jdom document to get path evaluation to work.  
+    val doc = Infoset.newDocument()
     val variables = rootElemDecl.schema.schemaSet.variableMap
     val targetNamespace = rootElemDecl.schemaDocument.targetNamespace
     val namespaces = null // new Namespaces()
@@ -623,9 +587,8 @@ object PState {
     val occursCountStack = Nil
     val diagnostics = Nil
     val discriminator = false
-    val initPState = PStateStream.initialPStateStream(inStream, bitOffset, bitLimit)
     val textReader: Option[DFDLCharReader] = None
-    val newState = new PState(Stack(initPState), doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, List(false))
+    val newState = PState(in, doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, List(false))
     newState
   }
 
@@ -643,13 +606,11 @@ object PState {
   def createInitialState(
     rootElemDecl: GlobalElementDecl,
     input: DFDL.Input,
-    sizeHint: Long = -1,
     bitOffset: Long = 0,
     bitLengthLimit: Long = -1): PState = {
     val inStream =
-      if (sizeHint != -1) InStream.fromByteChannel(rootElemDecl, input, sizeHint)
-      else InStream.fromByteChannel(rootElemDecl, input)
-    createInitialState(rootElemDecl, inStream, bitOffset, bitLengthLimit)
+      InStream.fromByteChannel(rootElemDecl, input, bitOffset, bitLengthLimit)
+    createInitialState(rootElemDecl, inStream)
   }
 
 }

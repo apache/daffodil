@@ -250,10 +250,10 @@ class RepUnboundedUnparser(context: Term, r: => Gram) extends Unparser(context) 
   def unparse(uState: UState): UState = {
     var pResult = uState
     while (pResult.status == Success) {
-      val cloneNode = pResult.captureJDOM
+      val cloneNode = pResult.captureInfosetElementState
       val pNext = rUnparser.unparse(pResult)
       if (pNext.status != Success) {
-        pResult.restoreJDOM(cloneNode)
+        pResult.restoreInfosetElementState(cloneNode)
         log(Debug("Failure suppressed."))
         return pResult
       }
@@ -386,11 +386,11 @@ class UState(
     }
   }
 
-  def captureJDOM: Int = {
+  def captureInfosetElementState: Int = {
     infoset.getContentSize()
   }
 
-  def restoreJDOM(previousContentSize: Int) = {
+  def restoreInfosetElementState(previousContentSize: Int) = {
     for (i <- previousContentSize until infoset.getContentSize()) {
       infoset.removeContent(i)
     }

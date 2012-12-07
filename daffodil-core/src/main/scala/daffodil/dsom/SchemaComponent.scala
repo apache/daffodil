@@ -123,21 +123,10 @@ abstract class SchemaComponent(val xml: Node)
   }
 
   /**
-   * Needed by back-end to construct jdom nodes.
-   *
-   * An expression can be in any annotation, and its path can lead to a node
-   * So, we need the namespace in which to create that node.
-   */
-  lazy val jdomTargetNamespace = {
-    val jdomns = org.jdom.Namespace.getNamespace(schemaDocument.targetNamespace)
-    jdomns
-  }
-
-  /**
    * Needed by back-end to evaluate expressions.
    */
   lazy val namespaces = {
-    val res = XMLUtils.jdomNamespaceBindings(xml.scope)
+    val res = XMLUtils.namespaceBindings(xml.scope)
     res
   }
 

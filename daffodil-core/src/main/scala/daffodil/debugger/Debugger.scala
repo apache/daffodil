@@ -88,14 +88,7 @@ object Debugger {
     if (pstate.arrayPos != -1) println("%s array index = %d".format(ba, pstate.arrayPos))
     if (pstate.groupPos != -1) println("%s group index = %d".format(ba, pstate.groupPos))
     if (pstate.childPos != -1) println("%s child index = %d".format(ba, pstate.childPos))
-    val etext = pstate.parent match {
-      case e: org.jdom.Element => {
-        val xmlVerbose = XMLUtils.element2Elem(e)
-        val xml = XMLUtils.removeAttributes(xmlVerbose)
-        println("%s Infoset node = '%s'".format(ba, xml))
-      }
-      case _ =>
-    }
+    println("%s Infoset node = '%s'".format(ba, pstate.infoset.toBriefXML))
     val loc = pstate.currentLocation
     println(loc)
   }
@@ -121,14 +114,7 @@ object Debugger {
     if (before.arrayPos != after.arrayPos) println("%s array index = %d".format(ba, after.arrayPos))
     if (before.groupPos != after.arrayPos) println("%s group index = %d".format(ba, after.groupPos))
     if (before.childPos != after.arrayPos) println("%s child index = %d".format(ba, after.childPos))
-    val etext = after.parent match {
-      case e: org.jdom.Element => {
-        val xmlVerbose = XMLUtils.element2Elem(e)
-        val xml = XMLUtils.removeAttributes(xmlVerbose)
-        println("%s Infoset node = '%s'".format(ba, xml))
-      }
-      case _ =>
-    }
+    println("%s Infoset node = '%s'".format(ba, after.infoset.toBriefXML))
 
   }
 

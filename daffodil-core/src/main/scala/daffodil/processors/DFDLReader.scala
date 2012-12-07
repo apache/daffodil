@@ -62,15 +62,15 @@ class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos: Int = 0)
    *
    * These are kept in the processor state for reuse.
    */
-  def newCharReader(charset: Charset, bitPos: Long): DFDLCharReader = {
-    DFDLCharReader(psb, bitPos, charset)
+  def newCharReader(charset: Charset, bitPos: Long, bitLimit: Long): DFDLCharReader = {
+    DFDLCharReader(psb, bitPos, bitLimit, charset)
   }
 
 }
 
 object DFDLCharReader {
 
-  def apply(thePsb: PagedSeq[Byte], bitPosition: Long, charset: Charset) = {
+  def apply(thePsb: PagedSeq[Byte], bitPosition: Long, bitLimit: Long, charset: Charset) = {
 
     Assert.usage(bitPosition <= Int.MaxValue, "bit positions are limited to 32-bit signed integer by underlying libraries.")
     val bitPos = bitPosition.toInt
@@ -78,14 +78,14 @@ object DFDLCharReader {
     val bitOffset = bitPos & 0x7
     val bytePos = bitPos >> 3
     val is = new IteratorInputStream(thePsb.slice(bytePos).iterator)
-    val r = DFDLJavaIOInputStreamReader(is, charset, bitOffset)
+    val r = DFDLJavaIOInputStreamReader(is, charset, bitOffset, bitLimit)
     // TRW - The following line was changed because the fromSource
     // method was causing the readLine method of the BufferedReader class to be
     // called.  This resulted in the loss of \n, \r and \r\n characters from the data.
     //val psc = PagedSeq.fromSource(scala.io.Source.fromInputStream(is)(codec))
     val psc = PagedSeq.fromReader(r)
     val charOffset = 0
-    val rdr = new DFDLCharReader(charset, bitOffset, psc, charOffset, thePsb)
+    val rdr = new DFDLCharReader(charset, bitOffset, bitLimit, psc, charOffset, thePsb)
     rdr
   }
 
@@ -96,7 +96,8 @@ object DFDLCharReader {
  * a particular character set encoding. Ends if there is any error trying to decode a
  * character.
  */
-class DFDLCharReader private (charset: Charset, startingBitPos: Int, psc: PagedSeq[Char], override val offset: Int, psb: PagedSeq[Byte])
+class DFDLCharReader private (charset: Charset, startingBitPos: Int, bitLimit: Long,
+                              psc: PagedSeq[Char], override val offset: Int, psb: PagedSeq[Byte])
   extends scala.util.parsing.input.Reader[Char] {
 
   override lazy val source: CharSequence = psc
@@ -104,23 +105,23 @@ class DFDLCharReader private (charset: Charset, startingBitPos: Int, psc: PagedS
   def first: Char = psc(offset)
 
   def rest: scala.util.parsing.input.Reader[Char] =
-    if (psc.isDefinedAt(offset)) new DFDLCharReader(charset, startingBitPos, psc, offset + 1, psb)
+    if (psc.isDefinedAt(offset)) new DFDLCharReader(charset, startingBitPos, bitLimit, psc, offset + 1, psb)
     else this //new DFDLCharReader(psc, offset + 1)
 
   def atEnd: Boolean = !psc.isDefinedAt(offset)
 
   def pos: scala.util.parsing.input.Position = new OffsetPosition(source, offset) //new DFDLCharPosition(offset)
 
-  override def drop(n: Int): DFDLCharReader = new DFDLCharReader(charset, startingBitPos, psc, offset + n, psb)
+  override def drop(n: Int): DFDLCharReader = new DFDLCharReader(charset, startingBitPos, bitLimit, psc, offset + n, psb)
 
   def atPos(characterPos: Int): DFDLCharReader = {
-    new DFDLCharReader(charset, startingBitPos, psc, characterPos, psb)
+    new DFDLCharReader(charset, startingBitPos, bitLimit, psc, characterPos, psb)
   }
 
   // We really want to be able to ask for a CharReader starting at said bitPos
   def atBitPos(bitPos: Long): DFDLCharReader = {
     //System.err.println("DFDLCharReader.atBytePos(" + bytePosition + ")")
-    DFDLCharReader(psb, bitPos, charset)
+    DFDLCharReader(psb, bitPos, bitLimit, charset)
   }
 
   def getCharsetName: String = charset.name()

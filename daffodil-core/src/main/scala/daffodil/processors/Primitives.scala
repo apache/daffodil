@@ -34,7 +34,7 @@ abstract class PrimParser(gram: Gram, context: SchemaComponent)
 
 }
 
-case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType != true || e.lengthKind != LengthKind.Pattern) {
+case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
 
   def parser: Parser = new PrimParser(this, e) {
 
@@ -47,81 +47,55 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType != t
      * the state to be referring to this new element as what we're parsing data into.
      */
     def parse(start: PState): PState = {
-      val currentElement = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
-
-      // We need to add an additional attribute named 'daffodil:context'
-      // where 'daffodil' is a namespace like 'uri:daffodil'
-      // This should allow us to implement checkConstraints
-      val name = "context"
-      val uuid = start.addContext(e)
-      // FIXME: this is global state of the schema set. Doesn't need to be part of
-      // the runtime PState at all, can just be part of the schema set. 
-      // It also can be initialized globally when the schema component is created. 
-      // No need to do this start.addContext(e) at runtime.
-
-      // FIXME: this should not use the target namespace. It should use a definite daffodil
-      // namespace, specifically: XMLUtils.DAFFODIL_EXTENSION_NAMESPACE
-
-      // FIXME: hoist all of this out to compile time.
-      // On the ElementBase we can 
-      //      lazy val infosetContextAttribute = new Attribute("context", schemaComponentUID, XMLUtils.DAFFODIL_EXTENSION_NAMESPACE) 
-      // Then setting this should be one line
-      // currentElement.setAttribute(e.infosetContextAttribute)
-      //
-      // FIXME the schemaComponentID should actually be a path-like thing. A schema component designator or SCD
-      // which can be used in diagnostic messages to uniquely name a component of the schema in usage context.
-      // 
-      if (e.targetNamespace != null && e.targetNamespacePrefix != null) {
-        val ns = org.jdom.Namespace.getNamespace(e.targetNamespacePrefix, e.targetNamespace)
-        currentElement.setAttribute(name, uuid.toString(), ns)
-      } else { currentElement.setAttribute(name, uuid.toString()) }
+      val currentElement = Infoset.newElement(e)
 
       log(Debug("currentElement = %s", currentElement))
-      val priorElement = start.parentForAddContent
-      priorElement.addContent(currentElement)
+      val priorElement = start.infoset
+      priorElement.addElement(currentElement)
       log(Debug("priorElement = %s", priorElement))
       val postState = start.withParent(currentElement)
       postState
     }
   }
 
-  def unparser: Unparser = new Unparser(e) {
-    override def toString = "<" + e.name + ">"
-
-    /**
-     * Changes the state to refer to the next element in the infoset as the element to unparse.
-     */
-    def unparse(start: UState): UState = {
-      val nextElement = {
-        //
-        // TODO FIXME: THis can't be correct. The elementBegin shouldn't be writing out element contents.
-        // That should happen in content unparsers. This unparser should just set things up so content
-        // unparsers see the correct element to take the contents of. Which really means just changing the 
-        // parent pointer in the UState.
-        //
-        // TODO: should not try/catch - should return a failed UState on error
-        try { //if content contains elements
-          if (!start.childIndexStack.isEmpty) {
-            if (start.childPos != 1) { //if not first child, write unparsed result of previous child to outputStream
-              //              val encoder = e.knownEncodingEncoder
-              //              start.outStream.setEncoder(encoder)
-              start.outStream.write()
-            }
-            start.currentElement.getContent().get(start.childPos.asInstanceOf[Int] - 1).asInstanceOf[org.jdom.Element]
-          } else {
-            //            val encoder = e.knownEncodingEncoder
-            //            start.outStream.setEncoder(encoder)
-            start.currentElement.getContent().get(0).asInstanceOf[org.jdom.Element]
-          }
-        } catch {
-          case u: UnsuppressableException => throw u
-          case e: Exception => start.currentElement //if content is text
-        }
-      }
-
-      start.withCurrent(nextElement).moveOverByOneElement
-    }
-  }
+  def unparser = new DummyUnparser(e)
+  //  def unparser: Unparser = new Unparser(e) {
+  //    override def toString = "<" + e.name + ">"
+  //
+  //    /**
+  //     * Changes the state to refer to the next element in the infoset as the element to unparse.
+  //     */
+  //    def unparse(start: UState): UState = {
+  //      val nextElement = {
+  //        //
+  //        // TODO FIXME: THis can't be correct. The elementBegin shouldn't be writing out element contents.
+  //        // That should happen in content unparsers. This unparser should just set things up so content
+  //        // unparsers see the correct element to take the contents of. Which really means just changing the 
+  //        // parent pointer in the UState.
+  //        //
+  //        // TODO: should not try/catch - should return a failed UState on error
+  //        try { //if content contains elements
+  //          if (!start.childIndexStack.isEmpty) {
+  //            if (start.childPos != 1) { //if not first child, write unparsed result of previous child to outputStream
+  //              //              val encoder = e.knownEncodingEncoder
+  //              //              start.outStream.setEncoder(encoder)
+  //              start.outStream.write()
+  //            }
+  //            start.currentElement.getContent().get(start.childPos.asInstanceOf[Int] - 1).asInstanceOf[org.jdom.Element]
+  //          } else {
+  //            //            val encoder = e.knownEncodingEncoder
+  //            //            start.outStream.setEncoder(encoder)
+  //            start.currentElement.getContent().get(0).asInstanceOf[org.jdom.Element]
+  //          }
+  //        } catch {
+  //          case u: UnsuppressableException => throw u
+  //          case e: Exception => start.currentElement //if content is text
+  //        }
+  //      }
+  //
+  //      start.withCurrent(nextElement).moveOverByOneElement
+  //    }
+  //  }
 }
 
 // FIXME: ComplexElementBeginPattern
@@ -131,70 +105,72 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, e.isComplexType != t
 // A runtime parser combinator for diagnostics/debugging reasons, so that a try-finally can be used
 // to insure we remove failed elements from the infoset, etc. See StmtEval, which is this kind of
 // an 'enclosing' combinator I'm describing. 
-case class ComplexElementBeginPattern(e: ElementBase)
-  extends Terminal(e, e.isComplexType == true && e.lengthKind == LengthKind.Pattern)
-  with WithParseErrorThrowing {
-  Assert.invariant(e.isComplexType)
+//case class ComplexElementBeginPattern(e: ElementBase)
+//  extends Terminal(e, e.isComplexType == true && e.lengthKind == LengthKind.Pattern)
+//  with WithParseErrorThrowing {
+//  Assert.invariant(e.isComplexType)
+//
+//  val charset = e.knownEncodingCharset
+//
+//  def parser: Parser = new PrimParser(this, e) {
+//    override def toString = "<" + e.name + " dfdl:lengthKind='pattern'>"
+//    var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
+//    val pattern = e.lengthPattern
+//
+//    /**
+//     * ElementBegin just adds the element we are constructing to the infoset and changes
+//     * the state to be referring to this new element as what we're parsing data into.
+//     */
+//    def parse(start: PState): PState = withParseErrorThrowing(start) {
+//      withLoggingLevel(LogLevel.Info) {
+//        val eName = e.toString()
+//
+//        log(Debug("ComplexElementBeginPattern - %s - Parsing pattern at byte position: %s", eName, (start.bitPos >> 3)))
+//        log(Debug("ComplexElementBeginPattern - %s - Parsing pattern at bit position: %s", eName, start.bitPos))
+//
+//        val in = start.inStream
+//
+//        val reader = in.getCharReader(charset, start.bitPos)
+//
+//        val d = new delimsearch.DelimParser(e)
+//
+//        var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
+//
+//        result = d.parseInputPatterned(pattern, reader)
+//
+//        val postState1 =
+//          if (result.isSuccess) {
+//            val endBitPos = start.bitPos + result.numBits
+//            log(Debug("Parsed: %s", result.field))
+//            log(Debug("Ended at bit position %s", endBitPos))
+//
+//            // LETS NOT DO IT THIS WAY
+//            // val limitedInStream = in.withLimit(start.bitPos, endBitPos)
+//            // Since we've created a new sub-stream with just the limited part of data in it,
+//            // don't forget to have the position in it start at zero.
+//            // start withEndBitLimit (endBitPos) withInStream (limitedInStream) withPos (0, 0)
+//            // INSTEAD, LETS GET THE END LIMIT RIGHT
+//            start withEndBitLimit (endBitPos)
+//          } else { return PE(start, "%s: No match found!", this.toString()) }
+//        val currentElement = Infoset.newElement(e)
+//        log(Debug("currentElement = %s", currentElement))
+//        val priorElement = postState1.infoset
+//        priorElement.addElement(currentElement)
+//        log(Debug("priorElement = %s", priorElement))
+//        val postState2 = postState1 withParent (currentElement)
+//        postState2
+//      }
+//    }
+//  }
+//
+//  def unparser: Unparser = new Unparser(e) {
+//    def unparse(start: UState): UState = {
+//      Assert.notYetImplemented()
+//    }
+//  }
+//}
 
-  val charset = e.knownEncodingCharset
-
-  def parser: Parser = new PrimParser(this, e) {
-    override def toString = "<" + e.name + " dfdl:lengthKind='pattern'>"
-    var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
-    val pattern = e.lengthPattern
-
-    /**
-     * ElementBegin just adds the element we are constructing to the infoset and changes
-     * the state to be referring to this new element as what we're parsing data into.
-     */
-    def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Info) {
-        val eName = e.toString()
-
-        log(Debug("ComplexElementBeginPattern - %s - Parsing pattern at byte position: %s", eName, (start.bitPos >> 3)))
-        log(Debug("ComplexElementBeginPattern - %s - Parsing pattern at bit position: %s", eName, start.bitPos))
-
-        val in = start.inStream
-
-        val reader = in.getCharReader(charset, start.bitPos)
-
-        val d = new delimsearch.DelimParser(e)
-
-        var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
-
-        result = d.parseInputPatterned(pattern, reader)
-
-        val postState1 = result.isSuccess match {
-          case true => {
-            val endBitPos = start.bitPos + result.numBits
-            log(Debug("Parsed: %s", result.field))
-            log(Debug("Ended at bit position %s", endBitPos))
-            val limitedInStream = in.withLimit(start.bitPos, endBitPos)
-            // Since we've created a new sub-stream with just the limited part of data in it,
-            // don't forget to have the position in it start at zero.
-            start withEndBitLimit (endBitPos) withInStream (limitedInStream) withPos (0, 0)
-          }
-          case false => { return PE(start, "%s: No match found!", this.toString()) }
-        }
-        val currentElement = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
-        log(Debug("currentElement = %s", currentElement))
-        val priorElement = postState1.parentForAddContent
-        priorElement.addContent(currentElement)
-        log(Debug("priorElement = %s", priorElement))
-        val postState2 = postState1 withParent (currentElement)
-        postState2
-      }
-    }
-  }
-
-  def unparser: Unparser = new Unparser(e) {
-    def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
-    }
-  }
-}
-
-abstract class ElementEndBase(e: ElementBase) extends Terminal(e, e.isComplexType != true || e.lengthKind != LengthKind.Pattern) {
+abstract class ElementEndBase(e: ElementBase) extends Terminal(e, true) {
   def toPrettyString = "</" + e.name + prettyStringModifier + ">"
   def prettyStringModifier: String
 
@@ -212,9 +188,9 @@ abstract class ElementEndBase(e: ElementBase) extends Terminal(e, e.isComplexTyp
      * ElementEnd just moves back to the parent element of the current one.
      */
     def parse(start: PState): PState = {
-      val currentElement = start.parent
+      val currentElement = start.parentElement
       // Assert.invariant(currentElement.getName() != "_document_" )
-      val priorElement = currentElement.getParent
+      val priorElement = currentElement.parent
       log(Debug("priorElement = %s", priorElement))
       val postState = move(start.withParent(priorElement))
       postState
@@ -256,34 +232,28 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
   def prettyStringModifier = "(NoRep)"
 }
 
-case class ComplexElementEndPattern(e: ElementBase) extends Terminal(e, e.isComplexType == true && e.lengthKind == LengthKind.Pattern) {
-  // TODO: Should this be more generic; is there a way to detect state from the current element to tell us if it's time
-  //       to pop the input stack?
-
-  def parser: Parser = new PrimParser(this, e) {
-    override def toString = "</" + e.name + " dfdl:lengthKind='pattern'>"
-
-    /**
-     * ElementEnd just moves back to the parent element of the current one.
-     */
-    def parse(start: PState): PState = {
-      val currentElement = start.parent
-      log(Debug("currentElement = %s", currentElement))
-      // Assert.invariant(currentElement.getName() != "_document_" )
-      //val priorElement = currentElement.getParent.asInstanceOf[org.jdom.Element]
-      var priorElement = currentElement.getParent
-      log(Debug("priorElement = %s", priorElement))
-      val postState = start.withParent(priorElement).moveOverByOneElement.withLastInStream()
-      postState
-    }
-  }
-
-  def unparser: Unparser = new Unparser(e) {
-    def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
-    }
-  }
-}
+//case class ComplexElementEndPattern(e: ElementBase) extends Terminal(e, e.isComplexType == true && e.lengthKind == LengthKind.Pattern) {
+//  // TODO: Should this be more generic; is there a way to detect state from the current element to tell us if it's time
+//  //       to pop the input stack?
+//
+//  def parser: Parser = new PrimParser(this, e) {
+//    override def toString = "</" + e.name + " dfdl:lengthKind='pattern'>"
+//
+//    /**
+//     * ElementEnd just moves back to the parent element of the current one.
+//     */
+//    def parse(start: PState): PState = {
+//      val currentElement = start.parentElement
+//      log(Debug("currentElement = %s", currentElement))
+//      var priorElement = currentElement.parent
+//      log(Debug("priorElement = %s", priorElement))
+//      val postState = start.withParent(priorElement).moveOverByOneElement.withLastInStream()
+//      postState
+//    }
+//  }
+//
+//  def unparser: Unparser = new DummyUnparser(e)
+//}
 
 /**
  * The I/O layer should be written to use Java's NIO Channels, and Direct ByteBuffers for file I/O. This is the
@@ -345,16 +315,17 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
           log(Debug("Parsed: %s", result))
           log(Debug("Ended at bit position %s", endBitPos))
           val endCharPos = start.charPos + result.length
-          val currentElement = start.parentForAddContent
+          val currentElement = start.parentElement
           // Assert.invariant(currentElement.getName != "_document_")
           // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
           // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-          currentElement.addContent(new org.jdom.Text(result))
+          currentElement.setDataValue(result)
           //val postState = start.withPos(endBitPos, endCharPos)
           val postState = start.withPos(endBitPos, -1) // -1 means a subsequent primitive will have to construct
           // a new reader at said bitPosition
           return postState
         } catch {
+          case m: java.nio.charset.MalformedInputException => { return PE(start, "StringFixedLengthInBytes - Malformed data. Could not decode into %s characters.", charset.name()) }
           case e: java.nio.BufferUnderflowException => { return PE(start, "StringFixedLengthInBytes - Insufficient Bits in field; required %s", nBytes * 8) }
           case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytes - IndexOutOfBounds: \n%s", e.getMessage()) }
           case u: UnsuppressableException => throw u
@@ -412,11 +383,11 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
           log(Debug("Parsed: %s", result))
           log(Debug("Ended at bit position %s", endBitPos))
           val endCharPos = start.charPos + result.length
-          val currentElement = start.parentForAddContent
+          val currentElement = start.parentElement
           // Assert.invariant(currentElement.getName != "_document_")
           // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
           // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-          currentElement.addContent(new org.jdom.Text(result))
+          currentElement.setDataValue(result)
           //val postState = start.withPos(endBitPos, endCharPos)
           val postState = start.withPos(endBitPos, -1) // charPos = -1 tells subsequent calls to construct
           // a new reader at said bitPos
@@ -448,11 +419,11 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
         //      log(Debug("Parsed: " + result))
         //      log(Debug("Ended at bit position " + endBitPos))
         //      val endCharPos = start.charPos + result.length
-        //      val currentElement = start.parentForAddContent
+        //      val currentElement = start.parentElement
         //      // Assert.invariant(currentElement.getName != "_document_")
         //      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
         //      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-        //      currentElement.addContent(new org.jdom.Text(result))
+        //      currentElement.setDataValue(result)
         //      val postState = start.withPos(endBitPos, endCharPos)
         //      postState
         start
@@ -512,8 +483,8 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
         //val endCharPos = start.charPos + nChars
         //val endCharPos = reader.characterPos + nChars
         val endCharPos = if (start.charPos == -1) nChars else start.charPos + nChars
-        val currentElement = start.parentForAddContent
-        currentElement.addContent(new org.jdom.Text(parsedField))
+        val currentElement = start.parentElement
+        currentElement.setDataValue(parsedField)
         //        val postState = start.withPos(endBitPos, endCharPos)
         val postState = start.withReaderPos(endBitPos, endCharPos, reader)
         postState
@@ -540,7 +511,7 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
         //      log(Debug("Parsed: " + finalResult))
         //      log(Debug("Ended at bit position " + finalBitPos))
         //      val endCharPos = start.charPos + nChars
-        //      val currentElement = start.parentForAddContent
+        //      val currentElement = start.parentElement
         //      // Assert.invariant(currentElement.getName != "_document_")
         //      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
         //      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
@@ -551,11 +522,7 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
     }
   }
 
-  def unparser: Unparser = new Unparser(e) {
-    def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
-    }
-  }
+  def unparser: Unparser = new DummyUnparser(e)
 }
 
 case class StringDelimitedEndOfData(e: ElementBase)
@@ -582,7 +549,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
         val delimsRaw = e.allTerminatingMarkup.map {
           x =>
             {
-              val R(res, newVMap) = x.evaluate(start.parent, vars, start)
+              val R(res, newVMap) = x.evaluate(start.parentElement, vars, start)
               vars = newVMap
               res
             }
@@ -616,17 +583,16 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
         val d = new delimsearch.DelimParser(e)
 
-        var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
-
-        if (esObj.escapeSchemeKind == stringsearch.constructs.EscapeSchemeKind.Block) {
-          result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
-            esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter)
-        } else if (esObj.escapeSchemeKind == stringsearch.constructs.EscapeSchemeKind.Character) {
-          result = d.parseInputEscapeCharacter(Set.empty[String], delimsCooked.toSet, reader,
-            esObj.escapeCharacter, esObj.escapeEscapeCharacter)
-        } else {
-          result = d.parseInput(Set.empty[String], delimsCooked.toSet, reader)
-        }
+        val result: delimsearch.DelimParseResult =
+          if (esObj.escapeSchemeKind == stringsearch.constructs.EscapeSchemeKind.Block) {
+            d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
+              esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter)
+          } else if (esObj.escapeSchemeKind == stringsearch.constructs.EscapeSchemeKind.Character) {
+            d.parseInputEscapeCharacter(Set.empty[String], delimsCooked.toSet, reader,
+              esObj.escapeCharacter, esObj.escapeEscapeCharacter)
+          } else {
+            d.parseInput(Set.empty[String], delimsCooked.toSet, reader)
+          }
 
         if (!result.isSuccess) {
           //System.err.println("StringDelimitedEndOfData_END: " + new Timestamp(System.currentTimeMillis()));
@@ -641,8 +607,8 @@ case class StringDelimitedEndOfData(e: ElementBase)
           val endCharPos = if (postEvalState.charPos == -1) result.numCharsRead else postEvalState.charPos + result.numCharsRead
           //val endCharPos = postEvalState.charPos + field.length()
           val endBitPos = postEvalState.bitPos + numBits
-          val currentElement = postEvalState.parentForAddContent
-          currentElement.addContent(new org.jdom.Text(field))
+          val currentElement = postEvalState.parentElement
+          currentElement.setDataValue(field)
           //return postEvalState.withPos(endBitPos, endCharPos)
           return postEvalState.withReaderPos(endBitPos, endCharPos, reader)
         }
@@ -716,8 +682,8 @@ case class StringPatternMatched(e: ElementBase)
             // val endCharPos = start.charPos + result.field.length()
             //val endCharPos = reader.characterPos + result.field.length()
             val endCharPos = if (start.charPos == -1) result.field.length() else start.charPos + result.field.length()
-            val currentElement = start.parentForAddContent
-            currentElement.addContent(new org.jdom.Text(result.field))
+            val currentElement = start.parentElement
+            currentElement.setDataValue(result.field)
             //start.withPos(endBitPos, endCharPos)
             start.withReaderPos(endBitPos, endCharPos, reader)
           }
@@ -736,8 +702,8 @@ case class StringPatternMatched(e: ElementBase)
         //          log(Debug("Parsed: " + result))
         //          log(Debug("Ended at bit position " + endBitPos))
         //          val endCharPos = start.charPos + result.length()
-        //          val currentElement = start.parentForAddContent
-        //          currentElement.addContent(new org.jdom.Text(result))
+        //          val currentElement = start.parentElement
+        //          currentElement.setDataValue(result)
         //          start.withPos(endBitPos, endCharPos)
         //        }
         //      }
@@ -776,7 +742,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean)
     def parse(start: PState): PState = {
 
       val node = start.parentElement
-      var str = node.getText()
+      var str = node.dataValue
 
       Assert.invariant(str != null) // worst case it should be empty string. But not null.
       val resultState = try {
@@ -828,7 +794,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean)
         //
         //node.setText(asNumber.toString)
         val result = getStringFormat(asNumber)
-        node.setText(result)
+        node.setDataValue(result)
 
         start
       } // catch { case e: Exception => start.failed("Failed to convert %s to an xs:%s" + GramName) }
@@ -1153,7 +1119,7 @@ trait RuntimeExplicitLengthMixin[T] {
   self: BinaryNumberBase[T] =>
   def e: ElementBase
   def getBitLength(s: PState): (PState, Long) = {
-    val R(nBytesAsAny, newVMap) = e.length.evaluate(s.parent, s.variableMap, s)
+    val R(nBytesAsAny, newVMap) = e.length.evaluate(s.parentElement, s.variableMap, s)
     val nBytes = nBytesAsAny.asInstanceOf[Long]
     val start = s.withVariables(newVMap)
     (start, nBytes * toBits)
@@ -1170,7 +1136,7 @@ trait RuntimeExplicitByteOrderMixin[T] {
   self: BinaryNumberBase[T] =>
   def e: ElementBase
   def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {
-    val R(byteOrderAsAny, newVMap) = e.byteOrder.evaluate(s.parent, s.variableMap, s)
+    val R(byteOrderAsAny, newVMap) = e.byteOrder.evaluate(s.parentElement, s.variableMap, s)
     val dfdlByteOrderEnum = ByteOrder(byteOrderAsAny.toString, e)
     val byteOrder = dfdlByteOrderEnum match {
       case ByteOrder.BigEndian => java.nio.ByteOrder.BIG_ENDIAN
@@ -1245,10 +1211,10 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
         //    val byte = String.format("%02X", bytes(i).asInstanceOf[java.lang.Byte])
         //    asString.append(byte)
         //  }
-        //  start.parentForAddContent.addContent(new org.jdom.Text(asString.toString()))
+        //  start.parentElement.setDataValue(asString.toString())
         //} else
         val convertedValue: T = convertValue(value, nBits toInt)
-        start.parentForAddContent.addContent(new org.jdom.Text(convertedValue.toString))
+        start.parentElement.setDataValue(convertedValue.toString)
         start.withPos(newPos, -1)
         //}
       }
@@ -1390,7 +1356,7 @@ class DoubleKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Lon
 //    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) start.failed("Not enough bits to create an xs:int")
 //    else {
 //      val value = start.inStream.getInt(start.bitPos, byteOrder)
-//      start.parentForAddContent.addContent(new org.jdom.Text(value.toString))
+//      start.parentElement.addContent(new org.jdom.Text(value.toString))
 //      val postState = start.withPos(start.bitPos + 32, -1)
 //      postState
 //    }
@@ -1426,7 +1392,7 @@ case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 //    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 64)) start.failed("Not enough bits to create an xs:double")
 //    else {
 //      val value = start.inStream.getDouble(start.bitPos, byteOrder)
-//      start.parentForAddContent.addContent(new org.jdom.Text(value.toString))
+//      start.parentElement.addContent(new org.jdom.Text(value.toString))
 //      log(Debug("Found binary double " + value))
 //      log(Debug("Ended at bit position " + (start.bitPos + 64)))
 //      //val postState = start.withPos(start.bitPos + 64, -1)
@@ -1464,7 +1430,7 @@ case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 //    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) PE(start, "Not enough bits to create an xs:float")
 //    else {
 //      val value = start.inStream.getFloat(start.bitPos, byteOrder)
-//      start.parentForAddContent.addContent(new org.jdom.Text(value.toString))
+//      start.parentElement.addContent(new org.jdom.Text(value.toString))
 //      val postState = start.withPos(start.bitPos + 32, -1)
 //      postState
 //    }
@@ -1900,7 +1866,7 @@ case class LiteralNilExplicitLengthInBytes(e: ElementBase)
   val exprText = expr.prettyExpr
 
   final def computeLength(start: PState) = {
-    val R(nBytesAsAny, newVMap) = expr.evaluate(start.parent, start.variableMap, start)
+    val R(nBytesAsAny, newVMap) = expr.evaluate(start.parentElement, start.variableMap, start)
     val nBytes = nBytesAsAny.asInstanceOf[Long]
     (nBytes, newVMap)
   }
@@ -1975,16 +1941,14 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
 
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
-            postEvalState.parentElement.addContent(new org.jdom.Text(""))
-            postEvalState.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            postEvalState.parentElement.makeNil()
             return postEvalState // Empty, no need to advance
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
             return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
           } else if (d.isFieldDfdlLiteral(result, nilValuesCooked.toSet)) {
             // Contains a nilValue, Success!
-            postEvalState.parentElement.addContent(new org.jdom.Text(""))
-            postEvalState.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            postEvalState.parentElement.makeNil()
 
             log(Debug("%s - Found %s", eName, result))
             log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
@@ -2001,8 +1965,7 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
             // In this case, we failed to get the bytes
             //            if (isEmptyAllowed) {
             //              log(Debug("%s - we failed to find explicit length of %s and %ES; found as nilValue.", eName, nBytes))
-            //              postEvalState.parentElement.addContent(new org.jdom.Text(""))
-            //              postEvalState.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            //              postEvalState.parentElement.makeNil()
             //              return postEvalState // Empty, no need to advance
             //            }
 
@@ -2050,7 +2013,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
 
         //val postEvalState = start //start.withVariables(vars)
 
-        val R(nCharsAsAny, newVMap) = expr.evaluate(start.parent, start.variableMap, start)
+        val R(nCharsAsAny, newVMap) = expr.evaluate(start.parentElement, start.variableMap, start)
         val nChars = nCharsAsAny.asInstanceOf[String] //nBytesAsAny.asInstanceOf[Long]
         val postEvalState = start.withVariables(newVMap)
         log(Debug("Explicit length %s", nChars))
@@ -2071,8 +2034,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
 
         if (nChars == 0 && isEmptyAllowed) {
           log(Debug("%s - explicit length of 0 and %ES; found as nilValue.", eName))
-          postEvalState.parentElement.addContent(new org.jdom.Text(""))
-          postEvalState.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+          postEvalState.parentElement.makeNil()
           return postEvalState // Empty, no need to advance
         }
 
@@ -2089,16 +2051,14 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
 
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
-            start.parentElement.addContent(new org.jdom.Text(""))
-            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            start.parentElement.makeNil()
             return postEvalState // Empty, no need to advance
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
             return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
           } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
             // Contains a nilValue, Success!
-            start.parentElement.addContent(new org.jdom.Text(""))
-            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            start.parentElement.makeNil()
 
             val numBits = e.knownEncodingStringBitLength(result.field)
             val endCharPos =
@@ -2181,16 +2141,14 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
 
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
-            start.parentElement.addContent(new org.jdom.Text(""))
-            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            start.parentElement.makeNil()
             return postEvalState // Empty, no need to advance
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
             return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
           } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
             // Contains a nilValue, Success!
-            start.parentElement.addContent(new org.jdom.Text(""))
-            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            start.parentElement.makeNil()
 
             val numBits = e.knownEncodingStringBitLength(result.field)
             //val endCharPos = start.charPos + result.field.length()
@@ -2273,16 +2231,14 @@ case class LiteralNilPattern(e: ElementBase)
 
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
-            start.parentElement.addContent(new org.jdom.Text(""))
-            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            start.parentElement.makeNil()
             return postEvalState // Empty, no need to advance
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
             return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
           } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
             // Contains a nilValue, Success!
-            start.parentElement.addContent(new org.jdom.Text(""))
-            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            start.parentElement.makeNil()
 
             val numBits = e.knownEncodingStringBitLength(result.field)
             //val endCharPos = start.charPos + result.field.length()
@@ -2337,7 +2293,7 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
         val delimsRaw = e.allTerminatingMarkup.map {
           x =>
             {
-              val R(res, newVMap) = x.evaluate(start.parent, vars, start)
+              val R(res, newVMap) = x.evaluate(start.parentElement, vars, start)
               vars = newVMap
               res
             }
@@ -2388,16 +2344,14 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
           val isEmptyAllowed = e.nilValue.contains("%ES;")
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
-            start.parentElement.addContent(new org.jdom.Text(""))
-            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            start.parentElement.makeNil()
             return postEvalState // Empty, no need to advance
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
             return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
           } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
             // Contains a nilValue, Success!
-            start.parentElement.addContent(new org.jdom.Text(""))
-            start.parentElement.setAttribute("nil", "true", XMLUtils.xsiNS)
+            start.parentElement.makeNil()
 
             val numBits = e.knownEncodingStringBitLength(result.field)
             //val endCharPos = start.charPos + result.field.length()
@@ -2520,7 +2474,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
     def parse(start: PState): PState = withLoggingLevel(LogLevel.Info) {
       withParseErrorThrowing(start) {
-        val lastState = start.withLastState
+        val lastState = start // .withLastState
         val bytePos = (lastState.bitPos >> 3).toInt
         log(Debug("%s - Starting at bit pos: %s", eName, lastState.bitPos))
         log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
@@ -2579,7 +2533,7 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
     def parse(start: PState): PState = withLoggingLevel(LogLevel.Info) {
       withParseErrorThrowing(start) {
-        val lastState = start.withLastState
+        val lastState = start // .withLastState
         val bytePos = (lastState.bitPos >> 3).toInt
         log(Debug("%s - Starting at bit pos: %s", eName, lastState.bitPos))
         log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
@@ -2704,18 +2658,12 @@ abstract class ExpressionEvaluationParser(e: AnnotatedSchemaComponent)
   def exprText: String
   def expandedTypeName: String
 
-  lazy val expressionTypeSymbol = {
+  val expressionTypeSymbol = {
     // println(expandedTypeName)
     e.expressionCompiler.convertTypeString(expandedTypeName)
   }
 
-  lazy val expr = e.expressionCompiler.compile(expressionTypeSymbol, exprText)
-
-  // for unit testing
-  def testExpressionEvaluation(elem: org.jdom.Element, vmap: VariableMap, pstate: PState) = {
-    val R(res, newVMap) = expr.evaluate(elem, vmap, pstate)
-    R(res, newVMap)
-  }
+  val expr = e.expressionCompiler.compile(expressionTypeSymbol, exprText)
 
   def eval(start: PState) = {
     val currentElement = start.parentElement
@@ -2743,7 +2691,7 @@ class IVCParser(e: ElementBase with ElementDeclMixin)
         log(Debug("This is %s", toString))
         val currentElement = start.parentElement
         val R(res, newVMap) = eval(start)
-        currentElement.addContent(new org.jdom.Text(res.toString))
+        currentElement.setDataValue(res.toString)
         val postState = start.withVariables(newVMap) // inputValueCalc consumes nothing. Just creates a value.
         postState
       }
@@ -2787,7 +2735,7 @@ case class StringExplicitLengthInBytes(e: ElementBase)
 
       log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
 
-      val R(nBytesAsAny, newVMap) = expr.evaluate(pstate.parent, pstate.variableMap, pstate)
+      val R(nBytesAsAny, newVMap) = expr.evaluate(pstate.parentElement, pstate.variableMap, pstate)
       val nBytes = nBytesAsAny.asInstanceOf[Long]
       val start = pstate.withVariables(newVMap)
       log(Debug("Explicit length %s", nBytes))
@@ -2807,11 +2755,11 @@ case class StringExplicitLengthInBytes(e: ElementBase)
         log(Debug("Parsed: " + result))
         log(Debug("Ended at bit position " + endBitPos))
         val endCharPos = start.charPos + result.length
-        val currentElement = start.parentForAddContent
+        val currentElement = start.parentElement
         // Assert.invariant(currentElement.getName != "_document_")
         // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
         // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-        currentElement.addContent(new org.jdom.Text(result))
+        currentElement.setDataValue(result)
         val postState = start.withPos(endBitPos, endCharPos)
         return postState
       } catch {
@@ -2850,10 +2798,10 @@ case class StringExplicitLengthInBytes(e: ElementBase)
       //      log(Debug("Parsed: " + result))
       //      log(Debug("Ended at bit position " + endBitPos))
       //      val endCharPos = start.charPos + result.length
-      //      val currentElement = start.parentForAddContent
+      //      val currentElement = start.parentElement
       //      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
       //      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-      //      currentElement.addContent(new org.jdom.Text(result))
+      //      currentElement.setDataValue(result)
       //      val postState = start.withPos(endBitPos, endCharPos)
       //      postState
       pstate

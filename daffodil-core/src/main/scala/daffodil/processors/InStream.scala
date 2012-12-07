@@ -11,8 +11,8 @@ import java.nio.CharBuffer
 import java.io.InputStreamReader
 
 object InStream {
-  def fromByteChannel(context: ElementBase, in: DFDL.Input, sizeHint: Long = 1024 * 128) = {
-    new InStreamFromByteChannel(context, in, sizeHint)
+  def fromByteChannel(context: ElementBase, in: DFDL.Input, bitOffset: Long, bitLimit: Long) = {
+    new InStreamFromByteChannel(context, in, bitOffset, bitLimit)
   }
 }
 
@@ -22,13 +22,36 @@ object InStream {
  */
 trait InStream {
 
+  def bitPos: Long
+  def bitLimit: Long
+  def charPos: Long
+  def charLimit: Long
+  def reader: Option[DFDLCharReader]
+
+  def withPos(newBitPos: Long, newCharPos: Long, newReader: Option[DFDLCharReader]): InStream
+  def withEndBitLimit(newBitLimit: Long): InStream
+
+  /**
+   * Checks that all 8-bits are available, and requires alignment also.
+   */
   def getByte(bitPos: Long, order: java.nio.ByteOrder): Byte
 
+  /**
+   * Will deliver a byte even if the bit limit implies only a fragment of a
+   * byte is actually available.
+   */
+  def getRawByte(bitPos: Long, order: java.nio.ByteOrder): Byte
+
+  /**
+   * Returns up to numBytes. Could be fewer. Does not check bitLimit bounds
+   * precisely.
+   */
   def getBytes(bitPos: Long, numBytes: Long): Array[Byte]
 
   def getBitSequence(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder): (BigInt, Long)
 
-  def withLimit(startBitPos: Long, endBitPos: Long): InStream
+  // TODO: remove if no longer needed
+  // def withLimit(startBitPos: Long, endBitPos: Long): InStream
 
   def getCharReader(charset: Charset, bitPos: Long): DFDLCharReader
 }
@@ -36,14 +59,16 @@ trait InStream {
 /**
  * Don't use this class directly. Use the factory on InStream object to create.
  */
-class InStreamFromByteChannel private (val context: ElementBase, val byteReader: DFDLByteReader, sizeHint: Long)
+case class InStreamFromByteChannel private (val context: ElementBase,
+                                            val byteReader: DFDLByteReader,
+                                            val bitPos: Long,
+                                            val bitLimit: Long,
+                                            val charPos: Long,
+                                            val charLimit: Long,
+                                            val reader: Option[DFDLCharReader])
   extends InStream
   with Logging
   with WithParseErrorThrowing {
-
-  def getCharReader(charset: Charset, bitPos: Long): DFDLCharReader = {
-    byteReader.newCharReader(charset, bitPos)
-  }
   // 
   // the reason for the private constructor above, and this public constructor is that the methods 
   // of this class should NOT have access to the DFDL.Input argument 'in', but only to the DFDLByteReader
@@ -51,11 +76,25 @@ class InStreamFromByteChannel private (val context: ElementBase, val byteReader:
   // 
   // This guarantees then that nobody is doing I/O by going around the DFDLByteReader layer.
   //
-  def this(context: ElementBase, in: DFDL.Input, sizeHint: Long) = this(context, new DFDLByteReader(in), sizeHint)
+  def this(context: ElementBase, in: DFDL.Input, bitOffset: Long, bitLimit: Long) =
+    this(context, new DFDLByteReader(in), bitOffset, bitLimit, -1, -1, None)
+
+  def withPos(newBitPos: Long, newCharPos: Long, newReader: Option[DFDLCharReader]): InStream = {
+    copy(bitPos = newBitPos, charPos = newCharPos, reader = newReader)
+  }
+
+  def withEndBitLimit(newBitLimit: Long): InStream = {
+    copy(bitLimit = newBitLimit)
+  }
+
+  def getCharReader(charset: Charset, bitPos: Long): DFDLCharReader = {
+    byteReader.newCharReader(charset, bitPos, bitLimit)
+  }
 
   private val emptyByteArray = Array[Byte]()
 
   def getBytes(bitPos: Long, numBytes: Long): Array[Byte] = {
+    // checkBounds(bitPos, 8 * numBytes)
     if (bitPos % 8 == 0) {
       val bytePos = (bitPos >> 3)
       getByteAlignedBytes(bytePos, numBytes)
@@ -165,6 +204,7 @@ class InStreamFromByteChannel private (val context: ElementBase, val byteReader:
   }
 
   def getBitSequence(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder): (BigInt, Long) = {
+    checkBounds(bitPos, bitCount)
     val worker: EndianTraits = getEndianTraits(bitPos, bitCount, order)
     var result = BigInt(0)
     var position = worker.startBit
@@ -242,31 +282,48 @@ class InStreamFromByteChannel private (val context: ElementBase, val byteReader:
     }
   }
 
-  // This still requires alignment.
+  def checkBounds(bitStart: Long, bitLength: Long) {
+    if (bitLimit > -1)
+      if (!(bitStart + bitLength <= bitLimit))
+        throw new java.nio.BufferUnderflowException()
+  }
+
+  // This still requires alignment, and that a whole byte is available
+
   def getByte(bitPos: Long, order: java.nio.ByteOrder) = {
+    checkBounds(bitPos, 8)
+    getRawByte(bitPos, order)
+  }
+
+  def getRawByte(bitPos: Long, order: java.nio.ByteOrder) = {
     Assert.usage(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
     byteReader.bb.order(order)
     byteReader.bb.get(bytePos) // NOT called getByte(pos)
   }
 
-  def withLimit(startBitPos: Long, endBitPos: Long): InStream = {
-    // Appears to only be called from lengthKind=Pattern match code
-    Assert.invariant((startBitPos & 7) == 0)
-    Assert.invariant((endBitPos & 7) == 0)
-    val startByte = startBitPos / 8
-    val endByte = (endBitPos + 7) / 8
-    val count = endByte - startByte
-    var bytes: Array[Byte] = new Array(count.asInstanceOf[Int])
-    val oldPos = byteReader.bb.position
-    byteReader.bb.position(startByte.asInstanceOf[Int])
-    byteReader.bb.get(bytes, 0, count.asInstanceOf[Int])
-    val inputStream = new ByteArrayInputStream(bytes)
-    val rbc = java.nio.channels.Channels.newChannel(inputStream)
-    byteReader.bb.position(oldPos)
-    val newInStream = InStream.fromByteChannel(context, rbc, sizeHint)
-    newInStream
-  }
+  // Let's not actually shorten the stream. There are too many 
+  // places that need to deal with running into the length limit, so
+  // that really does have to work. This is overkill.
+  // TODO: remove this once we're sure we don't need it anymore.
+  //  def withLimit(startBitPos: Long, endBitPos: Long): InStream = {
+  //    // Appears to only be called from lengthKind=Pattern match code
+  //    Assert.invariant((startBitPos & 7) == 0)
+  //    Assert.invariant((endBitPos & 7) == 0)
+  //    val startByte = startBitPos / 8
+  //    val endByte = (endBitPos + 7) / 8
+  //    val count = endByte - startByte
+  //    var bytes: Array[Byte] = new Array(count.asInstanceOf[Int])
+  //    val oldPos = byteReader.bb.position
+  //    byteReader.bb.position(startByte.asInstanceOf[Int])
+  //    byteReader.bb.get(bytes, 0, count.asInstanceOf[Int])
+  //    val inputStream = new ByteArrayInputStream(bytes)
+  //    val rbc = java.nio.channels.Channels.newChannel(inputStream)
+  //    byteReader.bb.position(oldPos)
+  //    val newInStream = InStream.fromByteChannel(context, rbc, sizeHint)
+  //    newInStream
+  //  }
+
 }
 
 class DataLoc(bitPos: Long, bitLimit: Long, inStream: InStream) extends DataLocation {
@@ -281,7 +338,7 @@ class DataLoc(bitPos: Long, bitLimit: Long, inStream: InStream) extends DataLoca
     var bytes: List[Byte] = Nil
     try {
       for (i <- 0 to 40) {
-        bytes = inStream.getByte(aligned64BitsPos + (i * 8), java.nio.ByteOrder.BIG_ENDIAN) +: bytes
+        bytes = inStream.getRawByte(aligned64BitsPos + (i * 8), java.nio.ByteOrder.BIG_ENDIAN) +: bytes
       }
     } catch {
       case e: IndexOutOfBoundsException =>

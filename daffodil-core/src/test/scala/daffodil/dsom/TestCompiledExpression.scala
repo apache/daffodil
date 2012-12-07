@@ -29,7 +29,7 @@ class TestCompiledExpression extends JUnitSuite {
     val sset = new SchemaSet(testSchema)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
     val doc = new org.jdom.Document(r) // root must have a document node
-    val root = doc.getRootElement()
+    val root = new InfosetElement(doc.getRootElement())
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/child2/child3 }"
     val compiled = ec.compile('String, xpathString) // as a string
@@ -74,8 +74,7 @@ class TestCompiledExpression extends JUnitSuite {
 
     assertEquals(42L, result2)
 
-    val root2 = XMLUtils.elem2Element(<root/>)
-    val ignored = new org.jdom.Document(root2)
+    val root2 = Infoset(<root/>)
     val compiled3 = ec.compile('Element, "{ /root }") // as a jdom Element
     assertFalse(compiled3.isConstant)
     val R(result3, _) = compiled3.evaluate(root2, null, dummyState)
@@ -88,11 +87,9 @@ class TestCompiledExpression extends JUnitSuite {
    */
   @Test def testCompiledAbsolutePathEvaluation1() {
 
-    val r = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
+    val root = Infoset(<root><child1><child2><child3>19</child3></child2></child1></root>)
     val sset = new SchemaSet(testSchema)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
-    val doc = new org.jdom.Document(r) // root must have a document node
-    val root = doc.getRootElement()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/child2/child3 }"
     val compiled = ec.compile('String, xpathString) // as a string
@@ -105,11 +102,9 @@ class TestCompiledExpression extends JUnitSuite {
 
   @Test def testCompiledRelativePathEvaluation1() {
 
-    val r = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
+    val root = Infoset(<root><child1><child2><child3>19</child3></child2></child1></root>)
     val sset = new SchemaSet(testSchema)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
-    val doc = new org.jdom.Document(r) // root must have a document node
-    val root = doc.getRootElement()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ child3 }"
     val compiled = ec.compile('String, xpathString) // as a string
@@ -124,11 +119,9 @@ class TestCompiledExpression extends JUnitSuite {
 
   @Test def testCompiledRelativePathEvaluation2() {
 
-    val r = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
+    val root = Infoset(<root><child1><child2><child3>19</child3></child2></child1></root>)
     val sset = new SchemaSet(testSchema)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
-    val doc = new org.jdom.Document(r) // root must have a document node
-    val root = doc.getRootElement()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ ../../../child1/child2/child3 }"
     val compiled = ec.compile('String, xpathString) // as a string
@@ -142,11 +135,9 @@ class TestCompiledExpression extends JUnitSuite {
 
   @Test def testCompiledRelativePathEvaluation3() {
 
-    val r = XMLUtils.elem2Element(<data><e1>42</e1><e2/></data>)
+    val root = Infoset(<data><e1>42</e1><e2/></data>)
     val sset = new SchemaSet(testSchema)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
-    val doc = new org.jdom.Document(r) // root must have a document node
-    val root = doc.getRootElement()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ ../e1 }"
     val compiled = ec.compile('String, xpathString) // as a string
@@ -183,7 +174,7 @@ class TestCompiledExpression extends JUnitSuite {
     val doc = new org.jdom.Document(r) // root must have a document node
     val root = doc.getRootElement()
     val child2 = root.getChild("e2")
-    val R(result, _) = parser.testExpressionEvaluation(child2, new VariableMap(), dummyState)
+    val R(result, _) = parser.expr.evaluate(new InfosetElement(child2), new VariableMap(), dummyState)
 
     assertEquals("42", result)
 
@@ -215,12 +206,12 @@ class TestCompiledExpression extends JUnitSuite {
     val doc = new org.jdom.Document(r) // root must have a document node
     val root = doc.getRootElement()
     val child2 = root.getChild("e2")
-    val c2state = initialState.withParent(child2)
+    val c2state = initialState.withParent(new InfosetElement(child2))
     val resState = parser.parse(c2state)
     val updatedChild2 = resState.parentElement
-    val dataNode = XMLUtils.element2Elem(updatedChild2.getParent().asInstanceOf[org.jdom.Element])
+    val dataNode = updatedChild2.parent.toXML
     // println(dataNode)
-    val result = updatedChild2.getText()
+    val result = updatedChild2.dataValue
 
     assertEquals("42", result)
 

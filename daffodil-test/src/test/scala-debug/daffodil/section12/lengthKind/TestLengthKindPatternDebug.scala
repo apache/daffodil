@@ -15,7 +15,7 @@ class TestLengthKindPatternDebug extends JUnitSuite {
   val testDir = "/daffodil/section12/lengthKind/"
   val aa = testDir + "PatternTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def test_ComplexWithBinaryChild() { runner.runOneTest("ComplexWithBinaryChild") }
-  
-  }
+  @Test def testLengthKindPatternCompound() { runner.runOneTest("LengthKindPatternCompound") }
+}

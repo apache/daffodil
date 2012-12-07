@@ -6,8 +6,8 @@ import java.io.InputStream
 
 object DFDLJavaIOInputStreamReader {
 
-  def apply(in: InputStream, charset: Charset, bitOffset0to7: Int) = {
-    new DFDLJavaIOInputStreamReader(in, DFDLJavaIOStreamDecoder.forInputStreamReader(in, charset, bitOffset0to7))
+  def apply(in: InputStream, charset: Charset, bitOffset0to7: Int, bitLimit: Long) = {
+    new DFDLJavaIOInputStreamReader(in, DFDLJavaIOStreamDecoder.forInputStreamReader(in, charset, bitOffset0to7, bitLimit))
   }
 
 }

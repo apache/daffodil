@@ -1,6 +1,5 @@
 package daffodil.processors
 
-import org.jdom._
 import daffodil.xml._
 import daffodil.xml._
 import daffodil.processors._
@@ -94,7 +93,7 @@ class RepAtMostTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) extend
         // 
         // save the state of the infoset
         //
-        val cloneNode = newpou.captureJDOM
+        val cloneNode = newpou.captureInfosetElementState
 
         Debugger.beforeRepetition(newpou, this)
         val pNext = rParser.parse1(newpou, context)
@@ -114,7 +113,7 @@ class RepAtMostTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) extend
           //
           // backout any element appended as part of this attempt.
           //
-          newpou.restoreJDOM(cloneNode)
+          newpou.restoreInfosetElementState(cloneNode)
           return pResult // success at prior state. 
         }
         pResult = pNext.moveOverOneArrayIndexOnly.withRestoredPointOfUncertainty
@@ -167,7 +166,7 @@ class RepUnboundedPrim(context: LocalElementBase, r: => Gram) extends RepPrim(co
       var pResult = pstate
       while (pResult.status == Success) {
 
-        val cloneNode = pResult.captureJDOM
+        val cloneNode = pResult.captureInfosetElementState
         //
         // Every parse is a new point of uncertainty.
         val newpou = pResult.withNewPointOfUncertainty
@@ -188,7 +187,7 @@ class RepUnboundedPrim(context: LocalElementBase, r: => Gram) extends RepPrim(co
           // 
           // no discriminator, so suppress the failure. Loop terminated with prior element.
           //
-          pResult.restoreJDOM(cloneNode)
+          pResult.restoreInfosetElementState(cloneNode)
           log(Debug("Failure suppressed. This is normal termination of a occursCountKind='parsed' array."))
           return pResult // note that it has the prior point of uncertainty. No restore needed.
         }
@@ -212,7 +211,7 @@ class RepUnboundedPrim(context: LocalElementBase, r: => Gram) extends RepPrim(co
 
 case class OccursCountExpression(e: ElementBase)
   extends Terminal(e, true) {
-  val pseudoElement = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
+  val pseudoElement = Infoset.newElement(e)
 
   def parser = new Parser(e) with WithParseErrorThrowing {
     def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
@@ -222,8 +221,8 @@ case class OccursCountExpression(e: ElementBase)
       // (e.g., ../countField where countField is a peer) we have to make a fake node, and attach it
       // just for purposes of having the right relative path stuff here.
 
-      val priorElement = pstate.parentForAddContent
-      priorElement.addContent(pseudoElement)
+      val priorElement = pstate.parentElement
+      priorElement.addElement(pseudoElement)
       val res = try {
         val R(oc, newVMap) = e.occursCount.evaluate(pseudoElement, pstate.variableMap, pstate)
         val postEvalState = pstate.withVariables(newVMap)

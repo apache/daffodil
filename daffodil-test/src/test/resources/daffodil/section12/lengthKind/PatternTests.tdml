@@ -386,11 +386,7 @@
       <tdml:documentPart type="byte">2121c2c22121</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>No match found!</tdml:error>
-      <!-- might not be this word 'invalid', but has to produce a diagnostic.
-        Right now this test fails because it throws to top level rather than 
-        producing
-        a diagnostic at all. -->
+      <tdml:error>Malformed</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

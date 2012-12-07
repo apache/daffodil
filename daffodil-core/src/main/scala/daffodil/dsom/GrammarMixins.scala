@@ -579,7 +579,19 @@ trait ElementBaseGrammarMixin
     res
   }
 
-  lazy val scalarComplexContent = Prod("scalarComplexContent", this, isComplexType, nilLit | complexContent)
+  def specifiedLength(body: => Gram) = {
+    lengthKind match {
+      case LengthKind.Pattern => new SpecifiedLengthPattern(this, body)
+      case _ => {
+        // TODO: implement other specified length restrictions
+        // for now, no restriction
+        body
+      }
+    }
+
+  }
+
+  lazy val scalarComplexContent = Prod("scalarComplexContent", this, isComplexType, specifiedLength(nilLit | complexContent))
 
   // Note: there is no such thing as defaultable complex content because you can't have a 
   // default value for a complex type element.
@@ -595,14 +607,10 @@ trait ElementBaseGrammarMixin
 
   lazy val elementRightFraming = Prod("elementRightFraming", this, trailingSkipRegion)
 
-  lazy val dfdlElementBegin = Prod("dfdlElementBegin", this, {
-    if (isComplexType == true && lengthKind == LengthKind.Pattern) ComplexElementBeginPattern(this)
-    else ElementBegin(this)
-  })
+  lazy val dfdlElementBegin = Prod("dfdlElementBegin", this, ElementBegin(this))
 
   lazy val dfdlElementEnd = Prod("dfdlElementEnd", this, {
-    if (isComplexType == true && lengthKind == LengthKind.Pattern) ComplexElementEndPattern(this)
-    else if (isRepresented) ElementEnd(this)
+    if (isRepresented) ElementEnd(this)
     else ElementEndNoRep(this)
   })
 

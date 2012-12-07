@@ -20,7 +20,7 @@ class TestCompiledExpression2 extends JUnitSuite with WithParseErrorThrowing {
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
-  var context : SchemaComponent = null
+  var context: SchemaComponent = null
 
   // dummy schema just so we can get a handle on a legit element declaration
   val testSchema = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
@@ -32,15 +32,13 @@ class TestCompiledExpression2 extends JUnitSuite with WithParseErrorThrowing {
    */
   @Test def testCompiledAbsolutePathEvaluation2_withNamespace() {
 
-    val r = XMLUtils.elem2Element(
+    val root = Infoset(
       <tns:root xmlns:tns={ example }>19</tns:root>)
     val sset = new SchemaSet(<schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
                                <element name="root" type="xs:string"/>
                              </schema>)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
     val dummyState = PState.createInitialState(edecl, "", 0)
-    val doc = new org.jdom.Document(r) // root must have a document node
-    val root = doc.getRootElement()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /tns:root/text() }"
     val compiled = ec.compile('String, xpathString) // as a string
@@ -73,7 +71,7 @@ class TestCompiledExpression2 extends JUnitSuite with WithParseErrorThrowing {
 
     // Note that we specify the namespace of the unqualified elements here, and it matches
     // the target namespace.
-    val r = XMLUtils.elem2Element(<data xmlns={ example }><e1>42</e1><e2/></data>)
+    val root = Infoset(<data xmlns={ example }><e1>42</e1><e2/></data>)
     val sset = new SchemaSet(testSchema)
     //
     // Note that we specify the namespace here as well.
@@ -85,16 +83,14 @@ class TestCompiledExpression2 extends JUnitSuite with WithParseErrorThrowing {
     val parser = ivcPrim.parser.asInstanceOf[IVCParser]
     val d = Compiler.stringToReadableByteChannel("xx") // it's not going to read from here.
     val initialState = PState.createInitialState(edecl, d)
-    val doc = new org.jdom.Document(r) // root must have a document node
-    val root = doc.getRootElement()
-    val rootns = root.getNamespace()
+    val rootns = root.namespace
     val child2 = root.getChild("e2", rootns)
     val c2state = initialState.withParent(child2)
     val resState = parser.parse(c2state)
     val updatedChild2 = resState.parentElement
-    val dataNode = XMLUtils.element2Elem(updatedChild2.getParent().asInstanceOf[org.jdom.Element])
+    val dataNode = updatedChild2.toXML
     // println(dataNode)
-    val result = updatedChild2.getText()
+    val result = updatedChild2.dataValue
 
     assertEquals("42", result)
 
@@ -105,15 +101,13 @@ class TestCompiledExpression2 extends JUnitSuite with WithParseErrorThrowing {
    */
   @Test def testCompiledEvaluationError_DoesntExist() {
 
-    val r = XMLUtils.elem2Element(
+    val root = Infoset(
       <tns:root xmlns:tns={ example }>19</tns:root>)
     val sset = new SchemaSet(<schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
                                <element name="root" type="xs:string"/>
                              </schema>)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
     val dummyState = PState.createInitialState(edecl, "", 0)
-    val doc = new org.jdom.Document(r) // root must have a document node
-    val root = doc.getRootElement()
     context = edecl
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /tns:doesntExist/text() }"

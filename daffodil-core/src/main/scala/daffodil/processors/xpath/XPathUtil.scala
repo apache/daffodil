@@ -63,12 +63,20 @@ import scala.util.parsing.combinator.RegexParsers
 import daffodil.dsom.LocalElementDecl
 import daffodil.dsom.GlobalElementDecl
 import daffodil.dsom.ElementBase
+import daffodil.dsom.EntityReplacer
 
 abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunction {
   val qName = new QName(XMLUtils.DFDL_NAMESPACE, name)
   val ID = (qName, arity)
 
   DFDLFunctions.functionList +:= this
+
+  def getContext(pstate: PState): ElementBase = {
+    // Assumes that a JDOM element was already created
+    val currentElement = pstate.parentElement
+    val res = currentElement.schemaComponent(pstate)
+    res
+  }
 
   // TODO: Do we want to use a List here? Direct access takes time to traverse.
   def evaluate(args: java.util.List[_]): Object = {
@@ -98,10 +106,45 @@ object DFDLFunctions {
   var currentPState: Option[PState] = None
 }
 
+/**
+ * DEPRECATED
+ */
 object DFDLPositionFunction extends DFDLFunction("position", 0) {
   def evaluate1(hasNoArgs: java.util.List[_], pstate: PState): Object = {
     val res: java.lang.Long = pstate.arrayPos
     res
+  }
+}
+
+/**
+ * The new name for the dfdl:position function is dfdl:occursIndex.
+ */
+object DFDLOccursIndexFunction extends DFDLFunction("occursIndex", 0) {
+  def evaluate1(hasNoArgs: java.util.List[_], pstate: PState): Object = {
+    val res: java.lang.Long = pstate.arrayPos
+    res
+  }
+}
+
+/**
+ * This function converts a string that contains DFDL entites.
+ */
+object DFDLStringFunction extends DFDLFunction("string", 1) {
+  def evaluate1(args: java.util.List[_], pstate: PState): Object = {
+    val xmlString = args.get(0) match {
+      case s: String => s
+      case other => {
+        // argument wasn't a string
+        // 
+        // TODO: anyway to inform XPath compiler that this function needs a 
+        // string as its argument type? Otherwise we have to do this runtime type check.
+        // 
+        getContext(pstate).schemaDefinitionError("Type error. Argument was not a string: %s", other)
+      }
+    }
+    val dfdlString = EntityReplacer.replaceAll(xmlString)
+    val remappedString = XMLUtils.remapXMLIllegalCharactersToPUA(dfdlString)
+    remappedString
   }
 }
 
@@ -113,34 +156,17 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
     // Assumes that a JDOM element was already created
     val expr = args.get(0)
     val currentElement = pstate.parentElement
-    val attr = currentElement.getAttributeValue("context", currentElement.getNamespace())
-    attr match {
-      case null => {
-        Assert.invariantFailed("No schema component context attribute on JDOM element")
-        // return java.lang.Boolean.FALSE
-      }
-      case uuid => {
-        // We have a uuid, retrieve the schema component
-        pstate.getContextByUID(uuid) match {
-          case Some(e) => {
-            // We have an ElementBase, retrieve the constraints
-            val patterns = e.patternValues
-            val data = currentElement.getText()
-            if (!XMLUtils.isNil(currentElement) && patterns.size > 0) {
-              val check = checkPatterns(data, patterns)
-              if (!check) {
-                return java.lang.Boolean.FALSE
-              }
-            }
-            // Note: dont check occurs counts // if(!checkMinMaxOccurs(e, pstate.arrayPos)) { return java.lang.Boolean.FALSE }
-          }
-          case None => {
-            Assert.invariantFailed("Schema context component was not found in lookup table")
-            // return java.lang.Boolean.FALSE
-          }
-        }
+    val e = getContext(pstate)
+    // We have an ElementBase, retrieve the constraints
+    val patterns = e.patternValues
+    val data = currentElement.dataValue
+    if (!currentElement.isNil && patterns.size > 0) {
+      val check = checkPatterns(data, patterns)
+      if (!check) {
+        return java.lang.Boolean.FALSE
       }
     }
+    // Note: dont check occurs counts // if(!checkMinMaxOccurs(e, pstate.arrayPos)) { return java.lang.Boolean.FALSE }
     java.lang.Boolean.TRUE
   }
 
@@ -207,6 +233,8 @@ object Functions {
 
   val funcList = List(
     DFDLPositionFunction,
+    DFDLOccursIndexFunction,
+    DFDLStringFunction,
     DFDLCheckConstraintsFunction)
   val funcs = funcList.map { f => ((f.ID, f)) }.toMap
 
@@ -358,7 +386,7 @@ object XPathUtil extends Logging {
     compiledExprFactory: CompiledExpressionFactory,
     variables: VariableMap,
     contextNode: Parent,
-    targetType: QName = NODE): XPathResult = {
+    targetType: QName): XPathResult = {
     withLoggingLevel(LogLevel.Info) {
       val ce = compiledExprFactory.getXPathExpr(variables)
       log(Debug("Evaluating %s in context %s to get a %s", expressionForErrorMsg, contextNode, targetType)) // Careful. contextNode could be null.

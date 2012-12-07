@@ -8,6 +8,7 @@ import daffodil.xml.XMLUtils._
 import daffodil.compiler.Compiler
 import daffodil.util._
 import org.junit.Test
+import daffodil.debugger.Debugger
 
 class TestDFDLParser extends JUnitSuite {
 

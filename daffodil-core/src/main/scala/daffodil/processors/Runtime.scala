@@ -154,15 +154,8 @@ abstract class ParseResult(dp: DataProcessor)
 
   lazy val result =
     if (resultState.status == Success) {
-      val docElt = resultState.parent
-      docElt match {
-        case doc: org.jdom.Document => {
-          val jdomElt = doc.getRootElement()
-          XMLUtils.element2Elem(jdomElt)
-        }
-        case _ => Assert.invariantFailed("docElt isn't a jdom Document.")
-      }
-
+      val xmlNode = resultState.infoset.toXML
+      xmlNode
     } else {
       <nothing/>
     }

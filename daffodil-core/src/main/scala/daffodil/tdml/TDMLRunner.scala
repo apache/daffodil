@@ -361,26 +361,23 @@ Differences were (path, expected, actual):
       if (pf.isError) pf
       else {
         val processor = pf.onPath("/")
-        if (processor.isError) {
-          val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
-          throw new Exception(diags)
-        }
-        val actual = processor.parse(dataToParse, lengthLimitInBits)
-
-        val loc: DataLocation = actual.resultState.currentLocation
-
-        if (actual.canProceed) {
-          if (!loc.isAtEnd) {
-            actual.addDiagnostic(new GeneralParseFailure("Left over data: " + loc.toString))
-            actual
-          } else {
-            // We did not get an error!!
-            // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
-            throw new Exception("Expected error. Didn't get one. Actual result was " + actual.result) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
+        if (processor.isError) processor
+        else {
+          val actual = processor.parse(dataToParse, lengthLimitInBits)
+          if (actual.isError) actual
+          else {
+            val loc: DataLocation = actual.resultState.currentLocation
+            if (!loc.isAtEnd) {
+              actual.addDiagnostic(new GeneralParseFailure("Left over data: " + loc.toString))
+              actual
+            } else {
+              // We did not get an error!!
+              // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
+              throw new Exception("Expected error. Didn't get one. Actual result was " + actual.briefResult) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
+            }
           }
-        } else actual
+        }
       }
-
     // check for any test-specified errors
     verifyAllDiagnosticsFound(objectToDiagnose, Some(errors))
 

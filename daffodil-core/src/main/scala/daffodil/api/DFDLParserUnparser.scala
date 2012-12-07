@@ -3,6 +3,7 @@ package daffodil.api
 import scala.xml.Node
 import daffodil.processors.ProcessorResult
 import daffodil.processors.Success
+import daffodil.xml.XMLUtils
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -100,6 +101,7 @@ object DFDL {
 
   trait ParseResult extends Result with WithDiagnostics {
     def result: scala.xml.Node
+    def briefResult = XMLUtils.removeAttributes(result)
   }
 
   trait UnparseResult extends Result with WithDiagnostics

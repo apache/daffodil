@@ -31,6 +31,7 @@ import daffodil.util.Misc
 import daffodil.util.Validator
 import javax.xml.namespace.QName
 import javax.xml.XMLConstants
+import daffodil.processors.Infoset
 
 /**
  * Utilities for handling XML
@@ -39,6 +40,37 @@ import javax.xml.XMLConstants
  * @author Alejandro Rodriguez
  */
 object XMLUtils {
+
+  /**
+   * Legal XML v1.0 chars are #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+   */
+  def remapXMLIllegalCharToPUA(c: Char, checkForExistingPUA: Boolean = true): Char = {
+    val res = c match {
+      case 0x9 => c
+      case 0xA => c
+      case 0xD => c
+      case _ if (c < 0x20) => (c + 0xE000).toChar
+      case _ if (c > 0xD7FF && c < 0xE000) => (c + 0x1000).toChar
+      case _ if (c >= 0xE000 && c <= 0xF8FF) => {
+        if (checkForExistingPUA)
+          Assert.usageError("Pre-existing Private Use Area (PUA) character found in data: '%s'".format(c))
+        else c
+      }
+      case 0xFFFE => 0xF0FE.toChar
+      case 0xFFFF => 0xF0FF.toChar
+      case _ if (c > 0x10FFFF) => {
+        Assert.invariantFailed("Character code beyond U+10FFFF found in data. Codepoint: %s".format(c.toInt))
+      }
+      case _ => c
+
+    }
+    res
+  }
+
+  def remapXMLIllegalCharactersToPUA(dfdlString: String): String = {
+    val res = dfdlString.map { remapXMLIllegalCharToPUA(_, false) }
+    res
+  }
 
   //  val MAX_MEMORY_PERCENTAGE = 0.90
   //  var WARNING_MEMORY_PERCENTAGE = 0.8
@@ -53,6 +85,10 @@ object XMLUtils {
   val TDML_NAMESPACE = "http://www.ibm.com/xmlns/dfdl/testData"
   val DFDL_XMLSCHEMASUBSET_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
   val EXAMPLE_NAMESPACE = "http://example.com"
+
+  // must manufacture these because in JDOM, attributes have parent pointers up
+  // to their enclosing elements.
+  def nilAttribute() = new org.jdom.Attribute("nil", "true", XMLUtils.xsiNS)
 
   def isNil(e: Element) = {
     val nilAttr = e.getAttribute("nil", xsiNS)
@@ -70,14 +106,15 @@ object XMLUtils {
    * (for why http URLs are a bad idea for these, see:
    * http://www.w3.org/blog/systeam/2008/02/08/w3c_s_excessive_dtd_traffic/ )
    */
-  private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT = "urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu" // TODO: finalize syntax of this URN
-  private val DAFFODIL_EXTENSION_NAMESPACE = DAFFODIL_EXTENSIONS_NAMESPACE_ROOT
-  val EXT_NAMESPACE = DAFFODIL_EXTENSION_NAMESPACE
-
-  /**
-   * This namespace for extensions above and beyond DFDL v1.0
-   */
-  val DFDL_EXTENSIONS_NAMESPACE = "http://www.dataiti.com/dfdl/dfdl-1.0/extensions"
+  private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT = "urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012" // TODO: finalize syntax of this URN
+  val DAFFODIL_EXTENSION_NAMESPACE = DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":ext"
+  val DAFFODIL_INTERNAL_NAMESPACE = DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":int"
+  val EXT_NS = DAFFODIL_EXTENSION_NAMESPACE
+  val EXT_PREFIX = "daf"
+  val EXT_NS_OBJECT = org.jdom.Namespace.getNamespace(EXT_PREFIX, EXT_NS)
+  val INT_NS = DAFFODIL_INTERNAL_NAMESPACE
+  val INT_PREFIX = "dafint"
+  val INT_NS_OBJECT = org.jdom.Namespace.getNamespace(INT_PREFIX, INT_NS)
 
   // shorter forms, to make constructing XML literals,... make the lines shorter.
   val DFDLSubsetURI = DFDL_SUBSET_NAMESPACE
@@ -472,24 +509,24 @@ object XMLUtils {
    *
    * We need them as JDOM namespace bindings, so create a list of those.
    */
-  def jdomNamespaceBindings(nsBinding: NamespaceBinding): Seq[org.jdom.Namespace] = {
+  def namespaceBindings(nsBinding: NamespaceBinding): Seq[Infoset.Namespace] = {
     if (nsBinding == null) Nil
     else {
       val thisOne =
         if (nsBinding.uri != null) List(org.jdom.Namespace.getNamespace(nsBinding.prefix, nsBinding.uri))
         else Nil
-      val others = jdomNamespaceBindings(nsBinding.parent)
+      val others = namespaceBindings(nsBinding.parent)
       thisOne ++ others
     }
   }
 
-  def jdomNamespaceBindings(element: org.jdom.Element): Seq[org.jdom.Namespace] = {
+  def namespaceBindings(element: org.jdom.Element): Seq[Infoset.Namespace] = {
     if (element == null) Nil
     else {
-      val ans = element.getAdditionalNamespaces.toSeq.asInstanceOf[Seq[org.jdom.Namespace]]
+      val ans = element.getAdditionalNamespaces.toSeq.asInstanceOf[Seq[Infoset.Namespace]]
       val thisOne = element.getNamespace()
       val parentContribution = element.getParent match {
-        case parentElem: org.jdom.Element => jdomNamespaceBindings(parentElem)
+        case parentElem: org.jdom.Element => namespaceBindings(parentElem)
         case _ => Nil
       }
       val res = thisOne +: (ans ++ parentContribution)
@@ -502,7 +539,7 @@ object XMLUtils {
     val jdomNode = new Element(node.label, node.prefix, node.namespace)
     var Elem(_, _, _, nsBinding: NamespaceBinding, _*) = node.asInstanceOf[scala.xml.Elem]
 
-    jdomNamespaceBindings(nsBinding).foreach { ns =>
+    namespaceBindings(nsBinding).foreach { ns =>
       {
         val prefix = ns.getPrefix()
         if (prefix != null & prefix != ""
@@ -924,7 +961,7 @@ object XMLSchemaUtils {
       } catch {
         case e => {
           val exc = e
-          System.err.println(exc.getMessage())
+          // System.err.println(exc.getMessage())
           // Really useful place for a breakpoint.
           throw e
         }

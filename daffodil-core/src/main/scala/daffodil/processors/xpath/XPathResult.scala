@@ -36,8 +36,6 @@ package daffodil.processors.xpath
  * Date: 2010
  */
 
-import org.jdom.Element
-
 /**
  * The result of XPath expression as evaluated by XPathUtil
  *
@@ -45,6 +43,8 @@ import org.jdom.Element
  * @version 1
  * @author Alejandro Rodriguez
  */
+import org.jdom.Element
+
 sealed abstract class XPathResult
 
 /** The result is a DOM node */

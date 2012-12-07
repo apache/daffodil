@@ -4,7 +4,6 @@ import daffodil.exceptions._
 import daffodil.processors.xpath._
 import javax.xml.xpath._
 import daffodil.processors.VariableMap
-import org.jdom.Element
 import daffodil.processors.xpath.XPathUtil.CompiledExpressionFactory
 import daffodil.util.Logging
 import daffodil.util.Debug
@@ -13,6 +12,7 @@ import daffodil.xml.XMLUtils
 import daffodil.processors.EmptyVariableMap
 import daffodil.processors.WithParseErrorThrowing
 import daffodil.processors.PState
+import daffodil.processors.InfosetElement
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -72,36 +72,17 @@ abstract class CompiledExpression(val prettyExpr: String) {
    * updated variableMap must be returned as well.
    */
 
-  def evaluate(rootedAt: org.jdom.Parent, variables: VariableMap, pstate: PState): R
+  def evaluate(rootedAt: InfosetElement, variables: VariableMap, pstate: PState): R
 
 }
 
 case class R(res: Any, vmap: VariableMap)
 
-//object CompiledExpressionUtil {
-//
-//  def converter[T](convertTo : Symbol, expr : Any) = {
-//    val str : String = expr match {
-//      case n : org.jdom.Element => n.getText()
-//      case s : String => s
-//    }
-//    val res = convertTo match {
-//      case 'Long => str.toLong.asInstanceOf[T]
-//      case 'Double => str.toDouble.asInstanceOf[T]
-//      case 'String => str
-//      case 'Element => expr.asInstanceOf[org.jdom.Element]
-//      case _ => Assert.invariantFailed("Unrecognized convertTo symbol: " + convertTo)
-//    }
-//    res.asInstanceOf[T]
-//  }
-//
-//}
-
 case class ConstantExpression[T](value: T) extends CompiledExpression(value.toString) {
   def isConstant = true
   def isKnownNonEmpty = value != ""
   def constant: T = value
-  def evaluate(pre: org.jdom.Parent, variables: VariableMap, ignored: PState): R = R(constant, variables)
+  def evaluate(pre: InfosetElement, variables: VariableMap, ignored: PState): R = R(constant, variables)
 }
 
 case class RuntimeExpression[T <: AnyRef](convertTo: Symbol,
@@ -125,11 +106,11 @@ case class RuntimeExpression[T <: AnyRef](convertTo: Symbol,
       case _ => Assert.invariantFailed("convertTo not valid value: " + convertTo)
     }
 
-  def evaluate(pre: org.jdom.Parent, variables: VariableMap, pstate: PState): R = {
+  def evaluate(pre: InfosetElement, variables: VariableMap, pstate: PState): R = {
     val xpathResultType = toXPathType(convertTo)
     val xpathRes = try {
       DFDLFunctions.currentPState = Some(pstate)
-      XPathUtil.evalExpression(xpathText, xpathExprFactory, variables, pre, xpathResultType)
+      pre.evalExpression(xpathText, xpathExprFactory, variables, xpathResultType)
     } catch {
       case e: XPathException => {
         // runtime processing error in expression evaluation

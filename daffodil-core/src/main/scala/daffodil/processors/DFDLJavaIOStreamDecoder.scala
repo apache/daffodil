@@ -33,7 +33,7 @@ object DFDLJavaIOStreamDecoder {
 
   private val DEFAULT_BYTE_BUFFER_SIZE: Int = daffodil.compiler.Compiler.readerByteBufferSize.toInt
 
-  def forInputStreamReader(in: InputStream, charset: Charset, bitOffset0to7: Int): DFDLJavaIOStreamDecoder = {
+  def forInputStreamReader(in: InputStream, charset: Charset, bitOffset0to7: Int, bitLimit: Long): DFDLJavaIOStreamDecoder = {
 
     val myBB = ByteBuffer.allocateDirect(DFDLJavaIOStreamDecoder.DEFAULT_BYTE_BUFFER_SIZE)
     myBB.flip()
@@ -43,7 +43,7 @@ object DFDLJavaIOStreamDecoder {
       case _ => Channels.newChannel(in)
     }
 
-    new DFDLJavaIOStreamDecoder(bitOffset0to7, charset, myBB, in, chan)
+    new DFDLJavaIOStreamDecoder(bitOffset0to7, bitLimit, charset, myBB, in, chan)
   }
 
 }
@@ -55,8 +55,11 @@ object DFDLJavaIOStreamDecoder {
  * StreamDecoder only ignores, replaces or treats it as an error.
  *
  * Forces the decoder to REPORT on malformed input.
+ *
+ * We also have to implment the upper-bound aka bitLimit, and not
+ * allow consumption of data past it.
  */
-class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, var cs: Charset, var bb: ByteBuffer,
+class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: Long, var cs: Charset, var bb: ByteBuffer,
                                        var in: InputStream, var ch: ReadableByteChannel)
   extends java.io.Reader {
 

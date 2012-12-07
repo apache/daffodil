@@ -447,25 +447,6 @@ class TestTDMLRunner extends JUnitSuite {
     }
   }
 
-  @Test def testTDMLUnparse() {
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } xmlns:tns={ tns } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi } suiteName="theSuiteName">
-                      <ts:defineSchema name="unparseTestSchema1">
-                        <dfdl:format ref="tns:daffodilTest1"/>
-                        <xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 9 }"/>
-                      </ts:defineSchema>
-                      <ts:serializerTestCase ID="some identifier" name="testTDMLUnparse" root="data" model="unparseTestSchema1">
-                        <ts:infoset>
-                          <ts:dfdlInfoset>
-                            <data xmlns={ example }>123456789</data>
-                          </ts:dfdlInfoset>
-                        </ts:infoset>
-                        <ts:document>123456789</ts:document>
-                      </ts:serializerTestCase>
-                    </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("testTDMLUnparse")
-  }
-
   val tdmlWithUnicode2028 =
     <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
       <tdml:defineSchema name="mySchema">

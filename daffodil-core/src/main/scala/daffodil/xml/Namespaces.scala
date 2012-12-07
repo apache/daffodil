@@ -35,18 +35,18 @@ package daffodil.xml
  * Created By: Alejandro Rodriguez < alejandr @ ncsa . uiuc . edu >
  * Date: 2010
  */
-import java.util.Iterator
-import javax.xml.XMLConstants
-import javax.xml.namespace.NamespaceContext
-import scala.collection.mutable.Map
-
-import org.jdom.Element
-import org.jdom.Namespace
-
-// import daffodil.exceptions.UnimplementedException
-import daffodil.schema._
-import java.io.{ ObjectInputStream, ObjectOutputStream, Serializable }
-import daffodil.exceptions.Assert
+//import java.util.Iterator
+//import javax.xml.XMLConstants
+//import javax.xml.namespace.NamespaceContext
+//import scala.collection.mutable.Map
+//
+//import org.jdom.Element
+//import org.jdom.Namespace
+//
+//// import daffodil.exceptions.UnimplementedException
+//import daffodil.schema._
+//import java.io.{ ObjectInputStream, ObjectOutputStream, Serializable }
+//import daffodil.exceptions.Assert
 
 //@SerialVersionUID(1)
 //class Namespaces extends NamespaceContext with Serializable with Diffable {

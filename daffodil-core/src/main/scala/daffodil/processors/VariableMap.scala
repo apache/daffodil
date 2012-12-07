@@ -39,7 +39,6 @@ package daffodil.processors
 
 import scala.collection.mutable.Stack
 import scala.collection.mutable.Set
-import org.jdom.Element
 import daffodil.exceptions.Assert
 import daffodil.xml.XMLUtils
 import javax.xml.namespace.QName
