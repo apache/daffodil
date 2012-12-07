@@ -11,14 +11,10 @@ import daffodil.compiler._
 import daffodil.api._
 import java.nio._
 import java.nio.charset._
-import stringsearch._
 import scala.collection.JavaConversions._
 import scala.util.logging.ConsoleLogger
-import stringsearch.DelimSearcherV3._
 import scala.collection.mutable.Queue
 import scala.util.matching.Regex
-import stringsearch.constructs._
-import stringsearch.constructs.EscapeScheme._
 import daffodil.util._
 import daffodil.exceptions.ThrowsSDE
 import java.io.ByteArrayInputStream

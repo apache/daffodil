@@ -133,6 +133,10 @@ class DFDLCharReader private (charset: Charset, startingBitPos: Int, bitLimit: L
   def print: String = {
     "DFDLCharReader - " + source.length() + ": " + source + "\nDFDLCharReader - " + characterPos + ": " + source.subSequence(characterPos, source.length())
   }
+  
+  override def toString = {
+    "DFDLCharReader at bitPos " + startingBitPos
+  }
 
 }
 

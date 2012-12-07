@@ -1,4 +1,5 @@
-package delimsearch
+package daffodil.processors
+
 import java.util.regex.Pattern
 import java.util.logging.Logging
 import scala.util.control.Breaks

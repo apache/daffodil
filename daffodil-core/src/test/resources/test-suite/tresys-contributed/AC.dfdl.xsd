@@ -10,7 +10,7 @@
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
         terminator="" initiatedContent="no" textNumberRep="standard"
         separatorPolicy="suppressed" separatorPosition="infix"
-        occursCountKind="parsed"/>
+        occursCountKind="parsed" textTrimKind="none"/>
     </appinfo>
   </annotation>
 

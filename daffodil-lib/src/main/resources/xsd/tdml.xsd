@@ -119,6 +119,7 @@
       <extension base="xs:string">
         <attribute name="type" type="tns:documentPartTypeEnum"
           use="required" />
+          <attribute name="replaceDFDLEntities" type="xs:boolean" />
       </extension>
     </simpleContent>
   </complexType>

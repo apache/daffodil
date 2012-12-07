@@ -61,7 +61,7 @@ class SpecifiedLengthPatternParser(combinator: SpecifiedLengthCombinatorBase, e:
     val in = start.inStream
 
     val reader = in.getCharReader(charset, start.bitPos)
-    val d = new delimsearch.DelimParser(e)
+    val d = new DelimParser(e)
     val result = d.parseInputPatterned(pattern, reader)
     val endBitPos =
       if (!result.isSuccess) start.bitPos + 0 // no match == length is zero!

@@ -9,7 +9,7 @@ import daffodil.grammar._
 import daffodil.util.{ Logging, LogLevel, Debug }
 import daffodil.exceptions.Assert
 import daffodil.schema.annotation.props.PropertyMixin
-import stringsearch.constructs.EscapeScheme.log
+import daffodil.processors.EscapeScheme.log
 import junit.framework.Assert.assertTrue
 import daffodil.dsom._
 import daffodil.compiler._

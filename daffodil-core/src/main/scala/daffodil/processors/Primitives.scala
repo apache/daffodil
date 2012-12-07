@@ -15,13 +15,13 @@ import daffodil.util.Misc.bytes2Hex
 import daffodil.processors._
 import daffodil.exceptions.Assert
 import daffodil.exceptions.UnsuppressableException
-import stringsearch.constructs.{ EscapeScheme, SearchResult }
-import stringsearch.delimiter.Delimiter
 import com.ibm.icu.text.{ NumberFormat, DecimalFormat }
 import daffodil.grammar.Terminal
 import scala.util.parsing.input.{ Reader }
 import java.sql.Timestamp
 import daffodil.grammar.Gram
+import daffodil.schema.annotation.props.gen.TextTrimKind
+import daffodil.schema.annotation.props.gen.TextStringJustification
 
 abstract class PrimParser(gram: Gram, context: SchemaComponent)
   extends Parser(context) {
@@ -107,6 +107,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
 // A runtime parser combinator for diagnostics/debugging reasons, so that a try-finally can be used
 // to insure we remove failed elements from the infoset, etc. See StmtEval, which is this kind of
 // an 'enclosing' combinator I'm describing. 
+
 //case class ComplexElementBeginPattern(e: ElementBase)
 //  extends Terminal(e, e.isComplexType == true && e.lengthKind == LengthKind.Pattern)
 //  with WithParseErrorThrowing {
@@ -467,7 +468,7 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
         //
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val d = new delimsearch.DelimParser(e)
+        val d = new DelimParser(e)
 
         val result = d.parseInputNCharacters(nChars, reader)
 
@@ -537,6 +538,20 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
   val charset = e.knownEncodingCharset
 
+  var padChar = ""
+  val justificationTrim: TextJustificationType.Type = e.textTrimKind match {
+    case TextTrimKind.None => TextJustificationType.None
+    case TextTrimKind.PadChar => {
+      padChar = e.textStringPadCharacter
+      e.textStringJustification match {
+        case TextStringJustification.Left =>
+          TextJustificationType.Left
+        case TextStringJustification.Right => TextJustificationType.Right
+        case TextStringJustification.Center => TextJustificationType.Center
+      }
+    }
+  }
+
   def parser: Parser = new PrimParser(this, e) {
     override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
 
@@ -574,27 +589,23 @@ case class StringDelimitedEndOfData(e: ElementBase)
         log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
         log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
 
-        //System.err.println("StringDelimitedEndOfData_START: " + new Timestamp(System.currentTimeMillis()));
-
-        //        if (postEvalState.bitPos % 8 != 0) {
-        //          //System.err.println("StringDelimitedEndOfData_END: " + new Timestamp(System.currentTimeMillis()));
-        //          return PE(postEvalState, "StringDelimitedEndOfData - not byte aligned.")
-        //        }
-
         val reader = getReader(charset, start.bitPos, start)
 
-        val d = new delimsearch.DelimParser(e)
+        val d = new DelimParser(e)
 
-        val result: delimsearch.DelimParseResult =
-          if (esObj.escapeSchemeKind == stringsearch.constructs.EscapeSchemeKind.Block) {
-            d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
-              esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter)
-          } else if (esObj.escapeSchemeKind == stringsearch.constructs.EscapeSchemeKind.Character) {
-            d.parseInputEscapeCharacter(Set.empty[String], delimsCooked.toSet, reader,
-              esObj.escapeCharacter, esObj.escapeEscapeCharacter)
-          } else {
-            d.parseInput(Set.empty[String], delimsCooked.toSet, reader)
-          }
+        var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
+
+        if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
+          //          result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
+          //            esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter)
+          result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
+            esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter, justificationTrim, padChar)
+        } else if (esObj.escapeSchemeKind == EscapeSchemeKind.Character) {
+          result = d.parseInputEscapeCharacter(Set.empty[String], delimsCooked.toSet, reader,
+            esObj.escapeCharacter, esObj.escapeEscapeCharacter, justificationTrim, padChar)
+        } else {
+          result = d.parseInput(Set.empty[String], delimsCooked.toSet, reader, justificationTrim, padChar)
+        }
 
         if (!result.isSuccess) {
           //System.err.println("StringDelimitedEndOfData_END: " + new Timestamp(System.currentTimeMillis()));
@@ -670,9 +681,9 @@ case class StringPatternMatched(e: ElementBase)
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val d = new delimsearch.DelimParser(e)
+        val d = new DelimParser(e)
 
-        var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
+        var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
 
         result = d.parseInputPatterned(pattern, reader)
 
@@ -1529,9 +1540,9 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val d = new delimsearch.DelimParser(e)
+        val d = new DelimParser(e)
 
-        var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
+        var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
 
         // Well they may not be delimiters, but the logic is the same as for a 
         // set of static delimiters.
@@ -1543,7 +1554,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
         if (!result.isSuccess) {
           log(Debug("%s - %s: Delimiter not found!", this.toString(), eName))
           return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
-        } else if (result.delimiterLoc == delimsearch.DelimiterLocation.Remote) {
+        } else if (result.delimiterLoc == daffodil.processors.DelimiterLocation.Remote) {
           log(Debug("%s - %s: Remote delimiter found instead of local!", this.toString(), eName))
           return PE(start, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
         } else {
@@ -1939,7 +1950,7 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
 
           // We have a field, is it empty?
           val isFieldEmpty = result.length() == 0
-          val d = new delimsearch.DelimParser(e)
+          val d = new DelimParser(e)
 
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
@@ -2040,7 +2051,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
           return postEvalState // Empty, no need to advance
         }
 
-        val d = new delimsearch.DelimParser(e)
+        val d = new DelimParser(e)
 
         val result = d.parseInputPatterned(pattern, reader)
 
@@ -2130,7 +2141,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val d = new delimsearch.DelimParser(e)
+        val d = new DelimParser(e)
 
         val result = d.parseInputPatterned(pattern, reader)
 
@@ -2220,7 +2231,7 @@ case class LiteralNilPattern(e: ElementBase)
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val d = new delimsearch.DelimParser(e)
+        val d = new DelimParser(e)
 
         val result = d.parseInputPatterned(pattern, reader)
 
@@ -2278,6 +2289,20 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
   //  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   val stParser = super.parser
 
+  var padChar = ""
+  val justificationTrim: TextJustificationType.Type = e.textTrimKind match {
+    case TextTrimKind.None => TextJustificationType.None
+    case TextTrimKind.PadChar => {
+      padChar = e.textStringPadCharacter
+      e.textStringJustification match {
+        case TextStringJustification.Left =>
+          TextJustificationType.Left
+        case TextStringJustification.Right => TextJustificationType.Right
+        case TextStringJustification.Center => TextJustificationType.Center
+      }
+    }
+  }
+
   override def parser = new PrimParser(this, e) {
     override def toString = "LiteralNilDelimitedOrEndOfData(" + e.nilValue + ")"
 
@@ -2324,17 +2349,19 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
         // 2. Compare resultant field to nilValue(s)
         //		Same, success
         //		Diff, fail
-        val d = new delimsearch.DelimParser(e)
-        var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
+        val d = new DelimParser(e)
+        var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
 
-        if (esObj.escapeSchemeKind == stringsearch.constructs.EscapeSchemeKind.Block) {
+        if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
+          //          result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
+          //            esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter)
           result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
-            esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter)
-        } else if (esObj.escapeSchemeKind == stringsearch.constructs.EscapeSchemeKind.Character) {
+            esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter, justificationTrim, padChar)
+        } else if (esObj.escapeSchemeKind == EscapeSchemeKind.Character) {
           result = d.parseInputEscapeCharacter(Set.empty[String], delimsCooked.toSet, reader,
-            esObj.escapeCharacter, esObj.escapeEscapeCharacter)
+            esObj.escapeCharacter, esObj.escapeEscapeCharacter, justificationTrim, padChar)
         } else {
-          result = d.parseInput(Set.empty[String], delimsCooked.toSet, reader)
+          result = d.parseInput(Set.empty[String], delimsCooked.toSet, reader, justificationTrim, padChar)
         }
 
         if (!result.isSuccess) {
@@ -2491,9 +2518,9 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
         val reader = getReader(charset, start.bitPos, lastState)
 
-        val d = new delimsearch.DelimParser(decl)
+        val d = new DelimParser(decl)
 
-        var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
+        var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
 
         result = d.parseInputPatterned(testPattern, reader)
 
@@ -2550,9 +2577,9 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
         val reader = getReader(charset, start.bitPos, lastState)
 
-        val d = new delimsearch.DelimParser(decl)
+        val d = new DelimParser(decl)
 
-        var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
+        var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
 
         result = d.parseInputPatterned(testPattern, reader)
 

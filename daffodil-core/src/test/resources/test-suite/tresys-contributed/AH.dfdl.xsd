@@ -11,7 +11,7 @@
         terminator="" initiatedContent="no" textNumberRep="standard"
         separatorPolicy="suppressed" separatorPosition="infix"
         documentFinalTerminatorCanBeMissing='yes'
-        occursCountKind='parsed'/>
+        occursCountKind='parsed' textTrimKind="none"/>
     </appinfo>
   </annotation>
 

@@ -223,11 +223,11 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
   var suppliedSchema: Option[Node] = None
 
   protected def runProcessor(processor: DFDL.ProcessorFactory,
-                             data: Option[DFDL.Input],
-                             nBits: Option[Long],
-                             infoset: Option[Infoset],
-                             errors: Option[ExpectedErrors],
-                             warnings: Option[ExpectedWarnings]): Unit
+    data: Option[DFDL.Input],
+    nBits: Option[Long],
+    infoset: Option[Infoset],
+    errors: Option[ExpectedErrors],
+    warnings: Option[ExpectedWarnings]): Unit
 
   def run(schema: Option[Node] = None) {
     suppliedSchema = schema
@@ -286,11 +286,11 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
   def runProcessor(pf: DFDL.ProcessorFactory,
-                   data: Option[DFDL.Input],
-                   lengthLimitInBits: Option[Long],
-                   optInfoset: Option[Infoset],
-                   optErrors: Option[ExpectedErrors],
-                   warnings: Option[ExpectedWarnings]) = {
+    data: Option[DFDL.Input],
+    lengthLimitInBits: Option[Long],
+    optInfoset: Option[Infoset],
+    optErrors: Option[ExpectedErrors],
+    warnings: Option[ExpectedWarnings]) = {
 
     val nBits = lengthLimitInBits.get
     val dataToParse = data.get
@@ -354,10 +354,10 @@ Differences were (path, expected, actual):
   }
 
   def runParseExpectErrors(pf: DFDL.ProcessorFactory,
-                           dataToParse: DFDL.Input,
-                           lengthLimitInBits: Long,
-                           errors: ExpectedErrors,
-                           warnings: Option[ExpectedWarnings]) {
+    dataToParse: DFDL.Input,
+    lengthLimitInBits: Long,
+    errors: ExpectedErrors,
+    warnings: Option[ExpectedWarnings]) {
 
     val objectToDiagnose =
       if (pf.isError) pf
@@ -390,10 +390,10 @@ Differences were (path, expected, actual):
   }
 
   def runParseExpectSuccess(pf: DFDL.ProcessorFactory,
-                            dataToParse: DFDL.Input,
-                            lengthLimitInBits: Long,
-                            infoset: Infoset,
-                            warnings: Option[ExpectedWarnings]) {
+    dataToParse: DFDL.Input,
+    lengthLimitInBits: Long,
+    infoset: Infoset,
+    warnings: Option[ExpectedWarnings]) {
 
     if (pf.isError) {
       val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
@@ -439,11 +439,11 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
   def runProcessor(pf: DFDL.ProcessorFactory,
-                   optData: Option[DFDL.Input],
-                   optNBits: Option[Long],
-                   optInfoset: Option[Infoset],
-                   optErrors: Option[ExpectedErrors],
-                   warnings: Option[ExpectedWarnings]) = {
+    optData: Option[DFDL.Input],
+    optNBits: Option[Long],
+    optInfoset: Option[Infoset],
+    optErrors: Option[ExpectedErrors],
+    warnings: Option[ExpectedWarnings]) = {
 
     val infoset = optInfoset.get
 
@@ -489,9 +489,9 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runUnparserExpectSuccess(pf: DFDL.ProcessorFactory,
-                               data: DFDL.Input,
-                               infoset: Infoset,
-                               warnings: Option[ExpectedWarnings]) {
+    data: DFDL.Input,
+    infoset: Infoset,
+    warnings: Option[ExpectedWarnings]) {
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
@@ -516,10 +516,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runUnparserExpectErrors(pf: DFDL.ProcessorFactory,
-                              optData: Option[DFDL.Input],
-                              infoset: Infoset,
-                              errors: ExpectedErrors,
-                              warnings: Option[ExpectedWarnings]) {
+    optData: Option[DFDL.Input],
+    infoset: Infoset,
+    errors: ExpectedErrors,
+    warnings: Option[ExpectedWarnings]) {
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
@@ -637,6 +637,11 @@ case class DocumentPart(part: Node, parent: Document) {
   val validHexDigits = "0123456789abcdefABCDEF"
   val validBinaryDigits = "01"
 
+  lazy val replaceDFDLEntities: Boolean = {
+    val res = (part \ "@replaceDFDLEntities")
+    if (res.length == 0) { true }
+    else { res(0).toString().toBoolean }
+  }
   lazy val partContentType = (part \ "@type").toString match {
     case "text" => Text
     case "byte" => Byte
@@ -656,18 +661,20 @@ case class DocumentPart(part: Node, parent: Document) {
   }
 
   lazy val textContentToBytes = {
-    // replace DFDL character entities
-    val regex = new Regex("%(%|([^;]*;))")
-    val replacedRawContent = regex.replaceAllIn(partRawContent,
-      m => convertDFDLCharEntity(m.group(0)) match {
-        case "$" => "\\$" // the dollar sign charater means smething special
-        // in Java's Matcher::AppendReplacement (which is used by
-        // regex.replaceAllIn), so we need to escape it
-        case converted => converted
-      })
+    if (replaceDFDLEntities) {
+      // replace DFDL character entities
+      val regex = new Regex("%(%|([^;]*;))")
+      val replacedRawContent = regex.replaceAllIn(partRawContent,
+        m => convertDFDLCharEntity(m.group(0)) match {
+          case "$" => "\\$" // the dollar sign charater means smething special
+          // in Java's Matcher::AppendReplacement (which is used by
+          // regex.replaceAllIn), so we need to escape it
+          case converted => converted
+        })
 
-    val bytes = replacedRawContent.getBytes("UTF-8") //must specify charset name (JIRA DFDL-257)
-    bytes
+      val bytes = replacedRawContent.getBytes("UTF-8") //must specify charset name (JIRA DFDL-257)
+      bytes
+    } else { partRawContent.getBytes("UTF-8") } //must specify charset name (JIRA DFDL-257)
   }
 
   lazy val textContentAsBits = bytes2Bits(textContentToBytes)

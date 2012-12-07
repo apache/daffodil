@@ -12,7 +12,6 @@ import java.nio._
 import java.nio.charset._
 import scala.collection.JavaConversions._
 import scala.util.logging.ConsoleLogger
-import stringsearch.DelimSearcherV3._
 import scala.util.matching.Regex
 import daffodil.util._
 import daffodil.exceptions.ThrowsSDE

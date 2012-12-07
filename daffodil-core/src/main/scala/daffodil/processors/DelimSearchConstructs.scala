@@ -1,4 +1,4 @@
-package stringsearch.constructs
+package daffodil.processors
 
 import daffodil.dsom.DFDLEscapeScheme
 import daffodil.schema.annotation.props.gen.EscapeKind
@@ -10,27 +10,27 @@ import daffodil.util._
 import EscapeSchemeKind.EscapeSchemeKind
 import daffodil.exceptions.ThrowsSDE
 
-object DelimiterType extends Enumeration {
-  type DelimType = Value
-  val Separator, Terminator, Delimiter = Value
-}
+//object DelimiterType extends Enumeration {
+//  type DelimType = Value
+//  val Separator, Terminator, Delimiter = Value
+//}
+//
+//object SearchResult extends Enumeration {
+//  type SearchResult = Value
+//  val FullMatch, PartialMatch, NoMatch, EOD = Value
+//}
 
-object SearchResult extends Enumeration {
-  type SearchResult = Value
-  val FullMatch, PartialMatch, NoMatch, EOD = Value
-}
-
-object SearchState extends Enumeration {
-  type SearchState = Value
-  val WSPNoMatch, WSPMatch, WSPPlusNoMatch, WSPPlusMatch, WSPStarNoMatch, WSPStarMatch = Value
-  val WSPModeAndSpace, NLCrlfExists, NLCrlfPartial, NLCrlfNotFound, NLNoMatch = Value
-  val SpaceAndNotWSPMode, SpaceAndWSPMode, OtherMatch, OtherNoMatch, NoMatch = Value
-}
-
-object CRLFState extends Enumeration {
-  type CRLFState = Value
-  val Exists, NotFound, Partial = Value
-}
+//object SearchState extends Enumeration {
+//  type SearchState = Value
+//  val WSPNoMatch, WSPMatch, WSPPlusNoMatch, WSPPlusMatch, WSPStarNoMatch, WSPStarMatch = Value
+//  val WSPModeAndSpace, NLCrlfExists, NLCrlfPartial, NLCrlfNotFound, NLNoMatch = Value
+//  val SpaceAndNotWSPMode, SpaceAndWSPMode, OtherMatch, OtherNoMatch, NoMatch = Value
+//}
+//
+//object CRLFState extends Enumeration {
+//  type CRLFState = Value
+//  val Exists, NotFound, Partial = Value
+//}
 
 object EscapeSchemeKind extends Enumeration {
   type EscapeSchemeKind = Value

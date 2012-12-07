@@ -343,7 +343,7 @@
     <dfdl:format initiator="" terminator="" leadingSkip="0"
       trailingSkip="0" separator="" encoding="utf-8" occursCountKind="parsed"
       separatorPolicy="suppressed" textNumberRep="standard" ignoreCase="no"
-      representation="text" lengthUnits="characters" lengthKind="delimited" />
+      representation="text" lengthUnits="characters" lengthKind="delimited" textTrimKind="none"/>
 
     <xs:element name="DP_07" dfdl:lengthKind="implicit">
       <xs:complexType>
