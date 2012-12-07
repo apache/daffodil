@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://example.com">
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
 
   <tdml:defineSchema name="ContentFramingProperties-Embedded.dfdl.xsd">
 
 
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited"
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
       lengthUnits="characters" encoding="UTF-8" />
 
     <xs:element name="CFP_01" type="cfp_01" />
@@ -34,6 +34,262 @@
         <CFP_01>cat</CFP_01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="packed7BitASCII">
+  
+  <dfdl:format ref="ex:daffodilTest1"
+     encoding="US-ASCII-7-bit-packed" lengthUnits="characters"/>
+     
+  <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"/>
+  <xs:element name="e2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="64"/>
+  <xs:element name="e3" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator=","/>
+  
+  <xs:element name="e4">
+    <xs:complexType>
+    <xs:choice>
+    <!-- Using a choice here works for parsing, but is very challenging for unparsing.
+    We really don't want a choice here we want one element. See other examples/tests 
+    for alternative techniques. -->
+      <xs:element name="d0" type="xs:string" dfdl:terminator="%NUL;" dfdl:lengthKind="delimited">
+       <xs:annotation>
+       <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+         <!-- 0 to 4 occurrences of not a NUL, followed by a NUL -->
+         <dfdl:discriminator testKind="pattern">[^\x00]{0,3}\x00</dfdl:discriminator>
+       </xs:appinfo>
+       </xs:annotation>
+      </xs:element>
+      <xs:element name="d1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4"/>
+    </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  
+
+  <!-- Superior alternative for dealing with termination that uses
+    a fixed max length OR a terminator if the string is shorter than the maximum -->
+  <xs:element name="e5">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="s" type="xs:string"
+          dfdl:lengthKind="pattern">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <!-- 0 to 4 occurrences of not a 0x7F, followed by a 0x7F -->
+              <dfdl:element>
+                <dfdl:property name="lengthPattern"><![CDATA[([^\x7F]{0,3})(?=\x7F)|[^\x7F]{4}]]></dfdl:property>
+              </dfdl:element>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
+        <xs:group ref="ex:hidden_group1" /> <!-- should be hidden, but that feature not yet implemented -->
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:group name="hidden_group1">
+    <xs:sequence>
+      <xs:element name="term" type="xs:string"
+        dfdl:lengthKind="explicit" dfdl:length="0" dfdl:initiator="&#x7F;"
+        minOccurs="0" maxOccurs="1" dfdl:occursCountKind="expression"
+        dfdl:occursCount="{ fn:string-length(../ex:s) lt 4 }" />
+    </xs:sequence>
+  </xs:group>
+    
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: packed7BitASCII1
+       Schema: packed7BitASCII
+      Purpose: This test demonstrates the simple use of the US-ASCII-7-bit-packed encoding, where the document represents
+               two US-ASCII-7-bit-packed characters in binary. 
+  -->
+
+<tdml:parserTestCase name="packed7BitASCII1" root="e1"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110100 0110010
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>42</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: packed7BitASCII2
+       Schema: packed7BitASCII
+      Purpose: This test demonstrates the simple use of the US-ASCII-7-bit-packed encoding, where the document represents
+               64 US-ASCII-7-bit-packed characters in binary. 
+  -->
+  
+  <tdml:parserTestCase name="packed7BitASCII2" root="e2"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
+      0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
+      0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
+      0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
+      0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
+      0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
+      0110001 0110010 0110011 0110100 
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>1234567890123456789012345678901234567890123456789012345678901234</e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: packed7BitASCII3
+       Schema: packed7BitASCII
+      Purpose: This test demonstrates the simple use of the US-ASCII-7-bit-packed encoding, where the document represents
+               two US-ASCII-7-bit-packed characters in binary, one being the terminator "," 
+  -->
+  
+  <tdml:parserTestCase name="packed7BitASCII3" root="e3"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110001 0101100 
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3>1</e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: packed7BitASCII4
+       Schema: packed7BitASCII
+      Purpose: This test demonstrates a more complex use of the US-ASCII-7-bit-packed encoding, where the document represents
+               one element of a choice, which is identified by the length and presence of a null character. 
+  -->
+  
+    <tdml:parserTestCase name="packed7BitASCII4" root="e4"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110001 0000000 
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4><d0>1</d0></e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: packed7BitASCII5
+       Schema: packed7BitASCII
+      Purpose: This test demonstrates a more complex use of the US-ASCII-7-bit-packed encoding, where the document represents
+               the second element of a choice, based on the length of the data. 
+  -->
+  
+  <tdml:parserTestCase name="packed7BitASCII5" root="e4"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110001 0110010 0110011 0110100 
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4><d1>1234</d1></e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: packed7BitASCII6
+       Schema: packed7BitASCII
+      Purpose: This test demonstrates a more complex use of the US-ASCII-7-bit-packed encoding, where the document represents
+               the first element of a choice, where the length is determined by delimination and the choice is determined by the
+               null character
+  -->
+
+  <tdml:parserTestCase name="packed7BitASCII6" root="e4"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110001 0110010 0110011 0000000 
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4><d0>123</d0></e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: packed7BitASCII7
+       Schema: packed7BitASCII
+      Purpose: This test demonstrates the use of lengthPatterns with packed7BitASCII. The lengthPattern is
+               0-4 occurrences of not a 0x7F, followed by a 0x7F 
+  -->
+
+  <tdml:parserTestCase name="packed7BitASCII7" root="e5"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110001 0110010 0110011 0110100 
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5><s>1234</s></e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: packed7BitASCII8
+       Schema: packed7BitASCII
+      Purpose: This test demonstrates the use of lengthPatterns with packed7BitASCII. The lengthPattern is
+               0-4 occurrences of not a 0x7F (11111111), followed by a 0x7F 
+  -->
+  
+  <tdml:parserTestCase name="packed7BitASCII8" root="e5"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110001 0110010 0110011 1111111 
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5><s>123</s><term/></e5> <!-- term should be hidden once that feature is implemented. -->
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: packed7BitASCII9
+       Schema: packed7BitASCII
+      Purpose: This test demonstrates the use of lengthPatterns with packed7BitASCII. The lengthPattern is
+               0-4 occurrences of not a 0x7F (11111111), followed by a 0x7F. In this case there is more
+               data than the length determined by the pattern. 
+  -->
+  
+  <tdml:parserTestCase name="packed7BitASCII9" root="e5"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110001 0110010 0110011 1111111 01011010
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over data</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

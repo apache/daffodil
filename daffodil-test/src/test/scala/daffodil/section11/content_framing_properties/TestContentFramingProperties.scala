@@ -25,5 +25,17 @@ class TestContentFramingProperties extends JUnitSuite {
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
   @Test def test_UTF_16_01() { runner2.runOneTest("UTF_16_01") }
+  
+  /*** DFDL-379 US-ASCII-7-bit-packed text ***/
+  @Test def test_packed7BitASCII1() { runner2.runOneTest("packed7BitASCII1") }
+  @Test def test_packed7BitASCII2() { runner2.runOneTest("packed7BitASCII2") }
+  @Test def test_packed7BitASCII3() = { runner2.runOneTest("packed7BitASCII3") }
+  @Test def test_packed7BitASCII4() = { runner2.runOneTest("packed7BitASCII4") }
+  @Test def test_packed7BitASCII5() = { runner2.runOneTest("packed7BitASCII5") }
+  @Test def test_packed7BitASCII6() = { runner2.runOneTest("packed7BitASCII6") }
+
+  @Test def test_packed7BitASCII7() = { runner2.runOneTest("packed7BitASCII7") }
+  @Test def test_packed7BitASCII8() = { runner2.runOneTest("packed7BitASCII8") }
+  @Test def test_packed7BitASCII9() = { runner2.runOneTest("packed7BitASCII9") }
 
 }

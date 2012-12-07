@@ -223,15 +223,4 @@ class TestBinaryInput_01 extends JUnitSuite {
   @Test def test_one_octet() { runner.runOneTest("OneOctetBinaryParse") }
   @Test def test_oneBit2() { runner.runOneTest("OneBit2") }
 
-  /*** DFDL-379 US-ASCII-7-bit-packed text ***/
-  @Test def test_packed7BitASCII1() { runner.runOneTest("packed7BitASCII1") }
-  @Test def test_packed7BitASCII2() { runner.runOneTest("packed7BitASCII2") }
-  @Test def test_packed7BitASCII3() = { runner.runOneTest("packed7BitASCII3") }
-  @Test def test_packed7BitASCII4() = { runner.runOneTest("packed7BitASCII4") }
-  @Test def test_packed7BitASCII5() = { runner.runOneTest("packed7BitASCII5") }
-  @Test def test_packed7BitASCII6() = { runner.runOneTest("packed7BitASCII6") }
-
-  @Test def test_packed7BitASCII7() = { runner.runOneTest("packed7BitASCII7") }
-  @Test def test_packed7BitASCII8() = { runner.runOneTest("packed7BitASCII8") }
-
 }
