@@ -94,8 +94,38 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-
+    
+    <xs:element name="LP_09">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="bitbool" dfdl:alignmentUnits='bits'
+            dfdl:alignment='1' type="xs:boolean" dfdl:binaryBooleanTrueRep="1" dfdl:binaryBooleanFalseRep="0" dfdl:lengthKind="explicit"
+            dfdl:length="1" dfdl:representation="binary" dfdl:lengthUnits="bits" dfdl:byteOrder="bigEndian" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
   </tdml:defineSchema>
+  
+  <!--
+    Test name: LengthProp_bits_bool
+    Schema: LengthProperties-Embedded.dfdl.xsd
+    Purpose: this test demonstrates the representation of boolean data in bits, with lengthUnits also set to bits
+  -->
+
+  <tdml:parserTestCase name="LengthProp_bits_bool"
+    root="LP_09" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-129R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_09>
+          <bitbool>1</bitbool>
+        </LP_09>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <!--
     Test name: LengthProp_bits_01
