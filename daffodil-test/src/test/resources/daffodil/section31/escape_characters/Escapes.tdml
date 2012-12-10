@@ -38,7 +38,7 @@
       <dfdl:escapeScheme escapeKind="escapeBlock" escapeBlockStart="'" escapeBlockEnd="'" 
         escapeEscapeCharacter="%" extraEscapedCharacters="?"/>
     </dfdl:defineEscapeScheme>
-
+    
     <xs:element name="e1" type="type1" />
     <xs:complexType name="type1">
       <xs:sequence dfdl:separator=";">
