@@ -2,7 +2,8 @@
 <tdml:testSuite suiteName="Array-OptionalElemTests"
   description="Section 16 - Arrays and Optional Elements" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com">
 
   <tdml:defineSchema name="array-optionalElem.dfdl.xsd">
 
@@ -35,6 +36,37 @@
       <tdml:error />
     </tdml:errors>
 
+  </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="arrays1">
+
+    <dfdl:format ref="ex:daffodilTest1" occursCountKind="implicit"
+      lengthKind="delimited" separatorPolicy="suppressedAtEndStrict"
+      separatorPosition="prefix" />
+
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="$">
+          <xs:element name="a" type="xs:string" minOccurs="0"
+            dfdl:initiator="a:" dfdl:terminator=";" />
+          <xs:element name="b" type="xs:string"
+            dfdl:terminator=";" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="optionalWithSeparators"
+    model="arrays1" root="r" description="Section 16 - an optional element applied to a local element - DFDL-16-001R">
+    <tdml:document><![CDATA[$x;]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r>
+          <b>x</b>
+        </r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>
