@@ -43,7 +43,6 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_whiteSpaceBeforeLengthExceededInt() { runner.runOneTest("whiteSpaceBeforeLengthExceededInt") }
   @Test def test_whiteSpaceDuringLengthExceededInt() { runner.runOneTest("whiteSpaceDuringLengthExceededInt") }
   @Test def test_whiteSpaceAfterValidInt() { runner.runOneTest("whiteSpaceAfterValidInt") }
-
   @Test def test_characterDuringValidInteger() { runner.runOneTest("characterDuringValidInteger") }
   @Test def test_whiteSpaceAfterLengthExceededInteger() { runner.runOneTest("whiteSpaceAfterLengthExceededInteger") }
   @Test def test_whiteSpaceBeforeLengthExceededInteger() { runner.runOneTest("whiteSpaceBeforeLengthExceededInteger") }
@@ -52,7 +51,6 @@ class TestSimpleTypes extends JUnitSuite {
   <!-- TODO: Find out why these test generate unexpected errors -->
   @Test def test_whiteSpaceDuringValidInteger() { runner.runOneTest("whiteSpaceDuringValidInteger") }
   @Test def test_whiteSpaceAfterValidInteger() { runner.runOneTest("whiteSpaceAfterValidInteger") }
-
   @Test def test_characterDuringValidLong() { runner.runOneTest("characterDuringValidLong") }
   @Test def test_whiteSpaceAfterLengthExceededLong() { runner.runOneTest("whiteSpaceAfterLengthExceededLong") }
   @Test def test_whiteSpaceBeforeLengthExceededLong() { runner.runOneTest("whiteSpaceBeforeLengthExceededLong") }
@@ -64,7 +62,6 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_whiteSpaceBeforeLengthExceededShort() { runner.runOneTest("whiteSpaceBeforeLengthExceededShort") }
   @Test def test_whiteSpaceDuringLengthExceededShort() { runner.runOneTest("whiteSpaceDuringLengthExceededShort") }
   @Test def test_whiteSpaceAfterValidShort() { runner.runOneTest("whiteSpaceAfterValidShort") }
-
   @Test def test_characterDuringValidByte() { runner.runOneTest("characterDuringValidByte") }
   @Test def test_whiteSpaceAfterLengthExceededByte() { runner.runOneTest("whiteSpaceAfterLengthExceededByte") }
   @Test def test_whiteSpaceBeforeLengthExceededByte() { runner.runOneTest("whiteSpaceBeforeLengthExceededByte") }
@@ -73,7 +70,6 @@ class TestSimpleTypes extends JUnitSuite {
   <!-- TODO: Find out why these test generate unexpected errors -->
   @Test def test_whiteSpaceDuringValidByte() { runner.runOneTest("whiteSpaceDuringValidByte") }
   @Test def test_whiteSpaceAfterValidByte() { runner.runOneTest("whiteSpaceAfterValidByte") }
-
   @Test def test_characterDuringValidUnsignedInt() { runner.runOneTest("characterDuringValidUnsignedInt") }
   @Test def test_negativeUnsignedInt() { runner.runOneTest("negativeUnsignedInt") }
   @Test def test_whiteSpaceAfterLengthExceededUnsignedInt() { runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedInt") }
@@ -87,7 +83,6 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_whiteSpaceBeforeLengthExceededUnsignedByte() { runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedByte") }
   @Test def test_whiteSpaceDuringLengthExceededUnsignedByte() { runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedByte") }
   @Test def test_whiteSpaceAfterValidUnsignedByte() { runner.runOneTest("whiteSpaceAfterValidUnsignedByte") }
-
   @Test def test_characterDuringValidUnsignedLong() { runner.runOneTest("characterDuringValidUnsignedLong") }
   @Test def test_negativeUnsignedLong() { runner.runOneTest("negativeUnsignedLong") }
   @Test def test_whiteSpaceAfterLengthExceededUnsignedLong() { runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedLong") }
@@ -148,5 +143,41 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_schema_types_5_03() { runner_01.runOneTest("schema_types_5_03") }
   @Test def test_schema_types_5_04() { runner_01.runOneTest("schema_types_5_04") }
   @Test def test_schema_types_5_05() { runner_01.runOneTest("schema_types_5_05") }
+
+  @Test def test_double_binary_01() { runner.runOneTest("double_binary_01") }
+  @Test def test_double_binary_02() { runner.runOneTest("double_binary_02") }
+  @Test def test_double_binary_03() { runner.runOneTest("double_binary_03") }
+  @Test def test_double_binary_04() { runner.runOneTest("double_binary_04") }
+  @Test def test_double_binary_05() { runner.runOneTest("double_binary_05") }
+  
+  @Test def test_byte_binary_01() { runner.runOneTest("byte_binary_01") }
+  @Test def test_byte_binary_02() { runner.runOneTest("byte_binary_02") }
+  @Test def test_byte_binary_03() { runner.runOneTest("byte_binary_03") }
+  @Test def test_byte_binary_04() { runner.runOneTest("byte_binary_04") }
+  @Test def test_byte_binary_05() { runner.runOneTest("byte_binary_05") }
+  
+  @Test def test_byte_implicit() { runner.runOneTest("byte_implicit") }
+
+  @Test def test_double_07() { runner.runOneTest("double_07") }
+  
+  //@Test def test_ubyte_binary_01() { runner.runOneTest("ubyte_binary_01") }
+  //@Test def test_ubyte_binary_02() { runner.runOneTest("ubyte_binary_02") }
+  //@Test def test_ubyte_binary_03() { runner.runOneTest("ubyte_binary_03") }
+  //@Test def test_ubyte_binary_04() { runner.runOneTest("ubyte_binary_04") }
+  //@Test def test_ubyte_binary_05() { runner.runOneTest("ubyte_binary_05") }
+  
+  @Test def test_ubyte_implicit() { runner.runOneTest("ubyte_implicit") }
+  
+  @Test def test_int_binary_01() { runner.runOneTest("int_binary_01") }
+  @Test def test_int_binary_02() { runner.runOneTest("int_binary_02") }
+  @Test def test_int_binary_03() { runner.runOneTest("int_binary_03") }
+  @Test def test_int_binary_04() { runner.runOneTest("int_binary_04") }
+  @Test def test_int_binary_05() { runner.runOneTest("int_binary_05") }
+  
+  @Test def test_int_implicit() { runner.runOneTest("int_implicit") }
+  
+  @Test def test_integer_binary_01() { runner.runOneTest("integer_binary_01") }
+
+//  @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }
 
 }

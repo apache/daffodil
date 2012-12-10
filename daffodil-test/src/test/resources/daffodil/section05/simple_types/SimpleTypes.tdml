@@ -11,6 +11,10 @@
         separator="" ignoreCase="no" textNumberRep="standard" />
     </dfdl:defineFormat>
     <dfdl:format ref="daffodilTest1" />
+    <xs:element name="double" type="xs:double"/>
+    <xs:element name="int" type="xs:int"/>
+    <xs:element name="byte" type="xs:byte"/>
+    <xs:element name="uByte" type="xs:unsignedByte"/>
     <xs:element name="s" type="xs:long" dfdl:lengthKind="explicit"
       dfdl:length="{ 13 }" />
     <xs:element name="mersenne" type="xs:integer"
@@ -95,6 +99,7 @@
     <dfdl:format ref="ex:daffodilTest1" representation="binary"
       lengthUnits="bytes" />
     <xs:element name="integer01" type="xs:integer" />
+    <xs:element name="posint01" type="xs:nonNegativeInteger" />
     <xs:element name="int01" type="xs:int" />
     <xs:element name="l_1" type="xs:long" />
     <xs:element name="s_1" type="xs:short" />
@@ -103,6 +108,8 @@
     <xs:element name="uS_01" type="xs:unsignedShort" />
     <xs:element name="uB_01" type="xs:unsignedByte" />
     <xs:element name="uL_01" type="xs:unsignedLong" />
+    <xs:element name="d_01" type="xs:double" />
+    <xs:element name="dec_01" type="xs:decimal" />
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="Long1" root="s"
@@ -1091,6 +1098,458 @@
     <tdml:document><![CDATA[-129]]></tdml:document>
     <tdml:errors>
       <tdml:error>Out of Range</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: double_binary_01
+    Schema: SimpleTypes-binary
+    Purpose: This document does not have the appropriate number of bits for an implicitly-sized double (64) and should fail parsing 
+  -->
+
+  <tdml:parserTestCase name="double_binary_01" root="d_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-double - DFDL-5-009R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[1010101]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Not enough bits to create an xs:double</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: double_binary_02
+    Schema: SimpleTypes-binary
+    Purpose: This document has the appropriate number of bits for an implicitly-sized double (64) and should be parsed accordingly
+  -->
+
+  <tdml:parserTestCase name="double_binary_02" root="d_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-double - DFDL-5-009R">
+    <tdml:document>
+      <tdml:documentPart type="bits">0100000000010100000000000000000000000000000000000000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <d_01>5.0</d_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: double_binary_03
+    Schema: SimpleTypes-binary
+    Purpose: This document has the appropriate number of bytes for an implicitly-sized double (4) and should be parsed accordingly
+  -->
+  
+  <tdml:parserTestCase name="double_binary_03" root="d_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-double - DFDL-5-009R">
+    <tdml:document>
+      <tdml:documentPart type="byte">4014000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <d_01>5.0</d_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: double_binary_04
+    Schema: SimpleTypes-binary
+    Purpose: This document has the appropriate number of bits for an implicitly-sized double (64) but does not actually
+             have a numerical value. 
+  -->
+  
+  <tdml:parserTestCase name="double_binary_04" root="d_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-double - DFDL-5-009R">
+    <tdml:document>
+      <tdml:documentPart type="bits">1111111111111111111111111111111111111111111111111111111111111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <d_01>NaN</d_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: double_binary_05
+    Schema: SimpleTypes-binary
+    Purpose: This document has more than the appropriate number of bits for an implicitly-sized double (64) and should fail parsing 
+  -->
+  
+  <tdml:parserTestCase name="double_binary_05" root="d_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-double - DFDL-5-009R">
+    <tdml:document>
+      <tdml:documentPart type="bits">100111111111111110000000011111111111111111111111111111111111111111111111111111111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over data</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: double_07
+    Schema: SimpleTypes-Embedded.dfdl.xsd
+    Purpose: This document uses a schema with the textual representation of a double and an implicit length, which is not allowed. 
+  -->
+
+  <tdml:parserTestCase name="double_07" root="double"
+      model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R">
+    <tdml:document>
+      <tdml:documentPart type="text">400</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Subset Textual data elements cannot have lengthKind='implicit'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: byte_binary_01
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the implicit length of a byte (8 bits), represented by bits 
+  -->
+  
+  <tdml:parserTestCase name="byte_binary_01" root="b_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-byte - DFDL-5-015R">
+    <tdml:document>
+      <tdml:documentPart type="bits">00001101</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <b_01>13</b_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: byte_binary_02
+    Schema: SimpleTypes-binary
+    Purpose: This document has more bits than the implicit length of a byte and should fail
+  -->
+  
+  <tdml:parserTestCase name="byte_binary_02" root="b_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-byte - DFDL-5-015R">
+    <tdml:document>
+      <tdml:documentPart type="bits">00001101111</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over data</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: byte_binary_03
+    Schema: SimpleTypes-binary
+    Purpose: This document has less bits than the implicit length of a byte and should fail
+  -->
+  
+  <tdml:parserTestCase name="byte_binary_03" root="b_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-byte - DFDL-5-015R">
+    <tdml:document>
+      <tdml:documentPart type="bits">11111</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Not enough bits to create an xs:byte</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: byte_binary_04
+    Schema: SimpleTypes-binary
+    Purpose: This document contains a text representation of 8 bits, which is the correct implicit length of a byte and should be parsed accordingly
+  -->
+  
+  <tdml:parserTestCase name="byte_binary_04" root="b_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-byte - DFDL-5-015R">
+    <tdml:document>
+      <tdml:documentPart type="text">a</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <b_01>97</b_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: byte_binary_05
+    Schema: SimpleTypes-binary
+    Purpose: This document contains a byte representation of 8 bits, which is the correct implicit length of a byte and should be parsed accordingly
+             0x28 = 00101000 = 40
+  -->
+  
+  <tdml:parserTestCase name="byte_binary_05" root="b_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-byte - DFDL-5-015R">
+    <tdml:document>
+      <tdml:documentPart type="byte">28</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <b_01>40</b_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: byte_implicit
+    Schema: SimpleTypes-Embedded.dfdl.xsd
+    Purpose: This document contains a byte representation of 8 bits, which is the correct implicit length of a byte and should be parsed accordingly
+  -->
+  
+  <tdml:parserTestCase name="byte_implicit" root="byte"
+      model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-byte - DFDL-5-015R">
+    <tdml:document>
+      <tdml:documentPart type="bits">11010101</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Subset Textual data elements cannot have lengthKind='implicit'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ubyte_binary_01
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the implicit length of an unsigned byte (8 bits), represented by bits 
+  -->
+  
+  <tdml:parserTestCase name="ubyte_binary_01" root="uB_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-byte - DFDL-5-015R">
+    <tdml:document>
+      <tdml:documentPart type="bits">00001101</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <b_01>13</b_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ubyte_binary_02
+    Schema: SimpleTypes-binary
+    Purpose: This document has more bits than the implicit length of a byte and should fail
+  -->
+  
+  <tdml:parserTestCase name="ubyte_binary_02" root="uB_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-byte - DFDL-5-015R">
+    <tdml:document>
+      <tdml:documentPart type="bits">00001101111</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over data</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ubyte_binary_03
+    Schema: SimpleTypes-binary
+    Purpose: This document has less bits than the implicit length of a byte and should fail
+  -->
+  
+  <tdml:parserTestCase name="ubyte_binary_03" root="uB_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-byte - DFDL-5-015R">
+    <tdml:document>
+      <tdml:documentPart type="bits">11111</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Not enough bits to create an xs:byte</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ubyte_binary_04
+    Schema: SimpleTypes-binary
+    Purpose: This document contains a text representation of 8 bits, which is the correct implicit length of a byte and should be parsed accordingly
+  -->
+  
+  <tdml:parserTestCase name="ubyte_binary_04" root="uB_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-byte - DFDL-5-015R">
+    <tdml:document>
+      <tdml:documentPart type="text">a</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <b_01>97</b_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ubyte_binary_05
+    Schema: SimpleTypes-binary
+    Purpose: This document contains a byte representation of 8 bits, which is the correct implicit length of a byte and should be parsed accordingly
+             0x28 = 00101000 = 40
+  -->
+  
+  <tdml:parserTestCase name="ubyte_binary_05" root="uB_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-byte - DFDL-5-015R">
+    <tdml:document>
+      <tdml:documentPart type="byte">28</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <b_01>40</b_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ubyte_implicit
+    Schema: SimpleTypes-Embedded.dfdl.xsd
+    Purpose: This document contains a byte representation of 8 bits, which is the correct implicit length of a byte and should be parsed accordingly
+  -->
+  
+  <tdml:parserTestCase name="ubyte_implicit" root="uByte"
+      model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-byte - DFDL-5-015R">
+    <tdml:document>
+      <tdml:documentPart type="bits">11010101</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Subset Textual data elements cannot have lengthKind='implicit'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: int_binary_01
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the implicit length of an int (32 bits), represented by bits 
+  -->
+  
+  <tdml:parserTestCase name="int_binary_01" root="int01"
+      model="SimpleTypes-binary" description="Section 5 Schema types - int - DFDL-5-013R">
+    <tdml:document>
+      <tdml:documentPart type="bits">00000000 00000000 00000000 00001101</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <int01>13</int01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: int_binary_02
+    Schema: SimpleTypes-binary
+    Purpose: This document has more bits than the implicit length of an int and should fail
+  -->
+  
+  <tdml:parserTestCase name="int_binary_02" root="int01"
+      model="SimpleTypes-binary" description="Section 5 Schema types - int - DFDL-5-013R">
+    <tdml:document>
+      <tdml:documentPart type="bits">00000000 00000000 00000000 00001101111</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over data</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: int_binary_03
+    Schema: SimpleTypes-binary
+    Purpose: This document has less bits than the implicit length of an int and should fail
+  -->
+  
+  <tdml:parserTestCase name="int_binary_03" root="int01"
+      model="SimpleTypes-binary" description="Section 5 Schema types - int - DFDL-5-013R">
+    <tdml:document>
+      <tdml:documentPart type="bits">11111</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Not enough bits to create an xs:int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: int_binary_04
+    Schema: SimpleTypes-binary
+    Purpose: This document contains a text representation of 32 bits, which is the correct implicit length of an int and should be parsed accordingly
+  -->
+  
+  <tdml:parserTestCase name="int_binary_04" root="int01"
+      model="SimpleTypes-binary" description="Section 5 Schema types - int - DFDL-5-013R">
+    <tdml:document>
+      <tdml:documentPart type="text">000a</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <int01>808464481</int01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: int_binary_05
+    Schema: SimpleTypes-binary
+    Purpose: This document contains a byte representation of 32 bits, which is the correct implicit length of an int and should be parsed accordingly
+  -->
+  
+  <tdml:parserTestCase name="int_binary_05" root="int01"
+      model="SimpleTypes-binary" description="Section 5 Schema types - int - DFDL-5-013R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00110028</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <int01>1114152</int01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: int_implicit
+    Schema: SimpleTypes-Embedded.dfdl.xsd
+    Purpose: This document uses a schema with the textual representation of an int and an implicit length, which is not allowed. 
+  -->
+  
+  <tdml:parserTestCase name="int_implicit" root="int"
+      model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types - int - DFDL-5-013R">
+    <tdml:document>
+      <tdml:documentPart type="text">1000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Subset Textual data elements cannot have lengthKind='implicit'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: integer_binary_01
+       Schema: SimpleTypes-binary
+      Purpose: This document contains a binary representation of an integer using implicit length, which is not allowed
+  -->
+  
+  <tdml:parserTestCase name="integer_binary_01" root="integer01"
+      model="SimpleTypes-binary" description="Section 5 Schema types - integer - DFDL-5-013R">
+    <tdml:document>
+      <tdml:documentPart type="bits">01010101</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Size of binary data 'integer' cannot be determined implicitly</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: nonNegInt_binary_01
+       Schema: SimpleTypes-binary
+      Purpose: This document contains a binary representation of an integer using implicit length, which is not allowed
+  -->
+  
+  <tdml:parserTestCase name="nonNegInt_binary_01" root="posint01"
+      model="SimpleTypes-binary" description="Section 5 Schema types - non negative integer - DFDL-5-013R">
+    <tdml:document>
+      <tdml:documentPart type="bits">01010101</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Size of binary data 'integer' cannot be determined implicitly</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

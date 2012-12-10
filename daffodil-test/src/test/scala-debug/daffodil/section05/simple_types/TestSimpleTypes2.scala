@@ -46,5 +46,13 @@ class TestSimpleTypes2 extends JUnitSuite {
 
   @Test def test_whiteSpaceBeforeValidValue() { runner.runOneTest("whiteSpaceBeforeValidValue") }
   @Test def test_whiteSpaceDuringValidValue() { runner.runOneTest("whiteSpaceDuringValidValue") }
+  
+  @Test def test_ubyte_binary_01() { runner.runOneTest("ubyte_binary_01") }
+  @Test def test_ubyte_binary_02() { runner.runOneTest("ubyte_binary_02") }
+  @Test def test_ubyte_binary_03() { runner.runOneTest("ubyte_binary_03") }
+  @Test def test_ubyte_binary_04() { runner.runOneTest("ubyte_binary_04") }
+  @Test def test_ubyte_binary_05() { runner.runOneTest("ubyte_binary_05") }
+
+  @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }
 
 }
