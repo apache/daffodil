@@ -2863,5 +2863,96 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  
+  <tdml:defineSchema name="lengthFacets">
+    <dfdl:format ref="ex:daffodilTest1" representation="text"/>
+    <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:lengthUnits="bytes">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="10" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e2" dfdl:lengthKind="implicit" dfdl:lengthUnits="bytes">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="10" />
+          <xs:minLength value="5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: maxLength01
+    Schema: lengthFacets
+    Purpose: This test demonstrates the use of the maxLength facet with lengthKind = "implicit" 
+  -->
+
+  <tdml:parserTestCase name="maxLength01" root="e1"
+    model="lengthFacets" description="Section 5 - maxLength when dfdl:lengthKind=”implicit” - DFDL-5-063R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">this is way too long</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion</tdml:error>
+      <tdml:error>failed</tdml:error>
+      <tdml:error>dfdl:checkConstraints</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: maxLength02
+    Schema: lengthFacets
+    Purpose: This test uses an element with both minLength and maxLength defined for lengthKind="implicit"
+             and should throw a schema definition error 
+  -->
+
+  <tdml:parserTestCase name="maxLength02" root="e2"
+    model="lengthFacets" description="Section 5 - maxLength when dfdl:lengthKind=”implicit” - DFDL-5-063R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">invalid</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Def</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: maxLength03
+    Schema: lengthFacets
+    Purpose: This test demonstrates the use of the maxLength facet with lengthKind = "implicit" 
+  -->
+
+  <tdml:parserTestCase name="maxLength03" root="e1"
+    model="lengthFacets" description="Section 5 - maxLength when dfdl:lengthKind=”implicit” - DFDL-5-063R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">twocatfish</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>twocatfish</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

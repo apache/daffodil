@@ -43,4 +43,10 @@ class TestFacets extends JUnitSuite {
   @Test def test_facet_pattern_08() { runner.runOneTest("facetPattern08") }
   @Test def test_facet_pattern_09() { runner.runOneTest("facetPattern09") }
 
+<!-- Awaiting completion of DFDL-414
+  @Test def test_maxLength01() { runner.runOneTest("maxLength01") }
+  @Test def test_maxLength02() { runner.runOneTest("maxLength02") }
+  @Test def test_maxLength03() { runner.runOneTest("maxLength03") }
+-->
+
 }
