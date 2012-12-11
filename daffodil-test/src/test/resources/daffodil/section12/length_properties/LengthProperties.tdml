@@ -104,7 +104,46 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="LP_10">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="data" type="lp_10" />
+          <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="lp_10" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bytes" 
+      dfdl:byteOrder="bigEndian">
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
+
   </tdml:defineSchema>
+  
+  <!--
+    Test name: LengthProp
+    Schema: LengthProperties-Embedded.dfdl.xsd
+    Purpose: This test demonstrates that "When parsing, as many characters as possible are extracted from the bytes 
+             of the simple content region. Any left over bytes are skipped" (in this case, the bytes are consumed by an 'extra' element
+             so the test runner does not complain). 
+  -->
+
+  <tdml:parserTestCase name="LengthProp"
+    root="LP_10" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-134R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">lemons</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_10>
+          <data>lemon</data>
+          <extra>s</extra>
+        </LP_10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
   
   <!--
     Test name: LengthProp_bits_bool
