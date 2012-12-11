@@ -27,15 +27,6 @@ class TresysTests2 extends JUnitSuite {
   //
   //  @Test def test_codingErrorAction() { runnerMB.runOneTest("codingErrorAction") }
 
-  lazy val runnerBF = new DFDLTestSuite(Misc.getRequiredResource(testDir + "bitFlagExpression.tdml"))
-
-  @Test def test_testNone() {
-    // LoggingDefaults.setLoggingLevel(LogLevel.Compile)
-    runnerBF.runOneTest("testNone")
-  }
-  @Test def test_testOne() { runnerBF.runOneTest("testOne") }
-  @Test def test_testMany() { runnerBF.runOneTest("testMany") }
-
   val ab = testDir + "AB.tdml"
   lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))
 

@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite suiteName="repeatBits"
   description="Tests for occursCountKind parsed with discriminators."
-  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
-  xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
+  xmlns="http://example.com" 
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
   <tdml:defineSchema name="sch1">
     <dfdl:format ref="ex:daffodilTest1" representation="binary"
@@ -29,17 +33,17 @@
 
     <!-- repeatBit is a reusable global element for repeat-control-flag bits.
       Works in conjunction with a presenceBit element. -->
-    <xs:element name="repeatBit" type="xs:unsignedByte">
+    <xs:element name="repeatBit" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="1">
       <xs:annotation>
-        <xs:appinfo source="...">
-          <dfdl:discriminator>
-            {if ../ex:presenceBit eq 0 then false
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:discriminator><![CDATA[{
+            if (fn:trace((fn:trace(../../ex:presenceBit,"presenceBit") = 0),"pbIsZero")) then false()
             else if
-            dfdl:arrayIndex(..) eq 1 then true
+            (fn:trace(fn:trace(dfdl:occursIndex(),"occursIndex") = 1,"indexIsOne")) then true()
             else if
-            ..[dfdl:arrayIndex(..)-1]/ex:repeatBit eq 0 then false
-            else true}
-          </dfdl:discriminator>
+            (fn:trace(fn:trace(xs:int(fn:trace(../../ex:A1[fn:trace(dfdl:occursIndex()-1,"indexMinusOne")],"occursIndexMinusOneNode")/ex:repeatBit),"priorRepeatBit") = 0,"priorRepeatBitIsZero")) then false()
+            else true() 
+            }]]></dfdl:discriminator>
           <dfdl:element
             outputValueCalc='{ if dfdl:arrayIndex(..) eq dfdl:count(..) then 0 }' />
         </xs:appinfo>
@@ -54,7 +58,7 @@
 
 
     <!-- Reusable global element for presence bit. -->
-    <xs:element name="presenceBit" type="xs:unsignedByte"
+    <xs:element name="presenceBit" type="xs:unsignedInt"
       dfdl:lengthKind="explicit" dfdl:length="1" />
 
     <!-- Example of array A1 which repeats depending on a repeat flag. Flag
