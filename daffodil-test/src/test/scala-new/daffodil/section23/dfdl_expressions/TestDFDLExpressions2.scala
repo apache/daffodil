@@ -23,7 +23,5 @@ class TestDFDLExpressions2 extends JUnitSuite {
 
   @Test def test_expresion_bad_path_to_variable() { runner.runOneTest("expresion_bad_path_to_variable") }
   @Test def test_checkConstraints() { runner.runOneTest("dfdlCheckConstraints") }
-  @Test def test_maxOccursPass() { runner.runOneTest("checkMaxOccurs_Pass") }
-  @Test def test_maxOccursUnboundedPass() { runner.runOneTest("checkMaxOccursUnbounded_Pass") }
 
 }

@@ -48,5 +48,9 @@ class TestFacets extends JUnitSuite {
   @Test def test_maxLength02() { runner.runOneTest("maxLength02") }
   @Test def test_maxLength03() { runner.runOneTest("maxLength03") }
 -->
+  
+  @Test def test_maxOccursPass() { runner.runOneTest("checkMaxOccurs_Pass") }
+//  @Test def test_maxOccursFail() { runner.runOneTest("checkMaxOccurs_Fail") }
+  @Test def test_maxOccursUnboundedPass() { runner.runOneTest("checkMaxOccursUnbounded_Pass") }
 
 }
