@@ -84,8 +84,8 @@ class TextXMLUtils extends JUnitSuite {
 
   @Test def testRemoveHidden() {
     val hid = <bar><baz/><foo dafint:hidden="true" xmlns:dafint={ XMLUtils.INT_NS }/></bar>
-    println("with hidden " + hid)
+    // println("with hidden " + hid)
     val rid = XMLUtils.removeHiddenElements(hid)
-    println("without hidden " + rid)
+    assertFalse(rid.toString.contains("hidden"))
   }
 }
