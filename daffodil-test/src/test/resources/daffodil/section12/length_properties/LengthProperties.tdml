@@ -727,6 +727,37 @@ proper that we should do this]]></tdml:document>
     
     <xs:element name="bit13" type="xs:short"
       dfdl:lengthKind="explicit" dfdl:length="16" dfdl:byteOrder="bigEndian" />
+    
+    <xs:element name="bit14" type="xs:unsignedLong"
+      dfdl:lengthKind="explicit" dfdl:length="24" dfdl:alignment="1" dfdl:byteOrder="bigEndian" />
+    <xs:element name="bit15" type="xs:unsignedLong"
+      dfdl:lengthKind="explicit" dfdl:length="24" dfdl:alignment="1" dfdl:byteOrder="littleEndian" />
+    <xs:element name="bit16" type="xs:unsignedLong"
+      dfdl:lengthKind="explicit" dfdl:length="64" dfdl:alignment="1" dfdl:byteOrder="bigEndian" />
+    <xs:element name="bit17" type="xs:unsignedShort"
+      dfdl:lengthKind="explicit" dfdl:length="64" dfdl:alignment="1" dfdl:byteOrder="littleEndian" />
+    
+    <xs:element name="s2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="bit18" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:byteOrder="bigEndian" />
+          <xs:element name="bit19" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:byteOrder="bigEndian"/>
+          <xs:element name="bit20" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:byteOrder="bigEndian"/>
+          <xs:element name="bit21" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:byteOrder="bigEndian"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="s3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="bit22" type="xs:unsignedByte" dfdl:lengthKind="implicit" dfdl:byteOrder="bigEndian" />
+          <xs:element name="bit23" type="xs:unsignedShort" dfdl:lengthKind="implicit" dfdl:byteOrder="littleEndian"/>
+          <xs:element name="bit24" type="xs:unsignedInt" dfdl:lengthKind="implicit" dfdl:byteOrder="bigEndian"/>
+          <xs:element name="bit25" type="xs:unsignedLong" dfdl:lengthKind="implicit" dfdl:byteOrder="littleEndian"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
   
   </tdml:defineSchema>
   
@@ -744,6 +775,127 @@ proper that we should do this]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <bit12>3276850000</bit12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitULong2
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey an unsigned Long (bigEndian)
+  -->
+
+  <tdml:parserTestCase name="bitULong2"
+    root="bit14" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[10000000 00100000 00000001]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit14>8396801</bit14>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitULong3
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey an unsigned Long (littleEndian)
+  -->
+
+  <tdml:parserTestCase name="bitULong3"
+    root="bit15" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[10000000 00100000 00000001]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit15>73856</bit15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitULong4
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey an unsigned Long (bigEndian)
+  -->
+
+  <tdml:parserTestCase name="bitULong4"
+    root="bit16" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[00000000 00000010 00000111 00000001 00000000 00000001 00100000 00000000]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit16>570650829856768</bit16>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitULong5
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey an unsigned Long (littleEndian)
+  -->
+
+  <tdml:parserTestCase name="bitULong5"
+    root="bit17" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[00000000 00100000 00000001 00000000 00000001 00000111 00000010 00000000]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit17>570650829856768</bit17>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitUCombo
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey a combination of unsigned types (bigEndian)
+  -->
+
+  <tdml:parserTestCase name="bitUCombo"
+    root="s2" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[10100 00111 00100 11111]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <s2>
+          <bit18>20</bit18>
+          <bit19>7</bit19>
+          <bit20>4</bit20>
+          <bit21>31</bit21>
+        </s2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitUCombo2
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey a combination of unsigned types and byte orders
+  -->
+
+  <tdml:parserTestCase name="bitUCombo2"
+    root="s3" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits">00101010</tdml:documentPart>
+      <tdml:documentPart type="bits">00111111 00000001</tdml:documentPart>
+      <tdml:documentPart type="bits">00000000 00000000 00000000 00000001</tdml:documentPart>
+      <tdml:documentPart type="bits">00001010 00000000 00000000 00000000 00000000 00000000 00000000 00000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <s3>
+          <bit22>42</bit22>
+          <bit23>319</bit23>
+          <bit24>1</bit24>
+          <bit25>10</bit25>
+        </s3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

@@ -68,8 +68,15 @@ class TestLengthProperties extends JUnitSuite {
   @Test def test_lengthGreaterThanEight3() { runner_02.runOneTest("lengthGreaterThanEight3") }
   @Test def test_lengthGreaterThanEight4() { runner_02.runOneTest("lengthGreaterThanEight4") }
   @Test def test_lengthGreaterThanEight5() { runner_02.runOneTest("lengthGreaterThanEight5") }
-  
+ 
   @Test def test_bitULong() { runner_02.runOneTest("bitULong") }
+  @Test def test_bitULong2() { runner_02.runOneTest("bitULong2") }
+  @Test def test_bitULong3() { runner_02.runOneTest("bitULong3") }
+  @Test def test_bitULong4() { runner_02.runOneTest("bitULong4") }
+  @Test def test_bitULong5() { runner_02.runOneTest("bitULong5") }
+  @Test def test_bitUCombo() { runner_02.runOneTest("bitUCombo") }
+  @Test def test_bitUCombo2() { runner_02.runOneTest("bitUCombo2") }
+
 //  @Test def test_LengthProp_bits_bool() { runner_02.runOneTest("LengthProp_bits_bool") }
 
   @Test def test_LengthProp() { runner_02.runOneTest("LengthProp") }
