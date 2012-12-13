@@ -74,4 +74,18 @@ class TextXMLUtils extends JUnitSuite {
     assertTrue(XMLUtils.isNil(d1))
     assertFalse(XMLUtils.isNil(d2))
   }
+
+  @Test def testIsHidden() {
+    val hid = <foo dafint:hidden="true" xmlns:dafint={ XMLUtils.INT_NS }/>
+    val nid = <foo/>
+    assertTrue(XMLUtils.isHidden(hid))
+    assertFalse(XMLUtils.isHidden(nid))
+  }
+
+  @Test def testRemoveHidden() {
+    val hid = <bar><baz/><foo dafint:hidden="true" xmlns:dafint={ XMLUtils.INT_NS }/></bar>
+    println("with hidden " + hid)
+    val rid = XMLUtils.removeHiddenElements(hid)
+    println("without hidden " + rid)
+  }
 }

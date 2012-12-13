@@ -43,7 +43,13 @@ object Debug {
 }
 
 object OOLAGDebug {
-  def apply(msg: String, args: Any*) = new Glob(LogLevel.OOLAGDebug, msg, args)
+  // Have to do this by having an overload for each number of args.
+  // This is because we're depending on scala's call-by-name trick to NOT
+  // evaluate these arguments unless something else decides to force this whole adventure.
+  def apply(msg: String, arg: => Any) = new Glob(LogLevel.OOLAGDebug, msg, Seq(arg))
+  def apply(msg: String, arg0: => Any, arg1: => Any) = new Glob(LogLevel.OOLAGDebug, msg, Seq(arg0, arg1))
+  def apply(msg: String, arg0: => Any, arg1: => Any, arg2: => Any) = new Glob(LogLevel.OOLAGDebug, msg, Seq(arg0, arg1, arg2))
+
 }
 
 trait Identity {
@@ -134,7 +140,8 @@ class FileWriter(val file: File) extends LogWriter {
  * Just make a Glob (short for globalized message). This is intended to be passed by name,
  *
  */
-class Glob(val lvl: LogLevel.Value, val msg: String, val args: Seq[Any]) {
+class Glob(val lvl: LogLevel.Value, val msg: String, argSeq: => Seq[Any]) {
+  lazy val args = argSeq
   // for now: quick and dirty English-centric approach.
   // In the future, use msg to index into i18n resource bundle for 
   // properly i18n-ized string. Can use context to avoid ambiguities.

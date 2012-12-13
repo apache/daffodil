@@ -197,7 +197,7 @@ class TestMiddleEndAttributes extends JUnitSuite {
 
   @Test def testImmediatelyEnclosingModelGroup1() {
     val testSchema = TestUtils.dfdlTestSchema(
-      <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>,
+      <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited"/>,
 
       <xs:element name="doc">
         <xs:complexType>

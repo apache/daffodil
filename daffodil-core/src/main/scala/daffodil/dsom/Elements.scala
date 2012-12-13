@@ -93,8 +93,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with DFDLStatementMixin
   with ElementBaseGrammarMixin
   with ElementRuntimeValuedPropertiesMixin
-  with NamedMixin
+  // with NamedMixin
   with WithDiagnostics {
+
+  def name: String
 
   val schemaComponentID = Infoset.addComponent(this)
 
@@ -367,6 +369,8 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   extends LocalElementBase(xmlArg, parent, position)
   with HasRef {
 
+  lazy val prettyName = "element.ref." + name
+
   val elementRef = None
 
   // Need to go get the Element we are referencing
@@ -395,7 +399,7 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
 
   lazy val qname = XMLUtils.QName(xml, xsdRef, schemaDocument)
   lazy val (namespace, localName) = qname
-  override lazy val name = localName
+  lazy val name = localName
 
   // These may be trickier, as the type needs to be responsive to properties from the
   // element reference's format annotations, and its lexical context.
@@ -457,6 +461,8 @@ trait HasRef { self: SchemaComponent =>
 trait ElementDeclMixin
   extends NamedMixin
   with ElementDeclGrammarMixin { self: ElementBase =>
+
+  override lazy val prettyName = "element." + name
 
   lazy val immediateType = immediateType_.value
   private lazy val immediateType_ = LV {
@@ -639,7 +645,11 @@ class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val ele
   with GlobalElementDeclGrammarMixin
   with WithDiagnostics {
 
-  override val enclosingComponent = elementRef
+  lazy val isRoot = elementRef == None
+
+  override lazy val isHidden = if (isRoot) false else elementRef.get.isHidden
+
+  override lazy val enclosingComponent: Option[SchemaComponent] = elementRef
 
   // GlobalElementDecls need to have access to elementRef's local properties.
 

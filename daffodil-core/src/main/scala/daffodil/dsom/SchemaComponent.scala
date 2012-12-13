@@ -83,9 +83,30 @@ abstract class SchemaComponent(val xml: Node)
   lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace)
   def prettyName: String
 
+  lazy val isHidden: Boolean = {
+    enclosingComponent match {
+      case None => Assert.invariantFailed("Root global element should be overriding this.")
+      case Some(ec) => ec.isHidden
+    }
+  }
+
+  def enclosingComponent: Option[SchemaComponent]
+
   def context = this
-  def scPath: String
-  lazy val path = scPath
+
+  final lazy val path = scPath.map { _.prettyName }.mkString("::")
+
+  override def toString = path
+
+  /**
+   * Includes instances. Ie., a global element will appear inside an element ref.
+   * a global group inside a group ref, a global type inside an element or for
+   * derived simple types inside another simple type, etc.
+   */
+  lazy val scPath: Seq[SchemaComponent] = {
+    val res = enclosingComponent.map { _.scPath }.getOrElse(Nil) :+ this
+    res
+  }
 
   private val scala.xml.Elem(_, _, emptyXMLMetadata, _, _*) = <foo/> // hack way to get empty metadata object.
 
@@ -137,12 +158,8 @@ abstract class SchemaComponent(val xml: Node)
  */
 trait LocalComponentMixin { self: SchemaComponent =>
   def parent: SchemaComponent
+
   lazy val schemaDocument = parent.schemaDocument
-
-  lazy val scPath = {
-    parent.scPath + "::" + prettyName
-  }
-
 }
 
 /**
@@ -150,7 +167,6 @@ trait LocalComponentMixin { self: SchemaComponent =>
  */
 trait NamedMixin { self: { def xml: Node } => // this scala idiom means the object this is mixed into has a def for xml of type Node
   lazy val name = (xml \ "@name").text
-  lazy val detailName = name // TODO: remove synonym name unless there is a good reason for this.
   lazy val prettyName = name
 }
 
@@ -159,8 +175,6 @@ trait NamedMixin { self: { def xml: Node } => // this scala idiom means the obje
  */
 trait GlobalComponentMixin
   extends NamedMixin { self: SchemaComponent =>
-  // nothing here yet
-  override lazy val scPath = schemaDocument.scPath + "::" + prettyName
 }
 
 abstract class AnnotatedSchemaComponent(xml: Node)
@@ -490,9 +504,7 @@ class SchemaSet(val schemaNodeList: Seq[Node], rootNamespace: String = null, roo
   // TODO Constructor(s) or companion-object methods to create a SchemaSet from files.
 
   lazy val prettyName = "SchemaSet"
-
-  lazy val scPath = prettyName
-  lazy val path = scPath
+  lazy val path = prettyName
 
   lazy val schemaPairs = schemaNodeList.map { s =>
     {
@@ -603,8 +615,7 @@ class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: Sche
   extends DiagnosticsProviding {
 
   lazy val prettyName = "schema"
-  lazy val scPath = prettyName
-  lazy val path = scPath
+  lazy val path = prettyName
 
   lazy val targetNamespace = namespace
 
@@ -667,8 +678,9 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
 
+  lazy val enclosingComponent: Option[SchemaComponent] = None
+
   lazy val prettyName = "schemaDoc"
-  lazy val scPath = prettyName
 
   lazy val validatedXML = LV {
     try XMLSchemaUtils.validateDFDLSchema(xml)
@@ -690,8 +702,6 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
    * the components contained within this schema document.
    */
   override lazy val defaultProperties = Map.empty[String, String]
-
-  lazy val detailName = "" // TODO: Maybe a filename would be nice if available.
 
   override lazy val schema = schemaArg
 

@@ -125,7 +125,7 @@ abstract class Enum[A] extends EnumBase {
  */
 trait PropertyMixin extends ThrowsSDE {
 
-  def detailName: String
+  //  def detailName: String
 
   /**
    * Properties will push their toString function onto this list
@@ -135,22 +135,24 @@ trait PropertyMixin extends ThrowsSDE {
    */
   var toStringFunctionList: List[() => String] = Nil
 
-  override def toString = {
-    val className = getNameFromClass(this)
-    //    For now, do not print the properties.
-    //    val props = toStringFunctionList.map{f=>f.apply()}.foldLeft(className+ "." + detailName + "(")(_+_)
-    //    val suffix=")"
-    //    val str = props + suffix
-    val str = className + "." + detailName
-    str
-  }
+  //  override def toString = {
+  //    val className = getNameFromClass(this)
+  //    //    For now, do not print the properties.
+  //    //    val props = toStringFunctionList.map{f=>f.apply()}.foldLeft(className+ "." + detailName + "(")(_+_)
+  //    //    val suffix=")"
+  //    //    val str = props + suffix
+  //    val str = className + "." + detailName
+  //    str
+  //  }
 
   /**
    * prints all the properties on the object.
    */
   def verboseToString = {
     val className = getNameFromClass(this)
-    val props = toStringFunctionList.map { f => f.apply() }.foldLeft(className + "." + detailName + "(")(_ + _)
+    val props = toStringFunctionList.map { f => f.apply() }.foldLeft(className +
+      // "." + detailName + 
+      "(")(_ + _)
     val suffix = ")"
     val str = props + suffix
     str

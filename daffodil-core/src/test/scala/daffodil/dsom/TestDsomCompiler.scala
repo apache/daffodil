@@ -25,7 +25,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
-  val dummyGroupRef = null // just because otherwise we have to construct too many things.
+  val dummyGroupRef = Fakes.fakeGroupRef
 
   def FindValue(collection: Map[String, String], key: String, value: String): Boolean = {
     val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
@@ -273,7 +273,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val Seq(seq1e1, seq1s1) = seq1.groupMembers // has an element and a sub-sequence as its children.
     assertEquals(2, seq1e1.asInstanceOf[ElementRef].maxOccurs)
     assertEquals("ex:a", seq1e1.asInstanceOf[ElementRef].ref)
-    assertEquals(0, seq1s1.asInstanceOf[Sequence].groupMembers.length)
+    assertEquals(1, seq1s1.asInstanceOf[Sequence].groupMembers.length) // it has the hidden group
   }
 
   @Test def test4 {
@@ -465,7 +465,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
 
     val Seq(gs1f, gs2f, gs3f, gs4f) = sd.globalSimpleTypeDefs
 
-    val gs1 = gs1f.forRoot() // Global Simple Type - aType
+    val gs1 = gs1f.forElement(e1) // Global Simple Type - aType
 
     assertEquals("ex:aaType", gs1.restrictionBase)
     assertTrue(FindValue(gs1.allNonDefaultProperties, "alignmentUnits", "bytes")) // SimpleType - Local
@@ -476,7 +476,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     assertTrue(FindValue(gs1.allNonDefaultProperties, "textStandardBase", "10")) // Define Format - def2
     assertTrue(FindValue(gs1.allNonDefaultProperties, "escapeSchemeRef", "tns:quotingScheme")) // Define Format - def2
 
-    val gs3 = gs3f.forRoot() // Global SimpleType - aTypeError - overlapping base props
+    val gs3 = gs3f.forElement(e1) // Global SimpleType - aTypeError - overlapping base props
 
     // Tests overlapping properties
     intercept[daffodil.dsom.SchemaDefinitionError] { gs3.allNonDefaultProperties }
@@ -519,17 +519,22 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     assertTrue(FindValue(myGlobal2Seq.allNonDefaultProperties, "separatorPosition", "infix"))
 
     // GroupRefTestOverlap
-    val e5 = e5f.forRoot() // groupRefTestOverlap
+    val exc = intercept[Exception] {
 
-    val e5ct = e5.immediateType.get.asInstanceOf[LocalComplexTypeDef]
+      val e5 = e5f.forRoot() // groupRefTestOverlap
 
-    val e5ctgref = e5ct.modelGroup.asInstanceOf[GroupRef] // groupRefTestOverlap's local group decl
+      val e5ct = e5.immediateType.get.asInstanceOf[LocalComplexTypeDef]
 
-    val myGlobal3 = e5ctgref.groupDef
-    val myGlobal3Seq = myGlobal3.modelGroup.asInstanceOf[Sequence]
+      val e5ctgref = e5ct.modelGroup.asInstanceOf[GroupRef] // groupRefTestOverlap's local group decl
 
-    // Tests overlapping properties
-    intercept[daffodil.dsom.SchemaDefinitionError] { myGlobal3Seq.allNonDefaultProperties }
+      val myGlobal3 = e5ctgref.groupDef
+      val myGlobal3Seq = myGlobal3.modelGroup.asInstanceOf[Sequence]
+
+      // Tests overlapping properties
+
+    }
+    val msg = exc.getMessage()
+    assertTrue(msg.contains("Overlap"))
 
   }
 
@@ -733,5 +738,37 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     //assertEquals("%ES; %% %#0; %NUL;%ACK; foo%#rF2;%#rF7;bar %WSP*; %#2024;%#xAABB; &amp;&#2023;&#xCCDD; -1", e1.nilValue) // TODO: Do not equal each other!
     assertEquals(NilKind.LiteralValue, e1.nilKind)
   }
+
+  @Test def testPathWithIndexes() {
+    val testSchema = TestUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="r" type="tns:myType"/>
+      <xs:complexType name="myType">
+        <xs:sequence>
+          <xs:sequence/>
+          <xs:sequence/>
+          <xs:sequence>
+            <xs:element name="s" type="xs:int"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>)
+    val sset = new SchemaSet(testSchema)
+    val Seq(sch) = sset.schemas
+    val Seq(sd) = sch.schemaDocuments
+
+    val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
+    val ge1 = ge1f.forRoot()
+
+    val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
+    val seq = ct.modelGroup.asInstanceOf[Sequence]
+
+    val Seq(s1, s2, s3) = seq.groupMembers
+    val s3s = s3.asInstanceOf[Sequence]
+    val Seq(es) = s3s.groupMembers
+    val ese = es.asInstanceOf[LocalElementDecl]
+    // println(ese)
+    assertTrue(ese.path.contains("sequence[3]"))
+  }
+
 }
 

@@ -39,4 +39,42 @@
 
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="hiddenGroup1">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+
+    <xs:group name="hg">
+      <xs:sequence>
+        <xs:element name="f" type="xs:int" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="e" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:sequence dfdl:hiddenGroupRef="ex:hg" />
+          <xs:element name="g" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="hiddenGroup1" root="e"
+    model="hiddenGroup1" description="Unit test of hidden group ref.">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1,2]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <e>
+          <g>2</g>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

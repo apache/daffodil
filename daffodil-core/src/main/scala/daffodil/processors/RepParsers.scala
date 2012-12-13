@@ -211,7 +211,7 @@ class RepUnboundedPrim(context: LocalElementBase, r: => Gram) extends RepPrim(co
 
 case class OccursCountExpression(e: ElementBase)
   extends Terminal(e, true) {
-  val pseudoElement = Infoset.newElement(e)
+  val pseudoElement = Infoset.newElement(e, e.isHidden)
 
   def parser = new Parser(e) with WithParseErrorThrowing {
     def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {

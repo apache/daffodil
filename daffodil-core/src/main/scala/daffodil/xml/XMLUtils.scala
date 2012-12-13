@@ -754,8 +754,37 @@ object XMLUtils {
   def dfdlAttributes(n: Node) = attributesInNamespace(DFDL_NAMESPACE, n)
 
   /**
+   * Removes nodes marked as hidden
+   */
+  def removeHiddenElements(ns: NodeSeq): NodeSeq = {
+    ns.filter { !isHidden(_) }.map {
+      n =>
+        n match {
+          case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
+            val removedChildren = removeHiddenElements(children)
+            val newElem = Elem(prefix, label, attributes, scope, removedChildren: _*)
+            newElem
+          }
+          case other => other
+        }
+    }
+  }
+
+  def isHidden(n: Node): Boolean = {
+    val attr = n.attribute(INT_NS, "hidden")
+    val res = attr match {
+      case Some(Text(s)) => {
+        Assert.usage(s == "true", "hidden attribute should have value true or not be present at all.")
+        true
+      }
+      case None => false
+    }
+    res
+  }
+
+  /**
    * Removes attributes, and also element namespace prefixes, associated xmlns quasi-attributes.
-   * Allows easier visual (human) inspection of the differences between to XML element-oriented structures.
+   * Allows easier visual (human) inspection of the differences between two XML element-oriented structures.
    *
    */
   def removeAttributes(n: Node): Node = {
@@ -770,6 +799,9 @@ object XMLUtils {
               //              println(xsiNS)
               true
             }
+            //            case dafintHiddenAttr @ PrefixedAttribute(pre, "hidden", Text("true"), _) if (dafintHiddenAttr.getNamespace(e) == XMLUtils.INT_NS) => {
+            //              true
+            //            }
             case _ => false
           }
         }.toList

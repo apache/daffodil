@@ -360,7 +360,7 @@ case class DummyParser(sc: PropertyMixin) extends Parser(null) {
   def parse(pstate: PState): PState = Assert.abort("Parser for " + sc + " is not yet implemented.")
 
   def toBriefXML(depthLimit: Int = -1) = "<dummy/>"
-  override def toString = if (sc == null) "Dummy[null]" else "Dummy[" + sc.detailName + "]"
+  override def toString = if (sc == null) "Dummy[null]" else "Dummy[" + sc + "]"
 }
 
 class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixin {

@@ -159,7 +159,7 @@
 
     <tdml:document><![CDATA[||Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
     <tdml:errors>
-      <tdml:error />
+      <tdml:error>Overlap</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

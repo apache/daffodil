@@ -100,7 +100,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
   lazy val combinedSimpleTypeAndBaseProperties = {
     schemaDefinition(overlappingLocalProperties.size == 0,
       "Overlap detected between the local SimpleType ("
-        + this.detailName + ") properties and its base.")
+        + this + ") properties and its base.")
 
     val props = this.localAndFormatRefProperties ++ this.simpleTypeBaseProperties
     props
@@ -242,7 +242,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
   }
 
   override lazy val allNonDefaultProperties = {
-    schemaDefinition(!hasOverlap, "Overlap detected between simpleType (" + this.detailName + ") and its base.")
+    schemaDefinition(!hasOverlap, "Overlap detected between simpleType (" + this + ") and its base.")
 
     val theLocalUnion = this.combinedSimpleTypeAndBaseProperties
     theLocalUnion
@@ -276,19 +276,30 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
 
   lazy val remoteBaseFacets = remoteBaseFacets_.value
   private lazy val remoteBaseFacets_ = LV {
-    val (ns, localPart) = this.baseTypeQName
-    val ss = schema.schemaSet
-    val prim = ss.getPrimitiveType(localPart)
-    if (prim != None) Seq.empty[ElemFacets]
-    else {
-      val gstd = ss.getGlobalSimpleTypeDef(ns, localPart)
-      val res = gstd match {
-        case Some(gstdFactory) => Some(gstdFactory.forRoot())
-        case None => schemaDefinitionError("Error while fetching facets.  No type definition found for %s", restrictionBase)
-      }
-      res.get.combinedBaseFacets
+    myBaseType match {
+      case gstd: GlobalSimpleTypeDef => gstd.combinedBaseFacets
+      case prim: PrimitiveType => Nil
+      case _ => Assert.impossible()
     }
   }
+
+  // TODO: Delete if no longer needed
+  //  Review: This code is redundantly computing the type from the type factory. 
+  //   It already exists and is called myTypeBase.
+  //
+  //    val (ns, localPart) = this.baseTypeQName
+  //    val ss = schema.schemaSet
+  //    val prim = ss.getPrimitiveType(localPart)
+  //    if (prim != None) Seq.empty[ElemFacets]
+  //    else {
+  //      val gstd = ss.getGlobalSimpleTypeDef(ns, localPart)
+  //      val res = gstd match {
+  //        case Some(gstdFactory) => Some(gstdFactory.forRoot())
+  //        case None => schemaDefinitionError("Error while fetching facets.  No type definition found for %s", restrictionBase)
+  //      }
+  //      res.get.combinedBaseFacets
+  //    }
+  //  }
 
   /**
    * Combine our statements with those of our base def (if there is one)
@@ -313,7 +324,11 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
   extends SimpleTypeDefBase(xmlArg, parent)
   with LocalComponentMixin {
 
-  lazy val detailName = "inside " + parent.detailName
+  val enclosingComponent = {
+    Some(parent)
+  }
+
+  // lazy val detailName = "inside " + parent.detailName
 
   lazy val baseName = (xml \ "restriction" \ "@base").text
   lazy val baseType = {
@@ -321,7 +336,7 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
     else Assert.notYetImplemented() // should go find the global simple type here
   }
 
-  lazy val prettyName = "simpleType" // Of(" + parent.name + ")"
+  lazy val prettyName = "simpleType." + baseName // Of(" + parent.name + ")"
 }
 
 /**
@@ -332,11 +347,28 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
 object Fakes {
   lazy val sch = TestUtils.dfdlTestSchema(
     <dfdl:format ref="tns:daffodilTest1"/>,
-    <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>)
+    <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
+    <xs:element name="fake2" type="tns:fakeCT"/>
+    <xs:complexType name="fakeCT">
+      <xs:sequence>
+        <xs:group ref="tns:fakeGroup"/>
+        <xs:element ref="tns:fake"/>
+      </xs:sequence>
+    </xs:complexType>
+    <xs:group name="fakeGroup">
+      <xs:choice>
+        <xs:sequence/>
+      </xs:choice>
+    </xs:group>)
   lazy val xsd_sset = new SchemaSet(sch, "http://example.com", "fake")
   lazy val xsd_schema = xsd_sset.getSchema("http://example.com").get
   lazy val xsd_sd = xsd_schema.schemaDocuments(0)
   lazy val fakeElem = xsd_sd.getGlobalElementDecl("fake").get.forRoot()
+  lazy val fakeCT = xsd_sd.getGlobalElementDecl("fake2").get.forRoot().typeDef.asInstanceOf[GlobalComplexTypeDef]
+  lazy val fakeSequence = fakeCT.modelGroup.asInstanceOf[Sequence]
+  lazy val Seq(fs1, fs2) = fakeSequence.groupMembers
+  lazy val fakeGroupRef = fs1.asInstanceOf[GroupRef]
+
 }
 
 //TBD: are Primitives "global", or do they just have names like globals do?
@@ -345,13 +377,15 @@ class PrimitiveType(name_ : String)
   with SimpleTypeBase // use fake schema document
   with NamedMixin {
 
+  val enclosingComponent = None // Shouldn't be used anyway.
+
   val primitiveType = this
 
   override def toString = "PrimitiveType(" + prettyName + ")"
 
   override lazy val name = name_
   override lazy val prettyName = name_
-  override lazy val scPath = ""
+
   lazy val diagnosticChildren = Nil
 
   // override val xml = Assert.invariantFailed("Primitives don't have xml definitions.")
@@ -376,23 +410,31 @@ class PrimitiveType(name_ : String)
 
 class GlobalSimpleTypeDefFactory(val xml: Node, schemaDocument: SchemaDocument)
   extends NamedMixin {
-  def forRoot() = new GlobalSimpleTypeDef(xml, schemaDocument, None)
+  // def forRoot() = new GlobalSimpleTypeDef(xml, schemaDocument, None)
 
   /**
    * Create a private instance for this element's use.
    */
-  def forElement(element: ElementBase) = new GlobalSimpleTypeDef(xml, schemaDocument, Some(element))
-  def forDerivedType(derivedType: SimpleTypeDefBase) = new GlobalSimpleTypeDef(xml, schemaDocument, None)
+  def forElement(element: ElementBase) = new GlobalSimpleTypeDef(None, xml, schemaDocument, Some(element))
+  def forDerivedType(derivedType: SimpleTypeDefBase) = new GlobalSimpleTypeDef(Some(derivedType), xml, schemaDocument, None)
 }
 /**
  * The instance type for global simple type definitions.
  */
 
-class GlobalSimpleTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: Option[AnnotatedMixin])
+class GlobalSimpleTypeDef(derivedType: Option[SimpleTypeDefBase], xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: Option[ElementBase])
   extends SimpleTypeDefBase(xmlArg, schemaDocumentArg) with NamedMixin
   with GlobalComponentMixin {
 
+  val enclosingComponent = (derivedType, element) match {
+    case (Some(dt), None) => derivedType
+    case (None, Some(elem)) => element
+    case _ => Assert.impossible("SimpleType must either have a derivedType or an element. Not both.")
+  }
+
   def schemaDocument = schemaDocumentArg
+
+  override lazy val prettyName = "simpleType." + name
 
 }
 
@@ -401,6 +443,8 @@ abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
   with TypeBase
   with ComplexTypeBaseGrammarMixin {
   def element: ElementBase
+
+  val enclosingComponent = Some(element)
 
   lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
 
@@ -426,8 +470,10 @@ class GlobalComplexTypeDefFactory(val xml: Node, schemaDocument: SchemaDocument)
 class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: ElementBase)
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
+
   def schemaDocument = schemaDocumentArg
 
+  override lazy val prettyName = "complexType." + name
 }
 
 class LocalComplexTypeDef(xmlArg: Node, val element: ElementBase)

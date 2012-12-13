@@ -36,6 +36,8 @@ abstract class PrimParser(gram: Gram, context: SchemaComponent)
 
 case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
 
+  val isHidden = e.isHidden
+
   def parser: Parser = new PrimParser(this, e) {
 
     override def toBriefXML(depthLimit: Int = -1): String = {
@@ -47,7 +49,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
      * the state to be referring to this new element as what we're parsing data into.
      */
     def parse(start: PState): PState = {
-      val currentElement = Infoset.newElement(e)
+      val currentElement = Infoset.newElement(e, isHidden)
 
       log(Debug("currentElement = %s", currentElement))
       val priorElement = start.infoset

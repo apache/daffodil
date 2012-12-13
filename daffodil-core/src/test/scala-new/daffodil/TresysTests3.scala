@@ -23,4 +23,8 @@ class TresysTests3 extends JUnitSuite {
   @Test def test_testOne() { runnerBF.runOneTest("testOne") }
   @Test def test_testMany() { runnerBF.runOneTest("testMany") }
 
+  val sq = testDir + "sequence.tdml"
+  lazy val runnerSQ = new DFDLTestSuite(Misc.getRequiredResource(sq))
+  @Test def test_hiddenGroup1() = Debugger.withDebugger { runnerSQ.runOneTest("hiddenGroup1") }
+
 }

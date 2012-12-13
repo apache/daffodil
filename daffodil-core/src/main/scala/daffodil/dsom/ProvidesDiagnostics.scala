@@ -157,6 +157,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
           // If we don't record this error now, we'll lose it, because we won't be able to gather it up
           // out of the list of diagnostic children because, well we weren't able to even construct that
           // list without an error.
+          this.handleThrownError(th, lv)
           List(lv)
       }
     dc

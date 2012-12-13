@@ -16,7 +16,7 @@ abstract class Gram(val context: AnnotatedSchemaComponent) extends DiagnosticsPr
 
   val name = getNameFromClass(this)
   def prettyName = name
-  def path = ""
+  def path = context.path + "%" + prettyName
 
   def isEmpty = false // they are by default not empty. Overridden in the cases where they could be.
   def ~(qq: => Gram) = {

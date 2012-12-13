@@ -251,6 +251,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
 
     <xs:element name="short" dfdl:lengthKind="implicit">
       <xs:complexType>

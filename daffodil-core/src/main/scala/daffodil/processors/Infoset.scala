@@ -21,7 +21,7 @@ object Infoset {
     idString
   }
 
-  def newElement(e: ElementBase) = {
+  def newElement(e: ElementBase, isHidden: Boolean) = {
     Assert.usage(e.name != "")
     val jdomE = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
     //
@@ -29,6 +29,8 @@ object Infoset {
     // attributes have parent pointers. So this creates one and points it back at the jdomE
     // holding it.
     jdomE.setAttribute("context", e.schemaComponentID, XMLUtils.INT_NS_OBJECT)
+    if (isHidden)
+      jdomE.setAttribute("hidden", "true", XMLUtils.INT_NS_OBJECT)
     val res = new InfosetElement(jdomE)
     res
   }
