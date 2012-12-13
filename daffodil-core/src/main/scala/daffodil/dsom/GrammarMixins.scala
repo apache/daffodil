@@ -117,7 +117,7 @@ trait ElementBaseGrammarMixin
 
   // Length is in bits, (size would be in bytes) (from DFDL Spec 12.3.3)
   lazy val implicitBinaryLengthInBits: Long = primType.name match {
-    case "byte" | "unsigendByte" => 8
+    case "byte" | "unsignedByte" => 8
     case "short" | "unsignedShort" => 16
     case "float" | "int" | "unsignedInt" | "boolean" => 32
     case "double" | "long" | "unsignedLong" => 64
@@ -190,7 +190,7 @@ trait ElementBaseGrammarMixin
       case LengthKind.Delimited => stringDelimitedEndOfData
       case LengthKind.Pattern => stringPatternMatched
       case LengthKind.Implicit => subsetError("Textual data elements cannot have lengthKind='implicit'.")
-      case _ => Assert.notYetImplemented()
+      case _ => SDE("Unimplemented lengthKind %s", lengthKind)
     })
     res
   }

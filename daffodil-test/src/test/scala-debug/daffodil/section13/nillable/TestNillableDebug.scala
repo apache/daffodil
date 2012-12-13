@@ -28,7 +28,7 @@ class TestNillableDebug extends JUnitSuite {
   // This test must be changed to use logicalValue nils.
   // For LiteralValue Nils, representation must be text!!!
   // LogicalValue Nils are not yet implemented.
-  @Test def test_binary_01() = Debugger.withDebugger { runnerLN.runOneTest("binary_01") }
+  @Test def test_binary_01() { runnerLN.runOneTest("binary_01") }
 
   val testDir_01 = "/daffodil/section06/entities/"
   val entity = testDir_01 + "entities_01.tdml"

@@ -1,40 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
   targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
 
+<annotation>
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format lengthKind="delimited" separator=""
+        leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
+        terminator="" initiatedContent="no" textNumberRep="standard"
+        separatorPolicy="suppressed" separatorPosition="infix"
+        occursCountKind="parsed"/>
+    </appinfo>
+  </annotation>
 
   <!-- Evaluated occursCount based on hidden elements -->
 
   <group name="xCountGroup">
     <sequence>
-      <element name="xCount" type="xsd:int" dfdl:representation="text"
-        dfdl:terminator="%NL;" />
+      <element name="xCount" type="xsd:int" dfdl:representation="text" />
     </sequence>
   </group>
 
   <group name="yCountGroup">
     <sequence>
-      <element name="yCount" type="xsd:int" dfdl:terminator="%NL;"
-        dfdl:representation="text" />
+      <element name="yCount" type="xsd:int" dfdl:representation="text" />
     </sequence>
   </group>
 
 
   <element name="list">
     <complexType>
-      <sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
-        <sequence dfdl:hiddenGroupRef="tns:xCountGroup" />
-        <element name="x" type="xsd:string"
-          dfdl:occursCountKind="expression" dfdl:occursCount="{ ../tns:xCount }"
-          dfdl:representation="text" />
-        <sequence dfdl:hiddenGroupRef="tns:yCountGroup" />
-        <element name="y" type="xsd:string"
-          dfdl:occursCountKind="expression" dfdl:occursCount="{ ../tns:yCount }"
-          dfdl:representation="text" />
+      <sequence>
+        <sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+          <sequence dfdl:hiddenGroupRef="tns:xCountGroup" />
+          <element name="x" type="xsd:string" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../tns:xCount }"
+            dfdl:representation="text" />
+          <sequence dfdl:hiddenGroupRef="tns:yCountGroup" />
+          <element name="y" type="xsd:string" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../tns:yCount }"
+            dfdl:representation="text" />
+        </sequence>
+        <sequence dfdl:hiddenGroupRef="tns:leftOver" />
       </sequence>
     </complexType>
   </element>
+
+  <group name="leftOver">
+    <sequence>
+      <element name="leftOver" type="xsd:string" />
+    </sequence>
+  </group>
+
+
 
 </schema>

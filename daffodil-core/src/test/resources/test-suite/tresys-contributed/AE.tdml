@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testSuite suiteName="AE" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
   <parserTestCase name="AE000" root="transposedMatrix"

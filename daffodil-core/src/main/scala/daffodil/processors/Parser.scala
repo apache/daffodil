@@ -356,8 +356,8 @@ class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
 
 }
 
-case class DummyParser(sc: PropertyMixin) extends Parser(null) {
-  def parse(pstate: PState): PState = Assert.abort("Parser for " + sc + " is not yet implemented.")
+case class DummyParser(sc: SchemaComponent) extends Parser(null) {
+  def parse(pstate: PState): PState = sc.SDE("Parser for " + sc + " is not yet implemented.")
 
   def toBriefXML(depthLimit: Int = -1) = "<dummy/>"
   override def toString = if (sc == null) "Dummy[null]" else "Dummy[" + sc + "]"

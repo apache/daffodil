@@ -68,6 +68,7 @@ trait ParticleMixin { self: ElementBase =>
     val sv = isRecurring && occursCountKind == OccursCountKind.StopValue
     // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.
     schemaDefinition(!(sv && occursStopValue == ""), "Property occursCountKind='stopValue' requires a non-empty occursStopValue property.")
+    schemaDefinition(!sv, "occursCountKind='stopValue' is not implemented.")
     sv
   }
 }

@@ -309,8 +309,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     // making things fail these comparisons, so we strip all attributes off (since DFDL doesn't 
     // use attributes at all)
     // 
-    val actualNoHidden = XMLUtils.removeHiddenElements(trimmed)
-    val actualNoAttrs = XMLUtils.removeAttributes(actualNoHidden(0))
+    val actualNoHiddenNodeSeq = XMLUtils.removeHiddenElements(trimmed)
+    val actualNoHiddenNode = actualNoHiddenNodeSeq(0) // convert NodeSeq back to Node. Anything more elegant?
+    val actualNoAttrs = XMLUtils.removeAttributes(actualNoHiddenNode)
     // 
     // Would be great to validate the actuals against the DFDL schema, used as
     // an XML schema on the returned infoset XML.

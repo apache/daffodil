@@ -276,7 +276,7 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComp
   lazy val longFormProperties = {
     // longForm Properties are not prefixed by dfdl
     val dfdlAttrs = dfdlAttributes(node).asAttrMap
-    Assert.invariant(dfdlAttrs.isEmpty)
+    schemaDefinition(dfdlAttrs.isEmpty, "long form properties are not prefixed by dfdl:")
     node.attributes.asAttrMap.toSet
   }
 
