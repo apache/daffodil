@@ -25,5 +25,5 @@ class TestSequenceGroupsDebug extends JUnitSuite {
   //@Test def test_prefix() { runner_01.runOneTest("prefix") }
   //@Test def test_prefix_01() { runner_01.runOneTest("prefix_01") }
 
-  @Test def test_hiddenGroupSchemaFail() { runner_02.runOneTest("hiddenGroupSchemaFail") }
+//  @Test def test_hiddenGroupSchemaFail() { runner_01.runOneTest("hiddenGroupSchemaFail") }
 }
