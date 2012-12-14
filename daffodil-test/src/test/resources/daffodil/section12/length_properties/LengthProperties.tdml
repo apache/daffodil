@@ -758,6 +758,29 @@ proper that we should do this]]></tdml:document>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="bit26" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:byteOrder="bigEndian" />
+    <xs:element name="bit27" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="9" dfdl:byteOrder="bigEndian" />
+    <xs:element name="bit28" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="13" dfdl:byteOrder="bigEndian" />
+    <xs:element name="bit29" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:byteOrder="bigEndian" />
+    <xs:element name="bit30" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="bigEndian" />
+    
+    <xs:element name="bit31" type="xs:short" dfdl:lengthKind="implicit" dfdl:byteOrder="bigEndian" />
+    <xs:element name="bit32" type="xs:int" dfdl:lengthKind="implicit" dfdl:byteOrder="bigEndian" />
+    
+    <xs:element name="s4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="bit33" type="xs:byte" dfdl:lengthKind="implicit" dfdl:byteOrder="bigEndian" />
+          <xs:element name="bit34" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="littleEndian"/>
+          <xs:element name="bit35" type="xs:int" dfdl:lengthKind="implicit" dfdl:byteOrder="littleEndian"/>
+          <xs:element name="bit36" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="bigEndian"/>
+          <xs:element name="bit37" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="bigEndian"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="bit38" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="bigEndian" />
   
   </tdml:defineSchema>
   
@@ -918,8 +941,179 @@ proper that we should do this]]></tdml:document>
     </tdml:infoset>
   </tdml:parserTestCase>
   
+  <!--
+    Test name: bitShort2
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey a signed Short
+  -->
+
+  <tdml:parserTestCase name="bitShort2"
+    root="bit26" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[10101]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit26>-11</bit26>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
   
   <!--
+    Test name: bitShort3
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey a signed Short
+  -->
+
+  <tdml:parserTestCase name="bitShort3"
+    root="bit38" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit38>-1</bit38>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitInt
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey a signed Int
+  -->
+
+  <tdml:parserTestCase name="bitInt"
+    root="bit27" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[000010101]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit27>21</bit27>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitInteger
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey a signed Integer
+  -->
+
+  <tdml:parserTestCase name="bitInteger"
+    root="bit28" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[1111000010101]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit28>-491</bit28>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitLong
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey a signed Long
+  -->
+
+  <tdml:parserTestCase name="bitLong"
+    root="bit29" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[101]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit29>-3</bit29>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitByte
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey a signed byte
+  -->
+
+  <tdml:parserTestCase name="bitByte"
+    root="bit30" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[0]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit30>0</bit30>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitShortImplicit
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey a signed Short of implicit length
+  -->
+
+  <tdml:parserTestCase name="bitShortImplicit"
+    root="bit31" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[11111111 10101010]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit31>-86</bit31>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitIntImplicit
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey a signed int of implicit length
+  -->
+
+  <tdml:parserTestCase name="bitIntImplicit"
+    root="bit32" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[10101000 00100100 11111111 10101010]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bit32>-1473970262</bit32>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: bitSignedCombo
+    Schema: bitSchema
+    Purpose: This test demonstrates the use of bits to convey a combination of signed types and byte orders
+  -->
+
+  <tdml:parserTestCase name="bitSignedCombo"
+    root="s4" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
+    <tdml:document>
+      <tdml:documentPart type="bits">00101010</tdml:documentPart>
+      <tdml:documentPart type="bits">1</tdml:documentPart>
+      <tdml:documentPart type="bits">00000000 00000000 00000000 00000001</tdml:documentPart>
+      <tdml:documentPart type="bits">0</tdml:documentPart>
+      <tdml:documentPart type="bits">1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <s4>
+          <bit33>42</bit33>
+          <bit34>-1</bit34>
+          <bit35>16777216</bit35>
+          <bit36>0</bit36>
+          <bit37>-1</bit37>
+        </s4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+ <!--
     Test name: lengthGreaterThanEight1
     Schema: bitSchema
     Purpose: This test demonstrates that a bit string of an arbitrary length will be properly interpreted (Big Endian)

@@ -30,8 +30,6 @@ class TestLengthPropertiesDebug extends JUnitSuite {
   // waiting for lengthUnits characters to be implemented.
   @Test def test_LengthProp_lengthExpression() { runner_02.runOneTest("LengthProp_lengthExpression1") }
   
-  @Test def test_bitShort() { runner_02.runOneTest("bitShort") }
-  
   @Test def test_LengthProp_bits_bool() { runner_02.runOneTest("LengthProp_bits_bool") }
 
 }
