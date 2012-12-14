@@ -42,4 +42,10 @@ class TestSequenceGroups extends JUnitSuite {
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 
   @Test def test_SeqGrp_05() { runner_02.runOneTest("SeqGrp_05") }
+  
+  @Test def test_hiddenGroup1() { runner_02.runOneTest("hiddenGroup1") }
+//  @Test def test_hiddenGroupSchemaFail() { runner_02.runOneTest("hiddenGroupSchemaFail") }
+  @Test def test_AC000() { runner_02.runOneTest("AC000") } 
+  @Test def test_AD000() { runner_02.runOneTest("AD000") } 
+  @Test def test_AS000() { runner_02.runOneTest("AS000") } 
 }
