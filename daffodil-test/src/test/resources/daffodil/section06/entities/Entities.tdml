@@ -227,6 +227,23 @@ is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+  
+  </tdml:defineSchema>
+    
+  <tdml:defineSchema name="Entities_02-Embedded">
+    <dfdl:format ref="daffodilTest1" representation="text" encoding="utf-16" 
+      separator="/" byteOrder="bigEndian" ignoreCase="no" textNumberRep="standard"
+      initiator="" initiatedContent="no" terminator="" />
+
+    <xs:element name="seq_11">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4" type="xs:string" />
+          <xs:element name="e2" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4" type="xs:string" />
+          <xs:element name="e3" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -432,6 +449,24 @@ is multiple bytes in UTF-8 encoding that is used"
           <e2>1</e2>
           <e3>2</e3>
         </seq_06>
+      </tdml:dfdlInfoset>
+
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="byte_entities_6_08"
+    description="Section 6.3 DFDL Character Entities - DFDL-6-037R"
+    model="Entities_02-Embedded" root="seq_11">
+    <tdml:document>
+      <tdml:documentPart type="byte">0031 0032 002F 0033 0034 002F 0031 0032</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq_11>
+          <e1>12</e1>
+          <e2>34</e2>
+          <e3>12</e3>
+        </seq_11>
       </tdml:dfdlInfoset>
 
     </tdml:infoset>
