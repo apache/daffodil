@@ -98,6 +98,156 @@
     </tdml:errors>
   </tdml:parserTestCase>
   
+  <tdml:defineSchema name="hiddenGroup3">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:group name="hg">
+      <xs:sequence>
+        <xs:element name="f" type="xs:int">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <dfdl:assert><![CDATA[{ xs:int(.) eq 42 }]]></dfdl:assert>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
+      </xs:sequence>
+    </xs:group>
+    <xs:element name="e" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:sequence dfdl:hiddenGroupRef="ex:hg" />
+          <xs:element name="g" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: hiddenGroupWithAssert
+       Schema: hiddenGroup3
+      Purpose: This test demonstrates that hidden groups can contain regular DFDL annotations.
+  -->
+  
+  <tdml:parserTestCase name="hiddenGroupWithAssert" root="e"
+    model="hiddenGroup3" description="Section 14 - Hidden Elements DFDL-14-037R.">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[42,2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <g>2</g>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hiddenGroupWithAssert2
+       Schema: hiddenGroup3
+      Purpose: This test demonstrates that hidden groups can contain regular DFDL annotations.
+  -->
+  
+  <tdml:parserTestCase name="hiddenGroupWithAssert2" root="e"
+    model="hiddenGroup3" description="Section 14 - Hidden Elements DFDL-14-037R.">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[43,2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="hiddenGroup4">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <xs:group name="hgNested">
+      <xs:sequence>
+        <xs:element name="sneaky" type="xs:int" />
+      </xs:sequence>
+    </xs:group>
+    <xs:group name="hg">
+      <xs:sequence dfdl:separator="/">
+        <xs:sequence dfdl:hiddenGroupRef="ex:hgNested" />
+        <xs:element name="f" type="xs:int" />
+      </xs:sequence>
+    </xs:group>
+    <xs:element name="e" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:sequence dfdl:hiddenGroupRef="ex:hg" />
+          <xs:element name="g" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:group name="hgNested3">
+      <xs:sequence>
+        <xs:element name="sneakier" type="xs:int" />
+      </xs:sequence>
+    </xs:group>
+    <xs:group name="hgNested2">
+      <xs:sequence dfdl:separator="o">
+        <xs:sequence dfdl:hiddenGroupRef="ex:hgNested3" />
+        <xs:element name="sneaky" type="xs:int" />
+      </xs:sequence>
+    </xs:group>
+    <xs:group name="hg2">
+      <xs:sequence dfdl:separator="/">
+        <xs:sequence dfdl:hiddenGroupRef="ex:hgNested2" />
+        <xs:element name="f" type="xs:int" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="ee" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:sequence dfdl:hiddenGroupRef="ex:hg2" />
+          <xs:element name="g" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: hiddenGroupNested
+       Schema: hiddenGroup4
+      Purpose: This test demonstrates that hidden groups can contain other hidden groups
+  -->
+  
+  <tdml:parserTestCase name="hiddenGroupNested" root="e"
+    model="hiddenGroup4" description="Section 14 - Hidden Elements - DFDL-14-041R.">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[5/42,2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <g>2</g>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hiddenGroupNested2
+       Schema: hiddenGroup4
+      Purpose: This test demonstrates that hidden groups can contain other hidden groups
+  -->
+  
+  <tdml:parserTestCase name="hiddenGroupNested2" root="ee"
+    model="hiddenGroup4" description="Section 14 - Hidden Elements - DFDL-14-041R.">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[6o5/42,2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ee>
+          <g>2</g>
+        </ee>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="AS000" root="table" model="AS-Embedded"
     description="hiddenGroupRef">
     <tdml:document><![CDATA[Creator: NCSA
