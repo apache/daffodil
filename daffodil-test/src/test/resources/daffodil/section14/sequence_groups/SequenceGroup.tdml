@@ -247,6 +247,68 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="hiddenGroupChoice">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:group name="hg">
+          <xs:choice>
+            <xs:element name="inty" type="xs:int"
+              dfdl:lengthKind="delimited" />
+            <xs:element name="stringy" type="xs:string"
+              dfdl:lengthKind="delimited" />
+          </xs:choice>
+    </xs:group>
+
+    <xs:element name="e" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:sequence dfdl:hiddenGroupRef="ex:hg" />
+          <xs:element name="g" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: hiddenGroupChoice
+       Schema: hiddenGroupChoice
+      Purpose: This test demonstrates that hidden groups can contain a choice.
+  -->
+  
+  <tdml:parserTestCase name="hiddenGroupChoice" root="e"
+    model="hiddenGroupChoice" description="Section 14 - Hidden Groups - DFDL-14-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[145,2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <g>2</g>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hiddenGroupChoice2
+       Schema: hiddenGroupChoice
+      Purpose: This test demonstrates that hidden groups can contain a choice.
+  -->
+  
+  <tdml:parserTestCase name="hiddenGroupChoice2" root="e"
+    model="hiddenGroupChoice" description="Section 14 - Hidden Groups - DFDL-14-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[stringy,2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <g>2</g>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="AS000" root="table" model="AS-Embedded"
     description="hiddenGroupRef">
