@@ -37,6 +37,8 @@ class TestNillableDebug extends JUnitSuite {
   // For LiteralValue Nils, representation must be text!!!
   // LogicalValue Nils are not yet implemented.
   @Test def test_entity_fail_05() { runnerEntity.runOneTest("entity_fail_05") }
+  @Test def test_entity_success_05() { runnerEntity.runOneTest("entity_success_05") }
+  @Test def test_entity_success_06() { runnerEntity.runOneTest("entity_success_06") }
   // This test must be changed to use logicalValue nils.
   // For LiteralValue Nils, representation must be text!!!
   // LogicalValue Nils are not yet implemented.

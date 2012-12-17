@@ -218,8 +218,28 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e1" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:terminator=";">
+          <xs:element name="a" type="xs:int" dfdl:representation="binary" dfdl:binaryNumberRep="binary" dfdl:lengthKind="delimited" />
+          <xs:element name="b" type="xs:int" dfdl:representation="binary" dfdl:binaryNumberRep="binary" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="binary_delimited_fail" root="e1"
+    model="lengthKindDelimited-Embedded.dfdl.xsd"
+    description="Binary data elements cannot have lengthKind='delimited' - DFDL-12-160R">
+    <tdml:document>
+      <tdml:documentPart type="byte">000000002cffffffff3B</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error/>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="NumSeq_00a" root="NS_00a"
     model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">

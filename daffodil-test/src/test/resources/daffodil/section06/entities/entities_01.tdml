@@ -127,19 +127,31 @@
       <xs:complexType>
         <xs:sequence dfdl:separator="," dfdl:terminator=";">
           <xs:element name="a" nillable="true" type="xs:int"
-            dfdl:lengthKind="delimited" />
+            dfdl:lengthKind="implicit" />
           <xs:element name="b" nillable="true" type="xs:int"
-            dfdl:lengthKind="delimited" />
+            dfdl:lengthKind="implicit" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e1" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:terminator=";">
+          <xs:element name="a" nillable="true" type="xs:int"
+            dfdl:lengthKind="implicit" dfdl:nilValue="%ES;"/>
+          <xs:element name="b" nillable="true" type="xs:int"
+            dfdl:lengthKind="implicit" dfdl:nilValue="%ES;"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="entity_fail_05" root="root"
     model="sch5"
     description="nilValue when nilKind='literalValue' and representation='binary' cannot be empty - DFDL-13-235R">
     <tdml:document>
-      <tdml:documentPart type="byte">000000003C3B</tdml:documentPart>
+      <tdml:documentPart type="byte">000000002C3B</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>nilValue</tdml:error>
@@ -147,6 +159,38 @@
       <tdml:error>be</tdml:error>
       <tdml:error>empty</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="entity_success_05" root="e1"
+    model="sch5"
+    description="nilValue='%ES;' when nilKind='literalValue' and representation='binary' - DFDL-13-235R">
+    <tdml:document>
+      <tdml:documentPart type="byte">000000002cffffffff3B</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <a>0</a>
+          <b>-1</b>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="entity_success_06" root="e1"
+    model="sch5"
+    description="nilValue='%ES;' when nilKind='literalValue' and representation='binary' - DFDL-13-235R">
+    <tdml:document>
+      <tdml:documentPart type="byte">000000002c3B</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <a>0</a>
+          <b xsi:nil="true" />
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sch6">
@@ -161,9 +205,9 @@
       <xs:complexType>
         <xs:sequence dfdl:separator="," dfdl:terminator=";">
           <xs:element name="a" nillable="true" type="xs:int"
-            dfdl:lengthKind="delimited" />
+            dfdl:lengthKind="implicit" />
           <xs:element name="b" nillable="true" type="xs:int"
-            dfdl:lengthKind="delimited" />
+            dfdl:lengthKind="implicit" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -173,7 +217,7 @@
     model="sch6"
     description="nilValue when nilKind='literalValue' and representation='binary' cannot contain NL, WSP/*/+ - DFDL-13-235R">
     <tdml:document>
-      <tdml:documentPart type="byte">000000003C3B</tdml:documentPart>
+      <tdml:documentPart type="byte">000000002C3B</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>nilValue</tdml:error>
