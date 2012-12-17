@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
   <parserTestCase name="AK000" root="list" model="AK.dfdl.xsd"
-    description="Simple Binary with signed and usigned types">
+    description="Simple Binary with signed and usigned types - DFDL-5-020R">
     <document>
       <documentPart type="byte">ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</documentPart>
     </document>
@@ -25,7 +25,7 @@
   </parserTestCase>
 
   <parserTestCase name="AK001" root="list" model="AK.dfdl.xsd"
-    description="Simple Binary with signed and usigned types">
+    description="Simple Binary with signed and usigned types - DFDL-5-020R">
     <document>
       <documentPart type="byte">7f7f7fff7fff7fffffff7fffffff7fffffffffffffff7fffffffffffffff</documentPart>
     </document>
