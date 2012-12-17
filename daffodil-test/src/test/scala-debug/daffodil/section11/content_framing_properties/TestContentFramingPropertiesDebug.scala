@@ -19,5 +19,10 @@ class TestContentFramingPropertiesDebug extends JUnitSuite {
   @Test def test_encoding_11_01() { runner1.runOneTest("encoding_11_01") }
   //@Test def test_encoding_11_02() { runner1.runOneTest("encoding_11_02") }
   //@Test def test_encoding_11_03() { runner1.runOneTest("encoding_11_03") }
+  
+  val testDir_02 = "/daffodil/section11/content_framing_properties/"
+  val tdml2 = testDir_02 + "ContentFramingProps.tdml"
+  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+  @Test def test_xml_illegal_char_01() { runner2.runOneTest("xml_illegal_chars_01") }
 
 }
