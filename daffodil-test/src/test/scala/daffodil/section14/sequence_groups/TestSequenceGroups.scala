@@ -55,4 +55,10 @@ class TestSequenceGroups extends JUnitSuite {
   @Test def test_AC000() { runner_02.runOneTest("AC000") }
   @Test def test_AD000() { runner_02.runOneTest("AD000") }
   @Test def test_AS000() { runner_02.runOneTest("AS000") }
+  
+  val tdml_03 = testDir_01 + "SequenceGroupIsolate.tdml"
+  lazy val runner_03 = new DFDLTestSuite(Misc.getRequiredResource(tdml_03))
+  
+//  @Test def test_hiddenGroupEmpty() { runner_03.runOneTest("hiddenGroupEmpty") }
+
 }
