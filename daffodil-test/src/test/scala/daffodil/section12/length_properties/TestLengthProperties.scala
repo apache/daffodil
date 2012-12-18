@@ -79,7 +79,10 @@ class TestLengthProperties extends JUnitSuite {
 
 //  @Test def test_LengthProp_bits_bool() { runner_02.runOneTest("LengthProp_bits_bool") }
 
-  @Test def test_LengthProp() { runner_02.runOneTest("LengthProp") }
+  @Test def test_LengthProp_leftover1() { runner_02.runOneTest("LengthProp_leftover1") }
+  @Test def test_LengthProp_leftover2() { runner_02.runOneTest("LengthProp_leftover2") }
+  @Test def test_LengthProp_leftover3() { runner_02.runOneTest("LengthProp_leftover3") }
+  @Test def test_LengthProp_leftover4() { runner_02.runOneTest("LengthProp_leftover4") }
  
   @Test def test_bitShort() { runner_02.runOneTest("bitShort") }
   @Test def test_bitShort2() { runner_02.runOneTest("bitShort2") }
@@ -91,5 +94,5 @@ class TestLengthProperties extends JUnitSuite {
   @Test def test_bitLong() { runner_02.runOneTest("bitLong") }
   @Test def test_bitByte() { runner_02.runOneTest("bitByte") }
   @Test def test_bitSignedCombo() { runner_02.runOneTest("bitSignedCombo") }
-  
+
 }

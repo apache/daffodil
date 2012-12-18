@@ -113,8 +113,22 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="LP_11">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="data" type="lp_11" />
+          <xs:element name="extra" type="xs:string" dfdl:encoding="utf-16be" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:simpleType name="lp_10" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bytes" 
+      dfdl:byteOrder="bigEndian">
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
+    
+    <xs:simpleType name="lp_11" dfdl:lengthKind="explicit" dfdl:length="6" dfdl:encoding="utf-16be" dfdl:lengthUnits="bytes" 
       dfdl:byteOrder="bigEndian">
       <xs:restriction base="xs:string" />
     </xs:simpleType>
@@ -122,14 +136,14 @@
   </tdml:defineSchema>
   
   <!--
-    Test name: LengthProp
+    Test name: LengthProp_leftover1
     Schema: LengthProperties-Embedded.dfdl.xsd
     Purpose: This test demonstrates that "When parsing, as many characters as possible are extracted from the bytes 
              of the simple content region. Any left over bytes are skipped" (in this case, the bytes are consumed by an 'extra' element
              so the test runner does not complain). 
   -->
 
-  <tdml:parserTestCase name="LengthProp"
+  <tdml:parserTestCase name="LengthProp_leftover1"
     root="LP_10" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-134R">
 
     <tdml:document>
@@ -141,6 +155,102 @@
           <data>lemon</data>
           <extra>s</extra>
         </LP_10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: LengthProp_leftover2
+    Schema: LengthProperties-Embedded.dfdl.xsd
+    Purpose: This test demonstrates that "When parsing, as many characters as possible are extracted from the bytes 
+             of the simple content region. Any left over bytes are skipped" (in this case, the bytes are consumed by an 'extra' element
+             so the test runner does not complain). 
+  -->
+
+  <tdml:parserTestCase name="LengthProp_leftover2"
+    root="LP_11" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-134R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00 6C 00 65 00 6D 00 6F 00 6E 00 73</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_11>
+          <data>lem</data>
+          <extra>ons</extra>
+        </LP_11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: LengthProp_leftover2
+    Schema: LengthProperties-Embedded.dfdl.xsd
+    Purpose: This test demonstrates that "When parsing, as many characters as possible are extracted from the bytes 
+             of the simple content region. Any left over bytes are skipped" (in this case, the bytes are consumed by an 'extra' element
+             so the test runner does not complain). 
+  -->
+
+  <tdml:parserTestCase name="LengthProp_leftover2"
+    root="LP_11" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-134R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00 6C 00 65 00 6D 00 6F 00 6E 00 73</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_11>
+          <data>lem</data>
+          <extra>ons</extra>
+        </LP_11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: LengthProp_leftover3
+    Schema: LengthProperties-Embedded.dfdl.xsd
+    Purpose: This test demonstrates that "When parsing, as many characters as possible are extracted from the bytes 
+             of the simple content region. Any left over bytes are skipped" (in this case, the bytes are consumed by an 'extra' element
+             so the test runner does not complain). 
+  -->
+
+  <tdml:parserTestCase name="LengthProp_leftover3"
+    root="LP_10" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-134R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">44 76 44 76 44 76</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_10>
+          <data>DvDvD</data>
+          <extra>v</extra>
+        </LP_10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: LengthProp_leftover4
+    Schema: LengthProperties-Embedded.dfdl.xsd
+    Purpose: This test demonstrates that "When parsing, as many characters as possible are extracted from the bytes 
+             of the simple content region. Any left over bytes are skipped" (in this case, the bytes are consumed by an 'extra' element
+             so the test runner does not complain). 
+  -->
+
+  <tdml:parserTestCase name="LengthProp_leftover4"
+    root="LP_11" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-134R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">44 76 44 76 44 76 44 76</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_11>
+          <data>䑶䑶䑶</data>
+          <extra>䑶</extra>
+        </LP_11>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
