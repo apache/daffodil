@@ -57,4 +57,6 @@ class TestSimpleTypes2 extends JUnitSuite {
 
   @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") }
 
+  @Test def test_literalChar_padding() { runner.runOneTest("literalChar_padding") }
+
 }

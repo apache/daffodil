@@ -1571,5 +1571,31 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="SimpleTypes-padding">
+    <dfdl:format ref="ex:daffodilTest1" representation="text"
+      lengthUnits="characters" textStringPadCharacter="X" textStringJustification="left" textTrimKind="padChar" />
+
+    <xs:element name="string" dfdl:lengthKind="explicit" dfdl:length="29" type="xs:string" />
+
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: literalChar_padding
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of a string literal for a text string pad character
+  -->
+
+  <tdml:parserTestCase name="literalChar_padding" root="string"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textStringPadCharacter DFDL-13-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[remove padding pleaseXXXXXXXX]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <string>remove padding please</string>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
