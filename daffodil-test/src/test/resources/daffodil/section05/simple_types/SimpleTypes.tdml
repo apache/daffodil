@@ -1574,9 +1574,13 @@
   
   <tdml:defineSchema name="SimpleTypes-padding">
     <dfdl:format ref="ex:daffodilTest1" representation="text"
-      lengthUnits="characters" textStringPadCharacter="X" textStringJustification="left" textTrimKind="padChar" />
+      lengthUnits="characters" encoding="utf-8" byteOrder="bigEndian" textStringPadCharacter="X" textStringJustification="left" textTrimKind="padChar" />
 
     <xs:element name="string" dfdl:lengthKind="explicit" dfdl:length="29" type="xs:string" />
+    <xs:element name="string2" dfdl:lengthKind="delimited" type="xs:string" />
+
+    <xs:element name="string3" dfdl:textStringPadCharacter="%NAK;" dfdl:lengthKind="delimited" type="xs:string" />
+    <xs:element name="string4" dfdl:textStringPadCharacter="%HT;" dfdl:lengthKind="delimited" type="xs:string" />
 
   </tdml:defineSchema>
   
@@ -1594,6 +1598,60 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <string>remove padding please</string>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: literalChar_padding2
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of a string literal for a text string pad character
+  -->
+
+  <tdml:parserTestCase name="literalChar_padding2" root="string2"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textStringPadCharacter DFDL-13-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[remove padding pleaseXXXXXXXX]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <string2>remove padding please</string2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: charEntity_padding1
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of a character entity for a text string pad character
+  -->
+
+  <tdml:parserTestCase name="charEntity_padding1" root="string3"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textStringPadCharacter DFDL-13-042R">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[72 65 6D 6F 76 65 20 70 61 64 64 69 6E 67 20 70 6C 65 61 73 65 15 15 15 15 15]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <string3>remove padding please</string3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: charEntity_padding2
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of a character entity for a text string pad character
+  -->
+
+  <tdml:parserTestCase name="charEntity_padding2" root="string4"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textStringPadCharacter DFDL-13-042R">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[72 65 6D 6F 76 65 20 70 61 64 64 69 6E 67 20 70 6C 65 61 73 65 09 09 09 09]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <string4>remove padding please</string4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
