@@ -1581,7 +1581,35 @@
 
     <xs:element name="string3" dfdl:textStringPadCharacter="%NAK;" dfdl:lengthKind="delimited" type="xs:string" />
     <xs:element name="string4" dfdl:textStringPadCharacter="%HT;" dfdl:lengthKind="delimited" type="xs:string" />
+    
+    <xs:element name="string5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/">
+          <xs:element name="first" type="padded" />
+          <xs:element name="second" type="xs:string" dfdl:textStringPadCharacter="_" dfdl:textStringJustification="center" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="string6">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="-">
+          <xs:element name="first" type="padded2" />
+          <xs:element name="second" type="xs:string" dfdl:textStringPadCharacter="_" dfdl:textStringJustification="left" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:simpleType name="padded" dfdl:textStringJustification="center" dfdl:textStringPadCharacter="-" dfdl:lengthKind="delimited">
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
+    
+    <xs:simpleType name="padded2" dfdl:textStringJustification="right" dfdl:textStringPadCharacter="_" dfdl:lengthKind="delimited">
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
 
+    <xs:element name="string7" dfdl:lengthUnits="bytes" dfdl:textStringPadCharacter="%HT;%CR;" dfdl:lengthKind="delimited" type="xs:string" />
+    
   </tdml:defineSchema>
   
   <!--
@@ -1652,6 +1680,68 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <string4>remove padding please</string4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: charEntity_padding3
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates that it is a schema definition error if more than one byte value entity
+             is specified for the textStringPadCharacter when lengthUnits="bytes"
+
+  -->
+
+  <tdml:parserTestCase name="charEntity_padding3" root="string7"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textStringPadCharacter DFDL-13-042R">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[72 65 6D 6F 76 65 20 70 61 64 64 69 6E 67 20 70 6C 65 61 73 65 09 0D 09 0D]]></tdml:documentPart>
+    </tdml:document>
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: literalChar_padding3
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of a string literal for a text string pad character
+        within a simpleType contained in a sequence (center justified)
+  -->
+
+  <tdml:parserTestCase name="literalChar_padding3" root="string5"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textStringPadCharacter DFDL-13-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[---------first---------/________second________]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <string5>
+          <first>first</first>
+          <second>second</second>
+        </string5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: literalChar_padding4
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of a string literal for a text string pad character
+        within a simpleType contained in a sequence (left and right justified)
+  -->
+
+  <tdml:parserTestCase name="literalChar_padding4" root="string6"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textStringPadCharacter DFDL-13-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[_______________first-second________]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <string6>
+          <first>first</first>
+          <second>second</second>
+        </string6>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

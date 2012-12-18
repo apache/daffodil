@@ -59,5 +59,6 @@ class TestSimpleTypes2 extends JUnitSuite {
 
   @Test def test_literalChar_padding() { runner.runOneTest("literalChar_padding") }
   @Test def test_charEntity_padding1() { runner.runOneTest("charEntity_padding1") }
+  @Test def test_charEntity_padding3() { runner.runOneTest("charEntity_padding3") }
 
 }
