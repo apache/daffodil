@@ -48,7 +48,7 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_whiteSpaceBeforeLengthExceededInteger() { runner.runOneTest("whiteSpaceBeforeLengthExceededInteger") }
   @Test def test_whiteSpaceDuringLengthExceededInteger() { runner.runOneTest("whiteSpaceDuringLengthExceededInteger") }
   @Test def test_whiteSpaceBeforeValidInteger() { runner.runOneTest("whiteSpaceBeforeValidInteger") }
-  <!-- TODO: Find out why these test generate unexpected errors -->
+//TODO: Find out why these test generate unexpected errors
   @Test def test_whiteSpaceDuringValidInteger() { runner.runOneTest("whiteSpaceDuringValidInteger") }
   @Test def test_whiteSpaceAfterValidInteger() { runner.runOneTest("whiteSpaceAfterValidInteger") }
   @Test def test_characterDuringValidLong() { runner.runOneTest("characterDuringValidLong") }
@@ -67,7 +67,7 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_whiteSpaceBeforeLengthExceededByte() { runner.runOneTest("whiteSpaceBeforeLengthExceededByte") }
   @Test def test_whiteSpaceDuringLengthExceededByte() { runner.runOneTest("whiteSpaceDuringLengthExceededByte") }
   @Test def test_whiteSpaceBeforeValidByte() { runner.runOneTest("whiteSpaceBeforeValidByte") }
-  <!-- TODO: Find out why these test generate unexpected errors -->
+// TODO: Find out why these test generate unexpected errors
   @Test def test_whiteSpaceDuringValidByte() { runner.runOneTest("whiteSpaceDuringValidByte") }
   @Test def test_whiteSpaceAfterValidByte() { runner.runOneTest("whiteSpaceAfterValidByte") }
   @Test def test_characterDuringValidUnsignedInt() { runner.runOneTest("characterDuringValidUnsignedInt") }
@@ -89,7 +89,7 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_whiteSpaceBeforeLengthExceededUnsignedLong() { runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedLong") }
   @Test def test_whiteSpaceDuringLengthExceededUnsignedLong() { runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedLong") }
   @Test def test_whiteSpaceBeforeValidUnsignedLong() { runner.runOneTest("whiteSpaceBeforeValidUnsignedLong") }
-  <!-- TODO: Find out why these test generate unexpected errors -->
+// TODO: Find out why these test generate unexpected errors
   @Test def test_whiteSpaceDuringValidUnsignedLong() { runner.runOneTest("whiteSpaceDuringValidUnsignedLong") }
   @Test def test_whiteSpaceAfterValidUnsignedLong() { runner.runOneTest("whiteSpaceAfterValidUnsignedLong") }
 
@@ -178,11 +178,13 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_int_binary_03() { runner.runOneTest("int_binary_03") }
   @Test def test_int_binary_04() { runner.runOneTest("int_binary_04") }
   @Test def test_int_binary_05() { runner.runOneTest("int_binary_05") }
-  
+
   @Test def test_int_implicit() { runner.runOneTest("int_implicit") }
   
   @Test def test_integer_binary_01() { runner.runOneTest("integer_binary_01") }
 
 //  @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }
-
+  
+//  @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") }
+  
 }

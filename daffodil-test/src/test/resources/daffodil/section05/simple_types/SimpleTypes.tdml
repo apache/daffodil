@@ -110,6 +110,7 @@
     <xs:element name="uL_01" type="xs:unsignedLong" />
     <xs:element name="d_01" type="xs:double" />
     <xs:element name="dec_01" type="xs:decimal" />
+    <xs:element name="hb_01" type="xs:hexBinary" />
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="Long1" root="s"
@@ -1551,6 +1552,24 @@
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Size of binary data 'integer' cannot be determined implicitly</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_01
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the use of the hexBinary simple type 
+  -->
+
+  <tdml:parserTestCase name="hexBinary_01" root="hb_01"
+      model="SimpleTypes-binary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1d1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hb_01>a1b1c1d1</hb_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>
