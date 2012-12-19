@@ -147,6 +147,37 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
     delimRegex
   }
 
+  def removePadding(input: String, justification: TextJustificationType.Type, padChar: String): String = {
+    if (justification != TextJustificationType.None && padChar.length() == 0) { return input }
+    
+    val anything: Parser[String] = """(.*?)(?=%s*$)""".format(padChar).r
+    val padCharRegex = this.convertDFDLLiteralToRegex(padChar)
+    val rPadCharLeft = """^(%s*)""".format(padCharRegex)
+    val pPadCharLeft: Parser[String] = rPadCharLeft.r
+    val rPadCharRight = """(%s*)$""".format(padCharRegex)
+    val pPadCharRight: Parser[String] = rPadCharRight.r
+    val fieldCenter: Parser[String] = pPadCharLeft ~ anything ~ pPadCharRight ^^ { case (l ~ a ~ r) => a }
+    val fieldLeft: Parser[String] = anything ~ pPadCharRight ^^ { case (a ~ r) => a }
+    val fieldRight: Parser[String] = pPadCharLeft ~ anything ^^ { case (l ~ a) => a }
+    // Remove padding if it exists
+    val result = justification match {
+      case TextJustificationType.None => input
+      case TextJustificationType.Left => {
+        val res = this.parse(this.log(fieldLeft)("DelimParser.parseInputNCharacters.leftJustified"), input)
+        res.getOrElse(input)
+      }
+      case TextJustificationType.Right => {
+        val res = this.parse(this.log(fieldRight)("DelimParser.parseInputNCharacters.rightJustified"), input)
+        res.getOrElse(input)
+      }
+      case TextJustificationType.Center => {
+        val res = this.parse(this.log(fieldCenter)("DelimParser.parseInputNCharacters.centerJustified"), input)
+        res.getOrElse(input)
+      }
+    }
+    result
+  }
+
   def parseInputPatterned(pattern: String, input: Reader[Char]): DelimParseResult = {
     withLoggingLevel(LogLevel.Info) {
       val EOF: Parser[String] = """\z""".r
@@ -177,7 +208,9 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
     }
   }
 
-  def parseInputNCharacters(nChars: Long, input: Reader[Char]): DelimParseResult = {
+  def parseInputNCharacters(nChars: Long, input: Reader[Char],
+    justification: TextJustificationType.Type,
+    padChar: String): DelimParseResult = {
     withLoggingLevel(LogLevel.Info) {
       val EOF: Parser[String] = """\z""".r
       val anything: Parser[String] = """.*""".r
@@ -194,16 +227,19 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
       var isSuccess: Boolean = false
       var delimiterType = DelimiterType.Delimiter
       var fieldResultBits: Int = 0
+      var numCharsRead: Int = 0
 
       if (!res.isEmpty) {
         fieldResult = res.get
         isSuccess = true
         fieldResultBits = e.knownEncodingStringBitLength(fieldResult)
+        numCharsRead = fieldResult.length()
+        fieldResult = removePadding(fieldResult, justification, padChar)
       }
 
       val result: DelimParseResult = new DelimParseResult
       result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBits)
-      result.numCharsRead = fieldResult.length()
+      result.numCharsRead = numCharsRead
       result
     }
   }
@@ -1205,7 +1241,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
 
   def convertDFDLLiteralToRegex(dfdlLiteral: String): String = {
     var sb: StringBuilder = new StringBuilder("(")
-   
+
     dfdlLiteral foreach {
       char =>
         {
@@ -1255,12 +1291,12 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
       return removeEscapeCharactersDiff(input, eses, es)
     }
   }
-  
+
   private def removeEscapeCharactersSame(input: String, es: String): String = {
     // TODO: Move regular expressions out into central class
     // used to cleanup escape characters 
     val ERSplit = """(?s)(.*?)%1$s(.)(.*)""".format(es).r
-    
+
     def removeActiveEscapes(str: String): String = {
       val res = str match {
         case ERSplit(before, theEsc, delim, after) => {

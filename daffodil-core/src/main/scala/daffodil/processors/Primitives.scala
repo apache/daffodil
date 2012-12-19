@@ -274,6 +274,7 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 
 case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
   extends Terminal(e, true)
+  with Padded
   with WithParseErrorThrowing {
 
   val charset = e.knownEncodingCharset
@@ -301,6 +302,8 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
         val bytePos = (start.bitPos >> 3).toInt
 
         val decoder = charset.newDecoder()
+        
+        val d = new DelimParser(e)
 
         try {
           //
@@ -313,7 +316,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
           val bytes = in.getBytes(start.bitPos, nBytes.toInt)
           decoder.reset()
           val cb = decoder.decode(ByteBuffer.wrap(bytes))
-          val result = cb.toString
+          val result = cb.toString()
           val endBitPos = start.bitPos + (result.length * codepointWidth) // handles 7-bit or wider chars
           log(Debug("Parsed: %s", result))
           log(Debug("Ended at bit position %s", endBitPos))
@@ -322,7 +325,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
           // Assert.invariant(currentElement.getName != "_document_")
           // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
           // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-          currentElement.setDataValue(result)
+          currentElement.setDataValue(d.removePadding(result, justificationTrim, padChar))
           //val postState = start.withPos(endBitPos, endCharPos)
           val postState = start.withPos(endBitPos, -1) // -1 means a subsequent primitive will have to construct
           // a new reader at said bitPosition
@@ -358,7 +361,8 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
 
 case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nBytes: Long)
   extends Terminal(e, true)
-  with WithParseErrorThrowing {
+  with WithParseErrorThrowing
+  with Padded {
 
   def parser: Parser = new PrimParser(this, e) {
     override def toString = "StringFixedLengthInBytesVariableWidthCharactersParser(" + nBytes + ")"
@@ -376,7 +380,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
         val in = start.inStream
 
         val decoder = charset.newDecoder()
-
+        val d = new DelimParser(e)
         try {
           val bytes = in.getBytes(start.bitPos, nBytes.toInt)
           decoder.reset()
@@ -390,7 +394,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
           // Assert.invariant(currentElement.getName != "_document_")
           // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
           // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-          currentElement.setDataValue(result)
+          currentElement.setDataValue(d.removePadding(result, justificationTrim, padChar))
           //val postState = start.withPos(endBitPos, endCharPos)
           val postState = start.withPos(endBitPos, -1) // charPos = -1 tells subsequent calls to construct
           // a new reader at said bitPos
@@ -443,7 +447,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
 
 case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Long)
   extends Terminal(e, true)
-  with WithParseErrorThrowing with TextReader {
+  with WithParseErrorThrowing with TextReader with Padded {
 
   def parser: Parser = new PrimParser(this, e) {
     override def toString = "StringFixedLengthInVariableWidthCharactersParser(" + nChars + ")"
@@ -470,7 +474,7 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
 
         val d = new DelimParser(e)
 
-        val result = d.parseInputNCharacters(nChars, reader)
+        val result = d.parseInputNCharacters(nChars, reader, justificationTrim, padChar)
 
         if (!result.isSuccess) {
           return PE(start, "Parse failed to find exactly %s characters.", nChars)
@@ -530,7 +534,7 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
 
 case class StringDelimitedEndOfData(e: ElementBase)
   extends Terminal(e, true)
-  with WithParseErrorThrowing with TextReader {
+  with WithParseErrorThrowing with TextReader with Padded {
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   lazy val tm = e.allTerminatingMarkup
@@ -538,19 +542,19 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
   val charset = e.knownEncodingCharset
 
-  var padChar = ""
-  val justificationTrim: TextJustificationType.Type = e.textTrimKind match {
-    case TextTrimKind.None => TextJustificationType.None
-    case TextTrimKind.PadChar => {
-      padChar = e.textStringPadCharacter
-      e.textStringJustification match {
-        case TextStringJustification.Left =>
-          TextJustificationType.Left
-        case TextStringJustification.Right => TextJustificationType.Right
-        case TextStringJustification.Center => TextJustificationType.Center
-      }
-    }
-  }
+  //  var padChar = ""
+  //  val justificationTrim: TextJustificationType.Type = e.textTrimKind match {
+  //    case TextTrimKind.None => TextJustificationType.None
+  //    case TextTrimKind.PadChar => {
+  //      padChar = e.textStringPadCharacter
+  //      e.textStringJustification match {
+  //        case TextStringJustification.Left =>
+  //          TextJustificationType.Left
+  //        case TextStringJustification.Right => TextJustificationType.Right
+  //        case TextStringJustification.Center => TextJustificationType.Center
+  //      }
+  //    }
+  //  }
 
   def parser: Parser = new PrimParser(this, e) {
     override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
@@ -650,7 +654,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
 case class StringPatternMatched(e: ElementBase)
   extends Terminal(e, true)
-  with WithParseErrorThrowing with TextReader {
+  with WithParseErrorThrowing with TextReader with Padded {
 
   val charset = e.knownEncodingCharset
 
@@ -1896,7 +1900,8 @@ case class LiteralNilKnownLengthInBytes(e: ElementBase, lengthInBytes: Long)
 }
 
 abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
-  extends StaticText(e.nilValue, e, label, e.isNillable) {
+  extends StaticText(e.nilValue, e, label, e.isNillable)
+  with Padded {
 
   protected def computeLength(start: PState): (Long, VariableMap)
 
@@ -2001,7 +2006,8 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
 }
 
 case class LiteralNilExplicitLengthInChars(e: ElementBase)
-  extends StaticText(e.nilValue, e, "LiteralNilExplicit", e.isNillable) {
+  extends StaticText(e.nilValue, e, "LiteralNilExplicit", e.isNillable)
+  with Padded {
   // We are to assume that we can always read nChars
   // a failure to read nChars is a failure period.
 
@@ -2104,7 +2110,8 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
 }
 
 case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
-  extends StaticText(e.nilValue, e, "LiteralNilExplicit", e.isNillable) {
+  extends StaticText(e.nilValue, e, "LiteralNilExplicit", e.isNillable)
+  with Padded {
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
 
@@ -2194,7 +2201,8 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
 }
 
 case class LiteralNilPattern(e: ElementBase)
-  extends StaticText(e.nilValue, e, "LiteralNilPattern", e.isNillable) {
+  extends StaticText(e.nilValue, e, "LiteralNilPattern", e.isNillable)
+  with Padded {
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
 
@@ -2284,24 +2292,25 @@ case class LiteralNilPattern(e: ElementBase)
 }
 
 case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
-  extends StaticText(e.nilValue, e, "LiteralNilDelimitedOrEndOfData", e.isNillable) {
+  extends StaticText(e.nilValue, e, "LiteralNilDelimitedOrEndOfData", e.isNillable)
+  with Padded {
   lazy val unparserDelim = Assert.notYetImplemented()
   //  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   val stParser = super.parser
 
-  var padChar = ""
-  val justificationTrim: TextJustificationType.Type = e.textTrimKind match {
-    case TextTrimKind.None => TextJustificationType.None
-    case TextTrimKind.PadChar => {
-      padChar = e.textStringPadCharacter
-      e.textStringJustification match {
-        case TextStringJustification.Left =>
-          TextJustificationType.Left
-        case TextStringJustification.Right => TextJustificationType.Right
-        case TextStringJustification.Center => TextJustificationType.Center
-      }
-    }
-  }
+  //  var padChar = ""
+  //  val justificationTrim: TextJustificationType.Type = e.textTrimKind match {
+  //    case TextTrimKind.None => TextJustificationType.None
+  //    case TextTrimKind.PadChar => {
+  //      padChar = e.textStringPadCharacter
+  //      e.textStringJustification match {
+  //        case TextStringJustification.Left =>
+  //          TextJustificationType.Left
+  //        case TextStringJustification.Right => TextJustificationType.Right
+  //        case TextStringJustification.Center => TextJustificationType.Center
+  //      }
+  //    }
+  //  }
 
   override def parser = new PrimParser(this, e) {
     override def toString = "LiteralNilDelimitedOrEndOfData(" + e.nilValue + ")"
@@ -2748,6 +2757,7 @@ class SetVariableParser(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
 
 case class StringExplicitLengthInBytes(e: ElementBase)
   extends Terminal(e, true)
+  with Padded
   with WithParseErrorThrowing {
   val expr = e.length
   val exprText = expr.prettyExpr
@@ -2773,6 +2783,7 @@ case class StringExplicitLengthInBytes(e: ElementBase)
 
       val in = start.inStream
       val decoder = charset.newDecoder()
+      val d = new DelimParser(e)
 
       val bytePos = (start.bitPos >> 3).toInt
 
@@ -2788,7 +2799,7 @@ case class StringExplicitLengthInBytes(e: ElementBase)
         // Assert.invariant(currentElement.getName != "_document_")
         // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
         // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-        currentElement.setDataValue(result)
+        currentElement.setDataValue(d.removePadding(result, justificationTrim, padChar))
         val postState = start.withPos(endBitPos, endCharPos)
         return postState
       } catch {
@@ -2900,6 +2911,25 @@ trait TextReader extends Logging {
 
   // For optimizing performance, is it necessary for every text reader to update
   // the hash with the updated charPos?  Probably not.
+
+}
+
+trait Padded { self: Terminal =>
+  var padChar = ""
+  lazy val eBase = self.context.asInstanceOf[ElementBase]
+
+  val justificationTrim: TextJustificationType.Type = eBase.textTrimKind match {
+    case TextTrimKind.None => TextJustificationType.None
+    case TextTrimKind.PadChar => {
+      padChar = eBase.textStringPadCharacter
+      eBase.textStringJustification match {
+        case TextStringJustification.Left =>
+          TextJustificationType.Left
+        case TextStringJustification.Right => TextJustificationType.Right
+        case TextStringJustification.Center => TextJustificationType.Center
+      }
+    }
+  }
 
 }
 
