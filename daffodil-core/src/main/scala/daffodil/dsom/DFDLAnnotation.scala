@@ -479,7 +479,10 @@ class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)
   extends DFDLFormatAnnotation(node, decl)
   with SimpleType_AnnotationMixin
   with TextNumberFormatMixin
-  with TextStringPaddingMixin
+  with StringTextMixin
+  with NumberTextMixin
+  with CalendarTextMixin
+  with BooleanTextMixin
   with RawSimpleTypeRuntimeValuedPropertiesMixin {
 }
 

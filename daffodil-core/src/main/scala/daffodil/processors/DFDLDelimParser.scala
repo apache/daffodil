@@ -148,9 +148,9 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
   }
 
   def removePadding(input: String, justification: TextJustificationType.Type, padChar: String): String = {
-    if (justification != TextJustificationType.None && padChar.length() == 0) { return input }
-    
-    val anything: Parser[String] = """(.*?)(?=%s*$)""".format(padChar).r
+    if ((padChar.length() == 0)) { return input }
+    val rAnything = """(.*?)(?=%s*$)""".format(padChar)
+    val anything: Parser[String] = rAnything.r
     val padCharRegex = this.convertDFDLLiteralToRegex(padChar)
     val rPadCharLeft = """^(%s*)""".format(padCharRegex)
     val pPadCharLeft: Parser[String] = rPadCharLeft.r

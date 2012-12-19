@@ -22,6 +22,9 @@ import java.sql.Timestamp
 import daffodil.grammar.Gram
 import daffodil.schema.annotation.props.gen.TextTrimKind
 import daffodil.schema.annotation.props.gen.TextStringJustification
+import daffodil.schema.annotation.props.gen.TextNumberJustification
+import daffodil.schema.annotation.props.gen.TextCalendarJustification
+import daffodil.schema.annotation.props.gen.TextBooleanJustification
 
 abstract class PrimParser(gram: Gram, context: SchemaComponent)
   extends Parser(context) {
@@ -302,7 +305,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
         val bytePos = (start.bitPos >> 3).toInt
 
         val decoder = charset.newDecoder()
-        
+
         val d = new DelimParser(e)
 
         try {
@@ -322,10 +325,11 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
           log(Debug("Ended at bit position %s", endBitPos))
           val endCharPos = start.charPos + result.length
           val currentElement = start.parentElement
+          val trimmedResult = d.removePadding(result, justificationTrim, padChar)
           // Assert.invariant(currentElement.getName != "_document_")
           // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
           // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-          currentElement.setDataValue(d.removePadding(result, justificationTrim, padChar))
+          currentElement.setDataValue(trimmedResult)
           //val postState = start.withPos(endBitPos, endCharPos)
           val postState = start.withPos(endBitPos, -1) // -1 means a subsequent primitive will have to construct
           // a new reader at said bitPosition
@@ -2918,17 +2922,49 @@ trait Padded { self: Terminal =>
   var padChar = ""
   lazy val eBase = self.context.asInstanceOf[ElementBase]
 
-  val justificationTrim: TextJustificationType.Type = eBase.textTrimKind match {
+  lazy val justificationTrim: TextJustificationType.Type = eBase.textTrimKind match {
     case TextTrimKind.None => TextJustificationType.None
-    case TextTrimKind.PadChar => {
-      padChar = eBase.textStringPadCharacter
-      eBase.textStringJustification match {
-        case TextStringJustification.Left =>
-          TextJustificationType.Left
-        case TextStringJustification.Right => TextJustificationType.Right
-        case TextStringJustification.Center => TextJustificationType.Center
+    case TextTrimKind.PadChar if eBase.isSimpleType => {
+      val theJust = eBase.primType.name match {
+
+        case "int" | "byte" | "short" | "long" | "integer" | "unsignedInt" |
+          "unsignedByte" | "unsignedShort" | "unsignedLong" | "double" | "float" => {
+          padChar = eBase.textNumberPadCharacter
+          eBase.textNumberJustification match {
+            case TextNumberJustification.Left => TextJustificationType.Left
+            case TextNumberJustification.Right => TextJustificationType.Right
+            case TextNumberJustification.Center => TextJustificationType.Center
+          }
+        }
+        case "string" => {
+          padChar = eBase.textStringPadCharacter
+          eBase.textStringJustification match {
+            case TextStringJustification.Left => TextJustificationType.Left
+            case TextStringJustification.Right => TextJustificationType.Right
+            case TextStringJustification.Center => TextJustificationType.Center
+          }
+        }
+        case "dateTime" | "date" | "time" => {
+          padChar = eBase.textCalendarPadCharacter
+          eBase.textCalendarJustification match {
+            case TextCalendarJustification.Left => TextJustificationType.Left
+            case TextCalendarJustification.Right => TextJustificationType.Right
+            case TextCalendarJustification.Center => TextJustificationType.Center
+          }
+        }
+        case "boolean" => {
+          padChar = eBase.textBooleanPadCharacter
+          eBase.textBooleanJustification match {
+            case TextBooleanJustification.Left => TextJustificationType.Left
+            case TextBooleanJustification.Right => TextJustificationType.Right
+            case TextBooleanJustification.Center => TextJustificationType.Center
+          }
+        }
+        case _ => TextJustificationType.None
       }
+      theJust
     }
+    case _ => TextJustificationType.None
   }
 
 }

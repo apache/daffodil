@@ -144,12 +144,16 @@ trait TextNumberFormatMixin extends PropertyMixin {
   }
 }
 
-trait TextStringPaddingMixin extends PropertyMixin {
+trait StringTextMixin extends PropertyMixin
+  with daffodil.schema.annotation.props.gen.LengthUnitsMixin {
   lazy val textStringPadCharacterRaw = getProperty("textStringPadCharacter")
   lazy val textStringPadCharacter = {
     val raw = textStringPadCharacterRaw
 
+    // Can be a literal character or DFDL entity
+
     // DFDL Character classes are not allowed
+    this.schemaDefinition(!(raw.length() == 0), "textStringPadCharacter cannot be empty!")
     this.schemaDefinition(!raw.contains("%NL;"), "textStringPadCharacter cannot contain NL!")
     this.schemaDefinition(!raw.contains("%ES;"), "textStringPadCharacter cannot contain ES!")
     this.schemaDefinition(!raw.contains("%WSP;"), "textStringPadCharacter cannot contain WSP!")
@@ -157,7 +161,111 @@ trait TextStringPaddingMixin extends PropertyMixin {
     this.schemaDefinition(!raw.contains("%WSP*;"), "textStringPadCharacter cannot contain WSP*!")
 
     // TODO: raw byte entity %#r is allowed
-    
+
+    this.lengthUnits match {
+      case daffodil.schema.annotation.props.gen.LengthUnits.Bytes => {
+        // TODO: must be single byte value entity
+        // TODO: must be single byte character
+      }
+      case daffodil.schema.annotation.props.gen.LengthUnits.Characters => {
+        // TODO: must be a fixed-width encoding
+      }
+      case daffodil.schema.annotation.props.gen.LengthUnits.Bits => this.schemaDefinitionError("textStringPadCharacter lengthUnits cannot be Bits.")
+    }
+
+    val l = new SingleCharacterLiteralES(raw, this)
+    l.cooked
+  }
+}
+
+trait NumberTextMixin extends PropertyMixin
+  with daffodil.schema.annotation.props.gen.LengthUnitsMixin {
+  lazy val textNumberPadCharacterRaw = getProperty("textNumberPadCharacter")
+  lazy val textNumberPadCharacter = {
+    val raw = textNumberPadCharacterRaw
+
+    // DFDL Character classes are not allowed
+    this.schemaDefinition(!(raw.length() == 0), "textNumberPadCharacter cannot be empty!")
+    this.schemaDefinition(!raw.contains("%NL;"), "textNumberPadCharacter cannot contain NL!")
+    this.schemaDefinition(!raw.contains("%ES;"), "textNumberPadCharacter cannot contain ES!")
+    this.schemaDefinition(!raw.contains("%WSP;"), "textNumberPadCharacter cannot contain WSP!")
+    this.schemaDefinition(!raw.contains("%WSP+;"), "textNumberPadCharacter cannot contain WSP+!")
+    this.schemaDefinition(!raw.contains("%WSP*;"), "textNumberPadCharacter cannot contain WSP*!")
+
+    // TODO: raw byte entity %#r is allowed
+    this.lengthUnits match {
+      case daffodil.schema.annotation.props.gen.LengthUnits.Bytes => {
+        // TODO: must be single byte value entity
+        // TODO: must be single byte character
+      }
+      case daffodil.schema.annotation.props.gen.LengthUnits.Characters => {
+        // TODO: must be a fixed-width encoding
+      }
+      case daffodil.schema.annotation.props.gen.LengthUnits.Bits => this.schemaDefinitionError("textNumberPadCharacter lengthUnits cannot be Bits.")
+    }
+
+    val l = new SingleCharacterLiteralES(raw, this)
+    l.cooked
+  }
+}
+
+trait BooleanTextMixin extends PropertyMixin
+  with daffodil.schema.annotation.props.gen.LengthUnitsMixin {
+  lazy val textBooleanPadCharacterRaw = getProperty("textBooleanPadCharacter")
+  lazy val textBooleanPadCharacter = {
+    val raw = textBooleanPadCharacterRaw
+
+    // DFDL Character classes are not allowed
+    this.schemaDefinition(!(raw.length() == 0), "textBooleanPadCharacter cannot be empty!")
+    this.schemaDefinition(!raw.contains("%NL;"), "textBooleanPadCharacter cannot contain NL!")
+    this.schemaDefinition(!raw.contains("%ES;"), "textBooleanPadCharacter cannot contain ES!")
+    this.schemaDefinition(!raw.contains("%WSP;"), "textBooleanPadCharacter cannot contain WSP!")
+    this.schemaDefinition(!raw.contains("%WSP+;"), "textBooleanPadCharacter cannot contain WSP+!")
+    this.schemaDefinition(!raw.contains("%WSP*;"), "textBooleanPadCharacter cannot contain WSP*!")
+
+    // TODO: raw byte entity %#r is allowed
+    this.lengthUnits match {
+      case daffodil.schema.annotation.props.gen.LengthUnits.Bytes => {
+        // TODO: must be single byte value entity
+        // TODO: must be single byte character
+      }
+      case daffodil.schema.annotation.props.gen.LengthUnits.Characters => {
+        // TODO: must be a fixed-width encoding
+      }
+      case daffodil.schema.annotation.props.gen.LengthUnits.Bits => this.schemaDefinitionError("textBooleanPadCharacter lengthUnits cannot be Bits.")
+    }
+
+    val l = new SingleCharacterLiteralES(raw, this)
+    l.cooked
+  }
+}
+
+trait CalendarTextMixin extends PropertyMixin
+  with daffodil.schema.annotation.props.gen.LengthUnitsMixin {
+  lazy val textCalendarPadCharacterRaw = getProperty("textCalendarPadCharacter")
+  lazy val textCalendarPadCharacter = {
+    val raw = textCalendarPadCharacterRaw
+
+    // DFDL Character classes are not allowed
+    this.schemaDefinition(!(raw.length() == 0), "textCalendarPadCharacter cannot be empty!")
+    this.schemaDefinition(!raw.contains("%NL;"), "textCalendarPadCharacter cannot contain NL!")
+    this.schemaDefinition(!raw.contains("%ES;"), "textCalendarPadCharacter cannot contain ES!")
+    this.schemaDefinition(!raw.contains("%WSP;"), "textCalendarPadCharacter cannot contain WSP!")
+    this.schemaDefinition(!raw.contains("%WSP+;"), "textCalendarPadCharacter cannot contain WSP+!")
+    this.schemaDefinition(!raw.contains("%WSP*;"), "textCalendarPadCharacter cannot contain WSP*!")
+
+    // TODO: raw byte entity %#r is allowed
+    this.lengthUnits match {
+      case daffodil.schema.annotation.props.gen.LengthUnits.Bytes => {
+        // TODO: must be single byte value entity
+        // TODO: must be single byte character
+      }
+      case daffodil.schema.annotation.props.gen.LengthUnits.Characters => {
+        // TODO: must be a fixed-width encoding
+      }
+      case daffodil.schema.annotation.props.gen.LengthUnits.Bits => this.schemaDefinitionError("textCalendarPadCharacter lengthUnits cannot be Bits.")
+    }
+
     val l = new SingleCharacterLiteralES(raw, this)
     l.cooked
   }

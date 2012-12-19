@@ -94,7 +94,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with DFDLStatementMixin
   with ElementBaseGrammarMixin
   with ElementRuntimeValuedPropertiesMixin
-  with TextStringPaddingMixin
+  with StringTextMixin
+  with NumberTextMixin
+  with CalendarTextMixin
+  with BooleanTextMixin
   // with NamedMixin
   with WithDiagnostics {
 
