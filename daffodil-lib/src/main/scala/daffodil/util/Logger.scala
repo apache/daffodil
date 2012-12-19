@@ -22,35 +22,31 @@ object LogLevel extends Enumeration {
   val OOLAGDebug = Value(50)
 }
 
-object Error {
-  def apply(msg: String, args: Any*) = new Glob(LogLevel.Error, msg, args)
-}
-
-object Warning {
-  def apply(msg: String, args: Any*) = new Glob(LogLevel.Warning, msg, args)
-}
-
-object Info {
-  def apply(msg: String, args: Any*) = new Glob(LogLevel.Info, msg, args)
-}
-
-object Compile {
-  def apply(msg: String, args: Any*) = new Glob(LogLevel.Compile, msg, args)
-}
-
-object Debug {
-  def apply(msg: String, args: Any*) = new Glob(LogLevel.Debug, msg, args)
-}
-
-object OOLAGDebug {
+abstract class GlobBase(lvl: LogLevel.Value) {
   // Have to do this by having an overload for each number of args.
   // This is because we're depending on scala's call-by-name trick to NOT
   // evaluate these arguments unless something else decides to force this whole adventure.
-  def apply(msg: String, arg: => Any) = new Glob(LogLevel.OOLAGDebug, msg, Seq(arg))
-  def apply(msg: String, arg0: => Any, arg1: => Any) = new Glob(LogLevel.OOLAGDebug, msg, Seq(arg0, arg1))
-  def apply(msg: String, arg0: => Any, arg1: => Any, arg2: => Any) = new Glob(LogLevel.OOLAGDebug, msg, Seq(arg0, arg1, arg2))
-
+  def apply(msg: => String) = new Glob(lvl, msg, Seq())
+  def apply(msg: => String, arg: => Any) = new Glob(lvl, msg, Seq(arg))
+  def apply(msg: => String, arg0: => Any, arg1: => Any) = new Glob(lvl, msg, Seq(arg0, arg1))
+  def apply(msg: => String, arg0: => Any, arg1: => Any, arg2: => Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2))
+  def apply(msg: => String, arg0: => Any, arg1: => Any, arg2: => Any, arg3: => Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2, arg3))
+  def apply(msg: => String, arg0: => Any, arg1: => Any, arg2: => Any, arg3: => Any, arg4: => Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4))
+  def apply(msg: => String, arg0: => Any, arg1: => Any, arg2: => Any, arg3: => Any, arg4: => Any, arg5: => Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4, arg5))
+  // add more here if more than however many args are needed.
 }
+
+object Error extends GlobBase(LogLevel.Error)
+
+object Warning extends GlobBase(LogLevel.Warning)
+
+object Info extends GlobBase(LogLevel.Info)
+
+object Compile extends GlobBase(LogLevel.Compile)
+
+object Debug extends GlobBase(LogLevel.Debug)
+
+object OOLAGDebug extends GlobBase(LogLevel.OOLAGDebug)
 
 trait Identity {
   def logID: String

@@ -30,6 +30,7 @@ import com.ibm.icu.charset.CharsetICU
 import java.nio.CharBuffer
 import java.io.InputStream
 import daffodil.processors.GeneralParseFailure
+import daffodil.dsom.EntityReplacer
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -223,11 +224,11 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
   var suppliedSchema: Option[Node] = None
 
   protected def runProcessor(processor: DFDL.ProcessorFactory,
-    data: Option[DFDL.Input],
-    nBits: Option[Long],
-    infoset: Option[Infoset],
-    errors: Option[ExpectedErrors],
-    warnings: Option[ExpectedWarnings]): Unit
+                             data: Option[DFDL.Input],
+                             nBits: Option[Long],
+                             infoset: Option[Infoset],
+                             errors: Option[ExpectedErrors],
+                             warnings: Option[ExpectedWarnings]): Unit
 
   def run(schema: Option[Node] = None) {
     suppliedSchema = schema
@@ -286,11 +287,11 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
   def runProcessor(pf: DFDL.ProcessorFactory,
-    data: Option[DFDL.Input],
-    lengthLimitInBits: Option[Long],
-    optInfoset: Option[Infoset],
-    optErrors: Option[ExpectedErrors],
-    warnings: Option[ExpectedWarnings]) = {
+                   data: Option[DFDL.Input],
+                   lengthLimitInBits: Option[Long],
+                   optInfoset: Option[Infoset],
+                   optErrors: Option[ExpectedErrors],
+                   warnings: Option[ExpectedWarnings]) = {
 
     val nBits = lengthLimitInBits.get
     val dataToParse = data.get
@@ -354,10 +355,10 @@ Differences were (path, expected, actual):
   }
 
   def runParseExpectErrors(pf: DFDL.ProcessorFactory,
-    dataToParse: DFDL.Input,
-    lengthLimitInBits: Long,
-    errors: ExpectedErrors,
-    warnings: Option[ExpectedWarnings]) {
+                           dataToParse: DFDL.Input,
+                           lengthLimitInBits: Long,
+                           errors: ExpectedErrors,
+                           warnings: Option[ExpectedWarnings]) {
 
     val objectToDiagnose =
       if (pf.isError) pf
@@ -390,10 +391,10 @@ Differences were (path, expected, actual):
   }
 
   def runParseExpectSuccess(pf: DFDL.ProcessorFactory,
-    dataToParse: DFDL.Input,
-    lengthLimitInBits: Long,
-    infoset: Infoset,
-    warnings: Option[ExpectedWarnings]) {
+                            dataToParse: DFDL.Input,
+                            lengthLimitInBits: Long,
+                            infoset: Infoset,
+                            warnings: Option[ExpectedWarnings]) {
 
     if (pf.isError) {
       val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
@@ -439,11 +440,11 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
   def runProcessor(pf: DFDL.ProcessorFactory,
-    optData: Option[DFDL.Input],
-    optNBits: Option[Long],
-    optInfoset: Option[Infoset],
-    optErrors: Option[ExpectedErrors],
-    warnings: Option[ExpectedWarnings]) = {
+                   optData: Option[DFDL.Input],
+                   optNBits: Option[Long],
+                   optInfoset: Option[Infoset],
+                   optErrors: Option[ExpectedErrors],
+                   warnings: Option[ExpectedWarnings]) = {
 
     val infoset = optInfoset.get
 
@@ -489,9 +490,9 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runUnparserExpectSuccess(pf: DFDL.ProcessorFactory,
-    data: DFDL.Input,
-    infoset: Infoset,
-    warnings: Option[ExpectedWarnings]) {
+                               data: DFDL.Input,
+                               infoset: Infoset,
+                               warnings: Option[ExpectedWarnings]) {
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
@@ -516,10 +517,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runUnparserExpectErrors(pf: DFDL.ProcessorFactory,
-    optData: Option[DFDL.Input],
-    infoset: Infoset,
-    errors: ExpectedErrors,
-    warnings: Option[ExpectedWarnings]) {
+                              optData: Option[DFDL.Input],
+                              infoset: Infoset,
+                              errors: ExpectedErrors,
+                              warnings: Option[ExpectedWarnings]) {
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
@@ -660,91 +661,118 @@ case class DocumentPart(part: Node, parent: Document) {
     res
   }
 
-  lazy val textContentToBytes = {
+  lazy val textContentWithoutEntities = {
     if (replaceDFDLEntities) {
-      // replace DFDL character entities
-      val regex = new Regex("%(%|([^;]*;))")
-      val replacedRawContent = regex.replaceAllIn(partRawContent,
-        m => convertDFDLCharEntity(m.group(0)) match {
-          case "$" => "\\$" // the dollar sign charater means smething special
-          // in Java's Matcher::AppendReplacement (which is used by
-          // regex.replaceAllIn), so we need to escape it
-          case converted => converted
-        })
+      EntityReplacer.replaceAll(partRawContent)
+    } else partRawContent
+  }
 
-      val bytes = replacedRawContent.getBytes("UTF-8") //must specify charset name (JIRA DFDL-257)
-      bytes
-    } else { partRawContent.getBytes("UTF-8") } //must specify charset name (JIRA DFDL-257)
+  lazy val textContentToBytes = {
+    // Fails here if we use getBytes("UTF-8") because that uses the utf-8 encoder,
+    // and that will fail on things like unpaired surrogate characters that we allow
+    // in our data and our infoset.
+    // So instead we must do our own UTF-8-like encoding of the data
+    // so that we can put in codepoints we want. 
+    val bytes = utf8LikeEncode(textContentWithoutEntities)
+    // val bytes = replacedRawContent.getBytes("UTF-8") //must specify charset name (JIRA DFDL-257)
+    bytes.toArray
+  }
+
+  def byteList(args: Int*) = args.map { _.toByte }
+
+  def utf8LikeEncode(s: String): Seq[Byte] = {
+    // 
+    // Scala/Java strings represent characters above 0xFFFF as a surrogate pair
+    // of two codepoints. So we need to see a character, and the character following it
+    // to do this right.
+    //
+    // We want to handle both properly match surrogate pairs, and isolated surrogate characters.
+    // That means if we see an isolated low (second) surrogate character, we have to know 
+    // whether it was preceded by a high surrogate or not.
+    // 
+    // For every 16-bit code point, do do this right we need to potentially also see the previous
+    // or next codepoint.
+    //
+    if (s.length == 0) return Nil
+    // so we form tuples of each char with the prior and next chars. 0.toChar for the ends.
+    val tuples = (0.toChar +: s.substring(0, s.length - 1)) zip s zip (s.tail :+ 0.toChar)
+    val bytes = tuples.flatMap { case ((prevcp, cp), nextcp) => utf8LikeEncoding(prevcp, cp, nextcp) }
+    bytes
+  }
+
+  def fourByteEncode(h: Int, l: Int) = {
+    val cp = 0x10000 + ((h - 0xD800) * 0x400) + (l - 0xDC00)
+    val byte1 = (cp >> 24) & 0xFF
+    val byte2 = (cp >> 16) & 0xFF
+    val byte3 = (cp >> 8) & 0xFF
+    val byte4 = cp & 0xFF
+    val low6 = byte4 & 0x3F
+    val midlow6 = ((byte3 & 0x0F) << 2) | (byte4 >> 6)
+    val midhig6 = ((byte2 & 0x03) << 4) | byte3 >> 4
+    val high3 = byte2 >> 2
+    byteList(high3 | 0xF0, midhig6 | 0x80, midlow6 | 0x80, low6 | 0x80)
+  }
+
+  def utf8LikeEncoding(prev: Char, c: Char, next: Char): Seq[Byte] = {
+    val i = c.toInt
+    val byte1 = ((i >> 8) & 0xFF)
+    val byte2 = (i & 0xFF)
+
+    def threeByteEncode() = {
+      val low6 = byte2 & 0x3F
+      val mid6 = ((byte1 & 0x0F) << 2) | (byte2 >> 6)
+      val high4 = byte1 >> 4
+      byteList(high4 | 0xE0, mid6 | 0x80, low6 | 0x80)
+    }
+
+    val res = i match {
+      case _ if (i <= 0x7F) => byteList(byte2)
+      case _ if (i <= 0x7FF) => {
+        val low6 = byte2 & 0x3F
+        val high5 = ((byte1 & 0x07) << 2) | (byte2 >> 6)
+        byteList(high5 | 0xC0, low6 | 0x80)
+      }
+      case _ if (XMLUtils.isLeadingSurrogate(c)) => {
+        // High (initial) Surrogate character case.
+        if (XMLUtils.isTrailingSurrogate(next)) {
+          // Next codepoint is a low surrogate.
+          // We need to create a 4-byte representation from the
+          // two surrogate characters.
+          fourByteEncode(i, next.toInt)
+        } else {
+          // isolated high surrogate codepoint case.
+          threeByteEncode()
+        }
+      }
+      case _ if (XMLUtils.isTrailingSurrogate(c)) => {
+        // Low (subsequent) Surrogate character case.
+        if (XMLUtils.isLeadingSurrogate(prev)) {
+          // Previous codepoint was a high surrogate. 
+          // This codepoint was handled as part of converting the
+          // surrogate pair.
+          // so we output no bytes at all.
+          List()
+        } else {
+          // Isolated low-surrogate codepoint case.
+          threeByteEncode()
+        }
+
+      }
+      case _ if (i <= 0xFFFF) => {
+        threeByteEncode()
+      }
+      // This code won't see these larger codepoints because 
+      // scala/java strings don't represent them that way. They 
+      // use surrogate pairs.
+      //      case _ if (i <= 0x10FFFF) => {
+      //        fourByteEncode()
+      //      }
+      case _ => Assert.usageError("char code not accepted.")
+    }
+    res
   }
 
   lazy val textContentAsBits = bytes2Bits(textContentToBytes)
-
-  /**
-   * Convert a character entity to its unicode equivalent. Returns the empty
-   * string if not a valid DFDL entity
-   */
-  def convertDFDLCharEntity(s: String): String = {
-    val HexCodePoint = "%#x([0-9a-fA-F]+);".r
-    val DecCodePoint = "%#([0-9]+);".r
-    val converted = s match {
-      case "%%" => "%" //special case, percent escapes percent
-      case HexCodePoint(hex) => {
-        try {
-          val i = Integer.parseInt(hex, 16)
-          new String(Character.toChars(i))
-        } catch {
-          case e => ""
-        }
-      }
-      case DecCodePoint(dec) => {
-        try {
-          val i = Integer.parseInt(dec, 10)
-          new String(Character.toChars(i))
-        } catch {
-          case e => ""
-        }
-      }
-      case "%NUL;" => "\u0000"
-      case "%SOH;" => "\u0001"
-      case "%STX;" => "\u0002"
-      case "%ETX;" => "\u0003"
-      case "%EOT;" => "\u0004"
-      case "%ENQ;" => "\u0005"
-      case "%ACK;" => "\u0006"
-      case "%BEL;" => "\u0007"
-      case "%BS;" => "\u0008"
-      case "%HT;" => "\u0009"
-      case "%LF;" => "\u000A"
-      case "%VT;" => "\u000B"
-      case "%FF;" => "\u000C"
-      case "%CR;" => "\u000D"
-      case "%SO;" => "\u000E"
-      case "%SI;" => "\u000F"
-      case "%DLE;" => "\u0010"
-      case "%DC1;" => "\u0011"
-      case "%DC2;" => "\u0012"
-      case "%DC3;" => "\u0013"
-      case "%DC4;" => "\u0014"
-      case "%NAK;" => "\u0015"
-      case "%SYN;" => "\u0016"
-      case "%ETB;" => "\u0017"
-      case "%CAN;" => "\u0018"
-      case "%EM;" => "\u0019"
-      case "%SUB;" => "\u001A"
-      case "%ESC;" => "\u001B"
-      case "%FS;" => "\u001C"
-      case "%GS;" => "\u001D"
-      case "%RS;" => "\u001E"
-      case "%US;" => "\u001F"
-      case "%SP;" => "\u0020"
-      case "%DEL;" => "\u007F"
-      case "%NBSP;" => "\u00A0"
-      case "%NEL;" => "\u0085"
-      case "%LS;" => "\u2028"
-      case _ => ""
-    }
-    converted
-  }
 
   lazy val hexContentAsBits = hex2Bits(hexDigits)
 

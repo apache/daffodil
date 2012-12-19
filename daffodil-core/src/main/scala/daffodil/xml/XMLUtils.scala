@@ -45,7 +45,9 @@ object XMLUtils {
    * Legal XML v1.0 chars are #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
    */
   def remapXMLIllegalCharToPUA(c: Char, checkForExistingPUA: Boolean = true): Char = {
-    val res = c match {
+    val cInt = c.toInt
+    // println("%x".format(cInt))
+    val res = cInt match {
       case 0x9 => c
       case 0xA => c
       case 0xD => c
@@ -67,9 +69,33 @@ object XMLUtils {
     res
   }
 
-  def remapXMLIllegalCharactersToPUA(dfdlString: String): String = {
-    val res = dfdlString.map { remapXMLIllegalCharToPUA(_, false) }
+  def isLeadingSurrogate(c: Char) = {
+    c >= 0xD800 && c <= 0xDBFF
+  }
+
+  def isTrailingSurrogate(c: Char) = {
+    c >= 0xDC00 && c <= 0xDFFF
+  }
+
+  /**
+   * Length where a surrogate pair counts as 1 character, not two.
+   */
+  def uncodeLength(s: String) = {
+    val res = s.getBytes("UTF-32BE").length / 4
     res
+  }
+
+  def remapXMLIllegalCharactersToPUA(dfdlString: String): String = {
+    // we want to remap XML-illegal characters
+    // but leave legal surrogate-pair character pairs alone. 
+    if (dfdlString.length == 0) return dfdlString
+    val tuples = (0.toChar +: dfdlString.substring(0, dfdlString.length - 1)) zip dfdlString zip (dfdlString.tail :+ 0.toChar)
+    val res = tuples.map {
+      case ((p, c), n) if (isLeadingSurrogate(c) && isTrailingSurrogate(n)) => c
+      case ((p, c), n) if (isTrailingSurrogate(c) && isLeadingSurrogate(p)) => c
+      case ((_, c), _) => remapXMLIllegalCharToPUA(c, false)
+    }
+    res.mkString
   }
 
   //  val MAX_MEMORY_PERCENTAGE = 0.90

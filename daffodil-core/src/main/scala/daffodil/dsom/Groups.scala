@@ -120,8 +120,8 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
   // TODO Review Comment
   // This below should not reproduce the logic of enclosingComponent unless it needs
   // something different from that. 
-  lazy val nearestEnclosingSequence: Option[Sequence] = nearestEnclosingSequence_ //.value
-  private lazy val nearestEnclosingSequence_ = { // LV {
+  lazy val nearestEnclosingSequence: Option[Sequence] = nearestEnclosingSequence_.value
+  private lazy val nearestEnclosingSequence_ = LV('nearestEnclosingSequence) {
     val res = parent match {
       case s: Sequence => Some(s)
       case t: Term => t.nearestEnclosingSequence
@@ -245,12 +245,14 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
 abstract class GroupBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends Term(xmlArg, parent, position) {
 
-  lazy val prettyIndex = myPeers.map { peers =>
-    {
-      if (peers.length == 1) "" // no index expression if we are the only one
-      else "[" + (peers.indexOf(this) + 1) + "]" // 1-based indexing in XML/XSD
-    }
-  }.getOrElse("")
+  lazy val prettyIndex = {
+    myPeers.map { peers =>
+      {
+        if (peers.length == 1) "" // no index expression if we are the only one
+        else "[" + (peers.indexOf(this) + 1) + "]" // 1-based indexing in XML/XSD
+      }
+    }.getOrElse("")
+  }
 
   lazy val prettyName = prettyBaseName + prettyIndex
   def prettyBaseName: String
@@ -304,22 +306,24 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   val xmlChildren: Seq[Node]
 
-  private val goodXmlChildren = xmlChildren.flatMap { removeNonInteresting(_) }
-  private val positions = List.range(1, goodXmlChildren.length + 1) // range is exclusive on 2nd arg. So +1.
-  private val pairs = goodXmlChildren zip positions
-  private lazy val children = pairs.flatMap {
-    case (n, i) =>
-      termFactory(n, this, i)
-  }
+  private lazy val goodXmlChildren = goodXmlChildren_.value
+  private lazy val goodXmlChildren_ = LV('goodXMLChildren) { xmlChildren.flatMap { removeNonInteresting(_) } }
+  private lazy val positions = List.range(1, goodXmlChildren.length + 1) // range is exclusive on 2nd arg. So +1.
+  private lazy val pairs = goodXmlChildren zip positions
 
-  lazy val sequenceChildren = children.collect { case s: Sequence => s }
-  lazy val choiceChildren = children.collect { case s: Choice => s }
-  lazy val groupRefChildren = children.collect { case s: GroupRef => s }
+  lazy val sequenceChildren = groupMembers.collect { case s: Sequence => s }
+  lazy val choiceChildren = groupMembers.collect { case s: Choice => s }
+  lazy val groupRefChildren = groupMembers.collect { case s: GroupRef => s }
 
   def group = this
 
   lazy val groupMembers = groupMembers_.value
-  private lazy val groupMembers_ = LV { children }
+  private lazy val groupMembers_ = LV('groupMembers) {
+    pairs.flatMap {
+      case (n, i) =>
+        termFactory(n, this, i)
+    }
+  }
 
   lazy val diagnosticChildren = annotationObjs ++ groupMembers
 
@@ -377,7 +381,7 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   lazy val combinedGroupRefAndGlobalGroupDefProperties: Map[String, String] = combinedGroupRefAndGlobalGroupDefProperties_.value
-  private lazy val combinedGroupRefAndGlobalGroupDefProperties_ = LV {
+  private lazy val combinedGroupRefAndGlobalGroupDefProperties_ = LV('combinedGroupRefAndGlobalGroupDefProperties) {
     schemaDefinition(overlappingProps.size == 0,
       "Overlap detected between the properties in the model group of a global group definition (%s) and its group reference. The overlap: %s",
       this, overlappingProps)
@@ -387,7 +391,7 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   override lazy val allNonDefaultProperties: Map[String, String] = allNonDefaultProperties_.value
-  private lazy val allNonDefaultProperties_ = LV {
+  private lazy val allNonDefaultProperties_ = LV('allNonDefaultProperties) {
     val theLocalUnion = this.combinedGroupRefAndGlobalGroupDefProperties
     theLocalUnion
   }
@@ -567,7 +571,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val <sequence>{ apparentXMLChildren @ _* }</sequence> = xml
 
   lazy val xmlChildren = xmlChildren_.value
-  private lazy val xmlChildren_ = LV {
+  private lazy val xmlChildren_ = LV('xmlChildren) {
     hiddenGroupRefOption match {
       case Some(qname) => {
         schemaDefinition(apparentXMLChildren.length == 0, "A sequence with hiddenGroupRef cannot have children.")
@@ -601,7 +605,7 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   // BEGIN NEW CODE 10/30/2012
 
   lazy val qname = qname_.value
-  private lazy val qname_ = LV { XMLUtils.QName(xml, xsdRef, schemaDocument) }
+  private lazy val qname_ = LV('qname) { XMLUtils.QName(xml, xsdRef, schemaDocument) }
 
   lazy val (namespace, localName) = qname
   override lazy val localProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
@@ -612,7 +616,7 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
     val myProperties = localProperties ++ referencedProperties
     myProperties
   }
-  private lazy val referencedGroup_ = LV {
+  private lazy val referencedGroup_ = LV('referencedGroup) {
     this.schema.schemaSet.getGlobalGroupDef(namespace, localName) match {
       case None => SDE("Referenced groupDef not found: %s", this.ref)
       case Some(x) => x.forGroupRef(this, position)

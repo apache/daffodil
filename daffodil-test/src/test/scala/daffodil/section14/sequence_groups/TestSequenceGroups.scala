@@ -17,7 +17,7 @@ class TestSequenceGroups extends JUnitSuite {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   @Test def test_multiple_delimiters2() { runner.runOneTest("multiple_delimiters2") }
-  
+
   val tdml2 = testDir + "dpaext2.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
   @Test def test_sequences_separated_14_03() { runner2.runOneTest("sequences_separated_14_03") }
@@ -42,9 +42,9 @@ class TestSequenceGroups extends JUnitSuite {
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 
   @Test def test_SeqGrp_05() { runner_02.runOneTest("SeqGrp_05") }
-  
+
   @Test def test_hiddenGroup1() { runner_02.runOneTest("hiddenGroup1") }
-//  @Test def test_hiddenGroupSchemaFail() { runner_02.runOneTest("hiddenGroupSchemaFail") }
+  @Test def test_hiddenGroupSchemaFail() { runner_02.runOneTest("hiddenGroupSchemaFail") }
   @Test def test_hiddenGroupWithAssert() { runner_02.runOneTest("hiddenGroupWithAssert") }
   @Test def test_hiddenGroupWithAssert2() { runner_02.runOneTest("hiddenGroupWithAssert2") }
   @Test def test_hiddenGroupNested() { runner_02.runOneTest("hiddenGroupNested") }
@@ -52,7 +52,7 @@ class TestSequenceGroups extends JUnitSuite {
   @Test def test_hiddenGroupChoice() { runner_02.runOneTest("hiddenGroupChoice") }
   @Test def test_hiddenGroupChoice2() { runner_02.runOneTest("hiddenGroupChoice2") }
 
-  @Test def test_AC000() { runner_02.runOneTest("AC000") } 
-  @Test def test_AD000() { runner_02.runOneTest("AD000") } 
-  @Test def test_AS000() { runner_02.runOneTest("AS000") } 
+  @Test def test_AC000() { runner_02.runOneTest("AC000") }
+  @Test def test_AD000() { runner_02.runOneTest("AD000") }
+  @Test def test_AS000() { runner_02.runOneTest("AS000") }
 }

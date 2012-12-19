@@ -36,12 +36,12 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   // result of compilation
   // 
   lazy val parser = parser_.value
-  private lazy val parser_ = LV {
+  private lazy val parser_ = LV('parser) {
     rootElem.document.parser
   }
 
   lazy val unparser = unparser_.value
-  private lazy val unparser_ = LV {
+  private lazy val unparser_ = LV('unparser) {
     rootElem.document.unparser
   }
 

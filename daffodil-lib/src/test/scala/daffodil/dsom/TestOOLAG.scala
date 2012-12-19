@@ -26,12 +26,12 @@ class MyHost extends OOLAGHost {
     // th.printStackTrace()
   }
 
-  lazy val a1 = LV {
+  lazy val a1 = LV('a1) {
     // println("evaluating a1")
     "a1 value"
   }
 
-  lazy val a2 = LV {
+  lazy val a2 = LV('a2) {
     // println("evaluating a2")
     val msg = "a2 failed with an exception"
     // println(msg)
@@ -41,14 +41,24 @@ class MyHost extends OOLAGHost {
     "a2 value"
   }
 
-  lazy val a3 = LV {
+  lazy val a3 = LV('a3) {
     // println("My LV name is " + LV.name)
     "a3 value"
   }
 
-  lazy val a4 = LV {
+  lazy val a4 = LV('a4) {
     // println("My LV name is " + LV.name)
     a3.value
+  }
+
+  lazy val circ1: Int = circ1_.value
+  private lazy val circ1_ = LV('circ1) {
+    circ2
+  }
+
+  lazy val circ2: Int = circ2_.value
+  private lazy val circ2_ = LV('circ2) {
+    circ1
   }
 
 }
@@ -78,25 +88,28 @@ class TestOOLAG extends JUnitSuite {
     assertTrue(isErrorA2)
   }
 
-  /**
-   * Test mechanism by which LVs figure out their own method names
-   *
-   * That is, when you write lazy val foo = LV{...} the code can
-   * get the name foo.
-   *
-   * This depends on some reflection stuff underneath which might change if
-   * scala compilation model evolves. So if these tests break, then search
-   * OOLAG.scala for "magic number" and see what is going on there.
-   */
-  @Test def testLVName() {
-    val h = new MyHost
-    // println("ask for the value")
-    val a3: String = h.a3.value
-    val a3Name = h.a3.name
-    // println("a3's name is " + a3Name)
-    assertEquals("a3 value", a3)
-    assertEquals("a3", a3Name)
-  }
+  // Note: Below commented out, as this reflection/stack-trace stuff
+  // was deemed too fragile, and troublesome in a lazy-evaluation world
+  // So the name must now, annoyingly, be passed to LVs.
+  //  /**
+  //   * Test mechanism by which LVs figure out their own method names
+  //   *
+  //   * That is, when you write lazy val foo = LV{...} the code can
+  //   * get the name foo.
+  //   *
+  //   * This depends on some reflection stuff underneath which might change if
+  //   * scala compilation model evolves. So if these tests break, then search
+  //   * OOLAG.scala for "magic number" and see what is going on there.
+  //   */
+  //  @Test def testLVName() {
+  //    val h = new MyHost
+  //    // println("ask for the value")
+  //    val a3: String = h.a3.value
+  //    val a3Name = h.a3.name
+  //    // println("a3's name is " + a3Name)
+  //    assertEquals("a3 value", a3)
+  //    assertEquals("a3", a3Name)
+  //  }
 
   /**
    * Make sure one LV calling another doesn't confuse things.
@@ -112,4 +125,29 @@ class TestOOLAG extends JUnitSuite {
     assertEquals("a4", a4Name)
   }
 
+  @Test def testCircularDefinitionDetected() {
+    val h = new MyHost
+    val e = intercept[Exception] {
+      val c1 = h.circ1
+      fail()
+    }
+    val msg = e.getMessage()
+    println(msg)
+    assertTrue(msg.toLowerCase().contains("circular"))
+  }
+
+  @Test def testAlreadyTried() {
+    val h = new MyHost
+    assertTrue(h.a2.isError)
+    val e = intercept[AlreadyTried] {
+      h.a2.value
+    }
+    e match {
+      case at: AlreadyTried => {
+        val m = e.getMessage()
+        assertTrue(m.contains("a2"))
+      }
+      case _ => fail()
+    }
+  }
 }

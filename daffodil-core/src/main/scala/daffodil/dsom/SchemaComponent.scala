@@ -94,7 +94,10 @@ abstract class SchemaComponent(val xml: Node)
 
   def context = this
 
-  final lazy val path = scPath.map { _.prettyName }.mkString("::")
+  final lazy val path = path_.value
+  private lazy val path_ = LV('path) {
+    scPath.map { _.prettyName }.mkString("::")
+  }
 
   override def toString = path
 
@@ -103,7 +106,8 @@ abstract class SchemaComponent(val xml: Node)
    * a global group inside a group ref, a global type inside an element or for
    * derived simple types inside another simple type, etc.
    */
-  lazy val scPath: Seq[SchemaComponent] = {
+  lazy val scPath: Seq[SchemaComponent] = scPath_.value
+  private lazy val scPath_ = LV('scPath) {
     val res = enclosingComponent.map { _.scPath }.getOrElse(Nil) :+ this
     res
   }
@@ -258,7 +262,7 @@ trait AnnotatedMixin
    * that are subtypes of DFDLAnnotation.
    */
   lazy val annotationObjs = annotationObjs_.value
-  protected lazy val annotationObjs_ = LV {
+  protected lazy val annotationObjs_ = LV('annotationObjs) {
     // println(dais)
     dais.flatMap { dai =>
       {
@@ -289,7 +293,7 @@ trait AnnotatedMixin
   def isMyFormatAnnotation(a: DFDLAnnotation): Boolean
 
   lazy val formatAnnotation = formatAnnotation_.value
-  private lazy val formatAnnotation_ = LV {
+  private lazy val formatAnnotation_ = LV('formatAnnotation) {
     val format = annotationObjs.find { isMyFormatAnnotation(_) }
     val res = format match {
       case None => emptyFormatFactory
@@ -682,7 +686,7 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
 
   lazy val prettyName = "schemaDoc"
 
-  lazy val validatedXML = LV {
+  lazy val validatedXML = LV('validatedXML) {
     try XMLSchemaUtils.validateDFDLSchema(xml)
     catch {
       case e: org.xml.sax.SAXParseException => {

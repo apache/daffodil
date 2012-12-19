@@ -530,6 +530,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
       val myGlobal3 = e5ctgref.groupDef
       val myGlobal3Seq = myGlobal3.modelGroup.asInstanceOf[Sequence]
 
+      val overlaps = myGlobal3Seq.combinedGroupRefAndGlobalGroupDefProperties
       // Tests overlapping properties
 
     }

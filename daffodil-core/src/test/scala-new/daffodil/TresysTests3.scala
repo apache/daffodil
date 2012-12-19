@@ -23,7 +23,7 @@ class TresysTests3 extends JUnitSuite {
   @Test def test_testOne() { runnerBF.runOneTest("testOne") }
   @Test def test_testMany() { runnerBF.runOneTest("testMany") }
 
-  val ab = testDir + "AB.tdml"
+  val ab = testDir + "ABLargeData.tdml.dat"
   lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))
   // Runs, but it is too slow to use in regression tests
   // @Test def test_AB006() { runnerAB.runOneTest("AB006") }

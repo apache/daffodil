@@ -53,7 +53,7 @@ trait ParticleMixin { self: ElementBase =>
    * Does this node have statically required instances.
    */
   lazy val hasStaticallyRequiredInstances = hasStaticallyRequiredInstances_.value
-  private lazy val hasStaticallyRequiredInstances_ = LV {
+  private lazy val hasStaticallyRequiredInstances_ = LV('hasStaticallyRequiredInstances) {
     val res =
       if (!isRepresented) false // if there's no rep, then it's not statically required.
       else if (isScalar) true
@@ -64,7 +64,7 @@ trait ParticleMixin { self: ElementBase =>
   }
 
   lazy val hasStopValue = hasStopValue_.value
-  private lazy val hasStopValue_ = LV {
+  private lazy val hasStopValue_ = LV('hasStopValue) {
     val sv = isRecurring && occursCountKind == OccursCountKind.StopValue
     // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.
     schemaDefinition(!(sv && occursStopValue == ""), "Property occursCountKind='stopValue' requires a non-empty occursStopValue property.")
@@ -208,7 +208,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * check if there are delimiters such that there is a concept of something that we can call 'empty'
    */
   lazy val emptyIsAnObservableConcept = emptyIsAnObservableConcept_.value
-  private lazy val emptyIsAnObservableConcept_ = LV {
+  private lazy val emptyIsAnObservableConcept_ = LV('emptyIsAnObservableConcept) {
     val res = if ((hasSep ||
       hasEmptyValueInitiator ||
       hasEmptyValueTerminator) &&
@@ -323,7 +323,7 @@ trait LocalElementMixin
   with LocalElementGrammarMixin { self: LocalElementBase =>
 
   lazy val hasSep = hasSep_.value
-  lazy val hasSep_ = LV {
+  lazy val hasSep_ = LV('hasSep) {
     nearestEnclosingSequence match {
       case None => false
       case Some(es) => {
@@ -334,7 +334,7 @@ trait LocalElementMixin
     }
   }
 
-  lazy val isDeclaredLastInSequence = LV {
+  lazy val isDeclaredLastInSequence = LV('isDeclaredLastInSequence) {
     val es = nearestEnclosingSequence
     // how do we determine what child node we are? We search. 
     // TODO: better structure for O(1) answer to this.
@@ -349,7 +349,7 @@ trait LocalElementMixin
   lazy val isLastRequiredElementOfSequence: Boolean = Assert.notYetImplemented()
 
   lazy val separatorSuppressionPolicy = separatorSuppressionPolicy_.value
-  private lazy val separatorSuppressionPolicy_ = LV {
+  private lazy val separatorSuppressionPolicy_ = LV('separatorSuppressionPolicy) {
     nearestEnclosingSequence match {
       case Some(ssp) => ssp.separatorSuppressionPolicy
       //
@@ -387,7 +387,7 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   //    }
   //  }
 
-  private lazy val referencedElement_ = LV {
+  private lazy val referencedElement_ = LV('referencedElement) {
     this.schema.schemaSet.getGlobalElementDecl(namespace, localName) match {
       case None => SDE("Referenced element not found: %s.", this.ref)
       case Some(x) => x.forElementRef(this)
@@ -470,7 +470,7 @@ trait ElementDeclMixin
   override lazy val prettyName = "element." + name
 
   lazy val immediateType = immediateType_.value
-  private lazy val immediateType_ = LV {
+  private lazy val immediateType_ = LV('immediateType) {
     val st = xml \ "simpleType"
     val ct = xml \ "complexType"
     val nt = typeName
@@ -490,7 +490,7 @@ trait ElementDeclMixin
   }
 
   lazy val namedTypeQName = namedTypeQName_.value
-  private lazy val namedTypeQName_ = LV {
+  private lazy val namedTypeQName_ = LV('namedTypeQName) {
     typeName match {
       case Some(tname) => Some(XMLUtils.QName(xml, tname, schemaDocument))
       case None => None
@@ -498,7 +498,7 @@ trait ElementDeclMixin
   }
 
   lazy val namedTypeDef = namedTypeDef_.value
-  private lazy val namedTypeDef_ = LV {
+  private lazy val namedTypeDef_ = LV('namedTypeDef) {
     namedTypeQName match {
       case None => None
       case Some((ns, localpart)) => {
@@ -526,7 +526,7 @@ trait ElementDeclMixin
   }
 
   lazy val typeDef = typeDef_.value
-  private lazy val typeDef_ = LV {
+  private lazy val typeDef_ = LV('typeDef) {
     (immediateType, namedTypeDef) match {
       case (Some(ty), None) => ty
       case (None, Some(ty)) => ty
@@ -539,7 +539,7 @@ trait ElementDeclMixin
   lazy val elementDeclDiagnosticChildren = annotationObjs_.toList.flatten ++ typeDef_.toList
 
   lazy val isSimpleType = isSimpleType_.value
-  private lazy val isSimpleType_ = LV {
+  private lazy val isSimpleType_ = LV('isSimpleType) {
     typeDef match {
       case _: SimpleTypeBase => true
       case _: ComplexTypeBase => false
@@ -571,7 +571,7 @@ trait ElementDeclMixin
    */
 
   lazy val isDefaultable = isDefaultable_.value
-  private lazy val isDefaultable_ = LV {
+  private lazy val isDefaultable_ = LV('isDefaultable) {
     defaultValueAsString match {
       case "" => false // allowed for type string.
       case _ if (emptyIsAnObservableConcept) => true

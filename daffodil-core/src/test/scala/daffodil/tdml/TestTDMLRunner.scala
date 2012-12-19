@@ -94,10 +94,10 @@ class TestTDMLRunner extends JUnitSuite {
     val doc = new Document(xml, null)
     val docPart = doc.documentParts(0)
     val bytes = doc.documentBytes
-    assertEquals(12, bytes.length)
+    assertEquals(22, bytes.length)
     val orig = new String(bytes.toArray, "UTF8")
-    assertEquals(7, orig.length)
-    assertEquals("\\$¢€%\u0000\u2028", orig)
+    assertEquals(17, orig.length)
+    assertEquals("\\$¢€%\u0000\u2028%#IGNORED;", orig)
   }
 
   @Test def test1() {

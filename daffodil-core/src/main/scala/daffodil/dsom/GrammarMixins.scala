@@ -183,7 +183,7 @@ trait ElementBaseGrammarMixin
   lazy val stringPatternMatched = Prod("stringPatternMatched", this, StringPatternMatched(this))
 
   lazy val stringValue = stringValue_.value
-  lazy val stringValue_ = LV {
+  lazy val stringValue_ = LV('stringValue) {
     val res = Prod("stringValue", this, lengthKind match {
       case LengthKind.Explicit if isFixedLength => fixedLengthString
       case LengthKind.Explicit => explicitLengthString

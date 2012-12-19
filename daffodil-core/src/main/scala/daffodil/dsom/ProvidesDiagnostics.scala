@@ -115,8 +115,12 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
   private var diagHosts: Seq[DiagnosticsProviding] = Nil
 
   def addDiagnostic(diag: Diagnostic) {
-    localDiagnostics = localDiagnostics :+ diag
-    log(Compile("Adding Diagnostic: %s to %s", diag, path))
+    if (!localDiagnostics.contains(diag)) {
+      localDiagnostics = localDiagnostics :+ diag
+      log(Compile("Adding Diagnostic: %s to %s", diag, path))
+    } else {
+      log(Compile("Already recorded diagnostic: %s to %s", diag, path))
+    }
   }
 
   //  private def addDiagnosticChild(lv: OOLAGValue) {
@@ -136,7 +140,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
   //  }
 
   final lazy val getDiagnostics = getDiagnostics_.value
-  private lazy val getDiagnostics_ = LV {
+  private lazy val getDiagnostics_ = LV('getDiagnostics) {
     val res = diagnostics.toSeq // TODO: Sort into file/schema ordering so that earlier diagnostics are about
     // earlier parts of the schema.
     res

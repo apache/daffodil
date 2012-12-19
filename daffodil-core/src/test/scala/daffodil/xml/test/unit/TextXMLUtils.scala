@@ -88,4 +88,11 @@ class TextXMLUtils extends JUnitSuite {
     val rid = XMLUtils.removeHiddenElements(hid)
     assertFalse(rid.toString.contains("hidden"))
   }
+
+  @Test def testRemapXMLIllegalCharToPUA() {
+    val ec = XMLUtils.remapXMLIllegalCharToPUA(0x0, false)
+    assertEquals(0xE000, ec)
+    val ed = XMLUtils.remapXMLIllegalCharToPUA(0xd880, false)
+    assertEquals(0xE880, ed)
+  }
 }

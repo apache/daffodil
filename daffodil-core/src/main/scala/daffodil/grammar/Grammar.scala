@@ -222,12 +222,12 @@ class Prod(nameArg: String, val sc: Term, guardArg: => Boolean, gramArg: => Gram
   lazy val containingClassName = getNameFromClass(sc)
 
   lazy val guard = guard_.value
-  private lazy val guard_ = LV {
+  private lazy val guard_ = LV('guard) {
     guardArg
   }
 
   lazy val gram = gram_.value
-  private lazy val gram_ = LV {
+  private lazy val gram_ = LV('gram) {
     guard match {
       case true => {
         //      System.err.println("Start Prod " + containingClassName + ".Prod." + name)
@@ -258,12 +258,12 @@ class Prod(nameArg: String, val sc: Term, guardArg: => Boolean, gramArg: => Gram
   override lazy val isEmpty = gram.isEmpty
 
   lazy val parser = parser_.value
-  private lazy val parser_ = LV {
+  private lazy val parser_ = LV('parser) {
     gram.parser
   }
 
   lazy val unparser = unparser_.value
-  private lazy val unparser_ = LV {
+  private lazy val unparser_ = LV('unparser) {
     gram.unparser
   }
 

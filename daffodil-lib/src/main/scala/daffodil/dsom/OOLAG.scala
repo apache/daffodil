@@ -6,6 +6,7 @@ import daffodil.util._
 import daffodil.util.Glob
 import daffodil.exceptions.Abort
 import daffodil.exceptions.NotYetImplementedException
+import daffodil.exceptions.UnsuppressableException
 
 /**
  * OOLAG = Object-oriented Lazy Attribute Grammars
@@ -19,11 +20,26 @@ object OOLAG {
     def isError: Boolean
   }
 
-  abstract class OOLAGException(msg: String) extends Exception(msg)
+  trait OOLAGException {
+    self: Exception =>
+    def lv: OOLAGValue
+  }
 
-  abstract class OOLAGRethrowException(msg: String) extends OOLAGException(msg)
-  case class AlreadyTried(lvName: String) extends OOLAGRethrowException(lvName)
-  case class ErrorAlreadyHandled(th: Throwable, lv: OOLAGValue) extends OOLAGRethrowException(th.toString)
+  trait OOLAGRethrowException extends OOLAGException {
+    self: Exception =>
+    def cause: Option[Throwable]
+  }
+
+  case class AlreadyTried(val lv: OOLAGValue) extends Exception() with OOLAGRethrowException {
+    override def getMessage() = lv.toString
+    val cause = None
+  }
+  case class ErrorAlreadyHandled(val th: Throwable, lv: OOLAGValue)
+    extends Exception(th) with OOLAGRethrowException {
+    val cause = Some(th)
+  }
+
+  case class CircularDefinition(val lv: OOLAGValue) extends Exception
 
   /**
    * An object that uses OOLAG values.
@@ -34,6 +50,23 @@ object OOLAG {
     def prettyName: String
     def path: String
     def LV: LVFactory
+
+    // I don't like this for all those thread-safety reasons, but otherwise we have to
+    // carry a context list with us throughout the computation
+
+    private var currentOVList: Seq[OOLAGValue] = Nil
+
+    def circularityDetector(ov: OOLAGValue)(body: => Any) = {
+      // if (currentOVList != Nil) println(currentOVList)
+      if (currentOVList.contains(ov))
+        throw CircularDefinition(ov)
+      currentOVList = ov +: currentOVList
+      try {
+        body
+      } finally {
+        currentOVList = currentOVList.tail
+      }
+    }
   }
 
   /**
@@ -52,7 +85,7 @@ object OOLAG {
    * An OOLAG value is most commonly a lazy val of an OOLAG host class. If it is a regular val then it
    * is computed eagerly.
    */
-  abstract class OOLAGValue(val context: OOLAGHost, final val name: String, factory: LVFactory)
+  abstract class OOLAGValue(val context: OOLAGHost, val name: String, factory: LVFactory)
     extends HasIsError
     with Logging {
     protected var alreadyTriedThis = false
@@ -61,23 +94,56 @@ object OOLAG {
 
     final def warn(th: Throwable) = context.handleWarning(this, th)
 
-    final override def toString = descrip
+    final override def toString =
+      try {
+        descrip
+      } catch {
+        case e: Exception => {
+          // Assert.invariantFailed("Exception while creating string from OOLAG Host.")
+          System.err.println("Exception while creating string from OOLAG Host.")
+          super.toString
+        }
+      }
 
-    private lazy val descrip = context.path + "@@" + name
+    // OOLAG framework code has to be rather defensive. If anything goes wrong
+    // computing the name, then the whole framework becomes a nightmare.
+
+    private lazy val descrip =
+      try {
+        context.path + "@@" + name
+      } catch {
+        case e: CircularDefinition => {
+          // we have a circularity in trying to come up with the description
+          // This would be because something in context.path is causing an error
+          // which then results in us needing to print out the context.path
+          // resulting in this circularity.
+          //
+          // in this case, just the name will be the description
+          name
+        }
+        case e: Exception => {
+          val exc = e
+          System.err.println("Exception %s while computing the name of an OOLAGHost.".format(exc))
+          "???@@" + name
+        }
+      }
+
     private lazy val catchMsg = "Catch! So %s has no value. (Exc = %s)."
 
-    final def valueAsAny = {
+    final def valueAsAny: Any = {
       if (hasValue) {
         log(OOLAGDebug("LV: %s already has value: %s", descrip, lazyBody))
-        lazyBody
-      } else if (alreadyTriedThis) {
-        log(OOLAGDebug("LV: %s was tried and failed", descrip))
-        val e = AlreadyTried(name)
-        throw e
-      } else {
+        return lazyBody
+      }
+      val res = context.circularityDetector(this) {
+        if (alreadyTriedThis) {
+          log(OOLAGDebug("LV: %s was tried and failed", descrip))
+          val e = AlreadyTried(this)
+          throw e
+        }
         alreadyTriedThis = true
         log(OOLAGDebug("Evaluating %s", descrip))
-        factory.name = name // NOTE: Sequential. Not concurrent/thread safe.
+        // factory.name = name // NOTE: Sequential. Not concurrent/thread safe.
 
         try {
           val res = lazyBody
@@ -88,6 +154,7 @@ object OOLAG {
           // Some kinds of errors/exceptions we always want thrown to top level.
           case le: scala.Error => { throw le } // note that Exception does NOT inherit from Error
           case re: java.lang.RuntimeException => { throw re }
+          case ue: UnsuppressableException => { throw ue }
           case abort: Abort => throw abort // never swallow up these
           case nyi: NotYetImplementedException => throw nyi
           case eah: ErrorAlreadyHandled => {
@@ -113,9 +180,10 @@ object OOLAG {
             throw new ErrorAlreadyHandled(e, this)
           }
         } finally {
-          factory.name = null
+          // factory.name = null
         }
       }
+      res
     }
 
     final def isError = {
@@ -148,8 +216,8 @@ object OOLAG {
     }
   }
 
-  class LV[T](body: => T, context: OOLAGHost, name: String, factory: LVFactory)
-    extends OOLAGValue(context, name, factory) {
+  class LV[T](body: => T, context: OOLAGHost, sym: Symbol, factory: LVFactory)
+    extends OOLAGValue(context, sym.name, factory) {
     final protected lazy val lazyBody = body
     final def value: T = {
       val res = valueAsAny
@@ -163,32 +231,46 @@ object OOLAG {
 
   class LVFactory(context: OOLAGHost) {
 
+    //
+    // This is really what we need lisp-like macros for. 
+    // We want to write:
+    // 
+    //   defAttribute foo = {... body calc ...}
+    //
+    // We want that to turn into 
+    //
+    //   private lazy val foo_ = new LV('foo) {... body calc ...} 
+    //   lazy val foo = foo_.value
+    //
+    // Instead we have to pass the darn name.
+    //
+    // 
     /**
      * Don't get this unless you really need it, because it
      * uses stack traces, which are large and expensive.
      */
-    private def LVName = {
-      val ct = Thread.currentThread()
-      val stArray = ct.getStackTrace() // EXPENSIVE
-      val callingFrame = stArray(3) // The magic number - could change if Scala compilation scheme changes
-      val method = callingFrame.getMethodName()
-      val unqualifiedMethod = method.split("\\$").reverse.head
-      unqualifiedMethod
-    }
+    //    private def LVName = {
+    //      val ct = Thread.currentThread()
+    //      val stArray = ct.getStackTrace() // EXPENSIVE
+    //      val callingFrame = stArray(3) // The magic number - could change if Scala compilation scheme changes
+    //      val method = callingFrame.getMethodName()
+    //      val unqualifiedMethod = method //.split("\\$").reverse.head
+    //      unqualifiedMethod
+    //    }
 
     /**
      * State used to convey the name of the LV to the body code
      */
-    var name: String = null
+    // var name: String = null
 
     /**
      * We call this factory to obtain a lazy value (LV).
      * It is at that point that we can obtain the name
      * automatically.
      */
-    def apply[T](body: => T) = {
-      val n = LVName // TODO: do this conditionally based on trace request.
-      new LV(body, context, n, this)
+    def apply[T](sym: Symbol)(body: => T) = {
+      // val n = LVName // TODO: do this conditionally based on trace request.
+      new LV(body, context, sym, this)
     }
 
   }

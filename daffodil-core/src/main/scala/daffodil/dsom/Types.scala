@@ -275,7 +275,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
   }
 
   lazy val remoteBaseFacets = remoteBaseFacets_.value
-  private lazy val remoteBaseFacets_ = LV {
+  private lazy val remoteBaseFacets_ = LV('remoteBaseFacets) {
     myBaseType match {
       case gstd: GlobalSimpleTypeDef => gstd.combinedBaseFacets
       case prim: PrimitiveType => Nil
@@ -449,7 +449,7 @@ abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
   lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
 
   lazy val Seq(modelGroup) = smg.value
-  lazy val smg = LV {
+  lazy val smg = LV('smg) {
     xmlChildren.flatMap { GroupFactory(_, this, 1) }
   }
 

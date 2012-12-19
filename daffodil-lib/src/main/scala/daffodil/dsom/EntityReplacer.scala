@@ -19,52 +19,54 @@ import scala.collection.mutable.ListBuffer
  */
 class EntityReplacer {
 
-  lazy val dfdlEntityName = "NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC[1-4]|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|NBSP|NEL|LS"
+  val dfdlEntityName = "NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC[1-4]|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|NBSP|NEL|LS"
 
-  lazy val entityCharacterUnicode: List[(String, String, Pattern)] = List(("NUL", "\u0000", Pattern.compile("%" + "NUL" + ";", Pattern.MULTILINE)),
-    ("SOH", "\u0001", Pattern.compile("%" + "SOH" + ";", Pattern.MULTILINE)),
-    ("STX", "\u0002", Pattern.compile("%" + "STX" + ";", Pattern.MULTILINE)),
-    ("ETX", "\u0003", Pattern.compile("%" + "ETX" + ";", Pattern.MULTILINE)),
-    ("EOT", "\u0004", Pattern.compile("%" + "EOT" + ";", Pattern.MULTILINE)),
-    ("ENQ", "\u0005", Pattern.compile("%" + "ENQ" + ";", Pattern.MULTILINE)),
-    ("ACK", "\u0006", Pattern.compile("%" + "ACK" + ";", Pattern.MULTILINE)),
-    ("BEL", "\u0007", Pattern.compile("%" + "BEL" + ";", Pattern.MULTILINE)),
-    ("BS", "\u0008", Pattern.compile("%" + "BS" + ";", Pattern.MULTILINE)),
-    ("HT", "\u0009", Pattern.compile("%" + "HT" + ";", Pattern.MULTILINE)),
-    ("LF", "\u000A", Pattern.compile("%" + "LF" + ";", Pattern.MULTILINE)),
-    ("VT", "\u000B", Pattern.compile("%" + "VT" + ";", Pattern.MULTILINE)),
-    ("FF", "\u000C", Pattern.compile("%" + "FF" + ";", Pattern.MULTILINE)),
-    ("CR", "\u000D", Pattern.compile("%" + "CR" + ";", Pattern.MULTILINE)),
-    ("SO", "\u000E", Pattern.compile("%" + "SO" + ";", Pattern.MULTILINE)),
-    ("SI", "\u000F", Pattern.compile("%" + "SI" + ";", Pattern.MULTILINE)),
-    ("DLE", "\u0010", Pattern.compile("%" + "DLE" + ";", Pattern.MULTILINE)),
-    ("DC1", "\u0011", Pattern.compile("%" + "DC1" + ";", Pattern.MULTILINE)),
-    ("DC2", "\u0012", Pattern.compile("%" + "DC2" + ";", Pattern.MULTILINE)),
-    ("DC3", "\u0013", Pattern.compile("%" + "DC3" + ";", Pattern.MULTILINE)),
-    ("DC4", "\u0014", Pattern.compile("%" + "DC4" + ";", Pattern.MULTILINE)),
-    ("NAK", "\u0015", Pattern.compile("%" + "NAK" + ";", Pattern.MULTILINE)),
-    ("SYN", "\u0016", Pattern.compile("%" + "SYN" + ";", Pattern.MULTILINE)),
-    ("ETB", "\u0017", Pattern.compile("%" + "ETB" + ";", Pattern.MULTILINE)),
-    ("CAN", "\u0018", Pattern.compile("%" + "CAN" + ";", Pattern.MULTILINE)),
-    ("EM", "\u0019", Pattern.compile("%" + "EM" + ";", Pattern.MULTILINE)),
-    ("SUB", "\u001A", Pattern.compile("%" + "SUB" + ";", Pattern.MULTILINE)),
-    ("ESC", "\u001B", Pattern.compile("%" + "ESC" + ";", Pattern.MULTILINE)),
-    ("FS", "\u001C", Pattern.compile("%" + "FS" + ";", Pattern.MULTILINE)),
-    ("GS", "\u001D", Pattern.compile("%" + "GS" + ";", Pattern.MULTILINE)),
-    ("RS", "\u001E", Pattern.compile("%" + "RS" + ";", Pattern.MULTILINE)),
-    ("US", "\u001F", Pattern.compile("%" + "US" + ";", Pattern.MULTILINE)),
-    ("SP", "\u0020", Pattern.compile("%" + "SP" + ";", Pattern.MULTILINE)),
-    ("DEL", "\u007F", Pattern.compile("%" + "DEL" + ";", Pattern.MULTILINE)),
-    ("NBSP", "\u00A0", Pattern.compile("%" + "NBSP" + ";", Pattern.MULTILINE)),
-    ("NEL", "\u0085", Pattern.compile("%" + "NEL" + ";", Pattern.MULTILINE)),
-    ("LS", "\u2028", Pattern.compile("%" + "LS" + ";", Pattern.MULTILINE)))
+  val entityCharacterUnicode: List[(String, String, Pattern)] =
+    List(
+      ("NUL", "\u0000", Pattern.compile("%" + "NUL" + ";", Pattern.MULTILINE)),
+      ("SOH", "\u0001", Pattern.compile("%" + "SOH" + ";", Pattern.MULTILINE)),
+      ("STX", "\u0002", Pattern.compile("%" + "STX" + ";", Pattern.MULTILINE)),
+      ("ETX", "\u0003", Pattern.compile("%" + "ETX" + ";", Pattern.MULTILINE)),
+      ("EOT", "\u0004", Pattern.compile("%" + "EOT" + ";", Pattern.MULTILINE)),
+      ("ENQ", "\u0005", Pattern.compile("%" + "ENQ" + ";", Pattern.MULTILINE)),
+      ("ACK", "\u0006", Pattern.compile("%" + "ACK" + ";", Pattern.MULTILINE)),
+      ("BEL", "\u0007", Pattern.compile("%" + "BEL" + ";", Pattern.MULTILINE)),
+      ("BS", "\u0008", Pattern.compile("%" + "BS" + ";", Pattern.MULTILINE)),
+      ("HT", "\u0009", Pattern.compile("%" + "HT" + ";", Pattern.MULTILINE)),
+      ("LF", "\u000A", Pattern.compile("%" + "LF" + ";", Pattern.MULTILINE)),
+      ("VT", "\u000B", Pattern.compile("%" + "VT" + ";", Pattern.MULTILINE)),
+      ("FF", "\u000C", Pattern.compile("%" + "FF" + ";", Pattern.MULTILINE)),
+      ("CR", "\u000D", Pattern.compile("%" + "CR" + ";", Pattern.MULTILINE)),
+      ("SO", "\u000E", Pattern.compile("%" + "SO" + ";", Pattern.MULTILINE)),
+      ("SI", "\u000F", Pattern.compile("%" + "SI" + ";", Pattern.MULTILINE)),
+      ("DLE", "\u0010", Pattern.compile("%" + "DLE" + ";", Pattern.MULTILINE)),
+      ("DC1", "\u0011", Pattern.compile("%" + "DC1" + ";", Pattern.MULTILINE)),
+      ("DC2", "\u0012", Pattern.compile("%" + "DC2" + ";", Pattern.MULTILINE)),
+      ("DC3", "\u0013", Pattern.compile("%" + "DC3" + ";", Pattern.MULTILINE)),
+      ("DC4", "\u0014", Pattern.compile("%" + "DC4" + ";", Pattern.MULTILINE)),
+      ("NAK", "\u0015", Pattern.compile("%" + "NAK" + ";", Pattern.MULTILINE)),
+      ("SYN", "\u0016", Pattern.compile("%" + "SYN" + ";", Pattern.MULTILINE)),
+      ("ETB", "\u0017", Pattern.compile("%" + "ETB" + ";", Pattern.MULTILINE)),
+      ("CAN", "\u0018", Pattern.compile("%" + "CAN" + ";", Pattern.MULTILINE)),
+      ("EM", "\u0019", Pattern.compile("%" + "EM" + ";", Pattern.MULTILINE)),
+      ("SUB", "\u001A", Pattern.compile("%" + "SUB" + ";", Pattern.MULTILINE)),
+      ("ESC", "\u001B", Pattern.compile("%" + "ESC" + ";", Pattern.MULTILINE)),
+      ("FS", "\u001C", Pattern.compile("%" + "FS" + ";", Pattern.MULTILINE)),
+      ("GS", "\u001D", Pattern.compile("%" + "GS" + ";", Pattern.MULTILINE)),
+      ("RS", "\u001E", Pattern.compile("%" + "RS" + ";", Pattern.MULTILINE)),
+      ("US", "\u001F", Pattern.compile("%" + "US" + ";", Pattern.MULTILINE)),
+      ("SP", "\u0020", Pattern.compile("%" + "SP" + ";", Pattern.MULTILINE)),
+      ("DEL", "\u007F", Pattern.compile("%" + "DEL" + ";", Pattern.MULTILINE)),
+      ("NBSP", "\u00A0", Pattern.compile("%" + "NBSP" + ";", Pattern.MULTILINE)),
+      ("NEL", "\u0085", Pattern.compile("%" + "NEL" + ";", Pattern.MULTILINE)),
+      ("LS", "\u2028", Pattern.compile("%" + "LS" + ";", Pattern.MULTILINE)))
 
-  lazy val escapeReplacements: List[(String, String, Pattern)] = List(("%", "\u0025", Pattern.compile("%%", Pattern.MULTILINE)))
+  val escapeReplacements: List[(String, String, Pattern)] = List(("%", "\u0025", Pattern.compile("%%", Pattern.MULTILINE)))
 
-  lazy val charEntityPattern = Pattern.compile("%(" + dfdlEntityName + ");", Pattern.MULTILINE)
-  lazy val hexPattern = Pattern.compile("%#x[0-9a-fA-F]+;", Pattern.MULTILINE)
-  lazy val decPattern = Pattern.compile("%#[0-9]+;", Pattern.MULTILINE)
-  lazy val bytePattern = Pattern.compile("%#r[0-9a-fA-F]{2};", Pattern.MULTILINE)
+  val charEntityPattern = Pattern.compile("%(" + dfdlEntityName + ");", Pattern.MULTILINE)
+  val hexPattern = Pattern.compile("%#x[0-9a-fA-F]+;", Pattern.MULTILINE)
+  val decPattern = Pattern.compile("%#[0-9]+;", Pattern.MULTILINE)
+  val bytePattern = Pattern.compile("%#r[0-9a-fA-F]{2};", Pattern.MULTILINE)
 
   def hasDfdlCharEntity(input: String): Boolean = {
     val p: Pattern = charEntityPattern
@@ -103,8 +105,12 @@ class EntityReplacer {
         val rawStr = m.group().toString()
         val trimmedStr = rawStr.replace(prefix, "").replace(";", "")
         val intStr = Integer.parseInt(trimmedStr, 16)
-
-        res = res.replaceAll(rawStr, intStr.asInstanceOf[Char].toString())
+        val newChar = intStr.toChar.toString
+        // Special case here
+        // $ is used by replaceAll to refer to prior groups
+        // so $ must be escaped into \$
+        val newCharNotDollar = if (newChar == "$") """\$""" else newChar
+        res = res.replaceAll(rawStr, newCharNotDollar)
         m = p.matcher(res) // update Matcher
       }
     }
@@ -196,12 +202,10 @@ class EntityReplacer {
   private def replace(input: String, chars: List[(String, String, Pattern)]): String = {
     var res: String = input
     chars.foreach {
-      x =>
-        {
-          val (entity, unicode, pattern) = x
-          val m: Matcher = pattern.matcher(res)
-          res = m.replaceAll(unicode)
-        }
+      case (entity, unicode, pattern) => {
+        val m: Matcher = pattern.matcher(res)
+        res = m.replaceAll(unicode)
+      }
     }
     res
   }
@@ -255,7 +259,7 @@ class ListOfStringValueAsLiteral(rawArg: String, context: ThrowsSDE) {
     val list = rawArg.split("\\s").toList
     val cookedList: ListBuffer[String] = ListBuffer.empty
     list.foreach(x => {
-      val l = new StringValueAsLiteral(rawArg, context)
+      val l = new StringValueAsLiteral(x, context)
       cookedList += l.cooked
     })
     cookedList.toList
@@ -267,7 +271,7 @@ class ListOfSingleCharacterLiteral(rawArg: String, context: ThrowsSDE) {
     val list = rawArg.split("\\s")
     val cookedList: ListBuffer[String] = ListBuffer.empty
     list.foreach(x => {
-      val l = new SingleCharacterLiteral(rawArg, context)
+      val l = new SingleCharacterLiteral(x, context)
       cookedList += l.cooked
     })
     cookedList.toList

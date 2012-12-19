@@ -245,8 +245,9 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
   }
 
   private def parseInputDefaultContent(field: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
-    input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
-    withLoggingLevel(LogLevel.Debug) {
+                                       input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
+    // withLoggingLevel(LogLevel.Debug)
+    {
       val pResult = this.parse(this.log(field)("DelimParser.parseInputDefaultContent"), input)
       //val res = this.parse(entry, input)
 
@@ -297,8 +298,9 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
   }
 
   private def parseInputEscapeCharContent(field: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
-    input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
-    withLoggingLevel(LogLevel.Debug) {
+                                          input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
+    // withLoggingLevel(LogLevel.Debug) 
+    {
       val pResult = this.parse(this.log(field)("DelimParser.parseInputEscapeCharContent"), input)
       //val res = this.parse(entry, input)
 
@@ -349,8 +351,9 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
   }
 
   private def parseInputEscapeBlockContent(field: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
-    input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
-    withLoggingLevel(LogLevel.Debug) {
+                                           input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
+    // withLoggingLevel(LogLevel.Debug) 
+    {
       // FOR DEBUG: might want to use this logging variant.
       val pResult = this.parse(this.log(field)("DelimParser.parseInputEscapeBlockContent"), input)
       //val res = this.parse(entry, input)
@@ -420,7 +423,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
    * The call to buildDelims sorts the delimiters by length or possible length.
    */
   def parseInputDelimiter(localDelims: Set[String], remoteDelims: Set[String],
-    input: Reader[Char]): DelimParseResult = {
+                          input: Reader[Char]): DelimParseResult = {
     withLoggingLevel(LogLevel.Info) {
       val (localDelimsParser, localDelimsRegex) = this.buildDelims(localDelims)
       val combinedLocalDelimsParser = this.combineLongest(localDelimsParser)
@@ -474,9 +477,9 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
    * Parses text input without escape schemes
    */
   def parseInput(separators: Set[String], terminators: Set[String], input: Reader[Char],
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                 justification: TextJustificationType.Type,
+                 padChar: String,
+                 isMissingDelimAllowed: Boolean = true): DelimParseResult = {
     justification match {
       case TextJustificationType.None => return parseInput_NoPad(separators, terminators, input, isMissingDelimAllowed)
       case _ => return parseInput_WithPad(separators, terminators, input, justification, padChar, isMissingDelimAllowed)
@@ -484,9 +487,9 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
   }
 
   private def parseInput_WithPad(separators: Set[String], terminators: Set[String], input: Reader[Char],
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                 justification: TextJustificationType.Type,
+                                 padChar: String,
+                                 isMissingDelimAllowed: Boolean = true): DelimParseResult = {
     // TODO: Move regular expressions out to central class
     val (sepsParser, sepsRegex) = this.buildDelims(separators)
     val (termsParser, termsRegex) = this.buildDelims(terminators)
@@ -563,7 +566,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
   }
 
   private def parseInput_NoPad(separators: Set[String], terminators: Set[String], input: Reader[Char],
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                               isMissingDelimAllowed: Boolean = true): DelimParseResult = {
     // TODO: Move regular expressions out to central class
     val (sepsParser, sepsRegex) = this.buildDelims(separators)
     val (termsParser, termsRegex) = this.buildDelims(terminators)
@@ -605,11 +608,11 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
    * Parses input that can have escape blocks
    */
   def parseInputEscapeBlock(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeBlockStart: String, escapeBlockEnd: String,
-    escapeEscapeCharacter: String = "",
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                            input: Reader[Char], escapeBlockStart: String, escapeBlockEnd: String,
+                            escapeEscapeCharacter: String = "",
+                            justification: TextJustificationType.Type,
+                            padChar: String,
+                            isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     justification match {
       case TextJustificationType.None => return parseInputEscapeBlock_NoPad(separators, terminators,
@@ -620,11 +623,11 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
   }
 
   private def parseInputEscapeBlock_WithPad(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeBlockStart: String, escapeBlockEnd: String,
-    escapeEscapeCharacter: String = "",
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                            input: Reader[Char], escapeBlockStart: String, escapeBlockEnd: String,
+                                            escapeEscapeCharacter: String = "",
+                                            justification: TextJustificationType.Type,
+                                            padChar: String,
+                                            isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     //TODO: Move regular expressions out into central class
     if (escapeBlockStart.length() == 0 || escapeBlockEnd.length() == 0 || padChar.length() == 0) { return failedResult }
@@ -702,9 +705,9 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
   }
 
   private def parseInputEscapeBlock_NoPad(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeBlockStart: String, escapeBlockEnd: String,
-    escapeEscapeCharacter: String = "",
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                          input: Reader[Char], escapeBlockStart: String, escapeBlockEnd: String,
+                                          escapeEscapeCharacter: String = "",
+                                          isMissingDelimAllowed: Boolean = true): DelimParseResult = {
     //TODO: Move regular expressions out into central class
     if (escapeBlockStart.length() == 0 || escapeBlockEnd.length() == 0) { return failedResult }
 
@@ -761,10 +764,10 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
    * Parses input that can have character escape schemes
    */
   def parseInputEscapeCharacter(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeCharacter: String, escapeEscapeCharacter: String = "",
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                input: Reader[Char], escapeCharacter: String, escapeEscapeCharacter: String = "",
+                                justification: TextJustificationType.Type,
+                                padChar: String,
+                                isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     //if (terminators.size == 0 && separators.size == 0) { return failedResult }
     if (escapeCharacter.length() == 0) { return failedResult }
@@ -791,10 +794,10 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
    * characters are not the same.
    */
   private def parseInputEscapeCharacter_DiffWithPad(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeCharacter: String, escapeEscapeCharacter: String = "",
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                                    input: Reader[Char], escapeCharacter: String, escapeEscapeCharacter: String = "",
+                                                    justification: TextJustificationType.Type,
+                                                    padChar: String,
+                                                    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     if (escapeCharacter.length() == 0 || padChar.length() == 0) { return failedResult }
 
@@ -918,8 +921,8 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
    * characters are not the same.
    */
   private def parseInputEscapeCharacter_DiffNoPad(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeCharacter: String, escapeEscapeCharacter: String = "",
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                                  input: Reader[Char], escapeCharacter: String, escapeEscapeCharacter: String = "",
+                                                  isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     //if (terminators.size == 0 && separators.size == 0) { return failedResult }
     if (escapeCharacter.length() == 0) { return failedResult }
@@ -997,8 +1000,8 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
    * escape and escapeEscape are the same.
    */
   private def parseInputEscapeCharacter_SameNoPad(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeCharacter: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                                  input: Reader[Char], escapeCharacter: String,
+                                                  isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     if (escapeCharacter.length() == 0) { return failedResult }
 
@@ -1082,10 +1085,10 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
    * escape and escapeEscape are the same.
    */
   private def parseInputEscapeCharacter_SameWithPad(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeCharacter: String,
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                                    input: Reader[Char], escapeCharacter: String,
+                                                    justification: TextJustificationType.Type,
+                                                    padChar: String,
+                                                    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     if (escapeCharacter.length() == 0 || padChar.length() == 0) { return failedResult }
 

@@ -27,8 +27,8 @@ class TresysTests2 extends JUnitSuite {
   //
   //  @Test def test_codingErrorAction() { runnerMB.runOneTest("codingErrorAction") }
 
-  val ab = testDir + "AB.tdml"
-  lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))
+  //  val ab = testDir + "ABLargeData.tdml.dat"
+  //  lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))
   // Too slow to use in regression. So slow it's a bug.
   // @Test def test_AB007() { runnerAB.runOneTest("AB007") }
 

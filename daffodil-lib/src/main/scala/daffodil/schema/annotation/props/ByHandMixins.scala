@@ -81,7 +81,7 @@ object SeparatorSuppressionPolicy extends Enum[SeparatorSuppressionPolicy] {
 trait SeparatorSuppressionPolicyMixin extends PropertyMixin { self: OOLAGHost =>
 
   lazy val separatorSuppressionPolicy = separatorSuppressionPolicy_.value
-  private lazy val separatorSuppressionPolicy_ = LV {
+  private lazy val separatorSuppressionPolicy_ = LV('separatorSuppressionPolicy) {
     val sp = getPropertyOption("separatorPolicy")
     val ssp = getPropertyOption("separatorSuppressionPolicy")
     ssp match {

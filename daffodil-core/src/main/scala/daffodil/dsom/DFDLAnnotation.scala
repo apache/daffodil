@@ -502,7 +502,7 @@ class DFDLDefineFormat(node: Node, sd: SchemaDocument)
   lazy val baseFormat = getAttributeOption("baseFormat") // nor baseFormat
 
   lazy val formatAnnotation = formatAnnotation_.value
-  private lazy val formatAnnotation_ = LV {
+  private lazy val formatAnnotation_ = LV('formatAnnotation) {
     Utility.trim(node) match {
       case <dfdl:defineFormat>{ f @ <dfdl:format>{ contents @ _* }</dfdl:format> }</dfdl:defineFormat> =>
         new DFDLFormat(f, sd)
@@ -582,7 +582,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
 class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Assert_AnnotationMixin // Note: don't use these generated mixins. Statements don't have format properties
   lazy val gram = gram_.value
-  private lazy val gram_ = LV {
+  private lazy val gram_ = LV('gram) {
     testKind match {
       case TestKind.Pattern => AssertPatternPrim(decl, this)
       case TestKind.Expression => AssertBooleanPrim(decl, this)
@@ -593,7 +593,7 @@ class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
 class DFDLDiscriminator(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Discriminator_AnnotationMixin 
   lazy val gram = gram_.value
-  private lazy val gram_ = LV {
+  private lazy val gram_ = LV('gram) {
     testKind match {
       case TestKind.Pattern => DiscriminatorPatternPrim(decl, this)
       case TestKind.Expression => DiscriminatorBooleanPrim(decl, this)
@@ -668,7 +668,7 @@ class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
     schemaDefinitionError("Unknown variable: %s", ref))
 
   lazy val gram = gram_.value
-  private lazy val gram_ = LV {
+  private lazy val gram_ = LV('gram) {
     SetVariable(decl, this)
   }
 }
