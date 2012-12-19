@@ -95,7 +95,7 @@ class TestGeneratedProperties extends JUnitSuite {
     comparePropValue(hasProps.textBidiNumeralShapes, "nominal")
     comparePropValue(hasProps.textBidiOrientation, "RTL")
     comparePropValue(hasProps.textStringJustification, "left")
-    comparePropValue(hasProps.textStringPadCharacter, "%SP;")
+    //comparePropValue(hasProps.textStringPadCharacter, "%SP;")
     comparePropValue(hasProps.truncateSpecifiedLengthString, "no")
     comparePropValue(hasProps.textOutputMinLength, "0")
     comparePropValue(hasProps.textNumberJustification, "right")

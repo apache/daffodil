@@ -8,6 +8,7 @@ import daffodil.dsom.EntityReplacer
 import daffodil.dsom.ListOfStringValueAsLiteral
 import daffodil.dsom.StringValueAsLiteral
 import daffodil.dsom.SingleCharacterLiteral
+import daffodil.dsom.SingleCharacterLiteralES
 
 /**
  * We don't want to make the code generator so sophisticated as to be
@@ -139,6 +140,25 @@ trait TextNumberFormatMixin extends PropertyMixin {
     // TODO: Cannot contain raw bytes
 
     val l = new ListOfStringValueAsLiteral(raw, this)
+    l.cooked
+  }
+}
+
+trait TextStringPaddingMixin extends PropertyMixin {
+  lazy val textStringPadCharacterRaw = getProperty("textStringPadCharacter")
+  lazy val textStringPadCharacter = {
+    val raw = textStringPadCharacterRaw
+
+    // DFDL Character classes are not allowed
+    this.schemaDefinition(!raw.contains("%NL;"), "textStringPadCharacter cannot contain NL!")
+    this.schemaDefinition(!raw.contains("%ES;"), "textStringPadCharacter cannot contain ES!")
+    this.schemaDefinition(!raw.contains("%WSP;"), "textStringPadCharacter cannot contain WSP!")
+    this.schemaDefinition(!raw.contains("%WSP+;"), "textStringPadCharacter cannot contain WSP+!")
+    this.schemaDefinition(!raw.contains("%WSP*;"), "textStringPadCharacter cannot contain WSP*!")
+
+    // TODO: raw byte entity %#r is allowed
+    
+    val l = new SingleCharacterLiteralES(raw, this)
     l.cooked
   }
 }
