@@ -622,5 +622,111 @@
   </tdml:parserTestCase>
 
 
+  <tdml:defineSchema name="choiceInSequenceWithSeparators">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:element name="ch1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix">
+          <xs:element name="a" type="xs:string"/>
+          <xs:choice>
+            <xs:element name="foo" type="xs:int" dfdl:terminator=";"/>
+            <xs:element name="bar" type="xs:string" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="choiceInSequenceWithSeparators1"
+    root="ch1" model="choiceInSequenceWithSeparators"
+    description="Choice inside a sequence with separators - first choice">
+
+    <tdml:document><![CDATA[/abc/1;]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch1>
+          <ex:a>abc</ex:a>
+          <ex:foo>1</ex:foo>
+        </ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="choiceInSequenceWithSeparators2"
+    root="ch1" model="choiceInSequenceWithSeparators"
+    description="Choice inside a sequence with separators - second choice">
+  
+    <tdml:document><![CDATA[/abc/def]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch1>
+          <ex:a>abc</ex:a>
+          <ex:bar>def</ex:bar>
+        </ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+
+  <tdml:defineSchema name="sequenceInChoiceInSequenceWithSeparators">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <xs:element name="ch1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix">
+          <xs:element name="a" type="xs:string"/>
+          <xs:choice>
+            <xs:element name="test">
+              <xs:complexType>
+                <xs:sequence dfdl:separator="-" dfdl:separatorPosition="prefix">
+                  <xs:element name="foo" type="xs:int" dfdl:terminator=";"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="bar" type="xs:string" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="sequenceInChoiceInSequenceWithSeparators1"
+    root="ch1" model="sequenceInChoiceInSequenceWithSeparators"
+    description="Sequence inside a choice inside a sequence with separators - first choice">
+
+    <tdml:document><![CDATA[/abc/-1;]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch1>
+          <ex:a>abc</ex:a>
+          <ex:test>
+            <ex:foo>1</ex:foo>
+          </ex:test>
+        </ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="sequenceInChoiceInSequenceWithSeparators2"
+    root="ch1" model="sequenceInChoiceInSequenceWithSeparators"
+    description="Sequence inside a choice inside a sequence with separators - second choice">
+
+    <tdml:document><![CDATA[/abc/def]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch1>
+          <ex:a>abc</ex:a>
+          <ex:bar>def</ex:bar>
+        </ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

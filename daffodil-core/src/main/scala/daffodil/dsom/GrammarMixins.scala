@@ -951,7 +951,6 @@ trait ModelGroupGrammarMixin
   // we're nested inside another group as a term.
   lazy val asChildOfComplexType = termContentBody
 
-  lazy val termContentBody = Prod("termContentBody", this, separatedForPosition(modelGroupSyntax))
   lazy val modelGroupSyntax = Prod("modelGroupSyntax", this, dfdlStatementEvaluations ~ groupLeftFraming ~ groupContent ~ groupRightFraming)
 
   def mt = EmptyGram.asInstanceOf[Gram] // cast trick to shut up foldLeft compile errors below
@@ -967,6 +966,7 @@ trait ChoiceGrammarMixin { self: Choice =>
 
   lazy val alternatives = groupMembers.map { _.asTermInChoice }
 
+  lazy val termContentBody = Prod("termContentBody", this, modelGroupSyntax)
 }
 
 trait SequenceGrammarMixin { self: Sequence =>
@@ -976,6 +976,8 @@ trait SequenceGrammarMixin { self: Sequence =>
   def folder(p: Gram, q: Gram): Gram = p ~ q
 
   lazy val terms = groupMembers.map { _.asTermInSequence }
+
+  lazy val termContentBody = Prod("termContentBody", this, separatedForPosition(modelGroupSyntax))
 
   /**
    * These are static properties even though the delimiters can have runtime-computed values.
