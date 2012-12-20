@@ -17,5 +17,7 @@ class defineFormatTests extends JUnitSuite {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
   @Test def test_defineFormat_01() { runner.runOneTest("defineFormat_01") }
+  @Test def test_Lesson3_defineFormat() { runner.runOneTest("Lesson3_defineFormat") }
+  @Test def test_Lesson3_inherit_defineFormat() { runner.runOneTest("Lesson3_inherit_defineFormat") }
 
 }

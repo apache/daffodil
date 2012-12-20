@@ -42,5 +42,35 @@
     </tdml:errors>
 
   </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson3_attribute_form" root="houseNumber"
+    model="property_syntax.dfdl.xsd" description="attribute form - DFDL-7-021R">
+    <tdml:document><![CDATA[118]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <houseNumber>118</houseNumber>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson3_element_form" root="houseNumber1"
+    model="property_syntax.dfdl.xsd" description="element form - DFDL-7-022R">
+    <tdml:document><![CDATA[118]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <houseNumber1>118</houseNumber1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson3_short_form" root="houseNumber2"
+    model="property_syntax.dfdl.xsd" description="short form - DFDL-7-023R">
+    <tdml:document><![CDATA[118]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <houseNumber2>118</houseNumber2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

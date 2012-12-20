@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="Namespaces"
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+
+  <tdml:parserTestCase name="Lesson2_no_namespace" root="address"
+    model="address_no_namespace.dfdl.xsd" description="dfdl namespace - DFDL-6-002R">
+    <tdml:document><![CDATA[118*Ridgewood Circle*Rochester*NY]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <address> 
+          <houseNumber>118</houseNumber>
+          <street>Ridgewood Circle</street>
+          <city>Rochester</city>
+          <state>NY</state>
+          </address>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson2_include_schema" root="customer"
+    model="customer_no_namespace.dfdl.xsd" description="include a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[James*River*118*Ridgewood Circle*Rochester*NY]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <firsName>James</firsName>
+        <surname>River</surname>
+        <address> 
+          <houseNumber>118</houseNumber>
+          <street>Ridgewood Circle</street>
+          <city>Rochester</city>
+          <state>NY</state>
+          </address>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson2_import_schema" root="customer"
+    model="customer_namespace.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[James*River*118*Ridgewood Circle*Rochester*NY]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <firsName>James</firsName>
+        <surname>River</surname>
+        <address> 
+          <houseNumber>118</houseNumber>
+          <street>Ridgewood Circle</street>
+          <city>Rochester</city>
+          <state>NY</state>
+          </address>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</testSuite>

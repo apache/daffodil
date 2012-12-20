@@ -33,4 +33,7 @@ class TestChoiceGroupInitiatedContent extends JUnitSuite {
   @Test def test_arrayOfChoice2() { runner_01.runOneTest("arrayOfChoice2") }
   @Test def test_discriminatorNesting1() { runner_01.runOneTest("discriminatorNesting1") }
   @Test def test_discriminatorNesting2() { runner_01.runOneTest("discriminatorNesting2") }
+  @Test def test_Lesson5_choice_state() { runner_01.runOneTest("Lesson5_choice_state") }
+  @Test def test_Lesson5_choice_county() { runner_01.runOneTest("Lesson5_choice_county") }
+  @Test def test_Lesson5_choice_province() { runner_01.runOneTest("Lesson5_choice_province") }
 }

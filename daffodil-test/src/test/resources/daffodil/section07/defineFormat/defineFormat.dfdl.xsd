@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"> 
+  <xs:annotation> 
+    <xs:appinfo source="http://www.ogf.org/dfdl/" >
+      <dfdl:format lengthKind="implicit" leadingSkip='0' initiator="" terminator=""/> 
+      
+      <dfdl:defineFormat name="common"> 
+        <dfdl:format representation="text" lengthKind="delimited" leadingSkip='0' initiator="" textTrimKind="none"
+                     encoding="ASCII" initiatedContent="no" separator="" terminator="" ignoreCase="no"/> 
+      </dfdl:defineFormat>
+      
+      <dfdl:defineFormat name="base"> 
+        <dfdl:format representation="text" leadingSkip='0' initiator="" textTrimKind="none"
+                     encoding="ASCII" initiatedContent="no" separator="" terminator="" ignoreCase="no"/> 
+      </dfdl:defineFormat>
+      
+      <dfdl:defineFormat name="common1"> 
+        <dfdl:format ref="base" lengthKind="delimited" /> 
+      </dfdl:defineFormat> 
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:element name="address"> 
+    <xs:complexType> 
+      <xs:sequence dfdl:ref="common" 
+                   dfdl:sequenceKind="ordered"  
+                   dfdl:separator="*"  
+                   dfdl:separatorPosition="infix"  
+                   dfdl:separatorPolicy="required">
+        <xs:element name="houseNumber" type="xs:int"  
+                    dfdl:ref="common" 
+                    dfdl:textNumberRep="standard"  
+                    dfdl:textNumberPattern="##0" />
+        <xs:element name="street" type="xs:string" 
+                    dfdl:ref="common" />  
+        <xs:element name="city" type="xs:string"
+		                dfdl:ref="common" />  
+        <xs:element name="state" type="xs:string"  
+                    dfdl:ref="common" />  
+      </xs:sequence> 
+    </xs:complexType> 
+  </xs:element>
+  
+  <xs:element name="address1"> 
+    <xs:complexType> 
+      <xs:sequence dfdl:ref="common1" 
+                   dfdl:sequenceKind="ordered"  
+                   dfdl:separator="*"  
+                   dfdl:separatorPosition="infix"  
+                   dfdl:separatorPolicy="required">
+        <xs:element name="houseNumber" type="houseNumberType"  
+                    dfdl:ref="common1"/>
+        <xs:element name="street" type="xs:string" 
+                    dfdl:ref="common1" />  
+        <xs:element name="city" type="xs:string"
+                    dfdl:ref="common1" />  
+        <xs:element name="state" type="xs:string"  
+                    dfdl:ref="common1" />  
+      </xs:sequence> 
+    </xs:complexType>
+  </xs:element>
+    
+    <xs:simpleType name="houseNumberType" 
+               dfdl:textNumberRep="standard"  
+               dfdl:textNumberPattern="##0" > 
+      <xs:restriction base="xs:int"> 
+        <xs:minInclusive value="1" /> 
+      </xs:restriction> 
+    </xs:simpleType> 
+  
+</xs:schema>

@@ -68,5 +68,117 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson6_optional_element"
+    description="optional element - DFDL-16-001R"
+    model="arrays_optional_elements.dfdl.xsd" root="address">
+
+    <tdml:document><![CDATA[[house:118*street:Ridgewood Circle*city:Rochester*state:NY]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address> 
+            <houseNumber>118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+          </address>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson6_optional_element_01"
+    description="optional element - DFDL-16-001R"
+    model="arrays_optional_elements.dfdl.xsd" root="address">
+
+    <tdml:document><![CDATA[[house:118*street:Ridgewood Circle*city:Rochester*state:NY*country:USA]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address> 
+            <houseNumber>118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+            <country>USA</country>
+          </address>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson6_fixed_array"
+    description="occursCountKind 'fixed' - DFDL-16-002R"
+    model="arrays_optional_elements.dfdl.xsd" root="address1">
+
+    <tdml:document><![CDATA[000118Ridgewood Circle    Main Street         Rochester           NYUSA                 ]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address1> 
+            <houseNumber>000118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <street>Main Street</street>
+            <city>Rochester</city>
+            <state>NY</state>
+            <country>USA</country>
+          </address1>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson6_variable_array"
+    description="occursCountKind 'parsed' - DFDL-16-002R"
+    model="arrays_optional_elements.dfdl.xsd" root="address2">
+
+    <tdml:document><![CDATA[[house:118*street:Ridgewood Circle*street:Main Street*city:Rochester*state:NY*country:USA]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address2> 
+            <houseNumber>118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <street>Main Street</street>
+            <city>Rochester</city>
+            <state>NY</state>
+            <country>USA</country>
+          </address2>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson6_variable_array_01"
+    description="occursCountKind 'parsed' - DFDL-16-002R"
+    model="arrays_optional_elements.dfdl.xsd" root="address2">
+
+    <tdml:document><![CDATA[[house:118*street:Ridgewood Circle*city:Rochester*state:NY*country:USA]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address2> 
+            <houseNumber>118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+            <country>USA</country>
+          </address2>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson6_variable_array_02"
+    description="occursCountKind 'parsed' with different separator- DFDL-16-002R"
+    model="arrays_optional_elements.dfdl.xsd" root="address3">
+
+    <tdml:document><![CDATA[[house:118*street:Ridgewood Circle~street:Main Street*city:Rochester*state:NY*country:USA]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address3> 
+            <houseNumber>118</houseNumber>
+            <streets>
+              <street>Ridgewood Circle</street>
+              <street>Main Street</street>
+            </streets>
+            <city>Rochester</city>
+            <state>NY</state>
+            <country>USA</country>
+          </address3>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

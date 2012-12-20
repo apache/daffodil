@@ -46,6 +46,8 @@ class TestLengthKindDelimited extends JUnitSuite {
   // Tests that initiator is found when on GlobalElmentDecl
   @Test def test_refInitiator2() { runner.runOneTest("refInitiator2") }
   @Test def test_binary_delimited_fail() { runner.runOneTest("binary_delimited_fail") }
+  @Test def test_Lesson1_lengthKind_delimited() { runner.runOneTest("Lesson1_lengthKind_delimited") }
+  @Test def test_Lesson4_delimited_fixed_length() { runner.runOneTest("Lesson4_delimited_fixed_length") }
 
   val ab = testDir + "AB.tdml"
   lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))

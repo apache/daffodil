@@ -516,4 +516,57 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson5_choice_state"
+    description="choice with initiated content - DFDL-15-003R"
+    model="choice.dfdl.xsd" root="address">
+
+    <tdml:document><![CDATA[[house:118*street:Ridgewood Circle*city:Rochester*state:NY]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address> 
+            <houseNumber>118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <jurisdiction><state>NY</state></jurisdiction>
+          </address>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+    
+    <tdml:parserTestCase name="Lesson5_choice_county"
+      description="choice with initiated content - DFDL-15-003R"
+      model="choice.dfdl.xsd" root="address">
+
+    <tdml:document><![CDATA[[house:25*street:The Hundred*city:Romsey*county:Hampshire]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address> 
+            <houseNumber>25</houseNumber>
+            <street>The Hundred</street>
+            <city>Romsey</city>
+            <jurisdiction><county>Hampshire</county></jurisdiction>
+          </address>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson5_choice_province"
+      description="choice with initiated content - DFDL-15-003R"
+      model="choice.dfdl.xsd" root="address">
+
+    <tdml:document><![CDATA[[house:279*street:Lakeside Road*city:Toronto*province:Ontario]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address> 
+            <houseNumber>279</houseNumber>
+            <street>Lakeside Road</street>
+            <city>Toronto</city>
+            <jurisdiction><province>Ontario</province></jurisdiction>
+          </address>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
 </tdml:testSuite>

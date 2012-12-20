@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://myAddress.com"
+   xmlns:addr="http://myAddress.com">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="address" dfdl:lengthKind="implicit">
+    <xs:complexType> 
+      <xs:sequence dfdl:sequenceKind="ordered" dfdl:separator="*" dfdl:separatorPosition="infix">
+        <xs:element name="houseNumber" type="xs:string" dfdl:lengthKind="delimited" dfdl:textNumberPattern="##0"/> 
+        <xs:element name="street" type="xs:string" dfdl:lengthKind="delimited"/>
+        <xs:element name="city" type="xs:string" dfdl:lengthKind="delimited"/>
+        <xs:element name="state" type="xs:string" dfdl:lengthKind="delimited"/>
+      </xs:sequence> 
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>

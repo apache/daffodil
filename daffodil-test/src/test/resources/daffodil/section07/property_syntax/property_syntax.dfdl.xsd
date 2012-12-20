@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+      <xs:element name="houseNumber" type="xs:int">
+        <xs:annotation> 
+          <xs:appinfo source="http://www.ogf.org/dfdl/" >
+            <dfdl:element representation="text" 
+                          textNumberRep="standard"  
+                          lengthKind="delimited" 
+                          encoding="ASCII" 
+                          textNumberPattern="##0"/>           
+          </xs:appinfo> 
+        </xs:annotation> 
+      </xs:element>
+      
+      <xs:element name="houseNumber1" type="xs:int"> 
+        <xs:annotation> 
+          <xs:appinfo source="http://www.ogf.org/dfdl/" > 
+            <dfdl:element> 
+               <dfdl:property name="representation">text</dfdl:property> 
+               <dfdl:property name="textNumberRep">standard</dfdl:property>  
+               <dfdl:property name="lengthKind">delimited</dfdl:property> 
+               <dfdl:property name="encoding">ASCII</dfdl:property> 
+               <dfdl:property name="textNumberPattern">##0</dfdl:property>
+             </dfdl:element>
+          </xs:appinfo>
+        </xs:annotation> 
+      </xs:element>
+      
+      <xs:element name="houseNumber2" type="xs:int" 
+            dfdl:representation="text" 
+            dfdl:textNumberRep="standard"  
+            dfdl:lengthKind="delimited" 
+            dfdl:encoding="ASCII" 
+            dfdl:textNumberPattern="##0" />
+  
+</xs:schema>
