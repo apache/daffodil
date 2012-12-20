@@ -179,7 +179,8 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
   }
 
   def parseInputPatterned(pattern: String, input: Reader[Char]): DelimParseResult = {
-    withLoggingLevel(LogLevel.Info) {
+    // withLoggingLevel(LogLevel.Info) 
+    {
       val EOF: Parser[String] = """\z""".r
 
       val thePattern: Parser[String] = ("(?s)" + pattern).r
@@ -209,9 +210,10 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
   }
 
   def parseInputNCharacters(nChars: Long, input: Reader[Char],
-    justification: TextJustificationType.Type,
-    padChar: String): DelimParseResult = {
-    withLoggingLevel(LogLevel.Info) {
+                            justification: TextJustificationType.Type,
+                            padChar: String): DelimParseResult = {
+    // withLoggingLevel(LogLevel.Info) 
+    {
       val EOF: Parser[String] = """\z""".r
       val anything: Parser[String] = """.*""".r
       val firstNChars: Parser[String] = String.format("""(?s).{%s}""", nChars.toString()).r
@@ -424,7 +426,8 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
    */
   def parseInputDelimiter(localDelims: Set[String], remoteDelims: Set[String],
                           input: Reader[Char]): DelimParseResult = {
-    withLoggingLevel(LogLevel.Info) {
+    // withLoggingLevel(LogLevel.Info) 
+    {
       val (localDelimsParser, localDelimsRegex) = this.buildDelims(localDelims)
       val combinedLocalDelimsParser = this.combineLongest(localDelimsParser)
 

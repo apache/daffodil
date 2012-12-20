@@ -294,7 +294,8 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
     Assert.invariant(codepointWidth != -1)
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Info) {
+      // withLoggingLevel(LogLevel.Info) 
+      {
 
         log(Debug("StringFixedLengthInBytes - Parsing starting at bit position: %s", start.bitPos))
 
@@ -374,7 +375,8 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
     val charset = e.knownEncodingCharset
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Info) {
+      // withLoggingLevel(LogLevel.Info) 
+      {
 
         log(Debug("Parsing starting at bit position: %s", start.bitPos))
 
@@ -459,7 +461,8 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
     val charset = e.knownEncodingCharset
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Info) {
+      // withLoggingLevel(LogLevel.Info) 
+      {
 
         log(Debug("Parsing starting at bit position: %s", start.bitPos))
 
@@ -550,7 +553,8 @@ case class StringDelimitedEndOfData(e: ElementBase)
     override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Info) {
+      // withLoggingLevel(LogLevel.Info) 
+      {
 
         val eName = e.toString()
 
@@ -626,10 +630,9 @@ case class StringDelimitedEndOfData(e: ElementBase)
   def unparser: Unparser = new Unparser(e) {
     override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
 
-    def unparse(start: UState): UState = withLoggingLevel(LogLevel.Info) {
+    def unparse(start: UState): UState =
+      // withLoggingLevel(LogLevel.Info) 
       {
-        // setLoggingLevel(LogLevel.Info)
-
         val data = start.currentElement.getText
 
         val encoder = charset.newEncoder()
@@ -638,7 +641,6 @@ case class StringDelimitedEndOfData(e: ElementBase)
         log(Debug("Unparsed: " + start.outStream.getData))
         start
       }
-    }
   }
 }
 
@@ -655,7 +657,8 @@ case class StringPatternMatched(e: ElementBase)
     // TODO: Add parameter for changing CharBuffer size
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      withLoggingLevel(LogLevel.Info) {
+      // withLoggingLevel(LogLevel.Info) 
+      {
         val eName = e.toString()
 
         log(Debug("StringPatternMatched - %s - Parsing pattern at byte position: %s", eName, (start.bitPos >> 3)))
@@ -1912,7 +1915,8 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
     val charsetName = charset.name()
 
     def parse(start: PState): PState = {
-      withLoggingLevel(LogLevel.Info) {
+      // withLoggingLevel(LogLevel.Info) 
+      {
 
         // TODO: What if someone passes in nBytes = 0 for Explicit length, is this legal?
 
@@ -2018,7 +2022,8 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
     val exprText = expr.prettyExpr
 
     def parse(start: PState): PState = {
-      withLoggingLevel(LogLevel.Info) {
+      // withLoggingLevel(LogLevel.Info) 
+      {
 
         //val postEvalState = start //start.withVariables(vars)
 
@@ -2119,7 +2124,8 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
     val charsetName = charset.name()
 
     def parse(start: PState): PState = {
-      withLoggingLevel(LogLevel.Info) {
+      // withLoggingLevel(LogLevel.Info) 
+      {
 
         val postEvalState = start //start.withVariables(vars)
 
@@ -2210,7 +2216,8 @@ case class LiteralNilPattern(e: ElementBase)
     val charsetName = charset.name()
 
     def parse(start: PState): PState = {
-      withLoggingLevel(LogLevel.Info) {
+      // withLoggingLevel(LogLevel.Info) 
+      {
 
         val postEvalState = start //start.withVariables(vars)
 
@@ -2292,7 +2299,8 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
     override def toString = "LiteralNilDelimitedOrEndOfData(" + e.nilValue + ")"
 
     def parse(start: PState): PState = {
-      withLoggingLevel(LogLevel.Info) {
+      // withLoggingLevel(LogLevel.Info) 
+      {
         val eName = e.toString()
 
         // TODO: Why are we even doing this here?  LiteralNils don't care about delimiters
@@ -2486,44 +2494,46 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
       "<" + kindString + ">" + testPattern + "</" + kindString + ">"
     }
 
-    def parse(start: PState): PState = withLoggingLevel(LogLevel.Info) {
-      withParseErrorThrowing(start) {
-        val lastState = start // .withLastState
-        val bytePos = (lastState.bitPos >> 3).toInt
-        log(Debug("%s - Starting at bit pos: %s", eName, lastState.bitPos))
-        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+    def parse(start: PState): PState =
+      // withLoggingLevel(LogLevel.Info) 
+      {
+        withParseErrorThrowing(start) {
+          val lastState = start // .withLastState
+          val bytePos = (lastState.bitPos >> 3).toInt
+          log(Debug("%s - Starting at bit pos: %s", eName, lastState.bitPos))
+          log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
 
-        log(Debug("%s - Looking for testPattern = %s", eName, testPattern))
+          log(Debug("%s - Looking for testPattern = %s", eName, testPattern))
 
-        if (lastState.bitPos % 8 != 0) {
-          return PE(lastState, "%s - not byte aligned.", eName)
-        }
-
-        log(Debug("Retrieving reader"))
-
-        val reader = getReader(charset, start.bitPos, lastState)
-
-        val d = new DelimParser(decl)
-
-        var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
-
-        result = d.parseInputPatterned(testPattern, reader)
-
-        val postState = result.isSuccess match {
-          case true => {
-            val endBitPos = lastState.bitPos + result.numBits
-            log(Debug("Assert Pattern success for testPattern %s", testPattern))
-            start
+          if (lastState.bitPos % 8 != 0) {
+            return PE(lastState, "%s - not byte aligned.", eName)
           }
-          case false => {
-            log(Debug("Assert Pattern fail for testPattern %s", testPattern))
-            val diag = new AssertionFailed(decl, start, stmt.message)
-            start.failed(diag)
+
+          log(Debug("Retrieving reader"))
+
+          val reader = getReader(charset, start.bitPos, lastState)
+
+          val d = new DelimParser(decl)
+
+          var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
+
+          result = d.parseInputPatterned(testPattern, reader)
+
+          val postState = result.isSuccess match {
+            case true => {
+              val endBitPos = lastState.bitPos + result.numBits
+              log(Debug("Assert Pattern success for testPattern %s", testPattern))
+              start
+            }
+            case false => {
+              log(Debug("Assert Pattern fail for testPattern %s", testPattern))
+              val diag = new AssertionFailed(decl, start, stmt.message)
+              start.failed(diag)
+            }
           }
+          postState
         }
-        postState
       }
-    }
   }
 
   def unparser: Unparser = new Unparser(decl) {
@@ -2545,36 +2555,38 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
       "<" + kindString + ">" + testPattern + "</" + kindString + ">"
     }
 
-    def parse(start: PState): PState = withLoggingLevel(LogLevel.Info) {
-      withParseErrorThrowing(start) {
-        val lastState = start // .withLastState
-        val bytePos = (lastState.bitPos >> 3).toInt
-        log(Debug("%s - Starting at bit pos: %s", eName, lastState.bitPos))
-        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+    def parse(start: PState): PState =
+      // withLoggingLevel(LogLevel.Info) 
+      {
+        withParseErrorThrowing(start) {
+          val lastState = start // .withLastState
+          val bytePos = (lastState.bitPos >> 3).toInt
+          log(Debug("%s - Starting at bit pos: %s", eName, lastState.bitPos))
+          log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
 
-        log(Debug("%s - Looking for testPattern = %s", eName, testPattern))
+          log(Debug("%s - Looking for testPattern = %s", eName, testPattern))
 
-        if (lastState.bitPos % 8 != 0) {
-          return PE(lastState, "%s - not byte aligned.", eName)
+          if (lastState.bitPos % 8 != 0) {
+            return PE(lastState, "%s - not byte aligned.", eName)
+          }
+
+          log(Debug("Retrieving reader"))
+
+          val reader = getReader(charset, start.bitPos, lastState)
+
+          val d = new DelimParser(decl)
+
+          var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
+
+          result = d.parseInputPatterned(testPattern, reader)
+
+          // Only want to set the discriminator if it is true
+          // we do not want to modify it unless it's true
+          if (result.isSuccess) { return start.withDiscriminator(true) }
+          val diag = new AssertionFailed(decl, start, stmt.message)
+          start.failed(diag)
         }
-
-        log(Debug("Retrieving reader"))
-
-        val reader = getReader(charset, start.bitPos, lastState)
-
-        val d = new DelimParser(decl)
-
-        var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
-
-        result = d.parseInputPatterned(testPattern, reader)
-
-        // Only want to set the discriminator if it is true
-        // we do not want to modify it unless it's true
-        if (result.isSuccess) { return start.withDiscriminator(true) }
-        val diag = new AssertionFailed(decl, start, stmt.message)
-        start.failed(diag)
       }
-    }
   }
 
   def unparser: Unparser = new Unparser(decl) {
@@ -2605,7 +2617,8 @@ abstract class AssertBase(
     lazy val exprText = exprTextArg
     lazy val expandedTypeName = XMLUtils.XSD_BOOLEAN
     def parse(start: PState): PState =
-      withLoggingLevel(LogLevel.Info) {
+      // withLoggingLevel(LogLevel.Info) 
+      {
         withParseErrorThrowing(start) {
           log(Debug("This is %s", toString))
           val R(res, newVMap) = eval(start)
@@ -2700,7 +2713,8 @@ class IVCParser(e: ElementBase with ElementDeclMixin)
   lazy val expandedTypeName = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, ptn)
 
   def parse(start: PState): PState =
-    withLoggingLevel(LogLevel.Info) {
+    // withLoggingLevel(LogLevel.Info) 
+    {
       withParseErrorThrowing(start) {
         log(Debug("This is %s", toString))
         val currentElement = start.parentElement
@@ -2720,7 +2734,8 @@ class SetVariableParser(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
   lazy val expandedTypeName = stmt.defv.extType
 
   def parse(start: PState): PState =
-    withLoggingLevel(LogLevel.Info) {
+    // withLoggingLevel(LogLevel.Info) 
+    {
       withParseErrorThrowing(start) {
         log(Debug("This is %s", toString))
         val R(res, newVMap) = eval(start)
@@ -2849,7 +2864,8 @@ trait TextReader extends Logging {
    * Readers are stored in the PState.
    */
   def getReader(charset: Charset, bitPos: Long, state: PState): DFDLCharReader = {
-    withLoggingLevel(LogLevel.Info) {
+    // withLoggingLevel(LogLevel.Info) 
+    {
       val csName = charset.name()
       log(Debug("Retrieving reader"))
       // Do we already have a reader in the PState?

@@ -257,100 +257,102 @@ object XPathUtil extends Logging {
    */
   def compileExpression(dfdlExpressionRaw: String,
                         namespaces: Seq[org.jdom.Namespace],
-                        context: SchemaComponent) = withLoggingLevel(LogLevel.Info) {
-    log(Debug("Compiling expression"))
-    val dfdlExpression = dfdlExpressionRaw.trim
-    Assert.usage(dfdlExpression != "")
-    // strip leading and trailing {...} if they are there.
-    val expression = if (isExpression(dfdlExpression)) getExpression(dfdlExpression) else dfdlExpression
+                        context: SchemaComponent) =
+    // withLoggingLevel(LogLevel.Info) 
+    {
+      log(Debug("Compiling expression"))
+      val dfdlExpression = dfdlExpressionRaw.trim
+      Assert.usage(dfdlExpression != "")
+      // strip leading and trailing {...} if they are there.
+      val expression = if (isExpression(dfdlExpression)) getExpression(dfdlExpression) else dfdlExpression
 
-    // Hack around bug in Saxon JAXP support by casting to Saxon-specific class.
-    // -JWC, 27Jul2012.
-    val xpath = xpathFactory.newXPath().asInstanceOf[XPathEvaluator]
-    var variables: VariableMap = new VariableMap() // Closed over. This is modified to supply different variables
-    log(Debug("Namespaces: %s", namespaces))
+      // Hack around bug in Saxon JAXP support by casting to Saxon-specific class.
+      // -JWC, 27Jul2012.
+      val xpath = xpathFactory.newXPath().asInstanceOf[XPathEvaluator]
+      var variables: VariableMap = new VariableMap() // Closed over. This is modified to supply different variables
+      log(Debug("Namespaces: %s", namespaces))
 
-    val nsContext = new javax.xml.namespace.NamespaceContext {
+      val nsContext = new javax.xml.namespace.NamespaceContext {
 
-      val pairs = namespaces.map { ns => (ns.getPrefix, ns.getURI) }
-      val ht = pairs.toMap
+        val pairs = namespaces.map { ns => (ns.getPrefix, ns.getURI) }
+        val ht = pairs.toMap
 
-      def getNamespaceURI(prefix: String) = {
-        if (prefix == null)
-          throw new IllegalArgumentException("The prefix cannot be null.");
-        ht.get(prefix).getOrElse(null)
-      }
-      def getPrefixes(uri: String) = Assert.invariantFailed("supposed to be unused.")
-      def getPrefix(uri: String): String = Assert.invariantFailed("supposed to be unused.")
-      //      {
-      //        getPrefixList(uri).head
-      //      }
-      //      private def getPrefixList(uri : String) : Seq[String] = {
-      //        val submap = ht.filter{ case (pre, ns) => uri == ns}
-      //        val prefixes = submap.map{ case (pre, ns) => pre }
-      //        prefixes.toSeq
-      //      }
-    }
-
-    xpath setNamespaceContext (nsContext)
-
-    // Backed out until we figure out why this breaks 9 tests in TestCompiledExpression
-    // -MikeB
-    //
-    // Finish the hack by setting the default element namespace (Saxon's API) 
-    // to the default namespace returned by the NamespaceContext (JAXP API).
-    // -JWC, 27Jul2012.
-    //xpath.getStaticContext().setDefaultElementNamespace(nsContext.getNamespaceURI(XMLConstants.DEFAULT_NS_PREFIX))
-
-    xpath.setXPathVariableResolver(
-      new XPathVariableResolver() {
-        def resolveVariable(qName: QName): Object = {
-          val varName = XMLUtils.expandedQName(qName)
-          val (res, newVMap) = variables.readVariable(varName, context)
-          variables = newVMap
-          res
+        def getNamespaceURI(prefix: String) = {
+          if (prefix == null)
+            throw new IllegalArgumentException("The prefix cannot be null.");
+          ht.get(prefix).getOrElse(null)
         }
-      })
+        def getPrefixes(uri: String) = Assert.invariantFailed("supposed to be unused.")
+        def getPrefix(uri: String): String = Assert.invariantFailed("supposed to be unused.")
+        //      {
+        //        getPrefixList(uri).head
+        //      }
+        //      private def getPrefixList(uri : String) : Seq[String] = {
+        //        val submap = ht.filter{ case (pre, ns) => uri == ns}
+        //        val prefixes = submap.map{ case (pre, ns) => pre }
+        //        prefixes.toSeq
+        //      }
+      }
 
-    xpath.setXPathFunctionResolver(
-      new XPathFunctionResolver() {
-        def resolveFunction(functionName: QName, arity: Int): XPathFunction = {
-          val maybeF = Functions.get((functionName, arity))
-          maybeF match {
-            case None => throw new XPathExpressionException("no such function: " + functionName + " with arity " + arity)
-            case Some(f) =>
-              f
+      xpath setNamespaceContext (nsContext)
+
+      // Backed out until we figure out why this breaks 9 tests in TestCompiledExpression
+      // -MikeB
+      //
+      // Finish the hack by setting the default element namespace (Saxon's API) 
+      // to the default namespace returned by the NamespaceContext (JAXP API).
+      // -JWC, 27Jul2012.
+      //xpath.getStaticContext().setDefaultElementNamespace(nsContext.getNamespaceURI(XMLConstants.DEFAULT_NS_PREFIX))
+
+      xpath.setXPathVariableResolver(
+        new XPathVariableResolver() {
+          def resolveVariable(qName: QName): Object = {
+            val varName = XMLUtils.expandedQName(qName)
+            val (res, newVMap) = variables.readVariable(varName, context)
+            variables = newVMap
+            res
           }
+        })
+
+      xpath.setXPathFunctionResolver(
+        new XPathFunctionResolver() {
+          def resolveFunction(functionName: QName, arity: Int): XPathFunction = {
+            val maybeF = Functions.get((functionName, arity))
+            maybeF match {
+              case None => throw new XPathExpressionException("no such function: " + functionName + " with arity " + arity)
+              case Some(f) =>
+                f
+            }
+          }
+        })
+
+      val xpathExpr = try {
+        xpath.compile(expression)
+      } catch {
+        case e: XPathExpressionException => {
+          val exc = e // debugger never seems to show the case variable itself.
+          val realExc = e.getCause()
+          // Assert.invariant(realExc != null) // it's always an encapsulation of an underlying error.
+
+          // compilation threw an error. That's a compilation time error.
+          // we just rethrow here. This is here to be a good place for a breakpoint/debug feature.
+          log(Debug("compilation error in xpath expression. error %s, expression %s", exc, expression))
+          throw exc
         }
-      })
-
-    val xpathExpr = try {
-      xpath.compile(expression)
-    } catch {
-      case e: XPathExpressionException => {
-        val exc = e // debugger never seems to show the case variable itself.
-        val realExc = e.getCause()
-        // Assert.invariant(realExc != null) // it's always an encapsulation of an underlying error.
-
-        // compilation threw an error. That's a compilation time error.
-        // we just rethrow here. This is here to be a good place for a breakpoint/debug feature.
-        log(Debug("compilation error in xpath expression. error %s, expression %s", exc, expression))
-        throw exc
       }
-    }
 
-    // We need to supply the variables late
-    val withoutVariables = new CompiledExpressionFactory(expression) {
-      def getXPathExpr(runtimeVars: VariableMap) = {
-        variables = runtimeVars
-        xpathExpr
+      // We need to supply the variables late
+      val withoutVariables = new CompiledExpressionFactory(expression) {
+        def getXPathExpr(runtimeVars: VariableMap) = {
+          variables = runtimeVars
+          xpathExpr
+        }
+        // we need to get the variables back at the end of exprsesion evaluation.
+        def getVariables() = variables
       }
-      // we need to get the variables back at the end of exprsesion evaluation.
-      def getVariables() = variables
-    }
 
-    withoutVariables // return this factory
-  }
+      withoutVariables // return this factory
+    }
 
   abstract class CompiledExpressionFactory(val expression: String) {
     def getXPathExpr(runtimeVars: VariableMap): XPathExpression
@@ -387,7 +389,8 @@ object XPathUtil extends Logging {
     variables: VariableMap,
     contextNode: Parent,
     targetType: QName): XPathResult = {
-    withLoggingLevel(LogLevel.Info) {
+    // withLoggingLevel(LogLevel.Info) 
+    {
       val ce = compiledExprFactory.getXPathExpr(variables)
       log(Debug("Evaluating %s in context %s to get a %s", expressionForErrorMsg, contextNode, targetType)) // Careful. contextNode could be null.
       val o = ce.evaluate(contextNode, targetType)
