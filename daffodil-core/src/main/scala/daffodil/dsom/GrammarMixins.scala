@@ -647,12 +647,19 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
   lazy val separatedScalarNonDefault = Prod("separatedScalarNonDefault", this, isScalar, separatedForPosition(scalarNonDefault))
   lazy val separatedRecurringNonDefault = Prod("separatedRecurringNonDefault", this, !isScalar, separatedForPosition(scalarNonDefault))
 
+  lazy val nonSeparatedScalarDefaultable = Prod("nonSeparatedScalarDefaultable", this, isScalar, scalarDefaultable)
+
   lazy val recurrance = Prod("recurrance", this,
     !isScalar,
     StartArray(this) ~ arrayContents ~ EndArray(this) ~ FinalUnusedRegion(this))
 
   lazy val termContentBody = {
     val res = Prod("term", this, separatedScalarDefaultable | recurrance)
+    res
+  }
+  
+  override lazy val asTermInChoice = {
+    val res = Prod("term", this, nonSeparatedScalarDefaultable | recurrance)
     res
   }
 
@@ -953,6 +960,8 @@ trait ModelGroupGrammarMixin
 
   lazy val modelGroupSyntax = Prod("modelGroupSyntax", this, dfdlStatementEvaluations ~ groupLeftFraming ~ groupContent ~ groupRightFraming)
 
+  lazy val termContentBody = Prod("termContentBody", this, separatedForPosition(modelGroupSyntax))
+
   def mt = EmptyGram.asInstanceOf[Gram] // cast trick to shut up foldLeft compile errors below
 
   def groupContent: Prod
@@ -965,8 +974,6 @@ trait ChoiceGrammarMixin { self: Choice =>
   def folder(p: Gram, q: Gram): Gram = p | q
 
   lazy val alternatives = groupMembers.map { _.asTermInChoice }
-
-  lazy val termContentBody = Prod("termContentBody", this, modelGroupSyntax)
 }
 
 trait SequenceGrammarMixin { self: Sequence =>
@@ -976,8 +983,6 @@ trait SequenceGrammarMixin { self: Sequence =>
   def folder(p: Gram, q: Gram): Gram = p ~ q
 
   lazy val terms = groupMembers.map { _.asTermInSequence }
-
-  lazy val termContentBody = Prod("termContentBody", this, separatedForPosition(modelGroupSyntax))
 
   /**
    * These are static properties even though the delimiters can have runtime-computed values.
