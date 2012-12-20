@@ -81,26 +81,44 @@ object XMLUtils {
    * Length where a surrogate pair counts as 1 character, not two.
    */
   def uncodeLength(s: String) = {
+    // performance note: this might get called a lot. So needs to be fast.
+    // it needs to scan the string once, examine each character.
+    // using getBytes utf-32 isn't necessarily slow. It might be fine.
     val res = s.getBytes("UTF-32BE").length / 4
+    res
+  }
+
+  /**
+   * Because of surrogate pairs, and the difference between 16-bit string codepoints
+   * and real character codes, lots of things that traverse strings need
+   * to consider either the codepoint after (if current is a leading surrogate)
+   * or codepoint before (if current is a trailing surrogate).
+   * <p>
+   * This calls a body function with prev, current, next bound to those.
+   * For first codepoint prev will be 0. For last codepoint next will be 0.
+   * <p>
+   * This is done as a walker that takes a function because that way we
+   * can reimplement as a tight loop instead of this zip stuff, should we decide
+   * that this is speed-path enough to care.
+   */
+  def walkUnicodeString[T](s: String)(bodyFunc: (Char, Char, Char) => T): Seq[T] = {
+    if (s.length == 0) return Nil
+    val pairs = (0.toChar +: s.substring(0, s.length - 1)) zip s zip (s.tail :+ 0.toChar)
+    val res = pairs.map { case ((p, c), n) => bodyFunc(p, c, n) }
     res
   }
 
   def remapXMLIllegalCharactersToPUA(dfdlString: String): String = {
     // we want to remap XML-illegal characters
-    // but leave legal surrogate-pair character pairs alone. 
-    if (dfdlString.length == 0) return dfdlString
-    val tuples = (0.toChar +: dfdlString.substring(0, dfdlString.length - 1)) zip dfdlString zip (dfdlString.tail :+ 0.toChar)
-    val res = tuples.map {
-      case ((p, c), n) if (isLeadingSurrogate(c) && isTrailingSurrogate(n)) => c
-      case ((p, c), n) if (isTrailingSurrogate(c) && isLeadingSurrogate(p)) => c
-      case ((_, c), _) => remapXMLIllegalCharToPUA(c, false)
+    // but leave legal surrogate-pair character pairs alone.
+    def remapOneChar(previous: Char, current: Char, next: Char): Char = {
+      if (isLeadingSurrogate(current) && isTrailingSurrogate(next)) return current
+      if (isTrailingSurrogate(current) && isLeadingSurrogate(previous)) return current
+      remapXMLIllegalCharToPUA(current, false)
     }
+    val res = walkUnicodeString(dfdlString)(remapOneChar)
     res.mkString
   }
-
-  //  val MAX_MEMORY_PERCENTAGE = 0.90
-  //  var WARNING_MEMORY_PERCENTAGE = 0.8
-  //  var nodeCount:Long = 0
 
   val XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema" // removed trailing slash (namespaces care)
   val XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance"

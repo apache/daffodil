@@ -683,8 +683,7 @@ case class DocumentPart(part: Node, parent: Document) {
   def utf8LikeEncode(s: String): Seq[Byte] = {
     // 
     // Scala/Java strings represent characters above 0xFFFF as a surrogate pair
-    // of two codepoints. So we need to see a character, and the character following it
-    // to do this right.
+    // of two codepoints. 
     //
     // We want to handle both properly match surrogate pairs, and isolated surrogate characters.
     // That means if we see an isolated low (second) surrogate character, we have to know 
@@ -693,27 +692,29 @@ case class DocumentPart(part: Node, parent: Document) {
     // For every 16-bit code point, do do this right we need to potentially also see the previous
     // or next codepoint.
     //
-    if (s.length == 0) return Nil
-    // so we form tuples of each char with the prior and next chars. 0.toChar for the ends.
-    val tuples = (0.toChar +: s.substring(0, s.length - 1)) zip s zip (s.tail :+ 0.toChar)
-    val bytes = tuples.flatMap { case ((prevcp, cp), nextcp) => utf8LikeEncoding(prevcp, cp, nextcp) }
+    val bytes = XMLUtils.walkUnicodeString(s)(utf8LikeEncoding).flatten
+    // val bytes = tuples.flatMap { case ((prevcp, cp), nextcp) => utf8LikeEncoding(prevcp, cp, nextcp) }
     bytes
   }
 
-  def fourByteEncode(h: Int, l: Int) = {
-    val cp = 0x10000 + ((h - 0xD800) * 0x400) + (l - 0xDC00)
-    val byte1 = (cp >> 24) & 0xFF
-    val byte2 = (cp >> 16) & 0xFF
-    val byte3 = (cp >> 8) & 0xFF
-    val byte4 = cp & 0xFF
-    val low6 = byte4 & 0x3F
-    val midlow6 = ((byte3 & 0x0F) << 2) | (byte4 >> 6)
-    val midhig6 = ((byte2 & 0x03) << 4) | byte3 >> 4
-    val high3 = byte2 >> 2
-    byteList(high3 | 0xF0, midhig6 | 0x80, midlow6 | 0x80, low6 | 0x80)
-  }
+  /**
+   * Encode in the style of utf-8 (see wikipedia article on utf-8)
+   * <p>
+   * Variation is that we accept some things that a conventional utf-8 encoder
+   * rejects. Examples are illegal codepoints such as isolated Unicode surrogates
+   * (not making up a surrogate pair).
+   * <p>
+   * We also assume we're being handed surrogate pairs for any of the
+   * 4-byte character representations.
+   *
+   */
 
   def utf8LikeEncoding(prev: Char, c: Char, next: Char): Seq[Byte] = {
+    // handles 16-bit codepoints only
+    Assert.usage(prev <= 0xFFFF)
+    Assert.usage(c <= 0xFFFF)
+    Assert.usage(next <= 0xFFFF)
+
     val i = c.toInt
     val byte1 = ((i >> 8) & 0xFF)
     val byte2 = (i & 0xFF)
@@ -723,6 +724,25 @@ case class DocumentPart(part: Node, parent: Document) {
       val mid6 = ((byte1 & 0x0F) << 2) | (byte2 >> 6)
       val high4 = byte1 >> 4
       byteList(high4 | 0xE0, mid6 | 0x80, low6 | 0x80)
+    }
+
+    /**
+     * create 4-byte utf-8 encoding from surrogate pair found
+     * in a scala string.
+     */
+    def fourByteEncode(leadingSurrogate: Char, trailingSurrogate: Char) = {
+      val h = leadingSurrogate.toInt // aka 'h for high surrogate'
+      val l = trailingSurrogate.toInt // aka 'l for low surrogate'
+      val cp = 0x10000 + ((h - 0xD800) * 0x400) + (l - 0xDC00)
+      val byte1 = (cp >> 24) & 0xFF
+      val byte2 = (cp >> 16) & 0xFF
+      val byte3 = (cp >> 8) & 0xFF
+      val byte4 = cp & 0xFF
+      val low6 = byte4 & 0x3F
+      val midlow6 = ((byte3 & 0x0F) << 2) | (byte4 >> 6)
+      val midhig6 = ((byte2 & 0x03) << 4) | byte3 >> 4
+      val high3 = byte2 >> 2
+      byteList(high3 | 0xF0, midhig6 | 0x80, midlow6 | 0x80, low6 | 0x80)
     }
 
     val res = i match {
@@ -738,7 +758,7 @@ case class DocumentPart(part: Node, parent: Document) {
           // Next codepoint is a low surrogate.
           // We need to create a 4-byte representation from the
           // two surrogate characters.
-          fourByteEncode(i, next.toInt)
+          fourByteEncode(c, next)
         } else {
           // isolated high surrogate codepoint case.
           threeByteEncode()
@@ -761,13 +781,8 @@ case class DocumentPart(part: Node, parent: Document) {
       case _ if (i <= 0xFFFF) => {
         threeByteEncode()
       }
-      // This code won't see these larger codepoints because 
-      // scala/java strings don't represent them that way. They 
-      // use surrogate pairs.
-      //      case _ if (i <= 0x10FFFF) => {
-      //        fourByteEncode()
-      //      }
-      case _ => Assert.usageError("char code not accepted.")
+
+      case _ => Assert.invariantFailed("char code out of range.")
     }
     res
   }

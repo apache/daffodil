@@ -67,7 +67,7 @@
   <tdml:parserTestCase name="xml_utf8_4byte_chars" root="e3"
     model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding is utf-8 - DFDL-11-002R">
     <tdml:document>&#x10000;</tdml:document>
-    <!-- That's the maximum Unicode character value. It takes 4 bytes to encode in utf-8 -->
+    <!-- That's the minimum Unicode character value that takes 4 bytes to encode in utf-8 -->
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e3>&#x10000;</e3>

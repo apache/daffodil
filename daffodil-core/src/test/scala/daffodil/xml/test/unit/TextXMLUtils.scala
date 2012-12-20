@@ -95,4 +95,16 @@ class TextXMLUtils extends JUnitSuite {
     val ed = XMLUtils.remapXMLIllegalCharToPUA(0xd880, false)
     assertEquals(0xE880, ed)
   }
+
+  @Test def testWalkUnicodeString1() {
+    val s = "abc"
+    val Seq((ab, 'a', 'b'), ('a', 'b', 'c'), ('b', 'c', ca)) = XMLUtils.walkUnicodeString(s)((p, c, n) => (p, c, n))
+    assertEquals(0.toChar, ab)
+    assertEquals(0.toChar, ca)
+  }
+
+  @Test def testWalkUnicodeString2() {
+    val s = ""
+    val Seq() = XMLUtils.walkUnicodeString(s)((p, c, n) => (p, c, n))
+  }
 }
