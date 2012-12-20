@@ -51,7 +51,7 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
     //
     val pTM = parent match {
       case s: Sequence => List(s.separator, s.terminator) ++ s.allParentTerminatingMarkup
-      case c: Choice => c.allParentTerminatingMarkup
+      case c: Choice => List(c.terminator) ++ c.allParentTerminatingMarkup
       case d: SchemaDocument =>
         // we're a global object. Our parent is a schema document
         // so follow backpointers to whatever is referencing us.

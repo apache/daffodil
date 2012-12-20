@@ -729,4 +729,58 @@
 
   </tdml:parserTestCase>
 
+
+  <tdml:defineSchema name="choiceWithInitsAndTerms">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:element name="ch1">
+      <xs:complexType>
+        <xs:choice dfdl:initiator="(" dfdl:terminator=")">
+          <xs:element name="int" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"/>
+          <xs:element name="str" type="xs:string"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="choiceWithInitsAndTermsInt"
+    root="ch1" model="choiceWithInitsAndTerms"
+    description="Choice with initiators and terms - int choice">
+
+    <tdml:document><![CDATA[(1)]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch1><ex:int>1</ex:int></ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceWithInitsAndTermsStr"
+    root="ch1" model="choiceWithInitsAndTerms"
+    description="Choice with initiators and terms - str choice">
+
+    <tdml:document><![CDATA[(foo)]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch1><ex:str>foo</ex:str></ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceWithInitsAndTermsError"
+    root="ch1" model="choiceWithInitsAndTerms"
+    description="Choice with initiators and terms - terminator not found, first branch is matched">
+
+    <tdml:document><![CDATA[(1foo)]]></tdml:document>
+
+    <tdml:errors>
+      <tdml:error>not found</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

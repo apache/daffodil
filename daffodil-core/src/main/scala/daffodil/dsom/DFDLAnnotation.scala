@@ -483,8 +483,6 @@ class DFDLChoice(node: Node, decl: Choice)
   extends DFDLFormatAnnotation(node, decl)
   with Choice_AnnotationMixin
   with RawSequenceRuntimeValuedPropertiesMixin {
-  subset(getPropertyOptionNoDefault("initiator") == None, "initiators are not supported on choices")
-  subset(getPropertyOptionNoDefault("terminator") == None, "terminators are not supported on choices")
 }
 
 class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)

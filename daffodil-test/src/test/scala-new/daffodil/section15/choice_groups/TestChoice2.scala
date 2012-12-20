@@ -24,4 +24,8 @@ class TestChoice2 extends JUnitSuite {
   @Test def test_seqInChoiceInSeq1() { runner.runOneTest("sequenceInChoiceInSequenceWithSeparators1") }
   @Test def test_seqInChoiceInSeq2() { runner.runOneTest("sequenceInChoiceInSequenceWithSeparators2") }
 
+  @Test def test_choiceWithInitsAndTermsInt() { runner.runOneTest("choiceWithInitsAndTermsInt") }
+  @Test def test_choiceWithInitsAndTermsStr() { runner.runOneTest("choiceWithInitsAndTermsStr") }
+  @Test def test_choiceWithInitsAndTermsError() { runner.runOneTest("choiceWithInitsAndTermsError") }
+  
 }
