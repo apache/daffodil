@@ -23,14 +23,16 @@
     <tdml:document><![CDATA[James*River*118*Ridgewood Circle*Rochester*NY]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <firsName>James</firsName>
-        <surname>River</surname>
-        <address> 
-          <houseNumber>118</houseNumber>
-          <street>Ridgewood Circle</street>
-          <city>Rochester</city>
-          <state>NY</state>
+        <customer>
+          <firsName>James</firsName>
+          <surname>River</surname>
+          <address> 
+            <houseNumber>118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
           </address>
+        </customer>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -40,14 +42,16 @@
     <tdml:document><![CDATA[James*River*118*Ridgewood Circle*Rochester*NY]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <firsName>James</firsName>
-        <surname>River</surname>
-        <address> 
-          <houseNumber>118</houseNumber>
-          <street>Ridgewood Circle</street>
-          <city>Rochester</city>
-          <state>NY</state>
+        <customer>
+          <firsName>James</firsName>
+          <surname>River</surname>
+          <address> 
+            <houseNumber>118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
           </address>
+        </customer>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
