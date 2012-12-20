@@ -132,7 +132,7 @@ class TestOOLAG extends JUnitSuite {
       fail()
     }
     val msg = e.getMessage()
-    println(msg)
+    // println(msg)
     assertTrue(msg.toLowerCase().contains("circular"))
   }
 
