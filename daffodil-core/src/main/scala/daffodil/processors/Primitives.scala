@@ -546,20 +546,6 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
   val charset = e.knownEncodingCharset
 
-  //  var padChar = ""
-  //  val justificationTrim: TextJustificationType.Type = e.textTrimKind match {
-  //    case TextTrimKind.None => TextJustificationType.None
-  //    case TextTrimKind.PadChar => {
-  //      padChar = e.textStringPadCharacter
-  //      e.textStringJustification match {
-  //        case TextStringJustification.Left =>
-  //          TextJustificationType.Left
-  //        case TextStringJustification.Right => TextJustificationType.Right
-  //        case TextStringJustification.Center => TextJustificationType.Center
-  //      }
-  //    }
-  //  }
-
   def parser: Parser = new PrimParser(this, e) {
     override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
 
@@ -2299,22 +2285,8 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
   extends StaticText(e.nilValue, e, "LiteralNilDelimitedOrEndOfData", e.isNillable)
   with Padded {
   lazy val unparserDelim = Assert.notYetImplemented()
-  //  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
-  val stParser = super.parser
 
-  //  var padChar = ""
-  //  val justificationTrim: TextJustificationType.Type = e.textTrimKind match {
-  //    case TextTrimKind.None => TextJustificationType.None
-  //    case TextTrimKind.PadChar => {
-  //      padChar = e.textStringPadCharacter
-  //      e.textStringJustification match {
-  //        case TextStringJustification.Left =>
-  //          TextJustificationType.Left
-  //        case TextStringJustification.Right => TextJustificationType.Right
-  //        case TextStringJustification.Center => TextJustificationType.Center
-  //      }
-  //    }
-  //  }
+  val stParser = super.parser
 
   override def parser = new PrimParser(this, e) {
     override def toString = "LiteralNilDelimitedOrEndOfData(" + e.nilValue + ")"

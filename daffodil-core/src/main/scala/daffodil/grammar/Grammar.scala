@@ -187,7 +187,7 @@ abstract class NamedGram(context: AnnotatedSchemaComponent) extends Gram(context
 /**
  * Primitives will derive from this base
  */
-abstract class Terminal(val contextArg: AnnotatedSchemaComponent, guard: Boolean) extends NamedGram(contextArg) {
+abstract class Terminal(contextArg: AnnotatedSchemaComponent, guard: Boolean) extends NamedGram(contextArg) {
   override def isEmpty = !guard
 
   lazy val realSC = context.asInstanceOf[SchemaComponent]

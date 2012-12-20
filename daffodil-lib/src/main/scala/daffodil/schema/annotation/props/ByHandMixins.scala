@@ -8,7 +8,9 @@ import daffodil.dsom.EntityReplacer
 import daffodil.dsom.ListOfStringValueAsLiteral
 import daffodil.dsom.StringValueAsLiteral
 import daffodil.dsom.SingleCharacterLiteral
-import daffodil.dsom.SingleCharacterLiteralES
+import daffodil.schema.annotation.props.gen.LengthUnits
+import daffodil.schema.annotation.props.gen.NilKind
+import daffodil.schema.annotation.props.gen.Representation
 
 /**
  * We don't want to make the code generator so sophisticated as to be
@@ -163,17 +165,17 @@ trait StringTextMixin extends PropertyMixin
     // TODO: raw byte entity %#r is allowed
 
     this.lengthUnits match {
-      case daffodil.schema.annotation.props.gen.LengthUnits.Bytes => {
+      case LengthUnits.Bytes => {
         // TODO: must be single byte value entity
         // TODO: must be single byte character
       }
-      case daffodil.schema.annotation.props.gen.LengthUnits.Characters => {
+      case LengthUnits.Characters => {
         // TODO: must be a fixed-width encoding
       }
-      case daffodil.schema.annotation.props.gen.LengthUnits.Bits => this.schemaDefinitionError("textStringPadCharacter lengthUnits cannot be Bits.")
+      case LengthUnits.Bits => this.schemaDefinitionError("textStringPadCharacter lengthUnits cannot be Bits.")
     }
 
-    val l = new SingleCharacterLiteralES(raw, this)
+    val l = new SingleCharacterLiteral(raw, this)
     l.cooked
   }
 }
@@ -194,17 +196,17 @@ trait NumberTextMixin extends PropertyMixin
 
     // TODO: raw byte entity %#r is allowed
     this.lengthUnits match {
-      case daffodil.schema.annotation.props.gen.LengthUnits.Bytes => {
+      case LengthUnits.Bytes => {
         // TODO: must be single byte value entity
         // TODO: must be single byte character
       }
-      case daffodil.schema.annotation.props.gen.LengthUnits.Characters => {
+      case LengthUnits.Characters => {
         // TODO: must be a fixed-width encoding
       }
-      case daffodil.schema.annotation.props.gen.LengthUnits.Bits => this.schemaDefinitionError("textNumberPadCharacter lengthUnits cannot be Bits.")
+      case LengthUnits.Bits => this.schemaDefinitionError("textNumberPadCharacter lengthUnits cannot be Bits.")
     }
 
-    val l = new SingleCharacterLiteralES(raw, this)
+    val l = new SingleCharacterLiteral(raw, this)
     l.cooked
   }
 }
@@ -225,17 +227,17 @@ trait BooleanTextMixin extends PropertyMixin
 
     // TODO: raw byte entity %#r is allowed
     this.lengthUnits match {
-      case daffodil.schema.annotation.props.gen.LengthUnits.Bytes => {
+      case LengthUnits.Bytes => {
         // TODO: must be single byte value entity
         // TODO: must be single byte character
       }
-      case daffodil.schema.annotation.props.gen.LengthUnits.Characters => {
+      case LengthUnits.Characters => {
         // TODO: must be a fixed-width encoding
       }
-      case daffodil.schema.annotation.props.gen.LengthUnits.Bits => this.schemaDefinitionError("textBooleanPadCharacter lengthUnits cannot be Bits.")
+      case LengthUnits.Bits => this.schemaDefinitionError("textBooleanPadCharacter lengthUnits cannot be Bits.")
     }
 
-    val l = new SingleCharacterLiteralES(raw, this)
+    val l = new SingleCharacterLiteral(raw, this)
     l.cooked
   }
 }
@@ -256,17 +258,17 @@ trait CalendarTextMixin extends PropertyMixin
 
     // TODO: raw byte entity %#r is allowed
     this.lengthUnits match {
-      case daffodil.schema.annotation.props.gen.LengthUnits.Bytes => {
+      case LengthUnits.Bytes => {
         // TODO: must be single byte value entity
         // TODO: must be single byte character
       }
-      case daffodil.schema.annotation.props.gen.LengthUnits.Characters => {
+      case LengthUnits.Characters => {
         // TODO: must be a fixed-width encoding
       }
-      case daffodil.schema.annotation.props.gen.LengthUnits.Bits => this.schemaDefinitionError("textCalendarPadCharacter lengthUnits cannot be Bits.")
+      case LengthUnits.Bits => this.schemaDefinitionError("textCalendarPadCharacter lengthUnits cannot be Bits.")
     }
 
-    val l = new SingleCharacterLiteralES(raw, this)
+    val l = new SingleCharacterLiteral(raw, this)
     l.cooked
   }
 }
@@ -286,7 +288,7 @@ trait NillableMixin extends PropertyMixin
     // Commented out replacement because the replacement takes place within
     // the Parser of StaticText/DynamicText
     this.nilKind match {
-      case daffodil.schema.annotation.props.gen.NilKind.LiteralCharacter => {
+      case NilKind.LiteralCharacter => {
         this.schemaDefinition(!raw.contains("%NL;"), "nilValue cannot contain NL!")
         this.schemaDefinition(!raw.contains("%ES;"), "nilValue cannot contain ES!")
         this.schemaDefinition(!raw.contains("%WSP;"), "nilValue cannot contain WSP!")
@@ -295,7 +297,7 @@ trait NillableMixin extends PropertyMixin
         //        val l = new SingleCharacterLiteral(raw, this)
         //        List(l.cooked)
       }
-      case daffodil.schema.annotation.props.gen.NilKind.LogicalValue => {
+      case NilKind.LogicalValue => {
         this.schemaDefinition(!raw.contains("%NL;"), "nilValue cannot contain NL!")
         this.schemaDefinition(!raw.contains("%ES;"), "nilValue cannot contain ES!")
         this.schemaDefinition(!raw.contains("%WSP;"), "nilValue cannot contain WSP!")
@@ -304,15 +306,15 @@ trait NillableMixin extends PropertyMixin
         //        val l = new ListOfStringValueAsLiteral(raw, this)
         //        l.cooked
       }
-      case daffodil.schema.annotation.props.gen.NilKind.LiteralValue => {
+      case NilKind.LiteralValue => {
         this.representation match {
-          case daffodil.schema.annotation.props.gen.Representation.Binary => {
+          case Representation.Binary => {
             this.schemaDefinition(!raw.contains("%NL;"), "nilValue can only contain ES!")
             this.schemaDefinition(!raw.contains("%WSP;"), "nilValue can only contain ES!")
             this.schemaDefinition(!raw.contains("%WSP+;"), "nilValue can only contain ES!")
             this.schemaDefinition(!raw.contains("%WSP*;"), "nilValue can only contain ES!")
           }
-          case daffodil.schema.annotation.props.gen.Representation.Text => {}
+          case Representation.Text => {}
         }
         //        val l = new ListOfStringValueAsLiteral(raw, this)
         //        l.cooked

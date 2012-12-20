@@ -163,15 +163,15 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
     val result = justification match {
       case TextJustificationType.None => input
       case TextJustificationType.Left => {
-        val res = this.parse(this.log(fieldLeft)("DelimParser.parseInputNCharacters.leftJustified"), input)
+        val res = this.parse(this.log(fieldLeft)("DelimParser.removePadding.leftJustified"), input)
         res.getOrElse(input)
       }
       case TextJustificationType.Right => {
-        val res = this.parse(this.log(fieldRight)("DelimParser.parseInputNCharacters.rightJustified"), input)
+        val res = this.parse(this.log(fieldRight)("DelimParser.removePadding.rightJustified"), input)
         res.getOrElse(input)
       }
       case TextJustificationType.Center => {
-        val res = this.parse(this.log(fieldCenter)("DelimParser.parseInputNCharacters.centerJustified"), input)
+        val res = this.parse(this.log(fieldCenter)("DelimParser.removePadding.centerJustified"), input)
         res.getOrElse(input)
       }
     }
