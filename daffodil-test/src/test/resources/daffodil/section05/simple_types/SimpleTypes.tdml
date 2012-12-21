@@ -1574,7 +1574,9 @@
   
   <tdml:defineSchema name="SimpleTypes-padding">
     <dfdl:format ref="ex:daffodilTest1" representation="text"
-      lengthUnits="characters" encoding="utf-8" byteOrder="bigEndian" textStringPadCharacter="X" textStringJustification="left" textTrimKind="padChar" />
+      lengthUnits="characters" encoding="utf-8" byteOrder="bigEndian" 
+      textStringPadCharacter="X" textStringJustification="left" textTrimKind="padChar"
+      textNumberJustification="left" textNumberPadCharacter="#" />
 
     <xs:element name="string" dfdl:lengthKind="explicit" dfdl:length="29" type="xs:string" />
     <xs:element name="string2" dfdl:lengthKind="delimited" type="xs:string" />
@@ -1609,6 +1611,51 @@
     </xs:simpleType>
 
     <xs:element name="string7" dfdl:lengthUnits="bytes" dfdl:textStringPadCharacter="%HT;%CR;" dfdl:lengthKind="delimited" type="xs:string" />
+    <xs:element name="string8" dfdl:lengthUnits="characters" dfdl:textStringPadCharacter="o0" dfdl:lengthKind="delimited" type="xs:string" />
+    
+    <xs:element name="string9" dfdl:textTrimKind="none" dfdl:lengthKind="delimited" type="xs:string" />
+    
+    <xs:element name="int1" dfdl:lengthKind="explicit" dfdl:length="7" type="xs:int" />
+    <xs:element name="int2" dfdl:lengthKind="delimited" type="xs:int" />
+    
+    <xs:element name="intseq">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=".">
+          <xs:element name="int3" type="xs:int" dfdl:textNumberPadCharacter="=" dfdl:textNumberJustification="left" dfdl:lengthKind="delimited" />
+          <xs:element name="int4" type="xs:int" dfdl:textNumberPadCharacter="-" dfdl:textNumberJustification="left" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="numseq">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="~">
+          <xs:element name="one" type="xs:int" dfdl:textNumberPadCharacter="." dfdl:textNumberJustification="right" dfdl:lengthKind="delimited" />
+          <xs:element name="two" type="xs:unsignedShort" dfdl:textNumberPadCharacter="-" dfdl:textNumberJustification="center" dfdl:lengthKind="delimited" />
+          <xs:element name="three" type="xs:float" dfdl:textNumberPadCharacter="." dfdl:textNumberJustification="left" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:simpleType name="int5" dfdl:textNumberJustification="right" dfdl:textNumberPadCharacter="_" dfdl:lengthKind="delimited">
+      <xs:restriction base="xs:int" />
+    </xs:simpleType>
+    
+    <xs:element name="int6" type="int5" />
+    
+    <dfdl:defineEscapeScheme name="table1">
+      <dfdl:escapeScheme escapeCharacter='/'
+        escapeKind="escapeCharacter" escapeEscapeCharacter="/"/>
+    </dfdl:defineEscapeScheme>
+        
+    <xs:element name="string10" type="xs:string" dfdl:lengthKind="delimited" dfdl:textStringJustification="center"
+      dfdl:textStringPadCharacter="/" dfdl:escapeSchemeRef="ex:table1" />
+          
+    <xs:element name="nil" nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="o" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="7"
+      dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
+    
+    <xs:element name="nil2" nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="o" type="xs:string" dfdl:lengthKind="delimited"
+      dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
     
   </tdml:defineSchema>
   
@@ -1699,6 +1746,7 @@
     </tdml:document>
       <tdml:errors>
         <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>Length of string must be exactly 1 character</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1742,6 +1790,195 @@
           <first>first</first>
           <second>second</second>
         </string6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: literalChar_padding5
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of a string literal for a text string pad character
+        within a simpleType contained in a sequence (left and right justified)
+  -->
+
+  <tdml:parserTestCase name="literalChar_padding5" root="string8"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textStringPadCharacter DFDL-13-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[stringo0o0o0o0o0o0]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Length of string must be exactly 1 character</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: literalChar_padding6
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of textTrimKind = none to prevent trimming
+  -->
+
+  <tdml:parserTestCase name="literalChar_padding6" root="string9"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textStringPadCharacter DFDL-13-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[remove padding pleaseXXXXXXXX]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <string9>remove padding pleaseXXXXXXXX</string9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: number_padding
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of padding with numbers
+  -->
+
+  <tdml:parserTestCase name="number_padding" root="int1"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textNumberPadCharacter DFDL-13-047R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[12345##]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <int1>12345</int1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: number_padding2
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of padding with numbers
+  -->
+
+  <tdml:parserTestCase name="number_padding2" root="int2"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textNumberPadCharacter DFDL-13-047R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[12345############################]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <int2>12345</int2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: number_padding3
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of padding with numbers
+  -->
+
+  <tdml:parserTestCase name="number_padding3" root="intseq"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textNumberPadCharacter DFDL-13-047R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[123====.456-----]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <intseq>
+          <int3>123</int3>
+          <int4>456</int4>
+        </intseq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: number_padding4
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of padding with multiple number types and justifications
+  -->
+
+  <tdml:parserTestCase name="number_padding4" root="numseq"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textNumberPadCharacter DFDL-13-047R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[......55~-----6800-----~49.......]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <numseq>
+          <one>55</one>
+          <two>6800</two>
+          <three>49.0</three>
+        </numseq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: number_padding5
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of padding with numbers
+  -->
+
+  <tdml:parserTestCase name="number_padding5" root="int6"
+      model="SimpleTypes-padding" description="Section 13 Simple Types - textNumberPadCharacter DFDL-13-047R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[______5]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <int6>5</int6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: padding_escape
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of padding with escape characters
+  -->
+
+  <tdml:parserTestCase name="padding_escape" root="string10"
+      model="SimpleTypes-padding" description="Section 7 - On parsing, the escape scheme is applied after padding characters are trimmed DFDL-7-089R">
+    <tdml:document>
+      <tdml:documentPart type="text">////word////</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <string10>word</string10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: padding_nil
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of padding with nils
+  -->
+
+  <tdml:parserTestCase name="padding_nil" root="nil"
+      model="SimpleTypes-padding" description="Spec errata - On parsing the element value is nil if
+      the trimmed data matches one of the literal strings in the list">
+    <tdml:document>
+      <tdml:documentPart type="text">///o///</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <nil xs:nil="true"></nil>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: padding_nil2
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates the use of padding with nils
+  -->
+
+  <tdml:parserTestCase name="padding_nil2" root="nil2"
+      model="SimpleTypes-padding" description="Spec errata - On parsing the element value is nil if
+      the trimmed data matches one of the literal strings in the list">
+    <tdml:document>
+      <tdml:documentPart type="text">///o///</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <nil2 xs:nil="true"></nil2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

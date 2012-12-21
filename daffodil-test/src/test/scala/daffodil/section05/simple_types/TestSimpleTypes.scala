@@ -187,12 +187,22 @@ class TestSimpleTypes extends JUnitSuite {
   
 //  @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") }
 
-//  @Test def test_literalChar_padding() { runner.runOneTest("literalChar_padding") }
+  @Test def test_literalChar_padding() { runner.runOneTest("literalChar_padding") }
   @Test def test_literalChar_padding2() { runner.runOneTest("literalChar_padding2") }
   @Test def test_literalChar_padding3() { runner.runOneTest("literalChar_padding3") }
   @Test def test_literalChar_padding4() { runner.runOneTest("literalChar_padding4") }
-//  @Test def test_charEntity_padding1() { runner.runOneTest("charEntity_padding1") }
+  @Test def test_literalChar_padding5() { runner.runOneTest("literalChar_padding5") }
+  @Test def test_literalChar_padding6() { runner.runOneTest("literalChar_padding6") }
+  @Test def test_charEntity_padding1() { runner.runOneTest("charEntity_padding1") }
   @Test def test_charEntity_padding2() { runner.runOneTest("charEntity_padding2") }
-//  @Test def test_charEntity_padding3() { runner.runOneTest("charEntity_padding3") }
+  @Test def test_charEntity_padding3() { runner.runOneTest("charEntity_padding3") }
+  @Test def test_number_padding() { runner.runOneTest("number_padding") }
+  @Test def test_number_padding2() { runner.runOneTest("number_padding2") }
+  @Test def test_number_padding3() { runner.runOneTest("number_padding3") }
+  @Test def test_number_padding4() { runner.runOneTest("number_padding4") }
+  @Test def test_number_padding5() { runner.runOneTest("number_padding5") }
+//  @Test def test_padding_escape() { runner.runOneTest("padding_escape") }
+//  @Test def test_padding_nil() { runner.runOneTest("padding_nil") }
+//  @Test def test_padding_nil2() { runner.runOneTest("padding_nil2") }
   
 }
