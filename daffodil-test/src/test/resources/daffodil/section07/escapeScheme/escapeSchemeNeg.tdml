@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="escapeSchemeNeg" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:tns="http://example.com" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <tdml:defineSchema name="es1">
+    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:defineEscapeScheme name="pound"/>
+    <xs:element name="elem" type="xs:int"/>
+  </tdml:defineSchema>
+  
+  <!--
+       Test Name: escapeSchemeNeg
+          Schema: es1
+            Root: elem
+         Purpose: This is a negative test to demonstrate that defineEscapeScheme requires a child escapeScheme tag 
+  -->
+
+  <tdml:parserTestCase name="escapeSchemeNeg" model="es1"
+    description="Section 7 defineEscapeScheme - DFDL-7-082R" root="elem">
+    <tdml:document><![CDATA[123]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>The content of element 'dfdl:defineEscapeScheme' is not complete</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</testSuite>
