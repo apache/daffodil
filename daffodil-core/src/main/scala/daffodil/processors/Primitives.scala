@@ -553,7 +553,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
     override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      // withLoggingLevel(LogLevel.Info) 
+//       withLoggingLevel(LogLevel.Debug) 
       {
 
         val eName = e.toString()
@@ -2286,7 +2286,7 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
     override def toString = "LiteralNilDelimitedOrEndOfData(" + e.nilValue + ")"
 
     def parse(start: PState): PState = {
-      // withLoggingLevel(LogLevel.Info) 
+     //  withLoggingLevel(LogLevel.Info) 
       {
         val eName = e.toString()
 
@@ -2307,8 +2307,8 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
         }
         val delimsCooked1 = delimsRaw.map(raw => { new daffodil.dsom.ListOfStringValueAsLiteral(raw.toString, e).cooked })
         val delimsCooked = delimsCooked1.flatten
-        val nilValuesCooked1 = delimsRaw.map(raw => { new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked })
-        val nilValuesCooked = nilValuesCooked1.flatten
+        //val nilValuesCooked1 = delimsRaw.map(raw => { new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked })
+        val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked//nilValuesCooked1.flatten
         val postEvalState = start.withVariables(vars)
 
         log(Debug("%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))

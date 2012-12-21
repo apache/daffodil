@@ -248,7 +248,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
 
   private def parseInputDefaultContent(field: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
                                        input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
-    // withLoggingLevel(LogLevel.Debug)
+   //  withLoggingLevel(LogLevel.Debug)
     {
       val pResult = this.parse(this.log(field)("DelimParser.parseInputDefaultContent"), input)
       //val res = this.parse(entry, input)
@@ -301,7 +301,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
 
   private def parseInputEscapeCharContent(field: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
                                           input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
-    // withLoggingLevel(LogLevel.Debug) 
+//     withLoggingLevel(LogLevel.Debug) 
     {
       val pResult = this.parse(this.log(field)("DelimParser.parseInputEscapeCharContent"), input)
       //val res = this.parse(entry, input)
