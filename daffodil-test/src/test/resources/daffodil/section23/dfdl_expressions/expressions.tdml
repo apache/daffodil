@@ -483,9 +483,9 @@
 
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="expresion_bad_path_to_variable"
+  <tdml:parserTestCase name="expresion_bad_path_to_element"
     root="e1" model="expresion_path_error"
-    description="very simple occursCountKind expression - DFDL-23-XXXR">
+    description="very simple occursCountKind expression - DFDL-23-011R">
 
     <tdml:document>
       <!-- two binary integers get multiplied 2x2=4 -->
@@ -890,7 +890,7 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="dfdlCheckConstraints"
-    root="e1" model="checkConstraints">
+    root="e1" model="checkConstraints" description="DFDL-23-135R">
     <!-- check constraints should return true as there are no constraints
       on
       the data as a result the data values should be '1' -->

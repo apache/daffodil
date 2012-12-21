@@ -28,7 +28,7 @@ class TestDFDLExpressions extends JUnitSuite {
   @Test def test_expression_type_error3() { runner.runOneTest("expression-type-error3") }
   @Test def test_expression_unknown_prefix() { runner.runOneTest("expression-unknown-prefix") }
   @Test def test_ocke_rel() { runner.runOneTest("ocke_rel") }
-  @Test def test_expresion_bad_path_to_variable() { runner.runOneTest("expresion_bad_path_to_variable") }
+  @Test def test_expresion_bad_path_to_element() { runner.runOneTest("expresion_bad_path_to_element") }
   @Test def test_ArrayOptElem_02() { runner.runOneTest("ArrayOptElem_02") }
   @Test def test_checkConstraints() { runner.runOneTest("dfdlCheckConstraints") }
 
