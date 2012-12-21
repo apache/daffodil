@@ -35,6 +35,25 @@
       </xs:complexType>
     </xs:element>
   </defineSchema>
+  
+  <defineSchema name="es2">
+    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+      <xs:element name="elem" dfdl:defineEscapeScheme=""/>
+  </defineSchema>
+
+  <defineSchema name="es4">
+    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+      <xs:element name="elem"/>
+  </defineSchema>
+
+  <defineSchema name="es5">
+    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:defineEscapeScheme>
+      <dfdl:escapeScheme escapeCharacter='#'
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" />
+    </dfdl:defineEscapeScheme>
+    <xs:element name="elem" type="xs:int"/>
+  </defineSchema>
 
   <parserTestCase name="escapeSchemeSimple" model="es1"
     description="Section 7 defineEscapeScheme - DFDL-7-079R" root="list1">
@@ -49,5 +68,34 @@
     </infoset>
   </parserTestCase>
 
+  <!--
+       Test Name: escapeSchemeFail
+          Schema: es2
+            Root: elem
+         Purpose: This is a negative test to demonstrate that defineEscapeScheme cannot be used within an element tag
+  -->
+
+  <parserTestCase name="escapeSchemeFail" model="es2"
+    description="Section 7 defineEscapeScheme - DFDL-7-087R" root="elem">
+    <document><![CDATA[123]]></document>
+    <errors>
+      <error>Schema Definition Error</error>
+    </errors>
+  </parserTestCase>
+  
+  <!--
+       Test Name: escapeSchemeFail2
+          Schema: es5
+            Root: elem
+         Purpose: This is a negative test to demonstrate that "name" is a required attribute of the defineEscapeScheme tag 
+  -->
+
+  <parserTestCase name="escapeSchemeFail2" model="es5"
+    description="Section 7 defineEscapeScheme - DFDL-7-082R" root="elem">
+    <document><![CDATA[123]]></document>
+    <errors>
+      <error>Schema Definition Error</error>
+    </errors>
+  </parserTestCase>
 
 </testSuite>
