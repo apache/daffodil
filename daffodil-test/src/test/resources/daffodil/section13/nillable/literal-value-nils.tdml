@@ -226,5 +226,49 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  
+    <tdml:defineSchema name="PaddedNils">
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" separator="" separatorPolicy="suppressed"
+      separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
+      encoding="ASCII" representation="text" occursCountKind="parsed"
+      nilValueDelimiterPolicy="none" nilValue="nil %WSP+;" nilKind="literalValue"
+      textNumberRep="standard" ignoreCase="no" textTrimKind="padChar" textNumberPadCharacter="P"/>
+
+    <xs:element name="doc" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:terminator=";">
+          <xs:element name="e1" nillable="true" type="xsd:int"
+            dfdl:lengthKind="delimited" dfdl:textNumberJustification="left" />
+          <xs:element name="e2" nillable="true" type="xsd:int"
+            dfdl:lengthKind="delimited" dfdl:textNumberJustification="right"/>
+          <xs:element name="e3" nillable="true" type="xsd:int"
+            dfdl:lengthKind="delimited" dfdl:textNumberJustification="center"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
+    <tdml:parserTestCase name="test_padded_nils" root="doc"
+    model="PaddedNils"
+    description="Verify that padding and nils work correctly">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[0PPP,PPPnil,PPP   PPP;]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <e1>0</e1>
+          <e2 xsi:nil="true" />
+          <e3 xsi:nil="true" />
+        </doc>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

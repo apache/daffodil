@@ -1926,8 +1926,6 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
 
         //val postEvalState = start //start.withVariables(vars)
 
-        log(Debug("Saving reader..."))
-
         log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
         val in = postEvalState.inStream
 
@@ -1939,17 +1937,17 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
         // if (postEvalState.bitPos % 8 != 0) { return PE(postEvalState, "LiteralNilPattern - not byte aligned.") }
 
         val decoder = charset.newDecoder()
-
+        val d = new DelimParser(e)
         try {
           val bytes = in.getBytes(postEvalState.bitPos, nBytes.toInt)
           val cb = decoder.decode(ByteBuffer.wrap(bytes))
           val result = cb.toString
+          val trimmedResult = d.removePadding(result, justificationTrim, padChar)
           val endBitPos = postEvalState.bitPos + (nBytes.toInt * 8)
           val endCharPos = if (postEvalState.charPos == -1) result.length() else postEvalState.charPos + result.length()
 
           // We have a field, is it empty?
-          val isFieldEmpty = result.length() == 0
-          val d = new DelimParser(e)
+          val isFieldEmpty = trimmedResult.length == 0 //result.length() == 0
 
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
@@ -1958,16 +1956,15 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
             return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
-          } else if (d.isFieldDfdlLiteral(result, nilValuesCooked.toSet)) {
+          } else if (d.isFieldDfdlLiteral(trimmedResult, nilValuesCooked.toSet)) {
             // Contains a nilValue, Success!
             postEvalState.parentElement.makeNil()
 
-            log(Debug("%s - Found %s", eName, result))
+            log(Debug("%s - Found %s", eName, trimmedResult))
             log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
             log(Debug("%s - Ended at bit position ", eName, endBitPos))
 
             return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
-            //return postEvalState.withReaderPos(endBitPos, endCharPos, reader) // Need to advance past found nilValue
           } else {
             // Fail!
             return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
@@ -1975,12 +1972,6 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
         } catch {
           case e: java.nio.BufferUnderflowException => {
             // In this case, we failed to get the bytes
-            //            if (isEmptyAllowed) {
-            //              log(Debug("%s - we failed to find explicit length of %s and %ES; found as nilValue.", eName, nBytes))
-            //              postEvalState.parentElement.makeNil()
-            //              return postEvalState // Empty, no need to advance
-            //            }
-
             return PE(postEvalState, "%s - Insufficient Bytes in field; required %s", name, nBytes)
           }
           case e: IndexOutOfBoundsException => { return PE(postEvalState, "%s - IndexOutOfBounds: \n%s", name, e.getMessage()) }
@@ -2060,7 +2051,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
           return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
         } else {
           // We have a field, is it empty?
-          val field = result.field
+          val field = d.removePadding(result.field, justificationTrim, padChar)
           val isFieldEmpty = field.length() == 0
 
           if (isFieldEmpty && isEmptyAllowed) {
@@ -2074,7 +2065,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
             // Contains a nilValue, Success!
             start.parentElement.makeNil()
 
-            val numBits = e.knownEncodingStringBitLength(result.field)
+            val numBits = result.numBits//e.knownEncodingStringBitLength(result.field)
             val endCharPos =
               if (postEvalState.charPos == -1) result.field.length
               else postEvalState.charPos + result.field.length
@@ -2152,7 +2143,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
           return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
         } else {
           // We have a field, is it empty?
-          val field = result.field
+          val field = d.removePadding(result.field, justificationTrim, padChar)
           val isFieldEmpty = field.length() == 0
 
           if (isFieldEmpty && isEmptyAllowed) {
@@ -2166,7 +2157,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
             // Contains a nilValue, Success!
             start.parentElement.makeNil()
 
-            val numBits = e.knownEncodingStringBitLength(result.field)
+            val numBits = result.numBits//e.knownEncodingStringBitLength(result.field)
             //val endCharPos = start.charPos + result.field.length()
             val endCharPos =
               if (postEvalState.charPos == -1) result.field.length
@@ -2233,9 +2224,6 @@ case class LiteralNilPattern(e: ElementBase)
         log(Debug("Retrieving reader state."))
         val reader = getReader(charset, start.bitPos, start)
 
-        //        val byteReader = in.byteReader.atPos(bytePos)
-        //        val reader = byteReader.charReader(decoder.charset().name())
-
         val d = new DelimParser(e)
 
         val result = d.parseInputPatterned(pattern, reader)
@@ -2244,7 +2232,7 @@ case class LiteralNilPattern(e: ElementBase)
           return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
         } else {
           // We have a field, is it empty?
-          val field = result.field
+          val field = d.removePadding(result.field, justificationTrim, padChar)
           val isFieldEmpty = field.length() == 0
 
           if (isFieldEmpty && isEmptyAllowed) {
@@ -2258,8 +2246,8 @@ case class LiteralNilPattern(e: ElementBase)
             // Contains a nilValue, Success!
             start.parentElement.makeNil()
 
-            val numBits = e.knownEncodingStringBitLength(result.field)
-            //val endCharPos = start.charPos + result.field.length()
+            val numBits = result.numBits//e.knownEncodingStringBitLength(result.field)
+
             val endCharPos =
               if (postEvalState.charPos == -1) result.field.length
               else postEvalState.charPos + result.field.length
@@ -2269,7 +2257,6 @@ case class LiteralNilPattern(e: ElementBase)
             log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
             log(Debug("%s - Ended at bit position ", eName, endBitPos))
 
-            //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
             return postEvalState.withReaderPos(endBitPos, endCharPos, reader) // Need to advance past found nilValue
           } else {
             // Fail!
@@ -2361,7 +2348,7 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
           return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
         } else {
           // We have a field, is it empty?
-          val field = result.field
+          val field = d.removePadding(result.field, justificationTrim, padChar)
           val isFieldEmpty = field.length() == 0
           val isEmptyAllowed = e.nilValue.contains("%ES;")
           if (isFieldEmpty && isEmptyAllowed) {
@@ -2375,7 +2362,7 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
             // Contains a nilValue, Success!
             start.parentElement.makeNil()
 
-            val numBits = e.knownEncodingStringBitLength(result.field)
+            val numBits = result.numBits
             //val endCharPos = start.charPos + result.field.length()
             val endCharPos = if (postEvalState.charPos == -1) result.field.length else postEvalState.charPos + result.field.length
             val endBitPos = numBits + start.bitPos
