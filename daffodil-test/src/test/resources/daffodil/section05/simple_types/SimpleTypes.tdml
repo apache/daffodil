@@ -1657,6 +1657,19 @@
     <xs:element name="nil2" nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="o" type="xs:string" dfdl:lengthKind="delimited"
       dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
     
+    <xs:element name="seq">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=".">
+          <xs:element name="string11" dfdl:textTrimKind="padChar" dfdl:textStringJustification="left" dfdl:textStringPadCharacter="o"
+            dfdl:lengthKind="delimited" type="xs:string" />
+          <xs:element name="string12" dfdl:textTrimKind="padChar" dfdl:textStringJustification="right" dfdl:textStringPadCharacter="o"
+            dfdl:lengthKind="delimited" type="xs:string" />
+          <xs:element name="string13" dfdl:textTrimKind="padChar" dfdl:textStringJustification="center" dfdl:textStringPadCharacter="o"
+            dfdl:lengthKind="delimited" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>    
+
   </tdml:defineSchema>
   
   <!--
@@ -1959,7 +1972,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-          <nil xs:nil="true"></nil>
+          <nil xsi:nil="true"></nil>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -1978,7 +1991,29 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-          <nil2 xs:nil="true"></nil2>
+          <nil2 xsi:nil="true"></nil2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: justification_1
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates how padding is trimmed when a pad character is found within the string
+  -->
+
+  <tdml:parserTestCase name="justification_1" root="seq"
+      model="SimpleTypes-padding" description="Section 5 - Simple Types - textStringJustification DFDL-13-041R">
+    <tdml:document>
+      <tdml:documentPart type="text">oregano.oregano.oregano</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq>
+          <string11>oregan</string11>
+          <string12>regano</string12>
+          <string13>regan</string13>
+        </seq>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

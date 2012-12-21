@@ -204,5 +204,6 @@ class TestSimpleTypes extends JUnitSuite {
 //  @Test def test_padding_escape() { runner.runOneTest("padding_escape") }
 //  @Test def test_padding_nil() { runner.runOneTest("padding_nil") }
 //  @Test def test_padding_nil2() { runner.runOneTest("padding_nil2") }
+//  @Test def test_justification_1() { runner.runOneTest("justification_1") }
   
 }
