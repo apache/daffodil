@@ -248,7 +248,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
 
   private def parseInputDefaultContent(field: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
                                        input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
-   //  withLoggingLevel(LogLevel.Debug)
+//     withLoggingLevel(LogLevel.Debug)
     {
       val pResult = this.parse(this.log(field)("DelimParser.parseInputDefaultContent"), input)
       //val res = this.parse(entry, input)
@@ -516,7 +516,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
     val pEOF: Parser[String] = """\z""".r
 
     val paddedContent = pPadChar ~ pBefore ~ pPadChar ^^ { case (lp ~ c ~ rp) => Vector(lp, c, rp) }
-    val leftPaddedContent = pPadChar ~ pBefore ^^ { case (lp ~ c) => Vector(lp, c) }
+    val leftPaddedContent = pPadChar ~ pBeforeNoPadding ^^ { case (lp ~ c) => Vector(lp, c) }
     val rightPaddedContent = pBefore ~ pPadChar ^^ { case (c ~ rp) => Vector(c, rp) }
 
     val hasDelim: Boolean = separators.size > 0 || terminators.size > 0
