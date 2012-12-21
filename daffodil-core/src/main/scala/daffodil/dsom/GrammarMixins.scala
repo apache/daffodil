@@ -888,30 +888,25 @@ trait TermGrammarMixin { self: Term =>
   }
 
   def hasES = nearestEnclosingSequence != None
+  def ignoreES = inChoiceBeforeNearestEnclosingSequence == true
 
-  lazy val staticSeparator = Prod("staticSeparator", this, hasES && es.separator.isConstant,
+  lazy val staticSeparator = Prod("staticSeparator", this, !ignoreES && hasES && es.separator.isConstant,
     StaticSeparator(es, self))
 
-  //  lazy val staticSeparator = Prod("staticSeparator", this, hasES && es.separator.isConstant,
-  //    new StaticDelimiter(es, self))
-
-  lazy val dynamicSeparator = Prod("dynamicSeparator", this, hasES && !es.separator.isConstant,
+  lazy val dynamicSeparator = Prod("dynamicSeparator", this, !ignoreES && hasES && !es.separator.isConstant,
     DynamicSeparator(es, self))
-
-  //    lazy val dynamicSeparator = Prod("dynamicSeparator", this, hasES && !es.separator.isConstant,
-  //    new DynamicDelimiter(es, self))
 
   lazy val sepRule = staticSeparator | dynamicSeparator
 
   lazy val prefixSep = Prod("prefixSep", this,
     {
-      val res = hasES && es.hasPrefixSep
+      val res = !ignoreES && hasES && es.hasPrefixSep
       res
     },
     sepRule)
 
-  lazy val postfixSep = Prod("postfixSep", this, hasES && es.hasPostfixSep, sepRule)
-  lazy val infixSep = Prod("infixSep", this, hasES && es.hasInfixSep, sepRule)
+  lazy val postfixSep = Prod("postfixSep", this, !ignoreES && hasES && es.hasPostfixSep, sepRule)
+  lazy val infixSep = Prod("infixSep", this, !ignoreES && hasES && es.hasInfixSep, sepRule)
 
   lazy val isStaticallyFirst = {
     es.hasInfixSep &&
@@ -921,7 +916,7 @@ trait TermGrammarMixin { self: Term =>
   }
 
   lazy val infixSepRule = Prod("infixSepRule", this,
-    hasES && es.hasInfixSep, {
+    !ignoreES && hasES && es.hasInfixSep, {
       if (isStaticallyFirst) Nada(this) // we're first, no infix sep.
       else if (hasPriorRequiredSiblings) infixSep // always in this case
       else if (positionInNearestEnclosingSequence > 1 || !isScalar) {

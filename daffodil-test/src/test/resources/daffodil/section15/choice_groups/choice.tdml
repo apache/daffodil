@@ -783,4 +783,197 @@
 
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="choiceWithSequence">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:element name="ch1">
+      <xs:complexType>
+        <xs:choice>
+          <xs:sequence>
+            <xs:element name="int1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"/>
+            <xs:element name="int2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"/>
+          </xs:sequence>
+          <xs:element name="str" type="xs:string"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="choiceWithSequence1"
+    root="ch1" model="choiceWithSequence"
+    description="Choice with sequence - first choice">
+
+    <tdml:document><![CDATA[12]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch1>
+          <ex:int1>1</ex:int1>
+          <ex:int2>2</ex:int2>
+        </ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceWithSequence2"
+    root="ch1" model="choiceWithSequence"
+    description="Choice with sequence - second choice">
+
+    <tdml:document><![CDATA[1str]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch1>
+          <ex:str>1str</ex:str>
+        </ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+
+  <tdml:defineSchema name="choiceWithChoice">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:element name="ch1">
+      <xs:complexType>
+        <xs:choice>
+          <xs:choice>
+            <xs:element name="int" type="xs:int"/>
+            <xs:element name="float" type="xs:float"/>
+          </xs:choice>
+          <xs:element name="str" type="xs:string"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="choiceWithChoiceInt"
+    root="ch1" model="choiceWithChoice"
+    description="Choice with choice - int choice">
+
+    <tdml:document><![CDATA[12]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch1>
+          <ex:int>12</ex:int>
+        </ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="choiceWithChoiceFloat"
+    root="ch1" model="choiceWithChoice"
+    description="Choice with choice - float choice">
+
+    <tdml:document><![CDATA[1.2]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch1>
+          <ex:float>1.2</ex:float>
+        </ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="choiceWithChoiceString"
+    root="ch1" model="choiceWithChoice"
+    description="Choice with choice - string choice">
+
+    <tdml:document><![CDATA[1.2mm]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch1>
+          <ex:str>1.2mm</ex:str>
+        </ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="choiceWithArray">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:element name="ch1">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="int" type="xs:int" minOccurs="4" maxOccurs="10" dfdl:occursCountKind="implicit" dfdl:terminator=";"/>
+          <xs:element name="float" type="xs:float" minOccurs="4" maxOccurs="10" dfdl:occursCountKind="implicit" dfdl:terminator=";"/>
+          <xs:element name="str" type="xs:string"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="choiceWithArrayInts"
+    root="ch1" model="choiceWithArray"
+    description="Choice with array - ints">
+
+    <tdml:document><![CDATA[1;2;3;4;5;6;7;8;9;]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch1>
+          <ex:int>1</ex:int>
+          <ex:int>2</ex:int>
+          <ex:int>3</ex:int>
+          <ex:int>4</ex:int>
+          <ex:int>5</ex:int>
+          <ex:int>6</ex:int>
+          <ex:int>7</ex:int>
+          <ex:int>8</ex:int>
+          <ex:int>9</ex:int>
+        </ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceWithArrayFloats"
+    root="ch1" model="choiceWithArray"
+    description="Choice with array - floats">
+
+    <tdml:document><![CDATA[1;2;3.3;4;5;6;7;8;9;]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch1>
+          <ex:float>1.0</ex:float>
+          <ex:float>2.0</ex:float>
+          <ex:float>3.3</ex:float>
+          <ex:float>4.0</ex:float>
+          <ex:float>5.0</ex:float>
+          <ex:float>6.0</ex:float>
+          <ex:float>7.0</ex:float>
+          <ex:float>8.0</ex:float>
+          <ex:float>9.0</ex:float>
+        </ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="choiceWithArrayString"
+    root="ch1" model="choiceWithArray"
+    description="Choice with array - string">
+
+    <tdml:document><![CDATA[1;2;a;4;5;6;7;8;9;]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch1>
+          <ex:str>1;2;a;4;5;6;7;8;9;</ex:str>
+        </ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

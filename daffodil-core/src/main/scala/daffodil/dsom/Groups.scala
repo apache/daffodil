@@ -147,6 +147,34 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
     res
   }
 
+  lazy val inChoiceBeforeNearestEnclosingSequence: Boolean = inChoiceBeforeNearestEnclosingSequence_.value
+  private lazy val inChoiceBeforeNearestEnclosingSequence_ = LV('inChoiceBeforeNearestEnclosingSequence) {
+    val res = parent match {
+      case s: Sequence => false
+      case c: Choice => true
+      case t: Term => t.inChoiceBeforeNearestEnclosingSequence
+      case d: SchemaDocument => {
+        // we're a global object. Our parent is a schema document
+        // so follow backpointers to whatever is referencing us.
+        this match {
+          case gct: GlobalComplexTypeDef => gct.element.inChoiceBeforeNearestEnclosingSequence
+          case gd: GlobalGroupDef => gd.groupRef.inChoiceBeforeNearestEnclosingSequence
+          case ge: GlobalElementDecl => ge.elementRef match {
+            case None => {
+              // we are root. So there is no coice at all
+              false
+            }
+            case Some(er) => er.inChoiceBeforeNearestEnclosingSequence
+          }
+        }
+      }
+      case ct: ComplexTypeBase => false // Stop when we get to an element // ct.element.nearestEnclosingSequence
+      case gd: GlobalGroupDef => gd.groupRef.inChoiceBeforeNearestEnclosingSequence
+      case _ => Assert.invariantFailed("inChoiceBeforeNearestEnclosingSequence called on " + this + "with parent " + parent)
+    }
+    res
+  }
+
   lazy val immediatelyEnclosingModelGroup: Option[ModelGroup] = {
     val res = parent match {
       case c: Choice => Some(c)
@@ -506,29 +534,6 @@ class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
     hasInitiator || hasTerminator ||
       // or if all arms of the choice have statically required instances.
       groupMembers.forall { _.hasStaticallyRequiredInstances }
-  }
-
-  /**
-   * We override termFactory because we're only going to support a subset of the full
-   * generality of what could go inside a choice.
-   *
-   * TODO: someday lift this restriction.
-   */
-  override def termFactory(child: Node, parent: ModelGroup, position: Int) = {
-    val childList: List[Term] = child match {
-      case <element>{ _* }</element> => {
-        val refProp = (child \ "@ref").text
-        val elt =
-          if (refProp == "") new LocalElementDecl(child, parent, position)
-          else new ElementRef(child, parent, position)
-        subset(elt.isScalar, "Choices may only have scalar element children (minOccurs = maxOccurs = 1).")
-        List(elt)
-      }
-      case <annotation>{ _* }</annotation> => Nil
-      case textNode: Text => Nil
-      case _ => subsetError("Non-element child type. Choices may only have scalar element children (minOccurs = maxOccurs = 1).")
-    }
-    childList
   }
 }
 

@@ -28,4 +28,15 @@ class TestChoice2 extends JUnitSuite {
   @Test def test_choiceWithInitsAndTermsStr() { runner.runOneTest("choiceWithInitsAndTermsStr") }
   @Test def test_choiceWithInitsAndTermsError() { runner.runOneTest("choiceWithInitsAndTermsError") }
   
+  @Test def test_choiceWithSequence1() { runner.runOneTest("choiceWithSequence1") }
+  @Test def test_choiceWithSequence2() { runner.runOneTest("choiceWithSequence2") }
+  
+  @Test def test_choiceWithChoiceInt() { runner.runOneTest("choiceWithChoiceInt") }
+  @Test def test_choiceWithChoiceFloat() { runner.runOneTest("choiceWithChoiceFloat") }
+  @Test def test_choiceWithChoiceString() { runner.runOneTest("choiceWithChoiceString") }
+
+  @Test def test_choiceWithArrayInt() { runner.runOneTest("choiceWithArrayInts") }
+  @Test def test_choiceWithArrayFloat() { runner.runOneTest("choiceWithArrayFloats") }
+  @Test def test_choiceWithArrayString() { runner.runOneTest("choiceWithChoiceString") }
+
 }

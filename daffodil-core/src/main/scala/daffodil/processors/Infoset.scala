@@ -127,7 +127,7 @@ class InfosetElement(private val elt: org.jdom.Element) extends InfosetItem {
   def restoreState(st: Infoset.ElementState): Unit = {
     val previousContentSize: Int = st
     val currentContentSize = elt.getContentSize()
-    for (i <- previousContentSize until currentContentSize) {
+    for (i <- (previousContentSize until currentContentSize).reverse) {
       elt.removeContent(i)
     }
   }
