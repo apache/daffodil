@@ -16,13 +16,13 @@ class TestEscapeScheme extends JUnitSuite {
   val tdml = testDir + "escapeScheme.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
-  @Test def test_escape_scheme() { runner.runOneTest("escapeSchemeSimple") }
-  @Test def test_escapeSchemeFail() { runner.runOneTest("escapeSchemeFail") }
-//  @Test def test_escapeSchemeFail2() { runner.runOneTest("escapeSchemeFail2") }
-  
+  @Test def test_escape_scheme() { runner.runOneTestNoTDMLValidation("escapeSchemeSimple") }
+  @Test def test_escapeSchemeFail() { runner.runOneTestNoTDMLValidation("escapeSchemeFail") }
+  //  @Test def test_escapeSchemeFail2() { runner.runOneTest("escapeSchemeFail2") }
+
   val tdmlNeg = testDir + "escapeSchemeNeg.tdml"
   lazy val runnerNeg = new DFDLTestSuite(Misc.getRequiredResource(tdmlNeg))
-  
+
   @Test def test_escapeSchemeNeg() { runnerNeg.runOneTestNoTDMLValidation("escapeSchemeNeg") }
 
 }
