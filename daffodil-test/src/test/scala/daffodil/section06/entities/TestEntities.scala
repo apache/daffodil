@@ -26,6 +26,7 @@ class TestEntities extends JUnitSuite {
   @Test def test_LineSeparator_byte() { runner.runOneTest("LineSeparator_byte") }
   @Test def test_NextLine_byte() { runner.runOneTest("NextLine_byte") }
   @Test def test_FormFeed() { runner.runOneTest("FormFeed") }
+  @Test def test_HexCodePoint() { runner.runOneTest("HexCodePoint") }
 
   val testDir_01 = "/daffodil/section06/entities/"
   val tdml_01 = testDir_01 + "Entities.tdml"

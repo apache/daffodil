@@ -71,6 +71,23 @@
     </tdml:infoset>
   </tdml:parserTestCase>
  
+  <tdml:parserTestCase name="xml_illegal_chars" root="root"
+    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding is utf-8 - DFDL-11-002R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">000f</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <root>
+          <e1>&#57344;</e1>
+          <e2>&#57359;</e2>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
   <tdml:parserTestCase name="xml_illegal_chars_01" root="e3"
     model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding is utf-8 - DFDL-11-002R">
     <tdml:document>%#xFFFF;</tdml:document>
@@ -86,6 +103,15 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
+  <tdml:parserTestCase name="xml_illegal_chars_02" root="e3"
+    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding is utf-8 - DFDL-11-002R">
+    <tdml:document><tdml:documentPart type="byte">efbfbf</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3>&#61695;</e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
    
   <tdml:parserTestCase name="xml_utf8_4byte_chars" root="e3"
     model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding is utf-8 - DFDL-11-002R">
@@ -97,7 +123,6 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
 
   <tdml:defineSchema name="packed7BitASCII">
 

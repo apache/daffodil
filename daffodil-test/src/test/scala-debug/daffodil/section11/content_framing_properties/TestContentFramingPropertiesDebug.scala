@@ -23,8 +23,6 @@ class TestContentFramingPropertiesDebug extends JUnitSuite {
   val testDir_02 = "/daffodil/section11/content_framing_properties/"
   val tdml2 = testDir_02 + "ContentFramingProps.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
-  @Test def test_xml_illegal_char_01() { runner2.runOneTest("xml_illegal_chars_01") }
-  @Test def test_xml_utf8_4byte_chars() { runner2.runOneTest("xml_utf8_4byte_chars") }
   @Test def test_encoding_property_expression() { runner2.runOneTest("encoding_property_expression") }
 
 }
