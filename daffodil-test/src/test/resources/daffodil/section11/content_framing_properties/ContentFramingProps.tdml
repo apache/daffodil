@@ -123,6 +123,17 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="xml_utf8_4byte_chars_01" root="e3"
+    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding is utf-8 - DFDL-11-002R">
+    <tdml:document><tdml:documentPart type="byte">f0 90 80 80</tdml:documentPart></tdml:document>
+    <!-- That's the minimum Unicode character value that takes 4 bytes to encode in utf-8 -->
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3>&#x10000;</e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <tdml:defineSchema name="packed7BitASCII">
 

@@ -29,6 +29,7 @@ class TestContentFramingProperties extends JUnitSuite {
   @Test def test_xml_utf8_4byte_chars() { runner2.runOneTest("xml_utf8_4byte_chars") }
   @Test def test_xml_illegal_char_02() { runner2.runOneTest("xml_illegal_chars_02") }
   @Test def test_xml_illegal_char() { runner2.runOneTest("xml_illegal_chars") }
+  @Test def test_xml_utf8_4byte_chars_01() { runner2.runOneTest("xml_utf8_4byte_chars_01") }
   
   /*** DFDL-379 US-ASCII-7-bit-packed text ***/
   @Test def test_packed7BitASCII1() { runner2.runOneTest("packed7BitASCII1") }
