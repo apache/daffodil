@@ -8,6 +8,7 @@ import daffodil.processors._
 import daffodil.util.Info
 import daffodil.util.Compile
 import daffodil.api.Diagnostic
+import daffodil.schema.annotation.props.gen.LengthUnits
 
 abstract class Gram(val context: AnnotatedSchemaComponent) extends DiagnosticsProviding {
   def deref = this
@@ -195,7 +196,7 @@ abstract class Terminal(contextArg: AnnotatedSchemaComponent, guard: Boolean) ex
 
   def SDE(str: String, args: Any*): Nothing = realSC.SDE(str, args)
 
-  lazy val diagnosticChildren = Nil
+  lazy val diagnosticChildren: List[Gram] = Nil
 }
 
 /**

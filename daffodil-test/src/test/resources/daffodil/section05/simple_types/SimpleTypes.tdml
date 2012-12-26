@@ -70,7 +70,7 @@
     <xs:element name="nonNegIntBin" type="xs:nonNegativeInteger"
       dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="{ 16 }" />
 
-    <xs:element name="limits" dfdl:lengthKind="explicit">
+    <xs:element name="limits" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator=":"
           dfdl:separatorPolicy="required" dfdl:separatorPosition="infix">

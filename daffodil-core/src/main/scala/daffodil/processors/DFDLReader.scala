@@ -77,7 +77,21 @@ object DFDLCharReader {
 
     val bitOffset = bitPos & 0x7
     val bytePos = bitPos >> 3
-    val is = new IteratorInputStream(thePsb.slice(bytePos).iterator)
+
+    val is = {
+      if (bitLimit == -1) { new IteratorInputStream(thePsb.slice(bytePos).iterator) } else {
+        // Here we want to limit the PagedSeq[Byte] via bitLimit
+        // because we need to determine the ending byte position from
+        // the bit limit we must divide by 8.0 (must divide by double)
+        // in order to round to the appropriate byte position
+        //
+        val endBytePos = scala.math.ceil(bitLimit / 8.0).toInt //bitLimit.toInt >> 3
+        new IteratorInputStream(thePsb.slice(bytePos, endBytePos).iterator)
+      }
+    }
+
+    // TODO: Why is bitLimit not working for DFDLJavaIOInputStreamReader?
+    // it appears to not be implemented, why is it there at all?
     val r = DFDLJavaIOInputStreamReader(is, charset, bitOffset, bitLimit)
     // TRW - The following line was changed because the fromSource
     // method was causing the readLine method of the BufferedReader class to be
@@ -97,7 +111,7 @@ object DFDLCharReader {
  * character.
  */
 class DFDLCharReader private (charset: Charset, startingBitPos: Int, bitLimit: Long,
-                              psc: PagedSeq[Char], override val offset: Int, psb: PagedSeq[Byte])
+  psc: PagedSeq[Char], override val offset: Int, psb: PagedSeq[Byte])
   extends scala.util.parsing.input.Reader[Char] {
 
   override lazy val source: CharSequence = psc
@@ -133,7 +147,7 @@ class DFDLCharReader private (charset: Charset, startingBitPos: Int, bitLimit: L
   def print: String = {
     "DFDLCharReader - " + source.length() + ": " + source + "\nDFDLCharReader - " + characterPos + ": " + source.subSequence(characterPos, source.length())
   }
-  
+
   override def toString = {
     "DFDLCharReader at bitPos " + startingBitPos
   }

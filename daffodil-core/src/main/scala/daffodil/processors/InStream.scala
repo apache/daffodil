@@ -54,6 +54,8 @@ trait InStream {
   // def withLimit(startBitPos: Long, endBitPos: Long): InStream
 
   def getCharReader(charset: Charset, bitPos: Long): DFDLCharReader
+
+  def getAllBytes: Array[Byte]
 }
 
 /**
@@ -103,6 +105,11 @@ case class InStreamFromByteChannel private (val context: ElementBase,
     }
 
   }
+  
+   def getAllBytes: Array[Byte] = {
+     val bb = byteReader.bb
+     bb.array()
+   }
 
   private def asUnsignedByte(b: Byte): Int = if (b < 0) 256 + b else b
   private def asSignedByte(i: Int) = {

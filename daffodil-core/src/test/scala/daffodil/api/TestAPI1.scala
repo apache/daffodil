@@ -152,7 +152,7 @@ class TestDFDLParser extends JUnitSuite {
   @Test def testInt1() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="e1" dfdl:lengthKind="explicit">
+      <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
@@ -167,7 +167,7 @@ class TestDFDLParser extends JUnitSuite {
   @Test def testInt2() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="e1" dfdl:lengthKind="explicit">
+      <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
@@ -185,7 +185,7 @@ class TestDFDLParser extends JUnitSuite {
   @Test def testShort1() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="e1" dfdl:lengthKind="explicit">
+      <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="s1" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
@@ -200,7 +200,7 @@ class TestDFDLParser extends JUnitSuite {
   @Test def testShort2() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="e1" dfdl:lengthKind="explicit">
+      <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="s" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="{ 6 }"/>
@@ -217,7 +217,7 @@ class TestDFDLParser extends JUnitSuite {
   @Test def testByte1() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="e1" dfdl:lengthKind="explicit">
+      <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="s1" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>
@@ -232,7 +232,7 @@ class TestDFDLParser extends JUnitSuite {
   @Test def testNumber1() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="e1" dfdl:lengthKind="explicit">
+      <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="country" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
@@ -511,7 +511,7 @@ class TestDFDLParser extends JUnitSuite {
   @Test def testTextDoubles() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="e1" dfdl:lengthKind="explicit">
+      <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="s1" type="xs:double" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>
@@ -544,7 +544,7 @@ class TestDFDLParser extends JUnitSuite {
   @Test def testTextFloats() {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="e1" dfdl:lengthKind="explicit">
+      <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="s1" type="xs:float" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>

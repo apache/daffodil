@@ -26,8 +26,8 @@ import daffodil.schema.annotation.props.gen.TextNumberJustification
 import daffodil.schema.annotation.props.gen.TextCalendarJustification
 import daffodil.schema.annotation.props.gen.TextBooleanJustification
 
-abstract class PrimParser(gram: Gram, context: SchemaComponent)
-  extends Parser(context) {
+abstract class PrimParser(gram: Gram, contextArg: SchemaComponent)
+  extends Parser(contextArg) {
 
   def toBriefXML(depthLimit: Int = -1): String = {
     "<" + gram.name + "/>"
@@ -1126,13 +1126,24 @@ case class ZonedTextIntPrim(el: ElementBase) extends ZonedTextNumberPrim(el, fal
 case class ZonedTextLongPrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)
 
 trait RuntimeExplicitLengthMixin[T] {
-  self: BinaryNumberBase[T] =>
+  self: Terminal =>
   def e: ElementBase
+    lazy val toBits = e.lengthUnits match {
+    case LengthUnits.Bits => 1
+    case LengthUnits.Bytes => 8
+    case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
+  }
   def getBitLength(s: PState): (PState, Long) = {
     val R(nBytesAsAny, newVMap) = e.length.evaluate(s.parentElement, s.variableMap, s)
     val nBytes = nBytesAsAny.asInstanceOf[Long]
     val start = s.withVariables(newVMap)
     (start, nBytes * toBits)
+  }
+  def getLength(s: PState): (PState, Long) = {
+    val R(nBytesAsAny, newVMap) = e.length.evaluate(s.parentElement, s.variableMap, s)
+    val nBytes = nBytesAsAny.asInstanceOf[Long]
+    val start = s.withVariables(newVMap)
+    (start, nBytes)
   }
 }
 
@@ -1177,11 +1188,11 @@ trait UnsignedNumberMixin[T] {
 
 abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true) {
   lazy val primName = e.primType.name
-  lazy val toBits = e.lengthUnits match {
-    case LengthUnits.Bits => 1
-    case LengthUnits.Bytes => 8
-    case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
-  }
+//  lazy val toBits = e.lengthUnits match {
+//    case LengthUnits.Bits => 1
+//    case LengthUnits.Bytes => 8
+//    case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
+//  }
 
   lazy val staticByteOrderString = e.byteOrder.constantAsString
   lazy val staticByteOrder = ByteOrder(staticByteOrderString, context)
@@ -1520,22 +1531,12 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
 
         log(Debug("%s - Looking for local(%s) not remote (%s).", eName, staticTextsCooked.toSet, remoteDelims))
 
-        //        if (postEvalState.bitPos % 8 != 0) {
-        //          return PE(start, "%s - not byte aligned.", kindString)
-        //        }
-
         val in = postEvalState.inStream
 
         val bytePos = (postEvalState.bitPos >> 3).toInt
 
-        //System.err.println("PState.charPos = " + start.charPos)
         log(Debug("Retrieving reader state."))
         val reader = getReader(charset, start.bitPos, postEvalState)
-
-        //System.err.println("StaticText - " + reader.characterPos)
-
-        //        val byteReader = in.byteReader.atPos(bytePos)
-        //        val reader = byteReader.charReader(decoder.charset().name())
 
         val d = new DelimParser(e)
 
@@ -1543,7 +1544,6 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
 
         // Well they may not be delimiters, but the logic is the same as for a 
         // set of static delimiters.
-        //result = d.parseInputDelimiter(staticTextsCooked.toSet, reader, decoder.charset())
         result = d.parseInputDelimiter(staticTextsCooked.toSet, remoteDelims, reader)
 
         log(Debug("%s - %s - DelimParseResult: %s", this.toString(), eName, result))
@@ -1556,9 +1556,6 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
           return PE(start, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
         } else {
           val numBits = e.knownEncodingStringBitLength(result.delimiter)
-          //val endCharPos = start.charPos + result.field.length()
-          //System.err.println(reader.characterPos + "-" + result.delimiter.length())
-          //val endCharPos = reader.characterPos + result.delimiter.length
           val endCharPos = if (postEvalState.charPos == -1) result.delimiter.length else postEvalState.charPos + result.delimiter.length()
           val endBitPosDelim = numBits + postEvalState.bitPos
 
@@ -1566,7 +1563,6 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
           log(Debug("%s - Ended at byte position %s", eName, (endBitPosDelim >> 3)))
           log(Debug("%s - Ended at bit position %s", eName, endBitPosDelim))
 
-          // return start.withPos(endBitPosDelim, endCharPos)
           return postEvalState.withReaderPos(endBitPosDelim, endCharPos, reader)
         }
         postEvalState
@@ -1877,7 +1873,7 @@ case class LiteralNilExplicitLengthInBytes(e: ElementBase)
 
   final def computeLength(start: PState) = {
     val R(nBytesAsAny, newVMap) = expr.evaluate(start.parentElement, start.variableMap, start)
-    val nBytes = nBytesAsAny.asInstanceOf[Long]
+    val nBytes = nBytesAsAny.toString().toLong //nBytesAsAny.asInstanceOf[Long]
     (nBytes, newVMap)
   }
 
@@ -1915,7 +1911,7 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
     val charsetName = charset.name()
 
     def parse(start: PState): PState = {
-      // withLoggingLevel(LogLevel.Info) 
+//      withLoggingLevel(LogLevel.Debug) 
       {
 
         // TODO: What if someone passes in nBytes = 0 for Explicit length, is this legal?

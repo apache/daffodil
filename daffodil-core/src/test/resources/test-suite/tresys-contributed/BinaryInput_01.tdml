@@ -24,7 +24,7 @@
 
     <xs:element name="e1" type="xs:unsignedByte" dfdl:length="1" />
 
-    <xs:element name="e2">
+    <xs:element name="e2" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="others" type="xs:unsignedInt"
