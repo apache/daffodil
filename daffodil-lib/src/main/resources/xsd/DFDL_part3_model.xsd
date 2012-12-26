@@ -31,7 +31,7 @@
       <xsd:element maxOccurs="unbounded" minOccurs="0"
         ref="dfdl:format" />
     </xsd:sequence>
-    <xsd:attribute name="name" type="xsd:NCName" />
+    <xsd:attribute name="name" type="xsd:NCName" use='required'/>
   </xsd:complexType>
 
   <xsd:element name="format" type="dfdl:DFDLFormat" />
@@ -51,7 +51,7 @@
     <xsd:sequence>
       <xsd:element ref="dfdl:escapeScheme" />
     </xsd:sequence>
-    <xsd:attribute name="name" type="xsd:NCName" />
+    <xsd:attribute name="name" type="xsd:NCName" use='required'/>
   </xsd:complexType>
 
   <xsd:element name="escapeScheme" type="dfdl:DFDLEscapeScheme" />
@@ -74,7 +74,7 @@
   <xsd:complexType name="PropertyType">
     <xsd:simpleContent>
       <xsd:extension base="xsd:string">
-        <xsd:attribute name="name" type="dfdl:PropertyNameType" />
+        <xsd:attribute name="name" type="dfdl:PropertyNameType" use='required'/>
       </xsd:extension>
     </xsd:simpleContent>
   </xsd:complexType>
@@ -91,7 +91,7 @@
   </xsd:complexType>
 
   <xsd:attributeGroup name="DefineVariableAG">
-    <xsd:attribute name="name" type="xsd:NCName" />
+    <xsd:attribute name="name" type="xsd:NCName" use='required'/>
     <xsd:attribute name="predefined" type="xsd:boolean" />
     <xsd:attribute name="type" type="xsd:QName" />
     <xsd:attribute name="external" type="xsd:boolean" />
@@ -100,13 +100,13 @@
   </xsd:attributeGroup>
 
   <xsd:attributeGroup name="SetVariableAG">
-    <xsd:attribute name="ref" type="xsd:QName" />
+    <xsd:attribute name="ref" type="xsd:QName" use='required'/>
     <xsd:attribute name="value"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
   </xsd:attributeGroup>
 
   <xsd:attributeGroup name="NewVariableInstanceAG">
-    <xsd:attribute name="ref" type="xsd:QName" />
+    <xsd:attribute name="ref" type="xsd:QName" use='required'/>
     <xsd:attribute name="defaultValue"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
   </xsd:attributeGroup>
