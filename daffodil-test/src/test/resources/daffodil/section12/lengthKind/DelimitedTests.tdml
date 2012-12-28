@@ -207,14 +207,20 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="NS_08" dfdl:lengthKind="explicit"
-      dfdl:length="20">
+    <xs:element name="NS_08" dfdl:lengthKind="implicit">
       <xs:complexType>
-        <xs:sequence dfdl:initiatedContent="no"
-          dfdl:separatorPosition="infix" dfdl:separator=","
-          dfdl:separatorPolicy="suppressed">
-          <xs:element name="num" type="xs:int" maxOccurs="unbounded"
-            dfdl:lengthKind="delimited" />
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="20">
+            <xs:complexType>
+              <xs:sequence dfdl:initiatedContent="no"
+                dfdl:separatorPosition="infix" dfdl:separator=","
+                dfdl:separatorPolicy="suppressed">
+                <xs:element name="num" type="xs:int" maxOccurs="unbounded"
+                  dfdl:lengthKind="delimited" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="leftover" type="xs:string" dfdl:lengthKind="delimited"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -259,6 +265,23 @@
         </xs:sequence> 
       </xs:complexType> 
     </xs:element>
+    
+    <xs:element name="e2" dfdl:lengthKind="implicit"> 
+      <xs:complexType> 
+        <xs:sequence dfdl:sequenceKind="ordered"   
+                      dfdl:separator=","  
+                      dfdl:separatorPosition="infix">
+          <xs:element name="name" type="xs:string"  
+                  dfdl:lengthKind="explicit" dfdl:length="9"/> 
+          <xs:element name="street" type="xs:string"  
+                  dfdl:lengthKind="delimited"/> 
+          <xs:element name="city" type="xs:string"  
+                  dfdl:lengthKind="delimited"/> 
+          <xs:element name="state" type="xs:string" 
+                  dfdl:lengthKind="delimited"/> 
+        </xs:sequence> 
+      </xs:complexType> 
+    </xs:element>
 
   </tdml:defineSchema>
   
@@ -290,6 +313,22 @@
           <city>Rochester</city>
           <state>NY</state>
           </address1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="delimited_construct" root="e2"
+    model="lengthKindDelimited-Embedded.dfdl.xsd"
+    description="delimiter scanning is suspended for fixed length element - DFDL-12-053R">
+    <tdml:document><![CDATA[Doe, John,118 Ridgewood Circle,Rochester,NY]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2> 
+          <name>Doe, John</name>
+          <street>118 Ridgewood Circle</street>
+          <city>Rochester</city>
+          <state>NY</state>
+        </e2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -600,18 +639,21 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="NumSeq_09" root="NS_08"
-    model="lengthKindDelimited-Embedded.dfdl.xsd" description="an enclosing element of a known length - DFDL-12-044R">
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="an enclosing element which is lengthKind 'explicit' - DFDL-12-044R">
 
     <tdml:document><![CDATA[123,2789,30,408,52283,22,66210]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <NS_08>
-          <num>123</num>
-          <num>2789</num>
-          <num>30</num>
-          <num>408</num>
-          <num>5228</num>
+          <e1>
+            <num>123</num>
+            <num>2789</num>
+            <num>30</num>
+            <num>408</num>
+            <num>5228</num>
+          </e1>
+          <leftover>3,22,66210</leftover>
         </NS_08>
       </tdml:dfdlInfoset>
     </tdml:infoset>
