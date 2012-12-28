@@ -1,6 +1,6 @@
 name := "daffodil"
 
-version in ThisBuild := "0.4.0"
+version in ThisBuild := "0.6.0"
 
 scalaVersion in ThisBuild := "2.9.1"
 
