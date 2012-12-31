@@ -117,7 +117,7 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
     (sset, ge)
   }
 
-  def reload(fileNameOfSavedParser: String) = {
+  def reload(fileNameOfSavedParser: String): DFDL.ProcessorFactory = {
     Assert.notYetImplemented()
   }
 

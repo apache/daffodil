@@ -52,7 +52,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
     rootElem.document.unparser
   }
 
-  def save(fileName: String): Unit = {
+  def save(output: DFDL.Output): Unit = {
     Assert.notYetImplemented()
   }
 

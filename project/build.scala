@@ -63,7 +63,8 @@ object DaffodilBuild extends Build {
 	lazy val DebugTest = config("debug") extend(Runtime)
 	lazy val debugSettings: Seq[Setting[_]] = inConfig(DebugTest)(Defaults.testSettings ++ Seq(
 		sourceDirectory <<= baseDirectory(_ / "src" / "test"),
-		scalaSource <<= sourceDirectory(_ / "scala-debug")
+		scalaSource <<= sourceDirectory(_ / "scala-debug"),
+		exportJars := false
 	))
 	s ++= Seq(debugSettings : _*)
 	
@@ -82,7 +83,8 @@ object DaffodilBuild extends Build {
 	lazy val NewTest = config("new") extend(Runtime)
 	lazy val newSettings: Seq[Setting[_]] = inConfig(NewTest)(Defaults.testSettings ++ Seq(
 		sourceDirectory <<= baseDirectory(_ / "src" / "test"),
-		scalaSource <<= sourceDirectory(_ / "scala-new")
+		scalaSource <<= sourceDirectory(_ / "scala-new"),
+		exportJars := false
 	))
 	s ++= Seq(newSettings : _*)
 	
@@ -123,4 +125,28 @@ object DaffodilBuild extends Build {
     val version = b.readLine()
     version
   })
+
+  def gitShortHash(): String = {
+    val r = java.lang.Runtime.getRuntime()
+    val p = r.exec("git rev-parse --short HEAD")
+    p.waitFor()
+    val ret = p.exitValue()
+    if (ret != 0) {
+      sys.error("Failed to get git hash")
+    }
+    val b = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream))
+    val line = b.readLine()
+    line
+  }
+
+
+  // update the manifest version to include the git hash
+  lazy val manifestVersion = packageOptions in (Compile, packageBin) <++= version map { v => {
+    val version = "%s-%s".format(v, gitShortHash)
+    Seq(
+      Package.ManifestAttributes(java.util.jar.Attributes.Name.IMPLEMENTATION_VERSION -> version),
+      Package.ManifestAttributes(java.util.jar.Attributes.Name.SPECIFICATION_VERSION -> version)
+    )
+  }}
+  s ++= manifestVersion
 }

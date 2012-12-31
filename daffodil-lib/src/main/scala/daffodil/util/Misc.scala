@@ -69,7 +69,7 @@ object Misc {
     if (implVersion == null) {
       ("", "")
     } else {
-      val index = implVersion.indexOf("+")
+      val index = implVersion.indexOf("-")
       if (index > 0 && index < implVersion.length()) {
         (implVersion.substring(0, index), implVersion.substring(index + 1))
       } else {

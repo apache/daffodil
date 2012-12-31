@@ -118,7 +118,7 @@ object DFDL {
   }
 
   trait DataProcessor extends WithDiagnostics {
-    def save(fileName: String): Unit
+    def save(output: Output): Unit
 
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
