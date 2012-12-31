@@ -65,6 +65,10 @@
       dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
     <xs:element name="uL_04" type="xs:unsignedLong"
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
+    <xs:element name="nonNegIntText" type="xs:nonNegativeInteger"
+      dfdl:lengthKind="explicit" dfdl:length="{ 21 }" />
+    <xs:element name="nonNegIntBin" type="xs:nonNegativeInteger"
+      dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="{ 16 }" />
 
     <xs:element name="limits" dfdl:lengthKind="explicit">
       <xs:complexType>
@@ -1082,6 +1086,28 @@
     <tdml:errors>
       <tdml:error>Out of Range</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="nonNegativeInteger_text" root="nonNegIntText"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-020R">
+
+    <tdml:document><![CDATA[184467440737095516158]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNegIntText>184467440737095516158</nonNegIntText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="nonNegativeInteger_bin" root="nonNegIntBin"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-020R">
+
+    <tdml:document><tdml:documentPart type="byte">1999999999999999</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNegIntBin>184467440737095516158</nonNegIntBin>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="byte_01" root="b_01"
