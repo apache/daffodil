@@ -20,3 +20,5 @@ libraryDependencies in ThisBuild := Seq(
 )
 
 retrieveManaged := true
+
+exportJars in ThisBuild := true

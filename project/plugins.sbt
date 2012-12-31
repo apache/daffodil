@@ -9,4 +9,4 @@ libraryDependencies ++= Seq(
 addSbtPlugin("de.johoop" % "jacoco4sbt" % "1.2.4")
 
 
-addSbtPlugin("com.typesafe.startscript" % "xsbt-start-script-plugin" % "0.5.3")
+addSbtPlugin("com.typesafe.sbt" % "sbt-start-script" % "0.6.0")

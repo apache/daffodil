@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
-import com.typesafe.startscript.StartScriptPlugin
+import com.typesafe.sbt.SbtStartScript
 
 object DaffodilBuild extends Build {
 
@@ -107,7 +107,7 @@ object DaffodilBuild extends Build {
 	s ++= Seq(jacoco.settings : _*)
 
 	// start-script configuration	
-	lazy val startScriptSettings = Seq(StartScriptPlugin.startScriptForJarSettings : _*) ++
+	lazy val startScriptSettings = Seq(SbtStartScript.startScriptForJarSettings : _*) ++
 	                               Seq(mainClass in Compile := Some("daffodil.Main"))
 
   // get the version from the latest tag
