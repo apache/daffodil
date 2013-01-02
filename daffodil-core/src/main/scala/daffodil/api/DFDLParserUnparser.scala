@@ -46,7 +46,6 @@ object DFDL {
      * Other features are TBD, but may include
      *
      * <ul>
-     * <li>whether to error on NUL (\u0000) character code in string data. (Invalid in XML 1.0 and 1.1 syntax, but seemingly unchecked in many cases.)
      * <li>validation checking of the data - whether to warn or error.
      * <li>schema validation - validation of the DFDL Schema itself
      * <li>error recovery information - paths to anchor elements or similar
@@ -59,9 +58,26 @@ object DFDL {
      */
 
     /**
-     * If you don't set a root, it uses the first element in the schema as the root.
+     * There are two places you can set the root element, or you can omit it.
+     * You can set it here on the compiler. This saves compilation time, as
+     * it will only compile things needed by your root element. (Good to make
+     * tests run fast.) If you don't specify a root, then it compiles all top
+     * level elements, anticipating that different uses of the compiled schema
+     * might subsequently ask for different top level elements.
+     * <p>
+     * If you don't specify a root here, then you can specify one later on the
+     * ProcessorFactory object, but that won't save you as much compilation time.
+     * <p>
+     * If you don't set a root at all, then it compiles all top level elements
+     * and uses the first element in the first schema file as the root.
+     * <p>
+     * When specifying a root element, you either specify its namespace, or
+     * you can specify the empty string "" as the namespace which means "no namespace".
+     * If you specify a root element name, but pass null as the namespace, then
+     * it will search for a unique element with your root element name, and
+     * if that is unambiguous, it will use it as the root.
      */
-    def setDistinguishedRootNode(name: String, namespace: String = "")
+    def setDistinguishedRootNode(name: String, namespace: String)
     def setExternalDFDLVariable(name: String, namespace: String, value: String)
     def setDebugging(flag: Boolean)
 
@@ -70,7 +86,7 @@ object DFDL {
      * to see if compilation was successful or not.
      */
     def compile(schema: Node): ProcessorFactory
-    def compile(schemaFileName: String): ProcessorFactory
+    def compile(schemaFileNames: String*): ProcessorFactory
 
     def reload(fileName: String): ProcessorFactory
   }
@@ -79,6 +95,25 @@ object DFDL {
    * The point of processor factory is to allow compilation of the path expression.
    */
   trait ProcessorFactory extends WithDiagnostics {
+
+    /**
+     * If you didn't set a root on the compiler, then get another
+     * chance to specify one here.
+     * <p>
+     * If you don't set a root at all it uses the first element in the
+     * first schema document as the root.
+     * <p>
+     * If you don't specify a namespace, or pass null, then it searches, and if
+     * it is unambiguous, it will use the unique global element with
+     * that name.
+     * <p>
+     * Note: null used specifically here not an Option type, because this API
+     * will shine through to a Java API.
+     * <p>
+     * To explicitly specify that there is no-namespace, pass "" as
+     * the namespace argument.
+     */
+    def setDistinguishedRootNode(name: String, namespace: String = null)
     def onPath(xpath: String): DataProcessor
   }
 

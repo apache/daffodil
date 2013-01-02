@@ -33,17 +33,28 @@ object Misc {
    *
    * resourcePath argument is relative to the classpath root.
    */
+
+  def getResourceOption(resourcePath: String): (Option[URL], String) = {
+    // more time is wasted by people forgetting that the initial "/" is needed
+    // to get classpath relative behavior... Let's make sure there is a leading "/"
+    val resPath = if (resourcePath.startsWith("/")) resourcePath else "/" + resourcePath
+    var res = this.getClass.getResource(resPath)
+    if (res == null) (None, resPath)
+    else (Some(res), resPath)
+  }
+
   def getRequiredResource(resourcePath: String): URL = {
-    var res = this.getClass.getResource(resourcePath)
-    if (res == null) {
-      val props = System.getProperties()
-      val cp = props.getProperty("java.class.path", null)
-      val cpLines = cp.replaceAll(":", "\n")
-      val msg = "Required resource " + resourcePath + " was not found.\nClasspath is: " + cpLines
-      System.err.println(msg)
-      throw new Exception(msg)
+    getResourceOption(resourcePath) match {
+      case (None, resPath) => {
+        val props = System.getProperties()
+        val cp = props.getProperty("java.class.path", null)
+        val cpLines = cp.replaceAll(":", "\n")
+        val msg = "Required resource " + resPath + " was not found.\nClasspath is: " + cpLines
+        System.err.println(msg)
+        throw new Exception(msg)
+      }
+      case (Some(res), _) => res
     }
-    res
   }
 
   def initialUpperCase(s: String): String = s.head.toUpper + s.substring(1)

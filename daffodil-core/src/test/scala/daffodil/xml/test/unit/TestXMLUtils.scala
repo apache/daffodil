@@ -6,7 +6,7 @@ import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
 
-class TextXMLUtils extends JUnitSuite {
+class TestXMLUtils extends JUnitSuite {
 
   @Test def testDiff0() {
     val d1 = new Text("a")

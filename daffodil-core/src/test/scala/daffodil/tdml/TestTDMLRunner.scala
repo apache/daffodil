@@ -10,9 +10,9 @@ import org.scalatest.junit.JUnitSuite
 import daffodil.Implicits.using
 import daffodil.compiler.Compiler
 import daffodil.xml.XMLUtils
-import daffodil.util.Validator
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
+import junit.framework.Assert.assertFalse
 import daffodil.util._
 import org.junit.Test
 import daffodil.debugger.Debugger
@@ -112,7 +112,7 @@ class TestTDMLRunner extends JUnitSuite {
                 </parserTestCase>
               </testSuite>
 
-    lazy val ts = new DFDLTestSuite(xml)
+    val ts = new DFDLTestSuite(xml)
     val ptc = ts.parserTestCases(0)
     assertEquals("test1", ptc.name)
     assertEquals("byte1", ptc.root)
@@ -177,7 +177,7 @@ class TestTDMLRunner extends JUnitSuite {
                         </ts:infoset>
                       </ts:parserTestCase>
                     </ts:testSuite>
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testTDMLParseSuccess", Some(testSchema))
   }
 
@@ -400,13 +400,12 @@ class TestTDMLRunner extends JUnitSuite {
 
   @Test def testEmbeddedSchemaValidates() {
     val testSuite = tdmlWithEmbeddedSchemaInvalid
-    val exc = intercept[Exception] {
-      lazy val ts = new DFDLTestSuite(testSuite)
-      ts.isTDMLFileValid
-    }
-    val msg = exc.getMessage
-    // println(msg)
-    assertTrue(msg.contains("notAllowed"))
+    lazy val ts = new DFDLTestSuite(testSuite)
+    assertFalse(ts.isTDMLFileValid)
+    val msgs = ts.getLoadingDiagnosticMessages()
+    val hasMsg = msgs.contains("notAllowed")
+    println("messages = '" + msgs + "'")
+    assertTrue(hasMsg)
   }
 
   @Test def testRunTDMLSelfContainedFile() {
@@ -433,13 +432,11 @@ class TestTDMLRunner extends JUnitSuite {
         fw =>
           fw.write(testSuite.toString())
       }
-      val exc = intercept[Exception] {
-        lazy val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
-        ts.isTDMLFileValid
-      }
-      val msg = exc.getMessage
-      // println(msg)
-      assertTrue(msg.contains("notAllowed"))
+
+      lazy val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+      assertFalse(ts.isTDMLFileValid)
+      val msgs = ts.getLoadingDiagnosticMessages()
+      assertTrue(msgs.contains("notAllowed"))
 
     } finally {
       val t = new java.io.File(tmpTDMLFileName)

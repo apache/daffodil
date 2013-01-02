@@ -31,7 +31,7 @@ import java.nio.CharBuffer
 import java.io.InputStream
 import daffodil.processors.GeneralParseFailure
 import daffodil.dsom.EntityReplacer
-import daffodil.xml.XMLLoaderWithLocator
+import daffodil.xml.DaffodilXMLLoader
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -49,35 +49,82 @@ import daffodil.xml.XMLLoaderWithLocator
  * Keep this independent of Daffodil, so that it can be used to run tests against other DFDL implementations as well.
  * E.g., it should only need an API specified as a collection of Scala traits, and some simple way to inject
  * dependency on one factory to create processors.
+ *
+ *
+ * Use the validateTDMLFile arg to bypass validation of the TDML document itself.
+ *
+ * This is used for testing whether one can detect validation errors
+ * in the DFDL schema.
+ *
+ * Without this, you can't get to the validation errors, because it
+ * rejects the TDML file itself.
  */
 
-class DFDLTestSuite(val ts: Node, tdmlFile: File, tsInputSource: InputSource)
+class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
   extends Logging {
+
+  val errorHandler = new org.xml.sax.ErrorHandler {
+    def warning(exception: SAXParseException) = {
+      loadingExceptions == exception +: loadingExceptions
+      System.err.println("TDMLRunner Warning: " + exception.getMessage())
+    }
+
+    def error(exception: SAXParseException) = {
+      loadingExceptions = exception :: loadingExceptions
+      System.err.println("TDMLRunner Error: " + exception.getMessage())
+      isLoadingError = true
+    }
+    def fatalError(exception: SAXParseException) = {
+      loadingExceptions == exception +: loadingExceptions
+      System.err.println("TDMLRunner Fatal Error: " + exception.getMessage())
+      isLoadingError = true
+    }
+  }
+
+  var isLoadingError: Boolean = false
+
+  var loadingExceptions: List[Exception] = Nil
+
+  def getLoadingDiagnosticMessages() = {
+    val msgs = loadingExceptions.map { _.toString() }.mkString(" ")
+    msgs
+  }
+
+  /**
+   * our loader here accumulates load-time errors here on the
+   * test suite object.
+   */
+  val loader = new DaffodilXMLLoader(errorHandler)
+  loader.setValidation(validateTDMLFile)
+
+  val (ts, tdmlFile, tsInputSource) = {
+    val tuple = aNodeFileOrURL match {
+      case tsNode: Node => {
+        val tempFileName = XMLUtils.convertNodeToTempFile(tsNode)
+        val newNode = loader.loadFile(tempFileName)
+        val tempFile = new File(tempFileName)
+        (newNode, null, new InputSource(tempFile.toURI().toASCIIString()))
+      }
+      case tdmlFile: File => {
+        log(Debug("loading TDML file: %s", tdmlFile))
+        val res = (loader.loadFile(tdmlFile), tdmlFile, new InputSource(tdmlFile.toURI().toASCIIString()))
+        log(Debug("done loading TDML file: %s", tdmlFile))
+        res
+      }
+      case tsURL: URL => {
+        val res = (loader.load(tsURL), null, new InputSource(tsURL.toURI().toASCIIString()))
+        res
+      }
+      case _ => Assert.usageError("not a Node, File, or URL")
+    }
+    tuple
+  }
+
+  lazy val isTDMLFileValid = !this.isLoadingError
 
   var checkAllTopLevel: Boolean = false
   def setCheckAllTopLevel(flag: Boolean) {
     checkAllTopLevel = flag
-  }
-
-  def this(tdmlFile: File) = this(XMLLoaderWithLocator.loadFile(tdmlFile), tdmlFile, new InputSource(tdmlFile.toURI().toASCIIString()))
-  def this(tsNode: Node) = this(tsNode, null, new InputSource(new StringReader(tsNode.toString)))
-  def this(tsURL: URL) = this(XMLLoaderWithLocator.load(tsURL), null, new InputSource(tsURL.toURI().toASCIIString()))
-
-  //
-  // we immediately validate the incoming test suite document
-  // against its schema. We're depending on Validator to find all the 
-  // included schemas such as that for embedded defineSchema named schema nodes.
-  // 
-  val tdmlXSDResourcePath = "/xsd/tdml.xsd"
-
-  val tdmlSchemaResource = Misc.getRequiredResource(tdmlXSDResourcePath)
-
-  lazy val isTDMLFileValid = {
-    val validatedXML = Validator.validateXML(
-      new StreamSource(tdmlSchemaResource.toURI().toASCIIString()),
-      tsInputSource)
-    val status = validatedXML != null
-    status
   }
 
   val parserTestCases = (ts \ "parserTestCase").map { node => ParserTestCase(node, this) }
@@ -110,29 +157,18 @@ class DFDLTestSuite(val ts: Node, tdmlFile: File, tsInputSource: InputSource)
   }
 
   def runOneTest(testName: String, schema: Option[Node] = None) {
-    if (isTDMLFileValid)
-      runOneTestNoTDMLValidation(testName, schema)
-    else {
-      log(Error("TDML file %s is not valid.", tsInputSource.getSystemId))
-    }
-  }
-
-  /**
-   * Use to bypass validation of the TDML document itself.
-   *
-   * This is used for testing whether one can detect validation errors
-   * in the DFDL schema.
-   *
-   * Without this, you can't get to the validation errors, because it
-   * rejects the TDML file itself.
-   */
-  def runOneTestNoTDMLValidation(testName: String, schema: Option[Node] = None) {
-    val testCase = testCases.find(_.name == testName)
-    testCase match {
-      case None => throw new Exception("test " + testName + " was not found.")
-      case Some(tc) => {
-        tc.run(schema)
+    if (isTDMLFileValid) {
+      val testCase = testCases.find(_.name == testName)
+      testCase match {
+        case None => throw new Exception("test " + testName + " was not found.")
+        case Some(tc) => {
+          tc.run(schema)
+        }
       }
+    } else {
+      log(Error("TDML file %s is not valid.", tsInputSource.getSystemId))
+      val msgs = this.loadingExceptions.map { _.toString }.mkString(" ")
+      throw new Exception(msgs)
     }
   }
 
@@ -176,7 +212,10 @@ class DFDLTestSuite(val ts: Node, tdmlFile: File, tsInputSource: InputSource)
       case Some(defschema) => defschema.xsdSchema
       case None => {
         val file = findModelFile(modelName)
-        val schema = XMLLoaderWithLocator.loadFile(file)
+        val schema = {
+          val res = (new DaffodilXMLLoader(errorHandler)).loadFile(file)
+          res
+        }
         schema
       }
     }
@@ -245,7 +284,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
       }
     }
     val compiler = Compiler()
-    compiler.setDistinguishedRootNode(root)
+    compiler.setDistinguishedRootNode(root, null)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
     val pf = compiler.compile(sch)
     val data = document.map { _.data }
@@ -318,11 +357,11 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     // Would be great to validate the actuals against the DFDL schema, used as
     // an XML schema on the returned infoset XML.
     // Getting this to work is a bigger issue. What with stripping of attributes
+    // and that our internal Daffodil XML Catalog has a special treatment of the
+    // mapping of the XML Schema URI.
     // etc.
     // 
     // TODO: Fix so we can validate here.
-    //
-    // assert(Validator.validateXMLNodes(sch, actualNoAttrs) != null)
     //
 
     // Something about the way XML is constructed is different between our jdom-converted 
@@ -397,16 +436,14 @@ Differences were (path, expected, actual):
                             infoset: Infoset,
                             warnings: Option[ExpectedWarnings]) {
 
+    val isError = pf.isError
+    val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
     if (pf.isError) {
-      val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(diags)
     } else {
       val processor = pf.onPath("/")
-      val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
       if (processor.isError) {
         throw new Exception(diags)
-      } else if (diags.length > 0) {
-        System.err.println(diags)
       }
       val actual = processor.parse(dataToParse, lengthLimitInBits)
 
@@ -836,7 +873,6 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
     // TODO: Fix so we can validate these expected results against
     // the DFDL schema used as a XSD for the expected infoset XML.
     //
-    // assert(Validator.validateXMLNodes(schemaNode, expectedNoAttrs) != null)
     expectedNoAttrs
   }
 }

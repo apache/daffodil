@@ -14,33 +14,78 @@ import daffodil.dsom.SchemaSet
 import daffodil.processors.DataProcessor
 import daffodil.api.DFDL
 import daffodil.debugger.Debugger
-import daffodil.xml.XMLLoaderWithLocator
+import daffodil.xml.DaffodilXMLLoader
+import daffodil.xml.XMLUtils
+import java.io.File
 
-class ProcessorFactory(sset: SchemaSet, rootElem: GlobalElementDecl)
-  extends DiagnosticsProviding // (sset)
-  with DFDL.ProcessorFactory {
-
-  lazy val prettyName = "ProcessorFactory"
-  lazy val path = prettyName
-  lazy val diagnosticChildren = List(sset)
-  // println("Creating Processor Factory")
-
-  def onPath(xpath: String): DFDL.DataProcessor = {
-    Assert.invariant(canProceed)
-    Assert.notYetImplemented(xpath != "/")
-    lazy val dp = new DataProcessor(this, rootElem)
-    dp
+/**
+ * Contains a specification of the root element to be used.
+ * <p>
+ * The whole RootSpec is generally optional, but if you have one,
+ * the namespace part of it is optional as well.
+ * <p>
+ * When the namespace part is None, it means "you, daffodil, figure out the namespace".
+ * Which it will do so long as it is unambiguous.
+ */
+case class RootSpec(ns: Option[String], name: String) {
+  override def toString() = {
+    val nsStr = ns.getOrElse("")
+    "{" + nsStr + "}" + name
   }
 }
 
-class Compiler extends DFDL.Compiler with Logging {
-  var root: String = ""
-  var rootNamespace: String = ""
+class ProcessorFactory(sset: SchemaSet)
+  extends DiagnosticsProviding // (sset)
+  with DFDL.ProcessorFactory
+  with HavingRootSpec {
 
-  def setDistinguishedRootNode(name: String, namespace: String = ""): Unit = {
-    root = name
-    rootNamespace = namespace
+  lazy val prettyName = "ProcessorFactory"
+  lazy val path = prettyName
+
+  // println("Creating Processor Factory")
+  lazy val rootElem = sset.rootElement(rootSpec)
+
+  lazy val diagnosticChildren = List(sset, rootElem)
+
+  def onPath(xpath: String): DFDL.DataProcessor = {
+    Assert.usage(canProceed)
+    Assert.notYetImplemented(xpath != "/")
+    val dataProc = new DataProcessor(this, rootElem)
+    if (dataProc.isError) {
+      val diags = dataProc.getDiagnostics
+      log(Error("Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length))
+      diags.foreach { diag => log(daffodil.util.Error(diag.toString())) }
+    } else {
+      log(Compile("Parser = %s.", dataProc.parser.toString))
+      log(Compile("Unparser = %s.", dataProc.unparser.toString))
+      log(Compile("Compilation (DataProcesor) completed with no errors."))
+    }
+    dataProc
   }
+
+}
+
+/**
+ * Both Compiler and ProcessorFactory share this same API call.
+ */
+trait HavingRootSpec {
+  var rootSpec: Option[RootSpec] = None
+
+  def setDistinguishedRootNode(name: String, namespace: String): Unit = {
+
+    val ns =
+      if (namespace != null) Some(namespace)
+      else None
+    rootSpec = Some(RootSpec(ns, name))
+    //
+    // null means we search for the namespace
+    // Must be only one answer.
+    //
+
+  }
+}
+
+class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
 
   def setExternalDFDLVariable(name: String, namespace: String, value: String): Unit = {
     Assert.notYetImplemented()
@@ -67,74 +112,77 @@ class Compiler extends DFDL.Compiler with Logging {
    * for unit testing of front end
    */
   def frontEnd(xml: Node): (SchemaSet, GlobalElementDecl) = {
-    val elts = (xml \ "element")
-    Assert.usage(elts.length != 0, "No top level element declarations found.")
-
-    if (root == "") {
-      Assert.invariant(rootNamespace == "")
-      // TODO: when we generalize to multiple files, this won't work any more
-      val eltLabels = (xml \ "element").map { eNode => (eNode \ "@name").text }
-      Assert.usage(eltLabels.length > 0)
-      root = eltLabels(0)
-    }
-
-    if (rootNamespace == "") {
-      rootNamespace = (xml \ "@targetNamespace").text
-    }
-
-    val sset = if (checkAllTopLevel) {
-      new SchemaSet(List(xml))
-    } else {
-      new SchemaSet(List(xml), rootNamespace, root)
-    }
-    val maybeRoot = sset.getGlobalElementDecl(rootNamespace, root)
-    val res = maybeRoot match {
-      case None => Assert.usageError("The document element named " + root + " was not found.")
-      case Some(rootElemFactory) => {
-        val rootElem = rootElemFactory.forRoot()
-        (sset, rootElem)
-      }
-    }
-    res
+    val (sset, pf) = compileInternal(xml)
+    val ge = pf.rootElem
+    (sset, ge)
   }
 
   def reload(fileNameOfSavedParser: String) = {
     Assert.notYetImplemented()
-    //      val sp = daffodil.parser.SchemaParser.readParser(fileNameOfSavedParser)
-    //      backEnd(sp, Assert.notYetImplemented())
   }
 
-  def compile(schemaFileName: String): DFDL.ProcessorFactory = {
-    val schemaNode = XMLLoaderWithLocator.loadFile(schemaFileName)
-    compile(schemaNode)
-  }
-
-  def compile(xml: Node): DFDL.ProcessorFactory = {
-    val (sset, rootElem) = frontEnd(xml) // includes middle "end" too.
-    log(Compile("Compiling %s", rootElem))
-    lazy val pf = new ProcessorFactory(sset, rootElem)
+  /**
+   * Compilation works entirely off of schema files because that allows XMLCatalogs
+   * to work for Xerces without (much) pain.
+   * <p>
+   * This method exposes both the schema set and processor factory as results because
+   * our tests often want to do things on the schema set.
+   */
+  def compileInternal(schemaFileNames: Seq[String]): (SchemaSet, ProcessorFactory) = {
+    Assert.usage(schemaFileNames.length >= 1)
+    val sset = new SchemaSet(schemaFileNames, rootSpec, checkAllTopLevel)
+    val pf = new ProcessorFactory(sset)
+    val rootElem = pf.rootElem
+    val isError = pf.isError // isError causes diagnostics to be created.
+    val diags = pf.getDiagnostics
+    def printDiags() = diags.foreach { diag => log(daffodil.util.Error(diag.toString())) }
     if (pf.isError) {
-      val diags = pf.getDiagnostics
       Assert.invariant(diags.length > 0)
-      log(Compile("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
-      diags.foreach { diag => log(daffodil.util.Error(diag.toString())) }
+      log(Error("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
+      printDiags()
     } else {
-      log(Compile("ProcessorFactory completed with no errors."))
-      val dataProc = pf.onPath("/").asInstanceOf[DataProcessor]
-      if (dataProc.isError) {
-        val diags = dataProc.getDiagnostics
-        log(Error("Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length))
-        diags.foreach { diag => log(daffodil.util.Error(diag.toString())) }
+      if (diags.length > 0) {
+        System.err.println("Compilation (ProcessorFactory) produced %d warnings: " + diags.length)
+        printDiags()
       } else {
-        log(Compile("Parser = %s.", dataProc.parser.toString))
-        log(Compile("Unparser = %s.", dataProc.unparser.toString))
-        log(Compile("Compilation completed with no errors."))
+        log(Compile("ProcessorFactory completed with no errors."))
       }
     }
-    pf
+    (sset, pf)
   }
+
+  /**
+   * Just hides the schema set, and returns the processor factory only.
+   */
+  def compile(fNames: String*): DFDL.ProcessorFactory = compileInternal(fNames)._2
+
+  /**
+   * For convenient unit testing allow a literal XML node.
+   */
+  def compile(xml: Node) = {
+    compileInternal(xml)._2
+  }
+
+  def compileInternal(xml: Node): (SchemaSet, ProcessorFactory) = {
+    val tempSchemaFile = daffodil.xml.XMLUtils.convertNodeToTempFile(xml)
+    compileInternal(List(tempSchemaFile))
+  }
+
 }
 
+/**
+ * Factory for Compiler instances
+ * <p>
+ * Size and length limit constants used by the code, some of which will be tunable
+ * by the user. Turning them to lower sizes/lengths may improve performance and
+ * diagnostic behavior when a format does not need their full range,
+ * both by reducing memory footprint, but
+ * also by reducing the amount of time taken to scan to the end of what is allowed
+ * and fail (and backtrack to try something else) when, for an example, a delimiter
+ * is missing from the data.
+ * <p>
+ * Also has many convenience methods for common test scenarios.
+ */
 object Compiler {
 
   //TODO: make tunable via setter call of compiler
@@ -146,76 +194,68 @@ object Compiler {
 
   def apply() = new Compiler()
 
-  def stringToReadableByteChannel(s: String) = {
+  def stringToReadableByteChannel(s: String): DFDL.Input = {
     val bytes = s.getBytes("utf-8") // never use default charset. NEVER.
     byteArrayToReadableByteChannel(bytes)
   }
 
-  def stringToWritableByteChannel(s: String) = {
+  def stringToWritableByteChannel(s: String): DFDL.Output = {
     val size = s.length() // TODO: get byte count by encoding
     byteArrayToWritableByteChannel(size)
   }
 
-  def byteArrayToReadableByteChannel(bytes: Array[Byte]) = {
+  def byteArrayToReadableByteChannel(bytes: Array[Byte]): DFDL.Input = {
     val inputStream = new ByteArrayInputStream(bytes);
     val rbc = java.nio.channels.Channels.newChannel(inputStream);
     rbc
   }
 
-  def byteArrayToWritableByteChannel(size: Int) = {
+  def byteArrayToWritableByteChannel(size: Int): DFDL.Output = {
     val outputStream = new ByteArrayOutputStream(size);
     val wbc = java.nio.channels.Channels.newChannel(outputStream);
     wbc
   }
 
-  def fileToReadableByteChannel(file: java.io.File) = {
+  def fileToReadableByteChannel(file: java.io.File): DFDL.Input = {
     val inputStream = new java.io.FileInputStream(file)
     val rbc = java.nio.channels.Channels.newChannel(inputStream);
     rbc
   }
 
-  def testString(testSchema: Node, data: String) = {
+  def runSchemaOnData(testSchema: Node, data: DFDL.Input) = {
     val compiler = Compiler()
     val pf = compiler.compile(testSchema)
-    if (pf.isError) {
-      val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+    val isError = pf.isError
+    val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+    if (isError) {
       throw new Exception(msgs)
     }
     val p = pf.onPath("/")
-    if (p.isError) {
-      val msgs = p.getDiagnostics.map(_.getMessage).mkString("\n")
+    val pIsError = p.isError
+    if (pIsError) {
       throw new Exception(msgs)
     }
-    val d = Compiler.stringToReadableByteChannel(data)
+    val d = data
     val actual = p.parse(d)
     if (actual.isError) {
       val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
     }
     actual
+  }
+
+  def testString(testSchema: Node, data: String) = {
+    runSchemaOnData(testSchema, Compiler.stringToReadableByteChannel(data))
   }
 
   def testBinary(testSchema: Node, hexData: String) = {
-    val compiler = Compiler()
-    val pf = compiler.compile(testSchema)
-    val p = pf.onPath("/")
     val b = hex2Bytes(hexData)
     val rbc = byteArrayToReadableByteChannel(b)
-    val actual = p.parse(rbc)
-    if (actual.isError) {
-      val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new Exception(msgs)
-    }
-    actual
+    runSchemaOnData(testSchema, rbc)
   }
 
   def testFile(testSchema: Node, fileName: String) = {
-    val compiler = Compiler()
-    val pf = compiler.compile(testSchema)
-    val p = pf.onPath("/")
-    val d = Compiler.fileToReadableByteChannel(new java.io.File(fileName))
-    val actual = p.parse(d)
-    actual
+    runSchemaOnData(testSchema, Compiler.fileToReadableByteChannel(new java.io.File(fileName)))
   }
 
   def testUnparsing(testSchema: scala.xml.Elem, infoset: Node, unparseTo: String) {

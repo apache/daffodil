@@ -174,7 +174,7 @@ class TestCompiledExpression extends JUnitSuite {
     val doc = new org.jdom.Document(r) // root must have a document node
     val root = doc.getRootElement()
     val child2 = root.getChild("e2")
-    val R(result, _) = parser.expr.evaluate(new InfosetElement(child2), new VariableMap(), dummyState)
+    val R(result, _) = ivcPrim.expr.evaluate(new InfosetElement(child2), new VariableMap(), dummyState)
 
     assertEquals("42", result)
 

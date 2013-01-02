@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-  targetNamespace="http://www.example.org/example1/" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <annotation>

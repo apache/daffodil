@@ -1,22 +1,16 @@
 package daffodil.dsom
 
-import daffodil.xml.XMLUtils
-import daffodil.util._
-import scala.xml._
-import daffodil.compiler._
-import org.scalatest.junit.JUnitSuite
-import daffodil.schema.annotation.props.gen._
-import daffodil.schema.annotation.props._
-import daffodil.util.Misc
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
-import java.io.FileOutputStream
-import java.nio.channels.WritableByteChannel
-import java.io.FileWriter
 import java.io.File
-import java.nio.ByteBuffer
+import scala.xml.{ XML, Utility, Node }
 import org.junit.Test
-import daffodil.debugger.Debugger
+import org.scalatest.junit.JUnitSuite
+import daffodil.compiler._
+import daffodil.dsom._
+import daffodil.schema.annotation.props.gen.{ YesNo, TextNumberRep, SeparatorPosition, Representation, OccursCountKind, NilKind, LengthKind, ChoiceLengthKind, ByteOrder, BinaryNumberRep, AlignmentUnits }
+import daffodil.schema.annotation.props.AlignmentType
+import daffodil.util.{ TestUtils, Misc, Logging }
+import daffodil.xml.XMLUtils
+import junit.framework.Assert.{ assertTrue, assertEquals, assertFalse, fail }
 
 class TestDsomCompiler extends JUnitSuite with Logging {
 
@@ -25,7 +19,13 @@ class TestDsomCompiler extends JUnitSuite with Logging {
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
-  val dummyGroupRef = Fakes.fakeGroupRef
+  // The below is lazy for a reason.
+  // It defers evaluation until used. This is nice because suppose there is a bug
+  // in the Fakes stuff. Then you want tests that use that to fail. But lots of 
+  // these tests don't use this. If you make this an eager val, then if there
+  // is any problem in the Fakes, the whole class can't be constructed, and None
+  // of the tests will run. Lazy lets this class be constructed no matter what.
+  lazy val dummyGroupRef = Fakes.fakeGroupRef
 
   def FindValue(collection: Map[String, String], key: String, value: String): Boolean = {
     val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
@@ -86,9 +86,9 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val sch: Node = TestUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="list" type="typeDoesNotExist"/>)
-    val (sset, _) = Compiler().frontEnd(sch)
-    assertTrue(sset.isError)
-    val msg = sset.getDiagnostics.toString
+    val (_, pf) = Compiler().compileInternal(sch)
+    assertTrue(pf.isError)
+    val msg = pf.getDiagnostics.toString
     val hasErrorText = msg.contains("typeDoesNotExist");
     if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
   }

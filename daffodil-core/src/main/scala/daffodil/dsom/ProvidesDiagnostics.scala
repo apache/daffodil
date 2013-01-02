@@ -5,7 +5,6 @@ import scala.xml.Node
 import scala.xml.XML
 import daffodil.api.DFDL
 import daffodil.exceptions._
-import daffodil.util.Validator
 import daffodil.xml.XMLUtils
 import daffodil.grammar._
 import daffodil.processors._
@@ -184,7 +183,15 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
         }
       }
     }
-    val res = bools.exists { x => x }
+    val childrenRes = bools.exists { x => x }
+    // 
+    // Don't forget to check the local diagnostic objects. It's not just about the 
+    // children objects. The object itself might have accumulated the errors.
+    //
+    val localRes =
+      this.localDiagnostics.length > 0 &&
+        this.localDiagnostics.exists { _.isError }
+    val res = childrenRes || localRes
     if (res == true) {
       log(Compile("object %s had an error: %s", this, this.getDiagnostics))
 

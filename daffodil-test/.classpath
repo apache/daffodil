@@ -61,5 +61,6 @@
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/daffodil-core"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="testData_OnClassPath"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -17,12 +17,15 @@ import daffodil.processors.VariableMap
 import daffodil.util.Compile
 import daffodil.processors.charset.USASCII7BitPackedCharset
 import daffodil.processors.charset.CharsetUtils
+import daffodil.compiler.RootSpec
 
 class SchemaDefinitionError(schemaContext: Option[SchemaComponent],
                             annotationContext: Option[DFDLAnnotation],
                             kind: String,
                             args: Any*)
   extends SchemaDefinitionDiagnosticBase(schemaContext, annotationContext, kind, args: _*) {
+
+  def this(sc: SchemaComponent, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
   val isError = true
   val diagnosticKind = "Error"
 }
@@ -32,6 +35,9 @@ class SchemaDefinitionWarning(schemaContext: Option[SchemaComponent],
                               kind: String,
                               args: Any*)
   extends SchemaDefinitionDiagnosticBase(schemaContext, annotationContext, kind, args: _*) {
+
+  def this(sc: SchemaComponent, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
+
   val isError = false
   val diagnosticKind = "Warning"
 }
@@ -87,6 +93,7 @@ abstract class SchemaComponent(val xml: Node)
   with SchemaLocation
   with ThrowsSDE
   with SchemaFileLocatable {
+
   def schemaDocument: SchemaDocument
   lazy val schema: Schema = schemaDocument.schema
   lazy val targetNamespace = schema.targetNamespace
@@ -503,79 +510,199 @@ trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedMixin =>
 }
 
 /**
- * A schema set is exactly that, a set of schemas. Each schema has
- * a target namespace, so a schema set is conceptually a mapping from
- * namespace URI onto schema.
+ * SAX style parsing calls your error handler when any error occurs.
  *
- * Constructing these from a list of schema Nodes is a unit-test
- * interface.
- *
- * schemaNodeList is a list of scala xml Node, each expected to be an <xs:schema...>
- * node. These may have include/import statements in them, and the schemas
- * being included/imported don't have to be within the list.
- *
+ * This just uses the passed in schema component to accumulate
+ * the errors.
  */
-class SchemaSet(val schemaNodeList: Seq[Node], rootNamespace: String = null, root: String = null)
-  extends DiagnosticsProviding {
-  // TODO Constructor(s) or companion-object methods to create a SchemaSet from files.
+class SchemaSetErrorHandler(err: SchemaSet) extends org.xml.sax.ErrorHandler {
+
+  def warning(exception: SAXParseException) = {
+    val sdw = new SchemaDefinitionWarning(err, "Warning loading schema", exception)
+    err.addDiagnostic(sdw)
+  }
+
+  def error(exception: SAXParseException) = {
+    val sde = new SchemaDefinitionError(err, "Error loading schema", exception)
+    System.err.println(sde.getMessage())
+    err.addDiagnostic(sde)
+  }
+
+  def fatalError(exception: SAXParseException) = {
+    val sde = new SchemaDefinitionError(err, "Fatal error loading schema", exception)
+    err.addDiagnostic(sde)
+  }
+}
+
+/**
+ * A schema set is exactly that, a set of schemas. Each schema has
+ * a target namespace (or 'no namespace'), so a schema set is
+ * conceptually a mapping from a namespace URI (or empty string, meaning no
+ * namespace) onto schema.
+ * <p>
+ * Constructing these from XML Nodes is a unit-test
+ * interface. The real constructor takes a sequence of file names,
+ * and you can optionally specify a root element via the rootSpec argument.
+ * <p>
+ * A schema set is a SchemaComponent (derived from that base), so as to inherit
+ * the error/warning accumulation behavior that all SchemaComponents share.
+ * A schema set invokes our XML Loader, which can produce validation errors, and
+ * those have to be gathered so we can give the user back a group of them, not
+ * just one.
+ * <p>
+ * Schema set is however, a kind of a fake SchemaComponent in that it
+ * doesn't correspond to any user-specified schema object. And unlike other
+ * schema components obviously it does not live within a schema document.
+ */
+class SchemaSet(
+  schemaFileNames: Seq[String],
+  rootSpec: Option[RootSpec] = None,
+  val checkAllTopLevel: Boolean = false)
+  extends SchemaComponent(<schemaSet/>) { // fake schema component
+
+  // These things are needed to satisfy the contract of being a schema component.
+  lazy val enclosingComponent = None
+  lazy val schemaDocument = Assert.usageError("schemaDocument should not be called on SchemaSet")
+  override lazy val fileName = None
+  /**
+   * This constructor for unit testing only
+   */
+  def this(sch: Node, rootNamespace: String = null, root: String = null) =
+    this({
+      val file = XMLUtils.convertNodeToTempFile(sch)
+      val files = List(file)
+      files
+    },
+      if (root == null) None else {
+        if (rootNamespace == null) Some(RootSpec(None, root))
+        else Some(RootSpec(Some(rootNamespace), root))
+      },
+      false)
+
+  //
+  // construct our XML loader, giving it an error handler that will
+  // turn SAX load-time validation error events into gather those on 
+  // our diagnostics lists.
+  //
+  lazy val loader = new DaffodilXMLLoader(new SchemaSetErrorHandler(this))
+  lazy val schemaNodeList = {
+    val nl = schemaFileNames.map { fn =>
+      {
+        val node = loader.loadFile(fn)
+        node
+      }
+    }
+    nl
+  }
 
   lazy val prettyName = "SchemaSet"
-  lazy val path = prettyName
 
-  lazy val schemaPairs = schemaNodeList.map { s =>
-    {
-      val ns = (s \ "@targetNamespace").text
-      (ns, s)
-    }
-  }
-
-  lazy val onlyCheckingRoot: Boolean = rootNamespace != null
-
-  lazy val schemaGroups = schemaPairs.groupBy {
-    case (ns, s) => ns
-  }.toList
-
-  lazy val schemas = schemaGroups.map {
-    case (ns, pairs) => {
-      val sds = pairs.map(_._2) // Grabs second of 'pairs', list of schema Document
-      val res = new Schema(ns, sds, this)
-      res
-    }
-  }
-
-  /**
-   * We control how much checking for errors by supplying root element or not.
-   * If supplied, then only that is checked for errors.
-   * If not supplied, then everything in the schema set is checked.
-   */
-  lazy val rootElement = {
-    if (onlyCheckingRoot) {
-      val geFactory = getGlobalElementDecl(rootNamespace, root)
-      val ge = geFactory match {
-        case None => throw new SchemaDefinitionError(None, None, "No global element found for : " + (rootNamespace, root))
-        case Some(f) => f.forRoot()
+  lazy val schemas = {
+    val schemaPairs = schemaNodeList.map { s =>
+      {
+        val ns = (s \ "@targetNamespace")
+        (ns.text, s) // ns.text is "" if there is no targetNamespace attribute
       }
-      Some(ge)
-    } else None
+    }
+    val schemaGroups = schemaPairs.groupBy { _._1 } // group by the namespace identifier
+    val schemas = schemaGroups.map {
+      case (ns, pairs) => {
+        val sds = pairs.map { case (ns, s) => s }
+        val s = new Schema(ns, sds, this)
+        s
+      }
+    }
+    schemas.toSeq
   }
 
   /**
-   * In the case there is no root element, then we'll check all element decls,
-   * actually all global elements and other top-level constructs of each
-   * schema document.
-   *
-   * If a root element is specified, then we'll validate the schema documents,
-   * but we will only check the root element.
+   * When the user (of the API) doesn't specify a root element namespace, just a
+   * root element name, then this searches for a single element having that name, and if it is
+   * unambiguous, it is used as the root.
    */
+  def findRootElement(name: String) = {
+    val candidates = schemas.flatMap { _.getGlobalElementDecl(name) }
+    val res = if (candidates.length == 0) {
+      schemaDefinitionError("No root element found for %s in any available namespace", name)
+    } else if (candidates.length > 1) {
+      schemaDefinitionError("Root element %s is ambiguous. Candidates are %s.",
+        candidates.map { gef => gef.name + " in namespace: " + gef.schemaDocument.targetNamespace })
+    } else {
+      val gef = candidates(0)
+      val re = gef.forRoot()
+      re
+    }
+    res
+  }
+
+  /**
+   * Given a RootSpec, get the global element it specifies. Error if ambiguous
+   * or not found.
+   */
+  def getGlobalElement(rootSpec: RootSpec) = {
+    rootSpec match {
+      case RootSpec(Some(rootNamespaceName), rootElementName) => {
+        val geFactory = getGlobalElementDecl(rootNamespaceName, rootElementName)
+        val ge = geFactory match {
+          case None => schemaDefinitionError("No global element found for %s", rootSpec)
+          case Some(f) => f.forRoot()
+        }
+        ge
+      }
+      case RootSpec(None, rootElementName) => {
+        findRootElement(rootElementName)
+      }
+      case _ => Assert.impossible()
+    }
+  }
+
+  /**
+   * Since the root element can be specified by an API call on the
+   * Compiler class, or by an API call on the ProcessorFactory, this
+   * method reconciles the two. E.g., you can't specify the root both
+   * places, it's one or the other.
+   * <p>
+   * Also, if you don't specify a root element at all, this
+   * grabs the first element declaration of the first schema file
+   * to use as the root.
+   */
+  def rootElement(rootSpecFromProcessorFactory: Option[RootSpec]): GlobalElementDecl = {
+    val rootSpecFromCompiler = rootSpec
+    (rootSpecFromCompiler, rootSpecFromProcessorFactory) match {
+      case (Some(rs), None) =>
+        getGlobalElement(rs)
+
+      case (None, Some(rs)) =>
+        getGlobalElement(rs)
+
+      case (None, None) => {
+        // if the root element and rootNamespace aren't provided at all, then
+        // the first element of the first schema document is the root
+        val firstSchema = schemas(0)
+        val firstSchemaDocument = firstSchema.schemaDocuments(0)
+        val firstElement: GlobalElementDecl = {
+          firstSchemaDocument.globalElementDecls match {
+            case firstElement :: _ => firstElement.forRoot()
+            case _ => throw new SchemaDefinitionError(None, None, "No global elements in: " + firstSchemaDocument.fileName)
+          }
+        }
+        firstElement
+      }
+      case _ => Assert.invariantFailed("illegal combination of root element specifications")
+    }
+  }
+
   lazy val diagnosticChildren = {
-    schemas ++ rootElement.toList
+    if (checkAllTopLevel) schemas
+    else Nil
   }
 
   /**
    * Retrieve schema by namespace name.
+   *
+   * If the schema has no namespace, then use ""
    */
   def getSchema(namespace: String) = {
-    // TODO: what about when there is no namespace. Can we pass "" ??
     val schemaForNamespace = schemas.find { s => s.targetNamespace == namespace }
     schemaForNamespace
   }
@@ -694,23 +821,19 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
 
+  final val noNamespace = ""
+
+  override lazy val targetNamespace = {
+    val txt = (xml \ "@targetNamespace").text
+    if (txt == "") noNamespace
+    else txt
+  }
+
   override lazy val fileName = this.fileNameFromAttribute()
 
   lazy val enclosingComponent: Option[SchemaComponent] = None
 
   lazy val prettyName = "schemaDoc"
-
-  lazy val validatedXML = LV('validatedXML) {
-    try XMLSchemaUtils.validateDFDLSchema(xml)
-    catch {
-      case e: org.xml.sax.SAXParseException => {
-        SDE(e.toString())
-      }
-
-    }
-    // TODO: Consider this: Should each schema document call validate, or do we have to do them as a "batch", i.e.,
-    // will the above validate and revalidate shared files imported by each schema document in the set???
-  }
 
   lazy val localAndFormatRefProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
 
@@ -742,19 +865,19 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
 
   /*
    * Design note about factories for global elements, and recursive types.
-   * 
+   * <p>
    * The point of these factories is that every local site that uses a global def/decl
    * needs a copy so that the def/decl can have attributes which depend on the context
    * where it is used. That is, we can't share global defs/decls because the contexts change
    * their meaning.
-   * 
+   * <p>
    * This works as is, so long as the DFDL Schema doesn't have recursion in it. Recursion would create
    * an infinite tree of local sites and copies. (There's an issue: DFDL-80 in Jira about putting 
    * in the check to rule out recursion)
-   * 
+   * <p>
    * But recursion would be a very cool experimental feature, potentially useful for investigations
    * towards DFDL v2.0 in the future.
-   * 
+   * <p>
    * What's cool: if these factories are changed to memoize. That is, return the exact same global def/decl
    * object if they are called from the same local site, then recursion "just works". Nothing will diverge
    * creating infinite structures, but furthermore, the "contextual" information will be right. That 
@@ -763,7 +886,7 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
    * local site inside it, so that's a different local site, so it will get a copy of the global. But
    * that's where it ends because the next "unwind" of the recursion will be at this same local site, so
    * would be returned the exact same def/decl object.
-   * 
+   * <p>
    * Of course there are runtime/backend complexities also. Relative paths, variables with newVariableInstance
    * all of which can go arbitrarily deep in the recursive case. 
    */
@@ -794,11 +917,16 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
   }
 
   lazy val alwaysCheckedChildren =
-    List(validatedXML, defaultFormat)
+    List(defaultFormat)
 
+  /**
+   * Implements the selectivity so that if you specify a root element
+   * to the compiler, then only that root element (and things reached from it)
+   * is compiled. Otherwise all top level elements are compiled.
+   */
   lazy val diagnosticChildren = {
-    if (schema.schemaSet.onlyCheckingRoot) alwaysCheckedChildren // we'll still validate the schema, just not recurse into children.
-    else allGlobalDiagnosticChildren
+    if (schema.schemaSet.checkAllTopLevel) allGlobalDiagnosticChildren
+    else alwaysCheckedChildren
   }
 
   lazy val allGlobalDiagnosticChildren = {
@@ -807,13 +935,13 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
       defineEscapeSchemes ++
       defineFormats ++
       defineVariables
+    // Not these, because we'll pick these up when elements reference them.
+    // And we don't compile them independently of that (since they could be very
+    // incomplete and would lead to many errors for missing this or that.)
+    //    globalSimpleTypeDefs ++
+    //    globalComplexTypeDefs ++
+    //    globalGroupDefs ++
   }
-  // Not these, because we'll pick these up when elements reference them.
-  // And we don't compile them independently of that (since they could be very
-  // incomplete and would lead to many errors for missing this or that.)
-  //    globalSimpleTypeDefs ++
-  //    globalComplexTypeDefs ++
-  //    globalGroupDefs ++
 
   /**
    * by name getters for the global things that can be referenced.

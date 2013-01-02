@@ -14,16 +14,18 @@ import java.io.File
 class TestEscapeScheme extends JUnitSuite {
   val testDir = "/daffodil/section07/escapeScheme/"
   val tdml = testDir + "escapeScheme.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml),
+    validateTDMLFile = false)
 
-  @Test def test_escape_scheme() { runner.runOneTestNoTDMLValidation("escapeSchemeSimple") }
-  @Test def test_escapeSchemeFail() { runner.runOneTestNoTDMLValidation("escapeSchemeFail") }
-  @Test def test_escapeSchemeFail2() { runner.runOneTestNoTDMLValidation("escapeSchemeFail2") }
-  @Test def test_escapeSchemeFail3() { runner.runOneTestNoTDMLValidation("escapeSchemeFail3") }
+  @Test def test_escape_scheme() { runner.runOneTest("escapeSchemeSimple") }
+  @Test def test_escapeSchemeFail() { runner.runOneTest("escapeSchemeFail") }
+  @Test def test_escapeSchemeFail2() { runner.runOneTest("escapeSchemeFail2") }
+  @Test def test_escapeSchemeFail3() { runner.runOneTest("escapeSchemeFail3") }
 
   val tdmlNeg = testDir + "escapeSchemeNeg.tdml"
-  lazy val runnerNeg = new DFDLTestSuite(Misc.getRequiredResource(tdmlNeg))
+  lazy val runnerNeg = new DFDLTestSuite(Misc.getRequiredResource(tdmlNeg),
+    validateTDMLFile = false)
 
-  @Test def test_escapeSchemeNeg() { runnerNeg.runOneTestNoTDMLValidation("escapeSchemeNeg") }
+  @Test def test_escapeSchemeNeg() { runnerNeg.runOneTest("escapeSchemeNeg") }
 
 }

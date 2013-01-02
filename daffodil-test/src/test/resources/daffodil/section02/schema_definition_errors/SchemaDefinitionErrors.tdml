@@ -4,12 +4,12 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
 
-  <!-- ===================================================================== 
+  <!-- =====================================================================
     Schemas ======================================================================= -->
 
   <!--
     Schema name: upaFailure
-    Purpose: This schema does not adhere to the Unique Particule Attribution 
+    Purpose: This schema does not adhere to the Unique Particule Attribution
     schema constraint
   -->
 
@@ -22,11 +22,11 @@
         <xs:sequence>
           <xs:element name="row" minOccurs="10" maxOccurs="10">
             <xs:complexType>
-              <xs:sequence>
+              <xs:sequence dfdl:separator=","
+                dfdl:separatorPolicy="required" dfdl:separatorPosition="infix"
+                dfdl:terminator="%NL;">
                 <xs:element name="cell" type="xs:int"
-                  maxOccurs="unbounded" dfdl:terminator="%NL;"
-                  dfdl:separator="," dfdl:separatorPolicy="required"
-                  dfdl:encoding="ASCII" dfdl:separatorPosition="infix"
+                  maxOccurs="unbounded" dfdl:encoding="ASCII"
                   dfdl:representation="text" dfdl:lengthKind="delimited" />
               </xs:sequence>
             </xs:complexType>

@@ -10,7 +10,6 @@ import org.scalatest.junit.JUnitSuite
 import daffodil.Implicits.using
 import daffodil.compiler.Compiler
 import daffodil.xml.XMLUtils
-import daffodil.util.Validator
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import daffodil.util._

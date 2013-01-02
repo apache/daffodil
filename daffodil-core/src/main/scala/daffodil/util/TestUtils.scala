@@ -26,6 +26,9 @@ object TestUtils {
                 <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" alignment='1' alignmentUnits='bytes' textStandardBase='10' binaryFloatRep='ieee' binaryNumberRep='binary' byteOrder='bigEndian' calendarPatternKind='implicit' escapeSchemeRef='' documentFinalTerminatorCanBeMissing='no' ignoreCase='no' initiatedContent='no' leadingSkip='0' lengthKind='implicit' occursCountKind='parsed' separatorPolicy='suppressed' separatorPosition='infix' sequenceKind='ordered' textNumberRep='standard' textNumberCheckPolicy='strict' textStringJustification='left' trailingSkip='0' initiator="" terminator="" separator="" emptyValueDelimiterPolicy="both" utf16Width="fixed" textTrimKind="none"/>
               </dfdl:defineFormat>
 
+  /**
+   * Constructs a DFDL schema more conveniently than having to specify all those xmlns attributes.
+   */
   def dfdlTestSchema(topLevelAnnotations: Seq[Node], contentElements: Seq[Node], fileName: String = "") = {
     val fileAttrib = (if (fileName == "") Null else Attribute(XMLUtils.INT_PREFIX, "file", Text(fileName), Null))
     val realSchema = <xs:schema xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns={ targetNS } xmlns:tns={ targetNS } xmlns:dafint={ dafintURI } targetNamespace={ targetNS }>
@@ -35,9 +38,11 @@ object TestUtils {
                            { topLevelAnnotations }
                          </xs:appinfo>
                        </xs:annotation>
+                       <!-- No imports needed: XML Catalog gets them now.
                        <xsd:import namespace={ DFDLSubsetURI } schemaLocation="DFDLSubsetOfXMLSchema_v1_036.xsd"/>
                        <xsd:import namespace={ xsdURI } schemaLocation="XMLSchema.xsd"/>
-                       <xsd:import namespace={ dfdlURI } schemaLocation="DFDL_part3_model.xsd"/>
+                       <xsd:import namespace={ dfdlURI } schemaLocation="DFDL_part3_model.xsd"/> 
+                        -->
                        { contentElements }
                      </xs:schema> % fileAttrib
     //
@@ -49,6 +54,9 @@ object TestUtils {
     // forces reinterpretation of all the prefixes as new nodes are created. The 
     // enclosing nodes created above have the namespace definitions.
     // 
+    // TODO: Consider: we may not need to do this anymore, given that all schemas
+    // are placed into files (tmp files if they started out as Node objects)
+    //
     val realSchemaText = realSchema.toString()
     val real = XML.loadString(realSchemaText)
     real

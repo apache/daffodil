@@ -1911,7 +1911,7 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
     val charsetName = charset.name()
 
     def parse(start: PState): PState = {
-//            withLoggingLevel(LogLevel.Debug) 
+      //      withLoggingLevel(LogLevel.Debug) 
       {
 
         // TODO: What if someone passes in nBytes = 0 for Explicit length, is this legal?
@@ -2592,19 +2592,16 @@ abstract class AssertBase(
   msg: String,
   discrim: Boolean, // are we a discriminator or not.
   assertKindName: String)
-  extends Terminal(decl, true) {
+  extends ExpressionEvaluatorBase(decl) {
+
+  override val baseName = assertKindName
+  override lazy val expandedTypeName = XMLUtils.XSD_BOOLEAN
+  lazy val exprText = exprTextArg
 
   def unparser = DummyUnparser
 
-  def parser: Parser = new ExpressionEvaluationParser(decl) {
-    val baseName = assertKindName
+  def parser: Parser = new ExpressionEvaluationParser(this, decl) {
 
-    override def toBriefXML(depthLimit: Int = -1) = {
-      "<" + baseName + ">" + exprText + "</" + baseName + ">"
-    }
-
-    lazy val exprText = exprTextArg
-    lazy val expandedTypeName = XMLUtils.XSD_BOOLEAN
     def parse(start: PState): PState =
       // withLoggingLevel(LogLevel.Info) 
       {
@@ -2650,20 +2647,32 @@ case class InitiatedContent(
     true,
     "initiatedContent")
 
-case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable) extends Terminal(decl, true) {
-  def parser: Parser = new SetVariableParser(decl, stmt)
+case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
+  extends ExpressionEvaluatorBase(decl) {
+
+  val baseName = "SetVariable[" + stmt.localName + "]"
+  lazy val exprText = stmt.value
+
+  lazy val expandedTypeName = stmt.defv.extType
+
+  def parser: Parser = new SetVariableParser(this, decl, stmt)
   def unparser = DummyUnparser
 }
 
-case class InputValueCalc(e: ElementBase with ElementDeclMixin) extends Terminal(e, true) {
-
-  def parser: Parser = new IVCParser(e)
-  def unparser = DummyUnparser
-}
-
-abstract class ExpressionEvaluationParser(e: AnnotatedSchemaComponent)
-  extends Parser(e) with WithParseErrorThrowing {
-
+/**
+ * Refactored primitives that use expressions to put expression evaluation in one place.
+ * On this base (for the primitive), and a corresponding parser base class for the
+ * actual evaluation.
+ * <p>
+ * That fixed a bug where a SDE wasn't being reported until the parser was run that
+ * could have been reported at compilation time.
+ * <p>
+ * Anything being computed that involves the dsom or grammar objects or attributes of them,
+ * should be done in the grammar primitives, and NOT in the parser.
+ * This is important to insure errors are captured at compilation time and
+ * reported on relevant objects.
+ */
+abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Terminal(e, true) {
   override def toString = baseName + "(" + exprText + ")"
 
   def toBriefXML(depthLimit: Int = -1) = {
@@ -2680,26 +2689,42 @@ abstract class ExpressionEvaluationParser(e: AnnotatedSchemaComponent)
   }
 
   val expr = e.expressionCompiler.compile(expressionTypeSymbol, exprText)
-
-  def eval(start: PState) = {
-    val currentElement = start.parentElement
-    val R(res, newVMap) =
-      expr.evaluate(currentElement, start.variableMap, start)
-    // val result = res.toString // Everything in JDOM is a string!
-    R(res, newVMap)
-  }
 }
 
-class IVCParser(e: ElementBase with ElementDeclMixin)
-  extends ExpressionEvaluationParser(e) {
-  Assert.invariant(e.isSimpleType)
-  val baseName = "InputValueCalc"
+case class InputValueCalc(e: ElementBase with ElementDeclMixin)
+  extends ExpressionEvaluatorBase(e) {
 
+  val baseName = "InputValueCalc"
   lazy val Some(exprText) = e.inputValueCalcOption
 
   lazy val pt = e.primType
   lazy val ptn = pt.name
   lazy val expandedTypeName = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, ptn)
+
+  def parser: Parser = new IVCParser(this, e)
+  def unparser = DummyUnparser
+}
+
+/**
+ * Common parser base class for any parser that evaluates an expression.
+ */
+abstract class ExpressionEvaluationParser(context: ExpressionEvaluatorBase, e: AnnotatedSchemaComponent)
+  extends Parser(e) with WithParseErrorThrowing {
+
+  def toBriefXML(depthLimit: Int = -1) = context.toBriefXML(depthLimit)
+
+  def eval(start: PState) = {
+    val currentElement = start.parentElement
+    val R(res, newVMap) =
+      context.expr.evaluate(currentElement, start.variableMap, start)
+    // val result = res.toString // Everything in JDOM is a string!
+    R(res, newVMap)
+  }
+}
+
+class IVCParser(context: InputValueCalc, e: ElementBase with ElementDeclMixin)
+  extends ExpressionEvaluationParser(context, e) {
+  Assert.invariant(e.isSimpleType)
 
   def parse(start: PState): PState =
     // withLoggingLevel(LogLevel.Info) 
@@ -2715,12 +2740,8 @@ class IVCParser(e: ElementBase with ElementDeclMixin)
     }
 }
 
-class SetVariableParser(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
-  extends ExpressionEvaluationParser(decl) {
-  val baseName = "SetVariable[" + stmt.localName + "]"
-  lazy val exprText = stmt.value
-
-  lazy val expandedTypeName = stmt.defv.extType
+class SetVariableParser(context: ExpressionEvaluatorBase, decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
+  extends ExpressionEvaluationParser(context, decl) {
 
   def parse(start: PState): PState =
     // withLoggingLevel(LogLevel.Info) 

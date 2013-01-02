@@ -35,13 +35,14 @@ class TresysTests extends JUnitSuite {
   }
 
   val sv = testDir + "dfdl-schema-validation-diagnostics.tdml"
-  lazy val runnerSV = new DFDLTestSuite(Misc.getRequiredResource(sv))
+  lazy val runnerSV = new DFDLTestSuite(Misc.getRequiredResource(sv),
+    validateTDMLFile = false)
   runnerSV.setCheckAllTopLevel(true) // check every top level construct. Not just the one under specific test.
   //
   // These must all be run without TDML validation because at least one part of the TDML file
   // contains DFDL schema validation errors, and TDML validation normally would check that
   //
-  @Test def test_multiple_diagnostics4() { runnerSV.runOneTestNoTDMLValidation("twoDFDLSchemaValidationErrors") }
+  @Test def test_multiple_diagnostics4() { runnerSV.runOneTest("twoDFDLSchemaValidationErrors") }
 
   val nsd = testDir + "nested-separator-delimited.tdml"
   lazy val runnerNSD = new DFDLTestSuite(Misc.getRequiredResource(nsd))
@@ -78,10 +79,11 @@ class TresysTests extends JUnitSuite {
   @Test def test_simpleTypeOverlapSimpleTypeError() { runnerST.runOneTest("st-st-err1") }
 
   val rd = testDir + "runtime-diagnostics.tdml"
-  lazy val runnerRD = new DFDLTestSuite(Misc.getRequiredResource(rd))
+  lazy val runnerRD = new DFDLTestSuite(Misc.getRequiredResource(rd),
+    validateTDMLFile = false)
   runnerRD.setCheckAllTopLevel(true)
 
-  @Test def test_runtime_diagnostics1() { runnerRD.runOneTestNoTDMLValidation("PE1") }
+  @Test def test_runtime_diagnostics1() { runnerRD.runOneTest("PE1") }
 
   val sq = testDir + "sequence.tdml"
   lazy val runnerSQ = new DFDLTestSuite(Misc.getRequiredResource(sq))

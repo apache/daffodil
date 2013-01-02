@@ -1,0 +1,3 @@
+# Rename this file to CatalogManager.properties if you wish to get verbose
+# output from the resolver.
+verbosity=4

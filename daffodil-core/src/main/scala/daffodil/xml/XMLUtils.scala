@@ -28,7 +28,6 @@ import daffodil.exceptions._
 import daffodil.dsom._
 import java.io.StringReader
 import daffodil.util.Misc
-import daffodil.util.Validator
 import javax.xml.namespace.QName
 import javax.xml.XMLConstants
 import daffodil.processors.Infoset
@@ -980,6 +979,23 @@ object XMLUtils {
     val finalURI = if (nsURI == null || nsURI == "") sd.targetNamespace else nsURI
     (finalURI, localName)
   }
+
+  /**
+   * for quick tests, we use literal scala nodes. However, the underlying
+   * infrastructure wants to be all file centric for diagnostic-message
+   * reasons (line numbers for errors)
+   */
+  def convertNodeToTempFile(xml: Node) = {
+    // Create temp file
+    val tmpSchemaFile = File.createTempFile("daffodil_tmp_", ".dfdl.xsd")
+    // Delete temp file when program exits
+    tmpSchemaFile.deleteOnExit
+    val fw = new java.io.FileWriter(tmpSchemaFile)
+    fw.write(xml.toString())
+    fw.close()
+    tmpSchemaFile.getAbsolutePath()
+  }
+
 }
 
 trait GetAttributesMixin {
@@ -1006,49 +1022,53 @@ trait GetAttributesMixin {
   }
 }
 
-object XMLSchemaUtils {
-  /**
-   * validate a DFDL schema.
-   *
-   * This validates the XML Schema language subset that DFDL uses, and also all the annotations
-   * hung off of it.
-   */
-  def validateDFDLSchema(doc: Node) = {
-    // TODO: should this do something other than throw an exception on a validation error?
-    //
-    // Users will write DFDL Schemas, using the xs or xsd prefix (usually) bound to the XML Schema namespace,
-    // and the dfdl prefix (usually) bound to the DFDL namespace.
-    //
-    // However, we don't want to validate using the XML Schema for XML Schema (which would be the usual interpretation
-    // of validating an XML Schema), instead we want to use the schema for the DFDL Subset of XML Schema.
-    //
-    // So, the hack here, is we're going to textually substitute the URIs, so that the validator doesn't have to be 
-    // modified to do this switch, and we don't have to lie in the DFDL Subset schema, and claim it is realizing the
-    // XML Schema URI.
-    //
-    // However, we should consider whether there is a better way to do this involving either (a) lying and having the
-    // DFDL Subset Schema pretend it is the XSD schema, or we can play some catalog tricks perhaps.
-    //
-    // Also, the way this whole thing finds the necessary schemas is a bit daft. It should look in the jar or files,
-    // but it should be using an XML Catalog.
-    //
-    val docstring = doc.toString()
-    val xmlnsURI = "http://www.w3.org/2001/XMLSchema";
-    val xsdSubsetURI = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset";
-    val docReplaced = docstring.replaceAll(xmlnsURI, xsdSubsetURI)
-    val docReader = new StringReader(docReplaced)
-    val schemaResource = Misc.getRequiredResource(Validator.dfdlSchemaFileName()).toURI()
-    val res =
-      try {
-        Validator.validateXMLStream(schemaResource, docReader)
-      } catch {
-        case e => {
-          val exc = e
-          // System.err.println(exc.getMessage())
-          // Really useful place for a breakpoint.
-          throw e
-        }
-      }
-    res
-  }
-}
+// Commented out for now, but we may reactivate this to 
+// do more validation stuff in the TDMLRunner. So keeping in the 
+// source like this. 
+//
+//object XMLSchemaUtils {
+//  /**
+//   * validate a DFDL schema.
+//   *
+//   * This validates the XML Schema language subset that DFDL uses, and also all the annotations
+//   * hung off of it.
+//   */
+//  def validateDFDLSchema(doc: Node) = {
+//    // TODO: should this do something other than throw an exception on a validation error?
+//    //
+//    // Users will write DFDL Schemas, using the xs or xsd prefix (usually) bound to the XML Schema namespace,
+//    // and the dfdl prefix (usually) bound to the DFDL namespace.
+//    //
+//    // However, we don't want to validate using the XML Schema for XML Schema (which would be the usual interpretation
+//    // of validating an XML Schema), instead we want to use the schema for the DFDL Subset of XML Schema.
+//    //
+//    // So, the hack here, is we're going to textually substitute the URIs, so that the validator doesn't have to be 
+//    // modified to do this switch, and we don't have to lie in the DFDL Subset schema, and claim it is realizing the
+//    // XML Schema URI.
+//    //
+//    // However, we should consider whether there is a better way to do this involving either (a) lying and having the
+//    // DFDL Subset Schema pretend it is the XSD schema, or we can play some catalog tricks perhaps.
+//    //
+//    // Also, the way this whole thing finds the necessary schemas is a bit daft. It should look in the jar or files,
+//    // but it should be using an XML Catalog.
+//    //
+//    val docstring = doc.toString()
+//    val xmlnsURI = "http://www.w3.org/2001/XMLSchema";
+//    val xsdSubsetURI = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset";
+//    val docReplaced = docstring.replaceAll(xmlnsURI, xsdSubsetURI)
+//    val docReader = new StringReader(docReplaced)
+//    val schemaResource = Misc.getRequiredResource(Validator.dfdlSchemaFileName()).toURI()
+//    val res =
+//      try {
+//        Validator.validateXMLStream(schemaResource, docReader)
+//      } catch {
+//        case e => {
+//          val exc = e
+//          // System.err.println(exc.getMessage())
+//          // Really useful place for a breakpoint.
+//          throw e
+//        }
+//      }
+//    res
+//  }
+//}

@@ -23,7 +23,7 @@ class TestFacets extends JUnitSuite {
   @Test def test_scalarElementsExtra() { runner.runOneTest("scalarElementsExtra") }
   @Test def test_lessThanMinBasic() { runner.runOneTest("lessThanMinBasic") }
   @Test def test_moreThanMaxBasic() { runner.runOneTest("moreThanMaxBasic") }
-  @Test def test_arrayElements() { runner.runOneTest("arrayElements") }
+  @Test def test_arrayElements() = { runner.runOneTest("arrayElements") }
   @Test def test_upToMaxParsed() { runner.runOneTest("upToMaxParsed") }
   @Test def test_lessThanMinCells() { runner.runOneTest("lessThanMinCells") }
   @Test def test_moreThanMinCells() { runner.runOneTest("moreThanMinCells") }
@@ -42,14 +42,14 @@ class TestFacets extends JUnitSuite {
   @Test def test_facet_pattern_08() { runner.runOneTest("facetPattern08") }
   @Test def test_facet_pattern_09() { runner.runOneTest("facetPattern09") }
 
-<!-- Awaiting completion of DFDL-414
+  <!-- Awaiting completion of DFDL-414
   @Test def test_maxLength01() { runner.runOneTest("maxLength01") }
   @Test def test_maxLength02() { runner.runOneTest("maxLength02") }
   @Test def test_maxLength03() { runner.runOneTest("maxLength03") }
 -->
-  
+
   @Test def test_maxOccursPass() { runner.runOneTest("checkMaxOccurs_Pass") }
-//  @Test def test_maxOccursFail() { runner.runOneTest("checkMaxOccurs_Fail") }
+  //  @Test def test_maxOccursFail() { runner.runOneTest("checkMaxOccurs_Fail") }
   @Test def test_maxOccursUnboundedPass() { runner.runOneTest("checkMaxOccursUnbounded_Pass") }
 
 }

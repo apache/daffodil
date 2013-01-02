@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testSuite suiteName="AA-BG" description="Original suite of AA through BG"
   xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
   <parserTestCase name="AB000" root="matrix" model="AB.dfdl.xsd"
     description="CSV-style tests - data stream is scanned for its enclosing construct's separator.  separatorPosition is infix - DFDL-12-043R">
@@ -16,9 +16,8 @@
     </document>
 
     <infoset>
-      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <matrix>
+      <dfdlInfoset>
+        <matrix xmlns="http://www.example.org/example1/">
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -56,10 +55,8 @@
     </document>
 
     <infoset>
-      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <matrix_01 xmlns="http://www.example.org/example1/"
-          xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+      <dfdlInfoset>
+        <matrix_01 xmlns="http://www.example.org/example1/">
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -98,10 +95,8 @@
     </document>
 
     <infoset>
-      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <matrix_03 xmlns="http://www.example.org/example1/"
-          xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+      <dfdlInfoset>
+        <matrix_03 xmlns="http://www.example.org/example1/">
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -139,10 +134,8 @@
     </document>
 
     <infoset>
-      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <matrix_01 xmlns="http://www.example.org/example1/"
-          xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+      <dfdlInfoset>
+        <matrix_01 xmlns="http://www.example.org/example1/">
           <row>
             <cell>0</cell>
             <cell>1</cell>
@@ -177,29 +170,28 @@
     </document>
 
     <infoset>
-      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <dfdlInfoset>
         <matrix_02 xmlns="http://www.example.org/example1/"
-          xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema">
           <row>
-            <cell type="xsd:int">0</cell>
-            <cell type="xsd:int">1</cell>
-            <cell type="xsd:int">2</cell>
-            <cell type="xsd:int">3</cell>
-            <cell type="xsd:int">4</cell>
+            <cell xsi:type="xsd:int">0</cell>
+            <cell xsi:type="xsd:int">1</cell>
+            <cell xsi:type="xsd:int">2</cell>
+            <cell xsi:type="xsd:int">3</cell>
+            <cell xsi:type="xsd:int">4</cell>
           </row>
           <row>
-            <cell type="xsd:int">5</cell>
-            <cell type="xsd:int">6</cell>
-            <cell type="xsd:int">7</cell>
-            <cell type="xsd:int">8</cell>
-            <cell type="xsd:int">9</cell>
+            <cell xsi:type="xsd:int">5</cell>
+            <cell xsi:type="xsd:int">6</cell>
+            <cell xsi:type="xsd:int">7</cell>
+            <cell xsi:type="xsd:int">8</cell>
+            <cell xsi:type="xsd:int">9</cell>
           </row>
           <row>
-            <cell type="xsd:int">10</cell>
-            <cell type="xsd:int">11</cell>
-            <cell type="xsd:int" xsi:nil="true"></cell>
-            <cell type="xsd:int">13</cell>
+            <cell xsi:type="xsd:int">10</cell>
+            <cell xsi:type="xsd:int">11</cell>
+            <cell xsi:nil="true" />
+            <cell xsi:type="xsd:int">13</cell>
           </row>
         </matrix_02>
       </dfdlInfoset>
@@ -217,29 +209,28 @@
     </document>
 
     <infoset>
-      <dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <dfdlInfoset>
         <matrix_02 xmlns="http://www.example.org/example1/"
-          xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema">
           <row>
-            <cell type="xsd:int">0</cell>
-            <cell type="xsd:int">1</cell>
-            <cell type="xsd:int">2</cell>
-            <cell type="xsd:int">3</cell>
-            <cell type="xsd:int">4</cell>
+            <cell xsi:type="xsd:int">0</cell>
+            <cell xsi:type="xsd:int">1</cell>
+            <cell xsi:type="xsd:int">2</cell>
+            <cell xsi:type="xsd:int">3</cell>
+            <cell xsi:type="xsd:int">4</cell>
           </row>
           <row>
-            <cell type="xsd:int">5</cell>
-            <cell type="xsd:int">6</cell>
-            <cell type="xsd:int">7</cell>
-            <cell type="xsd:int">8</cell>
-            <cell type="xsd:int">9</cell>
+            <cell xsi:type="xsd:int">5</cell>
+            <cell xsi:type="xsd:int">6</cell>
+            <cell xsi:type="xsd:int">7</cell>
+            <cell xsi:type="xsd:int">8</cell>
+            <cell xsi:type="xsd:int">9</cell>
           </row>
           <row>
-            <cell type="xsd:int">10</cell>
-            <cell type="xsd:int">11</cell>
-            <cell type="xsd:int" xsi:nil="true"></cell>
-            <cell type="xsd:int" xsi:nil="true"></cell>
+            <cell xsi:type="xsd:int">10</cell>
+            <cell xsi:type="xsd:int">11</cell>
+            <cell xsi:nil="true" />
+            <cell xsi:nil="true" />
           </row>
         </matrix_02>
       </dfdlInfoset>
