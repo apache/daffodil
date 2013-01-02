@@ -13,14 +13,13 @@ import java.io.File
 import daffodil.util.Logging
 import daffodil.util.Logging
 
-<!--
-class TestSequenceGroupsDebug extends JUnitSuite {
+//class TestSequenceGroupsDebug extends JUnitSuite {
   
-  val testDir_01 = "/daffodil/section14/sequence_groups/"
-  val tdml_03 = testDir_01 + "SequenceGroupIsolate.tdml"
-  lazy val runner_03 = new DFDLTestSuite(Misc.getRequiredResource(tdml_03))
+//  val testDir_01 = "/daffodil/section14/sequence_groups/"
+//  val tdml_03 = testDir_01 + "SequenceGroupIsolate.tdml"
+//  lazy val runner_03 = new DFDLTestSuite(Misc.getRequiredResource(tdml_03))
   
-  @Test def test_hiddenGroupEmpty() { runner_03.runOneTest("hiddenGroupEmpty") }
+//  @Test def test_hiddenGroupEmpty() { runner_03.runOneTest("hiddenGroupEmpty") }
 
-}
--->
+//}
+
