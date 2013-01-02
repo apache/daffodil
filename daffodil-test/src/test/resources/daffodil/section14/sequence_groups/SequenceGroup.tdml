@@ -94,7 +94,8 @@
       <tdml:documentPart type="text"><![CDATA[1,2]]></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error />
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>A sequence with hiddenGroupRef cannot have children</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
