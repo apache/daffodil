@@ -95,6 +95,7 @@
     <document><![CDATA[123]]></document>
     <errors>
       <error>Schema Definition Error</error>
+      <error>Attribute 'name' must appear on element</error>
     </errors>
   </parserTestCase>
 
