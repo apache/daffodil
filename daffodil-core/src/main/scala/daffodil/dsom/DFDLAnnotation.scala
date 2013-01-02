@@ -20,8 +20,12 @@ import daffodil.api.Diagnostic
 abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
   extends DiagnosticsProviding
   with GetAttributesMixin
-  with ThrowsSDE {
+  with ThrowsSDE
+  with SchemaFileLocatable {
+
   lazy val xml = node
+
+  override lazy val fileName = annotatedSC.fileName
 
   override def addDiagnostic(diag: Diagnostic) = annotatedSC.addDiagnostic(diag)
 
@@ -277,7 +281,15 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComp
     // longForm Properties are not prefixed by dfdl
     val dfdlAttrs = dfdlAttributes(node).asAttrMap
     schemaDefinition(dfdlAttrs.isEmpty, "long form properties are not prefixed by dfdl:")
-    node.attributes.asAttrMap.toSet
+    //
+    // TODO: This strips away any qualified attribute
+    // That won't work when we add extension attributes 
+    // like daffodil:asAttribute="true"
+    //
+    val unqualifiedAttribs = node.attributes.asAttrMap.collect {
+      case (k, v) if (!k.contains(":")) => (k, v)
+    }
+    unqualifiedAttribs.toSet
   }
 
   lazy val conflictingProperties =
@@ -540,12 +552,25 @@ class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument)
 abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {
   private lazy val testAttrib = getAttributeOption("test")
+
+  // tolerate whitespace. E.g., 
+  //   <assert test="...">
+  //   </assert>
+  // on two lines, indented, has whitespace in the body of the element.
+  // Just reformatting XML, or printing it out with a pretty printer
+  // can break assertions otherwise.
+  //
+  // even if you write <assert><![CDATA[{ ... }]]></assert> 
+  // you can still lose because the implementation might convert
+  // the schema to a string (by pretty printing), and this may re-insert 
+  // whitespace.
+  //
+  // So, we trim the body string.
   private[dsom] lazy val testBody: Option[String] = node.child.text match {
-    case s if (s.length() == 0) => {
-      None
-    }
-    case txt => Some(txt)
+    case s if (s.trim().length() == 0) => None
+    case txt => Some(txt.trim())
   } // package visible for unit testing
+
   private lazy val testPattern = getAttributeOption("testPattern")
   lazy val testKind = getAttributeOption("testKind") match {
     case Some(str) => TestKind(str, decl)
@@ -608,7 +633,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   lazy val typeQName = getAttributeOption("type").getOrElse("xs:string")
   lazy val external = getAttributeOption("external").map { _.toBoolean }.getOrElse(false)
   lazy val defaultValueAsAttribute = getAttributeOption("defaultValue")
-  lazy val defaultValueAsElement = node.child.text
+  lazy val defaultValueAsElement = node.child.text.trim
   lazy val defaultValue = (defaultValueAsAttribute, defaultValueAsElement) match {
     case (None, "") => None
     case (None, str) => Some(str)
@@ -655,7 +680,7 @@ class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
   lazy val ref = getAttributeRequired("ref")
   lazy val attrValue = getAttributeOption("value")
   lazy val <dfdl:setVariable>{ eltChildren @ _* }</dfdl:setVariable> = node
-  lazy val eltValue = eltChildren.text
+  lazy val eltValue = eltChildren.text.trim
   lazy val value = (attrValue, eltValue) match {
     case (None, v) if (v != "") => v
     case (Some(v), "") => v

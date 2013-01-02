@@ -328,7 +328,7 @@ case class InStreamFromByteChannel private (val context: ElementBase,
 
 class DataLoc(bitPos: Long, bitLimit: Long, inStream: InStream) extends DataLocation {
 
-  override def toString() = "Location is byte " + bitPos / 8 +
+  override def toString() = "byte " + bitPos / 8 +
     "\nUTF-8 text starting at byte " + aligned64BitsPos / 8 + " is: (" + utf8Dump + ")" +
     "\nData (hex) starting at byte " + aligned64BitsPos / 8 + " is: (" + dump + ")"
 

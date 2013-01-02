@@ -34,6 +34,11 @@ object OOLAG {
     override def getMessage() = lv.toString
     val cause = None
   }
+
+  /**
+   * Catch this if you can carry on with more evaluations after an
+   * error has occurred. Otherwise just let it propagate.
+   */
   case class ErrorAlreadyHandled(val th: Throwable, lv: OOLAGValue)
     extends Exception(th) with OOLAGRethrowException {
     val cause = Some(th)
@@ -152,21 +157,45 @@ object OOLAG {
           res
         } catch {
           // Some kinds of errors/exceptions we always want thrown to top level.
-          case le: scala.Error => { throw le } // note that Exception does NOT inherit from Error
-          case re: java.lang.RuntimeException => { throw re }
-          case ue: UnsuppressableException => { throw ue }
-          case abort: Abort => throw abort // never swallow up these
-          case nyi: NotYetImplementedException => throw nyi
+          //
+          // these first few cases are kept as separate code even though it does the same thing
+          // so that one can easily put breakpoints here.
+          // i.e., coding style for debug here.
+          //
+          case le: scala.Error => { // note that Exception does NOT inherit from Error 
+            log(Error(catchMsg, descrip, le)) // tell us which lazy attribute it was (hard to get from a scala stack trace)
+            throw le
+          }
+          case re: java.lang.RuntimeException => {
+            log(Error(catchMsg, descrip, re)) // tell us which lazy attribute it was
+            throw re
+          }
+          case ue: UnsuppressableException => {
+            log(Error(catchMsg, descrip, ue)) // tell us which lazy attribute it was            
+            throw ue
+          }
+          //
+          // These are OOLAGs own Throwables. 
+          // ErrorAlreadyHandled means we are headed back to some top-level that
+          // can tolerate errors and go on with compilation.
           case eah: ErrorAlreadyHandled => {
             log(OOLAGDebug(catchMsg, descrip, eah))
             throw eah
           }
+          //
+          // Already tried means we got to this same OOLAG value evaluation again, 
+          // and as values, they can't behave differently, so the same error will
+          // just get reported again.
           case at: AlreadyTried => {
             log(OOLAGDebug("Caught %s", at))
             throw at
           }
           case e => {
+            //
             // we threw, instead of producing a value
+            //
+            // Typically this will be for a Schema Definition Error
+            // 
             Assert.invariant(hasValue == false)
             Assert.invariant(alreadyTriedThis == true)
 

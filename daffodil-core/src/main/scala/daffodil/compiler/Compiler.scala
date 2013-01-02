@@ -3,7 +3,6 @@ package daffodil.compiler
 import java.io.ByteArrayOutputStream
 import java.io.ByteArrayInputStream
 import scala.xml.Node
-import scala.xml.XML
 import daffodil.api.DFDL._
 import daffodil.exceptions.Assert
 import daffodil.util._
@@ -15,6 +14,7 @@ import daffodil.dsom.SchemaSet
 import daffodil.processors.DataProcessor
 import daffodil.api.DFDL
 import daffodil.debugger.Debugger
+import daffodil.xml.XMLLoaderWithLocator
 
 class ProcessorFactory(sset: SchemaSet, rootElem: GlobalElementDecl)
   extends DiagnosticsProviding // (sset)
@@ -67,7 +67,6 @@ class Compiler extends DFDL.Compiler with Logging {
    * for unit testing of front end
    */
   def frontEnd(xml: Node): (SchemaSet, GlobalElementDecl) = {
-    //LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val elts = (xml \ "element")
     Assert.usage(elts.length != 0, "No top level element declarations found.")
 
@@ -106,15 +105,12 @@ class Compiler extends DFDL.Compiler with Logging {
   }
 
   def compile(schemaFileName: String): DFDL.ProcessorFactory = {
-    val schemaNode = XML.load(schemaFileName)
+    val schemaNode = XMLLoaderWithLocator.loadFile(schemaFileName)
     compile(schemaNode)
   }
 
   def compile(xml: Node): DFDL.ProcessorFactory = {
     val (sset, rootElem) = frontEnd(xml) // includes middle "end" too.
-    // 	 lazy val documentProd = rootElem.document
-    //   lazy val parser = documentProd.parser
-    //   lazy val unparser = documentProd.unparser
     log(Compile("Compiling %s", rootElem))
     lazy val pf = new ProcessorFactory(sset, rootElem)
     if (pf.isError) {

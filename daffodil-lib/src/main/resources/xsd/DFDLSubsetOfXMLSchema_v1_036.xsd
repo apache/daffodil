@@ -16,6 +16,9 @@
 
   <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/"
     schemaLocation="DFDL_part3_model.xsd" />
+    
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
+    schemaLocation="dafint.xsd"/>
 
   <xsd:annotation>
     <xsd:documentation>
@@ -544,7 +547,13 @@
 
     <!-- need this much wildcard to allow xml:lang etc. which do appear in 
       schemas -->
-    <xsd:anyAttribute namespace="http://www.w3.org/XML/1998/namespace" />
+      <!-- Daffodil augments schemas with dafint:file dafint:line and dafint:col -->
+          <!-- Daffodil extensions to DFDL use daf namespace -->
+    <xsd:anyAttribute 
+    namespace="http://www.w3.org/XML/1998/namespace 
+    urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int 
+    urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+    />
 
   </xsd:attributeGroup>
 

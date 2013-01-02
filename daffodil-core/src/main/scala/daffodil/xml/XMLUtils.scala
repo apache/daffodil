@@ -149,6 +149,8 @@ object XMLUtils {
    * we really should be using URN-style notation, not http URLs for these.
    * (for why http URLs are a bad idea for these, see:
    * http://www.w3.org/blog/systeam/2008/02/08/w3c_s_excessive_dtd_traffic/ )
+   * <p>
+   * These definitions must match their XSD counterparts in dafint.xsd and dafext.xsd
    */
   private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT = "urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012" // TODO: finalize syntax of this URN
   val DAFFODIL_EXTENSION_NAMESPACE = DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":ext"
@@ -160,6 +162,10 @@ object XMLUtils {
   val INT_PREFIX = "dafint"
   val INT_NS_OBJECT = org.jdom.Namespace.getNamespace(INT_PREFIX, INT_NS)
 
+  val FILE_ATTRIBUTE_NAME = "file"
+  val LINE_ATTRIBUTE_NAME = "line"
+  val COLUMN_ATTRIBUTE_NAME = "col"
+
   // shorter forms, to make constructing XML literals,... make the lines shorter.
   val DFDLSubsetURI = DFDL_SUBSET_NAMESPACE
   val xsdURI = XSD_NAMESPACE
@@ -167,6 +173,7 @@ object XMLUtils {
   val targetNS = EXAMPLE_NAMESPACE // we use this for tests.
   val xsiURI = XSI_NAMESPACE
   val fnURI = XPATH_FUNCTION_NAMESPACE
+  val dafintURI = DAFFODIL_INTERNAL_NAMESPACE
 
   //  val PCDATA = "#PCDATA"
   //  val REM = "#REM"
@@ -542,7 +549,7 @@ object XMLUtils {
    * super inefficient, but useful for unit tests
    */
   def element2Elem(jElem: Element): scala.xml.Node = {
-    return scala.xml.XML.loadString(new org.jdom.output.XMLOutputter().outputString(jElem))
+    return XML.loadString(new org.jdom.output.XMLOutputter().outputString(jElem))
   }
 
   def elem2Element(nodes: scala.xml.NodeSeq): Seq[Element] = nodes.map { elem => elem2Element(elem) }

@@ -46,7 +46,7 @@ class ParseError(sc: SchemaComponent, val pstate: Option[PState], kind: String, 
       if (kind.contains("%")) kind.format(args: _*)
       else (kind + "(%s)").format(argsAsString)
     val res = "Parse Error: " + msg +
-      "\nContext was : %s".format(sc) +
+      "\nSchema context: %s %s".format(sc, sc.locationDescription) +
       pstate.map { ps => "\nData location was preceding %s".format(ps.currentLocation) }.getOrElse("(no data location)")
     res
   }

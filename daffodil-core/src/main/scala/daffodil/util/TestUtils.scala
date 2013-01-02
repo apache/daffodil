@@ -26,8 +26,9 @@ object TestUtils {
                 <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" alignment='1' alignmentUnits='bytes' textStandardBase='10' binaryFloatRep='ieee' binaryNumberRep='binary' byteOrder='bigEndian' calendarPatternKind='implicit' escapeSchemeRef='' documentFinalTerminatorCanBeMissing='no' ignoreCase='no' initiatedContent='no' leadingSkip='0' lengthKind='implicit' occursCountKind='parsed' separatorPolicy='suppressed' separatorPosition='infix' sequenceKind='ordered' textNumberRep='standard' textNumberCheckPolicy='strict' textStringJustification='left' trailingSkip='0' initiator="" terminator="" separator="" emptyValueDelimiterPolicy="both" utf16Width="fixed" textTrimKind="none"/>
               </dfdl:defineFormat>
 
-  def dfdlTestSchema(topLevelAnnotations: Seq[Node], contentElements: Seq[Node]) = {
-    val realSchema = <xs:schema xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns={ targetNS } xmlns:tns={ targetNS } targetNamespace={ targetNS }>
+  def dfdlTestSchema(topLevelAnnotations: Seq[Node], contentElements: Seq[Node], fileName: String = "") = {
+    val fileAttrib = (if (fileName == "") Null else Attribute(XMLUtils.INT_PREFIX, "file", Text(fileName), Null))
+    val realSchema = <xs:schema xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns={ targetNS } xmlns:tns={ targetNS } xmlns:dafint={ dafintURI } targetNamespace={ targetNS }>
                        <xs:annotation>
                          <xs:appinfo source={ dfdlURI }>
                            { test1 }
@@ -38,7 +39,16 @@ object TestUtils {
                        <xsd:import namespace={ xsdURI } schemaLocation="XMLSchema.xsd"/>
                        <xsd:import namespace={ dfdlURI } schemaLocation="DFDL_part3_model.xsd"/>
                        { contentElements }
-                     </xs:schema>
+                     </xs:schema> % fileAttrib
+    //
+    // It is essential to stringify and then reload the above schema because the
+    // pieces being spliced in don't have the namespace definitions for the prefixes.
+    // This massively reduces clutter for creation of test schemas in tests.
+    //
+    // Writing it out to a string, and reloading
+    // forces reinterpretation of all the prefixes as new nodes are created. The 
+    // enclosing nodes created above have the namespace definitions.
+    // 
     val realSchemaText = realSchema.toString()
     val real = XML.loadString(realSchemaText)
     real
@@ -58,7 +68,7 @@ object TestUtils {
                        </xs:annotation>
                        { contentElements }
                      </xs:schema>
-    val realSchemaText = realSchema.toString()
+    val realSchemaText = realSchema.toString() // see comment in dfdlTestSchema for why we do this
     val real = XML.loadString(realSchemaText)
     real
   }

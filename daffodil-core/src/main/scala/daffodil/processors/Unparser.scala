@@ -52,7 +52,7 @@ class UnparseError(sc: SchemaComponent, ustate: Option[UState], kind: String, ar
       else (kind + "(%s)").format(argsAsString)
 
     val res = "Unparse Error: " + msg +
-      "\nContext was : %s".format(sc) +
+      "\nSchema context: %s, %s".format(sc, sc.locationDescription) +
       ustate.map { us => "\nData location was preceding %s".format(us.currentLocation) }.getOrElse("") +
       "\nUnparsed data is %s".format(ustate.map { us => us.outStream.getData() })
     res

@@ -107,4 +107,5 @@ class TextXMLUtils extends JUnitSuite {
     val s = ""
     val Seq() = XMLUtils.walkUnicodeString(s)((p, c, n) => (p, c, n))
   }
+
 }

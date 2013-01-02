@@ -60,7 +60,16 @@ abstract class SchemaDefinitionDiagnosticBase(
     val msg =
       if (kind.contains("%")) kind.format(args: _*)
       else (kind + "(%s)").format(argsAsString)
-    val res = "Schema Definition " + diagnosticKind + ": " + msg + " Context was: " + schemaContext.getOrElse("top level")
+
+    val schContextLocDescription = schemaContext.map { " " + _.locationDescription }.getOrElse("")
+    val annContextLocDescription = annotationContext.map { " " + _.locationDescription }.getOrElse("")
+
+    val res = "Schema Definition " + diagnosticKind + ": " + msg +
+      " Schema context: " + schemaContext.getOrElse("top level") + "." +
+      // TODO: should be one or the other, never(?) both
+      schContextLocDescription +
+      annContextLocDescription
+
     res
   }
 
@@ -76,12 +85,15 @@ abstract class SchemaComponent(val xml: Node)
   extends DiagnosticsProviding
   with GetAttributesMixin
   with SchemaLocation
-  with ThrowsSDE {
+  with ThrowsSDE
+  with SchemaFileLocatable {
   def schemaDocument: SchemaDocument
   lazy val schema: Schema = schemaDocument.schema
   lazy val targetNamespace = schema.targetNamespace
   lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace)
   def prettyName: String
+
+  lazy val fileName: Option[String] = schemaDocument.fileName
 
   lazy val isHidden: Boolean = {
     enclosingComponent match {
@@ -681,6 +693,8 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
   extends AnnotatedSchemaComponent(xmlArg)
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
+
+  override lazy val fileName = this.fileNameFromAttribute()
 
   lazy val enclosingComponent: Option[SchemaComponent] = None
 

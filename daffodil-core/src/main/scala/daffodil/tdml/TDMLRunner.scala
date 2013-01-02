@@ -31,6 +31,7 @@ import java.nio.CharBuffer
 import java.io.InputStream
 import daffodil.processors.GeneralParseFailure
 import daffodil.dsom.EntityReplacer
+import daffodil.xml.XMLLoaderWithLocator
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -50,7 +51,7 @@ import daffodil.dsom.EntityReplacer
  * dependency on one factory to create processors.
  */
 
-class DFDLTestSuite(ts: Node, tdmlFile: File, tsInputSource: InputSource)
+class DFDLTestSuite(val ts: Node, tdmlFile: File, tsInputSource: InputSource)
   extends Logging {
 
   var checkAllTopLevel: Boolean = false
@@ -58,9 +59,9 @@ class DFDLTestSuite(ts: Node, tdmlFile: File, tsInputSource: InputSource)
     checkAllTopLevel = flag
   }
 
-  def this(tdmlFile: File) = this(XML.loadFile(tdmlFile), tdmlFile, new InputSource(tdmlFile.toURI().toASCIIString()))
+  def this(tdmlFile: File) = this(XMLLoaderWithLocator.loadFile(tdmlFile), tdmlFile, new InputSource(tdmlFile.toURI().toASCIIString()))
   def this(tsNode: Node) = this(tsNode, null, new InputSource(new StringReader(tsNode.toString)))
-  def this(tsURL: URL) = this(XML.load(tsURL), null, new InputSource(tsURL.toURI().toASCIIString()))
+  def this(tsURL: URL) = this(XMLLoaderWithLocator.load(tsURL), null, new InputSource(tsURL.toURI().toASCIIString()))
 
   //
   // we immediately validate the incoming test suite document
@@ -175,7 +176,7 @@ class DFDLTestSuite(ts: Node, tdmlFile: File, tsInputSource: InputSource)
       case Some(defschema) => defschema.xsdSchema
       case None => {
         val file = findModelFile(modelName)
-        val schema = XML.loadFile(file)
+        val schema = XMLLoaderWithLocator.loadFile(file)
         schema
       }
     }
@@ -570,7 +571,11 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
   val dfdlTopLevels = defineFormats ++ defaultFormats ++ defineVariables ++ defineEscapeSchemes
   val xsdTopLevels = globalElementDecls ++ globalSimpleTypeDefs ++
     globalComplexTypeDefs ++ globalGroupDefs
-  val xsdSchema = TestUtils.dfdlTestSchema(dfdlTopLevels, xsdTopLevels)
+  val fileName = parent.ts.attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME) match {
+    case Some(seqNodes) => seqNodes.toString
+    case None => ""
+  }
+  val xsdSchema = TestUtils.dfdlTestSchema(dfdlTopLevels, xsdTopLevels, fileName)
 }
 
 sealed abstract class DocumentContentType

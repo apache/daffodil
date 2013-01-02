@@ -423,7 +423,7 @@
       <tdml:documentPart type="byte">74657374</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Left over data: Location is byte 3</tdml:error>
+      <tdml:error>Left over data: byte 3</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

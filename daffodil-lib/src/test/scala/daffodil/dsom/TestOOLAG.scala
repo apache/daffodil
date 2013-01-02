@@ -7,6 +7,8 @@ import daffodil.util.LoggingDefaults
 import daffodil.util.LogLevel
 import daffodil.util.LogLevel
 import org.junit.Test
+import daffodil.exceptions.Assert
+import daffodil.exceptions.Abort
 
 class MyHost extends OOLAGHost {
   def LV = LVFactory(this)
@@ -59,6 +61,23 @@ class MyHost extends OOLAGHost {
   lazy val circ2: Int = circ2_.value
   private lazy val circ2_ = LV('circ2) {
     circ1
+  }
+
+  lazy val abortInside = abortInside_.value
+  private lazy val abortInside_ = LV('abortInside) {
+    abend
+  }
+
+  lazy val abend = abend_.value
+  private lazy val abend_ = LV('err) {
+    Assert.abort("supposed to abort here")
+  }
+
+  var x = 0
+
+  lazy val divZero = divZero_.value
+  private lazy val divZero_ = LV('divZero) {
+    5 / x
   }
 
 }
@@ -148,6 +167,20 @@ class TestOOLAG extends JUnitSuite {
         assertTrue(m.contains("a2"))
       }
       case _ => fail()
+    }
+  }
+
+  @Test def testThrowToTopLevel() {
+    val h = new MyHost
+    val e = intercept[Abort] {
+      h.abortInside // should print useful lazy val nest messages to log
+    }
+  }
+
+  @Test def testDivZeroInside() {
+    val h = new MyHost
+    val e = intercept[java.lang.ArithmeticException] {
+      h.divZero
     }
   }
 }
