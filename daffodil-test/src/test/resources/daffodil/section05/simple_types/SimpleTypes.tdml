@@ -1671,11 +1671,11 @@
     
     <dfdl:defineEscapeScheme name="table1">
       <dfdl:escapeScheme escapeCharacter='/'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="/"/>
+        escapeKind="escapeCharacter" escapeEscapeCharacter="["/>
     </dfdl:defineEscapeScheme>
         
     <xs:element name="string10" type="xs:string" dfdl:lengthKind="delimited" dfdl:textStringJustification="center"
-      dfdl:textStringPadCharacter="/" dfdl:escapeSchemeRef="ex:table1" />
+      dfdl:textStringPadCharacter="\" dfdl:escapeSchemeRef="ex:table1" />
           
     <xs:element name="nil" nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="o" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="7"
       dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
@@ -1975,7 +1975,7 @@
   <tdml:parserTestCase name="padding_escape" root="string10"
       model="SimpleTypes-padding" description="Section 7 - On parsing, the escape scheme is applied after padding characters are trimmed DFDL-7-089R">
     <tdml:document>
-      <tdml:documentPart type="text">////word////</tdml:documentPart>
+      <tdml:documentPart type="text">\\\word/\\\</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
