@@ -13,6 +13,7 @@ import java.io.File
 import daffodil.util.Logging
 import daffodil.util.Logging
 
+<!--
 class TestSequenceGroupsDebug extends JUnitSuite {
   
   val testDir_01 = "/daffodil/section14/sequence_groups/"
@@ -22,3 +23,4 @@ class TestSequenceGroupsDebug extends JUnitSuite {
   @Test def test_hiddenGroupEmpty() { runner_03.runOneTest("hiddenGroupEmpty") }
 
 }
+-->
