@@ -511,6 +511,41 @@ Date: Mon Feb 23 15:20:47 CST 2009
 
   </tdml:defineSchema>
   
+  <tdml:defineSchema name="hiddenGroup5">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <xs:group name="ab">
+      <xs:sequence>
+        <xs:element name="a" dfdl:length="1" dfdl:lengthKind="explicit" type="xs:int" />
+        <xs:element name="b" dfdl:length="1" dfdl:lengthKind="explicit" type="xs:int" />
+      </xs:sequence>
+    </xs:group>
+    <xs:element name="e" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:sequence dfdl:hiddenGroupRef="ex:ab" dfdl:separator=":" />
+          <xs:element name="g" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: hiddenGroupIgnoredProps
+       Schema: hiddenGroup5
+      Purpose: This test demonstrates that when the dfdl:hiddenGroupRef property is specified, all other DFDL properties are ignored.
+  -->
+  
+  <tdml:parserTestCase name="hiddenGroupIgnoredProps" root="e"
+    model="hiddenGroup5" description="Section 14 - When the dfdl:hiddenGroupRef property is specified, all other DFDL properties are ignored. - DFDL-14-039R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1:2,3]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Convert to Integer</tdml:error>
+      <tdml:error>Unable to parse ':'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
   <tdml:defineSchema name="AD-Embedded">
     <dfdl:format ref="ex:daffodilTest1" 
         lengthKind="delimited" separator=""
