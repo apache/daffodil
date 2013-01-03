@@ -24,6 +24,7 @@ import org.junit.Test
 class SaxonWorkingTest extends JUnitSuite with XPathVariableResolver with NamespaceContext {
 
   @Test def testTrivialExpression1() {
+    System.setProperty("javax.xml.xpath.XPathFactory:" + NamespaceConstant.OBJECT_MODEL_SAXON, "net.sf.saxon.xpath.XPathFactoryImpl");
     val xpf = XPathFactory.newInstance(NamespaceConstant.OBJECT_MODEL_SAXON);
     val xpe = xpf.newXPath();
     // System.err.println("Loaded XPath Provider " + xpe.getClass().getName());
