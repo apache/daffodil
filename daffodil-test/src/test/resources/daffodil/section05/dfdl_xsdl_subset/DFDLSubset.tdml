@@ -119,6 +119,49 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="groupRefDFDL">
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" encoding="utf-8" byteOrder="bigEndian"
+      occursCountKind="parsed" ignoreCase="no" representation="text"
+      lengthKind="delimited" textNumberRep="standard" separatorPolicy="suppressed"
+      initiatedContent="no" />
+    
+    <xs:group name="g">
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="one" dfdl:initiator="1-" type="xs:string" />
+        <xs:element name="two" dfdl:initiator="2-" type="xs:string" />
+        <xs:element name="three" dfdl:initiator="3-" type="xs:string" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="top" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:group ref="ex:g">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:group initiator="." initiatedContent="yes"/>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:group>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="groupRefDFDL" root="top"
+    model="groupRefDFDL" description="The specific annotation for schema component: xs:group reference is dfdl:group - DFDL-7-005R">
+
+    <tdml:document>.1-George|2-Orwell|3-1984</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <top>
+          <one>George</one>
+          <two>Orwell</two>
+          <three>1984</three>
+        </top>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <tdml:defineSchema name="groupRefGroupRef.xsd">
     <dfdl:defineFormat name="def">
