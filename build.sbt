@@ -1,7 +1,5 @@
 name := "daffodil"
 
-version in ThisBuild := "0.6.0"
-
 scalaVersion in ThisBuild := "2.9.2"
 
 parallelExecution in ThisBuild := false

@@ -109,4 +109,18 @@ object DaffodilBuild extends Build {
 	// start-script configuration	
 	lazy val startScriptSettings = Seq(StartScriptPlugin.startScriptForJarSettings : _*) ++
 	                               Seq(mainClass in Compile := Some("daffodil.Main"))
+
+  // get the version from the latest tag
+  s ++= Seq(version := {
+    val r = java.lang.Runtime.getRuntime()
+    val p = r.exec("git describe --abbre=0 HEAD")
+    p.waitFor()
+    val ret = p.exitValue()
+    if (ret != 0) {
+      sys.error("Failed to get daffodil version")
+    }
+    val b = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream))
+    val version = b.readLine()
+    version
+  })
 }
