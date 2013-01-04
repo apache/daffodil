@@ -60,7 +60,7 @@ object DaffodilBuild extends Build {
 	s ++= Seq(sourceManaged <<= baseDirectory(_ / "src_managed"))
 
 	// creates 'sbt debug:*' tasks, using src/test/scala-debug as the source directory
-	lazy val DebugTest = config("debug") extend(Test)
+	lazy val DebugTest = config("debug") extend(Runtime)
 	lazy val debugSettings: Seq[Setting[_]] = inConfig(DebugTest)(Defaults.testSettings ++ Seq(
 		sourceDirectory <<= baseDirectory(_ / "src" / "test"),
 		scalaSource <<= sourceDirectory(_ / "scala-debug")
@@ -79,7 +79,7 @@ object DaffodilBuild extends Build {
 
 	
 	// creates 'sbt new:*' tasks, using src/test/scala-new as the source directory
-	lazy val NewTest = config("new") extend(Test)
+	lazy val NewTest = config("new") extend(Runtime)
 	lazy val newSettings: Seq[Setting[_]] = inConfig(NewTest)(Defaults.testSettings ++ Seq(
 		sourceDirectory <<= baseDirectory(_ / "src" / "test"),
 		scalaSource <<= sourceDirectory(_ / "scala-new")
