@@ -529,6 +529,50 @@ Date: Mon Feb 23 15:20:47 CST 2009
     </xs:element>
   </tdml:defineSchema>
   
+  <tdml:defineSchema name="hiddenGroup6">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <xs:group name="ab">
+      <xs:sequence dfdl:separator=":">
+        <xs:element name="a" dfdl:length="1" dfdl:lengthKind="explicit" type="xs:int" />
+        <xs:element name="b" dfdl:length="1" dfdl:lengthKind="explicit" type="xs:int" />
+      </xs:sequence>
+    </xs:group>
+    <xs:element name="e" dfdl:lengthKind="delimited">
+      <xs:complexType>
+          <xs:sequence>
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:sequence hiddenGroupRef="ex:ab"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+  
+  <tdml:defineSchema name="hiddenGroup7">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <xs:group name="ab">
+      <xs:sequence dfdl:separator=":">
+        <xs:element name="a" dfdl:length="1" dfdl:lengthKind="explicit" type="xs:int" />
+        <xs:element name="b" dfdl:length="1" dfdl:lengthKind="explicit" type="xs:int" />
+      </xs:sequence>
+    </xs:group>
+    <xs:element name="e" dfdl:lengthKind="delimited">
+      <xs:complexType>
+          <xs:sequence>
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:sequence>
+                  <dfdl:property name="hiddenGroupRef">ex:ab</dfdl:property>
+                </dfdl:sequence>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+  
   <!--
     Test name: hiddenGroupIgnoredProps
        Schema: hiddenGroup5
@@ -543,6 +587,40 @@ Date: Mon Feb 23 15:20:47 CST 2009
     <tdml:errors>
       <tdml:error>Parse Error: Convert to Integer</tdml:error>
       <tdml:error>Unable to parse ':'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hiddenGroupAttributeNotation
+       Schema: hiddenGroup6
+      Purpose: This test demonstrates that a hiddenGroupRef cannot be specified in attribute form within an annotation
+  -->
+  
+  <tdml:parserTestCase name="hiddenGroupAttributeNotation" root="e"
+    model="hiddenGroup6" description="SEE ERRATA 3.1 - attribute form no longer allowed for hiddenGroupRef (Previous req DFDL-7-018R)">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1:2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>A sequence with hiddenGroupRef cannot have children</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hiddenGroupElementNotation
+       Schema: hiddenGroup7
+      Purpose: This test demonstrates that a hiddenGroupRef cannot be specified in element form within an annotation
+  -->
+  
+  <tdml:parserTestCase name="hiddenGroupElementNotation" root="e"
+    model="hiddenGroup7" description="Section 7 - The hiddenGroupRef property may be specified in attribute or short form DFDL-7-018R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1:2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>A sequence with hiddenGroupRef cannot have children</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
