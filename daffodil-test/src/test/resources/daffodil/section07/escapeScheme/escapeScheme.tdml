@@ -54,6 +54,40 @@
     </dfdl:defineEscapeScheme>
     <xs:element name="elem" type="xs:int"/>
   </defineSchema>
+  
+  <defineSchema name="es6">
+    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+
+    <dfdl:defineEscapeScheme name="pound">
+      <dfdl:escapeScheme escapeCharacter='#'
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" />
+    </dfdl:defineEscapeScheme>
+    <dfdl:defineEscapeScheme name='cStyleComment'>
+      <dfdl:escapeScheme escapeBlockStart='/*'
+        escapeBlockEnd='*/' escapeKind="escapeBlock"
+        escapeEscapeCharacter="" />
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="list2">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:sequenceKind="ordered"
+          dfdl:separator=",">
+          <xs:element name="character" type="xs:string" dfdl:escapeSchemeRef="tns:pound"/>
+          <xs:element name="block" type="xs:string">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:element>
+                  <dfdl:property name="escapeSchemeRef">tns:cStyleComment</dfdl:property>
+                </dfdl:element>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </defineSchema>
+  
 
   <parserTestCase name="escapeSchemeSimple" model="es1"
     description="Section 7 defineEscapeScheme - DFDL-7-079R" root="list1">
@@ -96,6 +130,21 @@
     <errors>
       <error>Schema Definition Error</error>
       <error>Attribute 'name' must appear on element</error>
+    </errors>
+  </parserTestCase>
+  
+  <!--
+       Test Name: escapeSchemeFail3
+          Schema: es6
+            Root: list2
+         Purpose: This is a negative test to demonstrate that escapeScheme cannot be specified in element form 
+  -->
+
+  <parserTestCase name="escapeSchemeFail3" model="es6"
+    description="Section 7 defineEscapeScheme - DFDL-7-017R" root="list2">
+    <document><![CDATA[123]]></document>
+    <errors>
+      <error>Schema Definition Error</error>
     </errors>
   </parserTestCase>
 
