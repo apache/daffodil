@@ -30,10 +30,105 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="root2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=":"
+          dfdl:separatorPosition="prefix">
+          <xs:sequence>
+            <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"
+               maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                  <dfdl:element lengthKind="explicit" length="3">
+                    <dfdl:property name="lengthKind">explicit</dfdl:property>
+                  </dfdl:element>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="root3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=":"
+          dfdl:separatorPosition="prefix">
+          <xs:sequence>
+            <xs:element name="e1" type="xs:int" maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                  <dfdl:element lengthKind="explicit" length="3">
+                    <dfdl:property name="lengthKind">explicit</dfdl:property>
+                    <dfdl:property name="length">3</dfdl:property>
+                  </dfdl:element>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="root4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=":"
+          dfdl:separatorPosition="prefix">
+          <xs:sequence>
+            <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="3" type="xs:int" maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                  <dfdl:element>
+                    <dfdl:property name="lengthKind">explicit</dfdl:property>
+                    <dfdl:property name="length">3</dfdl:property>
+                  </dfdl:element>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 </tdml:defineSchema>
     
     <tdml:parserTestCase name="ShortAndLongForm" root="root"
     model="PropertySyntax" description="Negative test for both short and long form on an element- DFDL-7-020R">
+
+    <tdml:document><![CDATA[:408522835:22:19:154]]></tdml:document>
+
+    <tdml:errors>
+      <tdml:error />
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+    
+  <tdml:parserTestCase name="ShortAnnotationAndElementForm" root="root2"
+    model="PropertySyntax" description="Negative test for short, annotation, and element form on an element- DFDL-7-020R">
+
+    <tdml:document><![CDATA[:408522835:22:19:154]]></tdml:document>
+
+    <tdml:errors>
+      <tdml:error />
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  <tdml:parserTestCase name="AnnotationAndElementForm" root="root3"
+    model="PropertySyntax" description="Negative test for both annotation and element form on an element- DFDL-7-020R">
+
+    <tdml:document><![CDATA[:408522835:22:19:154]]></tdml:document>
+
+    <tdml:errors>
+      <tdml:error />
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="ShortAndElementForm" root="root4"
+    model="PropertySyntax" description="Negative test for both short and element form on an element- DFDL-7-020R">
 
     <tdml:document><![CDATA[:408522835:22:19:154]]></tdml:document>
 
@@ -71,6 +166,42 @@
         <houseNumber2>118</houseNumber2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="PropertySyntaxInvalid">
+
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+      lengthUnits="bytes" encoding="" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="text" initiatedContent="no" />
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=":"
+          dfdl:separatorPosition="prefix">
+          <xs:sequence>
+            <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"
+               maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                  <dfdl:element lengthKind="explicit" length="3"/>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+</tdml:defineSchema>
+  
+  <tdml:parserTestCase name="encodingEmptyFail" root="root"
+    model="PropertySyntaxInvalid" description="DFDL-7-025R:Empty string as a Property Value">
+    <tdml:document><![CDATA[118]]></tdml:document>
+    <tdml:errors>
+      <tdml:error />
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

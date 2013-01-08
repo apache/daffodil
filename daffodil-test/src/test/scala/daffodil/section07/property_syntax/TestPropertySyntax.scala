@@ -25,8 +25,12 @@ class TestPropertySyntax extends JUnitSuite {
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
   @Test def test_ShortAndLongForm() { runner1.runOneTest("ShortAndLongForm") }
+  @Test def test_ShortAnnotationAndElementForm() { runner1.runOneTest("ShortAnnotationAndElementForm") }
+  @Test def test_AnnotationAndElementForm() { runner1.runOneTest("AnnotationAndElementForm") }
+  @Test def test_ShortAndElementForm() { runner1.runOneTest("ShortAndElementForm") }
   @Test def test_Lesson3_attribute_form() { runner1.runOneTest("Lesson3_attribute_form") }
   @Test def test_Lesson3_element_form() { runner1.runOneTest("Lesson3_element_form") }
   @Test def test_Lesson3_short_form() { runner1.runOneTest("Lesson3_short_form") }
+//  @Test def test_encodingEmptyFail() { runner1.runOneTestNoTDMLValidation("encodingEmptyFail") }
 
 }
