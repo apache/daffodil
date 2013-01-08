@@ -33,4 +33,5 @@ class TestPropertyScoping extends JUnitSuite {
   @Test def test_property_scoping_04() { runner_01.runOneTest("property_scoping_04") }
   @Test def test_property_scoping_05() { runner_01.runOneTest("property_scoping_05") }
   @Test def testNearestEnclosingSequenceElementRef() { runner_01.runOneTest("NearestEnclosingSequenceElementRef") }
+  @Test def test_property_refElementFormFail() { runner_01.runOneTest("refElementFormFail") }
 }

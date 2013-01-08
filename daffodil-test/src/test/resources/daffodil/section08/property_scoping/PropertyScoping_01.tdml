@@ -407,5 +407,16 @@
       <tdml:error>overlap</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="refElementFormFail"
+    root="easy" model="PropertyScoping_05.dfdl.xsd"
+    description="ref property may be specified in attribute or short form - DFDL-7-016R">
+    <tdml:document>-1009</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Attribute</tdml:error>
+      <tdml:error>not allowed to appear in element 'schema'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
