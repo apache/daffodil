@@ -25,6 +25,14 @@
         <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited" />
       </xs:sequence>
     </xs:group>
+    
+    <xs:group name="namedGroup2">
+      <xs:sequence>
+        <xs:element name="e3" type="xs:string"
+          dfdl:lengthKind="delimited" dfdl:terminator="|" />
+        <xs:element name="e4" type="xs:int" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:group>
 
     <xs:element name="Item" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -37,6 +45,31 @@
             </xs:appinfo>
           </xs:annotation>
         </xs:group>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="Item2" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:choice>
+          <xs:group ref="ex:namedGroup">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:discriminator testKind="pattern"
+                  testPattern="\p{L}{3},\d{3}"
+                  message="discriminator failed for pattern '\p{L}{3},\d{3}'" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:group>
+          <xs:group ref="ex:namedGroup2">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:discriminator testKind="pattern"
+                  testPattern="\p{L}{3}|\d{3}"
+                  message="discriminator failed for pattern '\p{L}{3}|\d{3}'" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:group>
+        </xs:choice>
       </xs:complexType>
     </xs:element>
 
@@ -106,6 +139,27 @@
           <e1>Hat</e1>
           <e2>400</e2>
         </Item>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: discrimOnGroupRef2
+    Schema: s0, root Item
+    Purpose: This test demonstrates the use of a discriminator on a group 
+    reference. The document meets the discriminator and should pass.
+  -->
+
+  <tdml:parserTestCase name="discrimOnGroupRef2"
+    root="Item2" model="s0"
+    description="Section 7 - Discriminator on Group Reference - DFDL-7-071R">
+    <tdml:document>Hat|400</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <Item2>
+          <e3>Hat</e3>
+          <e4>400</e4>
+        </Item2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
