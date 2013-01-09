@@ -206,13 +206,9 @@
     <tdml:document>
       <tdml:documentPart type="bits">01000010 00111000 00000000 00000000</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <LP_12>
-          <data>46.0</data>
-        </LP_12>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <!--
