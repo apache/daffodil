@@ -132,6 +132,17 @@
       dfdl:byteOrder="bigEndian">
       <xs:restriction base="xs:string" />
     </xs:simpleType>
+    
+    <xs:element name="LP_12">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="data" dfdl:alignmentUnits='bits'
+            dfdl:alignment='1' dfdl:encoding="utf-8" type="xs:float"
+            dfdl:lengthKind="implicit" dfdl:representation="binary" dfdl:lengthUnits="bits"
+            dfdl:byteOrder="bigEndian" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
   
@@ -179,6 +190,27 @@
           <data>lem</data>
           <extra>ons</extra>
         </LP_11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: LengthProp_floatBits
+    Schema: LengthProperties-Embedded.dfdl.xsd
+    Purpose: This test demonstrates the use of lengthKind="bits" when representing a float
+  -->
+
+  <tdml:parserTestCase name="LengthProp_floatBits"
+    root="LP_12" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-058R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">01000010 00111000 00000000 00000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <LP_12>
+          <data>46.0</data>
+        </LP_12>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

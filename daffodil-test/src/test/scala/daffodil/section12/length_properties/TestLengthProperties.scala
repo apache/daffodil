@@ -83,6 +83,8 @@ class TestLengthProperties extends JUnitSuite {
   @Test def test_LengthProp_leftover2() { runner_02.runOneTest("LengthProp_leftover2") }
   @Test def test_LengthProp_leftover3() { runner_02.runOneTest("LengthProp_leftover3") }
   @Test def test_LengthProp_leftover4() { runner_02.runOneTest("LengthProp_leftover4") }
+  
+//  @Test def test_LengthProp_floatBits() { runner_02.runOneTest("LengthProp_floatBits") }
  
   @Test def test_bitShort() { runner_02.runOneTest("bitShort") }
   @Test def test_bitShort2() { runner_02.runOneTest("bitShort2") }
