@@ -1381,5 +1381,58 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+<!--
+     Test Name: invalid_enum_1
+        Schema: expressions_broken.dfdl.xsd
+       Purpose: This test demonstrates that it is a schema definition error if a value other than one of the 
+                enumerated values is specified for a schema property.
+-->
+
+  <tdml:parserTestCase name="invalid_enum_1" model="expressions_broken.dfdl.xsd" 
+    description="Section 06 - DFDL Expressions - DFDL-6-083R" root="e1">
+    <tdml:document>
+      <tdml:documentPart type="text">word</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Value 'hieroglyphs' is not facet-valid with respect to enumeration</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: invalid_enum_2
+        Schema: expressions_broken_2.dfdl.xsd
+       Purpose: This test demonstrates that it is a schema definition error if the case of the specified value 
+                does not match the expected case for the enumeration.
+-->
+
+  <tdml:parserTestCase name="invalid_enum_2" model="expressions_broken_2.dfdl.xsd" 
+    description="Section 06 - DFDL Expressions - DFDL-6-084R" root="e1">
+    <tdml:document>
+      <tdml:documentPart type="text">word</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Value 'TExT' is not facet-valid with respect to enumeration</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: invalid_enum_3
+        Schema: expressions_broken_3.dfdl
+       Purpose: This test demonstrates that enumerations are strings unless otherwise stated. 
+-->
+
+  <tdml:parserTestCase name="invalid_enum_3" model="expressions_broken_3.dfdl.xsd" 
+    description="Section 06 - DFDL Expressions - DFDL-6-085R" root="e1">
+    <tdml:document>
+      <tdml:documentPart type="text">word</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Value '0' is not facet-valid with respect to enumeration</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

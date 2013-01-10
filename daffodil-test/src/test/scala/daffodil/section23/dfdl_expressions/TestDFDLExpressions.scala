@@ -53,4 +53,7 @@ class TestDFDLExpressions extends JUnitSuite {
   @Test def test_repeatBitFlags5() { runner.runOneTest("repeatBitFlags5") }
   @Test def test_repeatBitFlags6() { runner.runOneTest("repeatBitFlags6") }
 
+  @Test def test_invalid_enum_1() { runner.runOneTest("invalid_enum_1") }
+  @Test def test_invalid_enum_2() { runner.runOneTest("invalid_enum_2") }
+  @Test def test_invalid_enum_3() { runner.runOneTest("invalid_enum_3") }
 }
