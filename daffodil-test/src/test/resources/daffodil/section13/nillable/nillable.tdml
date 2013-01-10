@@ -36,7 +36,7 @@
     </xs:element>
 
     <xs:element name="doc_02" nillable="true"
-      dfdl:lengthKind="implicit" dfdl:nilKind="literalValue"
+      dfdl:nilKind="literalValue" dfdl:lengthKind="delimited"
       dfdl:nilValue="%ES;">
       <xs:complexType>
         <xs:sequence>
