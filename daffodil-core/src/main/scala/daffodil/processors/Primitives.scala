@@ -553,7 +553,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
     override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-//       withLoggingLevel(LogLevel.Debug) 
+      //       withLoggingLevel(LogLevel.Debug) 
       {
 
         val eName = e.toString()
@@ -1128,7 +1128,7 @@ case class ZonedTextLongPrim(el: ElementBase) extends ZonedTextNumberPrim(el, fa
 trait RuntimeExplicitLengthMixin[T] {
   self: Terminal =>
   def e: ElementBase
-    lazy val toBits = e.lengthUnits match {
+  lazy val toBits = e.lengthUnits match {
     case LengthUnits.Bits => 1
     case LengthUnits.Bytes => 8
     case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
@@ -1188,11 +1188,11 @@ trait UnsignedNumberMixin[T] {
 
 abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true) {
   lazy val primName = e.primType.name
-//  lazy val toBits = e.lengthUnits match {
-//    case LengthUnits.Bits => 1
-//    case LengthUnits.Bytes => 8
-//    case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
-//  }
+  //  lazy val toBits = e.lengthUnits match {
+  //    case LengthUnits.Bits => 1
+  //    case LengthUnits.Bytes => 8
+  //    case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
+  //  }
 
   lazy val staticByteOrderString = e.byteOrder.constantAsString
   lazy val staticByteOrder = ByteOrder(staticByteOrderString, context)
@@ -1911,7 +1911,7 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
     val charsetName = charset.name()
 
     def parse(start: PState): PState = {
-//      withLoggingLevel(LogLevel.Debug) 
+//            withLoggingLevel(LogLevel.Debug) 
       {
 
         // TODO: What if someone passes in nBytes = 0 for Explicit length, is this legal?
@@ -1968,7 +1968,13 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
         } catch {
           case e: java.nio.BufferUnderflowException => {
             // In this case, we failed to get the bytes
-            return PE(postEvalState, "%s - Insufficient Bytes in field; required %s", name, nBytes)
+            if (isEmptyAllowed) {
+              // Valid!
+              postEvalState.parentElement.makeNil()
+              return postEvalState // Empty, no need to advance
+            } else {
+              return PE(postEvalState, "%s - Insufficient Bytes in field; required %s", name, nBytes)
+            }
           }
           case e: IndexOutOfBoundsException => { return PE(postEvalState, "%s - IndexOutOfBounds: \n%s", name, e.getMessage()) }
           case u: UnsuppressableException => throw u
@@ -2061,7 +2067,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
             // Contains a nilValue, Success!
             start.parentElement.makeNil()
 
-            val numBits = result.numBits//e.knownEncodingStringBitLength(result.field)
+            val numBits = result.numBits //e.knownEncodingStringBitLength(result.field)
             val endCharPos =
               if (postEvalState.charPos == -1) result.field.length
               else postEvalState.charPos + result.field.length
@@ -2153,7 +2159,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
             // Contains a nilValue, Success!
             start.parentElement.makeNil()
 
-            val numBits = result.numBits//e.knownEncodingStringBitLength(result.field)
+            val numBits = result.numBits //e.knownEncodingStringBitLength(result.field)
             //val endCharPos = start.charPos + result.field.length()
             val endCharPos =
               if (postEvalState.charPos == -1) result.field.length
@@ -2242,7 +2248,7 @@ case class LiteralNilPattern(e: ElementBase)
             // Contains a nilValue, Success!
             start.parentElement.makeNil()
 
-            val numBits = result.numBits//e.knownEncodingStringBitLength(result.field)
+            val numBits = result.numBits //e.knownEncodingStringBitLength(result.field)
 
             val endCharPos =
               if (postEvalState.charPos == -1) result.field.length
@@ -2282,7 +2288,7 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
     override def toString = "LiteralNilDelimitedOrEndOfData(" + e.nilValue + ")"
 
     def parse(start: PState): PState = {
-     //  withLoggingLevel(LogLevel.Info) 
+      //  withLoggingLevel(LogLevel.Info) 
       {
         val eName = e.toString()
 
@@ -2304,7 +2310,7 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
         val delimsCooked1 = delimsRaw.map(raw => { new daffodil.dsom.ListOfStringValueAsLiteral(raw.toString, e).cooked })
         val delimsCooked = delimsCooked1.flatten
         //val nilValuesCooked1 = delimsRaw.map(raw => { new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked })
-        val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked//nilValuesCooked1.flatten
+        val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked //nilValuesCooked1.flatten
         val postEvalState = start.withVariables(vars)
 
         log(Debug("%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))

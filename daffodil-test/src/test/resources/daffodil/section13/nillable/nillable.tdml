@@ -36,7 +36,7 @@
     </xs:element>
 
     <xs:element name="doc_02" nillable="true"
-      dfdl:nilKind="literalValue" dfdl:lengthKind="delimited"
+      dfdl:lengthKind="explicit" dfdl:length="6" dfdl:nilKind="literalValue"
       dfdl:nilValue="%ES;">
       <xs:complexType>
         <xs:sequence>
@@ -110,7 +110,8 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="doc_07" nillable="true">
+    <xs:element name="doc_07" nillable="true" dfdl:lengthKind="explicit" 
+       dfdl:length="3" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="e1" type="xs:string"
@@ -276,6 +277,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
+        <doc_07 xsi:nil="true"></doc_07>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

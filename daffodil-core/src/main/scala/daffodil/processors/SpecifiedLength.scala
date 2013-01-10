@@ -154,7 +154,7 @@ class SpecifiedLengthExplicitBitsParser(combinator: SpecifiedLengthCombinatorBas
 
     val (pState, nBits) = combinator.getBitLength(start)
     val in = pState.inStream
-    
+
     try {
       val nBytes = scala.math.ceil(nBits / 8.0).toLong
       val bytes = in.getBytes(pState.bitPos, nBytes)
@@ -162,7 +162,13 @@ class SpecifiedLengthExplicitBitsParser(combinator: SpecifiedLengthCombinatorBas
       val postEState = parse(pState, endBitPos, e)
       return postEState
     } catch {
-      case e: java.nio.BufferUnderflowException => { return PE(pState, "SpecifiedLengthExplicitBitsParser - Insufficient Bits in field; required %s", nBits) }
+      case ex: java.nio.BufferUnderflowException => {
+        // Insufficient bytes in field, but we need to still allow processing
+        // to test for Nils
+        val endBitPos = start.bitPos + 0
+        val postEState = parse(start, endBitPos, e)
+        return postEState
+      }
       case e: IndexOutOfBoundsException => { return PE(pState, "SpecifiedLengthExplicitBitsParser - IndexOutOfBounds: \n%s", e.getMessage()) }
       case u: UnsuppressableException => throw u
       case e: Exception => { return PE(pState, "SpecifiedLengthExplicitBitsParser - Exception: \n%s", e.getStackTraceString) }
@@ -186,10 +192,16 @@ class SpecifiedLengthExplicitBitsFixedParser(combinator: SpecifiedLengthCombinat
       val postEState = parse(start, endBitPos, e)
       return postEState
     } catch {
-      case e: java.nio.BufferUnderflowException => { return PE(start, "SpecifiedLengthExplicitBitsFixedParser - Insufficient Bits in field; required %s", nBits) }
-      case e: IndexOutOfBoundsException => { return PE(start, "SpecifiedLengthExplicitBitsFixedParser - IndexOutOfBounds: \n%s", e.getMessage()) }
+      case ex: java.nio.BufferUnderflowException => {
+        // Insufficient bits in field, but we need to still allow processing
+        // to test for Nils
+        val endBitPos = start.bitPos + 0
+        val postEState = parse(start, endBitPos, e)
+        return postEState
+      }
+      case ex: IndexOutOfBoundsException => { return PE(start, "SpecifiedLengthExplicitBitsFixedParser - IndexOutOfBounds: \n%s", ex.getMessage()) }
       case u: UnsuppressableException => throw u
-      case e: Exception => { return PE(start, "SpecifiedLengthExplicitBitsFixedParser - Exception: \n%s", e.getStackTraceString) }
+      case ex: Exception => { return PE(start, "SpecifiedLengthExplicitBitsFixedParser - Exception: \n%s", ex.getStackTraceString) }
     }
   }
 }
@@ -204,17 +216,23 @@ class SpecifiedLengthExplicitBytesParser(combinator: SpecifiedLengthCombinatorBa
 
     val (pState, nBytes) = combinator.getLength(start)
     val in = pState.inStream
-    
+
     try {
       val bytes = in.getBytes(pState.bitPos, nBytes)
       val endBitPos = pState.bitPos + (nBytes * 8)
       val postEState = parse(pState, endBitPos, e)
       return postEState
     } catch {
-      case e: java.nio.BufferUnderflowException => { return PE(pState, "SpecifiedLengthExplicitBytesParser - Insufficient Bits in field; required %s", nBytes * 8) }
-      case e: IndexOutOfBoundsException => { return PE(pState, "SpecifiedLengthExplicitBytesParser - IndexOutOfBounds: \n%s", e.getMessage()) }
+      case ex: java.nio.BufferUnderflowException => {
+        // Insufficient bytes in field, but we need to still allow processing
+        // to test for Nils
+        val endBitPos = start.bitPos + 0
+        val postEState = parse(start, endBitPos, e)
+        return postEState
+      }
+      case ex: IndexOutOfBoundsException => { return PE(pState, "SpecifiedLengthExplicitBytesParser - IndexOutOfBounds: \n%s", ex.getMessage()) }
       case u: UnsuppressableException => throw u
-      case e: Exception => { return PE(pState, "SpecifiedLengthExplicitBytesParser - Exception: \n%s", e.getStackTraceString) }
+      case ex: Exception => { return PE(pState, "SpecifiedLengthExplicitBytesParser - Exception: \n%s", ex.getStackTraceString) }
     }
   }
 }
@@ -229,16 +247,21 @@ class SpecifiedLengthExplicitBytesFixedParser(combinator: SpecifiedLengthCombina
     val in = start.inStream
 
     try {
-
       val bytes = in.getBytes(start.bitPos, nBytes)
       val endBitPos = start.bitPos + (nBytes * 8)
       val postEState = parse(start, endBitPos, e)
       return postEState
     } catch {
-      case e: java.nio.BufferUnderflowException => { return PE(start, "SpecifiedLengthExplicitBytesFixedParser - Insufficient Bits in field; required %s", nBytes * 8) }
-      case e: IndexOutOfBoundsException => { return PE(start, "SpecifiedLengthExplicitBytesFixedParser - IndexOutOfBounds: \n%s", e.getMessage()) }
+      case ex: java.nio.BufferUnderflowException => {
+        // Insufficient bytes in field, but we need to still allow processing
+        // to test for Nils
+        val endBitPos = start.bitPos + 0
+        val postEState = parse(start, endBitPos, e)
+        return postEState
+      }
+      case ex: IndexOutOfBoundsException => { return PE(start, "SpecifiedLengthExplicitBytesFixedParser - IndexOutOfBounds: \n%s", ex.getMessage()) }
       case u: UnsuppressableException => throw u
-      case e: Exception => { return PE(start, "SpecifiedLengthExplicitBytesFixedParser - Exception: \n%s", e.getStackTraceString) }
+      case ex: Exception => { return PE(start, "SpecifiedLengthExplicitBytesFixedParser - Exception: \n%s", ex.getStackTraceString) }
     }
   }
 }
