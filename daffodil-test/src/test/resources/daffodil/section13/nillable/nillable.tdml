@@ -110,12 +110,12 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="doc_07" nillable="true" dfdl:lengthKind="explicit" 
-       dfdl:length="3" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;">
+    <xs:element name="doc_07">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="e1" type="xs:string"
-            dfdl:lengthKind="pattern" dfdl:lengthPattern="cat" />
+          <xs:element name="e1" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="3"
+            minOccurs="0" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -132,8 +132,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <doc>
-          <e1>0</e1>
-          <e2 xsi:nil="true" />
+          <e1>0</e1> <e2 xsi:nil="true" />
         </doc>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -268,16 +267,15 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="nil8" root="doc_07"
+  <tdml:parserTestCase name="empty_infoset" root="doc_07"
     model="s1" description="nil - DFDL-13-199R">
 
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[catblablahblah]]></tdml:documentPart>
     </tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc_07 xsi:nil="true"></doc_07>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
