@@ -47,6 +47,19 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="doc_02b" nillable="true"
+      dfdl:nilKind="literalValue" dfdl:lengthKind="delimited"
+      dfdl:nilValue="">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string"
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="cat" />
+          <xs:element name="e2" type="xs:string"
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="dog" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:element name="doc_03" dfdl:lengthKind="implicit"
       dfdl:initiator="$">
@@ -174,6 +187,19 @@
         <doc_02 xsi:nil="true" />
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="litNil4b" root="doc_02b"
+    model="s1"
+    description="When the empty string is to be used as a value, the entity %ES; must be used in the corresponding string literal - DFDL-06-036R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+     <tdml:error>Schema Definition Error</tdml:error>
+     <tdml:error>nilValue cannot be empty!()</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="litNil5" root="doc_04"
