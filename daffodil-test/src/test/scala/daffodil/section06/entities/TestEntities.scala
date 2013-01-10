@@ -43,6 +43,8 @@ class TestEntities extends JUnitSuite {
   //@Test def test_byte_entities_6_06() { runner_01.runOneTest("byte_entities_6_06") }
   //@Test def test_byte_entities_6_07() { runner_01.runOneTest("byte_entities_6_07") }
   @Test def test_byte_entities_6_08() { runner_01.runOneTest("byte_entities_6_08") }
+  
+//  @Test def test_whitespace_01() { runner_01.runOneTest("whitespace_01") }
 
   val testDir_02 = "/daffodil/ibm-tests/"
   val tdml_02 = testDir_02 + "dpaext1.tdml"

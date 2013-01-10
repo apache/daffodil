@@ -26,5 +26,7 @@ class TestEntities_01 extends JUnitSuite {
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
   // Needs dfdl:utf16Width='variable' implementation
   @Test def test_syntax_entities_6_03() { runner_02.runOneTest("syntax_entities_6_03") }
+  
+  @Test def test_whitespace_01() { runner_01.runOneTest("whitespace_01") }
 
 }
