@@ -310,6 +310,46 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="hiddenGroupLoop">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <xs:group name="hgNested">
+      <xs:sequence>
+        <xs:sequence dfdl:hiddenGroupRef="ex:hg"/>
+        <xs:element name="sneaky" type="xs:int" />
+      </xs:sequence>
+    </xs:group>
+    <xs:group name="hg">
+      <xs:sequence dfdl:separator="/">
+        <xs:sequence dfdl:hiddenGroupRef="ex:hgNested" />
+        <xs:element name="f" type="xs:int" />
+      </xs:sequence>
+    </xs:group>
+    <xs:element name="e" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:sequence dfdl:hiddenGroupRef="ex:hg" />
+          <xs:element name="g" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+ </tdml:defineSchema>
+
+  <!--
+    Test name: hiddenGroupLoop
+       Schema: hiddenGroupLoop
+      Purpose: This test demonstrates a circular reference with hidden group refs and should cause a Schema Definition Error
+  -->
+  
+  <tdml:parserTestCase name="hiddenGroupLoop" root="e"
+    model="hiddenGroupLoop" description="Section 14 - Hidden Groups - DFDL-14-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[stringy,2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors> 
+      <tdml:error>Schema Definition Error</tdml:error> 
+    </tdml:errors> 
+ </tdml:parserTestCase>
 
   <tdml:parserTestCase name="AS000" root="table" model="AS-Embedded"
     description="hiddenGroupRef">
