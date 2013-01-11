@@ -165,11 +165,11 @@ class TestSimpleTypes extends JUnitSuite {
 
   @Test def test_double_07() { runner.runOneTest("double_07") }
   
-  //@Test def test_ubyte_binary_01() { runner.runOneTest("ubyte_binary_01") }
-  //@Test def test_ubyte_binary_02() { runner.runOneTest("ubyte_binary_02") }
-  //@Test def test_ubyte_binary_03() { runner.runOneTest("ubyte_binary_03") }
-  //@Test def test_ubyte_binary_04() { runner.runOneTest("ubyte_binary_04") }
-  //@Test def test_ubyte_binary_05() { runner.runOneTest("ubyte_binary_05") }
+  @Test def test_ubyte_binary_01() { runner.runOneTest("ubyte_binary_01") }
+  @Test def test_ubyte_binary_02() { runner.runOneTest("ubyte_binary_02") }
+  @Test def test_ubyte_binary_03() { runner.runOneTest("ubyte_binary_03") }
+  @Test def test_ubyte_binary_04() { runner.runOneTest("ubyte_binary_04") }
+  @Test def test_ubyte_binary_05() { runner.runOneTest("ubyte_binary_05") }
   
   @Test def test_ubyte_implicit() { runner.runOneTest("ubyte_implicit") }
   

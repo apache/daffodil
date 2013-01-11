@@ -1350,7 +1350,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <b_01>13</b_01>
+        <uB_01>13</uB_01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -1384,7 +1384,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Not enough bits to create an xs:byte</tdml:error>
+      <tdml:error>Not enough bits to create an xs:unsignedByte</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1401,7 +1401,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <b_01>97</b_01>
+        <uB_01>97</uB_01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -1420,7 +1420,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <b_01>40</b_01>
+        <uB_01>40</uB_01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
