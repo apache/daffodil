@@ -1323,7 +1323,7 @@
   <!--
     Test name: byte_implicit
     Schema: SimpleTypes-Embedded.dfdl.xsd
-    Purpose: This document contains a byte representation of 8 bits, which is the correct implicit length of a byte and should be parsed accordingly
+    Purpose: This document attempts to parse a textual representation of byte with implicit length and should fail
   -->
   
   <tdml:parserTestCase name="byte_implicit" root="byte"
@@ -1428,11 +1428,11 @@
   <!--
     Test name: ubyte_implicit
     Schema: SimpleTypes-Embedded.dfdl.xsd
-    Purpose: This document contains a byte representation of 8 bits, which is the correct implicit length of a byte and should be parsed accordingly
+    Purpose: This document attempts to parse a textual representation of an unsignedByte with implicit length and should fail
   -->
   
   <tdml:parserTestCase name="ubyte_implicit" root="uByte"
-      model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-byte - DFDL-5-015R">
+      model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types- unsignedByte - DFDL-5-020R">
     <tdml:document>
       <tdml:documentPart type="bits">11010101</tdml:documentPart>
     </tdml:document>
