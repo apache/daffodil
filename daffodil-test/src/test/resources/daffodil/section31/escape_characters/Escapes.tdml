@@ -28,11 +28,6 @@
         escapeKind="escapeCharacter" escapeEscapeCharacter="%"
         extraEscapedCharacters="?" />
     </dfdl:defineEscapeScheme>
-
-    <dfdl:defineEscapeScheme name="table3">
-      <dfdl:escapeScheme escapeKind="escapeBlock" escapeBlockStart="[" escapeBlockEnd="]" 
-        escapeEscapeCharacter="%" extraEscapedCharacters="?"/>
-    </dfdl:defineEscapeScheme>
     
     <dfdl:defineEscapeScheme name="table4">
       <dfdl:escapeScheme escapeKind="escapeBlock" escapeBlockStart="'" escapeBlockEnd="'" 
@@ -78,6 +73,11 @@
           dfdl:escapeSchemeRef="ex:table4" />
       </xs:sequence>
     </xs:complexType>
+
+    <dfdl:defineEscapeScheme name="table3">
+      <dfdl:escapeScheme escapeKind="escapeBlock" escapeBlockStart="[" escapeBlockEnd="]" 
+        escapeEscapeCharacter="%" extraEscapedCharacters="?"/>
+    </dfdl:defineEscapeScheme>
 
   </tdml:defineSchema>
 
