@@ -23,6 +23,7 @@ class TestNillable extends JUnitSuite {
   @Test def test_litNil3() { runnerAA.runOneTest("litNil3") }
   @Test def test_litNil4() { runnerAA.runOneTest("litNil4") }
   @Test def test_litNil4b() { runnerAA.runOneTest("litNil4b") }
+  @Test def test_litNil5() { runnerAA.runOneTest("litNil5") }
   @Test def test_litNil6() { runnerAA.runOneTest("litNil6") }
   @Test def test_missing_scalar() { runnerAA.runOneTest("missing_scalar") }
 
@@ -39,7 +40,7 @@ class TestNillable extends JUnitSuite {
   val testDir_01 = "/daffodil/section06/entities/"
   val entity = testDir_01 + "entities_01.tdml"
   lazy val runnerEntity = new DFDLTestSuite(Misc.getRequiredResource(entity))
-  //  @Test def test_entity_fail_05() { runnerEntity.runOneTest("entity_fail_05") }
-  //  @Test def test_entity_fail_06() { runnerEntity.runOneTest("entity_fail_06") }
+  @Test def test_entity_fail_05() { runnerEntity.runOneTest("entity_fail_05") }
+  @Test def test_entity_fail_06() { runnerEntity.runOneTest("entity_fail_06") }
 
 }
