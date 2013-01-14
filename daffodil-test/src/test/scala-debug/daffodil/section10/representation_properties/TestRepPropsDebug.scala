@@ -14,7 +14,7 @@ import java.io.File
 class TestRepPropsDebug extends JUnitSuite {
   val testDir_01 = "/daffodil/section10/representation_properties/"
   val tdml1 = testDir_01 + "RepProps.tdml"
-  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
 
   @Test def test_repPropMissing3() { runner.runOneTest("repPropMissing3") }
 
