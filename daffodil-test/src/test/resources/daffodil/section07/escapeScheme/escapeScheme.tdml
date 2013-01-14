@@ -103,6 +103,18 @@
 
   </defineSchema>
   
+  <defineSchema name="unusedRef">
+  <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    
+    <dfdl:defineEscapeScheme name="table1">
+      <dfdl:escapeScheme escapeCharacter='/'
+        escapeKind="escapeCharacter" escapeEscapeCharacter=";"
+        extraEscapedCharacters="?" />
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="noesc" type="xs:string"/>
+
+  </defineSchema>
 
   <parserTestCase name="escapeSchemeSimple" model="es1"
     description="Section 7 defineEscapeScheme - DFDL-7-079R" root="list1">
@@ -172,6 +184,25 @@
 
   <parserTestCase name="escapeSchemeEmpty" model="emptyRef"
     description="Section 13 defineEscapeScheme - DFDL-13-022R" root="noesc">
+    <document><![CDATA[;/../a]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <noesc>;/../a</noesc>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+  
+  <!--
+       Test Name: escapeSchemeUnused
+          Schema: unusedRef
+            Root: noesc
+         Purpose: This is a test to demonstrate that A dfdl:defineFormat serves only to supply a 
+                  named definition for a format for reuse from other places. It does not cause any 
+                  use of the representation properties it contains to describe any actual data (DFDL-7-088R)
+  -->
+
+  <parserTestCase name="escapeSchemeUnused" model="unusedRef"
+    description="Section 7 defineEscapeScheme - DFDL-7-088R" root="noesc">
     <document><![CDATA[;/../a]]></document>
     <infoset>
       <dfdlInfoset>
