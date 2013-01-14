@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="RepresentationPropertyTests" description="Section 10 - Core Representation Properties"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com">
+
+  <tdml:defineSchema name="neededRepProp">
+    <dfdl:format lengthKind="delimited" leadingSkip="0"/>
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="inty" type="xs:int" dfdl:lengthKind="delimited" />
+          <xs:element name="stringy" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+  
+  <tdml:defineSchema name="neededRepProp2">
+    <dfdl:format lengthKind="delimited" leadingSkip="0"
+      initiator="" terminator="" separatorPosition="infix"
+      encoding="utf-8" initiatedContent="no" />
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="inty" type="xs:int" dfdl:lengthKind="delimited" />
+          <xs:element name="stringy" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+  
+  <tdml:defineSchema name="neededRepProp3">
+    <dfdl:format lengthKind="delimited" leadingSkip="0"
+      initiator="" terminator="" separatorPosition="infix"
+      encoding="utf-8" initiatedContent="no" representation="text"
+      textNumberRep="standard" />
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="inty" type="xs:int" dfdl:lengthKind="delimited" />
+          <xs:element name="stringy" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <!--
+    Test name: repPropMissing
+    Schema: neededRepProp
+    Purpose: This test uses a schema that does not define some core representation properties and should fail
+  -->
+
+  <tdml:parserTestCase name="repPropMissing" root="root"
+    model="neededRepProp" description="Section 10 - Core Representation Properties - DFDL-10-001R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property initiator is not defined</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: repPropMissing2
+    Schema: neededRepPro2
+    Purpose: This test uses a schema that does not define some core representation properties and should fail
+  -->
+
+  <tdml:parserTestCase name="repPropMissing2" root="root"
+    model="neededRepProp2" description="Section 10 - Core Representation Properties - DFDL-10-001R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property representation is not defined</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: repPropMissing3
+    Schema: neededRepPro3
+    Purpose: This test uses a schema that does not define some core representation properties and should fail
+  -->
+
+  <tdml:parserTestCase name="repPropMissing3" root="root"
+    model="neededRepProp3" description="Section 10 - Core Representation Properties - DFDL-10-001R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+<!--
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <inty>1</inty>
+          <stringy></stringy>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+-->
+  </tdml:parserTestCase>
+
+</tdml:testSuite>
