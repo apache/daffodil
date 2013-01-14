@@ -86,6 +86,21 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+  </defineSchema>
+  
+  <defineSchema name="emptyRef">
+  <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    
+    <dfdl:defineEscapeScheme name="table1">
+      <dfdl:escapeScheme escapeCharacter='/'
+        escapeKind="escapeCharacter" escapeEscapeCharacter=";"
+        extraEscapedCharacters="?" />
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="noesc" type="xs:string" dfdl:escapeSchemeRef=""/>
+    <xs:element name="esc" type="xs:string" dfdl:escapeSchemeRef="tns:table1"/>
+
   </defineSchema>
   
 
@@ -146,6 +161,40 @@
     <errors>
       <error>Schema Definition Error</error>
     </errors>
+  </parserTestCase>
+  
+  <!--
+       Test Name: escapeSchemeEmpty
+          Schema: emptyRef
+            Root: noesc
+         Purpose: This is a test to demonstrate that if the value of escapeSchemeRef is the empty string then escaping is explicitly turned off
+  -->
+
+  <parserTestCase name="escapeSchemeEmpty" model="emptyRef"
+    description="Section 13 defineEscapeScheme - DFDL-13-022R" root="noesc">
+    <document><![CDATA[;/../a]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <noesc>;/../a</noesc>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+  
+  <!--
+       Test Name: escapeSchemeNonEmpty
+          Schema: emptyRef
+            Root: esc
+         Purpose: This is a test to counter the test that demonstrates if the value of escapeSchemeRef is the empty string then escaping is explicitly turned off
+  -->
+
+  <parserTestCase name="escapeSchemeNonEmpty" model="emptyRef"
+    description="Section 13 defineEscapeScheme - DFDL-13-022R" root="esc">
+    <document><![CDATA[;/../a]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <esc>/..a</esc>
+      </dfdlInfoset>
+    </infoset>
   </parserTestCase>
 
 </testSuite>

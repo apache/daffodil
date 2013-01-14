@@ -21,6 +21,8 @@ class TestEscapeScheme extends JUnitSuite {
   @Test def test_escapeSchemeFail() { runner.runOneTest("escapeSchemeFail") }
   @Test def test_escapeSchemeFail2() { runner.runOneTest("escapeSchemeFail2") }
   @Test def test_escapeSchemeFail3() { runner.runOneTest("escapeSchemeFail3") }
+  @Test def test_escapeSchemeEmpty() { runner.runOneTest("escapeSchemeEmpty") }
+  @Test def test_escapeSchemeNonEmpty() { runner.runOneTest("escapeSchemeNonEmpty") }
 
   val tdmlNeg = testDir + "escapeSchemeNeg.tdml"
   lazy val runnerNeg = new DFDLTestSuite(Misc.getRequiredResource(tdmlNeg),
