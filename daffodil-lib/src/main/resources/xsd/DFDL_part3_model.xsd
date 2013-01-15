@@ -339,9 +339,7 @@ content of this file.
 
   <!-- A pattern is used instead of an enumeration for compactness -->
   <xsd:simpleType name="CalendarTimeZoneType">
-    <xsd:restriction base="xsd:string">
-      <xsd:pattern value="(UTC)([-+]([01]\d|\d)((:[0-5]\d){0,2})?)?" />
-    </xsd:restriction>
+    <xsd:restriction base="xsd:string" />
   </xsd:simpleType>
 
   <!-- A pattern is used instead of an enumeration for compactness -->

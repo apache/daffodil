@@ -69,6 +69,12 @@
       dfdl:lengthKind="explicit" dfdl:length="{ 21 }" />
     <xs:element name="nonNegIntBin" type="xs:nonNegativeInteger"
       dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="{ 16 }" />
+	<xs:element name="dateText" type="xs:date" dfdl:calendarPattern="EEEE, MMM d, ''yy" dfdl:calendarPatternKind="explicit"
+	  dfdl:lengthKind="explicit" dfdl:length="{ 23 }" />
+	<xs:element name="timeText" type="xs:time" dfdl:calendarPattern="h:mm a" dfdl:calendarPatternKind="explicit"
+	  dfdl:lengthKind="explicit" dfdl:length="{ 8 }" />
+	<xs:element name="dateTimeText" type="xs:dateTime" dfdl:calendarPattern="yyyy.MM.dd G 'at' HH:mm:ss ZZZZ" dfdl:calendarPatternKind="explicit"
+	  dfdl:lengthKind="explicit" dfdl:length="{ 35 }" />
 
     <xs:element name="limits" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -1131,6 +1137,39 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <nonNegIntBin>184467440737095516158</nonNegIntBin>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="dateText" root="dateText"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-date - DFDL-5-016R">
+
+    <tdml:document><![CDATA[Wednesday, July 10, '96]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateText>1996-07-10</dateText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="timeText" root="timeText"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-time - DFDL-5-016R">
+
+    <tdml:document><![CDATA[12:08 PM]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <timeText>12:08:00Z</timeText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeText" root="dateTimeText"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-dateTime - DFDL-5-016R">
+
+    <tdml:document><![CDATA[1996.07.10 AD at 15:08:56 GMT-05:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTimeText>1996-07-10T20:08:56Z</dateTimeText>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
