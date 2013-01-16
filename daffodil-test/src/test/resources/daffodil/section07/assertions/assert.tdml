@@ -663,8 +663,32 @@
         </xs:appinfo>
       </xs:annotation>
     </xs:element>
+    
+    <xs:element name="e10" type="xs:int" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert testKind="pattern" testPattern="\d\d\d"
+            message="Your data is completely wrong!'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
 
   </tdml:defineSchema>
+  
+  <!--
+    Test name: assertMessage
+    Schema: s2
+    Purpose: The schema uses a custom assertion failure message
+  -->
+
+  <tdml:parserTestCase name="assertMessage" root="e10"
+    model="s2" description="Section 7 - Assert 'message' Property - DFDL-7-058R">
+    <tdml:document>22</tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed</tdml:error>
+      <tdml:error>Your data is completely wrong!</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
   
   <!--
     `Test name: assertMultFormsFail

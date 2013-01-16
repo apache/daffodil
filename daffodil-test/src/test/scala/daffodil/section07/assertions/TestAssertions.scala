@@ -47,5 +47,6 @@ class TestAssertions extends JUnitSuite {
   @Test def test_assertExpressionRefFail() { runner.runOneTest("assertExpressionRefFail") }
 //  @Test def test_assertExpressionEmpty() { runner.runOneTest("assertExpressionEmpty") }
 //  @Test def test_assertPatternEmpty() { runner.runOneTest("assertPatternEmpty") }
+  @Test def test_assertMessage() { runner.runOneTest("assertMessage") }
 
 }
