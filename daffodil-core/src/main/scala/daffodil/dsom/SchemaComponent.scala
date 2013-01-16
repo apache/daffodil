@@ -145,11 +145,18 @@ abstract class SchemaComponent(val xml: Node)
 
   val NYI = false // our flag for Not Yet Implemented 
 
+  /**
+   * Centralize throwing for debug convenience
+   */
+  def toss(th: Throwable) = {
+    throw th // good place for a breakpoint
+  }
+
   // TODO: create a trait to share various error stuff with DFDLAnnotation class.
   // Right now there is small code duplication since annotations aren't schema components.
   def SDE(id: String, args: Any*): Nothing = {
     val sde = new SchemaDefinitionError(Some(this), None, id, args: _*)
-    throw sde
+    toss(sde)
   }
 
   def SDW(id: String, args: Any*): Unit = {
@@ -683,7 +690,7 @@ class SchemaSet(
         val firstElement: GlobalElementDecl = {
           firstSchemaDocument.globalElementDecls match {
             case firstElement :: _ => firstElement.forRoot()
-            case _ => throw new SchemaDefinitionError(None, None, "No global elements in: " + firstSchemaDocument.fileName)
+            case _ => toss(new SchemaDefinitionError(None, None, "No global elements in: " + firstSchemaDocument.fileName))
           }
         }
         firstElement

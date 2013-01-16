@@ -81,6 +81,7 @@ class DFDLCatalogResolver
     val builtInCatalog = Misc.getRequiredResource("/daffodil-built-in-catalog.xml")
     val newCatFiles = builtInCatalog.toString() :: catFiles
     cm.setCatalogFiles(newCatFiles.mkString(";"))
+
     val catFilesAfter = cm.getCatalogFiles()
     log(Debug("final catalog files: %s ", catFilesAfter))
     cm

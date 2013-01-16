@@ -89,7 +89,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
   lazy val LV = LVFactory(this)
 
   def handleThrownError(e: Throwable, lv: OOLAGValue) {
-    log(Debug("Object %s recording error: %s", this, e))
+    log(Compile("Object %s recording error: %s", this, e))
     val diag = e match {
       case d: Diagnostic => d
       case _ => new CapturedThrowDiagnostic(e, lv.context) // no common trait to use....?
@@ -100,7 +100,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
       case dp: Prod => {
         // dp.sc.addDiagnosticHost(dp) // TODO: determine is this really needed?
       }
-      case _ => log(Debug("type of lv.context is %s", lv.context.getClass().getName()))
+      case _ => log(Compile("type of lv.context is %s", lv.context.getClass().getName()))
     }
   }
 
@@ -126,12 +126,12 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
   //    diagChildren = diagChildren :+ lv
   //    val lvmsg = lv.toString
   //    val thismsg = this.prettyName
-  //    log(Debug("Adding Diagnostic child %s to %s.", lvmsg, thismsg))
+  //    log(Compile("Adding Diagnostic child %s to %s.", lvmsg, thismsg))
   //  }
   //
   //  def addDiagnosticHost(h: DiagnosticsProviding) {
   //    diagHosts = diagHosts :+ h
-  //    log(Debug("Adding Diagnostic host %s to %s.", h, this))
+  //    log(Compile("Adding Diagnostic host %s to %s.", h, this))
   //  }
 
   //  final lazy val hasDiagnostics = {
@@ -155,7 +155,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
       try diagnosticChildren
       catch {
         case OOLAG.ErrorAlreadyHandled(th, lv) =>
-          log(Debug("exception when just trying to get the list of diagnostic children: %s, in LV: %s", th, lv))
+          log(Compile("exception when just trying to get the list of diagnostic children: %s, in LV: %s", th, lv))
           // 
           // If we don't record this error now, we'll lose it, because we won't be able to gather it up
           // out of the list of diagnostic children because, well we weren't able to even construct that
@@ -163,13 +163,14 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
           this.handleThrownError(th, lv)
           List(lv)
       }
+    log(Compile("DC for %s is %s", this, dc))
     dc
   }
 
   lazy val isError = {
-    log(Debug("checking %s for error", this))
+    log(Compile("checking %s for error", this))
     val dchildren = diagnosticChildrenList
-    log(Debug("diagnosticChildren are: %s", dchildren))
+    log(Compile("diagnosticChildren are: %s", dchildren))
     val bools = dchildren.map { dc =>
       try {
         dc.isError
@@ -178,7 +179,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
         // has already recorded the exception in their diagnostics, and it was of the 
         // kind that can be recorded and issued later as a compile-time diagnostic.
         case e: OOLAGRethrowException => {
-          log(Debug("isError is suppressing exception already recorded: %s", e))
+          log(Compile("isError is suppressing exception already recorded: %s", e))
           true
         }
       }
@@ -188,6 +189,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
     // Don't forget to check the local diagnostic objects. It's not just about the 
     // children objects. The object itself might have accumulated the errors.
     //
+    log(Compile("LD for %s are %s", this, localDiagnostics))
     val localRes =
       this.localDiagnostics.length > 0 &&
         this.localDiagnostics.exists { _.isError }
@@ -195,7 +197,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
     if (res == true) {
       log(Compile("object %s had an error: %s", this, this.getDiagnostics))
 
-    } else log(Debug("object %s ok", this))
+    } else log(Compile("object %s ok", this))
     res
   }
 
@@ -206,7 +208,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
    */
   private lazy val diagnostics: Seq[Diagnostic] = {
     val dc = diagnosticChildrenList
-    log(Debug("diagnosticChildren are: %s", dc))
+    log(Compile("diagnosticChildren are: %s", dc))
     val dcDiags = dc.flatMap { dc =>
       dc match {
         case dp: DiagnosticsProviding => {
@@ -216,22 +218,22 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
             // has already recorded the exception in their diagnostics, and it was of the 
             // kind that can be recorded and issued later as a compile-time diagnostic.
             case e: OOLAGRethrowException => {
-              log(Debug("Diagnostics is suppressing exception already recorded: %s", e))
+              log(Compile("Diagnostics is suppressing exception already recorded: %s", e))
               Nil
             }
           }
         }
         case _ => {
-          log(Debug("Diagnostics is ignoring: %s", dc))
+          log(Compile("Diagnostics is ignoring: %s", dc))
           Nil
         }
       }
     }
     val ld = getLocalDiagnostics
-    log(Debug("Object %s had localDiagnostics: %s", prettyName, ld))
+    log(Compile("Object %s had localDiagnostics: %s", prettyName, ld))
 
     val res = dcDiags ++ ld
-    log(Debug("Object %s had this list of diagnostics: %s", prettyName, res))
+    log(Compile("Object %s had this list of diagnostics: %s", prettyName, res))
     res
   }
 
