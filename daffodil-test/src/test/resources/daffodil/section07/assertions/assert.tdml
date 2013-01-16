@@ -547,6 +547,11 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <!--
+    Test Name: assertOnSimpleType
+    Schema: s1
+    Purpose: This document demonstrates the use of assertions on a simpleType definition 
+  -->
   <tdml:parserTestCase name="assertOnSimpleType"
     root="e0" model="s1" description="pattern asserts - DFDL-7-045R">
     <tdml:document>42</tdml:document>
@@ -555,6 +560,228 @@
         <ex:e0>42</ex:e0>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="s2">
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
+      floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
+      alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
+      truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
+      lengthKind="delimited" nilValueDelimiterPolicy="both"
+      emptyValueDelimiterPolicy="none"
+      documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+      separatorPolicy="suppressed" separatorPosition="infix" />
+
+    <xs:element name="e1" type="xs:int" dfdl:inputValueCalc="{ 42 }">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ xs:int(.) eq 42}">
+            <![CDATA[{ xs:int(.) eq 42 }]]>
+          </dfdl:assert>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+    
+    <xs:element name="e2" type="xs:int" dfdl:inputValueCalc="{ 42 }">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert testKind="pattern" testPattern="\d\d">
+            <![CDATA[\d\d]]>
+          </dfdl:assert>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+    
+    <xs:element name="e3" type="xs:int" dfdl:inputValueCalc="{ 42 }">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ xs:int(.) eq 42}" testPattern="\d\d"/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+    
+    <xs:element name="e4" type="xs:int" dfdl:inputValueCalc="{ 42 }">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert testKind="pattern" test="{ xs:int(.) eq 42}" testPattern="\d\d"/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+    
+    <xs:element name="e5" type="xs:int" dfdl:inputValueCalc="{ 42 }">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert testKind="expression" test="{ xs:int(.) eq 42 }"/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+    
+    <xs:element name="e6">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="base" type="xs:int" dfdl:initiator="" dfdl:lengthKind="delimited"/>
+          <xs:element name="less" type="xs:int" dfdl:initiator="" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:assert test="{ xs:int(.) eq ( xs:int(/ex:e6/ex:base) -1) }"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>       
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e7">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="base" type="xs:int" dfdl:initiator="" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:assert test="{ xs:int(.) eq ( xs:int(/ex:e7/ex:less) +1) }"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>       
+          <xs:element name="less" type="xs:int" dfdl:initiator="" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+<!--
+    <xs:element name="e8" type="xs:int" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test=""/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+-->    
+  </tdml:defineSchema>
+  
+  <!--
+    `Test name: assertMultFormsFail
+    Schema: s2
+    Purpose: The schema used specifies the test expression in more than one form and should fail
+  -->
+
+  <tdml:parserTestCase name="assertMultFormsFail" root="e1"
+    model="s2" description="Section 7 - Assert Schema Definition Error - DFDL-7-046R">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>You may not specify both test attribute and a body expression</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: assertMultFormsFail2
+    Schema: s2
+    Purpose: The schema used specifies the test pattern in more than one form and should fail
+  -->
+
+  <tdml:parserTestCase name="assertMultFormsFail2" root="e2"
+    model="s2" description="Section 7 - Assert Schema Definition Error - DFDL-7-046R">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>You may not specify both testPattern attribute and a body expression</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: assertPatternAndExp
+    Schema: s2
+    Purpose: The schema used specifies a test pattern and expression and should cause an error
+  -->
+
+  <tdml:parserTestCase name="assertPatternAndExp" root="e3"
+    model="s2" description="Section 7 - Assert Schema Error for Expression/Pattern - DFDL-7-047R">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: assertPatternAndExp2
+    Schema: s2
+    Purpose: The schema used specifies a test pattern and expression and should cause an error
+  -->
+
+  <tdml:parserTestCase name="assertPatternAndExp2" root="e4"
+    model="s2" description="Section 7 - Assert Schema Error for Expression/Pattern - DFDL-7-047R">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: assertPass2
+    Schema: s2
+    Purpose: This document contains the value that is asserted by the schema and should pass.
+  -->
+
+  <tdml:parserTestCase name="assertPass2" root="e5"
+    model="s2" description="Section 7 - Asserts - testKind Property - DFDL-7-055R">
+    <tdml:document />
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5>42</e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: assertExpressionRef
+    Schema: s2
+    Purpose: This document contains an assertion reference to a previous element
+  -->
+
+  <tdml:parserTestCase name="assertExpressionRef" root="e6"
+    model="s2" description="Section 7 - Asserts - test Property - DFDL-7-056R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[5,4]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e6>
+          <base>5</base>
+          <less>4</less>
+        </e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: assertExpressionRefFail
+    Schema: s2
+    Purpose: This document contains an assertion reference to an upcoming element and should fail
+  -->
+
+  <tdml:parserTestCase name="assertExpressionRefFail" root="e7"
+    model="s2" description="Section 7 - Asserts - test Property - DFDL-7-056R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[5,4]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: assertExpressionEmpty
+    Schema: s2
+    Purpose: This document contains an empty test and should cause an error
+  -->
+
+  <tdml:parserTestCase name="assertExpressionEmpty" root="e8"
+    model="s2" description="Section 7 - Asserts - test Property - DFDL-7-056R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[5,4]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

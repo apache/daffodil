@@ -10,7 +10,7 @@ import daffodil.debugger.Debugger
 class TestAssertions extends JUnitSuite {
   val testDir = "/daffodil/section07/assertions/"
   val tdml = testDir + "assert.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)
 
   @Test def test_assertions_assertPass() { runner.runOneTest("assertPass") }
   @Test def test_assertions_assertFail1() { runner.runOneTest("assertFail1") }
@@ -32,8 +32,19 @@ class TestAssertions extends JUnitSuite {
 
   @Test def test_assertOnGroupRef() { runner.runOneTest("assertOnGroupRef") }
   @Test def test_assertOnElemRef() { runner.runOneTest("assertOnElemRef") }
-  @Test def test_assertOnSimpleType() { runner.runOneTest("assertOnSimpleType") }
 
   @Test def test_assertPatternMatch() { runner.runOneTest("assertPatternMatch") }
   @Test def test_assertPatternMatch2() { runner.runOneTest("assertPatternMatch2") }
+  
+  @Test def test_assertMultFormsFail() { runner.runOneTest("assertMultFormsFail") }
+  @Test def test_assertMultFormsFail2() { runner.runOneTest("assertMultFormsFail2") }
+  @Test def test_assertPatternAndExp() { runner.runOneTest("assertPatternAndExp") }
+  @Test def test_assertPatternAndExp2() { runner.runOneTest("assertPatternAndExp2") }
+  @Test def test_assertOnSimpleType() { runner.runOneTest("assertOnSimpleType") }
+  @Test def test_assertPass2() { runner.runOneTest("assertPass2") }
+
+  @Test def test_assertExpressionRef() { runner.runOneTest("assertExpressionRef") }
+  @Test def test_assertExpressionRefFail() { runner.runOneTest("assertExpressionRefFail") }
+//  @Test def test_assertExpressionEmpty() { runner.runOneTest("assertExpressionEmpty") }
+
 }
