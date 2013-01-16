@@ -655,6 +655,15 @@
       </xs:annotation>
     </xs:element>
 -->    
+
+    <xs:element name="e9" type="xs:int" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert testKind="pattern" testPattern=""/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
   </tdml:defineSchema>
   
   <!--
@@ -780,7 +789,23 @@
       <tdml:documentPart type="text"><![CDATA[5,4]]></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Assertion</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: assertPatternEmpty
+    Schema: s2
+    Purpose: This document contains an empty testPattern and should cause an error
+  -->
+
+  <tdml:parserTestCase name="assertPatternEmpty" root="e9"
+    model="s2" description="Section 7 - Asserts - testPattern Property - DFDL-7-057R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[5,4]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
