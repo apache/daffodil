@@ -42,5 +42,7 @@ class TestNillable extends JUnitSuite {
   lazy val runnerEntity = new DFDLTestSuite(Misc.getRequiredResource(entity))
   @Test def test_entity_fail_05() { runnerEntity.runOneTest("entity_fail_05") }
   @Test def test_entity_fail_06() { runnerEntity.runOneTest("entity_fail_06") }
+  @Test def test_entity_success_05() { runnerEntity.runOneTest("entity_success_05") }
+  @Test def test_entity_success_06() { runnerEntity.runOneTest("entity_success_06") }
 
 }
