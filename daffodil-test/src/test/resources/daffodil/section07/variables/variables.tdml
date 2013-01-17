@@ -331,5 +331,112 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="setVarSchema">
+    <dfdl:defineVariable name="v_no_default" type="xs:int" />
+    <dfdl:defineVariable name="v_with_default" type="xs:int"
+      defaultValue="42" />
+    <dfdl:defineVariable name="myVar1" type="xs:int" />
+    <dfdl:format ref="ex:daffodilTest1" />
+
+    <xs:element name="r1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:int" dfdl:inputValueCalc="{ $ex:v_with_default }" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:setVariable ref="ex:v_no_default" value="{ 41 }" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="two" type="xs:int" dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ $ex:v_no_default }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="r2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:int" dfdl:inputValueCalc="{ $ex:v_with_default }" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:setVariable ref="ex:v_no_default" value="{ 41 }">{ 42 }</dfdl:setVariable>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="two" type="xs:int" dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ $ex:v_no_default }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="r3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:int" dfdl:inputValueCalc="{ $ex:v_with_default }" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:setVariable ref="ex:v_no_default">{ "BEEEP" }</dfdl:setVariable>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="two" type="xs:int" dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ $ex:v_no_default }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+     Test: setVarValAttribute
+   Schema: setVarSchema
+     Root: r1 
+  Purpose: This test uses a schema that demonstrates the use of the dfdl:value attribute to specify a variable value
+-->
+  
+  <tdml:parserTestCase name="setVarValAttribute" root="r1"
+    model="setVarSchema" description="Section 7 - setVariable supports both a value attribute and a 'value' - DFDL-7-122R">
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r1 xmlns="http://www.example.org/example1/">
+          <one>42</one>
+          <two>41</two>
+        </r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test: setVarValAttribute2
+   Schema: setVarSchema
+     Root: r2
+  Purpose: This test uses a schema uses both the dfdl:value attribute and the element value
+           to specify a variable value and should cause an error
+-->
+  
+  <tdml:parserTestCase name="setVarValAttribute2" root="r2"
+    model="setVarSchema" description="Section 7 - setVariable supports both a value attribute and a 'value' - DFDL-7-122R">
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Cannot have both a value attribute and an element value</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test: setVarTypeMismatch
+   Schema: setVarSchema
+     Root: r3
+  Purpose: This test sets an int variable to a string and should fail
+-->
+  
+  <tdml:parserTestCase name="setVarTypeMismatch" root="r3"
+    model="setVarSchema" description="Section 7 - setVariable - value matches defineVariable - DFDL-7-124R">
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Cannot convert BEEEP to Int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

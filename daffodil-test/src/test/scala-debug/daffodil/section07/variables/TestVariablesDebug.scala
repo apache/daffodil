@@ -18,6 +18,7 @@ class TestVariablesDebug extends JUnitSuite {
 
   @Test def test_varInstance() { runner.runOneTest("varInstance") }
   @Test def test_varAsSeparator() { runner.runOneTest("varAsSeparator") }
+  @Test def test_setVarTypeMismatch() { runner.runOneTest("setVarTypeMismatch") }
 
   val tdml_01 = testDir + "variables_01.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))

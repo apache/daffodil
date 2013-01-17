@@ -23,5 +23,9 @@ class TestVariables extends JUnitSuite {
   @Test def test_setVarOnSeqAndElemRef() { runner.runOneTest("setVarOnSeqAndElemRef") }
   @Test def test_setVarOnGroupRef() { runner.runOneTest("setVarOnGroupRef") }
   @Test def test_setVarSimpleType() { runner.runOneTest("setVarSimpleType") }
+  
+  @Test def test_setVarValAttribute() { runner.runOneTest("setVarValAttribute") }
+  @Test def test_setVarValAttribute2() { runner.runOneTest("setVarValAttribute2") }
+//  @Test def test_setVarTypeMismatch() { runner.runOneTest("setVarTypeMismatch") }
 
 }
