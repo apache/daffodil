@@ -34,7 +34,7 @@
     <dfdl:format lengthKind="delimited" leadingSkip="0"
       initiator="" terminator="" separatorPosition="infix"
       encoding="utf-8" initiatedContent="no" representation="text"
-      textNumberRep="standard" />
+      textNumberRep="standard" textTrimKind="none"/>
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -93,22 +93,12 @@
     model="neededRepProp3" description="Section 10 - Core Representation Properties - DFDL-10-001R">
 
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[1]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[1,fish]]></tdml:documentPart>
     </tdml:document>
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
     </tdml:errors>
-<!--
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <root>
-          <inty>1</inty>
-          <stringy></stringy>
-        </root>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
--->
   </tdml:parserTestCase>
 
 </tdml:testSuite>

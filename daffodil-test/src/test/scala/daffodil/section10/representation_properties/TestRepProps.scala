@@ -19,6 +19,6 @@ class TestRepProps extends JUnitSuite {
 
   @Test def test_repPropMissing() { runner.runOneTest("repPropMissing") }
   @Test def test_repPropMissing2() { runner.runOneTest("repPropMissing2") }
-//  @Test def test_repPropMissing3() { runner.runOneTest("repPropMissing3") }
+  @Test def test_repPropMissing3() { runner.runOneTest("repPropMissing3") }
 
 }
