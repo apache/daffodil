@@ -22,6 +22,15 @@ class TestChoice extends JUnitSuite {
   @Test def test_choice3() { runnerCH.runOneTest("choice3") }
   @Test def test_choice4() { runnerCH.runOneTest("choice4") }
 
+  @Test def test_choiceWithInitsAndTermsInt() { runnerCH.runOneTest("choiceWithInitsAndTermsInt") }
+  @Test def test_choiceWithInitsAndTermsStr() { runnerCH.runOneTest("choiceWithInitsAndTermsStr") }
+  @Test def test_choiceWithInitsAndTermsError() { runnerCH.runOneTest("choiceWithInitsAndTermsError") }
+  @Test def test_choiceWithInitsAndTermsSeqInt() { runnerCH.runOneTest("choiceWithInitsAndTermsSeqInt") }
+  @Test def test_choiceWithInitsAndTermsSeqStr() { runnerCH.runOneTest("choiceWithInitsAndTermsSeqStr") }
+  @Test def test_nestedChoiceWithInitsAndTermsNestedInt() { runnerCH.runOneTest("nestedChoiceWithInitsAndTermsNestedInt") }
+  @Test def test_nestedChoiceWithInitsAndTermsNestedStr() { runnerCH.runOneTest("nestedChoiceWithInitsAndTermsNestedStr") }
+  @Test def test_nestedChoiceWithInitsAndTermsInt() { runnerCH.runOneTest("nestedChoiceWithInitsAndTermsInt") }
+
   @Test def test_choice5() { runnerCH.runOneTest("choice5") }
   @Test def test_choice6() { runnerCH.runOneTest("choice6") }
   @Test def test_choiceFail1() { runnerCH.runOneTest("choiceFail1") }

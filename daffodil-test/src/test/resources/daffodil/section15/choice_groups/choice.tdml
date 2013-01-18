@@ -741,11 +741,38 @@
         </xs:choice>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="ch2">
+      <xs:complexType>
+        <xs:choice dfdl:initiator="(" dfdl:terminator=")">
+          <xs:sequence>
+            <xs:element name="int1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"/>
+            <xs:element name="int2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"/>
+          </xs:sequence>
+          <xs:element name="str" type="xs:string"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ch3">
+      <xs:complexType>
+        <xs:choice dfdl:initiator="(" dfdl:terminator=")">
+          <xs:sequence>
+            <xs:choice dfdl:initiator="[" dfdl:terminator="]">
+              <xs:element name="int1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"/>
+              <xs:element name="str1" type="xs:string"/>
+            </xs:choice>
+            <xs:element name="str2" type="xs:string"/>
+          </xs:sequence>
+          <xs:element name="int2" type="xs:int"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="choiceWithInitsAndTermsInt"
     root="ch1" model="choiceWithInitsAndTerms"
-    description="Choice with initiators and terms - int choice">
+    description="Choice with initiators and terms - int choice - DFDL-15-004R">
 
     <tdml:document><![CDATA[(1)]]></tdml:document>
 
@@ -759,7 +786,7 @@
 
   <tdml:parserTestCase name="choiceWithInitsAndTermsStr"
     root="ch1" model="choiceWithInitsAndTerms"
-    description="Choice with initiators and terms - str choice">
+    description="Choice with initiators and terms - str choice - DFDL-15-004R">
 
     <tdml:document><![CDATA[(foo)]]></tdml:document>
 
@@ -773,13 +800,96 @@
 
   <tdml:parserTestCase name="choiceWithInitsAndTermsError"
     root="ch1" model="choiceWithInitsAndTerms"
-    description="Choice with initiators and terms - terminator not found, first branch is matched">
+    description="Choice with initiators and terms - terminator not found, first branch is matched - DFDL-15-004R">
 
     <tdml:document><![CDATA[(1foo)]]></tdml:document>
 
     <tdml:errors>
       <tdml:error>not found</tdml:error>
     </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceWithInitsAndTermsSeqInt"
+    root="ch2" model="choiceWithInitsAndTerms"
+    description="Choice with initiators and terms and sequence - seq choice - DFDL-15-004R">
+
+    <tdml:document><![CDATA[(12)]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch2>
+          <ex:int1>1</ex:int1>
+          <ex:int2>2</ex:int2>
+        </ex:ch2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choiceWithInitsAndTermsSeqStr"
+    root="ch2" model="choiceWithInitsAndTerms"
+    description="Choice with initiators and terms and sequence - str choice - DFDL-15-004R">
+
+    <tdml:document><![CDATA[(foo)]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch2>
+          <ex:str>foo</ex:str>
+        </ex:ch2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nestedChoiceWithInitsAndTermsNestedInt"
+    root="ch3" model="choiceWithInitsAndTerms"
+    description="Choice with initiators and terms and sequence with a nested choice with delimiters- nested int choice - DFDL-15-004R">
+
+    <tdml:document><![CDATA[([1]foo)]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch3>
+          <ex:int1>1</ex:int1>
+          <ex:str2>foo</ex:str2>
+        </ex:ch3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nestedChoiceWithInitsAndTermsNestedStr"
+    root="ch3" model="choiceWithInitsAndTerms"
+    description="Choice with initiators and terms and sequence with a nested choice with delimiters- nested str choice - DFDL-15-004R">
+
+    <tdml:document><![CDATA[([foo]bar)]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch3>
+          <ex:str1>foo</ex:str1>
+          <ex:str2>bar</ex:str2>
+        </ex:ch3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nestedChoiceWithInitsAndTermsInt"
+    root="ch3" model="choiceWithInitsAndTerms"
+    description="Choice with initiators and terms and sequence with a nested choice with delimiters- str choice - DFDL-15-004R">
+
+    <tdml:document><![CDATA[(1)]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch3>
+          <ex:int2>1</ex:int2>
+        </ex:ch3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
   </tdml:parserTestCase>
 
