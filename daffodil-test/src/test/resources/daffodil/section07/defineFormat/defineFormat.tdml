@@ -162,4 +162,13 @@
       <tdml:error>Circular reference detected for def while obtaining Define Format Properties!</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="noNameFormat" root="root"
+    model="noNameFormat.dfdl.xsd" description="Section 7 - defineFormat - required name attribute - DFDL-7-031R">
+    <tdml:document><![CDATA[34567890]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Attribute 'name' must appear on element 'dfdl:defineFormat'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 </tdml:testSuite>

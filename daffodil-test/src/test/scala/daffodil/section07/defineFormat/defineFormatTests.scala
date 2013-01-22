@@ -22,5 +22,6 @@ class defineFormatTests extends JUnitSuite {
 //  @Test def test_nameCollision() { runner.runOneTest("nameCollision") }
   @Test def test_formatOnlyDefine() { runner.runOneTest("formatOnlyDefine") }
   @Test def test_circularRef() { runner.runOneTest("circularRef") }
+  @Test def test_noNameFormat() { runner.runOneTest("noNameFormat") }
 
 }
