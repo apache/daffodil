@@ -68,5 +68,31 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="errs">
+
+    <dfdl:defineFormat name="def">
+      <dfdl:format ref="tns:daffodilTest1" lengthKind="explicit"
+        lengthUnits="characters" length="4" leadingSkip="0" representation="text"
+        textNumberRep="standard" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="def">
+      <dfdl:format ref="tns:daffodilTest1" leadingSkip="0" representation="binary" />
+    </dfdl:defineFormat>
+
+    <dfdl:format ref="tns:def" />
+
+    <xs:element name="easy" type="xs:int" />
+
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="nameCollision" root="easy"
+    model="errs" description="Section 7 - defineFormat - unique name attribute - DFDL-7-034R">
+    <tdml:document><![CDATA[3456]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
