@@ -21,6 +21,8 @@ class TestChoice extends JUnitSuite {
   @Test def test_choice2() { runnerCH.runOneTest("choice2") }
   @Test def test_choice3() { runnerCH.runOneTest("choice3") }
   @Test def test_choice4() { runnerCH.runOneTest("choice4") }
+  
+//  @Test def test_choiceWithSequence() { runnerCH.runOneTest("choiceWithSequence") }
 
   @Test def test_choiceWithInitsAndTermsInt() { runnerCH.runOneTest("choiceWithInitsAndTermsInt") }
   @Test def test_choiceWithInitsAndTermsStr() { runnerCH.runOneTest("choiceWithInitsAndTermsStr") }
