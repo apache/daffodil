@@ -21,5 +21,6 @@ class defineFormatTests extends JUnitSuite {
   @Test def test_Lesson3_inherit_defineFormat() { runner.runOneTest("Lesson3_inherit_defineFormat") }
 //  @Test def test_nameCollision() { runner.runOneTest("nameCollision") }
   @Test def test_formatOnlyDefine() { runner.runOneTest("formatOnlyDefine") }
+  @Test def test_circularRef() { runner.runOneTest("circularRef") }
 
 }
