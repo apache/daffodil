@@ -38,9 +38,9 @@
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib_managed/jars/junit/junit/junit-4.8.2.jar" sourcepath="lib_managed/srcs/junit/junit/junit-4.8.2-sources.jar">
+	<classpathentry kind="lib" path="lib_managed/jars/junit/junit/junit-4.11.jar" sourcepath="lib_managed/srcs/junit/junit/junit-4.11-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/junit/junit/junit-4.8.2-javadoc.jar!/"/>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-core/lib_managed/docs/junit/junit/junit-4.11-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/joda-time/joda-time/joda-time-1.6.jar" sourcepath="lib_managed/srcs/joda-time/joda-time/joda-time-1.6-sources.jar">
@@ -67,5 +67,15 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/xml-resolver/xml-resolver/xml-resolver-1.2.jar" sourcepath="lib_managed/srcs/xml-resolver/xml-resolver/xml-resolver-1.2-sources.jar"/>
+	<classpathentry kind="lib" path="lib_managed/jars/org.rogach/scallop_2.9.2/scallop_2.9.2-0.7.0.jar" sourcepath="lib_managed/srcs/org.rogach/scallop_2.9.2/scallop_2.9.2-0.7.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-core/lib_managed/docs/org.rogach/scallop_2.9.2/scallop_2.9.2-0.7.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/com.github.stefanbirkner/system-rules/system-rules-1.2.0.jar" sourcepath="lib_managed/srcs/com.github.stefanbirkner/system-rules/system-rules-1.2.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-core/lib_managed/docs/com.github.stefanbirkner/system-rules/system-rules-1.2.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

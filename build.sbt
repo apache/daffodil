@@ -9,7 +9,7 @@ logBuffered in ThisBuild := false
 transitiveClassifiers := Seq("sources", "javadoc")
 
 libraryDependencies in ThisBuild := Seq(
-	"junit" % "junit" % "4.8.2",
+	"junit" % "junit" % "4.11",
 	"com.github.stefanbirkner" % "system-rules" % "1.2.0",
 	"org.jdom" % "jdom" % "1.1.3",
 	"net.sourceforge.saxon" % "saxon" % "9.1.0.8" classifier "" classifier "dom" classifier "jdom" classifier "s9api" classifier "xpath",
