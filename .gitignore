@@ -7,6 +7,7 @@ src_managed
 .idea_modules
 daffodil-core/errors
 daffodil-lib/errors
+daffodil-lib/bin
 daffodil-propgen/errors
 daffodil-test/errors
 errors
