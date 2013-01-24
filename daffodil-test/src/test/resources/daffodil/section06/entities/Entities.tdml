@@ -200,6 +200,20 @@ is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="seq_08b" dfdl:terminator="">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%SP;"
+          dfdl:separatorPosition="infix" dfdl:terminator="">
+          <xs:element name="e1" type="xs:int" dfdl:encoding="UTF-16BE" 
+            dfdl:terminator="%%" />
+          <xs:element name="e2" type="xs:int" dfdl:encoding="UTF-16BE"
+            dfdl:terminator="%%" />
+          <xs:element name="e3" type="xs:int" dfdl:encoding="UTF-16BE"
+            dfdl:terminator="%%" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:element name="seq_09" dfdl:terminator="">
       <xs:complexType>
@@ -412,6 +426,24 @@ is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
           <e2>53</e2>
           <e3>100</e3>
         </seq_08>
+      </tdml:dfdlInfoset>
+
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="text_entities_6_03b"
+    description="Section 6.3 DFDL Character Entities - use of %% - DFDL-6-086R"
+    model="Entities_01-Embedded.dfdl.xsd" root="seq_08b">
+    <tdml:document>
+      <tdml:documentPart type="byte">0039 0038 0025 0020 0035 0033 0025 0020 0031 0030 0030 0025</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq_08b>
+          <e1>98</e1>
+          <e2>53</e2>
+          <e3>100</e3>
+        </seq_08b>
       </tdml:dfdlInfoset>
 
     </tdml:infoset>
