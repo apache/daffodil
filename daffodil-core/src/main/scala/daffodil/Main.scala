@@ -140,7 +140,7 @@ object Main {
       // Parse Subcommand Options
       val parse = new scallop.Subcommand("parse") {
         banner("""|Usage: daffodil parse (-s <schema> [-r <root> [-n <namespace>]] [-p <path>] | -P <parser>)
-                  |                      [-o <output>] [<infile>]
+                  |                      [-D<variable>=<value>...] [-o <output>] [<infile>]
                   |
                   |Parse a file, using either a DFDL schema or a saved parser
                   |
@@ -161,7 +161,7 @@ object Main {
       // Unparse Subcommand Options
       val unparse = new scallop.Subcommand("unparse") {
         banner("""|Usage: daffodil unparse (-s <schema> [-r <root> [-n <namespace>]] [-p <path>] | -P <parser>)
-                  |                        [-o <output>] [<infile>]
+                  |                        [-D<variable>=<value>...] [-o <output>] [<infile>]
                   |
                   |Unparse an infoset file, using either a DFDL schema or a saved paser
                   |
