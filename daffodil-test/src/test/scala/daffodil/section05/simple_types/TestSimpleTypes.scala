@@ -15,6 +15,18 @@ class TestSimpleTypes extends JUnitSuite {
   val testDir = "/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  
+  @Test def test_dateText() { runner.runOneTest("dateText") }
+  @Test def test_timeText() { runner.runOneTest("timeText") }
+  @Test def test_dateTimeText() { runner.runOneTest("dateTimeText") }
+  @Test def test_dateImplicitPattern() { runner.runOneTest("dateImplicitPattern") }
+  @Test def test_dateImplicitPatternFail() { runner.runOneTest("dateImplicitPatternFail") }
+  @Test def test_timeImplicitPattern() { runner.runOneTest("timeImplicitPattern") }
+  @Test def test_timeImplicitPatternFail() { runner.runOneTest("timeImplicitPatternFail") }
+//  @Test def test_dateTimeImplicitPattern() { runner.runOneTest("dateTimeImplicitPattern") }
+  @Test def test_dateTimeImplicitPatternFail() { runner.runOneTest("dateTimeImplicitPatternFail") }
+  @Test def test_datePattern01() { runner.runOneTest("datePattern01") }
+//  @Test def test_datePattern01b() { runner.runOneTest("datePattern01b") }
 
   @Test def test_Long1() { runner.runOneTest("Long1") }
   @Test def test_BigInteger1() { runner.runOneTest("BigInteger1") }
@@ -204,5 +216,5 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_padding_nil() { runner.runOneTest("padding_nil") }
   @Test def test_padding_nil2() { runner.runOneTest("padding_nil2") }
   @Test def test_justification_1() { runner.runOneTest("justification_1") }
-  
+
 }

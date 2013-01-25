@@ -2107,5 +2107,171 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="dateTimeSchema">
+    <dfdl:format ref="daffodilTest1" />
+	
+    <xs:element name="dateImp" type="xs:date" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="10" />
+
+    <xs:element name="timeImp" type="xs:time" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
+
+    <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="19" />
+    
+    <xs:element name="date01" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'Today is the 'DD'th day of 'MMM', year 'yyyy"
+                dfdl:lengthKind="explicit" dfdl:length="43" />
+    <xs:element name="date01b" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'Today is the 'DD'th day of 'MMM', year 'YYYY"
+                dfdl:lengthKind="explicit" dfdl:length="43" />
+
+  </tdml:defineSchema>
+
+<!--
+     Test Name: dateImplicitPattern
+        Schema: dateTimeSchema
+          Root: dateImp
+       Purpose: This test demonstrates the date data type with the implicit calendar Pattern.
+                The data matches this pattern and should be parsed correctly.
+-->
+  
+  <tdml:parserTestCase name="dateImplicitPattern" root="dateImp"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
+
+    <tdml:document><![CDATA[1995-03-24]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateImp>1995-03-24</dateImp>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateImplicitPatternFail
+        Schema: dateTimeSchema
+          Root: dateImp
+       Purpose: This test demonstrates the date data type with the implicit calendar Pattern.
+                The data does NOT match this pattern and should fail parsing.
+-->
+  
+  <tdml:parserTestCase name="dateImplicitPatternFail" root="dateImp"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
+
+    <tdml:document><![CDATA[1998-3-Mar]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error:</tdml:error>
+      <tdml:error>Convert to Date (for xs:date)</tdml:error>
+      <tdml:error>Failed to parse '1998-3-Mar'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeImplicitPattern
+        Schema: dateTimeSchema
+          Root: timeImp
+       Purpose: This test demonstrates the time data type with the implicit calendar Pattern.
+                The data matches this pattern and should be parsed correctly.
+-->
+  
+  <tdml:parserTestCase name="timeImplicitPattern" root="timeImp"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
+
+    <tdml:document><![CDATA[12:43:20GMT]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <timeImp>12:43:20Z</timeImp>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeImplicitPatternFail
+        Schema: dateTimeSchema
+          Root: timeImp
+       Purpose: This test demonstrates the time data type with the implicit calendar Pattern.
+                The data does NOT match this pattern and should fail parsing.
+-->
+  
+  <tdml:parserTestCase name="timeImplicitPatternFail" root="timeImp"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
+
+    <tdml:document><![CDATA[12:43.45 PM]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error:</tdml:error>
+      <tdml:error>Convert to Time (for xs:time)</tdml:error>
+      <tdml:error>Failed to parse '12:43.45 PM'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeImplicitPattern
+        Schema: dateTimeSchema
+          Root: dateTimeImp
+       Purpose: This test demonstrates the dateTime data type with the implicit calendar Pattern.
+                The data matches this pattern and should be parsed correctly.
+-->
+  
+  <tdml:parserTestCase name="dateTimeImplicitPattern" root="dateTimeImp"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
+
+    <tdml:document><![CDATA[2013-03-24T03:45:30]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTimeImp>2013-03-24T03:45:30Z</dateTimeImp>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeImplicitPatternFail
+        Schema: dateTimeSchema
+          Root: dateTimeImp
+       Purpose: This test demonstrates the dateTime data type with the implicit calendar Pattern.
+                The data does NOT match this pattern and should fail parsing.
+-->
+  
+  <tdml:parserTestCase name="dateTimeImplicitPatternFail" root="dateTimeImp"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
+
+    <tdml:document><![CDATA[2013.03.24 03:45:30]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error:</tdml:error>
+      <tdml:error>Convert to DateTime (for xs:dateTime)</tdml:error>
+      <tdml:error>Failed to parse '2013.03.24 03:45:30'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: datePattern01
+        Schema: dateTimeSchema
+          Root: date01
+       Purpose: This test demonstrates the date data type with an explicit calendar Pattern.
+-->
+  
+  <tdml:parserTestCase name="datePattern01" root="date01"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[Today is the 25th day of January, year 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date01>2013-01-25</date01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: datePattern01b
+        Schema: dateTimeSchema
+          Root: date01b
+       Purpose: This test demonstrates the date data type with an explicit calendar Pattern.
+-->
+  
+  <tdml:parserTestCase name="datePattern01b" root="date01b"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[Today is the 25th day of January, year 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date01>2013-01-25</date01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
