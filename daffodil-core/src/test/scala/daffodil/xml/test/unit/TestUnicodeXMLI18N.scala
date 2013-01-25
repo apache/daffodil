@@ -5,6 +5,8 @@ import daffodil.xml.XMLUtils
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
+import daffodil.Implicits._
+import daffodil.xml.NS
 
 class TestUnicodeXMLI18N extends JUnitSuite {
 
@@ -50,7 +52,7 @@ class TestUnicodeXMLI18N extends JUnitSuite {
    * in a way that will break daffodil (or is likely to break it.)
    */
 
-  def isXS(elem: Node) = elem.namespace == XMLUtils.XSD_NAMESPACE
+  def isXS(elem: Node) = NS(elem.namespace) == XMLUtils.XSD_NAMESPACE
   def isSequence(elem: Node) = elem.label == "sequence" && isXS(elem)
   def isSchema(elem: Node) = elem.label == "schema" && isXS(elem)
   def isElement(elem: Node) = elem.label == "element" && isXS(elem)

@@ -32,6 +32,7 @@ import javax.xml.transform.dom.DOMSource
 import org.apache.xerces.dom.DOMInputImpl
 import org.w3c.dom.ls.LSInput
 import javax.xml.validation.ValidatorHandler
+import scala.collection.JavaConverters._
 
 /**
  * Resolves URI/URL/URNs to loadable files/streams.
@@ -41,10 +42,10 @@ import javax.xml.validation.ValidatorHandler
  * The user can specify their own catalogs by putting
  * CatalogManager.properties on the classpath when they run
  * daffodil.
- * <p>
+ *
  * You can also turn on/off verbose messaging from the resolver
  * by putting 'verbosity=4' in that same file.
- * <p>
+ *
  * In all cases, we get the resource daffodil-built-in-catalog.xml
  * and that gets priority, so that entities we choose to resolve
  * as built-ins are resolved from the Daffodil jars.
@@ -56,6 +57,7 @@ class DFDLCatalogResolver
   with org.xml.sax.ext.EntityResolver2
   with Logging {
 
+  def catalogFiles = cm.getCatalogFiles().asScala.toList.asInstanceOf[List[String]]
   // Caution: it took a long time to figure out how to use
   // the XML Catalog stuff. Many permutations were attempted
   // so change this next block of code at your peril
@@ -104,14 +106,14 @@ class DFDLCatalogResolver
 
   /**
    * Called by SAX parser of the schema to resolve entities.
-   * <p>
+   *
    * Why the alreadyResolvingXSD flag?? it's because DFDL Schemas use the XSD namespace,
    * but want it to resolve to the DFDL subset schema, but the DFDL Subset Schema
    * uses the XSD Namespace, and does NOT want it to resolve to the DFDL subset,
    * but rather, to the regular XSD namespace. Actually its more than that.
    * We don't want to bother validating the DFDL Subset schemas every time
    * we load a file. So we special case the XSD namespace URI.
-   * <p>
+   *
    * Without this special case check, we'll recurse and stack overflow here.
    */
   def resolveEntity(ri: org.apache.xerces.xni.XMLResourceIdentifier): XMLInputSource = {
@@ -139,6 +141,8 @@ class DFDLCatalogResolver
     }
     res
   }
+
+  def resolveURI(uri: String) = delegate.resolveURI(uri)
 
   def resolveResource(type_ : String, nsURI: String, publicId: String, systemId: String, baseURI: String): LSInput = {
     log(Debug("resolveResource: nsURI = %s, baseURI = %s, type = %s, publicId = %s, systemId = %s", nsURI, baseURI, type_, publicId, systemId))
@@ -216,11 +220,12 @@ class DFDLXMLLocationAwareAdapter
   override def createNode(pre: String, label: String, attrs: MetaData, scope: NamespaceBinding, children: List[Node]): Elem = {
 
     // If we're the xs:schema node, then append attribute for _file_ as well.
-    val nsURI = scope.getURI(pre)
-    val isXSSchemaNode = (label == "schema" && nsURI != null &&
+
+    val nsURI = NS(scope.getURI(pre))
+    val isXSSchemaNode = (label == "schema" && nsURI != NoNamespace &&
       (nsURI == XMLUtils.XSD_NAMESPACE ||
         nsURI == XMLUtils.DFDL_SUBSET_NAMESPACE))
-    val isTDMLTestSuiteNode = (label == "testSuite" && nsURI != null &&
+    val isTDMLTestSuiteNode = (label == "testSuite" && nsURI != NoNamespace &&
       nsURI == XMLUtils.TDML_NAMESPACE)
     val isFileRootNode = isXSSchemaNode || isTDMLTestSuiteNode
 
@@ -257,7 +262,8 @@ class DFDLXMLLocationAwareAdapter
     val fileAttr =
       if (alreadyHasFile || !haveFileName) Null
       else {
-        Attribute(XMLUtils.INT_PREFIX, XMLUtils.FILE_ATTRIBUTE_NAME, Text(fileName), Null)
+        val fileURIProtocolPrefix = if (fileName.startsWith("file:")) "" else "file:"
+        Attribute(XMLUtils.INT_PREFIX, XMLUtils.FILE_ATTRIBUTE_NAME, Text(fileURIProtocolPrefix + fileName), Null)
       }
 
     // Scala XML note: The % operator creates a new element with updated attributes
@@ -293,7 +299,6 @@ trait SchemaAwareLoaderMixin {
 
   protected def doValidation: Boolean
 
-  lazy val schemaResolver = new DFDLCatalogResolver
   lazy val resolver = new DFDLCatalogResolver
 
   override def parser: SAXParser = {
@@ -326,11 +331,11 @@ trait SchemaAwareLoaderMixin {
  * Our modified XML loader.
  *
  * It validates as it loads. (If you ask it to via setting a flag.)
- * <p>
+ *
  * It resolves xmlns URIs using an XML Catalog which
  * can be extended to include user-defined catalogs. By way of a
  * CatalogManger.properties file anywhere on the classpath.
- * <p>
+ *
  * It adds diagnostic file, line number, column number information
  * to the nodes.
  *
@@ -360,11 +365,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     res
   }
 
-  override def loadFile(name: String) = {
-    adapter.fileName = name
-    val res = super.loadFile(name)
-    res
-  }
+  override def loadFile(name: String) = loadFile(new File(name))
 
   override def load(url: URL) = {
     adapter.fileName = url.toURI.toASCIIString

@@ -5,6 +5,7 @@ import daffodil.xml.XMLUtils
 import daffodil.exceptions.Assert
 import daffodil.dsom.OOLAG.OOLAGException
 import daffodil.api.Diagnostic
+import daffodil.Implicits._
 import daffodil.dsom._
 import daffodil.compiler.ProcessorFactory
 

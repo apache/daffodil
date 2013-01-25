@@ -6,6 +6,7 @@ import daffodil.processors._
 import daffodil.grammar._
 import daffodil.exceptions.Assert
 import daffodil.schema.annotation.props._
+import daffodil.Implicits._
 import daffodil.dsom._
 import daffodil.compiler._
 import daffodil.api._
@@ -124,7 +125,7 @@ class RepAtMostTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) extend
 /**
  * This object is so that we can share the iteration idioms between situations
  * where we know N statically, and where dynamic evaluation computes N.
- * <p>
+ *
  * In these cases, there are no new points of uncertainty because computed or
  * otherwise, we know N.
  */

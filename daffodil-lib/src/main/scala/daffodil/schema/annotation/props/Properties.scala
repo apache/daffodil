@@ -9,9 +9,9 @@ import daffodil.util.Misc._
  * Enum class as basis for our DFDL properties
  *
  * This is the best Enum idiom I could find on StackOverflow and other Scala web sites.
- * <p>
+ *
  * An enumeration for a DFDL property is defined like this:
- * <pre>
+ * @example {{{
  * ////////////////////////////////////////////////////////////////////////
  * // <xsd:simpleType name="BinaryNumberRepEnum" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
  * // 		<xsd:restriction base="xsd:string">
@@ -38,20 +38,20 @@ import daffodil.util.Misc._
  *   lazy val binaryNumberRep = BinaryNumberRep(getProperty("binaryNumberRep"))
  *   ...other stuff...
  * }
- * </pre>
+ * }}}
  * The first bunch of // comments is the fragment of the DFDL Annotations schema which
  * defines the enumeration. The scala code to realize this follows (this is the output
  * from a code generator). This is just in here to serve as documentation.
- * <p>
+ *
  * For the most as a programmer you don't have to deal with the above code much. To
  * use a property you mix in the trait BinaryNumberRepMixin into the class which is
  * to have access to the property. This is actually done with traits that group these individual enum
  * traits into the proper sets for the various schema components.
- * <p>
+ *
  * Then within that class's code, to access the property value you just use the lazy val,
  * in this case binaryNumberRep. The type of which will be the enum, with values given by the
  * case objects BinaryNumberRep.Packed, BinaryNumberRep.Bcd, and BinaryNumberRep.Binary.
- * <p>
+ *
  * Code using properties never deals with the strings for these enumerations,
  * and never deals with where/how to retrieve properties for any properties, enum or otherwise.
  * Also, retrieving properties is unconditional.
@@ -105,9 +105,9 @@ abstract class Enum[A] extends EnumBase {
  * the things that this is mixed into. E.g., like the element object that represents
  * element declarations. Or more likely a base class that represents any
  * annotated object that can have DFDL properties on it.
- * <p>
+ *
  * The getPropertyOption routine will end up looking something like this:
- * <pre>
+ * @example {{{
  *   def getPropertyOption(pname: String): String = {
  *     // prior to this being called, or as lazy val attributes, we need
  *     // list of short form (which are local) and long form annotations.
@@ -118,7 +118,7 @@ abstract class Enum[A] extends EnumBase {
  *     maybeProp
  *    }
  *   }
- * </pre>
+ * }}}
  * The magic here is the dfdlCombinedProperties member which is a big map of all the
  * properties (that's what has to take the scoping rules into account, and get properties locally
  * or from other places)

@@ -12,7 +12,7 @@ trait ThrowsSDE {
       SDE(str, args: _*)
   }
 
-  def schemaDefintionWarning(testThatWillWarnIfFalse: => Boolean, str: String, args: Any*) {
+  def schemaDefinitionWarning(testThatWillWarnIfFalse: => Boolean, str: String, args: Any*) {
     if (!testThatWillWarnIfFalse) SDW(str, args: _*)
   }
 

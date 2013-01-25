@@ -6,20 +6,10 @@ import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
 import java.io.File
-import Implicits._
+import daffodil.Implicits._
 import daffodil.util.LoggingDefaults
 import daffodil.util.LogLevel
 import daffodil.util.Misc
-
-object Implicits {
-  /**
-   * Used for reading/writing to database, files, etc.
-   * Code From the book "Beginning Scala"
-   * http://www.amazon.com/Beginning-Scala-David-Pollak/dp/1430219890
-   */
-  def using[A <: { def close(): Unit }, B](param: A)(f: A => B): B =
-    try { f(param) } finally { param.close() }
-}
 
 /**
  * This unit test cannot be in the regular daffodil-core library due
@@ -39,10 +29,10 @@ class TestDaffodilXMLLoader extends JUnitSuite {
   /**
    * This test makes sure that a CatalogManager.properties file
    * will be read and catalogs it specifies will be loaded and used.
-   * <p>
+   *
    * It tests this by validating some data that is invalid with respect
    * to a schema supplied by way of the CatalogManager.properties file.
-   * <p>
+   *
    * If the error is detected, then it must have found and used the
    * user-specified catalog.
    */
@@ -108,7 +98,7 @@ class TestDaffodilXMLLoader extends JUnitSuite {
    * This test insures that a user catalog doesn't get priority over
    * our internal catalog by defining a catalog and schema that uses
    * one of our namespaces.
-   * <p>
+   *
    * Our dafint.xsd defines testElement and the line and col attributes
    * must be type xs:int. The data here has dafint:line with value 'A',
    * so if the built-in schema is used, it will find this error. So the
@@ -176,7 +166,7 @@ class TestDaffodilXMLLoader extends JUnitSuite {
    * This test is similar to the above, but makes sure that our internal
    * dafint.xsd is being used because the data would be invalid and cause
    * invalid error if the user-supplied schema was being used.
-   * <p>
+   *
    * Test passes if there is no invalid data error.
    */
   @Test def testThatUserCatalogCannotOverrideDaffodilInternalCatalog2() {

@@ -6,6 +6,7 @@ import daffodil.grammar._
 import daffodil.compiler._
 import daffodil.exceptions.Assert
 import daffodil.schema.annotation.props._
+import daffodil.Implicits._
 import daffodil.dsom._
 import daffodil.api._
 import java.nio._
@@ -123,14 +124,14 @@ abstract class Parser(val context: SchemaComponent) extends Logging {
  * a failed status) will result.
  *
  * Use like this:
- * <pre>
+ * @example {{{
  * withParseErrorThrowing(pstate) { // something enclosing like the parser
  * ...
  *   // calls something which calls something which eventually calls
  *       PECheck(bitOffset % 8 == 0, "must be byte boundary, not bit %s", bitOffset)
  * ...
  * }
- * </pre>
+ * }}}
  */
 trait WithParseErrorThrowing {
 
@@ -408,8 +409,7 @@ case class PState(
   val inStream: InStream,
   val infoset: InfosetItem,
   val variableMap: VariableMap,
-  val target: String,
-  val namespaces: Any, // Namespaces
+  val target: NS,
   val status: ProcessorResult,
   val groupIndexStack: List[Long],
   val childIndexStack: List[Long],
@@ -576,9 +576,8 @@ object PState {
     in: InStream): PState = {
 
     val doc = Infoset.newDocument()
-    val variables = rootElemDecl.schema.schemaSet.variableMap
+    val variables = rootElemDecl.schemaDocument.schemaSet.variableMap
     val targetNamespace = rootElemDecl.schemaDocument.targetNamespace
-    val namespaces = null // new Namespaces()
     val status = Success
     val groupIndexStack = Nil
     val childIndexStack = Nil
@@ -587,7 +586,7 @@ object PState {
     val diagnostics = Nil
     val discriminator = false
     val textReader: Option[DFDLCharReader] = None
-    val newState = PState(in, doc, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, List(false))
+    val newState = PState(in, doc, variables, targetNamespace, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, List(false))
     newState
   }
 

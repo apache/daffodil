@@ -17,17 +17,18 @@ import daffodil.debugger.Debugger
 import daffodil.xml.DaffodilXMLLoader
 import daffodil.xml.XMLUtils
 import java.io.File
+import daffodil.xml.NS
 
 /**
  * Contains a specification of the root element to be used.
- * <p>
+ *
  * The whole RootSpec is generally optional, but if you have one,
  * the namespace part of it is optional as well.
- * <p>
+ *
  * When the namespace part is None, it means "you, daffodil, figure out the namespace".
  * Which it will do so long as it is unambiguous.
  */
-case class RootSpec(ns: Option[String], name: String) {
+case class RootSpec(ns: Option[NS], name: String) {
   override def toString() = {
     val nsStr = ns.getOrElse("")
     "{" + nsStr + "}" + name
@@ -43,7 +44,8 @@ class ProcessorFactory(sset: SchemaSet)
   lazy val path = prettyName
 
   // println("Creating Processor Factory")
-  lazy val rootElem = sset.rootElement(rootSpec)
+  lazy val rootElem = rootElem_.value
+  private lazy val rootElem_ = LV('rootELem) { sset.rootElement(rootSpec) }
 
   lazy val diagnosticChildren = List(sset, rootElem)
 
@@ -74,7 +76,7 @@ trait HavingRootSpec {
   def setDistinguishedRootNode(name: String, namespace: String): Unit = {
 
     val ns =
-      if (namespace != null) Some(namespace)
+      if (namespace != null) Some(NS(namespace))
       else None
     rootSpec = Some(RootSpec(ns, name))
     //
@@ -124,7 +126,7 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
   /**
    * Compilation works entirely off of schema files because that allows XMLCatalogs
    * to work for Xerces without (much) pain.
-   * <p>
+   *
    * This method exposes both the schema set and processor factory as results because
    * our tests often want to do things on the schema set.
    */
@@ -132,7 +134,6 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
     Assert.usage(schemaFileNames.length >= 1)
     val sset = new SchemaSet(schemaFileNames, rootSpec, checkAllTopLevel)
     val pf = new ProcessorFactory(sset)
-    val rootElem = pf.rootElem
     val isError = pf.isError // isError causes diagnostics to be created.
     val diags = pf.getDiagnostics
     def printDiags() = diags.foreach { diag => log(daffodil.util.Error(diag.toString())) }
@@ -172,7 +173,7 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
 
 /**
  * Factory for Compiler instances
- * <p>
+ *
  * Size and length limit constants used by the code, some of which will be tunable
  * by the user. Turning them to lower sizes/lengths may improve performance and
  * diagnostic behavior when a format does not need their full range,
@@ -180,7 +181,7 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
  * also by reducing the amount of time taken to scan to the end of what is allowed
  * and fail (and backtrack to try something else) when, for an example, a delimiter
  * is missing from the data.
- * <p>
+ *
  * Also has many convenience methods for common test scenarios.
  */
 object Compiler {
@@ -191,6 +192,7 @@ object Compiler {
   def maxSkipLength: Long = 1024 // applicable to leadingSkip and trailingSkip
   // TODO: want to lift limit of Int.MaxValue, since these are supposed to be Long integers.
   def readerByteBufferSize: Long = 8192
+  def generatedNamespacePrefixStem = "tns"
 
   def apply() = new Compiler()
 

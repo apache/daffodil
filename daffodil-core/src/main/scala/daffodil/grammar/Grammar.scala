@@ -3,6 +3,7 @@ package daffodil.grammar
 import daffodil.exceptions.Assert
 import daffodil.util.Debug
 import daffodil.util.Misc.getNameFromClass
+import daffodil.Implicits._
 import daffodil.dsom._
 import daffodil.processors._
 import daffodil.util.Info

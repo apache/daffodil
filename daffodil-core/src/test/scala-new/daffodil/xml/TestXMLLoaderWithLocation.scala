@@ -8,7 +8,7 @@ import daffodil.util.Misc
 import daffodil.processors._
 import daffodil.compiler._
 import daffodil.debugger.Debugger
-import daffodil.Implicits.using
+import daffodil.Implicits._
 import java.net.URL
 import java.io.File
 

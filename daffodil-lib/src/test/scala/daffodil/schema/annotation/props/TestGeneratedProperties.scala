@@ -162,15 +162,15 @@ class TestGeneratedProperties extends JUnitSuite {
   /**
    * Note that toString forces the evaluation of every property that has been
    * mixed into the object. (This is good for debugging.)
-   * <p>
+   *
    * If a property is not present; however, then it will not error. It will
    * print the properties that are defined for the object. I.e., suppose you
    * mixed in property Foobar, but the getPropertiesOption doesn't find a
    * property definition foobar="whatever" in whatever it looks in for those.
-   * <p>
+   *
    * In that case, toString just won't print anything for foobar. So the fact
    * that it is mixed in, but not defined, isn't an error (nor should it be).
-   * <p>
+   *
    * In other words, it is safe to mix in property mixins, for things you
    * don't need, and won't use. If the code doesn't ask for them, it won't cause
    * any error. Conversely, if you do ask for them, and it's not defined,

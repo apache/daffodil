@@ -43,13 +43,17 @@ object Misc {
     else (Some(res), resPath)
   }
 
+  lazy val classPath = {
+    val props = System.getProperties()
+    val cp = props.getProperty("java.class.path", null)
+    val lines = cp.split(":").toSeq
+    lines
+  }
+
   def getRequiredResource(resourcePath: String): URL = {
     getResourceOption(resourcePath) match {
       case (None, resPath) => {
-        val props = System.getProperties()
-        val cp = props.getProperty("java.class.path", null)
-        val cpLines = cp.replaceAll(":", "\n")
-        val msg = "Required resource " + resPath + " was not found.\nClasspath is: " + cpLines
+        val msg = "Required resource " + resPath + " was not found.\nClasspath is: " + classPath.mkString("\n")
         System.err.println(msg)
         throw new Exception(msg)
       }

@@ -6,6 +6,7 @@ import java.util.regex.Pattern
 import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.charset.Charset
 import scala.collection.mutable.Queue
+import daffodil.Implicits._
 import daffodil.dsom._
 import daffodil.compiler._
 import daffodil.xml.XMLUtils
@@ -1501,7 +1502,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
       "<" + kindString + ">" + delim + " " + delimsRaw + "</" + kindString + ">"
     }
 
-    e.schemaDefintionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
+    e.schemaDefinitionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
     Assert.invariant(delim != "") // shouldn't be here at all in this case.
     override def toString = kindString + "('" + delim + "')" //  with terminating markup: " + term.prettyTerminatingMarkup + ")"
@@ -1574,7 +1575,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
     val t = e.asInstanceOf[Term]
     override def toString = "StaticText('" + delim + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"
     // setLoggingLevel(LogLevel.Info)
-    e.schemaDefintionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' is not supported.")
+    e.schemaDefinitionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' is not supported.")
     Assert.invariant(delim != "") //shouldn't be here at all in this case
 
     def unparse(start: UState): UState = {
@@ -2663,10 +2664,10 @@ case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
  * Refactored primitives that use expressions to put expression evaluation in one place.
  * On this base (for the primitive), and a corresponding parser base class for the
  * actual evaluation.
- * <p>
+ *
  * That fixed a bug where a SDE wasn't being reported until the parser was run that
  * could have been reported at compilation time.
- * <p>
+ *
  * Anything being computed that involves the dsom or grammar objects or attributes of them,
  * should be done in the grammar primitives, and NOT in the parser.
  * This is important to insure errors are captured at compilation time and

@@ -29,7 +29,7 @@ import daffodil.xml.XMLUtils
  * <li> Bulk Parsing: one path, many different input sources
  * </ul>
  * The output direction is symmetric.
- * <p>
+ *
  * So the API provides a way to set the path specially, providing for schema-aware compilation of the XPath expression in the bulk processing case.
  *
  */
@@ -64,13 +64,13 @@ object DFDL {
      * tests run fast.) If you don't specify a root, then it compiles all top
      * level elements, anticipating that different uses of the compiled schema
      * might subsequently ask for different top level elements.
-     * <p>
+     *
      * If you don't specify a root here, then you can specify one later on the
      * ProcessorFactory object, but that won't save you as much compilation time.
-     * <p>
+     *
      * If you don't set a root at all, then it compiles all top level elements
      * and uses the first element in the first schema file as the root.
-     * <p>
+     *
      * When specifying a root element, you either specify its namespace, or
      * you can specify the empty string "" as the namespace which means "no namespace".
      * If you specify a root element name, but pass null as the namespace, then
@@ -99,17 +99,17 @@ object DFDL {
     /**
      * If you didn't set a root on the compiler, then get another
      * chance to specify one here.
-     * <p>
+     *
      * If you don't set a root at all it uses the first element in the
      * first schema document as the root.
-     * <p>
+     *
      * If you don't specify a namespace, or pass null, then it searches, and if
      * it is unambiguous, it will use the unique global element with
      * that name.
-     * <p>
+     *
      * Note: null used specifically here not an Option type, because this API
      * will shine through to a Java API.
-     * <p>
+     *
      * To explicitly specify that there is no-namespace, pass "" as
      * the namespace argument.
      */

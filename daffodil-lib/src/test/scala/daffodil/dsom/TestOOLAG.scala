@@ -152,7 +152,7 @@ class TestOOLAG extends JUnitSuite {
     }
     val msg = e.getMessage()
     // println(msg)
-    assertTrue(msg.toLowerCase().contains("circular"))
+    assertTrue(msg.toLowerCase().contains("oolag cycle"))
   }
 
   @Test def testAlreadyTried() {

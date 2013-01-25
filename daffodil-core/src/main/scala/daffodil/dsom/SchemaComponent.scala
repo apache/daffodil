@@ -18,6 +18,11 @@ import daffodil.util.Compile
 import daffodil.processors.charset.USASCII7BitPackedCharset
 import daffodil.processors.charset.CharsetUtils
 import daffodil.compiler.RootSpec
+import daffodil.util.Misc
+import daffodil.compiler.Compiler
+import java.io.File
+import java.net.URI
+import java.net.URL
 
 class SchemaDefinitionError(schemaContext: Option[SchemaComponent],
                             annotationContext: Option[DFDLAnnotation],
@@ -56,26 +61,43 @@ abstract class SchemaDefinitionDiagnosticBase(
   // They're still SDE but they will have data location information.
 
   override def toString = {
-    lazy val argsAsString = args.map { _.toString }.mkString(", ")
     //
-    // Right here is where we would lookup the symbolic error kind id, and 
-    // choose a locale-based message string.
+    // It is important that this routine is robust. It is used to print error messages
+    // so if something goes wrong in this, you run around in circles. I believe the 
+    // stack-overaflow problems will be caught so long as one is running through lazy val aka 
+    // OOLAG 'attributes' framework. 
     //
-    // For now, we'll just do an automatic English message.
-    //
-    val msg =
-      if (kind.contains("%")) kind.format(args: _*)
-      else (kind + "(%s)").format(argsAsString)
+    val res = {
+      lazy val argsAsString = args.map { _.toString }.mkString(", ")
+      //
+      // Right here is where we would lookup the symbolic error kind id, and 
+      // choose a locale-based message string.
+      //
+      // For now, we'll just do an automatic English message.
+      //
+      val msg =
+        if (kind.contains("%")) kind.format(args: _*)
+        else (kind + "(%s)").format(argsAsString)
 
-    val schContextLocDescription = schemaContext.map { " " + _.locationDescription }.getOrElse("")
-    val annContextLocDescription = annotationContext.map { " " + _.locationDescription }.getOrElse("")
+      // this is where it gets kind of hairy. We're depending on fairly rich
+      // attribute calculations in order to generate the context information 
+      // in these diagnostic messages. Break any of that stuff, and suddenly 
+      // you will get circularity errors from OOLAG.
+      // beats a stack-overflow at least.
+      val schContextLocDescription =
+        schemaContext.map { " " + _.locationDescription }.getOrElse("")
 
-    val res = "Schema Definition " + diagnosticKind + ": " + msg +
-      " Schema context: " + schemaContext.getOrElse("top level") + "." +
-      // TODO: should be one or the other, never(?) both
-      schContextLocDescription +
-      annContextLocDescription
+      val annContextLocDescription =
+        annotationContext.map { " " + _.locationDescription }.getOrElse("")
 
+      val res = "Schema Definition " + diagnosticKind + ": " + msg +
+        " Schema context: " + schemaContext.getOrElse("top level") + "." +
+        // TODO: should be one or the other, never(?) both
+        schContextLocDescription +
+        annContextLocDescription
+
+      res
+    }
     res
   }
 
@@ -92,15 +114,22 @@ abstract class SchemaComponent(val xml: Node)
   with GetAttributesMixin
   with SchemaLocation
   with ThrowsSDE
-  with SchemaFileLocatable {
+  with SchemaFileLocatable
+  with IIUtils {
 
   def schemaDocument: SchemaDocument
-  lazy val schema: Schema = schemaDocument.schema
-  lazy val targetNamespace = schema.targetNamespace
-  lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace)
+
+  lazy val schema: Schema = schema_.value
+  private lazy val schema_ = LV('schema) { schemaDocument.schema }
+
+  lazy val targetNamespace: NS = schemaDocument.targetNamespace
+  lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace.toString)
   def prettyName: String
 
-  lazy val fileName: Option[String] = schemaDocument.fileName
+  lazy val fileName: URL = fileName_.value
+  private lazy val fileName_ = LV('fileName) {
+    schemaDocument.fileName
+  }
 
   lazy val isHidden: Boolean = {
     enclosingComponent match {
@@ -189,31 +218,147 @@ abstract class SchemaComponent(val xml: Node)
 trait LocalComponentMixin { self: SchemaComponent =>
   def parent: SchemaComponent
 
-  lazy val schemaDocument = parent.schemaDocument
+  lazy val schemaDocument = schemaDocument_.value
+  private lazy val schemaDocument_ = LV('schemaDocument) { parent.schemaDocument }
 }
 
 /**
- * Anything named has a name from its corresponding xml's name attribute
+ * Common trait for both named SchemaComponents and named (aka Defining) Annotation objects
+ *
+ * The difference between this and the Global flavor
+ * has to do with the elementFormDefault attribute of the xs:schema
+ * element. Local things are either qualified or unqualified
+ * in their names depending on the elementFormDefault attribute
+ * being "qualified" or "unqualified" (unqualified is the default)
  */
-trait NamedMixin { self: { def xml: Node } => // this scala idiom means the object this is mixed into has a def for xml of type Node
-  lazy val name = (xml \ "@name").text
-  lazy val prettyName = name
+trait NamedAnnotationAndComponentMixin
+  extends GetAttributesMixin {
+
+  lazy val name = getAttributeRequired("name")
+  def xml: Node
+  def schemaDocument: SchemaDocument
+
+  lazy val namespace = schemaDocument.targetNamespace // can be "" meaning no namespace
+  lazy val prefix = {
+    val prefix = schemaDocument.xml.scope.getPrefix(namespace.toString) // can be null meaning no prefix
+    // cannot be ""
+    prefix
+  }
 }
 
 /**
  * All global components share these characteristics.
+ * The difference between this and the not-Global flavor
+ * has to do with the elementFormDefault attribute of the xs:schema
+ * element. Global things are always qualified
  */
 trait GlobalComponentMixin
-  extends NamedMixin { self: SchemaComponent =>
+  extends NamedAnnotationAndComponentMixin { self: SchemaComponent =>
+
+}
+
+/**
+ * elementFormDefault is an attribute of the xs:schema element.
+ * It defaults to 'qualified'. That means nested local element definitions,
+ * their names are in the target namespace. So, if you have
+ * @example {{{
+ * <schema elementFormDefault='qualified'
+ *         targetNamespace="myURI" xmlns:tns="myURI"...>
+ * <element name='foo'...>
+ *    <complexType>
+ *       <sequence>
+ *          <element name='bar'.../>
+ *       ...
+ * }}}
+ *  Now a DFDL/Xpath expression to reach that 'bar' element looks like /tns:foo/tns:bar
+ *  Contrarywise, if elementFormDefault='unqualfied'...
+ *  <pre>
+ *  <schema elementFormDefault='unqualified'
+ *         targetNamespace="myURI" xmlns:tns="myURI"...>
+ * <element name='foo'...>
+ *    <complexType>
+ *       <sequence>
+ *          <element name='bar'.../>
+ *       ...
+ * }}}
+ * Now a path to reach element bar would look like /tns:foo/bar.
+ *
+ * See how 'bar' isn't preceded by the tns prefix. That's becasue the child elements are
+ * all 'no namespace' elements.
+ *
+ * This also affects what a result document is like from namespaces perspective.
+ * Suppose the above 'bar' element is an xs:int. Then with elemenFormDefault='qualified', an
+ * instance would look like:
+ * @example {{{
+ * <tns:foo><tns:bar>42</tns:bar></tns:foo>
+ * }}}
+ * or the possibly nicer (for a large result)
+ * @example {{{
+ * <foo xmlns="myURI"><bar>42</bar></foo>
+ * }}}
+ * But if elementFormDefault='unqualified', the instance doc would be like:
+ * @example {{{
+ * <tns:foo><bar>42</bar></tns:foo>
+ * }}}
+ * In this case you really don't want to setup xmlns='myURI' because this happens:
+ * @example {{{
+ *  <foo xmlns="myURI><bar xmlns="">42</bar></foo>
+ * }}}
+ * That is, you must explicitly go to the no-namespace syntax. It doesn't happen implicitly.
+ *
+ * This trait is mixed into things that are affected by elementFormDefault.
+ * Namely the local element declaration class.
+ */
+trait ElementFormDefaultMixin
+  extends NamedAnnotationAndComponentMixin {
+  /**
+   * handle elementFormDefault to qualify
+   */
+  override lazy val namespace =
+    if (schemaDocument.elementFormDefault == "unqualified")
+      NoNamespace // unqualified means no namespace
+    else schemaDocument.targetNamespace
+
+  override lazy val prefix =
+    if (schemaDocument.elementFormDefault == "unqualified")
+      "" // unqualified means no prefix
+    else {
+      //
+      // name is supposed to be qualified by the target namespace
+      //
+      val tns = namespace
+      // record this error on the schemaDocument
+      schemaDocument.schemaDefinition(tns != "", "Must have a targetNamespace if elementFormDefault='qualified'.")
+      val prefix = {
+        val existingPrefix = xml.scope.getPrefix(tns.toString)
+        if (existingPrefix != null) existingPrefix
+        else {
+          // There is no prefix bound to this namespace
+          // So we have to create a prefix. Let's try "tns", "tns1", "tns2" etc. until
+          // we find one that is not bound to a namespace.
+          val newPrefix = (0 until Int.MaxValue).flatMap { i =>
+            // flatMap collapses the List(None, None, Some(tryPre),...) => List(tryPre,...)
+            // then we just take head of this list, and we get tryPre
+            // Note: this does NOT create the giant list of all Int values.
+            val uniqueSuffix = if (i == 0) "" else i.toString
+            val prefixStem = Compiler.generatedNamespacePrefixStem
+            val tryPre = prefixStem + uniqueSuffix
+            if (xml.scope.getURI(tryPre) == null)
+              Some(tryPre) // tryPre is not bound to a namespace, so we can use it.
+            else None
+          }.head
+          newPrefix
+        }
+      }
+      prefix
+    }
+
 }
 
 abstract class AnnotatedSchemaComponent(xml: Node)
   extends SchemaComponent(xml)
   with AnnotatedMixin
 
-/**
- * Every component that can be annotated.
- */
 // Provides some polymorphism across annotated things, 
 // and unannotated things like complex types.
 trait SharedPropertyLists {
@@ -222,6 +367,9 @@ trait SharedPropertyLists {
   def allNonDefaultProperties = localAndFormatRefProperties
 }
 
+/**
+ * Every component that can be annotated.
+ */
 trait AnnotatedMixin
   extends CommonRuntimeValuedPropertiesMixin
   with SharedPropertyLists { self: SchemaComponent =>
@@ -229,8 +377,8 @@ trait AnnotatedMixin
   def prettyName: String
   def path: String
 
-  def defaultProperties: Map[String, String] = {
-    this.schemaDocument.localAndFormatRefProperties
+  lazy val defaultProperties: Map[String, String] = {
+    this.schemaDocument.defaultProperties
   }
 
   lazy val sDoc = self.schemaDocument
@@ -443,7 +591,6 @@ trait AnnotatedMixin
       stringBitLength _
     }
   }
-
 }
 
 /**
@@ -472,7 +619,7 @@ trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedMixin =>
    *
    * Implement these abstract methods to do the right thing w.r.t. combining
    * statements from group refs and their referenced groups, element refs and their elements,
-   * element decls and their simple types.
+   * element decls and their simple types, simpleTypes and their base simpleTypes.
    *
    * The local ingredients are here for doing the needed combining and also for checking.
    * E.g., dfdl:newVariableInstance isn't allowed on simpleType, can only have one discriminator per
@@ -546,17 +693,17 @@ class SchemaSetErrorHandler(err: SchemaSet) extends org.xml.sax.ErrorHandler {
  * a target namespace (or 'no namespace'), so a schema set is
  * conceptually a mapping from a namespace URI (or empty string, meaning no
  * namespace) onto schema.
- * <p>
+ *
  * Constructing these from XML Nodes is a unit-test
  * interface. The real constructor takes a sequence of file names,
  * and you can optionally specify a root element via the rootSpec argument.
- * <p>
+ *
  * A schema set is a SchemaComponent (derived from that base), so as to inherit
  * the error/warning accumulation behavior that all SchemaComponents share.
  * A schema set invokes our XML Loader, which can produce validation errors, and
  * those have to be gathered so we can give the user back a group of them, not
  * just one.
- * <p>
+ *
  * Schema set is however, a kind of a fake SchemaComponent in that it
  * doesn't correspond to any user-specified schema object. And unlike other
  * schema components obviously it does not live within a schema document.
@@ -570,7 +717,7 @@ class SchemaSet(
   // These things are needed to satisfy the contract of being a schema component.
   lazy val enclosingComponent = None
   lazy val schemaDocument = Assert.usageError("schemaDocument should not be called on SchemaSet")
-  override lazy val fileName = None
+  override lazy val fileName = new URL("file:SchemaSet")
   /**
    * This constructor for unit testing only
    */
@@ -582,44 +729,231 @@ class SchemaSet(
     },
       if (root == null) None else {
         if (rootNamespace == null) Some(RootSpec(None, root))
-        else Some(RootSpec(Some(rootNamespace), root))
+        else Some(RootSpec(Some(NS(rootNamespace)), root))
       },
       false)
 
   //
   // construct our XML loader, giving it an error handler that will
-  // turn SAX load-time validation error events into gather those on 
+  // turn SAX load-time validation error events into gathered diagnostics on
   // our diagnostics lists.
   //
   lazy val loader = new DaffodilXMLLoader(new SchemaSetErrorHandler(this))
-  lazy val schemaNodeList = {
+
+  /**
+   * the initial list of schema document nodes provided by
+   * the user (at the command line or via API)
+   */
+  lazy val initialSchemaDocuments = initialSchemaDocuments_.value
+  private lazy val initialSchemaDocuments_ = LV('initialSchemaDocuments) {
     val nl = schemaFileNames.map { fn =>
       {
         val node = loader.loadFile(fn)
-        node
+        node match {
+          case <schema>{ _* }</schema> if (
+            NS(node.namespace) == XMLUtils.xsdURI ||
+            NS(node.namespace) == XMLUtils.DFDLSubsetURI) => {
+            // top level is a schema. 
+            new SchemaDocument(node, this, None)
+          }
+          case _ => schemaDefinitionError("The file %s did not contain a schema element as the document element. Found %s in namespace %s.", fn, node.label, node.namespace)
+        }
       }
     }
     nl
   }
 
-  lazy val prettyName = "SchemaSet"
-
-  lazy val schemas = {
-    val schemaPairs = schemaNodeList.map { s =>
+  lazy val alreadySeenStart: IIMap = alreadySeenStart_.value
+  private lazy val alreadySeenStart_ = LV[IIMap]('alreadySeenStart) {
+    val seq = initialSchemaDocuments.map { sd =>
       {
-        val ns = (s \ "@targetNamespace")
-        (ns.text, s) // ns.text is "" if there is no targetNamespace attribute
+        val oneMap = ((sd.targetNamespace, sd.fileName) -> sd)
+        oneMap
       }
     }
+    seq.toMap.asInstanceOf[IIMap]
+  }
+
+  /**
+   * Good example of functional programming here.
+   *
+   * In Java, or in imperative programming style, one would
+   * write this by allocating a mutable lookup table/map, and
+   * then you would traverse the structure, mutating this state
+   * object, checking against it for each new schema file
+   * before loading that schema file.
+   *
+   * Instead this is done in the classic functional programming
+   * style using foldLeft and recursion.
+   *
+   * What foldLeft does is takes a starting value (a immutable map
+   * from a pair of (NS, URL) -> SchemaDocument). The second argument
+   * is the folding function which takes 2 arguments.
+   * For foldLeft it is the left argument which is 'circulated',
+   * that is, whatever the folding function produces for one call, is fed
+   * back around as the left argument for the next call on the next
+   * element.
+   *
+   * In the below, the thing being fed around is this ever-growing
+   * immutable map of the unique schema file instances.
+   *
+   * Note that a schema file that has no target namespace can be included
+   * by other schemas, and it will take on the namespace of the
+   * schema into-which it was included. That's why the key to the
+   * table is both the namespace, and the filename. Because the same
+   * schema file name might have to be read a bunch of times to create
+   * instances in the various namespaces. This is called 'chameleon' namespaces
+   * in XML Schema parlance.
+   *
+   * TODO: since the namespace could be stored outside of the schema
+   * document, we *should* be able to be clever and share the SchemaDocument
+   * structure. For now we're not bothering with this, but it might help
+   * for very large schemas if they use include and this chameleon
+   * namespace stuff a lot.
+   *
+   * This right here is the hairy transitive closure algorithm that
+   * walks down all schema docs, and all include and imports, and
+   * follows them to more schema docs, all the while accumulating a
+   * map of what it has already seen so as not to load the same
+   * schema twice for the same namespace.
+   */
+  lazy val allSeenDocs = allSeenDocs_.value
+  private lazy val allSeenDocs_ = LV('allSeenDocs) {
+
+    val transitiveClosure = {
+      // we fold up the initial schema documents from the user
+      // with the initial 'left' value (type IIMap for 'include and import map'
+      // ie, a map containing those same
+      // schema documents keyed from their namespaces & filenames. 
+      initialSchemaDocuments.foldLeft(alreadySeenStart)(unseenSchemaDocs _)
+    }
+    transitiveClosure
+  }
+
+  /**
+   * the outer loop fold function. folds up the list of schema documents,
+   * accumulating the unseen (so far) schema documents into the result.
+   */
+  def unseenSchemaDocs(seen: IIMap, sd: SchemaDocument): IIMap = {
+    val iis = sd.includesAndImports
+    val resultSeen = iis.foldLeft(seen)(foldOneII _)
+    resultSeen
+  }
+
+  /**
+   * The inner loop fold function. Folds up a list of include or import statements.
+   * coming from one schema document.
+   *
+   * This is where we check to see if we can skip the include/import
+   * beacuse we already have the file.
+   *
+   * And the magic here is that for each new schema document that
+   * we actually do load, recursively we fold up all unseen schema docs
+   * reachable from it.
+   *
+   * And this idiom threads that seen-map through everything sequentially
+   * so that there are never duplicates to remove.
+   *
+   * Also, this handles circular import namespace relationships. Those
+   * are common as a large schema may simply have files that use each other's
+   * definitions. It might not be a good well-layered design, but XML
+   * schema (and DFDL schema) certainly allows it.
+   */
+  def foldOneII(seen: IIMap, ii: IIBase) = {
+    seen.get((ii.targetNamespace, ii.resolvedLocation)) match {
+      case None => {
+        val newSd = ii.iiSchemaDocument
+        val mapTuple = ((newSd.targetNamespace, newSd.fileName), newSd)
+        val resultSeen1 = seen + mapTuple // add this document as seen
+        // recursively add all unseen schema docs reachable from it
+        // to the set of things we've seen
+        val resultSeen2 = unseenSchemaDocs(resultSeen1, newSd)
+        resultSeen2
+      }
+      case Some(_) => seen
+    }
+  }
+
+  lazy val prettyName = "SchemaSet"
+
+  lazy val allSchemaDocuments = allSeenDocs.map { case (_, sd) => sd }
+
+  lazy val schemas = schemas_.value
+  private lazy val schemas_ = LV('schemas) {
+    val schemaPairs = allSchemaDocuments.map { sd => (sd.targetNamespace, sd) }
     val schemaGroups = schemaPairs.groupBy { _._1 } // group by the namespace identifier
     val schemas = schemaGroups.map {
       case (ns, pairs) => {
         val sds = pairs.map { case (ns, s) => s }
-        val s = new Schema(ns, sds, this)
+        val s = new Schema(ns, sds.toSeq, this)
         s
       }
     }
     schemas.toSeq
+  }
+
+  /**
+   * For checking uniqueness of global definitions in their namespaces
+   */
+  lazy val allTopLevels: Seq[(NS, String, Symbol, NamedAnnotationAndComponentMixin)] = allTopLevels_.value
+  private lazy val allTopLevels_ = LV('allTopLevels) {
+    schemas.flatMap { schema =>
+      {
+        val ns = schema.namespace
+        val geds = schema.globalElementDecls.map { g =>
+          {
+            (ns, g.name, 'Element, g)
+          }
+        }
+        val stds = schema.globalSimpleTypeDefs.map { g =>
+          {
+            (ns, g.name, 'SimpleType, g)
+          }
+        }
+        val ctds = schema.globalComplexTypeDefs.map { g =>
+          {
+            (ns, g.name, 'ComplexType, g)
+          }
+        }
+        val gds = schema.globalGroupDefs.map { g =>
+          {
+            (ns, g.name, 'Group, g)
+          }
+        }
+        val dfs = schema.defineFormats.map { g =>
+          {
+            (ns, g.name, 'DefineFormat, g)
+          }
+        }
+        val dess = schema.defineEscapeSchemes.map { g =>
+          {
+            (ns, g.name, 'DefineEscapeScheme, g)
+          }
+        }
+        val dvs = schema.defineVariables.map { g =>
+          {
+            (ns, g.name, 'DefineVariable, g)
+          }
+        }
+        val all = geds ++ stds ++ ctds ++ gds ++ dfs ++ dess ++ dvs
+        all
+      }
+    }
+  }
+
+  lazy val groupedTopLevels = groupedTopLevels_.value
+  private lazy val groupedTopLevels_ = LV('groupedTopLevels) {
+    val grouped = allTopLevels.groupBy {
+      case (ns, name, kind, obj) => {
+        (kind, ns, name)
+      }
+    }
+    val grouped2 = grouped.map {
+      case (idFields, seq) => {
+        val onlyObj = seq.map { case (ns, name, kind, obj) => obj }
+        (idFields, onlyObj, onlyObj)
+      }
+    }
   }
 
   /**
@@ -668,7 +1002,7 @@ class SchemaSet(
    * Compiler class, or by an API call on the ProcessorFactory, this
    * method reconciles the two. E.g., you can't specify the root both
    * places, it's one or the other.
-   * <p>
+   *
    * Also, if you don't specify a root element at all, this
    * grabs the first element declaration of the first schema file
    * to use as the root.
@@ -709,7 +1043,7 @@ class SchemaSet(
    *
    * If the schema has no namespace, then use ""
    */
-  def getSchema(namespace: String) = {
+  def getSchema(namespace: NS) = {
     val schemaForNamespace = schemas.find { s => s.targetNamespace == namespace }
     schemaForNamespace
   }
@@ -720,28 +1054,28 @@ class SchemaSet(
    *
    * These all return factories for the objects, not the objects themselves.
    */
-  def getGlobalElementDecl(namespace: String, name: String) = getSchema(namespace).flatMap { _.getGlobalElementDecl(name) }
-  def getGlobalSimpleTypeDef(namespace: String, name: String) = getSchema(namespace).flatMap { _.getGlobalSimpleTypeDef(name) }
-  def getGlobalComplexTypeDef(namespace: String, name: String) = getSchema(namespace).flatMap { _.getGlobalComplexTypeDef(name) }
-  def getGlobalGroupDef(namespace: String, name: String) = getSchema(namespace).flatMap { _.getGlobalGroupDef(name) }
+  def getGlobalElementDecl(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getGlobalElementDecl(name) }
+  def getGlobalSimpleTypeDef(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getGlobalSimpleTypeDef(name) }
+  def getGlobalComplexTypeDef(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getGlobalComplexTypeDef(name) }
+  def getGlobalGroupDef(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getGlobalGroupDef(name) }
 
   /**
    * DFDL Schema top-level global objects
    */
-  def getDefaultFormat(namespace: String, name: String) = getSchema(namespace).flatMap { x => Some(x.getDefaultFormat) }
-  def getDefineFormat(namespace: String, name: String) = {
+  def getDefaultFormat(namespace: NS, name: String) = getSchema(namespace).flatMap { x => Some(x.getDefaultFormat) }
+  def getDefineFormat(namespace: NS, name: String) = {
     val s = getSchema(namespace)
-    getSchema(namespace).flatMap { _.getDefineFormat(name) }
+    s.flatMap { _.getDefineFormat(name) }
   }
-  def getDefineFormats(namespace: String, context: ThrowsSDE) = getSchema(namespace) match {
+  def getDefineFormats(namespace: NS, context: ThrowsSDE) = getSchema(namespace) match {
     case None => context.schemaDefinitionError("Failed to find a schema for namespace:  " + namespace)
     case Some(sch) => sch.getDefineFormats()
   }
-  def getDefineVariable(namespace: String, name: String) = {
+  def getDefineVariable(namespace: NS, name: String) = {
     val res = getSchema(namespace).flatMap { _.getDefineVariable(name) }
     res
   }
-  def getDefineEscapeScheme(namespace: String, name: String) = getSchema(namespace).flatMap { _.getDefineEscapeScheme(name) }
+  def getDefineEscapeScheme(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getDefineEscapeScheme(name) }
 
   lazy val primitiveTypes = XMLUtils.DFDL_SIMPLE_BUILT_IN_TYPES.map { new PrimitiveType(_) }
   def getPrimitiveType(localName: String) = primitiveTypes.find { _.name == localName }
@@ -761,28 +1095,39 @@ class SchemaSet(
  * same target namespace, and in that case all those schema documents make up
  * the 'schema'.
  */
-class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: SchemaSet)
+class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], val schemaSet: SchemaSet)
   extends DiagnosticsProviding {
 
   lazy val prettyName = "schema"
   lazy val path = prettyName
 
-  lazy val targetNamespace = namespace
+  lazy val targetNamespace: NS = namespace
 
-  lazy val schemaDocuments = schemaDocs.map { new SchemaDocument(_, this) }
+  lazy val schemaDocuments = schemaDocs
 
   lazy val diagnosticChildren = schemaDocuments
 
   private def noneOrOne[T](scs: Seq[T], name: String): Option[T] = {
     scs match {
       case Nil => None
-      case Seq(sc) => Some(sc)
-      case _ => throw new SchemaDefinitionError(None, None, "more than one definition for name: " + name)
+      case Seq(sc) => Some(sc) // exactly one is good
+      case s => {
+        schemaSet.schemaDefinitionError(
+          "More than one definition for name: %s\n" +
+            "defined " + s.map { thing =>
+              thing match {
+                case sc: SchemaComponent => sc.fileDescription
+                case df: DFDLDefiningAnnotation => df.asAnnotation.fileDescription
+                case _ => Assert.invariantFailed("should only be a SchemaComponent or a DFDLDefiningAnnotation")
+              }
+            }.mkString("\n and also "),
+          name)
+      }
     }
   }
 
   /**
-   * Given a name, try to retrieve the appropriate object.
+   * Given a name, retrieve the appropriate object.
    *
    * This just scans each schema document in the schema, checking each one.
    */
@@ -792,16 +1137,20 @@ class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: Sche
   def getGlobalGroupDef(name: String) = noneOrOne(schemaDocuments.flatMap { _.getGlobalGroupDef(name) }, name)
   def getDefineFormat(name: String) = noneOrOne(schemaDocuments.flatMap { _.getDefineFormat(name) }, name)
   def getDefineFormats() = schemaDocuments.flatMap { _.defineFormats }
-  def getDefineVariable(name: String) = {
-    val res = noneOrOne(schemaDocuments.flatMap { _.getDefineVariable(name) }, name)
-    res
-  }
-  def getDefaultFormat = schemaDocuments.flatMap { x => Some(x.getDefaultFormat) }
+  def getDefineVariable(name: String) = noneOrOne(schemaDocuments.flatMap { _.getDefineVariable(name) }, name)
   def getDefineEscapeScheme(name: String) = noneOrOne(schemaDocuments.flatMap { _.getDefineEscapeScheme(name) }, name)
-  def getGlobalElementDecls = schemaDocuments.flatMap(_.globalElementDecls)
-  def getGlobalGroupDefs = schemaDocuments.flatMap(_.globalGroupDefs)
-  def getGlobalSimpleTypeDefs = schemaDocuments.flatMap(_.globalSimpleTypeDefs)
-  def getGlobalComplexTypeDefs = schemaDocuments.flatMap(_.globalComplexTypeDefs)
+  def getDefaultFormat = schemaDocuments.flatMap { x => Some(x.getDefaultFormat) }
+
+  // used for bulk checking of uniqueness
+
+  lazy val globalElementDecls = schemaDocuments.flatMap(_.globalElementDecls)
+  lazy val globalGroupDefs = schemaDocuments.flatMap(_.globalGroupDefs)
+  lazy val globalSimpleTypeDefs = schemaDocuments.flatMap(_.globalSimpleTypeDefs)
+  lazy val globalComplexTypeDefs = schemaDocuments.flatMap(_.globalComplexTypeDefs)
+  lazy val defineFormats = schemaDocuments.flatMap(_.defineFormats)
+  lazy val defineEscapeSchemes = schemaDocuments.flatMap(_.defineEscapeSchemes)
+  lazy val defineVariables = schemaDocuments.flatMap(_.defineVariables)
+
 }
 
 /**
@@ -823,35 +1172,103 @@ class Schema(val namespace: String, val schemaDocs: NodeSeq, val schemaSet: Sche
  * are where default formats are specified, so it is very important what schema document
  * a schema component was defined within.
  */
-class SchemaDocument(xmlArg: Node, schemaArg: Schema)
+class SchemaDocument(xmlArg: Node, val schemaSet: SchemaSet, include: Option[Include])
   extends AnnotatedSchemaComponent(xmlArg)
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
 
-  final val noNamespace = ""
-
-  override lazy val targetNamespace = {
-    val txt = (xml \ "@targetNamespace").text
-    if (txt == "") noNamespace
-    else txt
+  /**
+   * For include, if the included schema doesn't have a
+   * targetNamespace, then we will take on the namespace
+   * of whatever we are included into.
+   *
+   * This is the chameleon namespace concept, and it works
+   * inductively. I.e., the included schema could include more
+   * schemas, all of them ultimately getting the targetNamespace
+   * from the schema enclosing that outermost include.
+   *
+   * If an included schema DOES have a targetNamespace, it must match what we're
+   * included into.
+   */
+  override lazy val targetNamespace = targetNamespace_.value
+  private lazy val targetNamespace_ = LV('targetNamespace) {
+    val tnsAttrib = this.getAttributeOption("targetNamespace").map { NS(_) }
+    tnsAttrib.map { tns =>
+      {
+        include.foreach { inc =>
+          {
+            schemaDefinition(inc.targetNamespace == tns,
+              "Included schema does not have the same namespace as the file %s including it.",
+              fileName)
+          }
+        }
+        tns
+      }
+    }.getOrElse {
+      include.map { _.targetNamespace }.getOrElse(NoNamespace)
+    }
   }
 
-  override lazy val fileName = this.fileNameFromAttribute()
+  override lazy val fileName = fileName_.value
+  private lazy val fileName_ = LV('fileName) {
+    this.fileNameFromAttribute().getOrElse(new URL("urn:unknown"))
+  }
 
   lazy val enclosingComponent: Option[SchemaComponent] = None
 
   lazy val prettyName = "schemaDoc"
 
-  lazy val localAndFormatRefProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
+  /**
+   * Error checks on the xs:schema element itself.
+   *
+   * E.g., we don't support the xsi:schemaLocation attribute. So we issue a warning for that.
+   * and some other attributes as well.
+   */
+
+  def qualOrUnqual(str: String, kind: String) = {
+    str match {
+      case "unqualified" => str
+      case "qualified" => str
+      case _ => schemaDefinitionError("Unrecognized value for %s FormDefault='%s'.", kind, str)
+    }
+  }
+
+  lazy val elementFormDefault = {
+    val efdAttr = (xml \ "@elementFormDefault").text
+    if (efdAttr == "") "unqualified"
+    else qualOrUnqual(efdAttr, "element")
+  }
+
+  lazy val attributeFormDefault = {
+    val afdAttr = (xml \ "@attributeFormDefault").text
+    if (afdAttr == "") "unqualified"
+    else qualOrUnqual(afdAttr, "attribute")
+  }
+
+  lazy val checkUnsupportedAttributes = checkUnsupportedAttributes_.value
+  private lazy val checkUnsupportedAttributes_ = LV('checkUnsupportedAttributes) {
+    val hasSchemaLocation = (xml \ "@schemaLocation").text != ""
+    val hasBlockDefault = (xml \ "@blockDefault").text != ""
+    val hasFinalDefault = (xml \ "@finalDefault").text != ""
+    schemaDefinitionWarning(!hasSchemaLocation, "schemaLocation is ignored.")
+    schemaDefinitionWarning(!hasBlockDefault, "blockDefault is ignored")
+    schemaDefinitionWarning(!hasFinalDefault, "finalDefault is ignored")
+    schemaDefinition(attributeFormDefault == "unqualified", "attributeFormDefault='qualified' is not yet implemented.")
+    val res = hasSchemaLocation | hasBlockDefault | hasFinalDefault
+    res
+  }
 
   /**
    * A schema document doesn't have default properties of its own.
    * The schema document's localAndFormatRefProperties become the default properties for
    * the components contained within this schema document.
    */
-  override lazy val defaultProperties = Map.empty[String, String]
+  override lazy val defaultProperties = localAndFormatRefProperties
+  lazy val localAndFormatRefProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
 
-  override lazy val schema = schemaArg
+  override lazy val schema = schemaSet.getSchema(targetNamespace).getOrElse {
+    Assert.invariantFailed("schema not found for schema document's namespace.")
+  }
 
   lazy val schemaDocument = this
 
@@ -872,19 +1289,19 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
 
   /*
    * Design note about factories for global elements, and recursive types.
-   * <p>
+   *
    * The point of these factories is that every local site that uses a global def/decl
    * needs a copy so that the def/decl can have attributes which depend on the context
    * where it is used. That is, we can't share global defs/decls because the contexts change
    * their meaning.
-   * <p>
+   *
    * This works as is, so long as the DFDL Schema doesn't have recursion in it. Recursion would create
    * an infinite tree of local sites and copies. (There's an issue: DFDL-80 in Jira about putting 
    * in the check to rule out recursion)
-   * <p>
+   *
    * But recursion would be a very cool experimental feature, potentially useful for investigations
    * towards DFDL v2.0 in the future.
-   * <p>
+   *
    * What's cool: if these factories are changed to memoize. That is, return the exact same global def/decl
    * object if they are called from the same local site, then recursion "just works". Nothing will diverge
    * creating infinite structures, but furthermore, the "contextual" information will be right. That 
@@ -893,7 +1310,7 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
    * local site inside it, so that's a different local site, so it will get a copy of the global. But
    * that's where it ends because the next "unwind" of the recursion will be at this same local site, so
    * would be returned the exact same def/decl object.
-   * <p>
+   *
    * Of course there are runtime/backend complexities also. Relative paths, variables with newVariableInstance
    * all of which can go arbitrarily deep in the recursive case. 
    */
@@ -904,27 +1321,20 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
 
   lazy val defaultFormat = formatAnnotation.asInstanceOf[DFDLFormat]
 
-  //
-  // There's some scala way of avoiding all this downcasting, using some clever type parameterization scheme
-  // Have to ask a Scala types expert.
-  //
-  lazy val defineFormats = {
-    val df = annotationObjs.filter { _.isInstanceOf[DFDLDefineFormat] }.map { _.asInstanceOf[DFDLDefineFormat] }
-    df
-  }
+  lazy val defineFormats = annotationObjs.collect { case df: DFDLDefineFormat => df }
+  lazy val defineEscapeSchemes = annotationObjs.collect { case des: DFDLDefineEscapeScheme => des }
+  lazy val defineVariables = annotationObjs.collect { case dv: DFDLDefineVariable => dv }
 
-  lazy val defineEscapeSchemes = {
-    val desc = annotationObjs.filter { _.isInstanceOf[DFDLDefineEscapeScheme] }.map { _.asInstanceOf[DFDLDefineEscapeScheme] }
-    desc
-  }
-
-  lazy val defineVariables = {
-    val dv = annotationObjs.filter { _.isInstanceOf[DFDLDefineVariable] }.map { _.asInstanceOf[DFDLDefineVariable] }
-    dv
-  }
-
-  lazy val alwaysCheckedChildren =
+  lazy val alwaysCheckedChildren = {
+    checkUnsupportedAttributes // getting this value may cause diagnostics to be recorded on the SchemaDocument
     List(defaultFormat)
+  }
+
+  lazy val impNodes = (xml \ "import")
+  lazy val incNodes = (xml \ "include")
+  lazy val imports = impNodes.map { iNode => new Import(iNode, this) }
+  lazy val includes = incNodes.map { iNode => new Include(iNode, this) }
+  lazy val includesAndImports = includes ++ imports
 
   /**
    * Implements the selectivity so that if you specify a root element
@@ -941,7 +1351,9 @@ class SchemaDocument(xmlArg: Node, schemaArg: Schema)
       globalElementDecls.map { _.forRoot() } ++
       defineEscapeSchemes ++
       defineFormats ++
-      defineVariables
+      defineVariables // TODO: only include these if they have default values or external values. 
+    // Those then have to be evaluated before any processing, 
+    // and may depend on other variables with default values or external values.
     // Not these, because we'll pick these up when elements reference them.
     // And we don't compile them independently of that (since they could be very
     // incomplete and would lead to many errors for missing this or that.)

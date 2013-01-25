@@ -1,4 +1,46 @@
 package daffodil.xml
+import java.net.URI
+import daffodil.exceptions.Assert
+
+/**
+ * Central factory for, and class to represent namespace URIs
+ *
+ * Import this object. I.e., import daffodil.xml.NS._
+ */
+object NS {
+
+  // TODO: equality test for NS can do pointer comparison
+  // because we're registering these things.
+
+  private val nsCache = scala.collection.mutable.Map[String, NS]()
+
+  def apply(nsString: String) = {
+    // null means NoNamespace. So does ""
+    val s = if (nsString == null) "" else nsString
+    val haveIt = nsCache.get(s)
+    haveIt match {
+      case Some(ns) => ns
+      case None => {
+        val newNS = new NS(s)
+        nsCache.put(s, newNS)
+        newNS
+      }
+    }
+  }
+
+  nsCache.put("", NoNamespace)
+}
+
+object NoNamespace extends NS("") {
+  override def isNoNamespace = true
+  override def toString = "No_Namespace"
+}
+
+class NS protected (s: String) { // protected constructor. Must use factory.
+  override def toString = s
+  lazy val uri = new URI(s)
+  def isNoNamespace = false
+}
 
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.

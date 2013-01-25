@@ -12,7 +12,7 @@ import org.junit.Test
  * These tests characterize utf-8 and utf-16 character set conversion behavior
  * so that the assumptions are clear that we depend on in our code. E.g., that Byte-order-marks
  * don't cause anything to blow up, and that surrogate pairs really do work, etc.
- * <p>
+ *
  * These things are some of the corner cases in the world of character set conversions, and
  * knowing they work appropriately lets our code be less conservative. E.g., we don't put checks
  * for various corner cases all over our code if we can show it will work right here.

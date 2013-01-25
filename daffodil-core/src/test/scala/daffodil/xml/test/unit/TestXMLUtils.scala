@@ -5,6 +5,7 @@ import daffodil.xml.XMLUtils
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
+import daffodil.Implicits._
 
 class TestXMLUtils extends JUnitSuite {
 

@@ -10,7 +10,7 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 import scala.collection.JavaConversions._
 import daffodil.processors._
-import daffodil.dsom._
+import daffodil.Implicits._; import daffodil.dsom._
 import daffodil.grammar._
 import daffodil.api.Diagnostic
 
@@ -22,6 +22,8 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
   with GetAttributesMixin
   with ThrowsSDE
   with SchemaFileLocatable {
+
+  lazy val schemaDocument = annotatedSC.schemaDocument
 
   lazy val xml = node
 
@@ -52,29 +54,12 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
   }
 
   /**
-   * If there is no default namespace (that is, no xmlns="..." at all), then getQName("foo") should return ("", "foo").
-   * If there is a default namespace with URI "defNS", then getQName("foo") should return ("defNS", "foo")
-   * If there is no namespace definition for prefix bar, then getQName("bar:foo") should produce a schemaDefinitionError,
-   * because this is a referential integrity error.
-   * If there is a namespace definition for prefix bar of "barNS", then getQName("bar:foo") should return ("barNS", "foo")
+   * If prefix of name is unmapped, SDE, otherwise break into NS and local part.
    */
-  def getQName(name: String): (String, String) = {
-    val parts = name.split(":").toList
-    val (prefix, localName) = parts match {
-      case List(local) => (null, local)
-      case List(pre, local) => (pre, local)
-      case _ => Assert.impossibleCase()
-    }
-    val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
-
-    // TODO line numbers - see: http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
-
-    if (nsURI == null && prefix == null)
-      ("", localName)
-    else if (nsURI == null)
-      schemaDefinitionError("In QName " + name + ", the prefix " + prefix + " was not defined.")
-    else
-      (nsURI, localName)
+  def getQName(name: String): (NS, String) = {
+    val pair @ (ns, localName) = XMLUtils.getQName(name, xml)
+    schemaDefinition(ns != null, "In QName '%s', the prefix was not defined.", name)
+    pair
   }
 
 }
@@ -335,8 +320,7 @@ abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComp
     Assert.usage(qName.length() > 0)
     var props = Map.empty[String, String]
     var localRefStack = refStack.toSet[String]
-    val qnamePair = getQName(qName)
-    val (nsURI, localName) = qnamePair
+    val (nsURI, localName) = getQName(qName)
 
     // Verify that we don't have circular references
     if (refStack.contains(localName)) {
@@ -496,10 +480,19 @@ class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)
   with RawSimpleTypeRuntimeValuedPropertiesMixin {
 }
 
-trait DFDLDefiningAnnotation { self: DFDLAnnotation =>
+trait DFDLDefiningAnnotation
+  extends NamedAnnotationAndComponentMixin { self: DFDLAnnotation =>
+
+  // The point of this, is so we can match-case on type DFDLDefiningAnnotation
+  // but then still conveniently use methods/members defined in the 
+  // DFDLAnnotation class
+  val asAnnotation = self
+
   lazy val nom = getAttributeRequired("name") // validation will check this for us.
   override lazy val prettyName: String = nom // note: name is not a format property.
-  lazy val name: String = nom
+  override lazy val name: String = nom
+
+  lazy val expandedNCNameToQName = XMLUtils.expandedQName(context.targetNamespace, nom)
 
   lazy val definingAnnotationDiagnosticChildren: DiagnosticsList = Nil
 }
@@ -641,9 +634,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
 
   override lazy val diagnosticChildren = definingAnnotationDiagnosticChildren
 
-  lazy val qname = getQName(name)
-  lazy val (uri, localName) = qname
-  lazy val extName = XMLUtils.expandedQName(uri, localName)
+  lazy val extName = expandedNCNameToQName
 
   val (typeURI, typeLocalName) = XMLUtils.QName(node, typeQName, doc)
   val extType = XMLUtils.expandedQName(typeURI, typeLocalName)

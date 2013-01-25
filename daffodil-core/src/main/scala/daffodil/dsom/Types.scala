@@ -361,7 +361,7 @@ object Fakes {
       </xs:choice>
     </xs:group>)
   lazy val xsd_sset = new SchemaSet(sch, "http://example.com", "fake")
-  lazy val xsd_schema = xsd_sset.getSchema("http://example.com").get
+  lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
   lazy val xsd_sd = xsd_schema.schemaDocuments(0)
   lazy val fakeElem = xsd_sd.getGlobalElementDecl("fake").get.forRoot()
   lazy val fakeCT = xsd_sd.getGlobalElementDecl("fake2").get.forRoot().typeDef.asInstanceOf[GlobalComplexTypeDef]
@@ -375,7 +375,7 @@ object Fakes {
 class PrimitiveType(name_ : String)
   extends SchemaComponent(<primitive/>)
   with SimpleTypeBase // use fake schema document
-  with NamedMixin {
+  with NamedAnnotationAndComponentMixin {
 
   val enclosingComponent = None // Shouldn't be used anyway.
 
@@ -408,10 +408,11 @@ class PrimitiveType(name_ : String)
  * I.e., the context is clear and kept separate for each place a global type is used.
  */
 
-class GlobalSimpleTypeDefFactory(val xml: Node, schemaDocument: SchemaDocument)
-  extends NamedMixin {
+class GlobalSimpleTypeDefFactory(val xml: Node, val schemaDocument: SchemaDocument)
+  extends NamedAnnotationAndComponentMixin {
   // def forRoot() = new GlobalSimpleTypeDef(xml, schemaDocument, None)
 
+  lazy val context = schemaDocument
   /**
    * Create a private instance for this element's use.
    */
@@ -423,7 +424,7 @@ class GlobalSimpleTypeDefFactory(val xml: Node, schemaDocument: SchemaDocument)
  */
 
 class GlobalSimpleTypeDef(derivedType: Option[SimpleTypeDefBase], xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: Option[ElementBase])
-  extends SimpleTypeDefBase(xmlArg, schemaDocumentArg) with NamedMixin
+  extends SimpleTypeDefBase(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
 
   val enclosingComponent = (derivedType, element) match {
@@ -462,8 +463,10 @@ abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
   lazy val diagnosticChildren = List(modelGroup)
 }
 
-class GlobalComplexTypeDefFactory(val xml: Node, schemaDocument: SchemaDocument)
-  extends NamedMixin {
+class GlobalComplexTypeDefFactory(val xml: Node, val schemaDocument: SchemaDocument)
+  extends NamedAnnotationAndComponentMixin {
+
+  lazy val context = schemaDocument
   def forElement(element: ElementBase) = new GlobalComplexTypeDef(xml, schemaDocument, element)
 }
 

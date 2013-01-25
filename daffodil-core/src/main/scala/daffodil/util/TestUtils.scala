@@ -6,6 +6,9 @@ import daffodil.xml.XMLUtils._
 import junit.framework.Assert.assertEquals
 import java.io.File
 import java.io.FileNotFoundException
+import daffodil.xml.NS
+import daffodil.exceptions.Assert
+import daffodil.Implicits._
 
 /*
  * This is not a file of tests.
@@ -26,25 +29,54 @@ object TestUtils {
                 <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" alignment='1' alignmentUnits='bytes' textStandardBase='10' binaryFloatRep='ieee' binaryNumberRep='binary' byteOrder='bigEndian' calendarPatternKind='implicit' calendarFirstDayOfWeek='Sunday' calendarDaysInFirstWeek='4' calendarTimeZone='UTC' calendarCheckPolicy='strict' calendarLanguage='en' escapeSchemeRef='' documentFinalTerminatorCanBeMissing='no' ignoreCase='no' initiatedContent='no' leadingSkip='0' lengthKind='implicit' occursCountKind='parsed' separatorPolicy='suppressed' separatorPosition='infix' sequenceKind='ordered' textNumberRep='standard' textNumberCheckPolicy='strict' textStringJustification='left' trailingSkip='0' initiator="" terminator="" separator="" emptyValueDelimiterPolicy="both" utf16Width="fixed" textTrimKind="none"/>
               </dfdl:defineFormat>
 
+  //  def appendScopes(ns1: NamespaceBinding, ns2: NamespaceBinding): NamespaceBinding = {
+  //    if (ns1 == TopScope) ns2
+  //    else if (ns2 == TopScope) TopScope
+  //    else {
+  //      val ns2URI = ns2.getURI(ns1.prefix)
+  //      if (ns2URI == null) ns1.copy(parent = appendScopes(ns1.parent, ns2))
+  //      else if (ns2URI == ns1.uri) {
+  //        // same prefix is bound to the same uri.
+  //        // so don't copy.
+  //        appendScopes(ns1.parent, ns2)
+  //      } else {
+  //        // same prefix bound to different URIs
+  //        // first one wins
+  //        appendScopes(ns1, ns2.parent)
+  //      }
+  //    }
+  //  }
+
   /**
    * Constructs a DFDL schema more conveniently than having to specify all those xmlns attributes.
    */
   def dfdlTestSchema(topLevelAnnotations: Seq[Node], contentElements: Seq[Node], fileName: String = "") = {
     val fileAttrib = (if (fileName == "") Null else Attribute(XMLUtils.INT_PREFIX, "file", Text(fileName), Null))
-    val realSchema = <xs:schema xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns={ targetNS } xmlns:tns={ targetNS } xmlns:dafint={ dafintURI } targetNamespace={ targetNS }>
-                       <xs:annotation>
-                         <xs:appinfo source={ dfdlURI }>
-                           { test1 }
-                           { topLevelAnnotations }
-                         </xs:appinfo>
-                       </xs:annotation>
-                       <!-- No imports needed: XML Catalog gets them now.
+    val nodeWithScope = (topLevelAnnotations ++ contentElements).head.asInstanceOf[Elem]
+    val scopeToInherit = nodeWithScope.scope
+    val schemaNode = {
+      (<surroundingElement xmlns={ targetNS } xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:tns={ targetNS } xmlns:ex={ targetNS } xmlns:dafint={ dafintURI }>
+         {
+           nodeWithScope.copy(child = {
+             <xs:schema targetNamespace={ targetNS } elementFormDefault="qualified" attributeFormDefault="unqualified">
+               <xs:annotation>
+                 <xs:appinfo source={ dfdlURI }>
+                   { test1 }
+                   { topLevelAnnotations }
+                 </xs:appinfo>
+               </xs:annotation>
+               <!-- No imports needed: XML Catalog gets them now.
                        <xsd:import namespace={ DFDLSubsetURI } schemaLocation="DFDLSubsetOfXMLSchema_v1_036.xsd"/>
                        <xsd:import namespace={ xsdURI } schemaLocation="XMLSchema.xsd"/>
                        <xsd:import namespace={ dfdlURI } schemaLocation="DFDL_part3_model.xsd"/> 
                         -->
-                       { contentElements }
-                     </xs:schema> % fileAttrib
+               { contentElements }
+             </xs:schema> % fileAttrib
+           })
+         }
+       </surroundingElement>) \\ "schema"
+    }.head.asInstanceOf[Elem]
+    val realSchema = schemaNode
     //
     // It is essential to stringify and then reload the above schema because the
     // pieces being spliced in don't have the namespace definitions for the prefixes.

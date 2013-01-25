@@ -104,7 +104,7 @@ object ConsoleWriter extends LogWriter {
   //    }
   //  }
   def write(msg: String) {
-    Console.out.println(msg)
+    Console.err.println(msg)
     Console.flush
   }
 }

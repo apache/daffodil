@@ -123,13 +123,13 @@ class TestPrimitives extends JUnitSuite {
   @Test def testDelimiterInheritance {
     val sch = TestUtils.dfdlTestSchema(
       <dfdl:defineFormat name="config">
-        <dfdl:format xmlns:tns="http://example.com" ref="tns:daffodilTest1" initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no" textBidi="no" floating="no" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit" lengthUnits="bytes" initiatedContent="no" sequenceKind="ordered" ignoreCase="no" textPadKind="none" textTrimKind="none" textStandardBase="10" textNumberJustification="right" separatorPosition="infix" separatorPolicy="required" escapeSchemeRef="" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no" outputNewLine="%LF;" textNumberRep="standard" nilValueDelimiterPolicy="both" textNumberRounding="pattern"/>
+        <dfdl:format ref="tns:daffodilTest1" initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no" textBidi="no" floating="no" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit" lengthUnits="bytes" initiatedContent="no" sequenceKind="ordered" ignoreCase="no" textPadKind="none" textTrimKind="none" textStandardBase="10" textNumberJustification="right" separatorPosition="infix" separatorPolicy="required" escapeSchemeRef="" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no" outputNewLine="%LF;" textNumberRep="standard" nilValueDelimiterPolicy="both" textNumberRounding="pattern"/>
       </dfdl:defineFormat>
       <dfdl:defineFormat name="baseString">
-        <dfdl:format xmlns:tns="http://example.com" ref="tns:daffodilTest1" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" lengthUnits="bytes" initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no" textBidi="no" floating="no" ignoreCase="no" textPadKind="none" textTrimKind="none" textStandardBase="10" textStringJustification="right" escapeSchemeRef="" lengthKind="delimited" occursCountKind="implicit"/>
+        <dfdl:format ref="tns:daffodilTest1" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" lengthUnits="bytes" initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no" textBidi="no" floating="no" ignoreCase="no" textPadKind="none" textTrimKind="none" textStandardBase="10" textStringJustification="right" escapeSchemeRef="" lengthKind="delimited" occursCountKind="implicit"/>
       </dfdl:defineFormat>
       <dfdl:defineFormat name="inheritance">
-        <dfdl:format xmlns:tns="http://example.com" ref="tns:daffodilTest1" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" lengthUnits="bytes" initiator="" terminator="}" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no" textBidi="no" floating="no" ignoreCase="no" textPadKind="none" textTrimKind="none" textStandardBase="10" textStringJustification="right" escapeSchemeRef="" lengthKind="delimited" occursCountKind="implicit"/>
+        <dfdl:format ref="tns:daffodilTest1" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" lengthUnits="bytes" initiator="" terminator="}" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no" textBidi="no" floating="no" ignoreCase="no" textPadKind="none" textTrimKind="none" textStandardBase="10" textStringJustification="right" escapeSchemeRef="" lengthKind="delimited" occursCountKind="implicit"/>
       </dfdl:defineFormat>
       <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no" initiatedContent="no"/>,
 
@@ -210,7 +210,7 @@ class TestPrimitives extends JUnitSuite {
 
   @Test def testNotByteAlignedCharactersErrorDetected() {
     val sch = TestUtils.dfdlTestSchema(
-      <dfdl:format xmlns:tns="http://example.com" ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
     val pf = new Compiler().compile(sch)
     val dp = pf.onPath("/").asInstanceOf[DataProcessor]

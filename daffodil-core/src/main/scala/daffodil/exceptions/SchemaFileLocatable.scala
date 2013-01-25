@@ -1,6 +1,7 @@
 package daffodil.exceptions
 import scala.xml.Node
 import daffodil.xml.XMLUtils
+import java.net.URL
 
 trait SchemaFileLocatable {
   def xml: Node
@@ -25,10 +26,7 @@ trait SchemaFileLocatable {
     case None => ""
   }
 
-  lazy val fileDescription = fileName match {
-    case Some(num) => " in " + num
-    case None => ""
-  }
+  lazy val fileDescription = " in " + fileName
 
   lazy val locationDescription = {
     val showInfo = lineDescription != "" || fileDescription != ""
@@ -42,21 +40,21 @@ trait SchemaFileLocatable {
    * override if you don't have a fileName attribute appended
    * but are in a context where some enclosing construct does
    * normally only a root node would have a file attribute.
-   * <p>
+   *
    * implement as
-   * <pre>
+   * @example {{{
    *     lazy val fileName = fileNameFromAttribute()
-   * </pre>
+   * }}}
    * or delegate like
-   * <pre>
+   * @example {{{
    *     lazy val fileName = schemaDocument.fileName
-   * </pre>
+   * }}}
    */
-  def fileName: Option[String]
+  def fileName: URL
 
   def fileNameFromAttribute() = {
     xml.attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME) match {
-      case Some(seqNodes) => Some(seqNodes.toString)
+      case Some(seqNodes) => Some(new URL(seqNodes.toString))
       case None => None
     }
 

@@ -64,6 +64,7 @@ import daffodil.dsom.LocalElementDecl
 import daffodil.dsom.GlobalElementDecl
 import daffodil.dsom.ElementBase
 import daffodil.dsom.EntityReplacer
+import daffodil.Implicits._
 
 abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunction {
   val qName = new QName(XMLUtils.DFDL_NAMESPACE, name)

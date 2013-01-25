@@ -7,6 +7,7 @@ import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import daffodil.tdml.DFDLTestSuite
 import daffodil.processors._
+import daffodil.Implicits._
 import daffodil.dsom._
 import javax.xml.xpath.XPathConstants
 import daffodil.debugger.Debugger

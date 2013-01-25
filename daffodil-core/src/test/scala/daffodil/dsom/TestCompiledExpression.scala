@@ -8,6 +8,7 @@ import daffodil.processors.xpath._
 import junit.framework.Assert._
 import org.junit.Test
 import daffodil.util.TestUtils
+import daffodil.Implicits._
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
@@ -221,7 +222,7 @@ class TestCompiledExpression extends JUnitSuite {
 
     // Note: removed targetNamespace={ example }. 
     val testSchema = TestUtils.dfdlTestSchema(
-      <dfdl:format xmlns:tns="http://example.com" ref="tns:daffodilTest1"/>,
+      <dfdl:format xmlns:tns={ example } ref="tns:daffodilTest1"/>,
       <xs:element name="data" dfdl:lengthKind="implicit" dfdl:initiator="" dfdl:terminator="">
         <xs:complexType>
           <xs:sequence dfdl:separator="" dfdl:initiator="" dfdl:terminator="" dfdl:initiatedContent="no">
@@ -232,7 +233,7 @@ class TestCompiledExpression extends JUnitSuite {
       </xs:element>)
 
     val sset = new SchemaSet(testSchema)
-    val edecl = sset.getGlobalElementDecl("http://example.com", "data").get.forRoot() // removed namespace example => ""
+    val edecl = sset.getGlobalElementDecl(example, "data").get.forRoot() // removed namespace example => ""
     val ct = edecl.typeDef.asInstanceOf[ComplexTypeBase]
     val d = Compiler.stringToReadableByteChannel("42")
     val compiler = Compiler()

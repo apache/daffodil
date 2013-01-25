@@ -1,5 +1,6 @@
 package daffodil.debugger
 import daffodil.processors.PState
+import daffodil.Implicits._
 import daffodil.dsom._
 import daffodil.schema.annotation.props.gen.Representation
 import daffodil.processors.Success

@@ -98,7 +98,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with NumberTextMixin
   with CalendarTextMixin
   with BooleanTextMixin
-  // with NamedMixin
   with WithDiagnostics {
 
   def name: String
@@ -464,8 +463,7 @@ trait HasRef { self: SchemaComponent =>
  * Shared by all element declarations local or global
  */
 trait ElementDeclMixin
-  extends NamedMixin
-  with ElementDeclGrammarMixin { self: ElementBase =>
+  extends ElementDeclGrammarMixin { self: ElementBase =>
 
   override lazy val prettyName = "element." + name
 
@@ -484,10 +482,7 @@ trait ElementDeclMixin
     }
   }
 
-  lazy val typeName = {
-    val str = (xml \ "@type").text
-    if (str == "") None else Some(str)
-  }
+  lazy val typeName = getAttributeOption("type")
 
   lazy val namedTypeQName = namedTypeQName_.value
   private lazy val namedTypeQName_ = LV('namedTypeQName) {
@@ -516,7 +511,7 @@ trait ElementDeclMixin
             // Note: Validation of the DFDL Schema doesn't necessarily check referential integrity
             // or other complex constraints like conflicting names.
             // So we check it here explicitly.
-            case (None, None) => schemaDefinitionError("No type definition found for %s.", typeName.get)
+            case (None, None) => schemaDefinitionError("No type definition found for '%s' (%s).", typeName.get, ns)
             case (Some(_), Some(_)) => schemaDefinitionError("Both a simple and a complex type definition found for " + typeName.get + ".")
           }
           res
@@ -616,8 +611,8 @@ trait ElementDeclMixin
 
 class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
   extends LocalElementBase(xmlArg, parent, position)
+  with ElementFormDefaultMixin
   with ElementDeclMixin {
-
   val elementRef = None
 
   lazy val diagnosticChildren = elementDeclDiagnosticChildren
@@ -635,18 +630,19 @@ class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
  * that is referencing this global element declaration.
  */
 class GlobalElementDeclFactory(val xml: Node, val schemaDocument: SchemaDocument)
-  extends NamedMixin {
+  extends NamedAnnotationAndComponentMixin {
   def forRoot() = asRoot // cache. Not a new one every time.
   lazy val asRoot = new GlobalElementDecl(xml, schemaDocument, None)
 
+  lazy val context = schemaDocument
   def forElementRef(eRef: ElementRef) = new GlobalElementDecl(xml, schemaDocument, Some(eRef))
 
 }
 
 class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val elementRef: Option[ElementRef])
   extends ElementBase(xmlArg, schemaDocumentArg, 0)
-  with ElementDeclMixin
   with GlobalComponentMixin
+  with ElementDeclMixin
   with GlobalElementDeclGrammarMixin
   with WithDiagnostics {
 

@@ -25,7 +25,7 @@ import daffodil.debugger.DebugUtil
 import scala.collection.mutable.LinkedList
 import scala.xml.MetaData
 import daffodil.exceptions._
-import daffodil.dsom._
+import daffodil.Implicits._; import daffodil.dsom._
 import java.io.StringReader
 import daffodil.util.Misc
 import javax.xml.namespace.QName
@@ -92,10 +92,10 @@ object XMLUtils {
    * and real character codes, lots of things that traverse strings need
    * to consider either the codepoint after (if current is a leading surrogate)
    * or codepoint before (if current is a trailing surrogate).
-   * <p>
+   *
    * This calls a body function with prev, current, next bound to those.
    * For first codepoint prev will be 0. For last codepoint next will be 0.
-   * <p>
+   *
    * This is done as a walker that takes a function because that way we
    * can reimplement as a tight loop instead of this zip stuff, should we decide
    * that this is speed-path enough to care.
@@ -119,15 +119,15 @@ object XMLUtils {
     res.mkString
   }
 
-  val XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema" // removed trailing slash (namespaces care)
-  val XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance"
-  val XPATH_FUNCTION_NAMESPACE = "http://www.w3.org/2005/xpath-functions"
-  val xsiNS = Namespace.getNamespace("xsi", XSI_NAMESPACE)
-  val DFDL_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/" // dfdl ns does have a trailing slash
-  val DFDL_SUBSET_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-  val TDML_NAMESPACE = "http://www.ibm.com/xmlns/dfdl/testData"
-  val DFDL_XMLSCHEMASUBSET_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-  val EXAMPLE_NAMESPACE = "http://example.com"
+  val XSD_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema") // removed trailing slash (namespaces care)
+  val XSI_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema-instance")
+  val XPATH_FUNCTION_NAMESPACE = NS("http://www.w3.org/2005/xpath-functions")
+  val xsiNS = Namespace.getNamespace("xsi", XSI_NAMESPACE.toString)
+  val DFDL_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/") // dfdl ns does have a trailing slash
+  val DFDL_SUBSET_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset")
+  val TDML_NAMESPACE = NS("http://www.ibm.com/xmlns/dfdl/testData")
+  val DFDL_XMLSCHEMASUBSET_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset")
+  val EXAMPLE_NAMESPACE = NS("http://example.com")
 
   // must manufacture these because in JDOM, attributes have parent pointers up
   // to their enclosing elements.
@@ -143,12 +143,12 @@ object XMLUtils {
 
   /**
    * Added to support extensions and proposed future features as part of daffodil.
-   * <p>
+   *
    * The DFDL standard requires us to keep these out of the primary DFDL namespace, and
    * we really should be using URN-style notation, not http URLs for these.
    * (for why http URLs are a bad idea for these, see:
    * http://www.w3.org/blog/systeam/2008/02/08/w3c_s_excessive_dtd_traffic/ )
-   * <p>
+   *
    * These definitions must match their XSD counterparts in dafint.xsd and dafext.xsd
    */
   private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT = "urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012" // TODO: finalize syntax of this URN
@@ -529,19 +529,53 @@ object XMLUtils {
   //  }
 
   def expandedQName(qName: QName): String = {
-    val uri = qName.getNamespaceURI
+    val uri = NS(qName.getNamespaceURI)
     val localName = qName.getLocalPart
     expandedQName(uri, localName)
   }
 
-  def expandedQName(uri: String, localName: String): String = {
+  def expandedQName(uri: NS, localName: String): String = {
     Assert.usage(uri != null)
     Assert.usage(localName != null)
     val prefix =
-      if (uri == null || uri == XMLConstants.NULL_NS_URI) ""
+      if (uri == NoNamespace) ""
       else "{" + uri + "}"
     val expName = prefix + localName
     expName
+  }
+
+  /**
+   * returns null to indicate no prefix mapping that
+   * we can use to qualify this name
+   */
+  def expandNCNameToQName(qName: String, xml: Node): String = {
+    val pair @ (ns, local) = getQName(qName, xml)
+    if (ns != null) expandedQName(ns, local)
+    else null
+  }
+
+  /**
+   * If there is no default namespace (that is, no xmlns="..." at all), then getQName("foo") should return ("", "foo").
+   * If there is a default namespace with URI "defNS", then getQName("foo") should return ("defNS", "foo")
+   * If there is no namespace definition for prefix bar, then getQName("bar:foo") should return (null, "foo")
+   * which indicates that the prefix was unmapped. (Caller will likely issue a error.)
+   * If there is a namespace definition for prefix bar of "barNS", then getQName("bar:foo") should return ("barNS", "foo")
+   */
+  def getQName(qName: String, xml: Node): (NS, String) = {
+    val parts = qName.split(":").toList
+    val (prefix, localName) = parts match {
+      case List(local) => (null, local)
+      case List(pre, local) => (pre, local)
+      case _ => Assert.impossibleCase()
+    }
+    val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
+
+    if (nsURI == null && prefix == null)
+      (NoNamespace, localName)
+    else if (nsURI == null)
+      (null, localName) // indicates prefix was unmapped.
+    else
+      (NS(nsURI), localName)
   }
 
   /**
@@ -844,7 +878,7 @@ object XMLUtils {
         val noNamespaces = xml.TopScope // empty scope
         val noAttributesExceptNil = attributes.filter { m =>
           m match {
-            case xsiNilAttr @ PrefixedAttribute(pre, "nil", Text("true"), _) if (xsiNilAttr.getNamespace(e) == XMLUtils.XSI_NAMESPACE) => {
+            case xsiNilAttr @ PrefixedAttribute(pre, "nil", Text("true"), _) if (NS(xsiNilAttr.getNamespace(e)) == XMLUtils.XSI_NAMESPACE) => {
               //              println(xsiNilAttr.getNamespace(e))
               //              println(xsiNS)
               true
@@ -966,17 +1000,16 @@ object XMLUtils {
    *
    * Currently makes an effort to take unqualified names into the targetNamespace of the schema,
    */
-  def QName(xml: Node, nom: String, sd: daffodil.dsom.SchemaDocument): (String, String) = {
+  def QName(xml: Node, nom: String, sd: daffodil.dsom.SchemaDocument): (NS, String) = {
     val parts = nom.split(":").toList
     val (prefix, localName) = parts match {
-      case List(local) => ("", local)
+      case List(local) => (null, local) // use null not "" for no prefix
       case List(pre, local) => (pre, local)
       case _ => Assert.impossibleCase()
     }
     val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
 
-    // TODO: Clarify whether we should be tolerant this way, or strict
-    val finalURI = if (nsURI == null || nsURI == "") sd.targetNamespace else nsURI
+    val finalURI = NS(nsURI) // if (nsURI == null || nsURI == "") sd.targetNamespace else NS(nsURI)
     (finalURI, localName)
   }
 

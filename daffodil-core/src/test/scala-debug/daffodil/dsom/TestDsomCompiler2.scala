@@ -2,6 +2,7 @@ package daffodil.dsom
 
 import daffodil.xml.XMLUtils
 import daffodil.util._
+import daffodil.Implicits._
 import scala.xml._
 import daffodil.compiler._
 import org.scalatest.junit.JUnitSuite

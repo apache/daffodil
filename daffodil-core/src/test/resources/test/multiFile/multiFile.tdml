@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="AE" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:tns="http://www.example.org/example1/"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+  <parserTestCase name="test01" root="e1"
+    model="test01sch1.dfdl.xsd"
+    description="One schema includes another to get a format. No namespace in included file.">
+    <document><![CDATA[thisIsData]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <tns:e1>thisIsData</tns:e1>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+</testSuite>

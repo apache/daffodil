@@ -1,0 +1,27 @@
+<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <!-- intended for inclusion into other schemas
+    has no targetNamespace on purpose -->
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:defineFormat name="daffodilTest1">
+        <dfdl:format representation="text" lengthUnits="bytes"
+          encoding="US-ASCII" alignment='1' alignmentUnits='bytes'
+          textStandardBase='10' binaryFloatRep='ieee' binaryNumberRep='binary'
+          byteOrder='bigEndian' calendarPatternKind='implicit'
+          escapeSchemeRef='' documentFinalTerminatorCanBeMissing='no'
+          ignoreCase='no' initiatedContent='no' leadingSkip='0'
+          lengthKind='implicit' occursCountKind='parsed'
+          separatorPolicy='suppressed' separatorPosition='infix'
+          sequenceKind='ordered' textNumberRep='standard'
+          textNumberCheckPolicy='strict' textStringJustification='left'
+          trailingSkip='0' initiator="" terminator="" separator=""
+          emptyValueDelimiterPolicy="both" utf16Width="fixed"
+          textTrimKind="none" />
+      </dfdl:defineFormat>
+    </appinfo>
+  </annotation>
+</schema>

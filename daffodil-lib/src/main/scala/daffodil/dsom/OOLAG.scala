@@ -44,7 +44,12 @@ object OOLAG {
     val cause = Some(th)
   }
 
-  case class CircularDefinition(val lv: OOLAGValue) extends Exception
+  case class CircularDefinition(val lv: OOLAGValue) extends UnsuppressableException() {
+    override def getMessage() = {
+      val list = lv.context.currentOVList
+      "OOLAG Cycle (of " + list.length + ") through " + list.mkString(", ")
+    }
+  }
 
   /**
    * An object that uses OOLAG values.
@@ -59,12 +64,14 @@ object OOLAG {
     // I don't like this for all those thread-safety reasons, but otherwise we have to
     // carry a context list with us throughout the computation
 
-    private var currentOVList: Seq[OOLAGValue] = Nil
+    var currentOVList: Seq[OOLAGValue] = Nil
 
     def circularityDetector(ov: OOLAGValue)(body: => Any) = {
-      // if (currentOVList != Nil) println(currentOVList)
-      if (currentOVList.contains(ov))
+      if (currentOVList.contains(ov)) {
+        //        System.err.println("Circular OOLAG Value Definition")
+        //        System.err.println("Attributes on stack are: " + currentOVList.mkString(", "))
         throw CircularDefinition(ov)
+      }
       currentOVList = ov +: currentOVList
       try {
         body
@@ -105,8 +112,8 @@ object OOLAG {
       } catch {
         case e: Exception => {
           // Assert.invariantFailed("Exception while creating string from OOLAG Host.")
-          System.err.println("Exception while creating string from OOLAG Host.")
-          super.toString
+          System.err.println("Exception while creating string from OOLAG Value.")
+          "(((Exception in OOLAG Value toString)))"
         }
       }
 
@@ -124,16 +131,16 @@ object OOLAG {
           // resulting in this circularity.
           //
           // in this case, just the name will be the description
-          name
+          "circ(" + name + ")"
         }
         case e: Exception => {
           val exc = e
-          System.err.println("Exception %s while computing the name of an OOLAGHost.".format(exc))
+          System.err.println("Exception %s while computing the name of an OOLAG Value.".format(exc))
           "???@@" + name
         }
       }
 
-    private lazy val catchMsg = "Catch! So %s has no value. (Exc = %s)."
+    private lazy val catchMsg = "%s has no value due to %s)."
 
     final def valueAsAny: Any = {
       if (hasValue) {
@@ -148,7 +155,6 @@ object OOLAG {
         }
         alreadyTriedThis = true
         log(OOLAGDebug("Evaluating %s", descrip))
-        // factory.name = name // NOTE: Sequential. Not concurrent/thread safe.
 
         try {
           val res = lazyBody

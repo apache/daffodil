@@ -1,0 +1,18 @@
+<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <!-- intended for inclusion into other schemas
+    has no targetNamespace on purpose -->
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:defineFormat name="test01fmt1">
+        <dfdl:format ref="tns:daffodilTest1" />
+      </dfdl:defineFormat>
+    </appinfo>
+  </annotation>
+  
+  <include schemaLocation="xsd/built-in-formats.xsd"/>
+  
+</schema>

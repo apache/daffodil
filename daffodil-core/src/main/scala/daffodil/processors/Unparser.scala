@@ -11,12 +11,14 @@ import daffodil.exceptions.Assert
 import daffodil.schema.annotation.props.PropertyMixin
 import daffodil.processors.EscapeScheme.log
 import junit.framework.Assert.assertTrue
+import daffodil.Implicits._
 import daffodil.dsom._
 import daffodil.compiler._
 import daffodil.dsom.AnnotatedSchemaComponent
 import java.io.FileOutputStream
 import java.io.File
 import daffodil.exceptions.UnsuppressableException
+import daffodil.xml.NS
 
 class UnparseAlternativeFailed(sc: SchemaComponent, state: UState, val errors: Seq[Diagnostic])
   extends UnparseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors)
@@ -305,8 +307,7 @@ class UState(
   val currentElement: org.jdom.Element,
   val rootName: String,
   val variableMap: VariableMap,
-  val target: String,
-  val namespaces: Any, // Namespaces,
+  val target: NS,
   val status: ProcessorResult,
   val groupIndexStack: List[Long],
   val childIndexStack: List[Long],
@@ -324,23 +325,23 @@ class UState(
    * one or a related subset of the state components.
    */
   //  def withOutStream(outStream: OutStream, status: ProcessorResult = Success) =
-  //    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  //    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def withCurrent(currentElement: org.jdom.Element, status: ProcessorResult = Success) =
-    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   //  def withVariables(variableMap: VariableMap, status: ProcessorResult = Success) =
-  //    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+  //    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def withGroupIndexStack(groupIndexStack: List[Long], status: ProcessorResult = Success) =
-    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def withChildIndexStack(childIndexStack: List[Long], status: ProcessorResult = Success) =
-    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def withArrayIndexStack(arrayIndexStack: List[Long], status: ProcessorResult = Success) =
-    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def withDiscriminator(discriminator: Boolean) =
-    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   def failed(msg: => String): UState =
     failed(new GeneralUnparseFailure(msg))
   def failed(failureDiagnostic: Diagnostic) =
-    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, namespaces, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics, discriminator)
+    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, new Failure(failureDiagnostic.getMessage), groupIndexStack, childIndexStack, arrayIndexStack, failureDiagnostic :: diagnostics, discriminator)
 
   /**
    * advance our position, as a child element of a parent, and our index within the current sequence group.
@@ -423,7 +424,7 @@ object UState {
     val arrayIndexStack = Nil
     val diagnostics = Nil
     val discriminator = false
-    val newState = new UState(out, infoset, root, root, rootName, variables, targetNamespace, namespaces, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
+    val newState = new UState(out, infoset, root, root, rootName, variables, targetNamespace, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
     newState
   }
 

@@ -3,6 +3,7 @@ package daffodil.grammar
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
+import daffodil.Implicits._
 import daffodil.dsom._
 import daffodil.exceptions.Assert
 import daffodil.processors._

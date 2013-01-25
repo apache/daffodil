@@ -1,6 +1,7 @@
 package daffodil.processors
 
 import daffodil.api._
+import daffodil.Implicits._
 import daffodil.dsom._
 import daffodil.util._
 import daffodil.exceptions._

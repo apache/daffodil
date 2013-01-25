@@ -10,6 +10,7 @@ import daffodil.compiler._
 import javax.xml.xpath.XPathExpressionException
 import daffodil.processors.WithParseErrorThrowing
 import org.junit.Test
+import daffodil.Implicits._
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression

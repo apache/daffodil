@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 import scala.collection.JavaConversions._
 import daffodil.grammar._
+import daffodil.Implicits._
 
 /////////////////////////////////////////////////////////////////
 // Groups System
@@ -581,7 +582,10 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
       case Some(qname) => {
         schemaDefinition(apparentXMLChildren.length == 0, "A sequence with hiddenGroupRef cannot have children.")
         // synthesize a group reference here.
-        val hgr = <xs:group xmlns:xs={ XMLUtils.xsdURI } ref={ qname }/>
+        val contextScope = xml.asInstanceOf[Elem].scope
+        val hgr = {
+          (<xs:group xmlns:xs={ XMLUtils.xsdURI } ref={ qname }/>).copy(scope = contextScope)
+        }
         List(hgr)
       }
       case None => apparentXMLChildren
@@ -689,9 +693,10 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
 }
 
-class GlobalGroupDefFactory(val xml: Node, schemaDocument: SchemaDocument)
-  extends NamedMixin {
+class GlobalGroupDefFactory(val xml: Node, val schemaDocument: SchemaDocument)
+  extends NamedAnnotationAndComponentMixin {
 
+  lazy val context = schemaDocument
   def forGroupRef(gref: GroupRef, position: Int) = {
     new GlobalGroupDef(xml, schemaDocument, gref, position)
   }

@@ -5,6 +5,7 @@ import scala.xml.{ XML, Utility, Node }
 import org.junit.Test
 import org.scalatest.junit.JUnitSuite
 import daffodil.compiler._
+import daffodil.Implicits._
 import daffodil.dsom._
 import daffodil.schema.annotation.props.gen.{ YesNo, TextNumberRep, SeparatorPosition, Representation, OccursCountKind, NilKind, LengthKind, ChoiceLengthKind, ByteOrder, BinaryNumberRep, AlignmentUnits }
 import daffodil.schema.annotation.props.AlignmentType
@@ -609,7 +610,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val ge1 = ge1f.forRoot()
     //val props = ge1.formatAnnotation.getFormatProperties()
 
-    val (nsURI, localName) = ge1.formatAnnotation.getQName("ref1")
+    val (nsURI, localName) = ge1.formatAnnotation.getQName("tns:ref1")
 
     // println(nsURI + ", " + localName)
     assertEquals("ref1", localName)

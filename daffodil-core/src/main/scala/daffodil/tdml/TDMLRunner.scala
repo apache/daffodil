@@ -741,11 +741,11 @@ case class DocumentPart(part: Node, parent: Document) {
 
   /**
    * Encode in the style of utf-8 (see wikipedia article on utf-8)
-   * <p>
+   *
    * Variation is that we accept some things that a conventional utf-8 encoder
    * rejects. Examples are illegal codepoints such as isolated Unicode surrogates
    * (not making up a surrogate pair).
-   * <p>
+   *
    * We also assume we're being handed surrogate pairs for any of the
    * 4-byte character representations.
    *

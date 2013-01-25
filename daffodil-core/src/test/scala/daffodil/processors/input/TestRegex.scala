@@ -1643,15 +1643,15 @@ System.err.println(str)
   /**
    * We assume here that a blockStart must be the very first thing in the string, and a blockEnd the
    * very last before the delimiter. For example, if , is delimiter, and [ and ] are block start and end:
-   * <pre>
+   * @example {{{
    * [aaa,bbb],...
-   * </pre>is allowed but not
-   * <pre> aaa[,]bbb,...
-   * </pre>
+   * }}}is allowed but not
+   * @example {{{ aaa[,]bbb,...
+   * }}}
    *
    * We also assume that you can escape the block start or block end.
    * Or, if you choose not to use the block escapes, you can still escape the delimiter.
-   * <p>
+   *
    * Also illustrates how one would add padChar absorbing into the mix on the left, right, or both
    *
    */

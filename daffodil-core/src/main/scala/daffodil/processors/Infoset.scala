@@ -7,6 +7,7 @@ import daffodil.processors.xpath.XPathUtil.CompiledExpressionFactory
 import javax.xml.namespace.QName
 import daffodil.processors.xpath.XPathUtil
 import javax.xml.xpath.XPathConstants._
+import daffodil.Implicits._
 
 /**
  * Our abstraction layer over JDOM for the DFDL Infoset

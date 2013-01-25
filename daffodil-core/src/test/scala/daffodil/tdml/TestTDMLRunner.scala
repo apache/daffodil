@@ -16,6 +16,7 @@ import junit.framework.Assert.assertFalse
 import daffodil.util._
 import org.junit.Test
 import daffodil.debugger.Debugger
+import daffodil.Implicits._
 
 class TestTDMLRunner extends JUnitSuite {
 
