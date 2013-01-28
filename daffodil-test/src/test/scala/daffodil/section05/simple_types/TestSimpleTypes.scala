@@ -27,7 +27,7 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_dateTimeImplicitPatternFail() { runner.runOneTest("dateTimeImplicitPatternFail") }
   @Test def test_datePattern01() { runner.runOneTest("datePattern01") }
 //  @Test def test_datePattern01b() { runner.runOneTest("datePattern01b") }
-//  @Test def test_dateTimePattern01() { runner.runOneTest("dateTimePattern01") }
+  @Test def test_dateTimePattern01() { runner.runOneTest("dateTimePattern01") }
   @Test def test_timeLaxCheckPolicy01() { runner.runOneTest("timeLaxCheckPolicy01") }
 //  @Test def test_dateTimeLaxCheckPolicy01() { runner.runOneTest("dateTimeLaxCheckPolicy01") }
   @Test def test_dateLaxCheckPolicy01() { runner.runOneTest("dateLaxCheckPolicy01") }
@@ -226,4 +226,5 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_padding_nil() { runner.runOneTest("padding_nil") }
   @Test def test_padding_nil2() { runner.runOneTest("padding_nil2") }
   @Test def test_justification_1() { runner.runOneTest("justification_1") }
+
 }
