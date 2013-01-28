@@ -2110,17 +2110,30 @@
   
   <tdml:defineSchema name="dateTimeSchema">
     <dfdl:format ref="daffodilTest1" />
+
+<!--
+     xs:date      yyyy-MM-dd
+     xs:dateTime  yyyy-MM-dd'T'HH:mm:ss
+     xs:time      HH:mm:ssZZZ
+-->
 	
     <xs:element name="dateImp" type="xs:date" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="10" />
-
-    <xs:element name="timeImp" type="xs:time" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
-
-    <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="19" />
-    
     <xs:element name="date01" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'Today is the 'DD'th day of 'MMM', year 'yyyy"
                 dfdl:lengthKind="explicit" dfdl:length="43" />
     <xs:element name="date01b" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'Today is the 'DD'th day of 'MMM', year 'YYYY"
                 dfdl:lengthKind="explicit" dfdl:length="43" />
+    <xs:element name="date02" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="10" />
+    <xs:element name="date03" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
+    <xs:element name="date04" type="xs:date" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="10" />
+
+    <xs:element name="timeImp" type="xs:time" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
+    <xs:element name="time01" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
+    <xs:element name="time02" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
+
+    <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="19" />
+    <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'DD'st of 'MMM', year 'yyyy"
+                dfdl:lengthKind="explicit" dfdl:length="44" />
+    <xs:element name="dateTime02" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="19" />
 
   </tdml:defineSchema>
 
@@ -2272,6 +2285,186 @@
         <date01>2013-01-25</date01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimePattern01
+        Schema: dateTimeSchema
+          Root: dateTime01
+       Purpose: This test demonstrates the dateTime data type with an explicit calendar Pattern.
+-->
+  
+  <tdml:parserTestCase name="dateTimePattern01" root="dateTime01"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[It is 11:53AM on the 1st of April, year 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime01>2013-04-01T11:53:00Z</dateTime01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeLaxCheckPolicy01
+        Schema: dateTimeSchema
+          Root: time01
+       Purpose: This test demonstrates a lax calendarCheckPolicy. Any invalid values should be converted to the appropriate value
+-->
+  
+  <tdml:parserTestCase name="timeLaxCheckPolicy01" root="time01"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
+
+    <tdml:document><![CDATA[05:62:30GMT]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time01>06:02:30Z</time01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeLaxCheckPolicy01
+        Schema: dateTimeSchema
+          Root: dateTime02
+       Purpose: This test demonstrates a lax calendarCheckPolicy. Any invalid values should be converted to the appropriate value
+-->
+  
+  <tdml:parserTestCase name="dateTimeLaxCheckPolicy01" root="dateTime02"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
+
+    <tdml:document><![CDATA[2013-01-31T23:62:30]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime02>2013-02-01T00:02:30Z</dateTime02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateLaxCheckPolicy01
+        Schema: dateTimeSchema
+          Root: date02
+       Purpose: This test demonstrates a lax calendarCheckPolicy. Any invalid values should be converted to the appropriate value
+-->
+  
+  <tdml:parserTestCase name="dateLaxCheckPolicy01" root="date02"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
+
+    <tdml:document><![CDATA[2000-12-45]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date02>2001-01-14</date02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateLaxCheckPolicy02
+        Schema: dateTimeSchema
+          Root: date03
+       Purpose: This test demonstrates a lax calendarCheckPolicy. Any invalid values should be converted to the appropriate value
+                (fun with leap years)
+-->
+  
+  <tdml:parserTestCase name="dateLaxCheckPolicy02" root="date03"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
+
+    <tdml:document><![CDATA[2000-01-366]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date03>2000-12-31</date03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateLaxCheckPolicy03
+        Schema: dateTimeSchema
+          Root: date03
+       Purpose: This test demonstrates a lax calendarCheckPolicy. Any invalid values should be converted to the appropriate value
+                (counter to fun with leap years)
+-->
+  
+  <tdml:parserTestCase name="dateLaxCheckPolicy03" root="date03"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
+
+    <tdml:document><![CDATA[2001-01-366]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date03>2002-01-01</date03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateLaxCheckPolicy04
+        Schema: dateTimeSchema
+          Root: date02
+       Purpose: This test demonstrates a lax calendarCheckPolicy. Any invalid values should be converted to the appropriate value
+                (fun with leap years)
+-->
+  
+  <tdml:parserTestCase name="dateLaxCheckPolicy04" root="date02"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
+
+    <tdml:document><![CDATA[2000-02-29]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date02>2000-02-29</date02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateLaxCheckPolicy05
+        Schema: dateTimeSchema
+          Root: date02
+       Purpose: This test demonstrates a lax calendarCheckPolicy. Any invalid values should be converted to the appropriate value
+                (counter to fun with leap years)
+-->
+  
+  <tdml:parserTestCase name="dateLaxCheckPolicy05" root="date02"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
+
+    <tdml:document><![CDATA[2001-02-29]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date02>2001-03-01</date02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateStrictCheckPolicy01
+        Schema: dateTimeSchema
+          Root: date04
+       Purpose: This test demonstrates a strict calendarCheckPolicy. Any invalid values should result in a parse error.
+-->
+  
+  <tdml:parserTestCase name="dateStrictCheckPolicy01" root="date04"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
+
+    <tdml:document><![CDATA[2001-03-35]]></tdml:document>
+    <tdml:errors>
+      <tdml:error/>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeStrictCheckPolicy01
+        Schema: dateTimeSchema
+          Root: time02
+       Purpose: This test demonstrates a strict calendarCheckPolicy. Any invalid values should result in a parse error.
+-->
+  
+  <tdml:parserTestCase name="timeStrictCheckPolicy01" root="time02"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
+
+    <tdml:document><![CDATA[13:99:50-0800]]></tdml:document>
+    <tdml:errors>
+      <tdml:error/>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

@@ -26,7 +26,13 @@ class TestSimpleTypes2 extends JUnitSuite {
   //  @Test def test_Long3() {runner.runOneTest("Long3")}
   //  @Test def test_Long4() {runner.runOneTest("Long4")}
 
+///////////////////////// DFDL-105 /////////////////////////////
+
   @Test def test_dateTimeImplicitPattern() { runner.runOneTest("dateTimeImplicitPattern") }
+  @Test def test_dateTimePattern01() { runner.runOneTest("dateTimePattern01") }
+  @Test def test_dateTimeLaxCheckPolicy01() { runner.runOneTest("dateTimeLaxCheckPolicy01") }
+
+///////////////////////////////////////////////////////////////
 
   @Test def test_whiteSpaceBeforeValidInt() { runner.runOneTest("whiteSpaceBeforeValidInt") }
   @Test def test_whiteSpaceDuringValidInt() { runner.runOneTest("whiteSpaceDuringValidInt") }
