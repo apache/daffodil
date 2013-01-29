@@ -16,6 +16,12 @@ class TestSimpleTypes extends JUnitSuite {
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
+//  @Test def test_dateCountDeterminesFormat() { runner.runOneTest("dateCountDeterminesFormat") }
+  @Test def test_dateNonAlphaChars01() { runner.runOneTest("dateNonAlphaChars01") }
+  @Test def test_dateTrim01() { runner.runOneTest("dateTrim01") }
+  @Test def test_dateTrim02() { runner.runOneTest("dateTrim02") }
+  @Test def test_dateTrim03() { runner.runOneTest("dateTrim03") }
+
   @Test def test_dateCalendarFirstDayOfWeek01() { runner.runOneTest("dateCalendarFirstDayOfWeek01") }
   @Test def test_dateCalendarFirstDayOfWeek02() { runner.runOneTest("dateCalendarFirstDayOfWeek02") }
   @Test def test_dateCalendarFirstDayOfWeek03() { runner.runOneTest("dateCalendarFirstDayOfWeek03") }
@@ -231,5 +237,4 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_padding_nil() { runner.runOneTest("padding_nil") }
   @Test def test_padding_nil2() { runner.runOneTest("padding_nil2") }
   @Test def test_justification_1() { runner.runOneTest("justification_1") }
-
 }

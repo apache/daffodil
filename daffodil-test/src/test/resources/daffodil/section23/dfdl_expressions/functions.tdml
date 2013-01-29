@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="expressions"
+  description="functions in expressions"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  
+  <tdml:defineSchema name="dateTimeSchema">
+    <dfdl:format ref="daffodilTest1" />
+
+<!--
+     xs:date      yyyy-MM-dd
+     xs:dateTime  yyyy-MM-dd'T'HH:mm:ss
+     xs:time      HH:mm:ssZZZ
+-->
+
+    <xs:element name="dtFunctions">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=":">
+          <xs:element name="bulkDateTime" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"
+                      dfdl:lengthKind="explicit" dfdl:length="19" />
+          <xs:element name="year" type="xs:string" dfdl:inputValueCalc="{ fn:year-from-dateTime(../ex:bulkDateTime) }"/>
+          <xs:element name="month" type="xs:string" dfdl:inputValueCalc="{ fn:month-from-dateTime(../ex:bulkDateTime) }"/>
+          <xs:element name="day" type="xs:string" dfdl:inputValueCalc="{ fn:day-from-dateTime(../ex:bulkDateTime) }"/>
+          <xs:element name="hours" type="xs:string" dfdl:inputValueCalc="{ fn:hours-from-dateTime(../ex:bulkDateTime) }"/>
+          <xs:element name="minutes" type="xs:string" dfdl:inputValueCalc="{ fn:minutes-from-dateTime(../ex:bulkDateTime) }"/>
+          <xs:element name="seconds" type="xs:string" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:bulkDateTime) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="dFunctions">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=":">
+          <xs:element name="bulkDate" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy" dfdl:lengthKind="delimited"/>
+          <xs:element name="year" type="xs:string" dfdl:inputValueCalc="{ fn:year-from-date(../ex:bulkDate) }"/>
+          <xs:element name="month" type="xs:string" dfdl:inputValueCalc="{ fn:month-from-date(../ex:bulkDate) }"/>
+          <xs:element name="day" type="xs:string" dfdl:inputValueCalc="{ fn:day-from-date(../ex:bulkDate) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="tFunctions">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=".">
+          <xs:element name="bulkTime" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited"/>
+          <xs:element name="hours" type="xs:string" dfdl:inputValueCalc="{ fn:hours-from-time(../ex:bulkTime) }"/>
+          <xs:element name="minutes" type="xs:string" dfdl:inputValueCalc="{ fn:minutes-from-time(../ex:bulkTime) }"/>
+          <xs:element name="seconds" type="xs:string" dfdl:inputValueCalc="{ fn:seconds-from-time(../ex:bulkTime) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="functionMisuse">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=":">
+          <xs:element name="bulkDateTime" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"
+                      dfdl:lengthKind="explicit" dfdl:length="19" />
+          <xs:element name="year" type="xs:string" dfdl:inputValueCalc="{ fn:year-from-date(../ex:bulkDateTime) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="functionMisuse02">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=".">
+          <xs:element name="bulkTime" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited"/>
+          <xs:element name="year" type="xs:string" dfdl:inputValueCalc="{ fn:year-from-date(../ex:bulkTime) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="functionMisuse03">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=".">
+          <xs:element name="bulkDate" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited"/>
+          <xs:element name="minutes" type="xs:string" dfdl:inputValueCalc="{ fn:minutes-from-time(../ex:bulkDate) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+     Test Name: dateTimeFunctions01
+        Schema: dateTimeSchema
+          Root: dtFunctions
+       Purpose: This test demonstrates the use of the datetime functions to get specific data from a dateTime element 
+-->
+  
+  <tdml:parserTestCase name="dateTimeFunctions01" root="dtFunctions"
+    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
+
+    <tdml:document><![CDATA[03-24-1988 04:55:23]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dtFunctions>
+          <bulkDateTime>1988-03-24T04:55:23Z</bulkDateTime>
+          <year>1988</year>
+          <month>3</month>
+          <day>24</day>
+          <hours>4</hours>
+          <minutes>55</minutes>
+          <seconds>23</seconds>
+        </dtFunctions>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeFunctions02
+        Schema: dateTimeSchema
+          Root: dtFunctions
+       Purpose: This test demonstrates the use of the datetime functions to get specific data from a dateTime element 
+-->
+  
+  <tdml:parserTestCase name="dateTimeFunctions02" root="dtFunctions"
+    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
+
+    <tdml:document><![CDATA[03-36-1988 04:55:23]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dtFunctions>
+          <bulkDateTime>1988-04-05T04:55:23Z</bulkDateTime>
+          <year>1988</year>
+          <month>4</month>
+          <day>5</day>
+          <hours>4</hours>
+          <minutes>55</minutes>
+          <seconds>23</seconds>
+        </dtFunctions>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateFunctions01
+        Schema: dateTimeSchema
+          Root: dFunctions
+       Purpose: This test demonstrates the use of the date functions to get specific data from a date element 
+-->
+  
+  <tdml:parserTestCase name="dateFunctions01" root="dFunctions"
+    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
+
+    <tdml:document><![CDATA[02-24-2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dFunctions>
+          <bulkDate>2013-02-24</bulkDate>
+          <year>2013</year>
+          <month>2</month>
+          <day>24</day>
+        </dFunctions>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateFunctions02
+        Schema: dateTimeSchema
+          Root: dFunctions
+       Purpose: This test demonstrates the use of the date functions to get specific data from a date element 
+-->
+  
+  <tdml:parserTestCase name="dateFunctions02" root="dFunctions"
+    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
+
+    <tdml:document><![CDATA[02-30-2012]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dFunctions>
+          <bulkDate>2012-03-01</bulkDate>
+          <year>2012</year>
+          <month>3</month>
+          <day>1</day>
+        </dFunctions>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeFunctions01
+        Schema: dateTimeSchema
+          Root: tFunctions
+       Purpose: This test demonstrates the use of the time functions to get specific data from a time element 
+-->
+  
+  <tdml:parserTestCase name="timeFunctions01" root="tFunctions"
+    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
+
+    <tdml:document><![CDATA[12:44:56GMT]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tFunctions>
+          <bulkTime>12:44:56Z</bulkTime>
+          <hours>12</hours>
+          <minutes>44</minutes>
+          <seconds>56</seconds>
+        </tFunctions>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeFunctions02
+        Schema: dateTimeSchema
+          Root: tFunctions
+       Purpose: This test demonstrates the use of the time functions to get specific data from a time element 
+-->
+  
+  <tdml:parserTestCase name="timeFunctions02" root="tFunctions"
+    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
+
+    <tdml:document><![CDATA[12:62:56GMT]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tFunctions>
+          <bulkTime>13:02:56Z</bulkTime>
+          <hours>13</hours>
+          <minutes>2</minutes>
+          <seconds>56</seconds>
+        </tFunctions>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: functionFail01
+        Schema: dateTimeSchema
+          Root: functionMisuse
+       Purpose: This test demonstrates the failure condition that a date/time function is used incorrectly. 
+-->
+  
+  <tdml:parserTestCase name="functionFail01" root="functionMisuse"
+    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
+
+    <tdml:document><![CDATA[05-33-1999 03:20:22]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Expression evaluation failed.</tdml:error>
+      <tdml:error>Details: ValidationException: Invalid date</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: functionFail02
+        Schema: dateTimeSchema
+          Root: functionMisuse02
+       Purpose: This test demonstrates the failure condition that a date/time function is used incorrectly. 
+-->
+  
+  <tdml:parserTestCase name="functionFail02" root="functionMisuse02"
+    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
+
+    <tdml:document><![CDATA[03:20:22GMT]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Expression evaluation failed.</tdml:error>
+      <tdml:error>Details: ValidationException: Invalid date</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: functionFail03
+        Schema: dateTimeSchema
+          Root: functionMisuse03
+       Purpose: This test demonstrates the failure condition that a date/time function is used incorrectly. 
+-->
+  
+  <tdml:parserTestCase name="functionFail03" root="functionMisuse03"
+    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
+
+    <tdml:document><![CDATA[2012-07-30]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Expression evaluation failed.</tdml:error>
+      <tdml:error>Details: ValidationException: Invalid time</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

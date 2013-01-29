@@ -2125,13 +2125,22 @@
     <xs:element name="date02" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="10" />
     <xs:element name="date03" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
     <xs:element name="date04" type="xs:date" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="10" />
-    
     <xs:element name="date05" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit"
                 dfdl:calendarPattern="'day 'e' of the week, month 'MM' year 'yyyy" 
                 dfdl:calendarFirstDayOfWeek="Monday" dfdl:lengthKind="delimited" />
     <xs:element name="date06" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit"
                 dfdl:calendarPattern="'day 'e' of the week, month 'MM' year 'yyyy" 
                 dfdl:calendarFirstDayOfWeek="Sunday" dfdl:lengthKind="delimited" />
+    <xs:element name="date07" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit"
+                dfdl:calendarPattern="EEEE', 'MM yyyy" dfdl:lengthKind="delimited" />
+    <xs:element name="date08" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit"
+                dfdl:calendarPattern="...MM...dd...yyyy" dfdl:lengthKind="delimited" />
+    <xs:element name="date09" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:textTrimKind="padChar"
+                dfdl:textCalendarJustification="center" dfdl:textCalendarPadCharacter="." dfdl:lengthKind="delimited" />
+    <xs:element name="date10" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:textTrimKind="padChar"
+                dfdl:textCalendarJustification="left" dfdl:textCalendarPadCharacter="x" dfdl:lengthKind="delimited" />
+    <xs:element name="date11" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:textTrimKind="padChar"
+                dfdl:textCalendarJustification="right" dfdl:textCalendarPadCharacter="d" dfdl:lengthKind="delimited" />
 
     <xs:element name="timeImp" type="xs:time" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
     <xs:element name="time01" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
@@ -2574,6 +2583,96 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <time03>08:43:31Z</time03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCountDeterminesFormat
+        Schema: dateTimeSchema
+          Root: date07
+       Purpose: This test demonstrates that the count of formatting letters determines the format. 
+-->
+  
+  <tdml:parserTestCase name="dateCountDeterminesFormat" root="date07"
+    model="dateTimeSchema" description="Section 13 Simple Types - count determines format - DFDL-13-153R">
+
+    <tdml:document><![CDATA[Mon, 01 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time03>08:43:31Z</time03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateNonAlphaChars01
+        Schema: dateTimeSchema
+          Root: date08
+       Purpose: This test demonstrates that any non-alphabetic characters will be treated as quoted text. 
+-->
+  
+  <tdml:parserTestCase name="dateNonAlphaChars01" root="date08"
+    model="dateTimeSchema" description="Section 13 Simple Types - Non alpha-chars - DFDL-13-159R">
+
+    <tdml:document><![CDATA[...03...24...1988]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date08>1988-03-24</date08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTrim01
+        Schema: dateTimeSchema
+          Root: date09
+       Purpose: This test demonstrates the use of the textCalendarJustification and textCalendarPadCharacter properties 
+-->
+  
+  <tdml:parserTestCase name="dateTrim01" root="date09"
+    model="dateTimeSchema" description="Section 13 Simple Types - textCalendarJustification - DFDL-13-165R">
+
+    <tdml:document><![CDATA[....2013-03-24....]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date09>2013-03-24</date09>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTrim02
+        Schema: dateTimeSchema
+          Root: date10
+       Purpose: This test demonstrates the use of the textCalendarJustification and textCalendarPadCharacter properties 
+-->
+  
+  <tdml:parserTestCase name="dateTrim02" root="date10"
+    model="dateTimeSchema" description="Section 13 Simple Types - textCalendarJustification - DFDL-13-165R">
+
+    <tdml:document><![CDATA[2013-03-24xxxx]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date10>2013-03-24</date10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTrim03
+        Schema: dateTimeSchema
+          Root: date11
+       Purpose: This test demonstrates the use of the textCalendarJustification and textCalendarPadCharacter properties 
+-->
+  
+  <tdml:parserTestCase name="dateTrim03" root="date11"
+    model="dateTimeSchema" description="Section 13 Simple Types - textCalendarJustification - DFDL-13-165R">
+
+    <tdml:document><![CDATA[dddddddddddddddddddddddddddddd2013-03-24]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date11>2013-03-24</date11>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

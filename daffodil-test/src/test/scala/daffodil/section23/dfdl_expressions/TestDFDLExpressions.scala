@@ -56,4 +56,17 @@ class TestDFDLExpressions extends JUnitSuite {
   @Test def test_invalid_enum_1() { runner.runOneTest("invalid_enum_1") }
   @Test def test_invalid_enum_2() { runner.runOneTest("invalid_enum_2") }
   @Test def test_invalid_enum_3() { runner.runOneTest("invalid_enum_3") }
+ 
+  val tdml2 = testDir + "functions.tdml"
+  lazy val runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+  
+  @Test def test_dateTimeFunctions01() { runner_fun.runOneTest("dateTimeFunctions01") }
+  @Test def test_dateTimeFunctions02() { runner_fun.runOneTest("dateTimeFunctions02") }
+  @Test def test_dateFunctions01() { runner_fun.runOneTest("dateFunctions01") }
+  @Test def test_dateFunctions02() { runner_fun.runOneTest("dateFunctions02") }
+  @Test def test_timeFunctions01() { runner_fun.runOneTest("timeFunctions01") }
+  @Test def test_timeFunctions02() { runner_fun.runOneTest("timeFunctions02") }
+  @Test def test_functionFail01() { runner_fun.runOneTest("functionFail01") }
+  @Test def test_functionFail02() { runner_fun.runOneTest("functionFail02") }
+  @Test def test_functionFail03() { runner_fun.runOneTest("functionFail03") }
 }
