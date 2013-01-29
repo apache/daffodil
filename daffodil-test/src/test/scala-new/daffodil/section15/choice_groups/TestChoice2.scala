@@ -18,13 +18,6 @@ class TestChoice2 extends JUnitSuite {
   
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
-  @Test def test_choiceInSeq1() { runner.runOneTest("choiceInSequenceWithSeparators1") }
-  @Test def test_choiceInSeq2() { runner.runOneTest("choiceInSequenceWithSeparators2") }
-
-  @Test def test_seqInChoiceInSeq1() { runner.runOneTest("sequenceInChoiceInSequenceWithSeparators1") }
-  @Test def test_seqInChoiceInSeq2() { runner.runOneTest("sequenceInChoiceInSequenceWithSeparators2") }
-
-  
   @Test def test_choiceWithSequence1() { runner.runOneTest("choiceWithSequence1") }
   @Test def test_choiceWithSequence2() { runner.runOneTest("choiceWithSequence2") }
   
