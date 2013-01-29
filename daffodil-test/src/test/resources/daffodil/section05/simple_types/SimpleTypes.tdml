@@ -2125,10 +2125,19 @@
     <xs:element name="date02" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="10" />
     <xs:element name="date03" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
     <xs:element name="date04" type="xs:date" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="10" />
+    
+    <xs:element name="date05" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit"
+                dfdl:calendarPattern="'day 'e' of the week, month 'MM' year 'yyyy" 
+                dfdl:calendarFirstDayOfWeek="Monday" dfdl:lengthKind="delimited" />
+    <xs:element name="date06" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit"
+                dfdl:calendarPattern="'day 'e' of the week, month 'MM' year 'yyyy" 
+                dfdl:calendarFirstDayOfWeek="Sunday" dfdl:lengthKind="delimited" />
 
     <xs:element name="timeImp" type="xs:time" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
     <xs:element name="time01" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
     <xs:element name="time02" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
+    <xs:element name="time03" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit"
+                dfdl:calendarPattern="hh:mm:ss.SSSS" dfdl:lengthKind="delimited"/>
 
     <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="19" />
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
@@ -2465,6 +2474,108 @@
     <tdml:errors>
       <tdml:error/>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarFirstDayOfWeek01
+        Schema: dateTimeSchema
+          Root: date05
+       Purpose: This test demonstrates the calendarFirstDayOfWeek property. The element specifies 
+                the month, year, and day of the week. The day of the week is specified with a number, so the 
+                calendarFirstDayOfWeek determines the actual value of this number. Because the day of the month is not specified, 
+                the first day of the month that falls on that day of the week is used.
+-->
+  
+  <tdml:parserTestCase name="dateCalendarFirstDayOfWeek01" root="date05"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarFirstDayOfWeek - DFDL-13-142R">
+
+    <tdml:document><![CDATA[day 1 of the week, month 02 year 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date05>2013-02-04</date05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarFirstDayOfWeek02
+        Schema: dateTimeSchema
+          Root: date05
+       Purpose: This test demonstrates the calendarFirstDayOfWeek property. The element specifies 
+                the month, year, and day of the week. The day of the week is specified with a number, so the 
+                calendarFirstDayOfWeek determines the actual value of this number. Because the day of the month is not specified, 
+                the first day of the month that falls on that day of the week is used.
+-->
+  
+  <tdml:parserTestCase name="dateCalendarFirstDayOfWeek02" root="date05"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarFirstDayOfWeek - DFDL-13-142R">
+
+    <tdml:document><![CDATA[day 2 of the week, month 02 year 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date05>2013-02-05</date05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarFirstDayOfWeek03
+        Schema: dateTimeSchema
+          Root: date06
+       Purpose: This test demonstrates the calendarFirstDayOfWeek property. The element specifies 
+                the month, year, and day of the week. The day of the week is specified with a number, so the 
+                calendarFirstDayOfWeek determines the actual value of this number. Because the day of the month is not specified, 
+                the first day of the month that falls on that day of the week is used.
+-->
+  
+  <tdml:parserTestCase name="dateCalendarFirstDayOfWeek03" root="date06"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarFirstDayOfWeek - DFDL-13-142R">
+
+    <tdml:document><![CDATA[day 1 of the week, month 02 year 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date06>2013-02-03</date06>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarFirstDayOfWeek04
+        Schema: dateTimeSchema
+          Root: date06
+       Purpose: This test demonstrates the calendarFirstDayOfWeek property. The element specifies 
+                the month, year, and day of the week. The day of the week is specified with a number, so the 
+                calendarFirstDayOfWeek determines the actual value of this number. Because the day of the month is not specified, 
+                the first day of the month that falls on that day of the week is used.
+-->
+  
+  <tdml:parserTestCase name="dateCalendarFirstDayOfWeek04" root="date06"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarFirstDayOfWeek - DFDL-13-142R">
+
+    <tdml:document><![CDATA[day 2 of the week, month 02 year 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date06>2013-02-04</date06>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeFractionalSeconds01
+        Schema: dateTimeSchema
+          Root: time03
+       Purpose: This test demonstrates the use of fractional seconds; the seconds should be rounded up.
+-->
+  
+  <tdml:parserTestCase name="timeFractionalSeconds01" root="time03"
+    model="dateTimeSchema" description="Section 13 Simple Types - fractional seconds - DFDL-13-150R">
+
+    <tdml:document><![CDATA[08:43:30.9678]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time03>08:43:31Z</time03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

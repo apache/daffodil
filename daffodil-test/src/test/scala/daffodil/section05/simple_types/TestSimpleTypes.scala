@@ -16,6 +16,11 @@ class TestSimpleTypes extends JUnitSuite {
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
+  @Test def test_dateCalendarFirstDayOfWeek01() { runner.runOneTest("dateCalendarFirstDayOfWeek01") }
+  @Test def test_dateCalendarFirstDayOfWeek02() { runner.runOneTest("dateCalendarFirstDayOfWeek02") }
+  @Test def test_dateCalendarFirstDayOfWeek03() { runner.runOneTest("dateCalendarFirstDayOfWeek03") }
+  @Test def test_dateCalendarFirstDayOfWeek04() { runner.runOneTest("dateCalendarFirstDayOfWeek04") }
+//  @Test def test_timeFractionalSeconds01() { runner.runOneTest("timeFractionalSeconds01") }
   @Test def test_dateText() { runner.runOneTest("dateText") }
   @Test def test_timeText() { runner.runOneTest("timeText") }
   @Test def test_dateTimeText() { runner.runOneTest("dateTimeText") }
