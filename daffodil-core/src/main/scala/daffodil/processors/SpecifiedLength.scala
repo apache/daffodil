@@ -24,7 +24,7 @@ abstract class SpecifiedLengthCombinatorBase(eb: ElementBase, eGram: => Gram)
   //  extends NamedGram(e) {
 
   val eParser = eGram.parser
-  override lazy val diagnosticChildren = List(eGram)
+  override lazy val diagnosticChildren: DiagnosticsList = List(eGram)
   val e = eb
 
   def kind: String

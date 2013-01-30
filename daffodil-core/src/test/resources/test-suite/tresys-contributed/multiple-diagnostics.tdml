@@ -50,7 +50,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="withManyErrors2">
-    <dfdl:format initiator="" leadingSkip="0" trailingSkip="0" />
+    <dfdl:format initiator="" leadingSkip="0" trailingSkip="0"/>
     <xs:element name="v1" type="xs:int" />
     <xs:element name="v2" type="xs:string" />
     <xs:element name="err1">

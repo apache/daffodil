@@ -28,17 +28,19 @@ abstract class Gram(val context: AnnotatedSchemaComponent) extends DiagnosticsPr
     // The Nada terminal also behaves like empty for sequential composition
     // It is not empty for alternative composition though.
     //
-    if (q.isEmpty || q.isInstanceOf[Nada]) // Nada might get through to this point. Let's optimize it out.
-      if (self.isEmpty || self.isInstanceOf[Nada]) EmptyGram
-      else self
-    else if (self.isEmpty || self.isInstanceOf[Nada]) q
-    else {
-      Assert.invariant(!self.isInstanceOf[Nada])
-      Assert.invariant(!self.isEmpty)
-      Assert.invariant(!q.isInstanceOf[Nada])
-      Assert.invariant(!q.isEmpty)
-      SeqComp(context, self, q)
-    }
+    val res =
+      if (q.isEmpty || q.isInstanceOf[Nada]) // Nada might get through to this point. Let's optimize it out.
+        if (self.isEmpty || self.isInstanceOf[Nada]) EmptyGram
+        else self
+      else if (self.isEmpty || self.isInstanceOf[Nada]) q
+      else {
+        Assert.invariant(!self.isInstanceOf[Nada])
+        Assert.invariant(!self.isEmpty)
+        Assert.invariant(!q.isInstanceOf[Nada])
+        Assert.invariant(!q.isEmpty)
+        SeqComp(context, self, q)
+      }
+    res
   }
 
   def |(qq: => Gram) = {
@@ -67,7 +69,7 @@ abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) 
     else this
   }
 
-  override lazy val diagnosticChildren = if (r.isEmpty) Nil else List(r)
+  override lazy val diagnosticChildren: DiagnosticsList = if (r.isEmpty) Nil else List(r)
 }
 
 /**
@@ -80,10 +82,19 @@ abstract class BinaryGram(context: AnnotatedSchemaComponent, childrenArg: Seq[Gr
   def op: String
   def open: String
   def close: String
-  val children = childrenArg
-  override def toString = open + children.fold("") { (p, q) => p + " " + op + " " + q } + close
+  val children = {
+    val c = childrenArg
+    c
+  }
+  override def toString = {
+    Assert.invariant(children != null)
+    Assert.invariant(open != null)
+    Assert.invariant(op != null)
+    Assert.invariant(close != null)
+    open + children.fold("") { (p, q) => p + " " + op + " " + q } + close
+  }
 
-  override lazy val diagnosticChildren = children
+  override lazy val diagnosticChildren: DiagnosticsList = children
 }
 
 object SeqComp {
@@ -166,7 +177,7 @@ object EmptyGram extends Gram(null) {
   override def isEmpty = true
   override def toString = "Empty"
 
-  override lazy val diagnosticChildren = Nil
+  override lazy val diagnosticChildren: DiagnosticsList = Nil
 
   def parser = new EmptyGramParser
   def unparser = new EmptyGramUnparser
@@ -176,14 +187,17 @@ object ErrorGram extends Gram(null) {
   override def isEmpty = false
   override def toString = "Error"
 
-  override lazy val diagnosticChildren = Nil
+  override lazy val diagnosticChildren: DiagnosticsList = Nil
 
   def parser = new ErrorParser
   def unparser = new ErrorUnparser
 }
 
 abstract class NamedGram(context: AnnotatedSchemaComponent) extends Gram(context) {
-  override def toString = name //+ (if (isEmpty) "(Empty)" else "")
+  // Note: keep the toString really simple.
+  // It causes much grief if toString uses complicated things that can fail or 
+  // that end up needing the name of this NamedGram again.
+  override def toString = name // + "(" + context.scPath.last + ")" //+ (if (isEmpty) "(Empty)" else "")
 }
 
 /**
@@ -197,7 +211,7 @@ abstract class Terminal(contextArg: AnnotatedSchemaComponent, guard: Boolean) ex
 
   def SDE(str: String, args: Any*): Nothing = realSC.SDE(str, args)
 
-  lazy val diagnosticChildren: List[Gram] = Nil
+  lazy val diagnosticChildren: DiagnosticsList = Nil
 }
 
 /**
@@ -209,8 +223,11 @@ abstract class Terminal(contextArg: AnnotatedSchemaComponent, guard: Boolean) ex
  * but where examining the format properties specifically would indicate that some of those
  * possibilities are precluded. The guard causes that term to just splice itself out
  * of the grammar.
+ *
+ * Note that it is crucial that the guardArg is passed by value, and the gramArg is
+ * passed by name, and not evaluated until the guard is known true.
  */
-class Prod(nameArg: String, val sc: Term, guardArg: => Boolean, gramArg: => Gram)
+class Prod(nameArg: String, val sc: Term, guardArg: Boolean, gramArg: => Gram)
   extends NamedGram(sc) {
 
   override def deref = gram
@@ -232,23 +249,17 @@ class Prod(nameArg: String, val sc: Term, guardArg: => Boolean, gramArg: => Gram
   private lazy val gram_ = LV('gram) {
     guard match {
       case true => {
-        //      System.err.println("Start Prod " + containingClassName + ".Prod." + name)
         gramArg
-        //      System.err.print("End Prod " + containingClassName + ".Prod." + name)
-        //      if (g.isEmpty)
-        //        System.err.println(" empty.")
-        //      else
-        //        System.err.println(" ok:" + g)
       }
       case false => {
-        log(Debug("Prod %s removed.", name))
+        log(Compile("Prod %s removed.", name))
         EmptyGram
       }
       // case None => ErrorGram
     }
   }
 
-  lazy val diagnosticChildren = List(gram)
+  lazy val diagnosticChildren: DiagnosticsList = List(gram)
 
   //  /**
   //   * Constructor overloads let you specify just guard (for stubbing things really), 
@@ -277,8 +288,14 @@ class Prod(nameArg: String, val sc: Term, guardArg: => Boolean, gramArg: => Gram
 }
 
 object Prod {
+  // there is no guard in this first apply signature
+  // here, so in principle there is no reason to pass by-name the
+  // gram. However, keeping it this way insures uniform behavior if you are say,
+  // walking through productions in a debugger. 
   def apply(nameArg: String, sc: Term, gram: => Gram) = new Prod(nameArg, sc, true, gram)
 
-  def apply(nameArg: String, sc: Term, guard: => Boolean, gram: => Gram) = new Prod(nameArg, sc, guard, gram)
+  // If there is a guard, then delay evaluating the gram until we know if 
+  // the guard is satisfied. That's why we pass gram by-name.
+  def apply(nameArg: String, sc: Term, guard: Boolean, gram: => Gram) = new Prod(nameArg, sc, guard, gram)
 }
 

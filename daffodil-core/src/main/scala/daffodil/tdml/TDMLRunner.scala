@@ -310,7 +310,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
       expected =>
         {
           val wasFound = actualDiagMsgs.exists {
-            actual => actual.contains(expected)
+            actual => actual.toLowerCase.contains(expected.toLowerCase)
           }
           if (!wasFound) {
             throw new Exception("""Did not find diagnostic message """" +

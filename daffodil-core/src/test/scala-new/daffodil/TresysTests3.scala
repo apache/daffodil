@@ -13,6 +13,7 @@ import daffodil.util.Logging
 import daffodil.util.Misc
 import org.junit.Test
 import daffodil.debugger.Debugger
+import daffodil.util.Logging
 
 class TresysTests3 extends JUnitSuite {
   val testDir = "/test-suite/tresys-contributed/"

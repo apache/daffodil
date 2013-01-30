@@ -20,7 +20,7 @@ object StmtEval {
   }
 }
 
-class StmtEval(context: ElementBase, eGram: => Gram)
+class StmtEval(context: ElementBase, eGram: Gram)
   extends NamedGram(context) {
 
   // The order of things matters in some cases, so to be consistent we'll always use the 
@@ -34,7 +34,7 @@ class StmtEval(context: ElementBase, eGram: => Gram)
   // - test discriminators (must be attempted even if the parsing of element or setVariable statements fail)
   // - test asserts
 
-  lazy val diagnosticChildren = patDiscrim ++ patAssert ++ List(eGram) ++ setVar ++ testDiscrim ++ testAssert
+  lazy val diagnosticChildren: DiagnosticsList = patDiscrim ++ patAssert ++ List(eGram) ++ setVar ++ testDiscrim ++ testAssert
 
   val patDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Pattern).map(_.gram)
   val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram)

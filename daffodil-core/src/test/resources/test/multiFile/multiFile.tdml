@@ -4,7 +4,9 @@
   xmlns:tns="http://www.example.org/example1/"
   xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
-  <parserTestCase name="test01" root="e1"
+
+  
+  <parserTestCase name="simpleInclude" root="e1"
     model="test01sch1.dfdl.xsd"
     description="One schema includes another to get a format. No namespace in included file.">
     <document><![CDATA[thisIsData]]></document>
@@ -14,4 +16,49 @@
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
+  
+   <parserTestCase name="simpleImport" root="e1"
+    model="test02sch1.dfdl.xsd"
+    description="One schema imports another to get a named format from a different namespace.">
+    <document><![CDATA[thisIsData]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <tns:e1>thisIsData</tns:e1>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+  
+  <parserTestCase name="importWithOverlappingNSPrefixes" root="e1"
+    model="test02sch1.dfdl.xsd"
+    description="One schema imports another to get a named format from a different namespace. All the schemas use tns for their own (distinct) namespace.">
+    <document><![CDATA[thisIsData]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <tns:e1>thisIsData</tns:e1>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+  
+  <parserTestCase name="includeNoNamespace" root="e1"
+    model="test03sch1.dfdl.xsd"
+    description="One schema includes another to get a named format. Everything is no namespace.">
+    <document><![CDATA[thisIsData]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <tns:e1>thisIsData</tns:e1>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+  
+  <parserTestCase name="importWithOverlappingNSPrefixes" root="e1"
+    model="test04sch1.dfdl.xsd"
+    description="One schema imports another to get a named format from a different namespace. All the schemas use tns for their own (distinct) namespace.">
+    <document><![CDATA[thisIsData]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <tns:e1>thisIsData</tns:e1>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+  
 </testSuite>

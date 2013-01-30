@@ -24,7 +24,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <customer>
-          <firsName>James</firsName>
+          <firstName>James</firstName>
           <surname>River</surname>
           <address> 
             <houseNumber>118</houseNumber>
@@ -43,7 +43,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <customer>
-          <firsName>James</firsName>
+          <firstName>James</firstName>
           <surname>River</surname>
           <address> 
             <houseNumber>118</houseNumber>

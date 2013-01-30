@@ -12,17 +12,12 @@ import daffodil.tdml.DFDLTestSuite
 import java.io.File
 import daffodil.debugger.Debugger
 
-class TestPropertyScopingDebug extends JUnitSuite {
-  val testDir = "/daffodil/section08/property_scoping/"
-  val aa = testDir + "PropertyScoping.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-
-  val tdml = testDir + "PropertyScoping_01.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))
-
-  @Test def test_property_scoping_03() {
-    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-    runner_01.runOneTest("property_scoping_03")
-  }
-
-}
+//class TestPropertyScopingDebug extends JUnitSuite {
+//  val testDir = "/daffodil/section08/property_scoping/"
+//  val aa = testDir + "PropertyScoping.tdml"
+//  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+//
+//  val tdml = testDir + "PropertyScoping_01.tdml"
+//  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+//
+//}

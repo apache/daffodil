@@ -5,6 +5,11 @@ import daffodil.util.Misc._
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
+import daffodil.dsom.NotFound
+import daffodil.dsom.Found
+import daffodil.dsom.PropertyLookupResult
+import daffodil.dsom.LookupLocation
+import java.net.URL
 
 /**
  * This test shows how to use the Generated Code mixins, and verifies that they work.
@@ -19,27 +24,35 @@ class TestGeneratedProperties extends JUnitSuite {
    * you have to define the getPropertyOption method, which actually
    * retrieves the property if it is present.
    */
-  class HasLotsOfProperties extends Format_AnnotationMixin {
+  class HasLotsOfProperties extends LookupLocation with Format_AnnotationMixin {
+
+    lazy val context = this
+    lazy val xml = bagOfProps
+    lazy val fileName = new URL("file:dummy")
+    lazy val properties: PropMap = Map.empty
 
     def SDE(id: String, args: Any*): Nothing = {
-      throw new Exception(id.toString + args)
+      throw new Exception(id.format(args: _*))
+    }
+
+    def SDEButContinue(id: String, args: Any*): Unit = {
+      System.err.println(new Exception(id.format(args: _*)))
     }
 
     def SDW(id: String, args: Any*): Unit = {
-      System.err.println(new Exception(id.toString + args))
+      System.err.println(new Exception(id.format(args: _*)))
     }
 
-    val detailName = "HasLotsOfProperties"
     /**
      * In this case, we're just going to lookup the attribute on the above
      * big piece of XML. In real use, this would look at some list built up
      * by using the DFDL property scoping rules to have the right set of property
      * definitions in it.
      */
-    def getPropertyOption(pname: String) = {
+    def findPropertyOption(pname: String): PropertyLookupResult = {
       val propNodeSeq = bagOfProps.attribute(pname)
       propNodeSeq match {
-        case None => None // attribute was not found
+        case None => NotFound(Seq(this), Nil) // attribute was not found
         case Some(nodeseq) => {
           //
           // Interesting that attributeName="" produces a Nil nodeseq, not an empty string.
@@ -51,8 +64,8 @@ class TestGeneratedProperties extends JUnitSuite {
           // XML library lets your code be the one doing the DTD resolving, so they can't do it for you.
           //
           nodeseq match {
-            case Nil => Some("") // we want to hand back the empty string as a value.
-            case _ => Some(nodeseq.toString)
+            case Nil => Found("", this) // we want to hand back the empty string as a value.
+            case _ => Found(nodeseq.toString, this)
           }
         }
       }
@@ -99,7 +112,7 @@ class TestGeneratedProperties extends JUnitSuite {
     comparePropValue(hasProps.truncateSpecifiedLengthString, "no")
     comparePropValue(hasProps.textOutputMinLength, "0")
     comparePropValue(hasProps.textNumberJustification, "right")
-//    comparePropValue(hasProps.textNumberPadCharacter, "0")
+    //    comparePropValue(hasProps.textNumberPadCharacter, "0")
     comparePropValue(hasProps.decimalSigned, "yes")
     comparePropValue(hasProps.textNumberCheckPolicy, "lax")
     comparePropValue(hasProps.textNumberRep, "standard")
@@ -116,11 +129,11 @@ class TestGeneratedProperties extends JUnitSuite {
     comparePropValue(hasProps.textNumberPattern, "#0")
     comparePropValue(hasProps.textZonedSignStyle, "asciiStandard")
     comparePropValue(hasProps.textBooleanJustification, "left")
-//    comparePropValue(hasProps.textBooleanPadCharacter, "%SP;")
+    //    comparePropValue(hasProps.textBooleanPadCharacter, "%SP;")
     //    comparePropValue(hasProps.textBooleanTrueRep, "true")
     //    comparePropValue(hasProps.textBooleanFalseRep, "false")
     comparePropValue(hasProps.textCalendarJustification, "left")
-//    comparePropValue(hasProps.textCalendarPadCharacter, "%SP;")
+    //    comparePropValue(hasProps.textCalendarPadCharacter, "%SP;")
     comparePropValue(hasProps.calendarPatternKind, "implicit")
     comparePropValue(hasProps.calendarPattern, "yyyy-MM-dd'T'HH:mm:ss")
     comparePropValue(hasProps.calendarCheckPolicy, "lax")

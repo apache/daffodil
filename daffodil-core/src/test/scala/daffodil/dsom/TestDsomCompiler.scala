@@ -11,6 +11,7 @@ import daffodil.schema.annotation.props.gen.{ YesNo, TextNumberRep, SeparatorPos
 import daffodil.schema.annotation.props.AlignmentType
 import daffodil.util.{ TestUtils, Misc, Logging }
 import daffodil.xml.XMLUtils
+import daffodil.exceptions.SchemaFileLocatable
 import junit.framework.Assert.{ assertTrue, assertEquals, assertFalse, fail }
 
 class TestDsomCompiler extends JUnitSuite with Logging {
@@ -27,14 +28,6 @@ class TestDsomCompiler extends JUnitSuite with Logging {
   // is any problem in the Fakes, the whole class can't be constructed, and None
   // of the tests will run. Lazy lets this class be constructed no matter what.
   lazy val dummyGroupRef = Fakes.fakeGroupRef
-
-  def FindValue(collection: Map[String, String], key: String, value: String): Boolean = {
-    val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
-      case Some(_) => true
-      case None => false
-    }
-    found
-  }
 
   @Test def testHasProps() {
     val testSchema = TestUtils.dfdlTestSchema(
@@ -54,7 +47,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val decl = declf.forRoot()
 
     val df = schemaDoc.defaultFormat
-    val tnr = df.textNumberRep
+    val tnr = schemaDoc.textNumberRep
     assertEquals(TextNumberRep.Standard, tnr)
     val tnr2 = decl.textNumberRep
     assertEquals(TextNumberRep.Standard, tnr2)
@@ -143,7 +136,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     assertEquals("example1", ct.name)
 
     val fa = decl.formatAnnotation.asInstanceOf[DFDLElement]
-    assertEquals(AlignmentUnits.Bytes, fa.alignmentUnits)
+    assertEquals(AlignmentUnits.Bytes, decl.alignmentUnits)
     //    fa.alignmentUnits match {
     //      case AlignmentUnits.Bits => println("was bits")
     //      case AlignmentUnits.Bytes => println("was bytes")
@@ -221,12 +214,12 @@ class TestDsomCompiler extends JUnitSuite with Logging {
       e1.formatAnnotation.asInstanceOf[DFDLElement].getProperty("byteOrder").toLowerCase())
     val Seq(a1, a2) = e3.annotationObjs // third one has two annotations
     assertTrue(a2.isInstanceOf[DFDLNewVariableInstance]) // second annotation is newVariableInstance
-    assertEquals(OccursCountKind.Implicit, a1.asInstanceOf[DFDLElement].occursCountKind)
+    assertEquals("implicit", a1.asInstanceOf[DFDLElement].getProperty("occursCountKind"))
     val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef] // first one has immediate complex type
     // Explore local complex type def
     val seq = e1ct.modelGroup.asInstanceOf[Sequence] //... which is a sequence
     val sfa = seq.formatAnnotation.asInstanceOf[DFDLSequence] //...annotated with...
-    assertEquals(YesNo.No, sfa.initiatedContent) // initiatedContent="no"
+    assertEquals(YesNo.No, seq.initiatedContent) // initiatedContent="no"
 
     val Seq(e1a: DFDLElement) = e1.annotationObjs
     assertEquals("UTF-8", e1a.getProperty("encoding"))
@@ -234,7 +227,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     // Explore global simple type defs
     val Seq(st1, st2, st3, st4) = sd.globalSimpleTypeDefs // there are two.
     val Seq(b1, b2, b3, b4) = st1.forElement(e1).annotationObjs // first one has 4 annotations
-    assertEquals(AlignmentUnits.Bytes, b1.asInstanceOf[DFDLSimpleType].alignmentUnits) // first has alignmentUnits
+    assertEquals(AlignmentUnits.Bytes.toString.toLowerCase, b1.asInstanceOf[DFDLSimpleType].getProperty("alignmentUnits")) // first has alignmentUnits
     assertEquals("tns:myVar1", b2.asInstanceOf[DFDLSetVariable].ref) // second is setVariable with a ref
     assertEquals("yadda yadda yadda", b4.asInstanceOf[DFDLAssert].message) // fourth is an assert with yadda message
 
@@ -242,7 +235,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val Seq(df1, df2) = sd.defineFormats // there are two
     val def1 = df1.asInstanceOf[DFDLDefineFormat]
     assertEquals("def1", def1.name) // first is named "def1"
-    assertEquals(Representation.Text, def1.formatAnnotation.representation) // has representation="text"
+    assertEquals(Representation.Text.toString.toLowerCase, def1.formatAnnotation.getProperty("representation")) // has representation="text"
 
     // Explore define variables
     val Seq(dv1, dv2) = sd.defineVariables // there are two
@@ -270,7 +263,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
 
     // Explore sequence
     val Seq(seq1a: DFDLSequence) = seq1.annotationObjs // one format annotation with a property
-    assertEquals(SeparatorPosition.Infix, seq1a.separatorPosition)
+    assertEquals(SeparatorPosition.Infix, seq1.separatorPosition)
     val Seq(seq1e1, seq1s1) = seq1.groupMembers // has an element and a sub-sequence as its children.
     assertEquals(2, seq1e1.asInstanceOf[ElementRef].maxOccurs)
     assertEquals("ex:a", seq1e1.asInstanceOf[ElementRef].ref)
@@ -285,15 +278,16 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(gd1, gd2, gd3, gd4, gd5) = sd.globalGroupDefs // Obtain Group nodes
-    val ch1 = gd2.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[Choice] // Downcast child-node of group to Choice
+    val Seq(gd1, gd2f, gd3, gd4, gd5) = sd.globalGroupDefs // Obtain Group nodes
+    val gd2 = gd2f.forGroupRef(dummyGroupRef, 1)
+    val ch1 = gd2.modelGroup.asInstanceOf[Choice] // Downcast child-node of group to Choice
     val Seq(cd1, cd2, cd3) = ch1.groupMembers // Children nodes of Choice-node, there are 3
 
-    val Seq(a1: DFDLChoice) = gd2.forGroupRef(dummyGroupRef, 1).modelGroup.annotationObjs // Obtain the annotation object that is a child
+    val Seq(a1: DFDLChoice) = ch1.annotationObjs // Obtain the annotation object that is a child
     // of the group node.
 
-    assertEquals(AlignmentType.Implicit, a1.alignment)
-    assertEquals(ChoiceLengthKind.Implicit, a1.choiceLengthKind)
+    assertEquals(AlignmentType.Implicit, ch1.alignment)
+    assertEquals(ChoiceLengthKind.Implicit, ch1.choiceLengthKind)
 
     val Seq(asrt1) = cd2.asInstanceOf[LocalElementDecl].annotationObjs // Obtain Annotation object that is child
     // of cd2.
@@ -316,20 +310,10 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val ge1 = ge1f.forRoot()
     val Seq(a1: DFDLElement) = ge1.annotationObjs
 
-    val props: Map[String, String] = a1.getFormatProperties()
-
-    def foundValues(collection: Map[String, String], key: String, value: String): Boolean = {
-      val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
-        case Some(_) => true
-        case None => false
-      }
-      found
-    }
-
-    assertEquals(true, foundValues(props, "occursCountKind", "parsed"))
-    assertEquals(true, foundValues(props, "lengthKind", "pattern"))
-    assertEquals(true, foundValues(props, "representation", "text"))
-    assertEquals(true, foundValues(props, "binaryNumberRep", "packed"))
+    assertEquals(true, a1.verifyPropValue("occursCountKind", "parsed"))
+    assertEquals(true, a1.verifyPropValue("lengthKind", "pattern"))
+    assertEquals(true, a1.verifyPropValue("representation", "text"))
+    assertEquals(true, a1.verifyPropValue("binaryNumberRep", "packed"))
   }
 
   @Test def test_simple_types_access_works {
@@ -377,11 +361,12 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     assertEquals(NilKind.LiteralValue, ge3.nilKind)
 
     // Tests overlapping properties
-    intercept[daffodil.dsom.SchemaDefinitionError] { ge4.lengthKind }
+    ge4.lengthKind
+    assertTrue(ge4.isError)
 
     assertEquals(AlignmentUnits.Bytes, ge5.alignmentUnits) // local
     assertEquals(OccursCountKind.Parsed, ge5.occursCountKind) // def1
-    assertEquals(BinaryNumberRep.Bcd, ge5.binaryNumberRep) // def3
+    assertEquals(BinaryNumberRep.Packed, ge5.binaryNumberRep) // def3
     assertEquals(NilKind.LiteralValue, ge5.nilKind) // local
     assertEquals(Representation.Text, ge5.representation) // def3
     assertEquals(LengthKind.Pattern, ge5.lengthKind) // superseded by local
@@ -469,18 +454,30 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val gs1 = gs1f.forElement(e1) // Global Simple Type - aType
 
     assertEquals("ex:aaType", gs1.restrictionBase)
-    assertTrue(FindValue(gs1.allNonDefaultProperties, "alignmentUnits", "bytes")) // SimpleType - Local
-    assertTrue(FindValue(gs1.allNonDefaultProperties, "byteOrder", "bigEndian")) // SimpleType - Base
-    assertTrue(FindValue(gs1.allNonDefaultProperties, "occursCountKind", "implicit")) // Default Format
-    assertTrue(FindValue(gs1.allNonDefaultProperties, "representation", "text")) // Define Format - def1
-    assertTrue(FindValue(gs1.allNonDefaultProperties, "encoding", "utf-8")) // Define Format - def1
-    assertTrue(FindValue(gs1.allNonDefaultProperties, "textStandardBase", "10")) // Define Format - def2
-    assertTrue(FindValue(gs1.allNonDefaultProperties, "escapeSchemeRef", "tns:quotingScheme")) // Define Format - def2
+
+    // println(gs1.properties)
+    assertTrue(gs1.verifyPropValue("alignmentUnits", "bytes")) // SimpleType - Local
+
+    assertTrue(gs1.verifyPropValue("byteOrder", "bigEndian")) // SimpleType - Base
+    assertTrue(gs1.verifyPropValue("occursCountKind", "implicit")) // Default Format
+    assertTrue(gs1.verifyPropValue("representation", "text")) // Define Format - def1
+    assertTrue(gs1.verifyPropValue("encoding", "utf-8")) // Define Format - def1
+    assertTrue(gs1.verifyPropValue("textStandardBase", "10")) // Define Format - def2
+    assertTrue(gs1.verifyPropValue("escapeSchemeRef", "tns:quotingScheme")) // Define Format - def2
 
     val gs3 = gs3f.forElement(e1) // Global SimpleType - aTypeError - overlapping base props
 
     // Tests overlapping properties
-    intercept[daffodil.dsom.SchemaDefinitionError] { gs3.allNonDefaultProperties }
+
+    //    println(gs3.nonDefaultPropertySources)
+    //    println(gs3.defaultPropertySources)
+    gs3.properties // because these unit tests are outside the normal framework,
+    // we sometimes have to demand things in order for errors to be noticed.
+    assertTrue(gs3.isError)
+    val msgs = gs3.getDiagnostics.mkString("\n").toLowerCase
+    assertTrue(msgs.contains("overlap"))
+    //    println(msgs)
+    assertTrue(msgs.contains("alignmentUnits".toLowerCase))
   }
 
   @Test def test_group_references {
@@ -499,44 +496,51 @@ class TestDsomCompiler extends JUnitSuite with Logging {
 
     // GroupRefTest
     val e4 = e4f.forRoot() // groupRefTest
+    // println(e4)
 
     val e4ct = e4.immediateType.get.asInstanceOf[LocalComplexTypeDef]
 
+    // println(e4ct)
     val e4ctgref = e4ct.modelGroup.asInstanceOf[GroupRef] // groupRefTests' local group decl
 
+    // println(e4ctgref)
     val myGlobal1 = e4ctgref.groupDef
+    // println(myGlobal1)
 
     val myGlobal1Seq = myGlobal1.modelGroup.asInstanceOf[Sequence]
 
-    val myGlobal2Seq = myGlobal1Seq.immediateGroup.get.asInstanceOf[Sequence]
+    // println(myGlobal1Seq)
+    val myGlobal2Seq = myGlobal1Seq.groupRefChildren(0).group.asInstanceOf[Sequence]
+
+    //    println(myGlobal2Seq)
+    //    println(myGlobal1Seq.properties)
+    //    println(myGlobal2Seq.properties)
 
     // val myGlobal2Seq = myGlobal2.modelGroup.asInstanceOf[Sequence]
 
     // myGlobal1 Properties
-    assertTrue(FindValue(myGlobal1Seq.allNonDefaultProperties, "separator", ","))
+    assertTrue(myGlobal1Seq.verifyPropValue("separator", ","))
 
     // myGlobal2 Properties
-    assertTrue(FindValue(myGlobal2Seq.allNonDefaultProperties, "separator", ";"))
-    assertTrue(FindValue(myGlobal2Seq.allNonDefaultProperties, "separatorPosition", "infix"))
+    assertTrue(myGlobal2Seq.verifyPropValue("separator", ";"))
+    assertTrue(myGlobal2Seq.verifyPropValue("separatorPosition", "infix"))
 
     // GroupRefTestOverlap
-    val exc = intercept[Exception] {
 
-      val e5 = e5f.forRoot() // groupRefTestOverlap
+    val e5 = e5f.forRoot() // groupRefTestOverlap
 
-      val e5ct = e5.immediateType.get.asInstanceOf[LocalComplexTypeDef]
+    val e5ct = e5.immediateType.get.asInstanceOf[LocalComplexTypeDef]
 
-      val e5ctgref = e5ct.modelGroup.asInstanceOf[GroupRef] // groupRefTestOverlap's local group decl
+    val e5ctgref = e5ct.modelGroup.asInstanceOf[GroupRef] // groupRefTestOverlap's local group decl
 
-      val myGlobal3 = e5ctgref.groupDef
-      val myGlobal3Seq = myGlobal3.modelGroup.asInstanceOf[Sequence]
+    val myGlobal3 = e5ctgref.groupDef
+    val myGlobal3Seq = myGlobal3.modelGroup.asInstanceOf[Sequence]
 
-      val overlaps = myGlobal3Seq.combinedGroupRefAndGlobalGroupDefProperties
-      // Tests overlapping properties
+    // Tests overlapping properties
+    assertTrue(e5ctgref.isError)
 
-    }
-    val msg = exc.getMessage()
-    assertTrue(msg.contains("Overlap"))
+    val msg = e5ctgref.getDiagnostics.mkString("\n").toLowerCase
+    assertTrue(msg.contains("overlap"))
 
   }
 
@@ -552,12 +556,12 @@ class TestDsomCompiler extends JUnitSuite with Logging {
 
     val f1 = ge1.formatAnnotation
 
-    val props: Map[String, String] = f1.getFormatProperties()
+    // println(f1.properties)
 
-    assertEquals(true, FindValue(props, "separatorPosition", "infix"))
-    assertEquals(true, FindValue(props, "lengthKind", "implicit"))
-    assertEquals(true, FindValue(props, "representation", "text"))
-    assertEquals(true, FindValue(props, "textNumberRep", "standard"))
+    assertTrue(f1.verifyPropValue("separatorPosition", "infix"))
+    assertTrue(f1.verifyPropValue("lengthKind", "implicit"))
+    assertFalse(f1.verifyPropValue("representation", "text"))
+    assertTrue(f1.verifyPropValue("textNumberRep", "standard"))
 
     val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
     val seq = ct.modelGroup.asInstanceOf[Sequence]
@@ -565,16 +569,14 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val Seq(e1: ElementBase, e2: ElementBase) = seq.groupMembers
 
     val e1f = e1.formatAnnotation.asInstanceOf[DFDLElement]
-    val e1fProps: Map[String, String] = e1f.getFormatProperties()
-
-    //    println(e1fProps)
     //
-    assertEquals(true, FindValue(e1fProps, "initiator", ""))
+    assertTrue(e1f.verifyPropValue("initiator", ""))
+    assertTrue(e1f.verifyPropValue("representation", "text"))
     //println(e1f.initiatorRaw)
 
     //e1f.initiatorRaw
     //e1f.byteOrderRaw
-    e1f.lengthKind
+    e1.lengthKind
   }
 
   @Test def testDfdlRef = {
@@ -588,7 +590,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
-    val props = ge1.formatAnnotation.getFormatProperties()
+    val props = ge1.formatAnnotation.properties
 
     // println(props)
     //assertEquals(":", ge1.initiatorRaw)
@@ -608,9 +610,8 @@ class TestDsomCompiler extends JUnitSuite with Logging {
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
-    //val props = ge1.formatAnnotation.getFormatProperties()
 
-    val (nsURI, localName) = ge1.formatAnnotation.getQName("tns:ref1")
+    val (nsURI, localName) = ge1.formatAnnotation.resolveQName("tns:ref1")
 
     // println(nsURI + ", " + localName)
     assertEquals("ref1", localName)
@@ -642,8 +643,9 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
     val seq = ct.modelGroup.asInstanceOf[Sequence]
 
-    val Seq(e1: ElementBase, e2: ElementBase, e3: ElementBase) = seq.groupMembers
+    val Seq(e1: LocalElementDecl, e2: ElementBase, e3: ElementBase) = seq.groupMembers
 
+    //    println(e1.properties)
     assertEquals(3, e1.allTerminatingMarkup.length) // 1 Level + ref on global element decl
     assertEquals("a", e1.allTerminatingMarkup(0).prettyExpr)
     assertEquals("b", e1.allTerminatingMarkup(1).prettyExpr)
@@ -698,9 +700,9 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
     val seq = ct.modelGroup.asInstanceOf[Sequence]
 
-    val Seq(e1: ElementBase, e2: ElementBase) = seq.groupMembers
+    val Seq(e1: LocalElementDecl, e2: LocalElementDecl) = seq.groupMembers
     val e1f = e1.formatAnnotation.asInstanceOf[DFDLElement]
-    val props = e1.allNonDefaultProperties ++ e1.defaultProperties
+    // val props = e1.properties
 
     val e1f_esref = e1.getProperty("escapeSchemeRef")
     // println(e1f_esref)
@@ -731,10 +733,10 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val seq1 = g1.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[Sequence]
 
     // e1.ref == "ex:a"
-    val Seq(e1: ElementRef, s1: Sequence) = seq1.groupMembers
-
-    assertEquals(2, e1.maxOccurs)
-    assertEquals(1, e1.minOccurs)
+    val Seq(e1r: ElementRef, s1: Sequence) = seq1.groupMembers
+    val e1 = e1r.referencedElement
+    assertEquals(2, e1r.maxOccurs)
+    assertEquals(1, e1r.minOccurs)
     assertEquals(AlignmentUnits.Bytes, e1.alignmentUnits)
     //assertEquals(true, e1.nillable) // TODO: e1.nillable doesn't exist?
     //assertEquals("%ES; %% %#0; %NUL;%ACK; foo%#rF2;%#rF7;bar %WSP*; %#2024;%#xAABB; &amp;&#2023;&#xCCDD; -1", e1.nilValue) // TODO: Do not equal each other!

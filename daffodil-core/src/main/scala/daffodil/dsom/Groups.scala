@@ -17,12 +17,19 @@ import daffodil.Implicits._
 /////////////////////////////////////////////////////////////////
 
 // A term is content of a group
-abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int)
+abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   extends AnnotatedSchemaComponent(xmlArg)
   with LocalComponentMixin
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin {
+
+  lazy val parent = parentArg
+  // Scala coding style note: This style of passing a constructor arg that is named fooArg,
+  // and then having an explicit val/lazy val which has the 'real' name is 
+  // highly recommended. Lots of time wasted because a val constructor parameter can be 
+  // accidently hidden if a derived class uses the same name as one of its own parameters.
+  // These errors just seem easier to deal with if you use the fooArg style. 
 
   lazy val someEnclosingComponent = enclosingComponent.getOrElse(Assert.invariantFailed("All terms except a root element have an enclosing component."))
 
@@ -271,8 +278,8 @@ abstract class Term(xmlArg: Node, val parent: SchemaComponent, val position: Int
 
 }
 
-abstract class GroupBase(xmlArg: Node, parent: SchemaComponent, position: Int)
-  extends Term(xmlArg, parent, position) {
+abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int)
+  extends Term(xmlArg, parentArg, position) {
 
   lazy val prettyIndex = {
     myPeers.map { peers =>
@@ -295,20 +302,6 @@ abstract class GroupBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def group: ModelGroup
 
-  lazy val localAndFormatRefProperties = { this.formatAnnotation.getFormatPropertiesNonDefault() }
-
-  lazy val localProperties = {
-    // Properties that exist directly on the object in
-    // short or long form
-    this.formatAnnotation.combinedLocalProperties
-  }
-
-  lazy val formatRefProperties = {
-    // Properties coming from named format ref from
-    // the format annotation
-    this.formatAnnotation.formatRefProperties
-  }
-
   lazy val immediateGroup: Option[GroupBase] = {
 
     val res: Option[GroupBase] = this.group match {
@@ -326,10 +319,25 @@ abstract class GroupBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 /**
  * Base class for all model groups, which are term containers.
  */
-abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
-  extends GroupBase(xmlArg, parent, position)
+abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: Int)
+  extends GroupBase(xmlArg, parentArg, position)
   with DFDLStatementMixin
-  with ModelGroupGrammarMixin {
+  with ModelGroupGrammarMixin
+  with OverlapCheckMixin {
+
+  lazy val gRefNonDefault: Option[ChainPropProvider] = groupRef.map { _.nonDefaultFormatChain }
+  lazy val gRefDefault: Option[ChainPropProvider] = groupRef.map { _.defaultFormatChain }
+
+  lazy val nonDefaultPropertySources = {
+    val seq = (gRefNonDefault.toSeq ++ Seq(this.nonDefaultFormatChain)).distinct
+    checkNonOverlap(seq)
+    seq
+  }
+
+  lazy val defaultPropertySources = {
+    val seq = (gRefDefault.toSeq ++ Seq(this.defaultFormatChain)).distinct
+    seq
+  }
 
   lazy val prettyBaseName = xmlArg.label
 
@@ -354,7 +362,7 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }
 
-  lazy val diagnosticChildren = annotationObjs ++ groupMembers
+  lazy val diagnosticChildren: DiagnosticsList = annotationObjs ++ groupMembers
 
   /**
    * Factory for Terms
@@ -368,9 +376,13 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
   def termFactory(child: Node, parent: ModelGroup, position: Int) = {
     val childList: List[Term] = child match {
       case <element>{ _* }</element> => {
-        val refProp = (child \ "@ref").text
-        if (refProp == "") List(new LocalElementDecl(child, parent, position))
-        else List(new ElementRef(child, parent, position))
+        val refProp = child.attribute("ref").map { _.text }
+        // must get an unprefixed attribute name, i.e. ref='foo:bar', and not
+        // be tripped up by dfdl:ref="fmt:fooey" which is a format reference.
+        refProp match {
+          case None => List(new LocalElementDecl(child, parent, position))
+          case Some(_) => List(new ElementRef(child, parent, position))
+        }
       }
       case <annotation>{ _* }</annotation> => Nil
       case textNode: Text => Nil
@@ -391,40 +403,6 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
     childList
   }
 
-  lazy val myGroupReferenceProps: Map[String, String] = {
-
-    val noProps = Map.empty[String, String]
-    parent match {
-      case ggd: GlobalGroupDef => ggd.groupRef.localProperties //ggd.groupRef.localAndFormatRefProperties
-      case mg: ModelGroup => noProps
-      case ct: ComplexTypeBase => noProps
-      case _ => Assert.invariantFailed("parent of group is not one of the allowed parent types.")
-    }
-  }
-
-  lazy val overlappingProps: Set[String] = {
-    val parentProps = myGroupReferenceProps.keySet
-    val localProps = this.localAndFormatRefProperties.keySet
-    val theIntersect = parentProps.intersect(localProps)
-    theIntersect
-  }
-
-  lazy val combinedGroupRefAndGlobalGroupDefProperties: Map[String, String] = combinedGroupRefAndGlobalGroupDefProperties_.value
-  private lazy val combinedGroupRefAndGlobalGroupDefProperties_ = LV('combinedGroupRefAndGlobalGroupDefProperties) {
-    schemaDefinition(overlappingProps.size == 0,
-      "Overlap detected between the properties in the model group of a global group definition (%s) and its group reference. The overlap: %s",
-      this, overlappingProps)
-
-    val props = myGroupReferenceProps ++ this.localAndFormatRefProperties
-    props
-  }
-
-  override lazy val allNonDefaultProperties: Map[String, String] = allNonDefaultProperties_.value
-  private lazy val allNonDefaultProperties_ = LV('allNonDefaultProperties) {
-    val theLocalUnion = this.combinedGroupRefAndGlobalGroupDefProperties
-    theLocalUnion
-  }
-
   /**
    * Combine our statements with those of the group ref that is referencing us (if there is one)
    */
@@ -443,6 +421,15 @@ abstract class ModelGroup(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val groupRef = parent match {
     case ggd: GlobalGroupDef => Some(ggd.groupRef)
     case _ => None
+  }
+
+  override lazy val enclosingComponent = {
+    val res =
+      groupRef match {
+        case Some(ref) => groupRef
+        case None => Some(parent)
+      }
+    res
   }
 
 }
@@ -505,15 +492,12 @@ object GroupFactory {
  * in the above, one alternative is an empty sequence. So this choice may produce an element which takes up
  * a child position, and potentially requires separation, or it may produce nothing at all.
  *
- * So, to keep things managable, we're going to start with some restrictions
- *
- * 1) all children of a choice must be scalar elements
- * 2) no initiators nor terminators on choices. (Just wrap in a sequence if you care.)
- *
  */
 
 class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends ModelGroup(xmlArg, parent, position)
+  with Choice_AnnotationMixin
+  with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
   with ChoiceGrammarMixin {
 
   lazy val myPeers = choicePeers
@@ -560,7 +544,10 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   // The dfdl:hiddenGroupRef property cannot be scoped, nor defaulted. It's really a special
   // attribute, not a format property in the usual sense.
   // So we retrieve it by this lower-level mechanism which only combines short and long form.
-  lazy val hiddenGroupRefOption = getPropertyOption("hiddenGroupRef") //localProperties.get("hiddenGroupRef")
+  //
+  // FIXME: must call findPropertyOption so that it gets a context back which 
+  // allows resolution of a QName using the right scope. 
+  lazy val hiddenGroupRefOption = getPropertyOption("hiddenGroupRef")
 
   /**
    * We're hidden if we're inside something hidden, or we're explicitly a
@@ -605,33 +592,26 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends GroupBase(xmlArg, parent, position)
   with DFDLStatementMixin
   with GroupRefGrammarMixin
+  with Group_AnnotationMixin
+  with SeparatorSuppressionPolicyMixin
+  with SequenceRuntimeValuedPropertiesMixin
   with HasRef {
+
+  // delegate to the model group object. It assembles properties from
+  // the group ref and the group def
+  override def findPropertyOption(pname: String): PropertyLookupResult = {
+    val res = group.findPropertyOption(pname)
+    res
+  }
+  lazy val nonDefaultPropertySources = group.nonDefaultPropertySources
+  lazy val defaultPropertySources = group.defaultPropertySources
 
   lazy val prettyBaseName = "group.ref." + localName
 
   lazy val myPeers = groupRefPeers
 
-  // BEGIN NEW CODE 10/30/2012
-
-  lazy val qname = qname_.value
-  private lazy val qname_ = LV('qname) { XMLUtils.QName(xml, xsdRef, schemaDocument) }
-
+  lazy val qname = resolveQName(ref)
   lazy val (namespace, localName) = qname
-  override lazy val localProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
-  override lazy val localAndFormatRefProperties = {
-    // Removed check here for overlapping properties because it creates a circular reference
-    // the check should instead take place in the referencedElement.
-    val referencedProperties = group.localAndFormatRefProperties
-    val myProperties = localProperties ++ referencedProperties
-    myProperties
-  }
-  private lazy val referencedGroup_ = LV('referencedGroup) {
-    this.schema.schemaSet.getGlobalGroupDef(namespace, localName) match {
-      case None => SDE("Referenced groupDef not found: %s", this.ref)
-      case Some(x) => x.forGroupRef(this, position)
-    }
-  }
-  // END NEW CODE 10/30/2012
 
   def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
@@ -645,43 +625,15 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def hasStaticallyRequiredInstances = group.hasStaticallyRequiredInstances
 
-  //  // TODO: Consolidate techniques with HasRef trait used by ElementRef
-  //  lazy val refName = {
-  //    val str = (xml \ "@ref").text
-  //    if (str == "") None else Some(str)
-  //  }
-  //
-  //  lazy val refQName = {
-  //    refName match {
-  //      case Some(rname) => Some(XMLUtils.QName(xml, rname, schemaDocument))
-  //      case None => None
-  //    }
-  //  }
-
   lazy val group = groupDef.modelGroup
 
-  lazy val groupDef: GlobalGroupDef = referencedGroup_.value
-  // 10/30/2012
-  //lazy val groupDef: GlobalGroupDef = referencedGroup_.value//groupDef_.value
-
-  //  private lazy val groupDef_ = LV {
-  //    val res = refQName match {
-  //      // TODO See comment above about consolidating techniques.
-  //      case None => schemaDefinitionError("No group definition found for " + refName + ".")
-  //      case Some((ns, localpart)) => {
-  //        val ss = schema.schemaSet
-  //        val ggdf = ss.getGlobalGroupDef(ns, localpart)
-  //        val res = ggdf match {
-  //          case Some(ggdFactory) => ggdFactory.forGroupRef(this, position)
-  //          case None => schemaDefinitionError("No group definition found for " + refName + ".")
-  //          // FIXME: do we need to do these checks, or has schema validation checked this for us?
-  //          // FIXME: if we do have to check, then the usual problems: don't stop on first error, and need location of error in diagnostic.
-  //        }
-  //        res
-  //      }
-  //    }
-  //    res
-  //  }
+  lazy val groupDef = groupDef_.value
+  private lazy val groupDef_ = LV('groupDef) {
+    this.schema.schemaSet.getGlobalGroupDef(namespace, localName) match {
+      case None => SDE("Referenced group definition not found: %s", this.ref)
+      case Some(x) => x.forGroupRef(this, position)
+    }
+  }
 
   lazy val statements = localStatements
   lazy val newVariableInstanceStatements = localNewVariableInstanceStatements
@@ -689,7 +641,7 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val discriminatorStatements = localDiscriminatorStatements
   lazy val setVariableStatements = localSetVariableStatements
 
-  lazy val diagnosticChildren = annotationObjs :+ groupDef
+  lazy val diagnosticChildren: DiagnosticsList = annotationObjs :+ groupDef
 
 }
 
@@ -698,12 +650,18 @@ class GlobalGroupDefFactory(val xml: Node, val schemaDocument: SchemaDocument)
 
   lazy val context = schemaDocument
   def forGroupRef(gref: GroupRef, position: Int) = {
-    new GlobalGroupDef(xml, schemaDocument, gref, position)
+    scala.xml.Utility.trim(xml) match {
+      case <group><sequence>{ _* }</sequence></group> =>
+        new GlobalSequenceGroupDef(xml, schemaDocument, gref, position)
+      case <group><choice>{ _* }</choice></group> =>
+        new GlobalChoiceGroupDef(xml, schemaDocument, gref, position)
+    }
   }
 }
 
-class GlobalGroupDef(val xmlArg: Node, val schemaDocument: SchemaDocument, val groupRef: GroupRef, position: Int)
-  extends SchemaComponent(xmlArg) with GlobalComponentMixin {
+abstract class GlobalGroupDef(val xmlArg: Node, val schemaDocument: SchemaDocument, val groupRef: GroupRef, position: Int)
+  extends SchemaComponent(xmlArg)
+  with GlobalComponentMixin {
 
   override lazy val prettyName = "group." + name
 
@@ -723,7 +681,13 @@ class GlobalGroupDef(val xmlArg: Node, val schemaDocument: SchemaDocument, val g
   //
   lazy val Seq(modelGroup: ModelGroup) = xmlChildren.flatMap { GroupFactory(_, this, position) }
 
-  lazy val diagnosticChildren = List(modelGroup)
+  lazy val diagnosticChildren: DiagnosticsList = List(modelGroup)
 
 }
+
+class GlobalSequenceGroupDef(xmlArg: Node, schemaDocument: SchemaDocument, groupRef: GroupRef, position: Int)
+  extends GlobalGroupDef(xmlArg, schemaDocument, groupRef, position)
+
+class GlobalChoiceGroupDef(xmlArg: Node, schemaDocument: SchemaDocument, groupRef: GroupRef, position: Int)
+  extends GlobalGroupDef(xmlArg, schemaDocument, groupRef, position)
 

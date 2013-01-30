@@ -12,6 +12,7 @@ import daffodil.exceptions.Assert
 import daffodil.xml.NS
 import daffodil.xml.NoNamespace
 import daffodil.util.Debug
+import daffodil.util.Info
 
 /**
  * Maps an optional namespace and optional schemaLocation to an Include or Import object.
@@ -29,7 +30,7 @@ trait IIUtils {
 abstract class IIBase(xml: Node, sd: SchemaDocument)
   extends SchemaComponent(xml) {
 
-  lazy val diagnosticChildren = Nil
+  lazy val diagnosticChildren: DiagnosticsList = Nil
   lazy val schemaDocument = sd
 
   lazy val enclosingComponent = Some(sd)
@@ -112,7 +113,10 @@ class Include(xml: Node, sd: SchemaDocument)
   lazy val resolvedLocation = resolvedLocation_.value
   private lazy val resolvedLocation_ = LV('resolvedLocation) {
     resolvedSchemaLocation match {
-      case Some(rsl) => rsl
+      case Some(rsl) => {
+        log(Info("Included schema from %s into namespace %s.", rsl, sd.targetNamespace))
+        rsl
+      }
       case None => schemaDefinitionError("Included schema not found at location %s.  Searched these locations: \n%s", slText, classPathLines)
     }
   }
@@ -155,7 +159,7 @@ class Import(importNode: Node, sd: SchemaDocument)
           schemaDefinitionError("Importing schema namespace %s and imported schema namespace must be different.", importingSchemaNS)
         case (Some(importElementNS), _, _) => importElementNS
       }
-    log(Debug("Imported Schema Namespace: %s", checkedNS))
+    log(Info("Imported Schema Namespace: %s from location %s.", checkedNS, resolvedLocation))
 
     importedSchemaDoc
   }

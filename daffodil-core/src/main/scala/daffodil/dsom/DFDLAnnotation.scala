@@ -10,22 +10,35 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 import scala.collection.JavaConversions._
 import daffodil.processors._
-import daffodil.Implicits._; import daffodil.dsom._
+import daffodil.Implicits._
+import daffodil.dsom._
 import daffodil.grammar._
 import daffodil.api.Diagnostic
+import daffodil.schema.annotation.props.PropertyMixin
+import daffodil.util.Info
+import daffodil.util.Debug
+import scala.collection.immutable.ListMap
 
 /**
  * Base class for any DFDL annotation
  */
-abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
+abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
   extends DiagnosticsProviding
-  with GetAttributesMixin
-  with ThrowsSDE
-  with SchemaFileLocatable {
+  with ImplementsThrowsSDE
+  with LookupLocation
+  with FindPropertyMixin {
 
+  // delegate to the annotated component.
+  def findPropertyOption(pname: String): PropertyLookupResult = {
+    val res = annotatedSC.findPropertyOption(pname)
+    res
+  }
+
+  val annotatedSC = annotatedSCArg
+  val xml = xmlArg
+  lazy val schemaSet = annotatedSC.schemaSet
   lazy val schemaDocument = annotatedSC.schemaDocument
-
-  lazy val xml = node
+  lazy val schemaComponent = annotatedSC
 
   override lazy val fileName = annotatedSC.fileName
 
@@ -40,28 +53,7 @@ abstract class DFDLAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
   lazy val prettyName = xml.prefix + ":" + xml.label
   lazy val path = annotatedSC.path + "::" + prettyName
 
-  def SDE(id: String, args: Any*) = {
-    throw new SchemaDefinitionError(Some(context), Some(this), id, args: _*)
-  }
-
-  def SDW(id: String, args: Any*): Unit = {
-    val sdw = new SchemaDefinitionWarning(Some(context), Some(this), id, args: _*)
-    context.addDiagnostic(sdw)
-  }
-
-  def subset(testThatWillThrowIfFalse: Boolean, args: Any*) = {
-    if (!testThatWillThrowIfFalse) SDE("Subset ", args: _*)
-  }
-
-  /**
-   * If prefix of name is unmapped, SDE, otherwise break into NS and local part.
-   */
-  def getQName(name: String): (NS, String) = {
-    val pair @ (ns, localName) = XMLUtils.getQName(name, xml)
-    schemaDefinition(ns != null, "In QName '%s', the prefix was not defined.", name)
-    pair
-  }
-
+  override def toString() = path
 }
 
 trait RawCommonRuntimeValuedPropertiesMixin
@@ -106,9 +98,9 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin
   extends PropertyMixin {
 
   //lazy val escapeKind = getProperty("escapeKind")
-  lazy val escapeSchemeObject = {
-
-  }
+  //  lazy val escapeSchemeObject = {
+  //
+  //  }
 
   lazy val escapeCharacterRaw = getProperty("escapeCharacter")
   lazy val escapeEscapeCharacterRaw = getProperty("escapeEscapeCharacter")
@@ -129,288 +121,225 @@ trait RawSimpleTypeRuntimeValuedPropertiesMixin
 
 }
 
+class DFDLProperty(val xml: Node, formatAnnotation: DFDLFormatAnnotation)
+  extends LookupLocation
+  with ImplementsThrowsSDE {
+
+  lazy val prettyName = xml.prefix + ":" + xml.label
+  lazy val path = formatAnnotation.path + "::" + prettyName
+
+  lazy val schemaComponent = formatAnnotation.annotatedSC
+  lazy val context = schemaComponent
+
+  lazy val schemaDocument = formatAnnotation.schemaDocument
+  lazy val fileName = schemaDocument.fileName
+
+  lazy val <dfdl:property>{ valueNodes }</dfdl:property> = xml
+
+  // TODO: if we grab the value from here, then any qnames inside that value
+  // have to be resolved by THIS Object
+  lazy val value = valueNodes.text
+
+  lazy val name = getAttributeRequired("name")
+
+  lazy val diagnosticChildren: DiagnosticsList = Nil
+}
+
 /**
  * Base class for annotations that carry format properties
  */
-abstract class DFDLFormatAnnotation(node: Node, annotatedSC: AnnotatedSchemaComponent)
-  extends DFDLAnnotation(node, annotatedSC)
-  with RawCommonRuntimeValuedPropertiesMixin
-  with RawEscapeSchemeRuntimeValuedPropertiesMixin {
+abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
+  extends DFDLAnnotation(nodeArg, annotatedSCArg)
+  //  with RawCommonRuntimeValuedPropertiesMixin
+  //  with RawEscapeSchemeRuntimeValuedPropertiesMixin
+  with LeafPropProvider {
 
-  lazy val diagnosticChildren = Nil
+  lazy val diagnosticChildren: DiagnosticsList = Nil
 
-  private[dsom] def attributesInNamespace(ns: String, n: Node) = n.attributes.filter { _.getNamespace(n) == ns }
-  private[dsom] def dfdlAttributes(n: Node) = attributesInNamespace(XMLUtils.DFDL_NAMESPACE, n)
+  lazy val ref = getLocalFormatRef()
+  lazy val refPair = ref.map { resolveQName(_) }
+  lazy val referencedDefineFormat = refPair.flatMap { case (ns, name) => schemaSet.getDefineFormat(ns, name) }
+  lazy val referencedFormat = referencedDefineFormat.map { _.formatAnnotation }
 
-  private[dsom] def getLocalFormatRef(): String = {
+  /**
+   * gets the dfdl:ref short form attribute, or if we have a long
+   * form format annotation (or we ARE a long form format annotation)
+   * gets the ref long form attribute.
+   */
+  private def getLocalFormatRef(): Option[String] = {
     // We have to check if the ref exists in long form (dfdl:ref)
     // or short form (ref).
-
+    //
     // longForm references are not prefixed by a dfdl namespace
     // they are actually located in the annotation located
     // on the node (DFDLAnnotation) itself.
-    val optRefLongForm = node.attribute("ref")
-    optRefLongForm match {
-      case Some(longRef) => return longRef.toString()
-      case None => ""
-    }
+    val optRefLongForm = getAttributeOption("ref")
     // Applicable shortForm ref has a dfdl namespace prefix and is located
     // on the actual Schema Component.
-    val optRefShortForm = annotatedSC.xml.attribute(XMLUtils.DFDL_NAMESPACE, "ref")
-    optRefShortForm match {
-      case Some(shortRef) => return shortRef.toString()
-      case None => ""
-    }
-    return ""
-  }
-
-  private[dsom] def getLocalEscapeSchemeRef(): String = {
-    val ref = combinedLocalProperties.get("escapeSchemeRef")
-    ref match {
-      case None => ""
-      case Some(s) => s
+    val optRefShortForm = annotatedSC.getAttributeOption(XMLUtils.DFDL_NAMESPACE, "ref")
+    (optRefLongForm, optRefShortForm) match {
+      case (None, Some(s)) => Some(s)
+      case (Some(s), None) => Some(s)
+      case (Some(sh), Some(lg)) =>
+        schemaDefinitionError("Both long form and short form ref attribute found.")
+      case (None, None) => None
     }
   }
 
-  lazy val detailName = xml.label
-
-  //
-  // Always look for a local property first
-  //
-  // package private since we want to unit test these and put the test code in a different object.
-  // (Note: I hate repeating the darn package name all over the place here....)
-  private[dsom] def getLocalPropertyOption(name: String): Option[String] = {
-    // TODO: This does not appear to get called in the case of property_scoping_11
-    if (hasConflictingPropertyError) {
-      SDE("Short and long form properties overlap: %s", conflictingProperties)
-    }
-    lazy val localProp = combinedLocalProperties.get(name)
-    localProp
-  }
-
-  //
-  // reference chain lookup
-  //
-  private[dsom] def getRefPropertyOption(qName: String, pName: String): Option[String] = {
-    var refStack: Set[String] = Set.empty[String]
-    lazy val props = getDefineFormatPropertiesByRef(qName, refStack)
-    lazy val propOpt = props.get(pName) // Use get on a map (rather than find)
-    propOpt
-  }
-
-  //
-  // NoDefault - local then reference chain rooted here
-  //
-  private[dsom] def getPropertyOptionNoDefault(name: String): Option[String] = {
-    val local = getLocalPropertyOption(name)
-    local match {
-      case Some(_) => local
-      case None => {
-        val ref = getLocalFormatRef()
-        val ref2 = getLocalEscapeSchemeRef()
-        if (ref.length() > 0) {
-          val refChainProp = getRefPropertyOption(ref, name)
-          refChainProp
-        } else if (ref2.length() > 0) {
-          val refChainProp = getRefPropertyOption(ref2, name)
-          refChainProp
-        } else { None }
-      }
+  def adjustNamespace(ns: NS) = {
+    ns match {
+      case NoNamespace => annotatedSC.targetNamespace // this could also be NoNamespace, but that's ok.
+      case _ => ns
     }
   }
 
-  //
-  // default - get the lexically enclosing default format annotation  // and do a no-default lookup on it (which looks locally there, and on the reference chain rooted  // at that default format annotation.
-  //
-  private[dsom] def getDefaultPropertyOption(name: String): Option[String] = {
-    val lexicalDefaultFormatAnnotation = annotatedSC.schemaDocument.formatAnnotation
-    val prop = lexicalDefaultFormatAnnotation.getPropertyOptionNoDefault(name)
-    // no default for the default.
-    prop
+  // The ListMap collection preserves insertion order.
+  type NamedFormatMap = ListMap[(NS, String), DFDLFormat]
+
+  val emptyNamedFormatMap = ListMap[(NS, String), DFDLFormat]()
+  /**
+   * build up map of what we have 'seen' as we go so we can detect cycles
+   */
+  private def getFormatRefs(seen: NamedFormatMap): NamedFormatMap = {
+    val res =
+      refPair.map {
+        case pair @ (ns, ln) =>
+          // first we have to adjust the namespace
+          // because a file with no target namespace, 
+          // can reference something in another file, which also has no target 
+          // namespace. The files can collectively or by nesting, be 
+          // included in a third file that has a namespace, and in that
+          // case all the format definitions being created as those 
+          // files are loaded will be in that third namespace.
+          // so just because we had <dfdl:format ref="someFormat"/> and the
+          // ref has no namespace prefix on it, doesn't mean that the 
+          // defineFormat we're seeking is in no namespace. 
+          val adjustedNS = adjustNamespace(ns)
+          val newPair = (adjustedNS, ln)
+          val notSeenIt = seen.get(newPair) == None
+          schemaDefinition(notSeenIt, "Format ref attributes form a cycle: \n%s\n%s",
+            (newPair, locationDescription),
+            seen.map { case (pair, fmtAnn) => (pair, fmtAnn.locationDescription) }.mkString("\n"))
+          val defFmt = schemaSet.getDefineFormat(adjustedNS, ln).getOrElse(
+            schemaDefinitionError("defineFormat with name %s, was not found.", newPair))
+          log(Debug("found defineFormat named: %s", newPair))
+          val fmt = defFmt.formatAnnotation
+          val newSeen = seen + (newPair -> fmt)
+          // println("seen now: " + newSeen)
+          val moreRefs = fmt.getFormatRefs(newSeen)
+          // println("final seen: " + moreRefs)
+          moreRefs
+      }.getOrElse({
+        lazy val seenStrings = seen.map {
+          case ((ns, name), v) => name // + " is " + v.xml 
+        }.toSeq
+        log(Debug("Property sources are: %s", seenStrings.mkString("\n")))
+        seen
+      })
+    res
   }
 
-  //
-  // This is the primary public entry point.
-  //
-  def getPropertyOption(name: String): Option[String] = {
-    //
-    // These asserts are here to keep straight usage of properties, which have scoping 
-    // applied to finding them, and other attributes.
-    //
-    Assert.usage(name != "ref", name + " is not a format property")
-    Assert.usage(name != "name", name + " is not a format property")
-    Assert.usage(name != "type", name + " is not a format property")
+  /**
+   * A flat map where each entry is (ns, ln) onto DFDLFormatAnnotation.
+   */
+  final lazy val formatRefMap = getFormatRefs(emptyNamedFormatMap)
 
-    // TODO: Is this correct? Don't default properties always apply?
-    val nonDef = getPropertyOptionNoDefault(name) // local and local ref chain
-    nonDef match {
-      case Some(_) => { nonDef }
-      case None => {
-        val default = getDefaultPropertyOption(name) // default and default ref chain
-        default
-      }
-    }
+  def getFormatChain(): ChainPropProvider = {
+    val formatAnnotations = formatRefMap.map { case ((_, _), fa) => fa }.toSeq
+    val withMe = (this +: formatAnnotations).distinct
+    val res = new ChainPropProvider(withMe, this)
+    res
   }
 
-  lazy val shortFormProperties = {
+  /**
+   * Don't need the map anymore, and we put ourselves highest
+   * priority meaning at the front of the list.
+   */
+  lazy val formatRefs: Seq[DFDLFormatAnnotation] = {
+    val fmts = formatRefMap.map { case ((ns, ln), fmt) => fmt }
+    log(Debug("%s::%s formatRefs = %s", annotatedSC.prettyName, prettyName, fmts))
+    val seq = Seq(this) ++ fmts
+    seq
+  }
+
+  lazy val shortFormProperties: Set[PropItem] = {
     // shortForm properties should be prefixed by dfdl
     // Remove the dfdl prefix from the attributes so that they
     // can be properly combined later.
-    val res = dfdlAttributes(annotatedSC.xml).asAttrMap.map {
+    val kvPairs = XMLUtils.dfdlAttributes(annotatedSC.xml).asAttrMap.map {
       case (key: String, value: String) => (removePrefix(key), value)
     }
-    res.toSet
+    val kvPairsButNotRef = kvPairs.filterNot { _._1 == "ref" } // dfdl:ref is NOT a property
+    val pairs = kvPairsButNotRef.map { case (k, v) => (k, (v, annotatedSC)).asInstanceOf[PropItem] }
+    pairs.toSet
   }
 
-  lazy val longFormProperties = {
+  lazy val longFormProperties: Set[PropItem] = {
     // longForm Properties are not prefixed by dfdl
-    val dfdlAttrs = dfdlAttributes(node).asAttrMap
+    val dfdlAttrs = dfdlAttributes(xml).asAttrMap
     schemaDefinition(dfdlAttrs.isEmpty, "long form properties are not prefixed by dfdl:")
     //
     // TODO: This strips away any qualified attribute
     // That won't work when we add extension attributes 
     // like daffodil:asAttribute="true"
     //
-    val unqualifiedAttribs = node.attributes.asAttrMap.collect {
+    val kvPairs = xml.attributes.asAttrMap.collect {
       case (k, v) if (!k.contains(":")) => (k, v)
     }
-    unqualifiedAttribs.toSet
+    val unqualifiedAttribs = kvPairs.filterNot { _._1 == "ref" } // get the ref off there. it is not a property.
+    val res = unqualifiedAttribs.map { case (k, v) => (k, (v, this.asInstanceOf[LookupLocation])) }.toSet
+    res
   }
 
-  lazy val conflictingProperties =
-    shortFormProperties.intersect(longFormProperties).union(
-      shortFormProperties.intersect(elementFormProperties)).union(
-        longFormProperties.intersect(elementFormProperties))
+  private lazy val elementFormPropertyAnnotations =
+    (xml \\ "property").map { new DFDLProperty(_, this) }
 
-  lazy val hasConflictingPropertyError = conflictingProperties.size != 0
+  lazy val elementFormProperties: Set[PropItem] = {
+    elementFormPropertyAnnotations.map { p => (p.name, (p.value, p)) }.toSet
+  }
 
-  lazy val combinedLocalProperties = {
+  /**
+   * 'locallyConflicting' means conflicting between the short form and long form and
+   * element form properties that appear on this same format annotation
+   * object locally. Not across references or schema components.
+   */
+  private lazy val locallyConflictingProperties = {
+    val sf = shortFormProperties.map { case (n, _) => n }
+    val lf = longFormProperties.map { case (n, _) => n }
+    val ef = elementFormProperties.map { case (n, _) => n }
+    val res = sf.intersect(lf).union(
+      sf.intersect(ef)).union(
+        lf.intersect(ef))
+    res
+  }
+
+  private lazy val hasConflictingPropertyError = locallyConflictingProperties.size != 0
+
+  private lazy val combinedJustThisOneProperties: PropMap = {
     // We need this error to occur immediately! Didn't seem to be checked otherwise.
-    if (this.hasConflictingPropertyError) { SDE("Short and long form properties overlap: %s", conflictingProperties) }
-    shortFormProperties.union(longFormProperties).union(elementFormProperties).toMap
+    schemaDefinition(!hasConflictingPropertyError,
+      "Short, long, and element form properties overlap: %s at %s",
+      locallyConflictingProperties.mkString(", "),
+      this.locationDescription)
+    // jto = "just this one"
+    val jtoSet = shortFormProperties.union(longFormProperties).union(elementFormProperties)
+    val jto = jtoSet.toMap
+    jto
   }
 
-  lazy val elementFormProperties = (xml \ "property").map {
-    case p @ <dfdl:property>{ value }</dfdl:property> => ((p \ "@name").text, value.text)
-    case _ => Assert.impossibleCase()
-  }.toSet
-
-  // Added by Taylor Wise
-  //
-  def combinePropertiesWithOverriding(localProps: Map[String, String], refProps: Map[String, String]): Map[String, String] = {
-    var result: Map[String, String] = localProps
-    // Iterate over the ref's properties, if we find that
-    // a local instance of that property exists, add the local instance
-    // otherwise add the ref instance
-    refProps foreach {
-      case (refKey, refValue) => {
-        val foundProp = localProps.find { p => p._1 == refKey }
-        foundProp match {
-          case Some(thisProp) => { /* Local version exists, don't add */ }
-          case None => { result += (refKey -> refValue) }
-        } // end-prop-match
-      } // end-for-each-case
-    } // end-for-each
-    result
-  }
-
-  // Added by Taylor Wise
-  //
-  def getDefineFormatPropertiesByRef(qName: String, refStack: Set[String]): Map[String, String] = {
-    Assert.usage(qName.length() > 0)
-    var props = Map.empty[String, String]
-    var localRefStack = refStack.toSet[String]
-    val (nsURI, localName) = getQName(qName)
-
-    // Verify that we don't have circular references
-    if (refStack.contains(localName)) {
-      schemaDefinitionError("Circular reference detected for "
-        + localName + " while obtaining Define Format Properties!\nStack: "
-        + refStack.toString())
-    }
-
-    localRefStack = localRefStack + localName
-
-    // Retrieve the defineFormat that matches this qName
-    val ss = annotatedSC.schema.schemaSet
-
-    val foundDF = ss.getDefineFormat(nsURI, localName)
-    foundDF match {
-      case Some(aDF) => {
-        // Found a defineFormat, grab its format properties
-        val aFormat = aDF.formatAnnotation
-
-        val ref: String = aFormat.getLocalFormatRef()
-
-        // Local format properties, we already retrieved the appropriate format ref
-        // no need for ref or name here
-        val formatProps = aFormat.combinedLocalProperties.filterNot(x => x._1 == "ref" || x._1 == "name")
-
-        // Was a reference found?
-        if (ref.length() > 0) {
-
-          // Add the local properties to the props list
-          formatProps foreach { case (key, value) => props += (key -> value) }
-
-          // Has a ref, go get the ref's properties
-          val refFormatProps = getDefineFormatPropertiesByRef(ref, localRefStack)
-
-          val result: Map[String, String] = combinePropertiesWithOverriding(formatProps, refFormatProps)
-
-          props = props ++ result
-        } else {
-          // No ref, just return this format's properties
-          props = formatProps
-        } // end-if-else
-
-      }
-      case None => { this.SDE("Reference %s was not found. Format Reference Trace: %s", qName, localRefStack) }
-    } // end-match
-    props
-  } // end-getDefineFormatProperties
-
-  // Added by Taylor W.
-  // 
-  def getFormatProperties(): Map[String, String] = {
-
-    // Fetch Local Format Properties
-    val localProps = getFormatPropertiesNonDefault()
-
-    // Fetch Default Format Properties
-    val defaultProps = annotatedSC.schemaDocument.defaultFormat.combinedLocalProperties.filterNot(x => x._1 == "ref" || x._1 == "name")
-
-    // Combine Local and Default properties via overriding
-    val props = combinePropertiesWithOverriding(localProps, defaultProps)
-
-    props
-  } // end-getFormatProperties
-
-  def removePrefix(prefixedValue: String): String = {
-    if (prefixedValue.contains(":")) prefixedValue.substring(prefixedValue.indexOf(":") + 1).asInstanceOf[String]
-    else prefixedValue
-  }
-
-  // Added by Taylor W.
-  // 
-  def getFormatPropertiesNonDefault(): Map[String, String] = {
-    // Fetch Local properties but do not include ref and name
-    val localProps = combinedLocalProperties.filterNot(x => x._1 == "ref" || x._1 == "name")
-
-    // Remove the dfdl prefix from local properties so that they can be properly combined/overridden
-    val localProps2 = localProps.map { case (key: String, value: String) => (removePrefix(key), value) }
-    val localAndFormat = combinePropertiesWithOverriding(localProps2, formatRefProperties)
-    //val props = combinePropertiesWithOverriding(localAndFormat, escapeSchemeRefProperties)
-    localAndFormat
-  } // end-getFormatPropertiesNonDefault
-
-  lazy val formatRefProperties: Map[String, String] = {
-    var refStack: Set[String] = Set.empty[String]
-    var props: Map[String, String] = Map.empty[String, String]
-    var ref = getLocalFormatRef()
-    if (ref.length() != 0) {
-      props = getDefineFormatPropertiesByRef(ref, refStack)
-    }
-    props
+  /**
+   * Just this one, as in the short, long, and element form properties, on just this
+   * annotated schema component, not following any ref chains. Just the properties
+   * right here.
+   *
+   * Needed for certain warnings, and also is the primitive from which the
+   * ChainPropProvider is built up. That one DOES follow ref chains.
+   */
+  override lazy val justThisOneProperties: PropMap = justThisOneProperties_.value
+  private lazy val justThisOneProperties_ = LV('justThisOneProperties) {
+    val res = combinedJustThisOneProperties
+    log(Debug("%s::%s justThisOneProperties are: %s", annotatedSC.prettyName, prettyName, res))
+    res
   }
 
 }
@@ -427,58 +356,45 @@ abstract class DFDLStatement(node: Node, annotatedSC: AnnotatedSchemaComponent)
 
 class DFDLFormat(node: Node, sd: SchemaDocument)
   extends DFDLFormatAnnotation(node, sd)
-  with Format_AnnotationMixin
-  with NillableMixin
-  with SeparatorSuppressionPolicyMixin
-  with RawElementRuntimeValuedPropertiesMixin
-  with RawSequenceRuntimeValuedPropertiesMixin {
+// leave the below comments here for a while. (In case we have to reproduce
+// this list of mixins on a schema component somewhere)
+//  with Format_AnnotationMixin
+//  with NillableMixin
+//  with SeparatorSuppressionPolicyMixin
+//  with RawElementRuntimeValuedPropertiesMixin
+//  with RawSequenceRuntimeValuedPropertiesMixin
 
-  override private[dsom] def getLocalFormatRef(): String = {
-    val optRefNode = node.attribute("ref")
-    optRefNode match {
-      case Some(refNode) => return refNode.toString()
-      case None => ""
-    }
-  }
-}
+abstract class DFDLNonDefaultFormatAnnotation(node: Node, sc: AnnotatedSchemaComponent)
+  extends DFDLFormatAnnotation(node, sc)
 
 class DFDLElement(node: Node, decl: ElementBase)
-  extends DFDLFormatAnnotation(node, decl)
-  with Element_AnnotationMixin
-  with NillableMixin
-  with RawElementRuntimeValuedPropertiesMixin {
-}
+  extends DFDLNonDefaultFormatAnnotation(node, decl)
 
 class DFDLGroup(node: Node, decl: GroupBase)
-  extends DFDLFormatAnnotation(node, decl)
-  with Group_AnnotationMixin
-  with SeparatorSuppressionPolicyMixin
-  with RawSequenceRuntimeValuedPropertiesMixin {
-}
+  extends DFDLNonDefaultFormatAnnotation(node, decl)
+
+abstract class DFDLModelGroup(node: Node, decl: ModelGroup)
+  extends DFDLNonDefaultFormatAnnotation(node, decl)
 
 class DFDLSequence(node: Node, decl: Sequence)
-  extends DFDLFormatAnnotation(node, decl)
-  with Sequence_AnnotationMixin
-  with SeparatorSuppressionPolicyMixin
-  with RawSequenceRuntimeValuedPropertiesMixin {
-}
+  extends DFDLModelGroup(node, decl)
 
 class DFDLChoice(node: Node, decl: Choice)
-  extends DFDLFormatAnnotation(node, decl)
-  with Choice_AnnotationMixin
-  with RawSequenceRuntimeValuedPropertiesMixin {
-}
+  extends DFDLModelGroup(node, decl)
 
 class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)
-  extends DFDLFormatAnnotation(node, decl)
-  with SimpleType_AnnotationMixin
-  with TextNumberFormatMixin
-  with StringTextMixin
-  with NumberTextMixin
-  with CalendarTextMixin
-  with BooleanTextMixin
-  with RawSimpleTypeRuntimeValuedPropertiesMixin {
-}
+  extends DFDLNonDefaultFormatAnnotation(node, decl)
+// Leave the below comments in place. These are not reproduced (currently)
+// on SimpleTypeDefBase. It appears these properties are only accessed
+// indirectly by way of an ElementDecl that uses this type.
+//
+//  with SimpleType_AnnotationMixin
+//  with TextNumberFormatMixin
+//  with StringTextMixin
+//  with NumberTextMixin
+//  with CalendarTextMixin
+//  with BooleanTextMixin
+//  with RawSimpleTypeRuntimeValuedPropertiesMixin 
 
 trait DFDLDefiningAnnotation
   extends NamedAnnotationAndComponentMixin { self: DFDLAnnotation =>
@@ -513,13 +429,35 @@ class DFDLDefineFormat(node: Node, sd: SchemaDocument)
     }
   }
 
-  lazy val diagnosticChildren = formatAnnotation +: definingAnnotationDiagnosticChildren
+  lazy val diagnosticChildren: DiagnosticsList = formatAnnotation +: definingAnnotationDiagnosticChildren
 }
 
 class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLFormatAnnotation(node, decl)
   with EscapeScheme_AnnotationMixin
   with RawEscapeSchemeRuntimeValuedPropertiesMixin {
+
+  override def findPropertyOption(pname: String): PropertyLookupResult = {
+    val propNodeSeq = xml.attribute(pname)
+    propNodeSeq match {
+      case None => NotFound(Seq(this), Nil) // attribute was not found
+      case Some(nodeseq) => {
+        //
+        // Interesting that attributeName="" produces a Nil nodeseq, not an empty string.
+        // 
+        // This whole attributes as NodeSeq thing in Scala seems strange, but attributes
+        // can contain unresolved entities, e.g., quote="&amp;quot;2B || ! 2B&amp;quot;"
+        // so really they do have to return them as node sequences. It requires DTD processing
+        // to resolve everything, and most code isn't going to process the DTDs. I.e., the scala 
+        // XML library lets your code be the one doing the DTD resolving, so they can't do it for you.
+        //
+        nodeseq match {
+          case Nil => Found("", this) // we want to hand back the empty string as a value.
+          case _ => Found(nodeseq.toString, this)
+        }
+      }
+    }
+  }
 }
 
 class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument)
@@ -533,7 +471,7 @@ class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument)
     case _ => Assert.impossibleCase()
   }
 
-  lazy val diagnosticChildren = escapeScheme +: definingAnnotationDiagnosticChildren
+  lazy val diagnosticChildren: DiagnosticsList = escapeScheme +: definingAnnotationDiagnosticChildren
 
   override def toString(): String = {
     "DFDLDefineEscapeScheme." + name
@@ -632,11 +570,11 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
     case (Some(str), v) => schemaDefinitionError("Default value of variable was supplied both as attribute and element value: %s", node.toString)
   }
 
-  override lazy val diagnosticChildren = definingAnnotationDiagnosticChildren
+  override lazy val diagnosticChildren: DiagnosticsList = definingAnnotationDiagnosticChildren
 
   lazy val extName = expandedNCNameToQName
 
-  val (typeURI, typeLocalName) = XMLUtils.QName(node, typeQName, doc)
+  val (typeURI, typeLocalName) = XMLUtils.QName(node, typeQName, this)
   val extType = XMLUtils.expandedQName(typeURI, typeLocalName)
 
   lazy val newVariableInstance = VariableFactory.create(this, extName, extType, defaultValue, external, doc)

@@ -21,7 +21,7 @@ class TestVariables extends JUnitSuite with WithParseErrorThrowing {
   val example = XMLUtils.EXAMPLE_NAMESPACE
   val tns = example
 
-  val context: SchemaComponent = Fakes.xsd_sd
+  val context: SchemaComponent = Fakes.fakeSD
 
   //  @Test def testVariables1() {
   //

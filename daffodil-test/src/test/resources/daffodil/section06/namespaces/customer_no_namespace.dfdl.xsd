@@ -8,7 +8,7 @@
     </xs:appinfo>
   </xs:annotation>
    
-  <xs:include schemaLocation="address_no_namespace.xsd"/>
+  <xs:include schemaLocation="address_no_namespace.dfdl.xsd"/>
   
   <xs:element name="customer"> 
     <xs:complexType> 

@@ -4,6 +4,10 @@ package daffodil.schema.annotation.props
 
 import daffodil.exceptions._
 import daffodil.util.Misc._
+import daffodil.util.Logging
+import daffodil.util.Info
+import daffodil.util.Debug
+import daffodil.dsom.FindPropertyMixin
 
 /**
  * Enum class as basis for our DFDL properties
@@ -101,31 +105,13 @@ abstract class Enum[A] extends EnumBase {
 /**
  * base mixin for traits representing collections of DFDL properties
  *
- * The key here is the getPropertyOption member. This function is implemented by
- * the things that this is mixed into. E.g., like the element object that represents
- * element declarations. Or more likely a base class that represents any
- * annotated object that can have DFDL properties on it.
- *
- * The getPropertyOption routine will end up looking something like this:
- * @example {{{
- *   def getPropertyOption(pname: String): String = {
- *     // prior to this being called, or as lazy val attributes, we need
- *     // list of short form (which are local) and long form annotations.
- *     // ref chains (dfdl:ref)
- *     // schema default properties
- *     // all goes into this one map dfdlCombinedProperties
- *     val maybeProp = dfdlCombinedProperties.get(pname)
- *     maybeProp
- *    }
- *   }
- * }}}
- * The magic here is the dfdlCombinedProperties member which is a big map of all the
- * properties (that's what has to take the scoping rules into account, and get properties locally
- * or from other places)
  */
-trait PropertyMixin extends ThrowsSDE {
+trait PropertyMixin extends FindPropertyMixin with ThrowsSDE with Logging {
 
-  //  def detailName: String
+  /**
+   * Only for testing purposes
+   */
+  def properties: PropMap
 
   /**
    * Properties will push their toString function onto this list
@@ -135,23 +121,12 @@ trait PropertyMixin extends ThrowsSDE {
    */
   var toStringFunctionList: List[() => String] = Nil
 
-  //  override def toString = {
-  //    val className = getNameFromClass(this)
-  //    //    For now, do not print the properties.
-  //    //    val props = toStringFunctionList.map{f=>f.apply()}.foldLeft(className+ "." + detailName + "(")(_+_)
-  //    //    val suffix=")"
-  //    //    val str = props + suffix
-  //    val str = className + "." + detailName
-  //    str
-  //  }
-
   /**
    * prints all the properties on the object.
    */
   def verboseToString = {
     val className = getNameFromClass(this)
     val props = toStringFunctionList.map { f => f.apply() }.foldLeft(className +
-      // "." + detailName + 
       "(")(_ + _)
     val suffix = ")"
     val str = props + suffix
@@ -161,35 +136,6 @@ trait PropertyMixin extends ThrowsSDE {
   def registerToStringFunction(f: (() => String)) {
     toStringFunctionList = toStringFunctionList :+ f
   }
-  /**
-   * Call this to get a property.
-   *
-   * Property values are non-optional in DFDL. If they're not
-   * there but a format requires them, then it's always an error.
-   *
-   * Note also that DFDL doesn't have default values for properties. That means
-   * that most use of properties is unconditional. Get the property value, and
-   * it must be there, or its an error. There are very few exceptions to this
-   * rule.
-   */
-  def getProperty(pname: String): String = {
-    val propOpt = getPropertyOption(pname)
-    propOpt match {
-      case Some(prop) => prop
-      case None => {
-        //        val msg = "Property " + pname + " is not defined."
-        //        System.err.println(msg)
-        //        Assert.schemaDefinitionError(msg)
-        SDE("Property %s is not defined.", pname)
-      }
-    }
-  }
-
-  /**
-   * For testing, debug, printing, and other times when we really do need
-   * to know whether or not there is a definition of a particular property.
-   */
-  def getPropertyOption(pname: String): Option[String]
 
   /**
    * Convert a property string value to a Boolean

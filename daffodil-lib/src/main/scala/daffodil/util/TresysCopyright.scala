@@ -4,7 +4,7 @@ object TresysCopyright {
 
   private val tresysCopyright = """
 /*
- * Portions of this software Copyright (c) 2012 Tresys
+ * Portions of this software Copyright (c) 2012-2013 Tresys
  * Technology LLC, Columbia, Maryland, USA
  *
  * This software was developed by Tresys Technology LLC

@@ -9,8 +9,8 @@
 
 
   <tdml:defineSchema name="withValidationErrors">
-    <dfdl:format ref="ex:daffodilTest1" />
-    <xs:element name="err1" type="xs:int" />
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" length="1"/>
+    <xs:element name="err1" type="xs:int" anAttributeThisIsNot="noise"/>
     <xs:element name="err2" type="xs:int" notAnAttribute="randomness" />
   </tdml:defineSchema>
 
@@ -23,10 +23,7 @@
     <tdml:errors>
 
       <tdml:error>notAnAttribute</tdml:error>
-      <!-- xerces throws at the first validation error
-        so there is no way we can accumulate validation errors, as the first
-        throw ends the validation -->
-      <!-- <tdml:error>element1</tdml:error> -->
+      <tdml:error>anAttributeThisIsNot</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

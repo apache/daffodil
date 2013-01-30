@@ -24,100 +24,37 @@ import java.io.File
 import java.net.URI
 import java.net.URL
 
-class SchemaDefinitionError(schemaContext: Option[SchemaComponent],
-                            annotationContext: Option[DFDLAnnotation],
-                            kind: String,
-                            args: Any*)
-  extends SchemaDefinitionDiagnosticBase(schemaContext, annotationContext, kind, args: _*) {
-
-  def this(sc: SchemaComponent, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
-  val isError = true
-  val diagnosticKind = "Error"
-}
-
-class SchemaDefinitionWarning(schemaContext: Option[SchemaComponent],
-                              annotationContext: Option[DFDLAnnotation],
-                              kind: String,
-                              args: Any*)
-  extends SchemaDefinitionDiagnosticBase(schemaContext, annotationContext, kind, args: _*) {
-
-  def this(sc: SchemaComponent, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
-
-  val isError = false
-  val diagnosticKind = "Warning"
-}
-
-abstract class SchemaDefinitionDiagnosticBase(
-  val schemaContext: Option[SchemaComponent],
-  val annotationContext: Option[DFDLAnnotation],
-  val kind: String,
-  val args: Any*) extends Exception with DiagnosticImplMixin {
-  def isError: Boolean
-  def diagnosticKind: String
-  def getSchemaLocations = schemaContext.toList
-  def getDataLocations = Nil
-  // TODO: Alternate constructor that allows data locations.
-  // Because some SDEs are caught only once Processing starts. 
-  // They're still SDE but they will have data location information.
-
-  override def toString = {
-    //
-    // It is important that this routine is robust. It is used to print error messages
-    // so if something goes wrong in this, you run around in circles. I believe the 
-    // stack-overaflow problems will be caught so long as one is running through lazy val aka 
-    // OOLAG 'attributes' framework. 
-    //
-    val res = {
-      lazy val argsAsString = args.map { _.toString }.mkString(", ")
-      //
-      // Right here is where we would lookup the symbolic error kind id, and 
-      // choose a locale-based message string.
-      //
-      // For now, we'll just do an automatic English message.
-      //
-      val msg =
-        if (kind.contains("%")) kind.format(args: _*)
-        else (kind + "(%s)").format(argsAsString)
-
-      // this is where it gets kind of hairy. We're depending on fairly rich
-      // attribute calculations in order to generate the context information 
-      // in these diagnostic messages. Break any of that stuff, and suddenly 
-      // you will get circularity errors from OOLAG.
-      // beats a stack-overflow at least.
-      val schContextLocDescription =
-        schemaContext.map { " " + _.locationDescription }.getOrElse("")
-
-      val annContextLocDescription =
-        annotationContext.map { " " + _.locationDescription }.getOrElse("")
-
-      val res = "Schema Definition " + diagnosticKind + ": " + msg +
-        " Schema context: " + schemaContext.getOrElse("top level") + "." +
-        // TODO: should be one or the other, never(?) both
-        schContextLocDescription +
-        annContextLocDescription
-
-      res
-    }
-    res
-  }
-
-  override def getMessage = toString
-}
-
 /**
  * The core root class of the DFDL Schema object model.
  *
  * Every schema component has a schema document, and a schema, and a namespace.
  */
 abstract class SchemaComponent(val xml: Node)
-  extends DiagnosticsProviding
-  with GetAttributesMixin
+  extends GetAttributesMixin
   with SchemaLocation
-  with ThrowsSDE
+  with ImplementsThrowsSDE
   with SchemaFileLocatable
-  with IIUtils {
+  with IIUtils
+  with ResolvesQNames
+  with FindPropertyMixin
+  with LookupLocation
+  with PropTypes {
 
+  /*
+   * Anything non-annotated always returns property not found
+   * 
+   * Override in annotated components
+   */
+  def findPropertyOption(pname: String): PropertyLookupResult = NotFound(Nil, Nil)
+  // FIXME: not sure why non-annotated schema components need to have findProperty
+  // on them at all. Who would call it polymorphically, not knowing whether they 
+  // have an annotated schema component or not?
+
+  lazy val properties: PropMap = Map.empty
+
+  lazy val schemaSet: SchemaSet = schemaDocument.schemaSet
   def schemaDocument: SchemaDocument
+  def schemaComponent = this
 
   lazy val schema: Schema = schema_.value
   private lazy val schema_ = LV('schema) { schemaDocument.schema }
@@ -147,7 +84,7 @@ abstract class SchemaComponent(val xml: Node)
     scPath.map { _.prettyName }.mkString("::")
   }
 
-  override def toString = path
+  override def toString = prettyName
 
   /**
    * Includes instances. Ie., a global element will appear inside an element ref.
@@ -167,40 +104,14 @@ abstract class SchemaComponent(val xml: Node)
    *
    * Given "element" it creates <dfdl:element /> with the namespace definitions
    * based on this schema component's corresponding XSD construct.
+   *
+   * Makes sure to inherit the scope so we have all the namespace bindings.
    */
   def newDFDLAnnotationXML(label: String) = {
     scala.xml.Elem("dfdl", label, emptyXMLMetadata, xml.scope)
   }
 
   val NYI = false // our flag for Not Yet Implemented 
-
-  /**
-   * Centralize throwing for debug convenience
-   */
-  def toss(th: Throwable) = {
-    throw th // good place for a breakpoint
-  }
-
-  // TODO: create a trait to share various error stuff with DFDLAnnotation class.
-  // Right now there is small code duplication since annotations aren't schema components.
-  def SDE(id: String, args: Any*): Nothing = {
-    val sde = new SchemaDefinitionError(Some(this), None, id, args: _*)
-    toss(sde)
-  }
-
-  def SDW(id: String, args: Any*): Unit = {
-    val sdw = new SchemaDefinitionWarning(Some(this), None, id, args: _*)
-    addDiagnostic(sdw)
-  }
-
-  def subset(testThatWillThrowIfFalse: Boolean, msg: String, args: Any*) = {
-    if (!testThatWillThrowIfFalse) subsetError(msg, args: _*)
-  }
-
-  def subsetError(msg: String, args: Any*) = {
-    val msgTxt = msg.format(args: _*)
-    SDE("Subset " + msgTxt)
-  }
 
   /**
    * Needed by back-end to evaluate expressions.
@@ -240,7 +151,7 @@ trait NamedAnnotationAndComponentMixin
 
   lazy val namespace = schemaDocument.targetNamespace // can be "" meaning no namespace
   lazy val prefix = {
-    val prefix = schemaDocument.xml.scope.getPrefix(namespace.toString) // can be null meaning no prefix
+    val prefix = xml.scope.getPrefix(namespace.toString) // can be null meaning no prefix
     // cannot be ""
     prefix
   }
@@ -357,14 +268,90 @@ trait ElementFormDefaultMixin
 
 abstract class AnnotatedSchemaComponent(xml: Node)
   extends SchemaComponent(xml)
-  with AnnotatedMixin
+  with AnnotatedMixin {
 
-// Provides some polymorphism across annotated things, 
-// and unannotated things like complex types.
-trait SharedPropertyLists {
-  // use def, can be overriden by lazy val, val, or def
-  def localAndFormatRefProperties: Map[String, String]
-  def allNonDefaultProperties = localAndFormatRefProperties
+  /**
+   * only used for debugging
+   */
+  override lazy val properties: PropMap =
+    (nonDefaultPropertySources.flatMap { _.properties.toSeq } ++
+      defaultPropertySources.flatMap { _.properties.toSeq }).toMap
+
+  def nonDefaultPropertySources: Seq[ChainPropProvider]
+
+  def defaultPropertySources: Seq[ChainPropProvider]
+
+  lazy val nonDefaultFormatChain: ChainPropProvider = formatAnnotation.getFormatChain()
+  lazy val defaultFormatChain: ChainPropProvider = schemaDocument.formatAnnotation.getFormatChain()
+
+  private def findDefaultOrNonDefaultProperty(
+    pname: String,
+    sources: Seq[ChainPropProvider]): PropertyLookupResult = {
+    val seq = sources.map { _.chainFindProperty(pname) }
+    val optFound = seq.collectFirst { case found: Found => found }
+    val result = optFound match {
+      case Some(f @ Found(_, _)) => f
+      case None => {
+        // merge all the NotFound stuff.
+        val nonDefaults = seq.flatMap {
+          case NotFound(nd, d) => nd
+          case _: Found => Assert.invariantFailed()
+        }
+        val defaults = seq.flatMap {
+          case NotFound(nd, d) => d
+          case _: Found => Assert.invariantFailed()
+        }
+        Assert.invariant(defaults.isEmpty)
+        val nf = NotFound(nonDefaults, defaults)
+        nf
+      }
+    }
+    result
+  }
+
+  private def findNonDefaultProperty(pname: String): PropertyLookupResult = {
+    val result = findDefaultOrNonDefaultProperty(pname, nonDefaultPropertySources)
+    result match {
+      case f: Found => f
+      case NotFound(nd, d) =>
+        Assert.invariant(d.isEmpty)
+    }
+    result
+  }
+
+  private def findDefaultProperty(pname: String): PropertyLookupResult = {
+    val result = findDefaultOrNonDefaultProperty(pname, defaultPropertySources)
+    val fixup = result match {
+      case f: Found => f
+      case NotFound(nd, d) =>
+        Assert.invariant(d.isEmpty)
+        NotFound(Seq(), nd) // we want the places we searched shown as default locations searched
+    }
+    fixup
+  }
+
+  override def findPropertyOption(pname: String): PropertyLookupResult = {
+    // first try in regular properties
+    val regularResult = findNonDefaultProperty(pname)
+    regularResult match {
+      case f: Found => f
+      case NotFound(nonDefaultLocsTried1, defaultLocsTried1) => {
+        Assert.invariant(defaultLocsTried1.isEmpty)
+        val defaultResult = findDefaultProperty(pname)
+        defaultResult match {
+          case f: Found => f
+          case NotFound(nonDefaultLocsTried2, defaultLocsTried2) => {
+            Assert.invariant(nonDefaultLocsTried2.isEmpty)
+            // did not find it at all. Return a NotFound with all the places we 
+            // looked non-default and default.
+            val nonDefaultPlaces = nonDefaultLocsTried1
+            val defaultPlaces = nonDefaultLocsTried2
+            NotFound(nonDefaultPlaces, defaultPlaces)
+          }
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -372,32 +359,11 @@ trait SharedPropertyLists {
  */
 trait AnnotatedMixin
   extends CommonRuntimeValuedPropertiesMixin
-  with SharedPropertyLists { self: SchemaComponent =>
+  with EncodingMixin { self: AnnotatedSchemaComponent =>
 
+  def xml: Node
   def prettyName: String
   def path: String
-
-  lazy val defaultProperties: Map[String, String] = {
-    this.schemaDocument.defaultProperties
-  }
-
-  lazy val sDoc = self.schemaDocument
-  /**
-   * Primary mechanism for a component to get a format property value.
-   *
-   * Note: use only for format properties, not any old attribute.
-   */
-  def getPropertyOption(pname: String) = {
-    val local = allNonDefaultProperties.get(pname)
-    local match {
-      case None => {
-        defaultProperties.get(pname)
-      }
-      case Some(_) => {
-        local
-      }
-    }
-  }
 
   /**
    * Anything annotated must be able to construct the
@@ -468,12 +434,13 @@ trait AnnotatedMixin
 
   lazy val formatAnnotation = formatAnnotation_.value
   private lazy val formatAnnotation_ = LV('formatAnnotation) {
-    val format = annotationObjs.find { isMyFormatAnnotation(_) }
+    val format = annotationObjs.collect { case fa: DFDLFormatAnnotation if isMyFormatAnnotation(fa) => fa }
     val res = format match {
-      case None => emptyFormatFactory
-      case Some(x) => x
+      case Seq() => emptyFormatFactory // does make things with the right namespace scopes attached!
+      case Seq(fa) => fa
+      case _ => schemaDefinitionError("Only one format annotation is allowed at each annotation point.")
     }
-    res.asInstanceOf[DFDLFormatAnnotation]
+    res
   }
 
   /**
@@ -484,6 +451,19 @@ trait AnnotatedMixin
    */
   lazy val expressionCompiler = new ExpressionCompiler(this)
 
+  lazy val justThisOneProperties = formatAnnotation.justThisOneProperties
+
+}
+
+/**
+ * Split this out of AnnotatedMixin for separation of
+ * concerns reasons.
+ *
+ * TODO: move to GrammarMixins.scala, or another file
+ * of these sorts of traits that are mixed onto the
+ * schema components.
+ */
+trait EncodingMixin { self: AnnotatedSchemaComponent =>
   /**
    * Character encoding common attributes
    *
@@ -951,9 +931,24 @@ class SchemaSet(
     val grouped2 = grouped.map {
       case (idFields, seq) => {
         val onlyObj = seq.map { case (ns, name, kind, obj) => obj }
-        (idFields, onlyObj, onlyObj)
+        if (onlyObj.length > 1) {
+          val (ns, name, kind) = idFields
+          val obj = onlyObj.head
+          val locations = onlyObj.asInstanceOf[Seq[LookupLocation]] // don't like this downcast
+          SDEButContinue("multiple definitions for %s  {%s}%s.\n%s", kind.toString, ns, name,
+            locations.map { _.locationDescription }.mkString("\n"))
+        }
+        (idFields, onlyObj)
       }
     }
+    grouped2
+  }
+
+  // The trick with this is when to call it. If you call it, as
+  // a consequence of computing all of this, it will have to parse
+  // every file, every included/imported file, etc.
+  def checkForDuplicateTopLevels() {
+    groupedTopLevels // demand this.
   }
 
   /**
@@ -1033,9 +1028,11 @@ class SchemaSet(
     }
   }
 
-  lazy val diagnosticChildren = {
-    if (checkAllTopLevel) schemas
-    else Nil
+  lazy val diagnosticChildren: DiagnosticsList = {
+    if (checkAllTopLevel) {
+      // checkForDuplicateTopLevels() // debug this later.
+      schemas
+    } else Nil
   }
 
   /**
@@ -1105,7 +1102,7 @@ class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], val schemaSet: 
 
   lazy val schemaDocuments = schemaDocs
 
-  lazy val diagnosticChildren = schemaDocuments
+  lazy val diagnosticChildren: DiagnosticsList = schemaDocuments
 
   private def noneOrOne[T](scs: Seq[T], name: String): Option[T] = {
     scs match {
@@ -1172,11 +1169,21 @@ class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], val schemaSet: 
  * are where default formats are specified, so it is very important what schema document
  * a schema component was defined within.
  */
-class SchemaDocument(xmlArg: Node, val schemaSet: SchemaSet, include: Option[Include])
+class SchemaDocument(xmlArg: Node,
+                     schemaSetArg: SchemaSet,
+                     include: Option[Include])
   extends AnnotatedSchemaComponent(xmlArg)
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
 
+  lazy val nonDefaultPropertySources = Seq()
+
+  lazy val defaultPropertySources = {
+    val seq = Seq(this.defaultFormatChain)
+    seq
+  }
+
+  override lazy val schemaSet = schemaSetArg
   /**
    * For include, if the included schema doesn't have a
    * targetNamespace, then we will take on the namespace
@@ -1193,7 +1200,7 @@ class SchemaDocument(xmlArg: Node, val schemaSet: SchemaSet, include: Option[Inc
   override lazy val targetNamespace = targetNamespace_.value
   private lazy val targetNamespace_ = LV('targetNamespace) {
     val tnsAttrib = this.getAttributeOption("targetNamespace").map { NS(_) }
-    tnsAttrib.map { tns =>
+    val withCheckedNS = tnsAttrib.map { tns =>
       {
         include.foreach { inc =>
           {
@@ -1204,9 +1211,11 @@ class SchemaDocument(xmlArg: Node, val schemaSet: SchemaSet, include: Option[Inc
         }
         tns
       }
-    }.getOrElse {
+    }
+    val resultNS = withCheckedNS.getOrElse {
       include.map { _.targetNamespace }.getOrElse(NoNamespace)
     }
+    resultNS
   }
 
   override lazy val fileName = fileName_.value
@@ -1257,14 +1266,6 @@ class SchemaDocument(xmlArg: Node, val schemaSet: SchemaSet, include: Option[Inc
     val res = hasSchemaLocation | hasBlockDefault | hasFinalDefault
     res
   }
-
-  /**
-   * A schema document doesn't have default properties of its own.
-   * The schema document's localAndFormatRefProperties become the default properties for
-   * the components contained within this schema document.
-   */
-  override lazy val defaultProperties = localAndFormatRefProperties
-  lazy val localAndFormatRefProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
 
   override lazy val schema = schemaSet.getSchema(targetNamespace).getOrElse {
     Assert.invariantFailed("schema not found for schema document's namespace.")
@@ -1341,7 +1342,7 @@ class SchemaDocument(xmlArg: Node, val schemaSet: SchemaSet, include: Option[Inc
    * to the compiler, then only that root element (and things reached from it)
    * is compiled. Otherwise all top level elements are compiled.
    */
-  lazy val diagnosticChildren = {
+  lazy val diagnosticChildren: DiagnosticsList = {
     if (schema.schemaSet.checkAllTopLevel) allGlobalDiagnosticChildren
     else alwaysCheckedChildren
   }

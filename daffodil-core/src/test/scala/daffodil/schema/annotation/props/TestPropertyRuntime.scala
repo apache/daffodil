@@ -4,21 +4,27 @@ import junit.framework.Assert._
 import daffodil.exceptions.ThrowsSDE
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
+import daffodil.dsom.ImplementsThrowsSDE
+import daffodil.dsom.FindPropertyMixin
+import daffodil.dsom.Found
+import daffodil.dsom.LookupLocation
+import java.net.URL
 
 sealed trait MyPropType extends MyProp.Value
-object MyProp extends Enum[MyPropType] with ThrowsSDE {
+object MyProp extends Enum[MyPropType]
+  with ImplementsThrowsSDE {
+  lazy val context = daffodil.dsom.Fakes.fakeElem
+  lazy val schemaComponent = context
+  lazy val diagnosticChildren: DiagnosticsList = Nil
+  lazy val path = prettyName
+  lazy val prettyName = "MyPropType"
+
   case object PropVal1 extends MyPropType
   forceConstruction(PropVal1)
   case object PropVal2 extends MyPropType
   forceConstruction(PropVal2)
   def apply(name: String): MyPropType = stringToEnum("myProp", name, this)
 
-  def SDE(id: String, args: Any*): Nothing = {
-    throw new Exception(id.toString + args)
-  }
-  def SDW(id: String, args: Any*): Unit = {
-    System.err.println(new Exception(id.toString + args))
-  }
 }
 
 class MyPropMixin {
@@ -45,10 +51,13 @@ class TestPropertyRuntime extends JUnitSuite {
     assertEquals(MyProp.PropVal1, propVal1)
   }
 
-  class HasMixin extends TheExamplePropMixin {
-    def getPropertyOption(pname: String) =
-      Some("left")
-    val detailName = "HasMixin"
+  class HasMixin extends TheExamplePropMixin with LookupLocation {
+    def findPropertyOption(pname: String) =
+      Found("left", this)
+    lazy val context = this
+    lazy val xml = <foo/>
+    lazy val fileName = new URL("file:dummy")
+    lazy val properties: PropMap = Map.empty
   }
 
   @Test
@@ -72,11 +81,12 @@ object TheExampleProp extends Enum[TheExampleProp] {
   def apply(name: String, self: ThrowsSDE): TheExampleProp = stringToEnum("theExampleProp", name, self)
 }
 
-trait TheExamplePropMixin extends PropertyMixin {
+trait TheExamplePropMixin extends PropertyMixin with ThrowsSDE {
 
   def SDE(id: String, args: Any*): Nothing = {
     throw new Exception(id.toString + args)
   }
+  def SDEButContinue(id: String, args: Any*) = SDW(id, args: _*)
   def SDW(id: String, args: Any*): Unit = {
     System.err.println(new Exception(id.toString + args))
   }

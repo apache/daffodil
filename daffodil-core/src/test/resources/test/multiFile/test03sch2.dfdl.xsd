@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+
+  <!-- intended for import into other schemas -->
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:defineFormat name="test03fmt1">
+        <dfdl:format ref="daffodilTest1" />
+      </dfdl:defineFormat>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+  
+</xs:schema>

@@ -47,7 +47,7 @@ class ProcessorFactory(sset: SchemaSet)
   lazy val rootElem = rootElem_.value
   private lazy val rootElem_ = LV('rootELem) { sset.rootElement(rootSpec) }
 
-  lazy val diagnosticChildren = List(sset, rootElem)
+  lazy val diagnosticChildren: DiagnosticsList = List(rootElem, sset) // order may matter as to error msg order.
 
   def onPath(xpath: String): DFDL.DataProcessor = {
     Assert.usage(canProceed)

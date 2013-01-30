@@ -135,7 +135,7 @@ object OOLAG {
         }
         case e: Exception => {
           val exc = e
-          System.err.println("Exception %s while computing the name of an OOLAG Value.".format(exc))
+          System.err.println("Exception in OOLAG Value '%s' while computing the name of an OOLAG Value.".format(name))
           "???@@" + name
         }
       }

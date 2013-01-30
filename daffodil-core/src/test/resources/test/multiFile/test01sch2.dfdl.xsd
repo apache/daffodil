@@ -1,18 +1,17 @@
-<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-  xmlns:tns="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
 
   <!-- intended for inclusion into other schemas
     has no targetNamespace on purpose -->
-  <annotation>
-    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
       <dfdl:defineFormat name="test01fmt1">
-        <dfdl:format ref="tns:daffodilTest1" />
+        <dfdl:format ref="daffodilTest1" />
       </dfdl:defineFormat>
-    </appinfo>
-  </annotation>
+    </xs:appinfo>
+  </xs:annotation>
   
-  <include schemaLocation="xsd/built-in-formats.xsd"/>
+  <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
   
-</schema>
+</xs:schema>

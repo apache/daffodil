@@ -4,6 +4,9 @@ trait ThrowsSDE {
 
   def SDE(str: String, args: Any*): Nothing
   def SDW(str: String, args: Any*): Unit
+  def SDEButContinue(str: String, args: Any*): Unit
+
+  def schemaDefinitionErrorButContinue(str: String, args: Any*): Unit = SDEButContinue(str, args: _*)
 
   def schemaDefinitionError(str: String, args: Any*): Nothing = SDE(str, args: _*) // long form synonym
 

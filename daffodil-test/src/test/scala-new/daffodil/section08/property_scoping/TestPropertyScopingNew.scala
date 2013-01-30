@@ -25,4 +25,7 @@ class TestPropertyScopingNew extends JUnitSuite {
   @Test def test_property_scoping_09() { runner_01.runOneTest("property_scoping_09") }
   @Test def test_property_scoping_10() { runner_01.runOneTest("property_scoping_10") }
   @Test def test_property_scoping_11() { runner_01.runOneTest("property_scoping_11") }
+
+  // Fixed DFDL-417
+  @Test def test_property_scoping_03() = { runner_01.runOneTest("property_scoping_03") }
 }

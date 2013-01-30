@@ -45,7 +45,7 @@
             else true() 
             }]]></dfdl:discriminator>
           <dfdl:element
-            outputValueCalc='{ if dfdl:arrayIndex(..) eq dfdl:count(..) then 0 }' />
+            outputValueCalc='{ if dfdl:arrayIndex(..) eq dfdl:count(..) then 0 else 1}' />
         </xs:appinfo>
       </xs:annotation>
     </xs:element>

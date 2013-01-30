@@ -84,6 +84,7 @@ class Warning(e: Throwable) extends Throwable with DiagnosticImplMixin {
  * This is for compilation. Not the runtime.
  */
 trait DiagnosticsProviding extends OOLAGHost with HasIsError {
+
   type DiagnosticsList = Seq[HasIsError]
 
   lazy val LV = LVFactory(this)
@@ -163,14 +164,14 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
           this.handleThrownError(th, lv)
           List(lv)
       }
-    log(Compile("DC for %s is %s", this, dc))
+    log(Debug("DC for %s is %s", this, dc))
     dc
   }
 
   lazy val isError = {
-    log(Compile("checking %s for error", this))
+    log(Debug("checking %s for error", this))
     val dchildren = diagnosticChildrenList
-    log(Compile("diagnosticChildren are: %s", dchildren))
+    log(Debug("diagnosticChildren are: %s", dchildren))
     val bools = dchildren.map { dc =>
       try {
         dc.isError
@@ -189,7 +190,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
     // Don't forget to check the local diagnostic objects. It's not just about the 
     // children objects. The object itself might have accumulated the errors.
     //
-    log(Compile("LD for %s are %s", this, localDiagnostics))
+    log(Debug("LD for %s are %s", this, localDiagnostics))
     val localRes =
       this.localDiagnostics.length > 0 &&
         this.localDiagnostics.exists { _.isError }
@@ -197,7 +198,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
     if (res == true) {
       log(Compile("object %s had an error: %s", this, this.getDiagnostics))
 
-    } else log(Compile("object %s ok", this))
+    } else log(Debug("object %s ok", this))
     res
   }
 
@@ -208,7 +209,7 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
    */
   private lazy val diagnostics: Seq[Diagnostic] = {
     val dc = diagnosticChildrenList
-    log(Compile("diagnosticChildren are: %s", dc))
+    log(Debug("diagnosticChildren are: %s", dc))
     val dcDiags = dc.flatMap { dc =>
       dc match {
         case dp: DiagnosticsProviding => {
@@ -230,10 +231,10 @@ trait DiagnosticsProviding extends OOLAGHost with HasIsError {
       }
     }
     val ld = getLocalDiagnostics
-    log(Compile("Object %s had localDiagnostics: %s", prettyName, ld))
+    log(Debug("Object %s had localDiagnostics: %s", prettyName, ld))
 
     val res = dcDiags ++ ld
-    log(Compile("Object %s had this list of diagnostics: %s", prettyName, res))
+    log(Debug("Object %s had this list of diagnostics: %s", prettyName, res))
     res
   }
 

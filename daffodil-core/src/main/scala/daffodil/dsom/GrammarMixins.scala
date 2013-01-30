@@ -54,7 +54,7 @@ trait InitiatedTerminatedMixin
         if (qName.length() == 0) {
           None
         } else {
-          val (nsURI, name) = formatAnnotation.getQName(qName)
+          val (nsURI, name) = formatAnnotation.resolveQName(qName)
           val defES = schema.schemaSet.getDefineEscapeScheme(nsURI, name)
           defES match {
             case None => SDE("Define Escape Scheme Not Found")
@@ -432,7 +432,7 @@ trait ElementBaseGrammarMixin
 
   lazy val value = Prod("value", this, isSimpleType,
     // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
-    // This gets used for array contents also.
+    // this gets used for array contents also.
     {
       primType.myPrimitiveType match {
         case PrimType.String => stringValue
@@ -696,20 +696,46 @@ trait ElementBaseGrammarMixin
     StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
       scalarNonDefaultContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd)
 
-  def scalarDefaultable: Prod
+  //  def scalarDefaultable: Prod
+  //
+  //  def scalarNonDefault: Prod
+  lazy val scalarDefaultable = Prod("scalarDefaultable", this,
+    if (inputValueCalcOption == None) {
+      scalarDefaultablePhysical
+    } else {
+      inputValueCalcElement
+    })
 
-  def scalarNonDefault: Prod
+  lazy val scalarNonDefault = Prod("scalarNonDefault", this,
+    if (inputValueCalcOption == None) {
+      scalarNonDefaultPhysical
+    } else {
+      inputValueCalcElement
+    })
 
-  //  lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
-  //    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
-  //      scalarDefaultableContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
-  lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
-    StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
-      scalarDefaultableContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd)
+  lazy val inputValueCalcElement = Prod("inputValueCalcElement", this,
+    isSimpleType && inputValueCalcOption != None,
+    StmtEval(this, dfdlElementBegin ~ dfdlScopeBegin ~
+      InputValueCalc(self)) ~ dfdlScopeEnd ~ dfdlElementEnd)
+
+  lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this, {
+    val res = StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
+      scalarDefaultableContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd
+    res
+  })
 
 }
 
+trait ElementReferenceGrammarMixin { self: ElementRef =>
+  override lazy val termContentBody = self.referencedElement.termContentBody
+}
+
 trait LocalElementGrammarMixin { self: LocalElementBase =>
+
+  lazy val termContentBody = {
+    val res = Prod("termContentBody", self, separatedScalarDefaultable | recurrance)
+    res
+  }
 
   lazy val allowedValue = Prod("allowedValue", this, notStopValue | value)
 
@@ -727,13 +753,8 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
     !isScalar,
     StartArray(this) ~ arrayContents ~ EndArray(this) ~ FinalUnusedRegion(this))
 
-  lazy val termContentBody = {
-    val res = Prod("term", this, separatedScalarDefaultable | recurrance)
-    res
-  }
-
   override lazy val asTermInChoice = {
-    val res = Prod("term", this, nonSeparatedScalarDefaultable | recurrance)
+    val res = Prod("asTermInChoice", this, nonSeparatedScalarDefaultable | recurrance)
     res
   }
 
@@ -863,31 +884,13 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
 
 trait ElementDeclGrammarMixin { self: ElementBase with ElementDeclMixin =>
 
-  lazy val scalarDefaultable = Prod("scalarDefaultable", this,
-    if (inputValueCalcOption == None) {
-      scalarDefaultablePhysical
-    } else {
-      inputValueCalcElement
-    })
-
-  lazy val scalarNonDefault = Prod("scalarNonDefault", this,
-    if (inputValueCalcOption == None) {
-      scalarNonDefaultPhysical
-    } else {
-      inputValueCalcElement
-    })
-
   override lazy val inputValueCalcOption = getPropertyOption("inputValueCalc")
 
-  lazy val inputValueCalcElement = Prod("inputValueCalcElement", this,
-    isSimpleType && inputValueCalcOption != None,
-    StmtEval(this, dfdlElementBegin ~ dfdlScopeBegin ~
-      InputValueCalc(self)) ~ dfdlScopeEnd ~ dfdlElementEnd)
 }
 
-trait GlobalElementDeclGrammarMixin { self: GlobalElementDecl =>
-
-  lazy val allowedValue = Prod("allowedValue", this, value)
+trait GlobalElementDeclGrammarMixin
+  extends LocalElementGrammarMixin // can be repeating if not root
+  { self: GlobalElementDecl =>
 
   lazy val documentElement = Prod("documentElement", this, scalarDefaultable)
 
@@ -1074,7 +1077,7 @@ trait SequenceGrammarMixin { self: Sequence =>
 
 trait GroupRefGrammarMixin { self: GroupRef =>
 
-  def termContentBody = self.group.termContentBody //Assert.notYetImplemented()
+  def termContentBody = self.group.termContentBody
 
 }
 

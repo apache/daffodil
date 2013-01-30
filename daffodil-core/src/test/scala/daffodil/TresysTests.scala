@@ -34,6 +34,9 @@ class TresysTests extends JUnitSuite {
     runnerMD.runOneTest("manyErrors2")
   }
 
+  // not found. Debug later.
+  // @Test def test_duplicateDefineFormatsOneSchema() { runnerMD.runOneTest("duplicateDefineFormatsOneSchema") }
+
   val sv = testDir + "dfdl-schema-validation-diagnostics.tdml"
   lazy val runnerSV = new DFDLTestSuite(Misc.getRequiredResource(sv),
     validateTDMLFile = false)

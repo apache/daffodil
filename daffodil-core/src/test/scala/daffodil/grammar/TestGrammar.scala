@@ -11,7 +11,7 @@ import org.junit.Test
 
 class TestGrammar extends JUnitSuite {
 
-  val fakeTerm = new GlobalElementDeclFactory(<element name="foo" type="xs:int"/>, Fakes.xsd_sd).forRoot()
+  val fakeTerm = new GlobalElementDeclFactory(<element name="foo" type="xs:int"/>, Fakes.fakeSD).forRoot()
   case class Primitive1(e: Term, guard: Boolean = true) extends Terminal(e, guard) {
     def parser: Parser = Assert.notYetImplemented()
     def unparser: Unparser = Assert.notYetImplemented()

@@ -80,7 +80,7 @@ trait ElementRuntimeValuedPropertiesMixin
 trait SequenceRuntimeValuedPropertiesMixin
   extends DelimitedRuntimeValuedPropertiesMixin
   with Sequence_AnnotationMixin
-  with RawSequenceRuntimeValuedPropertiesMixin { decl: Sequence =>
+  with RawSequenceRuntimeValuedPropertiesMixin { decl: GroupBase =>
 
   lazy val separator = {
     val c = expressionCompiler.compile('String, separatorRaw)

@@ -280,8 +280,6 @@ class TestMiddleEndAttributes extends JUnitSuite {
     val mems = seq1.groupMembers
     val Seq(t1: Term) = mems
     val seq2 = t1.asInstanceOf[Sequence]
-    println(seq1.hasPrefixSep)
-    println(seq2.hasPrefixSep)
     val actual = Compiler.testString(testSchema, "/5").result
     val actualString = actual.toString
     val expected = <e1><x>5</x></e1>

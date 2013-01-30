@@ -98,6 +98,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with NumberTextMixin
   with CalendarTextMixin
   with BooleanTextMixin
+  with TextNumberFormatMixin
   with WithDiagnostics {
 
   def name: String
@@ -583,20 +584,41 @@ trait LocalElementMixin
   }
 }
 
-abstract class LocalElementBase(xmlArg: Node, parent: ModelGroup, position: Int)
+abstract class LocalElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends ElementBase(xmlArg, parent, position)
   with LocalElementMixin
 
+/**
+ * Note ElementRef isn't a first class citizen with the other schema components.
+ * It gets bypassed in that most things here just delegate to the GlobalElementDecl
+ * that this references.
+ *
+ * Most of the framework expects to be handling elements via the ElementBase abstract
+ * class. That class is responsible for testing and reaching back over to an ElementRef.
+ *
+ * So for example, to find out if an element has a property, an Element has to consider
+ * that the property might be expressed on an element ref (if there is one), the element
+ * itself, or a simpleType def or a base simple type def. Element does this. ElementRef
+ * doesn't.
+ */
 class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   extends LocalElementBase(xmlArg, parent, position)
+  with ElementReferenceGrammarMixin
   with HasRef {
+
+  override def findPropertyOption(pname: String): PropertyLookupResult = {
+    val res = referencedElement.findPropertyOption(pname)
+    res
+  }
+  lazy val nonDefaultPropertySources = referencedElement.nonDefaultPropertySources
+  lazy val defaultPropertySources = referencedElement.defaultPropertySources
 
   lazy val prettyName = "element.ref." + name
 
   val elementRef = None
 
   // Need to go get the Element we are referencing
-  lazy val referencedElement = referencedElement_.value // optionReferencedElement.get
+  private[dsom] lazy val referencedElement = referencedElement_.value // optionReferencedElement.get
   //  lazy val optionReferencedElement = {
   //    try referencedElement_.value
   //    catch {
@@ -619,69 +641,65 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   lazy val elementSimpleType = referencedElement.elementSimpleType
   lazy val isDefaultable: Boolean = referencedElement.isDefaultable
 
-  lazy val qname = XMLUtils.QName(xml, xsdRef, schemaDocument)
+  lazy val qname = resolveQName(ref)
   lazy val (namespace, localName) = qname
   lazy val name = localName
 
-  // These may be trickier, as the type needs to be responsive to properties from the
-  // element reference's format annotations, and its lexical context.
-  lazy val typeDef = referencedElement.typeDef //Assert.notYetImplemented()
+  // TODO: perhaps many members of ElementRef are unused. 
+  // Consider removing some. Although consider that
+  // some have to be here because of abstract bases or traits requiring them
+  // even if they aren't called.
+  lazy val typeDef = referencedElement.typeDef
 
   // Element references can have minOccurs and maxOccurs, and annotations, but nothing else.
   lazy val inputValueCalcOption = referencedElement.inputValueCalcOption // can't have ivc on element reference
-  lazy val scalarDefaultable = referencedElement.scalarDefaultable
-  lazy val scalarNonDefault = referencedElement.scalarNonDefault
-  /**
-   * It is an error if the properties on an element overlap with the properties on the simple type
-   * of that element.
-   */
-  lazy val overlappingProperties = {
-    val referencedProperties = referencedElement.localAndFormatRefProperties.keySet
-    val myLocalPropertiesNames = formatAnnotation.getFormatPropertiesNonDefault().keySet
-    val intersect = referencedProperties.intersect(myLocalPropertiesNames)
-    intersect
-  }
+  //  lazy val scalarDefaultable = referencedElement.scalarDefaultable
+  //  lazy val scalarNonDefault = referencedElement.scalarNonDefault
 
-  lazy val localAndFormatRefProperties = {
-    //    val referencedProperties = referencedElement.localAndFormatRefProperties
-    //    val myLocalProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
-    //    schemaDefinition(overlappingProperties.size == 0, "Element reference properties overlap with global element properties. Overlaps: %s.", overlappingProperties.mkString(" "))
-    //    val theUnion = referencedProperties ++ myLocalProperties
-    //    theUnion
-
-    // Removed check here for overlapping properties because it creates a circular reference
-    // the check should instead take place in the referencedElement.
-    val referencedProperties = referencedElement.localAndFormatRefProperties
-    val myProperties = localProperties ++ referencedProperties
-    myProperties
-  }
-
-  lazy val localProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
-
+  //TODO: refactor and use shared code for creating resolved set of annotations for an annotation point.
   override lazy val statements = localStatements
   override lazy val newVariableInstanceStatements = localNewVariableInstanceStatements
   override lazy val assertStatements = localAssertStatements
   override lazy val discriminatorStatements = localDiscriminatorStatements
   override lazy val setVariableStatements = localSetVariableStatements
 
-  lazy val diagnosticChildren = referencedElement_.toList // optionReferencedElement.toList
-}
-
-/**
- * Element references and Group References use this.
- */
-trait HasRef { self: SchemaComponent =>
-  // TODO: Consolidate this and the xsdRef attributes that do QName stuff
-  //From GroupRef.
-  lazy val xsdRef = getAttributeRequired("ref")
-  lazy val ref = xsdRef
+  lazy val diagnosticChildren: DiagnosticsList = Seq(referencedElement) // optionReferencedElement.toList
 }
 
 /**
  * Shared by all element declarations local or global
  */
 trait ElementDeclMixin
-  extends ElementDeclGrammarMixin { self: ElementBase =>
+  extends ElementDeclGrammarMixin
+  with OverlapCheckMixin { self: ElementBase =>
+
+  lazy val eRefNonDefault: Option[ChainPropProvider] = elementRef.map { _.nonDefaultFormatChain }
+  lazy val eRefDefault: Option[ChainPropProvider] = elementRef.map { _.defaultFormatChain }
+
+  lazy val sTypeNonDefault: Seq[ChainPropProvider] = self.typeDef match {
+    case st: SimpleTypeDefBase => st.nonDefaultPropertySources
+    case _ => Seq()
+  }
+  lazy val sTypeDefault: Seq[ChainPropProvider] = self.typeDef match {
+    case st: SimpleTypeDefBase => st.defaultPropertySources
+    case _ => Seq()
+  }
+
+  /**
+   * This and the partner defaultPropertySources are what ElementBase reaches back to get from
+   * the ElementRef in order to have the complete picture of all the properties in effect for
+   * that ElementBase.
+   */
+  lazy val nonDefaultPropertySources = {
+    val seq = (eRefNonDefault.toSeq ++ Seq(this.nonDefaultFormatChain) ++ sTypeNonDefault).distinct
+    checkNonOverlap(seq)
+    seq
+  }
+
+  lazy val defaultPropertySources = {
+    val seq = (eRefDefault.toSeq ++ Seq(this.defaultFormatChain) ++ sTypeDefault).distinct
+    seq
+  }
 
   override lazy val prettyName = "element." + name
 
@@ -760,8 +778,6 @@ trait ElementDeclMixin
     }
   }
 
-  //lazy val isPrimitiveType = typeDef.isInstanceOf[PrimitiveType]
-
   lazy val isComplexType = !isSimpleType
 
   lazy val defaultValueAsString = (xml \ "@default").text
@@ -791,40 +807,6 @@ trait ElementDeclMixin
       case _ => false
     }
   }
-
-  lazy val localAndFormatRefProperties: Map[String, String] = {
-    val localTypeProperties = typeDef.localAndFormatRefProperties
-    val myLocalProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
-    schemaDefinition(overlappingProperties.size == 0, "Type properties overlap with element properties. Overlaps: %s.", overlappingProperties.mkString(" "))
-    val theUnion = localTypeProperties ++ myLocalProperties
-    theUnion
-  }
-
-  /**
-   * It is an error if the properties on an element overlap with the properties on the simple type
-   * of that element.
-   */
-  lazy val overlappingProperties = {
-    val localTypePropertiesNames = typeDef.localAndFormatRefProperties.keySet
-    val myLocalPropertiesNames = formatAnnotation.getFormatPropertiesNonDefault().keySet
-    val intersect = localTypePropertiesNames.intersect(myLocalPropertiesNames)
-    intersect
-  }
-
-  lazy val combinedElementAndSimpleTypeProperties = {
-    var props: Map[String, String] = this.localAndFormatRefProperties
-
-    if (isSimpleType && !isPrimitiveType) {
-      props ++= this.elementSimpleType.allNonDefaultProperties
-    }
-    props
-  }
-
-  override lazy val allNonDefaultProperties = {
-    val theLocalUnion = this.combinedElementAndSimpleTypeProperties
-    theLocalUnion
-  }
-
 }
 
 class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
@@ -833,7 +815,7 @@ class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
   with ElementDeclMixin {
   val elementRef = None
 
-  lazy val diagnosticChildren = elementDeclDiagnosticChildren
+  lazy val diagnosticChildren: DiagnosticsList = elementDeclDiagnosticChildren
 }
 
 /**
@@ -857,12 +839,29 @@ class GlobalElementDeclFactory(val xml: Node, val schemaDocument: SchemaDocument
 
 }
 
+/**
+ * A global element decl uses LocalElementBase because it behaves like a local
+ * element when you consider that except for the root case, it has to be combined
+ * with an ElementRef that references it. The ElementRef can carry the things
+ * like min/maxOccurs and such that aren't allowed on a GlobalElementDecl. The
+ * combination of an ElementRef plus its GlobalElementDecl behaves like a LocalElementDecl.
+ */
 class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val elementRef: Option[ElementRef])
-  extends ElementBase(xmlArg, schemaDocumentArg, 0)
+  extends LocalElementBase(xmlArg, schemaDocumentArg, 0)
   with GlobalComponentMixin
   with ElementDeclMixin
   with GlobalElementDeclGrammarMixin
   with WithDiagnostics {
+
+  override lazy val maxOccurs = elementRef match {
+    case Some(er) => er.maxOccurs
+    case None => 1
+  }
+
+  override lazy val minOccurs = elementRef match {
+    case Some(er) => er.minOccurs
+    case None => 1
+  }
 
   lazy val isRoot = elementRef == None
 
@@ -881,52 +880,14 @@ class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val ele
   //
   // In other words, we shouldn't be treating this as a term.
   //
-  lazy val hasStaticallyRequiredInstances = Assert.impossible("Shouldn't call hasStaticallyRequiredInstances on a GlobalElementDecl")
-  lazy val termContentBody = Assert.impossible("Shouldn't call termContentBody on a GlobalElementDecl")
 
   /**
-   * global elements are always scalar. Element references referring to them can
-   * be multiple occurring (aka arrays)
+   * global elements combined with element references referring to them can
+   * be multiple occurring (aka arrays) hence, we have to have things
+   * that take root and referenced situation into account.
    */
-  override lazy val isScalar = true
+  override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
 
-  lazy val hasSep = false // when a global decl is a root element then it's not in a sequence, and so can't be separated.
-  // if this global decl is used via an element reference, then the element ref's definition of hasSep will be used, not this one.
-
-  lazy val diagnosticChildren = elementDeclDiagnosticChildren :+ document
-
-  override lazy val localAndFormatRefProperties: Map[String, String] = {
-    val localTypeProperties = typeDef.localAndFormatRefProperties
-    val myLocalProperties = this.formatAnnotation.getFormatPropertiesNonDefault()
-    val eRefProperties = {
-      elementRef match {
-        case Some(eRef) => eRef.localProperties
-        case None => Map.empty
-      }
-    }
-    //schemaDefinition(overlappingProperties.size == 0, "Type properties overlap with element properties. Overlaps: %s.", overlappingProperties.mkString(" "))
-    schemaDefinition(overlappingProperties.size == 0, "Type or Element properties overlap with referenced element properties. Overlaps: %s.", overlappingProperties.mkString(" "))
-    val theUnion = localTypeProperties ++ myLocalProperties ++ eRefProperties
-    theUnion
-  }
-
-  /**
-   * It is an error if the properties on an element overlap with the properties on the simple type
-   * of that element.
-   */
-  override lazy val overlappingProperties = {
-    val localTypePropertiesNames = typeDef.localAndFormatRefProperties.keySet
-    val myLocalPropertiesNames = formatAnnotation.getFormatPropertiesNonDefault().keySet
-    val eRefProperties = {
-      elementRef match {
-        case Some(eRef) => eRef.localProperties.keySet
-        case None => Set.empty[String]
-      }
-    }
-    // Should be: (A int B) u (B int C) u (A int C)
-    //val intersect = localTypePropertiesNames.intersect(myLocalPropertiesNames).intersect(eRefProperties)
-    val intersect = localTypePropertiesNames.intersect(myLocalPropertiesNames) union localTypePropertiesNames.intersect(eRefProperties) union myLocalPropertiesNames.intersect(eRefProperties)
-    intersect
-  }
+  lazy val diagnosticChildren: DiagnosticsList = elementDeclDiagnosticChildren :+ document
 }
 

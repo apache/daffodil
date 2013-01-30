@@ -170,7 +170,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="Item_01" dfdl:lengthKind="implicit">
+    <xs:element name="Item_01" dfdl:lengthKind="delimited">
       <xs:complexType>
         <xs:sequence dfdl:separator=","
           dfdl:separatorPosition="infix">

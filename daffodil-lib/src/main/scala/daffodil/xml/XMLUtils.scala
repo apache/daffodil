@@ -16,21 +16,13 @@ import org.jdom.Document
 import org.jdom.Namespace
 import org.jdom.output.XMLOutputter
 import org.jdom.output.Format
-import daffodil.processors.VariableMap
-import daffodil.processors.xpath.NodeResult
-import daffodil.processors.xpath.StringResult
-import daffodil.processors.xpath.XPathUtil
-import daffodil.schema.annotation._
-import daffodil.debugger.DebugUtil
 import scala.collection.mutable.LinkedList
 import scala.xml.MetaData
 import daffodil.exceptions._
-import daffodil.Implicits._; import daffodil.dsom._
 import java.io.StringReader
 import daffodil.util.Misc
 import javax.xml.namespace.QName
 import javax.xml.XMLConstants
-import daffodil.processors.Infoset
 
 /**
  * Utilities for handling XML
@@ -593,7 +585,7 @@ object XMLUtils {
    *
    * We need them as JDOM namespace bindings, so create a list of those.
    */
-  def namespaceBindings(nsBinding: NamespaceBinding): Seq[Infoset.Namespace] = {
+  def namespaceBindings(nsBinding: NamespaceBinding): Seq[org.jdom.Namespace] = {
     if (nsBinding == null) Nil
     else {
       val thisOne =
@@ -604,10 +596,10 @@ object XMLUtils {
     }
   }
 
-  def namespaceBindings(element: org.jdom.Element): Seq[Infoset.Namespace] = {
+  def namespaceBindings(element: org.jdom.Element): Seq[org.jdom.Namespace] = {
     if (element == null) Nil
     else {
-      val ans = element.getAdditionalNamespaces.toSeq.asInstanceOf[Seq[Infoset.Namespace]]
+      val ans = element.getAdditionalNamespaces.toSeq.asInstanceOf[Seq[org.jdom.Namespace]]
       val thisOne = element.getNamespace()
       val parentContribution = element.getParent match {
         case parentElem: org.jdom.Element => namespaceBindings(parentElem)
@@ -812,9 +804,7 @@ object XMLUtils {
   //    else
   //      List()
 
-  import xml.transform.{ RuleTransformer, RewriteRule }
-  import xml.{ NodeSeq, Node, Elem }
-  import xml.Utility.trim
+  // import xml.transform.{ RuleTransformer, RewriteRule }
 
   //  private class RemoveAttributes extends RewriteRule {
   //    override def transform(n : Node) = n match {
@@ -835,7 +825,7 @@ object XMLUtils {
    */
   def attributesInNamespace(ns: String, n: Node) = n.attributes filter { _.getNamespace(n) == ns }
 
-  def dfdlAttributes(n: Node) = attributesInNamespace(DFDL_NAMESPACE, n)
+  def dfdlAttributes(n: Node) = attributesInNamespace(DFDL_NAMESPACE.toString, n)
 
   /**
    * Removes nodes marked as hidden
@@ -1000,7 +990,7 @@ object XMLUtils {
    *
    * Currently makes an effort to take unqualified names into the targetNamespace of the schema,
    */
-  def QName(xml: Node, nom: String, sd: daffodil.dsom.SchemaDocument): (NS, String) = {
+  def QName(xml: Node, nom: String, loc: SchemaFileLocatable): (NS, String) = {
     val parts = nom.split(":").toList
     val (prefix, localName) = parts match {
       case List(local) => (null, local) // use null not "" for no prefix
@@ -1008,8 +998,11 @@ object XMLUtils {
       case _ => Assert.impossibleCase()
     }
     val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
-
-    val finalURI = NS(nsURI) // if (nsURI == null || nsURI == "") sd.targetNamespace else NS(nsURI)
+    if (nsURI == null && prefix != null) {
+      // no resolution to this non-null prefix
+      throw new QNamePrefixNotInScopeException(prefix, loc)
+    }
+    val finalURI = NS(nsURI)
     (finalURI, localName)
   }
 
@@ -1049,11 +1042,29 @@ trait GetAttributesMixin {
    * Use to retrieve things that are not format properties.
    */
   def getAttributeOption(name: String): Option[String] = {
-    val attrString = (xml \ ("@" + name)).text
-    val res = if (attrString == "") None else Some(attrString)
-    res
+    val attrString = xml.attribute(name).map { _.text }
+    attrString
   }
+
+  def getAttributeOption(ns: NS, name: String): Option[String] = {
+    //
+    // Most annoying, but this doesn't work....
+    // val res = xml.attribute(ns.toString, name).map{ _.text }
+    val attr = (xml \ ("@{" + ns.toString + "}" + name))
+    if (attr.length == 0) None
+    else Some(attr.text)
+  }
+
+  /**
+   * For picking off the short-form annotations.
+   */
+  def attributesInNamespace(ns: String, n: Node) = n.attributes.filter { _.getNamespace(n) == ns }
+  def dfdlAttributes(n: Node) = attributesInNamespace(XMLUtils.DFDL_NAMESPACE.toString, n)
+
 }
+
+class QNamePrefixNotInScopeException(pre: String, loc: SchemaFileLocatable)
+  extends Exception("Prefix " + pre + " not found in scope. Location: " + loc.toString)
 
 // Commented out for now, but we may reactivate this to 
 // do more validation stuff in the TDMLRunner. So keeping in the 

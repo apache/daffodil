@@ -31,11 +31,11 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   lazy val prettyName = "DataProcessor"
   lazy val path = prettyName
 
-  lazy val diagnosticChildren = {
+  lazy val diagnosticChildren: DiagnosticsList = {
     parser
     // force creation of the parser value so that all errors are issued
     // this is in case some compilation happens in the constructors of parsers.
-    val res = List(pf, rootElem, parser_)
+    val res = List(rootElem, { parser; parser_ })
     res
   }
 

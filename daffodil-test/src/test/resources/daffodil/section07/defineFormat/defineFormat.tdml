@@ -159,7 +159,7 @@
     <tdml:document><![CDATA[34567890]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Circular reference detected for def while obtaining Define Format Properties!</tdml:error>
+      <tdml:error>cycle</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

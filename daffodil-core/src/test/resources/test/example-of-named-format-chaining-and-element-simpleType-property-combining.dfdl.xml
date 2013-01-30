@@ -28,7 +28,7 @@
 
       <dfdl:defineFormat name="def3">
         <dfdl:format representation="text" lengthKind="implicit"
-          occursCountKind="fixed" binaryNumberRep="bcd" />
+          occursCountKind="fixed"  />
       </dfdl:defineFormat>
 
       <!-- The above are setup so that someone referencing def1 will get 

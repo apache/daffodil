@@ -78,7 +78,8 @@ object SeparatorSuppressionPolicy extends Enum[SeparatorSuppressionPolicy] {
   def apply(name: String, self: ThrowsSDE): SeparatorSuppressionPolicy = stringToEnum("separatorSuppressionPolicy", name, self)
 }
 
-trait SeparatorSuppressionPolicyMixin extends PropertyMixin { self: OOLAGHost =>
+trait SeparatorSuppressionPolicyMixin
+  extends PropertyMixin { self: OOLAGHost =>
 
   lazy val separatorSuppressionPolicy = separatorSuppressionPolicy_.value
   private lazy val separatorSuppressionPolicy_ = LV('separatorSuppressionPolicy) {

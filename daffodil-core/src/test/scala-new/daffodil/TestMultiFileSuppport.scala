@@ -15,6 +15,9 @@ class TestMultiFileSuppport extends JUnitSuite {
   val testDir = "/test/multiFile/"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"))
 
-  @Test def testSimpleIncludeOfFormat() { runner.runOneTest("test01") }
+  @Test def testSimpleIncludeOfFormat() { runner.runOneTest("simpleInclude") }
+  @Test def testSimpleImportOfFormat() { runner.runOneTest("simpleImport") }
+  @Test def testIncludeNoNamespace() { runner.runOneTest("includeNoNamespace") }
+  @Test def testImportWithOverlappingNSPrefixes() { runner.runOneTest("importWithOverlappingNSPrefixes") }
 
 }

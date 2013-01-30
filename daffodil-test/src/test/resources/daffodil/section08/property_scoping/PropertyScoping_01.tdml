@@ -298,11 +298,10 @@
     <tdml:document>
       <tdml:documentPart type="byte">00000003</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <c3>3</c3>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+    <tdml:error>lengthUnits</tdml:error>
+    <tdml:error>characters</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="property_scoping_04"
@@ -342,11 +341,9 @@
     description="A test to verify that when a format ref is not found (from element) an error occurs">
     <tdml:document>-1009</tdml:document>
     <tdml:errors>
-      <tdml:error>Reference</tdml:error>
-      <tdml:error>tns:DNE</tdml:error>
+      <tdml:error>DNE</tdml:error>
       <tdml:error>not</tdml:error>
       <tdml:error>found</tdml:error>
-      <tdml:error>easy</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -355,11 +352,9 @@
     description="A test to verify that when a format ref is not found (from format) an error occurs">
     <tdml:document>-1009</tdml:document>
     <tdml:errors>
-      <tdml:error>Reference</tdml:error>
-      <tdml:error>tns:noWayMan</tdml:error>
+      <tdml:error>noWayMan</tdml:error>
       <tdml:error>not</tdml:error>
       <tdml:error>found</tdml:error>
-      <tdml:error>easy2</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -370,8 +365,7 @@
       <tdml:documentPart type="byte">000000030000000600000001</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Reference</tdml:error>
-      <tdml:error>tns:dummy</tdml:error>
+      <tdml:error>dummy</tdml:error>
       <tdml:error>not</tdml:error>
       <tdml:error>found</tdml:error>
       <tdml:error>aa</tdml:error>
@@ -385,8 +379,7 @@
       <tdml:documentPart type="byte">000000030000000600000001</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Reference</tdml:error>
-      <tdml:error>tns:dummy</tdml:error>
+      <tdml:error>dummy</tdml:error>
       <tdml:error>not</tdml:error>
       <tdml:error>found</tdml:error>
       <tdml:error>aa</tdml:error>
@@ -403,8 +396,7 @@
       <tdml:error>Short</tdml:error>
       <tdml:error>and</tdml:error>
       <tdml:error>long</tdml:error>
-      <tdml:error>properties</tdml:error>
-      <tdml:error>overlap</tdml:error>
+      <tdml:error>ref</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

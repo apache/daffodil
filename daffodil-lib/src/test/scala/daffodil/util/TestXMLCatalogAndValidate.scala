@@ -58,21 +58,22 @@ class TestXMLCatalogAndValidate extends JUnitSuite {
   // But that will only happen if we in fact are resolving the URN for example 
   // to a file that it is able to load.
   //
+  def tempFileName(suffix: String): File = {
+    val f = File.createTempFile("DFDLTest", suffix)
+    val fn = f.getAbsolutePath()
+    f.delete()
+    new File(fn)
+  }
+
   @Test def test1() {
 
     // lets make sure we're not using files that would naturally be on the classpath
-    val aDir = new File("/tmp/" + getClass.getName() + "_a")
-    val bDir = new File("/tmp/" + getClass.getName() + "_b")
-    val cDir = new File("/tmp/" + getClass.getName() + "_c")
-    aDir.mkdir()
-    bDir.mkdir()
-    cDir.mkdir()
-    val tmpSchemaFileName = new File(aDir.getAbsolutePath() + "/sch.xsd")
-    val tmpDataFileName = new File(bDir.getAbsolutePath() + "/data.xml")
-    val tmpCatalogFileName = new File(cDir.getAbsolutePath() + "/cat.catalog.xml")
+    val tmpSchemaFileName = tempFileName("_sch.xsd")
+    val tmpDataFileName = tempFileName("_data.xml")
+    val tmpCatalogFileName = tempFileName("_cat.catalog.xml")
 
     //This version doesn't seem to read a catalog this way
-    System.setProperty("xml.catalog.files", tmpCatalogFileName.getAbsolutePath)
+    System.setProperty("xml.catalog.files", tmpCatalogFileName.getAbsolutePath())
     System.setProperty("xml.catalog.ignoreMissing", "false")
     System.setProperty("xml.catalog.verbosity", "4") // has no effect... grr
 
@@ -117,33 +118,19 @@ class TestXMLCatalogAndValidate extends JUnitSuite {
           val t = tmpDataFileName
           t.delete()
         } finally {
-          try {
-            val c = tmpCatalogFileName
-            c.delete()
-          } finally {
-            aDir.delete()
-            bDir.delete()
-            cDir.delete()
-          }
+          val c = tmpCatalogFileName
+          c.delete()
         }
       }
     }
   }
 
   @Test def test2() {
-    // lets make sure we're not using files that would naturally be on the classpath
-    val aDir = new File("/tmp/" + getClass.getName() + "_a")
-    val bDir = new File("/tmp/" + getClass.getName() + "_b")
-    val cDir = new File("/tmp/" + getClass.getName() + "_c")
-    val dDir = new File("/tmp/" + getClass.getName() + "_d")
-    aDir.mkdir()
-    bDir.mkdir()
-    cDir.mkdir()
-    dDir.mkdir()
-    val tmpSchema1FileName = new File(aDir.getAbsolutePath() + "/sch1.xsd")
-    val tmpSchema2FileName = new File(dDir.getAbsolutePath() + "/sch2.xsd")
-    val tmpDataFileName = new File(bDir.getAbsolutePath() + "/data.xml")
-    val tmpCatalogFileName = new File(cDir.getAbsolutePath() + "/cat.catalog.xml")
+
+    val tmpSchema1FileName = tempFileName("_sch1.xsd")
+    val tmpSchema2FileName = tempFileName("_sch2.xsd")
+    val tmpDataFileName = tempFileName("_data.xml")
+    val tmpCatalogFileName = tempFileName("_cat.catalog.xml")
 
     System.setProperty("xml.catalog.files", tmpCatalogFileName.getAbsolutePath)
     System.setProperty("xml.catalog.ignoreMissing", "no")
@@ -209,10 +196,6 @@ class TestXMLCatalogAndValidate extends JUnitSuite {
           } finally {
             val c = tmpCatalogFileName
             c.delete()
-            aDir.delete()
-            bDir.delete()
-            cDir.delete()
-            dDir.delete()
           }
         }
       }
@@ -227,9 +210,7 @@ class TestXMLCatalogAndValidate extends JUnitSuite {
                       <foobar/>
                     </schema>
 
-    val bDir = new File("/tmp/" + getClass.getName() + "_b")
-    bDir.mkdir()
-    val tmpDataFileName = new File(bDir.getAbsolutePath() + "/data.xml")
+    val tmpDataFileName = tempFileName("_data.xml")
     try {
       using(new java.io.FileWriter(tmpDataFileName)) {
         fw =>
@@ -246,7 +227,6 @@ class TestXMLCatalogAndValidate extends JUnitSuite {
     } finally {
       val t = tmpDataFileName
       t.delete()
-      bDir.delete()
     }
   }
 
@@ -260,9 +240,7 @@ class TestXMLCatalogAndValidate extends JUnitSuite {
                                   </appinfo></annotation>
                     </schema>
 
-    val bDir = new File("/tmp/" + getClass.getName() + "_b")
-    bDir.mkdir()
-    val tmpDataFileName = new File(bDir.getAbsolutePath() + "/data.xml")
+    val tmpDataFileName = tempFileName("_data.xml")
     try {
       using(new java.io.FileWriter(tmpDataFileName)) {
         fw =>
@@ -280,7 +258,6 @@ class TestXMLCatalogAndValidate extends JUnitSuite {
     } finally {
       val t = tmpDataFileName
       t.delete()
-      bDir.delete()
     }
   }
 }

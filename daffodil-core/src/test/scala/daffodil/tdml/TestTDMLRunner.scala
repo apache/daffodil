@@ -405,7 +405,7 @@ class TestTDMLRunner extends JUnitSuite {
     assertFalse(ts.isTDMLFileValid)
     val msgs = ts.getLoadingDiagnosticMessages()
     val hasMsg = msgs.contains("notAllowed")
-    println("messages = '" + msgs + "'")
+    // println("messages = '" + msgs + "'")
     assertTrue(hasMsg)
   }
 

@@ -20,16 +20,13 @@ import java.text.ParsePosition
 // Type System
 /////////////////////////////////////////////////////////////////
 
-trait TypeBase // (xmlArg : Node, context : SchemaComponent) 
-  extends SharedPropertyLists // extends SchemaComponent(xmlArg)
+trait TypeBase
+  extends DiagnosticsProviding
 
 trait SimpleTypeBase
-  extends TypeBase
-  with DiagnosticsProviding {
-
+  extends TypeBase {
   def context: SchemaComponent
   def primitiveType: PrimitiveType
-
 }
 
 trait Facets { self: SimpleTypeDefBase =>
@@ -159,25 +156,25 @@ trait Facets { self: SimpleTypeDefBase =>
     if (local > base) context.SDE("SimpleTypes: The local %s (%s) was greater than the base %s (%s) ", theFacetType, local, theFacetType, base)
   }
   private def errorOnLocalLessThanBaseFacet(local: BigInteger,
-    base: BigInteger, theFacetType: Facet) = {
+                                            base: BigInteger, theFacetType: Facet) = {
     val res = local.compareTo(base)
     if (res < 0) context.SDE("SimpleTypes: The local %s (%s) was less than the base %s (%s) ",
       theFacetType, local, theFacetType, base)
   }
   private def errorOnLocalGreaterThanBaseFacet(local: BigInteger,
-    base: BigInteger, theFacetType: Facet) = {
+                                               base: BigInteger, theFacetType: Facet) = {
     val res = local.compareTo(base)
     if (res > 0) context.SDE("SimpleTypes: The local %s (%s) was greater than the base %s (%s) ",
       theFacetType, local, theFacetType, base)
   }
   private def errorOnLocalLessThanBaseFacet(local: java.math.BigDecimal,
-    base: java.math.BigDecimal, theFacetType: Facet) = {
+                                            base: java.math.BigDecimal, theFacetType: Facet) = {
     val res = local.compareTo(base)
     if (res < 0) context.SDE("SimpleTypes: The local %s (%s) was less than the base %s (%s) ",
       theFacetType, local, theFacetType, base)
   }
   private def errorOnLocalGreaterThanBaseFacet(local: java.math.BigDecimal,
-    base: java.math.BigDecimal, theFacetType: Facet) = {
+                                               base: java.math.BigDecimal, theFacetType: Facet) = {
     val res = local.compareTo(base)
     if (res > 0) context.SDE("SimpleTypes: The local %s (%s) was greater than the base %s (%s) ",
       theFacetType, local, theFacetType, base)
@@ -413,7 +410,7 @@ trait Facets { self: SimpleTypeDefBase =>
   }
 
   private def checkValueSpaceFacetRange(localFacet: String,
-    remoteFacet: String, facetType: Facet): (java.math.BigDecimal, java.math.BigDecimal) = {
+                                        remoteFacet: String, facetType: Facet): (java.math.BigDecimal, java.math.BigDecimal) = {
     // Neccessary for min/max Inclusive/Exclusive Facets
 
     // TODO: I think the performance here can be improved.
@@ -422,16 +419,16 @@ trait Facets { self: SimpleTypeDefBase =>
     // rather than just as String.  This would prevent us from having to perform
     // the checkValueSpaceFacetRange on the remoteFacet here as it would've already
     // been done in the base. --TRW
-    
+
     // Perform conversions once
-    val theRemoteFacet = checkValueSpaceFacetRange(remoteFacet, facetType)//new java.math.BigDecimal(remoteFacet)
+    val theRemoteFacet = checkValueSpaceFacetRange(remoteFacet, facetType) //new java.math.BigDecimal(remoteFacet)
     val theLocalFacet = checkValueSpaceFacetRange(localFacet, facetType)
 
     (theLocalFacet, theRemoteFacet)
   }
 
   private def isNumInRange(num: java.math.BigDecimal, min: java.math.BigDecimal,
-    max: java.math.BigDecimal): Boolean = {
+                           max: java.math.BigDecimal): Boolean = {
     val checkMin = num.compareTo(min)
     if (checkMin < 0) { return false } // num less than min
     val checkMax = num.compareTo(max)
@@ -654,7 +651,31 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
   with SimpleTypeBase
   with DFDLStatementMixin
   with Facets
-  with SimpleTypeDerivation {
+  with SimpleTypeDerivation
+  with OverlapCheckMixin {
+
+  lazy val bases: Seq[SimpleTypeDefBase] =
+    myBaseDef match {
+      case None => Nil
+      case Some(st: SimpleTypeDefBase) => st +: st.bases
+      case _ => Nil
+    }
+
+  lazy val sTypeNonDefault: Seq[ChainPropProvider] = bases.map { _.nonDefaultFormatChain }
+  lazy val sTypeDefault: Seq[ChainPropProvider] = bases.map { _.defaultFormatChain }
+
+  // want a QueueSet i.e., fifo order if iterated, but duplicates
+  // kept out of the set. Will simulate by calling distinct.
+  lazy val nonDefaultPropertySources = {
+    val seq = (this.nonDefaultFormatChain +: sTypeNonDefault).distinct
+    checkNonOverlap(seq)
+    seq
+  }
+
+  lazy val defaultPropertySources = {
+    val seq = (this.defaultFormatChain +: sTypeDefault).distinct
+    seq
+  }
 
   import daffodil.dsom.FacetTypes._
 
@@ -669,29 +690,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
     }
   }
 
-  lazy val localAndFormatRefProperties: Map[String, String] = {
-    this.formatAnnotation.getFormatPropertiesNonDefault()
-  }
-
-  lazy val localProperties = {
-    this.formatAnnotation.combinedLocalProperties
-  }
-
-  lazy val formatRefProperties = {
-    this.formatAnnotation.formatRefProperties
-  }
-
-  lazy val combinedSimpleTypeAndBaseProperties = {
-    schemaDefinition(overlappingLocalProperties.size == 0,
-      "Overlap detected between the local SimpleType ("
-        + this + ") properties and its base.")
-
-    val props = this.localAndFormatRefProperties ++ this.simpleTypeBaseProperties
-    props
-  }
-
-  // Returns name of base class in the form of
-  // ex:myType
+  // Returns name of base class in the form of QName
   //
   lazy val restrictionBase: String = {
     val rsb = xml \\ "restriction" \ "@base"
@@ -709,6 +708,11 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
         "Type " + localName + " is not an XSD primitive type.")
       prim
     } else None
+  }
+
+  lazy val myBaseDef = myBaseType match {
+    case st: SimpleTypeDefBase => Some(st)
+    case _ => None
   }
 
   lazy val myBaseTypeFactory = {
@@ -745,42 +749,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
 
   lazy val myBaseTypeList = List(myBaseType)
 
-  lazy val diagnosticChildren = annotationObjs ++ myBaseTypeList
-
-  lazy val simpleTypeBaseProperties: Map[String, String] = {
-
-    val baseProps = {
-      myBaseDef match {
-        case Some(st) => st.localAndFormatRefProperties
-        case None => Map.empty[String, String]
-      }
-    }
-    baseProps
-  }
-
-  lazy val myBaseDef = myBaseType match {
-    case st: SimpleTypeDefBase => Some(st)
-    case _ => None
-  }
-
-  lazy val overlappingLocalProperties = {
-    val localAndFormatRef = localAndFormatRefProperties.map { x => x._1 }.toSet
-    val baseProps = simpleTypeBaseProperties.map { x => x._1 }.toSet
-    val intersect = localAndFormatRef.intersect(baseProps)
-    intersect
-  }
-
-  lazy val hasOverlap: Boolean = {
-    if (overlappingLocalProperties.size > 0) { true }
-    else { false }
-  }
-
-  override lazy val allNonDefaultProperties = {
-    schemaDefinition(!hasOverlap, "Overlap detected between simpleType (" + this + ") and its base.")
-
-    val theLocalUnion = this.combinedSimpleTypeAndBaseProperties
-    theLocalUnion
-  }
+  lazy val diagnosticChildren: DiagnosticsList = annotationObjs ++ myBaseTypeList
 
   lazy val localBaseFacets: ElemFacets = {
     var myFacets: Queue[FacetValue] = Queue.empty
@@ -859,30 +828,19 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
     }
   }
 
-  // TODO: Delete if no longer needed
-  //  Review: This code is redundantly computing the type from the type factory. 
-  //   It already exists and is called myTypeBase.
-  //
-  //    val (ns, localPart) = this.baseTypeQName
-  //    val ss = schema.schemaSet
-  //    val prim = ss.getPrimitiveType(localPart)
-  //    if (prim != None) Seq.empty[ElemFacets]
-  //    else {
-  //      val gstd = ss.getGlobalSimpleTypeDef(ns, localPart)
-  //      val res = gstd match {
-  //        case Some(gstdFactory) => Some(gstdFactory.forRoot())
-  //        case None => schemaDefinitionError("Error while fetching facets.  No type definition found for %s", restrictionBase)
-  //      }
-  //      res.get.combinedBaseFacets
-  //    }
-  //  }
-
   /**
    * Combine our statements with those of our base def (if there is one)
    *
    * The order is important here. I.e., we FIRST put in each list those from our base. Then our own local ones.
    */
   lazy val statements: Seq[DFDLStatement] = myBaseDef.map { _.statements }.getOrElse(Nil) ++ localStatements
+  // TODO: refactor into shared code for combining all the annotations in the resolved set of annotations 
+  // for a particular annotation point, checking that there is only one format annotation, that 
+  // asserts and discriminators are properly excluding each-other, etc.
+  // Code should be sharable for many kinds of annotation points, perhaps specialized for groups, complex type
+  // elements, and simple type elements.
+  //
+  // See JIRA issue DFDL-481
   lazy val newVariableInstanceStatements: Seq[DFDLNewVariableInstance] =
     myBaseDef.map { _.newVariableInstanceStatements }.getOrElse(Nil) ++ localNewVariableInstanceStatements
   lazy val (discriminatorStatements, assertStatements) = checkDiscriminatorsAssertsDisjoint(combinedDiscrims, combinedAsserts)
@@ -904,8 +862,6 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
     Some(parent)
   }
 
-  // lazy val detailName = "inside " + parent.detailName
-
   lazy val baseName = (xml \ "restriction" \ "@base").text
   lazy val baseType = {
     val res = if (baseName == "") None
@@ -916,9 +872,10 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
 }
 
 /**
- * We need a schema document and such for our primitives
- * so that our invariant, that *everything* has a schema document, schema, and schema set
- * holds true.
+ * We need a schema document and such for unit testing, also our PrimitiveType
+ * needs a dummy schema document also so that our invariant, that *everything*
+ * has a schema document, schema, and schema set
+ * holds true even when we're not building up a "real" schema.
  */
 object Fakes {
   lazy val sch = TestUtils.dfdlTestSchema(
@@ -938,9 +895,9 @@ object Fakes {
     </xs:group>)
   lazy val xsd_sset = new SchemaSet(sch, "http://example.com", "fake")
   lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
-  lazy val xsd_sd = xsd_schema.schemaDocuments(0)
-  lazy val fakeElem = xsd_sd.getGlobalElementDecl("fake").get.forRoot()
-  lazy val fakeCT = xsd_sd.getGlobalElementDecl("fake2").get.forRoot().typeDef.asInstanceOf[GlobalComplexTypeDef]
+  lazy val fakeSD = xsd_schema.schemaDocuments(0)
+  lazy val fakeElem = fakeSD.getGlobalElementDecl("fake").get.forRoot()
+  lazy val fakeCT = fakeSD.getGlobalElementDecl("fake2").get.forRoot().typeDef.asInstanceOf[GlobalComplexTypeDef]
   lazy val fakeSequence = fakeCT.modelGroup.asInstanceOf[Sequence]
   lazy val Seq(fs1, fs2) = fakeSequence.groupMembers
   lazy val fakeGroupRef = fs1.asInstanceOf[GroupRef]
@@ -952,7 +909,7 @@ object PrimType extends Enumeration {
   val String, Int, Byte, Short, Long, Integer, UInt, UByte, UShort, ULong, Double, Float, HexBinary, Boolean, DateTime, Date, Time = Value
 }
 
-//TBD: are Primitives "global", or do they just have names like globals do?
+// Primitives are not "global" because they don't appear in any schema document
 class PrimitiveType(name_ : String)
   extends SchemaComponent(<primitive/>)
   with SimpleTypeBase // use fake schema document
@@ -969,13 +926,11 @@ class PrimitiveType(name_ : String)
   override lazy val name = name_
   override lazy val prettyName = name_
 
-  lazy val diagnosticChildren = Nil
+  lazy val diagnosticChildren: DiagnosticsList = Nil
 
   // override val xml = Assert.invariantFailed("Primitives don't have xml definitions.")
 
-  override lazy val schemaDocument = Fakes.xsd_sd
-
-  lazy val localAndFormatRefProperties = Map.empty[String, String]
+  override lazy val schemaDocument = Fakes.fakeSD
 
   lazy val myPrimitiveType: PrimType = {
     name match {
@@ -1066,7 +1021,7 @@ abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
     Map.empty[String, String]
   }
 
-  lazy val diagnosticChildren = List(modelGroup)
+  lazy val diagnosticChildren: DiagnosticsList = List(modelGroup)
 }
 
 class GlobalComplexTypeDefFactory(val xml: Node, val schemaDocument: SchemaDocument)

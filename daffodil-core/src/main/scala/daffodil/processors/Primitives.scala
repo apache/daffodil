@@ -1239,7 +1239,8 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
 
       val (start1, nBits) = getBitLength(start0)
       val (start, bo) = getByteOrder(start1)
-      if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) PE(start, "Not enough bits to create an xs:" + primName)
+      if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits))
+        PE(start, "Not enough bits to create an xs:" + primName)
       else {
         val (value, newPos) = start.inStream.getBitSequence(start.bitPos, nBits, bo)
         //if (GramName == "hexBinary") {
@@ -2708,7 +2709,7 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
   val expr = e.expressionCompiler.compile(expressionTypeSymbol, exprText)
 }
 
-case class InputValueCalc(e: ElementBase with ElementDeclMixin)
+case class InputValueCalc(e: ElementBase)
   extends ExpressionEvaluatorBase(e) {
 
   val baseName = "InputValueCalc"
@@ -2739,7 +2740,7 @@ abstract class ExpressionEvaluationParser(context: ExpressionEvaluatorBase, e: A
   }
 }
 
-class IVCParser(context: InputValueCalc, e: ElementBase with ElementDeclMixin)
+class IVCParser(context: InputValueCalc, e: ElementBase)
   extends ExpressionEvaluationParser(context, e) {
   Assert.invariant(e.isSimpleType)
 
