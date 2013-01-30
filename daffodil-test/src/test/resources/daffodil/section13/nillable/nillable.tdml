@@ -120,6 +120,17 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="doc_08" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:initiator="[" dfdl:terminator="]">
+          <xs:element name="e1" nillable="true" type="xs:int"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="e2" nillable="true" type="xs:int"
+            dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="litNil1" root="doc"
@@ -276,6 +287,23 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nillable1" root="doc_08"
+    model="s1" description="literal nil - DFDL-13-234R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[[0,nil]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc_08>
+          <e1>0</e1>
+          <e2 xsi:nil="true" />
+        </doc_08>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
