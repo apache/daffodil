@@ -747,6 +747,12 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean)
 
   protected def getStringFormat(n: S): String
 
+  def compare(num1: Number, num2: Number) = {
+    val bd1 = new java.math.BigDecimal(num1.toString)
+    val bd2 = new java.math.BigDecimal(num2.toString)
+    bd1.compareTo(bd2)
+  }
+
   def parser: Parser = new PrimParser(this, e) {
     override def toString = "to(xs:" + GramName + ")"
 
@@ -791,8 +797,18 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean)
         // convert to proper type
         val asNumber = getNum(num)
 
+        // This isn't entirely correct, Number doesn't implement comparator
+        // must perform this check using BigDecimal.compareTo, found when implementing
+        // facets. 01/29/2013
+        //        // Verify no digits lost (the number was correctly transcribed)
+        //        if (isInt && asNumber.asInstanceOf[Number] != num) {
+        //          // Transcription error
+        //          return PE(start, "Convert to %s (for xs:%s): Invalid data: '%s' parsed into %s, which converted into %s.",
+        //            GramDescription, GramName, str, num, asNumber)
+        //        }
+
         // Verify no digits lost (the number was correctly transcribed)
-        if (isInt && asNumber.asInstanceOf[Number] != num) {
+        if (isInt && (compare(asNumber.asInstanceOf[Number], num) != 0)) {
           // Transcription error
           return PE(start, "Convert to %s (for xs:%s): Invalid data: '%s' parsed into %s, which converted into %s.",
             GramDescription, GramName, str, num, asNumber)
@@ -2921,13 +2937,59 @@ trait Padded { self: Terminal =>
   var padChar = ""
   lazy val eBase = self.context.asInstanceOf[ElementBase]
 
+  //  lazy val justificationTrim: TextJustificationType.Type = eBase.textTrimKind match {
+  //    case TextTrimKind.None => TextJustificationType.None
+  //    case TextTrimKind.PadChar if eBase.isSimpleType => {
+  //      val theJust = eBase.primType.name match {
+  //
+  //        case "int" | "byte" | "short" | "long" | "integer" | "unsignedInt" |
+  //          "unsignedByte" | "unsignedShort" | "unsignedLong" | "double" | "float" => {
+  //          padChar = eBase.textNumberPadCharacter
+  //          eBase.textNumberJustification match {
+  //            case TextNumberJustification.Left => TextJustificationType.Left
+  //            case TextNumberJustification.Right => TextJustificationType.Right
+  //            case TextNumberJustification.Center => TextJustificationType.Center
+  //          }
+  //        }
+  //        case "string" => {
+  //          padChar = eBase.textStringPadCharacter
+  //          eBase.textStringJustification match {
+  //            case TextStringJustification.Left => TextJustificationType.Left
+  //            case TextStringJustification.Right => TextJustificationType.Right
+  //            case TextStringJustification.Center => TextJustificationType.Center
+  //          }
+  //        }
+  //        case "dateTime" | "date" | "time" => {
+  //          padChar = eBase.textCalendarPadCharacter
+  //          eBase.textCalendarJustification match {
+  //            case TextCalendarJustification.Left => TextJustificationType.Left
+  //            case TextCalendarJustification.Right => TextJustificationType.Right
+  //            case TextCalendarJustification.Center => TextJustificationType.Center
+  //          }
+  //        }
+  //        case "boolean" => {
+  //          padChar = eBase.textBooleanPadCharacter
+  //          eBase.textBooleanJustification match {
+  //            case TextBooleanJustification.Left => TextJustificationType.Left
+  //            case TextBooleanJustification.Right => TextJustificationType.Right
+  //            case TextBooleanJustification.Center => TextJustificationType.Center
+  //          }
+  //        }
+  //        case _ => TextJustificationType.None
+  //      }
+  //      theJust
+  //    }
+  //    case _ => TextJustificationType.None
+  //  }
+
   lazy val justificationTrim: TextJustificationType.Type = eBase.textTrimKind match {
     case TextTrimKind.None => TextJustificationType.None
     case TextTrimKind.PadChar if eBase.isSimpleType => {
-      val theJust = eBase.primType.name match {
+      val theJust = eBase.primType.myPrimitiveType match {
 
-        case "int" | "byte" | "short" | "long" | "integer" | "unsignedInt" |
-          "unsignedByte" | "unsignedShort" | "unsignedLong" | "double" | "float" => {
+        case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
+          PrimType.Integer | PrimType.UInt | PrimType.UByte | PrimType.UShort |
+          PrimType.ULong | PrimType.Double | PrimType.Float => {
           padChar = eBase.textNumberPadCharacter
           eBase.textNumberJustification match {
             case TextNumberJustification.Left => TextJustificationType.Left
@@ -2935,7 +2997,7 @@ trait Padded { self: Terminal =>
             case TextNumberJustification.Center => TextJustificationType.Center
           }
         }
-        case "string" => {
+        case PrimType.String => {
           padChar = eBase.textStringPadCharacter
           eBase.textStringJustification match {
             case TextStringJustification.Left => TextJustificationType.Left
@@ -2943,7 +3005,7 @@ trait Padded { self: Terminal =>
             case TextStringJustification.Center => TextJustificationType.Center
           }
         }
-        case "dateTime" | "date" | "time" => {
+        case PrimType.DateTime | PrimType.Date | PrimType.Time => {
           padChar = eBase.textCalendarPadCharacter
           eBase.textCalendarJustification match {
             case TextCalendarJustification.Left => TextJustificationType.Left
@@ -2951,7 +3013,7 @@ trait Padded { self: Terminal =>
             case TextCalendarJustification.Center => TextJustificationType.Center
           }
         }
-        case "boolean" => {
+        case PrimType.Boolean => {
           padChar = eBase.textBooleanPadCharacter
           eBase.textBooleanJustification match {
             case TextBooleanJustification.Left => TextJustificationType.Left

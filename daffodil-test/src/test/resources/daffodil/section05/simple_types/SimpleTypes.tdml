@@ -370,7 +370,7 @@
     description="Test parsing when encountering a whitespace character during a invalid unsigned int - DFDL-5-018R">
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
-      <tdml:error />
+      <tdml:error>Left over data</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -515,18 +515,22 @@
     root="integer02" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character before a valid integer - DFDL-5-011R">
     <tdml:document><![CDATA[ 999]]></tdml:document>
-    <tdml:errors>
-      <tdml:error />
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+       <integer02>999</integer02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="whiteSpaceDuringValidInteger"
     root="integer02" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character during a valid integer - DFDL-5-011R">
     <tdml:document><![CDATA[9 99]]></tdml:document>
-    <tdml:errors>
-      <tdml:error />
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <integer02>999</integer02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 
@@ -787,18 +791,22 @@
     root="uL_04" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character before a valid unsigned long - DFDL-5-017R">
     <tdml:document><![CDATA[ 999]]></tdml:document>
-    <tdml:errors>
-      <tdml:error />
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uL_04>999</uL_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="whiteSpaceDuringValidUnsignedLong"
     root="uL_04" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character during a valid unsigned long - DFDL-5-017R">
     <tdml:document><![CDATA[9 99]]></tdml:document>
-    <tdml:errors>
-      <tdml:error />
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uL_04>999</uL_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
@@ -1292,7 +1300,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Subset Textual data elements cannot have lengthKind='implicit'</tdml:error>
+      <tdml:error>MaxLength was asked for when isSimpleType(true) and isPrimitiveType(true)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1397,7 +1405,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Subset Textual data elements cannot have lengthKind='implicit'</tdml:error>
+      <tdml:error>MaxLength was asked for when isSimpleType(true) and isPrimitiveType(true)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1502,7 +1510,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Subset Textual data elements cannot have lengthKind='implicit'</tdml:error>
+      <tdml:error>MaxLength was asked for when isSimpleType(true) and isPrimitiveType(true)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1606,7 +1614,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Subset Textual data elements cannot have lengthKind='implicit'</tdml:error>
+      <tdml:error>MaxLength was asked for when isSimpleType(true) and isPrimitiveType(true)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

@@ -65,6 +65,11 @@ import daffodil.dsom.GlobalElementDecl
 import daffodil.dsom.ElementBase
 import daffodil.dsom.EntityReplacer
 import daffodil.Implicits._
+import daffodil.dsom.PrimType
+import com.ibm.icu.text.DateFormat
+import com.ibm.icu.text.SimpleDateFormat
+import com.ibm.icu.util.TimeZone
+import com.ibm.icu.util.GregorianCalendar
 
 abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunction {
   val qName = new QName(XMLUtils.DFDL_NAMESPACE, name)
@@ -152,46 +157,250 @@ object DFDLStringFunction extends DFDLFunction("string", 1) {
 object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) {
   import daffodil.dsom.FacetTypes._
   import util.control.Breaks._
+  import daffodil.dsom.PrimType._
 
   def evaluate1(args: java.util.List[_], pstate: PState): Object = {
     // Assumes that a JDOM element was already created
     val expr = args.get(0)
     val currentElement = pstate.parentElement
     val e = getContext(pstate)
-    // We have an ElementBase, retrieve the constraints
-    val patterns = e.patternValues
     val data = currentElement.dataValue
-    if (!currentElement.isNil && patterns.size > 0) {
-      val check = checkPatterns(data, patterns)
-      if (!check) {
-        return java.lang.Boolean.FALSE
+    val primType = e.primType.myPrimitiveType
+
+    // TODO: Not SimpleType, issue an SDE
+    if (!e.isSimpleType) e.SDE("dfdl:checkConstraints may only be called on simple types.")
+
+    // We have an ElementBase, retrieve the constraints
+    if (e.hasPattern) {
+      val patterns = e.patternValues
+      if (!currentElement.isNil && patterns.size > 0) {
+        val check = checkPatterns(data, patterns)
+        if (!check) {
+          return java.lang.Boolean.FALSE
+        }
       }
     }
+
+    if (e.hasEnumeration) {
+      val enumerations = e.enumerationValues
+      if (!currentElement.isNil && enumerations.size > 0) {
+        val check = checkEnumerations(data, enumerations)
+        if (!check) {
+          return java.lang.Boolean.FALSE
+        }
+      }
+    }
+
+    // Check minLength
+    if (e.hasMinLength) {
+      val minLength = e.minLength
+      val isMinLengthGreaterThanEqToZero = minLength.compareTo(java.math.BigDecimal.ZERO) >= 0
+      if (!currentElement.isNil && isMinLengthGreaterThanEqToZero) {
+        if (!checkMinLength(data, minLength, e, primType)) return java.lang.Boolean.FALSE
+      }
+    }
+    // Check maxLength
+    if (e.hasMaxLength) {
+      val maxLength = e.maxLength
+      val isMaxLengthGreaterThanEqToZero = maxLength.compareTo(java.math.BigDecimal.ZERO) >= 0
+      if (!currentElement.isNil && isMaxLengthGreaterThanEqToZero) {
+        if (!checkMaxLength(data, maxLength, e, primType)) return java.lang.Boolean.FALSE
+      }
+    }
+    // Check minInclusive
+    if (e.hasMinInclusive) {
+      val minInclusive = e.minInclusive
+      if (!currentElement.isNil) {
+        if (!checkMinInc(data, minInclusive, primType, e)) return java.lang.Boolean.FALSE
+      }
+    }
+    // Check maxInclusive
+    if (e.hasMaxInclusive) {
+      val maxInclusive = e.maxInclusive
+      if (!currentElement.isNil) {
+        if (!checkMaxInc(data, maxInclusive, primType, e)) return java.lang.Boolean.FALSE
+      }
+    }
+    // Check minExclusive
+    if (e.hasMinExclusive) {
+      val minExclusive = e.minExclusive
+      if (!currentElement.isNil) {
+        if (!checkMinExc(data, minExclusive, primType, e)) return java.lang.Boolean.FALSE
+      }
+    }
+    // Check maxExclusive
+    if (e.hasMaxExclusive) {
+      val maxExclusive = e.maxExclusive
+      if (!currentElement.isNil) {
+        if (!checkMaxExc(data, maxExclusive, primType, e)) return java.lang.Boolean.FALSE
+      }
+    }
+    // Check totalDigits
+    if (e.hasTotalDigits) {
+      val totalDigits = e.totalDigits
+      val isTotalDigitsGreaterThanEqToZero = totalDigits.compareTo(java.math.BigDecimal.ZERO) >= 0
+      if (!currentElement.isNil && isTotalDigitsGreaterThanEqToZero) {
+        if (!checkTotalDigits(data, totalDigits)) return java.lang.Boolean.FALSE
+      }
+    }
+    // Check fractionDigits
+    if (e.hasFractionDigits) {
+      val fractionDigits = e.fractionDigits
+      val isFractionDigitsGreaterThanEqToZero = fractionDigits.compareTo(java.math.BigDecimal.ZERO) >= 0
+      if (!currentElement.isNil && isFractionDigitsGreaterThanEqToZero) {
+        if (!checkFractionDigits(data, fractionDigits)) return java.lang.Boolean.FALSE
+      }
+    }
+
     // Note: dont check occurs counts // if(!checkMinMaxOccurs(e, pstate.arrayPos)) { return java.lang.Boolean.FALSE }
     java.lang.Boolean.TRUE
   }
 
-  def checkPatterns(data: String, patterns: Seq[ElemFacetsR]): Boolean = {
-    var isSuccess: Boolean = false
+  def checkMinLength(data: String, minValue: java.math.BigDecimal,
+    e: ElementBase, primType: PrimType): java.lang.Boolean = {
+    primType match {
+      case PrimType.String => {
+        val bdData = new java.math.BigDecimal(data.length())
+        val isDataLengthLess = bdData.compareTo(minValue) < 0
+        if (isDataLengthLess) java.lang.Boolean.FALSE
+        else java.lang.Boolean.TRUE
+      }
+      case PrimType.HexBinary => {
+        // Has to come through as a string in infoset
+        // hex string is exactly twice as long as number of bytes
+        // take length / 2 = length
+        Assert.notYetImplemented("MinLength facet for hexBinary is not yet implemented.")
+      }
+      case _ => e.SDE("MinLength facet is only valid for string and hexBinary.")
+    }
+  }
+
+  def checkMaxLength(data: String, maxValue: java.math.BigDecimal,
+    e: ElementBase, primType: PrimType): java.lang.Boolean = {
+    primType match {
+      case PrimType.String => {
+        val bdData = new java.math.BigDecimal(data.length())
+        val isDataLengthGreater = bdData.compareTo(maxValue) > 0
+        if (isDataLengthGreater) java.lang.Boolean.FALSE
+        else java.lang.Boolean.TRUE
+      }
+      case PrimType.HexBinary => Assert.notYetImplemented("MaxLength facet for hexBinary is not yet implemented.")
+      case _ => e.SDE("MaxLength facet is only valid for string and hexBinary.")
+    }
+
+  }
+  
+  // TODO: Duplication of dateToBigDecimal in Types.scala, throw in a library?
+  def dateToBigDecimal(date: String, format: String, eb: ElementBase): java.math.BigDecimal = {
+    val df = new SimpleDateFormat(format)
+    df.setCalendar(new GregorianCalendar())
+    df.setTimeZone(TimeZone.GMT_ZONE)
+    val dt = try {
+      df.parse(date)
+    } catch {
+      case e: Exception => eb.SDE("Failed to parse date (%s) to format (%s)", date, format)
+    }
+    new java.math.BigDecimal(dt.getTime())
+  }
+
+  // TODO: Duplication of convertFacetToBigDecimal in Types.scala , throw in a library?
+  def convertDataToBigDecimal(data: String, primType: PrimType, e: ElementBase): java.math.BigDecimal = {
+    primType match {
+      case PrimType.DateTime => {
+        // TODO: Fractional seconds or not?
+        val f1 = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
+        val f2 = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+        dateToBigDecimal(data, f2, e)
+      }
+      case PrimType.Date => dateToBigDecimal(data, "yyyy-MM-dd", e)
+      case PrimType.Time => dateToBigDecimal(data, "HH:mm:ssZZZZZ", e)
+      case _ => new java.math.BigDecimal(data)
+    }
+  }
+
+  def checkMinInc(data: String, minValue: java.math.BigDecimal, primType: PrimType, e: ElementBase): Boolean = {
+    //    val bdData = new java.math.BigDecimal(data)
+    val bdData = convertDataToBigDecimal(data, primType, e)
+    val isDataGreaterThanEqToMinInc = bdData.compareTo(minValue) >= 0
+    isDataGreaterThanEqToMinInc
+  }
+
+  def checkMinExc(data: String, minValue: java.math.BigDecimal, primType: PrimType, e: ElementBase): Boolean = {
+    val bdData = convertDataToBigDecimal(data, primType, e)
+    val isDataGreaterThanEqToMinExc = bdData.compareTo(minValue) > 0
+    isDataGreaterThanEqToMinExc
+  }
+
+  def checkMaxInc(data: String, maxValue: java.math.BigDecimal, primType: PrimType, e: ElementBase): Boolean = {
+    val bdData = convertDataToBigDecimal(data, primType, e)
+    val isDataLessThanEqToMaxInc = bdData.compareTo(maxValue) <= 0
+    isDataLessThanEqToMaxInc
+  }
+
+  def checkMaxExc(data: String, maxValue: java.math.BigDecimal, primType: PrimType, e: ElementBase): Boolean = {
+    val bdData = convertDataToBigDecimal(data, primType, e)
+    val isDataLessThanMaxExc = bdData.compareTo(maxValue) < 0
+    isDataLessThanMaxExc
+  }
+
+  def checkTotalDigits(data: String, digits: java.math.BigDecimal): Boolean = {
+    // Per http://www.w3.org/TR/xmlschema-2/#rf-totalDigits
+    // |i| < 10^totalDigits
+    val number = new java.math.BigDecimal(scala.math.pow(10.0, digits.doubleValue()))
+    val biNumber = new java.math.BigInteger(number.intValueExact().toString())
+    val bdData = new java.math.BigDecimal(data).unscaledValue()
+    val isDataLessThanNumber = bdData.compareTo(biNumber) < 0
+    isDataLessThanNumber
+  }
+
+  def checkFractionDigits(data: String, digits: java.math.BigDecimal): Boolean = {
+    val bdData = new java.math.BigDecimal(data)
+    // Rounding HALF_DOWN prevents us from accidentally increasing the value.
+    val rounded = bdData.setScale(digits.intValue(), java.math.RoundingMode.HALF_DOWN)
+    val isDataSameAsRounded = bdData.compareTo(rounded) == 0
+    isDataSameAsRounded
+  }
+
+  def checkEnumerations(data: String, enumerations: String): Boolean = {
+    data.matches(enumerations)
+  }
+
+  def checkPatterns(data: String, patterns: Seq[FacetValueR]): Boolean = {
+    var isSuccess: Boolean = true
 
     breakable {
-      for (elem <- patterns) {
-        // each pattern with an elem is OR'd
-        // each pattern between elem's is AND'd
+      for (simpleType <- patterns) {
+        // each pattern within simpleType is OR'd
+        // each pattern between simpleType's is AND'd
 
-        // The way we have structured things we expect each simpleType
-        // to have only one (pattern, List(regex)) where the List
-        // represents all of the patterns that exist locally on this simpleType
-        val elemPatternList = elem(0)._2
-        breakable {
-          for (pattern <- elemPatternList) {
-            if (data.matches(pattern.toString())) {
-              isSuccess = true
-              break
-            } else { isSuccess = false }
-          }
+        // Each elem represents a simpleType
+        // each simpleType is allowed a facetPattern
+        // each facetPattern represents all patterns on this particular
+        // simpleType.
+        //
+        // Ex.
+        // <SimpleType name="A">
+        //   <restriction base="B">
+        //     <pattern value="1"/>
+        //     <pattern value="2"/>
+        //   </restriction>
+        // </SimpleType>
+        // 
+        // <SimpleType name="B">
+        //   <restriction base="int">
+        //     <pattern value="3"/>
+        //     <pattern value="4"/>
+        //   </restriction>
+        // </SimpleType>
+        //
+        // Here facetPattern for SimpleType-A = "1|2" (OR'd)
+        val (facetName, facetPattern) = simpleType
+
+        // All patterns between simpleTypes must match (AND'd)
+        if (!data.matches(facetPattern.toString())) {
+          isSuccess = false
+          break
         }
-        if (!isSuccess) { break }
       }
     }
     return isSuccess
@@ -257,8 +466,8 @@ object XPathUtil extends Logging {
    * a CompiledExpressionFactory
    */
   def compileExpression(dfdlExpressionRaw: String,
-                        namespaces: Seq[org.jdom.Namespace],
-                        context: SchemaComponent) =
+    namespaces: Seq[org.jdom.Namespace],
+    context: SchemaComponent) =
     // withLoggingLevel(LogLevel.Info) 
     {
       log(Debug("Compiling expression"))
@@ -370,7 +579,7 @@ object XPathUtil extends Logging {
    * @param namespaces  - the namespaces in scope
    */
   private[xpath] def evalExpressionFromString(expression: String, variables: VariableMap,
-                                              contextNode: Parent, namespaces: Seq[org.jdom.Namespace], targetType: QName = NODE): XPathResult = {
+    contextNode: Parent, namespaces: Seq[org.jdom.Namespace], targetType: QName = NODE): XPathResult = {
 
     val compiledExprExceptVariables = compileExpression(expression, namespaces, null) // null as schema component
     val res = evalExpression(expression, compiledExprExceptVariables, variables, contextNode, targetType)

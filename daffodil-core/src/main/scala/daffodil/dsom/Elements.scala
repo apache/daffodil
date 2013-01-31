@@ -151,6 +151,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     if (isFixedLength) length.constantAsLong else -1 // shouldn't even be asking for this if not isFixedLength 
   }
 
+  lazy val facetMaxLength = {
+    if (hasSpecifiedLength) maxLength.longValue() else -1L
+  }
+
   // if it is of simple type, then facets like length, maxLength, minLength are
   // attributes of the simple type def. You can't put them directly on an element.
 
@@ -244,24 +248,238 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   import daffodil.dsom.FacetTypes._
 
-  // 11/1/2012
-  lazy val patternValues: Seq[ElemFacetsR] = {
-    // TODO: Allowed only on xs:string
+  lazy val hasPattern: Boolean = {
     if (isSimpleType && !isPrimitiveType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      st.patternValues
-    } else Seq.empty
+      st.hasPattern
+    } else { false }
+  }
+  lazy val hasEnumeration: Boolean = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      st.hasEnumeration
+    } else { false }
   }
 
-  lazy val allFacets: Seq[ElemFacets] = {
+  lazy val hasMinLength = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      st.hasMinLength
+    } else { false }
+  }
+
+  lazy val hasMaxLength = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      st.hasMaxLength
+    } else { false }
+  }
+
+  lazy val hasMinInclusive = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      st.hasMinInclusive
+    } else { false }
+  }
+
+  lazy val hasMaxInclusive = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      st.hasMaxInclusive
+    } else { false }
+  }
+
+  lazy val hasMinExclusive = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      st.hasMinExclusive
+    } else { false }
+  }
+
+  lazy val hasMaxExclusive = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      st.hasMaxExclusive
+    } else { false }
+  }
+
+  lazy val hasTotalDigits = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      st.hasTotalDigits
+    } else { false }
+  }
+
+  lazy val hasFractionDigits = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      st.hasFractionDigits
+    } else { false }
+  }
+
+  lazy val patternValues: Seq[FacetValueR] = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      if (st.hasPattern) {
+        val pt = st.primitiveType.myPrimitiveType
+        if (pt != PrimType.String) context.SDE("Pattern is only allowed to be applied to string and types derived from string.")
+        st.patternValues
+      } else context.SDE("Pattern was not found in this context.")
+    } else context.SDE("Pattern was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+  }
+
+  lazy val enumerationValues: String = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      if (st.hasEnumeration) st.enumerationValues
+      else context.SDE("Enumeration was not found in this context.")
+    } else context.SDE("Enumeration was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+  }
+
+  lazy val minLength: java.math.BigDecimal = {
+    if (isSimpleType && !isPrimitiveType) {
+      // Facets cannot be applied to primitive types
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      val pt = st.primitiveType.myPrimitiveType
+      val lk = this.lengthKind
+      if (lk == LengthKind.Implicit && pt == PrimType.String) {
+        // minLength and maxLength must be equal
+        if (st.hasMinLength && st.hasMaxLength) {
+          val res = st.minLengthValue.compareTo(st.maxLengthValue)
+          if (res != 0) context.SDE("When LengthKind.Implicit for string, min and maxLength must be equal.")
+        } else context.SDE("When LengthKind.Implicit for string, min and maxLength must be specified and equal.")
+      }
+      if (st.hasMinLength) {
+        // May only apply to string/hexBinary
+        if ((pt != PrimType.String) && (pt != PrimType.HexBinary)) context.SDE("MinLength facet can only be applied to string or hexBinary.")
+        if (st.hasMaxLength) {
+          val res = st.minLengthValue.compareTo(st.maxLengthValue)
+          if (res > 0) context.SDE("MinLength facet must be <= MaxLength faet.")
+        }
+        st.minLengthValue
+      } else context.SDE("MinLength was not found in this context.")
+
+    } else context.SDE("MinLength was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+  }
+
+  lazy val maxLength: java.math.BigDecimal = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      val pt = st.primitiveType.myPrimitiveType
+      val lk = this.lengthKind
+      if (lk == LengthKind.Implicit && pt == PrimType.String) {
+        // minLength and maxLength must be equal
+        if (st.hasMinLength && st.hasMaxLength) {
+          val res = st.minLengthValue.compareTo(st.maxLengthValue)
+          if (res != 0) context.SDE("When LengthKind.Implicit for string, min and maxLength must be equal.")
+        } else context.SDE("When LengthKind.Implicit for string, min and maxLength must be specified and equal.")
+      }
+      if (st.hasMaxLength) {
+        // May only apply to string/hexBinary
+        if ((pt != PrimType.String) && (pt != PrimType.HexBinary)) context.SDE("MaxLength facet can only be applied to string or hexBinary.")
+        if (st.hasMinLength) {
+          val res = st.minLengthValue.compareTo(st.maxLengthValue)
+          if (res > 0) context.SDE("MinLength facet must be <= MaxLength facet.")
+        }
+        st.maxLengthValue
+      } else context.SDE("MaxLength was not found in this context.")
+
+    } else context.SDE("MaxLength was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+  }
+
+  lazy val minInclusive: java.math.BigDecimal = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      if (st.hasMinInclusive && st.hasMinExclusive) context.SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
+      if (st.hasMinInclusive && st.hasMaxExclusive) {
+        val res = st.minInclusiveValue.compareTo(st.maxExclusiveValue)
+        if (res > 0) context.SDE("MinInclusive(%s) must be less than or equal to MaxExclusive(%s).", st.minInclusiveValue, st.maxExclusiveValue)
+      }
+      if (st.hasMinInclusive) st.minInclusiveValue
+      else context.SDE("MinInclusive was not found in this context.")
+    } else context.SDE("MinInclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+  }
+
+  lazy val maxInclusive: java.math.BigDecimal = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      if (st.hasMaxInclusive && st.hasMaxExclusive) context.SDE("MaxInclusive and MaxExclusive cannot be specified for the same simple type.")
+      if (st.hasMaxInclusive && st.hasMinExclusive) {
+        val res = st.minExclusiveValue.compareTo(st.maxInclusiveValue)
+        if (res > 0) context.SDE("MinExclusive(%s) must be less than or equal to MaxInclusive(%s)", st.minExclusiveValue, st.maxInclusiveValue)
+      }
+      if (st.hasMaxInclusive) st.maxInclusiveValue
+      else context.SDE("MaxInclusive was not found in this context.")
+    } else context.SDE("MaxInclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+  }
+
+  lazy val minExclusive: java.math.BigDecimal = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      if (st.hasMinInclusive && st.hasMinExclusive) context.SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
+      if (st.hasMaxInclusive && st.hasMinExclusive) {
+        val res = st.minExclusiveValue.compareTo(st.maxInclusiveValue)
+        if (res > 0) context.SDE("MinExclusive(%s) was not less than or equal to MaxInclusive(%s)", st.minExclusiveValue, st.maxInclusiveValue)
+      }
+      if (st.hasMinExclusive) st.minExclusiveValue
+      else context.SDE("MinExclusive was not found in this context.")
+    } else context.SDE("MinExclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+  }
+
+  lazy val maxExclusive: java.math.BigDecimal = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      if (st.hasMaxExclusive && st.hasMaxInclusive) context.SDE("MaxExclusive and MaxInclusive cannot be specified for the same simple type.")
+      if (st.hasMaxExclusive && st.hasMinInclusive) {
+        val res = st.minInclusiveValue.compareTo(st.maxExclusiveValue)
+        if (res > 0) context.SDE("MinInclusive(%s) must be less than or equal to MaxExclusive(%s)", st.minInclusiveValue, st.maxExclusiveValue)
+      }
+      if (st.hasMaxExclusive) st.maxExclusiveValue
+      else context.SDE("MaxExclusive was not found in this context.")
+    } else context.SDE("MaxExclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+  }
+
+  lazy val totalDigits: java.math.BigDecimal = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      if (st.hasTotalDigits) {
+        // Can only be applied to decimal or any of the integer types, and
+        // types derived from them
+        val isDerivedFromDecimal = st.isXDerivedFromY(st.primitiveType.name, "decimal")
+        val isDerivedFromInteger = st.isXDerivedFromY(st.primitiveType.name, "integer")
+        if (isDerivedFromDecimal || isDerivedFromInteger) st.totalDigitsValue
+        else {
+          context.SDE("TotalDigits facet can only be applied to decimal or any of the integer types, and types derived from them. Restriction base is %s", st.primitiveType.name)
+        }
+      } else context.SDE("TotalDigits was not found in this context.")
+    } else context.SDE("TotalDigits was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+  }
+
+  lazy val fractionDigits: java.math.BigDecimal = {
+    if (isSimpleType && !isPrimitiveType) {
+      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+      if (st.hasFractionDigits) {
+        // Can only be applied to decimal
+        val isDerivedFromDecimal = st.isXDerivedFromY(st.primitiveType.name, "decimal")
+        if (isDerivedFromDecimal) {
+          if (st.hasTotalDigits) {
+            val res = st.fractionDigitsValue.compareTo(st.totalDigitsValue)
+            if (res > 0) context.SDE("FractionDigits facet must not exceed TotalDigits.")
+          }
+          st.fractionDigitsValue
+        } else {
+          context.SDE("FractionDigits facet can only be applied to decimal. Restriction base is %s", st.primitiveType.name)
+        }
+      } else context.SDE("FractionDigits was not found in this context.")
+    } else context.SDE("FractionDigits was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+  }
+
+  lazy val allFacets: Seq[FacetValue] = {
     if (isSimpleType && !isPrimitiveType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.combinedBaseFacets
     } else scala.collection.mutable.Seq.empty
   }
-
-  // 11/1/2012
-  lazy val hasPatternValue: Boolean = patternValues.length > 0
 
   /**
    * Does the element have a default value?
