@@ -10,3 +10,6 @@ addSbtPlugin("de.johoop" % "jacoco4sbt" % "1.2.4")
 
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-start-script" % "0.6.0")
+
+
+addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.7")

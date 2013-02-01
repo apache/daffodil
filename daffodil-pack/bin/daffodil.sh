@@ -22,7 +22,8 @@
 
 
 MAINCLASS=edu.illinois.ncsa.daffodil.Main
-LIBDIR="../lib"
+BINDIR="$( cd "$( dirname "$0" )" && pwd )"
+LIBDIR=$(realpath "$BINDIR/../lib")
 CLASSPATH=$(find $LIBDIR -name '*.jar' | xargs echo | tr ' ' ':')
 
 JOPTS="-Xms1024m -Xmx1024m -XX:MaxPermSize=256m -XX:ReservedCodeCacheSize=128m"

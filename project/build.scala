@@ -64,7 +64,8 @@ object DaffodilBuild extends Build {
   lazy val debugSettings: Seq[Setting[_]] = inConfig(DebugTest)(Defaults.testSettings ++ Seq(
     sourceDirectory <<= baseDirectory(_ / "src" / "test"),
     scalaSource <<= sourceDirectory(_ / "scala-debug"),
-    exportJars := false
+    exportJars := false,
+    publishArtifact := false
   ))
   s ++= Seq(debugSettings : _*)
 
@@ -84,7 +85,9 @@ object DaffodilBuild extends Build {
   lazy val newSettings: Seq[Setting[_]] = inConfig(NewTest)(Defaults.testSettings ++ Seq(
     sourceDirectory <<= baseDirectory(_ / "src" / "test"),
     scalaSource <<= sourceDirectory(_ / "scala-new"),
-    exportJars := false
+    exportJars := false,
+    publishArtifact := false
+
   ))
   s ++= Seq(newSettings : _*)
 
@@ -115,7 +118,7 @@ object DaffodilBuild extends Build {
   // get the version from the latest tag
   s ++= Seq(version := {
     val r = java.lang.Runtime.getRuntime()
-    val p = r.exec("git describe --abbre=0 HEAD")
+    val p = r.exec("git describe HEAD")
     p.waitFor()
     val ret = p.exitValue()
     if (ret != 0) {
@@ -123,7 +126,14 @@ object DaffodilBuild extends Build {
     }
     val b = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream))
     val version = b.readLine()
-    version
+    val parts = version.split("-")
+    val res =
+      if (parts.length == 1) {
+        parts(0)
+      } else {
+        parts(0) + "-SNAPSHOT"
+      }
+    res
   })
 
   def gitShortHash(): String = {
@@ -142,7 +152,13 @@ object DaffodilBuild extends Build {
 
   // update the manifest version to include the git hash
   lazy val manifestVersion = packageOptions in (Compile, packageBin) <++= version map { v => {
-    val version = "%s-%s".format(v, gitShortHash)
+    val parts = v.split("-")
+    val version =
+      if (parts.length == 1) {
+        "%s-%s".format(parts(0), gitShortHash)
+      } else {
+        "%s-%s [SNAPSHOT]".format(parts(0), gitShortHash)
+      }
     Seq(
       Package.ManifestAttributes(java.util.jar.Attributes.Name.IMPLEMENTATION_VERSION -> version),
       Package.ManifestAttributes(java.util.jar.Attributes.Name.SPECIFICATION_VERSION -> version)
