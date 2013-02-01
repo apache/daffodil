@@ -15,7 +15,11 @@ import daffodil.debugger.Debugger
 class TestDFDLExpressions extends JUnitSuite {
   val testDir = "/daffodil/section23/dfdl_expressions/"
   val tdml = testDir + "expressions.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)
+
+  @Test def test_expressionRules01() { runner.runOneTest("expressionRules01") }
+  @Test def test_expressionRules02() { runner.runOneTest("expressionRules02") }
+//  @Test def test_expressionRules03() { runner.runOneTest("expressionRules03") }
 
   @Test def test_expressions_lke1_rel() { runner.runOneTest("lke1_rel") }
   @Test def test_expressions_lke1_abs() { runner.runOneTest("lke1_abs") }
@@ -69,4 +73,5 @@ class TestDFDLExpressions extends JUnitSuite {
   @Test def test_functionFail01() { runner_fun.runOneTest("functionFail01") }
   @Test def test_functionFail02() { runner_fun.runOneTest("functionFail02") }
   @Test def test_functionFail03() { runner_fun.runOneTest("functionFail03") }
+
 }

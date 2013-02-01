@@ -1434,5 +1434,110 @@
       <tdml:error>Value '0' is not facet-valid with respect to enumeration</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="expressionRules">
+
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+      lengthUnits="bytes" encoding="US-ASCII" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="text" />
+
+    <xs:element name="e_01" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=".">
+          <xs:element name="e1" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="e2" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{fn:concat(../ex:e1, '}')}" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e_02" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=".">
+          <xs:element name="e1" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="e2" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{'}'}" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+<!--    
+    <xs:element name="e_03" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=".">
+          <xs:element name="e1" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="e2" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{{" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+-->
+  </tdml:defineSchema>
+
+<!--
+     Test Name: expressionRules01
+        Schema: expressionRules
+          Root: e_01
+       Purpose: This test demonstrates that { used anywhere but the first position in an expression is treated as a literal 
+-->
+  
+  <tdml:parserTestCase name="expressionRules01" root="e_01"
+    model="expressionRules" description="Section 6 - DFDL Expressions - DFDL-06-076R">
+
+    <tdml:document>3</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e_01>
+          <ex:e1>3</ex:e1>
+          <ex:e2>3}</ex:e2>
+        </ex:e_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: expressionRules02
+        Schema: expressionRules
+          Root: e_02
+       Purpose: This test demonstrates that } used anywhere but the first position in an expression is treated as a literal 
+-->
+  
+  <tdml:parserTestCase name="expressionRules02" root="e_02"
+    model="expressionRules" description="Section 6 - DFDL Expressions - DFDL-06-077R">
+
+    <tdml:document>3</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e_02>
+          <ex:e1>3</ex:e1>
+          <ex:e2>}</ex:e2>
+        </ex:e_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: expressionRules03
+        Schema: expressionRules
+          Root: e_03
+       Purpose: This test demonstrates that {{ as the first characters are treated as the literal '{' and not a DFDL expression 
+-->
+  
+  <tdml:parserTestCase name="expressionRules03" root="e_03"
+    model="expressionRules" description="Section 6 - DFDL Expressions - DFDL-06-078R">
+
+    <tdml:document>3</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e_01>
+          <ex:e1>3</ex:e1>
+          <ex:e2>}</ex:e2>
+        </ex:e_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
