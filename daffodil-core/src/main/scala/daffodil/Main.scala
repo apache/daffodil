@@ -93,7 +93,7 @@ object Main {
     processor
   }
 
-  def main(arguments: Array[String]): Unit = {
+  def run(arguments: Array[String]): Int = {
     object Conf extends scallop.ScallopConf(arguments) {
 
       // This essentially reimplements the listArgConverter in scallop to not
@@ -259,7 +259,7 @@ object Main {
       Debugger.setDebugging(true)
 
 
-    Conf.subcommand match {
+    val ret = Conf.subcommand match {
       
       case Some(Conf.parse) => {
         val parseOpts = Conf.parse
@@ -278,7 +278,7 @@ object Main {
         }
         val inChannel = java.nio.channels.Channels.newChannel(input);
 
-        val result = DebugUtil.time("Parsing", processor.parse(inChannel).result)
+        val parseResult = DebugUtil.time("Parsing", processor.parse(inChannel))
         
         val output = parseOpts.output.get match {
           case Some("-") | None => System.out
@@ -286,8 +286,10 @@ object Main {
         }
         val writer: BufferedWriter = new BufferedWriter(new OutputStreamWriter(output));
 
-        DebugUtil.time("Writing", writer.write(result.toString + "\n"))
+        DebugUtil.time("Writing", writer.write(parseResult.result.toString + "\n"))
         writer.flush()
+
+        if (parseResult.isError) 1 else 0
       }
 
 
@@ -308,17 +310,16 @@ object Main {
         }
 
         val outChannel = java.nio.channels.Channels.newChannel(output)
-        try {
-          val loader = new DaffodilXMLLoader(new CommandLineXMLLoaderErrorHandler)
-          loader.setValidation(true)
-          val document = unparseOpts.input.get match {
-            case Some("-") | None => loader.load(System.in)
-            case Some(file) => loader.loadFile(file)
-          }
-          DebugUtil.time("Unparsing infoset", processor.unparse(outChannel, document))
-        } finally {
-          output.close()
+        val loader = new DaffodilXMLLoader(new CommandLineXMLLoaderErrorHandler)
+        loader.setValidation(true)
+        val document = unparseOpts.input.get match {
+          case Some("-") | None => loader.load(System.in)
+          case Some(file) => loader.loadFile(file)
         }
+        val unparseResult =  DebugUtil.time("Unparsing infoset", processor.unparse(outChannel, document))
+        output.close()
+
+        if (unparseResult.isError) 1 else 0
       }
 
       case Some(Conf.save) => {
@@ -332,7 +333,9 @@ object Main {
         }
 
         val outChannel = java.nio.channels.Channels.newChannel(output)
-        DebugUtil.time("Saving parser", processor.save(outChannel))
+        val saveResult = DebugUtil.time("Saving parser", processor.save(outChannel))
+
+        0
       }
 
       case Some(Conf.test) => {
@@ -422,14 +425,45 @@ object Main {
             }
           }
         }
+        0
       }
 
       case _ => {
         // This should never happen, this is caught by validation
         Assert.impossible()
+        1
       }
     }
 
-    System exit (0)
+    ret
+  }
+
+  def bugFound(e: Exception): Int = {
+    System.err.println("""|
+                          |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                          |!!    An unexpected exception occured. This is a bug!   !!
+                          |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                          |
+                          | Please help us fix this by opening a bug report at:
+                          |
+                          |  https://opensource.ncsa.illinois.edu/jira/browse/DFDL
+                          |
+                          | Please include the following exception, the command you
+                          | ran, and any input, schema, or tdml files used that led
+                          | this bug.
+                          |
+                          |""".stripMargin)
+    e.printStackTrace
+    1
+  }
+
+  def main(arguments: Array[String]): Unit = {
+    val ret = try {
+      run(arguments)
+    } catch {
+      case e: Exception => bugFound(e)
+    }
+
+    System.exit(ret)
   }
 }
