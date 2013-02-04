@@ -355,13 +355,37 @@ object Main {
           } else {
             tdmlRunner.testCases.map(test => (test.name, Some(test)))
           }
-        }.distinct
+        }.distinct.sortBy(_._1)
        
         if (testOpts.list()) {
-          tests.foreach{ testPair =>
-            testPair match {
-              case (name, Some(test)) => println("%s: %s".format(name, test.description))
-              case (name, None) => println("%s: Missing".format(name))
+          if (Conf.verbose()) {
+            // determine the max lengths of the various pieces of atest
+            val headers = List("Name", "Model", "Root", "Description")
+            val maxCols = tests.foldLeft(headers.map(_.length)) {
+              (maxVals, testPair) => {
+                testPair match {
+                  case (name, None) => maxVals
+                  case (name, Some(test)) => List(maxVals(0).max(name.length),
+                                                  maxVals(1).max(test.model.length),
+                                                  maxVals(2).max(test.root.length),
+                                                  maxVals(3).max(test.description.length))
+                }
+              }
+            }
+            val formatStr = maxCols.map(max => "%" + -max + "s").mkString("  ")
+            println(formatStr.format(headers:_*))
+            tests.foreach{ testPair =>
+              testPair match {
+                case (name, Some(test)) => println(formatStr.format(name, test.model, test.root, test.description))
+                case (name, None) => println("%s [Missing]".format(name))
+              }
+            }
+          } else {
+            tests.foreach{ testPair =>
+              testPair match {
+                case (name, Some(test)) => println(name)
+                case (name, None) => println("%s [Missing]".format(name))
+              }
             }
           }
         } else {
