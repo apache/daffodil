@@ -111,12 +111,15 @@ object Main {
     processor
   }
 
-  def createProcessorFromSchemas(schemaFiles: List[String], root: Option[String], namespace: Option[String], path: Option[String]) = {
+  def createProcessorFromSchemas(schemaFiles: List[String], root: Option[String], namespace: Option[String], path: Option[String], vars: Map[String, String]) = {
     val compiler = Compiler()
+
+    val ns = namespace.getOrElse(null)
+
+    vars foreach { case (key, value) => compiler.setExternalDFDLVariable(key, ns, value) }
 
     root match {
       case Some(r) => {
-        val ns = namespace.getOrElse(null)
         compiler.setDistinguishedRootNode(r, ns)
       }
       case None => //ignore 
@@ -224,10 +227,11 @@ object Main {
         descr("save a daffodil parser for reuse")
 
         val schemas = opt[List[String]]("schema", argName="file", required=true, descr="the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
-        val root    = opt[String]("root", argName="node", descr="the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
+        val root    = opt[String]("root", argName="node", descr="the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema.")
         val ns      = opt[String]("namespace", argName="ns", descr="the namespace of the root element. Requires --root.")
         val path    = opt[String]("path", argName="path", descr="path to the node to create parser.")
-        val output  = trailArg[String]("outfile", required=false, descr="output file to save parser. If not specified, or a value of -, writes to stdout")
+        val output  = trailArg[String]("outfile", required=false, descr="output file to save parser. If not specified, or a value of -, writes to stdout.")
+        val vars    = props[String]('D', keyName="variable", valueName="value", descr="variables to be used.")
       }
 
       // Test Subcommand Options
@@ -302,7 +306,7 @@ object Main {
           if (parseOpts.parser.isDefined) {
             createProcessorFromParser(parseOpts.parser(), parseOpts.path.get)
           } else {
-            createProcessorFromSchemas(parseOpts.schemas(), parseOpts.root.get, parseOpts.ns.get, parseOpts.path.get)
+            createProcessorFromSchemas(parseOpts.schemas(), parseOpts.root.get, parseOpts.ns.get, parseOpts.path.get, parseOpts.vars)
           }
         }
 
@@ -335,7 +339,7 @@ object Main {
           if (unparseOpts.parser.isDefined) {
             createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.get)
           } else {
-            createProcessorFromSchemas(unparseOpts.schemas(), unparseOpts.root.get, unparseOpts.ns.get, unparseOpts.path.get)
+            createProcessorFromSchemas(unparseOpts.schemas(), unparseOpts.root.get, unparseOpts.ns.get, unparseOpts.path.get, unparseOpts.vars)
           }
         }
 
@@ -360,7 +364,7 @@ object Main {
       case Some(Conf.save) => {
         val saveOpts = Conf.save
 
-        val processor = createProcessorFromSchemas(saveOpts.schemas(), saveOpts.root.get, saveOpts.ns.get, saveOpts.path.get)
+        val processor = createProcessorFromSchemas(saveOpts.schemas(), saveOpts.root.get, saveOpts.ns.get, saveOpts.path.get, saveOpts.vars)
 
         val output = saveOpts.output.get match {
           case Some("-") | None => System.out

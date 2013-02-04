@@ -55,9 +55,9 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/xml-resolver/xml-resolver/xml-resolver-1.2.jar" sourcepath="lib_managed/srcs/xml-resolver/xml-resolver/xml-resolver-1.2-sources.jar"/>
-	<classpathentry kind="lib" path="lib_managed/jars/org.rogach/scallop_2.9.2/scallop_2.9.2-0.7.0.jar" sourcepath="lib_managed/srcs/org.rogach/scallop_2.9.2/scallop_2.9.2-0.7.0-sources.jar">
+	<classpathentry kind="lib" path="lib_managed/jars/org.rogach/scallop_2.9.2/scallop_2.9.2-0.8.0.jar" sourcepath="lib_managed/srcs/org.rogach/scallop_2.9.2/scallop_2.9.2-0.8.0-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-core/lib_managed/docs/org.rogach/scallop_2.9.2/scallop_2.9.2-0.7.0-javadoc.jar!/"/>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-core/lib_managed/docs/org.rogach/scallop_2.9.2/scallop_2.9.2-0.8.0-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/com.github.stefanbirkner/system-rules/system-rules-1.2.0.jar" sourcepath="lib_managed/srcs/com.github.stefanbirkner/system-rules/system-rules-1.2.0-sources.jar">

@@ -21,7 +21,7 @@ libraryDependencies in ThisBuild := Seq(
   "xerces" % "xercesImpl" % "2.10.0",
   "xml-resolver" % "xml-resolver" % "1.2",
   "org.scalatest" %% "scalatest" % "1.6.1",
-  "org.rogach" %% "scallop" % "0.7.0"
+  "org.rogach" %% "scallop" % "0.8.0"
 )
 
 retrieveManaged := true
