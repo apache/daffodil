@@ -49,6 +49,11 @@ class TestDFDLExpressions extends JUnitSuite {
   val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)
+  
+  @Test def test_regexLookahead() { runner.runOneTest("regexLookahead") }
+  @Test def test_regexLookaheadFail() { runner.runOneTest("regexLookaheadFail") }
+  @Test def test_regexLookaheadFail2() { runner.runOneTest("regexLookaheadFail2") }
+//  @Test def test_regexCompatFail() { runner.runOneTest("regexCompatFail") }
 
   @Test def test_expressionRules01() { runner.runOneTest("expressionRules01") }
   @Test def test_expressionRules02() { runner.runOneTest("expressionRules02") }

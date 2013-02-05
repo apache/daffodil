@@ -5,6 +5,67 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ex="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
+  <tdml:defineSchema name="newRegex">
+    <dfdl:format ref="ex:daffodilTest1" />
+    
+    <xs:simpleType name="st1">
+      <xs:restriction base="xs:string">
+        <xs:pattern value="\d\d(?=\D+)" />
+      </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:element name="s3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="st1" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="s1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="\d\d(?=\D+)"/>
+          <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="s2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="pattern" dfdl:lengthPattern="\d\d(?=\D+)">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:assert testKind="pattern" testPattern="\d\d(?=\D+)"
+                  message="Assertion failed for pattern '\d\d'" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="s4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="\U0010ffff"/>
+          <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
   <tdml:defineSchema name="lke1_rel">
     <dfdl:format ref="ex:daffodilTest1" />
 
@@ -1536,6 +1597,82 @@
           <ex:e1>3</ex:e1>
           <ex:e2>}</ex:e2>
         </ex:e_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: regexLookahead
+        Schema: newRegex 
+          Root: s1
+       Purpose: This test demonstrates the use of a lookahead regex to determine the length
+-->
+  
+  <tdml:parserTestCase name="regexLookahead" root="s1"
+    model="newRegex" description="Section -  - DFDL-R">
+
+    <tdml:document>45someletters</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <s1>
+          <e1>45</e1>
+          <extra>someletters</extra>
+        </s1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: regexLookaheadFail
+        Schema: newRegex 
+          Root: s1
+       Purpose: This test demonstrates the case that a lookahead regex fails to find a match 
+-->
+  
+  <tdml:parserTestCase name="regexLookaheadFail" root="s1"
+    model="newRegex" description="Section -  - DFDL-R">
+
+    <tdml:document>45</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>StringPatternMatched</tdml:error>
+      <tdml:error>No match found!</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: regexLookaheadFail2
+        Schema: newRegex 
+          Root: s3
+       Purpose: This test demonstrates that the pattern facet uses the XML Schema Regex library, which does not have lookaheads
+-->
+  
+  <tdml:parserTestCase name="regexLookaheadFail2" root="s3"
+    model="newRegex" description="Section -  - DFDL-R">
+
+    <tdml:document>45someletters</tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed for dfdl:checkConstraints</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: regexCompatFail
+        Schema: newRegex 
+          Root: s4
+       Purpose: This test
+-->
+  
+  <tdml:parserTestCase name="regexCompatFail" root="s4"
+    model="newRegex" description="Section -  - DFDL-R">
+
+    <tdml:document>45someletters</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <s1>
+          <e1>45</e1>
+          <extra>someletters</extra>
+        </s1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
