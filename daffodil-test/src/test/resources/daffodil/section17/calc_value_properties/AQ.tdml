@@ -56,4 +56,46 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:defineSchema name="AQ_neg.dfdl.xsd">
+    <dfdl:format ref="ex:daffodilTest1" separator=""
+      initiator="" terminator="" emptyValueDelimiterPolicy="none"
+      textNumberRep="standard" representation="text"
+      occursCountKind="stopValue" lengthKind="delimited" lengthUnits="bytes"
+      encoding="US-ASCII" ignoreCase="no" />
+    <!-- Basic Math in DFDL Representations -->
+    <xs:element name="ROOT">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="x" type="xsd:float"
+            dfdl:terminator="," dfdl:encoding="US-ASCII" />
+          <xs:element name="y" type="xsd:float"
+            dfdl:encoding="US-ASCII" dfdl:terminator="%NL;%WSP*;" />
+          <xs:element name="Multiply" type="xsd:float"
+            dfdl:inputValueCalc="{ ../tns:x * ../tns:y }" />
+          <xs:element name="Add" type="xsd:float"
+            dfdl:inputValueCalc="{ ../tns:x + ../tns:y }" />
+          <xs:element name="Substract" type="xsd:float"
+            dfdl:inputValueCalc="{ ../tns:x - ../tns:y }" />
+          <xs:element name="SubstractLiteral" type="xsd:float"
+            dfdl:inputValueCalc="{ ../tns:x - 2 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="AQ001" root="ROOT"
+    model="AQ_neg.dfdl.xsd"
+    description="Section 17 Tests variables, arithmetic, and inputValueCalc - DFDL-17-007R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[10.5,12.01
+ ]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schemadefinitionerror</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
 </tdml:testSuite>
