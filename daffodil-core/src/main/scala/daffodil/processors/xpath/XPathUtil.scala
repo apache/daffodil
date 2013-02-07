@@ -70,6 +70,8 @@ import com.ibm.icu.text.DateFormat
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.GregorianCalendar
+import daffodil.processors.UState
+import scala.xml.NodeSeq
 
 abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunction {
   val qName = new QName(XMLUtils.DFDL_NAMESPACE, name)
@@ -151,6 +153,203 @@ object DFDLStringFunction extends DFDLFunction("string", 1) {
     val dfdlString = EntityReplacer.replaceAll(xmlString)
     val remappedString = XMLUtils.remapXMLIllegalCharactersToPUA(dfdlString)
     remappedString
+  }
+}
+
+object DFDLContentLengthFunction extends DFDLFunction("contentLength", 2) {
+  def evaluate1(args: java.util.List[_], pstate: PState): Object = {
+    pstate.failed("dfdl:contentLength is not valid during parsing.")
+  }
+  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
+    Assert.notYetImplemented("dfdl:contentLength for unparsing")
+  }
+}
+
+object DFDLValueLengthFunction extends DFDLFunction("valueLength", 2) {
+  def evaluate1(args: java.util.List[_], pstate: PState): Object = {
+    pstate.failed("dfdl:valueLength is not valid during parsing.")
+  }
+  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
+    Assert.notYetImplemented("dfdl:valueLength for unparsing")
+  }
+}
+
+object DFDLTestBitFunction extends DFDLFunction("testBit", 2) {
+
+  def evaluate1(args: java.util.List[_], pstate: PState): Object = {
+    val context = getContext(pstate)
+    val (data, bitPos) = processArgs(args, context)
+    testBit(data, bitPos)
+  }
+  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
+    Assert.notYetImplemented("dfdl:testBit for unparsing")
+  }
+
+  def processArgs(args: java.util.List[_], context: ElementBase): (Int, Int) = {
+    val data = args.get(0)
+    val bitPos = args.get(1)
+
+    // According to spec, data should be a byte-value
+    val dataInt = data match {
+      case i: Int => {
+        if (i > 255 || i < 0) { context.SDE("dfdl:testBit $data must be a an Integer that exists within the value-space of byte.") }
+        i
+      }
+      case bi: java.math.BigInteger => {
+        val lessThanZero = bi.compareTo(java.math.BigInteger.ZERO) < 0
+        val greaterThan255 = bi.compareTo(new java.math.BigInteger("255")) > 0
+        if (lessThanZero || greaterThan255) context.SDE("dfdl:testBit requires $data value to be in the value-space of Byte (0-255)")
+        bi.intValue()
+      }
+      case b: Byte => b.toInt
+      case e: Element => {
+        val v = e.getText
+        val i = try { Integer.parseInt(v) } catch {
+          case e: Exception => context.SDE("dfdl:testBit unable to parse (%s) to Integer.", v)
+        }
+        if (i > 255 || i < 0) { context.SDE("dfdl:testBit $data must be a an Integer that exists within the value-space of byte.") }
+        i
+      }
+      case t: Text => {
+        val v = t.getText()
+        val i = try { Integer.parseInt(v) } catch {
+          case e: Exception => context.SDE("dfdl:testBit unable to parse (%s) to Integer.", v)
+        }
+        if (i > 255 || i < 0) { context.SDE("dfdl:testBit $data must be a an Integer that exists within the value-space of byte.") }
+        i
+      }
+      case _ => context.SDE("dfdl:testBit requires $data to be an Integer.")
+    }
+    val bitPosInt = bitPos match {
+      case i: Int => {
+        // Assumes bitPos 0-7
+        if (i < 0 || i > 7) { context.SDE("dfdl:testBit requires $bitPos to be an Integer value 0-7.") }
+        i
+      }
+      case bi: java.math.BigInteger => {
+        val lessThanZero = bi.compareTo(java.math.BigInteger.ZERO) < 0
+        val greaterThan7 = bi.compareTo(new java.math.BigInteger("7")) > 0
+        if (lessThanZero || greaterThan7) context.SDE("dfdl:testBit requires $bitPos to be an Integer value 0-7.")
+        bi.intValue()
+      }
+      case _ => context.SDE("dfdl:testBit requires $bitPos to be an Integer")
+    }
+    (dataInt, bitPosInt)
+  }
+  def testBit(data: Int, bitPos: Int): java.lang.Boolean = {
+    // Assume 8-bit
+    val shifted = data >>> bitPos
+    val maskedVal = shifted & 1
+    if (maskedVal == 1) java.lang.Boolean.TRUE
+    else java.lang.Boolean.FALSE
+  }
+}
+
+object DFDLSetBitsFunction extends DFDLFunction("setBits", 8) {
+
+  def evaluate1(args: java.util.List[_], pstate: PState): Object = {
+    val context = getContext(pstate)
+    setBits(args, context)
+  }
+  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
+    Assert.notYetImplemented("dfdl:setBits for unparsing")
+  }
+  def processValue(value: Any, context: ElementBase): Boolean = {
+    value match {
+      case i: Integer => {
+        if (i < 0 || i > 1) context.SDE("dfdl:setBits $bitX must be 0 or 1")
+        if (i == 0) false
+        else true
+      }
+      case bi: java.math.BigInteger => {
+        val lessThanZero = bi.compareTo(java.math.BigInteger.ZERO) < 0
+        val greaterThanOne = bi.compareTo(new java.math.BigInteger("1")) > 0
+        if (lessThanZero || greaterThanOne) context.SDE("dfdl:setBits requires $bitX to be an Integer value 0 or 1.")
+        val i = bi.intValue()
+        if (i == 0) false
+        else true
+      }
+      case e: Element => {
+        val v = e.getText
+        val i = try { Integer.parseInt(v) } catch {
+          case e: Exception => context.SDE("dfdl:setBits unable to parse (%s) to Integer.", v)
+        }
+        if (i > 1 || i < 0) { context.SDE("dfdl:setBits requires $bitX to be an Integer value 0 or 1.") }
+        if (i == 0) false
+        else true
+      }
+      case t: Text => {
+        val v = t.getText()
+        val i = try { Integer.parseInt(v) } catch {
+          case e: Exception => context.SDE("dfdl:setBits unable to parse (%s) to Integer.", v)
+        }
+        if (i > 1 || i < 0) { context.SDE("dfdl:setBits requires $bitX to be an Integer value 0 or 1.") }
+        if (i == 0) false
+        else true
+      }
+      case _ => context.SDE("dfdl:setBits $bitX must be an Integer of a value 0 or 1")
+    }
+  }
+  def setBits(args: java.util.List[_], context: ElementBase): java.lang.Integer = {
+    val bp0 = processValue(args.get(0), context)
+    val bp1 = processValue(args.get(1), context)
+    val bp2 = processValue(args.get(2), context)
+    val bp3 = processValue(args.get(3), context)
+    val bp4 = processValue(args.get(4), context)
+    val bp5 = processValue(args.get(5), context)
+    val bp6 = processValue(args.get(6), context)
+    val bp7 = processValue(args.get(7), context)
+    var uByte: java.lang.Integer = 0
+    if (bp0) uByte += 1
+    if (bp1) uByte += 2
+    if (bp2) uByte += 4
+    if (bp3) uByte += 8
+    if (bp4) uByte += 16
+    if (bp5) uByte += 32
+    if (bp6) uByte += 64
+    if (bp7) uByte += 128
+    uByte
+  }
+}
+
+object DFDLOccursCountWithDefaultFunction extends DFDLFunction("occursCountWithDefault", 1) {
+
+  def evaluate1(args: java.util.List[_], pstate: PState): Object = {
+    val context = getContext(pstate)
+    Assert.notYetImplemented("dfdl:occursCountWithDefault, defaults aren't implemented")
+  }
+  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
+    Assert.notYetImplemented("dfdl:occursCountWithDefault for unparsing, defaults aren't implemented")
+  }
+}
+
+object DFDLOccursCountFunction extends DFDLFunction("occursCount", 1) {
+
+  def evaluate1(args: java.util.List[_], pstate: PState): Object = {
+    val context = getContext(pstate)
+    val x = args.get(0)
+    val occursCount = args.get(0) match {
+      case ns: NodeSeq => ns.length
+      case se: net.sf.saxon.value.SequenceExtent => {
+        se.getLength()
+      }
+      case _ => context.SDE("dfdl:occursCount did not receive a NodeSeq back, check your path.")
+    }
+    java.lang.Long.valueOf(occursCount)
+  }
+  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
+    // TODO: context unable to be retrieved for ustate
+    //    val context = getContext(ustate)
+    //    val x = args.get(0)
+    //    val occursCount = args.get(0) match {
+    //      case ns: NodeSeq => ns.length
+    //      case se: net.sf.saxon.value.SequenceExtent => {
+    //        se.getLength()
+    //      }
+    //      case _ => context.SDE("dfdl:occursCount did not receive a NodeSeq back, check your path.")
+    //    }
+    //    java.lang.Long.valueOf(occursCount)
+    Assert.notYetImplemented("dfdl:occursCount for unparsing")
   }
 }
 
@@ -435,6 +634,93 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 }
 
+object DFDLStringLiteralFromStringFunction extends DFDLFunction("stringLiteralFromString", 1) {
+
+  def evaluate1(args: java.util.List[_], pstate: PState): Object = {
+    val context = getContext(pstate)
+    val x = args.get(0)
+    val res = x match {
+      case s: String => constructLiteral(s)
+      case t: Text => constructLiteral(t.getText())
+      case _ => context.SDE("dfdl:stringLiteralFromString %s was not a String.", x)
+    }
+    res
+  }
+  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
+    Assert.notYetImplemented("dfdl:stringLiteralFromString for unparsing")
+  }
+
+  def constructLiteral(s: String) = {
+    val sb = new StringBuilder
+    s.foreach(c => {
+      c.toString() match {
+        case "%" => sb.append("%%")
+        case "\u0000" => sb.append("%NUL;")
+        case "\u0001" => sb.append("%SOH;")
+        case "\u0002" => sb.append("%STX;")
+        case "\u0003" => sb.append("%ETX;")
+        case "\u0004" => sb.append("%EOT;")
+        case "\u0005" => sb.append("%ENQ;")
+        case "\u0006" => sb.append("%ACK;")
+        case "\u0007" => sb.append("%BEL;")
+        case "\u0008" => sb.append("%BS;")
+        case "\u0009" => sb.append("%HT;")
+        case "\u000A" => sb.append("%LF;")
+        case "\u000B" => sb.append("%VT;")
+        case "\u000C" => sb.append("%FF;")
+        case "\u000D" => sb.append("%CR;")
+        case "\u000E" => sb.append("%SO;")
+        case "\u000F" => sb.append("%SI;")
+        case "\u0010" => sb.append("%DLE;")
+        case "\u0011" => sb.append("%DC1;")
+        case "\u0012" => sb.append("%DC2;")
+        case "\u0013" => sb.append("%DC3;")
+        case "\u0014" => sb.append("%DC4;")
+        case "\u0015" => sb.append("%NAK;")
+        case "\u0016" => sb.append("%SYN;")
+        case "\u0017" => sb.append("%ETB;")
+        case "\u0018" => sb.append("%CAN;")
+        case "\u0019" => sb.append("%EM;")
+        case "\u001A" => sb.append("%SUB;")
+        case "\u001B" => sb.append("%ESC;")
+        case "\u001C" => sb.append("%FS;")
+        case "\u001D" => sb.append("%GS;")
+        case "\u001E" => sb.append("%RS;")
+        case "\u001F" => sb.append("%US;")
+        case "\u0020"  => sb.append("%SP;")
+        case "\u007F" => sb.append("%DEL;")
+        case "\u00A0" => sb.append("%NBSP;")
+        case "\u0085" => sb.append("%NEL;")
+        case "\u2028" => sb.append("%LS;")
+        case _ => sb.append(c)
+      }
+    })
+    sb.toString()
+  }
+}
+
+object DFDLContainsEntityFunction extends DFDLFunction("containsEntity", 1) {
+
+  def evaluate1(args: java.util.List[_], pstate: PState): Object = {
+    val context = getContext(pstate)
+    val x = args.get(0)
+    val res = x match {
+      case s: String => containsEntity(s)
+      case t: Text => containsEntity(t.getText())
+      case _ => context.SDE("dfdl:containsEntity%s was not a String.", x)
+    }
+    res
+  }
+  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
+    Assert.notYetImplemented("dfdl:containsEntity for unparsing")
+  }
+
+  def containsEntity(s: String): java.lang.Boolean = {
+    val e = new EntityReplacer
+    e.hasDfdlEntity(s)
+  }
+}
+
 /**
  * XPath function library for non-built-in functions
  */
@@ -445,7 +731,15 @@ object Functions {
     DFDLPositionFunction,
     DFDLOccursIndexFunction,
     DFDLStringFunction,
-    DFDLCheckConstraintsFunction)
+    DFDLCheckConstraintsFunction,
+    DFDLOccursCountFunction,
+    DFDLOccursCountWithDefaultFunction,
+    DFDLSetBitsFunction,
+    DFDLTestBitFunction,
+    DFDLValueLengthFunction,
+    DFDLContentLengthFunction,
+    DFDLStringLiteralFromStringFunction,
+    DFDLContainsEntityFunction)
   val funcs = funcList.map { f => ((f.ID, f)) }.toMap
 
 }

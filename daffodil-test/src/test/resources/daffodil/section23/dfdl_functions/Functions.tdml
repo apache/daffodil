@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="SimpleTypes" description="Section 5 - simple types"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ex="http://example.com">
+
+	<tdml:defineSchema name="Functions.dfdl.xsd">
+		<dfdl:format ref="ex:daffodilTest1" initiator=""
+			separator="," terminator="" leadingSkip="0" trailingSkip="0"
+			textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian"
+			alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
+			truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
+			lengthKind="delimited" nilValueDelimiterPolicy="both"
+			emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes"
+			initiatedContent="no" separatorPolicy="required" separatorPosition="infix" />
+
+		<xs:element name="testBit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="byte" type="xs:byte"
+						dfdl:representation="binary" dfdl:lengthKind="implicit" />
+					<xs:element name="bit0" type="xs:boolean"
+						dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte/text(), 0) }" />
+					<xs:element name="bit7" type="xs:boolean"
+						dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte/text(), 7) }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="setBits">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="e" type="xs:byte" dfdl:lengthKind="implicit"
+						dfdl:representation="binary" />
+					<xs:element name="e0" type="xs:byte" dfdl:lengthKind="implicit"
+						dfdl:inputValueCalc="{ dfdl:setBits(1, 0, 0, 0, 0, 0 , 0, 0) }" />
+					<xs:element name="e1" type="xs:byte" dfdl:lengthKind="implicit"
+						dfdl:inputValueCalc="{ dfdl:setBits(0, 1, 0, 0, 0, 0 , 0, 0) }" />
+					<xs:element name="e2" type="xs:byte" dfdl:lengthKind="implicit"
+						dfdl:inputValueCalc="{ dfdl:setBits(0, 0, 1, 0, 0, 0 , 0, 0) }" />
+					<xs:element name="e3" type="xs:byte" dfdl:lengthKind="implicit"
+						dfdl:inputValueCalc="{ dfdl:setBits(0, 0, 0, 1, 0, 0 , 0, 0) }" />
+					<xs:element name="e4" type="xs:byte" dfdl:lengthKind="implicit"
+						dfdl:inputValueCalc="{ dfdl:setBits(0, 0, 0, 0, 1, 0 , 0, 0) }" />
+					<xs:element name="e5" type="xs:byte" dfdl:lengthKind="implicit"
+						dfdl:inputValueCalc="{ dfdl:setBits(0, 0, 0, 0, 0, 1 , 0, 0) }" />
+					<xs:element name="e6" type="xs:byte" dfdl:lengthKind="implicit"
+						dfdl:inputValueCalc="{ dfdl:setBits(0, 0, 0, 0, 0, 0 , 1, 0) }" />
+					<xs:element name="e7" type="xs:byte" dfdl:lengthKind="implicit"
+						dfdl:inputValueCalc="{ dfdl:setBits(0, 0, 0, 0, 0, 0 , 0, 1) }" />
+					<xs:element name="e8" type="xs:byte" dfdl:lengthKind="implicit"
+						dfdl:inputValueCalc="{ dfdl:setBits(1, 1, 1, 1, 1, 1 , 1, 1) }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="occursCount">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert test="{ dfdl:occursCount( /ex:occursCount/* ) eq 3 }"
+						message="Assertion 
+            failed for dfdl:occursCount( /ex:occursCount/* ) eq 3" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="i1" type="xs:int" />
+					<xs:element name="i2" type="xs:int" />
+					<xs:element name="i3" type="xs:int" />
+					<!-- <xs:element name="occurs" type="xs:int" dfdl:inputValueCalc="{ 
+						dfdl:occursCount( /ex:occursCount/* ) }" /> -->
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="stringLiteralFromString">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="str" type="xs:string"
+						dfdl:representation="text" />
+					<xs:element name="literal" type="xs:string"
+						dfdl:lengthKind="implicit"
+						dfdl:inputValueCalc="{ dfdl:stringLiteralFromString( ../ex:str/text()) }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="containsEntity">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="str" type="xs:string"
+						dfdl:representation="text" />
+					<xs:element name="hasEntity" type="xs:boolean"
+						dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:containsEntity('TEST%NL;TEST') }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="testBit_0" root="testBit"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="bits">00000001
+			</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<testBit>
+					<byte>1</byte>
+					<bit0>true</bit0>
+					<bit7>false</bit7>
+				</testBit>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="setBits_0" root="setBits"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="bits">00000000
+			</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<setBits>
+					<e>0</e>
+					<e0>1</e0>
+					<e1>2</e1>
+					<e2>4</e2>
+					<e3>8</e3>
+					<e4>16</e4>
+					<e5>32</e5>
+					<e6>64</e6>
+					<e7>128</e7>
+					<e8>255</e8>
+				</setBits>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="occursCount_0" root="occursCount"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1,2,3]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<occursCount>
+					<i1>1</i1>
+					<i2>2</i2>
+					<i3>3</i3>
+					<!-- <occurs>4</occurs> -->
+				</occursCount>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="stringLiteralFromString_0"
+		root="stringLiteralFromString" model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[%This is a test!%]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<stringLiteralFromString>
+					<str>%This is a test!%</str>
+					<literal>%%This%SP;is%SP;a%SP;test!%%</literal>
+				</stringLiteralFromString>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="containsEntity_0" root="containsEntity"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[%This is a test!%]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<containsEntity>
+					<str>%This is a test!%</str>
+					<hasEntity>true</hasEntity>
+				</containsEntity>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+</tdml:testSuite>

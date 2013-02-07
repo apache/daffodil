@@ -20,7 +20,8 @@ import scala.collection.mutable.ListBuffer
 class EntityReplacer {
 
   val dfdlEntityName = "NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC[1-4]|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|NBSP|NEL|LS"
-
+  val dfdlCharClassEntityName = "NL|WSP|WSP\\*|WSP\\+"
+    
   val entityCharacterUnicode: List[(String, String, Pattern)] =
     List(
       ("NUL", "\u0000", Pattern.compile("%" + "NUL" + ";", Pattern.MULTILINE)),
@@ -67,7 +68,25 @@ class EntityReplacer {
   val hexPattern = Pattern.compile("%#x[0-9a-fA-F]+;", Pattern.MULTILINE)
   val decPattern = Pattern.compile("%#[0-9]+;", Pattern.MULTILINE)
   val bytePattern = Pattern.compile("%#r[0-9a-fA-F]{2};", Pattern.MULTILINE)
-
+  val charClassEntityPattern = Pattern.compile("%(" + dfdlCharClassEntityName + ");", Pattern.MULTILINE)
+  
+  def hasDfdlEntity(input: String): Boolean = {
+    if (hasDfdlCharEntity(input) || 
+        hasDecimalCodePoint(input) || 
+        hasHexCodePoint(input) || 
+        hasByteCodePoint(input) ||
+        hasDfdlCharClassEntity(input)){
+      return true
+    }
+    false
+  }
+  
+  def hasDfdlCharClassEntity(input: String): Boolean = {
+    val p: Pattern = charClassEntityPattern
+    val m: Matcher = p.matcher(input)
+    m.find()
+  }
+  
   def hasDfdlCharEntity(input: String): Boolean = {
     val p: Pattern = charEntityPattern
     val m: Matcher = p.matcher(input)
