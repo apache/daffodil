@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.api.{ WithDiagnostics, DFDL }
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.OOLAG.OOLAGException
 import edu.illinois.ncsa.daffodil.api.Diagnostic
@@ -196,7 +197,9 @@ abstract class ParseResult(dp: DataProcessor)
   lazy val result =
     if (resultState.status == Success) {
       val xmlNode = resultState.infoset.toXML
-      xmlNode
+      val xmlNoHidden = XMLUtils.removeHiddenElements(xmlNode)
+      val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0), Seq(NS(XMLUtils.INT_NS)))
+      xmlClean
     } else {
       <nothing/>
     }

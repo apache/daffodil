@@ -889,36 +889,90 @@ object XMLUtils {
     res
   }
 
+
   /**
-   * Removes attributes, and also element namespace prefixes, associated xmlns quasi-attributes.
-   * Allows easier visual (human) inspection of the differences between two XML element-oriented structures.
-   *
+   * Removes NamespaceBindings from a scope containing specified namespaces
    */
-  def removeAttributes(n: Node): Node = {
+  def filterScope(nsb: NamespaceBinding, nss: Seq[NS]): NamespaceBinding = {
+    val newHead =
+      if (nsb == xml.TopScope) {
+        xml.TopScope
+      } else {
+        val parentCopy = filterScope(nsb.parent, nss)
+        if (nss.contains(NS(nsb.uri))) {
+          parentCopy
+        } else {
+          nsb.copy(parent = parentCopy)
+        }
+      }
+    newHead
+  }
+
+  /**
+   * Determines if a prefix is defined inside a scope
+   */
+  def prefixInScope(prefix: String, scope: NamespaceBinding): Boolean = {
+    val ret =
+      if (scope == null) {
+        false
+      } else if (prefix == scope.prefix) {
+        true
+      } else {
+        prefixInScope(prefix, scope.parent)
+      }
+    ret
+  }
+
+  /**
+   * Removes attributes associated xmlns quasi-attributes.
+   *
+   * If a sequence of namespaces are given, only those attributes and scopes in
+   * those namepsaces are revmoed. Otherwise, all attributes and scopes (aside
+   * from special ones like xsi:nil) are removed. Additionally, if a scope is
+   * filtered, the prefixes of elements prefixed with filtered scopes are also
+   * removed.
+   *
+   * If a scope is given, it will be used for a child element if the
+   * childs filtered scope is the same as the scope.
+   */
+  def removeAttributes(n: Node, ns: Seq[NS] = Seq[NS](), parentScope: Option[NamespaceBinding] = None): Node = {
     n match {
       case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
-        val childrenWithoutAttributes: NodeSeq = children.map { removeAttributes(_) }
-        val noNamespaces = xml.TopScope // empty scope
-        val noAttributesExceptNil = attributes.filter { m =>
+
+        val filteredScope = if (ns.length > 0) filterScope(scope, ns) else xml.TopScope
+
+        // If the filtered scope is logically the same as the parent scope, use
+        // the parent scope. Scala uses references to determine if scopes are
+        // the same during pretty printing. However, scopes are immutable, so
+        // the filter algorithm creates new scopes. Because of this, we need to
+        // ignore the newly filtered scope if it is logically the same as the
+        // parent so that the scala pretty printer doesn't see them as
+        // different scopes.
+        val newScope = parentScope match {
+          case Some(ps) => if (ps == filteredScope) ps else filteredScope
+          case None => filteredScope
+        }
+
+        val newChildren: NodeSeq = children.map { removeAttributes(_, ns, Some(newScope)) }
+
+        val newPrefix = if (prefixInScope(prefix, newScope)) prefix else null
+
+        val newAttributes = attributes.filter { m =>
           m match {
-            case xsiNilAttr @ PrefixedAttribute(pre, "nil", Text("true"), _) if (NS(xsiNilAttr.getNamespace(e)) == XMLUtils.XSI_NAMESPACE) => {
-              //              println(xsiNilAttr.getNamespace(e))
-              //              println(xsiNS)
+            case xsiNilAttr @ PrefixedAttribute(_, "nil", Text("true"), _) if (NS(xsiNilAttr.getNamespace(e)) == XMLUtils.XSI_NAMESPACE) => {
               true
             }
-            //            case dafintHiddenAttr @ PrefixedAttribute(pre, "hidden", Text("true"), _) if (dafintHiddenAttr.getNamespace(e) == XMLUtils.INT_NS) => {
-            //              true
-            //            }
-            case _ => false
+            case attr => {
+              if (ns.length > 0) {
+                ! ns.contains(NS(attr.getNamespace(e)))
+              } else  {
+                false
+              }
+            }
           }
-        }.toList
-        // println(noAttributesExceptNil)
-        val newAttributes = noAttributesExceptNil match {
-          case Nil => Null // The empty attribute list.
-          case a :: Nil => a
-          case _ => Assert.invariantFailed("can only be one attribute, and that one must be xsi:nil")
         }
-        Elem(null, label, newAttributes, noNamespaces, childrenWithoutAttributes: _*)
+
+        Elem(newPrefix, label, newAttributes, newScope, newChildren: _*)
       }
       case other => other
     }

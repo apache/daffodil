@@ -320,7 +320,8 @@ object Main {
         }
         val writer: BufferedWriter = new BufferedWriter(new OutputStreamWriter(output));
 
-        DebugUtil.time("Writing", writer.write(parseResult.result.toString + "\n"))
+        val pp = new scala.xml.PrettyPrinter(80,2)
+        DebugUtil.time("Writing", writer.write(pp.format(parseResult.result) + "\n"))
         writer.flush()
 
         if (parseResult.isError) 1 else 0

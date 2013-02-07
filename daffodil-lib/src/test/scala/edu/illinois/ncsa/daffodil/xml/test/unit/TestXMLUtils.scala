@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.xml.test.unit
 
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.NS
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
@@ -140,6 +141,23 @@ class TestXMLUtils extends JUnitSuite {
   @Test def testWalkUnicodeString2() {
     val s = ""
     val Seq() = XMLUtils.walkUnicodeString(s)((p, c, n) => (p, c, n))
+  }
+
+  @Test def testRemoveAttributes1() {
+    val xml = <test:bar xmlns:test="http://test/" xmlns:test2="http://test2/" xmlns:dafint={ XMLUtils.INT_NS } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>
+                <test2:foo dafint:qaz="qaz" test:raz="raz" xsi:nil="true"/>
+              </test:bar>
+    val res = XMLUtils.removeAttributes(xml)
+    assertEquals(<bar><foo xsi:nil="true"/></bar>, Utility.trim(res))
+  }
+
+  @Test def testRemoveAttributes2() {
+    val xml = <test:bar xmlns:test="http://test/" xmlns:test2="http://test2/" xmlns:dafint={ XMLUtils.INT_NS } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>
+                <test2:foo dafint:qaz="qaz" test:raz="raz" xsi:nil="true"/>
+              </test:bar>
+    val res = XMLUtils.removeAttributes(xml, Seq(NS("http://test2/"), NS(XMLUtils.INT_NS)))
+    println(res)
+    assertEquals(<test:bar xmlns:test="http://test/" xmlns:xsi={ XMLUtils.XSI_NAMESPACE }><foo test:raz="raz" xsi:nil="true"/></test:bar>, Utility.trim(res))
   }
 
 }
