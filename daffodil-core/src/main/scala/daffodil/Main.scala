@@ -441,7 +441,7 @@ object Main {
   def bugFound(e: Exception): Int = {
     System.err.println("""|
                           |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                          |!!    An unexpected exception occured. This is a bug!   !!
+                          |!!   An unexpected exception occurred. This is a bug!   !!
                           |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                           |
                           | Please help us fix this by opening a bug report at:
@@ -450,7 +450,7 @@ object Main {
                           |
                           | Please include the following exception, the command you
                           | ran, and any input, schema, or tdml files used that led
-                          | this bug.
+                          | to this bug.
                           |
                           |""".stripMargin)
     e.printStackTrace
