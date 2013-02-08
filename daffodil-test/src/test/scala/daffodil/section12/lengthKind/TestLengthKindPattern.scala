@@ -41,5 +41,7 @@ class TestLengthKindPattern extends JUnitSuite {
   @Test def test_LengthPatternNil_EmptyStringAllowed() { runner.runOneTest("LengthPatternNil_EmptyStringAllowed") }
   @Test def test_nested_patterns() { runner.runOneTest("nested_patterns") }
   @Test def test_nested_patterns_01() { runner.runOneTest("nested_patterns_01") }
+  @Test def test_nested_patterns_02() { runner.runOneTest("nested_patterns_02") }
+  @Test def test_nested_patterns_03() { runner.runOneTest("nested_patterns_03") }
 
 }

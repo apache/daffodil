@@ -128,6 +128,35 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="data_01" type="xs:string"
+      dfdl:lengthKind="pattern" dfdl:lengthPattern="(a|b|c)" />
+
+    <xs:element name="data_02" type="xs:string"
+      dfdl:lengthKind="pattern" dfdl:lengthPattern="(1|2|3)" />
+
+    <xs:element name="list_05" dfdl:lengthKind="pattern"
+      dfdl:lengthPattern="(?s)cat(\r\n)?,dog(\r\n)?,house,(a|b|c|1|2|3).">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%NL;, ,"
+          dfdl:separatorPosition="infix" dfdl:terminator=".">
+          <xs:element name="firstToken" type="xs:string"
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="cat"
+            dfdl:representation="text" />
+          <xs:element name="secondToken" type="xs:string"
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="dog"
+            dfdl:representation="text" />
+          <xs:element name="thirdToken" type="xs:string"
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="house"
+            dfdl:representation="text" />
+          <xs:choice>
+            <xs:element ref="data_01" />
+            <xs:element ref="data_02" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
     <xs:element name="e8" type="xs:string" dfdl:lengthKind="pattern"
       dfdl:lengthPattern="\p{L}{2,5}">
       <xs:annotation>
@@ -502,6 +531,40 @@
           <secondToken>dog</secondToken>
           <thirdToken>house</thirdToken>
         </list_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nested_patterns_02" root="list_05"
+    model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+
+    <tdml:document><![CDATA[cat,dog,house,1.]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <list_05>
+          <firstToken>cat</firstToken>
+          <secondToken>dog</secondToken>
+          <thirdToken>house</thirdToken>
+          <data_02>1</data_02>
+        </list_05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nested_patterns_03" root="list_05"
+    model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+
+    <tdml:document><![CDATA[cat,dog,house,b.]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <list_05>
+          <firstToken>cat</firstToken>
+          <secondToken>dog</secondToken>
+          <thirdToken>house</thirdToken>
+          <data_01>b</data_01>
+        </list_05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
