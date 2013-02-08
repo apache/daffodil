@@ -34,6 +34,7 @@ class TestFacets extends JUnitSuite {
   @Test def test_facetEnum05() { runner.runOneTest("facetEnum05") }
 //  @Test def test_facetEnum06() { runner.runOneTest("facetEnum06") }
   @Test def test_facetEnum07() { runner.runOneTest("facetEnum07") }
+//  @Test def test_facetEnum08() { runner.runOneTest("facetEnum08") }
 
   @Test def test_maxLength01() { runner.runOneTest("maxLength01") }
   @Test def test_maxLength02() { runner.runOneTest("maxLength02") }

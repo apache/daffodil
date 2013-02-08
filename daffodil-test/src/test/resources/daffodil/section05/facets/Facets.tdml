@@ -4611,7 +4611,7 @@
         </xs:appinfo>
       </xs:annotation>
       <xs:simpleType>
-        <xs:restriction base="ex:enum_st2">
+        <xs:restriction base="ex:enum_st6">
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
@@ -4735,7 +4735,7 @@
     model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
     <tdml:document>Dalmation</tdml:document>
     <tdml:errors>
-      <tdml:error></tdml:error>
+      <tdml:error>Enumerations must be unique</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
