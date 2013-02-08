@@ -28,7 +28,6 @@ class TestSimpleTypes2 extends JUnitSuite {
 
 ///////////////////////// DFDL-105 /////////////////////////////
 
-  @Test def test_dateTimeImplicitPattern() { runner.runOneTest("dateTimeImplicitPattern") }
   @Test def test_dateTimeLaxCheckPolicy01() { runner.runOneTest("dateTimeLaxCheckPolicy01") }
   @Test def test_timeFractionalSeconds01() { runner.runOneTest("timeFractionalSeconds01") }
 

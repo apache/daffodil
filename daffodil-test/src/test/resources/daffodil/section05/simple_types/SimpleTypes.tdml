@@ -2156,7 +2156,7 @@
     <xs:element name="time03" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit"
                 dfdl:calendarPattern="hh:mm:ss.SSSS" dfdl:lengthKind="delimited"/>
 
-    <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="19" />
+    <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
                 dfdl:lengthKind="explicit" dfdl:length="44" />
     <xs:element name="dateTime02" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="19" />
@@ -2258,6 +2258,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+
 <!--
      Test Name: dateTimeImplicitPatternFail
         Schema: dateTimeSchema
@@ -2274,6 +2275,60 @@
       <tdml:error>Parse Error:</tdml:error>
       <tdml:error>Convert to DateTime (for xs:dateTime)</tdml:error>
       <tdml:error>Failed to parse '2013.03.24 03:45:30'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeImplicitPatternFail2
+        Schema: dateTimeSchema
+          Root: dateTimeImp
+       Purpose: This test demonstrates the dateTime data type with the implicit calendar Pattern.
+                The data does NOT match this pattern and should fail parsing.
+-->
+  
+  <tdml:parserTestCase name="dateTimeImplicitPatternFail2" root="dateTimeImp"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
+
+    <tdml:document><![CDATA[2013-03-24T03:45:30-00:00]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error:</tdml:error>
+      <tdml:error>Convert to DateTime (for xs:dateTime)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeImplicitPatternFail3
+        Schema: dateTimeSchema
+          Root: dateTimeImp
+       Purpose: This test demonstrates the dateTime data type with the implicit calendar Pattern.
+                The data does NOT match this pattern and should fail parsing.
+-->
+  
+  <tdml:parserTestCase name="dateTimeImplicitPatternFail3" root="dateTimeImp"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
+
+    <tdml:document><![CDATA[2013-03-24T03:45:30 Pacific Standard Time]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error:</tdml:error>
+      <tdml:error>Convert to DateTime (for xs:dateTime)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeImplicitPatternFail4
+        Schema: dateTimeSchema
+          Root: dateTimeImp
+       Purpose: This test demonstrates the dateTime data type with the implicit calendar Pattern.
+                The data does NOT match this pattern and should fail parsing.
+-->
+  
+  <tdml:parserTestCase name="dateTimeImplicitPatternFail4" root="dateTimeImp"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
+
+    <tdml:document><![CDATA[2013-03-24T03:45:30GMT]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error:</tdml:error>
+      <tdml:error>Convert to DateTime (for xs:dateTime)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
