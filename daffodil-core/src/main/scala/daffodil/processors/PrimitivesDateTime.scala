@@ -67,12 +67,13 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   override def toString = "to(xs:" + GramName + ")"
 
   protected def infosetPattern: String
+  protected def implicitPattern: String
   protected def validFormatCharacters: Seq[Char]
 
   lazy val pattern: String = {
     val p = e.calendarPatternKind match {
       case CalendarPatternKind.Explicit => e.calendarPattern
-      case CalendarPatternKind.Implicit => infosetPattern
+      case CalendarPatternKind.Implicit => implicitPattern
     }
 
     val escapedText = "(''|'[^']+'|[^a-zA-Z])".r
@@ -151,15 +152,18 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
 
 case class ConvertTextDatePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
   protected override val infosetPattern = "yyyy-MM-dd"
+  protected override val implicitPattern = "yyyy-MM-dd"
   protected override val validFormatCharacters = "dDeEFGMuwWyYzZ".toSeq
 }
 
 case class ConvertTextTimePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
   protected override val infosetPattern = "HH:mm:ssZZZZZ"
+  protected override val implicitPattern = "HH:mm:ssZZZ"
   protected override val validFormatCharacters = "ahHkKmsSzZ".toSeq
 }
 
 case class ConvertTextDateTimePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
   protected override val infosetPattern = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+  protected override val implicitPattern = "yyyy-MM-dd'T'HH:mm:ss"
   protected override val validFormatCharacters = "adDeEFGhHkKmMsSuwWyYzZ".toSeq
 }

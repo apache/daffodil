@@ -3796,7 +3796,7 @@
       </xs:simpleType>
     </xs:element>
     <xs:element name="dateTimeImp" dfdl:calendarPatternKind="implicit" 
-      dfdl:lengthKind="explicit" dfdl:length="25">
+      dfdl:lengthKind="explicit" dfdl:length="19">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
           <dfdl:assert test="{ dfdl:checkConstraints(.) }"
@@ -4463,7 +4463,7 @@
   <tdml:parserTestCase name="checkMaxInclusive_Pass_DateTime" root="dateTimeImp"
     model="TestFacets" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
 
-    <tdml:document><![CDATA[2013-03-24T03:45:30-00:00]]></tdml:document>
+    <tdml:document><![CDATA[2013-03-24T03:45:30]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dateTimeImp>2013-03-24T03:45:30Z</dateTimeImp>
@@ -4483,7 +4483,7 @@
   <tdml:parserTestCase name="checkMaxInclusive_Fail_DateTime" root="dateTimeImp"
     model="TestFacets" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
 
-    <tdml:document><![CDATA[2014-03-24T03:45:30-00:00]]></tdml:document>
+    <tdml:document><![CDATA[2014-03-24T03:45:30]]></tdml:document>
     <tdml:errors>
      <tdml:error>Assertion failed. Assertion failed for dfdl:checkConstraints(.)</tdml:error>
     </tdml:errors>
