@@ -10,7 +10,7 @@
     </xs:appinfo>
   </xs:annotation>
    
-  <xs:import namespace="http://myAddress.com" schemaLocation="address_namespace.dfdl.xsd"/>
+  <xs:import namespace="http://myAddress.com" schemaLocation="daffodil/section06/namespaces/address_namespace.dfdl.xsd"/>
   
   <xs:element name="customer"> 
     <xs:complexType> 
