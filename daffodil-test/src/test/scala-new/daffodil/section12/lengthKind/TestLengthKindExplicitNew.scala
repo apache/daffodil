@@ -26,8 +26,6 @@ class TestLengthKindExplicitNew extends JUnitSuite {
 
   @Test def test_ExplicitLengthBitsNotFixed() = { runner.runOneTest("test_ExplicitLengthBitsNotFixed") }
   @Test def test_ExplicitLengthBitsFixed() = { runner.runOneTest("test_ExplicitLengthBitsFixed") }
-  @Test def test_ExplicitLengthBytesNotFixed() = { runner.runOneTest("test_ExplicitLengthBytesNotFixed") }
-  @Test def test_ExplicitLengthBytesFixed() = { runner.runOneTest("test_ExplicitLengthBytesFixed") }
   @Test def test_ExplicitLengthCharsNotFixed() = { runner.runOneTest("test_ExplicitLengthCharsNotFixed") }
   @Test def test_ExplicitLengthCharsFixed() = { runner.runOneTest("test_ExplicitLengthCharsFixed") }
   
