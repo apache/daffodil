@@ -38,6 +38,9 @@ class TestFacets extends JUnitSuite {
   @Test def test_maxLength01() { runner.runOneTest("maxLength01") }
   @Test def test_maxLength02() { runner.runOneTest("maxLength02") }
   @Test def test_maxLength03() { runner.runOneTest("maxLength03") }
+  @Test def test_maxLength04() { runner.runOneTest("maxLength03") }
+  @Test def test_maxLength05() { runner.runOneTest("maxLength03") }
+  @Test def test_maxLength06() { runner.runOneTest("maxLength03") }
 
 //  @Test def test_totalDigits01() { runner.runOneTest("totalDigits01") }
 //  @Test def test_totalDigits02() { runner.runOneTest("totalDigits02") }

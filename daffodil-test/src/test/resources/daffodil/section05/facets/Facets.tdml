@@ -3058,6 +3058,44 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
+    <xs:element name="e3" dfdl:lengthKind="implicit" dfdl:lengthUnits="bytes">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="10" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e4" dfdl:lengthKind="implicit" dfdl:lengthUnits="bytes">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:minLength value="10" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e5" dfdl:lengthKind="implicit" dfdl:lengthUnits="bytes">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
   </tdml:defineSchema>
   
   <!--
@@ -3114,6 +3152,42 @@
         <e1>twocatfish</e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="maxLength04" root="e3"
+    model="lengthFacets" description="Section 5 - maxLength w/o minLength when dfdl:lengthKind=”implicit” - DFDL-5-063R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">invalid</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="maxLength05" root="e4"
+    model="lengthFacets" description="Section 5 - minLength w/o maxLength when dfdl:lengthKind=”implicit” - DFDL-5-063R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">invalid</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="maxLength06" root="e5"
+    model="lengthFacets" description="Section 5 - no min/maxLength when dfdl:lengthKind=”implicit” - DFDL-5-063R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">invalid</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
 
   </tdml:parserTestCase>
   
