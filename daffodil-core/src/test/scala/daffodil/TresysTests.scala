@@ -97,4 +97,7 @@ class TresysTests extends JUnitSuite {
 
   @Test def test_codingErrorAction() { runnerMB.runOneTest("codingErrorAction") }
 
+  val runnerNG = new DFDLTestSuite(Misc.getRequiredResource(testDir + "nested_group_ref.tdml"))
+  @Test def test_nested_group_refs() { runnerNG.runOneTest("nestedGroupRefs") }
+
 }
