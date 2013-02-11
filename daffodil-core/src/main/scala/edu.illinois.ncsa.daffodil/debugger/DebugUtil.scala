@@ -1,4 +1,4 @@
-package daffodil.debugger
+package edu.illinois.ncsa.daffodil.debugger
 
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.

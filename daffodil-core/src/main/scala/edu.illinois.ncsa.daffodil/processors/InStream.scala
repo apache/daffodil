@@ -1,11 +1,11 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
-import daffodil.api._
-import daffodil.Implicits._
-import daffodil.dsom._
-import daffodil.util._
-import daffodil.exceptions._
-import daffodil.util.Misc._
+import edu.illinois.ncsa.daffodil.api._
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.exceptions._
+import edu.illinois.ncsa.daffodil.util.Misc._
 import java.io.ByteArrayInputStream
 import java.nio.charset.Charset
 import java.nio.CharBuffer

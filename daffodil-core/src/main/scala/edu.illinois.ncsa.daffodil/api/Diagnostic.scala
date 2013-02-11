@@ -1,4 +1,4 @@
-package daffodil.api
+package edu.illinois.ncsa.daffodil.api
 
 /*
  * This file Copyright (c) 2012 Tresys

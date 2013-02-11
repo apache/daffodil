@@ -1,4 +1,4 @@
-package daffodil
+package edu.illinois.ncsa.daffodil
 
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
@@ -6,7 +6,7 @@ import org.junit.contrib.java.lang.system.ExpectedSystemExit
 import org.junit.contrib.java.lang.system.internal.CheckExitCalled
 import org.junit.Test
 import org.junit.Rule
-import daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream
 
 
@@ -22,7 +22,7 @@ class MainTests extends JUnitSuite {
 
   @Test def test_required_mode() {
     try {
-      daffodil.Main.main(Array(""))
+      Main.main(Array(""))
     } catch {
       case c: CheckExitCalled => assertEquals(c.getStatus, 1)
     }
@@ -30,7 +30,7 @@ class MainTests extends JUnitSuite {
   
   @Test def test_require_schema_or_parser() {
     try {
-      daffodil.Main.main(Array("parse"))
+      Main.main(Array("parse"))
     } catch {
       case c: CheckExitCalled => assertEquals(c.getStatus, 1)
     }
@@ -48,7 +48,7 @@ class MainTests extends JUnitSuite {
       val oldSysin = System.in
       System.setIn(is)
 
-      daffodil.Main.main(Array("parse", "--schema", schema, "-"))
+      Main.main(Array("parse", "--schema", schema, "-"))
 
       System.setIn(oldSysin)
     } catch {
@@ -64,7 +64,7 @@ class MainTests extends JUnitSuite {
       val oldSysin = System.in
       System.setIn(is)
        
-      daffodil.Main.main(Array("parse", "--schema", schema,
+      Main.main(Array("parse", "--schema", schema,
                                         "--root", "ch1",
                                         "--namespace", "http://www.example.org/example1/",
                                         "-"

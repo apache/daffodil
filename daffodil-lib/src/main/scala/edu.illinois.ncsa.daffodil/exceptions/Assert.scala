@@ -1,5 +1,5 @@
-package daffodil.exceptions
-import daffodil.dsom.OOLAG.OOLAGException
+package edu.illinois.ncsa.daffodil.exceptions
+import edu.illinois.ncsa.daffodil.dsom.OOLAG.OOLAGException
 
 // Copyright (C) 2012, Michael J. Beckerle. All Rights Reserved.
 

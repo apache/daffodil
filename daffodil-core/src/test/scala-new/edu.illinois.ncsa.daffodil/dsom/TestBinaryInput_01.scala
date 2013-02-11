@@ -1,13 +1,13 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
-import daffodil.tdml.DFDLTestSuite
-import daffodil.util.Misc
-import daffodil.processors._
-import daffodil.compiler._
-import daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.compiler._
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 // Do no harm number 16 of 626 fail in regression, 154 in total of 797
 

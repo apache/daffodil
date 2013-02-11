@@ -1,9 +1,9 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
-import daffodil.schema.annotation.props.gen._
-import daffodil.schema.annotation.props._
-import daffodil.exceptions.Assert
-import daffodil.dsom.EntityReplacer._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
+import edu.illinois.ncsa.daffodil.schema.annotation.props._
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.dsom.EntityReplacer._
 import scala.collection.mutable.ListBuffer
 
 /**

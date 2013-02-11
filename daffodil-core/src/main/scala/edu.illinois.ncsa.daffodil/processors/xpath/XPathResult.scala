@@ -1,4 +1,4 @@
-package daffodil.processors.xpath
+package edu.illinois.ncsa.daffodil.processors.xpath
 
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.

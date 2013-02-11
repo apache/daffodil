@@ -1,4 +1,4 @@
-package daffodil.processors.input
+package edu.illinois.ncsa.daffodil.processors.input
 import net.sf.saxon.om.NamespaceConstant
 import net.sf.saxon.om.NodeInfo
 import net.sf.saxon.xpath.XPathEvaluator
@@ -18,7 +18,7 @@ import java.math.BigInteger
 import org.jdom._
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
-import daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import org.junit.Test
 
 class SaxonWorkingTest extends JUnitSuite with XPathVariableResolver with NamespaceContext {

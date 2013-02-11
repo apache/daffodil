@@ -1,17 +1,17 @@
-package daffodil.debugger
-import daffodil.processors.PState
-import daffodil.Implicits._
-import daffodil.dsom._
-import daffodil.schema.annotation.props.gen.Representation
-import daffodil.processors.Success
-import daffodil.processors.Parser
-import daffodil.xml.XMLUtils
-import daffodil.processors.EndSequence
-import daffodil.processors.EndArray
-import daffodil.processors.StartSequence
-import daffodil.processors.StartArray
-import daffodil.processors.StartChildren
-import daffodil.processors.EndChildren
+package edu.illinois.ncsa.daffodil.debugger
+import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
+import edu.illinois.ncsa.daffodil.processors.Success
+import edu.illinois.ncsa.daffodil.processors.Parser
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.processors.EndSequence
+import edu.illinois.ncsa.daffodil.processors.EndArray
+import edu.illinois.ncsa.daffodil.processors.StartSequence
+import edu.illinois.ncsa.daffodil.processors.StartArray
+import edu.illinois.ncsa.daffodil.processors.StartChildren
+import edu.illinois.ncsa.daffodil.processors.EndChildren
 
 /**
  * Really simplistic debugger.

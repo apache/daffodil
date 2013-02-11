@@ -1,22 +1,22 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
 import java.io._
 import scala.xml.Node
 import scala.xml.XML
-import daffodil.api.DFDL
-import daffodil.exceptions._
-import daffodil.xml.XMLUtils
-import daffodil.grammar._
-import daffodil.processors._
-import daffodil.util.Misc._
-import daffodil.api.Diagnostic
-import daffodil.util.Misc
-import daffodil.api.WithDiagnostics
-import daffodil.dsom.OOLAG._
-import daffodil.util.Glob
-import daffodil.util.Debug
-import daffodil.util.Info
-import daffodil.util.Compile
+import edu.illinois.ncsa.daffodil.api.DFDL
+import edu.illinois.ncsa.daffodil.exceptions._
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.grammar._
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.util.Misc._
+import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.api.WithDiagnostics
+import edu.illinois.ncsa.daffodil.dsom.OOLAG._
+import edu.illinois.ncsa.daffodil.util.Glob
+import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util.Info
+import edu.illinois.ncsa.daffodil.util.Compile
 
 object DiagnosticUtils {
   /**

@@ -1,9 +1,9 @@
-package daffodil
+package edu.illinois.ncsa.daffodil
 
 import java.io.File
 import org.scalatest.junit.JUnitSuite
-import daffodil.tdml.DFDLTestSuite
-import daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.util.Misc
 import org.junit.Test
 
 class IBMTestsThatPass extends JUnitSuite {

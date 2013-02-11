@@ -1,13 +1,13 @@
-package daffodil.schema.annotation.props
+package edu.illinois.ncsa.daffodil.schema.annotation.props
 
 // Copyright (C) 2012, Michael J. Beckerle. All Rights Reserved.
 
-import daffodil.exceptions._
-import daffodil.util.Misc._
-import daffodil.util.Logging
-import daffodil.util.Info
-import daffodil.util.Debug
-import daffodil.dsom.FindPropertyMixin
+import edu.illinois.ncsa.daffodil.exceptions._
+import edu.illinois.ncsa.daffodil.util.Misc._
+import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.util.Info
+import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.dsom.FindPropertyMixin
 
 /**
  * Enum class as basis for our DFDL properties

@@ -1,4 +1,4 @@
-package daffodil.xml
+package edu.illinois.ncsa.daffodil.xml
 
 /**
  * Adapted from a question/answer on the Stack Overflow web site.
@@ -12,19 +12,19 @@ import scala.xml._
 import java.io.File
 import java.io.FileDescriptor
 import java.net.URL
-import daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 import javax.xml.parsers.SAXParserFactory
-import daffodil.util._
-import daffodil.dsom.DiagnosticsProviding
-import daffodil.dsom.SchemaSet
-import daffodil.dsom.SchemaDocument
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticsProviding
+import edu.illinois.ncsa.daffodil.dsom.SchemaSet
+import edu.illinois.ncsa.daffodil.dsom.SchemaDocument
 import org.apache.xml.resolver.CatalogManager
 import org.apache.xerces.xni.parser.XMLInputSource
 import org.apache.xml.resolver.Catalog
-import daffodil.dsom.SchemaDefinitionError
-import daffodil.dsom.SchemaDefinitionWarning
-import daffodil.dsom.SchemaComponent
-import daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
+import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionWarning
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import javax.xml.validation.SchemaFactory
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource

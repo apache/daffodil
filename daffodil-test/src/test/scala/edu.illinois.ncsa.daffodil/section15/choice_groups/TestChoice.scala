@@ -1,19 +1,19 @@
-package daffodil.section15.choice_groups
+package edu.illinois.ncsa.daffodil.section15.choice_groups
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
-import daffodil.xml.XMLUtils
-import daffodil.xml.XMLUtils._
-import daffodil.compiler.Compiler
-import daffodil.util._
-import daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils._
+import edu.illinois.ncsa.daffodil.compiler.Compiler
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
-import daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestChoice extends JUnitSuite {
-  val testDir = "/daffodil/section15/choice_groups/"
+  val testDir = "/edu.illinois.ncsa.daffodil/section15/choice_groups/"
   val aa = testDir + "choice.tdml"
 
   lazy val runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
@@ -64,7 +64,7 @@ class TestChoice extends JUnitSuite {
   @Test def test_seqInChoiceInSeq4() { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSameSeparators2") }
 
 
-  val testDir1 = "/daffodil/ibm-tests/"
+  val testDir1 = "/edu.illinois.ncsa.daffodil/ibm-tests/"
   val tdml1 = testDir1 + "dpaext2.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
   

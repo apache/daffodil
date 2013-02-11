@@ -1,6 +1,6 @@
-package daffodil.dsom
-import daffodil.exceptions.ThrowsSDE
-import daffodil.exceptions.Assert
+package edu.illinois.ncsa.daffodil.dsom
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 class SchemaDefinitionError(schemaContext: Option[SchemaComponent],
                             annotationContext: Option[DFDLAnnotation],

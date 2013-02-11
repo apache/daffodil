@@ -1,4 +1,4 @@
-package daffodil.xml
+package edu.illinois.ncsa.daffodil.xml
 
 import java.io.FileInputStream
 import java.io.File
@@ -18,9 +18,9 @@ import org.jdom.output.XMLOutputter
 import org.jdom.output.Format
 import scala.collection.mutable.LinkedList
 import scala.xml.MetaData
-import daffodil.exceptions._
+import edu.illinois.ncsa.daffodil.exceptions._
 import java.io.StringReader
-import daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.Misc
 import javax.xml.namespace.QName
 import javax.xml.XMLConstants
 

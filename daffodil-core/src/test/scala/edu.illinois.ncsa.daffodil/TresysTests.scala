@@ -1,18 +1,18 @@
-package daffodil
+package edu.illinois.ncsa.daffodil
 
 import java.io.File
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
-import daffodil.xml.XMLUtils
-import daffodil.xml.XMLUtils._
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import scala.xml._
-import daffodil.compiler.Compiler
+import edu.illinois.ncsa.daffodil.compiler.Compiler
 import tdml.DFDLTestSuite
-import daffodil.util.LogLevel
-import daffodil.util.LoggingDefaults
-import daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.LoggingDefaults
+import edu.illinois.ncsa.daffodil.util.Misc
 import org.junit.Test
-import daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TresysTests extends JUnitSuite {
   val testDir = "/test-suite/tresys-contributed/"

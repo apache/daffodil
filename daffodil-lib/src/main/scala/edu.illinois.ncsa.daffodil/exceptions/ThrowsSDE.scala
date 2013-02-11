@@ -1,4 +1,4 @@
-package daffodil.exceptions
+package edu.illinois.ncsa.daffodil.exceptions
 
 trait ThrowsSDE {
 

@@ -1,24 +1,24 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
 import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.charset.{ CharsetEncoder, CoderResult }
 import scala.collection.JavaConversions._
-import daffodil.api._
-import daffodil.processors._
-import daffodil.grammar._
-import daffodil.util.{ Logging, LogLevel, Debug }
-import daffodil.exceptions.Assert
-import daffodil.schema.annotation.props.PropertyMixin
-import daffodil.processors.EscapeScheme.log
+import edu.illinois.ncsa.daffodil.api._
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.grammar._
+import edu.illinois.ncsa.daffodil.util.{ Logging, LogLevel, Debug }
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
+import edu.illinois.ncsa.daffodil.processors.EscapeScheme.log
 import junit.framework.Assert.assertTrue
-import daffodil.Implicits._
-import daffodil.dsom._
-import daffodil.compiler._
-import daffodil.dsom.AnnotatedSchemaComponent
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.compiler._
+import edu.illinois.ncsa.daffodil.dsom.AnnotatedSchemaComponent
 import java.io.FileOutputStream
 import java.io.File
-import daffodil.exceptions.UnsuppressableException
-import daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.xml.NS
 
 class UnparseAlternativeFailed(sc: SchemaComponent, state: UState, val errors: Seq[Diagnostic])
   extends UnparseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors)

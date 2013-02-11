@@ -1,15 +1,16 @@
-package daffodil.xml.test.unit
+package edu.illinois.ncsa.daffodil.xml.test.unit
 
 import scala.xml._
-import daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
 import java.io.File
-import daffodil.Implicits._
-import daffodil.util.LoggingDefaults
-import daffodil.util.LogLevel
-import daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.util.LoggingDefaults
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.Misc
 
 /**
  * This unit test cannot be in the regular daffodil-core library due
@@ -338,7 +339,7 @@ catalogs=testData_OnClassPath/testCatalog.xml
       }
     }
 
-    val loader = new daffodil.xml.DaffodilXMLLoader(new org.xml.sax.ErrorHandler {
+    val loader = new DaffodilXMLLoader(new org.xml.sax.ErrorHandler {
 
       def warning(exception: SAXParseException) = {
         exceptionList = exception :: exceptionList

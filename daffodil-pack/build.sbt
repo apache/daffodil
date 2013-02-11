@@ -3,7 +3,7 @@ name := "daffodil"
 scalaVersion := "2.9.2"
 
 libraryDependencies := Seq(
-  "daffodil-core" %% "daffodil-core" % "0.6.0"
+  "edu.illinois.ncsa" %% "daffodil-core" % "0.6.0"
 )
 
 // Add NCSA servers as a repository

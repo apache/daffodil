@@ -1,8 +1,8 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
 import org.scalatest.junit.JUnitSuite
-import daffodil.processors._
-import daffodil.compiler._
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.compiler._
 import org.junit.Test
 
 /**

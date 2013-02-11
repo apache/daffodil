@@ -1,5 +1,5 @@
-package daffodil.processors
-import daffodil.schema.annotation.props.gen.TextStringJustification
+package edu.illinois.ncsa.daffodil.processors
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextStringJustification
 
 object DFDLRegularExpressions {
 

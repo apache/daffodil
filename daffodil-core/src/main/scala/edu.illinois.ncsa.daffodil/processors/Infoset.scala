@@ -1,13 +1,13 @@
-package daffodil.processors
-import daffodil.xml.XMLUtils
-import daffodil.dsom.ElementBase
-import daffodil.exceptions.Assert
-import daffodil.dsom.SchemaComponentRegistry
-import daffodil.processors.xpath.XPathUtil.CompiledExpressionFactory
+package edu.illinois.ncsa.daffodil.processors
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponentRegistry
+import edu.illinois.ncsa.daffodil.processors.xpath.XPathUtil.CompiledExpressionFactory
 import javax.xml.namespace.QName
-import daffodil.processors.xpath.XPathUtil
+import edu.illinois.ncsa.daffodil.processors.xpath.XPathUtil
 import javax.xml.xpath.XPathConstants._
-import daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.Implicits._
 
 /**
  * Our abstraction layer over JDOM for the DFDL Infoset

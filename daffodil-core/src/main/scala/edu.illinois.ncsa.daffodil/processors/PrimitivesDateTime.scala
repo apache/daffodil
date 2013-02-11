@@ -1,17 +1,17 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
 import java.text.ParsePosition
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.{ Calendar, TimeZone, GregorianCalendar, ULocale }
 
-import daffodil.dsom._
-import daffodil.exceptions.Assert
-import daffodil.exceptions.UnsuppressableException
-import daffodil.grammar.Terminal
-import daffodil.grammar.Gram
-import daffodil.schema.annotation.props.gen.CalendarPatternKind
-import daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
-import daffodil.schema.annotation.props.gen.CalendarCheckPolicy
+import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.grammar.Terminal
+import edu.illinois.ncsa.daffodil.grammar.Gram
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarPatternKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
 
 case class ConvertTextCalendarParser(gram: Gram, e: ElementBase, dataFormatter: SimpleDateFormat, infosetFormatter: SimpleDateFormat) extends PrimParser(gram, e) {
 

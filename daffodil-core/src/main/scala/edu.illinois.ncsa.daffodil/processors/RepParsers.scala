@@ -1,27 +1,27 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
-import daffodil.xml._
-import daffodil.xml._
-import daffodil.processors._
-import daffodil.grammar._
-import daffodil.exceptions.Assert
-import daffodil.schema.annotation.props._
-import daffodil.Implicits._
-import daffodil.dsom._
-import daffodil.compiler._
-import daffodil.api._
+import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.grammar._
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.schema.annotation.props._
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.compiler._
+import edu.illinois.ncsa.daffodil.api._
 import java.nio._
 import java.nio.charset._
 import scala.collection.JavaConversions._
 import scala.util.logging.ConsoleLogger
 import scala.collection.mutable.Queue
 import scala.util.matching.Regex
-import daffodil.util._
-import daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import java.io.ByteArrayInputStream
 import scala.collection.mutable.Stack
-import daffodil.exceptions.UnsuppressableException
-import daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 abstract class RepPrim(context: LocalElementBase, n: Long, r: => Gram) extends UnaryGram(context, r) {
   Assert.invariant(n > 0)

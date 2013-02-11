@@ -1,18 +1,18 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
-import daffodil.exceptions._
-import daffodil.processors.xpath._
+import edu.illinois.ncsa.daffodil.exceptions._
+import edu.illinois.ncsa.daffodil.processors.xpath._
 import javax.xml.xpath._
-import daffodil.processors.VariableMap
-import daffodil.processors.xpath.XPathUtil.CompiledExpressionFactory
-import daffodil.util.Logging
-import daffodil.util.Debug
-import daffodil.util.LogLevel
-import daffodil.xml.XMLUtils
-import daffodil.processors.EmptyVariableMap
-import daffodil.processors.WithParseErrorThrowing
-import daffodil.processors.PState
-import daffodil.processors.InfosetElement
+import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.processors.xpath.XPathUtil.CompiledExpressionFactory
+import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
+import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
+import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.processors.InfosetElement
 
 /**
  * For the DFDL path/expression language, this provides the place to

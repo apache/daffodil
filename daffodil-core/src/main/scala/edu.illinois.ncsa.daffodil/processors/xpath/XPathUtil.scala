@@ -1,4 +1,4 @@
-package daffodil.processors.xpath
+package edu.illinois.ncsa.daffodil.processors.xpath
 
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.
@@ -48,29 +48,29 @@ import net.sf.saxon.jdom.DocumentWrapper
 import net.sf.saxon.Configuration
 import net.sf.saxon.om.NodeInfo
 import net.sf.saxon.xpath.XPathEvaluator
-import daffodil.exceptions._
-import daffodil.processors.VariableMap
-import daffodil.xml.XMLUtils
-import daffodil.util.Logging
-import daffodil.util.Debug
-import daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.exceptions._
+import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util.LogLevel
 import scala.xml.NamespaceBinding
 import javax.xml.XMLConstants
-import daffodil.dsom.SchemaComponent
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
 import java.util.HashMap
-import daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.processors.PState
 import scala.util.parsing.combinator.RegexParsers
-import daffodil.dsom.LocalElementDecl
-import daffodil.dsom.GlobalElementDecl
-import daffodil.dsom.ElementBase
-import daffodil.dsom.EntityReplacer
-import daffodil.Implicits._
-import daffodil.dsom.PrimType
+import edu.illinois.ncsa.daffodil.dsom.LocalElementDecl
+import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.dsom.PrimType
 import com.ibm.icu.text.DateFormat
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.GregorianCalendar
-import daffodil.processors.UState
+import edu.illinois.ncsa.daffodil.processors.UState
 import scala.xml.NodeSeq
 
 abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunction {
@@ -354,9 +354,9 @@ object DFDLOccursCountFunction extends DFDLFunction("occursCount", 1) {
 }
 
 object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) {
-  import daffodil.dsom.FacetTypes._
+  import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
   import util.control.Breaks._
-  import daffodil.dsom.PrimType._
+  import edu.illinois.ncsa.daffodil.dsom.PrimType._
 
   def evaluate1(args: java.util.List[_], pstate: PState): Object = {
     // Assumes that a JDOM element was already created

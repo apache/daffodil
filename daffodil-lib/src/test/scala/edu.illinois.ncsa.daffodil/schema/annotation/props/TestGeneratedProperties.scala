@@ -1,14 +1,14 @@
-package daffodil.schema.annotation.props
+package edu.illinois.ncsa.daffodil.schema.annotation.props
 
-import daffodil.schema.annotation.props.gen._
-import daffodil.util.Misc._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
+import edu.illinois.ncsa.daffodil.util.Misc._
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
-import daffodil.dsom.NotFound
-import daffodil.dsom.Found
-import daffodil.dsom.PropertyLookupResult
-import daffodil.dsom.LookupLocation
+import edu.illinois.ncsa.daffodil.dsom.NotFound
+import edu.illinois.ncsa.daffodil.dsom.Found
+import edu.illinois.ncsa.daffodil.dsom.PropertyLookupResult
+import edu.illinois.ncsa.daffodil.dsom.LookupLocation
 import java.net.URL
 
 /**

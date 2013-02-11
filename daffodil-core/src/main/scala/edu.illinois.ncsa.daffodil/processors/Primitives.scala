@@ -1,4 +1,4 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
 import java.math.BigInteger
 import java.text.{ ParseException, ParsePosition }
@@ -6,26 +6,26 @@ import java.util.regex.Pattern
 import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.charset.Charset
 import scala.collection.mutable.Queue
-import daffodil.Implicits._
-import daffodil.dsom._
-import daffodil.compiler._
-import daffodil.xml.XMLUtils
-import daffodil.schema.annotation.props.gen.{ YesNo, LengthKind, ByteOrder, LengthUnits }
-import daffodil.util.{ Debug, LogLevel, Logging, Info }
-import daffodil.util.Misc.bytes2Hex
-import daffodil.processors._
-import daffodil.exceptions.Assert
-import daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.compiler._
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.{ YesNo, LengthKind, ByteOrder, LengthUnits }
+import edu.illinois.ncsa.daffodil.util.{ Debug, LogLevel, Logging, Info }
+import edu.illinois.ncsa.daffodil.util.Misc.bytes2Hex
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import com.ibm.icu.text.{ NumberFormat, DecimalFormat }
-import daffodil.grammar.Terminal
+import edu.illinois.ncsa.daffodil.grammar.Terminal
 import scala.util.parsing.input.{ Reader }
 import java.sql.Timestamp
-import daffodil.grammar.Gram
-import daffodil.schema.annotation.props.gen.TextTrimKind
-import daffodil.schema.annotation.props.gen.TextStringJustification
-import daffodil.schema.annotation.props.gen.TextNumberJustification
-import daffodil.schema.annotation.props.gen.TextCalendarJustification
-import daffodil.schema.annotation.props.gen.TextBooleanJustification
+import edu.illinois.ncsa.daffodil.grammar.Gram
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextTrimKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextStringJustification
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberJustification
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextCalendarJustification
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextBooleanJustification
 
 abstract class PrimParser(gram: Gram, contextArg: SchemaComponent)
   extends Parser(contextArg) {
@@ -570,7 +570,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
               res
             }
         }
-        val delimsCooked1 = delimsRaw.map(raw => { new daffodil.dsom.ListOfStringValueAsLiteral(raw.toString, e).cooked })
+        val delimsCooked1 = delimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
         val delimsCooked = delimsCooked1.flatten
         //System.err.println("startCharPos: " + start.charPos)
         val postEvalState = start.withVariables(vars)
@@ -592,7 +592,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
         val d = new DelimParser(e)
 
-        var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
+        var result: DelimParseResult = new DelimParseResult
 
         if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
           //          result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
@@ -681,7 +681,7 @@ case class StringPatternMatched(e: ElementBase)
 
         val d = new DelimParser(e)
 
-        var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
+        var result: DelimParseResult = new DelimParseResult
 
         result = d.parseInputPatterned(pattern, reader)
 
@@ -1525,7 +1525,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
     override def toString = kindString + "('" + delim + "')" //  with terminating markup: " + term.prettyTerminatingMarkup + ")"
 
     val delimsRaw = e.allTerminatingMarkup.map { _.constantAsString }
-    val delimsCooked1 = delimsRaw.map(raw => { new daffodil.dsom.ListOfStringValueAsLiteral(raw.toString, e).cooked })
+    val delimsCooked1 = delimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
     val delimsCooked = delimsCooked1.flatten
 
     // Here we expect that remoteDelims shall be defined as those delimiters who are not
@@ -1558,7 +1558,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
 
         val d = new DelimParser(e)
 
-        var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
+        var result: DelimParseResult = new DelimParseResult
 
         // Well they may not be delimiters, but the logic is the same as for a 
         // set of static delimiters.
@@ -1569,7 +1569,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
         if (!result.isSuccess) {
           log(Debug("%s - %s: Delimiter not found!", this.toString(), eName))
           return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
-        } else if (result.delimiterLoc == daffodil.processors.DelimiterLocation.Remote) {
+        } else if (result.delimiterLoc == DelimiterLocation.Remote) {
           log(Debug("%s - %s: Remote delimiter found instead of local!", this.toString(), eName))
           return PE(start, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
         } else {
@@ -1925,7 +1925,7 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
 
     val isEmptyAllowed = e.nilValue.contains("%ES;")
     val eName = e.toString()
-    val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked
+    val nilValuesCooked = new ListOfStringValueAsLiteral(e.nilValue, e).cooked
     val charsetName = charset.name()
 
     def parse(start: PState): PState = {
@@ -2027,7 +2027,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
 
     val isEmptyAllowed = e.nilValue.contains("%ES;")
     val eName = e.toString()
-    val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked
+    val nilValuesCooked = new ListOfStringValueAsLiteral(e.nilValue, e).cooked
     val charsetName = charset.name()
     val expr = e.length
     val exprText = expr.prettyExpr
@@ -2131,7 +2131,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
 
     val isEmptyAllowed = e.nilValue.contains("%ES;")
     val eName = e.toString()
-    val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked
+    val nilValuesCooked = new ListOfStringValueAsLiteral(e.nilValue, e).cooked
     val charsetName = charset.name()
 
     def parse(start: PState): PState = {
@@ -2223,7 +2223,7 @@ case class LiteralNilPattern(e: ElementBase)
 
     val isEmptyAllowed = e.nilValue.contains("%ES;")
     val eName = e.toString()
-    val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked
+    val nilValuesCooked = new ListOfStringValueAsLiteral(e.nilValue, e).cooked
     val charsetName = charset.name()
 
     def parse(start: PState): PState = {
@@ -2325,10 +2325,10 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
               res
             }
         }
-        val delimsCooked1 = delimsRaw.map(raw => { new daffodil.dsom.ListOfStringValueAsLiteral(raw.toString, e).cooked })
+        val delimsCooked1 = delimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
         val delimsCooked = delimsCooked1.flatten
-        //val nilValuesCooked1 = delimsRaw.map(raw => { new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked })
-        val nilValuesCooked = new daffodil.dsom.ListOfStringValueAsLiteral(e.nilValue, e).cooked //nilValuesCooked1.flatten
+        //val nilValuesCooked1 = delimsRaw.map(raw => { new ListOfStringValueAsLiteral(e.nilValue, e).cooked })
+        val nilValuesCooked = new ListOfStringValueAsLiteral(e.nilValue, e).cooked //nilValuesCooked1.flatten
         val postEvalState = start.withVariables(vars)
 
         log(Debug("%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))
@@ -2350,7 +2350,7 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
         //		Same, success
         //		Diff, fail
         val d = new DelimParser(e)
-        var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
+        var result: DelimParseResult = new DelimParseResult
 
         if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
           //          result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
@@ -2522,7 +2522,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
           val d = new DelimParser(decl)
 
-          var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
+          var result: DelimParseResult = new DelimParseResult
 
           result = d.parseInputPatterned(testPattern, reader)
 
@@ -2583,7 +2583,7 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
           val d = new DelimParser(decl)
 
-          var result: daffodil.processors.DelimParseResult = new daffodil.processors.DelimParseResult
+          var result: DelimParseResult = new DelimParseResult
 
           result = d.parseInputPatterned(testPattern, reader)
 
@@ -2780,7 +2780,7 @@ case class StringExplicitLengthInBytes(e: ElementBase)
   with WithParseErrorThrowing {
   val expr = e.length
   val exprText = expr.prettyExpr
-  // val maxBytes = daffodil.compiler.Compiler.maxFieldContentLengthInBytes
+  // val maxBytes = Compiler.maxFieldContentLengthInBytes
   var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
   var cbufSize = 0
 

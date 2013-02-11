@@ -1,4 +1,4 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.

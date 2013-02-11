@@ -1,4 +1,4 @@
-package daffodil.propGen
+package edu.illinois.ncsa.daffodil.propGen
 
 // Copyright (C) 2012 Michael J. Beckerle. All Rights Reserved.
 

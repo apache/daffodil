@@ -1,12 +1,12 @@
-package daffodil.processors.charset
+package edu.illinois.ncsa.daffodil.processors.charset
 
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import org.junit.Test
-import daffodil.debugger.Debugger
-import daffodil.util.Misc
-import daffodil.tdml.Document
+import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.tdml.Document
 
 class TestUSASCII7BitPacked extends JUnitSuite {
 

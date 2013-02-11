@@ -1,22 +1,22 @@
-package daffodil.processors
-import daffodil.dsom.DFDLAssert
-import daffodil.dsom.DFDLDiscriminator
-import daffodil.dsom.DFDLSetVariable
-import daffodil.dsom.ElementBase
-import daffodil.grammar.Gram
-import daffodil.grammar.NamedGram
-import daffodil.schema.annotation.props.gen.TestKind
-import daffodil.exceptions.Assert
-import daffodil.dsom.ElementBase
-import daffodil.exceptions.UnsuppressableException
-import daffodil.dsom.R
-import daffodil.schema.annotation.props.gen.TextNumberJustification
-import daffodil.schema.annotation.props.gen.TextTrimKind
-import daffodil.schema.annotation.props.gen.TextStringJustification
-import daffodil.schema.annotation.props.gen.TextBooleanJustification
-import daffodil.schema.annotation.props.gen.TextCalendarJustification
-import daffodil.dsom.ElementBase
-import daffodil.grammar.Terminal
+package edu.illinois.ncsa.daffodil.processors
+import edu.illinois.ncsa.daffodil.dsom.DFDLAssert
+import edu.illinois.ncsa.daffodil.dsom.DFDLDiscriminator
+import edu.illinois.ncsa.daffodil.dsom.DFDLSetVariable
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.grammar.Gram
+import edu.illinois.ncsa.daffodil.grammar.NamedGram
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.dsom.R
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberJustification
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextTrimKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextStringJustification
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextBooleanJustification
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextCalendarJustification
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.grammar.Terminal
 
 abstract class SpecifiedLengthCombinatorBase(eb: ElementBase, eGram: => Gram)
   extends Terminal(eb, true)

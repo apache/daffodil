@@ -1,5 +1,5 @@
-package daffodil.processors.charset
-import daffodil.exceptions.Assert
+package edu.illinois.ncsa.daffodil.processors.charset
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.Charset
 import com.ibm.icu.charset.CharsetICU
 import java.nio.charset.IllegalCharsetNameException

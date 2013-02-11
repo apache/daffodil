@@ -1,15 +1,15 @@
-package daffodil.grammar
+package edu.illinois.ncsa.daffodil.grammar
 
-import daffodil.exceptions.Assert
-import daffodil.util.Debug
-import daffodil.util.Misc.getNameFromClass
-import daffodil.Implicits._
-import daffodil.dsom._
-import daffodil.processors._
-import daffodil.util.Info
-import daffodil.util.Compile
-import daffodil.api.Diagnostic
-import daffodil.schema.annotation.props.gen.LengthUnits
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util.Misc.getNameFromClass
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.util.Info
+import edu.illinois.ncsa.daffodil.util.Compile
+import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 
 abstract class Gram(val context: AnnotatedSchemaComponent) extends DiagnosticsProviding {
   def deref = this

@@ -1,20 +1,20 @@
-package daffodil.section05.dfdl_xsdl_subset
+package edu.illinois.ncsa.daffodil.section05.dfdl_xsdl_subset
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
-import daffodil.xml.XMLUtils
-import daffodil.xml.XMLUtils._
-import daffodil.compiler.Compiler
-import daffodil.util._
-import daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils._
+import edu.illinois.ncsa.daffodil.compiler.Compiler
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-import daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestDFDLSubset extends JUnitSuite {
-  val testDir = "/daffodil/section05/dfdl_xsdl_subset/"
+  val testDir = "/edu.illinois.ncsa.daffodil/section05/dfdl_xsdl_subset/"
   val tdml = testDir + "DFDLSubset.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 

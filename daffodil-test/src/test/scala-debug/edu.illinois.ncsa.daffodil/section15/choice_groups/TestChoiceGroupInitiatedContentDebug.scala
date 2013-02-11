@@ -1,20 +1,20 @@
-package daffodil.section15.choice_groups
+package edu.illinois.ncsa.daffodil.section15.choice_groups
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
-import daffodil.xml.XMLUtils
-import daffodil.xml.XMLUtils._
-import daffodil.compiler.Compiler
-import daffodil.util._
-import daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils._
+import edu.illinois.ncsa.daffodil.compiler.Compiler
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
-import daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 //class TestChoiceGroupInitiatedContentDebug extends JUnitSuite {
 //
-//  val testDir_01 = "/daffodil/section15/choice_groups/"
+//  val testDir_01 = "/edu.illinois.ncsa.daffodil/section15/choice_groups/"
 //  val tdml_01 = testDir_01 + "ChoiceGroupInitiatedContent.tdml"
 //  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 //

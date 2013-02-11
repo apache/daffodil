@@ -1,16 +1,16 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml._
 import scala.xml.parsing._
-import daffodil.xml._
-import daffodil.exceptions._
-import daffodil.schema.annotation.props._
-import daffodil.schema.annotation.props.gen._
+import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.exceptions._
+import edu.illinois.ncsa.daffodil.schema.annotation.props._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import scala.collection.JavaConversions._
-import daffodil.grammar._
-import daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.grammar._
+import edu.illinois.ncsa.daffodil.Implicits._
 
 /////////////////////////////////////////////////////////////////
 // Groups System
@@ -257,7 +257,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   lazy val isDirectChildOfSequence = parent.isInstanceOf[Sequence]
 
-  import daffodil.util.ListUtils
+  import edu.illinois.ncsa.daffodil.util.ListUtils
 
   lazy val hasLaterRequiredSiblings: Boolean = hasRequiredSiblings(ListUtils.tailAfter _)
   lazy val hasPriorRequiredSiblings: Boolean = hasRequiredSiblings(ListUtils.preceding _)

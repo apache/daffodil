@@ -1,4 +1,4 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml._
 import org.scalatest.junit.JUnitSuite

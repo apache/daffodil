@@ -1,10 +1,10 @@
-package daffodil.processors.xpath
+package edu.illinois.ncsa.daffodil.processors.xpath
 
 import org.jdom.Document
 import org.jdom.Element
 import org.jdom.Text
-import daffodil.processors.VariableMap
-import daffodil.xml._
+import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.xml._
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test

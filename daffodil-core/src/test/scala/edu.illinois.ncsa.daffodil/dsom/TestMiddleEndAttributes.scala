@@ -1,15 +1,15 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
-import daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.xml._
 import org.scalatest.junit.JUnitSuite
-import daffodil.schema.annotation.props.gen._
-import daffodil.schema.annotation.props._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
+import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import junit.framework.Assert._
-import daffodil.util._
-import daffodil.compiler._
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.compiler._
 import org.junit.Test
-import daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestMiddleEndAttributes extends JUnitSuite {
   val xsd = XMLUtils.XSD_NAMESPACE
@@ -181,11 +181,11 @@ class TestMiddleEndAttributes extends JUnitSuite {
     // Explore global element decl
     val Seq(e1f, e2f) = sd.globalElementDecls
     val e2 = e2f.forRoot()
-    val e2ct = e2.immediateType.get.asInstanceOf[daffodil.dsom.LocalComplexTypeDef]
+    val e2ct = e2.immediateType.get.asInstanceOf[LocalComplexTypeDef]
     val seq = e2ct.modelGroup.asInstanceOf[Sequence]
     val mems = seq.groupMembers
     val Seq(t1: Term) = mems
-    val e1ref = t1.asInstanceOf[daffodil.dsom.ElementRef]
+    val e1ref = t1.asInstanceOf[ElementRef]
     val nes = e1ref.nearestEnclosingSequence
     nes match {
       case None => fail()
@@ -228,17 +228,17 @@ class TestMiddleEndAttributes extends JUnitSuite {
     // Explore global element decl
     val Seq(e1f, e2f) = sd.globalElementDecls
     val e1 = e1f.forRoot()
-    val e1ct = e1.immediateType.get.asInstanceOf[daffodil.dsom.LocalComplexTypeDef]
+    val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
     val e1seq = e1ct.modelGroup.asInstanceOf[Sequence]
     val Seq(t1: Term) = e1seq.groupMembers
 
-    val eMsg = t1.asInstanceOf[daffodil.dsom.LocalElementDecl]
-    val eMsgct = eMsg.typeDef.asInstanceOf[daffodil.dsom.GlobalComplexTypeDef]
+    val eMsg = t1.asInstanceOf[LocalElementDecl]
+    val eMsgct = eMsg.typeDef.asInstanceOf[GlobalComplexTypeDef]
     val eMsgChoice = eMsgct.modelGroup.asInstanceOf[Choice]
     val Seq(t2: Term) = eMsgChoice.groupMembers
-    val e2ref = t2.asInstanceOf[daffodil.dsom.ElementRef]
+    val e2ref = t2.asInstanceOf[ElementRef]
     val e3 = e2ref.referencedElement
-    val e3ct = e3.immediateType.get.asInstanceOf[daffodil.dsom.LocalComplexTypeDef]
+    val e3ct = e3.immediateType.get.asInstanceOf[LocalComplexTypeDef]
     val e3seq = e3ct.modelGroup.asInstanceOf[Sequence]
     val e3seqImmediatelyEnclosingModelGroup = e3seq.immediatelyEnclosingModelGroup
     // Sequence inside an element doesn't have an immediately enclosing model group
@@ -275,7 +275,7 @@ class TestMiddleEndAttributes extends JUnitSuite {
     // Explore global element decl
     val Seq(e1f) = sd.globalElementDecls
     val e1 = e1f.forRoot()
-    val e1ct = e1.immediateType.get.asInstanceOf[daffodil.dsom.LocalComplexTypeDef]
+    val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
     val seq1 = e1ct.modelGroup.asInstanceOf[Sequence]
     val mems = seq1.groupMembers
     val Seq(t1: Term) = mems

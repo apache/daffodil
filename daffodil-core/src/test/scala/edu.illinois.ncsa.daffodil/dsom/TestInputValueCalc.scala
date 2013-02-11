@@ -1,7 +1,7 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
-import daffodil.util._
-import daffodil.compiler._
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.compiler._
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue

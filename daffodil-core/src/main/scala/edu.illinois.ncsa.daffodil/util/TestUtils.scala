@@ -1,14 +1,14 @@
-package daffodil.util
+package edu.illinois.ncsa.daffodil.util
 
 import scala.xml._
-import daffodil.xml.XMLUtils
-import daffodil.xml.XMLUtils._
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import junit.framework.Assert.assertEquals
 import java.io.File
 import java.io.FileNotFoundException
-import daffodil.xml.NS
-import daffodil.exceptions.Assert
-import daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.Implicits._
 
 /*
  * This is not a file of tests.

@@ -1,4 +1,4 @@
-package daffodil.util
+package edu.illinois.ncsa.daffodil.util
 
 object ListUtils {
   type SubListFinder[T] = (Seq[T], Any) => Seq[T]

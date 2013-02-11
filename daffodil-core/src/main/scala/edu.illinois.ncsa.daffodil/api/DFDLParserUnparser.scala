@@ -1,9 +1,9 @@
-package daffodil.api
+package edu.illinois.ncsa.daffodil.api
 
 import scala.xml.Node
-import daffodil.processors.ProcessorResult
-import daffodil.processors.Success
-import daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.processors.ProcessorResult
+import edu.illinois.ncsa.daffodil.processors.Success
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor

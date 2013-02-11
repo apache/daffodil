@@ -1,4 +1,4 @@
-package daffodil
+package edu.illinois.ncsa.daffodil
 
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
@@ -6,9 +6,9 @@ import org.junit.contrib.java.lang.system.ExpectedSystemExit
 import org.junit.contrib.java.lang.system.internal.CheckExitCalled
 import org.junit.Test
 import org.junit.Rule
-import daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream
-import daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 
 class TestMultiFileSuppport extends JUnitSuite {
 

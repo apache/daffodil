@@ -1,19 +1,19 @@
-package daffodil.section06.entities
+package edu.illinois.ncsa.daffodil.section06.entities
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
-import daffodil.xml.XMLUtils
-import daffodil.xml.XMLUtils._
-import daffodil.compiler.Compiler
-import daffodil.util._
-import daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils._
+import edu.illinois.ncsa.daffodil.compiler.Compiler
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestEntities_01 extends JUnitSuite {
 
-  val testDir_01 = "/daffodil/section06/entities/"
+  val testDir_01 = "/edu.illinois.ncsa.daffodil/section06/entities/"
   val aa_01 = testDir_01 + "Entities.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
 
@@ -21,7 +21,7 @@ class TestEntities_01 extends JUnitSuite {
   @Test def test_byte_entities_6_06() { runner_01.runOneTest("byte_entities_6_06") }
   @Test def test_byte_entities_6_07() { runner_01.runOneTest("byte_entities_6_07") }
 
-  val testDir_02 = "/daffodil/ibm-tests/"
+  val testDir_02 = "/edu.illinois.ncsa.daffodil/ibm-tests/"
   val tdml_02 = testDir_02 + "dpaext1.tdml"
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
   // Needs dfdl:utf16Width='variable' implementation

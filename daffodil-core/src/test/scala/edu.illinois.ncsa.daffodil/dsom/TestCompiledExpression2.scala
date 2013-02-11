@@ -1,16 +1,16 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
 import org.scalatest.junit.JUnitSuite
-import daffodil.xml._
-import daffodil.processors._
-import daffodil.processors.xpath._
+import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.processors.xpath._
 import junit.framework.Assert._
-import daffodil.processors._
-import daffodil.compiler._
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.compiler._
 import javax.xml.xpath.XPathExpressionException
-import daffodil.processors.WithParseErrorThrowing
+import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import org.junit.Test
-import daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.Implicits._
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression

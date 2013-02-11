@@ -1,16 +1,20 @@
-package daffodil.schema.annotation.props
+package edu.illinois.ncsa.daffodil.schema.annotation.props
 
 // Copyright (C) 2012 Michael J. Beckerle. All Rights Reserved.
 
-import daffodil.exceptions._
-import daffodil.dsom.OOLAG.OOLAGHost
-import daffodil.dsom.EntityReplacer
-import daffodil.dsom.ListOfStringValueAsLiteral
-import daffodil.dsom.StringValueAsLiteral
-import daffodil.dsom.SingleCharacterLiteral
-import daffodil.schema.annotation.props.gen.LengthUnits
-import daffodil.schema.annotation.props.gen.NilKind
-import daffodil.schema.annotation.props.gen.Representation
+import edu.illinois.ncsa.daffodil.exceptions._
+import edu.illinois.ncsa.daffodil.dsom.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
+import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
+import edu.illinois.ncsa.daffodil.dsom.StringValueAsLiteral
+import edu.illinois.ncsa.daffodil.dsom.SingleCharacterLiteral
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnitsMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKindMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilValueDelimiterPolicyMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.RepresentationMixin
 
 /**
  * We don't want to make the code generator so sophisticated as to be
@@ -148,7 +152,7 @@ trait TextNumberFormatMixin extends PropertyMixin {
 }
 
 trait StringTextMixin extends PropertyMixin
-  with daffodil.schema.annotation.props.gen.LengthUnitsMixin {
+  with LengthUnitsMixin {
   lazy val textStringPadCharacterRaw = getProperty("textStringPadCharacter")
   lazy val textStringPadCharacter = {
     val raw = textStringPadCharacterRaw
@@ -182,7 +186,7 @@ trait StringTextMixin extends PropertyMixin
 }
 
 trait NumberTextMixin extends PropertyMixin
-  with daffodil.schema.annotation.props.gen.LengthUnitsMixin {
+  with LengthUnitsMixin {
   lazy val textNumberPadCharacterRaw = getProperty("textNumberPadCharacter")
   lazy val textNumberPadCharacter = {
     val raw = textNumberPadCharacterRaw
@@ -213,7 +217,7 @@ trait NumberTextMixin extends PropertyMixin
 }
 
 trait BooleanTextMixin extends PropertyMixin
-  with daffodil.schema.annotation.props.gen.LengthUnitsMixin {
+  with LengthUnitsMixin {
   lazy val textBooleanPadCharacterRaw = getProperty("textBooleanPadCharacter")
   lazy val textBooleanPadCharacter = {
     val raw = textBooleanPadCharacterRaw
@@ -244,7 +248,7 @@ trait BooleanTextMixin extends PropertyMixin
 }
 
 trait CalendarTextMixin extends PropertyMixin
-  with daffodil.schema.annotation.props.gen.LengthUnitsMixin {
+  with LengthUnitsMixin {
   lazy val textCalendarPadCharacterRaw = getProperty("textCalendarPadCharacter")
   lazy val textCalendarPadCharacter = {
     val raw = textCalendarPadCharacterRaw
@@ -275,9 +279,9 @@ trait CalendarTextMixin extends PropertyMixin
 }
 
 trait NillableMixin extends PropertyMixin
-  with daffodil.schema.annotation.props.gen.NilKindMixin
-  with daffodil.schema.annotation.props.gen.NilValueDelimiterPolicyMixin
-  with daffodil.schema.annotation.props.gen.RepresentationMixin {
+  with NilKindMixin
+  with NilValueDelimiterPolicyMixin
+  with RepresentationMixin {
 
   // Information regarding Representation was needed here to characterize
   // appropriate behavior of nilValue

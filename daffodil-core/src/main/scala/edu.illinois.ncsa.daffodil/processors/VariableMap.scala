@@ -1,4 +1,4 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.
@@ -39,14 +39,14 @@ package daffodil.processors
 
 import scala.collection.mutable.Stack
 import scala.collection.mutable.Set
-import daffodil.exceptions.Assert
-import daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import javax.xml.namespace.QName
-import daffodil.dsom.SchemaDocument
-import daffodil.dsom.DFDLDefineVariable
-import daffodil.dsom.DFDLSetVariable
-import daffodil.dsom.SchemaComponent
-import daffodil.dsom.SchemaDefinitionError
+import edu.illinois.ncsa.daffodil.dsom.SchemaDocument
+import edu.illinois.ncsa.daffodil.dsom.DFDLDefineVariable
+import edu.illinois.ncsa.daffodil.dsom.DFDLSetVariable
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
+import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 
 sealed abstract class VariableState
 

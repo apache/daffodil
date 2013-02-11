@@ -1,4 +1,4 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
 import java.io.InputStream
 import java.nio.channels.ReadableByteChannel
@@ -21,7 +21,7 @@ import scala.util.control.Breaks._
 import java.nio.charset.CoderResult
 import sun.nio.cs.HistoricallyNamedCharset
 import java.nio.channels.Channels
-import daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
  * Pure functional Reader[Byte] that gets its data from a DFDL.Input (aka a ReadableByteChannel)

@@ -1,12 +1,12 @@
-package daffodil.processors
-import daffodil.dsom.DFDLAssert
-import daffodil.dsom.DFDLDiscriminator
-import daffodil.dsom.DFDLSetVariable
-import daffodil.dsom.ElementBase
-import daffodil.grammar.Gram
-import daffodil.grammar.NamedGram
-import daffodil.schema.annotation.props.gen.TestKind
-import daffodil.exceptions.Assert
+package edu.illinois.ncsa.daffodil.processors
+import edu.illinois.ncsa.daffodil.dsom.DFDLAssert
+import edu.illinois.ncsa.daffodil.dsom.DFDLDiscriminator
+import edu.illinois.ncsa.daffodil.dsom.DFDLSetVariable
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.grammar.Gram
+import edu.illinois.ncsa.daffodil.grammar.NamedGram
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 object StmtEval {
   def apply(context: ElementBase, eGram: => Gram) = {

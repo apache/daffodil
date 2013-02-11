@@ -1,18 +1,18 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
 import scala.annotation.migration
 import scala.collection.mutable.Queue
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.parsing.input.Reader
-import daffodil.processors.DelimiterType.DelimiterType
-import daffodil.processors.DelimiterLocation.DelimiterLocation
+import edu.illinois.ncsa.daffodil.processors.DelimiterType.DelimiterType
+import edu.illinois.ncsa.daffodil.processors.DelimiterLocation.DelimiterLocation
 import scala.util.matching.Regex
 import java.nio.charset.Charset
 import java.util.regex.Pattern
-import daffodil.util.Logging
-import daffodil.util.LogLevel
-import daffodil.util.Debug
-import daffodil.dsom.AnnotatedSchemaComponent
+import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.dsom.AnnotatedSchemaComponent
 
 object TextJustificationType extends Enumeration {
   type Type = Value

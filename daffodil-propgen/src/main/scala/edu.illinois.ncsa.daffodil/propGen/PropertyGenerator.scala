@@ -1,4 +1,4 @@
-package daffodil.propGen
+package edu.illinois.ncsa.daffodil.propGen
 
 // Copyright (C) 2012 Michael J. Beckerle. All Rights Reserved.
 
@@ -588,7 +588,7 @@ object PropertyGenerator {
   }
 
   def generatedCodeFilename = "GeneratedCode.scala"
-  def generatedCodePackage = "daffodil.schema.annotation.props.gen"
+  def generatedCodePackage = "edu.illinois.ncsa.daffodil.schema.annotation.props.gen"
 
   def preamble = "package " + generatedCodePackage + """
 
@@ -604,8 +604,8 @@ object PropertyGenerator {
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 
-import daffodil.schema.annotation.props._
-import daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.schema.annotation.props._
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
     
 """
 

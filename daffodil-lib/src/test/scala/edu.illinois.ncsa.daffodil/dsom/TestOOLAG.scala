@@ -1,14 +1,14 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
-import daffodil.dsom.OOLAG._
-import daffodil.util.LoggingDefaults
-import daffodil.util.LogLevel
-import daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.dsom.OOLAG._
+import edu.illinois.ncsa.daffodil.util.LoggingDefaults
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.LogLevel
 import org.junit.Test
-import daffodil.exceptions.Assert
-import daffodil.exceptions.Abort
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.Abort
 
 class MyHost extends OOLAGHost {
   def LV = LVFactory(this)

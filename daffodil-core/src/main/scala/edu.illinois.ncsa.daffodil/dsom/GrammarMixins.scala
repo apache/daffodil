@@ -1,15 +1,15 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
-import daffodil.exceptions.Assert
-import daffodil.grammar._
-import daffodil.schema.annotation.props._
-import daffodil.schema.annotation.props.gen._
-import daffodil.dsom.OOLAG._
-import daffodil.util._
-import daffodil.util.Misc.bytes2Hex
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.grammar._
+import edu.illinois.ncsa.daffodil.schema.annotation.props._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
+import edu.illinois.ncsa.daffodil.dsom.OOLAG._
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.util.Misc.bytes2Hex
 import com.ibm.icu.text.NumberFormat
-import daffodil.processors._
+import edu.illinois.ncsa.daffodil.processors._
 import java.math.BigInteger
 
 trait InitiatedTerminatedMixin

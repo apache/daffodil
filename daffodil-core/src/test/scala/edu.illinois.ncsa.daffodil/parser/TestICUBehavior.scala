@@ -1,4 +1,4 @@
-package daffodil.parser
+package edu.illinois.ncsa.daffodil.parser
 
 import scala.xml._
 import junit.framework.Assert._

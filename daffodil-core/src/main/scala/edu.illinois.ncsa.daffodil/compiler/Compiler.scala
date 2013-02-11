@@ -1,23 +1,23 @@
-package daffodil.compiler
+package edu.illinois.ncsa.daffodil.compiler
 
 import java.io.ByteArrayOutputStream
 import java.io.ByteArrayInputStream
 import scala.xml.Node
-import daffodil.api.DFDL._
-import daffodil.exceptions.Assert
-import daffodil.util._
-import daffodil.util.Misc.hex2Bytes
+import edu.illinois.ncsa.daffodil.api.DFDL._
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.util.Misc.hex2Bytes
 import junit.framework.Assert.assertEquals
-import daffodil.dsom.DiagnosticsProviding
-import daffodil.dsom.GlobalElementDecl
-import daffodil.dsom.SchemaSet
-import daffodil.processors.DataProcessor
-import daffodil.api.DFDL
-import daffodil.debugger.Debugger
-import daffodil.xml.DaffodilXMLLoader
-import daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticsProviding
+import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
+import edu.illinois.ncsa.daffodil.dsom.SchemaSet
+import edu.illinois.ncsa.daffodil.processors.DataProcessor
+import edu.illinois.ncsa.daffodil.api.DFDL
+import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import java.io.File
-import daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml.NS
 
 /**
  * Contains a specification of the root element to be used.
@@ -56,7 +56,7 @@ class ProcessorFactory(sset: SchemaSet)
     if (dataProc.isError) {
       val diags = dataProc.getDiagnostics
       log(Error("Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length))
-      diags.foreach { diag => log(daffodil.util.Error(diag.toString())) }
+      diags.foreach { diag => log(Error(diag.toString())) }
     } else {
       log(Compile("Parser = %s.", dataProc.parser.toString))
       log(Compile("Unparser = %s.", dataProc.unparser.toString))
@@ -136,7 +136,7 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
     val pf = new ProcessorFactory(sset)
     val isError = pf.isError // isError causes diagnostics to be created.
     val diags = pf.getDiagnostics
-    def printDiags() = diags.foreach { diag => log(daffodil.util.Error(diag.toString())) }
+    def printDiags() = diags.foreach { diag => log(Error(diag.toString())) }
     if (pf.isError) {
       Assert.invariant(diags.length > 0)
       log(Error("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
@@ -165,7 +165,7 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
   }
 
   def compileInternal(xml: Node): (SchemaSet, ProcessorFactory) = {
-    val tempSchemaFile = daffodil.xml.XMLUtils.convertNodeToTempFile(xml)
+    val tempSchemaFile = XMLUtils.convertNodeToTempFile(xml)
     compileInternal(List(tempSchemaFile))
   }
 

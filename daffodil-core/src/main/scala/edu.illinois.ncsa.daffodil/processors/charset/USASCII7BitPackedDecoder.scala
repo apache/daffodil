@@ -1,10 +1,10 @@
-package daffodil.processors.charset
+package edu.illinois.ncsa.daffodil.processors.charset
 
 import java.nio.charset.{ Charset, CoderResult, CharsetDecoder, CharsetEncoder }
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import daffodil.exceptions.Assert
-import daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.util.Misc
 
 object USASCII7BitPackedCharset
   extends java.nio.charset.Charset("US-ASCII-7-bit-packed", Array()) {

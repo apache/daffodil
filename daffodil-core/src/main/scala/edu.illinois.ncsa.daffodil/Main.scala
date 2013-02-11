@@ -1,4 +1,4 @@
-package daffodil
+package edu.illinois.ncsa.daffodil
 
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.
@@ -43,13 +43,14 @@ import java.io.OutputStreamWriter
 import java.io.FileInputStream
 import scala.xml.SAXParseException
 import org.rogach.scallop
-import daffodil.api.DFDL
-import daffodil.debugger.DebugUtil
-import daffodil.debugger.Debugger
-import daffodil.util.Misc
-import daffodil.xml.DaffodilXMLLoader
-import daffodil.tdml.DFDLTestSuite
-import daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.api.DFDL
+import edu.illinois.ncsa.daffodil.debugger.DebugUtil
+import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.compiler.Compiler
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler {
 
@@ -71,14 +72,14 @@ class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler {
 object Main {
 
   def createProcessorFromParser(parseFile: String, path: Option[String]) = {
-    val compiler = daffodil.compiler.Compiler()
+    val compiler = Compiler()
     val processorFactory = DebugUtil.time("Reloading parser", compiler.reload(parseFile))
     val processor = processorFactory.onPath(path.getOrElse("/"))
     processor
   }
 
   def createProcessorFromSchemas(schemaFiles: List[String], root: Option[String], namespace: Option[String], path: Option[String]) = {
-    val compiler = daffodil.compiler.Compiler()
+    val compiler = Compiler()
 
     root match {
       case Some(r) => {

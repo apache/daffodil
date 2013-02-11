@@ -1,12 +1,12 @@
-package daffodil.dsom
-import daffodil.exceptions.Assert
-import daffodil.dsom.OOLAG.OOLAGValue
-import daffodil.util.Logging
-import daffodil.util._
-import daffodil.util.Glob
-import daffodil.exceptions.Abort
-import daffodil.exceptions.NotYetImplementedException
-import daffodil.exceptions.UnsuppressableException
+package edu.illinois.ncsa.daffodil.dsom
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.dsom.OOLAG.OOLAGValue
+import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.util.Glob
+import edu.illinois.ncsa.daffodil.exceptions.Abort
+import edu.illinois.ncsa.daffodil.exceptions.NotYetImplementedException
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 
 /**
  * OOLAG = Object-oriented Lazy Attribute Grammars

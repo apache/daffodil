@@ -1,6 +1,6 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
-import daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.Misc
 import java.net.URL
 import scala.xml.Node
 import scala.xml.Elem
@@ -8,11 +8,11 @@ import scala.xml.Attribute
 import scala.xml.Null
 import org.apache.xerces.util.XMLResourceIdentifierImpl
 import java.io.IOException
-import daffodil.exceptions.Assert
-import daffodil.xml.NS
-import daffodil.xml.NoNamespace
-import daffodil.util.Debug
-import daffodil.util.Info
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml.NoNamespace
+import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util.Info
 
 /**
  * Maps an optional namespace and optional schemaLocation to an Include or Import object.

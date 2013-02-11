@@ -1,16 +1,16 @@
-package daffodil.processors.xpath
+package edu.illinois.ncsa.daffodil.processors.xpath
 
 import scala.math.Pi
-import daffodil.processors.VariableMap
-import daffodil.xml._
+import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.xml._
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
-import daffodil.tdml.DFDLTestSuite
-import daffodil.processors._
-import daffodil.Implicits._
-import daffodil.dsom._
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.dsom._
 import javax.xml.xpath.XPathConstants
-import daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 import org.junit.Test
 
 class TestVariables extends JUnitSuite with WithParseErrorThrowing {

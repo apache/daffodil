@@ -21,7 +21,7 @@
 # defaults for Daffodil will be defined.
 
 
-MAINCLASS=daffodil.Main
+MAINCLASS=edu.illinois.ncsa.daffodil.Main
 LIBDIR="../lib"
 CLASSPATH=$(find $LIBDIR -name '*.jar' | xargs echo | tr ' ' ':')
 

@@ -1,14 +1,14 @@
-package daffodil.processors.input
+package edu.illinois.ncsa.daffodil.processors.input
 
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import scala.util.parsing.combinator._
 import java.io.StringReader
 import org.junit.Test
-import daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
-import daffodil.processors.DFDLRegularExpressions
-import daffodil.schema.annotation.props.gen.TextStringJustification
+import edu.illinois.ncsa.daffodil.processors.DFDLRegularExpressions
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextStringJustification
 
 /**
  * The purpose of this class is to verify that the configurable

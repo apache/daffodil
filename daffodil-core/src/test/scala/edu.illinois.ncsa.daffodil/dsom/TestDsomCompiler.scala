@@ -1,17 +1,17 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
 import java.io.File
 import scala.xml.{ XML, Utility, Node }
 import org.junit.Test
 import org.scalatest.junit.JUnitSuite
-import daffodil.compiler._
-import daffodil.Implicits._
-import daffodil.dsom._
-import daffodil.schema.annotation.props.gen.{ YesNo, TextNumberRep, SeparatorPosition, Representation, OccursCountKind, NilKind, LengthKind, ChoiceLengthKind, ByteOrder, BinaryNumberRep, AlignmentUnits }
-import daffodil.schema.annotation.props.AlignmentType
-import daffodil.util.{ TestUtils, Misc, Logging }
-import daffodil.xml.XMLUtils
-import daffodil.exceptions.SchemaFileLocatable
+import edu.illinois.ncsa.daffodil.compiler._
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.{ YesNo, TextNumberRep, SeparatorPosition, Representation, OccursCountKind, NilKind, LengthKind, ChoiceLengthKind, ByteOrder, BinaryNumberRep, AlignmentUnits }
+import edu.illinois.ncsa.daffodil.schema.annotation.props.AlignmentType
+import edu.illinois.ncsa.daffodil.util.{ TestUtils, Misc, Logging }
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import junit.framework.Assert.{ assertTrue, assertEquals, assertFalse, fail }
 
 class TestDsomCompiler extends JUnitSuite with Logging {

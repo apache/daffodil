@@ -1,4 +1,4 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
 import java.util.regex.Pattern
 import java.util.logging.Logging

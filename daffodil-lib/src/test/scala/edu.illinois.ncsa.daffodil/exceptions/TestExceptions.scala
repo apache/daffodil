@@ -1,4 +1,4 @@
-package daffodil.exceptions
+package edu.illinois.ncsa.daffodil.exceptions
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 

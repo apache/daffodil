@@ -1,4 +1,4 @@
-package daffodil.tdml
+package edu.illinois.ncsa.daffodil.tdml
 
 import java.io.File
 import scala.Array.canBuildFrom
@@ -7,15 +7,15 @@ import scala.xml._
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
 import org.scalatest.junit.JUnitSuite
-import daffodil.Implicits.using
-import daffodil.compiler.Compiler
-import daffodil.xml.XMLUtils
-import daffodil.util._
-import daffodil.api._
+import edu.illinois.ncsa.daffodil.Implicits.using
+import edu.illinois.ncsa.daffodil.compiler.Compiler
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.api._
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import junit.framework.Assert.fail
-import daffodil.util.Misc._
+import edu.illinois.ncsa.daffodil.util.Misc._
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import org.xml.sax.InputSource
@@ -23,15 +23,15 @@ import java.io.StringReader
 import javax.xml.transform.stream.StreamSource
 import java.net.URL
 import java.net.URI
-import daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.ByteBuffer
 import java.nio.charset.CharsetEncoder
 import com.ibm.icu.charset.CharsetICU
 import java.nio.CharBuffer
 import java.io.InputStream
-import daffodil.processors.GeneralParseFailure
-import daffodil.dsom.EntityReplacer
-import daffodil.xml.DaffodilXMLLoader
+import edu.illinois.ncsa.daffodil.processors.GeneralParseFailure
+import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
+import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"

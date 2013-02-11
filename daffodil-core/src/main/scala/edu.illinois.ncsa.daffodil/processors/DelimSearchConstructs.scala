@@ -1,14 +1,15 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
-import daffodil.dsom.DFDLEscapeScheme
-import daffodil.schema.annotation.props.gen.EscapeKind
-import daffodil.exceptions.Assert
-import daffodil.dsom.EntityReplacer
-import daffodil.dsom.StringValueAsLiteral
-import daffodil.dsom.SingleCharacterLiteral
-import daffodil.util._
+import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
+import edu.illinois.ncsa.daffodil.dsom.StringValueAsLiteral
+import edu.illinois.ncsa.daffodil.dsom.SingleCharacterLiteral
+import edu.illinois.ncsa.daffodil.dsom.SingleCharacterLiteralES
+import edu.illinois.ncsa.daffodil.util._
 import EscapeSchemeKind.EscapeSchemeKind
-import daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 
 //object DelimiterType extends Enumeration {
 //  type DelimType = Value
@@ -61,7 +62,7 @@ object EscapeScheme extends Logging {
           case EscapeKind.EscapeBlock => {
             escapeSchemeKind = EscapeSchemeKind.Block
             escapeEscapeCharacter = {
-              val l = new daffodil.dsom.SingleCharacterLiteralES(obj.escapeEscapeCharacterRaw, context)
+              val l = new SingleCharacterLiteralES(obj.escapeEscapeCharacterRaw, context)
               l.cooked
             }
             escapeBlockStart = {
@@ -76,11 +77,11 @@ object EscapeScheme extends Logging {
           case EscapeKind.EscapeCharacter => {
             escapeSchemeKind = EscapeSchemeKind.Character
             escapeEscapeCharacter = {
-              val l = new daffodil.dsom.SingleCharacterLiteralES(obj.escapeEscapeCharacterRaw, context)
+              val l = new SingleCharacterLiteralES(obj.escapeEscapeCharacterRaw, context)
               l.cooked
             }
             escapeCharacter = {
-              val l = new daffodil.dsom.SingleCharacterLiteralES(obj.escapeCharacterRaw, context)
+              val l = new SingleCharacterLiteralES(obj.escapeCharacterRaw, context)
               l.cooked
             }
           }

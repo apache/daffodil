@@ -1,14 +1,14 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml._
-import daffodil.exceptions._
-import daffodil.grammar._
-import daffodil.xml._
+import edu.illinois.ncsa.daffodil.exceptions._
+import edu.illinois.ncsa.daffodil.grammar._
+import edu.illinois.ncsa.daffodil.xml._
 import scala.collection.mutable.Queue
 import scala.util.matching.Regex
-import daffodil.util.TestUtils
+import edu.illinois.ncsa.daffodil.util.TestUtils
 import java.math.BigInteger
-import daffodil.schema.annotation.props.gen.CalendarPatternKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarPatternKind
 import com.ibm.icu.util.ULocale
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.TimeZone
@@ -31,7 +31,7 @@ trait SimpleTypeBase
 
 trait Facets { self: SimpleTypeDefBase =>
   import Facet._
-  import daffodil.dsom.FacetTypes._
+  import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
 
   def retrieveFacetValueFromRestrictionBase(xml: Node, facetName: Facet): String = {
     val res = xml \\ "restriction" \ facetName.toString() \ "@value"
@@ -677,7 +677,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
     seq
   }
 
-  import daffodil.dsom.FacetTypes._
+  import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
 
   def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
 

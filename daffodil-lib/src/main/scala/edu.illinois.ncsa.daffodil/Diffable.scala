@@ -1,4 +1,4 @@
-package daffodil.schema
+package edu.illinois.ncsa.daffodil.schema
 
 
 /**

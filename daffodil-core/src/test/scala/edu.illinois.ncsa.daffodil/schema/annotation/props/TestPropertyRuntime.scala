@@ -1,19 +1,20 @@
-package daffodil.schema.annotation.props
+package edu.illinois.ncsa.daffodil.schema.annotation.props
 
 import junit.framework.Assert._
-import daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
-import daffodil.dsom.ImplementsThrowsSDE
-import daffodil.dsom.FindPropertyMixin
-import daffodil.dsom.Found
-import daffodil.dsom.LookupLocation
+import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
+import edu.illinois.ncsa.daffodil.dsom.FindPropertyMixin
+import edu.illinois.ncsa.daffodil.dsom.Found
+import edu.illinois.ncsa.daffodil.dsom.LookupLocation
+import edu.illinois.ncsa.daffodil.dsom.Fakes
 import java.net.URL
 
 sealed trait MyPropType extends MyProp.Value
 object MyProp extends Enum[MyPropType]
   with ImplementsThrowsSDE {
-  lazy val context = daffodil.dsom.Fakes.fakeElem
+  lazy val context = Fakes.fakeElem
   lazy val schemaComponent = context
   lazy val diagnosticChildren: DiagnosticsList = Nil
   lazy val path = prettyName

@@ -1,12 +1,12 @@
-package daffodil.xml.test.unit
+package edu.illinois.ncsa.daffodil.xml.test.unit
 
 import scala.xml._
-import daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
-import daffodil.Implicits._
-import daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.xml.NS
 
 class TestUnicodeXMLI18N extends JUnitSuite {
 

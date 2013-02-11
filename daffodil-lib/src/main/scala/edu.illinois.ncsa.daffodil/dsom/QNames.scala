@@ -1,10 +1,10 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 import scala.xml.Node
-import daffodil.xml.NS
-import daffodil.xml.XMLUtils
-import daffodil.exceptions.ThrowsSDE
-import daffodil.xml.GetAttributesMixin
-import daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 
 /**
  * Element references and Group References use this.

@@ -1,4 +1,4 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
 import java.nio.charset.Charset
 import java.nio.charset.CharsetDecoder

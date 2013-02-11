@@ -1,4 +1,4 @@
-package daffodil.util
+package edu.illinois.ncsa.daffodil.util
 
 /**
  * Put copies of any copyright notices in this class by appending them to the

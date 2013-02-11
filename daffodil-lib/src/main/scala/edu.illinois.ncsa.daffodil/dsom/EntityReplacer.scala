@@ -1,10 +1,10 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.lang.Byte
-import daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import scala.collection.mutable.ListBuffer
 
 /**

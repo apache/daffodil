@@ -1,7 +1,7 @@
-package daffodil.util
+package edu.illinois.ncsa.daffodil.util
 
 import junit.framework.Assert._
-import daffodil.exceptions._
+import edu.illinois.ncsa.daffodil.exceptions._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 

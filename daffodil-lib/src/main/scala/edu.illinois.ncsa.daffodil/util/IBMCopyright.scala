@@ -1,4 +1,4 @@
-package daffodil.util
+package edu.illinois.ncsa.daffodil.util
 
 object IBMCopyright {
   private val ibmCopyright = """

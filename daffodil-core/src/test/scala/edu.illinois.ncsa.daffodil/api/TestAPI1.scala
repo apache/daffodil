@@ -1,14 +1,14 @@
-package daffodil.api
+package edu.illinois.ncsa.daffodil.api
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import scala.xml._
-import daffodil.xml.XMLUtils
-import daffodil.xml.XMLUtils._
-import daffodil.compiler.Compiler
-import daffodil.util._
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils._
+import edu.illinois.ncsa.daffodil.compiler.Compiler
+import edu.illinois.ncsa.daffodil.util._
 import org.junit.Test
-import daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestDFDLParser extends JUnitSuite {
 

@@ -1,4 +1,4 @@
-package daffodil.xml.test.unit
+package edu.illinois.ncsa.daffodil.xml.test.unit
 
 import scala.xml._
 import junit.framework.Assert._

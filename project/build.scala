@@ -43,7 +43,7 @@ object DaffodilBuild extends Build {
   )
 
   def runPropertyGenerator(outdir: File, cp: Seq[File]): Seq[File] = {
-    val mainClass = "daffodil.propGen.PropertyGenerator"
+    val mainClass = "edu.illinois.ncsa.daffodil.propGen.PropertyGenerator"
     val out = new java.io.ByteArrayOutputStream()
     val ret = new Fork.ForkScala(mainClass).fork(None, Nil, cp, Seq(outdir.toString), None, false, CustomOutput(out)).exitValue()
     if (ret != 0) {
@@ -110,7 +110,7 @@ object DaffodilBuild extends Build {
 
   // start-script configuration
   lazy val startScriptSettings = Seq(SbtStartScript.startScriptForJarSettings : _*) ++
-                                 Seq(mainClass in Compile := Some("daffodil.Main"))
+                                 Seq(mainClass in Compile := Some("edu.illinois.ncsa.daffodil.Main"))
 
   // get the version from the latest tag
   s ++= Seq(version := {

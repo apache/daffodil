@@ -1,11 +1,11 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
-import daffodil.exceptions.SchemaFileLocatable
-import daffodil.util.Info
-import daffodil.util.Debug
-import daffodil.util.Logging
-import daffodil.schema.annotation.props.PropertyMixin
-import daffodil.xml.GetAttributesMixin
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
+import edu.illinois.ncsa.daffodil.util.Info
+import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
+import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 
 /**
  * This file is classes and traits to implement

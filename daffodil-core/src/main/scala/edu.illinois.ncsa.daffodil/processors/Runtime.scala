@@ -1,13 +1,13 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
-import daffodil.api.{ WithDiagnostics, DFDL }
-import daffodil.xml.XMLUtils
-import daffodil.exceptions.Assert
-import daffodil.dsom.OOLAG.OOLAGException
-import daffodil.api.Diagnostic
-import daffodil.Implicits._
-import daffodil.dsom._
-import daffodil.compiler.ProcessorFactory
+import edu.illinois.ncsa.daffodil.api.{ WithDiagnostics, DFDL }
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.dsom.OOLAG.OOLAGException
+import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.compiler.ProcessorFactory
 
 /**
  * Implementation mixin - provides simple helper methods

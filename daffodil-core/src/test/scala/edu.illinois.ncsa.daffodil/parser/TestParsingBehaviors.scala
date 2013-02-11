@@ -1,4 +1,4 @@
-package daffodil.parser
+package edu.illinois.ncsa.daffodil.parser
 
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
@@ -6,16 +6,16 @@ import scala.collection.mutable.Queue
 import java.util.regex.Pattern
 import java.io.FileInputStream
 import scala.util.parsing.input.CharSequenceReader
-import daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.Misc
 import javax.xml.transform.stream.StreamSource
 import java.io.File
 import java.nio.charset.Charset
 import java.net.URI
 import org.junit.Test
-import daffodil.dsom.Fakes
-import daffodil.processors.DFDLByteReader
-import daffodil.processors.TextJustificationType
-import daffodil.processors.DelimParser
+import edu.illinois.ncsa.daffodil.dsom.Fakes
+import edu.illinois.ncsa.daffodil.processors.DFDLByteReader
+import edu.illinois.ncsa.daffodil.processors.TextJustificationType
+import edu.illinois.ncsa.daffodil.processors.DelimParser
 
 class TestParsingBehaviors extends JUnitSuite {
 

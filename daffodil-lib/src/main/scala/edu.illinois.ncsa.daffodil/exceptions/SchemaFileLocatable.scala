@@ -1,6 +1,6 @@
-package daffodil.exceptions
+package edu.illinois.ncsa.daffodil.exceptions
 import scala.xml.Node
-import daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import java.net.URL
 
 trait SchemaFileLocatable {

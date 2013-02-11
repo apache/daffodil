@@ -1,18 +1,18 @@
-package daffodil.section06.entities
+package edu.illinois.ncsa.daffodil.section06.entities
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
-import daffodil.xml.XMLUtils
-import daffodil.xml.XMLUtils._
-import daffodil.compiler.Compiler
-import daffodil.util._
-import daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils._
+import edu.illinois.ncsa.daffodil.compiler.Compiler
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestEntities extends JUnitSuite {
-  val testDir = "/daffodil/section06/entities/"
+  val testDir = "/edu.illinois.ncsa.daffodil/section06/entities/"
   val tdml = testDir + "charClassEntities.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
@@ -28,7 +28,7 @@ class TestEntities extends JUnitSuite {
   @Test def test_FormFeed() { runner.runOneTest("FormFeed") }
   @Test def test_HexCodePoint() { runner.runOneTest("HexCodePoint") }
 
-  val testDir_01 = "/daffodil/section06/entities/"
+  val testDir_01 = "/edu.illinois.ncsa.daffodil/section06/entities/"
   val tdml_01 = testDir_01 + "Entities.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 
@@ -47,7 +47,7 @@ class TestEntities extends JUnitSuite {
   
 //  @Test def test_whitespace_01() { runner_01.runOneTest("whitespace_01") }
 
-  val testDir_02 = "/daffodil/ibm-tests/"
+  val testDir_02 = "/edu.illinois.ncsa.daffodil/ibm-tests/"
   val tdml_02 = testDir_02 + "dpaext1.tdml"
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
   @Test def test_syntax_entities_6_01() { runner_02.runOneTest("syntax_entities_6_01") }

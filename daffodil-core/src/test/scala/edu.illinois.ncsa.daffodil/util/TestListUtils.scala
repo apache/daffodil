@@ -1,9 +1,9 @@
-package daffodil.util
+package edu.illinois.ncsa.daffodil.util
 
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
-import daffodil.util._
+import edu.illinois.ncsa.daffodil.util._
 import org.junit.Test
 
 class TestListUtils extends JUnitSuite {

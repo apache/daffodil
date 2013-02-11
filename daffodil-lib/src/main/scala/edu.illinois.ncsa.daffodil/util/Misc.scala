@@ -1,4 +1,4 @@
-package daffodil.util
+package edu.illinois.ncsa.daffodil.util
 
 import java.io.FileNotFoundException
 import java.io.FileInputStream
@@ -69,7 +69,7 @@ object Misc {
    * the build number in the second slot.
    */
   def getDaffodilVersion: Tuple2[String, String] = {
-    val implVersion = Package.getPackage("daffodil.util").getImplementationVersion
+    val implVersion = this.getClass.getPackage.getImplementationVersion
     if (implVersion == null) {
       ("", "")
     } else {

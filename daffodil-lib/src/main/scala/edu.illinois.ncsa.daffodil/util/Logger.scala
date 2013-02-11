@@ -1,4 +1,4 @@
-package daffodil.util
+package edu.illinois.ncsa.daffodil.util
 import scala.actors.Actor
 import scala.actors.Actor._
 import java.text.SimpleDateFormat
@@ -58,7 +58,7 @@ abstract class LogWriter {
 
   def tstamp = tstampFormat.format(new Date)
 
-  def log(logID: String, glob: daffodil.util.Glob) {
+  def log(logID: String, glob: Glob) {
     try {
       val mess = glob.stringify
       val areStamping = glob.lvl < LogLevel.Debug

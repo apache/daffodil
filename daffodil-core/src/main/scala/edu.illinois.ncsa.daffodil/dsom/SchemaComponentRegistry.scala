@@ -1,8 +1,8 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 import scala.collection.mutable.HashMap
 import java.util.UUID
-import daffodil.exceptions.UnsuppressableException
-import daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
  * Used to navigate from the Infoset back to schema components relevant

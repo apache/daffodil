@@ -1,4 +1,4 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
 import java.nio.CharBuffer
 import java.io.FileInputStream
@@ -9,15 +9,16 @@ import java.nio.channels.Channels
 import java.io.IOException
 import java.nio.channels.FileChannel
 import java.nio.charset.CharsetDecoder
-import daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.CodingErrorAction
 import java.nio.ByteBuffer
 import java.io.InputStream
 import scala.util.control.Breaks._
 import java.nio.charset.CoderResult
-import daffodil.processors.charset.USASCII7BitPackedCharset
-import daffodil.processors.charset.CharsetUtils
-import daffodil.processors.charset.SupportsInitialBitOffset
+import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedCharset
+import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
+import edu.illinois.ncsa.daffodil.processors.charset.SupportsInitialBitOffset
+import edu.illinois.ncsa.daffodil.compiler.Compiler
 
 /**
  * The purpose of re-implementing this class is to gain control over
@@ -31,7 +32,7 @@ import daffodil.processors.charset.SupportsInitialBitOffset
  */
 object DFDLJavaIOStreamDecoder {
 
-  private val DEFAULT_BYTE_BUFFER_SIZE: Int = daffodil.compiler.Compiler.readerByteBufferSize.toInt
+  private val DEFAULT_BYTE_BUFFER_SIZE: Int = Compiler.readerByteBufferSize.toInt
 
   def forInputStreamReader(in: InputStream, charset: Charset, bitOffset0to7: Int, bitLimit: Long): DFDLJavaIOStreamDecoder = {
 

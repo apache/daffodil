@@ -1,9 +1,9 @@
-package daffodil
+package edu.illinois.ncsa.daffodil
 
 import java.io.{ ByteArrayInputStream, BufferedInputStream }
-import daffodil.xml.NS
-//import daffodil.schema.annotation.AttributeValue
-//import daffodil.xml.XMLUtil
+import edu.illinois.ncsa.daffodil.xml.NS
+//import edu.illinois.ncsa.daffodil.schema.annotation.AttributeValue
+//import edu.illinois.ncsa.daffodil.xml.XMLUtil
 
 object Implicits {
 

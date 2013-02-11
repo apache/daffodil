@@ -1,11 +1,11 @@
-package daffodil.xml
+package edu.illinois.ncsa.daffodil.xml
 import java.net.URI
-import daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
  * Central factory for, and class to represent namespace URIs
  *
- * Import this object. I.e., import daffodil.xml.NS._
+ * Import this object. I.e., import edu.illinois.ncsa.daffodil.xml.NS._
  */
 object NS {
 
@@ -85,10 +85,10 @@ class NS protected (s: String) { // protected constructor. Must use factory.
 //import org.jdom.Element
 //import org.jdom.Namespace
 //
-//// import daffodil.exceptions.UnimplementedException
-//import daffodil.schema._
+//// import edu.illinois.ncsa.daffodil.exceptions.UnimplementedException
+//import edu.illinois.ncsa.daffodil.schema._
 //import java.io.{ ObjectInputStream, ObjectOutputStream, Serializable }
-//import daffodil.exceptions.Assert
+//import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 //@SerialVersionUID(1)
 //class Namespaces extends NamespaceContext with Serializable with Diffable {

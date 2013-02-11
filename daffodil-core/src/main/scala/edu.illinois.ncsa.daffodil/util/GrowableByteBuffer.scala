@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package daffodil.util
+package edu.illinois.ncsa.daffodil.util
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

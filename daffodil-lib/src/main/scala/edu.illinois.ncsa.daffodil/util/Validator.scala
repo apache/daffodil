@@ -1,4 +1,4 @@
-package daffodil.util
+package edu.illinois.ncsa.daffodil.util
 
 //
 // Copyright (C) 2011, 2012 by Michael J. Beckerle, All rights Reserved.

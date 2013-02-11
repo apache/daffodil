@@ -1,4 +1,4 @@
-package daffodil.util
+package edu.illinois.ncsa.daffodil.util
 
 import java.io.File
 import scala.xml.{ SAXParseException, InputSource }
@@ -14,7 +14,7 @@ import javax.xml.parsers.{ SAXParserFactory, SAXParser }
 import junit.framework.Assert.{ fail, assertTrue }
 import scala.xml.NamespaceBinding
 import scala.xml.MetaData
-import daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.xml.Null
 import scala.xml.Attribute
 import scala.xml.Text

@@ -1,14 +1,14 @@
-package daffodil.xml
+package edu.illinois.ncsa.daffodil.xml
 
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
-import daffodil.tdml.DFDLTestSuite
-import daffodil.util.Misc
-import daffodil.processors._
-import daffodil.compiler._
-import daffodil.debugger.Debugger
-import daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.compiler._
+import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.Implicits._
 import java.net.URL
 import java.io.File
 

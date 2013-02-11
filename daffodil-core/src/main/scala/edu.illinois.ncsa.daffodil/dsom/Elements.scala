@@ -1,19 +1,19 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
-import daffodil.exceptions.Assert
-import daffodil.grammar._
-import daffodil.schema.annotation.props._
-import daffodil.schema.annotation.props.gen._
-import daffodil.xml._
-import daffodil.processors.VariableMap
-import daffodil.api.WithDiagnostics
-import daffodil.dsom.OOLAG._
-import daffodil.exceptions.ThrowsSDE
-import daffodil.dsom.OOLAG.LV
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.grammar._
+import edu.illinois.ncsa.daffodil.schema.annotation.props._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
+import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.api.WithDiagnostics
+import edu.illinois.ncsa.daffodil.dsom.OOLAG._
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.dsom.OOLAG.LV
 import scala.util.matching.Regex
-import daffodil.dsom.Facet._
-import daffodil.processors.Infoset
+import edu.illinois.ncsa.daffodil.dsom.Facet._
+import edu.illinois.ncsa.daffodil.processors.Infoset
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -247,7 +247,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   // 11/1/2012 - moved to base since needed by patternValue
   lazy val isPrimitiveType = typeDef.isInstanceOf[PrimitiveType]
 
-  import daffodil.dsom.FacetTypes._
+  import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
 
   lazy val hasPattern: Boolean = {
     if (isSimpleType && !isPrimitiveType) {

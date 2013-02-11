@@ -1,4 +1,4 @@
-package daffodil.grammar
+package edu.illinois.ncsa.daffodil.grammar
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite

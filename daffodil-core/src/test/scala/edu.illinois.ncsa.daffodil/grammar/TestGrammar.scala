@@ -1,12 +1,12 @@
 
-package daffodil.grammar
+package edu.illinois.ncsa.daffodil.grammar
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
-import daffodil.Implicits._
-import daffodil.dsom._
-import daffodil.exceptions.Assert
-import daffodil.processors._
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.processors._
 import org.junit.Test
 
 class TestGrammar extends JUnitSuite {

@@ -1,4 +1,4 @@
-package daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom
 
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert.assertEquals

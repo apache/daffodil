@@ -1,15 +1,15 @@
-package daffodil.processors
+package edu.illinois.ncsa.daffodil.processors
 
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import scala.xml._
-import daffodil.xml.XMLUtils
-import daffodil.xml.XMLUtils._
-import daffodil.compiler.Compiler
-import daffodil.util.TestUtils
-import daffodil.dsom.SchemaSet
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils._
+import edu.illinois.ncsa.daffodil.compiler.Compiler
+import edu.illinois.ncsa.daffodil.util.TestUtils
+import edu.illinois.ncsa.daffodil.dsom.SchemaSet
 import org.junit.Test
-import daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestPrimitives extends JUnitSuite {
 

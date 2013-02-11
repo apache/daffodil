@@ -1,11 +1,11 @@
-package daffodil.processors.input
+package edu.illinois.ncsa.daffodil.processors.input
 
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import scala.util.parsing.combinator._
 import java.io.StringReader
 import org.junit.Test
-import daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 class TestRegex extends JUnitSuite with RegexParsers {
 
