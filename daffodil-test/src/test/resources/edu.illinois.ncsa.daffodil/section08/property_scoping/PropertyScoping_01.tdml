@@ -299,6 +299,7 @@
       <tdml:documentPart type="byte">00000003</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
     <tdml:error>lengthUnits</tdml:error>
     <tdml:error>characters</tdml:error>
     </tdml:errors>
