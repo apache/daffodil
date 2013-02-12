@@ -84,6 +84,7 @@ import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.compiler.Compiler
+import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler {
 
@@ -255,6 +256,11 @@ object Main {
       // Custom verification, scallop isn't quite rich enough
       subcommand match {
         case Some(this.parse) => {
+          if (this.debug()) {
+            if (this.parse.input.get == Some("-") || this.parse.input.get == None) {
+              onError(scallop.exceptions.IllegalOptionParameters("input must not be stdin during interactive debugging"))
+            }
+          }
           if (this.parse.parser.isDefined) {
             if (this.parse.schemas().length > 0) { onError(scallop.exceptions.IllegalOptionParameters("only one of --parser and --schema may be defined")) }
             if (this.parse.root.isDefined) { onError(scallop.exceptions.IllegalOptionParameters("--root cannot be defined with --parser")) }
@@ -267,6 +273,11 @@ object Main {
         }
 
         case Some(this.unparse) => {
+          if (this.debug()) {
+            if (this.unparse.input.get == Some("-") || this.unparse.input.get == None) {
+              onError(scallop.exceptions.IllegalOptionParameters("input must not be stdin during interactive debugging"))
+            }
+          }
           if (this.unparse.parser.isDefined) {
             if (this.unparse.schemas().length > 0) { onError(scallop.exceptions.IllegalOptionParameters("only one of --parser and --schema may be defined")) }
             if (this.unparse.root.isDefined) { onError(scallop.exceptions.IllegalOptionParameters("--root cannot be defined with --parser")) }
@@ -293,8 +304,10 @@ object Main {
     if (Conf.verbose())
       DebugUtil.verbose = true
  
-    if (Conf.debug())
+    if (Conf.debug()) {
       Debugger.setDebugging(true)
+      Debugger.setDebugger(new InteractiveDebugger)
+    }
 
 
     val ret = Conf.subcommand match {

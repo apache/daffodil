@@ -403,17 +403,18 @@ case class InStreamFromByteChannel private (val context: ElementBase,
 }
 
 class DataLoc(bitPos: Long, bitLimit: Long, inStream: InStream) extends DataLocation {
+  private val DEFAULT_DUMP_SIZE = 40
 
   override def toString() = "byte " + bitPos / 8 +
-    "\nUTF-8 text starting at byte " + aligned64BitsPos / 8 + " is: (" + utf8Dump + ")" +
-    "\nData (hex) starting at byte " + aligned64BitsPos / 8 + " is: (" + dump + ")"
+    "\nUTF-8 text starting at byte " + aligned64BitsPos / 8 + " is: (" + utf8Dump() + ")" +
+    "\nData (hex) starting at byte " + aligned64BitsPos / 8 + " is: (" + dump() + ")"
 
   def aligned64BitsPos = (bitPos >> 6) << 6
 
-  def byteDump = {
+  def byteDump(numBytes: Int = DEFAULT_DUMP_SIZE) = {
     var bytes: List[Byte] = Nil
     try {
-      for (i <- 0 to 40) {
+      for (i <- 0 until numBytes) {
         bytes = inStream.getRawByte(aligned64BitsPos + (i * 8), java.nio.ByteOrder.BIG_ENDIAN) +: bytes
       }
     } catch {
@@ -426,9 +427,9 @@ class DataLoc(bitPos: Long, bitLimit: Long, inStream: InStream) extends DataLoca
   /**
    * Assumes utf-8
    */
-  def utf8Dump = {
+  def utf8Dump(numBytes: Int = DEFAULT_DUMP_SIZE) = {
     val cb = CharBuffer.allocate(128)
-    val is = new ByteArrayInputStream(byteDump)
+    val is = new ByteArrayInputStream(byteDump(numBytes))
     val ir = new InputStreamReader(is)
     val count = ir.read(cb)
     val arr = cb.array
@@ -436,8 +437,8 @@ class DataLoc(bitPos: Long, bitLimit: Long, inStream: InStream) extends DataLoca
     chars.mkString("")
   }
 
-  def dump = {
-    bytes2Hex(byteDump)
+  def dump(numBytes: Int = DEFAULT_DUMP_SIZE) = {
+    bytes2Hex(byteDump(numBytes))
   }
 
   /*

@@ -26,6 +26,14 @@ BINDIR="$( dirname "$0" )"
 LIBDIR="$BINDIR/../lib"
 CLASSPATH=$LIBDIR/'*'
 
+JOPTS="-Xms1024m -Xmx1024m -XX:MaxPermSize=256m -XX:ReservedCodeCacheSize=128m"
+
+if [ -n "$DAFFODIL_JAVA_OPTS" ]; then
+	JOPTS="$DAFFODIL_JAVA_OPTS"
+elif [ -n "$JAVA_OPTS" ]; then
+	JOPTS="$JAVA_OPTS"
+fi
+
 if [ -n "$DAFFODIL_CLASSPATH" ]
 then
 	CLASSPATH="$CLASSPATH:$DAFFODIL_CLASSPATH"
@@ -34,15 +42,8 @@ fi
 if uname -a | grep -qi cygwin
 then
 	# if run from cygwin, convert unix paths to windows paths
-	CLASSPATH=$(cygpath -pw "$CLASSPATH")
-fi
-
-JOPTS="-Xms1024m -Xmx1024m -XX:MaxPermSize=256m -XX:ReservedCodeCacheSize=128m"
-
-if [ -n "$DAFFODIL_JAVA_OPTS" ]; then
-	JOPTS="$DAFFODIL_JAVA_OPTS"
-elif [ -n "$JAVA_OPTS" ]; then
-	JOPTS="$JAVA_OPTS"
+	CLASSPATH=$(cygpath -apw "$CLASSPATH")
+	JOPTS="$JOPTS -Djline.terminal=jline.UnixTerminal"
 fi
 
 exec java $JOPTS -cp "$CLASSPATH" "$MAINCLASS" "$@"

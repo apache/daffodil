@@ -431,7 +431,7 @@ case class PState(
   def groupPos = if (groupIndexStack != Nil) groupIndexStack.head else -1
   def childPos = if (childIndexStack != Nil) childIndexStack.head else -1
   def arrayPos = if (arrayIndexStack != Nil) arrayIndexStack.head else -1
-  def occursCount = occursCountStack.head
+  def occursCount = if (occursCountStack != Nil)  occursCountStack.head else -1
 
   override def toString() = {
     "PState( bitPos=%s charPos=%s status=%s )".format(bitPos, charPos, status)

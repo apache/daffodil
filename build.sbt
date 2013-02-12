@@ -20,6 +20,7 @@ libraryDependencies in ThisBuild := Seq(
   "com.ibm.icu" % "icu4j" % "50.1.1",// classifier "" classifier "charset" classifier "localespi",
   "xerces" % "xercesImpl" % "2.10.0",
   "xml-resolver" % "xml-resolver" % "1.2",
+  "jline" % "jline" % "2.9",
   "org.scalatest" %% "scalatest" % "1.6.1",
   "org.rogach" %% "scallop" % "0.8.0"
 )
