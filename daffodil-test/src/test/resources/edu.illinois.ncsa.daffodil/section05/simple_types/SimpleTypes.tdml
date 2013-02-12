@@ -2156,7 +2156,9 @@
     <xs:element name="time03" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit"
                 dfdl:calendarPattern="hh:mm:ss.SSSS" dfdl:lengthKind="delimited"/>
     <xs:element name="time04" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.zzz" dfdl:lengthKind="delimited"/>
+    <xs:element name="time04b" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.zzzz" dfdl:lengthKind="delimited"/>
     <xs:element name="time05" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.v" dfdl:lengthKind="delimited"/>
+    <xs:element name="time05b" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.vvvv" dfdl:lengthKind="delimited"/>
 
     <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
@@ -2655,17 +2657,17 @@
 <!--
      Test Name: timeZoneFormats2
         Schema: dateTimeSchema
-          Root: time04
+          Root: time04b
        Purpose: This test demonstrates different formatting for timezone
 -->
   
-  <tdml:parserTestCase name="timeZoneFormats2" root="time04"
+  <tdml:parserTestCase name="timeZoneFormats2" root="time04b"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
 
     <tdml:document><![CDATA[08:43.Eastern Standard Time]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <time04>13:43:00Z</time04>
+        <time04b>13:43:00Z</time04b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2683,7 +2685,7 @@
     <tdml:document><![CDATA[08:43.PT]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <time04>16:43:00Z</time04>
+        <time05>16:43:00Z</time05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2691,17 +2693,17 @@
 <!--
      Test Name: timeZoneFormats4
         Schema: dateTimeSchema
-          Root: time05
+          Root: time05b
        Purpose: This test demonstrates different formatting for timezone
 -->
   
-  <tdml:parserTestCase name="timeZoneFormats4" root="time05"
+  <tdml:parserTestCase name="timeZoneFormats4" root="time05b"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
 
     <tdml:document><![CDATA[08:43.Pacific Time]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <time04>16:43:00Z</time04>
+        <time05b>16:43:00Z</time05b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
