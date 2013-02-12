@@ -55,8 +55,20 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_millisecondAccuracy2() { runner.runOneTest("millisecondAccuracy2") }
   @Test def test_millisecondAccuracy3() { runner.runOneTest("millisecondAccuracy3") }
 //  @Test def test_millisecondAccuracy4() { runner.runOneTest("millisecondAccuracy4") }
+  @Test def test_timeLaxCheckPolicy02() { runner.runOneTest("timeLaxCheckPolicy02") }
+  @Test def test_timeLaxCheckPolicy03() { runner.runOneTest("timeLaxCheckPolicy03") }
+  @Test def test_timeStrictCheckPolicy02() { runner.runOneTest("timeStrictCheckPolicy02") }
 
-  
+  @Test def test_timeFormatting() { runner.runOneTest("timeFormatting") }
+  @Test def test_timeFormatting2() { runner.runOneTest("timeFormatting2") }
+  @Test def test_timeFormatting2c() { runner.runOneTest("timeFormatting2c") }
+  @Test def test_timeFormatting2b() { runner.runOneTest("timeFormatting2b") }
+  @Test def test_timeFormatting3() { runner.runOneTest("timeFormatting3") }
+  @Test def test_timeFormatting4() { runner.runOneTest("timeFormatting4") }
+  @Test def test_timeFormatting5() { runner.runOneTest("timeFormatting5") }
+  @Test def test_timeFormatting6() { runner.runOneTest("timeFormatting6") }
+  @Test def test_timeFormatting7() { runner.runOneTest("timeFormatting7") }
+
 //  @Test def test_timeCalendarTimeZone() { runner.runOneTest("timeCalendarTimeZone") }
 //  @Test def test_timeCalendarTimeZone2() { runner.runOneTest("timeCalendarTimeZone2") }
 

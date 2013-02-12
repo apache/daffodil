@@ -2172,6 +2172,11 @@
     <xs:element name="time13" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss.SSSSSS" dfdl:lengthKind="delimited"/>
     <xs:element name="time14" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss.SSSSSSSSSSSSSSSSSSSSS" dfdl:lengthKind="delimited"/>
     <xs:element name="time15" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss.SSSSSSSSSSSSSSSSSSSSSS" dfdl:lengthKind="delimited"/>
+    <xs:element name="time16" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm" dfdl:lengthKind="delimited"/>
+    <xs:element name="time17" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mmaa" dfdl:lengthKind="delimited"/>
+    <xs:element name="time17b" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mmaa" dfdl:lengthKind="delimited"/>
+    <xs:element name="time18" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="KK:mmaa" dfdl:lengthKind="delimited"/>
+    <xs:element name="time19" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="kk:mm" dfdl:lengthKind="delimited"/>
 
     <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
@@ -2422,6 +2427,42 @@
   </tdml:parserTestCase>
 
 <!--
+     Test Name: timeLaxCheckPolicy02
+        Schema: dateTimeSchema
+          Root: time01
+       Purpose: This test demonstrates a lax calendarCheckPolicy. Any invalid values should be converted to the appropriate value
+-->
+  
+  <tdml:parserTestCase name="timeLaxCheckPolicy02" root="time01"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
+
+    <tdml:document><![CDATA[28:62:30GMT]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time01>05:02:30Z</time01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeLaxCheckPolicy03
+        Schema: dateTimeSchema
+          Root: time01
+       Purpose: This test demonstrates a lax calendarCheckPolicy. Any invalid values should be converted to the appropriate value
+-->
+  
+  <tdml:parserTestCase name="timeLaxCheckPolicy03" root="time01"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
+
+    <tdml:document><![CDATA[28:62:90GMT]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time01>05:03:30Z</time01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
      Test Name: dateTimeLaxCheckPolicy01
         Schema: dateTimeSchema
           Root: dateTime02
@@ -2566,6 +2607,22 @@
   </tdml:parserTestCase>
 
 <!--
+     Test Name: timeStrictCheckPolicy02
+        Schema: dateTimeSchema
+          Root: time02
+       Purpose: This test demonstrates a strict calendarCheckPolicy. Any invalid values should result in a parse error.
+-->
+  
+  <tdml:parserTestCase name="timeStrictCheckPolicy02" root="time02"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
+
+    <tdml:document><![CDATA[13:30:70GMT]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Failed to parse '13:30:70GMT'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
      Test Name: dateCalendarFirstDayOfWeek01
         Schema: dateTimeSchema
           Root: date05
@@ -2704,19 +2761,163 @@
   </tdml:parserTestCase>
 
 <!--
-     Test Name: timeZoneFormats4
+     Test Name: timeFormatting
         Schema: dateTimeSchema
-          Root: time05b
-       Purpose: This test demonstrates different formatting for timezone
+          Root: time16
+       Purpose: This test demonstrates different formatting for time, particularly 'HH' to represent hour in day (0~23)
 -->
   
-  <tdml:parserTestCase name="timeZoneFormats4" root="time05b"
-    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+  <tdml:parserTestCase name="timeFormatting" root="time16"
+    model="dateTimeSchema" description="Section 13 Simple Types - pattern derived from ICU SimpleDatetimeFormat - DFDL-13-147R">
 
-    <tdml:document><![CDATA[08:43.Pacific Time]]></tdml:document>
+    <tdml:document><![CDATA[22:43]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <time05b>16:43:00Z</time05b>
+        <time16>22:43:00Z</time16>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeFormatting2
+        Schema: dateTimeSchema
+          Root: time17
+       Purpose: This is a test to see what will happen if you specify a military-style hour (HH) AND an AM/PM marker
+                If AM, the hour defaults to 00 (midnight), and if PM, the hour defaults to 12 (noon)
+-->
+  
+  <tdml:parserTestCase name="timeFormatting2" root="time17"
+    model="dateTimeSchema" description="Section 13 Simple Types - pattern derived from ICU SimpleDatetimeFormat - DFDL-13-147R">
+
+    <tdml:document><![CDATA[03:43PM]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time17>12:43:00Z</time17>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeFormatting2c
+        Schema: dateTimeSchema
+          Root: time17
+       Purpose: This is a test to see what will happen if you specify a military-style hour (HH) AND an AM/PM marker
+                If AM, the hour defaults to 00 (midnight), and if PM, the hour defaults to 12 (noon)
+-->
+  
+  <tdml:parserTestCase name="timeFormatting2c" root="time17"
+    model="dateTimeSchema" description="Section 13 Simple Types - pattern derived from ICU SimpleDatetimeFormat - DFDL-13-147R">
+
+    <tdml:document><![CDATA[23:43AM]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time17>00:43:00Z</time17>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeFormatting2b
+        Schema: dateTimeSchema
+          Root: time17b
+       Purpose: This test demonstrates different formatting for time, primarily the use of 'aa' to denote an am/pm marker
+-->
+  
+  <tdml:parserTestCase name="timeFormatting2b" root="time17b"
+    model="dateTimeSchema" description="Section 13 Simple Types - pattern derived from ICU SimpleDatetimeFormat - DFDL-13-147R">
+
+    <tdml:document><![CDATA[03:43AM]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time17b>03:43:00Z</time17b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeFormatting3
+        Schema: dateTimeSchema
+          Root: time17b
+       Purpose: This test demonstrates different formatting for time, primarily the use of 'aa' to denote an am/pm marker
+-->
+  
+  <tdml:parserTestCase name="timeFormatting3" root="time17b"
+    model="dateTimeSchema" description="Section 13 Simple Types - pattern derived from ICU SimpleDatetimeFormat - DFDL-13-147R">
+
+    <tdml:document><![CDATA[03:43PM]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time17b>15:43:00Z</time17b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeFormatting4
+        Schema: dateTimeSchema
+          Root: time18
+       Purpose: This test demonstrates different formatting for time, primarily the use of 'KK' to denote the hour in am/pm (0~11)
+-->
+  
+  <tdml:parserTestCase name="timeFormatting4" root="time18"
+    model="dateTimeSchema" description="Section 13 Simple Types - pattern derived from ICU SimpleDatetimeFormat - DFDL-13-147R">
+
+    <tdml:document><![CDATA[00:43PM]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time18>12:43:00Z</time18>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeFormatting5
+        Schema: dateTimeSchema
+          Root: time18
+       Purpose: This test demonstrates different formatting for time, primarily the use of 'KK' to denote the hour in am/pm (0~11)
+                In this case, the hour specified is 12, which is invalid for 'KK'
+-->
+  
+  <tdml:parserTestCase name="timeFormatting5" root="time18"
+    model="dateTimeSchema" description="Section 13 Simple Types - pattern derived from ICU SimpleDatetimeFormat - DFDL-13-147R">
+
+    <tdml:document><![CDATA[12:30AM]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Convert to Time</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeFormatting6
+        Schema: dateTimeSchema
+          Root: time16
+       Purpose: This test demonstrates different formatting for time, primarily the use of 'hh' to denote the hour in am/pm (1~12)
+                In this case, the hour specified is 0, which is invalid for 'hh'
+-->
+  
+  <tdml:parserTestCase name="timeFormatting6" root="time16"
+    model="dateTimeSchema" description="Section 13 Simple Types - pattern derived from ICU SimpleDatetimeFormat - DFDL-13-147R">
+
+    <tdml:document><![CDATA[00:30AM]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Convert to Time</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeFormatting7
+        Schema: dateTimeSchema
+          Root: time19
+       Purpose: This test demonstrates different formatting for time, primarily the use of 'kk' to denote the hour (0~24)
+-->
+  
+  <tdml:parserTestCase name="timeFormatting7" root="time19"
+    model="dateTimeSchema" description="Section 13 Simple Types - pattern derived from ICU SimpleDatetimeFormat - DFDL-13-147R">
+
+    <tdml:document><![CDATA[00:43]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time19>00:43:00Z</time19>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
