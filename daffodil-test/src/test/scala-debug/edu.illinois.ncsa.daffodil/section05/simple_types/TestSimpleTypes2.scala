@@ -59,10 +59,11 @@ class TestSimpleTypes2 extends JUnitSuite {
   //  @Test def test_Long3() {runner.runOneTest("Long3")}
   //  @Test def test_Long4() {runner.runOneTest("Long4")}
 
-///////////////////////// DFDL-105 /////////////////////////////
+///////////////////////// DFDL-105, DFDL-102 /////////////////////////////
 
   @Test def test_dateTimeLaxCheckPolicy01() { runner.runOneTest("dateTimeLaxCheckPolicy01") }
   @Test def test_timeFractionalSeconds01() { runner.runOneTest("timeFractionalSeconds01") }
+  @Test def test_timeZoneFormats2() { runner.runOneTest("timeZoneFormats2") }
 
 ///////////////////////////////////////////////////////////////
 

@@ -2155,6 +2155,8 @@
     <xs:element name="time02" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
     <xs:element name="time03" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit"
                 dfdl:calendarPattern="hh:mm:ss.SSSS" dfdl:lengthKind="delimited"/>
+    <xs:element name="time04" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.zzz" dfdl:lengthKind="delimited"/>
+    <xs:element name="time05" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.v" dfdl:lengthKind="delimited"/>
 
     <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
@@ -2628,6 +2630,78 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <date06>2013-02-04</date06>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeZoneFormats
+        Schema: dateTimeSchema
+          Root: time04
+       Purpose: This test demonstrates different formatting for timezone
+-->
+  
+  <tdml:parserTestCase name="timeZoneFormats" root="time04"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[08:43.EST]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time04>13:43:00Z</time04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeZoneFormats2
+        Schema: dateTimeSchema
+          Root: time04
+       Purpose: This test demonstrates different formatting for timezone
+-->
+  
+  <tdml:parserTestCase name="timeZoneFormats2" root="time04"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[08:43.Eastern Standard Time]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time04>13:43:00Z</time04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeZoneFormats3
+        Schema: dateTimeSchema
+          Root: time05
+       Purpose: This test demonstrates different formatting for timezone
+-->
+  
+  <tdml:parserTestCase name="timeZoneFormats3" root="time05"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[08:43.PT]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time04>16:43:00Z</time04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeZoneFormats4
+        Schema: dateTimeSchema
+          Root: time05
+       Purpose: This test demonstrates different formatting for timezone
+-->
+  
+  <tdml:parserTestCase name="timeZoneFormats4" root="time05"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[08:43.Pacific Time]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time04>16:43:00Z</time04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
