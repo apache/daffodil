@@ -53,7 +53,9 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_timeZoneFormats2() { runner.runOneTest("timeZoneFormats2") }
 //  @Test def test_timeZoneFormats3() { runner.runOneTest("timeZoneFormats3") }
 //  @Test def test_timeZoneFormats4() { runner.runOneTest("timeZoneFormats4") }
-  
+//  @Test def test_timeZoneFormats5() { runner.runOneTest("timeZoneFormats5") }
+//  @Test def test_timeZoneFormats6() { runner.runOneTest("timeZoneFormats6") }
+
 //  @Test def test_dateCountDeterminesFormat() { runner.runOneTest("dateCountDeterminesFormat") }
   @Test def test_dateNonAlphaChars01() { runner.runOneTest("dateNonAlphaChars01") }
   @Test def test_dateTrim01() { runner.runOneTest("dateTrim01") }
