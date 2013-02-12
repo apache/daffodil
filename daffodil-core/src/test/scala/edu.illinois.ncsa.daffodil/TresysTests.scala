@@ -70,16 +70,6 @@ class TresysTests extends JUnitSuite {
   // not found. Debug later.
   // @Test def test_duplicateDefineFormatsOneSchema() { runnerMD.runOneTest("duplicateDefineFormatsOneSchema") }
 
-  val sv = testDir + "dfdl-schema-validation-diagnostics.tdml"
-  lazy val runnerSV = new DFDLTestSuite(Misc.getRequiredResource(sv),
-    validateTDMLFile = false)
-  runnerSV.setCheckAllTopLevel(true) // check every top level construct. Not just the one under specific test.
-  //
-  // These must all be run without TDML validation because at least one part of the TDML file
-  // contains DFDL schema validation errors, and TDML validation normally would check that
-  //
-  @Test def test_multiple_diagnostics4() { runnerSV.runOneTest("twoDFDLSchemaValidationErrors") }
-
   val nsd = testDir + "nested-separator-delimited.tdml"
   lazy val runnerNSD = new DFDLTestSuite(Misc.getRequiredResource(nsd))
 

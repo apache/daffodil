@@ -6,8 +6,6 @@
   xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
   xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
-
-
   <tdml:defineSchema name="withValidationErrors">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" length="1"/>
     <xs:element name="err1" type="xs:int" anAttributeThisIsNot="noise"/>
@@ -19,16 +17,11 @@
     description="We would like two errors from two different elements of the same schema document. But xerces isn't cooperating.">
 
     <tdml:document />
-
     <tdml:errors>
-
       <tdml:error>notAnAttribute</tdml:error>
       <tdml:error>anAttributeThisIsNot</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
-
-
-
 
 </tdml:testSuite>
