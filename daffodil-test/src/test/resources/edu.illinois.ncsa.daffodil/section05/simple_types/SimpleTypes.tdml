@@ -2164,6 +2164,14 @@
 
     <xs:element name="time08" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" dfdl:calendarTimeZone="UTC+1"/>
     <xs:element name="time09" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" dfdl:calendarTimeZone="UTC+1:30"/>
+    <xs:element name="time10" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:textTrimKind="padChar"
+                dfdl:textCalendarJustification="center" dfdl:textCalendarPadCharacter="." dfdl:lengthKind="delimited" />
+    <xs:element name="time11" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:textTrimKind="padChar"
+                dfdl:textCalendarJustification="right" dfdl:textCalendarPadCharacter=":" dfdl:lengthKind="delimited" />
+    <xs:element name="time12" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss.SSS" dfdl:lengthKind="delimited"/>
+    <xs:element name="time13" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss.SSSSSS" dfdl:lengthKind="delimited"/>
+    <xs:element name="time14" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss.SSSSSSSSSSSSSSSSSSSSS" dfdl:lengthKind="delimited"/>
+    <xs:element name="time15" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss.SSSSSSSSSSSSSSSSSSSSSS" dfdl:lengthKind="delimited"/>
 
     <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
@@ -2889,6 +2897,114 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <date11>2013-03-24</date11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeTrim01
+        Schema: dateTimeSchema
+          Root: time10
+       Purpose: This test demonstrates the use of the textCalendarJustification and textCalendarPadCharacter properties on a time object
+-->
+  
+  <tdml:parserTestCase name="timeTrim01" root="time10"
+    model="dateTimeSchema" description="Section 13 Simple Types - textCalendarJustification - DFDL-13-165R">
+
+    <tdml:document><![CDATA[....12:30:30GMT....]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time10>12:30:30Z</time10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeTrim02
+        Schema: dateTimeSchema
+          Root: time11
+       Purpose: This test demonstrates the use of the textCalendarJustification and textCalendarPadCharacter properties on a time object
+-->
+  
+  <tdml:parserTestCase name="timeTrim02" root="time11"
+    model="dateTimeSchema" description="Section 13 Simple Types - textCalendarJustification - DFDL-13-165R">
+
+    <tdml:document><![CDATA[::::::12:30:30GMT]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time11>12:30:30Z</time11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: millisecondAccuracy
+        Schema: dateTimeSchema
+          Root: time12
+       Purpose: This test demonstrates that DFDL implements at least millisecond accuracy.
+-->
+  
+  <tdml:parserTestCase name="millisecondAccuracy" root="time12"
+    model="dateTimeSchema" description="Section 13 Simple Types - at least millisecond accuracy - DFDL-13-152R">
+
+    <tdml:document><![CDATA[3:30:38.001]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time12>03:30:38Z</time12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: millisecondAccuracy2
+        Schema: dateTimeSchema
+          Root: time13
+       Purpose: This test demonstrates that DFDL implements at least millisecond accuracy.
+-->
+  
+  <tdml:parserTestCase name="millisecondAccuracy2" root="time13"
+    model="dateTimeSchema" description="Section 13 Simple Types - at least millisecond accuracy - DFDL-13-152R">
+
+    <tdml:document><![CDATA[3:30:38.001435]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time13>03:30:38Z</time13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: millisecondAccuracy3
+        Schema: dateTimeSchema
+          Root: time14
+       Purpose: This test demonstrates that DFDL implements at least millisecond accuracy.
+-->
+  
+  <tdml:parserTestCase name="millisecondAccuracy3" root="time14"
+    model="dateTimeSchema" description="Section 13 Simple Types - at least millisecond accuracy - DFDL-13-152R">
+
+    <tdml:document><![CDATA[3:30:38.002345276891000084763]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time14>03:30:38Z</time14>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: millisecondAccuracy4
+        Schema: dateTimeSchema
+          Root: time15
+       Purpose: This test demonstrates that DFDL implements at least millisecond accuracy.
+-->
+  
+  <tdml:parserTestCase name="millisecondAccuracy4" root="time15"
+    model="dateTimeSchema" description="Section 13 Simple Types - at least millisecond accuracy - DFDL-13-152R">
+
+    <tdml:document><![CDATA[3:30:38.0023452768910087634837]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time15>03:30:38Z</time15>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
