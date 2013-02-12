@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger.withDebugger
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestNillable extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section13/nillable/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
   val aa = testDir + "nillable.tdml"
   lazy val runnerAA = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
@@ -71,7 +71,7 @@ class TestNillable extends JUnitSuite {
   @Test def test_text_06() = { runnerLN.runOneTest("text_06") }
   @Test def test_binary_01() = { runnerLN.runOneTest("binary_01") }
 
-  val testDir_01 = "/edu.illinois.ncsa.daffodil/section06/entities/"
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/section06/entities/"
   val entity = testDir_01 + "entities_01.tdml"
   lazy val runnerEntity = new DFDLTestSuite(Misc.getRequiredResource(entity))
   @Test def test_entity_fail_05() { runnerEntity.runOneTest("entity_fail_05") }

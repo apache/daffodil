@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class defineFormatTests extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section07/defineFormat/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section07/defineFormat/"
   val tdml = testDir + "defineFormat.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 

@@ -41,7 +41,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 //class TestDiscriminatorsDebug extends JUnitSuite {
-//  val testDir = "/edu.illinois.ncsa.daffodil/section07/discriminators/"
+//  val testDir = "/edu/illinois/ncsa/daffodil/section07/discriminators/"
 //  val tdml = testDir + "discriminator.tdml"
 //  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 //

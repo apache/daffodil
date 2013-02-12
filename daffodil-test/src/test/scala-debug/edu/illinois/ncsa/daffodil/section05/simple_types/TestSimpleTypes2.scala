@@ -46,7 +46,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestSimpleTypes2 extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section05/simple_types/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

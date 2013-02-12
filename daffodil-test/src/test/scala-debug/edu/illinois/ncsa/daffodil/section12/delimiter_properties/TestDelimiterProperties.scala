@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestDelimiterProperties_01 extends JUnitSuite {
 
-  val testDir_02 = "/edu.illinois.ncsa.daffodil/section12/delimiter_properties/"
+  val testDir_02 = "/edu/illinois/ncsa/daffodil/section12/delimiter_properties/"
   val tdml_02 = testDir_02 + "DelimiterProperties.tdml"
   lazy val r = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 

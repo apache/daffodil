@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger.withDebugger
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestLengthKindExplicitNew extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section12/lengthKind/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
   val aa = testDir + "ExplicitTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

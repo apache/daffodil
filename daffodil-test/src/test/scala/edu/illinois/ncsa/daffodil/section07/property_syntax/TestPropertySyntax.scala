@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestPropertySyntax extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/ibm-tests/"
+  val testDir = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val tdml = testDir + "dpaext1.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
@@ -53,7 +53,7 @@ class TestPropertySyntax extends JUnitSuite {
   @Test def test_property_syntax_7_02() { runner.runOneTest("property_syntax_7_02") }
   @Test def test_property_syntax_7_03() { runner.runOneTest("property_syntax_7_03") }
   
-  val testDir1 = "/edu.illinois.ncsa.daffodil/section07/property_syntax/"
+  val testDir1 = "/edu/illinois/ncsa/daffodil/section07/property_syntax/"
   val aa = testDir1 + "PropertySyntax.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(aa))
   

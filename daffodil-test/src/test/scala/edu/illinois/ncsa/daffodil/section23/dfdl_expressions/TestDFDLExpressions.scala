@@ -46,7 +46,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestDFDLExpressions extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section23/dfdl_expressions/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)
 

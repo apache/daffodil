@@ -8,7 +8,7 @@
     </xs:appinfo>
   </xs:annotation>
    
-  <xs:include schemaLocation="edu.illinois.ncsa.daffodil/section06/namespaces/address_no_namespace.dfdl.xsd"/>
+  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/address_no_namespace.dfdl.xsd"/>
   
   <xs:element name="customer"> 
     <xs:complexType> 

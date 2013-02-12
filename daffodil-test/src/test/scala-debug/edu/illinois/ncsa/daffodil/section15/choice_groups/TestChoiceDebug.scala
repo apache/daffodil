@@ -46,7 +46,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestChoiceDebug extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section15/choice_groups/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
   val aa = testDir + "choice.tdml"
 
   lazy val runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))

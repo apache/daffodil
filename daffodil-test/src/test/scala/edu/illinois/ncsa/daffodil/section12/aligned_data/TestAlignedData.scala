@@ -46,7 +46,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestAlignedData extends JUnitSuite {
-  val testDir_01 = "/edu.illinois.ncsa.daffodil/section12/aligned_data/"
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/section12/aligned_data/"
   val tdml1 = testDir_01 + "Aligned_Data.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
 

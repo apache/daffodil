@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestSimpleTypes extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section05/simple_types/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
@@ -228,7 +228,7 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_AK000() { runnerAK.runOneTest("AK000") }
   @Test def test_AK001() { runnerAK.runOneTest("AK001") }
 
-  val testDir_01 = "/edu.illinois.ncsa.daffodil/ibm-tests/"
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val aa_01 = testDir_01 + "dpaext1.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
   @Test def test_schema_types_5_01() { runner_01.runOneTest("schema_types_5_01") }

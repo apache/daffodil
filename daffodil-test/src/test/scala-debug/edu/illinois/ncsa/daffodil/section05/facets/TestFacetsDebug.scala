@@ -46,7 +46,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestFacetsDebug extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section05/facets/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section05/facets/"
   val aa = testDir + "Facets.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 //class TestChoiceGroupInitiatedContentDebug extends JUnitSuite {
 //
-//  val testDir_01 = "/edu.illinois.ncsa.daffodil/section15/choice_groups/"
+//  val testDir_01 = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
 //  val tdml_01 = testDir_01 + "ChoiceGroupInitiatedContent.tdml"
 //  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 //

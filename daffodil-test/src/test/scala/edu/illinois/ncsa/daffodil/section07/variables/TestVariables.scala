@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestVariables extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section07/variables/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section07/variables/"
   val tdml = testDir + "variables.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 

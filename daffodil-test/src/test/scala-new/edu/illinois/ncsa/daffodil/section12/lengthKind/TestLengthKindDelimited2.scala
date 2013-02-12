@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestLengthKindDelimited2 extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section12/lengthKind/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
 
   val aa = testDir + "DelimitedTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))

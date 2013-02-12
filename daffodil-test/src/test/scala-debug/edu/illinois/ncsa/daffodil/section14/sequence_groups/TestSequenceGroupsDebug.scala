@@ -48,7 +48,7 @@ import edu.illinois.ncsa.daffodil.util.Logging
 
 class TestSequenceGroupsDebug extends JUnitSuite {
   
-  val testDir_01 = "/edu.illinois.ncsa.daffodil/section14/sequence_groups/"
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
   val tdml_03 = testDir_01 + "SequenceGroup.tdml"
   lazy val runner_03 = new DFDLTestSuite(Misc.getRequiredResource(tdml_03))
   

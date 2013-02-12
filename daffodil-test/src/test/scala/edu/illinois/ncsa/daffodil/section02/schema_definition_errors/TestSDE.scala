@@ -46,7 +46,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestSDE extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section02/schema_definition_errors/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section02/schema_definition_errors/"
   val aa = testDir + "SchemaDefinitionErrors.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

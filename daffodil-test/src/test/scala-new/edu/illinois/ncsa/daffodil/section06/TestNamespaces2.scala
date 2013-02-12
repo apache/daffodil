@@ -12,7 +12,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestNamespaces2 extends JUnitSuite {
-  val testDir = "edu.illinois.ncsa.daffodil/section06/namespaces/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

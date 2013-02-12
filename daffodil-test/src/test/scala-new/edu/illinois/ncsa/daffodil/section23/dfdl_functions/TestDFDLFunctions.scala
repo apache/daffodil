@@ -46,7 +46,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestDFDLFunctionsNew extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section23/dfdl_functions/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir + "Functions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

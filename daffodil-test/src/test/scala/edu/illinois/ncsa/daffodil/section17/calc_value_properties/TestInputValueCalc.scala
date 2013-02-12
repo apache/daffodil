@@ -48,7 +48,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestInputValueCalc extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section17/calc_value_properties/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section17/calc_value_properties/"
   val ar = testDir + "AR.tdml"
   lazy val runnerAR = new DFDLTestSuite(Misc.getRequiredResource(ar))
 

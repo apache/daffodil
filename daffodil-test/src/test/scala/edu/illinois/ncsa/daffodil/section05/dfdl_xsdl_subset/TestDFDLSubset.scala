@@ -47,7 +47,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestDFDLSubset extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section05/dfdl_xsdl_subset/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section05/dfdl_xsdl_subset/"
   val tdml = testDir + "DFDLSubset.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 

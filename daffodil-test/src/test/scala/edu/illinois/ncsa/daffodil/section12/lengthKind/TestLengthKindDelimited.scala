@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger.withDebugger
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestLengthKindDelimited extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section12/lengthKind/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
   val aa = testDir + "DelimitedTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
@@ -100,7 +100,7 @@ class TestLengthKindDelimited extends JUnitSuite {
   @Test def test_AN000() { runnerAN.runOneTest("AN000") }
   @Test def test_AN001() { runnerAN.runOneTest("AN001") }
 
-  val testDir_01 = "/edu.illinois.ncsa.daffodil/ibm-tests/"
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val tdml_01 = testDir_01 + "dpaext1.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 

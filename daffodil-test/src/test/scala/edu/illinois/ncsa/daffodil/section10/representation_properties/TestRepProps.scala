@@ -46,7 +46,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestRepProps extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section10/representation_properties/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section10/representation_properties/"
   val aa = testDir + "RepProps.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

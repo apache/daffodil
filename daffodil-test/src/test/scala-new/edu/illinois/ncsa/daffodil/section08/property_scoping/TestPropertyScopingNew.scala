@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestPropertyScopingNew extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section08/property_scoping/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section08/property_scoping/"
   val aa = testDir + "PropertyScoping.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

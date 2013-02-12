@@ -46,7 +46,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestLengthKindPattern extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section12/lengthKind/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
   val aa = testDir + "PatternTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

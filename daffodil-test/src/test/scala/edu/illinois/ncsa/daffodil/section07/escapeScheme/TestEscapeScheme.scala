@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestEscapeScheme extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section07/escapeScheme/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section07/escapeScheme/"
   val tdml = testDir + "escapeScheme.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml),
     validateTDMLFile = false)

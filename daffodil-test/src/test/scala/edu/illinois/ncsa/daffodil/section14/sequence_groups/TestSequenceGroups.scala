@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestSequenceGroups extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/ibm-tests/"
+  val testDir = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val aa = testDir + "dpaext1.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
@@ -57,7 +57,7 @@ class TestSequenceGroups extends JUnitSuite {
   @Test def test_sequences_separated_14_05() { runner2.runOneTest("sequences_separated_14_05") }
   @Test def test_sequences_separated_14_06() { runner2.runOneTest("sequences_separated_14_06") }
 
-  val testDir_01 = "/edu.illinois.ncsa.daffodil/section14/sequence_groups/"
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
   val tdml_01 = testDir_01 + "SequenceGroupDelimiters.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 

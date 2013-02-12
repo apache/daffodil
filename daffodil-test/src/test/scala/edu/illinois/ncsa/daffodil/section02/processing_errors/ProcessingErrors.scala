@@ -45,7 +45,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestProcessingErrors extends JUnitSuite {
-  val testDir = "/edu.illinois.ncsa.daffodil/section02/processing_errors/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section02/processing_errors/"
   val aa = testDir + "dfdl-schema-validation-diagnostics.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa),validateTDMLFile = false)
 
