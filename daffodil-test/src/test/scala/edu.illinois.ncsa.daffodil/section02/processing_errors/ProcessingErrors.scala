@@ -51,6 +51,8 @@ class TestProcessingErrors extends JUnitSuite {
 
   runner.setCheckAllTopLevel(true) // check every top level construct. Not just the one under specific test.
   @Test def test_twoDFDLSchemaValidationErrors() { runner.runOneTest("twoDFDLSchemaValidationErrors") }
+  @Test def test_twoDFDLSchemaValidationErrors2() { runner.runOneTest("twoDFDLSchemaValidationErrors2") }
+  @Test def test_fiveDFDLSchemaValidationErrors() { runner.runOneTest("fiveDFDLSchemaValidationErrors") }
   
   val ab = testDir + "ProcessingErrors.tdml"
   lazy val runner02 = new DFDLTestSuite(Misc.getRequiredResource(ab),validateTDMLFile = false)

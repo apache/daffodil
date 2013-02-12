@@ -11,15 +11,57 @@
     <xs:element name="err1" type="xs:int" anAttributeThisIsNot="noise"/>
     <xs:element name="err2" type="xs:int" notAnAttribute="randomness" />
   </tdml:defineSchema>
+  
+  <tdml:defineSchema name="withValidationErrors2">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" length="1"/>
+    <xs:element name="err1" type="xs:int" anAttributeThisIsNot="blah"/>
+    <xs:element name="err2" type="something" />
+  </tdml:defineSchema>
+  
+  <tdml:defineSchema name="withValidationErrors3">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" length="1"/>
+    <xs:element name="err1" type="xs:int" anAttributeThisIsNot="blah"/>
+    <xs:element name="err2" type="something" />
+    <xs:element name="err3" type="xs:int" stillNotValid="blah"/>
+    <xs:element name="err4" type="notarealthing" />
+    <xs:element name="err5" type="xs:string" anotherone="ok"/>
+  </tdml:defineSchema>
 
   <tdml:parserTestCase name="twoDFDLSchemaValidationErrors"
     root="err1" model="withValidationErrors"
-    description="We would like two errors from two different elements of the same schema document. But xerces isn't cooperating.">
+    description="We would like two errors from two different elements of the same schema document.">
 
     <tdml:document />
     <tdml:errors>
       <tdml:error>notAnAttribute</tdml:error>
       <tdml:error>anAttributeThisIsNot</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="twoDFDLSchemaValidationErrors2"
+    root="err1" model="withValidationErrors2"
+    description="We would like two errors from two different elements of the same schema document.">
+
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>No type definition found for 'something'</tdml:error>
+      <tdml:error>anAttributeThisIsNot</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="fiveDFDLSchemaValidationErrors"
+    root="err1" model="withValidationErrors3"
+    description="We would like five errors from five different elements of the same schema document.">
+
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>No type definition found for 'something'</tdml:error>
+      <tdml:error>No type definition found for 'notarealthing'</tdml:error>
+      <tdml:error>Attribute 'anAttributeThisIsNot' is not allowed to appear in element 'xs:element'</tdml:error>
+      <tdml:error>Attribute 'stillNotValid' is not allowed to appear in element 'xs:element'</tdml:error>
+      <tdml:error>Attribute 'anotherone' is not allowed to appear in element 'xs:element'</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
