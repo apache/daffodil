@@ -68,6 +68,9 @@ class TestSimpleTypes2 extends JUnitSuite {
   @Test def test_timeZoneFormats4() { runner.runOneTest("timeZoneFormats4") }
   @Test def test_timeZoneFormats5() { runner.runOneTest("timeZoneFormats5") }
   @Test def test_timeZoneFormats6() { runner.runOneTest("timeZoneFormats6") }
+  
+  @Test def test_timeCalendarTimeZone() { runner.runOneTest("timeCalendarTimeZone") }
+  @Test def test_timeCalendarTimeZone2() { runner.runOneTest("timeCalendarTimeZone2") }
 
 ///////////////////////////////////////////////////////////////
 

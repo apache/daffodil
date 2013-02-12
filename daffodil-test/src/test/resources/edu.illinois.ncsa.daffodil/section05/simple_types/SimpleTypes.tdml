@@ -2162,6 +2162,9 @@
     <xs:element name="time06" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.VVVV" dfdl:lengthKind="delimited"/>
     <xs:element name="time07" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.V" dfdl:lengthKind="delimited"/>
 
+    <xs:element name="time08" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" dfdl:calendarTimeZone="UTC+1"/>
+    <xs:element name="time09" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" dfdl:calendarTimeZone="UTC+1:30"/>
+
     <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
                 dfdl:lengthKind="explicit" dfdl:length="44" />
@@ -2742,6 +2745,42 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <time07>16:43:00Z</time07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeCalendarTimeZone
+        Schema: dateTimeSchema
+          Root: time08
+       Purpose: This test demonstrates the calendarTimeZone property
+-->
+  
+  <tdml:parserTestCase name="timeCalendarTimeZone" root="time08"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarTimeZone - DFDL-13-140R">
+
+    <tdml:document><![CDATA[08:43:40]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time08>16:43:00Z</time08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeCalendarTimeZone2
+        Schema: dateTimeSchema
+          Root: time09
+       Purpose: This test demonstrates the calendarTimeZone property
+-->
+  
+  <tdml:parserTestCase name="timeCalendarTimeZone2" root="time09"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarTimeZone - DFDL-13-140R">
+
+    <tdml:document><![CDATA[08:43:40]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time09>16:43:00Z</time09>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

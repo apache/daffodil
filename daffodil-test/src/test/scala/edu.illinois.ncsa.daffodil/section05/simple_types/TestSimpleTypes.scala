@@ -48,6 +48,9 @@ class TestSimpleTypes extends JUnitSuite {
   val testDir = "/edu.illinois.ncsa.daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  
+//  @Test def test_timeCalendarTimeZone() { runner.runOneTest("timeCalendarTimeZone") }
+//  @Test def test_timeCalendarTimeZone2() { runner.runOneTest("timeCalendarTimeZone2") }
 
   @Test def test_timeZoneFormats() { runner.runOneTest("timeZoneFormats") }
   @Test def test_timeZoneFormats2() { runner.runOneTest("timeZoneFormats2") }
