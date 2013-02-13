@@ -82,6 +82,8 @@ class TestSequenceGroups extends JUnitSuite {
   @Test def test_hiddenGroupWithAssert2() { runner_02.runOneTest("hiddenGroupWithAssert2") }
   @Test def test_hiddenGroupNested() { runner_02.runOneTest("hiddenGroupNested") }
   @Test def test_hiddenGroupNested2() { runner_02.runOneTest("hiddenGroupNested2") }
+  @Test def test_nestedGroupRefs() { runner_02.runOneTest("nestedGroupRefs") }
+  @Test def test_nestedGroupRefs2() { runner_02.runOneTest("nestedGroupRefs2") }
   @Test def test_hiddenGroupChoice() { runner_02.runOneTest("hiddenGroupChoice") }
   @Test def test_hiddenGroupChoice2() { runner_02.runOneTest("hiddenGroupChoice2") }
   @Test def test_hiddenGroupIgnoredProps() { runner_02.runOneTest("hiddenGroupIgnoredProps") }

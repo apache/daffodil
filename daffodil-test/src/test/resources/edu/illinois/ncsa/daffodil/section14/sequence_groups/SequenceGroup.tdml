@@ -805,4 +805,237 @@ more ignored input
     </tdml:infoset>
   </tdml:parserTestCase>
 
+	<tdml:defineSchema name="nestedGroupRefs">
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:group ref="ex:g0" dfdl:separator="%NL;"></xs:group>
+			</xs:complexType>
+		</xs:element>
+		<xs:group name="g0">
+			<xs:sequence dfdl:separatorPosition="infix">
+				<xs:element name="g0c0" minOccurs="0">
+					<xs:complexType>
+						<xs:group ref="ex:g1" dfdl:separator="|"></xs:group>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:group>
+		<xs:group name="g1">
+			<xs:sequence dfdl:separatorPosition="infix">
+				<xs:element name="g1c0" minOccurs="0">
+					<xs:complexType>
+						<xs:group ref="ex:g2" dfdl:separator=","></xs:group>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:group>
+		<xs:group name="g2">
+			<xs:sequence dfdl:separatorPosition="infix">
+				<xs:element name="g2c0" type="xs:string" />
+				<xs:element name="g2c1" type="xs:string" />
+				<xs:element name="g2c2" type="xs:string" />
+			</xs:sequence>
+		</xs:group>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="nestedGroupRefs" root="root"
+		model="nestedGroupRefs" description="Simple type defined in terms of primitive int.">
+
+		<tdml:document><![CDATA[A,B,C|D,E,F|G,H,I
+    A,B,C|D,E,F|G,H,I
+    A,B,C|D,E,F|G,H,I]]></tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<root>
+					<g0c0>
+						<g1c0>
+							<g2c0>A</g2c0>
+							<g2c1>B</g2c1>
+							<g2c2>C</g2c2>
+						</g1c0>
+						<g1c0>
+							<g2c0>D</g2c0>
+							<g2c1>E</g2c1>
+							<g2c2>F</g2c2>
+						</g1c0>
+						<g1c0>
+							<g2c0>G</g2c0>
+							<g2c1>H</g2c1>
+							<g2c2>I</g2c2>
+						</g1c0>
+					</g0c0>
+					<g0c0>
+						<g1c0>
+							<g2c0>A</g2c0>
+							<g2c1>B</g2c1>
+							<g2c2>C</g2c2>
+						</g1c0>
+						<g1c0>
+							<g2c0>D</g2c0>
+							<g2c1>E</g2c1>
+							<g2c2>F</g2c2>
+						</g1c0>
+						<g1c0>
+							<g2c0>G</g2c0>
+							<g2c1>H</g2c1>
+							<g2c2>I</g2c2>
+						</g1c0>
+					</g0c0>
+					<g0c0>
+						<g1c0>
+							<g2c0>A</g2c0>
+							<g2c1>B</g2c1>
+							<g2c2>C</g2c2>
+						</g1c0>
+						<g1c0>
+							<g2c0>D</g2c0>
+							<g2c1>E</g2c1>
+							<g2c2>F</g2c2>
+						</g1c0>
+						<g1c0>
+							<g2c0>G</g2c0>
+							<g2c1>H</g2c1>
+							<g2c2>I</g2c2>
+						</g1c0>
+					</g0c0>
+				</root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+  </tdml:parserTestCase>
+
+	<tdml:defineSchema name="nestedGroupRefs2">
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:group ref="ex:g0" dfdl:separator="%NL;"></xs:group>
+			</xs:complexType>
+		</xs:element>
+		<xs:group name="g0">
+			<xs:sequence dfdl:separatorPosition="infix">
+				<xs:element name="g0c0" minOccurs="0">
+					<xs:complexType>
+						<xs:group ref="ex:g1" dfdl:separator="|"></xs:group>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:group>
+		<xs:group name="g1">
+			<xs:sequence dfdl:separatorPosition="infix">
+				<xs:element name="g1c0" minOccurs="0">
+					<xs:complexType>
+						<xs:group ref="ex:g2" dfdl:separator=","></xs:group>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:group>
+		<xs:group name="g2">
+			<xs:sequence dfdl:separatorPosition="infix">
+				<xs:element name="g2c0" type="xs:string" />
+				<xs:element name="g2c1" type="xs:string" />
+        <xs:element name="g2c2" type="xs:string" />
+        <xs:sequence dfdl:hiddenGroupRef="ex:hg" />
+        <xs:group ref="ex:vg" />
+			</xs:sequence>
+    </xs:group>
+    <xs:group name="hg">
+      <xs:choice>
+        <xs:element name="inty" type="xs:int"
+          dfdl:lengthKind="delimited" />
+        <xs:element name="stringy" type="xs:string"
+          dfdl:lengthKind="delimited" />
+      </xs:choice>
+    </xs:group>
+    <xs:group name="vg">
+      <xs:choice>
+        <xs:element name="inty" type="xs:int"
+          dfdl:lengthKind="delimited" />
+        <xs:element name="stringy" type="xs:string"
+          dfdl:lengthKind="delimited" />
+      </xs:choice>
+    </xs:group>
+
+  </tdml:defineSchema>
+
+	<tdml:parserTestCase name="nestedGroupRefs2" root="root"
+		model="nestedGroupRefs2" description="Simple type defined in terms of primitive int.">
+
+		<tdml:document><![CDATA[A,B,C,1,x|D,E,F,2,y|G,H,I,3,z
+    A,B,C,x,1|D,E,F,y,2|G,H,I,z,3
+    A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<root>
+					<g0c0>
+						<g1c0>
+							<g2c0>A</g2c0>
+							<g2c1>B</g2c1>
+							<g2c2>C</g2c2>
+							<stringy>x</stringy>
+						</g1c0>
+						<g1c0>
+							<g2c0>D</g2c0>
+							<g2c1>E</g2c1>
+							<g2c2>F</g2c2>
+							<stringy>y</stringy>
+						</g1c0>
+						<g1c0>
+							<g2c0>G</g2c0>
+							<g2c1>H</g2c1>
+							<g2c2>I</g2c2>
+							<stringy>z</stringy>
+						</g1c0>
+					</g0c0>
+					<g0c0>
+						<g1c0>
+							<g2c0>A</g2c0>
+							<g2c1>B</g2c1>
+							<g2c2>C</g2c2>
+							<inty>1</inty>
+						</g1c0>
+						<g1c0>
+							<g2c0>D</g2c0>
+							<g2c1>E</g2c1>
+							<g2c2>F</g2c2>
+							<inty>2</inty>
+						</g1c0>
+						<g1c0>
+							<g2c0>G</g2c0>
+							<g2c1>H</g2c1>
+							<g2c2>I</g2c2>
+							<inty>3</inty>
+						</g1c0>
+					</g0c0>
+					<g0c0>
+						<g1c0>
+							<g2c0>A</g2c0>
+							<g2c1>B</g2c1>
+							<g2c2>C</g2c2>
+							<stringy>u</stringy>
+						</g1c0>
+						<g1c0>
+							<g2c0>D</g2c0>
+							<g2c1>E</g2c1>
+							<g2c2>F</g2c2>
+							<stringy>v</stringy>
+						</g1c0>
+						<g1c0>
+							<g2c0>G</g2c0>
+							<g2c1>H</g2c1>
+							<g2c2>I</g2c2>
+							<stringy>w</stringy>
+						</g1c0>
+					</g0c0>
+				</root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
