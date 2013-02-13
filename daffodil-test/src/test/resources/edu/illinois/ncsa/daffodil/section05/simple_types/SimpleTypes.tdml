@@ -2177,6 +2177,11 @@
     <xs:element name="time17b" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mmaa" dfdl:lengthKind="delimited"/>
     <xs:element name="time18" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="KK:mmaa" dfdl:lengthKind="delimited"/>
     <xs:element name="time19" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="kk:mm" dfdl:lengthKind="delimited"/>
+    <xs:element name="time20" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern='hh@mm$%^&amp;*()s' dfdl:lengthKind="delimited"/>
+    <xs:element name="time21" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh@mm$%^!@#.,/.''}{}{*()s" dfdl:lengthKind="delimited"/>
+    <xs:element name="time22" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="mm" dfdl:lengthKind="delimited"/>
+    <xs:element name="time23" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="" dfdl:lengthKind="delimited"/>
+    <xs:element name="time24" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="." dfdl:lengthKind="delimited"/>
 
     <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
@@ -3206,6 +3211,101 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <time15>03:30:38Z</time15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeSymbols
+        Schema: dateTimeSchema
+          Root: time20
+       Purpose: This test demonstrates that if dfdl:representation is text, any characters in the pattern
+                that are not in the ranges of ['a'..'z'] and ['A'..'Z'] will be treated as quoted text.
+-->
+  
+  <tdml:parserTestCase name="timeSymbols" root="time20"
+    model="dateTimeSchema" description="Section 13 Simple Types - Symbols with text representation - DFDL-13-164R">
+
+    <tdml:document><![CDATA[03@54$%^&*()5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time20>03:54:05Z</time20>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeSymbols2
+        Schema: dateTimeSchema
+          Root: time21
+       Purpose: This test demonstrates that if dfdl:representation is text, any characters in the pattern
+                that are not in the ranges of ['a'..'z'] and ['A'..'Z'] will be treated as quoted text.
+-->
+  
+  <tdml:parserTestCase name="timeSymbols2" root="time21"
+    model="dateTimeSchema" description="Section 13 Simple Types - Symbols with text representation - DFDL-13-164R">
+
+    <tdml:document><![CDATA[03@54$%^!@#.,/.'}{}{*()5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time21>03:54:05Z</time21>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: epochFillIn
+        Schema: dateTimeSchema
+          Root: time22
+       Purpose: This test demonstrates that for any pattern that omits components,
+                the values for the omitted components are supplied from the Unix epoch 1970-01-01T00:00:00.000
+-->
+  
+  <tdml:parserTestCase name="epochFillIn" root="time22"
+    model="dateTimeSchema" description="Section 13 Simple Types - Patterns with ommitted components - DFDL-13-164R">
+
+    <tdml:document><![CDATA[28]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time22>00:28:00Z</time22>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: epochFillIn2
+        Schema: dateTimeSchema
+          Root: time23
+       Purpose: This test demonstrates that for any pattern that omits components,
+                the values for the omitted components are supplied from the Unix epoch 1970-01-01T00:00:00.000
+-->
+  
+  <tdml:parserTestCase name="epochFillIn2" root="time23"
+    model="dateTimeSchema" description="Section 13 Simple Types - Patterns with ommitted components - DFDL-13-164R">
+
+    <tdml:document><![CDATA[]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time23>00:00:00Z</time23>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: epochFillIn3
+        Schema: dateTimeSchema
+          Root: time24
+       Purpose: This test demonstrates that for any pattern that omits components,
+                the values for the omitted components are supplied from the Unix epoch 1970-01-01T00:00:00.000
+-->
+  
+  <tdml:parserTestCase name="epochFillIn3" root="time24"
+    model="dateTimeSchema" description="Section 13 Simple Types - Patterns with ommitted components - DFDL-13-164R">
+
+    <tdml:document><![CDATA[.]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time24>00:00:00Z</time24>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
