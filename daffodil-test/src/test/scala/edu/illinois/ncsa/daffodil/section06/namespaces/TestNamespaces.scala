@@ -50,5 +50,8 @@ class TestNamespaces extends JUnitSuite {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   @Test def test_Lesson2_no_namespace() { runner.runOneTest("Lesson2_no_namespace") }
+  @Test def test_Lesson2_include_schema() { runner.runOneTest("Lesson2_include_schema") }
+  @Test def test_Lesson2_import_schema() { runner.runOneTest("Lesson2_import_schema") }
+
 
 }

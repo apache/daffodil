@@ -18,6 +18,14 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
+  <!--
+    Test name: Lesson2_include_schema
+       Schema: customer_no_namespace.dfdl.xsd
+         Root: customer
+      Purpose: This test demonstrates the use of xs:include to include external schemas. In this case an element in the customer
+               sequence is a reference to the "address" element in the external schema.
+  -->
+ 
   <tdml:parserTestCase name="Lesson2_include_schema" root="customer"
     model="customer_no_namespace.dfdl.xsd" description="include a schema - DFDL-6-007R">
     <tdml:document><![CDATA[James*River*118*Ridgewood Circle*Rochester*NY]]></tdml:document>
@@ -36,6 +44,14 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: Lesson2_import_schema
+       Schema: customer_namespace.dfdl.xsd
+         Root: customer
+      Purpose: This test demonstrates the use of xs:import to include external schemas. In this case an element in the customer
+               sequence is a reference to the "address" element in the external schema.
+  -->
   
   <tdml:parserTestCase name="Lesson2_import_schema" root="customer"
     model="customer_namespace.dfdl.xsd" description="import a schema - DFDL-6-007R">
