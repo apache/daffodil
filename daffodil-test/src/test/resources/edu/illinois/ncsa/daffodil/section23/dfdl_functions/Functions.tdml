@@ -26,6 +26,31 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+		
+    <xs:element name="testBit1">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="byte" type="xs:byte"
+						dfdl:representation="binary" dfdl:lengthKind="implicit" />
+					<xs:element name="bit1" type="xs:boolean"
+						dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte/text(), 1) }" />
+					<xs:element name="bit2" type="xs:boolean"
+						dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte/text(), 2) }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+    
+    <xs:element name="testBit2">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="int" type="xs:unsignedInt" dfdl:representation="binary" dfdl:lengthKind="implicit" />
+					<xs:element name="bit1" type="xs:boolean"
+						dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte/text(), 1) }" />
+					<xs:element name="bit2" type="xs:boolean"
+						dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte/text(), 2) }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
 
 		<xs:element name="setBits">
 			<xs:complexType>
@@ -50,6 +75,25 @@
 						dfdl:inputValueCalc="{ dfdl:setBits(0, 0, 0, 0, 0, 0 , 0, 1) }" />
 					<xs:element name="e8" type="xs:byte" dfdl:lengthKind="implicit"
 						dfdl:inputValueCalc="{ dfdl:setBits(1, 1, 1, 1, 1, 1 , 1, 1) }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		
+    <xs:element name="setBits1" type="xs:byte" dfdl:lengthKind="implicit"
+						dfdl:inputValueCalc="{ dfdl:setBits(0, 0, 1, 0 , 0, 0) }" />
+		
+    <xs:element name="setBits2">
+			<xs:complexType>
+				<xs:sequence dfdl:separator=",">
+					<xs:element name="e0" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:representation="text" />
+					<xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:representation="text" />
+					<xs:element name="e2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:representation="text" />
+					<xs:element name="e3" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:representation="text" />
+					<xs:element name="e4" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:representation="text" />
+					<xs:element name="e5" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:representation="text" />
+					<xs:element name="e6" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:representation="text" />
+					<xs:element name="e7" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:representation="text" />
+					<xs:element name="e" type="xs:byte" dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:setBits(/ex:setBits2/ex:e7, /ex:setBits2/ex:e6, /ex:setBits2/ex:e5, /ex:setBits2/ex:e4, /ex:setBits2/ex:e3, /ex:setBits2/ex:e2, /ex:setBits2/ex:e1, /ex:setBits2/ex:e0) }" />
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
@@ -98,6 +142,13 @@
 
 	</tdml:defineSchema>
 
+<!--
+    Test Name: testBit_0
+       Schema: Functions.dfdl.xsd
+         Root: testBit
+      Purpose: This test demonstrates the use of the testBit function to turn bits into boolean values
+-->
+
 	<tdml:parserTestCase name="testBit_0" root="testBit"
 		model="Functions.dfdl.xsd" description="Section 23 ">
 
@@ -116,6 +167,63 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+
+<!--
+    Test Name: testBit_1
+       Schema: Functions.dfdl.xsd
+         Root: testBit1
+      Purpose: This test demonstrates the use of the testBit function to turn bits into boolean values
+-->
+
+	<tdml:parserTestCase name="testBit_1" root="testBit1"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="bits">00000111</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<testBit1>
+					<byte>7</byte>
+					<bit1>true</bit1>
+					<bit2>true</bit2>
+				</testBit1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: testBit_2
+       Schema: Functions.dfdl.xsd
+         Root: testBit2
+      Purpose: This test demonstrates the use of the testBit function to turn bits into boolean values
+-->
+
+	<tdml:parserTestCase name="testBit_2" root="testBit2"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="bits">00000000 00000000 00000101 00010101</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<testBit1>
+					<byte>1301</byte>
+					<bit1>false</bit1>
+					<bit2>true</bit2>
+				</testBit1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: setBits_0
+       Schema: Functions.dfdl.xsd
+         Root: setBits
+      Purpose: This test demonstrates the use of the setBits function to set the bits of a byte
+-->
 
 	<tdml:parserTestCase name="setBits_0" root="setBits"
 		model="Functions.dfdl.xsd" description="Section 23 ">
@@ -143,6 +251,58 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
+<!--
+    Test Name: setBits_1
+       Schema: Functions.dfdl.xsd
+         Root: setBits
+      Purpose: This test demonstrates the misuse of the setBits function. The number of arguments is incorrect and the
+               test should fail.
+-->
+
+	<tdml:parserTestCase name="setBits_1" root="setBits1"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="bits">00000000</tdml:documentPart>
+		</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>no such function</tdml:error>
+      <tdml:error>setBits with arity 6</tdml:error>
+    </tdml:errors>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: setBits_2
+       Schema: Functions.dfdl.xsd
+         Root: setBits
+      Purpose: This test demonstrates the use of the setBits function to set the bits of a byte
+-->
+
+	<tdml:parserTestCase name="setBits_2" root="setBits2"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text">0,0,0,0,1,0,1,1</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<setBits2>
+					<e0>0</e0>
+					<e1>0</e1>
+					<e2>0</e2>
+					<e3>0</e3>
+					<e4>1</e4>
+					<e5>0</e5>
+					<e6>1</e6>
+					<e7>1</e7>
+					<e>11</e>
+				</setBits2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
 	<tdml:parserTestCase name="occursCount_0" root="occursCount"
 		model="Functions.dfdl.xsd" description="Section 23 ">
 
@@ -162,6 +322,13 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
+<!--
+    Test Name: stringLiteralFromString_0
+       Schema: Functions.dfdl.xsd
+         Root: stringLiteralFromString
+      Purpose: This test demonstrates the use of the stringLiteralFromString function
+-->
+
 	<tdml:parserTestCase name="stringLiteralFromString_0"
 		root="stringLiteralFromString" model="Functions.dfdl.xsd" description="Section 23 ">
 
@@ -174,6 +341,30 @@
 				<stringLiteralFromString>
 					<str>%This is a test!%</str>
 					<literal>%%This%SP;is%SP;a%SP;test!%%</literal>
+				</stringLiteralFromString>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: stringLiteralFromString_1
+       Schema: Functions.dfdl.xsd
+         Root: stringLiteralFromString
+      Purpose: This test demonstrates the use of the stringLiteralFromString function
+-->
+
+	<tdml:parserTestCase name="stringLiteralFromString_1"
+		root="stringLiteralFromString" model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="byte"><![CDATA[30 04 31 09 32 0a 33 0b 34]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<stringLiteralFromString>
+					<str>01 2 34</str>
+					<literal>0%EOT;1%HT;2%LF;3%VT;4</literal>
 				</stringLiteralFromString>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>

@@ -53,5 +53,11 @@ class TestDFDLExpressionsDebug extends JUnitSuite {
   // waiting for feature where string length can be given in units of bytes
   // even for variable-width character sets like utf-8 (which use 1 to 4 bytes per character)
   @Test def test_expressions_lke3_rel() { runner.runOneTest("lke3_rel") }
-
+  
+  val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
+  val aa = testDir2 + "Functions.tdml"
+  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  
+  @Test def test_stringLiteralFromString_1() { runner2.runOneTest("stringLiteralFromString_1") }
+  @Test def test_testBit_2() { runner2.runOneTest("testBit_2") }
 }
