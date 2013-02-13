@@ -2149,6 +2149,7 @@
                 dfdl:textCalendarJustification="left" dfdl:textCalendarPadCharacter="x" dfdl:lengthKind="delimited" />
     <xs:element name="date11" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:textTrimKind="padChar"
                 dfdl:textCalendarJustification="right" dfdl:textCalendarPadCharacter="d" dfdl:lengthKind="delimited" />
+    <xs:element name="date12" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="dd MM yyyy, HH:mm:ss" dfdl:lengthKind="delimited"/>
 
     <xs:element name="timeImp" type="xs:time" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
     <xs:element name="time01" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
@@ -2391,6 +2392,24 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <date01>2013-01-25</date01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: datePattern02
+        Schema: dateTimeSchema
+          Root: date12
+       Purpose: This test demonstrates what happens when you use time formatting markers in a date object
+-->
+  
+  <tdml:parserTestCase name="datePattern02" root="date12"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[24 03 1988, 03:45:55]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date01></date01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

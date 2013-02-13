@@ -59,7 +59,7 @@ class TestSimpleTypes2 extends JUnitSuite {
   //  @Test def test_Long3() {runner.runOneTest("Long3")}
   //  @Test def test_Long4() {runner.runOneTest("Long4")}
 
-///////////////////////// DFDL-105, DFDL-102 /////////////////////////////
+///////////////////////// DFDL-105, DFDL-102, DFDL-100 /////////////////////////////
 
   @Test def test_dateTimeLaxCheckPolicy01() { runner.runOneTest("dateTimeLaxCheckPolicy01") }
   @Test def test_timeFractionalSeconds01() { runner.runOneTest("timeFractionalSeconds01") }
@@ -75,6 +75,8 @@ class TestSimpleTypes2 extends JUnitSuite {
   @Test def test_millisecondAccuracy4() { runner.runOneTest("millisecondAccuracy4") }
   
   @Test def test_epochFillIn2() { runner.runOneTest("epochFillIn2") }
+  
+  @Test def test_datePattern02() { runner.runOneTest("datePattern02") }
 
 ///////////////////////////////////////////////////////////////
 
