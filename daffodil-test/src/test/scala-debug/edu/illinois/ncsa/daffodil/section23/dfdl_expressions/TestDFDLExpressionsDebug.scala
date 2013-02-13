@@ -60,4 +60,8 @@ class TestDFDLExpressionsDebug extends JUnitSuite {
   
   @Test def test_stringLiteralFromString_1() { runner2.runOneTest("stringLiteralFromString_1") }
   @Test def test_testBit_2() { runner2.runOneTest("testBit_2") }
+  @Test def test_containsEntity_2() { runner2.runOneTest("containsEntity_2") }
+  @Test def test_containsEntity_3() { runner2.runOneTest("containsEntity_3") }
+  @Test def test_containsEntity_4() { runner2.runOneTest("containsEntity_4") }
+
 }
