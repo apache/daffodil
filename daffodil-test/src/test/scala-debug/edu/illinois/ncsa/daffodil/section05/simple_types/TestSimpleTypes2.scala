@@ -87,7 +87,7 @@ class TestSimpleTypes2 extends JUnitSuite {
 //////////////////////// DFDL-529 /////////////////////////////
 
   @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart") }
-  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart2") }
+  @Test def test_dateCalendarCenturyStart2() { runner.runOneTest("dateCalendarCenturyStart2") }
 
 ///////////////////////////////////////////////////////////////
 
