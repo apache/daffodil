@@ -51,4 +51,7 @@ class TestRegularExpressions extends JUnitSuite {
 
   @Test def testRegEx_01() { runner.runOneTest("testRegEx_01") }
   @Test def testRegEx_02() { runner.runOneTest("testRegEx_02") }
+  
+  // This test requires Java 7 in order to function
+  // @Test def testRegEx_03() { runner.runOneTest("testRegEx_03") }
 }
