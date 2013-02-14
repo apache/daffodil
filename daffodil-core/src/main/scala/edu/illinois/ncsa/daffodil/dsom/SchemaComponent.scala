@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import scala.xml._
 import scala.xml.parsing._
 import edu.illinois.ncsa.daffodil.xml._
@@ -745,6 +744,10 @@ class SchemaSet(
         else Some(RootSpec(Some(NS(rootNamespace)), root))
       },
       false)
+
+  // Registry used to map from infoset nodes back to the schema components
+  // that made them.
+  lazy val schemaComponentRegistry = new SchemaComponentRegistry()
 
   //
   // construct our XML loader, giving it an error handler that will

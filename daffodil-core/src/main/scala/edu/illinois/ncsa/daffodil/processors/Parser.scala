@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.grammar._
@@ -439,6 +438,7 @@ class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixi
  * places where points-of-uncertainty are handled.
  */
 case class PState(
+  val schemaComponentRegistry: SchemaComponentRegistry,
   val inStream: InStream,
   val infoset: InfosetItem,
   val variableMap: VariableMap,
@@ -604,9 +604,9 @@ object PState {
   /**
    * Initialize the state block given our InStream and a root element declaration.
    */
-  def createInitialState(
-    rootElemDecl: GlobalElementDecl,
-    in: InStream): PState = {
+  def createInitialState(scr: SchemaComponentRegistry,
+                         rootElemDecl: GlobalElementDecl,
+                         in: InStream): PState = {
 
     val doc = Infoset.newDocument()
     val variables = rootElemDecl.schemaDocument.schemaSet.variableMap
@@ -619,29 +619,29 @@ object PState {
     val diagnostics = Nil
     val discriminator = false
     val textReader: Option[DFDLCharReader] = None
-    val newState = PState(in, doc, variables, targetNamespace, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, List(false))
+    val newState = PState(scr, in, doc, variables, targetNamespace, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, List(false))
     newState
   }
 
   /**
    * For testing it is convenient to just hand it strings for data.
    */
-  def createInitialState(rootElemDecl: GlobalElementDecl, data: String, bitOffset: Long): PState = {
+  def createInitialState(scr: SchemaComponentRegistry, rootElemDecl: GlobalElementDecl, data: String, bitOffset: Long): PState = {
     val in = Compiler.stringToReadableByteChannel(data)
-    createInitialState(rootElemDecl, in, data.length, bitOffset)
+    createInitialState(scr, rootElemDecl, in, data.length, bitOffset)
   }
 
   /**
    * Construct our InStream object and initialize the state block.
    */
-  def createInitialState(
-    rootElemDecl: GlobalElementDecl,
-    input: DFDL.Input,
-    bitOffset: Long = 0,
-    bitLengthLimit: Long = -1): PState = {
+  def createInitialState(scr: SchemaComponentRegistry,
+                         rootElemDecl: GlobalElementDecl,
+                         input: DFDL.Input,
+                         bitOffset: Long = 0,
+                         bitLengthLimit: Long = -1): PState = {
     val inStream =
       InStream.fromByteChannel(rootElemDecl, input, bitOffset, bitLengthLimit)
-    createInitialState(rootElemDecl, inStream)
+    createInitialState(scr, rootElemDecl, inStream)
   }
 
 }

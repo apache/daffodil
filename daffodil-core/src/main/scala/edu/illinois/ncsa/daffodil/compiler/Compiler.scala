@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.compiler
  * SOFTWARE.
  */
 
-
 import java.io.ByteArrayOutputStream
 import java.io.ByteArrayInputStream
 import scala.xml.Node
@@ -68,7 +67,7 @@ case class RootSpec(ns: Option[NS], name: String) {
   }
 }
 
-class ProcessorFactory(sset: SchemaSet)
+class ProcessorFactory(val sset: SchemaSet)
   extends DiagnosticsProviding // (sset)
   with DFDL.ProcessorFactory
   with HavingRootSpec {

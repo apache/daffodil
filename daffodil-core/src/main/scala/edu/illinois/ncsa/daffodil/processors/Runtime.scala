@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import edu.illinois.ncsa.daffodil.api.{ WithDiagnostics, DFDL }
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
@@ -61,6 +60,8 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   extends DFDL.DataProcessor
   with DiagnosticsProviding {
   Assert.usage(pf.canProceed)
+
+  lazy val processorFactory = pf
 
   lazy val prettyName = "DataProcessor"
   lazy val path = prettyName
@@ -98,7 +99,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   def parse(input: DFDL.Input, lengthLimitInBits: Long = -1): DFDL.ParseResult = {
     Assert.usage(!this.isError)
 
-    val initialState = PState.createInitialState(
+    val initialState = PState.createInitialState(this.processorFactory.sset.schemaComponentRegistry,
       rootElem,
       input,
       bitOffset = 0,

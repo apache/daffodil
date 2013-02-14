@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import scala.xml._
@@ -250,7 +249,8 @@ class TestPrimitives extends JUnitSuite {
 
     val edecl = dp.rootElem
     val d = Compiler.stringToReadableByteChannel("42")
-    val initialState = PState.createInitialState(edecl, d, bitOffset = 3)
+    val initialState = PState.createInitialState(pf.sset.schemaComponentRegistry,
+      edecl, d, bitOffset = 3)
     val resState = dp.parse(initialState)
     assertTrue(resState.isError)
     val Seq(err) = resState.getDiagnostics

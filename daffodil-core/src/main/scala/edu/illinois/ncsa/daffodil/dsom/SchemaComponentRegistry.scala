@@ -41,7 +41,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  * Used to navigate from the Infoset back to schema components relevant
  * to a part of the Infoset.
  */
-object SchemaComponentRegistry {
+class SchemaComponentRegistry {
 
   private val contextMap: HashMap[UUID, ElementBase] = HashMap.empty
 

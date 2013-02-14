@@ -51,7 +51,7 @@ object Infoset {
   type SchemaComponentIDObject = String
 
   def addComponent(e: ElementBase): SchemaComponentIDObject = {
-    val idString = SchemaComponentRegistry.addComponent(e)
+    val idString = e.schemaSet.schemaComponentRegistry.addComponent(e)
     idString
   }
 
@@ -125,8 +125,9 @@ class InfosetElement(private val elt: org.jdom.Element) extends InfosetItem {
         Assert.invariantFailed("No schema component context attribute on Infoset element")
       }
       case uuid => {
+        val scr = pstate.schemaComponentRegistry
         // We have a uuid, retrieve the schema component
-        SchemaComponentRegistry.getComponentByID(uuid) match {
+        scr.getComponentByID(uuid) match {
           case Some(e) => e
           case None => {
             Assert.invariantFailed("Schema context component was not found in lookup table")
