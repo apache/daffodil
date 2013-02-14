@@ -141,19 +141,21 @@ class TestFacets extends JUnitSuite {
   @Test def test_totalDigits_Fail{ runner.runOneTest("checkTotalDigits_Fail") }
  
   @Test def test_minMaxInEx01() { runner.runOneTest("minMaxInEx01") }
-//  @Test def test_minMaxInEx02() { runner.runOneTest("minMaxInEx02") }
+
+  @Test def test_minMaxInEx02() { runner.runOneTest("minMaxInEx02") }
   @Test def test_minMaxInEx03() { runner.runOneTest("minMaxInEx03") }
-//  @Test def test_minMaxInEx04() { runner.runOneTest("minMaxInEx04") }
+  @Test def test_minMaxInEx04() { runner.runOneTest("minMaxInEx04") }
   @Test def test_minMaxInEx05() { runner.runOneTest("minMaxInEx05") }
   @Test def test_minMaxInEx06() { runner.runOneTest("minMaxInEx06") }
   @Test def test_minMaxInEx07() { runner.runOneTest("minMaxInEx07") }
-//  @Test def test_minMaxInEx08() { runner.runOneTest("minMaxInEx08") }
+  @Test def test_minMaxInEx08() { runner.runOneTest("minMaxInEx08") }
+//  @Test def test_minMaxInEx08b() { runner.runOneTest("minMaxInEx08b") }
   @Test def test_minMaxInEx09() { runner.runOneTest("minMaxInEx09") }
 //  @Test def test_minMaxInEx10() { runner.runOneTest("minMaxInEx10") }
   @Test def test_minMaxInEx11() { runner.runOneTest("minMaxInEx11") }
   @Test def test_minMaxInEx12() { runner.runOneTest("minMaxInEx12") }
   @Test def test_minMaxInEx13() { runner.runOneTest("minMaxInEx13") }
-//  @Test def test_minMaxInEx14() { runner.runOneTest("minMaxInEx14") }
+  @Test def test_minMaxInEx14() { runner.runOneTest("minMaxInEx14") }
 
 //  @Test def test_minMaxInExdateTime01() { runner.runOneTest("minMaxInExdateTime01") }
 //  @Test def test_minMaxInExdateTime02() { runner.runOneTest("minMaxInExdateTime02") }

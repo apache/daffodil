@@ -50,6 +50,8 @@ class TestFacetsDebug extends JUnitSuite {
   val aa = testDir + "Facets.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
+  @Test def test_minMaxInEx08b() { runner.runOneTest("minMaxInEx08b") }
+
   // Note, these won't pass until Decimal is implemented
   @Test def test_totalDigits_Pass_Decimal{ runner.runOneTest("checkTotalDigits_Pass_Decimal") }
   @Test def test_totalDigits_Fail_Decimal{ runner.runOneTest("checkTotalDigits_Fail_Decimal") }

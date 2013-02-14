@@ -4779,6 +4779,13 @@
     
     <xs:simpleType name="mImE_st6">
       <xs:restriction base="xs:int">
+        <xs:minExclusive value="10" />
+        <xs:maxInclusive value="2" />
+      </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="mImE_st6b">
+      <xs:restriction base="xs:int">
         <xs:minInclusive value="10" />
         <xs:maxInclusive value="2" />
       </xs:restriction>
@@ -4841,7 +4848,7 @@
     <xs:element name="mImE_e1">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
-          <xs:element name="f1" maxOccurs="10" dfdl:lengthKind="delimited">
+          <xs:element name="f1" dfdl:occursCountKind="fixed" maxOccurs="5" minOccurs="5" dfdl:lengthKind="delimited">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
                 <dfdl:assert test="{ dfdl:checkConstraints(.) }"
@@ -4860,7 +4867,7 @@
     <xs:element name="mImE_e2">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
-          <xs:element name="f1" maxOccurs="6" dfdl:lengthKind="delimited">
+          <xs:element name="f1" dfdl:occursCountKind="fixed" maxOccurs="3" minOccurs="3" dfdl:lengthKind="delimited">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
                 <dfdl:assert test="{ dfdl:checkConstraints(.) }"
@@ -4917,7 +4924,7 @@
     <xs:element name="mImE_e5">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
-          <xs:element name="f1" maxOccurs="6" dfdl:lengthKind="delimited">
+          <xs:element name="f1" dfdl:occursCountKind="fixed" maxOccurs="4" minOccurs="4" dfdl:lengthKind="delimited">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
                 <dfdl:assert test="{ dfdl:checkConstraints(.) }"
@@ -4942,6 +4949,19 @@
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="ex:mImE_st6">
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="mImE_e6b" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="ex:mImE_st6b">
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
@@ -5007,7 +5027,7 @@
     <xs:element name="mImE_e11">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
-          <xs:element name="f1" maxOccurs="3" dfdl:lengthKind="delimited">
+          <xs:element name="f1" dfdl:occursCountKind="fixed" maxOccurs="3" minOccurs="3" dfdl:lengthKind="delimited">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
                 <dfdl:assert test="{ dfdl:checkConstraints(.) }"
@@ -5072,11 +5092,13 @@
 
   <tdml:parserTestCase name="minMaxInEx01" root="mImE_e1"
     model="minMaxInExSchema" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R">
-    <tdml:document>3,4,5</tdml:document>
+    <tdml:document>3,4,5,4,5</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <mImE_e1>
           <f1>3</f1>
+          <f1>4</f1>
+          <f1>5</f1>
           <f1>4</f1>
           <f1>5</f1>
         </mImE_e1>
@@ -5108,12 +5130,13 @@
 
   <tdml:parserTestCase name="minMaxInEx03" root="mImE_e2"
     model="minMaxInExSchema" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R">
-    <tdml:document>3,4</tdml:document>
+    <tdml:document>3,4,3</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <mImE_e2>
           <f1>3</f1>
           <f1>4</f1>
+          <f1>3</f1>
         </mImE_e2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5173,14 +5196,12 @@
 
   <tdml:parserTestCase name="minMaxInEx07" root="mImE_e5"
     model="minMaxInExSchema" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R">
-    <tdml:document>3,4,5,6,7,8</tdml:document>
+    <tdml:document>3,4,7,8</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <mImE_e5>
           <f1>3</f1>
           <f1>4</f1>
-          <f1>5</f1>
-          <f1>6</f1>
           <f1>7</f1>
           <f1>8</f1>
         </mImE_e5>
@@ -5191,21 +5212,7 @@
   <!--
     Test name: minMaxInEx08
     Schema: minMaxInExSchema 
-    Purpose: This test fails because max is less than min.
-  -->
-
-  <tdml:parserTestCase name="minMaxInEx08" root="mImE_e5"
-    model="minMaxInExSchema" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R">
-    <tdml:document>3,4,2,8</tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-    </tdml:errors>
-  </tdml:parserTestCase>
-  
-  <!--
-    Test name: minMaxInEx08
-    Schema: minMaxInExSchema 
-    Purpose: This test fails because minInclusive is higher than maxInclusive
+    Purpose: This test fails because minExclusive is higher than maxInclusive
   -->
 
   <tdml:parserTestCase name="minMaxInEx08" root="mImE_e6"
@@ -5213,6 +5220,22 @@
     <tdml:document>3,4,5</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>MinExclusive(10) must be less than or equal to MaxInclusive(2)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: minMaxInEx08b
+    Schema: minMaxInExSchema 
+    Purpose: This test fails because minInclusive is higher than maxInclusive
+  -->
+
+  <tdml:parserTestCase name="minMaxInEx08b" root="mImE_e6b"
+    model="minMaxInExSchema" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R">
+    <tdml:document>3,4,5</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>MinInclusive(10) must be less than or equal to MaxInclusive(2)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
