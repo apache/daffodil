@@ -2177,6 +2177,12 @@
     <xs:element name="date25" type="ex:explicDate" dfdl:calendarPattern="EEEE MMM yyyy" dfdl:calendarLanguage="es-MX"/>
     <xs:element name="date26" type="ex:explicDate" dfdl:calendarPattern="EEEE MMM yyyy" dfdl:calendarLanguage="en-GB"/>
     
+    <xs:element name="date27" type="ex:explicDate" dfdl:calendarPattern="yyyy"/>
+    <xs:element name="date28" type="ex:explicDate" dfdl:calendarPattern=""/>
+    <xs:element name="date29" type="ex:explicDate" dfdl:calendarPattern="MM"/>
+
+    <xs:element name="date30" type="ex:explicDate" dfdl:calendarPattern="dd...00MM.....yyyy*()*()*()"/>
+    
     <xs:simpleType name="explicDate" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="delimited">
       <xs:restriction base="xs:date"/>
     </xs:simpleType>
@@ -2534,6 +2540,100 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <date16>2013-02-10</date16>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: datePattern08
+        Schema: dateTimeSchema
+          Root: date30
+       Purpose: This test demonstrates the use of symbols in date formatting with a byte representation
+-->
+  
+  <tdml:parserTestCase name="datePattern08" root="date30"
+    model="dateTimeSchema" description="Section 13 Simple Types - symbols in date formatting - DFDL-13-164R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">33302e2e2e303030342e2e2e2e2e313939382a28292a28292a2829</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date30>1998-04-30</date30>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: datePattern08b
+        Schema: dateTimeSchema
+          Root: date30
+       Purpose: This test demonstrates the use of symbols in date formatting
+-->
+  
+  <tdml:parserTestCase name="datePattern08b" root="date30"
+    model="dateTimeSchema" description="Section 13 Simple Types - symbols in date formatting - DFDL-13-164R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">30...0004.....1998*()*()*()</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date30>1998-04-30</date30>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateEpochFillIn
+        Schema: dateTimeSchema
+          Root: date27
+       Purpose: This test demonstrates that if a formatting character is not provided, the time is filled in with the epoch time.
+-->
+  
+  <tdml:parserTestCase name="dateEpochFillIn" root="date27"
+    model="dateTimeSchema" description="Section 13 Simple Types - epoch fill in - DFDL-13-164R">
+
+    <tdml:document><![CDATA[2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date27>2013-01-01</date27>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateEpochFillIn2
+        Schema: dateTimeSchema
+          Root: date28
+       Purpose: This test demonstrates that if a formatting character is not provided, the time is filled in with the epoch time.
+-->
+  
+  <tdml:parserTestCase name="dateEpochFillIn2" root="date28"
+    model="dateTimeSchema" description="Section 13 Simple Types - epoch fill in - DFDL-13-164R">
+
+    <tdml:document><![CDATA[]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date28>1970-01-01</date28>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateEpochFillIn3
+        Schema: dateTimeSchema
+          Root: date29
+       Purpose: This test demonstrates that if a formatting character is not provided, the time is filled in with the epoch time.
+-->
+  
+  <tdml:parserTestCase name="dateEpochFillIn3" root="date29"
+    model="dateTimeSchema" description="Section 13 Simple Types - epoch fill in - DFDL-13-164R">
+
+    <tdml:document><![CDATA[08]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date29>1970-08-01</date29>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

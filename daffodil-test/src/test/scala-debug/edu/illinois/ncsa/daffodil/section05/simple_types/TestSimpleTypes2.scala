@@ -75,6 +75,7 @@ class TestSimpleTypes2 extends JUnitSuite {
   @Test def test_millisecondAccuracy4() { runner.runOneTest("millisecondAccuracy4") }
   
   @Test def test_epochFillIn2() { runner.runOneTest("epochFillIn2") }
+  @Test def test_dateEpochFillIn2() { runner.runOneTest("dateEpochFillIn2") }
   
   @Test def test_datePattern02() { runner.runOneTest("datePattern02") }
   @Test def test_datePattern04() { runner.runOneTest("datePattern04") }

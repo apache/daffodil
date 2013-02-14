@@ -49,6 +49,12 @@ class TestSimpleTypes extends JUnitSuite {
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
+  @Test def test_dateEpochFillIn() { runner.runOneTest("dateEpochFillIn") }
+//  @Test def test_dateEpochFillIn2() { runner.runOneTest("dateEpochFillIn2") }
+  @Test def test_dateEpochFillIn3() { runner.runOneTest("dateEpochFillIn3") }
+  @Test def test_datePattern08() { runner.runOneTest("datePattern08") }
+  @Test def test_datePattern08b() { runner.runOneTest("datePattern08b") }
+
 //  @Test def test_datePattern02() { runner.runOneTest("datePattern02") }
   @Test def test_datePattern03() { runner.runOneTest("datePattern03") }
 //  @Test def test_datePattern04() { runner.runOneTest("datePattern04") }
