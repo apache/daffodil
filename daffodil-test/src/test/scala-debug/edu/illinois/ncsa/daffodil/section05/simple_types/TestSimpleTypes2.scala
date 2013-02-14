@@ -77,6 +77,16 @@ class TestSimpleTypes2 extends JUnitSuite {
   @Test def test_epochFillIn2() { runner.runOneTest("epochFillIn2") }
   
   @Test def test_datePattern02() { runner.runOneTest("datePattern02") }
+  @Test def test_datePattern04() { runner.runOneTest("datePattern04") }
+  
+  @Test def test_dateCalendarLanguage() { runner.runOneTest("dateCalendarLanguage") }
+  @Test def test_dateCalendarLanguage2() { runner.runOneTest("dateCalendarLanguage2") }
+  @Test def test_dateCalendarLanguage3() { runner.runOneTest("dateCalendarLanguage3") }
+
+//////////////////////// DFDL-529 /////////////////////////////
+
+  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart") }
+  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart2") }
 
 ///////////////////////////////////////////////////////////////
 

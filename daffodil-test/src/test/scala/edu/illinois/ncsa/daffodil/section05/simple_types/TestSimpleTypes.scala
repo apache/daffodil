@@ -50,6 +50,26 @@ class TestSimpleTypes extends JUnitSuite {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
 //  @Test def test_datePattern02() { runner.runOneTest("datePattern02") }
+  @Test def test_datePattern03() { runner.runOneTest("datePattern03") }
+//  @Test def test_datePattern04() { runner.runOneTest("datePattern04") }
+  @Test def test_datePattern05() { runner.runOneTest("datePattern05") }
+  @Test def test_datePattern06() { runner.runOneTest("datePattern06") }
+  @Test def test_datePattern07() { runner.runOneTest("datePattern07") }
+
+  @Test def test_datePatternChoice() { runner.runOneTest("datePatternChoice") }
+  
+//  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart") }
+//  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart2") }
+  
+//  @Test def test_dateCalendarLanguage() { runner.runOneTest("dateCalendarLanguage") }
+//  @Test def test_dateCalendarLanguage2() { runner.runOneTest("dateCalendarLanguage2") }
+//  @Test def test_dateCalendarLanguage3() { runner.runOneTest("dateCalendarLanguage3") }
+  
+  @Test def test_dateCalendarDaysInFirstWeek() { runner.runOneTest("dateCalendarDaysInFirstWeek") }
+  @Test def test_dateCalendarDaysInFirstWeek2() { runner.runOneTest("dateCalendarDaysInFirstWeek2") }
+  @Test def test_dateCalendarDaysInFirstWeek3() { runner.runOneTest("dateCalendarDaysInFirstWeek3") }
+  @Test def test_dateCalendarDaysInFirstWeek4() { runner.runOneTest("dateCalendarDaysInFirstWeek4") }
+  @Test def test_dateCalendarDaysInFirstWeek5() { runner.runOneTest("dateCalendarDaysInFirstWeek5") }
 
   @Test def test_timeSymbols() { runner.runOneTest("timeSymbols") }
   @Test def test_timeSymbols2() { runner.runOneTest("timeSymbols2") }

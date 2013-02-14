@@ -2149,7 +2149,41 @@
                 dfdl:textCalendarJustification="left" dfdl:textCalendarPadCharacter="x" dfdl:lengthKind="delimited" />
     <xs:element name="date11" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:textTrimKind="padChar"
                 dfdl:textCalendarJustification="right" dfdl:textCalendarPadCharacter="d" dfdl:lengthKind="delimited" />
-    <xs:element name="date12" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="dd MM yyyy, HH:mm:ss" dfdl:lengthKind="delimited"/>
+
+    <xs:element name="date12" type="ex:explicDate" dfdl:calendarPattern="dd MM yyyy, HH:mm:ss"/>
+    <xs:element name="date13" type="ex:explicDate" dfdl:calendarPattern="MM-dd-yyyy G"/>
+    <xs:element name="date14" type="ex:explicDate" dfdl:calendarPattern="Q yyyy"/>
+    <xs:element name="date15" type="ex:explicDate" dfdl:calendarPattern="D yyyy"/>
+    <xs:element name="date16" type="ex:explicDate" dfdl:calendarPattern="F MM yyyy"/>
+    <xs:element name="date17" type="ex:explicDate7" dfdl:calendarPattern="w yyyy"/>
+    <xs:element name="date18" type="ex:explicDate" dfdl:calendarPattern="w yyyy" dfdl:calendarDaysInFirstWeek="5"/>
+    <xs:element name="date19" type="ex:explicDate7" dfdl:calendarPattern="W MM yyyy"/>
+    <xs:element name="date20" type="ex:explicDate" dfdl:calendarPattern="W MM yyyy" dfdl:calendarDaysInFirstWeek="2"/>
+
+    <xs:element name="date21">
+      <xs:complexType>
+           <xs:choice>
+             <xs:element name="superfull" type="ex:explicDate" dfdl:calendarPattern="'It is day 'dd' of 'MMM, yyyy" />
+             <xs:element name="short" type="ex:explicDate" dfdl:calendarPattern="MM-dd-yyyy"/>
+             <xs:element name="full" type="ex:explicDate" dfdl:calendarPattern="MMM dd, yyyy"/>
+           </xs:choice>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="date22" type="ex:explicDate" dfdl:calendarPattern="MM dd yy" dfdl:calendarCenturyStart="20"/>
+    <xs:element name="date23" type="ex:explicDate" dfdl:calendarPattern="MM dd yy" dfdl:calendarCenturyStart="48"/>
+    
+    <xs:element name="date24" type="ex:explicDate" dfdl:calendarPattern="EEEE MMM yyyy" dfdl:calendarLanguage="de-1996"/>
+    <xs:element name="date25" type="ex:explicDate" dfdl:calendarPattern="EEEE MMM yyyy" dfdl:calendarLanguage="es-MX"/>
+    <xs:element name="date26" type="ex:explicDate" dfdl:calendarPattern="EEEE MMM yyyy" dfdl:calendarLanguage="en-GB"/>
+    
+    <xs:simpleType name="explicDate" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="delimited">
+      <xs:restriction base="xs:date"/>
+    </xs:simpleType>
+    
+    <xs:simpleType name="explicDate7" dfdl:calendarDaysInFirstWeek="7">
+      <xs:restriction base="ex:explicDate"/>
+    </xs:simpleType>
 
     <xs:element name="timeImp" type="xs:time" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
     <xs:element name="time01" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
@@ -2410,6 +2444,315 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <date01></date01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: datePattern03
+        Schema: dateTimeSchema
+          Root: date13
+       Purpose: This test demonstrates date formatting markers, primarily with the 'G' (era) symbol
+-->
+  
+  <tdml:parserTestCase name="datePattern03" root="date13"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[02-13-2013 BC]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date13>2013-02-13</date13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: datePattern04
+        Schema: dateTimeSchema
+          Root: date14
+       Purpose: This test demonstrates date formatting markers, primarily with the 'Q' (quarter) symbol
+-->
+  
+  <tdml:parserTestCase name="datePattern04" root="date14"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[Q2 2012]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date13>2013-02-13</date13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: datePattern05
+        Schema: dateTimeSchema
+          Root: date15
+       Purpose: This test demonstrates date formatting markers, primarily with the 'D' (day in year) symbol (leap year)
+-->
+  
+  <tdml:parserTestCase name="datePattern05" root="date15"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[100 2012]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date15>2012-04-09</date15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: datePattern06
+        Schema: dateTimeSchema
+          Root: date15
+       Purpose: This test demonstrates date formatting markers, primarily with the 'D' (day in year) symbol (non leap year)
+-->
+  
+  <tdml:parserTestCase name="datePattern06" root="date15"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[100 2011]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date15>2011-04-10</date15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: datePattern07
+        Schema: dateTimeSchema
+          Root: date16
+       Purpose: This test demonstrates date formatting markers, primarily with the 'F' (week in month) symbol
+-->
+  
+  <tdml:parserTestCase name="datePattern07" root="date16"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[2 02 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date16>2013-02-10</date16>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: datePatternChoice
+        Schema: dateTimeSchema
+          Root: date21
+       Purpose: This test demonstrates the use of a choice whose elements are determined by formatting
+-->
+  
+  <tdml:parserTestCase name="datePatternChoice" root="date21"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[It is day 25 of March, 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date21>
+          <superfull>2013-03-25</superfull>
+        </date21>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarCenturyStart
+        Schema: dateTimeSchema
+          Root: date22
+       Purpose: This test demonstrates the calendarCenturyStart property. The specified start is 20, so the year
+                range is 1920 - 2019. In this case our year is 45. In order for it to fall in our range it
+                translates to 1945. 
+-->
+  
+  <tdml:parserTestCase name="dateCalendarCenturyStart" root="date22"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCentury - DFDL-13-144R">
+
+    <tdml:document><![CDATA[03 22 45]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date22>1945-03-22</date22>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarCenturyStart2
+        Schema: dateTimeSchema
+          Root: date23
+       Purpose: This test demonstrates the calendarCenturyStart property. The specified start is 48, so the year
+                range is 1948 - 2047. In this case our year is 45. In order for it to fall in our range it
+                translates to 2045. 
+-->
+  
+  <tdml:parserTestCase name="dateCalendarCenturyStart2" root="date23"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCenturyStart - DFDL-13-144R">
+
+    <tdml:document><![CDATA[03 22 45]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date22>2045-03-22</date22>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarLanguage
+        Schema: dateTimeSchema
+          Root: date24
+       Purpose: This test demonstrates the calendarLanguage property with the language set to German.
+-->
+  
+  <tdml:parserTestCase name="dateCalendarLanguage" root="date24"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarLanguage - DFDL-13-145R">
+
+    <tdml:document><![CDATA[Freitag März 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date21>
+          <superfull>2013-03-25</superfull>
+        </date21>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarLanguage2
+        Schema: dateTimeSchema
+          Root: date25
+       Purpose: This test demonstrates the calendarLanguage property with the language set to Spanish.
+-->
+  
+  <tdml:parserTestCase name="dateCalendarLanguage2" root="date25"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarLanguage - DFDL-13-145R">
+
+    <tdml:document><![CDATA[Lunes Noviembre 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date21>
+          <superfull>2013-03-25</superfull>
+        </date21>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarLanguage3
+        Schema: dateTimeSchema
+          Root: date26
+       Purpose: This test demonstrates the calendarLanguage property with the language set to English.
+-->
+  
+  <tdml:parserTestCase name="dateCalendarLanguage3" root="date26"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarLanguage - DFDL-13-145R">
+
+    <tdml:document><![CDATA[Monday November 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date21>
+          <superfull>2013-03-25</superfull>
+        </date21>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarDaysInFirstWeek
+        Schema: dateTimeSchema
+          Root: date17
+       Purpose: This test demonstrates the calendarDaysInFirstWeek property. Since the first week of 2013 is specified, 
+                and the calendarDaysInFirstWeek is set to 7, the first full week of 2013 will be selected. In this case
+                it starts on January 6th.
+-->
+  
+  <tdml:parserTestCase name="dateCalendarDaysInFirstWeek" root="date17"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
+
+    <tdml:document><![CDATA[01 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date17>2013-01-06</date17>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarDaysInFirstWeek2
+        Schema: dateTimeSchema
+          Root: date18
+       Purpose: This test demonstrates the calendarDaysInFirstWeek property. Since the first week of 2013 is specified, 
+                and the calendarDaysInFirstWeek is set to 5, the first day of the week that contains the first day of the
+                year will be selected. In this case it is December 30th, 2012
+-->
+  
+  <tdml:parserTestCase name="dateCalendarDaysInFirstWeek2" root="date18"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
+
+    <tdml:document><![CDATA[01 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date18>2012-12-30</date18>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarDaysInFirstWeek3
+        Schema: dateTimeSchema
+          Root: date17
+       Purpose: This test demonstrates the calendarDaysInFirstWeek property. calendarDaysInFirstWeek is set to 7,
+                and in 2012 the first day of the year started the first full week, so we should get January 1st.
+-->
+  
+  <tdml:parserTestCase name="dateCalendarDaysInFirstWeek3" root="date17"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
+
+    <tdml:document><![CDATA[01 2012]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date17>2012-01-01</date17>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarDaysInFirstWeek4
+        Schema: dateTimeSchema
+          Root: date19
+       Purpose: This test demonstrates the calendarDaysInFirstWeek property. calendarDaysInFirstWeek is set to 5,
+                which is more than the number of days in the first week of March, so the second week is selected,
+                which starts on the 3rd.
+-->
+  
+  <tdml:parserTestCase name="dateCalendarDaysInFirstWeek4" root="date19"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
+
+    <tdml:document><![CDATA[01 03 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date19>2013-03-03</date19>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarDaysInFirstWeek5
+        Schema: dateTimeSchema
+          Root: date20
+       Purpose: This test demonstrates the calendarDaysInFirstWeek property. calendarDaysInFirstWeek is set to 2,
+                which is the number of days in the first week of March, so the first day of the first week is selected,
+                which is Feb 24th.
+-->
+  
+  <tdml:parserTestCase name="dateCalendarDaysInFirstWeek5" root="date20"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
+
+    <tdml:document><![CDATA[01 03 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date20>2013-02-24</date20>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
