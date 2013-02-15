@@ -72,8 +72,6 @@ class TestFacetsDebug extends JUnitSuite {
 
   @Test def test_totalDigits01() { runner.runOneTest("totalDigits01") }
   @Test def test_totalDigits02() { runner.runOneTest("totalDigits02") }
-  @Test def test_totalDigits03() { runner.runOneTest("totalDigits03") }
-  @Test def test_totalDigits04() { runner.runOneTest("totalDigits04") }
 
   @Test def test_totalDigits05b() { runner.runOneTest("totalDigits05b") }
 

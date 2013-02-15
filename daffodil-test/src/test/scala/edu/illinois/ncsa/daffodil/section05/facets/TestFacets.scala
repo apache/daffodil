@@ -102,12 +102,14 @@ class TestFacets extends JUnitSuite {
 
 //  @Test def test_totalDigits01() { runner.runOneTest("totalDigits01") }
 //  @Test def test_totalDigits02() { runner.runOneTest("totalDigits02") }
-//  @Test def test_totalDigits03() { runner.runOneTest("totalDigits03") }
-//  @Test def test_totalDigits04() { runner.runOneTest("totalDigits04") }
+  @Test def test_totalDigits03() { runner.runOneTest("totalDigits03") }
+  @Test def test_totalDigits04() { runner.runOneTest("totalDigits04") }
   @Test def test_totalDigits05() { runner.runOneTest("totalDigits05") }
 //  @Test def test_totalDigits05b() { runner.runOneTest("totalDigits05b") }
   @Test def test_totalDigits06() { runner.runOneTest("totalDigits06") }
- 
+  @Test def test_totalDigits07() { runner.runOneTest("totalDigits07") }
+  @Test def test_totalDigits08() { runner.runOneTest("totalDigits08") }
+
 //  @Test def test_fractionDigitsPass() { runner.runOneTest("fractionDigitsPass") }
 //  @Test def test_fractionDigitsFail() { runner.runOneTest("fractionDigitsFail") }
 //  @Test def test_fractionDigitsFailNeg() { runner.runOneTest("fractionDigitsFailNeg") }
@@ -207,5 +209,4 @@ class TestFacets extends JUnitSuite {
   @Test def test_maxOccursPass() { runner.runOneTest("checkMaxOccurs_Pass") }
   @Test def test_maxOccursFail() { runner.runOneTest("checkMaxOccurs_Fail") }
   @Test def test_maxOccursUnboundedPass() { runner.runOneTest("checkMaxOccursUnbounded_Pass") }
-
 }
