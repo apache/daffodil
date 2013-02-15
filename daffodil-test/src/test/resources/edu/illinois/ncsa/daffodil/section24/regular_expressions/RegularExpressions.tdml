@@ -18,6 +18,14 @@
       dfdl:lengthKind="pattern" dfdl:lengthPattern="[A-Za-z]{1,8}([-][A-Za-z0-9]{1,8})*" />
     <xs:element name="regExpr_03" type="xs:string"
       dfdl:lengthKind="pattern" dfdl:lengthPattern="[A-Za-z]{1,8}(?&lt;country&gt;[-][A-Za-z0-9]{1,8})*" />
+    <xs:element name="regExpr_04" type="xs:string"
+      dfdl:lengthKind="pattern" dfdl:lengthPattern="(?d-d)[A-Za-z]{1,8}([-][A-Za-z0-9]{1,8})*" />
+    <xs:element name="regExpr_05" type="xs:string"
+      dfdl:lengthKind="pattern" dfdl:lengthPattern="(?u-u)[A-Za-z]{1,8}([-][A-Za-z0-9]{1,8})*" />
+    <xs:element name="regExpr_06" type="xs:string"
+      dfdl:lengthKind="pattern" dfdl:lengthPattern="(?U-U)[A-Za-z]{1,8}([-][A-Za-z0-9]{1,8})*" />
+    <xs:element name="regExpr_07" type="xs:string"
+      dfdl:lengthKind="pattern" dfdl:lengthPattern="(?imsx-imsx:X)[A-Za-z]{1,8}([-][A-Za-z0-9]{1,8})*" />
 
   </tdml:defineSchema>
 
@@ -42,13 +50,45 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="testRegEx_03" root="regExpr_03"
-    model="RegularExpressions-Embedded.dfdl.xsd" description="Section 24 java regular expressions with name dpattern group (Java 7 feature) - DFDL-24-002R">
+    model="RegularExpressions-Embedded.dfdl.xsd" description="Section 24 java regular expressions with named pattern group (Java 7 feature) - DFDL-24-002R">
     <tdml:document>en-US</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <regExpr_03>en-US</regExpr_03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testRegEx_04" root="regExpr_04"
+    model="RegularExpressions-Embedded.dfdl.xsd" description="Section 24 java regular expressions with unix lines (Java 7 feature) - DFDL-24-002R">
+    <tdml:document>en-US</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testRegEx_05" root="regExpr_05"
+    model="RegularExpressions-Embedded.dfdl.xsd" description="Section 24 java regular expressions with UNICODE_CASE (Java 7 feature) - DFDL-24-002R">
+    <tdml:document>en-US</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testRegEx_06" root="regExpr_06"
+    model="RegularExpressions-Embedded.dfdl.xsd" description="Section 24 java regular expressions with UNICODE_CHARACTER_CLASS (Java 7 feature) - DFDL-24-002R">
+    <tdml:document>en-US</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testRegEx_07" root="regExpr_07"
+    model="RegularExpressions-Embedded.dfdl.xsd" description="Section 24 java regular expressions with non-capturing group (Java 7 feature) - DFDL-24-002R">
+    <tdml:document>en-US</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

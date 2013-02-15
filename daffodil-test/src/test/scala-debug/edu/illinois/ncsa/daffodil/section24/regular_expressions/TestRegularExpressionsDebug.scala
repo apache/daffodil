@@ -49,15 +49,12 @@ class TestRegularExpressions extends JUnitSuite {
   val tdml = testDir + "RegularExpressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
-  @Test def testRegEx_01() { runner.runOneTest("testRegEx_01") }
-  @Test def testRegEx_02() { runner.runOneTest("testRegEx_02") }
-
   // This test requires Java 7 in order to function
-  // @Test def testRegEx_03() { runner.runOneTest("testRegEx_03") }
+  @Test def testRegEx_03() { runner.runOneTest("testRegEx_03") }
 
-  // // Unsupported Java 7 features (should return Schema Definition Errors)
-  // @Test def testRegEx_04() { runner.runOneTest("testRegEx_04") }
-  // @Test def testRegEx_05() { runner.runOneTest("testRegEx_05") }
-  // @Test def testRegEx_06() { runner.runOneTest("testRegEx_06") }
-  // @Test def testRegEx_07() { runner.runOneTest("testRegEx_07") }
+  // Unsupported Java 7 features (should return Schema Definition Errors)
+  @Test def testRegEx_04() { runner.runOneTest("testRegEx_04") }
+  @Test def testRegEx_05() { runner.runOneTest("testRegEx_05") }
+  @Test def testRegEx_06() { runner.runOneTest("testRegEx_06") }
+  @Test def testRegEx_07() { runner.runOneTest("testRegEx_07") }
 }
