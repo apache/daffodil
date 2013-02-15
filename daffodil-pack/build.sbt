@@ -2,8 +2,10 @@ name := "daffodil"
 
 scalaVersion := "2.9.2"
 
-libraryDependencies := Seq(
-  "edu.illinois.ncsa" %% "daffodil-core" % "0.7.0",
+//version := "XXX_VERSION_XXX"
+
+libraryDependencies ++= Seq(
+  //"edu.illinois.ncsa" %% "daffodil-core" % "XXX_VERSION_XXX",
   "net.sourceforge.saxon" % "saxon" % "9.1.0.8" classifier "" classifier "dom" classifier "jdom" classifier "s9api" classifier "xpath"
 )
 
@@ -13,9 +15,3 @@ resolvers ++= Seq(
   "NCSA Sonatype Snapshots" at "https://opensource.ncsa.illinois.edu/nexus/content/repositories/snapshots"
 )
 
-// Get the version of daffodil-core
-version <<= libraryDependencies(
-  _.find( _.name == "daffodil-core")
-  .getOrElse(sys.error("daffodil-core not specified as a dependency"))
-  .revision
-)

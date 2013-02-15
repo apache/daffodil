@@ -6,7 +6,7 @@ object DaffodilBuild extends Build {
 
   lazy val example = Project(id = "daffodil-example", base = file("."), settings = s)
 
-  val packFiles = Seq(
+  val packFileList = Seq(
     "bin",
     "build.sbt"
   )
@@ -16,16 +16,14 @@ object DaffodilBuild extends Build {
   s ++= packTaskSettings
 
   lazy val tarTask = TaskKey[Unit]("pack-tar", "Generate a distributable tar file", KeyRanks.APlusTask)
-  lazy val tarTaskSettings = tarTask <<= (Keys.fullClasspath in Runtime, Keys.name, Keys.version, Keys.target) map { (cp, n, v, t) =>
-    val outBase = "%s-%s".format(n, v)
-    packFiles(t, outBase, packFiles, cp.files, "tar -jcf", "tar.bz2")
+  lazy val tarTaskSettings = tarTask <<= (Keys.fullClasspath in Runtime, Keys.name, Keys.version, Keys.crossTarget) map { (cp, n, v, t) =>
+    packFiles(t / "pack", n, v, packFileList, cp.files, "tar -jcf", "tar.bz2")
   }
   s ++= tarTaskSettings
 
   lazy val zipTask = TaskKey[Unit]("pack-zip", "Generate a distributable zip file", KeyRanks.APlusTask)
-  lazy val zipTaskSettings = zipTask <<= (Keys.fullClasspath in Runtime, Keys.name, Keys.version, Keys.target) map { (cp, n, v, t) =>
-    val outBase = "%s-%s".format(n, v)
-    packFiles(t, outBase, packFiles, cp.files, "zip -r", "zip")
+  lazy val zipTaskSettings = zipTask <<= (Keys.fullClasspath in Runtime, Keys.name, Keys.version, Keys.crossTarget) map { (cp, n, v, t) =>
+    packFiles(t / "pack", n, v, packFileList, cp.files, "zip -r", "zip")
   }
   s ++= zipTaskSettings
 
@@ -61,8 +59,30 @@ object DaffodilBuild extends Build {
     }
   }
 
+  def modifyBuildSBT(file: File, version: String) {
+    val DaffodilDepLine = """(\s+)//(.*)XXX_VERSION_XXX(.*)""".r
+    val VersionLine = """//(.*)XXX_VERSION_XXX(.*)""".r
+    val lines = scala.io.Source.fromFile(file).getLines
+    val modifiedLines = lines.map { l =>
+      l match {
+        case DaffodilDepLine(indent, pre, post) => indent + pre + version + post
+        case VersionLine(pre, post) => pre + version + post
+        case _ => l
+      }
+    }.toList
 
-  def packFiles(outDir: File, outBase: String, inFiles: Seq[String], cpFiles: Seq[File], packCmd: String, packExt: String) {
+    val fw = new java.io.FileWriter(file)
+    val bw = new java.io.BufferedWriter(fw)
+    modifiedLines.foreach( l => {
+      bw.write(l)
+      bw.newLine()
+    })
+    bw.close()
+  }
+
+  def packFiles(outDir: File, name: String, version: String, inFiles: Seq[String], cpFiles: Seq[File], packCmd: String, packExt: String) {
+    outDir.mkdirs()
+    val outBase = "%s-%s".format(name, version)
     IO.withTemporaryDirectory(dir => {
       val daffodilDir = new File(dir, outBase)
       inFiles.foreach(f => {
@@ -70,7 +90,11 @@ object DaffodilBuild extends Build {
         val dest = new File(daffodilDir, f)
 
         copy(source, dest)
-
+        
+        // Special case for build.sbt
+        if (f == "build.sbt") {
+          modifyBuildSBT(dest, version)
+        }
       })
 
       val libDir = new File(daffodilDir, "lib")
@@ -96,4 +120,27 @@ object DaffodilBuild extends Build {
 
     })
   }
+
+  // get the version from the latest tag
+  s ++= Seq(Keys.version := {
+    val r = java.lang.Runtime.getRuntime()
+    val p = r.exec("git describe HEAD")
+    p.waitFor()
+    val ret = p.exitValue()
+    if (ret != 0) {
+      sys.error("Failed to get daffodil version")
+    }
+    val b = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream))
+    val version = b.readLine()
+    val parts = version.split("-")
+    val res =
+      if (parts.length == 1) {
+        parts(0)
+      } else {
+        parts(0) + "-SNAPSHOT"
+      }
+    res
+  })
+
+  s ++= Seq(Keys.libraryDependencies <+= Keys.version(v => "edu.illinois.ncsa" %% "daffodil-core" % v))
 }
