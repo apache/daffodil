@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import scala.xml._
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.grammar._
@@ -613,8 +612,9 @@ object FacetTypes {
   type ElemFacetsR = Seq[FacetValueR]
 }
 
-class SimpleTypeNode(name: String, parent: SimpleTypeNode) {
-  var children: List[SimpleTypeNode] = List.empty
+class SimpleTypeNode(name: String, parent: SimpleTypeNode, childrenArg: => List[SimpleTypeNode]) {
+  // Eliminated a var here. Doing functional graph construction now below.
+  lazy val children = childrenArg
   lazy val isHead: Boolean = parent == null
   lazy val lcaseName = name.toLowerCase()
 
@@ -650,30 +650,26 @@ trait SimpleTypeDerivation {
   }
 
   private def buildStructure = {
-    val anySimpleType = new SimpleTypeNode("anySimpleType", null)
-    val string = new SimpleTypeNode("string", anySimpleType)
-    val float = new SimpleTypeNode("float", anySimpleType)
-    val double = new SimpleTypeNode("double", anySimpleType)
-    val decimal = new SimpleTypeNode("decimal", anySimpleType)
-    val boolean = new SimpleTypeNode("boolean", anySimpleType)
-    val hexBinary = new SimpleTypeNode("hexBinary", anySimpleType)
-    val integer = new SimpleTypeNode("integer", decimal)
-    val long = new SimpleTypeNode("long", integer)
-    val nonNegativeInteger = new SimpleTypeNode("nonNegativeInteger", integer)
-    val int = new SimpleTypeNode("int", long)
-    val short = new SimpleTypeNode("short", int)
-    val byte = new SimpleTypeNode("byte", short)
-    val unsignedLong = new SimpleTypeNode("unsignedLong", nonNegativeInteger)
-    val unsignedInt = new SimpleTypeNode("unsignedInt", unsignedLong)
-    val unsignedShort = new SimpleTypeNode("unsignedShort", unsignedInt)
-    val unsignedByte = new SimpleTypeNode("unsignedByte", unsignedShort)
+    // This is how you construct a graph in functional programming.
+    // These structures are recursive, but it all works out in the end. 
+    lazy val anySimpleType: SimpleTypeNode = new SimpleTypeNode("anySimpleType", null, List(string, float, double, decimal, boolean, hexBinary))
+    lazy val string = new SimpleTypeNode("string", anySimpleType, Nil)
+    lazy val float = new SimpleTypeNode("float", anySimpleType, Nil)
+    lazy val double = new SimpleTypeNode("double", anySimpleType, Nil)
+    lazy val decimal = new SimpleTypeNode("decimal", anySimpleType, List(integer))
+    lazy val boolean = new SimpleTypeNode("boolean", anySimpleType, Nil)
+    lazy val hexBinary = new SimpleTypeNode("hexBinary", anySimpleType, Nil)
+    lazy val integer: SimpleTypeNode = new SimpleTypeNode("integer", decimal, List(long, nonNegativeInteger))
+    lazy val long = new SimpleTypeNode("long", integer, List(int))
+    lazy val nonNegativeInteger = new SimpleTypeNode("nonNegativeInteger", integer, List(unsignedLong))
+    lazy val int: SimpleTypeNode = new SimpleTypeNode("int", long, List(short))
+    lazy val short: SimpleTypeNode = new SimpleTypeNode("short", int, List(byte))
+    lazy val byte = new SimpleTypeNode("byte", short, Nil)
+    lazy val unsignedLong: SimpleTypeNode = new SimpleTypeNode("unsignedLong", nonNegativeInteger, List(unsignedInt))
+    lazy val unsignedInt = new SimpleTypeNode("unsignedInt", unsignedLong, List(unsignedShort))
+    lazy val unsignedShort: SimpleTypeNode = new SimpleTypeNode("unsignedShort", unsignedInt, List(unsignedByte))
+    lazy val unsignedByte = new SimpleTypeNode("unsignedByte", unsignedShort, Nil)
 
-    short.children = List(byte)
-    int.children = List(short)
-    long.children = List(int)
-    integer.children = List(long, nonNegativeInteger)
-    decimal.children = List(integer)
-    anySimpleType.children = List(string, float, double, decimal, boolean, hexBinary)
     List(anySimpleType, string, float, double, decimal, boolean, hexBinary, integer, long,
       nonNegativeInteger, int, short, byte, unsignedLong, unsignedInt, unsignedShort, unsignedByte)
   }
@@ -785,7 +781,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
   lazy val diagnosticChildren: DiagnosticsList = annotationObjs ++ myBaseTypeList
 
   lazy val localBaseFacets: ElemFacets = {
-    var myFacets: Queue[FacetValue] = Queue.empty
+    val myFacets: Queue[FacetValue] = Queue.empty // val not var - it's a mutable collection
     if (localPatternValue.length > 0) { myFacets.enqueue((Facet.pattern, localPatternValue)) }
     if (localMinLengthValue.length > 0) { myFacets.enqueue((Facet.minLength, localMinLengthValue)) }
     if (localMaxLengthValue.length > 0) { myFacets.enqueue((Facet.maxLength, localMaxLengthValue)) }

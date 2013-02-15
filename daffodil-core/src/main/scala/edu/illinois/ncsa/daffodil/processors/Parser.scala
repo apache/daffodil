@@ -265,6 +265,8 @@ trait WithParseErrorThrowing {
  * properly.
  */
 object WithParseErrorThrowing {
+  // TODO: FIXME Bad bad global state. This flag needs to live in the DataProcessor object,
+  // or find a way to have it go away entirely.
   var flag: Boolean = false
 }
 
