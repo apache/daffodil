@@ -4615,6 +4615,106 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
+    
+    <xs:element name="enum_e7" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'Month 'MMMM', day 'dd', year 'yyyy">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:date">
+          <xs:enumeration value="2013-02-15" />
+          <xs:enumeration value="1988-03-24" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="enum_e8" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:enumeration value="5" />
+          <xs:minInclusive value="6" />
+          <xs:maxInclusive value="10" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="enum_e9" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="cat" />
+          <xs:enumeration value="catapult" />
+          <xs:enumeration value="caterpillar" />
+          <xs:enumeration value="" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="enum_e10" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:enumeration value="500" />
+          <xs:enumeration value="5000" />
+          <xs:enumeration value="50000" />
+          <xs:totalDigits value="3" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="enum_e11" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="birds" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:discriminator test="{ dfdl:checkConstraints(.) }"
+                  message="Discriminator failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="raven" />
+                <xs:enumeration value="oriole" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="cats" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:discriminator test="{ dfdl:checkConstraints(.) }"
+                  message="Discriminator failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="tiger" />
+                <xs:enumeration value="lion" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
   
   </tdml:defineSchema>
 
@@ -4736,6 +4836,185 @@
     <tdml:document>Dalmation</tdml:document>
     <tdml:errors>
       <tdml:error>Enumerations must be unique</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: facetEnum09
+    Schema: enumSchema 
+    Purpose: This test passes because the date represented matches one of the enums
+  -->
+
+  <tdml:parserTestCase name="facetEnum09" root="enum_e7"
+    model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
+    <tdml:document>Month March, day 24, year 1988</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <enum_e7>1988-03-24</enum_e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: facetEnum10
+    Schema: enumSchema 
+    Purpose: This test fails because the date represented does not match one of the enums
+  -->
+
+  <tdml:parserTestCase name="facetEnum10" root="enum_e7"
+    model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
+    <tdml:document>Month February, day 14, year 2013</tdml:document>
+      <tdml:errors>
+        <tdml:error>Assertion</tdml:error>
+        <tdml:error>failed</tdml:error>
+        <tdml:error>dfdl:checkConstraints</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: facetEnum11
+    Schema: enumSchema 
+    Purpose: This test fails because the data contains the enum but is not the enum value
+  -->
+
+  <tdml:parserTestCase name="facetEnum11" root="enum_e9"
+    model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
+    <tdml:document>cats</tdml:document>
+      <tdml:errors>
+        <tdml:error>Assertion</tdml:error>
+        <tdml:error>failed</tdml:error>
+        <tdml:error>dfdl:checkConstraints</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: facetEnum12
+    Schema: enumSchema 
+    Purpose: This test passes because the empty string is allowed
+  -->
+
+  <tdml:parserTestCase name="facetEnum12" root="enum_e9"
+    model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
+    <tdml:document></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <enum_e9></enum_e9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: facetEnumChoice01
+    Schema: enumSchema
+    Purpose: This test demonstrates using enum restrictions to guide a choice
+  -->
+
+  <tdml:parserTestCase name="facetEnumChoice01" root="enum_e11"
+    model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
+    <tdml:document>lion</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <enum_e11>
+          <cats>lion</cats>
+        </enum_e11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: facetEnumChoice02
+    Schema: enumSchema
+    Purpose: This test demonstrates using enum restrictions to guide a choice
+  -->
+
+  <tdml:parserTestCase name="facetEnumChoice02" root="enum_e11"
+    model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
+    <tdml:document>raven</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <enum_e11>
+          <birds>raven</birds>
+        </enum_e11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: facetEnumChoice03
+    Schema: enumSchema
+    Purpose: This test demonstrates using enum restrictions to guide a choice
+  -->
+
+  <tdml:parserTestCase name="facetEnumChoice03" root="enum_e11"
+    model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
+    <tdml:document>crow</tdml:document>
+      <tdml:errors>
+        <tdml:error>All alternatives failed</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: facetCombo01
+    Schema: enumSchema 
+    Purpose: This test should fail because the only enumeration is outside of the specified range
+  -->
+
+  <tdml:parserTestCase name="facetCombo01" root="enum_e8"
+    model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
+    <tdml:document>5</tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion</tdml:error>
+      <tdml:error>failed</tdml:error>
+      <tdml:error>dfdl:checkConstraints</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: facetCombo02
+    Schema: enumSchema 
+    Purpose: This test should pass because the enumeration chosen is compliant with the value of totalDigits
+  -->
+
+  <tdml:parserTestCase name="facetCombo02" root="enum_e10"
+    model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
+    <tdml:document>500</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <enum_e10>500</enum_e10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: facetCombo03
+    Schema: enumSchema 
+    Purpose: This test should fail because the enumeration chosen is not compliant with the value of totalDigits
+  -->
+
+  <tdml:parserTestCase name="facetCombo03" root="enum_e10"
+    model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
+    <tdml:document>5000</tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion</tdml:error>
+      <tdml:error>failed</tdml:error>
+      <tdml:error>dfdl:checkConstraints</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: facetCombo04
+    Schema: enumSchema 
+    Purpose: This test should fail because the value matches the totalDigits restriction but
+             is not compliant with the enumeration restrictions
+  -->
+
+  <tdml:parserTestCase name="facetCombo04" root="enum_e10"
+    model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
+    <tdml:document>400</tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion</tdml:error>
+      <tdml:error>failed</tdml:error>
+      <tdml:error>dfdl:checkConstraints</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -5450,6 +5729,7 @@
       <tdml:error>dfdl:checkConstraints</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
   <tdml:defineSchema name="totalDigitsSchema">
     <dfdl:format ref="ex:daffodilTest1" />
 

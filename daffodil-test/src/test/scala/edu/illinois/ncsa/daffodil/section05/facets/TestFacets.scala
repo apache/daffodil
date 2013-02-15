@@ -49,6 +49,18 @@ class TestFacets extends JUnitSuite {
   val testDir = "/edu/illinois/ncsa/daffodil/section05/facets/"
   val aa = testDir + "Facets.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
+  
+  @Test def test_facetEnum09() { runner.runOneTest("facetEnum09") }
+  @Test def test_facetEnum10() { runner.runOneTest("facetEnum10") }
+  @Test def test_facetEnum11() { runner.runOneTest("facetEnum11") }
+  @Test def test_facetEnum12() { runner.runOneTest("facetEnum12") }
+  @Test def test_facetCombo01() { runner.runOneTest("facetCombo01") }
+  @Test def test_facetCombo02() { runner.runOneTest("facetCombo02") }
+  @Test def test_facetCombo03() { runner.runOneTest("facetCombo03") }
+  @Test def test_facetCombo04() { runner.runOneTest("facetCombo04") }
+  @Test def test_facetEnumChoice01() { runner.runOneTest("facetEnumChoice01") }
+  @Test def test_facetEnumChoice02() { runner.runOneTest("facetEnumChoice02") }
+  @Test def test_facetEnumChoice03() { runner.runOneTest("facetEnumChoice03") }
 
   @Test def test_facet_pattern_01() { runner.runOneTest("facetPattern01") }
   @Test def test_facet_pattern_02() { runner.runOneTest("facetPattern02") }
