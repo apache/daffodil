@@ -3096,6 +3096,70 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
+    <xs:element name="e6" dfdl:lengthKind="delimited" dfdl:lengthUnits="bytes">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="5" />
+          <xs:minLength value="10" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e9" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="dd-MM-yyyy">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:dateTime">
+          <xs:maxLength value="15" />
+          <xs:minLength value="3" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="lengthFacetsIsolate">
+    <dfdl:format ref="ex:daffodilTest1" representation="text"/>
+    <xs:element name="e7" dfdl:lengthKind="delimited" dfdl:lengthUnits="bytes">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="5" />
+          <xs:minLength value="-10" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+  </tdml:defineSchema>
+  
+  <tdml:defineSchema name="lengthFacetsIsolate2">
+    <dfdl:format ref="ex:daffodilTest1" representation="text"/>
+    <xs:element name="e8" dfdl:lengthKind="delimited" dfdl:lengthUnits="bytes">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="5" />
+          <xs:minLength value=".5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
   </tdml:defineSchema>
   
   <!--
@@ -3189,6 +3253,78 @@
       <tdml:error>Schema Definition Error</tdml:error>
     </tdml:errors>
 
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: maxLength07
+    Schema: lengthFacets
+    Purpose: This test demonstrates the failure condition that maxLength is less than minLength 
+  -->
+
+  <tdml:parserTestCase name="maxLength07" root="e6"
+    model="lengthFacets" description="Section 5 - maxLength when dfdl:lengthKind=”implicit” - DFDL-5-063R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">twocatfish</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>MinLength facet must be &lt;= MaxLength</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: maxLength08
+    Schema: lengthFacetsIsolate
+    Purpose: This test demonstrates the failure condition that min/maxLength is not a positive integer
+  -->
+
+  <tdml:parserTestCase name="maxLength08" root="e7"
+    model="lengthFacetsIsolate" description="Section 5 - maxLength when dfdl:lengthKind=”implicit” - DFDL-5-063R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">twocatfish</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Value '-10' is not facet-valid with respect to minInclusive '0' for type 'nonNegativeInteger'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: maxLength09
+    Schema: lengthFacetsIsolate2
+    Purpose: This test demonstrates the failure condition that min/maxLength is not a positive integer
+  -->
+
+  <tdml:parserTestCase name="maxLength09" root="e8"
+    model="lengthFacetsIsolate2" description="Section 5 - maxLength when dfdl:lengthKind=”implicit” - DFDL-5-063R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">twocatfish</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>'.5' is not a valid value for 'integer'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: maxLength10
+    Schema: lengthFacets
+    Purpose: This test demonstrates the failure condition that min/maxLength is used on an invalid type (xs:dateTime)
+  -->
+
+  <tdml:parserTestCase name="maxLength10" root="e9"
+    model="lengthFacets" description="Section 5 - maxLength when dfdl:lengthKind=”implicit” - DFDL-5-063R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">04-05-2013</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>MinLength facet can only be applied to string or hexBinary.</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="checkConstraints">
