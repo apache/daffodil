@@ -50,6 +50,12 @@ class TestFacets extends JUnitSuite {
   val aa = testDir + "Facets.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
   
+  @Test def test_minMaxInExChoice01() { runner.runOneTest("minMaxInExChoice01") }
+  @Test def test_minMaxInExChoice02() { runner.runOneTest("minMaxInExChoice02") }
+//  @Test def test_minMaxInEx16() { runner.runOneTest("minMaxInEx16") }
+  @Test def test_minMaxInEx17() { runner.runOneTest("minMaxInEx17") }
+  @Test def test_minMaxInEx18() { runner.runOneTest("minMaxInEx18") }
+
   @Test def test_facetEnum09() { runner.runOneTest("facetEnum09") }
   @Test def test_facetEnum10() { runner.runOneTest("facetEnum10") }
   @Test def test_facetEnum11() { runner.runOneTest("facetEnum11") }

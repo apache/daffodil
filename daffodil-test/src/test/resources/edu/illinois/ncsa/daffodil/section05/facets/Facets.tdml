@@ -5360,6 +5360,86 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
+    
+    <xs:element name="mImE_e15">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="ex" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:discriminator test="{ dfdl:checkConstraints(.) }"
+                  message="Discriminator failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:int">
+                <xs:minExclusive value="1" />
+                <xs:maxExclusive value="5" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="in" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:discriminator test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:int">
+                <xs:minInclusive value="1" />
+                <xs:maxInclusive value="5" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+          
+    <xs:element name="mImE_e16" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minExclusive value="10" />
+          <xs:maxExclusive value="5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="mImE_e17" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="10" />
+          <xs:maxExclusive value="5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="mImE_e18" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:lengthUnits="bytes">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="5" />
+          <xs:maxExclusive value="10" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
 
     </tdml:defineSchema>
   
@@ -5632,6 +5712,90 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: minMaxInEx16
+    Schema: minMaxInExSchema 
+    Purpose: This test fails because minExclusive is higher than maxExclusive
+  -->
+
+  <tdml:parserTestCase name="minMaxInEx16" root="mImE_e16"
+    model="minMaxInExSchema" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R">
+    <tdml:document>3,4,5</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>MinExclusive(10) must be less than or equal to MaxExclusive(5)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: minMaxInEx17
+    Schema: minMaxInExSchema 
+    Purpose: This test fails because minInclusive is higher than maxExclusive
+  -->
+
+  <tdml:parserTestCase name="minMaxInEx17" root="mImE_e17"
+    model="minMaxInExSchema" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R">
+    <tdml:document>3,4,5</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>MinInclusive(10) must be less than or equal to MaxExclusive(5)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: minMaxInEx18
+    Schema: minMaxInExSchema 
+    Purpose: This test demonstrates setting ranges on binary data
+  -->
+
+  <tdml:parserTestCase name="minMaxInEx18" root="mImE_e18"
+    model="minMaxInExSchema" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R">
+    <tdml:document>
+      <tdml:documentPart type="bits">00000101</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <mImE_e18>5</mImE_e18>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: minMaxInExChoice01
+    Schema: minMaxInExSchema 
+    Purpose: This test demonstrates using min/max in/exclusive values to guide a choice
+  -->
+
+  <tdml:parserTestCase name="minMaxInExChoice01" root="mImE_e15"
+    model="minMaxInExSchema" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R">
+    <tdml:document>1</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <mImE_e15>
+          <in>1</in>
+        </mImE_e15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: minMaxInExChoice02
+    Schema: minMaxInExSchema 
+    Purpose: This test demonstrates using min/max in/exclusive values to guide a choice
+  -->
+
+  <tdml:parserTestCase name="minMaxInExChoice02" root="mImE_e15"
+    model="minMaxInExSchema" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R">
+    <tdml:document>2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <mImE_e15>
+          <ex>2</ex>
+        </mImE_e15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <!--

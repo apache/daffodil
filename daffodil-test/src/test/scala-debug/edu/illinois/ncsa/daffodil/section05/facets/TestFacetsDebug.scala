@@ -85,6 +85,7 @@ class TestFacetsDebug extends JUnitSuite {
   @Test def test_minMaxInEx08() { runner.runOneTest("minMaxInEx08") }
   @Test def test_minMaxInEx10() { runner.runOneTest("minMaxInEx10") }
   @Test def test_minMaxInEx14() { runner.runOneTest("minMaxInEx14") }
+  @Test def test_minMaxInEx16() { runner.runOneTest("minMaxInEx16") }
 
 // Issues with date and time and how they are interpreted with min/max/in/exclusive facets
 
