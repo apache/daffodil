@@ -2245,6 +2245,26 @@
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
                 dfdl:lengthKind="explicit" dfdl:length="44" />
     <xs:element name="dateTime02" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="19" />
+    <xs:element name="dateTime03" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="delimited"
+        dfdl:calendarPattern="'Twas a sunny 'EEEE' at 'hh' O''clock. The year was 'yyyy', and it was the hottest 'MMM' we had ever experienced.'" />
+    <xs:element name="dateTime04" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="delimited"
+        dfdl:calendarPattern="HH:mm:ss MMM-dd-yyyy" />
+    <xs:element name="dateTime05" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="delimited" dfdl:calendarPattern="W MM yyyy" 
+        dfdl:calendarFirstDayOfWeek="Tuesday" dfdl:calendarDaysInFirstWeek="5"/>
+    <xs:element name="dateTime06" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="delimited" dfdl:calendarPattern="W MM yyyy" 
+        dfdl:calendarFirstDayOfWeek="Thursday" dfdl:calendarDaysInFirstWeek="7"/>
+    <xs:element name="dateTime07" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="delimited" dfdl:calendarPattern="W MM yyyy" 
+        dfdl:calendarFirstDayOfWeek="Thursday" dfdl:calendarDaysInFirstWeek="2"/>
+    <xs:element name="dateTime08" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="delimited" dfdl:calendarPattern="W MM yyyy hh:mm:ssaa" 
+        dfdl:calendarFirstDayOfWeek="Sunday" dfdl:calendarDaysInFirstWeek="7"/>
+    <xs:element name="dateTime09" type="xs:dateTime" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:textTrimKind="padChar"
+                dfdl:textCalendarJustification="center" dfdl:textCalendarPadCharacter="." dfdl:lengthKind="delimited" dfdl:calendarPattern="MM.dd.yyyy hh:mm:ssaa"/>
+    <xs:element name="dateTime10" type="xs:dateTime" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:textTrimKind="padChar"
+                dfdl:textCalendarJustification="left" dfdl:textCalendarPadCharacter=":" dfdl:lengthKind="delimited" dfdl:calendarPattern="MM.dd.yyyy hh:mm:ssaa"/>
+    <xs:element name="dateTime11" type="xs:dateTime" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:textTrimKind="padChar"
+                dfdl:textCalendarJustification="center" dfdl:textCalendarPadCharacter="%HT;" dfdl:lengthKind="delimited" dfdl:calendarPattern="MM.dd.yyyy hh:mm:ssaa"/>
+    <xs:element name="dateTime12" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:textTrimKind="padChar"
+                dfdl:textCalendarJustification="right" dfdl:textCalendarPadCharacter="%HT;" dfdl:lengthKind="delimited" dfdl:calendarPattern="MM.dd.yyyy hh:mm:ssaa"/>
 
   </tdml:defineSchema>
 
@@ -3785,6 +3805,246 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <time24>00:00:00Z</time24>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimePattern01
+        Schema: dateTimeSchema
+          Root: dateTime03
+       Purpose: This test demonstrates the dateTime data type with an explicit calendar Pattern.
+                The data matches this pattern and should be parsed correctly. It also demonstrates the use of epoch time
+                to fill in any data that is not provided.
+-->
+  
+  <tdml:parserTestCase name="dateTimePattern01" root="dateTime03"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
+
+    <tdml:document><![CDATA[Twas a sunny Wednesday at 11 O'clock. The year was 2008, and it was the hottest December we had ever experienced.]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime03>2008-12-01T11:00:00Z</dateTime03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimePattern02
+        Schema: dateTimeSchema
+          Root: dateTime03
+       Purpose: This test demonstrates the dateTime data type with an explicit calendar Pattern.
+                The data matches this pattern and should be parsed correctly. The test also demonstrates the use of
+                a lax calendarCheckPolicy
+-->
+  
+  <tdml:parserTestCase name="dateTimePattern02" root="dateTime04"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
+
+    <tdml:document><![CDATA[27:30:30 February-29-2012]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime04>2012-03-01T03:30:30Z</dateTime04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeCalendarDaysInFirstWeek
+        Schema: dateTimeSchema
+          Root: dateTime05
+       Purpose: This test demonstrates the calendarDaysInFirstWeek property when combined with the calendarFirstDayOfWeek property.
+                Since the first week of Feb, 2013 is specified, the calendarFirstDayOfWeek is set to Tuesday, and calendarDaysInFirstWeek
+                is set to 5, the first full week of Feb will be selected (starting on Tuesday). In this case that will be Feb 5th.
+-->
+  
+  <tdml:parserTestCase name="dateTimeCalendarDaysInFirstWeek" root="dateTime05"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
+
+    <tdml:document><![CDATA[01 02 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime05>2013-02-05T00:00:00Z</dateTime05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeCalendarDaysInFirstWeek2
+        Schema: dateTimeSchema
+          Root: dateTime06
+       Purpose: This test demonstrates the calendarDaysInFirstWeek property when combined with the calendarFirstDayOfWeek property.
+                Since the first week of Feb, 2013 is specified, the calendarFirstDayOfWeek is set to Thursday, and calendarDaysInFirstWeek
+                is set to 7, the first full week of Feb will be selected (starting on Thursday). In this case that will be Feb 7th.
+-->
+  
+  <tdml:parserTestCase name="dateTimeCalendarDaysInFirstWeek2" root="dateTime06"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
+
+    <tdml:document><![CDATA[01 02 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime06>2013-02-07T00:00:00Z</dateTime06>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeCalendarDaysInFirstWeek3
+        Schema: dateTimeSchema
+          Root: dateTime07
+       Purpose: This test demonstrates the calendarDaysInFirstWeek property when combined with the calendarFirstDayOfWeek property.
+                Since the first week of Feb, 2013 is specified, the calendarFirstDayOfWeek is set to Thursday, and calendarDaysInFirstWeek
+                is set to 2, the first week that contains 2 Feb days that starts on Thursday will be selected. In this case that will be Jan 31th.
+-->
+  
+  <tdml:parserTestCase name="dateTimeCalendarDaysInFirstWeek3" root="dateTime07"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
+
+    <tdml:document><![CDATA[01 02 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime07>2013-01-31T00:00:00Z</dateTime07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeCalendarDaysInFirstWeek4
+        Schema: dateTimeSchema
+          Root: dateTime08
+       Purpose: This test demonstrates the calendarDaysInFirstWeek property when combined with the calendarFirstDayOfWeek property.
+                Since the first week of Feb, 2013 is specified, the calendarFirstDayOfWeek is set to Sunday, and calendarDaysInFirstWeek
+                is set to 7, the first week that contains 7 Feb days that starts on Sunday will be selected. In this case that will be Feb 3rd.
+-->
+  
+  <tdml:parserTestCase name="dateTimeCalendarDaysInFirstWeek4" root="dateTime08"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
+
+    <tdml:document><![CDATA[01 02 2013 12:43:30PM]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime08>2013-02-03T12:43:30Z</dateTime08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeCalendarDaysInFirstWeek5
+        Schema: dateTimeSchema
+          Root: dateTime08
+       Purpose: This test demonstrates the calendarDaysInFirstWeek property when combined with the calendarFirstDayOfWeek property.
+                Since the first week of Jan, 2013 is specified, the calendarFirstDayOfWeek is set to Sunday, and calendarDaysInFirstWeek
+                is set to 7, the first week that contains 7 Jan days that starts on Sunday will be selected. In this case that will be Jan 6th.
+-->
+  
+  <tdml:parserTestCase name="dateTimeCalendarDaysInFirstWeek5" root="dateTime08"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
+
+    <tdml:document><![CDATA[01 01 2013 12:43:30PM]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime08>2013-01-06T12:43:30Z</dateTime08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeCalendarDaysInFirstWeek6
+        Schema: dateTimeSchema
+          Root: dateTime08
+       Purpose: This test demonstrates the calendarDaysInFirstWeek property when combined with the calendarFirstDayOfWeek property.
+                Since the second week of Jan, 2013 is specified, the calendarFirstDayOfWeek is set to Sunday, and calendarDaysInFirstWeek
+                is set to 7, the second week that contains 7 Jan days that starts on Sunday will be selected. In this case that will be Jan 13th.
+-->
+  
+  <tdml:parserTestCase name="dateTimeCalendarDaysInFirstWeek6" root="dateTime08"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarDaysInFirstWeek - DFDL-13-143R">
+
+    <tdml:document><![CDATA[02 01 2013 12:43:30PM]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime08>2013-01-13T12:43:30Z</dateTime08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeTrim01
+        Schema: dateTimeSchema
+          Root: dateTime09
+       Purpose: This test demonstrates the use of the textCalendarJustification and textCalendarPadCharacter properties on a dateTime object
+-->
+  
+  <tdml:parserTestCase name="dateTimeTrim01" root="dateTime09"
+    model="dateTimeSchema" description="Section 13 Simple Types - textCalendarJustification - DFDL-13-165R">
+
+    <tdml:document><![CDATA[.....03.04.1999 04:31:44PM.....]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime09>1999-03-04T16:31:44Z</dateTime09>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeTrim02
+        Schema: dateTimeSchema
+          Root: dateTime10
+       Purpose: This test demonstrates the use of the textCalendarJustification and textCalendarPadCharacter properties on a dateTime object
+-->
+  
+  <tdml:parserTestCase name="dateTimeTrim02" root="dateTime10"
+    model="dateTimeSchema" description="Section 13 Simple Types - textCalendarJustification - DFDL-13-165R">
+
+    <tdml:document><![CDATA[03.04.1999 04:31:44PM:::::::::::::::::::::::::::::::::::::::::]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime10>1999-03-04T16:31:44Z</dateTime10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeTrim03
+        Schema: dateTimeSchema
+          Root: dateTime11
+       Purpose: This test demonstrates the use of the textCalendarJustification and textCalendarPadCharacter properties on a dateTime object
+                The pad character is a DFDL entity and the document uses a byte representation.
+
+-->
+  
+  <tdml:parserTestCase name="dateTimeTrim03" root="dateTime11"
+    model="dateTimeSchema" description="Section 13 Simple Types - textCalendarJustification - DFDL-13-165R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[09 09 09 09 30 33 2e 30 34 2e 31 39 39 39 20 30 34 3a 33 31 3a 34 34 50 4d 09 09 09 09]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime11>1999-03-04T16:31:44Z</dateTime11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTimeTrim04
+        Schema: dateTimeSchema
+          Root: dateTime12
+       Purpose: This test demonstrates the use of the textCalendarJustification and textCalendarPadCharacter properties on a dateTime object
+                The pad character is a DFDL entity and the document uses a byte representation.
+
+-->
+  
+  <tdml:parserTestCase name="dateTimeTrim04" root="dateTime12"
+    model="dateTimeSchema" description="Section 13 Simple Types - textCalendarJustification - DFDL-13-165R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[09 09 09 09 30 33 2e 30 34 2e 31 39 39 39 20 30 34 3a 36 31 3a 34 34 50 4d]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime12>1999-03-04T17:01:44Z</dateTime12>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

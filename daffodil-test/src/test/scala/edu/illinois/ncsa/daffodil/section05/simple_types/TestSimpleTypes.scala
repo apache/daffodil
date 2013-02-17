@@ -49,6 +49,21 @@ class TestSimpleTypes extends JUnitSuite {
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
+  @Test def test_dateTimeCalendarDaysInFirstWeek() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek") }
+  @Test def test_dateTimeCalendarDaysInFirstWeek2() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek2") }
+  @Test def test_dateTimeCalendarDaysInFirstWeek3() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek3") }
+  @Test def test_dateTimeCalendarDaysInFirstWeek4() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek4") }
+  @Test def test_dateTimeCalendarDaysInFirstWeek5() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek5") }
+  @Test def test_dateTimeCalendarDaysInFirstWeek6() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek6") }
+  
+  @Test def test_dateTimeTrim01() { runner.runOneTest("dateTimeTrim01") }
+  @Test def test_dateTimeTrim02() { runner.runOneTest("dateTimeTrim02") }
+  @Test def test_dateTimeTrim03() { runner.runOneTest("dateTimeTrim03") }
+  @Test def test_dateTimeTrim04() { runner.runOneTest("dateTimeTrim04") }
+  
+  @Test def test_dateTimePattern01() { runner.runOneTest("dateTimePattern01") }
+  @Test def test_dateTimePattern02() { runner.runOneTest("dateTimePattern02") }
+
   @Test def test_dateEpochFillIn() { runner.runOneTest("dateEpochFillIn") }
 //  @Test def test_dateEpochFillIn2() { runner.runOneTest("dateEpochFillIn2") }
   @Test def test_dateEpochFillIn3() { runner.runOneTest("dateEpochFillIn3") }
@@ -140,7 +155,6 @@ class TestSimpleTypes extends JUnitSuite {
 
   @Test def test_datePattern01() { runner.runOneTest("datePattern01") }
 //  @Test def test_datePattern01b() { runner.runOneTest("datePattern01b") }
-  @Test def test_dateTimePattern01() { runner.runOneTest("dateTimePattern01") }
   @Test def test_timeLaxCheckPolicy01() { runner.runOneTest("timeLaxCheckPolicy01") }
 //  @Test def test_dateTimeLaxCheckPolicy01() { runner.runOneTest("dateTimeLaxCheckPolicy01") }
   @Test def test_dateLaxCheckPolicy01() { runner.runOneTest("dateLaxCheckPolicy01") }
