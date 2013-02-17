@@ -51,8 +51,8 @@ class TestFacets extends JUnitSuite {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
   
   @Test def test_maxLength07() { runner.runOneTest("maxLength07") }
-  @Test def test_maxLength08() { runner.runOneTest("maxLength08") }
-  @Test def test_maxLength09() { runner.runOneTest("maxLength09") }
+//  @Test def test_maxLength08() { runner.runOneTest("maxLength08") }
+//  @Test def test_maxLength09() { runner.runOneTest("maxLength09") }
   @Test def test_maxLength10() { runner.runOneTest("maxLength10") }
   @Test def test_maxLength11() { runner.runOneTest("maxLength11") }
 
@@ -102,8 +102,8 @@ class TestFacets extends JUnitSuite {
 
 //  @Test def test_totalDigits01() { runner.runOneTest("totalDigits01") }
 //  @Test def test_totalDigits02() { runner.runOneTest("totalDigits02") }
-  @Test def test_totalDigits03() { runner.runOneTest("totalDigits03") }
-  @Test def test_totalDigits04() { runner.runOneTest("totalDigits04") }
+//  @Test def test_totalDigits03() { runner.runOneTest("totalDigits03") }
+//  @Test def test_totalDigits04() { runner.runOneTest("totalDigits04") }
   @Test def test_totalDigits05() { runner.runOneTest("totalDigits05") }
 //  @Test def test_totalDigits05b() { runner.runOneTest("totalDigits05b") }
   @Test def test_totalDigits06() { runner.runOneTest("totalDigits06") }
