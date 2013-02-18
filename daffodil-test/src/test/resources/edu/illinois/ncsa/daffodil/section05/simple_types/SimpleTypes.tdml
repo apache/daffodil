@@ -3810,27 +3810,27 @@
   </tdml:parserTestCase>
 
 <!--
-     Test Name: dateTimePattern01
+     Test Name: dateTimePattern02
         Schema: dateTimeSchema
           Root: dateTime03
        Purpose: This test demonstrates the dateTime data type with an explicit calendar Pattern.
-                The data matches this pattern and should be parsed correctly. It also demonstrates the use of epoch time
-                to fill in any data that is not provided.
+                The data matches this pattern and should be parsed correctly. Note that it deduces the day of the month based on
+                the year, month, and day of the week.
 -->
   
-  <tdml:parserTestCase name="dateTimePattern01" root="dateTime03"
+  <tdml:parserTestCase name="dateTimePattern02" root="dateTime03"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
 
     <tdml:document><![CDATA[Twas a sunny Wednesday at 11 O'clock. The year was 2008, and it was the hottest December we had ever experienced.]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dateTime03>2008-12-01T11:00:00Z</dateTime03>
+        <dateTime03>2008-12-03T11:00:00Z</dateTime03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
-     Test Name: dateTimePattern02
+     Test Name: dateTimePattern03
         Schema: dateTimeSchema
           Root: dateTime03
        Purpose: This test demonstrates the dateTime data type with an explicit calendar Pattern.
@@ -3838,7 +3838,7 @@
                 a lax calendarCheckPolicy
 -->
   
-  <tdml:parserTestCase name="dateTimePattern02" root="dateTime04"
+  <tdml:parserTestCase name="dateTimePattern03" root="dateTime04"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
 
     <tdml:document><![CDATA[27:30:30 February-29-2012]]></tdml:document>

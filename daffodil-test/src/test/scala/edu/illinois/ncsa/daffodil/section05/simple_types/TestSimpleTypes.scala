@@ -63,6 +63,7 @@ class TestSimpleTypes extends JUnitSuite {
   
   @Test def test_dateTimePattern01() { runner.runOneTest("dateTimePattern01") }
   @Test def test_dateTimePattern02() { runner.runOneTest("dateTimePattern02") }
+  @Test def test_dateTimePattern03() { runner.runOneTest("dateTimePattern03") }
 
   @Test def test_dateEpochFillIn() { runner.runOneTest("dateEpochFillIn") }
 //  @Test def test_dateEpochFillIn2() { runner.runOneTest("dateEpochFillIn2") }
