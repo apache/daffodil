@@ -225,7 +225,7 @@ object DFDLTestBitFunction extends DFDLFunction("testBit", 2) {
     // According to spec, data should be a byte-value
     val dataInt = data match {
       case i: Int => {
-        if (i > 255 || i < 0) { context.SDE("dfdl:testBit $data must be a an Integer that exists within the value-space of byte.") }
+        if (i > 255 || i < 0) { context.SDE("dfdl:testBit $data must be an Integer that exists within the value-space of byte.") }
         i
       }
       case bi: java.math.BigInteger => {
@@ -240,7 +240,7 @@ object DFDLTestBitFunction extends DFDLFunction("testBit", 2) {
         val i = try { Integer.parseInt(v) } catch {
           case e: Exception => context.SDE("dfdl:testBit unable to parse (%s) to Integer.", v)
         }
-        if (i > 255 || i < 0) { context.SDE("dfdl:testBit $data must be a an Integer that exists within the value-space of byte.") }
+        if (i > 255 || i < 0) { context.SDE("dfdl:testBit $data must be an Integer that exists within the value-space of byte.") }
         i
       }
       case t: Text => {
