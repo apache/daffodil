@@ -732,6 +732,9 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
   //
   lazy val restrictionBase: String = {
     val rsb = xml \\ "restriction" \ "@base"
+    if (rsb.length != 1){
+      context.SDE("Restriction base was not found.")
+    }
     rsb.head.text
   }
 
