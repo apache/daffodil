@@ -388,7 +388,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
         if ((pt != PrimType.String) && (pt != PrimType.HexBinary)) context.SDE("MinLength facet can only be applied to string or hexBinary.")
         if (st.hasMaxLength) {
           val res = st.minLengthValue.compareTo(st.maxLengthValue)
-          if (res > 0) context.SDE("MinLength facet must be <= MaxLength faet.")
+          if (res > 0) context.SDE("MinLength facet must be <= MaxLength facet.")
         }
         st.minLengthValue
       } else context.SDE("MinLength was not found in this context.")
