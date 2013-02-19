@@ -429,6 +429,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
         val res = st.minInclusiveValue.compareTo(st.maxExclusiveValue)
         if (res > 0) context.SDE("MinInclusive(%s) must be less than or equal to MaxExclusive(%s).", st.minInclusiveValue, st.maxExclusiveValue)
       }
+      if (st.hasMinInclusive && st.hasMaxInclusive) {
+        val res = st.minInclusiveValue.compareTo(st.maxInclusiveValue)
+        if (res > 0) context.SDE("MinInclusive(%s) must be less than or equal to MaxInclusive(%s).", st.minInclusiveValue, st.maxInclusiveValue)
+      }
       if (st.hasMinInclusive) st.minInclusiveValue
       else context.SDE("MinInclusive was not found in this context.")
     } else context.SDE("MinInclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
@@ -442,6 +446,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
         val res = st.minExclusiveValue.compareTo(st.maxInclusiveValue)
         if (res > 0) context.SDE("MinExclusive(%s) must be less than or equal to MaxInclusive(%s)", st.minExclusiveValue, st.maxInclusiveValue)
       }
+      if (st.hasMaxInclusive && st.hasMinInclusive) {
+        val res = st.minInclusiveValue.compareTo(st.maxInclusiveValue)
+        if (res > 0) context.SDE("MinInclusive(%s) must be less than or equal to MaxInclusive(%s)", st.minInclusiveValue, st.maxInclusiveValue)
+      }
       if (st.hasMaxInclusive) st.maxInclusiveValue
       else context.SDE("MaxInclusive was not found in this context.")
     } else context.SDE("MaxInclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
@@ -453,7 +461,11 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       if (st.hasMinInclusive && st.hasMinExclusive) context.SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
       if (st.hasMaxInclusive && st.hasMinExclusive) {
         val res = st.minExclusiveValue.compareTo(st.maxInclusiveValue)
-        if (res > 0) context.SDE("MinExclusive(%s) was not less than or equal to MaxInclusive(%s)", st.minExclusiveValue, st.maxInclusiveValue)
+        if (res > 0) context.SDE("MinExclusive(%s) must be less than or equal to MaxInclusive(%s)", st.minExclusiveValue, st.maxInclusiveValue)
+      }
+      if (st.hasMaxExclusive && st.hasMinExclusive) {
+        val res = st.minExclusiveValue.compareTo(st.maxExclusiveValue)
+        if (res > 0) context.SDE("MinExclusive(%s) must be less than or equal to MaxExclusive(%s)", st.minExclusiveValue, st.maxExclusiveValue)
       }
       if (st.hasMinExclusive) st.minExclusiveValue
       else context.SDE("MinExclusive was not found in this context.")
@@ -467,6 +479,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       if (st.hasMaxExclusive && st.hasMinInclusive) {
         val res = st.minInclusiveValue.compareTo(st.maxExclusiveValue)
         if (res > 0) context.SDE("MinInclusive(%s) must be less than or equal to MaxExclusive(%s)", st.minInclusiveValue, st.maxExclusiveValue)
+      }
+      if (st.hasMaxExclusive && st.hasMinExclusive) {
+        val res = st.minExclusiveValue.compareTo(st.maxExclusiveValue)
+        if (res > 0) context.SDE("MinExclusive(%s) must be less than or equal to MaxExclusive(%s)", st.minExclusiveValue, st.maxExclusiveValue)
       }
       if (st.hasMaxExclusive) st.maxExclusiveValue
       else context.SDE("MaxExclusive was not found in this context.")
