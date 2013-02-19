@@ -5505,7 +5505,8 @@
       </xs:simpleType>
     </xs:element>
     
-    <xs:element name="mImE_e13" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'Today is the 'dd'th day of 'MMM', year 'YYYY" dfdl:lengthKind="delimited">
+    <xs:element name="mImE_e13" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" 
+    dfdl:calendarPattern="'Today is the 'dd'th day of 'MMM', year 'yyyy" dfdl:lengthKind="delimited">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
           <dfdl:assert test="{ dfdl:checkConstraints(.) }"

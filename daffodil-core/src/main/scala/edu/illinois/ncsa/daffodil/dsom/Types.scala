@@ -330,12 +330,21 @@ trait Facets { self: SimpleTypeDefBase =>
     val df = new SimpleDateFormat(format)
     df.setCalendar(new GregorianCalendar())
     df.setTimeZone(TimeZone.GMT_ZONE)
-    val dt = try {
-      df.parse(date)
+    val bd = try {
+      val dt = df.parse(date)
+      new java.math.BigDecimal(dt.getTime())
     } catch {
-      case e: Exception => context.SDE("Failed to parse (%s) to %s (%s)", date, dateType, format)
+      case e: Exception => {
+        try {
+          // Could already be a BigDecimal
+         new java.math.BigDecimal(date)
+        }catch {
+          case e: Exception => context.SDE("Failed to parse (%s) to %s (%s)", date, dateType, format)
+        }
+        
+      }
     }
-    new java.math.BigDecimal(dt.getTime())
+    bd
   }
 
   private def convertFacetToBigDecimal(facet: String): java.math.BigDecimal = {
