@@ -149,16 +149,6 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
-    
-    <xs:element name="containsEntity2">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="str" type="xs:string"	dfdl:representation="text" dfdl:encoding="utf-16BE" />
-					<xs:element name="hasEntity" type="xs:boolean"
-						dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:containsEntity(xs:string(/ex:containsEntity2/ex:str)) }" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
 
 	</tdml:defineSchema>
 
@@ -391,6 +381,30 @@
 	</tdml:parserTestCase>
 
 <!--
+    Test Name: stringLiteralFromString_2
+       Schema: Functions.dfdl.xsd
+         Root: stringLiteralFromString
+      Purpose: This test demonstrates the use of the stringLiteralFromString function
+-->
+
+	<tdml:parserTestCase name="stringLiteralFromString_2"
+		root="stringLiteralFromString" model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="byte"><![CDATA[01 07 33 0b 0a 09 08 34]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<stringLiteralFromString>
+					<str>3 4</str>
+					<literal>%SOH;%BEL;3%VT;%LF;%HT;%BS;4</literal>
+				</stringLiteralFromString>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
     Test Name: containsEntity_0
        Schema: Functions.dfdl.xsd
          Root: containsEntity
@@ -442,22 +456,22 @@
 <!--
     Test Name: containsEntity_2
        Schema: Functions.dfdl.xsd
-         Root: containsEntity2
+         Root: containsEntity1
       Purpose: This test demonstrates the use of the containsEntity function to determine if a string contains an entity
                In this case the string contains an entity
 -->
 
-	<tdml:parserTestCase name="containsEntity_2" root="containsEntity2"
+	<tdml:parserTestCase name="containsEntity_2" root="containsEntity1"
 		model="Functions.dfdl.xsd" description="Section 23 ">
 
 		<tdml:document>
-			<tdml:documentPart type="byte">0000 0020 002D</tdml:documentPart>
+			<tdml:documentPart replaceDFDLEntities="false" type="text">%NUL;%SOH;;;%%;</tdml:documentPart>
 		</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
 				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<containsEntity1>
-					<str> -</str>
+					<str>%NUL;%SOH;;;%%;</str>
 					<hasEntity>true</hasEntity>
 				</containsEntity1>
 			</tdml:dfdlInfoset>
@@ -476,13 +490,13 @@
 		model="Functions.dfdl.xsd" description="Section 23 ">
 
 		<tdml:document>
-			<tdml:documentPart type="text">%NUL;%SP;-</tdml:documentPart>
+			<tdml:documentPart replaceDFDLEntities="false" type="text">%NUL;%SP;-</tdml:documentPart>
 		</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
 				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<containsEntity1>
-					<str> -</str>
+				  <str>%NUL;%SP;-</str>
 					<hasEntity>true</hasEntity>
 				</containsEntity1>
 			</tdml:dfdlInfoset>
@@ -501,13 +515,13 @@
 		model="Functions.dfdl.xsd" description="Section 23 ">
 
 		<tdml:document>
-			<tdml:documentPart type="text">%HT;%LF;</tdml:documentPart>
+			<tdml:documentPart replaceDFDLEntities="false" type="text">%HT;%LF;</tdml:documentPart>
 		</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
 				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<containsEntity1>
-					<str></str>
+					<str>%HT;%LF;</str>
 					<hasEntity>true</hasEntity>
 				</containsEntity1>
 			</tdml:dfdlInfoset>

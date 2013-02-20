@@ -49,7 +49,7 @@ class TestDFDLExpressions extends JUnitSuite {
   val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)
-  
+
   @Test def test_regexLookahead() { runner.runOneTest("regexLookahead") }
   @Test def test_regexLookaheadFail() { runner.runOneTest("regexLookaheadFail") }
   @Test def test_regexLookaheadFail2() { runner.runOneTest("regexLookaheadFail2") }
@@ -111,7 +111,7 @@ class TestDFDLExpressions extends JUnitSuite {
   @Test def test_functionFail01() { runner_fun.runOneTest("functionFail01") }
   @Test def test_functionFail02() { runner_fun.runOneTest("functionFail02") }
   @Test def test_functionFail03() { runner_fun.runOneTest("functionFail03") }
- 
+
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
@@ -121,7 +121,8 @@ class TestDFDLExpressions extends JUnitSuite {
 //  @Test def test_testBit_2() { runner2.runOneTest("testBit_2") }
   
   @Test def test_stringLiteralFromString_0() { runner2.runOneTest("stringLiteralFromString_0") }
-//  @Test def test_stringLiteralFromString_1() { runner2.runOneTest("stringLiteralFromString_1") }
+  @Test def test_stringLiteralFromString_1() { runner2.runOneTest("stringLiteralFromString_1") }
+  @Test def test_stringLiteralFromString_2() { runner2.runOneTest("stringLiteralFromString_2") }
 
   @Test def test_setBits_0() { runner2.runOneTest("setBits_0") }
   @Test def test_setBits_1() { runner2.runOneTest("setBits_1") }
@@ -129,9 +130,9 @@ class TestDFDLExpressions extends JUnitSuite {
   
   @Test def test_containsEntity_0() { runner2.runOneTest("containsEntity_0") }
   @Test def test_containsEntity_1() { runner2.runOneTest("containsEntity_1") }
-//  @Test def test_containsEntity_2() { runner2.runOneTest("containsEntity_2") }
-//  @Test def test_containsEntity_3() { runner2.runOneTest("containsEntity_3") }
-//  @Test def test_containsEntity_4() { runner2.runOneTest("containsEntity_4") }
+  @Test def test_containsEntity_2() { runner2.runOneTest("containsEntity_2") }
+  @Test def test_containsEntity_3() { runner2.runOneTest("containsEntity_3") }
+  @Test def test_containsEntity_4() { runner2.runOneTest("containsEntity_4") }
 
   @Test def test_occursCount_0() { runner2.runOneTest("occursCount_0") }
 
