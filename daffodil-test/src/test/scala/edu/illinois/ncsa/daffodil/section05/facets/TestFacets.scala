@@ -49,7 +49,10 @@ class TestFacets extends JUnitSuite {
   val testDir = "/edu/illinois/ncsa/daffodil/section05/facets/"
   val aa = testDir + "Facets.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
-  
+
+  @Test def test_minMaxInEx08b() { runner.runOneTest("minMaxInEx08b") }
+  @Test def test_minMaxInEx16() { runner.runOneTest("minMaxInEx16") }
+ 
   @Test def test_maxLength07() { runner.runOneTest("maxLength07") }
 //  @Test def test_maxLength08() { runner.runOneTest("maxLength08") }
 //  @Test def test_maxLength09() { runner.runOneTest("maxLength09") }
@@ -58,7 +61,6 @@ class TestFacets extends JUnitSuite {
 
   @Test def test_minMaxInExChoice01() { runner.runOneTest("minMaxInExChoice01") }
   @Test def test_minMaxInExChoice02() { runner.runOneTest("minMaxInExChoice02") }
-//  @Test def test_minMaxInEx16() { runner.runOneTest("minMaxInEx16") }
   @Test def test_minMaxInEx17() { runner.runOneTest("minMaxInEx17") }
   @Test def test_minMaxInEx18() { runner.runOneTest("minMaxInEx18") }
 
@@ -175,7 +177,6 @@ class TestFacets extends JUnitSuite {
   @Test def test_minMaxInEx06() { runner.runOneTest("minMaxInEx06") }
   @Test def test_minMaxInEx07() { runner.runOneTest("minMaxInEx07") }
   @Test def test_minMaxInEx08() { runner.runOneTest("minMaxInEx08") }
-//  @Test def test_minMaxInEx08b() { runner.runOneTest("minMaxInEx08b") }
   @Test def test_minMaxInEx09() { runner.runOneTest("minMaxInEx09") }
 //  @Test def test_minMaxInEx10() { runner.runOneTest("minMaxInEx10") }
   @Test def test_minMaxInEx11() { runner.runOneTest("minMaxInEx11") }
@@ -209,4 +210,5 @@ class TestFacets extends JUnitSuite {
   @Test def test_maxOccursPass() { runner.runOneTest("checkMaxOccurs_Pass") }
   @Test def test_maxOccursFail() { runner.runOneTest("checkMaxOccurs_Fail") }
   @Test def test_maxOccursUnboundedPass() { runner.runOneTest("checkMaxOccursUnbounded_Pass") }
+
 }

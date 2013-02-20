@@ -50,8 +50,6 @@ class TestFacetsDebug extends JUnitSuite {
   val aa = testDir + "Facets.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_minMaxInEx08b() { runner.runOneTest("minMaxInEx08b") }
-
   // Note, these won't pass until Decimal is implemented
   @Test def test_totalDigits_Pass_Decimal{ runner.runOneTest("checkTotalDigits_Pass_Decimal") }
   @Test def test_totalDigits_Fail_Decimal{ runner.runOneTest("checkTotalDigits_Fail_Decimal") }
@@ -83,7 +81,6 @@ class TestFacetsDebug extends JUnitSuite {
   @Test def test_minMaxInEx08() { runner.runOneTest("minMaxInEx08") }
   @Test def test_minMaxInEx10() { runner.runOneTest("minMaxInEx10") }
   @Test def test_minMaxInEx14() { runner.runOneTest("minMaxInEx14") }
-  @Test def test_minMaxInEx16() { runner.runOneTest("minMaxInEx16") }
 
 // Issues with date and time and how they are interpreted with min/max/in/exclusive facets
 
