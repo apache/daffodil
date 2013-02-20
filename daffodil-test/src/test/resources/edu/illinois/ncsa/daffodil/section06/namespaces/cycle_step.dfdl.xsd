@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://stepSchema.com" >
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+ <xs:import namespace="http://baseSchema.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/cycle_base.dfdl.xsd"/>
+
+  <xs:element name="elsewhere" dfdl:lengthKind="implicit">
+    <xs:complexType> 
+      <xs:sequence dfdl:sequenceKind="ordered" dfdl:separator="*" dfdl:separatorPosition="infix">
+        <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited" /> 
+        <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited" /> 
+      </xs:sequence> 
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>

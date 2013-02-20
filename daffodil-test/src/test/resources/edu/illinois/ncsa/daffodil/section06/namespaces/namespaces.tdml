@@ -71,5 +71,21 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: multifile_cyclical
+       Schema: customer_namespace.dfdl.xsd
+         Root: customer
+      Purpose: This test demonstrates the use of xs:import to create an infinite loop. The loop should be caught
+               and an error should be thrown.
+  -->
+  
+  <tdml:parserTestCase name="multifile_cyclical" root="elem"
+    model="cycle_base.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[1234]]></tdml:document>
+    <tdml:errors>
+      <tdml:error/>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </testSuite>

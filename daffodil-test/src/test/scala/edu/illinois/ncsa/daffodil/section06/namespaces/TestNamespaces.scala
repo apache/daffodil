@@ -53,5 +53,6 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_Lesson2_include_schema() { runner.runOneTest("Lesson2_include_schema") }
   @Test def test_Lesson2_import_schema() { runner.runOneTest("Lesson2_import_schema") }
 
+//  @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }
 
 }
