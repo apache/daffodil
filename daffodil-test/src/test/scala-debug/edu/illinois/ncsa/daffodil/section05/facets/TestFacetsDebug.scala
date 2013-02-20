@@ -82,13 +82,4 @@ class TestFacetsDebug extends JUnitSuite {
   @Test def test_minMaxInEx10() { runner.runOneTest("minMaxInEx10") }
   @Test def test_minMaxInEx14() { runner.runOneTest("minMaxInEx14") }
 
-// Issues with date and time and how they are interpreted with min/max/in/exclusive facets
-
-  @Test def test_minMaxInExdateTime01() { runner.runOneTest("minMaxInExdateTime01") }
-  @Test def test_minMaxInExdateTime02() { runner.runOneTest("minMaxInExdateTime02") }
-  @Test def test_minMaxInExdateTime03() { runner.runOneTest("minMaxInExdateTime03") }
-  @Test def test_minMaxInExdateTime04() { runner.runOneTest("minMaxInExdateTime04") }
-  @Test def test_minMaxInExdateTime05() { runner.runOneTest("minMaxInExdateTime05") }
-  @Test def test_minMaxInExdateTime06() { runner.runOneTest("minMaxInExdateTime06") }
-
 }

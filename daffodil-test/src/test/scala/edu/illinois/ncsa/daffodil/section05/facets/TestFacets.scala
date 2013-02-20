@@ -50,6 +50,13 @@ class TestFacets extends JUnitSuite {
   val aa = testDir + "Facets.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
 
+  @Test def test_minMaxInExdateTime01() { runner.runOneTest("minMaxInExdateTime01") }
+  @Test def test_minMaxInExdateTime02() { runner.runOneTest("minMaxInExdateTime02") }
+  @Test def test_minMaxInExdateTime03() { runner.runOneTest("minMaxInExdateTime03") }
+  @Test def test_minMaxInExdateTime04() { runner.runOneTest("minMaxInExdateTime04") }
+  @Test def test_minMaxInExdateTime05() { runner.runOneTest("minMaxInExdateTime05") }
+  @Test def test_minMaxInExdateTime06() { runner.runOneTest("minMaxInExdateTime06") }
+
   @Test def test_minMaxInEx08b() { runner.runOneTest("minMaxInEx08b") }
   @Test def test_minMaxInEx16() { runner.runOneTest("minMaxInEx16") }
  
@@ -183,13 +190,6 @@ class TestFacets extends JUnitSuite {
   @Test def test_minMaxInEx12() { runner.runOneTest("minMaxInEx12") }
   @Test def test_minMaxInEx13() { runner.runOneTest("minMaxInEx13") }
   @Test def test_minMaxInEx14() { runner.runOneTest("minMaxInEx14") }
-
-//  @Test def test_minMaxInExdateTime01() { runner.runOneTest("minMaxInExdateTime01") }
-//  @Test def test_minMaxInExdateTime02() { runner.runOneTest("minMaxInExdateTime02") }
-//  @Test def test_minMaxInExdateTime03() { runner.runOneTest("minMaxInExdateTime03") }
-//  @Test def test_minMaxInExdateTime04() { runner.runOneTest("minMaxInExdateTime04") }
-//  @Test def test_minMaxInExdateTime05() { runner.runOneTest("minMaxInExdateTime05") }
-//  @Test def test_minMaxInExdateTime06() { runner.runOneTest("minMaxInExdateTime06") }
 
   @Test def test_correctNumCells0() { runner.runOneTest("correctNumCells0") }
   @Test def test_extraCellsParsed() { runner.runOneTest("extraCellsParsed") }
