@@ -240,7 +240,10 @@
     <tdml:document><![CDATA[1.3.2.5|5,4,3,1]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <facets01>10</facets01>
+        <super_seq>
+          <seq></seq>
+          <seq></seq>
+        </super_seq>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

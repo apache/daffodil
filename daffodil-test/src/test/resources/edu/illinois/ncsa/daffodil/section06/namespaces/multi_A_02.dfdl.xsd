@@ -4,7 +4,7 @@
  
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format separator="." leadingSkip='0' initiator="" terminator="" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
+      <dfdl:format separator="." separatorPosition="infix" separatorPolicy="suppressed" leadingSkip='0' initiator="" terminator="" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
     </xs:appinfo>
   </xs:annotation>
   
@@ -13,7 +13,7 @@
   <xs:element name="seq">
     <xs:complexType>
       <xs:sequence dfdl:separator=".">
-        <xs:element ref="inty"/>
+        <xs:element ref="a02:inty" maxOccurs="unbounded"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element> 
