@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://b01.com" xmlns:b01="http://b01.com">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:element name="remote02" type="xs:int" dfdl:initiator="remote02:" dfdl:lengthKind="delimited"/>
+
+  <xs:simpleType name="initInt" dfdl:initiator="remote03:" dfdl:lengthKind="delimited"> 
+    <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+  
+  <xs:simpleType name="maxEx"> 
+    <xs:restriction base="xs:int">
+      <xs:maxExclusive value="20"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

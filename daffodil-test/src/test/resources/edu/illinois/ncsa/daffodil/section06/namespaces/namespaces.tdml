@@ -74,8 +74,8 @@
   
   <!--
     Test name: multifile_cyclical
-       Schema: customer_namespace.dfdl.xsd
-         Root: customer
+       Schema: cycle_base.dfdl.xsd
+         Root: elem
       Purpose: This test demonstrates the use of xs:import to create an infinite loop. The loop should be caught
                and an error should be thrown.
   -->
@@ -86,6 +86,163 @@
     <tdml:errors>
       <tdml:error/>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: multifile_choice_01
+       Schema: multi_base_01.dfdl.xsd
+         Root: choice01
+      Purpose: This test demonstrates the creation of a choice whose elements exist in multiple schemas.
+               In this case none of the choice elements are applicable and parsing fails.
+  -->
+  
+  <tdml:parserTestCase name="multifile_choice_01" root="choice01"
+    model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[local05:123]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Alternative failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: multifile_choice_02
+       Schema: multi_base_01.dfdl.xsd
+         Root: choice01
+      Purpose: This test demonstrates the creation of a choice whose elements exist in multiple schemas.
+  -->
+  
+  <tdml:parserTestCase name="multifile_choice_02" root="choice01"
+    model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[remote01:123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <choice01>
+          <remote01>123</remote01>
+        </choice01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: multifile_choice_02b
+       Schema: multi_base_01.dfdl.xsd
+         Root: choice01
+      Purpose: This test demonstrates the creation of a choice whose elements exist in multiple schemas.
+  -->
+  
+  <tdml:parserTestCase name="multifile_choice_02b" root="choice01"
+    model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[remote01:123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: multifile_choice_03
+       Schema: multi_base_01.dfdl.xsd
+         Root: choice01
+      Purpose: This test demonstrates the creation of a choice whose elements exist in multiple schemas. In this case the
+               appropriate element is actually a type in schema A01 based on a simpleType defined in B01, and the choice 
+               itself is in base01.
+  -->
+  
+  <tdml:parserTestCase name="multifile_choice_03" root="choice01"
+    model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[remote03:5555]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <choice01>
+          <remote03>5555</remote03>
+        </choice01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: multifile_facets_01
+       Schema: multi_base_01.dfdl.xsd
+         Root: facets01
+      Purpose: This test demonstrates the use of an element whose facet restrictions exist across multiple schemas.
+  -->
+  
+  <tdml:parserTestCase name="multifile_facets_01" root="facets01"
+    model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[10]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <facets01>10</facets01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: multifile_facets_02
+       Schema: multi_base_01.dfdl.xsd
+         Root: facets01
+      Purpose: This test demonstrates the use of an element whose facet restrictions exist across multiple schemas.
+  -->
+  
+  <tdml:parserTestCase name="multifile_facets_02" root="facets01"
+    model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[11]]></tdml:document>
+      <tdml:errors>
+        <tdml:error>Assertion</tdml:error>
+        <tdml:error>failed</tdml:error>
+        <tdml:error>dfdl:checkConstraints</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: multifile_facets_03
+       Schema: multi_base_01.dfdl.xsd
+         Root: facets02
+      Purpose: This test demonstrates the use of an element whose facet restrictions exist across multiple schemas.
+  -->
+  
+  <tdml:parserTestCase name="multifile_facets_03" root="facets02"
+    model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[10]]></tdml:document>
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>MinExclusive(11) must be less than or equal to MaxInclusive(10)</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: multifile_facets_04
+       Schema: multi_base_01.dfdl.xsd
+         Root: facets03
+      Purpose: This test demonstrates the use of an element whose facet restrictions exist across multiple schemas.
+               In this case both the maxInclusive and maxExclusive facets are defined, so the test should fail.
+  -->
+  
+  <tdml:parserTestCase name="multifile_facets_04" root="facets03"
+    model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[10]]></tdml:document>
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>MaxInclusive and MaxExclusive cannot be specified for the same simple type</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: double_nesting_01
+       Schema: multi_base_02.dfdl.xsd
+         Root: super_seq
+      Purpose: This test demonstrates that a schema with no namespace can be included in multiple namespaces
+               and its elements can therefore be represented with different namespaces.
+  -->
+  
+  <tdml:parserTestCase name="double_nesting_01" root="super_seq"
+    model="multi_base_02.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[1.3.2.5|5,4,3,1]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <facets01>10</facets01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </testSuite>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://baseSchema.com" xmlns:a01="http://a01.com" xmlns:b01="http://b01.com">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+   
+  <xs:import namespace="http://a01.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_01.dfdl.xsd"/>
+  <xs:import namespace="http://b01.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_01.dfdl.xsd"/>
+  
+  <xs:element name="choice01"> 
+    <xs:complexType> 
+      <xs:choice>
+         <xs:element name="local" type="xs:int" dfdl:initiator="local01:" dfdl:lengthKind="delimited"/> 
+         <xs:element ref="a01:remote01"/> 
+         <xs:element ref="b01:remote02"/> 
+         <xs:element ref="a01:remote03"/> 
+      </xs:choice>
+    </xs:complexType> 
+  </xs:element>
+
+  <xs:element name="facets01" dfdl:lengthKind="delimited">
+    <xs:annotation>
+      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+          message="Assertion failed for dfdl:checkConstraints(.)" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:restriction base="a01:maxIn">
+        <xs:minInclusive value="2"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+  
+  <xs:element name="facets02" dfdl:lengthKind="delimited">
+    <xs:annotation>
+      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+          message="Assertion failed for dfdl:checkConstraints(.)" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:restriction base="a01:maxIn">
+        <xs:minExclusive value="11"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+  
+  <xs:element name="facets03" dfdl:lengthKind="delimited">
+    <xs:annotation>
+      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+          message="Assertion failed for dfdl:checkConstraints(.)" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:restriction base="a01:maxIn2">
+        <xs:minExclusive value="3"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+ 
+  <xs:element name="two" type="xs:int" dfdl:lengthKind="delimited"/> 
+  
+</xs:schema>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://a01.com" xmlns:a01="http://a01.com" xmlns:b01="http://b01.com">
+ 
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:import namespace="http://b01.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_01.dfdl.xsd"/>
+
+  <xs:element name="remote01" type="xs:int" dfdl:initiator="remote01:" dfdl:lengthKind="delimited"/>
+  <xs:element name="remote03" type="b01:initInt"/>
+  
+  <xs:simpleType name="maxIn"> 
+    <xs:restriction base="xs:int">
+      <xs:maxInclusive value="10"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="maxIn2"> 
+    <xs:restriction base="b01:maxEx">
+      <xs:maxInclusive value="10"/>
+    </xs:restriction>
+  </xs:simpleType>
+ 
+</xs:schema>

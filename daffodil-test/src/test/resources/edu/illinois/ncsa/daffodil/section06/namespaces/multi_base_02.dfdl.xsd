@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://baseSchema.com" xmlns:a02="http://a02.com" xmlns:b02="http://b02.com">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        separatorPosition="infix" ignoreCase="no" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+   
+  <xs:import namespace="http://a02.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_02.dfdl.xsd"/>
+  <xs:import namespace="http://b02.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_02.dfdl.xsd"/>
+
+  <xs:element name="super_seq">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element ref="a02:seq"/> 
+        <xs:element ref="b02:seq"/> 
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+ 
+</xs:schema>

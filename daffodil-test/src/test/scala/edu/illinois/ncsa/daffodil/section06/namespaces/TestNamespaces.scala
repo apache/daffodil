@@ -54,5 +54,16 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_Lesson2_import_schema() { runner.runOneTest("Lesson2_import_schema") }
 
 //  @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }
+  @Test def test_multifile_choice_01() { runner.runOneTest("multifile_choice_01") }
+  @Test def test_multifile_choice_02() { runner.runOneTest("multifile_choice_02") }
+//  @Test def test_multifile_choice_02b() { runner.runOneTest("multifile_choice_02b") }
+  @Test def test_multifile_choice_03() { runner.runOneTest("multifile_choice_03") }
+  
+  @Test def test_multifile_facets_01() { runner.runOneTest("multifile_facets_01") }
+  @Test def test_multifile_facets_02() { runner.runOneTest("multifile_facets_02") }
+  @Test def test_multifile_facets_03() { runner.runOneTest("multifile_facets_03") }
+  @Test def test_multifile_facets_04() { runner.runOneTest("multifile_facets_04") }
+ 
+//  @Test def test_double_nesting_01() { runner.runOneTest("double_nesting_01") }
 
 }
