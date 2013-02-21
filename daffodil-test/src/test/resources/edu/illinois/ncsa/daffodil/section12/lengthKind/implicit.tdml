@@ -65,8 +65,25 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="elem01" dfdl:lengthKind="implicit" dfdl:length="5" type="xs:int"/>
 
   </tdml:defineSchema>
+  
+  <!--
+    Test name: implicit_with_len
+    Schema: implicit_tests_embedded
+    Purpose: This test demonstrates
+  -->
+  
+  <tdml:parserTestCase name="implicit_with_len" root="elem01"
+    model="implicit_tests_embedded" description="">
+
+    <tdml:document><![CDATA[1234]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="nested_seq" root="nested_seq"
     model="implicit_tests_embedded" description="lengthKind implicit on complex element - DFDL-12-055R">

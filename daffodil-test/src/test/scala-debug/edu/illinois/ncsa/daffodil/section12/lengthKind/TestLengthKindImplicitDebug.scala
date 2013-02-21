@@ -44,14 +44,12 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-class TestLengthKindImplicit extends JUnitSuite {
+class TestLengthKindImplicitDebug extends JUnitSuite {
   val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
-  val tdml = testDir + "implicit.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
-  @Test def test_nested_seq() { runner_01.runOneTest("nested_seq") }
-  @Test def test_nested_seq_01() { runner_01.runOneTest("nested_seq_01") }
-  
-//  @Test def test_implicit_with_len() { runner_01.runOneTest("implicit_with_len") }
+  val aa = testDir + "implicit.tdml"
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  @Test def test_implicit_with_len() { runner.runOneTest("implicit_with_len") }
 
 }
