@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testSuite suiteName="Namespaces"
   xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
 
   <tdml:parserTestCase name="Lesson2_no_namespace" root="address"
@@ -327,6 +328,42 @@
       <tdml:dfdlInfoset>
         <inty>1</inty>
       </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="import_format_01"
+    description="Imported Schema Format - Use imported schema's default format"
+    model="predefined_format.dfdl.xsd" root="seq_01">
+    <tdml:document>
+      <tdml:documentPart type="text">1,2,3</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq_01>
+          <e1>1</e1>
+          <e2>2</e2>
+          <e3>3</e3>
+        </seq_01>
+      </tdml:dfdlInfoset>
+
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="import_format_02"
+    description="Imported Schema Format - Use default format except for overridden values"
+    model="predefined_format.dfdl.xsd" root="seq_02">
+    <tdml:document>
+      <tdml:documentPart type="text">98% 53% 100%</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq_02>
+          <e1>98</e1>
+          <e2>53</e2>
+          <e3>100</e3>
+        </seq_02>
+      </tdml:dfdlInfoset>
+
     </tdml:infoset>
   </tdml:parserTestCase>
 

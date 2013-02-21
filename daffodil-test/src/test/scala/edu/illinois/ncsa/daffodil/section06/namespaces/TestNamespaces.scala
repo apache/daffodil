@@ -71,4 +71,6 @@ class TestNamespaces extends JUnitSuite {
   
 //  @Test def test_testing() { runner.runOneTest("testing") }
 
+  // @Test def import_format_01() { runner.runOneTest("import_format_01") }
+  // @Test def import_format_02() { runner.runOneTest("import_format_02") }
 }

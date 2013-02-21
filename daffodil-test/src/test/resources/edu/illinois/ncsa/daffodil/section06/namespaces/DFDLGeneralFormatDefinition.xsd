@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+
+******************************************************************
+* (C) Copyright IBM Corp 2011
+* All Rights Reserved
+*
+* This DFDL schema provides a set of DFDL property values to assist
+* in the creation of DFDL schema that model general text or binary
+* data, or a mixture of text and binary data.
+*
+* DFDL Version 1.0
+* Schema Version 1.0
+******************************************************************
+
+-->
+<!--
+
+******************************************************************
+* The primary purpose of this schema is to provide sensible values
+* for the vast majority of DFDL properties as an illustration.
+* However the properties are a consistent set that model a variable
+* length text format consisting of a single record of CSV data,
+* (for example, aaa,bbb,ccc,ddd,eee).
+*
+* The recommended usage is to refer to this schema from other DFDL
+* schema using a xs:import statement. If any property values need
+* to be changed, it is possible to update this schema directly,
+* but it is recommended either to override them locally in the
+* schema that includes this one, or make a copy of this schema in
+* a different namespace.
+*
+* For example, to model fixed length, binary data then override
+* "representation" to "binary", override "lengthKind" to "explicit"
+* and set "length".
+*
+* Example usage:
+*
+* 1) To apply the properties in this schema as defaults for all
+* objects in another DFDL schema:
+*
+* <xs:schema xmlns:tns="http://www.ogf.org/dfdl/dfdl-1.0/examples/" ... >
+*
+* <xs:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/examples/"
+*  schemaLocation="DFDLGeneralFormatDefinition.xsd"/>
+*
+* <xs:annotation>
+*   <xs:appinfo source="http://www.ogf.org/dfdl/">
+*     <dfdl:format ref="tns:GeneralFormat"
+*      ... override property values if desired ...
+*     </dfdl:format>
+*   </xs:appinfo>
+* </xs:annotation>
+*
+* ...
+*
+* </xs:schema>
+*
+* 2) To apply the properties in this schema to specific schema objects
+* and override selected property values:
+*
+* <xs:schema xmlns:tns="http://www.ogf.org/dfdl/dfdl-1.0/examples/" ... >
+*
+* <xs:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/examples/"
+*            schemaLocation="DFDLGeneralFormatDefinition.xsd"/>
+*
+* <xs:element name="root" dfdl:ref="tns:GeneralFormat"
+*             dfdl:lengthKind="explicit" dfdl:length="80">
+*   <xs:complexType>
+*     <xs:sequence dfdl:ref="tns:GeneralFormat" dfdl:separator="">
+*     ...
+*     </xs:sequence>
+*   </xs:complexType>
+* </xs:element>
+*
+* </xs:schema>
+*******************************************************************
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+           targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/examples/" 
+           xmlns:tns="http://www.ogf.org/dfdl/dfdl-1.0/examples/" >
+
+<xs:annotation>
+<xs:appinfo source="http://www.ogf.org/dfdl/">
+
+<!--
+A general purpose defineFormat annotation.
+-->
+
+<dfdl:defineFormat name="GeneralFormat">
+<dfdl:format 
+
+encoding="UTF-8" utf16Width="fixed" byteOrder="bigEndian"
+ignoreCase="no" outputNewLine="%CR;%LF;"
+
+alignment="1" alignmentUnits="bytes" fillByte="0"
+leadingSkip="0" trailingSkip="0"
+
+lengthKind="delimited" lengthUnits="characters"
+prefixIncludesPrefixLength="no"
+
+representation="text" textPadKind="none" textTrimKind="none"
+escapeSchemeRef="tns:GeneralBlockEscapeScheme"
+
+textBidi="no" textBidiTextOrdering="implicit"
+textBidiSymmetric="yes" textBidiTextShaped="no"
+textBidiNumeralShapes="nominal" textBidiOrientation="RTL"
+
+textStringJustification="left" textStringPadCharacter="%SP;"
+truncateSpecifiedLengthString="no" textOutputMinLength="0"
+
+textNumberJustification="right" textNumberPadCharacter="0"
+decimalSigned="yes" textNumberCheckPolicy="lax"
+textNumberRep="standard" textStandardBase="10"
+textNumberRounding="pattern" textNumberRoundingMode="roundUp"
+textNumberRoundingIncrement="0.0"
+textStandardDecimalSeparator="." textStandardGroupingSeparator=","
+textStandardExponentCharacter="E" textStandardZeroRep=""
+textStandardInfinityRep="Inf" textStandardNaNRep="NaN"
+textNumberPattern="#0" textZonedSignStyle="asciiStandard"
+
+textBooleanJustification="left" textBooleanPadCharacter="%SP;"
+textBooleanTrueRep="true" textBooleanFalseRep="false"
+
+textCalendarJustification="left" textCalendarPadCharacter="%SP;"
+calendarPatternKind="implicit" calendarPattern="yyyy-MM-dd'T'HH:mm:ss"
+calendarCheckPolicy="lax" calendarTimeZone="UTC"
+
+calendarObserveDST="yes" calendarFirstDayOfWeek="Monday"
+calendarDaysInFirstWeek="4" calendarCenturyStart="53"
+calendarLanguage="en-US"
+
+occursCountKind="parsed"
+
+sequenceKind="ordered" separator="," separatorPolicy="required"
+separatorPosition="infix" initiatedContent="no" floating="no"
+
+choiceLengthKind="implicit"
+
+initiator="" terminator="" documentFinalTerminatorCanBeMissing="no"
+emptyValueDelimiterPolicy="none"
+
+nilKind="literalValue" useNilForDefault="no" nilValue="NIL"
+nilValueDelimiterPolicy="none"
+
+binaryNumberRep="binary" binaryPackedSignCodes="C D F C"
+binaryDecimalVirtualPoint="0" binaryNumberCheckPolicy="lax"
+binaryFloatRep="ieee"
+
+binaryCalendarRep="bcd" binaryCalendarEpoch="1970-01-01T00:00:00+00:00"
+
+binaryBooleanTrueRep="1" binaryBooleanFalseRep="0">
+</dfdl:format>
+</dfdl:defineFormat>
+
+<!--
+An example defineEscapeScheme annotation.
+Assumes 'block' style escaping.
+-->
+
+<dfdl:defineEscapeScheme name="GeneralBlockEscapeScheme">
+<dfdl:escapeScheme
+escapeKind="escapeBlock"
+escapeBlockStart='"' escapeBlockEnd='"'
+escapeEscapeCharacter='"' generateEscapeBlock="whenNeeded"
+extraEscapedCharacters="z; x;">
+</dfdl:escapeScheme>
+</dfdl:defineEscapeScheme>
+
+</xs:appinfo>
+</xs:annotation>
+</xs:schema>

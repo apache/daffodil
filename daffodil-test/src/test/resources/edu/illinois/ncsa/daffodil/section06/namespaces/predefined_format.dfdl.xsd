@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:tns="http://www.ogf.org/dfdl/dfdl-1.0/examples/" >
+
+  <xs:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/examples/" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/DFDLGeneralFormatDefinition.xsd"/>
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0">
+      <dfdl:format ref="tns:GeneralFormat" />
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="seq_01">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="e1" type="xs:int" />
+        <xs:element name="e2" type="xs:int" />
+        <xs:element name="e3" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="seq_02" dfdl:terminator="">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="%SP;"
+        dfdl:separatorPosition="infix" dfdl:terminator="">
+        <xs:element name="e1" type="xs:int"
+          dfdl:terminator="%%" />
+        <xs:element name="e2" type="xs:int"
+          dfdl:terminator="%%" />
+        <xs:element name="e3" type="xs:int"
+          dfdl:terminator="%%" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+ 
+</xs:schema>
