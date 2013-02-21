@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://d03.com" xmlns:d03="http://d03.com" xmlns:e03="http://e03.com">
+ 
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format ignoreCase="no" lengthKind="delimited" leadingSkip="0" representation="text"
+        textNumberRep="standard"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:import namespace="http://e03.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_E_03.dfdl.xsd"/>
+  
+  <xs:simpleType name="blahBase">
+    <xs:restriction base="e03:subBlahBase"/>
+  </xs:simpleType>
+
+  <xs:element name="test" type="d03:blahBase" dfdl:textNumberPadCharacter="." dfdl:textNumberJustification="center"/>
+
+</xs:schema>

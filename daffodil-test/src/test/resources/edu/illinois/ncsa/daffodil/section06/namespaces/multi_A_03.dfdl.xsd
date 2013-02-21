@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-   targetNamespace="http://a02.com" xmlns:a02="http://a02.com">
+   targetNamespace="http://a03.com" xmlns:a03="http://a03.com" xmlns:b03="http://b03.com">
  
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -8,26 +8,14 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_C_02.dfdl.xsd"/>
+  <xs:import namespace="http://b03.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_03.dfdl.xsd"/>
 
-  <xs:element name="seq">
+  <xs:element name="blahSequence">
     <xs:complexType>
-      <xs:sequence dfdl:separator=".">
-        <xs:element ref="a02:inty" maxOccurs="unbounded"/>
+      <xs:sequence dfdl:separator="|">
+        <xs:element ref="b03:blah" dfdl:occursCountKind="parsed"/>
       </xs:sequence>
     </xs:complexType>
-  </xs:element> 
- 
-<!--
-  This element, when used in this context, will take on its native global
-  separator of "."
---> 
-  <xs:element name="seq2">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="a02:inty" maxOccurs="unbounded"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element> 
+  </xs:element>
 
 </xs:schema>

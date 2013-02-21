@@ -63,7 +63,12 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_multifile_facets_02() { runner.runOneTest("multifile_facets_02") }
   @Test def test_multifile_facets_03() { runner.runOneTest("multifile_facets_03") }
   @Test def test_multifile_facets_04() { runner.runOneTest("multifile_facets_04") }
- 
-//  @Test def test_double_nesting_01() { runner.runOneTest("double_nesting_01") }
+
+  @Test def test_double_nesting_01() { runner.runOneTest("double_nesting_01") }
+  
+  @Test def test_scope_01() { runner.runOneTest("scope_01") }
+  @Test def test_scope_02() { runner.runOneTest("scope_02") }
+  
+//  @Test def test_testing() { runner.runOneTest("testing") }
 
 }

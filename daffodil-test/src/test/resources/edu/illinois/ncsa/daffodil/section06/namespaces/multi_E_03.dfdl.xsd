@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://e03.com" xmlns:e03="http://e03.com" xmlns:f03="http://f03.com">
+ 
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:import namespace="http://f03.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_F_03.dfdl.xsd"/>
+
+  <xs:simpleType name="subBlahBase" dfdl:ref="f03:format_01" dfdl:terminator="(e)" >
+    <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+
+</xs:schema>
