@@ -22,9 +22,20 @@
 
 
 MAINCLASS=edu.illinois.ncsa.daffodil.Main
-BINDIR="$( cd "$( dirname "$0" )" && pwd )"
-LIBDIR=$(realpath "$BINDIR/../lib")
-CLASSPATH=$(find $LIBDIR -name '*.jar' | xargs echo | tr ' ' ':')
+BINDIR="$( dirname "$0" )"
+LIBDIR="$BINDIR/../lib"
+CLASSPATH=$LIBDIR/'*'
+
+if [ -n "$DAFFODIL_CLASSPATH" ]
+then
+	CLASSPATH="$CLASSPATH:$DAFFODIL_CLASSPATH"
+fi
+
+if uname -a | grep -qi cygwin
+then
+	# if run from cygwin, convert unix paths to windows paths
+	CLASSPATH=$(cygpath -pw "$CLASSPATH")
+fi
 
 JOPTS="-Xms1024m -Xmx1024m -XX:MaxPermSize=256m -XX:ReservedCodeCacheSize=128m"
 
@@ -34,4 +45,4 @@ elif [ -n "$JAVA_OPTS" ]; then
 	JOPTS="$JAVA_OPTS"
 fi
 
-exec java $JOPTS -cp "$CLASSPATH:$DAFFODIL_CLASSPATH" "$MAINCLASS" "$@"
+exec java $JOPTS -cp "$CLASSPATH" "$MAINCLASS" "$@"
