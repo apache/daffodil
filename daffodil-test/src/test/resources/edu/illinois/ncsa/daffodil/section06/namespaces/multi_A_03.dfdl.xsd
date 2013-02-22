@@ -4,16 +4,72 @@
  
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format separator="." lengthKind="delimited" ignoreCase="no" separatorPosition="infix" separatorPolicy="suppressed" leadingSkip='0' initiator="" terminator="" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
+      <dfdl:format separator="" ignoreCase="no" separatorPosition="infix" separatorPolicy="suppressed" leadingSkip='0' initiator="" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
     </xs:appinfo>
   </xs:annotation>
   
   <xs:import namespace="http://b03.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_03.dfdl.xsd"/>
 
-  <xs:element name="blahSequence">
+  <xs:element name="nestSequence" dfdl:terminator="">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|" dfdl:terminator="">
+        <xs:element ref="b03:nest" dfdl:lengthKind="delimited" dfdl:occursCountKind="parsed" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="nestSequence2" dfdl:terminator="">
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
-        <xs:element ref="b03:blah" dfdl:occursCountKind="parsed"/>
+        <xs:element ref="b03:nest2" dfdl:occursCountKind="parsed" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="nestSequence3" dfdl:terminator="">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|" dfdl:terminator="">
+        <xs:element ref="b03:nest3" dfdl:terminator="" dfdl:lengthKind="explicit" dfdl:occursCountKind="parsed" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="nestSequence4" dfdl:terminator="">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|" dfdl:terminator="">
+        <xs:element ref="b03:nest4" dfdl:terminator="" dfdl:lengthKind="explicit" dfdl:occursCountKind="parsed" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="nestSequence5" dfdl:terminator="">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element ref="b03:nest4" dfdl:occursCountKind="parsed" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="nestSequence6" dfdl:lengthKind="delimited" dfdl:terminator="">
+    <xs:complexType>
+      <xs:sequence dfdl:terminator="">
+        <xs:element ref="b03:nest5" dfdl:lengthKind="explicit"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="nestSequence6b" dfdl:lengthKind="delimited" dfdl:terminator="">
+    <xs:complexType>
+      <xs:sequence dfdl:terminator="">
+        <xs:element ref="b03:nest5b" dfdl:lengthKind="explicit"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="nestSequence7" dfdl:lengthKind="delimited" dfdl:terminator="">
+    <xs:complexType>
+      <xs:sequence dfdl:terminator="">
+        <xs:element dfdl:ref="b03:format05" dfdl:lengthKind="explicit"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

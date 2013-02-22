@@ -68,9 +68,14 @@ class TestNamespaces extends JUnitSuite {
   
   @Test def test_scope_01() { runner.runOneTest("scope_01") }
   @Test def test_scope_02() { runner.runOneTest("scope_02") }
-  
-//  @Test def test_testing() { runner.runOneTest("testing") }
 
-  // @Test def import_format_01() { runner.runOneTest("import_format_01") }
-  // @Test def import_format_02() { runner.runOneTest("import_format_02") }
+  @Test def test_long_chain_01() { runner.runOneTest("long_chain_01") }
+  @Test def test_long_chain_02() { runner.runOneTest("long_chain_02") }
+  @Test def test_long_chain_03() { runner.runOneTest("long_chain_03") }
+  @Test def test_long_chain_04() { runner.runOneTest("long_chain_04") }
+  @Test def test_long_chain_05() { runner.runOneTest("long_chain_05") }
+  @Test def test_long_chain_06() { runner.runOneTest("long_chain_06") }
+  @Test def test_long_chain_06b() { runner.runOneTest("long_chain_06b") }
+//  @Test def test_long_chain_07() { runner.runOneTest("long_chain_07") }
+
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testSuite suiteName="Namespaces"
   xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
 
   <tdml:parserTestCase name="Lesson2_no_namespace" root="address"
@@ -315,55 +314,221 @@
   </tdml:parserTestCase>
   
   <!--
-    Test name: 
-       Schema: 
-         Root: 
-      Purpose:  
+    Test name: long_chain_01
+       Schema: multi_base_03.dfdl.xsd
+         Root: rabbitHole
+      Purpose: This test demonstrates a long chain of declarations that gradually builds an element.
+               In Schema F, a format is defined.
+               In Schema E, a simpleType is declared that references the format in D.
+               In Schema D, a simpleType is declared that uses the simpleType in E as a restriction base.
+               In Schema C, a simpleType is declared that uses the simpleType in D as a restriction base.
+               In Schema B, an element is declared of the simpleType in C.
+               In Schema A, a sequence of B elements is declared
+               In Base Schema, a sequence of A sequences is declared.
   -->
   
-  <tdml:parserTestCase name="testing" root="rabbitHole"
+  <tdml:parserTestCase name="long_chain_01" root="rabbitHole"
     model="multi_base_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document><![CDATA[f:....53....(e)|f:..41..(e)]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <inty>1</inty>
+        <rabbitHole>
+          <nestSequence>
+            <nest>53</nest>
+            <nest>41</nest>
+          </nestSequence>
+        </rabbitHole>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: long_chain_02
+       Schema: multi_base_03.dfdl.xsd
+         Root: rabbitHole2
+      Purpose: This test demonstrates a long chain of declarations that gradually builds an element.
+                - In Schema F, a format is defined.
+                - In Schema E, a simpleType is declared that references the format in D.
+                - In Schema D, a simpleType is declared that uses the simpleType in E as a restriction base.
+                - In Schema C, a simpleType is declared that uses the simpleType in D as a restriction base.
+                - In Schema B, an element is declared of the simpleType in C.
+                - In Schema A, a sequence of B elements is declared
+                - In Base Schema, a sequence of A sequences is declared.
+               In this case, there are overlapping properties across files, and the error should be caught.
 
-  <tdml:parserTestCase name="import_format_01"
-    description="Imported Schema Format - Use imported schema's default format"
-    model="predefined_format.dfdl.xsd" root="seq_01">
-    <tdml:document>
-      <tdml:documentPart type="text">1,2,3</tdml:documentPart>
-    </tdml:document>
+  -->
+  
+  <tdml:parserTestCase name="long_chain_02" root="rabbitHole2"
+    model="multi_base_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[f:....53....(e)|f:..41..(e)]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Overlapping properties</tdml:error>
+      <tdml:error>textNumberPadCharacter overlaps between element.nest2 and simpleType.nestType.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: long_chain_03
+       Schema: multi_base_03.dfdl.xsd
+         Root: rabbitHole3
+      Purpose: This test demonstrates a long chain of declarations that gradually builds an element.
+                - In Schema F, a format is defined.
+                - In Schema E, a simpleType is declared that references the format in D.
+                - In Schema D, a simpleType is declared that uses the simpleType in E as a restriction base.
+                - In Schema C, a simpleType is declared that uses the simpleType in D as a restriction base.
+                - In Schema B, an element is declared of the simpleType in C.
+                - In Schema A, a sequence of B elements is declared
+                - In Base Schema, a sequence of A sequences is declared.
+               In this case, length is set to "4" by the global format in Schema C when nestType2 is defined, but lengthKind
+               isn't set until Schema A, where it is done locally on the reference to element B.
+
+  -->
+  
+  <tdml:parserTestCase name="long_chain_03" root="rabbitHole3"
+    model="multi_base_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[5632]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <seq_01>
-          <e1>1</e1>
-          <e2>2</e2>
-          <e3>3</e3>
-        </seq_01>
+        <rabbitHole3>
+          <nestSequence3>
+            <nest3>5632</nest3>
+          </nestSequence3>
+        </rabbitHole3>
       </tdml:dfdlInfoset>
-
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: long_chain_04
+       Schema: multi_base_03.dfdl.xsd
+         Root: rabbitHole4
+      Purpose: This test demonstrates a long chain of declarations that gradually builds an element.
+                - In Schema F, a format is defined.
+                - In Schema E, a simpleType is declared that references the format in D.
+                - In Schema D, a simpleType is declared that uses the simpleType in E as a restriction base.
+                - In Schema C, a simpleType is declared that uses the simpleType in D as a restriction base.
+                - In Schema B, an element is declared of the simpleType in C.
+                - In Schema A, a sequence of B elements is declared
+                - In Base Schema, a sequence of A sequences is declared.
+               In this case, length is set to "10" on the initial local format definition. Becuase of how scoping works, the
+               length is NOT changed to "4" by the global format in Schema C.
 
-  <tdml:parserTestCase name="import_format_02"
-    description="Imported Schema Format - Use default format except for overridden values"
-    model="predefined_format.dfdl.xsd" root="seq_02">
-    <tdml:document>
-      <tdml:documentPart type="text">98% 53% 100%</tdml:documentPart>
-    </tdml:document>
+  -->
+  
+  <tdml:parserTestCase name="long_chain_04" root="rabbitHole4"
+    model="multi_base_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[5632]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Insufficient Bits in field</tdml:error>
+      <tdml:error>required 80</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: long_chain_05
+       Schema: multi_base_03.dfdl.xsd
+         Root: rabbitHole5
+      Purpose: This test demonstrates a long chain of declarations that gradually builds an element.
+                - In Schema F, a format is defined.
+                - In Schema E, a simpleType is declared that references the format in D.
+                - In Schema D, a simpleType is declared that uses the simpleType in E as a restriction base.
+                - In Schema C, a simpleType is declared that uses the simpleType in D as a restriction base.
+                - In Schema B, an element is declared of the simpleType in C.
+                - In Schema A, a sequence of B elements is declared
+                - In Base Schema, a sequence of A sequences is declared.
+               In this case, lengthKind is never set and an error should be thrown.
+
+  -->
+  
+  <tdml:parserTestCase name="long_chain_05" root="rabbitHole5"
+    model="multi_base_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[5632]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error: Property lengthKind is not defined</tdml:error>
+      <tdml:error>Searched these locations</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: long_chain_06
+       Schema: multi_A_03.dfdl.xsd
+         Root: nestSequence6
+      Purpose: This test demonstrates a long chain of declarations that gradually builds an element.
+                - In Schema F, a format is defined.
+                - In Schema E, a simpleType is declared that references the format in D.
+                - In Schema D, a simpleType is declared that uses the simpleType in E as a restriction base.
+                - In Schema C, a simpleType is declared that uses the simpleType in D as a restriction base.
+                - In Schema B, an element is declared of the simpleType in C.
+                - In Schema A, a sequence of B elements is declared
+               In this case, each Schema file in the chain, starting at F, imposes its own terminator value, named
+               after the schema itself (Schema E's terminator is "E", B's is "B", etc.). Each time a new schema is used
+               in the chain, the separator is overwritten. Schema B is the last schema in the chain to set this value,
+               so the terminator for our data set will be "B".
+  -->
+  
+  <tdml:parserTestCase name="long_chain_06" root="nestSequence6"
+    model="multi_A_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[5632B]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <seq_02>
-          <e1>98</e1>
-          <e2>53</e2>
-          <e3>100</e3>
-        </seq_02>
+        <nestSequence6>
+          <nest5>5632</nest5>
+        </nestSequence6>
       </tdml:dfdlInfoset>
-
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: long_chain_06b
+       Schema: multi_A_03.dfdl.xsd
+         Root: nestSequence6b
+      Purpose: This test demonstrates a long chain of declarations that gradually builds an element.
+                - In Schema F, a format is defined.
+                - In Schema E, a simpleType is declared that references the format in D.
+                - In Schema D, a simpleType is declared that uses the simpleType in E as a restriction base.
+                - In Schema C, a simpleType is declared that uses the simpleType in D as a restriction base.
+                - In Schema B, an element is declared of the simpleType in C.
+                - In Schema A, a sequence of B elements is declared
+               In this case, each Schema file in the chain, starting at F, imposes its own terminator value, named
+               after the schema itself (Schema E's terminator is "E", B's is "B", etc.). However, in Schema C, a terminator
+               is defined on the simpleType itself, which takes precedence over global property definitions. Therefore, the
+               terminator will be "C!".
+  -->
+  
+  <tdml:parserTestCase name="long_chain_06b" root="nestSequence6b"
+    model="multi_A_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[5632C!]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nestSequence6b>
+          <nest5b>5632</nest5b>
+        </nestSequence6b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: long_chain_07
+       Schema: multi_A_03.dfdl.xsd
+         Root: nestSequence7
+      Purpose: This test demonstrates a long chain of declarations that gradually builds an element.
+                - In Schema F, a format is defined.
+                - In Schema A, a sequence of B elements that reference format F is declared
+               This is a test to see if I can access items in Schema F directly from Schema A because of the 
+               chain of imports.
+  -->
+  
+  <tdml:parserTestCase name="long_chain_07" root="nestSequence7"
+    model="multi_A_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[5632]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nestSequence6b>
+          <nest5b>5632</nest5b>
+        </nestSequence6b>
+      </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 

@@ -4,14 +4,38 @@
  
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format separator="." lengthKind="delimited" ignoreCase="no" separatorPosition="infix" separatorPolicy="suppressed" leadingSkip='0' initiator="" terminator="" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
+      <dfdl:format separator="" length="4" ignoreCase="no" separatorPosition="infix" separatorPolicy="suppressed" leadingSkip='0' initiator="" terminator="C" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
     </xs:appinfo>
   </xs:annotation>
   
   <xs:import namespace="http://d03.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_D_03.dfdl.xsd"/>
 
-  <xs:simpleType name="blahType" dfdl:textNumberPadCharacter=".">
-    <xs:restriction base="d03:blahBase"/>
+  <xs:simpleType name="nestType" dfdl:textNumberPadCharacter=".">
+    <xs:restriction base="d03:nestBase"/>
+  </xs:simpleType>
+  
+  <xs:simpleType name="nestType2">
+    <xs:restriction base="d03:nestBase2"/>
+  </xs:simpleType>
+  
+  <xs:simpleType name="nestType3">
+    <xs:restriction base="d03:nestBase3"/>
+  </xs:simpleType>
+  
+  <xs:simpleType name="nestType4">
+    <xs:restriction base="d03:nestBase4"/>
+  </xs:simpleType>
+  
+  <xs:simpleType name="nestType4b" dfdl:terminator="C!">
+    <xs:restriction base="d03:nestBase4">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:format>
+            <dfdl:property name="terminator">C!</dfdl:property>
+          </dfdl:format>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:restriction>
   </xs:simpleType>
 
 </xs:schema>

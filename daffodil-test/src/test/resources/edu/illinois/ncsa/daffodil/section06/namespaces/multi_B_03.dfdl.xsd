@@ -4,12 +4,19 @@
  
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format separator="." lengthKind="delimited" ignoreCase="no" separatorPosition="infix" separatorPolicy="suppressed" leadingSkip='0' initiator="" terminator="" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
+      <dfdl:format separator="" ignoreCase="no" separatorPosition="infix" separatorPolicy="suppressed" leadingSkip='0' initiator="" terminator="B" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
     </xs:appinfo>
   </xs:annotation>
   
   <xs:import namespace="http://c03.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_C_03.dfdl.xsd"/>
 
-  <xs:element name="blah" type="c03:blahType" textNumberJustification="center"/>
+  <xs:element name="nest" type="c03:nestType" dfdl:textNumberJustification="center"/>
+  
+  <xs:element name="nest2" type="c03:nestType" dfdl:textNumberPadCharacter="," dfdl:textNumberJustification="center"/>
+  
+  <xs:element name="nest3" type="c03:nestType2"/>
+  <xs:element name="nest4" type="c03:nestType3"/>
+  <xs:element name="nest5" type="c03:nestType4"/>
+  <xs:element name="nest5b" type="c03:nestType4b"/>
 
 </xs:schema>

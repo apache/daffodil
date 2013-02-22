@@ -4,17 +4,27 @@
  
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format ignoreCase="no" lengthKind="delimited" leadingSkip="0" representation="text"
+      <dfdl:format ignoreCase="no" terminator="D" leadingSkip="0" representation="text"
         textNumberRep="standard"/>
     </xs:appinfo>
   </xs:annotation>
   
   <xs:import namespace="http://e03.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_E_03.dfdl.xsd"/>
   
-  <xs:simpleType name="blahBase">
-    <xs:restriction base="e03:subBlahBase"/>
+  <xs:simpleType name="nestBase">
+    <xs:restriction base="e03:subNestBase"/>
   </xs:simpleType>
-
-  <xs:element name="test" type="d03:blahBase" dfdl:textNumberPadCharacter="." dfdl:textNumberJustification="center"/>
-
+  
+  <xs:simpleType name="nestBase2">
+    <xs:restriction base="e03:subNestBase2"/>
+  </xs:simpleType>
+  
+  <xs:simpleType name="nestBase3">
+    <xs:restriction base="e03:subNestBase3"/>
+  </xs:simpleType>
+  
+  <xs:simpleType name="nestBase4">
+    <xs:restriction base="e03:subNestBase4"/>
+  </xs:simpleType>
+  
 </xs:schema>

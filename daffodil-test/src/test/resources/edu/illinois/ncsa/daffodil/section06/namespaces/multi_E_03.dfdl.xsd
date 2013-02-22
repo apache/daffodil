@@ -4,14 +4,29 @@
  
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format/>
+      <dfdl:format terminator="E"/>
     </xs:appinfo>
   </xs:annotation>
   
   <xs:import namespace="http://f03.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_F_03.dfdl.xsd"/>
 
-  <xs:simpleType name="subBlahBase" dfdl:ref="f03:format_01" dfdl:terminator="(e)" >
+  <xs:simpleType name="subNestBase" dfdl:ref="f03:format_01" dfdl:terminator="(e)" >
     <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+  
+  <xs:simpleType name="subNestBase2" dfdl:ref="f03:format_02" >
+    <xs:restriction base="xs:string">
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="subNestBase3" dfdl:ref="f03:format_03" >
+    <xs:restriction base="xs:string">
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="subNestBase4" dfdl:ref="f03:format_04" >
+    <xs:restriction base="xs:string">
+    </xs:restriction>
   </xs:simpleType>
 
 </xs:schema>

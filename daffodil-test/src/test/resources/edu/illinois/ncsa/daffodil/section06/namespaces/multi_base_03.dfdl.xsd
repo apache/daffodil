@@ -14,9 +14,41 @@
   <xs:element name="rabbitHole">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="a03:blahSequence"/>
+        <xs:element ref="a03:nestSequence"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-
+  
+  <xs:element name="rabbitHole2">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="a03:nestSequence2"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="rabbitHole3">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="a03:nestSequence3"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="rabbitHole4">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="a03:nestSequence4"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="rabbitHole5">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="a03:nestSequence5"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
 </xs:schema>
