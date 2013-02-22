@@ -51,7 +51,6 @@ class TestNillableDebug extends JUnitSuite {
   val aa = testDir + "nillable.tdml"
   lazy val runnerAA = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_litNil7() { runnerAA.runOneTest("litNil7") }
   @Test def test_empty_infoset() { runnerAA.runOneTest("empty_infoset") }
   
   val ln = testDir + "literal-value-nils.tdml"

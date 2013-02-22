@@ -58,6 +58,7 @@ class TestNillable extends JUnitSuite {
   @Test def test_litNil4b() { runnerAA.runOneTest("litNil4b") }
   @Test def test_litNil5() { runnerAA.runOneTest("litNil5") }
   @Test def test_litNil6() { runnerAA.runOneTest("litNil6") }
+  @Test def test_litNil7() { runnerAA.runOneTest("litNil7") }
   @Test def test_missing_scalar() { runnerAA.runOneTest("missing_scalar") }
   @Test def test_nillable1() { runnerAA.runOneTest("nillable1") }
 
