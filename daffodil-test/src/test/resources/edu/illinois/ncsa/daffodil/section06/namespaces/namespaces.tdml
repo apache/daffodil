@@ -531,5 +531,37 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: namespace_conflict_01
+       Schema: multi_base_04.dfdl.xsd
+         Root: aSeq
+      Purpose: This test demonstrates a chain of declarations that gradually builds an element.
+                - In Schema C, a simpleType is declared and an element defined of that type.
+                - In Schema B, a sequence of 3 C elements is declared
+                - In Base Schema, a sequence of sequence B is declared
+               This is a test to see how having the same prefix set to multiple URIs across schemas is handled.
+  -->
+  
+  <tdml:parserTestCase name="namespace_conflict_01" root="aSeq"
+    model="multi_base_04.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[12345.123456.323|13222.764536.400]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <aSeq>
+          <bSeq>
+            <cElem>12345</cElem>
+            <cElem>123456</cElem>
+            <cElem>323</cElem>
+          </bSeq>
+          <bSeq>
+            <cElem>13222</cElem>
+            <cElem>764536</cElem>
+            <cElem>400</cElem>
+          </bSeq>
+        </aSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </testSuite>

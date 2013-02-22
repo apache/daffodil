@@ -77,5 +77,6 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_long_chain_06() { runner.runOneTest("long_chain_06") }
   @Test def test_long_chain_06b() { runner.runOneTest("long_chain_06b") }
 //  @Test def test_long_chain_07() { runner.runOneTest("long_chain_07") }
-
+  
+//  @Test def test_namespace_conflict_01() { runner.runOneTest("namespace_conflict_01") }
 }

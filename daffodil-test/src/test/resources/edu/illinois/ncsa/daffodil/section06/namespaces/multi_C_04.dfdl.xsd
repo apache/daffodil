@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://c04.com" xmlns:foo="http://c04.com">
+ 
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <xs:format separator=""/>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:simpleType name="cType">
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="300"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="cElem" type="foo:cType" dfdl:lengthKind="explicit"/> 
+ 
+</xs:schema>
