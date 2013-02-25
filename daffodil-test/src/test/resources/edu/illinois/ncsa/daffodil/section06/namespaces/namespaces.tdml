@@ -563,5 +563,54 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: no_namespace_01
+       Schema: multi_base_05_nons.dfdl.xsd
+         Root: baseSeq
+      Purpose: This test demonstrates a chain of declarations that gradually builds an element.
+                - In Schema C, a string element is declared with a pattern restriction 
+                - In Schema B, a comma-separated sequence of C elements is declared
+                - In Base Schema, a pipe-separated sequence of B sequences is declared
+               This is a test to demonstrate how inheritance works when no namespaces are defined.
+  -->
+  
+  <tdml:parserTestCase name="no_namespace_01" root="baseSeq"
+    model="multi_base_05_nons.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[333,421,234|123,123,123,123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <baseSeq>
+          <bSeq>
+            <cElem>333</cElem>
+            <cElem>421</cElem>
+            <cElem>234</cElem>
+          </bSeq>
+          <bSeq>
+            <cElem>123</cElem>
+            <cElem>123</cElem>
+            <cElem>123</cElem>
+            <cElem>123</cElem>
+          </bSeq>
+        </baseSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: no_namespace_02
+       Schema: multi_base_05_nons.dfdl.xsd
+         Root: vagueBase
+      Purpose: This is a test to demonstrate how the parser handles duplicate element names across
+               schemas with no namespaces
+  -->
+  
+  <tdml:parserTestCase name="no_namespace_02" root="vagueBase"
+    model="multi_base_05_nons.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[333]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </testSuite>

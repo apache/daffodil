@@ -49,6 +49,11 @@ class TestNamespacesDebug extends JUnitSuite {
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
+  @Test def test_namespace_conflict_01() { runner.runOneTest("namespace_conflict_01") }
   @Test def test_double_nesting_01() { runner.runOneTest("double_nesting_01") }
+  @Test def test_long_chain_07() { runner.runOneTest("long_chain_07") }
+//  @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }
+  
+  @Test def test_no_namespace_02() { runner.runOneTest("no_namespace_02") }
 
 }

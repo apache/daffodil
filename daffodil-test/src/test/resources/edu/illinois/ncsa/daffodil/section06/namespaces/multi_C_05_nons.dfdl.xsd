@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="cElem" dfdl:lengthKind="delimited">
+    <xs:annotation>
+      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+          message="Assertion failed for dfdl:checkConstraints(.)" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:pattern value="[0-5]{3}" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element> 
+ 
+  <xs:element name="vagueElem" type="xs:int"/>
+  
+</xs:schema>
