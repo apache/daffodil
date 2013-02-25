@@ -43,7 +43,7 @@
   <xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
       <dfdl:defineFormat name="format_05">
-        <dfdl:format initiator="" terminator="F!" encoding="ASCII" representation="text" lengthUnits="characters"/>
+        <dfdl:format initiator="" length="6" terminator="F!" encoding="ASCII" representation="text" lengthUnits="characters"/>
       </dfdl:defineFormat>
     </xs:appinfo>
   </xs:annotation>

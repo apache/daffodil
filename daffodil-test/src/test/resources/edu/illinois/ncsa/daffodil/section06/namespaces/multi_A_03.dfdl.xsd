@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-   targetNamespace="http://a03.com" xmlns:a03="http://a03.com" xmlns:b03="http://b03.com">
+   targetNamespace="http://a03.com" xmlns:a03="http://a03.com" xmlns:b03="http://b03.com" xmlns:f03="http://f03.com">
  
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -69,7 +69,7 @@
   <xs:element name="nestSequence7" dfdl:lengthKind="delimited" dfdl:terminator="">
     <xs:complexType>
       <xs:sequence dfdl:terminator="">
-        <xs:element dfdl:ref="b03:format05" dfdl:lengthKind="explicit"/>
+        <xs:element name="elem" type="xs:string" dfdl:ref="f03:format_05" dfdl:lengthKind="explicit"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

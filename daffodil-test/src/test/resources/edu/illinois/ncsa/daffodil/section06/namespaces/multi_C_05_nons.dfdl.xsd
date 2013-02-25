@@ -8,6 +8,9 @@
       <dfdl:defineFormat name="pipes">
         <dfdl:format separator="|" initiator="||" terminator="|||"/>
       </dfdl:defineFormat>
+      <dfdl:defineFormat name="pipes2">
+        <dfdl:format separator="|" initiator="||" terminator="|||"/>
+      </dfdl:defineFormat>
     </xs:appinfo>
   </xs:annotation>
 

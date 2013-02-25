@@ -522,12 +522,12 @@
   
   <tdml:parserTestCase name="long_chain_07" root="nestSequence7"
     model="multi_A_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
-    <tdml:document><![CDATA[5632]]></tdml:document>
+    <tdml:document><![CDATA[345432F!]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <nestSequence6b>
-          <nest5b>5632</nest5b>
-        </nestSequence6b>
+        <nestSequence7>
+          <elem>345432</elem>
+        </nestSequence7>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -623,10 +623,33 @@
   
   <tdml:parserTestCase name="no_namespace_03" root="baseSeq2"
     model="multi_base_05_nons.dfdl.xsd" description="import a schema - DFDL-6-007R">
-    <tdml:document><![CDATA[333]]></tdml:document>
+    <tdml:document><![CDATA[||333|||.||343|||]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>More than one definition for name: pipes</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: no_namespace_04
+       Schema: multi_base_05_nons.dfdl.xsd
+         Root: baseSeq2b
+      Purpose: This is a test to demonstrate how the parser handles referencing formats across
+               schemas with no namespaces, when there is a name conflict between formats in separate
+               files.
+  -->
+  
+  <tdml:parserTestCase name="no_namespace_04" root="baseSeq2b"
+    model="multi_base_05_nons.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[||333|||.||343|||]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <baseSeq2b>
+          <elem>333</elem>
+          <elem>343</elem>
+        </baseSeq2b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </testSuite>
