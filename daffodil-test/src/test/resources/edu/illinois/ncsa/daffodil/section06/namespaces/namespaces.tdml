@@ -612,5 +612,21 @@
       <tdml:error>Placeholder</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: no_namespace_03
+       Schema: multi_base_05_nons.dfdl.xsd
+         Root: baseSeq2
+      Purpose: This is a test to demonstrate how the parser handles referencing formats across
+               schemas with no namespaces
+  -->
+  
+  <tdml:parserTestCase name="no_namespace_03" root="baseSeq2"
+    model="multi_base_05_nons.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[333]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </testSuite>

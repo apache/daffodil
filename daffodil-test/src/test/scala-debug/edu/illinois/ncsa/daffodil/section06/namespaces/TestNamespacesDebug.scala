@@ -55,5 +55,6 @@ class TestNamespacesDebug extends JUnitSuite {
 //  @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }
   
   @Test def test_no_namespace_02() { runner.runOneTest("no_namespace_02") }
+  @Test def test_no_namespace_03() { runner.runOneTest("no_namespace_03") }
 
 }

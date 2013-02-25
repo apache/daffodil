@@ -83,4 +83,6 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_no_namespace_01() { runner.runOneTest("no_namespace_01") }
 //  @Test def test_no_namespace_02() { runner.runOneTest("no_namespace_02") }
 
+//  @Test def test_no_namespace_03() { runner.runOneTest("no_namespace_03") }
+
 }
