@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
+      <dfdl:defineFormat name="dateNoTZ">
+        <dfdl:format calendarLanguage="en" calendarFirstDayOfWeek="Sunday" calendarDaysInFirstWeek="4" calendarCheckPolicy="lax"/>
+      </dfdl:defineFormat>
+      <dfdl:defineFormat name="dateTZ">
+        <dfdl:format ref="dateNoTZ" calendarTimeZone="UTC"/>
+      </dfdl:defineFormat>
+      <dfdl:defineFormat name="dateTZtypo">
+        <dfdl:format ref="dateNoTZ" calendarTimeZone="5 o'clock somewhere"/>
+      </dfdl:defineFormat>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="cElem" type="xs:string" dfdl:initiator="c:"/>
+
+</xs:schema>

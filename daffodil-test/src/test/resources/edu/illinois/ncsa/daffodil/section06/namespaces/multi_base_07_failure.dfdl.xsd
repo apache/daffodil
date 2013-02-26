@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://baseSchema.com" xmlns:base="http://baseSchema.com" xmlns:b06="http://b06.com">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="'" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        separatorPosition="infix" ignoreCase="no" separatorPolicy="suppressed" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+   
+  <xs:import namespace="http://b00.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_06.dfdl.xsd"/>
+
+  <xs:element name="elem" type="xs:int"/>
+ 
+</xs:schema>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testSuite suiteName="Namespaces"
   xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
 
   <tdml:parserTestCase name="Lesson2_no_namespace" root="address"
     model="address_no_namespace.dfdl.xsd" description="dfdl namespace - DFDL-6-002R">
@@ -650,6 +650,120 @@
         </baseSeq2b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: combinations_01
+       Schema: multi_base_06.dfdl.xsd
+         Root: baseSeq
+      Purpose: This schema setup demonstrates a combination of various mult-file schema setup configurations
+                Schema C defines 3 formats and does not contain a namespace. It also lives within a subfolder of the primary test folder.
+                Schema B includes Schema C and has a namespace. It defines 3 date elements that each reference a different format in Schema C.
+                Schema A defines a sequence group and does not have a targetNamespace. One of the group's elements is an element from Schema C.
+                Base Schema includes Schema A and imports Schema B. It defines several sequence of the hidden group from Schema A, and each has
+                  a different date element from Schema B.
+               In this test, calendarTimeZone is not set in the format used, and the error should convey which schema components were checked for this property. 
+  -->
+  
+  <tdml:parserTestCase name="combinations_01" root="baseSeq"
+    model="multi_base_06.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[these.hidden.objs.1234.()()()()().abc.done|03-24-1988]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error: Property calendarTimeZone is not defined</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: combinations_02
+       Schema: multi_base_06.dfdl.xsd
+         Root: baseSeq2
+      Purpose: This schema setup demonstrates a combination of various multi-file schema setup configurations
+                Schema C defines 3 formats and does not contain a namespace. It also lives within a subfolder of the primary test folder.
+                Schema B includes Schema C and has a namespace. It defines 3 date elements that each reference a different format in Schema C.
+                Schema A defines a sequence group and does not have a targetNamespace. One of the group's elements is an element from Schema C.
+                Base Schema includes Schema A and imports Schema B. It defines several sequence of the hidden group from Schema A, and each has
+                  a different date element from Schema B.
+               In this test, calendarTimeZone has an invalid value, and the error should point to the file where this is an issue.
+  -->
+  
+  <tdml:parserTestCase name="combinations_02" root="baseSeq2"
+    model="multi_base_06.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[these.hidden.objs.1234.()()()()().abc.done|03-24-1988]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unknown timezone specified for dfdl:calendarTimeZone</tdml:error>
+      <tdml:error>Schema context: element.date2</tdml:error>
+      <tdml:error>Location in file:</tdml:error>
+      <tdml:error>daffodil/section06/namespaces/multi_B_06.dfdl.xsd</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: combinations_03
+       Schema: multi_base_06.dfdl.xsd
+         Root: baseSeq3
+      Purpose: This schema setup demonstrates a combination of various multi-file schema setup configurations
+                Schema C defines 3 formats and does not contain a namespace. It also lives within a subfolder of the primary test folder.
+                Schema B includes Schema C and has a namespace. It defines 3 date elements that each reference a different format in Schema C.
+                Schema A defines a sequence group and does not have a targetNamespace. One of the group's elements is an element from Schema C.
+                Base Schema includes Schema A and imports Schema B. It defines several sequence of the hidden group from Schema A, and each has
+                  a different date element from Schema B.
+               In this test, everything is set up correctly and the data should be parsed without error.
+  -->
+  
+  <tdml:parserTestCase name="combinations_03" root="baseSeq3"
+    model="multi_base_06.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[these.hidden.objs.1234.()()()()().abc.c:done|03-24-1988]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <baseSeq3>
+          <date3>1988-03-24</date3>
+        </baseSeq3> 
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: combinations_04
+       Schema: multi_base_06.dfdl.xsd
+         Root: baseSeq4
+      Purpose: This schema setup demonstrates a combination of various multi-file schema setup configurations
+                Schema C defines a string element with an initiator. It also lives within a subfolder of the primary test folder.
+                Schema B includes Schema C and has a targetNamespace.
+                Schema A includes Schema C and does not have a targetNamespace
+                Base Schema includes Schema A and imports Schema B. It defines a sequence of two elements that each reference the 
+                  element in Schema C. One is referenced through Schema B and uses the namespace of B. The other references it through
+                  Schema A, and uses the base namespace since A has none. Each element is then modified with a unique terminator.
+               In this test, everything is set up correctly and the data should be parsed without error.
+  -->
+  
+  <tdml:parserTestCase name="combinations_04" root="baseSeq4"
+    model="multi_base_06.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[c:one{|c:two}]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <baseSeq4>
+          <cElem>one</cElem>
+          <cElem>two</cElem>
+        </baseSeq4> 
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: negative_import_01
+       Schema: multi_base_07_failure.dfdl.xsd
+         Root: elem
+      Purpose: This schema setup demonstrates a combination of various multi-file schema setup configurations
+  -->
+  
+  <tdml:parserTestCase name="negative_import_01" root="elem"
+    model="multi_base_07_failure.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[1]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error> Import element specifies namespace http://b00.com but namespace http://b06.com of imported schema does not match</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </testSuite>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://b06.com" xmlns:b06="http://b06.com">
+ 
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" representation="text" textNumberRep="standard" encoding="US-ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/subfolder/multi_C_06_nons.dfdl.xsd"/>
+
+  <xs:element name="date" type="xs:date" dfdl:ref="b06:dateNoTZ" dfdl:calendarPattern="MM-dd-yyyy" dfdl:calendarPatternKind="explicit"/>
+  <xs:element name="date2" type="xs:date" dfdl:ref="b06:dateTZtypo" dfdl:calendarPattern="MM-dd-yyyy" dfdl:calendarPatternKind="explicit"/>
+  <xs:element name="date3" type="xs:date" dfdl:ref="b06:dateTZ" dfdl:calendarPattern="MM-dd-yyyy" dfdl:calendarPatternKind="explicit"/>
+ 
+</xs:schema>

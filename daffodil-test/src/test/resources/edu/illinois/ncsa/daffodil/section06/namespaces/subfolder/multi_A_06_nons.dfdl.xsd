@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:base="http://baseSchema.com">
+ 
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" lengthKind="delimited" lengthUnits="characters" representation="text" textNumberRep="standard" encoding="US-ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/subfolder/multi_C_06_nons.dfdl.xsd"/>
+
+  <xs:group name="aGroup">
+    <xs:sequence dfdl:separator=".">
+      <xs:element name="aMem01" type="xs:string"/>
+      <xs:element name="aMem02" type="xs:string"/>
+      <xs:element name="aMem03" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4"/>
+      <xs:element name="aMem04" type="xs:int"/>
+      <xs:element name="aMem05" type="xs:string"/>
+      <xs:element name="aMem06" type="xs:string"/>
+      <xs:element ref="base:cElem"/>
+    </xs:sequence>
+  </xs:group>
+ 
+</xs:schema>
