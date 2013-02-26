@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://b08.com" xmlns:b08="http://b08.com" xmlns:c08="http://c08.com">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="'" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        separatorPosition="infix" ignoreCase="no" separatorPolicy="suppressed" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:import namespace="http://c08.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_C_08.dfdl.xsd"/>
+
+  <xs:element name="bElem" type="c08:cString">
+    <xs:annotation>
+      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+          message="Assertion failed for dfdl:checkConstraints(.)"/>
+      </xs:appinfo>
+    </xs:annotation>
+  </xs:element>
+ 
+</xs:schema>
