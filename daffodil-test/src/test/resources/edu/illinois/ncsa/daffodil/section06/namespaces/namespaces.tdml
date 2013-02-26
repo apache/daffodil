@@ -692,9 +692,8 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Unknown timezone specified for dfdl:calendarTimeZone</tdml:error>
-      <tdml:error>Schema context: element.date2</tdml:error>
       <tdml:error>Location in file:</tdml:error>
-      <tdml:error>daffodil/section06/namespaces/multi_B_06.dfdl.xsd</tdml:error>
+      <tdml:error>daffodil/section06/namespaces/subfolder/multi_C_06.dfdl.xsd</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -754,7 +753,7 @@
     Test name: negative_import_01
        Schema: multi_base_07_failure.dfdl.xsd
          Root: elem
-      Purpose: This schema setup demonstrates a combination of various multi-file schema setup configurations
+      Purpose: In this test the schema attempts to import a namespace that does not exist and should fail accordingly.
   -->
   
   <tdml:parserTestCase name="negative_import_01" root="elem"

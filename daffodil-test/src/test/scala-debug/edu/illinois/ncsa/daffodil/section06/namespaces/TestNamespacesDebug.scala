@@ -56,4 +56,6 @@ class TestNamespacesDebug extends JUnitSuite {
   @Test def test_no_namespace_02() { runner.runOneTest("no_namespace_02") }
   @Test def test_no_namespace_03() { runner.runOneTest("no_namespace_03") }
 
+  @Test def test_combinations_02() { runner.runOneTest("combinations_02") }
+
 }
