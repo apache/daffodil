@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
@@ -63,6 +62,7 @@ trait InStream {
   def reader: Option[DFDLCharReader]
 
   def withPos(newBitPos: Long, newCharPos: Long, newReader: Option[DFDLCharReader]): InStream
+  def withPos(newBitPos: Long, newCharPos: Long): InStream
   def withEndBitLimit(newBitLimit: Long): InStream
 
   /**
@@ -89,7 +89,8 @@ trait InStream {
 
   def getCharReader(charset: Charset, bitPos: Long): DFDLCharReader
 
-  def getAllBytes: Array[Byte]
+  // Removed: bad idea. Makes copy of entire input
+  // def getAllBytes: Array[Byte]
 }
 
 /**
@@ -99,12 +100,15 @@ case class InStreamFromByteChannel private (val context: ElementBase,
                                             val byteReader: DFDLByteReader,
                                             val bitPos: Long,
                                             val bitLimit: Long,
-                                            val charPos: Long,
                                             val charLimit: Long,
-                                            val reader: Option[DFDLCharReader])
+                                            var reader: Option[DFDLCharReader])
   extends InStream
   with Logging
   with WithParseErrorThrowing {
+
+  // Let's eliminate duplicate information between charPos of the PState, the
+  // InStream, and the Reader. It's the reader, and only the reader.
+  def charPos = reader.map { _.characterPos }.getOrElse(-1).toLong
   // 
   // the reason for the private constructor above, and this public constructor is that the methods 
   // of this class should NOT have access to the DFDL.Input argument 'in', but only to the DFDLByteReader
@@ -112,11 +116,33 @@ case class InStreamFromByteChannel private (val context: ElementBase,
   // 
   // This guarantees then that nobody is doing I/O by going around the DFDLByteReader layer.
   //
-  def this(context: ElementBase, in: DFDL.Input, bitOffset: Long, bitLimit: Long) =
-    this(context, new DFDLByteReader(in), bitOffset, bitLimit, -1, -1, None)
+  def this(context: ElementBase, inArg: DFDL.Input, bitOffset: Long, bitLimit: Long) =
+    this(context, new DFDLByteReader(inArg), bitOffset, bitLimit, -1, None)
 
   def withPos(newBitPos: Long, newCharPos: Long, newReader: Option[DFDLCharReader]): InStream = {
-    copy(bitPos = newBitPos, charPos = newCharPos, reader = newReader)
+    Assert.invariant((newCharPos == -1 && (newReader == None)) || (newCharPos > -1 && !(newReader == None)))
+    //    newReader.foreach { rdr =>
+    //      if (rdr.characterPos != newCharPos)
+    //        println("withPos newCharPos of %s not same as reader characterPos of %s".format(newCharPos, rdr.characterPos))
+    //    }
+    copy(bitPos = newBitPos, reader = newReader.map { _.atCharPos(newCharPos.toInt) })
+  }
+
+  def withPos(newBitPos: Long, newCharPos: Long): InStream = {
+    val rdr = reader match {
+      case None => {
+        //        if (newCharPos != -1)
+        //          println("withPos setting newCharPos to value %s when there is no reader".format(newCharPos))
+        None
+      }
+      case Some(rdr) if (newCharPos == -1) => None
+      case Some(rdr) => {
+        // if (rdr.characterPos != newCharPos)
+        // println("withPos newCharPos of %s not same as reader characterPos of %s".format(newCharPos, rdr.characterPos))
+        Some(rdr.atCharPos(newCharPos.toInt)) // TODO: 32-bit offset limit! (not our fault)
+      }
+    }
+    copy(bitPos = newBitPos, reader = rdr)
   }
 
   def withEndBitLimit(newBitLimit: Long): InStream = {
@@ -124,7 +150,30 @@ case class InStreamFromByteChannel private (val context: ElementBase,
   }
 
   def getCharReader(charset: Charset, bitPos: Long): DFDLCharReader = {
-    byteReader.newCharReader(charset, bitPos, bitLimit)
+    val rdr = reader match {
+      case None => {
+        // println("Miss: no reader found in PState")
+        byteReader.newCharReader(charset, bitPos, bitLimit)
+      }
+      case Some(rdr) => {
+        rdr.charset match {
+          case `charset` => {
+            // println("getCharReader: rdr.bitLimit = " + rdr.bitLimit + " inStream bitLimit = " + bitLimit)
+            if (rdr.bitLimit >= bitLimit)
+              rdr.atBitPos(bitPos) // use same reader. Just adjust the bitLimit
+            else
+              byteReader.newCharReader(charset, bitPos, bitLimit)
+          }
+          case _ => {
+            Assert.invariant(rdr.charset.name() != charset.name())
+            //println("Miss: wrong character set encoding.")
+            byteReader.newCharReader(charset, bitPos, bitLimit)
+          }
+        }
+      }
+    }
+    reader = Some(rdr) // cache the reader in the InStream so it will be here again if needed.
+    rdr
   }
 
   private val emptyByteArray = Array[Byte]()
@@ -139,11 +188,12 @@ case class InStreamFromByteChannel private (val context: ElementBase,
     }
 
   }
-  
-   def getAllBytes: Array[Byte] = {
-     val bb = byteReader.bb
-     bb.array()
-   }
+
+  // Removed: Bad idea. Makes copy of entire input
+  //  def getAllBytes: Array[Byte] = {
+  //    val bb = byteReader.bb
+  //    bb.array()
+  //  }
 
   private def asUnsignedByte(b: Byte): Int = if (b < 0) 256 + b else b
   private def asSignedByte(i: Int) = {
@@ -170,24 +220,9 @@ case class InStreamFromByteChannel private (val context: ElementBase,
   private def getByteAlignedBytes(bytePos: Long, numBytes: Long): Array[Byte] = {
     Assert.usage(numBytes <= Int.MaxValue, "32-bit limit on number of bytes (due to underlying libraries restriction.)")
     Assert.usage(bytePos <= Int.MaxValue, "32-bit limit on byte position (due to underlying libraries restriction.)")
-    val bb = byteReader.bb
-    bb.position(bytePos.toInt)
-    val result: Array[Byte] = new Array[Byte](numBytes.toInt)
-    bb.get(result, 0, numBytes.toInt)
-    result
+    val res = byteReader.getByteArray(bytePos.toInt, numBytes.toInt)
+    res
   }
-
-  // TODO: remove entirely
-  //  def getBytesRemaining(bitPos: Long): Array[Byte] = {
-  //    Assert.invariant(bitPos % 8 == 0)
-  //    val bytePos = (bitPos >> 3).toInt
-  //    val bb = byteReader.bb
-  //    bb.position(bytePos)
-  //    val numBytesRemaining = bb.remaining()
-  //    val result: Array[Byte] = new Array[Byte](numBytesRemaining)
-  //    bb.get(result, 0, numBytesRemaining)
-  //    result
-  //  }
 
   abstract class EndianTraits(val startBit: Long, val bitCount: Long) {
     lazy val byteLength = 8.toLong
@@ -301,7 +336,7 @@ case class InStreamFromByteChannel private (val context: ElementBase,
     Assert.invariant(shift >= 0 && shift + bitCount <= 8)
     val bytePos = (bitPos >>> 3).toInt
     val bitOffset = (bitPos % 8).toByte
-    var result: Int = byteReader.bb.get(bytePos)
+    var result: Int = byteReader.getByte(bytePos)
     result = if (result < 0) 256 + result else result
 
     if (bitCount != 8) {
@@ -326,7 +361,7 @@ case class InStreamFromByteChannel private (val context: ElementBase,
   def checkBounds(bitStart: Long, bitLength: Long) {
     if (bitLimit > -1)
       if (!(bitStart + bitLength <= bitLimit))
-        throw new java.nio.BufferUnderflowException()
+        throw new IndexOutOfBoundsException("bitStart: %s bitLength: %s".format(bitStart, bitLength))
   }
 
   // This still requires alignment, and that a whole byte is available
@@ -336,11 +371,11 @@ case class InStreamFromByteChannel private (val context: ElementBase,
     getRawByte(bitPos, order)
   }
 
-  def getRawByte(bitPos: Long, order: java.nio.ByteOrder) = {
+  def getRawByte(bitPos: Long, ignored: java.nio.ByteOrder) = {
     Assert.usage(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
-    byteReader.bb.order(order)
-    byteReader.bb.get(bytePos) // NOT called getByte(pos)
+    // byteReader.bb.order(order) // must be aligned, so byte order is irrelevant.
+    byteReader.getByte(bytePos) // NOT called getByte(pos)
   }
 
   // Let's not actually shorten the stream. There are too many 

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section06.namespaces
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
@@ -43,6 +42,7 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestNamespaces extends JUnitSuite {
   val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
@@ -53,19 +53,19 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_Lesson2_include_schema() { runner.runOneTest("Lesson2_include_schema") }
   @Test def test_Lesson2_import_schema() { runner.runOneTest("Lesson2_import_schema") }
 
-//  @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }
+  //  @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }
   @Test def test_multifile_choice_01() { runner.runOneTest("multifile_choice_01") }
   @Test def test_multifile_choice_02() { runner.runOneTest("multifile_choice_02") }
-//  @Test def test_multifile_choice_02b() { runner.runOneTest("multifile_choice_02b") }
+  //  @Test def test_multifile_choice_02b() { runner.runOneTest("multifile_choice_02b") }
   @Test def test_multifile_choice_03() { runner.runOneTest("multifile_choice_03") }
-  
+
   @Test def test_multifile_facets_01() { runner.runOneTest("multifile_facets_01") }
   @Test def test_multifile_facets_02() { runner.runOneTest("multifile_facets_02") }
   @Test def test_multifile_facets_03() { runner.runOneTest("multifile_facets_03") }
   @Test def test_multifile_facets_04() { runner.runOneTest("multifile_facets_04") }
 
   @Test def test_double_nesting_01() { runner.runOneTest("double_nesting_01") }
-  
+
   @Test def test_scope_01() { runner.runOneTest("scope_01") }
   @Test def test_scope_02() { runner.runOneTest("scope_02") }
 
@@ -77,24 +77,24 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_long_chain_06() { runner.runOneTest("long_chain_06") }
   @Test def test_long_chain_06b() { runner.runOneTest("long_chain_06b") }
   @Test def test_long_chain_07() { runner.runOneTest("long_chain_07") }
-  
+
   @Test def test_no_namespace_01() { runner.runOneTest("no_namespace_01") }
-//  @Test def test_no_namespace_02() { runner.runOneTest("no_namespace_02") }
+  //  @Test def test_no_namespace_02() { runner.runOneTest("no_namespace_02") }
   @Test def test_no_namespace_03() { runner.runOneTest("no_namespace_03") }
   @Test def test_no_namespace_04() { runner.runOneTest("no_namespace_04") }
-  
-//  @Test def test_namespace_conflict_01() { runner.runOneTest("namespace_conflict_01") }
+
+  //  @Test def test_namespace_conflict_01() { runner.runOneTest("namespace_conflict_01") }
 
   @Test def test_combinations_01() { runner.runOneTest("combinations_01") }
-//  @Test def test_combinations_02() { runner.runOneTest("combinations_02") }
+  //  @Test def test_combinations_02() { runner.runOneTest("combinations_02") }
   @Test def test_combinations_03() { runner.runOneTest("combinations_03") }
   @Test def test_combinations_04() { runner.runOneTest("combinations_04") }
   @Test def test_negative_import_01() { runner.runOneTest("negative_import_01") }
-  
+
   @Test def test_multi_encoding_01() { runner.runOneTest("multi_encoding_01") }
-//  @Test def test_multi_encoding_02() { runner.runOneTest("multi_encoding_02") }
+  //  @Test def test_multi_encoding_02() { runner.runOneTest("multi_encoding_02") }
   @Test def test_multi_encoding_03() { runner.runOneTest("multi_encoding_03") }
-//  @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
+  //  @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
 
   // Preliminary tests for import format schemas
   //@Test def test_import_format_01() { runner.runOneTest("import_format_01") }

@@ -32,12 +32,11 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import scala.annotation.migration
 import scala.collection.mutable.Queue
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.parsing.input.Reader
-import edu.illinois.ncsa.daffodil.processors.DelimiterType.DelimiterType
+import edu.illinois.ncsa.daffodil.processors.DelimiterType._
 import edu.illinois.ncsa.daffodil.processors.DelimiterLocation.DelimiterLocation
 import scala.util.matching.Regex
 import java.nio.charset.Charset
@@ -46,37 +45,66 @@ import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Debug
 import edu.illinois.ncsa.daffodil.dsom.AnnotatedSchemaComponent
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.util.Info
 
 object TextJustificationType extends Enumeration {
   type Type = Value
   val None, Left, Right, Center = Value
 }
 
-class DelimParseResult {
-  var field: String = ""
-  var isSuccess: Boolean = false
-  var delimiter: String = ""
-  var delimiterType: DelimiterType = DelimiterType.Delimiter
-  var delimiterLoc: DelimiterLocation = DelimiterLocation.Local
-  var numBits: Int = 0
-  var numCharsRead: Int = 0 // Number of characters read
-
-  def apply(pField: String, pIsSuccess: Boolean, pDelimiter: String, pDelimiterType: DelimiterType, pNumBits: Int, pDelimiterLoc: DelimiterLocation = DelimiterLocation.Local) = {
-    field = pField // The parsed field
-    isSuccess = pIsSuccess // parse success or failure
-    delimiter = pDelimiter // delimiter denoting the field
-    delimiterType = pDelimiterType // Might be useful to know if the delimiter was a separator or terminator
-    numBits = pNumBits // Number of bits consumed to create result
-    delimiterLoc = pDelimiterLoc
-    //TODO: Would it be useful to provide the underlying ParseResult object?
-  }
-
-  override def toString(): String = {
-    "DelimParseResult - Field: " + field + "\tisSuccess: " + isSuccess + "\tDelimiter: " + delimiter + " DelimiterType: " + delimiterType + " DelimiterLoc: " + delimiterLoc
-  }
+sealed abstract class DelimParseResult(nextArg: Reader[Char]) {
+  def isSuccess: Boolean
+  def next = nextReader.asInstanceOf[DFDLCharReader]
+  def nextReader = nextArg
 }
 
-class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging {
+case class DelimParseSuccess(val delimiter: String,
+                             val delimiterType: DelimiterType,
+                             val delimiterLoc: DelimiterLocation,
+                             val numBits: Int,
+                             fieldArg: String,
+                             nextArg: Reader[Char],
+                             val numCharsRead: Int)
+  extends DelimParseResult(nextArg) {
+  def isSuccess = true
+  def field = fieldArg
+  def get = field
+}
+
+case class DelimParseFailure(msgArg: String, nextArg: Reader[Char])
+  extends DelimParseResult(nextArg) {
+  def isSuccess = false
+  def msg = msgArg
+}
+
+class DelimParser(stringBitLengthFunction: String => Int) extends RegexParsers with Logging {
+
+  /**
+   * Thisobject has to be nested because it has as an argument type Success[String]
+   * and that type is only availble to things that implement the scala...Parsers trait.
+   *
+   * This is why you don't want to ball up all your stuff into a trait, you make reuse
+   * by derivation work, but you make reuse by encapsulation very difficult.
+   */
+  object DelimParseSuccessFactory {
+    /**
+     * If content is supplied then it is used to determine the field length.
+     * If None then the extracted field value itself is used.
+     */
+    def apply(res: Success[String], delimiter: String, delimiterType: DelimiterType, contentOpt: Option[String],
+              dLoc: DelimiterLocation) = {
+
+      val Success(fieldResult, next) = res
+      val content = contentOpt.getOrElse(res.get)
+      val charLength = content.length
+      val fieldResultBits = stringBitLengthFunction(content)
+      val result = new DelimParseSuccess(delimiter, delimiterType,
+        dLoc, fieldResultBits, fieldResult, next, charLength)
+      result
+    }
+  }
+
   override val skipWhitespace = false
 
   /**
@@ -212,241 +240,149 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
   }
 
   def parseInputPatterned(pattern: String, input: Reader[Char]): DelimParseResult = {
-    // withLoggingLevel(LogLevel.Info) 
-    {
-      val EOF: Parser[String] = """\z""".r
+    val EOF: Parser[String] = """\z""".r
 
-      val thePattern: Parser[String] = ("(?s)" + pattern).r
-      val entry = thePattern <~ opt(EOF)
+    val thePattern: Parser[String] = ("(?s)" + pattern).r
+    val entry = thePattern <~ opt(EOF)
 
-      // FOR DEBUGGING might want this logging version
-      val res = this.parse(this.log(entry)("DelimParser.parseInputPatterned"), input)
-      //val res = this.parse(entry, input)
+    // FOR DEBUGGING might want this logging version
+    val res = this.parse(this.log(entry)("DelimParser.parseInputPatterned"), input)
+    //val res = this.parse(entry, input)
 
-      var fieldResult = ""
-      var delimiterResult = ""
-      var isSuccess: Boolean = false
-      var delimiterType = DelimiterType.Delimiter
-      var fieldResultBits: Int = 0
-
-      if (!res.isEmpty) {
-        fieldResult = res.get
-        isSuccess = true
-        fieldResultBits = e.knownEncodingStringBitLength(fieldResult)
-      }
-
-      val result: DelimParseResult = new DelimParseResult
-      result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBits)
-      result.numCharsRead = fieldResult.length()
-      result
+    res match {
+      case s @ Success(_, _) => DelimParseSuccessFactory(s, "", DelimiterType.NotDelimited, None, DelimiterLocation.Local)
+      case f: NoSuccess => DelimParseFailure(f.msg, f.next)
     }
   }
 
   def parseInputNCharacters(nChars: Long, input: Reader[Char],
                             justification: TextJustificationType.Type,
                             padChar: String): DelimParseResult = {
-    // withLoggingLevel(LogLevel.Info) 
-    {
-      val EOF: Parser[String] = """\z""".r
-      val anything: Parser[String] = """.*""".r
-      val firstNChars: Parser[String] = String.format("""(?s).{%s}""", nChars.toString()).r
 
-      val entry = firstNChars //<~ anything // Technically shouldn't need to add anything, we only want the first nChars
+    val EOF: Parser[String] = """\z""".r
+    val anything: Parser[String] = """.*""".r
+    val firstNChars: Parser[String] = String.format("""(?s).{%s}""", nChars.toString()).r
 
-      // For debug can use this logging parser instead.
-      val res = this.parse(this.log(entry)("DelimParser.parseInputNCharacters"), input)
-      //val res = this.parse(entry, input)
+    val entry = firstNChars //<~ anything // Technically shouldn't need to add anything, we only want the first nChars
 
-      var fieldResult = ""
-      var delimiterResult = ""
-      var isSuccess: Boolean = false
-      var delimiterType = DelimiterType.Delimiter
-      var fieldResultBits: Int = 0
-      var numCharsRead: Int = 0
+    // For debug can use this logging parser instead.
+    val res = this.parse(this.log(entry)("DelimParser.parseInputNCharacters"), input)
+    //val res = this.parse(entry, input)
 
-      if (!res.isEmpty) {
-        fieldResult = res.get
-        isSuccess = true
-        fieldResultBits = e.knownEncodingStringBitLength(fieldResult)
-        numCharsRead = fieldResult.length()
-        fieldResult = removePadding(fieldResult, justification, padChar)
+    res match {
+      case s @ Success(field, next) => {
+        val fieldNoPadding = removePadding(field, justification, padChar)
+        DelimParseSuccessFactory(Success(fieldNoPadding, next), "", DelimiterType.NotDelimited, Some(field), DelimiterLocation.Local)
       }
-
-      val result: DelimParseResult = new DelimParseResult
-      result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBits)
-      result.numCharsRead = numCharsRead
-      result
+      case f: NoSuccess => DelimParseFailure(f.msg, f.next)
     }
   }
 
-  private def parseInputDefaultContent(field: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
+  private def parseInputDefaultContent(fieldParser: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
                                        input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
-//     withLoggingLevel(LogLevel.Debug)
+    //     withLoggingLevel(LogLevel.Debug)
     {
-      val pResult = this.parse(this.log(field)("DelimParser.parseInputDefaultContent"), input)
-      //val res = this.parse(entry, input)
-
-      var fieldResult = ""
-      var delimiterResult = ""
-      var isSuccess: Boolean = false
-      var delimiterType = DelimiterType.Delimiter
-      var fieldResultBits: Int = 0
-
-      if (!pResult.isEmpty) {
-        val (content, delim) = pResult.get
-        val (theField, theDelim, theParsedContent) = justification match {
-          case TextJustificationType.None => {
-            // content == Vector(content)
-            val field = content(0)
-            (field, delim, content.mkString)
-          }
-          case TextJustificationType.Left => {
-            // content == Vector(content, padChars)
-            val field = content(0)
-            (field, delim, content.mkString)
-          }
-          case TextJustificationType.Right => {
-            // content == Vector(padChars, content)
-            val field = content(1)
-            (field, delim, content.mkString)
-          }
-          case TextJustificationType.Center => {
-            // content == Vector(padChars, content, padChars)
-            val field = content(1)
-            (field, delim, content.mkString)
-          }
+      val res = parseInputCommon(fieldParser, seps, terms, input,
+        "DelimParser.parseInputDefaultContent",
+        DelimiterLocation.Local) {
+          content =>
+            justification match {
+              case TextJustificationType.None => {
+                // content == Vector(content)
+                val field = content(0)
+                (field, content.mkString)
+              }
+              case TextJustificationType.Left => {
+                // content == Vector(content, padChars)
+                val field = content(0)
+                (field, content.mkString)
+              }
+              case TextJustificationType.Right => {
+                // content == Vector(padChars, content)
+                val field = content(1)
+                (field, content.mkString)
+              }
+              case TextJustificationType.Center => {
+                // content == Vector(padChars, content, padChars)
+                val field = content(1)
+                (field, content.mkString)
+              }
+            }
         }
-        isSuccess = true
-        fieldResult = theField
-        delimiterResult = theDelim
-        fieldResultBits = e.knownEncodingStringBitLength(theParsedContent)
-        val result = this.parse(seps, delimiterResult)
-        if (result.isEmpty) { delimiterType = DelimiterType.Terminator }
-        else { delimiterType = DelimiterType.Separator }
-      }
-
-      val result: DelimParseResult = new DelimParseResult
-      result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBits)
-      result.numCharsRead = fieldResult.length()
-      result
+      res
     }
   }
 
-  private def parseInputEscapeCharContent(field: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
+  private def parseInputEscapeCharContent(fieldParser: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
                                           input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
-//     withLoggingLevel(LogLevel.Debug) 
-    {
-      val pResult = this.parse(this.log(field)("DelimParser.parseInputEscapeCharContent"), input)
-      //val res = this.parse(entry, input)
+    parseInputDefaultContent(fieldParser, seps, terms, input, justification)
 
-      var fieldResult = ""
-      var delimiterResult = ""
-      var isSuccess: Boolean = false
-      var delimiterType = DelimiterType.Delimiter
-      var fieldResultBits: Int = 0
-
-      if (!pResult.isEmpty) {
-        val (content, delim) = pResult.get
-        val (theField, theDelim, theParsedContent) = justification match {
-          case TextJustificationType.None => {
-            // content == Vector(content)
-            val field = content(0)
-            (field, delim, content.mkString)
-          }
-          case TextJustificationType.Left => {
-            // content == Vector(content, padChars)
-            val field = content(0)
-            (field, delim, content.mkString)
-          }
-          case TextJustificationType.Right => {
-            // content == Vector(padChars, content)
-            val field = content(1)
-            (field, delim, content.mkString)
-          }
-          case TextJustificationType.Center => {
-            // content == Vector(padChars, content, padChars)
-            val field = content(1)
-            (field, delim, content.mkString)
-          }
-        }
-        isSuccess = true
-        fieldResult = theField
-        delimiterResult = theDelim
-        fieldResultBits = e.knownEncodingStringBitLength(theParsedContent)
-        val result = this.parse(seps, delimiterResult)
-        if (result.isEmpty) { delimiterType = DelimiterType.Terminator }
-        else { delimiterType = DelimiterType.Separator }
-      }
-
-      val result: DelimParseResult = new DelimParseResult
-      result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBits)
-      result.numCharsRead = fieldResult.length()
-      result
-    }
-  }
-
-  private def parseInputEscapeBlockContent(field: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
-                                           input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
-    // withLoggingLevel(LogLevel.Debug) 
-    {
-      // FOR DEBUG: might want to use this logging variant.
-      val pResult = this.parse(this.log(field)("DelimParser.parseInputEscapeBlockContent"), input)
-      //val res = this.parse(entry, input)
-
-      var fieldResult = ""
-      var delimiterResult = ""
-      var isSuccess: Boolean = false
-      var delimiterType = DelimiterType.Delimiter
-      var fieldResultBits: Int = 0
-
-      if (!pResult.isEmpty) {
-        val (blockedContent, delim) = pResult.get
-        val (theField, theDelim, theParsedContent) = justification match {
-          case TextJustificationType.None => {
-            // blockedContent == Vector(blockStart, content, blockEnd)
-            val field = blockedContent(1)
-            (field, delim, blockedContent.mkString)
-          }
-          case TextJustificationType.Left => {
-            // blockedContent == Vector(blockStart, content, padChars, blockEnd)
-            val field = blockedContent(1)
-            (field, delim, blockedContent.mkString)
-          }
-          case TextJustificationType.Right => {
-            // blockedContent == Vector(blockStart, padChars, content, blockEnd)
-            val field = blockedContent(2)
-            (field, delim, blockedContent.mkString)
-          }
-          case TextJustificationType.Center => {
-            // blockedContent == Vector(blockStart, padChars, content, padChars, blockEnd)
-            val field = blockedContent(2)
-            (field, delim, blockedContent.mkString)
-          }
-        }
-        isSuccess = true
-        fieldResult = theField
-        delimiterResult = theDelim
-        fieldResultBits = e.knownEncodingStringBitLength(theParsedContent)
-        val result = this.parse(seps, delimiterResult)
-        if (result.isEmpty) { delimiterType = DelimiterType.Terminator }
-        else { delimiterType = DelimiterType.Separator }
-      }
-
-      val result: DelimParseResult = new DelimParseResult
-      result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBits)
-      result.numCharsRead = fieldResult.length()
-      result
-    }
   }
 
   /**
-   * This is a canned failedResult so that we don't have to continually
-   * set the constructor.
+   * Notice this is curried. It takes a set of parameters, and then a body function
+   * which converts the results of a scala combinator parser (which our combinators
+   * use a Vector[String] for), and classifies it into two strings. One is the value region,
+   * the other the content region.
    */
-  private def failedResult: DelimParseResult = {
-    val result: DelimParseResult = new DelimParseResult
-    result("", false, "", DelimiterType.Delimiter, 0)
+  private def parseInputCommon(
+    fieldParser: Parser[(Vector[String], String)],
+    seps: Parser[String],
+    terms: Parser[String],
+    input: Reader[Char],
+    logString: String,
+    dLoc: DelimiterLocation)(
+      body: Vector[String] => (String, String)): DelimParseResult = {
+    val pResult = this.parse(this.log(fieldParser)(logString), input)
+
+    val result = pResult match {
+      case Success((blockedContent, theDelim), next) => {
+        val (theField, theParsedContent) = body(blockedContent)
+        val dResult = this.parse(seps, theDelim) // does our delimiter match the possible seps?
+        val dType =
+          if (dResult.isEmpty) DelimiterType.Terminator
+          else DelimiterType.Separator
+        DelimParseSuccessFactory(Success(theField, pResult.next), theDelim, dType, Some(theParsedContent),
+          dLoc)
+      }
+      case NoSuccess(msg, next) => {
+        DelimParseFailure(msg, next)
+      }
+    }
     result
+  }
+
+  private def parseInputEscapeBlockContent(
+    fieldParser: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
+    input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
+    // withLoggingLevel(LogLevel.Debug) 
+    val res = parseInputCommon(fieldParser, seps, terms, input, "DelimParser.parseInputEscapeBlockContent",
+      DelimiterLocation.Local) {
+        blockedContent =>
+          justification match {
+            case TextJustificationType.None => {
+              // blockedContent == Vector(blockStart, content, blockEnd)
+              val field = blockedContent(1)
+              (field, blockedContent.mkString)
+            }
+            case TextJustificationType.Left => {
+              // blockedContent == Vector(blockStart, content, padChars, blockEnd)
+              val field = blockedContent(1)
+              (field, blockedContent.mkString)
+            }
+            case TextJustificationType.Right => {
+              // blockedContent == Vector(blockStart, padChars, content, blockEnd)
+              val field = blockedContent(2)
+              (field, blockedContent.mkString)
+            }
+            case TextJustificationType.Center => {
+              // blockedContent == Vector(blockStart, padChars, content, padChars, blockEnd)
+              val field = blockedContent(2)
+              (field, blockedContent.mkString)
+            }
+          }
+      }
+    res
   }
 
   /**
@@ -459,54 +395,46 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
    */
   def parseInputDelimiter(localDelims: Set[String], remoteDelims: Set[String],
                           input: Reader[Char]): DelimParseResult = {
-    // withLoggingLevel(LogLevel.Info) 
-    {
-      val (localDelimsParser, localDelimsRegex) = this.buildDelims(localDelims)
-      val combinedLocalDelimsParser = this.combineLongest(localDelimsParser)
+    val (localDelimsParser, localDelimsRegex) = this.buildDelims(localDelims)
+    val combinedLocalDelimsParser = this.combineLongest(localDelimsParser)
 
-      val (remoteDelimsParser, remoteDelimsRegex) = this.buildDelims(remoteDelims)
+    val (remoteDelimsParser, remoteDelimsRegex) = this.buildDelims(remoteDelims)
 
-      val combinedDelims = remoteDelimsParser ++ localDelimsParser
-      val combinedDelimsParser = this.combineLongest(combinedDelims)
+    val combinedDelims = remoteDelimsParser ++ localDelimsParser
+    val combinedDelimsParser = this.combineLongest(combinedDelims)
 
-      val EOF: Parser[String] = """\z""".r
+    val EOF: Parser[String] = """\z""".r
 
-      //val entry = combinedLocalDelimsParser <~ opt(EOF)
-      val entry = combinedDelimsParser <~ opt(EOF) // Should yield longest match of all the delimiters
+    //val entry = combinedLocalDelimsParser <~ opt(EOF)
+    val entry = combinedDelimsParser <~ opt(EOF) // Should yield longest match of all the delimiters
 
-      // FOR DEBUG: might want this logging variant
-      val res = this.parse(this.log(entry)("DelimParser.parseInputDelimiter.allDelims"), input)
-      //val res = this.parse(entry, input)
+    val res = this.parse(this.log(entry)("DelimParser.parseInputDelimiter.allDelims"), input)
 
-      var fieldResult = ""
-      var delimiterResult = ""
-      var isSuccess: Boolean = false
-      var delimiterType = DelimiterType.Delimiter
-      var delimiterLoc = DelimiterLocation.Local
-      var fieldResultBytes: Int = 0
-
-      if (!res.isEmpty) {
+    // TODO: This seems pretty inefficient. We're redoing a match in order to know 
+    // whether it was local or remote?? 
+    val result = res match {
+      case s @ Success(delimiterResult, next) => {
         // We have a result but was it a remote or local match?
-        delimiterResult = res.get
-        isSuccess = true
-
         // We need the regex to match exactly the whole delimiterResult
-
         // Here localDelimsRegex should have already been sorted by the buildDelims call
         // we simply need to tell the regex that it has to match the full delimiterResult String.
         // If it doesn't match, then that means the match had to be a remote delimiter.
         val newLocalDelimsRegex = "(?s)^(" + combineDelimitersRegex(localDelimsRegex, Array.empty[String]) + ")$"
         val newLocalDelimsParser: Parser[String] = newLocalDelimsRegex.r
 
-        val result = this.parseAll(this.log(newLocalDelimsParser)("DelimParser.parseInputDelimiter.isLocal"), delimiterResult)
-        //val result = this.parseAll(newLocalDelimsParser, delimiterResult)
-        if (result.isEmpty) { delimiterLoc = DelimiterLocation.Remote }
+        val subResult = this.parseAll(this.log(newLocalDelimsParser)("DelimParser.parseInputDelimiter.isLocal"), delimiterResult)
+        val delimiterLocation = if (subResult.isEmpty) DelimiterLocation.Remote else DelimiterLocation.Local
+        //
+        // TODO: ?? Is None the right thing to pass here?? If we pass none, then it is 
+        // going to determine the length based on the delimiterResult. Does that include
+        // everything it needs to include?
+        //
+        DelimParseSuccessFactory(s, delimiterResult, DelimiterType.NotDelimited, None, // Is None right?
+          delimiterLocation)
       }
-      val result: DelimParseResult = new DelimParseResult
-      result(fieldResult, isSuccess, delimiterResult, delimiterType, fieldResultBytes, delimiterLoc)
-      result.numCharsRead = delimiterResult.length()
-      result
+      case NoSuccess(msg, next) => DelimParseFailure(msg, next)
     }
+    result
   }
 
   /**
@@ -594,7 +522,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
         val contentCenter = paddedContent ~ (pEOF) ^^ { case (c ~ d) => (c, d) }
         contentCenter
       }
-      case _ => return failedResult
+      case _ => Assert.invariantFailed("not one of the combinations.") // return failedResult
     }
 
     val result = parseInputDefaultContent(pFieldAndDelim, pSeps, pTerms, input, justification)
@@ -633,7 +561,7 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
         val content = pBeforeNoPaddingOrDelims ~ (pEOF) ^^ { case (c ~ d) => (Vector(c), d) }
         content
       }
-      case _ => return failedResult
+      case _ => Assert.invariantFailed("impossible combination") // return failedResult
     }
 
     val result = parseInputDefaultContent(pFieldAndDelim, pSeps, pTerms, input, TextJustificationType.None)
@@ -666,8 +594,9 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
                                             isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     //TODO: Move regular expressions out into central class
-    if (escapeBlockStart.length() == 0 || escapeBlockEnd.length() == 0 || padChar.length() == 0) { return failedResult }
-
+    //    if (escapeBlockStart.length() == 0 || escapeBlockEnd.length() == 0 || padChar.length() == 0) { 
+    //      return failedResult }
+    Assert.invariant(escapeBlockStart.length() != 0 && escapeBlockEnd.length() != 0 && padChar.length() != 0)
     val escapeBlockStartRegex = convertDFDLLiteralToRegex(escapeBlockStart)
     val escapeBlockEndRegex = convertDFDLLiteralToRegex(escapeBlockEnd)
     val escapeEscapeRegex = convertDFDLLiteralToRegex(escapeEscapeCharacter)
@@ -727,16 +656,20 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
       }
     }
 
-    val result = parseInputEscapeBlockContent(pFieldAndDelim, pSeps, pTerms, input, justification)
+    val result1 = parseInputEscapeBlockContent(pFieldAndDelim, pSeps, pTerms, input, justification)
 
     // If failed, try regular parse.
-    if (!result.isSuccess) { return parseInput(separators, terminators, input, justification, padChar, isMissingDelimAllowed) }
+    val result = result1 match {
+      case s: DelimParseSuccess => {
+        val field = s.get
+        val newField = removeEscapesBlocks(field, escapeEscapeRegex, escapeBlockEndRegex)
+        s.copy(fieldArg = newField, nextArg = s.next)
+        //        DelimParseSuccessFactory(Success(newField, s.next), s.delimiter, s.delimiterType, Some(field),
+        //          s.delimiterLoc)
 
-    result.numCharsRead = result.field.length()
-
-    val newField = removeEscapesBlocks(result.field, escapeEscapeRegex, escapeBlockEndRegex)
-    result.field = newField
-
+      }
+      case f: DelimParseFailure => parseInput(separators, terminators, input, justification, padChar, isMissingDelimAllowed)
+    }
     result
   }
 
@@ -745,7 +678,8 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
                                           escapeEscapeCharacter: String = "",
                                           isMissingDelimAllowed: Boolean = true): DelimParseResult = {
     //TODO: Move regular expressions out into central class
-    if (escapeBlockStart.length() == 0 || escapeBlockEnd.length() == 0) { return failedResult }
+    //if (escapeBlockStart.length() == 0 || escapeBlockEnd.length() == 0) { return failedResult }
+    Assert.invariant(escapeBlockStart.length() != 0 && escapeBlockEnd.length() != 0)
 
     val escapeBlockStartRegex = convertDFDLLiteralToRegex(escapeBlockStart)
     val escapeBlockEndRegex = convertDFDLLiteralToRegex(escapeBlockEnd)
@@ -783,16 +717,17 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
       }
     }
 
-    val result = parseInputEscapeBlockContent(pFieldAndDelim, pSeps, pTerms, input, TextJustificationType.None)
+    val result1 = parseInputEscapeBlockContent(pFieldAndDelim, pSeps, pTerms, input, TextJustificationType.None)
 
-    // If failed, try regular parse.
-    if (!result.isSuccess) { return parseInput(separators, terminators, input, TextJustificationType.None, "", isMissingDelimAllowed) }
-
-    result.numCharsRead = result.field.length()
-
-    val newField = removeEscapesBlocks(result.field, escapeEscapeRegex, escapeBlockEndRegex)
-    result.field = newField
-
+    val result = result1 match {
+      case s: DelimParseSuccess => {
+        val field = s.get // we move past this, though the resulting string will have escapes dropped.
+        val newField = removeEscapesBlocks(field, escapeEscapeRegex, escapeBlockEndRegex)
+        s.copy(fieldArg = newField, nextArg = s.next)
+      }
+      // If failed, try regular parse.
+      case _: DelimParseFailure => parseInput(separators, terminators, input, TextJustificationType.None, "", isMissingDelimAllowed)
+    }
     result
   }
 
@@ -806,7 +741,8 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
                                 isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     //if (terminators.size == 0 && separators.size == 0) { return failedResult }
-    if (escapeCharacter.length() == 0) { return failedResult }
+    // if (escapeCharacter.length() == 0) { return failedResult }
+    Assert.invariant(escapeCharacter.length() != 0)
 
     if (escapeEscapeCharacter.equals(escapeCharacter)) {
       justification match {
@@ -835,7 +771,8 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
                                                     padChar: String,
                                                     isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
-    if (escapeCharacter.length() == 0 || padChar.length() == 0) { return failedResult }
+    // if (escapeCharacter.length() == 0 || padChar.length() == 0) { return failedResult }
+    Assert.invariant(escapeCharacter.length() != 0 && padChar.length() != 0)
 
     val (sepsParser, sepsRegex) = this.buildDelims(separators)
     val (termsParser, termsRegex) = this.buildDelims(terminators)
@@ -938,17 +875,20 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
         val contentCenter: Parser[(Vector[String], String)] = paddedContent ~ (pEOF) ^^ { case (c ~ d) => (c, d) }
         contentCenter
       }
-      case _ => return failedResult
+      case _ => Assert.invariantFailed("illegal combination") //return failedResult
     }
 
-    val result = parseInputEscapeCharContent(pFieldAndDelim, pSeps, pTerms, input, justification)
-
-    val newField = removeEscapeCharacters(result.field, escapeEscapeCharacterRegex, escapeCharacterRegex, delimsRegex)
-
-    result.numCharsRead = result.field.length()
-
-    result.field = newField
-
+    val result1 = parseInputEscapeCharContent(pFieldAndDelim, pSeps, pTerms, input, justification)
+    val result = result1 match {
+      case s: DelimParseSuccess => {
+        val field = s.get
+        val newField = removeEscapeCharacters(field, escapeEscapeCharacterRegex, escapeCharacterRegex, delimsRegex)
+        s.copy(fieldArg = newField, nextArg = s.next)
+        //        DelimParseSuccessFactory(Success(newField, s.next), s.delimiter, s.delimiterType, Some(field),
+        //          s.delimiterLoc)
+      }
+      case f: DelimParseFailure => f
+    }
     result
   }
 
@@ -961,7 +901,8 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
                                                   isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     //if (terminators.size == 0 && separators.size == 0) { return failedResult }
-    if (escapeCharacter.length() == 0) { return failedResult }
+    // if (escapeCharacter.length() == 0) { return failedResult }
+    Assert.invariant(escapeCharacter.length() > 0)
 
     val (sepsParser, sepsRegex) = this.buildDelims(separators)
     val (termsParser, termsRegex) = this.buildDelims(terminators)
@@ -1017,17 +958,20 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
         val content: Parser[(Vector[String], String)] = pBeforeNoPaddingOrDelims ~ (pEOF) ^^ { case (b ~ d) => (Vector(b) -> d) }
         content
       }
-      case _ => return failedResult
+      case _ => Assert.invariantFailed() // return failedResult
     }
 
-    val result = parseInputEscapeCharContent(pFieldAndDelim, pSeps, pTerms, input, TextJustificationType.None)
-
-    val newField = removeEscapeCharacters(result.field, escapeEscapeCharacterRegex, escapeCharacterRegex, delimsRegex)
-
-    result.numCharsRead = result.field.length()
-
-    result.field = newField
-
+    val result1 = parseInputEscapeCharContent(pFieldAndDelim, pSeps, pTerms, input, TextJustificationType.None)
+    val result = result1 match {
+      case s: DelimParseSuccess => {
+        val field = s.get
+        val newField = removeEscapeCharacters(field, escapeEscapeCharacterRegex, escapeCharacterRegex, delimsRegex)
+        s.copy(fieldArg = newField, nextArg = s.next)
+        //        DelimParseSuccessFactory(Success(newField, s.next), s.delimiter, s.delimiterType, Some(field),
+        //          s.delimiterLoc)
+      }
+      case f: DelimParseFailure => f
+    }
     result
   }
 
@@ -1039,7 +983,8 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
                                                   input: Reader[Char], escapeCharacter: String,
                                                   isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
-    if (escapeCharacter.length() == 0) { return failedResult }
+    //if (escapeCharacter.length() == 0) { return failedResult }
+    Assert.invariant(escapeCharacter.length > 0)
 
     val (sepsParser, sepsRegex) = this.buildDelims(separators)
     val (termsParser, termsRegex) = this.buildDelims(terminators)
@@ -1102,17 +1047,20 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
         val content: Parser[(Vector[String], String)] = (pBeforeNoPaddingOrDelim ~ (pEOF)) ^^ { case (b ~ d) => (Vector(b) -> d) }
         content
       }
-      case _ => return failedResult
+      case _ => Assert.invariantFailed() // return failedResult
     }
 
-    val result = parseInputEscapeCharContent(pFieldAndDelim, pSeps, pTerms, input, TextJustificationType.None)
-
-    val newField = removeEscapeCharacters(result.field, escapeCharacterRegex, escapeCharacterRegex, delimsRegex)
-
-    result.numCharsRead = result.field.length()
-
-    result.field = newField
-
+    val result1 = parseInputEscapeCharContent(pFieldAndDelim, pSeps, pTerms, input, TextJustificationType.None)
+    val result = result1 match {
+      case s: DelimParseSuccess => {
+        val field = s.get
+        val newField = removeEscapeCharacters(field, escapeCharacterRegex, escapeCharacterRegex, delimsRegex)
+        s.copy(fieldArg = newField, nextArg = s.next)
+        //        DelimParseSuccessFactory(Success(newField, s.next), s.delimiter, s.delimiterType, Some(field),
+        //          s.delimiterLoc)
+      }
+      case f: DelimParseFailure => f
+    }
     result
   }
 
@@ -1126,7 +1074,8 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
                                                     padChar: String,
                                                     isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
-    if (escapeCharacter.length() == 0 || padChar.length() == 0) { return failedResult }
+    // if (escapeCharacter.length() == 0 || padChar.length() == 0) { return failedResult }
+    Assert.invariant(escapeCharacter.length() > 0 && padChar.length() > 0)
 
     val (sepsParser, sepsRegex) = this.buildDelims(separators)
     val (termsParser, termsRegex) = this.buildDelims(terminators)
@@ -1264,17 +1213,20 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
         val contentCenter: Parser[(Vector[String], String)] = paddedContent ~ (pUnescapedDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
         contentCenter
       }
-      case _ => return failedResult
+      case _ => Assert.invariantFailed() //return failedResult
     }
 
-    val result = parseInputEscapeCharContent(pFieldAndDelim, pSeps, pTerms, input, justification)
-
-    val newField = removeEscapeCharacters(result.field, escapeCharacterRegex, escapeCharacterRegex, delimsRegex)
-
-    result.numCharsRead = result.field.length()
-
-    result.field = newField
-
+    val result1 = parseInputEscapeCharContent(pFieldAndDelim, pSeps, pTerms, input, justification)
+    val result = result1 match {
+      case s: DelimParseSuccess => {
+        val field = s.get
+        val newField = removeEscapeCharacters(field, escapeCharacterRegex, escapeCharacterRegex, delimsRegex)
+        s.copy(fieldArg = newField, nextArg = s.next)
+        //        DelimParseSuccessFactory(Success(newField, s.next), s.delimiter, s.delimiterType, Some(field),
+        //          s.delimiterLoc)
+      }
+      case f: DelimParseFailure => f
+    }
     result
   }
 
@@ -1313,6 +1265,8 @@ class DelimParser(e: AnnotatedSchemaComponent) extends RegexParsers with Logging
     combineDelimitersRegex(regex, Array.empty[String])
   }
 
+  // TODO: does this handle %ES; or do we have to have outside separate checks for that?
+  // There is a separate check right now in LiteralNilDelimitedOrEndOfData. 
   def isFieldDfdlLiteral(field: String, dfdlLiteralList: Set[String]): Boolean = {
     val dfdlLiteralRegex = getDfdlLiteralRegex(dfdlLiteralList)
     val m = Pattern.compile(dfdlLiteralRegex).matcher(field)

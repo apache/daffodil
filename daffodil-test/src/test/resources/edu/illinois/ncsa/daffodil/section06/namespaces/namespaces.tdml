@@ -437,8 +437,7 @@
     <tdml:document><![CDATA[5632]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Insufficient Bits in field</tdml:error>
-      <tdml:error>required 80</tdml:error>
+      <tdml:error>Insufficient Bits</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

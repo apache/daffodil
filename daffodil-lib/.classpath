@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" output="target/eclipse/classes" path="src/main/scala"/>
+	<classpathentry kind="src" output="target/eclipse/classes" path="src_managed/main"/>
 	<classpathentry kind="src" output="target/eclipse/classes" path="src/main/resources"/>
 	<classpathentry kind="src" output="target/eclipse/test-classes" path="src/test/scala"/>
 	<classpathentry kind="src" output="target/eclipse/test-classes" path="src/test/scala-new"/>
@@ -47,7 +48,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
-	<classpathentry excluding="bin/**|src/" kind="src" path=""/>
+	<classpathentry excluding="bin/**|src/|src_managed/main/" kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib_managed/jars/xerces/xercesImpl/xercesImpl-2.10.0.jar" sourcepath="lib_managed/srcs/xerces/xercesImpl/xercesImpl-2.10.0-sources.jar">
 		<attributes>

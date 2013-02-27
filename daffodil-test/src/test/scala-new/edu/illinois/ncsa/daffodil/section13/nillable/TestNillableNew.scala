@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section13.nillable
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test

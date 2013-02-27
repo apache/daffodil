@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil
  * SOFTWARE.
  */
 
-
 import java.io.File
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
@@ -87,7 +86,7 @@ class TresysTests extends JUnitSuite {
 
   /* Very big test data files, so each is in its own TDML file */
 
-  //  val ab7 = testDir + "AB007.tdml"
+  //  val ab7 = testDir + "ABLargeData.tdml.dat"
   //  lazy val runnerAB7 = new DFDLTestSuite(Misc.getRequiredResource(ab7))
   //  @Test def test_AB007() { runnerAB7.runOneTest("AB007") }
   //  val ab8 = testDir + "AB008.tdml"

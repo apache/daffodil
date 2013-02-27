@@ -32,13 +32,11 @@ package edu.illinois.ncsa.daffodil.parser
  * SOFTWARE.
  */
 
-
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import scala.collection.mutable.Queue
 import java.util.regex.Pattern
 import java.io.FileInputStream
-import scala.util.parsing.input.CharSequenceReader
 import edu.illinois.ncsa.daffodil.util.Misc
 import javax.xml.transform.stream.StreamSource
 import java.io.File
@@ -49,6 +47,9 @@ import edu.illinois.ncsa.daffodil.dsom.Fakes
 import edu.illinois.ncsa.daffodil.processors.DFDLByteReader
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.DelimParser
+import edu.illinois.ncsa.daffodil.processors.DelimParseSuccess
+import edu.illinois.ncsa.daffodil.dsom.Fakes
+import edu.illinois.ncsa.daffodil.processors.DFDLUTStringReader
 
 class TestParsingBehaviors extends JUnitSuite {
 
@@ -70,7 +71,7 @@ class TestParsingBehaviors extends JUnitSuite {
     val input9 = "text1///,text2"
     val input10 = "/,text1"
 
-    val d = new DelimParser(Fakes.fakeElem)
+    val d = new DelimParser(Fakes.fakeElem.knownEncodingStringBitLengthFunction)
 
     assertEquals("texttexttext", d.removeEscapeCharacters(input0, "/", "/", ","))
     assertEquals("text1/text2", d.removeEscapeCharacters(input1, "/", "/", ","))
@@ -103,7 +104,7 @@ class TestParsingBehaviors extends JUnitSuite {
     val input13 = "text1%%/text2"
     val input14 = "text1%/%text2"
 
-    val d = new DelimParser(Fakes.fakeElem)
+    val d = new DelimParser(Fakes.fakeElem.knownEncodingStringBitLengthFunction)
 
     assertEquals("texttexttext", d.removeEscapeCharacters(input0, "%", "/", ","))
     assertEquals("text1/text2", d.removeEscapeCharacters(input1, "%", "/", ","))
@@ -123,7 +124,7 @@ class TestParsingBehaviors extends JUnitSuite {
   }
 
   @Test def testEscapeCharacterRemoval_Diff_MultiCharDelim = {
-    val d = new DelimParser(Fakes.fakeElem)
+    val d = new DelimParser(Fakes.fakeElem.knownEncodingStringBitLengthFunction)
     val input0 = "text1/septext2"
     val input1 = "text1%//septext2"
     val input2 = "/septext1text2"
@@ -259,8 +260,8 @@ class TestParsingBehaviors extends JUnitSuite {
     // escBS starts at beginning of field AND
     // escBE ends immediately followed by a delimiter.
     //
-    val r = new CharSequenceReader("/*hidden/*:text*/:def:ghi") // Input 1
-    val d = new DelimParser(Fakes.fakeElem)
+    val r = new DFDLUTStringReader("/*hidden/*:text*/:def:ghi") // Input 1
+    val d = new DelimParser(Fakes.fakeElem.knownEncodingStringBitLengthFunction)
     val separators = Set[String](":")
     val terminators = Set[String]()
     val escapeBlockStart = "/*"
@@ -270,18 +271,22 @@ class TestParsingBehaviors extends JUnitSuite {
     val res = d.parseInputEscapeBlock(separators, terminators, r,
       escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter, TextJustificationType.None, "")
 
-    assertTrue(res.isSuccess)
-    assertEquals("hidden/*:text", res.field)
-    assertEquals(":", res.delimiter)
-    assertEquals(17 * 8, res.numBits)
+    res match {
+      case s: DelimParseSuccess => {
+        assertEquals("hidden/*:text", s.field)
+        assertEquals(":", s.delimiter)
+        assertEquals(17 * 8, s.numBits)
+      }
+      case _ => fail()
+    }
   }
 
   @Test def testParsingEscapedEscapeSchemeBlockAtStart = {
     // Not a valid escapeBlockStart as it does not start
     // at the beginning of the field
     //
-    val r = new CharSequenceReader("//*hidden/*:text*/:def:ghi") // Input 1
-    val d = new DelimParser(Fakes.fakeElem)
+    val r = new DFDLUTStringReader("//*hidden/*:text*/:def:ghi") // Input 1
+    val d = new DelimParser(Fakes.fakeElem.knownEncodingStringBitLengthFunction)
     val separators = Set[String](":")
     val terminators = Set[String]()
     val escapeBlockStart = "/*"
@@ -291,18 +296,22 @@ class TestParsingBehaviors extends JUnitSuite {
     val res = d.parseInputEscapeBlock(separators, terminators, r,
       escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter, TextJustificationType.None, "")
 
-    assertTrue(res.isSuccess)
-    assertEquals("//*hidden/*", res.field)
-    assertEquals(":", res.delimiter)
-    assertEquals(11 * 8, res.numBits)
+    res match {
+      case s: DelimParseSuccess => {
+        assertEquals("//*hidden/*", s.field)
+        assertEquals(":", s.delimiter)
+        assertEquals(11 * 8, s.numBits)
+      }
+      case _ => fail()
+    }
   }
 
   @Test def testParsingEscapeSchemeBlockInMiddle = {
     // Not a valid escapeBlockStart as it does not start
     // at the beginning of the field
     //
-    val r = new CharSequenceReader("abc/*hidden/*:text*/:def:ghi") // Input 1
-    val d = new DelimParser(Fakes.fakeElem)
+    val r = new DFDLUTStringReader("abc/*hidden/*:text*/:def:ghi") // Input 1
+    val d = new DelimParser(Fakes.fakeElem.knownEncodingStringBitLengthFunction)
     val separators = Set[String](":")
     val terminators = Set[String]()
     val escapeBlockStart = "/*"
@@ -312,18 +321,23 @@ class TestParsingBehaviors extends JUnitSuite {
     val res = d.parseInputEscapeBlock(separators, terminators, r,
       escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter, TextJustificationType.None, "")
 
-    assertTrue(res.isSuccess)
-    assertEquals("abc/*hidden/*", res.field)
-    assertEquals(":", res.delimiter)
-    assertEquals(13 * 8, res.numBits)
+    res match {
+      case s: DelimParseSuccess => {
+        assertTrue(res.isSuccess)
+        assertEquals("abc/*hidden/*", s.field)
+        assertEquals(":", s.delimiter)
+        assertEquals(13 * 8, s.numBits)
+      }
+      case _ => fail()
+    }
   }
 
   @Test def testParsingEscapeSchemeBlock_PartialBlock = {
     // Because there are no full escape blocks, we expect this to parse
     // normally
     //
-    val r = new CharSequenceReader("/*abchidden:text:def:ghi") // Input 1
-    val d = new DelimParser(Fakes.fakeElem)
+    val r = new DFDLUTStringReader("/*abchidden:text:def:ghi") // Input 1
+    val d = new DelimParser(Fakes.fakeElem.knownEncodingStringBitLengthFunction)
     val separators = Set[String](":")
     val terminators = Set[String]()
     val escapeBlockStart = "/*"
@@ -333,18 +347,22 @@ class TestParsingBehaviors extends JUnitSuite {
     val res = d.parseInputEscapeBlock(separators, terminators, r,
       escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter, TextJustificationType.None, "")
 
-    assertTrue(res.isSuccess)
-    assertEquals("/*abchidden", res.field)
-    assertEquals(":", res.delimiter)
-    assertEquals(11 * 8, res.numBits)
+    res match {
+      case s: DelimParseSuccess => {
+        assertEquals("/*abchidden", s.field)
+        assertEquals(":", s.delimiter)
+        assertEquals(11 * 8, s.numBits)
+      }
+      case _ => fail()
+    }
   }
 
   @Test def testParsingEscapeSchemeBlock_NoBlocks = {
     // Because there are no escape blocks, we expect this to parse
     // normally
     //
-    val r = new CharSequenceReader("abchidden*:text:def:ghi") // Input 1
-    val d = new DelimParser(Fakes.fakeElem)
+    val r = new DFDLUTStringReader("abchidden*:text:def:ghi") // Input 1
+    val d = new DelimParser(Fakes.fakeElem.knownEncodingStringBitLengthFunction)
     val separators = Set[String](":")
     val terminators = Set[String]()
     val escapeBlockStart = "/*"
@@ -354,18 +372,22 @@ class TestParsingBehaviors extends JUnitSuite {
     val res = d.parseInputEscapeBlock(separators, terminators, r,
       escapeBlockStart, escapeBlockEnd, escapeEscapeCharacter, TextJustificationType.None, "")
 
-    assertTrue(res.isSuccess)
-    assertEquals("abchidden*", res.field)
-    assertEquals(":", res.delimiter)
-    assertEquals(10 * 8, res.numBits)
+    res match {
+      case s: DelimParseSuccess => {
+        assertEquals("abchidden*", s.field)
+        assertEquals(":", s.delimiter)
+        assertEquals(10 * 8, s.numBits)
+      }
+      case _ => fail()
+    }
   }
 
   @Test def testParsingEscapeSchemeCharacter_NoEscapes = {
     // Because there are no escapes present we expect
     // this to parse normally.
     //
-    val r = new CharSequenceReader("abc:def:ghi") // Input 1
-    val d = new DelimParser(Fakes.fakeElem)
+    val r = new DFDLUTStringReader("abc:def:ghi") // Input 1
+    val d = new DelimParser(Fakes.fakeElem.knownEncodingStringBitLengthFunction)
     val separators = Set[String](":")
     val terminators = Set[String]()
     val escapeCharacter = "/"
@@ -374,16 +396,20 @@ class TestParsingBehaviors extends JUnitSuite {
     val res = d.parseInputEscapeCharacter(separators, terminators, r, escapeCharacter,
       escapeEscapeCharacter, TextJustificationType.None, "")
 
-    assertTrue(res.isSuccess)
-    assertEquals("abc", res.field)
-    assertEquals(":", res.delimiter)
-    assertEquals(3 * 8, res.numBits)
+    res match {
+      case s: DelimParseSuccess => {
+        assertEquals("abc", s.field)
+        assertEquals(":", s.delimiter)
+        assertEquals(3 * 8, s.numBits)
+      }
+      case _ => fail()
+    }
   }
 
   @Test def testParsingEscapeSchemeCharacter_UnescapedEscape = {
 
-    val r = new CharSequenceReader("abc/:def:ghi") // Input 1
-    val d = new DelimParser(Fakes.fakeElem)
+    val r = new DFDLUTStringReader("abc/:def:ghi") // Input 1
+    val d = new DelimParser(Fakes.fakeElem.knownEncodingStringBitLengthFunction)
     val separators = Set[String](":")
     val terminators = Set[String]()
     val escapeCharacter = "/"
@@ -392,16 +418,20 @@ class TestParsingBehaviors extends JUnitSuite {
     val res = d.parseInputEscapeCharacter(separators, terminators, r, escapeCharacter,
       escapeEscapeCharacter, TextJustificationType.None, "")
 
-    assertTrue(res.isSuccess)
-    assertEquals("abc:def", res.field)
-    assertEquals(":", res.delimiter)
-    assertEquals(8 * 8, res.numBits)
+    res match {
+      case s: DelimParseSuccess => {
+        assertEquals("abc:def", s.field)
+        assertEquals(":", s.delimiter)
+        assertEquals(8 * 8, s.numBits)
+      }
+      case _ => fail()
+    }
   }
 
   @Test def testParsingEscapeSchemeCharacter_EscapedEscape = {
 
-    val r = new CharSequenceReader("abc//:def:ghi") // Input 1
-    val d = new DelimParser(Fakes.fakeElem)
+    val r = new DFDLUTStringReader("abc//:def:ghi") // Input 1
+    val d = new DelimParser(Fakes.fakeElem.knownEncodingStringBitLengthFunction)
     val separators = Set[String](":")
     val terminators = Set[String]()
     val escapeCharacter = "/"
@@ -410,10 +440,14 @@ class TestParsingBehaviors extends JUnitSuite {
     val res = d.parseInputEscapeCharacter(separators, terminators, r, escapeCharacter,
       escapeEscapeCharacter, TextJustificationType.None, "")
 
-    assertTrue(res.isSuccess)
-    assertEquals("abc/", res.field)
-    assertEquals(":", res.delimiter)
-    assertEquals(5 * 8, res.numBits)
+    res match {
+      case s: DelimParseSuccess => {
+        assertEquals("abc/", s.field)
+        assertEquals(":", s.delimiter)
+        assertEquals(5 * 8, s.numBits)
+      }
+      case _ => fail()
+    }
   }
 
 }

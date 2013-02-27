@@ -138,9 +138,9 @@
       <xs:complexType>
         <xs:sequence dfdl:separator="," dfdl:terminator=";">
           <xs:element name="a" nillable="true" type="xs:int"
-            dfdl:lengthKind="implicit" dfdl:nilValue="%ES;"/>
+            dfdl:lengthKind="implicit" dfdl:nilValue="%NUL;%NUL;%NUL;%NUL;"/>
           <xs:element name="b" nillable="true" type="xs:int"
-            dfdl:lengthKind="implicit" dfdl:nilValue="%ES;"/>
+            dfdl:lengthKind="implicit" dfdl:nilValue="%NUL;%NUL;%NUL;%NUL;"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -170,7 +170,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e1>
-          <a>0</a>
+          <a xsi:nil="true" />
           <b>-1</b>
         </e1>
       </tdml:dfdlInfoset>
@@ -179,14 +179,14 @@
   
   <tdml:parserTestCase name="entity_success_06" root="e1"
     model="sch5"
-    description="nilValue='%ES;' when nilKind='literalValue' and representation='binary' - DFDL-13-235R">
+    description="nilValue='%NUL;%NUL;%NUL;%NUL;' when nilKind='literalValue' and representation='binary' - DFDL-13-235R">
     <tdml:document>
-      <tdml:documentPart type="byte">000000002c3B</tdml:documentPart>
+      <tdml:documentPart type="byte">000000002c000000003B</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e1>
-          <a>0</a>
+          <a xsi:nil="true" />
           <b xsi:nil="true" />
         </e1>
       </tdml:dfdlInfoset>

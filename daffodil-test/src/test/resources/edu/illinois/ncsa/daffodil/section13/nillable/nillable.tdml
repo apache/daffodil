@@ -36,8 +36,8 @@
     </xs:element>
 
     <xs:element name="doc_02" nillable="true"
-      dfdl:lengthKind="explicit" dfdl:length="6" dfdl:nilKind="literalValue"
-      dfdl:nilValue="%ES;">
+      dfdl:lengthKind="delimited" dfdl:nilKind="literalValue"
+      dfdl:nilValue="%ES;" dfdl:terminator=";" dfdl:nilValueDelimiterPolicy="terminator">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="e1" type="xs:string"
@@ -104,7 +104,7 @@
           <xs:element name="e1" type="xs:int"
             dfdl:lengthKind="explicit" dfdl:length="3" />
           <xs:element name="e2" type="xs:int" nillable="true"
-            dfdl:lengthKind="explicit" dfdl:length="2" dfdl:nilKind="literalValue"
+            dfdl:lengthKind="delimited" dfdl:nilKind="literalValue"
             dfdl:nilValue="%ES;" />
         </xs:sequence>
       </xs:complexType>
@@ -190,7 +190,7 @@
     description="literal nil is a DFDL character class entity %ES; on an element of complex type- DFDL-13-234R">
 
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[;]]></tdml:documentPart>
     </tdml:document>
 
     <tdml:infoset>

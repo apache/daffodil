@@ -583,7 +583,7 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
     res
   }
 
-  lazy val knownEncodingStringBitLength = {
+  lazy val knownEncodingStringBitLengthFunction = {
     //
     // This will be called at runtime, so let's decide
     // what we can, and return an optimized function that 

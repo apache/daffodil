@@ -60,3 +60,7 @@ object CharsetUtils {
     cs.getOrElse(throw new UnsupportedEncodingException(csn))
   }
 }
+
+class CharacterSetAlignmentError(csName: String, requiredAlignmentInBits: Int, alignmentInBitsWas: Int)
+  extends Exception("Character set %s requires %s alignment (bits), but alignment was %s (bits)".
+    format(csName, requiredAlignmentInBits, alignmentInBitsWas))

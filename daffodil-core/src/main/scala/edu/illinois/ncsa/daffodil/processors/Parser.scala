@@ -406,29 +406,6 @@ class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixi
 }
 
 /**
- * A placeholder for holding the complete stream information so that it can be popped all at once when a new stream
- * state is created
- *
- * @param inStream Input Data Stream
- * @param bitLimit Total Bits available in given Data Stream
- * @param charLimit Total UNICODE or given Character Set Characters in given Data Stream
- * @param bitPos Current Read Position in given Data Stream
- * @param charPos Current Read Character Position (in decoded characters, i.e., does not correspond to bytes in any way) for the given Data Stream
- */
-//case class PStateStream private (val inStream: InStream, val bitLimit: Long, val charLimit: Long = -1,
-//                                 val bitPos: Long = 0, val charPos: Long = 0, val reader: Option[DFDLCharReader]) {
-//  Assert.invariant(bitPos >= 0)
-//  def withInStream(newInStream: InStream) = copy(inStream = newInStream)
-//  def withPos(newBitPos: Long, newCharPos: Long, newReader: Option[DFDLCharReader]) = copy(bitPos = newBitPos, charPos = newCharPos, reader = newReader)
-//  def withEndBitLimit(newBitLimit: Long) = copy(bitLimit = newBitLimit)
-//}
-//
-//object PStateStream {
-//  def initialPStateStream(in: InStream, bitOffset: Long, bitLimit: Long) =
-//    PStateStream(in, bitLimit, bitPos = bitOffset, reader = None)
-//}
-
-/**
  * A parser takes a state, and returns an updated state
  *
  * The fact that there are side-effects/mutations on parts of the state
@@ -479,26 +456,10 @@ case class PState(
    * one or a related subset of the state components to a new one.
    */
 
-  //  def withInStreamState(newInStreamState: PStateStream, newStatus: ProcessorResult = Success) =
-  //    copy(inStreamState = newInStreamState, status = newStatus)
-  //
-  //  def withInStream(newInStream: InStream, newStatus: ProcessorResult = Success) = {
-  //    val newInStreamState = inStreamState.withInStream(newInStream)
-  //    copy(inStreamState = newInStreamState, status = newStatus)
+  //  def withPos(bitPos: Long, charPos: Long, newStatus: ProcessorResult = Success) = {
+  //    val newInStream = inStream.withPos(bitPos, charPos)
+  //    copy(inStream = newInStream, status = newStatus)
   //  }
-
-  //  def withLastInStream(newStatus: ProcessorResult = Success) = {
-  //    val lastBitPos = bitPos
-  //    val lastCharPos = if (charPos > 0) charPos else 0
-  //    val cp = copy(inStreamStateStack = inStreamStateStack pop, status = newStatus)
-  //    val res = cp.withPos(bitPos + lastBitPos, charPos + lastCharPos)
-  //    res
-  //  }
-
-  def withPos(bitPos: Long, charPos: Long, newStatus: ProcessorResult = Success) = {
-    val newInStream = inStream.withPos(bitPos, charPos, None)
-    copy(inStream = newInStream, status = newStatus)
-  }
 
   def withEndBitLimit(bitLimit: Long, newStatus: ProcessorResult = Success) = {
     var newInStream = inStream.withEndBitLimit(bitLimit)
@@ -538,13 +499,11 @@ case class PState(
   def withDiscriminator(disc: Boolean) =
     copy(discriminatorStack = disc +: discriminatorStack.tail)
 
-  // TODO: REMOVE Has to be broken. Doesn't do anything.
-  //def withReader(newReader: Option[DFDLCharReader]) =
-  //    copy()
+  def withPos = withReaderPos _
 
-  def withReaderPos(bitPos: Long, charPos: Long, reader: DFDLCharReader, status: ProcessorResult = Success) = {
-    val newReader = reader.atBitPos(bitPos)
-    val newInStream = inStream.withPos(bitPos, charPos, Some(newReader))
+  private def withReaderPos(bitPos: Long, charPos: Long, reader: Option[DFDLCharReader]) = {
+    //    val newReader = reader.atBitPos(bitPos)
+    val newInStream = inStream.withPos(bitPos, charPos, reader)
     copy(inStream = newInStream)
   }
 

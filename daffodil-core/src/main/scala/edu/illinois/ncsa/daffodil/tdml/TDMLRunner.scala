@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.tdml
  * SOFTWARE.
  */
 
-
 import java.io.File
 import scala.Array.canBuildFrom
 import scala.xml.NodeSeq.seqToNodeSeq
@@ -65,6 +64,8 @@ import java.io.InputStream
 import edu.illinois.ncsa.daffodil.processors.GeneralParseFailure
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
+import edu.illinois.ncsa.daffodil.processors.IteratorInputStream
+import edu.illinois.ncsa.daffodil.processors.DFDLCharCounter
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -324,6 +325,8 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     val nBits = document.map { _.nBits }
 
     runProcessor(pf, data, nBits, infoset, errors, warnings)
+    println("Bytes processed: " + IteratorInputStream.getAndResetCalls)
+    println("Characters processed: " + DFDLCharCounter.getAndResetCount)
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
     // log(Debug("Test %s passed.", id))

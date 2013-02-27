@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section07.assertions
  * SOFTWARE.
  */
 
-
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import junit.framework.Assert._
@@ -69,7 +68,7 @@ class TestAssertions extends JUnitSuite {
 
   @Test def test_assertPatternMatch() { runner.runOneTest("assertPatternMatch") }
   @Test def test_assertPatternMatch2() { runner.runOneTest("assertPatternMatch2") }
-  
+
   @Test def test_assertMultFormsFail() { runner.runOneTest("assertMultFormsFail") }
   @Test def test_assertMultFormsFail2() { runner.runOneTest("assertMultFormsFail2") }
   @Test def test_assertPatternAndExp() { runner.runOneTest("assertPatternAndExp") }
@@ -79,8 +78,8 @@ class TestAssertions extends JUnitSuite {
 
   @Test def test_assertExpressionRef() { runner.runOneTest("assertExpressionRef") }
   @Test def test_assertExpressionRefFail() { runner.runOneTest("assertExpressionRefFail") }
-//  @Test def test_assertExpressionEmpty() { runner.runOneTest("assertExpressionEmpty") }
-//  @Test def test_assertPatternEmpty() { runner.runOneTest("assertPatternEmpty") }
+  //  @Test def test_assertExpressionEmpty() { runner.runOneTest("assertExpressionEmpty") }
+  //  @Test def test_assertPatternEmpty() { runner.runOneTest("assertPatternEmpty") }
   @Test def test_assertMessage() { runner.runOneTest("assertMessage") }
 
 }

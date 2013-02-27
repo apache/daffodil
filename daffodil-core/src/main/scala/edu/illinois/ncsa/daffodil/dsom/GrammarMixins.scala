@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar._
@@ -199,6 +198,7 @@ trait ElementBaseGrammarMixin
       // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
       case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, fixedLength)
       case (LengthUnits.Bits, _) => Assert.notYetImplemented()
+      case _ => Assert.invariantFailed("all cases should have been exhausted.")
     })
 
   lazy val implicitLengthString = Prod("implicitLengthString", this, hasSpecifiedLength,

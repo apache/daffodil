@@ -434,7 +434,7 @@
       <tdml:documentPart type="byte">c2a2</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Insufficient Bits in field; required 24</tdml:error>
+      <tdml:error>Insufficient Bits</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

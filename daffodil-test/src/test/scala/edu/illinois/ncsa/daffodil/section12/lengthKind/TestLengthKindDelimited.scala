@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section12.lengthKind
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
@@ -60,6 +59,7 @@ class TestLengthKindDelimited extends JUnitSuite {
   @Test def test_NumSeq_01() = {
     runner.runOneTest("NumSeq_01")
   }
+  @Test def test_eofTest1() { runner.runOneTest("eofTest1") }
   @Test def test_NumSeq_03() { runner.runOneTest("NumSeq_03") }
   @Test def test_NumSeq_04() { runner.runOneTest("NumSeq_04") }
   @Test def test_NumSeq_05() { runner.runOneTest("NumSeq_05") }

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import java.util.regex.Pattern
 import java.util.logging.Logging
 import scala.util.control.Breaks
@@ -41,7 +40,7 @@ import scala.collection.mutable.Queue
 
 object DelimiterType extends Enumeration {
   type DelimiterType = Value
-  val Separator, Terminator, Delimiter = Value
+  val Separator, Terminator, NotDelimited = Value
 }
 
 object DelimiterLocation extends Enumeration {
@@ -63,8 +62,6 @@ class Delimiter {
   lazy val WSP = Pattern.compile("%(WSP);", Pattern.MULTILINE)
   lazy val WSP_Plus = Pattern.compile("%(WSP\\+);", Pattern.MULTILINE)
   lazy val WSP_Star = Pattern.compile("%(WSP\\*);", Pattern.MULTILINE)
-
-  def typeDef = { DelimiterType.Delimiter }
 
   override def toString(): String = {
     return "Delimiter[" + delimiterStr + "]"

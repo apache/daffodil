@@ -50,6 +50,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextBooleanJustifi
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextCalendarJustification
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.grammar.Terminal
+import edu.illinois.ncsa.daffodil.util.Debug
 
 abstract class SpecifiedLengthCombinatorBase(eb: ElementBase, eGram: => Gram)
   extends Terminal(eb, true)
@@ -142,15 +143,17 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
 }
 
 abstract class SpecifiedLengthParserBase(combinator: SpecifiedLengthCombinatorBase,
-  e: ElementBase)
+                                         e: ElementBase)
   extends PrimParser(combinator, e)
   with WithParseErrorThrowing {
 
   def toBriefXML = combinator.toBriefXML _
 
-  def parse(pstate: PState, endBitPos: Long, e: ElementBase) = {
+  final def parse(pstate: PState, endBitPos: Long, e: ElementBase) = {
+    log(Debug("Limiting data to %s bits.", endBitPos))
     val postState1 = pstate.withEndBitLimit(endBitPos)
     val postState2 = combinator.eParser.parse1(postState1, e)
+    log(Debug("Restoring data limit to %s bits.", pstate.bitLimit))
     val postState3 = postState2.withEndBitLimit(pstate.bitLimit)
     postState3
   }
@@ -167,11 +170,13 @@ class SpecifiedLengthPatternParser(combinator: SpecifiedLengthCombinatorBase, e:
     val in = start.inStream
 
     val reader = in.getCharReader(charset, start.bitPos)
-    val d = new DelimParser(e)
+    val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
     val result = d.parseInputPatterned(pattern, reader)
     val endBitPos =
-      if (!result.isSuccess) start.bitPos + 0 // no match == length is zero!
-      else start.bitPos + result.numBits
+      result match {
+        case _: DelimParseFailure => start.bitPos + 0 // no match == length is zero!
+        case s: DelimParseSuccess => start.bitPos + s.numBits
+      }
     val postEState = parse(start, endBitPos, e)
     postEState
   }
@@ -195,14 +200,13 @@ class SpecifiedLengthExplicitBitsParser(combinator: SpecifiedLengthCombinatorBas
       val postEState = parse(pState, endBitPos, e)
       return postEState
     } catch {
-      case ex: java.nio.BufferUnderflowException => {
+      case ex: IndexOutOfBoundsException => {
         // Insufficient bytes in field, but we need to still allow processing
         // to test for Nils
         val endBitPos = start.bitPos + 0
         val postEState = parse(start, endBitPos, e)
         return postEState
       }
-      case e: IndexOutOfBoundsException => { return PE(pState, "SpecifiedLengthExplicitBitsParser - IndexOutOfBounds: \n%s", e.getMessage()) }
       case u: UnsuppressableException => throw u
       case e: Exception => { return PE(pState, "SpecifiedLengthExplicitBitsParser - Exception: \n%s", e.getStackTraceString) }
     }
@@ -225,14 +229,13 @@ class SpecifiedLengthExplicitBitsFixedParser(combinator: SpecifiedLengthCombinat
       val postEState = parse(start, endBitPos, e)
       return postEState
     } catch {
-      case ex: java.nio.BufferUnderflowException => {
+      case ex: IndexOutOfBoundsException => {
         // Insufficient bits in field, but we need to still allow processing
         // to test for Nils
         val endBitPos = start.bitPos + 0
         val postEState = parse(start, endBitPos, e)
         return postEState
       }
-      case ex: IndexOutOfBoundsException => { return PE(start, "SpecifiedLengthExplicitBitsFixedParser - IndexOutOfBounds: \n%s", ex.getMessage()) }
       case u: UnsuppressableException => throw u
       case ex: Exception => { return PE(start, "SpecifiedLengthExplicitBitsFixedParser - Exception: \n%s", ex.getStackTraceString) }
     }
@@ -256,14 +259,13 @@ class SpecifiedLengthExplicitBytesParser(combinator: SpecifiedLengthCombinatorBa
       val postEState = parse(pState, endBitPos, e)
       return postEState
     } catch {
-      case ex: java.nio.BufferUnderflowException => {
+      case ex: IndexOutOfBoundsException => {
         // Insufficient bytes in field, but we need to still allow processing
         // to test for Nils
         val endBitPos = start.bitPos + 0
         val postEState = parse(start, endBitPos, e)
         return postEState
       }
-      case ex: IndexOutOfBoundsException => { return PE(pState, "SpecifiedLengthExplicitBytesParser - IndexOutOfBounds: \n%s", ex.getMessage()) }
       case u: UnsuppressableException => throw u
       case ex: Exception => { return PE(pState, "SpecifiedLengthExplicitBytesParser - Exception: \n%s", ex.getStackTraceString) }
     }
@@ -280,19 +282,18 @@ class SpecifiedLengthExplicitBytesFixedParser(combinator: SpecifiedLengthCombina
     val in = start.inStream
 
     try {
-      val bytes = in.getBytes(start.bitPos, nBytes)
+      // val bytes = in.getBytes(start.bitPos, nBytes)
       val endBitPos = start.bitPos + (nBytes * 8)
-      val postEState = parse(start, endBitPos, e)
+      val postEState = super.parse(start, endBitPos, e)
       return postEState
     } catch {
-      case ex: java.nio.BufferUnderflowException => {
+      case ex: IndexOutOfBoundsException => {
         // Insufficient bytes in field, but we need to still allow processing
         // to test for Nils
         val endBitPos = start.bitPos + 0
-        val postEState = parse(start, endBitPos, e)
+        val postEState = super.parse(start, endBitPos, e)
         return postEState
       }
-      case ex: IndexOutOfBoundsException => { return PE(start, "SpecifiedLengthExplicitBytesFixedParser - IndexOutOfBounds: \n%s", ex.getMessage()) }
       case u: UnsuppressableException => throw u
       case ex: Exception => { return PE(start, "SpecifiedLengthExplicitBytesFixedParser - Exception: \n%s", ex.getStackTraceString) }
     }
@@ -308,11 +309,13 @@ class SpecifiedLengthExplicitCharactersFixedParser(combinator: SpecifiedLengthCo
 
     val in = start.inStream
     val rdr = in.getCharReader(charset, start.bitPos)
-    val d = new DelimParser(e)
+    val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
     val result = d.parseInputNCharacters(nChars, rdr, TextJustificationType.None, "")
     val endBitPos =
-      if (!result.isSuccess) start.bitPos + 0 // no match == length is zero!
-      else start.bitPos + result.numBits
+      result match {
+        case _: DelimParseFailure => start.bitPos + 0 // no match == length is zero!
+        case s: DelimParseSuccess => start.bitPos + s.numBits
+      }
     val postEState = parse(start, endBitPos, e)
     postEState
   }
@@ -329,11 +332,13 @@ class SpecifiedLengthExplicitCharactersParser(combinator: SpecifiedLengthCombina
     val (pState, nChars) = combinator.getLength(start)
     val in = pState.inStream
     val rdr = in.getCharReader(charset, pState.bitPos)
-    val d = new DelimParser(e)
+    val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
     val result = d.parseInputNCharacters(nChars, rdr, TextJustificationType.None, "")
     val endBitPos =
-      if (!result.isSuccess) pState.bitPos + 0 // no match == length is zero!
-      else pState.bitPos + result.numBits
+      result match {
+        case _: DelimParseFailure => pState.bitPos + 0 // no match == length is zero!
+        case s: DelimParseSuccess => pState.bitPos + s.numBits
+      }
     val postEState = parse(pState, endBitPos, e)
     postEState
   }

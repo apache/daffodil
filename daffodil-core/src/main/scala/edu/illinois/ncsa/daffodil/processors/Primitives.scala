@@ -32,12 +32,12 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import java.math.BigInteger
 import java.text.{ ParseException, ParsePosition }
 import java.util.regex.Pattern
 import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.charset.Charset
+import java.nio.charset.MalformedInputException
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
@@ -59,9 +59,10 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextStringJustific
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberJustification
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextCalendarJustification
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextBooleanJustification
+import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 
 abstract class PrimParser(gram: Gram, contextArg: SchemaComponent)
-  extends Parser(contextArg) {
+  extends DaffodilParser(contextArg) {
 
   def toBriefXML(depthLimit: Int = -1): String = {
     "<" + gram.name + "/>"
@@ -75,7 +76,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
 
   val isHidden = e.isHidden
 
-  def parser: Parser = new PrimParser(this, e) {
+  def parser: DaffodilParser = new PrimParser(this, e) {
 
     override def toBriefXML(depthLimit: Int = -1): String = {
       "<ElementBegin name='" + e.name + "'/>"
@@ -152,7 +153,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
 //
 //  val charset = e.knownEncodingCharset
 //
-//  def parser: Parser = new PrimParser(this, e) {
+//  def parser: DaffodilParser = new PrimParser(this, e) {
 //    override def toString = "<" + e.name + " dfdl:lengthKind='pattern'>"
 //    var cbuf = CharBuffer.allocate(1024) // TODO: Performance: get a char buffer from a pool.
 //    val pattern = e.lengthPattern
@@ -174,7 +175,7 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
 //
 //        val d = new delimsearch.DelimParser(e)
 //
-//        var result: delimsearch.DelimParseResult = new delimsearch.DelimParseResult
+//        var result: delimsearch.DelimParseResultult = new delimsearch.DelimParseResultult
 //
 //        result = d.parseInputPatterned(pattern, reader)
 //
@@ -216,7 +217,7 @@ abstract class ElementEndBase(e: ElementBase) extends Terminal(e, true) {
 
   def move(pstate: PState): PState // implement for different kinds of "moving over to next thing"
 
-  def parser: Parser = new PrimParser(this, e) {
+  def parser: DaffodilParser = new PrimParser(this, e) {
 
     override def toBriefXML(depthLimit: Int = -1): String = {
       "<ElementEnd name='" + e.name + "'/>"
@@ -276,7 +277,7 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //  // TODO: Should this be more generic; is there a way to detect state from the current element to tell us if it's time
 //  //       to pop the input stack?
 //
-//  def parser: Parser = new PrimParser(this, e) {
+//  def parser: DaffodilParser = new PrimParser(this, e) {
 //    override def toString = "</" + e.name + " dfdl:lengthKind='pattern'>"
 //
 //    /**
@@ -311,12 +312,13 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 
 case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
   extends Terminal(e, true)
+  with TextReader
   with Padded
   with WithParseErrorThrowing {
 
   val charset = e.knownEncodingCharset
 
-  def parser: Parser = new PrimParser(this, e) {
+  def parser: DaffodilParser = new PrimParser(this, e) {
 
     override def toBriefXML(depthLimit: Int = -1) = {
       "<StringFixedLengthInBytesParser length='" + nBytes + "'/>"
@@ -341,7 +343,7 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
 
         val decoder = charset.newDecoder()
 
-        val d = new DelimParser(e)
+        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
 
         try {
           //
@@ -351,6 +353,8 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
           // Note: This code goes around the DFDLCharReader layer because that layer doesn't provide
           // us a way to limit the number of bytes. (Perhaps that could be changed so this could use it?)
           //
+
+          val reader = getReader(charset, start.bitPos, start)
           val bytes = in.getBytes(start.bitPos, nBytes.toInt)
           decoder.reset()
           val cb = decoder.decode(ByteBuffer.wrap(bytes))
@@ -365,14 +369,24 @@ case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
           // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
           // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
           currentElement.setDataValue(trimmedResult)
-          //val postState = start.withPos(endBitPos, endCharPos)
-          val postState = start.withPos(endBitPos, -1) // -1 means a subsequent primitive will have to construct
-          // a new reader at said bitPosition
+          // 
+          // if the number of bytes was a multiple of the codepointWidth then 
+          // we will have parsed all the bytes, so the endBitPos and endCharPos 
+          // are synchronized still. 
+          // 
+          val postState =
+            if ((endBitPos - start.bitPos) == (8 * nBytes)) {
+              start.withPos(endBitPos, endCharPos, Some(reader))
+            } else {
+              Assert.invariant((endBitPos - start.bitPos) < (8 * nBytes))
+              start.withPos(endBitPos, -1, None)
+              // -1 means a subsequent primitive will have to construct
+              // a new reader at said bitPosition              
+            }
           return postState
         } catch {
           case m: java.nio.charset.MalformedInputException => { return PE(start, "StringFixedLengthInBytes - Malformed data. Could not decode into %s characters.", charset.name()) }
-          case e: java.nio.BufferUnderflowException => { return PE(start, "StringFixedLengthInBytes - Insufficient Bits in field; required %s", nBytes * 8) }
-          case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytes - IndexOutOfBounds: \n%s", e.getMessage()) }
+          case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytes - Insufficient Bits in field: IndexOutOfBounds: \n%s", e.getMessage()) }
           case u: UnsuppressableException => throw u
           // case e: Exception => { return PE(start, "StringFixedLengthInBytes - Exception: \n%s", e.getMessage()) }
         }
@@ -403,7 +417,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
   with WithParseErrorThrowing
   with Padded {
 
-  def parser: Parser = new PrimParser(this, e) {
+  def parser: DaffodilParser = new PrimParser(this, e) {
     override def toString = "StringFixedLengthInBytesVariableWidthCharactersParser(" + nBytes + ")"
 
     val charset = e.knownEncodingCharset
@@ -420,7 +434,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
         val in = start.inStream
 
         val decoder = charset.newDecoder()
-        val d = new DelimParser(e)
+        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
         try {
           val bytes = in.getBytes(start.bitPos, nBytes.toInt)
           decoder.reset()
@@ -431,48 +445,16 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
           log(Debug("Ended at bit position %s", endBitPos))
           val endCharPos = start.charPos + result.length
           val currentElement = start.parentElement
-          // Assert.invariant(currentElement.getName != "_document_")
           // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
           // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
           currentElement.setDataValue(d.removePadding(result, justificationTrim, padChar))
-          //val postState = start.withPos(endBitPos, endCharPos)
-          val postState = start.withPos(endBitPos, -1) // charPos = -1 tells subsequent calls to construct
-          // a new reader at said bitPos
+          val postState = start.withPos(endBitPos, -1, None) // charPos = -1 tells subsequent calls to construct
           return postState
         } catch {
-          case e: java.nio.BufferUnderflowException => { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - Insufficient Bits in field; required %s", nBytes * 8) }
-          case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - IndexOutOfBoundsException: \n%s", e.getMessage()) }
+          case e: IndexOutOfBoundsException => { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - Insufficient Bits in field. IndexOutOfBoundsException: Index was: %s", e.getMessage()) }
           case u: UnsuppressableException => throw u
           case e: Exception => { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - Exception: \n%s", e.getMessage()) }
         }
-        //      // setLoggingLevel(LogLevel.Info)
-        //
-        //      log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
-        //
-        //      // We know the nBytes, decode only until we've reached this value.
-        //      val in = start.inStream
-        //      val (endBitPos, _) = in.fillCharBufferMixedData(cbuf, start.bitPos, decoder, nBytes)
-        //      if (endBitPos < start.bitPos + nBytes * 8) {
-        //        return PE(start, "Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
-        //      }
-        //      val result = cbuf.toString
-        //
-        //      if (result == null) { return start.failed(this.toString() + " - Result was null!") }
-        //
-        //      val resultBytes = result.getBytes(decoder.charset())
-        //
-        //      if (resultBytes.length < nBytes) { return start.failed(this.toString() + " - Result(" + resultBytes.length + ") was not at least nBytes (" + nBytes + ") long.") }
-        //
-        //      log(Debug("Parsed: " + result))
-        //      log(Debug("Ended at bit position " + endBitPos))
-        //      val endCharPos = start.charPos + result.length
-        //      val currentElement = start.parentElement
-        //      // Assert.invariant(currentElement.getName != "_document_")
-        //      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
-        //      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-        //      currentElement.setDataValue(result)
-        //      val postState = start.withPos(endBitPos, endCharPos)
-        //      postState
         start
       }
     }
@@ -489,83 +471,81 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
   extends Terminal(e, true)
   with WithParseErrorThrowing with TextReader with Padded {
 
-  def parser: Parser = new PrimParser(this, e) {
+  def parser: DaffodilParser = new PrimParser(this, e) {
     override def toString = "StringFixedLengthInVariableWidthCharactersParser(" + nChars + ")"
 
     val charset = e.knownEncodingCharset
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      // withLoggingLevel(LogLevel.Info) 
-      {
 
-        log(Debug("Parsing starting at bit position: %s", start.bitPos))
+      log(Debug("Parsing starting at bit position: %s", start.bitPos))
 
-        // no longer require alignment (some encodings aren't whole bytes)
-        // if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInVariableWidthCharacters - not byte aligned.") }
+      // no longer require alignment (some encodings aren't whole bytes)
+      // if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInVariableWidthCharacters - not byte aligned.") }
 
-        val in = start.inStream
+      log(Debug("Retrieving reader"))
 
-        log(Debug("Retrieving reader"))
+      val reader = getReader(charset, start.bitPos, start)
 
-        val reader = getReader(charset, start.bitPos, start)
+      //        val byteReader = in.byteReader.atPos(bytePos)
+      //
+      //        val reader = byteReader.charReader(decoder.charset().name())
 
-        //        val byteReader = in.byteReader.atPos(bytePos)
-        //
-        //        val reader = byteReader.charReader(decoder.charset().name())
+      val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
 
-        val d = new DelimParser(e)
+      val result = d.parseInputNCharacters(nChars, reader, justificationTrim, padChar)
 
-        val result = d.parseInputNCharacters(nChars, reader, justificationTrim, padChar)
-
-        if (!result.isSuccess) {
+      result match {
+        case _: DelimParseFailure =>
           return PE(start, "Parse failed to find exactly %s characters.", nChars)
+        case s: DelimParseSuccess => {
+
+          val parsedField = s.field
+          val parsedBits = s.numBits
+          val endBitPos = start.bitPos + parsedBits
+
+          log(Debug("Parsed: %s", parsedField))
+          log(Debug("Ended at bit position: %s", endBitPos))
+
+          //val endCharPos = start.charPos + nChars
+          //val endCharPos = reader.characterPos + nChars
+          val endCharPos = if (start.charPos == -1) nChars else start.charPos + nChars
+          val currentElement = start.parentElement
+          currentElement.setDataValue(parsedField)
+          //        val postState = start.withPos(endBitPos, endCharPos)
+          val postState = start.withPos(endBitPos, endCharPos, Some(s.next))
+          postState
+
+          //      //setLoggingLevel(LogLevel.Info)
+          //
+          //      log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
+          //
+          //      // We don't know the width of the characters, so decode as much data as possible.
+          //      // We will truncate as necessary later.
+          //      val in = start.inStream
+          //      val (endBitPos, _) = in.fillCharBufferMixedData(cbuf, start.bitPos, decoder)
+          //
+          //      val result = cbuf.toString
+          //
+          //      if (result == null) { return start.failed(this.toString() + " - Result was null!") }
+          //
+          //      val finalResult = result.substring(0, nChars.toInt) // Truncate
+          //      val finalResultBytes = finalResult.getBytes(decoder.charset()).length
+          //      val finalBitPos = 8 * finalResultBytes + start.bitPos
+          //
+          //      if (finalResult.length < nChars) { return start.failed(this.toString() + " - Result(" + finalResult.length + ") was not at least nChars (" + nChars + ") long.") }
+          //
+          //      log(Debug("Parsed: " + finalResult))
+          //      log(Debug("Ended at bit position " + finalBitPos))
+          //      val endCharPos = start.charPos + nChars
+          //      val currentElement = start.parentElement
+          //      // Assert.invariant(currentElement.getName != "_document_")
+          //      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
+          //      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
+          //      currentElement.addContent(new org.jdom.Text(finalResult))
+          //      val postState = start.withPos(finalBitPos, endCharPos)
+          //      postState
         }
-
-        val parsedField = result.field
-        val parsedBits = result.numBits
-        val endBitPos = start.bitPos + parsedBits
-
-        log(Debug("Parsed: %s", parsedField))
-        log(Debug("Ended at bit position: %s", endBitPos))
-
-        //val endCharPos = start.charPos + nChars
-        //val endCharPos = reader.characterPos + nChars
-        val endCharPos = if (start.charPos == -1) nChars else start.charPos + nChars
-        val currentElement = start.parentElement
-        currentElement.setDataValue(parsedField)
-        //        val postState = start.withPos(endBitPos, endCharPos)
-        val postState = start.withReaderPos(endBitPos, endCharPos, reader)
-        postState
-
-        //      //setLoggingLevel(LogLevel.Info)
-        //
-        //      log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
-        //
-        //      // We don't know the width of the characters, so decode as much data as possible.
-        //      // We will truncate as necessary later.
-        //      val in = start.inStream
-        //      val (endBitPos, _) = in.fillCharBufferMixedData(cbuf, start.bitPos, decoder)
-        //
-        //      val result = cbuf.toString
-        //
-        //      if (result == null) { return start.failed(this.toString() + " - Result was null!") }
-        //
-        //      val finalResult = result.substring(0, nChars.toInt) // Truncate
-        //      val finalResultBytes = finalResult.getBytes(decoder.charset()).length
-        //      val finalBitPos = 8 * finalResultBytes + start.bitPos
-        //
-        //      if (finalResult.length < nChars) { return start.failed(this.toString() + " - Result(" + finalResult.length + ") was not at least nChars (" + nChars + ") long.") }
-        //
-        //      log(Debug("Parsed: " + finalResult))
-        //      log(Debug("Ended at bit position " + finalBitPos))
-        //      val endCharPos = start.charPos + nChars
-        //      val currentElement = start.parentElement
-        //      // Assert.invariant(currentElement.getName != "_document_")
-        //      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
-        //      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-        //      currentElement.addContent(new org.jdom.Text(finalResult))
-        //      val postState = start.withPos(finalBitPos, endCharPos)
-        //      postState
       }
     }
   }
@@ -573,9 +553,10 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Lo
   def unparser: Unparser = new DummyUnparser(e)
 }
 
-case class StringDelimitedEndOfData(e: ElementBase)
-  extends Terminal(e, true)
+case class StringDelimitedEndOfData(eArg: ElementBase)
+  extends Terminal(eArg, true)
   with WithParseErrorThrowing with TextReader with Padded {
+  def e = eArg
   lazy val es = e.escapeScheme
   lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
   lazy val tm = e.allTerminatingMarkup
@@ -583,79 +564,81 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
   val charset = e.knownEncodingCharset
 
-  def parser: Parser = new PrimParser(this, e) {
+  def parser: DaffodilParser = new PrimParser(this, e) {
     override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      //       withLoggingLevel(LogLevel.Debug) 
-      {
 
-        val eName = e.toString()
+      val eName = e.toString()
 
-        // We must feed variable context out of one evaluation and into the next.
-        // So that the resulting variable map has the updated status of all evaluated variables.
-        var vars = start.variableMap
-        val delimsRaw = e.allTerminatingMarkup.map {
-          x =>
-            {
-              val R(res, newVMap) = x.evaluate(start.parentElement, vars, start)
-              vars = newVMap
-              res
-            }
-        }
-        val delimsCooked1 = delimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
-        val delimsCooked = delimsCooked1.flatten
-        //System.err.println("startCharPos: " + start.charPos)
-        val postEvalState = start.withVariables(vars)
+      // We must feed variable context out of one evaluation and into the next.
+      // So that the resulting variable map has the updated status of all evaluated variables.
+      var vars = start.variableMap
+      val delimsRaw = e.allTerminatingMarkup.map {
+        x =>
+          {
+            val R(res, newVMap) = x.evaluate(start.parentElement, vars, start)
+            vars = newVMap
+            res
+          }
+      }
+      val delimsCooked1 = delimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
+      val delimsCooked = delimsCooked1.flatten
+      //System.err.println("startCharPos: " + start.charPos)
+      val postEvalState = start.withVariables(vars)
 
-        if (delimsCooked.filter(x => x == "%WSP*;").length > 0) {
-          // We cannot detect this error until expressions have been evaluated!
-          log(Debug("%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited", eName))
-          e.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited!")
-        }
+      if (delimsCooked.filter(x => x == "%WSP*;").length > 0) {
+        // We cannot detect this error until expressions have been evaluated!
+        log(Debug("%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited", eName))
+        e.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited!")
+      }
 
-        log(Debug("%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))
-        val in = start.inStream
+      log(Debug("%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))
 
-        val bytePos = (postEvalState.bitPos >> 3).toInt
-        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
-        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+      val bytePos = (postEvalState.bitPos >> 3).toInt
+      log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
+      log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
 
-        val reader = getReader(charset, start.bitPos, start)
+      val reader = getReader(charset, postEvalState.bitPos, postEvalState)
 
-        val d = new DelimParser(e)
+      val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
 
-        var result: DelimParseResult = new DelimParseResult
+      val result = try {
 
         if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
           //          result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
           //            esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter)
-          result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
+          d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
             esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter, justificationTrim, padChar)
         } else if (esObj.escapeSchemeKind == EscapeSchemeKind.Character) {
-          result = d.parseInputEscapeCharacter(Set.empty[String], delimsCooked.toSet, reader,
+          d.parseInputEscapeCharacter(Set.empty[String], delimsCooked.toSet, reader,
             esObj.escapeCharacter, esObj.escapeEscapeCharacter, justificationTrim, padChar)
         } else {
-          result = d.parseInput(Set.empty[String], delimsCooked.toSet, reader, justificationTrim, padChar)
+          d.parseInput(Set.empty[String], delimsCooked.toSet, reader, justificationTrim, padChar)
         }
+      } catch {
+        case mie: MalformedInputException =>
+          throw new ParseError(e, Some(postEvalState), "Malformed input, length: %s", mie.getInputLength())
+      }
 
-        if (!result.isSuccess) {
+      result match {
+        case f: DelimParseFailure =>
           //System.err.println("StringDelimitedEndOfData_END: " + new Timestamp(System.currentTimeMillis()));
           return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
-        } else {
+        case s: DelimParseSuccess => {
           //System.err.println("StringDelimitedEndOfData_END: " + new Timestamp(System.currentTimeMillis()));
-          val field = result.field
-          val numBits = result.numBits
+          val field = s.get
+          val numBits = s.numBits
           log(Debug("%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits))
           //System.err.println(postEvalState.charPos)
           //val endCharPos = reader.characterPos + field.length()
-          val endCharPos = if (postEvalState.charPos == -1) result.numCharsRead else postEvalState.charPos + result.numCharsRead
+          val endCharPos = if (postEvalState.charPos == -1) s.numCharsRead else postEvalState.charPos + s.numCharsRead
           //val endCharPos = postEvalState.charPos + field.length()
           val endBitPos = postEvalState.bitPos + numBits
           val currentElement = postEvalState.parentElement
           currentElement.setDataValue(field)
           //return postEvalState.withPos(endBitPos, endCharPos)
-          return postEvalState.withReaderPos(endBitPos, endCharPos, reader)
+          return postEvalState.withPos(endBitPos, endCharPos, Some(s.next))
         }
       }
     }
@@ -684,7 +667,7 @@ case class StringPatternMatched(e: ElementBase)
 
   val charset = e.knownEncodingCharset
 
-  def parser: Parser = new PrimParser(this, e) {
+  def parser: DaffodilParser = new PrimParser(this, e) {
     override def toString = "StringPatternMatched"
     val pattern = e.lengthPattern
 
@@ -701,8 +684,6 @@ case class StringPatternMatched(e: ElementBase)
         // some encodings aren't whole bytes.
         // if (start.bitPos % 8 != 0) { return PE(start, "StringPatternMatched - not byte aligned.") }
 
-        val in = start.inStream
-
         val bytePos = (start.bitPos >> 3).toInt
 
         log(Debug("Retrieving reader"))
@@ -712,26 +693,25 @@ case class StringPatternMatched(e: ElementBase)
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val d = new DelimParser(e)
+        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
 
-        var result: DelimParseResult = new DelimParseResult
+        val result = d.parseInputPatterned(pattern, reader)
 
-        result = d.parseInputPatterned(pattern, reader)
-
-        val postState = result.isSuccess match {
-          case true => {
-            val endBitPos = start.bitPos + result.numBits
-            log(Debug("StringPatternMatched - Parsed: %s", result.field))
+        val postState = result match {
+          case _: DelimParseFailure => { PE(start, "%s: No match found!", this.toString()) }
+          case s: DelimParseSuccess => {
+            val endBitPos = start.bitPos + s.numBits
+            log(Debug("StringPatternMatched - Parsed: %s", s.field))
             log(Debug("StringPatternMatched - Ended at bit position %s", endBitPos))
             // val endCharPos = start.charPos + result.field.length()
             //val endCharPos = reader.characterPos + result.field.length()
-            val endCharPos = if (start.charPos == -1) result.field.length() else start.charPos + result.field.length()
+            val endCharPos = if (start.charPos == -1) s.field.length() else start.charPos + s.field.length()
             val currentElement = start.parentElement
-            currentElement.setDataValue(result.field)
+            currentElement.setDataValue(s.field)
             //start.withPos(endBitPos, endCharPos)
-            start.withReaderPos(endBitPos, endCharPos, reader)
+            start.withPos(endBitPos, endCharPos, Some(s.next))
           }
-          case false => { PE(start, "%s: No match found!", this.toString()) }
+
         }
         //      log(Debug("Parsing starting at bit position: " + start.bitPos))
         //      val in = start.inStream
@@ -786,7 +766,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean)
     bd1.compareTo(bd2)
   }
 
-  def parser: Parser = new PrimParser(this, e) {
+  def parser: DaffodilParser = new PrimParser(this, e) {
     override def toString = "to(xs:" + GramName + ")"
 
     def parse(start: PState): PState = {
@@ -1081,84 +1061,15 @@ case class ConvertTextFloatPrim(e: ElementBase) extends ConvertTextFloatingPoint
 
 }
 
-//Is this different from ConvertTextNumberPrim?
-//case class ConvertTextDoublePrim1(e: ElementBase) extends Terminal(e, true) {
-//
-//  def parser: Parser = new PrimParser(this, e) {
-//    override def toString = "to(xs:double)"
-//
-//    def parse(start: PState): PState = {
-//      val node = start.parentElement
-//      val str = node.getText
-//
-//      val resultState =
-//        // try 
-//        {
-//          //convert to NumberFormat to handle format punctuation such as , . $ & etc
-//          //then get the value as a double and convert to string
-//          val df = new DecimalFormat()
-//          val pos = new ParsePosition(0)
-//          val num = df.parse(str, pos)
-//          node.setText(num.doubleValue.toString)
-//
-//          start
-//        } // catch { case e: Exception => start.failed("Failed to convert to an xs:double") }
-//
-//      resultState
-//    }
-//  }
-//
-//  def unparser: Unparser = new Unparser(e) {
-//    def unparse(start: UState): UState = {
-//      Assert.notYetImplemented()
-//    }
-//  }
-//}
-
-//Is this different from ConvertTextNumberPrim?
-//case class ConvertTextFloatPrim1(e: ElementBase) extends Terminal(e, true) {
-//
-//  def parser: Parser = new PrimParser(this, e) {
-//    override def toString = "to(xs:float)"
-//
-//    def parse(start: PState): PState = {
-//      val node = start.parentElement
-//      val str = node.getText()
-//
-//      val resultState =
-//        // Note: don't wrap in try-catch. The framework has everything surrounded
-//        // by that already.
-//        // try 
-//        {
-//          //convert to NumberFormat to handle format punctuation such as , . $ & etc
-//          //then get the value as a float and convert to string
-//          val df = new DecimalFormat()
-//          val pos = new ParsePosition(0)
-//          val num = df.parse(str, pos)
-//          node.setText(num.floatValue.toString)
-//          start
-//        } // catch { case e: Exception => start.failed("Failed to convert to an xs:float") }
-//
-//      resultState
-//    }
-//  }
-//
-//  def unparser: Unparser = new Unparser(e) {
-//    def unparse(start: UState): UState = {
-//      Assert.notYetImplemented()
-//    }
-//  }
-//}
-
 abstract class Primitive(e: AnnotatedSchemaComponent, guard: Boolean = false)
   extends Terminal(e, guard) {
   override def toString = "Prim[" + name + "]"
-  def parser: Parser = DummyParser(e)
+  def parser: DaffodilParser = DummyParser(e)
   def unparser: Unparser = DummyUnparser(e)
 }
 
 abstract class ZonedTextNumberPrim(e: ElementBase, guard: Boolean) extends Terminal(e, guard) {
-  def parser: Parser = new PrimParser(this, e) {
+  def parser: DaffodilParser = new PrimParser(this, e) {
     def parse(start: PState): PState = {
       Assert.notYetImplemented()
     }
@@ -1238,11 +1149,6 @@ trait UnsignedNumberMixin[T] {
 
 abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true) {
   lazy val primName = e.primType.name
-  //  lazy val toBits = e.lengthUnits match {
-  //    case LengthUnits.Bits => 1
-  //    case LengthUnits.Bytes => 8
-  //    case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
-  //  }
 
   lazy val staticByteOrderString = e.byteOrder.constantAsString
   lazy val staticByteOrder = ByteOrder(staticByteOrderString, context)
@@ -1261,9 +1167,6 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
 
   protected val GramName = e.primType.name
   protected val GramDescription = { GramName(0).toUpper + GramName.substring(1, GramName.length) }
-  //protected def numFormat: NumberFormat
-  //protected def isInt: Boolean
-  //protected def isInvalidRange(n: T): Boolean = false
 
   def parser = new PrimParser(this, e) {
     override def toString = gram.toString
@@ -1287,77 +1190,13 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
         //} else
         val convertedValue: T = convertValue(value, nBits toInt)
         start.parentElement.setDataValue(convertedValue.toString)
-        start.withPos(newPos, -1)
+        start.withPos(newPos, -1, None)
         //}
       }
     }
   }
 
   def unparser = DummyUnparser
-
-  //  def unparser = new Unparser(e) {
-  //    override def toString = gram.toString
-  //
-  //    def unparse(start: UState): UState = {
-  //      setLoggingLevel(LogLevel.Info)
-  //      val str = start.currentElement.getText //gets data from element being unparsed
-  //
-  //      Assert.invariant(str != null) // worst case it should be empty string. But not null.
-  //
-  //      val postState = {
-  //        if (str == "") return UE(start, "Convert to %s (for xs:%s): Cannot unparse number from empty string", GramDescription, GramName)
-  //        else if (GramName == "hexBinary") {
-  //          //regex to split string into array of two char elements ('bytes')
-  //          val strArray = str.split("(?<=\\G..)")
-  //          var asBytes = new Array[Byte](strArray.size)
-  //
-  //          for (i <- 0 until strArray.size) {
-  //            asBytes(i) = {
-  //              val asInt = Integer.parseInt(strArray(i), 16)
-  //              (asInt & 0xFF).byteValue()
-  //            }
-  //          }
-  //          start.outStream.fillByteBuffer(asBytes, "hexBinary", staticJByteOrder) //write number back to ByteBuffer
-  //          start
-  //
-  //        } else {
-  //          val df = numFormat
-  //          val pos = new ParsePosition(0)
-  //          val num = try {
-  //            df.parse(str, pos)
-  //          } catch {
-  //            case u: UnsuppressableException => throw u
-  //            case e: Exception =>
-  //              return UE(start, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
-  //                GramDescription, GramName, str, e)
-  //          }
-  //
-  //          // Verify that what was unparsed was what was passed exactly in byte count
-  //          if (pos.getIndex != str.length) {
-  //            return UE(start, "Convert to %s (for xs:%s): Unable to unparse '%s' (using up all characters).",
-  //              GramDescription, GramName, str)
-  //          }
-  //
-  //          // convert to proper type
-  //          val asNumber = getNum(num)
-  //
-  //          // Verify no digits lost (the number was correctly transcribed)
-  //          if (isInt && asNumber.asInstanceOf[Number] != num) { //then transcription error
-  //            return UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.",
-  //              GramDescription, GramName, str, num, asNumber)
-  //          }
-  //          if (isInvalidRange(asNumber)) {
-  //            return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
-  //              GramDescription, GramName, str, asNumber)
-  //          }
-  //
-  //          start.outStream.fillByteBuffer(asNumber, GramName, staticJByteOrder) //write number back to ByteBuffer
-  //          start
-  //        }
-  //      }
-  //      postState
-  //    }
-  //  }
 }
 
 class UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)
@@ -1415,117 +1254,8 @@ class DoubleKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Lon
   }
 }
 
-//class Regular32bitIntPrim(context: Term, val byteOrder: java.nio.ByteOrder)
-//extends RegularNBitPrim[Int](context, 32, "int") {
-//  def getNum(bitPos : Long, inStream : InStream) : Number =
-//    inStream.getInt(bitPos, byteOrder)
-//}
-//
-//class Regular32bitIntPrim1(context: Term, byteOrder: java.nio.ByteOrder) extends Parser(context) with Logging {
-//  override def toString = "binary(xs:int, " + byteOrder + ")"
-//
-//  def parse(start: PState): PState = {
-//    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) start.failed("Not enough bits to create an xs:int")
-//    else {
-//      val value = start.inStream.getInt(start.bitPos, byteOrder)
-//      start.parentElement.addContent(new org.jdom.Text(value.toString))
-//      val postState = start.withPos(start.bitPos + 32, -1)
-//      postState
-//    }
-//  }
-//}
-//
-//class Regular32bitIntPrimUnparse(context: Term, byteOrder: java.nio.ByteOrder) extends Unparser(context) with Logging {
-//  override def toString = "binary(xs:int, " + byteOrder + ")"
-//
-//  def unparse(start: UState): UState = {
-//    Assert.notYetImplemented()
-//  }
-//}
-
-// No point in specializing byte order. Java libs underneath just
-// parameterize on it again.
-//case class Regular32bitBigEndianIntPrim(e: ElementBase) extends Terminal(e, true) {
-//  def parser = new Regular32bitIntPrim(e, java.nio.ByteOrder.BIG_ENDIAN)
-//  def unparser = new Regular32bitIntPrimUnparse(e, java.nio.ByteOrder.BIG_ENDIAN)
-//}
-//case class Regular32bitLittleEndianIntPrim(e: ElementBase) extends Terminal(e, true) {
-//  def parser = new Regular32bitIntPrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
-//  def unparser = new Regular32bitIntPrimUnparse(e, java.nio.ByteOrder.LITTLE_ENDIAN)
-//}
-
 case class PackedIntPrim(e: ElementBase) extends Primitive(e, false)
 case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
-
-//case class DoublePrim(ctx: Term, byteOrder: java.nio.ByteOrder) extends Parser(ctx) {
-//  override def toString = "binary(xs:double, " + byteOrder + ")"
-//
-//  def parse(start: PState): PState = {
-//    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 64)) start.failed("Not enough bits to create an xs:double")
-//    else {
-//      val value = start.inStream.getDouble(start.bitPos, byteOrder)
-//      start.parentElement.addContent(new org.jdom.Text(value.toString))
-//      log(Debug("Found binary double " + value))
-//      log(Debug("Ended at bit position " + (start.bitPos + 64)))
-//      //val postState = start.withPos(start.bitPos + 64, -1)
-//      val postState = start.withPos(start.bitPos + 64, start.charPos + 1)
-//      postState
-//    }
-//  }
-//}
-//
-//case class DoublePrimUnparse(ctx: Term, byteOrder: java.nio.ByteOrder) extends Unparser(ctx) with Logging {
-//  override def toString = "binary(xs:double, " + byteOrder + ")"
-//
-//  def unparse(start: UState): UState = {
-//    Assert.notYetImplemented()
-//  }
-//}
-//
-//case class BigEndianDoublePrim(e: ElementBase) extends Terminal(e, true) {
-//  def parser = new DoublePrim(e, java.nio.ByteOrder.BIG_ENDIAN)
-//  def unparser = new DoublePrimUnparse(e, java.nio.ByteOrder.BIG_ENDIAN)
-//}
-//
-//case class LittleEndianDoublePrim(e: ElementBase) extends Terminal(e, true) {
-//  def parser = new DoublePrim(e, java.nio.ByteOrder.LITTLE_ENDIAN)
-//  def unparser = new DoublePrimUnparse(e, java.nio.ByteOrder.LITTLE_ENDIAN)
-//}
-
-//case class FloatPrim(gram: Gram, ctx: Term, byteOrder: java.nio.ByteOrder) extends PrimParser(gram, ctx) {
-//  override def toString = "binary(xs:float,you " + byteOrder + ")"
-//
-//  def parse(start: PState): PState = {
-//    log(Debug("Saving reader state."))
-//    setReader(start)
-//
-//    if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < 32)) PE(start, "Not enough bits to create an xs:float")
-//    else {
-//      val value = start.inStream.getFloat(start.bitPos, byteOrder)
-//      start.parentElement.addContent(new org.jdom.Text(value.toString))
-//      val postState = start.withPos(start.bitPos + 32, -1)
-//      postState
-//    }
-//  }
-//}
-//
-//case class FloatPrimUnparse(ctx: Term, byteOrder: java.nio.ByteOrder) extends Unparser(ctx) {
-//  override def toString = "binary(xs:float, " + byteOrder + ")"
-//
-//  def unparse(start: UState): UState = {
-//    Assert.notYetImplemented()
-//  }
-//}
-//
-//case class BigEndianFloatPrim(e: ElementBase) extends Terminal(e, true) {
-//  def parser = new FloatPrim(this, e, java.nio.ByteOrder.BIG_ENDIAN)
-//  def unparser = new FloatPrimUnparse(e, java.nio.ByteOrder.BIG_ENDIAN)
-//}
-//
-//case class LittleEndianFloatPrim(e: ElementBase) extends Terminal(e, true) {
-//  def parser = new FloatPrim(this, e, java.nio.ByteOrder.LITTLE_ENDIAN)
-//  def unparser = new FloatPrimUnparse(e, java.nio.ByteOrder.LITTLE_ENDIAN)
-//}
 
 abstract class StaticDelimiter(kindString: String, delim: String, e: Term, guard: Boolean = true)
   extends StaticText(delim, e, kindString, guard)
@@ -1546,7 +1276,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
 
   staticTexts.foreach(x => staticTextsCooked.enqueue(EntityReplacer.replaceAll(x)))
 
-  def parser: Parser = new PrimParser(this, e) {
+  def parser: DaffodilParser = new PrimParser(this, e) {
 
     override def toBriefXML(depthLimit: Int = -1) = {
       "<" + kindString + ">" + delim + " " + delimsRaw + "</" + kindString + ">"
@@ -1567,7 +1297,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
     //System.err.println("startCharPos: " + start.charPos)
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
-      // withLoggingLevel(LogLevel.Info) 
+      // withLoggingLevel(LogLevel.Debug) 
       {
         val eName = e.toString()
 
@@ -1582,41 +1312,42 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
 
         log(Debug("%s - Looking for local(%s) not remote (%s).", eName, staticTextsCooked.toSet, remoteDelims))
 
-        val in = postEvalState.inStream
-
         val bytePos = (postEvalState.bitPos >> 3).toInt
 
         log(Debug("Retrieving reader state."))
         val reader = getReader(charset, start.bitPos, postEvalState)
 
-        val d = new DelimParser(e)
-
-        var result: DelimParseResult = new DelimParseResult
+        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
 
         // Well they may not be delimiters, but the logic is the same as for a 
         // set of static delimiters.
-        result = d.parseInputDelimiter(staticTextsCooked.toSet, remoteDelims, reader)
+        val result = d.parseInputDelimiter(staticTextsCooked.toSet, remoteDelims, reader)
 
-        log(Debug("%s - %s - DelimParseResult: %s", this.toString(), eName, result))
+        log(Debug("%s - %s - DelimParseResultult: %s", this.toString(), eName, result))
 
-        if (!result.isSuccess) {
-          log(Debug("%s - %s: Delimiter not found!", this.toString(), eName))
-          return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
-        } else if (result.delimiterLoc == DelimiterLocation.Remote) {
-          log(Debug("%s - %s: Remote delimiter found instead of local!", this.toString(), eName))
-          return PE(start, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
-        } else {
-          val numBits = e.knownEncodingStringBitLength(result.delimiter)
-          val endCharPos = if (postEvalState.charPos == -1) result.delimiter.length else postEvalState.charPos + result.delimiter.length()
-          val endBitPosDelim = numBits + postEvalState.bitPos
+        result match {
+          case _: DelimParseFailure => {
+            log(Debug("%s - %s: Delimiter not found!", this.toString(), eName))
+            return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
+          }
+          case s: DelimParseSuccess if (s.delimiterLoc == DelimiterLocation.Remote) => {
+            log(Debug("%s - %s: Remote delimiter found instead of local!", this.toString(), eName))
+            return PE(start, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
+          }
+          case s: DelimParseSuccess =>
+            {
+              val numBits = e.knownEncodingStringBitLengthFunction(s.delimiter)
+              val endCharPos = if (postEvalState.charPos == -1) s.delimiter.length else postEvalState.charPos + s.delimiter.length()
+              val endBitPosDelim = numBits + postEvalState.bitPos
 
-          log(Debug("%s - Found %s", eName, result.delimiter))
-          log(Debug("%s - Ended at byte position %s", eName, (endBitPosDelim >> 3)))
-          log(Debug("%s - Ended at bit position %s", eName, endBitPosDelim))
+              log(Debug("%s - Found %s", eName, s.delimiter))
+              log(Debug("%s - Ended at byte position %s", eName, (endBitPosDelim >> 3)))
+              log(Debug("%s - Ended at bit position %s", eName, endBitPosDelim))
 
-          return postEvalState.withReaderPos(endBitPosDelim, endCharPos, reader)
+              return postEvalState.withPos(endBitPosDelim, endCharPos, Some(s.next))
+            }
+            postEvalState
         }
-        postEvalState
       }
     }
   }
@@ -1663,7 +1394,7 @@ case class DynamicSeparator(s: Sequence, t: Term) extends DynamicDelimiter(s.sep
 
 case class StartChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct.element, guard) {
 
-  def parser: Parser = new PrimParser(this, ct.element) {
+  def parser: DaffodilParser = new PrimParser(this, ct.element) {
     override def toString = "StartChildren"
 
     def parse(start: PState): PState = {
@@ -1684,7 +1415,7 @@ case class StartChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Ter
 
 case class StartSequence(sq: Sequence, guard: Boolean = true) extends Terminal(sq, guard) {
 
-  def parser: Parser = new PrimParser(this, sq) {
+  def parser: DaffodilParser = new PrimParser(this, sq) {
     override def toString = "StartSequence"
 
     def parse(start: PState): PState = {
@@ -1708,7 +1439,7 @@ case class Nada(sc: Term) extends Terminal(sc, true) {
   // cannot optimize this out! It is used as an alternative to things
   // with the intention of "find this and this, or find nothing"
 
-  def parser: Parser = new PrimParser(this, sc) {
+  def parser: DaffodilParser = new PrimParser(this, sc) {
     override def toString = "Nada"
 
     def parse(start: PState): PState = start
@@ -1723,7 +1454,7 @@ case class Nada(sc: Term) extends Terminal(sc, true) {
 
 case class GroupPosGreaterThan(groupPos: Long, term: Term, guard: Boolean = true) extends Terminal(term, guard) {
 
-  def parser: Parser = new PrimParser(this, term) {
+  def parser: DaffodilParser = new PrimParser(this, term) {
     override def toString = "GroupPosGreaterThan(" + groupPos + ")"
 
     def parse(start: PState): PState = {
@@ -1752,7 +1483,7 @@ case class GroupPosGreaterThan(groupPos: Long, term: Term, guard: Boolean = true
 
 case class ChildPosGreaterThan(childPos: Long, term: Term, guard: Boolean = true) extends Terminal(term, guard) {
 
-  def parser: Parser = new PrimParser(this, term) {
+  def parser: DaffodilParser = new PrimParser(this, term) {
     override def toString = "ChildPosGreaterThan(" + childPos + ")"
 
     def parse(start: PState): PState = {
@@ -1781,7 +1512,7 @@ case class ChildPosGreaterThan(childPos: Long, term: Term, guard: Boolean = true
 
 case class ArrayPosGreaterThan(arrayPos: Long, term: Term, guard: Boolean = true) extends Terminal(term, guard) {
 
-  def parser: Parser = new PrimParser(this, term) {
+  def parser: DaffodilParser = new PrimParser(this, term) {
     override def toString = "ArrayPosGreaterThan(" + arrayPos + ")"
 
     def parse(start: PState): PState = {
@@ -1814,7 +1545,7 @@ case class ArrayPosGreaterThan(arrayPos: Long, term: Term, guard: Boolean = true
 
 case class EndChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct.element, guard) {
 
-  def parser: Parser = new PrimParser(this, ct.element) {
+  def parser: DaffodilParser = new PrimParser(this, ct.element) {
     override def toString = "EndChildren"
 
     def parse(start: PState): PState = {
@@ -1835,7 +1566,7 @@ case class EndChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Termi
 
 case class EndSequence(sq: Sequence, guard: Boolean = true) extends Terminal(sq, guard) {
 
-  def parser: Parser = new PrimParser(this, sq) {
+  def parser: DaffodilParser = new PrimParser(this, sq) {
     override def toString = "EndSequence"
 
     def parse(start: PState): PState = {
@@ -1858,7 +1589,7 @@ case class EndSequence(sq: Sequence, guard: Boolean = true) extends Terminal(sq,
 
 case class StartArray(e: ElementBase, guard: Boolean = true) extends Terminal(e, guard) {
 
-  def parser: Parser = new PrimParser(this, e) {
+  def parser: DaffodilParser = new PrimParser(this, e) {
     override def toString = "StartArray"
 
     def parse(start: PState): PState = {
@@ -1880,7 +1611,7 @@ case class StartArray(e: ElementBase, guard: Boolean = true) extends Terminal(e,
 
 case class EndArray(e: ElementBase, guard: Boolean = true) extends Terminal(e, guard) {
 
-  def parser: Parser = new PrimParser(this, e) {
+  def parser: DaffodilParser = new PrimParser(this, e) {
     override def toString = "EndArray"
 
     def parse(start: PState): PState = {
@@ -1984,8 +1715,9 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
         // if (postEvalState.bitPos % 8 != 0) { return PE(postEvalState, "LiteralNilPattern - not byte aligned.") }
 
         val decoder = charset.newDecoder()
-        val d = new DelimParser(e)
+        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
         try {
+          val reader = in.getCharReader(charset, postEvalState.bitPos)
           val bytes = in.getBytes(postEvalState.bitPos, nBytes.toInt)
           val cb = decoder.decode(ByteBuffer.wrap(bytes))
           val result = cb.toString
@@ -2011,13 +1743,13 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
             log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
             log(Debug("%s - Ended at bit position ", eName, endBitPos))
 
-            return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
+            return postEvalState.withPos(endBitPos, endCharPos, Some(reader)) // Need to advance past found nilValue
           } else {
             // Fail!
             return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
           }
         } catch {
-          case e: java.nio.BufferUnderflowException => {
+          case e: IndexOutOfBoundsException => {
             // In this case, we failed to get the bytes
             if (isEmptyAllowed) {
               // Valid!
@@ -2027,7 +1759,6 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
               return PE(postEvalState, "%s - Insufficient Bytes in field; required %s", name, nBytes)
             }
           }
-          case e: IndexOutOfBoundsException => { return PE(postEvalState, "%s - IndexOutOfBounds: \n%s", name, e.getMessage()) }
           case u: UnsuppressableException => throw u
           case e: Exception => { return PE(postEvalState, "%s - Exception: \n%s", name, e.getMessage()) }
         }
@@ -2079,13 +1810,13 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
         val pattern = "(?s)^.{%s}".format(nChars)
 
         log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
-        val in = start.inStream
 
         val bytePos = (postEvalState.bitPos >> 3).toInt
         log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
         log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
 
-        if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
+        // Don't check this here. This can vary by encoding.
+        //if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 
         log(Debug("Retrieving reader state."))
         val reader = getReader(charset, start.bitPos, start)
@@ -2096,48 +1827,48 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
           return postEvalState // Empty, no need to advance
         }
 
-        val d = new DelimParser(e)
+        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
 
         val result = d.parseInputPatterned(pattern, reader)
 
-        if (!result.isSuccess) {
-          return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
-        } else {
-          // We have a field, is it empty?
-          val field = d.removePadding(result.field, justificationTrim, padChar)
-          val isFieldEmpty = field.length() == 0
+        result match {
+          case _: DelimParseFailure =>
+            return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
+          case s: DelimParseSuccess => {
+            // We have a field, is it empty?
+            val field = d.removePadding(s.field, justificationTrim, padChar)
+            val isFieldEmpty = field.length() == 0
 
-          if (isFieldEmpty && isEmptyAllowed) {
-            // Valid!
-            start.parentElement.makeNil()
-            return postEvalState // Empty, no need to advance
-          } else if (isFieldEmpty && !isEmptyAllowed) {
-            // Fail!
-            return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
-          } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
-            // Contains a nilValue, Success!
-            start.parentElement.makeNil()
+            if (isFieldEmpty && isEmptyAllowed) {
+              // Valid!
+              start.parentElement.makeNil()
+              return postEvalState // Empty, no need to advance
+            } else if (isFieldEmpty && !isEmptyAllowed) {
+              // Fail!
+              return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
+            } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
+              // Contains a nilValue, Success!
+              start.parentElement.makeNil()
 
-            val numBits = result.numBits //e.knownEncodingStringBitLength(result.field)
-            val endCharPos =
-              if (postEvalState.charPos == -1) result.field.length
-              else postEvalState.charPos + result.field.length
-            val endBitPos = numBits + start.bitPos
+              val numBits = s.numBits //e.knownEncodingStringBitLength(result.field)
+              val endCharPos =
+                if (postEvalState.charPos == -1) s.field.length
+                else postEvalState.charPos + s.field.length
+              val endBitPos = numBits + start.bitPos
 
-            log(Debug("%s - Found %s", eName, result.field))
-            log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
-            log(Debug("%s - Ended at bit position ", eName, endBitPos))
+              log(Debug("%s - Found %s", eName, s.field))
+              log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
+              log(Debug("%s - Ended at bit position ", eName, endBitPos))
 
-            //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
-            return postEvalState.withReaderPos(endBitPos, endCharPos, reader) // Need to advance past found nilValue
-          } else {
-            // Fail!
-            return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+              return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
+            } else {
+              // Fail!
+              return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+            }
           }
         }
       }
     }
-
   }
 
   override def unparser: Unparser = new Unparser(e) {
@@ -2174,7 +1905,6 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
         val postEvalState = start //start.withVariables(vars)
 
         log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
-        val in = start.inStream
 
         val bytePos = (postEvalState.bitPos >> 3).toInt
         log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
@@ -2188,49 +1918,50 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val d = new DelimParser(e)
+        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
 
         val result = d.parseInputPatterned(pattern, reader)
 
-        if (!result.isSuccess) {
-          return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
-        } else {
-          // We have a field, is it empty?
-          val field = d.removePadding(result.field, justificationTrim, padChar)
-          val isFieldEmpty = field.length() == 0
+        result match {
+          case _: DelimParseFailure =>
+            return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
+          case s: DelimParseSuccess => {
+            // We have a field, is it empty?
+            val field = d.removePadding(s.field, justificationTrim, padChar)
+            val isFieldEmpty = field.length() == 0
 
-          if (isFieldEmpty && isEmptyAllowed) {
-            // Valid!
-            start.parentElement.makeNil()
-            return postEvalState // Empty, no need to advance
-          } else if (isFieldEmpty && !isEmptyAllowed) {
-            // Fail!
-            return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
-          } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
-            // Contains a nilValue, Success!
-            start.parentElement.makeNil()
+            if (isFieldEmpty && isEmptyAllowed) {
+              // Valid!
+              start.parentElement.makeNil()
+              return postEvalState // Empty, no need to advance
+            } else if (isFieldEmpty && !isEmptyAllowed) {
+              // Fail!
+              return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
+            } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
+              // Contains a nilValue, Success!
+              start.parentElement.makeNil()
 
-            val numBits = result.numBits //e.knownEncodingStringBitLength(result.field)
-            //val endCharPos = start.charPos + result.field.length()
-            val endCharPos =
-              if (postEvalState.charPos == -1) result.field.length
-              else postEvalState.charPos + result.field.length
-            val endBitPos = numBits + start.bitPos
+              val numBits = s.numBits //e.knownEncodingStringBitLength(result.field)
+              //val endCharPos = start.charPos + result.field.length()
+              val endCharPos =
+                if (postEvalState.charPos == -1) s.field.length
+                else postEvalState.charPos + s.field.length
+              val endBitPos = numBits + start.bitPos
 
-            log(Debug("%s - Found %s", eName, result.field))
-            log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
-            log(Debug("%s - Ended at bit position ", eName, endBitPos))
+              log(Debug("%s - Found %s", eName, s.field))
+              log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
+              log(Debug("%s - Ended at bit position ", eName, endBitPos))
 
-            //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
-            return postEvalState.withReaderPos(endBitPos, endCharPos, reader) // Need to advance past found nilValue
-          } else {
-            // Fail!
-            return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+              //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
+              return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
+            } else {
+              // Fail!
+              return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+            }
           }
         }
       }
     }
-
   }
 
   override def unparser: Unparser = new Unparser(e) {
@@ -2266,7 +1997,6 @@ case class LiteralNilPattern(e: ElementBase)
         val postEvalState = start //start.withVariables(vars)
 
         log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
-        val in = start.inStream
 
         val bytePos = (postEvalState.bitPos >> 3).toInt
         log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
@@ -2277,48 +2007,49 @@ case class LiteralNilPattern(e: ElementBase)
         log(Debug("Retrieving reader state."))
         val reader = getReader(charset, start.bitPos, start)
 
-        val d = new DelimParser(e)
+        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
 
         val result = d.parseInputPatterned(pattern, reader)
 
-        if (!result.isSuccess) {
-          return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
-        } else {
-          // We have a field, is it empty?
-          val field = d.removePadding(result.field, justificationTrim, padChar)
-          val isFieldEmpty = field.length() == 0
+        result match {
+          case _: DelimParseFailure =>
+            return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
+          case s: DelimParseSuccess => {
+            // We have a field, is it empty?
+            val field = d.removePadding(s.field, justificationTrim, padChar)
+            val isFieldEmpty = field.length() == 0
 
-          if (isFieldEmpty && isEmptyAllowed) {
-            // Valid!
-            start.parentElement.makeNil()
-            return postEvalState // Empty, no need to advance
-          } else if (isFieldEmpty && !isEmptyAllowed) {
-            // Fail!
-            return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
-          } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
-            // Contains a nilValue, Success!
-            start.parentElement.makeNil()
+            if (isFieldEmpty && isEmptyAllowed) {
+              // Valid!
+              start.parentElement.makeNil()
+              return postEvalState // Empty, no need to advance
+            } else if (isFieldEmpty && !isEmptyAllowed) {
+              // Fail!
+              return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
+            } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
+              // Contains a nilValue, Success!
+              start.parentElement.makeNil()
 
-            val numBits = result.numBits //e.knownEncodingStringBitLength(result.field)
+              val numBits = s.numBits //e.knownEncodingStringBitLength(result.field)
 
-            val endCharPos =
-              if (postEvalState.charPos == -1) result.field.length
-              else postEvalState.charPos + result.field.length
-            val endBitPos = numBits + start.bitPos
+              val endCharPos =
+                if (postEvalState.charPos == -1) s.field.length
+                else postEvalState.charPos + s.field.length
+              val endBitPos = numBits + start.bitPos
 
-            log(Debug("%s - Found %s", eName, result.field))
-            log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
-            log(Debug("%s - Ended at bit position ", eName, endBitPos))
+              log(Debug("%s - Found %s", eName, s.field))
+              log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
+              log(Debug("%s - Ended at bit position ", eName, endBitPos))
 
-            return postEvalState.withReaderPos(endBitPos, endCharPos, reader) // Need to advance past found nilValue
-          } else {
-            // Fail!
-            return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+              return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
+            } else {
+              // Fail!
+              return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+            }
           }
         }
       }
     }
-
   }
 
   override def unparser: Unparser = new Unparser(e) {
@@ -2339,7 +2070,7 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
     override def toString = "LiteralNilDelimitedOrEndOfData(" + e.nilValue + ")"
 
     def parse(start: PState): PState = {
-      //  withLoggingLevel(LogLevel.Info) 
+      // withLoggingLevel(LogLevel.Debug) 
       {
         val eName = e.toString()
 
@@ -2365,16 +2096,16 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
         val postEvalState = start.withVariables(vars)
 
         log(Debug("%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))
-        val in = start.inStream
 
         val bytePos = (postEvalState.bitPos >> 3).toInt
         log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
         log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
 
-        if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilDelimitedOrEndOfData - not byte aligned.") }
+        // Don't check alignment this way. This is encoding specific. (Some encodings not byte aligned)
+        // if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilDelimitedOrEndOfData - not byte aligned.") }
 
         log(Debug("Retrieving reader state."))
-        val reader = getReader(charset, start.bitPos, start)
+        val reader1 = getReader(charset, start.bitPos, start)
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
@@ -2382,58 +2113,55 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
         // 2. Compare resultant field to nilValue(s)
         //		Same, success
         //		Diff, fail
-        val d = new DelimParser(e)
-        var result: DelimParseResult = new DelimParseResult
-
-        if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
-          //          result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
-          //            esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter)
-          result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
-            esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter, justificationTrim, padChar)
-        } else if (esObj.escapeSchemeKind == EscapeSchemeKind.Character) {
-          result = d.parseInputEscapeCharacter(Set.empty[String], delimsCooked.toSet, reader,
-            esObj.escapeCharacter, esObj.escapeEscapeCharacter, justificationTrim, padChar)
-        } else {
-          result = d.parseInput(Set.empty[String], delimsCooked.toSet, reader, justificationTrim, padChar)
-        }
-
-        if (!result.isSuccess) {
-          return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
-        } else {
-          // We have a field, is it empty?
-          val field = d.removePadding(result.field, justificationTrim, padChar)
-          val isFieldEmpty = field.length() == 0
-          val isEmptyAllowed = e.nilValue.contains("%ES;")
-          if (isFieldEmpty && isEmptyAllowed) {
-            // Valid!
-            start.parentElement.makeNil()
-            return postEvalState // Empty, no need to advance
-          } else if (isFieldEmpty && !isEmptyAllowed) {
-            // Fail!
-            return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
-          } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
-            // Contains a nilValue, Success!
-            start.parentElement.makeNil()
-
-            val numBits = result.numBits
-            //val endCharPos = start.charPos + result.field.length()
-            val endCharPos = if (postEvalState.charPos == -1) result.field.length else postEvalState.charPos + result.field.length
-            val endBitPos = numBits + start.bitPos
-
-            log(Debug("%s - Found %s", eName, result.field))
-            log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
-            log(Debug("%s - Ended at bit position ", eName, endBitPos))
-
-            //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
-            return postEvalState.withReaderPos(endBitPos, endCharPos, reader) // Need to advance past found nilValue
+        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
+        val result =
+          if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
+            //          result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
+            //            esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter)
+            d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader1,
+              esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter, justificationTrim, padChar)
+          } else if (esObj.escapeSchemeKind == EscapeSchemeKind.Character) {
+            d.parseInputEscapeCharacter(Set.empty[String], delimsCooked.toSet, reader1,
+              esObj.escapeCharacter, esObj.escapeEscapeCharacter, justificationTrim, padChar)
           } else {
-            // Fail!
-            return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+            d.parseInput(Set.empty[String], delimsCooked.toSet, reader1, justificationTrim, padChar)
+          }
+
+        result match {
+          case f: DelimParseFailure =>
+            return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
+          case s: DelimParseSuccess => {
+            // We have a field, is it empty?
+            val field = d.removePadding(s.field, justificationTrim, padChar)
+            val isFieldEmpty = field.length() == 0 // Note: field has been stripped of padChars
+            val isEmptyAllowed = e.nilValue.contains("%ES;") // TODO: move outside parser
+            if (isFieldEmpty && !isEmptyAllowed) {
+              // Fail!
+              return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
+            } else if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any. 
+              d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) { // Not empty, but matches.
+              // Contains a nilValue, Success!
+              start.parentElement.makeNil()
+
+              val numBits = s.numBits
+              //val endCharPos = start.charPos + result.field.length()
+              val endCharPos = if (postEvalState.charPos == -1) s.numCharsRead else postEvalState.charPos + s.numCharsRead
+              val endBitPos = numBits + start.bitPos
+
+              log(Debug("%s - Found %s", eName, s.field))
+              log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
+              log(Debug("%s - Ended at bit position ", eName, endBitPos))
+
+              //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
+              return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
+            } else {
+              // Fail!
+              return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+            }
           }
         }
       }
     }
-
   }
 
   override def unparser: Unparser = new Unparser(e) {
@@ -2450,12 +2178,12 @@ case class LogicalNilValue(e: ElementBase) extends Primitive(e, e.isNillable)
 case class LeadingSkipRegion(e: Term) extends Terminal(e, e.leadingSkip > 0) {
   e.schemaDefinition(e.leadingSkip < Compiler.maxSkipLength, "Property leadingSkip %s is larger than limit %s", e.leadingSkip, Compiler.maxSkipLength)
 
-  def parser: Parser = new PrimParser(this, e) {
+  def parser: DaffodilParser = new PrimParser(this, e) {
 
     def parse(pstate: PState) = {
 
       val newBitPos = 8 * (pstate.bytePos + e.leadingSkip)
-      pstate.withPos(newBitPos, -1)
+      pstate.withPos(newBitPos, -1, None)
     }
 
     override def toString = "leadingSkip(" + e.leadingSkip + ")"
@@ -2488,7 +2216,7 @@ abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFD
 case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
   extends NewVariableInstanceBase(decl, stmt) {
 
-  def parser: Parser = new PrimParser(this, decl) {
+  def parser: DaffodilParser = new PrimParser(this, decl) {
     def parse(pstate: PState) = {
       Assert.notYetImplemented()
     }
@@ -2501,7 +2229,7 @@ case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNe
 case class NewVariableInstanceEnd(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
   extends NewVariableInstanceBase(decl, stmt) {
 
-  def parser: Parser = new PrimParser(this, decl) {
+  def parser: DaffodilParser = new PrimParser(this, decl) {
     def parse(pstate: PState) = Assert.notYetImplemented()
   }
 
@@ -2518,7 +2246,7 @@ abstract class AssertPatternBase(decl: AnnotatedSchemaComponent, stmt: DFDLAsser
   val csName = decl.knownEncodingCharset.name()
   val charset = decl.knownEncodingCharset
 
-  def parser: Parser
+  def parser: DaffodilParser
   def unparser: Unparser
 
 }
@@ -2528,7 +2256,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
   val kindString = "AssertPatternPrim"
 
-  def parser: Parser = new PrimParser(this, decl) {
+  def parser: DaffodilParser = new PrimParser(this, decl) {
 
     override def toBriefXML(depthLimit: Int = -1) = {
       "<" + kindString + ">" + testPattern + "</" + kindString + ">"
@@ -2553,19 +2281,17 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
           val reader = getReader(charset, start.bitPos, lastState)
 
-          val d = new DelimParser(decl)
+          val d = new DelimParser(decl.knownEncodingStringBitLengthFunction)
 
-          var result: DelimParseResult = new DelimParseResult
+          val result = d.parseInputPatterned(testPattern, reader)
 
-          result = d.parseInputPatterned(testPattern, reader)
-
-          val postState = result.isSuccess match {
-            case true => {
-              val endBitPos = lastState.bitPos + result.numBits
+          val postState = result match {
+            case s: DelimParseSuccess => {
+              val endBitPos = lastState.bitPos + s.numBits
               log(Debug("Assert Pattern success for testPattern %s", testPattern))
               start
             }
-            case false => {
+            case _ => {
               log(Debug("Assert Pattern fail for testPattern %s", testPattern))
               val diag = new AssertionFailed(decl, start, stmt.message)
               start.failed(diag)
@@ -2589,7 +2315,7 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
   val kindString = "DiscriminatorPatternPrim"
 
-  def parser: Parser = new PrimParser(this, decl) {
+  def parser: DaffodilParser = new PrimParser(this, decl) {
 
     override def toBriefXML(depthLimit: Int = -1) = {
       "<" + kindString + ">" + testPattern + "</" + kindString + ">"
@@ -2614,11 +2340,9 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
           val reader = getReader(charset, start.bitPos, lastState)
 
-          val d = new DelimParser(decl)
+          val d = new DelimParser(decl.knownEncodingStringBitLengthFunction)
 
-          var result: DelimParseResult = new DelimParseResult
-
-          result = d.parseInputPatterned(testPattern, reader)
+          val result = d.parseInputPatterned(testPattern, reader)
 
           // Only want to set the discriminator if it is true
           // we do not want to modify it unless it's true
@@ -2651,7 +2375,7 @@ abstract class AssertBase(
 
   def unparser = DummyUnparser
 
-  def parser: Parser = new ExpressionEvaluationParser(this, decl) {
+  def parser: DaffodilParser = new ExpressionEvaluationParser(this, decl) {
 
     def parse(start: PState): PState =
       // withLoggingLevel(LogLevel.Info) 
@@ -2706,7 +2430,7 @@ case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
 
   lazy val expandedTypeName = stmt.defv.extType
 
-  def parser: Parser = new SetVariableParser(this, decl, stmt)
+  def parser: DaffodilParser = new SetVariableParser(this, decl, stmt)
   def unparser = DummyUnparser
 }
 
@@ -2752,7 +2476,7 @@ case class InputValueCalc(e: ElementBase)
   lazy val ptn = pt.name
   lazy val expandedTypeName = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, ptn)
 
-  def parser: Parser = new IVCParser(this, e)
+  def parser: DaffodilParser = new IVCParser(this, e)
   def unparser = DummyUnparser
 }
 
@@ -2809,6 +2533,7 @@ class SetVariableParser(context: ExpressionEvaluatorBase, decl: AnnotatedSchemaC
 
 case class StringExplicitLengthInBytes(e: ElementBase)
   extends Terminal(e, true)
+  with TextReader
   with Padded
   with WithParseErrorThrowing {
   val expr = e.length
@@ -2819,7 +2544,7 @@ case class StringExplicitLengthInBytes(e: ElementBase)
 
   val charset = e.knownEncodingCharset
 
-  def parser: Parser = new PrimParser(this, e) {
+  def parser: DaffodilParser = new PrimParser(this, e) {
     override def toString = "StringExplicitLengthInBytesParser(" + exprText + ")"
 
     def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
@@ -2835,11 +2560,12 @@ case class StringExplicitLengthInBytes(e: ElementBase)
 
       val in = start.inStream
       val decoder = charset.newDecoder()
-      val d = new DelimParser(e)
+      val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
 
       val bytePos = (start.bitPos >> 3).toInt
 
       try {
+        val reader = getReader(charset, start.bitPos, start)
         val bytes = in.getBytes(start.bitPos, nBytes.toInt)
         val cb = decoder.decode(ByteBuffer.wrap(bytes))
         val result = cb.toString
@@ -2852,50 +2578,15 @@ case class StringExplicitLengthInBytes(e: ElementBase)
         // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
         // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
         currentElement.setDataValue(d.removePadding(result, justificationTrim, padChar))
-        val postState = start.withPos(endBitPos, endCharPos)
+        // FIXME: 16-bit characters and odd number of bytes - won't work.
+        // Needs to skip last byte, and pass endCharPos -1 (refactor with StringFixedLengthInBytes)
+        val postState = start.withPos(endBitPos, endCharPos, Some(reader))
         return postState
       } catch {
-        case e: java.nio.BufferUnderflowException => { return PE(start, "StringExplicitLengthInBytesParser - Insufficient Bits in field; required %s", nBytes * 8) }
-        case e: IndexOutOfBoundsException => { return PE(start, "StringExplicitLengthInBytesParser - IndexOutOfBounds: \n%s", e.getMessage()) }
+        case e: IndexOutOfBoundsException => { return PE(start, "StringExplicitLengthInBytesParser - Insufficient Bits in field: IndexOutOfBounds: \n%s", e.getMessage()) }
         case u: UnsuppressableException => throw u
         case e: Exception => { return PE(start, "StringExplicitLengthInBytesParser - Exception: \n%s", e.getStackTraceString) }
       }
-
-      //      log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
-      //      val R(nBytesAsAny, newVMap) = expr.evaluate(pstate.parent, pstate.variableMap)
-      //      val nBytes = nBytesAsAny.asInstanceOf[Long]
-      //      val start = pstate.withVariables(newVMap)
-      //      log(Debug("Explicit length %s", nBytes))
-      //
-      //      // Allocate larger cbuf on demand.
-      //      if (cbufSize < nBytes) { // worst case here 1 byte = 1 character
-      //        if (nBytes > Compiler.maxFieldContentLengthInBytes) {
-      //          // TODO: how can we go after bigger than max int bytes? We have 64-bit computers
-      //          // after all....
-      //          return PE(start, "Calculated length %s exceeds implementation maximum of %s.", nBytes, Compiler.maxFieldContentLengthInBytes)
-      //        }
-      //        val n : Int = nBytes.toInt
-      //        cbuf = CharBuffer.allocate(n)
-      //        cbufSize = n
-      //      }
-      //
-      //      val in = start.inStream
-      //
-      //      val (endBitPos, _) = in.fillCharBufferMixedData(cbuf, start.bitPos, decoder, nBytes)
-      //      if (endBitPos < start.bitPos + nBytes * 8) {
-      //        // Do Something Bad
-      //        return PE(start, "Insufficent Bits in field; required " + nBytes * 8 + " received " + (endBitPos - start.bitPos))
-      //      }
-      //      val result = cbuf.toString
-      //      log(Debug("Parsed: " + result))
-      //      log(Debug("Ended at bit position " + endBitPos))
-      //      val endCharPos = start.charPos + result.length
-      //      val currentElement = start.parentElement
-      //      // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
-      //      // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-      //      currentElement.setDataValue(result)
-      //      val postState = start.withPos(endBitPos, endCharPos)
-      //      postState
       pstate
     }
   }
@@ -2906,15 +2597,6 @@ case class StringExplicitLengthInBytes(e: ElementBase)
 
     def unparse(start: UState): UState = {
       Assert.notYetImplemented()
-      //      // setLoggingLevel(LogLevel.Info)
-      //
-      //      val data = start.currentElement.getText
-      //
-      //      //      start.outStream.setEncoder(encoder)
-      //      start.outStream.fillCharBuffer(data)
-      //
-      //      log(Debug("Unparsed: " + start.outStream.getData))
-      //      start
     }
   }
 }
@@ -2922,99 +2604,24 @@ case class StringExplicitLengthInBytes(e: ElementBase)
 trait TextReader extends Logging {
 
   /**
-   * Readers are stored in the PState.
+   * Readers are stored in the PState within the InStream object.
    */
   def getReader(charset: Charset, bitPos: Long, state: PState): DFDLCharReader = {
     // withLoggingLevel(LogLevel.Info) 
     {
       val csName = charset.name()
-      log(Debug("Retrieving reader"))
+      log(Debug("Retrieving reader at bytePos %s", bitPos >> 3))
       // Do we already have a reader in the PState?
-      val res = state.textReader match {
-        case Some(rdr) if (rdr.getCharsetName == csName && state.charPos != -1) => {
-          log(Debug("Reader already exists."))
-          if (rdr.atEnd) {
-            log(Debug("Reader atEnd, construct new reader at bitPos(%s)", bitPos))
-            val in = state.inStream
-            in.getCharReader(charset, bitPos)
-          } else { rdr }
-        }
-        case None => {
-          log(Debug("Reader does not exist in state."))
-          // TODO: The following if-else can probably just be condensed as they perform the same operation
-          // The trick here is that we may, at some point, need to tell the difference between when we were
-          // in text mode vs binary mode.  PState.charPos = -1 means we were not in text mode.
-          if (state.charPos == -1) {
-            log(Debug("Wasn't in 'text' mode. Construct a new reader at bitPos(%s)", bitPos))
-            val in = state.inStream
-            in.getCharReader(charset, bitPos)
-          } else {
-            log(Debug("Construct a new reader at bitPos(%s), charPos(%s)", bitPos, state.charPos))
-            // TODO: Does the underlying call throw if we are out of data? How will this fail?
-            val in = state.inStream
-            in.getCharReader(charset, bitPos)
-          }
-        }
-      }
-      log(Debug("Retrieval complete."))
-      // System.err.println(res.print)
+      val res = state.inStream.getCharReader(charset, bitPos)
       res
     }
   }
-
-  // For optimizing performance, is it necessary for every text reader to update
-  // the hash with the updated charPos?  Probably not.
 
 }
 
 trait Padded { self: Terminal =>
   var padChar = ""
   lazy val eBase = self.context.asInstanceOf[ElementBase]
-
-  //  lazy val justificationTrim: TextJustificationType.Type = eBase.textTrimKind match {
-  //    case TextTrimKind.None => TextJustificationType.None
-  //    case TextTrimKind.PadChar if eBase.isSimpleType => {
-  //      val theJust = eBase.primType.name match {
-  //
-  //        case "int" | "byte" | "short" | "long" | "integer" | "unsignedInt" |
-  //          "unsignedByte" | "unsignedShort" | "unsignedLong" | "double" | "float" => {
-  //          padChar = eBase.textNumberPadCharacter
-  //          eBase.textNumberJustification match {
-  //            case TextNumberJustification.Left => TextJustificationType.Left
-  //            case TextNumberJustification.Right => TextJustificationType.Right
-  //            case TextNumberJustification.Center => TextJustificationType.Center
-  //          }
-  //        }
-  //        case "string" => {
-  //          padChar = eBase.textStringPadCharacter
-  //          eBase.textStringJustification match {
-  //            case TextStringJustification.Left => TextJustificationType.Left
-  //            case TextStringJustification.Right => TextJustificationType.Right
-  //            case TextStringJustification.Center => TextJustificationType.Center
-  //          }
-  //        }
-  //        case "dateTime" | "date" | "time" => {
-  //          padChar = eBase.textCalendarPadCharacter
-  //          eBase.textCalendarJustification match {
-  //            case TextCalendarJustification.Left => TextJustificationType.Left
-  //            case TextCalendarJustification.Right => TextJustificationType.Right
-  //            case TextCalendarJustification.Center => TextJustificationType.Center
-  //          }
-  //        }
-  //        case "boolean" => {
-  //          padChar = eBase.textBooleanPadCharacter
-  //          eBase.textBooleanJustification match {
-  //            case TextBooleanJustification.Left => TextJustificationType.Left
-  //            case TextBooleanJustification.Right => TextJustificationType.Right
-  //            case TextBooleanJustification.Center => TextJustificationType.Center
-  //          }
-  //        }
-  //        case _ => TextJustificationType.None
-  //      }
-  //      theJust
-  //    }
-  //    case _ => TextJustificationType.None
-  //  }
 
   lazy val justificationTrim: TextJustificationType.Type = eBase.textTrimKind match {
     case TextTrimKind.None => TextJustificationType.None
@@ -3063,32 +2670,4 @@ trait Padded { self: Terminal =>
   }
 
 }
-
-//trait BinaryReader extends Logging {
-//
-//  /**
-//   * This call doesn't really do anything as the reader
-//   * is now carried within the state.
-//   */
-//  //  def setReader(state: PState) = {
-//  //    withLoggingLevel(LogLevel.Info) {
-//  //      // If a reader exists, save it
-//  //      //
-//  //      // We assume that the reader is already pointed to the
-//  //      // appropriate charPos as it should've been set
-//  //      // via state.withPos
-//  //      state.textReader match {
-//  //        case Some(rdr) => {
-//  //          val in = state.inStream
-//  //          //in.byteReader.updateCharReader(rdr)
-//  //        }
-//  //        case None => {
-//  //          // Nothing to do
-//  //        }
-//  //      }
-//  //      log(Debug("Save complete."))
-//  //    }
-//  //  }
-//
-//}
 

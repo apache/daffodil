@@ -100,21 +100,27 @@ class StmtEval(context: ElementBase, eGram: Gram)
     def parse(pstate: PState): PState = {
       //Removed checks now done at compilation
 
-      var afterPatDisc = pstate.withPos(pstate.bitPos, pstate.charPos)
+      var afterPatDisc = pstate //we're first so don't do .withPos(pstate.bitPos, pstate.charPos)
       patDiscrim.map(_.parser).foreach(d => {
         afterPatDisc = d.parse1(afterPatDisc, context)
         // Pattern fails at the start of the Element
         if (afterPatDisc.status != Success) { return afterPatDisc }
       })
 
-      var afterPatAssrt = afterPatDisc.withPos(pstate.bitPos, pstate.charPos)
+      // now here we backup and run the pattern Asserts 
+      // against the data at the start of the element's representation again.
+      var afterPatAssrt = afterPatDisc.withPos(pstate.bitPos, pstate.charPos, pstate.inStream.reader)
       patAssert.map(_.parser).foreach(d => {
         afterPatAssrt = d.parse1(afterPatAssrt, context)
         // Pattern fails at the start of the Element
         if (afterPatAssrt.status != Success) { return afterPatAssrt }
       })
 
-      val postEState = eParser.parse1(afterPatAssrt, context)
+      // backup again. If all pattern discriminators and/or asserts
+      // have passed, now we parse the element. But we backup
+      // as if the pattern matching had not advanced the state.
+      val beforeEState = afterPatAssrt.withPos(pstate.bitPos, pstate.charPos, pstate.inStream.reader)
+      val postEState = eParser.parse1(beforeEState, context)
 
       var someSetVarFailed: Option[PState] = None
 

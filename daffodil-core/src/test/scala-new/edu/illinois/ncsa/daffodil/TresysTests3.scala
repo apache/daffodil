@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil
  * SOFTWARE.
  */
 
-
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -42,11 +41,9 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.LoggingDefaults
-import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Misc
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.debugger.Debugger
-import edu.illinois.ncsa.daffodil.util.Logging
 
 class TresysTests3 extends JUnitSuite {
   val testDir = "/test-suite/tresys-contributed/"
@@ -60,7 +57,7 @@ class TresysTests3 extends JUnitSuite {
   val ab = testDir + "ABLargeData.tdml.dat"
   lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))
   // Runs, but it is too slow to use in regression tests
-  // @Test def test_AB006() { runnerAB.runOneTest("AB006") }
+  @Test def test_AB006() { runnerAB.runOneTest("AB006") }
 
   val af = testDir + "AF.tdml"
   lazy val runnerAF = new DFDLTestSuite(Misc.getRequiredResource(af))

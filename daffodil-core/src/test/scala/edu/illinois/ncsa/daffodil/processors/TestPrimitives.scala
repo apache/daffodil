@@ -251,11 +251,15 @@ class TestPrimitives extends JUnitSuite {
     val d = Compiler.stringToReadableByteChannel("42")
     val initialState = PState.createInitialState(pf.sset.schemaComponentRegistry,
       edecl, d, bitOffset = 3)
-    val resState = dp.parse(initialState)
-    assertTrue(resState.isError)
-    val Seq(err) = resState.getDiagnostics
-    assertTrue(err.isInstanceOf[ParseError])
-    assertTrue(err.toString.contains("byte"))
+    val exc = intercept[Exception] {
+      var resState = dp.parse(initialState)
+      assertTrue(resState.isError)
+    }
+    val err = exc.getMessage()
+    // val Seq(err) = resState.getDiagnostics
+    // assertTrue(err.isInstanceOf[ParseError])
+    assertTrue(err.toString.contains("8"))
+    assertTrue(err.toString.contains("align"))
   }
 
 }

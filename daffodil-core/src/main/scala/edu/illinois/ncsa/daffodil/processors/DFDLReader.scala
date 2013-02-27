@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import java.io.InputStream
 import java.nio.channels.ReadableByteChannel
 import scala.collection.immutable.PagedSeq
@@ -55,6 +54,15 @@ import java.nio.charset.CoderResult
 import sun.nio.cs.HistoricallyNamedCharset
 import java.nio.channels.Channels
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import scala.util.parsing.input.Reader
+import scala.util.parsing.input.CharSequenceReader
+import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.util.Debug
+
+//
+// Convention: name index fields like bytePos or bitPos or charPos with suffixes to indicate
+// zero based or 1 based. Suffixes are ...0b and ...1b respectively.
+//
 
 /**
  * Pure functional Reader[Byte] that gets its data from a DFDL.Input (aka a ReadableByteChannel)
@@ -63,39 +71,55 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  *
  * This layer doesn't know anything about bits and bit positions like all the higher layers do.
  */
-class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos: Int = 0)
-  extends scala.util.parsing.input.Reader[Byte] {
+class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos0b: Int = 0)
+  extends scala.util.parsing.input.Reader[Byte] with Logging {
 
   def this(in: ReadableByteChannel) = this(PagedSeq.fromIterator(new IterableReadableByteChannel(in)), 0)
 
-  lazy val first: Byte = psb(bytePos)
+  lazy val first: Byte = psb(bytePos0b)
 
-  lazy val rest: DFDLByteReader = new DFDLByteReader(psb, bytePos + 1)
+  lazy val rest: DFDLByteReader = new DFDLByteReader(psb, bytePos0b + 1)
 
-  lazy val pos: scala.util.parsing.input.Position = new DFDLBytePosition(bytePos)
+  // needed because of contract from Reader superclass.
+  lazy val pos: scala.util.parsing.input.Position = new DFDLBytePosition(bytePos0b)
 
-  lazy val atEnd: Boolean = !psb.isDefinedAt(bytePos)
+  lazy val atEnd: Boolean = !psb.isDefinedAt(bytePos0b)
 
-  def atPos(bytePosition: Int): DFDLByteReader = {
-    //System.err.println("DFDLByteReader psb length: " + psb.length)
+  def atPos(bytePosition0b: Int): DFDLByteReader = {
+    // note: do NOT slice. That copies the psb.
     //new DFDLByteReader(psb.slice(bytePosition), 0) 
-    new DFDLByteReader(psb, bytePosition)
+    if (bytePosition0b == bytePos0b) this // already at this position.
+    else new DFDLByteReader(psb, bytePosition0b)
   }
 
-  def getByte(bytePosition: Int): Byte = { psb(bytePosition) }
+  def getByte(bytePosition0b: Int): Byte = { psb(bytePosition0b) }
 
-  lazy val byteArray: Array[Byte] = psb.toArray[Byte]
-  lazy val bb: ByteBuffer = ByteBuffer.wrap(byteArray)
+  def getByteArray(bytePosition0b: Int, numBytes: Int): Array[Byte] = {
+    val arr = new Array[Byte](numBytes)
+    for (i <- 0 to (numBytes - 1)) {
+      arr(i) = getByte(bytePosition0b + i)
+    }
+    arr
+  }
+
+  // Removed: These are a really bad idea. They will make a giant 
+  // copy of the entire input. Maybe ok for unit testing, but just
+  // having them here is asking for trouble.
+  //
+  // lazy val byteArray: Array[Byte] = psb.toArray[Byte]
+  // lazy val bb: ByteBuffer = ByteBuffer.wrap(byteArray)
 
   /**
    * Factory for a Reader[Char] that constructs characters by decoding them from this
    * Reader[Byte] for a specific encoding starting at a particular bit position.
    *
-   * Yes, I said "bit" position.
+   * Yes, I said "bit" position. Some characters are not a full byte wide (7-bit, 6-bit, and even 5-bit
+   * encodings exist)
    *
    * These are kept in the processor state for reuse.
    */
   def newCharReader(charset: Charset, bitPos: Long, bitLimit: Long): DFDLCharReader = {
+    log(Debug("DFDLByteReader.newCharReader for bytePos %s.", (bitPos >> 3)))
     DFDLCharReader(psb, bitPos, bitLimit, charset)
   }
 
@@ -103,7 +127,9 @@ class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos: Int = 0)
 
 object DFDLCharReader {
 
-  def apply(thePsb: PagedSeq[Byte], bitPosition: Long, bitLimit: Long, charset: Charset) = {
+  // TODO: make a specialized DFDLSingleByteCharReader for known single-byte character sets.
+  // This can bypass the PagedSeq[Char] entirely.
+  def apply(thePsb: PagedSeq[Byte], bitPosition: Long, bitLimit: Long, charset: Charset): DFDLCharReader = {
 
     Assert.usage(bitPosition <= Int.MaxValue, "bit positions are limited to 32-bit signed integer by underlying libraries.")
     val bitPos = bitPosition.toInt
@@ -112,15 +138,20 @@ object DFDLCharReader {
     val bytePos = bitPos >> 3
 
     val is = {
-      if (bitLimit == -1) { new IteratorInputStream(thePsb.slice(bytePos).iterator) } else {
+      // 
+      // Removed slice call: psb.slice makes a copy of the psb.
+      // now passes the psb and start/end to the IteratorInputStream
+      // which manages delivery of bytes one by one so as to not 
+      // do any copying that isn't necessary.
+      //
+      val endBytePos =
+        if (bitLimit == -1) -1
         // Here we want to limit the PagedSeq[Byte] via bitLimit
         // because we need to determine the ending byte position from
         // the bit limit we must divide by 8.0 (must divide by double)
         // in order to round to the appropriate byte position
-        //
-        val endBytePos = scala.math.ceil(bitLimit / 8.0).toInt //bitLimit.toInt >> 3
-        new IteratorInputStream(thePsb.slice(bytePos, endBytePos).iterator)
-      }
+        else scala.math.ceil(bitLimit / 8.0).toInt
+      new IteratorInputStream(thePsb, bytePos, endBytePos)
     }
 
     // TODO: Why is bitLimit not working for DFDLJavaIOInputStreamReader?
@@ -132,7 +163,7 @@ object DFDLCharReader {
     //val psc = PagedSeq.fromSource(scala.io.Source.fromInputStream(is)(codec))
     val psc = PagedSeq.fromReader(r)
     val charOffset = 0
-    val rdr = new DFDLCharReader(charset, bitOffset, bitLimit, psc, charOffset, thePsb)
+    val rdr = new DFDLPagedSeqCharReader(charset, bitOffset, bitLimit, psc, charOffset, thePsb)
     rdr
   }
 
@@ -142,33 +173,104 @@ object DFDLCharReader {
  * Reader[Char] constructed from a specific point within a PagedSeq[Byte], for
  * a particular character set encoding. Ends if there is any error trying to decode a
  * character.
+ *
+ * This trait allows for multiple different implementations for performance
+ * reasons.
+ *
+ * Some implementations deal with the general issue of variable-width
+ * character encodings.
+ *
+ * Others are specialized for 1-to-1 single-byte character encodings
+ * like US-ASCII or ISO-8859-1, where the mapping to unicode characters
+ * is either trivial, or requires just a small lookup table.
  */
-class DFDLCharReader private (charset: Charset, startingBitPos: Int, bitLimit: Long,
-  psc: PagedSeq[Char], override val offset: Int, psb: PagedSeq[Byte])
-  extends scala.util.parsing.input.Reader[Char] {
+
+trait DFDLCharReader
+  extends Reader[Char] {
+  def first: Char
+  def rest: DFDLCharReader
+  def atEnd: Boolean
+  def atCharPos(cp0b: Int): DFDLCharReader
+  def atBitPos(bp0b: Long): DFDLCharReader
+  def getCharsetName: String
+  def characterPos: Int
+  def charset: Charset
+  def bitLimit: Long
+}
+
+/**
+ * This is for unit tests that want to feed data from a string
+ */
+class DFDLUTStringReader private (rdr: Reader[Char])
+  extends DFDLCharReader {
+  override def source = rdr.source
+  override def offset = rdr.offset
+  def this(data: String) = this(new CharSequenceReader(data))
+  def first = rdr.first
+  def rest = new DFDLUTStringReader(rdr.rest)
+  def atEnd = rdr.atEnd
+  def pos = rdr.pos
+  def atCharPos(cp0b: Int) = Assert.usageError("not to be used in test reader")
+  def atBitPos(bp0b: Long) = Assert.usageError("not to be used in test reader")
+  def getCharsetName = Assert.usageError("not to be used in test reader")
+  def characterPos = Assert.usageError("not to be used in test reader")
+  def charset = Assert.usageError("not to be used in test reader")
+  def bitLimit = -1
+}
+
+// TODO: make this global singleton go away!
+// This state should be maintained in the DataProcessor object I think.
+object DFDLCharCounter {
+  var count: Long = 0
+  def getAndResetCount = {
+    val c = count
+    count = 0
+    c
+  }
+}
+/**
+ * This is for arbitrary character sets. Uses a PagedSeq[Char] as underlying cache.
+ */
+class DFDLPagedSeqCharReader(charsetArg: Charset,
+                             val startingBitPos: Int,
+                             bitLimitArg: Long,
+                             psc: PagedSeq[Char],
+                             override val offset: Int,
+                             psb: PagedSeq[Byte])
+  extends DFDLCharReader with Logging {
+
+  Assert.usage(offset >= 0)
+  Assert.usage(startingBitPos >= 0)
+
+  val charset = charsetArg
+  val bitLimit = bitLimitArg
 
   override lazy val source: CharSequence = psc
 
-  def first: Char = psc(offset)
+  def first: Char = {
+    val char = psc(offset)
+    char
+  }
 
-  def rest: scala.util.parsing.input.Reader[Char] =
-    if (psc.isDefinedAt(offset)) new DFDLCharReader(charset, startingBitPos, bitLimit, psc, offset + 1, psb)
-    else this //new DFDLCharReader(psc, offset + 1)
+  def rest: DFDLCharReader =
+    if (psc.isDefinedAt(offset)) new DFDLPagedSeqCharReader(charset, startingBitPos, bitLimit, psc, offset + 1, psb)
+    else this
 
   def atEnd: Boolean = !psc.isDefinedAt(offset)
 
   def pos: scala.util.parsing.input.Position = new OffsetPosition(source, offset) //new DFDLCharPosition(offset)
 
-  override def drop(n: Int): DFDLCharReader = new DFDLCharReader(charset, startingBitPos, bitLimit, psc, offset + n, psb)
+  override def drop(n: Int): DFDLCharReader = new DFDLPagedSeqCharReader(charset, startingBitPos, bitLimit, psc, offset + n, psb)
 
-  def atPos(characterPos: Int): DFDLCharReader = {
-    new DFDLCharReader(charset, startingBitPos, bitLimit, psc, characterPos, psb)
+  def atCharPos(characterPos: Int): DFDLCharReader = {
+    if (characterPos == this.characterPos) this
+    else new DFDLPagedSeqCharReader(charset, startingBitPos, bitLimit, psc, characterPos, psb)
   }
 
   // We really want to be able to ask for a CharReader starting at said bitPos
   def atBitPos(bitPos: Long): DFDLCharReader = {
-    //System.err.println("DFDLCharReader.atBytePos(" + bytePosition + ")")
-    DFDLCharReader(psb, bitPos, bitLimit, charset)
+    log(Debug("creating new DFDLCharReader.atBytePos(%s)", (bitPos >> 3)))
+    new DFDLPagedSeqCharReader(charset, startingBitPos = bitPos.toInt, bitLimit, psc, characterPos, psb)
   }
 
   def getCharsetName: String = charset.name()
@@ -182,7 +284,7 @@ class DFDLCharReader private (charset: Charset, startingBitPos: Int, bitLimit: L
   }
 
   override def toString = {
-    "DFDLCharReader at bitPos " + startingBitPos
+    "DFDLCharReader starting at bitPos " + startingBitPos + " charPos " + characterPos + " bitLimit " + bitLimit
   }
 
 }
@@ -242,128 +344,6 @@ class DFDLBytePosition(i: Int) extends scala.util.parsing.input.Position {
   val lineContents = "" // unused. Maybe this should throw. NoSuchOperation, or something.
 }
 
-//object DFDLByteReader {
-//  type PosMap = HashMap[Int, (DFDLCharReader, Int)]
-//  type CSMap = HashMap[String, PosMap]
-//  type PSMap = HashMap[PagedSeq[Byte], CSMap]
-//  private var charReaderMap: PSMap = HashMap.empty
-//
-//  // CharPosMap [bytePos + csName, CharPos]
-//  type CharPosMap = HashMap[String, Int]
-//  private var charPositionsMap: CharPosMap = HashMap.empty
-//
-//  /**
-//   * Constructs a new DFDLCharReader using the same PagedSeq[Byte] but
-//   * starts reading characters from the bitPos.
-//   */
-//  private def getNewReader(psb: PagedSeq[Byte], bitPos: Long, charset: Charset): DFDLCharReader = {
-//    Assert.usage(bitPos <= Int.MaxValue) // Limitation due to underlying stuff being so Int oriented.
-//    val newrdr = new DFDLCharReader(psb, bitPos.toInt, charset)
-//    newrdr
-//  }
-//
-//  /**
-//   * Factory for a Reader[Char] that constructs characters by decoding them from this
-//   * Reader[Byte] for a specific encoding starting at a particular byte position.
-//   *
-//   * Memoizes so that we don't re-decode as we backtrack around.
-//   *
-//   * TRW - 11/21/2012 - This is no longer used.  Reader is kept around now in state.
-//   * Code here is left in-case we wish to revert back to using this call.
-//   */
-//  //  private def getCharReader(psb: PagedSeq[Byte], bytePos: Int, decoder: CharsetDecoder): DFDLCharReader = {
-//  //
-//  //    val csName = decoder.charset().name()
-//  //
-//  //    if (charReaderMap.isEmpty) {
-//  //      var csMap: CSMap = HashMap.empty
-//  //      val emptyCharReaderMap: PosMap = HashMap.empty
-//  //      csMap.put(csName, emptyCharReaderMap)
-//  //      charReaderMap.put(psb, csMap)
-//  //    }
-//  //
-//  //    // TRW - Added for Compound Pattern Match to work
-//  //    if (charReaderMap.get(psb) == None) {
-//  //      var csMap: CSMap = HashMap.empty
-//  //      val emptyCharReaderMap: PosMap = HashMap.empty
-//  //      csMap.put(csName, emptyCharReaderMap)
-//  //      charReaderMap.put(psb, csMap)
-//  //    }
-//  //
-//  //    // We need to know what bytePositions currently exist in the HashMap
-//  //    // so we can determine if there exists an entry containing this bytePos.
-//  //    // We need to then ask the reader if it's currently at the end.  If it is then
-//  //    // we need to create a new reader.
-//  //
-//  //    val charReaders = charReaderMap.get(psb).get.get(csName).get
-//  //
-//  //    val ks = charReaders.keySet
-//  //    val diffs = ks.map(k => k -> (bytePos - k)).filter(x => x._2 >= 0)
-//  //    val sortedDiffs = diffs.toList.sortWith((e1, e2) => e1._2 < e2._2)
-//  //
-//  //    if (sortedDiffs.length > 0) {
-//  //      val closestEntryKey = sortedDiffs(0)._1
-//  //      val result = charReaders.get(closestEntryKey) match {
-//  //        case Some((rdr, charPos)) => {
-//  //          val closestEntry = rdr.asInstanceOf[DFDLCharReader]
-//  //          if (closestEntry.atEnd) {
-//  //            val newrdr = new DFDLCharReader(psb, bytePos, decoder)
-//  //            charReaders.put(bytePos, newrdr -> 0)
-//  //            charPositionsMap.put(bytePos + csName, 0)
-//  //            newrdr
-//  //          } else {
-//  //            rdr.atPos(charPos)
-//  //          }
-//  //        }
-//  //        case None => {
-//  //          val newrdr = new DFDLCharReader(psb, bytePos, decoder)
-//  //          charReaders.put(bytePos, newrdr -> 0)
-//  //          charPositionsMap.put(bytePos + csName, 0)
-//  //          newrdr
-//  //        }
-//  //      }
-//  //      return result
-//  //    } else {
-//  //      // A valid entry doesn't exist
-//  //      val newrdr = new DFDLCharReader(psb, bytePos, decoder)
-//  //      charReaders.put(bytePos, newrdr -> 0)
-//  //      charPositionsMap.put(bytePos + csName, 0)
-//  //      return newrdr
-//  //    }
-//  //
-//  //    //    charReaders.get(bytePos) match {
-//  //    //      case None => {
-//  //    //        val newrdr = new DFDLCharReader(psb, bytePos, decoder)
-//  //    //        charReaders.put(bytePos, newrdr)
-//  //    //        newrdr
-//  //    //      }
-//  //    //      case Some(rdr) => rdr
-//  //    //    }
-//  //  }
-//  //
-//  //  private def setCharReader(reader: DFDLCharReader, psb: PagedSeq[Byte]) = {
-//  //    //    val charReaders = charReaderMap.get(psb).get.get(reader.getCharsetName).get
-//  //    //    //charReaders.put(bytePos, reader)
-//  //    //    //System.err.println("Before insert: " + charReaders)
-//  //    //
-//  //    ////    charReaders.get(reader.startingBytePos) match {
-//  //    ////      case Some((rdr, _)) => charReaders.put(reader.startingBytePos, (rdr -> reader.characterPos))
-//  //    ////      case None => charReaders.put(reader.startingBytePos, (reader -> reader.characterPos))
-//  //    ////    }
-//  //    //    
-//  //    //    // Don't need to do a get here, we only need to check if it exists
-//  //    //    if (!charReaders.contains(reader.startingBytePos)) {
-//  //    //      // This shouldn't ever really happen, right?  The reader is initially created
-//  //    //      // and stored in the HashMap.  So a reader should always be there.
-//  //    //        charReaders.put(reader.startingBytePos, (reader -> reader.characterPos))
-//  //    //    }
-//  //    // This assumes that the reader already exists in the HashMap (as it should)
-//  //    // thus avoiding all of the delay for having to do execute a get against the charReaderMap
-//  //    charPositionsMap.put(reader.startingBytePos + reader.getCharsetName, reader.characterPos)
-//  //  }
-//
-//}
-
 /**
  * Position in a character stream.
  *
@@ -383,13 +363,31 @@ class DFDLCharPosition(i: Int) extends scala.util.parsing.input.Position {
  *
  * Convert an iterator of bytes into an InputStream
  */
-class IteratorInputStream(ib: Iterator[Byte])
-  extends InputStream {
 
-  def read(): Int =
-    if (!ib.hasNext) -1
+object IteratorInputStream {
+  var calls: Long = 0 // instrumentation for performance analysis.
+  def getAndResetCalls: Long = {
+    val c = calls
+    calls = 0
+    c
+  }
+}
+
+class IteratorInputStream(psb: PagedSeq[Byte], startBytePos0b: Int, endBytePos0b: Int)
+  extends InputStream with Logging {
+
+  log(Debug("Creating an IteratorInputStream. This should happen only once per DataProcessor.parse call"))
+  var currentBytePos0b: Int = startBytePos0b
+
+  def read(): Int = {
+    if (currentBytePos0b == endBytePos0b
+      || !psb.isDefinedAt(currentBytePos0b)) -1
     else {
-      val res = ib.next()
+      IteratorInputStream.calls += 1
+      val res = psb(currentBytePos0b)
+      currentBytePos0b += 1
       res
     }
+  }
+
 }

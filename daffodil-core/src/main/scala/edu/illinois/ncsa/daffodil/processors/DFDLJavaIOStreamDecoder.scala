@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import java.nio.CharBuffer
 import java.io.FileInputStream
 import java.nio.charset.Charset
@@ -52,6 +51,8 @@ import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedCharset
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import edu.illinois.ncsa.daffodil.processors.charset.SupportsInitialBitOffset
 import edu.illinois.ncsa.daffodil.compiler.Compiler
+import java.nio.charset.MalformedInputException
+import edu.illinois.ncsa.daffodil.processors.charset.CharacterSetAlignmentError
 
 /**
  * The purpose of re-implementing this class is to gain control over
@@ -113,7 +114,7 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
     case _ if (bitOffsetWithinAByte == 0) => // ok. Do nothing. We are luckily, aligned to a byte.
     // We're counting on the parser surrounding us to catch this error and turn it into 
     // a ParseError.
-    case _ => Assert.usageError("Character set %s requires byte alignment, but alignment was %s (bits)".format(cs.name, bitOffsetWithinAByte))
+    case _ => throw new CharacterSetAlignmentError(cs.name, 8, bitOffsetWithinAByte)
   }
 
   @volatile
@@ -162,6 +163,9 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
   // So long as we're never asking this stream of characters for a byte position we're ok.
   // 
   // 
+  // Note: we're not sharing this object across threads. We're assuming one instance per, for
+  // any sort of parallel execution; hence, we don't do lock.synchronized.
+  //
   private def read0: Int = {
     //lock.synchronized // in java this was a synchronized method
     {
@@ -216,6 +220,7 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
         n = 1
         if ((len == 0) || !implReady) {
           // Return now if this is all we can produce w/o blocking
+          DFDLCharCounter.count += n
           return n
         }
       }
@@ -226,29 +231,37 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
         // Treat single-character array reads just like read()
         val c: Int = read0
         if (c == -1) {
-          return if (n == 0) -1 else n
+          return if (n == 0) -1 else {
+            DFDLCharCounter.count += n
+            n
+          }
         }
         cbuf(off) = c.asInstanceOf[Char]
-        return n + 1
+        return {
+          DFDLCharCounter.count += n + 1
+          n + 1
+        }
       }
-      return n + implRead(cbuf, off, off + len)
+      val res = n + implRead(cbuf, off, off + len)
+      DFDLCharCounter.count += res
+      return res
     }
 
   }
 
   override def ready: Boolean = {
-    lock.synchronized {
-      ensureOpen
-      return haveLeftoverChar || implReady
-    }
+    //    lock.synchronized {
+    ensureOpen
+    return haveLeftoverChar || implReady
+    //    }
   }
 
   def close: Unit = {
-    lock.synchronized {
-      if (!isOpen) { return }
-      implClose
-      isOpen = false
-    }
+    //    lock.synchronized {
+    if (!isOpen) { return }
+    implClose
+    isOpen = false
+    //    }
   }
 
   private def readBytes: Int = {
@@ -324,7 +337,7 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
             assert(cb.position() > 0)
             break
           }
-
+          Assert.invariant(cr.isMalformed)
           // DFDL Implementors:
           // The whole reason we reimplemented this code in scala is
           // to change this behavior here.
@@ -333,6 +346,22 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
           // So instead of throw, just set eof true. 
           // cr.throwException
           eof = true
+          //
+          // Setting eof to true isn't enough. Because we may have successfully
+          // parsed some characters already, so we'll be returning a count of 
+          // that many.
+          // 
+          // But since we're at EOF we need to return -1 so the calling context
+          // (The addMore member of Page[T] in PagedSeq.scala)
+          // knows we are done and no more can be provided.
+          //
+          // So, we backup the byte buffer by the width of the malformed
+          // stuff it has consumed, and then when the next call of this occurs
+          // we'll end up here, but zero well-formed characters will have been
+          // created, so below, we'll end up returning -1.
+          //
+          Assert.invariant(bb.position() >= cr.length())
+          bb.position(bb.position() - cr.length())
           break
         }
         continue = false
@@ -345,7 +374,7 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
     }
 
     if (cb.position() == 0) {
-      if (eof) return -1
+      if (eof) return -1 // note: we have to return -1, having decoded zero characters successfully.
       assert(false)
     }
 
