@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://a09.com" xmlns:a09="http://a09.com">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="." initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        separatorPosition="infix" ignoreCase="no" separatorPolicy="suppressed" representation="text" textNumberRep="standard" lengthKind="delimited" utf16Width="fixed" encoding="US-ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="aElem" type="xs:string" dfdl:initiator="A:" dfdl:terminator=":A"/>   
+
+  <xs:element name="aElem2" type="xs:string" dfdl:representation="binary" dfdl:lengthUnits="characters" dfdl:lengthKind="explicit" dfdl:length="7" dfdl:encoding="UTF-16BE" dfdl:initiator="A:" dfdl:terminator=":A"/>
+  <xs:element name="aElem3" type="xs:string" dfdl:representation="binary" dfdl:lengthUnits="characters" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:encoding="UTF-16BE"/>
+ 
+</xs:schema>

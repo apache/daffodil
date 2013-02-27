@@ -764,5 +764,103 @@
       <tdml:error> Import element specifies namespace http://b00.com but namespace http://b06.com of imported schema does not match</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: multi_encoding_01
+       Schema: multi_base_09.dfdl.xsd
+         Root: base
+      Purpose: In this test the two schemas used are in different encodings - base Schema is utf-16be, while
+               Schema A is utf-8. This should not interfere with the test and it should pass without issue.
+  -->
+  
+  <tdml:parserTestCase name="multi_encoding_01" root="base"
+    model="multi_base_09.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[A:one:A,55]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base>
+          <aElem>one</aElem>
+          <baseElem>55</baseElem>
+        </base>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: multi_encoding_02
+       Schema: multi_base_09.dfdl.xsd
+         Root: base2
+      Purpose: In this test the two schemas used are in different encodings - base Schema is utf-16be, while
+               Schema A is utf-8. The sequence referenced has two elements, the first is a utf-8 binary string,
+               the second is a utf-16be binary string initiated by "A:" and terminated by ":A",
+               and they are separated by a us-ascii comma.
+  -->
+  
+  <tdml:parserTestCase name="multi_encoding_02" root="base2"
+    model="multi_base_09.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="byte">35 35</tdml:documentPart>  <!-- UTF-8 for "55" -->
+      <tdml:documentPart type="byte">2C</tdml:documentPart>     <!-- US-ASCII for "," -->
+      <tdml:documentPart type="byte">00 41 00 3A 00 6F 00 6E 00 65 00 3A 00 41</tdml:documentPart> <!-- UTF-16BE for "A:one:A" -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2>
+          <baseElem>55</baseElem>
+          <aElem2>one</aElem2>
+        </base2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: multi_encoding_03
+       Schema: multi_base_09.dfdl.xsd
+         Root: base3
+      Purpose: In this test the two schemas used are in different encodings - base Schema is utf-16be, while
+               Schema A is utf-8. The sequence referenced has two explicit-length binary string, the first
+               is utf-8 and the second if utf-16be. It should be parsed correctly.
+  -->
+  
+  <tdml:parserTestCase name="multi_encoding_03" root="base3"
+    model="multi_base_09.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="byte">35 35</tdml:documentPart>              <!-- UTF-8 for "55" -->
+      <tdml:documentPart type="byte">00 6F 00 6E 00 65</tdml:documentPart>  <!-- UTF-16BE for "one" -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base3>
+          <baseElem>55</baseElem>
+          <aElem3>one</aElem3>
+        </base3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: multi_encoding_04
+       Schema: multi_base_09.dfdl.xsd
+         Root: base4
+      Purpose: In this test the two schemas used are in different encodings - base Schema is utf-16be, while
+               Schema A is utf-8. The sequence contains two elements whose lengths are delimited, with no delimiters defined.
+               Each element is in a different encoding.
+  -->
+  
+  <tdml:parserTestCase name="multi_encoding_04" root="base4"
+    model="multi_base_09.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="byte">35 35</tdml:documentPart>              <!-- UTF-8 for "55" -->
+      <tdml:documentPart type="byte">00 6F 00 6E 00 65</tdml:documentPart>  <!-- UTF-16BE for "one" -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base4>
+          <baseElem>55</baseElem>
+          <baseElem2>one</baseElem2>
+        </base4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </testSuite>

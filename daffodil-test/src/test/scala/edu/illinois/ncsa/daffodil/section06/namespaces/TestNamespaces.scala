@@ -90,5 +90,10 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_combinations_03() { runner.runOneTest("combinations_03") }
   @Test def test_combinations_04() { runner.runOneTest("combinations_04") }
   @Test def test_negative_import_01() { runner.runOneTest("negative_import_01") }
+  
+  @Test def test_multi_encoding_01() { runner.runOneTest("multi_encoding_01") }
+//  @Test def test_multi_encoding_02() { runner.runOneTest("multi_encoding_02") }
+  @Test def test_multi_encoding_03() { runner.runOneTest("multi_encoding_03") }
+//  @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
 
 }
