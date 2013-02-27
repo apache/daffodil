@@ -19,5 +19,19 @@
       </xs:appinfo>
     </xs:annotation>
   </xs:element>
+  
+  <xs:element name="bElem2">
+    <xs:annotation>
+      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+          message="Assertion failed for dfdl:checkConstraints(.)"/>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:pattern value="[a-m]+"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
  
 </xs:schema>

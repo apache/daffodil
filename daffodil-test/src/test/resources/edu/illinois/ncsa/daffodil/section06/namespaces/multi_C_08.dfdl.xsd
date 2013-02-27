@@ -11,7 +11,7 @@
 
   <xs:simpleType name="cString">
     <xs:restriction base="xs:string">
-      <xs:pattern value="[a-mA-M]+"/>
+      <xs:pattern value="[a-m]+"/>
     </xs:restriction>
   </xs:simpleType>
  

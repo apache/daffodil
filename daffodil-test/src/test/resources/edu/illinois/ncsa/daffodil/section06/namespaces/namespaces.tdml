@@ -228,6 +228,22 @@
   </tdml:parserTestCase>
   
   <!--
+    Test name: multifile_facets_05
+       Schema: multi_B_08.dfdl.xsd
+         Root: bElem
+      Purpose: This test demonstrates the use of an element whose facet restrictions exist across multiple schemas.
+               In this case the data does not adhere to the pattern used in the assertion and the test should fail.
+  -->
+  
+  <tdml:parserTestCase name="multifile_facets_05" root="bElem"
+    model="multi_B_08.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[noooooooo]]></tdml:document>
+      <tdml:errors>
+        <tdml:error>Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
     Test name: double_nesting_01
        Schema: multi_base_02.dfdl.xsd
          Root: super_seq

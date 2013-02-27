@@ -20,7 +20,8 @@
   <xs:element name="base2">
     <xs:complexType>
       <xs:sequence dfdl:separator=",">
-        <xs:element ref="b08:bElem" maxOccurs="5" dfdl:occursCountKind="parsed"/>   
+        <xs:element ref="b08:bElem"/>   
+        <xs:element name="baseString" type="xs:string" dfdl:lengthKind="delimited"/>   
       </xs:sequence>
     </xs:complexType>
   </xs:element>
