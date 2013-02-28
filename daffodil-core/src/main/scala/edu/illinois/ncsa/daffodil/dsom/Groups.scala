@@ -89,7 +89,10 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     // objects
     // println(this + " with parent " + parent)
 
-    //
+    // TODO: This is not entirely correct as it assumes that separator and terminator
+    // will always be defined.  It's entirely possible that one or neither is defined.
+    // The call to this non-existant property will result in an SDE.
+    // See created issue DFDL-571
     val pTM = parent match {
       case s: Sequence => List(s.separator, s.terminator) ++ s.allParentTerminatingMarkup
       case c: Choice => List(c.terminator) ++ c.allParentTerminatingMarkup

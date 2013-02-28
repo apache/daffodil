@@ -181,7 +181,7 @@ trait ElementBaseGrammarMixin
 
   lazy val fixedLengthString = Prod("fixedLengthString", this, isFixedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
-      case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength) // TODO: make sure it divides evenly.
+      case (LengthUnits.Bytes, true) => StringFixedLengthInBytesFixedWidthCharacters(this, fixedLength) // TODO: make sure it divides evenly.
       //case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
       case (LengthUnits.Bytes, false) => StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength)
       case (LengthUnits.Characters, true) => {
@@ -194,9 +194,9 @@ trait ElementBaseGrammarMixin
         val lengthInBytes = lengthInBits / 8
         val hasWholeBytesOnly = (lengthInBits % 8) == 0
         if (hasWholeBytesOnly)
-          StringFixedLengthInBytes(this, lengthInBytes)
+          StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes)
         else
-          StringFixedLengthInBytes(this, lengthInBytes + 1) // 1 more for fragment byte
+          StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes + 1) // 1 more for fragment byte
       }
       //
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
@@ -208,7 +208,7 @@ trait ElementBaseGrammarMixin
 
   lazy val implicitLengthString = Prod("implicitLengthString", this, hasSpecifiedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
-      case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, facetMaxLength) // TODO: make sure it divides evenly.
+      case (LengthUnits.Bytes, true) => StringFixedLengthInBytesFixedWidthCharacters(this, facetMaxLength) // TODO: make sure it divides evenly.
       //case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
       case (LengthUnits.Bytes, false) => StringFixedLengthInBytesVariableWidthCharacters(this, facetMaxLength)
       case (LengthUnits.Characters, true) => {
@@ -221,9 +221,9 @@ trait ElementBaseGrammarMixin
         val lengthInBytes = lengthInBits / 8
         val hasWholeBytesOnly = (lengthInBits % 8) == 0
         if (hasWholeBytesOnly)
-          StringFixedLengthInBytes(this, lengthInBytes)
+          StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes)
         else
-          StringFixedLengthInBytes(this, lengthInBytes + 1) // 1 more for fragment byte
+          StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes + 1) // 1 more for fragment byte
       }
       //
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
@@ -232,19 +232,26 @@ trait ElementBaseGrammarMixin
       case (LengthUnits.Bits, _) => SDE("Strings with lengthKind='implicit' may not have lengthUnits='bits'")
     })
 
-  lazy val explicitLengthString = Prod("explicitLengthString", this, !isFixedLength,
+  lazy val variableLengthString = Prod("variableLengthString", this, !isFixedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
-      case (LengthUnits.Bytes, true) => StringExplicitLengthInBytes(this)
-      case (LengthUnits.Bytes, false) =>
-        notYetImplemented("lengthKind='explicit' and lengthUnits='bytes' with non-fixed-width or potentially non-fixed-width encoding='%s'.", this.encodingRaw)
-      // StringExplicitLengthInBytesVariableWidthCharacters(this)
-      case (LengthUnits.Characters, _) =>
-        notYetImplemented("lengthKind='explicit' and lengthUnits='characters'")
-      // Above, keep in mind fixed length but variable-width encoding means variable width.
+      //case (LengthUnits.Bytes, true) => StringExplicitLengthInBytes(this)
+      //case (LengthUnits.Bytes, false) =>
+      //  notYetImplemented("lengthKind='explicit' and lengthUnits='bytes' with non-fixed-width or potentially non-fixed-width encoding='%s'.", this.encodingRaw)
+      //// StringExplicitLengthInBytesVariableWidthCharacters(this)
+      //case (LengthUnits.Characters, _) =>
+       // notYetImplemented("lengthKind='explicit' and lengthUnits='characters'")
+      //// Above, keep in mind fixed length but variable-width encoding means variable width.
+      //// The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
+      //// 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
+      //case (LengthUnits.Bits, _) =>
+      //  SDE("lengthKind='explicit' and lengthUnits='bits' for type %s", this.typeDef)
+      case (LengthUnits.Bytes, true) => StringVariableLengthInBytes(this)
+      case (LengthUnits.Bytes, false) => StringVariableLengthInBytesVariableWidthCharacters(this)
+      case (LengthUnits.Characters, true) => StringVariableLengthInBytes(this)
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
       // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
-      case (LengthUnits.Bits, _) =>
-        SDE("lengthKind='explicit' and lengthUnits='bits' for type %s", this.typeDef)
+      case (LengthUnits.Characters, false) => StringVariableLengthInVariableWidthCharacters(this)
+      case (LengthUnits.Bits, _) => SDE("lengthKind='explicit' and lengthUnits='bits' for type %s", this.typeDef)
     })
 
   lazy val stringDelimitedEndOfData = Prod("stringDelimitedEndOfData", this, StringDelimitedEndOfData(this))
@@ -254,7 +261,7 @@ trait ElementBaseGrammarMixin
   private val stringValue_ = LV('stringValue) {
     val res = Prod("stringValue", this, lengthKind match {
       case LengthKind.Explicit if isFixedLength => fixedLengthString
-      case LengthKind.Explicit => explicitLengthString
+      case LengthKind.Explicit => variableLengthString
       case LengthKind.Delimited => stringDelimitedEndOfData
       case LengthKind.Pattern => stringPatternMatched
       case LengthKind.Implicit => implicitLengthString

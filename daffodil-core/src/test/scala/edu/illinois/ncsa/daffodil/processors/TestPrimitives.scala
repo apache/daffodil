@@ -251,15 +251,24 @@ class TestPrimitives extends JUnitSuite {
     val d = Compiler.stringToReadableByteChannel("42")
     val initialState = PState.createInitialState(pf.sset.schemaComponentRegistry,
       edecl, d, bitOffset = 3)
-    val exc = intercept[Exception] {
-      var resState = dp.parse(initialState)
-      assertTrue(resState.isError)
-    }
-    val err = exc.getMessage()
+    // Processing Errors are no longer making it to the top-level to throw the Exception
+    //    val exc = intercept[Exception] {
+    //      var resState = dp.parse(initialState)
+    //      System.err.println(resState.isError)
+    //      assertTrue(resState.isError)
+    //    }
+    //    val err = exc.getMessage()
+    //    assertTrue(err.toString.contains("8"))
+    //    assertTrue(err.toString.contains("align"))
+    var resState = dp.parse(initialState)
+    assertTrue(resState.isError)
+    //assertTrue(resState.resultState.status.isInstanceOf[Failure])
+    val err = resState.resultState.status.asInstanceOf[Failure].msg
+    assertTrue(err.contains("not byte aligned"))
+
     // val Seq(err) = resState.getDiagnostics
     // assertTrue(err.isInstanceOf[ParseError])
-    assertTrue(err.toString.contains("8"))
-    assertTrue(err.toString.contains("align"))
+
   }
 
 }
