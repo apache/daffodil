@@ -545,6 +545,15 @@ this to validate when we load a DFDL Schema.
 
   <xsd:attributeGroup name="anyOther">
     <!--
+    
+      Note: comment below is still desirable, but not clear what to do.
+      IBM's DFDL Schemas have ibm-specific properties on them that we 
+      need to tolerate.
+      
+      So the behavior here has been switched back to the XSD Default behavior.
+      
+      --><!-- 
+      
       For DFDL, XSD normally does lax validation, but to find more typographical
       errors in our examples we want strict validation
 
@@ -554,18 +563,22 @@ this to validate when we load a DFDL Schema.
       our ability to enforce proper use of dfdl short form properties is 
       lost.
     -->
-    <!-- <xsd:anyAttribute namespace="##other" processContents="lax"/> -->
+    <xsd:anyAttribute namespace="##other" processContents="lax"/>
     <!-- <xsd:anyAttribute namespace="##other" processContents="strict"/> -->
 
     <!-- need this much wildcard to allow xml:lang etc. which do appear in 
       schemas -->
       <!-- Daffodil augments schemas with dafint:file dafint:line and dafint:col -->
           <!-- Daffodil extensions to DFDL use daf namespace -->
-    <xsd:anyAttribute 
+          
+    <!-- Not important to validate these, and we need to tolerate
+      Other attributes from other DFDL implementations -->
+      <!-- 
+      <xsd:anyAttribute 
     namespace="http://www.w3.org/XML/1998/namespace 
     urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int 
     urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
-    />
+    /> -->
 
   </xsd:attributeGroup>
 
