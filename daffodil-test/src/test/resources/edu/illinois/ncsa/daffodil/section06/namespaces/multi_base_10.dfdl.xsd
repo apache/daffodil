@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://baseSchema.com" xmlns:base="http://baseSchema.com" xmlns:a10="http://a10.com" xmlns:c10="http://c10.com">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="'" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        separatorPosition="infix" ignoreCase="no" separatorPolicy="suppressed" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:import namespace="http://a10.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_10.dfdl.xsd"/>
+  <xs:import namespace="http://c10.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_C_10.dfdl.xsd"/>
+  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_10.dfdl.xsd"/>
+
+  <xs:element name="root">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element ref="base:foo"/>
+        <xs:element ref="a10:foo"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="root2">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element ref="c10:foo"/>
+        <xs:element ref="a10:foo"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

@@ -913,5 +913,51 @@
 
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: element_conflict_01
+       Schema: multi_base_10.dfdl.xsd
+         Root: root
+      Purpose: Schema B does not have a namespace and defines an element "foo"
+               Schema A does have a namespace and also defines an element "foo"
+               In Base Schema, a comma-separated sequence of Schema A foo element and Schema B foo element is declared.
+               This is a test to demonstrate how name clashes are handled.
+  -->
+  
+  <tdml:parserTestCase name="element_conflict_01" root="root"
+    model="multi_base_10.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[foo1,foo2]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <foo>foo1</foo>
+          <foo>foo2</foo>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: element_conflict_02
+       Schema: multi_base_10.dfdl.xsd
+         Root: root2
+      Purpose: Schema C does have a namespace and defines an element "foo"
+               Schema A does have a namespace and also defines an element "foo"
+               In Base Schema, a comma-separated sequence of Schema A foo element and Schema C foo element is declared.
+               This is a test to demonstrate how name clashes are handled.
+  -->
+  
+  <tdml:parserTestCase name="element_conflict_02" root="root2"
+    model="multi_base_10.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[c:foo1,foo2]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root2>
+          <foo>foo1</foo>
+          <foo>foo2</foo>
+        </root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </testSuite>

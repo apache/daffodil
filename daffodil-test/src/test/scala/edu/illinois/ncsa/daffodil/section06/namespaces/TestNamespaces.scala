@@ -101,4 +101,7 @@ class TestNamespaces extends JUnitSuite {
   //@Test def test_import_format_02() { runner.runOneTest("import_format_02") }
 
   @Test def test_multifile_facets_05() { runner.runOneTest("multifile_facets_05") }
+  
+  @Test def test_element_conflict_01() { runner.runOneTest("element_conflict_01") }
+  @Test def test_element_conflict_02() { runner.runOneTest("element_conflict_02") }
 }
