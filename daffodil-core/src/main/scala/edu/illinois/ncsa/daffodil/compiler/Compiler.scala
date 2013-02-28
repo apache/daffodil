@@ -83,7 +83,7 @@ class ProcessorFactory(val sset: SchemaSet)
 
   def onPath(xpath: String): DFDL.DataProcessor = {
     Assert.usage(canProceed)
-    Assert.notYetImplemented(xpath != "/")
+    if (xpath != "/") rootElem.notYetImplemented("""ProcessorFactory.onPath("/")""")
     val dataProc = new DataProcessor(this, rootElem)
     if (dataProc.isError) {
       val diags = dataProc.getDiagnostics

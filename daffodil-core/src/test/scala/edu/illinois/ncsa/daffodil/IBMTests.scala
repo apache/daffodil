@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil
  * SOFTWARE.
  */
 
-
 import java.io.File
 import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
@@ -59,6 +58,11 @@ class IBMTestsThatPass extends JUnitSuite {
   @Test def test_length_implicit_12_01() { runner1.runOneTest("length_implicit_12_01") }
 
   @Test def test_length_explicit_12_03() { runner1.runOneTest("length_explicit_12_03") }
+
+  @Test def test_simple_type_properties_pad_trim_13_01() { runner2.runOneTest("simple_type_properties_pad_trim_13_01") } // pad/trim
+  @Test def test_simple_type_properties_pad_trim_13_02() { runner2.runOneTest("simple_type_properties_pad_trim_13_02") } // xs:integer type
+  @Test def test_simple_type_properties_pad_trim_13_03() { runner2.runOneTest("simple_type_properties_pad_trim_13_03") } // pad/trim
+  @Test def test_simple_type_properties_pad_trim_13_04() { runner2.runOneTest("simple_type_properties_pad_trim_13_04") } // pad/trim
 
   @Test def test_simple_type_properties_binary_number_13_02() { runner2.runOneTest("simple_type_properties_binary_number_13_02") }
 

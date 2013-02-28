@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.processors.xpath._
 import javax.xml.xpath._
@@ -202,11 +201,11 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging {
       case XMLUtils.XSD_UNSIGNED_BYTE => 'Long
       case XMLUtils.XSD_UNSIGNED_SHORT => 'Long
       case XMLUtils.XSD_UNSIGNED_INT => 'Long
-      case XMLUtils.XSD_UNSIGNED_LONG => Assert.notYetImplemented() // TODO FIXME - handle the largest unsigned longs.
       case XMLUtils.XSD_DOUBLE => 'Double
       case XMLUtils.XSD_FLOAT => 'Double
       case XMLUtils.XSD_BOOLEAN => 'Boolean
-      case _ => Assert.notYetImplemented(expandedTypeName)
+      // case XMLUtils.XSD_UNSIGNED_LONG => Assert.notYetImplemented() // TODO FIXME - handle the largest unsigned longs.
+      case _ => edecl.notYetImplemented(expandedTypeName)
     }
   }
 

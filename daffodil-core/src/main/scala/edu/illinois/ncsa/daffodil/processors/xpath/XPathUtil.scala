@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors.xpath
  * SOFTWARE.
  */
 
-
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.
  * Developed by: NCSA Cyberenvironments and Technologies
@@ -105,6 +104,7 @@ import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.GregorianCalendar
 import edu.illinois.ncsa.daffodil.processors.UState
 import scala.xml.NodeSeq
+import edu.illinois.ncsa.daffodil.processors.InfosetElement
 
 abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunction {
   val qName = new QName(XMLUtils.DFDL_NAMESPACE, name)
@@ -117,6 +117,10 @@ abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunct
     val currentElement = pstate.parentElement
     val res = currentElement.schemaComponent(pstate)
     res
+  }
+
+  def getContext(ustate: UState): ElementBase = {
+    Assert.notYetImplemented()
   }
 
   // TODO: Do we want to use a List here? Direct access takes time to traverse.
@@ -194,7 +198,7 @@ object DFDLContentLengthFunction extends DFDLFunction("contentLength", 2) {
     pstate.failed("dfdl:contentLength is not valid during parsing.")
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    Assert.notYetImplemented("dfdl:contentLength for unparsing")
+    getContext(ustate).notYetImplemented("dfdl:contentLength for unparsing")
   }
 }
 
@@ -203,7 +207,7 @@ object DFDLValueLengthFunction extends DFDLFunction("valueLength", 2) {
     pstate.failed("dfdl:valueLength is not valid during parsing.")
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    Assert.notYetImplemented("dfdl:valueLength for unparsing")
+    getContext(ustate).notYetImplemented("dfdl:valueLength for unparsing")
   }
 }
 
@@ -215,7 +219,7 @@ object DFDLTestBitFunction extends DFDLFunction("testBit", 2) {
     testBit(data, bitPos)
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    Assert.notYetImplemented("dfdl:testBit for unparsing")
+    getContext(ustate).notYetImplemented("dfdl:testBit for unparsing")
   }
 
   def processArgs(args: java.util.List[_], context: ElementBase): (Int, Int) = {
@@ -285,7 +289,7 @@ object DFDLSetBitsFunction extends DFDLFunction("setBits", 8) {
     setBits(args, context)
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    Assert.notYetImplemented("dfdl:setBits for unparsing")
+    getContext(ustate).notYetImplemented("dfdl:setBits for unparsing")
   }
   def processValue(value: Any, context: ElementBase): Boolean = {
     value match {
@@ -349,10 +353,10 @@ object DFDLOccursCountWithDefaultFunction extends DFDLFunction("occursCountWithD
 
   def evaluate1(args: java.util.List[_], pstate: PState): Object = {
     val context = getContext(pstate)
-    Assert.notYetImplemented("dfdl:occursCountWithDefault, defaults aren't implemented")
+    getContext(pstate).notYetImplemented("dfdl:occursCountWithDefault, defaults aren't implemented")
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    Assert.notYetImplemented("dfdl:occursCountWithDefault for unparsing, defaults aren't implemented")
+    getContext(ustate).notYetImplemented("dfdl:occursCountWithDefault for unparsing, defaults aren't implemented")
   }
 }
 
@@ -382,7 +386,7 @@ object DFDLOccursCountFunction extends DFDLFunction("occursCount", 1) {
     //      case _ => context.SDE("dfdl:occursCount did not receive a NodeSeq back, check your path.")
     //    }
     //    java.lang.Long.valueOf(occursCount)
-    Assert.notYetImplemented("dfdl:occursCount for unparsing")
+    getContext(ustate).notYetImplemented("dfdl:occursCount for unparsing")
   }
 }
 
@@ -489,7 +493,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   def checkMinLength(data: String, minValue: java.math.BigDecimal,
-    e: ElementBase, primType: PrimType): java.lang.Boolean = {
+                     e: ElementBase, primType: PrimType): java.lang.Boolean = {
     primType match {
       case PrimType.String => {
         val bdData = new java.math.BigDecimal(data.length())
@@ -501,14 +505,14 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
         // Has to come through as a string in infoset
         // hex string is exactly twice as long as number of bytes
         // take length / 2 = length
-        Assert.notYetImplemented("MinLength facet for hexBinary is not yet implemented.")
+        e.notYetImplemented("MinLength facet for hexBinary is not yet implemented.")
       }
       case _ => e.SDE("MinLength facet is only valid for string and hexBinary.")
     }
   }
 
   def checkMaxLength(data: String, maxValue: java.math.BigDecimal,
-    e: ElementBase, primType: PrimType): java.lang.Boolean = {
+                     e: ElementBase, primType: PrimType): java.lang.Boolean = {
     primType match {
       case PrimType.String => {
         val bdData = new java.math.BigDecimal(data.length())
@@ -516,12 +520,12 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
         if (isDataLengthGreater) java.lang.Boolean.FALSE
         else java.lang.Boolean.TRUE
       }
-      case PrimType.HexBinary => Assert.notYetImplemented("MaxLength facet for hexBinary is not yet implemented.")
+      case PrimType.HexBinary => e.notYetImplemented("MaxLength facet for hexBinary is not yet implemented.")
       case _ => e.SDE("MaxLength facet is only valid for string and hexBinary.")
     }
 
   }
-  
+
   // TODO: Duplication of dateToBigDecimal in Types.scala, throw in a library?
   def dateToBigDecimal(date: String, format: String, eb: ElementBase): java.math.BigDecimal = {
     val df = new SimpleDateFormat(format)
@@ -680,7 +684,7 @@ object DFDLStringLiteralFromStringFunction extends DFDLFunction("stringLiteralFr
     res
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    Assert.notYetImplemented("dfdl:stringLiteralFromString for unparsing")
+    getContext(ustate).notYetImplemented("dfdl:stringLiteralFromString for unparsing")
   }
 
   def constructLiteral(s: String) = {
@@ -720,7 +724,7 @@ object DFDLStringLiteralFromStringFunction extends DFDLFunction("stringLiteralFr
         case '\u001D' => sb.append("%GS;")
         case '\u001E' => sb.append("%RS;")
         case '\u001F' => sb.append("%US;")
-        case '\u0020'  => sb.append("%SP;")
+        case '\u0020' => sb.append("%SP;")
         case '\u007F' => sb.append("%DEL;")
         case '\u00A0' => sb.append("%NBSP;")
         case '\u0085' => sb.append("%NEL;")
@@ -745,7 +749,7 @@ object DFDLContainsEntityFunction extends DFDLFunction("containsEntity", 1) {
     res
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    Assert.notYetImplemented("dfdl:containsEntity for unparsing")
+    getContext(ustate).notYetImplemented("dfdl:containsEntity for unparsing")
   }
 
   def containsEntity(s: String): java.lang.Boolean = {
@@ -793,8 +797,8 @@ object XPathUtil extends Logging {
    * a CompiledExpressionFactory
    */
   def compileExpression(dfdlExpressionRaw: String,
-    namespaces: Seq[org.jdom.Namespace],
-    context: SchemaComponent) =
+                        namespaces: Seq[org.jdom.Namespace],
+                        context: SchemaComponent) =
     // withLoggingLevel(LogLevel.Info) 
     {
       log(Debug("Compiling expression"))
@@ -906,7 +910,7 @@ object XPathUtil extends Logging {
    * @param namespaces  - the namespaces in scope
    */
   private[xpath] def evalExpressionFromString(expression: String, variables: VariableMap,
-    contextNode: Parent, namespaces: Seq[org.jdom.Namespace], targetType: QName = NODE): XPathResult = {
+                                              contextNode: Parent, namespaces: Seq[org.jdom.Namespace], targetType: QName = NODE): XPathResult = {
 
     val compiledExprExceptVariables = compileExpression(expression, namespaces, null) // null as schema component
     val res = evalExpression(expression, compiledExprExceptVariables, variables, contextNode, targetType)

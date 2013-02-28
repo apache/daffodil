@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil
  * SOFTWARE.
  */
 
-
 import java.io.File
 import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
@@ -66,7 +65,7 @@ class IBMTestsThatThrow extends JUnitSuite {
   @Test def test_scoping_define_format_8_02() { runner1.runOneTest("scoping_define_format_8_02") } //packed
   @Test def test_scoping_define_format_8_03() { runner1.runOneTest("scoping_define_format_8_03") } //packed
   @Test def test_scoping_define_format_8_04() { runner1.runOneTest("scoping_define_format_8_04") } //alignment
-  @Test def test_scoping_define_format_8_05() { runner1.runOneTest("scoping_define_format_8_05") } //multi-file schemas
+  @Test def test_scoping_define_format_8_05() { runner1.runOneTest("scoping_define_format_8_05") } //multi-file schemas DFDL-552 and DFDL-503
   @Test def test_alignment_bytes_12_01() { runner1.runOneTest("alignment_bytes_12_01") } //alignment
   @Test def test_alignment_bytes_12_02() { runner1.runOneTest("alignment_bytes_12_02") } //alignment
   @Test def test_alignment_bytes_12_03() { runner1.runOneTest("alignment_bytes_12_03") } //alignment
@@ -75,16 +74,13 @@ class IBMTestsThatThrow extends JUnitSuite {
   @Test def test_alignment_bytes_12_06() { runner1.runOneTest("alignment_bytes_12_06") } //alignment
   @Test def test_delimiter_12_02() { runner1.runOneTest("delimiter_12_02") } //ignoreCase='yes'
 
-  @Test def test_length_delimited_12_01() { runner1.runOneTest("length_delimited_12_01") } // date
+  @Test def test_length_implicit_12_02() { runner1.runOneTest("length_implicit_12_02") } // implicit length string - bug in IBM test (doesn't have minLength - both are required)
 
-  @Test def test_length_delimited_12_04() { runner1.runOneTest("length_delimited_12_04") } // date
+  @Test def test_length_delimited_12_01() { runner1.runOneTest("length_delimited_12_01") } // textNumberRep is being required for a date (DFDL-556)
+
+  @Test def test_length_delimited_12_04() { runner1.runOneTest("length_delimited_12_04") } // textNumberRep is being required for a date (DFDL-556)
   @Test def test_length_delimited_12_05() { runner1.runOneTest("length_delimited_12_05") } // decimal
-  @Test def test_length_implicit_12_02() { runner1.runOneTest("length_implicit_12_02") } // textual data with implicit length (for strings, comes from maxLength facet)
 
-  @Test def test_simple_type_properties_pad_trim_13_01() { runner2.runOneTest("simple_type_properties_pad_trim_13_01") } // pad/trim
-  @Test def test_simple_type_properties_pad_trim_13_02() { runner2.runOneTest("simple_type_properties_pad_trim_13_02") } // xs:integer type
-  @Test def test_simple_type_properties_pad_trim_13_03() { runner2.runOneTest("simple_type_properties_pad_trim_13_03") } // pad/trim
-  @Test def test_simple_type_properties_pad_trim_13_04() { runner2.runOneTest("simple_type_properties_pad_trim_13_04") } // pad/trim
   @Test def test_simple_type_properties_text_number_13_01() { runner2.runOneTest("simple_type_properties_text_number_13_01") } // decimal
   @Test def test_simple_type_properties_text_number_13_02() { runner2.runOneTest("simple_type_properties_text_number_13_02") } // textStandardInfinityRep, textStandardZeroRep, textNumberPattern
   @Test def test_simple_type_properties_text_number_13_03() { runner2.runOneTest("simple_type_properties_text_number_13_03") } // textStandardBase (base 16)

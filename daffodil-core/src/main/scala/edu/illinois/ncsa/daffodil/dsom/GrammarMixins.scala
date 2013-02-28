@@ -197,7 +197,7 @@ trait ElementBaseGrammarMixin
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
       // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
       case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, fixedLength)
-      case (LengthUnits.Bits, _) => Assert.notYetImplemented()
+      case (LengthUnits.Bits, _) => notYetImplemented("lengthUnits='bits' for type " + typeDef)
       case _ => Assert.invariantFailed("all cases should have been exhausted.")
     })
 
@@ -224,18 +224,22 @@ trait ElementBaseGrammarMixin
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
       // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
       case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, facetMaxLength)
-      case (LengthUnits.Bits, _) => Assert.notYetImplemented()
+      case (LengthUnits.Bits, _) => SDE("Strings with lengthKind='implicit' may not have lengthUnits='bits'")
     })
 
   lazy val explicitLengthString = Prod("explicitLengthString", this, !isFixedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
       case (LengthUnits.Bytes, true) => StringExplicitLengthInBytes(this)
-      case (LengthUnits.Bytes, false) => Assert.notYetImplemented() // StringExplicitLengthInBytesVariableWidthCharacters(this)
-      case (LengthUnits.Characters, true) => Assert.notYetImplemented() //StringExplicitLengthInBytes(this)
+      case (LengthUnits.Bytes, false) =>
+        notYetImplemented("lengthKind='explicit' and lengthUnits='bytes' with non-fixed-width or potentially non-fixed-width encoding='%s'.", this.encodingRaw)
+      // StringExplicitLengthInBytesVariableWidthCharacters(this)
+      case (LengthUnits.Characters, _) =>
+        notYetImplemented("lengthKind='explicit' and lengthUnits='characters'")
+      // Above, keep in mind fixed length but variable-width encoding means variable width.
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
       // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
-      case (LengthUnits.Characters, false) => Assert.notYetImplemented() //StringExplicitLengthInVariableWidthCharacters(this)
-      case (LengthUnits.Bits, _) => Assert.notYetImplemented()
+      case (LengthUnits.Bits, _) =>
+        SDE("lengthKind='explicit' and lengthUnits='bits' for type %s", this.typeDef)
     })
 
   lazy val stringDelimitedEndOfData = Prod("stringDelimitedEndOfData", this, StringDelimitedEndOfData(this))
@@ -599,8 +603,8 @@ trait ElementBaseGrammarMixin
       case PrimType.ULong => textUnsignedLong
       case PrimType.Double => textDouble
       case PrimType.Float => textFloat
-      case PrimType.HexBinary => Assert.notYetImplemented("textValue: hexBinary")
-      case PrimType.Boolean => Assert.notYetImplemented("textValue: boolean")
+      case PrimType.HexBinary => notYetImplemented("textValue: hexBinary")
+      case PrimType.Boolean => notYetImplemented("textValue: boolean")
       case PrimType.Date => textDate
       case PrimType.Time => textTime
       case PrimType.DateTime => textDateTime
@@ -652,7 +656,7 @@ trait ElementBaseGrammarMixin
           case LengthKind.Pattern => LiteralNilPattern(this)
           case LengthKind.Explicit => {
             lengthUnits match {
-              case LengthUnits.Bits => Assert.notYetImplemented()
+              case LengthUnits.Bits => notYetImplemented("nilKind='literalValue' with lengthKind='bits'")
               case LengthUnits.Bytes => LiteralNilExplicitLengthInBytes(this)
               case LengthUnits.Characters => LiteralNilExplicitLengthInChars(this)
             }
@@ -662,8 +666,8 @@ trait ElementBaseGrammarMixin
             val lengthInBytes = implicitBinaryLengthInBits / 8
             LiteralNilKnownLengthInBytes(this, lengthInBytes)
           }
-          case LengthKind.Prefixed => Assert.notYetImplemented()
-          case LengthKind.EndOfParent => Assert.notYetImplemented()
+          case LengthKind.Prefixed => notYetImplemented("lengthKind='prefixed'")
+          case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent'")
         }
       } ~ nilElementTerminator)
   }

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar._
@@ -274,7 +273,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     // an element has its terminator
     //
     // Note: if we are potentially the last item (not required, but no downstream required siblings)
-    Assert.notYetImplemented()
+    Assert.notYetImplemented("inScopeTerminatingMarkup")
   }
 
   // 11/1/2012 - moved to base since needed by patternValue
@@ -370,6 +369,27 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     } else context.SDE("Enumeration was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
   }
 
+  //TODO: refactor minLength and maxLength calculation. 
+  // 
+  // It would be much clearer as a match-case 
+  // on a pair of (hasMinLength, hasMaxLength), and should compute
+  // lazy val (minLength: BigDecimal, maxLength: BigDecimal) = {
+  //   schemaDefinition(isSimpleType && !isPrimitiveType && pt == PrimType.String || pt == PrimType.HexBinary), "Facets minLength and maxLength only apply to simpleTypes derived from xs:string or xs:hexBinary")
+  //   (hasMinLength, hasMaxLength) match {
+  //       case (true, true) if (isImplicitString) => // check for equal
+  //       case (true, true) if (st.minLengthValue <= st.maxLengthValue) => (st.minLengthValue, st.maxLengthValue)
+  //       case (false, true) if (isImplicitString) => (st.maxLengthValue, st.maxLengthValue)
+  //       case (false, true) => (0, st.maxLengthValue)
+  //       case (_, false) if (isImplicitString) => SDE("maxLength is required for implicit length strings.")
+  //       case (false, false) => (0, -1) // -1 means unbounded right? 
+  //       and so on.
+  // Right now, it's much too hard to fix a bug in here.
+  // I'd have to fix this in two places right now.
+  //
+  // This same comment applies below to many of these other facet pairs
+  // which can be computed together instead of a separate lazy val for
+  // each. 
+  // 
   lazy val minLength: java.math.BigDecimal = {
     if (isSimpleType && !isPrimitiveType) {
       // Facets cannot be applied to primitive types
@@ -421,6 +441,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     } else context.SDE("MaxLength was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
   }
 
+  // TODO: see comment above about refactoring minLength, maxLength
+  // Same thing applies to the other paired facets where there is lots of 
+  // common logic associated with checking.
   lazy val minInclusive: java.math.BigDecimal = {
     if (isSimpleType && !isPrimitiveType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]

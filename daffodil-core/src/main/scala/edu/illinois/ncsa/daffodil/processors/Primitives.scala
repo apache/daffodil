@@ -462,12 +462,20 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
 
   def unparser: Unparser = new Unparser(e) {
     def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
+      e.notYetImplemented("unparse")
     }
   }
 }
 
 case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, nChars: Long)
+  extends StringFixedLengthInCharactersBase(e, nChars)
+
+//TODO: refactor so as to exploit knowledge of fixed width
+//(Should save traversing the string a second time just to find its width again)
+case class StringFixedLengthInFixedWidthCharacters(e: ElementBase, nChars: Long)
+  extends StringFixedLengthInCharactersBase(e, nChars)
+
+abstract class StringFixedLengthInCharactersBase(e: ElementBase, nChars: Long)
   extends Terminal(e, true)
   with WithParseErrorThrowing with TextReader with Padded {
 
@@ -739,7 +747,7 @@ case class StringPatternMatched(e: ElementBase)
 
   def unparser: Unparser = new Unparser(e) {
     def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
+      e.notYetImplemented("unparse")
     }
   }
 }
@@ -2217,8 +2225,9 @@ case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNe
   extends NewVariableInstanceBase(decl, stmt) {
 
   def parser: DaffodilParser = new PrimParser(this, decl) {
+    stmt.notYetImplemented("newVariableInstance")
     def parse(pstate: PState) = {
-      Assert.notYetImplemented()
+      stmt.notYetImplemented("newVariableInstance")
     }
   }
 
@@ -2230,7 +2239,8 @@ case class NewVariableInstanceEnd(decl: AnnotatedSchemaComponent, stmt: DFDLNewV
   extends NewVariableInstanceBase(decl, stmt) {
 
   def parser: DaffodilParser = new PrimParser(this, decl) {
-    def parse(pstate: PState) = Assert.notYetImplemented()
+    stmt.notYetImplemented("newVariableInstance")
+    def parse(pstate: PState) = stmt.notYetImplemented("newVariableInstance")
   }
 
   def unparser: Unparser = Assert.notYetImplemented()

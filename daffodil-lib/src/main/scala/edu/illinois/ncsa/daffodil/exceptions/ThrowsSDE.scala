@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.exceptions
  * SOFTWARE.
  */
 
-
 trait ThrowsSDE {
 
   def SDE(str: String, args: Any*): Nothing
@@ -51,6 +50,8 @@ trait ThrowsSDE {
   def schemaDefinitionWarning(testThatWillWarnIfFalse: => Boolean, str: String, args: Any*) {
     if (!testThatWillWarnIfFalse) SDW(str, args: _*)
   }
+
+  def notYetImplemented(msg: String, args: Any*): Nothing = SDE("Feature not yet implemented: " + msg, args: _*)
 
 }
 

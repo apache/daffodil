@@ -477,6 +477,7 @@ Differences were (path, expected, actual):
     } else {
       val processor = pf.onPath("/")
       if (processor.isError) {
+        val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
         throw new Exception(diags)
       }
       val actual = processor.parse(dataToParse, lengthLimitInBits)

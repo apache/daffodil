@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.
  * Developed by: NCSA Cyberenvironments and Technologies
@@ -100,7 +99,8 @@ object VariableUtil {
    * everything is a string, so the only way to add, is to implicitly convert into the specified
    * type of the variable.
    */
-  def convert(v: String, extType: String) = {
+  def convert(v: String, defv: DFDLDefineVariable) = {
+    val extType = defv.extType
     extType match {
       case XMLUtils.XSD_STRING => v
       case XMLUtils.XSD_INT | XMLUtils.XSD_INTEGER | XMLUtils.XSD_UNSIGNED_INT | XMLUtils.XSD_SHORT |
@@ -111,7 +111,7 @@ object VariableUtil {
       case XMLUtils.XSD_BYTE => Predef byte2Byte (v.toByte)
       case XMLUtils.XSD_BOOLEAN => Predef boolean2Boolean (v.toBoolean)
       case XMLUtils.XSD_DATE | XMLUtils.XSD_DATE_TIME | XMLUtils.XSD_TIME =>
-        Assert.notYetImplemented("date,dateTime,time variable types")
+        defv.notYetImplemented("Variable default values for date,dateTime,time variable types")
       case _ => Assert.invariantFailed("unknown variable type: " + extType)
     }
   }
@@ -153,7 +153,7 @@ object VariableFactory {
       doc.expressionCompiler.compile(typeSym, _)
     }
 
-    val defaultVal = defaultValExpr.map { ce => VariableUtil.convert(ce.constantAsString, extType) }
+    val defaultVal = defaultValExpr.map { ce => VariableUtil.convert(ce.constantAsString, defv) }
 
     val defaultValIsConstant = {
       val isConst = defaultValExpr.map { _.isConstant }.getOrElse(true)
@@ -238,12 +238,12 @@ class VariableMap(private val variables: Map[String, List[List[Variable]]] = Map
         firstTier match {
 
           case Variable(VariableDefined, Some(v), ctxt) :: rest => {
-            val newVar = Variable(VariableSet, Some(VariableUtil.convert(newValue.toString, ctxt.extType)), ctxt)
+            val newVar = Variable(VariableSet, Some(VariableUtil.convert(newValue.toString, ctxt)), ctxt)
             mkVMap(newVar, firstTier, enclosingScopes)
           }
 
           case Variable(VariableUndefined, None, ctxt) :: rest => {
-            val newVar = Variable(VariableSet, Some(VariableUtil.convert(newValue.toString, ctxt.extType)), ctxt)
+            val newVar = Variable(VariableSet, Some(VariableUtil.convert(newValue.toString, ctxt)), ctxt)
             mkVMap(newVar, firstTier, enclosingScopes)
           }
 

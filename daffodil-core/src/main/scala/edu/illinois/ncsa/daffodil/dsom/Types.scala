@@ -337,11 +337,11 @@ trait Facets { self: SimpleTypeDefBase =>
       case e: Exception => {
         try {
           // Could already be a BigDecimal
-         new java.math.BigDecimal(date)
-        }catch {
+          new java.math.BigDecimal(date)
+        } catch {
           case e: Exception => context.SDE("Failed to parse (%s) to %s (%s)", date, dateType, format)
         }
-        
+
       }
     }
     bd
@@ -440,8 +440,8 @@ trait Facets { self: SimpleTypeDefBase =>
           case PrimType.DateTime => { /* Nothing to do here */ }
           case PrimType.Date => { /* Nothing to do here */ }
           case PrimType.Time => { /* Nothing to do here */ }
-          case PrimType.Boolean => Assert.notYetImplemented("checkValueSpaceFacetRange - Boolean")
-          case PrimType.HexBinary => Assert.notYetImplemented("checkValueSpaceFacetRange - HexBinary")
+          case PrimType.Boolean => notYetImplemented("checkValueSpaceFacetRange - Boolean")
+          case PrimType.HexBinary => notYetImplemented("checkValueSpaceFacetRange - HexBinary")
           case _ => schemaDefinitionError("checkValueSpaceFacetRange - Unrecognized primitive type: %s", primitiveType.name)
         }
       }
@@ -732,7 +732,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
   //
   lazy val restrictionBase: String = {
     val rsb = xml \\ "restriction" \ "@base"
-    if (rsb.length != 1){
+    if (rsb.length != 1) {
       context.SDE("Restriction base was not found.")
     }
     rsb.head.text
@@ -906,7 +906,7 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
   lazy val baseName = (xml \ "restriction" \ "@base").text
   lazy val baseType = {
     val res = if (baseName == "") None
-    else Assert.notYetImplemented() // should go find the global simple type here
+    else notYetImplemented("local simpleType with base attribute.") // should go find the global simple type here
   }
 
   lazy val prettyName = "simpleType." + baseName // Of(" + parent.name + ")"
@@ -987,8 +987,8 @@ class PrimitiveType(name_ : String)
       case "unsignedLong" => PrimType.ULong
       case "double" => PrimType.Double
       case "float" => PrimType.Float
-      case "hexBinary" => Assert.notYetImplemented("PrimitiveType: hexBinary")
-      case "boolean" => Assert.notYetImplemented("PrimitiveType: boolean")
+      case "hexBinary" => notYetImplemented("PrimitiveType: hexBinary")
+      case "boolean" => notYetImplemented("PrimitiveType: boolean")
       case "dateTime" => PrimType.DateTime
       case "date" => PrimType.Date
       case "time" => PrimType.Time
