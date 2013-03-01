@@ -104,4 +104,6 @@ class TestNamespaces extends JUnitSuite {
   
   @Test def test_element_conflict_01() { runner.runOneTest("element_conflict_01") }
   @Test def test_element_conflict_02() { runner.runOneTest("element_conflict_02") }
+
+//  @Test def test_no_namespace_temp() { runner.runOneTest("no_namespace_temp") }
 }

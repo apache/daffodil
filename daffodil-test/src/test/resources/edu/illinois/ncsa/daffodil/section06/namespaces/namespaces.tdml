@@ -646,6 +646,21 @@
   </tdml:parserTestCase>
   
   <!--
+    Test name: no_namespace_temp
+       Schema: multi_temp.dfdl.xsd
+         Root: baseSeq2
+      Purpose: This is a test to demonstrate the error case seen in DFDL-545
+  -->
+  
+  <tdml:parserTestCase name="no_namespace_temp" root="baseSeq2"
+    model="multi_temp.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[||333|||.||343|||]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
     Test name: no_namespace_04
        Schema: multi_base_05_nons.dfdl.xsd
          Root: baseSeq2b
