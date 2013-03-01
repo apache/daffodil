@@ -32,13 +32,13 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.lang.Byte
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import scala.collection.mutable.ListBuffer
+import scala.util.matching.Regex
 
 /**
  * Replace character entities, as well as hex/decimal numeric character entities by their unicode codepoint values.
@@ -54,7 +54,7 @@ class EntityReplacer {
 
   val dfdlEntityName = "NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC[1-4]|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|NBSP|NEL|LS"
   val dfdlCharClassEntityName = "NL|WSP|WSP\\*|WSP\\+"
-    
+
   val entityCharacterUnicode: List[(String, String, Pattern)] =
     List(
       ("NUL", "\u0000", Pattern.compile("%" + "NUL" + ";", Pattern.MULTILINE)),
@@ -102,24 +102,24 @@ class EntityReplacer {
   val decPattern = Pattern.compile("%#[0-9]+;", Pattern.MULTILINE)
   val bytePattern = Pattern.compile("%#r[0-9a-fA-F]{2};", Pattern.MULTILINE)
   val charClassEntityPattern = Pattern.compile("%(" + dfdlCharClassEntityName + ");", Pattern.MULTILINE)
-  
+
   def hasDfdlEntity(input: String): Boolean = {
-    if (hasDfdlCharEntity(input) || 
-        hasDecimalCodePoint(input) || 
-        hasHexCodePoint(input) || 
-        hasByteCodePoint(input) ||
-        hasDfdlCharClassEntity(input)){
+    if (hasDfdlCharEntity(input) ||
+      hasDecimalCodePoint(input) ||
+      hasHexCodePoint(input) ||
+      hasByteCodePoint(input) ||
+      hasDfdlCharClassEntity(input)) {
       return true
     }
     false
   }
-  
+
   def hasDfdlCharClassEntity(input: String): Boolean = {
     val p: Pattern = charClassEntityPattern
     val m: Matcher = p.matcher(input)
     m.find()
   }
-  
+
   def hasDfdlCharEntity(input: String): Boolean = {
     val p: Pattern = charEntityPattern
     val m: Matcher = p.matcher(input)
@@ -266,8 +266,19 @@ class EntityReplacer {
 
 object EntityReplacer extends EntityReplacer
 
-abstract class StringLiteralBase(rawArg: String, context: ThrowsSDE) {
-  val raw: String = rawArg
+abstract class StringLiteralBase(rawArg: String) {
+  val xmlEntityPattern = new Regex("""&(quot|amp|apos|lt|gt);""", "entity")
+  val raw: String = {
+    val res = xmlEntityPattern.replaceAllIn(rawArg, m => {
+      val sb = scala.xml.Utility.unescape(m.group("entity"), new StringBuilder())
+      // There really is no possibility for null to come back as we've made
+      // sure to only include valid xml entities in the xmlEntityPattern.
+      if (sb == null) {
+        Assert.impossible("Failed to replace an xml entity (%s) when converting String Literals.".format(m.group("entity")))
+      } else { sb.toString() }
+    })
+    res
+  }
   def cooked: String
 }
 
@@ -277,7 +288,7 @@ abstract class StringLiteralBase(rawArg: String, context: ThrowsSDE) {
  *  This is the kind of string literal you can use within an expression.
  */
 class StringValueAsLiteral(rawArg: String, context: ThrowsSDE)
-  extends StringLiteralBase(rawArg, context) {
+  extends StringLiteralBase(rawArg) {
   def cooked = EntityReplacer.replaceAll(raw)
 }
 
@@ -292,7 +303,7 @@ class SingleCharacterLiteralES(rawArg: String, context: ThrowsSDE)
 }
 
 class OneDelimiterLiteral(rawArg: String, context: ThrowsSDE)
-  extends StringLiteralBase(rawArg, context) {
+  extends StringLiteralBase(rawArg) {
   def cooked = EntityReplacer.replaceAll(raw)
   // deal with raw bytes entities
   // deal with character class entities
