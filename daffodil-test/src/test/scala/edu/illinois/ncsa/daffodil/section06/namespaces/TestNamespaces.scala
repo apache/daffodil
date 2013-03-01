@@ -79,6 +79,7 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_long_chain_07() { runner.runOneTest("long_chain_07") }
 
   @Test def test_no_namespace_01() { runner.runOneTest("no_namespace_01") }
+
   //  @Test def test_no_namespace_02() { runner.runOneTest("no_namespace_02") }
   @Test def test_no_namespace_03() { runner.runOneTest("no_namespace_03") }
   @Test def test_no_namespace_04() { runner.runOneTest("no_namespace_04") }
@@ -106,4 +107,12 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_element_conflict_02() { runner.runOneTest("element_conflict_02") }
 
 //  @Test def test_no_namespace_temp() { runner.runOneTest("no_namespace_temp") }
+
+  @Test def test_lion_eater_ambiguity_01() { runner.runOneTest("lion_eater_ambiguity_01") }
+  @Test def test_lion_eater_ambiguity_02() { runner.runOneTest("lion_eater_ambiguity_02") }
+  @Test def test_lion_eater_ambiguity_03() { runner.runOneTest("lion_eater_ambiguity_03") }
+  @Test def test_lion_eater_ambiguity_04() { runner.runOneTest("lion_eater_ambiguity_04") }
+  @Test def test_lion_eater_ambiguity_05() { runner.runOneTest("lion_eater_ambiguity_05") }
+
+
 }

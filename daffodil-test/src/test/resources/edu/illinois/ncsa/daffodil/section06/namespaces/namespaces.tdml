@@ -974,5 +974,192 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: lion_eater_ambiguity_01
+       Schema: multi_base_shi.dfdl.xsd
+         Root: shishishi
+      Purpose: This test demonstrates a basic one-schema scenario, where all user-defined values are "shi"
+               or some variation of "shi", including initiators, terminators, separators, namespaces, 
+               element names, etc. These should not be confused and the data should parse without issue.
+  -->
+  
+  <tdml:parserTestCase name="lion_eater_ambiguity_01" root="shishishi"
+    model="multi_base_shi.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishi initiator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishi terminator -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <shishishi>
+          <shi>shi</shi>
+          <shi>shi</shi>
+        </shishishi>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: lion_eater_ambiguity_02
+       Schema: multi_base_shi.dfdl.xsd
+         Root: shishishishi
+      Purpose: This test demonstrates a multi-schema scenario, where all user-defined values are "shi"
+               or some variation of "shi", including initiators, terminators, separators, namespaces, 
+               element names, etc. These should not be confused and the data should parse without issue.
+  -->
+  
+  <tdml:parserTestCase name="lion_eater_ambiguity_02" root="shishishishi"
+    model="multi_base_shi.dfdl.xsd" description="import a schema - DFDL-6-007R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi initiator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shishi initiator -->
+            <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
+              <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi initiator -->
+              <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi value -->
+              <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi terminator -->
+            <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+              <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi initiator -->
+              <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi value -->
+              <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi terminator -->
+            <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shishi terminator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi terminator -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <shishishishi>
+          <shiShishi>
+            <shi>shi</shi>
+            <shi>shi</shi>
+          </shiShishi>
+          <shi>shi</shi>
+        </shishishishi>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: lion_eater_ambiguity_03
+       Schema: multi_base_shi.dfdl.xsd
+         Root: shishishishishi
+      Purpose: This test demonstrates a multi-schema scenario, where all user-defined values are "shi"
+               or some variation of "shi", including initiators, terminators, separators, namespaces, 
+               element names, etc. These should not be confused and the data should parse without issue.
+  -->
+  
+  <tdml:parserTestCase name="lion_eater_ambiguity_03" root="shishishishishi"
+    model="multi_base_shi.dfdl.xsd" description="import a schema - DFDL-6-007R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi initiator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi terminator -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <shishishishishi>
+          <shi>shi</shi>
+          <shi>shi</shi>
+          <shi>shi</shi>
+        </shishishishishi>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: lion_eater_ambiguity_04
+       Schema: multi_base_shi.dfdl.xsd
+         Root: shi2
+      Purpose: This test demonstrates a multi-schema scenario, where all user-defined values are "shi"
+               It results in a schema definition error, which should clearly point to the location of the
+               issue.
+  -->
+  
+  <tdml:parserTestCase name="lion_eater_ambiguity_04" root="shi2"
+  model="multi_base_shi.dfdl.xsd" description="import a schema - DFDL-6-007R">
+
+    <tdml:document>shishishi122shishishi</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>MinInclusive(16) must be less than or equal to MaxInclusive(10)</tdml:error>
+      <tdml:error>Schema context: element.shishi</tdml:error>
+      <tdml:error>Location in file:</tdml:error>
+      <tdml:error>section06/namespaces/shi</tdml:error>      
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: lion_eater_ambiguity_05
+       Schema: multi_base_shi.dfdl.xsd
+         Root: shi3
+      Purpose: This test demonstrates a multi-schema scenario, where all user-defined values are "shi"
+               or some variation of "shi", including initiators, terminators, separators, namespaces, 
+               element names, etc. These should not be confused and the data should parse without issue.
+  -->
+  
+  <tdml:parserTestCase name="lion_eater_ambiguity_05" root="shi3"
+    model="multi_base_shi.dfdl.xsd" description="import a schema - DFDL-6-007R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi initiator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+          <tdml:documentPart type="text">5</tdml:documentPart> <!-- element shi value -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishishi:shi initiator -->
+          <tdml:documentPart type="text">12345</tdml:documentPart> <!-- element shishishi:shi value -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishishi:shi terminator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi initiator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi value -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi terminator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi terminator -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <shi3>
+          <shi>5</shi>
+          <shi>12345</shi>
+          <shi>shi</shi>
+        </shi3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
 
 </testSuite>
