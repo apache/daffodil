@@ -39,6 +39,7 @@ import java.util.Date
 import java.io.File
 import java.io.PrintStream
 import java.io.FileOutputStream
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
  * Simple logging system evolved from code found on Stack Overflow, on the web.
@@ -100,8 +101,14 @@ abstract class LogWriter {
       write(prefix + suffix + " [" + mess + "]")
     } catch {
       case e: Exception => {
-        System.err.println("Exception while logging." + e)
-        System.err.println("Glob was: " + glob.msg + glob.args.toList.toString)
+        val estring = try { e.toString } catch { case _ => e.getClass.getName }
+        System.err.println("Exception while logging: " + estring)
+        val globmsg = try { glob.msg } catch { case _ => "?glob.msg?" }
+        val globargs = try { glob.args } catch { case _ => Nil }
+        val globargsList = try { glob.args.map { x => x } } catch { case _ => List("globargsList failed") }
+        val globargsListStrings = globargsList.map { arg => try { arg.toString } catch { case _ => "?arg?" } }
+        System.err.println("Glob was: " + globmsg + " " + globargsListStrings)
+        Assert.abort("Exception while logging")
       }
     }
   }
@@ -183,9 +190,23 @@ class Glob(val lvl: LogLevel.Value, val msg: String, argSeq: => Seq[Any]) {
         str
       } catch {
         case e: Exception => {
+          val exc = e
           // If it fails, we punt on formatting, and just 
           // concatenate 
-          val str = args.mkString(" ")
+          val str = try {
+            exc.getMessage() + args.mkString(" ")
+          } catch {
+            case d => {
+              // if it double fails we just put out a string
+              // we know cannot fail.
+              val nestedExc = d
+              val msg = "Nested exceptions when logging. " + "" +
+                "Cannot display exception message. " +
+                "Exception class was: " +
+                Misc.getNameFromClass(exc)
+              msg
+            }
+          }
           str
         }
       }

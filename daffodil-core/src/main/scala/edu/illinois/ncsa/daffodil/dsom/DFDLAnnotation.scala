@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import scala.xml._
 import scala.xml.parsing._
 import edu.illinois.ncsa.daffodil.exceptions._
@@ -51,42 +50,51 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
 import edu.illinois.ncsa.daffodil.util.Info
 import edu.illinois.ncsa.daffodil.util.Debug
 import scala.collection.immutable.ListMap
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 
 /**
  * Base class for any DFDL annotation
+ *
+ * Note about SchemaComponent as a base class:
+ * Many things are now derived from SchemaComponent that were not before.
+ * Just turns out that there is a lot of desirable code sharing between
+ * things that aren't strictly-speaking SchemaComponents and things that
+ * previously were not. Accomplishing that sharing with mixins and
+ * self-typing etc. was just too troublesome. So now many things
+ * are schema components. E.g., all annotation objects, the Include
+ * and Import objects which represent those statements in a schema,
+ * the proxy DFDLSchemaFile object, etc.
+ *
+ * This change lets us share more easily, also hoist a base
+ * SchemaComponentBase over into daffodil-lib, which lets some of this
+ * shared code, specifcally stuff about errors and diagnostics,
+ * migrate over to daffodil-lib as well where it can be tied a
+ * bit more tightly to the OOLAG library there.
  */
 abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
-  extends DiagnosticsProviding
-  with ImplementsThrowsSDE
+  extends SchemaComponent(xmlArg, annotatedSCArg)
   with LookupLocation
-  with FindPropertyMixin {
+  with FindPropertyMixin
+  with ImplementsThrowsSDE {
+
+  final override val context: AnnotatedSchemaComponent = annotatedSCArg
 
   // delegate to the annotated component.
-  def findPropertyOption(pname: String): PropertyLookupResult = {
+  override def findPropertyOption(pname: String): PropertyLookupResult = {
     val res = annotatedSC.findPropertyOption(pname)
     res
   }
 
-  val annotatedSC = annotatedSCArg
-  val xml = xmlArg
-  lazy val schemaSet = annotatedSC.schemaSet
-  lazy val schemaDocument = annotatedSC.schemaDocument
-  lazy val schemaComponent = annotatedSC
+  lazy val annotatedSC = annotatedSCArg
 
-  override lazy val fileName = annotatedSC.fileName
+  //  override def addDiagnostic(diag: Diagnostic) = annotatedSC.addDiagnostic(diag)
 
-  override def addDiagnostic(diag: Diagnostic) = annotatedSC.addDiagnostic(diag)
-
-  lazy val context = annotatedSC
   //  match {
   //      case sc : SchemaComponent => sc 
   //      case _ => Assert.invariantFailed("should be a SchemaComponent")
   //    }
 
-  lazy val prettyName = xml.prefix + ":" + xml.label
-  lazy val path = annotatedSC.path + "::" + prettyName
-
-  override def toString() = path
+  override def toString = path
 }
 
 trait RawCommonRuntimeValuedPropertiesMixin
@@ -154,18 +162,17 @@ trait RawSimpleTypeRuntimeValuedPropertiesMixin
 
 }
 
-class DFDLProperty(val xml: Node, formatAnnotation: DFDLFormatAnnotation)
-  extends LookupLocation
-  with ImplementsThrowsSDE {
+class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
+  extends DFDLAnnotation(xmlArg, formatAnnotation.annotatedSC)
+  with LookupLocation
+  with NamedMixin {
 
-  lazy val prettyName = xml.prefix + ":" + xml.label
-  lazy val path = formatAnnotation.path + "::" + prettyName
+  override lazy val path = formatAnnotation.path + "::" + prettyName
 
-  lazy val schemaComponent = formatAnnotation.annotatedSC
-  lazy val context = schemaComponent
+  override lazy val schemaComponent = formatAnnotation.annotatedSC
 
-  lazy val schemaDocument = formatAnnotation.schemaDocument
-  lazy val fileName = schemaDocument.fileName
+  override lazy val schemaDocument = formatAnnotation.schemaDocument
+  override lazy val fileName = xmlSchemaDocument.fileName
 
   lazy val <dfdl:property>{ valueNodes }</dfdl:property> = xml
 
@@ -173,9 +180,8 @@ class DFDLProperty(val xml: Node, formatAnnotation: DFDLFormatAnnotation)
   // have to be resolved by THIS Object
   lazy val value = valueNodes.text
 
-  lazy val name = getAttributeRequired("name")
+  override lazy val name = getAttributeRequired("name")
 
-  lazy val diagnosticChildren: DiagnosticsList = Nil
 }
 
 /**
@@ -187,7 +193,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   //  with RawEscapeSchemeRuntimeValuedPropertiesMixin
   with LeafPropProvider {
 
-  lazy val diagnosticChildren: DiagnosticsList = Nil
+  requiredEvaluations(hasConflictingPropertyError)
 
   lazy val ref = getLocalFormatRef()
   lazy val refPair = ref.map { resolveQName(_) }
@@ -254,7 +260,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
             (newPair, locationDescription),
             seen.map { case (pair, fmtAnn) => (pair, fmtAnn.locationDescription) }.mkString("\n"))
           val defFmt = schemaSet.getDefineFormat(adjustedNS, ln).getOrElse(
-            schemaDefinitionError("defineFormat with name %s, was not found.", newPair))
+            schemaDefinitionError("defineFormat with name {%s}%s, was not found.", newPair._1, newPair._2))
           log(Debug("found defineFormat named: %s", newPair))
           val fmt = defFmt.formatAnnotation
           val newSeen = seen + (newPair -> fmt)
@@ -369,7 +375,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
    * ChainPropProvider is built up. That one DOES follow ref chains.
    */
   override lazy val justThisOneProperties: PropMap = justThisOneProperties_.value
-  private lazy val justThisOneProperties_ = LV('justThisOneProperties) {
+  private val justThisOneProperties_ = LV('justThisOneProperties) {
     val res = combinedJustThisOneProperties
     log(Debug("%s::%s justThisOneProperties are: %s", annotatedSC.prettyName, prettyName, res))
     res
@@ -383,7 +389,8 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
 abstract class DFDLStatement(node: Node, annotatedSC: AnnotatedSchemaComponent)
   extends DFDLAnnotation(node, annotatedSC) {
 
-  lazy val diagnosticChildren: DiagnosticsList = List(gram)
+  requiredEvaluations(gram)
+
   def gram: Gram
 }
 
@@ -429,40 +436,37 @@ class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)
 //  with BooleanTextMixin
 //  with RawSimpleTypeRuntimeValuedPropertiesMixin 
 
-trait DFDLDefiningAnnotation
-  extends NamedAnnotationAndComponentMixin { self: DFDLAnnotation =>
+abstract class DFDLDefiningAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
+  extends DFDLAnnotation(xmlArg, annotatedSCArg)
+  with NamedMixin { self: DFDLAnnotation =>
 
   // The point of this, is so we can match-case on type DFDLDefiningAnnotation
   // but then still conveniently use methods/members defined in the 
   // DFDLAnnotation class
-  val asAnnotation = self
+  lazy val asAnnotation = self
 
-  lazy val nom = getAttributeRequired("name") // validation will check this for us.
-  override lazy val prettyName: String = nom // note: name is not a format property.
-  override lazy val name: String = nom
+  lazy val expandedNCNameToQName = XMLUtils.expandedQName(context.targetNamespace, name)
 
-  lazy val expandedNCNameToQName = XMLUtils.expandedQName(context.targetNamespace, nom)
-
-  lazy val definingAnnotationDiagnosticChildren: DiagnosticsList = Nil
 }
 
 class DFDLDefineFormat(node: Node, sd: SchemaDocument)
-  extends DFDLAnnotation(node, sd) // Note: DefineFormat is not a format annotation
-  with DFDLDefiningAnnotation // with DefineFormat_AnnotationMixin // mixins are only for format annotations.
+  extends DFDLDefiningAnnotation(node, sd) // Note: DefineFormat is not a format annotation
   {
+
+  requiredEvaluations(formatAnnotation)
 
   lazy val baseFormat = getAttributeOption("baseFormat") // nor baseFormat
 
   lazy val formatAnnotation = formatAnnotation_.value
-  private lazy val formatAnnotation_ = LV('formatAnnotation) {
+  private val formatAnnotation_ = LV('formatAnnotation) {
     Utility.trim(node) match {
-      case <dfdl:defineFormat>{ f @ <dfdl:format>{ contents @ _* }</dfdl:format> }</dfdl:defineFormat> =>
+      case <defineFormat>{ f @ <format>{ contents @ _* }</format> }</defineFormat> =>
         new DFDLFormat(f, sd)
-      case _ => Assert.impossibleCase()
+      case _ =>
+        schemaDefinitionError("dfdl:defineFormat does not contain a dfdl:format element.")
     }
   }
 
-  lazy val diagnosticChildren: DiagnosticsList = formatAnnotation +: definingAnnotationDiagnosticChildren
 }
 
 class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent)
@@ -494,17 +498,20 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent)
 }
 
 class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument)
-  extends DFDLAnnotation(node, decl) // Note: defineEscapeScheme isn't a format annotation itself.
-  with DFDLDefiningAnnotation // with DefineEscapeScheme_AnnotationMixin 
+  extends DFDLDefiningAnnotation(node, decl) // Note: defineEscapeScheme isn't a format annotation itself.
+  // with DefineEscapeScheme_AnnotationMixin 
   {
+  requiredEvaluations(escapeScheme)
 
-  lazy val escapeScheme = Utility.trim(node) match {
-    case <dfdl:defineEscapeScheme>{ e @ <dfdl:escapeScheme>{ contents @ _* }</dfdl:escapeScheme> }</dfdl:defineEscapeScheme> =>
-      new DFDLEscapeScheme(e, decl)
-    case _ => Assert.impossibleCase()
+  lazy val escapeScheme = {
+    val des = Utility.trim(node)
+    val res = des match {
+      case <dfdl:defineEscapeScheme>{ e @ <dfdl:escapeScheme>{ contents @ _* }</dfdl:escapeScheme> }</dfdl:defineEscapeScheme> =>
+        new DFDLEscapeScheme(e, decl)
+      case _ => SDE("The content of %s is not complete.", des.label)
+    }
+    res
   }
-
-  lazy val diagnosticChildren: DiagnosticsList = escapeScheme +: definingAnnotationDiagnosticChildren
 
   override def toString(): String = {
     "DFDLDefineEscapeScheme." + name
@@ -569,7 +576,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
 class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Assert_AnnotationMixin // Note: don't use these generated mixins. Statements don't have format properties
   lazy val gram = gram_.value
-  private lazy val gram_ = LV('gram) {
+  private val gram_ = LV('gram) {
     testKind match {
       case TestKind.Pattern => AssertPatternPrim(decl, this)
       case TestKind.Expression => AssertBooleanPrim(decl, this)
@@ -580,7 +587,7 @@ class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
 class DFDLDiscriminator(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Discriminator_AnnotationMixin 
   lazy val gram = gram_.value
-  private lazy val gram_ = LV('gram) {
+  private val gram_ = LV('gram) {
     testKind match {
       case TestKind.Pattern => DiscriminatorPatternPrim(decl, this)
       case TestKind.Expression => DiscriminatorBooleanPrim(decl, this)
@@ -589,8 +596,7 @@ class DFDLDiscriminator(node: Node, decl: AnnotatedSchemaComponent)
 }
 
 class DFDLDefineVariable(node: Node, doc: SchemaDocument)
-  extends DFDLStatement(node, doc)
-  with DFDLDefiningAnnotation {
+  extends DFDLDefiningAnnotation(node, doc) {
   lazy val gram = EmptyGram // has to have because statements have parsers layed in by the grammar.
   lazy val typeQName = getAttributeOption("type").getOrElse("xs:string")
   lazy val external = getAttributeOption("external").map { _.toBoolean }.getOrElse(false)
@@ -603,12 +609,10 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
     case (Some(str), v) => schemaDefinitionError("Default value of variable was supplied both as attribute and element value: %s", node.toString)
   }
 
-  override lazy val diagnosticChildren: DiagnosticsList = definingAnnotationDiagnosticChildren
-
   lazy val extName = expandedNCNameToQName
 
-  val (typeURI, typeLocalName) = XMLUtils.QName(node, typeQName, this)
-  val extType = XMLUtils.expandedQName(typeURI, typeLocalName)
+  lazy val (typeURI, typeLocalName) = XMLUtils.QName(node, typeQName, this)
+  lazy val extType = XMLUtils.expandedQName(typeURI, typeLocalName)
 
   lazy val newVariableInstance = VariableFactory.create(this, extName, extType, defaultValue, external, doc)
 
@@ -617,17 +621,16 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
 class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) // with NewVariableInstance_AnnotationMixin 
   {
+  requiredEvaluations(endGram)
   lazy val ref = getAttributeRequired("ref")
   lazy val defaultValue = getAttributeOption("defaultValue")
 
   lazy val gram: Gram = NewVariableInstanceStart(decl, this)
   lazy val endGram: Gram = NewVariableInstanceEnd(decl, this)
 
-  override lazy val diagnosticChildren: DiagnosticsList = List(gram, endGram)
-
   lazy val (uri, localName) = XMLUtils.QName(decl.xml, ref, decl.schemaDocument)
   lazy val expName = XMLUtils.expandedQName(uri, localName)
-  lazy val defv = decl.schema.schemaSet.getDefineVariable(uri, localName).getOrElse(
+  lazy val defv = decl.schemaSet.getDefineVariable(uri, localName).getOrElse(
     this.schemaDefinitionError("Variable not found: %s", ref))
 
   lazy val newVariableInstance = defv.newVariableInstance
@@ -649,11 +652,11 @@ class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
   }
 
   lazy val (uri, localName) = XMLUtils.QName(decl.xml, ref, decl.schemaDocument)
-  lazy val defv = decl.schema.schemaSet.getDefineVariable(uri, localName).getOrElse(
+  lazy val defv = decl.schemaSet.getDefineVariable(uri, localName).getOrElse(
     schemaDefinitionError("Unknown variable: %s", ref))
 
   lazy val gram = gram_.value
-  private lazy val gram_ = LV('gram) {
+  private val gram_ = LV('gram) {
     SetVariable(decl, this)
   }
 }

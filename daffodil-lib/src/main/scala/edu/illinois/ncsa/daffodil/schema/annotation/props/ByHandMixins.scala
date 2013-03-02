@@ -32,11 +32,9 @@ package edu.illinois.ncsa.daffodil.schema.annotation.props
  * SOFTWARE.
  */
 
-
 // Copyright (C) 2012 Michael J. Beckerle. All Rights Reserved.
 
 import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.dsom.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
 import edu.illinois.ncsa.daffodil.dsom.StringValueAsLiteral
@@ -48,6 +46,8 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKindMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilValueDelimiterPolicyMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.RepresentationMixin
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
 
 /**
  * We don't want to make the code generator so sophisticated as to be
@@ -116,10 +116,10 @@ object SeparatorSuppressionPolicy extends Enum[SeparatorSuppressionPolicy] {
 }
 
 trait SeparatorSuppressionPolicyMixin
-  extends PropertyMixin { self: OOLAGHost =>
+  extends PropertyMixin { self: SchemaComponentBase =>
 
   lazy val separatorSuppressionPolicy = separatorSuppressionPolicy_.value
-  private lazy val separatorSuppressionPolicy_ = LV('separatorSuppressionPolicy) {
+  private val separatorSuppressionPolicy_ = LV('separatorSuppressionPolicy) {
     val sp = getPropertyOption("separatorPolicy")
     val ssp = getPropertyOption("separatorSuppressionPolicy")
     ssp match {

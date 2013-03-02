@@ -28,7 +28,7 @@
     </infoset>
   </parserTestCase>
   
-  <parserTestCase name="importWithOverlappingNSPrefixes" root="e1"
+  <parserTestCase name="importWithOverlappingNSPrefixes1" root="e1"
     model="test02sch1.dfdl.xsd"
     description="One schema imports another to get a named format from a different namespace. All the schemas use tns for their own (distinct) namespace.">
     <document><![CDATA[thisIsData]]></document>
@@ -50,7 +50,7 @@
     </infoset>
   </parserTestCase>
   
-  <parserTestCase name="importWithOverlappingNSPrefixes" root="e1"
+  <parserTestCase name="importWithOverlappingNSPrefixes2" root="e1"
     model="test04sch1.dfdl.xsd"
     description="One schema imports another to get a named format from a different namespace. All the schemas use tns for their own (distinct) namespace.">
     <document><![CDATA[thisIsData]]></document>

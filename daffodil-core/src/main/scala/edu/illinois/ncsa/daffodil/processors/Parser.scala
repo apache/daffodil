@@ -63,9 +63,8 @@ abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
 class ParseError(sc: SchemaComponent, val pstate: Option[PState], kind: String, args: Any*)
   extends ProcessingError {
-  def isError = true
-  def getSchemaLocations: Seq[SchemaLocation] = List(sc)
-  def getDataLocations: Seq[DataLocation] = pstate.map { _.currentLocation }.toList
+  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = List(sc)
+  override def getDataLocations: Seq[DataLocation] = pstate.map { _.currentLocation }.toList
 
   override def toString = {
     lazy val argsAsString = args.map { _.toString }.mkString(", ")
@@ -97,7 +96,7 @@ class AltParseFailed(sc: SchemaComponent, state: PState,
                      diags: Seq[Diagnostic])
   extends ParseError(sc, Some(state), "All alternatives failed. Reason(s): %s", diags) {
 
-  override def getSchemaLocations: Seq[SchemaLocation] = diags.flatMap { _.getSchemaLocations }
+  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = diags.flatMap { _.getLocationsInSchemaFiles }
 
   override def getDataLocations: Seq[DataLocation] = {
     // all should have the same starting location if they are alternatives.
@@ -399,9 +398,6 @@ case class DummyParser(sc: SchemaComponent) extends Parser(null) {
 
 class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixin {
   Assert.usage(msg != null && msg != "")
-  def isError() = true
-  def getSchemaLocations() = Nil
-  def getDataLocations() = Nil
   override def getMessage() = msg
 }
 

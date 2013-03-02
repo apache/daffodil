@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import java.io.File
 import scala.xml.{ XML, Utility, Node }
 import org.junit.Test
@@ -48,9 +47,6 @@ import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import junit.framework.Assert.{ assertTrue, assertEquals, assertFalse, fail }
 
 class HasProps(xml: Node) extends DFDLNonDefaultFormatAnnotation(xml, Fakes.fakeElem)
-  with ImplementsThrowsSDE {
-
-}
 
 class TestPropertyScoping extends JUnitSuite {
   val x1 = new HasProps(<fake alignmentUnits="bytes"/>)

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.xml
  * SOFTWARE.
  */
 
-
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
@@ -77,7 +76,7 @@ class TestXMLLoaderWithLocation extends JUnitSuite {
     val ldr = new DaffodilXMLLoader(BasicStderrErrorHandler)
     val pId: String = null
     val sId: String = null
-    val resolved = ldr.resolver.resolveResource(XMLUtils.XSD_NAMESPACE, XMLUtils.XSD_NAMESPACE, pId, sId, baseURI)
+    val resolved = DaffodilCatalogResolver.resolver.resolveResource(XMLUtils.XSD_NAMESPACE, XMLUtils.XSD_NAMESPACE, pId, sId, baseURI)
     println(resolved)
   }
 

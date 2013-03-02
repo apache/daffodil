@@ -223,8 +223,10 @@
     <annotation>
       <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
         <dfdl:element nilKind="literalValue" />
-        <dfdl:newVariableInstance ref="tns:myVar1"
-          defaultValue="7" />
+       <!--  Gives a not yet implemented, so commented out.
+       <dfdl:newVariableInstance ref="tns:myVar1"
+          defaultValue="7" /> -->
+          <dfdl:assert>{ true() }</dfdl:assert>
       </appinfo>
     </annotation>
   </element>

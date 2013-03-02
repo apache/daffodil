@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors._
@@ -281,7 +280,8 @@ case class OccursCountExpression(e: ElementBase)
   def unparser = new DummyUnparser(e)
 }
 
-class RepAtMostOccursCountPrim(e: LocalElementBase, n: Long, r: => Gram) extends RepPrim(e, n, r) {
+class RepAtMostOccursCountPrim(e: LocalElementBase, n: Long, r: => Gram)
+  extends RepPrim(e, n, r) {
 
   def parser = new RepParser(e, "AtMostOccursCount") {
     def parseAllRepeats(pstate: PState): PState = {

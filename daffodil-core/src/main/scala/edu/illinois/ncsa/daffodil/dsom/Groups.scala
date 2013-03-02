@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import scala.xml._
 import scala.xml.parsing._
 import edu.illinois.ncsa.daffodil.xml._
@@ -44,6 +43,7 @@ import java.io.InputStream
 import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 
 /////////////////////////////////////////////////////////////////
 // Groups System
@@ -51,7 +51,7 @@ import edu.illinois.ncsa.daffodil.Implicits._
 
 // A term is content of a group
 abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
-  extends AnnotatedSchemaComponent(xmlArg)
+  extends AnnotatedSchemaComponent(xmlArg, parentArg)
   with LocalComponentMixin
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
@@ -66,10 +66,10 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   lazy val someEnclosingComponent = enclosingComponent.getOrElse(Assert.invariantFailed("All terms except a root element have an enclosing component."))
 
-  lazy val enclosingComponent: Option[SchemaComponent] = {
-    val res = Some(parent) // for global objects, the enclosing will be the thing referencing them.
-    res
-  }
+  //  lazy val enclosingComponent: Option[SchemaComponent] = {
+  //    val res = Some(parent) // for global objects, the enclosing will be the thing referencing them.
+  //    res
+  //  }
 
   lazy val isRepresented = true // overridden by elements, which might have inputValueCalc turning this off
 
@@ -162,7 +162,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   // This below should not reproduce the logic of enclosingComponent unless it needs
   // something different from that. 
   lazy val nearestEnclosingSequence: Option[Sequence] = nearestEnclosingSequence_.value
-  private lazy val nearestEnclosingSequence_ = LV('nearestEnclosingSequence) {
+  private val nearestEnclosingSequence_ = LV('nearestEnclosingSequence) {
     val res = parent match {
       case s: Sequence => Some(s)
       case t: Term => t.nearestEnclosingSequence
@@ -189,7 +189,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   }
 
   lazy val inChoiceBeforeNearestEnclosingSequence: Boolean = inChoiceBeforeNearestEnclosingSequence_.value
-  private lazy val inChoiceBeforeNearestEnclosingSequence_ = LV('inChoiceBeforeNearestEnclosingSequence) {
+  private val inChoiceBeforeNearestEnclosingSequence_ = LV('inChoiceBeforeNearestEnclosingSequence) {
     val res = parent match {
       case s: Sequence => false
       case c: Choice => true
@@ -323,7 +323,7 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
     }.getOrElse("")
   }
 
-  lazy val prettyName = prettyBaseName + prettyIndex
+  override def prettyName = prettyBaseName + prettyIndex
   def prettyBaseName: String
 
   lazy val enclosingComponentModelGroup = enclosingComponent.collect { case mg: ModelGroup => mg }
@@ -358,26 +358,30 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   with ModelGroupGrammarMixin
   with OverlapCheckMixin {
 
+  requiredEvaluations(groupMembers)
+
   lazy val gRefNonDefault: Option[ChainPropProvider] = groupRef.map { _.nonDefaultFormatChain }
   lazy val gRefDefault: Option[ChainPropProvider] = groupRef.map { _.defaultFormatChain }
 
-  lazy val nonDefaultPropertySources = {
+  lazy val nonDefaultPropertySources = nonDefaultPropertySources_.value
+  private val nonDefaultPropertySources_ = LV('nonDefaultPropertySources) {
     val seq = (gRefNonDefault.toSeq ++ Seq(this.nonDefaultFormatChain)).distinct
     checkNonOverlap(seq)
     seq
   }
 
-  lazy val defaultPropertySources = {
+  lazy val defaultPropertySources = defaultPropertySources_.value
+  private val defaultPropertySources_ = LV('defaultPropertySources) {
     val seq = (gRefDefault.toSeq ++ Seq(this.defaultFormatChain)).distinct
     seq
   }
 
   lazy val prettyBaseName = xmlArg.label
 
-  val xmlChildren: Seq[Node]
+  def xmlChildren: Seq[Node]
 
   private lazy val goodXmlChildren = goodXmlChildren_.value
-  private lazy val goodXmlChildren_ = LV('goodXMLChildren) { xmlChildren.flatMap { removeNonInteresting(_) } }
+  private val goodXmlChildren_ = LV('goodXMLChildren) { xmlChildren.flatMap { removeNonInteresting(_) } }
   private lazy val positions = List.range(1, goodXmlChildren.length + 1) // range is exclusive on 2nd arg. So +1.
   private lazy val pairs = goodXmlChildren zip positions
 
@@ -388,14 +392,12 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   def group = this
 
   lazy val groupMembers = groupMembers_.value
-  private lazy val groupMembers_ = LV('groupMembers) {
+  private val groupMembers_ = LV('groupMembers) {
     pairs.flatMap {
       case (n, i) =>
         termFactory(n, this, i)
     }
   }
-
-  lazy val diagnosticChildren: DiagnosticsList = annotationObjs ++ groupMembers
 
   /**
    * Factory for Terms
@@ -597,7 +599,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val <sequence>{ apparentXMLChildren @ _* }</sequence> = xml
 
   lazy val xmlChildren = xmlChildren_.value
-  private lazy val xmlChildren_ = LV('xmlChildren) {
+  private val xmlChildren_ = LV('xmlChildren) {
     hiddenGroupRefOption match {
       case Some(qname) => {
         schemaDefinition(apparentXMLChildren.length == 0, "A sequence with hiddenGroupRef cannot have children.")
@@ -628,7 +630,9 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   with Group_AnnotationMixin
   with SeparatorSuppressionPolicyMixin
   with SequenceRuntimeValuedPropertiesMixin
-  with HasRef {
+  with HasRefMixin {
+
+  requiredEvaluations(groupDef)
 
   // delegate to the model group object. It assembles properties from
   // the group ref and the group def
@@ -661,8 +665,8 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val group = groupDef.modelGroup
 
   lazy val groupDef = groupDef_.value
-  private lazy val groupDef_ = LV('groupDef) {
-    this.schema.schemaSet.getGlobalGroupDef(namespace, localName) match {
+  private val groupDef_ = LV('groupDef) {
+    this.schemaSet.getGlobalGroupDef(namespace, localName) match {
       case None => SDE("Referenced group definition not found: %s", this.ref)
       case Some(x) => x.forGroupRef(this, position)
     }
@@ -674,14 +678,11 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val discriminatorStatements = localDiscriminatorStatements
   lazy val setVariableStatements = localSetVariableStatements
 
-  lazy val diagnosticChildren: DiagnosticsList = annotationObjs :+ groupDef
-
 }
 
-class GlobalGroupDefFactory(val xml: Node, val schemaDocument: SchemaDocument)
-  extends NamedAnnotationAndComponentMixin {
+class GlobalGroupDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
+  extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
 
-  lazy val context = schemaDocument
   def forGroupRef(gref: GroupRef, position: Int) = {
     scala.xml.Utility.trim(xml) match {
       case <group><sequence>{ _* }</sequence></group> =>
@@ -690,15 +691,16 @@ class GlobalGroupDefFactory(val xml: Node, val schemaDocument: SchemaDocument)
         new GlobalChoiceGroupDef(xml, schemaDocument, gref, position)
     }
   }
+
 }
 
-abstract class GlobalGroupDef(val xmlArg: Node, val schemaDocument: SchemaDocument, val groupRef: GroupRef, position: Int)
-  extends SchemaComponent(xmlArg)
+abstract class GlobalGroupDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val groupRef: GroupRef, position: Int)
+  extends SchemaComponent(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
 
-  override lazy val prettyName = "group." + name
+  requiredEvaluations(modelGroup)
 
-  lazy val enclosingComponent = {
+  override lazy val enclosingComponent = {
     val res = Some(groupRef)
     res
   }
@@ -713,8 +715,6 @@ abstract class GlobalGroupDef(val xmlArg: Node, val schemaDocument: SchemaDocume
   // and our ModelGroup factory has to return Nil for annotations and Text nodes.
   //
   lazy val Seq(modelGroup: ModelGroup) = xmlChildren.flatMap { GroupFactory(_, this, position) }
-
-  lazy val diagnosticChildren: DiagnosticsList = List(modelGroup)
 
 }
 

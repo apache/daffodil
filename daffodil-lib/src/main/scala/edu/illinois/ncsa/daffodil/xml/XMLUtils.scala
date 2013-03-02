@@ -56,6 +56,8 @@ import java.io.StringReader
 import edu.illinois.ncsa.daffodil.util.Misc
 import javax.xml.namespace.QName
 import javax.xml.XMLConstants
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.dsom._
 
 /**
  * Utilities for handling XML
@@ -1111,16 +1113,15 @@ object XMLUtils {
 
 }
 
-trait GetAttributesMixin {
+trait GetAttributesMixin { self: SchemaComponentBase =>
   def xml: Node
 
-  def context: ThrowsSDE
   /**
    * Use to retrieve things that are not format properties.
    */
   def getAttributeRequired(name: String) = {
     getAttributeOption(name) match {
-      case None => context.schemaDefinitionError("The attribute " + name + " is required.")
+      case None => schemaDefinitionError("The attribute " + name + " is required.")
       case Some(s) => s
     }
   }

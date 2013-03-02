@@ -32,32 +32,28 @@ package edu.illinois.ncsa.daffodil.schema.annotation.props
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
 import edu.illinois.ncsa.daffodil.dsom.FindPropertyMixin
 import edu.illinois.ncsa.daffodil.dsom.Found
 import edu.illinois.ncsa.daffodil.dsom.LookupLocation
 import edu.illinois.ncsa.daffodil.dsom.Fakes
 import java.net.URL
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
 
 sealed trait MyPropType extends MyProp.Value
-object MyProp extends Enum[MyPropType]
-  with ImplementsThrowsSDE {
+object MyProp extends Enum[MyPropType] // with ThrowsSDE
+{
   lazy val context = Fakes.fakeElem
-  lazy val schemaComponent = context
-  lazy val diagnosticChildren: DiagnosticsList = Nil
-  lazy val path = prettyName
-  lazy val prettyName = "MyPropType"
-
+  //  lazy val schemaComponent = context
   case object PropVal1 extends MyPropType
   forceConstruction(PropVal1)
   case object PropVal2 extends MyPropType
   forceConstruction(PropVal2)
-  def apply(name: String): MyPropType = stringToEnum("myProp", name, this)
+  def apply(name: String): MyPropType = stringToEnum("myProp", name, context)
 
 }
 
@@ -85,11 +81,12 @@ class TestPropertyRuntime extends JUnitSuite {
     assertEquals(MyProp.PropVal1, propVal1)
   }
 
-  class HasMixin extends TheExamplePropMixin with LookupLocation {
+  class HasMixin extends SchemaComponentBase(<dummy/>, null) 
+  with TheExamplePropMixin
+   with LookupLocation { 
     def findPropertyOption(pname: String) =
       Found("left", this)
-    lazy val context = this
-    lazy val xml = <foo/>
+    override val xml = <foo/>
     lazy val fileName = new URL("file:dummy")
     lazy val properties: PropMap = Map.empty
   }
@@ -115,7 +112,8 @@ object TheExampleProp extends Enum[TheExampleProp] {
   def apply(name: String, self: ThrowsSDE): TheExampleProp = stringToEnum("theExampleProp", name, self)
 }
 
-trait TheExamplePropMixin extends PropertyMixin with ThrowsSDE {
+trait TheExamplePropMixin 
+ extends PropertyMixin with ThrowsSDE {self: SchemaComponentBase =>
 
   def SDE(id: String, args: Any*): Nothing = {
     throw new Exception(id.toString + args)

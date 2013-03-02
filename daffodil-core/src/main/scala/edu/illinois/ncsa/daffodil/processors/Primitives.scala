@@ -1074,6 +1074,7 @@ abstract class Primitive(e: AnnotatedSchemaComponent, guard: Boolean = false)
   override def toString = "Prim[" + name + "]"
   def parser: DaffodilParser = DummyParser(e)
   def unparser: Unparser = DummyUnparser(e)
+
 }
 
 abstract class ZonedTextNumberPrim(e: ElementBase, guard: Boolean) extends Terminal(e, guard) {
@@ -1379,7 +1380,8 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
   def unparserDelim: String
 }
 
-class DynamicDelimiter(delimExpr: CompiledExpression, e: Term, guard: Boolean = true) extends Primitive(e, guard)
+class DynamicDelimiter(delimExpr: CompiledExpression, e: Term, guard: Boolean = true)
+  extends Primitive(e, guard)
 
 //case class StaticInitiator(e: Term) extends StaticDelimiter(e.initiator.constantAsString, e)
 case class StaticInitiator(e: Term) extends StaticDelimiter("Init", e.initiator.constantAsString, e) {

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.charset.{ CharsetEncoder, CoderResult }
 import scala.collection.JavaConversions._
@@ -60,7 +59,7 @@ class AltUnparseFailed(sc: SchemaComponent, state: UState,
                        val p: Diagnostic, val q: Diagnostic)
   extends UnparseError(sc, Some(state), "All alternatives failed. Reason(s): %s", p, q) {
 
-  override def getSchemaLocations: Seq[SchemaLocation] = p.getSchemaLocations ++ q.getSchemaLocations
+  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = p.getLocationsInSchemaFiles ++ q.getLocationsInSchemaFiles
 
   override def getDataLocations: Seq[DataLocation] = {
     // both should have the same starting location if they are alternatives.
@@ -70,9 +69,8 @@ class AltUnparseFailed(sc: SchemaComponent, state: UState,
 }
 
 class UnparseError(sc: SchemaComponent, ustate: Option[UState], kind: String, args: Any*) extends ProcessingError {
-  def isError = true
-  def getSchemaLocations: Seq[SchemaLocation] = List(sc)
-  def getDataLocations: Seq[DataLocation] = ustate.map { _.currentLocation }.toList
+  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = List(sc)
+  override def getDataLocations: Seq[DataLocation] = ustate.map { _.currentLocation }.toList
 
   override def toString = {
     lazy val argsAsString = args.map { _.toString }.mkString(", ")
@@ -312,9 +310,6 @@ case class DummyUnparser(sc: PropertyMixin) extends Unparser(null) {
 
 class GeneralUnparseFailure(msg: String) extends Throwable with DiagnosticImplMixin {
   Assert.usage(msg != null)
-  def isError() = true
-  def getSchemaLocations() = Nil
-  def getDataLocations() = Nil
   override def getMessage() = msg
 }
 

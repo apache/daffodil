@@ -43,7 +43,7 @@
 
     <tdml:errors>
       <!-- <tdml:error>representation</tdml:error> -->
-      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>err1</tdml:error>
       <tdml:error>Duplicate</tdml:error>
     </tdml:errors>
 
@@ -82,10 +82,16 @@
     <tdml:document />
 
     <tdml:errors>
+    <!-- this now gets the 3 most serious errors. Never gets around to 
+         the properties as it has given up processing those constructs. -->
       <!-- <tdml:error>representation</tdml:error> -->
-      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>immediate type</tdml:error>
+      <tdml:error>named type</tdml:error>
+      <tdml:error>not both</tdml:error>
+      <tdml:error>invalid</tdml:error>
       <tdml:error>dfdl:format</tdml:error>
-      <tdml:error>Property</tdml:error>
+      <tdml:error>ex:err2</tdml:error>
+      <tdml:error>referenced</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

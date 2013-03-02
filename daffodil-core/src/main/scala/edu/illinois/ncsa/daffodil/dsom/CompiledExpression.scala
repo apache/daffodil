@@ -120,10 +120,10 @@ case class ConstantExpression[T](value: T) extends CompiledExpression(value.toSt
 case class RuntimeExpression[T <: AnyRef](convertTo: Symbol,
                                           xpathText: String,
                                           xpathExprFactory: CompiledExpressionFactory,
-                                          sc: SchemaComponent)
+                                          scArg: SchemaComponent)
   extends CompiledExpression(xpathText)
   with WithParseErrorThrowing {
-  val context = sc
+  lazy val context = scArg
   def isConstant = false
   def isKnownNonEmpty = true // expressions are not allowed to return empty string
   def constant: T = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")

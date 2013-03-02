@@ -656,7 +656,13 @@
     model="multi_temp.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document><![CDATA[||333|||.||343|||]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>          
+      <tdml:error>leadingSkip</tdml:error>    
+      <tdml:error>initiator</tdml:error>
+      <tdml:error>separator</tdml:error>
+      <tdml:error>terminator</tdml:error>
+      <tdml:error>defineFormat</tdml:error>
+      <tdml:error>format</tdml:error>      
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -791,7 +797,7 @@
     <tdml:document><![CDATA[1]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error> Import element specifies namespace http://b00.com but namespace http://b06.com of imported schema does not match</tdml:error>
+      <tdml:error>Import element specifies namespace http://b00.com but namespace http://b06.com of imported schema does not match</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1114,7 +1120,7 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>MinInclusive(16) must be less than or equal to MaxInclusive(10)</tdml:error>
-      <tdml:error>Schema context: element.shishi</tdml:error>
+      <tdml:error>shishi</tdml:error>
       <tdml:error>Location in file:</tdml:error>
       <tdml:error>section06/namespaces/shi</tdml:error>      
     </tdml:errors>

@@ -146,7 +146,6 @@ class TestGrammar extends JUnitSuite {
     assertFalse(triple.isEmpty)
 
     val exp = triple.gram
-    // println(exp)
     assertTrue(exp.name.contains("AltComp"))
     assertTrue(exp.toString.contains("first"))
     assertTrue(exp.toString.contains("mid"))

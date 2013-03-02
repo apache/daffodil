@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil
  * SOFTWARE.
  */
 
-
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.contrib.java.lang.system.ExpectedSystemExit
@@ -51,6 +50,6 @@ class TestMultiFileSuppport extends JUnitSuite {
   @Test def testSimpleIncludeOfFormat() { runner.runOneTest("simpleInclude") }
   @Test def testSimpleImportOfFormat() { runner.runOneTest("simpleImport") }
   @Test def testIncludeNoNamespace() { runner.runOneTest("includeNoNamespace") }
-  @Test def testImportWithOverlappingNSPrefixes() { runner.runOneTest("importWithOverlappingNSPrefixes") }
+  @Test def testImportWithOverlappingNSPrefixes1() { runner.runOneTest("importWithOverlappingNSPrefixes1") }
 
 }

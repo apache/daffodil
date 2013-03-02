@@ -547,10 +547,25 @@ this to validate when we load a DFDL Schema.
     <!--
     
       Note: comment below is still desirable, but not clear what to do.
-      IBM's DFDL Schemas have ibm-specific properties on them that we 
-      need to tolerate.
       
-      So the behavior here has been switched back to the XSD Default behavior.
+      IBM's DFDL Schemas have ibm-specific attributes on them that we 
+      need to tolerate. Users may want to decorate their DFDL schemas with
+      other non-native and non-DFDL attributes and annotation sub-elements.
+      
+      So the behavior here has been switched back to the XSD Default behavior
+      which is lax validation allowing any other attribute to appear.
+      
+      The problem: this disables ability to catch certain typographical errors.
+      
+      I'm not sure you'll get an error if you forget the dfdl: prefix on 
+      a short form dfdl property binding. 
+      
+      UPDATE: nope. Switched back to explicit list of namespaces where
+      we tolerate other attributes. Added http://www.ibm.com/schema/extensions
+      to that list so that we don't barf on their extensions.
+      
+      This is only a temporary hack however. It's unclear what the 
+      ultimate solution to this is. 
       
       --><!-- 
       
@@ -559,26 +574,30 @@ this to validate when we load a DFDL Schema.
 
       However, going even further, we want to validate short form annotations,
       so we don't use wildcards for the dfdl namespace at all because if 
-      we do
-      our ability to enforce proper use of dfdl short form properties is 
+      we do our ability to enforce proper use of dfdl short form properties is 
       lost.
     -->
-    <xsd:anyAttribute namespace="##other" processContents="lax"/>
+    <!-- <xsd:anyAttribute namespace="##other" processContents="lax"/> -->
     <!-- <xsd:anyAttribute namespace="##other" processContents="strict"/> -->
 
-    <!-- need this much wildcard to allow xml:lang etc. which do appear in 
-      schemas -->
-      <!-- Daffodil augments schemas with dafint:file dafint:line and dafint:col -->
-          <!-- Daffodil extensions to DFDL use daf namespace -->
+
+    <!-- need some wildcard to allow xml:lang, xml:space etc. which do appear in 
+      schemas sometimes -->
+      
+    <!-- Daffodil augments schemas with dafint:file dafint:line and dafint:col -->
+          
+    <!-- Daffodil extensions to DFDL intended for end-users use the dafext namespace -->
           
     <!-- Not important to validate these, and we need to tolerate
       Other attributes from other DFDL implementations -->
-      <!-- 
+     
       <xsd:anyAttribute 
     namespace="http://www.w3.org/XML/1998/namespace 
     urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int 
-    urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
-    /> -->
+    urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext
+    http://www.ibm.com/schema/extensions"
+    /> 
+
 
   </xsd:attributeGroup>
 

@@ -37,15 +37,20 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dsom.OOLAG._
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.Misc.bytes2Hex
 import com.ibm.icu.text.NumberFormat
 import edu.illinois.ncsa.daffodil.processors._
 import java.math.BigInteger
 
+trait GrammarMixin {
+  protected val NYI = false // our flag for Not Yet Implemented 
+}
+
 trait InitiatedTerminatedMixin
-  extends AnnotatedMixin
+  extends GrammarMixin
+  with AnnotatedMixin
   with DelimitedRuntimeValuedPropertiesMixin { self: Term =>
 
   lazy val parentSaysInitiatedContent = {
@@ -87,7 +92,7 @@ trait InitiatedTerminatedMixin
           None
         } else {
           val (nsURI, name) = formatAnnotation.resolveQName(qName)
-          val defES = schema.schemaSet.getDefineEscapeScheme(nsURI, name)
+          val defES = schemaSet.getDefineEscapeScheme(nsURI, name)
           defES match {
             case None => SDE("Define Escape Scheme Not Found")
             case Some(es) => Some(es.escapeScheme)
@@ -246,7 +251,7 @@ trait ElementBaseGrammarMixin
   lazy val stringPatternMatched = Prod("stringPatternMatched", this, StringPatternMatched(this))
 
   lazy val stringValue = stringValue_.value
-  lazy val stringValue_ = LV('stringValue) {
+  private val stringValue_ = LV('stringValue) {
     val res = Prod("stringValue", this, lengthKind match {
       case LengthKind.Explicit if isFixedLength => fixedLengthString
       case LengthKind.Explicit => explicitLengthString

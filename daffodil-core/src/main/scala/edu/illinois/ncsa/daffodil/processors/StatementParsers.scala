@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.grammar.NamedGram
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 
 object StmtEval {
   def apply(context: ElementBase, eGram: => Gram) = {
@@ -67,7 +68,8 @@ class StmtEval(context: ElementBase, eGram: Gram)
   // - test discriminators (must be attempted even if the parsing of element or setVariable statements fail)
   // - test asserts
 
-  lazy val diagnosticChildren: DiagnosticsList = patDiscrim ++ patAssert ++ List(eGram) ++ setVar ++ testDiscrim ++ testAssert
+  // requiredEvaluations(patDiscrim, patAssert, eGram, setVar, testDiscrim, testAssert)
+  // Note: above not needed as these are ALWAYS evaluated below.
 
   val patDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Pattern).map(_.gram)
   val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram)

@@ -32,7 +32,7 @@ package edu.illinois.ncsa.daffodil.exceptions
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.dsom.OOLAG.OOLAGException
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGException
 
 // Copyright (C) 2012, Michael J. Beckerle. All Rights Reserved.
 

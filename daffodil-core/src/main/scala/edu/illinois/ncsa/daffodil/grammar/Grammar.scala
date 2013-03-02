@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.grammar
  * SOFTWARE.
  */
 
-
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Debug
 import edu.illinois.ncsa.daffodil.util.Misc.getNameFromClass
@@ -43,15 +42,22 @@ import edu.illinois.ncsa.daffodil.util.Info
 import edu.illinois.ncsa.daffodil.util.Compile
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.util.Logging
 
-abstract class Gram(val context: AnnotatedSchemaComponent) extends DiagnosticsProviding {
+abstract class Gram(contextArg: AnnotatedSchemaComponent)
+  extends OOLAGHost(contextArg) {
+
+  val context: AnnotatedSchemaComponent = contextArg
+
   def deref = this
 
-  override def addDiagnostic(diag: Diagnostic) = context.addDiagnostic(diag)
+  // override def addDiagnostic(diag: Diagnostic) = context.addDiagnostic(diag)
 
-  val name = getNameFromClass(this)
-  def prettyName = name
-  def path = context.path + "%" + prettyName
+  def name: String = prettyName
+
+  override def path = context.path + "%" + prettyName
 
   def isEmpty = false // they are by default not empty. Overridden in the cases where they could be.
   def ~(qq: => Gram) = {
@@ -96,13 +102,11 @@ abstract class Gram(val context: AnnotatedSchemaComponent) extends DiagnosticsPr
 }
 
 abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) {
-  val r = rr
-  val gram = {
+  lazy val r = rr
+  lazy val gram = {
     if (r.isEmpty) EmptyGram
     else this
   }
-
-  override lazy val diagnosticChildren: DiagnosticsList = if (r.isEmpty) Nil else List(r)
 }
 
 /**
@@ -112,22 +116,28 @@ abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) 
  * of two binary SeqComps.
  */
 abstract class BinaryGram(context: AnnotatedSchemaComponent, childrenArg: Seq[Gram]) extends Gram(context) {
+
+  requiredEvaluations(children)
+
   def op: String
   def open: String
   def close: String
-  val children = {
+
+  lazy val children = {
     val c = childrenArg
     c
   }
+
   override def toString = {
     Assert.invariant(children != null)
     Assert.invariant(open != null)
     Assert.invariant(op != null)
     Assert.invariant(close != null)
-    open + children.fold("") { (p, q) => p + " " + op + " " + q } + close
+    def toStringpq(p: String, q: String) =
+      open + p + " " + op + " " + q + close
+    val res = children.map { _.toString }.reduce { toStringpq _ }
+    res
   }
-
-  override lazy val diagnosticChildren: DiagnosticsList = children
 }
 
 object SeqComp {
@@ -146,8 +156,8 @@ object SeqComp {
 }
 class SeqComp(context: AnnotatedSchemaComponent, children: Seq[Gram]) extends BinaryGram(context, children) {
   def op = "~"
-  def open = ""
-  def close = ""
+  def open = "("
+  def close = ")"
 
   Assert.invariant(!children.exists { _.isInstanceOf[Nada] })
 
@@ -171,8 +181,8 @@ object AltComp {
 }
 class AltComp(context: AnnotatedSchemaComponent, children: Seq[Gram]) extends BinaryGram(context, children) {
   def op = "|"
-  def open = "("
-  def close = ")"
+  def open = "["
+  def close = "]"
 
   def parser = new AltCompParser(context, children)
   def unparser = new AltCompUnparser(context, children)
@@ -210,8 +220,6 @@ object EmptyGram extends Gram(null) {
   override def isEmpty = true
   override def toString = "Empty"
 
-  override lazy val diagnosticChildren: DiagnosticsList = Nil
-
   def parser = new EmptyGramParser
   def unparser = new EmptyGramUnparser
 }
@@ -219,8 +227,6 @@ object EmptyGram extends Gram(null) {
 object ErrorGram extends Gram(null) {
   override def isEmpty = false
   override def toString = "Error"
-
-  override lazy val diagnosticChildren: DiagnosticsList = Nil
 
   def parser = new ErrorParser
   def unparser = new ErrorUnparser
@@ -231,20 +237,23 @@ abstract class NamedGram(context: AnnotatedSchemaComponent) extends Gram(context
   // It causes much grief if toString uses complicated things that can fail or 
   // that end up needing the name of this NamedGram again.
   override def toString = name // + "(" + context.scPath.last + ")" //+ (if (isEmpty) "(Empty)" else "")
+
 }
 
 /**
  * Primitives will derive from this base
  */
-abstract class Terminal(contextArg: AnnotatedSchemaComponent, guard: Boolean) extends NamedGram(contextArg) {
+abstract class Terminal(contextArg: AnnotatedSchemaComponent, guard: Boolean)
+  extends NamedGram(contextArg) {
   override def isEmpty = !guard
 
   lazy val realSC = context.asInstanceOf[SchemaComponent]
   override lazy val path = realSC.path + "@@" + prettyName
 
+  override def toString = path // dangerous. What if realSC.path fails?
+
   def SDE(str: String, args: Any*): Nothing = realSC.SDE(str, args)
 
-  lazy val diagnosticChildren: DiagnosticsList = Nil
 }
 
 /**
@@ -267,19 +276,19 @@ class Prod(nameArg: String, val sc: Term, guardArg: Boolean, gramArg: => Gram)
 
   def SDE(str: String, args: Any*): Nothing = sc.SDE(str, args)
 
-  override val name = nameArg
+  override lazy val name = nameArg
 
   override lazy val path = sc.path + "@@Prod(" + prettyName + ")"
 
   lazy val containingClassName = getNameFromClass(sc)
 
   lazy val guard = guard_.value
-  private lazy val guard_ = LV('guard) {
+  private val guard_ = LV('guard) {
     guardArg
   }
 
   lazy val gram = gram_.value
-  private lazy val gram_ = LV('gram) {
+  private val gram_ = LV('gram) {
     guard match {
       case true => {
         gramArg
@@ -292,8 +301,6 @@ class Prod(nameArg: String, val sc: Term, guardArg: Boolean, gramArg: => Gram)
     }
   }
 
-  lazy val diagnosticChildren: DiagnosticsList = List(gram)
-
   //  /**
   //   * Constructor overloads let you specify just guard (for stubbing things really), 
   //   * or just grammar production (which means no guard) or both.
@@ -304,12 +311,12 @@ class Prod(nameArg: String, val sc: Term, guardArg: Boolean, gramArg: => Gram)
   override lazy val isEmpty = gram.isEmpty
 
   lazy val parser = parser_.value
-  private lazy val parser_ = LV('parser) {
+  private val parser_ = LV('parser) {
     gram.parser
   }
 
   lazy val unparser = unparser_.value
-  private lazy val unparser_ = LV('unparser) {
+  private val unparser_ = LV('unparser) {
     gram.unparser
   }
 

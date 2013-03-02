@@ -51,14 +51,20 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextCalendarJustif
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 
 abstract class SpecifiedLengthCombinatorBase(eb: ElementBase, eGram: => Gram)
   extends Terminal(eb, true)
   with RuntimeExplicitLengthMixin[Long] {
   //  extends NamedGram(e) {
 
+  // requiredEvaluations(eGram) // Note: not really required for grammar objects. 
+  // The eGram is only required if the grammar clause actually ends up spliced 
+  // into the final grammar, and we can't tell that here, so whether the egram
+  // ends up evaluated or not really has to happen in the application logic.
+
   val eParser = eGram.parser
-  override lazy val diagnosticChildren: DiagnosticsList = List(eGram)
+
   val e = eb
 
   def kind: String

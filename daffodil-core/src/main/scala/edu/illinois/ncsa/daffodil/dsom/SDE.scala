@@ -34,19 +34,20 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
+import scala.xml.Node
 
-class SchemaDefinitionError(schemaContext: Option[SchemaComponent],
+class SchemaDefinitionError(schemaContext: Option[SchemaComponentBase],
                             annotationContext: Option[DFDLAnnotation],
                             kind: String,
                             args: Any*)
   extends SchemaDefinitionDiagnosticBase(schemaContext, annotationContext, kind, args: _*) {
 
   def this(sc: SchemaComponent, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
-  val isError = true
   val diagnosticKind = "Error"
 }
 
-class SchemaDefinitionWarning(schemaContext: Option[SchemaComponent],
+class SchemaDefinitionWarning(schemaContext: Option[SchemaComponentBase],
                               annotationContext: Option[DFDLAnnotation],
                               kind: String,
                               args: Any*)
@@ -54,19 +55,19 @@ class SchemaDefinitionWarning(schemaContext: Option[SchemaComponent],
 
   def this(sc: SchemaComponent, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
 
-  val isError = false
+  override def isError = false
   val diagnosticKind = "Warning"
 }
 
 abstract class SchemaDefinitionDiagnosticBase(
-  val schemaContext: Option[SchemaComponent],
+  val schemaContext: Option[SchemaComponentBase],
   val annotationContext: Option[DFDLAnnotation],
   val kind: String,
   val args: Any*) extends Exception with DiagnosticImplMixin {
-  def isError: Boolean
+
   def diagnosticKind: String
-  def getSchemaLocations = schemaContext.toList
-  def getDataLocations = Nil
+  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = schemaContext.toList
+
   // TODO: Alternate constructor that allows data locations.
   // Because some SDEs are caught only once Processing starts. 
   // They're still SDE but they will have data location information.
@@ -119,32 +120,40 @@ abstract class SchemaDefinitionDiagnosticBase(
 }
 
 trait ImplementsThrowsSDE
-  extends ThrowsSDE
-  with DiagnosticsProviding {
+  extends ThrowsSDE { self: SchemaComponentBase =>
+  
+  val NoAnnotationContext: Option[DFDLAnnotation] = None    
+  /**
+   * Override in derived classes to create a member that
+   * is of the right type.
+   */
+  //val context: DiagnosticsProviding = parent
+  
   /**
    * Centralize throwing for debug convenience
    */
   def toss(th: Throwable) = {
+    println(th)
     throw th // good place for a breakpoint
   }
 
-  def schemaComponent: SchemaComponent
+  def schemaComponent: SchemaComponentBase
 
   // TODO: create a trait to share various error stuff with DFDLAnnotation class.
   // Right now there is small code duplication since annotations aren't schema components.
   def SDE(id: String, args: Any*): Nothing = {
-    val sde = new SchemaDefinitionError(Some(schemaComponent), None, id, args: _*)
+    val sde = new SchemaDefinitionError(Some(schemaComponent), NoAnnotationContext, id, args: _*)
     toss(sde)
   }
 
   def SDEButContinue(id: String, args: Any*): Unit = {
-    val sde = new SchemaDefinitionError(Some(schemaComponent), None, id, args: _*)
-    addDiagnostic(sde)
+    val sde = new SchemaDefinitionError(Some(schemaComponent), NoAnnotationContext, id, args: _*)
+    error(sde)
   }
 
   def SDW(id: String, args: Any*): Unit = {
-    val sdw = new SchemaDefinitionWarning(Some(schemaComponent), None, id, args: _*)
-    addDiagnostic(sdw)
+    val sdw = new SchemaDefinitionWarning(Some(schemaComponent), NoAnnotationContext, id, args: _*)
+    warn(sdw)
   }
 
   /**

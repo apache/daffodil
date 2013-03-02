@@ -66,6 +66,10 @@ class IBMTestsThatThrow extends JUnitSuite {
   @Test def test_scoping_define_format_8_03() { runner1.runOneTest("scoping_define_format_8_03") } //packed
   @Test def test_scoping_define_format_8_04() { runner1.runOneTest("scoping_define_format_8_04") } //alignment
   @Test def test_scoping_define_format_8_05() { runner1.runOneTest("scoping_define_format_8_05") } //multi-file schemas DFDL-552 and DFDL-503
+  
+  @Test def test_scoping_default_format_8_01() { runner1.runOneTest("scoping_default_format_8_01") } // attributeFormDefault='qualified'
+  @Test def test_scoping_define_format_8_01() { runner1.runOneTest("scoping_define_format_8_01") } // attributeFormDefault='qualified'
+  
   @Test def test_alignment_bytes_12_01() { runner1.runOneTest("alignment_bytes_12_01") } //alignment
   @Test def test_alignment_bytes_12_02() { runner1.runOneTest("alignment_bytes_12_02") } //alignment
   @Test def test_alignment_bytes_12_03() { runner1.runOneTest("alignment_bytes_12_03") } //alignment

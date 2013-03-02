@@ -43,6 +43,8 @@ import edu.illinois.ncsa.daffodil.dsom.Found
 import edu.illinois.ncsa.daffodil.dsom.PropertyLookupResult
 import edu.illinois.ncsa.daffodil.dsom.LookupLocation
 import java.net.URL
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
 
 /**
  * This test shows how to use the Generated Code mixins, and verifies that they work.
@@ -57,10 +59,13 @@ class TestGeneratedProperties extends JUnitSuite {
    * you have to define the getPropertyOption method, which actually
    * retrieves the property if it is present.
    */
-  class HasLotsOfProperties extends LookupLocation with Format_AnnotationMixin {
+  class HasLotsOfProperties 
+    extends SchemaComponentBase(<dummy/>,null) 
+    with LookupLocation 
+    with Format_AnnotationMixin {
 
-    lazy val context = this
-    lazy val xml = bagOfProps
+    override val oolagContext = this
+    override val xml = bagOfProps
     lazy val fileName = new URL("file:dummy")
     lazy val properties: PropMap = Map.empty
 

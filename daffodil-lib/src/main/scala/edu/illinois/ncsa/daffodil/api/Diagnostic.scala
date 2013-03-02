@@ -1,4 +1,5 @@
 package edu.illinois.ncsa.daffodil.api
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
 
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -32,14 +33,13 @@ package edu.illinois.ncsa.daffodil.api
  * SOFTWARE.
  */
 
-
 /**
  * Base trait for all error, warning, info, and other sorts of objects
  * that capture diagnostic information.
  *
  * Allows for lazy message creation, internationalization, etc.
  */
-trait Diagnostic { self: Throwable => // these are always throwables.
+trait Diagnostic extends Throwable with HasIsError { 
 
   /**
    * Turns the diagnostic object into a string.
@@ -62,7 +62,7 @@ trait Diagnostic { self: Throwable => // these are always throwables.
    *
    * For example, this might be a file name of a schema, and position within the schema file.
    */
-  def getSchemaLocations: Seq[SchemaLocation]
+  def getLocationsInSchemaFiles: Seq[LocationInSchemaFile]
 
   /**
    * Determine if a diagnostic object represents an error or something less serious.
@@ -89,7 +89,7 @@ trait DataLocation {
 /**
  * Relevant schema location for a diagnostic message. E.g., file and line number.
  */
-trait SchemaLocation {
+trait LocationInSchemaFile {
   def toString: String
 }
 

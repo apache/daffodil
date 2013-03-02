@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import java.io.File
 import scala.xml.{ XML, Utility, Node }
 import org.junit.Test
@@ -46,6 +45,7 @@ import edu.illinois.ncsa.daffodil.util.{ TestUtils, Misc, Logging }
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import junit.framework.Assert.{ assertTrue, assertEquals, assertFalse, fail }
+import edu.illinois.ncsa.daffodil.api.Diagnostic
 
 class TestDsomCompiler extends JUnitSuite with Logging {
 
@@ -102,7 +102,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     compiler.setCheckAllTopLevel(true)
     val (sset, _) = compiler.frontEnd(sch)
     assertTrue(sset.isError)
-    val diagnostics = sset.getDiagnostics
+    val diagnostics = sset.getDiagnostics.asInstanceOf[Seq[Diagnostic]]
     val msgs = diagnostics.map { _.getMessage }
     val msg = msgs.mkString("\n")
     val hasErrorText = msg.contains("maxOccurs");
@@ -117,6 +117,21 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     assertTrue(pf.isError)
     val msg = pf.getDiagnostics.toString
     val hasErrorText = msg.contains("typeDoesNotExist");
+    if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
+  }
+
+  @Test def testTypeReferentialError2() {
+    val sch: Node = <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com">
+                      <element name="foo" type="bar"/><!-- Illegal: no prefix on name of the type. -->
+                      <complexType name="bar">
+                        <sequence/>
+                      </complexType>
+                    </schema>
+    val (_, pf) = Compiler().compileInternal(sch)
+    assertTrue(pf.isError)
+    val msg = pf.getDiagnostics.toString
+    println(msg)
+    val hasErrorText = msg.contains("bar");
     if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
   }
 
@@ -246,7 +261,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
       ByteOrder.BigEndian.toString().toLowerCase(),
       e1.formatAnnotation.asInstanceOf[DFDLElement].getProperty("byteOrder").toLowerCase())
     val Seq(a1, a2) = e3.annotationObjs // third one has two annotations
-    assertTrue(a2.isInstanceOf[DFDLNewVariableInstance]) // second annotation is newVariableInstance
+    assertTrue(a2.isInstanceOf[DFDLAssert]) // second annotation is newVariableInstance
     assertEquals("implicit", a1.asInstanceOf[DFDLElement].getProperty("occursCountKind"))
     val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef] // first one has immediate complex type
     // Explore local complex type def
@@ -504,7 +519,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
 
     //    println(gs3.nonDefaultPropertySources)
     //    println(gs3.defaultPropertySources)
-    gs3.properties // because these unit tests are outside the normal framework,
+    // gs3.valueAsAny // because these unit tests are outside the normal framework,
     // we sometimes have to demand things in order for errors to be noticed.
     assertTrue(gs3.isError)
     val msgs = gs3.getDiagnostics.mkString("\n").toLowerCase
@@ -579,10 +594,11 @@ class TestDsomCompiler extends JUnitSuite with Logging {
 
   @Test def test_ibm_7132 {
     val ibm7132Schema = XML.load(Misc.getRequiredResource("/test/TestRefChainingIBM7132.dfdl.xml"))
+    // val ibm7132Schema = "test/TestRefChainingIBM7132.dfdl.xml"
     val compiler = Compiler()
     val sset = new SchemaSet(ibm7132Schema)
-    val Seq(sch) = sset.schemas
-    val Seq(sd) = sch.schemaDocuments
+    // val Seq(sch) = sset.schemas
+    val Seq(sd) = sset.allSchemaDocuments
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()

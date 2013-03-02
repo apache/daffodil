@@ -40,12 +40,13 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.dsom.OOLAG._
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.dsom.OOLAG.LV
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.LV
 import scala.util.matching.Regex
 import edu.illinois.ncsa.daffodil.dsom.Facet._
 import edu.illinois.ncsa.daffodil.processors.Infoset
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -85,7 +86,7 @@ trait ParticleMixin { self: ElementBase =>
    * Does this node have statically required instances.
    */
   lazy val hasStaticallyRequiredInstances = hasStaticallyRequiredInstances_.value
-  private lazy val hasStaticallyRequiredInstances_ = LV('hasStaticallyRequiredInstances) {
+  private val hasStaticallyRequiredInstances_ = LV('hasStaticallyRequiredInstances) {
     val res =
       if (!isRepresented) false // if there's no rep, then it's not statically required.
       else if (isScalar) true
@@ -96,7 +97,7 @@ trait ParticleMixin { self: ElementBase =>
   }
 
   lazy val hasStopValue = hasStopValue_.value
-  private lazy val hasStopValue_ = LV('hasStopValue) {
+  private val hasStopValue_ = LV('hasStopValue) {
     val sv = isRecurring && occursCountKind == OccursCountKind.StopValue
     // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.
     schemaDefinition(!(sv && occursStopValue == ""), "Property occursCountKind='stopValue' requires a non-empty occursStopValue property.")
@@ -130,12 +131,13 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with NumberTextMixin
   with CalendarTextMixin
   with BooleanTextMixin
-  with TextNumberFormatMixin
-  with WithDiagnostics {
+  with TextNumberFormatMixin {
+
+  requiredEvaluations(typeDef)
 
   def name: String
 
-  val schemaComponentID = Infoset.addComponent(this)
+  lazy val schemaComponentID = Infoset.addComponent(this)
 
   def inputValueCalcOption: Option[String]
   def isNillable: Boolean
@@ -211,8 +213,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * The existence of an expression to compute a delimiter is assumed to imply a non-zero-length, aka a real delimiter.
    */
 
-  val NVDP = NilValueDelimiterPolicy
-  val EVDP = EmptyValueDelimiterPolicy
+  lazy val NVDP = NilValueDelimiterPolicy
+  lazy val EVDP = EmptyValueDelimiterPolicy
 
   lazy val hasNilValueInitiator = initTermTestExpression(initiator, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
   lazy val hasNilValueTerminator = initTermTestExpression(terminator, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
@@ -244,7 +246,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * check if there are delimiters such that there is a concept of something that we can call 'empty'
    */
   lazy val emptyIsAnObservableConcept = emptyIsAnObservableConcept_.value
-  private lazy val emptyIsAnObservableConcept_ = LV('emptyIsAnObservableConcept) {
+  private val emptyIsAnObservableConcept_ = LV('emptyIsAnObservableConcept) {
     val res = if ((hasSep ||
       hasEmptyValueInitiator ||
       hasEmptyValueTerminator) &&
@@ -355,18 +357,18 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasPattern) {
         val pt = st.primitiveType.myPrimitiveType
-        if (pt != PrimType.String) context.SDE("Pattern is only allowed to be applied to string and types derived from string.")
+        if (pt != PrimType.String) SDE("Pattern is only allowed to be applied to string and types derived from string.")
         st.patternValues
-      } else context.SDE("Pattern was not found in this context.")
-    } else context.SDE("Pattern was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+      } else SDE("Pattern was not found in this context.")
+    } else SDE("Pattern was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
   }
 
   lazy val enumerationValues: String = {
     if (isSimpleType && !isPrimitiveType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasEnumeration) st.enumerationValues
-      else context.SDE("Enumeration was not found in this context.")
-    } else context.SDE("Enumeration was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+      else SDE("Enumeration was not found in this context.")
+    } else SDE("Enumeration was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
   }
 
   //TODO: refactor minLength and maxLength calculation. 
@@ -400,20 +402,20 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
         // minLength and maxLength must be equal
         if (st.hasMinLength && st.hasMaxLength) {
           val res = st.minLengthValue.compareTo(st.maxLengthValue)
-          if (res != 0) context.SDE("When LengthKind.Implicit for string, min and maxLength must be equal.")
-        } else context.SDE("When LengthKind.Implicit for string, min and maxLength must be specified and equal.")
+          if (res != 0) SDE("When LengthKind.Implicit for string, min and maxLength must be equal.")
+        } else SDE("When LengthKind.Implicit for string, min and maxLength must be specified and equal.")
       }
       if (st.hasMinLength) {
         // May only apply to string/hexBinary
-        if ((pt != PrimType.String) && (pt != PrimType.HexBinary)) context.SDE("MinLength facet can only be applied to string or hexBinary.")
+        if ((pt != PrimType.String) && (pt != PrimType.HexBinary)) SDE("MinLength facet can only be applied to string or hexBinary.")
         if (st.hasMaxLength) {
           val res = st.minLengthValue.compareTo(st.maxLengthValue)
-          if (res > 0) context.SDE("MinLength facet must be <= MaxLength facet.")
+          if (res > 0) SDE("MinLength facet must be <= MaxLength facet.")
         }
         st.minLengthValue
-      } else context.SDE("MinLength was not found in this context.")
+      } else SDE("MinLength was not found in this context.")
 
-    } else context.SDE("MinLength was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+    } else SDE("MinLength was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
   }
 
   lazy val maxLength: java.math.BigDecimal = {
@@ -425,20 +427,20 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
         // minLength and maxLength must be equal
         if (st.hasMinLength && st.hasMaxLength) {
           val res = st.minLengthValue.compareTo(st.maxLengthValue)
-          if (res != 0) context.SDE("When LengthKind.Implicit for string, min and maxLength must be equal.")
-        } else context.SDE("When LengthKind.Implicit for string, min and maxLength must be specified and equal.")
+          if (res != 0) SDE("When LengthKind.Implicit for string, min and maxLength must be equal.")
+        } else SDE("When LengthKind.Implicit for string, min and maxLength must be specified and equal.")
       }
       if (st.hasMaxLength) {
         // May only apply to string/hexBinary
-        if ((pt != PrimType.String) && (pt != PrimType.HexBinary)) context.SDE("MaxLength facet can only be applied to string or hexBinary.")
+        if ((pt != PrimType.String) && (pt != PrimType.HexBinary)) SDE("MaxLength facet can only be applied to string or hexBinary.")
         if (st.hasMinLength) {
           val res = st.minLengthValue.compareTo(st.maxLengthValue)
-          if (res > 0) context.SDE("MinLength facet must be <= MaxLength facet.")
+          if (res > 0) SDE("MinLength facet must be <= MaxLength facet.")
         }
         st.maxLengthValue
-      } else context.SDE("MaxLength was not found in this context.")
+      } else SDE("MaxLength was not found in this context.")
 
-    } else context.SDE("MaxLength was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+    } else SDE("MaxLength was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
   }
 
   // TODO: see comment above about refactoring minLength, maxLength
@@ -447,69 +449,69 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val minInclusive: java.math.BigDecimal = {
     if (isSimpleType && !isPrimitiveType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      if (st.hasMinInclusive && st.hasMinExclusive) context.SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
+      if (st.hasMinInclusive && st.hasMinExclusive) SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
       if (st.hasMinInclusive && st.hasMaxExclusive) {
         val res = st.minInclusiveValue.compareTo(st.maxExclusiveValue)
-        if (res > 0) context.SDE("MinInclusive(%s) must be less than or equal to MaxExclusive(%s).", st.minInclusiveValue, st.maxExclusiveValue)
+        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxExclusive(%s).", st.minInclusiveValue, st.maxExclusiveValue)
       }
       if (st.hasMinInclusive && st.hasMaxInclusive) {
         val res = st.minInclusiveValue.compareTo(st.maxInclusiveValue)
-        if (res > 0) context.SDE("MinInclusive(%s) must be less than or equal to MaxInclusive(%s).", st.minInclusiveValue, st.maxInclusiveValue)
+        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxInclusive(%s).", st.minInclusiveValue, st.maxInclusiveValue)
       }
       if (st.hasMinInclusive) st.minInclusiveValue
-      else context.SDE("MinInclusive was not found in this context.")
-    } else context.SDE("MinInclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+      else SDE("MinInclusive was not found in this context.")
+    } else SDE("MinInclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
   }
 
   lazy val maxInclusive: java.math.BigDecimal = {
     if (isSimpleType && !isPrimitiveType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      if (st.hasMaxInclusive && st.hasMaxExclusive) context.SDE("MaxInclusive and MaxExclusive cannot be specified for the same simple type.")
+      if (st.hasMaxInclusive && st.hasMaxExclusive) SDE("MaxInclusive and MaxExclusive cannot be specified for the same simple type.")
       if (st.hasMaxInclusive && st.hasMinExclusive) {
         val res = st.minExclusiveValue.compareTo(st.maxInclusiveValue)
-        if (res > 0) context.SDE("MinExclusive(%s) must be less than or equal to MaxInclusive(%s)", st.minExclusiveValue, st.maxInclusiveValue)
+        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxInclusive(%s)", st.minExclusiveValue, st.maxInclusiveValue)
       }
       if (st.hasMaxInclusive && st.hasMinInclusive) {
         val res = st.minInclusiveValue.compareTo(st.maxInclusiveValue)
-        if (res > 0) context.SDE("MinInclusive(%s) must be less than or equal to MaxInclusive(%s)", st.minInclusiveValue, st.maxInclusiveValue)
+        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxInclusive(%s)", st.minInclusiveValue, st.maxInclusiveValue)
       }
       if (st.hasMaxInclusive) st.maxInclusiveValue
-      else context.SDE("MaxInclusive was not found in this context.")
-    } else context.SDE("MaxInclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+      else SDE("MaxInclusive was not found in this context.")
+    } else SDE("MaxInclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
   }
 
   lazy val minExclusive: java.math.BigDecimal = {
     if (isSimpleType && !isPrimitiveType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      if (st.hasMinInclusive && st.hasMinExclusive) context.SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
+      if (st.hasMinInclusive && st.hasMinExclusive) SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
       if (st.hasMaxInclusive && st.hasMinExclusive) {
         val res = st.minExclusiveValue.compareTo(st.maxInclusiveValue)
-        if (res > 0) context.SDE("MinExclusive(%s) must be less than or equal to MaxInclusive(%s)", st.minExclusiveValue, st.maxInclusiveValue)
+        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxInclusive(%s)", st.minExclusiveValue, st.maxInclusiveValue)
       }
       if (st.hasMaxExclusive && st.hasMinExclusive) {
         val res = st.minExclusiveValue.compareTo(st.maxExclusiveValue)
-        if (res > 0) context.SDE("MinExclusive(%s) must be less than or equal to MaxExclusive(%s)", st.minExclusiveValue, st.maxExclusiveValue)
+        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxExclusive(%s)", st.minExclusiveValue, st.maxExclusiveValue)
       }
       if (st.hasMinExclusive) st.minExclusiveValue
-      else context.SDE("MinExclusive was not found in this context.")
-    } else context.SDE("MinExclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+      else SDE("MinExclusive was not found in this context.")
+    } else SDE("MinExclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
   }
 
   lazy val maxExclusive: java.math.BigDecimal = {
     if (isSimpleType && !isPrimitiveType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      if (st.hasMaxExclusive && st.hasMaxInclusive) context.SDE("MaxExclusive and MaxInclusive cannot be specified for the same simple type.")
+      if (st.hasMaxExclusive && st.hasMaxInclusive) SDE("MaxExclusive and MaxInclusive cannot be specified for the same simple type.")
       if (st.hasMaxExclusive && st.hasMinInclusive) {
         val res = st.minInclusiveValue.compareTo(st.maxExclusiveValue)
-        if (res > 0) context.SDE("MinInclusive(%s) must be less than or equal to MaxExclusive(%s)", st.minInclusiveValue, st.maxExclusiveValue)
+        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxExclusive(%s)", st.minInclusiveValue, st.maxExclusiveValue)
       }
       if (st.hasMaxExclusive && st.hasMinExclusive) {
         val res = st.minExclusiveValue.compareTo(st.maxExclusiveValue)
-        if (res > 0) context.SDE("MinExclusive(%s) must be less than or equal to MaxExclusive(%s)", st.minExclusiveValue, st.maxExclusiveValue)
+        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxExclusive(%s)", st.minExclusiveValue, st.maxExclusiveValue)
       }
       if (st.hasMaxExclusive) st.maxExclusiveValue
-      else context.SDE("MaxExclusive was not found in this context.")
-    } else context.SDE("MaxExclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+      else SDE("MaxExclusive was not found in this context.")
+    } else SDE("MaxExclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
   }
 
   lazy val totalDigits: java.math.BigDecimal = {
@@ -522,10 +524,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
         val isDerivedFromInteger = st.isXDerivedFromY(st.primitiveType.name, "integer")
         if (isDerivedFromDecimal || isDerivedFromInteger) st.totalDigitsValue
         else {
-          context.SDE("TotalDigits facet can only be applied to decimal or any of the integer types, and types derived from them. Restriction base is %s", st.primitiveType.name)
+          SDE("TotalDigits facet can only be applied to decimal or any of the integer types, and types derived from them. Restriction base is %s", st.primitiveType.name)
         }
-      } else context.SDE("TotalDigits was not found in this context.")
-    } else context.SDE("TotalDigits was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+      } else SDE("TotalDigits was not found in this context.")
+    } else SDE("TotalDigits was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
   }
 
   lazy val fractionDigits: java.math.BigDecimal = {
@@ -537,14 +539,14 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
         if (isDerivedFromDecimal) {
           if (st.hasTotalDigits) {
             val res = st.fractionDigitsValue.compareTo(st.totalDigitsValue)
-            if (res > 0) context.SDE("FractionDigits facet must not exceed TotalDigits.")
+            if (res > 0) SDE("FractionDigits facet must not exceed TotalDigits.")
           }
           st.fractionDigitsValue
         } else {
-          context.SDE("FractionDigits facet can only be applied to decimal. Restriction base is %s", st.primitiveType.name)
+          SDE("FractionDigits facet can only be applied to decimal. Restriction base is %s", st.primitiveType.name)
         }
-      } else context.SDE("FractionDigits was not found in this context.")
-    } else context.SDE("FractionDigits was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+      } else SDE("FractionDigits was not found in this context.")
+    } else SDE("FractionDigits was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
   }
 
   lazy val allFacets: Seq[FacetValue] = {
@@ -613,7 +615,7 @@ trait LocalElementMixin
   with LocalElementGrammarMixin { self: LocalElementBase =>
 
   lazy val hasSep = hasSep_.value
-  lazy val hasSep_ = LV('hasSep) {
+  private val hasSep_ = LV('hasSep) {
     nearestEnclosingSequence match {
       case None => false
       case Some(es) => {
@@ -624,7 +626,8 @@ trait LocalElementMixin
     }
   }
 
-  lazy val isDeclaredLastInSequence = LV('isDeclaredLastInSequence) {
+  lazy val isDeclaredLastInSequence = isDeclaredLastInSequence_.value
+  private val isDeclaredLastInSequence_ = LV('isDeclaredLastInSequence) {
     val es = nearestEnclosingSequence
     // how do we determine what child node we are? We search. 
     // TODO: better structure for O(1) answer to this.
@@ -639,7 +642,7 @@ trait LocalElementMixin
   lazy val isLastRequiredElementOfSequence: Boolean = Assert.notYetImplemented()
 
   lazy val separatorSuppressionPolicy = separatorSuppressionPolicy_.value
-  private lazy val separatorSuppressionPolicy_ = LV('separatorSuppressionPolicy) {
+  private val separatorSuppressionPolicy_ = LV('separatorSuppressionPolicy) {
     nearestEnclosingSequence match {
       case Some(ssp) => ssp.separatorSuppressionPolicy
       //
@@ -676,7 +679,10 @@ abstract class LocalElementBase(xmlArg: Node, parent: SchemaComponent, position:
 class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   extends LocalElementBase(xmlArg, parent, position)
   with ElementReferenceGrammarMixin
-  with HasRef {
+  with HasRefMixin
+  with NamedMixin {
+
+  requiredEvaluations(referencedElement)
 
   override def findPropertyOption(pname: String): PropertyLookupResult = {
     val res = referencedElement.findPropertyOption(pname)
@@ -685,21 +691,12 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   lazy val nonDefaultPropertySources = referencedElement.nonDefaultPropertySources
   lazy val defaultPropertySources = referencedElement.defaultPropertySources
 
-  lazy val prettyName = "element.ref." + name
-
-  val elementRef = None
+  lazy val elementRef = None
 
   // Need to go get the Element we are referencing
   private[dsom] lazy val referencedElement = referencedElement_.value // optionReferencedElement.get
-  //  lazy val optionReferencedElement = {
-  //    try referencedElement_.value
-  //    catch {
-  //      case e : ErrorAlreadyHandled => None
-  //    }
-  //  }
-
-  private lazy val referencedElement_ = LV('referencedElement) {
-    this.schema.schemaSet.getGlobalElementDecl(namespace, localName) match {
+  private val referencedElement_ = LV('referencedElement) {
+    this.schemaSet.getGlobalElementDecl(namespace, localName) match {
       case None => SDE("Referenced element not found: %s.", this.ref)
       case Some(x) => x.forElementRef(this)
     }
@@ -714,8 +711,28 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   lazy val isDefaultable: Boolean = referencedElement.isDefaultable
 
   lazy val qname = resolveQName(ref)
-  lazy val (namespace, localName) = qname
-  lazy val name = localName
+  lazy val (ns, localName) = qname
+  override lazy val namespace = ns
+
+  /**
+   * valueOrElse....not just .value because when trying to get a diagnostic message out about
+   * something, but then you get another failure just trying to get the
+   * name of the thing that was causing the original diagnostic, so you
+   * end up getting a completely insrutable situation.
+   *
+   * So I made key things that are part of diagnostic messages have this
+   * "always creates some value" behavior.
+   *
+   * Historic note:
+   * I am hoping this problem will be less now. Some of it was because
+   * we were failing validation, but then still running the rest of
+   * the compiler which would then have errors it was not designed
+   * to cope with like xs:element with no name or ref attribute.
+   * Which would cause the above situation where just trying to get
+   * the name was failing.
+   */
+  override lazy val name = name_.valueOrElse("?name?")
+  private val name_ = LV('name) { localName }
 
   // TODO: perhaps many members of ElementRef are unused. 
   // Consider removing some. Although consider that
@@ -735,7 +752,6 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   override lazy val discriminatorStatements = localDiscriminatorStatements
   override lazy val setVariableStatements = localSetVariableStatements
 
-  lazy val diagnosticChildren: DiagnosticsList = Seq(referencedElement) // optionReferencedElement.toList
 }
 
 /**
@@ -762,21 +778,23 @@ trait ElementDeclMixin
    * the ElementRef in order to have the complete picture of all the properties in effect for
    * that ElementBase.
    */
-  lazy val nonDefaultPropertySources = {
+  lazy val nonDefaultPropertySources = nonDefaultPropertySources_.value
+  private val nonDefaultPropertySources_ = LV('nonDefaultPropertySources) {
     val seq = (eRefNonDefault.toSeq ++ Seq(this.nonDefaultFormatChain) ++ sTypeNonDefault).distinct
     checkNonOverlap(seq)
     seq
   }
 
-  lazy val defaultPropertySources = {
+  lazy val defaultPropertySources = defaultPropertySources_.value
+  private val defaultPropertySources_ = LV('defaultPropertySources) {
     val seq = (eRefDefault.toSeq ++ Seq(this.defaultFormatChain) ++ sTypeDefault).distinct
     seq
   }
 
-  override lazy val prettyName = "element." + name
+  override def prettyName = "element." + name
 
   lazy val immediateType = immediateType_.value
-  private lazy val immediateType_ = LV('immediateType) {
+  private val immediateType_ = LV('immediateType) {
     val st = xml \ "simpleType"
     val ct = xml \ "complexType"
     val nt = typeName
@@ -793,7 +811,7 @@ trait ElementDeclMixin
   lazy val typeName = getAttributeOption("type")
 
   lazy val namedTypeQName = namedTypeQName_.value
-  private lazy val namedTypeQName_ = LV('namedTypeQName) {
+  private val namedTypeQName_ = LV('namedTypeQName) {
     typeName match {
       case Some(tname) => Some(XMLUtils.QName(xml, tname, schemaDocument))
       case None => None
@@ -801,12 +819,12 @@ trait ElementDeclMixin
   }
 
   lazy val namedTypeDef = namedTypeDef_.value
-  private lazy val namedTypeDef_ = LV('namedTypeDef) {
+  private val namedTypeDef_ = LV('namedTypeDef) {
     namedTypeQName match {
       case None => None
       case Some((ns, localpart)) => {
 
-        val ss = schema.schemaSet
+        val ss = schemaSet
         val prim = ss.getPrimitiveType(localpart)
         //
         if (prim != None) prim
@@ -829,7 +847,7 @@ trait ElementDeclMixin
   }
 
   lazy val typeDef = typeDef_.value
-  private lazy val typeDef_ = LV('typeDef) {
+  private val typeDef_ = LV('typeDef) {
     (immediateType, namedTypeDef) match {
       case (Some(ty), None) => ty
       case (None, Some(ty)) => ty
@@ -839,10 +857,8 @@ trait ElementDeclMixin
     }
   }
 
-  lazy val elementDeclDiagnosticChildren = annotationObjs_.toList.flatten ++ typeDef_.toList
-
   lazy val isSimpleType = isSimpleType_.value
-  private lazy val isSimpleType_ = LV('isSimpleType) {
+  private val isSimpleType_ = LV('isSimpleType) {
     typeDef match {
       case _: SimpleTypeBase => true
       case _: ComplexTypeBase => false
@@ -872,7 +888,7 @@ trait ElementDeclMixin
    */
 
   lazy val isDefaultable = isDefaultable_.value
-  private lazy val isDefaultable_ = LV('isDefaultable) {
+  private val isDefaultable_ = LV('isDefaultable) {
     defaultValueAsString match {
       case "" => false // allowed for type string.
       case _ if (emptyIsAnObservableConcept) => true
@@ -885,9 +901,8 @@ class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
   extends LocalElementBase(xmlArg, parent, position)
   with ElementFormDefaultMixin
   with ElementDeclMixin {
-  val elementRef = None
+  lazy val elementRef = None
 
-  lazy val diagnosticChildren: DiagnosticsList = elementDeclDiagnosticChildren
 }
 
 /**
@@ -901,12 +916,11 @@ class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
  * is an attribute that might be the sequence containing the element reference
  * that is referencing this global element declaration.
  */
-class GlobalElementDeclFactory(val xml: Node, val schemaDocument: SchemaDocument)
-  extends NamedAnnotationAndComponentMixin {
+class GlobalElementDeclFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
+  extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
   def forRoot() = asRoot // cache. Not a new one every time.
   lazy val asRoot = new GlobalElementDecl(xml, schemaDocument, None)
 
-  lazy val context = schemaDocument
   def forElementRef(eRef: ElementRef) = new GlobalElementDecl(xml, schemaDocument, Some(eRef))
 
 }
@@ -922,8 +936,9 @@ class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val ele
   extends LocalElementBase(xmlArg, schemaDocumentArg, 0)
   with GlobalComponentMixin
   with ElementDeclMixin
-  with GlobalElementDeclGrammarMixin
-  with WithDiagnostics {
+  with GlobalElementDeclGrammarMixin {
+
+  requiredEvaluations(document)
 
   override lazy val maxOccurs = elementRef match {
     case Some(er) => er.maxOccurs
@@ -960,6 +975,5 @@ class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val ele
    */
   override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
 
-  lazy val diagnosticChildren: DiagnosticsList = elementDeclDiagnosticChildren :+ document
 }
 

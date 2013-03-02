@@ -533,6 +533,22 @@
 
   <xsd:attributeGroup name="anyOther">
     <!--
+    
+      Note: comment below is still desirable, but not clear what to do.
+      IBM's DFDL Schemas have ibm-specific properties on them that we 
+      need to tolerate.
+      
+      So the behavior here has been switched back to the XSD Default behavior.
+      
+      UPDATE: nope. Switched back to explicit list of namespaces where
+      we tolerate other attributes. Added http://www.ibm.com/schema/extensions
+      to that list so that we don't barf on their extensions.
+      
+      This is only a temporary hack however. It's unclear what the 
+      ultimate solution to this is. 
+      
+      --><!-- 
+      
       For DFDL, XSD normally does lax validation, but to find more typographical
       errors in our examples we want strict validation
 
@@ -549,11 +565,16 @@
       schemas -->
       <!-- Daffodil augments schemas with dafint:file dafint:line and dafint:col -->
           <!-- Daffodil extensions to DFDL use daf namespace -->
-    <xsd:anyAttribute 
+          
+    <!-- Not important to validate these, and we need to tolerate
+      Other attributes from other DFDL implementations -->
+     
+      <xsd:anyAttribute 
     namespace="http://www.w3.org/XML/1998/namespace 
     urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int 
-    urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
-    />
+    urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext
+    http://www.ibm.com/schema/extensions"
+    /> 
 
   </xsd:attributeGroup>
 

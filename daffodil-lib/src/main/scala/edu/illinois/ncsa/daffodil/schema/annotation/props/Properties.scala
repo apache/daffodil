@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.schema.annotation.props
  * SOFTWARE.
  */
 
-
 // Copyright (C) 2012, Michael J. Beckerle. All Rights Reserved.
 
 import edu.illinois.ncsa.daffodil.exceptions._
@@ -141,10 +140,10 @@ abstract class Enum[A] extends EnumBase {
  */
 trait PropertyMixin extends FindPropertyMixin with ThrowsSDE with Logging {
 
-  /**
-   * Only for testing purposes
-   */
-  def properties: PropMap
+//  /**
+//   * Only for testing purposes
+//   */
+//  def properties: PropMap
 
   /**
    * Properties will push their toString function onto this list

@@ -38,12 +38,12 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 
 /**
  * Element references and Group References use this.
  */
-trait HasRef
-  extends GetAttributesMixin {
+trait HasRefMixin { self : SchemaComponentBase =>
   // TODO: Consolidate this and the xsdRef attributes that do QName stuff
   //From GroupRef.
   private lazy val xsdRef = getAttributeRequired("ref")

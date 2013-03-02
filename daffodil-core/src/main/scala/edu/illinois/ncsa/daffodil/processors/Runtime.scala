@@ -36,11 +36,12 @@ import edu.illinois.ncsa.daffodil.api.{ WithDiagnostics, DFDL }
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom.OOLAG.OOLAGException
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGException
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.compiler.ProcessorFactory
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -57,34 +58,37 @@ trait WithDiagnosticsImpl extends WithDiagnostics {
  * back-end runtime.
  */
 class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
-  extends DFDL.DataProcessor
-  with DiagnosticsProviding {
+  extends SchemaComponentBase(<dp/>, pf)
+  with ImplementsThrowsSDE
+  with DFDL.DataProcessor {
+
+  requiredEvaluations(
+    parser,
+    // force creation of the parser value so that all errors are issued
+    // this is in case some compilation happens in the constructors of parsers.
+    rootElem)
+
   Assert.usage(pf.canProceed)
 
   lazy val processorFactory = pf
-
-  lazy val prettyName = "DataProcessor"
-  lazy val path = prettyName
-
-  lazy val diagnosticChildren: DiagnosticsList = {
-    parser
-    // force creation of the parser value so that all errors are issued
-    // this is in case some compilation happens in the constructors of parsers.
-    val res = List(rootElem, { parser; parser_ })
-    res
-  }
-
+  
+  override lazy val fileName = processorFactory.fileName
+  
+  // just delegate to the PF. It has access to the SchemaSet.
+  override def isError = pf.isError
+  override def diagnostics = pf.diagnostics
+  
   //
   // Last tidbits of compilation. Really this is just accessing the 
   // result of compilation
   // 
   lazy val parser = parser_.value
-  private lazy val parser_ = LV('parser) {
+  private val parser_ = LV('parser) {
     rootElem.document.parser
   }
 
   lazy val unparser = unparser_.value
-  private lazy val unparser_ = LV('unparser) {
+  private val unparser_ = LV('unparser) {
     rootElem.document.unparser
   }
 
@@ -109,10 +113,10 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
 
   def parse(initialState: PState) = {
     val pr = new ParseResult(this) {
-
+      val p = parser
       val resultState = { // Not lazy. We want to parse right now.
         try {
-          parser.parse1(initialState, rootElem)
+          p.parse1(initialState, rootElem)
         } catch {
           // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure" 
           // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an 

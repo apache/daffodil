@@ -40,7 +40,6 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.Misc.hex2Bytes
 import junit.framework.Assert.assertEquals
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticsProviding
 import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
 import edu.illinois.ncsa.daffodil.dsom.SchemaSet
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
@@ -50,6 +49,12 @@ import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import java.io.File
 import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
+import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
+import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
+import edu.illinois.ncsa.daffodil.processors.WithDiagnosticsImpl
 
 /**
  * Contains a specification of the root element to be used.
@@ -68,18 +73,31 @@ case class RootSpec(ns: Option[NS], name: String) {
 }
 
 class ProcessorFactory(val sset: SchemaSet)
-  extends DiagnosticsProviding // (sset)
+  extends SchemaComponentBase(<pf/>, sset)
+  with ImplementsThrowsSDE
   with DFDL.ProcessorFactory
   with HavingRootSpec {
 
-  lazy val prettyName = "ProcessorFactory"
-  lazy val path = prettyName
+  requiredEvaluations(rootElem, sset)
 
   // println("Creating Processor Factory")
   lazy val rootElem = rootElem_.value
-  private lazy val rootElem_ = LV('rootELem) { sset.rootElement(rootSpec) }
+  private val rootElem_ = LV('rootElem) {
+    sset.rootElement(rootSpec)
+  }
 
-  lazy val diagnosticChildren: DiagnosticsList = List(rootElem, sset) // order may matter as to error msg order.
+  override def isError = {
+    OOLAG.keepGoing(true) {
+      val valid = sset.isValid
+      val res = if (valid) sset.isError
+      else true
+      res
+    }
+  }
+
+  override def diagnostics = sset.diagnostics
+
+  override lazy val fileName = sset.fileName
 
   def onPath(xpath: String): DFDL.DataProcessor = {
     Assert.usage(canProceed)
@@ -106,7 +124,6 @@ trait HavingRootSpec {
   var rootSpec: Option[RootSpec] = None
 
   def setDistinguishedRootNode(name: String, namespace: String): Unit = {
-
     val ns =
       if (namespace != null) Some(NS(namespace))
       else None
@@ -166,21 +183,21 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
     Assert.usage(schemaFileNames.length >= 1)
     val sset = new SchemaSet(schemaFileNames, rootSpec, checkAllTopLevel)
     val pf = new ProcessorFactory(sset)
-    val isError = pf.isError // isError causes diagnostics to be created.
-    val diags = pf.getDiagnostics
-    def printDiags() = diags.foreach { diag => log(Error(diag.toString())) }
-    if (pf.isError) {
+    val err = pf.isError
+    val diags = pf.getDiagnostics // might be warnings even if not isError
+    def printDiags = diags.foreach { diag => log(Error(diag.toString())) }
+    if (err) {
       Assert.invariant(diags.length > 0)
       log(Error("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
-      printDiags()
     } else {
       if (diags.length > 0) {
-        System.err.println("Compilation (ProcessorFactory) produced %d warnings: " + diags.length)
-        printDiags()
+        log(Info("Compilation (ProcessorFactory) produced %d warnings.", diags.length))
+
       } else {
         log(Compile("ProcessorFactory completed with no errors."))
       }
     }
+    printDiags
     (sset, pf)
   }
 
@@ -261,6 +278,7 @@ object Compiler {
     val pf = compiler.compile(testSchema)
     val isError = pf.isError
     val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+
     if (isError) {
       throw new Exception(msgs)
     }

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.xml
  * SOFTWARE.
  */
 
-
 /**
  * Adapted from a question/answer on the Stack Overflow web site.
  *
@@ -48,7 +47,6 @@ import java.net.URL
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import javax.xml.parsers.SAXParserFactory
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticsProviding
 import edu.illinois.ncsa.daffodil.dsom.SchemaSet
 import edu.illinois.ncsa.daffodil.dsom.SchemaDocument
 import org.apache.xml.resolver.CatalogManager
@@ -321,6 +319,23 @@ class DFDLXMLLocationAwareAdapter
 }
 
 /**
+ * Generally singletons in daffodil should be objects that are stored
+ * in the SchemaSet, the DataProcessor or the ProcessorFactory. With
+ * this singleton, Daffodil cannot run two different schemas that use
+ * two different XML Catalogs to resolve their schema includes/imports
+ * in the same JVM.
+ *
+ * Of course the underlying XML Catalog resolver may have the singleton
+ * constraint, if so then there's no point in our stuff avoiding the
+ * singleton.
+ *
+ * I suspect this is in fact the case, so we'll leave this a singleton.
+ */
+object DaffodilCatalogResolver {
+  lazy val resolver = new DFDLCatalogResolver
+}
+
+/**
  * Manages the care and feeding of the Xerces schema-aware
  * XML parser that we use to do XML-Schema validation of the
  * files we are reading.
@@ -332,7 +347,7 @@ trait SchemaAwareLoaderMixin {
 
   protected def doValidation: Boolean
 
-  lazy val resolver = new DFDLCatalogResolver
+  protected lazy val resolver = DaffodilCatalogResolver.resolver
 
   override def parser: SAXParser = {
 

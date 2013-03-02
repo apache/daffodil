@@ -32,12 +32,13 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.util.Info
 import edu.illinois.ncsa.daffodil.util.Debug
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 
 /**
  * Property lookup uses ChainPropProviders containing LeafPropProviders.
@@ -64,7 +65,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
  * format annotations together.
  */
 trait LeafPropProvider
-  extends LookupLocation with PropTypes with Logging {
+  extends LookupLocation with PropTypes with Logging { self: SchemaComponentBase =>
 
   /**
    * for debug/test only
@@ -111,7 +112,7 @@ class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: 
    */
   lazy val properties: PropMap = leafProviders.flatMap { _.properties.toSeq }.toMap
 
-  val leafProviders = leafProvidersArg
+  lazy val leafProviders = leafProvidersArg
 
   def prettyName: String = "ChainPropProvider(" + forAnnotation.prettyName + ")"
 

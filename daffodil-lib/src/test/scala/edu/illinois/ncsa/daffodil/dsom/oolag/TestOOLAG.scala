@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.dsom
+package edu.illinois.ncsa.daffodil.dsom.oolag
 
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -32,111 +32,148 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
-import edu.illinois.ncsa.daffodil.dsom.OOLAG._
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.util.LoggingDefaults
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.Abort
+import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.util.Logging
 
-class MyHost extends OOLAGHost {
-  def LV = LVFactory(this)
+class MyException(msg: String)
+  extends Exception(msg)
+  with OOLAGDiagnosticMixin
 
-  // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+abstract class MyBase(parentArg: MyBase)
+  extends OOLAGHost(parentArg) {
 
-  def prettyName = "myName"
-  def path = prettyName
+  lazy val a1 = a1_.value
+  val a1_ = LV('a1) {
 
-  def handleThrownError(th: Throwable, ov: OOLAGValue) {
-    // println("handling thrown error")
-    // e.printStackTrace
-  }
-
-  def handleWarning(ov: OOLAGValue, th: Throwable) {
-    // println("handling warning")
-    // th.printStackTrace()
-  }
-
-  lazy val a1 = LV('a1) {
     // println("evaluating a1")
     "a1 value"
   }
 
-  lazy val a2 = LV('a2) {
+  lazy val a2 = a2_.value
+  val a2_ = LV('a2) {
+
     // println("evaluating a2")
     val msg = "a2 failed with an exception"
     // println(msg)
-    val e = new Exception(msg)
+    val e = new MyException(msg) with OOLAGDiagnosticMixin
     // e.printStackTrace()
     throw e
     "a2 value"
   }
 
-  lazy val a3 = LV('a3) {
+}
+
+class MySubHost(name: String, parent: MyBase)
+  extends MyBase(parent) {
+  requiredEvaluations(a1)
+}
+
+class MyHost extends MyBase(null) {
+
+  requiredEvaluations(a1)
+  // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+
+  lazy val subHostCreator = {
+
+    val subHost1 = new MySubHost("subHost1", this)
+    val subHost2 = new MySubHost("subHost2", this)
+    (subHost1, subHost2)
+  }
+
+  lazy val a3 = a3_.value
+  val a3_ = LV('a3) {
     // println("My LV name is " + LV.name)
     "a3 value"
   }
 
-  lazy val a4 = LV('a4) {
+  lazy val a4 = a4_.value
+  val a4_ = LV('a4) {
     // println("My LV name is " + LV.name)
-    a3.value
+    a3
   }
 
   lazy val circ1: Int = circ1_.value
-  private lazy val circ1_ = LV('circ1) {
+  private val circ1_ = LV('circ1) {
     circ2
   }
 
   lazy val circ2: Int = circ2_.value
-  private lazy val circ2_ = LV('circ2) {
+  private val circ2_ = LV('circ2) {
     circ1
   }
 
   lazy val abortInside = abortInside_.value
-  private lazy val abortInside_ = LV('abortInside) {
+  private val abortInside_ = LV('abortInside) {
     abend
   }
 
   lazy val abend = abend_.value
-  private lazy val abend_ = LV('err) {
+  private val abend_ = LV('err) {
     Assert.abort("supposed to abort here")
   }
 
   var x = 0
 
   lazy val divZero = divZero_.value
-  private lazy val divZero_ = LV('divZero) {
+  val divZero_ = LV('divZero) {
     5 / x
+  }
+
+  lazy val warnTest = warnTest_.value
+  val warnTest_ = LV('warnTest) {
+    if (x < 1) {
+      val diag = new Exception("warnTest") with OOLAGDiagnosticMixin
+      warn(diag)
+    }
+    x
   }
 
 }
 
 class TestOOLAG extends JUnitSuite {
 
+  @Test def testPrettyName() {
+    val h = new MyHost
+    assertEquals("MyHost", h.prettyName)
+  }
+
   @Test def testSuccessLazyVal() {
     val h = new MyHost
     // println("get the LV")
-    val a1LV = h.a1
-    // println("now evaluate the LV")
-    val a1: String = a1LV.value
-    // println("value of LV is: " + a1)
-    assertEquals("a1 value", a1)
-    assertFalse(h.a1.isError)
+
+    val a1lv = h.a1_
+    assertFalse(a1lv.hasError)
+    OOLAG.keepGoing() {
+      val a1v = h.a1
+      // println("value of a1_ is: " + a1lv)
+      assertEquals("a1 value", a1v)
+    }
+    // println(h.errorLVs)
+    assertFalse(a1lv.hasError)
+    assertFalse(h.isError)
   }
 
   @Test def testFailLazyVal() {
     val h = new MyHost
-    // println("ask host for the LV")
-    val a2LV = h.a2
-    //    catch {
-    //      case e : Throwable => println("got exception " + e)
-    //    }
-    // println("now test if it is an error")
-    val isErrorA2 = a2LV.isError
+    OOLAG.keepGoing() {
+      // println("ask host for the LV")
+      val a2v = h.a2
+      //    catch {
+      //      case e : Throwable => println("got exception " + e)
+      //    }
+      // println("now test if it is an error")
+    }
+    val isErrorA2 = h.isError
+
     assertTrue(isErrorA2)
   }
 
@@ -158,7 +195,6 @@ class TestOOLAG extends JUnitSuite {
   //    // println("ask for the value")
   //    val a3: String = h.a3.value
   //    val a3Name = h.a3.name
-  //    // println("a3's name is " + a3Name)
   //    assertEquals("a3 value", a3)
   //    assertEquals("a3", a3Name)
   //  }
@@ -168,20 +204,22 @@ class TestOOLAG extends JUnitSuite {
    */
   @Test def testLVName2() {
     val h = new MyHost
-    // println("ask for the value")
-    val a4: String = h.a4.value
-    val a3: String = h.a3.value
-    val a4Name = h.a4.name
-    // println("a4's name is " + a4Name)
-    assertEquals("a3 value", a4)
-    assertEquals("a4", a4Name)
+    var res: String = null
+    OOLAG.keepGoing() {
+      // println("ask for the value")
+      res = h.a4 + h.a3
+    }
+    assertEquals("a3 valuea3 value", res)
   }
 
   @Test def testCircularDefinitionDetected() {
     val h = new MyHost
-    val e = intercept[Exception] {
-      val c1 = h.circ1
-      fail()
+    var e: Exception = null
+    OOLAG.keepGoing() {
+      e = intercept[Exception] {
+        val c1 = h.circ1
+        fail()
+      }
     }
     val msg = e.getMessage()
     // println(msg)
@@ -190,9 +228,9 @@ class TestOOLAG extends JUnitSuite {
 
   @Test def testAlreadyTried() {
     val h = new MyHost
-    assertTrue(h.a2.isError)
+    assertTrue(h.a2_.isError)
     val e = intercept[AlreadyTried] {
-      h.a2.value
+      h.a2_.value
     }
     e match {
       case at: AlreadyTried => {
@@ -206,14 +244,41 @@ class TestOOLAG extends JUnitSuite {
   @Test def testThrowToTopLevel() {
     val h = new MyHost
     val e = intercept[Abort] {
-      h.abortInside // should print useful lazy val nest messages to log
+      OOLAG.keepGoing() {
+        h.abortInside // should print useful lazy val nest messages to log
+      }
     }
   }
 
   @Test def testDivZeroInside() {
+    // LoggingDefaults.setLoggingLevel(LogLevel.OOLAGDebug)
     val h = new MyHost
-    val e = intercept[java.lang.ArithmeticException] {
-      h.divZero
+    // println("done constructing MyHost")
+    h.a1
+    h.subHostCreator
+    val e = intercept[Exception] {
+      OOLAG.keepGoing() {
+        h.divZero
+      }
     }
+    // println("Message: " + e.getMessage)
+    assertTrue(h.isError)
+    assertTrue(h.divZero_.isError)
+
+    val d = h.diagnostics
+    d.foreach { System.err.println(_) }
+    assertTrue(d.length == 1)
+  }
+
+  @Test def testAutoTreeCreate() {
+    val h = new MyHost
+    OOLAG.keepGoing() {
+      h.subHostCreator
+      h.a2
+    }
+    assertTrue(h.isError)
+    val errs = h.diagnostics
+    println(errs)
+
   }
 }

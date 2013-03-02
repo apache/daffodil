@@ -39,6 +39,8 @@ import edu.illinois.ncsa.daffodil.util.Debug
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 
 /**
  * This file is classes and traits to implement
@@ -83,7 +85,8 @@ case class NotFound(localWhereLooked: Seq[LookupLocation], defaultWhereLooked: S
 trait LookupLocation
   extends SchemaFileLocatable
   with ResolvesQNames
-  with GetAttributesMixin
+  with GetAttributesMixin { self: SchemaComponentBase =>
+ }
 
 trait PropTypes {
   /**
@@ -99,7 +102,7 @@ trait PropTypes {
 
   type PropMap = Map[String, (String, LookupLocation)]
 
-  final val emptyPropMap = Map.empty.asInstanceOf[PropMap]
+  val emptyPropMap = Map.empty.asInstanceOf[PropMap]
 }
 
 trait FindPropertyMixin extends PropTypes {

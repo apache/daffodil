@@ -180,7 +180,7 @@ object DFDL {
   trait State {
     // TODO: add common elements
     val status: ProcessorResult
-    val diagnostics: List[Diagnostic]
+    val diagnostics: Seq[Diagnostic]
     def currentLocation: DataLocation
   }
 
@@ -189,7 +189,7 @@ object DFDL {
    */
   abstract class Result {
     def resultState: State
-    var diagnostics: List[Diagnostic] = Nil
+    var diagnostics: Seq[Diagnostic] = Nil
 
     def getDiagnostics = {
       diagnostics ++ resultState.diagnostics
