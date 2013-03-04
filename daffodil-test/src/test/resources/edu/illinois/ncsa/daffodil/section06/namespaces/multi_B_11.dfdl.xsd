@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo="http://foo.com" targetNamespace="http://foo.com">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" separatorPolicy="suppressed" separatorPosition="infix" occursCountKind="parsed" lengthKind="delimited" representation="text" textNumberRep="standard" encoding="ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+ 
+  <!-- this simpleType is called "string", but it is actually an int --> 
+  <xs:simpleType name="string">
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="5"/>
+      <xs:maxInclusive value="10"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <!-- this simpleType is called "stringy", but it is actually an int --> 
+  <xs:simpleType name="stringy">
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="5"/>
+      <xs:maxInclusive value="10"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

@@ -1161,5 +1161,82 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: namespace_ultra_uniqueness_01
+       Schema: multi_base_11.dfdl.xsd
+         Root: root
+      Purpose: This test demonstrates a multi-schema scenario, where all namespace prefixes are unique.
+               the information should not be confused and it should parse without issue.
+  -->
+  
+  <tdml:parserTestCase name="namespace_ultra_uniqueness_01" root="root"
+    model="multi_base_11.dfdl.xsd" description="import a schema - DFDL-6-007R">
+
+    <tdml:document>1</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>1</root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: namespace_ultra_uniqueness_02
+       Schema: multi_base_11.dfdl.xsd
+         Root: root2
+      Purpose: This test demonstrates a multi-schema scenario, where all namespace prefixes are unique.
+               the information should not be confused and it should parse without issue.
+  -->
+  
+  <tdml:parserTestCase name="namespace_ultra_uniqueness_02" root="root2"
+    model="multi_base_11.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>03-04-2013,04-12-1997,05-22-1980</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root2>
+          <date3>2013-03-04</date3>
+          <date3>1997-04-12</date3>
+          <date3>1980-05-22</date3>
+        </root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: namespace_ultra_uniqueness_03
+       Schema: multi_base_11.dfdl.xsd
+         Root: root3
+      Purpose: This test demonstrates a multi-schema scenario, where many namespace prefixes are unique.
+               In this case, the data should fail to parse because an int is expected, but a string is provided.
+  -->
+  
+  <tdml:parserTestCase name="namespace_ultra_uniqueness_03" root="root3"
+    model="multi_base_11.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>thisIsNotAnInteger</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
+      <tdml:error>Unable to parse 'thisIsNotAnInteger'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: namespace_ultra_uniqueness_04
+       Schema: multi_base_11.dfdl.xsd
+         Root: root4
+      Purpose: This test demonstrates a multi-schema scenario, where many namespace prefixes are unique.
+               In this case, the data should fail to parse because an int is expected, but a string is provided.
+  -->
+  
+  <tdml:parserTestCase name="namespace_ultra_uniqueness_04" root="root4"
+    model="multi_base_11.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>thisIsNotAnInteger</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
+      <tdml:error>Unable to parse 'thisIsNotAnInteger'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </testSuite>

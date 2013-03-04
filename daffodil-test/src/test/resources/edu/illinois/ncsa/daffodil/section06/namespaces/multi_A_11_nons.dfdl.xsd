@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo="http://foo.com">
+ 
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" separatorPolicy="suppressed" separatorPosition="infix" occursCountKind="parsed" lengthKind="delimited" representation="text" textNumberRep="standard" encoding="ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:import namespace="http://foo.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_11.dfdl.xsd"/>
+ 
+  <!-- notAString is of type foo:string, which is a simpleType with an xs:int restriction base -->
+  <xs:element name="notAString" type="foo:string"/>
+  
+  <!-- notAString is of type foo:stringy, which is a simpleType with an xs:int restriction base -->
+  <xs:element name="notAStringy" type="foo:stringy"/>
+
+</xs:schema>
