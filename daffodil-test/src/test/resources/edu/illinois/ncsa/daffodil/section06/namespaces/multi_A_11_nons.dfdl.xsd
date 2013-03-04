@@ -15,5 +15,18 @@
   
   <!-- notAString is of type foo:stringy, which is a simpleType with an xs:int restriction base -->
   <xs:element name="notAStringy" type="foo:stringy"/>
+  
+  <!-- notAString2 uses an overridden definition of foo, which has no stringy type -->
+  <foo:element xmlns:foo="http://www.w3.org/2001/XMLSchema" name="notAStringy2" type="foo:stringy"/>
+  
+  <foo:element xmlns:foo="http://www.w3.org/2001/XMLSchema" xmlns:bar="http://foo.com" name="notAStringy3" type="bar:stringy">
+    <xs:annotation>
+      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+          message="Assertion failed for dfdl:checkConstraints(.)" />
+      </xs:appinfo>
+    </xs:annotation>
+  </foo:element>
+    
 
 </xs:schema>

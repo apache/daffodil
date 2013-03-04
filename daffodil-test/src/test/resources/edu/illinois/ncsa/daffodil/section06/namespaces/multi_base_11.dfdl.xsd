@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <p1:schema xmlns:p1="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-   targetNamespace="ns2" xmlns="ns3" xmlns:p2="ns2" xmlns:p8="http://a06.com" xmlns:p9="http://b06.com">
+   targetNamespace="ns2" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="ns3" xmlns:p2="ns2" xmlns:p8="http://a06.com" xmlns:p9="http://b06.com">
       
   <p3:annotation xmlns:p3="http://www.w3.org/2001/XMLSchema">
     <p4:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:p4="http://www.w3.org/2001/XMLSchema">
@@ -37,5 +37,21 @@
       </p20:sequence>
     </p19:complexType>
   </p18:element>
+  
+  <xs:element name="root5">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="p2:notAStringy2"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="root6">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="p2:notAStringy3"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
 </p1:schema>
