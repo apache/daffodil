@@ -98,8 +98,8 @@ class TestNamespaces extends JUnitSuite {
   //  @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
 
   // Preliminary tests for import format schemas
-  //@Test def test_import_format_01() { runner.runOneTest("import_format_01") }
-  //@Test def test_import_format_02() { runner.runOneTest("import_format_02") }
+  @Test def test_import_format_01() { runner.runOneTest("import_format_01") }
+  @Test def test_import_format_02() { runner.runOneTest("import_format_02") }
 
   @Test def test_multifile_facets_05() { runner.runOneTest("multifile_facets_05") }
   
