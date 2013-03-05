@@ -175,4 +175,53 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="defineFormat-Nested.dfdl.xsd">
+
+    <dfdl:defineFormat name="format_a">
+      <dfdl:format lengthKind="explicit"
+        lengthUnits="bytes" encoding="UTF-8" terminator=";" length="3"
+        occursCountKind="parsed" ignoreCase="no" leadingSkip="0"
+        separatorPosition="infix" separatorPolicy="suppressed" initiatedContent="no"
+        textTrimKind="none"
+        textNumberRep="standard" representation="text" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="format_b">
+      <dfdl:format ref="format_a" separator="," />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="format_c">
+      <dfdl:format ref="format_b" initiator=":" />
+    </dfdl:defineFormat>
+
+    <xs:element name="myStringSeq1" dfdl:ref="format_c" dfdl:lengthKind="delimited" dfdl:initiator="" dfdl:terminator="">
+      <xs:complexType>
+        <xs:sequence dfdl:ref="format_c" dfdl:initiator="" dfdl:terminator="">
+          <xs:element name="Test1" type="xs:string" dfdl:ref="format_c"/>
+          <xs:element name="Test2" type="xs:string" dfdl:ref="format_c"/>
+          <xs:element name="Test3" type="xs:string" dfdl:ref="format_c"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="format_nesting_01"
+    root="myStringSeq1" model="defineFormat-Nested.dfdl.xsd"
+    description="Section 8 - reference to a named format - DFDL-8-009R">
+
+    <tdml:document><![CDATA[:abc;,:def;,:ghi;]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <myStringSeq1>
+          <Test1>abc</Test1>
+          <Test2>def</Test2>
+          <Test3>ghi</Test3>
+        </myStringSeq1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
 </tdml:testSuite>

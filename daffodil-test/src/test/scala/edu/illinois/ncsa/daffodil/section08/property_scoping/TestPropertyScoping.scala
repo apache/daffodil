@@ -55,6 +55,8 @@ class TestPropertyScoping extends JUnitSuite {
   @Test def test_property_group_ref() { runner.runOneTest("group_ref") }
   @Test def test_property_shortFormSchemaFail() { runner.runOneTest("shortFormSchemaFail") }
 
+  @Test def test_format_nesting_01() { runner.runOneTest("format_nesting_01") }
+
   val tdml = testDir + "PropertyScoping_01.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
@@ -64,4 +66,5 @@ class TestPropertyScoping extends JUnitSuite {
   @Test def test_property_scoping_05() { runner_01.runOneTest("property_scoping_05") }
   @Test def testNearestEnclosingSequenceElementRef() { runner_01.runOneTest("NearestEnclosingSequenceElementRef") }
   @Test def test_property_refElementFormFail() { runner_01.runOneTest("refElementFormFail") }
+
 }
