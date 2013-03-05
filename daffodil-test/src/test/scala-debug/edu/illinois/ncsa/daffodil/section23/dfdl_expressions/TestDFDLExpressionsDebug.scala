@@ -61,4 +61,10 @@ class TestDFDLExpressionsDebug extends JUnitSuite {
   
   @Test def test_testBit_2() { runner2.runOneTest("testBit_2") }
 
+  @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
+  @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
+  
+  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
+  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
+
 }

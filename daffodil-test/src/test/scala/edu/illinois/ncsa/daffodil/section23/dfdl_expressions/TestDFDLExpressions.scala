@@ -135,5 +135,11 @@ class TestDFDLExpressions extends JUnitSuite {
   @Test def test_containsEntity_4() { runner2.runOneTest("containsEntity_4") }
 
   @Test def test_occursCount_0() { runner2.runOneTest("occursCount_0") }
+  
+//  @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
+//  @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
+  
+//  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
+//  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
 
 }

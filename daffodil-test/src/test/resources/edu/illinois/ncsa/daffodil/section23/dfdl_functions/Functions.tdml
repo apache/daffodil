@@ -149,6 +149,49 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+		
+    <xs:element name="valueLength">
+			<xs:complexType>
+				<xs:sequence dfdl:separator=",">
+					<xs:element name="str" type="xs:string"	dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
+            dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
+					<xs:element name="valLen" type="xs:string"
+						dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str/text(), 0) }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+    
+    <xs:element name="valueLength2">
+			<xs:complexType>
+				<xs:sequence dfdl:separator=",">
+					<xs:element name="str" type="xs:string"	dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
+            dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
+					<xs:element name="valLen" type="xs:string"
+						dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str, 'bytes' ) }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+    
+    <xs:element name="contentLength">
+			<xs:complexType>
+				<xs:sequence dfdl:separator=",">
+					<xs:element name="str" type="xs:string"	dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
+            dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
+					<xs:element name="conLen" dfdl:representation="binary" dfdl:lengthKind="implicit" type="xs:unsignedLong"
+						dfdl:inputValueCalc="{ dfdl:contentLength( ../ex:str, 'bytes' ) }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+    
+    <xs:element name="contentLength2">
+			<xs:complexType>
+				<xs:sequence dfdl:separator=",">
+					<xs:element name="str" type="xs:string"	dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
+            dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
+					<xs:element name="conLen" dfdl:lengthKind="delimited" type="xs:string" dfdl:inputValueCalc="{ dfdl:contentLength( ../ex:str, 'characters' ) }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
 
 	</tdml:defineSchema>
 
@@ -524,6 +567,102 @@
 					<str>%HT;%LF;</str>
 					<hasEntity>true</hasEntity>
 				</containsEntity1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: valueLength_0
+       Schema: Functions.dfdl.xsd
+         Root: valueLength
+      Purpose: This test demonstrates the valueLength function (formerly unpaddedLength).
+-->
+
+	<tdml:parserTestCase name="valueLength_0" root="valueLength"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[////test////]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<valueLength>
+					<str>test</str>
+					<valLen>4</valLen>
+				</valueLength>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: valueLength_1
+       Schema: Functions.dfdl.xsd
+         Root: valueLength2
+      Purpose: This test demonstrates the valueLength function (formerly unpaddedLength).
+-->
+
+	<tdml:parserTestCase name="valueLength_1" root="valueLength2"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[////test////]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<valueLength2>
+					<str>test</str>
+					<valLen>4</valLen>
+				</valueLength2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: contentLength_0
+       Schema: Functions.dfdl.xsd
+         Root: contentLength
+      Purpose: This test demonstrates the contentLength function (formerly representationLength).
+-->
+
+	<tdml:parserTestCase name="contentLength_0" root="contentLength"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[////test////]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<contentLength>
+					<str>test</str>
+					<conLen>12</conLen>
+				</contentLength>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: contentLength_1
+       Schema: Functions.dfdl.xsd
+         Root: contentLength2
+      Purpose: This test demonstrates the contentLength function (formerly representationLength).
+-->
+
+	<tdml:parserTestCase name="contentLength_1" root="contentLength2"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[////test////]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<contentLength2>
+					<str>test</str>
+					<conLen>12</conLen>
+				</contentLength2>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
