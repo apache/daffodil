@@ -184,7 +184,8 @@ object DFDLStringFunction extends DFDLFunction("string", 1) {
         // TODO: anyway to inform XPath compiler that this function needs a 
         // string as its argument type? Otherwise we have to do this runtime type check.
         // 
-        getContext(pstate).schemaDefinitionError("Type error. Argument was not a string: %s", other)
+        //getContext(pstate).schemaDefinitionError("Type error. Argument was not a string: %s", other)
+        pstate.SDE("Type error. Argument was not a string: %s", other)
       }
     }
     val dfdlString = EntityReplacer.replaceAll(xmlString)
@@ -195,7 +196,9 @@ object DFDLStringFunction extends DFDLFunction("string", 1) {
 
 object DFDLContentLengthFunction extends DFDLFunction("contentLength", 2) {
   def evaluate1(args: java.util.List[_], pstate: PState): Object = {
-    pstate.failed("dfdl:contentLength is not valid during parsing.")
+    //pstate.failed("dfdl:contentLength is not valid during parsing.")
+    //getContext(pstate).schemaDefinitionError("dfdl:contentLength is not valid during parsing.")
+    pstate.SDE("dfdl:contentLength is not valid during parsing.")
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
     getContext(ustate).notYetImplemented("dfdl:contentLength for unparsing")
@@ -204,7 +207,9 @@ object DFDLContentLengthFunction extends DFDLFunction("contentLength", 2) {
 
 object DFDLValueLengthFunction extends DFDLFunction("valueLength", 2) {
   def evaluate1(args: java.util.List[_], pstate: PState): Object = {
-    pstate.failed("dfdl:valueLength is not valid during parsing.")
+    //pstate.failed("dfdl:valueLength is not valid during parsing.")
+    //getContext(pstate).schemaDefinitionError("dfdl:valueLength is not valid during parsing.")
+    pstate.SDE("dfdl:valueLength is not valid during parsing.")
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
     getContext(ustate).notYetImplemented("dfdl:valueLength for unparsing")
@@ -214,62 +219,61 @@ object DFDLValueLengthFunction extends DFDLFunction("valueLength", 2) {
 object DFDLTestBitFunction extends DFDLFunction("testBit", 2) {
 
   def evaluate1(args: java.util.List[_], pstate: PState): Object = {
-    val context = getContext(pstate)
-    val (data, bitPos) = processArgs(args, context)
+    val (data, bitPos) = processArgs(args, pstate)
     testBit(data, bitPos)
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
     getContext(ustate).notYetImplemented("dfdl:testBit for unparsing")
   }
 
-  def processArgs(args: java.util.List[_], context: ElementBase): (Int, Int) = {
+  def processArgs(args: java.util.List[_], pstate: PState): (Int, Int) = {
     val data = args.get(0)
     val bitPos = args.get(1)
 
     // According to spec, data should be a byte-value
     val dataInt = data match {
       case i: Int => {
-        if (i > 255 || i < 0) { context.SDE("dfdl:testBit $data must be an Integer that exists within the value-space of byte.") }
+        if (i > 255 || i < 0) { pstate.SDE("dfdl:testBit $data must be an Integer that exists within the value-space of byte.") }
         i
       }
       case bi: java.math.BigInteger => {
         val lessThanZero = bi.compareTo(java.math.BigInteger.ZERO) < 0
         val greaterThan255 = bi.compareTo(new java.math.BigInteger("255")) > 0
-        if (lessThanZero || greaterThan255) context.SDE("dfdl:testBit requires $data value to be in the value-space of Byte (0-255)")
+        if (lessThanZero || greaterThan255) pstate.SDE("dfdl:testBit requires $data value to be in the value-space of Byte (0-255)")
         bi.intValue()
       }
       case b: Byte => b.toInt
       case e: Element => {
         val v = e.getText
         val i = try { Integer.parseInt(v) } catch {
-          case e: Exception => context.SDE("dfdl:testBit unable to parse (%s) to Integer.", v)
+          case e: Exception => pstate.SDE("dfdl:testBit unable to parse (%s) to Integer.", v)
         }
-        if (i > 255 || i < 0) { context.SDE("dfdl:testBit $data must be an Integer that exists within the value-space of byte.") }
+        if (i > 255 || i < 0) { pstate.SDE("dfdl:testBit $data must be an Integer that exists within the value-space of byte.") }
         i
       }
       case t: Text => {
         val v = t.getText()
         val i = try { Integer.parseInt(v) } catch {
-          case e: Exception => context.SDE("dfdl:testBit unable to parse (%s) to Integer.", v)
+          case e: Exception => pstate.SDE("dfdl:testBit unable to parse (%s) to Integer.", v)
         }
-        if (i > 255 || i < 0) { context.SDE("dfdl:testBit $data must be a an Integer that exists within the value-space of byte.") }
+        if (i > 255 || i < 0) { pstate.SDE("dfdl:testBit $data must be a an Integer that exists within the value-space of byte.") }
         i
       }
-      case _ => context.SDE("dfdl:testBit requires $data to be an Integer.")
+      case _ => pstate.SDE("dfdl:testBit requires $data to be an Integer.")
     }
     val bitPosInt = bitPos match {
       case i: Int => {
         // Assumes bitPos 0-7
-        if (i < 0 || i > 7) { context.SDE("dfdl:testBit requires $bitPos to be an Integer value 0-7.") }
+        if (i < 0 || i > 7) { pstate.SDE("dfdl:testBit requires $bitPos to be an Integer value 0-7.") }
         i
       }
       case bi: java.math.BigInteger => {
         val lessThanZero = bi.compareTo(java.math.BigInteger.ZERO) < 0
         val greaterThan7 = bi.compareTo(new java.math.BigInteger("7")) > 0
-        if (lessThanZero || greaterThan7) context.SDE("dfdl:testBit requires $bitPos to be an Integer value 0-7.")
+        if (lessThanZero || greaterThan7) pstate.SDE("dfdl:testBit requires $bitPos to be an Integer value 0-7.")
         bi.intValue()
       }
-      case _ => context.SDE("dfdl:testBit requires $bitPos to be an Integer")
+      case _ => pstate.SDE("dfdl:testBit requires $bitPos to be an Integer")
     }
     (dataInt, bitPosInt)
   }
@@ -286,22 +290,22 @@ object DFDLSetBitsFunction extends DFDLFunction("setBits", 8) {
 
   def evaluate1(args: java.util.List[_], pstate: PState): Object = {
     val context = getContext(pstate)
-    setBits(args, context)
+    setBits(args, pstate)
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
     getContext(ustate).notYetImplemented("dfdl:setBits for unparsing")
   }
-  def processValue(value: Any, context: ElementBase): Boolean = {
+  def processValue(value: Any, pstate: PState): Boolean = {
     value match {
       case i: Integer => {
-        if (i < 0 || i > 1) context.SDE("dfdl:setBits $bitX must be 0 or 1")
+        if (i < 0 || i > 1) pstate.SDE("dfdl:setBits $bitX must be 0 or 1")
         if (i == 0) false
         else true
       }
       case bi: java.math.BigInteger => {
         val lessThanZero = bi.compareTo(java.math.BigInteger.ZERO) < 0
         val greaterThanOne = bi.compareTo(new java.math.BigInteger("1")) > 0
-        if (lessThanZero || greaterThanOne) context.SDE("dfdl:setBits requires $bitX to be an Integer value 0 or 1.")
+        if (lessThanZero || greaterThanOne) pstate.SDE("dfdl:setBits requires $bitX to be an Integer value 0 or 1.")
         val i = bi.intValue()
         if (i == 0) false
         else true
@@ -309,33 +313,33 @@ object DFDLSetBitsFunction extends DFDLFunction("setBits", 8) {
       case e: Element => {
         val v = e.getText
         val i = try { Integer.parseInt(v) } catch {
-          case e: Exception => context.SDE("dfdl:setBits unable to parse (%s) to Integer.", v)
+          case e: Exception => pstate.SDE("dfdl:setBits unable to parse (%s) to Integer.", v)
         }
-        if (i > 1 || i < 0) { context.SDE("dfdl:setBits requires $bitX to be an Integer value 0 or 1.") }
+        if (i > 1 || i < 0) { pstate.SDE("dfdl:setBits requires $bitX to be an Integer value 0 or 1.") }
         if (i == 0) false
         else true
       }
       case t: Text => {
         val v = t.getText()
         val i = try { Integer.parseInt(v) } catch {
-          case e: Exception => context.SDE("dfdl:setBits unable to parse (%s) to Integer.", v)
+          case e: Exception => pstate.SDE("dfdl:setBits unable to parse (%s) to Integer.", v)
         }
-        if (i > 1 || i < 0) { context.SDE("dfdl:setBits requires $bitX to be an Integer value 0 or 1.") }
+        if (i > 1 || i < 0) { pstate.SDE("dfdl:setBits requires $bitX to be an Integer value 0 or 1.") }
         if (i == 0) false
         else true
       }
-      case _ => context.SDE("dfdl:setBits $bitX must be an Integer of a value 0 or 1")
+      case _ => pstate.SDE("dfdl:setBits $bitX must be an Integer of a value 0 or 1")
     }
   }
-  def setBits(args: java.util.List[_], context: ElementBase): java.lang.Integer = {
-    val bp0 = processValue(args.get(0), context)
-    val bp1 = processValue(args.get(1), context)
-    val bp2 = processValue(args.get(2), context)
-    val bp3 = processValue(args.get(3), context)
-    val bp4 = processValue(args.get(4), context)
-    val bp5 = processValue(args.get(5), context)
-    val bp6 = processValue(args.get(6), context)
-    val bp7 = processValue(args.get(7), context)
+  def setBits(args: java.util.List[_], pstate: PState): java.lang.Integer = {
+    val bp0 = processValue(args.get(0), pstate)
+    val bp1 = processValue(args.get(1), pstate)
+    val bp2 = processValue(args.get(2), pstate)
+    val bp3 = processValue(args.get(3), pstate)
+    val bp4 = processValue(args.get(4), pstate)
+    val bp5 = processValue(args.get(5), pstate)
+    val bp6 = processValue(args.get(6), pstate)
+    val bp7 = processValue(args.get(7), pstate)
     var uByte: java.lang.Integer = 0
     if (bp0) uByte += 1
     if (bp1) uByte += 2
@@ -363,14 +367,14 @@ object DFDLOccursCountWithDefaultFunction extends DFDLFunction("occursCountWithD
 object DFDLOccursCountFunction extends DFDLFunction("occursCount", 1) {
 
   def evaluate1(args: java.util.List[_], pstate: PState): Object = {
-    val context = getContext(pstate)
+    //val context = getContext(pstate)
     val x = args.get(0)
     val occursCount = args.get(0) match {
       case ns: NodeSeq => ns.length
       case se: net.sf.saxon.value.SequenceExtent => {
         se.getLength()
       }
-      case _ => context.SDE("dfdl:occursCount did not receive a NodeSeq back, check your path.")
+      case _ => pstate.SDE("dfdl:occursCount did not receive a NodeSeq back, check your path.")
     }
     java.lang.Long.valueOf(occursCount)
   }
@@ -399,12 +403,12 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
     // Assumes that a JDOM element was already created
     val expr = args.get(0)
     val currentElement = pstate.parentElement
-    val e = getContext(pstate)
+    val e = pstate.getContext()//getContext(pstate)
     val data = currentElement.dataValue
     val primType = e.primType.myPrimitiveType
 
     // TODO: Not SimpleType, issue an SDE
-    if (!e.isSimpleType) e.SDE("dfdl:checkConstraints may only be called on simple types.")
+    if (!e.isSimpleType) pstate.SDE("dfdl:checkConstraints may only be called on simple types.")
 
     // We have an ElementBase, retrieve the constraints
     if (e.hasPattern) {
@@ -674,12 +678,12 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
 object DFDLStringLiteralFromStringFunction extends DFDLFunction("stringLiteralFromString", 1) {
 
   def evaluate1(args: java.util.List[_], pstate: PState): Object = {
-    val context = getContext(pstate)
+    //val context = getContext(pstate)
     val x = args.get(0)
     val res = x match {
       case s: String => constructLiteral(s)
       case t: Text => constructLiteral(t.getText())
-      case _ => context.SDE("dfdl:stringLiteralFromString %s was not a String.", x)
+      case _ => pstate.SDE("dfdl:stringLiteralFromString %s was not a String.", x)
     }
     res
   }
@@ -739,12 +743,12 @@ object DFDLStringLiteralFromStringFunction extends DFDLFunction("stringLiteralFr
 object DFDLContainsEntityFunction extends DFDLFunction("containsEntity", 1) {
 
   def evaluate1(args: java.util.List[_], pstate: PState): Object = {
-    val context = getContext(pstate)
+    //val context = getContext(pstate)
     val x = args.get(0)
     val res = x match {
       case s: String => containsEntity(s)
       case t: Text => containsEntity(t.getText())
-      case _ => context.SDE("dfdl:containsEntity%s was not a String.", x)
+      case _ => pstate.SDE("dfdl:containsEntity%s was not a String.", x)
     }
     res
   }

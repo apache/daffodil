@@ -190,6 +190,7 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging {
     expName
   }
 
+  // TODO FIXME - XPath 1.0 vs 2.0 return types. This is not valid even for XPath 1.0
   def convertTypeString(expandedTypeName: String) = {
     Assert.usage(expandedTypeName != null)
     expandedTypeName match {

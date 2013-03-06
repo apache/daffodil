@@ -440,6 +440,13 @@ case class PState(
   override def toString() = {
     "PState( bitPos=%s charPos=%s status=%s )".format(bitPos, charPos, status)
   }
+  def getContext(): ElementBase = {
+    // Assumes that a JDOM element was already created
+    val currentElement = parentElement
+    val res = currentElement.schemaComponent(this)
+    res
+  }
+  def SDE(str: String, args: Any*) = { getContext().SDE(str, args)}
   def discriminator = discriminatorStack.head
   def currentLocation: DataLocation = new DataLoc(bitPos, bitLimit, inStream)
   // def inStreamState = inStreamStateStack top
