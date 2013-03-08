@@ -107,5 +107,24 @@ class MainTests extends JUnitSuite {
       case c: CheckExitCalled => assertEquals(c.getStatus, 0)
     }
   }
+<!-- 
+  val cli_unboundedBinary= testDir + "unboundedBinary.dfdl.xsd"
+
+  @Test def test_main_parse_unboundedBinary() {
+    try {
+      val schema = Misc.getRequiredResource(cli_unboundedBinary).getPath
+      val data = "abab4545babab73645454756565743"
+      val is = new ByteArrayInputStream(data.getBytes())
+      val oldSysin = System.in
+      System.setIn(is)
+
+      Main.main(Array("parse", "-s", schema, "-"))
+
+      System.setIn(oldSysin)
+    } catch {
+      case c: CheckExitCalled => assertEquals(c.getStatus, 0)
+    }
+  }
+-->
 
 }

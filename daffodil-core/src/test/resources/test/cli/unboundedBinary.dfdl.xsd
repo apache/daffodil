@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ex="http://example.com" targetNamespace="http://example.com">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format initiator="" lengthKind="delimited" binaryNumberRep="binary"
+        terminator="" lengthUnits="bits" leadingSkip="0" trailingSkip="0" textBidi="no"
+        floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
+        alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
+        truncateSpecifiedLengthString="no" ignoreCase="no" representation="binary"
+        nilValueDelimiterPolicy="both"
+        emptyValueDelimiterPolicy="none"
+        documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+        separatorPolicy="required" separatorPosition="infix" />
+    </xs:appinfo>
+  </xs:annotation>
+    
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="bit" type="xs:int" maxOccurs="unbounded" minOccurs="1" dfdl:lengthKind="explicit" dfdl:length="5" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+</xs:schema>

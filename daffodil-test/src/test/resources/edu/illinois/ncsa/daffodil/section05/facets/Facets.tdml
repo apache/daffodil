@@ -6,6 +6,46 @@
 
   <!-- ===================================================================== 
     Schemas ======================================================================= -->
+  
+  <tdml:parserTestCase name="testBinary" root="root"
+    model="testBinary.dfdl.xsd">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">abab4545babab73645454756565743</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <bit>-11</bit>
+          <bit>14</bit>
+          <bit>-11</bit>
+          <bit>-12</bit>
+          <bit>10</bit>
+          <bit>-15</bit>
+          <bit>13</bit>
+          <bit>-6</bit>
+          <bit>-9</bit>
+          <bit>10</bit>
+          <bit>-5</bit>
+          <bit>-13</bit>
+          <bit>12</bit>
+          <bit>-15</bit>
+          <bit>10</bit>
+          <bit>5</bit>
+          <bit>8</bit>
+          <bit>-3</bit>
+          <bit>11</bit>
+          <bit>5</bit>
+          <bit>12</bit>
+          <bit>-11</bit>
+          <bit>-6</bit>
+          <bit>3</bit>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
 
   <!--
     Schema name: facets-min0max0.dfdl.xsd
