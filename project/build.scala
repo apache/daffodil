@@ -33,6 +33,11 @@ object DaffodilBuild extends Build {
                              .configs(NewTest)
                              .dependsOn(core)
 
+  lazy val perf    = Project(id = "daffodil-perf", base = file("daffodil-perf"), settings = s ++ nopub)
+                             .configs(DebugTest)
+                             .configs(NewTest)
+                             .dependsOn(core)
+
   val propertyGenerator = TaskKey[Seq[File]]("gen-props", "Generate properties scala source")
   lazy val propgenSettings = Seq(
     sourceGenerators in Compile <+= (propertyGenerator in Compile),
