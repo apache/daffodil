@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="Namespaces"
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+
+  <!--
+    Test name: csv_test
+       Schema: csv.dfdl.xsd
+         Root: file
+      Purpose: This test is to exercise my csv schema with crlf at the end.
+  -->
+  
+  <tdml:parserTestCase name="csv_test" root="file"
+    model="csv.dfdl.xsd" description="csv test">
+    <tdml:document><![CDATA[last,first,middle,DOB
+      baratheon,robert,brandon,1988-03-24
+      johnson,john,henry,1986-01-23
+      stark,arya,cat,1986-02-19
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <file>
+          <header>
+            <title>last</title>
+            <title>first</title>
+            <title>middle</title>
+            <title>DOB</title>
+          </header>
+          <record>
+            <item>baratheon</item>
+            <item>robert</item>
+            <item>brandon</item>
+            <item>1988-03-24</item>
+          </record>
+          <record>
+            <item>johnson</item>
+            <item>john</item>
+            <item>henry</item>
+            <item>1986-01-23</item>
+          </record>
+          <record>
+            <item>stark</item>
+            <item>arya</item>
+            <item>cat</item>
+            <item>1986-02-19</item>
+          </record>
+        </file>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: csv_test_2
+       Schema: csv.dfdl.xsd
+         Root: file
+      Purpose: This test is to exercise my csv schema with no crlf at the end.
+  -->
+  
+  <tdml:parserTestCase name="csv_test_2" root="file"
+    model="csv.dfdl.xsd" description="csv test">
+    <tdml:document><![CDATA[last,first,middle,DOB
+baratheon,robert,brandon,1988-03-24
+johnson,john,henry,1986-01-23
+stark,arya,cat,1986-02-19]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <file>
+          <header>
+            <title>last</title>
+            <title>first</title>
+            <title>middle</title>
+            <title>DOB</title>
+          </header>
+          <record>
+            <item>baratheon</item>
+            <item>robert</item>
+            <item>brandon</item>
+            <item>1988-03-24</item>
+          </record>
+          <record>
+            <item>johnson</item>
+            <item>john</item>
+            <item>henry</item>
+            <item>1986-01-23</item>
+          </record>
+          <record>
+            <item>stark</item>
+            <item>arya</item>
+            <item>cat</item>
+            <item>1986-02-19</item>
+          </record>
+        </file>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: csv_test_3
+       Schema: csv.dfdl.xsd
+         Root: file
+      Purpose: This test is to exercise my csv schema with an incorrect matching 
+               of header title number with element number
+  -->
+  
+  <tdml:parserTestCase name="csv_test_3" root="file"
+    model="csv.dfdl.xsd" description="csv test">
+    <tdml:document><![CDATA[last,first,middle,DOB
+baratheon,robert,brandon,1988-03-24,extra,extra
+johnson,john,henry,1986-01-23
+stark,arya,cat,1986-02-19
+]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Sep('%NL;') - element.record: Delimiter not found!</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</testSuite>
