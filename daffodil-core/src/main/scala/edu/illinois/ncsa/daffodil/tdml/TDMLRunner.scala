@@ -687,27 +687,54 @@ case class Document(d: NodeSeq, parent: TestCase) {
     else List(new DocumentPart(<documentPart type="text">{ children }</documentPart>, this))
 
   /**
+   * When data is coming from the TDML file as small test data, then
    * Due to alignment, and bits-granularity issues, everything is lowered into
    * bits first, and then concatenated, and then converted back into bytes
+   *
+   * These are all lazy val, since if data is coming from a file these aren't
+   * needed at all.
    */
-  val documentBits = documentParts.map { _.contentAsBits }.mkString
+  lazy val documentBits = documentParts.map { _.contentAsBits }.mkString
+  lazy val nBits: Long =
+    if (isDPFile) -1
+    else documentBits.length
+  lazy val nFragBits = (nBits % 8).toInt
+  lazy val nAddOnBits = if (nFragBits == 0) 0 else 8 - nFragBits
+  lazy val addOnBits = (1 to nAddOnBits) collect { case _ => "0" } mkString
+  lazy val documentBitsFullBytes = documentBits + addOnBits
+  lazy val documentBytes = {
+    Assert.usage(!isDPFile, "Cannot call documentBytes if documentPart type is file.")
+    bits2Bytes(documentBitsFullBytes)
+  }
 
-  val nBits: Long = documentBits.length
-  val nFragBits = (nBits % 8).toInt
-  val nAddOnBits = if (nFragBits == 0) 0 else 8 - nFragBits
-  val addOnBits = (1 to nAddOnBits) collect { case _ => "0" } mkString
-  val documentBitsFullBytes = documentBits + addOnBits
-
-  val documentBytes = bits2Bytes(documentBitsFullBytes)
+  /**
+   * data coming from a file?
+   */
+  val isDPFile = {
+    val res = documentParts.length > 0 &&
+      documentParts(0).partContentType == ContentTypeFile
+    Assert.usage(res &&
+      documentParts.length == 1, "There can be only one documentPart of type file, and it must be the only documentPart.")
+    res
+  }
 
   /**
    * this 'data' is the kind our parser's parse method expects.
    */
   lazy val data = {
-    val bytes = documentBytes.toArray
-    val inputStream = new java.io.ByteArrayInputStream(bytes);
-    val rbc = java.nio.channels.Channels.newChannel(inputStream);
-    rbc.asInstanceOf[DFDL.Input]
+    if (isDPFile) {
+      // direct I/O to the file. No 'bits' lowering involved. 
+      val dp = documentParts(0)
+      val input = dp.fileDataInput
+      input
+    } else {
+      // assemble the input from the various pieces, having lowered
+      // everything to bits.
+      val bytes = documentBytes.toArray
+      val inputStream = new java.io.ByteArrayInputStream(bytes);
+      val rbc = java.nio.channels.Channels.newChannel(inputStream);
+      rbc.asInstanceOf[DFDL.Input]
+    }
   }
 
 }
@@ -736,7 +763,8 @@ case class DocumentPart(part: Node, parent: Document) {
       case ContentTypeText => textContentAsBits
       case ContentTypeByte => hexContentAsBits
       case ContentTypeBits => bitDigits
-      case ContentTypeFile => fileContentAsBits
+      case ContentTypeFile =>
+        Assert.invariantFailed("shouldn't do contentAsBits for file documentPart type")
     }
     res
   }
@@ -889,11 +917,13 @@ case class DocumentPart(part: Node, parent: Document) {
       }
   }
 
-  lazy val fileContentAsBits = {
+  lazy val fileDataInput = {
     val file = new File(Misc.getRequiredResource(partRawContent).toURI)
     val fis = new FileInputStream(file)
-    val fileBytes = Stream.continually(fis.read()).takeWhile(_ != -1).map(_.toByte).toArray
-    bytes2Bits(fileBytes)
+    //    val fileBytes = Stream.continually(fis.read()).takeWhile(_ != -1).map(_.toByte).toArray
+    //    bytes2Bits(fileBytes)
+    val rbc = fis.getChannel()
+    rbc.asInstanceOf[DFDL.Input]
   }
 }
 

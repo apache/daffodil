@@ -140,7 +140,9 @@ class TestTDMLRunner extends JUnitSuite {
               </document>
     val doc = new Document(xml, null)
     val docPart = doc.documentParts(0)
-    val bytes = doc.documentBytes
+    val bb = java.nio.ByteBuffer.allocate(11)
+    doc.data.read(bb)
+    val bytes = bb.array()
     val actual = new String(bytes.toArray, "UTF8")
     assertEquals("test\n1\n2\n3\n", actual)
   }
@@ -151,7 +153,10 @@ class TestTDMLRunner extends JUnitSuite {
               </document>
     val doc = new Document(xml, null)
     val docPart = doc.documentParts(0)
-    val actual = doc.documentBytes.toList
+    val bb = java.nio.ByteBuffer.allocate(4)
+    doc.data.read(bb)
+    val bytes = bb.array()
+    val actual = bytes.toList
     val expected = Vector(0xDE, 0xAD, 0xBE, 0xEF).map { _.toByte }.toList
     assertEquals(expected, actual)
   }
