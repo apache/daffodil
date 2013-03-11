@@ -651,9 +651,10 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
 }
 
 sealed abstract class DocumentContentType
-case object Text extends DocumentContentType
-case object Byte extends DocumentContentType
-case object Bits extends DocumentContentType
+case object ContentTypeText extends DocumentContentType
+case object ContentTypeByte extends DocumentContentType
+case object ContentTypeBits extends DocumentContentType
+case object ContentTypeFile extends DocumentContentType
 // TODO: add capability to specify character set encoding into which text is to be converted (all UTF-8 currently)
 
 case class Document(d: NodeSeq, parent: TestCase) {
@@ -721,9 +722,10 @@ case class DocumentPart(part: Node, parent: Document) {
     else { res(0).toString().toBoolean }
   }
   lazy val partContentType = (part \ "@type").toString match {
-    case "text" => Text
-    case "byte" => Byte
-    case "bits" => Bits
+    case "text" => ContentTypeText
+    case "byte" => ContentTypeByte
+    case "bits" => ContentTypeBits
+    case "file" => ContentTypeFile
     case _ => Assert.invariantFailed("invalid content type.")
   }
   lazy val encoder = CharsetICU.forNameICU("UTF-8").newEncoder()
@@ -731,9 +733,10 @@ case class DocumentPart(part: Node, parent: Document) {
 
   lazy val contentAsBits = {
     val res = partContentType match {
-      case Text => textContentAsBits
-      case Byte => hexContentAsBits
-      case Bits => bitDigits
+      case ContentTypeText => textContentAsBits
+      case ContentTypeByte => hexContentAsBits
+      case ContentTypeBits => bitDigits
+      case ContentTypeFile => fileContentAsBits
     }
     res
   }
@@ -884,6 +887,13 @@ case class DocumentPart(part: Node, parent: Document) {
           List(ch)
         else Nil
       }
+  }
+
+  lazy val fileContentAsBits = {
+    val file = new File(Misc.getRequiredResource(partRawContent).toURI)
+    val fis = new FileInputStream(file)
+    val fileBytes = Stream.continually(fis.read()).takeWhile(_ != -1).map(_.toByte).toArray
+    bytes2Bits(fileBytes)
   }
 }
 

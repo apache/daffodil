@@ -134,6 +134,28 @@ class TestTDMLRunner extends JUnitSuite {
     assertEquals("\\$¢€%\u0000\u2028%#IGNORED;", orig)
   }
 
+  @Test def testDocWithTextFile() {
+    val xml = <document>
+                <documentPart type="file">/test/tdml/test.txt</documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    val docPart = doc.documentParts(0)
+    val bytes = doc.documentBytes
+    val actual = new String(bytes.toArray, "UTF8")
+    assertEquals("test\n1\n2\n3\n", actual)
+  }
+
+  @Test def testDocWithBinaryFile() {
+    val xml = <document>
+                <documentPart type="file">/test/tdml/test.bin</documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    val docPart = doc.documentParts(0)
+    val actual = doc.documentBytes.toList
+    val expected = Vector(0xDE, 0xAD, 0xBE, 0xEF).map { _.toByte }.toList
+    assertEquals(expected, actual)
+  }
+
   @Test def test1() {
     val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">

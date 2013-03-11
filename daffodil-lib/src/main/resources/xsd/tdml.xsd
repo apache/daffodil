@@ -129,6 +129,7 @@
       <enumeration value="byte" />
       <enumeration value="text" />
       <enumeration value="bits" />
+      <enumeration value="file" />
     </restriction>
   </simpleType>
 
