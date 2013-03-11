@@ -18,5 +18,7 @@
   <xs:element name="nest4" type="c03:nestType3"/>
   <xs:element name="nest5" type="c03:nestType4"/>
   <xs:element name="nest5b" type="c03:nestType4b"/>
+  
+  <xs:element name="nestUnbounded" type="c03:nestType4"/>
 
 </xs:schema>

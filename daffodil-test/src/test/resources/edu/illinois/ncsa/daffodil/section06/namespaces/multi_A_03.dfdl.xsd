@@ -73,5 +73,13 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  
+  <xs:element name="nestSequenceUnbounded" dfdl:lengthKind="delimited" dfdl:terminator="">
+    <xs:complexType>
+      <xs:sequence dfdl:terminator="">
+        <xs:element ref="b03:nestUnbounded" dfdl:occursCountKind="parsed" minOccurs="1" maxOccurs="unbounded" dfdl:lengthKind="delimited"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
 </xs:schema>
