@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="AA-BG" description="Original suite of AA through BG"
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+
+  <parserTestCase name="AB007" root="root" model="AB.dfdl.xsd"
+    description="CSV-style tests">
+
+    <document>
+      <documentPart type="file">edu/illinois/ncsa/daffodil/AB007.in</documentPart>
+    </document>
+
+    <infoset>
+      <dfdlInfoset>
+        <root>
+          <row001col001>1</row001col001>
+          <row002col002>502</row002col002>
+          <row500col500>250000</row500col500>
+        </root>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+</testSuite>
