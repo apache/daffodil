@@ -49,6 +49,15 @@ class TestSimpleTypes extends JUnitSuite {
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
+  @Test def test_datePattern02() { runner.runOneTest("datePattern02") }
+  @Test def test_datePattern02b() { runner.runOneTest("datePattern02b") }
+  @Test def test_timePattern01() { runner.runOneTest("timePattern01") }
+  @Test def test_timePattern01b() { runner.runOneTest("timePattern01b") }
+
+//  @Test def test_dateCalendarLanguage() { runner.runOneTest("dateCalendarLanguage") }
+//  @Test def test_dateCalendarLanguage2() { runner.runOneTest("dateCalendarLanguage2") }
+//  @Test def test_dateCalendarLanguage3() { runner.runOneTest("dateCalendarLanguage3") }
+  
   @Test def test_dateTimeCalendarDaysInFirstWeek() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek") }
   @Test def test_dateTimeCalendarDaysInFirstWeek2() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek2") }
   @Test def test_dateTimeCalendarDaysInFirstWeek3() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek3") }
@@ -71,7 +80,6 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_datePattern08() { runner.runOneTest("datePattern08") }
   @Test def test_datePattern08b() { runner.runOneTest("datePattern08b") }
 
-//  @Test def test_datePattern02() { runner.runOneTest("datePattern02") }
   @Test def test_datePattern03() { runner.runOneTest("datePattern03") }
 //  @Test def test_datePattern04() { runner.runOneTest("datePattern04") }
   @Test def test_datePattern05() { runner.runOneTest("datePattern05") }
@@ -82,10 +90,6 @@ class TestSimpleTypes extends JUnitSuite {
   
 //  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart") }
 //  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart2") }
-  
-//  @Test def test_dateCalendarLanguage() { runner.runOneTest("dateCalendarLanguage") }
-//  @Test def test_dateCalendarLanguage2() { runner.runOneTest("dateCalendarLanguage2") }
-//  @Test def test_dateCalendarLanguage3() { runner.runOneTest("dateCalendarLanguage3") }
   
   @Test def test_dateCalendarDaysInFirstWeek() { runner.runOneTest("dateCalendarDaysInFirstWeek") }
   @Test def test_dateCalendarDaysInFirstWeek2() { runner.runOneTest("dateCalendarDaysInFirstWeek2") }

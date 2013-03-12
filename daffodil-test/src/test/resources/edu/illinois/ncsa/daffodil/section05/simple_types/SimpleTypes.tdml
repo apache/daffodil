@@ -2182,6 +2182,8 @@
     <xs:element name="date29" type="ex:explicDate" dfdl:calendarPattern="MM"/>
 
     <xs:element name="date30" type="ex:explicDate" dfdl:calendarPattern="dd...00MM.....yyyy*()*()*()"/>
+
+    <xs:element name="date31" type="ex:explicDate" dfdl:calendarPattern="dd MM yyyy, mm:ss"/>
     
     <xs:simpleType name="explicDate" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="delimited">
       <xs:restriction base="xs:date"/>
@@ -2223,6 +2225,8 @@
     <xs:element name="time22" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="mm" dfdl:lengthKind="delimited"/>
     <xs:element name="time23" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="" dfdl:lengthKind="delimited"/>
     <xs:element name="time24" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="." dfdl:lengthKind="delimited"/>
+    <xs:element name="time25" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="yyyy-dd hh:mm" dfdl:lengthKind="delimited"/>
+    <xs:element name="time26" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="bb hh:mm" dfdl:lengthKind="delimited"/>
 
     <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
@@ -2467,11 +2471,61 @@
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
 
     <tdml:document><![CDATA[24 03 1988, 03:45:55]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <date01></date01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Character 'H' not allowed in dfdl:calendarPattern for date</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: datePattern02b
+        Schema: dateTimeSchema
+          Root: date1
+       Purpose: This test demonstrates what happens when you use time formatting markers in a date object
+-->
+  
+  <tdml:parserTestCase name="datePattern02b" root="date31"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[24 03 1988, 45:55]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Character 'm' not allowed in dfdl:calendarPattern for date</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timePattern01
+        Schema: dateTimeSchema
+          Root: time25
+       Purpose: This test demonstrates what happens when you use date formatting markers in a time object
+-->
+  
+  <tdml:parserTestCase name="timePattern01" root="time25"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[1999-03 12:34]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Character 'y' not allowed in dfdl:calendarPattern for time</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timePattern01b
+        Schema: dateTimeSchema
+          Root: time26
+       Purpose: This test demonstrates what happens when you use invalid formatting markers in a time object
+-->
+  
+  <tdml:parserTestCase name="timePattern01b" root="time26"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+
+    <tdml:document><![CDATA[19 12:34]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Character 'b' not allowed in dfdl:calendarPattern for time</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
