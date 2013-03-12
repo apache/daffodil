@@ -2177,7 +2177,7 @@
     <xs:element name="date22" type="ex:explicDate" dfdl:calendarPattern="MM dd yy" dfdl:calendarCenturyStart="20"/>
     <xs:element name="date23" type="ex:explicDate" dfdl:calendarPattern="MM dd yy" dfdl:calendarCenturyStart="48"/>
     
-    <xs:element name="date24" type="ex:explicDate" dfdl:calendarPattern="EEEE MMM yyyy" dfdl:calendarLanguage="de-1996"/>
+    <xs:element name="date24" type="ex:explicDate" dfdl:encoding="UTF-8" dfdl:calendarPattern="EEEE MMM yyyy" dfdl:calendarLanguage="de-1996"/>
     <xs:element name="date25" type="ex:explicDate" dfdl:calendarPattern="EEEE MMM yyyy" dfdl:calendarLanguage="es-MX"/>
     <xs:element name="date26" type="ex:explicDate" dfdl:calendarPattern="EEEE MMM yyyy" dfdl:calendarLanguage="en-GB"/>
     
@@ -2209,8 +2209,8 @@
     <xs:element name="time06" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.VVVV" dfdl:lengthKind="delimited"/>
     <xs:element name="time07" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.V" dfdl:lengthKind="delimited"/>
 
-    <xs:element name="time08" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" dfdl:calendarTimeZone="UTC+1"/>
-    <xs:element name="time09" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" dfdl:calendarTimeZone="UTC+1:30"/>
+    <xs:element name="time08" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss" dfdl:lengthKind="delimited" dfdl:calendarTimeZone="UTC+1"/>
+    <xs:element name="time09" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss" dfdl:lengthKind="delimited" dfdl:calendarTimeZone="UTC+1:30"/>
     <xs:element name="time10" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:textTrimKind="padChar"
                 dfdl:textCalendarJustification="center" dfdl:textCalendarPadCharacter="." dfdl:lengthKind="delimited" />
     <xs:element name="time11" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:textTrimKind="padChar"
@@ -2789,9 +2789,7 @@
     <tdml:document><![CDATA[Freitag März 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <date21>
-          <superfull>2013-03-25</superfull>
-        </date21>
+        <date24>2013-03-01</date24>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2809,9 +2807,7 @@
     <tdml:document><![CDATA[Lunes Noviembre 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <date21>
-          <superfull>2013-03-25</superfull>
-        </date21>
+        <date25>2013-11-04</date25>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2829,9 +2825,7 @@
     <tdml:document><![CDATA[Monday November 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <date21>
-          <superfull>2013-03-25</superfull>
-        </date21>
+        <date26>2013-11-04</date26>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -3477,7 +3471,7 @@
   <tdml:parserTestCase name="timeZoneFormats5" root="time06"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
 
-    <tdml:document><![CDATA[08:43.United States (Los Angeles)]]></tdml:document>
+    <tdml:document><![CDATA[08:43.Los Angeles Time]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <time06>16:43:00Z</time06>
@@ -3495,7 +3489,7 @@
   <tdml:parserTestCase name="timeZoneFormats6" root="time07"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
 
-    <tdml:document><![CDATA[08:43.PT]]></tdml:document>
+    <tdml:document><![CDATA[08:43.PST]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <time07>16:43:00Z</time07>
@@ -3516,7 +3510,7 @@
     <tdml:document><![CDATA[08:43:40]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <time08>16:43:00Z</time08>
+        <time08>07:43:40Z</time08>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -3534,7 +3528,7 @@
     <tdml:document><![CDATA[08:43:40]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <time09>16:43:00Z</time09>
+        <time09>07:13:40Z</time09>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

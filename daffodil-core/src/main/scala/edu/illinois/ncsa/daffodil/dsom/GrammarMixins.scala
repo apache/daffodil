@@ -460,25 +460,11 @@ trait ElementBaseGrammarMixin
     textNumberRep == TextNumberRep.Zoned, SDE("Zoned not supported for float and double"))
 
   lazy val textDate = Prod("textDate", this, representation == Representation.Text,
-    standardTextDate | zonedTextDate)
+    stringValue ~ ConvertTextDatePrim(this))
   lazy val textTime = Prod("textTime", this, representation == Representation.Text,
-    standardTextTime | zonedTextTime)
+    stringValue ~ ConvertTextTimePrim(this))
   lazy val textDateTime = Prod("textDateTime", this, representation == Representation.Text,
-    standardTextDateTime | zonedTextDateTime)
-
-  lazy val standardTextDate = Prod("standardTextDate", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextDatePrim(this))
-  lazy val standardTextTime = Prod("standardTextTime", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextTimePrim(this))
-  lazy val standardTextDateTime = Prod("standardTextDateTime", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextDateTimePrim(this))
-
-  lazy val zonedTextDate = Prod("zonedTextDate", this,
-    textNumberRep == TextNumberRep.Zoned, subsetError("Zoned not supported for date"))
-  lazy val zonedTextTime = Prod("zonedTextDate", this,
-    textNumberRep == TextNumberRep.Zoned, subsetError("Zoned not supported for time"))
-  lazy val zonedTextDateTime = Prod("zonedTextDate", this,
-    textNumberRep == TextNumberRep.Zoned, subsetError("Zoned not supported for dateTime"))
+    stringValue ~ ConvertTextDateTimePrim(this))
 
   // shorthand
   lazy val primType = {

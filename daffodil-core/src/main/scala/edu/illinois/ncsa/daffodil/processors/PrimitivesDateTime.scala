@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.processors
 
 
 import java.text.ParsePosition
+import java.util.Date
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.{ Calendar, TimeZone, GregorianCalendar, ULocale }
 
@@ -61,13 +62,17 @@ case class ConvertTextCalendarParser(gram: Gram, e: ElementBase, dataFormatter: 
     Assert.invariant(str != null)
 
     val resultState = try {
-      if (str == "") {
-        return PE(start, "Convert to %s (for xs:%s): Cannot parse calendar from empty string", GramDescription, GramName)
-      }
-
       val pos = new ParsePosition(0)
       val datetime = try {
-        dataFormatter.parse(str, pos);
+        val dt = dataFormatter.parse(str, pos);
+        if (dt == null) {
+          // This appears to only happen when str == "", all other parse
+          // failures throw a parse exception.  DFDL allows this, parsing the
+          // empty string as the epoch
+          new Date(0)
+        } else {
+          dt
+        }
       } catch {
         case u: UnsuppressableException => throw u
         case e: Exception =>
@@ -121,12 +126,8 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   }
 
   lazy val locale: ULocale = {
-    val locales = ULocale.getAvailableLocales()
-    val l = locales.find(l => l.getName == e.calendarLanguage) match {
-      case Some(l) => l
-      case None => SDE("Unknown language specified for dfdl:calendarLanguage: %s", e.calendarLanguage)
-    }
-
+    val canonicalCalLang = ULocale.canonicalize(e.calendarLanguage)
+    val l = new ULocale(canonicalCalLang)
     l
   }
 
@@ -153,7 +154,17 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     }
     cal.setLenient(lax)
 
-    val tz = TimeZone.getTimeZone(e.calendarTimeZone)
+    val TimeZoneRegex = """(UTC)?([+\-])?([01]\d|\d)(:?([0-5]\d))?""".r
+    val tzStr = e.calendarTimeZone match {
+      case TimeZoneRegex(_, plusOrMinus, hour, _, minute) => {
+        val pomStr = if (plusOrMinus == null) "+" else plusOrMinus
+        val minStr = if (minute == null) "" else minute
+        "GMT%s%s%s".format(pomStr, hour, minStr)
+      }
+      case _ => e.calendarTimeZone
+    }
+
+    val tz = TimeZone.getTimeZone(tzStr)
     if (tz == TimeZone.UNKNOWN_ZONE) {
       SDE("Unknown timezone specified for dfdl:calendarTimeZone: %s", e.calendarTimeZone)
     }
@@ -192,11 +203,11 @@ case class ConvertTextDatePrim(e: ElementBase) extends ConvertTextCalendarPrimBa
 case class ConvertTextTimePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
   protected override val infosetPattern = "HH:mm:ssZZZZZ"
   protected override val implicitPattern = "HH:mm:ssZZZ"
-  protected override val validFormatCharacters = "ahHkKmsSzZ".toSeq
+  protected override val validFormatCharacters = "ahHkKmsSvVzZ".toSeq
 }
 
 case class ConvertTextDateTimePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
   protected override val infosetPattern = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
   protected override val implicitPattern = "yyyy-MM-dd'T'HH:mm:ss"
-  protected override val validFormatCharacters = "adDeEFGhHkKmMsSuwWyYzZ".toSeq
+  protected override val validFormatCharacters = "adDeEFGhHkKmMsSuwWvVyYzZ".toSeq
 }
