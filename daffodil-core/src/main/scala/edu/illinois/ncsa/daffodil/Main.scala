@@ -170,6 +170,11 @@ object Main {
 
       printedName = "daffodil"
 
+      errorMessageHandler = { message =>
+        System.err.println("[%s] error: %s" format (printedName, message))
+        sys.exit(1)
+      }
+
       banner("""|Usage: %s [GLOBAL_OPTS] <subcommand> [SUBCOMMAND_OPTS]
                 |
                 |Global Options:""".format(printedName).stripMargin)
@@ -191,7 +196,8 @@ object Main {
 
       // Parse Subcommand Options
       val parse = new scallop.Subcommand("parse") {
-        banner("""|Usage: daffodil parse (-s <schema> [-r <root> [-n <namespace>]] [-p <path>] | -P <parser>)
+        banner("""|Usage: daffodil parse (-s <schema> [-r <root> [-n <namespace>]] [-p <path>] |
+                  |                       -P <parser>)
                   |                      [-D<variable>=<value>...] [-o <output>] [<infile>]
                   |
                   |Parse a file, using either a DFDL schema or a saved parser
@@ -212,7 +218,8 @@ object Main {
 
       // Unparse Subcommand Options
       val unparse = new scallop.Subcommand("unparse") {
-        banner("""|Usage: daffodil unparse (-s <schema> [-r <root> [-n <namespace>]] [-p <path>] | -P <parser>)
+        banner("""|Usage: daffodil unparse (-s <schema> [-r <root> [-n <namespace>]] [-p <path>] |
+                  |                         -P <parser>)
                   |                        [-D<variable>=<value>...] [-o <output>] [<infile>]
                   |
                   |Unparse an infoset file, using either a DFDL schema or a saved paser
@@ -233,7 +240,8 @@ object Main {
 
       // Save Subcommand Options
       val save = new scallop.Subcommand("save-parser") {
-        banner("""|Usage: daffodil save-parser -s <schema> [-r <root> [-n <namespace>]] [-p <path>] [<outfile>]
+        banner("""|Usage: daffodil save-parser -s <schema> [-r <root> [-n <namespace>]]
+                  |                            [-p <path>] [<outfile>]
                   |
                   |Create and save a parser using a DFDL schema
                   |
