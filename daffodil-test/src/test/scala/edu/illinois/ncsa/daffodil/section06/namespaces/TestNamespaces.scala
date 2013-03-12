@@ -48,6 +48,12 @@ class TestNamespaces extends JUnitSuite {
   val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"))
+
+  @Test def testSimpleIncludeOfFormat() { runner2.runOneTest("simpleInclude") }
+  @Test def testSimpleImportOfFormat() { runner2.runOneTest("simpleImport") }
+  @Test def testIncludeNoNamespace() { runner2.runOneTest("includeNoNamespace") }
+  @Test def testImportWithOverlappingNSPrefixes1() { runner2.runOneTest("importWithOverlappingNSPrefixes1") }
 
   @Test def test_Lesson2_no_namespace() { runner.runOneTest("Lesson2_no_namespace") }
   @Test def test_Lesson2_include_schema() { runner.runOneTest("Lesson2_include_schema") }
@@ -106,7 +112,6 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_element_conflict_01() { runner.runOneTest("element_conflict_01") }
   @Test def test_element_conflict_02() { runner.runOneTest("element_conflict_02") }
 
-
   @Test def test_no_namespace_temp() { runner.runOneTest("no_namespace_temp") }
 
   @Test def test_lion_eater_ambiguity_01() { runner.runOneTest("lion_eater_ambiguity_01") }
@@ -124,5 +129,7 @@ class TestNamespaces extends JUnitSuite {
 
   @Test def test_namespace_scope_01() { runner.runOneTest("namespace_scope_01") }
   @Test def test_namespace_scope_02() { runner.runOneTest("namespace_scope_02") }
+  
+//  @Test def test_error_messages_01() { runner.runOneTest("error_messages_01") }
 
 }

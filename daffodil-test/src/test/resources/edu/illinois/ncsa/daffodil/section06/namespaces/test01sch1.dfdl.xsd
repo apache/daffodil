@@ -4,7 +4,7 @@
   xmlns:tns="http://example.com" 
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
 
-  <include schemaLocation="test/multiFile/test01sch2.dfdl.xsd" />
+  <include schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/test01sch2.dfdl.xsd" />
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
       <dfdl:format ref="tns:test01fmt1" />

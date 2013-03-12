@@ -62,5 +62,7 @@ class TestNamespacesDebug extends JUnitSuite {
   @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
   
   @Test def test_namespace_ultra_uniqueness_03() { runner.runOneTest("namespace_ultra_uniqueness_03") }
+  
+  @Test def test_error_messages_01() { runner.runOneTest("error_messages_01") }
 
 }

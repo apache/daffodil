@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://a12.com" xmlns:a12="http://a12.com" xmlns:b12="http://b12.com">
+ 
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" ignoreCase="no" separatorPosition="infix" separatorPolicy="suppressed" leadingSkip='0' initiator="" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:import namespace="http://b12.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_12.dfdl.xsd"/>
+
+  <xs:element name="nestSequence" dfdl:terminator="">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|" dfdl:terminator="">
+        <xs:element ref="b12:nest" textStringJustification="left" dfdl:lengthKind="delimited" dfdl:occursCountKind="parsed" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

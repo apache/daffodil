@@ -1314,5 +1314,21 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: error_messages_01
+       Schema: multi_base_12.dfdl.xsd
+         Root: rabbitHole
+      Purpose: This test demonstrates that error messages with multi-file schemas are very specific
+               and help the user quickly find the issue.
+  -->
+  
+  <tdml:parserTestCase name="error_messages_01" root="rabbitHole"
+    model="multi_base_12.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[f:....53....(e)|f:..41..(e)]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </testSuite>
