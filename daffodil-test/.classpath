@@ -57,5 +57,10 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-test/lib_managed/docs/junit/junit/junit-4.11-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/jline/jline/jline-2.9.jar" sourcepath="lib_managed/srcs/jline/jline/jline-2.9-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/jline/jline/jline-2.9-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
