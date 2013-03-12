@@ -1173,12 +1173,9 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
     override def toString = gram.toString
 
     def parse(start0: PState): PState = {
-
-      val (start1, nBits) = getBitLength(start0)
-      val (start, bo) = getByteOrder(start1)
-      if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits))
-        PE(start, "Not enough bits to create an xs:" + primName)
-      else {
+      try {
+        val (start1, nBits) = getBitLength(start0)
+        val (start, bo) = getByteOrder(start1)
         val (value, newPos) = start.inStream.getBitSequence(start.bitPos, nBits, bo)
         //if (GramName == "hexBinary") {
         //  val bytes = value.asInstanceOf[Array[Byte]]
@@ -1192,7 +1189,10 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
         val convertedValue: T = convertValue(value, nBits toInt)
         start.parentElement.setDataValue(convertedValue.toString)
         start.withPos(newPos, -1, None)
-        //}
+      } catch {
+        case e: IndexOutOfBoundsException => { return PE(start0, "BinaryNumber - Insufficient Bits for xs:%s : IndexOutOfBounds: \n%s", primName, e.getMessage()) }
+        case u: UnsuppressableException => throw u
+        case e: Exception => { return PE(start0, "BinaryNumber - Exception: \n%s", e.getStackTraceString) }
       }
     }
   }
