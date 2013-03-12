@@ -3,11 +3,11 @@
   xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
 
-  <parserTestCase name="AB007" root="root" model="AB.dfdl.xsd"
+  <parserTestCase name="AB007" root="root" model="profiling.dfdl.xsd"
     description="CSV-style tests">
 
     <document>
-      <documentPart type="file">edu/illinois/ncsa/daffodil/AB007.in</documentPart>
+      <documentPart type="file">edu/illinois/ncsa/daffodil/profiling/AB007.in</documentPart>
     </document>
 
     <infoset>

@@ -20,7 +20,7 @@
   <element name="root">
     <complexType>
       <sequence>
-        <group ref="tns:hiddenMatrix" />
+        <sequence dfdl:hiddenGroupRef="tns:hiddenMatrix" />
         <element name="row001col001" type="xsd:int"
           dfdl:inputValueCalc="{ ../tns:matrix/tns:row[1]/tns:cell[1] }" /> <!-- 1 -->
         <element name="row002col002" type="xsd:int"
@@ -34,7 +34,7 @@
   <element name="matrix" type="tns:matrixType" dfdl:lengthKind="implicit" />
 
   <complexType name="matrixType">
-    <sequence dfdl:separator="%NL;">
+    <sequence dfdl:separator="%LF;">
       <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
         <complexType>
           <sequence dfdl:separator=",">

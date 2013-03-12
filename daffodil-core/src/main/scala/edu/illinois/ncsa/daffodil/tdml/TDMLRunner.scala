@@ -190,13 +190,13 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
     }
   }
 
-  def runOneTest(testName: String, schema: Option[Node] = None) {
+  def runOneTest(testName: String, schema: Option[Node] = None): (Long, Long) = {
     if (isTDMLFileValid) {
       val testCase = testCases.find(_.name == testName)
       testCase match {
         case None => throw new Exception("test " + testName + " was not found.")
         case Some(tc) => {
-          tc.run(schema)
+          return tc.run(schema)
         }
       }
     } else {
@@ -304,7 +304,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
                              errors: Option[ExpectedErrors],
                              warnings: Option[ExpectedWarnings]): Unit
 
-  def run(schema: Option[Node] = None) {
+  def run(schema: Option[Node] = None): (Long, Long) = {
     suppliedSchema = schema
     val sch = schema match {
       case Some(sch) => {
@@ -325,8 +325,11 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     val nBits = document.map { _.nBits }
 
     runProcessor(pf, data, nBits, infoset, errors, warnings)
-    println("Bytes processed: " + IteratorInputStream.getAndResetCalls)
-    println("Characters processed: " + DFDLCharCounter.getAndResetCount)
+    val bytesProcessed = IteratorInputStream.getAndResetCalls
+    val charsProcessed = DFDLCharCounter.getAndResetCount
+    println("Bytes processed: " + bytesProcessed)
+    println("Characters processed: " + charsProcessed)
+    (bytesProcessed, charsProcessed)
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
     // log(Debug("Test %s passed.", id))
