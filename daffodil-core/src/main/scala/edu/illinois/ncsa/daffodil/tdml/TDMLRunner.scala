@@ -713,8 +713,9 @@ case class Document(d: NodeSeq, parent: TestCase) {
   val isDPFile = {
     val res = documentParts.length > 0 &&
       documentParts(0).partContentType == ContentTypeFile
-    Assert.usage(res &&
-      documentParts.length == 1, "There can be only one documentPart of type file, and it must be the only documentPart.")
+    if (res) {
+      Assert.usage(documentParts.length == 1, "There can be only one documentPart of type file, and it must be the only documentPart.")
+    }
     res
   }
 
