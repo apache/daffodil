@@ -1016,6 +1016,36 @@
   </tdml:parserTestCase>
   
   <!--
+    Test name: lion_eater_ambiguity_01b
+       Schema: multi_base_shi.dfdl.xsd
+         Root: shishishi2
+      Purpose: This test verifies that using "shi:shi:string" as a type no longer causes a "should be no fall through to this case"
+               abort message.
+  -->
+  
+  <tdml:parserTestCase name="lion_eater_ambiguity_01b" root="shishishi2"
+    model="multi_base_shi2.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishi initiator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+          <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+        <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishi terminator -->
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Error loading schema</tdml:error>
+      <tdml:error>'shi:shi:string' is not a valid value for 'QName'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
     Test name: lion_eater_ambiguity_02
        Schema: multi_base_shi.dfdl.xsd
          Root: shishishishi

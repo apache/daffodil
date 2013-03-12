@@ -110,6 +110,7 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_no_namespace_temp() { runner.runOneTest("no_namespace_temp") }
 
   @Test def test_lion_eater_ambiguity_01() { runner.runOneTest("lion_eater_ambiguity_01") }
+  @Test def test_lion_eater_ambiguity_01b() { runner.runOneTest("lion_eater_ambiguity_01b") }
   @Test def test_lion_eater_ambiguity_02() { runner.runOneTest("lion_eater_ambiguity_02") }
   @Test def test_lion_eater_ambiguity_03() { runner.runOneTest("lion_eater_ambiguity_03") }
   @Test def test_lion_eater_ambiguity_04() { runner.runOneTest("lion_eater_ambiguity_04") }
@@ -123,6 +124,5 @@ class TestNamespaces extends JUnitSuite {
 
   @Test def test_namespace_scope_01() { runner.runOneTest("namespace_scope_01") }
   @Test def test_namespace_scope_02() { runner.runOneTest("namespace_scope_02") }
-
 
 }
