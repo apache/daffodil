@@ -254,7 +254,9 @@ trait ElementBaseGrammarMixin
       case (LengthUnits.Bits, _) => SDE("lengthKind='explicit' and lengthUnits='bits' for type %s", this.typeDef)
     })
 
-  lazy val stringDelimitedEndOfData = Prod("stringDelimitedEndOfData", this, StringDelimitedEndOfData(this))
+  //lazy val stringDelimitedEndOfData = Prod("stringDelimitedEndOfData", this, StringDelimitedEndOfData(this))
+  lazy val stringDelimitedEndOfDataStatic = Prod("stringDelimitedEndOfDataStatic", this, StringDelimitedEndOfDataStatic(this))
+  lazy val stringDelimitedEndOfDataDynamic = Prod("stringDelimitedEndOfDataDynamic", this, StringDelimitedEndOfDataDynamic(this))
   lazy val stringPatternMatched = Prod("stringPatternMatched", this, StringPatternMatched(this))
 
   lazy val stringValue = stringValue_.value
@@ -262,7 +264,9 @@ trait ElementBaseGrammarMixin
     val res = Prod("stringValue", this, lengthKind match {
       case LengthKind.Explicit if isFixedLength => fixedLengthString
       case LengthKind.Explicit => variableLengthString
-      case LengthKind.Delimited => stringDelimitedEndOfData
+      //case LengthKind.Delimited => stringDelimitedEndOfData
+      case LengthKind.Delimited if this.hasExpressionsInTerminatingMarkup => stringDelimitedEndOfDataDynamic
+      case LengthKind.Delimited => stringDelimitedEndOfDataStatic
       case LengthKind.Pattern => stringPatternMatched
       case LengthKind.Implicit => implicitLengthString
       case _ => SDE("Unimplemented lengthKind %s", lengthKind)

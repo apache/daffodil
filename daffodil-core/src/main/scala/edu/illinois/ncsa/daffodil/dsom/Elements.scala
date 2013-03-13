@@ -278,6 +278,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     Assert.notYetImplemented("inScopeTerminatingMarkup")
   }
 
+  lazy val hasExpressionsInTerminatingMarkup: Boolean = {
+    this.allTerminatingMarkup.filter( x => !x.isConstant).length > 0
+  }
+  
   // 11/1/2012 - moved to base since needed by patternValue
   lazy val isPrimitiveType = typeDef.isInstanceOf[PrimitiveType]
 
