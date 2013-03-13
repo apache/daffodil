@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section12.lengthKind
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
@@ -61,5 +60,5 @@ class TestLengthKindExplicitNew extends JUnitSuite {
   @Test def test_ExplicitLengthBitsFixed() = { runner.runOneTest("test_ExplicitLengthBitsFixed") }
   @Test def test_ExplicitLengthCharsNotFixed() = { runner.runOneTest("test_ExplicitLengthCharsNotFixed") }
   @Test def test_ExplicitLengthCharsFixed() = { runner.runOneTest("test_ExplicitLengthCharsFixed") }
-  
+
 }

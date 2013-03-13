@@ -58,6 +58,8 @@ class TestProfiling extends JUnitSuite {
 
   @Test def testTakCalibration { Tak.testTak }
 
+  @Test def testJavaTakCalibration { JavaTak.calibrate }
+
   var bytesProcessed: Long = 0
   var charsProcessed: Long = 0
 
@@ -68,6 +70,21 @@ class TestProfiling extends JUnitSuite {
     Tak.calibrate
     val ns = Tak.time {
       val (by, ch) = runner.runOneTestWithDataVolumes("AB007")
+      bytesProcessed = by
+      charsProcessed = ch
+    }
+    val takeonsThisRun = ns / Tak.takeons
+    val bpns = ((bytesProcessed * 1.0) / ns)
+    val kbps = bpns * 1000000
+    val callsPerByte = 1 / (Tak.takeons * bpns)
+    println("\nKB/sec = " + kbps)
+    println("tak call equivalents per byte (takeons/byte) =  " + callsPerByte)
+  }
+
+  @Test def testLongRunningForProfiling2 {
+    Tak.calibrate
+    val ns = Tak.time {
+      val (by, ch) = runner.runOneTestWithDataVolumes("AB007Simplified")
       bytesProcessed = by
       charsProcessed = ch
     }
