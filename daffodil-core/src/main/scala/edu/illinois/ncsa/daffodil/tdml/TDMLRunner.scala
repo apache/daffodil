@@ -190,7 +190,11 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
     }
   }
 
-  def runOneTest(testName: String, schema: Option[Node] = None): (Long, Long) = {
+  def runOneTest(testName: String, schema: Option[Node] = None) {
+    runOneTestWithDataVolumes(testName, schema)
+  }
+
+  def runOneTestWithDataVolumes(testName: String, schema: Option[Node] = None): (Long, Long) = {
     if (isTDMLFileValid) {
       val testCase = testCases.find(_.name == testName)
       testCase match {

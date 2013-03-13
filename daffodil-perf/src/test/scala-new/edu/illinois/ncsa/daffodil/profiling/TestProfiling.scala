@@ -67,7 +67,7 @@ class TestProfiling extends JUnitSuite {
   @Test def testLongRunningForProfiling {
     Tak.calibrate
     val ns = Tak.time {
-      val (by, ch) = runner.runOneTest("AB007")
+      val (by, ch) = runner.runOneTestWithDataVolumes("AB007")
       bytesProcessed = by
       charsProcessed = ch
     }
