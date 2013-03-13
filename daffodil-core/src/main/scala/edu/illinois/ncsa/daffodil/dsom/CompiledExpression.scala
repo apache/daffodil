@@ -38,7 +38,7 @@ import javax.xml.xpath._
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.processors.xpath.XPathUtil.CompiledExpressionFactory
 import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
@@ -230,11 +230,11 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging {
             XPathConstants.STRING)
           res match {
             case StringResult(s) => {
-              log(Debug("%s is constant", xpathExprFactory.expression))
+              log(LogLevel.Debug, "%s is constant", xpathExprFactory.expression)
               Some(s)
             }
             case BooleanResult(s) => {
-              log(Debug("%s is constant", xpathExprFactory.expression))
+              log(LogLevel.Debug, "%s is constant", xpathExprFactory.expression)
               Some(s)
             }
             case _ => Assert.invariantFailed("Can't evaluate to " + res + " when testing for isConstant")
@@ -242,14 +242,14 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging {
         } catch {
           case u: UnsuppressableException => throw u
           case e: XPathExpressionException => {
-            log(Debug("%s is NOT constant (due to %s)", xpathExprFactory.expression, e.toString))
+            log(LogLevel.Debug, "%s is NOT constant (due to %s)", xpathExprFactory.expression, e.toString)
             None
           }
           case e: SchemaDefinitionError => {
             // TODO differentiate between the xpath being syntax-invalid (hence, an SDE, not a constant/runtime distinction
             // and other SDEs like variable not defined, which just indicates (for here), that the expression 
             // is non-constant.
-            log(Debug("%s is NOT constant (due to %s)", xpathExprFactory.expression, e.toString))
+            log(LogLevel.Debug, "%s is NOT constant (due to %s)", xpathExprFactory.expression, e.toString)
             None
           }
           //          case e : Exception => {

@@ -98,7 +98,8 @@ object OOLAG extends Logging {
     def lv: OOLAGValue
   }
 
-  private[oolag] trait OOLAGRethrowException extends Exception with OOLAGException {
+  // private[oolag] 
+  trait OOLAGRethrowException extends Exception with OOLAGException {
     self: Exception =>
     def cause: Option[Throwable]
   }

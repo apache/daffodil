@@ -38,7 +38,7 @@ import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.util.Misc._
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Info
-import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.FindPropertyMixin
 
 /**

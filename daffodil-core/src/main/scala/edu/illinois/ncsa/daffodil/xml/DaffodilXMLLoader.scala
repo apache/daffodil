@@ -110,13 +110,13 @@ class DFDLCatalogResolver
     // our catalog first in the catalog list, and then set it again.
     //
     val catFiles = cm.getCatalogFiles().toArray.toList.asInstanceOf[List[String]]
-    log(Debug("initial catalog files: %s ", catFiles))
+    log(LogLevel.Debug, "initial catalog files: %s ", catFiles)
     val builtInCatalog = Misc.getRequiredResource("/daffodil-built-in-catalog.xml")
     val newCatFiles = builtInCatalog.toString() :: catFiles
     cm.setCatalogFiles(newCatFiles.mkString(";"))
 
     val catFilesAfter = cm.getCatalogFiles()
-    log(Debug("final catalog files: %s ", catFilesAfter))
+    log(LogLevel.Debug, "final catalog files: %s ", catFilesAfter)
     cm
   }
 
@@ -149,11 +149,11 @@ class DFDLCatalogResolver
    */
   def resolveEntity(ri: org.apache.xerces.xni.XMLResourceIdentifier): XMLInputSource = {
     val ns = ri.getNamespace()
-    log(Debug("resolveEntity1: %s", ns))
+    log(LogLevel.Debug, "resolveEntity1: %s", ns)
     //
     if (ns == XMLUtils.XSD_NAMESPACE) {
       if (alreadyResolvingXSD) {
-        log(Debug("special resolved to null"))
+        log(LogLevel.Debug, "special resolved to null")
         return null
       }
     }
@@ -161,7 +161,7 @@ class DFDLCatalogResolver
     val res = try {
       alreadyResolvingXSD = (ns == XMLUtils.XSD_NAMESPACE)
       val resolvedId = delegate.resolveURI(ns)
-      log(Debug("resolved to: %s", resolvedId))
+      log(LogLevel.Debug, "resolved to: %s", resolvedId)
       if (resolvedId == null) return null
       val res = new XMLInputSource(ri.getPublicId(),
         resolvedId,
@@ -176,9 +176,9 @@ class DFDLCatalogResolver
   def resolveURI(uri: String) = delegate.resolveURI(uri)
 
   def resolveResource(type_ : String, nsURI: String, publicId: String, systemId: String, baseURI: String): LSInput = {
-    log(Debug("resolveResource: nsURI = %s, baseURI = %s, type = %s, publicId = %s, systemId = %s", nsURI, baseURI, type_, publicId, systemId))
+    log(LogLevel.Debug, "resolveResource: nsURI = %s, baseURI = %s, type = %s, publicId = %s, systemId = %s", nsURI, baseURI, type_, publicId, systemId)
     val resolvedId = delegate.resolveURI(nsURI)
-    log(Debug("resolved to: %s", resolvedId))
+    log(LogLevel.Debug, "resolved to: %s", resolvedId)
     Assert.invariant(resolvedId != null)
     val input = new DOMInputImpl()
     input.setBaseURI(baseURI)
@@ -188,16 +188,16 @@ class DFDLCatalogResolver
       is
     } catch {
       case e: Exception => {
-        log(Debug("resolveResource: Exception %s", e))
+        log(LogLevel.Debug, "resolveResource: Exception %s", e)
         throw e
       }
     }
-    log(Debug("resolveResource result inputStream = %s", is))
+    log(LogLevel.Debug, "resolveResource result inputStream = %s", is)
     input
   }
 
   override def resolveEntity(publicId: String, systemId: String) = {
-    log(Debug("resolveEntity3: publicId = %s, systemId = %s", publicId, systemId))
+    log(LogLevel.Debug, "resolveEntity3: publicId = %s, systemId = %s", publicId, systemId)
     Assert.invariantFailed("resolveEntity3 - should not be called")
   }
 
@@ -205,12 +205,12 @@ class DFDLCatalogResolver
    * We don't deal with DTDs at all. So this always returns null
    */
   def getExternalSubset(name: String, baseURI: String) = {
-    log(Debug("getExternalSubset: name = %s, baseURI = %s", name, baseURI))
+    log(LogLevel.Debug, "getExternalSubset: name = %s, baseURI = %s", name, baseURI)
     null
   }
 
   def resolveEntity(name: String, publicId: String, baseURI: String, systemId: String) = {
-    log(Debug("resolveEntity4: name = %s, baseURI = %s, publicId = %s, systemId = %s", name, baseURI, publicId, systemId))
+    log(LogLevel.Debug, "resolveEntity4: name = %s, baseURI = %s, publicId = %s, systemId = %s", name, baseURI, publicId, systemId)
     Assert.invariantFailed("resolveEntity4 - should not be called")
   }
 }

@@ -37,7 +37,7 @@ import edu.illinois.ncsa.daffodil.util.Logging
 import scala.util.parsing.input.Reader
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util._
 import scala.collection.mutable.Queue
 import java.util.regex.Pattern
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -56,12 +56,12 @@ sealed abstract class DelimParseResult(nextArg: Reader[Char]) {
 }
 
 case class DelimParseSuccess(val delimiter: String,
-  val delimiterType: DelimiterType,
-  val delimiterLoc: DelimiterLocation,
-  val numBits: Int,
-  fieldArg: String,
-  nextArg: Reader[Char],
-  val numCharsRead: Int)
+                             val delimiterType: DelimiterType,
+                             val delimiterLoc: DelimiterLocation,
+                             val numBits: Int,
+                             fieldArg: String,
+                             nextArg: Reader[Char],
+                             val numCharsRead: Int)
   extends DelimParseResult(nextArg) {
   def isSuccess = true
   def field = fieldArg
@@ -88,7 +88,7 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
      * If None then the extracted field value itself is used.
      */
     def apply(res: Success[String], delimiter: String, delimiterType: DelimiterType, contentOpt: Option[String],
-      dLoc: DelimiterLocation) = {
+              dLoc: DelimiterLocation) = {
 
       val Success(fieldResult, next) = res
       val content = contentOpt.getOrElse(res.get)
@@ -108,9 +108,9 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
    *  being applied.
    */
   override def log[T](p: => Parser[T])(name: String): Parser[T] = Parser { in =>
-    log(Debug("trying %s at %s", name, in))
+    log(LogLevel.Debug, "trying %s at %s", name, in)
     val r = p(in)
-    log(Debug("%s --> %s", name, r))
+    log(LogLevel.Debug, "%s --> %s", name, r)
     r
   }
 
@@ -311,7 +311,7 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   def generateCombinedDelimsParser(localDelimsParser: Array[Parser[String]],
-    remoteDelimsParser: Array[Parser[String]]): Parser[String] = {
+                                   remoteDelimsParser: Array[Parser[String]]): Parser[String] = {
     val combinedDelims = remoteDelimsParser ++ localDelimsParser
     val combinedDelimsParser = this.combineLongest(combinedDelims)
     combinedDelimsParser
@@ -389,11 +389,11 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   protected def generateInputWithPadParser(separators: Parser[String], terminators: Parser[String],
-    delimsRegex: String,
-    padCharRegex: String,
-    justification: TextJustificationType.Type,
-    hasDelim: Boolean,
-    isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
+                                           delimsRegex: String,
+                                           padCharRegex: String,
+                                           justification: TextJustificationType.Type,
+                                           hasDelim: Boolean,
+                                           isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
 
     val pSeps: Parser[String] = separators
     val pTerms: Parser[String] = terminators
@@ -464,8 +464,8 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   protected def generateInputNoPadParser(separators: Parser[String], terminators: Parser[String],
-    delimsRegex: String, hasDelim: Boolean,
-    isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
+                                         delimsRegex: String, hasDelim: Boolean,
+                                         isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
 
     val pSeps: Parser[String] = separators
     val pTerms: Parser[String] = terminators
@@ -498,9 +498,9 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   def generateInputParser(separators: Set[String], terminators: Set[String],
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
+                          justification: TextJustificationType.Type,
+                          padChar: String,
+                          isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
     val hasDelim: Boolean = separators.size > 0 || terminators.size > 0
     val (pSeps, sepsRegex) = this.generateSeparators(separators)
     val (pTerms, termsRegex) = this.generateTerminators(terminators)
@@ -516,9 +516,9 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   def generateInputParser2(pSeps: Parser[String], pTerms: Parser[String],
-    sepsRegex: Array[String], termsRegex: Array[String], hasDelim: Boolean,
-    justification: TextJustificationType.Type, padChar: String,
-    isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
+                           sepsRegex: Array[String], termsRegex: Array[String], hasDelim: Boolean,
+                           justification: TextJustificationType.Type, padChar: String,
+                           isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
 
     val delimsRegex = combineDelimitersRegex(sepsRegex, termsRegex)
     val padCharRegex = generateCharacterRegex(padChar);
@@ -532,12 +532,12 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   protected def generateEscapeBlockWithPadParser(separators: Parser[String], terminators: Parser[String],
-    escapeBlockStartRegex: String, escapeBlockEndRegex: String,
-    escapeEscapeCharacterRegex: String,
-    padCharRegex: String,
-    justification: TextJustificationType.Type,
-    hasEscEsc: Boolean,
-    isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
+                                                 escapeBlockStartRegex: String, escapeBlockEndRegex: String,
+                                                 escapeEscapeCharacterRegex: String,
+                                                 padCharRegex: String,
+                                                 justification: TextJustificationType.Type,
+                                                 hasEscEsc: Boolean,
+                                                 isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
 
     val pEscape: Parser[String] = escapeEscapeCharacterRegex.r
     val pBlockStart: Parser[String] = escapeBlockStartRegex.r
@@ -598,10 +598,10 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   protected def generateEscapeBlockNoPadParser(separators: Parser[String], terminators: Parser[String],
-    escapeBlockStartRegex: String, escapeBlockEndRegex: String,
-    escapeEscapeCharacterRegex: String = "",
-    hasEscEsc: Boolean,
-    isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
+                                               escapeBlockStartRegex: String, escapeBlockEndRegex: String,
+                                               escapeEscapeCharacterRegex: String = "",
+                                               hasEscEsc: Boolean,
+                                               isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
 
     val pEscape: Parser[String] = escapeEscapeCharacterRegex.r
     val pBlockStart: Parser[String] = escapeBlockStartRegex.r
@@ -640,11 +640,11 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   def generateEscapeBlockParser(separators: Set[String], terminators: Set[String],
-    escapeBlockStart: String, escapeBlockEnd: String,
-    escapeEscapeCharacter: String = "",
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
+                                escapeBlockStart: String, escapeBlockEnd: String,
+                                escapeEscapeCharacter: String = "",
+                                justification: TextJustificationType.Type,
+                                padChar: String,
+                                isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
 
     val hasEscEsc: Boolean = escapeEscapeCharacter.length() > 0
     val escapeBlockStartRegex = this.generateCharacterRegex(escapeBlockStart)
@@ -663,11 +663,11 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   def generateEscapeBlockParsers(separators: Set[String], terminators: Set[String],
-    escapeBlockStart: String, escapeBlockEnd: String,
-    escapeEscapeCharacter: String = "",
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): (Parser[(Vector[String], String)], Parser[String], Parser[String], Array[String], Array[String]) = {
+                                 escapeBlockStart: String, escapeBlockEnd: String,
+                                 escapeEscapeCharacter: String = "",
+                                 justification: TextJustificationType.Type,
+                                 padChar: String,
+                                 isMissingDelimAllowed: Boolean = true): (Parser[(Vector[String], String)], Parser[String], Parser[String], Array[String], Array[String]) = {
 
     val hasEscEsc: Boolean = escapeEscapeCharacter.length() > 0
     val escapeBlockStartRegex = this.generateCharacterRegex(escapeBlockStart)
@@ -689,11 +689,11 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   lazy val emptyParser = { parserAlwaysFail("")("empty delimiter list") }
 
   def generateEscapeBlockParsers2(delims: Parser[String],
-    escapeBlockStart: String, escapeBlockEnd: String,
-    escapeEscapeCharacter: String = "",
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): (Parser[(Vector[String], String)], String, String) = {
+                                  escapeBlockStart: String, escapeBlockEnd: String,
+                                  escapeEscapeCharacter: String = "",
+                                  justification: TextJustificationType.Type,
+                                  padChar: String,
+                                  isMissingDelimAllowed: Boolean = true): (Parser[(Vector[String], String)], String, String) = {
 
     val hasEscEsc: Boolean = escapeEscapeCharacter.length() > 0
     val escapeBlockStartRegex = this.generateCharacterRegex(escapeBlockStart)
@@ -711,10 +711,10 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   protected def generateEscapeCharacterDiffWithPadParser(separators: Parser[String], terminators: Parser[String],
-    escapeCharacterRegex: String, escapeEscapeCharacterRegex: String, padCharRegex: String,
-    delimsRegex: String,
-    justification: TextJustificationType.Type, hasEscEsc: Boolean, hasDelim: Boolean,
-    isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
+                                                         escapeCharacterRegex: String, escapeEscapeCharacterRegex: String, padCharRegex: String,
+                                                         delimsRegex: String,
+                                                         justification: TextJustificationType.Type, hasEscEsc: Boolean, hasDelim: Boolean,
+                                                         isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
 
     val pSeps: Parser[String] = separators
     val pTerms: Parser[String] = terminators
@@ -856,9 +856,9 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   protected def generateEscapeCharacterDiffNoPadParser(separators: Parser[String], terminators: Parser[String],
-    escapeCharacterRegex: String, escapeEscapeCharacterRegex: String, delimsRegex: String,
-    hasEscEsc: Boolean, hasDelim: Boolean,
-    isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
+                                                       escapeCharacterRegex: String, escapeEscapeCharacterRegex: String, delimsRegex: String,
+                                                       hasEscEsc: Boolean, hasDelim: Boolean,
+                                                       isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
 
     val pSeps: Parser[String] = separators
     val pTerms: Parser[String] = terminators
@@ -944,8 +944,8 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   protected def generateEscapeCharacterSameNoPadParser(separators: Parser[String], terminators: Parser[String],
-    escapeCharacterRegex: String, delimsRegex: String, hasDelim: Boolean,
-    isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
+                                                       escapeCharacterRegex: String, delimsRegex: String, hasDelim: Boolean,
+                                                       isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
 
     val pSeps: Parser[String] = separators
     val pTerms: Parser[String] = terminators
@@ -1015,10 +1015,10 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   protected def generateEscapeCharacterSameWithPadParser(separators: Parser[String], terminators: Parser[String],
-    escapeCharacterRegex: String, delimsRegex: String,
-    justification: TextJustificationType.Type,
-    padCharRegex: String, hasDelim: Boolean,
-    isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
+                                                         escapeCharacterRegex: String, delimsRegex: String,
+                                                         justification: TextJustificationType.Type,
+                                                         padCharRegex: String, hasDelim: Boolean,
+                                                         isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
 
     val pSeps: Parser[String] = separators
     val pTerms: Parser[String] = terminators
@@ -1191,10 +1191,10 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   def generateInputEscapeCharacterParser(separators: Set[String], terminators: Set[String],
-    escapeCharacter: String, escapeEscapeCharacter: String = "",
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
+                                         escapeCharacter: String, escapeEscapeCharacter: String = "",
+                                         justification: TextJustificationType.Type,
+                                         padChar: String,
+                                         isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
 
     Assert.invariant(escapeCharacter.length() != 0)
 
@@ -1227,11 +1227,11 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   def generateInputEscapeCharacterParser2(delims: Parser[String], delimsRegex: String,
-    hasDelim: Boolean,
-    escapeCharacter: String, escapeEscapeCharacter: String = "",
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
+                                          hasDelim: Boolean,
+                                          escapeCharacter: String, escapeEscapeCharacter: String = "",
+                                          justification: TextJustificationType.Type,
+                                          padChar: String,
+                                          isMissingDelimAllowed: Boolean = true): Parser[(Vector[String], String)] = {
 
     Assert.invariant(escapeCharacter.length() != 0)
 
@@ -1292,7 +1292,7 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   protected def parseInputDefaultContent(fieldParser: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
-    input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
+                                         input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
     //     withLoggingLevel(LogLevel.Debug)
     {
       val res = parseInputCommon(fieldParser, seps, terms, input,
@@ -1397,7 +1397,7 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
   }
 
   protected def parseInputEscapeCharContent(fieldParser: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
-    input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
+                                            input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
     parseInputDefaultContent(fieldParser, seps, terms, input, justification)
   }
 }

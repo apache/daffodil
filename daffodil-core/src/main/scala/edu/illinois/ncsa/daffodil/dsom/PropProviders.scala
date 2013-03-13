@@ -34,7 +34,7 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.util.Info
-import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
@@ -85,13 +85,13 @@ trait LeafPropProvider
   def justThisOneProperties: PropMap
 
   final def leafFindProperty(pname: String): PropertyLookupResult = {
-    log(Debug("%s leafFindProperty %s on %s", prettyName, pname, this))
+    log(LogLevel.Debug, "%s leafFindProperty %s on %s", prettyName, pname, this)
     val mine = justThisOneProperties.get(pname)
     val res = mine match {
       case Some((value, loc)) => Found(value, loc)
       case None => NotFound(List(this), Nil)
     }
-    log(Debug("%s leafFindProperty %s ", prettyName, res))
+    log(LogLevel.Debug, "%s leafFindProperty %s ", prettyName, res)
     res
   }
 
@@ -117,7 +117,7 @@ class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: 
   def prettyName: String = "ChainPropProvider(" + forAnnotation.prettyName + ")"
 
   final def chainFindProperty(pname: String): PropertyLookupResult = {
-    log(Debug("%s chainFindProperty %s.", prettyName, pname))
+    log(LogLevel.Debug, "%s chainFindProperty %s.", prettyName, pname)
     lookupPropertyInSources(leafProviders, pname)
   }
 

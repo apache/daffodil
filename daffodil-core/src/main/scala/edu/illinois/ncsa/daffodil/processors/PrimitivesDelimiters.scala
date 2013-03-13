@@ -98,10 +98,10 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
     val result: DelimParseResult = delimParser.parseInputDelimiter(pInputDelimiterParser, pIsLocalDelimParser, input)
     result
   }
-  
+
   //e.schemaDefinitionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
   Assert.invariant(delim != "") // shouldn't be here at all in this case.
-  
+
   def parser: DaffodilParser = new PrimParser(this, e) {
 
     override def toBriefXML(depthLimit: Int = -1) = {
@@ -113,35 +113,36 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
     // This has to stay here, moving it outside of PrimParser causes it
     // to not be defined. Why?
     e.schemaDefinitionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
-    
+
+    val eName = e.toString()
+
     def parse(start: PState): PState = withParseErrorThrowing(start) {
       // withLoggingLevel(LogLevel.Debug) 
       {
-        val eName = e.toString()
 
-        log(Debug("%s - Parsing delimiter at byte position: %s", eName, (start.bitPos >> 3)))
-        log(Debug("%s - Parsing delimiter at bit position: %s", eName, start.bitPos))
+        log(LogLevel.Debug, "%s - Parsing delimiter at byte position: %s", eName, (start.bitPos >> 3))
+        log(LogLevel.Debug, "%s - Parsing delimiter at bit position: %s", eName, start.bitPos)
 
-        log(Debug("%s - Looking for local(%s) not remote (%s).", eName, staticTextsCooked.toSet, remoteDelims))
+        log(LogLevel.Debug, "%s - Looking for local(%s) not remote (%s).", eName, staticTextsCooked.toSet, remoteDelims)
 
         val bytePos = (start.bitPos >> 3).toInt
 
-        log(Debug("Retrieving reader state."))
+        log(LogLevel.Debug, "Retrieving reader state.")
         val reader = getReader(charset, start.bitPos, start)
 
         // Well they may not be delimiters, but the logic is the same as for a 
         // set of static delimiters.
         val result = parseMethod(reader)
 
-        log(Debug("%s - %s - DelimParseResultult: %s", this.toString(), eName, result))
+        log(LogLevel.Debug, "%s - %s - DelimParseResultult: %s", this.toString(), eName, result)
 
         result match {
           case _: DelimParseFailure => {
-            log(Debug("%s - %s: Delimiter not found!", this.toString(), eName))
+            log(LogLevel.Debug, "%s - %s: Delimiter not found!", this.toString(), eName)
             return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
           }
           case s: DelimParseSuccess if (s.delimiterLoc == DelimiterLocation.Remote) => {
-            log(Debug("%s - %s: Remote delimiter found instead of local!", this.toString(), eName))
+            log(LogLevel.Debug, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
             return PE(start, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
           }
           case s: DelimParseSuccess =>
@@ -150,9 +151,9 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
               val endCharPos = if (start.charPos == -1) s.delimiter.length else start.charPos + s.delimiter.length()
               val endBitPosDelim = numBits + start.bitPos
 
-              log(Debug("%s - Found %s", eName, s.delimiter))
-              log(Debug("%s - Ended at byte position %s", eName, (endBitPosDelim >> 3)))
-              log(Debug("%s - Ended at bit position %s", eName, endBitPosDelim))
+              log(LogLevel.Debug, "%s - Found %s", eName, s.delimiter)
+              log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPosDelim >> 3))
+              log(LogLevel.Debug, "%s - Ended at bit position %s", eName, endBitPosDelim)
 
               return start.withPos(endBitPosDelim, endCharPos, Some(s.next))
             }
@@ -173,7 +174,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
       val encoder = e.knownEncodingCharset.newEncoder()
       start.outStream.setEncoder(encoder)
       start.outStream.fillCharBuffer(unparserDelim)
-      log(Debug("Unparsed: " + start.outStream.getData))
+      log(LogLevel.Debug, "Unparsed: " + start.outStream.getData)
       start
     }
   }
@@ -194,7 +195,7 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
 
   // here we define the parsers so that they are pre-compiled/generated
   lazy val delimParser = new DFDLDelimParserStatic(e.knownEncodingStringBitLengthFunction)
-  
+
   // If there are any static delimiters, pre-process them here
   lazy val staticDelimsRaw = e.allTerminatingMarkup.filter(x => x.isConstant).map { _.constantAsString }
   lazy val staticDelimsCooked1 = staticDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
@@ -202,8 +203,8 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
   lazy val (staticDelimsParsers, staticDelimsRegex) = delimParser.generateDelimiter(staticDelimsCooked.toSet)
 
   def parseMethod(pInputDelimiterParser: delimParser.Parser[String],
-    pIsLocalDelimParser: delimParser.Parser[String],
-    input: Reader[Char]): DelimParseResult = {
+                  pIsLocalDelimParser: delimParser.Parser[String],
+                  input: Reader[Char]): DelimParseResult = {
     val result: DelimParseResult = delimParser.parseInputDelimiter(pInputDelimiterParser, pIsLocalDelimParser, input)
     result
   }
@@ -220,11 +221,11 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
     override def toString = kindString + "('" + delimExpr + "')" //  with terminating markup: " + term.prettyTerminatingMarkup + ")"
 
     lazy val tm = e.allTerminatingMarkup
+    val eName = e.toString()
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
       // withLoggingLevel(LogLevel.Debug) 
       {
-        val eName = e.toString()
 
         // We must feed variable context out of one evaluation and into the next.
         // So that the resulting variable map has the updated status of all evaluated variables.
@@ -242,7 +243,7 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
         val dynamicDelimsCooked = dynamicDelimsCooked1.flatten
         val delimsCooked = dynamicDelimsCooked.union(staticDelimsCooked)
         val (dynamicDelimsParsers, dynamicDelimsRegex) = delimParser.generateDelimiter(dynamicDelimsCooked.toSet)
-        
+
         val localDelimsRaw = {
           val R(res, newVMap) = delimExpr.evaluate(start.parentElement, vars, start)
           vars = newVMap
@@ -251,19 +252,19 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
         val localDelimsCooked1 = new ListOfStringValueAsLiteral(localDelimsRaw.toString(), e).cooked
         val localDelimsCooked = localDelimsCooked1
         val (localDelimsParser, localDelimsRegex) = delimParser.generateDelimiter(localDelimsCooked.toSet)
-        
+
         val pIsLocalDelimParser = delimParser.generateIsLocalDelimParser(localDelimsRegex)
-        
+
         val postEvalState = start.withVariables(vars)
 
-        log(Debug("%s - Parsing delimiter at byte position: %s", eName, (postEvalState.bitPos >> 3)))
-        log(Debug("%s - Parsing delimiter at bit position: %s", eName, postEvalState.bitPos))
+        log(LogLevel.Debug, "%s - Parsing delimiter at byte position: %s", eName, (postEvalState.bitPos >> 3))
+        log(LogLevel.Debug, "%s - Parsing delimiter at bit position: %s", eName, postEvalState.bitPos)
 
-        log(Debug("%s - Looking for local(%s) not remote (%s).", eName, localDelimsCooked.toSet, delimsCooked.toSet))
+        log(LogLevel.Debug, "%s - Looking for local(%s) not remote (%s).", eName, localDelimsCooked.toSet, delimsCooked.toSet)
 
         val bytePos = (postEvalState.bitPos >> 3).toInt
 
-        log(Debug("Retrieving reader state."))
+        log(LogLevel.Debug, "Retrieving reader state.")
         val reader = getReader(charset, start.bitPos, postEvalState)
 
         val remoteDelims: Array[delimParser.Parser[String]] = staticDelimsParsers.union(dynamicDelimsParsers)
@@ -271,15 +272,15 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
 
         val result = parseMethod(pInputDelimiterParser, pIsLocalDelimParser, reader)
 
-        log(Debug("%s - %s - DelimParseResultult: %s", this.toString(), eName, result))
+        log(LogLevel.Debug, "%s - %s - DelimParseResultult: %s", this.toString(), eName, result)
 
         result match {
           case _: DelimParseFailure => {
-            log(Debug("%s - %s: Delimiter not found!", this.toString(), eName))
+            log(LogLevel.Debug, "%s - %s: Delimiter not found!", this.toString(), eName)
             return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
           }
           case s: DelimParseSuccess if (s.delimiterLoc == DelimiterLocation.Remote) => {
-            log(Debug("%s - %s: Remote delimiter found instead of local!", this.toString(), eName))
+            log(LogLevel.Debug, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
             return PE(start, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
           }
           case s: DelimParseSuccess =>
@@ -288,9 +289,9 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
               val endCharPos = if (postEvalState.charPos == -1) s.delimiter.length else postEvalState.charPos + s.delimiter.length()
               val endBitPosDelim = numBits + postEvalState.bitPos
 
-              log(Debug("%s - Found %s", eName, s.delimiter))
-              log(Debug("%s - Ended at byte position %s", eName, (endBitPosDelim >> 3)))
-              log(Debug("%s - Ended at bit position %s", eName, endBitPosDelim))
+              log(LogLevel.Debug, "%s - Found %s", eName, s.delimiter)
+              log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPosDelim >> 3))
+              log(LogLevel.Debug, "%s - Ended at bit position %s", eName, endBitPosDelim)
 
               return postEvalState.withPos(endBitPosDelim, endCharPos, Some(s.next))
             }
@@ -324,7 +325,7 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
       // TODO: This is not correct, we need to be able to evaluate delimExpr and select a
       // delimiter to use here.
       start.outStream.fillCharBuffer(delimExpr.toString()) //start.outStream.fillCharBuffer(unparserDelim)
-      log(Debug("Unparsed: " + start.outStream.getData))
+      log(LogLevel.Debug, "Unparsed: " + start.outStream.getData))
       start
     }
   } */
@@ -408,16 +409,16 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
 
         val (nBytes: Long, newVMap: VariableMap) = computeLength(start)
         val postEvalState = start.withVariables(newVMap)
-        log(Debug("Explicit length %s", nBytes))
+        log(LogLevel.Debug, "Explicit length %s", nBytes)
 
         //val postEvalState = start //start.withVariables(vars)
 
-        log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
+        log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length)
         val in = postEvalState.inStream
 
         val bytePos = (postEvalState.bitPos >> 3).toInt
-        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
-        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+        log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos)
+        log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
         // some encodings aren't whole bytes
         // if (postEvalState.bitPos % 8 != 0) { return PE(postEvalState, "LiteralNilPattern - not byte aligned.") }
@@ -447,9 +448,9 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
             // Contains a nilValue, Success!
             postEvalState.parentElement.makeNil()
 
-            log(Debug("%s - Found %s", eName, trimmedResult))
-            log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
-            log(Debug("%s - Ended at bit position ", eName, endBitPos))
+            log(LogLevel.Debug, "%s - Found %s", eName, trimmedResult)
+            log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
+            log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
             return postEvalState.withPos(endBitPos, endCharPos, Some(reader)) // Need to advance past found nilValue
           } else {
@@ -513,24 +514,24 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
         val R(nCharsAsAny, newVMap) = expr.evaluate(start.parentElement, start.variableMap, start)
         val nChars = nCharsAsAny.asInstanceOf[String] //nBytesAsAny.asInstanceOf[Long]
         val postEvalState = start.withVariables(newVMap)
-        log(Debug("Explicit length %s", nChars))
+        log(LogLevel.Debug, "Explicit length %s", nChars)
 
         val pattern = "(?s)^.{%s}".format(nChars)
 
-        log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
+        log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length)
 
         val bytePos = (postEvalState.bitPos >> 3).toInt
-        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
-        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+        log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos)
+        log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
         // Don't check this here. This can vary by encoding.
         //if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 
-        log(Debug("Retrieving reader state."))
+        log(LogLevel.Debug, "Retrieving reader state.")
         val reader = getReader(charset, start.bitPos, start)
 
         if (nChars == 0 && isEmptyAllowed) {
-          log(Debug("%s - explicit length of 0 and %ES; found as nilValue.", eName))
+          log(LogLevel.Debug, "%s - explicit length of 0 and %ES; found as nilValue.", eName)
           postEvalState.parentElement.makeNil()
           return postEvalState // Empty, no need to advance
         }
@@ -564,9 +565,9 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
                 else postEvalState.charPos + s.field.length
               val endBitPos = numBits + start.bitPos
 
-              log(Debug("%s - Found %s", eName, s.field))
-              log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
-              log(Debug("%s - Ended at bit position ", eName, endBitPos))
+              log(LogLevel.Debug, "%s - Found %s", eName, s.field)
+              log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
+              log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
               return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
             } else {
@@ -612,15 +613,15 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
 
         val postEvalState = start //start.withVariables(vars)
 
-        log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
+        log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length)
 
         val bytePos = (postEvalState.bitPos >> 3).toInt
-        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
-        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+        log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos)
+        log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
         if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 
-        log(Debug("Retrieving reader state."))
+        log(LogLevel.Debug, "Retrieving reader state.")
         val reader = getReader(charset, start.bitPos, start)
 
         //        val byteReader = in.byteReader.atPos(bytePos)
@@ -656,9 +657,9 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
                 else postEvalState.charPos + s.field.length
               val endBitPos = numBits + start.bitPos
 
-              log(Debug("%s - Found %s", eName, s.field))
-              log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
-              log(Debug("%s - Ended at bit position ", eName, endBitPos))
+              log(LogLevel.Debug, "%s - Found %s", eName, s.field)
+              log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
+              log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
               //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
               return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
@@ -704,15 +705,15 @@ case class LiteralNilPattern(e: ElementBase)
 
         val postEvalState = start //start.withVariables(vars)
 
-        log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
+        log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length)
 
         val bytePos = (postEvalState.bitPos >> 3).toInt
-        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
-        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+        log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos)
+        log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
         if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 
-        log(Debug("Retrieving reader state."))
+        log(LogLevel.Debug, "Retrieving reader state.")
         val reader = getReader(charset, start.bitPos, start)
 
         val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
@@ -745,9 +746,9 @@ case class LiteralNilPattern(e: ElementBase)
                 else postEvalState.charPos + s.field.length
               val endBitPos = numBits + start.bitPos
 
-              log(Debug("%s - Found %s", eName, s.field))
-              log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
-              log(Debug("%s - Ended at bit position ", eName, endBitPos))
+              log(LogLevel.Debug, "%s - Found %s", eName, s.field)
+              log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
+              log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
               return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
             } else {
@@ -776,12 +777,11 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
 
   override def parser = new PrimParser(this, e) {
     override def toString = "LiteralNilDelimitedOrEndOfData(" + e.nilValue + ")"
+    val eName = e.toString()
 
     def parse(start: PState): PState = {
       // withLoggingLevel(LogLevel.Debug) 
       {
-        val eName = e.toString()
-
         // TODO: Why are we even doing this here?  LiteralNils don't care about delimiters
         // and LiteralNils don't have expressions! I think we can get rid of this variable
         // mapping stuff.
@@ -803,16 +803,16 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
         val nilValuesCooked = new ListOfStringValueAsLiteral(e.nilValue, e).cooked //nilValuesCooked1.flatten
         val postEvalState = start.withVariables(vars)
 
-        log(Debug("%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))
+        log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length)
 
         val bytePos = (postEvalState.bitPos >> 3).toInt
-        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
-        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+        log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos)
+        log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
         // Don't check alignment this way. This is encoding specific. (Some encodings not byte aligned)
         // if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilDelimitedOrEndOfData - not byte aligned.") }
 
-        log(Debug("Retrieving reader state."))
+        log(LogLevel.Debug, "Retrieving reader state.")
         val reader1 = getReader(charset, start.bitPos, start)
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
@@ -856,9 +856,9 @@ case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
               val endCharPos = if (postEvalState.charPos == -1) s.numCharsRead else postEvalState.charPos + s.numCharsRead
               val endBitPos = numBits + start.bitPos
 
-              log(Debug("%s - Found %s", eName, s.field))
-              log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
-              log(Debug("%s - Ended at bit position ", eName, endBitPos))
+              log(LogLevel.Debug, "%s - Found %s", eName, s.field)
+              log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
+              log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
               //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
               return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue

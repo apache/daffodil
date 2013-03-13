@@ -33,7 +33,7 @@ package edu.illinois.ncsa.daffodil.grammar
  */
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.Misc.getNameFromClass
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._

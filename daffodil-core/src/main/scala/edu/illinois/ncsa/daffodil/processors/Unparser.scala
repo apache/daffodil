@@ -173,7 +173,7 @@ class AltCompUnparser(context: AnnotatedSchemaComponent, children: Seq[Gram]) ex
   //    val numChildrenAtStart = ustate.currentElement.getContent().length
   //    var pResult : UState =
   //      try {
-  //        log(Debug("Trying choice alternative: %s", pUnparser))
+  //        log(LogLevel.Debug, "Trying choice alternative: %s", pUnparser))
   //        pUnparser.unparse(ustate)
   //      } catch {
   //        case u : UnsuppressableException => throw u
@@ -182,14 +182,14 @@ class AltCompUnparser(context: AnnotatedSchemaComponent, children: Seq[Gram]) ex
   //        }
   //      }
   //    if (pResult.status == Success) {
-  //      log(Debug("Choice alternative success: %s", pUnparser))
+  //      log(LogLevel.Debug, "Choice alternative success: %s", pUnparser))
   //      // Reset any discriminator. We succeeded.
   //      val res =
   //        if (pResult.discriminator) pResult.withDiscriminator(false)
   //        else pResult
   //      res
   //    } else {
-  //      log(Debug("Choice alternative failed: %s", pUnparser))
+  //      log(LogLevel.Debug, "Choice alternative failed: %s", pUnparser))
   //
   //      // Unwind any side effects on the Infoset 
   //      val lastChildIndex = ustate.currentElement.getContent().length
@@ -199,7 +199,7 @@ class AltCompUnparser(context: AnnotatedSchemaComponent, children: Seq[Gram]) ex
   //      //
   //      // check for discriminator evaluated to true.
   //      if (pResult.discriminator == true) {
-  //        log(Debug("Failure, but discriminator true. Additional alternatives discarded."))
+  //        log(LogLevel.Debug, "Failure, but discriminator true. Additional alternatives discarded."))
   //        // If so, then we don't run the next alternative, we
   //        // consume this discriminator status result (so it doesn't ripple upward)
   //        // and return the failed state. 
@@ -209,7 +209,7 @@ class AltCompUnparser(context: AnnotatedSchemaComponent, children: Seq[Gram]) ex
   //      }
   //
   //      val qResult = try {
-  //        log(Debug("Trying choice alternative: %s", qUnparser))
+  //        log(LogLevel.Debug, "Trying choice alternative: %s", qUnparser))
   //        qUnparser.unparse(ustate)
   //      } catch {
   //        case u : UnsuppressableException => throw u
@@ -219,13 +219,13 @@ class AltCompUnparser(context: AnnotatedSchemaComponent, children: Seq[Gram]) ex
   //      }
   //
   //      if (qResult.status == Success) {
-  //        log(Debug("Choice alternative success: %s", qUnparser))
+  //        log(LogLevel.Debug, "Choice alternative success: %s", qUnparser))
   //        val res =
   //          if (qResult.discriminator) qResult.withDiscriminator(false)
   //          else qResult
   //        res
   //      } else {
-  //        log(Debug("Choice alternative failure: %s", qUnparser))
+  //        log(LogLevel.Debug, "Choice alternative failure: %s", qUnparser))
   //        // Unwind any side effects on the Infoset 
   //        val lastChildIndex = ustate.currentElement.getContent().length
   //        if (lastChildIndex > numChildrenAtStart) {
@@ -234,7 +234,7 @@ class AltCompUnparser(context: AnnotatedSchemaComponent, children: Seq[Gram]) ex
   //
   //        // check for discriminator evaluated to true. But just FYI since this is the last alternative anyway
   //        if (qResult.discriminator == true) {
-  //          log(Debug("Failure, but discriminator true. (last alternative anyway)"))
+  //          log(LogLevel.Debug, "Failure, but discriminator true. (last alternative anyway)"))
   //        }
   //        // Since both alternatives failed, we create two meta-diagnostics that 
   //        // each indicate that one alternative failed due to the errors that occurred during
@@ -245,7 +245,7 @@ class AltCompUnparser(context: AnnotatedSchemaComponent, children: Seq[Gram]) ex
   //        val altErr = new AltUnparseFailed(context, ustate, pAltErr, qAltErr)
   //
   //        val bothFailedResult = ustate.failed(altErr)
-  //        log(Debug("Both AltParser alternatives failed."))
+  //        log(LogLevel.Debug, "Both AltParser alternatives failed."))
   //
   //        val result = bothFailedResult
   //        result.withDiscriminator(false)
@@ -287,7 +287,7 @@ class RepUnboundedUnparser(context: Term, r: => Gram) extends Unparser(context) 
       val pNext = rUnparser.unparse(pResult)
       if (pNext.status != Success) {
         pResult.restoreInfosetElementState(cloneNode)
-        log(Debug("Failure suppressed."))
+        log(LogLevel.Debug, "Failure suppressed.")
         return pResult
       }
       pResult = pNext
@@ -524,7 +524,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
     cbuf.clear() //remove old data from previous element
     charBufPos = bufPos //reset pointer to end of CharBuffer
 
-    log(Debug("Encode Error1: " + cr1.toString()))
+    log(LogLevel.Debug, "Encode Error1: " + cr1.toString())
     if (cr1 != CoderResult.UNDERFLOW) {
       if (cr1 == CoderResult.OVERFLOW) {
         // it's ok. It just means we've satisfied the byte buffer.
@@ -532,7 +532,7 @@ class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, siz
       // Assert.abort("Something went wrong while encoding characters: CoderResult = " + cr1)   
     }
     val cr2 = encoder.flush(bbuf)
-    log(Debug("Encode Error2: " + cr2.toString()))
+    log(LogLevel.Debug, "Encode Error2: " + cr2.toString())
     if (cr2 != CoderResult.UNDERFLOW) {
       // Something went wrong
       // Assert.abort("Something went wrong while encoding characters: CoderResult = " + cr2) 

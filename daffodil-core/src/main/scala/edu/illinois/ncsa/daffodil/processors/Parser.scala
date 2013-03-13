@@ -344,7 +344,7 @@ class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
     val cloneNode = pStart.captureInfosetElementState // we must undo side-effects on the JDOM if we backtrack.
     childParsers.foreach { parser =>
       {
-        log(Debug("Trying choice alternative: %s", parser))
+        log(LogLevel.Debug, "Trying choice alternative: %s", parser)
         try {
           pResult = parser.parse1(pStart, context)
         } catch {
@@ -352,12 +352,12 @@ class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
           case e: Exception => Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
         }
         if (pResult.status == Success) {
-          log(Debug("Choice alternative success: %s", parser))
+          log(LogLevel.Debug, "Choice alternative success: %s", parser)
           val res = pResult.withRestoredPointOfUncertainty
           return res
         }
         // If we get here, then we had a failure
-        log(Debug("Choice alternative failed: %s", parser))
+        log(LogLevel.Debug, "Choice alternative failed: %s", parser)
         // Unwind any side effects on the Infoset 
         // The infoset is the primary non-functional data structure. We have to un-side-effect it.
         pStart.restoreInfosetElementState(cloneNode)
@@ -365,7 +365,7 @@ class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
         diagnostics = diag +: diagnostics
         // check for discriminator evaluated to true.
         if (pResult.discriminator == true) {
-          log(Debug("Failure, but discriminator true. Additional alternatives discarded."))
+          log(LogLevel.Debug, "Failure, but discriminator true. Additional alternatives discarded.")
           // If so, then we don't run the next alternative, we
           // consume this discriminator status result (so it doesn't ripple upward)
           // and return the failed state withall the diagnostics.
@@ -382,7 +382,7 @@ class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
     // Out of alternatives. All of them failed. 
     val allDiags = new AltParseFailed(context, pStart, diagnostics.reverse)
     val allFailedResult = pStart.failed(allDiags)
-    log(Debug("All AltParser alternatives failed."))
+    log(LogLevel.Debug, "All AltParser alternatives failed.")
     val result = allFailedResult.withRestoredPointOfUncertainty
     result
   }
@@ -431,7 +431,7 @@ case class PState(
   def groupPos = if (groupIndexStack != Nil) groupIndexStack.head else -1
   def childPos = if (childIndexStack != Nil) childIndexStack.head else -1
   def arrayPos = if (arrayIndexStack != Nil) arrayIndexStack.head else -1
-  def occursCount = if (occursCountStack != Nil)  occursCountStack.head else -1
+  def occursCount = if (occursCountStack != Nil) occursCountStack.head else -1
 
   override def toString() = {
     "PState( bitPos=%s charPos=%s status=%s )".format(bitPos, charPos, status)
@@ -442,7 +442,7 @@ case class PState(
     val res = currentElement.schemaComponent(this)
     res
   }
-  def SDE(str: String, args: Any*) = { getContext().SDE(str, args)}
+  def SDE(str: String, args: Any*) = { getContext().SDE(str, args) }
   def discriminator = discriminatorStack.head
   def currentLocation: DataLocation = new DataLoc(bitPos, bitLimit, inStream)
   // def inStreamState = inStreamStateStack top

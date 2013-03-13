@@ -43,7 +43,7 @@ import java.io.IOException
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
-import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.Info
 import IIUtils._
 import java.io.File
@@ -300,7 +300,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
 
   lazy val impNodes = {
     val i = (xml \ "import")
-    log(Debug("There are %s imports", i.length))
+    log(LogLevel.Debug, "There are %s imports", i.length)
     i
   }
   lazy val incNodes = (xml \ "include")

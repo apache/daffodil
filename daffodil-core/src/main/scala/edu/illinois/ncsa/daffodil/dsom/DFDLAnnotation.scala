@@ -48,7 +48,7 @@ import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
 import edu.illinois.ncsa.daffodil.util.Info
-import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util._
 import scala.collection.immutable.ListMap
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 
@@ -261,7 +261,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
             seen.map { case (pair, fmtAnn) => (pair, fmtAnn.locationDescription) }.mkString("\n"))
           val defFmt = schemaSet.getDefineFormat(adjustedNS, ln).getOrElse(
             schemaDefinitionError("defineFormat with name {%s}%s, was not found.", newPair._1, newPair._2))
-          log(Debug("found defineFormat named: %s", newPair))
+          log(LogLevel.Debug, "found defineFormat named: %s", newPair)
           val fmt = defFmt.formatAnnotation
           val newSeen = seen + (newPair -> fmt)
           // println("seen now: " + newSeen)
@@ -272,7 +272,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
         lazy val seenStrings = seen.map {
           case ((ns, name), v) => name // + " is " + v.xml 
         }.toSeq
-        log(Debug("Property sources are: %s", seenStrings.mkString("\n")))
+        log(LogLevel.Debug, "Property sources are: %s", seenStrings.mkString("\n"))
         seen
       })
     res
@@ -296,7 +296,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
    */
   lazy val formatRefs: Seq[DFDLFormatAnnotation] = {
     val fmts = formatRefMap.map { case ((ns, ln), fmt) => fmt }
-    log(Debug("%s::%s formatRefs = %s", annotatedSC.prettyName, prettyName, fmts))
+    log(LogLevel.Debug, "%s::%s formatRefs = %s", annotatedSC.prettyName, prettyName, fmts)
     val seq = Seq(this) ++ fmts
     seq
   }
@@ -377,7 +377,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   override lazy val justThisOneProperties: PropMap = justThisOneProperties_.value
   private val justThisOneProperties_ = LV('justThisOneProperties) {
     val res = combinedJustThisOneProperties
-    log(Debug("%s::%s justThisOneProperties are: %s", annotatedSC.prettyName, prettyName, res))
+    log(LogLevel.Debug, "%s::%s justThisOneProperties are: %s", annotatedSC.prettyName, prettyName, res)
     res
   }
 

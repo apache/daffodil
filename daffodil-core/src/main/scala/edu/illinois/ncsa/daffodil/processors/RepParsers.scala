@@ -217,7 +217,7 @@ class RepUnboundedPrim(context: LocalElementBase, r: => Gram) extends RepPrim(co
           // no discriminator, so suppress the failure. Loop terminated with prior element.
           //
           pResult.restoreInfosetElementState(cloneNode)
-          log(Debug("Failure suppressed. This is normal termination of a occursCountKind='parsed' array."))
+          log(LogLevel.Debug, "Failure suppressed. This is normal termination of a occursCountKind='parsed' array.")
           return pResult // note that it has the prior point of uncertainty. No restore needed.
         }
         // Success

@@ -229,8 +229,12 @@ trait Logging extends Identity {
 
   def setLogWriter(lw: LogWriter) { if (lw != null) logWriter = lw }
 
-  def log(glob: => Glob) {
+  def log(glob: Glob) {
     if (logLevel >= glob.lvl) logWriter.log(logID, glob)
+  }
+
+  @inline def log(lvl: LogLevel.Value, msg: String, args: Any*) {
+    if (logLevel >= lvl) log(new Glob(lvl, msg, Seq(args: _*)))
   }
 
   /**

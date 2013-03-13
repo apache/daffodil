@@ -85,10 +85,10 @@ abstract class StringLength(e: ElementBase)
 
     def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
 
-      log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
+      log(LogLevel.Debug, "Parsing starting at bit position: %s", pstate.bitPos)
 
       val (nBytes, start) = getLength(pstate)
-      log(Debug("Explicit length %s", nBytes))
+      log(LogLevel.Debug, "Explicit length %s", nBytes)
 
       if (start.bitPos % 8 != 0) { return PE(start, "%s - not byte aligned.", parserName) }
 
@@ -155,12 +155,12 @@ abstract class StringLengthInChars(e: ElementBase, nChars: Long)
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
 
-      log(Debug("Parsing starting at bit position: %s", start.bitPos))
+      log(LogLevel.Debug, "Parsing starting at bit position: %s", start.bitPos)
 
       // no longer require alignment (some encodings aren't whole bytes)
       // if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInVariableWidthCharacters - not byte aligned.") }
 
-      log(Debug("Retrieving reader"))
+      log(LogLevel.Debug, "Retrieving reader")
 
       val reader = getReader(charset, start.bitPos, start)
 
@@ -175,8 +175,8 @@ abstract class StringLengthInChars(e: ElementBase, nChars: Long)
           val parsedBits = s.numBits
           val endBitPos = start.bitPos + parsedBits
 
-          log(Debug("Parsed: %s", parsedField))
-          log(Debug("Ended at bit position: %s", endBitPos))
+          log(LogLevel.Debug, "Parsed: %s", parsedField)
+          log(LogLevel.Debug, "Ended at bit position: %s", endBitPos)
 
           val endCharPos = if (start.charPos == -1) nChars else start.charPos + nChars
           val currentElement = start.parentElement
@@ -203,8 +203,8 @@ abstract class StringLengthInBytes(e: ElementBase)
     val result = cb.toString
     //val endBitPos = start.bitPos + (result.length * codepointWidth) // handles 7-bit or wider chars
     val endBitPos = start.bitPos + stringLengthInBitsFnc(result)
-    log(Debug("Parsed: " + result))
-    log(Debug("Ended at bit position " + endBitPos))
+    log(LogLevel.Debug, "Parsed: " + result)
+    log(LogLevel.Debug, "Ended at bit position " + endBitPos)
     val endCharPos = start.charPos + result.length
     val currentElement = start.parentElement
     val trimmedResult = dp.removePadding(removePaddingParser, justificationTrim, result)
@@ -330,20 +330,21 @@ case class StringPatternMatched(e: ElementBase)
 
     // TODO: Add parameter for changing CharBuffer size
 
+    val eName = e.toString()
+
     def parse(start: PState): PState = withParseErrorThrowing(start) {
       // withLoggingLevel(LogLevel.Info) 
       {
-        val eName = e.toString()
 
-        log(Debug("StringPatternMatched - %s - Parsing pattern at byte position: %s", eName, (start.bitPos >> 3)))
-        log(Debug("StringPatternMatched - %s - Parsing pattern at bit position: %s", eName, start.bitPos))
+        log(LogLevel.Debug, "StringPatternMatched - %s - Parsing pattern at byte position: %s", eName, (start.bitPos >> 3))
+        log(LogLevel.Debug, "StringPatternMatched - %s - Parsing pattern at bit position: %s", eName, start.bitPos)
 
         // some encodings aren't whole bytes.
         // if (start.bitPos % 8 != 0) { return PE(start, "StringPatternMatched - not byte aligned.") }
 
         val bytePos = (start.bitPos >> 3).toInt
 
-        log(Debug("Retrieving reader"))
+        log(LogLevel.Debug, "Retrieving reader")
 
         val reader = getReader(charset, start.bitPos, start)
 
@@ -359,8 +360,8 @@ case class StringPatternMatched(e: ElementBase)
           }
           case s: DelimParseSuccess => {
             val endBitPos = start.bitPos + s.numBits
-            log(Debug("StringPatternMatched - Parsed: %s", s.field))
-            log(Debug("StringPatternMatched - Ended at bit position %s", endBitPos))
+            log(LogLevel.Debug, "StringPatternMatched - Parsed: %s", s.field)
+            log(LogLevel.Debug, "StringPatternMatched - Ended at bit position %s", endBitPos)
 
             val endCharPos = if (start.charPos == -1) s.field.length() else start.charPos + s.field.length()
             val currentElement = start.parentElement
@@ -402,11 +403,11 @@ abstract class StringDelimited(e: ElementBase)
   val (staticDelimsParser, staticDelimsRegex) = dp.generateDelimiter(staticDelimsCooked.toSet)
   val combinedStaticDelimsParser = dp.combineLongest(staticDelimsParser)
 
-//  def parseMethod(hasDelim: Boolean, delimsParser: dp.Parser[String], delimsRegex: Array[String],
-//    reader: Reader[Char]): DelimParseResult
-  
+  //  def parseMethod(hasDelim: Boolean, delimsParser: dp.Parser[String], delimsRegex: Array[String],
+  //    reader: Reader[Char]): DelimParseResult
+
   def parseMethod(hasDelim: Boolean, delimsParser: dp.Parser[String], delimsRegex: Array[String],
-    reader: Reader[Char]): DelimParseResult = {
+                  reader: Reader[Char]): DelimParseResult = {
     // TODO: Change DFDLDelimParser calls to get rid of Array.empty[String] since we're only passing a single list the majority of the time.
     if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
       val (escapeBlockParser, escapeBlockEndRegex, escapeEscapeRegex) = dp.generateEscapeBlockParsers2(delimsParser,
@@ -444,30 +445,31 @@ abstract class StringDelimited(e: ElementBase)
   def parser: DaffodilParser = new PrimParser(this, e) {
     override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
 
+    val eName = e.toString()
+
     def parse(start: PState): PState = withParseErrorThrowing(start) {
 
-      val eName = e.toString()
-      
       val (delimsCooked, delimsRegex, delimsParser, vars) = getDelims(start)
-  
+
       // We must feed variable context out of one evaluation and into the next.
       // So that the resulting variable map has the updated status of all evaluated variables.
       val postEvalState = vars match {
         case Some(v) => start.withVariables(v)
         case None => start
       }
-      
+
+      // TODO: refactor. This check isn't needed in static case. Only dynamic case.
       if (delimsCooked.filter(x => x == "%WSP*;").length > 0) {
         // We cannot detect this error until expressions have been evaluated!
-        log(Debug("%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited", eName))
+        log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited", eName)
         e.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited!")
       }
 
-      log(Debug("%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))
+      log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length)
 
       val bytePos = (postEvalState.bitPos >> 3).toInt
-      log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
-      log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos)
+      log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
       val reader = getReader(charset, postEvalState.bitPos, postEvalState)
       val hasDelim = delimsCooked.length > 0
@@ -485,7 +487,7 @@ abstract class StringDelimited(e: ElementBase)
         case s: DelimParseSuccess => {
           val field = s.get
           val numBits = s.numBits
-          log(Debug("%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits))
+          log(LogLevel.Debug, "%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits)
           val endCharPos = if (postEvalState.charPos == -1) s.numCharsRead else postEvalState.charPos + s.numCharsRead
           val endBitPos = postEvalState.bitPos + numBits
           val currentElement = postEvalState.parentElement
@@ -507,7 +509,7 @@ abstract class StringDelimited(e: ElementBase)
         val encoder = charset.newEncoder()
         start.outStream.setEncoder(encoder)
         start.outStream.fillCharBuffer(data)
-        log(Debug("Unparsed: " + start.outStream.getData))
+        log(LogLevel.Debug, "Unparsed: " + start.outStream.getData)
         start
       }
   }
@@ -526,24 +528,24 @@ case class StringDelimitedEndOfDataDynamic(e: ElementBase)
 
   def getDelims(pstate: PState): (List[String], Array[String], dp.Parser[String], Option[VariableMap]) = {
     // We must feed variable context out of one evaluation and into the next.
-      // So that the resulting variable map has the updated status of all evaluated variables.
-      var vars = pstate.variableMap
-      val dynamicDelimsRaw = e.allTerminatingMarkup.filter(x => !x.isConstant).map {
-        x =>
-          {
-            val R(res, newVMap) = x.evaluate(pstate.parentElement, vars, pstate)
-            vars = newVMap
-            res
-          }
-      }
-      val dynamicDelimsCooked1 = dynamicDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
-      val dynamicDelimsCooked = dynamicDelimsCooked1.flatten
-      val (dynamicDelimsParser, dynamicDelimsRegex) = dp.generateDelimiter(dynamicDelimsCooked.toSet)
+    // So that the resulting variable map has the updated status of all evaluated variables.
+    var vars = pstate.variableMap
+    val dynamicDelimsRaw = e.allTerminatingMarkup.filter(x => !x.isConstant).map {
+      x =>
+        {
+          val R(res, newVMap) = x.evaluate(pstate.parentElement, vars, pstate)
+          vars = newVMap
+          res
+        }
+    }
+    val dynamicDelimsCooked1 = dynamicDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
+    val dynamicDelimsCooked = dynamicDelimsCooked1.flatten
+    val (dynamicDelimsParser, dynamicDelimsRegex) = dp.generateDelimiter(dynamicDelimsCooked.toSet)
 
-      // Combine dynamic and with static delims if they exist
-      val delimsParser = dp.combineLongest(dynamicDelimsParser.union(staticDelimsParser))
-      val delimsCooked = dynamicDelimsCooked.union(staticDelimsCooked)
-      val delimsRegex = dynamicDelimsRegex.union(staticDelimsRegex)
+    // Combine dynamic and with static delims if they exist
+    val delimsParser = dp.combineLongest(dynamicDelimsParser.union(staticDelimsParser))
+    val delimsCooked = dynamicDelimsCooked.union(staticDelimsCooked)
+    val delimsRegex = dynamicDelimsRegex.union(staticDelimsRegex)
     (delimsCooked, delimsRegex, delimsParser, Some(vars))
   }
 }
@@ -610,10 +612,9 @@ case class StringDelimitedEndOfDataDynamic(e: ElementBase)
 //
 //  def parser: DaffodilParser = new PrimParser(this, e) {
 //    override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
+//    val eName = e.toString()
 //
 //    def parse(start: PState): PState = withParseErrorThrowing(start) {
-//
-//      val eName = e.toString()
 //
 //      // We must feed variable context out of one evaluation and into the next.
 //      // So that the resulting variable map has the updated status of all evaluated variables.
@@ -639,15 +640,15 @@ case class StringDelimitedEndOfDataDynamic(e: ElementBase)
 //
 //      if (delimsCooked.filter(x => x == "%WSP*;").length > 0) {
 //        // We cannot detect this error until expressions have been evaluated!
-//        log(Debug("%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited", eName))
+//        log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited", eName))
 //        e.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited!")
 //      }
 //
-//      log(Debug("%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))
+//      log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))
 //
 //      val bytePos = (postEvalState.bitPos >> 3).toInt
-//      log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
-//      log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+//      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
+//      log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos))
 //
 //      val reader = getReader(charset, postEvalState.bitPos, postEvalState)
 //      val hasDelim = delimsCooked.length > 0
@@ -665,7 +666,7 @@ case class StringDelimitedEndOfDataDynamic(e: ElementBase)
 //        case s: DelimParseSuccess => {
 //          val field = s.get
 //          val numBits = s.numBits
-//          log(Debug("%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits))
+//          log(LogLevel.Debug, "%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits))
 //          val endCharPos = if (postEvalState.charPos == -1) s.numCharsRead else postEvalState.charPos + s.numCharsRead
 //          val endBitPos = postEvalState.bitPos + numBits
 //          val currentElement = postEvalState.parentElement
@@ -687,7 +688,7 @@ case class StringDelimitedEndOfDataDynamic(e: ElementBase)
 //        val encoder = charset.newEncoder()
 //        start.outStream.setEncoder(encoder)
 //        start.outStream.fillCharBuffer(data)
-//        log(Debug("Unparsed: " + start.outStream.getData))
+//        log(LogLevel.Debug, "Unparsed: " + start.outStream.getData))
 //        start
 //      }
 //  }

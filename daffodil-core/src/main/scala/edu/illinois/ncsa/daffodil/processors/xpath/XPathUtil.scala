@@ -84,7 +84,7 @@ import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import scala.xml.NamespaceBinding
 import javax.xml.XMLConstants
@@ -403,7 +403,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
     // Assumes that a JDOM element was already created
     val expr = args.get(0)
     val currentElement = pstate.parentElement
-    val e = pstate.getContext()//getContext(pstate)
+    val e = pstate.getContext() //getContext(pstate)
     val data = currentElement.dataValue
     val primType = e.primType.myPrimitiveType
 
@@ -805,7 +805,7 @@ object XPathUtil extends Logging {
                         context: SchemaComponent) =
     // withLoggingLevel(LogLevel.Info) 
     {
-      log(Debug("Compiling expression"))
+      log(LogLevel.Debug, "Compiling expression")
       val dfdlExpression = dfdlExpressionRaw.trim
       Assert.usage(dfdlExpression != "")
       // strip leading and trailing {...} if they are there.
@@ -815,7 +815,7 @@ object XPathUtil extends Logging {
       // -JWC, 27Jul2012.
       val xpath = xpathFactory.newXPath().asInstanceOf[XPathEvaluator]
       var variables: VariableMap = new VariableMap() // Closed over. This is modified to supply different variables
-      log(Debug("Namespaces: %s", namespaces))
+      log(LogLevel.Debug, "Namespaces: %s", namespaces)
 
       val nsContext = new javax.xml.namespace.NamespaceContext {
 
@@ -881,7 +881,7 @@ object XPathUtil extends Logging {
 
           // compilation threw an error. That's a compilation time error.
           // we just rethrow here. This is here to be a good place for a breakpoint/debug feature.
-          log(Debug("compilation error in xpath expression. error %s, expression %s", exc, expression))
+          log(LogLevel.Debug, "compilation error in xpath expression. error %s, expression %s", exc, expression)
           throw exc
         }
       }
@@ -937,9 +937,9 @@ object XPathUtil extends Logging {
     // withLoggingLevel(LogLevel.Info) 
     {
       val ce = compiledExprFactory.getXPathExpr(variables)
-      log(Debug("Evaluating %s in context %s to get a %s", expressionForErrorMsg, contextNode, targetType)) // Careful. contextNode could be null.
+      log(LogLevel.Debug, "Evaluating %s in context %s to get a %s", expressionForErrorMsg, contextNode, targetType) // Careful. contextNode could be null.
       val o = ce.evaluate(contextNode, targetType)
-      log(Debug("Evaluated to: %s", o))
+      log(LogLevel.Debug, "Evaluated to: %s", o)
       val res = (o, targetType) match {
         case (x: Element, NODE) => new NodeResult(x)
         case (x: Element, STRING) => new StringResult(x.getContent(0).toString())

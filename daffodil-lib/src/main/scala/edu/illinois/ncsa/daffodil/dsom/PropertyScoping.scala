@@ -35,7 +35,7 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.util.Info
-import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin

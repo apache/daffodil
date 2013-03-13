@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -123,11 +122,11 @@ object EscapeScheme extends Logging {
       }
     }
 
-    log(Debug("EscapeSchemeKind: " + escapeSchemeKind))
-    log(Debug("\tEscapeCharacter: " + escapeCharacter))
-    log(Debug("\tEscapeEscapeCharacter: " + escapeEscapeCharacter))
-    log(Debug("\tEscapeBlockStart: " + escapeBlockStart))
-    log(Debug("\tEscapeBlockEnd: " + escapeBlockEnd))
+    log(LogLevel.Debug, "EscapeSchemeKind: " + escapeSchemeKind)
+    log(LogLevel.Debug, "\tEscapeCharacter: " + escapeCharacter)
+    log(LogLevel.Debug, "\tEscapeEscapeCharacter: " + escapeEscapeCharacter)
+    log(LogLevel.Debug, "\tEscapeBlockStart: " + escapeBlockStart)
+    log(LogLevel.Debug, "\tEscapeBlockEnd: " + escapeBlockEnd)
 
     val result = new EscapeSchemeObj
     result.escapeSchemeKind = escapeSchemeKind

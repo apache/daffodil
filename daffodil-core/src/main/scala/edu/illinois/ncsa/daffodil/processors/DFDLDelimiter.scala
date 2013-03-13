@@ -360,7 +360,7 @@ class Delimiter {
   // or None if one is not found
   //
   def findCharClasses(str: String): (Int, Option[DelimBase]) = {
-    //log(Debug("findCharClasses(\"" + str + "\")"))
+    //log(LogLevel.Debug, "findCharClasses(\"" + str + "\")"))
     val mNL: Matcher = NL.matcher(str)
     val mWSP: Matcher = WSP.matcher(str)
     val mWSP_Plus: Matcher = WSP_Plus.matcher(str)
@@ -394,10 +394,10 @@ class Delimiter {
         case "WSP+" => (length, Some(new WSPPlusDelim()))
         case "WSP*" => (length, Some(new WSPStarDelim()))
       }
-      //log(Debug("findCharClasses - result: " + result))
+      //log(LogLevel.Debug, "findCharClasses - result: " + result))
       return result
     }
-    //log(Debug("findCharClasses - result: " + (-1, None)))
+    //log(LogLevel.Debug, "findCharClasses - result: " + (-1, None)))
     (-1, None) // Unrecognized CharClass
   }
 
@@ -431,7 +431,7 @@ class Delimiter {
           // According to JavaDoc, split will always return at least
           // one result even if there is no match.
           val split = delimStr.substring(idx + 1).split("%")
-          //log(Debug("buildDelimBuf - SPLIT on %: " + split.toSeq.toString))
+          //log(LogLevel.Debug, "buildDelimBuf - SPLIT on %: " + split.toSeq.toString))
 
           val subStr: String = "%" + split(0)
           val (matchLength, delimObj) = findCharClasses(subStr)
@@ -465,14 +465,14 @@ class Delimiter {
     var resDelimBuf: Array[DelimBase] = null
     if (numCharClass > 1) {
       // More than one Char Class, reduction possible!
-      //log(Debug("buildDelimBuf - Reduction of delimBuf possible!"))
-      //log(Debug("buildDelimBuf - Before Reduction:\t" + printDelimBufStr))
+      //log(LogLevel.Debug, "buildDelimBuf - Reduction of delimBuf possible!"))
+      //log(LogLevel.Debug, "buildDelimBuf - Before Reduction:\t" + printDelimBufStr))
       resDelimBuf = reduceDelimBuf(q.toArray[DelimBase])
     } else {
       // No need to reduce
       resDelimBuf = q.toArray[DelimBase]
     }
-    //log(Debug("buildDelimBuf - Result:\t" + printDelimBufStr(resDelimBuf)))
+    //log(LogLevel.Debug, "buildDelimBuf - Result:\t" + printDelimBufStr(resDelimBuf)))
     resDelimBuf
   }
 }
@@ -509,7 +509,7 @@ class CharDelim(val char: Char) extends DelimBase {
 
   lazy val typeName = "CharDelim"
   def print = {
-    //log(Debug("\t\t\t" + typeName + ": '" + char + "' d" + char.toInt + " isMatched: " + isMatched.toString()))
+    //log(LogLevel.Debug, "\t\t\t" + typeName + ": '" + char + "' d" + char.toInt + " isMatched: " + isMatched.toString()))
   }
 
   def printStr = {
@@ -546,7 +546,7 @@ class NLDelim extends DelimBase with CharacterClass {
   }
 
   def print = {
-    //log(Debug("\t\t\t" + typeName + ": NL" + " isMatched: " + isMatched.toString()))
+    //log(LogLevel.Debug, "\t\t\t" + typeName + ": NL" + " isMatched: " + isMatched.toString()))
   }
   def printStr = {
     val res = typeName
@@ -602,7 +602,7 @@ class WSPBase extends DelimBase with WSP {
     isMatched
   }
   def print = {
-    //log(Debug("\t\t\t" + typeName + ": WSPBase" + " isMatched: " + isMatched.toString()))
+    //log(LogLevel.Debug, "\t\t\t" + typeName + ": WSPBase" + " isMatched: " + isMatched.toString()))
   }
   def printStr = {
     val res = typeName
@@ -613,7 +613,7 @@ class WSPBase extends DelimBase with WSP {
 class WSPDelim extends WSPBase with WSP {
   override lazy val typeName = "WSPDelim"
   override def print = {
-    //log(Debug("\t\t\t" + typeName + ": WSP" + " isMatched: " + isMatched.toString()))
+    //log(LogLevel.Debug, "\t\t\t" + typeName + ": WSP" + " isMatched: " + isMatched.toString()))
   }
   override def printStr = {
     val res = typeName
@@ -624,7 +624,7 @@ class WSPDelim extends WSPBase with WSP {
 class WSPPlusDelim extends WSPBase with WSP {
   override lazy val typeName = "WSP+Delim"
   override def print = {
-    //log(Debug("\t\t\t" + typeName + ": WSP+" + " isMatched: " + isMatched.toString()))
+    //log(LogLevel.Debug, "\t\t\t" + typeName + ": WSP+" + " isMatched: " + isMatched.toString()))
   }
   override def printStr = {
     val res = typeName
@@ -635,7 +635,7 @@ class WSPPlusDelim extends WSPBase with WSP {
 class WSPStarDelim extends WSPBase with WSP {
   override lazy val typeName = "WSP*Delim"
   override def print = {
-    //log(Debug("\t\t\t" + typeName + ": WSP*" + " isMatched: " + isMatched.toString()))
+    //log(LogLevel.Debug, "\t\t\t" + typeName + ": WSP*" + " isMatched: " + isMatched.toString()))
   }
   override def printStr = {
     val res = typeName

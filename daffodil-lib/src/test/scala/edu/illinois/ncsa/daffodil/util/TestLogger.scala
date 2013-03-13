@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.util
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.exceptions._
@@ -62,7 +61,7 @@ class MyClass extends Logging {
     // Illustrates that our Glob object, because it is passed by name,
     // does NOT force evaluation of the pieces that go into it.
     // So it really makes the whole system behave like it was entirely lazy.
-    log(Debug(msg, "number 1")) // Won't show up in log.
+    log(LogLevel.Debug, msg, "number 1") // Won't show up in log.
     // System.out.println("after first logDebug call")
     // System.out.println("before first logError call")
     log(Error(msg, argString)) // Will show up in log.

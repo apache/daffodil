@@ -140,9 +140,9 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
         (newNode, null, new InputSource(tempFile.toURI().toASCIIString()))
       }
       case tdmlFile: File => {
-        log(Debug("loading TDML file: %s", tdmlFile))
+        log(LogLevel.Debug, "loading TDML file: %s", tdmlFile)
         val res = (loader.loadFile(tdmlFile), tdmlFile, new InputSource(tdmlFile.toURI().toASCIIString()))
-        log(Debug("done loading TDML file: %s", tdmlFile))
+        log(LogLevel.Debug, "done loading TDML file: %s", tdmlFile)
         res
       }
       case tsURL: URL => {
@@ -228,7 +228,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
         // the system Id of the tdml file was a file.
         val sysPath = sysFile.getParent()
         val modelFileName = sysPath + File.separator + fileName
-        log(Debug("Model file name is: %s", modelFileName))
+        log(LogLevel.Debug, "Model file name is: %s", modelFileName)
         val modelFile = new File(modelFileName)
         if (modelFile.exists()) return modelFile
       }
@@ -336,7 +336,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     (bytesProcessed, charsProcessed)
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
-    // log(Debug("Test %s passed.", id))
+    // log(LogLevel.Debug, "Test %s passed.", id))
   }
 
   def verifyAllDiagnosticsFound(actual: WithDiagnostics, expectedDiags: Option[ErrorWarningBase]) = {

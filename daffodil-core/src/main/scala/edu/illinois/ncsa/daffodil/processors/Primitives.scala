@@ -89,10 +89,10 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
     def parse(start: PState): PState = {
       val currentElement = Infoset.newElement(e, isHidden)
 
-      log(Debug("currentElement = %s", currentElement))
+      log(LogLevel.Debug, "currentElement = %s", currentElement)
       val priorElement = start.infoset
       priorElement.addElement(currentElement)
-      log(Debug("priorElement = %s", priorElement))
+      log(LogLevel.Debug, "priorElement = %s", priorElement)
       val postState = start.withParent(currentElement)
       postState
     }
@@ -166,8 +166,8 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
 //      withLoggingLevel(LogLevel.Info) {
 //        val eName = e.toString()
 //
-//        log(Debug("ComplexElementBeginPattern - %s - Parsing pattern at byte position: %s", eName, (start.bitPos >> 3)))
-//        log(Debug("ComplexElementBeginPattern - %s - Parsing pattern at bit position: %s", eName, start.bitPos))
+//        log(LogLevel.Debug, "ComplexElementBeginPattern - %s - Parsing pattern at byte position: %s", eName, (start.bitPos >> 3)))
+//        log(LogLevel.Debug, "ComplexElementBeginPattern - %s - Parsing pattern at bit position: %s", eName, start.bitPos))
 //
 //        val in = start.inStream
 //
@@ -182,8 +182,8 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
 //        val postState1 =
 //          if (result.isSuccess) {
 //            val endBitPos = start.bitPos + result.numBits
-//            log(Debug("Parsed: %s", result.field))
-//            log(Debug("Ended at bit position %s", endBitPos))
+//            log(LogLevel.Debug, "Parsed: %s", result.field))
+//            log(LogLevel.Debug, "Ended at bit position %s", endBitPos))
 //
 //            // LETS NOT DO IT THIS WAY
 //            // val limitedInStream = in.withLimit(start.bitPos, endBitPos)
@@ -194,10 +194,10 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
 //            start withEndBitLimit (endBitPos)
 //          } else { return PE(start, "%s: No match found!", this.toString()) }
 //        val currentElement = Infoset.newElement(e)
-//        log(Debug("currentElement = %s", currentElement))
+//        log(LogLevel.Debug, "currentElement = %s", currentElement))
 //        val priorElement = postState1.infoset
 //        priorElement.addElement(currentElement)
-//        log(Debug("priorElement = %s", priorElement))
+//        log(LogLevel.Debug, "priorElement = %s", priorElement))
 //        val postState2 = postState1 withParent (currentElement)
 //        postState2
 //      }
@@ -232,7 +232,7 @@ abstract class ElementEndBase(e: ElementBase) extends Terminal(e, true) {
       val currentElement = start.parentElement
       // Assert.invariant(currentElement.getName() != "_document_" )
       val priorElement = currentElement.parent
-      log(Debug("priorElement = %s", priorElement))
+      log(LogLevel.Debug, "priorElement = %s", priorElement)
       val postState = move(start.withParent(priorElement))
       postState
     }
@@ -285,9 +285,9 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //     */
 //    def parse(start: PState): PState = {
 //      val currentElement = start.parentElement
-//      log(Debug("currentElement = %s", currentElement))
+//      log(LogLevel.Debug, "currentElement = %s", currentElement))
 //      var priorElement = currentElement.parent
-//      log(Debug("priorElement = %s", priorElement))
+//      log(LogLevel.Debug, "priorElement = %s", priorElement))
 //      val postState = start.withParent(priorElement).moveOverByOneElement.withLastInStream()
 //      postState
 //    }
@@ -333,7 +333,7 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //      // withLoggingLevel(LogLevel.Info) 
 //      {
 //
-//        log(Debug("StringFixedLengthInBytes - Parsing starting at bit position: %s", start.bitPos))
+//        log(LogLevel.Debug, "StringFixedLengthInBytes - Parsing starting at bit position: %s", start.bitPos))
 //
 //        // if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInBytes - not byte aligned.") }
 //
@@ -360,8 +360,8 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //          val cb = decoder.decode(ByteBuffer.wrap(bytes))
 //          val result = cb.toString()
 //          val endBitPos = start.bitPos + (result.length * codepointWidth) // handles 7-bit or wider chars
-//          log(Debug("Parsed: %s", result))
-//          log(Debug("Ended at bit position %s", endBitPos))
+//          log(LogLevel.Debug, "Parsed: %s", result))
+//          log(LogLevel.Debug, "Ended at bit position %s", endBitPos))
 //          val endCharPos = start.charPos + result.length
 //          val currentElement = start.parentElement
 //          val trimmedResult = d.removePadding(result, justificationTrim, padChar)
@@ -406,7 +406,7 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //      start.outStream.setEncoder(encoder)
 //      start.outStream.fillCharBuffer(data)
 //
-//      log(Debug("Unparsed: " + start.outStream.getData))
+//      log(LogLevel.Debug, "Unparsed: " + start.outStream.getData))
 //      start
 //    }
 //  }
@@ -426,7 +426,7 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //      // withLoggingLevel(LogLevel.Info) 
 //      {
 //
-//        log(Debug("Parsing starting at bit position: %s", start.bitPos))
+//        log(LogLevel.Debug, "Parsing starting at bit position: %s", start.bitPos))
 //
 //        // no longer require alignment (some charsets aren't aligned.)
 //        // if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInBytesVariableWidthCharacters - not byte aligned.") }
@@ -441,8 +441,8 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //          val cb = decoder.decode(ByteBuffer.wrap(bytes))
 //          val result = cb.toString
 //          val endBitPos = start.bitPos + (nBytes.toInt * 8)
-//          log(Debug("Parsed: %s", result))
-//          log(Debug("Ended at bit position %s", endBitPos))
+//          log(LogLevel.Debug, "Parsed: %s", result))
+//          log(LogLevel.Debug, "Ended at bit position %s", endBitPos))
 //          val endCharPos = start.charPos + result.length
 //          val currentElement = start.parentElement
 //          // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
@@ -478,12 +478,12 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //
 //    def parse(start: PState): PState = withParseErrorThrowing(start) {
 //
-//      log(Debug("Parsing starting at bit position: %s", start.bitPos))
+//      log(LogLevel.Debug, "Parsing starting at bit position: %s", start.bitPos))
 //
 //      // no longer require alignment (some encodings aren't whole bytes)
 //      // if (start.bitPos % 8 != 0) { return PE(start, "StringFixedLengthInVariableWidthCharacters - not byte aligned.") }
 //
-//      log(Debug("Retrieving reader"))
+//      log(LogLevel.Debug, "Retrieving reader"))
 //
 //      val reader = getReader(charset, start.bitPos, start)
 //
@@ -504,8 +504,8 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //          val parsedBits = s.numBits
 //          val endBitPos = start.bitPos + parsedBits
 //
-//          log(Debug("Parsed: %s", parsedField))
-//          log(Debug("Ended at bit position: %s", endBitPos))
+//          log(LogLevel.Debug, "Parsed: %s", parsedField))
+//          log(LogLevel.Debug, "Ended at bit position: %s", endBitPos))
 //
 //          //val endCharPos = start.charPos + nChars
 //          //val endCharPos = reader.characterPos + nChars
@@ -518,7 +518,7 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //
 //          //      //setLoggingLevel(LogLevel.Info)
 //          //
-//          //      log(Debug(this.toString() + " - Parsing starting at bit position: " + start.bitPos))
+//          //      log(LogLevel.Debug, this.toString() + " - Parsing starting at bit position: " + start.bitPos))
 //          //
 //          //      // We don't know the width of the characters, so decode as much data as possible.
 //          //      // We will truncate as necessary later.
@@ -535,8 +535,8 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //          //
 //          //      if (finalResult.length < nChars) { return start.failed(this.toString() + " - Result(" + finalResult.length + ") was not at least nChars (" + nChars + ") long.") }
 //          //
-//          //      log(Debug("Parsed: " + finalResult))
-//          //      log(Debug("Ended at bit position " + finalBitPos))
+//          //      log(LogLevel.Debug, "Parsed: " + finalResult))
+//          //      log(LogLevel.Debug, "Ended at bit position " + finalBitPos))
 //          //      val endCharPos = start.charPos + nChars
 //          //      val currentElement = start.parentElement
 //          //      // Assert.invariant(currentElement.getName != "_document_")
@@ -589,15 +589,15 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //
 //      if (delimsCooked.filter(x => x == "%WSP*;").length > 0) {
 //        // We cannot detect this error until expressions have been evaluated!
-//        log(Debug("%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited", eName))
+//        log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited", eName))
 //        e.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited!")
 //      }
 //
-//      log(Debug("%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))
+//      log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))
 //
 //      val bytePos = (postEvalState.bitPos >> 3).toInt
-//      log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
-//      log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+//      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
+//      log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos))
 //
 //      val reader = getReader(charset, postEvalState.bitPos, postEvalState)
 //
@@ -629,7 +629,7 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //          //System.err.println("StringDelimitedEndOfData_END: " + new Timestamp(System.currentTimeMillis()));
 //          val field = s.get
 //          val numBits = s.numBits
-//          log(Debug("%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits))
+//          log(LogLevel.Debug, "%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits))
 //          //System.err.println(postEvalState.charPos)
 //          //val endCharPos = reader.characterPos + field.length()
 //          val endCharPos = if (postEvalState.charPos == -1) s.numCharsRead else postEvalState.charPos + s.numCharsRead
@@ -655,7 +655,7 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //        val encoder = charset.newEncoder()
 //        start.outStream.setEncoder(encoder)
 //        start.outStream.fillCharBuffer(data)
-//        log(Debug("Unparsed: " + start.outStream.getData))
+//        log(LogLevel.Debug, "Unparsed: " + start.outStream.getData))
 //        start
 //      }
 //  }
@@ -678,15 +678,15 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //      {
 //        val eName = e.toString()
 //
-//        log(Debug("StringPatternMatched - %s - Parsing pattern at byte position: %s", eName, (start.bitPos >> 3)))
-//        log(Debug("StringPatternMatched - %s - Parsing pattern at bit position: %s", eName, start.bitPos))
+//        log(LogLevel.Debug, "StringPatternMatched - %s - Parsing pattern at byte position: %s", eName, (start.bitPos >> 3)))
+//        log(LogLevel.Debug, "StringPatternMatched - %s - Parsing pattern at bit position: %s", eName, start.bitPos))
 //
 //        // some encodings aren't whole bytes.
 //        // if (start.bitPos % 8 != 0) { return PE(start, "StringPatternMatched - not byte aligned.") }
 //
 //        val bytePos = (start.bitPos >> 3).toInt
 //
-//        log(Debug("Retrieving reader"))
+//        log(LogLevel.Debug, "Retrieving reader"))
 //
 //        val reader = getReader(charset, start.bitPos, start)
 //
@@ -701,8 +701,8 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //          case _: DelimParseFailure => { PE(start, "%s: No match found!", this.toString()) }
 //          case s: DelimParseSuccess => {
 //            val endBitPos = start.bitPos + s.numBits
-//            log(Debug("StringPatternMatched - Parsed: %s", s.field))
-//            log(Debug("StringPatternMatched - Ended at bit position %s", endBitPos))
+//            log(LogLevel.Debug, "StringPatternMatched - Parsed: %s", s.field))
+//            log(LogLevel.Debug, "StringPatternMatched - Ended at bit position %s", endBitPos))
 //            // val endCharPos = start.charPos + result.field.length()
 //            //val endCharPos = reader.characterPos + result.field.length()
 //            val endCharPos = if (start.charPos == -1) s.field.length() else start.charPos + s.field.length()
@@ -713,7 +713,7 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //          }
 //
 //        }
-//        //      log(Debug("Parsing starting at bit position: " + start.bitPos))
+//        //      log(LogLevel.Debug, "Parsing starting at bit position: " + start.bitPos))
 //        //      val in = start.inStream
 //        //      var bitOffset = 0L
 //        //
@@ -723,8 +723,8 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //        //        case SearchResult.NoMatch => start.failed(this.toString() + ": No match found!")
 //        //        case SearchResult.PartialMatch => start.failed(this.toString() + ": Partial match found!")
 //        //        case SearchResult.FullMatch => {
-//        //          log(Debug("Parsed: " + result))
-//        //          log(Debug("Ended at bit position " + endBitPos))
+//        //          log(LogLevel.Debug, "Parsed: " + result))
+//        //          log(LogLevel.Debug, "Ended at bit position " + endBitPos))
 //        //          val endCharPos = start.charPos + result.length()
 //        //          val currentElement = start.parentElement
 //        //          currentElement.setDataValue(result)
@@ -890,7 +890,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean)
       }
 
       // TODO: Restore leading '+' sign and leading/trailing 0's, etc. (Need to overwrite number with old formatting in CharBuffer
-      //      log(Debug("Adding text number " + asNumber.toString))
+      //      log(LogLevel.Debug, "Adding text number " + asNumber.toString))
 
       start
     }
@@ -1258,7 +1258,6 @@ class DoubleKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Lon
 case class PackedIntPrim(e: ElementBase) extends Primitive(e, false)
 case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 
-
 //abstract class StaticDelimiter(kindString: String, delim: String, e: Term, guard: Boolean = true)
 //  extends StaticText(delim, e, kindString, guard)
 //
@@ -1327,14 +1326,14 @@ case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 //
 //        val postEvalState = start.withVariables(vars)
 //
-//        log(Debug("%s - Parsing delimiter at byte position: %s", eName, (postEvalState.bitPos >> 3)))
-//        log(Debug("%s - Parsing delimiter at bit position: %s", eName, postEvalState.bitPos))
+//        log(LogLevel.Debug, "%s - Parsing delimiter at byte position: %s", eName, (postEvalState.bitPos >> 3)))
+//        log(LogLevel.Debug, "%s - Parsing delimiter at bit position: %s", eName, postEvalState.bitPos))
 //
-//        log(Debug("%s - Looking for local(%s) not remote (%s).", eName, staticTextsCooked.toSet, remoteDelims))
+//        log(LogLevel.Debug, "%s - Looking for local(%s) not remote (%s).", eName, staticTextsCooked.toSet, remoteDelims))
 //
 //        val bytePos = (postEvalState.bitPos >> 3).toInt
 //
-//        log(Debug("Retrieving reader state."))
+//        log(LogLevel.Debug, "Retrieving reader state."))
 //        val reader = getReader(charset, start.bitPos, postEvalState)
 //
 //        //val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
@@ -1345,15 +1344,15 @@ case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 //        //val result: DelimParseResult = delimParser.parseInputDelimiter(pInputDelimiterParser, pIsLocalDelimParser, reader)
 //        val result = parseMethod(reader)
 //        
-//        log(Debug("%s - %s - DelimParseResultult: %s", this.toString(), eName, result))
+//        log(LogLevel.Debug, "%s - %s - DelimParseResultult: %s", this.toString(), eName, result))
 //
 //        result match {
 //          case _: DelimParseFailure => {
-//            log(Debug("%s - %s: Delimiter not found!", this.toString(), eName))
+//            log(LogLevel.Debug, "%s - %s: Delimiter not found!", this.toString(), eName))
 //            return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
 //          }
 //          case s: DelimParseSuccess if (s.delimiterLoc == DelimiterLocation.Remote) => {
-//            log(Debug("%s - %s: Remote delimiter found instead of local!", this.toString(), eName))
+//            log(LogLevel.Debug, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName))
 //            return PE(start, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
 //          }
 //          case s: DelimParseSuccess =>
@@ -1362,9 +1361,9 @@ case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 //              val endCharPos = if (postEvalState.charPos == -1) s.delimiter.length else postEvalState.charPos + s.delimiter.length()
 //              val endBitPosDelim = numBits + postEvalState.bitPos
 //
-//              log(Debug("%s - Found %s", eName, s.delimiter))
-//              log(Debug("%s - Ended at byte position %s", eName, (endBitPosDelim >> 3)))
-//              log(Debug("%s - Ended at bit position %s", eName, endBitPosDelim))
+//              log(LogLevel.Debug, "%s - Found %s", eName, s.delimiter))
+//              log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPosDelim >> 3)))
+//              log(LogLevel.Debug, "%s - Ended at bit position %s", eName, endBitPosDelim))
 //
 //              return postEvalState.withPos(endBitPosDelim, endCharPos, Some(s.next))
 //            }
@@ -1385,7 +1384,7 @@ case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 //      val encoder = e.knownEncodingCharset.newEncoder()
 //      start.outStream.setEncoder(encoder)
 //      start.outStream.fillCharBuffer(unparserDelim)
-//      log(Debug("Unparsed: " + start.outStream.getData))
+//      log(LogLevel.Debug, "Unparsed: " + start.outStream.getData))
 //      start
 //    }
 //  }
@@ -1722,16 +1721,16 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 //
 //        val (nBytes: Long, newVMap: VariableMap) = computeLength(start)
 //        val postEvalState = start.withVariables(newVMap)
-//        log(Debug("Explicit length %s", nBytes))
+//        log(LogLevel.Debug, "Explicit length %s", nBytes))
 //
 //        //val postEvalState = start //start.withVariables(vars)
 //
-//        log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
+//        log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
 //        val in = postEvalState.inStream
 //
 //        val bytePos = (postEvalState.bitPos >> 3).toInt
-//        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
-//        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+//        log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
+//        log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos))
 //
 //        // some encodings aren't whole bytes
 //        // if (postEvalState.bitPos % 8 != 0) { return PE(postEvalState, "LiteralNilPattern - not byte aligned.") }
@@ -1761,9 +1760,9 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 //            // Contains a nilValue, Success!
 //            postEvalState.parentElement.makeNil()
 //
-//            log(Debug("%s - Found %s", eName, trimmedResult))
-//            log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
-//            log(Debug("%s - Ended at bit position ", eName, endBitPos))
+//            log(LogLevel.Debug, "%s - Found %s", eName, trimmedResult))
+//            log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3)))
+//            log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos))
 //
 //            return postEvalState.withPos(endBitPos, endCharPos, Some(reader)) // Need to advance past found nilValue
 //          } else {
@@ -1827,24 +1826,24 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 //        val R(nCharsAsAny, newVMap) = expr.evaluate(start.parentElement, start.variableMap, start)
 //        val nChars = nCharsAsAny.asInstanceOf[String] //nBytesAsAny.asInstanceOf[Long]
 //        val postEvalState = start.withVariables(newVMap)
-//        log(Debug("Explicit length %s", nChars))
+//        log(LogLevel.Debug, "Explicit length %s", nChars))
 //
 //        val pattern = "(?s)^.{%s}".format(nChars)
 //
-//        log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
+//        log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
 //
 //        val bytePos = (postEvalState.bitPos >> 3).toInt
-//        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
-//        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+//        log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
+//        log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos))
 //
 //        // Don't check this here. This can vary by encoding.
 //        //if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 //
-//        log(Debug("Retrieving reader state."))
+//        log(LogLevel.Debug, "Retrieving reader state."))
 //        val reader = getReader(charset, start.bitPos, start)
 //
 //        if (nChars == 0 && isEmptyAllowed) {
-//          log(Debug("%s - explicit length of 0 and %ES; found as nilValue.", eName))
+//          log(LogLevel.Debug, "%s - explicit length of 0 and %ES; found as nilValue.", eName))
 //          postEvalState.parentElement.makeNil()
 //          return postEvalState // Empty, no need to advance
 //        }
@@ -1878,9 +1877,9 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 //                else postEvalState.charPos + s.field.length
 //              val endBitPos = numBits + start.bitPos
 //
-//              log(Debug("%s - Found %s", eName, s.field))
-//              log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
-//              log(Debug("%s - Ended at bit position ", eName, endBitPos))
+//              log(LogLevel.Debug, "%s - Found %s", eName, s.field))
+//              log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3)))
+//              log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos))
 //
 //              return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
 //            } else {
@@ -1926,15 +1925,15 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 //
 //        val postEvalState = start //start.withVariables(vars)
 //
-//        log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
+//        log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
 //
 //        val bytePos = (postEvalState.bitPos >> 3).toInt
-//        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
-//        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+//        log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
+//        log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos))
 //
 //        if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 //
-//        log(Debug("Retrieving reader state."))
+//        log(LogLevel.Debug, "Retrieving reader state."))
 //        val reader = getReader(charset, start.bitPos, start)
 //
 //        //        val byteReader = in.byteReader.atPos(bytePos)
@@ -1970,9 +1969,9 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 //                else postEvalState.charPos + s.field.length
 //              val endBitPos = numBits + start.bitPos
 //
-//              log(Debug("%s - Found %s", eName, s.field))
-//              log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
-//              log(Debug("%s - Ended at bit position ", eName, endBitPos))
+//              log(LogLevel.Debug, "%s - Found %s", eName, s.field))
+//              log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3)))
+//              log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos))
 //
 //              //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
 //              return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
@@ -2018,15 +2017,15 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 //
 //        val postEvalState = start //start.withVariables(vars)
 //
-//        log(Debug("%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
+//        log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValuesCooked, nilValuesCooked.length))
 //
 //        val bytePos = (postEvalState.bitPos >> 3).toInt
-//        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
-//        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+//        log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
+//        log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos))
 //
 //        if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 //
-//        log(Debug("Retrieving reader state."))
+//        log(LogLevel.Debug, "Retrieving reader state."))
 //        val reader = getReader(charset, start.bitPos, start)
 //
 //        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
@@ -2059,9 +2058,9 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 //                else postEvalState.charPos + s.field.length
 //              val endBitPos = numBits + start.bitPos
 //
-//              log(Debug("%s - Found %s", eName, s.field))
-//              log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
-//              log(Debug("%s - Ended at bit position ", eName, endBitPos))
+//              log(LogLevel.Debug, "%s - Found %s", eName, s.field))
+//              log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3)))
+//              log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos))
 //
 //              return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
 //            } else {
@@ -2117,16 +2116,16 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 //        val nilValuesCooked = new ListOfStringValueAsLiteral(e.nilValue, e).cooked //nilValuesCooked1.flatten
 //        val postEvalState = start.withVariables(vars)
 //
-//        log(Debug("%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))
+//        log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length))
 //
 //        val bytePos = (postEvalState.bitPos >> 3).toInt
-//        log(Debug("%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
-//        log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+//        log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos))
+//        log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos))
 //
 //        // Don't check alignment this way. This is encoding specific. (Some encodings not byte aligned)
 //        // if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilDelimitedOrEndOfData - not byte aligned.") }
 //
-//        log(Debug("Retrieving reader state."))
+//        log(LogLevel.Debug, "Retrieving reader state."))
 //        val reader1 = getReader(charset, start.bitPos, start)
 //        //        val byteReader = in.byteReader.atPos(bytePos)
 //        //        val reader = byteReader.charReader(decoder.charset().name())
@@ -2170,9 +2169,9 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 //              val endCharPos = if (postEvalState.charPos == -1) s.numCharsRead else postEvalState.charPos + s.numCharsRead
 //              val endBitPos = numBits + start.bitPos
 //
-//              log(Debug("%s - Found %s", eName, s.field))
-//              log(Debug("%s - Ended at byte position %s", eName, (endBitPos >> 3)))
-//              log(Debug("%s - Ended at bit position ", eName, endBitPos))
+//              log(LogLevel.Debug, "%s - Found %s", eName, s.field))
+//              log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3)))
+//              log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos))
 //
 //              //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
 //              return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
@@ -2292,16 +2291,16 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
         withParseErrorThrowing(start) {
           val lastState = start // .withLastState
           val bytePos = (lastState.bitPos >> 3).toInt
-          log(Debug("%s - Starting at bit pos: %s", eName, lastState.bitPos))
-          log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+          log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, lastState.bitPos)
+          log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
-          log(Debug("%s - Looking for testPattern = %s", eName, testPattern))
+          log(LogLevel.Debug, "%s - Looking for testPattern = %s", eName, testPattern)
 
           if (lastState.bitPos % 8 != 0) {
             return PE(lastState, "%s - not byte aligned.", eName)
           }
 
-          log(Debug("Retrieving reader"))
+          log(LogLevel.Debug, "Retrieving reader")
 
           val reader = getReader(charset, start.bitPos, lastState)
 
@@ -2312,11 +2311,11 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
           val postState = result match {
             case s: DelimParseSuccess => {
               val endBitPos = lastState.bitPos + s.numBits
-              log(Debug("Assert Pattern success for testPattern %s", testPattern))
+              log(LogLevel.Debug, "Assert Pattern success for testPattern %s", testPattern)
               start
             }
             case _ => {
-              log(Debug("Assert Pattern fail for testPattern %s", testPattern))
+              log(LogLevel.Debug, "Assert Pattern fail for testPattern %s", testPattern)
               val diag = new AssertionFailed(decl, start, stmt.message)
               start.failed(diag)
             }
@@ -2351,16 +2350,16 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
         withParseErrorThrowing(start) {
           val lastState = start // .withLastState
           val bytePos = (lastState.bitPos >> 3).toInt
-          log(Debug("%s - Starting at bit pos: %s", eName, lastState.bitPos))
-          log(Debug("%s - Starting at byte pos: %s", eName, bytePos))
+          log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, lastState.bitPos)
+          log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
-          log(Debug("%s - Looking for testPattern = %s", eName, testPattern))
+          log(LogLevel.Debug, "%s - Looking for testPattern = %s", eName, testPattern)
 
           if (lastState.bitPos % 8 != 0) {
             return PE(lastState, "%s - not byte aligned.", eName)
           }
 
-          log(Debug("Retrieving reader"))
+          log(LogLevel.Debug, "Retrieving reader")
 
           val reader = getReader(charset, start.bitPos, lastState)
 
@@ -2405,7 +2404,7 @@ abstract class AssertBase(
       // withLoggingLevel(LogLevel.Info) 
       {
         withParseErrorThrowing(start) {
-          log(Debug("This is %s", toString))
+          log(LogLevel.Debug, "This is %s", toString)
           val R(res, newVMap) = eval(start)
           val testResult = res.asInstanceOf[Boolean]
           val postState = start.withVariables(newVMap)
@@ -2529,7 +2528,7 @@ class IVCParser(context: InputValueCalc, e: ElementBase)
     // withLoggingLevel(LogLevel.Info) 
     {
       withParseErrorThrowing(start) {
-        log(Debug("This is %s", toString))
+        log(LogLevel.Debug, "This is %s", toString)
         val currentElement = start.parentElement
         val R(res, newVMap) = eval(start)
         currentElement.setDataValue(res.toString)
@@ -2546,7 +2545,7 @@ class SetVariableParser(context: ExpressionEvaluatorBase, decl: AnnotatedSchemaC
     // withLoggingLevel(LogLevel.Info) 
     {
       withParseErrorThrowing(start) {
-        log(Debug("This is %s", toString))
+        log(LogLevel.Debug, "This is %s", toString)
         val R(res, newVMap) = eval(start)
         val newVMap2 = newVMap.setVariable(stmt.defv.extName, res, decl)
         val postState = start.withVariables(newVMap2)
@@ -2573,12 +2572,12 @@ class SetVariableParser(context: ExpressionEvaluatorBase, decl: AnnotatedSchemaC
 //
 //    def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
 //
-//      log(Debug("Parsing starting at bit position: %s", pstate.bitPos))
+//      log(LogLevel.Debug, "Parsing starting at bit position: %s", pstate.bitPos))
 //
 //      val R(nBytesAsAny, newVMap) = expr.evaluate(pstate.parentElement, pstate.variableMap, pstate)
 //      val nBytes = nBytesAsAny.asInstanceOf[Long]
 //      val start = pstate.withVariables(newVMap)
-//      log(Debug("Explicit length %s", nBytes))
+//      log(LogLevel.Debug, "Explicit length %s", nBytes))
 //
 //      if (start.bitPos % 8 != 0) { return PE(start, "StringExplicitLengthInBytes - not byte aligned.") }
 //
@@ -2594,8 +2593,8 @@ class SetVariableParser(context: ExpressionEvaluatorBase, decl: AnnotatedSchemaC
 //        val cb = decoder.decode(ByteBuffer.wrap(bytes))
 //        val result = cb.toString
 //        val endBitPos = start.bitPos + (nBytes.toInt * 8)
-//        log(Debug("Parsed: " + result))
-//        log(Debug("Ended at bit position " + endBitPos))
+//        log(LogLevel.Debug, "Parsed: " + result))
+//        log(LogLevel.Debug, "Ended at bit position " + endBitPos))
 //        val endCharPos = start.charPos + result.length
 //        val currentElement = start.parentElement
 //        // Assert.invariant(currentElement.getName != "_document_")
@@ -2634,7 +2633,7 @@ trait TextReader extends Logging {
     // withLoggingLevel(LogLevel.Info) 
     {
       val csName = charset.name()
-      log(Debug("Retrieving reader at bytePos %s", bitPos >> 3))
+      log(LogLevel.Debug, "Retrieving reader at bytePos %s", bitPos >> 3)
       // Do we already have a reader in the PState?
       val res = state.inStream.getCharReader(charset, bitPos)
       res

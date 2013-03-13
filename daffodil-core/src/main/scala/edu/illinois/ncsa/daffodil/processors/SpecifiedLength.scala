@@ -50,7 +50,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextBooleanJustifi
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextCalendarJustification
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 
 abstract class SpecifiedLengthCombinatorBase(eb: ElementBase, eGram: => Gram)
@@ -156,10 +156,10 @@ abstract class SpecifiedLengthParserBase(combinator: SpecifiedLengthCombinatorBa
   def toBriefXML = combinator.toBriefXML _
 
   final def parse(pstate: PState, endBitPos: Long, e: ElementBase) = {
-    log(Debug("Limiting data to %s bits.", endBitPos))
+    log(LogLevel.Debug, "Limiting data to %s bits.", endBitPos)
     val postState1 = pstate.withEndBitLimit(endBitPos)
     val postState2 = combinator.eParser.parse1(postState1, e)
-    log(Debug("Restoring data limit to %s bits.", pstate.bitLimit))
+    log(LogLevel.Debug, "Restoring data limit to %s bits.", pstate.bitLimit)
     val postState3 = postState2.withEndBitLimit(pstate.bitLimit)
     postState3
   }

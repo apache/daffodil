@@ -56,8 +56,7 @@ import java.nio.channels.Channels
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.util.parsing.input.Reader
 import scala.util.parsing.input.CharSequenceReader
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util._
 
 //
 // Convention: name index fields like bytePos or bitPos or charPos with suffixes to indicate
@@ -119,7 +118,7 @@ class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos0b: Int = 0)
    * These are kept in the processor state for reuse.
    */
   def newCharReader(charset: Charset, bitPos: Long, bitLimit: Long): DFDLCharReader = {
-    log(Debug("DFDLByteReader.newCharReader for bytePos %s.", (bitPos >> 3)))
+    log(LogLevel.Debug, "DFDLByteReader.newCharReader for bytePos %s.", (bitPos >> 3))
     DFDLCharReader(psb, bitPos, bitLimit, charset)
   }
 
@@ -269,7 +268,7 @@ class DFDLPagedSeqCharReader(charsetArg: Charset,
 
   // We really want to be able to ask for a CharReader starting at said bitPos
   def atBitPos(bitPos: Long): DFDLCharReader = {
-    log(Debug("creating new DFDLCharReader.atBytePos(%s)", (bitPos >> 3)))
+    log(LogLevel.Debug, "creating new DFDLCharReader.atBytePos(%s)", (bitPos >> 3))
     new DFDLPagedSeqCharReader(charset, startingBitPos = bitPos.toInt, bitLimit, psc, characterPos, psb)
   }
 
@@ -376,7 +375,7 @@ object IteratorInputStream {
 class IteratorInputStream(psb: PagedSeq[Byte], startBytePos0b: Int, endBytePos0b: Int)
   extends InputStream with Logging {
 
-  log(Debug("Creating an IteratorInputStream. This should happen only once per DataProcessor.parse call"))
+  log(LogLevel.Debug, "Creating an IteratorInputStream. This should happen only once per DataProcessor.parse call")
   var currentBytePos0b: Int = startBytePos0b
 
   def read(): Int = {
