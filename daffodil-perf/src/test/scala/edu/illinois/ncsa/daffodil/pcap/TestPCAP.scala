@@ -50,5 +50,6 @@ class TestPCAP extends JUnitSuite {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   @Test def test_pcap_test() { runner.runOneTest("pcap_test") }
+  @Test def test_pcap_test2() { runner.runOneTest("pcap_test2") }
 
 }

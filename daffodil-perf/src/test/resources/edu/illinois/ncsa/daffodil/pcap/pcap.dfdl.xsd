@@ -10,7 +10,7 @@
     </xs:appinfo>
   </xs:annotation>
 
- <xs:element name="packet" dfdl:terminator="%LF;">
+ <xs:element name="packet">
   <xs:complexType>
     <xs:sequence dfdl:sequenceKind="ordered"> 
 
