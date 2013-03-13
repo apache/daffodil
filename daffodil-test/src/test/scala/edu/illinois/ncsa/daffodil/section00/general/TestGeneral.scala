@@ -53,7 +53,16 @@ class TestGeneral extends JUnitSuite {
   val aa = testDir + "general.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_largeInput_01() { runner.runOneTest("largeInput_01") }
-
   @Test def test_capitalization() { runner.runOneTest("capitalization") }
+
+  @Test def test_litNil1() { runner.runOneTest("litNil1") }
+
+  // Test causes exception as the file is not found
+  // @Test def test_fileDNE() { runner.runOneTest("fileDNE") }
+
+  val bb = testDir + "largeInput.tdml"
+  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(bb))
+
+  @Test def test_largeInput_01() { runner1.runOneTest("largeInput_01") }
+
 }
