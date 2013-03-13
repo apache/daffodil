@@ -5,12 +5,24 @@
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
       <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
-        ignoreCase="no" lengthUnits="bits" representation="binary" separatorPolicy="suppressed" separatorPosition="infix" 
-        occursCountKind="parsed" byteOrder="littleEndian" binaryNumberRep="binary" lengthKind="delimited" encoding="UTF-8"/>
+        ignoreCase="no" lengthKind="delimited" lengthUnits="bits" representation="binary" separatorPolicy="suppressed" separatorPosition="infix" 
+        occursCountKind="parsed" byteOrder="littleEndian" binaryNumberRep="binary" encoding="UTF-8"/>
     </xs:appinfo>
   </xs:annotation>
+  
+  <xs:simpleType name="uint16" dfdl:lengthKind="explicit" dfdl:length="16">
+    <xs:restriction base="xs:unsignedInt"/>
+  </xs:simpleType>
 
- <xs:element name="packet">
+  <xs:simpleType name="uint32" dfdl:lengthKind="explicit" dfdl:length="32">
+    <xs:restriction base="xs:unsignedInt"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="int32" dfdl:lengthKind="explicit" dfdl:length="32">
+    <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+
+ <xs:element name="pcap">
   <xs:complexType>
     <xs:sequence dfdl:sequenceKind="ordered"> 
 
@@ -36,13 +48,13 @@
       <xs:element name="global_header" minOccurs="1" maxOccurs="1">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="magic_number" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32"/>
-            <xs:element name="version_major" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="16"/>
-            <xs:element name="version_minor" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="16"/>
-            <xs:element name="thiszone" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="32"/>
-            <xs:element name="sigfigs" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32"/>
-            <xs:element name="snaplen" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32"/>
-            <xs:element name="network" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32"/>
+            <xs:element name="magic_number" type="ex:uint32"/>
+            <xs:element name="version_major" type="ex:uint16"/>
+            <xs:element name="version_minor" type="ex:uint16"/>
+            <xs:element name="thiszone" type="ex:int32"/>
+            <xs:element name="sigfigs" type="ex:uint32"/>
+            <xs:element name="snaplen" type="ex:uint32"/>
+            <xs:element name="network" type="ex:uint32"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -61,25 +73,24 @@
     orig_len: the length of the packet as it appeared on the network when it was captured. If incl_len and orig_len differ, the actually saved packet size was limited by snaplen.
 
 -->
-  <xs:element name="blob" minOccurs="1" maxOccurs="unbounded">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="packet_header" dfdl:lengthKind="endOfParent">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="ts_sec" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32"/>
-              <xs:element name="ts_usec" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32"/>
-              <xs:element name="incl_len" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32"/>
-              <xs:element name="orig_len" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-        <xs:element name="packet_data" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
-           dfdl:length="{ /ex:packet/ex:blob[dfdl:occursIndex()]/ex:packet_header/ex:incl_len }"/>
-<!--           dfdl:length="{ fn:trace(/ex:packet/ex:blob[dfdl:occursIndex()]/ex:packet_header/ex:incl_len, 'bar') }"/> -->
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
+      <xs:element name="packet" minOccurs="1" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="header">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="ts_sec" type="ex:uint32"/>
+                  <xs:element name="ts_usec" type="ex:uint32"/>
+                  <xs:element name="incl_len" type="ex:uint32"/>
+                  <xs:element name="orig_len" type="ex:uint32"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="data" type="xs:unsignedInt" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit"
+               dfdl:length="{ ../ex:header/ex:incl_len }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
   
     </xs:sequence> 
   </xs:complexType>
