@@ -57,6 +57,9 @@ class TestGeneral extends JUnitSuite {
 
   @Test def test_litNil1() { runner.runOneTest("litNil1") }
 
+  // Test commented out until DFDL-577 is resolved
+  // @Test def test_litNil2() { runner.runOneTest("litNil2") }
+
   // Test causes exception as the file is not found
   // @Test def test_fileDNE() { runner.runOneTest("fileDNE") }
 

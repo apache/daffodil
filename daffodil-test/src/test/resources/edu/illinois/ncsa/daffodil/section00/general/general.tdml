@@ -41,7 +41,8 @@
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
       nilValueDelimiterPolicy="none" nilValue="nil %ES;" nilKind="literalValue"
-      textNumberRep="standard" ignoreCase="no" initiatedContent="no" />
+      textNumberRep="standard" ignoreCase="no" initiatedContent="no"
+      byteOrder="bigEndian" binaryNumberRep="binary" lengthUnits="bytes"/>
 
     <xs:element name="doc" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -53,6 +54,24 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="doc2" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:terminator=";">
+          <xs:element name="e1" nillable="true" type="xs:int"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="e2" nillable="true" type="xs:int"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="e3" nillable="true" type="xs:int"
+            dfdl:lengthKind="implicit" />
+          <xs:element name="e4" nillable="true" type="xs:int"
+            dfdl:lengthKind="implicit" />
+          <xs:element name="e5" nillable="true" type="xs:int"
+            dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="litNil1" root="doc"
@@ -71,6 +90,37 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+ <!--
+    Test name: litNil2
+    Schema: s1
+    Purpose: Test to verify that a document can come from several parts (file, byte, text)
+  -->
+
+<!--
+     This test is commented out until DFDL-577 has been resolved
+  <tdml:parserTestCase name="litNil2" root="doc2"
+    model="s1" description="literal nil - DFDL-13-234R">
+
+    <tdml:document>
+      <tdml:documentPart type="file">edu/illinois/ncsa/daffodil/section00/general/ext_file2.txt</tdml:documentPart>
+      <tdml:documentPart type="byte">000000002CFFFFFFFF3B</tdml:documentPart>
+      <tdml:documentPart type="text">,400;</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc>
+          <e1>0</e1>
+          <e2 xsi:nil="true" />
+          <e3 xsi:nil="true" />
+          <e4>-1</e4>
+          <e5>400</e5>
+        </doc>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+-->
 
   <tdml:parserTestCase name="fileDNE" root="doc"
     model="s1" description="literal nil - DFDL-13-234R">
