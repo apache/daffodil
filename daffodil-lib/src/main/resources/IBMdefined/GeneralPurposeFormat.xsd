@@ -89,7 +89,7 @@
 A general purpose defineFormat annotation.
 -->
 
-<dfdl:defineFormat name="GeneralFormat">
+<dfdl:defineFormat name="GeneralPurposeFormat">
 <dfdl:format 
 
 encoding="UTF-8" utf16Width="fixed" byteOrder="bigEndian"
