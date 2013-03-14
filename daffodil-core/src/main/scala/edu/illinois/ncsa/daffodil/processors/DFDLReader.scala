@@ -292,6 +292,15 @@ class DFDLPagedSeqCharReader(charsetArg: Charset,
 // or specific to Char. We want to have a Reader like abstraction that is over bytes, but 
 // be able to create real Reader[Char] from it at any byte position.
 
+object IterableReadableByteChannel {
+  var byteCount: Long = 0
+  def getAndResetCalls = {
+    val res = byteCount
+    byteCount = 0
+    res
+  }
+}
+
 /**
  * All this excess buffering layer for lack of a way to convert a ReadableByteChannel directly into
  * a PagedSeq. We need an Iterator[Byte] first to construct a PagedSeq[Byte].
@@ -325,6 +334,7 @@ class IterableReadableByteChannel(rbc: ReadableByteChannel)
   def next(): Byte = {
     if (!hasNext()) throw new IndexOutOfBoundsException(pos.toString)
     pos += 1
+    IterableReadableByteChannel.byteCount += 1
     currentBuf.get()
   }
 }

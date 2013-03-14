@@ -66,6 +66,7 @@ import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
 import edu.illinois.ncsa.daffodil.processors.IteratorInputStream
 import edu.illinois.ncsa.daffodil.processors.DFDLCharCounter
+import edu.illinois.ncsa.daffodil.processors.IterableReadableByteChannel
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -329,7 +330,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     val nBits = document.map { _.nBits }
 
     runProcessor(pf, data, nBits, infoset, errors, warnings)
-    val bytesProcessed = IteratorInputStream.getAndResetCalls
+    val bytesProcessed = IterableReadableByteChannel.getAndResetCalls
     val charsProcessed = DFDLCharCounter.getAndResetCount
     println("Bytes processed: " + bytesProcessed)
     println("Characters processed: " + charsProcessed)

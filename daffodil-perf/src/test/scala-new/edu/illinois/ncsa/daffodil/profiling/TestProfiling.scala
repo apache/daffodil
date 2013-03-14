@@ -96,6 +96,21 @@ class TestProfiling extends JUnitSuite {
     println("tak call equivalents per byte (takeons/byte) =  " + callsPerByte)
   }
 
+  @Test def testBinaryLongRunningForProfiling {
+    Tak.calibrate
+    val ns = Tak.time {
+      val (by, ch) = runner.runOneTestWithDataVolumes("PCAP1")
+      bytesProcessed = by
+      charsProcessed = ch
+    }
+    val takeonsThisRun = ns / Tak.takeons
+    val bpns = ((bytesProcessed * 1.0) / ns)
+    val kbps = bpns * 1000000
+    val callsPerByte = 1 / (Tak.takeons * bpns)
+    println("\nKB/sec = " + kbps)
+    println("tak call equivalents per byte (takeons/byte) =  " + callsPerByte)
+  }
+
 }
 
 /**

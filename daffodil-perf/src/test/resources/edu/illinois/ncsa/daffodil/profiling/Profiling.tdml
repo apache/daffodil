@@ -39,4 +39,23 @@
     </infoset>
   </parserTestCase>
   
+  <parserTestCase name="PCAP1" root="pcap2" model="profilingPCAP.dfdl.xsd"
+    description="PCAP profiling">
+
+    <document>
+      <documentPart type="file">edu/illinois/ncsa/daffodil/profiling/smbtorture.cap</documentPart>
+    </document>
+
+    <infoset>
+      <dfdlInfoset>
+        <pcap2>
+        <mn>2712847316</mn>
+        <last>1132371122</last>
+        </pcap2>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+  
+  
+  
 </testSuite>
