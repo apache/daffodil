@@ -44,7 +44,22 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
+import org.junit.contrib.java.lang.system.ExpectedSystemExit
+import org.junit.contrib.java.lang.system.internal.CheckExitCalled
+import org.junit.Rule
+import edu.illinois.ncsa.daffodil.util.Misc
+import java.io.ByteArrayInputStream
+import edu.illinois.ncsa.daffodil.Main
+
 class TestNamespaces extends JUnitSuite {
+  // This rule makes it so that System.exit throws an exception You are
+  // supposed to be able to say exit.expectExitWithStatus(), but this doesn't
+  // work, probably some scala problem, related to def exit. This is supposed
+  // to be val exit, but it doesn't work with scala. Instead, we need to
+  // manually catch CheckExitCalled and verify the status
+  @Rule
+  def exit = ExpectedSystemExit.none()
+
   val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
@@ -132,5 +147,27 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_namespace_scope_02() { runner.runOneTest("namespace_scope_02") }
 
   //  @Test def test_error_messages_01() { runner.runOneTest("error_messages_01") }
+  
+  @Test def test_ibm_format_compat_01() { runner.runOneTest("ibm_format_compat_01") }
+//  @Test def test_ibm_format_compat_02() { runner.runOneTest("ibm_format_compat_02") }
+  
+  val ibm_abc_schema = testDir + "ABC_IBM.xsd"
 
+<!--
+  @Test def test_ibm_abc_cli() {
+    try {
+      val schema = Misc.getRequiredResource(ibm_abc_schema).getPath
+      val data = "ababababbaacccccb\n"
+      val is = new ByteArrayInputStream(data.getBytes())
+      val oldSysin = System.in
+      System.setIn(is)
+
+      Main.main(Array("parse", "-s", schema, "-r", "ABC", "-"))
+
+      System.setIn(oldSysin)
+    } catch {
+      case c: CheckExitCalled => assertEquals(c.getStatus, 0)
+    }
+  }
+-->
 }

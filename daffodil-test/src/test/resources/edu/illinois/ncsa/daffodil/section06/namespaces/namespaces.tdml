@@ -2,6 +2,45 @@
 <testSuite suiteName="Namespaces"
   xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+  
+  <!--
+    Test name: ibm_format_compat_01
+       Schema: ibm_format_compat.dfdl.xsd
+         Root: one
+      Purpose: This test demonstrates the use of the GeneralPurposeFormat (IBM compatible) 
+  -->
+ 
+  <tdml:parserTestCase name="ibm_format_compat_01" root="one"
+    model="ibm_format_compat.dfdl.xsd" description="">
+    <tdml:document><![CDATA[3]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <one>3</one>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ibm_format_compat_02
+       Schema: ABC_IBM.xsd
+         Root: ABC
+      Purpose: This test demonstrates the ability to use IBM schemas that reference GeneralPurposeFormat without issue
+  -->
+ 
+  <tdml:parserTestCase name="ibm_format_compat_02" root="ABC"
+    model="ABC_IBM.xsd" description="">
+    <tdml:document><![CDATA[a
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ABC>
+          <Container>
+            <a>a</a>
+          </Container>
+        </ABC>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="Lesson2_no_namespace" root="address"
     model="address_no_namespace.dfdl.xsd" description="dfdl namespace - DFDL-6-002R">
