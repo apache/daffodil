@@ -230,36 +230,37 @@ object DFDLTestBitFunction extends DFDLFunction("testBit", 2) {
     val data = args.get(0)
     val bitPos = args.get(1)
 
+    val dataType = if (data != null) data.asInstanceOf[AnyRef].getClass().getSimpleName() else "null"
+
+    def checkTextInValueSpaceOfUByte(text: String): Int = {
+      val i = try { Integer.parseInt(text) } catch {
+        case e: Exception => pstate.SDE("dfdl:testBit unable to parse (%s) to unsignedByte.", text)
+      }
+      if (i > 255 || i < 0) { pstate.SDE("dfdl:testBit $data must be an unsignedByte within the range of (0-255). $data was " + i) }
+      i
+    }
+
     // According to spec, data should be a byte-value
+    //
+    // Update: Should only be unsignedByte but it does not
+    // appear that we keep type information around in the JDOM tree
+    // so we have to do the checking here.
     val dataInt = data match {
-      case i: Int => {
-        if (i > 255 || i < 0) { pstate.SDE("dfdl:testBit $data must be an Integer that exists within the value-space of byte.") }
-        i
-      }
-      case bi: java.math.BigInteger => {
-        val lessThanZero = bi.compareTo(java.math.BigInteger.ZERO) < 0
-        val greaterThan255 = bi.compareTo(new java.math.BigInteger("255")) > 0
-        if (lessThanZero || greaterThan255) pstate.SDE("dfdl:testBit requires $data value to be in the value-space of Byte (0-255)")
-        bi.intValue()
-      }
+      //      case i: Int => {
+      //        if (i > 255 || i < 0) { pstate.SDE("dfdl:testBit $data must be an Integer that exists within the value-space of byte.") }
+      //        i
+      //      }
+      //      case bi: java.math.BigInteger => {
+      //        val lessThanZero = bi.compareTo(java.math.BigInteger.ZERO) < 0
+      //        val greaterThan255 = bi.compareTo(new java.math.BigInteger("255")) > 0
+      //        if (lessThanZero || greaterThan255) pstate.SDE("dfdl:testBit requires $data value to be in the value-space of Byte (0-255)")
+      //        bi.intValue()
+      //      }
       case b: Byte => b.toInt
-      case e: Element => {
-        val v = e.getText
-        val i = try { Integer.parseInt(v) } catch {
-          case e: Exception => pstate.SDE("dfdl:testBit unable to parse (%s) to Integer.", v)
-        }
-        if (i > 255 || i < 0) { pstate.SDE("dfdl:testBit $data must be an Integer that exists within the value-space of byte.") }
-        i
-      }
-      case t: Text => {
-        val v = t.getText()
-        val i = try { Integer.parseInt(v) } catch {
-          case e: Exception => pstate.SDE("dfdl:testBit unable to parse (%s) to Integer.", v)
-        }
-        if (i > 255 || i < 0) { pstate.SDE("dfdl:testBit $data must be a an Integer that exists within the value-space of byte.") }
-        i
-      }
-      case _ => pstate.SDE("dfdl:testBit requires $data to be an Integer.")
+      case e: Element => checkTextInValueSpaceOfUByte(e.getText())
+      case t: Text => checkTextInValueSpaceOfUByte(t.getText())
+      case _ => pstate.SDE("dfdl:testBit requires $data to be an unsignedByte. $data evaluated to a(n) (%s)", dataType)
+
     }
     val bitPosInt = bitPos match {
       case i: Int => {
@@ -273,10 +274,11 @@ object DFDLTestBitFunction extends DFDLFunction("testBit", 2) {
         if (lessThanZero || greaterThan7) pstate.SDE("dfdl:testBit requires $bitPos to be an Integer value 0-7.")
         bi.intValue()
       }
-      case _ => pstate.SDE("dfdl:testBit requires $bitPos to be an Integer")
+      case _ => pstate.SDE("dfdl:testBit requires $bitPos to be an Integer value 0-7")
     }
     (dataInt, bitPosInt)
   }
+
   def testBit(data: Int, bitPos: Int): java.lang.Boolean = {
     // Assume 8-bit
     val shifted = data >>> bitPos
@@ -497,7 +499,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   def checkMinLength(data: String, minValue: java.math.BigDecimal,
-                     e: ElementBase, primType: PrimType): java.lang.Boolean = {
+    e: ElementBase, primType: PrimType): java.lang.Boolean = {
     primType match {
       case PrimType.String => {
         val bdData = new java.math.BigDecimal(data.length())
@@ -516,7 +518,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   def checkMaxLength(data: String, maxValue: java.math.BigDecimal,
-                     e: ElementBase, primType: PrimType): java.lang.Boolean = {
+    e: ElementBase, primType: PrimType): java.lang.Boolean = {
     primType match {
       case PrimType.String => {
         val bdData = new java.math.BigDecimal(data.length())
@@ -801,8 +803,8 @@ object XPathUtil extends Logging {
    * a CompiledExpressionFactory
    */
   def compileExpression(dfdlExpressionRaw: String,
-                        namespaces: Seq[org.jdom.Namespace],
-                        context: SchemaComponent) =
+    namespaces: Seq[org.jdom.Namespace],
+    context: SchemaComponent) =
     // withLoggingLevel(LogLevel.Info) 
     {
       log(LogLevel.Debug, "Compiling expression")
@@ -914,7 +916,7 @@ object XPathUtil extends Logging {
    * @param namespaces  - the namespaces in scope
    */
   private[xpath] def evalExpressionFromString(expression: String, variables: VariableMap,
-                                              contextNode: Parent, namespaces: Seq[org.jdom.Namespace], targetType: QName = NODE): XPathResult = {
+    contextNode: Parent, namespaces: Seq[org.jdom.Namespace], targetType: QName = NODE): XPathResult = {
 
     val compiledExprExceptVariables = compileExpression(expression, namespaces, null) // null as schema component
     val res = evalExpression(expression, compiledExprExceptVariables, variables, contextNode, targetType)
