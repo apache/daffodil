@@ -9,8 +9,8 @@
     uri="xsd/tdml.xsd" />
   <uri name="http://www.ogf.org/dfdl/dfdl-1.0/"
     uri="xsd/DFDL_part3_model.xsd" />
-  <uri name="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-    uri="xsd/DFDLSubsetOfXMLSchema_v1_036.xsd" />
+ <!-- <uri name="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+    uri="xsd/DFDLSubsetOfXMLSchema_v1_036.xsd" /> -->
   <uri name="http://www.w3.org/2001/XMLSchema"
     uri="xsd/XMLSchema_for_DFDL.xsd" />
   <uri name="http://www.w3.org/XML/1998/namespace"

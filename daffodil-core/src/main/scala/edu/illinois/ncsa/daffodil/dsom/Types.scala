@@ -746,9 +746,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
 
   lazy val myPrimitiveType = {
     val (nsURI, localName) = baseTypeQName
-    if (nsURI == XMLUtils.XSD_NAMESPACE
-      ||
-      nsURI == XMLUtils.DFDL_SUBSET_NAMESPACE) { // tolerate use of this subset.
+    if (nsURI == XMLUtils.XSD_NAMESPACE) {
       // XSD namespace
       val prim = schemaDocument.schemaSet.getPrimitiveType(localName)
       schemaDefinition(prim != None,

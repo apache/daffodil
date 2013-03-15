@@ -254,8 +254,7 @@ class DFDLXMLLocationAwareAdapter
 
     val nsURI = NS(scope.getURI(pre))
     val isXSSchemaNode = (label == "schema" && nsURI != NoNamespace &&
-      (nsURI == XMLUtils.XSD_NAMESPACE ||
-        nsURI == XMLUtils.DFDL_SUBSET_NAMESPACE))
+      (nsURI == XMLUtils.XSD_NAMESPACE))
     val isTDMLTestSuiteNode = (label == "testSuite" && nsURI != NoNamespace &&
       nsURI == XMLUtils.TDML_NAMESPACE)
     val isFileRootNode = isXSSchemaNode || isTDMLTestSuiteNode

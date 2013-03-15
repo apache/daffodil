@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- 
-This is really a renaming of the longer named 
-DFDLSubsetOfXMLSchema_...xsd file. Plus changing the target namespace.
 
 To get enforcement of the XML Schema Subset for DFDL, but at the 
 same time let users use the original XML Schema namespace URI, we
@@ -23,7 +21,7 @@ this to validate when we load a DFDL Schema.
   xmlns:sub="http://www.w3.org/2001/XMLSchema"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
   <!-- Use the real URI for this, not the subset URI
-   "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+   "http://www.w3.org/2001/XMLSchema"
   -->
 
   <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/"

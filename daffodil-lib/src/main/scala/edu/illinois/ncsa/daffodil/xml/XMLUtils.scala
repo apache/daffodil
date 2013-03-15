@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.xml
  * SOFTWARE.
  */
 
-
 import java.io.FileInputStream
 import java.io.File
 import java.io.InputStream
@@ -151,9 +150,9 @@ object XMLUtils {
   val XPATH_FUNCTION_NAMESPACE = NS("http://www.w3.org/2005/xpath-functions")
   val xsiNS = Namespace.getNamespace("xsi", XSI_NAMESPACE.toString)
   val DFDL_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/") // dfdl ns does have a trailing slash
-  val DFDL_SUBSET_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset")
+  //  val DFDL_SUBSET_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema")
   val TDML_NAMESPACE = NS("http://www.ibm.com/xmlns/dfdl/testData")
-  val DFDL_XMLSCHEMASUBSET_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset")
+  //  val DFDL_XMLSCHEMASUBSET_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema")
   val EXAMPLE_NAMESPACE = NS("http://example.com")
 
   // must manufacture these because in JDOM, attributes have parent pointers up
@@ -193,7 +192,7 @@ object XMLUtils {
   val COLUMN_ATTRIBUTE_NAME = "col"
 
   // shorter forms, to make constructing XML literals,... make the lines shorter.
-  val DFDLSubsetURI = DFDL_SUBSET_NAMESPACE
+  //  val DFDLSubsetURI = DFDL_SUBSET_NAMESPACE
   val xsdURI = XSD_NAMESPACE
   val dfdlURI = DFDL_NAMESPACE
   val targetNS = EXAMPLE_NAMESPACE // we use this for tests.
@@ -891,7 +890,6 @@ object XMLUtils {
     res
   }
 
-
   /**
    * Removes NamespaceBindings from a scope containing specified namespaces
    */
@@ -966,8 +964,8 @@ object XMLUtils {
             }
             case attr => {
               if (ns.length > 0) {
-                ! ns.contains(NS(attr.getNamespace(e)))
-              } else  {
+                !ns.contains(NS(attr.getNamespace(e)))
+              } else {
                 false
               }
             }
@@ -1186,7 +1184,7 @@ class QNamePrefixNotInScopeException(pre: String, loc: SchemaFileLocatable)
 //    //
 //    val docstring = doc.toString()
 //    val xmlnsURI = "http://www.w3.org/2001/XMLSchema";
-//    val xsdSubsetURI = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset";
+//    val xsdSubsetURI = "http://www.w3.org/2001/XMLSchema";
 //    val docReplaced = docstring.replaceAll(xmlnsURI, xsdSubsetURI)
 //    val docReader = new StringReader(docReplaced)
 //    val schemaResource = Misc.getRequiredResource(Validator.dfdlSchemaFileName()).toURI()

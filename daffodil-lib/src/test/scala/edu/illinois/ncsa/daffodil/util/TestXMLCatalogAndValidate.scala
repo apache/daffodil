@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.util
  * SOFTWARE.
  */
 
-
 import java.io.File
 import scala.xml.{ SAXParseException, InputSource }
 import scala.xml.parsing.NoBindingFactoryAdapter
@@ -84,7 +83,7 @@ class TestXMLCatalogAndValidate extends JUnitSuite {
   val example = "http://www.example.com/"
   val ex1 = example + "1"
   val ex2 = example + "2"
-  val sub = XMLUtil.DFDL_XMLSCHEMASUBSET_NAMESPACE
+  // val sub = XMLUtil.DFDL_XMLSCHEMASUBSET_NAMESPACE
 
   // In this test, the schema says the data must be an int.
   // The data is 'abc' so this should fail to validate.
@@ -267,7 +266,7 @@ class TestXMLCatalogAndValidate extends JUnitSuite {
     // lets make sure we're not using files that would naturally be on the classpath
     System.setProperty("xml.catalog.ignoreMissing", "false")
 
-    val testSuite = <schema xmlns={ sub } targetNamespace={ ex1 } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+    val testSuite = <schema xmlns={ xsd } targetNamespace={ ex1 } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
                       <annotation><appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
                                     <dfdl:format foobar="quuxly"/>
                                   </appinfo></annotation>
@@ -346,8 +345,7 @@ class SchemaAwareFactoryAdapter()
     // If we're the xs:schema node, then append attribute for _file_ as well.
     val nsURI = scope.getURI(pre)
     val isXSSchemaNode = (label == "schema" && nsURI != null &&
-      (nsURI == XMLUtil.XSD_NAMESPACE ||
-        nsURI == XMLUtil.DFDL_SUBSET_NAMESPACE))
+      (nsURI == XMLUtil.XSD_NAMESPACE))
     val isTDMLTestSuiteNode = (label == "testSuite" && nsURI != null &&
       nsURI == XMLUtil.TDML_NAMESPACE)
     val isFileRootNode = isXSSchemaNode || isTDMLTestSuiteNode
@@ -564,8 +562,8 @@ object XMLUtil {
   val XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance"
   val DFDL_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/" // dfdl ns does have a trailing slash
   val TDML_NAMESPACE = "http://www.ibm.com/xmlns/dfdl/testData"
-  val DFDL_XMLSCHEMASUBSET_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  // val DFDL_XMLSCHEMASUBSET_NAMESPACE = "http://www.w3.org/2001/XMLSchema"
   val EXAMPLE_NAMESPACE = "http://example.com"
-  val DFDL_SUBSET_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+  // val DFDL_SUBSET_NAMESPACE = "http://www.w3.org/2001/XMLSchema"
 }
 

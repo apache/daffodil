@@ -41,7 +41,7 @@ import java.io.StringReader;
 import java.io.InputStreamReader; //class TestXSDValidation extends JUnitSuite {
 //
 //  val xmlnsURI = "http://www.w3.org/2001/XMLSchema";
-//  val xsdSubsetURI = "http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset";
+//  val xsdSubsetURI = "http://www.w3.org/2001/XMLSchema";
 //  val dfdlURI = "http://www.ogf.org/dfdl/dfdl-1.0/";
 //  val xsiURI = "http://www.w3.org/2001/XMLSchema-instance";
 //  val targetNS = "http://example.com";

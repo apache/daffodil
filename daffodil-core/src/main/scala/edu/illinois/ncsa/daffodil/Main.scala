@@ -341,23 +341,25 @@ object Main {
         }
         val inChannel = java.nio.channels.Channels.newChannel(input);
 
-        val rc = processor.map { processor =>
-          {
-            val parseResult = DebugUtil.time("Parsing", processor.parse(inChannel))
+        val rc = processor match {
+          case Some(processor) =>
+            {
+              val parseResult = DebugUtil.time("Parsing", processor.parse(inChannel))
 
-            val output = parseOpts.output.get match {
-              case Some("-") | None => System.out
-              case Some(file) => new FileOutputStream(file)
+              val output = parseOpts.output.get match {
+                case Some("-") | None => System.out
+                case Some(file) => new FileOutputStream(file)
+              }
+              val writer: BufferedWriter = new BufferedWriter(new OutputStreamWriter(output));
+
+              val pp = new scala.xml.PrettyPrinter(80, 2)
+              DebugUtil.time("Writing", writer.write(pp.format(parseResult.result) + "\n"))
+              writer.flush()
+
+              if (parseResult.isError) 1 else 0
             }
-            val writer: BufferedWriter = new BufferedWriter(new OutputStreamWriter(output));
-
-            val pp = new scala.xml.PrettyPrinter(80, 2)
-            DebugUtil.time("Writing", writer.write(pp.format(parseResult.result) + "\n"))
-            writer.flush()
-
-            if (parseResult.isError) 1 else 0
-          }
-        }.getOrElse(1)
+          case None => 1
+        }
         rc
       }
 

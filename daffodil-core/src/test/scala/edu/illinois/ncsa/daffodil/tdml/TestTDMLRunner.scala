@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.tdml
  * SOFTWARE.
  */
 
-
 import java.io.File
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.Node
@@ -59,7 +58,7 @@ class TestTDMLRunner extends JUnitSuite {
   val xsd = XMLUtils.XSD_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
   val tns = example
-  val sub = XMLUtils.DFDL_XMLSCHEMASUBSET_NAMESPACE
+  // val sub = XMLUtils.DFDL_XMLSCHEMASUBSET_NAMESPACE
 
   @Test def testDocPart1() {
     val xml = <documentPart type="text">abcde</documentPart>

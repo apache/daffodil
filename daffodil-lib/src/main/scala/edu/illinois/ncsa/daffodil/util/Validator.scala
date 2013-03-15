@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.util
  * SOFTWARE.
  */
 
-
 //
 // Copyright (C) 2011, 2012 by Michael J. Beckerle, All rights Reserved.
 // Permission is granted to use this software for any purpose so long as 
@@ -139,7 +138,7 @@ import org.w3c.dom.ls.LSResourceResolver
 //  /**
 //   * Retrieve a schema that is part of the daffodil-lib.
 //   */
-//  // Note: for a resournce, a path begining with "/" means classPath root relative.
-//  def dfdlSchemaFileName(): String = "/xsd/DFDLSubsetOfXMLSchema_v1_036.xsd"
+//  // Note: for a resource, a path begining with "/" means classPath root relative.
+//  def dfdlSchemaFileName(): String = "/xsd/XMLSchema.xsd"
 //
 //}

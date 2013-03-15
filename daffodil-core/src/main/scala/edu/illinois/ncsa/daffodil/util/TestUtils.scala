@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.util
  * SOFTWARE.
  */
 
-
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
@@ -98,8 +97,7 @@ object TestUtils {
                    { topLevelAnnotations }
                  </xs:appinfo>
                </xs:annotation>
-               <!-- No imports needed: XML Catalog gets them now.
-                       <xsd:import namespace={ DFDLSubsetURI } schemaLocation="DFDLSubsetOfXMLSchema_v1_036.xsd"/>
+               <!-- No imports needed: XML Catalog gets them 
                        <xsd:import namespace={ xsdURI } schemaLocation="XMLSchema.xsd"/>
                        <xsd:import namespace={ dfdlURI } schemaLocation="DFDL_part3_model.xsd"/> 
                         -->
