@@ -234,7 +234,8 @@ object DFDLTestBitFunction extends DFDLFunction("testBit", 2) {
 
     def checkTextInValueSpaceOfUByte(text: String): Int = {
       val i = try { Integer.parseInt(text) } catch {
-        case e: Exception => pstate.SDE("dfdl:testBit unable to parse (%s) to unsignedByte.", text)
+        case e: Exception => pstate.SDE("dfdl:testBit unable to parse (" + text +
+          ") to unsignedByte. $data must be an unsignedByte within the range of (0-255).")
       }
       if (i > 255 || i < 0) { pstate.SDE("dfdl:testBit $data must be an unsignedByte within the range of (0-255). $data was " + i) }
       i
@@ -259,7 +260,7 @@ object DFDLTestBitFunction extends DFDLFunction("testBit", 2) {
       case b: Byte => b.toInt
       case e: Element => checkTextInValueSpaceOfUByte(e.getText())
       case t: Text => checkTextInValueSpaceOfUByte(t.getText())
-      case _ => pstate.SDE("dfdl:testBit requires $data to be an unsignedByte. $data evaluated to a(n) (%s)", dataType)
+      case _ => pstate.SDE("dfdl:testBit requires $data to be an unsignedByte. $data evaluated to a(n) " + dataType)
 
     }
     val bitPosInt = bitPos match {
