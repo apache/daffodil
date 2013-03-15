@@ -200,7 +200,8 @@
     model="PropertySyntaxInvalid" description="DFDL-7-025R:Empty string as a Property Value">
     <tdml:document><![CDATA[118]]></tdml:document>
     <tdml:errors>
-      <tdml:error />
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>encoding</tdml:error>      
     </tdml:errors>
   </tdml:parserTestCase>
 

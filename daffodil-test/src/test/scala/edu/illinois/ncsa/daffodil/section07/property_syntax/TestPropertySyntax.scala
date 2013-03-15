@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section07.property_syntax
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
@@ -52,11 +51,11 @@ class TestPropertySyntax extends JUnitSuite {
   @Test def test_property_syntax_7_01() { runner.runOneTest("property_syntax_7_01") }
   @Test def test_property_syntax_7_02() { runner.runOneTest("property_syntax_7_02") }
   @Test def test_property_syntax_7_03() { runner.runOneTest("property_syntax_7_03") }
-  
+
   val testDir1 = "/edu/illinois/ncsa/daffodil/section07/property_syntax/"
   val aa = testDir1 + "PropertySyntax.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def test_ShortAndLongForm() { runner1.runOneTest("ShortAndLongForm") }
   @Test def test_ShortAnnotationAndElementForm() { runner1.runOneTest("ShortAnnotationAndElementForm") }
   @Test def test_AnnotationAndElementForm() { runner1.runOneTest("AnnotationAndElementForm") }
@@ -64,6 +63,6 @@ class TestPropertySyntax extends JUnitSuite {
   @Test def test_Lesson3_attribute_form() { runner1.runOneTest("Lesson3_attribute_form") }
   @Test def test_Lesson3_element_form() { runner1.runOneTest("Lesson3_element_form") }
   @Test def test_Lesson3_short_form() { runner1.runOneTest("Lesson3_short_form") }
-//  @Test def test_encodingEmptyFail() { runner1.runOneTestNoTDMLValidation("encodingEmptyFail") }
+  @Test def test_encodingEmptyFail() { runner1.runOneTest("encodingEmptyFail") }
 
 }

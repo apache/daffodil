@@ -583,7 +583,7 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
       }
       case "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
       case "ISO-8859-1" => true
-      case _ => schemaDefinitionError("Charset %s is not supported.", knownEncodingName)
+      case _ => schemaDefinitionError("Text encoding '%s' is not supported.", knownEncodingName)
     }
     res
   }
@@ -602,7 +602,7 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
       }
       case "UTF-32" | "UTF-32BE" | "UTF-32LE" => 32
       case "ISO-8859-1" => 8
-      case _ => schemaDefinitionError("Charset %s is not supported.", knownEncodingName)
+      case _ => schemaDefinitionError("Text encoding '%s' is not supported.", knownEncodingName)
     }
     res
   }
