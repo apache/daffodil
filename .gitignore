@@ -24,3 +24,4 @@ daffodil-test/src/test/Test2.iml
 daffodil-test/src/test/daffodil-test.iml
 out
 .scala_dependencies
+.settings

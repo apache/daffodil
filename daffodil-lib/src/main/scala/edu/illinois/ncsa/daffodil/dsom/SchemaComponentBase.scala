@@ -11,13 +11,7 @@ abstract class SchemaComponentBase(xmlArg: scala.xml.Node, parent: SchemaCompone
   extends OOLAGHost(parent)
   with ThrowsSDE
   with GetAttributesMixin
-  with SchemaFileLocatable
-  with LocationInSchemaFile //FIXME: rename: LocationInSchemaFile to LocationInSchemaFile 
-  // (to avoid confusion with the XSD attribute named schemaLocation)
-  // Also, a SchemaComponent isn't a LocationInSchemaFile. Rather, it has one or more
-  // schema locations (more than one because schema component have a lexical 
-  // span over many lines, and can enclose other components.
-  {
+  with SchemaFileLocatable {
 
   val xml = xmlArg
   val aaa_xml = xml // for debugging, so we don't have to scroll down.

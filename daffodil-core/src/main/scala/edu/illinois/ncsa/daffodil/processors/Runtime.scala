@@ -71,13 +71,13 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   Assert.usage(pf.canProceed)
 
   lazy val processorFactory = pf
-  
+
   override lazy val fileName = processorFactory.fileName
-  
+
   // just delegate to the PF. It has access to the SchemaSet.
   override def isError = pf.isError
   override def diagnostics = pf.diagnostics
-  
+
   //
   // Last tidbits of compilation. Really this is just accessing the 
   // result of compilation
@@ -206,7 +206,7 @@ abstract class ParseResult(dp: DataProcessor)
       val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0), Seq(NS(XMLUtils.INT_NS)))
       xmlClean
     } else {
-      <nothing/>
+      throw new IllegalStateException("There is no result. Should check by calling isError() first.");
     }
 }
 

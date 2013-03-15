@@ -179,7 +179,7 @@ class InfosetElement(private val elt: org.jdom.Element) extends InfosetItem {
 
 }
 
-class InfosetDocument(private val jDoc: org.jdom.Document) extends InfosetItem {
+class InfosetDocument(val jDoc: org.jdom.Document) extends InfosetItem {
 
   val jdomElt = None
 
@@ -198,7 +198,7 @@ class InfosetDocument(private val jDoc: org.jdom.Document) extends InfosetItem {
 
 abstract class InfosetItem {
 
-  protected def jdomElt: Option[org.jdom.Element]
+  def jdomElt: Option[org.jdom.Element]
 
   def addElement(e: InfosetElement): Unit
 

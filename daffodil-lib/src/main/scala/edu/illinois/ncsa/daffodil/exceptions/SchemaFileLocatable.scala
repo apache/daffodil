@@ -35,8 +35,9 @@ package edu.illinois.ncsa.daffodil.exceptions
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import java.net.URL
+import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 
-trait SchemaFileLocatable {
+trait SchemaFileLocatable extends LocationInSchemaFile {
   def xml: Node
 
   lazy val lineNumber = xml.attribute(XMLUtils.INT_NS, XMLUtils.LINE_ATTRIBUTE_NAME) match {
