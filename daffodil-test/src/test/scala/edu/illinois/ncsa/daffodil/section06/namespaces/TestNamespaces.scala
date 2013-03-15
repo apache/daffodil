@@ -147,13 +147,12 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_namespace_scope_02() { runner.runOneTest("namespace_scope_02") }
 
   //  @Test def test_error_messages_01() { runner.runOneTest("error_messages_01") }
-  
+
   @Test def test_ibm_format_compat_01() { runner.runOneTest("ibm_format_compat_01") }
-//  @Test def test_ibm_format_compat_02() { runner.runOneTest("ibm_format_compat_02") }
-  
+  @Test def test_ibm_format_compat_02() { runner.runOneTest("ibm_format_compat_02") }
+
   val ibm_abc_schema = testDir + "ABC_IBM.xsd"
 
-<!--
   @Test def test_ibm_abc_cli() {
     try {
       val schema = Misc.getRequiredResource(ibm_abc_schema).getPath
@@ -166,8 +165,8 @@ class TestNamespaces extends JUnitSuite {
 
       System.setIn(oldSysin)
     } catch {
-      case c: CheckExitCalled => assertEquals(c.getStatus, 0)
+      case c: CheckExitCalled => assertEquals(0, c.getStatus)
     }
   }
--->
+
 }

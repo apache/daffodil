@@ -569,12 +569,14 @@
     <!-- Not important to validate these, and we need to tolerate
       Other attributes from other DFDL implementations -->
      
+     
       <xsd:anyAttribute 
     namespace="http://www.w3.org/XML/1998/namespace 
     urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int 
     urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext
-    http://www.ibm.com/schema/extensions"
+    http://www.ibm.com/schema/extensions "
     /> 
+     
 
   </xsd:attributeGroup>
 

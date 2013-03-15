@@ -596,6 +596,7 @@ this to validate when we load a DFDL Schema.
     urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int 
     urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext
     http://www.ibm.com/schema/extensions"
+      processContents="lax"
     /> 
 
 

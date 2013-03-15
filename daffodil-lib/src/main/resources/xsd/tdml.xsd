@@ -5,10 +5,12 @@
   xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData" elementFormDefault="unqualified"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
 
+<!-- 
   <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
     schemaLocation="DFDLSubsetOfXMLSchema_v1_036.xsd" />
-  <xsd:import namespace="http://www.w3.org/2001/XMLSchema"
-    schemaLocation="XMLSchema.xsd" />
+     -->
+  <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
+<!-- schemaLocation="XMLSchema_for_DFDL.xsd" /> -->
   <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/"
     schemaLocation="DFDL_part3_model.xsd" />
 

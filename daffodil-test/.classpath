@@ -62,5 +62,6 @@
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/jline/jline/jline-2.9-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/com.github.stefanbirkner/system-rules/system-rules-1.2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

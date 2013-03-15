@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil
  * SOFTWARE.
  */
 
-
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.
  * Developed by: NCSA Cyberenvironments and Technologies
@@ -99,7 +98,7 @@ class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler {
 
   def fatalError(exception: SAXParseException) = {
     System.err.println("Error loading schema: " + exception.getMessage)
-    System.exit(1) 
+    System.exit(1)
   }
 }
 
@@ -108,8 +107,10 @@ object Main {
   def createProcessorFromParser(parseFile: String, path: Option[String]) = {
     val compiler = Compiler()
     val processorFactory = DebugUtil.time("Reloading parser", compiler.reload(parseFile))
-    val processor = processorFactory.onPath(path.getOrElse("/"))
-    processor
+    if (processorFactory.canProceed) {
+      val processor = processorFactory.onPath(path.getOrElse("/"))
+      Some(processor)
+    } else None
   }
 
   def createProcessorFromSchemas(schemaFiles: List[String], root: Option[String], namespace: Option[String], path: Option[String], vars: Map[String, String]) = {
@@ -126,9 +127,22 @@ object Main {
       case None => //ignore 
     }
 
-    val processorFactory = DebugUtil.time("Compiling schema", compiler.compile(schemaFiles:_*))
-    val processor = processorFactory.onPath(path.getOrElse("/"))
-    processor
+    // Wrap timing around the whole of compilation
+    //
+    // compilation extends from the call to compile
+    // to also include the call to pf.onPath. (which is the last phase 
+    // of compilation, where it asks for the parser)
+    //
+    val pf = DebugUtil.time("Compiling schema", {
+      val processorFactory = compiler.compile(schemaFiles: _*)
+      if (processorFactory.canProceed) {
+        val processor = processorFactory.onPath(path.getOrElse("/"))
+        Some(processor) // note: processor could still be isError == true
+        // but we do definitely get a processor.
+      } else
+        None
+    })
+    pf
   }
 
   def run(arguments: Array[String]): Int = {
@@ -140,19 +154,18 @@ object Main {
       // foo --schema bar. It does this by copying listArgConverter, but
       // setting the argType to SINGLE.
       def singleListArgConverter[A](conv: String => A)(implicit m: Manifest[List[A]]) = new scallop.ValueConverter[List[A]] {
-        def parse(s:List[(String, List[String])]) = {
+        def parse(s: List[(String, List[String])]) = {
           try {
             val l = s.map(_._2).flatten.map(i => conv(i))
             if (l.isEmpty) Right(Some(Nil))
-              else Right(Some(l))
+            else Right(Some(l))
           } catch {
-              case _ => Left(Unit)
+            case _ => Left(Unit)
           }
         }
         val manifest = m
         val argType = scallop.ArgType.SINGLE
       }
-
 
       printedName = "daffodil"
 
@@ -172,8 +185,8 @@ object Main {
       shortSubcommandsHelp()
 
       // Global Options
-      val debug   = opt[Boolean]("debug", descr="enable debugging.")
-      val verbose = opt[Boolean]("verbose", descr="enable verbose output.")
+      val debug = opt[Boolean]("debug", descr = "enable debugging.")
+      val verbose = opt[Boolean]("verbose", descr = "enable verbose output.")
 
       // Parse Subcommand Options
       val parse = new scallop.Subcommand("parse") {
@@ -186,14 +199,14 @@ object Main {
 
         descr("parse data to a DFDL infoset")
 
-        val schemas = opt[List[String]]("schema", argName="file", descr="the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
-        val root    = opt[String]("root", argName="node", descr="the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
-        val ns      = opt[String]("namespace", argName="ns", descr="the namespace of the root element. Requires --root.")
-        val path    = opt[String]("path", argName="path", descr="path to the node to create parser.")
-        val parser  = opt[String]("parser", 'P', argName="file", descr="use a previously saved parser.")
-        val output  = opt[String]("output", argName="file", descr="write output to a given file. If not given or is -, output is written to stdout.")
-        val vars    = props[String]('D', keyName="variable", valueName="value", descr="variables to be used when parsing.")
-        val input   = trailArg[String]("infile", required=false, descr="input file to parse. If not specified, or a value of -, reads from stdin.")
+        val schemas = opt[List[String]]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
+        val root = opt[String]("root", argName = "node", descr = "the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
+        val ns = opt[String]("namespace", argName = "ns", descr = "the namespace of the root element. Requires --root.")
+        val path = opt[String]("path", argName = "path", descr = "path to the node to create parser.")
+        val parser = opt[String]("parser", 'P', argName = "file", descr = "use a previously saved parser.")
+        val output = opt[String]("output", argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
+        val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing.")
+        val input = trailArg[String]("infile", required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
       }
 
       // Unparse Subcommand Options
@@ -204,17 +217,17 @@ object Main {
                   |Unparse an infoset file, using either a DFDL schema or a saved paser
                   |
                   |Unparse Options:""".stripMargin)
-        
+
         descr("unparse a DFDL infoset")
 
-        val schemas = opt[List[String]]("schema", argName="file", descr="the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
-        val root    = opt[String]("root", argName="node", descr="the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
-        val ns      = opt[String]("namespace", argName="ns", descr="the namespace of the root element. Requires --root.")
-        val path    = opt[String]("path", argName="path", descr="path to the node to create parser.")
-        val parser  = opt[String]("parser", 'P', argName="file", descr="use a previously saved parser.")
-        val output  = opt[String]("output", argName="file", descr="write output to file. If not given or is -, output is written to standard output.")
-        val vars    = props[String]('D', keyName="variable", valueName="value", descr="variables to be used when unparsing.")
-        val input   = trailArg[String]("infile", required=false, descr="input file to unparse. If not specified, or a value of -, reads from stdin.")
+        val schemas = opt[List[String]]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
+        val root = opt[String]("root", argName = "node", descr = "the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
+        val ns = opt[String]("namespace", argName = "ns", descr = "the namespace of the root element. Requires --root.")
+        val path = opt[String]("path", argName = "path", descr = "path to the node to create parser.")
+        val parser = opt[String]("parser", 'P', argName = "file", descr = "use a previously saved parser.")
+        val output = opt[String]("output", argName = "file", descr = "write output to file. If not given or is -, output is written to standard output.")
+        val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing.")
+        val input = trailArg[String]("infile", required = false, descr = "input file to unparse. If not specified, or a value of -, reads from stdin.")
       }
 
       // Save Subcommand Options
@@ -227,12 +240,12 @@ object Main {
 
         descr("save a daffodil parser for reuse")
 
-        val schemas = opt[List[String]]("schema", argName="file", required=true, descr="the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
-        val root    = opt[String]("root", argName="node", descr="the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema.")
-        val ns      = opt[String]("namespace", argName="ns", descr="the namespace of the root element. Requires --root.")
-        val path    = opt[String]("path", argName="path", descr="path to the node to create parser.")
-        val output  = trailArg[String]("outfile", required=false, descr="output file to save parser. If not specified, or a value of -, writes to stdout.")
-        val vars    = props[String]('D', keyName="variable", valueName="value", descr="variables to be used.")
+        val schemas = opt[List[String]]("schema", argName = "file", required = true, descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
+        val root = opt[String]("root", argName = "node", descr = "the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema.")
+        val ns = opt[String]("namespace", argName = "ns", descr = "the namespace of the root element. Requires --root.")
+        val path = opt[String]("path", argName = "path", descr = "path to the node to create parser.")
+        val output = trailArg[String]("outfile", required = false, descr = "output file to save parser. If not specified, or a value of -, writes to stdout.")
+        val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used.")
       }
 
       // Test Subcommand Options
@@ -245,10 +258,10 @@ object Main {
 
         descr("list or execute TDML tests")
 
-        val list  = opt[Boolean]("list", descr="show names and descriptions instead of running test cases.")
-        val regex = opt[Boolean]("regex", descr="treat <names> as regular expressions.")
-        val file  = trailArg[String]("tdmlfile", required=true, descr="test data markup language (TDML) file.")
-        val names = trailArg[List[String]]("names", required=false, descr="name of test case(s) in tdml file. If not given, all tests in tdmlfile are run.")
+        val list = opt[Boolean]("list", descr = "show names and descriptions instead of running test cases.")
+        val regex = opt[Boolean]("regex", descr = "treat <names> as regular expressions.")
+        val file = trailArg[String]("tdmlfile", required = true, descr = "test data markup language (TDML) file.")
+        val names = trailArg[List[String]]("names", required = false, descr = "name of test case(s) in tdml file. If not given, all tests in tdmlfile are run.")
       }
 
       verify
@@ -300,18 +313,17 @@ object Main {
         case _ => onError(scallop.exceptions.IllegalOptionParameters("missing subcommand"))
       }
     }
-      
+
     if (Conf.verbose())
       DebugUtil.verbose = true
- 
+
     if (Conf.debug()) {
       Debugger.setDebugging(true)
       Debugger.setDebugger(new InteractiveDebugger)
     }
 
-
     val ret = Conf.subcommand match {
-      
+
       case Some(Conf.parse) => {
         val parseOpts = Conf.parse
 
@@ -329,21 +341,25 @@ object Main {
         }
         val inChannel = java.nio.channels.Channels.newChannel(input);
 
-        val parseResult = DebugUtil.time("Parsing", processor.parse(inChannel))
-        
-        val output = parseOpts.output.get match {
-          case Some("-") | None => System.out
-          case Some(file) => new FileOutputStream(file)
-        }
-        val writer: BufferedWriter = new BufferedWriter(new OutputStreamWriter(output));
+        val rc = processor.map { processor =>
+          {
+            val parseResult = DebugUtil.time("Parsing", processor.parse(inChannel))
 
-        val pp = new scala.xml.PrettyPrinter(80,2)
-        DebugUtil.time("Writing", writer.write(pp.format(parseResult.result) + "\n"))
-        writer.flush()
+            val output = parseOpts.output.get match {
+              case Some("-") | None => System.out
+              case Some(file) => new FileOutputStream(file)
+            }
+            val writer: BufferedWriter = new BufferedWriter(new OutputStreamWriter(output));
 
-        if (parseResult.isError) 1 else 0
+            val pp = new scala.xml.PrettyPrinter(80, 2)
+            DebugUtil.time("Writing", writer.write(pp.format(parseResult.result) + "\n"))
+            writer.flush()
+
+            if (parseResult.isError) 1 else 0
+          }
+        }.getOrElse(1)
+        rc
       }
-
 
       case Some(Conf.unparse) => {
         val unparseOpts = Conf.unparse
@@ -362,16 +378,24 @@ object Main {
         }
 
         val outChannel = java.nio.channels.Channels.newChannel(output)
-        val loader = new DaffodilXMLLoader(new CommandLineXMLLoaderErrorHandler)
-        loader.setValidation(true)
+        // 
+        // We are not loading a schema here, we're loading the infoset to unparse.
+        //
+        val dataLoader = new DaffodilXMLLoader(new CommandLineXMLLoaderErrorHandler)
+        dataLoader.setValidation(true) //TODO: make this flag an option. 
         val document = unparseOpts.input.get match {
-          case Some("-") | None => loader.load(System.in)
-          case Some(file) => loader.loadFile(file)
+          case Some("-") | None => dataLoader.load(System.in)
+          case Some(file) => dataLoader.loadFile(file)
         }
-        val unparseResult =  DebugUtil.time("Unparsing infoset", processor.unparse(outChannel, document))
-        output.close()
-
-        if (unparseResult.isError) 1 else 0
+        val rc = processor match {
+          case None => 1
+          case Some(processor) => {
+            val unparseResult = DebugUtil.time("Unparsing infoset", processor.unparse(outChannel, document))
+            output.close()
+            if (unparseResult.isError) 1 else 0
+          }
+        }
+        rc
       }
 
       case Some(Conf.save) => {
@@ -385,9 +409,14 @@ object Main {
         }
 
         val outChannel = java.nio.channels.Channels.newChannel(output)
-        val saveResult = DebugUtil.time("Saving parser", processor.save(outChannel))
-
-        0
+        val rc = processor match {
+          case Some(processor) => {
+            DebugUtil.time("Saving parser", processor.save(outChannel))
+            0
+          }
+          case None => 1
+        }
+        rc
       }
 
       case Some(Conf.test) => {
@@ -395,7 +424,7 @@ object Main {
 
         val tdmlFile = testOpts.file()
         val tdmlRunner = new DFDLTestSuite(new java.io.File(tdmlFile))
-       
+
         val tests = {
           if (testOpts.names().length > 0) {
             testOpts.names().flatMap(testName => {
@@ -411,32 +440,33 @@ object Main {
             tdmlRunner.testCases.map(test => (test.name, Some(test)))
           }
         }.distinct.sortBy(_._1)
-       
+
         if (testOpts.list()) {
           if (Conf.verbose()) {
             // determine the max lengths of the various pieces of atest
             val headers = List("Name", "Model", "Root", "Description")
             val maxCols = tests.foldLeft(headers.map(_.length)) {
-              (maxVals, testPair) => {
-                testPair match {
-                  case (name, None) => maxVals
-                  case (name, Some(test)) => List(maxVals(0).max(name.length),
-                                                  maxVals(1).max(test.model.length),
-                                                  maxVals(2).max(test.root.length),
-                                                  maxVals(3).max(test.description.length))
+              (maxVals, testPair) =>
+                {
+                  testPair match {
+                    case (name, None) => maxVals
+                    case (name, Some(test)) => List(maxVals(0).max(name.length),
+                      maxVals(1).max(test.model.length),
+                      maxVals(2).max(test.root.length),
+                      maxVals(3).max(test.description.length))
+                  }
                 }
-              }
             }
             val formatStr = maxCols.map(max => "%" + -max + "s").mkString("  ")
-            println(formatStr.format(headers:_*))
-            tests.foreach{ testPair =>
+            println(formatStr.format(headers: _*))
+            tests.foreach { testPair =>
               testPair match {
                 case (name, Some(test)) => println(formatStr.format(name, test.model, test.root, test.description))
                 case (name, None) => println("%s [Missing]".format(name))
               }
             }
           } else {
-            tests.foreach{ testPair =>
+            tests.foreach { testPair =>
               testPair match {
                 case (name, Some(test)) => println(name)
                 case (name, None) => println("%s [Missing]".format(name))
@@ -444,7 +474,7 @@ object Main {
             }
           }
         } else {
-          tests.foreach{ testPair =>
+          tests.foreach { testPair =>
             testPair match {
               case (name, Some(test)) => {
                 var success = true
@@ -452,11 +482,11 @@ object Main {
                   test.run()
                 } catch {
                   case _ =>
-                  success = false
-                  if (System.console != null)
-                    print("[\033[31mFail\033[0m]")
-                  else
-                    print("Fail")
+                    success = false
+                    if (System.console != null)
+                      print("[\033[31mFail\033[0m]")
+                    else
+                      print("Fail")
                 }
                 if (success) {
                   if (System.console != null)
@@ -469,9 +499,9 @@ object Main {
 
               case (name, None) => {
                 if (System.console != null)
-                    print("[\033[33mMissing\033[0m]")
-                  else
-                    print("Missing")
+                  print("[\033[33mMissing\033[0m]")
+                else
+                  print("Missing")
                 println(" %s".format(name))
               }
             }

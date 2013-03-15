@@ -101,7 +101,7 @@ class ProcessorFactory(val sset: SchemaSet)
 
   def onPath(xpath: String): DFDL.DataProcessor = {
     Assert.usage(canProceed)
-    if (xpath != "/") rootElem.notYetImplemented("""ProcessorFactory.onPath("/")""")
+    if (xpath != "/") rootElem.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
     val dataProc = new DataProcessor(this, rootElem)
     if (dataProc.isError) {
       val diags = dataProc.getDiagnostics
