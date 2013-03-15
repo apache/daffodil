@@ -668,7 +668,9 @@ trait ElementBaseGrammarMixin
       nilElementInitiator ~ {
         // if (representation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
         lengthKind match {
-          case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
+//          case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
+          case LengthKind.Delimited if this.hasExpressionsInTerminatingMarkup => LiteralNilDelimitedEndOfDataDynamic(this)
+          case LengthKind.Delimited  => LiteralNilDelimitedEndOfDataStatic(this)
           case LengthKind.Pattern => LiteralNilPattern(this)
           case LengthKind.Explicit => {
             lengthUnits match {

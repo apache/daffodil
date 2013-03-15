@@ -66,7 +66,7 @@ abstract class StaticDelimiter(kindString: String, delim: String, e: Term, guard
   extends StaticText(delim, e, kindString, guard)
 
 abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boolean = true)
-  extends Terminal(e, guard)
+  extends DelimParserBase(e, guard)
   with WithParseErrorThrowing with TextReader {
 
   val charset = e.knownEncodingCharset
@@ -203,8 +203,8 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
   lazy val (staticDelimsParsers, staticDelimsRegex) = delimParser.generateDelimiter(staticDelimsCooked.toSet)
 
   def parseMethod(pInputDelimiterParser: delimParser.Parser[String],
-                  pIsLocalDelimParser: delimParser.Parser[String],
-                  input: Reader[Char]): DelimParseResult = {
+    pIsLocalDelimParser: delimParser.Parser[String],
+    input: Reader[Char]): DelimParseResult = {
     val result: DelimParseResult = delimParser.parseInputDelimiter(pInputDelimiterParser, pIsLocalDelimParser, input)
     result
   }
@@ -768,116 +768,53 @@ case class LiteralNilPattern(e: ElementBase)
   }
 }
 
-case class LiteralNilDelimitedOrEndOfData(e: ElementBase)
-  extends StaticText(e.nilValue, e, "LiteralNilDelimitedOrEndOfData", e.isNillable)
-  with Padded {
-  lazy val unparserDelim = Assert.notYetImplemented()
+abstract class LiteralNilDelimitedEndOfData(eb: ElementBase)
+  extends StringDelimited(eb) {
+  val nilValuesCooked = new ListOfStringValueAsLiteral(eb.nilValue, eb).cooked
+  val isEmptyAllowed = eb.nilValue.contains("%ES;") // TODO: move outside parser
 
-  val stParser = super.parser
+  override def processResult(result: DelimParseResult, state: PState): PState = {
+    result match {
+      case f: DelimParseFailure =>
+        return parser.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
+      case s: DelimParseSuccess => {
+        // We have a field, is it empty?
+        //val field = dp.removePadding(s.field, justificationTrim, padChar)
+        val field = s.field
+        val isFieldEmpty = field.length() == 0 // Note: field has been stripped of padChars
 
-  override def parser = new PrimParser(this, e) {
-    override def toString = "LiteralNilDelimitedOrEndOfData(" + e.nilValue + ")"
-    val eName = e.toString()
+        if (isFieldEmpty && !isEmptyAllowed) {
+          // Fail!
+          return parser.PE(state, "%s - Empty field found but not allowed!", eName)
+        } else if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any. 
+          dp.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) { // Not empty, but matches.
+          // Contains a nilValue, Success!
+          state.parentElement.makeNil()
 
-    def parse(start: PState): PState = {
-      // withLoggingLevel(LogLevel.Debug) 
-      {
-        // TODO: Why are we even doing this here?  LiteralNils don't care about delimiters
-        // and LiteralNils don't have expressions! I think we can get rid of this variable
-        // mapping stuff.
-        //
-        // We must feed variable context out of one evaluation and into the next.
-        // So that the resulting variable map has the updated status of all evaluated variables.
-        var vars = start.variableMap
-        val delimsRaw = e.allTerminatingMarkup.map {
-          x =>
-            {
-              val R(res, newVMap) = x.evaluate(start.parentElement, vars, start)
-              vars = newVMap
-              res
-            }
-        }
-        val delimsCooked1 = delimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
-        val delimsCooked = delimsCooked1.flatten
-        //val nilValuesCooked1 = delimsRaw.map(raw => { new ListOfStringValueAsLiteral(e.nilValue, e).cooked })
-        val nilValuesCooked = new ListOfStringValueAsLiteral(e.nilValue, e).cooked //nilValuesCooked1.flatten
-        val postEvalState = start.withVariables(vars)
+          val numBits = s.numBits
+          //val endCharPos = start.charPos + result.field.length()
+          val endCharPos = if (state.charPos == -1) s.numCharsRead else state.charPos + s.numCharsRead
+          val endBitPos = numBits + state.bitPos
 
-        log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length)
+          log(LogLevel.Debug, "%s - Found %s", eName, s.field)
+          log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
+          log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
-        val bytePos = (postEvalState.bitPos >> 3).toInt
-        log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos)
-        log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
-
-        // Don't check alignment this way. This is encoding specific. (Some encodings not byte aligned)
-        // if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilDelimitedOrEndOfData - not byte aligned.") }
-
-        log(LogLevel.Debug, "Retrieving reader state.")
-        val reader1 = getReader(charset, start.bitPos, start)
-        //        val byteReader = in.byteReader.atPos(bytePos)
-        //        val reader = byteReader.charReader(decoder.charset().name())
-
-        // 1. Parse up until terminating Markup
-        // 2. Compare resultant field to nilValue(s)
-        //		Same, success
-        //		Diff, fail
-        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
-        val result =
-          if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
-            //          result = d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader,
-            //            esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter)
-            d.parseInputEscapeBlock(Set.empty[String], delimsCooked.toSet, reader1,
-              esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter, justificationTrim, padChar)
-          } else if (esObj.escapeSchemeKind == EscapeSchemeKind.Character) {
-            d.parseInputEscapeCharacter(Set.empty[String], delimsCooked.toSet, reader1,
-              esObj.escapeCharacter, esObj.escapeEscapeCharacter, justificationTrim, padChar)
-          } else {
-            d.parseInput(Set.empty[String], delimsCooked.toSet, reader1, justificationTrim, padChar)
-          }
-
-        result match {
-          case f: DelimParseFailure =>
-            return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
-          case s: DelimParseSuccess => {
-            // We have a field, is it empty?
-            val field = d.removePadding(s.field, justificationTrim, padChar)
-            val isFieldEmpty = field.length() == 0 // Note: field has been stripped of padChars
-            val isEmptyAllowed = e.nilValue.contains("%ES;") // TODO: move outside parser
-            if (isFieldEmpty && !isEmptyAllowed) {
-              // Fail!
-              return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
-            } else if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any. 
-              d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) { // Not empty, but matches.
-              // Contains a nilValue, Success!
-              start.parentElement.makeNil()
-
-              val numBits = s.numBits
-              //val endCharPos = start.charPos + result.field.length()
-              val endCharPos = if (postEvalState.charPos == -1) s.numCharsRead else postEvalState.charPos + s.numCharsRead
-              val endBitPos = numBits + start.bitPos
-
-              log(LogLevel.Debug, "%s - Found %s", eName, s.field)
-              log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
-              log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
-
-              //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
-              return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
-            } else {
-              // Fail!
-              return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
-            }
-          }
+          //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
+          return state.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
+        } else {
+          // Fail!
+          return parser.PE(state, "%s - Does not contain a nil literal!", eName)
         }
       }
     }
   }
-
-  override def unparser: Unparser = new Unparser(e) {
-    def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
-    }
-  }
 }
+
+case class LiteralNilDelimitedEndOfDataStatic(eb: ElementBase)
+  extends LiteralNilDelimitedEndOfData(eb)
+case class LiteralNilDelimitedEndOfDataDynamic(eb: ElementBase)
+  extends LiteralNilDelimitedEndOfData(eb) with Dynamic
 
 case class LogicalNilValue(e: ElementBase) extends Primitive(e, e.isNillable)
 

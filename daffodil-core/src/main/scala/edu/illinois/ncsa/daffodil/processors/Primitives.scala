@@ -1069,6 +1069,11 @@ abstract class Primitive(e: AnnotatedSchemaComponent, guard: Boolean = false)
 
 }
 
+abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guard){
+  override def toString = "DelimParserBase[" + name + "]"
+  val dp = new DFDLDelimParserStatic(e.knownEncodingStringBitLengthFunction)
+}
+
 abstract class ZonedTextNumberPrim(e: ElementBase, guard: Boolean) extends Terminal(e, guard) {
   def parser: DaffodilParser = new PrimParser(this, e) {
     def parse(start: PState): PState = {
