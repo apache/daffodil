@@ -84,6 +84,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
+import edu.illinois.ncsa.daffodil.api.WithDiagnostics
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler {
 
@@ -341,11 +342,21 @@ object Main {
         }
         val inChannel = java.nio.channels.Channels.newChannel(input);
 
-        val rc = processor match {
-          case Some(processor) =>
-            {
-              val parseResult = DebugUtil.time("Parsing", processor.parse(inChannel))
+        def displayDiagnostics(pr: WithDiagnostics) {
+          pr.getDiagnostics.foreach { d =>
+            System.err.println(d.getMessage())
+          }
+        }
 
+        val rc = processor match {
+          case Some(processor) => {
+            val parseResult = DebugUtil.time("Parsing", processor.parse(inChannel))
+
+            if (parseResult.isError) {
+              displayDiagnostics(parseResult)
+              1
+            } else {
+              displayDiagnostics(parseResult) // displays any warnings (should be no errors)                
               val output = parseOpts.output.get match {
                 case Some("-") | None => System.out
                 case Some(file) => new FileOutputStream(file)
@@ -355,9 +366,9 @@ object Main {
               val pp = new scala.xml.PrettyPrinter(80, 2)
               DebugUtil.time("Writing", writer.write(pp.format(parseResult.result) + "\n"))
               writer.flush()
-
-              if (parseResult.isError) 1 else 0
+              0
             }
+          }
           case None => 1
         }
         rc

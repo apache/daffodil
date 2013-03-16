@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.util
  * SOFTWARE.
  */
 
-
 import java.io.FileNotFoundException
 import java.io.FileInputStream
 import java.io.InputStream
@@ -86,7 +85,9 @@ object Misc {
   def getRequiredResource(resourcePath: String): URL = {
     getResourceOption(resourcePath) match {
       case (None, resPath) => {
-        val msg = "Required resource " + resPath + " was not found.\nClasspath is: " + classPath.mkString("\n")
+        val msg = "Required resource " + resPath + " was not found.\nClasspath is " +
+          (if (classPath.length == 0) "empty."
+          else ": " + classPath.mkString("\n"))
         System.err.println(msg)
         throw new Exception(msg)
       }

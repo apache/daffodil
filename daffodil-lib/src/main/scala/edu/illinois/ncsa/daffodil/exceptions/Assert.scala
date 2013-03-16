@@ -41,7 +41,9 @@ abstract class UnsuppressableException(m: String) extends Exception(m) {
 }
 class UsageException(m: String) extends UnsuppressableException(m)
 class NotYetImplementedException(m: String) extends UnsuppressableException("Not yet implemented.\n" + m)
-class Abort(m: String) extends UnsuppressableException(m)
+class Abort(m: String) extends UnsuppressableException(m) {
+  def this(th: Throwable) = this(th.getMessage())
+}
 
 class Assert {
   def shortBacktrace = {
@@ -83,6 +85,10 @@ object Assert extends Assert {
 
   def abort(message: => String = "") = {
     toss(new Abort(message + "\n" + shortBacktrace))
+  }
+
+  def abort(th: Throwable) = {
+    toss(new Abort(th))
   }
 
   def impossible(message: String = "impossible! this code path is supposed to be unreachable.") = {

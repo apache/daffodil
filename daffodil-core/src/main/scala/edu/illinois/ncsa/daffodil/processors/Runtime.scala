@@ -206,7 +206,7 @@ abstract class ParseResult(dp: DataProcessor)
       val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0), Seq(NS(XMLUtils.INT_NS)))
       xmlClean
     } else {
-      throw new IllegalStateException("There is no result. Should check by calling isError() first.");
+      Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
     }
 }
 

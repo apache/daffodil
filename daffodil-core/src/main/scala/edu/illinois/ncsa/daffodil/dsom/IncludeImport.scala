@@ -473,8 +473,12 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
   /**
    * For error message if we don't find a file/resource.
    */
-  lazy val classPathLines = Misc.classPath.filterNot { _.endsWith(".jar") }.mkString("\n")
+  lazy val classPathLines = classPathNotJars.mkString("\n")
 
+  lazy val classPathNotJars = Misc.classPath.filterNot { _.endsWith(".jar") }
+
+  lazy val whereSearched = if (classPathNotJars.length == 0) " Classpath was empty."
+  else " Searched these locations: \n" + classPathLines
 }
 /**
  * enclosingGoalNS is None if this include
@@ -511,7 +515,7 @@ class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
         log(Info("Included schema from %s into namespace %s.", rsl, ns))
         rsl
       }
-      case None => schemaDefinitionError("Included schema not found at location %s.  Searched these locations: \n%s", slText, classPathLines)
+      case None => schemaDefinitionError("Included schema not found at location %s." + whereSearched, slText)
     }
   }
 
@@ -614,10 +618,10 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   private val resolvedLocation_ = LV('resolvedLocation) {
     val rl = (importElementNS, resolvedNamespaceURI, schemaLocationProperty, resolvedSchemaLocation) match {
       case (None, _, Some(sl), None) =>
-        schemaDefinitionError("Unable to import a no-namespace schema from schema location %s. Searched these locations: \n%s", sl, classPathLines)
+        schemaDefinitionError("Unable to import a no-namespace schema from schema location %s." + whereSearched, sl)
       case (Some(_), Some(rnURI), _, _) => rnURI // found it in the catalog based on namespace attribute
       case (Some(ns), None, Some(sl), None) =>
-        schemaDefinitionError("Unable to import namespace %s from XML catalog(s) %s or schema location %s. Searched these locations: \n%s", ns, catFiles, sl, classPathLines)
+        schemaDefinitionError("Unable to import namespace %s from XML catalog(s) %s or schema location %s." + whereSearched, ns, catFiles, sl)
       case (_, None, Some(sl), Some(rsl)) => rsl // found it by way of the schemaLocation
       case (Some(ns), None, None, None) => {
 
