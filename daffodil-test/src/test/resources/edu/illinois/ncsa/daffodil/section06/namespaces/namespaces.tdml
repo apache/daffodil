@@ -41,6 +41,26 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: ibm_format_compat_03
+       Schema: ibm_format_compat_2.xsd
+         Root: RNAChain
+      Purpose: This test demonstrates the ability to use IBM schemas that reference GeneralPurposeFormat without issue
+  -->
+ 
+  <tdml:parserTestCase name="ibm_format_compat_03" root="RNAChain"
+    model="ibm_format_compat_2.xsd" description="">
+    <tdml:document><![CDATA[a]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <RNAChain>
+          <Count>1232131</Count>
+          <RNABase>1</RNABase>
+        </RNAChain>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="Lesson2_no_namespace" root="address"
     model="address_no_namespace.dfdl.xsd" description="dfdl namespace - DFDL-6-002R">

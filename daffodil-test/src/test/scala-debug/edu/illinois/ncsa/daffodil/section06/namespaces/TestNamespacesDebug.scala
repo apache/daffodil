@@ -69,6 +69,6 @@ class TestNamespacesDebug extends JUnitSuite {
   // allParentTerminatingMarkup. See created issue DFDL-571
   @Test def test_long_chain_05() { runner.runOneTest("long_chain_05") }
 
-  @Test def test_ibm_format_compat_02() { runner.runOneTest("ibm_format_compat_02") }
+  @Test def test_ibm_format_compat_03() { runner.runOneTest("ibm_format_compat_03") }
 
 }
