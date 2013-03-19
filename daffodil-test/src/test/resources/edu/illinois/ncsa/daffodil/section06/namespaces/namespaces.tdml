@@ -51,12 +51,16 @@
  
   <tdml:parserTestCase name="ibm_format_compat_03" root="RNAChain"
     model="ibm_format_compat_2.xsd" description="">
-    <tdml:document><![CDATA[a]]></tdml:document>
+    <tdml:document><tdml:documentPart type="text"><![CDATA[4|]]></tdml:documentPart>
+    <tdml:documentPart type="bits">00011011</tdml:documentPart></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <RNAChain>
-          <Count>1232131</Count>
+          <Count>4</Count>
+          <RNABase>0</RNABase>
           <RNABase>1</RNABase>
+          <RNABase>2</RNABase>
+          <RNABase>3</RNABase>
         </RNAChain>
       </tdml:dfdlInfoset>
     </tdml:infoset>

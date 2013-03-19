@@ -82,21 +82,40 @@ trait InitiatedTerminatedMixin
     if (terminator.isConstant) StaticTerminator(this)
     else DynamicTerminator(this))
 
+  /**
+   * Changed to use findProperty, and to resolve the namespace properly.
+   *
+   * We lookup a property like escapeSchemeRef, and that actual property
+   * binding can be local, in scope, by way of a format reference, etc.
+   *
+   * It's value is a QName, and the definition of the prefix is from the
+   * location where we found the property, and NOT where we consume the property.
+   *
+   * Hence, we resolve w.r.t. the location that provided the property.
+   *
+   * The point of findProperty vs. getProperty is just that the former returns
+   * both the value, and the object that contained it. That object is what
+   * we resolve QNames with respect to.
+   *
+   * Note: Same is needed for properties that have expressions as their values.
+   * E.g., consider "{ ../foo:bar/.. }". That foo prefix must be resolved relative
+   * to the object where this property was written, not where it is evaluated. (JIRA
+   * issue DFDL-77)
+   */
   lazy val escapeScheme: Option[DFDLEscapeScheme] = {
-    val er = getPropertyOption("escapeSchemeRef")
+    val er = findPropertyOption("escapeSchemeRef")
     er match {
-      case None => None
-      case Some(qName) => {
-
-        if (qName.length() == 0) {
-          None
-        } else {
-          val (nsURI, name) = formatAnnotation.resolveQName(qName)
-          val defES = schemaSet.getDefineEscapeScheme(nsURI, name)
-          defES match {
-            case None => SDE("Define Escape Scheme Not Found")
-            case Some(es) => Some(es.escapeScheme)
-          }
+      case _: NotFound => {
+        SDW("Property escapeSchemeRef was undefined. Please add escapeSchemeRef='' to your schema.")
+        None
+      }
+      case Found("", _) => None // empty string means no escape scheme
+      case Found(qName, loc) => {
+        val (nsURI, name) = loc.resolveQName(qName) // loc is where we resolve the QName prefix.
+        val defES = schemaSet.getDefineEscapeScheme(nsURI, name)
+        defES match {
+          case None => SDE("Define Escape Scheme %s Not Found", qName)
+          case Some(es) => Some(es.escapeScheme)
         }
       }
     }
@@ -239,7 +258,7 @@ trait ElementBaseGrammarMixin
       //  notYetImplemented("lengthKind='explicit' and lengthUnits='bytes' with non-fixed-width or potentially non-fixed-width encoding='%s'.", this.encodingRaw)
       //// StringExplicitLengthInBytesVariableWidthCharacters(this)
       //case (LengthUnits.Characters, _) =>
-       // notYetImplemented("lengthKind='explicit' and lengthUnits='characters'")
+      // notYetImplemented("lengthKind='explicit' and lengthUnits='characters'")
       //// Above, keep in mind fixed length but variable-width encoding means variable width.
       //// The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
       //// 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
@@ -668,9 +687,9 @@ trait ElementBaseGrammarMixin
       nilElementInitiator ~ {
         // if (representation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
         lengthKind match {
-//          case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
+          //          case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
           case LengthKind.Delimited if this.hasExpressionsInTerminatingMarkup => LiteralNilDelimitedEndOfDataDynamic(this)
-          case LengthKind.Delimited  => LiteralNilDelimitedEndOfDataStatic(this)
+          case LengthKind.Delimited => LiteralNilDelimitedEndOfDataStatic(this)
           case LengthKind.Pattern => LiteralNilPattern(this)
           case LengthKind.Explicit => {
             lengthUnits match {

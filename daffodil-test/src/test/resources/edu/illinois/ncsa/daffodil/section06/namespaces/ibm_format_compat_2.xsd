@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:fmt="http://www.ibm.com/dfdl/GeneralPurposeFormat"
     xmlns:ibmDfdlExtn="http://www.ibm.com/dfdl/extensions" xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions"
-        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://example.com" xmlns:tns="http://example.com">
 
   <xsd:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
     schemaLocation="IBMdefined/GeneralPurposeFormat.xsd"/>
@@ -11,8 +12,8 @@
       <xsd:sequence dfdl:separator="">
         <xsd:element dfdl:terminator="|" dfdl:textNumberPattern="#0"
           ibmDfdlExtn:sampleValue="18446744073709551615" name="Count" type="xsd:unsignedLong"/>
-        <xsd:element dfdl:occursCount="{/RNAChain/Count}" dfdl:occursCountKind="expression"
-          ibmDfdlExtn:sampleValue="1" maxOccurs="unbounded" name="RNABase" type="RNABase"/>
+        <xsd:element dfdl:occursCount="{/tns:RNAChain/tns:Count}" dfdl:occursCountKind="expression"
+          ibmDfdlExtn:sampleValue="1" maxOccurs="unbounded" name="RNABase" type="tns:RNABase"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>

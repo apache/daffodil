@@ -196,6 +196,11 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   requiredEvaluations(hasConflictingPropertyError)
 
   lazy val ref = getLocalFormatRef()
+  //
+  // prefix of a QName as the value of this ref, must be referring
+  // to a namespace binding that is in force right here on this object
+  // So we can resolve the QName relative to this.
+  //
   lazy val refPair = ref.map { resolveQName(_) }
   lazy val referencedDefineFormat = refPair.flatMap { case (ns, name) => schemaSet.getDefineFormat(ns, name) }
   lazy val referencedFormat = referencedDefineFormat.map { _.formatAnnotation }
@@ -455,7 +460,9 @@ class DFDLDefineFormat(node: Node, sd: SchemaDocument)
 
   requiredEvaluations(formatAnnotation)
 
-  lazy val baseFormat = getAttributeOption("baseFormat") // nor baseFormat
+  // baseFormat was removed from the DFDL spec. Just use a ref from the 
+  // dfdl:format inside.
+  // lazy val baseFormat = getAttributeOption("baseFormat") // nor baseFormat
 
   lazy val formatAnnotation = formatAnnotation_.value
   private val formatAnnotation_ = LV('formatAnnotation) {

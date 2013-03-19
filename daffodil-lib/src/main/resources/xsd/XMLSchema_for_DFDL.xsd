@@ -543,8 +543,6 @@ this to validate when we load a DFDL Schema.
 
   <xsd:attributeGroup name="anyOther">
     <!--
-    
-      Note: comment below is still desirable, but not clear what to do.
       
       IBM's DFDL Schemas have ibm-specific attributes on them that we 
       need to tolerate. Users may want to decorate their DFDL schemas with
@@ -554,28 +552,20 @@ this to validate when we load a DFDL Schema.
       which is lax validation allowing any other attribute to appear.
       
       The problem: this disables ability to catch certain typographical errors.
+      In fact a bunch of our negative tests will have to be fixed, as they are 
+      counting on errors from validation of these typos and mistakes and 
+      that sort of thing.
       
-      I'm not sure you'll get an error if you forget the dfdl: prefix on 
-      a short form dfdl property binding. 
+      A common error is to forget the dfdl: prefix on 
+      a short form dfdl property binding, or to include the dfdl: prefix
+      one on a long-form format annotation. This will no longer be caught by 
+      the validator. 
       
-      UPDATE: nope. Switched back to explicit list of namespaces where
-      we tolerate other attributes. Added http://www.ibm.com/schema/extensions
-      to that list so that we don't barf on their extensions.
+      We will have to build explicit checking for this into Daffodil's traversal
+      of the schema. 
       
-      This is only a temporary hack however. It's unclear what the 
-      ultimate solution to this is. 
-      
-      --><!-- 
-      
-      For DFDL, XSD normally does lax validation, but to find more typographical
-      errors in our examples we want strict validation
-
-      However, going even further, we want to validate short form annotations,
-      so we don't use wildcards for the dfdl namespace at all because if 
-      we do our ability to enforce proper use of dfdl short form properties is 
-      lost.
-    -->
-    <!-- <xsd:anyAttribute namespace="##other" processContents="lax"/> -->
+      -->
+    <xsd:anyAttribute namespace="##other" processContents="lax"/> 
     <!-- <xsd:anyAttribute namespace="##other" processContents="strict"/> -->
 
 
@@ -589,13 +579,13 @@ this to validate when we load a DFDL Schema.
     <!-- Not important to validate these, and we need to tolerate
       Other attributes from other DFDL implementations -->
      
-      <xsd:anyAttribute 
+     <!-- <xsd:anyAttribute 
     namespace="http://www.w3.org/XML/1998/namespace 
     urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int 
     urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext
     http://www.ibm.com/schema/extensions"
       processContents="lax"
-    /> 
+    /> -->
 
 
   </xsd:attributeGroup>

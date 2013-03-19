@@ -177,6 +177,8 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
   lazy val fakeXMLSchemaDocument = {
     val xsd = XMLUtils.XSD_NAMESPACE.toString
 
+    // Any time we synthesize xml we have to grab the namespace definitions and 
+    // make sure we drag them along onto the new structures.
     val fakeImportStatementsXML = schemaFileNames.map { fn =>
       <import schemaLocation={ new File(fn).toURI.toURL.toString } xmlns={ xsd }/>
     }

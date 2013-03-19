@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE schema>
+<?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
   targetNamespace="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" dfdl:documentFinalSeparatorCanBeMissing="yes">
 
+   <annotation><appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
     <dfdl:defineFormat name="def">
       <dfdl:format ref="tns:def1" encoding="utf-8"
         lengthKind="explicit" lengthUnits="characters" length="5"
@@ -27,11 +28,13 @@
     <dfdl:format ref="tns:daffodilTest1" lengthKind="explicit"
       lengthUnits="characters" length="3" />
 
+</appinfo></annotation>
+
     <element name="easy" type="int" dfdl:textNumberRep="standard">
       <annotation>
         <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
           <dfdl:element>
-            <dfdl:property name="ref">tns:def</dfdl:property>
+            <dfdl:property name="ref">tns:def</dfdl:property><!-- not allowed for ref -->
           </dfdl:element>
         </appinfo>
       </annotation>

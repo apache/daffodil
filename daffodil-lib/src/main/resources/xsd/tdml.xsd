@@ -61,7 +61,8 @@
       <element ref='xs:element' />
       <element ref='xs:complexType' />
       <element ref='xs:group' />
-      <element ref='xs:simpleType' />
+      <element ref='xs:simpleType' /> 
+      <!-- <any namespace="##other" processContents="lax"/> -->
     </choice>
     <attribute name="name" type="xs:NCName" use="required" />
   </complexType>

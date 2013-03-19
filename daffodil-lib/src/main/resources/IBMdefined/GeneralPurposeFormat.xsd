@@ -80,7 +80,7 @@
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
            targetNamespace="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
-           xmlns:tns="http://www.ibm.com/dfdl/GeneralPurposeFormat" >
+                 xmlns:tns="http://www.ibm.com/dfdl/GeneralPurposeFormat" >
 
 <xs:annotation>
 <xs:appinfo source="http://www.ogf.org/dfdl/">

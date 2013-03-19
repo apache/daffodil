@@ -150,7 +150,7 @@ class TestNamespaces extends JUnitSuite {
 
   @Test def test_ibm_format_compat_01() { runner.runOneTest("ibm_format_compat_01") }
   @Test def test_ibm_format_compat_02() { runner.runOneTest("ibm_format_compat_02") }
-//  @Test def test_ibm_format_compat_03() { runner.runOneTest("ibm_format_compat_03") }
+  @Test def test_ibm_format_compat_03() { runner.runOneTest("ibm_format_compat_03") }
 
   val ibm_abc_schema = testDir + "ABC_IBM.xsd"
 

@@ -153,14 +153,14 @@ abstract class SchemaComponent(xmlArg: Node, parent: SchemaComponent)
    * Makes sure to inherit the scope so we have all the namespace bindings.
    */
   def newDFDLAnnotationXML(label: String) = {
-    // FIXME: fix wired "dfdl" prefix here. Ok so long as that xmlScope is properly
-    // binding the prefix, dfdl, but since we're just using the scope from 
-    // the xml object, that isn't necessarily true.
-    // We should lookup the binding for the
-    // DFDL namespace on the scope and use whatever prefix it has for it.
-    // if it has none, then we should see if anything else is bound to "dfdl"
-    // before just blindly using it.
-    scala.xml.Elem("dfdl", label, emptyXMLMetadata, xml.scope)
+    //
+    // This is not a "wired" dfdl prefix.
+    // Rather, we are creating a new nested binding for the dfdl prefix to the right DFDL uri.
+    // Which applies to this element and what is inside it only.
+    // So we're indifferent to what the surrounding context might be using for namespace bindings.
+    //
+    val dfdlBinding = new scala.xml.NamespaceBinding("dfdl", XMLUtils.DFDL_NAMESPACE.toString, xml.scope)
+    scala.xml.Elem("dfdl", label, emptyXMLMetadata, dfdlBinding)
   }
 
   /**
@@ -319,7 +319,7 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
   extends SchemaComponent(xml, sc)
   with AnnotatedMixin {
 
-  requiredEvaluations(annotationObjs, nonDefaultPropertySources, defaultPropertySources)
+  requiredEvaluations(annotationObjs, shortFormPropertiesCorrect, nonDefaultPropertySources, defaultPropertySources)
 
   //  /**
   //   * only used for debugging
@@ -327,6 +327,27 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
   //  override lazy val properties: PropMap =
   //    (nonDefaultPropertySources.flatMap { _.properties.toSeq } ++
   //      defaultPropertySources.flatMap { _.properties.toSeq }).toMap
+
+  final lazy val shortFormPropertiesCorrect: Boolean = {
+    // Check that any unprefixed properties are disjoint with ALL DFDL property names.
+    // Warning otherwise
+    // Insure that some prefix is bound to the dfdl namespace. Warn otherwise.
+    // Warn if dfdl: is bound to something else than the DFDL namespace. 
+    shortFormAnnotationsAreValid
+  }
+
+  /**
+   * Since validation of extra attributes on XML Schema elements is
+   * normally lax validation, we can't count on validation of DFDL schemas
+   * to tell us whether short-form annotations are correct or not.
+   *
+   * So, we have to do this check ourselves.
+   *
+   * TBD: change properties code generator to output the various lists of
+   * properties that we have to check against. (Might already be there...?)
+   *
+   */
+  def shortFormAnnotationsAreValid: Boolean = true
 
   def nonDefaultPropertySources: Seq[ChainPropProvider]
 
@@ -1232,6 +1253,17 @@ class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   override lazy val schema = schemaSet.getSchema(targetNamespace).getOrElse {
     Assert.invariantFailed("schema not found for schema document's namespace.")
   }
+
+  //  lazy val shortFormAnnotationsAreValid: Boolean = {
+  //    val dfdlns = XMLUtils.DFDL_NAMESPACE
+  //    val attrs = xml.attributes
+  // 
+  //    
+  //    // Check that any prefixed properties in the DFDL namespace are allowed on 
+  //    // this specific annotated schema component.
+  //
+  //    val dfdlAttrs = attrs.filter{ a => a.isPrefixed && a.}
+  //  }
 
   lazy val nonDefaultPropertySources = Seq()
 
