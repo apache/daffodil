@@ -60,9 +60,6 @@ class TestLengthPropertiesDebug extends JUnitSuite {
   // should just skip the 2 excess bytes
   @Test def test_LengthProp_06() { runner_02.runOneTest("LengthProp_06") }
 
-  // waiting for lengthUnits characters to be implemented.
-  @Test def test_LengthProp_lengthExpression() { runner_02.runOneTest("LengthProp_lengthExpression1") }
-
   @Test def test_LengthProp_floatBits() { runner_02.runOneTest("LengthProp_floatBits") }
   
   @Test def test_LengthProp_bits_bool() { runner_02.runOneTest("LengthProp_bits_bool") }

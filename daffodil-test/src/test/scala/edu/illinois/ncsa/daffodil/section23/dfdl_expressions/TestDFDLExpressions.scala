@@ -59,6 +59,7 @@ class TestDFDLExpressions extends JUnitSuite {
   @Test def test_expressionRules02() { runner.runOneTest("expressionRules02") }
 //  @Test def test_expressionRules03() { runner.runOneTest("expressionRules03") }
 
+  @Test def test_expressions_lke3_rel() { runner.runOneTest("lke3_rel") }
   @Test def test_expressions_lke1_rel() { runner.runOneTest("lke1_rel") }
   @Test def test_expressions_lke1_abs() { runner.runOneTest("lke1_abs") }
   @Test def test_expressions_ocke1() { runner.runOneTest("ocke1") }

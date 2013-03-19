@@ -50,9 +50,6 @@ class TestDFDLExpressionsDebug extends JUnitSuite {
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
-  // waiting for feature where string length can be given in units of bytes
-  // even for variable-width character sets like utf-8 (which use 1 to 4 bytes per character)
-  @Test def test_expressions_lke3_rel() { runner.runOneTest("lke3_rel") }
   @Test def test_regexCompatFail() { runner.runOneTest("regexCompatFail") }
   
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"

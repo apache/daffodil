@@ -75,7 +75,7 @@ class TestLengthProperties extends JUnitSuite {
   @Test def test_LengthProp_byteLength_UTF16fail() { runner_02.runOneTest("LengthProp_byteLength_UTF16fail") }
   @Test def test_LengthProp_longByteLength() { runner_02.runOneTest("LengthProp_longByteLength") }
   @Test def test_LengthProp_longTextLength() { runner_02.runOneTest("LengthProp_longTextLength") }
-  //  @Test def test_LengthProp_lengthExpression() { runner_02.runOneTest("LengthProp_lengthExpression1") }
+  @Test def test_LengthProp_lengthExpression() { runner_02.runOneTest("LengthProp_lengthExpression1") }
 
   @Test def test_LengthProp_bits_01() { runner_02.runOneTest("LengthProp_bits_01") }
   @Test def test_LengthProp_bits_02() { runner_02.runOneTest("LengthProp_bits_02") }
