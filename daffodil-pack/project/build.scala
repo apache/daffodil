@@ -7,8 +7,10 @@ object DaffodilBuild extends Build {
   lazy val example = Project(id = "daffodil-example", base = file("."), settings = s)
 
   val packFileList = Seq(
-    "bin",
-    "build.sbt"
+    "bin" -> "/bin",
+    "build.sbt" -> "/build.sbt",
+    "../daffodil-perf/src/test/resources/edu/illinois/ncsa/daffodil/pcap/" -> "/examples/pcap",
+    "../daffodil-perf/src/test/resources/edu/illinois/ncsa/daffodil/csv/" -> "/examples/csv"
   )
 
   lazy val packTask = TaskKey[Unit]("pack", "Generate distributable pack files", KeyRanks.APlusTask)
@@ -80,22 +82,22 @@ object DaffodilBuild extends Build {
     bw.close()
   }
 
-  def packFiles(outDir: File, name: String, version: String, inFiles: Seq[String], cpFiles: Seq[File], packCmd: String, packExt: String) {
+  def packFiles(outDir: File, name: String, version: String, inFiles: Seq[(String,String)], cpFiles: Seq[File], packCmd: String, packExt: String) {
     outDir.mkdirs()
     val outBase = "%s-%s".format(name, version)
     IO.withTemporaryDirectory(dir => {
       val daffodilDir = new File(dir, outBase)
-      inFiles.foreach(f => {
-        val source = new File(f)
-        val dest = new File(daffodilDir, f)
+      inFiles.foreach { case (fs, fd) => {
+        val source = new File(fs)
+        val dest = new File(daffodilDir, fd)
 
         copy(source, dest)
         
         // Special case for build.sbt
-        if (f == "build.sbt") {
+        if (fs == "build.sbt") {
           modifyBuildSBT(dest, version)
         }
-      })
+      }}
 
       val libDir = new File(daffodilDir, "lib")
       IO.createDirectory(libDir)
