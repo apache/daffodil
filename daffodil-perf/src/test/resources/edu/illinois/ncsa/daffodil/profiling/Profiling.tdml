@@ -7,7 +7,7 @@
     description="CSV-style tests">
 
     <document>
-      <documentPart type="file">edu/illinois/ncsa/daffodil/profiling/AB007.in</documentPart>
+      <documentPart type="file">AB007.in</documentPart>
     </document>
 
     <infoset>
@@ -25,7 +25,7 @@
     description="CSV-style tests">
 
     <document>
-      <documentPart type="file">edu/illinois/ncsa/daffodil/profiling/AB007Simplified.in</documentPart>
+      <documentPart type="file">AB007Simplified.in</documentPart>
     </document>
 
     <infoset>
@@ -43,7 +43,7 @@
     description="PCAP profiling">
 
     <document>
-      <documentPart type="file">edu/illinois/ncsa/daffodil/profiling/smbtorture.cap</documentPart>
+      <documentPart type="file">smbtorture.cap</documentPart>
     </document>
 
     <infoset>

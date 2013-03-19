@@ -212,13 +212,13 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
   }
 
   /**
-   * Try a few possibilities to find the model/schema file.
+   * Try a few possibilities to find the model/schema/tdml resources
    *
    * IBM's suites have funny model paths in them. We don't have that file structure,
-   * so we look for the schema/model files in the working directory, and in the same
+   * so we look for the schema/model/tdml resources in the working directory, and in the same
    * directory as the tdml file, and some other variations.
    */
-  def findModelFile(fileName: String): File = {
+  def findTDMLResource(fileName: String): File = {
     val firstTry = new File(fileName)
     if (firstTry.exists()) return firstTry
     // see if it can be found relative to the tdml test file, like next to it.
@@ -228,20 +228,20 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
       if (sysFile.exists()) {
         // the system Id of the tdml file was a file.
         val sysPath = sysFile.getParent()
-        val modelFileName = sysPath + File.separator + fileName
-        log(LogLevel.Debug, "Model file name is: %s", modelFileName)
-        val modelFile = new File(modelFileName)
-        if (modelFile.exists()) return modelFile
+        val resourceFileName = sysPath + File.separator + fileName
+        log(LogLevel.Debug, "TDML resource name is: %s", resourceFileName)
+        val resourceFile = new File(resourceFileName)
+        if (resourceFile.exists()) return resourceFile
       }
     }
     // try ignoring the directory part
     val parts = fileName.split("/")
     if (parts.length > 1) {
       val filePart = parts.last
-      val secondTry = findModelFile(filePart) // recursively
+      val secondTry = findTDMLResource(filePart) // recursively
       if (secondTry.exists()) return secondTry;
     }
-    throw new FileNotFoundException("Unable to find model file " + fileName + ".")
+    throw new FileNotFoundException("Unable to find tdml resource " + fileName + ".")
   }
 
   def findModel(modelName: String): Node = {
@@ -250,7 +250,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
     es match {
       case Some(defschema) => defschema.xsdSchema
       case None => {
-        val file = findModelFile(modelName)
+        val file = findTDMLResource(modelName)
         val schema = {
           val res = (new DaffodilXMLLoader(errorHandler)).loadFile(file)
           res
@@ -927,7 +927,7 @@ case class DocumentPart(part: Node, parent: Document) {
   }
 
   lazy val fileDataInput = {
-    val file = new File(Misc.getRequiredResource(partRawContent).toURI)
+    val file = parent.parent.parent.findTDMLResource(partRawContent)
     val fis = new FileInputStream(file)
     //    val fileBytes = Stream.continually(fis.read()).takeWhile(_ != -1).map(_.toByte).toArray
     //    bytes2Bits(fileBytes)

@@ -1687,7 +1687,7 @@
   <tdml:parserTestCase name="indexLimit" model="csv_mod_hidden.dfdl.xsd" root="file"
     description="Section 23 - Uses of Expression Language - DFDL-23-003R">
     <tdml:document>
-      <tdml:documentPart type="file">edu/illinois/ncsa/daffodil/section23/dfdl_expressions/csv_1.6m</tdml:documentPart>
+      <tdml:documentPart type="file">csv_1.6m</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

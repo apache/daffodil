@@ -78,7 +78,7 @@
     model="s1" description="literal nil - DFDL-13-234R">
 
     <tdml:document>
-      <tdml:documentPart type="file">edu/illinois/ncsa/daffodil/section00/general/ext_file.txt</tdml:documentPart>
+      <tdml:documentPart type="file">ext_file.txt</tdml:documentPart>
     </tdml:document>
 
     <tdml:infoset>
@@ -103,7 +103,7 @@
     model="s1" description="literal nil - DFDL-13-234R">
 
     <tdml:document>
-      <tdml:documentPart type="file">edu/illinois/ncsa/daffodil/section00/general/ext_file2.txt</tdml:documentPart>
+      <tdml:documentPart type="file">ext_file2.txt</tdml:documentPart>
       <tdml:documentPart type="byte">000000002CFFFFFFFF3B</tdml:documentPart>
       <tdml:documentPart type="text">,400;</tdml:documentPart>
     </tdml:document>
@@ -126,7 +126,7 @@
     model="s1" description="literal nil - DFDL-13-234R">
 
     <tdml:document>
-      <tdml:documentPart type="file">edu/illinois/ncsa/daffodil/section00/general/file_does_not_exist.txt</tdml:documentPart>
+      <tdml:documentPart type="file">file_does_not_exist.txt</tdml:documentPart>
     </tdml:document>
 
     <tdml:errors>

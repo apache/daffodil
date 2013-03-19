@@ -13,7 +13,7 @@
   <tdml:parserTestCase name="pcap_test" root="pcap"
     model="pcap.dfdl.xsd" description="pcap test">
     <tdml:document>
-      <tdml:documentPart type="file">edu/illinois/ncsa/daffodil/pcap/dns.cap</tdml:documentPart>
+      <tdml:documentPart type="file">dns.cap</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -32,7 +32,7 @@
   <tdml:parserTestCase name="pcap_test2" root="pcap"
     model="pcap.dfdl.xsd" description="pcap test">
     <tdml:document>
-      <tdml:documentPart type="file">edu/illinois/ncsa/daffodil/pcap/lldp.minimal.pcap</tdml:documentPart>
+      <tdml:documentPart type="file">lldp.minimal.pcap</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

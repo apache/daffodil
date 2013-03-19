@@ -134,10 +134,21 @@ class TestTDMLRunner extends JUnitSuite {
   }
 
   @Test def testDocWithTextFile() {
-    val xml = <document>
-                <documentPart type="file">/test/tdml/test.txt</documentPart>
-              </document>
-    val doc = new Document(xml, null)
+    val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
+                <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
+                  <document>
+                    <documentPart type="file">daffodil-core/src/test/resources/test/tdml/test.txt</documentPart>
+                  </document>
+                  <infoset>
+                    <dfdlInfoset xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+                      <byte1 xsi:type="xs:byte">123</byte1>
+                    </dfdlInfoset>
+                  </infoset>
+                </parserTestCase>
+              </testSuite>
+    val ts = new DFDLTestSuite(xml)
+    val ptc = ts.parserTestCases(0)
+    val doc = ptc.document.get
     val docPart = doc.documentParts(0)
     val bb = java.nio.ByteBuffer.allocate(11)
     doc.data.read(bb)
@@ -147,10 +158,21 @@ class TestTDMLRunner extends JUnitSuite {
   }
 
   @Test def testDocWithBinaryFile() {
-    val xml = <document>
-                <documentPart type="file">/test/tdml/test.bin</documentPart>
-              </document>
-    val doc = new Document(xml, null)
+    val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
+                <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
+                  <document>
+                    <documentPart type="file">daffodil-core/src/test/resources/test/tdml/test.bin</documentPart>
+                  </document>
+                  <infoset>
+                    <dfdlInfoset xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+                      <byte1 xsi:type="xs:byte">123</byte1>
+                    </dfdlInfoset>
+                  </infoset>
+                </parserTestCase>
+              </testSuite>
+    val ts = new DFDLTestSuite(xml)
+    val ptc = ts.parserTestCases(0)
+    val doc = ptc.document.get
     val docPart = doc.documentParts(0)
     val bb = java.nio.ByteBuffer.allocate(4)
     doc.data.read(bb)
@@ -413,10 +435,10 @@ class TestTDMLRunner extends JUnitSuite {
     }
   }
 
-  @Test def testFindModelFile() {
+  @Test def testTDMLResource() {
     lazy val res = Misc.getRequiredResource("/test-suite/ibm-contributed/dpaext1.tdml")
     lazy val ts = new DFDLTestSuite(new File(res.toURI()))
-    val mf = ts.findModelFile("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
+    val mf = ts.findTDMLResource("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
     assertTrue(mf.exists())
   }
 
