@@ -1,0 +1,190 @@
+Daffodil
+
+========================================================================
+INTRODUCTION
+========================================================================
+
+Daffodil is a parser generator that follows the DFDL specification.
+
+The generated parsers will translate into XML files that follow the
+format described by an XML Schema with DFDL annotations.
+
+It is a command line tool and a Java/Scala library.
+
+========================================================================
+REQUIREMENTS
+========================================================================
+
+Daffodil requires Java 7 or higher. All other dependencies are included
+in the lib directory and are automatically included when running
+Daffodil from the command line.
+
+========================================================================
+RUNNING
+========================================================================
+
+The command line of Daffodil is invoked through a bash script for Linux
+and Cygwin, or a batch script for Windows.
+
+To execute Daffodil, run the following command (replacing .sh with .bat
+if running windows):
+
+  $ ./bin/daffodil.sh <options>
+
+To display Daffodil usage and options, run the script with the --help
+option:
+
+  $ ./bin/daffodil.sh --help
+
+Additionally, the --help option can be used on a subcommand to get
+subcommand specific help:
+
+  $ ./bin/daffodil.sh parse --help
+
+  $ ./bin/daffodil.sh test --help
+
+For more information on the command line options, visit the command line
+interface page on the Daffodil website:
+
+https://opensource.ncsa.illinois.edu/confluence/display/DFDL/Command+Line+Interface
+
+========================================================================
+INTERACTIVE DEBUGGER
+========================================================================
+
+Daffodil comes with a built-in interactive debugger, allowing the user
+to pause parsing and inspect various aspects of the parse state. To
+enable the interactive debugger, supply the global -d option when
+parsing, for example:
+
+  $ ./bin/daffodil.sh -d parse --schema examples/pcap/pcap.dfdl.xsd examples/pcap/dns.cap
+
+When running the debugger, the user is provided with a command prompt,
+at which point the user can execute debugger commands to control the
+debugger and inspect state. Type 'help' at the command prompt to get
+information on the debugger commands. Additionally, you can type 'help
+<command>' to get help specific to a command.
+
+For more information on the interactive debugger, visit the interactive
+debugger page on the Daffodil website:
+
+https://opensource.ncsa.illinois.edu/confluence/display/DFDL/Interactive+Debugger
+
+
+========================================================================
+EXAMPLES
+========================================================================
+
+DFDL examples are provided in the examples directory. Examples can be
+run using two methods:
+
+1) Using DFDL schemas and input file, for example:
+
+  $ ./bin/daffodil.sh parse --schema examples/pcap/pcap.dfdl.xsd examples/pcap/dns.cap
+
+2) Using a TDML test file, for example:
+
+  $ ./bin/daffodil.sh test examples/pcap/pcap.tdml
+
+
+========================================================================
+ENVIRONMENT VARIABLES
+========================================================================
+
+Setting environment variables may be necessary to allow for
+importing/includes to work and when running tdml files.
+
+DAFFODIL_CLASSPATH
+
+  The Daffodil implementation will look on the classpath for 'includes'
+  and 'imports', and some tdml files. To define additional directories
+  where Daffodil should look for files, set the DAFFODIL_CLASSPATH
+  environment variable, for example:
+
+    export DAFFODIL_CLASSPATH="/path/to/imports/:/path/to/includes/"
+
+  In addition to defining directories to search for imports and
+  includes, you can add a "CatalogManager.properties" file to the
+  DAFFODIL_CLASSPATH to direct Daffodil to a relative path location of a
+  user XML Catalog.
+
+DAFFODIL_JAVA_OPTS
+
+  If you need to specify java options specific to Daffodil, you can set
+  the DAFFODIL_JAVA_OPTS environment variable. If not specified, the
+  JAVA_OPTS environment variable will be used. If that is not specified,
+  reasonable defaults for Daffodil will be used.
+
+========================================================================
+WEBSITE
+========================================================================
+
+For more information about Daffodil and its usage, please visit the
+Daffodil website at:
+
+  https://opensource.ncsa.illinois.edu/confluence/display/DFDL
+
+========================================================================
+COPYRIGHT NOTICE
+========================================================================
+
+Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+
+Developed by: Tresys Technology, LLC
+              http://www.tresys.com
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal with
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+ 1. Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimers.
+
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimers in the
+    documentation and/or other materials provided with the distribution.
+
+ 3. Neither the names of Tresys Technology, nor the names of its contributors
+    may be used to endorse or promote products derived from this Software
+    without specific prior written permission.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+SOFTWARE.
+
+
+
+Copyright (c) 2010 NCSA.  All rights reserved.
+Developed by: NCSA Cyberenvironments and Technologies
+              University of Illinois at Urbana-Champaign
+              http://cet.ncsa.uiuc.edu/
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal with the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+  1. Redistributions of source code must retain the above copyright notice,
+     this list of conditions and the following disclaimers.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimers in the
+     documentation and/or other materials provided with the distribution.
+  3. Neither the names of NCSA, University of Illinois, nor the names of its
+     contributors may be used to endorse or promote products derived from this
+     Software without specific prior written permission.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+WITH THE SOFTWARE.

@@ -9,6 +9,7 @@ object DaffodilBuild extends Build {
   val packFileList = Seq(
     "bin" -> "/bin",
     "build.sbt" -> "/build.sbt",
+    "README" -> "/README",
     "../daffodil-perf/src/test/resources/edu/illinois/ncsa/daffodil/pcap/" -> "/examples/pcap",
     "../daffodil-perf/src/test/resources/edu/illinois/ncsa/daffodil/csv/" -> "/examples/csv"
   )
