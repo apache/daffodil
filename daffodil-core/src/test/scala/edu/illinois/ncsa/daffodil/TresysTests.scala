@@ -58,6 +58,12 @@ class TresysTests extends JUnitSuite {
   lazy val runnerMD = new DFDLTestSuite(Misc.getRequiredResource(td))
   runnerMD.setCheckAllTopLevel(true)
 
+  // AX should just be debugged. Uses escape schemes. The test might be wrong
+  // or the implementation. But the feature is implemented.
+  val ax = testDir + "AX.tdml"
+  lazy val runnerAX = new DFDLTestSuite(Misc.getRequiredResource(ax))
+//  @Test def test_AX000() { runnerAX.runOneTest("AX000") } // escape schemes
+
   @Test def test_multiple_diagnostics1() {
     runnerMD.runOneTest("twoMissingTypeDefErrors")
   }
@@ -124,5 +130,4 @@ class TresysTests extends JUnitSuite {
 
   val runnerNG = new DFDLTestSuite(Misc.getRequiredResource(testDir + "nested_group_ref.tdml"))
   @Test def test_nested_group_refs() { runnerNG.runOneTest("nestedGroupRefs") }
-
 }
