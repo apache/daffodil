@@ -57,6 +57,5 @@ class TestLengthKindExplicitDebug extends JUnitSuite {
   // runner.runOneTest("test_name") 
   // }
 
-  @Test def test_ExplicitLengthBytesNotGiven() = { runner.runOneTest("test_ExplicitLengthBytesNotGiven") }
 
 }
