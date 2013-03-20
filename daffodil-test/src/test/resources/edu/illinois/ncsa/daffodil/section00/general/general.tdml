@@ -91,6 +91,23 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="litNil1FullPath" root="doc"
+    model="s1" description="Same as litNil1, but uses full file path">
+
+    <tdml:document>
+      <tdml:documentPart type="file">edu/illinois/ncsa/daffodil/section00/general/ext_file.txt</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc>
+          <e1>0</e1>
+          <e2 xsi:nil="true" />
+        </doc>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
  <!--
     Test name: litNil2
     Schema: s1
