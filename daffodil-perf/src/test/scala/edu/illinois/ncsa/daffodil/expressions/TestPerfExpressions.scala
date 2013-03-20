@@ -58,5 +58,6 @@ class TestPerfExpressions extends JUnitSuite {
 
   @Test def test_indexLimit_29030() { runner.runOneTest("indexLimit_29030") }
   @Test def test_indexLimit_100() { runner.runOneTest("indexLimit_100") }
+  @Test def test_indexLimit_2264() { runner.runOneTest("indexLimit_2264") }
 
 }

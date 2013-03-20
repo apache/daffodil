@@ -57,4 +57,30 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+<!--
+     Test Name: indexLimit_2264
+        Schema: csv_mod_hidden.dfdl.xsd
+       Purpose: This test attempts to find an upper-limit to array indexing within expressions.
+                It parses a large csv file, hides the actual data, and prints out the 2264th entry.
+-->
+
+  <tdml:parserTestCase name="indexLimit_2264" model="csv_mod_hidden.dfdl.xsd" root="file_2264"
+    description="Section 23 - Uses of Expression Language - DFDL-23-003R">
+    <tdml:document>
+      <tdml:documentPart type="file">csv_1.6m</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <file_2264>
+          <header>
+            <title>last</title>
+            <title>first</title>
+            <title>sigil</title>
+          </header>
+          <scoop>baratheon</scoop>
+        </file_2264>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

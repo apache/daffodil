@@ -41,6 +41,35 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  
+  <xs:element name="file_2264">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+        <xs:element name="header" minOccurs="0" maxOccurs="1" dfdl:occursCountKind="implicit">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="title" type="xs:string" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:sequence dfdl:hiddenGroupRef="ex:hidden_2264"/>
+        <xs:element name="scoop" type="xs:string" dfdl:inputValueCalc="{ /ex:file_2264/ex:record[2264]/ex:item }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:group name="hidden_2264">
+    <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+        <xs:element name="record" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="item" type="xs:string" maxOccurs="unbounded" 
+                dfdl:occursCount="{ dfdl:occursCount(/ex:file_2264/ex:header/*) }" dfdl:occursCountKind="expression"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+    </xs:sequence>
+  </xs:group>
 
   <xs:group name="hidden_100">
     <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
