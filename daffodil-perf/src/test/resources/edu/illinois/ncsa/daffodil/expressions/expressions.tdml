@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="expressions"
+  description="performance tests of expressions"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
+
+<!--
+     Test Name: indexLimit_29030
+        Schema: csv_mod_hidden.dfdl.xsd
+       Purpose: This test attempts to find an upper-limit to array indexing within expressions.
+                It parses a large csv file, hides the actual data, and prints out the 29,030th entry.
+-->
+
+  <tdml:parserTestCase name="indexLimit_29030" model="csv_mod_hidden.dfdl.xsd" root="file_29030"
+    description="Section 23 - Uses of Expression Language - DFDL-23-003R">
+    <tdml:document>
+      <tdml:documentPart type="file">edu/illinois/ncsa/daffodil/expressions/csv_1.6m</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <file_29030>
+          <header>
+            <title>last</title>
+            <title>first</title>
+            <title>sigil</title>
+          </header>
+          <scoop>lannister</scoop>
+        </file_29030>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: indexLimit_100
+        Schema: csv_mod_hidden.dfdl.xsd
+       Purpose: This test attempts to find an upper-limit to array indexing within expressions.
+                It parses a large csv file, hides the actual data, and prints out the 100th entry.
+-->
+
+  <tdml:parserTestCase name="indexLimit_100" model="csv_mod_hidden.dfdl.xsd" root="file_100"
+    description="Section 23 - Uses of Expression Language - DFDL-23-003R">
+    <tdml:document>
+      <tdml:documentPart type="file">edu/illinois/ncsa/daffodil/expressions/csv_1.6m</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <file_100>
+          <header>
+            <title>last</title>
+            <title>first</title>
+            <title>sigil</title>
+          </header>
+          <scoop>tyrell</scoop>
+        </file_100>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

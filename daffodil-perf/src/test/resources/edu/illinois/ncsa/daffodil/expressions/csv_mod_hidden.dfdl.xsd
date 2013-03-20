@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ex="http://example.com"
+  targetNamespace="http://example.com">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" separatorPolicy="suppressed" separatorPosition="infix" occursCountKind="parsed" emptyValueDelimiterPolicy="both" representation="text" 
+        textNumberRep="standard" lengthKind="delimited" encoding="ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+ 
+  <xs:element name="file_29030">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+        <xs:element name="header" minOccurs="0" maxOccurs="1" dfdl:occursCountKind="implicit">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="title" type="xs:string" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:sequence dfdl:hiddenGroupRef="ex:hidden_29030"/>
+        <xs:element name="scoop" type="xs:string" dfdl:inputValueCalc="{ /ex:file_29030/ex:record[29030]/ex:item }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="file_100">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+        <xs:element name="header" minOccurs="0" maxOccurs="1" dfdl:occursCountKind="implicit">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="title" type="xs:string" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:sequence dfdl:hiddenGroupRef="ex:hidden_100"/>
+        <xs:element name="scoop" type="xs:string" dfdl:inputValueCalc="{ /ex:file_100/ex:record[100]/ex:item }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:group name="hidden_100">
+    <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+        <xs:element name="record" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="item" type="xs:string" maxOccurs="unbounded" 
+                dfdl:occursCount="{ dfdl:occursCount(/ex:file_100/ex:header/*) }" dfdl:occursCountKind="expression"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+    </xs:sequence>
+  </xs:group>
+  
+  <xs:group name="hidden_29030">
+    <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+        <xs:element name="record" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="item" type="xs:string" maxOccurs="unbounded" 
+                dfdl:occursCount="{ dfdl:occursCount(/ex:file_29030/ex:header/*) }" dfdl:occursCountKind="expression"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+    </xs:sequence>
+  </xs:group>
+
+</xs:schema>

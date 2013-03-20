@@ -142,7 +142,5 @@ class TestDFDLExpressions extends JUnitSuite {
   
 //  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
 //  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
-  
-//  @Test def test_test() { runner.runOneTest("test") }
-
+ 
 }
