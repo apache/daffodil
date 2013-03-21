@@ -170,4 +170,6 @@ class TestNamespaces extends JUnitSuite {
     }
   }
 
+//  @Test def test_nonsense_namespace_01() { runner.runOneTest("nonsense_namespace_01") }
+
 }

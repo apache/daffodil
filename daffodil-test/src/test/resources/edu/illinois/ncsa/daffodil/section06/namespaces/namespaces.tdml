@@ -1393,5 +1393,27 @@
       <tdml:error>Placeholder</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: nonsense_namespace_01
+       Schema: ABC_invalid.xsd
+         Root: ABC
+      Purpose: This test demonstrates that attributes in unknown (yet properly defined) namespaces will be ignored.
+  -->
+ 
+  <tdml:parserTestCase name="nonsense_namespace_01" root="ABC"
+    model="ABC_invalid.xsd" description="">
+    <tdml:document><![CDATA[a
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ABC>
+          <Container>
+            <a>a</a>
+          </Container>
+        </ABC>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </testSuite>

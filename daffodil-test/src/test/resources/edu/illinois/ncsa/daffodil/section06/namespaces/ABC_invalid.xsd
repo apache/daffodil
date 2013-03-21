@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:tns="http://www.ibm.com/dfdl/GeneralPurposeFormat"
+  xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" 
+  xmlns:rando="http:imnotreal.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
+    schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+  <xsd:element dfdl:terminator="%NL;" rando:whatAreYouDoing="this is not valid" name="ABC">
+    <xsd:complexType>
+      <xsd:sequence dfdl:separator="" rando:IcanPutAnythingHEre="yep" rando:separator=".">
+
+        <xsd:element dfdl:occursCountKind="implicit"
+          dfdl:terminator="" maxOccurs="unbounded" minOccurs="1" name="Container">
+          <xsd:annotation rando:annotation="ok">
+            <xsd:appinfo source="http://www.ogf.org/dfdl/">
+
+            </xsd:appinfo>
+          </xsd:annotation>
+          <xsd:complexType rando:note="this would be good for documentation">
+            <xsd:choice>
+              <xsd:element dfdl:length="1" dfdl:lengthKind="explicit"
+                fixed="a" minOccurs="1" name="a" type="xsd:string">
+                <xsd:annotation>
+                  <xsd:appinfo source="http://www.ogf.org/dfdl/">
+                    <dfdl:discriminator rando:hm="what about here?">{. eq 'a'}</dfdl:discriminator>
+                  </xsd:appinfo>
+                </xsd:annotation>
+              </xsd:element>
+              <xsd:element dfdl:length="1" dfdl:lengthKind="explicit"
+                fixed="b" minOccurs="1" name="b" type="xsd:string">
+                <xsd:annotation>
+                  <xsd:appinfo source="http://www.ogf.org/dfdl/">
+                    <dfdl:discriminator>{. eq 'b'}</dfdl:discriminator>
+                  </xsd:appinfo>
+                </xsd:annotation>
+              </xsd:element>
+              <xsd:element dfdl:length="1" dfdl:lengthKind="explicit"
+                fixed="c" minOccurs="1" name="c" type="xsd:string">
+                <xsd:annotation>
+                  <xsd:appinfo source="http://www.ogf.org/dfdl/">
+                    <dfdl:discriminator>{. eq 'c'}</dfdl:discriminator>
+                  </xsd:appinfo>
+                </xsd:annotation>
+              </xsd:element>
+            </xsd:choice>
+          </xsd:complexType>
+        </xsd:element>
+
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="tns:GeneralPurposeFormat" />
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>
