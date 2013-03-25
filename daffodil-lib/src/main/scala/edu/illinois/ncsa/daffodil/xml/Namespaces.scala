@@ -67,12 +67,15 @@ object NS {
 object NoNamespace extends NS("") {
   override def isNoNamespace = true
   override def toString = "No_Namespace"
+  override def toStringOrNullIfNoNS: String = null // most places in Java APIs, no namespace is represented by null.
 }
 
 class NS protected (s: String) { // protected constructor. Must use factory.
   override def toString = s
+  def toStringOrNullIfNoNS = s
   lazy val uri = new URI(s)
   def isNoNamespace = false
+  override def hashCode() = s.hashCode()
 }
 
 /**

@@ -120,7 +120,7 @@ class ProcessorFactory(val sset: SchemaSet)
 /**
  * Both Compiler and ProcessorFactory share this same API call.
  */
-trait HavingRootSpec {
+trait HavingRootSpec extends Logging {
   var rootSpec: Option[RootSpec] = None
 
   def setDistinguishedRootNode(name: String, namespace: String): Unit = {
@@ -128,6 +128,7 @@ trait HavingRootSpec {
       if (namespace != null) Some(NS(namespace))
       else None
     rootSpec = Some(RootSpec(ns, name))
+    log(Info("%s setDistinguishedRootNode to %s", Misc.getNameFromClass(this), rootSpec))
     //
     // null means we search for the namespace
     // Must be only one answer.

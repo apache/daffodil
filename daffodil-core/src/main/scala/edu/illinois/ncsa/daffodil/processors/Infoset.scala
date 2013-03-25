@@ -57,7 +57,8 @@ object Infoset {
 
   def newElement(e: ElementBase, isHidden: Boolean) = {
     Assert.usage(e.name != "")
-    val jdomE = new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace)
+    val jdomE =
+      new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace.toStringOrNullIfNoNS)
     //
     // Note: you can't save the attribute and reuse it because in JDOM
     // attributes have parent pointers. So this creates one and points it back at the jdomE

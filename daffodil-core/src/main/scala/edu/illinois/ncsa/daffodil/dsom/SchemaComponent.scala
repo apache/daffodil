@@ -51,7 +51,7 @@ import edu.illinois.ncsa.daffodil.util.Compile
 import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedCharset
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import edu.illinois.ncsa.daffodil.compiler.RootSpec
-import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import java.io.File
 import java.net.URI
@@ -815,6 +815,12 @@ class SchemaSet(
   lazy val schemas = schemas_.value
   private val schemas_ = LV('schemas) {
     val schemaPairs = allSchemaDocuments.map { sd => (sd.targetNamespace, sd) }
+    //
+    // groupBy is deterministic if the hashCode of the key element is deterministic.
+    // our NS objects hashCode is same as their underlying string.
+    //
+    // Alas, being deterministic doesn't mean it is in an order we expect.
+    // but at least it is deterministic.
     val schemaGroups = schemaPairs.groupBy { _._1 } // group by the namespace identifier
     val schemas = schemaGroups.map {
       case (ns, pairs) => {
@@ -916,18 +922,15 @@ class SchemaSet(
    * unambiguous, it is used as the root.
    */
   def findRootElement(name: String) = {
+    log(Info("%s searching for root element with name %s", Misc.getNameFromClass(this), name))
     val candidates = schemas.flatMap { _.getGlobalElementDecl(name) }
-    val res = if (candidates.length == 0) {
-      schemaDefinitionError("No root element found for %s in any available namespace", name)
-    } else if (candidates.length > 1) {
-      schemaDefinitionError("Root element %s is ambiguous. Candidates are %s.",
-        candidates.map { gef => gef.name + " in namespace: " + gef.schemaDocument.targetNamespace })
-    } else {
-      val gef = candidates(0)
-      val re = gef.forRoot()
-      re
-    }
-    res
+    schemaDefinition(candidates.length != 0, "No root element found for %s in any available namespace", name)
+    schemaDefinition(candidates.length <= 1, "Root element %s is ambiguous. Candidates are %s.",
+      candidates.map { gef => gef.name + " in namespace: " + gef.schemaDocument.targetNamespace })
+    Assert.invariant(candidates.length == 1)
+    val gef = candidates(0)
+    val re = gef.forRoot()
+    re
   }
 
   /**
@@ -981,21 +984,27 @@ class SchemaSet(
         case (None, None) => {
           // if the root element and rootNamespace aren't provided at all, then
           // the first element of the first schema document is the root
-          val firstSchema = schemas(0)
-          val firstSchemaDocument = firstSchema.schemaDocuments(0)
+          val sDocs = this.allSchemaDocuments
+          val firstSchemaDocument = sDocs(0)
           val gdeclf = firstSchemaDocument.globalElementDecls
-          val firstElement =
-            if (gdeclf.length < 1)
-              toss(new SchemaDefinitionError(None, None, "No global elements in: " + firstSchemaDocument.fileName))
-            else {
-              val rootElement = gdeclf(0).forRoot()
-              rootElement
-            }
+          val firstElement = {
+            schemaDefinition(gdeclf.length >= 1, "No global elements in: " + firstSchemaDocument.fileName)
+            val rootElement = gdeclf(0).forRoot()
+            rootElement
+          }
           firstElement
         }
         case _ => Assert.invariantFailed("illegal combination of root element specifications")
       }
     rootElemOpt = Some(re)
+    //
+    // Show root as either "{...ns...}name" 
+    // or if there is no namespace just "name (in no namespace)"
+    //
+    val (nsSpecifier, comment) =
+      if (re.targetNamespace == NoNamespace) ("", " (in no namespace)")
+      else ("{" + re.targetNamespace + "}", "")
+    log(Info("Found root element %s%s%s", nsSpecifier, re.name, comment))
     re
   }
 
