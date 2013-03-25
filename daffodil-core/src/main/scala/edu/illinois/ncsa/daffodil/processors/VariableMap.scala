@@ -157,7 +157,7 @@ object VariableFactory {
 
     val defaultValIsConstant = {
       val isConst = defaultValExpr.map { _.isConstant }.getOrElse(true)
-      defv.schemaDefinition(isConst, "Variable default value %s is not a constant.", defaultValue)
+      defv.schemaDefinitionUnless(isConst, "Variable default value %s is not a constant.", defaultValue)
       isConst
     }
 

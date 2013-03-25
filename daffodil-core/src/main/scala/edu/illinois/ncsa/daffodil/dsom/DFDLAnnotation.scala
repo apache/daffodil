@@ -261,7 +261,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
           val adjustedNS = adjustNamespace(ns)
           val newPair = (adjustedNS, ln)
           val notSeenIt = seen.get(newPair) == None
-          schemaDefinition(notSeenIt, "Format ref attributes form a cycle: \n%s\n%s",
+          schemaDefinitionUnless(notSeenIt, "Format ref attributes form a cycle: \n%s\n%s",
             (newPair, locationDescription),
             seen.map { case (pair, fmtAnn) => (pair, fmtAnn.locationDescription) }.mkString("\n"))
           val defFmt = schemaSet.getDefineFormat(adjustedNS, ln).getOrElse(
@@ -321,7 +321,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   lazy val longFormProperties: Set[PropItem] = {
     // longForm Properties are not prefixed by dfdl
     val dfdlAttrs = dfdlAttributes(xml).asAttrMap
-    schemaDefinition(dfdlAttrs.isEmpty, "long form properties are not prefixed by dfdl:")
+    schemaDefinitionUnless(dfdlAttrs.isEmpty, "long form properties are not prefixed by dfdl:")
     //
     // TODO: This strips away any qualified attribute
     // That won't work when we add extension attributes 
@@ -361,7 +361,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
 
   private lazy val combinedJustThisOneProperties: PropMap = {
     // We need this error to occur immediately! Didn't seem to be checked otherwise.
-    schemaDefinition(!hasConflictingPropertyError,
+    schemaDefinitionUnless(!hasConflictingPropertyError,
       "Short, long, and element form properties overlap: %s at %s",
       locallyConflictingProperties.mkString(", "),
       this.locationDescription)

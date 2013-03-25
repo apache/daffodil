@@ -294,12 +294,12 @@ class StringValueAsLiteral(rawArg: String, context: ThrowsSDE)
 
 class SingleCharacterLiteral(rawArg: String, context: ThrowsSDE)
   extends StringValueAsLiteral(rawArg, context) {
-  context.schemaDefinition(cooked.length == 1, "Length of string must be exactly 1 character.")
+  context.schemaDefinitionUnless(cooked.length == 1, "Length of string must be exactly 1 character.")
 }
 
 class SingleCharacterLiteralES(rawArg: String, context: ThrowsSDE)
   extends StringValueAsLiteral(rawArg, context) {
-  context.schemaDefinition(cooked.length() == 1 || cooked.length() == 0, "Length of string must be exactly 1 character or be empty.")
+  context.schemaDefinitionUnless(cooked.length() == 1 || cooked.length() == 0, "Length of string must be exactly 1 character or be empty.")
 }
 
 class OneDelimiterLiteral(rawArg: String, context: ThrowsSDE)

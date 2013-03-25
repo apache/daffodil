@@ -749,7 +749,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
     if (nsURI == XMLUtils.XSD_NAMESPACE) {
       // XSD namespace
       val prim = schemaDocument.schemaSet.getPrimitiveType(localName)
-      schemaDefinition(prim != None,
+      schemaDefinitionUnless(prim != None,
         "Type " + localName + " is not an XSD primitive type.")
       prim
     } else None

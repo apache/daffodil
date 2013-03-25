@@ -64,7 +64,7 @@ trait InitiatedTerminatedMixin
   lazy val hasInitiator = {
     val hasOne = initiator.isKnownNonEmpty
     if (parentSaysInitiatedContent)
-      schemaDefinition(hasOne, "Enclosing group has initiatedContent='yes', but initiator is not defined.")
+      schemaDefinitionUnless(hasOne, "Enclosing group has initiatedContent='yes', but initiator is not defined.")
     hasOne
   }
 
@@ -699,7 +699,7 @@ trait ElementBaseGrammarMixin
             }
           }
           case LengthKind.Implicit => {
-            schemaDefinition(representation != Representation.Text, "LiteralValue Nils with lengthKind='implicit' cannot have representation='text'.")
+            schemaDefinitionUnless(representation != Representation.Text, "LiteralValue Nils with lengthKind='implicit' cannot have representation='text'.")
             val lengthInBytes = implicitBinaryLengthInBits / 8
             LiteralNilKnownLengthInBytes(this, lengthInBytes)
           }

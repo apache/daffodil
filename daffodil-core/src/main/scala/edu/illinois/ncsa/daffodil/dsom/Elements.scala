@@ -100,8 +100,8 @@ trait ParticleMixin { self: ElementBase =>
   private val hasStopValue_ = LV('hasStopValue) {
     val sv = isRecurring && occursCountKind == OccursCountKind.StopValue
     // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.
-    schemaDefinition(!(sv && occursStopValue == ""), "Property occursCountKind='stopValue' requires a non-empty occursStopValue property.")
-    schemaDefinition(!sv, "occursCountKind='stopValue' is not implemented.")
+    schemaDefinitionUnless(!(sv && occursStopValue == ""), "Property occursCountKind='stopValue' requires a non-empty occursStopValue property.")
+    schemaDefinitionUnless(!sv, "occursCountKind='stopValue' is not implemented.")
     sv
   }
 }
@@ -380,7 +380,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   // It would be much clearer as a match-case 
   // on a pair of (hasMinLength, hasMaxLength), and should compute
   // lazy val (minLength: BigDecimal, maxLength: BigDecimal) = {
-  //   schemaDefinition(isSimpleType && !isPrimitiveType && pt == PrimType.String || pt == PrimType.HexBinary), "Facets minLength and maxLength only apply to simpleTypes derived from xs:string or xs:hexBinary")
+  //   schemaDefinitionUnless(isSimpleType && !isPrimitiveType && pt == PrimType.String || pt == PrimType.HexBinary), "Facets minLength and maxLength only apply to simpleTypes derived from xs:string or xs:hexBinary")
   //   (hasMinLength, hasMaxLength) match {
   //       case (true, true) if (isImplicitString) => // check for equal
   //       case (true, true) if (st.minLengthValue <= st.maxLengthValue) => (st.minLengthValue, st.maxLengthValue)

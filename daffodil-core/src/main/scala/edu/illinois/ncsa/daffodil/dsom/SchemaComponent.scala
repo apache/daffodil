@@ -283,7 +283,7 @@ trait ElementFormDefaultMixin
       //
       val tns = namespace
       // record this error on the schemaDocument
-      xmlSchemaDocument.schemaDefinition(tns != "", "Must have a targetNamespace if elementFormDefault='qualified'.")
+      xmlSchemaDocument.schemaDefinitionUnless(tns != "", "Must have a targetNamespace if elementFormDefault='qualified'.")
       val prefix = {
         val existingPrefix = xml.scope.getPrefix(tns.toString)
         if (existingPrefix != null) existingPrefix
@@ -554,7 +554,7 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
     if (res) {
       val encName = encoding.constantAsString.toUpperCase()
       if (encName.startsWith("UTF-16")) {
-        schemaDefinition(utf16Width == UTF16Width.Fixed, "Property utf16Width='variable' not supported.")
+        schemaDefinitionUnless(utf16Width == UTF16Width.Fixed, "Property utf16Width='variable' not supported.")
         //
         // TODO: when runtime encoding is supproted, must also check for utf16Width
         // (and error if unsupported then, or just implement it!)
@@ -702,8 +702,8 @@ trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedSchemaComponent =>
   }
 
   final def checkDiscriminatorsAssertsDisjoint(discrims: Seq[DFDLDiscriminator], asserts: Seq[DFDLAssert]): (Seq[DFDLDiscriminator], Seq[DFDLAssert]) = {
-    schemaDefinition(discrims.size <= 1, "At most one discriminator allowed at same location: %s", discrims)
-    schemaDefinition(asserts == Nil || discrims == Nil,
+    schemaDefinitionUnless(discrims.size <= 1, "At most one discriminator allowed at same location: %s", discrims)
+    schemaDefinitionUnless(asserts == Nil || discrims == Nil,
       "Cannot have both dfdl:discriminator annotations and dfdl:assert annotations at the same location.")
     (discrims, asserts)
   }
@@ -711,7 +711,7 @@ trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedSchemaComponent =>
   final def checkDistinctVariableNames(svs: Seq[DFDLSetVariable]) = {
     val names = svs.map { _.defv.extName }
     val areAllDistinct = names.distinct.size == names.size
-    schemaDefinition(areAllDistinct, "Variable names must all be distinct at the same location: %s", names)
+    schemaDefinitionUnless(areAllDistinct, "Variable names must all be distinct at the same location: %s", names)
     svs
   }
 
@@ -922,10 +922,10 @@ class SchemaSet(
    * unambiguous, it is used as the root.
    */
   def findRootElement(name: String) = {
-    log(Info("%s searching for root element with name %s", Misc.getNameFromClass(this), name))
+    // log(Info("%s searching for root element with name %s", Misc.getNameFromClass(this), name))
     val candidates = schemas.flatMap { _.getGlobalElementDecl(name) }
-    schemaDefinition(candidates.length != 0, "No root element found for %s in any available namespace", name)
-    schemaDefinition(candidates.length <= 1, "Root element %s is ambiguous. Candidates are %s.",
+    schemaDefinitionUnless(candidates.length != 0, "No root element found for %s in any available namespace", name)
+    schemaDefinitionUnless(candidates.length <= 1, "Root element %s is ambiguous. Candidates are %s.",
       candidates.map { gef => gef.name + " in namespace: " + gef.schemaDocument.targetNamespace })
     Assert.invariant(candidates.length == 1)
     val gef = candidates(0)
@@ -988,7 +988,7 @@ class SchemaSet(
           val firstSchemaDocument = sDocs(0)
           val gdeclf = firstSchemaDocument.globalElementDecls
           val firstElement = {
-            schemaDefinition(gdeclf.length >= 1, "No global elements in: " + firstSchemaDocument.fileName)
+            schemaDefinitionUnless(gdeclf.length >= 1, "No global elements in: " + firstSchemaDocument.fileName)
             val rootElement = gdeclf(0).forRoot()
             rootElement
           }
@@ -1004,7 +1004,7 @@ class SchemaSet(
     val (nsSpecifier, comment) =
       if (re.targetNamespace == NoNamespace) ("", " (in no namespace)")
       else ("{" + re.targetNamespace + "}", "")
-    log(Info("Found root element %s%s%s", nsSpecifier, re.name, comment))
+    // log(Info("Found root element %s%s%s", nsSpecifier, re.name, comment))
     re
   }
 
@@ -1210,10 +1210,10 @@ class XMLSchemaDocument(xmlArg: Node,
     val hasSchemaLocation = (xml \ "@schemaLocation").text != ""
     val hasBlockDefault = (xml \ "@blockDefault").text != ""
     val hasFinalDefault = (xml \ "@finalDefault").text != ""
-    schemaDefinitionWarning(!hasSchemaLocation, "schemaLocation is ignored.")
-    schemaDefinitionWarning(!hasBlockDefault, "blockDefault is ignored")
-    schemaDefinitionWarning(!hasFinalDefault, "finalDefault is ignored")
-    schemaDefinition(attributeFormDefault == "unqualified", "attributeFormDefault='qualified' is not yet implemented.")
+    schemaDefinitionWarningUnless(!hasSchemaLocation, "schemaLocation is ignored.")
+    schemaDefinitionWarningUnless(!hasBlockDefault, "blockDefault is ignored")
+    schemaDefinitionWarningUnless(!hasFinalDefault, "finalDefault is ignored")
+    schemaDefinitionUnless(attributeFormDefault == "unqualified", "attributeFormDefault='qualified' is not yet implemented.")
     val res = hasSchemaLocation | hasBlockDefault | hasFinalDefault
     res
   }

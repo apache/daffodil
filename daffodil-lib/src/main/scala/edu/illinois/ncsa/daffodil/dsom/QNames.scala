@@ -59,7 +59,7 @@ trait ResolvesQNames
    */
   def resolveQName(name: String): (NS, String) = {
     val pair @ (ns, localName) = XMLUtils.getQName(name, xml)
-    schemaDefinition(ns != null, "In QName '%s', the prefix was not defined.", name)
+    schemaDefinitionUnless(ns != null, "In QName '%s', the prefix was not defined.", name)
     pair
   }
 

@@ -605,7 +605,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   private val xmlChildren_ = LV('xmlChildren) {
     hiddenGroupRefOption match {
       case Some(qname) => {
-        schemaDefinition(apparentXMLChildren.length == 0, "A sequence with hiddenGroupRef cannot have children.")
+        schemaDefinitionUnless(apparentXMLChildren.length == 0, "A sequence with hiddenGroupRef cannot have children.")
         // synthesize a group reference here.
         val contextScope = xml.asInstanceOf[Elem].scope
         val hgr = {

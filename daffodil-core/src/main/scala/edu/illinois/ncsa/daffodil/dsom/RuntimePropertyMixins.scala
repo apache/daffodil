@@ -56,15 +56,15 @@ trait CommonRuntimeValuedPropertiesMixin
     val c = expressionCompiler.compile('String, EntityReplacer.replaceAll(outputNewLineRaw))
     if (c.isConstant) {
       val s = c.constantAsString
-      this.schemaDefinition(!s.contains("%NL;"), "outputNewLine cannot contain NL")
-      this.schemaDefinition(!s.contains("%WSP;"), "outputNewLine cannot contain WSP")
-      this.schemaDefinition(!s.contains("%WSP+;"), "outputNewLine cannot contain WSP+")
-      this.schemaDefinition(!s.contains("%WSP*;"), "outputNewLine cannot contain WSP*")
-      this.schemaDefinition(!s.contains("%ES;"), "outputNewLine cannot contain ES")
+      this.schemaDefinitionUnless(!s.contains("%NL;"), "outputNewLine cannot contain NL")
+      this.schemaDefinitionUnless(!s.contains("%WSP;"), "outputNewLine cannot contain WSP")
+      this.schemaDefinitionUnless(!s.contains("%WSP+;"), "outputNewLine cannot contain WSP+")
+      this.schemaDefinitionUnless(!s.contains("%WSP*;"), "outputNewLine cannot contain WSP*")
+      this.schemaDefinitionUnless(!s.contains("%ES;"), "outputNewLine cannot contain ES")
 
       val validNLs: List[Char] = List('\u000A', '\u000D', '\u0085', '\u2028')
       s.foreach(x => {
-        this.schemaDefinition(validNLs.contains(x), "'" + x + "' is not a valid new line character for outputNewLine!")
+        this.schemaDefinitionUnless(validNLs.contains(x), "'" + x + "' is not a valid new line character for outputNewLine!")
       })
     }
     c
@@ -83,7 +83,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
     val c = expressionCompiler.compile('String, initiatorRaw)
     if (c.isConstant) {
       val s = c.constantAsString
-      this.schemaDefinition(!s.contains("%ES;"), "Initiator cannot contain ES")
+      this.schemaDefinitionUnless(!s.contains("%ES;"), "Initiator cannot contain ES")
     }
     c
   }
@@ -92,7 +92,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
     val c = expressionCompiler.compile('String, terminatorRaw)
     if (c.isConstant) {
       val s = c.constantAsString
-      this.schemaDefinition(!s.contains("%ES;"), "Terminator cannot contain ES")
+      this.schemaDefinitionUnless(!s.contains("%ES;"), "Terminator cannot contain ES")
     }
     c
   }
@@ -119,7 +119,7 @@ trait SequenceRuntimeValuedPropertiesMixin
     val c = expressionCompiler.compile('String, separatorRaw)
     if (c.isConstant) {
       val s = c.constantAsString
-      this.schemaDefinition(!s.contains("%ES;"), "Separator cannot contain ES")
+      this.schemaDefinitionUnless(!s.contains("%ES;"), "Separator cannot contain ES")
     }
     c
   }
@@ -135,11 +135,11 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     val c = expressionCompiler.compile('String, textStandardDecimalSeparatorRaw)
     if (c.isConstant) {
       val s = c.constantAsString
-      this.schemaDefinition(!s.contains("%NL;"), "textStandardDecimalSeparator cannot contain NL")
-      this.schemaDefinition(!s.contains("%WSP;"), "textStandardDecimalSeparator cannot contain WSP")
-      this.schemaDefinition(!s.contains("%WSP*;"), "textStandardDecimalSeparator cannot contain WSP*")
-      this.schemaDefinition(!s.contains("%WSP+;"), "textStandardDecimalSeparator cannot contain WSP+")
-      this.schemaDefinition(!s.contains("%ES;"), "textStandardDecimalSeparator cannot contain ES")
+      this.schemaDefinitionUnless(!s.contains("%NL;"), "textStandardDecimalSeparator cannot contain NL")
+      this.schemaDefinitionUnless(!s.contains("%WSP;"), "textStandardDecimalSeparator cannot contain WSP")
+      this.schemaDefinitionUnless(!s.contains("%WSP*;"), "textStandardDecimalSeparator cannot contain WSP*")
+      this.schemaDefinitionUnless(!s.contains("%WSP+;"), "textStandardDecimalSeparator cannot contain WSP+")
+      this.schemaDefinitionUnless(!s.contains("%ES;"), "textStandardDecimalSeparator cannot contain ES")
     }
     c
   }
@@ -150,11 +150,11 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     val c = expressionCompiler.compile('String, textStandardGroupingSeparatorRaw)
     if (c.isConstant) {
       val s = c.constantAsString
-      this.schemaDefinition(!s.contains("%NL;"), "textStandardGroupingSeparator cannot contain NL")
-      this.schemaDefinition(!s.contains("%WSP;"), "textStandardGroupingSeparator cannot contain WSP")
-      this.schemaDefinition(!s.contains("%WSP*;"), "textStandardGroupingSeparator cannot contain WSP*")
-      this.schemaDefinition(!s.contains("%WSP+;"), "textStandardGroupingSeparator cannot contain WSP+")
-      this.schemaDefinition(!s.contains("%ES;"), "textStandardGroupingSeparator cannot contain ES")
+      this.schemaDefinitionUnless(!s.contains("%NL;"), "textStandardGroupingSeparator cannot contain NL")
+      this.schemaDefinitionUnless(!s.contains("%WSP;"), "textStandardGroupingSeparator cannot contain WSP")
+      this.schemaDefinitionUnless(!s.contains("%WSP*;"), "textStandardGroupingSeparator cannot contain WSP*")
+      this.schemaDefinitionUnless(!s.contains("%WSP+;"), "textStandardGroupingSeparator cannot contain WSP+")
+      this.schemaDefinitionUnless(!s.contains("%ES;"), "textStandardGroupingSeparator cannot contain ES")
     }
     c
   }
@@ -165,11 +165,11 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     val c = expressionCompiler.compile('String, textStandardExponentRepRaw)
     if (c.isConstant) {
       val s = c.constantAsString
-      this.schemaDefinition(!s.contains("%NL;"), "textStandardExponentRep cannot contain NL")
-      this.schemaDefinition(!s.contains("%WSP;"), "textStandardExponentRep cannot contain WSP")
-      this.schemaDefinition(!s.contains("%WSP*;"), "textStandardExponentRep cannot contain WSP*")
-      this.schemaDefinition(!s.contains("%WSP+;"), "textStandardExponentRep cannot contain WSP+")
-      this.schemaDefinition(!s.contains("%ES;"), "textStandardExponentRep cannot contain ES")
+      this.schemaDefinitionUnless(!s.contains("%NL;"), "textStandardExponentRep cannot contain NL")
+      this.schemaDefinitionUnless(!s.contains("%WSP;"), "textStandardExponentRep cannot contain WSP")
+      this.schemaDefinitionUnless(!s.contains("%WSP*;"), "textStandardExponentRep cannot contain WSP*")
+      this.schemaDefinitionUnless(!s.contains("%WSP+;"), "textStandardExponentRep cannot contain WSP+")
+      this.schemaDefinitionUnless(!s.contains("%ES;"), "textStandardExponentRep cannot contain ES")
     }
     c
   }
@@ -181,11 +181,11 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     val c = expressionCompiler.compile('String, textBooleanTrueRepRaw)
     if (c.isConstant) {
       val s = c.constantAsString
-      this.schemaDefinition(!s.contains("%NL;"), "textBooleanTrueRep cannot contain NL")
-      this.schemaDefinition(!s.contains("%WSP;"), "textBooleanTrueRep cannot contain WSP")
-      this.schemaDefinition(!s.contains("%WSP*;"), "textBooleanTrueRep cannot contain WSP*")
-      this.schemaDefinition(!s.contains("%WSP+;"), "textBooleanTrueRep cannot contain WSP+")
-      this.schemaDefinition(!s.contains("%ES;"), "textBooleanTrueRep cannot contain ES")
+      this.schemaDefinitionUnless(!s.contains("%NL;"), "textBooleanTrueRep cannot contain NL")
+      this.schemaDefinitionUnless(!s.contains("%WSP;"), "textBooleanTrueRep cannot contain WSP")
+      this.schemaDefinitionUnless(!s.contains("%WSP*;"), "textBooleanTrueRep cannot contain WSP*")
+      this.schemaDefinitionUnless(!s.contains("%WSP+;"), "textBooleanTrueRep cannot contain WSP+")
+      this.schemaDefinitionUnless(!s.contains("%ES;"), "textBooleanTrueRep cannot contain ES")
     }
     c
   }
@@ -195,11 +195,11 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     val c = expressionCompiler.compile('String, textBooleanFalseRepRaw)
     if (c.isConstant) {
       val s = c.constantAsString
-      this.schemaDefinition(!s.contains("%NL;"), "textBooleanFalseRep cannot contain NL")
-      this.schemaDefinition(!s.contains("%WSP;"), "textBooleanFalseRep cannot contain WSP")
-      this.schemaDefinition(!s.contains("%WSP*;"), "textBooleanFalseRep cannot contain WSP*")
-      this.schemaDefinition(!s.contains("%WSP+;"), "textBooleanFalseRep cannot contain WSP+")
-      this.schemaDefinition(!s.contains("%ES;"), "textBooleanFalseRep cannot contain ES")
+      this.schemaDefinitionUnless(!s.contains("%NL;"), "textBooleanFalseRep cannot contain NL")
+      this.schemaDefinitionUnless(!s.contains("%WSP;"), "textBooleanFalseRep cannot contain WSP")
+      this.schemaDefinitionUnless(!s.contains("%WSP*;"), "textBooleanFalseRep cannot contain WSP*")
+      this.schemaDefinitionUnless(!s.contains("%WSP+;"), "textBooleanFalseRep cannot contain WSP+")
+      this.schemaDefinitionUnless(!s.contains("%ES;"), "textBooleanFalseRep cannot contain ES")
     }
     c
   }

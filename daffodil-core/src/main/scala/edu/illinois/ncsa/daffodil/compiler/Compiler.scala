@@ -128,7 +128,7 @@ trait HavingRootSpec extends Logging {
       if (namespace != null) Some(NS(namespace))
       else None
     rootSpec = Some(RootSpec(ns, name))
-    log(Info("%s setDistinguishedRootNode to %s", Misc.getNameFromClass(this), rootSpec))
+    // log(Info("%s setDistinguishedRootNode to %s", Misc.getNameFromClass(this), rootSpec))
     //
     // null means we search for the namespace
     // Must be only one answer.

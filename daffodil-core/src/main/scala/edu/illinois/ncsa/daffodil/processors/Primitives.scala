@@ -1306,7 +1306,7 @@ case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 //      "<" + kindString + ">" + delim + " " + delimsRaw + "</" + kindString + ">"
 //    }
 //
-//    e.schemaDefinitionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
+//    e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 //
 //    Assert.invariant(delim != "") // shouldn't be here at all in this case.
 //    override def toString = kindString + "('" + delim + "')" //  with terminating markup: " + term.prettyTerminatingMarkup + ")"
@@ -1382,7 +1382,7 @@ case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
 //    val t = e.asInstanceOf[Term]
 //    override def toString = "StaticText('" + delim + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"
 //    // setLoggingLevel(LogLevel.Info)
-//    e.schemaDefinitionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' is not supported.")
+//    e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' is not supported.")
 //    Assert.invariant(delim != "") //shouldn't be here at all in this case
 //
 //    def unparse(start: UState): UState = {
@@ -2202,7 +2202,7 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 // As soon as you turn these on (by removing the false and putting the real guard), then schemas all need to have
 // these properties in them, which is inconvenient until we have multi-file schema support and format references.
 case class LeadingSkipRegion(e: Term) extends Terminal(e, e.leadingSkip > 0) {
-  e.schemaDefinition(e.leadingSkip < Compiler.maxSkipLength, "Property leadingSkip %s is larger than limit %s", e.leadingSkip, Compiler.maxSkipLength)
+  e.schemaDefinitionUnless(e.leadingSkip < Compiler.maxSkipLength, "Property leadingSkip %s is larger than limit %s", e.leadingSkip, Compiler.maxSkipLength)
 
   def parser: DaffodilParser = new PrimParser(this, e) {
 

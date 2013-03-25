@@ -99,7 +99,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
     result
   }
 
-  //e.schemaDefinitionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
+  //e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
   Assert.invariant(delim != "") // shouldn't be here at all in this case.
 
   def parser: DaffodilParser = new PrimParser(this, e) {
@@ -112,7 +112,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
 
     // This has to stay here, moving it outside of PrimParser causes it
     // to not be defined. Why?
-    e.schemaDefinitionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
+    e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
     val eName = e.toString()
 
@@ -167,7 +167,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
     val t = e.asInstanceOf[Term]
     override def toString = "StaticText('" + delim + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"
     // setLoggingLevel(LogLevel.Info)
-    e.schemaDefinitionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' is not supported.")
+    e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' is not supported.")
     Assert.invariant(delim != "") //shouldn't be here at all in this case
 
     def unparse(start: UState): UState = {
@@ -215,7 +215,7 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
       "<" + kindString + ">" + delimExpr + " " + delimExpr + "</" + kindString + ">"
     }
 
-    e.schemaDefinitionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
+    e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
     Assert.invariant(delimExpr != "") // shouldn't be here at all in this case.
     override def toString = kindString + "('" + delimExpr + "')" //  with terminating markup: " + term.prettyTerminatingMarkup + ")"
@@ -306,7 +306,7 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
     val t = e.asInstanceOf[Term]
     override def toString = "StaticText('" + delimExpr + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"
     // setLoggingLevel(LogLevel.Info)
-    e.schemaDefinitionWarning(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' is not supported.")
+    e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' is not supported.")
     Assert.invariant(delimExpr != "") //shouldn't be here at all in this case
 
     def unparse(start: UState): UState = {

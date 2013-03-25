@@ -244,7 +244,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
         _ match {
           case inc: Include => {
             sdTNSAttrib.map { tns =>
-              schemaDefinition(inc.targetNamespace == tns,
+              schemaDefinitionUnless(inc.targetNamespace == tns,
                 "Included schema does not have the same namespace as the file %s including it.",
                 fileName)
               tns
@@ -596,7 +596,7 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   private val resolvedNamespaceURI_ = LV('resolvedNamespaceURI) {
     importElementNS match {
       case None => {
-        schemaDefinition(schemaLocationProperty != None, "When there is no namespace specified, there must be a schemaLocation specified.")
+        schemaDefinitionUnless(schemaLocationProperty != None, "When there is no namespace specified, there must be a schemaLocation specified.")
         None
       }
       case Some(ns) => {

@@ -121,14 +121,14 @@ abstract class SchemaDefinitionDiagnosticBase(
 
 trait ImplementsThrowsSDE
   extends ThrowsSDE { self: SchemaComponentBase =>
-  
-  val NoAnnotationContext: Option[DFDLAnnotation] = None    
+
+  val NoAnnotationContext: Option[DFDLAnnotation] = None
   /**
    * Override in derived classes to create a member that
    * is of the right type.
    */
   //val context: DiagnosticsProviding = parent
-  
+
   /**
    * Centralize throwing for debug convenience
    */

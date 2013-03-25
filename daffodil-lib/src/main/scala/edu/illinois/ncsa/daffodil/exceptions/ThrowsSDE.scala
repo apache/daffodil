@@ -42,13 +42,35 @@ trait ThrowsSDE {
 
   def schemaDefinitionError(str: String, args: Any*): Nothing = SDE(str, args: _*) // long form synonym
 
+  /**
+   * Nobody gets the sense of the boolean test right here. So rename to
+   * schemaDefinitionWhen, and schemaDefinitionUnless
+   */
+  @deprecated(message = "use schemaDefinitionUnless(...) or schemaDefinitionWhen(...) instead", since = "2013-03-25")
   def schemaDefinition(testThatWillThrowIfFalse: => Boolean, str: String, args: Any*) {
+    schemaDefinitionUnless(testThatWillThrowIfFalse, str, args: _*)
+  }
+
+  def schemaDefinitionUnless(testThatWillThrowIfFalse: => Boolean, str: String, args: Any*) {
     if (!testThatWillThrowIfFalse)
       SDE(str, args: _*)
   }
 
+  def schemaDefinitionWhen(testThatWillThrowIfTrue: => Boolean, str: String, args: Any*) {
+    schemaDefinitionUnless(!testThatWillThrowIfTrue, str, args: _*)
+  }
+
+  @deprecated(message = "use schemaDefinitionWarningUnless(...) or schemaDefinitionWarningWhen(...) instead", since = "2013-03-25")
   def schemaDefinitionWarning(testThatWillWarnIfFalse: => Boolean, str: String, args: Any*) {
+    schemaDefinitionWarningUnless(testThatWillWarnIfFalse, str, args: _*)
+  }
+
+  def schemaDefinitionWarningUnless(testThatWillWarnIfFalse: => Boolean, str: String, args: Any*) {
     if (!testThatWillWarnIfFalse) SDW(str, args: _*)
+  }
+
+  def schemaDefinitionWarningWhen(testThatWillWarnIfTrue: => Boolean, str: String, args: Any*) {
+    schemaDefinitionWarningUnless(!testThatWillWarnIfTrue, str, args: _*)
   }
 
   def notYetImplemented(msg: String, args: Any*): Nothing = SDE("Feature not yet implemented: " + msg, args: _*)
