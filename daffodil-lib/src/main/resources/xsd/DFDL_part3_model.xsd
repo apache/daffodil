@@ -345,7 +345,7 @@ content of this file.
   <!-- A pattern is used instead of an enumeration for compactness -->
   <xsd:simpleType name="CalendarLanguageType">
     <xsd:restriction base="xsd:string">
-      <xsd:pattern value="([A-Za-z]{1,8}(-[A-Za-z0-9]{1,8})*)" />
+      <xsd:pattern value="([A-Za-z]{1,8}([-_][A-Za-z0-9]{1,8})*)" />
     </xsd:restriction>
   </xsd:simpleType>
 
@@ -450,6 +450,15 @@ content of this file.
       <xsd:enumeration value="suppressed" />
       <xsd:enumeration value="suppressedAtEndStrict" />
       <xsd:enumeration value="suppressedAtEndLax" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:simpleType name="SeparatorSuppressionPolicyEnum">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="never" />
+      <xsd:enumeration value="trailingEmpty" />
+      <xsd:enumeration value="trailingEmptyStrict" />
+      <xsd:enumeration value="anyEmpty" />
     </xsd:restriction>
   </xsd:simpleType>
 
@@ -940,12 +949,15 @@ content of this file.
     type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
   <xsd:attribute name="separatorPosition" type="dfdl:SeparatorPositionEnum" />
   <xsd:attribute name="separatorPolicy" type="dfdl:SeparatorPolicyEnum" />
+  <xsd:attribute name="separatorSuppressionPolicy" type="dfdl:SeparatorSuppressionPolicyEnum" />  
+  
 
   <xsd:attributeGroup name="SeparatorAG">
     <xsd:attribute name="separator"
       type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute name="separatorPosition" type="dfdl:SeparatorPositionEnum" />
     <xsd:attribute name="separatorPolicy" type="dfdl:SeparatorPolicyEnum" />
+    <xsd:attribute name="separatorSuppressionPolicy" type="dfdl:SeparatorSuppressionPolicyEnum" />  
   </xsd:attributeGroup>
 
   <xsd:attribute name="initiatedContent" type="dfdl:YesNoEnum" />
@@ -1085,12 +1097,12 @@ content of this file.
       <xsd:enumeration value="binaryDecimalVirtualPoint" />
       <xsd:enumeration value="binaryNumberCheckPolicy" />
       <xsd:enumeration value="binaryPackedSignCodes" />
-      <xsd:enumeration value="binaryFloatRepresentation" />
+      <xsd:enumeration value="binaryFloatRep" />
 
       <xsd:enumeration value="textBooleanJustification" />
 
-      <xsd:enumeration value="integerBooleanTrueRep" />
-      <xsd:enumeration value="integerBooleanFalseRep" />
+      <xsd:enumeration value="binaryBooleanTrueRep" />
+      <xsd:enumeration value="binaryBooleanFalseRep" />
 
       <xsd:enumeration value="textCalendarJustification" />
 
@@ -1115,6 +1127,7 @@ content of this file.
 
       <xsd:enumeration value="separatorPosition" />
       <xsd:enumeration value="separatorPolicy" />
+      <xsd:enumeration value="separatorSuppressionPolicy" />      
 
       <xsd:enumeration value="choiceLengthKind" />
       <xsd:enumeration value="choiceLength" />
@@ -1439,6 +1452,8 @@ content of this file.
       type="dfdl:SeparatorPositionEnum" />
     <xsd:attribute form="qualified" name="separatorPolicy"
       type="dfdl:SeparatorPolicyEnum" />
+    <xsd:attribute form="qualified" name="separatorSuppressionPolicy"
+      type="dfdl:SeparatorSuppressionPolicyEnum" />      
   </xsd:attributeGroup>
 
   <xsd:attributeGroup name="GroupCommonAGQualified">

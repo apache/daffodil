@@ -23,7 +23,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="required" separatorPosition="infix" />
+      separatorSuppressionPolicy="never" separatorPosition="infix" />
 
     <xs:element name="root">
       <xs:complexType>

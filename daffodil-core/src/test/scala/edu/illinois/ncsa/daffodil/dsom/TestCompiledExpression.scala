@@ -97,20 +97,21 @@ class TestCompiledExpression extends JUnitSuite {
     val compiled = ec.compile('String, xpathString) // as a string
     assertTrue(compiled.isConstant)
 
-    val R(result, _) = compiled.evaluate(root, null, dummyState)
+    val emptyVariableMap = new VariableMap()
+    val R(result, _) = compiled.evaluate(root, emptyVariableMap, dummyState)
 
     assertEquals("42", result)
 
     val compiled2 = ec.compile('Long, xpathString) // as a Long
     assertTrue(compiled2.isConstant)
-    val R(result2, _) = compiled2.evaluate(root, null, dummyState)
+    val R(result2, _) = compiled2.evaluate(root, emptyVariableMap, dummyState)
 
     assertEquals(42L, result2)
 
     val root2 = Infoset(<root/>)
     val compiled3 = ec.compile('Element, "{ /root }") // as a jdom Element
     assertFalse(compiled3.isConstant)
-    val R(result3, _) = compiled3.evaluate(root2, null, dummyState)
+    val R(result3, _) = compiled3.evaluate(root2, emptyVariableMap, dummyState)
     val r3string = result3.toString
     assertTrue(r3string.contains("<root/>"))
   }

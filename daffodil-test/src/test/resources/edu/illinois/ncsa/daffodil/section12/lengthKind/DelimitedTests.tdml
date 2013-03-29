@@ -19,7 +19,7 @@
       <xs:complexType>
         <xs:sequence dfdl:initiatedContent="no"
           dfdl:separatorPosition="infix" dfdl:separator=","
-          dfdl:separatorPolicy="suppressed" dfdl:terminator="%NL;">
+          dfdl:separatorSuppressionPolicy="anyEmpty" dfdl:terminator="%NL;">
           <xs:element name="num" type="xs:int" maxOccurs="unbounded"
             minOccurs="0" />
         </xs:sequence>
@@ -39,7 +39,7 @@
       <xs:complexType>
         <xs:sequence dfdl:initiatedContent="no"
           dfdl:separatorPosition="infix" dfdl:separator=","
-          dfdl:separatorPolicy="suppressed">
+          dfdl:separatorSuppressionPolicy="anyEmpty">
           <xs:element name="num" type="xs:int" maxOccurs="unbounded" />
         </xs:sequence>
       </xs:complexType>
@@ -61,7 +61,7 @@
       <xs:complexType>
         <xs:sequence dfdl:initiatedContent="no"
           dfdl:separatorPosition="infix" dfdl:separator=","
-          dfdl:separatorPolicy="suppressed">
+          dfdl:separatorSuppressionPolicy="anyEmpty">
           <xs:element name="c_float" type="xs:float" />
           <xs:element name="c_string" type="xs:string" />
           <xs:element name="c_unsignedInt" type="xs:unsignedInt"
@@ -75,7 +75,7 @@
       <xs:complexType>
         <xs:sequence dfdl:initiatedContent="no"
           dfdl:separatorPosition="infix" dfdl:separator=","
-          dfdl:separatorPolicy="suppressed">
+          dfdl:separatorSuppressionPolicy="anyEmpty">
           <xs:element name="b_float" type="xs:float" />
           <xs:element name="b_string" type="xs:string" />
           <xs:element ref="NS_05" minOccurs="0" maxOccurs="2" />
@@ -90,7 +90,7 @@
       <xs:complexType>
         <xs:sequence dfdl:initiatedContent="no"
           dfdl:separatorPosition="infix" dfdl:separator=","
-          dfdl:separatorPolicy="suppressed">
+          dfdl:separatorSuppressionPolicy="anyEmpty">
           <xs:element name="a_float" type="xs:float" />
           <xs:element name="a_string" type="xs:string" />
           <xs:element ref="NS_06" minOccurs="0" />
@@ -105,7 +105,7 @@
       <xs:complexType>
         <xs:sequence dfdl:initiatedContent="no"
           dfdl:separatorPosition="infix" dfdl:separator=","
-          dfdl:separatorPolicy="suppressed" dfdl:terminator="%NL;">
+          dfdl:separatorSuppressionPolicy="anyEmpty" dfdl:terminator="%NL;">
           <xs:element name="num" type="xs:int" maxOccurs="unbounded" />
         </xs:sequence>
       </xs:complexType>
@@ -161,7 +161,7 @@
       dfdl:lengthKind="implicit" />
     <xs:complexType name="error01Type">
       <xs:sequence dfdl:separator="%NL;"
-        dfdl:separatorPolicy="suppressed">
+        dfdl:separatorSuppressionPolicy="anyEmpty">
         <xs:element name="row" maxOccurs="unbounded"
           dfdl:lengthKind="implicit">
           <xs:complexType>
@@ -190,7 +190,7 @@
     <xs:element name="delim_02" dfdl:lengthKind="delimited">
       <xs:complexType>
         <xs:sequence dfdl:separator=","
-          dfdl:separatorPosition="infix" dfdl:separatorPolicy="suppressed">
+          dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="anyEmpty">
           <xs:element name="s" type="xs:string" maxOccurs="5"
             dfdl:occursCountKind="implicit" dfdl:lengthKind="delimited" />
         </xs:sequence>
@@ -215,7 +215,7 @@
             <xs:complexType>
               <xs:sequence dfdl:initiatedContent="no"
                 dfdl:separatorPosition="infix" dfdl:separator=","
-                dfdl:separatorPolicy="suppressed">
+                dfdl:separatorSuppressionPolicy="anyEmpty">
                 <xs:element name="num" type="xs:int"
                   maxOccurs="unbounded" dfdl:lengthKind="delimited" />
               </xs:sequence>
@@ -759,7 +759,7 @@
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
-      lengthKind="delimited" textNumberRep="standard" separatorPolicy="suppressed"
+      lengthKind="delimited" textNumberRep="standard" separatorSuppressionPolicy="anyEmpty"
       initiatedContent="no" />
 
     <xs:element name="description" type="xs:string" />
@@ -827,7 +827,7 @@
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
-      lengthKind="delimited" textNumberRep="standard" separatorPolicy="suppressed"
+      lengthKind="delimited" textNumberRep="standard" separatorSuppressionPolicy="anyEmpty"
       initiatedContent="no" />
 
     <xs:element name="description" type="xs:string" />

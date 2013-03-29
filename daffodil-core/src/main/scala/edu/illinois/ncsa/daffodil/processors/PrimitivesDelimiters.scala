@@ -203,8 +203,8 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
   lazy val (staticDelimsParsers, staticDelimsRegex) = delimParser.generateDelimiter(staticDelimsCooked.toSet)
 
   def parseMethod(pInputDelimiterParser: delimParser.Parser[String],
-    pIsLocalDelimParser: delimParser.Parser[String],
-    input: Reader[Char]): DelimParseResult = {
+                  pIsLocalDelimParser: delimParser.Parser[String],
+                  input: Reader[Char]): DelimParseResult = {
     val result: DelimParseResult = delimParser.parseInputDelimiter(pInputDelimiterParser, pIsLocalDelimParser, input)
     result
   }
@@ -812,9 +812,9 @@ abstract class LiteralNilDelimitedEndOfData(eb: ElementBase)
 }
 
 case class LiteralNilDelimitedEndOfDataStatic(eb: ElementBase)
-  extends LiteralNilDelimitedEndOfData(eb)
+  extends LiteralNilDelimitedEndOfData(eb) with StaticDelim
 case class LiteralNilDelimitedEndOfDataDynamic(eb: ElementBase)
-  extends LiteralNilDelimitedEndOfData(eb) with Dynamic
+  extends LiteralNilDelimitedEndOfData(eb) with DynamicDelim
 
 case class LogicalNilValue(e: ElementBase) extends Primitive(e, e.isNillable)
 

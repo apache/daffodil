@@ -387,10 +387,11 @@ abstract class StringDelimited(e: ElementBase)
   with TextReader
   with Padded
   with WithParseErrorThrowing {
-  lazy val es = e.escapeScheme
-  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
-  lazy val tm = e.allTerminatingMarkup
-  lazy val cname = toString
+  //
+  val es = e.escapeScheme
+  val esObj = EscapeScheme.getEscapeScheme(es, e)
+  val tm = e.allTerminatingMarkup
+  val cname = toString
 
   val eName = e.toString()
   val charset = e.knownEncodingCharset
@@ -398,7 +399,8 @@ abstract class StringDelimited(e: ElementBase)
 
   //val dp = new DFDLDelimParserStatic(e.knownEncodingStringBitLengthFunction)
 
-  // If there are any static delimiters, pre-process them here
+  // These static delims are used whether we're static or dynamic
+  // because even a dynamic can have some static from enclosing scopes.
   val staticDelimsRaw = e.allTerminatingMarkup.filter(x => x.isConstant).map { _.constantAsString }
   val staticDelimsCooked1 = staticDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
   val staticDelimsCooked = staticDelimsCooked1.flatten
@@ -409,7 +411,7 @@ abstract class StringDelimited(e: ElementBase)
   //    reader: Reader[Char]): DelimParseResult
 
   def parseMethod(hasDelim: Boolean, delimsParser: dp.Parser[String], delimsRegex: Array[String],
-    reader: Reader[Char]): DelimParseResult = {
+                  reader: Reader[Char]): DelimParseResult = {
     // TODO: Change DFDLDelimParser calls to get rid of Array.empty[String] since we're only passing a single list the majority of the time.
     if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
       val (escapeBlockParser, escapeBlockEndRegex, escapeEscapeRegex) = dp.generateEscapeBlockParsers2(delimsParser,
@@ -442,19 +444,16 @@ abstract class StringDelimited(e: ElementBase)
 
   }
 
-  def getDelims(pstate: PState): (List[String], Array[String], dp.Parser[String], Option[VariableMap]) = {
-    (staticDelimsCooked, staticDelimsRegex, combinedStaticDelimsParser, None)
-  }
+  def getDelims(pstate: PState): (List[String], Array[String], dp.Parser[String], Option[VariableMap])
 
-//  def errorIfDelimsHaveWSPStar(delims: List[String]) = {
-//    /* Nothing to do here only applies to Dynamic case */ }
-  
-  def errorIfDelimsHaveWSPStar(delims: List[String]) = {
-    // TODO: refactor. This check isn't needed in static case. Only dynamic case.
+  /**
+   * Called at compile time in static case, at runtime for dynamic case.
+   */
+  def errorIfDelimsHaveWSPStar(delims: List[String]): Unit = {
     if (delims.filter(x => x == "%WSP*;").length > 0) {
       // We cannot detect this error until expressions have been evaluated!
-      log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited", eName)
-      elemBase.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited!")
+      log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited.", eName)
+      elemBase.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited.")
     }
   }
 
@@ -488,14 +487,6 @@ abstract class StringDelimited(e: ElementBase)
         case Some(v) => start.withVariables(v)
         case None => start
       }
-
-      //      // TODO: refactor. This check isn't needed in static case. Only dynamic case.
-      //      if (delimsCooked.filter(x => x == "%WSP*;").length > 0) {
-      //        // We cannot detect this error until expressions have been evaluated!
-      //        log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited", eName)
-      //        e.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited!")
-      //      }
-      errorIfDelimsHaveWSPStar(delimsCooked)
 
       log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length)
 
@@ -548,12 +539,22 @@ abstract class StringDelimited(e: ElementBase)
   }
 }
 
-case class StringDelimitedEndOfDataStatic(e: ElementBase)
-  extends StringDelimited(e) {
+trait StaticDelim { self: StringDelimited =>
+
+  // do this at creation time if we're static
+  errorIfDelimsHaveWSPStar(staticDelimsCooked)
+
+  def getDelims(pstate: PState): (List[String], Array[String], dp.Parser[String], Option[VariableMap]) = {
+    (staticDelimsCooked, staticDelimsRegex, combinedStaticDelimsParser, None)
+  }
 
 }
 
-trait Dynamic { self: StringDelimited =>
+case class StringDelimitedEndOfDataStatic(e: ElementBase)
+  extends StringDelimited(e) with StaticDelim
+
+trait DynamicDelim { self: StringDelimited =>
+
   override def getDelims(pstate: PState): (List[String], Array[String], dp.Parser[String], Option[VariableMap]) = {
     // We must feed variable context out of one evaluation and into the next.
     // So that the resulting variable map has the updated status of all evaluated variables.
@@ -574,18 +575,15 @@ trait Dynamic { self: StringDelimited =>
     val delimsParser = dp.combineLongest(dynamicDelimsParser.union(staticDelimsParser))
     val delimsCooked = dynamicDelimsCooked.union(staticDelimsCooked)
     val delimsRegex = dynamicDelimsRegex.union(staticDelimsRegex)
+    //
+    // moved check here to avoid need for another abstract method to 
+    // factor this out.
+    errorIfDelimsHaveWSPStar(delimsCooked)
+
     (delimsCooked, delimsRegex, delimsParser, Some(vars))
   }
 
-//  override def errorIfDelimsHaveWSPStar(delims: List[String]) = {
-//    // TODO: refactor. This check isn't needed in static case. Only dynamic case.
-//    if (delims.filter(x => x == "%WSP*;").length > 0) {
-//      // We cannot detect this error until expressions have been evaluated!
-//      log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited", eName)
-//      elemBase.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited!")
-//    }
-//  }
 }
 
 case class StringDelimitedEndOfDataDynamic(e: ElementBase)
-  extends StringDelimited(e) with Dynamic
+  extends StringDelimited(e) with DynamicDelim

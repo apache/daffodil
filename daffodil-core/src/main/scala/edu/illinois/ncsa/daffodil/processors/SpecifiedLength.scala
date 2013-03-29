@@ -53,8 +53,8 @@ import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 
-abstract class SpecifiedLengthCombinatorBase(eb: ElementBase, eGram: => Gram)
-  extends Terminal(eb, true)
+abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGram: => Gram)
+  extends Terminal(e, true)
   with RuntimeExplicitLengthMixin[Long] {
   //  extends NamedGram(e) {
 
@@ -64,8 +64,6 @@ abstract class SpecifiedLengthCombinatorBase(eb: ElementBase, eGram: => Gram)
   // ends up evaluated or not really has to happen in the application logic.
 
   val eParser = eGram.parser
-
-  val e = eb
 
   def kind: String
 

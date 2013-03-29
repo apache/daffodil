@@ -58,7 +58,7 @@
   <tdml:defineSchema name="defineFormat_01-Embedded.dfdl.xsd">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
       lengthUnits="characters" encoding="UTF-8" separator="" initiator=""
-      terminator="" separatorPolicy="suppressed" occursCountKind="parsed"
+      terminator="" separatorSuppressionPolicy="anyEmpty" occursCountKind="parsed"
       ignoreCase="no" textNumberRep="standard" representation="text" />
 
     <xs:element name="shirt">
@@ -181,7 +181,7 @@
       <dfdl:format lengthKind="explicit"
         lengthUnits="bytes" encoding="UTF-8" terminator=";" length="3"
         occursCountKind="parsed" ignoreCase="no" leadingSkip="0"
-        separatorPosition="infix" separatorPolicy="suppressed" initiatedContent="no"
+        separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" initiatedContent="no"
         textTrimKind="none"
         textNumberRep="standard" representation="text" />
     </dfdl:defineFormat>

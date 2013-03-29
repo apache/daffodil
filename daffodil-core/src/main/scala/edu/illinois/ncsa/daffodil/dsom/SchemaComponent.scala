@@ -59,6 +59,7 @@ import java.net.URL
 import edu.illinois.ncsa.daffodil.dsom.IIUtils._
 import IIUtils._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import edu.illinois.ncsa.daffodil.ExecutionMode
 
 /**
  * The core root class of the DFDL Schema object model.
@@ -82,7 +83,10 @@ abstract class SchemaComponent(xmlArg: Node, parent: SchemaComponent)
    * 
    * Override in annotated components
    */
-  def findPropertyOption(pname: String): PropertyLookupResult = NotFound(Nil, Nil)
+  def findPropertyOption(pname: String): PropertyLookupResult = {
+    ExecutionMode.requireCompilerMode
+    NotFound(Nil, Nil)
+  }
   // FIXME: not sure why non-annotated schema components need to have findProperty
   // on them at all. Who would call it polymorphically, not knowing whether they 
   // have an annotated schema component or not?
@@ -403,6 +407,7 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
   }
 
   override def findPropertyOption(pname: String): PropertyLookupResult = {
+    ExecutionMode.requireCompilerMode
     // first try in regular properties
     val regularResult = findNonDefaultProperty(pname)
     regularResult match {

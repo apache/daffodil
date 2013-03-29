@@ -37,7 +37,7 @@
 
 	<xs:element name="bcd_group" dfdl:lengthKind="implicit">
 		<xs:complexType>
-			<xs:sequence dfdl:separatorPolicy="required"
+			<xs:sequence dfdl:separatorSuppressionPolicy="never"
 				dfdl:separatorPosition="infix" dfdl:separator="*">
 				<xs:element name="decimal1" type="xs:decimal" 
 					dfdl:length="4"					 />

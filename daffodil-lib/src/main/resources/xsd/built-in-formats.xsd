@@ -1,24 +1,12 @@
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <!-- intended for inclusion into other schemas
     has no targetNamespace on purpose -->
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
       <dfdl:defineFormat name="daffodilTest1">
-        <dfdl:format representation="text" lengthUnits="bytes"
-          encoding="US-ASCII" alignment='1' alignmentUnits='bytes'
-          textStandardBase='10' binaryFloatRep='ieee' binaryNumberRep='binary'
-          byteOrder='bigEndian' calendarPatternKind='implicit'
-          escapeSchemeRef='' documentFinalTerminatorCanBeMissing='no'
-          ignoreCase='no' initiatedContent='no' leadingSkip='0'
-          lengthKind='implicit' occursCountKind='parsed'
-          separatorPolicy='suppressed' separatorPosition='infix'
-          sequenceKind='ordered' textNumberRep='standard'
-          textNumberCheckPolicy='strict' textStringJustification='left'
-          trailingSkip='0' initiator="" terminator="" separator=""
-          emptyValueDelimiterPolicy="both" utf16Width="fixed"
-          textTrimKind="none" />
+        <dfdl:format alignment="1" alignmentUnits="bytes" binaryFloatRep="ieee" binaryNumberRep="binary" byteOrder="bigEndian" calendarPatternKind="implicit" documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both" encoding="US-ASCII" escapeSchemeRef="" ignoreCase="no" initiatedContent="no" initiator="" leadingSkip="0" lengthKind="implicit" lengthUnits="bytes" occursCountKind="parsed" representation="text" separator="" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" sequenceKind="ordered" terminator="" textNumberCheckPolicy="strict" textNumberRep="standard" textStandardBase="10" textStringJustification="left" textTrimKind="none" trailingSkip="0" utf16Width="fixed"/>
       </dfdl:defineFormat>
     </xs:appinfo>
   </xs:annotation>

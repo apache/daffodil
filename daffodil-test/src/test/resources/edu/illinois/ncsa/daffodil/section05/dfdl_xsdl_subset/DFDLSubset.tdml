@@ -17,7 +17,7 @@
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
-      lengthKind="delimited" textNumberRep="standard" separatorPolicy="suppressed"
+      lengthKind="delimited" textNumberRep="standard" separatorSuppressionPolicy="anyEmpty"
       initiatedContent="no" />
 
     <xs:element name="description" type="xs:string" />
@@ -124,7 +124,7 @@
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
-      lengthKind="delimited" textNumberRep="standard" separatorPolicy="suppressed"
+      lengthKind="delimited" textNumberRep="standard" separatorSuppressionPolicy="anyEmpty"
       initiatedContent="no" />
     
     <xs:group name="g">
@@ -171,7 +171,7 @@
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
-      lengthKind="delimited" textNumberRep="standard" separatorPolicy="suppressed"
+      lengthKind="delimited" textNumberRep="standard" separatorSuppressionPolicy="anyEmpty"
       initiatedContent="no" />
 
     <xs:element name="description" type="xs:string" />
@@ -242,7 +242,7 @@
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
-      lengthKind="delimited" textNumberRep="standard" separatorPolicy="suppressed"
+      lengthKind="delimited" textNumberRep="standard" separatorSuppressionPolicy="anyEmpty"
       initiatedContent="no" />
 
     <xs:element name="description" type="xs:string" />

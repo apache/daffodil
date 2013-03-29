@@ -77,4 +77,15 @@ class TresysTests3 extends JUnitSuite {
   @Test def test_AH001() { runnerAH.runOneTest("AH001") }
   @Test def test_AH002() { runnerAH.runOneTest("AH002") }
 
+  // AM is a MIME style example
+  // Wasn't working for lack of occursCountKind, and 
+  // because the bytes were flipped. It was written assuming that
+  // Hex like A1B2 was interpreted as little endian words. I.e, the first
+  // byte in that would be B2.
+  // That's not how TDML works anyway. A1 is first. So by swizzling the indexes
+  // the tests were asking for. Voila, they work.
+  val am = testDir + "AM.tdml"
+  lazy val runnerAM = new DFDLTestSuite(Misc.getRequiredResource(am))
+  @Test def test_AM000() { runnerAM.runOneTest("AM000") }
+  @Test def test_AM001() { runnerAM.runOneTest("AM001") }
 }

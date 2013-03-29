@@ -188,6 +188,8 @@ object EmptyVariableMap extends VariableMap()
 class VariableMap(private val variables: Map[String, List[List[Variable]]] = Map.empty)
   extends WithParseErrorThrowing {
 
+  var currentPState: Option[PState] = None
+
   lazy val context = Assert.invariantFailed("unused.")
 
   private def mkVMap(newVar: Variable, firstTier: List[Variable], enclosingScopes: List[List[Variable]]) = {
@@ -221,7 +223,15 @@ class VariableMap(private val variables: Map[String, List[List[Variable]]] = Map
 
       case Some(Nil) => Assert.invariantFailed()
 
-      case None => referringContext.schemaDefinitionError("unknown variable %s", expandedName)
+      case None => {
+        currentPState match {
+          // Runtime error:
+          case Some(pstate) => pstate.SDE("Variable map (runtime): unknown variable %s", expandedName)
+          // Compile time error:
+          case None => referringContext.SDE("Variable map (compilation): unknown variable %s", expandedName)
+        }
+
+      }
     }
   }
 

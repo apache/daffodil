@@ -22,7 +22,7 @@
 				textCalendarJustification="left" textCalendarPadCharacter="%SP;"
 				nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" 
 				documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
-				sequenceKind="ordered" separatorPolicy="required" 
+				sequenceKind="ordered" separatorSuppressionPolicy="never" 
 				binaryNumberRep="bcd" binaryDecimalVirtualPoint="2"
                                 decimalSigned="yes" binaryNumberCheckPolicy="lax"
 				 />

@@ -7,7 +7,7 @@
 
   <tdml:defineSchema name="text_03">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
-      terminator="" separator="" separatorPolicy="suppressed"
+      terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
       nilValueDelimiterPolicy="none" nilValue="nil %ES;" nilKind="literalValue"
@@ -50,7 +50,7 @@
 
   <tdml:defineSchema name="text_04">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
-      terminator="" separator="" separatorPolicy="suppressed"
+      terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
       nilValueDelimiterPolicy="none" nilValue="nil %WSP;" nilKind="literalValue"
@@ -93,7 +93,7 @@
 
   <tdml:defineSchema name="text_05">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
-      terminator="" separator="" separatorPolicy="suppressed"
+      terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
       nilValueDelimiterPolicy="none" nilValue="nil %WSP*;" nilKind="literalValue"
@@ -136,7 +136,7 @@
 
   <tdml:defineSchema name="text_06">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
-      terminator="" separator="" separatorPolicy="suppressed"
+      terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
       nilValueDelimiterPolicy="none" nilValue="nil %WSP+;" nilKind="literalValue"
@@ -189,7 +189,7 @@
       nilKind
       with binary data -->
     <dfdl:format ref="ex:daffodilTest1" initiator=""
-      terminator="" separator="" separatorPolicy="suppressed"
+      terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="iso-8859-1" representation="binary" occursCountKind="parsed"
       nilValueDelimiterPolicy="none" nilValue="%NUL;%NUL;%NUL;%NUL;"
@@ -230,7 +230,7 @@
   
     <tdml:defineSchema name="PaddedNils">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
-      terminator="" separator="" separatorPolicy="suppressed"
+      terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
       nilValueDelimiterPolicy="none" nilValue="nil %WSP+;" nilKind="literalValue"

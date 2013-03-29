@@ -12,7 +12,7 @@
 			truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
 			lengthKind="delimited" nilValueDelimiterPolicy="both"
 			emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes"
-			initiatedContent="no" separatorPolicy="required" separatorPosition="infix" />
+			initiatedContent="no" separatorSuppressionPolicy="never" separatorPosition="infix" />
 
 		<xs:element name="testBit">
 			<xs:complexType>

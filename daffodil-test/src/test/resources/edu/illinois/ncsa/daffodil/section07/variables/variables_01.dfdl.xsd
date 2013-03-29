@@ -21,7 +21,7 @@
         byteOrder='bigEndian' calendarPatternKind='implicit'
         escapeSchemeRef='' documentFinalTerminatorCanBeMissing='no'
         ignoreCase='no' initiatedContent='no' leadingSkip='0'
-        lengthKind='implicit' occursCountKind='parsed' separatorPolicy='suppressed'
+        lengthKind='implicit' occursCountKind='parsed' separatorSuppressionPolicy='anyEmpty'
         separatorPosition='infix' sequenceKind='ordered' textNumberRep='standard'
         textNumberCheckPolicy='strict' textStringJustification='left'
         trailingSkip='0' initiator="" terminator="" separator="" />

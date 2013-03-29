@@ -22,7 +22,7 @@
 				documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
 				sequenceKind="ordered" alignment="1" alignmentUnits="bytes"
 				fillByte="%#r66;"  occursCountKind="implicit"
-				separatorPolicy="required" textNumberRep="standard"
+				separatorSuppressionPolicy="never" textNumberRep="standard"
 				initiator="" terminator="@"
 				calendarPatternKind="implicit" calendarPattern="yyyymmddhhmmss" calendarCheckPolicy="lax" 
 				calendarTimeZone="UTC" calendarObserveDST="yes" 
@@ -64,7 +64,7 @@
 	
 	<xs:element name="calendar_group">
 		<xs:complexType>
-			<xs:sequence dfdl:separatorPolicy="required"
+			<xs:sequence dfdl:separatorSuppressionPolicy="never"
 				dfdl:separatorPosition="infix" dfdl:separator="*">
 				
 				<xs:element name="date1" type="xs:date" dfdl:calendarPatternKind="implicit" dfdl:terminator=""/>

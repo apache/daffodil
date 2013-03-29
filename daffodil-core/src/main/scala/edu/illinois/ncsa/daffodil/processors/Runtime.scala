@@ -42,6 +42,8 @@ import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.compiler.ProcessorFactory
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import edu.illinois.ncsa.daffodil.ExecutionMode
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.ErrorAlreadyHandled
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -84,12 +86,16 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   // 
   lazy val parser = parser_.value
   private val parser_ = LV('parser) {
-    rootElem.document.parser
+    ExecutionMode.usingCompilerMode {
+      rootElem.document.parser
+    }
   }
 
   lazy val unparser = unparser_.value
   private val unparser_ = LV('unparser) {
-    rootElem.document.unparser
+    ExecutionMode.usingCompilerMode {
+      rootElem.document.unparser
+    }
   }
 
   def save(output: DFDL.Output): Unit = {
@@ -112,38 +118,44 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   }
 
   def parse(initialState: PState) = {
-    val pr = new ParseResult(this) {
-      val p = parser
-      val resultState = { // Not lazy. We want to parse right now.
-        try {
-          p.parse1(initialState, rootElem)
-        } catch {
-          // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure" 
-          // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an 
-          // exception handling construct.
-          //
-          // But we might not catch everything inside...
-          //
-          case pe: ParseError => {
-            // if we get one here, then someone threw instead of returning a status. 
-            Assert.invariantFailed("ParseError caught. ParseErrors should be returned as failed status, not thrown. Fix please.")
-          }
-          case procErr: ProcessingError => {
-            Assert.invariantFailed("got a processing error that was not a parse error. This is the parser!")
-          }
-          case sde: SchemaDefinitionError => {
-            // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
-            // These are fatal, and there's no notion of backtracking them, so they propagate to top level
-            // here.
-            initialState.failed(sde)
-          }
-          case e: OOLAGException => {
-            Assert.invariantFailed("OOLAGException's like " + e + " are compiler stuff. This is runtime.")
+    ExecutionMode.usingRuntimeMode {
+      val pr = new ParseResult(this) {
+        val p = parser
+        val resultState = { // Not lazy. We want to parse right now.
+          try {
+            p.parse1(initialState, rootElem)
+          } catch {
+            // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure" 
+            // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an 
+            // exception handling construct.
+            //
+            // But we might not catch everything inside...
+            //
+            case pe: ParseError => {
+              // if we get one here, then someone threw instead of returning a status. 
+              Assert.invariantFailed("ParseError caught. ParseErrors should be returned as failed status, not thrown. Fix please.")
+            }
+            case procErr: ProcessingError => {
+              Assert.invariantFailed("got a processing error that was not a parse error. This is the parser!")
+            }
+            case sde: SchemaDefinitionError => {
+              // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
+              // These are fatal, and there's no notion of backtracking them, so they propagate to top level
+              // here.
+              initialState.failed(sde)
+            }
+            case rsde: RuntimeSchemaDefinitionError => {
+              initialState.failed(rsde)
+            }
+            case e: ErrorAlreadyHandled => {
+              initialState.failed(e.th)
+              // Assert.invariantFailed("OOLAGException at runtime (should not happen). Caught at DataProcessor level: " + e)
+            }
           }
         }
       }
+      pr
     }
-    pr
   }
 
   /**
@@ -153,43 +165,45 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   def unparse(output: DFDL.Output, infoset: scala.xml.Node): DFDL.UnparseResult = {
     Assert.usage(!this.isError)
 
-    val jdomElem = XMLUtils.elem2Element(infoset)
-    val jdomDoc = new org.jdom.Document(jdomElem)
-    val initialState = UState.createInitialState(rootElem, output, jdomDoc) // also want to pass here the externally set variables, other flags/settings.
+    ExecutionMode.usingRuntimeMode {
+      val jdomElem = XMLUtils.elem2Element(infoset)
+      val jdomDoc = new org.jdom.Document(jdomElem)
+      val initialState = UState.createInitialState(rootElem, output, jdomDoc) // also want to pass here the externally set variables, other flags/settings.
 
-    val uRes = new UnparseResult(this) {
-      val resultState = { // Not lazy. We want to unparse right now.
+      val uRes = new UnparseResult(this) {
+        val resultState = { // Not lazy. We want to unparse right now.
 
-        try {
-          unparser.unparse(initialState)
-        } catch {
-          // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure" 
-          // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an 
-          // exception handling construct.
-          //
-          // But we might not catch everything inside...
-          //
-          case pe: UnparseError => {
-            // if we get one here, then someone threw instead of returning a status. 
-            Assert.invariantFailed("UnparseError caught. UnparseErrors should be returned as failed status, not thrown. Fix please.")
-          }
-          case procErr: ProcessingError => {
-            Assert.invariantFailed("got a processing error that was not an unparse error. This is the unparser!")
-          }
-          case sde: SchemaDefinitionError => {
-            // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
-            // These are fatal, and there's no notion of backtracking them, so they propagate to top level here.
-            initialState.failed(sde)
-          }
-          case e: OOLAGException => {
-            Assert.invariantFailed("OOLAGExceptions like " + e.toString() + " are compiler stuff. This is runtime.")
+          try {
+            unparser.unparse(initialState)
+          } catch {
+            // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure" 
+            // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an 
+            // exception handling construct.
+            //
+            // But we might not catch everything inside...
+            //
+            case pe: UnparseError => {
+              // if we get one here, then someone threw instead of returning a status. 
+              Assert.invariantFailed("UnparseError caught. UnparseErrors should be returned as failed status, not thrown. Fix please.")
+            }
+            case procErr: ProcessingError => {
+              Assert.invariantFailed("got a processing error that was not an unparse error. This is the unparser!")
+            }
+            case sde: SchemaDefinitionError => {
+              // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
+              // These are fatal, and there's no notion of backtracking them, so they propagate to top level here.
+              initialState.failed(sde)
+            }
+            case e: OOLAGException => {
+              Assert.invariantFailed("OOLAGExceptions like " + e.toString() + " are compiler stuff. This is runtime.")
+            }
           }
         }
+        //write unparsed result to outputStream
+        resultState.outStream.write()
       }
-      //write unparsed result to outputStream
-      resultState.outStream.write()
+      uRes
     }
-    uRes
   }
 }
 

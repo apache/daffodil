@@ -220,7 +220,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
         </xs:annotation>
       </xs:element>
       <xs:complexType name="example1">
-        <xs:sequence dfdl:separatorPolicy="required" dfdl:separator="">
+        <xs:sequence dfdl:separatorSuppressionPolicy="never" dfdl:separator="">
           <xs:element name="w" type="xs:int" maxOccurs="1" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:occursCountKind="fixed"/>
         </xs:sequence>
       </xs:complexType>)
@@ -453,7 +453,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
-          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:separatorPolicy="required" dfdl:terminator=";">
+          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="never" dfdl:terminator=";">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }" minOccurs="0" dfdl:occursCountKind="parsed"/>
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
           </xs:sequence>

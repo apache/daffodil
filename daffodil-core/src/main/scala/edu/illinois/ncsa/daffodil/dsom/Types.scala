@@ -956,6 +956,7 @@ class PrimitiveType(pname: String)
   import PrimType._
 
   override lazy val enclosingComponent = None // Shouldn't be used anyway.
+  override lazy val fileDescription = "" // no file, no file description
 
   lazy val primitiveType = this
 

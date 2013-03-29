@@ -15,7 +15,7 @@
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence dfdl:separator=","
-          dfdl:separatorPosition="infix" dfdl:separatorPolicy="suppressed">
+          dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="anyEmpty">
           <xs:element name="e1" type="xs:int" minOccurs="0" />
           <xs:element name="e2" type="xs:float" minOccurs="0" />
           <xs:element name="e3" type="xs:unsignedByte"
@@ -85,7 +85,7 @@
   <tdml:defineSchema name="arrays1">
 
     <dfdl:format ref="ex:daffodilTest1" occursCountKind="implicit"
-      lengthKind="delimited" separatorPolicy="suppressedAtEndStrict"
+      lengthKind="delimited" separatorSuppressionPolicy="trailingEmptyStrict"
       separatorPosition="prefix" />
 
     <xs:element name="r">

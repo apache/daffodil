@@ -501,7 +501,7 @@ Date: Mon Feb 23 15:20:47 CST 2009
           lengthKind="delimited" separator=""
           leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
           terminator="" initiatedContent="no" textNumberRep="standard"
-          separatorPolicy="suppressedAtEndLax" separatorPosition="infix"
+          separatorSuppressionPolicy="trailingEmpty" separatorPosition="infix"
           documentFinalTerminatorCanBeMissing='yes' textTrimKind="none"/>
 
   <!-- CSV with metadata header, remove header -->
@@ -538,7 +538,7 @@ Date: Mon Feb 23 15:20:47 CST 2009
       <xs:element name="row" maxOccurs="unbounded" dfdl:occursCountKind='parsed'>
         <xs:complexType>
           <xs:sequence dfdl:separator="," dfdl:terminator="%NL;"
-            dfdl:separatorPolicy="suppressed" dfdl:separatorPosition="infix">
+            dfdl:separatorSuppressionPolicy="anyEmpty" dfdl:separatorPosition="infix">
             <xs:element name="cell" type="xs:int" maxOccurs="unbounded"
               dfdl:occursCountKind='parsed'
               dfdl:encoding="ASCII" dfdl:representation="text"
@@ -669,7 +669,7 @@ Date: Mon Feb 23 15:20:47 CST 2009
         lengthKind="delimited" separator=""
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
         terminator="" initiatedContent="no" textNumberRep="standard"
-        separatorPolicy="suppressed" separatorPosition="infix"
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         occursCountKind="parsed" textTrimKind="none"/>
 
   <!-- Evaluated occursCount based on hidden elements -->
@@ -747,7 +747,7 @@ more ignored input
         lengthKind="delimited" separator=""
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
         terminator="" initiatedContent="no" textNumberRep="standard"
-        separatorPolicy="suppressed" separatorPosition="infix"
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         occursCountKind="parsed" textTrimKind="none"/>
 
   <!-- Parsing values as a hidden layer, then

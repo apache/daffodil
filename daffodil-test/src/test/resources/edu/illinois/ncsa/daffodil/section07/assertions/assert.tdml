@@ -10,11 +10,11 @@
     <xs:simpleType name="simpleAssert">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-          <dfdl:assert><![CDATA[{ xs:int(.) eq 42 }]]></dfdl:assert>
+          <dfdl:assert><![CDATA[{ . eq '42' }]]></dfdl:assert>
         </xs:appinfo>
       </xs:annotation>
-      <xs:restriction base="xs:int">
-        <xs:pattern value="{\d}*" />
+      <xs:restriction base="xs:string">
+        <xs:pattern value="\d*" /> <!-- pattern only allowed on xs:string type -->
       </xs:restriction>
     </xs:simpleType>
 
@@ -452,7 +452,7 @@
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence dfdl:separator="/"
-          dfdl:separatorPosition="prefix" dfdl:separatorPolicy="suppressed">
+          dfdl:separatorPosition="prefix" dfdl:separatorSuppressionPolicy="anyEmpty">
           <xs:element name="e1" type="xs:string">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -571,7 +571,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="suppressed" separatorPosition="infix" />
+      separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
 
     <xs:element name="e1" type="xs:int" dfdl:inputValueCalc="{ 42 }">
       <xs:annotation>
@@ -842,7 +842,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="suppressed" separatorPosition="infix" />
+      separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
 
     <xs:element name="e1" type="xs:int">
       <xs:annotation>

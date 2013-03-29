@@ -59,7 +59,7 @@
           occursCountKind="stopValue" occursStopValue="" outputNewLine=""
           outputValueCalc="{ 42 }" prefixIncludesPrefixLength="yes"
           prefixLengthType="ex:myPrefixType" representation="binary"
-          separator="" separatorPolicy="required" separatorPosition="infix"
+          separator="" separatorSuppressionPolicy="never" separatorPosition="infix"
           textBooleanFalseRep="" textBooleanTrueRep=""
           textNumberJustification="right" textStringJustification="right"
           textTrimKind="none" trailingSkip="1" useNilForDefault="yes"
@@ -108,7 +108,7 @@
         <xsd:annotation>
           <xsd:appinfo>
             <dfdl:sequence initiator="" separator=""
-              ignoreCase="yes" separatorPolicy="required"
+              ignoreCase="yes" separatorSuppressionPolicy="never"
               separatorPosition="infix" sequenceKind="ordered"
               terminator="">
               <dfdl:property name="terminator">;</dfdl:property>
@@ -154,7 +154,7 @@
   <xsd:element name="t3">
     <xsd:complexType>
       <xsd:sequence dfdl:initiator="" dfdl:separator=""
-        dfdl:separatorPolicy="required" dfdl:separatorPosition="infix"
+        dfdl:separatorSuppressionPolicy="never" dfdl:separatorPosition="infix"
         dfdl:sequenceKind="ordered" dfdl:terminator="">
 
         <xsd:choice dfdl:choiceLengthKind="implicit"

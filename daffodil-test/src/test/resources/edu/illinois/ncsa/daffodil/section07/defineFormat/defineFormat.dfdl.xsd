@@ -26,7 +26,7 @@
                    dfdl:sequenceKind="ordered"  
                    dfdl:separator="*"  
                    dfdl:separatorPosition="infix"  
-                   dfdl:separatorPolicy="required">
+                   dfdl:separatorSuppressionPolicy="never">
         <xs:element name="houseNumber" type="xs:int"  
                     dfdl:ref="common" 
                     dfdl:textNumberRep="standard"  
@@ -47,7 +47,7 @@
                    dfdl:sequenceKind="ordered"  
                    dfdl:separator="*"  
                    dfdl:separatorPosition="infix"  
-                   dfdl:separatorPolicy="required">
+                   dfdl:separatorSuppressionPolicy="never">
         <xs:element name="houseNumber" type="houseNumberType"  
                     dfdl:ref="common1"/>
         <xs:element name="street" type="xs:string" 

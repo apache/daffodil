@@ -500,7 +500,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   def checkMinLength(data: String, minValue: java.math.BigDecimal,
-    e: ElementBase, primType: PrimType): java.lang.Boolean = {
+                     e: ElementBase, primType: PrimType): java.lang.Boolean = {
     primType match {
       case PrimType.String => {
         val bdData = new java.math.BigDecimal(data.length())
@@ -519,7 +519,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   def checkMaxLength(data: String, maxValue: java.math.BigDecimal,
-    e: ElementBase, primType: PrimType): java.lang.Boolean = {
+                     e: ElementBase, primType: PrimType): java.lang.Boolean = {
     primType match {
       case PrimType.String => {
         val bdData = new java.math.BigDecimal(data.length())
@@ -804,8 +804,8 @@ object XPathUtil extends Logging {
    * a CompiledExpressionFactory
    */
   def compileExpression(dfdlExpressionRaw: String,
-    namespaces: Seq[org.jdom.Namespace],
-    context: SchemaComponent) =
+                        namespaces: Seq[org.jdom.Namespace],
+                        context: SchemaComponent) =
     // withLoggingLevel(LogLevel.Info) 
     {
       log(LogLevel.Debug, "Compiling expression")
@@ -855,6 +855,8 @@ object XPathUtil extends Logging {
       xpath.setXPathVariableResolver(
         new XPathVariableResolver() {
           def resolveVariable(qName: QName): Object = {
+            // FIXME: PERFORMANCE: readVariable should use the QName object, not require this string to be created every time
+            // we read a variable.
             val varName = XMLUtils.expandedQName(qName)
             val (res, newVMap) = variables.readVariable(varName, context)
             variables = newVMap
@@ -917,7 +919,7 @@ object XPathUtil extends Logging {
    * @param namespaces  - the namespaces in scope
    */
   private[xpath] def evalExpressionFromString(expression: String, variables: VariableMap,
-    contextNode: Parent, namespaces: Seq[org.jdom.Namespace], targetType: QName = NODE): XPathResult = {
+                                              contextNode: Parent, namespaces: Seq[org.jdom.Namespace], targetType: QName = NODE): XPathResult = {
 
     val compiledExprExceptVariables = compileExpression(expression, namespaces, null) // null as schema component
     val res = evalExpression(expression, compiledExprExceptVariables, variables, contextNode, targetType)

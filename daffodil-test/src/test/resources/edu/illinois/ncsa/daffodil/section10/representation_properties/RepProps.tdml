@@ -18,7 +18,7 @@
   
   <tdml:defineSchema name="neededRepProp2">
     <dfdl:format lengthKind="delimited" leadingSkip="0"
-      initiator="" terminator="" separatorPosition="infix"
+      initiator="" terminator="" separatorPosition="infix" textTrimKind="none"
       encoding="utf-8" initiatedContent="no" />
     <xs:element name="root">
       <xs:complexType>

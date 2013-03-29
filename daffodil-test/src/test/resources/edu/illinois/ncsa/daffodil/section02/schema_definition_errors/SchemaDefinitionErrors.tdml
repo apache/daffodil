@@ -23,7 +23,7 @@
           <xs:element name="row" minOccurs="10" maxOccurs="10">
             <xs:complexType>
               <xs:sequence dfdl:separator=","
-                dfdl:separatorPolicy="required" dfdl:separatorPosition="infix"
+                dfdl:separatorSuppressionPolicy="never" dfdl:separatorPosition="infix"
                 dfdl:terminator="%NL;">
                 <xs:element name="cell" type="xs:int"
                   maxOccurs="unbounded" dfdl:encoding="ASCII"

@@ -14,7 +14,7 @@
         representation="text" lengthKind="delimited"
         nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none"
         documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-        separatorPolicy="suppressed" separatorPosition="infix" textTrimKind="none" />
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" textTrimKind="none" />
     </appinfo>
   </annotation>
   <!-- Parsing of CSV -->

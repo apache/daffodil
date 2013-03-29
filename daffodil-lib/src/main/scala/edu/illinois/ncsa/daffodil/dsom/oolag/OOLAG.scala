@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
+import edu.illinois.ncsa.daffodil.ExecutionMode
 
 /**
  * OOLAG = Object-oriented Lazy Attribute Grammars
@@ -115,7 +116,9 @@ object OOLAG extends Logging {
    * Catch this if you can carry on with more evaluations after an
    * error has occurred. Otherwise just let it propagate.
    */
-  private[oolag] case class ErrorAlreadyHandled(val th: Diagnostic, lv: OOLAGValue)
+  // I'd like this package private, but they leak out due to compile time errors
+  // that are not being seen until runtime.
+  case class ErrorAlreadyHandled(val th: Diagnostic, lv: OOLAGValue)
     extends Exception(th) with OOLAGRethrowException {
     val cause = Some(th)
   }
@@ -281,40 +284,61 @@ object OOLAG extends Logging {
       a5: => Any = Nil,
       a6: => Any = Nil,
       a7: => Any = Nil,
-      a8: => Any = Nil): Unit = {
+      a8: => Any = Nil,
+      a9: => Any = Nil,
+      a10: => Any = Nil,
+      a11: => Any = Nil,
+      a12: => Any = Nil,
+      a13: => Any = Nil,
+      a14: => Any = Nil): Unit = {
+
       // See Zlist.scala
       // The above args are all call-by name. These ZZ list cells are lazy.
       // So nothing is evaluated here. The argument expressions are just captured
       // for evaluation later.
-      val zzz = ZZ(a0, ZZ(a1, ZZ(a2, ZZ(a3, ZZ(a4, ZZ(a5, ZZ(a6, ZZ(a7, ZZ(a8, ZEnd)))))))))
+      val zzz = ZZ(a0, ZZ(a1, ZZ(a2, ZZ(a3, ZZ(a4, ZZ(a5, ZZ(a6, ZZ(a7, ZZ(a8, ZZ(a9, ZZ(a10, ZZ(a11, ZZ(a12, ZZ(a13, ZZ(a14, ZEnd)))))))))))))))
       requiredEvaluations(zzz)
     }
 
     private def checkErrors {
-      while (oolagRoot.errorCheckList != Nil) {
-        var ecl = oolagRoot.errorCheckList // grab current errorCheckList
-        oolagRoot.errorCheckList = Nil // truncate it, so we can spot new entries  
+      ExecutionMode.usingCompilerMode {
+        while (oolagRoot.errorCheckList != Nil) {
+          var ecl = oolagRoot.errorCheckList // grab current errorCheckList
+          oolagRoot.errorCheckList = Nil // truncate it, so we can spot new entries  
 
-        ecl.foreach { z =>
-          var zAtStart = z // keep original ZList for display       
-          var zlist = z
-          while (zlist != ZEnd) {
-            var next = zlist.tail
-            OOLAG.keepGoing() {
-              val h = zlist.head
-              // forces the evaluation of the next head
-              // we don't actually care what the value is, just that there is one.
-              // the point is to cause the error to be thrown, caught below, but
-              // reported on the OOLAGValue, where we pick it up later. 
-              // println("value was: " + h)
+          ecl.foreach { z =>
+            var zAtStart = z // keep original ZList for display       
+            var zlist = z
+            while (zlist != ZEnd) {
+              var next = zlist.tail
+              OOLAG.keepGoing() {
+                //
+                // This use of an OOLAG value here insures that anything a user
+                // puts inside of requiredEvaluations(...) if it throws, it does so
+                // across the context of an OOLAG Value, which insures that 
+                // Things are not circular, that things will accumulate SDEs and they
+                // wont just unwind to top level, etc.
+                //
+                val requiredEvals = LV('requiredEvaluations) {
+                  ExecutionMode.usingCompilerMode {
+                    val h = zlist.head
+                    // forces the evaluation of the next head
+                    // we don't actually care what the value is, just that there is one.
+                    // the point is to cause the error to be thrown, caught below, but
+                    // reported on the OOLAGValue, where we pick it up later. 
+                    // println("value was: " + h)
+                  }
+                }
+                requiredEvals.value
+              }
+              zlist = next
             }
-            zlist = next
+            // println("errorCheckList: " + str) // displays all the values
+            // pick up any new ones that were placed 
+            // there because new objects were created.
           }
-          // println("errorCheckList: " + str) // displays all the values
-          // pick up any new ones that were placed 
-          // there because new objects were created.
+          // println("Done with one round.")
         }
-        // println("Done with one round.")
       }
     }
 
@@ -472,7 +496,7 @@ object OOLAG extends Logging {
         }
         case ex: java.lang.RuntimeException => {
           val re = ex // debugger won't let you see the exception without this.
-          log(OOLAGDebug(catchMsg, descrip, re)) // tell us which lazy attribute it was
+          log(Error(catchMsg, descrip, re)) // tell us which lazy attribute it was
           error(new Exception(re) with OOLAGDiagnosticMixin)
           val ab = new Abort(re.toString)
           throw ab

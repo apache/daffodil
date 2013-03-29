@@ -19,7 +19,7 @@
 				textCalendarJustification="right" emptyValueDelimiterPolicy="none"  nilValueDelimiterPolicy="both" 
 				documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
 				sequenceKind="ordered" escapeSchemeRef="" separator=""
-				separatorPosition="prefix" separatorPolicy="suppressed" />
+				separatorPosition="prefix" separatorSuppressionPolicy="anyEmpty" />
 		</xs:appinfo>
 	</xs:annotation>
 	<xs:annotation>

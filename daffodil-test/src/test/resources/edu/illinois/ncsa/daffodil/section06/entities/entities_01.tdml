@@ -87,7 +87,7 @@
 
   <tdml:defineSchema name="sch4">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
-      terminator="" separator="" separatorPolicy="suppressed"
+      terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
       nilValueDelimiterPolicy="none" nilValue="" nilKind="literalValue"
@@ -118,7 +118,7 @@
 
   <tdml:defineSchema name="sch5">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
-      terminator="" separator="" separatorPolicy="suppressed"
+      terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="binary" occursCountKind="parsed"
       nilValueDelimiterPolicy="none" nilValue="" nilKind="literalValue"
@@ -195,7 +195,7 @@
 
   <tdml:defineSchema name="sch6">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
-      terminator="" separator="" separatorPolicy="suppressed"
+      terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="binary" occursCountKind="parsed"
       nilValueDelimiterPolicy="none" nilValue="%NL;" nilKind="literalValue"

@@ -258,7 +258,7 @@
     <dfdl:format ref="ex:daffodilTest1" representation="text"
       lengthUnits="bytes" encoding="US-ASCII" byteOrder='bigEndian'
       ignoreCase='no' initiatedContent='no' lengthKind='implicit'
-      occursCountKind='parsed' separatorPolicy='suppressed'
+      occursCountKind='parsed' separatorSuppressionPolicy='anyEmpty'
       separatorPosition='infix' textNumberRep='standard' initiator=""
       terminator="" separator="" />
 

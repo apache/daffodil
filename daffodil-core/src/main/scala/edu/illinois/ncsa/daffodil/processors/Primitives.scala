@@ -1069,7 +1069,7 @@ abstract class Primitive(e: AnnotatedSchemaComponent, guard: Boolean = false)
 
 }
 
-abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guard){
+abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guard) {
   override def toString = "DelimParserBase[" + name + "]"
   val dp = new DFDLDelimParserStatic(e.knownEncodingStringBitLengthFunction)
 }
@@ -1095,11 +1095,17 @@ case class ZonedTextLongPrim(el: ElementBase) extends ZonedTextNumberPrim(el, fa
 trait RuntimeExplicitLengthMixin[T] {
   self: Terminal =>
   def e: ElementBase
-  lazy val toBits = e.lengthUnits match {
+
+  // get at compile time, not runtime.
+  val lUnits = e.lengthUnits
+
+  // binary numbers will use this conversion. Others won't.
+  lazy val toBits = lUnits match {
     case LengthUnits.Bits => 1
     case LengthUnits.Bytes => 8
     case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
   }
+
   def getBitLength(s: PState): (PState, Long) = {
     val R(nBytesAsAny, newVMap) = e.length.evaluate(s.parentElement, s.variableMap, s)
     val nBytes = nBytesAsAny.asInstanceOf[Long]
@@ -2649,9 +2655,9 @@ trait TextReader extends Logging {
 
 trait Padded { self: Terminal =>
   var padChar = ""
-  lazy val eBase = self.context.asInstanceOf[ElementBase]
+  val eBase = self.context.asInstanceOf[ElementBase]
 
-  lazy val justificationTrim: TextJustificationType.Type = eBase.textTrimKind match {
+  val justificationTrim: TextJustificationType.Type = eBase.textTrimKind match {
     case TextTrimKind.None => TextJustificationType.None
     case TextTrimKind.PadChar if eBase.isSimpleType => {
       val theJust = eBase.primType.myPrimitiveType match {

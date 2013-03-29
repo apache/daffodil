@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil
  * SOFTWARE.
  */
 
-
 import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -73,14 +72,6 @@ class TresysTests2 extends JUnitSuite {
   lazy val runnerAL = new DFDLTestSuite(Misc.getRequiredResource(al))
   @Test def test_AL000() { runnerAL.runOneTest("AL000") } // needs hexbinary type
 
-  // AM is a MIME style example
-  // No reason it can't be working, I just have no idea what the 
-  // missing occursCountKind property should be set to for this format.
-  val am = testDir + "AM.tdml"
-  lazy val runnerAM = new DFDLTestSuite(Misc.getRequiredResource(am))
-  @Test def test_AM000() { runnerAM.runOneTest("AM000") }
-  @Test def test_AM001() { runnerAM.runOneTest("AM001") }
-
   // Commented out as we have no plans to make this run yet,
   // and there is no check for recursion, so they die slowly with stack 
   // overflow
@@ -99,7 +90,7 @@ class TresysTests2 extends JUnitSuite {
 
   val at = testDir + "AT.tdml"
   lazy val runnerAT = new DFDLTestSuite(Misc.getRequiredResource(at))
-  @Test def test_AT000() { runnerAT.runOneTest("AT000") } // needs dateTime type
+  @Test def test_AT000() { runnerAT.runOneTest("AT000") } // needs newVariableInstance
 
   val au = testDir + "AU.tdml"
   lazy val runnerAU = new DFDLTestSuite(Misc.getRequiredResource(au))

@@ -32,7 +32,7 @@
           initiatedContent="no" sequenceKind="ordered" ignoreCase="yes"
           textPadKind="none" textTrimKind="none" textStandardBase="10"
           textNumberJustification="right" separatorPosition="infix"
-          separatorPolicy="required" escapeSchemeRef="" lengthKind="delimited"
+          separatorSuppressionPolicy="never" escapeSchemeRef="" lengthKind="delimited"
           documentFinalTerminatorCanBeMissing="no" outputNewLine="%LF;"
           textNumberRep="standard" nilValueDelimiterPolicy="both"
           textNumberRounding="pattern" />

@@ -105,7 +105,7 @@ class TestDFDLParser extends JUnitSuite {
 
   @Test def testParseSequence3() {
     val sch = TestUtils.dfdlTestSchema(
-      <dfdl:format separatorPolicy="required" separatorPosition="infix" ref="tns:daffodilTest1"/>,
+      <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:daffodilTest1"/>,
       <xs:element name="e1">
         <xs:complexType>
           <xs:sequence dfdl:separator=",">
@@ -121,7 +121,7 @@ class TestDFDLParser extends JUnitSuite {
   /* This test is in daffodil-test.
   @Test def testParseSequence4() {
     val sch = TestUtils.dfdlTestSchema(
-      <dfdl:format separatorPolicy="required" separatorPosition="infix" ref="tns:daffodilTest1"/>,
+      <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:initiator="[" dfdl:terminator="]">
         <xs:complexType>
           <xs:sequence dfdl:separator="," dfdl:initiator="{" dfdl:terminator="}">
@@ -145,7 +145,7 @@ class TestDFDLParser extends JUnitSuite {
   /* This test is in daffodil-test.
   @Test def testParseSequence5() {
     val sch = TestUtils.dfdlTestSchema(
-      <dfdl:format separatorPolicy="required" separatorPosition="infix" ref="tns:daffodilTest1"/>,
+      <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:initiator="[more[" dfdl:terminator="]nomore]">
         <xs:complexType>
           <xs:sequence dfdl:separator=",," dfdl:initiator="{{" dfdl:terminator="}}">
@@ -338,7 +338,7 @@ class TestDFDLParser extends JUnitSuite {
 
   @Test def testParseSequenceInt() {
     val sch = TestUtils.dfdlTestSchema(
-      <dfdl:format separatorPolicy="required" separatorPosition="infix" ref="tns:daffodilTest1"/>,
+      <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:initiator="[[" dfdl:terminator="]]">
         <xs:complexType>
           <xs:sequence dfdl:separator=",," dfdl:initiator="{{" dfdl:terminator="}}">

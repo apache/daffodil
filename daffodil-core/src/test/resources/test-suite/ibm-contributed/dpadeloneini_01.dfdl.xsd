@@ -34,7 +34,7 @@
 		<xs:complexType>
 			<xs:sequence dfdl:sequenceKind="ordered"
 				dfdl:initiatedContent="no" dfdl:separator="* -"
-				dfdl:separatorPosition="infix" dfdl:separatorPolicy="suppressedAtEndLax">
+				dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="trailingEmpty">
 				<xs:element name="Test1"  type="xs:int"
 					dfdl:initiator="Test1:" dfdl:terminator="+" />
 				<xs:element name="Test2" minOccurs="0" maxOccurs="1" type="xs:string"
@@ -51,7 +51,7 @@
 		<xs:complexType>
 			<xs:sequence dfdl:sequenceKind="ordered"
 				dfdl:initiatedContent="no" dfdl:separator="* -"
-				dfdl:separatorPosition="prefix" dfdl:separatorPolicy="required">
+				dfdl:separatorPosition="prefix" dfdl:separatorSuppressionPolicy="never">
 				<xs:element name="Test1"  type="xs:int"
 					dfdl:initiator="Test1:" dfdl:terminator="+" />
 				<xs:element name="Test2" minOccurs="0" maxOccurs="1" type="xs:string"
@@ -68,7 +68,7 @@
 		<xs:complexType>
 			<xs:sequence dfdl:sequenceKind="ordered"
 				dfdl:initiatedContent="no" dfdl:separator="* -"
-				dfdl:separatorPosition="postfix" dfdl:separatorPolicy="suppressed">
+				dfdl:separatorPosition="postfix" dfdl:separatorSuppressionPolicy="anyEmpty">
 				<xs:element name="Test1"  type="xs:int"
 					dfdl:initiator="Test1:" dfdl:terminator="+" />
 				<xs:element name="Test2" minOccurs="0" maxOccurs="1" type="xs:string"

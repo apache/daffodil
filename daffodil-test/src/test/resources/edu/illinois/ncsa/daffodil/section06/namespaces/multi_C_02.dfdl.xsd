@@ -3,7 +3,7 @@
  
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format separator="" initiator="" separatorPosition="infix" ignoreCase="no" separatorPolicy="suppressed" terminator="" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" leadingSkip='0'/>
+      <dfdl:format separator="" initiator="" separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" terminator="" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" leadingSkip='0'/>
     </xs:appinfo>
   </xs:annotation>
 

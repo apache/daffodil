@@ -9,9 +9,10 @@
       <dfdl:format lengthKind="delimited" separator="" representation="text"
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator="" lengthUnits="bytes"
         terminator="" initiatedContent="no" textNumberRep="standard"
-        separatorPolicy="suppressedAtEndLax" separatorPosition="infix"
+        separatorSuppressionPolicy="trailingEmpty" separatorPosition="infix"
         documentFinalTerminatorCanBeMissing='yes'
-        emptyValueDelimiterPolicy='none'/>
+        emptyValueDelimiterPolicy='none' textTrimKind='none' 
+        calendarFirstDayOfWeek='Sunday' calendarDaysInFirstWeek='4' calendarTimeZone='UTC' calendarCheckPolicy='strict' calendarLanguage='en' escapeSchemeRef=''/>
 
   <!-- PRP example -->
 
@@ -90,19 +91,20 @@
         <complexType>
           <sequence>
             <element name="local_name" type="xsd:string"
-              dfdl:inputValueCalc="{ /tns:PRP/tns:names/tns:Description[$counter]/tns:Name }">
+              dfdl:inputValueCalc="{ /tns:PRP/tns:names/tns:Description[$tns:counter]/tns:Name }">
               <annotation>
                 <appinfo source="http://www.ogf.org/dfdl/">
                   <!-- this have BEFORE timing, so for the first local_name 
-                    $counter = 1 -->
+                    $tns:counter = 1 -->
+                    <!-- NOTE: THIS REQUIRES dfdl:newVariableInstance BECAUSE VARIABLES ARE SINGLE ASSIGNMENT IN DFDL -->
                   <dfdl:setVariable ref="tns:counter">{
-                    $counter + 1
+                    $tns:counter + 1
                     }</dfdl:setVariable>
                 </appinfo>
               </annotation>
             </element>
             <element name="unit_type" type="xsd:string"
-              dfdl:inputValueCalc="{ /tns:PRP/tns:names/tns:Description[$counter]/tns:Unit }" />
+              dfdl:inputValueCalc="{ /tns:PRP/tns:names/tns:Description[$tns:counter]/tns:Unit }" />
             <element name="value" type="xsd:float"
               dfdl:lengthKind="explicit" dfdl:length="12"
               dfdl:textStringJustification="left"

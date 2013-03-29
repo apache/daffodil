@@ -9,10 +9,12 @@
       <dfdl:format lengthKind="delimited" separator="" representation="text"
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator="" lengthUnits="bytes"
         terminator="" initiatedContent="no" textNumberRep="standard"
-        separatorPolicy="suppressedAtEndLax" separatorPosition="infix"
+        separatorSuppressionPolicy="trailingEmpty" separatorPosition="infix"
         documentFinalTerminatorCanBeMissing='yes'
         byteOrder="bigEndian" binaryNumberRep="binary"
-        emptyValueDelimiterPolicy='none'/>
+        emptyValueDelimiterPolicy='none' textTrimKind="none" 
+        occursCountKind='implicit' 
+        calendarFirstDayOfWeek='Sunday' calendarDaysInFirstWeek='4' calendarTimeZone='UTC-6' calendarCheckPolicy='strict' calendarLanguage='en' escapeSchemeRef=''/>
     </appinfo>
   </annotation>
 
@@ -165,7 +167,7 @@
       <element name="startDate" type="xs:date" maxOccurs="1"
         dfdl:lengthKind="delimited" dfdl:terminator="%WSP;"
         dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM/dd/yyyy" />
-      <sequence dfdl:hiddenGroupRef="junk7" />
+      <sequence dfdl:hiddenGroupRef="tns:junk7" />
       <sequence dfdl:hiddenGroupRef="tns:junk8" />
       <element name="endDate" type="xs:date" maxOccurs="1"
         dfdl:lengthKind="delimited" dfdl:terminator="%NL;"
@@ -214,7 +216,7 @@
       <element name="value" type="xs:int"
         dfdl:textStringJustification="right"
         dfdl:textStringPadCharacter=" " dfdl:terminator="%NL;" />
-      <sequence dfdl:hiddenGroupRef="extraByte" />
+      <sequence dfdl:hiddenGroupRef="tns:extraByte" />
     </sequence>
   </complexType>
 

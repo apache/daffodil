@@ -20,7 +20,7 @@
 				textCalendarJustification="right" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="both"
 				documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
 				sequenceKind="ordered" escapeSchemeRef="" separator="~"
-				separatorPosition="infix" separatorPolicy="required" 
+				separatorPosition="infix" separatorSuppressionPolicy="never" 
 				alignment="1" alignmentUnits="bytes" fillByte="f"
 				occursCountKind="implicit"
 				/>

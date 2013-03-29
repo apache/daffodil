@@ -358,12 +358,14 @@
     type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
   <xsd:attribute name="separatorPosition" type="dfdl:SeparatorPositionEnum" />
   <xsd:attribute name="separatorPolicy" type="dfdl:SeparatorPolicyEnum" />
+  <xsd:attribute name="separatorSuppressionPolicy" type="dfdl:SeparatorSuppressionPolicyEnum" />  
 
   <xsd:attributeGroup name="SeparatorAG">
     <xsd:attribute name="separator"
       type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute name="separatorPosition" type="dfdl:SeparatorPositionEnum" />
     <xsd:attribute name="separatorPolicy" type="dfdl:SeparatorPolicyEnum" />
+    <xsd:attribute name="separatorSuppressionPolicy" type="dfdl:SeparatorSuppressionPolicyEnum" />      
   </xsd:attributeGroup>
 
   <xsd:attribute name="initiatedContent" type="dfdl:YesNoEnum" />
@@ -503,12 +505,12 @@
       <xsd:enumeration value="binaryDecimalVirtualPoint" />
       <xsd:enumeration value="binaryNumberCheckPolicy" />
       <xsd:enumeration value="binaryPackedSignCodes" />
-      <xsd:enumeration value="binaryFloatRepresentation" />
+      <xsd:enumeration value="binaryFloatRep" />
 
       <xsd:enumeration value="textBooleanJustification" />
 
-      <xsd:enumeration value="integerBooleanTrueRep" />
-      <xsd:enumeration value="integerBooleanFalseRep" />
+      <xsd:enumeration value="binaryBooleanTrueRep" />
+      <xsd:enumeration value="binaryBooleanFalseRep" />
 
       <xsd:enumeration value="textCalendarJustification" />
 
@@ -533,6 +535,7 @@
 
       <xsd:enumeration value="separatorPosition" />
       <xsd:enumeration value="separatorPolicy" />
+      <xsd:enumeration value="separatorSuppressionPolicy" />      
 
       <xsd:enumeration value="choiceLengthKind" />
       <xsd:enumeration value="choiceLength" />
@@ -857,6 +860,8 @@
       type="dfdl:SeparatorPositionEnum" />
     <xsd:attribute form="qualified" name="separatorPolicy"
       type="dfdl:SeparatorPolicyEnum" />
+    <xsd:attribute form="qualified" name="separatorSuppressionPolicy"
+      type="dfdl:SeparatorSuppressionPolicyEnum" />      
   </xsd:attributeGroup>
 
   <xsd:attributeGroup name="GroupCommonAGQualified">

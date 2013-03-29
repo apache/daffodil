@@ -55,6 +55,7 @@ import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
 import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
 import edu.illinois.ncsa.daffodil.processors.WithDiagnosticsImpl
+import edu.illinois.ncsa.daffodil.ExecutionMode
 
 /**
  * Contains a specification of the root element to be used.
@@ -87,11 +88,13 @@ class ProcessorFactory(val sset: SchemaSet)
   }
 
   override def isError = {
-    OOLAG.keepGoing(true) {
-      val valid = sset.isValid
-      val res = if (valid) sset.isError
-      else true
-      res
+    ExecutionMode.usingCompilerMode {
+      OOLAG.keepGoing(true) {
+        val valid = sset.isValid
+        val res = if (valid) sset.isError
+        else true
+        res
+      }
     }
   }
 
@@ -100,19 +103,21 @@ class ProcessorFactory(val sset: SchemaSet)
   override lazy val fileName = sset.fileName
 
   def onPath(xpath: String): DFDL.DataProcessor = {
-    Assert.usage(canProceed)
-    if (xpath != "/") rootElem.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
-    val dataProc = new DataProcessor(this, rootElem)
-    if (dataProc.isError) {
-      val diags = dataProc.getDiagnostics
-      log(Error("Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length))
-      diags.foreach { diag => log(Error(diag.toString())) }
-    } else {
-      log(Compile("Parser = %s.", dataProc.parser.toString))
-      log(Compile("Unparser = %s.", dataProc.unparser.toString))
-      log(Compile("Compilation (DataProcesor) completed with no errors."))
+    ExecutionMode.usingCompilerMode {
+      Assert.usage(canProceed)
+      if (xpath != "/") rootElem.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
+      val dataProc = new DataProcessor(this, rootElem)
+      if (dataProc.isError) {
+        val diags = dataProc.getDiagnostics
+        log(Error("Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length))
+        diags.foreach { diag => log(Error(diag.toString())) }
+      } else {
+        log(Compile("Parser = %s.", dataProc.parser.toString))
+        log(Compile("Unparser = %s.", dataProc.unparser.toString))
+        log(Compile("Compilation (DataProcesor) completed with no errors."))
+      }
+      dataProc
     }
-    dataProc
   }
 
 }
@@ -181,25 +186,27 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
    * our tests often want to do things on the schema set.
    */
   def compileInternal(schemaFileNames: Seq[String]): (SchemaSet, ProcessorFactory) = {
-    Assert.usage(schemaFileNames.length >= 1)
-    val sset = new SchemaSet(schemaFileNames, rootSpec, checkAllTopLevel)
-    val pf = new ProcessorFactory(sset)
-    val err = pf.isError
-    val diags = pf.getDiagnostics // might be warnings even if not isError
-    def printDiags = diags.foreach { diag => log(Error(diag.toString())) }
-    if (err) {
-      Assert.invariant(diags.length > 0)
-      log(Error("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
-    } else {
-      if (diags.length > 0) {
-        log(Info("Compilation (ProcessorFactory) produced %d warnings.", diags.length))
-
+    ExecutionMode.usingCompilerMode {
+      Assert.usage(schemaFileNames.length >= 1)
+      val sset = new SchemaSet(schemaFileNames, rootSpec, checkAllTopLevel)
+      val pf = new ProcessorFactory(sset)
+      val err = pf.isError
+      val diags = pf.getDiagnostics // might be warnings even if not isError
+      def printDiags = diags.foreach { diag => log(Error(diag.toString())) }
+      if (err) {
+        Assert.invariant(diags.length > 0)
+        log(Error("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
       } else {
-        log(Compile("ProcessorFactory completed with no errors."))
+        if (diags.length > 0) {
+          log(Info("Compilation (ProcessorFactory) produced %d warnings.", diags.length))
+
+        } else {
+          log(Compile("ProcessorFactory completed with no errors."))
+        }
       }
+      printDiags
+      (sset, pf)
     }
-    printDiags
-    (sset, pf)
   }
 
   /**

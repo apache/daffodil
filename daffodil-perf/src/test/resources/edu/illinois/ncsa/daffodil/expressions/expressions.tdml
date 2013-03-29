@@ -82,5 +82,74 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="indexLimit_29030_hoisted" model="csv_mod_hidden_hoisted.dfdl.xsd" root="file_29030"
+    description="Section 23 - Uses of Expression Language - DFDL-23-003R, 
+    but with expression hoisted into a variable. So we reference a variable 
+    over and over, but don't evaluate an expression over and over. 
+    This is for comparison of the simplest kind of dynamic expression 
+    (just value of a variable) versus fully static.">
+    <tdml:document>
+      <tdml:documentPart type="file">csv_1.6m</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <file_29030>
+          <header>
+            <title>last</title>
+            <title>first</title>
+            <title>sigil</title>
+          </header>
+          <scoop>lannister</scoop>
+        </file_29030>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="indexLimit_100_hoisted" model="csv_mod_hidden_hoisted.dfdl.xsd" root="file_100"
+    description="Section 23 - Uses of Expression Language - DFDL-23-003R, 
+    but with expression hoisted into a variable. So we reference a variable 
+    over and over, but don't evaluate an expression over and over. 
+    This is for comparison of the simplest kind of dynamic expression 
+    (just value of a variable) versus fully static.">
+    <tdml:document>
+      <tdml:documentPart type="file">csv_1.6m</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <file_100>
+          <header>
+            <title>last</title>
+            <title>first</title>
+            <title>sigil</title>
+          </header>
+          <scoop>tyrell</scoop>
+        </file_100>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="indexLimit_2264_hoisted" model="csv_mod_hidden_hoisted.dfdl.xsd" root="file_2264"
+    description="Section 23 - Uses of Expression Language - DFDL-23-003R, 
+    but with expression hoisted into a variable. So we reference a variable 
+    over and over, but don't evaluate an expression over and over. 
+    This is for comparison of the simplest kind of dynamic expression 
+    (just value of a variable) versus fully static.">
+    <tdml:document>
+      <tdml:documentPart type="file">csv_1.6m</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <file_2264>
+          <header>
+            <title>last</title>
+            <title>first</title>
+            <title>sigil</title>
+          </header>
+          <scoop>baratheon</scoop>
+        </file_2264>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

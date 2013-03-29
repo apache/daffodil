@@ -51,6 +51,7 @@ import edu.illinois.ncsa.daffodil.util.Info
 import edu.illinois.ncsa.daffodil.util._
 import scala.collection.immutable.ListMap
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import edu.illinois.ncsa.daffodil.ExecutionMode
 
 /**
  * Base class for any DFDL annotation
@@ -482,6 +483,7 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent)
   with RawEscapeSchemeRuntimeValuedPropertiesMixin {
 
   override def findPropertyOption(pname: String): PropertyLookupResult = {
+    ExecutionMode.requireCompilerMode // never get properties at runtime, only compile time.
     val propNodeSeq = xml.attribute(pname)
     propNodeSeq match {
       case None => NotFound(Seq(this), Nil) // attribute was not found

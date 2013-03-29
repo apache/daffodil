@@ -37,7 +37,7 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 				escapeSchemeRef=""
 				lengthKind="implicit" lengthUnits="bytes"
 				nilValueDelimiterPolicy="both" 
-				representation="text" separatorPolicy="suppressedAtEndLax"
+				representation="text" separatorSuppressionPolicy="trailingEmpty"
 				leadingSkip="0" trailingSkip="0"/>
         </xs:appinfo>
       </xs:annotation>

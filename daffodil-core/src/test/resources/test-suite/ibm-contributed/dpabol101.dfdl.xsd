@@ -74,7 +74,7 @@
 	    <!-- parse different than unparse - T*xxFxx*xxxxxxxxxxxxxxxxxxxF -->
 		<xs:element name="boolean_group" dfdl:lengthKind="delimited">
 		<xs:complexType>
-			<xs:sequence dfdl:separatorPolicy="required"
+			<xs:sequence dfdl:separatorSuppressionPolicy="never"
 				dfdl:separatorPosition="infix" dfdl:separator="*">
 				<!--  use space for separator, and show grouping of 4  -->
 				

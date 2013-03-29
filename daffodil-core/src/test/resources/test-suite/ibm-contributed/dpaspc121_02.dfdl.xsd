@@ -17,7 +17,7 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 				lengthUnits="bytes" initiatedContent="no"
 				sequenceKind="ordered" ignoreCase="no" textPadKind="none"
 				textTrimKind="none" textStandardBase="10" textNumberJustification="right"
-				separatorPosition="infix" separatorPolicy="required"
+				separatorPosition="infix" separatorSuppressionPolicy="never"
 
 				escapeSchemeRef="" textNumberPattern="##,000.##"
 				textStandardGroupingSeparator="," textStandardDecimalSeparator="."

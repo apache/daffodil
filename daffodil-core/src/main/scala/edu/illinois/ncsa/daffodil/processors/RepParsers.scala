@@ -241,10 +241,10 @@ class RepUnboundedPrim(context: LocalElementBase, r: => Gram) extends RepPrim(co
 case class OccursCountExpression(e: ElementBase)
   extends Terminal(e, true) {
   val pseudoElement = Infoset.newElement(e, e.isHidden)
+  val exprText = e.occursCount.prettyExpr
 
   def parser = new Parser(e) with WithParseErrorThrowing {
     def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
-      val exprText = e.occursCount.prettyExpr
       //
       // Because the occurs count expression will be written as if we were already in a child node
       // (e.g., ../countField where countField is a peer) we have to make a fake node, and attach it

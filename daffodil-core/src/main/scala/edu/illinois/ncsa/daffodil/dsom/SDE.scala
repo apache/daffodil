@@ -36,22 +36,44 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 import scala.xml.Node
+import edu.illinois.ncsa.daffodil.ExecutionMode
+import edu.illinois.ncsa.daffodil.processors.PState
 
 class SchemaDefinitionError(schemaContext: Option[SchemaComponentBase],
                             annotationContext: Option[DFDLAnnotation],
                             kind: String,
                             args: Any*)
-  extends SchemaDefinitionDiagnosticBase(schemaContext, annotationContext, kind, args: _*) {
+  extends SchemaDefinitionDiagnosticBase(schemaContext, None, annotationContext, kind, args: _*) {
 
   def this(sc: SchemaComponent, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
   val diagnosticKind = "Error"
+}
+
+class RuntimeSchemaDefinitionError(schemaContext: SchemaComponentBase,
+                                   runtimeContext: PState,
+                                   kind: String,
+                                   args: Any*)
+  extends SchemaDefinitionDiagnosticBase(
+    Some(schemaContext), Some(runtimeContext), None, kind, args: _*) {
+  val diagnosticKind = "Error"
+}
+
+class RuntimeSchemaDefinitionWarning(schemaContext: SchemaComponentBase,
+                                     runtimeContext: PState,
+                                     kind: String,
+                                     args: Any*)
+  extends SchemaDefinitionDiagnosticBase(
+    Some(schemaContext), Some(runtimeContext), None, kind, args: _*) {
+
+  override def isError = false
+  val diagnosticKind = "Warning"
 }
 
 class SchemaDefinitionWarning(schemaContext: Option[SchemaComponentBase],
                               annotationContext: Option[DFDLAnnotation],
                               kind: String,
                               args: Any*)
-  extends SchemaDefinitionDiagnosticBase(schemaContext, annotationContext, kind, args: _*) {
+  extends SchemaDefinitionDiagnosticBase(schemaContext, None, annotationContext, kind, args: _*) {
 
   def this(sc: SchemaComponent, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
 
@@ -61,6 +83,7 @@ class SchemaDefinitionWarning(schemaContext: Option[SchemaComponentBase],
 
 abstract class SchemaDefinitionDiagnosticBase(
   val schemaContext: Option[SchemaComponentBase],
+  val runtimeContext: Option[PState],
   val annotationContext: Option[DFDLAnnotation],
   val kind: String,
   val args: Any*) extends Exception with DiagnosticImplMixin {
@@ -100,16 +123,19 @@ abstract class SchemaDefinitionDiagnosticBase(
       // you will get circularity errors from OOLAG.
       // beats a stack-overflow at least.
       val schContextLocDescription =
-        schemaContext.map { " " + _.locationDescription }.getOrElse("")
+        schemaContext.map { " " + _.locationDescription + "." }.getOrElse("")
 
       val annContextLocDescription =
-        annotationContext.map { " " + _.locationDescription }.getOrElse("")
+        annotationContext.map { " " + _.locationDescription + "." }.getOrElse("")
 
-      val res = "Schema Definition " + diagnosticKind + ": " + msg +
+      val runtime = if (runtimeContext.isDefined) "Runtime " else ""
+      val dataLocDescription =
+        runtimeContext.map { " Data Context: " + _.currentLocation.toString + "." }.getOrElse("")
+      val res = runtime + "Schema Definition " + diagnosticKind + ": " + msg +
         " Schema context: " + schemaContext.getOrElse("top level") + "." +
         // TODO: should be one or the other, never(?) both
         schContextLocDescription +
-        annContextLocDescription
+        annContextLocDescription + dataLocDescription
 
       res
     }
@@ -133,7 +159,7 @@ trait ImplementsThrowsSDE
    * Centralize throwing for debug convenience
    */
   def toss(th: Throwable) = {
-    println(th)
+    // println(th)
     throw th // good place for a breakpoint
   }
 
@@ -142,16 +168,19 @@ trait ImplementsThrowsSDE
   // TODO: create a trait to share various error stuff with DFDLAnnotation class.
   // Right now there is small code duplication since annotations aren't schema components.
   def SDE(id: String, args: Any*): Nothing = {
+    ExecutionMode.requireCompilerMode
     val sde = new SchemaDefinitionError(Some(schemaComponent), NoAnnotationContext, id, args: _*)
     toss(sde)
   }
 
   def SDEButContinue(id: String, args: Any*): Unit = {
+    ExecutionMode.requireCompilerMode
     val sde = new SchemaDefinitionError(Some(schemaComponent), NoAnnotationContext, id, args: _*)
-    error(sde)
+    error(sde) // calls the error routine which records the error, but doesn't throw/toss it.
   }
 
   def SDW(id: String, args: Any*): Unit = {
+    ExecutionMode.requireCompilerMode
     val sdw = new SchemaDefinitionWarning(Some(schemaComponent), NoAnnotationContext, id, args: _*)
     warn(sdw)
   }

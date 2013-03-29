@@ -25,7 +25,7 @@
 				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
 				documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
 				sequenceKind="ordered" 
-				separatorPolicy="required" 
+				separatorSuppressionPolicy="never" 
 				calendarPatternKind="implicit" calendarPattern="yyyymmddhhmmss" calendarCheckPolicy="lax" 
 				calendarTimeZone="UTC" calendarObserveDST="yes" 
 				calendarFirstDayOfWeek="Wednesday" calendarDaysInFirstWeek="7" calendarCenturyStart="50" 

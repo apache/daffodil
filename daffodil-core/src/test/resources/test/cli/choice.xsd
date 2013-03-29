@@ -13,7 +13,7 @@
       <dfdl:format alignment="1" alignmentUnits="bytes" binaryFloatRep="ieee" binaryNumberRep="binary" byteOrder="bigEndian"
                    calendarPatternKind="implicit" documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both" encoding="US-ASCII"
                    escapeSchemeRef="" fillByte="f" floating="no" ignoreCase="no" initiatedContent="no" initiator="" leadingSkip="0" lengthKind="delimited"
-                   lengthUnits="bytes" nilValueDelimiterPolicy="both" occursCountKind="parsed" representation="text" separator="" separatorPolicy="suppressed"
+                   lengthUnits="bytes" nilValueDelimiterPolicy="both" occursCountKind="parsed" representation="text" separator="" separatorSuppressionPolicy="anyEmpty"
                    separatorPosition="infix" sequenceKind="ordered" terminator="" textBidi="no" textNumberCheckPolicy="strict" textNumberRep="standard"
                    textStandardBase="10" textStringJustification="left" textTrimKind="none" trailingSkip="0" truncateSpecifiedLengthString="no" utf16Width="fixed" />
     </xs:appinfo>

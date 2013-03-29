@@ -58,6 +58,7 @@ import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import scala.util.parsing.input.Reader
 import java.util.UUID
 import java.math.BigInteger
+import edu.illinois.ncsa.daffodil.ExecutionMode
 
 abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
@@ -442,7 +443,14 @@ case class PState(
     val res = currentElement.schemaComponent(this)
     res
   }
-  def SDE(str: String, args: Any*) = { getContext().SDE(str, args) }
+
+  def SDE(str: String, args: Any*) = {
+    ExecutionMode.requireRuntimeMode
+    val ctxt = getContext()
+    val rsde = new RuntimeSchemaDefinitionError(ctxt, this, str, args: _*)
+    ctxt.toss(rsde)
+  }
+
   def discriminator = discriminatorStack.head
   def currentLocation: DataLocation = new DataLoc(bitPos, bitLimit, inStream)
   // def inStreamState = inStreamStateStack top

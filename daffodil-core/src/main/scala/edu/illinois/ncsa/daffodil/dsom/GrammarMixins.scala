@@ -422,7 +422,7 @@ trait ElementBaseGrammarMixin
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextDoublePrim(this))
 
   lazy val zonedTextDouble = Prod("zonedTextDouble", this,
-    textNumberRep == TextNumberRep.Zoned, subsetError("Zoned not supported for float and double"))
+    textNumberRep == TextNumberRep.Zoned, SDE("Zoned not supported for float and double"))
 
   //  lazy val binaryFloat = Prod("binaryFloat", this, representation == Representation.Binary,
   //    ieeeBinaryRepFloat | ibm390HexBinaryRepFloat)
@@ -457,7 +457,7 @@ trait ElementBaseGrammarMixin
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextFloatPrim(this))
 
   lazy val zonedTextFloat = Prod("zonedTextFloat", this,
-    textNumberRep == TextNumberRep.Zoned, subsetError("Zoned not supported for float and double"))
+    textNumberRep == TextNumberRep.Zoned, SDE("Zoned not supported for float and double"))
 
   lazy val textDate = Prod("textDate", this, representation == Representation.Text,
     standardTextDate | zonedTextDate)
@@ -916,9 +916,9 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
   //
   // Silly constants to make the lookup table below more readable without using fragile whitespace
   val Never______ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.Never
-  val TrailingLax: SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingLax
-  val Trailing___ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.Trailing
-  val Always_____ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.Always
+  val Trailing___ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmpty
+  val TrailingStr: SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmptyStrict
+  val Always_____ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.AnyEmpty
   val StopValue_ = OccursCountKind.StopValue
   val Implicit__ = OccursCountKind.Implicit
   val Parsed____ = OccursCountKind.Parsed
@@ -940,12 +940,12 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
       case (Never______, Implicit__, UNB) => SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' required bounded maxOccurs.")
       case (Never______, Implicit__, max) => separatedContentExactlyN(max)
       case (Never______, ock, ___) => SDE("separatorSuppressionPolicy='never' not allowed in combination with occursCountKind='" + ock + "'.")
-      case (TrailingLax, Implicit__, UNB) if (!isLastRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
-      case (TrailingLax, Implicit__, UNB) => separatedContentUnbounded
-      case (TrailingLax, Implicit__, max) => separatedContentAtMostN // FIXME: have to have all of them - not trailing position 
       case (Trailing___, Implicit__, UNB) if (!isLastRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
-      case (Trailing___, Implicit__, UNB) => separatedContentUnboundedWithoutTrailingEmpties // we're depending on optionalEmptyPart failing on empty content.
-      case (Trailing___, Implicit__, max) => separatedContentAtMostNWithoutTrailingEmpties
+      case (Trailing___, Implicit__, UNB) => separatedContentUnbounded
+      case (Trailing___, Implicit__, max) => separatedContentAtMostN // FIXME: have to have all of them - not trailing position 
+      case (TrailingStr, Implicit__, UNB) if (!isLastRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
+      case (TrailingStr, Implicit__, UNB) => separatedContentUnboundedWithoutTrailingEmpties // we're depending on optionalEmptyPart failing on empty content.
+      case (TrailingStr, Implicit__, max) => separatedContentAtMostNWithoutTrailingEmpties
       case (Always_____, Implicit__, UNB) => separatedContentUnbounded
       case (Always_____, Implicit__, max) => separatedContentAtMostN
       case (Always_____, Parsed____, ___) => separatedContentUnbounded

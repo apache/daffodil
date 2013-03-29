@@ -13,7 +13,7 @@
     <xs:complexType> 
       <xs:sequence dfdl:sequenceKind="ordered"   
                     dfdl:separator="*"  
-                    dfdl:separatorPosition="infix" dfdl:separatorPolicy='suppressed'> 
+                    dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy='anyEmpty'> 
         <xs:element name="houseNumber" type="xs:string"  
                 dfdl:initiator="house:" /> 
          <xs:element name="street" type="xs:string" 
@@ -54,7 +54,7 @@
     <xs:complexType> 
       <xs:sequence dfdl:sequenceKind="ordered"   
                     dfdl:separator="*"  
-                    dfdl:separatorPosition="infix" dfdl:separatorPolicy='suppressed'> 
+                    dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy='anyEmpty'> 
         <xs:element name="houseNumber" type="xs:string"  
                 dfdl:initiator="house:" /> 
          <xs:element name="street" type="xs:string" 
@@ -77,7 +77,7 @@
     <xs:complexType> 
       <xs:sequence dfdl:sequenceKind="ordered"   
                     dfdl:separator="*"  
-                    dfdl:separatorPosition="infix" dfdl:separatorPolicy='suppressed'> 
+                    dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy='anyEmpty'> 
         <xs:element name="houseNumber" type="xs:string"  
                 dfdl:initiator="house:" />
         <xs:element name="streets"    
@@ -85,7 +85,7 @@
           <xs:complexType> 
             <xs:sequence dfdl:sequenceKind="ordered"   
                    dfdl:separator="~" 
-                   dfdl:separatorPosition="infix" dfdl:separatorPolicy='suppressed'> 
+                   dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy='anyEmpty'> 
               <xs:element name="street" type="xs:string" 
                    dfdl:initiator="street:" 
                    minOccurs="0" maxOccurs="2" 

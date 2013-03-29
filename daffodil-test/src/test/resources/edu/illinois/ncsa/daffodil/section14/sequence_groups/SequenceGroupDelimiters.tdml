@@ -8,7 +8,7 @@
   <tdml:defineSchema name="SequenceGroupDelimiters-Embedded.dfdl.xsd">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" separator=""
-      encoding="utf-8" occursCountKind="parsed" separatorPolicy="suppressed"
+      encoding="utf-8" occursCountKind="parsed" separatorSuppressionPolicy="anyEmpty"
       textNumberRep="standard" ignoreCase="no" representation="text"
       lengthUnits="characters" lengthKind="delimited" />
 
@@ -179,7 +179,7 @@
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
-      lengthKind="delimited" separatorPolicy="suppressed"
+      lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"
       initiatedContent="no" documentFinalTerminatorCanBeMissing="yes" />
 
     <xs:element name="description" type="xs:string" />
@@ -222,7 +222,7 @@
       <xs:complexType>
         <xs:sequence dfdl:initiatedContent="no"
           dfdl:separatorPosition="infix" dfdl:separator=","
-          dfdl:separatorPolicy="required" dfdl:terminator="%NL;">
+          dfdl:separatorSuppressionPolicy="never" dfdl:terminator="%NL;">
           <xs:element name="num" type="xs:int" maxOccurs="unbounded" />
         </xs:sequence>
       </xs:complexType>
@@ -285,7 +285,7 @@
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
-      lengthKind="delimited" textNumberRep="standard" separatorPolicy="suppressed"
+      lengthKind="delimited" textNumberRep="standard" separatorSuppressionPolicy="anyEmpty"
       initiatedContent="no" />
 
     <xs:element name="description" type="xs:string" />
@@ -351,7 +351,7 @@
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
-      lengthKind="delimited" textNumberRep="standard" separatorPolicy="suppressed"
+      lengthKind="delimited" textNumberRep="standard" separatorSuppressionPolicy="anyEmpty"
       initiatedContent="no" />
 
     <xs:element name="description" type="xs:string" />

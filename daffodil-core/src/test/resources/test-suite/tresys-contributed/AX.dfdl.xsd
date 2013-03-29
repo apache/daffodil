@@ -9,7 +9,7 @@
       <dfdl:format lengthKind="delimited" separator=""
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
         terminator=""
-        separatorPolicy="suppressed" separatorPosition="infix"
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         documentFinalTerminatorCanBeMissing='yes'
         byteOrder="bigEndian" binaryNumberRep='binary'
         representation="text"

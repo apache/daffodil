@@ -63,7 +63,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="required" separatorPosition="infix" />
+      separatorSuppressionPolicy="never" separatorPosition="infix" />
 
     <xs:complexType name="basicType">
       <xs:sequence dfdl:separator="|">
@@ -103,7 +103,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="required" separatorPosition="infix" />
+      separatorSuppressionPolicy="never" separatorPosition="infix" />
 
     <xs:complexType name="scalarType">
       <xs:sequence dfdl:separator="|">
@@ -142,7 +142,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="suppressed" separatorPosition="infix" />
+      separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
 
 
     <xs:element name="array" type="arrayType"
@@ -175,7 +175,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="suppressed" separatorPosition="infix" />
+      separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
 
     <xs:element name="arrays" type="arrayOutter"
       dfdl:lengthKind="implicit" />
@@ -212,7 +212,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="suppressed" separatorPosition="infix" />
+      separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
 
     <xs:element name="arrays" type="arrayOutter"
       dfdl:lengthKind="implicit" />
@@ -249,7 +249,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="suppressed" separatorPosition="infix" />
+      separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
 
     <xs:element name="arrays" type="arrayOutter"
       dfdl:lengthKind="implicit" />
@@ -287,7 +287,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="suppressed" separatorPosition="infix" />
+      separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
 
 
     <xs:element name="basic" type="basicType"
@@ -320,7 +320,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="required" separatorPosition="infix" />
+      separatorSuppressionPolicy="never" separatorPosition="infix" />
 
 
     <xs:element name="basic" type="basicType"
@@ -371,7 +371,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="required" separatorPosition="infix" />
+      separatorSuppressionPolicy="never" separatorPosition="infix" />
 
 
     <xs:element name="basic" type="basicType"
@@ -413,7 +413,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="required" separatorPosition="infix" />
+      separatorSuppressionPolicy="never" separatorPosition="infix" />
 
     <xs:element name="basic" type="basicType"
       dfdl:lengthKind="implicit" />
@@ -458,7 +458,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="required" separatorPosition="infix" />
+      separatorSuppressionPolicy="never" separatorPosition="infix" />
 
 
     <xs:element name="matrix" type="matrixType"
@@ -498,7 +498,7 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorPolicy="suppressed" separatorPosition="infix" />
+      separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
 
 
     <xs:complexType name="matrixType">

@@ -51,7 +51,7 @@
 						<xs:sequence dfdl:sequenceKind="ordered"
 							dfdl:initiatedContent="no" dfdl:separator="*" dfdl:initiator="i"
 							dfdl:terminator="t" dfdl:separatorPosition="infix"
-							dfdl:separatorPolicy="required">
+							dfdl:separatorSuppressionPolicy="never">
 							<xs:element ref="Test1" minOccurs="1" maxOccurs="1"
 								dfdl:initiator="Test1:" dfdl:terminator="+" />
 							<xs:element name="Choice_inner" minOccurs="1"

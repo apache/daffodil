@@ -123,6 +123,7 @@ case class RuntimeExpression[T <: AnyRef](convertTo: Symbol,
                                           scArg: SchemaComponent)
   extends CompiledExpression(xpathText)
   with WithParseErrorThrowing {
+
   lazy val context = scArg
   def isConstant = false
   def isKnownNonEmpty = true // expressions are not allowed to return empty string
@@ -142,6 +143,7 @@ case class RuntimeExpression[T <: AnyRef](convertTo: Symbol,
     val xpathResultType = toXPathType(convertTo)
     val xpathRes = try {
       DFDLFunctions.currentPState = Some(pstate)
+      variables.currentPState = Some(pstate)
       pre.evalExpression(xpathText, xpathExprFactory, variables, xpathResultType)
     } catch {
       case e: XPathException => {
@@ -151,6 +153,7 @@ case class RuntimeExpression[T <: AnyRef](convertTo: Symbol,
       }
     } finally {
       DFDLFunctions.currentPState = None // put it back off
+      variables.currentPState = None
     }
     val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
     val converted: T = xpathRes match {

@@ -9,8 +9,8 @@
       <dfdl:format lengthKind="delimited" separator=""
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
         terminator="" initiatedContent="no" textNumberRep="standard"
-        separatorPolicy="suppressed" separatorPosition="infix"
-        byteOrder="bigEndian" binaryNumberRep="binary"/>
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+        byteOrder="bigEndian" binaryNumberRep="binary" />
     </appinfo>
   </annotation>
   <!-- MIME type detect -->
@@ -20,8 +20,8 @@
     <!-- 
     TBD: WHAT SHOULD THE occursCountKind BE??
      -->
-      <element name="array" type="xsd:byte" maxOccurs="100"
-        dfdl:representation="binary" dfdl:lengthKind="implicit" />
+      <element name="array" type="xsd:unsignedByte" maxOccurs="unbounded" dfdl:occursCountKind='implicit'
+        dfdl:representation="binary" dfdl:lengthKind="implicit" /> <!-- unsignedByte because it is compared with numbers > 127 -->
     </sequence>
   </group>
 
@@ -38,12 +38,12 @@
                 <annotation>
                   <appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:discriminator>{
-                      ../../tns:array[1]='71' and
-                      ../../tns:array[2]='73' and
-                      ../../tns:array[3]='70' and
-                      ../../tns:array[4]='56' and
-                      ../../tns:array[5]='57' and
-                      ../../tns:array[6]='97'
+                      ../../tns:array[2]='71' and
+                      ../../tns:array[1]='73' and
+                      ../../tns:array[4]='70' and
+                      ../../tns:array[3]='56' and
+                      ../../tns:array[6]='57' and
+                      ../../tns:array[5]='97'
                       }</dfdl:discriminator>
                   </appinfo>
                 </annotation>
@@ -54,10 +54,10 @@
                 <annotation>
                   <appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:discriminator>{
-                      ../../tns:array[7] = '74' and
-                      ../../tns:array[8] = '70' and
-                      ../../tns:array[9] = '73' and
-                      ../../tns:array[10] = '70'
+                      ../../tns:array[8] = '74' and
+                      ../../tns:array[7] = '70' and
+                      ../../tns:array[10] = '73' and
+                      ../../tns:array[9] = '70'
                       }</dfdl:discriminator>
                   </appinfo>
                 </annotation>

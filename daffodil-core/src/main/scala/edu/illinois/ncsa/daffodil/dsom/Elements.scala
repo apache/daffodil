@@ -133,7 +133,17 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with BooleanTextMixin
   with TextNumberFormatMixin {
 
-  requiredEvaluations(typeDef)
+  requiredEvaluations(typeDef, isSimpleType,
+    if (hasPattern) patternValues,
+    if (hasEnumeration) enumerationValues,
+    if (hasMinLength) minLength,
+    if (hasMaxLength) maxLength,
+    if (hasMinInclusive) minInclusive,
+    if (hasMaxInclusive) maxInclusive,
+    if (hasMinExclusive) minExclusive,
+    if (hasMaxExclusive) maxExclusive,
+    if (hasTotalDigits) totalDigits,
+    if (hasFractionDigits) fractionDigits)
 
   def name: String
 
@@ -279,9 +289,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   lazy val hasExpressionsInTerminatingMarkup: Boolean = {
-    this.allTerminatingMarkup.filter( x => !x.isConstant).length > 0
+    this.allTerminatingMarkup.filter(x => !x.isConstant).length > 0
   }
-  
+
   // 11/1/2012 - moved to base since needed by patternValue
   lazy val isPrimitiveType = typeDef.isInstanceOf[PrimitiveType]
 
@@ -906,6 +916,8 @@ class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
   with ElementFormDefaultMixin
   with ElementDeclMixin {
   lazy val elementRef = None
+
+  requiredEvaluations(minOccurs, maxOccurs)
 
 }
 

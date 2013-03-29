@@ -27,7 +27,7 @@
         textCalendarPadCharacter="%SP;" nilValueDelimiterPolicy="both"
         emptyValueDelimiterPolicy="none"
         documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
-        sequenceKind="ordered" separatorPolicy="required"
+        sequenceKind="ordered" separatorSuppressionPolicy="never"
         calendarPatternKind="implicit" calendarPattern="yyyymmddhhmmss"
         calendarCheckPolicy="lax" calendarTimeZone="UTC"
         calendarObserveDST="yes" calendarFirstDayOfWeek="Wednesday"

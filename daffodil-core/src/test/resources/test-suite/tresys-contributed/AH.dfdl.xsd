@@ -9,7 +9,7 @@
       <dfdl:format lengthKind="delimited" separator=""
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
         terminator="" initiatedContent="no" textNumberRep="standard"
-        separatorPolicy="suppressed" separatorPosition="infix"
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         documentFinalTerminatorCanBeMissing='yes'
         occursCountKind='parsed' textTrimKind="none"/>
     </appinfo>

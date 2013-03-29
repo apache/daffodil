@@ -134,7 +134,7 @@ calendarLanguage="en-US"
 
 occursCountKind="parsed"
 
-sequenceKind="ordered" separator="," separatorPolicy="required"
+sequenceKind="ordered" separator="," separatorSuppressionPolicy="never"
 separatorPosition="infix" initiatedContent="no" floating="no"
 
 choiceLengthKind="implicit"

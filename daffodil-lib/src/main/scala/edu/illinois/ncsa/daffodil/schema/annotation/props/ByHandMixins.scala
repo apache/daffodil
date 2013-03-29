@@ -108,9 +108,9 @@ object TextNumberBase {
 sealed trait SeparatorSuppressionPolicy extends SeparatorSuppressionPolicy.Value
 object SeparatorSuppressionPolicy extends Enum[SeparatorSuppressionPolicy] {
   case object Never extends SeparatorSuppressionPolicy; forceConstruction(Never)
-  case object TrailingLax extends SeparatorSuppressionPolicy; forceConstruction(TrailingLax)
-  case object Trailing extends SeparatorSuppressionPolicy; forceConstruction(Trailing)
-  case object Always extends SeparatorSuppressionPolicy; forceConstruction(Always)
+  case object TrailingEmpty extends SeparatorSuppressionPolicy; forceConstruction(TrailingEmpty)
+  case object TrailingEmptyStrict extends SeparatorSuppressionPolicy; forceConstruction(TrailingEmptyStrict)
+  case object AnyEmpty extends SeparatorSuppressionPolicy; forceConstruction(AnyEmpty)
 
   def apply(name: String, self: ThrowsSDE): SeparatorSuppressionPolicy = stringToEnum("separatorSuppressionPolicy", name, self)
 }
@@ -118,25 +118,39 @@ object SeparatorSuppressionPolicy extends Enum[SeparatorSuppressionPolicy] {
 trait SeparatorSuppressionPolicyMixin
   extends PropertyMixin { self: SchemaComponentBase =>
 
+  /**
+   * FIXME: really we need to either eliminate separatorPolicy (deprecated name)
+   * when loading (by making the SAX event handler isolate and convert/replace it), or
+   * we have to make the lookup search for either that name or the new name, which
+   * requires that we add a second optional "deprecatedPName" argument to all the lookup primitives
+   *
+   * This latter capability may be valuable in the future if other new properties are
+   * introduced which replace/subsume old properties. I rather expect some evolution of the
+   * DFDL standard in this way, so this approach is better than the loader that rewrites. It
+   * gives us more flexibility in warnings or error treatment of the old/deprecated names.
+   */
   lazy val separatorSuppressionPolicy = separatorSuppressionPolicy_.value
   private val separatorSuppressionPolicy_ = LV('separatorSuppressionPolicy) {
     val sp = getPropertyOption("separatorPolicy")
     val ssp = getPropertyOption("separatorSuppressionPolicy")
-    ssp match {
-      case Some(sspStr) => SeparatorSuppressionPolicy(sspStr, this)
-      case None => {
-        sp match {
-          case Some("required") => SeparatorSuppressionPolicy.Never
-          case Some("suppressed") => SeparatorSuppressionPolicy.Always
-          case Some("suppressedAtEndStrict") => SeparatorSuppressionPolicy.Trailing
-          case Some("suppressedAtEndLax") => SeparatorSuppressionPolicy.TrailingLax
-          case None => {
-            getProperty("separatorPolicy") // which will fail!
-            Assert.impossible()
-          }
-          case Some(other) => Assert.impossibleCase()
+    (sp, ssp) match {
+      case (Some(spValue), Some(sspStr)) => {
+        SDW("Both separatorPolicy(deprecated) and separatorSuppressionPolicy are defined. The separatorPolicy will be ignored.")
+        SeparatorSuppressionPolicy(sspStr, this)
+      }
+      case (None, Some(sspStr)) => SeparatorSuppressionPolicy(sspStr, this)
+      case (None, None) => getProperty("separatorSuppressionPolicy") // which will SDE!
+      case (Some(spString), None) => {
+        SDW("Property separatorPolicy is deprecated. Use separatorSuppressionPolicy instead.")
+        spString match {
+          case "required" => SeparatorSuppressionPolicy.Never
+          case "suppressed" => SeparatorSuppressionPolicy.AnyEmpty
+          case "suppressedAtEndStrict" => SeparatorSuppressionPolicy.TrailingEmpty
+          case "suppressedAtEndLax" => SeparatorSuppressionPolicy.TrailingEmptyStrict
+          case _ => Assert.invariantFailed("illegal string for separatorPolicy")
         }
       }
+      case _ => Assert.invariantFailed("combination of separatorPolicy and separatorSuppressionPolicy not understood")
     }
   }
 }

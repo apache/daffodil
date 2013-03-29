@@ -320,7 +320,7 @@
    
    <parserTestCase name="sequences_separated_14_01" root="groupElem"
 		model="./fvt/ext/dpa/dpadeloneini_01.dfdl.xsd" 
-		 description="Section 14 Sequences Groups - delimited ordered sequence, separatorPosition='infix' separatorPolicy='suppressedAtEndStrict' ">
+		 description="Section 14 Sequences Groups - delimited ordered sequence, separatorPosition='infix' separatorSuppressionPolicy='trailingEmptyStrict' ">
 		<document>Test1:1+*Test2:myString+*Test3:3+</document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -349,7 +349,7 @@
 	
 	<parserTestCase name="sequences_separated_14_03" root="groupElem2"
 		model="./fvt/ext/dpa/dpadeloneini_01.dfdl.xsd" 
-		 description="Section 14 Sequences Groups - delimited ordered sequence, separatorPosition='prefix' separatorPolicy='required' - DFDL-14-008R">
+		 description="Section 14 Sequences Groups - delimited ordered sequence, separatorPosition='prefix' separatorSuppressionPolicy='never' - DFDL-14-008R">
 		<document>*Test1:1+*Test2:myString+*Test3:3+</document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -378,7 +378,7 @@
 	
 	<parserTestCase name="sequences_separated_14_05" root="groupElem3"
 		model="./fvt/ext/dpa/dpadeloneini_01.dfdl.xsd" 
-		 description="Section 14 Sequences Groups - delimited ordered sequence, separatorPosition='postfix' separatorPolicy='suppressed' - DFDL-14-008R">
+		 description="Section 14 Sequences Groups - delimited ordered sequence, separatorPosition='postfix' separatorSuppressionPolicy='anyEmpty' - DFDL-14-008R">
 		<document>Test1:1+*Test2:myString+*Test3:3+*</document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -407,7 +407,7 @@
 	
 	 <parserTestCase name="sequences_separated_14_07" root="groupElem"
 		model="./fvt/ext/dpa/dpaflsoneini_01.dfdl.xsd" 
-		 description="Section 14 Sequence Groups - fixed length ordered sequence, separatorPosition='infix' separatorPolicy='suppressedAtEndStrict' ">
+		 description="Section 14 Sequence Groups - fixed length ordered sequence, separatorPosition='infix' separatorSuppressionPolicy='trailingEmptyStrict' ">
 		<document>Test1:1+*Test2:myString+*Test3:3+</document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">

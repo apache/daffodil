@@ -79,7 +79,7 @@
     <xs:element name="limits" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator=":"
-          dfdl:separatorPolicy="required" dfdl:separatorPosition="infix">
+          dfdl:separatorSuppressionPolicy="never" dfdl:separatorPosition="infix">
           <xs:element name="unsigned-byte" type="xs:unsignedByte"
             dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
           <xs:element name="unsigned-short" type="xs:unsignedShort"

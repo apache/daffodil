@@ -322,13 +322,15 @@
 
   <!-- A pattern is used instead of an enumeration for compactness -->
   <xsd:simpleType name="CalendarTimeZoneType">
-    <xsd:restriction base="xsd:string" />
+    <xsd:restriction base="xsd:string" >
+      <xsd:pattern value="(UTC)([+\-]([01]\d|\d)((([:][0-5]\d){1,2})?))?)" />
+    </xsd:restriction>
   </xsd:simpleType>
 
   <!-- A pattern is used instead of an enumeration for compactness -->
   <xsd:simpleType name="CalendarLanguageType">
     <xsd:restriction base="xsd:string">
-      <xsd:pattern value="([A-Za-z]{1,8}(-[A-Za-z0-9]{1,8})*)" />
+      <xsd:pattern value="([A-Za-z]{1,8}([-_][A-Za-z0-9]{1,8})*)" />
     </xsd:restriction>
   </xsd:simpleType>
 
@@ -433,6 +435,15 @@
       <xsd:enumeration value="suppressed" />
       <xsd:enumeration value="suppressedAtEndStrict" />
       <xsd:enumeration value="suppressedAtEndLax" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:simpleType name="SeparatorSuppressionPolicyEnum">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="never" />
+      <xsd:enumeration value="trailingEmpty" />
+      <xsd:enumeration value="trailingEmptyStrict" />
+      <xsd:enumeration value="anyEmpty" />
     </xsd:restriction>
   </xsd:simpleType>
 

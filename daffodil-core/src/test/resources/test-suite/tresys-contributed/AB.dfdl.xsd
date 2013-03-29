@@ -9,7 +9,7 @@
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
       <!-- <dfdl:format initiator="" terminator="" separator=""
-        separatorPolicy="suppressed" separatorPosition="infix"
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
         representation="text" occursCountKind="parsed" /> -->
       <dfdl:format initiator="" terminator="" leadingSkip="0"
@@ -20,7 +20,7 @@
         representation="text" lengthKind="delimited"
         nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none"
         documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-        separatorPolicy="suppressed" separatorPosition="infix"
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         ref="tns:daffodilTest1" />
     </appinfo>
   </annotation>

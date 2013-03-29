@@ -14,7 +14,7 @@
         <xs:sequence dfdl:sequenceKind="ordered"  
               dfdl:separator="*"  
               dfdl:separatorPosition="infix"   
-              dfdl:separatorPolicy="required"> 
+              dfdl:separatorSuppressionPolicy="never"> 
           <xs:element name="houseNumber"   
                 type="xs:string"  
                 dfdl:initiator="house:" /> 
