@@ -22,7 +22,7 @@
     Test name: capitalization
     Schema: SimpleTypes-Embedded.dfdl.xsd
     Purpose: Same as double_07, just verifying that TDML runner is no longer case sensitive when parsing error messages
-  -->
+  --> 
 
   <tdml:parserTestCase name="capitalization" root="double"
       model="generalSchema" description="Section 5 Schema types-double - DFDL-5-009R">
@@ -150,6 +150,20 @@
       <tdml:error>was not found</tdml:error>
     </tdml:errors>
 
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="referentialIntegrity" root="foo"
+    model="ref_integrity.xsd" description="Same as litNil1, but uses full file path">
+
+    <tdml:document>
+      <tdml:documentPart type="file">file_does_not_exist.txt</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <foo/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>
