@@ -156,14 +156,13 @@
     model="ref_integrity.xsd" description="Same as litNil1, but uses full file path">
 
     <tdml:document>
-      <tdml:documentPart type="file">file_does_not_exist.txt</tdml:documentPart>
+      <tdml:documentPart type="text"></tdml:documentPart>
     </tdml:document>
 
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <foo/>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>No type definition found for 'bar'</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

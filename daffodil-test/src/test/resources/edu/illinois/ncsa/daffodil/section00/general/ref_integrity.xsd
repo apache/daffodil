@@ -1,4 +1,4 @@
-<schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
 targetNamespace="http://example.com">
 	<element name="foo" type="bar"/><!-- Illegal: no prefix on name of the type. -->
 	<complexType name="bar">

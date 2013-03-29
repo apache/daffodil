@@ -57,7 +57,7 @@ class TestGeneral extends JUnitSuite {
 
   @Test def test_litNil1() { runner.runOneTest("litNil1") }
   @Test def test_litNil1FullPath() { runner.runOneTest("litNil1FullPath") }
-  // @Test def test_referentialIntegrity() { runner.runOneTest("referentialIntegrity") }
+  @Test def test_referentialIntegrity() { runner.runOneTest("referentialIntegrity") }
 
   // Test commented out until DFDL-577 is resolved
   // @Test def test_litNil2() { runner.runOneTest("litNil2") }
