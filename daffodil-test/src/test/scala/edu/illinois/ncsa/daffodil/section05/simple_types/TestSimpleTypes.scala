@@ -109,8 +109,8 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_millisecondAccuracy2() { runner.runOneTest("millisecondAccuracy2") }
   @Test def test_millisecondAccuracy3() { runner.runOneTest("millisecondAccuracy3") }
 //  @Test def test_millisecondAccuracy4() { runner.runOneTest("millisecondAccuracy4") }
-  @Test def test_timeLaxCheckPolicy02() { runner.runOneTest("timeLaxCheckPolicy02") }
-  @Test def test_timeLaxCheckPolicy03() { runner.runOneTest("timeLaxCheckPolicy03") }
+//  @Test def test_timeLaxCheckPolicy02() { runner.runOneTest("timeLaxCheckPolicy02") }
+//  @Test def test_timeLaxCheckPolicy03() { runner.runOneTest("timeLaxCheckPolicy03") }
   @Test def test_timeStrictCheckPolicy02() { runner.runOneTest("timeStrictCheckPolicy02") }
 
   @Test def test_timeFormatting() { runner.runOneTest("timeFormatting") }
@@ -153,7 +153,7 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_dateTimeText() { runner.runOneTest("dateTimeText") }
   @Test def test_dateImplicitPattern() { runner.runOneTest("dateImplicitPattern") }
   @Test def test_dateImplicitPatternFail() { runner.runOneTest("dateImplicitPatternFail") }
-  @Test def test_timeImplicitPattern() { runner.runOneTest("timeImplicitPattern") }
+//  @Test def test_timeImplicitPattern() { runner.runOneTest("timeImplicitPattern") }
   @Test def test_timeImplicitPatternFail() { runner.runOneTest("timeImplicitPatternFail") }
 
   @Test def test_dateTimeImplicitPattern() { runner.runOneTest("dateTimeImplicitPattern") }
@@ -164,7 +164,7 @@ class TestSimpleTypes extends JUnitSuite {
 
   @Test def test_datePattern01() { runner.runOneTest("datePattern01") }
 //  @Test def test_datePattern01b() { runner.runOneTest("datePattern01b") }
-  @Test def test_timeLaxCheckPolicy01() { runner.runOneTest("timeLaxCheckPolicy01") }
+//  @Test def test_timeLaxCheckPolicy01() { runner.runOneTest("timeLaxCheckPolicy01") }
 //  @Test def test_dateTimeLaxCheckPolicy01() { runner.runOneTest("dateTimeLaxCheckPolicy01") }
   @Test def test_dateLaxCheckPolicy01() { runner.runOneTest("dateLaxCheckPolicy01") }
   @Test def test_dateLaxCheckPolicy02() { runner.runOneTest("dateLaxCheckPolicy02") }

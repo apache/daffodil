@@ -2201,9 +2201,9 @@
       <xs:restriction base="xs:time"/>
     </xs:simpleType>
 
-    <xs:element name="timeImp" type="xs:time" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
-    <xs:element name="time01" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
-    <xs:element name="time02" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
+    <xs:element name="timeImp" type="xs:time" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited"/>
+    <xs:element name="time01" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
+    <xs:element name="time02" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
 
     <xs:element name="time03" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss.SSSS"/>
     <xs:element name="time04" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm.zzz"/>
@@ -2216,9 +2216,9 @@
     <xs:element name="time08" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss" dfdl:calendarTimeZone="UTC+1"/>
     <xs:element name="time09" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss" dfdl:calendarTimeZone="UTC+1:30"/>
 
-    <xs:element name="time10" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:textTrimKind="padChar"
+    <xs:element name="time10" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss" dfdl:textTrimKind="padChar"
                 dfdl:textCalendarJustification="center" dfdl:textCalendarPadCharacter="." dfdl:lengthKind="delimited" />
-    <xs:element name="time11" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:textTrimKind="padChar"
+    <xs:element name="time11" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss" dfdl:textTrimKind="padChar"
                 dfdl:textCalendarJustification="right" dfdl:textCalendarPadCharacter=":" dfdl:lengthKind="delimited" />
 
     <xs:element name="time12" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss.SSS"/>
@@ -2316,7 +2316,7 @@
   <tdml:parserTestCase name="timeImplicitPattern" root="timeImp"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
 
-    <tdml:document><![CDATA[12:43:20GMT]]></tdml:document>
+    <tdml:document><![CDATA[12:43:20+00:00]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <timeImp>12:43:20Z</timeImp>
@@ -2965,7 +2965,7 @@
   <tdml:parserTestCase name="timeLaxCheckPolicy01" root="time01"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
 
-    <tdml:document><![CDATA[05:62:30GMT]]></tdml:document>
+    <tdml:document><![CDATA[05:62:30+00:00]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <time01>06:02:30Z</time01>
@@ -2983,7 +2983,7 @@
   <tdml:parserTestCase name="timeLaxCheckPolicy02" root="time01"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
 
-    <tdml:document><![CDATA[28:62:30GMT]]></tdml:document>
+    <tdml:document><![CDATA[28:62:30-00:00]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <time01>05:02:30Z</time01>
@@ -3001,7 +3001,7 @@
   <tdml:parserTestCase name="timeLaxCheckPolicy03" root="time01"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
 
-    <tdml:document><![CDATA[28:62:90GMT]]></tdml:document>
+    <tdml:document><![CDATA[28:62:90+00:00]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <time01>05:03:30Z</time01>
@@ -3749,7 +3749,7 @@
   <tdml:parserTestCase name="timeTrim01" root="time10"
     model="dateTimeSchema" description="Section 13 Simple Types - textCalendarJustification - DFDL-13-165R">
 
-    <tdml:document><![CDATA[....12:30:30GMT....]]></tdml:document>
+    <tdml:document><![CDATA[....12:30:30....]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <time10>12:30:30Z</time10>
@@ -3767,7 +3767,7 @@
   <tdml:parserTestCase name="timeTrim02" root="time11"
     model="dateTimeSchema" description="Section 13 Simple Types - textCalendarJustification - DFDL-13-165R">
 
-    <tdml:document><![CDATA[::::::12:30:30GMT]]></tdml:document>
+    <tdml:document><![CDATA[::::::12:30:30]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <time11>12:30:30Z</time11>
