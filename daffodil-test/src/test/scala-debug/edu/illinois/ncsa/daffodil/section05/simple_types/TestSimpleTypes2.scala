@@ -64,9 +64,6 @@ class TestSimpleTypes2 extends JUnitSuite {
   @Test def test_dateTimeLaxCheckPolicy01() { runner.runOneTest("dateTimeLaxCheckPolicy01") }
   @Test def test_timeFractionalSeconds01() { runner.runOneTest("timeFractionalSeconds01") }
 
-  @Test def test_timeCalendarTimeZone() { runner.runOneTest("timeCalendarTimeZone") }
-  @Test def test_timeCalendarTimeZone2() { runner.runOneTest("timeCalendarTimeZone2") }
-
   @Test def test_millisecondAccuracy4() { runner.runOneTest("millisecondAccuracy4") }
   
   @Test def test_epochFillIn2() { runner.runOneTest("epochFillIn2") }

@@ -48,7 +48,7 @@ class TestSimpleTypes extends JUnitSuite {
   val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def test_datePattern02() { runner.runOneTest("datePattern02") }
   @Test def test_datePattern02b() { runner.runOneTest("datePattern02b") }
   @Test def test_timePattern01() { runner.runOneTest("timePattern01") }
@@ -123,8 +123,9 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_timeFormatting6() { runner.runOneTest("timeFormatting6") }
   @Test def test_timeFormatting7() { runner.runOneTest("timeFormatting7") }
 
-//  @Test def test_timeCalendarTimeZone() { runner.runOneTest("timeCalendarTimeZone") }
-//  @Test def test_timeCalendarTimeZone2() { runner.runOneTest("timeCalendarTimeZone2") }
+  @Test def test_timeCalendarTimeZone() { runner.runOneTest("timeCalendarTimeZone") }
+  @Test def test_timeCalendarTimeZone2() { runner.runOneTest("timeCalendarTimeZone2") }
+  @Test def test_timeCalendarTimeZone3() { runner.runOneTest("timeCalendarTimeZone3") }
 
   @Test def test_timeZoneFormats() { runner.runOneTest("timeZoneFormats") }
   @Test def test_timeZoneFormats2() { runner.runOneTest("timeZoneFormats2") }

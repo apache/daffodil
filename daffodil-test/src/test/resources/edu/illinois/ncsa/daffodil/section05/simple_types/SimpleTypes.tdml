@@ -2196,42 +2196,49 @@
     <xs:simpleType name="explicDate7" dfdl:calendarDaysInFirstWeek="7">
       <xs:restriction base="ex:explicDate"/>
     </xs:simpleType>
+    
+    <xs:simpleType name="strictExplicTime" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="delimited" dfdl:calendarCheckPolicy="strict">
+      <xs:restriction base="xs:time"/>
+    </xs:simpleType>
 
     <xs:element name="timeImp" type="xs:time" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
     <xs:element name="time01" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
     <xs:element name="time02" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
-    <xs:element name="time03" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit"
-                dfdl:calendarPattern="hh:mm:ss.SSSS" dfdl:lengthKind="delimited"/>
-    <xs:element name="time04" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.zzz" dfdl:lengthKind="delimited"/>
-    <xs:element name="time04b" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.zzzz" dfdl:lengthKind="delimited"/>
-    <xs:element name="time05" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.v" dfdl:lengthKind="delimited"/>
-    <xs:element name="time05b" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.vvvv" dfdl:lengthKind="delimited"/>
-    <xs:element name="time06" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.VVVV" dfdl:lengthKind="delimited"/>
-    <xs:element name="time07" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.V" dfdl:lengthKind="delimited"/>
 
-    <xs:element name="time08" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss" dfdl:lengthKind="delimited" dfdl:calendarTimeZone="UTC+1"/>
-    <xs:element name="time09" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss" dfdl:lengthKind="delimited" dfdl:calendarTimeZone="UTC+1:30"/>
+    <xs:element name="time03" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss.SSSS"/>
+    <xs:element name="time04" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm.zzz"/>
+    <xs:element name="time04b" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm.zzzz"/>
+    <xs:element name="time05" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm.v"/> 
+    <xs:element name="time05b" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm.vvvv"/> 
+    <xs:element name="time06" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm.VVVV"/>
+    <xs:element name="time07" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm.V"/>
+
+    <xs:element name="time08" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss" dfdl:calendarTimeZone="UTC+1"/>
+    <xs:element name="time09" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss" dfdl:calendarTimeZone="UTC+1:30"/>
+
     <xs:element name="time10" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:textTrimKind="padChar"
                 dfdl:textCalendarJustification="center" dfdl:textCalendarPadCharacter="." dfdl:lengthKind="delimited" />
     <xs:element name="time11" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:textTrimKind="padChar"
                 dfdl:textCalendarJustification="right" dfdl:textCalendarPadCharacter=":" dfdl:lengthKind="delimited" />
-    <xs:element name="time12" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss.SSS" dfdl:lengthKind="delimited"/>
-    <xs:element name="time13" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss.SSSSSS" dfdl:lengthKind="delimited"/>
-    <xs:element name="time14" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss.SSSSSSSSSSSSSSSSSSSSS" dfdl:lengthKind="delimited"/>
-    <xs:element name="time15" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss.SSSSSSSSSSSSSSSSSSSSSS" dfdl:lengthKind="delimited"/>
-    <xs:element name="time16" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm" dfdl:lengthKind="delimited"/>
-    <xs:element name="time17" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mmaa" dfdl:lengthKind="delimited"/>
-    <xs:element name="time17b" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mmaa" dfdl:lengthKind="delimited"/>
-    <xs:element name="time18" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="KK:mmaa" dfdl:lengthKind="delimited"/>
-    <xs:element name="time19" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="kk:mm" dfdl:lengthKind="delimited"/>
-    <xs:element name="time20" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern='hh@mm$%^&amp;*()s' dfdl:lengthKind="delimited"/>
-    <xs:element name="time21" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh@mm$%^!@#.,/.''}{}{*()s" dfdl:lengthKind="delimited"/>
-    <xs:element name="time22" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="mm" dfdl:lengthKind="delimited"/>
-    <xs:element name="time23" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="" dfdl:lengthKind="delimited"/>
-    <xs:element name="time24" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="." dfdl:lengthKind="delimited"/>
-    <xs:element name="time25" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="yyyy-dd hh:mm" dfdl:lengthKind="delimited"/>
-    <xs:element name="time26" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="bb hh:mm" dfdl:lengthKind="delimited"/>
-    <xs:element name="time27" type="xs:time" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm.Z" dfdl:lengthKind="delimited"/>
+
+    <xs:element name="time12" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss.SSS"/>
+    <xs:element name="time13" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss.SSSSSS"/>
+    <xs:element name="time14" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss.SSSSSSSSSSSSSSSSSSSSS"/>
+    <xs:element name="time15" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss.SSSSSSSSSSSSSSSSSSSSSS"/>
+    <xs:element name="time16" type="ex:strictExplicTime" dfdl:calendarPattern="HH:mm"/>
+    <xs:element name="time17" type="ex:strictExplicTime" dfdl:calendarPattern="HH:mmaa"/>
+    <xs:element name="time17b" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mmaa"/>
+    <xs:element name="time18" type="ex:strictExplicTime" dfdl:calendarPattern="KK:mmaa"/>
+    <xs:element name="time19" type="ex:strictExplicTime" dfdl:calendarPattern="kk:mm"/>
+    <xs:element name="time20" type="ex:strictExplicTime" dfdl:calendarPattern='hh@mm$%^&amp;*()s'/>
+    <xs:element name="time21" type="ex:strictExplicTime" dfdl:calendarPattern="hh@mm$%^!@#.,/.''}{}{*()s"/>
+    <xs:element name="time22" type="ex:strictExplicTime" dfdl:calendarPattern="mm"/>
+    <xs:element name="time23" type="ex:strictExplicTime" dfdl:calendarPattern=""/>
+    <xs:element name="time24" type="ex:strictExplicTime" dfdl:calendarPattern="."/>
+    <xs:element name="time25" type="ex:strictExplicTime" dfdl:calendarPattern="yyyy-dd hh:mm"/>
+    <xs:element name="time26" type="ex:strictExplicTime" dfdl:calendarPattern="bb hh:mm"/>
+    <xs:element name="time27" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm.Z"/>
+    <xs:element name="time28" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm.zzz" dfdl:calendarTimeZone="UTC+1:30"/>
 
     <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
@@ -3602,6 +3609,24 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <time09>07:13:40Z</time09>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: timeCalendarTimeZone3
+        Schema: dateTimeSchema
+          Root: time28
+       Purpose: This test demonstrates the calendarTimeZone property when a timezone is already present in the data
+-->
+  
+  <tdml:parserTestCase name="timeCalendarTimeZone3" root="time28"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarTimeZone - DFDL-13-140R">
+
+    <tdml:document><![CDATA[08:43.EST]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time28>13:43:00Z</time28>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
