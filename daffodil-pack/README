@@ -106,7 +106,10 @@ DAFFODIL_CLASSPATH
   In addition to defining directories to search for imports and
   includes, you can add a "CatalogManager.properties" file to the
   DAFFODIL_CLASSPATH to direct Daffodil to a relative path location of a
-  user XML Catalog.
+  user XML Catalog. For information on the CatalogManager.properties
+  file, vist the following website:
+
+    http://xerces.apache.org/xml-commons/components/resolver/tips.html#properties
 
 DAFFODIL_JAVA_OPTS
 
