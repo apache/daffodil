@@ -647,9 +647,11 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
   val globalSimpleTypeDefs = (xml \ "simpleType")
   val globalComplexTypeDefs = (xml \ "complexType")
   val globalGroupDefs = (xml \ "group")
+  val globalIncludes = (xml \ "include")
+  val globalImports = (xml \ "import")
 
   val dfdlTopLevels = defineFormats ++ defaultFormats ++ defineVariables ++ defineEscapeSchemes
-  val xsdTopLevels = globalElementDecls ++ globalSimpleTypeDefs ++
+  val xsdTopLevels = globalImports ++ globalIncludes ++ globalElementDecls ++ globalSimpleTypeDefs ++
     globalComplexTypeDefs ++ globalGroupDefs
   val fileName = parent.ts.attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME) match {
     case Some(seqNodes) => seqNodes.toString
