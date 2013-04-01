@@ -12,11 +12,9 @@
   
   <tdml:parserTestCase name="csv_test" root="file"
     model="csv.dfdl.xsd" description="csv test">
-    <tdml:document><![CDATA[last,first,middle,DOB
-      baratheon,robert,brandon,1988-03-24
-      johnson,john,henry,1986-01-23
-      stark,arya,cat,1986-02-19
-]]></tdml:document>
+    <tdml:document>
+      <tdml:documentPart type="file">simpleCSV</tdml:documentPart>
+    </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <file>
@@ -27,7 +25,7 @@
             <title>DOB</title>
           </header>
           <record>
-            <item>baratheon</item>
+            <item>smith</item>
             <item>robert</item>
             <item>brandon</item>
             <item>1988-03-24</item>
@@ -39,7 +37,7 @@
             <item>1986-01-23</item>
           </record>
           <record>
-            <item>stark</item>
+            <item>jones</item>
             <item>arya</item>
             <item>cat</item>
             <item>1986-02-19</item>
