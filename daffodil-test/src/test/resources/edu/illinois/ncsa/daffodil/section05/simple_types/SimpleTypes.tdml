@@ -2129,7 +2129,7 @@
      xs:time      HH:mm:ssZZZ
 -->
 	
-    <xs:element name="dateImp" type="xs:date" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="10" />
+    <xs:element name="dateImp" type="xs:date" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
     <xs:element name="date01" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'Today is the 'dd'th day of 'MMM', year 'yyyy"
                 dfdl:lengthKind="explicit" dfdl:length="43" />
     <xs:element name="date01b" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'Today is the 'dd'th day of 'MMM', year 'YYYY"
@@ -2188,6 +2188,8 @@
     <xs:element name="date30" type="ex:explicDate" dfdl:calendarPattern="dd...00MM.....yyyy*()*()*()"/>
 
     <xs:element name="date31" type="ex:explicDate" dfdl:calendarPattern="dd MM yyyy, mm:ss"/>
+    
+    <xs:element name="date32" type="ex:explicDate" dfdl:encoding="UTF-8" dfdl:calendarPattern="EEEE MMM yyyy" dfdl:calendarLanguage="ru-RU"/>
     
     <xs:simpleType name="explicDate" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="delimited">
       <xs:restriction base="xs:date"/>
@@ -2834,6 +2836,24 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <date26>2013-11-04</date26>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateCalendarLanguage4
+        Schema: dateTimeSchema
+          Root: date32
+       Purpose: This test demonstrates the calendarLanguage property with the language set to Russian.
+-->
+  
+  <tdml:parserTestCase name="dateCalendarLanguage4" root="date32"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarLanguage - DFDL-13-145R">
+
+    <tdml:document><![CDATA[пятница марта 2013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date32>2013-03-01</date32>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

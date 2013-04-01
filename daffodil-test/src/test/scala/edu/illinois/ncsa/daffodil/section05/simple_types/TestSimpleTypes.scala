@@ -54,9 +54,10 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_timePattern01() { runner.runOneTest("timePattern01") }
   @Test def test_timePattern01b() { runner.runOneTest("timePattern01b") }
 
-//  @Test def test_dateCalendarLanguage() { runner.runOneTest("dateCalendarLanguage") }
-//  @Test def test_dateCalendarLanguage2() { runner.runOneTest("dateCalendarLanguage2") }
-//  @Test def test_dateCalendarLanguage3() { runner.runOneTest("dateCalendarLanguage3") }
+  @Test def test_dateCalendarLanguage() { runner.runOneTest("dateCalendarLanguage") }
+  @Test def test_dateCalendarLanguage2() { runner.runOneTest("dateCalendarLanguage2") }
+  @Test def test_dateCalendarLanguage3() { runner.runOneTest("dateCalendarLanguage3") }
+  @Test def test_dateCalendarLanguage4() { runner.runOneTest("dateCalendarLanguage4") }
   
   @Test def test_dateTimeCalendarDaysInFirstWeek() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek") }
   @Test def test_dateTimeCalendarDaysInFirstWeek2() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek2") }

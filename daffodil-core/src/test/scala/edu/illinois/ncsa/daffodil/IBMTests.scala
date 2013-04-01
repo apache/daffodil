@@ -45,6 +45,11 @@ class IBMTestsThatPass extends JUnitSuite {
   val tdml2 = testDir + "dpaext2.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+  
+  @Test def test_simple_type_properties_text_calendar_13_01() { runner2.runOneTest("simple_type_properties_text_calendar_13_01") } // dateTime
+//  @Test def test_simple_type_properties_text_calendar_13_02() { runner2.runOneTest("simple_type_properties_text_calendar_13_02") } // dateTime
+  @Test def test_simple_type_properties_text_calendar_13_03() { runner2.runOneTest("simple_type_properties_text_calendar_13_03") } // dateTime
+  @Test def test_simple_type_properties_text_calendar_13_04() { runner2.runOneTest("simple_type_properties_text_calendar_13_04") } // dateTime
 
   @Test def test_introduction_1_01() { runner1.runOneTest("introduction_1_01") }
 
