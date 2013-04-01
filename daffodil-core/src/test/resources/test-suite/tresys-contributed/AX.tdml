@@ -5,28 +5,30 @@
 
   <parserTestCase name="AX000" root="list" model="AX.dfdl.xsd"
     description="escape character and escape block, fixed length">
-    <document><![CDATA[aaaaa,bb#0b,ccc#0,dddd#,ee#
+    <document><![CDATA[aaaaa,bb#,b,ccc#,,dddd#,ee#
 e,fffff
-AAAAAAAAAAAAAAA,BBBBBB/*xxx*/BB,CCCCCC/*,,,*/CC,D/*x*/D/*z*/DDD,EE/*
-       */E,FFFFFF/*xxxxxxx,GGG/!GGGGGGGGGG,GGGGGGGGGGGGGG/
+AAAAAAAAAAAAAAA,/*BBBBBB/*x,xBB*/,CCCCCC/*,,,*/CC,D/*x*/D/*z*/DDD,/*EE
+-------E*/,FFFFFF\/*xxxxxxx,GGG/*G,G\*/GG
 ]]></document>
     <infoset>
       <dfdlInfoset>
         <list xmlns="http://www.example.org/example1">
           <character>aaaaa</character>
-          <character>bbb</character>
-          <character>ccc</character>
-          <character>dddd</character>
-          <character>eee</character>
+          <character>bb,b</character>
+          <character>ccc,</character>
+          <character>dddd,ee&#xA;e</character>
           <character>fffff</character>
           <block>AAAAAAAAAAAAAAA</block>
-          <block>BBBBBBBB</block>
-          <block>CCCCCCCC</block>
-          <block>DDDDD</block>
-          <block>EEE</block>
-          <block>FFFFFF</block>
-          <block>GGG/!GGGGGGGGGG</block>
-          <block>GGGGGGGGGGGGGG/</block>
+          <block>BBBBBB/*x,xBB</block>
+          <block>CCCCCC/*</block>
+          <block></block>
+          <block></block>
+          <block>*/CC</block>
+          <block>D/*x*/D/*z*/DDD</block>
+          <block>EE&#xA;-------E</block>
+          <block>FFFFFF\/*xxxxxxx</block>
+          <block>GGG/*G</block>
+          <block>G\*/GG&#xA;</block>
         </list>
       </dfdlInfoset>
     </infoset>

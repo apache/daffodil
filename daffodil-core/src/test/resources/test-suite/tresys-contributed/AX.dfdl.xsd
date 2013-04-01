@@ -16,7 +16,7 @@
         occursCountKind='parsed' lengthUnits="bytes"
         emptyValueDelimiterPolicy="none" textNumberRep="standard"
         occursStopValue="-1"
-        initiatedContent="no" />
+        initiatedContent="no" textTrimKind="none"/>
       <dfdl:defineEscapeScheme name="pound">
         <dfdl:escapeScheme escapeCharacter='#' escapeEscapeCharacter="#"
           escapeKind="escapeCharacter" />
@@ -35,14 +35,14 @@
       <sequence>
         <sequence dfdl:separator="," dfdl:terminator="%NL;">
           <element name="character" type="xsd:string" maxOccurs="unbounded"
-            dfdl:representation="text" dfdl:lengthKind="explicit"
-            dfdl:length="5" dfdl:encoding="US-ASCII"
+            dfdl:representation="text" dfdl:lengthKind="delimited"
+            dfdl:encoding="US-ASCII"
             dfdl:escapeSchemeRef="tns:pound" />
         </sequence>
         <sequence dfdl:separator="," dfdl:terminator="%NL;">
           <element name="block" type="xsd:string" maxOccurs="unbounded"
             dfdl:representation="text" dfdl:encoding="US-ASCII"
-            dfdl:lengthKind="explicit" dfdl:length="15"
+            dfdl:lengthKind="delimited"
             dfdl:escapeSchemeRef="tns:cStyleComment" />
         </sequence>
       </sequence>
