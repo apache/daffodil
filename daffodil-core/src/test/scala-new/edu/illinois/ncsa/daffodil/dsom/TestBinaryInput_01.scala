@@ -257,4 +257,11 @@ class TestBinaryInput_01 extends JUnitSuite {
   @Test def test_one_octet() { runner.runOneTest("OneOctetBinaryParse") }
   @Test def test_oneBit2() { runner.runOneTest("OneBit2") }
 
+  /*** DFDL-362 ***/
+  @Test def test_leading_skip_byte(){ runner.runOneTest("LeadingSkipBytes")}
+  @Test def test_leading_skip_bit(){ runner.runOneTest("LeadingSkipBits")}
+  @Test def test_trailing_skip_byte(){ runner.runOneTest("TrailingSkipBytes")}
+  @Test def test_trailing_skip_bit(){ runner.runOneTest("TrailingSkipBits")}
+  @Test def test_aligning_skip_byte(){ runner.runOneTest("AligningSkipBytes")}
+  @Test def test_aligning_skip_bit(){ runner.runOneTest("AligningSkipBits")}
 }

@@ -5,7 +5,7 @@
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
       <dfdl:format initiator="" lengthKind="delimited" binaryNumberRep="binary"
         terminator="" lengthUnits="bits" leadingSkip="0" trailingSkip="0" textBidi="no"
-        floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
+        floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="implicit"
         alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
         truncateSpecifiedLengthString="no" ignoreCase="no" representation="binary"
         nilValueDelimiterPolicy="both"

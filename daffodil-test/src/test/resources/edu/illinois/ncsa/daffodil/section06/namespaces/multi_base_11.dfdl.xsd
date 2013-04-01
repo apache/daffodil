@@ -4,8 +4,11 @@
       
   <p3:annotation xmlns:p3="http://www.w3.org/2001/XMLSchema">
     <p4:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:p4="http://www.w3.org/2001/XMLSchema">
-      <dfdl:format xmlns:p5="http://www.ogf.org/dfdl/dfdl-1.0/" separator="" initiator="" terminator="" leadingSkip='0' lengthUnits="characters" textTrimKind="none" initiatedContent="no"
-        separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"/>
+      <dfdl:format xmlns:p5="http://www.ogf.org/dfdl/dfdl-1.0/" separator="" initiator="" terminator="" leadingSkip='0' 
+      lengthUnits="characters" textTrimKind="none" initiatedContent="no"
+        separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" representation="text" 
+        textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
     </p4:appinfo>
   </p3:annotation>
   

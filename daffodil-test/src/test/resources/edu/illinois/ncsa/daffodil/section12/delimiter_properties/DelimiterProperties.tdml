@@ -341,7 +341,8 @@
 
   <tdml:defineSchema name="initiatedContentSchema">
     <dfdl:format initiator="" terminator="" leadingSkip="0"
-      trailingSkip="0" separator="" encoding="utf-8" occursCountKind="parsed"
+    alignment="1" alignmentUnits="bytes" trailingSkip="0"
+    separator="" encoding="utf-8" occursCountKind="parsed"
       separatorSuppressionPolicy="anyEmpty" textNumberRep="standard" ignoreCase="no"
       representation="text" lengthUnits="characters" lengthKind="delimited" textTrimKind="none"/>
 

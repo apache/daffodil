@@ -2,7 +2,8 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"> 
   <xs:annotation> 
     <xs:appinfo source="http://www.ogf.org/dfdl/" >
-      <dfdl:format lengthKind="implicit" leadingSkip='0' initiator="" terminator=""/> 
+      <dfdl:format lengthKind="implicit" leadingSkip='0' initiator="" terminator="" 
+      alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/> 
       
       <dfdl:defineFormat name="common"> 
         <dfdl:format representation="text" lengthKind="delimited" leadingSkip='0' initiator="" textTrimKind="none"

@@ -4,7 +4,8 @@
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
       <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
-        ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
+        ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
       <dfdl:defineFormat name="dateNoTZ">
         <dfdl:format calendarLanguage="en" calendarFirstDayOfWeek="Sunday" calendarDaysInFirstWeek="4" calendarCheckPolicy="lax"/>
       </dfdl:defineFormat>

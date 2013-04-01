@@ -180,7 +180,7 @@
     <dfdl:defineFormat name="format_a">
       <dfdl:format lengthKind="explicit"
         lengthUnits="bytes" encoding="UTF-8" terminator=";" length="3"
-        occursCountKind="parsed" ignoreCase="no" leadingSkip="0"
+        occursCountKind="parsed" ignoreCase="no" leadingSkip="0" alignment="1" alignmentUnits="bytes" trailingSkip="0"
         separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" initiatedContent="no"
         textTrimKind="none"
         textNumberRep="standard" representation="text" />

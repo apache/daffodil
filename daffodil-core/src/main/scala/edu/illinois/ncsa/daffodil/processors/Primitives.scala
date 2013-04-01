@@ -43,7 +43,7 @@ import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.{ YesNo, LengthKind, ByteOrder, LengthUnits }
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.{ YesNo, LengthKind, ByteOrder, LengthUnits, AlignmentUnits }
 import edu.illinois.ncsa.daffodil.util.{ Debug, LogLevel, Logging, Info }
 import edu.illinois.ncsa.daffodil.util.Misc.bytes2Hex
 import edu.illinois.ncsa.daffodil.processors._
@@ -60,6 +60,8 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberJustific
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextCalendarJustification
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextBooleanJustification
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.AlignmentType
 
 abstract class PrimParser(gram: Gram, contextArg: SchemaComponent)
   extends DaffodilParser(contextArg) {
@@ -1187,6 +1189,9 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
       try {
         val (start1, nBits) = getBitLength(start0)
         val (start, bo) = getByteOrder(start1)
+        
+        //if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) PE(start, "Not enough bits to create an xs:" + primName)
+        
         val (value, newPos) = start.inStream.getBitSequence(start.bitPos, nBits, bo)
         //if (GramName == "hexBinary") {
         //  val bytes = value.asInstanceOf[Array[Byte]]
@@ -2205,33 +2210,66 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 //
 //case class LogicalNilValue(e: ElementBase) extends Primitive(e, e.isNillable)
 
+
 // As soon as you turn these on (by removing the false and putting the real guard), then schemas all need to have
 // these properties in them, which is inconvenient until we have multi-file schema support and format references.
 case class LeadingSkipRegion(e: Term) extends Terminal(e, e.leadingSkip > 0) {
   e.schemaDefinitionUnless(e.leadingSkip < Compiler.maxSkipLength, "Property leadingSkip %s is larger than limit %s", e.leadingSkip, Compiler.maxSkipLength)
-
+  
+  val alignment = e.alignmentUnits match {
+    case AlignmentUnits.Bits => 1
+    case AlignmentUnits.Bytes => 8
+    case _ => 0 //SDE("Skip/Alignment values must have length units of Bits or Bytes.")
+  }
+  
   def parser: DaffodilParser = new PrimParser(this, e) {
-
     def parse(pstate: PState) = {
-
-      val newBitPos = 8 * (pstate.bytePos + e.leadingSkip)
+      val newBitPos = alignment * e.leadingSkip + pstate.bitPos
       pstate.withPos(newBitPos, -1, None)
     }
 
     override def toString = "leadingSkip(" + e.leadingSkip + ")"
   }
 
-  def unparser: Unparser = new Unparser(e) {
-    def unparse(ustate: UState) = {
-
-      Assert.notYetImplemented()
-    }
-  }
+  def unparser: Unparser = new DummyUnparser(e)
 }
 
-case class AlignmentFill(e: Term) extends Primitive(e, false) // e.alignment != AlignmentType.Implicit)
+case class AlignmentFill(e: Term) extends Terminal(e, e.alignment != AlignmentType.Implicit){
+  val alignment = (e.alignmentUnits, e.alignment) match {
+    case (AlignmentUnits.Bits, count: Int) => 1 * count
+    case (AlignmentUnits.Bytes, count: Int) => 8 * count
+    case _ => 0 //SDE("Skip/Alignment values must have length units of Bits or Bytes.")
+  }
+  
+  def parser: Parser = new PrimParser(this,e){
+    def parse(pstate: PState) = {
+      val maxBitPos = pstate.bitPos + alignment -1
+      val newBitPos = maxBitPos - maxBitPos % alignment
+      pstate.withPos(newBitPos, -1, None)
+    }
+    override def toString = "aligningSkip(" + e.alignment + ")"
+  }
+  
+  def unparser: Unparser = new DummyUnparser(e)
+}
 
-case class TrailingSkipRegion(e: Term) extends Primitive(e, false) // e.trailingSkip > 0)
+case class TrailingSkipRegion(e: Term) extends Terminal(e, e.trailingSkip > 0){
+  //e.SDE(e.trailingSkip < Compiler.maxSkipLength, "Property trailingSkip %s is larger than limit %s", e.trailingSkip, Compiler.maxSkipLength)
+  e.schemaDefinitionUnless(e.trailingSkip < Compiler.maxSkipLength, "Property trailingSkip %s is larger than limit %s", e.trailingSkip, Compiler.maxSkipLength)
+  val alignment = e.alignmentUnits match {
+    case AlignmentUnits.Bits => 1
+    case AlignmentUnits.Bytes => 8
+    case _ => 0//SDE("Skip/Alignment values must have lenght units of Bits or Bytes")
+  }
+  def parser: Parser = new PrimParser(this, e){
+    def parse(pstate: PState) = {
+      val newBitPos = alignment * e.trailingSkip + pstate.bitPos
+      pstate.withPos(newBitPos, -1, None)
+    }
+    override def toString = "trailingSkip(" + e.trailingSkip + ")"
+  }
+  def unparser: Unparser = new DummyUnparser(e)
+}
 
 case class PrefixLength(e: ElementBase) extends Primitive(e, e.lengthKind == LengthKind.Prefixed)
 
