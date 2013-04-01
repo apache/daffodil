@@ -64,6 +64,33 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   with ImplementsThrowsSDE
   with DFDL.DataProcessor {
 
+  def minMajorJVersion = 1
+  def minMinorJVersion = 7
+  def checkJavaVersion = {
+    val jVersion = {
+      try { System.getProperty("java.version") }
+      catch {
+        case se: SecurityException => this.SDE("Attempted to read property 'java.version' failed due to a SecurityException: \n%s".format(se.getMessage()))
+        case _ => this.SDE("An invalid 'key' was passed to System.getProperty.")
+      }
+    }
+    val javaVersion = """([0-9])\.([0-9])\.(.*)""".r
+    jVersion match {
+      case javaVersion(major, minor, x) => {
+
+        if (major.toInt < minMajorJVersion) {
+          this.SDE("You must run Java 7 (1.7) or higher. You are currently running %s".format(jVersion))
+        }
+        if (minor.toInt < minMinorJVersion) {
+          this.SDE("You must run Java 7 (1.7) or higher. You are currently running %s".format(jVersion))
+        }
+      }
+      case _ => {
+        this.SDE("Failed to obtain the Java version.  You must run Java 7 (1.7) or higher.")
+      }
+    }
+  }
+
   requiredEvaluations(
     parser,
     // force creation of the parser value so that all errors are issued
@@ -87,6 +114,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   lazy val parser = parser_.value
   private val parser_ = LV('parser) {
     ExecutionMode.usingCompilerMode {
+      checkJavaVersion
       rootElem.document.parser
     }
   }
@@ -94,6 +122,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   lazy val unparser = unparser_.value
   private val unparser_ = LV('unparser) {
     ExecutionMode.usingCompilerMode {
+      checkJavaVersion
       rootElem.document.unparser
     }
   }
@@ -118,6 +147,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   }
 
   def parse(initialState: PState) = {
+    
     ExecutionMode.usingRuntimeMode {
       val pr = new ParseResult(this) {
         val p = parser
