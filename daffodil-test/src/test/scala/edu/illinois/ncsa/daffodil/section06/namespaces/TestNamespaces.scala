@@ -72,6 +72,7 @@ class TestNamespaces extends JUnitSuite {
   
   @Test def test_tdml_schema_import() { runner.runOneTest("tdml_schema_import") }
   @Test def test_tdml_schema_include() { runner.runOneTest("tdml_schema_include") }
+  @Test def test_multifile_choice_embed() { runner.runOneTest("multifile_choice_embed") }
 
   @Test def test_Lesson2_no_namespace() { runner.runOneTest("Lesson2_no_namespace") }
   @Test def test_Lesson2_include_schema() { runner.runOneTest("Lesson2_include_schema") }

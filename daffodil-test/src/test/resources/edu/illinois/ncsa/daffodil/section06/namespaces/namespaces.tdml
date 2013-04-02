@@ -2,25 +2,60 @@
 <testSuite suiteName="Namespaces"
   xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
-  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:a01="http://a01.com" xmlns:b01="http://b01.com">
 
   <tdml:defineSchema name="embeddedWithImport">
     <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat" schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
-
     <dfdl:format ref="gpf:GeneralPurposeFormat"/>
-
     <xs:element name="basic" type="xs:string" dfdl:lengthKind="delimited"/>
-
   </tdml:defineSchema>
   
   <tdml:defineSchema name="embeddedWithInclude">
     <xs:include schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
-
     <dfdl:format ref="GeneralPurposeFormat"/>
-
     <xs:element name="basic" type="xs:string" dfdl:lengthKind="delimited"/>
-
   </tdml:defineSchema>
+  
+  <tdml:defineSchema name="embedded_base_01">
+    <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="ASCII"/>
+     
+    <xs:import namespace="http://a01.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_01.dfdl.xsd"/>
+    <xs:import namespace="http://b01.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_01.dfdl.xsd"/>
+    
+    <xs:element name="choice01"> 
+      <xs:complexType> 
+        <xs:choice>
+           <xs:element name="local" type="xs:int" dfdl:initiator="local01:" dfdl:lengthKind="delimited"/> 
+           <xs:element ref="a01:remote01"/> 
+           <xs:element ref="b01:remote02"/> 
+           <xs:element ref="a01:remote03"/> 
+        </xs:choice>
+      </xs:complexType> 
+    </xs:element>
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: multifile_choice_embed
+       Schema: embedded_base_01
+         Root: choice01
+      Purpose: This test demonstrates the creation of a choice whose elements exist in multiple schemas.
+               In this case none of the choice elements are applicable and parsing fails.
+               The base schema is embedded within a tdml file.
+  -->
+  
+  <tdml:parserTestCase name="multifile_choice_embed" root="choice01"
+    model="embedded_base_01" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[remote01:123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <choice01>
+          <remote01>123</remote01>
+        </choice01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
   
   <!--
     Test name: tdml_schema_import
