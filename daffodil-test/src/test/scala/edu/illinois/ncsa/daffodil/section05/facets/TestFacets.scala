@@ -98,9 +98,9 @@ class TestFacets extends JUnitSuite {
   @Test def test_facetEnum03() { runner.runOneTest("facetEnum03") }
   @Test def test_facetEnum04() { runner.runOneTest("facetEnum04") }
   @Test def test_facetEnum05() { runner.runOneTest("facetEnum05") }
-//  @Test def test_facetEnum06() { runner.runOneTest("facetEnum06") }
+  @Test def test_facetEnum06() { runner.runOneTest("facetEnum06") }
   @Test def test_facetEnum07() { runner.runOneTest("facetEnum07") }
-//  @Test def test_facetEnum08() { runner.runOneTest("facetEnum08") }
+  @Test def test_facetEnum08() { runner.runOneTest("facetEnum08") }
 
   @Test def test_maxLength01() { runner.runOneTest("maxLength01") }
   @Test def test_maxLength02() { runner.runOneTest("maxLength02") }
@@ -185,7 +185,7 @@ class TestFacets extends JUnitSuite {
   @Test def test_minMaxInEx07() { runner.runOneTest("minMaxInEx07") }
   @Test def test_minMaxInEx08() { runner.runOneTest("minMaxInEx08") }
   @Test def test_minMaxInEx09() { runner.runOneTest("minMaxInEx09") }
-//  @Test def test_minMaxInEx10() { runner.runOneTest("minMaxInEx10") }
+  @Test def test_minMaxInEx10() { runner.runOneTest("minMaxInEx10") }
   @Test def test_minMaxInEx11() { runner.runOneTest("minMaxInEx11") }
   @Test def test_minMaxInEx12() { runner.runOneTest("minMaxInEx12") }
   @Test def test_minMaxInEx13() { runner.runOneTest("minMaxInEx13") }

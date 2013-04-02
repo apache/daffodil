@@ -73,13 +73,9 @@ class TestFacetsDebug extends JUnitSuite {
 
   @Test def test_totalDigits05b() { runner.runOneTest("totalDigits05b") }
 
-  @Test def test_facetEnum06() { runner.runOneTest("facetEnum06") }
-  @Test def test_facetEnum08() { runner.runOneTest("facetEnum08") }
-  
   @Test def test_minMaxInEx02() { runner.runOneTest("minMaxInEx02") }
   @Test def test_minMaxInEx04() { runner.runOneTest("minMaxInEx04") }
   @Test def test_minMaxInEx08() { runner.runOneTest("minMaxInEx08") }
-  @Test def test_minMaxInEx10() { runner.runOneTest("minMaxInEx10") }
   @Test def test_minMaxInEx14() { runner.runOneTest("minMaxInEx14") }
 
 }
