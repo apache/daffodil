@@ -2120,6 +2120,31 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
+  <tdml:defineSchema name="dateTimeSchemaTNR">
+			<dfdl:format initiator="" terminator="" leadingSkip="0" 
+        trailingSkip="0"  textBidi="no" floating="no"   encoding="utf-8" 
+        byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
+        occursCountKind="implicit" 
+				truncateSpecifiedLengthString="no" ignoreCase="no"
+				representation="text"  textPadKind="none"
+				textTrimKind="none"  lengthKind="delimited" escapeSchemeRef=""
+				textOutputMinLength="30" lengthUnits="bytes"
+				textStringJustification="left"  textStringPadCharacter="%SP;"
+				textCalendarJustification="left"  textCalendarPadCharacter="%SP;"
+				nilValueDelimiterPolicy="both"  emptyValueDelimiterPolicy="none" 
+				documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
+				sequenceKind="ordered" 
+				separatorSuppressionPolicy="never" 
+				calendarPatternKind="implicit" calendarPattern="yyyymmddhhmmss" calendarCheckPolicy="lax" 
+				calendarTimeZone="UTC" calendarObserveDST="yes" 
+				calendarFirstDayOfWeek="Wednesday" calendarDaysInFirstWeek="7" calendarCenturyStart="50" 
+				calendarLanguage="it-IT"
+				/>
+
+    <xs:element name="date" type="xs:date" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
+
+  </tdml:defineSchema>
+  
   <tdml:defineSchema name="dateTimeSchema">
     <dfdl:format ref="daffodilTest1" />
 
@@ -4198,6 +4223,27 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dateTime12>1999-03-04T17:01:44Z</dateTime12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: dateTextNumberRep
+        Schema: dateTimeSchemaTNR
+          Root: date
+       Purpose: This test demonstrates that textNumberRep is not required for an xs:date
+
+-->
+  
+  <tdml:parserTestCase name="dateTextNumberRep" root="date"
+    model="dateTimeSchemaTNR" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1987-04-30]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date>1987-04-30</date>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

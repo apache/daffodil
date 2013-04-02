@@ -80,9 +80,9 @@ class IBMTestsThatThrow extends JUnitSuite {
 
   @Test def test_length_implicit_12_02() { runner1.runOneTest("length_implicit_12_02") } // implicit length string - bug in IBM test (doesn't have minLength - both are required)
 
-  @Test def test_length_delimited_12_01() { runner1.runOneTest("length_delimited_12_01") } // textNumberRep is being required for a date (DFDL-556)
-
-  @Test def test_length_delimited_12_04() { runner1.runOneTest("length_delimited_12_04") } // textNumberRep is being required for a date (DFDL-556)
+  @Test def test_length_delimited_12_01() { runner1.runOneTest("length_delimited_12_01") } //DFDL-622 - date/time/dateTime infoset output is incorrect
+  @Test def test_length_delimited_12_04() { runner1.runOneTest("length_delimited_12_04") } //DFDL-622 - date/time/dateTime infoset output is incorrect
+  
   @Test def test_length_delimited_12_05() { runner1.runOneTest("length_delimited_12_05") } // decimal
 
   @Test def test_simple_type_properties_text_number_13_01() { runner2.runOneTest("simple_type_properties_text_number_13_01") } // decimal
