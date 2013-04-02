@@ -69,6 +69,9 @@ class TestNamespaces extends JUnitSuite {
   @Test def testSimpleImportOfFormat() { runner2.runOneTest("simpleImport") }
   @Test def testIncludeNoNamespace() { runner2.runOneTest("includeNoNamespace") }
   @Test def testImportWithOverlappingNSPrefixes1() { runner2.runOneTest("importWithOverlappingNSPrefixes1") }
+  
+  @Test def test_tdml_schema_import() { runner.runOneTest("tdml_schema_import") }
+  @Test def test_tdml_schema_include() { runner.runOneTest("tdml_schema_include") }
 
   @Test def test_Lesson2_no_namespace() { runner.runOneTest("Lesson2_no_namespace") }
   @Test def test_Lesson2_include_schema() { runner.runOneTest("Lesson2_include_schema") }

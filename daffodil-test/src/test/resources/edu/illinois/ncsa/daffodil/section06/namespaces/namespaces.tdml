@@ -1,8 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testSuite suiteName="Namespaces"
   xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <tdml:defineSchema name="embeddedWithImport">
+    <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat" schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+
+    <dfdl:format ref="gpf:GeneralPurposeFormat"/>
+
+    <xs:element name="basic" type="xs:string" dfdl:lengthKind="delimited"/>
+
+  </tdml:defineSchema>
   
+  <tdml:defineSchema name="embeddedWithInclude">
+    <xs:include schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+
+    <dfdl:format ref="GeneralPurposeFormat"/>
+
+    <xs:element name="basic" type="xs:string" dfdl:lengthKind="delimited"/>
+
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: tdml_schema_import
+       Schema: embeddedWithImport
+         Root: basic
+      Purpose: This test demonstrates that you can import schemas from embedded schemas (embedded in tdml file) 
+  -->
+ 
+  <tdml:parserTestCase name="tdml_schema_import" root="basic"
+    model="embeddedWithImport" description="">
+    <tdml:document><![CDATA[data]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <basic>data</basic>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: tdml_schema_include
+       Schema: embeddedWithInclude
+         Root: basic
+      Purpose: This test demonstrates that you can include schemas from embedded schemas (embedded in tdml file) 
+  -->
+ 
+  <tdml:parserTestCase name="tdml_schema_include" root="basic"
+    model="embeddedWithImport" description="">
+    <tdml:document><![CDATA[moredata]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <basic>moredata</basic>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <!--
     Test name: ibm_format_compat_01
        Schema: ibm_format_compat.dfdl.xsd
