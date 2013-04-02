@@ -96,7 +96,11 @@ class IBMTestsThatThrow extends JUnitSuite {
   @Test def test_simple_type_properties_bin_boolean_13_01() { runner2.runOneTest("simple_type_properties_bin_boolean_13_01") } // boolean type
   @Test def test_simple_type_properties_bin_calendar_13_01() { runner2.runOneTest("simple_type_properties_bin_calendar_13_01") } // dateTime
   @Test def test_simple_type_properties_bin_calendar_13_02() { runner2.runOneTest("simple_type_properties_bin_calendar_13_02") } // dateTime
-  @Test def test_simple_type_properties_text_calendar_13_02() { runner2.runOneTest("simple_type_properties_text_calendar_13_02") }
+
+  @Test def test_simple_type_properties_text_calendar_13_01() { runner2.runOneTest("simple_type_properties_text_calendar_13_01") } // DFDL-622 - date/time/dateTime infoset output is incorrect
+  @Test def test_simple_type_properties_text_calendar_13_02() { runner2.runOneTest("simple_type_properties_text_calendar_13_02") } // DFDL-622 - date/time/dateTime infoset output is incorrect
+  @Test def test_simple_type_properties_text_calendar_13_03() { runner2.runOneTest("simple_type_properties_text_calendar_13_03") } // DFDL-620 - Implicit time calendarPattern should use ZZZ, not zzz.
+  @Test def test_simple_type_properties_text_calendar_13_04() { runner2.runOneTest("simple_type_properties_text_calendar_13_04") } // DFDL-622 - date/time/dateTime infoset output is incorrect
 
   @Test def test_sequences_separated_14_04() { runner2.runOneTest("sequences_separated_14_04") } // left over data
 
