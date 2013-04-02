@@ -41,8 +41,7 @@
        Schema: embedded_base_01
          Root: choice01
       Purpose: This test demonstrates the creation of a choice whose elements exist in multiple schemas.
-               In this case none of the choice elements are applicable and parsing fails.
-               The base schema is embedded within a tdml file.
+               In this case the data is parsed correctly. The base schema is embedded within a tdml file.
   -->
   
   <tdml:parserTestCase name="multifile_choice_embed" root="choice01"
