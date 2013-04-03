@@ -55,6 +55,19 @@
 
   <tdml:defineSchema name="choice2">
     <dfdl:format ref="ex:daffodilTest1" />
+  
+    <xs:group name="simpleGroup">
+      <xs:sequence dfdl:separator=".">
+        <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+        <xs:element name="int" type="xs:int" dfdl:lengthKind="delimited"/>
+      </xs:sequence>
+    </xs:group>
+    <xs:group name="simpleGroup2">
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+        <xs:element name="int" type="xs:int" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:group>
 
     <xs:complexType name="ctype">
       <xs:choice>
@@ -67,6 +80,23 @@
       </xs:choice>
     </xs:complexType>
 
+    <xs:element name="ctype2">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="a">
+            <xs:complexType>
+              <xs:group ref="ex:simpleGroup" />
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="b">
+            <xs:complexType>
+              <xs:group ref="ex:simpleGroup2" />
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="ch1">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
@@ -77,8 +107,33 @@
       </xs:complexType>
     </xs:element>
 
-
   </tdml:defineSchema>
+
+<!--
+     Test Name: choiceOfGroupRefs
+        Schema: choice2 
+          Root: ctype2
+       Purpose: This test demonstrates that you can have a choice with group references as branches
+-->
+  
+  <tdml:parserTestCase name="choiceOfGroupRefs" root="ctype2"
+    model="choice2"
+    description="Section 15 - Choice Groups - group refs as branches- DFDL-15-005R.">
+
+    <tdml:document><![CDATA[string.147]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ctype2>
+          <a>
+            <string>string</string>
+            <int>147</int>
+          </a>
+        </ctype2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="choice2" root="ch1"
     model="choice2"

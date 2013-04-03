@@ -49,6 +49,8 @@ class TestChoice extends JUnitSuite {
   val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
   val aa = testDir + "choice.tdml"
 
+  @Test def test_choiceOfGroupRefs() { runnerCH.runOneTest("choiceOfGroupRefs") }
+
   lazy val runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
   @Test def test_basicChoice() { runnerCH.runOneTest("basic") }
   @Test def test_choice2() { runnerCH.runOneTest("choice2") }
