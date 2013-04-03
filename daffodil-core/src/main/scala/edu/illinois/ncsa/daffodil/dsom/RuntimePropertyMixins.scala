@@ -80,21 +80,49 @@ trait DelimitedRuntimeValuedPropertiesMixin
   //  lazy val initiator = expressionCompiler.compile('String, EntityReplacer.replaceAll(initiatorRaw))
   //  lazy val terminator = expressionCompiler.compile('String, EntityReplacer.replaceAll(terminatorRaw))
   lazy val initiator = {
-    val c = expressionCompiler.compile('String, initiatorRaw)
+    val (rawValue: String, location: LookupLocation) = 
+      initiatorRaw match {
+      case f: Found => (f.value, f.location)
+      case _ => Assert.impossibleCase()
+    }
+    val c = expressionCompiler.compile('String, rawValue)
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%ES;"), "Initiator cannot contain ES")
     }
     c
   }
+  lazy val initatorLoc = {
+    val (rawValue: String, location: LookupLocation) = 
+      initiatorRaw match {
+      case f: Found => (f.value, f.location)
+      case _ => Assert.impossibleCase()
+    }
+    val sc = location.asInstanceOf[SchemaComponentBase]
+    (sc.prettyName, sc.path)
+  }
 
   lazy val terminator = {
-    val c = expressionCompiler.compile('String, terminatorRaw)
+    val (rawValue: String, location: LookupLocation) = 
+      terminatorRaw match {
+      case f: Found => (f.value, f.location)
+      case _ => Assert.impossibleCase()
+    }
+    val c = expressionCompiler.compile('String, rawValue)
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%ES;"), "Terminator cannot contain ES")
     }
     c
+  }
+  lazy val terminatorLoc = {
+    val (rawValue: String, location: LookupLocation) = 
+      terminatorRaw match {
+      case f: Found => (f.value, f.location)
+      case _ => Assert.impossibleCase()
+    }
+    val sc = location.asInstanceOf[SchemaComponentBase]
+    (sc.prettyName, sc.path)
   }
 
 }
@@ -116,12 +144,25 @@ trait SequenceRuntimeValuedPropertiesMixin
   with RawSequenceRuntimeValuedPropertiesMixin { decl: GroupBase =>
 
   lazy val separator = {
-    val c = expressionCompiler.compile('String, separatorRaw)
+    val (rawValue: String, location: LookupLocation)  = separatorRaw match {
+      case f: Found => (f.value, f.location)
+      case _ => Assert.impossibleCase()
+    }
+    val c = expressionCompiler.compile('String, rawValue)
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%ES;"), "Separator cannot contain ES")
     }
     c
+  }
+  lazy val separatorLoc = {
+    val (rawValue: String, location: LookupLocation) = 
+      separatorRaw match {
+      case f: Found => (f.value, f.location)
+      case _ => Assert.impossibleCase()
+    }
+    val sc = location.asInstanceOf[SchemaComponentBase]
+    (sc.prettyName, sc.path)
   }
 }
 

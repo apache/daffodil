@@ -118,8 +118,8 @@ trait RawCommonRuntimeValuedPropertiesMixin
 trait RawDelimitedRuntimeValuedPropertiesMixin
   extends RawCommonRuntimeValuedPropertiesMixin {
 
-  lazy val initiatorRaw = getProperty("initiator")
-  lazy val terminatorRaw = getProperty("terminator")
+  lazy val initiatorRaw = findProperty("initiator")
+  lazy val terminatorRaw = findProperty("terminator")
 }
 
 trait RawElementRuntimeValuedPropertiesMixin
@@ -133,7 +133,7 @@ trait RawElementRuntimeValuedPropertiesMixin
 trait RawSequenceRuntimeValuedPropertiesMixin
   extends RawDelimitedRuntimeValuedPropertiesMixin {
 
-  lazy val separatorRaw = getProperty("separator")
+  lazy val separatorRaw = findProperty("separator")
 }
 
 trait RawEscapeSchemeRuntimeValuedPropertiesMixin

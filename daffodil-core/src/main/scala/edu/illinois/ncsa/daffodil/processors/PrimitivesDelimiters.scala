@@ -66,24 +66,26 @@ abstract class StaticDelimiter(kindString: String, delim: String, e: Term, guard
   extends StaticText(delim, e, kindString, guard)
 
 abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boolean = true)
-  extends DelimParserBase(e, guard)
+  extends Text(e, guard) //extends DelimParserBase(e, guard)
   with WithParseErrorThrowing with TextReader {
 
   val charset = e.knownEncodingCharset
-
-  val es = e.escapeScheme
-  val esObj = EscapeScheme.getEscapeScheme(es, e)
-
   val term = e.asInstanceOf[Term]
-  val staticTexts = delim.split("\\s").toList
 
+  val staticTexts = delim.split("\\s").toList
   val staticTextsCooked: Queue[String] = new Queue
 
   staticTexts.foreach(x => staticTextsCooked.enqueue(EntityReplacer.replaceAll(x)))
 
-  val delimsRaw = e.allTerminatingMarkup.map { _.constantAsString }
-  val delimsCooked1 = delimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
-  val delimsCooked = delimsCooked1.flatten
+  val delimsRaw = e.allTerminatingMarkup.map {
+    case (delimValue, elemName, elemPath) => (delimValue.constantAsString, elemName, elemPath)
+  }
+  val delimsCooked1 = delimsRaw.map {
+    case (delimValue, elemName, elemPath) => {
+      (new ListOfStringValueAsLiteral(delimValue.toString, e).cooked, elemName, elemPath)
+    }
+  }
+  val delimsCooked = delimsCooked1.map { case (delimValue, _, _) => delimValue }.flatten
 
   // Here we expect that remoteDelims shall be defined as those delimiters who are not
   // also defined locally.  That is to say that local should win over remote.
@@ -91,7 +93,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
 
   // here we define the parsers so that they are pre-compiled/generated
   val delimParser = new DFDLDelimParserStatic(e.knownEncodingStringBitLengthFunction)
-  val (pInputDelimiterParser, pIsLocalDelimParser) =
+  val (pInputDelimiterParser, pIsLocalDelimParser, remoteDelimRegex) =
     delimParser.generateInputDelimiterParsers(staticTextsCooked.toSet, remoteDelims)
 
   def parseMethod(input: Reader[Char]): DelimParseResult = {
@@ -142,8 +144,13 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
             return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
           }
           case s: DelimParseSuccess if (s.delimiterLoc == DelimiterLocation.Remote) => {
-            log(LogLevel.Debug, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
-            return PE(start, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
+            val (remoteDelimValue, remoteElemName, remoteElemPath) =
+              getMatchedDelimiterInfo(remoteDelimRegex, s.delimiter, delimsCooked1)
+
+            log(LogLevel.Debug, "%s - %s: Found terminator (%s) for %s when looking for (%s) for %s %s",
+              this.toString(), eName, remoteDelimValue, remoteElemPath, staticTexts, e.path, positionalInfo)
+            return PE(start, "%s - %s: Found terminator (%s) for %s when looking for (%s) for %s %s",
+              this.toString(), eName, remoteDelimValue, remoteElemPath, staticTexts, e.path, positionalInfo)
           }
           case s: DelimParseSuccess =>
             {
@@ -182,30 +189,107 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
   def unparserDelim: String
 }
 
+abstract class Text(e: Term, guard: Boolean) extends DelimParserBase(e, guard) {
+  lazy val es = e.escapeScheme
+  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
+  val eName = e.toString()
+
+  val positionalInfo = {
+    if (e.isDirectChildOfSequence) {
+      e.nearestEnclosingSequence match {
+        case Some(es) => {
+          val pos = e.positionInNearestEnclosingSequence - 1
+          if (es.hasPrefixSep) {
+            if (e.hasPriorRequiredSiblings) {
+              val prior: Term = es.groupMembers(pos - 1)
+              "after " + prior.prettyName + " and before " + eName
+            } else "before " + eName
+          } else if (es.hasInfixSep)
+            if (e.hasPriorRequiredSiblings && e.hasLaterRequiredSiblings) {
+              val prior: Term = es.groupMembers(pos - 1)
+
+              "after " + prior.prettyName + " and before " + eName
+            } else if (e.hasPriorRequiredSiblings) {
+              val prior: Term = es.groupMembers(pos - 1)
+              "after " + prior.prettyName + " and before " + eName
+            } else if (e.hasLaterRequiredSiblings) {
+              val later: Term = es.groupMembers(pos + 1)
+              "before " + later.prettyName
+            } else { "" }
+          else if (es.hasPostfixSep)
+            if (e.hasPriorRequiredSiblings && e.hasLaterRequiredSiblings) {
+              val later: Term = es.groupMembers(pos + 1)
+
+              "after " + eName + " and before " + later.prettyName
+            } else if (e.hasPriorRequiredSiblings) {
+              val prior: Term = es.groupMembers(pos - 1)
+              "after " + prior.prettyName + " and before " + eName
+            } else if (e.hasLaterRequiredSiblings) {
+              val later: Term = es.groupMembers(pos + 1)
+              "before " + later.prettyName
+            } else { "" }
+          else
+            ""
+        }
+        case None => ""
+      }
+    }
+  }
+
+  def getMatchedDelimiterInfo(remoteDelimRegex: Set[(String, String)], foundDelimiter: String,
+    delimiters: List[(List[String], String, String)]) = {
+    val matchedDelim = remoteDelimRegex.find {
+      case (delimRegex, _) => {
+        foundDelimiter.matches("(?s)^(" + delimRegex + ")$")
+      }
+    } match {
+      case Some((_, theValue)) => theValue
+      case None => Assert.impossibleCase()
+    }
+
+    val (remoteDelimValue, remoteElemName, remoteElemPath, _) =
+      {
+        val findResult = delimiters.map {
+          case (delimValueList, elemName, elemPath) => {
+            delimValueList.find(delim => delim == matchedDelim) match {
+              case Some(d) => (d, elemName, elemPath, true)
+              case None => (delimValueList.mkString(","), elemName, elemPath, false)
+            }
+          }
+        }.toSet.filter { x => x._4 == true }
+
+        if (findResult.size == 0) Assert.impossibleCase()
+        findResult.head
+      }
+    (remoteDelimValue, remoteElemName, remoteElemPath)
+  }
+
+}
+
 abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: String, guard: Boolean = true)
-  extends Terminal(e, guard)
+  extends Text(e, guard)
   with WithParseErrorThrowing with TextReader {
 
   val charset = e.knownEncodingCharset
-
-  lazy val es = e.escapeScheme
-  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
-
   val term = e.asInstanceOf[Term]
 
-  // here we define the parsers so that they are pre-compiled/generated
-  lazy val delimParser = new DFDLDelimParserStatic(e.knownEncodingStringBitLengthFunction)
-
   // If there are any static delimiters, pre-process them here
-  lazy val staticDelimsRaw = e.allTerminatingMarkup.filter(x => x.isConstant).map { _.constantAsString }
-  lazy val staticDelimsCooked1 = staticDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
-  lazy val staticDelimsCooked = staticDelimsCooked1.flatten
-  lazy val (staticDelimsParsers, staticDelimsRegex) = delimParser.generateDelimiter(staticDelimsCooked.toSet)
+  lazy val staticDelimsRaw =
+    e.allTerminatingMarkup.filter {
+      case (delimValue, _, _) => delimValue.isConstant
+    }.map {
+      case (delimValue, eName, ePath) => (delimValue.constantAsString, eName, ePath)
+    }
+  lazy val staticDelimsCooked1 = staticDelimsRaw.map {
+    case (delimValue, elemName, elemPath) => { (new ListOfStringValueAsLiteral(delimValue.toString, e).cooked, elemName, elemPath) }
+  }
+  lazy val staticDelimsCooked = staticDelimsCooked1.map { case (delimValue, _, _) => delimValue }.flatten
+  lazy val (staticDelimsParsers, staticDelimsRegex) = dp.generateDelimiter(staticDelimsCooked.toSet)
 
-  def parseMethod(pInputDelimiterParser: delimParser.Parser[String],
-                  pIsLocalDelimParser: delimParser.Parser[String],
-                  input: Reader[Char]): DelimParseResult = {
-    val result: DelimParseResult = delimParser.parseInputDelimiter(pInputDelimiterParser, pIsLocalDelimParser, input)
+  def parseMethod(pInputDelimiterParser: dp.Parser[String],
+    pIsLocalDelimParser: dp.Parser[String],
+    input: Reader[Char]): DelimParseResult = {
+    val result: DelimParseResult = dp.parseInputDelimiter(pInputDelimiterParser, pIsLocalDelimParser, input)
     result
   }
 
@@ -230,19 +314,22 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
         // We must feed variable context out of one evaluation and into the next.
         // So that the resulting variable map has the updated status of all evaluated variables.
         var vars = start.variableMap
-        val dynamicDelimsRaw = e.allTerminatingMarkup.filter(x => !x.isConstant).map {
-          x =>
+
+        val dynamicDelimsRaw = e.allTerminatingMarkup.filter { case (delimValue, elemName, elemPath) => !delimValue.isConstant }.map {
+          case (delimValue, elemName, elemPath) =>
             {
-              val R(res, newVMap) = x.evaluate(start.parentElement, vars, start)
+              val R(res, newVMap) = delimValue.evaluate(start.parentElement, vars, start)
               vars = newVMap
-              res
+              (res, elemName, elemPath)
             }
         }
         // Dynamic delimiters can only be evaluated at runtime
-        val dynamicDelimsCooked1 = dynamicDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
-        val dynamicDelimsCooked = dynamicDelimsCooked1.flatten
+        val dynamicDelimsCooked1 = dynamicDelimsRaw.map {
+          case (delimValue, elemValue, elemPath) => { (new ListOfStringValueAsLiteral(delimValue.toString, e).cooked, elemValue, elemPath) }
+        }
+        val dynamicDelimsCooked = dynamicDelimsCooked1.map { case (delimValue, _, _) => delimValue }.flatten
         val delimsCooked = dynamicDelimsCooked.union(staticDelimsCooked)
-        val (dynamicDelimsParsers, dynamicDelimsRegex) = delimParser.generateDelimiter(dynamicDelimsCooked.toSet)
+        val (dynamicDelimsParsers, dynamicDelimsRegex) = dp.generateDelimiter(dynamicDelimsCooked.toSet)
 
         val localDelimsRaw = {
           val R(res, newVMap) = delimExpr.evaluate(start.parentElement, vars, start)
@@ -251,9 +338,9 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
         }
         val localDelimsCooked1 = new ListOfStringValueAsLiteral(localDelimsRaw.toString(), e).cooked
         val localDelimsCooked = localDelimsCooked1
-        val (localDelimsParser, localDelimsRegex) = delimParser.generateDelimiter(localDelimsCooked.toSet)
+        val (localDelimsParser, localDelimsRegex) = dp.generateDelimiter(localDelimsCooked.toSet)
 
-        val pIsLocalDelimParser = delimParser.generateIsLocalDelimParser(localDelimsRegex)
+        val pIsLocalDelimParser = dp.generateIsLocalDelimParser(localDelimsRegex)
 
         val postEvalState = start.withVariables(vars)
 
@@ -267,8 +354,9 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
         log(LogLevel.Debug, "Retrieving reader state.")
         val reader = getReader(charset, start.bitPos, postEvalState)
 
-        val remoteDelims: Array[delimParser.Parser[String]] = staticDelimsParsers.union(dynamicDelimsParsers)
-        val pInputDelimiterParser = delimParser.generateInputDelimiterParser(localDelimsParser, remoteDelims)
+        val remoteDelims: Array[dp.Parser[String]] = staticDelimsParsers.union(dynamicDelimsParsers)
+        val remoteDelimRegex = dp.getDelimsRegex(staticDelimsCooked.union(dynamicDelimsCooked).toSet)
+        val pInputDelimiterParser = dp.generateInputDelimiterParser(localDelimsParser, remoteDelims)
 
         val result = parseMethod(pInputDelimiterParser, pIsLocalDelimParser, reader)
 
@@ -280,8 +368,13 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
             return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
           }
           case s: DelimParseSuccess if (s.delimiterLoc == DelimiterLocation.Remote) => {
-            log(LogLevel.Debug, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
-            return PE(start, "%s - %s: Remote delimiter found instead of local!", this.toString(), eName)
+            val (remoteDelimValue, remoteElemName, remoteElemPath) =
+              getMatchedDelimiterInfo(remoteDelimRegex, s.delimiter, dynamicDelimsCooked1)
+
+            log(LogLevel.Debug, "%s - %s: Found terminator (%s) for %s when looking for (%s) for %s",
+              this.toString(), eName, remoteDelimValue, remoteElemPath, localDelimsCooked, e.path)
+            return PE(start, "%s - %s: Found terminator (%s) for %s when looking for (%s) for %s",
+              this.toString(), eName, remoteDelimValue, remoteElemPath, localDelimsCooked, e.path)
           }
           case s: DelimParseSuccess =>
             {

@@ -502,7 +502,7 @@
  <tdml:defineSchema name="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
 
-    <xs:element name="E2" dfdl:terminator="$$">
+    <xs:element name="E1" dfdl:terminator="$$">
       <xs:complexType>
         <xs:sequence dfdl:separator="$"
           dfdl:separatorPosition="prefix">
@@ -511,13 +511,45 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="E2" dfdl:terminator="$$">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="$"
+          dfdl:separatorPosition="infix">
+          <xs:element name="A" type="xs:string" />
+          <xs:element name="B" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="E3" dfdl:terminator="$$">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="$"
+          dfdl:separatorPosition="postfix">
+          <xs:element name="A" type="xs:string" />
+          <xs:element name="B" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator" root="E2"
+  <tdml:parserTestCase name="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Prefix" root="E1"
     model="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator">
     <tdml:document><![CDATA[$A$$]]></tdml:document>
-    <tdml:errors><tdml:error>missing</tdml:error></tdml:errors>
+    <tdml:errors><tdml:error>Parse Error: Sep('$')</tdml:error><tdml:error>after element.A and before element.B</tdml:error></tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Infix" root="E2"
+    model="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator">
+    <tdml:document><![CDATA[A$$B$$]]></tdml:document>
+    <tdml:errors><tdml:error>Parse Error: Sep('$')</tdml:error><tdml:error>after element.A and before element.B</tdml:error></tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Postfix" root="E3"
+    model="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator">
+    <tdml:document><![CDATA[A$$B$$]]></tdml:document>
+    <tdml:errors><tdml:error>Parse Error: Sep('$')</tdml:error><tdml:error>before element.B</tdml:error></tdml:errors>
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="Lesson4_initiators_terminators"> 

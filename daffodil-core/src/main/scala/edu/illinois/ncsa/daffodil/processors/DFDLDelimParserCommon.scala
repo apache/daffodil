@@ -147,6 +147,20 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
     })
     (delimsParser.toArray, delimsRegex.toArray)
   }
+  
+  /**
+   * Receives a Set of delimiters.  Returns a Set of (DelimRegexStr, OrigDelimStr)
+   */
+  def getDelimsRegex(delimList: Set[String]): Set[(String, String)] = {
+    var delims: Queue[(String, String)] = Queue.empty
+
+    delimList.foreach( str => {
+      val d = new Delimiter()
+      d(str)
+      delims.enqueue((d.delimRegExParseDelim, str))
+    })
+    delims.toSet
+  }
 
   def sortDelims(delimList: Set[String]): Seq[String] = {
     val wspStarByItself = delimList.filter(s => s == "%WSP*;")
@@ -332,7 +346,7 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
     (delimsParser, delimsRegex)
   }
 
-  def generateInputDelimiterParsers(localDelims: Set[String], remoteDelims: Set[String]): (Parser[String], Parser[String]) = {
+  def generateInputDelimiterParsers(localDelims: Set[String], remoteDelims: Set[String]): (Parser[String], Parser[String], Set[(String, String)]) = {
     val (localDelimsParser, localDelimsRegex) = this.buildDelims(localDelims)
     val (remoteDelimsParser, remoteDelimsRegex) = this.buildDelims(remoteDelims)
     val combinedDelims = remoteDelimsParser ++ localDelimsParser
@@ -345,7 +359,8 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
     val inputDelimiterParser = combinedDelimsParser ~! opt(EOF) ^^ {
       case (d ~ _) => d
     }
-    (inputDelimiterParser, isLocalDelimParser)
+    val isRemoteRegex = combineDelimitersRegex(remoteDelimsRegex, Array.empty)
+    (inputDelimiterParser, isLocalDelimParser, getDelimsRegex(remoteDelims))
   }
 
   def generateInputDelimiterParser(localDelims: Set[String], remoteDelims: Set[String]): Parser[String] = {

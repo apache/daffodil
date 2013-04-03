@@ -45,19 +45,20 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestDelimiterProperties_01 extends JUnitSuite {
+class TestDelimiterPropertiesNew extends JUnitSuite {
 
   val testDir_02 = "/edu/illinois/ncsa/daffodil/section12/delimiter_properties/"
   val tdml_02 = testDir_02 + "DelimiterProperties.tdml"
   lazy val r = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 
-//  @Test def test_BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Prefix() = {
-//    r.runOneTest("BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Prefix")
-//  }
-//  @Test def test_BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Infix() = {
-//    r.runOneTest("BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Infix")
-//  }
-//  @Test def test_BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Postfix() = {
-//    r.runOneTest("BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Postfix")
-//  }
+  // DFDL-419
+  @Test def test_BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Prefix() = {
+    r.runOneTest("BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Prefix")
+  }
+  @Test def test_BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Infix() = {
+    r.runOneTest("BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Infix")
+  }
+  @Test def test_BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Postfix() = {
+    r.runOneTest("BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Postfix")
+  }
 }

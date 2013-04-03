@@ -401,7 +401,12 @@ abstract class StringDelimited(e: ElementBase)
 
   // These static delims are used whether we're static or dynamic
   // because even a dynamic can have some static from enclosing scopes.
-  val staticDelimsRaw = e.allTerminatingMarkup.filter(x => x.isConstant).map { _.constantAsString }
+  //  val staticDelimsRaw = e.allTerminatingMarkup.filter(x => x.isConstant).map { _.constantAsString }
+  val staticDelimsRaw = e.allTerminatingMarkup.filter {
+    case (delimValue, _, _) => delimValue.isConstant
+  }.map {
+    case (delimValue, _, _) => delimValue.constantAsString
+  }
   val staticDelimsCooked1 = staticDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
   val staticDelimsCooked = staticDelimsCooked1.flatten
   val (staticDelimsParser, staticDelimsRegex) = dp.generateDelimiter(staticDelimsCooked.toSet)
@@ -411,7 +416,7 @@ abstract class StringDelimited(e: ElementBase)
   //    reader: Reader[Char]): DelimParseResult
 
   def parseMethod(hasDelim: Boolean, delimsParser: dp.Parser[String], delimsRegex: Array[String],
-                  reader: Reader[Char]): DelimParseResult = {
+    reader: Reader[Char]): DelimParseResult = {
     // TODO: Change DFDLDelimParser calls to get rid of Array.empty[String] since we're only passing a single list the majority of the time.
     if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
       val (escapeBlockParser, escapeBlockEndRegex, escapeEscapeRegex) = dp.generateEscapeBlockParsers2(delimsParser,
@@ -475,7 +480,8 @@ abstract class StringDelimited(e: ElementBase)
   }
 
   def parser: DaffodilParser = new PrimParser(this, e) {
-    override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
+    //    override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
+    override def toString = cname + "(" + tm.map { case (delimValue, _, _) => delimValue.prettyExpr } + ")"
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
 
@@ -523,7 +529,8 @@ abstract class StringDelimited(e: ElementBase)
   }
 
   def unparser: Unparser = new Unparser(e) {
-    override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
+    //    override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
+    override def toString = cname + "(" + tm.map { case (delimValue, _, _) => delimValue.prettyExpr } + ")"
 
     def unparse(start: UState): UState =
       // withLoggingLevel(LogLevel.Info) 
@@ -559,10 +566,18 @@ trait DynamicDelim { self: StringDelimited =>
     // We must feed variable context out of one evaluation and into the next.
     // So that the resulting variable map has the updated status of all evaluated variables.
     var vars = pstate.variableMap
-    val dynamicDelimsRaw = elemBase.allTerminatingMarkup.filter(x => !x.isConstant).map {
-      x =>
+    //    val dynamicDelimsRaw = elemBase.allTerminatingMarkup.filter(x => !x.isConstant).map {
+    //      x =>
+    //        {
+    //          val R(res, newVMap) = x.evaluate(pstate.parentElement, vars, pstate)
+    //          vars = newVMap
+    //          res
+    //        }
+    //    }
+    val dynamicDelimsRaw = elemBase.allTerminatingMarkup.filter { case (delimValue, _, _) => !delimValue.isConstant }.map {
+      case (delimValue, _, _) =>
         {
-          val R(res, newVMap) = x.evaluate(pstate.parentElement, vars, pstate)
+          val R(res, newVMap) = delimValue.evaluate(pstate.parentElement, vars, pstate)
           vars = newVMap
           res
         }

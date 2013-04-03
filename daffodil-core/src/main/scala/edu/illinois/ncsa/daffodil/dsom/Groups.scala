@@ -75,27 +75,99 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   def isScalar = true // override in local elements
 
-  lazy val allTerminatingMarkup: List[CompiledExpression] = {
-    val tm = List(this.terminator) ++ this.allParentTerminatingMarkup
-    tm.filter(x => x.isKnownNonEmpty)
+  lazy val allTerminatingMarkup: List[(CompiledExpression, String, String)] = {
+    val (tElemName, tElemPath) = this.terminatorLoc
+    val tm = List((this.terminator, tElemName, tElemPath)) ++ this.allParentTerminatingMarkup
+    tm.filter { case (delimValue, elemName, elemPath) => delimValue.isKnownNonEmpty }
   }
 
   // TODO Review Comment
   // This below should not reproduce the logic of enclosingComponent unless it needs
   // something different from that. 
 
-  lazy val allParentTerminatingMarkup: List[CompiledExpression] = {
+  //  lazy val allParentTerminatingMarkup: List[CompiledExpression] = {
+  //    // Retrieves the terminating markup for all parent
+  //    // objects
+  //    // println(this + " with parent " + parent)
+  //
+  //    // TODO: This is not entirely correct as it assumes that separator and terminator
+  //    // will always be defined.  It's entirely possible that one or neither is defined.
+  //    // The call to this non-existant property will result in an SDE.
+  //    // See created issue DFDL-571
+  //    val pTM = parent match {
+  //      case s: Sequence => List(s.separator, s.terminator) ++ s.allParentTerminatingMarkup
+  //      case c: Choice => List(c.terminator) ++ c.allParentTerminatingMarkup
+  //      case d: SchemaDocument =>
+  //        // we're a global object. Our parent is a schema document
+  //        // so follow backpointers to whatever is referencing us.
+  //        this match {
+  //          case gct: GlobalComplexTypeDef => gct.element.allTerminatingMarkup
+  //          case gd: GlobalGroupDef => gd.groupRef.allTerminatingMarkup
+  //          case ge: GlobalElementDecl => ge.elementRef match {
+  //            case None => {
+  //              // we are root. So there is no enclosing sequence at all
+  //              List.empty
+  //            }
+  //            case Some(er) => er.allTerminatingMarkup
+  //          }
+  //        }
+  //      case ct: LocalComplexTypeDef => ct.parent match {
+  //        case local: LocalElementDecl => local.allTerminatingMarkup
+  //        case global: GlobalElementDecl => {
+  //          global.elementRef match {
+  //            case None => List(global.terminator)
+  //            case Some(eRef) => eRef.allTerminatingMarkup
+  //          }
+  //        }
+  //        case _ => Assert.impossibleCase()
+  //      }
+  //      // global type, we have to follow back to the element referencing this type
+  //      case ct: GlobalComplexTypeDef => {
+  //        // Since we are a term directly inside a global complex type def,
+  //        // our nearest enclosing sequence is the one enclosing the element that
+  //        // has this type. 
+  //        //
+  //        // However, that element might be local, or might be global and be referenced
+  //        // from an element ref.
+  //        //
+  //        ct.element match {
+  //          case local: LocalElementDecl => local.allTerminatingMarkup
+  //          case global: GlobalElementDecl => {
+  //            global.elementRef match {
+  //              case None => List(global.terminator)
+  //              case Some(eRef) => eRef.allTerminatingMarkup
+  //            }
+  //          }
+  //          case _ => Assert.impossibleCase()
+  //        }
+  //      }
+  //      case gd: GlobalGroupDef => gd.groupRef.allTerminatingMarkup
+  //      // We should only be asking for the enclosingSequence when there is one.
+  //      case _ => Assert.invariantFailed("No parent terminating markup for : " + this)
+  //    }
+  //    val res = pTM.filter(x => x.isKnownNonEmpty)
+  //    // println(res)
+  //    res
+  //  }
+
+  lazy val allParentTerminatingMarkup: List[(CompiledExpression, String, String)] = {
     // Retrieves the terminating markup for all parent
     // objects
-    // println(this + " with parent " + parent)
 
     // TODO: This is not entirely correct as it assumes that separator and terminator
     // will always be defined.  It's entirely possible that one or neither is defined.
     // The call to this non-existant property will result in an SDE.
     // See created issue DFDL-571
-    val pTM = parent match {
-      case s: Sequence => List(s.separator, s.terminator) ++ s.allParentTerminatingMarkup
-      case c: Choice => List(c.terminator) ++ c.allParentTerminatingMarkup
+    val pTM: List[(CompiledExpression, String, String)] = parent match {
+      case s: Sequence => {
+        val (sElemName, sElemPath) = s.separatorLoc
+        val (tElemName, tElemPath) = s.terminatorLoc
+        List((s.separator, sElemName, sElemPath), (s.terminator, tElemName, tElemPath)) ++ s.allParentTerminatingMarkup
+      }
+      case c: Choice => {
+        val (tElemName, tElemPath) = c.terminatorLoc
+        List((c.terminator, tElemName, tElemPath)) ++ c.allParentTerminatingMarkup
+      }
       case d: SchemaDocument =>
         // we're a global object. Our parent is a schema document
         // so follow backpointers to whatever is referencing us.
@@ -114,7 +186,10 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
         case local: LocalElementDecl => local.allTerminatingMarkup
         case global: GlobalElementDecl => {
           global.elementRef match {
-            case None => List(global.terminator)
+            case None => {
+              val (tElemName, tElemPath) = global.terminatorLoc
+              List((global.terminator, tElemName, tElemPath))
+            }
             case Some(eRef) => eRef.allTerminatingMarkup
           }
         }
@@ -133,7 +208,10 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
           case local: LocalElementDecl => local.allTerminatingMarkup
           case global: GlobalElementDecl => {
             global.elementRef match {
-              case None => List(global.terminator)
+              case None => {
+                val (tElemName, tElemPath) = global.terminatorLoc
+                List((global.terminator, tElemName, tElemPath))
+              }
               case Some(eRef) => eRef.allTerminatingMarkup
             }
           }
@@ -144,8 +222,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       // We should only be asking for the enclosingSequence when there is one.
       case _ => Assert.invariantFailed("No parent terminating markup for : " + this)
     }
-    val res = pTM.filter(x => x.isKnownNonEmpty)
-    // println(res)
+    val res = pTM.filter { case (delimValue, elemName, elemPath) => delimValue.isKnownNonEmpty }
     res
   }
 

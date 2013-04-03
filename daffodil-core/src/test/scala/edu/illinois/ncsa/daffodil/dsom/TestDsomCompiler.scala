@@ -696,9 +696,12 @@ class TestDsomCompiler extends JUnitSuite with Logging {
 
     //    println(e1.properties)
     assertEquals(3, e1.allTerminatingMarkup.length) // 1 Level + ref on global element decl
-    assertEquals("a", e1.allTerminatingMarkup(0).prettyExpr)
-    assertEquals("b", e1.allTerminatingMarkup(1).prettyExpr)
-    assertEquals("g", e1.allTerminatingMarkup(2).prettyExpr)
+//    assertEquals("a", e1.allTerminatingMarkup(0).prettyExpr)
+//    assertEquals("b", e1.allTerminatingMarkup(1).prettyExpr)
+//    assertEquals("g", e1.allTerminatingMarkup(2).prettyExpr)
+    assertEquals("a", e1.allTerminatingMarkup(0)._1.prettyExpr)
+    assertEquals("b", e1.allTerminatingMarkup(1)._1.prettyExpr)
+    assertEquals("g", e1.allTerminatingMarkup(2)._1.prettyExpr)
 
     val ct2 = e3.asInstanceOf[ElementBase].typeDef.asInstanceOf[ComplexTypeBase]
     val seq2 = ct2.modelGroup.asInstanceOf[Sequence]
@@ -706,20 +709,20 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val Seq(e3_1: ElementBase, e3_2: ElementBase) = seq2.groupMembers
 
     assertEquals(6, e3_1.allTerminatingMarkup.length) // 2 Level + ref on global element decl
-    assertEquals("e", e3_1.allTerminatingMarkup(0).prettyExpr)
-    assertEquals("c", e3_1.allTerminatingMarkup(1).prettyExpr)
-    assertEquals("d", e3_1.allTerminatingMarkup(2).prettyExpr)
-    assertEquals("a", e3_1.allTerminatingMarkup(3).prettyExpr)
-    assertEquals("b", e3_1.allTerminatingMarkup(4).prettyExpr)
-    assertEquals("g", e3_1.allTerminatingMarkup(5).prettyExpr)
+    assertEquals("e", e3_1.allTerminatingMarkup(0)._1.prettyExpr)
+    assertEquals("c", e3_1.allTerminatingMarkup(1)._1.prettyExpr)
+    assertEquals("d", e3_1.allTerminatingMarkup(2)._1.prettyExpr)
+    assertEquals("a", e3_1.allTerminatingMarkup(3)._1.prettyExpr)
+    assertEquals("b", e3_1.allTerminatingMarkup(4)._1.prettyExpr)
+    assertEquals("g", e3_1.allTerminatingMarkup(5)._1.prettyExpr)
 
     assertEquals(6, e3_2.allTerminatingMarkup.length) // 2 Level + ref on global element decl + ref on local element decl
-    assertEquals("f", e3_2.allTerminatingMarkup(0).prettyExpr) // f instead of e, due to ref
-    assertEquals("c", e3_2.allTerminatingMarkup(1).prettyExpr)
-    assertEquals("d", e3_2.allTerminatingMarkup(2).prettyExpr)
-    assertEquals("a", e3_2.allTerminatingMarkup(3).prettyExpr)
-    assertEquals("b", e3_2.allTerminatingMarkup(4).prettyExpr)
-    assertEquals("g", e3_2.allTerminatingMarkup(5).prettyExpr)
+    assertEquals("f", e3_2.allTerminatingMarkup(0)._1.prettyExpr) // f instead of e, due to ref
+    assertEquals("c", e3_2.allTerminatingMarkup(1)._1.prettyExpr)
+    assertEquals("d", e3_2.allTerminatingMarkup(2)._1.prettyExpr)
+    assertEquals("a", e3_2.allTerminatingMarkup(3)._1.prettyExpr)
+    assertEquals("b", e3_2.allTerminatingMarkup(4)._1.prettyExpr)
+    assertEquals("g", e3_2.allTerminatingMarkup(5)._1.prettyExpr)
   }
 
   @Test def test_escapeSchemeOverride = {

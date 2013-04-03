@@ -289,7 +289,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   lazy val hasExpressionsInTerminatingMarkup: Boolean = {
-    this.allTerminatingMarkup.filter(x => !x.isConstant).length > 0
+    this.allTerminatingMarkup.filter { case (delimValue, _, _) => !delimValue.isConstant }.length > 0
   }
 
   // 11/1/2012 - moved to base since needed by patternValue
