@@ -147,10 +147,10 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
             val (remoteDelimValue, remoteElemName, remoteElemPath) =
               getMatchedDelimiterInfo(remoteDelimRegex, s.delimiter, delimsCooked1)
 
-            log(LogLevel.Debug, "%s - %s: Found terminator (%s) for %s when looking for (%s) for %s %s",
-              this.toString(), eName, remoteDelimValue, remoteElemPath, staticTexts, e.path, positionalInfo)
-            return PE(start, "%s - %s: Found terminator (%s) for %s when looking for (%s) for %s %s",
-              this.toString(), eName, remoteDelimValue, remoteElemPath, staticTexts, e.path, positionalInfo)
+            log(LogLevel.Debug, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
+              this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, staticTexts.mkString(" "), e.path, positionalInfo)
+            return PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
+              this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, staticTexts.mkString(" "), e.path, positionalInfo)
           }
           case s: DelimParseSuccess =>
             {
@@ -371,10 +371,10 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
             val (remoteDelimValue, remoteElemName, remoteElemPath) =
               getMatchedDelimiterInfo(remoteDelimRegex, s.delimiter, dynamicDelimsCooked1)
 
-            log(LogLevel.Debug, "%s - %s: Found terminator (%s) for %s when looking for (%s) for %s",
-              this.toString(), eName, remoteDelimValue, remoteElemPath, localDelimsCooked, e.path)
-            return PE(start, "%s - %s: Found terminator (%s) for %s when looking for (%s) for %s",
-              this.toString(), eName, remoteDelimValue, remoteElemPath, localDelimsCooked, e.path)
+            log(LogLevel.Debug, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s",
+              this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, localDelimsCooked.mkString(" "), e.path)
+            return PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s",
+              this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, localDelimsCooked.mkString(" "), e.path)
           }
           case s: DelimParseSuccess =>
             {
