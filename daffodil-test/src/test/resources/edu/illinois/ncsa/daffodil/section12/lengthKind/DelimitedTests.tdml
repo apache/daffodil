@@ -193,6 +193,8 @@
           dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="anyEmpty">
           <xs:element name="s" type="xs:string" maxOccurs="5"
             dfdl:occursCountKind="implicit" dfdl:lengthKind="delimited" />
+          <xs:element name="extra" type="xs:string" maxOccurs="5"
+            dfdl:occursCountKind="implicit" dfdl:lengthKind="delimited" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -202,6 +204,8 @@
         <xs:sequence dfdl:separator=","
           dfdl:separatorPosition="infix">
           <xs:element name="s" type="xs:string" maxOccurs="5"
+            dfdl:occursCountKind="implicit" dfdl:lengthKind="delimited" />
+          <xs:element name="extra" type="xs:string" maxOccurs="5"
             dfdl:occursCountKind="implicit" dfdl:lengthKind="delimited" />
         </xs:sequence>
       </xs:complexType>
@@ -636,6 +640,8 @@
           <s>hijklm</s>
           <s>no</s>
           <s>pqrst</s>
+          <extra>uvwxyz</extra>
+          <extra>hacdf</extra>
         </delim_02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -655,6 +661,8 @@
           <s>hijklm</s>
           <s>no</s>
           <s>pqrst</s>
+          <extra>uvwxyz</extra>
+          <extra>hacdf</extra>
         </delim_03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
