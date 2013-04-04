@@ -147,7 +147,7 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
 }
 
 abstract class SpecifiedLengthParserBase(combinator: SpecifiedLengthCombinatorBase,
-                                         e: ElementBase)
+  e: ElementBase)
   extends PrimParser(combinator, e)
   with WithParseErrorThrowing {
 
@@ -157,9 +157,19 @@ abstract class SpecifiedLengthParserBase(combinator: SpecifiedLengthCombinatorBa
     log(LogLevel.Debug, "Limiting data to %s bits.", endBitPos)
     val postState1 = pstate.withEndBitLimit(endBitPos)
     val postState2 = combinator.eParser.parse1(postState1, e)
+    
     log(LogLevel.Debug, "Restoring data limit to %s bits.", pstate.bitLimit)
+    
     val postState3 = postState2.withEndBitLimit(pstate.bitLimit)
-    postState3
+    val finalState = postState3.status match {
+      case Success => {
+        // Check that the parsed length is less than or equal to the length of the parent
+        Assert.invariant(postState2.bitPos <= endBitPos)
+        postState3.withPos(endBitPos, -1, None)
+      }
+      case _ => postState3
+    }
+    finalState
   }
 
 }

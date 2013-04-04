@@ -472,7 +472,7 @@ case class PState(
   //    copy(inStream = newInStream, status = newStatus)
   //  }
 
-  def withEndBitLimit(bitLimit: Long, newStatus: ProcessorResult = Success) = {
+  def withEndBitLimit(bitLimit: Long, newStatus: ProcessorResult = this.status) = {
     var newInStream = inStream.withEndBitLimit(bitLimit)
     copy(inStream = newInStream, status = newStatus)
   }

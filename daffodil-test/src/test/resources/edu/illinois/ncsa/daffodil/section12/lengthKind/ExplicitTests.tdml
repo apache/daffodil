@@ -73,7 +73,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="address" dfdl:lengthKind="explicit"
-            dfdl:length="48" dfdl:lengthUnits="bits">
+            dfdl:length="384" dfdl:lengthUnits="bits"> <!-- originally was dfdl:length="48" which is characters not bits -->
             <xs:complexType>
               <xs:sequence dfdl:sequenceKind="ordered">
                 <xs:element name="houseNumber" type="xs:string"
@@ -90,8 +90,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-
-
+   
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="test_ExplicitLengthBitsNotFixed"
@@ -134,6 +133,113 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="test_ExplicitLengthChildLengthLessParent">
+
+    <dfdl:format ref="ex:daffodilTest1" />
+    
+        <xs:element name="fixed1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="elem" dfdl:lengthKind="explicit"
+            dfdl:length="10" dfdl:lengthUnits="characters" 
+            maxOccurs="3" minOccurs="3" dfdl:occursCountKind="fixed">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="A" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
+                <xs:element name="B" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+                <xs:element name="C" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+                <xs:element name="D" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="fixed2" dfdl:lengthKind="implicit" dfdl:representation="binary">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="elem" dfdl:lengthKind="explicit"
+            dfdl:length="72" dfdl:lengthUnits="bits" 
+            maxOccurs="3" minOccurs="3" dfdl:occursCountKind="fixed" dfdl:representation="binary">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="A" type="xs:unsignedInt" dfdl:lengthUnits="bits" 
+                  dfdl:lengthKind="explicit" dfdl:length="32" dfdl:representation="binary" />
+                <xs:element name="B" type="xs:unsignedInt" dfdl:lengthUnits="bits" 
+                  dfdl:lengthKind="explicit" dfdl:length="32" dfdl:representation="binary" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="test_ExplicitLengthChildLengthLessParent_Chars"
+	root="fixed1" model="test_ExplicitLengthChildLengthLessParent" description="lengthKind='explicit' - DFDL-12-039R">
+	<tdml:document>
+		<tdml:documentPart type="text"><![CDATA[123456789012345678901234567890]]></tdml:documentPart>
+	</tdml:document>
+	<tdml:infoset>
+		<tdml:dfdlInfoset>
+			<fixed1>
+				<elem>
+					<A>1</A>
+					<B>234</B>
+					<C>567</C>
+					<D>89</D>
+				</elem>
+				<elem>
+          <A>1</A>
+          <B>234</B>
+          <C>567</C>
+          <D>89</D>
+        </elem>
+        <elem>
+          <A>1</A>
+          <B>234</B>
+          <C>567</C>
+          <D>89</D>
+        </elem>
+			</fixed1>
+		</tdml:dfdlInfoset>
+	</tdml:infoset>
+</tdml:parserTestCase>
+
+<tdml:parserTestCase name="test_ExplicitLengthChildLengthLessParent_Bits"
+  root="fixed2" model="test_ExplicitLengthChildLengthLessParent" description="lengthKind='explicit' - DFDL-12-039R">
+  <tdml:document>
+    <tdml:documentPart type="byte">00 0F 00 0F 00 0F 00 0F</tdml:documentPart>
+    <tdml:documentPart type="byte">00 0F 00 0F 00 0F 00 0F</tdml:documentPart>
+    <tdml:documentPart type="byte">00 0F 00 0F 00 0F 00 0F</tdml:documentPart>
+    <tdml:documentPart type="byte">00 0F 00</tdml:documentPart>
+  </tdml:document>
+  <tdml:infoset>
+    <tdml:dfdlInfoset>
+      <fixed2>
+        <elem>
+          <A>983055</A>
+          <B>983055</B>
+        </elem>
+        <elem>
+          <A>251662080</A>
+          <B>251662080</B>
+        </elem>
+        <elem>
+          <A>983055</A>
+          <B>983055</B>
+        </elem>
+      </fixed2>
+    </tdml:dfdlInfoset>
+  </tdml:infoset>
+</tdml:parserTestCase>
 
 	<tdml:defineSchema name="test_ExplicitLengthBytes">
 

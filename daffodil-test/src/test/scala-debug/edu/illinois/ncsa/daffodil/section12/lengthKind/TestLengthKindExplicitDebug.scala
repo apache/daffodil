@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section12.lengthKind
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
@@ -56,6 +55,5 @@ class TestLengthKindExplicitDebug extends JUnitSuite {
   // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
   // runner.runOneTest("test_name") 
   // }
-
 
 }
