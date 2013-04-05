@@ -549,14 +549,9 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   // TODO: Duplication of convertFacetToBigDecimal in Types.scala , throw in a library?
   def convertDataToBigDecimal(data: String, primType: PrimType, e: ElementBase): java.math.BigDecimal = {
     primType match {
-      case PrimType.DateTime => {
-        // TODO: Fractional seconds or not?
-        val f1 = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
-        val f2 = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-        dateToBigDecimal(data, f2, e)
-      }
-      case PrimType.Date => dateToBigDecimal(data, "yyyy-MM-dd", e)
-      case PrimType.Time => dateToBigDecimal(data, "HH:mm:ssZZZZZ", e)
+      case PrimType.DateTime => dateToBigDecimal(data, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", e)
+      case PrimType.Date => dateToBigDecimal(data, "uuuu-MM-ddxxx", e)
+      case PrimType.Time => dateToBigDecimal(data, "HH:mm:ss.SSSSSSxxx", e)
       case _ => new java.math.BigDecimal(data)
     }
   }

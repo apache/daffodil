@@ -904,7 +904,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <baseSeq3>
-          <date3>1988-03-24</date3>
+          <date3>1988-03-24+00:00</date3>
         </baseSeq3> 
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -1383,9 +1383,9 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <root2>
-          <date3>2013-03-04</date3>
-          <date3>1997-04-12</date3>
-          <date3>1980-05-22</date3>
+          <date3>2013-03-04+00:00</date3>
+          <date3>1997-04-12+00:00</date3>
+          <date3>1980-05-22+00:00</date3>
         </root2>
       </tdml:dfdlInfoset>
     </tdml:infoset>

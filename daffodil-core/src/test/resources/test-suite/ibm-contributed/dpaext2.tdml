@@ -284,7 +284,7 @@
 		<document>101230040506@</document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			  <myDateTime4 xsi:type="xs:dateTime">2010-12-30T09:05:06.000000-05:00</myDateTime4>
+			  <myDateTime4 xsi:type="xs:dateTime">2010-12-30T04:05:06.000000-05:00</myDateTime4>
 			</dfdlInfoset>
 		</infoset>
 	</parserTestCase>

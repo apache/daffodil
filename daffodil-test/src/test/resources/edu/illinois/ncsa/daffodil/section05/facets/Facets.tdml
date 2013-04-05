@@ -4016,7 +4016,7 @@
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:dateTime">
-          <xs:maxInclusive value="2013-03-24T03:45:30-00:00"/>
+          <xs:maxInclusive value="2013-03-24T03:45:30.000000+00:00"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
@@ -4676,7 +4676,7 @@
     <tdml:document><![CDATA[2013-03-24T03:45:30]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dateTimeImp>2013-03-24T03:45:30Z</dateTimeImp>
+        <dateTimeImp>2013-03-24T03:45:30.000000+00:00</dateTimeImp>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -4835,8 +4835,8 @@
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:date">
-          <xs:enumeration value="2013-02-15" />
-          <xs:enumeration value="1988-03-24" />
+          <xs:enumeration value="2013-02-15+00:00" />
+          <xs:enumeration value="1988-03-24+00:00" />
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
@@ -5060,7 +5060,7 @@
     <tdml:document>Month March, day 24, year 1988</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <enum_e7>1988-03-24</enum_e7>
+        <enum_e7>1988-03-24+00:00</enum_e7>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -5322,15 +5322,15 @@
     
     <xs:simpleType name="mImE_st13">
       <xs:restriction base="xs:date">
-        <xs:minInclusive value="2000-01-01" />
-        <xs:maxInclusive value="2014-01-01" />
+        <xs:minInclusive value="2000-01-01+00:00" />
+        <xs:maxInclusive value="2014-01-01+00:00" />
       </xs:restriction>
     </xs:simpleType>
     
     <xs:simpleType name="mImE_st14">
       <xs:restriction base="xs:time">
-        <xs:minInclusive value="09:00:00+01:00" />
-        <xs:maxInclusive value="15:00:00+01:00" />
+        <xs:minInclusive value="09:00:00.000000+01:00" />
+        <xs:maxInclusive value="15:00:00.000000+01:00" />
       </xs:restriction>
     </xs:simpleType>
     
@@ -6020,7 +6020,7 @@
     <tdml:document>Today is the 16th day of March, year 2012</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <mImE_e13>2012-03-16</mImE_e13>
+        <mImE_e13>2012-03-16+00:00</mImE_e13>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -6068,7 +6068,7 @@
     <tdml:document>11:00:00</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <mImE_e14>11:00:00Z</mImE_e14>
+        <mImE_e14>11:00:00.000000+00:00</mImE_e14>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

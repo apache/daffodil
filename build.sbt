@@ -17,7 +17,7 @@ libraryDependencies in ThisBuild := Seq(
   "com.github.stefanbirkner" % "system-rules" % "1.2.0",
   "org.jdom" % "jdom" % "1.1.3",
   "net.sourceforge.saxon" % "saxon" % "9.1.0.8" classifier "" classifier "dom" classifier "jdom" classifier "s9api" classifier "xpath",
-  "com.ibm.icu" % "icu4j" % "50.1.1",// classifier "" classifier "charset" classifier "localespi",
+  "com.ibm.icu" % "icu4j" % "51.1",// classifier "" classifier "charset" classifier "localespi",
   "xerces" % "xercesImpl" % "2.10.0",
   "xml-resolver" % "xml-resolver" % "1.2",
   "jline" % "jline" % "2.9",

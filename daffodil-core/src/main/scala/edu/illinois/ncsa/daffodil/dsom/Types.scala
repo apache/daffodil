@@ -351,14 +351,9 @@ trait Facets { self: SimpleTypeDefBase =>
 
   private def convertFacetToBigDecimal(facet: String): java.math.BigDecimal = {
     self.primitiveType.myPrimitiveType match {
-      case PrimType.DateTime => {
-        // TODO: Fractional seconds or not?
-        val f1 = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
-        val f2 = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-        dateToBigDecimal(facet, f2, PrimType.DateTime.toString())
-      }
-      case PrimType.Date => dateToBigDecimal(facet, "yyyy-MM-dd", PrimType.Date.toString())
-      case PrimType.Time => dateToBigDecimal(facet, "HH:mm:ssZZZZZ", PrimType.Time.toString())
+      case PrimType.DateTime => dateToBigDecimal(facet, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", PrimType.DateTime.toString())
+      case PrimType.Date => dateToBigDecimal(facet, "uuuu-MM-ddxxx", PrimType.Date.toString())
+      case PrimType.Time => dateToBigDecimal(facet, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString())
       case _ => new java.math.BigDecimal(facet)
     }
   }

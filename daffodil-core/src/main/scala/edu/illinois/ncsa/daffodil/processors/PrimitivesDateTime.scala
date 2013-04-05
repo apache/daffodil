@@ -55,45 +55,44 @@ case class ConvertTextCalendarParser(gram: Gram, e: ElementBase, dataFormatter: 
   override def toString = "to(xs:" + GramName + ")"
 
   def parse(start: PState): PState = {
-
     val node = start.parentElement
     var str = node.dataValue
 
     Assert.invariant(str != null)
 
-    val resultState = try {
-      val pos = new ParsePosition(0)
-      val datetime = try {
-        val dt = dataFormatter.parse(str, pos);
-        if (dt == null) {
-          // This appears to only happen when str == "", all other parse
-          // failures throw a parse exception.  DFDL allows this, parsing the
-          // empty string as the epoch
-          new Date(0)
-        } else {
-          dt
-        }
-      } catch {
-        case u: UnsuppressableException => throw u
-        case e: Exception =>
-          return PE(start, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s", GramDescription, GramName, str, e)
-      }
+    val pos = new ParsePosition(0)
+    val cal = dataFormatter.getCalendar.clone.asInstanceOf[Calendar]
+    dataFormatter.parse(str, cal, pos);
 
-      // Verify that what was parsed was what was passed exactly in byte count
-      // Use pos to verify all characters consumed & check for errors!
-      if (pos.getIndex != str.length) {
-        return PE(start, "Convert to %s (for xs:%s): Failed to parse '%s' at character %d .", GramDescription, GramName, str, pos.getErrorIndex)
-      }
-
-      // Convert to the infoset format
-      val result = infosetFormatter.format(datetime)
-      node.setDataValue(result)
-
-      start
+    // Verify that what was parsed was what was passed exactly in byte count
+    // Use pos to verify all characters consumed & check for errors
+    if (pos.getIndex != str.length || pos.getErrorIndex >= 0) {
+      val errIndex = if (pos.getErrorIndex >= 0) pos.getErrorIndex else pos.getIndex
+      return PE(start, "Convert to %s (for xs:%s): Failed to parse '%s' at character %d.", GramDescription, GramName, str, errIndex + 1)
     }
 
-    resultState
+    // Unfortunately, there is no publicly available method for validating
+    // Calendar values are correct with respect to leniency. So instead, just
+    // try to calculate the time, which forces validation. This causes an
+    // exception to be thrown if a Calendar is not valid.
+    try {
+      cal.getTime
+    } catch {
+      case e: IllegalArgumentException => {
+        return PE(start, "Convert to %s (for xs:%s): Failed to parse '%s': %s.", GramDescription, GramName, str, e.getMessage)
+      }
+    }
+
+    // Convert to the infoset format
+    val result = infosetFormatter.format(cal)
+    node.setDataValue(result)
+
+    start
   }
+}
+
+object TextCalendarConstants {
+  final val maxFractionalSeconds = 9
 }
 
 abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
@@ -121,6 +120,10 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
         SDE("Character '%s' not allowed in dfdl:calendarPattern for %s".format(char,GramName))
       }
     )
+
+    if (patternNoEscapes.indexOf("S" * (TextCalendarConstants.maxFractionalSeconds + 1)) >= 0) {
+      SDE("More than %d fractional seconds unsupported in dfdl:calendarpattern for %s".format(TextCalendarConstants.maxFractionalSeconds, GramName))
+    }
 
     p
   }
@@ -170,6 +173,8 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     }
     cal.setTimeZone(tz)
 
+    cal.clear
+
     cal
   }
 
@@ -183,8 +188,9 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   // Used for writing to/reading from the infoset
   lazy val infosetFormatter: SimpleDateFormat = {
     val formatter = new SimpleDateFormat(infosetPattern)
-    // infoset is always Gregorian/UTC
-    formatter.setCalendar(new GregorianCalendar())
+    val cal = new GregorianCalendar()
+    cal.clear
+    formatter.setCalendar(cal)
     formatter.setTimeZone(TimeZone.GMT_ZONE)
     formatter
   }
@@ -195,19 +201,19 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
 }
 
 case class ConvertTextDatePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
-  protected override val infosetPattern = "yyyy-MM-dd"
-  protected override val implicitPattern = "yyyy-MM-dd"
-  protected override val validFormatCharacters = "dDeEFGMuwWyYzZ".toSeq
+  protected override val infosetPattern = "uuuu-MM-ddxxx"
+  protected override val implicitPattern = "uuuu-MM-dd"
+  protected override val validFormatCharacters = "dDeEFGMuwWyXxYzZ".toSeq
 }
 
 case class ConvertTextTimePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
-  protected override val infosetPattern = "HH:mm:ssZZZZZ"
-  protected override val implicitPattern = "HH:mm:ssZZZ"
-  protected override val validFormatCharacters = "ahHkKmsSvVzZ".toSeq
+  protected override val infosetPattern = "HH:mm:ss.SSSSSSxxx"
+  protected override val implicitPattern = "HH:mm:ssZ"
+  protected override val validFormatCharacters = "ahHkKmsSvVzXxZ".toSeq
 }
 
 case class ConvertTextDateTimePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
-  protected override val infosetPattern = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-  protected override val implicitPattern = "yyyy-MM-dd'T'HH:mm:ss"
-  protected override val validFormatCharacters = "adDeEFGhHkKmMsSuwWvVyYzZ".toSeq
+  protected override val infosetPattern = "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx"
+  protected override val implicitPattern = "uuuu-MM-dd'T'HH:mm:ss"
+  protected override val validFormatCharacters = "adDeEFGhHkKmMsSuwWvVyXxYzZ".toSeq
 }

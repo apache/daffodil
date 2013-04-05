@@ -111,7 +111,10 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_millisecondAccuracy() { runner.runOneTest("millisecondAccuracy") }
   @Test def test_millisecondAccuracy2() { runner.runOneTest("millisecondAccuracy2") }
   @Test def test_millisecondAccuracy3() { runner.runOneTest("millisecondAccuracy3") }
-//  @Test def test_millisecondAccuracy4() { runner.runOneTest("millisecondAccuracy4") }
+  @Test def test_millisecondAccuracy4() { runner.runOneTest("millisecondAccuracy4") }
+  @Test def test_millisecondAccuracy5() { runner.runOneTest("millisecondAccuracy5") }
+  @Test def test_millisecondAccuracy6() { runner.runOneTest("millisecondAccuracy6") }
+
 //  @Test def test_timeLaxCheckPolicy02() { runner.runOneTest("timeLaxCheckPolicy02") }
 //  @Test def test_timeLaxCheckPolicy03() { runner.runOneTest("timeLaxCheckPolicy03") }
   @Test def test_timeStrictCheckPolicy02() { runner.runOneTest("timeStrictCheckPolicy02") }
