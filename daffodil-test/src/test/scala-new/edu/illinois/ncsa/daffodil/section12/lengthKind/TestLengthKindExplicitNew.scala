@@ -63,5 +63,7 @@ class TestLengthKindExplicitNew extends JUnitSuite {
 
   @Test def test_ExplicitLengthChildLengthLessParent_Chars() = { runner.runOneTest("test_ExplicitLengthChildLengthLessParent_Chars") }
   @Test def test_ExplicitLengthChildLengthLessParent_Bits() = { runner.runOneTest("test_ExplicitLengthChildLengthLessParent_Bits") }
+  
+  @Test def test_ExplicitLengthBytesFixed50() = { runner.runOneTest("test_ExplicitLengthBytesFixed50") }
 
 }
