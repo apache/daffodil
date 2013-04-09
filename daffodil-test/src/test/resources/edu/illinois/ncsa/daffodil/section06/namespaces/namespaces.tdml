@@ -18,12 +18,14 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="embedded_base_01">
-    <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+    <dfdl:format ref="gpf:GeneralPurposeFormat" separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="ASCII"/>
      
     <xs:import namespace="http://a01.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_01.dfdl.xsd"/>
     <xs:import namespace="http://b01.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_01.dfdl.xsd"/>
-    
+    <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
+     schemaLocation="IBMdefined/GeneralPurposeFormat.xsd"/>
+
     <xs:element name="choice01"> 
       <xs:complexType> 
         <xs:choice>
