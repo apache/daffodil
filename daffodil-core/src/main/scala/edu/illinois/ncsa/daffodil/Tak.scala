@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.profiling
+package edu.illinois.ncsa.daffodil.Tak
 
 /* Copyright (c) 2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -51,68 +51,6 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream
 import edu.illinois.ncsa.daffodil.Main
 
-class TestProfiling extends JUnitSuite {
-  val testDir = "/edu/illinois/ncsa/daffodil/profiling/"
-  val aa = testDir + "Profiling.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-
-  @Test def testTakCalibration { Tak.testTak }
-
-  @Test def testJavaTakCalibration { JavaTak.calibrate }
-
-  var bytesProcessed: Long = 0
-  var charsProcessed: Long = 0
-
-  /**
-   * Runs for about a minute.
-   */
-  @Test def testLongRunningForProfiling {
-    Tak.calibrate
-    val ns = Tak.time {
-      val (by, ch) = runner.runOneTestWithDataVolumes("AB007")
-      bytesProcessed = by
-      charsProcessed = ch
-    }
-    val takeonsThisRun = ns / Tak.takeons
-    val bpns = ((bytesProcessed * 1.0) / ns)
-    val kbps = bpns * 1000000
-    val callsPerByte = 1 / (Tak.takeons * bpns)
-    println("\nKB/sec = " + kbps)
-    println("tak call equivalents per byte (takeons/byte) =  " + callsPerByte)
-  }
-
-  @Test def testLongRunningForProfiling2 {
-    Tak.calibrate
-    val ns = Tak.time {
-      val (by, ch) = runner.runOneTestWithDataVolumes("AB007Simplified")
-      bytesProcessed = by
-      charsProcessed = ch
-    }
-    val takeonsThisRun = ns / Tak.takeons
-    val bpns = ((bytesProcessed * 1.0) / ns)
-    val kbps = bpns * 1000000
-    val callsPerByte = 1 / (Tak.takeons * bpns)
-    println("\nKB/sec = " + kbps)
-    println("tak call equivalents per byte (takeons/byte) =  " + callsPerByte)
-  }
-
-  @Test def testBinaryLongRunningForProfiling {
-    Tak.calibrate
-    val ns = Tak.time {
-      val (by, ch) = runner.runOneTestWithDataVolumes("PCAP1")
-      bytesProcessed = by
-      charsProcessed = ch
-    }
-    val takeonsThisRun = ns / Tak.takeons
-    val bpns = ((bytesProcessed * 1.0) / ns)
-    val kbps = bpns * 1000000
-    val callsPerByte = 1 / (Tak.takeons * bpns)
-    println("\nKB/sec = " + kbps)
-    println("tak call equivalents per byte (takeons/byte) =  " + callsPerByte)
-  }
-
-}
-
 /**
  * Tak is about establishing a sort-of platform independent self-calibrating
  * unit of comparison, which is how fast the JVM implements a 3 argument
@@ -126,6 +64,7 @@ class TestProfiling extends JUnitSuite {
  * It can be setup to run for billions of calls using only 3 small integer values.
  * All the calls are 3-arguments, passing Scala Int type.
  */
+
 object Tak {
 
   def calibrate = {

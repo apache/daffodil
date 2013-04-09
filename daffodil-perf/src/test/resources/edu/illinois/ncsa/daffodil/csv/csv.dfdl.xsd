@@ -5,7 +5,8 @@
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
       <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
-        ignoreCase="no" separatorPolicy="suppressed" separatorPosition="infix" occursCountKind="parsed" emptyValueDelimiterPolicy="both" representation="text" 
+        alignment="1" alignmentUnits="bits" trailingSkip="0" ignoreCase="no" separatorPolicy="suppressed" 
+        separatorPosition="infix" occursCountKind="parsed" emptyValueDelimiterPolicy="both" representation="text" 
         textNumberRep="standard" lengthKind="delimited" encoding="ASCII"/>
     </xs:appinfo>
   </xs:annotation>
@@ -24,7 +25,7 @@
           <xs:complexType>
             <xs:sequence dfdl:separator=",">
               <xs:element name="item" type="xs:string" maxOccurs="unbounded" 
-                dfdl:occursCount="{ dfdl:occursCount(/ex:file/ex:header/*) }" dfdl:occursCountKind="expression"/>
+                dfdl:occursCount="{ dfdl:occursCount(../../ex:header/*) }" dfdl:occursCountKind="expression"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

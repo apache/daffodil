@@ -5,7 +5,7 @@
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
       <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
-        ignoreCase="no" lengthUnits="bits" representation="binary" separatorPolicy="suppressed" separatorPosition="infix" 
+        alignment="1" alignmentUnits="bytes" trailingSkip="0" ignoreCase="no" lengthUnits="bits" representation="binary" separatorPolicy="suppressed" separatorPosition="infix" 
         occursCountKind="parsed" byteOrder="littleEndian" binaryNumberRep="binary" lengthKind="delimited" encoding="UTF-8"/>
     </xs:appinfo>
   </xs:annotation>

@@ -109,8 +109,46 @@ stark,arya,cat,1986-02-19
 ]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Sep('%NL;') - element.record: Delimiter not found!</tdml:error>
+      <tdml:error>element.record: Delimiter not found!</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: csv_test_600k
+       Schema: profilingCSV.dfdl.xsd
+         Root: file
+      Purpose: This test is to exercise my csv schema with a 600k csv.
+  -->
+  
+  <tdml:parserTestCase name="csv_test_600k" root="csv2"
+    model="profilingCSV.dfdl.xsd" description="csv test">
+    <tdml:document>
+      <tdml:documentPart type="file">csv_600k</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <csv2/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: csv_test_1g
+       Schema: profilingCSV.dfdl.xsd
+         Root: file
+      Purpose: This test is to exercise my csv schema with a 1g csv.
+  -->
+  
+  <tdml:parserTestCase name="csv_test_1g" root="csv2"
+    model="profilingCSV.dfdl.xsd" description="csv test">
+    <tdml:document>
+      <tdml:documentPart type="file">csv_1g</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <csv2/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </testSuite>

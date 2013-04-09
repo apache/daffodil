@@ -56,6 +56,6 @@ class TestSchemaChain extends JUnitSuite {
   val aa = testDir + "schema_chain.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_hundred_no_namespaces() { runner.runOneTest("chain_100_no_namespaces") }
+  @Test def test_hundred_no_namespaces() { runner.runPerfTest("chain_100_no_namespaces") }
 
 }

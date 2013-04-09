@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ex="http://example.com"
+  targetNamespace="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator=""
+        leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" lengthKind="delimited" lengthUnits="bits"
+        representation="binary" separatorPolicy="suppressed"
+        separatorPosition="infix" occursCountKind="parsed" byteOrder="littleEndian"
+        alignment="1" alignmentUnits="bits" trailingSkip="0" binaryNumberRep="binary" encoding="UTF-8" />
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/csv/csv.dfdl.xsd"/>
+
+  <xs:group name="csv2Group">
+    <xs:sequence>
+      <xs:element ref="ex:file" />
+    </xs:sequence>
+  </xs:group>
+
+  <xs:element name="csv2">
+    <xs:complexType>
+      <xs:sequence dfdl:hiddenGroupRef="ex:csv2Group" />
+    </xs:complexType>
+  </xs:element>
+  
+  </xs:schema>

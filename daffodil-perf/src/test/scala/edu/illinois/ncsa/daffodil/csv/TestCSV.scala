@@ -50,6 +50,9 @@ import org.junit.Rule
 import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream
 import edu.illinois.ncsa.daffodil.Main
+import edu.illinois.ncsa.daffodil.Tak._
+import edu.illinois.ncsa.daffodil.processors.DFDLCharCounter
+import edu.illinois.ncsa.daffodil.processors.IterableReadableByteChannel
 
 class TestCSV extends JUnitSuite {
   val testDir = "/edu/illinois/ncsa/daffodil/csv/"
@@ -58,13 +61,17 @@ class TestCSV extends JUnitSuite {
   
   @Rule
   def exit = ExpectedSystemExit.none()
+  @Test def testTakCalibration { Tak.calibrate }
 
-  @Test def test_csv_test() { runner.runOneTest("csv_test") }
-//  @Test def test_csv_test_2() { runner.runOneTest("csv_test_2") }
-  @Test def test_csv_test_3() { runner.runOneTest("csv_test_3") }
+  @Test def test_csv_test() { runner.runPerfTest("csv_test") }
+//  @Test def test_csv_test_2() { runner.runPerfTest("csv_test_2") }
+//  @Test def test_csv_test_3() { runner.runPerfTest("csv_test_3") }
+  @Test def test_csv_test_600k() { runner.runPerfTest("csv_test_600k") }
+//  @Test def test_csv_test_1g() { runner.runPerfTest("csv_test_1g") }
 
   val cli_schema = testDir + "csv.dfdl.xsd"
 
+/*
   @Test def test_csv_600k_perf() {
     try {
       val file = testDir + "csv_600k"
@@ -79,20 +86,6 @@ class TestCSV extends JUnitSuite {
       case c: CheckExitCalled => assertEquals(c.getStatus, 0)
     }
   }
-<!-- 
-  @Test def test_csv_2m_perf() {
-    try {
-      val file = testDir + "csv_2m"
-      val schema = Misc.getRequiredResource(cli_schema).getPath
-      val infile = Misc.getRequiredResource(file).getPath
-      val oldSysin = System.in
+*/
 
-      Main.main(Array("parse", "-s", schema, infile))
-
-      System.setIn(oldSysin)
-    } catch {
-      case c: CheckExitCalled => assertEquals(c.getStatus, 0)
-    }
-  }
--->
 }

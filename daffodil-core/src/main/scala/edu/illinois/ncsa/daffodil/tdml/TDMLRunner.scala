@@ -67,6 +67,7 @@ import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
 import edu.illinois.ncsa.daffodil.processors.IteratorInputStream
 import edu.illinois.ncsa.daffodil.processors.DFDLCharCounter
 import edu.illinois.ncsa.daffodil.processors.IterableReadableByteChannel
+import edu.illinois.ncsa.daffodil.Tak._
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -189,6 +190,23 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
     else {
       log(Error("TDML file %s is not valid.", tsInputSource.getSystemId))
     }
+  }
+
+  def runPerfTest(testName: String, schema: Option[Node] = None) {
+    var bytesProcessed: Long = 0
+    var charsProcessed: Long = 0
+    Tak.calibrate
+    val ns = Tak.time {
+      val (by, ch) = runOneTestWithDataVolumes(testName, schema)
+      bytesProcessed = by
+      charsProcessed = ch
+    }
+    val takeonsThisRun = ns / Tak.takeons
+    val bpns = ((bytesProcessed * 1.0) / ns)
+    val kbps = bpns * 1000000
+    val callsPerByte = 1 / (Tak.takeons * bpns)
+    println("\nKB/sec = " + kbps)
+    println("tak call equivalents per byte (takeons/byte) =  " + callsPerByte)
   }
 
   def runOneTest(testName: String, schema: Option[Node] = None) {
@@ -982,4 +1000,3 @@ case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
   val diagnosticNodes = node \\ "warning"
 
 }
-

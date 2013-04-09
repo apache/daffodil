@@ -56,6 +56,6 @@ class TestManyElem extends JUnitSuite {
   val aa = testDir + "many_elem.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_many_elem_test() { runner.runOneTest("many_elem_test") }
+  @Test def test_many_elem_test() { runner.runPerfTest("many_elem_test") }
 
 }

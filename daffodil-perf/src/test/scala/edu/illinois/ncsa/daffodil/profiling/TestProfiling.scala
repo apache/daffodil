@@ -1,6 +1,6 @@
-package edu.illinois.ncsa.daffodil.pcap
+package edu.illinois.ncsa.daffodil.profiling
 
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2013 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -44,12 +44,22 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestPCAP extends JUnitSuite {
-  val testDir = "/edu/illinois/ncsa/daffodil/pcap/"
-  val aa = testDir + "pcap.tdml"
+import org.junit.contrib.java.lang.system.ExpectedSystemExit
+import org.junit.contrib.java.lang.system.internal.CheckExitCalled
+import org.junit.Rule
+import edu.illinois.ncsa.daffodil.util.Misc
+import java.io.ByteArrayInputStream
+import edu.illinois.ncsa.daffodil.Main
+import edu.illinois.ncsa.daffodil.Tak._
+
+class TestProfiling extends JUnitSuite {
+  val testDir = "/edu/illinois/ncsa/daffodil/profiling/"
+  val aa = testDir + "Profiling.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_pcap_test() { runner.runPerfTest("pcap_test") }
-  @Test def test_pcap_test2() { runner.runPerfTest("pcap_test2") }
+  @Test def testLongRunningForProfiling { runner.runPerfTest("AB007") }
+  @Test def testLongRunningForProfiling2 { runner.runPerfTest("AB007Simplified") }
+  @Test def testBinaryLongRunningForProfiling { runner.runPerfTest("PCAP1") }
 
 }
+
