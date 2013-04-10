@@ -1,0 +1,8 @@
+display info bitPosition
+display info data
+break element.cell
+continue
+continue
+continue
+continue
+quit

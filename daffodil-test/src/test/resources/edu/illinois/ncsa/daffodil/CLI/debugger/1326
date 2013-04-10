@@ -1,0 +1,12 @@
+display eval (.)
+step
+info displays
+disable display 1
+step
+enable display 1
+step
+undisplay 1
+step
+enable display 1
+continue
+quit

@@ -1,0 +1,10 @@
+display info arrayIndex
+break element.cell
+info breakpoints
+continue
+continue 
+disable breakpoint 1
+info breakpoints
+info data
+continue
+quit

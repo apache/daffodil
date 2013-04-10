@@ -10,7 +10,7 @@
       <xsd:sequence dfdl:separator="">
 
         <xsd:element dfdl:occursCountKind="implicit"
-          dfdl:terminator="" maxOccurs="unbounded" minOccurs="1" name="Container">
+          dfdl:terminator="" maxOccurs="fixed" minOccurs="6" name="Container">
           <xsd:annotation>
             <xsd:appinfo source="http://www.ogf.org/dfdl/">
 

@@ -1,0 +1,11 @@
+display info infoset
+break element.cell
+continue
+step
+step
+continue
+step
+step
+delete 1
+continue
+exit

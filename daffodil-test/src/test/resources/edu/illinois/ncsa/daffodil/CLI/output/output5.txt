@@ -1,0 +1,14 @@
+<base:base xmlns:base="http://baseSchema.com">
+  <a08:aElem xmlns:a08="http://a08.com" xmlns:base="http://baseSchema.com">
+    random
+  </a08:aElem>
+  <a08:aElem xmlns:a08="http://a08.com" xmlns:base="http://baseSchema.com">
+    data
+  </a08:aElem>
+  <a08:aElem xmlns:a08="http://a08.com" xmlns:base="http://baseSchema.com">
+    should
+  </a08:aElem>
+  <a08:aElem xmlns:a08="http://a08.com" xmlns:base="http://baseSchema.com">
+    work
+  </a08:aElem>
+</base:base>

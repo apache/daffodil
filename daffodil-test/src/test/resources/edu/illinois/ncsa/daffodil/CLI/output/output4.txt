@@ -1,0 +1,6 @@
+<address>
+  <houseNumber>118</houseNumber>
+  <street>Ridgewood Circle</street>
+  <city>Rochester</city>
+  <state>NY</state>
+</address>

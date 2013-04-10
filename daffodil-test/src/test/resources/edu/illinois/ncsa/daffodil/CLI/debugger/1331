@@ -1,0 +1,18 @@
+break element.cell
+break element.cell
+condition 1 dfdl:occursIndex() mod 2 = 1
+condition 2 dfdl:occursIndex() mod 2 = 0
+info breakpoints
+display info arrayIndex
+continue
+continue
+continue
+disable breakpoint 2
+continue
+continue
+enable breakpoint 2
+continue
+disable breakpoint 1
+disable breakpoint 2
+continue
+quit

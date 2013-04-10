@@ -1,0 +1,9 @@
+display info infoset
+break element.cell
+condition 1 dfdl:occursIndex() = 3
+info breakpoints
+continue
+step
+step
+continue
+quit
