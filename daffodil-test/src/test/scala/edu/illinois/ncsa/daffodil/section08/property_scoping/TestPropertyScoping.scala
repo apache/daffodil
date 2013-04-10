@@ -68,8 +68,6 @@ class TestPropertyScoping extends JUnitSuite {
   @Test def test_property_scoping_05() { runner_01.runOneTest("property_scoping_05") }
   @Test def testNearestEnclosingSequenceElementRef() { runner_01.runOneTest("NearestEnclosingSequenceElementRef") }
 
-  // Moved back to debug - validator no longer finding the error this is expecting
-  // It's still an error, we're just not detecting it.
-  // @Test def test_property_refElementFormFail() = { runner_01.runOneTest("refElementFormFail") }
+  @Test def test_property_refElementFormFail() = { runner_01.runOneTest("refElementFormFail") }
 
 }

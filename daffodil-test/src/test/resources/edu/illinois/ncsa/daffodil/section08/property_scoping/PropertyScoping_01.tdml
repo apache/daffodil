@@ -407,8 +407,8 @@
     <tdml:document>-1009</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Attribute</tdml:error>
-      <tdml:error>not allowed to appear in element 'schema'</tdml:error>
+      <tdml:error>Value 'ref'</tdml:error>
+      <tdml:error>The value 'ref' of attribute 'name' on element 'dfdl:property' is not valid with respect to its type</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

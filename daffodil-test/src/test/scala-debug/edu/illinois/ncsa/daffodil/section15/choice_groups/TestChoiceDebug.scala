@@ -51,6 +51,4 @@ class TestChoiceDebug extends JUnitSuite {
 
   lazy val runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
-  @Test def test_choiceWithSequence() { runnerCH.runOneTest("choiceWithSequence") }
-
 }

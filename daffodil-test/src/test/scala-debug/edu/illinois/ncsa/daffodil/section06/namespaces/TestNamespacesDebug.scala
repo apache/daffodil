@@ -52,17 +52,12 @@ class TestNamespacesDebug extends JUnitSuite {
   @Test def test_double_nesting_01() { runner.runOneTest("double_nesting_01") }
   //  @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }
 
-  @Test def test_no_namespace_02() { runner.runOneTest("no_namespace_02") }
-  @Test def test_no_namespace_03() { runner.runOneTest("no_namespace_03") }
-
   @Test def test_combinations_02() { runner.runOneTest("combinations_02") }
 
   @Test def test_multi_encoding_02() { runner.runOneTest("multi_encoding_02") }
   @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
 
   @Test def test_namespace_ultra_uniqueness_03() { runner.runOneTest("namespace_ultra_uniqueness_03") }
-
-  @Test def test_error_messages_01() { runner.runOneTest("error_messages_01") }
 
   // Failed after implementation of DFDL-336.  Appears to be due to
   // allParentTerminatingMarkup. See created issue DFDL-571

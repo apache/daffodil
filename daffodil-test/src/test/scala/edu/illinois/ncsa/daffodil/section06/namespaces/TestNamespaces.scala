@@ -106,7 +106,7 @@ class TestNamespaces extends JUnitSuite {
 
   @Test def test_no_namespace_01() { runner.runOneTest("no_namespace_01") }
 
-  //  @Test def test_no_namespace_02() { runner.runOneTest("no_namespace_02") }
+  @Test def test_no_namespace_02() { runner.runOneTest("no_namespace_02") }
   @Test def test_no_namespace_03() { runner.runOneTest("no_namespace_03") }
   @Test def test_no_namespace_04() { runner.runOneTest("no_namespace_04") }
 
@@ -150,7 +150,7 @@ class TestNamespaces extends JUnitSuite {
   @Test def test_namespace_scope_01() { runner.runOneTest("namespace_scope_01") }
   @Test def test_namespace_scope_02() { runner.runOneTest("namespace_scope_02") }
 
-  //  @Test def test_error_messages_01() { runner.runOneTest("error_messages_01") }
+  @Test def test_error_messages_01() { runner.runOneTest("error_messages_01") }
 
   @Test def test_ibm_format_compat_01() { runner.runOneTest("ibm_format_compat_01") }
   @Test def test_ibm_format_compat_02() { runner.runOneTest("ibm_format_compat_02") }

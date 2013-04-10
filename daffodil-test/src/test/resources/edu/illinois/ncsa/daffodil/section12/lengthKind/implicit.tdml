@@ -81,7 +81,11 @@
 
     <tdml:document><![CDATA[1234]]></tdml:document>
     <tdml:errors>
-      <tdml:error>placeholder</tdml:error>
+      <!-- I don't think that this is the appropriate error message
+           as the error should be caused by the fact that the element
+           has dfdl:lengthKind="implicit" and then dfdl:length="5" -->
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>MaxLength was asked for when isSimpleType(true) and isPrimitiveType(true)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

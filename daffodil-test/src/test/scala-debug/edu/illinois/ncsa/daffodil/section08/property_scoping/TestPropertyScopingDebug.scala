@@ -56,8 +56,4 @@ class TestPropertyScopingDebug extends JUnitSuite {
   // expecting
   @Test def test_property_shortFormSchemaFail() { runner.runOneTest("shortFormSchemaFail") }
 
-  // Moved back to debug - validator no longer finding the error this is expecting
-  // It's still an error, we're just not detecting it.
-  @Test def test_property_refElementFormFail() = { runner_01.runOneTest("refElementFormFail") }
-
 }

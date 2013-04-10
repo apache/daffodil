@@ -1190,23 +1190,6 @@
 
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="choiceWithSequence"
-    root="root" model="basic"
-    description="Choice with sequence">
-    <tdml:document><![CDATA[4;4.5;4.a]]></tdml:document>
-
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:ex="http://example.com">
-        <ex:root>
-          <ex:int>4</ex:int>
-          <ex:flt>4.5</ex:flt>
-          <ex:str>4.a</ex:str>
-        </ex:root>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  
-  </tdml:parserTestCase>
-
   <tdml:parserTestCase name="choiceWithArrayString"
     root="ch1" model="choiceWithArray"
     description="Choice with array - string">

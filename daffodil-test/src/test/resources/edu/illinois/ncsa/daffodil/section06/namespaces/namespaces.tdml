@@ -776,7 +776,8 @@
     model="multi_base_05_nons.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document><![CDATA[333]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>More than one definition for name: vagueEle</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -881,7 +882,6 @@
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Unknown timezone specified for dfdl:calendarTimeZone</tdml:error>
       <tdml:error>Location in file:</tdml:error>
-      <tdml:error>daffodil/section06/namespaces/subfolder/multi_C_06.dfdl.xsd</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1479,7 +1479,8 @@
     model="multi_base_12.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document><![CDATA[f:....53....(e)|f:..41..(e)]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Attribute 'textStringJustification' is not allowed to appear in element 'xs:element'.)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
