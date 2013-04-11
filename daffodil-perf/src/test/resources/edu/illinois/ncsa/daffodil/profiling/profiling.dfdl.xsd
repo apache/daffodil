@@ -7,7 +7,7 @@
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format ref="tns:daffodilTest1" />
+      <dfdl:format ref="tns:daffodilTest1" alignment="implicit" alignmentUnits="bits" />
     </appinfo>
   </annotation>
   <!-- Parsing of CSV -->

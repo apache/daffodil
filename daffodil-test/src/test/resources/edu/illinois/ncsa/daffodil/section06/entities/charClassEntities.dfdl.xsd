@@ -8,7 +8,7 @@
     <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
       <dfdl:format initiator="" terminator="" leadingSkip="0"
         trailingSkip="0" textBidi="no" floating="no" encoding="ASCII"
-        byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"
+        byteOrder="bigEndian" alignment="implicit" alignmentUnits="bits"
         fillByte="f" occursCountKind="parsed"
         truncateSpecifiedLengthString="no" ignoreCase="no"
         representation="text" lengthKind="delimited"

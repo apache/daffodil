@@ -56,14 +56,14 @@ class TestPerfExpressions extends JUnitSuite {
   val aa = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_indexLimit_29030() { runner.runOneTest("indexLimit_29030") }
-  @Test def test_indexLimit_100() { runner.runOneTest("indexLimit_100") }
-  @Test def test_indexLimit_2264() { runner.runOneTest("indexLimit_2264") }
+  @Test def test_indexLimit_29030() { runner.runPerfTest("indexLimit_29030") }
+  @Test def test_indexLimit_100() { runner.runPerfTest("indexLimit_100") }
+  @Test def test_indexLimit_2264() { runner.runPerfTest("indexLimit_2264") }
   // Exact same tests as above, except expression is evaluated once, stored into a variable
   // and the variable is referenced over and over. Much faster as expected.
   // Useful to compare against fully static at some point. 
-  @Test def test_indexLimit_29030_hoisted() { runner.runOneTest("indexLimit_29030_hoisted") }
-  @Test def test_indexLimit_100_hoisted() { runner.runOneTest("indexLimit_100_hoisted") }
-  @Test def test_indexLimit_2264_hoisted() { runner.runOneTest("indexLimit_2264_hoisted") }
+  @Test def test_indexLimit_29030_hoisted() { runner.runPerfTest("indexLimit_29030_hoisted") }
+  @Test def test_indexLimit_100_hoisted() { runner.runPerfTest("indexLimit_100_hoisted") }
+  @Test def test_indexLimit_2264_hoisted() { runner.runPerfTest("indexLimit_2264_hoisted") }
 
 }
