@@ -7,7 +7,7 @@
     Test name: csv_test
        Schema: csv.dfdl.xsd
          Root: file
-      Purpose: This test is to exercise my csv schema with crlf at the end.
+      Purpose: This test is to exercise the csv schema with crlf at the end.
   -->
   
   <tdml:parserTestCase name="csv_test" root="file"
@@ -51,7 +51,7 @@
     Test name: csv_test_2
        Schema: csv.dfdl.xsd
          Root: file
-      Purpose: This test is to exercise my csv schema with no crlf at the end.
+      Purpose: This test is to exercise the csv schema with no crlf at the end.
   -->
   
   <tdml:parserTestCase name="csv_test_2" root="file"
@@ -96,7 +96,7 @@ stark,arya,cat,1986-02-19]]></tdml:document>
     Test name: csv_test_3
        Schema: csv.dfdl.xsd
          Root: file
-      Purpose: This test is to exercise my csv schema with an incorrect matching 
+      Purpose: This test is to exercise the csv schema with an incorrect matching 
                of header title number with element number
   -->
   
@@ -116,8 +116,8 @@ stark,arya,cat,1986-02-19
   <!--
     Test name: csv_test_600k
        Schema: profilingCSV.dfdl.xsd
-         Root: file
-      Purpose: This test is to exercise my csv schema with a 600k csv.
+         Root: csv2
+      Purpose: This test is to exercise the csv schema with a 600k csv.
   -->
   
   <tdml:parserTestCase name="csv_test_600k" root="csv2"
@@ -135,14 +135,71 @@ stark,arya,cat,1986-02-19
   <!--
     Test name: csv_test_1g
        Schema: profilingCSV.dfdl.xsd
-         Root: file
-      Purpose: This test is to exercise my csv schema with a 1g csv.
+         Root: csv2
+      Purpose: This test is to exercise the csv schema with a 1g csv.
   -->
   
   <tdml:parserTestCase name="csv_test_1g" root="csv2"
     model="profilingCSV.dfdl.xsd" description="csv test">
     <tdml:document>
       <tdml:documentPart type="file">csv_1g</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <csv2/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: csv_test_176m
+       Schema: profilingCSV.dfdl.xsd
+         Root: csv2
+      Purpose: This test is to exercise the csv schema with a 176m csv.
+  -->
+  
+  <tdml:parserTestCase name="csv_test_176m" root="csv2"
+    model="profilingCSV.dfdl.xsd" description="csv test">
+    <tdml:document>
+      <tdml:documentPart type="file">csv_176m</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <csv2/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: csv_test_526m
+       Schema: profilingCSV.dfdl.xsd
+         Root: csv2
+      Purpose: This test is to exercise the csv schema with a 526m csv.
+  -->
+  
+  <tdml:parserTestCase name="csv_test_526m" root="csv2"
+    model="profilingCSV.dfdl.xsd" description="csv test">
+    <tdml:document>
+      <tdml:documentPart type="file">csv_526m</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <csv2/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: csv_test_877m
+       Schema: profilingCSV.dfdl.xsd
+         Root: csv2
+      Purpose: This test is to exercise the csv schema with a 877m csv.
+  -->
+  
+  <tdml:parserTestCase name="csv_test_877m" root="csv2"
+    model="profilingCSV.dfdl.xsd" description="csv test">
+    <tdml:document>
+      <tdml:documentPart type="file">csv_877m</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

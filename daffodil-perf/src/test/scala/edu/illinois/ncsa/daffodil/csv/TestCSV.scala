@@ -64,28 +64,11 @@ class TestCSV extends JUnitSuite {
   @Test def testTakCalibration { Tak.calibrate }
 
   @Test def test_csv_test() { runner.runPerfTest("csv_test") }
-//  @Test def test_csv_test_2() { runner.runPerfTest("csv_test_2") }
-//  @Test def test_csv_test_3() { runner.runPerfTest("csv_test_3") }
   @Test def test_csv_test_600k() { runner.runPerfTest("csv_test_600k") }
+//  @Test def test_csv_test_176m() { runner.runPerfTest("csv_test_176m") }
+//  @Test def test_csv_test_526m() { runner.runPerfTest("csv_test_526m") }
+//  @Test def test_csv_test_877m() { runner.runPerfTest("csv_test_877m") }
 //  @Test def test_csv_test_1g() { runner.runPerfTest("csv_test_1g") }
 
-  val cli_schema = testDir + "csv.dfdl.xsd"
-
-/*
-  @Test def test_csv_600k_perf() {
-    try {
-      val file = testDir + "csv_600k"
-      val schema = Misc.getRequiredResource(cli_schema).getPath
-      val infile = Misc.getRequiredResource(file).getPath
-      val oldSysin = System.in
-
-      Main.main(Array("parse", "-s", schema, infile))
-
-      System.setIn(oldSysin)
-    } catch {
-      case c: CheckExitCalled => assertEquals(c.getStatus, 0)
-    }
-  }
-*/
 
 }

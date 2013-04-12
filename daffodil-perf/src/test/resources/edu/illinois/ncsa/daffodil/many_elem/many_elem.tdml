@@ -6,7 +6,7 @@
   <!--
     Test name: many_elem_test
        Schema: many_elem.dfdl.xsd
-         Root: file
+         Root: e8001
       Purpose: This test is to demonstrate performance when a schema contains a very large number of elements
   -->
   

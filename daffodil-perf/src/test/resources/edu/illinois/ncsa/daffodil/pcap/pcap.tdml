@@ -6,8 +6,8 @@
   <!--
     Test name: pcap_test
        Schema: pcap.dfdl.xsd
-         Root: file
-      Purpose: This test is to exercise my pcap schema.
+         Root: pcap
+      Purpose: This test is to exercise the pcap schema.
   -->
   
   <tdml:parserTestCase name="pcap_test" root="pcap"
@@ -23,50 +23,65 @@
   </tdml:parserTestCase>
   
   <!--
-    Test name: pcap_test2
-       Schema: pcap.dfdl.xsd
-         Root: file
-      Purpose: This test is to exercise my pcap schema.
+    Test name: pcap_1_6m
+       Schema: profilingPCAP.dfdl.xsd
+         Root: pcap2
+      Purpose: This test is to exercise the pcap schema with a 1.6M pcap file
   -->
   
-  <tdml:parserTestCase name="pcap_test2" root="pcap"
-    model="pcap.dfdl.xsd" description="pcap test">
+  <tdml:parserTestCase name="pcap_1_6m" root="pcap2"
+    model="profilingPCAP.dfdl.xsd" description="pcap test">
     <tdml:document>
-      <tdml:documentPart type="file">lldp.minimal.pcap</tdml:documentPart>
+      <tdml:documentPart type="file">ftp-crack_1-6m.pcap</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:pcap xmlns:ex="http://example.com">
-          <ex:global_header>
-            <ex:magic_number>2712847316</ex:magic_number>
-            <ex:version_major>2</ex:version_major>
-            <ex:version_minor>4</ex:version_minor>
-            <ex:thiszone>0</ex:thiszone>
-            <ex:sigfigs>0</ex:sigfigs>
-            <ex:snaplen>102400</ex:snaplen>
-            <ex:network>1</ex:network>
-          </ex:global_header>
-          <ex:packet>
-            <ex:header>
-              <ex:ts_sec>1121119005</ex:ts_sec>
-              <ex:ts_usec>0</ex:ts_usec>
-              <ex:incl_len>64</ex:incl_len>
-              <ex:orig_len>64</ex:orig_len>
-            </ex:header>
-            <ex:data>
-              9828969060947146491315229537793021629371354449568752705782309242400521512382137886668471572476688106472422625916232720215517362249495009110292401114742785
-            </ex:data>
-          </ex:packet>
-        </ex:pcap>
+        <pcap2>
+          <mn>2712847316</mn>
+          <last>1024380740</last>
+        </pcap2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: pcap_55m
+       Schema: profilingPCAP.dfdl.xsd
+         Root: pcap2
+      Purpose: This test is to exercise the pcap schema with a 55M pcap file
+  -->
+  
+  <tdml:parserTestCase name="pcap_55m" root="pcap2"
+    model="profilingPCAP.dfdl.xsd" description="pcap test">
+    <tdml:document>
+      <tdml:documentPart type="file">nitroba_55m.pcap</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pcap2>
+        </pcap2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: pcap_13m
+       Schema: profilingPCAP.dfdl.xsd
+         Root: pcap2
+      Purpose: This test is to exercise the pcap schema with a 13M pcap file
+  -->
+  
+  <tdml:parserTestCase name="pcap_13m" root="pcap2"
+    model="profilingPCAP.dfdl.xsd" description="pcap test">
+    <tdml:document>
+      <tdml:documentPart type="file">slowdownload_13m.pcap</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pcap2>
+        </pcap2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
     
-<!--
-    Test name: pcap_test3
-       Schema: pcap.dfdl.xsd
-         Root: file
-      Purpose: This test is to exercise my pcap schema.
-  -->
-  
 </testSuite>

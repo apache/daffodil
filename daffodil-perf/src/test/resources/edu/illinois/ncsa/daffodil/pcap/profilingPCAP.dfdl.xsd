@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ex="http://example.com"
+  targetNamespace="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" initiator="" terminator=""
+        leadingSkip='0' trailingSkip="0" alignment="implicit" alignmentUnits="bits" textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" lengthKind="delimited" lengthUnits="bits"
+        representation="binary" separatorPolicy="suppressed"
+        separatorPosition="infix" occursCountKind="parsed" byteOrder="littleEndian"
+        binaryNumberRep="binary" encoding="UTF-8" />
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/pcap/pcap.dfdl.xsd"/>
+
+  <xs:group name="pcap2Group">
+    <xs:sequence>
+      <xs:element ref="ex:pcap" />
+    </xs:sequence>
+  </xs:group>
+
+  <xs:element name="pcap2">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:sequence dfdl:hiddenGroupRef="ex:pcap2Group" />
+        <xs:element name="mn" type="xs:int"
+          dfdl:inputValueCalc="{../ex:pcap/ex:global_header/ex:magic_number }" />
+          <!-- very strange. Largest index value that doesn't fail in expression evaluation is 2263 -->
+        <xs:element name="last" type="xs:int"
+          dfdl:inputValueCalc="{../ex:pcap/ex:packet[2263]/ex:header/ex:ts_sec }" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  </xs:schema>
