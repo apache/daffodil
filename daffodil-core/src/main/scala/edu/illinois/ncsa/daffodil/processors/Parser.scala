@@ -510,10 +510,29 @@ case class PState(
   def withDiscriminator(disc: Boolean) =
     copy(discriminatorStack = disc +: discriminatorStack.tail)
 
-  def withPos = withReaderPos _
-
-  private def withReaderPos(bitPos: Long, charPos: Long, reader: Option[DFDLCharReader]) = {
-    //    val newReader = reader.atBitPos(bitPos)
+  /**
+   * withPos changes the bit position of the stream, and maintains the char reader
+   * which is available to decode characters at that position.
+   *
+   * It is critical to performance that the reader be preserved if it can be. That is, if we are
+   * moving through characters of text in the same encoding, with no binary data or alignment going on, then
+   * we *must* retain the reader. Creating a new reader has high overhead in that as soon as you create one and
+   * read anything from it, it will read-ahead a large block of characters. If every element was creating
+   * a new reader, we'd be reading data over and over again.
+   *
+   * So it is NOT ok to just pass None as the third argument. Only do that if you have
+   * just been handling binary data, or just did an alignmentFill that really inserted some bits.
+   *
+   * It is well worth it to test and branch to preserve the reader. E.g., AlignmentFill should not
+   * create a new reader unless it actually moved over some number of bits. If the alignment is 1 (bit),
+   * or the actual amount of alignment fill to be skipped in a particular data stream is 0, then
+   * one should preserve the reader.
+   *
+   * This method mostly just delegates to the inStream now. But the caller of this method
+   * needs to avoid just passing None also. So this Scaladoc appears both here and on the withPos
+   * method of inStream.
+   */
+  def withPos(bitPos: Long, charPos: Long, reader: Option[DFDLCharReader]) = {
     val newInStream = inStream.withPos(bitPos, charPos, reader)
     copy(inStream = newInStream)
   }
