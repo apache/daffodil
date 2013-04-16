@@ -85,25 +85,27 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
+import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
-class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler {
+class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
   def warning(exception: SAXParseException) = {
-    System.err.println("Warning loading schema: " + exception.getMessage)
+    log(LogLevel.Warning, "loading schema: " + exception.getMessage)
   }
 
   def error(exception: SAXParseException) = {
-    System.err.println("Error loading schema: " + exception.getMessage)
+    log(LogLevel.Error, "loading schema: " + exception.getMessage)
     System.exit(1)
   }
 
   def fatalError(exception: SAXParseException) = {
-    System.err.println("Error loading schema: " + exception.getMessage)
+    log(LogLevel.Error, "loading schema: " + exception.getMessage)
     System.exit(1)
   }
 }
 
-object Main {
+object Main extends Logging {
 
   def createProcessorFromParser(parseFile: String, path: Option[String]) = {
     val compiler = Compiler()
@@ -173,7 +175,7 @@ object Main {
       helpWidth(76)
 
       errorMessageHandler = { message =>
-        System.err.println("[%s] error: %s" format (printedName, message))
+        log(LogLevel.Error, "%s", message)
         sys.exit(1)
       }
 
@@ -350,27 +352,27 @@ object Main {
           }
         }
 
-        val input = parseOpts.input.get match {
-          case Some("-") | None => System.in
-          case Some(file) => new FileInputStream(parseOpts.input())
-        }
-        val inChannel = java.nio.channels.Channels.newChannel(input);
-
-        def displayDiagnostics(pr: WithDiagnostics) {
+        def displayDiagnostics(lvl: LogLevel.Value, pr: WithDiagnostics) {
           pr.getDiagnostics.foreach { d =>
-            System.err.println(d.getMessage())
+            log(lvl, "%s", d.getMessage())
           }
         }
 
         val rc = processor match {
-          case Some(processor) => {
+          case Some(processor) if (processor.canProceed) => {
+            val input = parseOpts.input.get match {
+              case Some("-") | None => System.in
+              case Some(file) => new FileInputStream(parseOpts.input())
+            }
+            val inChannel = java.nio.channels.Channels.newChannel(input);
+
             val parseResult = DebugUtil.time("Parsing", processor.parse(inChannel))
 
             if (parseResult.isError) {
-              displayDiagnostics(parseResult)
+              displayDiagnostics(LogLevel.Error, parseResult)
               1
             } else {
-              displayDiagnostics(parseResult) // displays any warnings (should be no errors)                
+              displayDiagnostics(LogLevel.Warning, parseResult) // displays any warnings (should be no errors)
               val output = parseOpts.output.get match {
                 case Some("-") | None => System.out
                 case Some(file) => new FileOutputStream(file)
@@ -570,6 +572,10 @@ object Main {
     val ret = try {
       run(arguments)
     } catch {
+      case e: java.io.FileNotFoundException => {
+        log(LogLevel.Error, "%s", e.getMessage)
+        1
+      }
       case e: Exception => bugFound(e)
     }
 
