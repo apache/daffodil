@@ -170,6 +170,8 @@ object Main {
 
       printedName = "daffodil"
 
+      helpWidth(76)
+
       errorMessageHandler = { message =>
         System.err.println("[%s] error: %s" format (printedName, message))
         sys.exit(1)
@@ -205,6 +207,7 @@ object Main {
                   |Parse Options:""".stripMargin)
 
         descr("parse data to a DFDL infoset")
+        helpWidth(76)
 
         val schemas = opt[List[String]]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
         val root = opt[String]("root", argName = "node", descr = "the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
@@ -227,6 +230,7 @@ object Main {
                   |Unparse Options:""".stripMargin)
 
         descr("unparse a DFDL infoset")
+        helpWidth(76)
 
         val schemas = opt[List[String]]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
         val root = opt[String]("root", argName = "node", descr = "the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
@@ -248,6 +252,7 @@ object Main {
                   |Save Parser Options:""".stripMargin)
 
         descr("save a daffodil parser for reuse")
+        helpWidth(76)
 
         val schemas = opt[List[String]]("schema", argName = "file", required = true, descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
         val root = opt[String]("root", argName = "node", descr = "the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema.")
@@ -266,6 +271,7 @@ object Main {
                   |Test Options:""".stripMargin)
 
         descr("list or execute TDML tests")
+        helpWidth(76)
 
         val list = opt[Boolean]("list", descr = "show names and descriptions instead of running test cases.")
         val regex = opt[Boolean]("regex", descr = "treat <names> as regular expressions.")
