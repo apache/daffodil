@@ -6,7 +6,6 @@
 
   <tdml:defineSchema name="s1">
 
-
     <dfdl:format ref="ex:daffodilTest1" />
 
     <xs:element name="e" type="xs:string" dfdl:lengthKind="delimited"
@@ -14,8 +13,110 @@
     <xs:element name="e2" type="xs:string" dfdl:lengthKind="delimited"
       dfdl:leadingSkip="3000000" />
 
+  </tdml:defineSchema>
+  
+  <tdml:defineSchema name="alignmentSchema">
+
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" encoding="utf-8" alignmentUnits="bits" alignment="4" leadingSkip="4"/>
+
+    <xs:simpleType name="uByte2Bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="2">
+      <xs:restriction base="xs:unsignedByte"/>
+    </xs:simpleType>
+
+    <xs:element name="e" type="xs:unsignedByte" dfdl:lengthKind="implicit" dfdl:alignment="2" dfdl:alignmentUnits="bits" dfdl:leadingSkip="4" />
+    <xs:element name="e2" type="xs:unsignedInt" dfdl:lengthKind="implicit" dfdl:alignment="2" dfdl:alignmentUnits="bits" dfdl:leadingSkip="8" />
+    <xs:element name="e3" dfdl:leadingSkip="0">
+      <xs:complexType>
+        <xs:sequence dfdl:leadingSkip="0">
+          <xs:element name="one" type="ex:uByte2Bits"/>
+          <xs:element name="two" type="ex:uByte2Bits"/>
+          <xs:element name="three" type="ex:uByte2Bits"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e4" dfdl:leadingSkip="0">
+      <xs:complexType>
+        <xs:sequence dfdl:leadingSkip="0">
+          <xs:element name="one" dfdl:alignment="8" dfdl:leadingSkip="4" type="ex:uByte2Bits"/>
+          <xs:element name="two" dfdl:alignment="8" type="ex:uByte2Bits"/>
+          <xs:element name="three" dfdl:alignment="8" type="ex:uByte2Bits"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
+
+  <!--
+     Test Name: alignment01
+        Schema: alignmentSchema
+          Root: e
+       Purpose: This test demonstrates alignment
+  -->
+  
+  <tdml:parserTestCase name="alignment01" root="e"
+    model="alignmentSchema" description="Section 12.1 Aligned Data - DFDL-12-002R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">0010 00000100</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>4</e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: alignment02
+        Schema: alignmentSchema
+          Root: e
+       Purpose: This test demonstrates alignment
+  -->
+  
+  <tdml:parserTestCase name="alignment02" root="e3"
+    model="alignmentSchema" description="Section 12.1 Aligned Data - DFDL-12-002R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">00 00</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">11 10</tdml:documentPart> <!-- "one" and padding to fulfill alignment-->
+      <tdml:documentPart type="bits">10 01</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">10 11</tdml:documentPart> <!-- "two" and padding to fulfill alignment -->
+      <tdml:documentPart type="bits">01 10</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">00</tdml:documentPart> <!-- "three" -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>Placeholder</e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: alignment03
+        Schema: alignmentSchema
+          Root: e
+       Purpose: This test demonstrates alignment
+  -->
+  
+  <tdml:parserTestCase name="alignment03" root="e4"
+    model="alignmentSchema" description="Section 12.1 Aligned Data - DFDL-12-002R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">00 00</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">11 10</tdml:documentPart> 
+      <tdml:documentPart type="bits">11</tdml:documentPart> <!-- "one" starting at bit position 8 -->
+      <tdml:documentPart type="bits">00 10 01</tdml:documentPart>
+      <tdml:documentPart type="bits">11</tdml:documentPart> <!-- "two" starting at bit position 16 -->
+      <tdml:documentPart type="bits">11 00 00</tdml:documentPart>
+      <tdml:documentPart type="bits">00</tdml:documentPart> <!-- "three" starting at bit position 24 -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>Placeholder</e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="leadingSkip1" root="e"
     model="s1" description="Section 12.1 Aligned Data - DFDL-12-005R">

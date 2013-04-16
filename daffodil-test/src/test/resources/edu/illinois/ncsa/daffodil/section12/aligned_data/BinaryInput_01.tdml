@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="binaryInput"
+	description="Section 13 - Simple Types of Binary Format" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://example.com"
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+
+	<tdml:defineSchema
+		name="DFDL-362-skip-alignments-leading-skip-bytes.dfdl.xsd">
+		<xs:element name="Outer" dfdl:leadingSkip="0"
+			dfdl:alignment="implicit" dfdl:alignmentUnits="bytes"
+			dfdl:lengthKind="implicit" dfdl:representation="binary"
+			dfdl:initiator="" dfdl:terminator="" dfdl:trailingSkip="0">
+			<xs:complexType>
+				<xs:sequence dfdl:leadingSkip="0" dfdl:initiator=""
+					dfdl:terminator="" dfdl:separator="" dfdl:initiatedContent="no"
+					dfdl:alignmentUnits="bytes" dfdl:alignment="implicit"
+					dfdl:trailingSkip="0">
+					<xs:element dfdl:leadingSkip="1" dfdl:lengthKind="implicit"
+						name="First" type="xs:unsignedByte" dfdl:representation="binary"
+						dfdl:byteOrder="bigEndian" dfdl:binaryNumberRep="binary"
+						dfdl:initiator="" dfdl:terminator="" dfdl:alignmentUnits="bytes"
+						dfdl:alignment="implicit" dfdl:trailingSkip="0" />
+					<xs:element dfdl:leadingSkip="1" dfdl:lengthKind="implicit"
+						name="Second" type="xs:unsignedByte" dfdl:representation="binary"
+						dfdl:byteOrder="bigEndian" dfdl:binaryNumberRep="binary"
+						dfdl:initiator="" dfdl:terminator="" dfdl:alignmentUnits="bytes"
+						dfdl:alignment="implicit" dfdl:trailingSkip="0" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:defineSchema
+		name="DFDL-362-skip-alignments-leading-skip-bits.dfdl.xsd">
+		<dfdl:format ref="tns:daffodilTest1" representation="binary"
+			binaryNumberRep="binary" lengthUnits="bits" byteOrder="bigEndian"
+			alignment="1" alignmentUnits="bits" lengthKind="implicit" />
+		<xs:element name="Outer">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element dfdl:leadingSkip="7" name="First" type="xs:unsignedByte" />
+					<xs:element dfdl:leadingSkip="7" name="Second" type="xs:unsignedByte" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+  
+  <!--
+    Test Name: LeadingSkipBytes
+       Schema: DFDL-362-skip-alignments-leading-skip-bytes.dfdl.xsd
+         Root: Outer
+      Purpose: This test demonstrates the use of byte alignment with leading skips. The alignment is implicit so it does not affect the data.
+               There are two unsigned byte elements defined in the schema, each with a leading 1 byte. Because of this, the first element will
+               start on byte 2, and the second element will start on byte 4.  
+  -->
+
+	<tdml:parserTestCase name="LeadingSkipBytes" root="Outer"
+		model="DFDL-362-skip-alignments-leading-skip-bytes.dfdl.xsd"
+		description="Section 12.1 - Aligned Data">
+		<tdml:document>
+			<tdml:documentPart type="bits">11001100</tdml:documentPart> <!-- leading skip for "First" element -->
+			<tdml:documentPart type="bits">10101010</tdml:documentPart> <!-- "First" element -->
+			<tdml:documentPart type="bits">00110011</tdml:documentPart> <!-- leading skip for "Second" element -->
+			<tdml:documentPart type="bits">00001000</tdml:documentPart> <!-- "Second" element -->
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<Outer>
+					<First>170</First>
+					<Second>8</Second>
+				</Outer>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+  <!--
+    Test Name: LeadingSkipBits
+       Schema: DFDL-362-skip-alignments-leading-skip-bits.dfdl.xsd
+         Root: Outer
+      Purpose: This test demonstrates the use of bit alignment with leading skips. The alignment is 1 bit so it does not affect the data.
+               There are two unsigned byte elements defined in the schema, each with a leading 7 bits. Because of this, the first element will
+               start on bit 8, and the second element will start on bit 16.  
+  -->
+
+	<tdml:parserTestCase name="LeadingSkipBits" root="Outer"
+		model="DFDL-362-skip-alignments-leading-skip-bits.dfdl.xsd"
+		description="Section 12.1 - Aligned Data">
+		<tdml:document>
+			<tdml:documentPart type="bits">1100110</tdml:documentPart>  <!-- leadingSkip for "First" element -->
+			<tdml:documentPart type="bits">01010101</tdml:documentPart> <!-- "First" element -->
+			<tdml:documentPart type="bits">0001100</tdml:documentPart>  <!-- leadingSkip for "Second" element -->
+			<tdml:documentPart type="bits">11010101</tdml:documentPart> <!-- "Second" element -->
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<Outer>
+					<First>85</First>
+					<Second>213</Second>
+				</Outer>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema
+		name="DFDL-362-skip-alignments-trailing-skip-bytes.dfdl.xsd">
+		<dfdl:format ref="tns:daffodilTest1" representation="binary"
+			binaryNumberRep="binary" lengthUnits="bytes" byteOrder="bigEndian"
+			alignment="1" alignmentUnits="bytes" lengthKind="implicit" />
+		<xs:element name="Outer">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element dfdl:trailingSkip="1" name="First" type="xs:unsignedByte" />
+					<xs:element dfdl:trailingSkip="1" name="Second" type="xs:unsignedByte" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:defineSchema
+		name="DFDL-362-skip-alignments-trailing-skip-bits.dfdl.xsd">
+		<dfdl:format ref="tns:daffodilTest1" representation="binary"
+			binaryNumberRep="binary" lengthUnits="bits" byteOrder="bigEndian"
+			alignment="1" alignmentUnits="bits" lengthKind="implicit" />
+		<xs:element name="Outer">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element dfdl:trailingSkip="7" name="First" type="xs:unsignedByte" />
+					<xs:element dfdl:trailingSkip="7" name="Second" type="xs:unsignedByte" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+  
+  <!--
+    Test Name: TrailingSkipBytes
+       Schema: DFDL-362-skip-alignments-trailing-skip-bytes.dfdl.xsd
+         Root: Outer
+      Purpose: This test demonstrates the use of byte alignment with trailing skips. The alignment is 1 byte so it does not affect the data.
+               There are two unsigned byte elements defined in the schema, each with a trailing byte. Because of this, the first element will
+               start on byte 1, and the second element will start at bit 3.  
+  -->
+
+	<tdml:parserTestCase name="TrailingSkipBytes" root="Outer"
+		model="DFDL-362-skip-alignments-trailing-skip-bytes.dfdl.xsd"
+		description="Section 12.1 - Aligned Data">
+		<tdml:document>
+			<tdml:documentPart type="bits">11001100</tdml:documentPart> <!-- "First" element -->
+			<tdml:documentPart type="bits">10101010</tdml:documentPart> <!-- Trailing byte after "First" element -->
+			<tdml:documentPart type="bits">00110011</tdml:documentPart> <!-- "Second" element -->
+			<tdml:documentPart type="bits">01010101</tdml:documentPart> <!-- Trailing byte after "Second" element -->
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<Outer>
+					<First>204</First>
+					<Second>51</Second>
+				</Outer>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+  <!--
+    Test Name: TrailingSkipBits
+       Schema: DFDL-362-skip-alignments-trailing-skip-bits.dfdl.xsd
+         Root: Outer
+      Purpose: This test demonstrates the use of bit alignment with trailing skips. The alignment is 1 bit so it does not affect the data.
+               There are two unsigned byte elements defined in the schema, each with a trailing 7 bits. Because of this, the first element will
+               start on bit 1, and the second element will start on bit 16.  
+  -->
+
+	<tdml:parserTestCase name="TrailingSkipBits" root="Outer"
+		model="DFDL-362-skip-alignments-trailing-skip-bits.dfdl.xsd"
+		description="Section 12.1 - Aligned Data">
+		<tdml:document>
+			<tdml:documentPart type="bits">11001100</tdml:documentPart> <!-- "First" element -->
+			<tdml:documentPart type="bits">1010101</tdml:documentPart>  <!-- trailing 7 bits for "First" element -->
+			<tdml:documentPart type="bits">00011001</tdml:documentPart> <!-- "Second" element -->
+			<tdml:documentPart type="bits">1010101</tdml:documentPart>  <!-- trailing 7 bits for "Second" element -->
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<Outer>
+					<First>204</First>
+					<Second>25</Second>
+				</Outer>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema
+		name="DFDL-362-skip-alignments-aligning-skip-bytes.dfdl.xsd">
+		<dfdl:format ref="tns:daffodilTest1" representation="binary"
+			binaryNumberRep="binary" lengthUnits="bytes" byteOrder="bigEndian"
+			alignment="8" alignmentUnits="bytes" lengthKind="implicit" />
+		<xs:element name="Outer">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element dfdl:lengthKind="explicit" dfdl:length="1"
+						name="First" type="xs:unsignedInt" />
+					<xs:element dfdl:lengthKind="explicit" dfdl:length="1"
+						name="Second" type="xs:unsignedInt" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:defineSchema
+		name="alignmentBytes">
+		<dfdl:format ref="tns:daffodilTest1" representation="binary"
+			binaryNumberRep="binary" lengthUnits="bytes" byteOrder="bigEndian"
+			alignment="4" alignmentUnits="bytes" lengthKind="implicit" />
+		<xs:element name="e1">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element dfdl:lengthKind="explicit" dfdl:length="1"
+						name="First" type="xs:unsignedInt" />
+					<xs:element dfdl:lengthKind="explicit" dfdl:length="1"
+						name="Second" type="xs:unsignedInt" />
+					<xs:element dfdl:lengthKind="explicit" dfdl:length="1"
+						name="Third" type="xs:unsignedInt" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:defineSchema
+		name="DFDL-362-skip-alignments-aligning-skip-bits.dfdl.xsd">
+		<dfdl:format ref="tns:daffodilTest1" representation="binary"
+			binaryNumberRep="binary" lengthUnits="bits" byteOrder="bigEndian"
+			alignment="8" alignmentUnits="bits" lengthKind="implicit" />
+		<xs:element name="Outer">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element dfdl:lengthKind="explicit" dfdl:length="7"
+						name="First" type="xs:unsignedInt" />
+					<xs:element dfdl:lengthKind="explicit" dfdl:length="7"
+						name="Second" type="xs:unsignedInt" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+	
+  <tdml:defineSchema
+		name="alignmentBits">
+		<dfdl:format ref="tns:daffodilTest1" representation="binary"
+			binaryNumberRep="binary" lengthUnits="bits" byteOrder="bigEndian"
+			alignment="16" alignmentUnits="bits" lengthKind="implicit" />
+		<xs:element name="Outer">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element dfdl:lengthKind="explicit" dfdl:length="7"
+						name="First" type="xs:unsignedInt" />
+					<xs:element dfdl:lengthKind="explicit" dfdl:length="7"
+						name="Second" type="xs:unsignedInt" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+  <!--
+    Test Name: AligningSkipBytes
+       Schema: DFDL-362-skip-alignments-aligning-skip-bytes.dfdl.xsd
+         Root: Outer
+      Purpose: This test demonstrates the use of byte alignment without skips. Because the alignment is 8 bytes,
+               and there are two 1-byte unsigned Integer elements defined in the schema, the first byte will be the first element, 
+               and the second element will start at the 9th byte.
+  -->
+
+	<tdml:parserTestCase name="AligningSkipBytes" root="Outer"
+		model="DFDL-362-skip-alignments-aligning-skip-bytes.dfdl.xsd"
+		description="Section 12.1 - Aligned Data">
+		<tdml:document>
+			<tdml:documentPart type="bits">00000000</tdml:documentPart>
+			<tdml:documentPart type="bits">00000001</tdml:documentPart>
+			<tdml:documentPart type="bits">00000010</tdml:documentPart>
+			<tdml:documentPart type="bits">00000011</tdml:documentPart>
+			<tdml:documentPart type="bits">00000100</tdml:documentPart>
+			<tdml:documentPart type="bits">00000101</tdml:documentPart>
+			<tdml:documentPart type="bits">00000110</tdml:documentPart>
+			<tdml:documentPart type="bits">00000111</tdml:documentPart>
+			<tdml:documentPart type="bits">00001000</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<Outer>
+					<First>0</First>
+					<Second>8</Second>
+				</Outer>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+  <!--
+    Test Name: AligningSkipBytes
+       Schema: alignmentBytes
+         Root: e1
+      Purpose: This test demonstrates the use of byte alignment without skips. Because the alignment is 4 bytes,
+               and there are three 1-byte unsigned Integer elements defined in the schema, the first byte will be the first element, 
+               the second element will start at the 5th byte, and the third element will start at the 9th.
+  -->
+	
+  <tdml:parserTestCase name="AligningSkipBytes2" root="e1"
+		model="alignmentBytes"
+		description="Section 12.1 - Aligned Data">
+		<tdml:document>
+			<tdml:documentPart type="bits">00000000</tdml:documentPart>
+			<tdml:documentPart type="bits">00000001</tdml:documentPart>
+			<tdml:documentPart type="bits">00000010</tdml:documentPart>
+			<tdml:documentPart type="bits">00000011</tdml:documentPart>
+			<tdml:documentPart type="bits">00000100</tdml:documentPart>
+			<tdml:documentPart type="bits">00000101</tdml:documentPart>
+			<tdml:documentPart type="bits">00000110</tdml:documentPart>
+			<tdml:documentPart type="bits">00000111</tdml:documentPart>
+			<tdml:documentPart type="bits">00001000</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e1>
+					<First>0</First>
+					<Second>4</Second>
+					<Third>8</Third>
+				</e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+  <!--
+    Test Name: AligningSkipBits
+       Schema: DFDL-362-skip-alignments-aligning-skip-bits.dfdl.xsd
+         Root: Outer
+      Purpose: This test demonstrates the use of bit alignment without skips. Because the alignment is 8 bits,
+               and there are two 8-bit unsigned Integer elements defined in the schema, the first element will start on the 1st bit, 
+               and the second element will start at the 9th bit.
+  -->
+
+	<tdml:parserTestCase name="AligningSkipBits" root="Outer"
+		model="DFDL-362-skip-alignments-aligning-skip-bits.dfdl.xsd"
+		description="Section 12.1 - Aligned Data">
+		<tdml:document>
+			<tdml:documentPart type="bits">1111111</tdml:documentPart>
+			<tdml:documentPart type="bits">0</tdml:documentPart>
+			<tdml:documentPart type="bits">1111111</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<Outer>
+					<First>127</First>
+					<Second>127</Second>
+				</Outer>
+			</tdml:dfdlInfoset>
+
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+  <!--
+    Test Name: AligningSkipBits2
+       Schema: alignmentBits
+         Root: Outer
+      Purpose: This test demonstrates the use of bit alignment without skips. Because the alignment is 8 bits,
+               and there are two 8-bit unsigned Integer elements defined in the schema, the first element will start on the 1st bit, 
+               and the second element will start at the 9th bit.
+  -->
+
+	<tdml:parserTestCase name="AligningSkipBits2" root="Outer"
+		model="alignmentBits"
+		description="Section 12.1 - Aligned Data">
+		<tdml:document>
+			<tdml:documentPart type="bits">1111111</tdml:documentPart>
+			<tdml:documentPart type="bits">010101000</tdml:documentPart>
+			<tdml:documentPart type="bits">0000111</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<Outer>
+					<First>127</First>
+					<Second>7</Second>
+				</Outer>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

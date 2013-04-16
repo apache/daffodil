@@ -50,9 +50,23 @@ class TestAlignedData extends JUnitSuite {
   val tdml1 = testDir_01 + "Aligned_Data.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
 
-  @Test def test_leadingSkip_1() = {
-    runner1.runOneTest("leadingSkip1")
-  }
+  @Test def test_leadingSkip_1() = { runner1.runOneTest("leadingSkip1") }
   @Test def test_leadingSkip_2() = { runner1.runOneTest("leadingSkip2") }
+  
+  @Test def test_alignment01() = { runner1.runOneTest("alignment01") }
+//  @Test def test_alignment02() = { runner1.runOneTest("alignment02") }
+//  @Test def test_alignment03() = { runner1.runOneTest("alignment03") }
+  
+  val tdml2 = testDir_01 + "BinaryInput_01.tdml"
+  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+
+  @Test def test_leading_skip_byte(){ runner2.runOneTest("LeadingSkipBytes")}
+  @Test def test_leading_skip_bit(){ runner2.runOneTest("LeadingSkipBits")}
+  @Test def test_trailing_skip_byte(){ runner2.runOneTest("TrailingSkipBytes")}
+  @Test def test_trailing_skip_bit(){ runner2.runOneTest("TrailingSkipBits")}
+  @Test def test_AligningSkipBytes(){ runner2.runOneTest("AligningSkipBytes")}
+  @Test def test_AligningSkipBytes2(){ runner2.runOneTest("AligningSkipBytes2")}
+  @Test def test_AligningSkipBits(){ runner2.runOneTest("AligningSkipBits")}
+  @Test def test_AligningSkipBits2(){ runner2.runOneTest("AligningSkipBits2")}
 
 }
