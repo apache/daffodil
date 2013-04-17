@@ -122,7 +122,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     )
 
     if (patternNoEscapes.indexOf("S" * (TextCalendarConstants.maxFractionalSeconds + 1)) >= 0) {
-      SDE("More than %d fractional seconds unsupported in dfdl:calendarpattern for %s".format(TextCalendarConstants.maxFractionalSeconds, GramName))
+      SDE("More than %d fractional seconds unsupported in dfdl:calendarPattern for %s".format(TextCalendarConstants.maxFractionalSeconds, GramName))
     }
 
     p
