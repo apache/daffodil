@@ -224,6 +224,13 @@ trait ElementBaseGrammarMixin
       case (LengthUnits.Bits, _) => notYetImplemented("lengthUnits='bits' for type " + typeDef)
       case _ => Assert.invariantFailed("all cases should have been exhausted.")
     })
+    
+    lazy val fixedLengthHexBinary = Prod("fixedLengthHexBinary", this, isFixedLength,
+    lengthUnits match {
+      case LengthUnits.Bytes => new HexBinaryKnownLengthBinaryNumber(this, fixedLength) // TODO: make sure it divides evenly.
+      case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")//new HexBinaryKnownLengthBinaryNumber(this, fixedLength)
+      case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
+    })
 
   lazy val implicitLengthString = Prod("implicitLengthString", this, hasSpecifiedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
@@ -250,6 +257,13 @@ trait ElementBaseGrammarMixin
       case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, facetMaxLength)
       case (LengthUnits.Bits, _) => SDE("Strings with lengthKind='implicit' may not have lengthUnits='bits'")
     })
+    
+    lazy val implicitLengthHexBinary = Prod("implicitLengthHexBinary", this, hasSpecifiedLength,
+    lengthUnits match {
+      case LengthUnits.Bytes => new HexBinaryKnownLengthBinaryNumber(this, facetMaxLength) // TODO: make sure it divides evenly.
+      case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")//new HexBinaryKnownLengthBinaryNumber(this, facetMaxLength)
+      case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
+    })
 
   lazy val variableLengthString = Prod("variableLengthString", this, !isFixedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
@@ -272,6 +286,13 @@ trait ElementBaseGrammarMixin
       case (LengthUnits.Characters, false) => StringVariableLengthInVariableWidthCharacters(this)
       case (LengthUnits.Bits, _) => SDE("lengthKind='explicit' and lengthUnits='bits' for type %s", this.typeDef)
     })
+    
+    lazy val variableLengthHexBinary = Prod("variableLengthHexBinary", this, !isFixedLength,
+    lengthUnits match {
+      case LengthUnits.Bytes => new HexBinaryRuntimeLengthBinaryNumber(this)
+      case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")//new HexBinaryRuntimeLengthBinaryNumber(this)
+      case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
+    })
 
   //lazy val stringDelimitedEndOfData = Prod("stringDelimitedEndOfData", this, StringDelimitedEndOfData(this))
   lazy val stringDelimitedEndOfDataStatic = Prod("stringDelimitedEndOfDataStatic", this, StringDelimitedEndOfDataStatic(this))
@@ -288,6 +309,23 @@ trait ElementBaseGrammarMixin
       case LengthKind.Delimited => stringDelimitedEndOfDataStatic
       case LengthKind.Pattern => stringPatternMatched
       case LengthKind.Implicit => implicitLengthString
+      case _ => SDE("Unimplemented lengthKind %s", lengthKind)
+    })
+    res
+  }
+  
+  lazy val hexBinaryDelimitedEndOfDataStatic = Prod("hexBinaryDelimitedEndOfDataStatic", this, HexBinaryDelimitedEndOfDataStatic(this))
+  lazy val hexBinaryDelimitedEndOfDataDynamic = Prod("hexBinaryDelimitedEndOfDataDynamic", this, HexBinaryDelimitedEndOfDataDynamic(this))
+
+  lazy val hexBinaryValue = hexBinaryValue_.value
+  private val hexBinaryValue_ = LV('hexBinaryValue) {
+    val res = Prod("hexBinaryValue", this, lengthKind match {
+      case LengthKind.Explicit if isFixedLength => fixedLengthHexBinary
+      case LengthKind.Explicit => variableLengthHexBinary
+      case LengthKind.Delimited if this.hasExpressionsInTerminatingMarkup => hexBinaryDelimitedEndOfDataDynamic
+      case LengthKind.Delimited => hexBinaryDelimitedEndOfDataStatic
+      case LengthKind.Pattern => SDE("lengthKind Pattern is not allowed for hexBinary.")
+      case LengthKind.Implicit => implicitLengthHexBinary
       case _ => SDE("Unimplemented lengthKind %s", lengthKind)
     })
     res
@@ -494,6 +532,7 @@ trait ElementBaseGrammarMixin
     {
       primType.myPrimitiveType match {
         case PrimType.String => stringValue
+        case PrimType.HexBinary => hexBinaryValue
         case _ => {
           val res = representation match {
             case Representation.Binary => binaryValue
@@ -624,7 +663,7 @@ trait ElementBaseGrammarMixin
       case PrimType.ULong => textUnsignedLong
       case PrimType.Double => textDouble
       case PrimType.Float => textFloat
-      case PrimType.HexBinary => notYetImplemented("textValue: hexBinary")
+      case PrimType.HexBinary => schemaDefinitionError("Primitive hexBinary must be representation='binary'.")
       case PrimType.Boolean => notYetImplemented("textValue: boolean")
       case PrimType.Date => textDate
       case PrimType.Time => textTime

@@ -512,7 +512,10 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
         // Has to come through as a string in infoset
         // hex string is exactly twice as long as number of bytes
         // take length / 2 = length
-        e.notYetImplemented("MinLength facet for hexBinary is not yet implemented.")
+        val bdDataLength = new java.math.BigDecimal(data.length() / 2)
+        val isDataLengthEqual = bdDataLength.compareTo(minValue) == 0
+        if (isDataLengthEqual) java.lang.Boolean.TRUE
+        else java.lang.Boolean.FALSE
       }
       case _ => e.SDE("MinLength facet is only valid for string and hexBinary.")
     }
@@ -527,7 +530,15 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
         if (isDataLengthGreater) java.lang.Boolean.FALSE
         else java.lang.Boolean.TRUE
       }
-      case PrimType.HexBinary => e.notYetImplemented("MaxLength facet for hexBinary is not yet implemented.")
+      case PrimType.HexBinary => {
+        // Has to come through as a string in infoset
+        // hex string is exactly twice as long as number of bytes
+        // take length / 2 = length
+        val bdDataLength = new java.math.BigDecimal(data.length() / 2)
+        val isDataLengthEqual = bdDataLength.compareTo(maxValue) == 0
+        if (isDataLengthEqual) java.lang.Boolean.TRUE
+        else java.lang.Boolean.FALSE
+      }
       case _ => e.SDE("MaxLength facet is only valid for string and hexBinary.")
     }
 

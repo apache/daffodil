@@ -233,6 +233,42 @@ abstract class StringLengthInBytes(e: ElementBase)
   }
 }
 
+abstract class HexBinaryLengthInBytes(e: ElementBase)
+  extends StringLengthInBytes(e) {
+
+  override val charset: Charset = Charset.forName("ISO-8859-1")
+}
+
+case class HexBinaryFixedLengthInBytes(e: ElementBase, nBytes: Long)
+  extends HexBinaryLengthInBytes(e) with FixedLength {
+
+  lazy val parserName = "HexBinaryFixedLengthInBytes"
+  lazy val lengthText = e.length.constantAsString
+
+  def getLength(pstate: PState): (Long, PState) = {
+    (nBytes, pstate)
+  }
+}
+
+case class HexBinaryFixedLengthInBits(e: ElementBase, nBits: Long)
+  extends HexBinaryLengthInBytes(e) with FixedLength {
+
+  lazy val parserName = "HexBinaryFixedLengthInBits"
+  lazy val lengthText = e.length.constantAsString
+
+  def getLength(pstate: PState): (Long, PState) = {
+    val nBytes = scala.math.ceil(nBits / 8).toLong
+    (nBytes, pstate)
+  }
+}
+
+case class HexBinaryVariableLengthInBytes(e: ElementBase)
+  extends HexBinaryLengthInBytes(e) with VariableLength {
+
+  lazy val parserName = "HexBinaryVariableLengthInBytes"
+  lazy val lengthText = exprText
+}
+
 case class StringFixedLengthInBytesFixedWidthCharacters(e: ElementBase, nBytes: Long)
   extends StringLengthInBytes(e)
   with FixedLength {
@@ -509,21 +545,6 @@ abstract class StringDelimited(e: ElementBase)
         case mie: MalformedInputException =>
           throw new ParseError(e, Some(postEvalState), "Malformed input, length: %s", mie.getInputLength())
       }
-
-      //      result match {
-      //        case f: DelimParseFailure =>
-      //          return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
-      //        case s: DelimParseSuccess => {
-      //          val field = s.get
-      //          val numBits = s.numBits
-      //          log(LogLevel.Debug, "%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits)
-      //          val endCharPos = if (postEvalState.charPos == -1) s.numCharsRead else postEvalState.charPos + s.numCharsRead
-      //          val endBitPos = postEvalState.bitPos + numBits
-      //          val currentElement = postEvalState.parentElement
-      //          currentElement.setDataValue(field)
-      //          return postEvalState.withPos(endBitPos, endCharPos, Some(s.next))
-      //        }
-      //      }
       processResult(result, postEvalState)
     }
   }
@@ -566,14 +587,7 @@ trait DynamicDelim { self: StringDelimited =>
     // We must feed variable context out of one evaluation and into the next.
     // So that the resulting variable map has the updated status of all evaluated variables.
     var vars = pstate.variableMap
-    //    val dynamicDelimsRaw = elemBase.allTerminatingMarkup.filter(x => !x.isConstant).map {
-    //      x =>
-    //        {
-    //          val R(res, newVMap) = x.evaluate(pstate.parentElement, vars, pstate)
-    //          vars = newVMap
-    //          res
-    //        }
-    //    }
+
     val dynamicDelimsRaw = elemBase.allTerminatingMarkup.filter { case (delimValue, _, _) => !delimValue.isConstant }.map {
       case (delimValue, _, _) =>
         {
@@ -602,3 +616,30 @@ trait DynamicDelim { self: StringDelimited =>
 
 case class StringDelimitedEndOfDataDynamic(e: ElementBase)
   extends StringDelimited(e) with DynamicDelim
+
+abstract class HexBinaryDelimited(e: ElementBase) extends StringDelimited(e) {
+  override val charset: Charset = Charset.forName("ISO-8859-1")
+  override def processResult(result: DelimParseResult, state: PState): PState = {
+    result match {
+      case f: DelimParseFailure =>
+        return parser.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
+      case s: DelimParseSuccess => {
+        val field = s.get
+        val numBits = s.numBits
+        log(LogLevel.Debug, "%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits)
+        val endCharPos = if (state.charPos == -1) s.numCharsRead else state.charPos + s.numCharsRead
+        val endBitPos = state.bitPos + numBits
+        val currentElement = state.parentElement
+        val hexStr = field.map(c => c.toByte.formatted("%02x")).mkString
+        currentElement.setDataValue(hexStr)
+        return state.withPos(endBitPos, endCharPos, Some(s.next))
+      }
+    }
+  }
+}
+
+case class HexBinaryDelimitedEndOfDataStatic(e: ElementBase)
+  extends HexBinaryDelimited(e) with StaticDelim 
+
+case class HexBinaryDelimitedEndOfDataDynamic(e: ElementBase)
+  extends HexBinaryDelimited(e) with DynamicDelim

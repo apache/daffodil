@@ -100,8 +100,6 @@ class TestSimpleTypes2 extends JUnitSuite {
   
   @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }
 
-  @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") }
-
   @Test def test_nonNegativeInteger_text() { runner.runOneTest("nonNegativeInteger_text") }
   @Test def test_nonNegativeInteger_bin() { runner.runOneTest("nonNegativeInteger_bin") }
 

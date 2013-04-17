@@ -120,7 +120,8 @@
     <xs:element name="uL_01" type="xs:unsignedLong" />
     <xs:element name="d_01" type="xs:double" />
     <xs:element name="dec_01" type="xs:decimal" />
-    <xs:element name="hb_01" type="xs:hexBinary" />
+    <xs:element name="hb_01" type="xs:hexBinary" 
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4" />
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="Long1" root="s"
@@ -4293,6 +4294,218 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <date>1987-04-30+00:00</date>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="HexBinary">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="binary" initiatedContent="no"  />
+
+    <xs:element name="hb_root01">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="postfix" dfdl:separator=", ."
+          dfdl:separatorSuppressionPolicy="anyEmpty" >
+          <xs:element name="text" type="xs:hexBinary" maxOccurs="unbounded"
+            minOccurs="0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="hb_root02">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator=","
+          dfdl:separatorSuppressionPolicy="anyEmpty" >
+          <xs:element name="text" type="xs:hexBinary" maxOccurs="unbounded"
+            minOccurs="0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="hb_root03">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:separator="%#r2C;"
+          dfdl:separatorSuppressionPolicy="anyEmpty" >
+          <xs:element name="text" type="xs:hexBinary" maxOccurs="unbounded"
+            minOccurs="0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+		<xs:element name="hb_root04">
+			<xs:complexType>
+				<xs:sequence dfdl:initiatedContent="no"
+					dfdl:separatorPosition="infix" dfdl:separator="%#r2C;"
+					dfdl:separatorSuppressionPolicy="anyEmpty">
+					<xs:element name="text" type="ex:stHexBinary_01" maxOccurs="unbounded"
+						minOccurs="0" dfdl:lengthKind="implicit">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:assert test="{ dfdl:checkConstraints(.) }"
+									message="Assertion failed for dfdl:checkConstraints(.)" />
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+    
+    <xs:simpleType name="stHexBinary_01" >
+      <xs:restriction base="xs:hexBinary">
+        <xs:minLength value="40"/>
+        <xs:maxLength value="40"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: hexBinary_Delimited_01
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the use of the hexBinary simple type with
+    bit input.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_Delimited_01"
+	root="hb_root01" model="HexBinary"
+	description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
+	<tdml:document>
+		<tdml:documentPart type="bits"><![CDATA[01010111011001010010000001100011011000010110111000100111011101000010000001100010011001010010000001100011011011110110111001]]></tdml:documentPart>
+	  <tdml:documentPart type="bits"><![CDATA[11001101110101011011010110010101100100001000000110001001111001001000000110111101110101011100100010000001110000011001010111]]></tdml:documentPart>
+	  <tdml:documentPart type="bits"><![CDATA[01000111010001111001001000000110010001101001011001100110011001100101011100100110010101101110011000110110010101110011001000]]></tdml:documentPart>
+	  <tdml:documentPart type="bits"><![CDATA[00011000010110111001111001001000000110110101101111011100100110010100101110001000000101011101100101001000000111011101101001]]></tdml:documentPart>
+	  <tdml:documentPart type="bits"><![CDATA[01101100011011000010000001100010011001010010000001110101011011100110100101110100011001010110010000100000011010010110111000]]></tdml:documentPart>
+	  <tdml:documentPart type="bits"><![CDATA[10000001101111011101010111001000100000011000110110111101101101011011010110111101101110001000000110100101101110011101000110]]></tdml:documentPart>
+	  <tdml:documentPart type="bits"><![CDATA[01010111001001100101011100110111010000101110001000000101000001100101011100100110100001100001011100000111001100100000011010]]></tdml:documentPart>
+	  <tdml:documentPart type="bits"><![CDATA[01011101000010011101110011001000000110011001100001011101000110010100100000011101000110100001100001011101000010000001110100]]></tdml:documentPart>
+	  <tdml:documentPart type="bits"><![CDATA[01101111011001000110000101111001001000000110100101110011001000000111010001101000011001010010000000110100011101000110100000]]></tdml:documentPart>
+	  <tdml:documentPart type="bits"><![CDATA[10000001101111011001100010000001001010011101010110110001111001001011000010000001100001011011100110010000100000011110010110]]></tdml:documentPart>
+	  <tdml:documentPart type="bits"><![CDATA[11110111010100100000011101110110100101101100011011000010000001101111011011100110001101100101001000000110000101100111011000]]></tdml:documentPart>
+	  <tdml:documentPart type="bits"><![CDATA[01011010010110111000100000011000100110010100100000011001100110100101100111011010000111010001101001011011100110011100100000]]></tdml:documentPart>
+	  <tdml:documentPart type="bits"><![CDATA[01100110011011110111001000100000011011110111010101110010001000000110011001110010011001010110010101100100011011110110110100]]></tdml:documentPart>
+	  <tdml:documentPart type="bits"><![CDATA[101110]]></tdml:documentPart>
+	</tdml:document>
+	<tdml:infoset>
+		<tdml:dfdlInfoset>
+			<!--  <hb_root01>
+				<text>We can't be consumed by our petty differences any more</text>
+				<text> We will be united in our common interest</text>
+				<text> Perhaps it's fate that today is the 4th of July</text>
+				<text> and you will once again be fighting for our freedom</text>
+			</hb_root01> -->
+			<hb_root01>
+        <text>57652063616e277420626520636f6e73756d6564206279206f757220706574747920646966666572656e63657320616e79206d6f7265</text>
+        <text>2057652077696c6c20626520756e6974656420696e206f757220636f6d6d6f6e20696e746572657374</text>
+        <text>205065726861707320697427732066617465207468617420746f6461792069732074686520347468206f66204a756c79</text>
+        <text>20616e6420796f752077696c6c206f6e636520616761696e206265206669676874696e6720666f72206f75722066726565646f6d</text>
+      </hb_root01>
+		</tdml:dfdlInfoset>
+	</tdml:infoset>
+</tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_Delimited_02
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the use of the hexBinary simple type with
+    byte input.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_Delimited_02" root="hb_root02"
+      model="HexBinary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[4e 6f 74 20 66 72 6f 6d 20 74 79 72 61 6e 6e
+      79 2c 20 6f 70 70 72 65 73 73 69 6f 6e 2c 20 6f 72 20 70 65 72 73 65 63 75
+      74 69 6f 6e 2c 20 62 75 74 20 66 72 6f 6d 20 61 6e 6e 69 68 69 6c 61 74 69
+      6f 6e 2e]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <!-- <hb_root02>
+        <text>Not from tyranny</text>
+        <text> oppression</text>
+        <text> or persecution</text>
+        <text> but from annihilation.</text>
+        </hb_root02> -->
+        <hb_root02>
+        <text>4e6f742066726f6d20747972616e6e79</text>
+        <text>206f707072657373696f6e</text>
+        <text>206f72207065727365637574696f6e</text>
+        <text>206275742066726f6d20616e6e6968696c6174696f6e2e</text>
+        </hb_root02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_Delimited_03
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the use of the hexBinary simple type with byte
+    input using raw byte entities.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_Delimited_03" root="hb_root03"
+      model="HexBinary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[
+      5765277265206669676874696e6720666f72206f757220726967
+      687420746f206c6976652c20746f20657869737420616e642073
+      686f756c642077652077696e20746865206461792c2074686520
+      347468206f66204a756c792077696c6c206e6f206c6f6e676572
+      206265206b6e6f776e20617320616e20416d65726963616e2068
+      6f6c696461792c20627574206173207468652064617920776865
+      6e2074686520776f726c64206465636c6172656420696e206f6e
+      6520766f6963652c202757652077696c6c206e6f7420676f2071
+      756965746c7920696e746f20746865206e696768742120576520
+      77696c6c206e6f742076616e69736820776974686f7574206120
+      66696768742120576527726520676f696e6720746f206c697665
+      206f6e2c20776527726520676f696e6720746f20737572766976652e27]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <!-- <hb_root03>
+        <text>We're fighting for our right to live</text>
+        <text> to exist and should we win the day</text>
+        <text> the 4th of July will no longer be known as an American holiday</text>
+        <text> but as the day when the world declared in one voice</text>
+        <text> 'We will not go quietly into the night! We will not vanish without a fight! We're going to live on</text>
+        <text> we're going to survive.'</text>
+        </hb_root03> -->
+        <hb_root03>
+        <text>5765277265206669676874696e6720666f72206f757220726967687420746f206c697665</text>
+        <text>20746f20657869737420616e642073686f756c642077652077696e2074686520646179</text>
+        <text>2074686520347468206f66204a756c792077696c6c206e6f206c6f6e676572206265206b6e6f776e20617320616e20416d65726963616e20686f6c69646179</text>
+        <text>206275742061732074686520646179207768656e2074686520776f726c64206465636c6172656420696e206f6e6520766f696365</text>
+        <text>202757652077696c6c206e6f7420676f2071756965746c7920696e746f20746865206e69676874212057652077696c6c206e6f742076616e69736820776974686f757420612066696768742120576527726520676f696e6720746f206c697665206f6e</text>
+        <text>20776527726520676f696e6720746f20737572766976652e27</text>
+        </hb_root03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_Implicit_01
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the use of the hexBinary simple type with byte
+    input using lengthKind implicit.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_Implicit_01" root="hb_root04"
+      model="HexBinary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[546F6461792077652063656C656272617465206F757220696E646570656E64656E63652064617921]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <!-- <hb_root03>
+        <text>Today we celebrate our independence day!</text>
+        </hb_root03> -->
+        <hb_root04>
+        <text>546f6461792077652063656c656272617465206f757220696e646570656e64656e63652064617921</text>
+        </hb_root04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

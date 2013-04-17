@@ -195,7 +195,7 @@ class EntityReplacer {
   def replaceBytes(input: String, prefix: String): String = {
     var res: String = input
 
-    // While we have Hex or Decimal Code Points in the string
+    // While we have Raw Byte entities in the string
     // Find and replace with their character equivalents.
     while (hasByteCodePoint(res)) {
       val p: Pattern = bytePattern
@@ -204,10 +204,11 @@ class EntityReplacer {
       if (m.find()) {
         val rawStr = m.group().toString()
         val trimmedStr = rawStr.replace(prefix, "").replace(";", "")
-        val byteStr0: Byte = Byte.parseByte(trimmedStr.substring(0, 1), 16)
-        val byteStr1: Byte = Byte.parseByte(trimmedStr.substring(1), 16)
+        val upperNibble: Int = Byte.parseByte(trimmedStr.substring(0, 1), 16) << 4
+        val lowerNibble: Byte = Byte.parseByte(trimmedStr.substring(1, 2), 16)
+        val byteStr: Int = upperNibble | lowerNibble //Byte.parseByte(trimmedStr, 16)
 
-        res = res.replaceAll(rawStr, byteStr0.asInstanceOf[Char].toString() + byteStr1.asInstanceOf[Char].toString())
+        res = res.replaceAll(rawStr, byteStr.toChar.toString)
         m = p.matcher(res) // update Matcher
       }
     }
@@ -235,7 +236,7 @@ class EntityReplacer {
     replace(input, escapeReplacements)
   }
 
-  def replaceAll(input: String, shouldReplaceByte: Boolean = false): String = {
+  def replaceAll(input: String, shouldReplaceByte: Boolean = true): String = {
     var res: String = input
 
     if (shouldReplaceByte) { res = replaceByte(input) }

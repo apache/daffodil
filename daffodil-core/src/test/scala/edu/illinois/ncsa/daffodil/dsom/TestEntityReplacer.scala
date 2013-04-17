@@ -81,12 +81,11 @@ class TestEntityReplacer extends JUnitSuite {
 
   @Test def testRawByteReplacement = {
     val e = new EntityReplacer
-    assertEquals(e.replaceAll("%#rFF;"), "%#rFF;")
-    assertEquals(e.replaceAll("%#rFF;", false), "%#rFF;")
-    assertEquals(e.replaceAll("%#rFF", true), "%#rFF")
-    assertEquals(e.replaceAll("%#rFF;", true), "1515")
-    assertEquals(e.replaceAll("%#rFF; %#rFA;", true), "1515 1510")
-    assertEquals(e.replaceAll("%#rFF; %#rFA", true), "1515 %#rFA")
+    assertEquals("ÿ", e.replaceAll("%#rFF;"))
+    assertEquals("%#rFF;", e.replaceAll("%#rFF;", false))
+    assertEquals("ÿ ú", e.replaceAll("%#rFF; %#rFA;"))
+    assertEquals("ÿ %#rFA", e.replaceAll("%#rFF; %#rFA", true))
+    
   }
 
   @Test def testAll = {
@@ -102,10 +101,10 @@ class TestEntityReplacer extends JUnitSuite {
     solutionString.append("Text%%#%Text")
     solutionString.append("Text\u0000Text%#x000D")
     solutionString.append("TextAText%#66")
-    solutionString.append("1515 %#rFA")
+    solutionString.append("ÿ %#rFA")
     solutionString.append("Text\u0000\u0007Text")
 
-    assertEquals(e.replaceAll(testString.toString(), true), solutionString.toString())
+    assertEquals(solutionString.toString(), e.replaceAll(testString.toString(), true))
   }
 
 }

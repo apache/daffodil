@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section05.simple_types
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
@@ -44,10 +43,15 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-//class TestSimpleTypesNew extends JUnitSuite {
-//  val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
-//  val aa = testDir + "SimpleTypes.tdml"
-//  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+class TestSimpleTypesNew extends JUnitSuite {
+  val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
+  val aa = testDir + "SimpleTypes.tdml"
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
- 
-//}
+  @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") }
+  @Test def test_hexBinary_Delimited_01() { runner.runOneTest("hexBinary_Delimited_01") }
+  @Test def test_hexBinary_Delimited_02() { runner.runOneTest("hexBinary_Delimited_02") }
+  @Test def test_hexBinary_Delimited_03() { runner.runOneTest("hexBinary_Delimited_03") }
+  @Test def test_hexBinary_Implicit_01() { runner.runOneTest("hexBinary_Implicit_01") }
+
+}

@@ -190,25 +190,25 @@ trait Facets { self: SimpleTypeDefBase =>
     if (local > base) context.SDE("SimpleTypes: The local %s (%s) was greater than the base %s (%s) ", theFacetType, local, theFacetType, base)
   }
   private def errorOnLocalLessThanBaseFacet(local: BigInteger,
-                                            base: BigInteger, theFacetType: Facet) = {
+    base: BigInteger, theFacetType: Facet) = {
     val res = local.compareTo(base)
     if (res < 0) context.SDE("SimpleTypes: The local %s (%s) was less than the base %s (%s) ",
       theFacetType, local, theFacetType, base)
   }
   private def errorOnLocalGreaterThanBaseFacet(local: BigInteger,
-                                               base: BigInteger, theFacetType: Facet) = {
+    base: BigInteger, theFacetType: Facet) = {
     val res = local.compareTo(base)
     if (res > 0) context.SDE("SimpleTypes: The local %s (%s) was greater than the base %s (%s) ",
       theFacetType, local, theFacetType, base)
   }
   private def errorOnLocalLessThanBaseFacet(local: java.math.BigDecimal,
-                                            base: java.math.BigDecimal, theFacetType: Facet) = {
+    base: java.math.BigDecimal, theFacetType: Facet) = {
     val res = local.compareTo(base)
     if (res < 0) context.SDE("SimpleTypes: The local %s (%s) was less than the base %s (%s) ",
       theFacetType, local, theFacetType, base)
   }
   private def errorOnLocalGreaterThanBaseFacet(local: java.math.BigDecimal,
-                                               base: java.math.BigDecimal, theFacetType: Facet) = {
+    base: java.math.BigDecimal, theFacetType: Facet) = {
     val res = local.compareTo(base)
     if (res > 0) context.SDE("SimpleTypes: The local %s (%s) was greater than the base %s (%s) ",
       theFacetType, local, theFacetType, base)
@@ -438,7 +438,7 @@ trait Facets { self: SimpleTypeDefBase =>
           case PrimType.Date => { /* Nothing to do here */ }
           case PrimType.Time => { /* Nothing to do here */ }
           case PrimType.Boolean => notYetImplemented("checkValueSpaceFacetRange - Boolean")
-          case PrimType.HexBinary => notYetImplemented("checkValueSpaceFacetRange - HexBinary")
+          case PrimType.HexBinary => { /* Nothing to do here */ } //notYetImplemented("checkValueSpaceFacetRange - HexBinary")
           case _ => schemaDefinitionError("checkValueSpaceFacetRange - Unrecognized primitive type: %s", primitiveType.name)
         }
       }
@@ -448,7 +448,7 @@ trait Facets { self: SimpleTypeDefBase =>
   }
 
   private def checkValueSpaceFacetRange(localFacet: String,
-                                        remoteFacet: String, facetType: Facet): (java.math.BigDecimal, java.math.BigDecimal) = {
+    remoteFacet: String, facetType: Facet): (java.math.BigDecimal, java.math.BigDecimal) = {
     // Neccessary for min/max Inclusive/Exclusive Facets
 
     // TODO: I think the performance here can be improved.
@@ -466,7 +466,7 @@ trait Facets { self: SimpleTypeDefBase =>
   }
 
   private def isNumInRange(num: java.math.BigDecimal, min: java.math.BigDecimal,
-                           max: java.math.BigDecimal): Boolean = {
+    max: java.math.BigDecimal): Boolean = {
     val checkMin = num.compareTo(min)
     if (checkMin < 0) { return false } // num less than min
     val checkMax = num.compareTo(max)
@@ -978,7 +978,7 @@ class PrimitiveType(pname: String)
       case "unsignedLong" => PrimType.ULong
       case "double" => PrimType.Double
       case "float" => PrimType.Float
-      case "hexBinary" => notYetImplemented("PrimitiveType: hexBinary")
+      case "hexBinary" => PrimType.HexBinary
       case "boolean" => notYetImplemented("PrimitiveType: boolean")
       case "dateTime" => PrimType.DateTime
       case "date" => PrimType.Date
