@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.processors.xpath.{NumberResult, StringResult, 
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.ExecutionMode
 
 import javax.xml.xpath.{XPathConstants, XPathException}
 
@@ -114,24 +115,26 @@ class InteractiveDebugger extends Debugger {
       return
     }
 
-    debugState = debugState match {
-      case DebugState.Continue => {
-        findBreakpoint(after, parser) match {
-          case Some(bp) => DebugState.Pause
-          case None => debugState
+    ExecutionMode.usingUnrestrictedMode {
+      debugState = debugState match {
+        case DebugState.Continue => {
+          findBreakpoint(after, parser) match {
+            case Some(bp) => DebugState.Pause
+            case None => debugState
+          }
         }
+        case DebugState.Step => DebugState.Pause
+        case _ => debugState
       }
-      case DebugState.Step => DebugState.Pause
-      case _ => debugState
-    }
 
-    if (debugState == DebugState.Pause) {
-      DebuggerConfig.displays.filter(_.enabled).foreach { d => runCommand(d.cmd, before, after, parser) }
-    }
+      if (debugState == DebugState.Pause) {
+        DebuggerConfig.displays.filter(_.enabled).foreach { d => runCommand(d.cmd, before, after, parser) }
+      }
 
-    while (debugState == DebugState.Pause) {
-      val args = readCmd
-      debugState = runCommand(args, before, after, parser)
+      while (debugState == DebugState.Pause) {
+        val args = readCmd
+        debugState = runCommand(args, before, after, parser)
+      }
     }
   }
 

@@ -26,6 +26,7 @@ object ExecutionMode {
   private case object UnknownMode extends ExecutionModeBase
   private object CompileMode extends ExecutionModeBase
   private object RuntimeMode extends ExecutionModeBase
+  private object UnrestrictedMode extends ExecutionModeBase
 
   private val executionMode = new DynamicVariable[ExecutionModeBase](UnknownMode)
 
@@ -44,10 +45,12 @@ object ExecutionMode {
 
   final def usingCompilerMode[S] = executionMode.withValue[S](CompileMode) _
   final def usingRuntimeMode[S] = executionMode.withValue[S](RuntimeMode) _
+  final def usingUnrestrictedMode[S] = executionMode.withValue[S](UnrestrictedMode) _
 
   private final def isCompilerMode = executionMode.value == CompileMode
   private final def isRuntimeMode = executionMode.value == RuntimeMode
   private final def isUnknownMode = executionMode.value == UnknownMode
+  private final def isUnrestrictedMode = executionMode.value == UnrestrictedMode
 
   private def notUnknown = {
     // val msg = "Warning code is not wrapped with either usingCompilerMode or usingRuntimeMode"
@@ -57,13 +60,13 @@ object ExecutionMode {
   }
 
   final def requireCompilerMode = {
-    if (notUnknown)
+    if (notUnknown && !isUnrestrictedMode)
       Assert.invariant(isCompilerMode)
     // if (!isCompilerMode) System.err.println("Doing a compile time thing at runtime!")
   }
 
   final def requireRuntimeMode = {
-    if (notUnknown)
+    if (notUnknown && !isUnrestrictedMode)
       Assert.invariant(isRuntimeMode)
   }
 
