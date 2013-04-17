@@ -46,10 +46,13 @@ class IBMTestsThatPass extends JUnitSuite {
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
   
-//  @Test def test_simple_type_properties_text_calendar_13_01() { runner2.runOneTest("simple_type_properties_text_calendar_13_01") } // DFDL-622 - date/time/dateTime infoset output is incorrect
-//  @Test def test_simple_type_properties_text_calendar_13_02() { runner2.runOneTest("simple_type_properties_text_calendar_13_02") } // DFDL-622 - date/time/dateTime infoset output is incorrect
-//  @Test def test_simple_type_properties_text_calendar_13_03() { runner2.runOneTest("simple_type_properties_text_calendar_13_03") } // DFDL-620 - Implicit time calendarPattern should use ZZZ, not zzz.
-//  @Test def test_simple_type_properties_text_calendar_13_04() { runner2.runOneTest("simple_type_properties_text_calendar_13_04") } // DFDL-622 - date/time/dateTime infoset output is incorrect
+  @Test def test_length_delimited_12_01() { runner1.runOneTest("length_delimited_12_01") }
+  @Test def test_length_delimited_12_04() { runner1.runOneTest("length_delimited_12_04") }
+  
+  @Test def test_simple_type_properties_text_calendar_13_01() { runner2.runOneTest("simple_type_properties_text_calendar_13_01") }
+  @Test def test_simple_type_properties_text_calendar_13_02() { runner2.runOneTest("simple_type_properties_text_calendar_13_02") }
+  @Test def test_simple_type_properties_text_calendar_13_03() { runner2.runOneTest("simple_type_properties_text_calendar_13_03") }
+  @Test def test_simple_type_properties_text_calendar_13_04() { runner2.runOneTest("simple_type_properties_text_calendar_13_04") }
 
   @Test def test_introduction_1_01() { runner1.runOneTest("introduction_1_01") }
 
