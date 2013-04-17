@@ -114,6 +114,7 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_millisecondAccuracy4() { runner.runOneTest("millisecondAccuracy4") }
   @Test def test_millisecondAccuracy5() { runner.runOneTest("millisecondAccuracy5") }
   @Test def test_millisecondAccuracy6() { runner.runOneTest("millisecondAccuracy6") }
+  @Test def test_millisecondAccuracy7() { runner.runOneTest("millisecondAccuracy7") }
 
 //  @Test def test_timeLaxCheckPolicy02() { runner.runOneTest("timeLaxCheckPolicy02") }
 //  @Test def test_timeLaxCheckPolicy03() { runner.runOneTest("timeLaxCheckPolicy03") }
@@ -153,7 +154,7 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_dateCalendarFirstDayOfWeek02() { runner.runOneTest("dateCalendarFirstDayOfWeek02") }
   @Test def test_dateCalendarFirstDayOfWeek03() { runner.runOneTest("dateCalendarFirstDayOfWeek03") }
   @Test def test_dateCalendarFirstDayOfWeek04() { runner.runOneTest("dateCalendarFirstDayOfWeek04") }
-//  @Test def test_timeFractionalSeconds01() { runner.runOneTest("timeFractionalSeconds01") }
+  @Test def test_timeFractionalSeconds01() { runner.runOneTest("timeFractionalSeconds01") }
   @Test def test_dateText() { runner.runOneTest("dateText") }
   @Test def test_timeText() { runner.runOneTest("timeText") }
   @Test def test_dateTimeText() { runner.runOneTest("dateTimeText") }

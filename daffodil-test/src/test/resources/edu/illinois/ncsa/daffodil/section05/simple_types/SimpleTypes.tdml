@@ -2293,6 +2293,7 @@
                 dfdl:textCalendarJustification="center" dfdl:textCalendarPadCharacter="%HT;" dfdl:lengthKind="delimited" dfdl:calendarPattern="MM.dd.yyyy hh:mm:ssaa"/>
     <xs:element name="dateTime12" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:textTrimKind="padChar"
                 dfdl:textCalendarJustification="right" dfdl:textCalendarPadCharacter="%HT;" dfdl:lengthKind="delimited" dfdl:calendarPattern="MM.dd.yyyy hh:mm:ssaa"/>
+    <xs:element name="dateTime13" type="xs:dateTime" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="dd-MM-yyyy hh:mm:ss.SSSSSSSSSS"/>
 
   </tdml:defineSchema>
 
@@ -3691,7 +3692,7 @@
     <tdml:document><![CDATA[08:43:30.9678]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <time03>08:43:30.976000+00:00</time03>
+        <time03>08:43:30.967000+00:00</time03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -3870,7 +3871,7 @@
 
     <tdml:document><![CDATA[3:30:38.002345276891000084763]]></tdml:document>
     <tdml:errors>
-      <tdml:error>fractional seconds</tdml:error>
+      <tdml:error>Schema Definition Error: More than 9 fractional seconds unsupported in dfdl:calendarPattern for time</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -3886,7 +3887,7 @@
 
     <tdml:document><![CDATA[3:30:38.0023452768910087634837]]></tdml:document>
     <tdml:errors>
-      <tdml:error>fractional seconds</tdml:error>
+      <tdml:error>Schema Definition Error: More than 9 fractional seconds unsupported in dfdl:calendarPattern for time</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -3920,7 +3921,23 @@
 
     <tdml:document><![CDATA[3:30:38.0023452768]]></tdml:document>
     <tdml:errors>
-      <tdml:error>fractional seconds</tdml:error>
+      <tdml:error>Schema Definition Error: More than 9 fractional seconds unsupported in dfdl:calendarPattern for time</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: millisecondAccuracy7
+        Schema: dateTimeSchema
+          Root: dateTime13
+       Purpose: This test demonstrates that DFDL implements at least millisecond accuracy for dateTime.
+-->
+  
+  <tdml:parserTestCase name="millisecondAccuracy7" root="dateTime13"
+    model="dateTimeSchema" description="Section 13 Simple Types - at least millisecond accuracy - DFDL-13-152R">
+
+    <tdml:document><![CDATA[03-03-2013 3:30:38.0023452768]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error: More than 9 fractional seconds unsupported in dfdl:calendarPattern for dateTime</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -67,10 +67,7 @@ class TestSimpleTypes2 extends JUnitSuite {
   @Test def test_timeLaxCheckPolicy03() { runner.runOneTest("timeLaxCheckPolicy03") }
 
   @Test def test_dateTimeLaxCheckPolicy01() { runner.runOneTest("dateTimeLaxCheckPolicy01") }
-  @Test def test_timeFractionalSeconds01() { runner.runOneTest("timeFractionalSeconds01") }
 
-  @Test def test_millisecondAccuracy4() { runner.runOneTest("millisecondAccuracy4") }
-  
   @Test def test_datePattern04() { runner.runOneTest("datePattern04") }
 
 //////////////////////// DFDL-529 /////////////////////////////
