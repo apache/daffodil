@@ -76,7 +76,7 @@
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/jline/jline/jline-2.9-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/icu4j-charset-51.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/icu4j-localespi-51.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/icu4j-charset-51_1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/icu4j-localespi-51_1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

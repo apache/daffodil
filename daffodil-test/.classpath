@@ -6,8 +6,8 @@
 	<classpathentry kind="src" output="target/eclipse/test-classes" path="src/test/scala-new"/>
 	<classpathentry kind="src" output="target/eclipse/test-classes" path="src/test/resources"/>
 	<classpathentry kind="src" output="target/eclipse/debug-classes" path="src/test/scala-debug"/>
-	<classpathentry kind="lib" path="../daffodil-core/lib/icu4j-charset-51.1.jar"/>
-	<classpathentry kind="lib" path="../daffodil-core/lib/icu4j-localespi-51.1.jar"/>
+	<classpathentry kind="lib" path="../daffodil-core/lib/icu4j-charset-51_1.jar"/>
+	<classpathentry kind="lib" path="../daffodil-core/lib/icu4j-localespi-51_1.jar"/>
 	<classpathentry kind="lib" path="lib_managed/jars/org.scalatest/scalatest_2.9.2/scalatest_2.9.2-1.6.1.jar" sourcepath="lib_managed/srcs/org.scalatest/scalatest_2.9.2/scalatest_2.9.2-1.6.1-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scalatest/scalatest_2.9.2/scalatest_2.9.2-1.6.1-javadoc.jar!/"/>
