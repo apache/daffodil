@@ -164,7 +164,8 @@ abstract class SpecifiedLengthParserBase(combinator: SpecifiedLengthCombinatorBa
     val finalState = postState3.status match {
       case Success => {
         // Check that the parsed length is less than or equal to the length of the parent
-        Assert.invariant(postState2.bitPos <= endBitPos)
+        //Assert.invariant(postState2.bitPos <= endBitPos)
+        this.PECheck(postState2.bitPos <= endBitPos, "The parsed length of the children was greater than that of the parent.")
         postState3.withPos(endBitPos, -1, None)
       }
       case _ => postState3
