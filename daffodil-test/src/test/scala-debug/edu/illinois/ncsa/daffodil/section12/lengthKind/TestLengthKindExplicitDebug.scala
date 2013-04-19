@@ -55,5 +55,6 @@ class TestLengthKindExplicitDebug extends JUnitSuite {
   // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
   // runner.runOneTest("test_name") 
   // }
+  @Test def test_ExplicitLengthChildLengthMoreParent_Chars() = { runner.runOneTest("test_ExplicitLengthChildLengthMoreParent_Chars") }
 
 }

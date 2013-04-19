@@ -181,6 +181,29 @@
 					</xs:element>
 				</xs:sequence>
 			</xs:complexType>
+    </xs:element>
+
+    <xs:element name="fixed3">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="e3" dfdl:lengthKind="explicit"
+						dfdl:length="8" dfdl:lengthUnits="characters" maxOccurs="3"
+						minOccurs="3" dfdl:occursCountKind="fixed">
+						<xs:complexType>
+							<xs:sequence dfdl:sequenceKind="ordered">
+								<xs:element name="A" type="xs:string"
+									dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
+								<xs:element name="B" type="xs:string"
+									dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+								<xs:element name="C" type="xs:string"
+									dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+								<xs:element name="D" type="xs:string"
+									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
 		</xs:element>
 
 	</tdml:defineSchema>
@@ -246,6 +269,38 @@
 						<B>983055</B>
 					</elem>
 				</fixed2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+  </tdml:parserTestCase>
+
+	<tdml:parserTestCase name="test_ExplicitLengthChildLengthMoreParent_Chars"
+		root="fixed3" model="test_ExplicitLengthChildLengthLessParent"
+		description="lengthKind='explicit' - DFDL-12-039R">
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[123456789012345678901234567890]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<fixed3>
+					<e3>
+						<A>1</A>
+						<B>234</B>
+						<C>567</C>
+						<D>89</D>
+					</e3>
+					<e3>
+						<A>1</A>
+						<B>234</B>
+						<C>567</C>
+						<D>89</D>
+					</e3>
+					<e3>
+						<A>1</A>
+						<B>234</B>
+						<C>567</C>
+						<D>89</D>
+					</e3>
+				</fixed3>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>

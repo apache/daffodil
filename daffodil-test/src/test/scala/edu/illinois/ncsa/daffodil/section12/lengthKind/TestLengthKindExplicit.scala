@@ -57,5 +57,7 @@ class TestLengthKindExplicit extends JUnitSuite {
   @Test def test_ExplicitLengthBytesBroken() = { runner.runOneTest("test_ExplicitLengthBytesBroken") }
   @Test def test_ExplicitLengthBytesNotGiven() = { runner.runOneTest("test_ExplicitLengthBytesNotGiven") }
   @Test def test_ExplicitLengthBytesChoiceRef() = { runner.runOneTest("test_ExplicitLengthBytesChoiceRef") }
+  @Test def test_ExplicitLengthChildLengthLessParent_Chars() = { runner.runOneTest("test_ExplicitLengthChildLengthLessParent_Chars") }
+  @Test def test_ExplicitLengthChildLengthLessParent_Bits() = { runner.runOneTest("test_ExplicitLengthChildLengthLessParent_Bits") }
 
 }
