@@ -46,12 +46,27 @@
     </xs:element>
 
   </tdml:defineSchema>
+  
+  <tdml:defineSchema name="implicitAlignmentSchema">
+
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" encoding="utf-8" alignmentUnits="bits" binaryNumberRep="binary"/>
+
+    <xs:element name="string" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="bytes" dfdl:alignment="implicit" dfdl:leadingSkip="4"/>
+    <xs:element name="string2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:lengthUnits="bytes" dfdl:alignment="implicit" dfdl:leadingSkip="16"/>
+    
+    <xs:element name="uInt" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32" dfdl:lengthUnits="bits" dfdl:alignment="implicit" dfdl:leadingSkip="1"/>
+    <xs:element name="uIntb" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32" dfdl:lengthUnits="bits" dfdl:alignment="32" dfdl:leadingSkip="1"/>
+    
+    <xs:element name="uShort" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bits" dfdl:alignment="implicit" dfdl:leadingSkip="1"/>
+    <xs:element name="uShortb" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bits" dfdl:alignment="16" dfdl:leadingSkip="1"/>
+
+  </tdml:defineSchema>
 
   <!--
      Test Name: alignment01
         Schema: alignmentSchema
           Root: e
-       Purpose: This test demonstrates alignment
+       Purpose: This test demonstrates that alignment (2 bits) is applied after leadingSkip (4 bits)
   -->
   
   <tdml:parserTestCase name="alignment01" root="e"
@@ -70,8 +85,8 @@
   <!--
      Test Name: alignment02
         Schema: alignmentSchema
-          Root: e
-       Purpose: This test demonstrates alignment
+          Root: e3
+       Purpose: This test demonstrates that leadingSkip (4 bits) is applied before alignment (4 bits) on each element
   -->
   
   <tdml:parserTestCase name="alignment02" root="e3"
@@ -87,7 +102,11 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e>Placeholder</e>
+        <e3>
+          <one>3</one>
+          <two>2</two>
+          <three>0</three>
+        </e3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -95,8 +114,9 @@
   <!--
      Test Name: alignment03
         Schema: alignmentSchema
-          Root: e
-       Purpose: This test demonstrates alignment
+          Root: e4
+       Purpose: This test demonstrates that the leadingSkip (4 bits) is applied before alignment (4 bits)
+                for the first element.
   -->
   
   <tdml:parserTestCase name="alignment03" root="e4"
@@ -105,18 +125,29 @@
     <tdml:document>
       <tdml:documentPart type="bits">00 00</tdml:documentPart> <!-- leadingSkip -->
       <tdml:documentPart type="bits">11 10</tdml:documentPart> 
-      <tdml:documentPart type="bits">11</tdml:documentPart> <!-- "one" starting at bit position 8 -->
+      <tdml:documentPart type="bits">01</tdml:documentPart> <!-- "one" starting at bit position 8 -->
       <tdml:documentPart type="bits">00 10 01</tdml:documentPart>
-      <tdml:documentPart type="bits">11</tdml:documentPart> <!-- "two" starting at bit position 16 -->
+      <tdml:documentPart type="bits">10</tdml:documentPart> <!-- "two" starting at bit position 16 -->
       <tdml:documentPart type="bits">11 00 00</tdml:documentPart>
-      <tdml:documentPart type="bits">00</tdml:documentPart> <!-- "three" starting at bit position 24 -->
+      <tdml:documentPart type="bits">11</tdml:documentPart> <!-- "three" starting at bit position 24 -->
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e>Placeholder</e>
+        <e4>
+          <one>1</one>
+          <two>2</two>
+          <three>3</three>
+        </e4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leadingSkip1
+        Schema: s1
+          Root: e
+       Purpose: This test demonstrates a leadingSkip of 3 bytes. The actual data begins at the 4th byte.
+  -->
 
   <tdml:parserTestCase name="leadingSkip1" root="e"
     model="s1" description="Section 12.1 Aligned Data - DFDL-12-005R">
@@ -131,6 +162,13 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leadingSkip2
+        Schema: s1
+          Root: e2
+       Purpose: This test demonstrates that there is a limit to the size of a leadingSkip (1024).
+  -->
 
   <tdml:parserTestCase name="leadingSkip2" root="e2"
     model="s1" description="Section 12.1 Aligned Data - DFDL-12-005R">
@@ -138,9 +176,147 @@
     <tdml:document />
 
     <tdml:errors>
-      <tdml:error>3000000</tdml:error>
-      <tdml:error>leadingSkip</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property leadingSkip 3000000 is larger than limit 1024</tdml:error>
     </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: implicitAlignmentString1
+        Schema: implicitAlignmentSchema
+          Root: string
+       Purpose: This test
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentString1" root="string"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - String - DFDL-12-014R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">0110 0111</tdml:documentPart> <!-- leadingSkip and buffer to fulfill alignment -->
+      <tdml:documentPart type="bits">01101111 01100001 01110100 01110011</tdml:documentPart> <!-- string -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <string>oats</string>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: implicitAlignmentString2
+        Schema: implicitAlignmentSchema
+          Root: string2
+       Purpose: This test demonstrates that the implicit alignment for type 'string' is 8 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentString2" root="string2"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - String - DFDL-12-014R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">01100111 01101111</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">01100001 01110100 01110011</tdml:documentPart> <!-- string -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <string2>ats</string2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentUInt1
+        Schema: implicitAlignmentSchema
+          Root: uInt
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'unsignedInt' is 32 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentUInt" root="uInt"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (binary) - DFDL-12-019R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1 0000000 00000000 00000000 00000000</tdml:documentPart> <!-- leadingSkip and buffer to fulfill alignment -->
+      <tdml:documentPart type="bits">00000000 00000000 00000000 00001101</tdml:documentPart> <!-- uInt -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uInt>13</uInt>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentUInt1b
+        Schema: implicitAlignmentSchema
+          Root: uIntb
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'unsignedInt' is 32 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentUIntb" root="uIntb"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (binary) - DFDL-12-019R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1 0000000 00000000 00000000 00000000</tdml:documentPart> <!-- leadingSkip and buffer to fulfill alignment -->
+      <tdml:documentPart type="bits">00000000 00000000 00000000 00001101</tdml:documentPart> <!-- uInt -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uIntb>13</uIntb>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentUShort
+        Schema: implicitAlignmentSchema
+          Root: uShort
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'unsignedShort' is 16 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentUShort" root="uShort"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedShort (binary) - DFDL-12-020R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1 0000000 00000000</tdml:documentPart> <!-- leadingSkip and buffer to fulfill alignment -->
+      <tdml:documentPart type="bits">01101</tdml:documentPart> <!-- uShort -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uShort>13</uShort>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentUShortb
+        Schema: implicitAlignmentSchema
+          Root: uShortb
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'unsignedShort' is 16 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentUShortb" root="uShortb"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedShort (binary) - DFDL-12-020R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1 0000000 00000000</tdml:documentPart> <!-- leadingSkip and buffer to fulfill alignment -->
+      <tdml:documentPart type="bits">01101</tdml:documentPart> <!-- uShort -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uShortb>13</uShortb>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
   </tdml:parserTestCase>
 

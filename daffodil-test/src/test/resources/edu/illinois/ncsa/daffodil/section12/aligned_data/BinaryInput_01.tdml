@@ -292,7 +292,7 @@
 	</tdml:parserTestCase>
   
   <!--
-    Test Name: AligningSkipBytes
+    Test Name: AligningSkipBytes2
        Schema: alignmentBytes
          Root: e1
       Purpose: This test demonstrates the use of byte alignment without skips. Because the alignment is 4 bytes,
