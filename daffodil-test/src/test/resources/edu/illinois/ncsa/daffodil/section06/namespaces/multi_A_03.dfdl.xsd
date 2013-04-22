@@ -7,7 +7,7 @@
       <dfdl:format separator="" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" 
       leadingSkip='0' initiator="" occursCountKind="parsed" initiatedContent="no" representation="text" 
       textNumberRep="standard" encoding="ASCII" textTrimKind="none" 
-      alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
+      alignment="1" alignmentUnits="bytes" trailingSkip="0"/>
     </xs:appinfo>
   </xs:annotation>
   

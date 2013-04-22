@@ -59,7 +59,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Property initiator is not defined</tdml:error>
+      <tdml:error>Property representation is not defined</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

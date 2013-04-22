@@ -3,7 +3,7 @@
       
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format separator="" alignment="1" alignmentUnits="bits" lengthUnits="bytes"
+      <dfdl:format separator="" alignment="1" alignmentUnits="bytes" lengthUnits="bytes"
         trailingSkip="0" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
     </xs:appinfo>

@@ -173,6 +173,60 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
 
+  def getImplicitAlignmentInBits(thePrimType: PrimType.PrimType, theRepresentation: Representation): Int = {
+    theRepresentation match {
+      case Representation.Text =>
+        thePrimType match {
+          case PrimType.HexBinary => schemaDefinitionError("Implicit Alignment is not allowed for HexBinary with representation='text'. Use representation='binary' instead.")
+          case _ => knownEncodingAlignmentInBits
+        }
+      case Representation.Binary =>
+        thePrimType match {
+          case PrimType.String => schemaDefinitionError("Implicit Alignment is not allowed for String with representation='binary'. Use representation='text' instead.")
+          case PrimType.Double | PrimType.Long | PrimType.ULong => 64
+          case PrimType.Float | PrimType.Int | PrimType.UInt | PrimType.Boolean => 32
+          case PrimType.Short | PrimType.UShort => 16
+          case PrimType.Integer | PrimType.Byte | PrimType.UByte => 8
+          case PrimType.DateTime | PrimType.Date | PrimType.Time =>
+            binaryCalendarRep match {
+              case BinaryCalendarRep.BinaryMilliseconds => 64
+              case BinaryCalendarRep.BinarySeconds => 32
+              case _ => schemaDefinitionError("Implicit Alignment: binaryCalendarRep was %s but we expected BinarySeconds or BinaryMilliseconds.", binaryCalendarRep)
+            }
+        }
+    }
+  }
+
+  lazy val implicitAlignmentInBits: Int = getImplicitAlignmentInBits(primType.myPrimitiveType, representation)
+
+  lazy val alignmentValueInBits: Int = {
+    alignment match {
+      case AlignmentType.Implicit => {
+        if (this.isComplexType) {
+          val ct = this.elementComplexType
+          ct.alignmentValueInBits
+        } else implicitAlignmentInBits
+      }
+      case align: Int => {
+        val alignInBits = this.alignmentUnits match {
+          case AlignmentUnits.Bits => align
+          case AlignmentUnits.Bytes => 8 * align
+        }
+        if (this.isSimpleType) {
+          representation match {
+            case Representation.Text => {
+              if ((alignInBits % implicitAlignmentInBits) != 0)
+                SDE("The given alignment (%s bits) must be a multiple of the encoding specified alignment (%s bits) for (%s) when representation='text'. Encoding: %s",
+                  alignInBits, implicitAlignmentInBits, primType.myPrimitiveType, this.knownEncodingName)
+            }
+            case _ => /* Non textual data, no need to compare alignment to encoding's expected alignment */
+          }
+        }
+        alignInBits
+      }
+    }
+  }
+
   /**
    * Tells us if we have a specific length.
    *

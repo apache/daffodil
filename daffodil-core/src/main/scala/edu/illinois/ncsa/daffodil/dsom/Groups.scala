@@ -57,6 +57,8 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin {
 
+  def alignmentValueInBits: Int
+
   lazy val parent = parentArg
   // Scala coding style note: This style of passing a constructor arg that is named fooArg,
   // and then having an explicit val/lazy val which has the 'real' name is 
@@ -427,6 +429,26 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
     res
   }
 
+  lazy val alignmentValueChildren: Int = {
+    immediateGroup match {
+      case Some(m: ModelGroup) => {
+        m.groupMembers.sortBy(m => -m.alignmentValueInBits).headOption match {
+          case Some(child) => child.alignmentValueInBits
+          case None => 0
+        }
+      }
+      case None => 0
+    }
+  }
+  lazy val alignmentValueInBits: Int = {
+    this.alignment match {
+      case AlignmentType.Implicit => alignmentValueChildren
+      case align: Int => this.alignmentUnits match {
+        case AlignmentUnits.Bits => align
+        case AlignmentUnits.Bytes => 8 * align
+      }
+    }
+  }
 }
 
 /**

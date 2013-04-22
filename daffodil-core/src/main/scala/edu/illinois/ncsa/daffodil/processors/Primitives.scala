@@ -1262,14 +1262,10 @@ case class LeadingSkipRegion(e: Term) extends Terminal(e, e.leadingSkip > 0) {
 
 case class AlignmentFill(e: Term) extends Terminal(e, !(e.alignment == "1" && e.alignmentUnits == AlignmentUnits.Bits)) {
 
-  val alignment = (e.alignmentUnits, e.alignment) match {
-    case (AlignmentUnits.Bits, count: Int) => 1 * count
-    case (AlignmentUnits.Bytes, count: Int) => 8 * count
-    case _ => 0 //SDE("Skip/Alignment values must have length units of Bits or Bytes.")
-  }
+  val alignment = e.alignmentValueInBits
 
   def isAligned(currBitPos: Long): Boolean = {
-    if (alignment == 0) return true
+    if (alignment == 0 || currBitPos == 0) return true
     if ((currBitPos - alignment) < 0) return false
     if ((currBitPos % alignment) == 0) return true
     return false
@@ -1277,7 +1273,6 @@ case class AlignmentFill(e: Term) extends Terminal(e, !(e.alignment == "1" && e.
 
   def parser: Parser = new PrimParser(this, e) {
     def parse(pstate: PState) = {
-
       if (!isAligned(pstate.bitPos)) {
         val maxBitPos = pstate.bitPos + alignment - 1
         val newBitPos = maxBitPos - maxBitPos % alignment
