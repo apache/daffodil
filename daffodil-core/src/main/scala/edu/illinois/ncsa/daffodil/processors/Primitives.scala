@@ -66,6 +66,8 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.AlignmentType
 abstract class PrimParser(gram: Gram, contextArg: SchemaComponent)
   extends DaffodilParser(contextArg) {
 
+  def primitive = gram
+
   def toBriefXML(depthLimit: Int = -1): String = {
     "<" + gram.name + "/>"
   }
