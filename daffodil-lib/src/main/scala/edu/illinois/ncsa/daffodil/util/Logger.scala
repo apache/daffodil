@@ -90,15 +90,24 @@ abstract class LogWriter {
   protected def write(msg: String): Unit
   protected val tstampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS ")
 
-  def tstamp = tstampFormat.format(new Date)
+  protected def tstamp = tstampFormat.format(new Date)
+
+  protected def prefix(logID: String, glob: Glob): String = {
+    val areStamping = glob.lvl < LogLevel.Debug
+    val pre = (if (areStamping) tstamp + " " else "")
+    pre + logID + " " + glob.lvl + "["
+  }
+
+  protected def suffix(logID: String, glob: Glob): String = {
+    "]"
+  }
 
   def log(logID: String, glob: Glob) {
     try {
       val mess = glob.stringify
-      val areStamping = glob.lvl < LogLevel.Debug
-      val suffix = logID + " " + glob.lvl
-      val prefix = (if (areStamping) tstamp + " " else "")
-      write(prefix + suffix + " [" + mess + "]")
+      val p = prefix(logID, glob)
+      val s = suffix(logID, glob)
+      write(p + mess + s)
     } catch {
       case e: Exception => {
         val estring = try { e.toString } catch { case _ => e.getClass.getName }

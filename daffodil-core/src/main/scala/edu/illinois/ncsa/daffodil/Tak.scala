@@ -89,19 +89,10 @@ object Tak {
       z
   }
 
-  def time[R](block: => R): Long = {
-    val t0 = System.nanoTime()
-    val result = block // call-by-name
-    val t1 = System.nanoTime()
-    val nanos = t1 - t0
-    println("Elapsed time: " + (t1 - t0) + "ns")
-    nanos
-  }
-
   def testTak {
     println("Calibrating takeon units")
     callCount = 0
-    val nanos = time { tak(21, 3, 21) }
+    val nanos = Timer.getTimeNS { tak(21, 3, 21) }
     println("tak call count = " + callCount + " in " + nanos + "ns")
     takeons = (1.0 * nanos) / callCount
     println("Under current load, 1 CPU of this system executes " + takeons + " nanoseconds per tak call.")

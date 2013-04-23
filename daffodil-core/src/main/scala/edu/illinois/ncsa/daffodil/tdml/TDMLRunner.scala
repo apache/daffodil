@@ -196,11 +196,11 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
     var bytesProcessed: Long = 0
     var charsProcessed: Long = 0
     Tak.calibrate
-    val ns = Tak.time {
+    val ns = Timer.getTimeNS(testName ,{
       val (by, ch) = runOneTestWithDataVolumes(testName, schema)
       bytesProcessed = by
       charsProcessed = ch
-    }
+    })
     val takeonsThisRun = ns / Tak.takeons
     val bpns = ((bytesProcessed * 1.0) / ns)
     val kbps = bpns * 1000000

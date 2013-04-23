@@ -76,17 +76,20 @@ import java.io.FileInputStream
 import scala.xml.SAXParseException
 import org.rogach.scallop
 import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.debugger.DebugUtil
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.Timer
 import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
+import edu.illinois.ncsa.daffodil.util.Glob
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.LogWriter
+import edu.illinois.ncsa.daffodil.util.LoggingDefaults
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -105,11 +108,26 @@ class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with L
   }
 }
 
+object CLILogWriter extends LogWriter {
+  override def prefix(logID: String, glob: Glob): String = {
+    "[" + glob.lvl.toString.toLowerCase + "] "
+  }
+
+  override def suffix(logID: String, glob: Glob): String = {
+    ""
+  }
+
+  def write(msg: String) {
+    Console.err.println(msg)
+    Console.flush
+  }
+}
+
 object Main extends Logging {
 
   def createProcessorFromParser(parseFile: String, path: Option[String]) = {
     val compiler = Compiler()
-    val processorFactory = DebugUtil.time("Reloading parser", compiler.reload(parseFile))
+    val processorFactory = Timer.getResult("reloading", compiler.reload(parseFile))
     if (processorFactory.canProceed) {
       val processor = processorFactory.onPath(path.getOrElse("/"))
       Some(processor)
@@ -136,7 +154,7 @@ object Main extends Logging {
     // to also include the call to pf.onPath. (which is the last phase 
     // of compilation, where it asks for the parser)
     //
-    val pf = DebugUtil.time("Compiling schema", {
+    val pf = Timer.getResult("compiling", {
       val processorFactory = compiler.compile(schemaFiles: _*)
       if (processorFactory.canProceed) {
         val processor = processorFactory.onPath(path.getOrElse("/"))
@@ -170,6 +188,19 @@ object Main extends Logging {
         val argType = scallop.ArgType.SINGLE
       }
 
+      implicit val flagListConverter = new scallop.ValueConverter[List[Boolean]] {
+        def parse(s: List[(String, List[String])]) = {
+          try {
+            val l = s.map(_ => true)
+            Right(Some(l))
+          } catch {
+            case _ => Left(Unit)
+          }
+        }
+        val manifest = implicitly[Manifest[List[Boolean]]]
+        val argType = scallop.ArgType.FLAG
+      }
+
       printedName = "daffodil"
 
       helpWidth(76)
@@ -196,7 +227,7 @@ object Main extends Logging {
 
       // Global Options
       val debug = opt[Boolean]("debug", descr = "enable debugging.")
-      val verbose = opt[Boolean]("verbose", descr = "enable verbose output.")
+      val verbose = opt[List[Boolean]]("verbose", descr = "increment verbosity level, one level for each -v").map(_.length)
 
       // Parse Subcommand Options
       val parse = new scallop.Subcommand("parse") {
@@ -331,8 +362,16 @@ object Main extends Logging {
       }
     }
 
-    if (Conf.verbose())
-      DebugUtil.verbose = true
+    val verboseLevel = Conf.verbose() match {
+      case 0 => LogLevel.Warning
+      case 1 => LogLevel.Info
+      case 2 => LogLevel.Compile
+      case 3 => LogLevel.Debug
+      case _ => LogLevel.OOLAGDebug
+    }
+    LoggingDefaults.setLoggingLevel(verboseLevel)
+    LoggingDefaults.setLogWriter(CLILogWriter)
+
 
     if (Conf.debug()) {
       Debugger.setDebugging(true)
@@ -366,7 +405,7 @@ object Main extends Logging {
             }
             val inChannel = java.nio.channels.Channels.newChannel(input);
 
-            val parseResult = DebugUtil.time("Parsing", processor.parse(inChannel))
+            val parseResult = Timer.getResult("parsing", processor.parse(inChannel))
 
             if (parseResult.isError) {
               displayDiagnostics(LogLevel.Error, parseResult)
@@ -380,7 +419,7 @@ object Main extends Logging {
               val writer: BufferedWriter = new BufferedWriter(new OutputStreamWriter(output));
 
               val pp = new scala.xml.PrettyPrinter(80, 2)
-              DebugUtil.time("Writing", writer.write(pp.format(parseResult.result) + "\n"))
+              Timer.getResult("writing", writer.write(pp.format(parseResult.result) + "\n"))
               writer.flush()
               0
             }
@@ -419,7 +458,7 @@ object Main extends Logging {
         val rc = processor match {
           case None => 1
           case Some(processor) => {
-            val unparseResult = DebugUtil.time("Unparsing infoset", processor.unparse(outChannel, document))
+            val unparseResult = Timer.getResult("unparsing", processor.unparse(outChannel, document))
             output.close()
             if (unparseResult.isError) 1 else 0
           }
@@ -440,7 +479,7 @@ object Main extends Logging {
         val outChannel = java.nio.channels.Channels.newChannel(output)
         val rc = processor match {
           case Some(processor) => {
-            DebugUtil.time("Saving parser", processor.save(outChannel))
+            Timer.getResult("saving", processor.save(outChannel))
             0
           }
           case None => 1
@@ -471,7 +510,7 @@ object Main extends Logging {
         }.distinct.sortBy(_._1)
 
         if (testOpts.list()) {
-          if (Conf.verbose()) {
+          if (Conf.verbose() > 0) {
             // determine the max lengths of the various pieces of atest
             val headers = List("Name", "Model", "Root", "Description")
             val maxCols = tests.foldLeft(headers.map(_.length)) {
