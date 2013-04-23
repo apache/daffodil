@@ -28,7 +28,7 @@ object DaffodilBuild extends Build {
                              .configs(NewTest)
                              .dependsOn(lib)
 
-  lazy val test    = Project(id = "daffodil-test", base = file("daffodil-test"), settings = s ++ nopub)
+  lazy val test    = Project(id = "daffodil-test", base = file("daffodil-test"), settings = s ++ stageTaskSettings ++ nopub)
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(core)
@@ -37,6 +37,18 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(core)
+
+  //set up 'sbt stage' as a dependency for test tasks
+  lazy val testTask = Keys.test in Test
+  lazy val testOnlyTask = Keys.testOnly in Test
+  lazy val testQuickTask = Keys.testQuick in Test
+  lazy val stageTaskSettings = Seq(
+    (testTask <<= testTask.dependsOn(SbtStartScript.stage in Compile in core)),
+    (testOnlyTask <<= testOnlyTask.dependsOn(SbtStartScript.stage in Compile in core)),
+    (debugTask <<= debugTask.dependsOn(SbtStartScript.stage in Compile in core)),
+    (newTask <<= newTask.dependsOn(SbtStartScript.stage in Compile in core)),
+    (testQuickTask <<= testQuickTask.dependsOn(SbtStartScript.stage in Compile in core))
+  )
 
   val propertyGenerator = TaskKey[Seq[File]]("gen-props", "Generate properties scala source")
   lazy val propgenSettings = Seq(
@@ -83,7 +95,6 @@ object DaffodilBuild extends Build {
     }
   }
   s ++= Seq(debugTaskSettings)
-
 
   // creates 'sbt new:*' tasks, using src/test/scala-new as the source directory
   lazy val NewTest = config("new") extend(Runtime)
