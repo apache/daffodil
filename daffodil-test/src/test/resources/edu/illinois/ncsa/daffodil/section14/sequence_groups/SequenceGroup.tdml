@@ -6,31 +6,76 @@
    <tdml:defineSchema name="emptySDEschema">
      <dfdl:format ref="ex:daffodilTest1"/>
 
-     <xs:element name="emptySeq">
-       <xs:complexType>
-         <xs:sequence dfdl:separator=","/>
-       </xs:complexType>
-     </xs:element>
+     <xs:element name="emptySeq" type="ex:complexEmptySeq"/>
+     
+     <xs:complexType name="complexEmptySeq">
+       <xs:sequence/>
+     </xs:complexType>
   
-     <xs:element name="emptyComplex">
-       <xs:complexType/>
+     <xs:element name="complexEmptyContent" type="ex:complex"/>
+     
+     <xs:complexType name="complex">
+       <xs:sequence>
+         <xs:sequence dfdl:separator=","/>
+       </xs:sequence>
+     </xs:complexType>
+     
+     <xs:element name="noContentComplex">
+       <xs:complexType>
+       </xs:complexType>
      </xs:element>
 
    </tdml:defineSchema>
    
   <!--
-    Test name: emptyComplexSDE
-       Schema: emptySDEschema
-      Purpose: This test demonstrates that it is a schema definition error if a complex type has no content.
+    Test name: elemComplexSDE
+       Schema: sequenceSDE.dfdl.xsd
+      Purpose: This test demonstrates that it is a schema definition error if a complex type has element-only content.
   -->
   
-  <tdml:parserTestCase name="emptyComplexSDE" root="emptyComplex"
-    model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
+  <tdml:parserTestCase name="elemComplexSDE" root="elemComplex"
+    model="sequenceSDE.dfdl.xsd" description="Section 14 - DFDL-14-007R.">
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[42,2]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[42]]></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid content was found starting with element 'xs:element'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+   
+  <!--
+    Test name: complexNoContent
+       Schema: emptySDEschema
+      Purpose: This test demonstrates that DFDL allows complexTypes with empty content (not to be confused with NO content)
+  -->
+  
+  <tdml:parserTestCase name="complexEmptyContent" root="complexEmptyContent"
+    model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <complexEmptyContent></complexEmptyContent>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: noContentComplexSDE
+       Schema: emptySDEschema
+      Purpose: This test demonstrates that having a complexType with NO content results in an SDE
+  -->
+  
+  <tdml:parserTestCase name="noContentComplexSDE" root="noContentComplex"
+    model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error/>
     </tdml:errors>
   </tdml:parserTestCase>
    
@@ -43,7 +88,7 @@
   <tdml:parserTestCase name="emptySequenceSDE" root="emptySeq"
     model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[42,2]]></tdml:documentPart>
+      <tdml:documentPart type="text"></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>

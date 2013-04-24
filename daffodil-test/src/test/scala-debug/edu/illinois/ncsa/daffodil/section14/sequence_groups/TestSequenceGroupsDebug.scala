@@ -57,7 +57,7 @@ class TestSequenceGroupsDebug extends JUnitSuite {
 //  @Test def test_hiddenGroupLoop() { runner_03.runOneTest("hiddenGroupLoop") }
 
   @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
-  @Test def test_emptyComplexSDE() { runner_02.runOneTest("emptyComplexSDE") }
+  @Test def test_noContentComplexSDE() { runner_02.runOneTest("noContentComplexSDE") }
 
 }
 
