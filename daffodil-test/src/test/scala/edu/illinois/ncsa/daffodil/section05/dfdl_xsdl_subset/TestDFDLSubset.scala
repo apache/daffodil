@@ -56,6 +56,7 @@ class TestDFDLSubset extends JUnitSuite {
   @Test def test_groupRef() { { runner.runOneTest("groupRef") } }
   @Test def test_groupRefChoice() { runner.runOneTest("groupRefChoice") }
   @Test def test_badGroupRef() { { runner.runOneTest("badGroupRef") } }
+  @Test def test_badSeq() { { runner.runOneTest("badSeq") } }
   
   @Test def test_groupRefDFDL() { runner.runOneTest("groupRefDFDL") }
 }

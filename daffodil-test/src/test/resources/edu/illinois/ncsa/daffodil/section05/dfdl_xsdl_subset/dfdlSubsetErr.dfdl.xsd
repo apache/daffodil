@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ex="http://example.com" targetNamespace="http://example.com">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format ref="ex:daffodilTest1"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+    <xs:element name="badSeq" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="||"
+          dfdl:separatorPosition="infix" xs:minOccurs="3" xs:maxOccurs="unbounded">
+          <xs:element ref="ex:Item" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+</xs:schema>

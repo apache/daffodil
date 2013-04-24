@@ -70,8 +70,25 @@
         <xs:group ref="ex:namedGroup_01" />
       </xs:complexType>
     </xs:element>
-
+    
   </tdml:defineSchema>
+
+  <!--
+    Test Name: badSeq
+       Schema: dfdlSubsetErr.dfdl.xsd
+         Root: badSeq
+      Purpose: This test demonsrates that DFDL Schemas consist of sequence model groups (WITHOUT minOccurs and maxOccurs)
+  -->
+
+  <tdml:parserTestCase name="badSeq" root="badSeq"
+    model="dfdlSubsetErr.dfdl.xsd" description="Section 5 - seq group (no min/max occurs) - DFDL-5-038R">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>minOccurs' is not allowed to appear in element 'xs:sequence'</tdml:error>
+      <tdml:error>maxOccurs' is not allowed to appear in element 'xs:sequence'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="badGroupRef" root="badGroupRef"
     model="groupRef.xsd" description="Section 5 - reusable group - DFDL-5-041R">
