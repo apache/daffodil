@@ -2,7 +2,54 @@
 <tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
+
+   <tdml:defineSchema name="emptySDEschema">
+     <dfdl:format ref="ex:daffodilTest1"/>
+
+     <xs:element name="emptySeq">
+       <xs:complexType>
+         <xs:sequence dfdl:separator=","/>
+       </xs:complexType>
+     </xs:element>
   
+     <xs:element name="emptyComplex">
+       <xs:complexType/>
+     </xs:element>
+
+   </tdml:defineSchema>
+   
+  <!--
+    Test name: emptyComplexSDE
+       Schema: emptySDEschema
+      Purpose: This test demonstrates that it is a schema definition error if a complex type has no content.
+  -->
+  
+  <tdml:parserTestCase name="emptyComplexSDE" root="emptyComplex"
+    model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[42,2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+   
+  <!--
+    Test name: emptySequenceSDE
+       Schema: emptySDEschema
+      Purpose: This test demonstrates that it is a schema definition error if an empty sequence is the content of a complex type
+  -->
+  
+  <tdml:parserTestCase name="emptySequenceSDE" root="emptySeq"
+    model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[42,2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
    <tdml:defineSchema name="SequenceGroup-Embedded.dfdl.xsd">
      <dfdl:format ref="ex:daffodilTest1" lengthUnits="bytes"
        lengthKind="implicit" />

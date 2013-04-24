@@ -46,15 +46,18 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Logging
 
-//class TestSequenceGroupsDebug extends JUnitSuite {
+class TestSequenceGroupsDebug extends JUnitSuite {
   
-//  val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
-//  val tdml_03 = testDir_01 + "SequenceGroup.tdml"
-//  lazy val runner_03 = new DFDLTestSuite(Misc.getRequiredResource(tdml_03))
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
+  val tdml_02 = testDir_01 + "SequenceGroup.tdml"
+  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 
 //  This test sets up an infinite loop of hidden groups. It is currently commented-out
 //  because it runs indefinitely and prevents the rest of the suite from executing  
 //  @Test def test_hiddenGroupLoop() { runner_03.runOneTest("hiddenGroupLoop") }
 
-//}
+  @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
+  @Test def test_emptyComplexSDE() { runner_02.runOneTest("emptyComplexSDE") }
+
+}
 
