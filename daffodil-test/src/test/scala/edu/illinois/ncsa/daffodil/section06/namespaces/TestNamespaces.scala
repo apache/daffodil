@@ -64,6 +64,10 @@ class TestNamespaces extends JUnitSuite {
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"))
+  
+  @Test def test_namespaceLimit() { runner.runOneTest("namespaceLimit") }
+  @Test def test_namespaceSpecialChars() { runner.runOneTest("namespaceSpecialChars") }
+//  @Test def test_namespaceSpecialChars2() { runner.runOneTest("namespaceSpecialChars2") }
 
   @Test def testSimpleIncludeOfFormat() { runner2.runOneTest("simpleInclude") }
   @Test def testSimpleImportOfFormat() { runner2.runOneTest("simpleImport") }

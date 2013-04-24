@@ -1505,5 +1505,62 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: namespaceLimit
+       Schema: namespaceCharLim.dfdl.xsd
+         Root: one
+      Purpose: This test demonstrates that namespace names can be very long (this one is approx 2600 characters)
+  -->
+  
+  <tdml:parserTestCase name="namespaceLimit" root="one"
+    model="namespaceCharLim.dfdl.xsd" description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R">
+    <tdml:document>1:42</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <one>42</one>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: namespaceSpecialChars
+       Schema: namespaceSpecialChar.dfdl.xsd
+         Root: one
+      Purpose: This test helps demonstrate that DFDL namespaces follow the same naming conventions as XSDL namespaces.
+      This test demonstrates a very particular aspect of this convention: x00b7 (the character ·) is listed in the available
+      name characters, but not in the name start characters. This test demonstrates the positive scenario where the character
+      is used in a name but not as the first character
+
+  -->
+  
+  <tdml:parserTestCase name="namespaceSpecialChars" root="one"
+    model="namespaceSpecialChar.dfdl.xsd" description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R">
+    <tdml:document>1:42</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <one>42</one>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: namespaceSpecialChars2
+       Schema: namespaceSpecialChar2.dfdl.xsd
+         Root: one
+      Purpose: This test helps demonstrate that DFDL namespaces follow the same naming conventions as XSDL namespaces.
+      This test demonstrates a very particular aspect of this convention: x00b7 (the character ·) is listed in the available
+      name characters, but not in the name start characters. This test demonstrates the negative scenario where this character
+      is used as the first in a namespace name
+
+  -->
+  
+  <tdml:parserTestCase name="namespaceSpecialChars2" root="one"
+    model="namespaceSpecialChar2.dfdl.xsd" description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R">
+    <tdml:document>1:42</tdml:document>
+    <tdml:errors>
+      <tdml:error></tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </testSuite>

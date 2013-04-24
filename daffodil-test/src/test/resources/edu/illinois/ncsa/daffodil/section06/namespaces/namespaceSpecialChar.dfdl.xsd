@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<имен:schema xmlns:имен="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:b·="http://example.com" targetNamespace="http://example.com">
+      
+  <имен:annotation>
+    <имен:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" alignment="1" alignmentUnits="bits" lengthUnits="bytes"
+        trailingSkip="0" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
+    </имен:appinfo>
+  </имен:annotation>
+  
+    <имен:simpleType name="simTyp" dfdl:lengthKind="delimited" dfdl:initiator="1:">
+      <имен:restriction base="имен:int"/>
+    </имен:simpleType>
+
+    <имен:element name="one" type="b·:simTyp"/>
+  
+</имен:schema>
