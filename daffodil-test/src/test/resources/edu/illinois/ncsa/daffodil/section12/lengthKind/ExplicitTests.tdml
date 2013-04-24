@@ -514,7 +514,7 @@
 			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
 		</tdml:document>
 		<tdml:errors>
-			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>Schema Definition Error: Property length is not defined</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
@@ -599,7 +599,32 @@
 					</xs:element>
 				</xs:sequence>
 			</xs:complexType>
+    </xs:element>
+
+		<xs:element name="runtimeSDE">
+			<xs:complexType>
+				<xs:sequence>
+          <xs:element name="len" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+					<xs:element name="address" dfdl:lengthKind="explicit"
+						dfdl:length="{ ../ex:len }" dfdl:lengthUnits="bytes">
+						<xs:complexType>
+							<xs:sequence dfdl:sequenceKind="ordered">
+								<xs:element name="houseNumber" type="xs:string"
+									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
+								<xs:element name="street" type="xs:string"
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+								<xs:element name="city" type="xs:string"
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+								<xs:element name="state" type="xs:string"
+									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
 		</xs:element>
+
 
 
 	</tdml:defineSchema>
@@ -643,6 +668,17 @@
 				</fixed>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
-	</tdml:parserTestCase>
+  </tdml:parserTestCase>
+
+	<tdml:parserTestCase name="test_lengthRuntimeSDE"
+		root="runtimeSDE" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[NaN000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>Parse Error</tdml:error>
+      <tdml:error>Expression { ../ex:len } evaluated to something that is not a number</tdml:error>
+		</tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
