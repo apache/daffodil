@@ -1510,7 +1510,7 @@
     Test name: namespaceLimit
        Schema: namespaceCharLim.dfdl.xsd
          Root: one
-      Purpose: This test demonstrates that namespace names can be very long (this one is approx 2600 characters)
+      Purpose: This test demonstrates that namespace names can be very long (this one is approx 5200 characters)
   -->
   
   <tdml:parserTestCase name="namespaceLimit" root="one"
@@ -1546,7 +1546,7 @@
   
   <!--
     Test name: namespaceSpecialChars2
-       Schema: namespaceSpecialChar2.dfdl.xsd
+       Schema: namespaceRules.dfdl.xsd
          Root: one
       Purpose: This test helps demonstrate that DFDL namespaces follow the same naming conventions as XSDL namespaces.
       This test demonstrates a very particular aspect of this convention: x00b7 (the character ·) is listed in the available
@@ -1562,5 +1562,40 @@
       <tdml:error></tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: namespaceRules1
+       Schema: namespaceRules.dfdl.xsd
+         Root: one
+      Purpose: This test helps demonstrate that DFDL namespaces follow the same naming conventions as XSDL namespaces.
+
+  -->
+  
+  <tdml:parserTestCase name="namespaceRules1" root="one"
+    model="namespaceRules.dfdl.xsd" description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R">
+    <tdml:document>1:42</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <one>42</one>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: namespaceRules2
+       Schema: namespaceRules2.dfdl.xsd
+         Root: one
+      Purpose: This test helps demonstrate that DFDL namespaces follow the same naming conventions as XSDL namespaces.
+
+  -->
+  
+  <tdml:parserTestCase name="namespaceRules2" root="one"
+    model="namespaceRules2.dfdl.xsd" description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R">
+    <tdml:document>1:42</tdml:document>
+    <tdml:errors>
+      <tdml:error/>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
 
 </testSuite>
