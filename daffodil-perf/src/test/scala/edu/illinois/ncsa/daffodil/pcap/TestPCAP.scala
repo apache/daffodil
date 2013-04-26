@@ -53,7 +53,7 @@ class TestPCAP extends JUnitSuite {
   @Test def test_pcap_1_6m() { runner.runPerfTest("pcap_1_6m") }
   @Test def test_pcap_55m() { runner.runPerfTest("pcap_55m") }
   @Test def test_pcap_13m() { runner.runPerfTest("pcap_13m") }
-  @Test def test_pcap_1m() { runner.runPerfTest("pcap_1m") }
+  //@Test def test_pcap_1m() { runner.runPerfTest("pcap_1m") }
   //@Test def test_pcap_50m() { runner.runPerfTest("pcap_50m") }
   //@Test def test_pcap_100m() { runner.runPerfTest("pcap_100m") }
   //@Test def test_pcap_500m() { runner.runPerfTest("pcap_500m") }
