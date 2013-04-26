@@ -105,6 +105,8 @@ class Diagnostic(d: SDiagnostic) {
 class DataLocation(dl: SDataLocation) {
   override def toString() = dl.toString
   def isAtEnd() = dl.isAtEnd
+  def bitPos() = dl.bitPos
+  def bytePos() = dl.bytePos
 }
 
 class LocationInSchemaFile(lsf: SLocationInSchemaFile) {
@@ -123,11 +125,24 @@ class DataProcessor(dp: SDataProcessor)
 
   /**
    * Returns an object which contains the result, and/or diagnostic information.
+   *
+   * You must pass the 2nd argument as the actual length in bits if you want
+   * the location().atEnd() function to work. If you pass -1 or don't specify the argument
+   * then the atEnd() function does not work (always returns true)
    */
-  def parse(input: ReadableByteChannel): ParseResult = {
-    val pr = dp.parse(input, -1).asInstanceOf[SParseResult]
+  def parse(input: ReadableByteChannel, lengthLimitInBits: Long): ParseResult = {
+    val pr = dp.parse(input, lengthLimitInBits).asInstanceOf[SParseResult]
     new ParseResult(pr)
   }
+
+  /**
+   * Returns an object which contains the result, and/or diagnostic information.
+   *
+   * Use this when you don't know how big the data is.
+   * On the returned result, the location().atEnd() function does not work properly.
+   * However, the bitPos() and bytePos() functions do work correctly.
+   */
+  def parse(input: ReadableByteChannel): ParseResult = parse(input, -1)
 
 }
 
@@ -151,5 +166,7 @@ class ParseResult(pr: SParseResult)
     docNode.setRootElement(rootElem)
     docNode
   }
+
+  def location(): DataLocation = new DataLocation(pr.resultState.currentLocation)
 
 }

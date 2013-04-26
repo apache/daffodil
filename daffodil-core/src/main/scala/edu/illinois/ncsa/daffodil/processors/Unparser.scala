@@ -316,6 +316,8 @@ class GeneralUnparseFailure(msg: String) extends Throwable with DiagnosticImplMi
 class DataLocUnparse(elem: org.jdom.Element, outStream: OutStream) extends DataLocation {
   override def toString() = "Location in infoset " + elem.getName() + " of Stream: " + outStream
   def isAtEnd: Boolean = Assert.notYetImplemented()
+  def bitPos: Long = Assert.notYetImplemented()
+  def bytePos: Long = Assert.notYetImplemented()
 }
 
 /**
