@@ -43,7 +43,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 
 object StmtEval {
-  def apply(context: ElementBase, eGram: => Gram) = {
+  def apply(context: ElementBase, eGram: Gram) = {
     // little optimization here. If there are no statements (most common case), then let's 
     // shortcut and just use the guts parser.
     val hasStatements = context.notNewVariableInstanceStatements.size > 0

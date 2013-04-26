@@ -1119,7 +1119,7 @@ trait GetAttributesMixin { self: SchemaComponentBase =>
    */
   def getAttributeRequired(name: String) = {
     getAttributeOption(name) match {
-      case None => schemaDefinitionError("The attribute " + name + " is required.")
+      case None => schemaDefinitionError("The attribute '" + name + "' is required.")
       case Some(s) => s
     }
   }

@@ -198,14 +198,23 @@ abstract class StringLengthInBytes(e: ElementBase)
     val decoder = charset.newDecoder()
 
     val reader = getReader(charset, start.bitPos, start)
+
+    // This next block of lines needs to become functionality of the
+    // reader so it can be shared, and decoding is all called from one
+    // place. 
     val bytes = in.getBytes(start.bitPos, nBytes.toInt)
     val cb = decoder.decode(ByteBuffer.wrap(bytes))
     val result = cb.toString
-    //val endBitPos = start.bitPos + (result.length * codepointWidth) // handles 7-bit or wider chars
     val endBitPos = start.bitPos + stringLengthInBitsFnc(result)
     log(LogLevel.Debug, "Parsed: " + result)
     log(LogLevel.Debug, "Ended at bit position " + endBitPos)
     val endCharPos = start.charPos + result.length
+    // 
+    // Maintain our global count of number of characters.
+    // TODO: get rid of global counter for a dataProcessor-saved one. 
+    // 
+    DFDLCharCounter.count += result.length
+
     val currentElement = start.parentElement
     val trimmedResult = dp.removePadding(removePaddingParser, justificationTrim, result)
     // Assert.invariant(currentElement.getName != "_document_")
@@ -452,7 +461,7 @@ abstract class StringDelimited(e: ElementBase)
   //    reader: Reader[Char]): DelimParseResult
 
   def parseMethod(hasDelim: Boolean, delimsParser: dp.Parser[String], delimsRegex: Array[String],
-    reader: Reader[Char]): DelimParseResult = {
+                  reader: Reader[Char]): DelimParseResult = {
     // TODO: Change DFDLDelimParser calls to get rid of Array.empty[String] since we're only passing a single list the majority of the time.
     if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
       val (escapeBlockParser, escapeBlockEndRegex, escapeEscapeRegex) = dp.generateEscapeBlockParsers2(delimsParser,
@@ -639,7 +648,7 @@ abstract class HexBinaryDelimited(e: ElementBase) extends StringDelimited(e) {
 }
 
 case class HexBinaryDelimitedEndOfDataStatic(e: ElementBase)
-  extends HexBinaryDelimited(e) with StaticDelim 
+  extends HexBinaryDelimited(e) with StaticDelim
 
 case class HexBinaryDelimitedEndOfDataDynamic(e: ElementBase)
   extends HexBinaryDelimited(e) with DynamicDelim

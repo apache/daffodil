@@ -51,6 +51,8 @@ class MyException(msg: String)
 abstract class MyBase(parentArg: MyBase)
   extends OOLAGHost(parentArg) {
 
+  def rethrowAsDiagnostic(th: Throwable) = throw th
+
   lazy val a1 = a1_.value
   val a1_ = LV('a1) {
 

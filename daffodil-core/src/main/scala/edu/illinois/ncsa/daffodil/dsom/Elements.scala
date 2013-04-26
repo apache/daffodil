@@ -799,8 +799,9 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
    * Which would cause the above situation where just trying to get
    * the name was failing.
    */
-  override lazy val name = name_.valueOrElse("?name?")
-  private val name_ = LV('name) { localName }
+  override lazy val name = nameFromRef
+  private lazy val nameFromRef = nameFromRef_.valueOrElse("?name?")
+  private val nameFromRef_ = LV('nameFromRef) { localName }
 
   // TODO: perhaps many members of ElementRef are unused. 
   // Consider removing some. Although consider that

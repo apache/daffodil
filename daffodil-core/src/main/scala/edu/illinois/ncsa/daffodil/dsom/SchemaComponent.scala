@@ -191,7 +191,11 @@ trait NamedMixin
   extends GetAttributesMixin { self: SchemaComponentBase =>
   override def prettyName = Misc.getNameFromClass(this) + "(" + name + ")"
 
-  lazy val name = getAttributeRequired("name") // asking for the name could cause an error if it isn't there.
+  requiredEvaluations(name)
+
+  lazy val name = nameFromNameAttribute
+  private lazy val nameFromNameAttribute = nameFromNameAttribute_.valueOrElse("??name??")
+  private val nameFromNameAttribute_ = LV('nameFromNameAttribute) { getAttributeRequired("name") }
 
   def xml: Node
   def schemaDocument: SchemaDocument

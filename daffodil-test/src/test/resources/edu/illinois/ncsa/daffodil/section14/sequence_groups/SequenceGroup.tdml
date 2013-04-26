@@ -105,7 +105,8 @@
          <xs:sequence>
            <xs:element name="e1" type="xs:int"
              dfdl:lengthKind="explicit" dfdl:length="3" />
-           <xs:element type="xs:float"
+             <!-- Let's leave off the name attribute of the next element -->
+           <xs:element  type="xs:float"
              dfdl:lengthKind="explicit" dfdl:length="5" />
            <xs:element name="e3" type="xs:long"
              dfdl:lengthKind="explicit" dfdl:length="4" />
@@ -118,15 +119,22 @@
      model="SequenceGroup546" description="Section 14 Sequence group with left over data - DFDL-14-001R"
      root="SG_05">
      <tdml:document><![CDATA[123123451234]]></tdml:document>
+     <!-- 
      <tdml:infoset>
        <tdml:dfdlInfoset>
          <SG_05>
            <e1>123</e1>
-           <e2>1234</e2>
+           <e2>12345.0</e2>
            <e3>1234</e3>
          </SG_05>
        </tdml:dfdlInfoset>
      </tdml:infoset>
+      -->
+      <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>'name'</tdml:error>
+      <tdml:error>element</tdml:error>
+      </tdml:errors>
    </tdml:parserTestCase>
  
    <tdml:parserTestCase name="SeqGrp_05"
