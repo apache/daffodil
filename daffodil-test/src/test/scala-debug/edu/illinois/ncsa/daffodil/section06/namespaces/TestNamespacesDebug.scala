@@ -48,17 +48,6 @@ class TestNamespacesDebug extends JUnitSuite {
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_namespaceSpecialChars() { runner.runOneTest("namespaceSpecialChars") }
-  //
-  // This test test_namespaceSpecialChars2 works now, so turned off here, on in the non-debug file.
-  //
-  // Note: Several other tests in here also work, but they need to be examined 
-  // to understand if they are fixed, or these are false positives.
-  //
-  // @Test def test_namespaceSpecialChars2() { runner.runOneTest("namespaceSpecialChars2") }
-  @Test def test_namespaceRules1() { runner.runOneTest("namespaceRules1") }
-  @Test def test_namespaceRules2() { runner.runOneTest("namespaceRules2") }
-
   @Test def test_namespace_conflict_01() { runner.runOneTest("namespace_conflict_01") }
   @Test def test_double_nesting_01() { runner.runOneTest("double_nesting_01") }
   //  @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }

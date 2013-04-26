@@ -1559,7 +1559,8 @@
     model="namespaceSpecialChar2.dfdl.xsd" description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R">
     <tdml:document>1:42</tdml:document>
     <tdml:errors>
-      <tdml:error></tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Element or attribute do not match QName production: QName::=(NCName':')?NCName</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1593,7 +1594,8 @@
     model="namespaceRules2.dfdl.xsd" description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R">
     <tdml:document>1:42</tdml:document>
     <tdml:errors>
-      <tdml:error/>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>The prefix "xmlns" cannot be bound to any namespace explicitly; neither can the namespace for "xmlns" be bound to any prefix explicitly</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
