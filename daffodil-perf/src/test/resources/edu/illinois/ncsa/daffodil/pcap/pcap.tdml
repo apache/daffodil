@@ -59,6 +59,8 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <pcap2>
+          <mn>2712847316</mn>
+          <last>1216691588</last>
         </pcap2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -79,6 +81,118 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <pcap2>
+          <mn>2712847316</mn>
+          <last>1130986970</last>
+        </pcap2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: pcap_1m
+       Schema: profilingPCAP.dfdl.xsd
+         Root: pcap2
+      Purpose: This test is to exercise the pcap schema with a 1MB pcap file
+  -->
+  
+  <tdml:parserTestCase name="pcap_1m" root="pcap2"
+    model="profilingPCAP.dfdl.xsd" description="pcap test">
+    <tdml:document>
+      <tdml:documentPart type="file">1m.pcap</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pcap2>
+          <mn>2712847316</mn>
+          <last>1216691588</last>
+        </pcap2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: pcap_50m
+       Schema: profilingPCAP.dfdl.xsd
+         Root: pcap2
+      Purpose: This test is to exercise the pcap schema with a 50MB pcap file
+  -->
+  
+  <tdml:parserTestCase name="pcap_50m" root="pcap2"
+    model="profilingPCAP.dfdl.xsd" description="pcap test">
+    <tdml:document>
+      <tdml:documentPart type="file">50m.pcap</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pcap2>
+          <mn>2712847316</mn>
+          <last>1216691588</last>
+        </pcap2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: pcap_100m
+       Schema: profilingPCAP.dfdl.xsd
+         Root: pcap2
+      Purpose: This test is to exercise the pcap schema with a 100MB pcap file
+  -->
+  
+  <tdml:parserTestCase name="pcap_100m" root="pcap2"
+    model="profilingPCAP.dfdl.xsd" description="pcap test">
+    <tdml:document>
+      <tdml:documentPart type="file">100m.pcap</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pcap2>
+          <mn>2712847316</mn>
+          <last>1216691588</last>
+        </pcap2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: pcap_500m
+       Schema: profilingPCAP.dfdl.xsd
+         Root: pcap2
+      Purpose: This test is to exercise the pcap schema with a 500MB pcap file
+  -->
+  
+  <tdml:parserTestCase name="pcap_500m" root="pcap2"
+    model="profilingPCAP.dfdl.xsd" description="pcap test">
+    <tdml:document>
+      <tdml:documentPart type="file">500m.pcap</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pcap2>
+          <mn>2712847316</mn>
+          <last>1216691588</last>
+        </pcap2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+ 
+ <!--
+    Test name: pcap_1g
+       Schema: profilingPCAP.dfdl.xsd
+         Root: pcap2
+      Purpose: This test is to exercise the pcap schema with a 1GB pcap file
+  -->
+  
+  <tdml:parserTestCase name="pcap_1g" root="pcap2"
+    model="profilingPCAP.dfdl.xsd" description="pcap test">
+    <tdml:document>
+      <tdml:documentPart type="file">1g.pcap</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pcap2>
+          <mn>2712847316</mn>
+          <last>1216691588</last>
         </pcap2>
       </tdml:dfdlInfoset>
     </tdml:infoset>

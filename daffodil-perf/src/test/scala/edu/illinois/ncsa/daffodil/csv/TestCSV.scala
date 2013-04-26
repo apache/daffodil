@@ -65,10 +65,10 @@ class TestCSV extends JUnitSuite {
 
   @Test def test_csv_test() { runner.runPerfTest("csv_test") }
   @Test def test_csv_test_600k() { runner.runPerfTest("csv_test_600k") }
-//  @Test def test_csv_test_176m() { runner.runPerfTest("csv_test_176m") }
-//  @Test def test_csv_test_526m() { runner.runPerfTest("csv_test_526m") }
-//  @Test def test_csv_test_877m() { runner.runPerfTest("csv_test_877m") }
-//  @Test def test_csv_test_1g() { runner.runPerfTest("csv_test_1g") }
+  //@Test def test_csv_test_176m() { runner.runPerfTest("csv_test_176m") }
+  //@Test def test_csv_test_526m() { runner.runPerfTest("csv_test_526m") }
+  //@Test def test_csv_test_877m() { runner.runPerfTest("csv_test_877m") }
+  //@Test def test_csv_test_1g() { runner.runPerfTest("csv_test_1g") }
 
 
 }
