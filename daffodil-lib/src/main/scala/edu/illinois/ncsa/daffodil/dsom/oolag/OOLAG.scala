@@ -226,7 +226,9 @@ object OOLAG extends Logging {
     private[oolag] def circularityDetector(ov: OOLAGValue)(body: => Any) = {
       if (currentOVList_.contains(ov)) {
         System.err.println("Circular OOLAG Value Definition")
-        System.err.println("OOLAGValues (aka 'LVs') on stack are: " + currentOVList.mkString(", "))
+        // This next println was causing problems because toString was
+        // itself causing circular evaluation. The abort above 
+        // System.err.println("OOLAGValues (aka 'LVs') on stack are: " + currentOVList.mkString(", "))
         throw CircularDefinition(ov, currentOVList_)
       }
       currentOVList_ = ov +: currentOVList_
@@ -364,6 +366,17 @@ object OOLAG extends Logging {
     def error(th: Diagnostic): Unit = {
       oolagRoot.oolagError(th)
     }
+
+    /**
+     * Implementor of OOLAGHost constructs Diagnostic objects
+     * because it has other context (schema components)
+     * needed in order to provide a good diagnostic.
+     *
+     * So we have this abstract method that is implemented
+     * by things that can actually construct Diagnostic
+     * objects (Anything that ThrowsSDE)
+     */
+    def rethrowAsDiagnostic(th: Throwable): Nothing
 
     protected def oolagWarn(th: Diagnostic) {
       if (!warnings_.contains(th))
@@ -539,6 +552,11 @@ object OOLAG extends Logging {
           // from other contexts. Otherwise just let it propagate.
           //
           oolagDiagnosticAction(e, this)
+        }
+        case unknown => {
+          val unknownException = unknown
+          log(OOLAGDebug(catchMsg, descrip, unknownException))
+          oolagContext.rethrowAsDiagnostic(unknown)
         }
       } finally {
         // nothing for now

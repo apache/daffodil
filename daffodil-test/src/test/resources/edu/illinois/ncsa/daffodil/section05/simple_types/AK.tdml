@@ -6,7 +6,7 @@
   <parserTestCase name="AK000" root="list" model="AK.dfdl.xsd"
     description="Simple Binary with signed and usigned types - DFDL-5-020R">
     <document>
-      <documentPart type="byte">ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</documentPart>
+      <documentPart type="byte">ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</documentPart>
     </document>
     <infoset>
       <dfdlInfoset>
@@ -27,7 +27,7 @@
   <parserTestCase name="AK001" root="list" model="AK.dfdl.xsd"
     description="Simple Binary with signed and usigned types - DFDL-5-020R">
     <document>
-      <documentPart type="byte">7f7f7fff7fff7fffffff7fffffff7fffffffffffffff7fffffffffffffff</documentPart>
+      <documentPart type="byte">7f7f7fff7fffffff7fffffff7fffffff7fffffffffffffff7fffffffffffffff</documentPart>
     </document>
     <infoset>
       <dfdlInfoset>

@@ -38,6 +38,8 @@ trait ThrowsSDE {
   def SDW(str: String, args: Any*): Unit
   def SDEButContinue(str: String, args: Any*): Unit
 
+  def rethrowAsDiagnostic(th: Throwable) = SDE("%s", th)
+
   def schemaDefinitionErrorButContinue(str: String, args: Any*): Unit = SDEButContinue(str, args: _*)
 
   def schemaDefinitionError(str: String, args: Any*): Nothing = SDE(str, args: _*) // long form synonym

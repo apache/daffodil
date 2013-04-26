@@ -68,6 +68,7 @@ import edu.illinois.ncsa.daffodil.processors.IteratorInputStream
 import edu.illinois.ncsa.daffodil.processors.DFDLCharCounter
 import edu.illinois.ncsa.daffodil.processors.IterableReadableByteChannel
 import edu.illinois.ncsa.daffodil.Tak._
+import java.net.URLDecoder
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -196,7 +197,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
     var bytesProcessed: Long = 0
     var charsProcessed: Long = 0
     Tak.calibrate
-    val ns = Timer.getTimeNS(testName ,{
+    val ns = Timer.getTimeNS(testName, {
       val (by, ch) = runOneTestWithDataVolumes(testName, schema)
       bytesProcessed = by
       charsProcessed = ch
@@ -236,9 +237,10 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
    * so we look for the schema/model/tdml resources in the working directory, and in the same
    * directory as the tdml file, and some other variations.
    */
-  def findTDMLResource(fileName: String): File = {
+  def findTDMLResource(fileName: String): Option[String] = {
+    // try it as is. Maybe it will be in the cwd or relative to that or absolute
     val firstTry = new File(fileName)
-    if (firstTry.exists()) return firstTry
+    if (firstTry.exists()) return Some(fileName)
     // see if it can be found relative to the tdml test file, like next to it.
     val sysId = tsInputSource.getSystemId()
     if (sysId != null) {
@@ -249,34 +251,41 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
         val resourceFileName = sysPath + File.separator + fileName
         log(LogLevel.Debug, "TDML resource name is: %s", resourceFileName)
         val resourceFile = new File(resourceFileName)
-        if (resourceFile.exists()) return resourceFile
+        if (resourceFile.exists()) return Some(resourceFileName)
+      }
+    }
+    // try as a classpath resource (allows eclipse to find it)
+    // ( also will look in the jar - which is bad. Have to avoid that.)
+    val (maybeRes, _) = Misc.getResourceOption(fileName)
+    maybeRes.foreach { url =>
+      // could be that we found the file, could be that we
+      // got a match in the jar. This should tell them apart.
+      if (url.getProtocol == "file") {
+        val resolvedName = url.getPath()
+        val resFile = new File(resolvedName)
+        if (resFile.exists()) return Some(resolvedName)
       }
     }
     // try ignoring the directory part
     val parts = fileName.split("/")
-    if (parts.length > 1) {
+    if (parts.length > 1) { // if there is one
       val filePart = parts.last
       val secondTry = findTDMLResource(filePart) // recursively
-      if (secondTry.exists()) return secondTry;
+      return secondTry
     }
-    throw new FileNotFoundException("Unable to find tdml resource " + fileName + ".")
+    None
   }
 
-  def findModel(modelName: String): Node = {
+  def findEmbeddedSchema(modelName: String): Option[Node] = {
     // schemas defined with defineSchema take priority as names.
     val es = embeddedSchemas.find { defSch => defSch.name == modelName }
     es match {
-      case Some(defschema) => defschema.xsdSchema
-      case None => {
-        val file = findTDMLResource(modelName)
-        val schema = {
-          val res = (new DaffodilXMLLoader(errorHandler)).loadFile(file)
-          res
-        }
-        schema
-      }
+      case Some(defschema) => Some(defschema.xsdSchema)
+      case None => None
     }
   }
+
+  def findSchemaFileName(modelName: String) = findTDMLResource(modelName)
 
 }
 
@@ -308,16 +317,6 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     case _ => false
   }
 
-  def findModel(modelName: String): Node = {
-    if (modelName == "") {
-      suppliedSchema match {
-        case None => throw new Exception("No model.")
-        case Some(s) => return s
-      }
-    } else
-      parent.findModel(modelName)
-  }
-
   var suppliedSchema: Option[Node] = None
 
   protected def runProcessor(processor: DFDL.ProcessorFactory,
@@ -330,20 +329,31 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
   def run(schema: Option[Node] = None): (Long, Long) = {
     suppliedSchema = schema
     val sch = schema match {
-      case Some(sch) => {
+      case Some(node) => {
         if (model != "") throw new Exception("You supplied a model attribute, and a schema argument. Can't have both.")
-        sch
+        node
       }
       case None => {
-        if (model == "") throw new Exception("No model was found.")
-        val schemaNode = findModel(model)
-        schemaNode
+        if (model == "") throw new Exception("No model was specified.") // validation of the TDML should prevent writing this.
+        val schemaNode = parent.findEmbeddedSchema(model)
+        val schemaFileName = parent.findSchemaFileName(model)
+        val schemaNodeOrFileName = (schemaNode, schemaFileName) match {
+          case (None, None) => throw new Exception("Model '" + model + "' was not passed, found embedded in the TDML file, nor as a schema file.")
+          case (Some(_), Some(_)) => throw new Exception("Model '" + model + "' is ambiguous. There is an embedded model with that name, AND a file with that name.")
+          case (Some(node), None) => node
+          case (None, Some(fn)) => fn
+        }
+        schemaNodeOrFileName
       }
     }
     val compiler = Compiler()
     compiler.setDistinguishedRootNode(root, null)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
-    val pf = compiler.compile(sch)
+    val pf = sch match {
+      case node: Node => compiler.compile(node)
+      case fname: String => compiler.compile(fname)
+      case _ => Assert.invariantFailed("can only be Node or String")
+    }
     val data = document.map { _.data }
     val nBits = document.map { _.nBits }
 
@@ -947,10 +957,9 @@ case class DocumentPart(part: Node, parent: Document) {
   }
 
   lazy val fileDataInput = {
-    val file = parent.parent.parent.findTDMLResource(partRawContent)
+    val maybeFile = parent.parent.parent.findTDMLResource(partRawContent)
+    val file = maybeFile.getOrElse(throw new FileNotFoundException("TDMLRunner: data file '" + partRawContent + "' was not found"))
     val fis = new FileInputStream(file)
-    //    val fileBytes = Stream.continually(fis.read()).takeWhile(_ != -1).map(_.toByte).toArray
-    //    bytes2Bits(fileBytes)
     val rbc = fis.getChannel()
     rbc.asInstanceOf[DFDL.Input]
   }

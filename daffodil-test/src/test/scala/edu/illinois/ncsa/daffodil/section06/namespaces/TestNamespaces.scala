@@ -63,19 +63,19 @@ class TestNamespaces extends JUnitSuite {
   val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"),  validateTDMLFile = false)
-  
+  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"), validateTDMLFile = false)
+
   @Test def test_namespaceLimit() { runner.runOneTest("namespaceLimit") }
-//  @Test def test_namespaceSpecialChars() { runner.runOneTest("namespaceSpecialChars") }
-//  @Test def test_namespaceSpecialChars2() { runner.runOneTest("namespaceSpecialChars2") }
-//  @Test def test_namespaceRules1() { runner.runOneTest("namespaceRules1") }
-//  @Test def test_namespaceRules2() { runner.runOneTest("namespaceRules2") }
+  //  @Test def test_namespaceSpecialChars() { runner.runOneTest("namespaceSpecialChars") }
+  @Test def test_namespaceSpecialChars2() { runner.runOneTest("namespaceSpecialChars2") }
+  //  @Test def test_namespaceRules1() { runner.runOneTest("namespaceRules1") }
+  //  @Test def test_namespaceRules2() { runner.runOneTest("namespaceRules2") }
 
   @Test def testSimpleIncludeOfFormat() { runner2.runOneTest("simpleInclude") }
   @Test def testSimpleImportOfFormat() { runner2.runOneTest("simpleImport") }
   @Test def testIncludeNoNamespace() { runner2.runOneTest("includeNoNamespace") }
   @Test def testImportWithOverlappingNSPrefixes1() { runner2.runOneTest("importWithOverlappingNSPrefixes1") }
-  
+
   @Test def test_tdml_schema_import() { runner.runOneTest("tdml_schema_import") }
   @Test def test_tdml_schema_include() { runner.runOneTest("tdml_schema_include") }
   @Test def test_multifile_choice_embed() { runner.runOneTest("multifile_choice_embed") }

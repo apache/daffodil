@@ -11,7 +11,8 @@
         terminator="" initiatedContent="no" textNumberRep="standard"
         separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         byteOrder="bigEndian" binaryNumberRep="binary"
-        alignment="implicit" alignmentUnits="bytes" trailingSkip="0" />
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"
+        representation="text" />
     </appinfo>
   </annotation>
   <!-- MIME type detect -->

@@ -95,8 +95,9 @@ class DFDLSchemaFile(val sset: SchemaSet,
 
   def fatalError(exception: SAXParseException) = {
     val sde = new SchemaDefinitionError(this, "Fatal error loading schema", exception)
-    error(sde)
+    // error(sde) // will get picked up when parser throws after this returns
     validationDiagnostics_ :+= sde
+    // parser throws out of fatalErrors.
   }
 
   lazy val loader = new DaffodilXMLLoader(this)
@@ -135,8 +136,7 @@ class DFDLSchemaFile(val sset: SchemaSet,
 
   def loadXMLSchemaDocument(before: IIMap, sf: Option[DFDLSchemaFile]) = {
     val sd = node match {
-      case <schema>{ _* }</schema> if (
-        NS(node.namespace) == XMLUtils.xsdURI) => {
+      case <schema>{ _* }</schema> if (NS(node.namespace) == XMLUtils.xsdURI) => {
         // top level is a schema. 
 
         val sd = new XMLSchemaDocument(node, sset, Some(iiParent), sf, before)

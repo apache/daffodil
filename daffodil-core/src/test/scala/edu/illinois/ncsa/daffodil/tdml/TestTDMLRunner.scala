@@ -137,7 +137,7 @@ class TestTDMLRunner extends JUnitSuite {
     val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
                   <document>
-                    <documentPart type="file">daffodil-core/src/test/resources/test/tdml/test.txt</documentPart>
+                    <documentPart type="file">test/tdml/test.txt</documentPart>
                   </document>
                   <infoset>
                     <dfdlInfoset xmlns:xs={ xsd } xmlns:xsi={ xsi }>
@@ -161,7 +161,7 @@ class TestTDMLRunner extends JUnitSuite {
     val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
                   <document>
-                    <documentPart type="file">daffodil-core/src/test/resources/test/tdml/test.bin</documentPart>
+                    <documentPart type="file">test/tdml/test.bin</documentPart>
                   </document>
                   <infoset>
                     <dfdlInfoset xmlns:xs={ xsd } xmlns:xsi={ xsi }>
@@ -439,7 +439,7 @@ class TestTDMLRunner extends JUnitSuite {
     lazy val res = Misc.getRequiredResource("/test-suite/ibm-contributed/dpaext1.tdml")
     lazy val ts = new DFDLTestSuite(new File(res.toURI()))
     val mf = ts.findTDMLResource("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
-    assertTrue(mf.exists())
+    assertTrue(new File(mf.get).exists())
   }
 
   val tdmlWithEmbeddedSchema =

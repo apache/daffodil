@@ -49,6 +49,8 @@ import edu.illinois.ncsa.daffodil.util.Logging
 abstract class Gram(contextArg: AnnotatedSchemaComponent)
   extends OOLAGHost(contextArg) {
 
+  def rethrowAsDiagnostic(th: Throwable) = contextArg.rethrowAsDiagnostic(th)
+
   val context: AnnotatedSchemaComponent = contextArg
 
   def deref = this

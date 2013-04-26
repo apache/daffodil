@@ -52,7 +52,8 @@
     <dfdl:format ref="ex:daffodilTest1" representation="binary" encoding="utf-8" alignmentUnits="bits" binaryNumberRep="binary"/>
 
     <xs:element name="string" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="bytes" dfdl:alignment="implicit" dfdl:leadingSkip="4"/>
-    <xs:element name="string2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:lengthUnits="bytes" dfdl:alignment="implicit" dfdl:leadingSkip="16"/>
+    <xs:element name="string2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:lengthUnits="bytes" dfdl:alignment="implicit" dfdl:leadingSkip="16"
+    dfdl:representation="text"/>
     
     <xs:element name="uInt" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32" dfdl:lengthUnits="bits" dfdl:alignment="implicit" dfdl:leadingSkip="1"/>
     <xs:element name="uIntb" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32" dfdl:lengthUnits="bits" dfdl:alignment="32" dfdl:leadingSkip="1"/>
