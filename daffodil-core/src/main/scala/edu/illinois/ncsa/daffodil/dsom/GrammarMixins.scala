@@ -227,8 +227,8 @@ trait ElementBaseGrammarMixin
     
     lazy val fixedLengthHexBinary = Prod("fixedLengthHexBinary", this, isFixedLength,
     lengthUnits match {
-      case LengthUnits.Bytes => new HexBinaryKnownLengthBinaryNumber(this, fixedLength) // TODO: make sure it divides evenly.
-      case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")//new HexBinaryKnownLengthBinaryNumber(this, fixedLength)
+      case LengthUnits.Bytes => HexBinaryFixedLengthInBytes(this, fixedLength)
+      case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
     })
 
@@ -260,8 +260,8 @@ trait ElementBaseGrammarMixin
     
     lazy val implicitLengthHexBinary = Prod("implicitLengthHexBinary", this, hasSpecifiedLength,
     lengthUnits match {
-      case LengthUnits.Bytes => new HexBinaryKnownLengthBinaryNumber(this, facetMaxLength) // TODO: make sure it divides evenly.
-      case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")//new HexBinaryKnownLengthBinaryNumber(this, facetMaxLength)
+      case LengthUnits.Bytes => HexBinaryFixedLengthInBytes(this, facetMaxLength)
+      case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
     })
 
@@ -289,8 +289,8 @@ trait ElementBaseGrammarMixin
     
     lazy val variableLengthHexBinary = Prod("variableLengthHexBinary", this, !isFixedLength,
     lengthUnits match {
-      case LengthUnits.Bytes => new HexBinaryRuntimeLengthBinaryNumber(this)
-      case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")//new HexBinaryRuntimeLengthBinaryNumber(this)
+      case LengthUnits.Bytes => HexBinaryVariableLengthInBytes(this)
+      case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
     })
 

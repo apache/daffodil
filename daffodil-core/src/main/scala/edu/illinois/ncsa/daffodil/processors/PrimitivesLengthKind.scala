@@ -193,6 +193,10 @@ abstract class StringLengthInChars(e: ElementBase, nChars: Long)
 abstract class StringLengthInBytes(e: ElementBase)
   extends StringLength(e) {
 
+  def formatValue(value: String): String = {
+    value
+  }
+
   def parseInput(start: PState, charset: Charset, nBytes: Long): PState = {
     val in = start.inStream
     val decoder = charset.newDecoder()
@@ -220,7 +224,7 @@ abstract class StringLengthInBytes(e: ElementBase)
     // Assert.invariant(currentElement.getName != "_document_")
     // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
     // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
-    currentElement.setDataValue(trimmedResult)
+    currentElement.setDataValue(formatValue(trimmedResult))
     // 
     // if the number of bytes was a multiple of the codepointWidth then 
     // we will have parsed all the bytes, so the endBitPos and endCharPos 
@@ -246,6 +250,20 @@ abstract class HexBinaryLengthInBytes(e: ElementBase)
   extends StringLengthInBytes(e) {
 
   override val charset: Charset = Charset.forName("ISO-8859-1")
+  override val stringLengthInBitsFnc = {
+    def stringBitLength(str: String) = {
+      // variable width encoding, so we have to convert each character 
+      // We assume here that it will be a multiple of bytes
+      // that is, that variable-width encodings are all some number
+      // of bytes.
+      str.getBytes(charset).length * 8
+    }
+    stringBitLength _
+  }
+  override def formatValue(value: String) = {
+    val hexStr = value.map(c => c.toByte.formatted("%02x")).mkString
+    hexStr
+  }
 }
 
 case class HexBinaryFixedLengthInBytes(e: ElementBase, nBytes: Long)
