@@ -77,7 +77,6 @@ class TestSequenceGroups extends JUnitSuite {
 //  @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
   @Test def test_complexEmptyContent() { runner_02.runOneTest("complexEmptyContent") }
 //  @Test def test_noContentComplexSDE() { runner_02.runOneTest("noContentComplexSDE") }
-  @Test def test_elemComplexSDE() { runner_02.runOneTest("elemComplexSDE") }
 
   @Test def test_SeqGrp546() { runner_02.runOneTest("SeqGrp546") }
 

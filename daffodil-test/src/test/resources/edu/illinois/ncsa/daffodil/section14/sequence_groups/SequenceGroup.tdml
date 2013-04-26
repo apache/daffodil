@@ -28,24 +28,7 @@
    </tdml:defineSchema>
    
   <!--
-    Test name: elemComplexSDE
-       Schema: sequenceSDE.dfdl.xsd
-      Purpose: This test demonstrates that it is a schema definition error if a complex type has element-only content.
-  -->
-  
-  <tdml:parserTestCase name="elemComplexSDE" root="elemComplex"
-    model="sequenceSDE.dfdl.xsd" description="Section 14 - DFDL-14-007R.">
-    <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[42]]></tdml:documentPart>
-    </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Invalid content was found starting with element 'xs:element'</tdml:error>
-    </tdml:errors>
-  </tdml:parserTestCase>
-   
-  <!--
-    Test name: complexNoContent
+    Test name: complexEmptyContent
        Schema: emptySDEschema
       Purpose: This test demonstrates that DFDL allows complexTypes with empty content (not to be confused with NO content)
   -->
