@@ -75,9 +75,10 @@ class ParseError(sc: SchemaComponent, val pstate: Option[PState], kind: String, 
     //
     // For now, we'll just do an automatic English message.
     //
-    val msg =
-      if (kind.contains("%")) kind.format(args: _*)
-      else (kind + "(%s)").format(argsAsString)
+    val msg = {
+      if (args.size > 0) kind.format(args: _*)
+      else kind
+    }
     val res = "Parse Error: " + msg +
       "\nSchema context: %s %s".format(sc, sc.locationDescription) +
       pstate.map { ps => "\nData location was preceding %s".format(ps.currentLocation) }.getOrElse("(no data location)")
@@ -94,7 +95,7 @@ class ParseAlternativeFailed(sc: SchemaComponent, state: PState, val errors: Seq
   extends ParseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors)
 
 class AltParseFailed(sc: SchemaComponent, state: PState,
-                     diags: Seq[Diagnostic])
+  diags: Seq[Diagnostic])
   extends ParseError(sc, Some(state), "All alternatives failed. Reason(s): %s", diags) {
 
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = diags.flatMap { _.getLocationsInSchemaFiles }
@@ -189,8 +190,8 @@ trait WithParseErrorThrowing {
    * Passing the context explicitly
    */
   def PECheck(contextArg: SchemaComponent,
-              testTrueMeansOK: => Boolean,
-              kind: String, args: Any*) {
+    testTrueMeansOK: => Boolean,
+    kind: String, args: Any*) {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
     if (!testTrueMeansOK) {
       throw new ParseError(contextArg, None, kind, args: _*)
@@ -596,8 +597,8 @@ object PState {
    * Initialize the state block given our InStream and a root element declaration.
    */
   def createInitialState(scr: SchemaComponentRegistry,
-                         rootElemDecl: GlobalElementDecl,
-                         in: InStream): PState = {
+    rootElemDecl: GlobalElementDecl,
+    in: InStream): PState = {
 
     val doc = Infoset.newDocument()
     val variables = rootElemDecl.schemaDocument.schemaSet.variableMap
@@ -626,10 +627,10 @@ object PState {
    * Construct our InStream object and initialize the state block.
    */
   def createInitialState(scr: SchemaComponentRegistry,
-                         rootElemDecl: GlobalElementDecl,
-                         input: DFDL.Input,
-                         bitOffset: Long = 0,
-                         bitLengthLimit: Long = -1): PState = {
+    rootElemDecl: GlobalElementDecl,
+    input: DFDL.Input,
+    bitOffset: Long = 0,
+    bitLengthLimit: Long = -1): PState = {
     val inStream =
       InStream.fromByteChannel(rootElemDecl, input, bitOffset, bitLengthLimit)
     createInitialState(scr, rootElemDecl, inStream)

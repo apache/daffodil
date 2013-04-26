@@ -195,28 +195,15 @@ class Glob(val lvl: LogLevel.Value, val msg: String, argSeq: => Seq[Any]) {
       try { // this can fail, if for example the string uses % for other than 
         // formats (so if the string is something that mentions DFDL entities,
         // which use % signs in their syntax.
-        val str = msg.format(args: _*)
+        val str = {
+          if (args.size > 0) msg.format(args: _*)
+          else msg
+        }
         str
       } catch {
         case e: Exception => {
-          val exc = e
-          // If it fails, we punt on formatting, and just 
-          // concatenate 
-          val str = try {
-            exc.getMessage() + args.mkString(" ")
-          } catch {
-            case d => {
-              // if it double fails we just put out a string
-              // we know cannot fail.
-              val nestedExc = d
-              val msg = "Nested exceptions when logging. " + "" +
-                "Cannot display exception message. " +
-                "Exception class was: " +
-                Misc.getNameFromClass(exc)
-              msg
-            }
-          }
-          str
+          val estring = try { e.toString } catch { case _ => e.getClass.getName }
+          Assert.abort("An exception occurred whilst logging. Exception: " + estring)
         }
       }
     res
