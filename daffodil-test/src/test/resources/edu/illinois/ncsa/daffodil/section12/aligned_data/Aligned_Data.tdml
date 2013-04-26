@@ -49,20 +49,47 @@
   
   <tdml:defineSchema name="implicitAlignmentSchema">
 
-    <dfdl:format ref="ex:daffodilTest1" representation="binary" encoding="utf-8" alignmentUnits="bits" binaryNumberRep="binary"/>
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" encoding="utf-8" 
+      lengthUnits="bits" alignmentUnits="bits" binaryNumberRep="binary"/>
 
-    <xs:element name="string" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="bytes" dfdl:alignment="implicit" dfdl:leadingSkip="4"/>
-    <xs:element name="string2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:lengthUnits="bytes" dfdl:alignment="implicit" dfdl:leadingSkip="16"
-    dfdl:representation="text"/>
-    
-    <xs:element name="uInt" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32" dfdl:lengthUnits="bits" dfdl:alignment="implicit" dfdl:leadingSkip="1"/>
-    <xs:element name="uIntb" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32" dfdl:lengthUnits="bits" dfdl:alignment="32" dfdl:leadingSkip="1"/>
-    
-    <xs:element name="uShort" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bits" dfdl:alignment="implicit" dfdl:leadingSkip="1"/>
-    <xs:element name="uShortb" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bits" dfdl:alignment="16" dfdl:leadingSkip="1"/>
+    <xs:element name="stringUtf8" type="xs:string" dfdl:lengthKind="implicit" dfdl:length="4" dfdl:encoding="utf-8" 
+      dfdl:lengthUnits="bytes" dfdl:alignment="implicit" dfdl:leadingSkip="4"/>
+    <xs:element name="stringUtf16" type="xs:string" dfdl:lengthKind="implicit" dfdl:encoding="utf-16be" 
+      dfdl:lengthUnits="bytes" dfdl:alignment="1" dfdl:leadingSkip="4"/>
     
     <xs:element name="hB" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:alignment="implicit" dfdl:alignmentUnits="bits" dfdl:leadingSkip="4" />
     <xs:element name="hB2" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:alignment="implicit" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4" />
+
+    <xs:element name="uInt" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32" dfdl:alignment="implicit" dfdl:leadingSkip="1"/>
+    <xs:element name="uShort" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:alignment="implicit" dfdl:leadingSkip="1"/>
+    <xs:element name="uLong" type="xs:unsignedLong" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="5"/>
+    <xs:element name="int" type="xs:int" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="16"/>
+    <xs:element name="short" type="xs:short" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="6"/>
+    <xs:element name="long" type="xs:long" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="20"/>
+    <xs:element name="byte" type="xs:byte" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2"/>
+    <xs:element name="uByte" type="xs:unsignedByte" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2"/>
+      
+ <!-- TEXTUAL DATA -->
+      
+    <xs:element name="string2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:lengthUnits="bytes" dfdl:alignment="implicit" dfdl:leadingSkip="16"
+    dfdl:representation="text"/>
+  
+    <dfdl:defineFormat name="textImp">
+      <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" representation="text" alignment="implicit" alignmentUnits="bytes" />
+    </dfdl:defineFormat>
+  
+    <xs:element name="uIntT" type="xs:unsignedInt" dfdl:ref="ex:textImp" dfdl:leadingSkip="1"/>
+    <xs:element name="uIntT2" type="xs:unsignedInt" dfdl:ref="ex:textImp" dfdl:encoding="utf-16be" dfdl:leadingSkip="1"/>
+    <xs:element name="uShortT" type="xs:unsignedShort" dfdl:ref="ex:textImp" dfdl:leadingSkip="1"/>
+    <xs:element name="uShortT2" type="xs:unsignedShort" dfdl:ref="ex:textImp" dfdl:encoding="utf-16be" dfdl:leadingSkip="1"/>
+
+    <xs:element name="uLongT" type="xs:unsignedLong" dfdl:ref="ex:textImp" dfdl:leadingSkip="5"/>
+    <xs:element name="intT" type="xs:int" dfdl:ref="ex:textImp" dfdl:leadingSkip="16"/>
+    <xs:element name="shortT" type="xs:short" dfdl:ref="ex:textImp" dfdl:leadingSkip="6"/>
+    <xs:element name="longT" type="xs:long" dfdl:ref="ex:textImp" dfdl:leadingSkip="20"/>
+    <xs:element name="byteT" type="xs:byte" dfdl:ref="ex:textImp" dfdl:leadingSkip="2"/>
+    <xs:element name="uByteT" type="xs:unsignedByte" dfdl:ref="ex:textImp" dfdl:leadingSkip="2"/>
+    
 
   </tdml:defineSchema>
   
@@ -232,11 +259,36 @@
   <!--
      Test Name: implicitAlignmentString1
         Schema: implicitAlignmentSchema
-          Root: string
-       Purpose: This test
+          Root: stringUtf8
+       Purpose: This test demonstrates that the implicit alignment for an xs:string
+                is determined by character set encoding. In this case the encoding is utf-8
   -->
 
-  <tdml:parserTestCase name="implicitAlignmentString1" root="string"
+  <tdml:parserTestCase name="implicitAlignmentString1" root="stringUtf8"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - String - DFDL-12-014R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">0110 0111</tdml:documentPart> <!-- leadingSkip and buffer to fulfill alignment -->
+      <tdml:documentPart type="bits">01101111 01100001 01110100 01110011</tdml:documentPart> <!-- string -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <string>oats</string>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentStringUtf16
+        Schema: implicitAlignmentSchema
+          Root: stringUtf8
+       Purpose: This test demonstrates that the implicit alignment for an xs:string
+                is determined by character set encoding. In this case the encoding is utf-8
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentStringUtf16" root="stringUtf16"
     model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - String - DFDL-12-014R">
 
     <tdml:document>
@@ -256,7 +308,7 @@
      Test Name: implicitAlignmentString2
         Schema: implicitAlignmentSchema
           Root: string2
-       Purpose: This test demonstrates that the implicit alignment for type 'string' is 8 bits
+       Purpose: This test demonstrates that the implicit alignment for the text representation of type 'string' is 8 bits
   -->
 
   <tdml:parserTestCase name="implicitAlignmentString2" root="string2"
@@ -366,5 +418,297 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentInt
+        Schema: implicitAlignmentSchema
+          Root: int
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'int' is 32 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentInt" root="int"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - int (binary) - DFDL-12-019R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">a4 b4</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="byte">a9 cc</tdml:documentPart> <!-- buffer to fulfill alignment -->
+      <tdml:documentPart type="byte">00 00 00 1d</tdml:documentPart> <!-- int -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <int>29</int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentInt2
+        Schema: implicitAlignmentSchema
+          Root: int
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'int' is 32 bits
+                This test uses the binary representation of a negative number. 
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentInt2" root="int"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - int (binary) - DFDL-12-019R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">a4 b4</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="byte">a9 cc</tdml:documentPart> <!-- buffer to fulfill alignment -->
+      <tdml:documentPart type="byte">ff ff ff e3</tdml:documentPart> <!-- int -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <int>-29</int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentShort
+        Schema: implicitAlignmentSchema
+          Root: short
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'short' is 16 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentShort" root="short"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - short (binary) - DFDL-12-020R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">100100</tdml:documentPart> <!-- leadingSkip (6 bits) -->
+      <tdml:documentPart type="bits">11011000 10</tdml:documentPart> <!-- buffer to fulfill alignment -->
+      <tdml:documentPart type="bits">00000000 10010101</tdml:documentPart> <!-- short -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <short>149</short>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentShort2
+        Schema: implicitAlignmentSchema
+          Root: short
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'short' is 16 bits
+                The data is the binary representation of a negative value.   
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentShort2" root="short"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - short (binary) - DFDL-12-020R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">100100</tdml:documentPart> <!-- leadingSkip (6 bits) -->
+      <tdml:documentPart type="bits">11011000 10</tdml:documentPart> <!-- buffer to fulfill alignment -->
+      <tdml:documentPart type="bits">11111111 01101011</tdml:documentPart> <!-- short -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <short>-149</short>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentLong
+        Schema: implicitAlignmentSchema
+          Root: long
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'long' is 64 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentLong" root="long"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - long (binary) - DFDL-12-018R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">11010101 10101010 1101</tdml:documentPart> <!-- leadingSkip (20 bits) -->
+      <tdml:documentPart type="bits">1101 01000101 11010010 11010010 11001000 00000010</tdml:documentPart> <!-- buffer to fulfill alignment -->
+      <tdml:documentPart type="byte">00 b3 b3 b3 b3 b3 b3 b3</tdml:documentPart> <!-- long -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <long>50581605226623923</long>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentByte
+        Schema: implicitAlignmentSchema
+          Root: byte
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'byte' is 8 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentByte" root="byte"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - byte (binary) - DFDL-12-021R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">11</tdml:documentPart> <!-- leadingSkip (2 bits) -->
+      <tdml:documentPart type="bits">110101</tdml:documentPart> <!-- buffer to fulfill alignment -->
+      <tdml:documentPart type="bits">01001010</tdml:documentPart> <!-- byte -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <byte>74</byte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentByte2
+        Schema: implicitAlignmentSchema
+          Root: byte
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'byte' is 8 bits
+                The data provided represents a negative value.   
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentByte2" root="byte"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - byte (binary) - DFDL-12-021R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">11</tdml:documentPart> <!-- leadingSkip (2 bits) -->
+      <tdml:documentPart type="bits">110101</tdml:documentPart> <!-- buffer to fulfill alignment -->
+      <tdml:documentPart type="bits">10110110</tdml:documentPart> <!-- byte -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <byte>-74</byte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentUByte
+        Schema: implicitAlignmentSchema
+          Root: uByte
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'unsignedByte' is 8 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentUByte" root="uByte"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedByte (binary) - DFDL-12-021R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">11</tdml:documentPart> <!-- leadingSkip (2 bits) -->
+      <tdml:documentPart type="bits">110101</tdml:documentPart> <!-- buffer to fulfill alignment -->
+      <tdml:documentPart type="bits">01001010</tdml:documentPart> <!-- uByte -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uByte>74</uByte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentUByte2
+        Schema: implicitAlignmentSchema
+          Root: uByte
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'unsignedByte' is 8 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentUByte2" root="uByte"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedByte (binary) - DFDL-12-021R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">11</tdml:documentPart> <!-- leadingSkip (2 bits) -->
+      <tdml:documentPart type="bits">110101</tdml:documentPart> <!-- buffer to fulfill alignment -->
+      <tdml:documentPart type="bits">10110110</tdml:documentPart> <!-- uByte -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uByte>182</uByte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentUIntT
+        Schema: implicitAlignmentSchema
+          Root: uIntT
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'unsignedInt' is
+                encoding-specific (generally 8 bits)
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentUIntT" root="uIntT"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (text) - DFDL-12-019R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">3</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="text">42</tdml:documentPart> <!-- uIntT -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uIntT>42</uIntT>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentUIntT2
+        Schema: implicitAlignmentSchema
+          Root: uIntT2
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'unsignedInt' is
+                encoding-specific (generally 8 bits - in this case it should be 16 bits because the encoding is utf-16be)
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentUIntT2" root="uIntT2"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (text) - DFDL-12-019R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00 34</tdml:documentPart> <!-- leadingSkip - byte-representation of the number 4 -->
+      <tdml:documentPart type="byte">00 34 00 32</tdml:documentPart> <!-- uIntT - byte-representation of the number 42 -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uIntT2>42</uIntT2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentUShortT2
+        Schema: implicitAlignmentSchema
+          Root: uShortT2
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'unsignedShort' is
+                encoding-specific (generally 8 bits - in this case it should be 16 bits because the encoding is utf-16be)
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentUShortT2" root="uShortT2"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedShort (text) - DFDL-12-020R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00 34</tdml:documentPart> <!-- leadingSkip - byte-representation of the number 4 -->
+      <tdml:documentPart type="byte">00 32</tdml:documentPart> <!-- uIntT - byte-representation of the number 2 -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uShortT2>2</uShortT2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
 
 </tdml:testSuite>

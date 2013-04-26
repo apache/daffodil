@@ -65,13 +65,28 @@ class TestAlignedData {
  */
 
 //  @Test def test_implicitAlignmentString1() = { runner1.runOneTest("implicitAlignmentString1") }
+//  @Test def test_implicitAlignmentStringUtf16() = { runner1.runOneTest("implicitAlignmentStringUtf16") }
   @Test def test_implicitAlignmentString2() = { runner1.runOneTest("implicitAlignmentString2") }
 
-//  @Test def test_implicitAlignmentUInt() = { runner1.runOneTest("implicitAlignmentUInt") }
-  @Test def test_implicitAlignmentUIntb() = { runner1.runOneTest("implicitAlignmentUIntb") }
+  @Test def test_implicitAlignmentUInt() = { runner1.runOneTest("implicitAlignmentUInt") }
+  @Test def test_implicitAlignmentUShort() = { runner1.runOneTest("implicitAlignmentUShort") }
   
-//  @Test def test_implicitAlignmentUShort() = { runner1.runOneTest("implicitAlignmentUShort") }
-  @Test def test_implicitAlignmentUShortb() = { runner1.runOneTest("implicitAlignmentUShortb") }
+  @Test def test_implicitAlignmentInt() = { runner1.runOneTest("implicitAlignmentInt") }
+  @Test def test_implicitAlignmentInt2() = { runner1.runOneTest("implicitAlignmentInt2") }
+  
+  @Test def test_implicitAlignmentShort() = { runner1.runOneTest("implicitAlignmentShort") }
+  @Test def test_implicitAlignmentShort2() = { runner1.runOneTest("implicitAlignmentShort2") }
+  
+  @Test def test_implicitAlignmentLong() = { runner1.runOneTest("implicitAlignmentLong") }
+  @Test def test_implicitAlignmentByte() = { runner1.runOneTest("implicitAlignmentByte") }
+  @Test def test_implicitAlignmentByte2() = { runner1.runOneTest("implicitAlignmentByte2") }
+  @Test def test_implicitAlignmentUByte() = { runner1.runOneTest("implicitAlignmentUByte") }
+  @Test def test_implicitAlignmentUByte2() = { runner1.runOneTest("implicitAlignmentUByte2") }
+  
+  @Test def test_implicitAlignmentUIntT() = { runner1.runOneTest("implicitAlignmentUIntT") }
+//  @Test def test_implicitAlignmentUIntT2() = { runner1.runOneTest("implicitAlignmentUIntT2") }
+  
+//  @Test def test_implicitAlignmentUShortT2() = { runner1.runOneTest("implicitAlignmentUShortT2") }
   
   val tdml2 = testDir_01 + "BinaryInput_01.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
