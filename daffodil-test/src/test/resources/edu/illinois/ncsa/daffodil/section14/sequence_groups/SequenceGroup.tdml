@@ -119,21 +119,10 @@
      model="SequenceGroup546" description="Section 14 Sequence group with left over data - DFDL-14-001R"
      root="SG_05">
      <tdml:document><![CDATA[123123451234]]></tdml:document>
-     <!-- 
-     <tdml:infoset>
-       <tdml:dfdlInfoset>
-         <SG_05>
-           <e1>123</e1>
-           <e2>12345.0</e2>
-           <e3>1234</e3>
-         </SG_05>
-       </tdml:dfdlInfoset>
-     </tdml:infoset>
-      -->
       <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>'name'</tdml:error>
-      <tdml:error>element</tdml:error>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>'name'</tdml:error>
+        <tdml:error>element</tdml:error>
       </tdml:errors>
    </tdml:parserTestCase>
  
