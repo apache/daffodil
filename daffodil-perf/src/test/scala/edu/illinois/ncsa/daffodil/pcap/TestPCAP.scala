@@ -50,9 +50,9 @@ class TestPCAP extends JUnitSuite {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   @Test def test_pcap_test() { runner.runPerfTest("pcap_test") }
-  @Test def test_pcap_1_6m() { runner.runPerfTest("pcap_1_6m") }
-  @Test def test_pcap_55m() { runner.runPerfTest("pcap_55m") }
-  @Test def test_pcap_13m() { runner.runPerfTest("pcap_13m") }
+  //@Test def test_pcap_1_6m() { runner.runPerfTest("pcap_1_6m") }
+  //@Test def test_pcap_55m() { runner.runPerfTest("pcap_55m") }
+  //@Test def test_pcap_13m() { runner.runPerfTest("pcap_13m") }
   //@Test def test_pcap_1m() { runner.runPerfTest("pcap_1m") }
   //@Test def test_pcap_50m() { runner.runPerfTest("pcap_50m") }
   //@Test def test_pcap_100m() { runner.runPerfTest("pcap_100m") }
