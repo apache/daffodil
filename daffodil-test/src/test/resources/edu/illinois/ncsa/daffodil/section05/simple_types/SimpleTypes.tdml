@@ -1675,6 +1675,25 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
+  <!--
+    Test name: hexBinary_rep
+    Schema: HexBinary
+    Purpose: This document demonstrates that when a type is hexBinary, the representation is assumed to be
+             binary, and the actual 'representation' property is ignored.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_rep" root="hB_rep"
+      model="HexBinary" description="Section 13 Simple Types - hexBinary - DFDL-13-018R">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1d1]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_rep>a1b1c1d1</hB_rep>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
   <tdml:defineSchema name="SimpleTypes-padding">
     <dfdl:format ref="ex:daffodilTest1" representation="text"
       lengthUnits="characters" encoding="utf-8" byteOrder="bigEndian" 
@@ -4361,6 +4380,43 @@
         <xs:maxLength value="40"/>
       </xs:restriction>
     </xs:simpleType>
+    
+    <xs:simpleType name="stHexBinary_02" >
+      <xs:restriction base="xs:hexBinary">
+        <xs:minLength value="5"/>
+        <xs:maxLength value="10"/>
+      </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:element name="hB_rep" dfdl:representation="text" type="xs:hexBinary" dfdl:lengthKind="delimited"/>
+
+    <xs:element name="hB_imp">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="hB" type="ex:stHexBinary_02" dfdl:lengthKind="implicit"/>
+          <xs:element name="extra" type="xs:hexBinary" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="hB_imp2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="hB" type="ex:stHexBinary_02" dfdl:encoding="utf-16be" dfdl:lengthKind="implicit"/>
+          <xs:element name="extra" type="xs:hexBinary" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="hB_imp3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="hB" type="ex:stHexBinary_02" dfdl:encoding="utf-16le" dfdl:lengthKind="implicit"/>
+          <xs:element name="extra" type="xs:hexBinary" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
   
   <!--
@@ -4506,6 +4562,94 @@
         <hb_root04>
         <text>546f6461792077652063656c656272617465206f757220696e646570656e64656e63652064617921</text>
         </hb_root04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_Implicit_02
+    Schema: HexBinary
+    Purpose: This document demonstrates the use of the hexBinary simple type with byte
+    input using lengthKind implicit.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_Implicit_02" root="hB_imp"
+      model="HexBinary" description="Section 12 Length Props - Implicit Lengths - hexBinary - DFDL-12-069R">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[546F6461792077652063656C656272617465206F757220696E646570656E64656E63652064617921]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_imp>
+          <hB>546f6461792077652063</hB>
+          <extra>656c656272617465206f757220696e646570656e64656e63652064617921</extra>
+        </hB_imp>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_Implicit_03
+    Schema: HexBinary
+    Purpose: This document demonstrates the use of the hexBinary simple type with byte
+    input using lengthKind implicit and utf-16be encoding.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_Implicit_03" root="hB_imp2"
+      model="HexBinary" description="Section 12 Length Props - Implicit Lengths - hexBinary - DFDL-12-069R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 61 00 69 00 6E 00 74 00 20 00 74 00 68 00 61 00 74 00 20 00 73 00 6F 00 6D 00 65 00 20 00 74 00 65 00 78 00 74</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_imp2>
+          <hB>00610069006e00740020</hB>
+          <extra>007400680061007400200073006f006d006500200074006500780074</extra>
+        </hB_imp2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_Implicit_03b
+    Schema: HexBinary
+    Purpose: This document demonstrates the use of the hexBinary simple type with byte
+    input using lengthKind implicit and utf-16be encoding. 
+  -->
+
+  <tdml:parserTestCase name="hexBinary_Implicit_03b" root="hB_imp2"
+      model="HexBinary" description="Section 12 Length Props - Implicit Lengths - hexBinary - DFDL-12-069R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 64 00 6F 00 6E 00 27 00 74 00 20 00 74 00 72 00 69 00 6D 00 20 00 69 00 74 00 21</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_imp2>
+          <hB>0064006f006e00270074</hB>
+          <extra>0020007400720069006d0020006900740021</extra>
+        </hB_imp2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_Implicit_04
+    Schema: HexBinary
+    Purpose: This document demonstrates the use of the hexBinary simple type with byte
+    input using lengthKind implicit and utf-16le encoding.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_Implicit_04" root="hB_imp3"
+      model="HexBinary" description="Section 12 Length Props - Implicit Lengths - hexBinary - DFDL-12-069R">
+    <tdml:document>
+      <tdml:documentPart type="byte">61 00 69 00 6E 00 74 00 20 00 74 00 68 00 61 00 74 00 20 00 73 00 6F 00 6D 00 65 00 20 00 74 00 65 00 78 00 74 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_imp3>
+          <hB>610069006e0074002000</hB>
+          <extra>7400680061007400200073006f006d00650020007400650078007400</extra>
+        </hB_imp3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

@@ -49,6 +49,17 @@ class TestSimpleTypes extends JUnitSuite {
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
+  @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") }
+  @Test def test_hexBinary_rep() { runner.runOneTest("hexBinary_rep") }
+  @Test def test_hexBinary_Delimited_01() { runner.runOneTest("hexBinary_Delimited_01") }
+  @Test def test_hexBinary_Delimited_02() { runner.runOneTest("hexBinary_Delimited_02") }
+  @Test def test_hexBinary_Delimited_03() { runner.runOneTest("hexBinary_Delimited_03") }
+  @Test def test_hexBinary_Implicit_01() { runner.runOneTest("hexBinary_Implicit_01") }
+  @Test def test_hexBinary_Implicit_02() { runner.runOneTest("hexBinary_Implicit_02") }
+//  @Test def test_hexBinary_Implicit_03() { runner.runOneTest("hexBinary_Implicit_03") }
+//  @Test def test_hexBinary_Implicit_03b() { runner.runOneTest("hexBinary_Implicit_03b") }
+  @Test def test_hexBinary_Implicit_04() { runner.runOneTest("hexBinary_Implicit_04") }
+
   @Test def test_dateTextNumberRep() { runner.runOneTest("dateTextNumberRep") }
 
   @Test def test_datePattern02() { runner.runOneTest("datePattern02") }
@@ -349,8 +360,6 @@ class TestSimpleTypes extends JUnitSuite {
 
 //  @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }
   
-//  @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") }
-
   @Test def test_literalChar_padding() { runner.runOneTest("literalChar_padding") }
   @Test def test_literalChar_padding2() { runner.runOneTest("literalChar_padding2") }
   @Test def test_literalChar_padding3() { runner.runOneTest("literalChar_padding3") }
@@ -369,4 +378,5 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_padding_nil() { runner.runOneTest("padding_nil") }
   @Test def test_padding_nil2() { runner.runOneTest("padding_nil2") }
   @Test def test_justification_1() { runner.runOneTest("justification_1") }
+
 }
