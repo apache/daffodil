@@ -4374,6 +4374,15 @@
 			</xs:complexType>
 		</xs:element>
     
+    <xs:element name="hB_root05">
+			<xs:complexType>
+        <xs:sequence>
+          <xs:element name="str" type="xs:string" dfdl:lengthKind="explicit" dfdl:representation="text" dfdl:length="5" dfdl:lengthUnits="bytes"/>
+          <xs:element name="hex" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ xs:hexBinary(../ex:str) }"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+    
     <xs:simpleType name="stHexBinary_01" >
       <xs:restriction base="xs:hexBinary">
         <xs:minLength value="40"/>
@@ -4672,6 +4681,29 @@
           <hB>610069006e0074002000</hB>
           <extra>7400680061007400200073006f006d00650020007400650078007400</extra>
         </hB_imp3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_func
+       Schema: HexBinary
+      Purpose: This document demonstrates the use of the hexBinary constructor function. In this case it will turn
+               a string (assumed compliant) into a string of hexBinary
+  -->
+
+  <tdml:parserTestCase name="hexBinary_func" root="hB_root05"
+      model="HexBinary" description="Section 23 - xs:hexBinary() - DFDL-23-077R">
+    <tdml:document>
+      <tdml:documentPart type="text">ABCDABABAB</tdml:documentPart>
+      <tdml:documentPart type="byte"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_root05>
+          <str>ABCDABABAB</str>
+          <hex>abcdababab</hex>
+        </hB_root05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
