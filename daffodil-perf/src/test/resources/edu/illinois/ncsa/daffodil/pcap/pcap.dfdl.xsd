@@ -4,7 +4,7 @@
       
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format alignment="implicit" alignmentUnits="bits" trailingSkip="0" separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+      <dfdl:format alignment="1" alignmentUnits="bits" trailingSkip="0" separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" lengthKind="delimited" lengthUnits="bits" representation="binary" separatorPolicy="suppressed" separatorPosition="infix" 
         occursCountKind="parsed" byteOrder="littleEndian" binaryNumberRep="binary" encoding="UTF-8"/>
     </xs:appinfo>
