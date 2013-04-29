@@ -149,6 +149,24 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="ivc_12_1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:int" />
+          <xs:element name="ivc_int_range_min" type="xs:int" dfdl:inputValueCalc="{ -2147483649 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_12_2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:int" />
+          <xs:element name="ivc_int_range_max" type="xs:int" dfdl:inputValueCalc="{ 2147483648 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -277,6 +295,24 @@
     <tdml:document>7</tdml:document>
     <tdml:errors>
       <tdml:error />
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_Int_Range_Min"
+    root="ivc_12_1" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>7</tdml:document>
+    <tdml:errors>
+      <tdml:error>InputValueCalc failed. Value -2147483649 was found to be outside the range of type Int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_Int_Range_Max"
+    root="ivc_12_2" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>7</tdml:document>
+    <tdml:errors>
+      <tdml:error>InputValueCalc failed. Value 2147483648 was found to be outside the range of type Int</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 </tdml:testSuite>

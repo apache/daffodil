@@ -57,23 +57,23 @@
 				<xs:sequence>
 					<xs:element name="e" type="xs:byte" dfdl:lengthKind="implicit"
 						dfdl:representation="binary" />
-					<xs:element name="e0" type="xs:byte" dfdl:lengthKind="implicit"
+					<xs:element name="e0" type="xs:unsignedByte" dfdl:lengthKind="implicit"
 						dfdl:inputValueCalc="{ dfdl:setBits(1, 0, 0, 0, 0, 0 , 0, 0) }" />
-					<xs:element name="e1" type="xs:byte" dfdl:lengthKind="implicit"
+					<xs:element name="e1" type="xs:unsignedByte" dfdl:lengthKind="implicit"
 						dfdl:inputValueCalc="{ dfdl:setBits(0, 1, 0, 0, 0, 0 , 0, 0) }" />
-					<xs:element name="e2" type="xs:byte" dfdl:lengthKind="implicit"
+					<xs:element name="e2" type="xs:unsignedByte" dfdl:lengthKind="implicit"
 						dfdl:inputValueCalc="{ dfdl:setBits(0, 0, 1, 0, 0, 0 , 0, 0) }" />
-					<xs:element name="e3" type="xs:byte" dfdl:lengthKind="implicit"
+					<xs:element name="e3" type="xs:unsignedByte" dfdl:lengthKind="implicit"
 						dfdl:inputValueCalc="{ dfdl:setBits(0, 0, 0, 1, 0, 0 , 0, 0) }" />
-					<xs:element name="e4" type="xs:byte" dfdl:lengthKind="implicit"
+					<xs:element name="e4" type="xs:unsignedByte" dfdl:lengthKind="implicit"
 						dfdl:inputValueCalc="{ dfdl:setBits(0, 0, 0, 0, 1, 0 , 0, 0) }" />
-					<xs:element name="e5" type="xs:byte" dfdl:lengthKind="implicit"
+					<xs:element name="e5" type="xs:unsignedByte" dfdl:lengthKind="implicit"
 						dfdl:inputValueCalc="{ dfdl:setBits(0, 0, 0, 0, 0, 1 , 0, 0) }" />
-					<xs:element name="e6" type="xs:byte" dfdl:lengthKind="implicit"
+					<xs:element name="e6" type="xs:unsignedByte" dfdl:lengthKind="implicit"
 						dfdl:inputValueCalc="{ dfdl:setBits(0, 0, 0, 0, 0, 0 , 1, 0) }" />
-					<xs:element name="e7" type="xs:byte" dfdl:lengthKind="implicit"
+					<xs:element name="e7" type="xs:unsignedByte" dfdl:lengthKind="implicit"
 						dfdl:inputValueCalc="{ dfdl:setBits(0, 0, 0, 0, 0, 0 , 0, 1) }" />
-					<xs:element name="e8" type="xs:byte" dfdl:lengthKind="implicit"
+					<xs:element name="e8" type="xs:unsignedByte" dfdl:lengthKind="implicit"
 						dfdl:inputValueCalc="{ dfdl:setBits(1, 1, 1, 1, 1, 1 , 1, 1) }" />
 				</xs:sequence>
 			</xs:complexType>

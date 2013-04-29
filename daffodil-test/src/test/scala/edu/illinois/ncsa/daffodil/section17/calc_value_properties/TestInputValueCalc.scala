@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section17.calc_value_properties
  * SOFTWARE.
  */
 
-
 import java.io.File
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
@@ -83,4 +82,7 @@ class TestInputValueCalc extends JUnitSuite {
   @Test def test_InputValueCalc_09() { runner.runOneTest("InputValueCalc_09") }
   @Test def test_InputValueCalc_10() { runner.runOneTest("InputValueCalc_10") }
   @Test def test_InputValueCalc_11() { runner.runOneTest("InputValueCalc_11") }
+
+  @Test def test_InputValueCalc_Int_Range_Min() { runner.runOneTest("InputValueCalc_Int_Range_Min") }
+  @Test def test_InputValueCalc_Int_Range_Max() { runner.runOneTest("InputValueCalc_Int_Range_Max") }
 }
