@@ -464,7 +464,7 @@ class InteractiveDebugger extends Debugger {
       val longDesc = """|Usage: cond[ition] <breakpoint_id> <dfdl_expression>
                         |
                         |Set a condition on a specified breakpoint. When a breakpoint
-                        |is encountered, the debugger only puases if the DFDL expression
+                        |is encountered, the debugger only pauses if the DFDL expression
                         |evaluates to true. If the result of the DFDL expressions is not
                         |a boolean value, it is treated as false.
                         |
@@ -1222,7 +1222,7 @@ class InteractiveDebugger extends Debugger {
                           |
                           |Set whether or the debugger should break on failures. If set to false
                           |the normal processing occurs. If set to true, any errors cause a break.
-                          |Note that due to the backtracing behavior, not all failures are fatal.
+                          |Note that due to the backtracking behavior, not all failures are fatal.
                           |Defaults to true.
                           |
                           |Example: set breakOnFailure false""".stripMargin
