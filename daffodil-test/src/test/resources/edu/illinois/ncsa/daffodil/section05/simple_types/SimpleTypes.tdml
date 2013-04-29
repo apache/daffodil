@@ -4633,6 +4633,28 @@
   </tdml:parserTestCase>
   
   <!--
+    Test name: hexBinary_Implicit_03c
+    Schema: HexBinary
+    Purpose: This document demonstrates the use of the hexBinary simple type with byte
+    input using lengthKind implicit and utf-16be encoding. 
+  -->
+
+  <tdml:parserTestCase name="hexBinary_Implicit_03c" root="hB_imp2"
+      model="HexBinary" description="Section 12 Length Props - Implicit Lengths - hexBinary - DFDL-12-069R">
+    <tdml:document>
+      <tdml:documentPart type="byte">0074 0065 0073 0074 0063</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_imp2>
+          <hB>00740065007300740063</hB>
+          <extra></extra>
+        </hB_imp2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
     Test name: hexBinary_Implicit_04
     Schema: HexBinary
     Purpose: This document demonstrates the use of the hexBinary simple type with byte

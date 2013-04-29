@@ -51,15 +51,16 @@ class TestSimpleTypes extends JUnitSuite {
   
   // Sec 12.1.1
   // This test fails because Implicit Alignment in bits/bytes is not allowed for HexBinary and representation='text'
-  @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") }
   //@Test def test_hexBinary_rep() { runner.runOneTest("hexBinary_rep") }
+  @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") }
   @Test def test_hexBinary_Delimited_01() { runner.runOneTest("hexBinary_Delimited_01") }
   @Test def test_hexBinary_Delimited_02() { runner.runOneTest("hexBinary_Delimited_02") }
   @Test def test_hexBinary_Delimited_03() { runner.runOneTest("hexBinary_Delimited_03") }
   @Test def test_hexBinary_Implicit_01() { runner.runOneTest("hexBinary_Implicit_01") }
   @Test def test_hexBinary_Implicit_02() { runner.runOneTest("hexBinary_Implicit_02") }
-//  @Test def test_hexBinary_Implicit_03() { runner.runOneTest("hexBinary_Implicit_03") }
-//  @Test def test_hexBinary_Implicit_03b() { runner.runOneTest("hexBinary_Implicit_03b") }
+  @Test def test_hexBinary_Implicit_03() { runner.runOneTest("hexBinary_Implicit_03") }
+  @Test def test_hexBinary_Implicit_03b() { runner.runOneTest("hexBinary_Implicit_03b") }
+  @Test def test_hexBinary_Implicit_03c() { runner.runOneTest("hexBinary_Implicit_03c") }
   @Test def test_hexBinary_Implicit_04() { runner.runOneTest("hexBinary_Implicit_04") }
 
   @Test def test_dateTextNumberRep() { runner.runOneTest("dateTextNumberRep") }
