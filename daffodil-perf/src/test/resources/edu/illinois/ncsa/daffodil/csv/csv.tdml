@@ -208,4 +208,99 @@ stark,arya,cat,1986-02-19
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!--
+    Test name: csv_test_200k
+       Schema: profilingCSV.dfdl.xsd
+         Root: csv2
+      Purpose: This test is to exercise the csv schema with a 200k csv.
+  -->
+  
+  <tdml:parserTestCase name="csv_test_200k" root="csv2"
+    model="profilingCSV.dfdl.xsd" description="csv test">
+    <tdml:document>
+      <tdml:documentPart type="file">200k.csv</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <csv2/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: csv_test_400k
+       Schema: profilingCSV.dfdl.xsd
+         Root: csv2
+      Purpose: This test is to exercise the csv schema with a 400k csv.
+  -->
+  
+  <tdml:parserTestCase name="csv_test_400k" root="csv2"
+    model="profilingCSV.dfdl.xsd" description="csv test">
+    <tdml:document>
+      <tdml:documentPart type="file">400k.csv</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <csv2/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: csv_test_800k
+       Schema: profilingCSV.dfdl.xsd
+         Root: csv2
+      Purpose: This test is to exercise the csv schema with a 800k csv.
+  -->
+  
+  <tdml:parserTestCase name="csv_test_800k" root="csv2"
+    model="profilingCSV.dfdl.xsd" description="csv test">
+    <tdml:document>
+      <tdml:documentPart type="file">800k.csv</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <csv2/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: csv_test_1m
+       Schema: profilingCSV.dfdl.xsd
+         Root: csv2
+      Purpose: This test is to exercise the csv schema with a 1m csv.
+  -->
+  
+  <tdml:parserTestCase name="csv_test_1m" root="csv2"
+    model="profilingCSV.dfdl.xsd" description="csv test">
+    <tdml:document>
+      <tdml:documentPart type="file">1m.csv</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <csv2/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: csv_test_5m
+       Schema: profilingCSV.dfdl.xsd
+         Root: csv2
+      Purpose: This test is to exercise the csv schema with a 5m csv.
+  -->
+  
+  <tdml:parserTestCase name="csv_test_5m" root="csv2"
+    model="profilingCSV.dfdl.xsd" description="csv test">
+    <tdml:document>
+      <tdml:documentPart type="file">5m.csv</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <csv2/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+ 
 </testSuite>
