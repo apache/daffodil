@@ -69,24 +69,24 @@
      Test Name: impAlignmentHexBinary
         Schema: implicitAlignmentSchema
           Root: hB
-       Purpose: This test demonstrates that the implicit alignment for hexBinary data is 8 bits
+          Purpose: This test demonstrates that the implicit alignment for hexBinary data is 8 bits
   -->
   
   <tdml:parserTestCase name="impAlignmentHexBinary" root="hB"
     model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - hexBinary - DFDL-12-029R">
 
     <tdml:document>
-      <tdml:documentPart type="byte">ab bc 43 9d</tdml:documentPart> <!-- leadingSkip -->
-      <tdml:documentPart type="byte">a6 00 42 d7</tdml:documentPart> <!-- padding to fulfill alignment -->
-      <tdml:documentPart type="byte">00 00 aa bb</tdml:documentPart> <!-- hB -->
+      <tdml:documentPart type="bits">0101</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">1101</tdml:documentPart> <!-- padding to fulfill alignment -->
+      <tdml:documentPart type="bits">11110100</tdml:documentPart> <!-- hB -->
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <hB>0000aabb</hB>
+        <hB>f4</hB>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-
+  
   <!--
      Test Name: alignment01
         Schema: alignmentSchema
