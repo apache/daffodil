@@ -261,7 +261,7 @@ abstract class HexBinaryLengthInBytes(e: ElementBase)
     stringBitLength _
   }
   override def formatValue(value: String) = {
-    val hexStr = value.map(c => c.toByte.formatted("%02x")).mkString
+    val hexStr = value.map(c => c.toByte.formatted("%02X")).mkString
     hexStr
   }
 }
@@ -657,7 +657,7 @@ abstract class HexBinaryDelimited(e: ElementBase) extends StringDelimited(e) {
         val endCharPos = if (state.charPos == -1) s.numCharsRead else state.charPos + s.numCharsRead
         val endBitPos = state.bitPos + numBits
         val currentElement = state.parentElement
-        val hexStr = field.map(c => c.toByte.formatted("%02x")).mkString
+        val hexStr = field.map(c => c.toByte.formatted("%02X")).mkString
         currentElement.setDataValue(hexStr)
         return state.withPos(endBitPos, endCharPos, Some(s.next))
       }

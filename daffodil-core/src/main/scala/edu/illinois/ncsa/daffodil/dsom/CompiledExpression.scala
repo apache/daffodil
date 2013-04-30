@@ -208,6 +208,7 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging {
       case XMLUtils.XSD_DOUBLE => 'Double
       case XMLUtils.XSD_FLOAT => 'Double
       case XMLUtils.XSD_BOOLEAN => 'Boolean
+      case XMLUtils.XSD_HEX_BINARY => 'String
       // case XMLUtils.XSD_UNSIGNED_LONG => Assert.notYetImplemented() // TODO FIXME - handle the largest unsigned longs.
       case _ => edecl.notYetImplemented(expandedTypeName)
     }
