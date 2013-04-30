@@ -56,7 +56,9 @@ class TestAlignedData extends JUnitSuite {
   @Test def test_alignment01() = { runner1.runOneTest("alignment01") }
   @Test def test_alignment02() = { runner1.runOneTest("alignment02") }
   @Test def test_alignment03() = { runner1.runOneTest("alignment03") }
- 
+  
+  //@Test def test_impAlignmentHexBinary() = { runner1.runOneTest("impAlignmentHexBinary") }
+  
  /*
     2.95. Section 12.1. State that if representation is text or type is string, then alignment is
           determined by character set encoding.

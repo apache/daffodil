@@ -53,5 +53,7 @@ class TestAlignedDataDebug extends JUnitSuite {
   @Test def test_implicitAlignmentString1() = { runner1.runOneTest("implicitAlignmentString1") }
   @Test def test_implicitAlignmentUInt() = { runner1.runOneTest("implicitAlignmentUInt") }
   @Test def test_implicitAlignmentUShort() = { runner1.runOneTest("implicitAlignmentUShort") }
+
+  @Test def test_impAlignmentHexBinary() = { runner1.runOneTest("impAlignmentHexBinary") }
   
 }

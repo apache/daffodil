@@ -44,7 +44,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-
+    
   </tdml:defineSchema>
   
   <tdml:defineSchema name="implicitAlignmentSchema">
@@ -60,8 +60,32 @@
     
     <xs:element name="uShort" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bits" dfdl:alignment="implicit" dfdl:leadingSkip="1"/>
     <xs:element name="uShortb" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bits" dfdl:alignment="16" dfdl:leadingSkip="1"/>
+    
+    <xs:element name="hB" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:alignment="implicit" dfdl:alignmentUnits="bits" dfdl:leadingSkip="4" />
 
   </tdml:defineSchema>
+  
+  <!--
+     Test Name: impAlignmentHexBinary
+        Schema: implicitAlignmentSchema
+          Root: hB
+       Purpose: This test demonstrates that the implicit alignment for hexBinary data is 8 bits
+  -->
+  
+  <tdml:parserTestCase name="impAlignmentHexBinary" root="hB"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - hexBinary - DFDL-12-029R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">ab bc 43 9d</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="byte">a6 00 42 d7</tdml:documentPart> <!-- padding to fulfill alignment -->
+      <tdml:documentPart type="byte">00 00 aa bb</tdml:documentPart> <!-- hB -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB>0000aabb</hB>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <!--
      Test Name: alignment01
