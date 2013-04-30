@@ -7,6 +7,8 @@
 <annotation>
     <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
       <dfdl:format lengthKind="delimited" separator=""
+        alignment="1" alignmentUnits="bits" trailingSkip="0"
+        lengthUnits="bytes" textTrimKind="none"
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
         terminator="" initiatedContent="no" textNumberRep="standard"
         separatorSuppressionPolicy="trailingEmpty" separatorPosition="infix"
@@ -28,13 +30,18 @@
             </appinfo>
           </annotation>
         </element>
-        <element name="y" type="xsd:hexBinary">
+        <element name="y">
           <annotation>
             <appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:element representation="binary"
                 lengthKind="implicit" />
             </appinfo>
           </annotation>
+          <simpleType>
+            <restriction base="xsd:hexBinary">
+              <maxLength value="3"/>
+            </restriction>
+          </simpleType>
         </element>
       </sequence>
     </complexType>

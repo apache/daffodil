@@ -48,6 +48,10 @@ class TestSimpleTypes extends JUnitSuite {
   val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+ 
+  val al = testDir + "AL.tdml"
+  lazy val runnerAL = new DFDLTestSuite(Misc.getRequiredResource(al))
+  @Test def test_AL000() { runnerAL.runOneTest("AL000") }
   
   // Sec 12.1.1
   // This test fails because Implicit Alignment in bits/bytes is not allowed for HexBinary and representation='text'

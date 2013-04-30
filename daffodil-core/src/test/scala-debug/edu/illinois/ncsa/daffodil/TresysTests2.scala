@@ -68,10 +68,6 @@ class TresysTests2 extends JUnitSuite {
   lazy val runnerAE = new DFDLTestSuite(Misc.getRequiredResource(ae))
   @Test def test_AE000() { runnerAE.runOneTest("AE000") } // needs newVariableInstance 
 
-  val al = testDir + "AL.tdml"
-  lazy val runnerAL = new DFDLTestSuite(Misc.getRequiredResource(al))
-  @Test def test_AL000() { runnerAL.runOneTest("AL000") } // needs hexbinary type
-
   // Commented out as we have no plans to make this run yet,
   // and there is no check for recursion, so they die slowly with stack 
   // overflow
