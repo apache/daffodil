@@ -1365,7 +1365,7 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
     dLoc: DelimiterLocation.Type)(
       body: Vector[String] => (String, String)): DelimParseResult = {
     //val pResult = this.parse(this.log(fieldParser)(logString), input)
-    val pResult = logLevel match {
+    val pResult = getLoggingLevel match {
       case LogLevel.Debug => this.parse(this.log(fieldParser)(logString), input)
       case _ => this.parse(fieldParser, input)
     }

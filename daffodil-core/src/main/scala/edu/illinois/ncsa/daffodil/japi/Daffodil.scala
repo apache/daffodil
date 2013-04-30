@@ -6,6 +6,7 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
 import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.api.DFDL
+import java.io.File
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 import edu.illinois.ncsa.daffodil.processors.{ ParseResult => SParseResult }
@@ -16,6 +17,13 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.api.{ WithDiagnostics => SWithDiagnostics }
 import edu.illinois.ncsa.daffodil.api.{ DataLocation => SDataLocation }
 import edu.illinois.ncsa.daffodil.api.{ LocationInSchemaFile => SLocationInSchemaFile }
+import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
+import edu.illinois.ncsa.daffodil.util.{ ConsoleWriter => SConsoleWriter }
+import edu.illinois.ncsa.daffodil.util.{ FileWriter => SFileWriter }
+import edu.illinois.ncsa.daffodil.util.{ NullLogWriter => SNullLogWriter }
+import edu.illinois.ncsa.daffodil.util.{ LogLevel => SLogLevel }
+import edu.illinois.ncsa.daffodil.util.{ LoggingDefaults => SLoggingDefaults }
+import edu.illinois.ncsa.daffodil.util.{ Glob => SGlob }
 
 /**
  * API Suitable for Java programmers to use.
@@ -24,6 +32,19 @@ object Daffodil {
 
   def compiler(): Compiler = new Compiler()
 
+  def setLogWriter(lw: LogWriter): Unit = {
+    val slw: SLogWriter = lw match {
+      case clw: ConsoleLogWriter => SConsoleWriter
+      case flw: FileLogWriter => new SFileWriter(flw.file)
+      case nlw: NullLogWriter => SNullLogWriter
+      case _ => new JavaLogWriter(lw)
+    }
+    SLoggingDefaults.setLogWriter(slw)
+  }
+
+  def setLoggingLevel(lvl: LogLevel): Unit = {
+    SLoggingDefaults.setLoggingLevel(SLogLevel.fromJava(lvl))
+  }
 }
 
 class Compiler {
@@ -168,5 +189,52 @@ class ParseResult(pr: SParseResult)
   }
 
   def location(): DataLocation = new DataLocation(pr.resultState.currentLocation)
-
 }
+
+abstract class LogWriter {
+  def write(level: LogLevel, logID: String, msg: String): Unit
+
+  def prefix(level: LogLevel, logID: String): String = ""
+  def suffix(level: LogLevel, logID: String): String = ""
+
+  def log(level: LogLevel, logID: String, msg: String, args: java.util.List[Any]): Unit = {
+    val message = 
+      if (args.size > 0) {
+        msg.format(args)
+      } else {
+        msg
+      }
+    val p = prefix(level, logID)
+    val s = suffix(level, logID)
+    write(level, logID, p + message + s)
+  }
+}
+
+/* These three classes are all empty and are not ever actually used. They are
+ * just place holders. Whenever the Java API uses one of these, it is
+ * translated to the appropriate scala log writer */
+class ConsoleLogWriter extends LogWriter {
+  def write(level: LogLevel, logID: String, msg: String): Unit = ""
+}
+
+class NullLogWriter extends LogWriter {
+  def write(level: LogLevel, logID: String, msg: String): Unit = ""
+}
+
+class FileLogWriter(val file: File) extends LogWriter {
+  def write(level: LogLevel, logID: String, msg: String): Unit = ""
+}
+
+
+private class JavaLogWriter(logWriter: LogWriter)
+  extends SLogWriter {
+
+  protected def write(msg: String): Unit = {}
+
+  override def log(logID: String, glob: SGlob) {
+    if (logWriter != null) {
+      logWriter.log(SLogLevel.forJava(glob.lvl), logID, glob.msg, glob.args)
+    }
+  }
+}
+

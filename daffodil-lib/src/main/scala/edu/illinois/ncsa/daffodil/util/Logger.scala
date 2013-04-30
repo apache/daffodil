@@ -49,13 +49,15 @@ import edu.illinois.ncsa.daffodil.util._
 object LogLevel extends Enum {
   import edu.illinois.ncsa.daffodil.japi.{ LogLevel => JLogLevel }
   type Type = LogLevel
-  sealed abstract class LogLevel(override val id: Int) extends EnumVal
-  case object Error extends LogLevel(JLogLevel.Error.id) { Error.init }
-  case object Warning extends LogLevel(JLogLevel.Warning.id) { Warning.init }
-  case object Info extends LogLevel(JLogLevel.Info.id) { Info.init }
-  case object Compile extends LogLevel(JLogLevel.Compile.id) { Compile.init }
-  case object Debug extends LogLevel(JLogLevel.Debug.id) { Debug.init }
-  case object OOLAGDebug extends LogLevel(JLogLevel.OOLAGDebug.id) { OOLAGDebug.init }
+  sealed abstract class LogLevel(val jlvl: JLogLevel) extends EnumVal {
+    override val id = jlvl.id
+  }
+  case object Error extends LogLevel(JLogLevel.Error) { Error.init }
+  case object Warning extends LogLevel(JLogLevel.Warning) { Warning.init }
+  case object Info extends LogLevel(JLogLevel.Info) { Info.init }
+  case object Compile extends LogLevel(JLogLevel.Compile) { Compile.init }
+  case object Debug extends LogLevel(JLogLevel.Debug) { Debug.init }
+  case object OOLAGDebug extends LogLevel(JLogLevel.OOLAGDebug) { OOLAGDebug.init }
   private val init = List(Error, Warning, Info, Compile, Debug, OOLAGDebug)
 
   /**
@@ -65,6 +67,10 @@ object LogLevel extends Enum {
    */
   def fromJava(jLogLevel: JLogLevel): LogLevel = {
     LogLevel(jLogLevel.id).getOrElse(Assert.abort("unmapped: java enum has no corresponding scala enum"))
+  }
+
+  def forJava(logLevel: Type): JLogLevel = {
+    logLevel.jlvl
   }
 }
 
@@ -231,19 +237,23 @@ trait Logging extends Identity {
     else className
   }
 
-  protected var logWriter: LogWriter = LoggingDefaults.logWriter
-  protected var logLevel: LogLevel.Type = LoggingDefaults.logLevel
+  private var logWriter: Option[LogWriter] = None
+  private var logLevel: Option[LogLevel.Type] = None
 
-  def setLoggingLevel(level: LogLevel.Type) { logLevel = level }
+  def setLoggingLevel(level: LogLevel.Type) { logLevel = Some(level) }
 
-  def setLogWriter(lw: LogWriter) { if (lw != null) logWriter = lw }
+  def getLoggingLevel(): LogLevel.Type = { logLevel.getOrElse(LoggingDefaults.logLevel) }
+
+  def setLogWriter(lw: LogWriter) { logWriter = Some(lw) }
+
+  def getLogWriter(): LogWriter = { logWriter.getOrElse(LoggingDefaults.logWriter) }
 
   def log(glob: Glob) {
-    if (logLevel >= glob.lvl) logWriter.log(logID, glob)
+    if (getLoggingLevel >= glob.lvl) getLogWriter.log(logID, glob)
   }
 
   @inline def log(lvl: LogLevel.Type, msg: String, args: Any*) {
-    if (logLevel >= lvl) log(new Glob(lvl, msg, Seq(args: _*)))
+    if (getLoggingLevel >= lvl) log(new Glob(lvl, msg, Seq(args: _*)))
   }
 
   /**
@@ -254,9 +264,9 @@ trait Logging extends Identity {
    * Call with no log level argument to turn it off (when done debugging). That way you
    * can leave it sitting there.
    */
-  def withLoggingLevel[S](newLevel: LogLevel.Type = logLevel)(body: => S) = {
+  def withLoggingLevel[S](newLevel: LogLevel.Type = getLoggingLevel)(body: => S) = {
     val previousLogLevel = logLevel
-    logLevel = newLevel
+    logLevel = Some(newLevel)
     try body
     finally {
       logLevel = previousLogLevel
@@ -271,5 +281,8 @@ object LoggingDefaults {
 
   def setLoggingLevel(level: LogLevel.Type) { logLevel = level }
 
-  def setLogWriter(lw: LogWriter) { if (lw != null) logWriter = lw }
+  def setLogWriter(lw: LogWriter) {
+    Assert.usage(lw != null)
+    logWriter = lw
+  }
 }
