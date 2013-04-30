@@ -50,8 +50,6 @@ class TestSimpleTypes2 extends JUnitSuite {
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
-  @Test def test_hexBinary_func() { runner.runOneTest("hexBinary_func") }
-
   // Sec 12.1.1
   // This test fails because Implicit Alignment is not allowed for HexBinary and representation='text'.
   // Must use representation='text'.
