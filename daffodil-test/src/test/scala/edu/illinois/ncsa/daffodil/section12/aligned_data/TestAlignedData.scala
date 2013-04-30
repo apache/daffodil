@@ -58,6 +58,7 @@ class TestAlignedData extends JUnitSuite {
   @Test def test_alignment03() = { runner1.runOneTest("alignment03") }
   
   //@Test def test_impAlignmentHexBinary() = { runner1.runOneTest("impAlignmentHexBinary") }
+  //@Test def test_impAlignmentHexBinary2() = { runner1.runOneTest("impAlignmentHexBinary2") }
   
  /*
     2.95. Section 12.1. State that if representation is text or type is string, then alignment is
