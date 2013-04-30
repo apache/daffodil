@@ -95,7 +95,7 @@
           Purpose: This test demonstrates that the implicit alignment for hexBinary data is 1 byte
   -->
   
-  <tdml:parserTestCase name="impAlignmentHexBinary2" root="hB"
+  <tdml:parserTestCase name="impAlignmentHexBinary2" root="hB2"
     model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - hexBinary - DFDL-12-029R">
 
     <tdml:document>
