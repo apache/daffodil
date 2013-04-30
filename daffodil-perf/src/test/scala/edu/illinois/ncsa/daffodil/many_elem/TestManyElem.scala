@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.many_elem
  */
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -51,7 +50,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream
 import edu.illinois.ncsa.daffodil.Main
 
-class TestManyElem extends JUnitSuite {
+class TestManyElem {
   val testDir = "/edu/illinois/ncsa/daffodil/many_elem/"
   val aa = testDir + "many_elem.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))

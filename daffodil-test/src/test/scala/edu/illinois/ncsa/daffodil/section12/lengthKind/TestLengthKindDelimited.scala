@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.section12.lengthKind
  */
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -45,7 +44,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger.withDebugger
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestLengthKindDelimited extends JUnitSuite {
+class TestLengthKindDelimited {
   val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
   val aa = testDir + "DelimitedTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))

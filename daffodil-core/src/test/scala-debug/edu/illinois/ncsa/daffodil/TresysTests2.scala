@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil
  * SOFTWARE.
  */
 
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
@@ -46,7 +45,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TresysTests2 extends JUnitSuite {
+class TresysTests2 {
   val testDir = "/test-suite/tresys-contributed/"
 
   // This test passes now. Left this here to cut/paste for running other tests.    

@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.processors
  */
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
@@ -42,8 +41,9 @@ import edu.illinois.ncsa.daffodil.util.TestUtils
 import edu.illinois.ncsa.daffodil.dsom.SchemaSet
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.Implicits._
 
-class TestPrimitives extends JUnitSuite {
+class TestPrimitives {
 
   @Test def testInitiator {
     val sch = TestUtils.dfdlTestSchema(

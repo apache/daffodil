@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.dsom
 import java.io.File
 import scala.xml.{ XML, Utility, Node }
 import org.junit.Test
-import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
@@ -48,7 +47,7 @@ import junit.framework.Assert.{ assertTrue, assertEquals, assertFalse, fail }
 
 class HasProps(xml: Node) extends DFDLNonDefaultFormatAnnotation(xml, Fakes.fakeElem)
 
-class TestPropertyScoping extends JUnitSuite {
+class TestPropertyScoping {
   val x1 = new HasProps(<fake alignmentUnits="bytes"/>)
 
   @Test def test1() {

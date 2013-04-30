@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.section16.array_optional_elem
 
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -44,7 +43,7 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-class TestArrayOptionalElem extends JUnitSuite {
+class TestArrayOptionalElem {
   val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
   val aa = testDir + "ArrayOptionalElem.tdml"
 

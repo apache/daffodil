@@ -32,10 +32,11 @@ package edu.illinois.ncsa.daffodil.exceptions
  * SOFTWARE.
  */
 
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 
-class TestExceptions extends JUnitSuite {
+import edu.illinois.ncsa.daffodil.Implicits._
+
+class TestExceptions {
   
   @Test 
   def testAssert() {

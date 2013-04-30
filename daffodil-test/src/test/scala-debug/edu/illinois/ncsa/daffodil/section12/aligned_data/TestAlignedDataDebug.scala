@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.section12.aligned_data
 
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -45,7 +44,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestAlignedDataDebug extends JUnitSuite {
+class TestAlignedDataDebug {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section12/aligned_data/"
   val tdml1 = testDir_01 + "Aligned_Data.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))

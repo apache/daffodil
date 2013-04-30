@@ -33,14 +33,13 @@ package edu.illinois.ncsa.daffodil.dsom
  */
 
 
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import java.util.regex.Pattern
 import java.util.regex.Matcher
 import org.junit.Test
 
-class TestEntityReplacer extends JUnitSuite {
+class TestEntityReplacer {
 
   @Test def testEmptyString = {
     val e = new EntityReplacer

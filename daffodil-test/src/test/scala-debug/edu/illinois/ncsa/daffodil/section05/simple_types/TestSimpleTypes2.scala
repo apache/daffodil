@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.section05.simple_types
 
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -44,8 +43,9 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.Implicits._
 
-class TestSimpleTypes2 extends JUnitSuite {
+class TestSimpleTypes2 {
   val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))

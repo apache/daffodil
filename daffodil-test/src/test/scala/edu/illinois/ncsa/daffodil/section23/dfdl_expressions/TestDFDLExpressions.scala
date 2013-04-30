@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.section23.dfdl_expressions
 
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -45,7 +44,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestDFDLExpressions extends JUnitSuite {
+class TestDFDLExpressions {
   val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)

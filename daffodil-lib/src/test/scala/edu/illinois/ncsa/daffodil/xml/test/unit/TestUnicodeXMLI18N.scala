@@ -35,13 +35,12 @@ package edu.illinois.ncsa.daffodil.xml.test.unit
 
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.xml.NS
 
-class TestUnicodeXMLI18N extends JUnitSuite {
+class TestUnicodeXMLI18N {
 
   /**
    * Let's characterize the behavior of XML Literals in Scala.

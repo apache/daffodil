@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.compiler._
@@ -45,7 +44,7 @@ import edu.illinois.ncsa.daffodil.Implicits._
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
  */
-class TestCompiledExpression extends JUnitSuite {
+class TestCompiledExpression {
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE

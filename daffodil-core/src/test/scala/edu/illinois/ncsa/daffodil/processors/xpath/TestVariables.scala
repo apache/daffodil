@@ -36,7 +36,6 @@ package edu.illinois.ncsa.daffodil.processors.xpath
 import scala.math.Pi
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.xml._
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.processors._
@@ -46,7 +45,7 @@ import javax.xml.xpath.XPathConstants
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import org.junit.Test
 
-class TestVariables extends JUnitSuite with WithParseErrorThrowing {
+class TestVariables extends WithParseErrorThrowing {
   val tdml = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE

@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.Tak
  */
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils

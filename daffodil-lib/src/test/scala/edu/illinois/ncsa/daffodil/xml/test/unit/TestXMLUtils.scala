@@ -36,12 +36,11 @@ package edu.illinois.ncsa.daffodil.xml.test.unit
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits._
 
-class TestXMLUtils extends JUnitSuite {
+class TestXMLUtils {
 
   @Test def testDiff0() {
     val d1 = new Text("a")

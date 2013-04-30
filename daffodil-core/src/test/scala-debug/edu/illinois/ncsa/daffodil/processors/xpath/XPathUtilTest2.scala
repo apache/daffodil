@@ -38,11 +38,10 @@ import org.jdom.Element
 import org.jdom.Text
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.xml._
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
 
-class XPathUtilTest2 extends JUnitSuite {
+class XPathUtilTest2 {
 
   /**
    * Test that uses default namespace, not no-namespace.

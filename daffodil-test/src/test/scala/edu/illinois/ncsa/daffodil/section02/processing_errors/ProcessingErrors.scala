@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.section02.processing_errors
  */
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -44,7 +43,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestProcessingErrors extends JUnitSuite {
+class TestProcessingErrors {
   val testDir = "/edu/illinois/ncsa/daffodil/section02/processing_errors/"
   val aa = testDir + "dfdl-schema-validation-diagnostics.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)

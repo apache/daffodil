@@ -10,10 +10,13 @@ parallelExecution in ThisBuild := false
 
 logBuffered in ThisBuild := false
 
+testOptions in ThisBuild += Tests.Argument(TestFrameworks.JUnit, "-v")
+
 transitiveClassifiers := Seq("sources", "javadoc")
 
 libraryDependencies in ThisBuild := Seq(
   "junit" % "junit" % "4.11",
+  "com.novocode" % "junit-interface" % "0.10-M4",
   "com.github.stefanbirkner" % "system-rules" % "1.2.0",
   "org.jdom" % "jdom" % "1.1.3",
   "net.sourceforge.saxon" % "saxon" % "9.1.0.8" classifier "" classifier "dom" classifier "jdom" classifier "s9api" classifier "xpath",
@@ -21,7 +24,6 @@ libraryDependencies in ThisBuild := Seq(
   "xerces" % "xercesImpl" % "2.10.0",
   "xml-resolver" % "xml-resolver" % "1.2",
   "jline" % "jline" % "2.9",
-  "org.scalatest" %% "scalatest" % "1.6.1",
   "org.rogach" %% "scallop" % "0.8.0"
 )
 

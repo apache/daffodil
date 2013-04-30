@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.dsom
 import java.io.File
 import scala.xml.{ XML, Utility, Node }
 import org.junit.Test
-import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
@@ -47,7 +46,7 @@ import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import junit.framework.Assert.{ assertTrue, assertEquals, assertFalse, fail }
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 
-class TestDsomCompiler extends JUnitSuite with Logging {
+class TestDsomCompiler extends Logging {
 
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
@@ -106,7 +105,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val msgs = diagnostics.map { _.getMessage }
     val msg = msgs.mkString("\n")
     val hasErrorText = msg.contains("maxOccurs");
-    if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
+    if (!hasErrorText) fail("Didn't get expected error. Got: " + msg)
   }
 
   @Test def testTypeReferentialError() {
@@ -117,7 +116,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     assertTrue(pf.isError)
     val msg = pf.getDiagnostics.toString
     val hasErrorText = msg.contains("typeDoesNotExist");
-    if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
+    if (!hasErrorText) fail("Didn't get expected error. Got: " + msg)
   }
 
   @Test def testTypeReferentialError2() {
@@ -132,7 +131,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val msg = pf.getDiagnostics.toString
     println(msg)
     val hasErrorText = msg.contains("bar");
-    if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
+    if (!hasErrorText) fail("Didn't get expected error. Got: " + msg)
   }
 
   @Test def testSchemaValidationPropertyChecking() {
@@ -154,7 +153,7 @@ class TestDsomCompiler extends JUnitSuite with Logging {
     val msg = diags.toString
     assertTrue(sset.isError)
     val hasErrorText = msg.contains("invalidValue");
-    if (!hasErrorText) this.fail("Didn't get expected error. Got: " + msg)
+    if (!hasErrorText) fail("Didn't get expected error. Got: " + msg)
   }
 
   @Test def test2() {

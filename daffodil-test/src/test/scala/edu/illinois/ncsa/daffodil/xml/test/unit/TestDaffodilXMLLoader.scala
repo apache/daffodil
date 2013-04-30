@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.xml.test.unit
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
 import java.io.File
@@ -57,7 +56,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
  * to test this? Do we have to make a whole separate project just
  * to test this?
  */
-class TestDaffodilXMLLoader extends JUnitSuite {
+class TestDaffodilXMLLoader {
 
   /**
    * This test makes sure that a CatalogManager.properties file

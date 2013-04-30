@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.section31.escape_characters
 
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -44,7 +43,7 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-class TestEscapes extends JUnitSuite {
+class TestEscapes {
   val testDir = "/edu/illinois/ncsa/daffodil/section31/escape_characters/"
   val tdml = testDir + "Escapes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))

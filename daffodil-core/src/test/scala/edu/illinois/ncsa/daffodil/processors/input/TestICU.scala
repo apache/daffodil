@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors.input
  * SOFTWARE.
  */
 
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -44,7 +43,7 @@ import com.ibm.icu.util.{ Calendar, TimeZone, GregorianCalendar, ULocale }
 
 import edu.illinois.ncsa.daffodil.processors.TextCalendarConstants
 
-class TestICU extends JUnitSuite {
+class TestICU {
 
   /*
    * This test is to ensure the reliability of ICU's fractional seconds. ICU

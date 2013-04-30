@@ -49,12 +49,12 @@ import java.io.ByteArrayInputStream
 import java.util.ArrayList
 import java.math.BigInteger
 import org.jdom._
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import org.junit.Test
+import edu.illinois.ncsa.daffodil.Implicits._
 
-class SaxonWorkingTest extends JUnitSuite with XPathVariableResolver with NamespaceContext {
+class SaxonWorkingTest extends XPathVariableResolver with NamespaceContext {
 
   @Test def testTrivialExpression1() {
     System.setProperty("javax.xml.xpath.XPathFactory:" + NamespaceConstant.OBJECT_MODEL_SAXON, "net.sf.saxon.xpath.XPathFactoryImpl");

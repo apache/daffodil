@@ -32,14 +32,13 @@ package edu.illinois.ncsa.daffodil.section07.assertions
  * SOFTWARE.
  */
 
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestAssertions extends JUnitSuite {
+class TestAssertions {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/assertions/"
   val tdml = testDir + "assert.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)

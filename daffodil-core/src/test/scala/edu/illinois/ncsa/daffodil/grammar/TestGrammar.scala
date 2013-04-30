@@ -35,14 +35,13 @@
 package edu.illinois.ncsa.daffodil.grammar
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors._
 import org.junit.Test
 
-class TestGrammar extends JUnitSuite {
+class TestGrammar {
 
   val fakeTerm = new GlobalElementDeclFactory(<element name="foo" type="xs:int"/>, Fakes.fakeSD).forRoot()
   case class Primitive1(e: Term, guard: Boolean = true) extends Terminal(e, guard) {

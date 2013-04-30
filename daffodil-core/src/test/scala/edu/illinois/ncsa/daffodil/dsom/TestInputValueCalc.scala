@@ -35,13 +35,12 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.compiler._
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import org.junit.Test
 import scala.xml.Node
 
-class TestInputValueCalc extends JUnitSuite with Logging {
+class TestInputValueCalc extends Logging {
 
   // @Test
   @Test def testInputValueCalc1() {

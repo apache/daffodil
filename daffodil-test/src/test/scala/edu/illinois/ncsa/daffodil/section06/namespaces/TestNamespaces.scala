@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.section06.namespaces
  */
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -51,7 +50,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream
 import edu.illinois.ncsa.daffodil.Main
 
-class TestNamespaces extends JUnitSuite {
+class TestNamespaces {
   // This rule makes it so that System.exit throws an exception You are
   // supposed to be able to say exit.expectExitWithStatus(), but this doesn't
   // work, probably some scala problem, related to def exit. This is supposed

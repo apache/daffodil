@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.dsom
  */
 
 
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
@@ -44,7 +43,7 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 // Do no harm number 16 of 626 fail in regression, 154 in total of 797
 
-class TestBinaryInput_01 extends JUnitSuite {
+class TestBinaryInput_01 {
 
   var runner = {
     val testDir = "/test-suite/tresys-contributed/"

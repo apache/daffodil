@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.section13.nillable
  */
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -45,7 +44,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger.withDebugger
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestNillable extends JUnitSuite {
+class TestNillable {
   val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
   val aa = testDir + "nillable.tdml"
   lazy val runnerAA = new DFDLTestSuite(Misc.getRequiredResource(aa))

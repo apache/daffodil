@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.parser
  * SOFTWARE.
  */
 
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import scala.collection.mutable.Queue
 import java.util.regex.Pattern
@@ -51,7 +50,7 @@ import edu.illinois.ncsa.daffodil.processors.DelimParseSuccess
 import edu.illinois.ncsa.daffodil.dsom.Fakes
 import edu.illinois.ncsa.daffodil.processors.DFDLUTStringReader
 
-class TestParsingBehaviors extends JUnitSuite {
+class TestParsingBehaviors {
 
   val testFileDir = "/test/"
 

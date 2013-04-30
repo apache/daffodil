@@ -35,8 +35,7 @@ package edu.illinois.ncsa.daffodil
 
 import java.io.{ ByteArrayInputStream, BufferedInputStream }
 import edu.illinois.ncsa.daffodil.xml.NS
-//import edu.illinois.ncsa.daffodil.schema.annotation.AttributeValue
-//import edu.illinois.ncsa.daffodil.xml.XMLUtil
+
 
 object Implicits {
 
@@ -58,5 +57,31 @@ object Implicits {
    */
   def using[A <: { def close(): Unit }, B](param: A)(f: A => B): B =
     try { f(param) } finally { param.close() }
+
+  /**
+   * Based on JUnitSuite intercept
+   */
+  def intercept[T <: AnyRef] (body: => Any)(implicit manifset: Manifest[T]): T = {
+    val clazz = manifest.erasure.asInstanceOf[Class[T]]
+    val caught = try {
+      body
+      None
+    } catch {
+      case u: Throwable => {
+        if (!clazz.isAssignableFrom(u.getClass)) {
+          throw new InterceptFailedException(
+            "Failed to intercept expected exception. Expected '%s' but got '%s'.".format(clazz.getName, u.getClass.getName))
+        } else {
+          Some(u)
+        }
+      }
+    }
+    caught match {
+      case None => throw new InterceptFailedException("Failed to intercept any exceptions.")
+      case Some(e) => e.asInstanceOf[T]
+    }
+  }
+
+  class InterceptFailedException(msg: String) extends RuntimeException(msg)
 
 }

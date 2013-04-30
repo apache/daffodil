@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.parser
 
 import scala.xml._
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import com.ibm.icu._
 import java.io._
 import java.nio._
@@ -45,6 +44,7 @@ import com.ibm.icu.charset.CharsetCallback._
 import com.ibm.icu.charset._
 import Converter._ // Need implicit converter
 import org.junit.Test
+import edu.illinois.ncsa.daffodil.Implicits._
 
 /**
  * These tests characterize behavior of the ICU library. We're going to have to rely on
@@ -197,7 +197,7 @@ object Converter {
   }
 }
 
-class TestUnicodeICUErrorTolerance extends JUnitSuite {
+class TestUnicodeICUErrorTolerance {
 
   @Test def testIntArrayToByteArray() {
     val ia = Array[Int](1, 127, 128, 255, 0)

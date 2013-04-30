@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.schema_chain
  */
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -51,7 +50,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream
 import edu.illinois.ncsa.daffodil.Main
 
-class TestSchemaChain extends JUnitSuite {
+class TestSchemaChain {
   val testDir = "/edu/illinois/ncsa/daffodil/schema_chain/"
   val aa = testDir + "schema_chain.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))

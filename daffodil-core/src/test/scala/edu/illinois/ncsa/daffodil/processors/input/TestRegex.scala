@@ -33,14 +33,13 @@ package edu.illinois.ncsa.daffodil.processors.input
  */
 
 
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import scala.util.parsing.combinator._
 import java.io.StringReader
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
-class TestRegex extends JUnitSuite with RegexParsers {
+class TestRegex extends RegexParsers {
 
   /**
    * Scala combinator parsers can do longest match via the '|||' combinator

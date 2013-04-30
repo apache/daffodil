@@ -40,7 +40,6 @@ import org.apache.xerces.dom.DOMInputImpl
 import org.apache.xerces.xni.parser.XMLInputSource
 import org.apache.xml.resolver.{ CatalogManager, Catalog }
 import org.junit.Test
-import org.scalatest.junit.JUnitSuite
 import Implicits.using
 import javax.xml.parsers.{ SAXParserFactory, SAXParser }
 import junit.framework.Assert.{ fail, assertTrue }
@@ -74,7 +73,7 @@ object Implicits {
  *
  * This needs a repeatable framework to avoid all the code duplication.
  */
-class TestXMLCatalogAndValidate extends JUnitSuite {
+class TestXMLCatalogAndValidate {
 
   val tdml = XMLUtil.TDML_NAMESPACE
   val dfdl = XMLUtil.DFDL_NAMESPACE

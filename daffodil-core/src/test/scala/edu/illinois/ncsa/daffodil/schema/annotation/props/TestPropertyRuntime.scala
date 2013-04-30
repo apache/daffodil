@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.schema.annotation.props
 
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.dsom.FindPropertyMixin
 import edu.illinois.ncsa.daffodil.dsom.Found
@@ -63,7 +62,7 @@ class MyPropMixin {
 
 class RealObject extends MyPropMixin
 
-class TestPropertyRuntime extends JUnitSuite {
+class TestPropertyRuntime {
 
   @Test
   def testConstructed() {

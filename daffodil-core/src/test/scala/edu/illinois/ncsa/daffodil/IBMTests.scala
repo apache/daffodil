@@ -33,12 +33,11 @@ package edu.illinois.ncsa.daffodil
  */
 
 import java.io.File
-import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
 import org.junit.Test
 
-class IBMTestsThatPass extends JUnitSuite {
+class IBMTestsThatPass {
 
   val testDir = "/test-suite/ibm-contributed/"
   val tdml1 = testDir + "dpaext1.tdml"

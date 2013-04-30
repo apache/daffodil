@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.xml._
-import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import junit.framework.Assert._
@@ -44,7 +43,7 @@ import edu.illinois.ncsa.daffodil.compiler._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestMiddleEndAttributes extends JUnitSuite {
+class TestMiddleEndAttributes {
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE

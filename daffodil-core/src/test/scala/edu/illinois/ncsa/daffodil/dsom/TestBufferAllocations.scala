@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.dsom
  */
 
 
-import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.compiler._
 import org.junit.Test
@@ -46,7 +45,7 @@ import org.junit.Test
  * To change this template use File | Settings | File Templates.
  */
 
-//class TestBufferAllocations extends JUnitSuite {
+//class TestBufferAllocations {
 //
 ////  @Test def testMakeTooSmallBufferAndRead() {
 ////    var in = Compiler.stringToReadableByteChannel("One Two Three Four, Can I have a little more, Five Six Seven Eight Nine Ten I love you!")

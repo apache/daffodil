@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.xml
  * SOFTWARE.
  */
 
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
@@ -44,7 +43,7 @@ import edu.illinois.ncsa.daffodil.Implicits._
 import java.net.URL
 import java.io.File
 
-class TestXMLLoaderWithLocation extends JUnitSuite {
+class TestXMLLoaderWithLocation {
 
   @Test def testBasic() {
     val node = (new DaffodilXMLLoader(BasicStderrErrorHandler)).loadString("<a><b/></a>")

@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.section14.sequence_groups
 
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -44,7 +43,7 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-class TestSequenceGroups extends JUnitSuite {
+class TestSequenceGroups {
   val testDir = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val aa = testDir + "dpaext1.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))

@@ -34,8 +34,8 @@ package edu.illinois.ncsa.daffodil.grammar
 
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
+import edu.illinois.ncsa.daffodil.Implicits._
 
 /**
  * Scala Unit Testing Notes:
@@ -50,7 +50,7 @@ import org.junit.Test
  * Here is an example. Some simple tests, some that intercept exceptions, and demonstrate that the intercept
  * device works properly.
  */
-class HowToUseJUnit extends JUnitSuite {
+class HowToUseJUnit {
 
   @Test def test() {
     assertEquals(42, 6 * 7)

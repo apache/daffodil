@@ -38,19 +38,19 @@ import scala.xml.Node
 import scala.xml.NodeSeq
 import scala.xml.Utility
 import scala.xml.XML
-import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.Implicits.using
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import junit.framework.Assert.assertFalse
+import junit.framework.Assert.fail
 import edu.illinois.ncsa.daffodil.util._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.Implicits._
 
-class TestTDMLRunner extends JUnitSuite {
+class TestTDMLRunner {
 
   val tdml = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE

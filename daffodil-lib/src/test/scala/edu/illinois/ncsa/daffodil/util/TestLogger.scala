@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.util
  */
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.exceptions._
 import org.junit.Test
 
@@ -75,7 +74,7 @@ class MyClass extends Logging {
   }
 }
 
-class TestLogger extends JUnitSuite {
+class TestLogger {
 
   @Test def test1() {
     val c = new MyClass

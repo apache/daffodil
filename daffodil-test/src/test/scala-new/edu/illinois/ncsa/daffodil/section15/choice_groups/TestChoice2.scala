@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.section15.choice_groups
 
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -45,7 +44,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestChoice2 extends JUnitSuite {
+class TestChoice2 {
   val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
   val tdml = testDir + "choice.tdml"
   

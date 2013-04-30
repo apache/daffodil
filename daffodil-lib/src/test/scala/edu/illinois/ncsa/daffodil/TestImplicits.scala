@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.section07.defineFormat
+package edu.illinois.ncsa.daffodil
 
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -32,22 +32,44 @@ package edu.illinois.ncsa.daffodil.section07.defineFormat
  * SOFTWARE.
  */
 
-
-import junit.framework.Assert._
 import org.junit.Test
-import scala.xml._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
-import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import java.io.File
 
-class defineFormatTestsDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/defineFormat/"
-  val tdml = testDir + "defineFormat.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.exceptions._
+import java.io.FileNotFoundException
+import junit.framework.Assert._
 
-  @Test def test_nameCollision() { runner.runOneTest("nameCollision") }
+
+class TestImplicits {
+
+  @Test
+  def testIntercept1() {
+    intercept[Abort] {
+      Assert.abort("yadda")
+    }
+  }
+
+  @Test
+  def testIntercept2() {
+    val e = intercept[InterceptFailedException] {
+      intercept[Abort] {
+        // this will not cause an abort exception
+        2 + 2
+      }
+    }
+    assertTrue(e.getMessage.contains("Failed to intercept"))
+  }
+
+  @Test
+  def testIntercept3() {
+    val e = intercept[InterceptFailedException] {
+      intercept[FileNotFoundException] {
+        // an exception is caught, but not the right kind
+        Assert.abort("yadda")
+      }
+    }
+    assertTrue(e.getMessage.contains("Expected 'java.io.FileNotFoundException'"))
+  }
 
 }
+

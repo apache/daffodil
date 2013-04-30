@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.section12.length_properties
 
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -45,7 +44,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestLengthPropertiesDebug extends JUnitSuite {
+class TestLengthPropertiesDebug {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val tdml_01 = testDir_01 + "dpaext1.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))

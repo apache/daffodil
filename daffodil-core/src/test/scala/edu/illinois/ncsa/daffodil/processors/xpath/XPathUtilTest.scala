@@ -36,18 +36,16 @@ package edu.illinois.ncsa.daffodil.processors.xpath
 import org.jdom.Document
 import org.jdom.Element
 import org.jdom.Text
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
 import scala.math.Pi
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.xml._
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathExpressionException
 import org.junit.Test
+import edu.illinois.ncsa.daffodil.Implicits._
 
-class XPathUtilTest extends JUnitSuite with ShouldMatchers {
+class XPathUtilTest {
 
   @Test def testXPath1() {
 
@@ -69,7 +67,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
     val result = XPathUtil evalExpressionFromString ("/root/child1/child2/child3", new VariableMap(), root, Nil)
 
     result match {
-      case NodeResult(x) => x.getText() should equal("19")
+      case NodeResult(x) => assertEquals("19", x.getText())
       case _ => fail
     }
   }
@@ -113,7 +111,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
     val result = XPathUtil evalExpressionFromString ("../../level1_2/level2_2/level3_2", new VariableMap(), level2_1, Nil)
 
     result match {
-      case NodeResult(x) => x.getText should equal("42")
+      case NodeResult(x) => assertEquals("42", x.getText)
       case _ => fail
     }
   }
@@ -139,7 +137,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
       ns)
 
     result match {
-      case NodeResult(x) => x.getText() should equal("19")
+      case NodeResult(x) => assertEquals("19", x.getText())
       case _ => {
         // println(result)
         fail
@@ -170,7 +168,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
       ns)
 
     result match {
-      case NodeResult(x) => x.getText() should equal("19")
+      case NodeResult(x) => assertEquals("19", x.getText())
       case _ => {
         // println(result)
         fail
@@ -194,7 +192,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
       ns)
 
     result match {
-      case NodeResult(x) => x.getText() should equal("19")
+      case NodeResult(x) => assertEquals("19", x.getText())
       case _ => {
         // println(result)
         fail
@@ -224,7 +222,7 @@ class XPathUtilTest extends JUnitSuite with ShouldMatchers {
       XPathConstants.STRING)
 
     result match {
-      case StringResult(x) => x should equal("19")
+      case StringResult(x) => assertEquals("19", x)
       case _ => {
         // println(result)
         fail

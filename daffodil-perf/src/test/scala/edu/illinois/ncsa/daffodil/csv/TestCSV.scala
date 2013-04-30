@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.csv
  */
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -54,7 +53,7 @@ import edu.illinois.ncsa.daffodil.Tak._
 import edu.illinois.ncsa.daffodil.processors.DFDLCharCounter
 import edu.illinois.ncsa.daffodil.processors.IterableReadableByteChannel
 
-class TestCSV extends JUnitSuite {
+class TestCSV {
   val testDir = "/edu/illinois/ncsa/daffodil/csv/"
   val aa = testDir + "csv.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))

@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.processors.charset
  */
 
 
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import org.junit.Test
@@ -41,7 +40,7 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.tdml.Document
 
-class TestUSASCII7BitPacked extends JUnitSuite {
+class TestUSASCII7BitPacked {
 
   @Test def testOne7Bit() {
     val dec = USASCII7BitPackedCharset.newDecoder()

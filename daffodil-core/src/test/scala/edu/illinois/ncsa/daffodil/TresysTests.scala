@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil
  */
 
 import java.io.File
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
@@ -46,7 +45,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TresysTests extends JUnitSuite {
+class TresysTests {
   val testDir = "/test-suite/tresys-contributed/"
 
   val delimited = testDir + "dpaext1.tdml"

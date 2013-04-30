@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.section14.sequence_groups
 
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -45,7 +44,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestSequenceGroupInitiatedContent extends JUnitSuite {
+class TestSequenceGroupInitiatedContent {
 
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
   val tdml_01 = testDir_01 + "SequenceGroupInitiatedContent.tdml"

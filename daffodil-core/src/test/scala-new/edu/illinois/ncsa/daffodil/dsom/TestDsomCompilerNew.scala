@@ -37,7 +37,6 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util._
 import scala.xml._
 import edu.illinois.ncsa.daffodil.compiler._
-import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.util.Misc
@@ -51,7 +50,7 @@ import java.nio.ByteBuffer
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestDsomCompilerNew extends JUnitSuite with Logging {
+class TestDsomCompilerNew extends Logging {
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE

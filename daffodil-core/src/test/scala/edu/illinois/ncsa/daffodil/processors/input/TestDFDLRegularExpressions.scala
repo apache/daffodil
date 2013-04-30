@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.processors.input
  */
 
 
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import scala.util.parsing.combinator._
 import java.io.StringReader
@@ -49,7 +48,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextStringJustific
  * the results.  Also verifies that the expressions still work
  * when multiple delimiters are used.
  */
-class TestDFDLRegularExpressions extends JUnitSuite {
+class TestDFDLRegularExpressions {
 
   def escape = "E"
   def escapeEscape = "S"

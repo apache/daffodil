@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.dsom
  */
 
 
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
@@ -42,7 +41,7 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-//class TestBinaryInput_02 extends JUnitSuite {
+//class TestBinaryInput_02 {
 //
 //  var runner = {
 //    val testDir = "/test-suite/tresys-contributed/"

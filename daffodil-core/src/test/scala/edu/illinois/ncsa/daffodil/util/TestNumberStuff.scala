@@ -34,16 +34,16 @@ package edu.illinois.ncsa.daffodil.util
 
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import com.ibm.icu.text.DecimalFormat
 import java.text.ParsePosition
 import org.junit.Test
+import edu.illinois.ncsa.daffodil.Implicits._
 
 /**
  * Tests that characterize ICU number parsing specifically with respect
  * to dealing with numbers big enough for unsignedLong.
  */
-class TestNumberStuff extends JUnitSuite {
+class TestNumberStuff {
 
   @Test
   def test1() {

@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.api
 
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
@@ -42,8 +41,9 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.Implicits._
 
-class TestDFDLParser extends JUnitSuite {
+class TestDFDLParser {
 
   @Test def testParseSimple1() {
     val sch = TestUtils.dfdlTestSchema(

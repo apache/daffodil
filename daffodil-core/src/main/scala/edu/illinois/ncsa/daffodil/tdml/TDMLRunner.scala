@@ -38,7 +38,6 @@ import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml._
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
-import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.Implicits.using
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.xml.XMLUtils

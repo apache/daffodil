@@ -37,7 +37,6 @@ package edu.illinois.ncsa.daffodil.section00.general
  */
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -48,7 +47,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestGeneral extends JUnitSuite {
+class TestGeneral {
   val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
   val aa = testDir + "general.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))

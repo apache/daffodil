@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.section17.calc_value_properties
 
 
 import java.io.File
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -47,7 +46,7 @@ import edu.illinois.ncsa.daffodil.util.LoggingDefaults
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestInputValueCalcDebug extends JUnitSuite {
+class TestInputValueCalcDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section17/calc_value_properties/"
   val tdml = testDir + "inputValueCalc.tdml"
 

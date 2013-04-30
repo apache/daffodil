@@ -38,10 +38,9 @@ package edu.illinois.ncsa.daffodil.propGen
 import org.xml.sax.InputSource
 import scala.xml._
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite;
 import org.junit.Test
 
-class TestPropertyGenerator extends JUnitSuite {
+class TestPropertyGenerator {
 
   @Test def testGenEnum() {
     val sch = <xsd:simpleType name="NilKindEnum">

@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil
  */
 
 import java.io.File
-import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
 import org.junit.Test
@@ -41,7 +40,7 @@ import org.junit.Test
 /**
  * Delete this class once these regressions have been addressed.
  */
-//class IBMTestRegressions extends JUnitSuite {
+//class IBMTestRegressions {
 //  
 //  val testDir = "/test-suite/ibm-contributed/"
 //  val tdml1 = testDir + "dpaext1.tdml"
@@ -52,7 +51,7 @@ import org.junit.Test
 //  // Nothing here! Great!
 //}
 
-class IBMTestsThatThrow extends JUnitSuite {
+class IBMTestsThatThrow {
 
   val testDir = "/test-suite/ibm-contributed/"
   val tdml1 = testDir + "dpaext1.tdml"

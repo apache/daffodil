@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil
  */
 
 
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import org.junit.contrib.java.lang.system.ExpectedSystemExit
 import org.junit.contrib.java.lang.system.internal.CheckExitCalled
@@ -43,7 +42,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream
 
 
-class MainTests extends JUnitSuite {
+class MainTests {
 
   // This rule makes it so that System.exit throws an exception You are
   // supposed to be able to say exit.expectExitWithStatus(), but this doesn't

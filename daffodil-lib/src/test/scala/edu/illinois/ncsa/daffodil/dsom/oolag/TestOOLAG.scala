@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.dsom.oolag
  */
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.util.LoggingDefaults
 import edu.illinois.ncsa.daffodil.util.LogLevel
@@ -43,6 +42,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.Abort
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.Implicits._
 
 class MyException(msg: String)
   extends Exception(msg)
@@ -141,7 +141,7 @@ class MyHost extends MyBase(null) {
 
 }
 
-class TestOOLAG extends JUnitSuite {
+class TestOOLAG {
 
   @Test def testPrettyName() {
     val h = new MyHost

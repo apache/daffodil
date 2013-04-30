@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.section11.content_framing_properties
 
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -44,7 +43,7 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-class TestContentFramingProperties extends JUnitSuite {
+class TestContentFramingProperties {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val tdml1 = testDir_01 + "dpaext1.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))

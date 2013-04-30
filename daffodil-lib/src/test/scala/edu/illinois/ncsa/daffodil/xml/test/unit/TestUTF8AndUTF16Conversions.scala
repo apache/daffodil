@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.xml.test.unit
 
 import scala.xml._
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.Arrays;
@@ -53,7 +52,7 @@ import org.junit.Test
  * Really great converter site: http://rishida.net/tools/conversion/
  */
 
-class TestUTF8AndUTF16Conversions extends JUnitSuite {
+class TestUTF8AndUTF16Conversions {
 
   @Test def testDecoding() {
     // This is dollar sign, cents sign, euro symbol, 

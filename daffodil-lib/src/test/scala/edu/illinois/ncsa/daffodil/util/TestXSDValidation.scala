@@ -35,10 +35,9 @@ package edu.illinois.ncsa.daffodil.util
 
 import scala.xml._;
 import junit.framework.Assert._;
-import org.scalatest.junit.JUnitSuite;
 import org.junit.Test;
 import java.io.StringReader;
-import java.io.InputStreamReader; //class TestXSDValidation extends JUnitSuite {
+import java.io.InputStreamReader; //class TestXSDValidation {
 //
 //  val xmlnsURI = "http://www.w3.org/2001/XMLSchema";
 //  val xsdSubsetURI = "http://www.w3.org/2001/XMLSchema";

@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.profiling
  */
 
 import junit.framework.Assert._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -52,7 +51,7 @@ import java.io.ByteArrayInputStream
 import edu.illinois.ncsa.daffodil.Main
 import edu.illinois.ncsa.daffodil.Tak._
 
-class TestProfiling extends JUnitSuite {
+class TestProfiling {
   val testDir = "/edu/illinois/ncsa/daffodil/profiling/"
   val aa = testDir + "Profiling.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))

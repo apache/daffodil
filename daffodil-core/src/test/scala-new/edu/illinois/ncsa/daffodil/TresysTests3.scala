@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil
  * SOFTWARE.
  */
 
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
@@ -45,7 +44,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TresysTests3 extends JUnitSuite {
+class TresysTests3 {
   val testDir = "/test-suite/tresys-contributed/"
 
   lazy val runnerBF = new DFDLTestSuite(Misc.getRequiredResource(testDir + "bitFlagExpression.tdml"))

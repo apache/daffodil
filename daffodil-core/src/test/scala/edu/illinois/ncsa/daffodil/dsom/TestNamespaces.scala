@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.dsom
 
 
 import scala.xml._
-import org.scalatest.junit.JUnitSuite
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import org.junit.Test
@@ -45,7 +44,7 @@ import org.junit.Test
  * This is here to illustrate how it works, and our assumptions
  * about how it works.
  */
-class TestNamespaces extends JUnitSuite {
+class TestNamespaces {
 
   /**
    * basic namespace access from prefix.

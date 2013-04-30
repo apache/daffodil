@@ -35,10 +35,10 @@ package edu.illinois.ncsa.daffodil.util
 
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.exceptions._
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
+import edu.illinois.ncsa.daffodil.Implicits._
 
-class TestUtil extends JUnitSuite {
+class TestUtil {
 
   @Test def testGetRequiredResourceSucceeds() {
     val res = Misc.getRequiredResource("/xsd/XMLSchema.xsd")

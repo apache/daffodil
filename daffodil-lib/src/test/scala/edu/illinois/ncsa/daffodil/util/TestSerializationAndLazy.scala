@@ -39,7 +39,6 @@ import java.io.ByteArrayOutputStream
 import java.io.ObjectOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ObjectInputStream
-import org.scalatest.junit.JUnitSuite
 import org.junit.Test
 
 class ToSerialize extends Serializable {
@@ -61,7 +60,7 @@ class ToSerialize extends Serializable {
  * We're going to be very dependent on this not being broken by some Scala release patch, so leave
  * this test in just in case of that so we can detect it.
  */
-class TestSerializationAndLazy extends JUnitSuite {
+class TestSerializationAndLazy {
 
   @Test
   def testSerializeBeforeLazyEval() {
