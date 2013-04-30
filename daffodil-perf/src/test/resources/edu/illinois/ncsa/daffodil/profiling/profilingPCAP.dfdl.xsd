@@ -26,7 +26,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:sequence dfdl:hiddenGroupRef="ex:pcap2Group" />
-        <xs:element name="mn" type="xs:int"
+        <xs:element name="mn" type="xs:long"
           dfdl:inputValueCalc="{../ex:pcap/ex:global_header/ex:magic_number }" />
       </xs:sequence>
     </xs:complexType>
