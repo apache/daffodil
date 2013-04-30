@@ -86,7 +86,7 @@
                 </xs:sequence>
               </xs:complexType>
             </xs:element>
-            <xs:element name="data" type="xs:unsignedInt" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit"
+            <xs:element name="data" type="xs:hexBinary" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit"
                dfdl:length="{ ../ex:header/ex:incl_len }"/>
           </xs:sequence>
         </xs:complexType>
