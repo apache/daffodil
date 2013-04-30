@@ -67,6 +67,7 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_hexBinary_Implicit_03c() { runner.runOneTest("hexBinary_Implicit_03c") }
   @Test def test_hexBinary_Implicit_04() { runner.runOneTest("hexBinary_Implicit_04") }
   @Test def test_hexBinary_func() { runner.runOneTest("hexBinary_func") }
+  @Test def test_hexBinary_func_neg() { runner.runOneTest("hexBinary_func_neg") }
 
   @Test def test_dateTextNumberRep() { runner.runOneTest("dateTextNumberRep") }
 

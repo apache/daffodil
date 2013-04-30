@@ -4707,5 +4707,25 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_func_neg
+       Schema: HexBinary
+      Purpose: This document demonstrates the use of the hexBinary constructor function. In this case the input string
+               is not compatible with xs:hexBinary and the test should fail
+  -->
+
+  <tdml:parserTestCase name="hexBinary_func_neg" root="hB_root05"
+      model="HexBinary" description="Section 23 - xs:hexBinary() - DFDL-23-077R">
+    <tdml:document>
+      <tdml:documentPart type="text">PPPDABAIAB</tdml:documentPart>
+      <tdml:documentPart type="byte"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Expression evaluation failed</tdml:error>
+      <tdml:error>Invalid hexadecimal digit</tdml:error>
+    </tdml:errors>        
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
