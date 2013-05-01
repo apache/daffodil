@@ -314,11 +314,11 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="first" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="{2}" />
+            dfdl:lengthKind="explicit" dfdl:length="{2}" dfdl:encoding="utf-8"/>
           <xs:element name="inner" type="xs:int"
-            dfdl:lengthKind="explicit" dfdl:length="{5}" />
+            dfdl:lengthKind="explicit" dfdl:length="{5}" dfdl:encoding="utf-8"/>
           <xs:element name="last" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="{2}" />
+            dfdl:lengthKind="explicit" dfdl:length="{2}" dfdl:encoding="utf-8"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -334,13 +334,13 @@
         <xs:sequence>
           <xs:element name="first" type="xs:string"
             dfdl:lengthKind="explicit" dfdl:length="{2}"
-            dfdl:lengthUnits="characters" />
+            dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
           <xs:element name="inner" type="xs:string"
             dfdl:lengthKind="explicit" dfdl:length="{1}"
-            dfdl:lengthUnits="characters" />
+            dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
           <xs:element name="last" type="xs:string"
             dfdl:lengthKind="explicit" dfdl:length="{2}"
-            dfdl:lengthUnits="characters" />
+            dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>

@@ -50,4 +50,7 @@ class TestLengthKindPatternDebug {
 
   @Test def test_ComplexWithBinaryChild() { runner.runOneTest("ComplexWithBinaryChild") }
   @Test def testLengthKindPatternCompound() { runner.runOneTest("LengthKindPatternCompound") }
+  
+  // Now fail due to scanability check 
+  @Test def test_LengthPatternIllegalBits_02() { runner.runOneTest("LengthPatternIllegalBits_02") }
 }

@@ -58,6 +58,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   with InitiatedTerminatedMixin {
 
   def alignmentValueInBits: Int
+  def isScannable: Boolean
 
   lazy val parent = parentArg
   // Scala coding style note: This style of passing a constructor arg that is named fooArg,
@@ -448,6 +449,16 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
         case AlignmentUnits.Bytes => 8 * align
       }
     }
+  }
+  lazy val isScannable: Boolean = {
+    val res = immediateGroup match {
+      case Some(mg: ModelGroup) => {
+        val unScannableChildren = mg.groupMembers.filterNot(m => m.isScannable)
+        unScannableChildren.length == 0
+      }
+      case None => true
+    }
+    res
   }
 }
 

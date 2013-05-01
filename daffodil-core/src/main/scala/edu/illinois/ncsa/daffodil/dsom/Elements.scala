@@ -162,6 +162,16 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   override lazy val isRepresented = inputValueCalcOption.isInstanceOf[NotFound]
 
+  lazy val isScannable: Boolean = {
+    representation match {
+      case Representation.Text => {
+        if (isSimpleType) true
+        else elementComplexType.isScannable
+      }
+      case Representation.Binary => false
+    }
+  }
+
   def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:element>{ contents @ _* }</dfdl:element> => new DFDLElement(node, this)

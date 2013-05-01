@@ -180,6 +180,8 @@ class SpecifiedLengthPatternParser(combinator: SpecifiedLengthCombinatorBase, e:
 
   val charset = e.knownEncodingCharset
   val pattern = e.lengthPattern
+  
+  if(!e.isScannable) e.SDE("Element %s does not meet the requirements of Pattern-Based lengths and Scanability.\nThe element and its children must be representation='text' and share the same encoding.", e.prettyName)
 
   def parse(start: PState): PState = withParseErrorThrowing(start) {
     val in = start.inStream
