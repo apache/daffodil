@@ -389,6 +389,9 @@ trait ElementBaseGrammarMixin
 
   lazy val textInteger = Prod("textInteger", this, representation == Representation.Text,
     standardTextInteger | zonedTextInt)
+    
+  lazy val textNonNegativeInteger = Prod("textNonNegativeInteger", this, representation == Representation.Text,
+    standardTextNonNegativeInteger | zonedTextInt)
 
   lazy val textUnsignedInt = Prod("textUnsignedInt", this, representation == Representation.Text,
     standardTextUnsignedInt | zonedTextInt)
@@ -408,7 +411,9 @@ trait ElementBaseGrammarMixin
   // 
   lazy val standardTextInteger = Prod("standardTextInteger", this,
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextIntegerPrim(this))
-  lazy val standardTextLong = Prod("standardTextLong", this,
+  lazy val standardTextNonNegativeInteger = Prod("standardTextNonNegativeInteger", this,
+    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextNonNegativeIntegerPrim(this))
+    lazy val standardTextLong = Prod("standardTextLong", this,
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextLongPrim(this))
   lazy val standardTextInt = Prod("standardTextInt", this,
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextIntPrim(this))
@@ -604,7 +609,7 @@ trait ElementBaseGrammarMixin
         }
       }
 
-      case PrimType.UByte | PrimType.UShort | PrimType.UInt | PrimType.ULong => {
+      case PrimType.UByte | PrimType.UShort | PrimType.UInt | PrimType.ULong | PrimType.NonNegativeInteger => {
         Assert.invariant(binaryIntRep == bin)
         binaryNumberKnownLengthInBits match {
           case -1 => new UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber(this)
@@ -661,6 +666,7 @@ trait ElementBaseGrammarMixin
       case PrimType.UByte => textUnsignedByte
       case PrimType.UShort => textUnsignedShort
       case PrimType.ULong => textUnsignedLong
+      case PrimType.NonNegativeInteger => textNonNegativeInteger // Should be treated as unsigned xs:integer
       case PrimType.Double => textDouble
       case PrimType.Float => textFloat
       case PrimType.HexBinary => schemaDefinitionError("Primitive hexBinary must be representation='binary'.")

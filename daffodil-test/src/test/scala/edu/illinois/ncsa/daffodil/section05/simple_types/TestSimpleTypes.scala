@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section05.simple_types
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
@@ -48,11 +47,14 @@ class TestSimpleTypes extends JUnitSuite {
   val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
- 
+
+  @Test def test_nonNegativeInteger() { runner.runOneTest("NonNegativeInteger") }
+  @Test def test_nonNegativeInteger_Fail() { runner.runOneTest("NonNegativeInteger_Fail") }
+
   val al = testDir + "AL.tdml"
   lazy val runnerAL = new DFDLTestSuite(Misc.getRequiredResource(al))
   @Test def test_AL000() { runnerAL.runOneTest("AL000") }
-  
+
   // Sec 12.1.1
   // This test fails because Implicit Alignment in bits/bytes is not allowed for HexBinary and representation='text'
   //@Test def test_hexBinary_rep() { runner.runOneTest("hexBinary_rep") }
@@ -80,19 +82,19 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_dateCalendarLanguage2() { runner.runOneTest("dateCalendarLanguage2") }
   @Test def test_dateCalendarLanguage3() { runner.runOneTest("dateCalendarLanguage3") }
   @Test def test_dateCalendarLanguage4() { runner.runOneTest("dateCalendarLanguage4") }
-  
+
   @Test def test_dateTimeCalendarDaysInFirstWeek() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek") }
   @Test def test_dateTimeCalendarDaysInFirstWeek2() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek2") }
   @Test def test_dateTimeCalendarDaysInFirstWeek3() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek3") }
   @Test def test_dateTimeCalendarDaysInFirstWeek4() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek4") }
   @Test def test_dateTimeCalendarDaysInFirstWeek5() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek5") }
   @Test def test_dateTimeCalendarDaysInFirstWeek6() { runner.runOneTest("dateTimeCalendarDaysInFirstWeek6") }
-  
+
   @Test def test_dateTimeTrim01() { runner.runOneTest("dateTimeTrim01") }
   @Test def test_dateTimeTrim02() { runner.runOneTest("dateTimeTrim02") }
   @Test def test_dateTimeTrim03() { runner.runOneTest("dateTimeTrim03") }
   @Test def test_dateTimeTrim04() { runner.runOneTest("dateTimeTrim04") }
-  
+
   @Test def test_dateTimePattern01() { runner.runOneTest("dateTimePattern01") }
   @Test def test_dateTimePattern02() { runner.runOneTest("dateTimePattern02") }
   @Test def test_dateTimePattern03() { runner.runOneTest("dateTimePattern03") }
@@ -104,16 +106,16 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_datePattern08b() { runner.runOneTest("datePattern08b") }
 
   @Test def test_datePattern03() { runner.runOneTest("datePattern03") }
-//  @Test def test_datePattern04() { runner.runOneTest("datePattern04") }
+  //  @Test def test_datePattern04() { runner.runOneTest("datePattern04") }
   @Test def test_datePattern05() { runner.runOneTest("datePattern05") }
   @Test def test_datePattern06() { runner.runOneTest("datePattern06") }
   @Test def test_datePattern07() { runner.runOneTest("datePattern07") }
 
   @Test def test_datePatternChoice() { runner.runOneTest("datePatternChoice") }
-  
-//  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart") }
-//  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart2") }
-  
+
+  //  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart") }
+  //  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart2") }
+
   @Test def test_dateCalendarDaysInFirstWeek() { runner.runOneTest("dateCalendarDaysInFirstWeek") }
   @Test def test_dateCalendarDaysInFirstWeek2() { runner.runOneTest("dateCalendarDaysInFirstWeek2") }
   @Test def test_dateCalendarDaysInFirstWeek3() { runner.runOneTest("dateCalendarDaysInFirstWeek3") }
@@ -136,8 +138,8 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_millisecondAccuracy6() { runner.runOneTest("millisecondAccuracy6") }
   @Test def test_millisecondAccuracy7() { runner.runOneTest("millisecondAccuracy7") }
 
-//  @Test def test_timeLaxCheckPolicy02() { runner.runOneTest("timeLaxCheckPolicy02") }
-//  @Test def test_timeLaxCheckPolicy03() { runner.runOneTest("timeLaxCheckPolicy03") }
+  //  @Test def test_timeLaxCheckPolicy02() { runner.runOneTest("timeLaxCheckPolicy02") }
+  //  @Test def test_timeLaxCheckPolicy03() { runner.runOneTest("timeLaxCheckPolicy03") }
   @Test def test_timeStrictCheckPolicy02() { runner.runOneTest("timeStrictCheckPolicy02") }
 
   @Test def test_timeFormatting() { runner.runOneTest("timeFormatting") }
@@ -164,7 +166,7 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_timeZoneFormats8() { runner.runOneTest("timeZoneFormats8") }
   @Test def test_timeZoneFormats9() { runner.runOneTest("timeZoneFormats9") }
 
-//  @Test def test_dateCountDeterminesFormat() { runner.runOneTest("dateCountDeterminesFormat") }
+  //  @Test def test_dateCountDeterminesFormat() { runner.runOneTest("dateCountDeterminesFormat") }
   @Test def test_dateNonAlphaChars01() { runner.runOneTest("dateNonAlphaChars01") }
   @Test def test_dateTrim01() { runner.runOneTest("dateTrim01") }
   @Test def test_dateTrim02() { runner.runOneTest("dateTrim02") }
@@ -180,7 +182,7 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_dateTimeText() { runner.runOneTest("dateTimeText") }
   @Test def test_dateImplicitPattern() { runner.runOneTest("dateImplicitPattern") }
   @Test def test_dateImplicitPatternFail() { runner.runOneTest("dateImplicitPatternFail") }
-//  @Test def test_timeImplicitPattern() { runner.runOneTest("timeImplicitPattern") }
+  //  @Test def test_timeImplicitPattern() { runner.runOneTest("timeImplicitPattern") }
   @Test def test_timeImplicitPatternFail() { runner.runOneTest("timeImplicitPatternFail") }
 
   @Test def test_dateTimeImplicitPattern() { runner.runOneTest("dateTimeImplicitPattern") }
@@ -190,9 +192,9 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_dateTimeImplicitPattern4() { runner.runOneTest("dateTimeImplicitPatternFail4") }
 
   @Test def test_datePattern01() { runner.runOneTest("datePattern01") }
-//  @Test def test_datePattern01b() { runner.runOneTest("datePattern01b") }
-//  @Test def test_timeLaxCheckPolicy01() { runner.runOneTest("timeLaxCheckPolicy01") }
-//  @Test def test_dateTimeLaxCheckPolicy01() { runner.runOneTest("dateTimeLaxCheckPolicy01") }
+  //  @Test def test_datePattern01b() { runner.runOneTest("datePattern01b") }
+  //  @Test def test_timeLaxCheckPolicy01() { runner.runOneTest("timeLaxCheckPolicy01") }
+  //  @Test def test_dateTimeLaxCheckPolicy01() { runner.runOneTest("dateTimeLaxCheckPolicy01") }
   @Test def test_dateLaxCheckPolicy01() { runner.runOneTest("dateLaxCheckPolicy01") }
   @Test def test_dateLaxCheckPolicy02() { runner.runOneTest("dateLaxCheckPolicy02") }
   @Test def test_dateLaxCheckPolicy03() { runner.runOneTest("dateLaxCheckPolicy03") }
@@ -233,7 +235,7 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_whiteSpaceBeforeLengthExceededInteger() { runner.runOneTest("whiteSpaceBeforeLengthExceededInteger") }
   @Test def test_whiteSpaceDuringLengthExceededInteger() { runner.runOneTest("whiteSpaceDuringLengthExceededInteger") }
   @Test def test_whiteSpaceBeforeValidInteger() { runner.runOneTest("whiteSpaceBeforeValidInteger") }
-//TODO: Find out why these test generate unexpected errors
+  //TODO: Find out why these test generate unexpected errors
   @Test def test_whiteSpaceDuringValidInteger() { runner.runOneTest("whiteSpaceDuringValidInteger") }
   @Test def test_whiteSpaceAfterValidInteger() { runner.runOneTest("whiteSpaceAfterValidInteger") }
   @Test def test_characterDuringValidLong() { runner.runOneTest("characterDuringValidLong") }
@@ -252,7 +254,7 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_whiteSpaceBeforeLengthExceededByte() { runner.runOneTest("whiteSpaceBeforeLengthExceededByte") }
   @Test def test_whiteSpaceDuringLengthExceededByte() { runner.runOneTest("whiteSpaceDuringLengthExceededByte") }
   @Test def test_whiteSpaceBeforeValidByte() { runner.runOneTest("whiteSpaceBeforeValidByte") }
-// TODO: Find out why these test generate unexpected errors
+  // TODO: Find out why these test generate unexpected errors
   @Test def test_whiteSpaceDuringValidByte() { runner.runOneTest("whiteSpaceDuringValidByte") }
   @Test def test_whiteSpaceAfterValidByte() { runner.runOneTest("whiteSpaceAfterValidByte") }
   @Test def test_characterDuringValidUnsignedInt() { runner.runOneTest("characterDuringValidUnsignedInt") }
@@ -274,7 +276,7 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_whiteSpaceBeforeLengthExceededUnsignedLong() { runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedLong") }
   @Test def test_whiteSpaceDuringLengthExceededUnsignedLong() { runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedLong") }
   @Test def test_whiteSpaceBeforeValidUnsignedLong() { runner.runOneTest("whiteSpaceBeforeValidUnsignedLong") }
-// TODO: Find out why these test generate unexpected errors
+  // TODO: Find out why these test generate unexpected errors
   @Test def test_whiteSpaceDuringValidUnsignedLong() { runner.runOneTest("whiteSpaceDuringValidUnsignedLong") }
   @Test def test_whiteSpaceAfterValidUnsignedLong() { runner.runOneTest("whiteSpaceAfterValidUnsignedLong") }
 
@@ -318,7 +320,7 @@ class TestSimpleTypes extends JUnitSuite {
 
   @Test def test_AJ000() { runnerAJ.runOneTest("AJ000") }
   @Test def test_AJ001() { runnerAJ.runOneTest("AJ001") }
-  
+
   val ak = testDir + "AK.tdml"
   lazy val runnerAK = new DFDLTestSuite(Misc.getRequiredResource(ak))
   @Test def test_AK000() { runnerAK.runOneTest("AK000") }
@@ -338,25 +340,25 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_double_binary_03() { runner.runOneTest("double_binary_03") }
   @Test def test_double_binary_04() { runner.runOneTest("double_binary_04") }
   @Test def test_double_binary_05() { runner.runOneTest("double_binary_05") }
-  
+
   @Test def test_byte_binary_01() { runner.runOneTest("byte_binary_01") }
   @Test def test_byte_binary_02() { runner.runOneTest("byte_binary_02") }
   @Test def test_byte_binary_03() { runner.runOneTest("byte_binary_03") }
   @Test def test_byte_binary_04() { runner.runOneTest("byte_binary_04") }
   @Test def test_byte_binary_05() { runner.runOneTest("byte_binary_05") }
-  
+
   @Test def test_byte_implicit() { runner.runOneTest("byte_implicit") }
 
   @Test def test_double_07() { runner.runOneTest("double_07") }
-  
+
   @Test def test_ubyte_binary_01() { runner.runOneTest("ubyte_binary_01") }
   @Test def test_ubyte_binary_02() { runner.runOneTest("ubyte_binary_02") }
   @Test def test_ubyte_binary_03() { runner.runOneTest("ubyte_binary_03") }
   @Test def test_ubyte_binary_04() { runner.runOneTest("ubyte_binary_04") }
   @Test def test_ubyte_binary_05() { runner.runOneTest("ubyte_binary_05") }
-  
+
   @Test def test_ubyte_implicit() { runner.runOneTest("ubyte_implicit") }
-  
+
   @Test def test_int_binary_01() { runner.runOneTest("int_binary_01") }
   @Test def test_int_binary_02() { runner.runOneTest("int_binary_02") }
   @Test def test_int_binary_03() { runner.runOneTest("int_binary_03") }
@@ -364,11 +366,11 @@ class TestSimpleTypes extends JUnitSuite {
   @Test def test_int_binary_05() { runner.runOneTest("int_binary_05") }
 
   @Test def test_int_implicit() { runner.runOneTest("int_implicit") }
-  
+
   @Test def test_integer_binary_01() { runner.runOneTest("integer_binary_01") }
 
-//  @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }
-  
+  //  @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }
+
   @Test def test_literalChar_padding() { runner.runOneTest("literalChar_padding") }
   @Test def test_literalChar_padding2() { runner.runOneTest("literalChar_padding2") }
   @Test def test_literalChar_padding3() { runner.runOneTest("literalChar_padding3") }

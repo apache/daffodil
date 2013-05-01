@@ -648,6 +648,12 @@ trait Facets { self: SimpleTypeDefBase =>
                 facetType, localFacet)
             }
           }
+          case PrimType.NonNegativeInteger => {
+            if (!isFacetInNonNegativeIntegerRange(theLocalFacet)) {
+              context.SDE("%s facet value (%s) was found to be outside of NonNegativeInteger range.",
+                facetType, localFacet)
+            }
+          }
           case PrimType.DateTime => { /* Nothing to do here */ }
           case PrimType.Date => { /* Nothing to do here */ }
           case PrimType.Time => { /* Nothing to do here */ }
@@ -1128,6 +1134,7 @@ object PrimType extends Enum {
   case object UByte extends PrimType { UByte.init }
   case object UShort extends PrimType { UShort.init }
   case object ULong extends PrimType { ULong.init }
+  case object NonNegativeInteger extends PrimType { NonNegativeInteger.init }
   case object Double extends PrimType { Double.init }
   case object Float extends PrimType { Float.init }
   case object HexBinary extends PrimType { HexBinary.init }
@@ -1136,7 +1143,7 @@ object PrimType extends Enum {
   case object Date extends PrimType { Date.init }
   case object Time extends PrimType { Time.init }
   private val init = List(String, Int, Byte, Short, Long, Integer, Decimal, UInt, UByte, UShort, ULong,
-    Double, Float, HexBinary, Boolean, DateTime, Date, Time)
+    NonNegativeInteger, Double, Float, HexBinary, Boolean, DateTime, Date, Time)
 }
 
 // Primitives are not "global" because they don't appear in any schema document
@@ -1174,6 +1181,7 @@ class PrimitiveType(pname: String)
       case "unsignedByte" => PrimType.UByte
       case "unsignedShort" => PrimType.UShort
       case "unsignedLong" => PrimType.ULong
+      case "nonNegativeInteger" => PrimType.NonNegativeInteger
       case "double" => PrimType.Double
       case "float" => PrimType.Float
       case "hexBinary" => PrimType.HexBinary

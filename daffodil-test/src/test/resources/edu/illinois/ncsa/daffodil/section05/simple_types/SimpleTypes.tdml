@@ -4727,5 +4727,46 @@
       <tdml:error>Invalid hexadecimal digit</tdml:error>
     </tdml:errors>        
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: NonNegativeInteger
+       Schema: nonNegativeInteger.dfdl.xsd
+      Purpose: User provided test for DFDL-610. Verifies nonNegativeInteger
+               implementation works.
+  -->
+  <tdml:parserTestCase name="NonNegativeInteger" root="Date"
+    model="nonNegativeInteger.dfdl.xsd" description="nonNegativeInteger test">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[Date: 20
+]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <Date>
+          <Day>20</Day>
+        </Date>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: NonNegativeInteger_Fail
+       Schema: nonNegativeInteger.dfdl.xsd
+      Purpose: User provided test for DFDL-610. Verifies nonNegativeInteger
+               implementation works.
+  -->
+  <tdml:parserTestCase name="NonNegativeInteger_Fail" root="Date"
+    model="nonNegativeInteger.dfdl.xsd" description="nonNegativeInteger test">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[Date: -2
+]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Convert to Non Negative Integer</tdml:error>
+      <tdml:error>Out of Range</tdml:error>
+      <tdml:error>converted to -2</tdml:error>
+      <tdml:error>not in range for the type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

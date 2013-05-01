@@ -186,7 +186,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
           case PrimType.Double | PrimType.Long | PrimType.ULong => 64
           case PrimType.Float | PrimType.Int | PrimType.UInt | PrimType.Boolean => 32
           case PrimType.Short | PrimType.UShort => 16
-          case PrimType.Integer | PrimType.Decimal | PrimType.Byte | PrimType.UByte => 8
+          case PrimType.Integer | PrimType.Decimal | PrimType.Byte | PrimType.UByte | PrimType.NonNegativeInteger => 8
           case PrimType.DateTime | PrimType.Date | PrimType.Time =>
             binaryCalendarRep match {
               case BinaryCalendarRep.BinaryMilliseconds => 64

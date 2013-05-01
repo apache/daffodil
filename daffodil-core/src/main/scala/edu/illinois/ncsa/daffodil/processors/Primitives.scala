@@ -638,6 +638,21 @@ case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextIntegerNumb
   def max = -1 // ignored
 }
 
+case class ConvertTextNonNegativeIntegerPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[BigInteger](e, true) {
+  protected override def getNum(num: Number) = new BigInteger(num.toString)
+  protected override val GramName = "nonNegativeInteger"
+  protected override val GramDescription = "Non Negative Integer"
+  protected override def isInvalidRange(n: java.lang.Number): Boolean = {
+    if (n == null) false // we tolerate null here. Something else figures out the error.
+    else {
+      val l = n.longValue
+      l < 0
+    }
+  }
+  def min = -1 // ignored
+  def max = -1 // ignored
+}
+
 case class ConvertTextLongPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[Long](e, true) {
   protected override def getNum(num: Number) = num.longValue
   protected override val GramName = "long"
