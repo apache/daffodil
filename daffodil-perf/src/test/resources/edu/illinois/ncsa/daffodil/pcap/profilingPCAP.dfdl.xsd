@@ -6,7 +6,7 @@
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
       <dfdl:format separator="" initiator="" terminator=""
-        leadingSkip='0' trailingSkip="0" alignment="1" alignmentUnits="bits" textTrimKind="none" initiatedContent="no"
+        leadingSkip='0' trailingSkip="0" alignment="8" alignmentUnits="bits" textTrimKind="none" initiatedContent="no"
         ignoreCase="no" lengthKind="delimited" lengthUnits="bits"
         representation="binary" separatorPolicy="suppressed"
         separatorPosition="infix" occursCountKind="parsed" byteOrder="littleEndian"
