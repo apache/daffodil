@@ -86,5 +86,27 @@
 
   <xsd:element name="hcp" type="xsd:string" dfdl:encoding="utf-8"
     dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="2" />
+  
+  <xsd:element name="file">
+    <xsd:complexType>
+      <xsd:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+        <xsd:element name="header" minOccurs="0" maxOccurs="1" dfdl:occursCountKind="implicit">
+          <xsd:complexType>
+            <xsd:sequence dfdl:separator=",">
+              <xsd:element name="title" type="xsd:string" maxOccurs="unbounded"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="record" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence dfdl:separator=",">
+              <xsd:element name="item" type="xsd:string" maxOccurs="unbounded" 
+                dfdl:occursCount="{ dfdl:occursCount(../../tns:header/*) }" dfdl:occursCountKind="expression"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
 
 </schema>

@@ -49,6 +49,7 @@ class TestEntities extends JUnitSuite {
   val tdml = testDir + "charClassEntities.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
+  @Test def test_entityInError() { runner.runOneTest("entityInError") }
   @Test def test_LineFeed() { runner.runOneTest("LineFeed") }
   @Test def test_CarriageReturn() { runner.runOneTest("CarriageReturn") }
   @Test def test_LineSeparator() { runner.runOneTest("LineSeparator") }

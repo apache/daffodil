@@ -397,4 +397,25 @@
     </infoset>
   </parserTestCase>
 
+  <!--
+    Test Name: entityInError
+       Schema: charClassEntities.dfdl.xsd
+      Purpose: This test verifies the fix for DFDL-646. There should be no error
+               stating "[Conversion = 'N']" when this test is run.
+  -->
+
+  <parserTestCase name="entityInError" root="file"
+    model="charClassEntities.dfdl.xsd"
+    description="Hexadecimal code point used in document tag - DFDL-6-044R">
+
+    <document><![CDATA[last,first,middle,DOB
+jones,robert,brandon,1988-03-24,extra,extra
+johnson,john,henry,1986-01-23
+jonesington,david,frederick,1986-02-19
+]]></document>
+   <errors>
+     <error>Parse Error: Sep('%NL;') - element.record: Delimiter not found!</error>
+   </errors>
+  </parserTestCase>
+
 </testSuite>
