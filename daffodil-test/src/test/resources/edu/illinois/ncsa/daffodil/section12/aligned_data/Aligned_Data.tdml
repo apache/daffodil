@@ -83,7 +83,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <hB>f4</hB>
+        <hB>F4</hB>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -104,7 +104,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <hB2>baba0000</hB2>
+        <hB2>BABA0000</hB2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
