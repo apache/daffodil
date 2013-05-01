@@ -40,7 +40,7 @@ import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.Parser
 import edu.illinois.ncsa.daffodil.processors.DataLoc
 import edu.illinois.ncsa.daffodil.processors.xpath.XPathUtil
-import edu.illinois.ncsa.daffodil.processors.xpath.{NumberResult, StringResult, BooleanResult, NodeResult, DFDLFunctions}
+import edu.illinois.ncsa.daffodil.processors.xpath.{ NumberResult, StringResult, BooleanResult, NodeResult, DFDLFunctions }
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import edu.illinois.ncsa.daffodil.processors.InfosetItem
 import edu.illinois.ncsa.daffodil.processors.PrimParser
@@ -48,19 +48,23 @@ import edu.illinois.ncsa.daffodil.processors.ElementBegin
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.ExecutionMode
-
-import javax.xml.xpath.{XPathConstants, XPathException}
-
+import javax.xml.xpath.{ XPathConstants, XPathException }
 import jline.console.ConsoleReader
 import jline.console.completer.Completer
 import jline.console.completer.StringsCompleter
 import jline.console.completer.AggregateCompleter
+import edu.illinois.ncsa.daffodil.util.Enum
 
 class InteractiveDebugger extends Debugger {
 
-  object DebugState extends Enumeration {
-    type DebugState = Value
-    val Continue, Step, Pause, Trace = Value
+  object DebugState extends Enum {
+    sealed abstract trait DebugState extends EnumVal
+    type Type = DebugState
+    case object Continue extends DebugState { Continue.init }
+    case object Step extends DebugState { Step.init }
+    case object Pause extends DebugState { Pause.init }
+    case object Trace extends DebugState { Trace.init }
+    private val init = List(Continue, Step, Pause, Trace)
   }
 
   case class DebugException(str: String) extends java.lang.Exception {
@@ -78,7 +82,6 @@ class InteractiveDebugger extends Debugger {
   }
 
   case class Display(id: Int, cmd: Seq[String]) extends Disablable
-
 
   object DebuggerConfig {
     /* the max number of lines to tail the infoset, infosetLines <= 0 means print
@@ -108,13 +111,12 @@ class InteractiveDebugger extends Debugger {
     /* whether to remove hidden elements when displaying the infoset */
     var removeHidden: Boolean = false
   }
-   
-  var debugState = DebugState.Pause
+
+  var debugState: DebugState.Type = DebugState.Pause
 
   val reader = new ConsoleReader()
   reader.setPrompt("(debug) ")
   reader.addCompleter(DebugCommandBase.completer)
-
 
   override def init(parser: Parser) {
     val cmd = readCmd
@@ -224,14 +226,16 @@ class InteractiveDebugger extends Debugger {
     // the prim parser is an instance of ElementBegin. This should be changed
     // if we ever get rid of anonymous parsers.
     if (!DebuggerConfig.breakOnlyOnCreation ||
-        (parser.isInstanceOf[PrimParser] && parser.asInstanceOf[PrimParser].primitive.isInstanceOf[ElementBegin])) {
+      (parser.isInstanceOf[PrimParser] && parser.asInstanceOf[PrimParser].primitive.isInstanceOf[ElementBegin])) {
       DebuggerConfig.breakpoints
         .filter(_.enabled)
-        .filter { bp => bp.breakpoint == parser.context.prettyName || bp.breakpoint == parser.context.path  }
-        .find { bp => bp.condition match {
+        .filter { bp => bp.breakpoint == parser.context.prettyName || bp.breakpoint == parser.context.path }
+        .find { bp =>
+          bp.condition match {
             case Some(expression) => evaluateBooleanExpression(expression, state, parser)
             case None => true
-          }}
+          }
+        }
     } else {
       None
     }
@@ -249,17 +253,19 @@ class InteractiveDebugger extends Debugger {
   }
 
   private def debugPrintln(obj: Any = "", prefix: String = "") {
-    obj.toString.split("\n").foreach { line => {
-      print("  ")
-      print(prefix)
-      println(line)
-    }}
+    obj.toString.split("\n").foreach { line =>
+      {
+        print("  ")
+        print(prefix)
+        println(line)
+      }
+    }
   }
 
   /**********************************/
   /**          Commands            **/
   /**********************************/
-  
+
   abstract class DebugCommand {
     val name: String
     lazy val short: String = name(0).toString
@@ -304,12 +310,12 @@ class InteractiveDebugger extends Debugger {
     }
 
     class DebugCommandCompleter(dc: DebugCommand) extends Completer {
-      val subcommandsCompleter = new AggregateCompleter(dc.subcommands.sortBy(_.name).map(_.completer):_*)
+      val subcommandsCompleter = new AggregateCompleter(dc.subcommands.sortBy(_.name).map(_.completer): _*)
       def complete(buffer: String, cursor: Int, candidates: java.util.List[CharSequence]): Int = {
         val cmds = buffer.replaceAll("^\\s+", "").split("(?= )", 2).toList
         val (cmd, args) = cmds match {
-          case c::rest => rest match {
-            case a::Nil => (c, a)
+          case c :: rest => rest match {
+            case a :: Nil => (c, a)
             case Nil => (c, "")
           }
           case Nil => ("", "")
@@ -363,7 +369,6 @@ class InteractiveDebugger extends Debugger {
 
   //DebugCommandBase.checkNameConflicts
 
-
   object DebugCommandBase extends DebugCommand {
     val name = ""
     val desc = ""
@@ -415,7 +420,7 @@ class InteractiveDebugger extends Debugger {
                         |Example: break element.foo""".stripMargin
       def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.DebugState = {
         if (args.length != 1) {
-           throw new DebugException("break command requires a single argument")
+          throw new DebugException("break command requires a single argument")
         } else {
           DebuggerConfig.breakpoints += new Breakpoint(DebuggerConfig.breakpointIndex, args.head)
           DebuggerConfig.breakpointIndex += 1
@@ -472,8 +477,8 @@ class InteractiveDebugger extends Debugger {
       override lazy val short = "cond"
       def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.DebugState = {
         if (args.length < 2) {
-           throw new DebugException("command requires a breakpoint id and a DFDL expression")
-           return DebugState.Pause
+          throw new DebugException("command requires a breakpoint id and a DFDL expression")
+          return DebugState.Pause
         }
         try {
           val id = args.head.toInt
@@ -620,7 +625,7 @@ class InteractiveDebugger extends Debugger {
       override lazy val short = "di"
       def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.DebugState = {
         if (args.length == 0) {
-           throw new DebugException("expression required for display command")
+          throw new DebugException("expression required for display command")
         } else {
           DebuggerConfig.displays += new Display(DebuggerConfig.displayIndex, args)
           DebuggerConfig.displayIndex += 1
@@ -628,7 +633,6 @@ class InteractiveDebugger extends Debugger {
         DebugState.Pause
       }
     }
-
 
     object Enable extends DebugCommand {
       val name = "enable"
@@ -870,10 +874,12 @@ class InteractiveDebugger extends Debugger {
             debugPrintln("%s: no breakpoints set".format(name))
           } else {
             debugPrintln("%s:".format(name))
-            DebuggerConfig.breakpoints.foreach { b => {
-              val enabledStr = if (b.enabled) "" else "*"
-              debugPrintln("%s%s: %s   %s".format(b.id, enabledStr, b.breakpoint, b.condition.getOrElse("")), "  ")
-            }}
+            DebuggerConfig.breakpoints.foreach { b =>
+              {
+                val enabledStr = if (b.enabled) "" else "*"
+                debugPrintln("%s%s: %s   %s".format(b.id, enabledStr, b.breakpoint, b.condition.getOrElse("")), "  ")
+              }
+            }
           }
           DebugState.Pause
         }
@@ -934,7 +940,7 @@ class InteractiveDebugger extends Debugger {
           ("\u001F", "\u241F"), // UNIT SEPARATOR
           //("\u0020", "\u2420"), // SPACE
           ("\u007F", "\u2421") // DELETE
-        )
+          )
 
         def printData(l: Int, prestate: PState, state: PState, parser: Parser) {
           val length = if (l <= 0) Int.MaxValue - 1 else l
@@ -971,7 +977,7 @@ class InteractiveDebugger extends Debugger {
                 val rawUtf8 = dataLoc.utf8Dump(length)
                 val utf8 = controlPicturesMapping.foldLeft(rawUtf8) { (s, m) => s.replaceAll(m._1, m._2) }
                 val lines = utf8.grouped(wrap)
-               
+
                 debugPrintln(paddedFormatStr.format(" " * numPrespaces), "  ")
                 lines.foreach(l => debugPrintln(l, "  "))
               } else {
@@ -1005,14 +1011,14 @@ class InteractiveDebugger extends Debugger {
         val desc = "display the differences from the previous state"
         val longDesc = desc
         def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.DebugState = {
-          debugPrintln("%s:".format(name)) 
+          debugPrintln("%s:".format(name))
           if (prestate.bytePos != state.bytePos) debugPrintln("position (bytes): %d -> %d".format(prestate.bytePos, state.bytePos), "  ")
           if (prestate.bitLimit != state.bitLimit) debugPrintln("bitLimit: %d -> %d".format(prestate.bitLimit, state.bitLimit), "  ")
           if (prestate.discriminator != state.discriminator) debugPrintln("discriminator: %s -> %s".format(prestate.discriminator, state.discriminator), "  ")
           if (prestate.arrayPos != state.arrayPos) debugPrintln("arrayIndex: %d -> %d".format(prestate.arrayPos, state.arrayPos), "  ")
           if (prestate.groupPos != state.groupPos) debugPrintln("groupIndex: %d -> %d".format(prestate.groupPos, state.groupPos), "  ")
           if (prestate.childPos != state.childPos) debugPrintln("childIndex: %d -> %d".format(prestate.childPos, state.childPos), "  ")
-          
+
           DebugState.Pause
         }
       }
@@ -1038,10 +1044,12 @@ class InteractiveDebugger extends Debugger {
             debugPrintln("%s: no displays set".format(name))
           } else {
             debugPrintln("%s:".format(name))
-            DebuggerConfig.displays.foreach { d => {
-              val enabledStr = if (d.enabled) "" else "*"
-              debugPrintln("%s%s: %s".format(d.id, enabledStr, d.cmd.mkString(" ")), "  ")
-            }}
+            DebuggerConfig.displays.foreach { d =>
+              {
+                val enabledStr = if (d.enabled) "" else "*"
+                debugPrintln("%s%s: %s".format(d.id, enabledStr, d.cmd.mkString(" ")), "  ")
+              }
+            }
           }
           DebugState.Pause
         }
@@ -1082,10 +1090,10 @@ class InteractiveDebugger extends Debugger {
 
           val xmlNode = rootNode.toXML
           val xmlNoHidden = if (DebuggerConfig.removeHidden) {
-              XMLUtils.removeHiddenElements(xmlNode)
-            } else {
-              xmlNode
-            }
+            XMLUtils.removeHiddenElements(xmlNode)
+          } else {
+            xmlNode
+          }
           val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0), Seq(NS(XMLUtils.INT_NS)))
           xmlClean
         }

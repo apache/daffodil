@@ -372,7 +372,6 @@ object Main extends Logging {
     LoggingDefaults.setLoggingLevel(verboseLevel)
     LoggingDefaults.setLogWriter(CLILogWriter)
 
-
     if (Conf.debug()) {
       Debugger.setDebugging(true)
       Debugger.setDebugger(new InteractiveDebugger)
@@ -391,7 +390,7 @@ object Main extends Logging {
           }
         }
 
-        def displayDiagnostics(lvl: LogLevel.Value, pr: WithDiagnostics) {
+        def displayDiagnostics(lvl: LogLevel.Type, pr: WithDiagnostics) {
           pr.getDiagnostics.foreach { d =>
             log(lvl, "%s", d.getMessage())
           }

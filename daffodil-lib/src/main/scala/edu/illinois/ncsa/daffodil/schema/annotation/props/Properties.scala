@@ -45,6 +45,11 @@ import edu.illinois.ncsa.daffodil.dsom.FindPropertyMixin
  * Enum class as basis for our DFDL properties
  *
  * This is the best Enum idiom I could find on StackOverflow and other Scala web sites.
+ * (That was a somewhat dated comment. This Enum idiom is used in the DFDL properties
+ * and is laid down by the code generator for properties. Hence, not changing it eventhough
+ * in other places in our code we have Enum.scala which defines a slightly improved
+ * enum idiom. Perhaps fix and make consistent both of these once Scala actually puts in
+ * a decent not so clumsy enum idiom into the language.)
  *
  * An enumeration for a DFDL property is defined like this:
  * @example {{{
@@ -140,10 +145,10 @@ abstract class Enum[A] extends EnumBase {
  */
 trait PropertyMixin extends FindPropertyMixin with ThrowsSDE with Logging {
 
-//  /**
-//   * Only for testing purposes
-//   */
-//  def properties: PropMap
+  //  /**
+  //   * Only for testing purposes
+  //   */
+  //  def properties: PropMap
 
   /**
    * Properties will push their toString function onto this list

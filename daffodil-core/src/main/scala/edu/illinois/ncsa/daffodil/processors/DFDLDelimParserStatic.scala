@@ -34,18 +34,19 @@ package edu.illinois.ncsa.daffodil.processors
 
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.parsing.input.Reader
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 class DFDLDelimParserStatic(stringBitLengthFunction: String => Int)
   extends DFDLDelimParserCommon(stringBitLengthFunction) {
 
   def parseInput(field: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
-    input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
+                 input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
     val result = this.parseInputDefaultContent(field, seps, terms, input, justification)
     result
   }
 
   def parseInputDelimiter(inputDelimiterParser: Parser[String], isLocalDelimParser: Parser[String],
-    input: Reader[Char]): DelimParseResult = {
+                          input: Reader[Char]): DelimParseResult = {
     val res = this.parse(this.log(inputDelimiterParser)("DelimParser.parseInputDelimiter.allDelims"), input)
 
     // TODO: This seems pretty inefficient. We're redoing a match in order to know 
@@ -70,8 +71,8 @@ class DFDLDelimParserStatic(stringBitLengthFunction: String => Int)
   }
 
   def parseInputEscapeBlock(escapeBlockParser: Parser[(Vector[String], String)], seps: Parser[String],
-    terms: Parser[String], input: Reader[Char], justification: TextJustificationType.Type,
-    removeEscapeBlocksRegex: String, parseInputParser: Parser[(Vector[String], String)]): DelimParseResult = {
+                            terms: Parser[String], input: Reader[Char], justification: TextJustificationType.Type,
+                            removeEscapeBlocksRegex: String, parseInputParser: Parser[(Vector[String], String)]): DelimParseResult = {
     val result1 = this.parseInputEscapeBlockContent(escapeBlockParser, seps, terms, input, justification)
     val result2 = result1 match {
       case s: DelimParseSuccess => {
@@ -90,12 +91,12 @@ class DFDLDelimParserStatic(stringBitLengthFunction: String => Int)
   }
 
   def parseInputEscapeCharacter(escapeCharacterParser: Parser[(Vector[String], String)],
-    seps: Parser[String], terms: Parser[String], input: Reader[Char],
-    justification: TextJustificationType.Type,
-    removeEscapeCharacterRegex: scala.util.matching.Regex,
-    removeUnescapedEscapesRegex: String,
-    removeEscapeEscapesThatEscapeRegex: String,
-    removeEscapeRegex: String, es: String, eses: String): DelimParseResult = {
+                                seps: Parser[String], terms: Parser[String], input: Reader[Char],
+                                justification: TextJustificationType.Type,
+                                removeEscapeCharacterRegex: scala.util.matching.Regex,
+                                removeUnescapedEscapesRegex: String,
+                                removeEscapeEscapesThatEscapeRegex: String,
+                                removeEscapeRegex: String, es: String, eses: String): DelimParseResult = {
     val result1 = this.parseInputEscapeCharContent(escapeCharacterParser, seps, terms, input, justification)
     val result2 = result1 match {
       case s: DelimParseSuccess => {
@@ -113,10 +114,10 @@ class DFDLDelimParserStatic(stringBitLengthFunction: String => Int)
    * Assumes 'input' has had its delimiter picked off end already if it existed.
    */
   private def removeEscapeCharacters(input: String, eses: String, es: String,
-    removeEscCharsSameRegex: scala.util.matching.Regex,
-    removeUnescapedEscapesRegex: String,
-    removeEscapeEscapesThatEscapeRegex: String,
-    removeEscapeRegex: String): String = {
+                                     removeEscCharsSameRegex: scala.util.matching.Regex,
+                                     removeUnescapedEscapesRegex: String,
+                                     removeEscapeEscapesThatEscapeRegex: String,
+                                     removeEscapeRegex: String): String = {
     if (eses.equals(es)) {
       return removeEscapeCharactersSame(input, removeEscCharsSameRegex)
     } else {
@@ -126,7 +127,7 @@ class DFDLDelimParserStatic(stringBitLengthFunction: String => Int)
   }
 
   private def removeEscapeCharactersSame(input: String,
-    removeEscCharsSameRegex: scala.util.matching.Regex): String = {
+                                         removeEscCharsSameRegex: scala.util.matching.Regex): String = {
     // used to cleanup escape characters 
     val ERSplit = removeEscCharsSameRegex
     def removeActiveEscapes(str: String): String = {
@@ -147,8 +148,8 @@ class DFDLDelimParserStatic(stringBitLengthFunction: String => Int)
   }
 
   private def removeEscapeCharactersDiff(input: String, eses: String,
-    removeUnescapedEscapesRegex: String, removeEscapeEscapesThatEscapeRegex: String,
-    removeEscapeRegex: String): String = {
+                                         removeUnescapedEscapesRegex: String, removeEscapeEscapesThatEscapeRegex: String,
+                                         removeEscapeRegex: String): String = {
     // TODO: Move regular expressions out into central class
     if (eses.length() > 0) {
       val removeUnescapedEscapes = removeUnescapedEscapesRegex //rRemoveUnescapedEscapes.format(eses, es)
@@ -163,7 +164,7 @@ class DFDLDelimParserStatic(stringBitLengthFunction: String => Int)
   }
 
   def parseInputNCharacters(inputNCharsParser: Parser[String], input: Reader[Char],
-    removePaddingParser: Option[Parser[String]], justification: TextJustificationType.Type): DelimParseResult = {
+                            removePaddingParser: Option[Parser[String]], justification: TextJustificationType.Type): DelimParseResult = {
     // For debug can use this logging parser instead.
     val res = this.parse(this.log(inputNCharsParser)("DelimParser.parseInputNCharacters"), input)
 
@@ -177,7 +178,7 @@ class DFDLDelimParserStatic(stringBitLengthFunction: String => Int)
   }
 
   def removePadding(removePaddingParser: Option[Parser[String]], justification: TextJustificationType.Type,
-    input: String): String = {
+                    input: String): String = {
     val result = removePaddingParser match {
       case Some(p) => {
         val res = this.parse(this.log(p)({
@@ -185,6 +186,7 @@ class DFDLDelimParserStatic(stringBitLengthFunction: String => Int)
             case TextJustificationType.Left => "DelimParser.removePadding.leftJustified"
             case TextJustificationType.Right => "DelimParser.removePadding.rightJustified"
             case TextJustificationType.Center => "DelimParser.removePadding.centerJustified"
+            case TextJustificationType.None => Assert.invariantFailed("should not be none if we're trimming.")
           }
         }), input)
         res.getOrElse(input)

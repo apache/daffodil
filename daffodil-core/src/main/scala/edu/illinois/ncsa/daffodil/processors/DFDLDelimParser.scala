@@ -37,7 +37,7 @@ import scala.collection.mutable.Queue
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.parsing.input.Reader
 import edu.illinois.ncsa.daffodil.processors.DelimiterType._
-import edu.illinois.ncsa.daffodil.processors.DelimiterLocation.DelimiterLocation
+import edu.illinois.ncsa.daffodil.processors.DelimiterLocation._
 import scala.util.matching.Regex
 import java.nio.charset.Charset
 import java.util.regex.Pattern
@@ -55,12 +55,13 @@ class DelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParse
     val field = this.generateRemovePaddingParser(justification, padChar)
     val result = field match {
       case None => input
-      case Some(f) =>{
+      case Some(f) => {
         val res = this.parse(this.log(f)({
           justification match {
             case TextJustificationType.Left => "DelimParser.removePadding.leftJustified"
             case TextJustificationType.Right => "DelimParser.removePadding.rightJustified"
             case TextJustificationType.Center => "DelimParser.removePadding.centerJustified"
+            case TextJustificationType.None => Assert.invariantFailed("should not be none if we're trimming.")
           }
         }), input)
         res.getOrElse(input)
@@ -83,11 +84,11 @@ class DelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParse
   }
 
   def parseInputNCharacters(nChars: Long, input: Reader[Char],
-    justification: TextJustificationType.Type,
-    padChar: String): DelimParseResult = {
+                            justification: TextJustificationType.Type,
+                            padChar: String): DelimParseResult = {
 
     val entry = this.generateInputNCharactersParser(nChars)
-    
+
     // For debug can use this logging parser instead.
     val res = this.parse(this.log(entry)("DelimParser.parseInputNCharacters"), input)
     //val res = this.parse(entry, input)
@@ -101,14 +102,10 @@ class DelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParse
     }
   }
 
- 
-
-//  private def parseInputEscapeCharContent(fieldParser: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
-//    input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
-//    parseInputDefaultContent(fieldParser, seps, terms, input, justification)
-//  }
-
- 
+  //  private def parseInputEscapeCharContent(fieldParser: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
+  //    input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
+  //    parseInputDefaultContent(fieldParser, seps, terms, input, justification)
+  //  }
 
   /**
    * localDelims - delimiters local to the component in question
@@ -119,12 +116,12 @@ class DelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParse
    * The call to buildDelims sorts the delimiters by length or possible length.
    */
   def parseInputDelimiter(localDelims: Set[String], remoteDelims: Set[String],
-    input: Reader[Char]): DelimParseResult = {
-    
-    val(localDelimsParser, localDelimsRegex) = generateDelimiter(localDelims)
-    val(remoteDelimsParser, remoteDelimsRegex) = generateDelimiter(remoteDelims)
+                          input: Reader[Char]): DelimParseResult = {
+
+    val (localDelimsParser, localDelimsRegex) = generateDelimiter(localDelims)
+    val (remoteDelimsParser, remoteDelimsRegex) = generateDelimiter(remoteDelims)
     val entry = generateInputDelimiterParser(localDelimsParser, remoteDelimsParser)
-    
+
     val res = this.parse(this.log(entry)("DelimParser.parseInputDelimiter.allDelims"), input)
 
     // TODO: This seems pretty inefficient. We're redoing a match in order to know 
@@ -158,49 +155,49 @@ class DelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParse
    * Parses text input without escape schemes
    */
   def parseInput(separators: Set[String], terminators: Set[String], input: Reader[Char],
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                 justification: TextJustificationType.Type,
+                 padChar: String,
+                 isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     val hasDelim: Boolean = separators.size > 0 || terminators.size > 0
     val (pSeps, sepsRegex) = this.generateSeparators(separators)
     val (pTerms, termsRegex) = this.generateTerminators(terminators)
     val delimsRegex = combineDelimitersRegex(sepsRegex, termsRegex)
     val padCharRegex = generateCharacterRegex(padChar);
-    
+
     val pFieldAndDelim = justification match {
-      case TextJustificationType.None =>  generateInputNoPadParser(pSeps, pTerms, 
-          delimsRegex, hasDelim, isMissingDelimAllowed)
-      case _ =>  generateInputWithPadParser(pSeps, pTerms, delimsRegex, padCharRegex, 
-          justification, hasDelim, isMissingDelimAllowed)
+      case TextJustificationType.None => generateInputNoPadParser(pSeps, pTerms,
+        delimsRegex, hasDelim, isMissingDelimAllowed)
+      case _ => generateInputWithPadParser(pSeps, pTerms, delimsRegex, padCharRegex,
+        justification, hasDelim, isMissingDelimAllowed)
     }
-    
+
     val result = parseInputDefaultContent(pFieldAndDelim, pSeps, pTerms, input, justification)
     result
   }
 
   private def parseInput_WithPad(separators: Set[String], terminators: Set[String], input: Reader[Char],
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
-    
+                                 justification: TextJustificationType.Type,
+                                 padChar: String,
+                                 isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+
     val hasDelim: Boolean = separators.size > 0 || terminators.size > 0
     val (pSeps, sepsRegex) = this.generateSeparators(separators)
     val (pTerms, termsRegex) = this.generateTerminators(terminators)
     val delimsRegex = combineDelimitersRegex(sepsRegex, termsRegex)
     val padCharRegex = generateCharacterRegex(padChar);
-    
+
     val pFieldAndDelim = this.generateInputWithPadParser(pSeps, pTerms, delimsRegex, padCharRegex,
-        justification, hasDelim, isMissingDelimAllowed)
+      justification, hasDelim, isMissingDelimAllowed)
 
     val result = parseInputDefaultContent(pFieldAndDelim, pSeps, pTerms, input, justification)
     result
   }
 
   private def parseInput_NoPad(separators: Set[String], terminators: Set[String], input: Reader[Char],
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                               isMissingDelimAllowed: Boolean = true): DelimParseResult = {
     // TODO: Move regular expressions out to central class
-    
+
     val hasDelim: Boolean = separators.size > 0 || terminators.size > 0
     val (pSeps, sepsRegex) = this.generateSeparators(separators)
     val (pTerms, termsRegex) = this.generateTerminators(terminators)
@@ -216,11 +213,11 @@ class DelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParse
    * Parses input that can have escape blocks
    */
   def parseInputEscapeBlock(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeBlockStart: String, escapeBlockEnd: String,
-    escapeEscapeCharacter: String = "",
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                            input: Reader[Char], escapeBlockStart: String, escapeBlockEnd: String,
+                            escapeEscapeCharacter: String = "",
+                            justification: TextJustificationType.Type,
+                            padChar: String,
+                            isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     val hasEscEsc: Boolean = escapeEscapeCharacter.length() > 0
     val escapeBlockStartRegex = this.generateCharacterRegex(escapeBlockStart)
@@ -257,11 +254,11 @@ class DelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParse
   }
 
   private def parseInputEscapeBlock_WithPad(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeBlockStart: String, escapeBlockEnd: String,
-    escapeEscapeCharacter: String = "",
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                            input: Reader[Char], escapeBlockStart: String, escapeBlockEnd: String,
+                                            escapeEscapeCharacter: String = "",
+                                            justification: TextJustificationType.Type,
+                                            padChar: String,
+                                            isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     Assert.invariant(escapeBlockStart.length() != 0 && escapeBlockEnd.length() != 0 && padChar.length() != 0)
 
@@ -295,9 +292,9 @@ class DelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParse
   }
 
   private def parseInputEscapeBlock_NoPad(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeBlockStart: String, escapeBlockEnd: String,
-    escapeEscapeCharacter: String = "",
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                          input: Reader[Char], escapeBlockStart: String, escapeBlockEnd: String,
+                                          escapeEscapeCharacter: String = "",
+                                          isMissingDelimAllowed: Boolean = true): DelimParseResult = {
     //TODO: Move regular expressions out into central class
     //if (escapeBlockStart.length() == 0 || escapeBlockEnd.length() == 0) { return failedResult }
     Assert.invariant(escapeBlockStart.length() != 0 && escapeBlockEnd.length() != 0)
@@ -331,10 +328,10 @@ class DelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParse
    * Parses input that can have character escape schemes
    */
   def parseInputEscapeCharacter(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeCharacter: String, escapeEscapeCharacter: String = "",
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                input: Reader[Char], escapeCharacter: String, escapeEscapeCharacter: String = "",
+                                justification: TextJustificationType.Type,
+                                padChar: String,
+                                isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     Assert.invariant(escapeCharacter.length() != 0)
 
@@ -360,7 +357,7 @@ class DelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParse
           case TextJustificationType.None => this.generateEscapeCharacterDiffNoPadParser(pSeps, pTerms,
             escapeCharacterRegex, escapeEscapeCharacterRegex, delimsRegex, hasEscEsc, hasDelim, isMissingDelimAllowed)
           case _ => this.generateEscapeCharacterDiffWithPadParser(pSeps, pTerms,
-            escapeCharacterRegex, escapeEscapeCharacterRegex, padCharacterRegex, delimsRegex, 
+            escapeCharacterRegex, escapeEscapeCharacterRegex, padCharacterRegex, delimsRegex,
             justification, hasEscEsc, hasDelim, isMissingDelimAllowed)
         }
       }
@@ -384,10 +381,10 @@ class DelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParse
    * characters are not the same.
    */
   private def parseInputEscapeCharacter_DiffWithPad(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeCharacter: String, escapeEscapeCharacter: String = "",
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                                    input: Reader[Char], escapeCharacter: String, escapeEscapeCharacter: String = "",
+                                                    justification: TextJustificationType.Type,
+                                                    padChar: String,
+                                                    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     Assert.invariant(escapeCharacter.length() != 0 && padChar.length() != 0)
 
@@ -421,8 +418,8 @@ class DelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParse
    * characters are not the same.
    */
   private def parseInputEscapeCharacter_DiffNoPad(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeCharacter: String, escapeEscapeCharacter: String = "",
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                                  input: Reader[Char], escapeCharacter: String, escapeEscapeCharacter: String = "",
+                                                  isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     Assert.invariant(escapeCharacter.length() > 0)
 
@@ -456,8 +453,8 @@ class DelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParse
    * escape and escapeEscape are the same.
    */
   private def parseInputEscapeCharacter_SameNoPad(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeCharacter: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                                  input: Reader[Char], escapeCharacter: String,
+                                                  isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     //if (escapeCharacter.length() == 0) { return failedResult }
     Assert.invariant(escapeCharacter.length > 0)
@@ -489,10 +486,10 @@ class DelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParse
    * escape and escapeEscape are the same.
    */
   private def parseInputEscapeCharacter_SameWithPad(separators: Set[String], terminators: Set[String],
-    input: Reader[Char], escapeCharacter: String,
-    justification: TextJustificationType.Type,
-    padChar: String,
-    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
+                                                    input: Reader[Char], escapeCharacter: String,
+                                                    justification: TextJustificationType.Type,
+                                                    padChar: String,
+                                                    isMissingDelimAllowed: Boolean = true): DelimParseResult = {
 
     // if (escapeCharacter.length() == 0 || padChar.length() == 0) { return failedResult }
     Assert.invariant(escapeCharacter.length() > 0 && padChar.length() > 0)

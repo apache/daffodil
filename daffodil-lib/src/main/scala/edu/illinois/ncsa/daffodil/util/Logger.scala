@@ -32,14 +32,13 @@ package edu.illinois.ncsa.daffodil.util
  * SOFTWARE.
  */
 
-import scala.actors.Actor
-import scala.actors.Actor._
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.io.File
 import java.io.PrintStream
 import java.io.FileOutputStream
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.util._
 
 /**
  * Simple logging system evolved from code found on Stack Overflow, on the web.
@@ -47,16 +46,29 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  * Mostly based on the contribution of Don Mackenzie.
  */
 
-object LogLevel extends Enumeration {
-  val Error = Value(10)
-  val Warning = Value(20)
-  val Info = Value(30)
-  val Compile = Value(35)
-  val Debug = Value(40) // does not time-stamp messages. 
-  val OOLAGDebug = Value(50)
+object LogLevel extends Enum {
+  import edu.illinois.ncsa.daffodil.japi.{ LogLevel => JLogLevel }
+  type Type = LogLevel
+  sealed abstract class LogLevel(override val id: Int) extends EnumVal
+  case object Error extends LogLevel(JLogLevel.Error.id) { Error.init }
+  case object Warning extends LogLevel(JLogLevel.Warning.id) { Warning.init }
+  case object Info extends LogLevel(JLogLevel.Info.id) { Info.init }
+  case object Compile extends LogLevel(JLogLevel.Compile.id) { Compile.init }
+  case object Debug extends LogLevel(JLogLevel.Debug.id) { Debug.init }
+  case object OOLAGDebug extends LogLevel(JLogLevel.OOLAGDebug.id) { OOLAGDebug.init }
+  private val init = List(Error, Warning, Info, Compile, Debug, OOLAGDebug)
+
+  /**
+   * We want scala code to use the typesafe enum idiom which actually
+   * uses case objects as above. But that's not reachable from java,
+   * so we provide this conversion from the plain Java enum.
+   */
+  def fromJava(jLogLevel: JLogLevel): LogLevel = {
+    LogLevel(jLogLevel.id).getOrElse(Assert.abort("unmapped: java enum has no corresponding scala enum"))
+  }
 }
 
-abstract class GlobBase(lvl: LogLevel.Value) {
+abstract class GlobBase(lvl: LogLevel.Type) {
   // Have to do this by having an overload for each number of args.
   // This is because we're depending on scala's call-by-name trick to NOT
   // evaluate these arguments unless something else decides to force this whole adventure.
@@ -185,8 +197,9 @@ class FileWriter(val file: File) extends LogWriter {
  * Just make a Glob (short for globalized message). This is intended to be passed by name,
  *
  */
-class Glob(val lvl: LogLevel.Value, val msg: String, argSeq: => Seq[Any]) {
+class Glob(val lvl: LogLevel.Type, msgArg: => String, argSeq: => Seq[Any]) {
   lazy val args = argSeq
+  lazy val msg = msgArg
   // for now: quick and dirty English-centric approach.
   // In the future, use msg to index into i18n resource bundle for 
   // properly i18n-ized string. Can use context to avoid ambiguities.
@@ -219,9 +232,9 @@ trait Logging extends Identity {
   }
 
   protected var logWriter: LogWriter = LoggingDefaults.logWriter
-  protected var logLevel = LoggingDefaults.logLevel
+  protected var logLevel: LogLevel.Type = LoggingDefaults.logLevel
 
-  def setLoggingLevel(level: LogLevel.Value) { logLevel = level }
+  def setLoggingLevel(level: LogLevel.Type) { logLevel = level }
 
   def setLogWriter(lw: LogWriter) { if (lw != null) logWriter = lw }
 
@@ -229,7 +242,7 @@ trait Logging extends Identity {
     if (logLevel >= glob.lvl) logWriter.log(logID, glob)
   }
 
-  @inline def log(lvl: LogLevel.Value, msg: String, args: Any*) {
+  @inline def log(lvl: LogLevel.Type, msg: String, args: Any*) {
     if (logLevel >= lvl) log(new Glob(lvl, msg, Seq(args: _*)))
   }
 
@@ -241,7 +254,7 @@ trait Logging extends Identity {
    * Call with no log level argument to turn it off (when done debugging). That way you
    * can leave it sitting there.
    */
-  def withLoggingLevel[S](newLevel: LogLevel.Value = logLevel)(body: => S) = {
+  def withLoggingLevel[S](newLevel: LogLevel.Type = logLevel)(body: => S) = {
     val previousLogLevel = logLevel
     logLevel = newLevel
     try body
@@ -253,10 +266,10 @@ trait Logging extends Identity {
 
 object LoggingDefaults {
 
-  var logLevel = LogLevel.Info
+  var logLevel: LogLevel.Type = LogLevel.Info
   var logWriter: LogWriter = ConsoleWriter
 
-  def setLoggingLevel(level: LogLevel.Value) { logLevel = level }
+  def setLoggingLevel(level: LogLevel.Type) { logLevel = level }
 
   def setLogWriter(lw: LogWriter) { if (lw != null) logWriter = lw }
 }

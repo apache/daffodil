@@ -49,6 +49,7 @@ import com.ibm.icu.text.DateFormat
 import java.text.ParsePosition
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import edu.illinois.ncsa.daffodil.util.Enum
 
 /////////////////////////////////////////////////////////////////
 // Type System
@@ -101,7 +102,7 @@ trait TypeChecks { self: SimpleTypeBase =>
         case _ => false
       }
     }
-    
+
     // Don't need to range check String or HexBinary
     // no point attempting a conversion to BigDecimal so
     // return early here.
@@ -652,7 +653,7 @@ trait Facets { self: SimpleTypeDefBase =>
           case PrimType.Time => { /* Nothing to do here */ }
           case PrimType.Boolean => notYetImplemented("checkValueSpaceFacetRange - Boolean")
           case PrimType.HexBinary => { /* Nothing to do here */ }
-          case PrimType.String => { /* Nothing to do here */ } 
+          case PrimType.String => { /* Nothing to do here */ }
           case _ => schemaDefinitionError("checkValueSpaceFacetRange - Unrecognized primitive type: %s", primitiveType.name)
         }
       }
@@ -765,9 +766,21 @@ trait Facets { self: SimpleTypeDefBase =>
 
 }
 
-object Facet extends Enumeration {
-  type Facet = Value
-  val enumeration, fractionDigits, maxExclusive, maxInclusive, maxLength, minExclusive, minInclusive, minLength, pattern, totalDigits, whiteSpace = Value
+object Facet extends Enum {
+  sealed abstract trait Facet extends EnumVal
+  type Type = Facet
+  case object enumeration extends Facet { enumeration.init }
+  case object fractionDigits extends Facet { fractionDigits.init }
+  case object maxExclusive extends Facet { maxExclusive.init }
+  case object maxInclusive extends Facet { maxInclusive.init }
+  case object maxLength extends Facet { maxLength.init }
+  case object minExclusive extends Facet { minExclusive.init }
+  case object minInclusive extends Facet { minInclusive.init }
+  case object minLength extends Facet { minLength.init }
+  case object pattern extends Facet { pattern.init }
+  case object totalDigits extends Facet { totalDigits.init }
+  case object whiteSpace extends Facet { whiteSpace.init }
+  private val init = List(enumeration, fractionDigits, maxExclusive, maxInclusive, maxLength, minExclusive, minInclusive, minLength, pattern, totalDigits, whiteSpace)
 }
 
 object FacetTypes {
@@ -775,8 +788,8 @@ object FacetTypes {
   // TODO: Should we modify these to also include the name of the simpleType?
   type Values = String
   type ValuesR = Regex
-  type FacetValue = (Facet.Facet, Values)
-  type FacetValueR = (Facet.Facet, ValuesR)
+  type FacetValue = (Facet.Type, Values)
+  type FacetValueR = (Facet.Type, ValuesR)
   type ElemFacets = Seq[FacetValue]
   type ElemFacetsR = Seq[FacetValueR]
 }
@@ -1101,9 +1114,29 @@ object Fakes {
 
 }
 
-object PrimType extends Enumeration {
-  type PrimType = Value
-  val String, Int, Byte, Short, Long, Integer, UInt, UByte, UShort, ULong, Double, Float, HexBinary, Boolean, DateTime, Date, Time = Value
+object PrimType extends Enum {
+  type Type = PrimType
+  sealed abstract trait PrimType extends PrimType.EnumVal
+  case object String extends PrimType { String.init }
+  case object Int extends PrimType { Int.init }
+  case object Byte extends PrimType { Byte.init }
+  case object Short extends PrimType { Short.init }
+  case object Long extends PrimType { Long.init }
+  case object Integer extends PrimType { Integer.init }
+  case object Decimal extends PrimType { Decimal.init }
+  case object UInt extends PrimType { UInt.init }
+  case object UByte extends PrimType { UByte.init }
+  case object UShort extends PrimType { UShort.init }
+  case object ULong extends PrimType { ULong.init }
+  case object Double extends PrimType { Double.init }
+  case object Float extends PrimType { Float.init }
+  case object HexBinary extends PrimType { HexBinary.init }
+  case object Boolean extends PrimType { Boolean.init }
+  case object DateTime extends PrimType { DateTime.init }
+  case object Date extends PrimType { Date.init }
+  case object Time extends PrimType { Time.init }
+  private val init = List(String, Int, Byte, Short, Long, Integer, Decimal, UInt, UByte, UShort, ULong,
+    Double, Float, HexBinary, Boolean, DateTime, Date, Time)
 }
 
 // Primitives are not "global" because they don't appear in any schema document
@@ -1136,6 +1169,7 @@ class PrimitiveType(pname: String)
       case "short" => PrimType.Short
       case "long" => PrimType.Long
       case "integer" => PrimType.Integer
+      case "decimal" => PrimType.Decimal
       case "unsignedInt" => PrimType.UInt
       case "unsignedByte" => PrimType.UByte
       case "unsignedShort" => PrimType.UShort

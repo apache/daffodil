@@ -40,40 +40,21 @@ import edu.illinois.ncsa.daffodil.dsom.StringValueAsLiteral
 import edu.illinois.ncsa.daffodil.dsom.SingleCharacterLiteral
 import edu.illinois.ncsa.daffodil.dsom.SingleCharacterLiteralES
 import edu.illinois.ncsa.daffodil.util._
-import EscapeSchemeKind.EscapeSchemeKind
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 
-//object DelimiterType extends Enumeration {
-//  type DelimType = Value
-//  val Separator, Terminator, Delimiter = Value
-//}
-//
-//object SearchResult extends Enumeration {
-//  type SearchResult = Value
-//  val FullMatch, PartialMatch, NoMatch, EOD = Value
-//}
-
-//object SearchState extends Enumeration {
-//  type SearchState = Value
-//  val WSPNoMatch, WSPMatch, WSPPlusNoMatch, WSPPlusMatch, WSPStarNoMatch, WSPStarMatch = Value
-//  val WSPModeAndSpace, NLCrlfExists, NLCrlfPartial, NLCrlfNotFound, NLNoMatch = Value
-//  val SpaceAndNotWSPMode, SpaceAndWSPMode, OtherMatch, OtherNoMatch, NoMatch = Value
-//}
-//
-//object CRLFState extends Enumeration {
-//  type CRLFState = Value
-//  val Exists, NotFound, Partial = Value
-//}
-
-object EscapeSchemeKind extends Enumeration {
-  type EscapeSchemeKind = Value
-  val Character, Block, None = Value
+object EscapeSchemeKind extends Enum {
+  type Type = EscapeSchemeKind
+  sealed abstract trait EscapeSchemeKind extends EnumVal
+  case object Character extends EscapeSchemeKind { Character.init }
+  case object Block extends EscapeSchemeKind { Block.init }
+  case object None extends EscapeSchemeKind { None.init }
+  private val init = List(Character, Block, None)
 }
 
 object EscapeScheme extends Logging {
 
   class EscapeSchemeObj {
-    var escapeSchemeKind: EscapeSchemeKind = EscapeSchemeKind.None
+    var escapeSchemeKind: EscapeSchemeKind.Type = EscapeSchemeKind.None
     var escapeCharacter = ""
     var escapeEscapeCharacter = ""
     var escapeBlockStart = ""
@@ -81,7 +62,7 @@ object EscapeScheme extends Logging {
   }
 
   def getEscapeScheme(pEs: Option[DFDLEscapeScheme], context: ThrowsSDE): EscapeSchemeObj = {
-    var escapeSchemeKind = EscapeSchemeKind.None
+    var escapeSchemeKind: EscapeSchemeKind.Type = EscapeSchemeKind.None
     var escapeCharacter = ""
     var escapeEscapeCharacter = ""
     var escapeBlockStart = ""

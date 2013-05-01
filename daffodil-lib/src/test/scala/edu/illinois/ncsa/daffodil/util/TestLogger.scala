@@ -49,23 +49,29 @@ class MyClass extends Logging {
     "about nothing at all."
   }
 
+  lazy val bombArg = Assert.abort("bombArg should not be evaluated")
+  lazy val bombMsg = Assert.abort("bombMsg should not be evaluated")
+
   def logSomething() {
     setLoggingLevel(LogLevel.Error)
     setLogWriter(ForUnitTestLogWriter)
-    // System.out.println("before first logDebug call")
+
+    // won't log because below threshhold 
+    log(LogLevel.Debug, msg, "number 1") // Won't show up in log.
 
     // alas, no by-name passing of var-args. 
     // so instead, we pass by name, a by-name/lazy constructed tuple
     // instead.
 
-    // Illustrates that our Glob object, because it is passed by name,
+    // Illustrates that our Glob object, because its parts are all passed by name,
     // does NOT force evaluation of the pieces that go into it.
     // So it really makes the whole system behave like it was entirely lazy.
-    log(LogLevel.Debug, msg, "number 1") // Won't show up in log.
-    // System.out.println("after first logDebug call")
-    // System.out.println("before first logError call")
+
+    // If we're logging below the threshhold of Debug, then this log line 
+    // doesn't evaluate bombMsg or bombArg. So it is ok if those are expensive 
+    // to compute. 
+    log(Debug(bombMsg, bombArg)) // bomb is not evaluated at all.
     log(Error(msg, argString)) // Will show up in log.
-    // System.out.println("after first logError call")
   }
 }
 
@@ -76,8 +82,11 @@ class TestLogger extends JUnitSuite {
     c.logSomething()
     Console.out.flush()
     val fromLog = ForUnitTestLogWriter.loggedMsg
+    println(fromLog)
     val hasExpected = fromLog.contains("Message about nothing at all.")
+    val doesntHaveUnexpected = !fromLog.contains("number 1")
     assertTrue(hasExpected)
+    assertTrue(doesntHaveUnexpected)
   }
 
 }
