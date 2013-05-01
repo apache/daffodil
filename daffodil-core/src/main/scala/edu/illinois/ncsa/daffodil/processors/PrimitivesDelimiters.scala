@@ -190,8 +190,15 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
 }
 
 abstract class Text(e: Term, guard: Boolean) extends DelimParserBase(e, guard) {
-  lazy val es = e.escapeScheme
-  lazy val esObj = EscapeScheme.getEscapeScheme(es, e)
+  lazy val oes = {
+    val oes = e.optionEscapeScheme
+    oes.foreach { es =>
+      e.schemaDefinitionUnless(es.isKnownEscapeCharacter != Some(false), "Runtime expressions for escapeCharacters are not supported.")
+      e.schemaDefinitionUnless(es.isKnownEscapeEscapeCharacter != Some(false), "Runtime expressions for escapeEscapeCharacters are not supported.")
+    }
+    oes
+  }
+  lazy val esObj = EscapeScheme.getEscapeScheme(oes, e)
   val eName = e.toString()
 
   val positionalInfo = {

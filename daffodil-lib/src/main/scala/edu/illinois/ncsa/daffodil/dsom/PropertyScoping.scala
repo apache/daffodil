@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.util.Info
 import edu.illinois.ncsa.daffodil.util._
@@ -86,7 +85,9 @@ trait LookupLocation
   extends SchemaFileLocatable
   with ResolvesQNames
   with GetAttributesMixin { self: SchemaComponentBase =>
- }
+
+  def nameAndPath = (self.prettyName, self.path)
+}
 
 trait PropTypes {
   /**
@@ -129,15 +130,41 @@ trait FindPropertyMixin extends PropTypes {
    * it must be there, or its an error. There are very few exceptions to this
    * rule.
    */
-  def findProperty(pname: String): PropertyLookupResult = {
-    val res = findPropertyOption(pname)
-    res match {
+  def findProperty(pname: String): Found = {
+    val prop = findPropertyOption(pname)
+    val res = prop match {
       case f: Found => f
       case NotFound(nonDefaultLocs, defaultLocs) => SDE("Property %s is not defined.\nSearched these locations: %s\n Searched these default locations: %s.",
         pname, nonDefaultLocs, defaultLocs)
     }
     res
   }
+
+  def findExpressionProperty(pname: String): Found = {
+    val res @ Found(v, loc) = findProperty(pname)
+    val expressionV = v // expressionize(v)
+    Found(expressionV, loc)
+  }
+
+  //
+  // Done by the expression compiler. Not needed here.
+  //
+  //  def expressionize(s: String) = {
+  //    val trimmed = s.trim()
+  //    val res =
+  //      if (trimmed.startsWith("{{")) "{ '" + trimmed + "' }"
+  //      else if (trimmed.startsWith("{")) s
+  //      else if (trimmed == "'") """{ "'" }"""
+  //      else if (trimmed == "\"") """{ '"' }"""
+  //      else if (((trimmed.startsWith("'")) && trimmed.endsWith("'")) ||
+  //        ((trimmed.startsWith("\"")) && trimmed.endsWith("\""))) "{ " + trimmed + " }"
+  //      else
+  //        // it is some sort of token, or number or character
+  //        // e.g., bigEndian or ; or END
+  //        // surround with single quotes. 
+  //        "{ '" + trimmed + "' }"
+  //    res
+  //  }
 
   /**
    * It is ok to use getProperty if the resulting property value cannot ever contain

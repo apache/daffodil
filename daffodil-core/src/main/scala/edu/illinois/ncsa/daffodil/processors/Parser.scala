@@ -269,6 +269,18 @@ object WithParseErrorThrowing {
   // TODO: FIXME Bad bad global state. This flag needs to live in the DataProcessor object,
   // or find a way to have it go away entirely.
   var flag: Boolean = false
+
+  // for unit tests and other context where you want to exercise runtime code that might throw PEs
+  // but you are not inside a parser
+  def pretendThisIsAParser[T](body: => T) = {
+    val savedFlag: Boolean = WithParseErrorThrowing.flag
+    try {
+      WithParseErrorThrowing.flag = true
+      body
+    } finally {
+      WithParseErrorThrowing.flag = savedFlag
+    }
+  }
 }
 
 // No-op, in case an optimization lets one of these sneak thru. 

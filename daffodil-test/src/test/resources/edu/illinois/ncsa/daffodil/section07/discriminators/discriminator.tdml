@@ -3,7 +3,7 @@
   xmlns:ex="http://example.com" xmlns="http://example.com"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
   <tdml:defineSchema name="s0">
     <dfdl:format ref="ex:daffodilTest1" />
@@ -245,7 +245,7 @@
                     <xs:sequence>
                       <xs:annotation>
                         <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-                          <dfdl:discriminator><![CDATA[{ true() }]]></dfdl:discriminator>
+                          <dfdl:discriminator><![CDATA[{ fn:true() }]]></dfdl:discriminator>
                         </xs:appinfo>
                       </xs:annotation>
                       <xs:element name="str" type="xs:string"
@@ -548,7 +548,7 @@
                     <xs:sequence>
                       <xs:annotation>
                         <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-                          <dfdl:discriminator><![CDATA[{ false() }]]></dfdl:discriminator>
+                          <dfdl:discriminator><![CDATA[{ fn:false() }]]></dfdl:discriminator>
                         </xs:appinfo>
                       </xs:annotation>
                       <xs:element name="str" type="xs:string"
@@ -605,7 +605,7 @@
                     <xs:sequence>
                       <xs:annotation>
                         <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-                          <dfdl:discriminator><![CDATA[{ true() }]]></dfdl:discriminator>
+                          <dfdl:discriminator><![CDATA[{ fn:true() }]]></dfdl:discriminator>
                         </xs:appinfo>
                       </xs:annotation>
                       <xs:element name="num" dfdl:lengthKind="delimited"
@@ -638,7 +638,7 @@
                     <xs:sequence>
                       <xs:annotation>
                         <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-                          <dfdl:discriminator><![CDATA[{ false() }]]></dfdl:discriminator>
+                          <dfdl:discriminator><![CDATA[{ fn:false() }]]></dfdl:discriminator>
                         </xs:appinfo>
                       </xs:annotation>
                       <xs:element name="num" dfdl:lengthKind="delimited"

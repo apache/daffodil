@@ -51,49 +51,55 @@ class TestCompiledExpression {
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
   // dummy schema just so we can get a handle on a legit element declaration
-  val testSchema = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-                     <element name="root" type="xs:string"/>
-                   </schema>
+  val testSchema = <xsd:schema xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+                     <xsd:element name="root" type="xsd:string"/>
+                   </xsd:schema>
 
   @Test def testCompiledPathEvaluation() {
 
     val r = XMLUtils.elem2Element(<root><child1><child2><child3>19</child3></child2></child1></root>)
     val sset = new SchemaSet(testSchema)
-    val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
+    val edecl = sset.getGlobalElementDecl(NoNamespace, "root").get.forRoot()
     val doc = new org.jdom.Document(r) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/child2/child3 }"
-    val compiled = ec.compile('String, xpathString) // as a string
+    val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
+    WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
 
-    val R(result, newVMap) = compiled.evaluate(root, new VariableMap(), dummyState)
+      val R(result, newVMap) = compiled.evaluate(root, new VariableMap(), dummyState)
 
-    assertEquals("19", result)
+      assertEquals("19", result)
+    }
+    val compiled2 = ec.compile('Long, Found(xpathString, edecl)) // as a Long
+    WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
 
-    val compiled2 = ec.compile('Long, xpathString) // as a Long
-    val R(result2, _) = compiled2.evaluate(root, new VariableMap(), dummyState)
+      val R(result2, _) = compiled2.evaluate(root, new VariableMap(), dummyState)
 
-    assertEquals(19L, result2)
+      assertEquals(19L, result2)
+    }
+    val compiled3 = ec.compile('Element, Found(xpathString, edecl)) // as a jdom element
+    WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
 
-    val compiled3 = ec.compile('Element, xpathString) // as a jdom element
-    val R(result3, _) = compiled3.evaluate(root, new VariableMap(), dummyState)
-    val r3string = result3.toString
-    assertTrue(r3string.contains("<child3/>"))
-    val r3value = result3.asInstanceOf[org.jdom.Element].getText()
-    assertEquals("19", r3value)
+      val R(result3, _) = compiled3.evaluate(root, new VariableMap(), dummyState)
+      val r3string = result3.toString
+      assertTrue(r3string.contains("<child3/>"))
+      val r3value = result3.asInstanceOf[org.jdom.Element].getText()
+      assertEquals("19", r3value)
+    }
   }
 
   @Test def testCompiledPathConstant() {
 
     val root = null // won't be used.
     val sset = new SchemaSet(testSchema)
-    val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
+    val edecl = sset.getGlobalElementDecl(NoNamespace, "root").get.forRoot()
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
 
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ 42 }"
-    val compiled = ec.compile('String, xpathString) // as a string
+    val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
     assertTrue(compiled.isConstant)
 
     val emptyVariableMap = new VariableMap()
@@ -101,14 +107,14 @@ class TestCompiledExpression {
 
     assertEquals("42", result)
 
-    val compiled2 = ec.compile('Long, xpathString) // as a Long
+    val compiled2 = ec.compile('Long, Found(xpathString, edecl)) // as a Long
     assertTrue(compiled2.isConstant)
     val R(result2, _) = compiled2.evaluate(root, emptyVariableMap, dummyState)
 
     assertEquals(42L, result2)
 
     val root2 = Infoset(<root/>)
-    val compiled3 = ec.compile('Element, "{ /root }") // as a jdom Element
+    val compiled3 = ec.compile('Element, Found("{ /root }", edecl)) // as a jdom Element
     assertFalse(compiled3.isConstant)
     val R(result3, _) = compiled3.evaluate(root2, emptyVariableMap, dummyState)
     val r3string = result3.toString
@@ -118,18 +124,47 @@ class TestCompiledExpression {
   /**
    * Test XPath evaluator, with no namespace specified on the XML or on the paths
    */
-  @Test def testCompiledAbsolutePathEvaluation1() {
-
+  @Test def testCompiledAbsolutePathEvaluation1NoNamespace() {
+    // dummy schema just so we can get a handle on a legit element declaration
+    val testSchema = <xsd:schema xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+                       <xsd:element name="root" type="xsd:string"/>
+                     </xsd:schema>
     val root = Infoset(<root><child1><child2><child3>19</child3></child2></child1></root>)
     val sset = new SchemaSet(testSchema)
+    if (sset.isError) sset.getDiagnostics.foreach { d => System.err.println(d.toString) }
+    assertTrue(!sset.isError)
+    val edecl = sset.getGlobalElementDecl(NoNamespace, "root").get.forRoot()
+    val ec = new ExpressionCompiler(edecl)
+    val xpathString = "{ /root/child1/child2/child3 }"
+    val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
+    WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
+      val R(result, _) = compiled.evaluate(root, new VariableMap(), dummyState)
+
+      assertEquals("19", result)
+    }
+
+  }
+
+  @Test def testCompiledAbsolutePathEvaluation1ExampleNamespace() {
+    // dummy schema just so we can get a handle on a legit element declaration
+    val testSchema = <xsd:schema targetNamespace={ example } xmlns={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+                       <xsd:element name="root" type="xsd:string"/>
+                     </xsd:schema>
+    val root = Infoset(<root xmlns={ example }><child1><child2><child3>19</child3></child2></child1></root>)
+    val sset = new SchemaSet(testSchema)
+    if (sset.isError) sset.getDiagnostics.foreach { d => System.err.println(d.toString) }
+    assertTrue(!sset.isError)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/child2/child3 }"
-    val compiled = ec.compile('String, xpathString) // as a string
+    val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
-    val R(result, _) = compiled.evaluate(root, new VariableMap(), dummyState)
+    WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
+      val R(result, _) = compiled.evaluate(root, new VariableMap(), dummyState)
 
-    assertEquals("19", result)
+      assertEquals("19", result)
+    }
 
   }
 
@@ -137,10 +172,10 @@ class TestCompiledExpression {
 
     val root = Infoset(<root><child1><child2><child3>19</child3></child2></child1></root>)
     val sset = new SchemaSet(testSchema)
-    val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
+    val edecl = sset.getGlobalElementDecl(NoNamespace, "root").get.forRoot()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ child3 }"
-    val compiled = ec.compile('String, xpathString) // as a string
+    val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
 
     val child2 = root.getChild("child1").getChild("child2")
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
@@ -154,10 +189,10 @@ class TestCompiledExpression {
 
     val root = Infoset(<root><child1><child2><child3>19</child3></child2></child1></root>)
     val sset = new SchemaSet(testSchema)
-    val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
+    val edecl = sset.getGlobalElementDecl(NoNamespace, "root").get.forRoot()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ ../../../child1/child2/child3 }"
-    val compiled = ec.compile('String, xpathString) // as a string
+    val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
     val child3 = root.getChild("child1").getChild("child2").getChild("child3")
     val R(result, _) = compiled.evaluate(child3, new VariableMap(), dummyState)
@@ -170,10 +205,10 @@ class TestCompiledExpression {
 
     val root = Infoset(<data><e1>42</e1><e2/></data>)
     val sset = new SchemaSet(testSchema)
-    val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
+    val edecl = sset.getGlobalElementDecl(NoNamespace, "root").get.forRoot()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ ../e1 }"
-    val compiled = ec.compile('String, xpathString) // as a string
+    val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
     val child2 = root.getChild("e2")
     val R(result, _) = compiled.evaluate(child2, new VariableMap(), dummyState)
@@ -185,7 +220,7 @@ class TestCompiledExpression {
   @Test def testCompiledRelativePathEvaluation4() {
 
     val testSchema = TestUtils.dfdlTestSchema(
-      <dfdl:format xmlns:tns="http://example.com" ref="tns:daffodilTest1"/>,
+      <dfdl:format xmlns:tns={ example } xmlns={ example } ref="tns:daffodilTest1"/>,
       <xs:element name="data">
         <xs:complexType>
           <xs:sequence>
@@ -195,7 +230,7 @@ class TestCompiledExpression {
         </xs:complexType>
       </xs:element>)
 
-    val r = XMLUtils.elem2Element(<data><e1>42</e1><e2/></data>)
+    val r = XMLUtils.elem2Element(<data xmlns={ example }><e1>42</e1><e2/></data>)
     val sset = new SchemaSet(testSchema)
     val edecl = sset.getGlobalElementDecl(example, "data").get.forRoot()
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
@@ -206,7 +241,7 @@ class TestCompiledExpression {
     val parser = ivcPrim.parser.asInstanceOf[IVCParser]
     val doc = new org.jdom.Document(r) // root must have a document node
     val root = doc.getRootElement()
-    val child2 = root.getChild("e2")
+    val child2 = root.getChild("e2", example.toJDOM)
     val R(result, _) = ivcPrim.expr.evaluate(new InfosetElement(child2), new VariableMap(), dummyState)
 
     assertEquals("42", result)
@@ -216,7 +251,7 @@ class TestCompiledExpression {
   @Test def testCompiledRelativePathEvaluation5() {
 
     val testSchema = TestUtils.dfdlTestSchema(
-      <dfdl:format xmlns:tns="http://example.com" ref="tns:daffodilTest1"/>,
+      <dfdl:format xmlns={ example } xmlns:tns={ example } ref="tns:daffodilTest1"/>,
       <xs:element name="data">
         <xs:complexType>
           <xs:sequence>
@@ -226,7 +261,7 @@ class TestCompiledExpression {
         </xs:complexType>
       </xs:element>)
 
-    val r = XMLUtils.elem2Element(<data><e1>42</e1><e2/></data>)
+    val r = XMLUtils.elem2Element(<data xmlns={ example }><e1>42</e1><e2/></data>)
     val sset = new SchemaSet(testSchema)
     val edecl = sset.getGlobalElementDecl(example, "data").get.forRoot()
     val ct = edecl.typeDef.asInstanceOf[ComplexTypeBase]
@@ -238,7 +273,7 @@ class TestCompiledExpression {
     val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl, d)
     val doc = new org.jdom.Document(r) // root must have a document node
     val root = doc.getRootElement()
-    val child2 = root.getChild("e2")
+    val child2 = root.getChild("e2", example.toJDOM)
     val c2state = initialState.withParent(new InfosetElement(child2))
     val resState = parser.parse(c2state)
     val updatedChild2 = resState.parentElement

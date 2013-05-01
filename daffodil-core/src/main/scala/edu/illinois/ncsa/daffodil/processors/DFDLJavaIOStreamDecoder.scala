@@ -95,7 +95,7 @@ object DFDLJavaIOStreamDecoder {
  * allow consumption of data past it.
  */
 class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: Long, var cs: Charset, var bb: ByteBuffer,
-                                       var in: InputStream, var ch: ReadableByteChannel)
+  var in: InputStream, var ch: ReadableByteChannel)
   extends java.io.Reader {
 
   Assert.usage(ch != null)
@@ -243,7 +243,7 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
         }
       }
       val res = n + implRead(cbuf, off, off + len)
-      DFDLCharCounter.count += res
+      if (res > 0) DFDLCharCounter.count += res
       return res
     }
 
@@ -318,16 +318,16 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
 
     breakable {
       while (true) {
-        val cr: CoderResult = decoder.decode(bb, cb, eof)
-        if (cr.isUnderflow) {
-          if (eof) { break }
-          if (!cb.hasRemaining()) { break }
-          if ((cb.position() > 0) && !inReady) { break }
-          val n: Int = readBytes
-          if (n < 0) {
-            eof = true
-            if ((cb.position() == 0) && (!bb.hasRemaining())) { break }
-            decoder.reset()
+        val cr: CoderResult = decoder.decode(bb, cb, eof) // decode bb to cb
+        if (cr.isUnderflow) { // no more data, or not enough data to complete a character.
+          if (eof) { break } // eof flag set last time around this loop, so if we get an underflow it just reinforces our eof.
+          if (!cb.hasRemaining()) { break } // no more room in cb, so break out. 
+          if ((cb.position() > 0) && !inReady) { break } // we've got at least one character, and we're not ready to read anymore. So break out.
+          val n: Int = readBytes // try to add more bytes to the bb
+          if (n < 0) { // got 0 more bytes
+            eof = true // so we're at EOF.
+            if ((cb.position() == 0) && (!bb.hasRemaining())) { break } // no characters and no room to get more data into bb, then breakout.
+            decoder.reset() // TODO ??? why reset. Can we actually discard any decoder state (such as mid-character)?
           }
           continue = true // No continue exists in Scala
         }
@@ -360,6 +360,8 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
           // we'll end up here, but zero well-formed characters will have been
           // created, so below, we'll end up returning -1.
           //
+          // This assert doesn't hold because bb.position() can be zero, but cr.length can be 1 or more. When the very first thing
+          // are malformed, then bb does not get advanced. 
           Assert.invariant(bb.position() >= cr.length())
           bb.position(bb.position() - cr.length())
           break

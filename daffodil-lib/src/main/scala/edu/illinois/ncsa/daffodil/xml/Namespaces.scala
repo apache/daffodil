@@ -76,6 +76,7 @@ class NS protected (s: String) { // protected constructor. Must use factory.
   lazy val uri = new URI(s)
   def isNoNamespace = false
   override def hashCode() = s.hashCode()
+  lazy val toJDOM = org.jdom.Namespace.getNamespace(s)
 }
 
 /**

@@ -7,7 +7,7 @@ I have been unable to get this to work with the XML Catalog support currently.
 I am not sure why, but a workaround (short term, or long) is to just pre merge 
 the files so we are not depending on the nested includes working.
 
-So what you see below is the content first of DFDL_part2_simpletypes.xsd merged in here,
+So what you see below is the content first of DFDL_part1_simpletypes.xsd merged in here,
 followed by the contents of DFDL_part2_attributes.xsd, and then the original 
 content of this file.
 
@@ -33,7 +33,7 @@ content of this file.
 
   <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
     schemaLocation="dafint.xsd"/>
-
+    
  <!-- ============================================================= -->
   <!-- Base DFDL Data types -->
   <!-- ============================================================= -->

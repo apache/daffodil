@@ -45,6 +45,7 @@ import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
+import scala.xml.Node
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -118,9 +119,9 @@ case class ConstantExpression[T](value: T) extends CompiledExpression(value.toSt
 }
 
 case class RuntimeExpression[T <: AnyRef](convertTo: Symbol,
-                                          xpathText: String,
-                                          xpathExprFactory: CompiledExpressionFactory,
-                                          scArg: SchemaComponent)
+  xpathText: String,
+  xpathExprFactory: CompiledExpressionFactory,
+  scArg: SchemaComponent)
   extends CompiledExpression(xpathText)
   with WithParseErrorThrowing {
 
@@ -290,17 +291,25 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging {
         edecl.schemaDefinitionError("Cannot convert %s to Boolean. Error %s.", s, n)
     }
 
-  def compile[T](convertTo: Symbol, expr: String): CompiledExpression = {
+  def compile[T](convertTo: Symbol, property: Found): CompiledExpression = {
+
+    val expr: String = property.value
+    val xmlForNamespaceResolution = property.location.xml
     if (!XPathUtil.isExpression(expr)) {
       // not an expression. For some properties like delimiters, you can use a literal string 
       // whitespace separated list of literal strings, or an expression in { .... }
       new ConstantExpression(expr)
     } else {
 
+      // This is important. The namespace bindings we use must be
+      // those from the object where the property carrying the expression 
+      // was written, not those of the edecl object where the property 
+      // value is being used/compiled. JIRA DFDL-407
+      val exprNSBindings = XMLUtils.namespaceBindings(xmlForNamespaceResolution.scope)
       val xpath = XPathUtil.getExpression(expr)
       val compiledXPath =
         try {
-          XPathUtil.compileExpression(xpath, edecl.namespaces, edecl)
+          XPathUtil.compileExpression(xpath, exprNSBindings, edecl)
         } catch {
           case e: XPathExpressionException => {
             val exc = e // debugger never seems to show the case variable itself.

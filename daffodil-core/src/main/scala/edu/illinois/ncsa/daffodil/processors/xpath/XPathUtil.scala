@@ -500,7 +500,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   def checkMinLength(data: String, minValue: java.math.BigDecimal,
-                     e: ElementBase, primType: PrimType): java.lang.Boolean = {
+    e: ElementBase, primType: PrimType): java.lang.Boolean = {
     primType match {
       case PrimType.String => {
         val bdData = new java.math.BigDecimal(data.length())
@@ -522,7 +522,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   def checkMaxLength(data: String, maxValue: java.math.BigDecimal,
-                     e: ElementBase, primType: PrimType): java.lang.Boolean = {
+    e: ElementBase, primType: PrimType): java.lang.Boolean = {
     primType match {
       case PrimType.String => {
         val bdData = new java.math.BigDecimal(data.length())
@@ -810,8 +810,8 @@ object XPathUtil extends Logging {
    * a CompiledExpressionFactory
    */
   def compileExpression(dfdlExpressionRaw: String,
-                        namespaces: Seq[org.jdom.Namespace],
-                        context: SchemaComponent) =
+    namespaces: Seq[org.jdom.Namespace],
+    context: SchemaComponent) =
     // withLoggingLevel(LogLevel.Info) 
     {
       log(LogLevel.Debug, "Compiling expression")
@@ -822,19 +822,22 @@ object XPathUtil extends Logging {
 
       // Hack around bug in Saxon JAXP support by casting to Saxon-specific class.
       // -JWC, 27Jul2012.
+      // Is it really a bug, or just lack of a standard API?
+      // -MikeB 03May2013
       val xpath = xpathFactory.newXPath().asInstanceOf[XPathEvaluator]
       var variables: VariableMap = new VariableMap() // Closed over. This is modified to supply different variables
       log(LogLevel.Debug, "Namespaces: %s", namespaces)
 
       val nsContext = new javax.xml.namespace.NamespaceContext {
 
-        val pairs = namespaces.map { ns => (ns.getPrefix, ns.getURI) }
-        val ht = pairs.toMap
-
         def getNamespaceURI(prefix: String) = {
           if (prefix == null)
             throw new IllegalArgumentException("The prefix cannot be null.");
-          ht.get(prefix).getOrElse(null)
+          val lookup = namespaces.find { ns => ns.getPrefix == prefix }
+          lookup match {
+            case None => null
+            case Some(ns) => ns.getURI
+          }
         }
         def getPrefixes(uri: String) = Assert.invariantFailed("supposed to be unused.")
         def getPrefix(uri: String): String = Assert.invariantFailed("supposed to be unused.")
@@ -850,13 +853,15 @@ object XPathUtil extends Logging {
 
       xpath setNamespaceContext (nsContext)
 
-      // Backed out until we figure out why this breaks 9 tests in TestCompiledExpression
-      // -MikeB
       //
       // Finish the hack by setting the default element namespace (Saxon's API) 
       // to the default namespace returned by the NamespaceContext (JAXP API).
       // -JWC, 27Jul2012.
-      //xpath.getStaticContext().setDefaultElementNamespace(nsContext.getNamespaceURI(XMLConstants.DEFAULT_NS_PREFIX))
+      val nsForNoPrefix = nsContext.getNamespaceURI(XMLConstants.DEFAULT_NS_PREFIX)
+      val defaultElementNS =
+        if (nsForNoPrefix != null) nsForNoPrefix
+        else XMLConstants.NULL_NS_URI // Null NS aka No Namespace.
+      xpath.getStaticContext().setDefaultElementNamespace(defaultElementNS)
 
       xpath.setXPathVariableResolver(
         new XPathVariableResolver() {
@@ -888,12 +893,9 @@ object XPathUtil extends Logging {
         case e: XPathExpressionException => {
           val exc = e // debugger never seems to show the case variable itself.
           val realExc = e.getCause()
-          // Assert.invariant(realExc != null) // it's always an encapsulation of an underlying error.
-
-          // compilation threw an error. That's a compilation time error.
-          // we just rethrow here. This is here to be a good place for a breakpoint/debug feature.
-          log(LogLevel.Debug, "compilation error in xpath expression. error %s, expression %s", exc, expression)
-          throw exc
+          val forMsg = if (realExc != null) realExc else exc
+          // compilation threw an error. That's a compilation time error, aka a schema definition error
+          context.SDE("Expression compiler reports: %s", forMsg)
         }
       }
 
@@ -925,7 +927,7 @@ object XPathUtil extends Logging {
    * @param namespaces  - the namespaces in scope
    */
   private[xpath] def evalExpressionFromString(expression: String, variables: VariableMap,
-                                              contextNode: Parent, namespaces: Seq[org.jdom.Namespace], targetType: QName = NODE): XPathResult = {
+    contextNode: Parent, namespaces: Seq[org.jdom.Namespace], targetType: QName = NODE): XPathResult = {
 
     val compiledExprExceptVariables = compileExpression(expression, namespaces, null) // null as schema component
     val res = evalExpression(expression, compiledExprExceptVariables, variables, contextNode, targetType)

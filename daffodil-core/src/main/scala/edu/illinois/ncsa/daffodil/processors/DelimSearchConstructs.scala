@@ -75,7 +75,9 @@ object EscapeScheme extends Logging {
           case EscapeKind.EscapeBlock => {
             escapeSchemeKind = EscapeSchemeKind.Block
             escapeEscapeCharacter = {
-              val l = new SingleCharacterLiteralES(obj.escapeEscapeCharacterRaw, context)
+              val optKEEC = obj.knownEscapeEscapeCharacter
+              val eec = optKEEC.getOrElse("")
+              val l = new SingleCharacterLiteralES(eec, context)
               l.cooked
             }
             escapeBlockStart = {
@@ -90,11 +92,11 @@ object EscapeScheme extends Logging {
           case EscapeKind.EscapeCharacter => {
             escapeSchemeKind = EscapeSchemeKind.Character
             escapeEscapeCharacter = {
-              val l = new SingleCharacterLiteralES(obj.escapeEscapeCharacterRaw, context)
+              val l = new SingleCharacterLiteralES(obj.escapeEscapeCharacterRaw.value, context)
               l.cooked
             }
             escapeCharacter = {
-              val l = new SingleCharacterLiteralES(obj.escapeCharacterRaw, context)
+              val l = new SingleCharacterLiteralES(obj.escapeCharacterRaw.value, context)
               l.cooked
             }
           }

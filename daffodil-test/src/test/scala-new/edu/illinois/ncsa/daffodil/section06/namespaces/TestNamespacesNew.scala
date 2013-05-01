@@ -43,22 +43,21 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestNamespacesDebug {
+class TestNamespacesNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  // This test should get an SDE because the delimiter (sequence separator) is not the same encoding 
-  // as the element that will be terminated by that delimiter.
-  @Test def test_multi_encoding_02() = // Debugger.withDebugger 
-    { runner.runOneTest("multi_encoding_02") }
+  @Test def test_namespace_conflict_01() { runner.runOneTest("namespace_conflict_01") }
 
-  @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
+  @Test def test_double_nesting_01() { runner.runOneTest("double_nesting_01") }
 
-  @Test def test_namespace_ultra_uniqueness_03() { runner.runOneTest("namespace_ultra_uniqueness_03") }
+  @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }
 
-  // Failed after implementation of DFDL-336.  Appears to be due to
-  // allParentTerminatingMarkup. See created issue DFDL-571
-  @Test def test_long_chain_05() { runner.runOneTest("long_chain_05") }
+  @Test def test_combinations_02() { runner.runOneTest("combinations_02") }
+
+  @Test def test_nonsense_namespace_01() { runner.runOneTest("nonsense_namespace_01") }
+
+  @Test def test_namespaces_qnames() { runner.runOneTest("namespaces_qnames") }
 
 }

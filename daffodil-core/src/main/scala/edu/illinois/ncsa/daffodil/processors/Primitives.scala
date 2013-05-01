@@ -62,6 +62,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextBooleanJustifi
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.AlignmentType
+import scala.xml.Node
 
 abstract class PrimParser(gram: Gram, contextArg: SchemaComponent)
   extends DaffodilParser(contextArg) {
@@ -1485,7 +1486,7 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
 abstract class AssertBase(
   decl: AnnotatedSchemaComponent,
-  exprTextArg: String,
+  exprPropArg: Found,
   msg: String,
   discrim: Boolean, // are we a discriminator or not.
   assertKindName: String)
@@ -1493,7 +1494,7 @@ abstract class AssertBase(
 
   override val baseName = assertKindName
   override lazy val expandedTypeName = XMLUtils.XSD_BOOLEAN
-  lazy val exprText = exprTextArg
+  lazy val exprProp = exprPropArg
 
   def unparser = DummyUnparser
 
@@ -1523,7 +1524,7 @@ abstract class AssertBooleanPrimBase(
   decl: AnnotatedSchemaComponent,
   stmt: DFDLAssertionBase,
   discrim: Boolean, // are we a discriminator or not.
-  assertKindName: String) extends AssertBase(decl, stmt.testTxt, stmt.message, discrim, assertKindName)
+  assertKindName: String) extends AssertBase(decl, Found(stmt.testTxt, stmt), stmt.message, discrim, assertKindName)
 
 case class AssertBooleanPrim(
   decl: AnnotatedSchemaComponent,
@@ -1539,7 +1540,7 @@ case class DiscriminatorBooleanPrim(
 case class InitiatedContent(
   decl: AnnotatedSchemaComponent)
   extends AssertBase(decl,
-    "{ true() }", // always true. We're just an assertion that says an initiator was found.
+    Found("{ fn:true() }", Fakes.fakeElem), // always true. We're just an assertion that says an initiator was found.
     "initiatedContent. This message should not be used.",
     true,
     "initiatedContent")
@@ -1548,7 +1549,7 @@ case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
   extends ExpressionEvaluatorBase(decl) {
 
   val baseName = "SetVariable[" + stmt.localName + "]"
-  lazy val exprText = stmt.value
+  lazy val exprProp = Found(stmt.value, stmt)
 
   lazy val expandedTypeName = stmt.defv.extType
 
@@ -1577,22 +1578,26 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
   }
 
   def baseName: String
-  def exprText: String
+  def exprProp: Found
   def expandedTypeName: String
+  def exprText = exprProp.value
 
   val expressionTypeSymbol = {
     // println(expandedTypeName)
     e.expressionCompiler.convertTypeString(expandedTypeName)
   }
 
-  val expr = e.expressionCompiler.compile(expressionTypeSymbol, exprText)
+  val expr = e.expressionCompiler.compile(expressionTypeSymbol, exprProp)
 }
 
 case class InputValueCalc(e: ElementBase)
   extends ExpressionEvaluatorBase(e) {
 
   val baseName = "InputValueCalc"
-  lazy val Some(exprText) = e.inputValueCalcOption
+  lazy val exprProp = e.inputValueCalcOption match {
+    case f: Found => f
+    case _: NotFound => Assert.invariantFailed("must be a Found object")
+  }
 
   lazy val pt = e.primType
   lazy val ptn = pt.name

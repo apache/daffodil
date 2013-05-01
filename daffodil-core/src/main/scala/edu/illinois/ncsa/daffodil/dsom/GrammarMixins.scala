@@ -81,7 +81,9 @@ trait InitiatedTerminatedMixin
   lazy val terminatorRegion = Prod("terminatorRegion", this, hasTerminator,
     if (terminator.isConstant) StaticTerminator(this)
     else DynamicTerminator(this))
+}
 
+trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
   /**
    * Changed to use findProperty, and to resolve the namespace properly.
    *
@@ -102,7 +104,7 @@ trait InitiatedTerminatedMixin
    * to the object where this property was written, not where it is evaluated. (JIRA
    * issue DFDL-77)
    */
-  lazy val escapeScheme: Option[DFDLEscapeScheme] = {
+  lazy val optionEscapeScheme: Option[DFDLEscapeScheme] = {
     val er = findPropertyOption("escapeSchemeRef")
     er match {
       case _: NotFound => {
@@ -120,6 +122,7 @@ trait InitiatedTerminatedMixin
       }
     }
   }
+
 }
 
 trait AlignedMixin { self: Term =>
@@ -224,8 +227,8 @@ trait ElementBaseGrammarMixin
       case (LengthUnits.Bits, _) => notYetImplemented("lengthUnits='bits' for type " + typeDef)
       case _ => Assert.invariantFailed("all cases should have been exhausted.")
     })
-    
-    lazy val fixedLengthHexBinary = Prod("fixedLengthHexBinary", this, isFixedLength,
+
+  lazy val fixedLengthHexBinary = Prod("fixedLengthHexBinary", this, isFixedLength,
     lengthUnits match {
       case LengthUnits.Bytes => HexBinaryFixedLengthInBytes(this, fixedLength)
       case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
@@ -257,8 +260,8 @@ trait ElementBaseGrammarMixin
       case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, facetMaxLength)
       case (LengthUnits.Bits, _) => SDE("Strings with lengthKind='implicit' may not have lengthUnits='bits'")
     })
-    
-    lazy val implicitLengthHexBinary = Prod("implicitLengthHexBinary", this, hasSpecifiedLength,
+
+  lazy val implicitLengthHexBinary = Prod("implicitLengthHexBinary", this, hasSpecifiedLength,
     lengthUnits match {
       case LengthUnits.Bytes => HexBinaryFixedLengthInBytes(this, facetMaxLength)
       case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
@@ -286,8 +289,8 @@ trait ElementBaseGrammarMixin
       case (LengthUnits.Characters, false) => StringVariableLengthInVariableWidthCharacters(this)
       case (LengthUnits.Bits, _) => SDE("lengthKind='explicit' and lengthUnits='bits' for type %s", this.typeDef)
     })
-    
-    lazy val variableLengthHexBinary = Prod("variableLengthHexBinary", this, !isFixedLength,
+
+  lazy val variableLengthHexBinary = Prod("variableLengthHexBinary", this, !isFixedLength,
     lengthUnits match {
       case LengthUnits.Bytes => HexBinaryVariableLengthInBytes(this)
       case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
@@ -313,7 +316,7 @@ trait ElementBaseGrammarMixin
     })
     res
   }
-  
+
   lazy val hexBinaryDelimitedEndOfDataStatic = Prod("hexBinaryDelimitedEndOfDataStatic", this, HexBinaryDelimitedEndOfDataStatic(this))
   lazy val hexBinaryDelimitedEndOfDataDynamic = Prod("hexBinaryDelimitedEndOfDataDynamic", this, HexBinaryDelimitedEndOfDataDynamic(this))
 
@@ -389,7 +392,7 @@ trait ElementBaseGrammarMixin
 
   lazy val textInteger = Prod("textInteger", this, representation == Representation.Text,
     standardTextInteger | zonedTextInt)
-    
+
   lazy val textNonNegativeInteger = Prod("textNonNegativeInteger", this, representation == Representation.Text,
     standardTextNonNegativeInteger | zonedTextInt)
 
@@ -413,7 +416,7 @@ trait ElementBaseGrammarMixin
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextIntegerPrim(this))
   lazy val standardTextNonNegativeInteger = Prod("standardTextNonNegativeInteger", this,
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextNonNegativeIntegerPrim(this))
-    lazy val standardTextLong = Prod("standardTextLong", this,
+  lazy val standardTextLong = Prod("standardTextLong", this,
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextLongPrim(this))
   lazy val standardTextInt = Prod("standardTextInt", this,
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextIntPrim(this))
@@ -805,21 +808,19 @@ trait ElementBaseGrammarMixin
   //
   //  def scalarNonDefault: Prod
   lazy val scalarDefaultable = Prod("scalarDefaultable", this,
-    if (inputValueCalcOption == None) {
-      scalarDefaultablePhysical
-    } else {
-      inputValueCalcElement
+    inputValueCalcOption match {
+      case _: NotFound => scalarDefaultablePhysical
+      case _: Found => inputValueCalcElement
     })
 
   lazy val scalarNonDefault = Prod("scalarNonDefault", this,
-    if (inputValueCalcOption == None) {
-      scalarNonDefaultPhysical
-    } else {
-      inputValueCalcElement
+    inputValueCalcOption match {
+      case _: NotFound => scalarNonDefaultPhysical
+      case _: Found => inputValueCalcElement
     })
 
   lazy val inputValueCalcElement = Prod("inputValueCalcElement", this,
-    isSimpleType && inputValueCalcOption != None,
+    isSimpleType && inputValueCalcOption.isInstanceOf[Found],
     StmtEval(this, dfdlElementBegin ~ dfdlScopeBegin ~
       InputValueCalc(self)) ~ dfdlScopeEnd ~ dfdlElementEnd)
 
@@ -989,7 +990,7 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
 
 trait ElementDeclGrammarMixin { self: ElementBase with ElementDeclMixin =>
 
-  override lazy val inputValueCalcOption = getPropertyOption("inputValueCalc")
+  override lazy val inputValueCalcOption = findPropertyOption("inputValueCalc")
 
 }
 

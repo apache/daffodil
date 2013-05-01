@@ -43,7 +43,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
-	<classpathentry excluding="bin/**|lib_managed/**|src/|src_managed/main/" kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib_managed/jars/xerces/xercesImpl/xercesImpl-2.10.0.jar" sourcepath="lib_managed/srcs/xerces/xercesImpl/xercesImpl-2.10.0-sources.jar">
 		<attributes>

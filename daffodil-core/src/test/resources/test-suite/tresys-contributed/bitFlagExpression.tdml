@@ -37,12 +37,12 @@
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
           <dfdl:discriminator><![CDATA[{
-            if (fn:trace((fn:trace(../../ex:presenceBit,"presenceBit") = 0),"pbIsZero")) then false()
+            if (fn:trace((fn:trace(../../ex:presenceBit,"presenceBit") = 0),"pbIsZero")) then fn:false()
             else if
-            (fn:trace(fn:trace(dfdl:occursIndex(),"occursIndex") = 1,"indexIsOne")) then true()
+            (fn:trace(fn:trace(dfdl:occursIndex(),"occursIndex") = 1,"indexIsOne")) then fn:true()
             else if
-            (fn:trace(fn:trace(xs:int(fn:trace(../../ex:A1[fn:trace(dfdl:occursIndex()-1,"indexMinusOne")],"occursIndexMinusOneNode")/ex:repeatBit),"priorRepeatBit") = 0,"priorRepeatBitIsZero")) then false()
-            else true() 
+            (fn:trace(fn:trace(xs:int(fn:trace(../../ex:A1[fn:trace(dfdl:occursIndex()-1,"indexMinusOne")],"occursIndexMinusOneNode")/ex:repeatBit),"priorRepeatBit") = 0,"priorRepeatBitIsZero")) then fn:false()
+            else fn:true() 
             }]]></dfdl:discriminator>
           <dfdl:element
             outputValueCalc='{ if dfdl:arrayIndex(..) eq dfdl:count(..) then 0 else 1}' />

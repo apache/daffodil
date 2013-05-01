@@ -451,7 +451,7 @@ abstract class StringDelimited(e: ElementBase)
   with Padded
   with WithParseErrorThrowing {
   //
-  val es = e.escapeScheme
+  val es = e.optionEscapeScheme
   val esObj = EscapeScheme.getEscapeScheme(es, e)
   val tm = e.allTerminatingMarkup
   val cname = toString
@@ -479,7 +479,7 @@ abstract class StringDelimited(e: ElementBase)
   //    reader: Reader[Char]): DelimParseResult
 
   def parseMethod(hasDelim: Boolean, delimsParser: dp.Parser[String], delimsRegex: Array[String],
-                  reader: Reader[Char]): DelimParseResult = {
+    reader: Reader[Char]): DelimParseResult = {
     // TODO: Change DFDLDelimParser calls to get rid of Array.empty[String] since we're only passing a single list the majority of the time.
     if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
       val (escapeBlockParser, escapeBlockEndRegex, escapeEscapeRegex) = dp.generateEscapeBlockParsers2(delimsParser,

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section23.dfdl_expressions
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -52,11 +51,11 @@ class TestDFDLExpressions {
   @Test def test_regexLookahead() { runner.runOneTest("regexLookahead") }
   @Test def test_regexLookaheadFail() { runner.runOneTest("regexLookaheadFail") }
   @Test def test_regexLookaheadFail2() { runner.runOneTest("regexLookaheadFail2") }
-//  @Test def test_regexCompatFail() { runner.runOneTest("regexCompatFail") }
+  //  @Test def test_regexCompatFail() { runner.runOneTest("regexCompatFail") }
 
   @Test def test_expressionRules01() { runner.runOneTest("expressionRules01") }
   @Test def test_expressionRules02() { runner.runOneTest("expressionRules02") }
-//  @Test def test_expressionRules03() { runner.runOneTest("expressionRules03") }
+  //  @Test def test_expressionRules03() { runner.runOneTest("expressionRules03") }
 
   @Test def test_expressions_lke3_rel() { runner.runOneTest("lke3_rel") }
   @Test def test_expressions_lke1_rel() { runner.runOneTest("lke1_rel") }
@@ -68,6 +67,7 @@ class TestDFDLExpressions {
   @Test def test_expression_type_error1() { runner.runOneTest("expression-type-error1") }
   @Test def test_expression_type_error2() { runner.runOneTest("expression-type-error2") }
   @Test def test_expression_type_error3() { runner.runOneTest("expression-type-error3") }
+  @Test def test_expression_type_error4() { runner.runOneTest("expression-type-error4") }
   @Test def test_expression_unknown_prefix() { runner.runOneTest("expression-unknown-prefix") }
   @Test def test_ocke_rel() { runner.runOneTest("ocke_rel") }
   @Test def test_expresion_bad_path_to_element() { runner.runOneTest("expresion_bad_path_to_element") }
@@ -98,10 +98,10 @@ class TestDFDLExpressions {
   @Test def test_invalid_enum_1() { runner.runOneTest("invalid_enum_1") }
   @Test def test_invalid_enum_2() { runner.runOneTest("invalid_enum_2") }
   @Test def test_invalid_enum_3() { runner.runOneTest("invalid_enum_3") }
- 
+
   val tdml2 = testDir + "functions.tdml"
   lazy val runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
-  
+
   @Test def test_dateTimeFunctions01() { runner_fun.runOneTest("dateTimeFunctions01") }
   @Test def test_dateTimeFunctions02() { runner_fun.runOneTest("dateTimeFunctions02") }
   @Test def test_dateFunctions01() { runner_fun.runOneTest("dateFunctions01") }
@@ -118,8 +118,8 @@ class TestDFDLExpressions {
 
   @Test def test_testBit_0() { runner2.runOneTest("testBit_0") }
   @Test def test_testBit_1() { runner2.runOneTest("testBit_1") }
-//  @Test def test_testBit_2() { runner2.runOneTest("testBit_2") }
-  
+  //  @Test def test_testBit_2() { runner2.runOneTest("testBit_2") }
+
   @Test def test_stringLiteralFromString_0() { runner2.runOneTest("stringLiteralFromString_0") }
   @Test def test_stringLiteralFromString_1() { runner2.runOneTest("stringLiteralFromString_1") }
   @Test def test_stringLiteralFromString_2() { runner2.runOneTest("stringLiteralFromString_2") }
@@ -127,7 +127,7 @@ class TestDFDLExpressions {
   @Test def test_setBits_0() { runner2.runOneTest("setBits_0") }
   @Test def test_setBits_1() { runner2.runOneTest("setBits_1") }
   @Test def test_setBits_2() { runner2.runOneTest("setBits_2") }
-  
+
   @Test def test_containsEntity_0() { runner2.runOneTest("containsEntity_0") }
   @Test def test_containsEntity_1() { runner2.runOneTest("containsEntity_1") }
   @Test def test_containsEntity_2() { runner2.runOneTest("containsEntity_2") }
@@ -135,11 +135,11 @@ class TestDFDLExpressions {
   @Test def test_containsEntity_4() { runner2.runOneTest("containsEntity_4") }
 
   @Test def test_occursCount_0() { runner2.runOneTest("occursCount_0") }
-  
-//  @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
-//  @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
-  
-//  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
-//  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
- 
+
+  //  @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
+  //  @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
+
+  //  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
+  //  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
+
 }

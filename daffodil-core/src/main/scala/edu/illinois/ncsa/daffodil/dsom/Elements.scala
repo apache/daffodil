@@ -149,7 +149,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   lazy val schemaComponentID = Infoset.addComponent(this)
 
-  def inputValueCalcOption: Option[String]
+  def inputValueCalcOption: PropertyLookupResult
   def isNillable: Boolean
   def isSimpleType: Boolean
   def isComplexType: Boolean
@@ -160,7 +160,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def elementRef: Option[ElementRef]
 
-  override lazy val isRepresented = inputValueCalcOption == None
+  override lazy val isRepresented = inputValueCalcOption.isInstanceOf[NotFound]
 
   def annotationFactory(node: Node): DFDLAnnotation = {
     node match {

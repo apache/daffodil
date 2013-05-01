@@ -79,6 +79,7 @@ import edu.illinois.ncsa.daffodil.dsom.DFDLDefineVariable
 import edu.illinois.ncsa.daffodil.dsom.DFDLSetVariable
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
+import edu.illinois.ncsa.daffodil.dsom.Found
 
 sealed abstract class VariableState
 
@@ -136,11 +137,11 @@ object VariableUtil {
  */
 object VariableFactory {
   def create(defv: DFDLDefineVariable,
-             expandedName: String,
-             extType: String,
-             defaultValue: Option[String],
-             external: Boolean,
-             doc: SchemaDocument) = {
+    expandedName: String,
+    extType: String,
+    defaultValue: Option[String],
+    external: Boolean,
+    doc: SchemaDocument) = {
 
     val state = defaultValue match {
       case None => VariableUndefined
@@ -149,8 +150,8 @@ object VariableFactory {
 
     val typeSym = doc.expressionCompiler.convertTypeString(extType)
 
-    val defaultValExpr = defaultValue.map {
-      doc.expressionCompiler.compile(typeSym, _)
+    val defaultValExpr = defaultValue.map { e =>
+      doc.expressionCompiler.compile(typeSym, Found(e, defv))
     }
 
     val defaultVal = defaultValExpr.map { ce => VariableUtil.convert(ce.constantAsString, defv) }

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -53,7 +52,13 @@ trait CommonRuntimeValuedPropertiesMixin
   lazy val byteOrder = expressionCompiler.compile('String, byteOrderRaw)
   lazy val encoding = expressionCompiler.compile('String, encodingRaw)
   lazy val outputNewLine = {
-    val c = expressionCompiler.compile('String, EntityReplacer.replaceAll(outputNewLineRaw))
+    //
+    // FIXME unparser: outputNewLineRaw might be a literal, in which case
+    // we do entity replacements. However, if it is an expression, we don't 
+    // do entity replacements. This code just always replaces entities.
+    val exprOrLiteral = EntityReplacer.replaceAll(outputNewLineRaw.value)
+
+    val c = expressionCompiler.compile('String, Found(exprOrLiteral, outputNewLineRaw.location))
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%NL;"), "outputNewLine cannot contain NL")
@@ -80,50 +85,32 @@ trait DelimitedRuntimeValuedPropertiesMixin
   //  lazy val initiator = expressionCompiler.compile('String, EntityReplacer.replaceAll(initiatorRaw))
   //  lazy val terminator = expressionCompiler.compile('String, EntityReplacer.replaceAll(terminatorRaw))
   lazy val initiator = {
-    val (rawValue: String, location: LookupLocation) = 
-      initiatorRaw match {
-      case f: Found => (f.value, f.location)
-      case _ => Assert.impossibleCase()
-    }
-    val c = expressionCompiler.compile('String, rawValue)
+    val c = expressionCompiler.compile('String, initiatorRaw)
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%ES;"), "Initiator cannot contain ES")
     }
     c
   }
-  lazy val initatorLoc = {
-    val (rawValue: String, location: LookupLocation) = 
-      initiatorRaw match {
-      case f: Found => (f.value, f.location)
-      case _ => Assert.impossibleCase()
-    }
-    val sc = location.asInstanceOf[SchemaComponentBase]
-    (sc.prettyName, sc.path)
-  }
+  //  lazy val initatorLoc = {
+  //    val (rawValue: String, location: LookupLocation) = 
+  //      initiatorRaw match {
+  //      case f: Found => (f.value, f.location)
+  //      case _ => Assert.impossibleCase()
+  //    }
+  //    val sc = location.asInstanceOf[SchemaComponentBase]
+  //    (sc.prettyName, sc.path)
+  //  }
 
   lazy val terminator = {
-    val (rawValue: String, location: LookupLocation) = 
-      terminatorRaw match {
-      case f: Found => (f.value, f.location)
-      case _ => Assert.impossibleCase()
-    }
-    val c = expressionCompiler.compile('String, rawValue)
+    val c = expressionCompiler.compile('String, terminatorRaw)
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%ES;"), "Terminator cannot contain ES")
     }
     c
   }
-  lazy val terminatorLoc = {
-    val (rawValue: String, location: LookupLocation) = 
-      terminatorRaw match {
-      case f: Found => (f.value, f.location)
-      case _ => Assert.impossibleCase()
-    }
-    val sc = location.asInstanceOf[SchemaComponentBase]
-    (sc.prettyName, sc.path)
-  }
+  lazy val terminatorLoc = terminatorRaw.location.nameAndPath
 
 }
 
@@ -144,26 +131,15 @@ trait SequenceRuntimeValuedPropertiesMixin
   with RawSequenceRuntimeValuedPropertiesMixin { decl: GroupBase =>
 
   lazy val separator = {
-    val (rawValue: String, location: LookupLocation)  = separatorRaw match {
-      case f: Found => (f.value, f.location)
-      case _ => Assert.impossibleCase()
-    }
-    val c = expressionCompiler.compile('String, rawValue)
+    val c = expressionCompiler.compile('String, separatorRaw)
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%ES;"), "Separator cannot contain ES")
     }
     c
   }
-  lazy val separatorLoc = {
-    val (rawValue: String, location: LookupLocation) = 
-      separatorRaw match {
-      case f: Found => (f.value, f.location)
-      case _ => Assert.impossibleCase()
-    }
-    val sc = location.asInstanceOf[SchemaComponentBase]
-    (sc.prettyName, sc.path)
-  }
+
+  lazy val separatorLoc = separatorRaw.location.nameAndPath
 }
 
 trait SimpleTypeRuntimeValuedPropertiesMixin

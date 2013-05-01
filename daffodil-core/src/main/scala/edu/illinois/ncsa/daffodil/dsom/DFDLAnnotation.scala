@@ -101,39 +101,32 @@ abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaCompo
 trait RawCommonRuntimeValuedPropertiesMixin
   extends PropertyMixin {
 
-  lazy val byteOrderRaw = {
-    val s = getProperty("byteOrder")
-    val res = s match {
-      case "bigEndian" => """{ "bigEndian" }"""
-      case "littleEndian" => """{ "littleEndian" }"""
-      case a => a
-    }
-    res
-  }
-
-  lazy val encodingRaw = getProperty("encoding")
-  lazy val outputNewLineRaw = getProperty("outputNewLine")
+  lazy val byteOrderRaw = findExpressionProperty("byteOrder")
+  lazy val encodingRaw = findExpressionProperty("encoding")
+  lazy val outputNewLineRaw = findExpressionProperty("outputNewLine")
 }
 
 trait RawDelimitedRuntimeValuedPropertiesMixin
   extends RawCommonRuntimeValuedPropertiesMixin {
 
-  lazy val initiatorRaw = findProperty("initiator")
-  lazy val terminatorRaw = findProperty("terminator")
+  lazy val initiatorRaw = findExpressionProperty("initiator")
+  lazy val terminatorRaw = findExpressionProperty("terminator")
 }
 
 trait RawElementRuntimeValuedPropertiesMixin
   extends RawDelimitedRuntimeValuedPropertiesMixin
   with RawSimpleTypeRuntimeValuedPropertiesMixin {
 
-  lazy val lengthRaw = getProperty("length")
-  lazy val occursCountRaw = getProperty("occursCount")
+  // these are almost certainly not in scope, but on the local object
+  // but not always. A type might define fixed length things for example.
+  lazy val lengthRaw = findExpressionProperty("length")
+  lazy val occursCountRaw = findExpressionProperty("occursCount")
 }
 
 trait RawSequenceRuntimeValuedPropertiesMixin
   extends RawDelimitedRuntimeValuedPropertiesMixin {
 
-  lazy val separatorRaw = findProperty("separator")
+  lazy val separatorRaw = findExpressionProperty("separator")
 }
 
 trait RawEscapeSchemeRuntimeValuedPropertiesMixin
@@ -144,8 +137,8 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin
   //
   //  }
 
-  lazy val escapeCharacterRaw = getProperty("escapeCharacter")
-  lazy val escapeEscapeCharacterRaw = getProperty("escapeEscapeCharacter")
+  lazy val escapeCharacterRaw = findExpressionProperty("escapeCharacter")
+  lazy val escapeEscapeCharacterRaw = findExpressionProperty("escapeEscapeCharacter")
   //  lazy val escapeBlockStartRaw = getProperty("escapeBlockStart")
   //  lazy val escapeBlockEndRaw = getProperty("escapeBlockEnd")
 }
@@ -153,13 +146,13 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin
 trait RawSimpleTypeRuntimeValuedPropertiesMixin
   extends RawCommonRuntimeValuedPropertiesMixin {
 
-  def textStandardDecimalSeparatorRaw = getProperty("textStandardDecimalSeparator")
-  def textStandardGroupingSeparatorRaw = getProperty("textStandardGroupingSeparator")
+  def textStandardDecimalSeparatorRaw = findExpressionProperty("textStandardDecimalSeparator")
+  def textStandardGroupingSeparatorRaw = findExpressionProperty("textStandardGroupingSeparator")
   // TODO: update when textStandardExponentCharacter is phased out.
-  def textStandardExponentRepRaw = getProperty("textStandardExponentRep") // Note: name changed to suffix of "...Rep" via Errata
-  def binaryFloatRepRaw = getProperty("binaryFloatRep")
-  def textBooleanTrueRepRaw = getProperty("textBooleanTrueRep")
-  def textBooleanFalseRepRaw = getProperty("textBooleanFalseRep")
+  def textStandardExponentRepRaw = findExpressionProperty("textStandardExponentRep") // Note: name changed to suffix of "...Rep" via Errata
+  def binaryFloatRepRaw = findExpressionProperty("binaryFloatRep")
+  def textBooleanTrueRepRaw = findExpressionProperty("textBooleanTrueRep")
+  def textBooleanFalseRepRaw = findExpressionProperty("textBooleanFalseRep")
 
 }
 
@@ -504,6 +497,42 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent)
       }
     }
   }
+
+  lazy val optionEscapeCharacter = {
+    escapeCharacterRaw match {
+      case Found("", loc) => None
+      case Found(v, loc) => Some(decl.expressionCompiler.compile('String, escapeCharacterRaw))
+    }
+  }
+
+  lazy val optionEscapeEscapeCharacter = {
+    escapeEscapeCharacterRaw match {
+      case Found("", loc) => None
+      case Found(v, loc) => Some(decl.expressionCompiler.compile('String, escapeEscapeCharacterRaw))
+    }
+  }
+
+  //
+  // These are sort of tri-state. We can know it is non-existant, 
+  // we can know it and have its value, or we must check at runtime, 
+  // which means there WILL be an escape character, we just don't know what it is.
+  // Represent as follows None, Some(true), Some(false)
+  lazy val (isKnownEscapeCharacter, knownEscapeCharacter) = {
+    optionEscapeCharacter match {
+      case None => (None, None) // there isn't one
+      case Some(ce) if (ce.isConstant) => (Some(true), Some(ce.constantAsString))
+      case _ => (Some(false), None) // must evaluate at runtime
+    }
+  }
+
+  lazy val (isKnownEscapeEscapeCharacter, knownEscapeEscapeCharacter) = {
+    optionEscapeEscapeCharacter match {
+      case None => (None, None) // there isn't one
+      case Some(ce) if (ce.isConstant) => (Some(true), Some(ce.constantAsString))
+      case _ => (Some(false), None) // must evaluate at runtime
+    }
+  }
+
 }
 
 class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument)

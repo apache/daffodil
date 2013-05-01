@@ -2,7 +2,7 @@
 <xsd:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:tns="http://www.ibm.com/dfdl/GeneralPurposeFormat"
   xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" 
-  xmlns:rando="http:imnotreal.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  xmlns:rando="urn:imnotreal.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <xsd:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
     schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
   <xsd:element dfdl:terminator="%NL;" rando:whatAreYouDoing="this is not valid" name="ABC">
@@ -22,7 +22,9 @@
                 fixed="a" minOccurs="1" name="a" type="xsd:string">
                 <xsd:annotation>
                   <xsd:appinfo source="http://www.ogf.org/dfdl/">
-                    <dfdl:discriminator rando:hm="what about here?">{. eq 'a'}</dfdl:discriminator>
+                  <!-- Cannot put this on dfdl:discriminator. Those don't accept non-native attributes.
+                        rando:hm="what about here?"  -->
+                    <dfdl:discriminator >{. eq 'a'}</dfdl:discriminator>
                   </xsd:appinfo>
                 </xsd:annotation>
               </xsd:element>

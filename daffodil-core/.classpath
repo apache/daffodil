@@ -7,15 +7,7 @@
 	<classpathentry kind="src" output="target/eclipse/test-classes" path="src/test/scala-new"/>
 	<classpathentry kind="src" output="target/eclipse/test-classes" path="src/test/resources"/>
 	<classpathentry kind="src" output="target/eclipse/debug-classes" path="src/test/scala-debug"/>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8.jar" sourcepath="lib_managed/srcs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-sources.jar">
-
-	<classpathentry kind="lib" path="lib_managed/jars/org.scalatest/scalatest_2.9.2/scalatest_2.9.2-1.6.1.jar" sourcepath="lib_managed/srcs/org.scalatest/scalatest_2.9.2/scalatest_2.9.2-1.6.1-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scalatest/scalatest_2.9.2/scalatest_2.9.2-1.6.1-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8.jar" sourcepath="lib_managed/srcs/net.sourceforge.saxon/saxon">
-
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"/>
 		</attributes>

@@ -1364,9 +1364,9 @@ this to validate when we load a DFDL Schema.
     </xsd:annotation>
     <xsd:complexType mixed="true">
       <xsd:choice minOccurs="0" maxOccurs="unbounded">
-        <!-- strict so tooling will check DFDL annotations -->
         <xsd:any processContents="lax" />
         <!--
+           strict so tooling will check DFDL annotations 
           <xsd:any namespace="http://www.ogf.org/dfdl/dfdl-1.0/" processContents="strict"/>
           <xsd:any namespace="##targetNamespace" processContents="lax"/>
           <xsd:any namespace="##other" processContents="lax"/>

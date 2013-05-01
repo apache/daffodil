@@ -445,7 +445,8 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
  */
 trait AnnotatedMixin
   extends CommonRuntimeValuedPropertiesMixin
-  with EncodingMixin { self: AnnotatedSchemaComponent =>
+  with EncodingMixin
+  with EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
 
   def xml: Node
   def prettyName: String

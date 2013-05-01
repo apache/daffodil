@@ -290,7 +290,7 @@ class TestDsomCompiler extends Logging {
 
     // Explore define escape schemes
     val Seq(desc1) = sd.defineEscapeSchemes // only one of these
-    val es = desc1.escapeScheme.escapeCharacterRaw
+    val es = desc1.escapeScheme.escapeCharacterRaw.value
     assertEquals("%%", es) // has escapeCharacter="%%" (note: string literals not digested yet, so %% is %%, not %.
 
     // Explore global group defs
@@ -695,9 +695,9 @@ class TestDsomCompiler extends Logging {
 
     //    println(e1.properties)
     assertEquals(3, e1.allTerminatingMarkup.length) // 1 Level + ref on global element decl
-//    assertEquals("a", e1.allTerminatingMarkup(0).prettyExpr)
-//    assertEquals("b", e1.allTerminatingMarkup(1).prettyExpr)
-//    assertEquals("g", e1.allTerminatingMarkup(2).prettyExpr)
+    //    assertEquals("a", e1.allTerminatingMarkup(0).prettyExpr)
+    //    assertEquals("b", e1.allTerminatingMarkup(1).prettyExpr)
+    //    assertEquals("g", e1.allTerminatingMarkup(2).prettyExpr)
     assertEquals("a", e1.allTerminatingMarkup(0)._1.prettyExpr)
     assertEquals("b", e1.allTerminatingMarkup(1)._1.prettyExpr)
     assertEquals("g", e1.allTerminatingMarkup(2)._1.prettyExpr)

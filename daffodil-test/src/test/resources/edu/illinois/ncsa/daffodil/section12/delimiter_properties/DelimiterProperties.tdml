@@ -2,7 +2,8 @@
 <tdml:testSuite suiteName="EntitiesTests" description="Section 6 - Entities"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com">
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:ex="http://example.com">
 
   <tdml:defineSchema name="DelimiterProperties-Embedded.dfdl.xsd">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
@@ -472,7 +473,7 @@
           <xs:element name="A" type="xs:string">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-                <dfdl:assert>{ true() }</dfdl:assert>
+                <dfdl:assert>{ fn:true() }</dfdl:assert>
                 <!-- Somehow, having this assert trips up the finding of 
                   the next prefix separator
                   before element B. If you remove the assert, the test will 

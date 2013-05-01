@@ -1038,7 +1038,7 @@
   <tdml:parserTestCase name="multi_encoding_04" root="base4"
     model="multi_base_09.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document>
-      <tdml:documentPart type="byte">35 35</tdml:documentPart>              <!-- UTF-8 for "55" -->
+      <tdml:documentPart type="byte">35 35 2c</tdml:documentPart>              <!-- UTF-8 for "55," -->
       <tdml:documentPart type="byte">00 6F 00 6E 00 65</tdml:documentPart>  <!-- UTF-16BE for "one" -->
     </tdml:document>
     <tdml:infoset>
@@ -1599,5 +1599,19 @@
     </tdml:errors>
   </tdml:parserTestCase>
   
+   <tdml:parserTestCase name="namespaces_qnames"
+    root="e" model="qname1.dfdl.xsd"
+    description="Section 5 - QNames must be properly resolved with respect to prefixes surrounding them.">
+
+    <tdml:document>512345</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e xmlns="http://example.com/1">
+          <len>5</len>
+          <num>12345</num>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </testSuite>
