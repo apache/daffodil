@@ -84,9 +84,12 @@ class TestAlignedData {
   @Test def test_implicitAlignmentUByte2() = { runner1.runOneTest("implicitAlignmentUByte2") }
   
   @Test def test_implicitAlignmentUIntT() = { runner1.runOneTest("implicitAlignmentUIntT") }
-//  @Test def test_implicitAlignmentUIntT2() = { runner1.runOneTest("implicitAlignmentUIntT2") }
+
+  //@Test def test_implicitAlignmentUIntT2() = { runner1.runOneTest("implicitAlignmentUIntT2") }
+  //@Test def test_implicitAlignmentUShortT2() = { runner1.runOneTest("implicitAlignmentUShortT2") }
   
-//  @Test def test_implicitAlignmentUShortT2() = { runner1.runOneTest("implicitAlignmentUShortT2") }
+  @Test def test_implicitAlignmentUIntT2b() = { runner1.runOneTest("implicitAlignmentUIntT2b") }
+  @Test def test_implicitAlignmentUShortT2b() = { runner1.runOneTest("implicitAlignmentUShortT2b") }
   
   val tdml2 = testDir_01 + "BinaryInput_01.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
