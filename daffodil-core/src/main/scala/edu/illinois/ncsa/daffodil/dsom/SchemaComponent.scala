@@ -97,7 +97,7 @@ abstract class SchemaComponent(xmlArg: Node, parent: SchemaComponent)
   lazy val xmlSchemaDocument: XMLSchemaDocument = parent.xmlSchemaDocument
   lazy val schema: Schema = parent.schema
   override def schemaComponent: SchemaComponent = this
-  override lazy val fileName: URL = parent.fileName
+  override lazy val fileName: String = parent.fileName
 
   override lazy val isHidden: Boolean = isHidden_.value
   private val isHidden_ = LV('isHidden) {
@@ -635,7 +635,7 @@ trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedSchemaComponent =>
  * schema components obviously it does not live within a schema document.
  */
 class SchemaSet(
-  schemaFileNamesArg: Seq[String],
+  schemaFilesArg: Seq[File],
   rootSpec: Option[RootSpec] = None,
   checkAllTopLevelArg: Boolean = false,
   parent: SchemaComponent = null)
@@ -657,10 +657,13 @@ class SchemaSet(
 
   /**
    * Let's use the filename for the first schema document, rather than giving no information at all.
+   * 
+   * It would appear that this is only used for informational purposes
+   * and as such, doesn't need to be a URL.  Can just be String.
    */
-  override lazy val fileName = new File(schemaFileNames(0)).toURI.toURL
+  override lazy val fileName = schemaFilesArg(0).getPath()
 
-  lazy val schemaFileNames = schemaFileNamesArg
+  lazy val schemaFiles = schemaFilesArg
   lazy val checkAllTopLevel = checkAllTopLevelArg
 
   override def warn(th: Diagnostic) = oolagWarn(th)

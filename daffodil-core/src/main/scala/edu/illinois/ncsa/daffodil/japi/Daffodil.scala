@@ -50,8 +50,9 @@ object Daffodil {
 class Compiler {
   private val sCompiler = SCompiler()
 
-  def compile(schemaFileNames: Array[String]): ProcessorFactory = {
-    val (_, pf) = sCompiler.compileInternal(schemaFileNames.toSeq)
+  @throws(classOf[java.io.IOException])
+  def compile(schemaFiles: Array[File]): ProcessorFactory = {
+    val (_, pf) = sCompiler.compileInternal(schemaFiles.toSeq)
     new ProcessorFactory(pf)
   }
 

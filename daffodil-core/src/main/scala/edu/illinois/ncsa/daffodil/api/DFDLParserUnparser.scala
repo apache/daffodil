@@ -36,6 +36,7 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.processors.ProcessorResult
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import java.io.File
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -118,7 +119,8 @@ object DFDL {
      * to see if compilation was successful or not.
      */
     def compile(schema: Node): ProcessorFactory
-    def compile(schemaFileNames: String*): ProcessorFactory
+
+    def compile(schemaFiles: File*): ProcessorFactory
 
     def reload(fileName: String): ProcessorFactory
   }

@@ -91,6 +91,7 @@ import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.LogWriter
 import edu.illinois.ncsa.daffodil.util.LoggingDefaults
+import java.io.File
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -135,7 +136,7 @@ object Main extends Logging {
     } else None
   }
 
-  def createProcessorFromSchemas(schemaFiles: List[String], root: Option[String], namespace: Option[String], path: Option[String], vars: Map[String, String]) = {
+  def createProcessorFromSchemas(schemaFiles: List[File], root: Option[String], namespace: Option[String], path: Option[String], vars: Map[String, String]) = {
     val compiler = Compiler()
 
     val ns = namespace.getOrElse(null)
@@ -387,7 +388,9 @@ object Main extends Logging {
           if (parseOpts.parser.isDefined) {
             createProcessorFromParser(parseOpts.parser(), parseOpts.path.get)
           } else {
-            createProcessorFromSchemas(parseOpts.schemas(), parseOpts.root.get, parseOpts.ns.get, parseOpts.path.get, parseOpts.vars)
+            val files: List[File] = parseOpts.schemas().map(s => new File(s))
+
+            createProcessorFromSchemas(files, parseOpts.root.get, parseOpts.ns.get, parseOpts.path.get, parseOpts.vars)
           }
         }
 
@@ -463,7 +466,8 @@ object Main extends Logging {
           if (unparseOpts.parser.isDefined) {
             createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.get)
           } else {
-            createProcessorFromSchemas(unparseOpts.schemas(), unparseOpts.root.get, unparseOpts.ns.get, unparseOpts.path.get, unparseOpts.vars)
+            val files: List[File] = unparseOpts.schemas().map(s => new File(s))
+            createProcessorFromSchemas(files, unparseOpts.root.get, unparseOpts.ns.get, unparseOpts.path.get, unparseOpts.vars)
           }
         }
 
@@ -496,7 +500,9 @@ object Main extends Logging {
       case Some(Conf.save) => {
         val saveOpts = Conf.save
 
-        val processor = createProcessorFromSchemas(saveOpts.schemas(), saveOpts.root.get, saveOpts.ns.get, saveOpts.path.get, saveOpts.vars)
+        val files: List[File] = saveOpts.schemas().map(s => new File(s))
+
+        val processor = createProcessorFromSchemas(files, saveOpts.root.get, saveOpts.ns.get, saveOpts.path.get, saveOpts.vars)
 
         val output = saveOpts.output.get match {
           case Some("-") | None => System.out

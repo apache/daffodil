@@ -70,7 +70,9 @@ trait SchemaFileLocatable extends LocationInSchemaFile {
   }
 
   /**
-   *
+   * It would appear that this is only used for informational purposes
+   * and as such, doesn't need to be a URL.  Can just be String.
+   * 
    * override if you don't have a fileName attribute appended
    * but are in a context where some enclosing construct does
    * normally only a root node would have a file attribute.
@@ -84,11 +86,11 @@ trait SchemaFileLocatable extends LocationInSchemaFile {
    *     lazy val fileName = schemaDocument.fileName
    * }}}
    */
-  def fileName: URL
+  def fileName: String
 
   def fileNameFromAttribute() = {
     xml.attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME) match {
-      case Some(seqNodes) => Some(new URL(seqNodes.toString))
+      case Some(seqNodes) => Some(seqNodes.toString)
       case None => None
     }
 

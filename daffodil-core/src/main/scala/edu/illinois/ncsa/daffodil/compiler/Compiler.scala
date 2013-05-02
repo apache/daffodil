@@ -185,10 +185,14 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
    * This method exposes both the schema set and processor factory as results because
    * our tests often want to do things on the schema set.
    */
-  def compileInternal(schemaFileNames: Seq[String]): (SchemaSet, ProcessorFactory) = {
+  def compileInternal(schemaFiles: Seq[File]): (SchemaSet, ProcessorFactory) = {
     ExecutionMode.usingCompilerMode {
-      Assert.usage(schemaFileNames.length >= 1)
-      val sset = new SchemaSet(schemaFileNames, rootSpec, checkAllTopLevel)
+      Assert.usage(schemaFiles.length >= 1)
+
+      val filesNotFound = schemaFiles.map { f => (f.exists(), f.getPath()) }.filter { case (exists, _) => !exists }.map { case (_, name) => name }
+      if (filesNotFound.length > 0) throw new java.io.FileNotFoundException("Failed to find the following file(s): " + filesNotFound.mkString(", "))
+
+      val sset = new SchemaSet(schemaFiles, rootSpec, checkAllTopLevel)
       val pf = new ProcessorFactory(sset)
       val err = pf.isError
       val diags = pf.getDiagnostics // might be warnings even if not isError
@@ -212,7 +216,8 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
   /**
    * Just hides the schema set, and returns the processor factory only.
    */
-  def compile(fNames: String*): DFDL.ProcessorFactory = compileInternal(fNames)._2
+  def compile(files: File*): DFDL.ProcessorFactory = compileInternal(files)._2
+  //def compile(fNames: String*): DFDL.ProcessorFactory = compileInternal(fNames)._2
 
   /**
    * For convenient unit testing allow a literal XML node.

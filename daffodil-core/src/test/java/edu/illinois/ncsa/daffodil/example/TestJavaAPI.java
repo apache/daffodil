@@ -32,23 +32,35 @@ package edu.illinois.ncsa.daffodil.example;
  * SOFTWARE.
  */
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
-
-import edu.illinois.ncsa.daffodil.japi.*;
-import edu.illinois.ncsa.daffodil.japi.Compiler;
+import java.io.File;
 
 import org.jdom.output.Format;
 import org.junit.Test;
 
+import edu.illinois.ncsa.daffodil.japi.Compiler;
+import edu.illinois.ncsa.daffodil.japi.ConsoleLogWriter;
+import edu.illinois.ncsa.daffodil.japi.Daffodil;
+import edu.illinois.ncsa.daffodil.japi.DataProcessor;
+import edu.illinois.ncsa.daffodil.japi.Diagnostic;
+import edu.illinois.ncsa.daffodil.japi.LocationInSchemaFile;
+import edu.illinois.ncsa.daffodil.japi.LogLevel;
+import edu.illinois.ncsa.daffodil.japi.ParseResult;
+import edu.illinois.ncsa.daffodil.japi.ProcessorFactory;
+
 public class TestJavaAPI {
 
-	public String getResource(String resPath) {
+	public java.io.File getResource(String resPath) {
 		try {
-			return this.getClass().getResource(resPath).getPath();
+			return new java.io.File(this.getClass().getResource(resPath).toURI());
 		} catch (Exception e) {
-			return "";
+			return null;
 		}
 	}
 
@@ -60,12 +72,12 @@ public class TestJavaAPI {
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
 		Compiler c = Daffodil.compiler();
-		String[] schemaFileNames = new String[2];
-		schemaFileNames[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
-		schemaFileNames[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
-		ProcessorFactory pf = c.compile(schemaFileNames);
+		java.io.File[] schemaFiles = new java.io.File[2];
+		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
+		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
+		ProcessorFactory pf = c.compile(schemaFiles);
 		DataProcessor dp = pf.onPath("/");
-		java.io.File file = new java.io.File(getResource("/test/japi/myData.dat"));
+		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
 				.newChannel(fis);
@@ -84,7 +96,7 @@ public class TestJavaAPI {
 		assertTrue(res.location().isAtEnd());
 		System.err.println("bitPos = " + res.location().bitPos());
 		System.err.println("bytePos = " + res.location().bytePos());
-	
+
 		assertEquals(0, lw.errors.size());
 		assertEquals(0, lw.warnings.size());
 		assertTrue(lw.infos.size() > 0);
@@ -103,12 +115,12 @@ public class TestJavaAPI {
 		Daffodil.setLoggingLevel(LogLevel.Info);
 
 		Compiler c = Daffodil.compiler();
-		String[] schemaFileNames = new String[2];
-		schemaFileNames[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
-		schemaFileNames[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
-		ProcessorFactory pf = c.compile(schemaFileNames);
+		java.io.File[] schemaFiles = new java.io.File[2];
+		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
+		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
+		ProcessorFactory pf = c.compile(schemaFiles);
 		DataProcessor dp = pf.onPath("/");
-		java.io.File file = new java.io.File(getResource("/test/japi/myDataBroken.dat"));
+		java.io.File file = getResource("/test/japi/myDataBroken.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
 				.newChannel(fis);
@@ -135,7 +147,7 @@ public class TestJavaAPI {
 		assertEquals(1, locs.size());
 		LocationInSchemaFile loc = locs.get(0);
 		assertTrue(loc.toString().contains("mySchema2.dfdl.xsd"));
-		
+
 		assertEquals(0, lw.errors.size());
 		assertEquals(0, lw.warnings.size());
 		assertTrue(lw.infos.size() > 0);
@@ -154,12 +166,12 @@ public class TestJavaAPI {
 	@Test
 	public void testJavaAPI3() throws IOException {
 		Compiler c = Daffodil.compiler();
-		String[] schemaFileNames = new String[1];
-		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
-		ProcessorFactory pf = c.compile(schemaFileNames);
+		java.io.File[] schemaFiles = new java.io.File[1];
+		schemaFiles[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
+		ProcessorFactory pf = c.compile(schemaFiles);
 		pf.setDistinguishedRootNode("e3", null);
 		DataProcessor dp = pf.onPath("/");
-		java.io.File file = new java.io.File(getResource("/test/japi/myData16.dat"));
+		java.io.File file = getResource("/test/japi/myData16.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
 				.newChannel(fis);
@@ -219,12 +231,12 @@ public class TestJavaAPI {
   @Test
 	public void testJavaAPI4b() throws IOException {
 		Compiler c = Daffodil.compiler();
-		String[] schemaFileNames = new String[1];
+		File[] schemaFileNames = new File[1];
 		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
 		c.setDistinguishedRootNode("e4", null);
     ProcessorFactory pf = c.compile(schemaFileNames);
 		DataProcessor dp = pf.onPath("/");
-		java.io.File file = new java.io.File(getResource("/test/japi/myData2.dat"));
+		java.io.File file = getResource("/test/japi/myData2.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
 				.newChannel(fis);
@@ -251,12 +263,12 @@ public class TestJavaAPI {
   @Test
   public void testJavaAPI5() throws IOException {
 		Compiler c = Daffodil.compiler();
-		String[] schemaFileNames = new String[1];
+		File[] schemaFileNames = new File[1];
 		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
 		c.setDistinguishedRootNode("e4", null);
 		ProcessorFactory pf = c.compile(schemaFileNames);
 		DataProcessor dp = pf.onPath("/");
-		java.io.File file = new java.io.File(getResource("/test/japi/myData3.dat"));
+		java.io.File file = getResource("/test/japi/myData3.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
 				.newChannel(fis);
@@ -278,5 +290,38 @@ public class TestJavaAPI {
 		assertEquals(32, res.location().bitPos());
 		System.err.println("bitPos = " + res.location().bitPos());
 		System.err.println("bytePos = " + res.location().bytePos());
+	}
+
+	/***
+	 * Verify that the compiler throws a FileNotFound exception when fed a list
+	 * of schema files that do not exist.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void testJavaAPI6() throws IOException {
+		LogWriterForJAPITest lw = new LogWriterForJAPITest();
+
+		Daffodil.setLogWriter(lw);
+		Daffodil.setLoggingLevel(LogLevel.Debug);
+
+		Compiler c = Daffodil.compiler();
+		java.io.File[] schemaFiles = new java.io.File[4];//String[] schemaFileNames = new String[2];
+		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
+		schemaFiles[1] = new java.io.File("/test/japi/notHere1.dfdl.xsd");
+		schemaFiles[2] = getResource("/test/japi/mySchema2.dfdl.xsd");
+		schemaFiles[3] = new java.io.File("/test/japi/notHere2.dfdl.xsd");
+		try {
+			ProcessorFactory pf = c.compile(schemaFiles);
+			fail("Expected a FileNotFoundException and didn't get one");
+		} catch (FileNotFoundException fnf){
+			String msg = fnf.getMessage();
+			assertTrue(msg.contains("notHere1"));
+			assertTrue(msg.contains("notHere2"));
+		}
+
+		// reset the global logging state
+		Daffodil.setLogWriter(new ConsoleLogWriter());
+		Daffodil.setLoggingLevel(LogLevel.Info);
 	}
 }

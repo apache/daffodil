@@ -1106,7 +1106,7 @@ object XMLUtils {
     val fw = new java.io.FileWriter(tmpSchemaFile)
     fw.write(xml.toString())
     fw.close()
-    tmpSchemaFile.getAbsolutePath()
+    tmpSchemaFile
   }
 
 }

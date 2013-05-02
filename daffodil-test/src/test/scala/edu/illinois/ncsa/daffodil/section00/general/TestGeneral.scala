@@ -68,5 +68,12 @@ class TestGeneral {
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(bb))
 
   @Test def test_largeInput_01() { runner1.runOneTest("largeInput_01") }
+  
+  val testDir2 = "/test space/"
+
+  val a_b = testDir2 + "A BTinyData.tdml.dat"
+  lazy val runnerA_B = new DFDLTestSuite(Misc.getRequiredResource(a_b))
+
+  @Test def test_dir_and_file_with_spaces() { runnerA_B.runOneTest("AB006") }
 
 }

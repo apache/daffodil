@@ -65,7 +65,7 @@ class TestGeneratedProperties {
 
     override val oolagContext = this
     override val xml = bagOfProps
-    lazy val fileName = new URL("file:dummy")
+    lazy val fileName = "file:dummy"
     lazy val properties: PropMap = Map.empty
 
     def SDE(id: String, args: Any*): Nothing = {

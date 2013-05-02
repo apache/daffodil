@@ -54,6 +54,7 @@ import edu.illinois.ncsa.daffodil.xml.DaffodilCatalogResolver
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.util.Delay
+import java.net.URLDecoder
 
 /**
  * This file along with DFDLSchemaFile are the implementation of import and include
@@ -149,13 +150,13 @@ trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
 
   lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace.toString)
 
-  val orElseURL: URL = new URI("file:???").toURL
+  val orElseURL: String = "file:???"
 
   /**
    * Used in diagnostic messages; hence, valueOrElse to avoid
    * problems when this can't get a value due to an error.
    */
-  lazy val fileName: URL = fileName_.valueOrElse(orElseURL)
+  lazy val fileName: String = fileName_.valueOrElse(orElseURL)
   private val fileName_ = LV('fileName) {
     xmlSchemaDocument.fileName
   }
@@ -179,8 +180,8 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
 
     // Any time we synthesize xml we have to grab the namespace definitions and 
     // make sure we drag them along onto the new structures.
-    val fakeImportStatementsXML = schemaFileNames.map { fn =>
-      <import schemaLocation={ new File(fn).toURI.toURL.toString } xmlns={ xsd }/>
+    val fakeImportStatementsXML = schemaFiles.map { fn =>
+      <import schemaLocation={ fn.toURI.toURL.toString } xmlns={ xsd }/>
     }
 
     val fakeSchemaDocXML =
@@ -293,7 +294,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
   }
 
   override lazy val fileName = {
-    this.fileNameFromAttribute().getOrElse(new URL("file:unknown"))
+    this.fileNameFromAttribute().getOrElse("file:unknown")
   }
 
   def seenBefore: IIMap
@@ -404,7 +405,8 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
     val res = schemaLocationProperty.flatMap { slText =>
       val rl = if (slText.startsWith("file:")) {
         val justPath = slText.replaceFirst("file:", "")
-        val file = new File(justPath)
+        val theURI = URI.create(slText)
+        val file = new File(theURI)
         val (optURL, _) =
           if (file.isAbsolute()) (Some(file.toURI.toURL), "")
           else Misc.getResourceOption(justPath)

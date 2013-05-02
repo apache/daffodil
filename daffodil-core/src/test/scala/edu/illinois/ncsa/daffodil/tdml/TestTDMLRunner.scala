@@ -439,7 +439,7 @@ class TestTDMLRunner {
     lazy val res = Misc.getRequiredResource("/test-suite/ibm-contributed/dpaext1.tdml")
     lazy val ts = new DFDLTestSuite(new File(res.toURI()))
     val mf = ts.findTDMLResource("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
-    assertTrue(new File(mf.get).exists())
+    assertTrue(mf.get.exists())
   }
 
   val tdmlWithEmbeddedSchema =

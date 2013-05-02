@@ -132,13 +132,12 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
    */
   val loader = new DaffodilXMLLoader(errorHandler)
   loader.setValidation(validateTDMLFile)
-
+  
   val (ts, tdmlFile, tsInputSource) = {
     val tuple = aNodeFileOrURL match {
       case tsNode: Node => {
-        val tempFileName = XMLUtils.convertNodeToTempFile(tsNode)
-        val newNode = loader.loadFile(tempFileName)
-        val tempFile = new File(tempFileName)
+        val tempFile = XMLUtils.convertNodeToTempFile(tsNode)
+        val newNode = loader.loadFile(tempFile)
         (newNode, null, new InputSource(tempFile.toURI().toASCIIString()))
       }
       case tdmlFile: File => {
@@ -236,10 +235,10 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
    * so we look for the schema/model/tdml resources in the working directory, and in the same
    * directory as the tdml file, and some other variations.
    */
-  def findTDMLResource(fileName: String): Option[String] = {
+  def findTDMLResource(fileName: String): Option[File] = {
     // try it as is. Maybe it will be in the cwd or relative to that or absolute
     val firstTry = new File(fileName)
-    if (firstTry.exists()) return Some(fileName)
+    if (firstTry.exists()) return Some(firstTry)
     // see if it can be found relative to the tdml test file, like next to it.
     val sysId = tsInputSource.getSystemId()
     if (sysId != null) {
@@ -250,7 +249,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
         val resourceFileName = sysPath + File.separator + fileName
         log(LogLevel.Debug, "TDML resource name is: %s", resourceFileName)
         val resourceFile = new File(resourceFileName)
-        if (resourceFile.exists()) return Some(resourceFileName)
+        if (resourceFile.exists()) return Some(resourceFile)
       }
     }
     // try as a classpath resource (allows eclipse to find it)
@@ -262,7 +261,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
       if (url.getProtocol == "file") {
         val resolvedName = url.getPath()
         val resFile = new File(resolvedName)
-        if (resFile.exists()) return Some(resolvedName)
+        if (resFile.exists()) return Some(resFile)
       }
     }
     // try ignoring the directory part
@@ -350,8 +349,8 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
     val pf = sch match {
       case node: Node => compiler.compile(node)
-      case fname: String => compiler.compile(fname)
-      case _ => Assert.invariantFailed("can only be Node or String")
+      case theFile: File => compiler.compile(theFile)
+      case _ => Assert.invariantFailed("can only be Node or File") //Assert.invariantFailed("can only be Node or String")
     }
     val data = document.map { _.data }
     val nBits = document.map { _.nBits }
