@@ -90,6 +90,19 @@ class TestAlignedData {
   
   @Test def test_implicitAlignmentUIntT2b() = { runner1.runOneTest("implicitAlignmentUIntT2b") }
   @Test def test_implicitAlignmentUShortT2b() = { runner1.runOneTest("implicitAlignmentUShortT2b") }
+  @Test def test_implicitAlignmentULongT() = { runner1.runOneTest("implicitAlignmentULongT") }
+  @Test def test_implicitAlignmentULongT2() = { runner1.runOneTest("implicitAlignmentULongT2") }
+  @Test def test_implicitAlignmentIntT() = { runner1.runOneTest("implicitAlignmentIntT") }
+  @Test def test_implicitAlignmentShortT() = { runner1.runOneTest("implicitAlignmentShortT") }
+  @Test def test_implicitAlignmentByteT() = { runner1.runOneTest("implicitAlignmentByteT") }
+  @Test def test_implicitAlignmentByteT2() = { runner1.runOneTest("implicitAlignmentByteT2") }
+  @Test def test_implicitAlignmentUByteT() = { runner1.runOneTest("implicitAlignmentUByteT") }
+  @Test def test_implicitAlignmentUByteT2() = { runner1.runOneTest("implicitAlignmentUByteT2") }
+  
+  @Test def test_implicitAlignmentDateT() = { runner1.runOneTest("implicitAlignmentDateT") }
+  @Test def test_implicitAlignmentDateT2() = { runner1.runOneTest("implicitAlignmentDateT2") }
+  @Test def test_implicitAlignmentTimeT() = { runner1.runOneTest("implicitAlignmentTimeT") }
+  @Test def test_implicitAlignmentDateTimeT() = { runner1.runOneTest("implicitAlignmentDateTimeT") }
   
   val tdml2 = testDir_01 + "BinaryInput_01.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
