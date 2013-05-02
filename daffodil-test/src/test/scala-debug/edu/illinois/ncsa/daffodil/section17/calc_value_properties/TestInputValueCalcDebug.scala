@@ -58,4 +58,26 @@ class TestInputValueCalcDebug {
   @Test def test_AQ001() { runnerAQ.runOneTest("AQ001") }
 
   // @Test def test_InputValueCalc_04() { runner.runOneTest("InputValueCalc_04")}
+
+
+  @Test def test_InputValueCalc_UnsignedInt_Range_Min_Fail() { runner.runOneTest("InputValueCalc_UnsignedInt_Range_Min_Fail") }
+  @Test def test_InputValueCalc_UnsignedInt_Range_Max_Fail() { runner.runOneTest("InputValueCalc_UnsignedInt_Range_Max_Fail") }
+
+
+  @Test def test_InputValueCalc_UnsignedShort_Range_Min_Fail() { runner.runOneTest("InputValueCalc_UnsignedShort_Range_Min_Fail") }
+  @Test def test_InputValueCalc_UnsignedShort_Range_Max_Fail() { runner.runOneTest("InputValueCalc_UnsignedShort_Range_Max_Fail") }
+
+
+  @Test def test_InputValueCalc_Long_Range_Min_Fail() { runner.runOneTest("InputValueCalc_Long_Range_Min_Fail") }
+  @Test def test_InputValueCalc_Long_Range_Max_Fail() { runner.runOneTest("InputValueCalc_Long_Range_Max_Fail") }
+
+
+  // UnsignedLong has not been implemented yet
+  @Test def test_InputValueCalc_UnsignedLong_Range_Min_Fail() { runner.runOneTest("InputValueCalc_UnsignedLong_Range_Min_Fail") }
+  @Test def test_InputValueCalc_UnsignedLong_Range_Max_Fail() { runner.runOneTest("InputValueCalc_UnsignedLong_Range_Max_Fail") }
+  @Test def test_InputValueCalc_UnsignedLong_Range_Max_Pass() { runner.runOneTest("InputValueCalc_UnsignedLong_Range_Max_Pass") }
+
+  @Test def test_InputValueCalc_UnsignedByte_Range_Min_Fail() { runner.runOneTest("InputValueCalc_UnsignedByte_Range_Min_Fail") }
+  @Test def test_InputValueCalc_UnsignedByte_Range_Max_Fail() { runner.runOneTest("InputValueCalc_UnsignedByte_Range_Max_Fail") }
+
 }
