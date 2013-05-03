@@ -43,12 +43,10 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 
 object EscapeSchemeKind extends Enum {
-  type Type = EscapeSchemeKind
-  sealed abstract trait EscapeSchemeKind extends EnumVal
-  case object Character extends EscapeSchemeKind { Character.init }
-  case object Block extends EscapeSchemeKind { Block.init }
-  case object None extends EscapeSchemeKind { None.init }
-  private val init = List(Character, Block, None)
+  sealed abstract trait Type extends EnumValueType
+  case object Character extends Type
+  case object Block extends Type
+  case object None extends Type
 }
 
 object EscapeScheme extends Logging {

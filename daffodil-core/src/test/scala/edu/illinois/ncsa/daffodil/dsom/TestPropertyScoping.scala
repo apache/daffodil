@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.util.{ TestUtils, Misc, Logging }
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import junit.framework.Assert.{ assertTrue, assertEquals, assertFalse, fail }
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 class HasProps(xml: Node) extends DFDLNonDefaultFormatAnnotation(xml, Fakes.fakeElem)
 
@@ -51,6 +52,7 @@ class TestPropertyScoping {
   val x1 = new HasProps(<fake alignmentUnits="bytes"/>)
 
   @Test def test1() {
+    LogLevel
     //    println(x1.formatRefs)
     //    println(x1.shortFormProperties)
     //    println(x1.longFormProperties)

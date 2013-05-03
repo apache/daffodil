@@ -4,8 +4,28 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 /**
  * Enum Idiom
  *
- * From StackOverflow: http://stackoverflow.com/questions/14947179/using-a-custom-enum-in-the-scala-worksheet-i-am-receiving-an-error-java-lang-ex
- * thanks to Rex Kerr and Chaotic3quilibrium (aka Jim O'Flaherty, Jr.)
+ * Note that we looked online at Enum idioms. We ended up having all sorts
+ * of subtle initialization errors.
+ *
+ * We ended up back at just case objects inside a packaging object.
+ *
+ * About all this accomplishes is to insist that this is how the enums work.
+ * <pre>
+ * object Suits extends Enum {
+ *   abstract sealed trait Type extends EnumValueType
+ *   case object Clubs extends Type
+ *   case object Hearts extends Type
+ *   ...
+ *   }
+ *
+ * ...
+ *   def getClubs: Suits.Type == Suits.Clubs
+ *   // must use Suits.Type to refer to the type.
+ *   // and use Suites.Clubs to refer to an enum value.
+ * </pre>
+ *
+ * If you want ordered, then make Type extend Ordered[Type] add an
+ * integer id field, etc.
  *
  * How to use: search the source for " extends Enum" and you'll find a few examples.
  * One of these, the one in Logger.scala's LogLevel object enum, is setup to
@@ -20,39 +40,9 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  */
 abstract class Enum {
 
-  type Type <: EnumVal
+  type Type <: EnumValueType
 
-  protected var nextId: Int = 0
+  // Base class for enum values
+  protected abstract class EnumValueType
 
-  private var values_ = List[Type]()
-  private var valuesById_ = Map[Int, Type]()
-  private var valuesByName_ = Map[String, Type]()
-
-  def values = values_
-  def valuesById = valuesById_
-  def valuesByName = valuesByName_
-
-  def apply(id: Int) = valuesById.get(id) // Some|None
-  def apply(name: String) = valuesByName.get(name) // Some|None
-
-  // Specifically for use by Java code
-  def enumByName(name: String): Type = valuesByName.get(name).getOrElse(Assert.abort("no enum value with that name."))
-  def idByName(name: String): Int = enumByName(name).id
-
-  // Base class for enum values; it registers the value with the Enum.
-  protected abstract class EnumVal extends Ordered[Type] {
-    val theVal = this.asInstanceOf[Type] // only extend EnumVal to Val
-    val id = nextId
-    def instance = theVal
-    def bumpId { nextId += 1 }
-    def compare(that: Type) = this.id - that.id
-    def init { // <--------------------------changed name from apply
-      if (valuesById_.get(id) != None)
-        throw new Exception("cannot init " + this + " enum value twice")
-      bumpId
-      values_ ++= List(theVal)
-      valuesById_ += (id -> theVal)
-      valuesByName_ += (toString -> theVal)
-    }
-  }
 }

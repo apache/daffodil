@@ -500,7 +500,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   def checkMinLength(data: String, minValue: java.math.BigDecimal,
-    e: ElementBase, primType: PrimType): java.lang.Boolean = {
+    e: ElementBase, primType: PrimType.Type): java.lang.Boolean = {
     primType match {
       case PrimType.String => {
         val bdData = new java.math.BigDecimal(data.length())
@@ -522,7 +522,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   def checkMaxLength(data: String, maxValue: java.math.BigDecimal,
-    e: ElementBase, primType: PrimType): java.lang.Boolean = {
+    e: ElementBase, primType: PrimType.Type): java.lang.Boolean = {
     primType match {
       case PrimType.String => {
         val bdData = new java.math.BigDecimal(data.length())
@@ -558,7 +558,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   // TODO: Duplication of convertFacetToBigDecimal in Types.scala , throw in a library?
-  def convertDataToBigDecimal(data: String, primType: PrimType, e: ElementBase): java.math.BigDecimal = {
+  def convertDataToBigDecimal(data: String, primType: PrimType.Type, e: ElementBase): java.math.BigDecimal = {
     primType match {
       case PrimType.DateTime => dateToBigDecimal(data, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", e)
       case PrimType.Date => dateToBigDecimal(data, "uuuu-MM-ddxxx", e)
@@ -567,26 +567,26 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
     }
   }
 
-  def checkMinInc(data: String, minValue: java.math.BigDecimal, primType: PrimType, e: ElementBase): Boolean = {
+  def checkMinInc(data: String, minValue: java.math.BigDecimal, primType: PrimType.Type, e: ElementBase): Boolean = {
     //    val bdData = new java.math.BigDecimal(data)
     val bdData = convertDataToBigDecimal(data, primType, e)
     val isDataGreaterThanEqToMinInc = bdData.compareTo(minValue) >= 0
     isDataGreaterThanEqToMinInc
   }
 
-  def checkMinExc(data: String, minValue: java.math.BigDecimal, primType: PrimType, e: ElementBase): Boolean = {
+  def checkMinExc(data: String, minValue: java.math.BigDecimal, primType: PrimType.Type, e: ElementBase): Boolean = {
     val bdData = convertDataToBigDecimal(data, primType, e)
     val isDataGreaterThanEqToMinExc = bdData.compareTo(minValue) > 0
     isDataGreaterThanEqToMinExc
   }
 
-  def checkMaxInc(data: String, maxValue: java.math.BigDecimal, primType: PrimType, e: ElementBase): Boolean = {
+  def checkMaxInc(data: String, maxValue: java.math.BigDecimal, primType: PrimType.Type, e: ElementBase): Boolean = {
     val bdData = convertDataToBigDecimal(data, primType, e)
     val isDataLessThanEqToMaxInc = bdData.compareTo(maxValue) <= 0
     isDataLessThanEqToMaxInc
   }
 
-  def checkMaxExc(data: String, maxValue: java.math.BigDecimal, primType: PrimType, e: ElementBase): Boolean = {
+  def checkMaxExc(data: String, maxValue: java.math.BigDecimal, primType: PrimType.Type, e: ElementBase): Boolean = {
     val bdData = convertDataToBigDecimal(data, primType, e)
     val isDataLessThanMaxExc = bdData.compareTo(maxValue) < 0
     isDataLessThanMaxExc

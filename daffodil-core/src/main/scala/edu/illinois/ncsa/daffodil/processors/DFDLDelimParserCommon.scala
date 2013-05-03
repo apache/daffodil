@@ -46,13 +46,11 @@ import edu.illinois.ncsa.daffodil.processors.DelimiterLocation._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 object TextJustificationType extends Enum {
-  type Type = TextJustificationType
-  sealed abstract trait TextJustificationType extends EnumVal
-  case object None extends TextJustificationType { None.init }
-  case object Left extends TextJustificationType { Left.init }
-  case object Right extends TextJustificationType { Right.init }
-  case object Center extends TextJustificationType { Center.init }
-  private val init = List(None, Left, Right, Center)
+  sealed abstract trait Type extends EnumValueType
+  case object None extends Type
+  case object Left extends Type
+  case object Right extends Type
+  case object Center extends Type
 }
 
 sealed abstract class DelimParseResult(nextArg: Reader[Char]) {

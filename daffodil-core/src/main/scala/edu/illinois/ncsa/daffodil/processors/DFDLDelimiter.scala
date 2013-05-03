@@ -40,20 +40,16 @@ import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.util.Enum
 
 object DelimiterType extends Enum {
-  type Type = DelimiterType
-  sealed abstract trait DelimiterType extends EnumVal
-  case object Separator extends DelimiterType { Separator.init }
-  case object Terminator extends DelimiterType { Terminator.init }
-  case object NotDelimited extends DelimiterType { NotDelimited.init }
-  private val init = List(Separator, Terminator, NotDelimited)
+  sealed abstract trait Type extends EnumValueType
+  case object Separator extends Type
+  case object Terminator extends Type
+  case object NotDelimited extends Type
 }
 
 object DelimiterLocation extends Enum {
-  type Type = DelimiterLocation
-  sealed abstract trait DelimiterLocation extends EnumVal
-  case object Local extends DelimiterLocation { Local.init }
-  case object Remote extends DelimiterLocation { Remote.init }
-  private val init = List(Local, Remote)
+  sealed abstract trait Type extends EnumValueType
+  case object Local extends Type
+  case object Remote extends Type
 }
 
 class Delimiter {

@@ -48,28 +48,28 @@ import edu.illinois.ncsa.daffodil.util._
 
 object LogLevel extends Enum {
   import edu.illinois.ncsa.daffodil.japi.{ LogLevel => JLogLevel }
-  type Type = LogLevel
-  sealed abstract class LogLevel(val jlvl: JLogLevel) extends EnumVal {
-    override val id = jlvl.id
+  sealed abstract class Type protected (val jlvl: JLogLevel) extends EnumValueType with Ordered[Type] {
+    val id = jlvl.id
+    def compare(that: LogLevel.Type) = this.id - that.id
   }
-  case object Error extends LogLevel(JLogLevel.Error) { Error.init }
-  case object Warning extends LogLevel(JLogLevel.Warning) { Warning.init }
-  case object Info extends LogLevel(JLogLevel.Info) { Info.init }
-  case object Compile extends LogLevel(JLogLevel.Compile) { Compile.init }
-  case object Debug extends LogLevel(JLogLevel.Debug) { Debug.init }
-  case object OOLAGDebug extends LogLevel(JLogLevel.OOLAGDebug) { OOLAGDebug.init }
-  private val init = List(Error, Warning, Info, Compile, Debug, OOLAGDebug)
+  case object Error extends Type(JLogLevel.Error)
+  case object Warning extends Type(JLogLevel.Warning)
+  case object Info extends Type(JLogLevel.Info)
+  case object Compile extends Type(JLogLevel.Compile)
+  case object Debug extends Type(JLogLevel.Debug)
+  case object OOLAGDebug extends Type(JLogLevel.OOLAGDebug)
 
+  private val values = List(Error, Warning, Info, Compile, Debug, OOLAGDebug)
   /**
    * We want scala code to use the typesafe enum idiom which actually
    * uses case objects as above. But that's not reachable from java,
    * so we provide this conversion from the plain Java enum.
    */
-  def fromJava(jLogLevel: JLogLevel): LogLevel = {
-    LogLevel(jLogLevel.id).getOrElse(Assert.abort("unmapped: java enum has no corresponding scala enum"))
+  def fromJava(jLogLevel: JLogLevel): LogLevel.Type = {
+    values.find(ll => ll.id == jLogLevel.id).getOrElse(Assert.abort("unmapped: java enum has no corresponding scala enum"))
   }
 
-  def forJava(logLevel: Type): JLogLevel = {
+  def forJava(logLevel: LogLevel.Type): JLogLevel = {
     logLevel.jlvl
   }
 }

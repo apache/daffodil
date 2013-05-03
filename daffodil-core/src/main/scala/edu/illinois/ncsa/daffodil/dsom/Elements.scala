@@ -173,7 +173,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
 
-  def getImplicitAlignmentInBits(thePrimType: PrimType.PrimType, theRepresentation: Representation): Int = {
+  def getImplicitAlignmentInBits(thePrimType: PrimType.Type, theRepresentation: Representation): Int = {
     theRepresentation match {
       case Representation.Text =>
         thePrimType match {
