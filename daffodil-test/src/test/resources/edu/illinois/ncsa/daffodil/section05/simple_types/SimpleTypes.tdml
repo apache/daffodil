@@ -102,6 +102,14 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="Day" dfdl:length="2" dfdl:lengthKind="explicit" dfdl:textNumberPattern="#0">
+	    <xs:simpleType>
+		    <xs:restriction base="xs:unsignedInt">
+		      <xs:maxInclusive value="31"/>
+		    </xs:restriction>
+	    </xs:simpleType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -123,6 +131,18 @@
     <xs:element name="hb_01" type="xs:hexBinary" 
     dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4" />
   </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="TestUnsignedInt" root="Day"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Verification that user's test works for DFDL-677">
+
+    <tdml:document><![CDATA[15]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <Day xs:type="xs:usignedInt">15</Day>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="Long1" root="s"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-long - DFDL-5-012R">

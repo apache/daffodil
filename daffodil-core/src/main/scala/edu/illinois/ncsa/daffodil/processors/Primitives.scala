@@ -1636,10 +1636,6 @@ class IVCParser(context: InputValueCalc, e: ElementBase)
         val currentElement = start.parentElement
         val R(res, newVMap) = eval(start)
 
-        this.PECheck(e.elementSimpleType.checkRange(res.toString, e),
-          "InputValueCalc failed. Value %s was found to be outside the range of type %s",
-          res.toString, e.elementSimpleType.primitiveType.myPrimitiveType)
-
         currentElement.setDataValue(res.toString)
         val postState = start.withVariables(newVMap) // inputValueCalc consumes nothing. Just creates a value.
         postState

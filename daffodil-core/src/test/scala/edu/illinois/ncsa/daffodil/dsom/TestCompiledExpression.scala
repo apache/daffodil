@@ -63,7 +63,7 @@ class TestCompiledExpression {
     val root = new InfosetElement(doc.getRootElement())
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/child2/child3 }"
-    val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
+    val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
     WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
 
@@ -71,14 +71,14 @@ class TestCompiledExpression {
 
       assertEquals("19", result)
     }
-    val compiled2 = ec.compile('Long, Found(xpathString, edecl)) // as a Long
+    val compiled2 = ec.compile(ConvertToType.Long, Found(xpathString, edecl)) // as a Long
     WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
 
       val R(result2, _) = compiled2.evaluate(root, new VariableMap(), dummyState)
 
       assertEquals(19L, result2)
     }
-    val compiled3 = ec.compile('Element, Found(xpathString, edecl)) // as a jdom element
+    val compiled3 = ec.compile(ConvertToType.Element, Found(xpathString, edecl)) // as a jdom element
     WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
 
       val R(result3, _) = compiled3.evaluate(root, new VariableMap(), dummyState)
@@ -98,7 +98,7 @@ class TestCompiledExpression {
 
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ 42 }"
-    val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
+    val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
     assertTrue(compiled.isConstant)
 
     val emptyVariableMap = new VariableMap()
@@ -106,14 +106,14 @@ class TestCompiledExpression {
 
     assertEquals("42", result)
 
-    val compiled2 = ec.compile('Long, Found(xpathString, edecl)) // as a Long
+    val compiled2 = ec.compile(ConvertToType.Long, Found(xpathString, edecl)) // as a Long
     assertTrue(compiled2.isConstant)
     val R(result2, _) = compiled2.evaluate(root, emptyVariableMap, dummyState)
 
     assertEquals(42L, result2)
 
     val root2 = Infoset(<root/>)
-    val compiled3 = ec.compile('Element, Found("{ /root }", edecl)) // as a jdom Element
+    val compiled3 = ec.compile(ConvertToType.Element, Found("{ /root }", edecl)) // as a jdom Element
     assertFalse(compiled3.isConstant)
     val R(result3, _) = compiled3.evaluate(root2, emptyVariableMap, dummyState)
     val r3string = result3.toString
@@ -135,7 +135,7 @@ class TestCompiledExpression {
     val edecl = sset.getGlobalElementDecl(NoNamespace, "root").get.forRoot()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/child2/child3 }"
-    val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
+    val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
     WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
       val R(result, _) = compiled.evaluate(root, new VariableMap(), dummyState)
@@ -157,7 +157,7 @@ class TestCompiledExpression {
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/tns:child2/child3 }"
-    val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
+    val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
     WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
       val R(result, _) = compiled.evaluate(root, new VariableMap(), dummyState)
@@ -174,7 +174,7 @@ class TestCompiledExpression {
     val edecl = sset.getGlobalElementDecl(NoNamespace, "root").get.forRoot()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ child3 }"
-    val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
+    val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
 
     val child2 = root.getChild("child1").getChild("child2")
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
@@ -191,7 +191,7 @@ class TestCompiledExpression {
     val edecl = sset.getGlobalElementDecl(NoNamespace, "root").get.forRoot()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ ../../../child1/child2/child3 }"
-    val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
+    val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
     val child3 = root.getChild("child1").getChild("child2").getChild("child3")
     val R(result, _) = compiled.evaluate(child3, new VariableMap(), dummyState)
@@ -207,7 +207,7 @@ class TestCompiledExpression {
     val edecl = sset.getGlobalElementDecl(NoNamespace, "root").get.forRoot()
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ ../e1 }"
-    val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
+    val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
     val child2 = root.getChild("e2")
     val R(result, _) = compiled.evaluate(child2, new VariableMap(), dummyState)

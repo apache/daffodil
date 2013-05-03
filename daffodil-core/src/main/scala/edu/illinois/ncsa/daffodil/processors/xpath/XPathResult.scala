@@ -77,6 +77,7 @@ package edu.illinois.ncsa.daffodil.processors.xpath
  * @author Alejandro Rodriguez
  */
 import org.jdom.Element
+import scala.math.BigDecimal
 
 sealed abstract class XPathResult
 
@@ -87,6 +88,12 @@ case class NodeResult(node: Element) extends XPathResult
 case class StringResult(string: String) extends XPathResult
 
 /** The result is a number */
-case class NumberResult(num: Double) extends XPathResult
+case class NumberResult(num: String) extends XPathResult
+
+/** 
+ *  Since we changed NumberResult to accept a BigDecimal, we need
+ *  a way to represent a NaN result.
+ **/
+case class NotANumberResult(value: Any) extends XPathResult
 
 case class BooleanResult(v: Boolean) extends XPathResult

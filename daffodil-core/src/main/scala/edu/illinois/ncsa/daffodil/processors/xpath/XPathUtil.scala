@@ -105,6 +105,7 @@ import com.ibm.icu.util.GregorianCalendar
 import edu.illinois.ncsa.daffodil.processors.UState
 import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
+import scala.math.BigDecimal
 
 abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunction {
   val qName = new QName(XMLUtils.DFDL_NAMESPACE, name)
@@ -953,38 +954,52 @@ object XPathUtil extends Logging {
       log(LogLevel.Debug, "Evaluating %s in context %s to get a %s", expressionForErrorMsg, contextNode, targetType) // Careful. contextNode could be null.
       val o = ce.evaluate(contextNode, targetType)
       log(LogLevel.Debug, "Evaluated to: %s", o)
-      val res = (o, targetType) match {
-        case (x: Element, NODE) => new NodeResult(x)
-        case (x: Element, STRING) => new StringResult(x.getContent(0).toString())
-        case (x: Element, NUMBER) => new NumberResult(x.getContent(0).toString().toDouble)
-        case (x: Text, STRING) => new StringResult(x.getValue())
-        case (x: Text, NUMBER) => new NumberResult(x.getValue().toDouble)
-        case (x: java.lang.Double, NUMBER) if (x.isNaN && contextNode != null) => {
-          // We got a NaN. If the path actually exists, then the result is a NaN
-          // If the path doesn't exist, then we want to fail.
-          val existingNode = ce.evaluate(contextNode, NODE)
-          if (existingNode != null) new NumberResult(x.doubleValue)
-          else throw new XPathExpressionException("no node for path " + expressionForErrorMsg)
+      val res =
+        try {
+          (o, targetType) match {
+            case (_, NUMBER) => {
+              val numStr = o match {
+                case x: Element => x.getContent(0).toString()
+                case x: Text => x.getValue().toString()
+                case x: java.lang.Double if (x.isNaN() && contextNode != null) => {
+                  // We got a NaN. If the path actually exists, then the result is a NaN
+                  // If the path doesn't exist, then we want to fail.
+                  val existingNode = ce.evaluate(contextNode, NODE)
+                  if (existingNode != null) x.toString
+                  else throw new XPathExpressionException("no node for path " + expressionForErrorMsg)
+                }
+                case x: java.lang.Double => x.toString()
+              }
+              // Because XPath converts Number to Double, our output strings
+              // of the evaluated value (numStr) will always have decimals in them.
+              // How can we get around this?
+              BigDecimal(numStr) // Will throw exception if not a valid number
+              new NumberResult(numStr)
+            }
+            case (x: Element, NODE) => new NodeResult(x)
+            case (x: Element, STRING) => new StringResult(x.getContent(0).toString())
+            case (x: Text, STRING) => new StringResult(x.getValue())
+            case ("", STRING) if (contextNode != null) => {
+              // We got empty string. If the path actually exists, then the result is empty string.
+              // If the path doesn't exist, then we want to fail.
+              val existingNode = ce.evaluate(contextNode, NODE)
+              if (existingNode != null) new StringResult("")
+              else throw new XPathExpressionException("no node for path " + expressionForErrorMsg)
+            }
+            case (x: String, STRING) => new StringResult(x)
+            case (x: java.lang.Boolean, BOOLEAN) => new BooleanResult(x)
+            case (null, _) => {
+              // There was no such node. We're never going to get an answer for this XPath
+              // so fail.
+              throw new XPathExpressionException("no node for path " + expressionForErrorMsg)
+            }
+            case _ => {
+              throw new XPathExpressionException("unrecognized evaluation result: " + o + " for target type " + targetType)
+            }
+          }
+        } catch {
+          case ex: NumberFormatException => new NotANumberResult(o)
         }
-        case (x: java.lang.Double, NUMBER) => new NumberResult(x.doubleValue)
-        case ("", STRING) if (contextNode != null) => {
-          // We got empty string. If the path actually exists, then the result is empty string.
-          // If the path doesn't exist, then we want to fail.
-          val existingNode = ce.evaluate(contextNode, NODE)
-          if (existingNode != null) new StringResult("")
-          else throw new XPathExpressionException("no node for path " + expressionForErrorMsg)
-        }
-        case (x: String, STRING) => new StringResult(x)
-        case (x: java.lang.Boolean, BOOLEAN) => new BooleanResult(x)
-        case (null, _) => {
-          // There was no such node. We're never going to get an answer for this XPath
-          // so fail.
-          throw new XPathExpressionException("no node for path " + expressionForErrorMsg)
-        }
-        case _ => {
-          throw new XPathExpressionException("unrecognized evaluation result: " + o + " for target type " + targetType)
-        }
-      }
       return res
     }
     // Note: removed "retry looking for a string" code. That was not the right approach to using the

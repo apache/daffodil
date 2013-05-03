@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors.xpath
  * SOFTWARE.
  */
 
-
 import org.jdom.Document
 import org.jdom.Element
 import org.jdom.Text
@@ -274,9 +273,9 @@ class XPathUtilTest {
     val document = new Document(root)
     val vars = new VariableMap()
     var result: XPathResult = XPathUtil evalExpressionFromString ("/root/text()", vars, root, Nil, XPathConstants.NUMBER)
-    assertEquals(NumberResult(19.0), result)
+    assertEquals(NumberResult("19.0"), result)
     result = XPathUtil evalExpressionFromString ("/root", vars, root, Nil, XPathConstants.NUMBER)
-    assertEquals(NumberResult(19.0), result)
+    assertEquals(NumberResult("19.0"), result)
   }
 
   @Test def testXPathForNumberFailures() {
@@ -289,7 +288,11 @@ class XPathUtilTest {
     val vars = new VariableMap()
     var result: XPathResult = XPathUtil evalExpressionFromString ("/root", vars, root, Nil, XPathConstants.NUMBER)
     result match {
-      case NumberResult(n) => assertTrue(n.isNaN())
+      // Changed NumberResult to accept a BigDecimal instead of a Double
+      //case NumberResult(n) => assertTrue(n.isNaN())
+      //case _ => fail
+      case NotANumberResult(n) => // OK
+      case NumberResult(n) => fail
       case _ => fail
     }
     result = XPathUtil evalExpressionFromString ("/root", vars, root, Nil, XPathConstants.NODE)
@@ -315,9 +318,9 @@ class XPathUtilTest {
 
     val vars = new VariableMap()
     var result: XPathResult = XPathUtil evalExpressionFromString (" 19 ", vars, null, Nil, XPathConstants.NUMBER)
-    assertEquals(NumberResult(19.0), result)
+    assertEquals(NumberResult("19.0"), result)
     result = XPathUtil evalExpressionFromString (" 19 * 47 ", vars, null, Nil, XPathConstants.NUMBER)
-    assertEquals(NumberResult(19.0 * 47.0), result)
+    assertEquals(NumberResult((19.0 * 47.0).toString), result)
     result = XPathUtil evalExpressionFromString (" 19 ", vars, null, Nil, XPathConstants.STRING)
     assertEquals(StringResult("19"), result)
     result = XPathUtil evalExpressionFromString (" 19 * 47 ", vars, null, Nil, XPathConstants.STRING)

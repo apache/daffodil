@@ -49,8 +49,8 @@ trait CommonRuntimeValuedPropertiesMixin
   extends DFDLBaseTypeMixin
   with RawCommonRuntimeValuedPropertiesMixin { decl: AnnotatedMixin =>
 
-  lazy val byteOrder = expressionCompiler.compile('String, byteOrderRaw)
-  lazy val encoding = expressionCompiler.compile('String, encodingRaw)
+  lazy val byteOrder = expressionCompiler.compile(ConvertToType.String, byteOrderRaw)
+  lazy val encoding = expressionCompiler.compile(ConvertToType.String, encodingRaw)
   lazy val outputNewLine = {
     //
     // FIXME unparser: outputNewLineRaw might be a literal, in which case
@@ -58,7 +58,7 @@ trait CommonRuntimeValuedPropertiesMixin
     // do entity replacements. This code just always replaces entities.
     val exprOrLiteral = EntityReplacer.replaceAll(outputNewLineRaw.value)
 
-    val c = expressionCompiler.compile('String, Found(exprOrLiteral, outputNewLineRaw.location))
+    val c = expressionCompiler.compile(ConvertToType.String, Found(exprOrLiteral, outputNewLineRaw.location))
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%NL;"), "outputNewLine cannot contain NL")
@@ -85,7 +85,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
   //  lazy val initiator = expressionCompiler.compile('String, EntityReplacer.replaceAll(initiatorRaw))
   //  lazy val terminator = expressionCompiler.compile('String, EntityReplacer.replaceAll(terminatorRaw))
   lazy val initiator = {
-    val c = expressionCompiler.compile('String, initiatorRaw)
+    val c = expressionCompiler.compile(ConvertToType.String, initiatorRaw)
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%ES;"), "Initiator cannot contain ES")
@@ -103,7 +103,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
   //  }
 
   lazy val terminator = {
-    val c = expressionCompiler.compile('String, terminatorRaw)
+    val c = expressionCompiler.compile(ConvertToType.String, terminatorRaw)
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%ES;"), "Terminator cannot contain ES")
@@ -121,8 +121,8 @@ trait ElementRuntimeValuedPropertiesMixin
   with SimpleTypeRuntimeValuedPropertiesMixin
   with RawElementRuntimeValuedPropertiesMixin { decl: ElementBase =>
 
-  lazy val length = expressionCompiler.compile('Long, lengthRaw)
-  lazy val occursCount = expressionCompiler.compile('Long, occursCountRaw)
+  lazy val length = expressionCompiler.compile(ConvertToType.Long, lengthRaw)
+  lazy val occursCount = expressionCompiler.compile(ConvertToType.Long, occursCountRaw)
 }
 
 trait SequenceRuntimeValuedPropertiesMixin
@@ -131,7 +131,7 @@ trait SequenceRuntimeValuedPropertiesMixin
   with RawSequenceRuntimeValuedPropertiesMixin { decl: GroupBase =>
 
   lazy val separator = {
-    val c = expressionCompiler.compile('String, separatorRaw)
+    val c = expressionCompiler.compile(ConvertToType.String, separatorRaw)
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%ES;"), "Separator cannot contain ES")
@@ -149,7 +149,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
 
   // TODO: Will need to 'evaluate' and perform entity replacement on textStandardDecimalSeparator in Parser where it is used.
   def textStandardDecimalSeparator = {
-    val c = expressionCompiler.compile('String, textStandardDecimalSeparatorRaw)
+    val c = expressionCompiler.compile(ConvertToType.String, textStandardDecimalSeparatorRaw)
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%NL;"), "textStandardDecimalSeparator cannot contain NL")
@@ -164,7 +164,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
   //def textStandardGroupingSeparator = expressionCompiler.compile('String, EntityReplacer.replaceAll(textStandardGroupingSeparatorRaw))
   // TODO: Will need to 'evaluate' and perform entity replacement on textStandardGroupingSeparator in Parser where it is used.
   def textStandardGroupingSeparator = {
-    val c = expressionCompiler.compile('String, textStandardGroupingSeparatorRaw)
+    val c = expressionCompiler.compile(ConvertToType.String, textStandardGroupingSeparatorRaw)
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%NL;"), "textStandardGroupingSeparator cannot contain NL")
@@ -179,7 +179,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
   // TODO: update when textStandardExponentCharacter is phased out.
   // Note: name changed to suffix of "...Rep" via Errata
   def textStandardExponentRep = {
-    val c = expressionCompiler.compile('String, textStandardExponentRepRaw)
+    val c = expressionCompiler.compile(ConvertToType.String, textStandardExponentRepRaw)
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%NL;"), "textStandardExponentRep cannot contain NL")
@@ -191,11 +191,11 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     c
   }
 
-  def binaryFloatRep = expressionCompiler.compile('String, binaryFloatRepRaw)
+  def binaryFloatRep = expressionCompiler.compile(ConvertToType.String, binaryFloatRepRaw)
 
   // TODO: Will need to 'evaluate' and perform entity replacement on textBooleanTrueRep in Parser where it is used.
   def textBooleanTrueRep = {
-    val c = expressionCompiler.compile('String, textBooleanTrueRepRaw)
+    val c = expressionCompiler.compile(ConvertToType.String, textBooleanTrueRepRaw)
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%NL;"), "textBooleanTrueRep cannot contain NL")
@@ -209,7 +209,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
 
   // TODO: Will need to 'evaluate' and perform entity replacement on textBooleanFalseRep in Parser where it is used.
   def textBooleanFalseRep = {
-    val c = expressionCompiler.compile('String, textBooleanFalseRepRaw)
+    val c = expressionCompiler.compile(ConvertToType.String, textBooleanFalseRepRaw)
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%NL;"), "textBooleanFalseRep cannot contain NL")

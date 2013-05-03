@@ -150,20 +150,38 @@
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="ivc_12_1">
+    <xs:element name="ivc_12_1_a">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:int" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_int_range_min" type="xs:int" dfdl:inputValueCalc="{ -2147483649 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="ivc_12_2">
+    <xs:element name="ivc_12_1_b">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:int" />
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_int_range_min" type="xs:int" dfdl:inputValueCalc="{ ../ex:num }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_12_2_a">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_int_range_max" type="xs:int" dfdl:inputValueCalc="{ 2147483648 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_12_2_b">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_int_range_max" type="xs:int" dfdl:inputValueCalc="{ ../ex:num }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -186,20 +204,38 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="ivc_13_1">
+    <xs:element name="ivc_13_1_a">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:short" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_short_range_min" type="xs:short" dfdl:inputValueCalc="{ -32769 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="ivc_13_2">
+    <xs:element name="ivc_13_1_b">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:short" />
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_short_range_min" type="xs:short" dfdl:inputValueCalc="{ ../ex:num }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_13_2_a">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_short_range_max" type="xs:short" dfdl:inputValueCalc="{ 32768 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_13_2_b">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_short_range_max" type="xs:short" dfdl:inputValueCalc="{ ../ex:num }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -207,7 +243,7 @@
     <xs:element name="ivc_13_3">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:short" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_short_range_max" type="xs:short" dfdl:inputValueCalc="{ 32767 }"/>
         </xs:sequence>
       </xs:complexType>
@@ -216,26 +252,44 @@
     <xs:element name="ivc_13_4">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:short" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_short_range_max" type="xs:short" dfdl:inputValueCalc="{ -32768 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="ivc_14_1">
+    <xs:element name="ivc_14_1_a">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:unsignedInt" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_uint_range_min" type="xs:unsignedInt" dfdl:inputValueCalc="{ -1 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="ivc_14_2">
+    <xs:element name="ivc_14_1_b">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:unsignedInt" />
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_uint_range_min" type="xs:unsignedInt" dfdl:inputValueCalc="{ ../ex:num }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_14_2_a">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_uint_range_max" type="xs:unsignedInt" dfdl:inputValueCalc="{ 4294967297 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_14_2_b">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_uint_range_max" type="xs:unsignedInt" dfdl:inputValueCalc="{ ../ex:num }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -243,26 +297,44 @@
     <xs:element name="ivc_14_3">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:unsignedInt" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_uint_range_max" type="xs:unsignedInt" dfdl:inputValueCalc="{ 4294967295 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="ivc_15_1">
+    <xs:element name="ivc_15_1_a">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:unsignedShort" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_ushort_range_min" type="xs:unsignedShort" dfdl:inputValueCalc="{ -1 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="ivc_15_2">
+    <xs:element name="ivc_15_1_b">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:unsignedShort" />
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_ushort_range_min" type="xs:unsignedShort" dfdl:inputValueCalc="{ ../ex:num }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_15_2_a">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_ushort_range_max" type="xs:unsignedShort" dfdl:inputValueCalc="{ 65537 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_15_2_b">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_ushort_range_max" type="xs:unsignedShort" dfdl:inputValueCalc="{ ../ex:num }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -270,26 +342,44 @@
     <xs:element name="ivc_15_3">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:unsignedShort" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_ushort_range_max" type="xs:unsignedShort" dfdl:inputValueCalc="{ 65535 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="ivc_16_1">
+    <xs:element name="ivc_16_1_a">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:long" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_long_range_min" type="xs:long" dfdl:inputValueCalc="{ -9223372036854775809 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="ivc_16_2">
+    <xs:element name="ivc_16_1_b">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:long" />
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_long_range_min" type="xs:long" dfdl:inputValueCalc="{ ../ex:num }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_16_2_a">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_long_range_max" type="xs:long" dfdl:inputValueCalc="{ 9223372036854775808 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_16_2_b">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_long_range_max" type="xs:long" dfdl:inputValueCalc="{ ../ex:num }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -297,7 +387,7 @@
     <xs:element name="ivc_16_3">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:long" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_long_range_max" type="xs:long" dfdl:inputValueCalc="{ 9223372036854775807 }"/>
         </xs:sequence>
       </xs:complexType>
@@ -306,26 +396,44 @@
     <xs:element name="ivc_16_4">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:long" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_long_range_max" type="xs:long" dfdl:inputValueCalc="{ -9223372036854775808 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="ivc_17_1">
+    <xs:element name="ivc_17_1_a">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:unsignedLong" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_ulong_range_min" type="xs:unsignedLong" dfdl:inputValueCalc="{ -1 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="ivc_17_2">
+    <xs:element name="ivc_17_1_b">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:unsignedLong" />
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_ulong_range_min" type="xs:unsignedLong" dfdl:inputValueCalc="{ ../ex:num }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_17_2_a">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_ulong_range_max" type="xs:unsignedLong" dfdl:inputValueCalc="{ 18446744073709551616 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_17_2_b">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_ulong_range_max" type="xs:unsignedLong" dfdl:inputValueCalc="{ ../ex:num }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -333,26 +441,44 @@
     <xs:element name="ivc_17_3">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:unsignedLong" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_ulong_range_max" type="xs:unsignedLong" dfdl:inputValueCalc="{ 18446744073709551615 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-
-    <xs:element name="ivc_18_1">
+    
+    <xs:element name="ivc_18_1_a">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:byte" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_byte_range_min" type="xs:byte" dfdl:inputValueCalc="{ -129 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="ivc_18_2">
+    <xs:element name="ivc_18_1_b">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:byte" />
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_byte_range_min" type="xs:byte" dfdl:inputValueCalc="{ ../ex:num }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_18_2_a">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_byte_range_max" type="xs:byte" dfdl:inputValueCalc="{ 128 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_18_2_b">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_byte_range_max" type="xs:byte" dfdl:inputValueCalc="{ ../ex:num }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -360,7 +486,7 @@
     <xs:element name="ivc_18_3">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:byte" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_byte_range_max" type="xs:byte" dfdl:inputValueCalc="{ 127 }"/>
         </xs:sequence>
       </xs:complexType>
@@ -369,26 +495,44 @@
     <xs:element name="ivc_18_4">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:byte" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_byte_range_max" type="xs:byte" dfdl:inputValueCalc="{ -128 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="ivc_19_1">
+    <xs:element name="ivc_19_1_a">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:unsignedByte" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_ubyte_range_min" type="xs:unsignedByte" dfdl:inputValueCalc="{ -1 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="ivc_19_2">
+    <xs:element name="ivc_19_1_b">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:unsignedByte" />
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_ubyte_range_min" type="xs:unsignedByte" dfdl:inputValueCalc="{ ../ex:num }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_19_2_a">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_ubyte_range_max" type="xs:unsignedByte" dfdl:inputValueCalc="{ 257 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_19_2_b">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:string" />
+          <xs:element name="ivc_ubyte_range_max" type="xs:unsignedByte" dfdl:inputValueCalc="{ ../ex:num }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -396,7 +540,7 @@
     <xs:element name="ivc_19_3">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="num" type="xs:unsignedByte" />
+          <xs:element name="num" type="xs:string" />
           <xs:element name="ivc_ubyte_range_max" type="xs:unsignedByte" dfdl:inputValueCalc="{ 255 }"/>
         </xs:sequence>
       </xs:complexType>
@@ -547,12 +691,21 @@
   </tdml:parserTestCase>
 
  
-  <tdml:parserTestCase name="InputValueCalc_Int_Range_Min_Fail"
-    root="ivc_12_1" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_Int_Range_Min_Fail_CompileTime"
+    root="ivc_12_1_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value -2147483649 was found to be outside the range of type Int</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert -2147483649 to Int.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_Int_Range_Min_Fail_RunTime"
+    root="ivc_12_1_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>-2147483649</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -2.147483649E9 to Int.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -570,12 +723,21 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="InputValueCalc_Int_Range_Max_Fail"
-    root="ivc_12_2" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_Int_Range_Max_Fail_CompileTime"
+    root="ivc_12_2_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value 2147483648 was found to be outside the range of type Int</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert 2147483648 to Int.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_Int_Range_Max_Fail_RunTime"
+    root="ivc_12_2_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>2147483648</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 2.147483648E9 to Int.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -593,12 +755,21 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="InputValueCalc_Short_Range_Min_Fail"
-    root="ivc_13_1" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_Short_Range_Min_Fail_CompileTime"
+    root="ivc_13_1_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
-    <tdml:document>7</tdml:document>
+    <tdml:document>-32769</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value -32769 was found to be outside the range of type Short</tdml:error>
+      <tdml:error>Cannot convert -32769 to Short</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_Short_Range_Min_Fail_RunTime"
+    root="ivc_13_1_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>-32769</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -32769.0 to Short</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -616,12 +787,21 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="InputValueCalc_Short_Range_Max_Fail"
-    root="ivc_13_2" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_Short_Range_Max_Fail_CompileTime"
+    root="ivc_13_2_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value 32768 was found to be outside the range of type Short</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert 32768 to Short.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_Short_Range_Max_Fail_RunTime"
+    root="ivc_13_2_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>32768</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 32768.0 to Short.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -639,21 +819,39 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="InputValueCalc_UnsignedInt_Range_Min_Fail"
-    root="ivc_14_1" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_UnsignedInt_Range_Min_Fail_CompileTime"
+    root="ivc_14_1_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value -1 was found to be outside the range of type UnsignedInt</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert -1 to UnsignedInt.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="InputValueCalc_UnsignedInt_Range_Max_Fail"
-    root="ivc_14_2" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_UnsignedInt_Range_Min_Fail_RunTime"
+    root="ivc_14_1_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>-1</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -1.0 to UnsignedInt.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_UnsignedInt_Range_Max_Fail_CompileTime"
+    root="ivc_14_2_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value 4294967296 was found to be outside the range of type UnsignedInt</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert 4294967297 to UnsignedInt.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_UnsignedInt_Range_Max_Fail_RunTime"
+    root="ivc_14_2_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>4294967296</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 4.294967296E9 to UnsignedInt.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -671,21 +869,39 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="InputValueCalc_UnsignedShort_Range_Min_Fail"
-    root="ivc_15_1" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_UnsignedShort_Range_Min_Fail_CompileTime"
+    root="ivc_15_1_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value -1 was found to be outside the range of type UnsignedShort</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert -1 to UnsignedShort.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="InputValueCalc_UnsignedShort_Range_Max_Fail"
-    root="ivc_15_2" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_UnsignedShort_Range_Min_Fail_RunTime"
+    root="ivc_15_1_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>-1</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -1.0 to UnsignedShort.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_UnsignedShort_Range_Max_Fail_CompileTime"
+    root="ivc_15_2_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value 65536 was found to be outside the range of type UnsignedShort</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert 65537 to UnsignedShort.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_UnsignedShort_Range_Max_Fail_RunTime"
+    root="ivc_15_2_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>65537</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 65537.0 to UnsignedShort.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -703,12 +919,21 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="InputValueCalc_Long_Range_Min_Fail"
-    root="ivc_16_1" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_Long_Range_Min_Fail_CompileTime"
+    root="ivc_16_1_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value -9223372036854775809 was found to be outside the range of type Long</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert -9223372036854775809 to Long.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_Long_Range_Min_Fail_RunTime"
+    root="ivc_16_1_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>-9223372036854775809</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -9.223372036854776E18 to Long.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -726,12 +951,21 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="InputValueCalc_Long_Range_Max_Fail"
-    root="ivc_16_2" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_Long_Range_Max_Fail_CompileTime"
+    root="ivc_16_2_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value 9223372036854775808 was found to be outside the range of type Long</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert 9223372036854775808 to Long.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_Long_Range_Max_Fail_RunTime"
+    root="ivc_16_2_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>9223372036854775808</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 9.223372036854776E18 to Long.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -749,21 +983,39 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="InputValueCalc_UnsignedLong_Range_Min_Fail"
-    root="ivc_17_1" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_UnsignedLong_Range_Min_Fail_CompileTime"
+    root="ivc_17_1_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value -1 was found to be outside the range of type UnsignedLong</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert -1 to UnsignedLong.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="InputValueCalc_UnsignedLong_Range_Max_Fail"
-    root="ivc_17_2" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_UnsignedLong_Range_Min_Fail_RunTime"
+    root="ivc_17_1_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>-1</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -1.0 to UnsignedLong.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_UnsignedLong_Range_Max_Fail_CompileTime"
+    root="ivc_17_2_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value 18446744073709551616 was found to be outside the range of type UnsignedLong</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert 18446744073709551616 to UnsignedLong.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_UnsignedLong_Range_Max_Fail_RunTime"
+    root="ivc_17_2_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>18446744073709551616</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 1.8446744073709552E19 to UnsignedLong.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -781,12 +1033,21 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="InputValueCalc_Byte_Range_Min_Fail"
-    root="ivc_18_1" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_Byte_Range_Min_Fail_CompileTime"
+    root="ivc_18_1_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value -129 was found to be outside the range of type Byte</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert -129 to Byte.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_Byte_Range_Min_Fail_RunTime"
+    root="ivc_18_1_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>-129</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -129.0 to Byte.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -804,12 +1065,21 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="InputValueCalc_Byte_Range_Max_Fail"
-    root="ivc_18_2" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_Byte_Range_Max_Fail_CompileTime"
+    root="ivc_18_2_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value 128 was found to be outside the range of type Byte</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert 128 to Byte.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_Byte_Range_Max_Fail_RunTime"
+    root="ivc_18_2_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>128</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 128.0 to Byte.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -827,21 +1097,39 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="InputValueCalc_UnsignedByte_Range_Min_Fail"
-    root="ivc_19_1" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_UnsignedByte_Range_Min_Fail_CompileTime"
+    root="ivc_19_1_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value -1 was found to be outside the range of type UnsignedByte</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert -1 to UnsignedByte.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="InputValueCalc_UnsignedByte_Range_Max_Fail"
-    root="ivc_19_2" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+  <tdml:parserTestCase name="InputValueCalc_UnsignedByte_Range_Min_Fail_RunTime"
+    root="ivc_19_1_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>-1</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -1.0 to UnsignedByte.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_UnsignedByte_Range_Max_Fail_CompileTime"
+    root="ivc_19_2_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>InputValueCalc failed. Value 257 was found to be outside the range of type UnsignedByte</tdml:error>
+      <tdml:error>Schema Definition Error: Cannot convert 257 to UnsignedByte.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="InputValueCalc_UnsignedByte_Range_Max_Fail_RunTime"
+    root="ivc_19_2_b" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
+
+    <tdml:document>257</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 257.0 to UnsignedByte.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

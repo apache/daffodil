@@ -59,6 +59,8 @@ import scala.util.parsing.input.Reader
 import java.util.UUID
 import java.math.BigInteger
 import edu.illinois.ncsa.daffodil.ExecutionMode
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
+import scala.xml.Node
 
 abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
@@ -440,7 +442,7 @@ case class PState(
   val arrayIndexStack: List[Long],
   val occursCountStack: List[Long],
   val diagnostics: List[Diagnostic],
-  val discriminatorStack: List[Boolean]) extends DFDL.State {
+  val discriminatorStack: List[Boolean]) extends DFDL.State with ThrowsSDE {
 
   def bytePos = bitPos >> 3
   def whichBit = bitPos % 8
@@ -458,12 +460,53 @@ case class PState(
     val res = currentElement.schemaComponent(this)
     res
   }
+  
+  /**
+   * Added because ThrowsSDE is a SchemaFileLocatable
+   */
+  def contextLocatable: SchemaFileLocatable = {
+    val ctxt = getContext()
+    ctxt.contextLocatable
+  }
+  
+  /**
+   * Added because ThrowsSDE is a SchemaFileLocatable
+   */
+  def fileName: String = {
+    val ctxt = getContext()
+    ctxt.fileName
+  }
+  
+  /**
+   * Added because ThrowsSDE is a SchemaFileLocatable
+   */
+  def xml: Node = {
+    val ctxt = getContext()
+    ctxt.xml
+  }
 
   def SDE(str: String, args: Any*) = {
     ExecutionMode.requireRuntimeMode
     val ctxt = getContext()
     val rsde = new RuntimeSchemaDefinitionError(ctxt, this, str, args: _*)
     ctxt.toss(rsde)
+  }
+  
+  // TODO: Do we want these to reside on PState at all? SDEButContinue and SDW
+  // Had to implement so that we could add ThrowsSDE as a trait to PState
+  // Could just make private and Assert.impossible
+  def SDEButContinue(id: String, args: Any*): Unit = {
+    ExecutionMode.requireRuntimeMode
+    val ctxt = getContext
+    val rsde = new RuntimeSchemaDefinitionError(ctxt, this, id, args: _*)
+    ctxt.error(rsde)
+  }
+  
+  def SDW(id: String, args: Any*): Unit = {
+    ExecutionMode.requireRuntimeMode
+    val ctxt = getContext
+    val rsdw = new RuntimeSchemaDefinitionWarning(ctxt, this, id, args: _*)
+    ctxt.warn(rsdw)
   }
 
   def discriminator = discriminatorStack.head

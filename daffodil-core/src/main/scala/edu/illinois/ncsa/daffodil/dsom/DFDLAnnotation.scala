@@ -32,26 +32,30 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-import scala.xml._
-import scala.xml.parsing._
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.xml._
-import java.io.ByteArrayInputStream
-import java.io.InputStream
-import scala.collection.JavaConversions._
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
-import edu.illinois.ncsa.daffodil.util.Info
-import edu.illinois.ncsa.daffodil.util._
 import scala.collection.immutable.ListMap
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import scala.xml.Node
+import scala.xml.NodeSeq.seqToNodeSeq
+import scala.xml.Utility
+
 import edu.illinois.ncsa.daffodil.ExecutionMode
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.grammar.EmptyGram
+import edu.illinois.ncsa.daffodil.grammar.Gram
+import edu.illinois.ncsa.daffodil.processors.AssertBooleanPrim
+import edu.illinois.ncsa.daffodil.processors.AssertPatternPrim
+import edu.illinois.ncsa.daffodil.processors.DiscriminatorBooleanPrim
+import edu.illinois.ncsa.daffodil.processors.DiscriminatorPatternPrim
+import edu.illinois.ncsa.daffodil.processors.NewVariableInstanceEnd
+import edu.illinois.ncsa.daffodil.processors.NewVariableInstanceStart
+import edu.illinois.ncsa.daffodil.processors.SetVariable
+import edu.illinois.ncsa.daffodil.processors.VariableFactory
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml.NoNamespace
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 /**
  * Base class for any DFDL annotation
@@ -501,14 +505,14 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent)
   lazy val optionEscapeCharacter = {
     escapeCharacterRaw match {
       case Found("", loc) => None
-      case Found(v, loc) => Some(decl.expressionCompiler.compile('String, escapeCharacterRaw))
+      case Found(v, loc) => Some(decl.expressionCompiler.compile(ConvertToType.String, escapeCharacterRaw))
     }
   }
 
   lazy val optionEscapeEscapeCharacter = {
     escapeEscapeCharacterRaw match {
       case Found("", loc) => None
-      case Found(v, loc) => Some(decl.expressionCompiler.compile('String, escapeEscapeCharacterRaw))
+      case Found(v, loc) => Some(decl.expressionCompiler.compile(ConvertToType.String, escapeEscapeCharacterRaw))
     }
   }
 

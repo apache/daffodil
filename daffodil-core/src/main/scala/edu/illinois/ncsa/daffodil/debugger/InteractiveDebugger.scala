@@ -56,6 +56,7 @@ import jline.console.completer.StringsCompleter
 import jline.console.completer.AggregateCompleter
 import edu.illinois.ncsa.daffodil.util.Enum
 import scala.io.Source
+import edu.illinois.ncsa.daffodil.processors.xpath.NotANumberResult
 
 class InteractiveDebugger(cmdsIter: Iterator[String]) extends Debugger {
 
@@ -785,6 +786,7 @@ class InteractiveDebugger(cmdsIter: Iterator[String]) extends Debugger {
             val element = state.infoset.asInstanceOf[InfosetElement]
             val res = element.evalExpression(expression, compiledExpr, state.variableMap, evalType)
             res match {
+              case NotANumberResult(v) => debugPrintln(v)
               case NumberResult(n) => debugPrintln(n)
               case StringResult(s) => debugPrintln(s)
               case BooleanResult(b) => debugPrintln(b)

@@ -38,6 +38,8 @@ import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.util.LoggingDefaults
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 class TestDiscriminators {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/discriminators/"
@@ -46,7 +48,9 @@ class TestDiscriminators {
 
   @Test def test_assertions_discriminatorGuidesChoice() { runner.runOneTest("discriminatorGuidesChoice") }
   @Test def test_assertions_discriminatorGuidesChoice2() { runner.runOneTest("discriminatorGuidesChoice2") }
-  @Test def test_assertions_discriminatorGuidesChoice3() { runner.runOneTest("discriminatorGuidesChoice3") }
+  @Test def test_assertions_discriminatorGuidesChoice3() ={ 
+    //LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+    runner.runOneTest("discriminatorGuidesChoice3") }
   @Test def test_assertions_discriminatorGuidesChoice4() { runner.runOneTest("discriminatorGuidesChoice4") }
   @Test def test_assertions_discriminatorGuidesChoice5() { runner.runOneTest("discriminatorGuidesChoice5") }
 

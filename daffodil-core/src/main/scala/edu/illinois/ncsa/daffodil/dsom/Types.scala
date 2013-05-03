@@ -32,24 +32,23 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-import scala.xml._
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.xml._
+import java.math.BigInteger
+
 import scala.collection.mutable.Queue
 import scala.util.matching.Regex
-import edu.illinois.ncsa.daffodil.util.TestUtils
-import java.math.BigInteger
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarPatternKind
-import com.ibm.icu.util.ULocale
-import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.TimeZone
-import com.ibm.icu.util.GregorianCalendar
+import scala.xml._
+
 import com.ibm.icu.text.DateFormat
-import java.text.ParsePosition
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
+import com.ibm.icu.text.SimpleDateFormat
+import com.ibm.icu.util.GregorianCalendar
+import com.ibm.icu.util.TimeZone
+
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
+import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.util.Enum
+import edu.illinois.ncsa.daffodil.util.TestUtils
+import edu.illinois.ncsa.daffodil.xml._
 
 /////////////////////////////////////////////////////////////////
 // Type System
@@ -65,8 +64,149 @@ trait SimpleTypeBase
   def primitiveType: PrimitiveType
 }
 
-trait TypeChecks { self: SimpleTypeBase =>
-  protected def dateToBigDecimal(date: String, format: String, dateType: String): java.math.BigDecimal = {
+trait TypeConversions extends TypeChecks {
+
+  private def tryCatch[T](context: ThrowsSDE, msg: String, args: Any*)(f: => T): T = {
+    try { f } catch {
+      case u: UnsuppressableException => throw u
+      case n: Exception => context.SDE(msg, args: _*) // TODO: Internationalization
+    }
+  }
+
+  def convertToLong(s: Any, context: ThrowsSDE) =
+    tryCatch(context, "Cannot convert %s to Long.", s) {
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.Long, context)
+      if (!isSuccess) context.SDE("Cannot convert %s to Long. Failed range checks.", s.toString)
+      theValue match {
+        case Some(bd) => bd.toLong
+        case None => Assert.impossibleCase
+      }
+    }
+
+  def convertToDouble(s: Any, context: ThrowsSDE) =
+    tryCatch(context, "Cannot convert %s to Double.", s) {
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.Double, context)
+      if (!isSuccess) context.SDE("Cannot convert %s to Double. Failed range checks.", s.toString)
+      theValue match {
+        case Some(bd) => bd.toDouble
+        case None => Assert.impossibleCase
+      }
+    }
+
+  def convertToBoolean(s: Any, context: ThrowsSDE) =
+    tryCatch(context, "Cannot convert %s to Boolean.", s) {
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.Boolean, context)
+      if (!isSuccess) context.SDE("Cannot convert %s to Boolean.", s.toString)
+      theValue match {
+        case Some(bd) => bd.toInt match {
+          case 0 => false
+          case 1 => true
+          case _ => Assert.impossibleCase
+        }
+        case None => Assert.impossibleCase
+      }
+    }
+
+  def convertToByte(s: Any, context: ThrowsSDE) =
+    tryCatch(context, "Cannot convert %s to Byte.", s) {
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.Byte, context)
+      if (!isSuccess) context.SDE("Cannot convert %s to Byte. Failed range checks.", s.toString)
+      theValue match {
+        case Some(bd) => bd.toByte
+        case None => Assert.impossibleCase
+      }
+    }
+
+  def convertToShort(s: Any, context: ThrowsSDE) =
+    tryCatch(context, "Cannot convert %s to Short.", s) {
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.Short, context)
+      if (!isSuccess) context.SDE("Cannot convert %s to Short. Failed range checks.", s.toString)
+      theValue match {
+        case Some(bd) => bd.toShort
+        case None => Assert.impossibleCase
+      }
+    }
+
+  def convertToInt(s: Any, context: ThrowsSDE) =
+    tryCatch(context, "Cannot convert %s to Int.", s) {
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.Int, context)
+      if (!isSuccess) context.SDE("Cannot convert %s to UnsignedInt. Failed range checks.", s.toString)
+      theValue match {
+        case Some(bd) => bd.toInt
+        case None => Assert.impossibleCase
+      }
+    }
+
+  def convertToUByte(s: Any, context: ThrowsSDE) =
+    tryCatch(context, "Cannot convert %s to UnsignedByte.", s) {
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.UByte, context)
+      if (!isSuccess) context.SDE("Cannot convert %s to UnsignedByte. Failed range checks.", s.toString)
+      theValue match {
+        case Some(bd) => bd.toShort
+        case None => Assert.impossibleCase
+      }
+    }
+
+  def convertToUShort(s: Any, context: ThrowsSDE) =
+    tryCatch(context, "Cannot convert %s to UnsignedShort.", s) {
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.UShort, context)
+      if (!isSuccess) context.SDE("Cannot convert %s to UnsignedShort. Failed range checks.", s.toString)
+      theValue match {
+        case Some(bd) => bd.toInt
+        case None => Assert.impossibleCase
+      }
+    }
+
+  def convertToUInt(s: Any, context: ThrowsSDE) =
+    tryCatch(context, "Cannot convert %s to UnsignedInt.", s) {
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.UInt, context)
+      if (!isSuccess) context.SDE("Cannot convert %s to UnsignedInt. Failed range checks.", s.toString)
+      theValue match {
+        case Some(bd) => bd.toLong
+        case None => Assert.impossibleCase
+      }
+    }
+
+  def convertToULong(s: Any, context: ThrowsSDE) =
+    tryCatch(context, "Cannot convert %s to UnsignedLong.", s) {
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.ULong, context)
+      if (!isSuccess) context.SDE("Cannot convert %s to UnsignedLong. Failed range checks.", s.toString)
+      theValue match {
+        case Some(bd) => bd
+        case None => Assert.impossibleCase
+      }
+    }
+
+  def convertToInteger(s: Any, context: ThrowsSDE) =
+    tryCatch(context, "Cannot convert %s to Integer (Unbounded).", s) {
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.Integer, context)
+      if (!isSuccess) context.SDE("Cannot convert %s to Integer (Unbounded). Failed range checks.", s.toString)
+      theValue match {
+        case Some(bd) => bd
+        case None => Assert.impossibleCase
+      }
+    }
+
+  def convertToNonNegativeInteger(s: Any, context: ThrowsSDE) =
+    tryCatch(context, "Cannot convert %s to NonNegativeInteger.", s) {
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.NonNegativeInteger, context)
+      if (!isSuccess) context.SDE("Cannot convert %s to NonNegativeInteger. Failed range checks.", s.toString)
+      theValue match {
+        case Some(bd) => bd
+        case None => Assert.impossibleCase
+      }
+    }
+
+  def convertToDecimal(s: Any, context: ThrowsSDE) =
+    tryCatch(context, "Cannot convert %s to Decimal.", s) {
+      val value = BigDecimal(s.toString)
+      value
+    }
+
+}
+
+trait TypeChecks {
+  protected def dateToBigDecimal(date: String, format: String, dateType: String, context: ThrowsSDE): java.math.BigDecimal = {
     val df = new SimpleDateFormat(format)
     df.setCalendar(new GregorianCalendar())
     df.setTimeZone(TimeZone.GMT_ZONE)
@@ -86,42 +226,46 @@ trait TypeChecks { self: SimpleTypeBase =>
     }
     bd
   }
-  private def convertStringToBigDecimal(value: String): java.math.BigDecimal = {
-    self.primitiveType.myPrimitiveType match {
-      case PrimType.DateTime => dateToBigDecimal(value, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", PrimType.DateTime.toString())
-      case PrimType.Date => dateToBigDecimal(value, "uuuu-MM-ddxxx", PrimType.Date.toString())
-      case PrimType.Time => dateToBigDecimal(value, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString())
+
+  private def convertStringToBigDecimal(value: String, primitiveType: PrimType.Type, context: ThrowsSDE): java.math.BigDecimal = {
+    primitiveType match {
+      case PrimType.DateTime => dateToBigDecimal(value, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", PrimType.DateTime.toString(), context)
+      case PrimType.Date => dateToBigDecimal(value, "uuuu-MM-ddxxx", PrimType.Date.toString(), context)
+      case PrimType.Time => dateToBigDecimal(value, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString(), context)
       case _ => new java.math.BigDecimal(value)
     }
   }
-  def checkRange(value: String, theContext: SchemaComponent): Boolean = {
+
+  def checkRangeReturnsValue(value: String, primitiveType: PrimType.Type, theContext: ThrowsSDE): (Boolean, Option[BigDecimal]) = {
     // EmptyString is only valid for hexBinary and String
     if ((value == null | value.length() == 0)) {
-      return primitiveType.myPrimitiveType match {
-        case PrimType.HexBinary | PrimType.String => true
-        case _ => false
+      return primitiveType match {
+        case PrimType.HexBinary | PrimType.String => (true, None)
+        case _ => (false, None)
       }
     }
 
     // Don't need to range check String or HexBinary
     // no point attempting a conversion to BigDecimal so
     // return early here.
-    primitiveType.myPrimitiveType match {
-      case PrimType.String | PrimType.HexBinary => return true
+    primitiveType match {
+      case PrimType.String | PrimType.HexBinary => return (true, None)
       case _ => /* Continue on below */
     }
 
     // Check Boolean, and the Numeric types.
-    value.toLowerCase() match {
-      case "true" | "false" => if (primitiveType.myPrimitiveType == PrimType.Boolean) true else false
-      case _ => {
+    (value.toLowerCase(), primitiveType) match {
+      case ("true", PrimType.Boolean) => (true, Some(BigDecimal(1)))
+      case ("false", PrimType.Boolean) => (true, Some(BigDecimal(0)))
+      case (x, PrimType.Boolean) => theContext.SDE("%s is not a valid Boolean value. Expected 'true' or 'false'.", x)
+      case (_, _) => {
         // Perform conversions once
-        val theValue = convertStringToBigDecimal(value)
+        val theValue = convertStringToBigDecimal(value, primitiveType, theContext)
 
         // Here we're just doing range checking for the
         // specified primitive type
-        val res: Boolean = primitiveType.myPrimitiveType match {
-          case PrimType.Int => isInIntegerRange(theValue)
+        val res: Boolean = primitiveType match {
+          case PrimType.Int => isInIntRange(theValue)
           case PrimType.Byte => isInByteRange(theValue)
           case PrimType.Short => isInShortRange(theValue)
           case PrimType.Long => isInLongRange(theValue)
@@ -135,84 +279,28 @@ trait TypeChecks { self: SimpleTypeBase =>
           case PrimType.DateTime => true
           case PrimType.Date => true
           case PrimType.Time => true
-          case PrimType.Boolean => theContext.notYetImplemented("checkRange - Boolean")
-          case _ => theContext.schemaDefinitionError("checkRange - Unrecognized primitive type: %s", primitiveType.name)
+          case PrimType.Boolean => Assert.impossibleCase // Handled earlier, shouldn't get here
+          case PrimType.Decimal => true // Unbounded Decimal
+          case PrimType.HexBinary => Assert.impossibleCase // Handled earlier, shouldn't get here
+          case PrimType.String => Assert.impossibleCase // Handled earlier, shouldn't get here
+          case PrimType.NonNegativeInteger => isInNonNegativeIntegerRange(theValue)
         }
-        res
+        val isValueWhole = BigDecimal(value).isWhole
+        primitiveType match {
+          case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
+            PrimType.Integer | PrimType.UInt | PrimType.UByte | PrimType.UShort |
+            PrimType.ULong => if (!isValueWhole) theContext.SDE("checkRange - Value (%s) must be a whole number.", value)
+          case _ => // OK
+        }
+        (res, Some(theValue))
       }
     }
   }
-  //  def checkRange(value: String, theContext: SchemaComponent): java.math.BigDecimal = {
-  //    // Necessary for min/max Inclusive/Exclusive Facets
-  //
-  //    // Perform conversions once
-  //    val theValue = convertStringToBigDecimal(value)
-  //
-  //    // Here we're just doing range checking for the
-  //    // specified primitive type
-  //    primitiveType.myPrimitiveType match {
-  //      case PrimType.Int => {
-  //        if (!isInIntegerRange(theValue)) {
-  //          theContext.SDE("Value (%s) was found to be outside of Int range.", theValue)
-  //        }
-  //      }
-  //      case PrimType.Byte => {
-  //        if (!isInByteRange(theValue)) {
-  //          theContext.SDE("Value (%s) was found to be outside of Byte range.", theValue)
-  //        }
-  //      }
-  //      case PrimType.Short => {
-  //        if (!isInShortRange(theValue)) {
-  //          theContext.SDE("Value (%s) was found to be outside of Short range.", theValue)
-  //        }
-  //      }
-  //      case PrimType.Long => {
-  //        if (!isInLongRange(theValue)) {
-  //          theContext.SDE("Value (%s) was found to be outside of Long range.", theValue)
-  //        }
-  //      }
-  //      case PrimType.Integer => {
-  //        // Unbounded integer
-  //      }
-  //      case PrimType.UInt => {
-  //        if (!isInUnsignedIntRange(theValue)) {
-  //          theContext.SDE("Value (%s) was found to be outside of unsigned int range.", theValue)
-  //        }
-  //      }
-  //      case PrimType.UByte => {
-  //        if (!isInUnsignedByteRange(theValue)) {
-  //          theContext.SDE("Value (%s) was found to be outside of unsigned byte range.", theValue)
-  //        }
-  //      }
-  //      case PrimType.UShort => {
-  //        if (!isInUnsignedShortRange(theValue)) {
-  //          theContext.SDE("Value (%s) was found to be outside of unsigned short range.", theValue)
-  //        }
-  //      }
-  //      case PrimType.ULong => {
-  //        if (!isInUnsignedLongRange(theValue)) {
-  //          theContext.SDE("Value (%s) was found to be outside of unsigned long range.", theValue)
-  //        }
-  //      }
-  //      case PrimType.Double => {
-  //        if (!isInDoubleRange(theValue)) {
-  //          theContext.SDE("Value (%s) was found to be outside of Double range.", theValue)
-  //        }
-  //      }
-  //      case PrimType.Float => {
-  //        if (!isInFloatRange(theValue)) {
-  //          context.SDE("Value (%s) was found to be outside of Float range.", theValue)
-  //        }
-  //      }
-  //      case PrimType.DateTime => { /* Nothing to do here */ }
-  //      case PrimType.Date => { /* Nothing to do here */ }
-  //      case PrimType.Time => { /* Nothing to do here */ }
-  //      case PrimType.Boolean => context.notYetImplemented("checkValueSpaceFacetRange - Boolean")
-  //      case PrimType.HexBinary => { /* Nothing to do here */ } //notYetImplemented("checkValueSpaceFacetRange - HexBinary")
-  //      case _ => context.schemaDefinitionError("checkValueSpaceFacetRange - Unrecognized primitive type: %s", primitiveType.name)
-  //    }
-  //    theValue
-  //  }
+
+  def checkRange(value: String, primitiveType: PrimType.Type, theContext: ThrowsSDE): Boolean = {
+    val (boolResult, _) = checkRangeReturnsValue(value, primitiveType, theContext)
+    boolResult
+  }
 
   protected def isNumInRange(num: java.math.BigDecimal, min: java.math.BigDecimal,
     max: java.math.BigDecimal): Boolean = {
@@ -232,10 +320,17 @@ trait TypeChecks { self: SimpleTypeBase =>
     val max = new java.math.BigDecimal(Short.MaxValue.toLong.toString())
     isNumInRange(value, min, max)
   }
-  protected def isInIntegerRange(value: java.math.BigDecimal): Boolean = {
+  protected def isInIntRange(value: java.math.BigDecimal): Boolean = {
     val min = new java.math.BigDecimal(Int.MinValue.toString())
     val max = new java.math.BigDecimal(Int.MaxValue.toString())
     isNumInRange(value, min, max)
+  }
+  protected def isInIntegerRange(value: java.math.BigDecimal): Boolean = {
+    val min = new java.math.BigDecimal(Int.MinValue.toString())
+    // Unbounded Integer
+    val checkMin = value.compareTo(min)
+    if (checkMin < 0) { return false } // num less than min
+    true
   }
   protected def isInLongRange(value: java.math.BigDecimal): Boolean = {
     val min = new java.math.BigDecimal(Long.MinValue.toString())
@@ -256,7 +351,7 @@ trait TypeChecks { self: SimpleTypeBase =>
     // BigDecimal is unbounded? So nothing outside of its range?
     true
   }
-  protected def isInNegativeIntegerRange(value: java.math.BigDecimal): Boolean = {
+  protected def isInNegativeIntegerRange(value: java.math.BigDecimal, context: ThrowsSDE): Boolean = {
     // TODO: NegativeInteger not supported in DFDL v1.0
     val min = new java.math.BigDecimal(Int.MinValue.toString())
     val max = new java.math.BigDecimal(Int.MaxValue.toString())
@@ -267,22 +362,20 @@ trait TypeChecks { self: SimpleTypeBase =>
     true
   }
   protected def isInNonNegativeIntegerRange(value: java.math.BigDecimal): Boolean = {
+    // Should be treated as unsigned Integer (unbounded)
     val min = java.math.BigDecimal.ZERO
-    val max = new java.math.BigDecimal(Int.MaxValue.toString())
     val isNegative = value.signum == -1
-    if (isNegative) context.SDE("Expected a non-negative integer for this value.")
-    val checkMax = value.compareTo(max)
-    if (checkMax > 0) context.SDE("Value (%s) was found to be larger than Int.MaxValue.", value.intValue())
+    if (isNegative) return false
     true
   }
   protected def isInUnsignedXXXRange(value: java.math.BigDecimal, numBits: Int, typeName: String): Boolean = {
     Assert.usage(numBits <= 64, "isInUnsignedXXXRange: numBits must be <= 64.")
     val min = java.math.BigDecimal.ZERO
-    val max = new java.math.BigDecimal(BigInteger.ONE.shiftLeft(numBits))
+    val max = new java.math.BigDecimal(BigInteger.ONE.shiftLeft(numBits)).subtract(new java.math.BigDecimal(1))
     val isNegative = value.signum == -1
-    if (isNegative) context.SDE("Expected an unsigned %s for this value.", typeName)
+    if (isNegative) return false
     val checkMax = value.compareTo(max)
-    if (checkMax > 0) context.SDE("Value (%s) was found to be larger than unsigned %s max value.", value, typeName)
+    if (checkMax > 0) return false
     true
   }
   protected def isInUnsignedLongRange(value: java.math.BigDecimal): Boolean =
@@ -565,9 +658,9 @@ trait Facets { self: SimpleTypeDefBase =>
 
   private def convertFacetToBigDecimal(facet: String): java.math.BigDecimal = {
     self.primitiveType.myPrimitiveType match {
-      case PrimType.DateTime => dateToBigDecimal(facet, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", PrimType.DateTime.toString())
-      case PrimType.Date => dateToBigDecimal(facet, "uuuu-MM-ddxxx", PrimType.Date.toString())
-      case PrimType.Time => dateToBigDecimal(facet, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString())
+      case PrimType.DateTime => dateToBigDecimal(facet, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", PrimType.DateTime.toString(), context)
+      case PrimType.Date => dateToBigDecimal(facet, "uuuu-MM-ddxxx", PrimType.Date.toString(), context)
+      case PrimType.Time => dateToBigDecimal(facet, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString(), context)
       case _ => new java.math.BigDecimal(facet)
     }
   }
@@ -586,7 +679,7 @@ trait Facets { self: SimpleTypeDefBase =>
         // specified primitive type
         primitiveType.myPrimitiveType match {
           case PrimType.Int => {
-            if (!isFacetInIntegerRange(theLocalFacet)) {
+            if (!isFacetInIntRange(theLocalFacet)) {
               context.SDE("%s facet value (%s) was found to be outside of Int range.",
                 facetType, localFacet)
             }
@@ -611,6 +704,10 @@ trait Facets { self: SimpleTypeDefBase =>
           }
           case PrimType.Integer => {
             // Unbounded integer
+            if (!isFacetInIntegerRange(theLocalFacet)) {
+              context.SDE("%s facet value (%s) was found to be outside of Integer range.",
+                facetType, localFacet)
+            }
           }
           case PrimType.UInt => {
             if (!isFacetInUnsignedIntRange(theLocalFacet)) {
@@ -649,6 +746,7 @@ trait Facets { self: SimpleTypeDefBase =>
             }
           }
           case PrimType.NonNegativeInteger => {
+            // Unsigned Unbounded Integer
             if (!isFacetInNonNegativeIntegerRange(theLocalFacet)) {
               context.SDE("%s facet value (%s) was found to be outside of NonNegativeInteger range.",
                 facetType, localFacet)
@@ -697,6 +795,7 @@ trait Facets { self: SimpleTypeDefBase =>
   private def isFacetInByteRange(facet: java.math.BigDecimal): Boolean = self.isInByteRange(facet)
 
   private def isFacetInShortRange(facet: java.math.BigDecimal): Boolean = self.isInShortRange(facet)
+  private def isFacetInIntRange(facet: java.math.BigDecimal): Boolean = self.isInIntRange(facet)
   private def isFacetInIntegerRange(facet: java.math.BigDecimal): Boolean = self.isInIntegerRange(facet)
   private def isFacetInLongRange(facet: java.math.BigDecimal): Boolean = self.isInLongRange(facet)
   private def isFacetInDoubleRange(facet: java.math.BigDecimal): Boolean = self.isInDoubleRange(facet)

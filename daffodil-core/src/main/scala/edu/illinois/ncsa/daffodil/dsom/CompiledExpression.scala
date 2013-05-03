@@ -118,25 +118,29 @@ case class ConstantExpression[T](value: T) extends CompiledExpression(value.toSt
   def evaluate(pre: InfosetElement, variables: VariableMap, ignored: PState): R = R(constant, variables)
 }
 
-case class RuntimeExpression[T <: AnyRef](convertTo: Symbol,
+case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
   xpathText: String,
   xpathExprFactory: CompiledExpressionFactory,
   scArg: SchemaComponent)
   extends CompiledExpression(xpathText)
-  with WithParseErrorThrowing {
+  with WithParseErrorThrowing
+  with TypeConversions {
 
   lazy val context = scArg
   def isConstant = false
   def isKnownNonEmpty = true // expressions are not allowed to return empty string
   def constant: T = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
 
-  def toXPathType(convertTo: Symbol) =
+  def toXPathType(convertTo: ConvertToType.Type) =
     convertTo match {
-      case 'Long => XPathConstants.NUMBER
-      case 'Double => XPathConstants.NUMBER
-      case 'String => XPathConstants.STRING
-      case 'Element => XPathConstants.NODE
-      case 'Boolean => XPathConstants.BOOLEAN
+      case ConvertToType.Long => XPathConstants.NUMBER
+      case ConvertToType.Double => XPathConstants.NUMBER
+      case ConvertToType.Int | ConvertToType.UInt | ConvertToType.Integer |
+        ConvertToType.UInteger | ConvertToType.Short | ConvertToType.UShort => XPathConstants.NUMBER
+      case ConvertToType.Decimal | ConvertToType.Byte | ConvertToType.UByte | ConvertToType.ULong => XPathConstants.NUMBER
+      case ConvertToType.String => XPathConstants.STRING
+      case ConvertToType.Element => XPathConstants.NODE
+      case ConvertToType.Boolean => XPathConstants.BOOLEAN
       case _ => Assert.invariantFailed("convertTo not valid value: " + convertTo)
     }
 
@@ -158,24 +162,42 @@ case class RuntimeExpression[T <: AnyRef](convertTo: Symbol,
     }
     val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
     val converted: T = xpathRes match {
-      case NumberResult(n) if n.isNaN() => {
-        // Problem here is that strings like 'notAnInt' will be converted to NaN
-        // 
-        // Let's treat NaN as a signaling NaN always for now. 
-        PE("Expression %s evaluated to something that is not a number: %s.", xpathText, n)
+      case NotANumberResult(v) => {
+        PE("Expression %s evaluated to something that is not a number: %s.", xpathText, v)
       }
       case NumberResult(n) => {
-        convertTo match {
-          case 'Long => n.toLong.asInstanceOf[T]
-          case 'Double => n.asInstanceOf[T]
+        val convertedResult = try {
+          convertTo match {
+            case ConvertToType.Long => convertToLong(n.toString, pstate).asInstanceOf[T]
+            case ConvertToType.Double => convertToDouble(n.toString, pstate).asInstanceOf[T]
+            case ConvertToType.Int => convertToInt(n.toString, pstate).asInstanceOf[T]
+            case ConvertToType.Byte => convertToByte(n.toString, pstate).asInstanceOf[T]
+            case ConvertToType.UByte => convertToUByte(n.toString, pstate).asInstanceOf[T]
+            case ConvertToType.Short => convertToShort(n.toString, pstate).asInstanceOf[T]
+            case ConvertToType.UShort => convertToUShort(n.toString, pstate).asInstanceOf[T]
+            case ConvertToType.UInt => convertToUInt(n.toString, pstate).asInstanceOf[T]
+            case ConvertToType.Boolean => convertToBoolean(n.toString, pstate).asInstanceOf[T]
+            case ConvertToType.ULong => convertToULong(n.toString, pstate).asInstanceOf[T]
+            case ConvertToType.Integer => convertToInteger(n.toString, pstate).asInstanceOf[T]
+            case ConvertToType.Decimal => convertToDecimal(n.toString, pstate).asInstanceOf[T]
+            case ConvertToType.UInteger => convertToNonNegativeInteger(n.toString, pstate).asInstanceOf[T]
+            case _ => n.asInstanceOf[T]
+          }
+        } catch {
+          // Note that the converToXXX functions all SDE themselves on conversion errors.
+          // Here we just want to catch the exceptions that are the result of asInstanceOf[T]
+          // or other unforeseen exceptions.
+          case u: UnsuppressableException => throw u
+          case cex: ClassCastException => pstate.SDE("Cannot convert %s to %s. Error %s", n, convertTo, cex)
         }
+        convertedResult
       }
       case StringResult(s) => {
-        Assert.invariant(convertTo == 'String)
+        Assert.invariant(convertTo == ConvertToType.String)
         s.asInstanceOf[T]
       }
       case BooleanResult(v) => {
-        Assert.invariant(convertTo == 'Boolean)
+        Assert.invariant(convertTo == ConvertToType.Boolean)
         v.asInstanceOf[T]
       }
       case NodeResult(n) => {
@@ -186,7 +208,26 @@ case class RuntimeExpression[T <: AnyRef](convertTo: Symbol,
   }
 }
 
-class ExpressionCompiler(edecl: SchemaComponent) extends Logging {
+object ConvertToType extends Enum {
+  sealed abstract trait Type extends EnumValueType
+  case object String extends Type
+  case object Byte extends Type
+  case object Short extends Type
+  case object Int extends Type
+  case object Long extends Type
+  case object UByte extends Type
+  case object UShort extends Type
+  case object UInt extends Type
+  case object ULong extends Type
+  case object Double extends Type
+  case object Integer extends Type
+  case object UInteger extends Type
+  case object Decimal extends Type
+  case object Boolean extends Type
+  case object Element extends Type
+}
+
+class ExpressionCompiler(edecl: SchemaComponent) extends Logging with TypeConversions {
 
   def expandedName(qname: String) = {
     val (uri, localTypeName) = XMLUtils.QName(edecl.xml, qname, edecl.schemaDocument)
@@ -198,20 +239,25 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging {
   def convertTypeString(expandedTypeName: String) = {
     Assert.usage(expandedTypeName != null)
     expandedTypeName match {
-      case XMLUtils.XSD_STRING => 'String
-      case XMLUtils.XSD_BYTE => 'Long
-      case XMLUtils.XSD_SHORT => 'Long
-      case XMLUtils.XSD_INT => 'Long
-      case XMLUtils.XSD_LONG => 'Long
-      case XMLUtils.XSD_UNSIGNED_BYTE => 'Long
-      case XMLUtils.XSD_UNSIGNED_SHORT => 'Long
-      case XMLUtils.XSD_UNSIGNED_INT => 'Long
-      case XMLUtils.XSD_DOUBLE => 'Double
-      case XMLUtils.XSD_FLOAT => 'Double
-      case XMLUtils.XSD_BOOLEAN => 'Boolean
-      case XMLUtils.XSD_HEX_BINARY => 'String
-      // case XMLUtils.XSD_UNSIGNED_LONG => Assert.notYetImplemented() // TODO FIXME - handle the largest unsigned longs.
-      case _ => edecl.notYetImplemented(expandedTypeName)
+      case XMLUtils.XSD_STRING => ConvertToType.String
+      case XMLUtils.XSD_BYTE => ConvertToType.Byte
+      case XMLUtils.XSD_SHORT => ConvertToType.Short
+      case XMLUtils.XSD_INT => ConvertToType.Int
+      case XMLUtils.XSD_LONG => ConvertToType.Long
+      case XMLUtils.XSD_UNSIGNED_BYTE => ConvertToType.UByte
+      case XMLUtils.XSD_UNSIGNED_SHORT => ConvertToType.UShort
+      case XMLUtils.XSD_UNSIGNED_INT => ConvertToType.UInt
+      case XMLUtils.XSD_DOUBLE => ConvertToType.Double
+      case XMLUtils.XSD_FLOAT => ConvertToType.Double
+      case XMLUtils.XSD_BOOLEAN => ConvertToType.Boolean
+      case XMLUtils.XSD_HEX_BINARY => ConvertToType.String
+      case XMLUtils.XSD_DATE => ConvertToType.String
+      case XMLUtils.XSD_DATE_TIME => ConvertToType.String
+      case XMLUtils.XSD_TIME => ConvertToType.String
+      case XMLUtils.XSD_NON_NEGATIVE_INTEGER => ConvertToType.UInteger
+      case XMLUtils.XSD_INTEGER => ConvertToType.Integer
+      case XMLUtils.XSD_UNSIGNED_LONG => ConvertToType.ULong
+      case XMLUtils.XSD_DECIMAL => ConvertToType.Decimal
     }
   }
 
@@ -232,7 +278,7 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging {
             xpathExprFactory,
             dummyVars,
             null, // context node is not needed to see if an expression is a constant.
-            XPathConstants.STRING)
+            XPathConstants.STRING) // <-- This looks like it always evaluates to StringResult
           res match {
             case StringResult(s) => {
               log(LogLevel.Debug, "%s is constant", xpathExprFactory.expression)
@@ -266,32 +312,21 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging {
       result
     }
 
-  def compileTimeConvertToLong(s: Any) =
-    try {
-      Long.box(s.toString.toLong)
-    } catch {
-      case n: NumberFormatException =>
-        edecl.schemaDefinitionError("Cannot convert %s to Long. Error %s.", s, n)
-    }
+  def compileTimeConvertToLong(s: Any) = convertToLong(s, edecl)
+  def compileTimeConvertToDouble(s: Any) = convertToDouble(s, edecl)
+  def compileTimeConvertToBoolean(s: Any) = convertToBoolean(s, edecl)
+  def compileTimeConvertToByte(s: Any) = convertToByte(s, edecl)
+  def compileTimeConvertToShort(s: Any) = convertToShort(s, edecl)
+  def compileTimeConvertToInt(s: Any) = convertToInt(s, edecl)
+  def compileTimeConvertToUByte(s: Any) = convertToUByte(s, edecl)
+  def compileTimeConvertToUShort(s: Any) = convertToUShort(s, edecl)
+  def compileTimeConvertToUInt(s: Any) = convertToUInt(s, edecl)
+  def compileTimeConvertToULong(s: Any) = convertToULong(s, edecl)
+  def compileTimeConvertToInteger(s: Any) = convertToInteger(s, edecl)
+  def compileTimeConvertToNonNegativeInteger(s: Any) = convertToNonNegativeInteger(s, edecl)
+  def compileTimeConvertToDecimal(s: Any) = convertToDecimal(s, edecl)
 
-  def compileTimeConvertToDouble(s: Any) =
-    try {
-      Double.box(s.toString.toDouble)
-    } catch {
-      case n: NumberFormatException =>
-        edecl.schemaDefinitionError("Cannot convert %s to Double. Error %s.", s, n)
-    }
-
-  def compileTimeConvertToBoolean(s: Any) =
-    try {
-      Boolean.box(s.toString.toBoolean)
-    } catch {
-      case u: UnsuppressableException => throw u
-      case n: Exception =>
-        edecl.schemaDefinitionError("Cannot convert %s to Boolean. Error %s.", s, n)
-    }
-
-  def compile[T](convertTo: Symbol, property: Found): CompiledExpression = {
+  def compile[T](convertTo: ConvertToType.Type, property: Found): CompiledExpression = {
 
     val expr: String = property.value
     val xmlForNamespaceResolution = property.location.xml
@@ -332,15 +367,23 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging {
       val compiledExpression = cv match {
         case Some(s) => {
           convertTo match {
-            case 'String => new ConstantExpression(s)
-            case 'Long => {
-              val lng = compileTimeConvertToLong(s)
-              new ConstantExpression(lng)
-            }
+            case ConvertToType.String => new ConstantExpression(s)
             // Evaluating to an Element when we're a constant makes no sense.
             // case 'Element => new ConstantExpression(s.asInstanceOf[org.jdom.Element])
-            case 'Double => new ConstantExpression(compileTimeConvertToDouble(s))
-            case 'Boolean => new ConstantExpression(compileTimeConvertToBoolean(s))
+            case ConvertToType.Element => Assert.usageError("Evaluating to an Element when we're a constant makes no sense.")
+            case ConvertToType.Byte => new ConstantExpression(compileTimeConvertToByte(s))
+            case ConvertToType.UByte => new ConstantExpression(compileTimeConvertToUByte(s))
+            case ConvertToType.Short => new ConstantExpression(compileTimeConvertToShort(s))
+            case ConvertToType.UShort => new ConstantExpression(compileTimeConvertToUShort(s))
+            case ConvertToType.Int => new ConstantExpression(compileTimeConvertToInt(s))
+            case ConvertToType.UInt => new ConstantExpression(compileTimeConvertToUInt(s))
+            case ConvertToType.Long => new ConstantExpression(compileTimeConvertToLong(s))
+            case ConvertToType.ULong => new ConstantExpression(compileTimeConvertToULong(s))
+            case ConvertToType.Double => new ConstantExpression(compileTimeConvertToDouble(s))
+            case ConvertToType.Integer => new ConstantExpression(compileTimeConvertToInteger(s))
+            case ConvertToType.UInteger => new ConstantExpression(compileTimeConvertToNonNegativeInteger(s))
+            case ConvertToType.Decimal => new ConstantExpression(compileTimeConvertToDecimal(s))
+            case ConvertToType.Boolean => new ConstantExpression(compileTimeConvertToBoolean(s))
           }
         }
         case None => new RuntimeExpression(convertTo, expr, compiledXPath, edecl)
