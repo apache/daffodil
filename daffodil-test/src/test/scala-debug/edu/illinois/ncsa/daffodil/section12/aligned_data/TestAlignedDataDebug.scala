@@ -49,8 +49,6 @@ class TestAlignedDataDebug {
   val tdml1 = testDir_01 + "Aligned_Data.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
 
-  @Test def test_implicitAlignmentString1() = { runner1.runOneTest("implicitAlignmentString1") }
-  
   @Test def test_implicitAlignmentUIntT2() = { runner1.runOneTest("implicitAlignmentUIntT2") }
   @Test def test_implicitAlignmentUShortT2() = { runner1.runOneTest("implicitAlignmentUShortT2") }
 }

@@ -52,11 +52,16 @@
     <dfdl:format ref="ex:daffodilTest1" representation="binary" encoding="utf-8" 
       lengthUnits="bits" alignmentUnits="bits" binaryNumberRep="binary"/>
 
-    <xs:element name="stringUtf8" type="xs:string" dfdl:lengthKind="implicit" dfdl:length="4" dfdl:encoding="utf-8" 
-      dfdl:lengthUnits="bytes" dfdl:alignment="implicit" dfdl:leadingSkip="4"/>
-    <xs:element name="stringUtf16" type="xs:string" dfdl:lengthKind="implicit" dfdl:encoding="utf-16be" 
-      dfdl:lengthUnits="bytes" dfdl:alignment="1" dfdl:leadingSkip="4"/>
-    
+    <xs:element name="string" dfdl:lengthKind="implicit" dfdl:length="4" dfdl:encoding="utf-8" 
+      dfdl:lengthUnits="bytes" dfdl:alignment="implicit" dfdl:leadingSkip="4">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="4" />
+          <xs:minLength value="4" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
     <xs:element name="hB" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:alignment="implicit" dfdl:alignmentUnits="bits" dfdl:leadingSkip="4" />
     <xs:element name="hB2" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:alignment="implicit" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4" />
 
@@ -68,6 +73,8 @@
     <xs:element name="long" type="xs:long" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="20"/>
     <xs:element name="byte" type="xs:byte" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2"/>
     <xs:element name="uByte" type="xs:unsignedByte" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2"/>
+    <xs:element name="float" type="xs:float" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes"/>
+    <xs:element name="double" type="xs:double" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes"/>
       
  <!-- TEXTUAL DATA -->
       
@@ -98,6 +105,7 @@
     <xs:element name="byteT" type="xs:byte" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="2"/>
     <xs:element name="byteT2" type="xs:byte" dfdl:ref="ex:textImpBitAlign" dfdl:encoding="utf-16le" dfdl:leadingSkip="2"/>
     <xs:element name="uByteT" type="xs:unsignedByte" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="2"/>
+    <xs:element name="floatT" type="xs:float" dfdl:lengthUnits="bytes" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="2"/>
 
   </tdml:defineSchema>
   
@@ -267,50 +275,27 @@
   <!--
      Test Name: implicitAlignmentString1
         Schema: implicitAlignmentSchema
-          Root: stringUtf8
-       Purpose: This test demonstrates that the implicit alignment for an xs:string
-                is determined by character set encoding. In this case the encoding is utf-8
-  -->
+          Root: string
+       Purpose: This test demonstrates that the implicit alignment for an xs:string (binary)
+                is not allowed
+   -->
 
-  <tdml:parserTestCase name="implicitAlignmentString1" root="stringUtf8"
+  <tdml:parserTestCase name="implicitAlignmentString1" root="string"
     model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - String - DFDL-12-014R">
 
     <tdml:document>
       <tdml:documentPart type="bits">0110 0111</tdml:documentPart> <!-- leadingSkip and buffer to fulfill alignment -->
       <tdml:documentPart type="bits">01101111 01100001 01110100 01110011</tdml:documentPart> <!-- string -->
     </tdml:document>
-    
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <string>oats</string>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Implicit Alignment is not allowed for String with representation='binary'</tdml:error>
+      <tdml:error>Use representation='text' instead.</tdml:error>
+    </tdml:errors>
 
   </tdml:parserTestCase>
-  
-  <!--
-     Test Name: implicitAlignmentStringUtf16
-        Schema: implicitAlignmentSchema
-          Root: stringUtf8
-       Purpose: This test demonstrates that the implicit alignment for an xs:string
-                is determined by character set encoding. In this case the encoding is utf-8
-  -->
 
-  <tdml:parserTestCase name="implicitAlignmentStringUtf16" root="stringUtf16"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - String - DFDL-12-014R">
-
-    <tdml:document>
-      <tdml:documentPart type="bits">0110 0111</tdml:documentPart> <!-- leadingSkip and buffer to fulfill alignment -->
-      <tdml:documentPart type="bits">01101111 01100001 01110100 01110011</tdml:documentPart> <!-- string -->
-    </tdml:document>
-    
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <string>oats</string>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-
-  </tdml:parserTestCase>
 
   <!--
      Test Name: implicitAlignmentString2
@@ -1041,12 +1026,82 @@
     model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - dateTime (text) - DFDL-12-022R">
 
     <tdml:document>
-      <tdml:documentPart type="text">look: Friday 05 2013 - 03:30:30</tdml:documentPart> <!-- leadingSkip (time:) and timeT -->
+      <tdml:documentPart type="text">look: Friday 05 2013 - 03:30:30</tdml:documentPart> <!-- leadingSkip (look:) and dateTimeT -->
     </tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dateTimeT>2013-05-03T03:30:30.000000+00:00</dateTimeT>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentFloatT
+        Schema: implicitAlignmentSchema
+          Root: floatT
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'float' is
+                encoding-specific (generally 8 bits)
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentFloatT" root="floatT"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - float (text) - DFDL-12-015R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">3</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
+      <tdml:documentPart type="text">42.2</tdml:documentPart> <!-- float -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatT>42.2</floatT>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentFloat
+        Schema: implicitAlignmentSchema
+          Root: float
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'float' is 32 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentFloat" root="float"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - float (binary) - DFDL-12-015R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">2A 00 90 0D</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
+      <tdml:documentPart type="byte">42 28 CC CD</tdml:documentPart> <!-- float -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <float>42.2</float>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentDouble
+        Schema: implicitAlignmentSchema
+          Root: double
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'double' is 64 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentDouble" root="double"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - double (binary) - DFDL-12-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">2A 00 90 0D 2A 45 9F 9E</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
+      <tdml:documentPart type="byte">42 28 CC CD AB B7 78 09</tdml:documentPart> <!-- double -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <double>5.325762300373444E10</double>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 

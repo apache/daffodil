@@ -59,15 +59,6 @@ class TestAlignedData {
   @Test def test_impAlignmentHexBinary() = { runner1.runOneTest("impAlignmentHexBinary") }
   @Test def test_impAlignmentHexBinary2() = { runner1.runOneTest("impAlignmentHexBinary2") }
   
- /*
-    2.95. Section 12.1. State that if representation is text or type is string, then alignment is
-          determined by character set encoding.
- */
-
-//  @Test def test_implicitAlignmentString1() = { runner1.runOneTest("implicitAlignmentString1") }
-//  @Test def test_implicitAlignmentStringUtf16() = { runner1.runOneTest("implicitAlignmentStringUtf16") }
-  @Test def test_implicitAlignmentString2() = { runner1.runOneTest("implicitAlignmentString2") }
-
   @Test def test_implicitAlignmentUInt() = { runner1.runOneTest("implicitAlignmentUInt") }
   @Test def test_implicitAlignmentUShort() = { runner1.runOneTest("implicitAlignmentUShort") }
   
@@ -103,6 +94,14 @@ class TestAlignedData {
   @Test def test_implicitAlignmentDateT2() = { runner1.runOneTest("implicitAlignmentDateT2") }
   @Test def test_implicitAlignmentTimeT() = { runner1.runOneTest("implicitAlignmentTimeT") }
   @Test def test_implicitAlignmentDateTimeT() = { runner1.runOneTest("implicitAlignmentDateTimeT") }
+ 
+  @Test def test_implicitAlignmentFloatT() = { runner1.runOneTest("implicitAlignmentFloatT") }
+  @Test def test_implicitAlignmentFloat() = { runner1.runOneTest("implicitAlignmentFloat") }
+  @Test def test_implicitAlignmentDouble() = { runner1.runOneTest("implicitAlignmentDouble") }
+
+  @Test def test_implicitAlignmentString1() = { runner1.runOneTest("implicitAlignmentString1") }
+  @Test def test_implicitAlignmentString2() = { runner1.runOneTest("implicitAlignmentString2") }
+
   
   val tdml2 = testDir_01 + "BinaryInput_01.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
