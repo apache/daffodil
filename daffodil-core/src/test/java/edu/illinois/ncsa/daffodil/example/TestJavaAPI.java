@@ -182,4 +182,69 @@ public class TestJavaAPI {
 		System.err.println("bitPos = " + res.location().bitPos());
 		System.err.println("bytePos = " + res.location().bytePos());
 	}
+/*	
+  @Test
+	public void testJavaAPI4() throws IOException {
+		Compiler c = Daffodil.compiler();
+		String[] schemaFileNames = new String[1];
+		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
+    ProcessorFactory pf = c.compile(schemaFileNames);
+		pf.setDistinguishedRootNode("e4", null);
+		DataProcessor dp = pf.onPath("/");
+		java.io.File file = new java.io.File(getResource("/test/japi/myData2.dat"));
+		java.io.FileInputStream fis = new java.io.FileInputStream(file);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
+				.newChannel(fis);
+		ParseResult res = dp.parse(rbc, 64 << 3);
+		boolean err = res.isError();
+		org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+		xo.setFormat(Format.getPrettyFormat());
+		java.util.List<Diagnostic> diags = res.getDiagnostics();
+		for (Diagnostic d : diags) {
+			System.err.println(d.getMessage());
+		}
+		if (!err) {
+			org.jdom.Document doc = res.result();
+			xo.output(doc, System.out);
+		}
+		assertFalse(err);
+		assertFalse(res.location().isAtEnd());
+		assertEquals(4, res.location().bytePos());
+		assertEquals(32, res.location().bitPos());
+		System.err.println("bitPos = " + res.location().bitPos());
+		System.err.println("bytePos = " + res.location().bytePos());
+	}
+  */
+  
+  @Test
+	public void testJavaAPI4b() throws IOException {
+		Compiler c = Daffodil.compiler();
+		String[] schemaFileNames = new String[1];
+		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
+		c.setDistinguishedRootNode("e4", null);
+    ProcessorFactory pf = c.compile(schemaFileNames);
+		DataProcessor dp = pf.onPath("/");
+		java.io.File file = new java.io.File(getResource("/test/japi/myData2.dat"));
+		java.io.FileInputStream fis = new java.io.FileInputStream(file);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
+				.newChannel(fis);
+		ParseResult res = dp.parse(rbc, 64 << 3);
+		boolean err = res.isError();
+		org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+		xo.setFormat(Format.getPrettyFormat());
+		java.util.List<Diagnostic> diags = res.getDiagnostics();
+		for (Diagnostic d : diags) {
+			System.err.println(d.getMessage());
+		}
+		if (!err) {
+			org.jdom.Document doc = res.result();
+			xo.output(doc, System.out);
+		}
+		assertFalse(err);
+		assertFalse(res.location().isAtEnd());
+		assertEquals(4, res.location().bytePos());
+		assertEquals(32, res.location().bitPos());
+		System.err.println("bitPos = " + res.location().bitPos());
+		System.err.println("bytePos = " + res.location().bytePos());
+	}
 }
