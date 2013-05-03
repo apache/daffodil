@@ -52,21 +52,35 @@ object LogLevel extends Enum {
     val id = jlvl.id
     def compare(that: LogLevel.Type) = this.id - that.id
   }
-  case object Error extends Type(JLogLevel.Error)
-  case object Warning extends Type(JLogLevel.Warning)
-  case object Info extends Type(JLogLevel.Info)
-  case object Compile extends Type(JLogLevel.Compile)
-  case object Debug extends Type(JLogLevel.Debug)
-  case object OOLAGDebug extends Type(JLogLevel.OOLAGDebug)
+  case object Error extends Type(JLogLevel.Error); Error
+  case object Warning extends Type(JLogLevel.Warning); Warning
+  case object Info extends Type(JLogLevel.Info); Info
+  case object Compile extends Type(JLogLevel.Compile); Compile
+  case object Debug extends Type(JLogLevel.Debug); Debug
+  case object OOLAGDebug extends Type(JLogLevel.OOLAGDebug); OOLAGDebug
 
-  private val values = List(Error, Warning, Info, Compile, Debug, OOLAGDebug)
+  // 
+  // Very annoying, but if this values list is here, the obvious place for it
+  // then initialization doesn't work right if the very first thing that happens
+  // is someone calls LogLevel.fromJava. 
+  //
+  // In that case, the values.find returns the enum object, but that
+  // enum object hasn't been initialized properly so you get a null pointer exception.
+  //
+  // private val values: List[Type] = List(Error, Warning, Info, Compile, Debug, OOLAGDebug)
   /**
    * We want scala code to use the typesafe enum idiom which actually
    * uses case objects as above. But that's not reachable from java,
    * so we provide this conversion from the plain Java enum.
    */
   def fromJava(jLogLevel: JLogLevel): LogLevel.Type = {
-    values.find(ll => ll.id == jLogLevel.id).getOrElse(Assert.abort("unmapped: java enum has no corresponding scala enum"))
+    //
+    // Seems like we should hoist this constant list out of this method.
+    // Do not. It causes problems with object initialization.
+    //
+    val values: List[Type] = List(Error, Warning, Info, Compile, Debug, OOLAGDebug)
+    Assert.usage(jLogLevel != null)
+    values.find { _.id == jLogLevel.id }.getOrElse(Assert.abort("unmapped: java enum has no corresponding scala enum"))
   }
 
   def forJava(logLevel: LogLevel.Type): JLogLevel = {

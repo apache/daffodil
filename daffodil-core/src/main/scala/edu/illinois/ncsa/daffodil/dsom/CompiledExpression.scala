@@ -309,7 +309,17 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging {
       val xpath = XPathUtil.getExpression(expr)
       val compiledXPath =
         try {
-          XPathUtil.compileExpression(xpath, exprNSBindings, edecl)
+          //
+          // We also want SDEs from expression compilation issued with the 
+          // schema component where the property was found as the file/line information.
+          // (So the user can go there and see the expression.)
+          //
+          // This can happen. The length and occursCount properties CAN be scoped,
+          // or placed on simpleType definitions so their expressions are shared, and
+          // are not on the same lexical object that has that length or occurrances.
+          // 
+          val scWherePropertyWasLocated = property.location.asInstanceOf[SchemaComponent]
+          XPathUtil.compileExpression(xpath, exprNSBindings, scWherePropertyWasLocated)
         } catch {
           case e: XPathExpressionException => {
             val exc = e // debugger never seems to show the case variable itself.

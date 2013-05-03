@@ -50,7 +50,6 @@ class TestCompiledExpression {
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
-  // dummy schema just so we can get a handle on a legit element declaration
   val testSchema = <xsd:schema xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
                      <xsd:element name="root" type="xsd:string"/>
                    </xsd:schema>
@@ -125,7 +124,7 @@ class TestCompiledExpression {
    * Test XPath evaluator, with no namespace specified on the XML or on the paths
    */
   @Test def testCompiledAbsolutePathEvaluation1NoNamespace() {
-    // dummy schema just so we can get a handle on a legit element declaration
+
     val testSchema = <xsd:schema xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
                        <xsd:element name="root" type="xsd:string"/>
                      </xsd:schema>
@@ -147,7 +146,7 @@ class TestCompiledExpression {
   }
 
   @Test def testCompiledAbsolutePathEvaluation1ExampleNamespace() {
-    // dummy schema just so we can get a handle on a legit element declaration
+
     val testSchema = <xsd:schema targetNamespace={ example } xmlns={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
                        <xsd:element name="root" type="xsd:string"/>
                      </xsd:schema>
@@ -157,7 +156,7 @@ class TestCompiledExpression {
     assertTrue(!sset.isError)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
     val ec = new ExpressionCompiler(edecl)
-    val xpathString = "{ /root/child1/child2/child3 }"
+    val xpathString = "{ /root/child1/tns:child2/child3 }"
     val compiled = ec.compile('String, Found(xpathString, edecl)) // as a string
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
     WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".

@@ -140,12 +140,6 @@ trait FindPropertyMixin extends PropTypes {
     res
   }
 
-  def findExpressionProperty(pname: String): Found = {
-    val res @ Found(v, loc) = findProperty(pname)
-    val expressionV = v // expressionize(v)
-    Found(expressionV, loc)
-  }
-
   //
   // Done by the expression compiler. Not needed here.
   //

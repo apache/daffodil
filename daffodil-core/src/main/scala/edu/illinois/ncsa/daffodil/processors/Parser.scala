@@ -270,8 +270,10 @@ object WithParseErrorThrowing {
   // or find a way to have it go away entirely.
   var flag: Boolean = false
 
-  // for unit tests and other context where you want to exercise runtime code that might throw PEs
-  // but you are not inside a parser
+  /**
+   * for unit tests and other context where you want to exercise runtime code that might throw PEs
+   * but you are not inside a parser
+   */
   def pretendThisIsAParser[T](body: => T) = {
     val savedFlag: Boolean = WithParseErrorThrowing.flag
     try {

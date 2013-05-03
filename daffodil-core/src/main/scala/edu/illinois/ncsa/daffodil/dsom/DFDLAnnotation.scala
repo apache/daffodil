@@ -101,16 +101,16 @@ abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaCompo
 trait RawCommonRuntimeValuedPropertiesMixin
   extends PropertyMixin {
 
-  lazy val byteOrderRaw = findExpressionProperty("byteOrder")
-  lazy val encodingRaw = findExpressionProperty("encoding")
-  lazy val outputNewLineRaw = findExpressionProperty("outputNewLine")
+  lazy val byteOrderRaw = findProperty("byteOrder")
+  lazy val encodingRaw = findProperty("encoding")
+  lazy val outputNewLineRaw = findProperty("outputNewLine")
 }
 
 trait RawDelimitedRuntimeValuedPropertiesMixin
   extends RawCommonRuntimeValuedPropertiesMixin {
 
-  lazy val initiatorRaw = findExpressionProperty("initiator")
-  lazy val terminatorRaw = findExpressionProperty("terminator")
+  lazy val initiatorRaw = findProperty("initiator")
+  lazy val terminatorRaw = findProperty("terminator")
 }
 
 trait RawElementRuntimeValuedPropertiesMixin
@@ -119,14 +119,14 @@ trait RawElementRuntimeValuedPropertiesMixin
 
   // these are almost certainly not in scope, but on the local object
   // but not always. A type might define fixed length things for example.
-  lazy val lengthRaw = findExpressionProperty("length")
-  lazy val occursCountRaw = findExpressionProperty("occursCount")
+  lazy val lengthRaw = findProperty("length")
+  lazy val occursCountRaw = findProperty("occursCount")
 }
 
 trait RawSequenceRuntimeValuedPropertiesMixin
   extends RawDelimitedRuntimeValuedPropertiesMixin {
 
-  lazy val separatorRaw = findExpressionProperty("separator")
+  lazy val separatorRaw = findProperty("separator")
 }
 
 trait RawEscapeSchemeRuntimeValuedPropertiesMixin
@@ -137,8 +137,8 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin
   //
   //  }
 
-  lazy val escapeCharacterRaw = findExpressionProperty("escapeCharacter")
-  lazy val escapeEscapeCharacterRaw = findExpressionProperty("escapeEscapeCharacter")
+  lazy val escapeCharacterRaw = findProperty("escapeCharacter")
+  lazy val escapeEscapeCharacterRaw = findProperty("escapeEscapeCharacter")
   //  lazy val escapeBlockStartRaw = getProperty("escapeBlockStart")
   //  lazy val escapeBlockEndRaw = getProperty("escapeBlockEnd")
 }
@@ -146,13 +146,13 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin
 trait RawSimpleTypeRuntimeValuedPropertiesMixin
   extends RawCommonRuntimeValuedPropertiesMixin {
 
-  def textStandardDecimalSeparatorRaw = findExpressionProperty("textStandardDecimalSeparator")
-  def textStandardGroupingSeparatorRaw = findExpressionProperty("textStandardGroupingSeparator")
+  def textStandardDecimalSeparatorRaw = findProperty("textStandardDecimalSeparator")
+  def textStandardGroupingSeparatorRaw = findProperty("textStandardGroupingSeparator")
   // TODO: update when textStandardExponentCharacter is phased out.
-  def textStandardExponentRepRaw = findExpressionProperty("textStandardExponentRep") // Note: name changed to suffix of "...Rep" via Errata
-  def binaryFloatRepRaw = findExpressionProperty("binaryFloatRep")
-  def textBooleanTrueRepRaw = findExpressionProperty("textBooleanTrueRep")
-  def textBooleanFalseRepRaw = findExpressionProperty("textBooleanFalseRep")
+  def textStandardExponentRepRaw = findProperty("textStandardExponentRep") // Note: name changed to suffix of "...Rep" via Errata
+  def binaryFloatRepRaw = findProperty("binaryFloatRep")
+  def textBooleanTrueRepRaw = findProperty("textBooleanTrueRep")
+  def textBooleanFalseRepRaw = findProperty("textBooleanFalseRep")
 
 }
 
