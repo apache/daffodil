@@ -220,7 +220,7 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
         n = 1
         if ((len == 0) || !implReady) {
           // Return now if this is all we can produce w/o blocking
-          DFDLCharCounter.count += n
+          DFDLCharCounter.incr(n)
           return n
         }
       }
@@ -232,18 +232,18 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
         val c: Int = read0
         if (c == -1) {
           return if (n == 0) -1 else {
-            DFDLCharCounter.count += n
+            DFDLCharCounter.incr(n)
             n
           }
         }
         cbuf(off) = c.asInstanceOf[Char]
         return {
-          DFDLCharCounter.count += n + 1
+          DFDLCharCounter.incr(n + 1)
           n + 1
         }
       }
       val res = n + implRead(cbuf, off, off + len)
-      if (res > 0) DFDLCharCounter.count += res
+      if (res > 0) DFDLCharCounter.incr(res)
       return res
     }
 

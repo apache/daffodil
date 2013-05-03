@@ -217,7 +217,7 @@ abstract class StringLengthInBytes(e: ElementBase)
     // Maintain our global count of number of characters.
     // TODO: get rid of global counter for a dataProcessor-saved one. 
     // 
-    DFDLCharCounter.count += result.length
+    DFDLCharCounter.incr(result.length)
 
     val currentElement = start.parentElement
     val trimmedResult = dp.removePadding(removePaddingParser, justificationTrim, result)

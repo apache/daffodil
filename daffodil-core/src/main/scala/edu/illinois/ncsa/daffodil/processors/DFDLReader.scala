@@ -221,6 +221,9 @@ class DFDLUTStringReader private (rdr: Reader[Char])
 // This state should be maintained in the DataProcessor object I think.
 object DFDLCharCounter {
   var count: Long = 0
+  def incr(n: Long) {
+    count += n
+  }
   def getAndResetCount = {
     val c = count
     count = 0
@@ -231,11 +234,11 @@ object DFDLCharCounter {
  * This is for arbitrary character sets. Uses a PagedSeq[Char] as underlying cache.
  */
 class DFDLPagedSeqCharReader(charsetArg: Charset,
-                             val startingBitPos: Int,
-                             bitLimitArg: Long,
-                             psc: PagedSeq[Char],
-                             override val offset: Int,
-                             psb: PagedSeq[Byte])
+  val startingBitPos: Int,
+  bitLimitArg: Long,
+  psc: PagedSeq[Char],
+  override val offset: Int,
+  psb: PagedSeq[Byte])
   extends DFDLCharReader with Logging {
 
   Assert.usage(offset >= 0)
