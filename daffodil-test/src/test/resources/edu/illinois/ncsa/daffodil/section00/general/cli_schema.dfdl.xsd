@@ -5,6 +5,7 @@
     <xs:appinfo source="http://www.ogf.org/dfdl/" >
       <dfdl:format initiator="" terminator="" separator=""
         separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+        alignment="implicit" alignmentUnits="bits" trailingSkip="0"
         lengthKind="delimited" documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
         leadingSkip="0" textTrimKind="none" representation="text" occursCountKind="parsed"
         textNumberRep="standard" ignoreCase="no" initiatedContent="no" />
@@ -116,5 +117,14 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="leftover">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e3" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:terminator="|" />
+          <xs:element name="e4" type="xs:int" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" dfdl:length="3"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
   
 </xs:schema>
