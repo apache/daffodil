@@ -91,17 +91,22 @@ trait InStream {
 
   // Removed: bad idea. Makes copy of entire input
   // def getAllBytes: Array[Byte]
+
+  /**
+   * Calling this forces the entire input into memory.
+   */
+  def lengthInBytes: Long
 }
 
 /**
  * Don't use this class directly. Use the factory on InStream object to create.
  */
 case class InStreamFromByteChannel private (val context: ElementBase,
-                                            val byteReader: DFDLByteReader,
-                                            val bitPos: Long,
-                                            val bitLimit: Long,
-                                            val charLimit: Long,
-                                            var reader: Option[DFDLCharReader])
+  val byteReader: DFDLByteReader,
+  val bitPos: Long,
+  val bitLimit: Long,
+  val charLimit: Long,
+  var reader: Option[DFDLCharReader])
   extends InStream
   with Logging
   with WithParseErrorThrowing {
@@ -418,6 +423,10 @@ case class InStreamFromByteChannel private (val context: ElementBase,
   //    newInStream
   //  }
 
+  /**
+   * Calling this forces the entire input into memory.
+   */
+  def lengthInBytes: Long = byteReader.lengthInBytes
 }
 
 class DataLoc(val bitPos: Long, bitLimit: Long, inStream: InStream) extends DataLocation {

@@ -75,6 +75,11 @@ class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos0b: Int = 0)
 
   def this(in: ReadableByteChannel) = this(PagedSeq.fromIterator(new IterableReadableByteChannel(in)), 0)
 
+  /**
+   * Note: calling this will force the entire input into memory.
+   */
+  def lengthInBytes: Long = psb.length
+
   lazy val first: Byte = psb(bytePos0b)
 
   lazy val rest: DFDLByteReader = new DFDLByteReader(psb, bytePos0b + 1)

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.contrib.java.lang.system.ExpectedSystemExit
 import org.junit.contrib.java.lang.system.internal.CheckExitCalled
@@ -40,7 +39,6 @@ import org.junit.Test
 import org.junit.Rule
 import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream
-
 
 class MainTests {
 
@@ -59,7 +57,7 @@ class MainTests {
       case c: CheckExitCalled => assertEquals(c.getStatus, 1)
     }
   }
-  
+
   @Test def test_require_schema_or_parser() {
     try {
       Main.main(Array("parse"))
@@ -68,9 +66,8 @@ class MainTests {
     }
   }
 
-
   val testDir = "/test/cli/"
-  val cli_choice= testDir + "choice.xsd"
+  val cli_choice = testDir + "choice.xsd"
 
   @Test def test_main_parse_simple() {
     try {
@@ -83,11 +80,12 @@ class MainTests {
       Main.main(Array("parse", "--schema", schema, "-"))
 
       System.setIn(oldSysin)
+      fail()
     } catch {
       case c: CheckExitCalled => assertEquals(c.getStatus, 0)
     }
   }
-  
+
   @Test def test_main_parse_all_opts() {
     try {
       val schema = Misc.getRequiredResource(cli_choice).getPath
@@ -95,18 +93,77 @@ class MainTests {
       val is = new ByteArrayInputStream(data.getBytes())
       val oldSysin = System.in
       System.setIn(is)
-       
+
       Main.main(Array("parse", "--schema", schema,
-                                        "--root", "ch1",
-                                        "--namespace", "http://www.example.org/example1/",
-                                        "-"
-                                        ))
+        "--root", "ch1",
+        "--namespace", "http://www.example.org/example1/",
+        "-"))
       System.setIn(oldSysin)
+      fail()
     } catch {
       case c: CheckExitCalled => assertEquals(c.getStatus, 0)
     }
   }
-<!-- 
+
+  val cli_fixedLength = testDir + "fixedLength.dfdl.xsd"
+
+  @Test def test_main_left_over_data_NOT() {
+    try {
+      val schema = Misc.getRequiredResource(cli_fixedLength).getPath
+      val data = "1"
+      val is = new ByteArrayInputStream(data.getBytes())
+      val oldSysin = System.in
+      System.setIn(is)
+
+      Main.main(Array("parse", "--schema", schema,
+        "--root", "fixedLength",
+        "--namespace", "http://www.example.org/example1/",
+        "-"))
+      System.setIn(oldSysin)
+      fail()
+    } catch {
+      case c: CheckExitCalled => assertEquals(c.getStatus, 0)
+    }
+  }
+
+  @Test def test_main_left_over_data() {
+    try {
+      val schema = Misc.getRequiredResource(cli_fixedLength).getPath
+      val data = "1This is left over data"
+      val is = new ByteArrayInputStream(data.getBytes())
+      val oldSysin = System.in
+      System.setIn(is)
+
+      Main.main(Array("parse", "--schema", schema,
+        "--root", "fixedLength",
+        "--namespace", "http://www.example.org/example1/",
+        "-"))
+      System.setIn(oldSysin)
+      fail()
+    } catch {
+      case c: CheckExitCalled => assertEquals(c.getStatus, 1)
+    }
+  }
+
+  @Test def test_main_left_over_data2() {
+    try {
+      val schema = Misc.getRequiredResource(cli_fixedLength).getPath
+      val data = "This is real data.ENDThis is left over data"
+      val is = new ByteArrayInputStream(data.getBytes())
+      val oldSysin = System.in
+      System.setIn(is)
+
+      Main.main(Array("parse", "--schema", schema,
+        "--root", "delimLength",
+        "--namespace", "http://www.example.org/example1/",
+        "-"))
+      System.setIn(oldSysin)
+      fail()
+    } catch {
+      case c: CheckExitCalled => assertEquals(c.getStatus, 1)
+    }
+  }
+  <!-- 
   val cli_unboundedBinary= testDir + "unboundedBinary.dfdl.xsd"
 
   @Test def test_main_parse_unboundedBinary() {

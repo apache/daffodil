@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns="http://www.w3.org/2001/XMLSchema"
+       xmlns:xs="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+       xmlns:tns="http://www.example.org/example1/"
+       targetNamespace="http://www.example.org/example1/">
+
+  <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+  
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format ref="tns:daffodilTest1"/>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="fixedLength" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+  
+  <xs:element name="delimLength" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator="END"/>
+
+</xs:schema>

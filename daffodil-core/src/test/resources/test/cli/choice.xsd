@@ -21,11 +21,14 @@
 
   <xs:element name="ch1">
     <xs:complexType>
+      <xs:sequence>
       <xs:choice>
         <xs:element name="int" type="int" minOccurs="4" maxOccurs="10" dfdl:occursCountKind="implicit" dfdl:terminator=";"/>
         <xs:element name="float" type="float" minOccurs="4" maxOccurs="10" dfdl:occursCountKind="implicit" dfdl:terminator=";"/>
         <xs:element name="str" type="string"/>
       </xs:choice>
+        <xs:element name="leftOverData" type="string"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 

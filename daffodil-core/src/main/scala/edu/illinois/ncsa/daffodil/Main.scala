@@ -73,6 +73,7 @@ import java.io.FileOutputStream
 import java.io.BufferedWriter
 import java.io.OutputStreamWriter
 import java.io.FileInputStream
+import java.io.File
 import scala.xml.SAXParseException
 import org.rogach.scallop
 import edu.illinois.ncsa.daffodil.api.DFDL
@@ -398,14 +399,21 @@ object Main extends Logging {
 
         val rc = processor match {
           case Some(processor) if (processor.canProceed) => {
-            val input = parseOpts.input.get match {
-              case Some("-") | None => System.in
-              case Some(file) => new FileInputStream(parseOpts.input())
+            val (input, optDataSize) = parseOpts.input.get match {
+              case Some("-") | None => (System.in, None)
+              case Some(file) => {
+                val f = new File(parseOpts.input())
+                (new FileInputStream(f), Some(f.length()))
+              }
             }
             val inChannel = java.nio.channels.Channels.newChannel(input);
 
-            val parseResult = Timer.getResult("parsing", processor.parse(inChannel))
-
+            val parseResult = Timer.getResult("parsing",
+              optDataSize match {
+                case None => processor.parse(inChannel)
+                case Some(szInBytes) => processor.parse(inChannel, szInBytes * 8)
+              })
+            val loc = parseResult.resultState.currentLocation
             if (parseResult.isError) {
               displayDiagnostics(LogLevel.Error, parseResult)
               1
@@ -415,12 +423,32 @@ object Main extends Logging {
                 case Some("-") | None => System.out
                 case Some(file) => new FileOutputStream(file)
               }
+              // check for left over data (if we know the size up front, like for a file)
+              val hasLeftOverData = optDataSize match {
+                case Some(sz) => {
+                  if (!loc.isAtEnd) {
+                    log(LogLevel.Error, "Left over data. %s bytes available. Location: %s", sz, loc)
+                    true
+                  } else false
+                }
+                case None => {
+                  // we need to look at the internal state of the parser inStream to 
+                  // see how big it is. We do this after execution so as
+                  // not to traverse the data twice.
+                  val lengthInBytes = parseResult.resultState.lengthInBytes
+                  val positionInBytes = loc.bytePos
+                  if (positionInBytes != lengthInBytes) {
+                    log(LogLevel.Error, "Left over data. %s bytes available. Location: %s", lengthInBytes, loc)
+                    true
+                  } else false
+                }
+              }
               val writer: BufferedWriter = new BufferedWriter(new OutputStreamWriter(output));
 
               val pp = new scala.xml.PrettyPrinter(80, 2)
               Timer.getResult("writing", writer.write(pp.format(parseResult.result) + "\n"))
               writer.flush()
-              0
+              if (hasLeftOverData) 1 else 0
             }
           }
           case None => 1
@@ -614,7 +642,16 @@ object Main extends Logging {
         log(LogLevel.Error, "%s", e.getMessage)
         1
       }
-      case e: Exception => bugFound(e)
+      case e: Exception => {
+        // unit tests are getting bugFound banners
+        // but that's just because someplace else is calling sys.exit
+        // not here
+        //
+        // we don't want the CLI dependent on junit objects
+        // so we just scruinize for the name being right. 
+        if (e.getClass().getName().contains("CheckExitCalled")) throw e
+        bugFound(e)
+      }
     }
 
     System.exit(ret)

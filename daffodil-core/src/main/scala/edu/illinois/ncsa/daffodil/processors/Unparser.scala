@@ -56,7 +56,7 @@ class UnparseAlternativeFailed(sc: SchemaComponent, state: UState, val errors: S
   extends UnparseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors)
 
 class AltUnparseFailed(sc: SchemaComponent, state: UState,
-                       val p: Diagnostic, val q: Diagnostic)
+  val p: Diagnostic, val q: Diagnostic)
   extends UnparseError(sc, Some(state), "All alternatives failed. Reason(s): %s", p, q) {
 
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = p.getLocationsInSchemaFiles ++ q.getLocationsInSchemaFiles
@@ -345,6 +345,12 @@ class UState(
   val diagnostics: List[Diagnostic],
   val discriminator: Boolean)
   extends DFDL.State {
+
+  /**
+   * For checking actual and expected data length
+   */
+  def lengthInBytes: Long = Assert.notYetImplemented()
+
   def groupPos = groupIndexStack.head
   def childPos = childIndexStack.head
   def arrayPos = arrayIndexStack.head

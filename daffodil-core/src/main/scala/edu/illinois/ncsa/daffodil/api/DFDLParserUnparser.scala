@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.api
  * SOFTWARE.
  */
 
-
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.processors.ProcessorResult
 import edu.illinois.ncsa.daffodil.processors.Success
@@ -182,6 +181,10 @@ object DFDL {
     val status: ProcessorResult
     val diagnostics: Seq[Diagnostic]
     def currentLocation: DataLocation
+    /**
+     * Calling this forces the entire input into memory.
+     */
+    def lengthInBytes: Long
   }
 
   /**

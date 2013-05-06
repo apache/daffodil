@@ -603,6 +603,11 @@ case class PState(
 
   def restoreInfosetElementState(st: Infoset.ElementState) = parentElement.restoreState(st)
 
+  /**
+   * calling this forces the entire input into memory
+   *
+   */
+  def lengthInBytes: Long = inStream.lengthInBytes
 }
 
 object PState {
