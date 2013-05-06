@@ -1,0 +1,38 @@
+STEPS TO RELEASE
+
+1) Tag release
+
+	$ git clean -xdf   # NOTE: This will delete all untracked files
+	$ git fetch origin
+	$ git checkout master
+	$ git reset --hard origin/master   # NOTE: This will lose any local commits to master branch
+	$ git tag -a X.X.X
+
+2) Build sources
+
+	$ sbt compile
+	$ sbt compile test
+	$ sbt compile debug
+
+3) Run tests
+
+	$ sbt test
+
+4) Publish tag
+
+	$ git push --tags
+
+5) Publish to NCSA servers
+
+	$ sbt publish-signed
+
+6) Build the pack files
+
+	$ cd daffodil-pack
+	$ rm -rf ~/.ivy2/local/edu.illinois.ncsa
+	$ sbt pack
+
+7) Upload pack files to wiki at https://opensource.ncsa.illinois.edu/confluence/display/DFDL/Getting+Daffodil
+
+	$ cd daffodil-pack/target/scala-2.9.2/pack
+	$ sha256sum *
