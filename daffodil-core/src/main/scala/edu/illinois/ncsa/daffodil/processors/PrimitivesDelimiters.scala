@@ -308,7 +308,7 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
 
     e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
-    Assert.invariant(delimExpr != "") // shouldn't be here at all in this case.
+    Assert.invariant(delimExpr.toString != "") // shouldn't be here at all in this case.
     override def toString = kindString + "('" + delimExpr + "')" //  with terminating markup: " + term.prettyTerminatingMarkup + ")"
 
     lazy val tm = e.allTerminatingMarkup

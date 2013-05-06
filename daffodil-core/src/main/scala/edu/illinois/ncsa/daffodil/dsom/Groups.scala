@@ -175,8 +175,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
         // we're a global object. Our parent is a schema document
         // so follow backpointers to whatever is referencing us.
         this match {
-          case gct: GlobalComplexTypeDef => gct.element.allTerminatingMarkup
-          case gd: GlobalGroupDef => gd.groupRef.allTerminatingMarkup
           case ge: GlobalElementDecl => ge.elementRef match {
             case None => {
               // we are root. So there is no enclosing sequence at all
@@ -253,8 +251,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
         // we're a global object. Our parent is a schema document
         // so follow backpointers to whatever is referencing us.
         this match {
-          case gct: GlobalComplexTypeDef => gct.element.nearestEnclosingSequence
-          case gd: GlobalGroupDef => gd.groupRef.nearestEnclosingSequence
           case ge: GlobalElementDecl => ge.elementRef match {
             case None => {
               // we are root. So there is no enclosing sequence at all
@@ -281,8 +277,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
         // we're a global object. Our parent is a schema document
         // so follow backpointers to whatever is referencing us.
         this match {
-          case gct: GlobalComplexTypeDef => gct.element.inChoiceBeforeNearestEnclosingSequence
-          case gd: GlobalGroupDef => gd.groupRef.inChoiceBeforeNearestEnclosingSequence
           case ge: GlobalElementDecl => ge.elementRef match {
             case None => {
               // we are root. So there is no coice at all
@@ -307,8 +301,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
         // we're a global object. Our parent is a schema document
         // so follow backpointers to whatever is referencing us.
         this match {
-          case gct: GlobalComplexTypeDef => gct.element.immediatelyEnclosingModelGroup
-          case gd: GlobalGroupDef => gd.groupRef.immediatelyEnclosingModelGroup
           case ge: GlobalElementDecl => ge.elementRef match {
             case None => {
               // we are root. So there is no enclosing model group at all
@@ -418,12 +410,11 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
 
   def group: ModelGroup
 
-  lazy val immediateGroup: Option[GroupBase] = {
+  lazy val immediateGroup: Option[ModelGroup] = {
 
-    val res: Option[GroupBase] = this.group match {
+    val res: Option[ModelGroup] = this.group match {
       case (s: Sequence) => Some(s)
       case (c: Choice) => Some(c)
-      case (g: GroupRef) => Some(g)
       case _ => None
     }
 

@@ -198,6 +198,7 @@ trait FindPropertyMixin extends PropTypes {
   def verifyPropValue(key: String, value: String): Boolean = {
     findPropertyOption(key) match {
       case Found(`value`, _) => true
+      case Found(_, _) => false
       case NotFound(_, _) => false
     }
   }

@@ -70,7 +70,7 @@ object AlignmentType extends Enum[AlignmentType] { // Note: Was using AlignmentU
       try {
         str.toInt
       } catch {
-        case e => self.schemaDefinitionError("For property 'alignment', value must be 'implicit' or an integer. Found: %s", str)
+        case e: Throwable => self.schemaDefinitionError("For property 'alignment', value must be 'implicit' or an integer. Found: %s", str)
       }
     if (allowedAlignmentValues.contains(i)) {
       //     val au = alignmentUnits

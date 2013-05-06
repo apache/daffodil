@@ -673,7 +673,7 @@ class TestDsomCompiler extends Logging {
 
     val scope = (xml \ "quux")(0).scope
     // println(scope)
-    val newElem = scala.xml.Elem("dfdl", "element", null, scope)
+    val newElem = scala.xml.Elem("dfdl", "element", scala.xml.Null, scope, true)
     // println(newElem)
   }
 

@@ -71,7 +71,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
       try { System.getProperty("java.version") }
       catch {
         case se: SecurityException => this.SDE("Attempted to read property 'java.version' failed due to a SecurityException: \n%s".format(se.getMessage()))
-        case _ => this.SDE("An invalid 'key' was passed to System.getProperty.")
+        case _: Throwable => this.SDE("An invalid 'key' was passed to System.getProperty.")
       }
     }
     val javaVersion = """([0-9])\.([0-9])\.(.*)""".r

@@ -469,13 +469,13 @@ case class PState(
   def discriminator = discriminatorStack.head
   def currentLocation: DataLocation = new DataLoc(bitPos, bitLimit, inStream)
   // def inStreamState = inStreamStateStack top
-  def bitPos = inStream bitPos
-  def bitLimit = inStream bitLimit
-  def charPos = inStream charPos
-  def charLimit = inStream charLimit
+  def bitPos = inStream.bitPos
+  def bitLimit = inStream.bitLimit
+  def charPos = inStream.charPos
+  def charLimit = inStream.charLimit
   def parentElement = infoset.asInstanceOf[InfosetElement]
   def parentDocument = infoset.asInstanceOf[InfosetDocument]
-  def textReader = inStream reader
+  def textReader = inStream.reader
 
   /**
    * Convenience functions for creating a new state, changing only

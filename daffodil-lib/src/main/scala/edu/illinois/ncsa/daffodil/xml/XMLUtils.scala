@@ -663,8 +663,8 @@ object XMLUtils {
     val attribs = attribsList.map { (attribute: MetaData) =>
       {
         // for(attribute <- attribs) {
-        val attrNS = attribute getNamespace (node)
-        val name = attribute key
+        val attrNS = attribute.getNamespace(node)
+        val name = attribute.key
         val value = attribute.value.text
         val prefixedKey = attribute.prefixedKey
         val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
@@ -695,11 +695,11 @@ object XMLUtils {
       }
     }
     jdomNode.setAttributes(attribs)
-    for (child <- node child) {
-      child label match {
-        case "#PCDATA" => jdomNode addContent (child toString)
+    for (child <- node.child) {
+      child.label match {
+        case "#PCDATA" => jdomNode.addContent(child.toString)
         case "#REM" =>
-        case _ => jdomNode addContent (elem2Element(child))
+        case _ => jdomNode.addContent(elem2Element(child))
       }
     }
     jdomNode
@@ -870,7 +870,7 @@ object XMLUtils {
         n match {
           case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
             val removedChildren = removeHiddenElements(children)
-            val newElem = Elem(prefix, label, attributes, scope, removedChildren: _*)
+            val newElem = Elem(prefix, label, attributes, scope, true, removedChildren: _*)
             newElem
           }
           case other => other
@@ -972,7 +972,7 @@ object XMLUtils {
           }
         }
 
-        Elem(newPrefix, label, newAttributes, newScope, newChildren: _*)
+        Elem(newPrefix, label, newAttributes, newScope, true, newChildren: _*)
       }
       case other => other
     }

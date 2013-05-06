@@ -45,6 +45,7 @@ import com.ibm.icu.charset._
 import Converter._ // Need implicit converter
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits._
+import scala.language.implicitConversions
 
 /**
  * These tests characterize behavior of the ICU library. We're going to have to rely on

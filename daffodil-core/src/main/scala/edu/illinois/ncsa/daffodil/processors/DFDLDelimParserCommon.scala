@@ -200,7 +200,6 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
       sb.append("|")
     })
     val delimRegex = sb.toString().replaceFirst("[\\|]$", "") // trimEnd("|")
-    delimRegex
     //    val seps = sepsRegex.mkString("|")
     //    val terms = termsRegex.mkString("|")
     //    val delimRegex = (seps + terms) //.replaceFirst("[\\|]$", "")
@@ -977,7 +976,7 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
     val pEscapedEscape = (pEscape ~! pEscape) ^^ { case (e1 ~ e2) => (e1 + e2) } // concatenate escapes
 
     // Parser captures and creates a string representation of the escapes
-    val pEscapes = ((pEscapedEscape*) ~! opt(pEscape)) ^^ {
+    val pEscapes = ((pEscapedEscape.*) ~! opt(pEscape)) ^^ {
       case (l ~ None) => l.mkString
       case (l ~ Some(esc)) => l.mkString + esc
     }
@@ -1050,7 +1049,7 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
     val pEscapedEscape = (pEscape ~! pEscape) ^^ { case (e1 ~ e2) => (e1 + e2) } // concatenate escapes
 
     // Parser captures and creates a string representation of the escapes
-    val pEscapes = ((pEscapedEscape*) ~! opt(pEscape)) ^^ {
+    val pEscapes = ((pEscapedEscape.*) ~! opt(pEscape)) ^^ {
       case (l ~ None) => l.mkString
       case (l ~ Some(esc)) => l.mkString + esc
     }

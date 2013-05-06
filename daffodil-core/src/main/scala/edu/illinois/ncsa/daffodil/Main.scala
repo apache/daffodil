@@ -92,6 +92,7 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.LogWriter
 import edu.illinois.ncsa.daffodil.util.LoggingDefaults
 import java.io.File
+import scala.language.reflectiveCalls
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -176,36 +177,25 @@ object Main extends Logging {
       // following is illegal: --schema foo bar. Instead, it must be --schema
       // foo --schema bar. It does this by copying listArgConverter, but
       // setting the argType to SINGLE.
-      def singleListArgConverter[A](conv: String => A)(implicit m: Manifest[List[A]]) = new scallop.ValueConverter[List[A]] {
+      def singleListArgConverter[A](conv: String => A)(implicit tt: reflect.runtime.universe.TypeTag[List[A]]) = new scallop.ValueConverter[List[A]] {
         def parse(s: List[(String, List[String])]) = {
           try {
             val l = s.map(_._2).flatten.map(i => conv(i))
             if (l.isEmpty) Right(Some(Nil))
             else Right(Some(l))
           } catch {
-            case _ => Left(Unit)
+            case _: Throwable => Left(Unit)
           }
         }
-        val manifest = m
+        val tag = tt
         val argType = scallop.ArgType.SINGLE
-      }
-
-      implicit val flagListConverter = new scallop.ValueConverter[List[Boolean]] {
-        def parse(s: List[(String, List[String])]) = {
-          try {
-            val l = s.map(_ => true)
-            Right(Some(l))
-          } catch {
-            case _ => Left(Unit)
-          }
-        }
-        val manifest = implicitly[Manifest[List[Boolean]]]
-        val argType = scallop.ArgType.FLAG
       }
 
       printedName = "daffodil"
 
       helpWidth(76)
+
+      def error(msg: String) = errorMessageHandler(msg)
 
       errorMessageHandler = { message =>
         log(LogLevel.Error, "%s", message)
@@ -229,7 +219,7 @@ object Main extends Logging {
 
       // Global Options
       val debug = opt[Boolean]("debug", descr = "enable debugging.")
-      val verbose = opt[List[Boolean]]("verbose", descr = "increment verbosity level, one level for each -v").map(_.length)
+      val verbose = tally("verbose", descr = "increment verbosity level, one level for each -v")
 
       // Parse Subcommand Options
       val parse = new scallop.Subcommand("parse") {
@@ -313,56 +303,59 @@ object Main extends Logging {
         val file = trailArg[String]("tdmlfile", required = true, descr = "test data markup language (TDML) file.")
         val names = trailArg[List[String]]("names", required = false, descr = "name of test case(s) in tdml file. If not given, all tests in tdmlfile are run.")
       }
-
-      verify
-
-      // Custom verification, scallop isn't quite rich enough
-      subcommand match {
-        case Some(this.parse) => {
-          if (this.debug()) {
-            if (this.parse.input.get == Some("-") || this.parse.input.get == None) {
-              onError(scallop.exceptions.IllegalOptionParameters("input must not be stdin during interactive debugging"))
-            }
-          }
-          if (this.parse.parser.isDefined) {
-            if (this.parse.schemas().length > 0) { onError(scallop.exceptions.IllegalOptionParameters("only one of --parser and --schema may be defined")) }
-            if (this.parse.root.isDefined) { onError(scallop.exceptions.IllegalOptionParameters("--root cannot be defined with --parser")) }
-            if (this.parse.ns.isDefined) { onError(scallop.exceptions.IllegalOptionParameters("--namespace cannot be defined with --parser")) }
-          } else if (this.parse.schemas().length > 0) {
-            if (this.parse.ns.isDefined && !this.parse.root.isDefined) { onError(scallop.exceptions.IllegalOptionParameters("--root must be defined if --namespace is defined")) }
-          } else {
-            onError(scallop.exceptions.IllegalOptionParameters("one of --schema or --parser must be defined"))
-          }
-        }
-
-        case Some(this.unparse) => {
-          if (this.debug()) {
-            if (this.unparse.input.get == Some("-") || this.unparse.input.get == None) {
-              onError(scallop.exceptions.IllegalOptionParameters("input must not be stdin during interactive debugging"))
-            }
-          }
-          if (this.unparse.parser.isDefined) {
-            if (this.unparse.schemas().length > 0) { onError(scallop.exceptions.IllegalOptionParameters("only one of --parser and --schema may be defined")) }
-            if (this.unparse.root.isDefined) { onError(scallop.exceptions.IllegalOptionParameters("--root cannot be defined with --parser")) }
-            if (this.unparse.ns.isDefined) { onError(scallop.exceptions.IllegalOptionParameters("--namespace cannot be defined with --parser")) }
-          } else if (this.unparse.schemas().length > 0) {
-            if (this.unparse.ns.isDefined && !this.unparse.root.isDefined) { onError(scallop.exceptions.IllegalOptionParameters("--root must be defined if --namespace is defined")) }
-          } else {
-            onError(scallop.exceptions.IllegalOptionParameters("one of --schema or --parser must be defined"))
-          }
-        }
-
-        case Some(this.save) => {
-          if (this.save.ns.isDefined && !this.save.root.isDefined) { onError(scallop.exceptions.IllegalOptionParameters("--root must be defined if --namespace is defined")) }
-        }
-
-        case Some(this.test) => {
-          // no additional validation needed
-        }
-
-        case _ => onError(scallop.exceptions.IllegalOptionParameters("missing subcommand"))
-      }
     }
+
+    // Custom verification, scallop's verification isn't quite rich enough
+    Conf.subcommand match {
+      case Some(Conf.parse) => {
+        val parseOpts = Conf.parse
+        if (Conf.debug()) {
+          if (parseOpts.input.get == Some("-") || parseOpts.input.get == None) {
+            Conf.error("input must not be stdin during interactive debugging")
+          }
+        }
+        if (parseOpts.parser.isDefined) {
+          if (parseOpts.schemas().length > 0) { Conf.error("only one of --parser and --schema may be defined") }
+          if (parseOpts.root.isDefined) { Conf.error("--root cannot be defined with --parser") }
+          if (parseOpts.ns.isDefined) { Conf.error("--namespace cannot be defined with --parser") }
+        } else if (parseOpts.schemas().length > 0) {
+          if (parseOpts.ns.isDefined && !parseOpts.root.isDefined) { Conf.error("--root must be defined if --namespace is defined") }
+        } else {
+          Conf.error("one of --schema or --parser must be defined")
+        }
+      }
+
+      case Some(Conf.unparse) => {
+        val unparseOpts = Conf.unparse
+        if (Conf.debug()) {
+          if (unparseOpts.input.get == Some("-") || unparseOpts.input.get == None) {
+            Conf.error("input must not be stdin during interactive debugging")
+          }
+        }
+        if (unparseOpts.parser.isDefined) {
+          if (unparseOpts.schemas().length > 0) { Conf.error("only one of --parser and --schema may be defined") }
+          if (unparseOpts.root.isDefined) { Conf.error("--root cannot be defined with --parser") }
+          if (unparseOpts.ns.isDefined) { Conf.error("--namespace cannot be defined with --parser") }
+        } else if (unparseOpts.schemas().length > 0) {
+          if (unparseOpts.ns.isDefined && !unparseOpts.root.isDefined) { Conf.error("--root must be defined if --namespace is defined") }
+        } else {
+          Conf.error("one of --schema or --parser must be defined")
+        }
+      }
+
+      case Some(Conf.save) => {
+        val saveOpts = Conf.save
+        if (saveOpts.ns.isDefined && !saveOpts.root.isDefined) { Conf.error("--root must be defined if --namespace is defined") }
+      }
+
+      case Some(Conf.test) => {
+        // no additional validation needed
+      }
+
+      case _ => Conf.error("missing subcommand")
+    }
+
+
 
     val verboseLevel = Conf.verbose() match {
       case 0 => LogLevel.Warning
@@ -582,7 +575,7 @@ object Main extends Logging {
                 try {
                   test.run()
                 } catch {
-                  case _ =>
+                  case _: Throwable =>
                     success = false
                     if (System.console != null)
                       print("[\033[31mFail\033[0m]")

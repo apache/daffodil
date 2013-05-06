@@ -736,7 +736,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
     else documentBits.length
   lazy val nFragBits = (nBits % 8).toInt
   lazy val nAddOnBits = if (nFragBits == 0) 0 else 8 - nFragBits
-  lazy val addOnBits = (1 to nAddOnBits) collect { case _ => "0" } mkString
+  lazy val addOnBits = (1 to nAddOnBits).collect { case _ => "0" }.mkString
   lazy val documentBitsFullBytes = documentBits + addOnBits
   lazy val documentBytes = {
     Assert.usage(!isDPFile, "Cannot call documentBytes if documentPart type is file.")

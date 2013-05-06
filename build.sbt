@@ -2,9 +2,9 @@ name := "daffodil"
 
 organization in ThisBuild := "edu.illinois.ncsa"
 
-scalaVersion in ThisBuild := "2.9.2"
+scalaVersion in ThisBuild := "2.10.1"
 
-crossScalaVersions := Seq("2.9.1", "2.9.2")
+scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings")
 
 parallelExecution in ThisBuild := false
 
@@ -24,7 +24,7 @@ libraryDependencies in ThisBuild := Seq(
   "xerces" % "xercesImpl" % "2.10.0",
   "xml-resolver" % "xml-resolver" % "1.2",
   "jline" % "jline" % "2.9",
-  "org.rogach" %% "scallop" % "0.8.0"
+  "org.rogach" %% "scallop" % "0.9.1"
 )
 
 retrieveManaged := true

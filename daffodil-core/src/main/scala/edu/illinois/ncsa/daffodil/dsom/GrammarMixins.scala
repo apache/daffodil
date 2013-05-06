@@ -916,6 +916,7 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
   // our invariant is, that it does NOT consume that markup ever. The parser consumes it with appropriate grammar terminals. 
 
   val UNB = -1 // UNBOUNDED
+  val ZERO = 0 // ZERO
 
   lazy val arrayContents = {
     val res = Prod("arrayContents", this, isRecurring,
@@ -945,15 +946,15 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
 
   lazy val arrayContentsNoSeparators = Prod("arrayContentsNoSeparators", this, isRecurring && !hasSep, {
     val res = (occursCountKind, minOccurs, maxOccurs) match {
-      case (Expression, ___, __2) => separatedContentExactlyNComputed
-      case (Fixed_____, ___, UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
-      case (Fixed_____, min, max) if (min != max) => SDE("occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)", min, max)
-      case (Fixed_____, ___, max) => separatedContentExactlyN(max)
-      case (Implicit__, 000, UNB) => contentUnbounded // same as parsed
-      case (Implicit__, min, UNB) => RepExactlyN(self, min, separatedRecurringDefaultable) ~ contentUnbounded // respects minOccurs      
-      case (Implicit__, ___, __2) => separatedContentAtMostN // uses min and maxOccurs
-      case (Parsed____, ___, __2) => contentUnbounded
-      case (StopValue_, ___, __2) => contentUnbounded
+      case (Expression, ____, __2) => separatedContentExactlyNComputed
+      case (Fixed_____, ____, UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+      case (Fixed_____, min_, max) if (min_ != max) => SDE("occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)", min_, max)
+      case (Fixed_____, ____, max) => separatedContentExactlyN(max)
+      case (Implicit__, ZERO, UNB) => contentUnbounded // same as parsed
+      case (Implicit__, min_, UNB) => RepExactlyN(self, min_, separatedRecurringDefaultable) ~ contentUnbounded // respects minOccurs      
+      case (Implicit__, ____, __2) => separatedContentAtMostN // uses min and maxOccurs
+      case (Parsed____, ____, __2) => contentUnbounded
+      case (StopValue_, ____, __2) => contentUnbounded
     }
     res
   })

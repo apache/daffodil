@@ -138,9 +138,11 @@ object LineCounter2 extends App {
     val count = sourceDirectoriesToInclude.map { srcDir => totalPerSourceDir(srcDir) }.sum
     System.out.println("grand total = " + count)
 
+    /*
     val counts = sourceDirectoriesToInclude.map { srcDir => filesOfInterest(new File(srcDir)).map { countLines(_) }.sum }
     val res = sourceDirectoriesToInclude zip counts
     res
+    */
   }
 
   top()

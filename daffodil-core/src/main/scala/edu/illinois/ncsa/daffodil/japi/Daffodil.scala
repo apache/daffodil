@@ -215,15 +215,15 @@ abstract class LogWriter {
  * just place holders. Whenever the Java API uses one of these, it is
  * translated to the appropriate scala log writer */
 class ConsoleLogWriter extends LogWriter {
-  def write(level: LogLevel, logID: String, msg: String): Unit = ""
+  def write(level: LogLevel, logID: String, msg: String): Unit = {}
 }
 
 class NullLogWriter extends LogWriter {
-  def write(level: LogLevel, logID: String, msg: String): Unit = ""
+  def write(level: LogLevel, logID: String, msg: String): Unit = {}
 }
 
 class FileLogWriter(val file: File) extends LogWriter {
-  def write(level: LogLevel, logID: String, msg: String): Unit = ""
+  def write(level: LogLevel, logID: String, msg: String): Unit = {}
 }
 
 

@@ -553,7 +553,7 @@ object OOLAG extends Logging {
           //
           oolagDiagnosticAction(e, this)
         }
-        case unknown => {
+        case unknown: Throwable => {
           val unknownException = unknown
           log(OOLAGDebug(catchMsg, descrip, unknownException))
           oolagContext.rethrowAsDiagnostic(unknown)
@@ -614,7 +614,7 @@ object OOLAG extends Logging {
         val v = try {
           valueAsAny
         } catch {
-          case _ => {
+          case _: Throwable => {
             // System.err.println("OOLAG valueOrElse failed. Substituting.")
             // Assert.abort("OOLAG valueOrElse failed.")
             thing

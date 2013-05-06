@@ -889,7 +889,7 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
         //  }
         //  start.parentElement.setDataValue(asString.toString())
         //} else
-        val convertedValue: T = convertValue(value, nBits toInt)
+        val convertedValue: T = convertValue(value, nBits.toInt)
         start.parentElement.setDataValue(convertedValue.toString)
         start.withPos(newPos, -1, None)
       } catch {
@@ -1130,7 +1130,7 @@ case class ArrayPosGreaterThan(arrayPos: Long, term: Term, guard: Boolean = true
         } else {
           PE(start, "Array position not greater than (%s)", arrayPos)
         }
-      } catch { case e => PE(start, "No array position") }
+      } catch { case e: Throwable => PE(start, "No array position") }
       res
     }
   }
@@ -1145,7 +1145,7 @@ case class ArrayPosGreaterThan(arrayPos: Long, term: Term, guard: Boolean = true
         } else {
           UE(start, "Array position not greater than (%s)", arrayPos)
         }
-      } catch { case e => UE(start, "No array position") }
+      } catch { case e: Throwable => UE(start, "No array position") }
       res
     }
   }

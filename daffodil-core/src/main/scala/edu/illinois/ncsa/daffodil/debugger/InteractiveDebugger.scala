@@ -211,7 +211,7 @@ class InteractiveDebugger extends Debugger {
         case _ => false
       }
     } catch {
-      case e => false
+      case e: Throwable => false
     } finally {
       DFDLFunctions.currentPState = None
     }
@@ -315,6 +315,7 @@ class InteractiveDebugger extends Debugger {
           case c :: rest => rest match {
             case a :: Nil => (c, a)
             case Nil => (c, "")
+            case _ => Assert.impossible("cmd/args were split incorrectly")
           }
           case Nil => ("", "")
         }
@@ -486,7 +487,7 @@ class InteractiveDebugger extends Debugger {
             case None => throw new DebugException("breakpoint %i not found".format(id))
           }
         } catch {
-          case _ => throw new DebugException("not a valid breakpoint id")
+          case _: Throwable => throw new DebugException("not a valid breakpoint id")
         }
         DebugState.Pause
       }
@@ -524,7 +525,7 @@ class InteractiveDebugger extends Debugger {
             case None => throw new DebugException("breakpoint %i not found".format(id))
           }
         } catch {
-          case _ => throw new DebugException("not a valid breakpoint id")
+          case _: Throwable => throw new DebugException("not a valid breakpoint id")
         }
         DebugState.Pause
       }
@@ -577,7 +578,7 @@ class InteractiveDebugger extends Debugger {
               case None => throw new DebugException("%i is not a valid breakpoint id".format(id))
             }
           } catch {
-            case _ => throw new DebugException("%s is not a valid breakpoint id".format(args.head))
+            case _: Throwable => throw new DebugException("%s is not a valid breakpoint id".format(args.head))
           }
           DebugState.Pause
         }
@@ -604,7 +605,7 @@ class InteractiveDebugger extends Debugger {
               case None => throw new DebugException("%i is not a valid display id".format(id))
             }
           } catch {
-            case _ => throw new DebugException("%s is not a valid display id".format(args.head))
+            case _: Throwable => throw new DebugException("%s is not a valid display id".format(args.head))
           }
           DebugState.Pause
         }
@@ -678,7 +679,7 @@ class InteractiveDebugger extends Debugger {
               case None => throw new DebugException("%i is not a valid breakpoint id".format(id))
             }
           } catch {
-            case _ => throw new DebugException("%s is not a valid breakpoint id".format(args.head))
+            case _: Throwable => throw new DebugException("%s is not a valid breakpoint id".format(args.head))
           }
           DebugState.Pause
         }
@@ -704,7 +705,7 @@ class InteractiveDebugger extends Debugger {
               case None => throw new DebugException("%i is not a valid display id".format(id))
             }
           } catch {
-            case _ => throw new DebugException("%s is not a valid display id".format(args.head))
+            case _: Throwable => throw new DebugException("%s is not a valid display id".format(args.head))
           }
           DebugState.Pause
         }
@@ -992,7 +993,7 @@ class InteractiveDebugger extends Debugger {
             try {
               args.head.toInt
             } catch {
-              case _ => throw new DebugException("data length must be an integer")
+              case _: Throwable => throw new DebugException("data length must be an integer")
             }
           } else {
             DebuggerConfig.dataLength
@@ -1271,7 +1272,7 @@ class InteractiveDebugger extends Debugger {
               val len = args.head.toInt
               DebuggerConfig.dataLength = len
             } catch {
-              case _ => throw new DebugException("an integer argument is required")
+              case _: Throwable => throw new DebugException("an integer argument is required")
             }
           }
           DebugState.Pause
@@ -1298,7 +1299,7 @@ class InteractiveDebugger extends Debugger {
               val len = args.head.toInt
               DebuggerConfig.infosetLines = len
             } catch {
-              case _ => throw new DebugException("an integer argument is required")
+              case _: Throwable => throw new DebugException("an integer argument is required")
             }
           }
           DebugState.Pause
@@ -1356,7 +1357,7 @@ class InteractiveDebugger extends Debugger {
               val len = args.head.toInt
               DebuggerConfig.wrapLength = len
             } catch {
-              case _ => throw new DebugException("an integer argument is required")
+              case _: Throwable => throw new DebugException("an integer argument is required")
             }
           }
           DebugState.Pause
@@ -1410,7 +1411,7 @@ class InteractiveDebugger extends Debugger {
             case None => throw new DebugException("display %i not found".format(id))
           }
         } catch {
-          case _ => throw new DebugException("not a valid display id")
+          case _: Throwable => throw new DebugException("not a valid display id")
         }
         DebugState.Pause
       }

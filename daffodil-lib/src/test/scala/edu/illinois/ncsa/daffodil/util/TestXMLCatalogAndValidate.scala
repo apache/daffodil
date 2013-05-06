@@ -49,6 +49,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.xml.Null
 import scala.xml.Attribute
 import scala.xml.Text
+import scala.language.reflectiveCalls
 
 object Implicits {
   /**

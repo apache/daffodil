@@ -134,13 +134,14 @@ class USASCII7BitPackedDecoder
     if (n < 0) 256 + n else n
   }
 
+  
   // some constants to make the table dispatch below clearer.
-  private val NoData = false
-  private val YesData = true
-  private val NoSpace = false
-  private val YesSpace = true
-  private val NoPrior = false
-  private val YesPrior = true
+  private final val NoData = false
+  private final val YesData = true
+  private final val NoSpace = false
+  private final val YesSpace = true
+  private final val NoPrior = false
+  private final val YesPrior = true
 
   final def decodeLoop(in: ByteBuffer, out: CharBuffer): CoderResult = {
 

@@ -142,12 +142,12 @@ abstract class LogWriter {
       write(p + mess + s)
     } catch {
       case e: Exception => {
-        val estring = try { e.toString } catch { case _ => e.getClass.getName }
+        val estring = try { e.toString } catch { case _: Throwable => e.getClass.getName }
         System.err.println("Exception while logging: " + estring)
-        val globmsg = try { glob.msg } catch { case _ => "?glob.msg?" }
-        val globargs = try { glob.args } catch { case _ => Nil }
-        val globargsList = try { glob.args.map { x => x } } catch { case _ => List("globargsList failed") }
-        val globargsListStrings = globargsList.map { arg => try { arg.toString } catch { case _ => "?arg?" } }
+        val globmsg = try { glob.msg } catch { case _: Throwable => "?glob.msg?" }
+        val globargs = try { glob.args } catch { case _: Throwable => Nil }
+        val globargsList = try { glob.args.map { x => x } } catch { case _: Throwable => List("globargsList failed") }
+        val globargsListStrings = globargsList.map { arg => try { arg.toString } catch { case _: Throwable => "?arg?" } }
         System.err.println("Glob was: " + globmsg + " " + globargsListStrings)
         Assert.abort("Exception while logging")
       }
@@ -203,7 +203,7 @@ class FileWriter(val file: File) extends LogWriter {
   private val destFile = {
     try { new PrintStream(new FileOutputStream(file)) }
     catch {
-      case e =>
+      case e: Throwable =>
         ConsoleWriter.log("FileWriter", Error("Unable to create FileWriter for file %s exception was %s", file, e)); Console.out
     }
   }
@@ -235,7 +235,7 @@ class Glob(val lvl: LogLevel.Type, msgArg: => String, argSeq: => Seq[Any]) {
         str
       } catch {
         case e: Exception => {
-          val estring = try { e.toString } catch { case _ => e.getClass.getName }
+          val estring = try { e.toString } catch { case _: Throwable => e.getClass.getName }
           Assert.abort("An exception occurred whilst logging. Exception: " + estring)
         }
       }

@@ -556,7 +556,7 @@ class TestRegex extends RegexParsers {
     val pUnescapedDelims = ((pEscapedEscape) ~> pDelims) | (not(pEscape) ~> pDelims) | pDelims
 
     // Parser captures and creates a string representation of the escapes
-    val pEscapes = ((pEscapedEscape*) ~ opt(pEscape)) ^^ {
+    val pEscapes = ((pEscapedEscape.*) ~ opt(pEscape)) ^^ {
       case (l ~ None) => l.mkString
       case (l ~ Some(esc)) => l.mkString + esc
     }

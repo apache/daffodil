@@ -164,7 +164,7 @@ abstract class SchemaComponent(xmlArg: Node, parent: SchemaComponent)
     // So we're indifferent to what the surrounding context might be using for namespace bindings.
     //
     val dfdlBinding = new scala.xml.NamespaceBinding("dfdl", XMLUtils.DFDL_NAMESPACE.toString, xml.scope)
-    scala.xml.Elem("dfdl", label, emptyXMLMetadata, dfdlBinding)
+    scala.xml.Elem("dfdl", label, emptyXMLMetadata, dfdlBinding, true)
   }
 
   /**
@@ -291,7 +291,7 @@ trait ElementFormDefaultMixin
       //
       val tns = namespace
       // record this error on the schemaDocument
-      xmlSchemaDocument.schemaDefinitionUnless(tns != "", "Must have a targetNamespace if elementFormDefault='qualified'.")
+      xmlSchemaDocument.schemaDefinitionUnless(tns != NoNamespace, "Must have a targetNamespace if elementFormDefault='qualified'.")
       val prefix = {
         val existingPrefix = xml.scope.getPrefix(tns.toString)
         if (existingPrefix != null) existingPrefix

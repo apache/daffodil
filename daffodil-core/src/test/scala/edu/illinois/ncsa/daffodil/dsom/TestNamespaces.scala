@@ -125,7 +125,7 @@ class TestNamespaces {
 
     val scope = (xml \ "quux")(0).scope // will have multiple namespace definitions.
     // println(scope)
-    val newElem = scala.xml.Elem("somePrefix", "someElement", null, scope)
+    val newElem = scala.xml.Elem("somePrefix", "someElement", Null, scope, true)
     // println(newElem)
     val quux = (xml \ "quux")(0)
     val barNS = quux.getNamespace("bar")
