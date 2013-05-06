@@ -63,6 +63,8 @@ class TestContentFramingProperties {
   @Test def test_xml_illegal_char() { runner2.runOneTest("xml_illegal_chars") }
   @Test def test_xml_utf8_4byte_chars_01() { runner2.runOneTest("xml_utf8_4byte_chars_01") }
   
+//  @Test def test_alignmentPacked7BitASCII() { runner2.runOneTest("alignmentPacked7BitASCII") } 
+  
   /*** DFDL-379 US-ASCII-7-bit-packed text ***/
   @Test def test_packed7BitASCII1() { runner2.runOneTest("packed7BitASCII1") }
   @Test def test_packed7BitASCII2() { runner2.runOneTest("packed7BitASCII2") }

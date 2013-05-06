@@ -204,6 +204,8 @@
       </xs:sequence>
     </xs:complexType>
 
+    <xs:element name="e6" type="xs:string" dfdl:lengthKind="delimited"
+      dfdl:terminator="" dfdl:representation="text" dfdl:alignmentUnits="bits" dfdl:alignment="4" />
 
   </tdml:defineSchema>
 
@@ -420,6 +422,26 @@
     <tdml:errors>
       <tdml:error>Left over data</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: alignmentPacked7BitASCII
+    Schema: packed7BitASCII
+    Purpose: This test demonstrates that the required alignment for 7-bit ASCII is 1 bit.
+  -->
+
+  <tdml:parserTestCase name="alignmentPacked7BitASCII" root="e6"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[
+      0110100 0110010
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>42</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

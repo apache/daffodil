@@ -49,6 +49,14 @@ class TestAlignedData {
   val tdml1 = testDir_01 + "Aligned_Data.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
   
+  @Test def test_leftFraming01() = { runner1.runOneTest("leftFraming01") }
+  @Test def test_rightFraming01() = { runner1.runOneTest("rightFraming01") }
+  @Test def test_leftAndRightFraming01() = { runner1.runOneTest("leftAndRightFraming01") }
+  @Test def test_leftAndRightFraming02() = { runner1.runOneTest("leftAndRightFraming02") }
+
+  @Test def test_alignmentStringErr() = { runner1.runOneTest("alignmentStringErr") }
+  @Test def test_alignmentStringBitSkip() = { runner1.runOneTest("alignmentStringBitSkip") }
+
   @Test def test_explicitAlignmentNoSkips01() = { runner1.runOneTest("explicitAlignmentNoSkips01") }
   @Test def test_explicitAlignmentNoSkips02() = { runner1.runOneTest("explicitAlignmentNoSkips02") }
   @Test def test_explicitAlignmentNoSkips03() = { runner1.runOneTest("explicitAlignmentNoSkips03") }
@@ -109,7 +117,6 @@ class TestAlignedData {
 
   @Test def test_implicitAlignmentString1() = { runner1.runOneTest("implicitAlignmentString1") }
   @Test def test_implicitAlignmentString2() = { runner1.runOneTest("implicitAlignmentString2") }
-
   
   val tdml2 = testDir_01 + "BinaryInput_01.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
