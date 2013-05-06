@@ -11,8 +11,8 @@ STEPS TO RELEASE
 2) Build sources
 
 	$ sbt compile
-	$ sbt compile test
-	$ sbt compile debug
+	$ sbt test:compile
+	$ sbt debug:compile
 
 3) Run tests
 
