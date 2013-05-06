@@ -45,6 +45,77 @@
       </xs:complexType>
     </xs:element>
     
+
+    <xs:simpleType name="explUIntBit" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:alignmentUnits="bits" dfdl:leadingSkip="0">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+    <xs:simpleType name="explUIntByte" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="0">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+    <xs:simpleType name="explUIntMix" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="0">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:element name="e5" dfdl:leadingSkip="0">
+      <xs:complexType>
+        <xs:sequence dfdl:leadingSkip="0">
+          <xs:element name="one" type="ex:explUIntBit" dfdl:length="2" dfdl:alignment="4"/>
+          <xs:element name="two" type="ex:explUIntBit" dfdl:length="6" dfdl:alignment="4"/>
+          <xs:element name="three" type="ex:explUIntBit" dfdl:length="1" dfdl:alignment="4"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e6" dfdl:leadingSkip="0">
+      <xs:complexType>
+        <xs:sequence dfdl:leadingSkip="0">
+          <xs:element name="one" type="ex:explUIntBit" dfdl:length="3" dfdl:alignment="4"/>
+          <xs:element name="two" type="ex:explUIntBit" dfdl:length="9" dfdl:alignment="8"/>
+          <xs:element name="three" type="ex:explUIntBit" dfdl:length="1" dfdl:alignment="4"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e7" dfdl:leadingSkip="0">
+      <xs:complexType>
+        <xs:sequence dfdl:leadingSkip="0">
+          <xs:element name="one" type="ex:explUIntMix" dfdl:length="6" dfdl:alignment="1"/>
+          <xs:element name="two" type="ex:explUIntMix" dfdl:length="3" dfdl:alignment="2"/>
+          <xs:element name="three" type="ex:explUIntMix" dfdl:length="12" dfdl:alignment="1"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e8" dfdl:leadingSkip="0">
+      <xs:complexType>
+        <xs:sequence dfdl:leadingSkip="0">
+          <xs:element name="one" type="ex:explUIntByte" dfdl:length="1" dfdl:alignment="1"/>
+          <xs:element name="two" type="ex:explUIntByte" dfdl:length="1" dfdl:alignment="2"/>
+          <xs:element name="three" type="ex:explUIntByte" dfdl:length="3" dfdl:alignment="1"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e9" dfdl:leadingSkip="0">
+      <xs:complexType>
+        <xs:sequence dfdl:leadingSkip="0">
+          <xs:element name="one" type="ex:explUIntByte" dfdl:length="1" dfdl:alignment="1"/>
+          <xs:element name="two" type="ex:explUIntByte" dfdl:length="1" dfdl:alignment="1"/>
+          <xs:element name="three" type="ex:explUIntByte" dfdl:length="3" dfdl:alignment="4"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e10" dfdl:leadingSkip="0">
+      <xs:complexType>
+        <xs:sequence dfdl:leadingSkip="0">
+          <xs:element name="one" type="ex:explUIntByte" dfdl:length="1" dfdl:alignment="1"/>
+          <xs:element name="two" type="ex:explUIntByte" minOccurs="0" maxOccurs="1" dfdl:length="1" dfdl:alignment="1"/>
+          <xs:element name="three" type="ex:explUIntByte" dfdl:length="3" dfdl:alignment="4"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
   
   <tdml:defineSchema name="implicitAlignmentSchema">
@@ -1105,6 +1176,165 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: explicitAlignmentNoSkips01
+        Schema: alignmentSchema
+          Root: e5
+       Purpose: This test demonstrates that the length of the alignment fill region is the smallest non-negative
+                integer L such that (L+N) mod B(4) = 1. The position of the first bit of the aligned element is P = L + N   
+  -->
+
+  <tdml:parserTestCase name="explicitAlignmentNoSkips01" root="e5"
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - alignmentUnits - DFDL-12-010R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">01 00 100101 00 1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5>
+          <one>1</one>
+          <two>37</two>
+          <three>1</three>
+        </e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: explicitAlignmentNoSkips02
+        Schema: alignmentSchema
+          Root: e6
+       Purpose: This test demonstrates that the length of the alignment fill region is the smallest non-negative
+                integer L such that (L+N) mod B(4) = 1. The position of the first bit of the aligned element is P = L + N   
+  -->
+
+  <tdml:parserTestCase name="explicitAlignmentNoSkips02" root="e6"
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - alignmentUnits - DFDL-12-010R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">011 00000 010011000 001 0</tdml:documentPart>
+      <!--                           |         |             |                 -->
+      <!--                           one       two           three             -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e6>
+          <one>3</one>
+          <two>152</two>
+          <three>0</three>
+        </e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  
+  </tdml:parserTestCase>
+    
+  <!--
+     Test Name: explicitAlignmentNoSkips03
+        Schema: alignmentSchema
+          Root: e7
+       Purpose: This test demonstrates that the length of the alignment fill region is the smallest non-negative
+                integer L such that (L+N) mod B(4) = 1. The position of the first bit of the aligned element is P = L + N   
+  -->
+
+  <tdml:parserTestCase name="explicitAlignmentNoSkips03" root="e7"
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - alignmentUnits - DFDL-12-010R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">011100 0001001100 000 10100 000100001111</tdml:documentPart>
+      <!--                           |                 |         |                 -->
+      <!--                           one               two       three             -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e7>
+          <one>28</one>
+          <two>0</two>
+          <three>271</three>
+        </e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: explicitAlignmentNoSkips04
+        Schema: alignmentSchema
+          Root: e8
+       Purpose: This test demonstrates that the length of the alignment fill region is the smallest non-negative
+                integer L such that (L+N) mod B(4) = 1. The position of the first bit of the aligned element is P = L + N   
+  -->
+
+  <tdml:parserTestCase name="explicitAlignmentNoSkips04" root="e8"
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - alignmentUnits - DFDL-12-010R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">00000001 11111111 00001100 00010100 00000000 00000000</tdml:documentPart>
+      <!--                           |                 |        |                                          -->
+      <!--                           one               two      three                                      -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e8>
+          <one>1</one>
+          <two>12</two>
+          <three>1310720</three>
+        </e8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: explicitAlignmentNoSkips05
+        Schema: alignmentSchema
+          Root: e9
+       Purpose: This test demonstrates that the length of the alignment fill region is the smallest non-negative
+                integer L such that (L+N) mod B(4) = 1. The position of the first bit of the aligned element is P = L + N   
+  -->
+
+  <tdml:parserTestCase name="explicitAlignmentNoSkips05" root="e9"
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - alignmentUnits - DFDL-12-010R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">00000001 00001100 00010100 00000000 10000000 00000000 00000001</tdml:documentPart>
+      <!--                           |        |                          |                             -->
+      <!--                           one      two                        three                         -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e9>
+          <one>1</one>
+          <two>12</two>
+          <three>8388609</three>
+        </e9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: alignmentOptionalElem
+        Schema: alignmentSchema
+          Root: e10
+       Purpose: This test demonstrates that optional elements cannot have alignment properties different from the items
+                that follow them, or a SDE will be thrown.
+  -->
+
+  <tdml:parserTestCase name="alignmentOptionalElem" root="e10"
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Avoid Ambiguity when parsing - DFDL-12-011R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">00000001 00001100 00010100 00000000 10000000 00000000 00000001</tdml:documentPart>
+      <!--                           |        |                          |                             -->
+      <!--                           one      two                        three                         -->
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

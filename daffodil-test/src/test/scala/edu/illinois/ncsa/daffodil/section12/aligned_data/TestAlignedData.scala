@@ -48,6 +48,14 @@ class TestAlignedData {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section12/aligned_data/"
   val tdml1 = testDir_01 + "Aligned_Data.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
+  
+  @Test def test_explicitAlignmentNoSkips01() = { runner1.runOneTest("explicitAlignmentNoSkips01") }
+  @Test def test_explicitAlignmentNoSkips02() = { runner1.runOneTest("explicitAlignmentNoSkips02") }
+  @Test def test_explicitAlignmentNoSkips03() = { runner1.runOneTest("explicitAlignmentNoSkips03") }
+  @Test def test_explicitAlignmentNoSkips04() = { runner1.runOneTest("explicitAlignmentNoSkips04") }
+  @Test def test_explicitAlignmentNoSkips05() = { runner1.runOneTest("explicitAlignmentNoSkips05") }
+  
+//  @Test def test_alignmentOptionalElem() = { runner1.runOneTest("alignmentOptionalElem") }
 
   @Test def test_leadingSkip_1() = { runner1.runOneTest("leadingSkip1") }
   @Test def test_leadingSkip_2() = { runner1.runOneTest("leadingSkip2") }
