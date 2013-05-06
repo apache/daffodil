@@ -96,7 +96,7 @@ class InteractiveDebugger extends Debugger {
     var breakOnlyOnCreation: Boolean = true
 
     /* whether or not to break on failure */
-    var breakOnFailure: Boolean = true
+    var breakOnFailure: Boolean = false
 
     /* list of breakpoints */
     val breakpoints = collection.mutable.ListBuffer[Breakpoint]()
@@ -1229,9 +1229,9 @@ class InteractiveDebugger extends Debugger {
                           |Set whether or the debugger should break on failures. If set to false
                           |the normal processing occurs. If set to true, any errors cause a break.
                           |Note that due to the backtracking behavior, not all failures are fatal.
-                          |Defaults to true.
+                          |Defaults to false.
                           |
-                          |Example: set breakOnFailure false""".stripMargin
+                          |Example: set breakOnFailure true""".stripMargin
         override lazy val short = "bof"
         def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           if (args.size != 1) {
