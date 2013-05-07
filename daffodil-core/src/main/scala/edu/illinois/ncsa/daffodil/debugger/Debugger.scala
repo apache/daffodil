@@ -45,7 +45,7 @@ abstract class Debugger {
 
 object Debugger {
   
-  private var debugger: Debugger = new TraceDebugger
+  private var debugger: Debugger = new InteractiveDebugger()
 
   /**
    * Wrap things to debug with this rather than just calling setDebugging(true).

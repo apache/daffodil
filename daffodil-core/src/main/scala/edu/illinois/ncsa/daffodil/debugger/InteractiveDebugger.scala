@@ -49,13 +49,27 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import javax.xml.xpath.{ XPathConstants, XPathException }
+import java.io.File
 import jline.console.ConsoleReader
 import jline.console.completer.Completer
 import jline.console.completer.StringsCompleter
 import jline.console.completer.AggregateCompleter
 import edu.illinois.ncsa.daffodil.util.Enum
+import scala.io.Source
 
-class InteractiveDebugger extends Debugger {
+class InteractiveDebugger(cmdsIter: Iterator[String]) extends Debugger {
+
+  def this() {
+    this(Iterator.empty)
+  }
+
+  def this(file: File) {
+    this(Source.fromFile(file).getLines)
+  }
+
+  def this(seq: Seq[String]) {
+    this(seq.iterator)
+  }
 
   object DebugState extends Enum {
     sealed abstract trait Type extends EnumValueType
@@ -108,6 +122,16 @@ class InteractiveDebugger extends Debugger {
 
     /* whether to remove hidden elements when displaying the infoset */
     var removeHidden: Boolean = false
+
+    /* stores the last actual command (i.e. not a "") that was executed */
+    var lastCommand: String = ""
+
+    /* stores the full list of commands as typed, even blanks. We need to
+     * maintain our own because the jline history ignores empty commands and
+     * duplicate commands. That can be configured, but jline's history is much
+     * more useful with the history behaving that way. This is really only used
+     * for the 'history' command. */
+    val history = scala.collection.mutable.ListBuffer[String]()
   }
 
   var debugState: DebugState.Type = DebugState.Pause
@@ -181,23 +205,36 @@ class InteractiveDebugger extends Debugger {
     }
   }
 
+
   private def readCmd(): Seq[String] = {
-    val input = reader.readLine()
+    val inputRaw =
+      if (cmdsIter.hasNext) {
+        val line = cmdsIter.next
+        if (line.length > 0) {
+          reader.getHistory.add(line)
+        }
+        println("(debug) " + line)
+        line
+      } else {
+        reader.readLine()
+      }.trim
+    val input = inputRaw.trim
+
+    DebuggerConfig.history += input
+
     val cmd = input match {
       case "" => {
-        val history = reader.getHistory
-        if (history.size > 0) {
-          history.get(history.size - 1).toString
-        } else {
-          ""
-        }
+        DebuggerConfig.lastCommand
       }
       case null => { // this happens with CTRL-D
         sys.exit(1)
       }
-      case _ => input
+      case _ => {
+        DebuggerConfig.lastCommand = input
+        input
+      }
     }
-    cmd.trim.split(" ").filter(_ != "")
+    cmd.split(" ").filter(_ != "")
   }
 
   private def evaluateBooleanExpression(expression: String, state: PState, parser: Parser): Boolean = {
@@ -373,7 +410,7 @@ class InteractiveDebugger extends Debugger {
     val desc = ""
     val longDesc = ""
     override lazy val short = ""
-    override val subcommands = Seq(Break, Clear, Complete, Condition, Continue, Delete, Disable, Display, Enable, Eval, Help, Info, Quit, Set, Step, Trace, UnDisplay)
+    override val subcommands = Seq(Break, Clear, Complete, Condition, Continue, Delete, Disable, Display, Enable, Eval, Help, History, Info, Quit, Set, Step, Trace, UnDisplay)
     def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
       val newState = args.size match {
         case 0 => {
@@ -794,6 +831,54 @@ class InteractiveDebugger extends Debugger {
       }
     }
 
+    object History extends DebugCommand {
+      val name = "history"
+      override lazy val short = "hi"
+      val desc = "display the history of commands"
+      val longDesc = """|Usage: hi[story] [outfile]
+                        |
+                        |Display the history of commands. If an argument is given, write
+                        |the history to the specified file rather then printing it to the
+                        |screen.
+                        |
+                        |Example: history
+                        |         history out.txt""".stripMargin
+      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        args.size match {
+          case 0 => {
+            debugPrintln("%s:".format(name))
+            DebuggerConfig.history.zipWithIndex.foreach { case (cmd, index) => debugPrintln("%d: %s".format(index, cmd), "  ") }
+
+          }
+          case 1 => {
+            try {
+              val path =
+                if (args.head.startsWith("~" + File.separator)) {
+                  System.getProperty("user.home") + args.head.substring(1)
+                } else {
+                  args.head
+                }
+              val fw = new java.io.FileWriter(path)
+              val bw = new java.io.BufferedWriter(fw)
+              // use .init to drop the 'history outfile' command, we want
+              // something that can be easily provided to the InteractiveDebugger constructor
+              DebuggerConfig.history.init.foreach( cmd => {
+                bw.write(cmd)
+                bw.newLine()
+              })
+              bw.close()
+              fw.close()
+              debugPrintln("%s: written to %s".format(name, args.head))
+            } catch {
+              case e: Throwable => throw new DebugException("failed to write history file: " + e.getMessage)
+            }
+          }
+          case _ => throw new DebugException("too many arguments specified")
+        }
+        DebugState.Pause
+      }
+    }
+
     object Info extends DebugCommand {
       val name = "info"
       val desc = "display information"
@@ -1011,12 +1096,17 @@ class InteractiveDebugger extends Debugger {
         val longDesc = desc
         def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           debugPrintln("%s:".format(name))
-          if (prestate.bytePos != state.bytePos) debugPrintln("position (bytes): %d -> %d".format(prestate.bytePos, state.bytePos), "  ")
-          if (prestate.bitLimit != state.bitLimit) debugPrintln("bitLimit: %d -> %d".format(prestate.bitLimit, state.bitLimit), "  ")
-          if (prestate.discriminator != state.discriminator) debugPrintln("discriminator: %s -> %s".format(prestate.discriminator, state.discriminator), "  ")
-          if (prestate.arrayPos != state.arrayPos) debugPrintln("arrayIndex: %d -> %d".format(prestate.arrayPos, state.arrayPos), "  ")
-          if (prestate.groupPos != state.groupPos) debugPrintln("groupIndex: %d -> %d".format(prestate.groupPos, state.groupPos), "  ")
-          if (prestate.childPos != state.childPos) debugPrintln("childIndex: %d -> %d".format(prestate.childPos, state.childPos), "  ")
+          var diff = false
+          if (prestate.bytePos != state.bytePos) { debugPrintln("position (bytes): %d -> %d".format(prestate.bytePos, state.bytePos), "  "); diff = true }
+          if (prestate.bitLimit != state.bitLimit) { debugPrintln("bitLimit: %d -> %d".format(prestate.bitLimit, state.bitLimit), "  "); diff = true }
+          if (prestate.discriminator != state.discriminator) { debugPrintln("discriminator: %s -> %s".format(prestate.discriminator, state.discriminator), "  "); diff = true }
+          if (prestate.arrayPos != state.arrayPos) { debugPrintln("arrayIndex: %d -> %d".format(prestate.arrayPos, state.arrayPos), "  "); diff = true }
+          if (prestate.groupPos != state.groupPos) { debugPrintln("groupIndex: %d -> %d".format(prestate.groupPos, state.groupPos), "  "); diff = true }
+          if (prestate.childPos != state.childPos) { debugPrintln("childIndex: %d -> %d".format(prestate.childPos, state.childPos), "  "); diff = true }
+
+          if (diff == false) {
+            debugPrintln("No differences", "  ")
+          }
 
           DebugState.Pause
         }

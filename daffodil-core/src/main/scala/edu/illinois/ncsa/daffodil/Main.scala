@@ -128,6 +128,12 @@ object CLILogWriter extends LogWriter {
 
 object Main extends Logging {
 
+  val traceCommands = Seq("display info parser",
+                          "display info data",
+                          "display info infoset",
+                          "display info diff",
+                          "trace")
+
   def createProcessorFromParser(parseFile: String, path: Option[String]) = {
     val compiler = Compiler()
     val processorFactory = Timer.getResult("reloading", compiler.reload(parseFile))
@@ -191,6 +197,19 @@ object Main extends Logging {
         val argType = scallop.ArgType.SINGLE
       }
 
+      def optionalValueConverter[A](conv: String => A)(implicit tt: reflect.runtime.universe.TypeTag[Option[A]]) = new scallop.ValueConverter[Option[A]] {
+        def parse(s: List[(String, List[String])]) = {
+          s match {
+            case Nil => Right(None)
+            case (_, Nil) :: Nil => Right(Some(None))
+            case (_, v :: Nil) :: Nil => Right(Some(Some(conv(v))))
+            case _ => Left(Unit)
+          }
+        }
+        val tag = tt
+        val argType = scallop.ArgType.LIST
+      } 
+
       printedName = "daffodil"
 
       helpWidth(76)
@@ -218,7 +237,8 @@ object Main extends Logging {
       shortSubcommandsHelp()
 
       // Global Options
-      val debug = opt[Boolean]("debug", descr = "enable debugging.")
+      val debug = opt[Option[String]]("debug", descr = "enable debugging.")(optionalValueConverter[String](a => a))
+      val trace = opt[Boolean]("trace", descr = "run the debugger with verbose trace output")
       val verbose = tally("verbose", descr = "increment verbosity level, one level for each -v")
 
       // Parse Subcommand Options
@@ -306,10 +326,14 @@ object Main extends Logging {
     }
 
     // Custom verification, scallop's verification isn't quite rich enough
+    if (Conf.trace() && Conf.debug.isDefined) {
+      Conf.error("only one of --trace and --debug may be defined")
+    }
+
     Conf.subcommand match {
       case Some(Conf.parse) => {
         val parseOpts = Conf.parse
-        if (Conf.debug()) {
+        if (Conf.debug.isDefined) {
           if (parseOpts.input.get == Some("-") || parseOpts.input.get == None) {
             Conf.error("input must not be stdin during interactive debugging")
           }
@@ -327,7 +351,7 @@ object Main extends Logging {
 
       case Some(Conf.unparse) => {
         val unparseOpts = Conf.unparse
-        if (Conf.debug()) {
+        if (Conf.debug.isDefined) {
           if (unparseOpts.input.get == Some("-") || unparseOpts.input.get == None) {
             Conf.error("input must not be stdin during interactive debugging")
           }
@@ -367,9 +391,17 @@ object Main extends Logging {
     LoggingDefaults.setLoggingLevel(verboseLevel)
     LoggingDefaults.setLogWriter(CLILogWriter)
 
-    if (Conf.debug()) {
+
+    if (Conf.trace()) {
       Debugger.setDebugging(true)
-      Debugger.setDebugger(new InteractiveDebugger)
+      Debugger.setDebugger(new InteractiveDebugger(traceCommands))
+    } else if (Conf.debug.isDefined) {
+      Debugger.setDebugging(true)
+      val debugger = Conf.debug() match {
+        case Some(f) => new InteractiveDebugger(new File(f))
+        case None => new InteractiveDebugger()
+      }
+      Debugger.setDebugger(debugger)
     }
 
     val ret = Conf.subcommand match {
