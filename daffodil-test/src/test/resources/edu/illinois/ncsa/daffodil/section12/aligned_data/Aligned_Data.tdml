@@ -16,8 +16,12 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="alignmentSchema">
-
+    
     <dfdl:format ref="ex:daffodilTest1" representation="binary" encoding="utf-8" alignmentUnits="bits" alignment="4" leadingSkip="0"/>
+    
+    <xs:element name="string32be" dfdl:representation="text" type="xs:string" dfdl:encoding="utf-32be" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="bytes"
+      dfdl:alignment="2" dfdl:alignmentUnits="bits" dfdl:leadingSkip="0"/>
+
 
     <xs:simpleType name="uByte2Bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="2" dfdl:leadingSkip="4">
       <xs:restriction base="xs:unsignedByte"/>
@@ -227,6 +231,7 @@
     <xs:element name="byteT2" type="xs:byte" dfdl:ref="ex:textImpBitAlign" dfdl:encoding="utf-16le" dfdl:leadingSkip="2"/>
     <xs:element name="uByteT" type="xs:unsignedByte" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="2"/>
     <xs:element name="floatT" type="xs:float" dfdl:lengthUnits="bytes" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="2"/>
+    <xs:element name="doubleT" type="xs:double" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="2"/>
 
   </tdml:defineSchema>
   
@@ -1229,6 +1234,29 @@
   </tdml:parserTestCase>
   
   <!--
+     Test Name: implicitAlignmentDoubleT
+        Schema: implicitAlignmentSchema
+          Root: doubleT
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'double' is 8 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentDoubleT" root="doubleT"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - double (text) - DFDL-12-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">2A</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
+      <tdml:documentPart type="byte">35 2E 33 32 35 37 36 32 33 30 30 33 37 33 34 34 34 45 31 30</tdml:documentPart> <!-- double -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleT>5.325762300373444E10</doubleT>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
      Test Name: explicitAlignmentNoSkips01
         Schema: alignmentSchema
           Root: e5
@@ -1522,6 +1550,26 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
       
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: encodingAlignmentUtf32be
+        Schema: alignmentSchema
+          Root: string32be
+       Purpose: This test demonstrates that the alignment for Utf-32be encoded text must be 8-bit aligned
+  -->
+
+  <tdml:parserTestCase name="encodingAlignmentUtf32be" root="string32be"
+    model="alignmentSchema" description="Section 12 - Aligned Data - DFDL-12-027R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 74 00 00 00 65 00 00 00 73 00 00 00 74</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>The given alignment (2 bits) must be a multiple of the encoding specified alignment (8 bits) for (String) when representation='text'</tdml:error>
+      <tdml:error>Encoding: UTF-32BE</tdml:error>
+    </tdml:errors> 
   </tdml:parserTestCase>
 
 </tdml:testSuite>

@@ -49,6 +49,8 @@ class TestAlignedData {
   val tdml1 = testDir_01 + "Aligned_Data.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
   
+  @Test def test_encodingAlignmentUtf32be() = { runner1.runOneTest("encodingAlignmentUtf32be") }
+
   @Test def test_leftFraming01() = { runner1.runOneTest("leftFraming01") }
   @Test def test_rightFraming01() = { runner1.runOneTest("rightFraming01") }
   @Test def test_leftAndRightFraming01() = { runner1.runOneTest("leftAndRightFraming01") }
@@ -114,6 +116,7 @@ class TestAlignedData {
   @Test def test_implicitAlignmentFloatT() = { runner1.runOneTest("implicitAlignmentFloatT") }
   @Test def test_implicitAlignmentFloat() = { runner1.runOneTest("implicitAlignmentFloat") }
   @Test def test_implicitAlignmentDouble() = { runner1.runOneTest("implicitAlignmentDouble") }
+  @Test def test_implicitAlignmentDoubleT() = { runner1.runOneTest("implicitAlignmentDoubleT") }
 
   @Test def test_implicitAlignmentString1() = { runner1.runOneTest("implicitAlignmentString1") }
   @Test def test_implicitAlignmentString2() = { runner1.runOneTest("implicitAlignmentString2") }
