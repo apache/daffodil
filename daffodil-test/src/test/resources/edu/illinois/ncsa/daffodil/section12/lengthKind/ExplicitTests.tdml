@@ -240,7 +240,7 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_ExplicitLengthChildLengthLessParent_Bits"
+	<tdml:parserTestCase name="test_ExplicitLengthChildLengthLessParent_Bytes"
 		root="fixed2" model="test_ExplicitLengthChildLengthLessParent"
 		description="lengthKind='explicit' - DFDL-12-039R">
 		<tdml:document>
@@ -279,31 +279,11 @@
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[123456789012345678901234567890]]></tdml:documentPart>
 		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<fixed3>
-					<e3>
-						<A>1</A>
-						<B>234</B>
-						<C>567</C>
-						<D>89</D>
-					</e3>
-					<e3>
-						<A>1</A>
-						<B>234</B>
-						<C>567</C>
-						<D>89</D>
-					</e3>
-					<e3>
-						<A>1</A>
-						<B>234</B>
-						<C>567</C>
-						<D>89</D>
-					</e3>
-				</fixed3>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
-	</tdml:parserTestCase>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>The parsed length of the children was greater than that of the parent.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 	<tdml:defineSchema name="test_ExplicitLengthBytes">
 

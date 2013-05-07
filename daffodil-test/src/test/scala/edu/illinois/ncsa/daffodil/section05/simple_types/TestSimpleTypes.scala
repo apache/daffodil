@@ -54,9 +54,8 @@ class TestSimpleTypes {
   lazy val runnerAL = new DFDLTestSuite(Misc.getRequiredResource(al))
   @Test def test_AL000() { runnerAL.runOneTest("AL000") }
 
-  // Sec 12.1.1
-  // This test fails because Implicit Alignment in bits/bytes is not allowed for HexBinary and representation='text'
   //@Test def test_hexBinary_rep() { runner.runOneTest("hexBinary_rep") }
+
   @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") }
   @Test def test_hexBinary_Delimited_01() { runner.runOneTest("hexBinary_Delimited_01") }
   @Test def test_hexBinary_Delimited_02() { runner.runOneTest("hexBinary_Delimited_02") }
@@ -113,7 +112,7 @@ class TestSimpleTypes {
   @Test def test_datePatternChoice() { runner.runOneTest("datePatternChoice") }
 
   //  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart") }
-  //  @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart2") }
+  //  @Test def test_dateCalendarCenturyStart2() { runner.runOneTest("dateCalendarCenturyStart2") }
 
   @Test def test_dateCalendarDaysInFirstWeek() { runner.runOneTest("dateCalendarDaysInFirstWeek") }
   @Test def test_dateCalendarDaysInFirstWeek2() { runner.runOneTest("dateCalendarDaysInFirstWeek2") }
@@ -137,8 +136,6 @@ class TestSimpleTypes {
   @Test def test_millisecondAccuracy6() { runner.runOneTest("millisecondAccuracy6") }
   @Test def test_millisecondAccuracy7() { runner.runOneTest("millisecondAccuracy7") }
 
-  //  @Test def test_timeLaxCheckPolicy02() { runner.runOneTest("timeLaxCheckPolicy02") }
-  //  @Test def test_timeLaxCheckPolicy03() { runner.runOneTest("timeLaxCheckPolicy03") }
   @Test def test_timeStrictCheckPolicy02() { runner.runOneTest("timeStrictCheckPolicy02") }
 
   @Test def test_timeFormatting() { runner.runOneTest("timeFormatting") }
@@ -181,7 +178,7 @@ class TestSimpleTypes {
   @Test def test_dateTimeText() { runner.runOneTest("dateTimeText") }
   @Test def test_dateImplicitPattern() { runner.runOneTest("dateImplicitPattern") }
   @Test def test_dateImplicitPatternFail() { runner.runOneTest("dateImplicitPatternFail") }
-  //  @Test def test_timeImplicitPattern() { runner.runOneTest("timeImplicitPattern") }
+  @Test def test_timeImplicitPattern() { runner.runOneTest("timeImplicitPattern") }
   @Test def test_timeImplicitPatternFail() { runner.runOneTest("timeImplicitPatternFail") }
 
   @Test def test_dateTimeImplicitPattern() { runner.runOneTest("dateTimeImplicitPattern") }
@@ -192,8 +189,10 @@ class TestSimpleTypes {
 
   @Test def test_datePattern01() { runner.runOneTest("datePattern01") }
   //  @Test def test_datePattern01b() { runner.runOneTest("datePattern01b") }
-  //  @Test def test_timeLaxCheckPolicy01() { runner.runOneTest("timeLaxCheckPolicy01") }
-  //  @Test def test_dateTimeLaxCheckPolicy01() { runner.runOneTest("dateTimeLaxCheckPolicy01") }
+  @Test def test_timeLaxCheckPolicy01() { runner.runOneTest("timeLaxCheckPolicy01") }
+  @Test def test_timeLaxCheckPolicy02() { runner.runOneTest("timeLaxCheckPolicy02") }
+  @Test def test_timeLaxCheckPolicy03() { runner.runOneTest("timeLaxCheckPolicy03") }
+  @Test def test_dateTimeLaxCheckPolicy01() { runner.runOneTest("dateTimeLaxCheckPolicy01") }
   @Test def test_dateLaxCheckPolicy01() { runner.runOneTest("dateLaxCheckPolicy01") }
   @Test def test_dateLaxCheckPolicy02() { runner.runOneTest("dateLaxCheckPolicy02") }
   @Test def test_dateLaxCheckPolicy03() { runner.runOneTest("dateLaxCheckPolicy03") }

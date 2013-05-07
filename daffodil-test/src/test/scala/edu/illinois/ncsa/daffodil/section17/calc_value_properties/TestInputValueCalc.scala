@@ -76,7 +76,7 @@ class TestInputValueCalc {
   @Test def test_InputValueCalc_04() { runner.runOneTest("InputValueCalc_04") }
   @Test def test_InputValueCalc_05() { runner.runOneTest("InputValueCalc_05") }
   @Test def test_InputValueCalc_06() { runner.runOneTest("InputValueCalc_06") }
-  //@Test def test_InputValueCalc_07() { runner.runOneTest("InputValueCalc_07")}
+
   @Test def test_InputValueCalc_08() { runner.runOneTest("InputValueCalc_08") }
   @Test def test_InputValueCalc_09() { runner.runOneTest("InputValueCalc_09") }
   @Test def test_InputValueCalc_10() { runner.runOneTest("InputValueCalc_10") }
@@ -94,14 +94,17 @@ class TestInputValueCalc {
 
   //@Test def test_InputValueCalc_UnsignedInt_Range_Min_Fail() { runner.runOneTest("InputValueCalc_UnsignedInt_Range_Min_Fail") }
   //@Test def test_InputValueCalc_UnsignedInt_Range_Max_Fail() { runner.runOneTest("InputValueCalc_UnsignedInt_Range_Max_Fail") }
+
   @Test def test_InputValueCalc_UnsignedInt_Range_Max_Pass() { runner.runOneTest("InputValueCalc_UnsignedInt_Range_Max_Pass") }
 
   //@Test def test_InputValueCalc_UnsignedShort_Range_Min_Fail() { runner.runOneTest("InputValueCalc_UnsignedShort_Range_Min_Fail") }
   //@Test def test_InputValueCalc_UnsignedShort_Range_Max_Fail() { runner.runOneTest("InputValueCalc_UnsignedShort_Range_Max_Fail") }
+
   @Test def test_InputValueCalc_UnsignedShort_Range_Max_Pass() { runner.runOneTest("InputValueCalc_UnsignedShort_Range_Max_Pass") }
 
   //@Test def test_InputValueCalc_Long_Range_Min_Fail() { runner.runOneTest("InputValueCalc_Long_Range_Min_Fail") }
   //@Test def test_InputValueCalc_Long_Range_Max_Fail() { runner.runOneTest("InputValueCalc_Long_Range_Max_Fail") }
+
   @Test def test_InputValueCalc_Long_Range_Min_Pass() { runner.runOneTest("InputValueCalc_Long_Range_Min_Pass") }
   @Test def test_InputValueCalc_Long_Range_Max_Pass() { runner.runOneTest("InputValueCalc_Long_Range_Max_Pass") }
 
@@ -117,5 +120,7 @@ class TestInputValueCalc {
 
   //@Test def test_InputValueCalc_UnsignedByte_Range_Min_Fail() { runner.runOneTest("InputValueCalc_UnsignedByte_Range_Min_Fail") }
   //@Test def test_InputValueCalc_UnsignedByte_Range_Max_Fail() { runner.runOneTest("InputValueCalc_UnsignedByte_Range_Max_Fail") }
+
   @Test def test_InputValueCalc_UnsignedByte_Range_Max_Pass() { runner.runOneTest("InputValueCalc_UnsignedByte_Range_Max_Pass") }
+
 }

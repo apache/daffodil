@@ -50,9 +50,6 @@ class TestSimpleTypes2 {
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
-  // Sec 12.1.1
-  // This test fails because Implicit Alignment is not allowed for HexBinary and representation='text'.
-  // Must use representation='text'.
   @Test def test_hexBinary_rep() { runner.runOneTest("hexBinary_rep") }
   
   @Test def test_warning_exercise() {
@@ -65,13 +62,6 @@ class TestSimpleTypes2 {
   //  @Test def test_Long4() {runner.runOneTest("Long4")}
 
 ///////////////////////// DFDL-105, DFDL-102, DFDL-100 /////////////////////////////
-
-  @Test def test_timeImplicitPattern() { runner.runOneTest("timeImplicitPattern") }
-  @Test def test_timeLaxCheckPolicy01() { runner.runOneTest("timeLaxCheckPolicy01") }
-  @Test def test_timeLaxCheckPolicy02() { runner.runOneTest("timeLaxCheckPolicy02") }
-  @Test def test_timeLaxCheckPolicy03() { runner.runOneTest("timeLaxCheckPolicy03") }
-
-  @Test def test_dateTimeLaxCheckPolicy01() { runner.runOneTest("dateTimeLaxCheckPolicy01") }
 
   @Test def test_datePattern04() { runner.runOneTest("datePattern04") }
 
