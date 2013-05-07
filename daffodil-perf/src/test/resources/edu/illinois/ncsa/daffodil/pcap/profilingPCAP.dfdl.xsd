@@ -26,10 +26,10 @@
     <xs:complexType>
       <xs:sequence>
         <xs:sequence dfdl:hiddenGroupRef="ex:pcap2Group" />
-        <xs:element name="mn" type="xs:int"
+        <xs:element name="mn" type="xs:long"
           dfdl:inputValueCalc="{../ex:pcap/ex:global_header/ex:magic_number }" />
           <!-- very strange. Largest index value that doesn't fail in expression evaluation is 2263 -->
-        <xs:element name="last" type="xs:int"
+        <xs:element name="last" type="xs:long"
           dfdl:inputValueCalc="{../ex:pcap/ex:packet[2263]/ex:header/ex:ts_sec }" />
       </xs:sequence>
     </xs:complexType>
