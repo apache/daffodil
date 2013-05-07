@@ -4,8 +4,8 @@
       
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format separator="'" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
-        separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"/>
+      <dfdl:format separator="'" alignment="implicit" alignmentUnits="bits" trailingSkip="0" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" ignoreCase="no" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"/>
     </xs:appinfo>
   </xs:annotation>
 
