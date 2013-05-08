@@ -65,6 +65,8 @@ class TestLengthKindPattern {
   @Test def test_LengthPatternLegalBits_02() { runner.runOneTest("LengthPatternLegalBits_02") }
   @Test def testlengthKindPatternFail() { runner.runOneTest("lengthKindPatternFail") }
 
+  @Test def test_ComplexWithBinaryChild() { runner.runOneTest("ComplexWithBinaryChild") }
+
   val ai = testDir + "AI.tdml"
   lazy val runnerAI = new DFDLTestSuite(Misc.getRequiredResource(ai))
 
