@@ -58,6 +58,7 @@ object LogLevel extends Enum {
   case object Compile extends Type(JLogLevel.Compile); Compile
   case object Debug extends Type(JLogLevel.Debug); Debug
   case object OOLAGDebug extends Type(JLogLevel.OOLAGDebug); OOLAGDebug
+  case object DelimDebug extends Type(JLogLevel.DelimDebug); DelimDebug
 
   // 
   // Very annoying, but if this values list is here, the obvious place for it
@@ -78,7 +79,7 @@ object LogLevel extends Enum {
     // Seems like we should hoist this constant list out of this method.
     // Do not. It causes problems with object initialization.
     //
-    val values: List[Type] = List(Error, Warning, Info, Compile, Debug, OOLAGDebug)
+    val values: List[Type] = List(Error, Warning, Info, Compile, Debug, OOLAGDebug, DelimDebug)
     Assert.usage(jLogLevel != null)
     values.find { _.id == jLogLevel.id }.getOrElse(Assert.abort("unmapped: java enum has no corresponding scala enum"))
   }

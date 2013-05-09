@@ -59,7 +59,6 @@ class Delimiter {
 		  												     in the delimiter string */
 
   var delimRegExParseDelim: String = "" // Regex to actually parse the entire delimiter
-  var delimRegExParseUntil: String = "" // Regex to specify everything until this delimiter
 
   // Pre-compiled RegEx patterns for finding character classes
   lazy val NL = Pattern.compile("%(NL);", Pattern.MULTILINE)
@@ -76,8 +75,7 @@ class Delimiter {
   def apply(pDelimiter: String) = {
     delimiterStr = pDelimiter
     delimBuf = buildDelimBuf(delimiterStr)
-    //delimRegEx = this.buildDelimRegEx(delimBuf)
-    delimRegExParseUntil = this.delimRegexParseUntil(delimBuf)
+
     delimRegExParseDelim = this.delimRegexParseDelim(delimBuf)
   }
 
@@ -219,107 +217,19 @@ class Delimiter {
   // when character classes are involved, RegEx allows us to determine
   // if the delimiter/data was in the expected format.
   //
-  def buildDelimRegEx(delimiterBuf: Array[DelimBase] = delimBuf): String = {
-    var sb: StringBuilder = new StringBuilder //("(")
-    delimiterBuf foreach {
-      delim =>
-        {
-          delim match {
-            case nl: NLDelim => { sb.append("(\\r\\n|\\n|\\r|\\u0085|\\u2028)") }
-            case wsp: WSPDelim => {
-              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
-                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)")
-            } // Single space
-            case wsp: WSPPlusDelim => {
-              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
-                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)+")
-            } // One or more spaces
-            case wsp: WSPStarDelim => {
-              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
-                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)")
-            } // None or more spaces
-            case char: CharDelim => { // Some character
-              char.char match {
-                case '[' => sb.append("\\[")
-                case '\\' => sb.append("\\\\")
-                case '^' => sb.append("\\^")
-                case '$' => sb.append("\\$")
-                case '.' => sb.append("\\.")
-                case '|' => sb.append("\\|")
-                case '?' => sb.append("\\?")
-                case '*' => sb.append("\\*")
-                case '+' => sb.append("\\+")
-                case '(' => sb.append("\\(")
-                case ')' => sb.append("\\)")
-                case '{' => sb.append("\\{")
-                case '}' => sb.append("\\}")
-                case x => sb.append(x)
-              }
-            }
-          }
-        }
-    }
-    //sb.append(")")
-    sb.toString()
-  }
-
-  def delimRegexParseUntil(delimiterBuf: Array[DelimBase] = delimBuf): String = {
-    var sb: StringBuilder = new StringBuilder //("(")
-    delimiterBuf foreach {
-      delim =>
-        {
-          delim match {
-            case nl: NLDelim => { sb.append("(\\r\\n|\\n|\\r|\\u0085|\\u2028)") }
-            case wsp: WSPDelim => {
-              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
-                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)")
-            } // Single space
-            case wsp: WSPPlusDelim => {
-              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
-                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)")
-            } // One or more spaces
-            case wsp: WSPStarDelim => {
-              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
-                "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)")
-            } // None or more spaces
-            case char: CharDelim => { // Some character
-              char.char match {
-                case '[' => sb.append("\\[")
-                case '\\' => sb.append("\\\\")
-                case '^' => sb.append("\\^")
-                case '$' => sb.append("\\$")
-                case '.' => sb.append("\\.")
-                case '|' => sb.append("\\|")
-                case '?' => sb.append("\\?")
-                case '*' => sb.append("\\*")
-                case '+' => sb.append("\\+")
-                case '(' => sb.append("\\(")
-                case ')' => sb.append("\\)")
-                case '{' => sb.append("\\{")
-                case '}' => sb.append("\\}")
-                case x => sb.append(x)
-              }
-            }
-          }
-        }
-    }
-    //sb.append(")")
-    sb.toString()
-  }
-
   def delimRegexParseDelim(delimiterBuf: Array[DelimBase] = delimBuf): String = {
-    var sb: StringBuilder = new StringBuilder //("(")
+    var sb: StringBuilder = new StringBuilder
     delimiterBuf foreach {
       delim =>
         {
           delim match {
-            case nl: NLDelim => { sb.append("(\\r\\n|\\n|\\r|\\u0085|\\u2028)") }
+            case nl: NLDelim => {
+              sb.append("(?>" + // Eliminates needles backtracking. Atomic group of
+                "(\\r\\n)|" + // CRLF
+                "((?<!\\r)\\n)|" + // LF not preceded by CR
+                "(\\r(?!\\n))|" + // CR not followed by LF
+                "\\u0085|\\u2028)")
+            }
             case wsp: WSPDelim => {
               sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
                 "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
@@ -356,7 +266,6 @@ class Delimiter {
           }
         }
     }
-    //sb.append(")")
     sb.toString()
   }
 
@@ -364,7 +273,6 @@ class Delimiter {
   // or None if one is not found
   //
   def findCharClasses(str: String): (Int, Option[DelimBase]) = {
-    //log(LogLevel.Debug, "findCharClasses(\"" + str + "\")"))
     val mNL: Matcher = NL.matcher(str)
     val mWSP: Matcher = WSP.matcher(str)
     val mWSP_Plus: Matcher = WSP_Plus.matcher(str)
@@ -398,10 +306,8 @@ class Delimiter {
         case "WSP+" => (length, Some(new WSPPlusDelim()))
         case "WSP*" => (length, Some(new WSPStarDelim()))
       }
-      //log(LogLevel.Debug, "findCharClasses - result: " + result))
       return result
     }
-    //log(LogLevel.Debug, "findCharClasses - result: " + (-1, None)))
     (-1, None) // Unrecognized CharClass
   }
 
@@ -435,7 +341,6 @@ class Delimiter {
           // According to JavaDoc, split will always return at least
           // one result even if there is no match.
           val split = delimStr.substring(idx + 1).split("%")
-          //log(LogLevel.Debug, "buildDelimBuf - SPLIT on %: " + split.toSeq.toString))
 
           val subStr: String = "%" + split(0)
           val (matchLength, delimObj) = findCharClasses(subStr)
@@ -469,14 +374,11 @@ class Delimiter {
     var resDelimBuf: Array[DelimBase] = null
     if (numCharClass > 1) {
       // More than one Char Class, reduction possible!
-      //log(LogLevel.Debug, "buildDelimBuf - Reduction of delimBuf possible!"))
-      //log(LogLevel.Debug, "buildDelimBuf - Before Reduction:\t" + printDelimBufStr))
       resDelimBuf = reduceDelimBuf(q.toArray[DelimBase])
     } else {
       // No need to reduce
       resDelimBuf = q.toArray[DelimBase]
     }
-    //log(LogLevel.Debug, "buildDelimBuf - Result:\t" + printDelimBufStr(resDelimBuf)))
     resDelimBuf
   }
 }

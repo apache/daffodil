@@ -611,6 +611,15 @@ object XMLUtils {
     return XML.loadString(new org.jdom.output.XMLOutputter().outputString(jElem))
   }
 
+  def element2ElemTDML(jElem: Element): scala.xml.Node = {
+    val format = org.jdom.output.Format.getRawFormat().setTextMode(Format.TextMode.PRESERVE) // Literal text preservation
+    val w = new java.io.StringWriter
+    val out = new org.jdom.output.XMLOutputter(format)
+    out.output(jElem, w)
+    val res = XML.loadString(w.toString())
+    return res
+  }
+
   def elem2Element(nodes: scala.xml.NodeSeq): Seq[Element] = nodes.map { elem => elem2Element(elem) }
 
   /**
@@ -642,6 +651,78 @@ object XMLUtils {
       val res = thisOne +: (ans ++ parentContribution)
       res
     }
+  }
+
+  val CDATAPattern = {
+    """(?s)^<!\[CDATA\[(.*?)\]\]>$""".r
+  }
+
+  def elem2ElementTDML(node: scala.xml.Node): Element = {
+    // val jdomNode = new CompressableElement(node label,node namespace)
+    val jdomNode = new Element(node.label, node.prefix, node.namespace)
+    var Elem(_, _, _, nsBinding: NamespaceBinding, _*) = node.asInstanceOf[scala.xml.Elem]
+
+    namespaceBindings(nsBinding).foreach { ns =>
+      {
+        val prefix = ns.getPrefix()
+        if (prefix != null & prefix != ""
+          && jdomNode.getNamespace(prefix) == null)
+          jdomNode.addNamespaceDeclaration(ns)
+      }
+    }
+
+    val attribsList = if (node.attributes == null) Nil else node.attributes
+
+    val attribs = attribsList.map { (attribute: MetaData) =>
+      {
+        // for(attribute <- attribs) {
+        val attrNS = attribute.getNamespace (node)
+        val name = attribute.key
+        val value = attribute.value.text
+        val prefixedKey = attribute.prefixedKey
+        val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
+        val ns = (prefix, attrNS) match {
+          //
+          // to make our test cases less cluttered and more compact visually, we're 
+          // going to specifically allow for an attribute named xsi:nil where xsi prefix
+          // is NOT defined.
+          //
+          case ("xsi", null) | ("xsi", "") => xsiNS
+          case (_, null) | (_, "") => {
+            Assert.invariantFailed("attribute with prefix '%s', but no associated namespace".format(prefix))
+          }
+          case ("", uri) => Namespace.getNamespace(uri)
+          case (pre, uri) => Namespace.getNamespace(pre, uri)
+        }
+
+        if (attribute.isPrefixed && attrNS != "") {
+          //          println("THE ATTRIBUTE IS: " + name)
+          //          println("THE NAMESPACE SHOULD BE: " + attrNS)
+          //          println("IT ACTUALLY IS:" + Namespace.getNamespace(name, attrNS))
+
+          // jdomNode setAttribute (name, value, ns)
+          new Attribute(name, value, ns)
+        } else
+          // jdomNode setAttribute (name, value)
+          new Attribute(name, value)
+      }
+    }
+    jdomNode.setAttributes(attribs)
+    for (child <- node.child) {
+      child.toString match {
+        case CDATAPattern(text) => {
+          jdomNode.addContent(new org.jdom.CDATA(text))
+        }
+        case _ => child.label match {
+          case "#PCDATA" => jdomNode.addContent(child.toString)
+          case "#CDATA" => jdomNode.addContent(new org.jdom.CDATA(child.toString))
+          case "#REM" =>
+          case _ => jdomNode.addContent(elem2ElementTDML(child))
+        }
+      }
+
+    }
+    jdomNode
   }
 
   def elem2Element(node: scala.xml.Node): Element = {
@@ -695,9 +776,11 @@ object XMLUtils {
       }
     }
     jdomNode.setAttributes(attribs)
+
     for (child <- node.child) {
       child.label match {
         case "#PCDATA" => jdomNode.addContent(child.toString)
+        case "#CDATA" => jdomNode.addContent(new org.jdom.CDATA(child.toString))
         case "#REM" =>
         case _ => jdomNode.addContent(elem2Element(child))
       }

@@ -68,6 +68,7 @@ import edu.illinois.ncsa.daffodil.processors.DFDLCharCounter
 import edu.illinois.ncsa.daffodil.processors.IterableReadableByteChannel
 import edu.illinois.ncsa.daffodil.Tak._
 import java.net.URLDecoder
+import scala.xml.parsing.ConstructingParser
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -132,22 +133,56 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
    */
   val loader = new DaffodilXMLLoader(errorHandler)
   loader.setValidation(validateTDMLFile)
-  
+
+  /**
+   * Detects the encoding of the File for us.
+   */
+  def determineEncoding(theFile: File): String = {
+    val encH = scala.xml.include.sax.EncodingHeuristics
+    val is = new java.io.FileInputStream(theFile)
+    val bis = new java.io.BufferedInputStream(is)
+    val enc = encH.readEncodingFromStream(bis)
+    enc
+  }
+
   val (ts, tdmlFile, tsInputSource) = {
+
+    /** 
+     * We have to use the ConstructingParser in order for Scala to preserve
+     * CDATA elements in the dfdl:infoset of the TDML tests.  However,
+     * ConstructingParser does not detect encoding and neither does scala.io.Source.
+     * We have to use EncodingHeuristics to detect this encoding for us.
+     * 
+     * The other thing to note here is that we still need to perform some sort
+     * of validation against the TDML.  We do this by leaving the original
+     * loader.loadFile(file) call here.
+     * */
     val tuple = aNodeFileOrURL match {
       case tsNode: Node => {
         val tempFile = XMLUtils.convertNodeToTempFile(tsNode)
-        val newNode = loader.loadFile(tempFile)
+        val enc = determineEncoding(tempFile)
+        val input = scala.io.Source.fromURI(tempFile.toURI)(enc)
+        val origNode = loader.loadFile(tempFile) // used for validation only
+        val newNode = ConstructingParser.fromSource(input, true).document.docElem
         (newNode, null, new InputSource(tempFile.toURI().toASCIIString()))
       }
       case tdmlFile: File => {
         log(LogLevel.Debug, "loading TDML file: %s", tdmlFile)
-        val res = (loader.loadFile(tdmlFile), tdmlFile, new InputSource(tdmlFile.toURI().toASCIIString()))
+        val enc = determineEncoding(tdmlFile)
+        val input = scala.io.Source.fromURI(tdmlFile.toURI)(enc)
+        val origNode = loader.loadFile(tdmlFile) // used for validation only
+        val someNode = ConstructingParser.fromSource(input, true).document.docElem
+        val res = (someNode, tdmlFile, new InputSource(tdmlFile.toURI().toASCIIString()))
         log(LogLevel.Debug, "done loading TDML file: %s", tdmlFile)
         res
       }
       case tsURL: URL => {
-        val res = (loader.load(tsURL), null, new InputSource(tsURL.toURI().toASCIIString()))
+        val f = new File(tsURL.toURI())
+        val enc = determineEncoding(f)
+        val input = scala.io.Source.fromURI(tsURL.toURI)(enc)
+        val origNode = loader.load(tsURL) // used for validation only
+        val someNode = ConstructingParser.fromSource(input, true).document.docElem
+        val res = (someNode, null, new InputSource(tsURL.toURI().toASCIIString()))
         res
       }
       case _ => Assert.usageError("not a Node, File, or URL")
@@ -318,11 +353,11 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
   var suppliedSchema: Option[Node] = None
 
   protected def runProcessor(processor: DFDL.ProcessorFactory,
-                             data: Option[DFDL.Input],
-                             nBits: Option[Long],
-                             infoset: Option[Infoset],
-                             errors: Option[ExpectedErrors],
-                             warnings: Option[ExpectedWarnings]): Unit
+    data: Option[DFDL.Input],
+    nBits: Option[Long],
+    infoset: Option[Infoset],
+    errors: Option[ExpectedErrors],
+    warnings: Option[ExpectedWarnings]): Unit
 
   def run(schema: Option[Node] = None): (Long, Long) = {
     suppliedSchema = schema
@@ -397,11 +432,11 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
   def runProcessor(pf: DFDL.ProcessorFactory,
-                   data: Option[DFDL.Input],
-                   lengthLimitInBits: Option[Long],
-                   optInfoset: Option[Infoset],
-                   optErrors: Option[ExpectedErrors],
-                   warnings: Option[ExpectedWarnings]) = {
+    data: Option[DFDL.Input],
+    lengthLimitInBits: Option[Long],
+    optInfoset: Option[Infoset],
+    optErrors: Option[ExpectedErrors],
+    warnings: Option[ExpectedWarnings]) = {
 
     val nBits = lengthLimitInBits.get
     val dataToParse = data.get
@@ -442,11 +477,12 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     //
     // so we run the expected stuff through the same converters that were used to
     // convert the actual.
-    val expected = XMLUtils.element2Elem(XMLUtils.elem2Element(infoset.contents))
+    val expected = XMLUtils.element2ElemTDML(XMLUtils.elem2ElementTDML(infoset.contents)) //val expected = XMLUtils.element2Elem(XMLUtils.elem2Element(infoset.contents))
     // infoset.contents already has attributes removed.
+    val trimmedExpected = Utility.trim(expected)
 
-    if (expected != actualNoAttrs) {
-      val diffs = XMLUtils.computeDiff(expected, actualNoAttrs)
+    if (trimmedExpected != actualNoAttrs) {
+      val diffs = XMLUtils.computeDiff(trimmedExpected, actualNoAttrs)
       if (diffs.length > 0) {
         //throw new Exception("Comparison failed. Expected: " + expected + " but got " + actualNoAttrs)
         throw new Exception("""
@@ -457,16 +493,16 @@ Actual
           %s
 Differences were (path, expected, actual):
  %s""".format(
-          expected.toString, actualNoAttrs.toString, diffs.map { _.toString }.mkString("\n")))
+          trimmedExpected.toString, actualNoAttrs.toString, diffs.map { _.toString }.mkString("\n")))
       }
     }
   }
 
   def runParseExpectErrors(pf: DFDL.ProcessorFactory,
-                           dataToParse: DFDL.Input,
-                           lengthLimitInBits: Long,
-                           errors: ExpectedErrors,
-                           warnings: Option[ExpectedWarnings]) {
+    dataToParse: DFDL.Input,
+    lengthLimitInBits: Long,
+    errors: ExpectedErrors,
+    warnings: Option[ExpectedWarnings]) {
 
     val objectToDiagnose =
       if (pf.isError) pf
@@ -499,10 +535,10 @@ Differences were (path, expected, actual):
   }
 
   def runParseExpectSuccess(pf: DFDL.ProcessorFactory,
-                            dataToParse: DFDL.Input,
-                            lengthLimitInBits: Long,
-                            infoset: Infoset,
-                            warnings: Option[ExpectedWarnings]) {
+    dataToParse: DFDL.Input,
+    lengthLimitInBits: Long,
+    infoset: Infoset,
+    warnings: Option[ExpectedWarnings]) {
 
     val isError = pf.isError
     val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
@@ -547,11 +583,11 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
   def runProcessor(pf: DFDL.ProcessorFactory,
-                   optData: Option[DFDL.Input],
-                   optNBits: Option[Long],
-                   optInfoset: Option[Infoset],
-                   optErrors: Option[ExpectedErrors],
-                   warnings: Option[ExpectedWarnings]) = {
+    optData: Option[DFDL.Input],
+    optNBits: Option[Long],
+    optInfoset: Option[Infoset],
+    optErrors: Option[ExpectedErrors],
+    warnings: Option[ExpectedWarnings]) = {
 
     val infoset = optInfoset.get
 
@@ -597,9 +633,9 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runUnparserExpectSuccess(pf: DFDL.ProcessorFactory,
-                               data: DFDL.Input,
-                               infoset: Infoset,
-                               warnings: Option[ExpectedWarnings]) {
+    data: DFDL.Input,
+    infoset: Infoset,
+    warnings: Option[ExpectedWarnings]) {
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
@@ -624,10 +660,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runUnparserExpectErrors(pf: DFDL.ProcessorFactory,
-                              optData: Option[DFDL.Input],
-                              infoset: Infoset,
-                              errors: ExpectedErrors,
-                              warnings: Option[ExpectedWarnings]) {
+    optData: Option[DFDL.Input],
+    infoset: Infoset,
+    errors: ExpectedErrors,
+    warnings: Option[ExpectedWarnings]) {
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
@@ -713,6 +749,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
       child match {
         case <documentPart>{ _* }</documentPart> => // ok
         case scala.xml.Text(s) if (s.matches("""\s+""")) => // whitespace text nodes ok
+        case scala.xml.Comment(_) => // ok
         case x => Assert.usageError("Illegal TDML data document content '" + x + "'")
       }
     }

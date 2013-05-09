@@ -4456,12 +4456,6 @@
 	</tdml:document>
 	<tdml:infoset>
 		<tdml:dfdlInfoset>
-			<!--  <hb_root01>
-				<text>We can't be consumed by our petty differences any more</text>
-				<text> We will be united in our common interest</text>
-				<text> Perhaps it's fate that today is the 4th of July</text>
-				<text> and you will once again be fighting for our freedom</text>
-			</hb_root01> -->
 			<hb_root01>
         <text>57652063616E277420626520636F6E73756D6564206279206F757220706574747920646966666572656E63657320616E79206D6F7265</text>
         <text>2057652077696C6C20626520756E6974656420696E206F757220636F6D6D6F6E20696E746572657374</text>
@@ -4489,12 +4483,6 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <!-- <hb_root02>
-        <text>Not from tyranny</text>
-        <text> oppression</text>
-        <text> or persecution</text>
-        <text> but from annihilation.</text>
-        </hb_root02> -->
         <hb_root02>
         <text>4E6F742066726F6D20747972616E6E79</text>
         <text>206F707072657373696F6E</text>
@@ -4531,14 +4519,6 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <!-- <hb_root03>
-        <text>We're fighting for our right to live</text>
-        <text> to exist and should we win the day</text>
-        <text> the 4th of July will no longer be known as an American holiday</text>
-        <text> but as the day when the world declared in one voice</text>
-        <text> 'We will not go quietly into the night! We will not vanish without a fight! We're going to live on</text>
-        <text> we're going to survive.'</text>
-        </hb_root03> -->
         <hb_root03>
         <text>5765277265206669676874696E6720666F72206F757220726967687420746F206C697665</text>
         <text>20746F20657869737420616E642073686F756C642077652077696E2074686520646179</text>
@@ -4565,9 +4545,6 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <!-- <hb_root03>
-        <text>Today we celebrate our independence day!</text>
-        </hb_root03> -->
         <hb_root04>
         <text>546F6461792077652063656C656272617465206F757220696E646570656E64656E63652064617921</text>
         </hb_root04>

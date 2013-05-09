@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.File;
 
 import org.jdom.output.Format;
+import org.jdom.output.Format.TextMode;
 import org.junit.Test;
 
 import edu.illinois.ncsa.daffodil.japi.Compiler;
@@ -312,6 +313,57 @@ public class TestJavaAPI {
 			assertTrue(msg.contains("notHere1"));
 			assertTrue(msg.contains("notHere2"));
 		}
+
+		// reset the global logging state
+		Daffodil.setLogWriter(new ConsoleLogWriter());
+		Daffodil.setLoggingLevel(LogLevel.Info);
+	}
+	
+	/**
+	 * Tests a user submitted case where the XML appears
+	 * to be serializing odd xml entities into the output.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void testJavaAPI7() throws IOException {
+		// TODO: This is due to the fact that we are doing several conversions
+		// back and forth between Scala.xml.Node and JDOM.  And the conversions
+		// both use XMLOutputter to format the result (which escapes the entities).
+		LogWriterForJAPITest lw = new LogWriterForJAPITest();
+
+		Daffodil.setLogWriter(lw);
+		Daffodil.setLoggingLevel(LogLevel.Debug);
+
+		Compiler c = Daffodil.compiler();
+		java.io.File[] schemaFiles = new java.io.File[1];
+		schemaFiles[0] = getResource("/test/japi/TopLevel.xsd");
+		c.setDistinguishedRootNode("TopLevel", null);
+		ProcessorFactory pf = c.compile(schemaFiles);
+		DataProcessor dp = pf.onPath("/");
+		java.io.File file = getResource("/test/japi/01very_simple.txt");
+		java.io.FileInputStream fis = new java.io.FileInputStream(file);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
+				.newChannel(fis);
+		ParseResult res = dp.parse(rbc);
+		boolean err = res.isError();
+		if (!err) {
+			org.jdom.Document doc = res.result();
+			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+//			xo.setFormat(Format.getPrettyFormat());
+			xo.setFormat(Format.getRawFormat());
+			xo.output(doc, System.out);
+		}
+		java.util.List<Diagnostic> diags = res.getDiagnostics();
+		for (Diagnostic d : diags) {
+			System.err.println(d.getMessage());
+		}
+		assertTrue(res.location().isAtEnd());
+
+		// assertEquals(0, lw.errors.size());
+		// assertEquals(0, lw.warnings.size());
+		//assertTrue(lw.infos.size() > 0);
+		//assertTrue(lw.others.size() > 0);
 
 		// reset the global logging state
 		Daffodil.setLogWriter(new ConsoleLogWriter());

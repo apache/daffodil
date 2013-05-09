@@ -78,6 +78,9 @@ public class LogWriterForJAPITest extends LogWriter {
 			case Debug:
 				prefix = "[debug] ";
 				break;
+			case DelimDebug:
+				prefix = "[delimdebug] ";
+				break;
 			case OOLAGDebug:
 				prefix = "[oolagdebug] ";
 				break;

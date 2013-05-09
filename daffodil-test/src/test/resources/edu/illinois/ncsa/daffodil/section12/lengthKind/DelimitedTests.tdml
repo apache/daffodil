@@ -12,6 +12,26 @@
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="text" initiatedContent="no" />
 
+    <xs:element name="TopLevel">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="MessageHeaders" dfdl:lengthKind="delimited" 
+          dfdl:terminator="%NL;%NL;" type="xs:string"/>
+          <xs:element name="Body" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="TopLevel2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%NL;%NL;">
+          <xs:element name="MessageHeaders" dfdl:lengthKind="delimited" 
+           type="xs:string"/>
+          <xs:element name="Body" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
     <xs:element name="NS_00a" type="xs:int" dfdl:terminator="a aab" />
     <xs:element name="NS_00nl" type="xs:int" dfdl:terminator="%NL;" />
 
@@ -310,6 +330,74 @@
     </xs:element>
 
   </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="TestDoubleNewLineTerminator"
+    root="TopLevel" model="lengthKindDelimited-Embedded.dfdl.xsd"
+    description="Verifies DFDL-676 works">
+    <tdml:document><![CDATA[Date: Sat, 15 Feb 2013 08:54:52 -0500
+
+This is the body]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+      <TopLevel>
+        <MessageHeaders>Date: Sat, 15 Feb 2013 08:54:52 -0500</MessageHeaders>
+        <Body>This is the body</Body>
+      </TopLevel>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="TestDoubleNewLineSeparator"
+    root="TopLevel2" model="lengthKindDelimited-Embedded.dfdl.xsd"
+    description="Verifies DFDL-675 works">
+    <tdml:document><![CDATA[Date: xsw, 15 Feb 2013 08:54:52 -0500
+From: john@doe.com
+To: jane@doe.com
+Message-ID: <OFB0B2662B.92FC9941-ON80257B1F.0045CE19-80257B1F.004ADB2A@doe.com>
+Subject: Hello World!
+Return-Path: <bob@smith.com>
+Thread-Index: Ac3NbaI+1oo+ltP4SSqsh0WAhpIVagAAZVmwAALaigABACxfkAAPsjwAAA8SeAAABZb0A==
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:16.0) Gecko/20120828 Thunderbird/16.0 Lightning/1.8b1
+Content-Type: multipart/mixed; boundary=gc0p4Jq0M2Yt08jU534c0p
+
+This is the body]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+      <TopLevel2>
+        <MessageHeaders><![CDATA[Date: xsw, 15 Feb 2013 08:54:52 -0500
+From: john@doe.com
+To: jane@doe.com
+Message-ID: <OFB0B2662B.92FC9941-ON80257B1F.0045CE19-80257B1F.004ADB2A@doe.com>
+Subject: Hello World!
+Return-Path: <bob@smith.com>
+Thread-Index: Ac3NbaI+1oo+ltP4SSqsh0WAhpIVagAAZVmwAALaigABACxfkAAPsjwAAA8SeAAABZb0A==
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:16.0) Gecko/20120828 Thunderbird/16.0 Lightning/1.8b1
+Content-Type: multipart/mixed; boundary=gc0p4Jq0M2Yt08jU534c0p]]></MessageHeaders>
+        <Body>This is the body</Body>
+      </TopLevel2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="TestDoubleNewLineSeparatorBasic"
+    root="TopLevel2" model="lengthKindDelimited-Embedded.dfdl.xsd"
+    description="Verifies DFDL-675 works">
+    <tdml:document><![CDATA[A
+B
+C
+
+D]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+      <TopLevel2>
+        <MessageHeaders>A
+B
+C</MessageHeaders>
+        <Body>D</Body>
+      </TopLevel2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="Lesson1_lengthKind_delimited"
     root="address" model="lengthKindDelimited-Embedded.dfdl.xsd"

@@ -46,6 +46,13 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TresysTests {
+
+  // Debug Template
+  // @Test def test_name() = Debugger.withDebugger { 
+  // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+  // runner.runOneTest("test_name") 
+  // }
+
   val testDir = "/test-suite/tresys-contributed/"
 
   val delimited = testDir + "dpaext1.tdml"
@@ -60,7 +67,7 @@ class TresysTests {
   // AX debugged. Uses escape schemes. 
   val ax = testDir + "AX.tdml"
   lazy val runnerAX = new DFDLTestSuite(Misc.getRequiredResource(ax))
-  @Test def test_AX000() { runnerAX.runOneTest("AX000") } // escape schemes
+  @Test def test_AX000() = { runnerAX.runOneTest("AX000") } // escape schemes
 
   @Test def test_multiple_diagnostics1() {
     runnerMD.runOneTest("twoMissingTypeDefErrors")

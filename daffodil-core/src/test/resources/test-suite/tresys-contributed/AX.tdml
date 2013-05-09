@@ -16,7 +16,9 @@ AAAAAAAAAAAAAAA,/*BBBBBB/*x,xBB*/,CCCCCC/*,,,*/CC,D/*x*/D/*z*/DDD,/*EE
           <character>aaaaa</character>
           <character>bb,b</character>
           <character>ccc,</character>
-          <character>dddd,ee&#xA;e</character>
+          <!-- <character>dddd,ee&#xA;e</character> -->
+          <character><![CDATA[dddd,ee
+e]]></character>
           <character>fffff</character>
           <block>AAAAAAAAAAAAAAA</block>
           <block>BBBBBB/*x,xBB</block>
@@ -25,10 +27,14 @@ AAAAAAAAAAAAAAA,/*BBBBBB/*x,xBB*/,CCCCCC/*,,,*/CC,D/*x*/D/*z*/DDD,/*EE
           <block></block>
           <block>*/CC</block>
           <block>D/*x*/D/*z*/DDD</block>
-          <block>EE&#xA;-------E</block>
+          <!-- <block>EE&#xA;E</block> -->
+          <block><![CDATA[EE
+-------E]]></block>
           <block>FFFFFF\/*xxxxxxx</block>
           <block>GGG/*G</block>
-          <block>G\*/GG&#xA;</block>
+          <!-- <block>G\*/GG&#xA;</block> -->
+          <block><![CDATA[G\*/GG
+]]></block>
         </list>
       </dfdlInfoset>
     </infoset>

@@ -49,6 +49,16 @@ class TestLengthKindDelimited {
   val aa = testDir + "DelimitedTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
+  // Debug Template
+  // @Test def test_name() = Debugger.withDebugger { 
+  // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+  // runner.runOneTest("test_name") 
+  // }
+
+  @Test def test_DoubleNewLineTerminator() = { runner.runOneTest("TestDoubleNewLineTerminator") }
+  @Test def test_DoubleNewLineSeparator() = { runner.runOneTest("TestDoubleNewLineSeparator") }
+  @Test def test_DoubleNewLineSeparatorBasic() = { runner.runOneTest("TestDoubleNewLineSeparatorBasic") }
+
   @Test def test_NumSeq_00a() = {
     runner.runOneTest("NumSeq_00a")
   }
