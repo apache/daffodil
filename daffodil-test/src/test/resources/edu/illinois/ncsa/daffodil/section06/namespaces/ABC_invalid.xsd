@@ -44,6 +44,16 @@
                   </xsd:appinfo>
                 </xsd:annotation>
               </xsd:element>
+              <xsd:element dfdl:length="1" dfdl:lengthKind="explicit"
+                fixed="d" minOccurs="1" name="d" type="xsd:string">
+                <xsd:annotation>
+                  <xsd:appinfo source="http://www.ogf.org/dfdl/">
+                  <!-- Cannot put this on dfdl:discriminator. Those don't accept non-native attributes.
+                        rando:hm="what about here?"  -->
+                    <dfdl:discriminator >{if (. eq 'd') then true() else false()}</dfdl:discriminator>
+                  </xsd:appinfo>
+                </xsd:annotation>
+              </xsd:element>
             </xsd:choice>
           </xsd:complexType>
         </xsd:element>
@@ -51,6 +61,37 @@
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
+
+  <xsd:element dfdl:terminator="%NL;" rando:whatAreYouDoing="this is not valid" name="ABC_fail">
+    <xsd:complexType>
+      <xsd:sequence dfdl:separator="" rando:IcanPutAnythingHEre="yep" rando:separator=".">
+
+        <xsd:element dfdl:occursCountKind="implicit"
+          dfdl:terminator="" maxOccurs="unbounded" minOccurs="1" name="Container">
+          <xsd:annotation rando:annotation="ok">
+            <xsd:appinfo source="http://www.ogf.org/dfdl/">
+            </xsd:appinfo>
+          </xsd:annotation>
+          <xsd:complexType rando:note="this would be good for documentation">
+            <xsd:choice>
+              <xsd:element dfdl:length="1" dfdl:lengthKind="explicit"
+                fixed="e" minOccurs="1" name="e" type="xsd:string">
+                <xsd:annotation>
+                  <xsd:appinfo source="http://www.ogf.org/dfdl/">
+                  <!-- Cannot put this on dfdl:discriminator. Those don't accept non-native attributes.
+                        rando:hm="what about here?"  -->
+                    <dfdl:discriminator >{if (. eq 'e') then fn:true() else fn:false()}</dfdl:discriminator>
+                  </xsd:appinfo>
+                </xsd:annotation>
+              </xsd:element>
+            </xsd:choice>
+          </xsd:complexType>
+        </xsd:element>
+
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
   <xsd:annotation>
     <xsd:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="tns:GeneralPurposeFormat" />

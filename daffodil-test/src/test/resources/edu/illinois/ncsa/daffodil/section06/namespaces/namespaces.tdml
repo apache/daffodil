@@ -1506,6 +1506,31 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
+  <tdml:parserTestCase name="nonsense_namespace_02" root="ABC"
+    model="ABC_invalid.xsd" description="">
+    <tdml:document><![CDATA[d
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ABC>
+          <Container>
+            <d>d</d>
+          </Container>
+        </ABC>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="nonsense_namespace_03" root="ABC_fail"
+    model="ABC_invalid.xsd" description="">
+    <tdml:document><![CDATA[e
+]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Prefix fn has not been declared Schema context</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
   <!--
     Test name: namespaceLimit
        Schema: namespaceCharLim.dfdl.xsd
