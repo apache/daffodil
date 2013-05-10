@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+
+<!-- The schemaLocation below will NOT work relative to the classpath
+     This is intentional, it will only work right if include is allowing
+     self-relative paths to work. -->
+  <xs:include schemaLocation="anotherChildDir/include01_01_02.dfdl.xsd"/>
+  
+</xs:schema>

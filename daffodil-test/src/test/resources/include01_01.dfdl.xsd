@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+
+<!-- search for this self-relative, which will work, but 
+     it also would have worked if we just searched the classpath. -->
+  <xs:include schemaLocation="childDir/include01_01_01.dfdl.xsd"/>
+  
+</xs:schema>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="Namespaces"
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:a01="http://a01.com" xmlns:b01="http://b01.com">
+  
+  <tdml:defineSchema name="embeddedWithInclude">
+    <xs:include schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+    <dfdl:format ref="GeneralPurposeFormat"/>
+    <xs:element name="basic" type="xs:string" dfdl:lengthKind="delimited"/>
+  </tdml:defineSchema>
+  
+ 
+  <!-- Test that we search not only the classpath directories, but 
+  once we have found a file somewhere beneath there, then one can include files
+  relative to that new location. Such relative path names are not directly
+  decending from somewhere on the classpath.
+   -->
+  <tdml:parserTestCase name="include01" root="r01"
+    model="include01.dfdl.xsd" description="include a schema. Use self-relative paths - DFDL-6-007R">
+    <tdml:document><![CDATA[123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r01>123</r01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!-- 
+  Negative test. Should include information that we searched in testData_onClassPath/childDir
+  becasue that is NOT a directory on the class path, but searched it because that was where the 
+  file doing the include (that failed) is located, and self-relative is also searched.
+  
+  However, unclear how to check this in an error message. Just testData_onClassPath/childDir
+  won't do it because that will be mentioned in the path of the file having the error.
+  
+  Perhaps that is sufficient.
+   -->
+  <tdml:parserTestCase name="include02" root="r01"
+    model="include02.dfdl.xsd" description="include a schema. Use self-relative paths. - DFDL-6-007R">
+    <tdml:document><![CDATA[123]]></tdml:document>
+    <tdml:errors>
+    <tdml:error>anotherChildDir/thisFileIsNotThere.dfdl.xsd</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  
+ 
+</testSuite>

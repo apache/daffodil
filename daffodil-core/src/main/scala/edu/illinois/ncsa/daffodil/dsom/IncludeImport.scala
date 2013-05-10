@@ -124,7 +124,11 @@ import java.net.URLDecoder
  * DFDLSchemaFile and XMLSchemaDocument above.
  *
  * Seems cyclical, but it isn't. We can call the constructors, passing
- * them a promise (aka Delayed IIMap) to deliver the IIMap when it is needed. Turns out it isn't needed for the constructed object to answer the question "what is the targetNamespace". But that target namespace information IS needed to determine the IIMap which will be supplied when demanded.
+ * them a promise (aka Delayed IIMap) to deliver the IIMap when it is
+ * needed. Turns out it isn't needed for the constructed object to
+ * answer the question "what is the targetNamespace". But that target
+ * namespace information IS needed to determine the IIMap which will
+ * be supplied when demanded.
  *
  * From an ObjectOriented programing perspective, we don't pass an IIMap,
  * we pass an IIMap factory (a delayed IIMap is effectively that). That
@@ -397,28 +401,72 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
 
   /**
    * Both include and import have schemaLocation. For import it is optional.
-   * If supplied we resolve it via the classpath.
+   * If supplied we resolve it via the classpath, current working dir, relative
+   * to the location of the including/importing file, etc.
    */
 
   final lazy val resolvedSchemaLocation: Option[URL] = resolvedSchemaLocation_.value
   private val resolvedSchemaLocation_ = LV('resolvedSchemaLocation) {
     val res = schemaLocationProperty.flatMap { slText =>
-      val rl = if (slText.startsWith("file:")) {
-        val justPath = slText.replaceFirst("file:", "")
-        val theURI = URI.create(slText)
-        val file = new File(theURI)
-        val (optURL, _) =
-          if (file.isAbsolute()) (Some(file.toURI.toURL), "")
-          else Misc.getResourceOption(justPath)
-        optURL
-      } else {
-        val file = new File(slText)
-        val (optURL, _) =
-          if (file.isAbsolute()) (Some(file.toURI.toURL), "")
-          else Misc.getResourceOption(slText)
-        optURL
-      }
-      rl
+      val fileURI = new URI(slText)
+      val optURL =
+        if (fileURI.isAbsolute() &&
+          (new File(fileURI)).exists) Some(fileURI.toURL)
+        else {
+          // file is relative
+          // So we try to resolve it a few different ways
+          //
+          // Removed this first case intentionally. Looking in the CWD 
+          // would be a security risk/issue. So if a user wants the CWD
+          // they should add "." to their classpath to get this behavior.
+          //
+          ///////////////////////////////////////////////////////////////////
+          // (1) First try the current working directory, or however
+          // the JVM completes a relative File when you call getAbsolutePath()
+          //
+          //          val relPathString = fileURI.getPath()
+          //          val relFile = new File(relPathString)
+          //          val absPath = relFile.getAbsolutePath()
+          //          val absURI = new URI(absPath)
+          //          val absFile = new File(absURI)
+          //          if (absFile.exists()) {
+          //            // found in CWD
+          //            Some(absURI.toURL)
+          //          } else {
+          ///////////////////////////////////////////////////////////////////
+          //
+          // (2) Try self-relative, that is, relative to wherever this schema
+          // doing the import/include is in the file system (or jar) resources.
+          //
+          val enclosingSchemaAbsURI: Option[URI] = schemaFile.map { _.url.toURI }
+          val selfRelative = enclosingSchemaAbsURI match {
+            case None => None
+            case Some(enclosingAbsURI) => {
+              val absURI = (new URL(enclosingAbsURI.toURL, fileURI.toString)).toURI
+              val absFile = new File(absURI)
+              if (absFile.exists())
+                // Win. found one relative to file doing the include/import
+                Some(absURI.toURL)
+              else
+                // Nope. Not found relative to the file.
+                None
+            }
+          }
+          if (selfRelative.isDefined) selfRelative
+          else {
+            //
+            // (2) Try classpath
+            //
+            val (optURL, _) = Misc.getResourceOption(slText) // searches classpath directories and classpath in jars.
+            if (optURL.isDefined) {
+              // found on classpath
+              optURL
+            } else {
+              None
+            }
+          }
+        }
+      optURL
     }
     res
   }
@@ -481,8 +529,9 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
 
   lazy val classPathNotJars = Misc.classPath.filterNot { _.endsWith(".jar") }
 
-  lazy val whereSearched = if (classPathNotJars.length == 0) " Classpath was empty."
-  else " Searched these locations: \n" + classPathLines
+  lazy val whereSearched =
+    if (classPathNotJars.length == 0) " Classpath was empty."
+    else " Searched these classpath locations: \n" + classPathLines + "\n"
 }
 /**
  * enclosingGoalNS is None if this include
