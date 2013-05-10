@@ -54,7 +54,7 @@
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[1]]></tdml:document>
     <tdml:errors>
-      <tdml:error>delimiter not found</tdml:error>
+      <tdml:error>placeholder</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -78,7 +78,7 @@
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[(1)]]></tdml:document>
     <tdml:errors>
-      <tdml:error>delimiter not found</tdml:error>
+      <tdml:error>placeholder</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
