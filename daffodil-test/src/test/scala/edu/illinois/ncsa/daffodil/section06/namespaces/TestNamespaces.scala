@@ -63,6 +63,10 @@ class TestNamespaces {
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"), validateTDMLFile = false)
+  
+  @Test def test_namespaces_qnames() { runner.runOneTest("namespaces_qnames") }
+  @Test def test_namespaces_qnames2() { runner.runOneTest("namespaces_qnames2") }
+//  @Test def test_namespaces_qnames3() { runner.runOneTest("namespaces_qnames3") }
 
   @Test def test_namespaceLimit() { runner.runOneTest("namespaceLimit") }
   @Test def test_namespaceSpecialChars() { runner.runOneTest("namespaceSpecialChars") }

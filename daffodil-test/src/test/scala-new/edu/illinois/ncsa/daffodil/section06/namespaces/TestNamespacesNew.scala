@@ -58,6 +58,4 @@ class TestNamespacesNew {
 
   @Test def test_nonsense_namespace_01() { runner.runOneTest("nonsense_namespace_01") }
 
-  @Test def test_namespaces_qnames() { runner.runOneTest("namespaces_qnames") }
-
 }

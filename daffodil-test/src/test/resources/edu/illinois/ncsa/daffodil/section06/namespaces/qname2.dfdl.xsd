@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://example.com/2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:what="http://example.com/3" xmlns:foo="http://example.com/2">
+
+  <xs:include schemaLocation="xsd/built-in-formats.xsd"/>    
+
+  <xs:import namespace="http://example.com/3"
+    schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/qname3.dfdl.xsd" />
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:defineFormat name="myFmt" xmlns:d="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <d:format xmlns:ex="http://example.com/2" ref="ex:daffodilTest1" initiator=""
+          terminator="" separator="" encoding="utf-8" ignoreCase="no"
+          representation="text" lengthUnits="characters" textNumberRep="standard" />
+      </dfdl:defineFormat>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:annotation xmlns="http://example.com/2">
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format ref="myFmt" />
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/"> 
+      <dfdl:defineEscapeScheme name="esc1">
+        <dfdl:escapeScheme escapeCharacter='/'
+          escapeKind="escapeCharacter" escapeEscapeCharacter="/"
+          extraEscapedCharacters="?" />
+      </dfdl:defineEscapeScheme>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:simpleType name="escapedType" dfdl:lengthKind="delimited">
+    <xs:annotation xmlns:what="http://example.com/2">
+      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:simpleType escapeSchemeRef="what:esc1"/>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  
+  <xs:simpleType name="escapedType2" dfdl:lengthKind="delimited">
+    <xs:annotation>
+      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <dfdl:simpleType escapeSchemeRef="what:esc1"/>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  
+  <xs:element name="e1">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=";">
+        <xs:element name="element1" minOccurs="1" maxOccurs="unbounded">
+          <xs:simpleType xmlns:sub="http://example.com/2">
+            <xs:restriction base="sub:escapedType"/>
+          </xs:simpleType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="e2">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=";">
+        <xs:element name="element1" minOccurs="1" maxOccurs="unbounded">
+          <xs:simpleType xmlns:sub="http://example.com/2">
+            <xs:restriction base="sub:escapedType2"/>
+          </xs:simpleType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

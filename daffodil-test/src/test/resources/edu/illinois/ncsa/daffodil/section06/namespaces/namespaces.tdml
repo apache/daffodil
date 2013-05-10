@@ -1624,6 +1624,19 @@
     </tdml:errors>
   </tdml:parserTestCase>
   
+  <!--
+    Test name: namespaces_qnames
+       Schema: qname1.dfdl.xsd
+         Root: e
+      Purpose: This test demonstrates that prefixes within expressions are resolved with respect to the namespace bindings
+               from the location where the expression was written, not where it is evaluated. In this case, the second element in the 
+               sequence references a simpleType with a length that is set with an expression. The expression uses the namespace
+               prefix "ex1", which only exists within the context of that simpleType. However, the referencing element correctly 
+               evaluates the expression to point to the previous element in the sequence, even though the referencing element's
+               namespace prefix is "foobar"
+
+  -->
+  
    <tdml:parserTestCase name="namespaces_qnames"
     root="e" model="qname1.dfdl.xsd"
     description="Section 5 - QNames must be properly resolved with respect to prefixes surrounding them.">
@@ -1635,6 +1648,58 @@
           <len>5</len>
           <num>12345</num>
         </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: namespaces_qnames2
+       Schema: qname2.dfdl.xsd
+         Root: e1
+      Purpose: This test demonstrates that prefixes within expressions are resolved with respect to the namespace bindings
+               from the location where the expression was written, not where it is evaluated. In this case, the sequence
+               element references a simpleType that references an escape scheme. When the expression is written, the namespace
+               prefix "what" is bound to the target namespace for the current schema. When the expression is evaluated, the
+               namespace prefix is bound to the namespace for the imported schema, which contains another escape scheme definition.
+               The test will use the local escape scheme.
+
+  -->
+  
+   <tdml:parserTestCase name="namespaces_qnames2"
+    root="e1" model="qname2.dfdl.xsd"
+    description="Section 5 - QNames must be properly resolved with respect to prefixes surrounding them.">
+
+    <tdml:document>....//....</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <element1>..../....</element1>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: namespaces_qnames3
+       Schema: qname2.dfdl.xsd
+         Root: e2
+      Purpose: This test demonstrates that prefixes within expressions are resolved with respect to the namespace bindings
+               from the location where the expression was written, not where it is evaluated. This test counters the previous
+               test (namespaces_qnames2), which should be using the local definition of esc1. This test will use the escape
+               scheme from the imported schema, because the imported namespaces is not overridden in this element.
+
+  -->
+  
+   <tdml:parserTestCase name="namespaces_qnames3"
+    root="e2" model="qname2.dfdl.xsd"
+    description="Section 5 - QNames must be properly resolved with respect to prefixes surrounding them.">
+
+    <tdml:document>....//....</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <element1>..../....</element1>
+        </e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

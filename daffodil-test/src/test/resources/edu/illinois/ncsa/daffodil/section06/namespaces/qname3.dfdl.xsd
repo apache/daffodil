@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://example.com/3"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:foo="http://example.com/3">
+
+  <xs:include schemaLocation="xsd/built-in-formats.xsd"/>    
+  
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:defineFormat name="myFmt" xmlns:d="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <d:format xmlns:ex="http://example.com/3" ref="ex:daffodilTest1" initiator=""
+          terminator="" separator="" encoding="utf-8" ignoreCase="no"
+          representation="text" lengthUnits="characters" textNumberRep="standard" />
+      </dfdl:defineFormat>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/"> 
+      <dfdl:defineEscapeScheme name="esc1">
+        <dfdl:escapeScheme escapeCharacter='\'
+          escapeKind="escapeCharacter" escapeEscapeCharacter="\\"
+          extraEscapedCharacters="?" />
+      </dfdl:defineEscapeScheme>
+    </xs:appinfo>
+  </xs:annotation>
+
+</xs:schema>
