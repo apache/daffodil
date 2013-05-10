@@ -97,6 +97,8 @@ class TestChoice {
   @Test def test_seqInChoiceInSeq3() { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSameSeparators1") }
   @Test def test_seqInChoiceInSeq4() { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSameSeparators2") }
 
+  @Test def test_choice_minOccurs() { runnerCH.runOneTest("choice_minOccurs") }
+  @Test def test_choice_maxOccurs() { runnerCH.runOneTest("choice_maxOccurs") }
 
   val testDir1 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val tdml1 = testDir1 + "dpaext2.tdml"

@@ -1206,4 +1206,31 @@
 
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="choice_minOccurs" root="choice_minOccur"
+    model="minMaxChoice.dfdl.xsd"
+    description="Section 15 - Choice Groups - Verify that minOccurs is not allowed on choice groups.">
+
+    <tdml:document><![CDATA[string.147]]></tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Attribute 'minOccurs' is not allowed to appear in element 'xs:choice'</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choice_maxOccurs" root="choice_maxOccur"
+    model="minMaxChoice.dfdl.xsd"
+    description="Section 15 - Choice Groups - Verify that maxOccurs is not allowed on choice groups.">
+
+    <tdml:document><![CDATA[string.147]]></tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Attribute 'maxOccurs' is not allowed to appear in element 'xs:choice'</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+
 </tdml:testSuite>
