@@ -66,7 +66,7 @@ class TestNamespaces {
   
   @Test def test_namespaces_qnames() { runner.runOneTest("namespaces_qnames") }
   @Test def test_namespaces_qnames2() { runner.runOneTest("namespaces_qnames2") }
-//  @Test def test_namespaces_qnames3() { runner.runOneTest("namespaces_qnames3") }
+  @Test def test_namespaces_qnames3() { runner.runOneTest("namespaces_qnames3") }
 
   @Test def test_namespaceLimit() { runner.runOneTest("namespaceLimit") }
   @Test def test_namespaceSpecialChars() { runner.runOneTest("namespaceSpecialChars") }

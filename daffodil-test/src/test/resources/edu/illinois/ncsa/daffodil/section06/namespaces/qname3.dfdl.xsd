@@ -19,7 +19,7 @@
     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/"> 
       <dfdl:defineEscapeScheme name="esc1">
         <dfdl:escapeScheme escapeCharacter='\'
-          escapeKind="escapeCharacter" escapeEscapeCharacter="\\"
+          escapeKind="escapeCharacter" escapeEscapeCharacter="\"
           extraEscapedCharacters="?" />
       </dfdl:defineEscapeScheme>
     </xs:appinfo>

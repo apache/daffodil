@@ -61,7 +61,4 @@ class TestNamespacesDebug {
   // allParentTerminatingMarkup. See created issue DFDL-571
   @Test def test_long_chain_05() { runner.runOneTest("long_chain_05") }
  
-  //Getting "length of string must be exactly 1 character or be empty" error seen in DFDL-562
-  @Test def test_namespaces_qnames3() { runner.runOneTest("namespaces_qnames3") }
-
 }

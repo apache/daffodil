@@ -1697,9 +1697,9 @@
     <tdml:document>....//....</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e1>
-          <element1>..../....</element1>
-        </e1>
+        <e2>
+          <element1>....//....</element1>
+        </e2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
