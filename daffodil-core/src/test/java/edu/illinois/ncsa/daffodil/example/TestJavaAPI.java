@@ -58,7 +58,8 @@ public class TestJavaAPI {
 
 	public java.io.File getResource(String resPath) {
 		try {
-			return new java.io.File(this.getClass().getResource(resPath).toURI());
+			return new java.io.File(this.getClass().getResource(resPath)
+					.toURI());
 		} catch (Exception e) {
 			return null;
 		}
@@ -194,47 +195,36 @@ public class TestJavaAPI {
 		System.err.println("bitPos = " + res.location().bitPos());
 		System.err.println("bytePos = " + res.location().bytePos());
 	}
-/*	
-  @Test
-	public void testJavaAPI4() throws IOException {
-		Compiler c = Daffodil.compiler();
-		String[] schemaFileNames = new String[1];
-		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
-    ProcessorFactory pf = c.compile(schemaFileNames);
-		pf.setDistinguishedRootNode("e4", null);
-		DataProcessor dp = pf.onPath("/");
-		java.io.File file = new java.io.File(getResource("/test/japi/myData2.dat"));
-		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
-		ParseResult res = dp.parse(rbc, 64 << 3);
-		boolean err = res.isError();
-		org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
-		xo.setFormat(Format.getPrettyFormat());
-		java.util.List<Diagnostic> diags = res.getDiagnostics();
-		for (Diagnostic d : diags) {
-			System.err.println(d.getMessage());
-		}
-		if (!err) {
-			org.jdom.Document doc = res.result();
-			xo.output(doc, System.out);
-		}
-		assertFalse(err);
-		assertFalse(res.location().isAtEnd());
-		assertEquals(4, res.location().bytePos());
-		assertEquals(32, res.location().bitPos());
-		System.err.println("bitPos = " + res.location().bitPos());
-		System.err.println("bytePos = " + res.location().bytePos());
-	}
-  */
-  
-  @Test
+
+	/*
+	 * @Test public void testJavaAPI4() throws IOException { Compiler c =
+	 * Daffodil.compiler(); String[] schemaFileNames = new String[1];
+	 * schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
+	 * ProcessorFactory pf = c.compile(schemaFileNames);
+	 * pf.setDistinguishedRootNode("e4", null); DataProcessor dp =
+	 * pf.onPath("/"); java.io.File file = new
+	 * java.io.File(getResource("/test/japi/myData2.dat"));
+	 * java.io.FileInputStream fis = new java.io.FileInputStream(file);
+	 * java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
+	 * .newChannel(fis); ParseResult res = dp.parse(rbc, 64 << 3); boolean err =
+	 * res.isError(); org.jdom.output.XMLOutputter xo = new
+	 * org.jdom.output.XMLOutputter(); xo.setFormat(Format.getPrettyFormat());
+	 * java.util.List<Diagnostic> diags = res.getDiagnostics(); for (Diagnostic
+	 * d : diags) { System.err.println(d.getMessage()); } if (!err) {
+	 * org.jdom.Document doc = res.result(); xo.output(doc, System.out); }
+	 * assertFalse(err); assertFalse(res.location().isAtEnd()); assertEquals(4,
+	 * res.location().bytePos()); assertEquals(32, res.location().bitPos());
+	 * System.err.println("bitPos = " + res.location().bitPos());
+	 * System.err.println("bytePos = " + res.location().bytePos()); }
+	 */
+
+	@Test
 	public void testJavaAPI4b() throws IOException {
 		Compiler c = Daffodil.compiler();
 		File[] schemaFileNames = new File[1];
 		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
 		c.setDistinguishedRootNode("e4", null);
-    ProcessorFactory pf = c.compile(schemaFileNames);
+		ProcessorFactory pf = c.compile(schemaFileNames);
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/myData2.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -260,8 +250,8 @@ public class TestJavaAPI {
 		System.err.println("bytePos = " + res.location().bytePos());
 	}
 
-  @Test
-  public void testJavaAPI5() throws IOException {
+	@Test
+	public void testJavaAPI5() throws IOException {
 		Compiler c = Daffodil.compiler();
 		File[] schemaFileNames = new File[1];
 		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
@@ -285,7 +275,8 @@ public class TestJavaAPI {
 			xo.output(doc, System.out);
 		}
 		assertFalse(err);
-		assertTrue("Assertion failed: End of data not reached.", res.location().isAtEnd());
+		assertTrue("Assertion failed: End of data not reached.", res.location()
+				.isAtEnd());
 		assertEquals(4, res.location().bytePos());
 		assertEquals(32, res.location().bitPos());
 		System.err.println("bitPos = " + res.location().bitPos());
@@ -306,15 +297,17 @@ public class TestJavaAPI {
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
 		Compiler c = Daffodil.compiler();
-		java.io.File[] schemaFiles = new java.io.File[4];//String[] schemaFileNames = new String[2];
+		java.io.File[] schemaFiles = new java.io.File[4];// String[]
+															// schemaFileNames =
+															// new String[2];
 		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
 		schemaFiles[1] = new java.io.File("/test/japi/notHere1.dfdl.xsd");
 		schemaFiles[2] = getResource("/test/japi/mySchema2.dfdl.xsd");
 		schemaFiles[3] = new java.io.File("/test/japi/notHere2.dfdl.xsd");
 		try {
-			ProcessorFactory pf = c.compile(schemaFiles);
+			c.compile(schemaFiles);
 			fail("Expected a FileNotFoundException and didn't get one");
-		} catch (FileNotFoundException fnf){
+		} catch (FileNotFoundException fnf) {
 			String msg = fnf.getMessage();
 			assertTrue(msg.contains("notHere1"));
 			assertTrue(msg.contains("notHere2"));

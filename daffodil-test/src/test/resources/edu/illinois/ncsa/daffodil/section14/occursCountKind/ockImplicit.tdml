@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
+
+  <tdml:defineSchema name="s1">
+    <dfdl:format ref="ex:daffodilTest1" />
+
+    <xs:element name="r1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="a" type="xs:int" minOccurs='2' dfdl:lengthKind="explicit" dfdl:length="1"
+            maxOccurs='unbounded' dfdl:occursCountKind="implicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="a" type="xs:int" minOccurs='2' dfdl:lengthKind="explicit" dfdl:length="1"
+            maxOccurs='unbounded' 
+            dfdl:initiator="(" dfdl:terminator=")" dfdl:occursCountKind="implicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+    Test name: ockImplicit1
+    Schema: s1
+    Purpose: This test shows minOccurs is respected for occursCountKind implicit, 
+    even when maxOccurs is unbounded."
+  -->
+
+  <tdml:parserTestCase name="ockImplicit1" root="r1"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[1,1,2,2,2]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r1>
+        <a>1</a>
+        <a>1</a>
+        <a>2</a>
+        <a>2</a>
+        <a>2</a>
+        </r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="ockImplicit2" root="r1"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[1]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>delimiter not found</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="ockImplicit3" root="r2"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[(1)(1)(2)(2)(2)]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r2>
+        <a>1</a>
+        <a>1</a>
+        <a>2</a>
+        <a>2</a>
+        <a>2</a>
+        </r2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="ockImplicit4" root="r2"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[(1)]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>delimiter not found</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

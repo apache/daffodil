@@ -929,33 +929,35 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
     res
   }
 
+  //
+  // Silly constants to make the lookup tables below more readable without using fragile whitespace
+  //
+  final val Never______ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.Never
+  final val Trailing___ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmpty
+  final val TrailingStr: SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmptyStrict
+  final val Always_____ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.AnyEmpty
+
+  final val StopValue_ = OccursCountKind.StopValue
+  final val Implicit__ = OccursCountKind.Implicit
+  final val Parsed____ = OccursCountKind.Parsed
+  final val Fixed_____ = OccursCountKind.Fixed
+  final val Expression = OccursCountKind.Expression
+
   lazy val arrayContentsNoSeparators = Prod("arrayContentsNoSeparators", this, isRecurring && !hasSep, {
-    val max = maxOccurs
-    val min = minOccurs
-    val res = occursCountKind match {
-      case Expression => separatedContentExactlyNComputed
-      case OccursCountKind.Fixed if (max == UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
-      case OccursCountKind.Fixed if (min != max) => SDE("occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)", min, max)
-      case OccursCountKind.Fixed => separatedContentExactlyN(max)
-      case OccursCountKind.Implicit if (max == UNB) => contentUnbounded // same as parsed
-      case OccursCountKind.Implicit => separatedContentAtMostN // uses maxOccurs
-      case OccursCountKind.Parsed => contentUnbounded
-      case OccursCountKind.StopValue => contentUnbounded
+    val res = (occursCountKind, minOccurs, maxOccurs) match {
+      case (Expression, ___, __2) => separatedContentExactlyNComputed
+      case (Fixed_____, ___, UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+      case (Fixed_____, min, max) if (min != max) => SDE("occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)", min, max)
+      case (Fixed_____, ___, max) => separatedContentExactlyN(max)
+      case (Implicit__, 000, UNB) => contentUnbounded // same as parsed
+      case (Implicit__, min, UNB) => RepExactlyN(self, min, separatedRecurringDefaultable) ~ contentUnbounded // respects minOccurs      
+      case (Implicit__, ___, __2) => separatedContentAtMostN // uses min and maxOccurs
+      case (Parsed____, ___, __2) => contentUnbounded
+      case (StopValue_, ___, __2) => contentUnbounded
     }
     res
   })
 
-  //
-  // Silly constants to make the lookup table below more readable without using fragile whitespace
-  val Never______ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.Never
-  val Trailing___ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmpty
-  val TrailingStr: SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmptyStrict
-  val Always_____ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.AnyEmpty
-  val StopValue_ = OccursCountKind.StopValue
-  val Implicit__ = OccursCountKind.Implicit
-  val Parsed____ = OccursCountKind.Parsed
-  val Fixed_____ = OccursCountKind.Fixed
-  val Expression = OccursCountKind.Expression
   /**
    * Matches the table about separator suppression policy.
    *
@@ -963,26 +965,26 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
    * rationalize separator suppression among other things. Update this table to match the final spec.
    */
   lazy val arrayContentsWithSeparators = Prod("arrayContentsWithSeparators", this, isRecurring && hasSep, {
-    val triple = (separatorSuppressionPolicy, occursCountKind, maxOccurs)
+    val triple = (separatorSuppressionPolicy, occursCountKind, maxOccurs, minOccurs)
     val res = triple match {
-      case (___________, Expression, ___) => separatedContentExactlyNComputed
-      case (___________, Fixed_____, UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
-      case (___________, Fixed_____, max) if (max != minOccurs) => SDE("occursCountKind='fixed' requires minOccurs to equal maxOccurs (%d != %d)", minOccurs, max)
-      case (___________, Fixed_____, max) => separatedContentExactlyN(max)
-      case (Never______, Implicit__, UNB) => SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' required bounded maxOccurs.")
-      case (Never______, Implicit__, max) => separatedContentExactlyN(max)
-      case (Never______, ock, ___) => SDE("separatorSuppressionPolicy='never' not allowed in combination with occursCountKind='" + ock + "'.")
-      case (Trailing___, Implicit__, UNB) if (!isLastRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
-      case (Trailing___, Implicit__, UNB) => separatedContentUnbounded
-      case (Trailing___, Implicit__, max) => separatedContentAtMostN // FIXME: have to have all of them - not trailing position 
-      case (TrailingStr, Implicit__, UNB) if (!isLastRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
-      case (TrailingStr, Implicit__, UNB) => separatedContentUnboundedWithoutTrailingEmpties // we're depending on optionalEmptyPart failing on empty content.
-      case (TrailingStr, Implicit__, max) => separatedContentAtMostNWithoutTrailingEmpties
-      case (Always_____, Implicit__, UNB) => separatedContentUnbounded
-      case (Always_____, Implicit__, max) => separatedContentAtMostN
-      case (Always_____, Parsed____, ___) => separatedContentUnbounded
-      case (Always_____, StopValue_, ___) => separatedContentUnbounded
-      case (policy, ock, max) => SDE("separatorSuppressionPolicy='" + policy + "' not allowed with occursCountKind='" + ock + "'.")
+      case (___________, Expression, ___, __2) => separatedContentExactlyNComputed
+      case (___________, Fixed_____, UNB, ___) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+      case (___________, Fixed_____, max, min) if (max != min) => SDE("occursCountKind='fixed' requires minOccurs to equal maxOccurs (%d != %d)", minOccurs, max)
+      case (___________, Fixed_____, max, ___) => separatedContentExactlyN(max)
+      case (Never______, Implicit__, UNB, ___) => SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' required bounded maxOccurs.")
+      case (Never______, Implicit__, max, ___) => separatedContentExactlyN(max)
+      case (Never______, ock /****/ , ___, __2) => SDE("separatorSuppressionPolicy='never' not allowed in combination with occursCountKind='" + ock + "'.")
+      case (Trailing___, Implicit__, UNB, ___) if (!isLastRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
+      case (Trailing___, Implicit__, UNB, min) => separatedContentUnbounded
+      case (Trailing___, Implicit__, max, ___) => separatedContentAtMostN // FIXME: have to have all of them - not trailing position 
+      case (TrailingStr, Implicit__, UNB, ___) if (!isLastRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
+      case (TrailingStr, Implicit__, UNB, ___) => separatedContentUnboundedWithoutTrailingEmpties // we're depending on optionalEmptyPart failing on empty content.
+      case (TrailingStr, Implicit__, max, ___) => separatedContentAtMostNWithoutTrailingEmpties
+      case (Always_____, Implicit__, UNB, ___) => separatedContentUnbounded
+      case (Always_____, Implicit__, max, ___) => separatedContentAtMostN
+      case (Always_____, Parsed____, ___, __2) => separatedContentUnbounded
+      case (Always_____, StopValue_, ___, __2) => separatedContentUnbounded
+      case (policy /**/ , ock /****/ , max, __2) => SDE("separatorSuppressionPolicy='" + policy + "' not allowed with occursCountKind='" + ock + "'.")
     }
     res
   })
