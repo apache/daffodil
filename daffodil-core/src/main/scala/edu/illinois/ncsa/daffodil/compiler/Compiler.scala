@@ -196,7 +196,10 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
       val pf = new ProcessorFactory(sset)
       val err = pf.isError
       val diags = pf.getDiagnostics // might be warnings even if not isError
-      def printDiags = diags.foreach { diag => log(Error(diag.toString())) }
+      def printDiags = diags.foreach { diag =>
+        val msg = diag.toString()
+        log(Error(msg))
+      }
       if (err) {
         Assert.invariant(diags.length > 0)
         log(Error("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))

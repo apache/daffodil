@@ -881,7 +881,13 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Unknown timezone specified for dfdl:calendarTimeZone</tdml:error>
-      <tdml:error>Location in file:</tdml:error>
+      <tdml:error>Location line </tdml:error>
+      <!-- Note that this test must be run by a special driver that
+      shuts off the Info logging from the import/include system. That logging
+      would make this match of the file name a false positive. We want the 
+      error messages to specifically mention this file, not just show that
+      it was included. -->
+      <tdml:error>subfolder/multi_C_06_nons.dfdl.xsd</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1303,7 +1309,7 @@
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>MinInclusive(16) must be less than or equal to MaxInclusive(10)</tdml:error>
       <tdml:error>shishi</tdml:error>
-      <tdml:error>Location in file:</tdml:error>
+      <tdml:error>Location line</tdml:error>
       <tdml:error>section06/namespaces/shi</tdml:error>      
     </tdml:errors>
   </tdml:parserTestCase>
@@ -1527,7 +1533,7 @@
 ]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Prefix fn has not been declared Schema context</tdml:error>
+      <tdml:error>Prefix fn has not been declared</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1801,5 +1807,20 @@ jonesington,david,frederick,1986-02-19
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </parserTestCase>
+
+  <!-- schema has a mistake in it. User wrote <xs:format... when they
+       should have written <dfdl:format... 
+       
+       This test shows we get a diagnostic pointing at right file and line number.
+    -->
+  <tdml:parserTestCase name="junkAnnotation01" root="x"
+    model="junk-annotation-01.dfdl.xsd" 
+    description="Diagnostic provides proper line number and file when a junk annotation is found - DFDL-6-007R">
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>line 15</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </testSuite>

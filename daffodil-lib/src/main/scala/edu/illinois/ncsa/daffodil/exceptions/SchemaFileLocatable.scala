@@ -40,9 +40,30 @@ import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 trait SchemaFileLocatable extends LocationInSchemaFile {
   def xml: Node
 
-  lazy val lineNumber = xml.attribute(XMLUtils.INT_NS, XMLUtils.LINE_ATTRIBUTE_NAME) match {
+  /**
+   * The purpose of this abstract member is that sometimes we
+   *  create (out of thin air) a DFDLAnnotation object where the
+   *  schema has only short-form annotations.
+   *
+   *  In that case, there will not be any file/line number information
+   *  So we want to get it off of the part of the schema the user
+   *  did write, which is the component with the short-form
+   *  annotations on it.
+   *
+   *  Hence, we have a contextLocatable for every schema locatable,
+   *  which gives a second choice of where to get file/line
+   *  location info.
+   *
+   */
+  def contextLocatable: SchemaFileLocatable
+
+  lazy val lineNumber: Option[String] = xml.attribute(XMLUtils.INT_NS, XMLUtils.LINE_ATTRIBUTE_NAME) match {
     case Some(seqNodes) => Some(seqNodes.toString)
-    case None => None
+    case None => {
+      if (contextLocatable != null) // could be null if errors occur during object initialization.
+        contextLocatable.lineNumber
+      else None
+    }
   }
 
   lazy val lineDescription = lineNumber match {
@@ -72,7 +93,7 @@ trait SchemaFileLocatable extends LocationInSchemaFile {
   /**
    * It would appear that this is only used for informational purposes
    * and as such, doesn't need to be a URL.  Can just be String.
-   * 
+   *
    * override if you don't have a fileName attribute appended
    * but are in a context where some enclosing construct does
    * normally only a root node would have a file attribute.

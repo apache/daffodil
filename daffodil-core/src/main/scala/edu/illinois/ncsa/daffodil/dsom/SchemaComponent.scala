@@ -362,7 +362,10 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
   def defaultPropertySources: Seq[ChainPropProvider]
 
   lazy val nonDefaultFormatChain: ChainPropProvider = formatAnnotation.getFormatChain()
-  lazy val defaultFormatChain: ChainPropProvider = schemaDocument.formatAnnotation.getFormatChain()
+  lazy val defaultFormatChain: ChainPropProvider = {
+    val res = schemaDocument.formatAnnotation.getFormatChain()
+    res
+  }
 
   private def findDefaultOrNonDefaultProperty(
     pname: String,
@@ -426,7 +429,7 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
             // did not find it at all. Return a NotFound with all the places we 
             // looked non-default and default.
             val nonDefaultPlaces = nonDefaultLocsTried1
-            val defaultPlaces = nonDefaultLocsTried2
+            val defaultPlaces = defaultLocsTried2
             NotFound(nonDefaultPlaces, defaultPlaces)
           }
         }
@@ -657,7 +660,7 @@ class SchemaSet(
 
   /**
    * Let's use the filename for the first schema document, rather than giving no information at all.
-   * 
+   *
    * It would appear that this is only used for informational purposes
    * and as such, doesn't need to be a URL.  Can just be String.
    */
@@ -1183,7 +1186,15 @@ class SchemaDocument(xmlSDoc: XMLSchemaDocument)
       case <dfdl:defineFormat>{ content @ _* }</dfdl:defineFormat> => new DFDLDefineFormat(node, this)
       case <dfdl:defineEscapeScheme>{ content @ _* }</dfdl:defineEscapeScheme> => new DFDLDefineEscapeScheme(node, this)
       case <dfdl:defineVariable>{ content @ _* }</dfdl:defineVariable> => new DFDLDefineVariable(node, this)
-      case _ => SDE("Invalid dfdl annotation found: %s", node.label)
+      case _ => {
+        val prefix =
+          if (node.prefix == null || node.prefix == "") ""
+          else node.prefix + ":"
+        // we make a junk component so as to avail ourselves of
+        // a uniform way to do diagnostics, line numbers, etc.
+        val junk = new JunkComponent(node, this)
+        junk.SDE("Invalid dfdl annotation found: %s", prefix + node.label)
+      }
     }
   }
 
@@ -1249,4 +1260,13 @@ class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   def getDefineEscapeScheme(name: String) = defineEscapeSchemes.find { _.name == name }
 
 }
+
+/**
+ * Used to encapsulate junk XML. E.g., if user gets prefix wrong, and types
+ * xs:format instead of dfdl:format.
+ *
+ * We want this to be a schema component so we don't have to have another
+ * mechanism for reporting file and line numbers and diagnostic stuff.
+ */
+class JunkComponent(xml: Node, sc: SchemaComponent) extends SchemaComponent(xml, sc)
 

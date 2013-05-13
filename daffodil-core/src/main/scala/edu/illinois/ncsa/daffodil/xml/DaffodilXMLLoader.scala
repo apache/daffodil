@@ -262,15 +262,22 @@ class DFDLXMLLocationAwareAdapter
     // augment the scope with the dafint namespace binding but only
     // for root nodes (to avoid clutter with the long xmlns:dafint="big uri")
     // and only if it isn't already there.
-    val scopeWithDafInt =
-      if (scope.getPrefix(XMLUtils.INT_NS) == null
-        && isFileRootNode)
+    //
+    // The above would be a nice idea, but it requires that we are recursively
+    // descending & ascending, carrying along that namespace definition so that
+    // we have encountered the root first, etc.
+    // Because Nodes are immutable, they don't point up at the scope toward
+    // the parent. 
+    // 
+    // So we append this NS binding regardless of whether it is root or not.
+    // Though we don't if it is already there.
+    // 
+    lazy val scopeWithDafInt =
+      if (scope.getPrefix(XMLUtils.INT_NS) == null) // && isFileRootNode
         NamespaceBinding(XMLUtils.INT_PREFIX, XMLUtils.INT_NS, scope)
       else scope
 
     val haveFileName = isFileRootNode && fileName != ""
-
-    val asIs = super.createNode(pre, label, attrs, scopeWithDafInt, children)
 
     val alreadyHasFile = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.FILE_ATTRIBUTE_NAME) != None
 
@@ -282,6 +289,12 @@ class DFDLXMLLocationAwareAdapter
     val alreadyHasLine = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.LINE_ATTRIBUTE_NAME) != None
     val alreadyHasCol = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.COLUMN_ATTRIBUTE_NAME) != None
     Assert.invariant(alreadyHasLine == alreadyHasCol)
+
+    val newScope =
+      if (alreadyHasFile && alreadyHasLine && alreadyHasCol) scope
+      else scopeWithDafInt
+
+    val asIs = super.createNode(pre, label, attrs, newScope, children)
 
     val lineAttr =
       if (alreadyHasLine) Null

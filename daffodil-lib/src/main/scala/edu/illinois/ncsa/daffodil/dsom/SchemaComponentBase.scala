@@ -13,6 +13,8 @@ abstract class SchemaComponentBase(xmlArg: scala.xml.Node, parent: SchemaCompone
   with GetAttributesMixin
   with SchemaFileLocatable {
 
+  val contextLocatable = parent
+
   val xml = xmlArg
   val aaa_xml = xml // for debugging, so we don't have to scroll down.
 

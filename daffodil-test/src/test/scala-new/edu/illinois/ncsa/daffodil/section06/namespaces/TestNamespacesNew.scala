@@ -42,20 +42,23 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.util.{ Warning, LogLevel, Logging }
 
-class TestNamespacesNew {
+class TestNamespacesNew extends Logging {
   val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_namespace_conflict_01() { runner.runOneTest("namespace_conflict_01") }
+  // this is in TestNamespaces.scala already.
+  // @Test def test_namespace_conflict_01() { runner.runOneTest("namespace_conflict_01") }
 
   @Test def test_double_nesting_01() { runner.runOneTest("double_nesting_01") }
 
   @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }
 
-  @Test def test_combinations_02() { runner.runOneTest("combinations_02") }
-
   @Test def test_nonsense_namespace_01() { runner.runOneTest("nonsense_namespace_01") }
+
+  // JIRA DFDL-586
+  @Test def test_junkAnnotation01() { runner.runOneTest("junkAnnotation01") }
 
 }

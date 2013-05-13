@@ -134,8 +134,27 @@ trait FindPropertyMixin extends PropTypes {
     val prop = findPropertyOption(pname)
     val res = prop match {
       case f: Found => f
-      case NotFound(nonDefaultLocs, defaultLocs) => SDE("Property %s is not defined.\nSearched these locations: %s\n Searched these default locations: %s.",
-        pname, nonDefaultLocs, defaultLocs)
+      //
+      // TODO: Internationalization - should not be assembling error messages in English like this.
+      // All this has to be delegated to a layer that uses the english string as a key to find
+      // the translation. 
+      // 
+      // Hence, we need a way to explicitly get the possibly translated version of a
+      // literal english string when that string is not the direct argument of a SDE call. 
+      // 
+      case NotFound(nonDefaultLocs, defaultLocs) => {
+        val ndListText = nonDefaultLocs.map { _.locationDescription }.mkString("\n")
+        val dListText = defaultLocs.map { _.locationDescription }.mkString("\n")
+        val nonDefDescription =
+          if (nonDefaultLocs.length > 0)
+            "\nNon-default properties were combined from these locations:\n" + ndListText + "\n"
+          else ""
+        val defLocsDescription =
+          if (defaultLocs.length > 0)
+            "\nDefault properties were taken from these locations:\n" + dListText + "\n"
+          else "\nThere were no default properties.\n"
+        SDE("Property %s is not defined.%s%s", pname, nonDefDescription, defLocsDescription)
+      }
     }
     res
   }

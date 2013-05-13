@@ -767,6 +767,7 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
     val res = referencedElement.findPropertyOption(pname)
     res
   }
+
   lazy val nonDefaultPropertySources = referencedElement.nonDefaultPropertySources
   lazy val defaultPropertySources = referencedElement.defaultPropertySources
 

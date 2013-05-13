@@ -40,9 +40,9 @@ import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.processors.PState
 
 class SchemaDefinitionError(schemaContext: Option[SchemaComponentBase],
-                            annotationContext: Option[DFDLAnnotation],
-                            kind: String,
-                            args: Any*)
+  annotationContext: Option[DFDLAnnotation],
+  kind: String,
+  args: Any*)
   extends SchemaDefinitionDiagnosticBase(schemaContext, None, annotationContext, kind, args: _*) {
 
   def this(sc: SchemaComponent, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
@@ -50,18 +50,18 @@ class SchemaDefinitionError(schemaContext: Option[SchemaComponentBase],
 }
 
 class RuntimeSchemaDefinitionError(schemaContext: SchemaComponentBase,
-                                   runtimeContext: PState,
-                                   kind: String,
-                                   args: Any*)
+  runtimeContext: PState,
+  kind: String,
+  args: Any*)
   extends SchemaDefinitionDiagnosticBase(
     Some(schemaContext), Some(runtimeContext), None, kind, args: _*) {
   val diagnosticKind = "Error"
 }
 
 class RuntimeSchemaDefinitionWarning(schemaContext: SchemaComponentBase,
-                                     runtimeContext: PState,
-                                     kind: String,
-                                     args: Any*)
+  runtimeContext: PState,
+  kind: String,
+  args: Any*)
   extends SchemaDefinitionDiagnosticBase(
     Some(schemaContext), Some(runtimeContext), None, kind, args: _*) {
 
@@ -70,9 +70,9 @@ class RuntimeSchemaDefinitionWarning(schemaContext: SchemaComponentBase,
 }
 
 class SchemaDefinitionWarning(schemaContext: Option[SchemaComponentBase],
-                              annotationContext: Option[DFDLAnnotation],
-                              kind: String,
-                              args: Any*)
+  annotationContext: Option[DFDLAnnotation],
+  kind: String,
+  args: Any*)
   extends SchemaDefinitionDiagnosticBase(schemaContext, None, annotationContext, kind, args: _*) {
 
   def this(sc: SchemaComponent, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
@@ -132,7 +132,7 @@ abstract class SchemaDefinitionDiagnosticBase(
       val dataLocDescription =
         runtimeContext.map { " Data Context: " + _.currentLocation.toString + "." }.getOrElse("")
       val res = runtime + "Schema Definition " + diagnosticKind + ": " + msg +
-        " Schema context: " + schemaContext.getOrElse("top level") + "." +
+        "\nSchema context: " + schemaContext.getOrElse("top level") + "." +
         // TODO: should be one or the other, never(?) both
         schContextLocDescription +
         annContextLocDescription + dataLocDescription

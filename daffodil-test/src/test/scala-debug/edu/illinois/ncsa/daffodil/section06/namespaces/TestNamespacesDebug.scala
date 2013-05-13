@@ -60,5 +60,20 @@ class TestNamespacesDebug {
   // Failed after implementation of DFDL-336.  Appears to be due to
   // allParentTerminatingMarkup. See created issue DFDL-571
   @Test def test_long_chain_05() { runner.runOneTest("long_chain_05") }
- 
+
+  // See comments in related bug. JIRA-549
+  // This test is looking for a specific file to be mentioned in an error message 
+  // which is the file with the content responsible for the error, not the file
+  // of the object where the error was detected.
+  @Test def test_combinations_02() {
+    try {
+      // Must turn off the Info logging messages, because those will have the filename in them
+      // which would create a false positive in this test.
+      LoggingDefaults.setLoggingLevel(LogLevel.Warning)
+      runner.runOneTest("combinations_02")
+    } finally {
+      LoggingDefaults.setLoggingLevel(LogLevel.Info)
+    }
+  }
+
 }
