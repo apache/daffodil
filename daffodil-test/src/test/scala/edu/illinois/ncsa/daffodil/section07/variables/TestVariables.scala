@@ -49,6 +49,7 @@ class TestVariables {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
   
 //  @Test def test_setVarAbsolutePath() { runner.runOneTest("setVarAbsolutePath") }
+  @Test def test_varAsSeparator() { runner.runOneTest("varAsSeparator") }
 
   @Test def test_setVar1() { runner.runOneTest("setVar1") }
   @Test def test_doubleSetErr() { runner.runOneTest("doubleSetErr") }
