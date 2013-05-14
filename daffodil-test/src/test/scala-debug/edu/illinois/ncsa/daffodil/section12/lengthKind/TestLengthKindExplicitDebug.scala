@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.section23.dfdl_expressions
+package edu.illinois.ncsa.daffodil.section12.lengthKind
 
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -42,26 +42,12 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
-import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestDFDLExpressionsDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
-  val tdml = testDir + "expressions.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+class TestLengthKindExplicitDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
 
-  @Test def test_regexCompatFail() { runner.runOneTest("regexCompatFail") }
-  
-  val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
-  val aa = testDir2 + "Functions.tdml"
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
-  @Test def test_testBit_2() { runner2.runOneTest("testBit_2") }
-  @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
+  val aa = testDir + "ExplicitTests.tdml"
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
-  @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
-  
-  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
-  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
-
+  @Test def test_lengthRuntimeSDE() = { runner.runOneTest("test_lengthRuntimeSDE") }
 }

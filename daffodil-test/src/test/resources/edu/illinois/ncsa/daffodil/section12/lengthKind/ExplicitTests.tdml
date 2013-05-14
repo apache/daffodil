@@ -656,8 +656,7 @@
 			<tdml:documentPart type="text"><![CDATA[NaN000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
 		</tdml:document>
 		<tdml:errors>
-			<tdml:error>Parse Error</tdml:error>
-      <tdml:error>Expression { ../ex:len } evaluated to something that is not a number</tdml:error>
+			<tdml:error>placeholder</tdml:error>
 		</tdml:errors>
   </tdml:parserTestCase>
 
