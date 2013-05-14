@@ -1703,5 +1703,103 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test Name: defaultNamespaceInExpression
+       Schema: charClassEntities.dfdl.xsd
+      Purpose: This test verifies the fix for DFDL-407. Expressions should not require prefix-qualified names
+               if the default namespace is the same as the target namespace.
+  -->
+
+  <parserTestCase name="defaultNamespaceInExpression" root="file"
+    model="charClassEntities.dfdl.xsd"
+    description="Hexadecimal code point used in document tag - DFDL-6-044R">
+
+    <document><![CDATA[last,first,middle,DOB
+jones,robert,brandon,1988-03-24
+johnson,john,henry,1986-01-23
+jonesington,david,frederick,1986-02-19
+]]></document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <file>
+          <header>
+            <title>last</title>
+            <title>first</title>
+            <title>middle</title>
+            <title>DOB</title>
+          </header>
+          <record>
+            <item>jones</item>
+            <item>robert</item>
+            <item>brandon</item>
+            <item>1988-03-24</item>
+          </record>
+          <record>
+            <item>johnson</item>
+            <item>john</item>
+            <item>henry</item>
+            <item>1986-01-23</item>
+          </record>
+          <record>
+            <item>jonesington</item>
+            <item>david</item>
+            <item>frederick</item>
+            <item>1986-02-19</item>
+          </record>
+        </file>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </parserTestCase>
+  
+  <!--
+    Test Name: defaultNamespaceInExpression2
+       Schema: charClassEntities.dfdl.xsd
+      Purpose: This test verifies the fix for DFDL-407. Expressions should not require prefix-qualified names
+               if the default namespace is the same as the target namespace. This test also demonstrates that
+               prefixes are resolved with respect to the namespace bindings from the location where the
+               expression was written, not where it is evaluated 
+  -->
+  
+  <parserTestCase name="defaultNamespaceInExpression2" root="file2"
+    model="charClassEntities.dfdl.xsd"
+    description="Hexadecimal code point used in document tag - DFDL-6-044R">
+
+    <document><![CDATA[last,first,middle,DOB
+jones,robert,brandon,1988-03-24
+johnson,john,henry,1986-01-23
+jonesington,david,frederick,1986-02-19
+]]></document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <file2>
+          <header>
+            <title>last</title>
+            <title>first</title>
+            <title>middle</title>
+            <title>DOB</title>
+          </header>
+          <record>
+            <item>jones</item>
+            <item>robert</item>
+            <item>brandon</item>
+            <item>1988-03-24</item>
+          </record>
+          <record>
+            <item>johnson</item>
+            <item>john</item>
+            <item>henry</item>
+            <item>1986-01-23</item>
+          </record>
+          <record>
+            <item>jonesington</item>
+            <item>david</item>
+            <item>frederick</item>
+            <item>1986-02-19</item>
+          </record>
+        </file2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </parserTestCase>
 
 </testSuite>

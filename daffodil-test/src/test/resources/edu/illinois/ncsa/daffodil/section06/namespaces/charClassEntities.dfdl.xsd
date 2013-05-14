@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.example.org/example1/" xmlns="http://www.example.org/example1/"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format initiator="" terminator="" leadingSkip="0"
+        trailingSkip="0" textBidi="no" floating="no" encoding="ASCII"
+        byteOrder="bigEndian" alignment="implicit" alignmentUnits="bits"
+        fillByte="f" occursCountKind="parsed"
+        truncateSpecifiedLengthString="no" ignoreCase="no"
+        representation="text" lengthKind="delimited"
+        nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none"
+        documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" textTrimKind="none" />
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:element name="file">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+        <xs:element name="header" minOccurs="0" maxOccurs="1" dfdl:occursCountKind="implicit">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="title" type="xs:string" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="record" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="item" type="xs:string" maxOccurs="unbounded" 
+                dfdl:occursCount="{ dfdl:occursCount(../../header/*) }" dfdl:occursCountKind="expression"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="file2">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+        <xs:element name="header" minOccurs="0" maxOccurs="1" dfdl:occursCountKind="implicit" xmlns:foobar="http://www.example.org/example1/">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="title" type="xs:string" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="record" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="item" type="xs:string" maxOccurs="unbounded" 
+                dfdl:occursCount="{ dfdl:occursCount(../../header/*) }" dfdl:occursCountKind="expression"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
