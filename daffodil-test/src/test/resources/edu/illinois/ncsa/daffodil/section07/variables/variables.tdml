@@ -385,6 +385,57 @@
     </xs:element>
 
   </tdml:defineSchema>
+  
+  <tdml:defineSchema name="absolutePath">
+    
+  <dfdl:format ref="ex:daffodilTest1"/>
+    
+    <xs:element name="elem">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="header">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="sep" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+                <xs:element name="term" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="item" type="ex:reffed" dfdl:lengthKind="explicit" dfdl:length="4"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="reffed" dfdl:separator="{ /ex:elem/ex:header/ex:sep/text() }" dfdl:terminator="{ /ex:elem/ex:header/ex:term/text() }">
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+
+
+  </tdml:defineSchema>
+  
+<!--
+     Test: setVarAbsolutePath
+   Schema: absolutePath
+     Root: elem
+  Purpose: This test uses the parsed values of elements as formatting parameters WITHOUT
+           using setVariable
+-->
+  
+  <tdml:parserTestCase name="setVarAbsolutePath" root="elem"
+    model="absolutePath" description="Section 7 - setVariable - DFDL-7-127R">
+    <tdml:document>,.|test.</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <elem>
+          <header>
+            <sep>,</sep>
+            <term>.</term>
+          </header>
+          <item>test</item>
+        </elem>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 <!--
      Test: setVarValAttribute

@@ -47,6 +47,8 @@ class TestVariables {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/variables/"
   val tdml = testDir + "variables.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  
+//  @Test def test_setVarAbsolutePath() { runner.runOneTest("setVarAbsolutePath") }
 
   @Test def test_setVar1() { runner.runOneTest("setVar1") }
   @Test def test_doubleSetErr() { runner.runOneTest("doubleSetErr") }
