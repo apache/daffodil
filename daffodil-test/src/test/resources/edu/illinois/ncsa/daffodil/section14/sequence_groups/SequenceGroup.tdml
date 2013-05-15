@@ -859,11 +859,11 @@ more ignored input
 
   <xs:group name="data">
     <xs:sequence dfdl:separator="">
-      <xs:element name="x" type="int" dfdl:representation="text"
+      <xs:element name="x" type="xs:int" dfdl:representation="text"
         dfdl:terminator="%NL;" />
-      <xs:element name="y" type="int" dfdl:representation="text"
+      <xs:element name="y" type="xs:int" dfdl:representation="text"
         dfdl:terminator="%NL;" />
-      <xs:element name="z" type="int" dfdl:representation="text"
+      <xs:element name="z" type="xs:int" dfdl:representation="text"
         dfdl:terminator="%NL;" />
     </xs:sequence>
   </xs:group>
@@ -872,16 +872,16 @@ more ignored input
     <xs:complexType>
       <xs:sequence>
         <xs:sequence dfdl:hiddenGroupRef="ex:data" />
-        <xs:element name="product" type="int"
+        <xs:element name="product" type="xs:int"
           dfdl:inputValueCalc="{ /ex:table/ex:x * /ex:table/ex:y * /ex:table/ex:z }" />
-        <xs:element name="sum" type="int"
+        <xs:element name="sum" type="xs:int"
           dfdl:inputValueCalc="{ /ex:table/ex:x + /ex:table/ex:y + /ex:table/ex:z }" />
-        <xs:element name="concat" type="string"
+        <xs:element name="concat" type="xs:string"
           dfdl:inputValueCalc="{ concat(concat(/ex:table/ex:x,/ex:table/ex:y),/ex:table/ex:z) }" />
-        <xs:element name="x" type="string" dfdl:inputValueCalc="{ ../ex:x }" />
-        <xs:element name="y" type="string" dfdl:inputValueCalc="{ ../ex:y }" />
-        <xs:element name="z" type="string" dfdl:inputValueCalc="{ ../ex:z }" />
-        <xs:element name="productAgain" type="string"
+        <xs:element name="x" type="xs:string" dfdl:inputValueCalc="{ ../ex:x }" />
+        <xs:element name="y" type="xs:string" dfdl:inputValueCalc="{ ../ex:y }" />
+        <xs:element name="z" type="xs:string" dfdl:inputValueCalc="{ ../ex:z }" />
+        <xs:element name="productAgain" type="xs:string"
           dfdl:inputValueCalc="{ ../ex:product }" />
       </xs:sequence>
     </xs:complexType>

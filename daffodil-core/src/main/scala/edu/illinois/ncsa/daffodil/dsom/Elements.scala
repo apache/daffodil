@@ -906,7 +906,7 @@ trait ElementDeclMixin
       case Some((ns, localpart)) => {
 
         val ss = schemaSet
-        val prim = ss.getPrimitiveType(localpart)
+        val prim = ss.getPrimitiveType(ns, localpart)
         //
         if (prim != None) prim
         else {

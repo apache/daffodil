@@ -55,8 +55,6 @@ class TestNamespacesDebug {
 
   @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
 
-  @Test def test_namespace_ultra_uniqueness_03() { runner.runOneTest("namespace_ultra_uniqueness_03") }
-
   // Failed after implementation of DFDL-336.  Appears to be due to
   // allParentTerminatingMarkup. See created issue DFDL-571
   @Test def test_long_chain_05() { runner.runOneTest("long_chain_05") }
