@@ -47,7 +47,7 @@
   
   <xs:element name="nestSequence5" dfdl:terminator="">
     <xs:complexType>
-      <xs:sequence dfdl:separator="|">
+      <xs:sequence dfdl:separator="|" dfdl:terminator="">
         <xs:element ref="b03:nest4" dfdl:occursCountKind="parsed" maxOccurs="unbounded"/>
       </xs:sequence>
     </xs:complexType>

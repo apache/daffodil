@@ -55,10 +55,6 @@ class TestNamespacesDebug {
 
   @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
 
-  // Failed after implementation of DFDL-336.  Appears to be due to
-  // allParentTerminatingMarkup. See created issue DFDL-571
-  @Test def test_long_chain_05() { runner.runOneTest("long_chain_05") }
-
   // See comments in related bug. JIRA-549
   // This test is looking for a specific file to be mentioned in an error message 
   // which is the file with the content responsible for the error, not the file

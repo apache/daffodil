@@ -672,7 +672,14 @@
     <tdml:document><![CDATA[5632]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error: Property lengthKind is not defined</tdml:error>
-      <tdml:error>Searched these locations</tdml:error>
+      <tdml:error>Default Properties</tdml:error>
+      <tdml:error>Non-default Properties</tdml:error>  
+      <tdml:error>multi_A_03.dfdl.xsd</tdml:error>    
+      <tdml:error>multi_B_03.dfdl.xsd</tdml:error>    
+      <tdml:error>multi_C_03.dfdl.xsd</tdml:error>    
+      <tdml:error>multi_D_03.dfdl.xsd</tdml:error>    
+      <tdml:error>multi_E_03.dfdl.xsd</tdml:error>   
+      <tdml:error>Location line 30 column 109</tdml:error>                         
     </tdml:errors>
   </tdml:parserTestCase>
 
