@@ -590,25 +590,27 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
     case Some(s) => s
   }
 
-  lazy val testTxt = (testKind, testBody, testAttrib, testPattern) match {
-    case (TestKind.Expression, None, Some(txt), None) => txt
-    case (TestKind.Expression, txt, None, None) => txt.get
-    case (TestKind.Pattern, None, None, pat) => pat.get
-    case (TestKind.Expression, Some(bdy), Some(attrib), _) => SDE("You may not specify both test attribute and a body expression.")
-    case (TestKind.Expression, None, None, _) => SDE("You must specify either a test attribute or a body expression.")
-    case (TestKind.Pattern, Some(bdy), _, Some(txt)) => SDE("You may not specify both testPattern attribute and a body expression.")
-    case (TestKind.Pattern, None, _, None) => SDE("You must specify either a testPattern attribute or a body expression. for testKind='pattern'")
-    case (TestKind.Pattern, Some(bdy), None, None) => bdy // pattern as body of assert element
-    case (TestKind.Pattern, _, Some(tst), _) => SDE("You cannot specify test='%s' for testKind='pattern'", tst)
-    case (TestKind.Expression, _, _, Some(pat)) => SDE("You cannot specify testPattern='%s' for testKind='expression' (which is the default test kind.)", pat)
-    case _ => Assert.invariantFailed("unexpected case.")
+  lazy val testTxt = {
+    val rawTxt = (testKind, testBody, testAttrib, testPattern) match {
+      case (TestKind.Expression, None, Some(txt), None) => txt
+      case (TestKind.Expression, txt, None, None) => txt.get
+      case (TestKind.Pattern, None, None, pat) => pat.get
+      case (TestKind.Expression, Some(bdy), Some(attrib), _) => SDE("You may not specify both test attribute and a body expression.")
+      case (TestKind.Expression, None, None, _) => SDE("You must specify either a test attribute or a body expression.")
+      case (TestKind.Pattern, Some(bdy), _, Some(txt)) => SDE("You may not specify both testPattern attribute and a body expression.")
+      case (TestKind.Pattern, None, _, None) => SDE("You must specify either a testPattern attribute or a body expression. for testKind='pattern'")
+      case (TestKind.Pattern, Some(bdy), None, None) => bdy // pattern as body of assert element
+      case (TestKind.Pattern, _, Some(tst), _) => SDE("You cannot specify test='%s' for testKind='pattern'", tst)
+      case (TestKind.Expression, _, _, Some(pat)) => SDE("You cannot specify testPattern='%s' for testKind='expression' (which is the default test kind.)", pat)
+      case _ => Assert.invariantFailed("unexpected case.")
+    }
+    // we need to be sure if it is an expression that it is surrounded by {...}
+    // after trimming whitespace from before and after. Jira issue DFDL-434
+    if (testKind == TestKind.Expression)
+      schemaDefinitionUnless(rawTxt.startsWith("{") && !rawTxt.startsWith("{{") && rawTxt.endsWith("}"),
+        "Expression must begin with a single '{' and end with a '}'")
+    rawTxt
   }
-
-  //
-  // TODO: override diagnosticChildren if we compile the testBody/pattern into an object
-  // which can provide error/diagnostic information itself (beyond what this class itself
-  // can provide... which is nothing right now, but it could...someday).
-  //
 }
 
 class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)

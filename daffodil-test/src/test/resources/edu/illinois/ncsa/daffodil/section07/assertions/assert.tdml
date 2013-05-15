@@ -296,7 +296,9 @@
                   dfdl:inputValueCalc="{ 'a1' }">
                   <xs:annotation>
                     <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-                      <dfdl:assert><![CDATA[{ xs:int(../../ex:v) ne 42 }]]></dfdl:assert>
+                      <dfdl:assert>
+                        { xs:int(../../ex:v) ne 42 }
+                      </dfdl:assert>
                     </xs:appinfo>
                   </xs:annotation>
                 </xs:element>
