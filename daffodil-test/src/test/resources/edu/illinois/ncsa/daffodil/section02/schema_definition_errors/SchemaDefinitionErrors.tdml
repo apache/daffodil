@@ -48,4 +48,50 @@
     </tdml:errors>
 
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="missingLeadingSkip">
+    <dfdl:format lengthKind="delimited" alignment="1" alignmentUnits="bits" terminator="" separator="" initiator=""
+      encoding="utf-8" representation="text"/>
+
+    <xs:element name="elem">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="row" minOccurs="10" maxOccurs="10">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=","
+                dfdl:separatorSuppressionPolicy="never" dfdl:separatorPosition="infix"
+                dfdl:terminator="%NL;">
+                <xs:element name="cell" type="xs:int"
+                  maxOccurs="unbounded" dfdl:encoding="ASCII"
+                  dfdl:representation="text" dfdl:lengthKind="delimited" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+    Test Name: schema_component_err
+       Schema: missingLeadingSkip 
+         Root: elem
+      Purpose: This test demonstrates that error messages should be very specific regarding
+               the exact location and cause of the error
+-->
+
+  <tdml:parserTestCase name="schema_component_err" root="elem"
+    model="missingLeadingSkip"
+    description="">
+    <tdml:document />
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property leadingSkip is not defined</tdml:error>
+      <tdml:error>Non-default properties were combined from these locations</tdml:error>
+      <tdml:error>Default properties were taken from these locations</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
 </tdml:testSuite>

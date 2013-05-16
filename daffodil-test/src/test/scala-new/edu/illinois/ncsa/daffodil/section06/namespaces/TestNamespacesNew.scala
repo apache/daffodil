@@ -49,9 +49,6 @@ class TestNamespacesNew extends Logging {
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  // this is in TestNamespaces.scala already.
-  // @Test def test_namespace_conflict_01() { runner.runOneTest("namespace_conflict_01") }
-
   @Test def test_double_nesting_01() { runner.runOneTest("double_nesting_01") }
 
   @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }

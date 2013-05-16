@@ -1,6 +1,6 @@
-package edu.illinois.ncsa.daffodil.section06.namespaces
+package edu.illinois.ncsa.daffodil.section02.schema_definition_errors
 
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2013 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -34,19 +34,20 @@ package edu.illinois.ncsa.daffodil.section06.namespaces
 
 import junit.framework.Assert._
 import org.junit.Test
+import scala.xml._
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils._
+import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import java.io.File
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-/**
- * Tests specific to the include/import constructs making sure
- * they find files in the right places.
- */
-class TestIncludeImport {
-  val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
-  val aa = testDir + "includeImport.tdml"
+class TestSDEDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section02/schema_definition_errors/"
+  val aa = testDir + "SchemaDefinitionErrors.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_include01() { runner.runOneTest("include01") }
-  @Test def test_include02() { runner.runOneTest("include02") }
-}
+  @Test def test_schema_component_err() { runner.runOneTest("schema_component_err") }
 
+}

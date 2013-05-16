@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://b04.com" xmlns:cFoo="http://c04.com" xmlns:foo="http://b04.com">
+ 
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <xs:format separator="" occursCountKind="parsed" separatorPosition="infix" lengthUnits="bytes" 
+      initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:import namespace="http://c04.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_C_04.dfdl.xsd"/>
+
+  <xs:element name="bSeq">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=".">
+        <xs:element ref="cFoo:cElem" dfdl:length="5"/> 
+        <xs:element ref="cFoo:cElem" dfdl:length="6"/> 
+        <xs:element ref="cFoo:cElem" dfdl:length="3"/> 
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+ 
+</xs:schema>

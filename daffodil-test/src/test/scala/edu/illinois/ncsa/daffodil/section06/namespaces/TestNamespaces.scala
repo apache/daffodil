@@ -63,7 +63,7 @@ class TestNamespaces {
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"), validateTDMLFile = false)
-  
+
   @Test def test_defaultNamespaceInExpression() { runner.runOneTest("defaultNamespaceInExpression") }
   @Test def test_defaultNamespaceInExpression2() { runner.runOneTest("defaultNamespaceInExpression2") }
   
@@ -189,5 +189,13 @@ class TestNamespaces {
   @Test def test_nonsense_namespace_01() { runner.runOneTest("nonsense_namespace_01") }
   @Test def test_nonsense_namespace_02() { runner.runOneTest("nonsense_namespace_02") }
   @Test def test_nonsense_namespace_03() { runner.runOneTest("nonsense_namespace_03") }
+ 
+  val tdmlFile = testDir + "includeImport.tdml"
+  lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(tdmlFile))
+
+  @Test def test_include01() { runner3.runOneTest("include01") }
+  @Test def test_include02() { runner3.runOneTest("include02") }
+  @Test def test_toplevel_annotation_invalid_01() { runner.runOneTest("toplevel_annotation_invalid_01") }
+  @Test def test_toplevel_annotation_invalid_02() { runner.runOneTest("toplevel_annotation_invalid_02") }
 
 }
