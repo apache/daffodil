@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.propGen
  * SOFTWARE.
  */
 
-
 // Copyright (C) 2012 Michael J. Beckerle. All Rights Reserved.
 
 import org.xml.sax.InputSource
@@ -323,17 +322,35 @@ trait CurrencyMixin extends PropertyMixin {
   /**
    * get property value, or fail trying. Use this if you need
    * the property value.
+   * 
+   * Also gets the schema component where the property was found
+   * so that one can report errors/diagnostics relative to that
+   * location, not the point of use of the property.
    */
-  lazy val currency = Currency(getProperty("currency"), this)
-    
+  lazy val (currency, currency_location) = {
+    val Found(propRawVal, propLoc) = findProperty("currency")
+    val propVal = Currency(propRawVal, this)
+    (propVal, propLoc)
+  }
   /**
    * get Some(property value) or None if not defined in scope.
    *
    * Mostly do not use this. Most code shouldn't need to test for 
    * property existence. Just insist on the property you need by
-   * calling getProperty("currency")
+   * using its name. E.g., if you need calendarTimeZone, just use
+   * a.calendarTimeZone (where a is an AnnotatedSchemaComponent)
    */
-  lazy val optionCurrency = getPropertyOption("currency")
+  //lazy val optionCurrency = getPropertyOption("currency")
+  lazy val currencyLookupResult = findPropertyOption("currency")
+  lazy val (optionCurrency, optionCurrency_location) = {
+    currencyLookupResult match {
+      case Found(propRawVal, propLoc) => {
+        val propVal = Currency(propRawVal, this)
+        (Some(propVal), Some(propLoc))    
+      }
+      case NotFound(_, _) => (None, None)
+    }
+  }
     
   /**
    * This will print the property value if the property has any value
@@ -400,7 +417,11 @@ trait CurrencyMixin extends PropertyMixin {
   }
 
   def generateEnumInstantiation(propName: String, typeName: String) = {
-    val midTemplate = """  lazy val EUR = Currency(getProperty("EUR"), this)
+    val midTemplate =
+      """  lazy val (EUR, EUR_location) = {
+      val Found(propVal, propLoc) = findProperty("EUR")
+      (Currency(propVal, this), propLoc)
+     }
 """
     val mid =
       if (excludeRuntimeProperties(propName)) ""
@@ -618,6 +639,8 @@ object PropertyGenerator {
 
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.dsom.Found
+import edu.illinois.ncsa.daffodil.dsom.NotFound  
     
 """
 

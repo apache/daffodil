@@ -7,7 +7,7 @@
 
   <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
   <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/"
-    schemaLocation="DFDL_part3_model.xsd" />
+    schemaLocation="DFDL_model_all_parts.xsd" />
 
   <!-- Copyright (C) 2012, Tresys Technologies LLC. All Rights Reserved. -->
 

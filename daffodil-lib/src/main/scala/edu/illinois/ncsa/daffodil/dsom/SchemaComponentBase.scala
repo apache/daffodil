@@ -10,8 +10,7 @@ import edu.illinois.ncsa.daffodil.util.Logging
 abstract class SchemaComponentBase(xmlArg: scala.xml.Node, parent: SchemaComponentBase)
   extends OOLAGHost(parent)
   with ThrowsSDE
-  with GetAttributesMixin
-  with SchemaFileLocatable {
+  with GetAttributesMixin {
 
   val contextLocatable = parent
 

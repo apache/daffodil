@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import java.text.ParsePosition
 import java.util.Date
 import com.ibm.icu.text.SimpleDateFormat
@@ -117,9 +116,8 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     val patternNoEscapes = escapedText.replaceAllIn(p, "")
     patternNoEscapes.toSeq.foreach(char =>
       if (!validFormatCharacters.contains(char)) {
-        SDE("Character '%s' not allowed in dfdl:calendarPattern for %s".format(char,GramName))
-      }
-    )
+        SDE("Character '%s' not allowed in dfdl:calendarPattern for %s".format(char, GramName))
+      })
 
     if (patternNoEscapes.indexOf("S" * (TextCalendarConstants.maxFractionalSeconds + 1)) >= 0) {
       SDE("More than %d fractional seconds unsupported in dfdl:calendarPattern for %s".format(TextCalendarConstants.maxFractionalSeconds, GramName))
@@ -139,13 +137,13 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     val cal = Calendar.getInstance(locale)
 
     val firstDay = e.calendarFirstDayOfWeek match {
-      case CalendarFirstDayOfWeek.Sunday    => Calendar.SUNDAY
-      case CalendarFirstDayOfWeek.Monday    => Calendar.MONDAY
-      case CalendarFirstDayOfWeek.Tuesday   => Calendar.TUESDAY
+      case CalendarFirstDayOfWeek.Sunday => Calendar.SUNDAY
+      case CalendarFirstDayOfWeek.Monday => Calendar.MONDAY
+      case CalendarFirstDayOfWeek.Tuesday => Calendar.TUESDAY
       case CalendarFirstDayOfWeek.Wednesday => Calendar.WEDNESDAY
-      case CalendarFirstDayOfWeek.Thursday  => Calendar.THURSDAY
-      case CalendarFirstDayOfWeek.Friday    => Calendar.FRIDAY
-      case CalendarFirstDayOfWeek.Saturday  => Calendar.SATURDAY
+      case CalendarFirstDayOfWeek.Thursday => Calendar.THURSDAY
+      case CalendarFirstDayOfWeek.Friday => Calendar.FRIDAY
+      case CalendarFirstDayOfWeek.Saturday => Calendar.SATURDAY
     }
     cal.setFirstDayOfWeek(firstDay)
 
@@ -169,7 +167,9 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
 
     val tz = TimeZone.getTimeZone(tzStr)
     if (tz == TimeZone.UNKNOWN_ZONE) {
-      SDE("Unknown timezone specified for dfdl:calendarTimeZone: %s", e.calendarTimeZone)
+      e.schemaDefinitionErrorDueToPropertyValue(
+        "calendarTimeZone", e.calendarTimeZone, e.calendarTimeZone_location,
+        "Unknown time zone '%s'", e.calendarTimeZone)
     }
     cal.setTimeZone(tz)
 

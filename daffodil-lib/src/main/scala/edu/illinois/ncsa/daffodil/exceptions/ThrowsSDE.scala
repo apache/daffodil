@@ -32,7 +32,7 @@ package edu.illinois.ncsa.daffodil.exceptions
  * SOFTWARE.
  */
 
-trait ThrowsSDE {
+trait ThrowsSDE extends SchemaFileLocatable {
 
   def SDE(str: String, args: Any*): Nothing
   def SDW(str: String, args: Any*): Unit
@@ -77,5 +77,27 @@ trait ThrowsSDE {
 
   def notYetImplemented(msg: String, args: Any*): Nothing = SDE("Feature not yet implemented: " + msg, args: _*)
 
+  /**
+   * SDE special case when we're blaming the error on the value of a property.
+   * If the location where the property value is defined is different
+   * from the current context, then we inform about both the context
+   * location, and the location where the property value comes from.
+   */
+  def schemaDefinitionErrorDueToPropertyValue(
+    propertyName: String,
+    propertyValue: String,
+    propertyLocation: ThrowsSDE,
+    str: String, args: Any*): Nothing = {
+    //
+    // only if there is more than one location to discuss, do we 
+    // output that information as well.
+    // 
+    if (propertyLocation.locationDescription != this.locationDescription) {
+      SDEButContinue(str, args: _*)
+      propertyLocation.SDE("Property %s defined as '%s'.", propertyName, propertyValue)
+    } else {
+      SDE(str, args: _*)
+    }
+  }
 }
 

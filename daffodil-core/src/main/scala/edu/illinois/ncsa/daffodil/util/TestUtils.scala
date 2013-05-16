@@ -99,7 +99,7 @@ object TestUtils {
                </xs:annotation>
                <!-- No imports needed: XML Catalog gets them 
                        <xsd:import namespace={ xsdURI } schemaLocation="XMLSchema.xsd"/>
-                       <xsd:import namespace={ dfdlURI } schemaLocation="DFDL_part3_model.xsd"/> 
+                       <xsd:import namespace={ dfdlURI } schemaLocation="DFDL_model_all_parts.xsd"/> 
                         -->
                { contentElements }
              </xs:schema> % fileAttrib

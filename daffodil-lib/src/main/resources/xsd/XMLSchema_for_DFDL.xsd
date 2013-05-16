@@ -25,7 +25,7 @@ this to validate when we load a DFDL Schema.
   -->
 
   <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/"
-    schemaLocation="DFDL_part3_model.xsd" />
+    schemaLocation="DFDL_model_all_parts.xsd" />
     
   <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
     schemaLocation="dafint.xsd"/>

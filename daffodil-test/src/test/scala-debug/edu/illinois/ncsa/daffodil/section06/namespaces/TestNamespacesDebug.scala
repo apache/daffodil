@@ -55,19 +55,4 @@ class TestNamespacesDebug {
 
   @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
 
-  // See comments in related bug. JIRA-549
-  // This test is looking for a specific file to be mentioned in an error message 
-  // which is the file with the content responsible for the error, not the file
-  // of the object where the error was detected.
-  @Test def test_combinations_02() {
-    try {
-      // Must turn off the Info logging messages, because those will have the filename in them
-      // which would create a false positive in this test.
-      LoggingDefaults.setLoggingLevel(LogLevel.Warning)
-      runner.runOneTest("combinations_02")
-    } finally {
-      LoggingDefaults.setLoggingLevel(LogLevel.Info)
-    }
-  }
-
 }

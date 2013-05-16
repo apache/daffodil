@@ -82,8 +82,7 @@ case class NotFound(localWhereLooked: Seq[LookupLocation], defaultWhereLooked: S
  * QName to a namespace and a local name.
  */
 trait LookupLocation
-  extends SchemaFileLocatable
-  with ResolvesQNames
+  extends ResolvesQNames
   with GetAttributesMixin { self: SchemaComponentBase =>
 
   def nameAndPath = (self.prettyName, self.path)

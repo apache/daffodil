@@ -982,7 +982,7 @@
     <tdml:document><![CDATA[these.hidden.objs.1234.()()()()().abc.done|03-24-1988]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Unknown timezone specified for dfdl:calendarTimeZone</tdml:error>
+      <tdml:error>Unknown time zone</tdml:error>
       <tdml:error>Location line </tdml:error>
       <!-- Note that this test must be run by a special driver that
         shuts off the Info logging from the import/include system. That logging
@@ -991,6 +991,7 @@
         error messages to specifically mention this file, not just show that
         it was included. -->
       <tdml:error>subfolder/multi_C_06_nons.dfdl.xsd</tdml:error>
+      <tdml:error>calendarTimeZone defined as '5 o'clock somewhere'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
