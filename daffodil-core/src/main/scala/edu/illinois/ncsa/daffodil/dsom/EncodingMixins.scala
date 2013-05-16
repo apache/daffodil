@@ -54,8 +54,8 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
    */
 
   lazy val isKnownEncoding = {
-    val res = encoding.isConstant
-    if (res) {
+    val isKnown = encoding.isConstant
+    if (isKnown) {
       val encName = encoding.constantAsString.toUpperCase()
       if (encName.startsWith("UTF-16")) {
         schemaDefinitionUnless(utf16Width == UTF16Width.Fixed, "Property utf16Width='variable' not supported.")
@@ -64,9 +64,12 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
         // (and error if unsupported then, or just implement it!)
       }
     }
-    res
+    isKnown
   }
 
+  /**
+   * Note that the canonical form for encoding names is all upper case.
+   */
   lazy val knownEncodingName = {
     Assert.invariant(isKnownEncoding)
     val res = encoding.constantAsString.toUpperCase()
@@ -92,7 +95,7 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
 
   lazy val knownEncodingAlignmentInBits = {
     knownEncodingName match {
-      case "US-ASCII-7bit-packed" => 1
+      case "US-ASCII-7-BIT-PACKED" => 1 // canonical form of encoding names is all upper case
       case _ => 8
     }
   }

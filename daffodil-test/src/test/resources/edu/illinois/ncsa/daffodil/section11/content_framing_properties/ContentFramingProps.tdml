@@ -439,7 +439,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e1>42</e1>
+        <e6>42</e6>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
