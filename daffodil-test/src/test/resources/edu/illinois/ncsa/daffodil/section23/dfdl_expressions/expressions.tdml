@@ -1746,6 +1746,31 @@
     </tdml:dfdlInfoset>
     </tdml:infoset>
     
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="trueFalseTypeCorrect">
+  
+     <dfdl:format ref="ex:daffodilTest1"/>
+     
+     <xs:element name="e">
+     <xs:complexType>
+     <xs:sequence>
+     <xs:element name="x" type="xs:int" dfdl:inputValueCalc="{ 0 }"/>
+     <xs:element name="f" type="xs:int" dfdl:inputValueCalc="{ if (xs:boolean(fn:trace((if (xs:int(../ex:x) eq 0) then true() else false()), 'predicate'))) then 2 else 3 }"/>
+     </xs:sequence>
+     </xs:complexType>
+     </xs:element>
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="trueFalseTypeCorrect" model="trueFalseTypeCorrect" root="e"
+    description="Test for JIRA DFDL-433 which demonstrates the use of a corrected expression.">
+    <tdml:document/>
+    <tdml:infoset>
+    <tdml:dfdlInfoset>
+    <ex:e><ex:x>0</ex:x><ex:f>2</ex:f></ex:e>
+    </tdml:dfdlInfoset>
+    </tdml:infoset>
+    
     </tdml:parserTestCase>
 
 </tdml:testSuite>

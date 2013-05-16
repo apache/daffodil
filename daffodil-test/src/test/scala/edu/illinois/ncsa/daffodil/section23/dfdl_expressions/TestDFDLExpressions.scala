@@ -99,6 +99,9 @@ class TestDFDLExpressions {
   @Test def test_invalid_enum_2() { runner.runOneTest("invalid_enum_2") }
   @Test def test_invalid_enum_3() { runner.runOneTest("invalid_enum_3") }
 
+  @Test def test_trueFalseTypeError() { runner.runOneTest("trueFalseTypeError") }
+  @Test def test_trueFalseTypeCorrect() { runner.runOneTest("trueFalseTypeCorrect") }
+
   val tdml2 = testDir + "functions.tdml"
   lazy val runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
