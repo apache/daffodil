@@ -548,5 +548,90 @@ is multiple bytes in UTF-8 encoding that is used"
       <tdml:error>Schema Definition Error</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="NLSchema">
+
+    <dfdl:format ref="ex:daffodilTest1" encoding="utf-8"
+      byteOrder="bigEndian" representation="text" lengthUnits="characters"
+      textNumberRep="standard" lengthKind="delimited" initiator=""
+      ignoreCase="no" initiatedContent="no" />
+
+    <xs:element name="seq">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="term" minOccurs="2" maxOccurs="2" dfdl:terminator="%NL;%NL;" dfdl:lengthKind="delimited">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="10"/>
+                <xs:minLength value="1"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="seq2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%NL;%NL;">
+          <xs:element name="sep" minOccurs="2" maxOccurs="2" dfdl:lengthKind="delimited">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="10"/>
+                <xs:minLength value="1"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+    Test Name: doubleNLterminator
+       Schema: NLSchema
+      Purpose: This tests demontrates that a CRLF should not be detected as two separate newline characters
+  -->
+
+  <tdml:parserTestCase name="doubleNLterminator" root="seq" model="NLSchema"
+    description="">
+    <tdml:document>
+      <tdml:documentPart type="byte">74 65 78 74 0d 0a 0d 0a</tdml:documentPart>
+      <tdml:documentPart type="byte">74 65 78 74 0d 0a 0d 0a</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq>
+          <term>text</term>
+          <term>text</term>
+        </seq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test Name: doubleNLseparator
+       Schema: NLSchema
+      Purpose: This test demonstrates that a CRLF should not be detected as two separate
+               newline characters
+  -->
+
+  <tdml:parserTestCase name="doubleNLseparator" root="seq2" model="NLSchema"
+    description="">
+    <tdml:document>
+      <tdml:documentPart type="byte">74 65 78 74 0d 0a 0d 0a</tdml:documentPart>
+      <tdml:documentPart type="byte">74 65 78 74</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq2>
+          <sep>text</sep>
+          <sep>text</sep>
+        </seq2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 
 </tdml:testSuite>

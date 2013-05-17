@@ -47,9 +47,8 @@ class TestEntities {
   val testDir = "/edu/illinois/ncsa/daffodil/section06/entities/"
   val tdml = testDir + "charClassEntities.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
-  
-//  @Test def test_doubleNL() { runner.runOneTest("doubleNL") }
 
+//  @Test def test_doubleNL() { runner.runOneTest("doubleNL") }
   @Test def test_entityInError() { runner.runOneTest("entityInError") }
   @Test def test_LineFeed() { runner.runOneTest("LineFeed") }
   @Test def test_CarriageReturn() { runner.runOneTest("CarriageReturn") }
@@ -66,6 +65,9 @@ class TestEntities {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section06/entities/"
   val tdml_01 = testDir_01 + "Entities.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+
+  @Test def test_doubleNLterminator() { runner_01.runOneTest("doubleNLterminator") }
+  @Test def test_doubleNLseparator() { runner_01.runOneTest("doubleNLseparator") }
 
   @Test def test_text_entities_6_02() { runner_01.runOneTest("text_entities_6_02") }
   @Test def test_text_entities_6_03() { runner_01.runOneTest("text_entities_6_03") }
