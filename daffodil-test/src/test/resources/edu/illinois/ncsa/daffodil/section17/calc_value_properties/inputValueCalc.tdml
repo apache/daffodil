@@ -705,7 +705,7 @@
 
     <tdml:document>-2147483649</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -2.147483649E9 to Int.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -2147483649 to Int.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -737,7 +737,7 @@
 
     <tdml:document>2147483648</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 2.147483648E9 to Int.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 2147483648 to Int.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -769,7 +769,7 @@
 
     <tdml:document>-32769</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -32769.0 to Short</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -32769 to Short</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -801,7 +801,7 @@
 
     <tdml:document>32768</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 32768.0 to Short.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 32768 to Short.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -833,7 +833,7 @@
 
     <tdml:document>-1</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -1.0 to UnsignedInt.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -1 to UnsignedInt.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -851,7 +851,7 @@
 
     <tdml:document>4294967296</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 4.294967296E9 to UnsignedInt.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 4294967296 to UnsignedInt.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -883,7 +883,7 @@
 
     <tdml:document>-1</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -1.0 to UnsignedShort.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -1 to UnsignedShort.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -901,7 +901,7 @@
 
     <tdml:document>65537</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 65537.0 to UnsignedShort.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 65537 to UnsignedShort.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -933,7 +933,7 @@
 
     <tdml:document>-9223372036854775809</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -9.223372036854776E18 to Long.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -9223372036854775809 to Long.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -965,7 +965,7 @@
 
     <tdml:document>9223372036854775808</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 9.223372036854776E18 to Long.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 9223372036854775808 to Long.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -997,7 +997,7 @@
 
     <tdml:document>-1</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -1.0 to UnsignedLong.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -1 to UnsignedLong.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1015,7 +1015,7 @@
 
     <tdml:document>18446744073709551616</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 1.8446744073709552E19 to UnsignedLong.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 18446744073709551616 to UnsignedLong.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1047,7 +1047,7 @@
 
     <tdml:document>-129</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -129.0 to Byte.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -129 to Byte.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1079,7 +1079,7 @@
 
     <tdml:document>128</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 128.0 to Byte.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 128 to Byte.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1111,7 +1111,7 @@
 
     <tdml:document>-1</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -1.0 to UnsignedByte.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert -1 to UnsignedByte.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1129,7 +1129,7 @@
 
     <tdml:document>257</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 257.0 to UnsignedByte.</tdml:error>
+      <tdml:error>Runtime Schema Definition Error: Cannot convert 257 to UnsignedByte.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

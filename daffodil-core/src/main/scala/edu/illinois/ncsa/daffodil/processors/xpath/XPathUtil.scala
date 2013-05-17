@@ -952,11 +952,16 @@ object XPathUtil extends Logging {
     {
       val ce = compiledExprFactory.getXPathExpr(variables)
       log(LogLevel.Debug, "Evaluating %s in context %s to get a %s", expressionForErrorMsg, contextNode, targetType) // Careful. contextNode could be null.
-      val o = ce.evaluate(contextNode, targetType)
+      val (isNumeric, newTargetType) = targetType match {
+        // Represent numeric types as String to prevent loss of precision
+        case NUMBER => (true, STRING)
+        case _ => (false, targetType)
+      }
+      val o = ce.evaluate(contextNode, newTargetType)
       log(LogLevel.Debug, "Evaluated to: %s", o)
       val res =
         try {
-          (o, targetType) match {
+          (o, newTargetType) match {
             case (_, NUMBER) => {
               val numStr = o match {
                 case x: Element => x.getContent(0).toString()
@@ -974,6 +979,26 @@ object XPathUtil extends Logging {
               // of the evaluated value (numStr) will always have decimals in them.
               // How can we get around this?
               BigDecimal(numStr) // Will throw exception if not a valid number
+              new NumberResult(numStr)
+            }
+            case (_, STRING) if isNumeric => {
+              val numStr = o match {
+                case x: Element => x.getContent(0).toString()
+                case x: Text => x.getValue()
+                case "true" => "1" // Because could evaluate checkConstraints which returns true/false
+                case "false" => "0" // Because could evaluate checkConstraints which returns true/false
+                case "" if (contextNode != null) => {
+                  // We got empty string. If the path actually exists, then the result is empty string.
+                  // If the path doesn't exist, then we want to fail.
+                  val existingNode = ce.evaluate(contextNode, NODE)
+                  if (existingNode != null) throw new XPathExpressionException("unrecognized evaluation result: " + o + " (empty string) for target type " + targetType)
+                  else throw new XPathExpressionException("no node for path " + expressionForErrorMsg)
+                }
+                case x: String => x
+                case null => throw new XPathExpressionException("no node for path " + expressionForErrorMsg)
+                case _ => throw new XPathExpressionException("unrecognized evaluation result: " + o + " for target type " + targetType)
+              }
+              BigDecimal(numStr)
               new NumberResult(numStr)
             }
             case (x: Element, NODE) => new NodeResult(x)

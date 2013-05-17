@@ -131,18 +131,18 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
   def isKnownNonEmpty = true // expressions are not allowed to return empty string
   def constant: T = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
 
-  def toXPathType(convertTo: ConvertToType.Type) =
-    convertTo match {
-      case ConvertToType.Long => XPathConstants.NUMBER
-      case ConvertToType.Double => XPathConstants.NUMBER
-      case ConvertToType.Int | ConvertToType.UInt | ConvertToType.Integer |
-        ConvertToType.UInteger | ConvertToType.Short | ConvertToType.UShort => XPathConstants.NUMBER
-      case ConvertToType.Decimal | ConvertToType.Byte | ConvertToType.UByte | ConvertToType.ULong => XPathConstants.NUMBER
-      case ConvertToType.String => XPathConstants.STRING
-      case ConvertToType.Element => XPathConstants.NODE
-      case ConvertToType.Boolean => XPathConstants.BOOLEAN
-      case _ => Assert.invariantFailed("convertTo not valid value: " + convertTo)
-    }
+    def toXPathType(convertTo: ConvertToType.Type) =
+      convertTo match {
+        case ConvertToType.Long => XPathConstants.NUMBER
+        case ConvertToType.Double => XPathConstants.NUMBER
+        case ConvertToType.Int | ConvertToType.UInt | ConvertToType.Integer |
+          ConvertToType.UInteger | ConvertToType.Short | ConvertToType.UShort => XPathConstants.NUMBER
+        case ConvertToType.Decimal | ConvertToType.Byte | ConvertToType.UByte | ConvertToType.ULong => XPathConstants.NUMBER
+        case ConvertToType.String => XPathConstants.STRING
+        case ConvertToType.Element => XPathConstants.NODE
+        case ConvertToType.Boolean => XPathConstants.BOOLEAN
+        case _ => Assert.invariantFailed("convertTo not valid value: " + convertTo)
+      }
 
   def evaluate(pre: InfosetElement, variables: VariableMap, pstate: PState): R = {
     val xpathResultType = toXPathType(convertTo)
@@ -163,7 +163,7 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
     val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
     val converted: T = xpathRes match {
       case NotANumberResult(v) => {
-        PE("Expression %s evaluated to something that is not a number: %s.", xpathText, v)
+        PE("Expression %s evaluated to something that is not a number (NaN): %s.", xpathText, v)
       }
       case NumberResult(n) => {
         val convertedResult = try {

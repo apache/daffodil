@@ -273,9 +273,9 @@ class XPathUtilTest {
     val document = new Document(root)
     val vars = new VariableMap()
     var result: XPathResult = XPathUtil evalExpressionFromString ("/root/text()", vars, root, Nil, XPathConstants.NUMBER)
-    assertEquals(NumberResult("19.0"), result)
+    assertEquals(NumberResult("19"), result)
     result = XPathUtil evalExpressionFromString ("/root", vars, root, Nil, XPathConstants.NUMBER)
-    assertEquals(NumberResult("19.0"), result)
+    assertEquals(NumberResult("19"), result)
   }
 
   @Test def testXPathForNumberFailures() {
@@ -288,9 +288,6 @@ class XPathUtilTest {
     val vars = new VariableMap()
     var result: XPathResult = XPathUtil evalExpressionFromString ("/root", vars, root, Nil, XPathConstants.NUMBER)
     result match {
-      // Changed NumberResult to accept a BigDecimal instead of a Double
-      //case NumberResult(n) => assertTrue(n.isNaN())
-      //case _ => fail
       case NotANumberResult(n) => // OK
       case NumberResult(n) => fail
       case _ => fail
@@ -304,6 +301,7 @@ class XPathUtilTest {
     }
     val e = intercept[XPathExpressionException] {
       result = XPathUtil evalExpressionFromString ("/foobar", vars, root, Nil, XPathConstants.NUMBER)
+      result
     }
     assertTrue(e.getMessage().contains("foobar"))
   }
@@ -318,9 +316,9 @@ class XPathUtilTest {
 
     val vars = new VariableMap()
     var result: XPathResult = XPathUtil evalExpressionFromString (" 19 ", vars, null, Nil, XPathConstants.NUMBER)
-    assertEquals(NumberResult("19.0"), result)
+    assertEquals(NumberResult("19"), result)
     result = XPathUtil evalExpressionFromString (" 19 * 47 ", vars, null, Nil, XPathConstants.NUMBER)
-    assertEquals(NumberResult((19.0 * 47.0).toString), result)
+    assertEquals(NumberResult((19 * 47).toString), result)
     result = XPathUtil evalExpressionFromString (" 19 ", vars, null, Nil, XPathConstants.STRING)
     assertEquals(StringResult("19"), result)
     result = XPathUtil evalExpressionFromString (" 19 * 47 ", vars, null, Nil, XPathConstants.STRING)
