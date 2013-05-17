@@ -47,6 +47,8 @@ class TestEntities {
   val testDir = "/edu/illinois/ncsa/daffodil/section06/entities/"
   val tdml = testDir + "charClassEntities.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  
+//  @Test def test_doubleNL() { runner.runOneTest("doubleNL") }
 
   @Test def test_entityInError() { runner.runOneTest("entityInError") }
   @Test def test_LineFeed() { runner.runOneTest("LineFeed") }

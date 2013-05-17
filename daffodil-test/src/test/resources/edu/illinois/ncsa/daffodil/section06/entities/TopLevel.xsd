@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://example.com"
+	xmlns:tns="http://example.com">
+
+	<!-- include the default properties -->
+	<xsd:include schemaLocation="DefaultProperties.xsd"/>
+	<xsd:annotation>
+    <xsd:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+			<dfdl:format ref="tns:DefaultPropertiesFormat" separator=""/>
+		</xsd:appinfo>
+	</xsd:annotation>
+
+	<xsd:element name="TopLevel">
+		<xsd:complexType>
+			<xsd:sequence dfdl:separator="%NL;%NL;">
+				<xsd:element name="MessageHeaders" dfdl:lengthKind="delimited"
+					 type="xsd:string"/>
+				<xsd:element name="Body" type="xsd:string"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
