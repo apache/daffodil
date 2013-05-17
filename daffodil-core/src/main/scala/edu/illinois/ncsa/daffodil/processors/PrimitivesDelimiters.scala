@@ -450,11 +450,13 @@ case class StaticTerminator(e: Term) extends StaticDelimiter("Term", e.terminato
 case class DynamicInitiator(e: Term) extends DynamicDelimiter("Init", e.initiator, e)
 case class DynamicTerminator(e: Term) extends DynamicDelimiter("Term", e.terminator, e)
 
-case class StaticSeparator(s: Sequence, t: Term) extends StaticDelimiter("Sep", s.separator.constantAsString, t) {
+// Note: for a static separator, we pass s, the sequence, because that is where
+// the charset encoding comes from. 
+case class StaticSeparator(s: Sequence, t: Term) extends StaticDelimiter("Sep", s.separator.constantAsString, s) {
   Assert.invariant(s.hasSeparator)
   lazy val unparserDelim = s.separator.constantAsString.split("""\s""").head
 }
-case class DynamicSeparator(s: Sequence, t: Term) extends DynamicDelimiter("Sep", s.separator, t)
+case class DynamicSeparator(s: Sequence, t: Term) extends DynamicDelimiter("Sep", s.separator, s)
 
 case class LiteralNilExplicitLengthInBytes(e: ElementBase)
   extends LiteralNilInBytesBase(e, "LiteralNilExplicit") {

@@ -10,7 +10,7 @@
   <tdml:defineSchema name="v">
 
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
-      encoding="us-ascii" />
+      encoding="utf-8" />
 
     <xs:element name="c">
       <xs:complexType>
@@ -109,7 +109,7 @@
       <tdml:documentPart type="text">1234</tdml:documentPart>
       <!-- This next binary field should decode with failure. It begins with 
         C2FF, which is
-        not valid utf-8 encoding. If this is skipped, it will find a 3f2c 
+        not valid utf-8 encoding. If this is skipped, it will find a 352c 
         which is "5," after that.
         This will result in the initial string being 12345, not 1234. -->
       <tdml:documentPart type="byte">C2FF352C

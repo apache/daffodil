@@ -435,7 +435,7 @@ is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
     description="Section 6.3 DFDL Character Entities - use of %% - DFDL-6-086R"
     model="Entities_01-Embedded.dfdl.xsd" root="seq_08b">
     <tdml:document>
-      <tdml:documentPart type="byte">0039 0038 0025 0020 0035 0033 0025 0020 0031 0030 0030 0025</tdml:documentPart>
+      <tdml:documentPart type="byte">0039 0038 0025 20 0035 0033 0025 20 0031 0030 0030 0025</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

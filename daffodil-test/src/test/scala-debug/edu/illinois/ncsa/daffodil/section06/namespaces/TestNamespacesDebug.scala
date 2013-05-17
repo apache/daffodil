@@ -48,11 +48,7 @@ class TestNamespacesDebug {
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  // This test should get an SDE because the delimiter (sequence separator) is not the same encoding 
-  // as the element that will be terminated by that delimiter.
-  @Test def test_multi_encoding_02() = // Debugger.withDebugger 
-    { runner.runOneTest("multi_encoding_02") }
-
   @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
-
+  @Test def test_multi_encoding_05() { runner.runOneTest("multi_encoding_05") }
+  @Test def test_indexOutOfBounds_01() { runner.runOneTest("indexOutOfBounds_01") }
 }

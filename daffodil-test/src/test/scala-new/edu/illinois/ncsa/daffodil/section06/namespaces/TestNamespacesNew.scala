@@ -79,4 +79,7 @@ class TestNamespacesNew extends Logging {
       LoggingDefaults.setLoggingLevel(LogLevel.Info)
     }
   }
+
+  @Test def test_multi_encoding_02() { runner.runOneTest("multi_encoding_02") }
+
 }

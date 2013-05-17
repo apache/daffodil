@@ -355,19 +355,27 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
           // (The addMore member of Page[T] in PagedSeq.scala)
           // knows we are done and no more can be provided.
           //
-          // So, we backup the byte buffer by the width of the malformed
-          // stuff it has consumed, and then when the next call of this occurs
-          // we'll end up here, but zero well-formed characters will have been
-          // created, so below, we'll end up returning -1.
+          // Doc for the CharsetDecoder class says 
+          //     "The malformed bytes begin at the input buffer's (possibly incremented) 
+          //      position"
+          //
+          // So the byte buffer position is left at the end of the correctly decoded
+          // characters.  
+          //
+
           //
           // This assert doesn't hold because bb.position() can be zero, but cr.length can be 1 or more. When the very first thing
           // are malformed, then bb does not get advanced. 
-          Assert.invariant(bb.position() >= cr.length())
-          bb.position(bb.position() - cr.length())
+          //
+          // Similarly, suppose bb.position() was advanced 2 bytes. But then a 4-character
+          // malformed is encountered. So cr.length() is 4. This invariant also will
+          // not hold. 
+          //          Assert.invariant(bb.position() >= cr.length())
+          //          bb.position(bb.position() - cr.length())
           break
         }
         continue = false
-      }
+      } // end while loop
     }
 
     if (eof) {

@@ -1109,7 +1109,23 @@
     is a utf-8 binary string,
     the second is a utf-16be binary string initiated by "A:" and terminated 
     by ":A",
-    and they are separated by a us-ascii comma.
+    and they are separated by a utf-8 comma. (see test multi_encoding_05 
+    below for the case where the comma is not the same encoding.)
+    
+    This test works because the utf-16 data is delimited because we find 
+    the terminator ":A" in utf-16 character codes.
+    Then we don't find a utf-8 separator following, as we have run out of data.
+    
+    This test is legal (not an SDE) because the terminator of the 2nd element ":A" 
+    is mandatory. Hence, the scan to isolate this field is not seeking the separator
+    of the enclosing group. After it finds the terminator, it knows that it 
+    is seeking now a separator in a different character encoding, but there is no 
+    mixing going on here.
+    
+    The restriction is that when a delimiter is needed to delimit a prior element,
+    then it must be in the same encoding with that element's content so that a 
+    regex can scan characters that are uniformly all in the same encoding. See 
+    multi_encoding_05 below. 
   -->
 
   <tdml:parserTestCase name="multi_encoding_02"
@@ -1138,6 +1154,9 @@
     Schema A is utf-8. The sequence referenced has two explicit-length binary 
     string, the first
     is utf-8 and the second if utf-16be. It should be parsed correctly.
+    
+    We expect an SDE because a separator of the group, or a terminator of 
+    the first child element, are required.
   -->
 
   <tdml:parserTestCase name="multi_encoding_03"
@@ -1170,18 +1189,56 @@
   <tdml:parserTestCase name="multi_encoding_04"
     root="base4" model="multi_base_09.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document>
-      <tdml:documentPart type="byte">35 35 2c</tdml:documentPart>              <!-- UTF-8 for "55," -->
+      <tdml:documentPart type="byte">35 35</tdml:documentPart>              <!-- UTF-8 for "55," -->
       <tdml:documentPart type="byte">00 6F 00 6E 00 65</tdml:documentPart>  <!-- UTF-16BE for "one" -->
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <base4>
-          <baseElem>55</baseElem>
-          <baseElem2>one</baseElem2>
-        </base4>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+    <tdml:error>terminating delimiter does not have the same encoding as the content preceding it</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+  
+  <!-- 
+    The restriction is that when a delimiter is needed to delimit a prior element,
+    then it must be in the same encoding with that element's content so that a 
+    regex can scan characters that are uniformly all in the same encoding.
+   -->
+   <tdml:parserTestCase name="multi_encoding_05"
+    root="base5" model="multi_base_09.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="byte">35 35</tdml:documentPart>  <!-- UTF-8 for "55" -->
+      <tdml:documentPart type="byte">2C</tdml:documentPart>     <!-- US-ASCII for "," -->
+      <tdml:documentPart type="byte">00 41 00 3A 00 6F 00 6E 00 65 00 3A 00 41</tdml:documentPart> <!-- UTF-16BE for "A:one:A" -->
+    </tdml:document>
+    <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+    <tdml:error>encoding</tdml:error>
+    <tdml:error>separator</tdml:error>    
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--  
+  The second child element data is not big enough (should be A:.......:A, that is 7 content
+  character. There are only 3 here, so we'll get some sort of error since that is the
+  end of the data.
+  
+  The problem is how inadequate the diagnostic message is. It needs to mention
+  the field name, where it starts, what the data it found looks like.
+  -->
+   <tdml:parserTestCase name="indexOutOfBounds_01"
+    root="base4" model="multi_base_09.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="byte">35 35</tdml:documentPart>              <!-- UTF-8 for "55," -->
+      <tdml:documentPart type="byte">00 41 00 3A 00 6F 00 6E 00 65 00 3A 00 41</tdml:documentPart>  <!-- UTF-16BE for "A:one:A" -->
+    </tdml:document>
+    <tdml:errors>
+    <tdml:error>Processing Error</tdml:error>
+    <tdml:error>Not enough data</tdml:error>
+    <tdml:error>6</tdml:error><!-- start location -->
+    <tdml:error>A:one:A</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
 
   <tdml:parserTestCase name="import_format_01"
     description="Imported Schema Format - Use imported schema's default format"

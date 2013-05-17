@@ -96,7 +96,10 @@ class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos0b: Int = 0)
     else new DFDLByteReader(psb, bytePosition0b)
   }
 
-  def getByte(bytePosition0b: Int): Byte = { psb(bytePosition0b) }
+  def getByte(bytePosition0b: Int): Byte = {
+    val res = psb(bytePosition0b)
+    res
+  }
 
   def getByteArray(bytePosition0b: Int, numBytes: Int): Array[Byte] = {
     val arr = new Array[Byte](numBytes)
@@ -167,7 +170,8 @@ object DFDLCharReader {
     //val psc = PagedSeq.fromSource(scala.io.Source.fromInputStream(is)(codec))
     val psc = PagedSeq.fromReader(r)
     val charOffset = 0
-    val rdr = new DFDLPagedSeqCharReader(charset, bitOffset, bitLimit, psc, charOffset, thePsb)
+    // val rdr = new DFDLPagedSeqCharReader(charset, bitOffset, bitLimit, psc, charOffset, thePsb)
+    val rdr = new DFDLPagedSeqCharReader(charset, bitPos, bitLimit, psc, charOffset, thePsb)
     rdr
   }
 

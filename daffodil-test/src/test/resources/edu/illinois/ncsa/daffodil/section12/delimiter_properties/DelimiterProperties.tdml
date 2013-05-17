@@ -539,19 +539,45 @@
   <tdml:parserTestCase name="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Prefix" root="E1"
     model="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator">
     <tdml:document><![CDATA[$A$$]]></tdml:document>
-    <tdml:errors><tdml:error>Parse Error: Sep('$')</tdml:error><tdml:error>after element.A and before element.B</tdml:error></tdml:errors>
+    <tdml:errors>
+    <tdml:error>Parse Error: Sep('$')</tdml:error>
+    <!-- 
+     Change to fix DFDL-553 required changing the context schema component used
+     for the StaticDelimiter base of StaticSeparator - it was using an element as
+     the context, but that gets it the wrong properties. The sequence must be the
+     context component for separators.
+     
+     That change breaks these tests that use this 'positionalInfo' string. 
+     -->
+    <!-- <tdml:error>after element.A and before element.B</tdml:error> -->
+    <tdml:error>Found delimiter ($$) for element.E1 when looking for Sep($) for element.E1::LocalComplexTypeDef::sequence</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <tdml:parserTestCase name="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Infix" root="E2"
     model="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator">
     <tdml:document><![CDATA[A$$B$$]]></tdml:document>
-    <tdml:errors><tdml:error>Parse Error: Sep('$')</tdml:error><tdml:error>after element.A and before element.B</tdml:error></tdml:errors>
+    <tdml:errors>
+    <tdml:error>Parse Error: Sep('$')</tdml:error>
+    <!--
+    see comment in prior test 
+     -->
+    <!-- <tdml:error>after element.A and before element.B</tdml:error> -->
+    <tdml:error>Found delimiter ($$) for element.E2 when looking for Sep($) for element.E2::LocalComplexTypeDef::sequence</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <tdml:parserTestCase name="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Postfix" root="E3"
     model="BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator">
     <tdml:document><![CDATA[A$$B$$]]></tdml:document>
-    <tdml:errors><tdml:error>Parse Error: Sep('$')</tdml:error><tdml:error>before element.B</tdml:error></tdml:errors>
+    <tdml:errors>
+    <tdml:error>Parse Error: Sep('$')</tdml:error>
+    <!--
+    see comment in prior test. 
+     -->
+    <!-- <tdml:error>before element.B</tdml:error> -->
+    <tdml:error>Found delimiter ($$) for element.E3 when looking for Sep($) for element.E3::LocalComplexTypeDef::sequence</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="Lesson4_initiators_terminators"> 

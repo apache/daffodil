@@ -414,7 +414,7 @@ johnson,john,henry,1986-01-23
 jonesington,david,frederick,1986-02-19
 ]]></document>
    <errors>
-     <error>Parse Error: Sep('%NL;') - element.record: Delimiter not found!</error>
+     <error>Parse Error: Sep('%NL;') - sequence: Delimiter not found!</error>
    </errors>
   </parserTestCase>
 
