@@ -2119,5 +2119,20 @@ jonesington,david,frederick,1986-02-19
         <tdml:error>section06/namespaces/multi_B_04_invalid.dfdl.xsd.</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: errorLocations_01
+    Schema: multi_base_13.dfdl.xsd
+    Root: rabbitHole
+    Purpose: This test shows that diagnostic messages should point to the correct files and locations
+  -->
+
+  <tdml:parserTestCase name="errorLocations_01" root="rabbitHole"
+    model="multi_base_13.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[temp]]></tdml:document>
+      <tdml:errors>
+        <tdml:error>Placeholder</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
 
 </testSuite>

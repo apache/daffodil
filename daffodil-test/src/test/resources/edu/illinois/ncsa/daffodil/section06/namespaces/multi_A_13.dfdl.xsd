@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://a13.com" xmlns:a13="http://a13.com" xmlns:b13="http://b13.com">
+ 
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" leadingSkip='0' initiator="" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:import namespace="http://b13.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_13.dfdl.xsd"/>
+
+  <xs:element name="nestSequence">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="nestSequence" ref="b13:nest"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

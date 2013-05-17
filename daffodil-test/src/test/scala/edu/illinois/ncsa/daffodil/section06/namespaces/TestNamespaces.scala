@@ -63,6 +63,33 @@ class TestNamespaces {
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"), validateTDMLFile = false)
+  
+  // See comments in related bug. JIRA-549
+  // This test is looking for a specific file to be mentioned in an error message 
+  // which is the file with the content responsible for the error, not the file
+  // of the object where the error was detected.
+  @Test def test_combinations_02() {
+    try {
+      // Must turn off the Info logging messages, because those will have the filename in them
+      // which would create a false positive in this test.
+      LoggingDefaults.setLoggingLevel(LogLevel.Warning)
+      runner.runOneTest("combinations_02")
+    } finally {
+      LoggingDefaults.setLoggingLevel(LogLevel.Info)
+    }
+  }
+/*  
+  @Test def test_errorLocations_01() {
+    try {
+      // Must turn off the Info logging messages, because those will have the filename in them
+      // which would create a false positive in this test.
+      LoggingDefaults.setLoggingLevel(LogLevel.Warning)
+      runner.runOneTest("errorLocations_01")
+    } finally {
+      LoggingDefaults.setLoggingLevel(LogLevel.Info)
+    }
+  }
+*/
 
   @Test def test_defaultNamespaceInExpression() { runner.runOneTest("defaultNamespaceInExpression") }
   @Test def test_defaultNamespaceInExpression2() { runner.runOneTest("defaultNamespaceInExpression2") }
@@ -125,7 +152,6 @@ class TestNamespaces {
   @Test def test_namespace_conflict_01() { runner.runOneTest("namespace_conflict_01") }
 
   @Test def test_combinations_01() { runner.runOneTest("combinations_01") }
-  //  @Test def test_combinations_02() { runner.runOneTest("combinations_02") }
   @Test def test_combinations_03() { runner.runOneTest("combinations_03") }
   @Test def test_combinations_04() { runner.runOneTest("combinations_04") }
   @Test def test_negative_import_01() { runner.runOneTest("negative_import_01") }

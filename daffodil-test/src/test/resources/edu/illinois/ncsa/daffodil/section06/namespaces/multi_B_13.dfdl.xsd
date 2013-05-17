@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://b13.com" xmlns:b13="http://b13.com" xmlns:c13="http://c13.com">
+ 
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" leadingSkip='0' initiator="" terminator="B" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:import namespace="http://c13.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_C_13.dfdl.xsd"/>
+
+  <xs:element name="nest" type="c13:nestType" dfdl:textNumberJustification="center"/>
+
+</xs:schema>

@@ -51,4 +51,16 @@ class TestNamespacesDebug {
   @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
   @Test def test_multi_encoding_05() { runner.runOneTest("multi_encoding_05") }
   @Test def test_indexOutOfBounds_01() { runner.runOneTest("indexOutOfBounds_01") }
+  
+  @Test def test_errorLocations_01() {
+    try {
+      // Must turn off the Info logging messages, because those will have the filename in them
+      // which would create a false positive in this test.
+      LoggingDefaults.setLoggingLevel(LogLevel.Warning)
+      runner.runOneTest("errorLocations_01")
+    } finally {
+      LoggingDefaults.setLoggingLevel(LogLevel.Info)
+    }
+  }
+
 }
