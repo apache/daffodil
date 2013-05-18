@@ -63,7 +63,7 @@ class TestNamespaces {
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"), validateTDMLFile = false)
-  
+ 
   // See comments in related bug. JIRA-549
   // This test is looking for a specific file to be mentioned in an error message 
   // which is the file with the content responsible for the error, not the file
@@ -78,6 +78,7 @@ class TestNamespaces {
       LoggingDefaults.setLoggingLevel(LogLevel.Info)
     }
   }
+
 /*  
   @Test def test_errorLocations_01() {
     try {
@@ -157,9 +158,10 @@ class TestNamespaces {
   @Test def test_negative_import_01() { runner.runOneTest("negative_import_01") }
 
   @Test def test_multi_encoding_01() { runner.runOneTest("multi_encoding_01") }
-  //  @Test def test_multi_encoding_02() { runner.runOneTest("multi_encoding_02") }
+  @Test def test_multi_encoding_02() { runner.runOneTest("multi_encoding_02") }
   @Test def test_multi_encoding_03() { runner.runOneTest("multi_encoding_03") }
-  //  @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
+//  @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") } //DFDL-716
+//  @Test def test_multi_encoding_05() { runner.runOneTest("multi_encoding_05") } //DFDL-715
 
   // Preliminary tests for import format schemas
   @Test def test_import_format_01() { runner.runOneTest("import_format_01") }
