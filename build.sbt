@@ -23,7 +23,7 @@ libraryDependencies in ThisBuild := Seq(
   "xerces" % "xercesImpl" % "2.10.0",
   "xml-resolver" % "xml-resolver" % "1.2",
   "jline" % "jline" % "2.9",
-  "org.rogach" %% "scallop" % "0.9.1",
+  "org.rogach" %% "scallop" % "0.9.2",
   "net.sourceforge.expectj" % "expectj" % "2.0.7"
 )
 

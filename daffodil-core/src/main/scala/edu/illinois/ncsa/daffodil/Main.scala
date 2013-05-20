@@ -126,6 +126,212 @@ object CLILogWriter extends LogWriter {
   }
 }
 
+class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
+  with Logging {
+
+  // This essentially reimplements the listArgConverter in scallop to not
+  // allow a list of options to follow the option. For example, the
+  // following is illegal: --schema foo bar. Instead, it must be --schema
+  // foo --schema bar. It does this by copying listArgConverter, but
+  // setting the argType to SINGLE.
+  def singleListArgConverter[A](conv: String => A)(implicit m: Manifest[List[A]]) = new scallop.ValueConverter[List[A]] {
+    def parse(s: List[(String, List[String])]) = {
+      try {
+        val l = s.map(_._2).flatten.map(i => conv(i))
+        if (l.isEmpty) Right(Some(Nil))
+        else Right(Some(l))
+      } catch {
+        case _: Throwable => Left(Unit)
+      }
+    }
+    val manifest = m
+    val argType = scallop.ArgType.SINGLE
+  }
+
+  def optionalValueConverter[A](conv: String => A)(implicit m: Manifest[Option[A]]) = new scallop.ValueConverter[Option[A]] {
+    def parse(s: List[(String, List[String])]) = {
+      s match {
+        case Nil => Right(None)
+        case (_, Nil) :: Nil => Right(Some(None))
+        case (_, v :: Nil) :: Nil => Right(Some(Some(conv(v))))
+        case _ => Left(Unit)
+      }
+    }
+    val manifest = m
+    val argType = scallop.ArgType.LIST
+    override def argFormat(name: String): String = "[" + name + "]"
+  }
+
+  def validateConf(c1: => Option[scallop.ScallopConf])
+    (fn: (Option[scallop.ScallopConf]) => Either[String,Unit]) {
+      validations :+= new Function0[Either[String,Unit]] {
+      def apply = {
+        fn(c1)
+      }
+    }
+  }
+
+  printedName = "daffodil"
+
+  helpWidth(76)
+
+  def error(msg: String) = errorMessageHandler(msg)
+
+  errorMessageHandler = { message =>
+    log(LogLevel.Error, "%s", message)
+    sys.exit(1)
+  }
+
+  banner("""|Usage: %s [GLOBAL_OPTS] <subcommand> [SUBCOMMAND_OPTS]
+            |
+            |Global Options:""".format(printedName).stripMargin)
+
+  footer("""|
+            |Run '%s <subcommand> --help' for subcommand specific options""".format(printedName).stripMargin)
+
+  version({
+    val versions = Misc.getDaffodilVersion
+    val strVers = "%s %s (build %s)".format(printedName, versions._1, versions._2)
+    strVers
+  })
+
+  shortSubcommandsHelp()
+
+  // Global Options
+  val debug = opt[Option[String]](argName="file", descr = "enable debugging. Optionally, read initial debugger commands from [file] if provided.")(optionalValueConverter[String](a => a))
+  val trace = opt[Boolean](descr = "run the debugger with verbose trace output")
+  val verbose = tally(descr = "increment verbosity level, one level for each -v")
+
+  // Parse Subcommand Options
+  val parse = new scallop.Subcommand("parse") {
+    banner("""|Usage: daffodil parse (-s <schema>... [-r <root> [-n <namespace>]] [-p <path>] |
+              |                       -P <parser>)
+              |                      [-D<variable>=<value>...] [-o <output>] [infile]
+              |
+              |Parse a file, using either a DFDL schema or a saved parser
+              |
+              |Parse Options:""".stripMargin)
+
+    descr("parse data to a DFDL infoset")
+    helpWidth(76)
+
+    val schemas = opt[List[String]]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
+    val root = opt[String](argName = "node", descr = "the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
+    val namespace = opt[String](argName = "ns", descr = "the namespace of the root element. Requires --root.")
+    val path = opt[String](argName = "path", descr = "path to the node to create parser.")
+    val parser = opt[String](short = 'P', argName = "file", descr = "use a previously saved parser.")
+    val output = opt[String](argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
+    val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing.")
+    val infile = trailArg[String](required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
+
+    validateOpt(debug, infile) {
+      case (Some(None), Some("-")) | (Some(None), None) => Left("Input must not be stdin during interactive debugging")
+      case _ => Right(Unit)
+    }
+
+    validateOpt(schemas, parser, root, namespace) {
+      case (Some(Nil), None, _, _) => Left("One of --schema or --parser must be defined")
+      case (Some(_ :: _), Some(_), _, _) => Left("Only one of --parser and --schema may be defined")
+      case (Some(_ :: _), None, None, Some(_)) => Left("--root must be defined if --namespace is defined")
+      case (None, Some(_), Some(_), _) => Left("--root cannot be defined with --parser")
+      case (None, Some(_), _, Some(_)) => Left("--namespace cannot be defined with --parser")
+      case _ => Right(Unit)
+    }
+  }
+
+  // Unparse Subcommand Options
+  val unparse = new scallop.Subcommand("unparse") {
+    banner("""|Usage: daffodil unparse (-s <schema>... [-r <root> [-n <namespace>]] [-p <path>] |
+              |                         -P <parser>)
+              |                        [-D<variable>=<value>...] [-o <output>] [infile]
+              |
+              |Unparse an infoset file, using either a DFDL schema or a saved paser
+              |
+              |Unparse Options:""".stripMargin)
+
+    descr("unparse a DFDL infoset")
+    helpWidth(76)
+
+    val schemas = opt[List[String]]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
+    val root = opt[String](argName = "node", descr = "the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
+    val namespace = opt[String](argName = "ns", descr = "the namespace of the root element. Requires --root.")
+    val path = opt[String](argName = "path", descr = "path to the node to create parser.")
+    val parser = opt[String](short = 'P', argName = "file", descr = "use a previously saved parser.")
+    val output = opt[String](argName = "file", descr = "write output to file. If not given or is -, output is written to standard output.")
+    val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing.")
+    val infile = trailArg[String](required = false, descr = "input file to unparse. If not specified, or a value of -, reads from stdin.")
+
+    validateOpt(debug, infile) {
+      case (Some(None), Some("-")) | (Some(None), None) => Left("Input must not be stdin during interactive debugging")
+      case _ => Right(Unit)
+    }
+
+    validateOpt(schemas, parser, root, namespace) {
+      case (Some(Nil), None, _, _) => Left("One of --schema or --parser must be defined")
+      case (Some(_ :: _), Some(_), _, _) => Left("Only one of --parser and --schema may be defined")
+      case (Some(_ :: _), None, None, Some(_)) => Left("--root must be defined if --namespace is defined")
+      case (None, Some(_), Some(_), _) => Left("--root cannot be defined with --parser")
+      case (None, Some(_), _, Some(_)) => Left("--namespace cannot be defined with --parser")
+      case _ => Right(Unit)
+    }
+  }
+
+  // Save Subcommand Options
+  val save = new scallop.Subcommand("save-parser") {
+    banner("""|Usage: daffodil save-parser -s <schema>... [-r <root> [-n <namespace>]]
+              |                            [-p <path>] [outfile]
+              |
+              |Create and save a parser using a DFDL schema
+              |
+              |Save Parser Options:""".stripMargin)
+
+    descr("save a daffodil parser for reuse")
+    helpWidth(76)
+
+    val schemas = opt[List[String]]("schema", argName = "file", required = true, descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
+    val root = opt[String](argName = "node", descr = "the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema.")
+    val namespace = opt[String](argName = "ns", descr = "the namespace of the root element. Requires --root.")
+    val path = opt[String](argName = "path", descr = "path to the node to create parser.")
+    val outfile = trailArg[String](required = false, descr = "output file to save parser. If not specified, or a value of -, writes to stdout.")
+    val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used.")
+
+    validateOpt(schemas, root, namespace, outfile) {
+      case (Some(Nil), _, _, _) => Left("No schemas specified using the --schema option")
+      case (_, None, Some(_), _) => Left("--root must be defined if --namespace is defined")
+      case _ => Right(Unit)
+    }
+  }
+
+  // Test Subcommand Options
+  val test = new scallop.Subcommand("test") {
+    banner("""|Usage: daffodil test <tdmlfile> [testname...]
+              |
+              |List or execute tests in a TDML file
+              |
+              |Test Options:""".stripMargin)
+
+    descr("list or execute TDML tests")
+    helpWidth(76)
+
+    val list = opt[Boolean](descr = "show names and descriptions instead of running test cases.")
+    val regex = opt[Boolean](descr = "treat <names> as regular expressions.")
+    val tdmlfile = trailArg[String](required = true, descr = "test data markup language (TDML) file.")
+    val names = trailArg[List[String]](required = false, descr = "name of test case(s) in tdml file. If not given, all tests in tdmlfile are run.")
+  }
+
+  validateOpt(trace, debug) {
+    case (Some(true), Some(_)) => Left("Only one of --trace and --debug may be defined")
+    case _ => Right(Unit)
+  }
+
+  validateConf(subcommand) {
+    case None => Left("Missing subcommand")
+    case _ => Right(Unit)
+  }
+}
+
+
+
 object Main extends Logging {
 
   val traceCommands = Seq("display info parser",
@@ -176,212 +382,9 @@ object Main extends Logging {
   }
 
   def run(arguments: Array[String]): Int = {
-    object Conf extends scallop.ScallopConf(arguments) {
+    val conf = new CLIConf(arguments)
 
-      // This essentially reimplements the listArgConverter in scallop to not
-      // allow a list of options to follow the option. For example, the
-      // following is illegal: --schema foo bar. Instead, it must be --schema
-      // foo --schema bar. It does this by copying listArgConverter, but
-      // setting the argType to SINGLE.
-      def singleListArgConverter[A](conv: String => A)(implicit m: Manifest[List[A]]) = new scallop.ValueConverter[List[A]] {
-        def parse(s: List[(String, List[String])]) = {
-          try {
-            val l = s.map(_._2).flatten.map(i => conv(i))
-            if (l.isEmpty) Right(Some(Nil))
-            else Right(Some(l))
-          } catch {
-            case _: Throwable => Left(Unit)
-          }
-        }
-        val manifest = m
-        val argType = scallop.ArgType.SINGLE
-      }
-
-      def optionalValueConverter[A](conv: String => A)(implicit m: Manifest[Option[A]]) = new scallop.ValueConverter[Option[A]] {
-        def parse(s: List[(String, List[String])]) = {
-          s match {
-            case Nil => Right(None)
-            case (_, Nil) :: Nil => Right(Some(None))
-            case (_, v :: Nil) :: Nil => Right(Some(Some(conv(v))))
-            case _ => Left(Unit)
-          }
-        }
-        val manifest = m
-        val argType = scallop.ArgType.LIST
-      } 
-
-      printedName = "daffodil"
-
-      helpWidth(76)
-
-      def error(msg: String) = errorMessageHandler(msg)
-
-      errorMessageHandler = { message =>
-        log(LogLevel.Error, "%s", message)
-        sys.exit(1)
-      }
-
-      banner("""|Usage: %s [GLOBAL_OPTS] <subcommand> [SUBCOMMAND_OPTS]
-                |
-                |Global Options:""".format(printedName).stripMargin)
-
-      footer("""|
-                |Run '%s <subcommand> --help' for subcommand specific options""".format(printedName).stripMargin)
-
-      version({
-        val versions = Misc.getDaffodilVersion
-        val strVers = "%s %s (build %s)".format(printedName, versions._1, versions._2)
-        strVers
-      })
-
-      shortSubcommandsHelp()
-
-      // Global Options
-      val debug = opt[Option[String]]("debug", descr = "enable debugging.")(optionalValueConverter[String](a => a))
-      val trace = opt[Boolean]("trace", descr = "run the debugger with verbose trace output")
-      val verbose = tally("verbose", descr = "increment verbosity level, one level for each -v")
-
-      // Parse Subcommand Options
-      val parse = new scallop.Subcommand("parse") {
-        banner("""|Usage: daffodil parse (-s <schema> [-r <root> [-n <namespace>]] [-p <path>] |
-                  |                       -P <parser>)
-                  |                      [-D<variable>=<value>...] [-o <output>] [<infile>]
-                  |
-                  |Parse a file, using either a DFDL schema or a saved parser
-                  |
-                  |Parse Options:""".stripMargin)
-
-        descr("parse data to a DFDL infoset")
-        helpWidth(76)
-
-        val schemas = opt[List[String]]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
-        val root = opt[String]("root", argName = "node", descr = "the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
-        val ns = opt[String]("namespace", argName = "ns", descr = "the namespace of the root element. Requires --root.")
-        val path = opt[String]("path", argName = "path", descr = "path to the node to create parser.")
-        val parser = opt[String]("parser", 'P', argName = "file", descr = "use a previously saved parser.")
-        val output = opt[String]("output", argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
-        val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing.")
-        val input = trailArg[String]("infile", required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
-      }
-
-      // Unparse Subcommand Options
-      val unparse = new scallop.Subcommand("unparse") {
-        banner("""|Usage: daffodil unparse (-s <schema> [-r <root> [-n <namespace>]] [-p <path>] |
-                  |                         -P <parser>)
-                  |                        [-D<variable>=<value>...] [-o <output>] [<infile>]
-                  |
-                  |Unparse an infoset file, using either a DFDL schema or a saved paser
-                  |
-                  |Unparse Options:""".stripMargin)
-
-        descr("unparse a DFDL infoset")
-        helpWidth(76)
-
-        val schemas = opt[List[String]]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
-        val root = opt[String]("root", argName = "node", descr = "the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
-        val ns = opt[String]("namespace", argName = "ns", descr = "the namespace of the root element. Requires --root.")
-        val path = opt[String]("path", argName = "path", descr = "path to the node to create parser.")
-        val parser = opt[String]("parser", 'P', argName = "file", descr = "use a previously saved parser.")
-        val output = opt[String]("output", argName = "file", descr = "write output to file. If not given or is -, output is written to standard output.")
-        val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing.")
-        val input = trailArg[String]("infile", required = false, descr = "input file to unparse. If not specified, or a value of -, reads from stdin.")
-      }
-
-      // Save Subcommand Options
-      val save = new scallop.Subcommand("save-parser") {
-        banner("""|Usage: daffodil save-parser -s <schema> [-r <root> [-n <namespace>]]
-                  |                            [-p <path>] [<outfile>]
-                  |
-                  |Create and save a parser using a DFDL schema
-                  |
-                  |Save Parser Options:""".stripMargin)
-
-        descr("save a daffodil parser for reuse")
-        helpWidth(76)
-
-        val schemas = opt[List[String]]("schema", argName = "file", required = true, descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
-        val root = opt[String]("root", argName = "node", descr = "the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema.")
-        val ns = opt[String]("namespace", argName = "ns", descr = "the namespace of the root element. Requires --root.")
-        val path = opt[String]("path", argName = "path", descr = "path to the node to create parser.")
-        val output = trailArg[String]("outfile", required = false, descr = "output file to save parser. If not specified, or a value of -, writes to stdout.")
-        val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used.")
-      }
-
-      // Test Subcommand Options
-      val test = new scallop.Subcommand("test") {
-        banner("""|Usage: daffodil test <tdmlfile> [<testname>...]
-                  |
-                  |List or execute tests in a TDML file
-                  |
-                  |Test Options:""".stripMargin)
-
-        descr("list or execute TDML tests")
-        helpWidth(76)
-
-        val list = opt[Boolean]("list", descr = "show names and descriptions instead of running test cases.")
-        val regex = opt[Boolean]("regex", descr = "treat <names> as regular expressions.")
-        val file = trailArg[String]("tdmlfile", required = true, descr = "test data markup language (TDML) file.")
-        val names = trailArg[List[String]]("names", required = false, descr = "name of test case(s) in tdml file. If not given, all tests in tdmlfile are run.")
-      }
-    }
-
-    // Custom verification, scallop's verification isn't quite rich enough
-    if (Conf.trace() && Conf.debug.isDefined) {
-      Conf.error("only one of --trace and --debug may be defined")
-    }
-
-    Conf.subcommand match {
-      case Some(Conf.parse) => {
-        val parseOpts = Conf.parse
-        if (Conf.debug.isDefined) {
-          if (parseOpts.input.get == Some("-") || parseOpts.input.get == None) {
-            Conf.error("input must not be stdin during interactive debugging")
-          }
-        }
-        if (parseOpts.parser.isDefined) {
-          if (parseOpts.schemas().length > 0) { Conf.error("only one of --parser and --schema may be defined") }
-          if (parseOpts.root.isDefined) { Conf.error("--root cannot be defined with --parser") }
-          if (parseOpts.ns.isDefined) { Conf.error("--namespace cannot be defined with --parser") }
-        } else if (parseOpts.schemas().length > 0) {
-          if (parseOpts.ns.isDefined && !parseOpts.root.isDefined) { Conf.error("--root must be defined if --namespace is defined") }
-        } else {
-          Conf.error("one of --schema or --parser must be defined")
-        }
-      }
-
-      case Some(Conf.unparse) => {
-        val unparseOpts = Conf.unparse
-        if (Conf.debug.isDefined) {
-          if (unparseOpts.input.get == Some("-") || unparseOpts.input.get == None) {
-            Conf.error("input must not be stdin during interactive debugging")
-          }
-        }
-        if (unparseOpts.parser.isDefined) {
-          if (unparseOpts.schemas().length > 0) { Conf.error("only one of --parser and --schema may be defined") }
-          if (unparseOpts.root.isDefined) { Conf.error("--root cannot be defined with --parser") }
-          if (unparseOpts.ns.isDefined) { Conf.error("--namespace cannot be defined with --parser") }
-        } else if (unparseOpts.schemas().length > 0) {
-          if (unparseOpts.ns.isDefined && !unparseOpts.root.isDefined) { Conf.error("--root must be defined if --namespace is defined") }
-        } else {
-          Conf.error("one of --schema or --parser must be defined")
-        }
-      }
-
-      case Some(Conf.save) => {
-        val saveOpts = Conf.save
-        if (saveOpts.ns.isDefined && !saveOpts.root.isDefined) { Conf.error("--root must be defined if --namespace is defined") }
-      }
-
-      case Some(Conf.test) => {
-        // no additional validation needed
-      }
-
-      case _ => Conf.error("missing subcommand")
-    }
-
-
-
-    val verboseLevel = Conf.verbose() match {
+    val verboseLevel = conf.verbose() match {
       case 0 => LogLevel.Warning
       case 1 => LogLevel.Info
       case 2 => LogLevel.Compile
@@ -391,23 +394,22 @@ object Main extends Logging {
     LoggingDefaults.setLoggingLevel(verboseLevel)
     LoggingDefaults.setLogWriter(CLILogWriter)
 
-
-    if (Conf.trace()) {
+    if (conf.trace()) {
       Debugger.setDebugging(true)
       Debugger.setDebugger(new InteractiveDebugger(traceCommands))
-    } else if (Conf.debug.isDefined) {
+    } else if (conf.debug.isDefined) {
       Debugger.setDebugging(true)
-      val debugger = Conf.debug() match {
+      val debugger = conf.debug() match {
         case Some(f) => new InteractiveDebugger(new File(f))
         case None => new InteractiveDebugger()
       }
       Debugger.setDebugger(debugger)
     }
 
-    val ret = Conf.subcommand match {
+    val ret = conf.subcommand match {
 
-      case Some(Conf.parse) => {
-        val parseOpts = Conf.parse
+      case Some(conf.parse) => {
+        val parseOpts = conf.parse
 
         val processor = {
           if (parseOpts.parser.isDefined) {
@@ -415,7 +417,7 @@ object Main extends Logging {
           } else {
             val files: List[File] = parseOpts.schemas().map(s => new File(s))
 
-            createProcessorFromSchemas(files, parseOpts.root.get, parseOpts.ns.get, parseOpts.path.get, parseOpts.vars)
+            createProcessorFromSchemas(files, parseOpts.root.get, parseOpts.namespace.get, parseOpts.path.get, parseOpts.vars)
           }
         }
 
@@ -427,10 +429,10 @@ object Main extends Logging {
 
         val rc = processor match {
           case Some(processor) if (processor.canProceed) => {
-            val (input, optDataSize) = parseOpts.input.get match {
+            val (input, optDataSize) = parseOpts.infile.get match {
               case Some("-") | None => (System.in, None)
               case Some(file) => {
-                val f = new File(parseOpts.input())
+                val f = new File(parseOpts.infile())
                 (new FileInputStream(f), Some(f.length()))
               }
             }
@@ -484,15 +486,15 @@ object Main extends Logging {
         rc
       }
 
-      case Some(Conf.unparse) => {
-        val unparseOpts = Conf.unparse
+      case Some(conf.unparse) => {
+        val unparseOpts = conf.unparse
 
         val processor = {
           if (unparseOpts.parser.isDefined) {
             createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.get)
           } else {
             val files: List[File] = unparseOpts.schemas().map(s => new File(s))
-            createProcessorFromSchemas(files, unparseOpts.root.get, unparseOpts.ns.get, unparseOpts.path.get, unparseOpts.vars)
+            createProcessorFromSchemas(files, unparseOpts.root.get, unparseOpts.namespace.get, unparseOpts.path.get, unparseOpts.vars)
           }
         }
 
@@ -507,7 +509,7 @@ object Main extends Logging {
         //
         val dataLoader = new DaffodilXMLLoader(new CommandLineXMLLoaderErrorHandler)
         dataLoader.setValidation(true) //TODO: make this flag an option. 
-        val document = unparseOpts.input.get match {
+        val document = unparseOpts.infile.get match {
           case Some("-") | None => dataLoader.load(System.in)
           case Some(file) => dataLoader.loadFile(file)
         }
@@ -522,14 +524,14 @@ object Main extends Logging {
         rc
       }
 
-      case Some(Conf.save) => {
-        val saveOpts = Conf.save
+      case Some(conf.save) => {
+        val saveOpts = conf.save
 
         val files: List[File] = saveOpts.schemas().map(s => new File(s))
 
-        val processor = createProcessorFromSchemas(files, saveOpts.root.get, saveOpts.ns.get, saveOpts.path.get, saveOpts.vars)
+        val processor = createProcessorFromSchemas(files, saveOpts.root.get, saveOpts.namespace.get, saveOpts.path.get, saveOpts.vars)
 
-        val output = saveOpts.output.get match {
+        val output = saveOpts.outfile.get match {
           case Some("-") | None => System.out
           case Some(file) => new FileOutputStream(file)
         }
@@ -545,14 +547,14 @@ object Main extends Logging {
         rc
       }
 
-      case Some(Conf.test) => {
-        val testOpts = Conf.test
+      case Some(conf.test) => {
+        val testOpts = conf.test
 
-        val tdmlFile = testOpts.file()
+        val tdmlFile = testOpts.tdmlfile()
         val tdmlRunner = new DFDLTestSuite(new java.io.File(tdmlFile))
 
         val tests = {
-          if (testOpts.names().length > 0) {
+          if (testOpts.names.isDefined) {
             testOpts.names().flatMap(testName => {
               if (testOpts.regex()) {
                 val regex = testName.r
@@ -568,7 +570,7 @@ object Main extends Logging {
         }.distinct.sortBy(_._1)
 
         if (testOpts.list()) {
-          if (Conf.verbose() > 0) {
+          if (conf.verbose() > 0) {
             // determine the max lengths of the various pieces of atest
             val headers = List("Name", "Model", "Root", "Description")
             val maxCols = tests.foldLeft(headers.map(_.length)) {
