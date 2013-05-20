@@ -47,6 +47,7 @@ class SchemaDefinitionError(schemaContext: Option[SchemaComponentBase],
 
   def this(sc: SchemaComponent, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
   val diagnosticKind = "Error"
+
 }
 
 class RuntimeSchemaDefinitionError(schemaContext: SchemaComponentBase,
@@ -87,6 +88,33 @@ abstract class SchemaDefinitionDiagnosticBase(
   val annotationContext: Option[DFDLAnnotation],
   val kind: String,
   val args: Any*) extends Exception with DiagnosticImplMixin {
+
+  override def equals(b: Any): Boolean = {
+    b match {
+      case other: SchemaDefinitionDiagnosticBase => {
+        val isSCSame = schemaContext == other.schemaContext
+        val isRTCSame = runtimeContext == other.runtimeContext
+        val isACSame = annotationContext == other.annotationContext
+        val isKindSame = kind == other.kind
+        val isArgsSame = args == other.args
+        val isDiagnosticKindSame = diagnosticKind == other.diagnosticKind
+
+        val res = isSCSame && isRTCSame && isACSame && isKindSame &&
+          isArgsSame && isDiagnosticKindSame
+        res
+      }
+      case _ => Assert.usageError("why are you comparing two things that aren't the same type even?")
+    }
+  }
+
+  override def hashCode = {
+    schemaContext.hashCode +
+      runtimeContext.hashCode +
+      annotationContext.hashCode +
+      kind.hashCode +
+      args.hashCode +
+      diagnosticKind.hashCode
+  }
 
   def diagnosticKind: String
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = schemaContext.toList
