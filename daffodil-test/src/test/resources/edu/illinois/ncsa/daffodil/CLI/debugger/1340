@@ -1,6 +1,6 @@
 break element.cell
 display info path
 continue
-delete 1
+delete breakpoint 1
 continue
 quit

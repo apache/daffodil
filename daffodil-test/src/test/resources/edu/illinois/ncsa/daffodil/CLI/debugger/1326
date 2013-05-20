@@ -5,7 +5,7 @@ disable display 1
 step
 enable display 1
 step
-undisplay 1
+delete display 1
 step
 enable display 1
 continue

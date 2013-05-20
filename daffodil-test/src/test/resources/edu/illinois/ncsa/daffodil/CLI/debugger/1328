@@ -6,6 +6,6 @@ step
 continue
 step
 step
-delete 1
+delete breakpoint 1
 continue
 exit

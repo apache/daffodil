@@ -32,67 +32,35 @@ package edu.illinois.ncsa.daffodil.debugger
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.Parser
+class TraceRunner() extends InteractiveDebuggerRunner {
+  val traceIter = Seq("display info parser",
+                      "display info data",
+                      "display info infoset",
+                      "display info diff",
+                      "trace").iterator
 
-abstract class Debugger {
-  def init(parser: Parser) {}
-  def before(state: PState, parser: Parser) {}
-  def after(before: PState, after: PState, parser: Parser) {}
-  def beforeRepetition(state: PState, parser: Parser) {}
-  def afterRepetition(before: PState, after: PState, parser: Parser) {}
-  def fini(parser: Parser) {}
-}
+  def init(id: InteractiveDebugger): Unit = {}
 
-object Debugger {
-  
-  private var debugger: Debugger = new TraceDebugger
-
-  /**
-   * Wrap things to debug with this rather than just calling setDebugging(true).
-   * That way it doesn't get turned on for every subsequent test after when
-   * batches of tests are being run.
-   */
-  def withDebugger[T](body: => T) {
-    try {
-      setDebugging(true)
-      body
-    } finally {
-      setDebugging(false)
+  def getCommand: String = {
+    if (traceIter.hasNext) {
+      traceIter.next
+    } else {
+      // If the traceItr commands are good this should never happen. The only
+      // time this would ever get hit is if something caused the debugger to
+      // break. So if this does happen, just keep running trace. We should
+      // eventually finish parsing.
+      "trace"
     }
   }
 
-  private var areDebugging = false
-
-  def setDebugger(d: Debugger) {
-    debugger = d
+  def lineOutput(line: String): Unit = {
+    println(line)
   }
 
-  def setDebugging(flag: Boolean) {
-    areDebugging = flag
-  }
-  
-  def init(parser: Parser) {
-    if (areDebugging) { debugger.init(parser) }
-  }
-  
-  def before(state: PState, parser: Parser) {
-    if (areDebugging) { debugger.before(state, parser) }
-  }
+  def fini(): Unit = {}
+}
 
-  def after(before: PState, after: PState, parser: Parser) {
-    if (areDebugging) { debugger.after(before, after, parser) }
-  }
 
-  def beforeRepetition(state: PState, parser: Parser) {
-    if (areDebugging) { debugger.beforeRepetition(state, parser) }
-  }
+class TraceDebugger() extends InteractiveDebugger(new TraceRunner) {
 
-  def afterRepetition(before: PState, after: PState, parser: Parser) {
-    if (areDebugging) { debugger.afterRepetition(before, after, parser) }
-  }
-
-  def fini(parser: Parser) {
-    if (areDebugging) { debugger.fini(parser) }
-  }
 }

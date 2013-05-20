@@ -77,14 +77,13 @@ import java.io.File
 import scala.xml.SAXParseException
 import org.rogach.scallop
 import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger.{ Debugger, InteractiveDebugger, TraceDebugger, CLIDebuggerRunner }
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Timer
 import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
 import edu.illinois.ncsa.daffodil.util.Glob
 import edu.illinois.ncsa.daffodil.util.Logging
@@ -408,16 +407,21 @@ object Main extends Logging {
     }
     LoggingDefaults.setLoggingLevel(verboseLevel)
 
+
     if (conf.trace()) {
       Debugger.setDebugging(true)
-      Debugger.setDebugger(new InteractiveDebugger(traceCommands))
+      Debugger.setDebugger(new TraceDebugger)
     } else if (conf.debug.isDefined) {
-      Debugger.setDebugging(true)
-      val debugger = conf.debug() match {
-        case Some(f) => new InteractiveDebugger(new File(f))
-        case None => new InteractiveDebugger()
+      if (System.console == null) {
+        log(LogLevel.Warning, "Using --debug on a non-interactive console may result in display issues")
       }
-      Debugger.setDebugger(debugger)
+
+      Debugger.setDebugging(true)
+      val runner = conf.debug() match {
+        case Some(f) => new CLIDebuggerRunner(new File(f))
+        case None => new CLIDebuggerRunner()
+      }
+      Debugger.setDebugger(new InteractiveDebugger(runner))
     }
 
     val ret = conf.subcommand match {

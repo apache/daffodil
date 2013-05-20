@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.compiler.ProcessorFactory
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.ErrorAlreadyHandled
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 import org.jdom.Namespace
 
 /**
@@ -144,7 +145,12 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
       input,
       bitOffset = 0,
       bitLengthLimit = lengthLimitInBits) // TODO also want to pass here the externally set variables, other flags/settings.
-    parse(initialState)
+    try {
+      Debugger.init(parser)
+      parse(initialState)
+    } finally {
+      Debugger.fini(parser)
+    }
   }
 
   def parse(initialState: PState) = {

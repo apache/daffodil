@@ -173,7 +173,7 @@ class TestCLIdebugger {
 //    shell.send("step\n")
     shell.expect("<tns:matrix")
 
-//    shell.send("undisplay 1\n")
+//    shell.send("delete display 1\n")
 //    shell.send("step\n")
 
 //    shell.send("enable display 1\n")
@@ -209,7 +209,7 @@ class TestCLIdebugger {
 //    shell.send("step\n")
     shell.expect("<tns:cell>1</tns:cell>")
 
-//    shell.send("delete 1\n")
+//    shell.send("delete breakpoint 1\n")
 //    shell.send("continue\n")
 //    shell.send("quit\n")
     shell.expectClose()
@@ -373,7 +373,7 @@ class TestCLIdebugger {
 //    shell.send("continue\n")
     shell.expect("element.matrix::GlobalComplexTypeDef(matrixType)::sequence::element.row::LocalComplexTypeDef::sequence::element.cell")
 
-//    shell.send("delete 1\n")
+//    shell.send("delete breakpoint 1\n")
     shell.expect("debug")
 //    shell.send("continue\n")
     shell.expect(output1)
