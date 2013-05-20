@@ -369,4 +369,53 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(new ConsoleLogWriter());
 		Daffodil.setLoggingLevel(LogLevel.Info);
 	}
+	
+  /**
+	 * This test is nearly identical to testJavaAPI7. The only difference is that
+	 * this test uses double newline as a terminator for the first element in the 
+	 * sequence rather than double newline as a separator for the sequence
+	 * @throws IOException
+	 */
+	@Test
+	public void testJavaAPI8() throws IOException {
+		LogWriterForJAPITest lw = new LogWriterForJAPITest();
+
+		Daffodil.setLogWriter(lw);
+		Daffodil.setLoggingLevel(LogLevel.Debug);
+
+		Compiler c = Daffodil.compiler();
+		java.io.File[] schemaFiles = new java.io.File[1];
+		schemaFiles[0] = getResource("/test/japi/TopLevel.xsd");
+		c.setDistinguishedRootNode("TopLevel2", null);
+		ProcessorFactory pf = c.compile(schemaFiles);
+		DataProcessor dp = pf.onPath("/");
+		java.io.File file = getResource("/test/japi/01very_simple.txt");
+		java.io.FileInputStream fis = new java.io.FileInputStream(file);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
+				.newChannel(fis);
+		ParseResult res = dp.parse(rbc);
+		boolean err = res.isError();
+		if (!err) {
+			org.jdom.Document doc = res.result();
+			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			// xo.setFormat(Format.getPrettyFormat());
+			xo.setFormat(Format.getRawFormat());
+			xo.output(doc, System.out);
+		}
+		java.util.List<Diagnostic> diags = res.getDiagnostics();
+		for (Diagnostic d : diags) {
+			System.err.println(d.getMessage());
+		}
+		assertTrue(res.location().isAtEnd());
+
+		// assertEquals(0, lw.errors.size());
+		// assertEquals(0, lw.warnings.size());
+		// assertTrue(lw.infos.size() > 0);
+		// assertTrue(lw.others.size() > 0);
+
+		// reset the global logging state
+		Daffodil.setLogWriter(new ConsoleLogWriter());
+		Daffodil.setLoggingLevel(LogLevel.Info);
+	}
+	
 }

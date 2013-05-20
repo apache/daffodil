@@ -23,4 +23,14 @@
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
+
+  <xsd:element name="TopLevel2">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="MessageHeaders" dfdl:lengthKind="delimited"
+					 type="xsd:string" dfdl:terminator="%NL;%NL;"/>
+				<xsd:element name="Body" type="xsd:string"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
 </xsd:schema>
