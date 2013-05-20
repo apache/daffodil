@@ -137,6 +137,9 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   def singleListArgConverter[A](conv: String => A)(implicit m: Manifest[List[A]]) = new scallop.ValueConverter[List[A]] {
     def parse(s: List[(String, List[String])]) = {
       try {
+        // this happens when options are provided after a trailing arg
+        assert(s.forall(_._2.size == 1))
+
         val l = s.map(_._2).flatten.map(i => conv(i))
         if (l.isEmpty) Right(Some(Nil))
         else Right(Some(l))
@@ -178,7 +181,17 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   def error(msg: String) = errorMessageHandler(msg)
 
   errorMessageHandler = { message =>
-    log(LogLevel.Error, "%s", message)
+    val msg =
+      if (message.indexOf("Wrong format for option 'schema'") >= 0) {
+        // the 'wrong format' error only occurs on --schema when options are
+        // provided after the trailing arg, so let's give a more helpful error
+        // message
+        "Options are not allow after a trailing argument"
+      } else {
+        message
+      }
+
+    log(LogLevel.Error, "%s", msg)
     sys.exit(1)
   }
 
@@ -382,6 +395,8 @@ object Main extends Logging {
   }
 
   def run(arguments: Array[String]): Int = {
+    LoggingDefaults.setLogWriter(CLILogWriter)
+
     val conf = new CLIConf(arguments)
 
     val verboseLevel = conf.verbose() match {
@@ -392,7 +407,6 @@ object Main extends Logging {
       case _ => LogLevel.OOLAGDebug
     }
     LoggingDefaults.setLoggingLevel(verboseLevel)
-    LoggingDefaults.setLogWriter(CLILogWriter)
 
     if (conf.trace()) {
       Debugger.setDebugging(true)
