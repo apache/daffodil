@@ -40,7 +40,7 @@ abstract class UnsuppressableException(m: String) extends Exception(m) {
   def this() = this("") // no arg constructor also.
 }
 class UsageException(m: String) extends UnsuppressableException(m)
-class NotYetImplementedException(m: String) extends UnsuppressableException("Not yet implemented.\n" + m)
+class NotYetImplementedException(m: String) extends UnsuppressableException("Not yet implemented: " + m)
 class Abort(m: String) extends UnsuppressableException(m) {
   def this(th: Throwable) = this(th.getMessage())
 }

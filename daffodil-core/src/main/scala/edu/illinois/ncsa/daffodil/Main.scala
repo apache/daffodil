@@ -91,6 +91,7 @@ import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.LogWriter
 import edu.illinois.ncsa.daffodil.util.LoggingDefaults
+import edu.illinois.ncsa.daffodil.exceptions.NotYetImplementedException
 import java.io.File
 import scala.language.reflectiveCalls
 
@@ -664,6 +665,25 @@ object Main extends Logging {
     e.printStackTrace
     1
   }
+  
+  def nyiFound(e: NotYetImplementedException): Int = {
+    System.err.println("""|
+                          |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                          |!!                 Not Yet Implemented                  !!
+                          |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                          |
+                          | You are using a feature that is not yet implemented:
+                          |
+                          | %s
+                          |
+                          | You can create a bug and track the progress of this
+                          | feature at:
+                          |
+                          |  https://opensource.ncsa.illinois.edu/jira/browse/DFDL
+                          |
+                          |""".format(e.getMessage).stripMargin)
+    1
+  }
 
   def main(arguments: Array[String]): Unit = {
     val ret = try {
@@ -672,6 +692,9 @@ object Main extends Logging {
       case e: java.io.FileNotFoundException => {
         log(LogLevel.Error, "%s", e.getMessage)
         1
+      }
+      case e: NotYetImplementedException => {
+        nyiFound(e)
       }
       case e: Exception => {
         // unit tests are getting bugFound banners
