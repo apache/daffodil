@@ -592,7 +592,9 @@ object OOLAG extends Logging {
               hasValue_ = true
               log(OOLAGDebug("Evaluated %s to %s.", descrip, res))
               res
-            } { th => throw th } { (e, ov) =>
+            } { th => // spread out for debug
+              throw th
+            } { (e, ov) =>
               {
                 error(e)
                 throw new ErrorAlreadyHandled(e, ov)

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section14.sequence_groups
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -72,10 +71,11 @@ class TestSequenceGroups {
 
   val tdml_02 = testDir_01 + "SequenceGroup.tdml"
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
-  
-//  @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
+
+  //  @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
   @Test def test_complexEmptyContent() { runner_02.runOneTest("complexEmptyContent") }
-//  @Test def test_noContentComplexSDE() { runner_02.runOneTest("noContentComplexSDE") }
+  @Test def test_noContentComplexSDE() { runner_02.runOneTest("noContentComplexSDE") }
+  @Test def test_noContentAnnotatedComplexSDE() { runner_02.runOneTest("noContentAnnotatedComplexSDE") }
 
   @Test def test_SeqGrp546() { runner_02.runOneTest("SeqGrp546") }
 
@@ -94,10 +94,10 @@ class TestSequenceGroups {
   @Test def test_hiddenGroupIgnoredProps() { runner_02.runOneTest("hiddenGroupIgnoredProps") }
   @Test def test_hiddenGroupAttributeNotation() { runner_02.runOneTest("hiddenGroupAttributeNotation") }
   @Test def test_hiddenGroupElementNotation() { runner_02.runOneTest("hiddenGroupElementNotation") }
-//  @Test def test_hiddenGroupLoop() { runner_02.runOneTest("hiddenGroupLoop") }
+  //  @Test def test_hiddenGroupLoop() { runner_02.runOneTest("hiddenGroupLoop") }
 
   @Test def test_AC000() { runner_02.runOneTest("AC000") }
   @Test def test_AD000() { runner_02.runOneTest("AD000") }
   @Test def test_AS000() { runner_02.runOneTest("AS000") }
-  
+
 }

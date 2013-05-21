@@ -24,6 +24,13 @@
        <xs:complexType>
        </xs:complexType>
      </xs:element>
+     
+     <xs:element name="noContentAnnotatedComplex">
+       <xs:complexType>
+       <xs:annotation><xs:documentation>not really doc
+       </xs:documentation></xs:annotation>
+       </xs:complexType>
+     </xs:element>
 
    </tdml:defineSchema>
    
@@ -53,6 +60,16 @@
   -->
   
   <tdml:parserTestCase name="noContentComplexSDE" root="noContentComplex"
+    model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error/>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+    <tdml:parserTestCase name="noContentAnnotatedComplexSDE" root="noContentAnnotatedComplex"
     model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
     <tdml:document>
       <tdml:documentPart type="text"></tdml:documentPart>

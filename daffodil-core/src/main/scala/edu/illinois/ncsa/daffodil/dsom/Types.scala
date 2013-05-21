@@ -1343,9 +1343,20 @@ abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
 
   lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
 
-  lazy val Seq(modelGroup) = smg.value
+  lazy val Seq(modelGroup) = {
+    val s = smg.value
+    schemaDefinitionUnless(s.length == 1, "A complex type must have exactly one model-group element child which is a sequence, choice, or group reference.")
+    s
+  }
+
   private val smg = LV('smg) {
-    xmlChildren.flatMap { GroupFactory(_, this, 1) }
+    xmlChildren.flatMap {
+      xmlChild =>
+        {
+          val g = GroupFactory(xmlChild, this, 1) // discards unwanted text nodes also.
+          g
+        }
+    }
   }
 
   // provides needed polymorphism across unannotated complex types, and

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section14.sequence_groups
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -46,17 +45,16 @@ import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Logging
 
 class TestSequenceGroupsDebug {
-  
+
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
   val tdml_02 = testDir_01 + "SequenceGroup.tdml"
-  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
+  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02), false)
 
-//  This test sets up an infinite loop of hidden groups. It is currently commented-out
-//  because it runs indefinitely and prevents the rest of the suite from executing  
-//  @Test def test_hiddenGroupLoop() { runner_03.runOneTest("hiddenGroupLoop") }
+  //  This test sets up an infinite loop of hidden groups. It is currently commented-out
+  //  because it runs indefinitely and prevents the rest of the suite from executing  
+  //  @Test def test_hiddenGroupLoop() { runner_03.runOneTest("hiddenGroupLoop") }
 
   @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
-  @Test def test_noContentComplexSDE() { runner_02.runOneTest("noContentComplexSDE") }
 
 }
 
