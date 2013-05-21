@@ -929,7 +929,17 @@ class SchemaSet(
    *
    * These all return factories for the objects, not the objects themselves.
    */
-  def getGlobalElementDecl(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getGlobalElementDecl(name) }
+  def getGlobalElementDecl(namespace: NS, name: String) = {
+    // getSchema(namespace).flatMap { _.getGlobalElementDecl(name) }
+    val s = getSchema(namespace)
+    val res = s.flatMap { s =>
+      {
+        val ged = s.getGlobalElementDecl(name)
+        ged
+      }
+    }
+    res
+  }
   def getGlobalSimpleTypeDef(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getGlobalSimpleTypeDef(name) }
   def getGlobalComplexTypeDef(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getGlobalComplexTypeDef(name) }
   def getGlobalGroupDef(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getGlobalGroupDef(name) }
@@ -997,14 +1007,14 @@ class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: S
       case s => {
         schemaSet.schemaDefinitionError(
           "More than one definition for name: %s\n" +
-            "defined " + s.map { thing =>
-              thing match {
-                case df: DFDLDefiningAnnotation => df.asAnnotation.fileDescription
-                case sc: SchemaComponent => sc.fileDescription
-                case _ => Assert.invariantFailed("should only be a SchemaComponent or a DFDLDefiningAnnotation")
-              }
-            }.mkString("\n and also "),
-          name)
+            "defined %s",
+          name, s.map { thing =>
+            thing match {
+              case df: DFDLDefiningAnnotation => df.asAnnotation.fileDescription
+              case sc: SchemaComponent => sc.fileDescription
+              case _ => Assert.invariantFailed("should only be a SchemaComponent or a DFDLDefiningAnnotation")
+            }
+          }.mkString("\n and also "))
       }
     }
   }
@@ -1014,7 +1024,18 @@ class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: S
    *
    * This just scans each schema document in the schema, checking each one.
    */
-  def getGlobalElementDecl(name: String) = noneOrOne(schemaDocuments.flatMap { _.getGlobalElementDecl(name) }, name)
+  def getGlobalElementDecl(name: String) = {
+    // noneOrOne(schemaDocuments.flatMap { _.getGlobalElementDecl(name) }, name)
+    val sds = schemaDocuments
+    val res = sds.flatMap {
+      sd =>
+        {
+          val ged = sd.getGlobalElementDecl(name)
+          ged
+        }
+    }
+    noneOrOne(res, name)
+  }
   def getGlobalSimpleTypeDef(name: String) = noneOrOne(schemaDocuments.flatMap { _.getGlobalSimpleTypeDef(name) }, name)
   def getGlobalComplexTypeDef(name: String) = noneOrOne(schemaDocuments.flatMap { _.getGlobalComplexTypeDef(name) }, name)
   def getGlobalGroupDef(name: String) = noneOrOne(schemaDocuments.flatMap { _.getGlobalGroupDef(name) }, name)
@@ -1259,7 +1280,11 @@ class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   /**
    * by name getters for the global things that can be referenced.
    */
-  def getGlobalElementDecl(name: String) = globalElementDecls.find { _.name == name }
+  def getGlobalElementDecl(name: String) = {
+    val geds = globalElementDecls
+    val res = globalElementDecls.find { _.name == name }
+    res
+  }
   def getGlobalSimpleTypeDef(name: String) = globalSimpleTypeDefs.find { _.name == name }
   def getGlobalComplexTypeDef(name: String) = globalComplexTypeDefs.find { _.name == name }
   def getGlobalGroupDef(name: String) = globalGroupDefs.find { _.name == name }

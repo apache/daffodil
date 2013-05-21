@@ -209,7 +209,7 @@
     </tdml:document>
     <tdml:errors>
      <tdml:error>Schema Definition Error</tdml:error>
-     <tdml:error>nilValue cannot be empty!()</tdml:error>
+     <tdml:error>nilValue cannot be empty!</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

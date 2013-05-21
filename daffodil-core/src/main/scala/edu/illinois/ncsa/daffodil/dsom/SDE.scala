@@ -137,13 +137,8 @@ abstract class SchemaDefinitionDiagnosticBase(
       //
       // For now, we'll just do an automatic English message.
       //
-      val msg =
-        if (kind.contains("%"))
-          kind.format(args: _*)
-        else {
-          val argsAsString = args.map { _.toString }.mkString(", ")
-          (kind + "(%s)").format(argsAsString)
-        }
+      val msg = if (args.size > 0) kind.format(args: _*)
+      else kind
 
       // this is where it gets kind of hairy. We're depending on fairly rich
       // attribute calculations in order to generate the context information 

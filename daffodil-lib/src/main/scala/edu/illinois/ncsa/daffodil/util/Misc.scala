@@ -37,6 +37,7 @@ import java.io.FileInputStream
 import java.io.InputStream
 import java.io.File
 import java.net.URL
+import java.net.URI
 
 /**
  * Various reusable utilities that I couldn't easily find a better place for.
@@ -66,13 +67,13 @@ object Misc {
    * resourcePath argument is relative to the classpath root.
    */
 
-  def getResourceOption(resourcePath: String): (Option[URL], String) = {
+  def getResourceOption(resourcePath: String): (Option[URI], String) = {
     // more time is wasted by people forgetting that the initial "/" is needed
     // to get classpath relative behavior... Let's make sure there is a leading "/"
     val resPath = if (resourcePath.startsWith("/")) resourcePath else "/" + resourcePath
     var res = this.getClass.getResource(resPath)
     if (res == null) (None, resPath)
-    else (Some(res), resPath)
+    else (Some(res.toURI), resPath)
   }
 
   lazy val classPath = {
@@ -82,7 +83,7 @@ object Misc {
     lines
   }
 
-  def getRequiredResource(resourcePath: String): URL = {
+  def getRequiredResource(resourcePath: String): URI = {
     getResourceOption(resourcePath) match {
       case (None, resPath) => {
         val msg = "Required resource " + resPath + " was not found.\nClasspath is " +

@@ -32,10 +32,12 @@ package edu.illinois.ncsa.daffodil.exceptions
  * SOFTWARE.
  */
 
+import java.net.URLDecoder
+
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import java.net.URL
+
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 trait SchemaFileLocatable extends LocationInSchemaFile {
   def xml: Node
@@ -81,7 +83,8 @@ trait SchemaFileLocatable extends LocationInSchemaFile {
     case None => ""
   }
 
-  lazy val fileDescription = " in " + fileName
+  // URLDecoder removes %20, etc from the file name.
+  lazy val fileDescription = " in " + URLDecoder.decode(fileName, "UTF-8")
 
   lazy val locationDescription = {
     val showInfo = lineDescription != "" || fileDescription != ""

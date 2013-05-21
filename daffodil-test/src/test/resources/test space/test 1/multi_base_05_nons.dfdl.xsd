@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="'" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        occursCountKind="parsed" separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" 
+        representation="text" textNumberRep="standard" lengthKind="delimited" encoding="ASCII"
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
+    </xs:appinfo>
+  </xs:annotation>
+   
+  <xs:include schemaLocation="test space/test 2/multi_A_05_nons.dfdl.xsd"/>
+  <xs:include schemaLocation="test space/test 3/multi_B_05_nons.dfdl.xsd"/>
+  
+  <xs:element name="baseSeq">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element ref="bSeq" maxOccurs="10"/>
+      </xs:sequence>
+    </xs:complexType> 
+  </xs:element>
+
+  <xs:element name="vagueBase">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element ref="vagueElem"/>
+      </xs:sequence>
+    </xs:complexType> 
+  </xs:element>
+
+  <xs:element name="baseSeq2">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=".">
+        <xs:element name="elem" dfdl:ref="pipes" maxOccurs="10" type="xs:int"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="baseSeq2b">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=".">
+        <xs:element name="elem" dfdl:ref="pipes2" maxOccurs="10" type="xs:int"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+ 
+</xs:schema>

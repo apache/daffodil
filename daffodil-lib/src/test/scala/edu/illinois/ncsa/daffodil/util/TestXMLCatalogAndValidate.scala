@@ -497,7 +497,7 @@ class MyResolver()
   delegate.setupReaders()
   delegate.loadSystemCatalogs()
   // delegate.parseAllCatalogs()
-  delegate.parseCatalog(Misc.getRequiredResource("/daffodil-built-in-catalog.xml"))
+  delegate.parseCatalog(Misc.getRequiredResource("/daffodil-built-in-catalog.xml").toURL())
   // catFiles.foreach { cf => delegate.parseCatalog(Misc.getRequiredResource(cf)) }
 
   def resolveEntity(ri: org.apache.xerces.xni.XMLResourceIdentifier) = {

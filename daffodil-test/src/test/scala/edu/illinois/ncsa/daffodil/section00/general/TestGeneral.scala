@@ -75,5 +75,11 @@ class TestGeneral {
   lazy val runnerA_B = new DFDLTestSuite(Misc.getRequiredResource(a_b))
 
   @Test def test_dir_and_file_with_spaces() { runnerA_B.runOneTest("AB006") }
+  
+  val testDir3 = "/test space/test 1/"
+  val cc = testDir3 + "namespaces.tdml"
+  lazy val runner_ns = new DFDLTestSuite(Misc.getRequiredResource(cc))
+  
+  @Test def test_no_namespace_02() { runner_ns.runOneTest("no_namespace_02") }
 
 }

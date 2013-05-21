@@ -776,10 +776,12 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   // Need to go get the Element we are referencing
   private[dsom] lazy val referencedElement = referencedElement_.value // optionReferencedElement.get
   private val referencedElement_ = LV('referencedElement) {
-    this.schemaSet.getGlobalElementDecl(namespace, localName) match {
+    val ged = this.schemaSet.getGlobalElementDecl(namespace, localName)
+    val res = ged match {
       case None => SDE("Referenced element not found: %s.", this.ref)
       case Some(x) => x.forElementRef(this)
     }
+    res
   }
 
   // These will just delegate to the referenced element declaration

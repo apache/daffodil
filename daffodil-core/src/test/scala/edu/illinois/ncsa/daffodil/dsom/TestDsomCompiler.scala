@@ -241,7 +241,7 @@ class TestDsomCompiler extends Logging {
   }
 
   @Test def test3 {
-    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml"))
+    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
     val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
@@ -318,7 +318,7 @@ class TestDsomCompiler extends Logging {
   }
 
   @Test def test4 {
-    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml"))
+    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
     val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
@@ -346,7 +346,7 @@ class TestDsomCompiler extends Logging {
     val testSchema =
       XML.load(
         Misc.getRequiredResource(
-          "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml"))
+          "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml").toURL)
 
     val compiler = Compiler()
     val sset = new SchemaSet(testSchema)
@@ -367,7 +367,7 @@ class TestDsomCompiler extends Logging {
     val testSchema =
       XML.load(
         Misc.getRequiredResource(
-          "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml"))
+          "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml").toURL)
 
     val compiler = Compiler()
 
@@ -386,7 +386,7 @@ class TestDsomCompiler extends Logging {
     val testSchema =
       XML.load(
         Misc.getRequiredResource(
-          "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml"))
+          "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml").toURL)
 
     val compiler = Compiler()
 
@@ -480,7 +480,7 @@ class TestDsomCompiler extends Logging {
   }
 
   @Test def test_simpleType_base_combining {
-    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml"))
+    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
     val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
@@ -528,7 +528,7 @@ class TestDsomCompiler extends Logging {
   }
 
   @Test def test_group_references {
-    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml"))
+    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
     val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
@@ -592,7 +592,7 @@ class TestDsomCompiler extends Logging {
   }
 
   @Test def test_ibm_7132 {
-    val ibm7132Schema = XML.load(Misc.getRequiredResource("/test/TestRefChainingIBM7132.dfdl.xml"))
+    val ibm7132Schema = XML.load(Misc.getRequiredResource("/test/TestRefChainingIBM7132.dfdl.xml").toURL)
     // val ibm7132Schema = "test/TestRefChainingIBM7132.dfdl.xml"
     val compiler = Compiler()
     val sset = new SchemaSet(ibm7132Schema)
@@ -678,7 +678,7 @@ class TestDsomCompiler extends Logging {
   }
 
   @Test def test_delim_inheritance {
-    val delimiterInheritance = XML.load(Misc.getRequiredResource("/test/TestDelimiterInheritance.dfdl.xml"))
+    val delimiterInheritance = XML.load(Misc.getRequiredResource("/test/TestDelimiterInheritance.dfdl.xml").toURL)
 
     val compiler = Compiler()
     val sset = new SchemaSet(delimiterInheritance)
@@ -769,7 +769,7 @@ class TestDsomCompiler extends Logging {
   }
 
   @Test def test_element_references {
-    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml"))
+    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas

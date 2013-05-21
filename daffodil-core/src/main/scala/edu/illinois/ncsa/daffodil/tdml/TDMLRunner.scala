@@ -176,13 +176,13 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
         log(LogLevel.Debug, "done loading TDML file: %s", tdmlFile)
         res
       }
-      case tsURL: URL => {
-        val f = new File(tsURL.toURI())
+      case tsURI: URI => {
+        val f = new File(tsURI)
         val enc = determineEncoding(f)
-        val input = scala.io.Source.fromURI(tsURL.toURI)(enc)
-        val origNode = loader.load(tsURL) // used for validation only
+        val input = scala.io.Source.fromURI(tsURI)(enc)
+        val origNode = loader.load(tsURI) // used for validation only
         val someNode = ConstructingParser.fromSource(input, true).document.docElem
-        val res = (someNode, null, new InputSource(tsURL.toURI().toASCIIString()))
+        val res = (someNode, null, new InputSource(tsURI.toASCIIString()))
         res
       }
       case _ => Assert.usageError("not a Node, File, or URL")
@@ -277,7 +277,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
     // see if it can be found relative to the tdml test file, like next to it.
     val sysId = tsInputSource.getSystemId()
     if (sysId != null) {
-      val sysFile = new File(new URI(sysId))
+      val sysFile = new File(URI.create(sysId))
       if (sysFile.exists()) {
         // the system Id of the tdml file was a file.
         val sysPath = sysFile.getParent()
@@ -290,11 +290,11 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
     // try as a classpath resource (allows eclipse to find it)
     // ( also will look in the jar - which is bad. Have to avoid that.)
     val (maybeRes, _) = Misc.getResourceOption(fileName)
-    maybeRes.foreach { url =>
+    maybeRes.foreach { uri =>
       // could be that we found the file, could be that we
       // got a match in the jar. This should tell them apart.
-      if (url.getProtocol == "file") {
-        val resolvedName = url.getPath()
+      if (uri.toURL().getProtocol == "file") {
+        val resolvedName = uri.getPath()
         val resFile = new File(resolvedName)
         if (resFile.exists()) return Some(resFile)
       }

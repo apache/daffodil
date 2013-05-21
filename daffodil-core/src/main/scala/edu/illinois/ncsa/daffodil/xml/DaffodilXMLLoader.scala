@@ -64,6 +64,7 @@ import org.apache.xerces.dom.DOMInputImpl
 import org.w3c.dom.ls.LSInput
 import javax.xml.validation.ValidatorHandler
 import scala.collection.JavaConverters._
+import java.net.URI
 
 /**
  * Resolves URI/URL/URNs to loadable files/streams.
@@ -427,9 +428,9 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
 
   override def loadFile(name: String) = loadFile(new File(name))
 
-  override def load(url: URL) = {
-    adapter.fileName = url.toURI.toASCIIString
-    val res = super.load(url)
+  def load(uri: URI) = {
+    adapter.fileName = uri.toASCIIString
+    val res = super.load(uri.toURL())
     res
   }
 

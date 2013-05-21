@@ -12,6 +12,7 @@ import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
+import java.net.URI
 
 /**
  * represents one schema document file
@@ -46,16 +47,16 @@ class DFDLSchemaFile(val sset: SchemaSet,
     res
   }
 
-  override lazy val prettyName = url.toString
+  override lazy val prettyName = uri.toString
 
   lazy val diagnosticChildren = Nil // no recursive descent. We just want the loader's validation errors.
 
-  lazy val fakeURL = new File("tempFile.xsd").toURI.toURL
+  lazy val fakeURI = new File("tempFile.xsd").toURI
 
-  lazy val url = sourceOfSchema match {
-    case fn: String => new File(fn).toURI.toURL
-    case url: URL => url
-    case n: scala.xml.Node => fakeURL
+  lazy val uri = sourceOfSchema match {
+    case fn: String => new File(fn).toURI
+    case uri: URI => uri
+    case n: scala.xml.Node => fakeURI
     case _ => Assert.usageError("sourceOfSchema must be a fileName string, a URL or a schema node")
   }
 
@@ -81,20 +82,21 @@ class DFDLSchemaFile(val sset: SchemaSet,
   }
 
   def warning(exception: SAXParseException) = {
-    val sdw = new SchemaDefinitionWarning(this, "Warning loading schema", exception)
+    val sdw = new SchemaDefinitionWarning(this, "Warning loading schema due to %s", exception)
     warn(sdw)
     validationDiagnostics_ :+= sdw
   }
 
   def error(exception: SAXParseException) = {
-    val sde = new SchemaDefinitionError(this, "Error loading schema", exception)
+    val ex = exception
+    val sde = new SchemaDefinitionError(this, "Error loading schema due to %s", exception)
     // println(sde)
     error(sde)
     validationDiagnostics_ :+= sde
   }
 
   def fatalError(exception: SAXParseException) = {
-    val sde = new SchemaDefinitionError(this, "Fatal error loading schema", exception)
+    val sde = new SchemaDefinitionError(this, "Fatal error loading schema due to %s", exception)
     // error(sde) // will get picked up when parser throws after this returns
     validationDiagnostics_ :+= sde
     // parser throws out of fatalErrors.
@@ -103,16 +105,16 @@ class DFDLSchemaFile(val sset: SchemaSet,
   lazy val loader = new DaffodilXMLLoader(this)
   lazy val resolver = DaffodilCatalogResolver.resolver
 
-  lazy val loadedURL = loadedURL_.value
-  private val loadedURL_ = LV('loadedURL) {
-    val node = loader.load(url)
+  lazy val loadedURI = loadedURI_.value
+  private val loadedURI_ = LV('loadedURI) {
+    val node = loader.load(uri)
     node
   }
 
   lazy val node =
     sourceOfSchema match {
       case schemaNode: scala.xml.Node => schemaNode
-      case _ => loadedURL
+      case _ => loadedURI
     }
 
   //  lazy val seenBeforePlusThis = {
@@ -142,7 +144,7 @@ class DFDLSchemaFile(val sset: SchemaSet,
         val sd = new XMLSchemaDocument(node, sset, Some(iiParent), sf, before)
         sd
       }
-      case _ => schemaDefinitionError("The file %s did not contain a schema element as the document element. Found %s in namespace %s.", url, node.label, node.namespace)
+      case _ => schemaDefinitionError("The file %s did not contain a schema element as the document element. Found %s in namespace %s.", uri, node.label, node.namespace)
     }
     sd
   }

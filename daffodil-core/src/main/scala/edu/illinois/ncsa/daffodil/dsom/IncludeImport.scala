@@ -55,6 +55,7 @@ import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.util.Delay
 import java.net.URLDecoder
+import java.net.URLEncoder
 
 /**
  * This file along with DFDLSchemaFile are the implementation of import and include
@@ -137,7 +138,7 @@ import java.net.URLDecoder
  * yet. You wouldn't write an OO program this way usually.
  */
 object IIUtils {
-  type IIMap = Delay[Map[(NS, URL), IIBase]]
+  type IIMap = Delay[Map[(NS, URI), IIBase]]
 }
 
 /**
@@ -399,19 +400,27 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
 
   lazy val schemaLocationProperty = getAttributeOption("schemaLocation")
 
+  def isValidURI(uri: String): Boolean = {
+    try { val res = new URI(uri) } catch { case ex: Exception => return false }
+    true
+  }
+
   /**
    * Both include and import have schemaLocation. For import it is optional.
    * If supplied we resolve it via the classpath, current working dir, relative
    * to the location of the including/importing file, etc.
    */
 
-  final lazy val resolvedSchemaLocation: Option[URL] = resolvedSchemaLocation_.value
+  final lazy val resolvedSchemaLocation: Option[URI] = resolvedSchemaLocation_.value
   private val resolvedSchemaLocation_ = LV('resolvedSchemaLocation) {
     val res = schemaLocationProperty.flatMap { slText =>
-      val fileURI = new URI(slText)
-      val optURL =
+      // We need to determine if the URI is valid, if it's not we should attempt to encode it
+      // to make it valid (takes care of spaces in directories). If it fails after this, oh well!
+      val encodedSLText = if (!isValidURI(slText)) URLEncoder.encode(slText, "UTF-8") else slText
+      val fileURI = URI.create(encodedSLText)
+      val optURI =
         if (fileURI.isAbsolute() &&
-          (new File(fileURI)).exists) Some(fileURI.toURL)
+          (new File(fileURI)).exists) Some(fileURI)
         else {
           // file is relative
           // So we try to resolve it a few different ways
@@ -438,15 +447,16 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
           // (2) Try self-relative, that is, relative to wherever this schema
           // doing the import/include is in the file system (or jar) resources.
           //
-          val enclosingSchemaAbsURI: Option[URI] = schemaFile.map { _.url.toURI }
+          val enclosingSchemaAbsURI: Option[URI] = schemaFile.map { _.uri }
           val selfRelative = enclosingSchemaAbsURI match {
             case None => None
             case Some(enclosingAbsURI) => {
+              System.err.println(enclosingAbsURI + "\n" + fileURI + "\n\n")
               val absURI = (new URL(enclosingAbsURI.toURL, fileURI.toString)).toURI
               val absFile = new File(absURI)
               if (absFile.exists())
                 // Win. found one relative to file doing the include/import
-                Some(absURI.toURL)
+                Some(absURI)
               else
                 // Nope. Not found relative to the file.
                 None
@@ -457,21 +467,21 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
             //
             // (2) Try classpath
             //
-            val (optURL, _) = Misc.getResourceOption(slText) // searches classpath directories and classpath in jars.
-            if (optURL.isDefined) {
+            val (optURI, _) = Misc.getResourceOption(slText) // searches classpath directories and classpath in jars.
+            if (optURI.isDefined) {
               // found on classpath
-              optURL
+              optURI
             } else {
               None
             }
           }
         }
-      optURL
+      optURI
     }
     res
   }
 
-  def mapPair: (NS, URL)
+  def mapPair: (NS, URI)
 
   final lazy val mapTuple = mapTuple_.value
   private val mapTuple_ = LV('mapTuple) {
@@ -483,7 +493,7 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
    * Holds the location of the schema, whether that is from
    * the XML Catalog (import), or classpath (import or include).
    */
-  def resolvedLocation: URL
+  def resolvedLocation: URI
 
   //  lazy val super_iiSchemaFile = super_iiSchemaFile_.value
   //  private val super_iiSchemaFile_ = LV('super_iiSchemaFile) {
@@ -643,7 +653,7 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
    * This will be Some(URL) for reading an imported schema,
    * if we resolved the namespace URI via the XML Catalog.
    */
-  lazy val resolvedNamespaceURI: Option[URL] = resolvedNamespaceURI_.value
+  lazy val resolvedNamespaceURI: Option[URI] = resolvedNamespaceURI_.value
   private val resolvedNamespaceURI_ = LV('resolvedNamespaceURI) {
     importElementNS match {
       case None => {
@@ -654,7 +664,7 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
         val uri = resolver.resolveURI(ns.toString)
         if (uri == null) None
         else {
-          val res = new URL(uri)
+          val res = URI.create(uri)
           Some(res)
         }
       }
