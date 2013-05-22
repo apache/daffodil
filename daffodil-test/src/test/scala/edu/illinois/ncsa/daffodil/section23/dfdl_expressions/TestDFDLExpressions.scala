@@ -121,7 +121,7 @@ class TestDFDLExpressions {
 
   @Test def test_testBit_0() { runner2.runOneTest("testBit_0") }
   @Test def test_testBit_1() { runner2.runOneTest("testBit_1") }
-  //  @Test def test_testBit_2() { runner2.runOneTest("testBit_2") }
+  @Test def test_testBit_2() { runner2.runOneTest("testBit_2") }
   // This test should be giving a runtime SDE instead of parse error (DFDL-710)
   // @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
 

@@ -45,9 +45,9 @@
 				<xs:sequence>
 					<xs:element name="int" type="xs:unsignedInt" dfdl:representation="binary" dfdl:lengthKind="implicit" />
 					<xs:element name="bit1" type="xs:boolean"
-						dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte/text(), 1) }" />
+						dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:int/text(), 1) }" />
 					<xs:element name="bit2" type="xs:boolean"
-						dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte/text(), 2) }" />
+						dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:int/text(), 2) }" />
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
@@ -259,16 +259,10 @@
 		<tdml:document>
 			<tdml:documentPart type="bits">00000000 00000000 00000101 00010101</tdml:documentPart>
 		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<testBit1>
-					<byte>1301</byte>
-					<bit1>false</bit1>
-					<bit2>true</bit2>
-				</testBit1>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:testBit $data must be an unsignedByte within the range of (0-255). $data was 1301</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
