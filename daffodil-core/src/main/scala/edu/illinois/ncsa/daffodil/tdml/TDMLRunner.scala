@@ -1007,6 +1007,8 @@ case class Infoset(i: NodeSeq, parent: TestCase) {
 
 case class DFDLInfoset(di: Node, parent: Infoset) {
   lazy val Seq(contents) = {
+    Assert.usage(di.child.size == 1, "dfdlInfoset element must contain a single root element")
+
     val c = di.child(0)
     val expected = Utility.trim(c) // must be exactly one root element in here.
     val expectedNoAttrs = XMLUtils.removeAttributes(expected)
