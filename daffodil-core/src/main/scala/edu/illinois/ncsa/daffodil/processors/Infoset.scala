@@ -182,7 +182,10 @@ class InfosetElement(private val elt: org.jdom.Element) extends InfosetItem {
 
 class InfosetDocument(val jDoc: org.jdom.Document) extends InfosetItem {
 
-  val jdomElt = None
+  val jdomElt = {
+    if (jDoc.hasRootElement()) Some(jDoc.getRootElement())
+    else None
+  }//None
 
   def toXML: scala.xml.Node = {
     if (jDoc.hasRootElement()) XMLUtils.element2Elem(jDoc.getRootElement())

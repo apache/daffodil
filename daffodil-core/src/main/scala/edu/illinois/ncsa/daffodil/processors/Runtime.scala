@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.compiler.ProcessorFactory
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.ErrorAlreadyHandled
+import org.jdom.Namespace
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -147,7 +148,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   }
 
   def parse(initialState: PState) = {
-    
+
     ExecutionMode.usingRuntimeMode {
       val pr = new ParseResult(this) {
         val p = parser
@@ -248,6 +249,18 @@ abstract class ParseResult(dp: DataProcessor)
       val xmlNode = resultState.infoset.toXML
       val xmlNoHidden = XMLUtils.removeHiddenElements(xmlNode)
       val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0), Seq(NS(XMLUtils.INT_NS)))
+      xmlClean
+    } else {
+      Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
+    }
+
+  lazy val resultAsJDOM =
+    if (resultState.status == Success) {
+      val xmlNoHidden = resultState.infoset.jdomElt match {
+        case Some(e) => XMLUtils.removeHiddenElements(e)
+        case None => Assert.impossibleCase() // Shouldn't happen, success means there IS a result.
+      }
+      val xmlClean = XMLUtils.removeAttributesJDOM(xmlNoHidden, Seq(Namespace.getNamespace(XMLUtils.INT_PREFIX, XMLUtils.INT_NS)))
       xmlClean
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))

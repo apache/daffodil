@@ -676,7 +676,7 @@ object XMLUtils {
     val attribs = attribsList.map { (attribute: MetaData) =>
       {
         // for(attribute <- attribs) {
-        val attrNS = attribute.getNamespace (node)
+        val attrNS = attribute.getNamespace(node)
         val name = attribute.key
         val value = attribute.value.text
         val prefixedKey = attribute.prefixedKey
@@ -973,6 +973,44 @@ object XMLUtils {
     res
   }
 
+  def removeHiddenElements(e: Element): Element = {
+    //val f = new org.jdom.filter.ElementFilter
+    val newNode: Element = e.clone.asInstanceOf[Element]
+    newNode.removeContent()
+
+    val f = new ElementIsHiddenFilter
+    val itr = e.getDescendants(f)
+    val q: scala.collection.mutable.Queue[Any] = scala.collection.mutable.Queue.empty[Any]
+    while (itr.hasNext()) {
+      val elem: Element = itr.next().asInstanceOf[Element].clone().asInstanceOf[Element]
+      elem.detach()
+      q.enqueue(elem)
+    }
+    newNode.addContent(q)
+    newNode
+  }
+
+  class ElementIsHiddenFilter extends org.jdom.filter.Filter {
+    def isHidden(e: Element): Boolean = {
+      val ns = Namespace.getNamespace(INT_NS)
+      val res = e.getAttribute("hidden", ns) match {
+        case null => false
+        case attr: Attribute => {
+          Assert.usage(attr.getValue() == "true", "hidden attribute should have value true or not be present at all.")
+          true
+        }
+      }
+      res
+    }
+
+    def matches(o: Any): Boolean = {
+      if (o.isInstanceOf[Element]) {
+        return !isHidden(o.asInstanceOf[Element])
+      }
+      false
+    }
+  }
+
   /**
    * Removes NamespaceBindings from a scope containing specified namespaces
    */
@@ -1010,7 +1048,7 @@ object XMLUtils {
    * Removes attributes associated xmlns quasi-attributes.
    *
    * If a sequence of namespaces are given, only those attributes and scopes in
-   * those namepsaces are revmoed. Otherwise, all attributes and scopes (aside
+   * those namepsaces are removed. Otherwise, all attributes and scopes (aside
    * from special ones like xsi:nil) are removed. Additionally, if a scope is
    * filtered, the prefixes of elements prefixed with filtered scopes are also
    * removed.
@@ -1056,6 +1094,34 @@ object XMLUtils {
         }
 
         Elem(newPrefix, label, newAttributes, newScope, true, newChildren: _*)
+      }
+      case other => other
+    }
+  }
+
+  /**
+   * Removes attributes associated xmlns quasi-attributes.
+   *
+   * If a sequence of namespaces are given, only those attributes and scopes in
+   * those namepsaces are removed. Otherwise, all attributes and scopes (aside
+   * from special ones like xsi:nil) are removed. Additionally, if a scope is
+   * filtered, the prefixes of elements prefixed with filtered scopes are also
+   * removed.
+   *
+   * If a scope is given, it will be used for a child element if the
+   * childs filtered scope is the same as the scope.
+   */
+  def removeAttributesJDOM(c: org.jdom.Content, ns: Seq[Namespace] = Seq[Namespace](), parentScope: Option[Namespace] = None): org.jdom.Content = {
+    c match {
+      case e: Element => {
+        val attrs = e.getAttributes().map(x => x.asInstanceOf[Attribute])
+        attrs.map(attr =>
+          ns.find(n => n.getURI() == attr.getNamespaceURI()) match {
+            case Some(_) => e.removeAttribute(attr)
+            case None => // Don't remove
+          })
+        e.getChildren().map(x => removeAttributesJDOM(x.asInstanceOf[org.jdom.Content], ns))
+        e
       }
       case other => other
     }

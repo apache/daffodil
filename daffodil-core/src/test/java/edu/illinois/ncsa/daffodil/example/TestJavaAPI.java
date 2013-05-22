@@ -351,7 +351,7 @@ public class TestJavaAPI {
 			org.jdom.Document doc = res.result();
 			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
 			// xo.setFormat(Format.getPrettyFormat());
-			xo.setFormat(Format.getRawFormat());
+			xo.setFormat(Format.getRawFormat().setTextMode(Format.TextMode.PRESERVE));
 			xo.output(doc, System.out);
 		}
 		java.util.List<Diagnostic> diags = res.getDiagnostics();

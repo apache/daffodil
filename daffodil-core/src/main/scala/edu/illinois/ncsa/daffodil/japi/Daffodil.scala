@@ -180,12 +180,9 @@ class ParseResult(pr: SParseResult)
     // TODO: avoid conversion to/from scala.xml.Nodes just to scrub unneeded
     // attributes, scrub hidden elements. Should be able to start from the raw
     // jdom document.
-    // val raw = pr.resultState.infoset.asInstanceOf[InfosetDocument].jDoc
 
-    val scalaNodeResult = pr.result
-    val rootElem = XMLUtils.elem2Element(scalaNodeResult)
     val docNode = new org.jdom.Document()
-    docNode.setRootElement(rootElem)
+    docNode.addContent(pr.resultAsJDOM)
     docNode
   }
 
@@ -199,7 +196,7 @@ abstract class LogWriter {
   def suffix(level: LogLevel, logID: String): String = ""
 
   def log(level: LogLevel, logID: String, msg: String, args: java.util.List[Any]): Unit = {
-    val message = 
+    val message =
       if (args.size > 0) {
         msg.format(args)
       } else {
@@ -225,7 +222,6 @@ class NullLogWriter extends LogWriter {
 class FileLogWriter(val file: File) extends LogWriter {
   def write(level: LogLevel, logID: String, msg: String): Unit = {}
 }
-
 
 private class JavaLogWriter(logWriter: LogWriter)
   extends SLogWriter {
