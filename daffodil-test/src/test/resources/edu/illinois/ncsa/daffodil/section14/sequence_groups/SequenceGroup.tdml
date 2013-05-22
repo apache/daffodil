@@ -65,7 +65,8 @@
       <tdml:documentPart type="text"></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error/>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>A complex type must have exactly one model-group element child which is a sequence, choice, or group reference.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
