@@ -25,10 +25,5 @@
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/xerces/xercesImpl/xercesImpl-2.10.0-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib_managed/jars/com.github.stefanbirkner/system-rules/system-rules-1.2.0.jar" sourcepath="lib_managed/srcs/com.github.stefanbirkner/system-rules/system-rules-1.2.0-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.github.stefanbirkner/system-rules/system-rules-1.2.0-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

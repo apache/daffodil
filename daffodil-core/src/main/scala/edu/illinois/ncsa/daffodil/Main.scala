@@ -697,13 +697,6 @@ object Main extends Logging {
         nyiFound(e)
       }
       case e: Exception => {
-        // unit tests are getting bugFound banners
-        // but that's just because someplace else is calling sys.exit
-        // not here
-        //
-        // we don't want the CLI dependent on junit objects
-        // so we just scruinize for the name being right. 
-        if (e.getClass().getName().contains("CheckExitCalled")) throw e
         bugFound(e)
       }
     }

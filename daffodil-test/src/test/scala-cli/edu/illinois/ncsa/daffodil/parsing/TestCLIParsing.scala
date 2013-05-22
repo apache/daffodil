@@ -42,8 +42,6 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.CLI.Util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
-import expectj.ExpectJ
-import expectj.Spawn
 
 class TestCLIparsing {
     
@@ -52,6 +50,17 @@ class TestCLIparsing {
   val output4 = Util.getExpectedString("output4.txt")
   val output5 = Util.getExpectedString("output5.txt")
   val output6 = Util.getExpectedString("output6.txt")
+  val output8 = Util.getExpectedString("output8.txt")
+  
+  @Test def test_1317_IBMCompatibility_ABC_test_ibm_abc_cli() {
+
+    var cmd = "echo ababababbaacccccb| daffodil-core/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/ABC_IBM.xsd -r ABC\n"
+    val shell = Util.getShell(cmd)
+  
+    shell.expect(output8)
+    shell.send("exit\n")
+    shell.expectClose()
+  }
 
   @Test def test_977_CLI_Parsing_SimpleParse_stdOut() {
 

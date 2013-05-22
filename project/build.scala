@@ -13,6 +13,7 @@ object DaffodilBuild extends Build {
   lazy val root    = Project(id = "daffodil", base = file("."), settings = s ++ nopub)
                              .configs(DebugTest)
                              .configs(NewTest)
+                             .configs(CliTest)
                              .aggregate(propgen, lib, core, test)
 
   lazy val propgen = Project(id = "daffodil-propgen", base = file("daffodil-propgen"), settings = s ++ nopub)
@@ -31,6 +32,7 @@ object DaffodilBuild extends Build {
   lazy val test    = Project(id = "daffodil-test", base = file("daffodil-test"), settings = s ++ stageTaskSettings ++ nopub)
                              .configs(DebugTest)
                              .configs(NewTest)
+                             .configs(CliTest)
                              .dependsOn(core)
 
   lazy val perf    = Project(id = "daffodil-perf", base = file("daffodil-perf"), settings = s ++ nopub)
@@ -38,16 +40,39 @@ object DaffodilBuild extends Build {
                              .configs(NewTest)
                              .dependsOn(core)
 
-  //set up 'sbt stage' as a dependency for test tasks
-  lazy val testTask = Keys.test in Test
-  lazy val testOnlyTask = Keys.testOnly in Test
-  lazy val testQuickTask = Keys.testQuick in Test
+  //set up 'sbt stage' as a dependency
+  //TODO: find a way to clean this up and reduce repetition
+  lazy val testTask = Keys.test in CliTest
+  lazy val testOnlyTask = Keys.testOnly in CliTest
+  lazy val testQuickTask = Keys.testQuick in CliTest
+  
+  lazy val testTaskNew = Keys.test in NewTest
+  lazy val testOnlyTaskNew = Keys.testOnly in NewTest
+  lazy val testQuickTaskNew = Keys.testQuick in NewTest
+  
+  lazy val testTaskDebug = Keys.test in DebugTest
+  lazy val testOnlyTaskDebug = Keys.testOnly in DebugTest
+  lazy val testQuickTaskDebug = Keys.testQuick in DebugTest
+
+  lazy val stageTask = SbtStartScript.stage in Compile in core
+
   lazy val stageTaskSettings = Seq(
-    (testTask <<= testTask.dependsOn(SbtStartScript.stage in Compile in core)),
-    (testOnlyTask <<= testOnlyTask.dependsOn(SbtStartScript.stage in Compile in core)),
-    (debugTask <<= debugTask.dependsOn(SbtStartScript.stage in Compile in core)),
-    (newTask <<= newTask.dependsOn(SbtStartScript.stage in Compile in core)),
-    (testQuickTask <<= testQuickTask.dependsOn(SbtStartScript.stage in Compile in core))
+    //cli test tasks
+    (testTask <<= testTask.dependsOn(stageTask)),
+    (testOnlyTask <<= testOnlyTask.dependsOn(stageTask)),
+    (testQuickTask <<= testQuickTask.dependsOn(stageTask)),
+    //new test tasks
+    (testTaskNew <<= testTaskNew.dependsOn(stageTask)),
+    (testOnlyTaskNew <<= testOnlyTaskNew.dependsOn(stageTask)),
+    (testQuickTaskNew <<= testQuickTaskNew.dependsOn(stageTask)),
+    //debug test tasks
+    (testTaskDebug <<= testTaskDebug.dependsOn(stageTask)),
+    (testOnlyTaskDebug <<= testOnlyTaskDebug.dependsOn(stageTask)),
+    (testQuickTaskDebug <<= testQuickTaskDebug.dependsOn(stageTask)),
+    //cli, new, and debug tasks
+    (debugTask <<= debugTask.dependsOn(stageTask)),
+    (newTask <<= newTask.dependsOn(stageTask)),
+    (cliTask <<= cliTask.dependsOn(stageTask))
   )
 
   val propertyGenerator = TaskKey[Seq[File]]("gen-props", "Generate properties scala source")
@@ -122,7 +147,27 @@ object DaffodilBuild extends Build {
     Seq(base / "src/test/scala-new")
   }
   s ++= Seq(buildNewWithTestSettings)
+  
+  // creates 'sbt cli:*' tasks, using src/test/scala-cli as the source directory
+  lazy val CliTest = config("cli") extend(Runtime)
+  lazy val cliSettings: Seq[Setting[_]] = inConfig(CliTest)(Defaults.testSettings ++ Seq(
+    sourceDirectory <<= baseDirectory(_ / "src" / "test"),
+    scalaSource <<= sourceDirectory(_ / "scala-cli"),
+    exportJars := false,
+    publishArtifact := false
 
+  ))
+  s ++= Seq(cliSettings : _*)
+
+  // creates 'sbt cli' task, which is essentially an alias for 'sbt cli:test'
+  lazy val cliTask = TaskKey[Unit]("cli", "Executes all CLI tests")
+  lazy val cliTaskSettings = cliTask <<= (executeTests in CliTest, streams in CliTest, resolvedScoped in CliTest, state in CliTest) map {
+    (results, s, scoped, state) => {
+      val display = Project.showContextKey(state)
+      Tests.showResults(s.log, results, "No tests to run for " + display(scoped))
+    }
+  }
+  s ++= Seq(cliTaskSettings)
 
   // jacoco configuration
   s ++= Seq(jacoco.settings : _*)
