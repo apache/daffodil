@@ -77,4 +77,9 @@ class TestTDMLRunner2 {
     ts.runOneTest("testTDMLUnparse")
   }
 
+  val testDir = "/test/tdml/"
+  val t0 = testDir + "tdmlNamespaces.tdml"
+  lazy val r = new DFDLTestSuite(Misc.getRequiredResource(t0))
+  @Test def test_tdmlNamespaces1() { r.runOneTest("tdmlNamespaces1") }
+
 }
