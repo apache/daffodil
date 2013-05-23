@@ -106,6 +106,7 @@ object DaffodilBuild extends Build {
   lazy val debugSettings: Seq[Setting[_]] = inConfig(DebugTest)(Defaults.testSettings ++ Seq(
     sourceDirectory <<= baseDirectory(_ / "src" / "test"),
     scalaSource <<= sourceDirectory(_ / "scala-debug"),
+    javaSource <<= sourceDirectory(_ / "java-debug"),
     exportJars := false,
     publishArtifact := false
   ))
@@ -126,6 +127,7 @@ object DaffodilBuild extends Build {
   lazy val newSettings: Seq[Setting[_]] = inConfig(NewTest)(Defaults.testSettings ++ Seq(
     sourceDirectory <<= baseDirectory(_ / "src" / "test"),
     scalaSource <<= sourceDirectory(_ / "scala-new"),
+    javaSource <<= sourceDirectory(_ / "java-new"),
     exportJars := false,
     publishArtifact := false
 
@@ -153,6 +155,7 @@ object DaffodilBuild extends Build {
   lazy val cliSettings: Seq[Setting[_]] = inConfig(CliTest)(Defaults.testSettings ++ Seq(
     sourceDirectory <<= baseDirectory(_ / "src" / "test"),
     scalaSource <<= sourceDirectory(_ / "scala-cli"),
+    javaSource <<= sourceDirectory(_ / "java-cli"),
     exportJars := false,
     publishArtifact := false
 

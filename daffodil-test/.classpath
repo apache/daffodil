@@ -4,6 +4,7 @@
 	<classpathentry kind="src" output="target/eclipse/classes" path="src/main/resources"/>
 	<classpathentry kind="src" output="target/eclipse/test-classes" path="src/test/scala"/>
 	<classpathentry kind="src" output="target/eclipse/test-classes" path="src/test/scala-new"/>
+	<classpathentry kind="src" output="target/eclipse/test-classes" path="src/test/scala-cli"/>
 	<classpathentry kind="src" output="target/eclipse/test-classes" path="src/test/resources"/>
 	<classpathentry kind="src" output="target/eclipse/debug-classes" path="src/test/scala-debug"/>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
@@ -23,6 +24,11 @@
 	<classpathentry kind="lib" path="lib_managed/jars/xerces/xercesImpl/xercesImpl-2.10.0.jar" sourcepath="lib_managed/srcs/xerces/xercesImpl/xercesImpl-2.10.0-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/xerces/xercesImpl/xercesImpl-2.10.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+  <classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.expectj/expectj/expectj-2.0.7.jar" sourcepath="lib_managed/srcs/net.sourceforge.expectj/expectj/expectj-2.0.7-sources.jar">
+		<attributes>
+      <attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.expectj/expectj/expectj-2.0.7-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
