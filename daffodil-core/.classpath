@@ -71,5 +71,11 @@
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/jline/jline/jline-2.9-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.expectj/expectj/expectj-2.0.7.jar" sourcepath="lib_managed/srcs/net.sourceforge.expectj/expectj/expectj-2.0.7-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.expectj/expectj/expectj-2.0.7-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/com.jcraft/jsch/jsch-0.1.42.jar" sourcepath="lib_managed/srcs/com.jcraft/jsch/jsch-0.1.42-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
