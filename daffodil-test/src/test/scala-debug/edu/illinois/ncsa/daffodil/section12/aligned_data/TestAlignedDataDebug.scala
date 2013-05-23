@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section12.aligned_data
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -51,6 +50,4 @@ class TestAlignedDataDebug {
 
   @Test def test_alignmentOptionalElem() = { runner1.runOneTest("alignmentOptionalElem") }
 
-  @Test def test_implicitAlignmentUIntT2() = { runner1.runOneTest("implicitAlignmentUIntT2") }
-  @Test def test_implicitAlignmentUShortT2() = { runner1.runOneTest("implicitAlignmentUShortT2") }
 }

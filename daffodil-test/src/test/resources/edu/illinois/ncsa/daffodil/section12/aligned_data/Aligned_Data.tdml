@@ -793,7 +793,7 @@
     model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (text) - DFDL-12-019R">
 
     <tdml:document>
-      <tdml:documentPart type="byte">00 34</tdml:documentPart> <!-- leadingSkip - byte-representation of the number 4 -->
+      <tdml:documentPart type="byte">FF</tdml:documentPart> <!-- leadingSkip -->
       <tdml:documentPart type="byte">00 34 00 32</tdml:documentPart> <!-- uIntT - byte-representation of the number 42 -->
     </tdml:document>
     
@@ -817,7 +817,7 @@
     model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedShort (text) - DFDL-12-020R">
 
     <tdml:document>
-      <tdml:documentPart type="byte">00 34</tdml:documentPart> <!-- leadingSkip - byte-representation of the number 4 -->
+      <tdml:documentPart type="byte">FF</tdml:documentPart> <!-- leadingSkip -->
       <tdml:documentPart type="byte">00 32</tdml:documentPart> <!-- uIntT - byte-representation of the number 2 -->
     </tdml:document>
     
