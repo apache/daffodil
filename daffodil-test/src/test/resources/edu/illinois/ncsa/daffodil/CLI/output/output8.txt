@@ -6,16 +6,7 @@
     <b>b</b>
   </Container>
   <Container>
-    <a>a</a>
-  </Container>
-  <Container>
-    <b>b</b>
-  </Container>
-  <Container>
-    <a>a</a>
-  </Container>
-  <Container>
-    <b>b</b>
+    <c>c</c>
   </Container>
   <Container>
     <a>a</a>
@@ -24,30 +15,15 @@
     <b>b</b>
   </Container>
   <Container>
-    <b>b</b>
+    <c>c</c>
   </Container>
   <Container>
     <a>a</a>
   </Container>
   <Container>
-    <a>a</a>
-  </Container>
-  <Container>
-    <c>c</c>
-  </Container>
-  <Container>
-    <c>c</c>
-  </Container>
-  <Container>
-    <c>c</c>
-  </Container>
-  <Container>
-    <c>c</c>
-  </Container>
-  <Container>
-    <c>c</c>
-  </Container>
-  <Container>
     <b>b</b>
+  </Container>
+  <Container>
+    <c>c</c>
   </Container>
 </ABC>

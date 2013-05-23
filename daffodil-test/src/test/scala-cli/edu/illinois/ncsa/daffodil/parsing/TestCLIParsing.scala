@@ -54,7 +54,7 @@ class TestCLIparsing {
   
   @Test def test_1317_IBMCompatibility_ABC_test_ibm_abc_cli() {
 
-    var cmd = "echo ababababbaacccccb| daffodil-core/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/ABC_IBM.xsd -r ABC\n"
+    var cmd = "echo abcabcabc| daffodil-core/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/ABC_IBM.xsd -r ABC\n"
     val shell = Util.getShell(cmd)
   
     shell.expect(output8)
