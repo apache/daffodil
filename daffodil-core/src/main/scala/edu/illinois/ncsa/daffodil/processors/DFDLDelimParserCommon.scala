@@ -44,8 +44,6 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.DelimiterType._
 import edu.illinois.ncsa.daffodil.processors.DelimiterLocation._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import scala.language.reflectiveCalls
-import scala.language.implicitConversions
 
 trait DebugRegexParsers extends RegexParsers with Logging {
   /**

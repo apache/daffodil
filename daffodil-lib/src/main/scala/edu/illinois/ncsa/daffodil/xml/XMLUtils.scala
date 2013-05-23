@@ -953,7 +953,7 @@ object XMLUtils {
         n match {
           case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
             val removedChildren = removeHiddenElements(children)
-            val newElem = Elem(prefix, label, attributes, scope, true, removedChildren: _*)
+            val newElem = Elem(prefix, label, attributes, scope, removedChildren: _*)
             newElem
           }
           case other => other
@@ -1093,7 +1093,7 @@ object XMLUtils {
           }
         }
 
-        Elem(newPrefix, label, newAttributes, newScope, true, newChildren: _*)
+        Elem(newPrefix, label, newAttributes, newScope, newChildren: _*)
       }
       case other => other
     }

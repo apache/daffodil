@@ -93,7 +93,6 @@ import edu.illinois.ncsa.daffodil.util.LogWriter
 import edu.illinois.ncsa.daffodil.util.LoggingDefaults
 import edu.illinois.ncsa.daffodil.exceptions.NotYetImplementedException
 import java.io.File
-import scala.language.reflectiveCalls
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -184,7 +183,7 @@ object Main extends Logging {
       // following is illegal: --schema foo bar. Instead, it must be --schema
       // foo --schema bar. It does this by copying listArgConverter, but
       // setting the argType to SINGLE.
-      def singleListArgConverter[A](conv: String => A)(implicit tt: reflect.runtime.universe.TypeTag[List[A]]) = new scallop.ValueConverter[List[A]] {
+      def singleListArgConverter[A](conv: String => A)(implicit m: Manifest[List[A]]) = new scallop.ValueConverter[List[A]] {
         def parse(s: List[(String, List[String])]) = {
           try {
             val l = s.map(_._2).flatten.map(i => conv(i))
@@ -194,11 +193,11 @@ object Main extends Logging {
             case _: Throwable => Left(Unit)
           }
         }
-        val tag = tt
+        val manifest = m
         val argType = scallop.ArgType.SINGLE
       }
 
-      def optionalValueConverter[A](conv: String => A)(implicit tt: reflect.runtime.universe.TypeTag[Option[A]]) = new scallop.ValueConverter[Option[A]] {
+      def optionalValueConverter[A](conv: String => A)(implicit m: Manifest[Option[A]]) = new scallop.ValueConverter[Option[A]] {
         def parse(s: List[(String, List[String])]) = {
           s match {
             case Nil => Right(None)
@@ -207,7 +206,7 @@ object Main extends Logging {
             case _ => Left(Unit)
           }
         }
-        val tag = tt
+        val manifest = m
         val argType = scallop.ArgType.LIST
       } 
 

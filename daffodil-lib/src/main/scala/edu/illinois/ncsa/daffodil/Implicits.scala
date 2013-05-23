@@ -35,9 +35,6 @@ package edu.illinois.ncsa.daffodil
 
 import java.io.{ ByteArrayInputStream, BufferedInputStream }
 import edu.illinois.ncsa.daffodil.xml.NS
-import scala.language.implicitConversions
-import scala.language.reflectiveCalls
-import scala.reflect.ClassTag
 
 object Implicits {
 
@@ -63,8 +60,8 @@ object Implicits {
   /**
    * Based on JUnitSuite intercept
    */
-  def intercept[T <: AnyRef] (body: => Any)(implicit tag: ClassTag[T]): T = {
-    val clazz = tag.runtimeClass.asInstanceOf[Class[T]]
+  def intercept[T <: AnyRef] (body: => Any)(implicit manifest: Manifest[T]): T = {
+    val clazz = manifest.erasure.asInstanceOf[Class[T]]
     val caught = try {
       body
       None

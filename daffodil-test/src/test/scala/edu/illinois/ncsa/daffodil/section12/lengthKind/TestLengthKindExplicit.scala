@@ -56,8 +56,8 @@ class TestLengthKindExplicit {
   //@Test def test_lengthRuntimeSDE() = { runner.runOneTest("test_lengthRuntimeSDE") }
   @Test def test_ExplicitLengthBytesBroken() = { runner.runOneTest("test_ExplicitLengthBytesBroken") }
 
-  // Comment out temporarily - causing out-of-memory in Scala 2.10 compilation/runtime.
-  // @Test def test_ExplicitLengthBytesNotGiven() = { runner.runOneTest("test_ExplicitLengthBytesNotGiven") }
+  // TODO: Causes out-of-memory in Scala 2.10 compilation/runtime.
+  @Test def test_ExplicitLengthBytesNotGiven() = { runner.runOneTest("test_ExplicitLengthBytesNotGiven") }
 
   @Test def test_ExplicitLengthBytesChoiceRef() = { runner.runOneTest("test_ExplicitLengthBytesChoiceRef") }
   @Test def test_ExplicitLengthChildLengthLessParent_Chars() = { runner.runOneTest("test_ExplicitLengthChildLengthLessParent_Chars") }

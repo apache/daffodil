@@ -285,7 +285,13 @@ trait TypeChecks {
           case PrimType.String => Assert.impossibleCase // Handled earlier, shouldn't get here
           case PrimType.NonNegativeInteger => isInNonNegativeIntegerRange(theValue)
         }
-        val isValueWhole = BigDecimal(value).isWhole
+        val isValueWhole = {
+          val IsWholeRegex = """^[^.]*(\.0*)?$""".r
+          value match {
+            case IsWholeRegex(_) => true
+            case _ => false
+          }
+        }
         primitiveType match {
           case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
             PrimType.Integer | PrimType.UInt | PrimType.UByte | PrimType.UShort |

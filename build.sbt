@@ -2,9 +2,9 @@ name := "daffodil"
 
 organization in ThisBuild := "edu.illinois.ncsa"
 
-scalaVersion in ThisBuild := "2.10.1"
+scalaVersion in ThisBuild := "2.9.2"
 
-scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings")
+scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-Xfatal-warnings")
 
 parallelExecution in ThisBuild := false
 
