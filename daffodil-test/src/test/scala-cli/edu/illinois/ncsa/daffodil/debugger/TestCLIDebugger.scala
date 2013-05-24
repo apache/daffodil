@@ -69,6 +69,14 @@ class TestCLIdebugger {
 // left in this file so it is obvious which input goes with which output; also, if this issue is
 // resolved, the commands will be used again.
 
+  @Test def test_1591_CLI_Debugger_invalidCommandError() {
+    val cmd = "daffodil-core/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1591 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n" 
+    val shell = Util.getShell(cmd)
+    shell.expect("(debug)")
+    shell.expect("error: undefined command: garbage")
+    shell.expectClose()
+  }
+
  @Test def test_1331_CLI_Debugger_breakpointTesting4() { 
     val cmd = "daffodil-core/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1331 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input3.txt\n"
     val shell = Util.getShell(cmd)
