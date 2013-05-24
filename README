@@ -23,7 +23,7 @@ as Java is installed.
 
 SBT (0.12.1 or higher) is required for building using the provided script.
 
-Daffodil requires Scala 2.10.1
+Daffodil requires Scala 2.9.2
 
 ----------------
 RUNNING

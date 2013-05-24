@@ -34,5 +34,5 @@ STEPS TO RELEASE
 
 7) Upload pack files to wiki at https://opensource.ncsa.illinois.edu/confluence/display/DFDL/Getting+Daffodil
 
-	$ cd daffodil-pack/target/scala-2.10.1/pack
+	$ cd daffodil-pack/target/scala-2.9.2/pack
 	$ sha256sum *

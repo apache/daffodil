@@ -1,6 +1,6 @@
 name := "daffodil"
 
-scalaVersion := "2.10.1"
+scalaVersion := "2.9.2"
 
 //version := "XXX_VERSION_XXX"
 
