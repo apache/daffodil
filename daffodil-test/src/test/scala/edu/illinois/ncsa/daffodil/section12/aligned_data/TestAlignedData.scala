@@ -94,10 +94,9 @@ class TestAlignedData {
   @Test def test_implicitAlignmentUIntT() = { runner1.runOneTest("implicitAlignmentUIntT") }
 
   @Test def test_implicitAlignmentUIntT2() = { runner1.runOneTest("implicitAlignmentUIntT2") }
-  @Test def test_implicitAlignmentUShortT2() = { runner1.runOneTest("implicitAlignmentUShortT2") }
-
   @Test def test_implicitAlignmentUIntT2b() = { runner1.runOneTest("implicitAlignmentUIntT2b") }
   @Test def test_implicitAlignmentUShortT2b() = { runner1.runOneTest("implicitAlignmentUShortT2b") }
+
   @Test def test_implicitAlignmentULongT() = { runner1.runOneTest("implicitAlignmentULongT") }
   @Test def test_implicitAlignmentULongT2() = { runner1.runOneTest("implicitAlignmentULongT2") }
   @Test def test_implicitAlignmentIntT() = { runner1.runOneTest("implicitAlignmentIntT") }

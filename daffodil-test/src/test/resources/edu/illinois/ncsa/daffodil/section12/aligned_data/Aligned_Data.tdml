@@ -786,48 +786,23 @@
         Schema: implicitAlignmentSchema
           Root: uIntT2
        Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'unsignedInt' is
-                encoding-specific (generally 8 bits, even though encoding is utf-16be)
+       encoding-specific (generally 8 bits, even though encoding is utf-16be). In this case the data isn't accounting for 
+       the leadingSkip, so the test will fail with a useful error message.
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUIntT2" root="uIntT2"
     model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (text) - DFDL-12-019R">
 
     <tdml:document>
-      <tdml:documentPart type="byte">FF</tdml:documentPart> <!-- leadingSkip -->
       <tdml:documentPart type="byte">00 34 00 32</tdml:documentPart> <!-- uIntT - byte-representation of the number 42 -->
     </tdml:document>
-    
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <uIntT2>42</uIntT2>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Unsigned Int (for xs:unsignedInt)</tdml:error>
+      <tdml:error>Unable to parse '㐀' (using up all characters).</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
-  <!--
-     Test Name: implicitAlignmentUShortT2
-        Schema: implicitAlignmentSchema
-          Root: uShortT2
-       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'unsignedShort' is
-                encoding-specific (generally 8 bits, even though encoding is utf-16be)
-  -->
-
-  <tdml:parserTestCase name="implicitAlignmentUShortT2" root="uShortT2"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedShort (text) - DFDL-12-020R">
-
-    <tdml:document>
-      <tdml:documentPart type="byte">FF</tdml:documentPart> <!-- leadingSkip -->
-      <tdml:documentPart type="byte">00 32</tdml:documentPart> <!-- uIntT - byte-representation of the number 2 -->
-    </tdml:document>
-    
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <uShortT2>2</uShortT2>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-
-  </tdml:parserTestCase>
   
   <!--
      Test Name: implicitAlignmentUIntT2b
